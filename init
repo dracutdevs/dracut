@@ -42,6 +42,9 @@ mkdir $NEWROOT
 # FIXME: obviously we need to parse this from /proc/cmdline
 mount -o ro -t ext3 /dev/sda1 $NEWROOT
 
+# kill off udev
+kill `pidof udevd`
+
 # now we need to prepare to switchroot
 mount --bind /dev $NEWROOT/dev
 

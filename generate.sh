@@ -15,7 +15,7 @@ fi
 tmpdir=$(mktemp -d)
 
 # executables that we have to have
-exe="/bin/bash /bin/mount /bin/mknod /bin/mkdir /sbin/modprobe /sbin/udevd /sbin/udevadm /sbin/nash"
+exe="/bin/bash /bin/mount /bin/mknod /bin/mkdir /sbin/modprobe /sbin/udevd /sbin/udevadm /sbin/nash /bin/kill /sbin/pidof"
 # and some things that are nice for debugging
 debugexe="/bin/ls /bin/cat /bin/ln /bin/ps /bin/grep /usr/bin/less"
 
