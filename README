@@ -1,0 +1,10 @@
+This is the simple skeleton of a new initrd infrastructure.
+Information about our goals and aims can be found at
+https://fedoraproject.org/wiki/Initrdrewrite
+
+One of the biggest goals is that we're using common pieces from the
+system as much as possible and we also want to do this in a way that
+can eventually get some cross-distro buy-in.  But for now, it's a
+playground to see what of our ideas are actually feasible.
+
+
