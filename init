@@ -1,0 +1,56 @@
+#!/bin/bash
+
+emergency_shell()
+{
+    echo "Bug in initramfs /init detected. Dropping to a shell. Good luck!"
+    echo
+    bash
+}
+trap "emergency_shell" 0 2
+
+echo "Starting initrd..."
+export PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export TERM=linux
+
+# /dev/console comes from the built-in initramfs crud in the kernel
+# someday, we may need to mkdir /dev first here
+exec > /dev/console 2>&1
+
+# mount some important things
+mkdir /proc
+mount -t proc /proc /proc
+mkdir /sys
+mount -t sysfs /sys /sys
+mount -t tmpfs -omode=0755 udev /dev
+
+# start up udev and trigger cold plugs
+/sbin/udevd --daemon
+/sbin/udevadm trigger
+# FIXME: should we really wait for the queue to settle or just try to 
+# find the rootfs?
+/sbin/udevadm settle --timeout=30 || :
+
+
+NEWROOT=/sysroot
+# mount the rootfs
+mkdir $NEWROOT
+# FIXME: obviously we need to parse this from /proc/cmdline
+mount -o ro -t ext3 /dev/sda1 $NEWROOT
+
+# now we need to prepare to switchroot
+mount --bind /dev $NEWROOT/dev
+
+# FIXME: now for a bunch of boiler-plate mounts.  really, we should have 
+# some like /etc/fstab.sys that's provided by filesystem/initscripts
+# and then do mount -f /etc/fstab.sys -a
+mount -t proc /proc $NEWROOT/proc
+mount -t sysfs /sys $NEWROOT/sys
+
+# FIXME: load selinux policy
+
+# FIXME: nash die die die
+exec /sbin/switch_root
+# davej doesn't like initrd bugs
+echo "Something went very badly wrong in the initrd.  Please "
+echo "file a bug against mkinitrd."
+exit 1
