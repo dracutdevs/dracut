@@ -46,6 +46,15 @@ mkdir -p $tmpdir/etc $tmpdir/proc $tmpdir/sys $tmpdir/sysroot
 # FIXME: we don't install modules right now, but for the testing we're doing
 # everything is already built-in
 
+# plymouth
+if [ -x /usr/libexec/plymouth/plymouth-populate-initrd ]; then
+    /usr/libexec/plymouth/plymouth-populate-initrd -t "$tmpdir" || :
+    # since we actually require a patched plymouth at the moment, this is useful
+    if [ -d plymouth ]; then
+      pushd plymouth >/dev/null ; make DESTDIR="$tmpdir" install ; popd >/dev/null
+    fi
+fi
+
 pushd $tmpdir >/dev/null
 find . |cpio -H newc -o |gzip -9 > $INITRDOUT
 popd >/dev/null
