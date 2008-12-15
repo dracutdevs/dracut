@@ -16,13 +16,14 @@ tmpdir=$(mktemp -d)
 
 # executables that we have to have
 exe="/bin/bash /bin/mount /bin/mknod /bin/mkdir /sbin/modprobe /sbin/udevd /sbin/udevadm /sbin/nash /bin/kill /sbin/pidof /bin/sleep"
+lvmexe="/sbin/lvm"
 # and some things that are nice for debugging
 debugexe="/bin/ls /bin/cat /bin/ln /bin/ps /bin/grep /usr/bin/less"
 # udev things we care about
 udevexe="/lib/udev/vol_id"
 
 # install base files
-for binary in $exe $debugexe $udevexe ; do
+for binary in $exe $debugexe $udevexe $lvmexe ; do
   inst $binary $tmpdir
 done
 
