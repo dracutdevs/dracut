@@ -33,6 +33,9 @@ for rule in /lib/udev/rules.d/40-redhat* /lib/udev/rules.d/60-persistent-storage
   cp -v $rule $tmpdir/lib/udev/rules.d
 done
 
+# terminfo bits make things work better if you fall into interactive mode
+for f in $(find /lib/terminfo -type f) ; do cp -v --parents $f "$tmpdir" ; done
+
 # install our files
 cp -v init $tmpdir/init
 cp -v switch_root $tmpdir/sbin/switch_root

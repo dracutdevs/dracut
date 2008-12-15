@@ -7,6 +7,7 @@
 
 emergency_shell()
 {
+    echo ; echo
     echo "Bug in initramfs /init detected. Dropping to a shell. Good luck!"
     echo
     bash
@@ -61,6 +62,9 @@ while [ ! -e $root ]; do
   echo -n "."
   sleep 1
   tries=$(($tries + 1))
+  if [ $tries -gt 10 ]; then
+      emergency_shell
+  fi
 done
 echo -e "\n\nMounted rootfs after $tries seconds"
 ln -s "$root" /dev/root    
