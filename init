@@ -45,9 +45,6 @@ mknod /dev/tty1 c 4 1
 # start up udev and trigger cold plugs
 /sbin/udevd --daemon
 /sbin/udevadm trigger
-# FIXME: should we really wait for the queue to settle or just try to 
-# find the rootfs?
-#/sbin/udevadm settle --timeout=30 || :
 
 # mount the rootfs
 NEWROOT="/sysroot"
