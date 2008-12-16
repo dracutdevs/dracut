@@ -21,7 +21,7 @@ export TERM=linux
 
 # /dev/console comes from the built-in initramfs crud in the kernel
 # someday, we may need to mkdir /dev first here
-exec > /dev/console 2>&1
+exec > /dev/console 2>&1 < /dev/console
 
 # mount some important things
 mount -t proc /proc /proc
@@ -29,7 +29,6 @@ mount -t sysfs /sys /sys
 mount -t tmpfs -omode=0755 udev /dev
 
 # FIXME: what device nodes does plymouth really _need_ ?
-mknod /dev/console c 5 1
 mknod /dev/null c 1 3
 mknod /dev/kmsg c 1 11
 mknod /dev/ptmx c 5 2

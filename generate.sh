@@ -15,21 +15,22 @@ fi
 tmpdir=$(mktemp -d)
 
 # executables that we have to have
-exe="/bin/bash /bin/mount /bin/mknod /bin/mkdir /sbin/modprobe /sbin/udevd /sbin/udevadm /sbin/nash /bin/kill /sbin/pidof /bin/sleep"
+exe="/bin/bash /bin/mount /bin/mknod /bin/mkdir /sbin/modprobe /sbin/udevd /sbin/udevadm /sbin/nash /bin/kill /sbin/pidof /bin/sleep /bin/echo"
 lvmexe="/sbin/lvm"
+cryptexe="/sbin/cryptsetup"
 # and some things that are nice for debugging
 debugexe="/bin/ls /bin/cat /bin/ln /bin/ps /bin/grep /usr/bin/less"
 # udev things we care about
 udevexe="/lib/udev/vol_id"
 
 # install base files
-for binary in $exe $debugexe $udevexe $lvmexe ; do
+for binary in $exe $debugexe $udevexe $lvmexe $cryptexe ; do
   inst $binary $tmpdir
 done
 
 # FIXME: would be nice if we didn't have to know which rules to grab....
 mkdir -p $tmpdir/lib/udev/rules.d
-for rule in /lib/udev/rules.d/40-redhat* /lib/udev/rules.d/60-persistent-storage.rules /lib/udev/rules.d/61*edd* /lib/udev/rules.d/64* /lib/udev/rules.d/80* /lib/udev/rules.d/95* rules.d/*.rules ; do
+for rule in /lib/udev/rules.d/40-redhat* /lib/udev/rules.d/50* /lib/udev/rules.d/60-persistent-storage.rules /lib/udev/rules.d/61*edd* /lib/udev/rules.d/64* /lib/udev/rules.d/80* /lib/udev/rules.d/95* rules.d/*.rules ; do
   cp -v $rule $tmpdir/lib/udev/rules.d
 done
 
