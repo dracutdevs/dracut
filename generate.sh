@@ -43,8 +43,16 @@ cp -v switch_root $tmpdir/sbin/switch_root
 # FIXME: and some directory structure
 mkdir -p $tmpdir/etc $tmpdir/proc $tmpdir/sys $tmpdir/sysroot
 
-# FIXME: we don't install modules right now, but for the testing we're doing
-# everything is already built-in
+# FIXME: module installation should be based on a couple of things
+# a) the modules for the kernel we're building an initrd for
+# b) config list
+# c) installed packages
+# but for now... everything wins!
+if [ -d modules ]; then
+   mkdir -p $tmpdir/lib/modules
+   cp -r modules/* $tmpdir/lib/modules
+   rm -rf $tmpdir/lib/modules/*/kernel/drivers/video
+fi
 
 # plymouth
 if [ -x /usr/libexec/plymouth/plymouth-populate-initrd ]; then
