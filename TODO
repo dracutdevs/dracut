@@ -1,0 +1,49 @@
+Current TODO list, broken into things which are relevant for the
+initramfs itself (/init et al) vs the generator
+
+INITRAMFS TODO
+--------------
+* Currently, our switch_root command uses nash's switchroot.  Getting
+a reasonable switchroot implementation into util-linux-ng is a
+pre-condition for support on other distros
+* The hard-coded list of udev rules that we care about is kind of
+lame.  See about getting /lib/udev/initrules.d or similar for storing
+the rules that we care about in the initramfs.  These could be
+symlinks/hardlinks to the main rules in some cases or special-cased
+ones
+* LVM activation by udev is a bit of a large hammer right now
+* dm-crypt (luks) depends on plymouth
+* plymouth is hard-coded... this may be reasonable as modesetting goes
+into the upstream kernel as a way to get off of fb-splash stuff, but I
+can see this being a point of contention for other distros
+  * plymouth --show-splash should be done as a udev rule so that we
+  can switch modes first
+* root= parsing should be done with udev creating /dev/root symlink
+for us appropriately
+* Support thaw (resume from hibernate)
+* Currently requires the drop-nash branch of plymouth; get merged into
+master and released
+* Proving some support with a simple network based root would be good
+  * Do we just call dhclient, etc or try to get NetworkManager going?
+* Would be nice not to have to kill and restart udev across switchroot 
+* mdraid
+* dmraid
+* multipath
+* SELinux policy either needs to be loaded from the initramfs or /init
+on the rootfs
+
+
+
+GENERATOR TODO
+--------------
+* Needs to be written to look at the current kernel and get the
+modules so it can be used on a running system.
+* Move the needed pieces of Fedora mkinitrd's initrd-functions into
+this tree.  This should mainly be around shlib resolution/copying at
+present
+* We should just grab appropriate modules rather than all of them.
+  * Should default to basically all storage drivers, possibly allow to
+  specify less
+  * Maybe use class based specifiers (=ata, =net, etc) that we do
+  today with Fedora mkinitrd
+* Certainly more as this is a huge hack right now

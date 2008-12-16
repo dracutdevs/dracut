@@ -1,0 +1,15 @@
+Right now, I'm doing most of my testing using a qemu/kvm guest and
+generating the initramfs on another box.  I then can boot the guest
+using qemu's -kernel and -initrd options.  Currently supported rootfs
+types are regular partitions, root-on-lvm and root-on-lvm-on-encrypted-pv.
+
+generate.sh exists and will build an image.  Right now, it depends on
+some existing pieces of the Fedora initrd infrastructure, but moving
+those out is a priority now that the basic functionality has been
+proven.
+
+To use, just run generate.sh with an output file for the initrd.  It
+will copy over some binaries as well as the appropriate shared library
+dependencies.  If you are doing a rootfs type that requires modules
+(on Fedora, this is just encrypted root now), you'll want to have the
+modules tree to copy in in a modules/ sub directory.  

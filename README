@@ -1,11 +1,30 @@
-This is the simple skeleton of a new initrd infrastructure.
+This is the simple skeleton of a new initramfs infrastructure.
 Information about our goals and aims can be found at
 https://fedoraproject.org/wiki/Initrdrewrite
 
-One of the biggest goals is that we're using common pieces from the
-system as much as possible and we also want to do this in a way that
-can eventually get some cross-distro buy-in.  But for now, it's a
-playground to see what of our ideas are actually feasible.
+Unlike existing initramfs's, this is an attempt at having as little as
+possible hard-coded into the initramfs as possible.  The initramfs has
+(basically) one purpose in life -- getting the rootfs mounted so that
+we can transition to the real rootfs.  This is all driven off of
+device availability.  Therefore, instead of scripts hard-coded to do
+various things, we depend on udev to create device nodes for us and
+then when we have the rootfs's device node, we mount and carry on.
+This helps to keep the time required in the initramfs as little as
+possible so that things like a 5 second boot aren't made impossible as
+a result of the very existence of an initramfs.  It's likely that
+we'll grow some hooks for running arbitrary commands in the flow of
+the script, but it's worth trying to resist the urge as much as we can
+as hooks are guaranteed to be the path to slow-down.
+
+Also, there is an attempt to keep things as distribution-agnostic as
+possible.  Every distribution has their own tool here and it's not
+something which is really interesting to have separate across them.
+So contributions to help decrease the distro-dependencies are welcome.
+
+The git tree can be found at
+git://fedorapeople.org/~katzj/new-initrd.git for now.  See the TODO
+file for things which still need to be done and HACKING for some
+instructions on how to get started
 
 
 Licensed under the GPLv2
