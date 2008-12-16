@@ -102,4 +102,5 @@ exec /sbin/switch_root
 # davej doesn't like initrd bugs
 echo "Something went very badly wrong in the initrd.  Please "
 echo "file a bug against mkinitrd."
+sleep 100d
 exit 1
