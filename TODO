@@ -5,7 +5,10 @@ INITRAMFS TODO
 --------------
 * Currently, our switch_root command uses nash's switchroot.  Getting
 a reasonable switchroot implementation into util-linux-ng is a
-pre-condition for support on other distros
+pre-condition for support on other distros.  pjones has a basic
+implementation at
+http://pjones.fedorapeople.org/mkstart/usr/lib/mkstart/switchroot.c
+and I've asked kzak about util-linux inclusion
 * The hard-coded list of udev rules that we care about is kind of
 lame.  See about getting /lib/udev/initrules.d or similar for storing
 the rules that we care about in the initramfs.  These could be
