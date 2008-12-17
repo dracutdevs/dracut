@@ -13,3 +13,8 @@ will copy over some binaries as well as the appropriate shared library
 dependencies.  If you are doing a rootfs type that requires modules
 (on Fedora, this is just encrypted root now), you'll want to have the
 modules tree to copy in in a modules/ sub directory.  
+
+Requirements:
+* udev
+* plymouth > 0.6.0-2 (for encrypted root; otherwise, it should noop out)
+* nash (for switchroot until we get in util-linux)
