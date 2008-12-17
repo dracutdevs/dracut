@@ -1,0 +1,291 @@
+#!/bin/bash
+#
+# functions used by mkinitrd and other tools.
+#
+# Copyright 2005-2008 Red Hat, Inc.  All rights reserved.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Authors:
+#       Peter Jones <pjones@redhat.com>
+#       Jeremy Katz <katzj@redhat.com>
+#       Jakub Jelinek <jakub@redhat.com>
+#
+#
+
+IF_RTLD=""
+IF_dynamic=""
+function get_dso_deps() {
+    local bin="$1" ; shift
+
+    declare -a FILES
+    declare -a NAMES
+
+    local LDSO=$(echo nash-showelfinterp $bin | /sbin/nash --forcequiet)
+    [ -z "$LDSO" -o "$LDSO" == "$bin" ] && local LDSO="$IF_RTLD"
+    [ -z "$LDSO" -o "$LDSO" == "$bin" ] && return 1
+    [ -z "$IF_RTLD" ] && IF_RTLD="$LDSO"
+
+    # I hate shell.
+    declare -i n=0
+    while read NAME I0 FILE ADDR I1 ; do
+        [ "$FILE" == "not" ] && FILE="$FILE $ADDR"
+        [ "$NAME" == "not" ] && NAME="$NAME $I0"
+        NAMES[$n]="$NAME"
+        FILES[$n]="$FILE"
+        let n++
+    done << EOF
+        $(LD_TRACE_PRELINKING=1 LD_WARN= LD_TRACE_LOADED_OBJECTS=1 \
+            $LDSO $bin 2>/dev/null)
+EOF
+
+    [ ${#FILES[*]} -eq 0 ] && return 1
+
+    # we don't want the name of the binary in the list
+    if [ "${FILES[0]}" == "$bin" ]; then
+        FILES[0]=""
+        NAMES[0]=""
+        [ ${#FILES[*]} -eq 1 ] && return 1
+    fi
+
+    declare -i n=0
+    while [ $n -lt ${#FILES[*]} ]; do
+        local FILE="${FILES[$n]}"
+        local NAME="${NAMES[$n]}"
+        if [ "$FILE" == "not found" -o "$NAME" == "not found" ]; then
+            cat 1>&2 <<EOF
+There are missing files on your system.  The dynamic object $bin
+requires ${NAMES[$n]} n order to properly function.  mkinitrd cannot continue.
+EOF
+            return 1
+        fi
+        case "$FILE" in
+            /lib*)
+                TLIBDIR=`echo "$FILE" | sed 's,\(/lib[^/]*\)/.*$,\1,'`
+                BASE=`basename "$FILE"`
+                # Prefer nosegneg libs over direct segment accesses on i686.
+                if [ -f "$TLIBDIR/i686/nosegneg/$BASE" ]; then
+                    FILE="$TLIBDIR/i686/nosegneg/$BASE"
+                # Otherwise, prefer base libraries rather than their optimized
+                # variants.
+                elif [ -f "$TLIBDIR/$BASE" ]; then
+                    FILE="$TLIBDIR/$BASE"
+                fi
+                FILES[$n]="$FILE"
+                ;;
+        esac
+        IF_dynamic="yes"
+        let n++
+    done
+
+    echo "${FILES[@]}"
+}
+
+function inst() {
+    if [ "$#" != "2" -a "$#" != "3" ];then
+        echo "usage: inst <file> <root> [<destination file>]"
+        return 1
+    fi
+    local file="$1" ; shift
+    local root="${1%%/}/" ; shift
+    local dest="${1##/}"
+    [ -z "$dest" ] && local dest="${file##/}"
+
+    mkdir -p "$root/$(dirname $dest)"
+
+    local RET=0
+    local target=""
+    [ -L "$file" ] && target=$(readlink "$file")
+    if [ -n "$target" -a "$dest" != "$target" ]; then
+        if [ -e "$root$dest" ]; then
+            RET=0
+        else
+
+            ln -sf "$target" "$root$dest"
+            #inst "$target" "$root"
+            local BASE=`basename "$target"`
+            local LIBDIR=`echo "$file" | sed -e 's,\(\(.*\)/\)[^/]\+$,\1,'`
+            if [ "$LIBDIR" = "$BASE" ]; then
+                local LIBDIR=`echo "/$dest" | sed -e 's,\(\(.*\)/\)[^/]\+$,\1,'`
+            fi
+
+            local TLIBDIR=`echo "$target" | sed -e 's,\(^/lib[^/]*\)/.*$,\1/,' \
+                                                -e 's,\(\(.*\)/\)[^/]\+$,\1,'`
+            if [ "$TLIBDIR" = "$BASE" ]; then
+                local TLIBDIR=`echo "/$dest" | sed \
+                                                -e 's,\(^/lib[^/]*\)/.*$,\1/,' \
+                                                -e 's,\(\(.*\)/\)[^/]\+$,\1,'`
+            fi
+
+            inst "$LIBDIR/$BASE" "$root" "$TLIBDIR/$BASE"
+            RET=$?
+            return $RET
+        fi
+    fi
+
+    local SHEBANG=$(dd if="$file" bs=2 count=1 2>/dev/null)
+    if [ "$SHEBANG" == '#!' ]; then
+        # We're intentionally not playing the "what did this moron run
+        # in his shell script" game.  There's nothing but pain in that.
+        local interp=$(head -1 "$file" | sed 's/^#! *//')
+        inst "$interp" "$root"
+        RET=$?
+        return $RET
+    fi
+
+    if [ -e "$root$dest" ]; then
+        RET=0
+    else
+        if [ -n "$target" -a -L "$target" ]; then
+            inst "$target" "$root"
+            RET=$?
+        else
+            cp -aL "$file" "$root$dest"
+
+            local DEPS=$(get_dso_deps "$file")
+            if [ -n "$DEPS" ]; then
+                IF_dynamic="yes"
+            fi
+            for x in $DEPS ; do
+                local TLIBDIR=`echo "$x" | sed 's,\(/lib[^/]*\)/.*$,\1,'`
+                local BASE=`basename "$x"`
+                inst "$x" "$root" "$TLIBDIR/$BASE"
+            done
+            RET=$?
+        fi
+    fi
+    return $RET
+}
+
+# module dep finding and installation functions
+moduledep() {
+    MPARGS=""
+    if [ "$1" == "--ignore-install" ]; then
+        MPARGS="$MPARGS --ignore-install"
+        shift
+    fi
+    vecho -n "Looking for deps of module $1"
+    deps=""
+    deps=$(modprobe $MPARGS --set-version $kernel --show-depends $1 2>/dev/null| awk '/^insmod / { print gensub(".*/","","g",$2) }' | while read foo ; do [ "${foo%%.ko}" != "$1" ] && echo -n "${foo%%.ko} " ; done)
+    [ -n "$deps" ] && vecho ": $deps" || vecho
+}
+
+locatemodule() {
+    MPARGS=""
+    if [ "$1" == "--ignore-install" ]; then
+        MPARGS="$MPARGS --ignore-install"
+        shift
+    fi
+    fmPath=$(modprobe $MPARGS --set-version $kernel --show-depends $1 2>/dev/null | awk '/^insmod / { print $2; }' | tail -1)
+    if [ -n "$fmPath" -a -f "$fmPath" ]; then
+        return 0
+    fi
+    for modExt in o.gz o ko ; do
+        for modDir in /lib/modules/$kernel/updates /lib/modules/$kernel ; do
+            if [ -d $modDir ]; then
+                fmPath=$(find $modDir -name $1.ko |awk {'print $1; exit;'})
+                if [ -n "$fmPath" -a -f "$fmPath" ]; then
+                    return 0
+                fi
+            fi
+        done
+    done
+    return 1
+}
+
+resolveAndExpandModules() {
+    items=$*
+
+    mods=$(expandModules $items)
+    echo "looking for $mods"
+    resdeps $mods
+    echo $resolved
+}
+
+expandModules() {
+    items=$*
+
+    for m in $items ; do
+	char=$(echo $m | cut -c1)
+	if [ $char = '=' ]; then
+	    NAME=$(echo $m | cut -c2-)
+	    if [ "$NAME" = "ata" ]; then
+		MODS="$MODS $(cat /lib/modules/$kernel/modules.block |egrep '(ata|ahci)' |sed -e 's/.ko//')"
+	    else
+                # Ignore if group list does not exist
+                if [ -e /lib/modules/$kernel/modules.$NAME ]; then
+		    MODS="$MODS $(cat /lib/modules/$kernel/modules.$NAME |sed -e 's/.ko//')"
+                fi
+	    fi
+	else
+	    MODS="$MODS $m"
+	fi
+    done
+    echo $MODS
+}
+
+installmodule()
+{
+    MPARGS=""
+    if [ "$1" == "--ignore-install" ]; then
+        MPARGS="$MPARGS --ignore-install"
+        shift
+    fi
+    MODULE=$1
+    MNTIMAGE=$2
+    fmPath=""
+    locatemodule $MPARGS $MODULE
+    MODULE=$fmPath
+    if [ -z "$MODULE" ]; then
+        return
+    fi
+    if [ -x /usr/bin/strip ]; then
+        /usr/bin/strip -g  $MODULE -o $MNTIMAGE/lib/modules/$kernel/$(basename $MODULE)
+    else
+        inst "$MODULE" "$MNTIMAGE" "/lib/modules/$kernel/$(basename $MODULE)"
+    fi
+    for fw in $(/sbin/modinfo -F firmware $MODULE 2>/dev/null); do
+        if [ -f /lib/firmware/$fw ]; then
+            inst "/lib/firmware/$fw" "$MNTIMAGE" "/lib/firmware/$fw"
+        fi
+    done
+}
+
+# This loops to make sure it resolves dependencies of dependencies of...
+resdeps () {
+    modlist="$1"
+
+    before=1
+    after=2
+
+    items=$(eval echo \${$modlist})
+    while [ $before != $after ]; do
+        before=$(echo $items | wc -c)
+        list=""
+
+        for i in $items ; do
+            deps=""
+            moduledep $i
+            list="$list $deps"
+        done
+        items=$(for n in $items $list; do echo $n; done | sort -u)
+        after=`echo $items | wc -c`
+    done
+
+    resolved="$items"
+}
+
+
+
+# vim:ts=8:sw=4:sts=4:et
