@@ -1,65 +1,109 @@
 #/bin/bash
-# Simple script that creates the tree to use for a new initrd
-# note that this is not intended to be pretty, nice or anything
-# of the sort.  the important thing is working
+# 
+# Generator script for a dracut initramfs
+# Tries to retain some degree of compatibility with the command line
+# of the various mkinitrd implementations out there
+#
+# Copyright 2008, Red Hat, Inc.  Jeremy Katz <katzj@redhat.com>
+# GPLv2 header here
 
+if [ -f ./initrd-functions ]; then
+    source ./initrd-functions
+else
+    source /usr/libexec/initrd-functions
+fi
 
-source /usr/libexec/initrd-functions
+[ -f /etc/dracut.conf ] && . /etc/dracut.conf
 
-INITRDOUT=$1
-if [ -z "$INITRDOUT" ]; then
-    echo "Please specify an initrd file to output"
+while [ $# -gt 0 ]; do
+    case $1 in
+	-f|--force)
+	    force=yes
+	    shift
+	    ;;
+	-h|--help)
+	    echo "Usage: $0 [-f] <initramfs> <kernel-version>"
+	    exit 1
+	    ;;
+	-v|--verbose)
+	    set -x
+	    shift
+	    ;;
+	*)
+	    break
+    esac
+done
+
+if [ -n "$2" ]; then
+    kernel=$2
+else
+    kernel=$(uname -r)
+fi
+if [ -n "$1" ]; then
+    outfile=$(readlink -f $1)
+else
+    outfile="/boot/initrd-$kernel.img"
+fi
+
+if [ -f "$outfile" -a  -z "$force" ]; then
+    echo "Will not override existing initramfs ($outfile) without --force"
     exit 1
 fi
 
-tmpdir=$(mktemp -d)
+initdir=$(mktemp -d -t initramfs.XXXXXX)
 
 # executables that we have to have
 exe="/bin/bash /bin/mount /bin/mknod /bin/mkdir /sbin/modprobe /sbin/udevd /sbin/udevadm /sbin/nash /bin/kill /sbin/pidof /bin/sleep /bin/echo"
 lvmexe="/sbin/lvm"
 cryptexe="/sbin/cryptsetup"
 # and some things that are nice for debugging
-debugexe="/bin/ls /bin/cat /bin/ln /bin/ps /bin/grep /usr/bin/less"
+debugexe="/bin/ls /bin/cat /bin/ln /bin/ps /bin/grep /bin/more"
 # udev things we care about
 udevexe="/lib/udev/vol_id"
 
 # install base files
 for binary in $exe $debugexe $udevexe $lvmexe $cryptexe ; do
-  inst $binary $tmpdir
+  inst $binary $initdir
 done
 
 # FIXME: would be nice if we didn't have to know which rules to grab....
-mkdir -p $tmpdir/lib/udev/rules.d
+# ultimately, /lib/initramfs/rules.d or somesuch which includes links/copies
+# of the rules we want so that we just copy those in would be best
+mkdir -p $initdir/lib/udev/rules.d
 for rule in /lib/udev/rules.d/40-redhat* /lib/udev/rules.d/50* /lib/udev/rules.d/60-persistent-storage.rules /lib/udev/rules.d/61*edd* /lib/udev/rules.d/64* /lib/udev/rules.d/80* /lib/udev/rules.d/95* rules.d/*.rules ; do
-  cp -v $rule $tmpdir/lib/udev/rules.d
+  cp $rule $initdir/lib/udev/rules.d
 done
 
 # terminfo bits make things work better if you fall into interactive mode
-for f in $(find /lib/terminfo -type f) ; do cp -v --parents $f "$tmpdir" ; done
+for f in $(find /lib/terminfo -type f) ; do cp  --parents $f "$initdir" ; done
 
 # install our files
-cp -v init $tmpdir/init
-cp -v switch_root $tmpdir/sbin/switch_root
+cp init $initdir/init
+cp switch_root $initdir/sbin/switch_root
 
-# FIXME: and some directory structure
-mkdir -p $tmpdir/etc $tmpdir/proc $tmpdir/sys $tmpdir/sysroot
+# and create some directory structure
+mkdir -p $initdir/etc $initdir/proc $initdir/sys $initdir/sysroot $initdir/dev/pts
 
-# FIXME: module installation should be based on a couple of things
-# a) the modules for the kernel we're building an initrd for
-# b) config list
-# c) installed packages
-# but for now... everything wins!
-if [ -d modules ]; then
-   mkdir -p $tmpdir/lib/modules
-   cp -r modules/* $tmpdir/lib/modules
-   rm -rf $tmpdir/lib/modules/*/kernel/drivers/video
+# FIXME: hard-coded module list of doom.
+[ -z "$modules" ] && modules="=ata =block =drm dm-crypt aes sha256_generic aes_i586 cbc essiv"
+
+mkdir -p $initdir/lib/modules/$kernel
+# expand out module deps, etc
+for mod in $(resolveAndExpandModules $modules) ; do
+    installmodule $mod $initdir
+done
+
+/sbin/depmod -a -b $initdir $kernel
+if [ $? -ne 0 ]; then
+    error "\"/sbin/depmod -a $kernel\" failed."
+    exit 1
 fi
 
 # plymouth
 if [ -x /usr/libexec/plymouth/plymouth-populate-initrd ]; then
-    /usr/libexec/plymouth/plymouth-populate-initrd -t "$tmpdir" || :
+    /usr/libexec/plymouth/plymouth-populate-initrd -t "$initdir" || :
 fi
 
-pushd $tmpdir >/dev/null
-find . |cpio -H newc -o |gzip -9 > $INITRDOUT
+pushd $initdir >/dev/null
+find . |cpio -H newc -o |gzip -9 > $outfile
 popd >/dev/null

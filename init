@@ -38,7 +38,7 @@ mknod /dev/tty1 c 4 1
 
 # start plymouth if it's available
 # arguably we need some of udev run first for fbmods and above devnodes :/
-[ -x /sbin/plymouthd ] && /sbin/plymouthd --attach-to-session
+[ -x /bin/plymouthd ] && /bin/plymouthd --attach-to-session
 [ -x /bin/plymouth ] && /bin/plymouth --show-splash
 
 
