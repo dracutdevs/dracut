@@ -1,3 +1,6 @@
+Dracut
+------
+
 This is the simple skeleton of a new initramfs infrastructure.
 Information about our goals and aims can be found at
 https://fedoraproject.org/wiki/Initrdrewrite
@@ -22,9 +25,12 @@ something which is really interesting to have separate across them.
 So contributions to help decrease the distro-dependencies are welcome.
 
 The git tree can be found at
-git://fedorapeople.org/~katzj/new-initrd.git for now.  See the TODO
+git://fedorapeople.org/~katzj/dracut.git for now.  See the TODO
 file for things which still need to be done and HACKING for some
-instructions on how to get started
+instructions on how to get started.  There is also a mailing list that
+is being used for the discussion -- initramfs@vger.kernel.org.  It is
+a typical vger list, send mail to majordomo@vger.kernel.org with body
+of 'subscribe initramfs email@host.com' 
 
 
 Licensed under the GPLv2
