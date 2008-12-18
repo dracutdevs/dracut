@@ -7,12 +7,6 @@
 # Copyright 2008, Red Hat, Inc.  Jeremy Katz <katzj@redhat.com>
 # GPLv2 header here
 
-if [ -f ./dracut-functions ]; then
-    source ./dracut-functions
-else
-    source /usr/libexec/dracut/functions
-fi
-
 [ -f /etc/dracut.conf ] && . /etc/dracut.conf
 
 while [ $# -gt 0 ]; do
@@ -27,6 +21,10 @@ while [ $# -gt 0 ]; do
 	    ;;
 	-v|--verbose)
 	    set -x
+	    shift
+	    ;;
+	-l|--local)
+	    allowlocal="yes"
 	    shift
 	    ;;
 	*)
@@ -48,6 +46,16 @@ fi
 if [ -f "$outfile" -a  -z "$force" ]; then
     echo "Will not override existing initramfs ($outfile) without --force"
     exit 1
+fi
+
+if [ -n "$allowlocal" -a -f ./init ]; then
+    source ./dracut-functions
+    initfile=./init
+    switchroot=./switchroot
+else
+    source /usr/libexec/dracut/functions
+    initfile=/usr/libexec/dracut/init
+    switchroot=/usr/libexec/dracut/switch_root
 fi
 
 initdir=$(mktemp -d -t initramfs.XXXXXX)
@@ -78,8 +86,8 @@ done
 for f in $(find /lib/terminfo -type f) ; do cp  --parents $f "$initdir" ; done
 
 # install our files
-cp init $initdir/init
-cp switch_root $initdir/sbin/switch_root
+cp $initfile $initdir/init
+cp $switchroot $initdir/sbin/switch_root
 
 # and create some directory structure
 mkdir -p $initdir/etc $initdir/proc $initdir/sys $initdir/sysroot $initdir/dev/pts
