@@ -7,10 +7,10 @@
 # Copyright 2008, Red Hat, Inc.  Jeremy Katz <katzj@redhat.com>
 # GPLv2 header here
 
-if [ -f ./initrd-functions ]; then
-    source ./initrd-functions
+if [ -f ./dracut-functions ]; then
+    source ./dracut-functions
 else
-    source /usr/libexec/initrd-functions
+    source /usr/libexec/dracut/functions
 fi
 
 [ -f /etc/dracut.conf ] && . /etc/dracut.conf
