@@ -24,6 +24,10 @@
 #
 #
 
+function set_verbose() {
+    foo=""
+}
+
 IF_RTLD=""
 IF_dynamic=""
 function get_dso_deps() {
