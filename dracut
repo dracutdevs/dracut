@@ -55,10 +55,12 @@ if [ -n "$allowlocal" -a -f ./init ]; then
     source ./dracut-functions
     initfile=./init
     switchroot=./switchroot
+    rulesdir=./rules.d
 else
     source /usr/libexec/dracut/functions
     initfile=/usr/libexec/dracut/init
     switchroot=/usr/libexec/dracut/switch_root
+    rulesdir=/usr/libexec/dracut/rules.d
 fi
 
 initdir=$(mktemp -d -t initramfs.XXXXXX)
@@ -81,7 +83,7 @@ done
 # ultimately, /lib/initramfs/rules.d or somesuch which includes links/copies
 # of the rules we want so that we just copy those in would be best
 mkdir -p $initdir/lib/udev/rules.d
-for rule in /lib/udev/rules.d/40-redhat* /lib/udev/rules.d/50* /lib/udev/rules.d/60-persistent-storage.rules /lib/udev/rules.d/61*edd* /lib/udev/rules.d/64* /lib/udev/rules.d/80* /lib/udev/rules.d/95* rules.d/*.rules ; do
+for rule in /lib/udev/rules.d/40-redhat* /lib/udev/rules.d/50* /lib/udev/rules.d/60-persistent-storage.rules /lib/udev/rules.d/61*edd* /lib/udev/rules.d/64* /lib/udev/rules.d/80* /lib/udev/rules.d/95* $rulesdir/*.rules ; do
   cp $rule $initdir/lib/udev/rules.d
 done
 
