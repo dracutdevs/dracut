@@ -27,6 +27,9 @@ while [ $# -gt 0 ]; do
 	    allowlocal="yes"
 	    shift
 	    ;;
+	--allow-missing)
+	    shift
+	    ;;
 	*)
 	    break
     esac
