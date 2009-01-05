@@ -22,6 +22,7 @@ Requires: mount
 Requires: nash
 Requires: bash
 Requires: plymouth >= 0.6.0-2
+Requires: /usr/bin/eu-readelf
 Obsoletes: mkinitrd < 7.0
 Provides: mkinitrd = 7.0
 BuildArch: noarch

@@ -36,7 +36,7 @@ function get_dso_deps() {
     declare -a FILES
     declare -a NAMES
 
-    local LDSO=$(echo nash-showelfinterp $bin | /sbin/nash --forcequiet)
+    local LDSO=$(LANG=C eu-readelf -l $bin  |grep interpreter |awk {'print $4;'} |sed -e 's/]$//')
     [ -z "$LDSO" -o "$LDSO" == "$bin" ] && local LDSO="$IF_RTLD"
     [ -z "$LDSO" -o "$LDSO" == "$bin" ] && return 1
     [ -z "$IF_RTLD" ] && IF_RTLD="$LDSO"
