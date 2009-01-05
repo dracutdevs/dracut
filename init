@@ -91,12 +91,22 @@ mount --bind /dev $NEWROOT/dev
 mount -t proc /proc $NEWROOT/proc
 mount -t sysfs /sys $NEWROOT/sys
 
-# FIXME: load selinux policy
+# FIXME: load selinux policy.  this should really be done after we switchroot 
+if [ -x $NEWROOT/usr/sbin/load_policy ]; then
+  chroot $NEWROOT /usr/sbin/load_policy -i
+  if [ $? -eq 3 ]; then
+    echo "Initial SELinux policy load failed and enforcing mode requested."
+    echo "Not continuing"
+    sleep 100d
+    exit 1
+  fi
+fi
 
 # kill off udev
 kill `pidof udevd`
 
 [ -x /bin/plymouth ] && /bin/plymouth --newroot=$NEWROOT
+
 # FIXME: nash die die die
 exec /sbin/switch_root
 # davej doesn't like initrd bugs
