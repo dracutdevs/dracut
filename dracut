@@ -54,7 +54,7 @@ fi
 if [ -n "$allowlocal" -a -f ./init ]; then
     source ./dracut-functions
     initfile=./init
-    switchroot=./switchroot
+    switchroot=./switch_root
     rulesdir=./rules.d
 else
     source /usr/libexec/dracut/functions
