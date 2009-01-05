@@ -1,5 +1,6 @@
 Current TODO list, broken into things which are relevant for the
-initramfs itself (/init et al) vs the generator
+initramfs itself (/init et al) vs the generator.  A lot of things
+are/should be marked with "FIXME" in the code
 
 INITRAMFS TODO
 --------------
@@ -24,29 +25,16 @@ can see this being a point of contention for other distros
 * root= parsing should be done with udev creating /dev/root symlink
 for us appropriately
 * Support thaw (resume from hibernate)
-* Currently requires the drop-nash branch of plymouth; get merged into
-master and released
 * Proving some support with a simple network based root would be good
   * Do we just call dhclient, etc or try to get NetworkManager going?
 * Would be nice not to have to kill and restart udev across switchroot 
 * mdraid
 * dmraid
 * multipath
-* SELinux policy either needs to be loaded from the initramfs or /init
-on the rootfs
-
+* Should SELinux policy be done in the initramfs or from the real rootfs?
 
 
 GENERATOR TODO
 --------------
-* Needs to be written to look at the current kernel and get the
-modules so it can be used on a running system.
-* Move the needed pieces of Fedora mkinitrd's initrd-functions into
-this tree.  This should mainly be around shlib resolution/copying at
-present
-* We should just grab appropriate modules rather than all of them.
-  * Should default to basically all storage drivers, possibly allow to
-  specify less
-  * Maybe use class based specifiers (=ata, =net, etc) that we do
-  today with Fedora mkinitrd
-* Certainly more as this is a huge hack right now
+* Default module specificatoin could use some work
+* udev rule copying, as mentioned above, is a bit too hard-coded
