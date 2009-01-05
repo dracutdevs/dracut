@@ -152,7 +152,7 @@ cp $switchroot $initdir/sbin/switch_root
 mkdir -p $initdir/etc $initdir/proc $initdir/sys $initdir/sysroot $initdir/dev/pts
 
 # FIXME: hard-coded module list of doom.
-[ -z "$modules" ] && modules="=ata =block =drm dm-crypt aes sha256_generic aes_i586 cbc essiv"
+[ -z "$modules" ] && modules="=ata =block =drm dm-crypt aes sha256 cbc"
 
 mkdir -p $initdir/lib/modules/$kernel
 # expand out module deps, etc
