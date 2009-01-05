@@ -31,7 +31,9 @@ for us appropriately
 * mdraid
 * dmraid
 * multipath
-* Should SELinux policy be done in the initramfs or from the real rootfs?
+* Should SELinux policy be done in the initramfs or from the real
+rootfs?
+* Keyboard layout/consolefont setup is Fedora/RHEL-specific.  
 
 
 GENERATOR TODO

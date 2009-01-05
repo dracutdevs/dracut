@@ -290,6 +290,39 @@ resdeps () {
     resolved="$items"
 }
 
+findkeymap () {
+    local MAP=$1
+
+    if [ ! -f "$MAP" ]; then
+        MAP=$(find /lib/kbd/keymaps -type f -name $MAP -o -name $MAP.\* | head -n1)
+    fi
+
+    case " $KEYMAPS " in
+        *" $MAP "*)
+            return
+            ;;
+    esac
+
+    KEYMAPS="$KEYMAPS $MAP"
+
+    case $MAP in
+        *.gz)
+            cmd=zgrep
+            ;;
+        *.bz2)
+            cmd=bzgrep
+            ;;
+        *)
+            cmd=grep
+            ;;
+    esac
+
+    for INCL in $($cmd "^include " $MAP | cut -d' ' -f2 | tr -d '"'); do
+        for FN in $(find /lib/kbd/keymaps -type f -name $INCL\*); do
+            findkeymap $FN
+        done
+    done
+}
 
 
 # vim:ts=8:sw=4:sts=4:et

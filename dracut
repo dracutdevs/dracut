@@ -72,7 +72,7 @@ cryptexe="/sbin/cryptsetup"
 # and some things that are nice for debugging
 debugexe="/bin/ls /bin/cat /bin/ln /bin/ps /bin/grep /bin/more"
 # udev things we care about
-udevexe="/lib/udev/vol_id"
+udevexe="/lib/udev/vol_id /lib/udev/console_init"
 
 # install base files
 for binary in $exe $debugexe $udevexe $lvmexe $cryptexe ; do
@@ -83,12 +83,66 @@ done
 # ultimately, /lib/initramfs/rules.d or somesuch which includes links/copies
 # of the rules we want so that we just copy those in would be best
 mkdir -p $initdir/lib/udev/rules.d
-for rule in /lib/udev/rules.d/40-redhat* /lib/udev/rules.d/50* /lib/udev/rules.d/60-persistent-storage.rules /lib/udev/rules.d/61*edd* /lib/udev/rules.d/64* /lib/udev/rules.d/80* /lib/udev/rules.d/95* $rulesdir/*.rules ; do
+for rule in /lib/udev/rules.d/10-console* /lib/udev/rules.d/40-redhat* /lib/udev/rules.d/50* /lib/udev/rules.d/60-persistent-storage.rules /lib/udev/rules.d/61*edd* /lib/udev/rules.d/64* /lib/udev/rules.d/80* /lib/udev/rules.d/95* $rulesdir/*.rules ; do
   cp $rule $initdir/lib/udev/rules.d
 done
 
 # terminfo bits make things work better if you fall into interactive mode
 for f in $(find /lib/terminfo -type f) ; do cp  --parents $f "$initdir" ; done
+
+# FIXME: i18n stuff isn't really distro-independent :/
+if [ -f /etc/sysconfig/keyboard ] || [ -f /etc/sysconfig/console/default.kmap ]; then
+    if [ -f /etc/sysconfig/console/default.kmap ]; then
+        KEYMAP=/etc/sysconfig/console/default.kmap
+    else
+        . /etc/sysconfig/keyboard
+        if [ -n "$KEYTABLE" -a -d "/lib/kbd/keymaps" ]; then
+            KEYMAP="$KEYTABLE.map"
+        fi
+    fi
+    if [ -n "$KEYMAP" ]; then
+        [ -f /etc/sysconfig/keyboard ] && inst /etc/sysconfig/keyboard "$initdir"
+        inst /bin/loadkeys "$initdir"
+        findkeymap $KEYMAP
+
+        for FN in $KEYMAPS; do
+            inst $FN "$initdir"
+            case "$FN" in
+                *.gz)
+                    gzip -d "$initdir$FN"
+                    ;;
+                *.bz2)
+                    bzip2 -d "$initdir$FN"
+                    ;;
+            esac
+        done
+    fi
+fi
+
+if [ -f /etc/sysconfig/i18n ]; then
+    . /etc/sysconfig/i18n
+    inst /etc/sysconfig/i18n "$initdir"
+    [ -z "$SYSFONT" ] && SYSFONT=latarcyrheb-sun16
+    inst /bin/setfont "$initdir"
+
+    for FN in /lib/kbd/consolefonts/$SYSFONT.* ; do
+        inst $FN "$initdir"
+        case "$FN" in
+            *.gz)
+                gzip -d "$MNTIMAGE$FN"
+                ;;
+            *.bz2)
+                bzip2 -d "$MNTIMAGE$FN"
+                ;;
+        esac
+    done
+    if [ -n "$SYSFONTACM" ]; then
+        inst /lib/kbd/consoletrans/$SYSFONTACM "$initdir"
+    fi
+    if [ -n "$UNIMAP" ]; then
+        inst /lib/kbd/unimaps/$UNIMAP "$initdir"
+    fi
+fi
 
 # install our files
 cp $initfile $initdir/init
