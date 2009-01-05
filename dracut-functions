@@ -179,10 +179,8 @@ moduledep() {
         MPARGS="$MPARGS --ignore-install"
         shift
     fi
-    vecho -n "Looking for deps of module $1"
     deps=""
     deps=$(modprobe $MPARGS --set-version $kernel --show-depends $1 2>/dev/null| awk '/^insmod / { print gensub(".*/","","g",$2) }' | while read foo ; do [ "${foo%%.ko}" != "$1" ] && echo -n "${foo%%.ko} " ; done)
-    [ -n "$deps" ] && vecho ": $deps" || vecho
 }
 
 locatemodule() {
@@ -212,8 +210,7 @@ resolveAndExpandModules() {
     items=$*
 
     mods=$(expandModules $items)
-    echo "looking for $mods"
-    resdeps $mods
+    resdeps mods
     echo $resolved
 }
 
