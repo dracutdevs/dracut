@@ -64,7 +64,10 @@ if [ -z "$root" ]; then
   echo "Warning: no root specified"
   root="/dev/sda1"
 elif [ "${root#LABEL=}" != $root ]; then
-  root="/dev/disk/by-label/${root#LABEL=}"
+  # FIXME: may need to do more escaping here
+  l=${root#LABEL=}
+  label=${l//\//\\x2f}
+  root="/dev/disk/by-label/${label}"
 elif [ "${root#UUID=}" != $root ]; then
   root="/dev/disk/by-uuid/${root#UUID=}"
 fi
