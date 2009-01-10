@@ -78,7 +78,7 @@ while [ ! -e $root ]; do
       emergency_shell
   fi
 done
-echo -e "\n\nMounted rootfs after $tries seconds"
+echo -e "\n\nMounting rootfs after $tries seconds"
 ln -s "$root" /dev/root    
 mount -o ro /dev/root $NEWROOT
 
