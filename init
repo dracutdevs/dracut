@@ -83,7 +83,7 @@ while [ ! -e $root ]; do
 done
 echo -e "\n\nMounting rootfs after $tries seconds"
 ln -s "$root" /dev/root    
-mount -o ro /dev/root $NEWROOT
+mount -o ro /dev/root $NEWROOT || emergency_shell
 
 # now we need to prepare to switchroot
 mount --bind /dev $NEWROOT/dev
