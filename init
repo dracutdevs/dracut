@@ -77,7 +77,7 @@ while [ ! -e $root ]; do
   echo -n "."
   sleep 1
   tries=$(($tries + 1))
-  if [ $tries -gt 300 ]; then
+  if [ $tries -gt 30 ]; then
       emergency_shell
   fi
 done
