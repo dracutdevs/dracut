@@ -15,4 +15,4 @@ clean:
 	rm -f *~
 
 archive:
-	git-archive --format=tar HEAD --prefix=dracut/ |bzip2 > dracut-$(shell git-rev-list  --abbrev-commit  -n 1 HEAD  |cut -b 1-8).tar.bz2
+	git archive --format=tar HEAD --prefix=dracut/ |bzip2 > dracut-$(shell git rev-list  --abbrev-commit  -n 1 HEAD  |cut -b 1-8).tar.bz2
