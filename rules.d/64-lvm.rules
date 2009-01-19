@@ -8,7 +8,7 @@ SUBSYSTEM!="block", GOTO="lvm_end"
 ACTION!="add|change", GOTO="lvm_end"
 
 KERNEL!="sr*", IMPORT{program}="vol_id --export $tempnode"
-ENV{ID_FS_TYPE}=="LVM2_member", RUN+="/sbin/lvm vgchange -ay"
+ENV{ID_FS_TYPE}=="LVM2_member", RUN+="/sbin/lvm vgscan", RUN+="/sbin/lvm vgchange -ay"
 
 
 LABEL="lvm_end"
