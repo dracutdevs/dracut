@@ -24,9 +24,41 @@
 
 IF_RTLD=""
 IF_dynamic=""
-get_dso_deps() {
-    local bin="$1" ; shift
-    local FILES=() LDSO NAME IO FILE ADDR I1 n f TLIBDIR
+
+# $1 = file to copy to ramdisk
+# $2 (optional) Name for the file on the ramdisk
+# Location of the image dir is assumed to be $initdir
+inst_simple() {
+    local src=$1 target="${initdir}${2:-$1}"
+    [[ -f $target ]] && return 0
+    echo "Installing $src to $target"
+    mkdir -p "${target%/*}"
+    cp -fL "$src" "$target"
+}
+
+inst_library() {
+    local src=$1 dest=${2:-$1}
+    [[ -f $initdir$dest ]] && return 0
+    if [[ -L $src ]]; then
+	reallib="$(readlink "$src")"
+	lib=${src##*/}
+	realsrc="${src%/*}/$reallib"
+	realdest="${dest%/*}/$reallib"
+	inst_simple "$realsrc" "$realdest"
+	(cd "${initdir}${dest%/*}" && ln -s "$reallib" "$lib")
+    else
+	inst_simple "$src" "$dest"
+    fi
+}
+	
+	
+
+# Same as above.
+# If the file is a binary executable, install all its
+# shared library dependencies, if any.
+inst_binary() {
+    local bin="$1" target="${2:-$1}"
+    local LDSO NAME IO FILE ADDR I1 n f TLIBDIR
 
     LDSO=$(LANG=C eu-readelf -l $bin 2>/dev/null | \
 	awk '/interpreter/ {print $4}' |sed -e 's/]$//')
@@ -36,14 +68,14 @@ get_dso_deps() {
 
     # I love bash!
     while read NAME I0 FILE ADDR I1 ; do
-	[[ $FILE = $bin ]] && continue
+	[[ $FILE = $bin ]] && continue 
         [[ $FILE = not || $NAME = not ]] && {
 	    echo "Missing a shared library required by $bin." >&2
 	    echo "dracut cannot create an initrd." >&2
-	    return 1
+	    exit 1
 	}
 	# see if we are loading an optimized version of a shared lib.
-	[[ $FILE =~ '(/lib[^/]*).*' ]] && {
+	[[ $FILE =~ '^(/lib[^/]*).*' ]] && {
             TLIBDIR=${BASH_REMATCH[1]}
             BASE="${FILE##*/}"
 	    # prefer nosegneg libs, then unoptimized ones.
@@ -52,80 +84,48 @@ get_dso_deps() {
 		FILE="$f/$BASE"
 		break
 	    done
+	    inst_library "$FILE" "$TLIBDIR/$BASE"
             IF_dynamic="yes"
+	    continue
 	}
-        FILES+=("$FILE")
+        inst_library "$FILE" 
     done < <(LD_TRACE_PRELINKING=1 LD_WARN= LD_TRACE_LOADED_OBJECTS=1 \
             $LDSO $bin 2>/dev/null)
-
-    echo "${FILES[@]}"
+    inst_simple "$bin" "$target"
 }
 
+# same as above, except for shell scripts.
+# If your shell script does not start with shebang, it is not a shell script.
+inst_script() {
+    local src=$1 target=${2:-$1} line
+    read -r -n 80 line <"$src"
+    [[ $line =~ '(#! *)(/[^ ]+).*' ]] || return 1
+    inst "${BASH_REMATCH[2]}" && inst_simple "$src" "$target"
+}
+
+# same as above, but specialized for symlinks
+inst_symlink() {
+    local src=$1 target=$initdir${2:-$1} realsrc
+    [[ -L $1 ]] || return 1
+    [[ -L $target ]] && return 0
+    realsrc=$(readlink "$src")
+    [[ $realsrc = ${realsrc##*/} ]] && realsrc="${src%/*}/$realsrc"
+    inst "$realsrc" && ln -s "$realsrc" "$target"
+}
+
+# general purpose installation function
+# Same args as above.
+# Just tries to install as a binary, a shell script, then a simple data file.
 inst() {
-    if (($# != 2 && $# != 3)); then
+    if (($# != 1 && $# != 2)); then
         echo "usage: inst <file> <root> [<destination file>]"
         return 1
     fi
-    local file="$1" ; shift
-    local root="${1%%/}" ; shift
-    local dest="${1##/}"
-    [[ $dest ]] || dest="${file##/}"
-    mkdir -p "$root/${dest%/*}"
-    local RET=0
-    local target=""
-    [[ -L $file ]] && target=$(readlink "$file")
-    if [[ $target && $dest != $target ]]; then
-        if [[ -e $root/$dest ]]; then
-            RET=0
-        else
-            ln -sf "$target" "$root/$dest"
-            #inst "$target" "$root"
-            local BASE=${target##*/}
-            local LIBDIR=$(echo "$file" | sed -e 's,\(\(.*\)/\)[^/]\+$,\1,')
-            if [[ $LIBDIR = $BASE ]]; then
-                local LIBDIR=$(echo "/$dest" | sed -e 's,\(\(.*\)/\)[^/]\+$,\1,')
-            fi  
-            local TLIBDIR=$(echo "$target" | sed -e 's,\(^/lib[^/]*\)/.*$,\1/,' \
-                -e 's,\(\(.*\)/\)[^/]\+$,\1,')
-            if [[ $TLIBDIR = $BASE ]]; then
-                local TLIBDIR=$(echo "/$dest" | sed \
-                    -e 's,\(^/lib[^/]*\)/.*$,\1/,' \
-                    -e 's,\(\(.*\)/\)[^/]\+$,\1,')
-            fi
-            inst "$LIBDIR/$BASE" "$root" "$TLIBDIR/$BASE"
-            RET=$?
-            return $RET
-        fi
-    fi
-    local SHEBANG=$(dd if="$file" bs=2 count=1 2>/dev/null)
-    if [[ $SHEBANG = '#!' ]]; then
-        # We're intentionally not playing the "what did this moron run
-        # in his shell script" game.  There's nothing but pain in that.
-        local interp=$(head -1 "$file" | sed 's/^#! *//')
-        inst "$interp" "$root"
-        RET=$?
-        return $RET
-    fi
-    if [[ -e $root/$dest ]]; then
-        RET=0
-    else
-        if [[ $target && -L $target ]]; then
-            inst "$target" "$root"
-            RET=$?
-        else
-            cp -aL "$file" "$root/$dest"
-            local DEPS=$(get_dso_deps "$file")
-            if [[ $DEPS ]]; then
-		for x in $DEPS; do
-                    local TLIBDIR=$(echo "$x" | sed 's,\(/lib[^/]*\)/.*$,\1,')
-                    local BASE=$(basename "$x")
-                    inst "$x" "$root" "$TLIBDIR/$BASE"
-		done
-		RET=$?
-            fi
-	fi
-    fi
-    return $RET
+    local src=$1 dest=${2:-$1}
+    for x in inst_symlink inst_binary inst_script inst_simple; do
+	$x "$src" "$dest" && return 0
+    done
+    return 1
 }
 
 modcat="/lib/modules/$kernel/modules"
@@ -146,7 +146,7 @@ instmods() {
 			instmods $mpargs $modname
 			continue
 		    }
-		    inst "$modpath" "$initdir" "/lib/modules/$kernel/$modname.ko"
+		    inst_simple "$modpath" "/lib/modules/$kernel/$modname.ko"
 		done
 		;;
 	esac

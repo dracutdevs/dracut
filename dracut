@@ -50,7 +50,7 @@ udevexe="/lib/udev/vol_id /lib/udev/console_init"
 
 # install base files
 for binary in $exe $debugexe $udevexe $lvmexe $cryptexe ; do
-  inst $binary "$initdir"
+  inst $binary
 done
 
 # FIXME: would be nice if we didn't have to know which rules to grab....
@@ -73,12 +73,12 @@ if [[ -f /etc/sysconfig/keyboard || -f /etc/sysconfig/console/default.kmap ]]; t
         [[ $KEYTABLE && -d /lib/kbd/keymaps ]] && KEYMAP="$KEYTABLE.map"
     fi
     if [[ $KEYMAP ]]; then
-        [ -f /etc/sysconfig/keyboard ] && inst /etc/sysconfig/keyboard "$initdir"
-        inst /bin/loadkeys "$initdir"
+        [ -f /etc/sysconfig/keyboard ] && inst /etc/sysconfig/keyboard
+        inst /bin/loadkeys
         findkeymap $KEYMAP
 
         for FN in $KEYMAPS; do
-            inst $FN "$initdir"
+            inst $FN
             case $FN in
                 *.gz) gzip -d "$initdir$FN" ;;
                 *.bz2) bzip2 -d "$initdir$FN" ;;
@@ -89,19 +89,19 @@ fi
 
 if [ -f /etc/sysconfig/i18n ]; then
     . /etc/sysconfig/i18n
-    inst /etc/sysconfig/i18n "$initdir"
+    inst /etc/sysconfig/i18n
     [[ $SYSFONT ]] || SYSFONT=latarcyrheb-sun16
-    inst /bin/setfont "$initdir"
+    inst /bin/setfont
 
     for FN in /lib/kbd/consolefonts/$SYSFONT.* ; do
-        inst "$FN" "$initdir"
+        inst "$FN"
         case $FN in
             *.gz) gzip -d "$initdir$FN" ;;
             *.bz2) bzip2 -d "$initdir$FN" ;;
         esac
     done
-    [[ $SYSFONTACM ]] && inst /lib/kbd/consoletrans/$SYSFONTACM "$initdir"
-    [[ $UNIMAP ]] && inst /lib/kbd/unimaps/$UNIMAP "$initdir"
+    [[ $SYSFONTACM ]] && inst /lib/kbd/consoletrans/$SYSFONTACM
+    [[ $UNIMAP ]] && inst /lib/kbd/unimaps/$UNIMAP
 fi
 
 # install our files
@@ -113,7 +113,7 @@ for d in etc proc sys sysroot dev/pts; do mkdir -p "$initdir/$d"; done
 # FIXME: hard-coded module list of doom.
 [[ $modules ]] || modules="=ata =block =drm dm-crypt aes sha256 cbc"
 
-instmod $modules
+instmods $modules
 
 /sbin/depmod -a -b "$initdir" $kernel || {
     error "\"/sbin/depmod -a $kernel\" failed."
