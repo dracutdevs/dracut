@@ -36,6 +36,7 @@ fi
 initfile=$dsrc/init
 switchroot=$dsrc/switch_root
 rulesdir=$dsrc/rules.d
+echoer=$dsrc/echoer
 
 initdir=$(mktemp -d -t initramfs.XXXXXX)
 trap 'rm -rf "$initdir"' 0 # clean up after ourselves no matter how we die.
@@ -108,6 +109,7 @@ fi
 # install our files
 cp $initfile "$initdir/init"
 cp $switchroot "$initdir/sbin/switch_root"
+cp $echoer "$initdir/echoer"
 
 # and create some directory structure
 for d in etc proc sys sysroot dev/pts; do mkdir -p "$initdir/$d"; done

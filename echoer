@@ -1,0 +1,4 @@
+#!/bin/bash
+target=$1
+shift
+echo "$@" >"$target"
