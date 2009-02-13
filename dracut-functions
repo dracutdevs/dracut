@@ -32,6 +32,7 @@ inst_simple() {
     local src=$1 target="${initdir}${2:-$1}"
     [[ -f $target ]] && return 0
     mkdir -p "${target%/*}"
+    echo "Installing $src" >&2
     cp -fL "$src" "$target"
 }
 
@@ -132,6 +133,12 @@ inst() {
     return 1
 }
 
+dracut_install() {
+    while (($# > 0)); do
+	inst "$1" && shift
+    done
+}
+
 modcat="/lib/modules/$kernel/modules"
 instmods() {
     local mod mpargs modpath modname cmd
@@ -162,25 +169,5 @@ instmods() {
         fi
     done
 } 
-
-findkeymap () {
-    local MAP=$1
-    [[ ! -f $MAP ]] && \
-	MAP=$(find /lib/kbd/keymaps -type f -name $MAP -o -name $MAP.\* | head -n1)
-    [[ " $KEYMAPS " = *" $MAP "* ]] && return
-    KEYMAPS="$KEYMAPS $MAP"
-    case $MAP in
-        *.gz) cmd=zgrep;;
-        *.bz2) cmd=bzgrep;;
-        *) cmd=grep ;;
-    esac
-
-    for INCL in $($cmd "^include " $MAP | cut -d' ' -f2 | tr -d '"'); do
-        for FN in $(find /lib/kbd/keymaps -type f -name $INCL\*); do
-            findkeymap $FN
-        done
-    done
-}
-
 
 # vim:ts=8:sw=4:sts=4:et

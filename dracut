@@ -8,11 +8,13 @@
 # Copyright 2008, Red Hat, Inc.  Jeremy Katz <katzj@redhat.com>
 # GPLv2 header here
 
+
 [ -f /etc/dracut.conf ] && . /etc/dracut.conf
 
 while (($# > 0)); do
     case $1 in
 	-f|--force) force=yes;;
+	-m|--modules) dracutmodules="$2"; shift;;
 	-h|--help) echo "Usage: $0 [-f] <initramfs> <kernel-version>"
 	    exit 1 ;;
 	-v|--verbose) set -x;;
@@ -22,6 +24,7 @@ while (($# > 0)); do
     esac
     shift
 done
+[[ $dracutmodules ]] || dracutmodules="all" 
 
 [[ $2 ]] && kernel=$2 || kernel=$(uname -r)
 [[ $1 ]] && outfile=$(readlink -f $1) || outfile="/boot/initrd-$kernel.img"
@@ -41,60 +44,12 @@ hookdirs="pre-udev pre-mount pre-pivot"
 initdir=$(mktemp -d -t initramfs.XXXXXX)
 trap 'rm -rf "$initdir"' 0 # clean up after ourselves no matter how we die.
 
+export initdir hookdirs rulesdir dsrc dracutmodules kmodules
+
 # Create some directory structure first
 for d in bin sbin usr/bin usr/sbin usr/lib etc proc sys sysroot dev/pts; do 
     mkdir -p "$initdir/$d"; 
 done
-
-# executables that we have to have
-exe="bash mount mknod mkdir modprobe udevd udevadm nash pidof sleep chroot echo sed"
-lvmexe="lvm"
-cryptexe="cryptsetup"
-# and some things that are nice for debugging
-debugexe="ls ln ps grep more dmesg cat"
-# udev things we care about
-udevexe="/lib/udev/vol_id /lib/udev/console_init"
-
-# install base executables
-for binary in $exe $debugexe $udevexe $lvmexe $cryptexe ; do
-  inst $binary
-done
-
-# Prefer dash as /bin/sh if it is available.
-if [[ -f /bin/dash ]]; then
-    inst /bin/dash
-    ln -sf /bin/dash "${initdir}/bin/sh"
-fi
-
-# install our scripts and hooks
-inst "$initfile" "/init"
-inst "$switchroot" "/sbin/switch_root"
-for hookdir in $hookdirs; do
-    for hook in "$dsrc/$hookdir"/*; do
-	[[ -f $hook ]] && inst "$hook" "/$hookdir/${hook##*/}"
-    done
-done
-
-# FIXME: hard-coded module list of doom.
-[[ $modules ]] || modules="=ata =block =drm dm-crypt aes sha256 cbc"
-
-instmods $modules
-
-# Grab modules for all filesystem types we currently have mounted
-while read d mp t rest; do
-    instmods "$t"
-done </proc/mounts
-
-# FIXME: would be nice if we didn't have to know which rules to grab....
-# ultimately, /lib/initramfs/rules.d or somesuch which includes links/copies
-# of the rules we want so that we just copy those in would be best
-mkdir -p "$initdir/lib/udev/rules.d"
-for rule in /lib/udev/rules.d/10-console* /lib/udev/rules.d/40-redhat* /lib/udev/rules.d/50* /lib/udev/rules.d/60-persistent-storage.rules /lib/udev/rules.d/61*edd* /lib/udev/rules.d/64* /lib/udev/rules.d/80* /lib/udev/rules.d/95* $rulesdir/*.rules ; do
-  cp "$rule" "$initdir/lib/udev/rules.d"
-done
-
-# terminfo bits make things work better if you fall into interactive mode
-for f in $(find /lib/terminfo -type f) ; do cp  --parents $f "$initdir" ; done
 
 # source any third-party package provided modules
 for f in "$dsrc/modules"/*; do

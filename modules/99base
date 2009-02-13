@@ -1,0 +1,13 @@
+#!/bin/bash
+dracut_install mount mknod mkdir modprobe udevd udevadm pidof sleep \
+	       chroot echo sed sh ls /lib/udev/vol_id /lib/udev/console_init
+
+# install our scripts and hooks
+inst "$initfile" "/init"
+inst "$switchroot" "/sbin/switch_root"
+for hookdir in $hookdirs; do
+    for hook in "$dsrc/$hookdir"/*; do
+	[[ -f $hook ]] && inst "$hook" "/$hookdir/${hook##*/}"
+    done
+done
+
