@@ -57,7 +57,7 @@ udevexe="/lib/udev/vol_id /lib/udev/console_init"
 
 # install base files
 for binary in $exe $debugexe $udevexe $lvmexe $cryptexe ; do
-  inst $binary $initdir
+  inst $binary "$initdir"
 done
 
 # FIXME: would be nice if we didn't have to know which rules to grab....
@@ -65,7 +65,7 @@ done
 # of the rules we want so that we just copy those in would be best
 mkdir -p $initdir/lib/udev/rules.d
 for rule in /lib/udev/rules.d/10-console* /lib/udev/rules.d/40-redhat* /lib/udev/rules.d/50* /lib/udev/rules.d/60-persistent-storage.rules /lib/udev/rules.d/61*edd* /lib/udev/rules.d/64* /lib/udev/rules.d/80* /lib/udev/rules.d/95* $rulesdir/*.rules ; do
-  cp $rule $initdir/lib/udev/rules.d
+  cp "$rule" "$initdir/lib/udev/rules.d"
 done
 
 # terminfo bits make things work better if you fall into interactive mode
@@ -107,8 +107,8 @@ if [ -f /etc/sysconfig/i18n ]; then
     inst /bin/setfont "$initdir"
 
     for FN in /lib/kbd/consolefonts/$SYSFONT.* ; do
-        inst $FN "$initdir"
-        case "$FN" in
+        inst "$FN" "$initdir"
+        case $FN in
             *.gz)
                 gzip -d "$MNTIMAGE$FN"
                 ;;
@@ -126,22 +126,21 @@ if [ -f /etc/sysconfig/i18n ]; then
 fi
 
 # install our files
-cp $initfile $initdir/init
-cp $switchroot $initdir/sbin/switch_root
+cp $initfile "$initdir/init"
+cp $switchroot "$initdir/sbin/switch_root"
 
 # and create some directory structure
-mkdir -p $initdir/etc $initdir/proc $initdir/sys $initdir/sysroot $initdir/dev/pts
-
+for d in etc proc sys sysroot dev/pts; do mkdir -p "$initdir/$d"; done
 # FIXME: hard-coded module list of doom.
 [ -z "$modules" ] && modules="=ata =block =drm dm-crypt aes sha256 cbc"
 
-mkdir -p $initdir/lib/modules/$kernel
+mkdir -p "$initdir/lib/modules/$kernel"
 # expand out module deps, etc
 for mod in $(resolveAndExpandModules $modules) ; do
-    installmodule $mod $initdir
+    installmodule $mod "$initdir"
 done
 
-/sbin/depmod -a -b $initdir $kernel
+/sbin/depmod -a -b "$initdir" $kernel
 if [ $? -ne 0 ]; then
     error "\"/sbin/depmod -a $kernel\" failed."
     exit 1
@@ -152,6 +151,6 @@ if [ -x /usr/libexec/plymouth/plymouth-populate-initrd ]; then
     /usr/libexec/plymouth/plymouth-populate-initrd -t "$initdir" || :
 fi
 
-pushd $initdir >/dev/null
-find . |cpio -H newc -o |gzip -9 > $outfile
+pushd "$initdir" >/dev/null
+find . |cpio -H newc -o |gzip -9 > "$outfile"
 popd >/dev/null
