@@ -14,6 +14,12 @@ emergency_shell()
     bash < /dev/console
 }
 
+getarg() {
+    for o in $(< /proc/cmdline); do
+	[[ $o == $1 ]] && { echo $o; break; }
+    done
+}
+
 echo "Starting initrd..."
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export TERM=linux
