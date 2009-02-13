@@ -14,9 +14,17 @@ emergency_shell()
 }
 
 getarg() {
+    local o;
     for o in $(< /proc/cmdline); do
 	[[ $o == $1 ]] && { echo $o; break; }
     done
+    return 1
+}
+
+source_all() {
+    local f
+    [[ -d $1 ]] || return
+    for f in "$d"/*; do; . "$f"; done
 }
 
 echo "Starting initrd..."
@@ -67,12 +75,8 @@ esac
 tries=0
 echo "Waiting up to 30 seconds for $root to become available"
 udevadm settle --timeout=30
-[[ -f /cryptroot ]] && {
-    echo "Encrypted root detected."
-    cryptopts=$(< /cryptroot)
-    /sbin/cryptsetup luksOpen $cryptopts || emergency_shell
-    udevadm settle --timeout=30
-}
+source_all /pre-mount
+
 echo "Trying to mount rootfs $root"
 [[ -e $root ]] || emergency_shell
 ln -s "$root" /dev/root    
