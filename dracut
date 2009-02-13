@@ -4,6 +4,7 @@
 # Tries to retain some degree of compatibility with the command line
 # of the various mkinitrd implementations out there
 #
+
 # Copyright 2008, Red Hat, Inc.  Jeremy Katz <katzj@redhat.com>
 # GPLv2 header here
 
@@ -66,7 +67,7 @@ fi
 initdir=$(mktemp -d -t initramfs.XXXXXX)
 
 # executables that we have to have
-exe="/bin/bash /bin/mount /bin/mknod /bin/mkdir /sbin/modprobe /sbin/udevd /sbin/udevadm /sbin/nash /bin/kill /sbin/pidof /bin/sleep /bin/echo /usr/sbin/chroot"
+exe="/bin/bash /bin/mount /bin/mknod /bin/mkdir /sbin/modprobe /sbin/udevd /sbin/udevadm /sbin/nash /sbin/pidof /bin/sleep /usr/sbin/chroot"
 lvmexe="/sbin/lvm"
 cryptexe="/sbin/cryptsetup"
 # and some things that are nice for debugging
