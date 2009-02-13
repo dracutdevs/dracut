@@ -38,6 +38,7 @@ switchroot=$dsrc/switch_root
 rulesdir=$dsrc/rules.d
 
 initdir=$(mktemp -d -t initramfs.XXXXXX)
+trap 'rm -rf "$initdir"' 0 # clean up after ourselves no matter how we die.
 
 # executables that we have to have
 exe="/bin/bash /bin/mount /bin/mknod /bin/mkdir /sbin/modprobe /sbin/udevd /sbin/udevadm /sbin/nash /sbin/pidof /bin/sleep /usr/sbin/chroot"
