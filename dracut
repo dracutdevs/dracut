@@ -43,7 +43,7 @@ initdir=$(mktemp -d -t initramfs.XXXXXX)
 trap 'rm -rf "$initdir"' 0 # clean up after ourselves no matter how we die.
 
 # executables that we have to have
-exe="/bin/bash /bin/mount /bin/mknod /bin/mkdir /sbin/modprobe /sbin/udevd /sbin/udevadm /sbin/nash /sbin/pidof /bin/sleep /usr/sbin/chroot /bin/echo /bin/cat"
+exe="/bin/bash /bin/mount /bin/mknod /bin/mkdir /sbin/modprobe /sbin/udevd /sbin/udevadm /sbin/nash /sbin/pidof /bin/sleep /usr/sbin/chroot /bin/echo /bin/cat /bin/sed"
 lvmexe="/sbin/lvm"
 cryptexe="/sbin/cryptsetup"
 # and some things that are nice for debugging
@@ -55,6 +55,12 @@ udevexe="/lib/udev/vol_id /lib/udev/console_init"
 for binary in $exe $debugexe $udevexe $lvmexe $cryptexe ; do
   inst $binary
 done
+
+# Prefer dash as /bin/sh if it is available.
+if [[ -f /bin/dash ]]; then
+    inst /bin/dash
+    ln -sf /bin/dash "${initdir}/bin/sh"
+fi
 
 # FIXME: would be nice if we didn't have to know which rules to grab....
 # ultimately, /lib/initramfs/rules.d or somesuch which includes links/copies
