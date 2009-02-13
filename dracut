@@ -32,17 +32,11 @@ if [[ -f $outfile && ! $force ]]; then
     exit 1
 fi
 
-if [[ $allowlocal && -f ./init ]]; then
-    . ./dracut-functions
-    initfile=./init
-    switchroot=./switch_root
-    rulesdir=./rules.d
-else
-    . /usr/libexec/dracut/functions
-    initfile=/usr/libexec/dracut/init
-    switchroot=/usr/libexec/dracut/switch_root
-    rulesdir=/usr/libexec/dracut/rules.d
-fi
+[[ $allowlocal && -f ./init ]] && dsrc="." || dsrc=/usr/libexec/dracut
+. $dsrc/dracut-functions
+initfile=$dsrc/init
+switchroot=$dsrc/switch_root
+rulesdir=$dsrc/rules.d
 
 initdir=$(mktemp -d -t initramfs.XXXXXX)
 
