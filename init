@@ -59,19 +59,16 @@ NEWROOT="/sysroot"
 # it'd be nice if we had a udev rule that just did all of the bits for
 # figuring out what the specified root is and linking it /dev/root
 root=$(getarg 'root=*'); root=${root#root=}
-
 echo -n "Going to mount rootfs ($root)"
-if [ -z "$root" ]; then 
-  echo "Warning: no root specified"
-  root="/dev/sda1"
-elif [ "${root#LABEL=}" != $root ]; then
-  # FIXME: may need to do more escaping here
-  l=${root#LABEL=}
-  label=${l//\//\\x2f}
-  root="/dev/disk/by-label/${label}"
-elif [ "${root#UUID=}" != $root ]; then
-  root="/dev/disk/by-uuid/${root#UUID=}"
-fi
+case $root in
+    LABEL=*) root=${root#LABEL=}
+             root=${root//\//\\x2f}
+	     root="/dev/disk/by-label/${root}" ;;
+    UUID=*) root="/dev/disk/by-uuid/${root#UUID=}" ;;
+    '') echo "Warning: no root specified"
+	root="/dev/sda1" ;;
+esac
+
 # should we have a timeout?
 tries=0
 while [ ! -e $root ]; do
