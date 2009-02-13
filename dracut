@@ -10,30 +10,17 @@
 
 [ -f /etc/dracut.conf ] && . /etc/dracut.conf
 
-while [ $# -gt 0 ]; do
+while (($# > 0)); do
     case $1 in
-	-f|--force)
-	    force=yes
-	    shift
-	    ;;
-	-h|--help)
-	    echo "Usage: $0 [-f] <initramfs> <kernel-version>"
-	    exit 1
-	    ;;
-	-v|--verbose)
-	    set -x
-	    shift
-	    ;;
-	-l|--local)
-	    allowlocal="yes"
-	    shift
-	    ;;
-	--allow-missing)
-	    shift
-	    ;;
-	*)
-	    break
+	-f|--force) force=yes;;
+	-h|--help) echo "Usage: $0 [-f] <initramfs> <kernel-version>"
+	    exit 1 ;;
+	-v|--verbose) set -x;;
+	-l|--local) allowlocal="yes" ;;
+	--allow-missing) : ;;
+	*) break ;;
     esac
+    shift
 done
 
 if [ -n "$2" ]; then
