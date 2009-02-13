@@ -97,12 +97,8 @@ if [ -f /etc/sysconfig/i18n ]; then
     for FN in /lib/kbd/consolefonts/$SYSFONT.* ; do
         inst "$FN" "$initdir"
         case $FN in
-            *.gz)
-                gzip -d "$initdir$FN"
-                ;;
-            *.bz2)
-                bzip2 -d "$initdir$FN"
-                ;;
+            *.gz) gzip -d "$initdir$FN" ;;
+            *.bz2) bzip2 -d "$initdir$FN" ;;
         esac
     done
     [[ $SYSFONTACM ]] && inst /lib/kbd/consoletrans/$SYSFONTACM "$initdir"
