@@ -48,11 +48,11 @@ for d in bin sbin usr/bin usr/sbin usr/lib etc proc sys sysroot dev/pts; do
 done
 
 # executables that we have to have
-exe="/bin/bash /bin/mount /bin/mknod /bin/mkdir /sbin/modprobe /sbin/udevd /sbin/udevadm /sbin/nash /sbin/pidof /bin/sleep /usr/sbin/chroot /bin/echo /bin/cat /bin/sed"
-lvmexe="/sbin/lvm"
-cryptexe="/sbin/cryptsetup"
+exe="bash mount mknod mkdir modprobe udevd udevadm nash pidof sleep chroot echo cat sed"
+lvmexe="lvm"
+cryptexe="cryptsetup"
 # and some things that are nice for debugging
-debugexe="/bin/ls /bin/ln /bin/ps /bin/grep /bin/more /bin/dmesg"
+debugexe="ls ln ps grep more dmesg"
 # udev things we care about
 udevexe="/lib/udev/vol_id /lib/udev/console_init"
 
