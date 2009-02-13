@@ -58,13 +58,8 @@ NEWROOT="/sysroot"
 # FIXME: there's got to be a better way ...
 # it'd be nice if we had a udev rule that just did all of the bits for
 # figuring out what the specified root is and linking it /dev/root
-for o in `cat /proc/cmdline` ; do
-  case $o in 
-  root=*)
-    root=${o#root=}
-    ;;
-  esac
-done
+root=$(getarg 'root=*'); root=${root#root=}
+
 echo -n "Going to mount rootfs ($root)"
 if [ -z "$root" ]; then 
   echo "Warning: no root specified"
