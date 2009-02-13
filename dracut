@@ -42,6 +42,11 @@ hookdirs="pre-udev pre-mount pre-pivot"
 initdir=$(mktemp -d -t initramfs.XXXXXX)
 trap 'rm -rf "$initdir"' 0 # clean up after ourselves no matter how we die.
 
+# Create some directory structure first
+for d in bin sbin usr/bin usr/sbin usr/lib etc proc sys sysroot dev/pts; do 
+    mkdir -p "$initdir/$d"; 
+done
+
 # executables that we have to have
 exe="/bin/bash /bin/mount /bin/mknod /bin/mkdir /sbin/modprobe /sbin/udevd /sbin/udevadm /sbin/nash /sbin/pidof /bin/sleep /usr/sbin/chroot /bin/echo /bin/cat /bin/sed"
 lvmexe="/sbin/lvm"
@@ -51,7 +56,7 @@ debugexe="/bin/ls /bin/ln /bin/ps /bin/grep /bin/more /bin/dmesg"
 # udev things we care about
 udevexe="/lib/udev/vol_id /lib/udev/console_init"
 
-# install base files
+# install base executables
 for binary in $exe $debugexe $udevexe $lvmexe $cryptexe ; do
   inst $binary
 done
@@ -61,6 +66,26 @@ if [[ -f /bin/dash ]]; then
     inst /bin/dash
     ln -sf /bin/dash "${initdir}/bin/sh"
 fi
+
+# install our scripts and hooks
+inst "$initfile" "/init"
+inst "$switchroot" "/sbin/switch_root"
+inst "$echoer" "/echoer"
+for hookdir in $hookdirs; do
+    for hook in "$dsrc/$hookdir"/*; do
+	[[ -f $hook ]] && inst "$hook" "/$hookdir/${hook##*/}"
+    done
+done
+
+# FIXME: hard-coded module list of doom.
+[[ $modules ]] || modules="=ata =block =drm dm-crypt aes sha256 cbc"
+
+instmods $modules
+
+# Grab modules for all filesystem types we currently have mounted
+while read d mp t rest; do
+    instmods "$t"
+done </proc/mounts
 
 # FIXME: would be nice if we didn't have to know which rules to grab....
 # ultimately, /lib/initramfs/rules.d or somesuch which includes links/copies
@@ -72,6 +97,8 @@ done
 
 # terminfo bits make things work better if you fall into interactive mode
 for f in $(find /lib/terminfo -type f) ; do cp  --parents $f "$initdir" ; done
+
+## this stuff should be moved out of the main dracut script
 
 # FIXME: i18n stuff isn't really distro-independent :/
 if [[ -f /etc/sysconfig/keyboard || -f /etc/sysconfig/console/default.kmap ]]; then
@@ -113,31 +140,15 @@ if [ -f /etc/sysconfig/i18n ]; then
     [[ $UNIMAP ]] && inst /lib/kbd/unimaps/$UNIMAP
 fi
 
-# install our files
-inst "$initfile" "/init"
-inst "$switchroot" "/sbin/switch_root"
-inst "$echoer" "/echoer"
-for hookdir in $hookdirs; do
-    for hook in "$dsrc/$hookdir"/*; do
-	[[ -f $hook ]] && inst "$hook" "/$hookdir/${hook##*/}"
-    done
-done
+## final stuff that has to happen
 
-# and create some directory structure
-for d in etc proc sys sysroot dev/pts; do mkdir -p "$initdir/$d"; done
-# FIXME: hard-coded module list of doom.
-[[ $modules ]] || modules="=ata =block =drm dm-crypt aes sha256 cbc"
-
-instmods $modules
-
-# Grab modules for all filesystem types we currently know about
-while read d mp t rest; do
-    instmods "$t"
-done </proc/mounts
-
+# generate module dependencies for the initrd
 /sbin/depmod -a -b "$initdir" $kernel || {
     error "\"/sbin/depmod -a $kernel\" failed."
     exit 1
 }
+
+# make sure that library links are correct and up to date
+ldconfig -r "$initdir"
 
 ( cd "$initdir"; find . |cpio -H newc -o |gzip -9 > "$outfile"; )
