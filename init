@@ -101,7 +101,7 @@ if [ -x $NEWROOT/usr/sbin/load_policy ]; then
 fi
 
 # kill off udev
-kill `pidof udevd`
+kill $(pidof udevd)
 
 [ -x /bin/plymouth ] && plymouth --newroot=$NEWROOT
 
