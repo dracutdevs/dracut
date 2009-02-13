@@ -80,13 +80,9 @@ if [[ -f /etc/sysconfig/keyboard || -f /etc/sysconfig/console/default.kmap ]]; t
 
         for FN in $KEYMAPS; do
             inst $FN "$initdir"
-            case "$FN" in
-                *.gz)
-                    gzip -d "$initdir$FN"
-                    ;;
-                *.bz2)
-                    bzip2 -d "$initdir$FN"
-                    ;;
+            case $FN in
+                *.gz) gzip -d "$initdir$FN" ;;
+                *.bz2) bzip2 -d "$initdir$FN" ;;
             esac
         done
     fi
