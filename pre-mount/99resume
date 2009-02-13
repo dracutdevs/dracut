@@ -1,7 +1,10 @@
-#!/bin/bash
-resume=$(getarg 'resume=*') || return
-resume=${resume#resume=}
-[[ -b $resume ]] || return
-# parsing the output of ls is Bad, but until there is a better way...
-read x x x x maj min x < <(ls -lH "$resume")
-echo "${maj/,/}:$min"> /sys/power/resume
+#!/bin/sh
+resume=$(getarg resume) && {
+    resume=${resume#resume=}
+    [ -b "$resume" ] && {
+        # parsing the output of ls is Bad, but until there is a better way...
+	ls -lH "$resume" | ( 
+	    read x x x x maj min x;
+	    echo "${maj%,}:$min"> /sys/power/resume)
+    }
+}

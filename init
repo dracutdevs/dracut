@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Licensed under the GPLv2
 #
@@ -10,28 +10,28 @@ emergency_shell()
     echo ; echo
     echo "Bug in initramfs /init detected. Dropping to a shell. Good luck!"
     echo
-    bash < /dev/console
+    sh < /dev/console
 }
 
 getarg() {
     local o;
-    for o in $(< /proc/cmdline); do
-	[[ $o == $1 ]] && { echo $o; break; }
+    for o in $(cat /proc/cmdline); do
+	[ "${o%%=*}" = "$1" ] && { echo $o; break; }
     done
     return 1
 }
 
 source_all() {
     local f
-    [[ $1 &&  -d /$1 ]] || return
-    for f in "/$1"/*; do [[ -f $f ]] && . "$f"; done
+    [ "$1" ] && [  -d "/$1" ] || return
+    for f in "/$1"/*; do [ -f "$f" ] && . "$f"; done
 }
 
 echo "Starting initrd..."
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export TERM=linux
 
-trap "emergency_shell" 0 2
+trap "emergency_shell" 0
 # /dev/console comes from the built-in initramfs crud in the kernel
 # someday, we may need to mkdir /dev first here
 exec > /dev/console 2>&1 < /dev/console
@@ -63,7 +63,7 @@ NEWROOT="/sysroot"
 # FIXME: there's got to be a better way ...
 # it'd be nice if we had a udev rule that just did all of the bits for
 # figuring out what the specified root is and linking it /dev/root
-root=$(getarg 'root=*'); root=${root#root=}
+root=$(getarg root); root=${root#root=}
 case $root in
     LABEL=*) root=${root#LABEL=}
              root=${root//\//\\x2f}
@@ -80,7 +80,7 @@ udevadm settle --timeout=30
 source_all pre-mount
 
 echo "Trying to mount rootfs $root"
-[[ -e $root ]] || emergency_shell
+[ -e "$root" ] || emergency_shell
 ln -s "$root" /dev/root    
 mount -o ro /dev/root $NEWROOT || emergency_shell
 

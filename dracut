@@ -108,9 +108,9 @@ if [ -f /etc/sysconfig/i18n ]; then
 fi
 
 # install our files
-cp $initfile "$initdir/init"
-cp $switchroot "$initdir/sbin/switch_root"
-cp $echoer "$initdir/echoer"
+inst "$initfile" "/init"
+inst "$switchroot" "/sbin/switch_root"
+inst "$echoer" "/echoer"
 for hookdir in $hookdirs; do
     for hook in "$dsrc/$hookdir"/*; do
 	[[ -f $hook ]] && inst "$hook" "/$hookdir/${hook##*/}"

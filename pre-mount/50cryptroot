@@ -1,6 +1,7 @@
-#!/bin/bash
-[[ -f /cryptroot ]] || return
-echo "Encrypted root detected."
-cryptopts=$(< /cryptroot)
-/sbin/cryptsetup luksOpen $cryptopts || emergency_shell
-udevadm settle --timeout=30
+#!/bin/sh
+[ -f /cryptroot ] && { 
+    echo "Encrypted root detected."
+    cryptopts=$(cat /cryptroot)
+    /sbin/cryptsetup luksOpen $cryptopts || emergency_shell
+    udevadm settle --timeout=30
+}
