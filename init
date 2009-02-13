@@ -10,7 +10,7 @@ emergency_shell()
     echo ; echo
     echo "Bug in initramfs /init detected. Dropping to a shell. Good luck!"
     echo
-    sh < /dev/console
+    exec sh -i
 }
 
 getarg() {
@@ -34,7 +34,7 @@ export TERM=linux
 trap "emergency_shell" 0
 # /dev/console comes from the built-in initramfs crud in the kernel
 # someday, we may need to mkdir /dev first here
-exec > /dev/console 2>&1 < /dev/console
+# exec > /dev/console 2>&1 < /dev/console
 
 # mount some important things
 mount -t proc /proc /proc
@@ -66,7 +66,7 @@ NEWROOT="/sysroot"
 root=$(getarg root); root=${root#root=}
 case $root in
     LABEL=*) root=${root#LABEL=}
-             root=${root//\//\\x2f}
+             root="$(echo $root |sed 's,/,\\x2f,g')"
 	     root="/dev/disk/by-label/${root}" ;;
     UUID=*) root="/dev/disk/by-uuid/${root#UUID=}" ;;
     '') echo "Warning: no root specified"
