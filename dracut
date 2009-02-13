@@ -113,11 +113,7 @@ for d in etc proc sys sysroot dev/pts; do mkdir -p "$initdir/$d"; done
 # FIXME: hard-coded module list of doom.
 [[ $modules ]] || modules="=ata =block =drm dm-crypt aes sha256 cbc"
 
-mkdir -p "$initdir/lib/modules/$kernel"
-# expand out module deps, etc
-for mod in $(resolveAndExpandModules $modules) ; do
-    installmodule $mod "$initdir"
-done
+instmod $modules
 
 /sbin/depmod -a -b "$initdir" $kernel || {
     error "\"/sbin/depmod -a $kernel\" failed."
