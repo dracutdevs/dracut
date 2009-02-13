@@ -37,6 +37,7 @@ initfile=$dsrc/init
 switchroot=$dsrc/switch_root
 rulesdir=$dsrc/rules.d
 echoer=$dsrc/echoer
+hookdirs="pre-udev pre-mount pre-pivot"
 
 initdir=$(mktemp -d -t initramfs.XXXXXX)
 trap 'rm -rf "$initdir"' 0 # clean up after ourselves no matter how we die.
