@@ -62,36 +62,35 @@ get_dso_deps() {
 }
 
 inst() {
-    if [ "$#" != "2" -a "$#" != "3" ];then
+    if (($# != 2 && $# != 3));then
         echo "usage: inst <file> <root> [<destination file>]"
         return 1
     fi
     local file="$1" ; shift
-    local root="${1%%/}/" ; shift
+    local root="${1%%/}" ; shift
     local dest="${1##/}"
-    [ -z "$dest" ] && local dest="${file##/}"
+    [[ $dest ]] || dest="${file##/}"
 
-    mkdir -p "$root/$(dirname $dest)"
+    mkdir -p "$root/${dest%/*}"
 
     local RET=0
     local target=""
     [ -L "$file" ] && target=$(readlink "$file")
-    if [ -n "$target" -a "$dest" != "$target" ]; then
-        if [ -e "$root$dest" ]; then
+    if [[ $target && $dest != $target ]]; then
+        if [[ -e $root/$dest ]]; then
             RET=0
         else
-
-            ln -sf "$target" "$root$dest"
+            ln -sf "$target" "$root/$dest"
             #inst "$target" "$root"
-            local BASE=`basename "$target"`
+            local BASE=${target##*/}
             local LIBDIR=`echo "$file" | sed -e 's,\(\(.*\)/\)[^/]\+$,\1,'`
-            if [ "$LIBDIR" = "$BASE" ]; then
+            if [[ $LIBDIR = $BASE ]]; then
                 local LIBDIR=`echo "/$dest" | sed -e 's,\(\(.*\)/\)[^/]\+$,\1,'`
             fi
 
             local TLIBDIR=`echo "$target" | sed -e 's,\(^/lib[^/]*\)/.*$,\1/,' \
                                                 -e 's,\(\(.*\)/\)[^/]\+$,\1,'`
-            if [ "$TLIBDIR" = "$BASE" ]; then
+            if [[ $TLIBDIR = $BASE ]]; then
                 local TLIBDIR=`echo "/$dest" | sed \
                                                 -e 's,\(^/lib[^/]*\)/.*$,\1/,' \
                                                 -e 's,\(\(.*\)/\)[^/]\+$,\1,'`
@@ -104,7 +103,7 @@ inst() {
     fi
 
     local SHEBANG=$(dd if="$file" bs=2 count=1 2>/dev/null)
-    if [ "$SHEBANG" == '#!' ]; then
+    if [[ $SHEBANG = '#!' ]]; then
         # We're intentionally not playing the "what did this moron run
         # in his shell script" game.  There's nothing but pain in that.
         local interp=$(head -1 "$file" | sed 's/^#! *//')
@@ -113,17 +112,17 @@ inst() {
         return $RET
     fi
 
-    if [ -e "$root$dest" ]; then
+    if [[ -e $root/$dest ]]; then
         RET=0
     else
-        if [ -n "$target" -a -L "$target" ]; then
+        if [[ $target && -L $target ]]; then
             inst "$target" "$root"
             RET=$?
         else
-            cp -aL "$file" "$root$dest"
+            cp -aL "$file" "$root/$dest"
 
             local DEPS=$(get_dso_deps "$file")
-            if [ -n "$DEPS" ]; then
+            if [[ $DEPS ]]; then
                 IF_dynamic="yes"
             fi
             for x in $DEPS ; do
