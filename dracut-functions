@@ -24,13 +24,13 @@
 #
 #
 
-function set_verbose() {
+set_verbose() {
     foo=""
 }
 
 IF_RTLD=""
 IF_dynamic=""
-function get_dso_deps() {
+get_dso_deps() {
     local bin="$1" ; shift
 
     declare -a FILES
@@ -96,7 +96,7 @@ EOF
     echo "${FILES[@]}"
 }
 
-function inst() {
+inst() {
     if [ "$#" != "2" -a "$#" != "3" ];then
         echo "usage: inst <file> <root> [<destination file>]"
         return 1
