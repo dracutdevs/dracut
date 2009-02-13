@@ -23,29 +23,22 @@ while (($# > 0)); do
     shift
 done
 
-if [ -n "$2" ]; then
-    kernel=$2
-else
-    kernel=$(uname -r)
-fi
-if [ -n "$1" ]; then
-    outfile=$(readlink -f $1)
-else
+[[ $2 ]] && kernel=$2 || kernel=$(uname -r)
+[[ $1 ]] && outfile=$(readlink -f $1) || \
     outfile="/boot/initrd-$kernel.img"
-fi
 
-if [ -f "$outfile" -a  -z "$force" ]; then
+if [[ -f $outfile && ! $force ]]; then
     echo "Will not override existing initramfs ($outfile) without --force"
     exit 1
 fi
 
-if [ -n "$allowlocal" -a -f ./init ]; then
-    source ./dracut-functions
+if [[ $allowlocal && -f ./init ]]; then
+    . ./dracut-functions
     initfile=./init
     switchroot=./switch_root
     rulesdir=./rules.d
 else
-    source /usr/libexec/dracut/functions
+    . /usr/libexec/dracut/functions
     initfile=/usr/libexec/dracut/init
     switchroot=/usr/libexec/dracut/switch_root
     rulesdir=/usr/libexec/dracut/rules.d
