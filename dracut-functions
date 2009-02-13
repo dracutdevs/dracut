@@ -68,10 +68,11 @@ inst_binary() {
     [[ -f $initdir$target ]] && return 0
     # I love bash!
     while read line; do
-	[[ $line =~ '([^ ]*/lib/[^ ]*\.so[^ ]*)' ]] || continue
+	[[ $line =~ '([^ ]*/lib/[^ ]*\.so[^ ]*|not found)' ]] || continue
 	FILE=${BASH_REMATCH[1]}
-        [[ $FILE = not || $NAME = not ]] && {
+        [[ $FILE = 'not found' ]] && {
 	    echo "Missing a shared library required by $bin." >&2
+	    echo "Run \"ldd $bin\" to find out what it is." >&2
 	    echo "dracut cannot create an initrd." >&2
 	    exit 1
 	}
