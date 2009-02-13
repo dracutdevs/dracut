@@ -74,8 +74,17 @@ esac
 tries=0
 plymouth --update "Waiting up to 30 seconds for $root to become available"
 until [[ -e $root ]]; do
-  sleep 1
-  ((tries++ > 30)) && emergency_shell
+    [[ -f /cryptroot ]] && {
+	tries=27
+	cryptopts=$(< /cryptroot)
+	if [ -x /bin/plymouth ] && plymouth --ping; then
+	    /bin/plymouth ask-for-password \
+		--command "/sbin/cryptsetup luksOpen $cryptopts" && break
+	else
+	    /sbin/cryptsetup luksOpen $cryptopts && break
+	fi
+    sleep 1
+    ((tries++ > 30)) && emergency_shell
 done
 plymouth --update "Mounting rootfs after $tries seconds"
 ln -s "$root" /dev/root    
