@@ -66,16 +66,14 @@ done
 for f in $(find /lib/terminfo -type f) ; do cp  --parents $f "$initdir" ; done
 
 # FIXME: i18n stuff isn't really distro-independent :/
-if [ -f /etc/sysconfig/keyboard ] || [ -f /etc/sysconfig/console/default.kmap ]; then
+if [[ -f /etc/sysconfig/keyboard || -f /etc/sysconfig/console/default.kmap ]]; then
     if [ -f /etc/sysconfig/console/default.kmap ]; then
         KEYMAP=/etc/sysconfig/console/default.kmap
     else
         . /etc/sysconfig/keyboard
-        if [ -n "$KEYTABLE" -a -d "/lib/kbd/keymaps" ]; then
-            KEYMAP="$KEYTABLE.map"
-        fi
+        [[ $KEYTABLE && -d /lib/kbd/keymaps ]] && KEYMAP="$KEYTABLE.map"
     fi
-    if [ -n "$KEYMAP" ]; then
+    if [[ $KEYMAP ]]; then
         [ -f /etc/sysconfig/keyboard ] && inst /etc/sysconfig/keyboard "$initdir"
         inst /bin/loadkeys "$initdir"
         findkeymap $KEYMAP
@@ -97,7 +95,7 @@ fi
 if [ -f /etc/sysconfig/i18n ]; then
     . /etc/sysconfig/i18n
     inst /etc/sysconfig/i18n "$initdir"
-    [ -z "$SYSFONT" ] && SYSFONT=latarcyrheb-sun16
+    [[ $SYSFONT ]] || SYSFONT=latarcyrheb-sun16
     inst /bin/setfont "$initdir"
 
     for FN in /lib/kbd/consolefonts/$SYSFONT.* ; do
@@ -111,12 +109,8 @@ if [ -f /etc/sysconfig/i18n ]; then
                 ;;
         esac
     done
-    if [ -n "$SYSFONTACM" ]; then
-        inst /lib/kbd/consoletrans/$SYSFONTACM "$initdir"
-    fi
-    if [ -n "$UNIMAP" ]; then
-        inst /lib/kbd/unimaps/$UNIMAP "$initdir"
-    fi
+    [[ $SYSFONTACM ]] && inst /lib/kbd/consoletrans/$SYSFONTACM "$initdir"
+    [[ $UNIMAP ]] && inst /lib/kbd/unimaps/$UNIMAP "$initdir"
 fi
 
 # install our files
@@ -126,7 +120,7 @@ cp $switchroot "$initdir/sbin/switch_root"
 # and create some directory structure
 for d in etc proc sys sysroot dev/pts; do mkdir -p "$initdir/$d"; done
 # FIXME: hard-coded module list of doom.
-[ -z "$modules" ] && modules="=ata =block =drm dm-crypt aes sha256 cbc"
+[[ $modules ]] || modules="=ata =block =drm dm-crypt aes sha256 cbc"
 
 mkdir -p "$initdir/lib/modules/$kernel"
 # expand out module deps, etc
@@ -134,17 +128,14 @@ for mod in $(resolveAndExpandModules $modules) ; do
     installmodule $mod "$initdir"
 done
 
-/sbin/depmod -a -b "$initdir" $kernel
-if [ $? -ne 0 ]; then
+/sbin/depmod -a -b "$initdir" $kernel || {
     error "\"/sbin/depmod -a $kernel\" failed."
     exit 1
-fi
+}
 
 # plymouth
 if [ -x /usr/libexec/plymouth/plymouth-populate-initrd ]; then
     /usr/libexec/plymouth/plymouth-populate-initrd -t "$initdir" || :
 fi
 
-pushd "$initdir" >/dev/null
-find . |cpio -H newc -o |gzip -9 > "$outfile"
-popd >/dev/null
+( cd "$initdir"; find . |cpio -H newc -o |gzip -9 > "$outfile"; )
