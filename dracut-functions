@@ -59,6 +59,7 @@ inst_library() {
 inst_binary() {
     local bin="$1" target="${2:-$1}"
     local LDSO NAME IO FILE ADDR I1 n f TLIBDIR
+    [[ -f $initdir$target ]] && return 0
 
     LDSO=$(LANG=C eu-readelf -l $bin 2>/dev/null | \
 	awk '/interpreter/ {print $4}' |sed -e 's/]$//')
@@ -122,7 +123,7 @@ inst() {
         return 1
     fi
     local src=$1 dest=${2:-$1}
-    for x in inst_symlink inst_binary inst_script inst_simple; do
+    for x in inst_symlink inst_script inst_binary inst_simple; do
 	$x "$src" "$dest" && return 0
     done
     return 1
