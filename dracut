@@ -110,6 +110,11 @@ fi
 cp $initfile "$initdir/init"
 cp $switchroot "$initdir/sbin/switch_root"
 cp $echoer "$initdir/echoer"
+for hookdir in $hookdirs; do
+    for hook in "$dsrc/$hookdir"/*; do
+	[[ -f $hook ]] && inst "$hook" "/$hookdir/${hook##*/}"
+    done
+done
 
 # and create some directory structure
 for d in etc proc sys sysroot dev/pts; do mkdir -p "$initdir/$d"; done

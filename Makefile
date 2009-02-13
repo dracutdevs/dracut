@@ -4,6 +4,9 @@ all:
 install:
 	mkdir -p $(DESTDIR)/usr/libexec/dracut
 	mkdir -p $(DESTDIR)/sbin
+	mkdir -p $(DESTDIR)/usr/libexec/dracut/pre-mount
+	mkdir -p $(DESTDIR)/usr/libexec/dracut/pre-udev
+	mkdir -p $(DESTDIR)/usr/libexec/dracut/pre-pivot
 	install -m 0755 dracut $(DESTDIR)/sbin/dracut
 	install -m 0755 init $(DESTDIR)/usr/libexec/dracut/init
 	install -m 0755 switch_root $(DESTDIR)/usr/libexec/dracut/switch_root
@@ -11,7 +14,7 @@ install:
 	install -m 0755 echoer $(DESTDIR)/usr/libexec/dracut/echoer
 	mkdir $(DESTDIR)/usr/libexec/dracut/rules.d
 	for rule in rules.d/*.rules ; do install -m 0644 $$rule $(DESTDIR)/usr/libexec/dracut/rules.d ; done
-
+	for hooks in pre-*/* ; do install -m 0755 $$hook $(DESTDIR/usr/libexec/dracut ; done
 clean:
 	rm -f *~
 
