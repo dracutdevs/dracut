@@ -115,6 +115,11 @@ for d in etc proc sys sysroot dev/pts; do mkdir -p "$initdir/$d"; done
 
 instmods $modules
 
+# Grab modules for all filesystem types we currently know about
+while read d mp t rest; do
+    instmods "$t"
+done </proc/mounts
+
 /sbin/depmod -a -b "$initdir" $kernel || {
     error "\"/sbin/depmod -a $kernel\" failed."
     exit 1
