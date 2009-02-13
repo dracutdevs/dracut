@@ -24,8 +24,7 @@ while (($# > 0)); do
 done
 
 [[ $2 ]] && kernel=$2 || kernel=$(uname -r)
-[[ $1 ]] && outfile=$(readlink -f $1) || \
-    outfile="/boot/initrd-$kernel.img"
+[[ $1 ]] && outfile=$(readlink -f $1) || outfile="/boot/initrd-$kernel.img"
 
 if [[ -f $outfile && ! $force ]]; then
     echo "Will not override existing initramfs ($outfile) without --force"
