@@ -1,2 +1,3 @@
 #!/bin/bash
 inst cryptsetup
+inst_rules "$dsrc/rules.d/63-luks.rules"

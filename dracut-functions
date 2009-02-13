@@ -25,6 +25,8 @@
 IF_RTLD=""
 IF_dynamic=""
 
+strstr() { [[ ! ${1#*$2*} = $1 ]]; }
+
 # $1 = file to copy to ramdisk
 # $2 (optional) Name for the file on the ramdisk
 # Location of the image dir is assumed to be $initdir
@@ -69,14 +71,16 @@ inst_binary() {
     [[ -f $initdir$target ]] && return 0
     # I love bash!
     while read line; do
-	[[ $line =~ '([^ ]*/lib[^/]*/[^ ]*\.so[^ ]*|not found)' ]] || continue
-	FILE=${BASH_REMATCH[1]}
-        [[ $FILE = 'not found' ]] && {
+	[[ $line = 'not a dynamic executable' ]] && return 1
+	[[ $line =~ 'not found' ]] &&{
 	    echo "Missing a shared library required by $bin." >&2
 	    echo "Run \"ldd $bin\" to find out what it is." >&2
 	    echo "dracut cannot create an initrd." >&2
 	    exit 1
-	}
+	} 
+	[[ $line =~ '([^ ]*/lib[^/]*/[^ ]*\.so[^ ]*)' ]] || continue
+	FILE=${BASH_REMATCH[1]}
+	[[ -f ${initdir}$FILE ]] && continue
 	# see if we are loading an optimized version of a shared lib.
 	[[ $FILE =~ '^(/lib[^/]*).*' ]] && {
             TLIBDIR=${BASH_REMATCH[1]}
@@ -113,6 +117,14 @@ inst_symlink() {
     realsrc=$(readlink "$src")
     [[ $realsrc = ${realsrc##*/} ]] && realsrc="${src%/*}/$realsrc"
     inst "$realsrc" && ln -s "$realsrc" "$target"
+}
+
+# udev rules always get installed in the same place, so
+# create a function to install them to make life simpler.
+inst_rules() { 
+    for rule in "$@"; do 
+	inst_simple "$rule" "/lib/udev/rules.d/${rule##*/}"
+    done
 }
 
 # general purpose installation function
