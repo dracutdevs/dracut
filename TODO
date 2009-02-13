@@ -16,15 +16,8 @@ the rules that we care about in the initramfs.  These could be
 symlinks/hardlinks to the main rules in some cases or special-cased
 ones
 * LVM activation by udev is a bit of a large hammer right now
-* dm-crypt (luks) depends on plymouth
-* plymouth is hard-coded... this may be reasonable as modesetting goes
-into the upstream kernel as a way to get off of fb-splash stuff, but I
-can see this being a point of contention for other distros
-  * plymouth --show-splash should be done as a udev rule so that we
-  can switch modes first
 * root= parsing should be done with udev creating /dev/root symlink
 for us appropriately
-* Support thaw (resume from hibernate)
 * Proving some support with a simple network based root would be good
   * Do we just call dhclient, etc or try to get NetworkManager going?
 * Would be nice not to have to kill and restart udev across switchroot 
@@ -40,3 +33,7 @@ GENERATOR TODO
 --------------
 * Default module specificatoin could use some work
 * udev rule copying, as mentioned above, is a bit too hard-coded
+* pkg-config integration, to make it easy for other packages to use us.
+* Autotool-izing the package is probably overkill, but making the Makefile
+  vaguely autotools-compatible and adding a configure script would probably
+  be a good thing.

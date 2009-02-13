@@ -18,5 +18,4 @@ and set
 
 Requirements:
 * udev
-* plymouth > 0.6.0-2 (for encrypted root; otherwise, it should noop out)
 * nash (for switchroot until we get in util-linux)
