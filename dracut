@@ -36,7 +36,6 @@ fi
 initfile=$dsrc/init
 switchroot=$dsrc/switch_root
 rulesdir=$dsrc/rules.d
-echoer=$dsrc/echoer
 hookdirs="pre-udev pre-mount pre-pivot"
 
 initdir=$(mktemp -d -t initramfs.XXXXXX)
@@ -48,11 +47,11 @@ for d in bin sbin usr/bin usr/sbin usr/lib etc proc sys sysroot dev/pts; do
 done
 
 # executables that we have to have
-exe="bash mount mknod mkdir modprobe udevd udevadm nash pidof sleep chroot echo cat sed"
+exe="bash mount mknod mkdir modprobe udevd udevadm nash pidof sleep chroot echo sed"
 lvmexe="lvm"
 cryptexe="cryptsetup"
 # and some things that are nice for debugging
-debugexe="ls ln ps grep more dmesg"
+debugexe="ls ln ps grep more dmesg cat"
 # udev things we care about
 udevexe="/lib/udev/vol_id /lib/udev/console_init"
 
@@ -70,7 +69,6 @@ fi
 # install our scripts and hooks
 inst "$initfile" "/init"
 inst "$switchroot" "/sbin/switch_root"
-inst "$echoer" "/echoer"
 for hookdir in $hookdirs; do
     for hook in "$dsrc/$hookdir"/*; do
 	[[ -f $hook ]] && inst "$hook" "/$hookdir/${hook##*/}"

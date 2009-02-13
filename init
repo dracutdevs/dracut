@@ -10,12 +10,13 @@ emergency_shell()
     echo ; echo
     echo "Bug in initramfs /init detected. Dropping to a shell. Good luck!"
     echo
-    exec sh -i
+    sh -i 2>/dev/console
 }
 
 getarg() {
-    local o;
-    for o in $(cat /proc/cmdline); do
+    local o line
+    read -r line </proc/cmdline
+    for o in $line; do
 	[ "${o%%=*}" = "$1" ] && { echo $o; break; }
     done
     return 1
