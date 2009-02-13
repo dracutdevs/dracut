@@ -66,16 +66,10 @@ inst_binary() {
     local bin="$1" target="${2:-$1}"
     local LDSO NAME IO FILE ADDR I1 n f TLIBDIR
     [[ -f $initdir$target ]] && return 0
-
-    LDSO=$(LANG=C eu-readelf -l $bin 2>/dev/null | \
-	awk '/interpreter/ {print $4}' |sed -e 's/]$//')
-    [[ $LDSO && $LDSO != $bin ]] || LDSO="$IF_RTLD"
-    [[ $LDSO && $LDSO != $bin ]] || return 1
-    [[ $IF_RTLD ]] || IF_RTLD="$LDSO"
-
     # I love bash!
-    while read NAME I0 FILE ADDR I1 ; do
-	[[ $FILE = $bin ]] && continue 
+    while read line; do
+	[[ $line =~ '([^ ]*/lib/[^ ]*\.so[^ ]*)' ]] || continue
+	FILE=${BASH_REMATCH[1]}
         [[ $FILE = not || $NAME = not ]] && {
 	    echo "Missing a shared library required by $bin." >&2
 	    echo "dracut cannot create an initrd." >&2
@@ -96,8 +90,7 @@ inst_binary() {
 	    continue
 	}
         inst_library "$FILE" 
-    done < <(LD_TRACE_PRELINKING=1 LD_WARN= LD_TRACE_LOADED_OBJECTS=1 \
-            $LDSO $bin 2>/dev/null)
+    done < <(ldd $bin 2>/dev/null)
     inst_simple "$bin" "$target"
 }
 
