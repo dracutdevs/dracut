@@ -128,9 +128,4 @@ done </proc/mounts
     exit 1
 }
 
-# plymouth
-if [ -x /usr/libexec/plymouth/plymouth-populate-initrd ]; then
-    /usr/libexec/plymouth/plymouth-populate-initrd -t "$initdir" || :
-fi
-
 ( cd "$initdir"; find . |cpio -H newc -o |gzip -9 > "$outfile"; )

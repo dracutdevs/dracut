@@ -7,7 +7,6 @@
 
 emergency_shell()
 {
-    [ -x /bin/plymouth ] && plymouth --hide-splash
     echo ; echo
     echo "Bug in initramfs /init detected. Dropping to a shell. Good luck!"
     echo
@@ -36,18 +35,13 @@ mount -t tmpfs -omode=0755 udev /dev
 
 # FIXME: what device nodes does plymouth really _need_ ?
 mknod /dev/ptmx c 5 2
+mknod /dev/console c 5 0
 mknod /dev/fb c 29 0
 mkdir /dev/pts
 mount -t devpts -o gid=5,mode=620 /dev/pts /dev/pts
 mknod /dev/tty0 c 4 0
 mknod /dev/tty1 c 4 1
 mknod /dev/null c 1 3
-
-# start plymouth if it's available
-# arguably we need some of udev run first for fbmods and above devnodes :/
-[ -x /bin/plymouthd ] && plymouthd
-[ -x /bin/plymouth ] && plymouth --show-splash
-
 
 # start up udev and trigger cold plugs
 udevd --daemon
@@ -60,7 +54,6 @@ NEWROOT="/sysroot"
 # it'd be nice if we had a udev rule that just did all of the bits for
 # figuring out what the specified root is and linking it /dev/root
 root=$(getarg 'root=*'); root=${root#root=}
-plymouth --update "Going to mount rootfs ($root)"
 case $root in
     LABEL=*) root=${root#LABEL=}
              root=${root//\//\\x2f}
@@ -72,21 +65,16 @@ esac
 
 # should we have a timeout?
 tries=0
-plymouth --update "Waiting up to 30 seconds for $root to become available"
-until [[ -e $root ]]; do
-    [[ -f /cryptroot ]] && {
-	tries=27
-	cryptopts=$(< /cryptroot)
-	if [ -x /bin/plymouth ] && plymouth --ping; then
-	    /bin/plymouth ask-for-password \
-		--command "/sbin/cryptsetup luksOpen $cryptopts" && break
-	else
-	    /sbin/cryptsetup luksOpen $cryptopts && break
-	fi
-    sleep 1
-    ((tries++ > 30)) && emergency_shell
-done
-plymouth --update "Mounting rootfs after $tries seconds"
+echo "Waiting up to 30 seconds for $root to become available"
+udevadm settle --timeout=30
+[[ -f /cryptroot ]] && {
+    echo "Encrypted root detected."
+    cryptopts=$(< /cryptroot)
+    /sbin/cryptsetup luksOpen $cryptopts || emergency_shell
+    udevadm settle --timeout=30
+}
+echo "Trying to mount rootfs $root"
+[[ -e $root ]] || emergency_shell
 ln -s "$root" /dev/root    
 mount -o ro /dev/root $NEWROOT || emergency_shell
 
@@ -112,8 +100,6 @@ fi
 
 # kill off udev
 kill $(pidof udevd)
-
-[ -x /bin/plymouth ] && plymouth --newroot=$NEWROOT
 
 # FIXME: nash die die die
 exec switch_root
