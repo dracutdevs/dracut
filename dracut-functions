@@ -120,10 +120,8 @@ inst_symlink() {
     inst "$realsrc" && ln -s "$realsrc" "$target"
 }
 
-
 # general purpose installation function
 # Same args as above.
-# Just tries to install as a binary, a shell script, then a simple data file.
 inst() {
     if (($# != 1 && $# != 2)); then
         echo "usage: inst <file> <root> [<destination file>]"
