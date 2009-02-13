@@ -71,13 +71,10 @@ esac
 
 # should we have a timeout?
 tries=0
-while [ ! -e $root ]; do
+until [[ -e $root ]]; do
   echo -n "."
   sleep 1
-  tries=$(($tries + 1))
-  if [ $tries -gt 30 ]; then
-      emergency_shell
-  fi
+  ((tries++ > 30)) && emergency_shell
 done
 echo -e "\n\nMounting rootfs after $tries seconds"
 ln -s "$root" /dev/root    
