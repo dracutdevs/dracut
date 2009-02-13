@@ -98,10 +98,10 @@ if [ -f /etc/sysconfig/i18n ]; then
         inst "$FN" "$initdir"
         case $FN in
             *.gz)
-                gzip -d "$MNTIMAGE$FN"
+                gzip -d "$initdir$FN"
                 ;;
             *.bz2)
-                bzip2 -d "$MNTIMAGE$FN"
+                bzip2 -d "$initdir$FN"
                 ;;
         esac
     done
