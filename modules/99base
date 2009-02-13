@@ -4,9 +4,6 @@ dracut_install mount mknod mkdir modprobe pidof sleep chroot echo sed sh ls
 # install our scripts and hooks
 inst "$initfile" "/init"
 inst "$switchroot" "/sbin/switch_root"
-for hookdir in $hookdirs; do
-    for hook in "$dsrc/$hookdir"/*; do
-	[[ -f $hook ]] && inst "$hook" "/$hookdir/${hook##*/}"
-    done
-done
+inst_hook pre-pivot 50 "$dsrc/hooks/selinux-loadpolicy"
+inst_hook pre-mount 99 "$dsrc/hooks/resume"
 

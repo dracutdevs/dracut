@@ -145,6 +145,22 @@ inst() {
     return 1
 }
 
+# install function specialized for hooks
+# $1 = type of hook, $2 = hook priority (lower runs first), $3 = hook
+# All hooks should be POSIX/SuS compliant, they will be sourced by init.
+inst_hook() {
+    [[ -f $3 ]] || {
+	echo "Cannot install a hook ($3) that does not exist." >&2
+	echo "Aborting initrd creation." >&2
+	exit 1
+    }
+    strstr "$hookdirs" "$1" || {
+	echo "No such hook type $1. Aborting initrd creation." >&2
+	exit 1
+    }
+    inst_simple "$3" "/${1}/${2}${3##*/}"
+}
+
 dracut_install() {
     while (($# > 0)); do
 	inst "$1" && shift
