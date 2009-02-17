@@ -1,3 +1,112 @@
-#!/sbin/nash
+#!/bin/sh
+# Copyright (c) Victor Lowther <victor.lowther@gmail.com>
+# Licensed under the terms of the GNU GPL v2 or later.
 
-nash-switchroot
+# some utility functions first
+# this is so we can scroll back.
+
+die() { echo "${1}, dying horribly."; while :;do read line; done }
+
+# jsut enough to get the job done
+simple_find() {
+    # $1 = file to look for
+    # $rest = places to look for it
+    local file=$1
+    shift
+    for loc in "$@"; do
+	[ -f "$NEWROOT$loc/$file" ] && { echo "$loc/$file"; return 0; }
+    done
+    return 1
+}
+
+# We really should not be doing this from here, but...
+find_interp() {
+    local ldso=$("$NEWROOT$CHROOT" "$NEWROOT" "$LDD" "$1" |
+	while read interp rest; do
+	    [ -f "${NEWROOT}$interp" ] || continue
+	    echo "$interp"
+	    break
+	done);
+    [ "$ldso" ] && echo $ldso
+}
+
+# this makes it easier to run a command entirely from newroot
+# $1 = elf interpreter (must pass empty string if none)
+# $2 = command or "exec"
+# $3 = command if exec was passed
+run_from_newroot() {
+    local ldso="$1" cmd="$2"; shift; shift
+    if [ "$cmd" = "exec" ]; then
+	cmd="$1"; shift
+	if [ "$ldso" ]; then
+	    exec "$NEWROOT$ldso" --library-path "$LIBPATH" "$NEWROOT$cmd" "$@"
+	else
+	    exec "$NEWROOT$cmd" "$@"
+	fi
+    else
+	if [ "$ldso" ]; then
+	    "$NEWROOT$ldso" --library-path "$LIBPATH" "$NEWROOT$cmd" "$@"
+	else
+	    "$NEWROOT$cmd" "$@"
+	fi
+    fi
+}
+# update the path to find our dynamic libraries on newroot
+update_newroot_libpath() {
+    local x
+    LIBPATH=":"
+    LIBDIRS="$(echo $NEWROOT/lib* $NEWROOT/usr/lib*)"
+    for x in $LIBDIRS; do
+	[ -d "$x" ] && LIBPATH="${LIBPATH}${x}:"
+    done
+    LIBPATH="${LIBPATH%:}"; LIBPATH="${LIBPATH#:}"
+    [ "$LIBPATH" ] || die "Cannot find shared library diectories on $NEWROOT"
+}
+NEWROOT="$1"
+INIT="$2"
+[ -d "$NEWROOT" ] || die "$NEWROOT is not a directory"
+[ -x "$NEWROOT$INIT" ] || die "$NEWROOT/$INIT is not executable."
+shift; shift
+
+update_newroot_libpath
+
+# start looking for required binaries and bits of infrastructure
+BINDIRS="/bin /sbin /usr/bin /usr/sbin"
+INITDIRS="/sbin /etc /"
+RM=$(simple_find rm $BINDIRS) || die "Cannnot find rm on $NEWROOT"
+CHROOT=$(simple_find chroot $BINDIRS) || die "Cannot find chroot on $NEWROOT"
+LDD=$(simple_find ldd $BINDIRS) || die "Cannot find ldd on $NEWROOT"
+MOUNT=$(simple_find mount $BINDIRS) || die "Cannot find mount on $NEWROOT"
+
+# now, start the real process of switching the root
+cd /
+
+# kill udevd, move all our mounts over to the new root
+kill $(pidof udevd)
+mount --move /proc $NEWROOT/proc
+mount --move /sys $NEWROOT/sys
+mount --move /dev $NEWROOT/dev
+
+# Find the binary interpreter for our three required binaries.
+# We do it here so that ldd does not complain about a missing /dev/null.
+CHROOT_LDSO=$(find_interp "$CHROOT")
+RM_LDSO=$(find_interp "$RM")
+MOUNT_LDSO=$(find_interp "$MOUNT")
+
+# redirect to new console. Our old initramfs will not be freed otherwise
+CONSOLE=$NEWROOT/dev/console
+[ -c $CONSOLE ] && exec >$CONSOLE 2>&1 <$CONSOLE
+for x in *; do
+    [ "/$x" = "$NEWROOT" ] || run_from_newroot "$RM_LDSO" "$RM" -rf -- "$x"
+done
+# switch to our new root dir
+cd "$NEWROOT"
+# this moves rootfs to the actual root...
+run_from_newroot "$MOUNT_LDSO" "$MOUNT" -n --move . /
+# but does not update where / is in directory lookups.
+# Therefore, newroot is now ".".  Update things accordingly, then chroot and
+# exec init.
+NEWROOT="."
+update_newroot_libpath
+run_from_newroot "$CHROOT_LDSO" exec "$CHROOT" "$NEWROOT" "$INIT" "$@"
+die "The chroot did not take for some reason"

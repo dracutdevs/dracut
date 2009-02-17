@@ -10,13 +10,12 @@ emergency_shell()
     echo ; echo
     echo "Bug in initramfs /init detected. Dropping to a shell. Good luck!"
     echo
-    sh -i 2>/dev/console
+    sh -i
 }
 
 getarg() {
     local o line
-    read -r line </proc/cmdline
-    for o in $line; do
+    for o in $CMDLINE; do
 	[ "${o%%=*}" = "$1" ] && { echo $o; break; }
     done
     return 1
@@ -31,16 +30,15 @@ source_all() {
 echo "Starting initrd..."
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export TERM=linux
-
+CONSOLE=/dev/console
+[ -c $CONSOLE ] && exec >$CONSOLE 2>&1 <$CONSOLE
 trap "emergency_shell" 0
-# /dev/console comes from the built-in initramfs crud in the kernel
-# someday, we may need to mkdir /dev first here
-# exec > /dev/console 2>&1 < /dev/console
-
 # mount some important things
 mount -t proc /proc /proc
 mount -t sysfs /sys /sys
 mount -t tmpfs -omode=0755 udev /dev
+read CMDLINE </proc/cmdline;
+
 
 # FIXME: what device nodes does plymouth really _need_ ?
 mknod /dev/ptmx c 5 2
@@ -59,7 +57,7 @@ udevd --daemon
 udevadm trigger >/dev/null 2>&1
 
 # mount the rootfs
-NEWROOT="/sysroot"
+export NEWROOT="/sysroot"
 
 # FIXME: there's got to be a better way ...
 # it'd be nice if we had a udev rule that just did all of the bits for
@@ -85,22 +83,21 @@ echo "Trying to mount rootfs $root"
 ln -s "$root" /dev/root    
 mount -o ro /dev/root $NEWROOT || emergency_shell
 
-# now we need to prepare to switchroot
-mount --bind /dev $NEWROOT/dev
-
-# FIXME: now for a bunch of boiler-plate mounts.  really, we should have 
-# some like /etc/fstab.sys that's provided by filesystem/initscripts
-# and then do mount -f /etc/fstab.sys -a
-mount -t proc /proc $NEWROOT/proc
-mount -t sysfs /sys $NEWROOT/sys
-
+INIT=$(getarg init)
+[ "$INIT" ] || {
+    for i in /sbin/init /etc/init /init /bin/sh; do
+	[ -x "$NEWROOT$i" ] && { INIT="$i"; break; }
+    done
+    [ "$INIT" ] || {
+	echo "Cannot find init! Please check to make sure you passed"
+	echo "a valid root filesystem!  Dropping to a shell."
+	emergency_shell
+    }
+}
+	    
 source_all pre-pivot
 
-# kill off udev
-kill $(pidof udevd)
-
-# FIXME: nash die die die
-exec switch_root
+exec switch_root "$NEWROOT" "$INIT"  $CMDLINE
 # davej doesn't like initrd bugs
 echo "Something went very badly wrong in the initrd.  Please "
 echo "file a bug against mkinitrd."
