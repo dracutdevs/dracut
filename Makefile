@@ -12,7 +12,7 @@ install:
 	install -m 0755 dracut-functions $(DESTDIR)/usr/libexec/dracut/functions
 	mkdir $(DESTDIR)/usr/libexec/dracut/rules.d
 	for rule in rules.d/*.rules ; do install -m 0644 $$rule $(DESTDIR)/usr/libexec/dracut ; done
-	for hooks in hooks/* ; do install -m 0755 $$hook $(DESTDIR)/usr/libexec/dracut ; done
+	for hook in hooks/* ; do install -m 0755 $$hook $(DESTDIR)/usr/libexec/dracut ; done
 	for module in modules/*; do install -m 0755 $$module $(DESTDIR)/usr/libexec/dracut ; done
 clean:
 	rm -f *~
