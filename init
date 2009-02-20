@@ -57,7 +57,7 @@ udevd --daemon
 udevadm trigger >/dev/null 2>&1
 
 # mount the rootfs
-export NEWROOT="/sysroot"
+NEWROOT="/sysroot"
 
 # FIXME: there's got to be a better way ...
 # it'd be nice if we had a udev rule that just did all of the bits for
@@ -96,10 +96,10 @@ INIT=$(getarg init)
 }
 	    
 source_all pre-pivot
-
-exec switch_root "$NEWROOT" "$INIT"  $CMDLINE
-# davej doesn't like initrd bugs
-echo "Something went very badly wrong in the initrd.  Please "
-echo "file a bug against mkinitrd."
-sleep 100d
-exit 1
+echo "Switching to real root filesystem $root"
+exec switch_root "$NEWROOT" "$INIT"  $CMDLINE || {
+    # davej doesn't like initrd bugs
+    echo "Something went very badly wrong in the initrd.  Please "
+    echo "file a bug against mkinitrd."
+    emergency_shell
+}

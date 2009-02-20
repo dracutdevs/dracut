@@ -72,7 +72,6 @@ update_newroot_libpath
 
 # start looking for required binaries and bits of infrastructure
 BINDIRS="/bin /sbin /usr/bin /usr/sbin"
-INITDIRS="/sbin /etc /"
 RM=$(simple_find rm $BINDIRS) || die "Cannnot find rm on $NEWROOT"
 CHROOT=$(simple_find chroot $BINDIRS) || die "Cannot find chroot on $NEWROOT"
 LDD=$(simple_find ldd $BINDIRS) || die "Cannot find ldd on $NEWROOT"
@@ -108,5 +107,5 @@ run_from_newroot "$MOUNT_LDSO" "$MOUNT" -n --move . /
 # exec init.
 NEWROOT="."
 update_newroot_libpath
-run_from_newroot "$CHROOT_LDSO" exec "$CHROOT" "$NEWROOT" "$INIT" "$@"
-die "The chroot did not take for some reason"
+run_from_newroot "$CHROOT_LDSO" exec "$CHROOT" "$NEWROOT" "$INIT" "$@" || \
+    die "The chroot did not take for some reason"
