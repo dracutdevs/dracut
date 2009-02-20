@@ -44,7 +44,7 @@ hookdirs="pre-udev pre-mount pre-pivot"
 initdir=$(mktemp -d -t initramfs.XXXXXX)
 trap 'rm -rf "$initdir"' 0 # clean up after ourselves no matter how we die.
 
-export initdir hookdirs rulesdir dsrc dracutmodules kmodules
+export initdir hookdirs rulesdir dsrc dracutmodules modules
 
 # Create some directory structure first
 for d in bin sbin usr/bin usr/sbin usr/lib etc proc sys sysroot dev/pts; do 
@@ -52,8 +52,8 @@ for d in bin sbin usr/bin usr/sbin usr/lib etc proc sys sysroot dev/pts; do
 done
 
 # source all our modules
-for f in "$dsrc/modules"/*[^~]; do
-    mod=${f##*/}; mod=${mod#[0-9][0-9]}
+for f in "$dsrc/modules"/*.sh; do
+    mod=${f##*/}; mod=${mod#[0-9][0-9]}; mod=${mod%.sh}
     if [[ $dracutmodules = all ]] || strstr "$dracutmodules" "$mod"; then 
 	[[ -x $f ]] && . "$f"
     fi

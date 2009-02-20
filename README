@@ -37,6 +37,7 @@ Some general rules for writing modules:
  * Generator modules should have a two digit numeric prefix -- they run in
    ascending sort order. Anything in the 90-99 range is stuff that dracut
    relies on, so try not to break those hooks.
+ * Generator modules and hooks must have a .sh extension. 
 
 Also, there is an attempt to keep things as distribution-agnostic as
 possible.  Every distribution has their own tool here and it's not
