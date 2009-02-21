@@ -79,9 +79,10 @@ udevadm settle --timeout=30
 source_all pre-mount
 
 echo "Trying to mount rootfs $root"
+rwopt="$(getarg rw)" || rwopt="ro"
 [ -e "$root" ] || emergency_shell
 ln -s "$root" /dev/root    
-mount -o ro /dev/root $NEWROOT || emergency_shell
+mount -o $rwopt /dev/root $NEWROOT || emergency_shell
 
 INIT=$(getarg init)
 [ "$INIT" ] || {
