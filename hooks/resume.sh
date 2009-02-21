@@ -1,5 +1,5 @@
 #!/bin/sh
-resume=$(getarg resume) && {
+resume=$(getarg resume) && [ "$(getarg noresume)" = "" ] && {
     resume=${resume#resume=}
     [ -b "$resume" ] && {
         # parsing the output of ls is Bad, but until there is a better way...
