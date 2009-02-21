@@ -16,7 +16,7 @@ emergency_shell()
 getarg() {
     local o line
     for o in $CMDLINE; do
-	[ "${o%%=*}" = "$1" ] && { echo $o; break; }
+	[ "${o%%=*}" = "$1" ] && { echo $o; return 0; }
     done
     return 1
 }
