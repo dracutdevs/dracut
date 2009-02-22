@@ -2,7 +2,9 @@
 [ -s /cryptroot ] && { 
     udevadm control --stop_exec_queue
     while read cryptopts; do
-	/sbin/cryptsetup luksOpen $cryptopts
+       (   exec >/dev/console 2>&1 </dev/console
+           /sbin/cryptsetup luksOpen $cryptopts || emergency_shell
+       )
     done </cryptroot
     >/cryptroot
     udevadm control --start_exec_queue
