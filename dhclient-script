@@ -19,6 +19,7 @@ case $reason in
 	for s in $new_domain_name_servers; do
 	    echo "nameserver $s" >> /etc/resolv.conf
 	done
+	set |grep -e '^new_[a-z_]=' >/net.$interface.dhcpopts
 	>/net.$interface.up ;;
     *) ;;
 esac
