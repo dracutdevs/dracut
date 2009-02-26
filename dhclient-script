@@ -16,9 +16,9 @@ case $reason in
 	elif [ "$new_domain_name" ]; then
 	    echo "search $new_domain_name" >> /etc/resolv.conf
 	fi
-	(   IFS=",";
-	    for s in $new_domain_name_servers; do
-		echo "nameserver $s" >> /etc/resolv.conf
-	    done ) ;;
+	for s in $new_domain_name_servers; do
+	    echo "nameserver $s" >> /etc/resolv.conf
+	done
+	>/net.$interface.up ;;
     *) ;;
 esac
