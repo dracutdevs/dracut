@@ -1,5 +1,4 @@
 #!/bin/sh
->/net.$1
 
 # loopback is always handled the same way
 [ "$1" = "lo" ] && {
@@ -14,13 +13,13 @@ for p in $(cat /proc/cmdline); do
     p=${p#ip=}
     case $p in
 	none|off) exit 0;; # we were told to not configure anything
-	dhcp|on|any) dhclient -nw "$1"; exit 0;; 
+	dhcp|on|any) >/net.$1.dhcp; exit 0;; 
 	bootp|rarp|both) exit 0;; #dunno how to do this
 	*) echo ${ip#ip=} | \
 	    (IFS=':' read client server gw netmask hostname device autoconf
 		if [ -z "$device" -o "$device" = "$1"  ]; then
 		    case $autoconf in
-			dhcp|on|any) dhclient -nw "$1";;
+			dhcp|on|any) >/net.$1.dhcp ;;
 			none|off|'') # do some basic configuration
 			    ip link set $1 up
 			    ip addr add $client/$netmask dev $1
