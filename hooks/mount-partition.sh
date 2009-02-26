@@ -1,6 +1,6 @@
 #!/bin/sh
 [ "$root" ] || {
-    root=$(getarg root); root=${root#root=}
+    root=$(getarg root=)
     case $root in
 	LABEL=*) root=${root#LABEL=}
             root="$(echo $root |sed 's,/,\\x2f,g')"
@@ -12,19 +12,16 @@
 }
 
 [ "$rflags" ] || {
-    if rflags="$(getarg rootflags)"; then
-	rflags="${rflags#rootflags=}"
-	getarg rw >/dev/null && rflags="${rflags},rw" || rflags="${rflags},ro"
+    if rflags="$(getarg rootflags=)"; then
+	getarg rw && rflags="${rflags},rw" || rflags="${rflags},ro"
     else
-	getarg rw >/dev/null && rflags=rw || rflags=ro
+	getarg rw && rflags=rw || rflags=ro
     fi
 }
 
 [ "$fstype" ] || {
-    fstype="$(getarg rootfstype)" && fstype="-t ${fstype#rootfstype=}"
+    fstype="$(getarg rootfstype=)" && fstype="-t ${fstype}"
 }
 
-[ -e "$root" ] && {
-    ln -sf "$root" /dev/root
-    mount $fstype -o $rflags /dev/root $NEWROOT && ROOTFS_MOUNTED=yes
-}
+[ -e "$root" ] && mount $fstype -o "$rflags" "$root" "$NEWROOT" && \
+    ROOTFS_MOUNTED=yes

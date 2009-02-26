@@ -16,7 +16,8 @@ emergency_shell()
 getarg() {
     local o line
     for o in $CMDLINE; do
-	[ "${o%%=*}" = "$1" ] && { echo $o; return 0; }
+	[ "$o" = "$1" ] && return 0
+	[ "${o%%=*}" = "${1%=}" ] && { echo ${o#*=}; return 0; }
     done
     return 1
 }
@@ -75,17 +76,14 @@ while :; do
 done
 
 # by the time we get here, the root filesystem should be mounted.
-
-INIT=$(getarg init)
+# Try to find init.
+for i in "$(getarg init=)" /sbin/init /etc/init /init /bin/sh; do
+    [ -f "$NEWROOT$i" -a -x "$NEWROOT$i" ] && { INIT="$i"; break; }
+done
 [ "$INIT" ] || {
-    for i in /sbin/init /etc/init /init /bin/sh; do
-	[ -x "$NEWROOT$i" ] && { INIT="$i"; break; }
-    done
-    [ "$INIT" ] || {
-	echo "Cannot find init! Please check to make sure you passed"
-	echo "a valid root filesystem!  Dropping to a shell."
-	emergency_shell
-    }
+    echo "Cannot find init! Please check to make sure you passed"
+    echo "a valid root filesystem!  Dropping to a shell."
+    emergency_shell
 }
 
 # pre pivot scripts are sourced just before we switch over to the new root.

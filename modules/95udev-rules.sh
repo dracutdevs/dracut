@@ -8,3 +8,5 @@ inst_rules /lib/udev/rules.d/10-console* /lib/udev/rules.d/40-redhat* \
     /lib/udev/rules.d/50* /lib/udev/rules.d/60-persistent-storage.rules \
     /lib/udev/rules.d/61*edd* /lib/udev/rules.d/64* /lib/udev/rules.d/80* \
     /lib/udev/rules.d/95*
+# make udevadm shut up about missing udev.conf
+inst /etc/udev/udev.conf
