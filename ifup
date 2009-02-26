@@ -1,0 +1,20 @@
+#!/bin/sh
+echo "$*" >>/dev/net-interfaces-found
+
+# loopback is always handled the same way
+[ "$1" = "lo" ] && {
+    ip link set lo up
+    ip addr add 127.0.0.1/8 dev lo
+    exit 0
+}
+
+# spin through the kernel command line, looking for ip= lines
+while read p; do
+    case $p in
+	'ip=none'|'ip=off') exit 0;; # we were told to not configure anything
+	'ip=dhcp'|'ip=on'|'ip=any') dhclient -nw "$1"; exit 0;; 
+	'ip=bootp'|'ip=rarp'|'ip=both') exit 0;; #dunno how to do this
+	ip=*) exit 0;; #to be written
+	*) continue;;
+    esac
+done

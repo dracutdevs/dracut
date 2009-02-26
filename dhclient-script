@@ -1,0 +1,24 @@
+#!/bin/sh
+# very simple dhclient-script.  All it cares about is bringing the interface
+# up, and it does not even try to do anything else.
+
+case $reason in
+    PREINIT) ip link set "$interface" up ;;
+    BOUND) ipopts="$new_ip_address"
+     	[ "$new_interface_mtu" ] && ip link set $interface mtu $new_interface_mtu
+	[ "$new_subnet_mask" ] && ipopts="$ipopts/$new_subnet_mask"
+	[ "$new_broadcast_address" ] && ipopts="$ipopts broadcast $new_broadcast_address"
+	ip addr add $ipopts dev $interface
+	[ "$new_routers" ] && ip route add default via ${new_routers%%,*} dev $interface
+	[ "$new_domain_name" ] && echo "domain $new_domain_name" > /etc/resolv.conf
+	if [ "$new_domain_search" ]; then
+	    echo "search $new_domain_search" |sed 's/,//g' >> /etc/resolv.conf
+	elif [ "$new_domain_name" ]; then
+	    echo "search $new_domain_name" >> /etc/resolv.conf
+	fi
+	(   IFS=",";
+	    for s in $new_domain_name_servers; do
+		echo "nameserver $s" >> /etc/resolv.conf
+	    done ) ;;
+    *) ;;
+esac
