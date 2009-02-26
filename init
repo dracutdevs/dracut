@@ -40,16 +40,12 @@ mount -t sysfs /sys /sys
 mount -t tmpfs -omode=0755 udev /dev
 read CMDLINE </proc/cmdline;
 
-
-# FIXME: what device nodes does plymouth really _need_ ?
+# Make some basic devices first, let udev handle the rest
 mknod /dev/ptmx c 5 2
-mknod /dev/console c 5 0
-mknod /dev/fb c 29 0
+mknod /dev/null c 1 3
+mknod /dev/console c 5 1
 mkdir /dev/pts
 mount -t devpts -o gid=5,mode=620 /dev/pts /dev/pts
-mknod /dev/tty0 c 4 0
-mknod /dev/tty1 c 4 1
-mknod /dev/null c 1 3
 
 # pre-udev scripts run before udev starts, and are run only once.
 source_all pre-udev
