@@ -48,18 +48,20 @@ mkdir /dev/pts
 mount -t devpts -o gid=5,mode=620 /dev/pts /dev/pts
 
 # pre-udev scripts run before udev starts, and are run only once.
+getarg 'break=pre-udev' && emergency_shell
 source_all pre-udev
 
 # start up udev and trigger cold plugs
 udevd --daemon
 udevadm trigger >/dev/null 2>&1
-udevadm settle --timeout=30
+udevadm settle --timeout=30 >/dev/null 2>&1
 
 NEWROOT="/sysroot"
 # pre-mount happens before we try to mount the root filesystem,
 # and happens once.
+getarg 'break=pre-mount' && emergency_shell
 source_all pre-mount
-
+getarg 'break=mount' && emergency_shell
 # mount scripts actually try to mount the root filesystem, and may
 # be sourced any number of times. As soon as one suceeds, no more are sourced.
 while :; do
@@ -83,7 +85,9 @@ done
 }
 
 # pre pivot scripts are sourced just before we switch over to the new root.
+getarg 'break=pre-pivot' && emergency_shell
 source_all pre-pivot
+getarg break && emergency_shell
 echo "Switching to real root filesystem $root"
 exec switch_root "$NEWROOT" "$INIT"  $CMDLINE || {
     # davej doesn't like initrd bugs
