@@ -1,0 +1,3 @@
+#!/bin/bash
+inst lvm
+inst_rules "$moddir/64-lvm.rules"

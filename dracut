@@ -52,12 +52,14 @@ for d in bin sbin usr/bin usr/sbin usr/lib etc proc sys sysroot dev/pts; do
 done
 
 # source all our modules
-for f in "$dsrc/modules"/*.sh; do
-    mod=${f##*/}; mod=${mod#[0-9][0-9]}; mod=${mod%.sh}
+for moddir in "$dsrc/modules.d"/*; do
+    [[ -d $moddir || -L $moddir ]] || continue
+    mod=${moddir##*/}; mod=${mod#[0-9][0-9]};
     if [[ $dracutmodules = all ]] || strstr "$dracutmodules" "$mod"; then 
-	[[ -x $f ]] && . "$f"
+	[[ -x $moddir/install ]] && . "$moddir/install"
     fi
 done
+unset moddir
 
 ## final stuff that has to happen
 
