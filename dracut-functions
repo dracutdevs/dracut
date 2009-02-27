@@ -83,17 +83,17 @@ inst_binary() {
     # I love bash!
     while read line; do
 	[[ $line = 'not a dynamic executable' ]] && return 1
-	[[ $line =~ 'not found' ]] &&{
+	[[ $line =~ not\ found ]] &&{
 	    echo "Missing a shared library required by $bin." >&2
 	    echo "Run \"ldd $bin\" to find out what it is." >&2
 	    echo "dracut cannot create an initrd." >&2
 	    exit 1
 	} 
-	[[ $line =~ '([^ ]*/lib[^/]*/[^ ]*\.so[^ ]*)' ]] || continue
+	[[ $line =~ ([^ ]*/lib[^/]*/[^ ]*\.so[^ ]*) ]] || continue
 	FILE=${BASH_REMATCH[1]}
 	[[ -f ${initdir}$FILE ]] && continue
 	# see if we are loading an optimized version of a shared lib.
-	[[ $FILE =~ '^(/lib[^/]*).*' ]] && {
+	[[ $FILE =~ ^(/lib[^/]*).* ]] && {
             TLIBDIR=${BASH_REMATCH[1]}
             BASE="${FILE##*/}"
 	    # prefer nosegneg libs, then unoptimized ones.
@@ -116,7 +116,7 @@ inst_binary() {
 inst_script() {
     local src=$1 target=${2:-$1} line
     read -r -n 80 line <"$src"
-    [[ $line =~ '(#! *)(/[^ ]+).*' ]] || return 1
+    [[ $line =~ (#! *)(/[^ ]+).* ]] || return 1
     inst "${BASH_REMATCH[2]}" && inst_simple "$src" "$target"
 }
 
