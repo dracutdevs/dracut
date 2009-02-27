@@ -4,16 +4,10 @@ all:
 install:
 	mkdir -p $(DESTDIR)/usr/libexec/dracut
 	mkdir -p $(DESTDIR)/sbin
-	mkdir -p $(DESTDIR)/usr/libexec/dracut/hooks
-	mkdir -p $(DESTDIR)/usr/libexec/dracut/modules
+	mkdir -p $(DESTDIR)/usr/libexec/dracut/modules.d
 	install -m 0755 dracut $(DESTDIR)/sbin/dracut
-	install -m 0755 init $(DESTDIR)/usr/libexec/dracut/init
-	install -m 0755 switch_root $(DESTDIR)/usr/libexec/dracut/switch_root
 	install -m 0755 dracut-functions $(DESTDIR)/usr/libexec/dracut/functions
-	mkdir $(DESTDIR)/usr/libexec/dracut/rules.d
-	for rule in rules.d/*.rules ; do install -m 0644 $$rule $(DESTDIR)/usr/libexec/dracut ; done
-	for hook in hooks/*.sh ; do install -m 0755 $$hook $(DESTDIR)/usr/libexec/dracut ; done
-	for module in modules/*.sh; do install -m 0755 $$module $(DESTDIR)/usr/libexec/dracut ; done
+	for module in modules/*/*; do install -D -m 0755 $$module $(DESTDIR)/usr/libexec/dracut ; done
 clean:
 	rm -f *~
 

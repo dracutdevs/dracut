@@ -34,7 +34,7 @@ if [[ -f $outfile && ! $force ]]; then
     exit 1
 fi
 
-[[ $allowlocal && -f ./init ]] && dsrc="." || dsrc=/usr/libexec/dracut
+[[ $allowlocal && -f dracut-functions ]] && dsrc="." || dsrc=/usr/libexec/dracut
 . $dsrc/dracut-functions
 initfile=$dsrc/init
 switchroot=$dsrc/switch_root
