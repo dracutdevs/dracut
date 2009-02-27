@@ -45,6 +45,7 @@ inst_library() {
 	reallib="$(readlink -f "$src")"
 	lib=${src##*/}
 	inst_simple "$reallib" "$reallib"
+	mkdir -p ${initdir}${dest%/*}
 	(cd "${initdir}${dest%/*}" && ln -s "$reallib" "$lib")
     else
 	inst_simple "$src" "$dest"
