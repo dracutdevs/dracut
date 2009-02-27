@@ -53,14 +53,25 @@ inst_library() {
     fi
 }
 	
-find_binary() {
-    local binpath="/bin /sbin /usr/bin /usr/sbin" p
-    [[ ${1##*/} = $1 ]] || { echo $1; return 0; }
+find_file() {
+   local binpath="/bin /sbin /usr/bin /usr/sbin" p
+
+   #Full path or not?
+   if [[ ${1##*/} != $1 ]] ; then
+      if [[ -e $1 ]] ; then
+          echo $1;
+          return 0;
+      fi
+      return 1;
+   fi
+   #Search in path
     for p in $binpath; do
-	[[ -x $p/$1 ]] && { echo "$p/$1"; return 0; }
+      [[ -x $p/$1 ]] && { echo "$p/$1"; return 0; }
+      [[ -e $p/$1 ]] && { echo "$p/$1"; return 0; }
     done
     return 1
 }
+
 
 # Same as above.
 # If the file is a binary executable, install all its
@@ -134,7 +145,7 @@ inst() {
         echo "usage: inst <file> <root> [<destination file>]"
         return 1
     fi
-    local src=$(find_binary "$1") || {
+    local src=$(find_file "$1") || {
 	echo "Cannot find requested file $1. Exiting."
 	exit 1
     }
