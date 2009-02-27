@@ -42,11 +42,9 @@ inst_library() {
     local src=$1 dest=${2:-$1}
     [[ -f $initdir$dest ]] && return 0
     if [[ -L $src ]]; then
-	reallib="$(readlink "$src")"
+	reallib="$(readlink -f "$src")"
 	lib=${src##*/}
-	realsrc="${src%/*}/$reallib"
-	realdest="${dest%/*}/$reallib"
-	inst_simple "$realsrc" "$realdest"
+	inst_simple "$reallib" "$reallib"
 	(cd "${initdir}${dest%/*}" && ln -s "$reallib" "$lib")
     else
 	inst_simple "$src" "$dest"
@@ -125,7 +123,7 @@ inst_symlink() {
     local src=$1 target=$initdir${2:-$1} realsrc
     [[ -L $1 ]] || return 1
     [[ -L $target ]] && return 0
-    realsrc=$(readlink "$src")
+    realsrc=$(readlink -f "$src")
     [[ $realsrc = ${realsrc##*/} ]] && realsrc="${src%/*}/$realsrc"
     inst "$realsrc" && ln -s "$realsrc" "$target"
 }
