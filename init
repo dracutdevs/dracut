@@ -103,6 +103,9 @@ INIT=$(getarg init); INIT=${INIT#init=}
 }
 	    
 source_all pre-pivot
+
+kill $(pidof udevd)
+
 echo "Switching to real root filesystem $root"
 exec switch_root "$NEWROOT" "$INIT"  $CMDLINE || {
     # davej doesn't like initrd bugs
