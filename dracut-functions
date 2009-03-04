@@ -15,7 +15,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-<# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Authors:
 #       Peter Jones <pjones@redhat.com>
@@ -79,7 +79,7 @@ find_file() {
 # shared library dependencies, if any.
 inst_binary() {
     local bin target
-    bin=$(find_binary "$1") || return 1
+    bin=$(find_file "$1") || return 1
     shift
     local LDSO NAME IO FILE ADDR I1 n f TLIBDIR
     [[ -f $initdir$target ]] && return 0
