@@ -68,6 +68,6 @@ unset moddir
 }
 
 # make sure that library links are correct and up to date
-ldconfig -r "$initdir"
+ldconfig -n -r "$initdir" /lib /usr/lib
 
 ( cd "$initdir"; find . |cpio -H newc -o |gzip -9 > "$outfile"; )
