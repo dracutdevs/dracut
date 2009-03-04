@@ -1,5 +1,7 @@
-all:
-	@echo "Nothing to do"
+modules.d/99base/switch_root: switch_root.c
+	gcc -o modules.d/99base/switch_root switch_root.c	
+
+all: modules.d/99base/switch_root
 
 install:
 	mkdir -p $(DESTDIR)/usr/libexec/dracut
