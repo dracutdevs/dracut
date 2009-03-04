@@ -177,14 +177,14 @@ dracut_install() {
     done
 }
 
-modcat="/lib/modules/$kernel/modules"
+srcmods="/lib/modules/$kernel/"
 instmods() {
     local mod mpargs modpath modname cmd
     while (($# > 0)); do
 	mod=${1%.ko}
+	mod=${mod##*/}
 	case $mod in
-	    =ata) instmods $mpargs $(cat "${modcat}.block" |egrep 'ata|ahci');;
-	    =*) instmods $mpargs $(cat "${modcat}.${mod#=}");;
+	    =*) instmods $mpargs $(find "$srcmods" -path "*/${mod#=}/*");;
 	    --*) mpargs+=" $mod";;
 	    *) modprobe $mpargs --set-version $kernel --show-depends $mod \
 		2>/dev/null |while read cmd modpath options; do
@@ -195,7 +195,7 @@ instmods() {
 			instmods $mpargs $modname
 			continue
 		    }
-		    inst_simple "$modpath" "/lib/modules/$kernel/$modname.ko"
+		    inst_simple "$modpath"
 		done
 		;;
 	esac
