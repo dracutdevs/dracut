@@ -3,10 +3,9 @@
 # ultimately, /lib/initramfs/rules.d or somesuch which includes links/copies
 # of the rules we want so that we just copy those in would be best
 mkdir -p "$initdir/lib/udev/rules.d"
-dracut_install udevd udevadm /lib/udev/*_id /lib/udev/console_*
-inst_rules /lib/udev/rules.d/10-console* /lib/udev/rules.d/40-redhat* \
-    /lib/udev/rules.d/50* /lib/udev/rules.d/60-persistent-storage.rules \
-    /lib/udev/rules.d/61*edd* /lib/udev/rules.d/64* /lib/udev/rules.d/80* \
-    /lib/udev/rules.d/95*
+dracut_install udevd udevadm /lib/udev/*_id
+inst_rules 50-udev-default.rules 60-persistent-storage.rules \
+    61-persistent-storage-edd.rules 64-device-mapper.rules \
+    64-md-raid.rules 80-drivers.rules 95-udev-late.rules
 # make udevadm shut up about missing udev.conf
 inst /etc/udev/udev.conf

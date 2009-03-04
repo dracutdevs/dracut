@@ -129,11 +129,19 @@ inst_symlink() {
     inst "$realsrc" && ln -s "$realsrc" "$target"
 }
 
+find_rule() {
+    for r in . /lib/udev/rules.d /etc/udev/rules.d $dsrc/rules.d; do
+	[[ -f $r/$1 ]] && { echo "$r/$1"; return 0; }
+    done
+    return 1
+}
+
 # udev rules always get installed in the same place, so
 # create a function to install them to make life simpler.
 inst_rules() { 
     for rule in "$@"; do 
-	inst_simple "$rule" "/lib/udev/rules.d/${rule##*/}"
+	rule=$(find_rule $rule) && \
+	    inst_simple "$rule" "/lib/udev/rules.d/${rule##*/}"
     done
 }
 
