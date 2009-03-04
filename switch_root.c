@@ -490,7 +490,7 @@ int main(int argc, char **argv)
     argv++;
     new = argv[0];
     argv++;
-    printf("Switching to root: %s", new);
+    printf("Switching to root: %s\n", new);
 
     setuprootCommand(new);
 
