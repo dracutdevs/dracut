@@ -72,7 +72,7 @@ unset moddir
 
 # generate module dependencies for the initrd
 /sbin/depmod -a -b "$initdir" $kernel || {
-    error "\"/sbin/depmod -a $kernel\" failed."
+    echo "\"/sbin/depmod -a $kernel\" failed."
     exit 1
 }
 
