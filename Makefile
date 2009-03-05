@@ -28,5 +28,5 @@ dracut-$(VERSION)-$(GITVERSION).tar.bz2:
 rpm: dracut-$(VERSION)-$(GITVERSION).tar.bz2
 	rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" --define "_specdir $$PWD" --define "_builddir $$PWD" --define "_srcrpmdir $$PWD" --define "_rpmdir $$PWD" --define "gittag $(GITVERSION)" -ba dracut.spec 
 
-testimage:
-	./dracut -l test.img $(uname -r)
+testimage: all
+	./dracut -l -f test.img $(uname -r)
