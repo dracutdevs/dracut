@@ -57,3 +57,7 @@ if [ -f /etc/sysconfig/i18n ]; then
     [[ $SYSFONTACM ]] && inst /lib/kbd/consoletrans/$SYSFONTACM
     [[ $UNIMAP ]] && inst /lib/kbd/unimaps/$UNIMAP
 fi
+
+dracut_install /lib/udev/console_*
+inst_rules 10-console.rules
+
