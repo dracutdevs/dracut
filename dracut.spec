@@ -1,13 +1,18 @@
-%define gittag f8a22bfb
+# define gittag f8a22bfb
 %define replace_mkinitrd 0
 Name: dracut
 Version: 0.0
+%if %{defined gittag}
 Release: 1.git%{gittag}%{?dist}
+%define dashgittag -%{gittag}
+%else
+Release: 1%{?dist}
+%endif
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
 License: GPLv2	
 URL: http://fedoraproject.org/wiki/Initrdrewrite		
-Source0: dracut-%{version}-%{gittag}.tar.bz2
+Source0: dracut-%{version}%{?dashgittag}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: udev
 Requires: lvm2
@@ -32,7 +37,7 @@ based around udev.
 
 
 %prep
-%setup -q -n %{name}-%{version}-%{gittag}
+%setup -q -n %{name}-%{version}%{?dashgittag}
 
 %build
 make
