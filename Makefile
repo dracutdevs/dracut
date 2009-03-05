@@ -23,3 +23,6 @@ archive:
 
 rpm:
 	rpmbuild --define "_sourcedir $$PWD" --define "_specdir $$PWD" --define "_builddir $$PWD" --define "_srcrpmdir $$PWD" --define "_rpmdir $$PWD" -ba dracut.spec 
+
+testimage:
+	./dracut -l test.img $(uname -r)
