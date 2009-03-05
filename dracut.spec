@@ -62,7 +62,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/libexec/dracut/functions
 %dir /usr/libexec/dracut/modules.d
 /usr/libexec/dracut/modules.d
-
+%config(noreplace) /etc/dracut.conf
 
 
 %changelog
