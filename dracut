@@ -8,8 +8,17 @@
 # Copyright 2008, Red Hat, Inc.  Jeremy Katz <katzj@redhat.com>
 # GPLv2 header here
 
+for i in "$@"; do
+    case $i in
+	-l|--local) allowlocal="yes" ;;
+    esac
+done
 
-[ -f /etc/dracut.conf ] && . /etc/dracut.conf
+if [[ $allowlocal && -f dracut.conf ]]; then
+    . dracut.conf
+else
+    [ -f /etc/dracut.conf ] && . /etc/dracut.conf
+fi
 
 while (($# > 0)); do
     case $1 in
