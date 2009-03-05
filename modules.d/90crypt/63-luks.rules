@@ -5,7 +5,7 @@
 
 
 SUBSYSTEM!="block", GOTO="luks_end"
-ACTION!="add|change", GOTO="luks_end"
+ACTION!="add", GOTO="luks_end"
 
 KERNEL!="sr*", IMPORT{program}="vol_id --export $tempnode"
 ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="/bin/sh -c 'echo $env{DEVNAME} luks-$env{ID_FS_UUID} >>/cryptroot'"
