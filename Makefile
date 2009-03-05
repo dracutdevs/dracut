@@ -19,6 +19,7 @@ install:
 clean:
 	rm -f *~
 	rm -f modules.d/99base/switch_root
+	rm -f test-*.img
 
 archive: dracut-$(VERSION)-$(GITVERSION).tar.bz2
 
@@ -30,4 +31,5 @@ rpm: dracut-$(VERSION)-$(GITVERSION).tar.bz2
 	rm -fr BUILD BUILDROOT
 
 testimage: all
-	./dracut -l -f test.img $(uname -r)
+	./dracut -l -f test-$(shell uname -r).img $(shell uname -r)
+	@echo wrote  test-$(shell uname -r).img 
