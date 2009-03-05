@@ -64,6 +64,7 @@ source_all pre-mount
 getarg 'break=mount' && emergency_shell
 # mount scripts actually try to mount the root filesystem, and may
 # be sourced any number of times. As soon as one suceeds, no more are sourced.
+i=0
 while :; do
     for f in /mount/*.sh; do
 	[ -x "$f" ] && . "$f";
@@ -71,6 +72,8 @@ while :; do
     done
     [ "$ROOTFS_MOUNTED" ] && break;
     sleep 1
+    i=$[$i+1]
+    [ $i -gt 10 ] && emergency_shell
 done
 
 # by the time we get here, the root filesystem should be mounted.
@@ -88,6 +91,7 @@ done
 getarg 'break=pre-pivot' && emergency_shell
 source_all pre-pivot
 getarg break && emergency_shell
+kill $(pidof udevd)
 echo "Switching to real root filesystem $root"
 exec switch_root "$NEWROOT" "$INIT"  $CMDLINE || {
     # davej doesn't like initrd bugs
