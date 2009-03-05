@@ -9,7 +9,7 @@ install:
 	mkdir -p $(DESTDIR)/usr/libexec/dracut/modules.d
 	install -m 0755 dracut $(DESTDIR)/sbin/dracut
 	install -m 0755 dracut-functions $(DESTDIR)/usr/libexec/dracut/functions
-	for module in modules/*/*; do install -D -m 0755 $$module $(DESTDIR)/usr/libexec/dracut/modules.d ; done
+	for module in modules.d/*/*; do install -D -m 0755 $$module $(DESTDIR)/usr/libexec/dracut/modules.d ; done
 
 clean:
 	rm -f *~
