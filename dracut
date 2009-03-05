@@ -43,7 +43,7 @@ if [[ -f $outfile && ! $force ]]; then
     exit 1
 fi
 
-[[ $allowlocal && -f dracut-functions ]] && dsrc="." || dsrc=/usr/libexec/dracut
+[[ $allowlocal && -f dracut-functions ]] && dsrc="." || dsrc=/usr/lib/dracut
 . $dsrc/dracut-functions
 
 hookdirs="pre-udev pre-mount pre-pivot mount"

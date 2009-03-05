@@ -7,14 +7,14 @@ modules.d/99base/switch_root: switch_root.c
 all: modules.d/99base/switch_root
 
 install:
-	mkdir -p $(DESTDIR)/usr/libexec/dracut
+	mkdir -p $(DESTDIR)/usr/lib/dracut
 	mkdir -p $(DESTDIR)/sbin
 	mkdir -p $(DESTDIR)/etc
-	mkdir -p $(DESTDIR)/usr/libexec/dracut/modules.d
+	mkdir -p $(DESTDIR)/usr/lib/dracut/modules.d
 	install -m 0755 dracut $(DESTDIR)/sbin/dracut
 	install -m 0644 dracut.conf $(DESTDIR)/etc/dracut.conf
-	install -m 0755 dracut-functions $(DESTDIR)/usr/libexec/dracut/dracut-functions
-	cp -arx modules.d $(DESTDIR)/usr/libexec/dracut/
+	install -m 0755 dracut-functions $(DESTDIR)/usr/lib/dracut/dracut-functions
+	cp -arx modules.d $(DESTDIR)/usr/lib/dracut/
 
 clean:
 	rm -f *~

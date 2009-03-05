@@ -63,9 +63,9 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/mkinitrd
 /usr/libexec/initrd-functions
 %endif
-%dir /usr/libexec/dracut
-/usr/libexec/dracut/dracut-functions
-/usr/libexec/dracut/modules.d
+%dir /usr/lib/dracut
+/usr/lib/dracut/dracut-functions
+/usr/lib/dracut/modules.d
 %config(noreplace) /etc/dracut.conf
 
 
