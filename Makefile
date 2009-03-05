@@ -20,10 +20,12 @@ clean:
 	rm -f *~
 	rm -f modules.d/99base/switch_root
 
-archive:
+archive: dracut-$(VERSION)-$(GITVERSION).tar.bz2
+
+dracut-$(VERSION)-$(GITVERSION).tar.bz2:
 	git archive --format=tar HEAD --prefix=dracut-$(VERSION)-$(GITVERSION)/ |bzip2 > dracut-$(VERSION)-$(GITVERSION).tar.bz2
 
-rpm:
+rpm: dracut-$(VERSION)-$(GITVERSION).tar.bz2
 	rpmbuild --define "_sourcedir $$PWD" --define "_specdir $$PWD" --define "_builddir $$PWD" --define "_srcrpmdir $$PWD" --define "_rpmdir $$PWD" --define "gittag $(GITVERSION)" -ba dracut.spec 
 
 testimage:
