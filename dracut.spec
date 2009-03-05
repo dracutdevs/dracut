@@ -49,7 +49,7 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 %if 0%{?replace_mkinitrd}
 ln -s dracut $RPM_BUILD_ROOT/sbin/mkinitrd
-ln -s dracut/functions $RPM_BUILD_ROOT/usr/libexec/initrd-functions
+ln -s dracut/dracut-functions $RPM_BUILD_ROOT/usr/libexec/initrd-functions
 %endif
 
 %clean
@@ -64,7 +64,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/libexec/initrd-functions
 %endif
 %dir /usr/libexec/dracut
-/usr/libexec/dracut/functions
+/usr/libexec/dracut/dracut-functions
 /usr/libexec/dracut/modules.d
 %config(noreplace) /etc/dracut.conf
 
