@@ -1,3 +1,6 @@
+VERSION=0.0
+GITVERSION=$(shell git rev-list  --abbrev-commit  -n 1 HEAD  |cut -b 1-8)
+
 modules.d/99base/switch_root: switch_root.c
 	gcc -o modules.d/99base/switch_root switch_root.c	
 
@@ -16,4 +19,7 @@ clean:
 	rm -f modules.d/99base/switch_root
 
 archive:
-	git archive --format=tar HEAD --prefix=dracut/ |bzip2 > dracut-$(shell git rev-list  --abbrev-commit  -n 1 HEAD  |cut -b 1-8).tar.bz2
+	git archive --format=tar HEAD --prefix=dracut-$(VERSION)-$(GITVERSION)/ |bzip2 > dracut-$(VERSION)-$(GITVERSION).tar.bz2
+
+rpm:
+	rpmbuild --define "_sourcedir $$PWD" --define "_specdir $$PWD" --define "_builddir $$PWD" --define "_srcrpmdir $$PWD" --define "_rpmdir $$PWD" -ba dracut.spec 
