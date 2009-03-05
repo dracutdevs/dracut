@@ -1,4 +1,5 @@
-%define gittag c0815e4e
+%define gittag f8a22bfb
+%define replace_mkinitrd 0
 Name: dracut
 Version: 0.0
 Release: 1.git%{gittag}%{?dist}
@@ -6,7 +7,7 @@ Summary: Initramfs generator using udev
 Group: System Environment/Base		
 License: GPLv2	
 URL: http://fedoraproject.org/wiki/Initrdrewrite		
-Source0: dracut-%{gittag}.tar.bz2
+Source0: dracut-%{version}-%{gittag}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: udev
 Requires: lvm2
@@ -20,9 +21,10 @@ Requires: grep
 Requires: mktemp
 Requires: mount
 Requires: bash
+%if 0%{?replace_mkinitrd}
 Obsoletes: mkinitrd < 7.0
 Provides: mkinitrd = 7.0
-BuildArch: noarch
+%endif
 
 %description
 dracut is an attempt to build a new, event-driven initramfs infrastructure 
@@ -30,8 +32,7 @@ based around udev.
 
 
 %prep
-%setup -q -n %{name}
-
+%setup -q -n %{name}-%{version}-%{gittag}
 
 %build
 make
@@ -41,25 +42,26 @@ make
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
 
+%if 0%{?replace_mkinitrd}
 ln -s dracut $RPM_BUILD_ROOT/sbin/mkinitrd
 ln -s dracut/functions $RPM_BUILD_ROOT/usr/libexec/initrd-functions
-
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
-
 
 %files
 %defattr(-,root,root,-)
 %doc README HACKING TODO COPYING
 /sbin/dracut
+%if 0%{?replace_mkinitrd}
 /sbin/mkinitrd
 /usr/libexec/initrd-functions
+%endif
 %dir /usr/libexec/dracut
 /usr/libexec/dracut/functions
-/usr/libexec/dracut/init
-/usr/libexec/dracut/switch_root
-/usr/libexec/dracut/rules.d
+%dir /usr/libexec/dracut/modules.d
+/usr/libexec/dracut/modules.d
 
 
 
