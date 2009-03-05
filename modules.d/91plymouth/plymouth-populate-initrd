@@ -1,0 +1,88 @@
+#!/bin/bash
+
+[ -z "$DESTDIR" ] || exit 0
+
+[ -z "$LIBEXECDIR" ] && LIBEXECDIR="/usr/libexec"
+[ -z "$DATADIR" ] && DATADIR="/usr/share"
+[ -z "$SYSTEMMAP" ] && SYSTEM_MAP="/boot/System.map-$(/bin/uname -r)"
+if [ -z "$LIB" ]; then
+  if $(echo nash-showelfinterp /proc/$$/exe | /sbin/nash --forcequiet | grep -q lib64); then
+    LIB="lib64"
+  else
+    LIB="lib"
+  fi
+fi
+[ -z "$LIBDIR" ] && LIBDIR="/usr/$LIB"
+[ -z "$BINDIR" ] && BINDIR="/usr/bin"
+[ -z "$GRUB_MENU_TITLE" ] && GRUB_MENU_TITLE="Graphical Bootup"
+[ -z "$PLYMOUTH_LOGO_FILE" ] && PLYMOUTH_LOGO_FILE="/usr/share/pixmaps/system-logo-white.png"
+[ -z "$PLYMOUTH_PLUGIN_NAME" ] && PLYMOUTH_PLUGIN_NAME=$(plymouth-set-default-plugin)
+
+function usage() {
+    local output="/dev/stdout"
+    local rc=0
+    if [ "$1" == "error" ]; then
+        output="/dev/stderr"
+        rc=1
+    fi
+
+    echo "usage: plymouth [ --verbose | -v ] { --targetdir | -t } <initrd_directory>" > $output
+    exit $rc
+}
+
+verbose=false
+INITRDDIR=""
+while [ $# -gt 0 ]; do
+    case $1 in
+        --verbose|-v)
+            verbose=true
+            ;;
+        --targetdir|-t)
+            shift
+            INITRDDIR="$1"
+            ;;
+        --help|-h)
+            usage normal
+            ;;
+        *)
+            usage error
+            break
+            ;;
+    esac
+    shift
+done
+
+[ -z "$INITRDDIR" ] && usage error
+
+inst /sbin/plymouthd $INITRDDIR /bin/plymouthd
+inst /bin/plymouth $INITRDDIR
+inst ${LIBDIR}/plymouth/text.so $INITRDDIR
+inst ${LIBDIR}/plymouth/details.so $INITRDDIR
+inst ${PLYMOUTH_LOGO_FILE} $INITRDDIR
+inst /etc/system-release $INITRDDIR
+mkdir -p ${INITRDDIR}${DATADIR}/plymouth
+
+if [ -z "$PLYMOUTH_PLUGIN_NAME" ]; then
+    echo "No default plymouth plugin is set" > /dev/stderr
+    exit 1
+fi
+
+if [ ! -f ${LIBDIR}/plymouth/${PLYMOUTH_PLUGIN_NAME}.so ]; then
+    echo "The default plymouth plugin (${PLYMOUTH_PLUGIN_NAME}) doesn't exist" > /dev/stderr
+    exit 1
+fi
+
+inst ${LIBDIR}/plymouth/${PLYMOUTH_PLUGIN_NAME}.so $INITRDDIR
+
+if [ -f ${LIBDIR}/plymouth/default.so ]; then
+    inst ${LIBDIR}/plymouth/default.so $INITRDDIR
+fi
+
+if [ -d ${DATADIR}/plymouth/${PLYMOUTH_PLUGIN_NAME} ]; then
+    for x in ${DATADIR}/plymouth/${PLYMOUTH_PLUGIN_NAME}/* ; do
+        [ ! -f "$x" ] && break
+        inst $x $INITRDDIR
+    done
+fi
+
+# vim:ts=8:sw=4:sts=4:et
