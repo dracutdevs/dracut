@@ -186,7 +186,11 @@ inst_hook() {
 
 dracut_install() {
     while (($# > 0)); do
-	inst "$1" && shift
+	if inst "$1" ; then
+            shift 
+            continue
+        fi
+        echo "Failed to install $1" >&2 ; exit 1
     done
 }
 
