@@ -1,0 +1,4 @@
+#!/bin/bash
+dracut_install mdadm
+inst_hook pre-mount 10 "$moddir/mdraid.sh"
+
