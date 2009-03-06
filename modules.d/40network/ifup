@@ -1,7 +1,7 @@
 #!/bin/sh
 
-PATH="/sbin:$PATH"
-
+# bail immediatly if the interface is already up
+[ -f "/net.$1.up" ] && exit 0
 
 # loopback is always handled the same way
 [ "$1" = "lo" ] && {
