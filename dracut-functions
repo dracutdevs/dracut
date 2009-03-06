@@ -211,7 +211,7 @@ instmods() {
 		;;
 	    --*) mpargs+=" $mod";;
 	    *)  mod=${mod##*/}
-                modprobe $mpargs --set-version $kernel --show-depends $mod \
+                modprobe $mpargs --ignore-install --set-version $kernel --show-depends $mod \
 		2>/dev/null |while read cmd modpath options; do
 		    [[ $cmd = insmod ]] || continue
 		    modname=${modpath##*/}
