@@ -202,9 +202,9 @@ instmods() {
 	case $mod in
 	    =*) 
                 if [ "$mod" = "=ata" -a -f $srcmods/modules.block ] ; then 
-                        instmods $mpargs $(cat "${modcat}.block" |egrep 'ata|ahci')
+                        instmods $mpargs $(cat "${srcmods}/modules.block" |egrep 'ata|ahci')
 		elif [ -f $srcmods/modules.${mod#=} ]; then
-			instmods $mpargs $(cat  $srcmods/modules.${mod#=} )
+			instmods $mpargs $(cat  ${srcmods}/modules.${mod#=} )
 		else
 			instmods $mpargs $(find "$srcmods" -path "*/${mod#=}/*")
 		fi
