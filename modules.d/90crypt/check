@@ -1,0 +1,3 @@
+#!/bin/sh
+grep -q '^dm_crypt' /proc/modules || exit 1
+awk '/^dm_crypt/ {if ($3 > 0) exit 0; else exit 1;}' /proc/modules
