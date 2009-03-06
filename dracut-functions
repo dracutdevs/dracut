@@ -195,7 +195,7 @@ instmods() {
     while (($# > 0)); do
 	mod=${1%.ko}
 	case $mod in
-	    =*) # This introduces 2 incompatible menaings for =* arguments
+	    =*) # This introduces 2 incompatible meanings for =* arguments
                 # to instmods.  We need to decide which one to keep.
                 if [ "$mod" = "=ata" -a -f $srcmods/modules.block ] ; then 
                         instmods $mpargs $(egrep 'ata|ahci' "${srcmods}/modules.block")
@@ -207,8 +207,9 @@ instmods() {
 		;;
 	    --*) mpargs+=" $mod";;
 	    *)  mod=${mod##*/}
-                modprobe $mpargs --ignore-install --set-version $kernel --show-depends $mod \
-		2>/dev/null |while read cmd modpath options; do
+                modprobe $mpargs --ignore-install --set-version $kernel \
+		    --show-depends $mod 2>/dev/null | \
+		    while read cmd modpath options; do
 		    [[ $cmd = insmod ]] || continue
 		    modname=${modpath##*/}
 		    modname=${modname%.ko}
