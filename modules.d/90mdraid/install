@@ -1,4 +1,8 @@
 #!/bin/bash
 dracut_install mdadm
-inst_hook pre-mount 10 "$moddir/mdraid.sh"
+[ -x  /sbin/mdmon ] && dracut_install mdmon
+inst_rules "$moddir/70-mdadm.rules"
+[ -f /etc/mdadm/mdadm.conf ] && inst /etc/mdadm/mdadm.conf "$initdir" /etc/mdadm.conf
+[ -f /etc/mdadm.conf ] && inst /etc/mdadm.conf "$initdir"
+inst_hook pre-pivot 30 "$moddir/mdmon-pre-pivot.sh"
 
