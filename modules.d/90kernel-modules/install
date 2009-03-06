@@ -6,3 +6,6 @@ instmods ${modules:-=ata =block =drm dm-crypt aes sha256 cbc sd_mod}
 while read d mp t rest; do
     instmods "$t"
 done </proc/mounts
+
+[ -f /etc/modprobe.conf ] && dracut_install /etc/modprobe.conf
+dracut_install /etc/modprobe.d/*
