@@ -75,7 +75,7 @@ while :; do
     done
     [ "$ROOTFS_MOUNTED" ] && break;
     sleep 1
-    i=$[$i+1]
+    i=$(($i+1))
     [ $i -gt 10 ] && emergency_shell
 done
 
