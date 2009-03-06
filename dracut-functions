@@ -107,10 +107,10 @@ inst_binary() {
 # If your shell script does not start with shebang, it is not a shell script.
 inst_script() {
     [[ -f $1 ]] || return 1
-    local src=$1 target=${2:-$1} line
-    read -r -n 80 line <"$src"
+    local line
+    read -r -n 80 line <"$1"
     [[ $line =~ (#! *)(/[^ ]+).* ]] || return 1
-    inst "${BASH_REMATCH[2]}" && inst_simple "$src" "$target"
+    inst "${BASH_REMATCH[2]}" && inst_simple "$@"
 }
 
 # same as above, but specialized for symlinks
