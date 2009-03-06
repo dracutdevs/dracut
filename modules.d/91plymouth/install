@@ -3,7 +3,5 @@ echo "installing plymouth"
 . "$moddir"/plymouth-populate-initrd  -t "$initdir"
 inst_hook pre-udev 10 "$moddir"/plymouth-start.sh
 inst_hook pre-pivot 90 "$moddir"/plymouth-newroot.sh
-inst_rules "$moddir/63-luks.rules"
-inst "$moddir"/plymouth-ask.sh /lib/udev/plymouth-ask
-inst cryptsetup
+inst_hook mount 10 "$moddir/cryptroot.sh"
 
