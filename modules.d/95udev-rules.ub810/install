@@ -7,7 +7,9 @@ mkdir -p "$initdir/var/run"
 dracut_install udevd udevadm pkill
 dracut_install /etc/udev/udev.conf
 
-for rules in 05-options.rules 20-names.rules 40-basic-permissions.rules 60-persistent-storage.rules 61-persistent-s
+for rules in 05-options.rules 20-names.rules 40-basic-permissions.rules \
+    60-persistent-storage.rules 61-persistent-storage-edd.rules \
+    80-programs.rules 90-modprobe.rules 95-udev-late.rules; do 
     dracut_install /etc/udev/rules.d/$rules 
 done
 
