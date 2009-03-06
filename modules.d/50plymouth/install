@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "installing plymouth"
-. "$moddir"/plymouth-populate-initrd  -t "$initdir"
+. "$moddir"/plymouth-populate-initrd
 inst_hook pre-udev 10 "$moddir"/plymouth-start.sh
 inst_hook pre-pivot 90 "$moddir"/plymouth-newroot.sh
 inst_hook mount 10 "$moddir/cryptroot.sh"
