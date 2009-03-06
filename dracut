@@ -62,7 +62,8 @@ done
 for moddir in "$dsrc/modules.d"/*; do
     [[ -d $moddir || -L $moddir ]] || continue
     mod=${moddir##*/}; mod=${mod#[0-9][0-9]};
-    if [[ $dracutmodules = all ]] || strstr "$dracutmodules" "$mod"; then 
+    if [[ $dracutmodules = all ]] || strstr "$dracutmodules " "$mod "; then 
+	echo "== Module $moddir == "
 	[[ -x $moddir/install ]] && . "$moddir/install"
     fi
 done
