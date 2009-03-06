@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# install all currently loaded modules in initrd
+
+/sbin/lsmod | while read mod rest; do
+	instmods "$mod"
+done
+
+[ -f /etc/modprobe.conf ] && dracut_install /etc/modprobe.conf
+dracut_install /etc/modprobe.d/*
+
