@@ -187,11 +187,11 @@ instmods() {
 	    =*) # This introduces 2 incompatible meanings for =* arguments
                 # to instmods.  We need to decide which one to keep.
                 if [ "$mod" = "=ata" -a -f $srcmods/modules.block ] ; then 
-                        instmods $mpargs $(egrep 'ata|ahci' "${srcmods}/modules.block")
+                    instmods $mpargs $(egrep 'ata|ahci' "${srcmods}/modules.block")
 		elif [ -f $srcmods/modules.${mod#=} ]; then
-			instmods $mpargs $(cat ${srcmods}/modules.${mod#=} )
+		    instmods $mpargs $(cat ${srcmods}/modules.${mod#=} )
 		else
-			instmods $mpargs $(find "$srcmods" -path "*/${mod#=}/*")
+		    instmods $mpargs $(find "$srcmods" -path "*/${mod#=}/*")
 		fi
 		;;
 	    --*) mpargs+=" $mod";;
