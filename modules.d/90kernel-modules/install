@@ -8,4 +8,7 @@ while read d mp t rest; do
 done </proc/mounts
 
 [ -f /etc/modprobe.conf ] && dracut_install /etc/modprobe.conf
-dracut_install /etc/modprobe.d/*
+
+for i in $(find /etc/modprobe.d/ ); do
+         inst $i
+done
