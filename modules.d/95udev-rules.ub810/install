@@ -1,27 +1,12 @@
 #!/bin/bash
 # udev rules for ubuntu 8.10
 # content from /usr/share/initramfs-tools/hooks/udev
-mkdir -p "$initdir/etc/udev/rules.d"
 mkdir -p "$initdir/var/run"
 
-dracut_install udevd udevadm pkill
-dracut_install /etc/udev/udev.conf
+dracut_install udevd udevadm pkill /lib/udev/*_id /lib/udev/*_device_name \
+    /lib/udev/firmware_helper /lib/udev/ide_media /lib/udev/vio_type \
+    /lib/udev/watershed /etc/udev/udev.conf
 
-for rules in 05-options.rules 20-names.rules 40-basic-permissions.rules \
+inst_rules 05-options.rules 20-names.rules 40-basic-permissions.rules \
     60-persistent-storage.rules 61-persistent-storage-edd.rules \
-    80-programs.rules 90-modprobe.rules 95-udev-late.rules; do 
-    dracut_install /etc/udev/rules.d/$rules 
-done
-
-dracut_install /lib/udev/dvb_device_name 
-dracut_install /lib/udev/usb_device_name 
-dracut_install /lib/udev/ata_id 
-dracut_install /lib/udev/usb_id 
-dracut_install /lib/udev/vol_id 
-dracut_install /lib/udev/scsi_id 
-dracut_install /lib/udev/path_id 
-dracut_install /lib/udev/edd_id 
-dracut_install /lib/udev/firmware_helper 
-dracut_install /lib/udev/ide_media 
-dracut_install /lib/udev/vio_type 
-dracut_install /lib/udev/watershed 
+    80-programs.rules 90-modprobe.rules 95-udev-late.rules
