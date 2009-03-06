@@ -154,7 +154,8 @@ inst_rules() {
 # Same args as above.
 inst() {
     if (($# != 1 && $# != 2 )); then
-        echo "usage: inst <file> [<destination file>]"
+        echo "dracut error: inst only takes 1 or 2 arguments"
+	exit 1
     fi
     for x in inst_symlink inst_script inst_binary inst_simple; do
        $x "$@" && return 0
@@ -194,11 +195,12 @@ instmods() {
     while (($# > 0)); do
 	mod=${1%.ko}
 	case $mod in
-	    =*) 
+	    =*) # This introduces 2 incompatible menaings for =* arguments
+                # to instmods.  We need to decide which one to keep.
                 if [ "$mod" = "=ata" -a -f $srcmods/modules.block ] ; then 
-                        instmods $mpargs $(cat "${srcmods}/modules.block" |egrep 'ata|ahci')
+                        instmods $mpargs $(egrep 'ata|ahci' "${srcmods}/modules.block")
 		elif [ -f $srcmods/modules.${mod#=} ]; then
-			instmods $mpargs $(cat  ${srcmods}/modules.${mod#=} )
+			instmods $mpargs $(cat ${srcmods}/modules.${mod#=} )
 		else
 			instmods $mpargs $(find "$srcmods" -path "*/${mod#=}/*")
 		fi
