@@ -6,6 +6,6 @@ mkdir -p "$initdir/lib/udev/rules.d"
 dracut_install udevd udevadm /lib/udev/*_id
 inst_rules 50-udev-default.rules 60-persistent-storage.rules \
     61-persistent-storage-edd.rules 64-device-mapper.rules \
-    64-md-raid.rules 80-drivers.rules 95-udev-late.rules
+    80-drivers.rules 95-udev-late.rules
 # make udevadm shut up about missing udev.conf
 inst /etc/udev/udev.conf

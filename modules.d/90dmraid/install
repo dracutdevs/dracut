@@ -1,4 +1,4 @@
 #!/bin/bash
 dracut_install dmraid 
 inst_hook pre-mount 10 "$moddir/dmraid.sh"
-
+inst_rules 64-md-raid.rules
