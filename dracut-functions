@@ -201,7 +201,13 @@ instmods() {
 	mod=${1%.ko}
 	mod=${mod##*/}
 	case $mod in
-	    =*) instmods $mpargs $(find "$srcmods" -path "*/${mod#=}/*");;
+	    =*) 
+		if [ -f $srcmods/modules.${mod#=} ]; then
+			instmods $mpargs $(cat  $srcmods/modules.${mod#=} )
+		else
+			instmods $mpargs $(find "$srcmods" -path "*/${mod#=}/*")
+		fi
+		;;
 	    --*) mpargs+=" $mod";;
 	    *) modprobe $mpargs --set-version $kernel --show-depends $mod \
 		2>/dev/null |while read cmd modpath options; do
