@@ -153,17 +153,11 @@ inst_rules() {
 # general purpose installation function
 # Same args as above.
 inst() {
-    if (($# != 1 && $# != 2 && $# != 3)); then
-        echo "usage: inst <file> <root> [<destination file>]"
-        return 1
-    fi
-    local dst
-    [ $# = 3 ] && dst=$3
-    if [ $# = 2 ]; then 
-        [ -d "$2" ] || dst=$2
+    if (($# != 1 && $# != 2 )); then
+        echo "usage: inst <file> [<destination file>]"
     fi
     for x in inst_symlink inst_script inst_binary inst_simple; do
-       $x $1 $dst && return 0
+       $x "$@" && return 0
     done
     return 1
 }
