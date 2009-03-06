@@ -8,18 +8,6 @@
 # Copyright 2008, Red Hat, Inc.  Jeremy Katz <katzj@redhat.com>
 # GPLv2 header here
 
-for i in "$@"; do
-    case $i in
-	-l|--local) allowlocal="yes" ;;
-    esac
-done
-
-if [[ $allowlocal && -f dracut.conf ]]; then
-    . dracut.conf
-else
-    [ -f /etc/dracut.conf ] && . /etc/dracut.conf
-fi
-
 while (($# > 0)); do
     case $1 in
 	-f|--force) force=yes;;
@@ -33,6 +21,13 @@ while (($# > 0)); do
     esac
     shift
 done
+conffile="/etc/dracut.conf"
+[[ $allowlocal && -f dracut.conf ]] && conffile="dracut.conf"
+. "$conffile"
+
+[[ $allowlocal && -f dracut-functions ]] && dsrc="." || dsrc=/usr/lib/dracut
+. $dsrc/dracut-functions
+
 [[ $dracutmodules ]] || dracutmodules="all" 
 
 [[ $2 ]] && kernel=$2 || kernel=$(uname -r)
@@ -42,9 +37,6 @@ if [[ -f $outfile && ! $force ]]; then
     echo "Will not override existing initramfs ($outfile) without --force"
     exit 1
 fi
-
-[[ $allowlocal && -f dracut-functions ]] && dsrc="." || dsrc=/usr/lib/dracut
-. $dsrc/dracut-functions
 
 hookdirs="pre-udev pre-mount pre-pivot mount"
 
