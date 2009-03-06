@@ -199,7 +199,6 @@ instmods() {
     local mod mpargs modpath modname cmd
     while (($# > 0)); do
 	mod=${1%.ko}
-	mod=${mod##*/}
 	case $mod in
 	    =*) 
                 if [ "$mod" = "=ata" -a -f $srcmods/modules.block ] ; then 
@@ -211,7 +210,8 @@ instmods() {
 		fi
 		;;
 	    --*) mpargs+=" $mod";;
-	    *) modprobe $mpargs --set-version $kernel --show-depends $mod \
+	    *)  mod=${mod##*/}
+                modprobe $mpargs --set-version $kernel --show-depends $mod \
 		2>/dev/null |while read cmd modpath options; do
 		    [[ $cmd = insmod ]] || continue
 		    modname=${modpath##*/}
