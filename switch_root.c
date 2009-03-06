@@ -26,6 +26,7 @@
 #include <sys/mount.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/param.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -88,17 +89,17 @@ static char *getKernelCmdLine(void)
 	int fd = -1;
 	int errnum;
 
-	fd = open("/proc/cmdline", O_RDONLY);
+	fd = open("./proc/cmdline", O_RDONLY);
 	if (fd < 0) {
 		errnum = errno;
-		fprintf(stderr, "Error: Could not open /proc/cmdline: %m\n");
+		fprintf(stderr, "Error: Could not open ./proc/cmdline: %m\n");
 		errno = errnum;
 		return NULL;
 	}
 	
 	if (readFD(fd, &cmdline) < 0) {
 		errnum = errno;
-		fprintf(stderr, "Error: could not read /proc/cmdline: %m\n");
+		fprintf(stderr, "Error: could not read ./proc/cmdline: %m\n");
 		close(fd);
 		errno = errnum;
 		return NULL;
@@ -146,8 +147,8 @@ static char *getKernelArg(char *arg)
 #define MAX_INIT_ARGS 32
 static int build_init_args(char **init, char ***initargs_out)
 {
-	const char *initprogs[] = { "/sbin/init", "/etc/init",
-				    "/bin/init", "/bin/sh", NULL };
+	const char *initprogs[] = { "./sbin/init", "./etc/init",
+				    "./bin/init", "./bin/sh", NULL };
 	const char *ignoreargs[] = { "console=", "BOOT_IMAGE=", NULL };
 	char *cmdline = NULL;
 	char **initargs;
@@ -247,20 +248,23 @@ static void switchroot(const char *newroot)
 	int rc;
 	int i;
 
-	rc = build_init_args(&init, &initargs);
-	if (rc < 0)
-		return;
-
 	for (i = 0; umounts[i] != NULL; i++) {
-		if (umount2(umounts[i], MNT_DETACH) < 0) {
-			fprintf(stderr, "Error unmounting old %s: %m\n",
-				umounts[i]);
+		char newmount[PATH_MAX];
+		strcpy(newmount, newroot);
+		strcat(newmount, umounts[i]);
+		if (mount(umounts[i], newmount, NULL, MS_MOVE, NULL) < 0) {
+			fprintf(stderr, "Error mount moving old %s %s %m\n",
+				umounts[i], newmount);
 			fprintf(stderr, "Forcing unmount of %s\n", umounts[i]);
 			umount2(umounts[i], MNT_FORCE);
 		}
 	}
 
 	chdir(newroot);
+
+	rc = build_init_args(&init, &initargs);
+	if (rc < 0)
+		return;
 
 	if (mount(newroot, "/", NULL, MS_MOVE, NULL) < 0) {
 		errnum = errno;
