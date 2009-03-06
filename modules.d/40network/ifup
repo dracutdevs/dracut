@@ -1,5 +1,8 @@
 #!/bin/sh
 
+PATH="/sbin:$PATH"
+
+
 # loopback is always handled the same way
 [ "$1" = "lo" ] && {
     ip link set lo up

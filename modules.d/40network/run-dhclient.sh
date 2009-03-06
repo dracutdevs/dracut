@@ -1,4 +1,7 @@
 #!/bin/sh
+PATH="/sbin:$PATH"
+
+
 for i in /net.*.dhcp; do
     dev=${i#net.}; dev=${i%.dhcp}
     [ -f "/net.$dev.up" ] && continue

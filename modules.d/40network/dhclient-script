@@ -2,6 +2,8 @@
 # very simple dhclient-script.  All it cares about is bringing the interface
 # up, and it does not even try to do anything else.
 
+PATH="/sbin:$PATH"
+
 case $reason in
     PREINIT) ip link set "$interface" up ;;
     BOUND) ipopts="$new_ip_address"
