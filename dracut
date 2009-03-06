@@ -50,14 +50,23 @@ for d in bin sbin usr/bin usr/sbin usr/lib etc proc sys sysroot dev/pts; do
     mkdir -p "$initdir/$d"; 
 done
 
+can_source_module() {
+    # $1 = location of module
+    mod=${1##*/}; mod=${mod#[0-9][0-9]};
+    case $dracutmodules in
+	all) return 0;;
+	auto) [[ -x $1/check ]] || return 0
+	    "$1/check" >/dev/null 2>&1 && return 0 ;;
+	*) strstr "$dracutmodules" "$mod" && return 0;;
+    esac
+    return 1
+}
+
 # source all our modules
 for moddir in "$dsrc/modules.d"/*; do
     [[ -d $moddir || -L $moddir ]] || continue
-    mod=${moddir##*/}; mod=${mod#[0-9][0-9]};
-    if [[ $dracutmodules = all ]] || strstr "$dracutmodules " "$mod "; then 
-	echo "== Module $moddir == "
-	[[ -x $moddir/install ]] && . "$moddir/install"
-    fi
+    can_source_module "$moddir" || continue
+    [[ -x $moddir/install ]] && . "$moddir/install"
 done
 unset moddir
 
