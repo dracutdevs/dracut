@@ -55,7 +55,7 @@ getarg 'break=pre-udev' && emergency_shell
 source_all pre-udev
 
 # start up udev and trigger cold plugs
-udevd --daemon --resolve-names=never
+udevd --daemon $( [ $(udevd --version) -ge 137 ] && echo --resolve-names=never )
 udevadm trigger >/dev/null 2>&1
 udevadm settle --timeout=30 >/dev/null 2>&1
 
