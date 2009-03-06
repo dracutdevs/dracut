@@ -96,7 +96,7 @@ source_all pre-pivot
 getarg break && emergency_shell
 kill $(pidof udevd)
 echo "Switching to real root filesystem $root"
-exec switch_root "$NEWROOT" "$INIT"  $CMDLINE || {
+exec switch_root -n "$NEWROOT" || {
     # davej doesn't like initrd bugs
     echo "Something went very badly wrong in the initrd.  Please "
     echo "file a bug against mkinitrd."
