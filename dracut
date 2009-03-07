@@ -11,7 +11,8 @@
 while (($# > 0)); do
     case $1 in
 	-f|--force) force=yes;;
-	-m|--modules) dracutmodules="$2"; shift;;
+	-m|--modules) dracutmodules_l="$2"; shift;;
+	-d|--drivers) modules_l="$2"; shift;;
 	-h|--help) echo "Usage: $0 [-f] <initramfs> <kernel-version>"
 	    exit 1 ;;
 	-v|--verbose) set -x;;
@@ -22,11 +23,12 @@ while (($# > 0)); do
     esac
     shift
 done
-[[ -f $conffile ]] || {
-    conffile="/etc/dracut.conf"
-    [[ $allowlocal && -f dracut.conf ]] && conffile="dracut.conf"
-}
-. "$conffile"
+
+[[ -f $conffile ]] || [[ -f /etc/dracut.conf ]] && conffile="/etc/dracut.conf"
+[[ -f $conffile ]] && . "$conffile"
+
+[[ $dracutmodules_l ]] && dracutmodules=$dracutmodule_l
+[[ $modules_l ]] && modules=$modules_l
 
 [[ $allowlocal && -f dracut-functions ]] && dsrc="." || dsrc=/usr/lib/dracut
 . $dsrc/dracut-functions
