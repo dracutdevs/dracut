@@ -15,14 +15,17 @@ while (($# > 0)); do
 	-h|--help) echo "Usage: $0 [-f] <initramfs> <kernel-version>"
 	    exit 1 ;;
 	-v|--verbose) set -x;;
+	-c|--conf) conffile="$2"
 	-l|--local) allowlocal="yes" ;;
 	--allow-missing) : ;;
 	*) break ;;
     esac
     shift
 done
-conffile="/etc/dracut.conf"
-[[ $allowlocal && -f dracut.conf ]] && conffile="dracut.conf"
+[[ -f $conffile ]] || {
+    conffile="/etc/dracut.conf"
+    [[ $allowlocal && -f dracut.conf ]] && conffile="dracut.conf"
+}
 . "$conffile"
 
 [[ $allowlocal && -f dracut-functions ]] && dsrc="." || dsrc=/usr/lib/dracut

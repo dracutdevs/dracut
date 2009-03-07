@@ -18,4 +18,3 @@ and set
 
 Requirements:
 * udev
-* nash (for switchroot until we get in util-linux)

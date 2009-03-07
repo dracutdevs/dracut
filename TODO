@@ -4,9 +4,6 @@ are/should be marked with "FIXME" in the code
 
 INITRAMFS TODO
 --------------
-* We have a horribly ugly switchroot implementation whose only
-  good point is that it gets rid of our dependency on nash.
-  It needs to be replaced by something nicer.
 * The hard-coded list of udev rules that we care about is kind of
 lame.  See about getting /lib/udev/initrules.d or similar for storing
 the rules that we care about in the initramfs.  These could be
