@@ -1,0 +1,3 @@
+#!/bin/sh
+grep -q '^dm_mod' /proc/modules || exit 1
+awk '/^dm_mod/ {if ($3 > 0) exit 0; else exit 1;}' /proc/modules
