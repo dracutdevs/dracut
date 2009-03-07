@@ -1,3 +1,4 @@
 #!/bin/sh
 
-exit 1
+[ -f /etc/lsb-release ] && \ 
+grep -q 'DISTRIB_DESCRIPTION="Ubuntu 8.10"' /etc/lsb-release

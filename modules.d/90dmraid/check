@@ -1,3 +1,11 @@
 #!/bin/sh
-grep -q '^dm_mod' /proc/modules || exit 1
-awk '/^dm_mod/ {if ($3 > 0) exit 0; else exit 1;}' /proc/modules
+
+[[ $dracutfunctions ]] && . $dracutfunctions
+
+dmraid=$(find_binary dmraid) || exit 1
+
+if [ "$1" = "-h" ]; then
+    $dmraid -r | grep -q ok || exit 1
+fi
+
+exit 0

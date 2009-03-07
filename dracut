@@ -18,6 +18,7 @@ while (($# > 0)); do
 	-v|--verbose) set -x;;
 	-c|--conf) conffile="$2"; shift;;
 	-l|--local) allowlocal="yes" ;;
+	-h|--hostonly) hostonly="-h" ;;
 	--skip-missing) skipmissing="yes" ;;
 	*) break ;;
     esac
@@ -31,6 +32,8 @@ done
 
 [[ $allowlocal && -f dracut-functions ]] && dsrc="." || dsrc=/usr/lib/dracut
 . $dsrc/dracut-functions
+dracutfunctions=$dsrc/dracut-functions
+export dracutfunctions
 
 [[ $dracutmodules ]] || dracutmodules="auto" 
 [[ $dracutmodules = "auto" ]] && {
@@ -38,6 +41,11 @@ done
     skipmissing="yes"
 }
 
+[[ $dracutmodules = "hostonly" ]] && {
+    dracutmodules="all"
+    skipmissing="yes"
+    hostonly="-h"
+}
 
 [[ $2 ]] && kernel=$2 || kernel=$(uname -r)
 [[ $1 ]] && outfile=$(readlink -f $1) || outfile="/boot/initrd-$kernel.img"
@@ -68,7 +76,7 @@ can_source_module() {
     esac
 
     [[ $skipmissing ]] && [[ -x $1/check ]] && {
-        return $("$1/check" >/dev/null 2>&1);
+        return $("$1/check" $hostonly >/dev/null 2>&1;)
     }
 
     [[ $skipmissing ]] || return 1

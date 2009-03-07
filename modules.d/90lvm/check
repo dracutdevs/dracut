@@ -2,10 +2,10 @@
 
 [[ $dracutfunctions ]] && . $dracutfunctions
 
-find_binary cryptsetup || exit 1
+find_binary lvm || exit 1
 
 if [ "$1" = "-h" ]; then
-    blkid | grep -q crypt_LUKS || exit 1
+    blkid | grep -q lvm2pv || exit 1
 fi
 
 exit 0
