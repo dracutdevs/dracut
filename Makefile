@@ -31,5 +31,5 @@ rpm: dracut-$(VERSION)-$(GITVERSION).tar.bz2
 	rm -fr BUILD BUILDROOT
 
 testimage: all
-	./dracut -l -f test-$(shell uname -r).img $(shell uname -r)
+	./dracut -l -c ./dracut.conf -f test-$(shell uname -r).img $(shell uname -r)
 	@echo wrote  test-$(shell uname -r).img 

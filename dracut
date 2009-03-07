@@ -16,7 +16,7 @@ while (($# > 0)); do
 	-h|--help) echo "Usage: $0 [-f] <initramfs> <kernel-version>"
 	    exit 1 ;;
 	-v|--verbose) set -x;;
-	-c|--conf) conffile="$2" ;;
+	-c|--conf) conffile="$2"; shift;;
 	-l|--local) allowlocal="yes" ;;
 	--allow-missing) : ;;
 	*) break ;;
