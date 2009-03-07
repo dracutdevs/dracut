@@ -185,6 +185,7 @@ dracut_install() {
     done
 }
 
+# install modules, and handle installing all their dependencies as well.
 srcmods="/lib/modules/$kernel/"
 instmods() {
     local mod mpargs modpath modname cmd
