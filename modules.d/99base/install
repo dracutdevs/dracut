@@ -3,6 +3,7 @@ dracut_install mount mknod mkdir modprobe pidof sleep chroot echo sed sh ls
 # install our scripts and hooks
 inst "$moddir/init" "/init"
 inst "$moddir/switch_root" "/sbin/switch_root"
+inst_hook pre-mount 10 "$moddir/parse-root-opts.sh"
 inst_hook pre-pivot 50 "$moddir/selinux-loadpolicy.sh"
 inst_hook mount 90 "$moddir/resume.sh"
-inst_hook mount 99 "$moddir/mount-partition.sh"
+inst_hook mount 99 "$moddir/mount-root.sh"

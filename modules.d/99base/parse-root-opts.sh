@@ -22,6 +22,3 @@
 [ "$fstype" ] || {
     fstype="$(getarg rootfstype=)" && fstype="-t ${fstype}"
 }
-
-[ -e "$root" ] && mount $fstype -o "$rflags" "$root" "$NEWROOT" && \
-    ROOTFS_MOUNTED=yes
