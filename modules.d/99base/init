@@ -96,7 +96,12 @@ source_all pre-pivot
 getarg break && emergency_shell
 kill $(pidof udevd)
 echo "Switching to real root filesystem $root"
-exec switch_root -n "$NEWROOT" || {
+initargs=""
+for x in $CMDLINE; do
+    [ "${x%%=*}" = "console" -o "${x%%=*}" = "BOOT_IMAGE" ] && continue
+    initargs="$initargs $x"
+done
+exec switch_root "$NEWROOT" "$INIT" $initargs || {
     # davej doesn't like initrd bugs
     echo "Something went very badly wrong in the initrd.  Please "
     echo "file a bug against mkinitrd."
