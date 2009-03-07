@@ -24,16 +24,16 @@ while (($# > 0)); do
     shift
 done
 
-[[ -f $conffile ]] || [[ -f /etc/dracut.conf ]] && conffile="/etc/dracut.conf"
+[[ -f $conffile ]] || ( [[ -f /etc/dracut.conf ]] && conffile="/etc/dracut.conf" )
 [[ -f $conffile ]] && . "$conffile"
-
-[[ $dracutmodules_l ]] && dracutmodules=$dracutmodule_l
+[[ $dracutmodules_l ]] && dracutmodules=$dracutmodules_l
 [[ $modules_l ]] && modules=$modules_l
 
 [[ $allowlocal && -f dracut-functions ]] && dsrc="." || dsrc=/usr/lib/dracut
 . $dsrc/dracut-functions
 
 [[ $dracutmodules ]] || dracutmodules="all" 
+
 
 [[ $2 ]] && kernel=$2 || kernel=$(uname -r)
 [[ $1 ]] && outfile=$(readlink -f $1) || outfile="/boot/initrd-$kernel.img"
@@ -62,7 +62,7 @@ can_source_module() {
 	all) return 0;;
 	auto) [[ -x $1/check ]] || return 0
 	    "$1/check" >/dev/null 2>&1 && return 0 ;;
-	*) strstr "$dracutmodules" "$mod" && return 0;;
+	*) strstr "$dracutmodules " "$mod " && return 0;;
     esac
     return 1
 }
