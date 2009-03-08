@@ -34,6 +34,7 @@
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
+#include <dirent.h>
 
 #ifndef MS_MOVE
 #define MS_MOVE 8192
@@ -48,6 +49,73 @@ enum {
 	err_no_directory,
 	err_usage,
 };
+
+/* remove all files/directories below dirName -- don't cross mountpoints */
+static int
+recursiveRemove(char * dirName)
+ {
+    struct stat sb,rb;
+    DIR * dir;
+    struct dirent * d;
+    char * strBuf = alloca(strlen(dirName) + 1024);
+
+    if (!(dir = opendir(dirName))) {
+        printf("error opening %s: %m\n", dirName);
+        return 0;
+    }
+
+    if (fstat(dirfd(dir),&rb)) {
+        printf("unable to stat %s: %m\n", dirName);
+        closedir(dir);
+        return 0;
+    }
+
+    errno = 0;
+    while ((d = readdir(dir))) {
+        errno = 0;
+
+        if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, "..")) {
+            errno = 0;
+            continue;
+        }
+
+        strcpy(strBuf, dirName);
+        strcat(strBuf, "/");
+        strcat(strBuf, d->d_name);
+
+        if (lstat(strBuf, &sb)) {
+            printf("failed to stat %s: %m\n", strBuf);
+            errno = 0;
+            continue;
+        }
+
+        /* only descend into subdirectories if device is same as dir */
+        if (S_ISDIR(sb.st_mode)) {
+            if (sb.st_dev == rb.st_dev) {
+	        recursiveRemove(strBuf);
+                if (rmdir(strBuf))
+                    printf("failed to rmdir %s: %m\n", strBuf);
+            }
+            errno = 0;
+            continue;
+        }
+        if (unlink(strBuf)) {
+            printf("failed to remove %s: %m\n", strBuf);
+            errno = 0;
+            continue;
+        }
+    }
+
+    if (errno) {
+        closedir(dir);
+        printf("error reading from %s: %m\n", dirName);
+        return 1;
+    }
+
+    closedir(dir);
+
+    return 0;
+ }
 
 static int switchroot(const char *newroot)
 {
@@ -74,7 +142,7 @@ static int switchroot(const char *newroot)
 	  errno=errnum;
 	  return -1;
 	}
-
+	recursiveRemove("/");
 	if (mount(newroot, "/", NULL, MS_MOVE, NULL) < 0) {
 		errnum = errno;
 		fprintf(stderr, "switchroot: mount failed: %m\n");
