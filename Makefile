@@ -6,6 +6,8 @@ modules.d/99base/switch_root: switch_root.c
 
 all: modules.d/99base/switch_root
 
+.PHONY: install clean archive rpm testimage test
+
 install:
 	mkdir -p $(DESTDIR)/usr/lib/dracut
 	mkdir -p $(DESTDIR)/sbin
@@ -29,6 +31,12 @@ dracut-$(VERSION)-$(GITVERSION).tar.bz2:
 rpm: dracut-$(VERSION)-$(GITVERSION).tar.bz2
 	rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" --define "_specdir $$PWD" --define "_srcrpmdir $$PWD" --define "_rpmdir $$PWD" --define "gittag $(GITVERSION)" -ba dracut.spec 
 	rm -fr BUILD BUILDROOT
+
+test: test/root.ext2 all
+	sudo test/test-initramfs
+
+test/root.ext2: test/test-init test/make-test-root all
+	sudo test/make-test-root
 
 testimage: all
 	./dracut -l -f test-$(shell uname -r).img $(shell uname -r)
