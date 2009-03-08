@@ -7,5 +7,5 @@
 done
 
 [ -f /etc/modprobe.conf ] && dracut_install /etc/modprobe.conf
-dracut_install $(find /etc/modprobe.d/ )
+dracut_install $(find /etc/modprobe.d/ -type f )
 
