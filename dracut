@@ -35,7 +35,7 @@ done
 dracutfunctions=$dsrc/dracut-functions
 export dracutfunctions
 
-[[ $dracutmodules ]] || dracutmodules="all"
+[[ $dracutmodules ]] || dracutmodules="auto"
 [[ $dracutmodules = "auto" ]] && {
     dracutmodules="all"
     skipmissing="yes"
@@ -78,7 +78,7 @@ can_source_module() {
     # $1 = location of module
     mod=${1##*/}; mod=${mod#[0-9][0-9]};
     if [[ $dracutmodules != all ]]; then
-	strstr "$dracutmodules " "$mod " || return 1;;
+	strstr "$dracutmodules " "$mod " || return 1
     fi
     skip_missing "$1"
 }
