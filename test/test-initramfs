@@ -1,0 +1,24 @@
+#!/bin/bash
+. ./dracut-functions
+kernel=$(uname -r)
+[[ -f root.ext2 ]] || {
+    readonly initdir=$(mktemp -d -t initramfs-test-XXXXXXXX)
+    readonly mnttarget=$(mktemp -d -t initramfs-test-target-XXXXXXXX)
+    trap 'rm -rf "$initdir"' 0
+    dracut_install sh df free ls shutdown poweroff stty cat ps ln \
+	/lib/terminfo/l/linux mount dmesg
+    inst test-init /sbin/init
+    dd if=/dev/zero of=root.ext2 bs=1M count=10
+    mke2fs -F root.ext2
+    mount -o loop -t ext2 root.ext2 "$mnttarget"
+    cp -a -t "$mnttarget" "$initdir"/*
+    (cd "$mnttarget"; mkdir -p dev sys proc etc)
+    umount -l "$mnttarget"
+    rm -rf "$mnttarget" "$initdir"
+}
+./dracut -c dracut.conf.test -l -f initramfs.testing
+
+exec qemu-kvm -hda root.ext2 -nographic -net none \
+    -kernel /boot/vmlinuz-$kernel \
+    -append "root=/dev/sda rw rootfstype=ext2 console=ttyS0,115200n81 quiet" \
+    -initrd initramfs.testing
