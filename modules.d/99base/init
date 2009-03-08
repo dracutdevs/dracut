@@ -31,8 +31,6 @@ source_all() {
 echo "Starting initrd..."
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export TERM=linux
-CONSOLE=/dev/console
-[ -c $CONSOLE ] && exec >$CONSOLE 2>&1 <$CONSOLE
 trap "emergency_shell" 0
 
 mknod /dev/null c 1 3
@@ -55,7 +53,7 @@ getarg 'break=pre-udev' && emergency_shell
 source_all pre-udev
 
 # start up udev and trigger cold plugs
-udevd --daemon $( [ $(udevd --version) -ge 137 ] && echo --resolve-names=never )
+udevd --daemon
 udevadm trigger >/dev/null 2>&1
 udevadm settle --timeout=30 >/dev/null 2>&1
 

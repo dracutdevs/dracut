@@ -5,7 +5,7 @@ mkdir -p "$initdir/var/run"
 
 dracut_install udevd udevadm pkill /lib/udev/*_id /lib/udev/*_device_name \
     /lib/udev/firmware_helper /lib/udev/ide_media /lib/udev/vio_type \
-    /lib/udev/watershed /etc/udev/udev.conf
+    /lib/udev/watershed /etc/udev/udev.conf /etc/group /lib*/libnss_files.*
 
 inst_rules 05-options.rules 20-names.rules 40-basic-permissions.rules \
     60-persistent-storage.rules 61-persistent-storage-edd.rules \
