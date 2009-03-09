@@ -74,7 +74,10 @@ while :; do
     [ "$ROOTFS_MOUNTED" ] && break;
     sleep 1
     i=$(($i+1))
-    [ $i -gt 10 ] && emergency_shell
+    (
+    	flock -s 200
+	[ $i -gt 10 ] && emergency_shell
+    ) 200>/.console_lock
 done
 
 # by the time we get here, the root filesystem should be mounted.

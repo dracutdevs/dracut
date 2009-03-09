@@ -1,4 +1,5 @@
 #!/bin/bash
 inst cryptsetup
 inst_rules "$moddir/63-luks.rules"
-inst_hook mount 10 "$moddir/cryptroot.sh"
+inst "$moddir"/cryptroot-ask.sh /lib/udev/cryptroot-ask
+
