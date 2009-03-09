@@ -5,8 +5,8 @@
 
 # loopback is always handled the same way
 [ "$1" = "lo" ] && {
-    ip link set lo up
-    ip addr add 127.0.0.1/8 dev lo
+    /sbin/ip link set lo up
+    /sbin/ip addr add 127.0.0.1/8 dev lo
     exit 0
 }
 
@@ -24,9 +24,9 @@ for p in $(cat /proc/cmdline); do
 		    case $autoconf in
 			dhcp|on|any) >/net.$1.dhcp ;;
 			none|off|'') # do some basic configuration
-			    ip link set $1 up
-			    ip addr add $client/$netmask dev $1
-			    [ "$gw" ] && ip route add default via $gw dev $1
+			    /sbin/ip link set $1 up
+			    /sbin/ip addr add $client/$netmask dev $1
+			    [ "$gw" ] && /sbin/ip route add default via $gw dev $1
 			    >/net.$1.up ;;
 		    esac
 		fi
