@@ -1,3 +1,2 @@
 #!/bin/bash
-exit 1
 [[ -x /sbin/plymouthd && -x /bin/plymouth ]]
