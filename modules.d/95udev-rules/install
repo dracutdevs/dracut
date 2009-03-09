@@ -6,4 +6,5 @@ dracut_install udevd udevadm /lib*/udev/*_id /etc/udev/udev.conf \
     /etc/group /lib*/libnss_files.*
 
 inst_rules 50-udev-default.rules 60-persistent-storage.rules \
-    61-persistent-storage-edd.rules 80-drivers.rules 95-udev-late.rules \
+    61-persistent-storage-edd.rules 80-drivers.rules 95-udev-late.rules 
+
