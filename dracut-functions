@@ -79,7 +79,7 @@ inst_binary() {
     local LDSO NAME IO FILE ADDR I1 n f TLIBDIR
     [[ -f $initdir$target ]] && return 0
     # I love bash!
-    while read line; do
+    ldd $bin 2>/dev/null | while read line; do
 	[[ $line = 'not a dynamic executable' ]] && return 1
 	[[ $line =~ not\ found ]] &&{
 	    echo "Missing a shared library required by $bin." >&2
@@ -105,7 +105,7 @@ inst_binary() {
 	    continue
 	}
         inst_library "$FILE" 
-    done < <(ldd $bin 2>/dev/null)
+    done
     inst_simple "$bin" "$target"
 }
 
