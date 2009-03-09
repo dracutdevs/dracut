@@ -1,0 +1,8 @@
+#!/bin/bash
+# FIXME: would be nice if we didn't have to know which rules to grab....
+# ultimately, /lib/initramfs/rules.d or somesuch which includes links/copies
+# of the rules we want so that we just copy those in would be best
+dracut_install /lib/udev/devkit-disks-dm-export /lib/udev/devkit-disks-part-id
+
+inst_rules 95-devkit-disks.rules
+    
