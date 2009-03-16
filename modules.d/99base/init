@@ -41,7 +41,7 @@ mount -t sysfs /sys /sys >/dev/null 2>&1
 mount -t tmpfs -omode=0755 udev /dev >/dev/null 2>&1
 
 read CMDLINE </proc/cmdline;
-
+getarg debug && set -x
 # Make some basic devices first, let udev handle the rest
 mknod /dev/ptmx c 5 2
 mknod /dev/console c 5 1
@@ -77,6 +77,9 @@ while :; do
     [ $i -gt 10 ] && emergency_shell
 done
 
+getarg 'break=pre-pivot' && emergency_shell
+source_all pre-pivot
+
 # by the time we get here, the root filesystem should be mounted.
 # Try to find init.
 for i in "$(getarg init=)" /sbin/init /etc/init /init /bin/sh; do
@@ -89,8 +92,7 @@ done
 }
 
 # pre pivot scripts are sourced just before we switch over to the new root.
-getarg 'break=pre-pivot' && emergency_shell
-source_all pre-pivot
+
 getarg break && emergency_shell
 kill $(pidof udevd)
 echo "Switching to real root filesystem $root"

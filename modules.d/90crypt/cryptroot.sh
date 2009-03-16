@@ -1,6 +1,6 @@
 #!/bin/sh
 [ -s /cryptroot ] && { 
-    udevadm control --stop-exec-queue
+    udevadm control --stop_exec_queue
     while read cryptopts; do
        (   exec >/dev/console 2>&1 </dev/console
 	   set $cryptopts
@@ -8,6 +8,6 @@
        )
     done </cryptroot
     >/cryptroot
-    udevadm control --start-exec-queue
+    udevadm control --start_exec_queue
     udevadm settle --timeout=30
 }

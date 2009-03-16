@@ -1,15 +1,22 @@
 #!/bin/bash
-. ./dracut-functions
-readonly initdir=$(mktemp -d -t initramfs-test-XXXXXXXX)
-readonly mnttarget=$(mktemp -d -t initramfs-test-target-XXXXXXXX)
-trap 'rm -rf "$initdir"' 0
-dracut_install sh df free ls shutdown poweroff stty cat ps ln \
-    /lib/terminfo/l/linux mount dmesg
-inst test/test-init /sbin/init
-dd if=/dev/zero of=test/root.ext2 bs=1M count=10
-mke2fs -F test/root.ext2
-mount -o loop -t ext2 test/root.ext2 "$mnttarget"
-cp -a -t "$mnttarget" "$initdir"/*
-(cd "$mnttarget"; mkdir -p dev sys proc etc)
-umount -l "$mnttarget"
-rm -rf "$mnttarget" "$initdir"
+initdir=$(mktemp -d -t initramfs-test-target-XXXXXXXX)
+kernel=$(uname -r)
+(
+    . ./dracut-functions
+    dracut_install sh df free ls shutdown poweroff stty cat ps ln \
+	/lib/terminfo/l/linux mount dmesg
+    inst test/test-init /sbin/init
+    (cd "$initdir"; mkdir -p dev sys proc etc)
+)
+targetfs="$initdir"
+unset initdir
+dd if=/dev/zero of=test/root.ext2 bs=1M count=20
+./dracut -l -i "$targetfs" /source \
+    -m "dash kernel-modules test crypt lvm udev-rules base" \
+    -d "ata_piix ext2 sd_mod" \
+    -f test/initramfs.makeroot
+
+qemu-kvm -hda test/root.ext2 -m 512M -nographic -net none \
+    -kernel "/boot/vmlinuz-$kernel" \
+    -append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81" \
+    -initrd test/initramfs.makeroot
