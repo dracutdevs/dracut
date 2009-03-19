@@ -1,2 +1,2 @@
-dracutmodules="kernel-modules crypt lvm udev-rules base"
+dracutmodules="auto"
 modules="ata_piix ext2 sd_mod"
