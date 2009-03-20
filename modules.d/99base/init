@@ -94,8 +94,10 @@ done
 getarg break && emergency_shell
 kill $(pidof udevd)
 initargs=""
-for x in $CMDLINE; do
-    [ "${x%%=*}" = "console" -o "${x%%=*}" = "BOOT_IMAGE" ] && continue
+for x in "$@"; do
+    [ "${x%%=*}" = "console" ] && continue
+    [ "${x%%=*}" = "BOOT_IMAGE" ] && continue
+    [ "${x%%=*}" = "break" ] && continue
     initargs="$initargs $x"
 done
 exec switch_root "$NEWROOT" "$INIT" $initargs || {
