@@ -1,8 +1,8 @@
 #!/bin/sh
 exec >/dev/console 2>&1
 export TERM=linux
-ln -s /proc/mounts /etc/mtab
-export PS1='initramfs-test:\w\$'
+export PS1='initramfs-test:\w\$ '
+ln -s /proc/mounts /etc/fstab
 stty sane
 echo "made it to the rootfs!"
 echo 3 >/proc/sys/vm/drop_caches

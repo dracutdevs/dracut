@@ -12,7 +12,7 @@ targetfs="$initdir"
 unset initdir
 dd if=/dev/zero of=test/root.ext2 bs=1M count=20
 ./dracut -l -i "$targetfs" /source \
-    -m "dash kernel-modules test crypt lvm udev-rules base" \
+    -m "dash kernel-modules test crypt lvm udev-rules base rootfs-block" \
     -d "ata_piix ext2 sd_mod" \
     -f test/initramfs.makeroot
 
