@@ -140,8 +140,8 @@ find_rule() {
 # udev rules always get installed in the same place, so
 # create a function to install them to make life simpler.
 inst_rules() { 
-    local target="/lib/udev/rules.d"
-    [[ -d $target ]] || target="/etc/udev/rules.d"
+    local target="/etc/udev/rules.d"
+    mkdir -p "$initdir/lib/udev/rules.d" "$initdir$target"
     for rule in "$@"; do 
 	rule=$(find_rule $rule) && \
 	    inst_simple "$rule" "$target/${rule##*/}"
