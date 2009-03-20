@@ -28,7 +28,6 @@ source_all() {
     for f in "/$1"/*.sh; do [ -f "$f" ] && . "$f"; done
 }
 
-echo "Starting initrd..."
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export TERM=linux
 trap "emergency_shell" 0
@@ -77,6 +76,7 @@ while :; do
     [ $i -gt 10 ] && emergency_shell
 done
 
+# pre pivot scripts are sourced just before we switch over to the new root.
 getarg 'break=pre-pivot' && emergency_shell
 source_all pre-pivot
 
@@ -91,11 +91,8 @@ done
     emergency_shell
 }
 
-# pre pivot scripts are sourced just before we switch over to the new root.
-
 getarg break && emergency_shell
 kill $(pidof udevd)
-echo "Switching to real root filesystem $root"
 initargs=""
 for x in $CMDLINE; do
     [ "${x%%=*}" = "console" -o "${x%%=*}" = "BOOT_IMAGE" ] && continue
