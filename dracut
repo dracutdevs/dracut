@@ -19,6 +19,7 @@ while (($# > 0)); do
 	-c|--conf) conffile="$2"; shift;;
 	-l|--local) allowlocal="yes" ;;
 	-h|--hostonly) hostonly="-h" ;;
+	-i|--include) include_src="$2"; include_target="$3"; shift 2;;
 	--skip-missing) skipmissing="yes" ;;
 	*) break ;;
     esac
@@ -101,5 +102,10 @@ unset moddir
 
 # make sure that library links are correct and up to date
 ldconfig -n -r "$initdir" /lib* /usr/lib*
+
+[[ $include_src && $include_target ]] && {
+    mkdir -p "$initdir$include_target"
+    cp -a -t "$initdir$include_target" "$include_src"/*
+}
 
 ( cd "$initdir"; find . |cpio -H newc -o |gzip -9 > "$outfile"; )

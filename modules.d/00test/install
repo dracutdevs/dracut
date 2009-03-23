@@ -1,0 +1,5 @@
+#!/bin/sh
+dracut_install sfdisk mke2fs poweroff cp umount
+inst_hook pre-pivot 02 "$moddir/halt.sh"
+inst_hook pre-pivot 01 "$moddir/copy-root.sh"
+inst_hook pre-mount 01 "$moddir/create-root.sh"

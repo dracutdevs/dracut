@@ -35,7 +35,7 @@ rpm: dracut-$(VERSION)-$(GITVERSION).tar.bz2
 test: test/root.ext2 all
 	sudo test/test-initramfs
 
-test/root.ext2: test/test-init test/make-test-root all
+test/root.ext2: test/test-init test/make-test-root
 	sudo test/make-test-root
 
 testimage: all

@@ -3,7 +3,7 @@ kernel=$(uname -r)
 [[ -f test/root.ext2 ]] || test/make-test-root
 ./dracut -c test/dracut.conf.test -l -f test/initramfs.testing || exit
 
-exec qemu-kvm -hda test/root.ext2 -nographic -net none \
+qemu-kvm -hda test/root.ext2 -m 512M -nographic -net none \
     -kernel /boot/vmlinuz-$kernel \
-    -append "root=/dev/sda rw rootfstype=ext2 console=ttyS0,115200n81 quiet" \
+    -append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81" \
     -initrd test/initramfs.testing

@@ -28,7 +28,6 @@ source_all() {
     for f in "/$1"/*.sh; do [ -f "$f" ] && . "$f"; done
 }
 
-echo "Starting initrd..."
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export TERM=linux
 NEWROOT="/sysroot"
@@ -43,7 +42,7 @@ mount -t sysfs /sys /sys >/dev/null 2>&1
 mount -t tmpfs -omode=0755 udev /dev >/dev/null 2>&1
 
 read CMDLINE </proc/cmdline;
-
+getarg debug && set -x
 # Make some basic devices first, let udev handle the rest
 mknod /dev/ptmx c 5 2
 mknod /dev/console c 5 1
@@ -122,6 +121,10 @@ while :; do
     ) 200>/.console_lock
 done
 
+# pre pivot scripts are sourced just before we switch over to the new root.
+getarg 'break=pre-pivot' && emergency_shell
+source_all pre-pivot
+
 # by the time we get here, the root filesystem should be mounted.
 # Try to find init.
 for i in "$(getarg init=)" /sbin/init /etc/init /init /bin/sh; do
@@ -133,15 +136,13 @@ done
     emergency_shell
 }
 
-# pre pivot scripts are sourced just before we switch over to the new root.
-getarg 'break=pre-pivot' && emergency_shell
-source_all pre-pivot
 getarg break && emergency_shell
 kill $(pidof udevd)
-echo "Switching to real root filesystem $root"
 initargs=""
-for x in $CMDLINE; do
-    [ "${x%%=*}" = "console" -o "${x%%=*}" = "BOOT_IMAGE" ] && continue
+for x in "$@"; do
+    [ "${x%%=*}" = "console" ] && continue
+    [ "${x%%=*}" = "BOOT_IMAGE" ] && continue
+    [ "${x%%=*}" = "break" ] && continue
     initargs="$initargs $x"
 done
 exec switch_root "$NEWROOT" "$INIT" $initargs || {
