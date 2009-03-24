@@ -77,11 +77,11 @@ while :; do
        [ "$ROOTFS_MOUNTED" ] && break;
     done
 
-    sleep 1
+    sleep 0.5
     i=$(($i+1))
     (
     	flock -s 200
-	[ $i -gt 10 ] && emergency_shell
+	[ $i -gt 20 ] && emergency_shell
     ) 200>/.console_lock
 done
 
