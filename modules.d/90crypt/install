@@ -1,5 +1,5 @@
 #!/bin/bash
 inst cryptsetup
+instmods dm_crypt cbc aes sha256
 inst_rules "$moddir/63-luks.rules"
 inst "$moddir"/cryptroot-ask.sh /lib/udev/cryptroot-ask
-

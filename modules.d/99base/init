@@ -28,7 +28,6 @@ source_all() {
     for f in "/$1"/*.sh; do [ -f "$f" ] && . "$f"; done
 }
 
-echo "Starting initrd..."
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export TERM=linux
 NEWROOT="/sysroot"
@@ -43,7 +42,7 @@ mount -t sysfs /sys /sys >/dev/null 2>&1
 mount -t tmpfs -omode=0755 udev /dev >/dev/null 2>&1
 
 read CMDLINE </proc/cmdline;
-
+getarg ramfsdebug && set -x
 # Make some basic devices first, let udev handle the rest
 mknod /dev/ptmx c 5 2
 mknod /dev/console c 5 1
@@ -54,46 +53,10 @@ mount -t devpts -o gid=5,mode=620 /dev/pts /dev/pts >/dev/null 2>&1
 getarg 'break=pre-udev' && emergency_shell
 source_all pre-udev
 
-
-[ "$root" ] || {
-    root=$(getarg root=)
-    case $root in
-	LABEL=*) root=${root#LABEL=}
-            root="$(echo $root |sed 's,/,\\x2f,g')"
-            root="/dev/disk/by-label/${root}" ;;
-        UUID=*) root="/dev/disk/by-uuid/${root#UUID=}" ;;
-        '') echo "Warning: no root specified"
-            root="/dev/sda1" ;;
-    esac
-}
-
-[ "$rflags" ] || {
-    if rflags="$(getarg rootflags=)"; then
-	getarg rw && rflags="${rflags},rw" || rflags="${rflags},ro"
-    else
-	getarg rw && rflags=rw || rflags=ro
-    fi
-}
-
-[ "$fstype" ] || {
-    fstype="$(getarg rootfstype=)" && fstype="-t ${fstype}"
-}
-
-resume=$(getarg resume=) && ! getarg noresume && [ -b "$resume" ] && {
-    # parsing the output of ls is Bad, but until there is a better way...
-    (
-    	echo -e 'NAME=="'${resume#/dev/}'", RUN+="/bin/sh -c \047 echo %M:%m > /sys/power/resume \047 "'
-    	echo -e 'SYMLINK=="'${resume#/dev/}'", RUN+="/bin/sh -c \047 echo %M:%m > /sys/power/resume \047 "'
-    ) >> /lib/udev/rules.d/99-resume.rules
-}
-
-(
- echo -e ' NAME=="'${root#/dev/}'", RUN+="/bin/sh -c \047 mount '$fstype' -o '$rflags' '$root' '$NEWROOT' \047 " '
- echo -e ' SYMLINK=="'${root#/dev/}'", RUN+="/bin/sh -c \047 mount '$fstype' -o '$rflags' '$root' '$NEWROOT' \047 " '
-) >> /lib/udev/rules.d/99-mount.rules
-
 # start up udev and trigger cold plugs
 udevd --daemon
+getarg udevinfo && udevadm control --log_priority=info
+getarg udevdebug && udevadm control --log_priority=debug
 udevadm trigger >/dev/null 2>&1
 udevadm settle --timeout=30 >/dev/null 2>&1
 
@@ -114,13 +77,17 @@ while :; do
        [ "$ROOTFS_MOUNTED" ] && break;
     done
 
-    sleep 1
+    sleep 0.5
     i=$(($i+1))
     (
     	flock -s 200
-	[ $i -gt 10 ] && emergency_shell
+	[ $i -gt 20 ] && emergency_shell
     ) 200>/.console_lock
 done
+
+# pre pivot scripts are sourced just before we switch over to the new root.
+getarg 'break=pre-pivot' && emergency_shell
+source_all pre-pivot
 
 # by the time we get here, the root filesystem should be mounted.
 # Try to find init.
@@ -133,15 +100,13 @@ done
     emergency_shell
 }
 
-# pre pivot scripts are sourced just before we switch over to the new root.
-getarg 'break=pre-pivot' && emergency_shell
-source_all pre-pivot
 getarg break && emergency_shell
 kill $(pidof udevd)
-echo "Switching to real root filesystem $root"
 initargs=""
-for x in $CMDLINE; do
-    [ "${x%%=*}" = "console" -o "${x%%=*}" = "BOOT_IMAGE" ] && continue
+for x in "$@"; do
+    [ "${x%%=*}" = "console" ] && continue
+    [ "${x%%=*}" = "BOOT_IMAGE" ] && continue
+    [ "${x%%=*}" = "break" ] && continue
     initargs="$initargs $x"
 done
 exec switch_root "$NEWROOT" "$INIT" $initargs || {
