@@ -42,7 +42,7 @@ mount -t sysfs /sys /sys >/dev/null 2>&1
 mount -t tmpfs -omode=0755 udev /dev >/dev/null 2>&1
 
 read CMDLINE </proc/cmdline;
-getarg debug && set -x
+getarg ramfsdebug && set -x
 # Make some basic devices first, let udev handle the rest
 mknod /dev/ptmx c 5 2
 mknod /dev/console c 5 1
