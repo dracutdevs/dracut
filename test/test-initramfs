@@ -5,5 +5,5 @@ kernel=$(uname -r)
 
 qemu-kvm -hda test/root.ext2 -m 512M -nographic -net none \
     -kernel /boot/vmlinuz-$kernel \
-    -append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81" \
+    -append "root=/dev/sda init=/init rw rootfstype=ext2 quiet ramfsdebug console=ttyS0,115200n81" \
     -initrd test/initramfs.testing
