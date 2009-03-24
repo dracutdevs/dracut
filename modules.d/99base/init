@@ -55,6 +55,8 @@ source_all pre-udev
 
 # start up udev and trigger cold plugs
 udevd --daemon
+getarg udevinfo && udevadm control --log_priority=info
+getarg udevdebug && udevadm control --log_priority=debug
 udevadm trigger >/dev/null 2>&1
 udevadm settle --timeout=30 >/dev/null 2>&1
 
