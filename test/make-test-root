@@ -1,5 +1,11 @@
 #!/bin/bash
-initdir=$(mktemp -d -t initramfs-test-target-XXXXXXXX)
+
+dd if=/dev/zero of=test/root.ext2 bs=1M count=20
+mke2fs -F test/root.ext2
+mkdir test/mnt
+mount -o loop test/root.ext2 test/mnt
+
+initdir=test/mnt
 kernel=$(uname -r)
 (
     . ./dracut-functions
@@ -10,13 +16,16 @@ kernel=$(uname -r)
 )
 targetfs="$initdir"
 unset initdir
-dd if=/dev/zero of=test/root.ext2 bs=1M count=20
-./dracut -l -i "$targetfs" /source \
-    -m "dash kernel-modules test crypt lvm udev-rules base rootfs-block" \
-    -d "ata_piix ext2 sd_mod" \
-    -f test/initramfs.makeroot
 
-qemu-kvm -hda test/root.ext2 -m 512M -nographic -net none \
-    -kernel "/boot/vmlinuz-$kernel" \
-    -append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81" \
-    -initrd test/initramfs.makeroot
+umount test/mnt
+rmdir test/mnt
+
+#./dracut -l -i "$targetfs" /source \
+#    -m "dash kernel-modules test crypt lvm udev-rules base rootfs-block" \
+#    -d "ata_piix ext2 sd_mod" \
+#    -f test/initramfs.makeroot
+#
+#qemu-kvm -hda test/root.ext2 -m 512M -nographic -net none \
+#    -kernel "/boot/vmlinuz-$kernel" \
+#    -append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81" \
+#    -initrd test/initramfs.makeroot
