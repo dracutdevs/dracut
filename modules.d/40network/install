@@ -1,5 +1,6 @@
 #!/bin/bash
 dracut_install ip dhclient
+instmods ${modules:-=net}
 inst "$moddir/ifup" "/sbin/ifup"
 inst "$moddir/dhclient-script" "/sbin/dhclient-script"
 instmods =networking ecb arc4
