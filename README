@@ -1,9 +1,9 @@
 Dracut
 ------
+Dracut is a new initramfs infrastructure.
 
-This is the simple skeleton of a new initramfs infrastructure.
-Information about our goals and aims can be found at
-https://fedoraproject.org/wiki/Initrdrewrite
+Information about the initial goals and aims can be found at 
+https://fedoraproject.org/wiki/Initrdrewrite 
 
 Unlike existing initramfs's, this is an attempt at having as little as
 possible hard-coded into the initramfs as possible.  The initramfs has
@@ -48,8 +48,23 @@ possible.  Every distribution has their own tool here and it's not
 something which is really interesting to have separate across them.
 So contributions to help decrease the distro-dependencies are welcome.
 
+Currently dracut lives on sourceforge.
+
+Project Page:
+https://sourceforge.net/projects/dracut/
+
+Drop Harald Hoyer <harald@redhat.com> a mail, if you want to help with 
+the documentation, git access, etc.
+
+Git Repository:
+http://dracut.git.sourceforge.net/
+git://dracut.git.sourceforge.net/gitroot/dracut
+
+Trac Instance:
+http://apps.sourceforge.net/trac/dracut/ 
+
 The git tree can be found at
-git://fedorapeople.org/~katzj/dracut.git for now.  See the TODO
+git://dracut.git.sourceforge.net/gitroot/dracut  for now.  See the TODO
 file for things which still need to be done and HACKING for some
 instructions on how to get started.  There is also a mailing list that
 is being used for the discussion -- initramfs@vger.kernel.org.  It is
@@ -59,4 +74,4 @@ of 'subscribe initramfs email@host.com'
 
 Licensed under the GPLv2
 
-Copyright 2008, Red Hat, Inc. -- Jeremy Katz <katzj@redhat.com>
+Copyright 2008,2009, Red Hat, Inc. -- Jeremy Katz <katzj@redhat.com>
