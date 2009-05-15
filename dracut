@@ -15,7 +15,8 @@ while (($# > 0)); do
 	-d|--drivers) modules_l="$2"; shift;;
 	-h|--help) echo "Usage: $0 [-f] <initramfs> <kernel-version>"
 	    exit 1 ;;
-	-v|--verbose) set -x;;
+	-d|--debug) set -x;;
+	-v|--verbose) beverbose="yes";;
 	-c|--conf) conffile="$2"; shift;;
 	-l|--local) allowlocal="yes" ;;
 	-h|--hostonly) hostonly="-h" ;;
@@ -108,4 +109,10 @@ ldconfig -n -r "$initdir" /lib* /usr/lib*
     cp -a -t "$initdir$include_target" "$include_src"/*
 }
 
+[[ "$beverbose" = "yes" ]] && (du -c "$initdir" | sort -n)
+
 ( cd "$initdir"; find . |cpio -H newc -o |gzip -9 > "$outfile"; )
+
+[[ "$beverbose" = "yes" ]] && ls -lh "$outfile"
+
+:

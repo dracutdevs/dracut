@@ -44,5 +44,5 @@ check:
 	done;exit $$ret
 
 testimage: all
-	./dracut -l -f test-$(shell uname -r).img $(shell uname -r)
+	./dracut -v -l -f test-$(shell uname -r).img $(shell uname -r)
 	@echo wrote  test-$(shell uname -r).img 
