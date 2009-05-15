@@ -38,6 +38,11 @@ test: test/root.ext2 all
 test/root.ext2: test/test-init test/make-test-root
 	sudo test/make-test-root
 
+check:
+	@ret=0;for i in modules.d/99base/init modules.d/*/*.sh; do \
+		dash -n "$$i" ; ret=$$(($$ret+$$?)); \
+	done;exit $$ret
+
 testimage: all
 	./dracut -l -f test-$(shell uname -r).img $(shell uname -r)
 	@echo wrote  test-$(shell uname -r).img 
