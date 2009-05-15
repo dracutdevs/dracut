@@ -19,13 +19,3 @@ unset initdir
 
 umount test/mnt
 rm -fr test/mnt
-
-#./dracut -l -i "$targetfs" /source \
-#    -m "dash kernel-modules test crypt lvm udev-rules base rootfs-block" \
-#    -d "ata_piix ext2 sd_mod" \
-#    -f test/initramfs.makeroot
-#
-#qemu-kvm -hda test/root.ext2 -m 512M -nographic -net none \
-#    -kernel "/boot/vmlinuz-$kernel" \
-#    -append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81" \
-#    -initrd test/initramfs.makeroot
