@@ -1,5 +1,4 @@
 #!/bin/bash
-kernel=$(uname -r)
 [[ -f test/root.ext2 ]] || test/make-test-root
 
 ./dracut $DRACUTOPTS -c test/dracut.conf.test -l -f test/initramfs.testing || exit
@@ -7,7 +6,7 @@ kernel=$(uname -r)
 qemu-kvm -hda test/root.ext2 -m 512M -nographic  \
 	-net nic,macaddr=52:54:00:12:34:56  \
 	-net user  \
-	-kernel /boot/vmlinuz-$kernel \
+	-kernel /boot/vmlinuz-$(uname -r) \
 	-initrd test/initramfs.testing \
 	-append "root=/dev/sda rw console=ttyS0,115200n81 $APPEND"   
 
