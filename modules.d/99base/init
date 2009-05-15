@@ -79,10 +79,7 @@ while :; do
 
     sleep 0.5
     i=$(($i+1))
-    (
-    	flock -s 200
-	[ $i -gt 20 ] && emergency_shell
-    ) 200>/.console_lock
+    { flock -s 9 ; [ $i -gt 20 ] && emergency_shell; } 9>/.console_lock
 done
 
 # pre pivot scripts are sourced just before we switch over to the new root.
