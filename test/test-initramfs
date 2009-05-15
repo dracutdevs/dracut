@@ -1,17 +1,13 @@
 #!/bin/bash
 kernel=$(uname -r)
 [[ -f test/root.ext2 ]] || test/make-test-root
-./dracut -c test/dracut.conf.test -l -f test/initramfs.testing || exit
 
-#qemu-kvm -hda test/root.ext2 -m 512M -nographic -net none \
-#    -kernel /boot/vmlinuz-$kernel \
-#    -append "root=/dev/sda init=/init rw rootfstype=ext2 quiet ramfsdebug console=ttyS0,115200n81" \
-#    -initrd test/initramfs.testing
+./dracut $DRACUTOPTS -c test/dracut.conf.test -l -f test/initramfs.testing || exit
 
 qemu-kvm -hda test/root.ext2 -m 512M -nographic  \
 	-net nic,macaddr=52:54:00:12:34:56  \
 	-net user  \
 	-kernel /boot/vmlinuz-$kernel \
 	-initrd test/initramfs.testing \
-	-append "root=/dev/sda init=/init rw rootfstype=ext2 console=ttyS0,115200n81"   
+	-append "root=/dev/sda rw console=ttyS0,115200n81 $APPEND"   
 

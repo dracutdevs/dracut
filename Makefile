@@ -33,7 +33,7 @@ rpm: dracut-$(VERSION)-$(GITVERSION).tar.bz2
 	rm -fr BUILD BUILDROOT
 
 test: test/root.ext2 all
-	sudo test/test-initramfs
+	sudo APPEND="$(APPEND)" DRACUTOPTS="$(DRACUTOPTS)" test/test-initramfs
 
 test/root.ext2: test/test-init test/make-test-root
 	sudo test/make-test-root
