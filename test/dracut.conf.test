@@ -1,2 +1,2 @@
-dracutmodules="base crypt lvm kernel-modules debug resume rootfs-block udev-rules network"
+dracutmodules="base crypt lvm kernel-modules debug resume rootfs-block udev-rules network NFS"
 #modules="ata_piix ext2 sd_mod"
