@@ -1,5 +1,9 @@
 #!/bin/sh
 
+set -x
+
+exec >> /ifup.log 2>&1
+
 # bail immediatly if the interface is already up
 [ -f "/net.$1.up" ] && exit 0
 
@@ -12,13 +16,13 @@
 
 # spin through the kernel command line, looking for ip= lines
 for p in $(cat /proc/cmdline); do
-    [ "${p%ip=*}" ] || continue
-    p=${p#ip=}
-    case $p in
+    [ "${p%%=*}" = "ip" ] || continue
+    ip=${p#ip=}
+    case $ip in
 	none|off) exit 0;; # we were told to not configure anything
 	dhcp|on|any) >/net.$1.dhcp; exit 0;; 
 	bootp|rarp|both) exit 0;; #dunno how to do this
-	*) echo ${ip#ip=} | \
+	*) echo ${ip} | \
 	    (IFS=':' read client server gw netmask hostname device autoconf
 		if [ -z "$device" -o "$device" = "$1"  ]; then
 		    case $autoconf in
