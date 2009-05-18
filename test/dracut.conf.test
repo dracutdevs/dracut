@@ -1,3 +1,2 @@
-#dracutmodules="base dash crypt lvm kernel-modules resume rootfs-block 95rootfs-block-udev network udev-rules"
-dracutmodules="base dash crypt lvm kernel-modules debug resume rootfs-block-udev udev-rules"
+dracutmodules="base dash crypt lvm kernel-modules debug resume rootfs-block udev-rules network"
 #modules="ata_piix ext2 sd_mod"
