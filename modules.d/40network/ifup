@@ -1,9 +1,5 @@
 #!/bin/sh
 
-set -x
-
-exec >> /ifup.log 2>&1
-
 # bail immediatly if the interface is already up
 [ -f "/net.$1.up" ] && exit 0
 
