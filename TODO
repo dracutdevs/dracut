@@ -57,4 +57,4 @@ Note that our main concern, especially right now, is proving viability of some o
 * run ssh server to enter crypto password or perform debugging (supported by debian)
 * Make it possible to easily extend the initramfs, e.g. by packages that provide additional features to the initramfs, e.g. an ssh server (partly? supported by initramfs-tools in debian. e.g. with /etc/initramfs-tools/hooks)
 * Hook in overlay filesystem like aufs/unionfs (necessary for Debian/Ubuntu LTSP and LiveCD etc.)
-* switchroot without re-running daemons like udev again (not sure if this is possible) 
+* switchroot without re-running daemons like udev again (not sure if this is possible) -- maybe using something based on /dev/ksm ( http://lwn.net/Articles/306704/ )?
