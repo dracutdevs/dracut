@@ -19,8 +19,8 @@ case $reason in
 	for s in $new_domain_name_servers; do
 	    echo "nameserver $s" >> /etc/resolv.conf
 	done
-	set |grep -e '^new_[a-z_]=' |while read line; do
-	    echo "${line%%=*}=\'${line#*=}\'">>/net.$interface.dhcpopts
+	set |grep -E '^new_[a-z_]+=' |while read line; do
+	    echo "${line%%=*}='${line#*=}'">>/net.$interface.dhcpopts
 	done
 	>/net.$interface.up ;;
     *) ;;
