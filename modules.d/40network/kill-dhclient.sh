@@ -1,4 +1,4 @@
 #!/bin/sh
 
 pid=$(pidof dhclient)
-[[ $pid ]] && kill $pid
+[ -n "$pid" ] && kill $pid
