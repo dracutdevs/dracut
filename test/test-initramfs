@@ -4,8 +4,7 @@
 ./dracut $DRACUTOPTS -c test/dracut.conf.test -l -f test/initramfs.testing || exit
 
 qemu-kvm -hda test/root.ext2 -m 512M -nographic  \
-	-net nic,macaddr=52:54:00:12:34:56  \
-	-net user  \
+	-net nic,macaddr=52:54:00:12:34:57 -net socket,mcast=230.0.0.1:1234 \
 	-kernel /boot/vmlinuz-$(uname -r) \
 	-initrd test/initramfs.testing \
 	-append "root=/dev/sda rw console=ttyS0,115200n81 $APPEND"   
