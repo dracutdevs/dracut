@@ -1,3 +1,5 @@
 #!/bin/sh
+dracut_install echo
 inst_hook pre-udev 10 "$moddir/parse-root-opts.sh"
-inst_hook mount 99 "$moddir/mount-root.sh"
+inst_hook pre-udev 20 "$moddir/genrules.sh"
+#inst_hook mount 99 "$moddir/mount-root.sh"
