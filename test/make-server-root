@@ -30,7 +30,7 @@ EOF
 expand-hosts
 domain=test.net
 dhcp-range=192.168.1.100,192.168.1.150,168h
-dhcp-option=17,"nfs://192.168.1.1/mnt/root"
+dhcp-option=17,"192.168.1.1:/mnt/root"
 EOF
     )
     inst /etc/nsswitch.conf /etc/nsswitch.conf
