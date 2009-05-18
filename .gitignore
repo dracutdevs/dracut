@@ -2,4 +2,5 @@ test*.img
 modules.d/99base/switch_root
 test/initramfs.testing
 test/root.ext2
+test/server.ext2
 

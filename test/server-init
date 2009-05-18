@@ -1,0 +1,17 @@
+#!/bin/sh 
+export TERM=linux
+export PS1='initramfs-test:\w\$ '
+[ -f /etc/fstab ] || ln -s /proc/mounts /etc/fstab
+stty sane
+echo "made it to the rootfs!"
+echo 3 >/proc/sys/vm/drop_caches
+free
+if [ -x /usr/sbin/dnsmasq ]; then
+    ifconfig eth0 192.168.1.1
+    route add -net 192.168.1.0/24 dev eth0
+    /usr/sbin/dnsmasq 
+fi
+/bin/sh -i
+mount -n -o remount,ro /
+poweroff -f
+
