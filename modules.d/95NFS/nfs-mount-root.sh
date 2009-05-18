@@ -1,5 +1,4 @@
 #!/bin/sh
-set -x
 if [ "$root" = "dhcp" ]; then 
     for dev in /net.*.dhcpopts; do 
 	if [ -f "$dev" ]; then 
