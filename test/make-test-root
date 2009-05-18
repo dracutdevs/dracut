@@ -10,12 +10,16 @@ kernel=$(uname -r)
 (
     . ./dracut-functions
     dracut_install sh df free ls shutdown poweroff stty cat ps ln ip route \
-	/lib/terminfo/l/linux mount dmesg ifconfig dhclient mkdir cp ping
+	/lib/terminfo/l/linux mount dmesg ifconfig dhclient mkdir cp ping dhclient 
+    inst "modules.d/40network/dhclient-script" "/sbin/dhclient-script"
+    inst "modules.d/40network/ifup" "/sbin/ifup"
+    dracut_install grep
     inst test/test-init /sbin/init
-    (cd "$initdir"; mkdir -p dev sys proc etc var/run)
+    (cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
 )
 targetfs="$initdir"
 unset initdir
+
 
 umount test/mnt
 rm -fr test/mnt
