@@ -7,3 +7,4 @@ instmods =networking ecb arc4
 inst_rules "$moddir/60-net.rules"
 inst_hook pre-pivot 10 "$moddir/kill-dhclient.sh"
 inst_hook pre-mount 70 "$moddir/run-dhclient.sh"
+mkdir -p "${initdir}/var/run"
