@@ -1,0 +1,3 @@
+#!/bin/sh
+inst mount.nfs
+inst_hook mount 96 "$moddir/nfs-mount-root.sh"
