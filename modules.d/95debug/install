@@ -1,2 +1,2 @@
 #!/bin/bash
-dracut_install ln ps grep more dmesg cat
+dracut_install ln ps grep more dmesg cat rm
