@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
 	char *newroot = argv[1];
 	char *init = argv[2];
 	char **initargs = &argv[2];
-      
+
 	if (newroot == NULL || newroot[0] == '\0' ||
 	    init == NULL || init[0] == '\0' ) {
 		usage(stderr);
@@ -184,6 +184,12 @@ int main(int argc, char *argv[])
 	}
 	if (access(initargs[0], X_OK))
 	  fprintf(stderr, "WARNING: can't access %s\n", initargs[0]);
+
+	/* get session leader */
+	setsid();
+	/* set controlling terminal */
+	ioctl (0, TIOCSCTTY, 1);
+
 	execv(initargs[0], initargs);
 }
 
