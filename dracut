@@ -33,7 +33,13 @@ done
 [[ $modules_l ]] && modules=$modules_l
 
 [[ $allowlocal && -f dracut-functions ]] && dsrc="." || dsrc=/usr/lib/dracut
-. $dsrc/dracut-functions
+if [[ -f $dsrc/dracut-functions ]]; then
+   . $dsrc/dracut-functions
+else
+   echo "Cannot find dracut-functions. Are you running from a git checkout?"
+   echo "Try passing -l as an argument to $0"
+   exit 1
+fi
 dracutfunctions=$dsrc/dracut-functions
 export dracutfunctions
 
