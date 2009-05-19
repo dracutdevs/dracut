@@ -8,13 +8,41 @@
 # Copyright 2008, Red Hat, Inc.  Jeremy Katz <katzj@redhat.com>
 # GPLv2 header here
 
+
+usage() {
+#                                                       80x25 linebreak here ^
+	echo "Usage: $0 [OPTION]... <initramfs> <kernel-version>
+Creates initial ramdisk images for preloading modules
+
+  -f, --force           Overwrite existing initramfs file
+  -m, --modules [LIST]  Specify a space-separated list of dracut modules to
+                         call when building the initramfs. Modules are located
+                         in /usr/lib/dracut/modules.d
+  -d, --drivers [LIST]  Specify a space-separated list of kernel modules to
+                         include in the initramfs
+  -h, --help            This message
+  -d, --debug           Output debug information of the build process
+  -v, --verbose         Verbose output during the build process
+  -c, --conf [FILE]     Specify configuration file to use.
+                         Default: /etc/dracut.conf
+  -l, --local           Local mode. Use modules from the current working
+                         directory instead of the system-wide installed in
+                         /usr/lib/dracut/modules.d.
+                         Useful when running dracut from a git checkout.
+  -h, --hostonly        Host-Only mode: Install only what is needed for
+                         booting the local host instead of a generic host.
+  -i, --include [SOURCE] [TARGET]
+                        Include the files in SOURCE in the final initramfs
+  --skip-missing
+"
+}
+
 while (($# > 0)); do
     case $1 in
 	-f|--force) force=yes;;
 	-m|--modules) dracutmodules_l="$2"; shift;;
 	-d|--drivers) modules_l="$2"; shift;;
-	-h|--help) echo "Usage: $0 [-f] <initramfs> <kernel-version>"
-	    exit 1 ;;
+	-h|--help) usage; exit 1 ;;
 	-d|--debug) set -x;;
 	-v|--verbose) beverbose="yes";;
 	-c|--conf) conffile="$2"; shift;;
