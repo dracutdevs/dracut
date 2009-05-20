@@ -1,11 +1,11 @@
 #!/bin/sh
 
-[[ -c /dev/null ]] || mknod /dev/null c 1 3
+[ -c /dev/null ] || mknod /dev/null c 1 3
 mknod /dev/zero c 1 5
 mknod /dev/systty c 4 0
 mknod /dev/tty c 5 0
-[[ -c /dev/console ]] || mknod /dev/console c 5 1
-[[ -c /dev/ptmx ]] || mknod /dev/ptmx c 5 2
+[ -c /dev/console ] || mknod /dev/console c 5 1
+[ -c /dev/ptmx ] || mknod /dev/ptmx c 5 2
 mknod /dev/fb c 29 0
 mknod /dev/tty0 c 4 0
 mknod /dev/tty1 c 4 1
