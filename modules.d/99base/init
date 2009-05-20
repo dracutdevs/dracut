@@ -7,6 +7,7 @@
 
 emergency_shell()
 {
+    source_all emergency
     echo ; echo
     echo "Bug in initramfs /init detected. Dropping to a shell. Good luck!"
     echo
