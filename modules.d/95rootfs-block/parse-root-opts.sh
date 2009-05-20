@@ -22,6 +22,6 @@ else
     getarg rw && rflags=rw || rflags=ro
 fi
 
-fstype="$(getarg rootfstype=)" && fstype="-t ${fstype}" || fstype="-t auto"
+fstype="$(getarg rootfstype=)" && fstype="-t ${fstype}" 
 
 export fstype rflags root
