@@ -18,6 +18,7 @@ Creates initial ramdisk images for preloading modules
   -m, --modules [LIST]  Specify a space-separated list of dracut modules to
                          call when building the initramfs. Modules are located
                          in /usr/lib/dracut/modules.d
+  -o, --omit [LIST]     Omit a space-separated list of dracut modules
   -d, --drivers [LIST]  Specify a space-separated list of kernel modules to
                          include in the initramfs
   -h, --help            This message
@@ -41,6 +42,7 @@ while (($# > 0)); do
     case $1 in
 	-f|--force) force=yes;;
 	-m|--modules) dracutmodules_l="$2"; shift;;
+	-o|--omit) omit_dracutmodules_l="$2"; shift;;
 	-d|--drivers) modules_l="$2"; shift;;
 	-h|--help) usage; exit 1 ;;
 	--debug) debug="yes"; set -x;;
@@ -58,6 +60,7 @@ done
 [[ -f $conffile ]] || ( [[ -f /etc/dracut.conf ]] && conffile="/etc/dracut.conf" )
 [[ -f $conffile ]] && . "$conffile"
 [[ $dracutmodules_l ]] && dracutmodules=$dracutmodules_l
+[[ $omit_dracutmodules_l ]] && omit_dracutmodules=$omit_dracutmodules_l
 [[ $modules_l ]] && modules=$modules_l
 
 [[ $allowlocal && -f dracut-functions ]] && dsrc="." || dsrc=/usr/lib/dracut
@@ -116,6 +119,7 @@ can_source_module() {
     if [[ $dracutmodules != all ]]; then
 	strstr "$dracutmodules " "$mod " || return 1
     fi
+    strstr "$omit_dracutmodules " "$mod " && return 1
     skip_missing "$1"
 }
 
