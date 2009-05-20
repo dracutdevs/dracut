@@ -21,7 +21,7 @@ Creates initial ramdisk images for preloading modules
   -d, --drivers [LIST]  Specify a space-separated list of kernel modules to
                          include in the initramfs
   -h, --help            This message
-  -d, --debug           Output debug information of the build process
+  --debug               Output debug information of the build process
   -v, --verbose         Verbose output during the build process
   -c, --conf [FILE]     Specify configuration file to use.
                          Default: /etc/dracut.conf
@@ -43,7 +43,7 @@ while (($# > 0)); do
 	-m|--modules) dracutmodules_l="$2"; shift;;
 	-d|--drivers) modules_l="$2"; shift;;
 	-h|--help) usage; exit 1 ;;
-	-d|--debug) set -x;;
+	--debug) debug="yes"; set -x;;
 	-v|--verbose) beverbose="yes";;
 	-c|--conf) conffile="$2"; shift;;
 	-l|--local) allowlocal="yes" ;;
@@ -96,7 +96,7 @@ hookdirs="pre-udev pre-mount pre-pivot mount"
 readonly initdir=$(mktemp -d -t initramfs.XXXXXX)
 trap 'rm -rf "$initdir"' 0 # clean up after ourselves no matter how we die.
 
-export initdir hookdirs dsrc dracutmodules modules
+export initdir hookdirs dsrc dracutmodules modules debug
 
 # Create some directory structure first
 for d in bin sbin usr/bin usr/sbin usr/lib etc proc sys sysroot dev/pts; do 

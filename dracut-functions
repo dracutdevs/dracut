@@ -127,6 +127,8 @@ inst_script() {
     [[ -f $1 ]] || return 1
     local line
     read -r -n 80 line <"$1"
+    # If debug is set, clean unprintable chars to prevent messing up the term
+    [[ $debug ]] && line=$(echo -n "$line" | tr -c -d '[:print:][:space:]')
     [[ $line =~ (#! *)(/[^ ]+).* ]] || return 1
     inst "${BASH_REMATCH[2]}" && inst_simple "$@"
 }
