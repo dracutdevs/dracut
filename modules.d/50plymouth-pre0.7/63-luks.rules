@@ -1,0 +1,13 @@
+# hacky rules to try to try unlocking dm-crypt devs
+#
+# Copyright 2008, Red Hat, Inc.
+# Jeremy Katz <katzj@redhat.com>
+
+
+SUBSYSTEM!="block", GOTO="luks_end"
+ACTION!="add|change", GOTO="luks_end"
+
+KERNEL!="sr*", IMPORT{program}="vol_id --export $tempnode"
+ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="cryptroot-ask $env{DEVNAME} luks-$env{ID_FS_UUID}"
+
+LABEL="luks_end"

@@ -1,0 +1,2 @@
+#!/bin/bash
+[[ -x /sbin/plymouthd && -x /bin/plymouth && ! /usr/sbin/plymouth-set-default-theme ]]

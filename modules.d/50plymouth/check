@@ -1,2 +1,2 @@
 #!/bin/bash
-[[ -x /sbin/plymouthd && -x /bin/plymouth ]]
+[[ -x /sbin/plymouthd && -x /bin/plymouth && -x /usr/sbin/plymouth-set-default-plugin ]]
