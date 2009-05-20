@@ -33,7 +33,7 @@ dwarning() {
 }
 
 dinfo() {
-    echo "I: $@" >&2
+    [[ $beverbose ]] && echo "I: $@" >&2
 }
 
 derror() {
