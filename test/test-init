@@ -7,6 +7,7 @@ stty sane
 echo "made it to the rootfs!"
 echo 3 >/proc/sys/vm/drop_caches
 free
+[ -x /bin/plymouth ] && /bin/plymouth quit
 sh -i
 mount -n -o remount,ro /
 poweroff -f

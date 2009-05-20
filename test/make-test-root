@@ -15,6 +15,7 @@ kernel=$(uname -r)
     inst "modules.d/40network/ifup" "/sbin/ifup"
     dracut_install grep
     inst test/test-init /sbin/init
+    find_binary plymouth >/dev/null && dracut_install plymouth
     (cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
 )
 targetfs="$initdir"
