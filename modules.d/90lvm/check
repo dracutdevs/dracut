@@ -2,7 +2,7 @@
 
 [[ $dracutfunctions ]] && . $dracutfunctions
 
-find_binary lvm || exit 1
+find_binary lvm >/dev/null || exit 1
 
 if [ "$1" = "-h" ]; then
     blkid | grep -q lvm2pv || exit 1

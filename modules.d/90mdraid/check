@@ -2,7 +2,7 @@
 
 [[ $dracutfunctions ]] && . $dracutfunctions
 
-find_binary mdadm || exit 1
+find_binary mdadm >/dev/null || exit 1
 
 if [ "$1" = "-h" ]; then
     blkid | grep -q linux_raid || exit 1
