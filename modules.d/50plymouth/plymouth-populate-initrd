@@ -1,5 +1,5 @@
 #!/bin/bash
-if ldd /proc/$$/exe |grep -q lib64; then
+if ldd /sbin/plymouthd |grep -q lib64; then
     LIBDIR="/usr/lib64"
 else
     LIBDIR="/usr/lib"
