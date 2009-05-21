@@ -1,9 +1,17 @@
 #!/bin/bash
-for f in kvm qemu-kvm qemu; do
-    type $f >/dev/null 2>&1 || continue
-    $f "$@"
-    exit
-done
-echo "Could not find a working KVM or QEMU to test with!"
-echo "Please install kvm or qemu."
-exit 1
+
+# Check which virtualization technology to use
+# We prefer kvm, kqemu, userspace in that order.
+[[ -x /usr/bin/qemu ]] && BIN=/usr/bin/qemu && ARGS=""
+$(lsmod | grep -q '^kqemu ') && BIN=/usr/bin/qemu && ARGS="-kernel-kqemu "
+[[ -b /dev/kvm && -x /usr/bin/kvm ]] && BIN=/usr/bin/kvm && ARGS=""
+[[ -b /dev/kvm && -x /usr/bin/qemu-kvm ]] && BIN=/usr/bin/qemu-kvm && ARGS=""
+
+[[ $BIN ]] || {
+   echo "Could not find a working KVM or QEMU to test with!" >&2
+   echo "Please install kvm or qemu." >&2
+   exit 1
+}
+
+echo "Running $BIN $ARGS"
+$BIN $ARGS "$@"
