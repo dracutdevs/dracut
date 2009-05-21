@@ -1,0 +1,9 @@
+#!/bin/bash
+for f in kvm qemu-kvm qemu; do
+    type $f >/dev/null 2>&1 || continue
+    $f "$@"
+    exit
+done
+echo "Could not find a working KVM or QEMU to test with!"
+echo "Please install kvm or qemu."
+exit 1
