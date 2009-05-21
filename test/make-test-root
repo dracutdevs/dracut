@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This script creates a root filesystem on an encrypted LVM PV
+
 dd if=/dev/zero of=test/root.ext2 bs=1M count=20
 
 initdir=test/mnt
@@ -18,11 +20,16 @@ kernel=$(uname -r)
 targetfs="$initdir"
 unset initdir
 
+# create an initramfs that will create the target root filesystem.
+# We do it this way because creating it directly in the host OS
+# results in cryptsetup not being able to unlock the LVM PV.
+# Probably a bug in cryptsetup, but...
 ./dracut -l -i "$targetfs" /source \
     -m "dash kernel-modules test crypt lvm udev-rules base rootfs-block" \
     -d "ata_piix ext2 sd_mod" \
     -f test/initramfs.makeroot
 
+# Invoke KVM and/or QEMU to actually create the target filesystem.
 test/run-qemu -hda test/root.ext2 -m 512M -nographic -net none \
     -kernel "/boot/vmlinuz-$kernel" \
     -append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81" \
