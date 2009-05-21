@@ -3,5 +3,10 @@ dracut_install mount mknod mkdir modprobe pidof sleep chroot echo sed bash ls fl
 [ -e "${initdir}/bin/sh" ] || (ln -s bash "${initdir}/bin/sh" || :)
 # install our scripts and hooks
 inst "$moddir/init" "/init"
+# Bail out if switch_root does not exist
+if [ ! -x "$moddir/switch_root" ]; then
+    derror "ERROR: $moddir/switch_root does not exist."
+    exit 1
+fi
 inst "$moddir/switch_root" "/sbin/switch_root"
 inst_hook pre-pivot 50 "$moddir/selinux-loadpolicy.sh"
