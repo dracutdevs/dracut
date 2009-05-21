@@ -16,3 +16,4 @@ lvm lvcreate -l 100%FREE -n root dracut
 udevadm settle --timeout=4
 [ -b /dev/dracut/root ] || emergency_shell
 mke2fs /dev/dracut/root
+e2mkdir /dev/dracut/root:/proc
