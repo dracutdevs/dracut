@@ -3,7 +3,5 @@
 inst_hook pre-udev 10 "$moddir"/plymouth-start.sh
 inst_hook pre-pivot 90 "$moddir"/plymouth-newroot.sh
 inst_hook emergency 50 "$moddir"/plymouth-emergency.sh
-inst_rules "$moddir/63-luks.rules"
-inst "$moddir"/cryptroot-ask.sh /lib/udev/cryptroot-ask
-inst cryptsetup
+inst "$moddir"/cryptroot-ask.sh /sbin/cryptroot-ask
 

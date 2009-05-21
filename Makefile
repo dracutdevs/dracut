@@ -23,6 +23,7 @@ clean:
 	rm -f modules.d/99base/switch_root
 	rm -f test-*.img
 	rm -f test/initramfs.*
+	rm -f test/root.ext2
 
 archive: dracut-$(VERSION)-$(GITVERSION).tar.bz2
 

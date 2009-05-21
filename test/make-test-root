@@ -25,7 +25,7 @@ unset initdir
 # results in cryptsetup not being able to unlock the LVM PV.
 # Probably a bug in cryptsetup, but...
 ./dracut -l -i "$targetfs" /source \
-    -m "dash kernel-modules test crypt lvm udev-rules base rootfs-block" \
+    -m "dash kernel-modules test crypt lvm mdraid udev-rules base rootfs-block" \
     -d "ata_piix ext2 sd_mod" \
     -f test/initramfs.makeroot
 

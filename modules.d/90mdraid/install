@@ -1,8 +1,11 @@
 #!/bin/bash
 dracut_install mdadm
+inst /etc/passwd
+inst /etc/group
+instmods =drivers/md
 [ -x  /sbin/mdmon ] && dracut_install mdmon
 inst_rules "$moddir/70-mdadm.rules"
-[ -f /etc/mdadm/mdadm.conf ] && inst /etc/mdadm/mdadm.conf "$initdir" /etc/mdadm.conf
-[ -f /etc/mdadm.conf ] && inst /etc/mdadm.conf "$initdir"
+[ -f /etc/mdadm/mdadm.conf ] && inst /etc/mdadm/mdadm.conf /etc/mdadm.conf
+[ -f /etc/mdadm.conf ] && inst /etc/mdadm.conf
 inst_hook pre-pivot 30 "$moddir/mdmon-pre-pivot.sh"
 
