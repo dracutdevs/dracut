@@ -62,8 +62,13 @@ while (($# > 0)); do
     shift
 done
 
-[[ -f $conffile ]] || { [[ -f /etc/dracut.conf ]] && conffile="/etc/dracut.conf" }
+# if we were not passed a config file, try the default one
+[[ ! -f $conffile ]] && conffile="/etc/dracut.conf"
+
+# source our config file
 [[ -f $conffile ]] && . "$conffile"
+
+# these options override the stuff in the config file
 [[ $dracutmodules_l ]] && dracutmodules=$dracutmodules_l
 [[ $omit_dracutmodules_l ]] && omit_dracutmodules=$omit_dracutmodules_l
 [[ $modules_l ]] && modules=$modules_l
@@ -79,16 +84,18 @@ fi
 dracutfunctions=$dsrc/dracut-functions
 export dracutfunctions
 
-[[ $dracutmodules ]] || dracutmodules="auto"
-[[ $dracutmodules = "auto" ]] && {
-    dracutmodules="all"
-    skipmissing="yes"
-}
-[[ $dracutmodules = "hostonly" ]] && {
-    dracutmodules="all"
-    skipmissing="yes"
-    hostonly="-h"
-}
+# this logic is weird and convoluted.  We should simplify it.
+case $dracutmodules in
+	""|auto)
+		dracutmodules="all"
+    		skipmissing="yes"
+		;;
+	hostonly)
+    		dracutmodules="all"
+    		skipmissing="yes"
+    		hostonly="-h"
+		;;
+esac
 
 
 [[ $2 ]] && kernel=$2 || kernel=$(uname -r)
@@ -111,6 +118,8 @@ for d in bin sbin usr/bin usr/sbin usr/lib etc proc sys sysroot dev/pts; do
     mkdir -p "$initdir/$d"; 
 done
 
+# these bits are fugly, and need some cleanup.
+# Actually documenting how dracut modules work these days would be good.
 skip_missing() {
     # $1 = location of module
     [[ $skipmissing ]] || return 0
@@ -139,18 +148,18 @@ unset moddir
 ## final stuff that has to happen
 
 # generate module dependencies for the initrd
-/sbin/depmod -a -b "$initdir" $kernel || {
+if ! /sbin/depmod -a -b "$initdir" $kernel; then
     echo "\"/sbin/depmod -a $kernel\" failed."
     exit 1
-}
+fi
 
 # make sure that library links are correct and up to date
 ldconfig -n -r "$initdir" /lib* /usr/lib*
 
-[[ $include_src && $include_target ]] && {
+if [[ $include_src && $include_target ]]; then
     mkdir -p "$initdir$include_target"
     cp -a -t "$initdir$include_target" "$include_src"/*
-}
+fi
 
 for item in $install_items; do
    dracut_install "$item"
