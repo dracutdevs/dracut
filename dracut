@@ -111,10 +111,13 @@ hookdirs="pre-udev pre-mount pre-pivot mount emergency"
 readonly initdir=$(mktemp -d -t initramfs.XXXXXX)
 trap 'rm -rf "$initdir"' 0 # clean up after ourselves no matter how we die.
 
+# Need to be able to have non-root users read stuff (rpcbind etc)
+chmod 755 "$initdir"
+
 export initdir hookdirs dsrc dracutmodules modules debug beverbose
 
 # Create some directory structure first
-for d in bin sbin usr/bin usr/sbin usr/lib etc proc sys sysroot dev/pts; do 
+for d in bin sbin usr/bin usr/sbin usr/lib etc proc sys sysroot dev/pts var/run; do 
     mkdir -p "$initdir/$d"; 
 done
 

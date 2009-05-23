@@ -1,0 +1,1 @@
+ACTION=="online", SUBSYSTEM=="net", RUN+="/sbin/nfsroot $env{INTERFACE}"

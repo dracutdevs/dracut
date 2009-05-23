@@ -1,0 +1,27 @@
+#!/bin/sh
+dracut_install rpcbind rpc.statd mount.nfs mount.nfs4
+dracut_install /etc/netconfig /etc/passwd /etc/services
+
+# XXX debug stuff
+dracut_install rpcinfo ping strace dmesg nc free df
+
+dracut_install rpc.idmapd /etc/idmapd.conf
+
+instmods nfs
+inst_rules "$moddir/60-nfsroot.rules"
+inst_hook pre-pivot 70 "$moddir/nfsroot-cleanup.sh"
+inst "$moddir/nfsroot" "/sbin/nfsroot"
+mkdir -p "$initdir/var/lib/nfs/rpc_pipefs"
+mkdir -p "$initdir/var/lib/rpcbind"
+mkdir -p "$initdir/var/lib/nfs/statd/sm"
+
+# XXX debug
+mkdir -p "$initdir/mnt"
+
+# Rather than copy the passwd file in, just set a user for rpcbind
+# We'll save the state and restart the daemon from the root anyway
+#echo "rpc:x:32:32:Rpcbind:/var/lib/rpcbind:/bin/false" >> "$initdir/etc/passwd"
+
+# rpc user needs to be able to write to this directory to save the warmstart
+# file
+chmod 777 "$initdir/var/lib/rpcbind"
