@@ -93,17 +93,17 @@ inst_binary() {
     # I love bash!
     ldd $bin 2>/dev/null | while read line; do
 	[[ $line = 'not a dynamic executable' ]] && return 1
-	[[ $line =~ not\ found ]] &&{
+	if [[ $line =~ not\ found ]]; then
 	    derror "Missing a shared library required by $bin."
 	    derror "Run \"ldd $bin\" to find out what it is."
 	    derror "dracut cannot create an initrd."
 	    exit 1
-	} 
+	fi
 	[[ $line =~ ([^ ]*/lib[^/]*/[^ ]*\.so[^ ]*) ]] || continue
 	FILE=${BASH_REMATCH[1]}
 	[[ -f ${initdir}$FILE ]] && continue
 	# see if we are loading an optimized version of a shared lib.
-	[[ $FILE =~ ^(/lib[^/]*).* ]] && {
+	if [[ $FILE =~ ^(/lib[^/]*).* ]]; then
             TLIBDIR=${BASH_REMATCH[1]}
             BASE="${FILE##*/}"
 	    # prefer nosegneg libs, then unoptimized ones.
@@ -115,7 +115,7 @@ inst_binary() {
 	    inst_library "$FILE" "$TLIBDIR/$BASE"
             IF_dynamic="yes"
 	    continue
-	}
+	fi
         inst_library "$FILE" 
     done
     inst_simple "$bin" "$target"
@@ -179,15 +179,14 @@ inst() {
 # $1 = type of hook, $2 = hook priority (lower runs first), $3 = hook
 # All hooks should be POSIX/SuS compliant, they will be sourced by init.
 inst_hook() {
-    [[ -f $3 ]] || {
+    if ! [[ -f $3 ]]; then
 	derror "Cannot install a hook ($3) that does not exist."
 	derror "Aborting initrd creation."
 	exit 1
-    }
-    strstr "$hookdirs" "$1" || {
+    elif ! strstr "$hookdirs" "$1"; then
 	derror "No such hook type $1. Aborting initrd creation." 
 	exit 1
-    }
+    fi
     inst_simple "$3" "/${1}/${2}${3##*/}"
 }
 
@@ -227,10 +226,10 @@ instmods() {
 		    [[ $cmd = insmod ]] || continue
 		    modname=${modpath##*/}
 		    modname=${modname%.ko}
-		    [[ ${mod/-/_} != ${modname/-/_} ]] && {
+		    if [[ ${mod/-/_} != ${modname/-/_} ]]; then
 			instmods $mpargs $modname
 			continue
-		    }
+		    fi
 		    inst_simple "$modpath"
 		done
 		;;
