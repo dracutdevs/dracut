@@ -37,7 +37,8 @@ Some general rules for writing modules:
  * Generator modules should have a two digit numeric prefix -- they run in
    ascending sort order. Anything in the 90-99 range is stuff that dracut
    relies on, so try not to break those hooks.
- * Generator modules and hooks must have a .sh extension.
+ * Hooks must have a .sh extension.
+ * Generator modules are described in more detail in README.modules.
  * We have some breakpoints for debugging your hooks.  If you pass 'break'
    as a kernel parameter, the initramfs will drop to a shell just before
    switching to a new root. You can pass 'break=hookpoint', and the initramfs
