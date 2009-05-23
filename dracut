@@ -62,7 +62,7 @@ while (($# > 0)); do
     shift
 done
 
-[[ -f $conffile ]] || ( [[ -f /etc/dracut.conf ]] && conffile="/etc/dracut.conf" )
+[[ -f $conffile ]] || { [[ -f /etc/dracut.conf ]] && conffile="/etc/dracut.conf" }
 [[ -f $conffile ]] && . "$conffile"
 [[ $dracutmodules_l ]] && dracutmodules=$dracutmodules_l
 [[ $omit_dracutmodules_l ]] && omit_dracutmodules=$omit_dracutmodules_l
