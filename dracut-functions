@@ -202,9 +202,9 @@ dracut_install() {
 }
 
 # install modules, and handle installing all their dependencies as well.
-srcmods="/lib/modules/$kernel/"
 instmods() {
     local mod mpargs modpath modname cmd
+    local srcmods="/lib/modules/$kernel/"
     while (($# > 0)); do
 	mod=${1%.ko}
 	case $mod in
