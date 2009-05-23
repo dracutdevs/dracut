@@ -14,15 +14,6 @@ emergency_shell()
     sh -i
 }
 
-getarg() {
-    local o line
-    for o in $CMDLINE; do
-	[ "$o" = "$1" ] && return 0
-	[ "${o%%=*}" = "${1%=}" ] && { echo ${o#*=}; return 0; }
-    done
-    return 1
-}
-
 source_all() {
     local f
     [ "$1" ] && [  -d "/$1" ] || return
@@ -35,6 +26,8 @@ NEWROOT="/sysroot"
 
 trap "emergency_shell" 0
 
+. /lib/dracut-lib
+
 mknod /dev/null c 1 3
 
 # mount some important things
@@ -42,7 +35,6 @@ mount -t proc /proc /proc >/dev/null 2>&1
 mount -t sysfs /sys /sys >/dev/null 2>&1
 mount -t tmpfs -omode=0755 udev /dev >/dev/null 2>&1
 
-read CMDLINE </proc/cmdline;
 getarg ramfsdebug && set -x
 # Make some basic devices first, let udev handle the rest
 mknod /dev/null c 1 3

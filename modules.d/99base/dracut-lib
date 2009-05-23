@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+# Licensed under the GPLv2
+#
+# Copyright 2008, Red Hat, Inc.
+# Jeremy Katz <katzj@redhat.com>
+
+getarg() {
+    local o line
+    [ "$CMDLINE" ] || read CMDLINE </proc/cmdline;
+    for o in $CMDLINE; do
+	[ "$o" = "$1" ] && return 0
+	[ "${o%%=*}" = "${1%=}" ] && { echo ${o#*=}; return 0; }
+    done
+    return 1
+}

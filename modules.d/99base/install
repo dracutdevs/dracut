@@ -9,4 +9,5 @@ if [ ! -x "$moddir/switch_root" ]; then
     exit 1
 fi
 inst "$moddir/switch_root" "/sbin/switch_root"
+inst "$moddir/dracut-lib" "/lib/dracut-lib"
 inst_hook pre-pivot 50 "$moddir/selinux-loadpolicy.sh"
