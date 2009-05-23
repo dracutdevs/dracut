@@ -1,0 +1,52 @@
+Most of the functionality that dracut implements are actually implemented
+by dracut modules.  Dracut modules live in modules.d, and have the following
+structure:
+
+dracut_install_dir/modules.d/
+	00modname/
+		install
+		check
+		<other files as needed by the hook>
+
+00modname: The name of the module prefixed by a two-digit numeric sort code.
+	   The numeric code must be present and in the range of 00 - 99.
+	   Modules with lower numbers are installed first.  This is important
+	   because the dracut install functions (which install files onto
+	   the initrd) refuse to overwrite already installed files. This makes 
+	   it easy for an earlier module to override the functionality of a 
+	   later module, so that you can have a distro or system specific
+	   module override or modify the functionality of a generic module
+	   without having to patch the mode generic module.
+
+install: dracut sources this script to install the functionality that a 
+	 module implements onto the initrd.  For the most part, this amounts
+	 to copying files from the host system onto the initrd in a controlled
+	 manner.  dracut supplies several install functions that are
+	 specialized for different file types.  Browse through dracut-functions
+	 fore more details.  dracut also provides a $moddir variable if you
+	 need to install a file from the module directory, such as an initrd
+	 hook, a udev rule, or a specialized executable.
+
+check: Dracut calls this program to check and see if a module can be installed
+       on the initrd.
+       
+       When called without options, check should check to make sure that
+       any files it needs to install into the initrd from the host system
+       are present.  It should exit with a 0 if they are, and a 1 if they are
+       not.
+
+       When called with -h, it should perform the same check that it would
+       without any options, and it should also check to see if the 
+       functionality the module implements is being used on the host system.
+       For example, if this module handles installing support for LUKS
+       encrypted volumes, it should return 0 if all the tools to handle
+       encrpted volumes are available and the host system has the root
+       partition on an encrypted volume, 1 otherwise.
+
+       Check may take additional options in the future.  
+       We will most likely grow a module dependency checking system in the
+       near future, and check will need to handle a -d option when we do.
+
+Any other files in the module will not be touched by dracut directly. 
+
+You are encouraged to provide a README that descrobes what the module is for.
