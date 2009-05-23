@@ -1,27 +1,85 @@
-#!/bin/sh
+#!/bin/sh -e
 # very simple dhclient-script.  All it cares about is bringing the interface
 # up, and it does not even try to do anything else.
 
+LOG=/dhclient.$$.log
+ERR=/network.$$.err
+PATH=$PATH:/sbin:/usr/sbin
+
+. /lib/dracut-lib
+
+getarg netdebug && {
+    exec >/dhclient.$interface.$$.out
+    exec 2>>/dhclient.$interface.$$.out
+    set -x
+}
+
+log_err() {
+    # avoid the need for cat on the image
+    echo "On $netif, the following command:" > $ERR
+    echo "    " "$CMD" >> $ERR
+    echo "had errors:" >> $ERR
+    while read line; do echo "     $line"; done < $LOG >> $ERR
+}
+
+# Catch unlikely initial errors
+trap 'echo Errors preparing to configure $netif > $ERR; exit 0' EXIT
+
+netif=$interface
+ip=$new_ip_address
+mtu=$new_interface_mtu
+mask=$new_subnet_mask
+bcast=$new_broadcast_address
+gw=${new_routers%%,*}
+domain=$new_domain_name
+search=$new_domain_search
+namesrv=$new_domain_name_servers
+hostname=$new_host_name
+
+[ -f /net.$interface.override ] && . /net.$interface.override
+
+# save the offending command and let udev move on if we have an error
+trap 'log_err; exit 0' EXIT
+
+run() {
+    CMD="$@"
+    "$@" >> $LOG 2>&1
+}
+
+setup_interface() {
+    [ -n "$mtu" ] && {
+	run ip link set $netif down
+	run ip link set $netif mtu $mtu
+	run ip link set $netif up
+    }
+
+    run ip addr add $ip${mask:+/$mask} ${bcast:+broadcast $bcast} dev $netif
+    [ -n "$gw" ] && run ip route add default via $gw
+    [ -n "${search}${domain}" -a -n "$namesrv" ] && {
+	echo search $search $domain > /etc/resolv.conf
+	for s in $namesrv; do
+	    echo nameserver $s >> /etc/resolv.conf
+	done
+    }
+    [ -e /hostname.set ] || {
+	[ -n "$hostname" ] && mknod /hostname.set p && run hostname $hostname
+    }
+}
+
 case $reason in
-    PREINIT) /sbin/ip link set "$interface" up ;;
-    BOUND) ipopts="$new_ip_address"
-     	[ "$new_interface_mtu" ] && ip link set $interface mtu $new_interface_mtu
-	[ "$new_subnet_mask" ] && ipopts="$ipopts/$new_subnet_mask"
-	[ "$new_broadcast_address" ] && ipopts="$ipopts broadcast $new_broadcast_address"
-	/sbin/ip addr add $ipopts dev $interface
-	[ "$new_routers" ] && /sbin/ip route add default via ${new_routers%%,*} dev $interface
-	[ "$new_domain_name" ] && echo "domain $new_domain_name" > /etc/resolv.conf
-	if [ "$new_domain_search" ]; then
-	    echo "search $new_domain_search" |sed 's/,//g' >> /etc/resolv.conf
-	elif [ "$new_domain_name" ]; then
-	    echo "search $new_domain_name" >> /etc/resolv.conf
-	fi
-	for s in $new_domain_name_servers; do
-	    echo "nameserver $s" >> /etc/resolv.conf
+    PREINIT)
+	run /sbin/ip link set $netif up
+	;;
+    BOUND)
+	setup_interface 
+	set | while read line; do
+	    [ "${line#new_}" = "$line" ] && continue
+	    echo "$line" >>/net.$netif.dhcpopts
 	done
-	set |grep -E '^new_[a-z_]+=' |while read line; do
-	    echo "${line%%=*}='${line#*=}'">>/net.$interface.dhcpopts
-	done
-	>/net.$interface.up ;;
+	>/net.$netif.up
+	echo online > /sys/class/net/$netif/uevent ;;
     *) ;;
 esac
+
+trap - EXIT
+exit 0

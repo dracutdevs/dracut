@@ -1,36 +1,112 @@
 #!/bin/sh
 
+PATH=$PATH:/sbin:/usr/sbin
+
+. /lib/dracut-lib
+
+getarg netdebug && {
+    exec >/ifup.$1.$$.out
+    exec 2>>/ifup.$1.$$.out
+    set -x
+}
+
+netif=$1
+
 # bail immediatly if the interface is already up
-[ -f "/net.$1.up" ] && exit 0
+[ -f "/net.$netif.up" ] && exit 0
 
 # loopback is always handled the same way
-[ "$1" = "lo" ] && {
-    /sbin/ip link set lo up
-    /sbin/ip addr add 127.0.0.1/8 dev lo
+[ "$netif" = "lo" ] && {
+    ip link set lo up
+    ip addr add 127.0.0.1/8 dev lo
+    >/net.$netif.up
     exit 0
+}
+
+# XXX need error handling like dhclient-script
+
+die() {
+    echo $netif: "$@" 1>&2
+    exit 1
+}
+
+do_static() {
+    [ -n "$ip" ] || die "static: need IP address"
+    [ -n "$mask" ] || {
+	net=${ip%%.*}
+	mask=255.0.0.0
+	[ $net -ge 128 ] && mask=255.255.0.0
+	[ $net -ge 192 ] && mask=255.255.255.0
+    }
+    ip addr add $ip/$mask dev $netif || die "static: setting IP $ip/$mask"
+    [ -n "$gw" ] && {
+	ip route add default via $gw dev $netif ||
+	    die "static: setting default route via $gw"
+    }
+    ip link set $netif up 
+    [ -e /hostname.set ] || {
+	[ -n "$hostname" ] && mknod /hostname.set p 2>/dev/null &&
+	    hostname $hostname
+    }
+    [ -n "$srv" ] &&
+	echo "new_dhcp_server_identifier=$srv" > /net.$netif.dhcpopts
+
+    >/net.$netif.up
+    echo online > /sys/class/net/$netif/uevent
+}
+
+do_dhcp() {
+    reqs=subnet-mask,broadcast-address,routers,domain-name
+    reqs=${reqs},domain-name-servers,domain-search
+    reqs=${reqs},host-name,root-path,interface-mtu
+
+    for i in ip srv gw mask hostname; do
+	eval '[ "$'$i'" ] && echo '$i'="$'$i'"'
+    done > /net.$netif.override
+    [ -n "$ip" ] && echo bcast= >> /net.$netif.override
+
+    # /sbin/dhclient-script will mark the netif up and generate the online
+    # event for nfsroot
+    # XXX add -V vendor class and option parsing per kernel
+    dhclient -1 -q -R ${reqs} -pf /dhclient.$netif.pid $netif
+}
+
+ip_to_var() {
+    local v=${1}:
+    set --
+    while [ -n "$v" ]; do
+	set -- "$@" "${v%%:*}"
+	v=${v#*:}
+    done
+
+    unset ip srv gw mask hostname dev autoconf
+    case $# in
+    0)	autoconf=off ;;
+    1)	autoconf=$1 ;;
+    2)	dev=$1; autoconf=$2 ;;
+    *)	ip=$1; srv=$2; gw=$3; mask=$4; hostname=$5; dev=$6; autoconf=$7
+	case $autoconf in
+	    ''|none|off) [ -n "$ip" ] && autoconf=static ;;
+	esac
+    esac
+    [ -n "$dev" ] || dev=$netif
+    [ -n "$autoconf" ] || autoconf=off
 }
 
 # spin through the kernel command line, looking for ip= lines
 for p in $(cat /proc/cmdline); do
-    [ "${p%%=*}" = "ip" ] || continue
-    ip=${p#ip=}
-    case $ip in
-	none|off) exit 0;; # we were told to not configure anything
-	dhcp|on|any) >/net.$1.dhcp; exit 0;; 
-	bootp|rarp|both) exit 0;; #dunno how to do this
-	*) echo ${ip} | \
-	    (IFS=':' read client server gw netmask hostname device autoconf
-		if [ -z "$device" -o "$device" = "$1"  ]; then
-		    case $autoconf in
-			dhcp|on|any) >/net.$1.dhcp ;;
-			none|off|'') # do some basic configuration
-			    /sbin/ip link set $1 up
-			    /sbin/ip addr add $client/$netmask dev $1
-			    [ "$gw" ] && /sbin/ip route add default via $gw dev $1
-			    >/net.$1.up ;;
-		    esac
-		fi
-		) ;;
-	*) continue;;
+    [ -n "${p%ip=*}" ] && continue
+    ip_to_var ${p#ip=}
+
+    # If this option isn't directed at our interface, skip it
+    [ "$dev" = "$netif" ] || continue
+
+    case $autoconf in
+	static)		 do_static ;;
+	dhcp|on|any)	 do_dhcp ;;
+	bootp|rarp|both) die "autoconfig type $autoconf is not supported" ;;
+	''|none|off)	 ;;
     esac
+    break
 done
+exit 0
