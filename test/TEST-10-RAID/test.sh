@@ -1,7 +1,5 @@
 TEST_DESCRIPTION="root filesystem on an encrypted LVM PV"
 
-
-
 test_run() {
     $testdir/run-qemu -hda root.ext2 -m 512M -nographic \
 	-net nic,macaddr=52:54:00:12:34:57 -net socket,mcast=230.0.0.1:1234 \
@@ -14,7 +12,7 @@ test_setup() {
     # This script creates a root filesystem on an encrypted LVM PV
     dd if=/dev/zero of=root.ext2 bs=1M count=20
 
-    initdir=mnt
+    initdir=overlay/source
     kernel=$(uname -r)
     (
 	. $basedir/dracut-functions
@@ -27,14 +25,22 @@ test_setup() {
 	find_binary plymouth >/dev/null && dracut_install plymouth
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
     )
-    targetfs="$initdir"
-    unset initdir
-
+ 
+    # second, install the files needed to make the root filesystem
+    (
+	initdir=overlay
+	. $basedir/dracut-functions
+	dracut_install sfdisk mke2fs poweroff cp umount e2mkdir
+	inst_simple ./halt.sh /pre-pivot/02halt.sh
+	inst_simple ./copy-root.sh /pre-pivot/01copy-root.sh
+	inst_simple ./create-root.sh /pre-mount/01create-root.sh
+    )
+ 
     # create an initramfs that will create the target root filesystem.
     # We do it this way because creating it directly in the host OS
     # results in cryptsetup not being able to unlock the LVM PV.
     # Probably a bug in cryptsetup, but...
-    $basedir/dracut -l -i "$targetfs" /source \
+    $basedir/dracut -l -i overlay / \
 	-m "dash kernel-modules test crypt lvm mdraid udev-rules base rootfs-block" \
 	-d "ata_piix ext2 sd_mod" \
 	-f initramfs.makeroot || return 1
@@ -49,7 +55,7 @@ test_setup() {
 }
 
 test_cleanup() {
-    rm -fr mnt
+    rm -fr overlay mnt
     rm -f root.ext2 initramfs.makeroot initramfs.testing
 }
 
