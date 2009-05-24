@@ -37,8 +37,6 @@ Creates initial ramdisk images for preloading modules
                          Target directory in the final initramfs.
   -I, --install [LIST]  Install the space separated list of files into the
                          initramfs.
-  --skip-missing        Do not quit on missing module dependencies but skip
-                         these.
 "
 }
 
@@ -56,7 +54,6 @@ while (($# > 0)); do
 	-H|--hostonly) hostonly="-h" ;;
 	-i|--include) include_src="$2"; include_target="$3"; shift 2;;
 	-I|--install) install_items="$2"; shift;;
-	--skip-missing) skipmissing="yes" ;;
 	*) break ;;
     esac
     shift
@@ -89,15 +86,12 @@ export dracutfunctions
 case $dracutmodules in
 	""|auto)
 		dracutmodules="all"
-    		skipmissing="yes"
 		;;
 	hostonly)
     		dracutmodules="all"
-    		skipmissing="yes"
     		hostonly="-h"
 		;;
 esac
-
 
 [[ $2 ]] && kernel=$2 || kernel=$(uname -r)
 [[ $1 ]] && outfile=$(readlink -f $1) || outfile="/boot/initrd-$kernel.img"
@@ -122,31 +116,13 @@ for d in bin sbin usr/bin usr/sbin usr/lib etc proc sys sysroot dev/pts var/run;
     mkdir -p "$initdir/$d"; 
 done
 
-# these bits are fugly, and need some cleanup.
-# Actually documenting how dracut modules work these days would be good.
-skip_missing() {
-    # $1 = location of module
-    [[ $skipmissing ]] || return 0
-    [[ -x $1/check ]] || return 0
-    "$1/check" $hostonly
-}
-
-can_source_module() {
-    # $1 = location of module
-    mod=${1##*/}; mod=${mod#[0-9][0-9]};
-    if [[ $dracutmodules != all ]]; then
-	strstr "$dracutmodules " "$mod " || return 1
-    fi
-    strstr "$omit_dracutmodules " "$mod " && return 1
-    skip_missing "$1"
-}
-
-# source all our modules
-for moddir in "$dsrc/modules.d"/*; do
-    [[ -d $moddir || -L $moddir ]] || continue
-    can_source_module "$moddir" || continue
-    dinfo "Using module: $moddir"
-    [[ -x $moddir/install ]] && . "$moddir/install"
+# check all our modules to see if they should be sourced
+check_modules
+  
+#source our modules.
+for moddir in "$dsrc/modules.d"/[0-9][0-9]*; do
+    mod=${moddir##*/}; mod=${mod#[0-9][0-9]}
+    strstr "$mods_to_load" "$mod" && . "$moddir/install"
 done
 unset moddir
 
@@ -176,5 +152,3 @@ unset item
 ( cd "$initdir"; find . |cpio -H newc -o |gzip -9 > "$outfile"; )
 
 [[ "$beverbose" = "yes" ]] && ls -lh "$outfile"
-
-:

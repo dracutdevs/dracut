@@ -1,8 +1,5 @@
 #!/bin/sh
-
-[[ $dracutfunctions ]] && . $dracutfunctions
-
-find_binary lvm >/dev/null || exit 1
+which lvm >/dev/null 2>&1 || exit 1
 
 if [ "$1" = "-h" ]; then
     blkid | grep -q lvm2pv || exit 1

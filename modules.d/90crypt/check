@@ -1,8 +1,6 @@
 #!/bin/sh
 
-[[ $dracutfunctions ]] && . $dracutfunctions
-
-find_binary cryptsetup >/dev/null || exit 1
+which cryptsetup >/dev/null 2>&1 || exit 1
 
 if [ "$1" = "-h" ]; then
     blkid | grep -q crypt_LUKS || exit 1

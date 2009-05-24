@@ -201,6 +201,57 @@ dracut_install() {
     done
 }
 
+memoize() {
+    local cmd=memoize_$@ ret
+    cmd=${cmd//[^[:alnum:]]/_}
+    [[ ${!cmd} ]] && return ${!cmd}
+    "$@"
+    ret=$?
+    eval "$cmd=$ret"
+    return $ret
+}
+
+check_module_deps() {
+    local moddir dep
+    # turn a module name into a directory, if we can.
+    moddir=$(echo ${dsrc}/modules.d/??${1})
+    [[ -d $moddir && -x $moddir/install ]] || return 1
+    # if we do not have a check script, we are unconditionally included
+    if [[ -x $moddir/check ]]; then
+	memoize "$moddir/check" || return 1
+	for dep in $("$moddir/check" -d); do
+	    memoize check_module_deps "$dep" && continue
+	    dwarning "Dependency $mod failed."
+	    return 1
+	done
+    fi
+    mods_to_load+=" $1 "
+}
+
+should_source_module() {
+    local dep
+    [[ -x $1/install ]] || return 1
+    [[ -x $1/check ]] || return 0
+    "$1/check" $hostonly || return 1
+    for dep in $("$1/check" -d); do
+	memoize check_module_deps "$dep" && continue
+	dwarning "Cannot load $mod, dependencies failed."
+	return 1
+    done
+}
+
+check_modules() {
+    for moddir in "$dsrc/modules.d"/[0-9][0-9]*; do
+	local mod=${moddir##*/}; mod=${mod#[0-9][0-9]}
+	[[ -d $moddir ]] || continue
+	[[ $dracutmodules != all ]] && ! strstr "$dracutmodules" "$mod" && \
+	    continue
+	strstr "$omit_dracutmodules" "$mod" && continue
+	should_source_module "$moddir" || continue
+	mods_to_load+=" $mod "
+    done
+}
+
 # install modules, and handle installing all their dependencies as well.
 instmods() {
     local mod mpargs modpath modname cmd
