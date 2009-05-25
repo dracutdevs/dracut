@@ -34,8 +34,11 @@ rpm: dracut-$(VERSION)-$(GITVERSION).tar.bz2
 	rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" --define "_specdir $$PWD" --define "_srcrpmdir $$PWD" --define "_rpmdir $$PWD" --define "gittag $(GITVERSION)" -ba dracut.spec 
 	rm -fr BUILD BUILDROOT
 
-test: test/root.ext2 all
+test: test/root.ext2 test/initramfs.testing all
 	sudo APPEND="$(APPEND)" DRACUTOPTS="$(DRACUTOPTS)" test/test-initramfs
+
+test/initramfs.testing:
+	sudo ./dracut $(DRACUTOPTS) -c test/dracut.conf.test -l -f test/initramfs.testing
 
 test/root.ext2: test/test-init test/make-test-root
 	sudo test/make-test-root
