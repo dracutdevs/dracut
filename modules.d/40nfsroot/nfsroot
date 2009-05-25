@@ -31,6 +31,7 @@ nfs_done() {
 root=$(getarg root)
 case $root in
     nfs|/dev/nfs)	type=nfs  ;;
+    dhcp)	        type=nfs  ;;
     nfs4|/dev/nfs4)	type=nfs4 ;;
     auto|'')		type=auto  ;;
 esac
