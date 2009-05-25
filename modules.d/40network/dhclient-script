@@ -64,6 +64,7 @@ setup_interface() {
     [ -e /hostname.set ] || {
 	[ -n "$hostname" ] && mknod /hostname.set p && run hostname $hostname
     }
+    :
 }
 
 case $reason in
