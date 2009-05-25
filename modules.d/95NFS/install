@@ -1,4 +1,0 @@
-#!/bin/sh
-inst mount.nfs
-inst_hook pre-mount 99 "$moddir/nfs-parse-root-opts.sh"
-instmods nfs
