@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# small script to create a minimal testroot in /mnt/root
+
+#dd if=/dev/zero of=test/client.ext2 bs=1M count=20
+#mke2fs -F test/client.ext2
+#mkdir test/mnt
+#mount -o loop test/client.ext2 test/mnt
+
+initdir=/mnt/root
+kernel=$(uname -r)
+(
+    . ./dracut-functions
+    dracut_install sh df free ls shutdown poweroff stty cat ps ln ip route \
+	/lib/terminfo/l/linux mount dmesg ifconfig dhclient mkdir cp ping dhclient 
+    inst "modules.d/40network/dhclient-script" "/sbin/dhclient-script"
+    inst "modules.d/40network/ifup" "/sbin/ifup"
+    dracut_install grep agetty strace tcpdump
+    find_binary plymouth >/dev/null && dracut_install plymouth
+    inst test/test-init /sbin/init
+    (cd "$initdir";
+	mkdir -p dev sys proc etc var/run tmp var/lib/dnsmasq 
+        mkdir -p var/lib/nfs/rpc_pipefs
+    )
+    inst /etc/nsswitch.conf /etc/nsswitch.conf
+    inst /etc/passwd /etc/passwd
+    inst /etc/group /etc/group
+    for i in /lib*/libnss_files*;do
+	inst_library $i
+    done
+)
+#targetfs="$initdir"
+#unset initdir
+
+#umount test/mnt
+#rm -fr test/mnt
