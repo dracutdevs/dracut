@@ -35,7 +35,7 @@ mount -t proc /proc /proc >/dev/null 2>&1
 mount -t sysfs /sys /sys >/dev/null 2>&1
 mount -t tmpfs -omode=0755 udev /dev >/dev/null 2>&1
 
-getarg ramfsdebug && set -x
+getarg rdinitdebug && set -x
 # Make some basic devices first, let udev handle the rest
 mknod /dev/null c 1 3
 mknod /dev/ptmx c 5 2
@@ -49,8 +49,8 @@ source_all pre-udev
 
 # start up udev and trigger cold plugs
 udevd --daemon
-getarg udevinfo && udevadm control --log_priority=info
-getarg udevdebug && udevadm control --log_priority=debug
+getarg rdudevinfo && udevadm control --log_priority=info
+getarg rdudevdebug && udevadm control --log_priority=debug
 udevadm trigger >/dev/null 2>&1
 udevadm settle --timeout=30 >/dev/null 2>&1
 
