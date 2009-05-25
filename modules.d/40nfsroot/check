@@ -1,5 +1,0 @@
-#!/bin/sh
-#
-# This is not a module that should be selected when we try to
-# autoconfigure the initrd 
-exit 1
