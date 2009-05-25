@@ -152,3 +152,5 @@ unset item
 ( cd "$initdir"; find . |cpio -H newc -o |gzip -9 > "$outfile"; )
 
 [[ "$beverbose" = "yes" ]] && ls -lh "$outfile"
+
+exit 0
