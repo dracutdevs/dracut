@@ -1,8 +1,0 @@
-#!/bin/bash
-[[ -f test/root.ext2 ]] || test/make-test-root
-
-test/run-qemu -hda test/root.ext2 -m 512M -nographic \
-    -net nic,macaddr=52:54:00:12:34:57 -net socket,mcast=230.0.0.1:1234 \
-    -kernel /boot/vmlinuz-$(uname -r) \
-    -append "root=/dev/dracut/root rw console=ttyS0,115200n81 $APPEND" \
-    -initrd test/initramfs.testing

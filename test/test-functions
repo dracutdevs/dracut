@@ -1,0 +1,28 @@
+while (($# > 0)); do
+    case $1 in
+        --run) 
+	    echo "TEST RUN: $TEST_DESCRIPTION";
+	    test_run;
+	    exit $?;;
+        --setup) 
+	    echo "TEST SETUP: $TEST_DESCRIPTION";
+	    test_setup;
+	    exit $?;;
+        --clean) 
+	    echo "TEST CLEANUP: $TEST_DESCRIPTION";
+	    test_cleanup;
+	    exit $?;;
+        --all) 
+	    echo "TEST: $TEST_DESCRIPTION";
+	    test_setup && test_run && test_cleanup;
+	    ret=$?;
+	    if [ $ret -eq 0 ]; then
+	       echo "$TEST_DESCRIPTION [OK]";
+	    else
+	       echo "$TEST_DESCRIPTION [FAILED]";
+	    fi
+	    exit $?;;
+        *) break ;;
+    esac
+    shift
+done
