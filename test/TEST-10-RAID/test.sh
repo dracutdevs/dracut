@@ -1,3 +1,5 @@
+#!/bin/bash
+
 TEST_DESCRIPTION="root filesystem on an encrypted LVM PV"
 
 test_run() {
