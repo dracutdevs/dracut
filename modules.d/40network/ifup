@@ -93,20 +93,27 @@ ip_to_var() {
     [ -n "$autoconf" ] || autoconf=off
 }
 
-# spin through the kernel command line, looking for ip= lines
-for p in $(cat /proc/cmdline); do
-    [ -n "${p%ip=*}" ] && continue
-    ip_to_var ${p#ip=}
+root=$(getarg root)
+ip=$(getarg ip)
 
-    # If this option isn't directed at our interface, skip it
-    [ "$dev" = "$netif" ] || continue
+if [ "$root" = "dhcp" -a -z "$ip" ]; then
+    do_dhcp;
+else
+    # spin through the kernel command line, looking for ip= lines
+    for p in $(cat /proc/cmdline); do
+	[ -n "${p%ip=*}" ] && continue
+	ip_to_var ${p#ip=}
+	
+        # If this option isn't directed at our interface, skip it
+	[ "$dev" = "$netif" ] || continue
 
-    case $autoconf in
-	static)		 do_static ;;
-	dhcp|on|any)	 do_dhcp ;;
-	bootp|rarp|both) die "autoconfig type $autoconf is not supported" ;;
-	''|none|off)	 ;;
-    esac
-    break
-done
+	case $autoconf in
+	    static)		 do_static ;;
+	    dhcp|on|any)	 do_dhcp ;;
+	    bootp|rarp|both) die "autoconfig type $autoconf is not supported" ;;
+	    ''|none|off)	 ;;
+	esac
+	break
+    done
+fi
 exit 0
