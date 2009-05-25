@@ -145,6 +145,7 @@ can_source_module() {
 for moddir in "$dsrc/modules.d"/*; do
     [[ -d $moddir || -L $moddir ]] || continue
     can_source_module "$moddir" || continue
+    dinfo "Using module: $moddir"
     [[ -x $moddir/install ]] && . "$moddir/install"
 done
 unset moddir
