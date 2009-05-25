@@ -11,6 +11,4 @@ $(lsmod | grep -q '^kqemu ') && BIN=/usr/bin/qemu && ARGS="-kernel-kqemu "
    echo "Please install kvm or qemu." >&2
    exit 1
 }
-
-echo "Running $BIN $ARGS" "$@"
-$BIN $ARGS "$@"
+exec sudo $BIN $ARGS "$@"
