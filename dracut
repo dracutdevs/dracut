@@ -73,14 +73,15 @@ done
 [[ $omit_dracutmodules_l ]] && omit_dracutmodules=$omit_dracutmodules_l
 [[ $modules_l ]] && modules=$modules_l
 
-[[ $allowlocal && -f dracut-functions ]] && dsrc="." || dsrc=/usr/lib/dracut
+[[ $allowlocal && -f "$(dirname $0)/dracut-functions" ]] && dsrc="$(dirname $0)" || dsrc=/usr/lib/dracut
 if [[ -f $dsrc/dracut-functions ]]; then
    . $dsrc/dracut-functions
 else
-   echo "Cannot find dracut-functions. Are you running from a git checkout?"
+   echo "Cannot find $dsrc/dracut-functions. Are you running from a git checkout?"
    echo "Try passing -l as an argument to $0"
    exit 1
 fi
+
 dracutfunctions=$dsrc/dracut-functions
 export dracutfunctions
 
