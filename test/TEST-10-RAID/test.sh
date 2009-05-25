@@ -1,5 +1,4 @@
 #!/bin/bash
-
 TEST_DESCRIPTION="root filesystem on an encrypted LVM PV"
 
 test_run() {
@@ -32,9 +31,9 @@ test_setup() {
     (
 	initdir=overlay
 	. $basedir/dracut-functions
-	dracut_install sfdisk mke2fs poweroff cp umount e2mkdir
+	dracut_install sfdisk mke2fs poweroff cp umount 
 	inst_simple ./halt.sh /pre-pivot/02halt.sh
-	inst_simple ./copy-root.sh /pre-pivot/01copy-root.sh
+	inst_simple ./copy-root.sh /mount/01copy-root.sh
 	inst_simple ./create-root.sh /pre-mount/01create-root.sh
     )
  
