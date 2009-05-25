@@ -1,2 +1,3 @@
 #!/bin/bash
+[[ $1 = -d ]] && echo crypt
 [[ -x /sbin/plymouthd && -x /bin/plymouth && ! /usr/sbin/plymouth-set-default-theme ]]
