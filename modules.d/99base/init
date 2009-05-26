@@ -93,11 +93,23 @@ done
 
 getarg break && emergency_shell
 kill $(pidof udevd)
+
+# Clean up the environment
+for i in $(export -p); do
+    i=${i#declare -x}
+    i=${i#export}
+    i=${i%%=*}
+    [ "$i" = "root" -o "$i" = "PATH" -o "$i" = "HOME" -o "$i" = "TERM" ] || unset $i
+done
+
 initargs=""
 for x in "$@"; do
     [ "${x%%=*}" = "console" ] && continue
     [ "${x%%=*}" = "BOOT_IMAGE" ] && continue
     [ "${x%%=*}" = "break" ] && continue
+    [ "${x%%=*}" = "rdinitdebug" ] && continue
+    [ "${x%%=*}" = "rdudevinfo" ] && continue
+    [ "${x%%=*}" = "rdudevdebug" ] && continue
     initargs="$initargs $x"
 done
 exec switch_root "$NEWROOT" "$INIT" $initargs || {
