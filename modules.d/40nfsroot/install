@@ -1,5 +1,5 @@
 #!/bin/sh
-dracut_install rpcbind rpc.statd mount.nfs mount.nfs4
+dracut_install rpcbind rpc.statd mount.nfs mount.nfs4 umount 
 dracut_install /etc/netconfig /etc/passwd /etc/services
 
 # XXX debug stuff
