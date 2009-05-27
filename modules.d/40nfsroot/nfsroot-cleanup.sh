@@ -6,11 +6,14 @@ pid=$(pidof rpc.statd)
 pid=$(pidof rpcbind)
 [ -n "$pid" ] && kill $pid
 
-mkdir -p 
+if grep -q rpc_pipefs /proc/mounts; then 
+    # try to create the destination directory
+    [ -d $NEWROOT/var/lib/nfs/rpc_pipefs ] || mkdir -p $NEWROOT/var/lib/nfs/rpc_pipefs 2>/dev/null
 
-if [ -d $NEWROOT/var/lib/nfs/rpc_pipefs ]; then
-    mount --move /var/lib/nfs/rpc_pipefs $NEWROOT/var/lib/nfs/rpc_pipefs
-else
-    umount /var/lib/nfs/rpc_pipefs
+    if [ -d $NEWROOT/var/lib/nfs/rpc_pipefs ]; then
+	mount --move /var/lib/nfs/rpc_pipefs $NEWROOT/var/lib/nfs/rpc_pipefs
+    else
+	umount /var/lib/nfs/rpc_pipefs
+    fi
 fi
 
