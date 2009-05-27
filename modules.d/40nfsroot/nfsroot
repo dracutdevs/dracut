@@ -8,7 +8,7 @@ PATH=$PATH:/sbin:/usr/sbin
 
 # XXX need to lock our attempts if we're doing the mount here
 
-getarg netdebug && {
+getarg rdnetdebug && {
     exec > /nfsroot.$1.$$.out
     exec 2>> /nfsroot.$1.$$.out
     set -x

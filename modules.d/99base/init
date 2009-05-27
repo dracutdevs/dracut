@@ -44,7 +44,7 @@ mkdir /dev/pts
 mount -t devpts -o gid=5,mode=620 /dev/pts /dev/pts >/dev/null 2>&1
 
 # pre-udev scripts run before udev starts, and are run only once.
-getarg 'break=pre-udev' && emergency_shell
+getarg 'rdbreak=pre-udev' && emergency_shell
 source_all pre-udev
 
 # start up udev and trigger cold plugs
@@ -56,9 +56,9 @@ udevadm settle --timeout=30 >/dev/null 2>&1
 
 # pre-mount happens before we try to mount the root filesystem,
 # and happens once.
-getarg 'break=pre-mount' && emergency_shell
+getarg 'rdbreak=pre-mount' && emergency_shell
 source_all pre-mount
-getarg 'break=mount' && emergency_shell
+getarg 'rdbreak=mount' && emergency_shell
 
 # mount scripts actually try to mount the root filesystem, and may
 # be sourced any number of times. As soon as one suceeds, no more are sourced.
@@ -77,7 +77,7 @@ while :; do
 done
 
 # pre pivot scripts are sourced just before we switch over to the new root.
-getarg 'break=pre-pivot' && emergency_shell
+getarg 'rdbreak=pre-pivot' && emergency_shell
 source_all pre-pivot
 
 # by the time we get here, the root filesystem should be mounted.
@@ -91,7 +91,7 @@ done
     emergency_shell
 }
 
-getarg break && emergency_shell
+getarg rdbreak && emergency_shell
 kill $(pidof udevd)
 
 # Clean up the environment
@@ -106,7 +106,7 @@ initargs=""
 for x in "$@"; do
     [ "${x%%=*}" = "console" ] && continue
     [ "${x%%=*}" = "BOOT_IMAGE" ] && continue
-    [ "${x%%=*}" = "break" ] && continue
+    [ "${x%%=*}" = "rdbreak" ] && continue
     [ "${x%%=*}" = "rdinitdebug" ] && continue
     [ "${x%%=*}" = "rdudevinfo" ] && continue
     [ "${x%%=*}" = "rdudevdebug" ] && continue

@@ -8,7 +8,7 @@ PATH=$PATH:/sbin:/usr/sbin
 
 . /lib/dracut-lib
 
-getarg netdebug && {
+getarg rdnetdebug && {
     exec >/dhclient.$interface.$$.out
     exec 2>>/dhclient.$interface.$$.out
     set -x

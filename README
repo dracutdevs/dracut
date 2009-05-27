@@ -39,9 +39,9 @@ Some general rules for writing modules:
    relies on, so try not to break those hooks.
  * Hooks must have a .sh extension.
  * Generator modules are described in more detail in README.modules.
- * We have some breakpoints for debugging your hooks.  If you pass 'break'
+ * We have some breakpoints for debugging your hooks.  If you pass 'rdbreak'
    as a kernel parameter, the initramfs will drop to a shell just before
-   switching to a new root. You can pass 'break=hookpoint', and the initramfs
+   switching to a new root. You can pass 'rdbreak=hookpoint', and the initramfs
    will break just before hooks in that hookpoint run. 
 
 Also, there is an attempt to keep things as distribution-agnostic as

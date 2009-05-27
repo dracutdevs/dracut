@@ -4,7 +4,7 @@ PATH=$PATH:/sbin:/usr/sbin
 
 . /lib/dracut-lib
 
-getarg netdebug && {
+getarg rdnetdebug && {
     exec >/ifup.$1.$$.out
     exec 2>>/ifup.$1.$$.out
     set -x
