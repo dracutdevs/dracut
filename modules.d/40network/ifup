@@ -5,8 +5,8 @@ PATH=$PATH:/sbin:/usr/sbin
 . /lib/dracut-lib
 
 getarg rdnetdebug && {
-    exec >/ifup.$1.$$.out
-    exec 2>>/ifup.$1.$$.out
+    exec >/tmp/ifup.$1.$$.out
+    exec 2>>/tmp/ifup.$1.$$.out
     set -x
 }
 
@@ -44,8 +44,8 @@ do_static() {
 	    die "static: setting default route via $gw"
     }
     ip link set $netif up 
-    [ -e /hostname.set ] || {
-	[ -n "$hostname" ] && mknod /hostname.set p 2>/dev/null &&
+    [ -e /tmp/hostname.set ] || {
+	[ -n "$hostname" ] && mknod /tmp/hostname.set p 2>/dev/null &&
 	    hostname $hostname
     }
     [ -n "$srv" ] &&

@@ -61,8 +61,8 @@ setup_interface() {
 	    echo nameserver $s >> /etc/resolv.conf
 	done
     }
-    [ -e /hostname.set ] || {
-	[ -n "$hostname" ] && mknod /hostname.set p && run hostname $hostname
+    [ -e /tmp/hostname.set ] || {
+	[ -n "$hostname" ] && mknod /tmp/hostname.set p && run hostname $hostname
     }
     :
 }
