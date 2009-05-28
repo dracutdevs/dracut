@@ -1,5 +1,5 @@
 #!/bin/sh
 
-for f in /dhclient.*.pid; do
-    [ "$f" != "/dhclient.*.pid" ] && kill $(cat $f)
+for f in /tmp/dhclient.*.pid; do
+    [ "$f" != "/tmp/dhclient.*.pid" ] && kill $(cat $f)
 done

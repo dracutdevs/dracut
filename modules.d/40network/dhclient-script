@@ -2,15 +2,15 @@
 # very simple dhclient-script.  All it cares about is bringing the interface
 # up, and it does not even try to do anything else.
 
-LOG=/dhclient.$$.log
-ERR=/network.$$.err
+LOG=/tmp/dhclient.$$.log
+ERR=/tmp/network.$$.err
 PATH=$PATH:/sbin:/usr/sbin
 
 . /lib/dracut-lib
 
 getarg rdnetdebug && {
-    exec >/dhclient.$interface.$$.out
-    exec 2>>/dhclient.$interface.$$.out
+    exec >/tmp/dhclient.$interface.$$.out
+    exec 2>>/tmp/dhclient.$interface.$$.out
     set -x
 }
 
@@ -36,7 +36,7 @@ search=$new_domain_search
 namesrv=$new_domain_name_servers
 hostname=$new_host_name
 
-[ -f /net.$interface.override ] && . /net.$interface.override
+[ -f /tmp/net.$interface.override ] && . /tmp/net.$interface.override
 
 # save the offending command and let udev move on if we have an error
 trap 'log_err; exit 0' EXIT
@@ -75,9 +75,9 @@ case $reason in
 	setup_interface 
 	set | while read line; do
 	    [ "${line#new_}" = "$line" ] && continue
-	    echo "$line" >>/net.$netif.dhcpopts
+	    echo "$line" >>/tmp/net.$netif.dhcpopts
 	done
-	>/net.$netif.up
+	>/tmp/net.$netif.up
 	echo online > /sys/class/net/$netif/uevent ;;
     *) ;;
 esac

@@ -9,22 +9,22 @@ PATH=$PATH:/sbin:/usr/sbin
 # XXX need to lock our attempts if we're doing the mount here
 
 getarg rdnetdebug && {
-    exec > /nfsroot.$1.$$.out
-    exec 2>> /nfsroot.$1.$$.out
+    exec > /tmp/nfsroot.$1.$$.out
+    exec 2>> /tmp/nfsroot.$1.$$.out
     set -x
 }
 
 [ "$NFS_LOCKED" ] || {
 	NFS_LOCKED=true
 	export NFS_LOCKED
-	exec flock -xo /nfs.lock -c "$0 $*"
+	exec flock -xo /tmp/nfs.lock -c "$0 $*"
 	exit 1
 }
 
-[ -e /nfsdone ] && exit 0
+[ -e /tmp/nfsdone ] && exit 0
 
 nfs_done() {
-    >/nfsdone
+    >/tmp/nfsdone
     exit 0
 }
 
@@ -43,7 +43,7 @@ esac
 # If we're not doing NFS at all, don't keep banging our head
 [ -n "$type" ] || nfs_done
 
-[ -e /net.$1.dhcpopts ] && . /net.$1.dhcpopts
+[ -e /tmp/net.$1.dhcpopts ] && . /tmp/net.$1.dhcpopts
 
 nfsroot=$(getarg nfsroot)
 [ -n "$nfsroot" ] || nfsroot="$new_root_path"

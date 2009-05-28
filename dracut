@@ -112,7 +112,7 @@ chmod 755 "$initdir"
 export initdir hookdirs dsrc dracutmodules modules debug beverbose
 
 # Create some directory structure first
-for d in bin sbin usr/bin usr/sbin usr/lib etc proc sys sysroot dev/pts var/run; do 
+for d in bin sbin usr/bin usr/sbin usr/lib etc proc sys sysroot tmp dev/pts var/run; do 
     mkdir -p "$initdir/$d"; 
 done
 
@@ -154,3 +154,4 @@ unset item
 [[ "$beverbose" = "yes" ]] && ls -lh "$outfile"
 
 exit 0
+

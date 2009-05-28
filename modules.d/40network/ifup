@@ -13,13 +13,13 @@ getarg rdnetdebug && {
 netif=$1
 
 # bail immediatly if the interface is already up
-[ -f "/net.$netif.up" ] && exit 0
+[ -f "/tmp/net.$netif.up" ] && exit 0
 
 # loopback is always handled the same way
 [ "$netif" = "lo" ] && {
     ip link set lo up
     ip addr add 127.0.0.1/8 dev lo
-    >/net.$netif.up
+    >/tmp/net.$netif.up
     exit 0
 }
 
@@ -49,9 +49,9 @@ do_static() {
 	    hostname $hostname
     }
     [ -n "$srv" ] &&
-	echo "new_dhcp_server_identifier=$srv" > /net.$netif.dhcpopts
+	echo "new_dhcp_server_identifier=$srv" > /tmp/net.$netif.dhcpopts
 
-    >/net.$netif.up
+    >/tmp/net.$netif.up
     echo online > /sys/class/net/$netif/uevent
 }
 
@@ -62,13 +62,13 @@ do_dhcp() {
 
     for i in ip srv gw mask hostname; do
 	eval '[ "$'$i'" ] && echo '$i'="$'$i'"'
-    done > /net.$netif.override
-    [ -n "$ip" ] && echo bcast= >> /net.$netif.override
+    done > /tmp/net.$netif.override
+    [ -n "$ip" ] && echo bcast= >> /tmp/net.$netif.override
 
     # /sbin/dhclient-script will mark the netif up and generate the online
     # event for nfsroot
     # XXX add -V vendor class and option parsing per kernel
-    dhclient -1 -q -R ${reqs} -pf /dhclient.$netif.pid $netif
+    dhclient -1 -q -R ${reqs} -pf /tmp/dhclient.$netif.pid $netif
 }
 
 ip_to_var() {
