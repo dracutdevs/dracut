@@ -252,7 +252,7 @@ check_modules() {
     done
 }
 
-# install modules, and handle installing all their dependencies as well.
+# install kernel modules, and handle installing all their dependencies as well.
 instmods() {
     local mod mpargs modpath modname cmd
     local srcmods="/lib/modules/$kernel/"

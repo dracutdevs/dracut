@@ -45,7 +45,7 @@ while (($# > 0)); do
 	-f|--force) force=yes;;
 	-m|--modules) dracutmodules_l="$2"; shift;;
 	-o|--omit) omit_dracutmodules_l="$2"; shift;;
-	-d|--drivers) modules_l="$2"; shift;;
+	-d|--drivers) drivers_l="$2"; shift;;
 	-h|--help) usage; exit 1 ;;
 	--debug) debug="yes"; set -x;;
 	-v|--verbose) beverbose="yes";;
@@ -68,7 +68,7 @@ done
 # these options override the stuff in the config file
 [[ $dracutmodules_l ]] && dracutmodules=$dracutmodules_l
 [[ $omit_dracutmodules_l ]] && omit_dracutmodules=$omit_dracutmodules_l
-[[ $modules_l ]] && modules=$modules_l
+[[ $drivers_l ]] && drivers=$drivers_l
 
 [[ $allowlocal && -f "$(dirname $0)/dracut-functions" ]] && dsrc="$(dirname $0)" || dsrc=/usr/lib/dracut
 if [[ -f $dsrc/dracut-functions ]]; then
@@ -109,7 +109,7 @@ trap 'rm -rf "$initdir"' 0 # clean up after ourselves no matter how we die.
 # Need to be able to have non-root users read stuff (rpcbind etc)
 chmod 755 "$initdir"
 
-export initdir hookdirs dsrc dracutmodules modules debug beverbose
+export initdir hookdirs dsrc dracutmodules drivers debug beverbose
 
 # Create some directory structure first
 for d in bin sbin usr/bin usr/sbin usr/lib etc proc sys sysroot tmp dev/pts var/run; do 
