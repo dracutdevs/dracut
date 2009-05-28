@@ -2,10 +2,5 @@
 # FIXME: hard-coded module list of doom.
 instmods =ata =block sd_mod =fs
 
-# Grab modules for all filesystem types we currently have mounted
-while read d mp t rest; do
-    instmods "$t"
-done </proc/mounts
-
 [ -f /etc/modprobe.conf ] && dracut_install /etc/modprobe.conf
 dracut_install $(find /etc/modprobe.d/ -type f -name '*.conf')
