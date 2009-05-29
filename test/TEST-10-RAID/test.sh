@@ -10,12 +10,13 @@ test_run() {
 }
 
 test_setup() {
-    # This script creates a root filesystem on an encrypted LVM PV
+    # Create the blank file to use as a root filesystem
     dd if=/dev/zero of=root.ext2 bs=1M count=20
 
-    initdir=overlay/source
     kernel=$(uname -r)
+    # Create what will eventually be our root filesystem onto an overlay
     (
+	initdir=overlay/source
 	. $basedir/dracut-functions
 	dracut_install sh df free ls shutdown poweroff stty cat ps ln ip route \
 	    /lib/terminfo/l/linux mount dmesg ifconfig dhclient mkdir cp ping dhclient 
@@ -38,11 +39,10 @@ test_setup() {
     )
  
     # create an initramfs that will create the target root filesystem.
-    # We do it this way because creating it directly in the host OS
-    # results in cryptsetup not being able to unlock the LVM PV.
-    # Probably a bug in cryptsetup, but...
+    # We do it this way so that we do not risk trashing the host mdraid
+    # devices, volume groups, encrypted partitions, etc.
     $basedir/dracut -l -i overlay / \
-	-m "dash kernel-modules test crypt lvm mdraid udev-rules base rootfs-block" \
+	-m "dash crypt lvm mdraid udev-rules base rootfs-block" \
 	-d "ata_piix ext2 sd_mod" \
 	-f initramfs.makeroot || return 1
 
@@ -52,7 +52,10 @@ test_setup() {
 	-append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81" \
 	-initrd initramfs.makeroot  || return 1
 
-    sudo $basedir/dracut -l -f initramfs.testing  || return 1
+    sudo $basedir/dracut -l \
+	-m "dash crypt lvm mdraid udev-rules base rootfs-block" \
+	-d "ata_piix ext2 sd_mod" \
+	-f initramfs.testing || return 1
 }
 
 test_cleanup() {
