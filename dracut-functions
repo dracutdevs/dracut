@@ -28,16 +28,26 @@ IF_dynamic=""
 # Generic substring function.  If $2 is in $1, return 0.
 strstr() { [[ ! ${1#*$2*} = $1 ]]; }
 
+if ! [[ $dracutlogfile ]]; then
+    [[ $dsrc = /usr/lib/dracut ]] && \
+       dracutlogfile=/var/log/dracut/log || \
+       dracutlogfile=/tmp/dracut.log
+    >"$dracutlogfile"
+fi
+
 dwarning() {
     echo "W: $@" >&2
+    echo "W: $@" >>"$dracutlogfile"
 }
 
 dinfo() {
     [[ $beverbose ]] && echo "I: $@" >&2
+    echo "I: $@" >>"$dracutlogfile"
 }
 
 derror() {
     echo "E: $@" >&2
+    echo "E: $@" >>"$dracutlogfile"
 }
 
 # $1 = file to copy to ramdisk

@@ -71,6 +71,7 @@ done
 [[ $drivers_l ]] && drivers=$drivers_l
 
 [[ $allowlocal && -f "$(dirname $0)/dracut-functions" ]] && dsrc="$(dirname $0)" || dsrc=/usr/lib/dracut
+
 if [[ -f $dsrc/dracut-functions ]]; then
    . $dsrc/dracut-functions
 else
