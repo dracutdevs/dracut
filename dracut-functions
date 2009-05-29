@@ -261,8 +261,8 @@ instmods() {
 	case $mod in
 	    =*) # This introduces 2 incompatible meanings for =* arguments
                 # to instmods.  We need to decide which one to keep.
-                if [ "$mod" = "=ata" -a -f $srcmods/modules.block ] ; then 
-                    instmods $mpargs $(egrep 'ata|ahci' "${srcmods}/modules.block")
+		if [ "$mod" = "=ata" -a -f $srcmods/modules.block ] ; then 
+		    instmods $mpargs $(egrep 'ata|ahci' "${srcmods}/modules.block")
 		elif [ -f $srcmods/modules.${mod#=} ]; then
 		    instmods $mpargs $(cat ${srcmods}/modules.${mod#=} )
 		else
@@ -283,17 +283,17 @@ instmods() {
 			continue
 		    fi
 		    inst_simple "$modpath"
+		    for fw in $(/sbin/modinfo -F firmware $mod 2>/dev/null); do
+			if [ -f /lib/firmware/$fw ]; then
+			    inst_simple "/lib/firmware/$fw"
+			else
+			    dwarning "Possible missing firmware /lib/firmware/${fw} for module ${mod}.ko"
+			fi
+		    done
 		done
 		;;
-	esac
+	esac      
 	shift
-    done
-    for fw in $(/sbin/modinfo -F firmware $mod 2>/dev/null); do
-        if [ -f /lib/firmware/$fw ]; then
-            inst_simple "/lib/firmware/$fw"
-	else
-	    dwarning "Possible missing firmware /lib/firmware/${fw} for module $(basename ${mod} .ko)"
-        fi
     done
 } 
 
