@@ -2,7 +2,7 @@
 
 which cryptsetup >/dev/null 2>&1 || exit 1
 
-if [ "$1" = "-h" ]; then
+if [ "$1" = "-H" ] || [ "$1" = "--hostonly" ]; then
     blkid | grep -q crypt_LUKS || exit 1
 fi
 
