@@ -84,13 +84,14 @@ dracutfunctions=$dsrc/dracut-functions
 export dracutfunctions
 
 # this logic is weird and convoluted.  We should simplify it.
+# seriously, wtf?
 case $dracutmodules in
 	""|auto)
 		dracutmodules="all"
 		;;
 	hostonly)
     		dracutmodules="all"
-    		hostonly="-h"
+    		hostonly="-H"
 		;;
 esac
 

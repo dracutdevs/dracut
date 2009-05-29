@@ -35,7 +35,7 @@ check: Dracut calls this program to check and see if a module can be installed
        are present.  It should exit with a 0 if they are, and a 1 if they are
        not.
 
-       When called with -h, it should perform the same check that it would
+       When called with -H, it should perform the same check that it would
        without any options, and it should also check to see if the 
        functionality the module implements is being used on the host system.
        For example, if this module handles installing support for LUKS
