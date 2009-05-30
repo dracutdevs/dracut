@@ -3,8 +3,7 @@ TEST_DESCRIPTION="root filesystem on an encrypted LVM PV"
 
 test_run() {
     $testdir/run-qemu -hda root.ext2 -m 512M -nographic \
-	-net nic,macaddr=52:54:00:12:34:57 -net socket,mcast=230.0.0.1:1234 \
-	-kernel /boot/vmlinuz-$(uname -r) \
+	-net none -kernel /boot/vmlinuz-$(uname -r) \
 	-append "root=/dev/dracut/root rw console=ttyS0,115200n81" \
 	-initrd initramfs.testing
 }
@@ -33,8 +32,6 @@ test_setup() {
 	initdir=overlay
 	. $basedir/dracut-functions
 	dracut_install sfdisk mke2fs poweroff cp umount 
-	inst_simple ./halt.sh /pre-pivot/02halt.sh
-	inst_simple ./copy-root.sh /mount/01copy-root.sh
 	inst_simple ./create-root.sh /pre-mount/01create-root.sh
     )
  

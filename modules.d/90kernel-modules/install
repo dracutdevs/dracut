@@ -1,6 +1,7 @@
 #!/bin/bash
 # FIXME: hard-coded module list of doom.
-instmods =ata =block sd_mod =fs
+[[ $drivers ]] || drivers="=block sd_mod =fs"
+instmods $drivers
 
 [ -f /etc/modprobe.conf ] && dracut_install /etc/modprobe.conf
 dracut_install $(find /etc/modprobe.d/ -type f -name '*.conf')

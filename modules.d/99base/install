@@ -1,5 +1,5 @@
 #!/bin/bash
-dracut_install mount mknod mkdir modprobe pidof sleep chroot echo sed ls flock 
+dracut_install mount mknod mkdir modprobe pidof sleep chroot sed ls flock 
 if [ ! -e "${initdir}/bin/sh" ]; then
     dracut_install bash
     (ln -s bash "${initdir}/bin/sh" || :)
@@ -14,5 +14,3 @@ fi
 inst "$moddir/switch_root" "/sbin/switch_root"
 inst "$moddir/dracut-lib" "/lib/dracut-lib"
 inst_hook pre-pivot 50 "$moddir/selinux-loadpolicy.sh"
-# Install any drivers specified from .conf or --drivers
-instmods ${drivers}
