@@ -1,6 +1,0 @@
-#!/bin/sh
-
-# Install all loaded modules in the initramfs if we are building a 
-# hostonly initramfs
-[[ $1 = -h ]]
-
