@@ -295,10 +295,11 @@ instmods() {
 		    modname=${modpath##*/}
 		    modname=${modname%.ko}
 		    if [[ ${mod/-/_} != ${modname/-/_} ]]; then
+			dinfo "Installing dependencies for $mod ($modpath)"
 			instmods $mpargs $modname
-			continue
 		    fi
 		    inst_simple "$modpath"
+		    dinfo "Installing $modpath"
 		done
 		for fw in $(/sbin/modinfo -F firmware $mod 2>/dev/null); do
 		    if [[ -f /lib/firmware/$fw ]]; then
