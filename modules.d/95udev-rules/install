@@ -2,9 +2,7 @@
 # FIXME: would be nice if we didn't have to know which rules to grab....
 # ultimately, /lib/initramfs/rules.d or somesuch which includes links/copies
 # of the rules we want so that we just copy those in would be best
-dracut_install udevd udevadm /lib*/udev/*_id /etc/udev/udev.conf \
-    /etc/group /lib*/libnss_files.*
-
+dracut_install udevd udevadm /lib*/udev/*_id /etc/udev/udev.conf 
 inst_rules 50-udev-default.rules 60-persistent-storage.rules \
     61-persistent-storage-edd.rules 80-drivers.rules 95-udev-late.rules 
 

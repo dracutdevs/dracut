@@ -48,7 +48,7 @@ getarg 'rdbreak=pre-udev' && emergency_shell
 source_all pre-udev
 
 # start up udev and trigger cold plugs
-udevd --daemon
+udevd --daemon --resolve-names=never
 getarg rdudevinfo && udevadm control --log_priority=info
 getarg rdudevdebug && udevadm control --log_priority=debug
 udevadm trigger >/dev/null 2>&1
