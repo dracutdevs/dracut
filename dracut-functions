@@ -28,6 +28,7 @@ IF_dynamic=""
 # Generic substring function.  If $2 is in $1, return 0.
 strstr() { [[ ! ${1#*$2*} = $1 ]]; }
 
+# Log initrd creation.
 if ! [[ $dracutlogfile ]]; then
     [[ $dsrc = /usr/lib/dracut ]] && \
        dracutlogfile=/var/log/dracut/log || \
@@ -211,26 +212,21 @@ dracut_install() {
     done
 }
 
-memoize() {
-    local cmd=memoize_$@ ret
-    cmd=${cmd//[^[:alnum:]]/_}
-    [[ ${!cmd} ]] && return ${!cmd}
-    "$@"
-    ret=$?
-    eval "$cmd=$ret"
-    return $ret
-}
-
 check_module_deps() {
-    local moddir dep
+    local moddir dep ret
+    # if we are already set to be loaded, we do not have to be checked again.
+    strstr "$mods_to_load" " $1 "
     # turn a module name into a directory, if we can.
     moddir=$(echo ${dsrc}/modules.d/??${1})
     [[ -d $moddir && -x $moddir/install ]] || return 1
     # if we do not have a check script, we are unconditionally included
     if [[ -x $moddir/check ]]; then
-	memoize "$moddir/check" || return 1
+	"$moddir/check"
+        ret=$?
+	# a return value of 255 = load module only as a dependency.
+	((ret==0||ret==255)) || return 1
 	for dep in $("$moddir/check" -d); do
-	    memoize check_module_deps "$dep" && continue
+	    check_module_deps "$dep" && continue
 	    dwarning "Dependency $mod failed."
 	    return 1
 	done
@@ -244,7 +240,7 @@ should_source_module() {
     [[ -x $1/check ]] || return 0
     "$1/check" $hostonly || return 1
     for dep in $("$1/check" -d); do
-	memoize check_module_deps "$dep" && continue
+	check_module_deps "$dep" && continue
 	dwarning "Cannot load $mod, dependencies failed."
 	return 1
     done
@@ -253,6 +249,9 @@ should_source_module() {
 check_modules() {
     for moddir in "$dsrc/modules.d"/[0-9][0-9]*; do
 	local mod=${moddir##*/}; mod=${mod#[0-9][0-9]}
+	# If we are already scheduled to be loaded, no need to check again.
+	strstr "$mods_to_load" " $mod " && continue
+	# This should never happen, but...
 	[[ -d $moddir ]] || continue
 	[[ $dracutmodules != all ]] && ! strstr "$dracutmodules" "$mod" && \
 	    continue
@@ -281,7 +280,14 @@ instmods() {
 		;;
 	    --*) mpargs+=" $mod";;
 	    *)  mod=${mod##*/}
+	        # if we are already installed, skip this module and go on
+	        # to the next one.
 	        [[ -f $initdir/$1 ]] && { shift; continue; }
+		# If we are building a host-specific initramfs and this
+		# module is not already loaded, move on to the next one.
+		[[ $hostonly ]] && ! grep -q "$mod" /proc/modules && { 
+		    shift; continue; 
+		}
                 modprobe $mpargs --ignore-install --set-version $kernel \
 		    --show-depends $mod 2>/dev/null | \
 		    while read cmd modpath options; do
@@ -293,13 +299,13 @@ instmods() {
 			continue
 		    fi
 		    inst_simple "$modpath"
-		    for fw in $(/sbin/modinfo -F firmware $mod 2>/dev/null); do
-			if [ -f /lib/firmware/$fw ]; then
-			    inst_simple "/lib/firmware/$fw"
-			else
-			    dwarning "Possible missing firmware /lib/firmware/${fw} for module ${mod}.ko"
-			fi
-		    done
+		done
+		for fw in $(/sbin/modinfo -F firmware $mod 2>/dev/null); do
+		    if [[ -f /lib/firmware/$fw ]]; then
+			inst_simple "/lib/firmware/$fw"
+		    else
+			dwarning "Possible missing firmware /lib/firmware/${fw} for module ${mod}.ko"
+		    fi
 		done
 		;;
 	esac      
