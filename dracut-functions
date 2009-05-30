@@ -299,7 +299,6 @@ instmods() {
 			instmods $mpargs $modname
 		    fi
 		    inst_simple "$modpath"
-		    dinfo "Installing $modpath"
 		done
 		for fw in $(/sbin/modinfo -F firmware $mod 2>/dev/null); do
 		    if [[ -f /lib/firmware/$fw ]]; then
