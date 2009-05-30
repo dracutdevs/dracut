@@ -1,3 +1,4 @@
 #!/bin/sh
 which ip dhclient hostname >/dev/null 2>&1 || exit 1
-exit 0
+exit 255
+
