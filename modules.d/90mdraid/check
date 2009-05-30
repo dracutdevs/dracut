@@ -1,7 +1,12 @@
-#!/bin/sh
+#!/bin/bash
+
+# No mdadm?  No mdraid support.
 which mdadm >/dev/null 2>&1 || exit 1
 
-if [ "$1" = "-H" ]; then
+# We were asked to run in hostonly mode, so pass the check only if there
+# is an mdraid volume in use somewhere. This should really check to see if
+# root is on an mdraid volume only, but I am lazy.
+if [[ $1 = -h ]]; then
     blkid | grep -q linux_raid || exit 1
 fi
 

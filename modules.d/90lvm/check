@@ -1,7 +1,12 @@
 #!/bin/sh
+
+# No point trying to support lvm if the binaries are missing
 which lvm >/dev/null 2>&1 || exit 1
 
-if [ "$1" = "-H" ]; then
+# We should really just check to see if root is on a logical volume
+# when running in hostonly mode. I am lazy. Therefore, fail the hostonly
+# check unless there is a logical volume in use somewhere.
+if [ "$1" = "-H" ] || [ "$1" = "--hostonly" ]; then
     blkid | grep -q lvm2pv || exit 1
 fi
 

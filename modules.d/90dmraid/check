@@ -1,7 +1,13 @@
-#!/bin/sh
+#!/bin/bash
+
+# if we don't have dmraid installed on the host system, no point
+# in trying to support it in the initramfs.
 which dmraid >/dev/null 2>&1 || exit 1
 
-if [ "$1" = "-H" ]; then
+# Hostonly checking should really fail if the root device is not on a 
+# dmraid volume.  I am lazy.  Therefore, fail the hostonly check only
+# if we are not using dmraid right now.
+if [[ $1 = -h ]]; then
     dmraid -r | grep -q ok || exit 1
 fi
 
