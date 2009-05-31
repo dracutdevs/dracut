@@ -1,13 +1,10 @@
 #!/bin/sh
 exec >/dev/console 2>&1
+echo "dracut-root-block-success" >/dev/sda1
 export TERM=linux
 export PS1='initramfs-test:\w\$ '
 [ -f /etc/fstab ] || ln -s /proc/mounts /etc/fstab
 stty sane
-echo "made it to the rootfs!"
-echo 3 >/proc/sys/vm/drop_caches
-free
-[ -x /bin/plymouth ] && /bin/plymouth quit
-sh -i
+echo "made it to the rootfs! Powering down."
 mount -n -o remount,ro /
 poweroff -f

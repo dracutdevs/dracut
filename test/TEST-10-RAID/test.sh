@@ -4,8 +4,9 @@ TEST_DESCRIPTION="root filesystem on an encrypted LVM PV"
 test_run() {
     $testdir/run-qemu -hda root.ext2 -m 512M -nographic \
 	-net none -kernel /boot/vmlinuz-$(uname -r) \
-	-append "root=/dev/dracut/root rw console=ttyS0,115200n81" \
+	-append "root=/dev/dracut/root rw quiet console=ttyS0,115200n81" \
 	-initrd initramfs.testing
+    grep -m 1 -q dracut-root-block-success root.ext2 || return 1
 }
 
 test_setup() {
@@ -42,14 +43,21 @@ test_setup() {
 	-m "dash crypt lvm mdraid udev-rules base rootfs-block" \
 	-d "ata_piix ext2 sd_mod" \
 	-f initramfs.makeroot || return 1
-
+    rm -rf overlay
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     $testdir/run-qemu -hda root.ext2 -m 512M -nographic -net none \
 	-kernel "/boot/vmlinuz-$kernel" \
 	-append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81" \
 	-initrd initramfs.makeroot  || return 1
-
-    sudo $basedir/dracut -l \
+    grep -m 1 -q dracut-root-block-created root.ext2 || return 1
+    (
+	initdir=overlay
+	. $basedir/dracut-functions
+	dracut_install poweroff shutdown
+	inst_simple ./hard-off.sh /emergency/01hard-off.sh
+	inst ./cryptroot-ask /sbin/cryptroot-ask
+    )
+    sudo $basedir/dracut -l -i overlay / \
 	-m "dash crypt lvm mdraid udev-rules base rootfs-block" \
 	-d "ata_piix ext2 sd_mod" \
 	-f initramfs.testing || return 1
