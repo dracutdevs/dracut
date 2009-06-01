@@ -1,5 +1,3 @@
-#!/bin/sh
-
 pid=$(pidof rpc.statd)
 [ -n "$pid" ] && kill $pid
 

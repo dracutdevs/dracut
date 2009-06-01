@@ -1,5 +1,3 @@
-#!/bin/bash # for highlighting
-
 root=$(getarg root=)
 
 if rflags="$(getarg rootflags=)"; then

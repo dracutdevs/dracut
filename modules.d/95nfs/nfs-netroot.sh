@@ -1,5 +1,3 @@
-#!/bin/sh # for highlighting
-
 # If we're auto-detecting our root type from DHCP, see if this looks like
 # an NFS root option. As the variety of root-path formats is large, validate
 # that the number of colons match what we expect, and our glob didn't

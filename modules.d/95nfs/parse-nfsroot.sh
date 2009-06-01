@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # We're 90-nfs.sh to catch root=/dev/nfs
 #
 # Preferred format:

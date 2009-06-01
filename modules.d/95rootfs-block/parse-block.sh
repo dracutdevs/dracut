@@ -1,5 +1,3 @@
-#!/bin/bash # for highlighting
-
 case "$root" in
     block:LABEL=*|LABEL=*)
 	root="${root#block:}"

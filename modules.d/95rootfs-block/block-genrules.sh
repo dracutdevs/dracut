@@ -1,5 +1,3 @@
-#!/bin/bash # for highlighting
-
 if [ "${root%%:*}" = "block" ]; then
     (
     printf 'KERNEL=="%s", RUN+="/bin/mount -t %s -o %s %s %s"\n' \

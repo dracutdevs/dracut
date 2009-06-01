@@ -1,5 +1,3 @@
-#!/bin/dash
-
 # It'd be nice if this could share rules with 99-block.sh, but since
 # the kernel side adds nbd{1..16} when the module is loaded -- before
 # they are associated with a server -- we cannot use the udev add rule
