@@ -14,12 +14,6 @@ emergency_shell()
     sh -i
 }
 
-source_all() {
-    local f
-    [ "$1" ] && [  -d "/$1" ] || return
-    for f in "/$1"/*.sh; do [ -f "$f" ] && . "$f"; done
-}
-
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export TERM=linux
 NEWROOT="/sysroot"
