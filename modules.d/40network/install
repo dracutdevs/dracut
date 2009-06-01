@@ -1,10 +1,19 @@
 #!/bin/bash
 dracut_install ip dhclient hostname
-instmods =net
+# Include wired net drivers, excluding wireless
+for modname in `find "/lib/modules/$kernel/kernel/drivers" -name '*.ko'`; do
+  if nm -uPA $modname | grep -q eth_type_trans; then
+    if echo "$modname" | grep -q wireless; then
+      continue
+    else
+      instmods $modname 
+    fi
+  fi
+done
 inst "$moddir/ifup" "/sbin/ifup"
 inst "$moddir/netroot" "/sbin/netroot"
 inst "$moddir/dhclient-script" "/sbin/dhclient-script"
-instmods =networking ecb arc4
+instmods ecb arc4
 inst_rules "$moddir/60-net.rules"
 inst_hook cmdline 99 "$moddir/dhcp-fallback.sh"
 inst_hook pre-pivot 10 "$moddir/kill-dhclient.sh"
