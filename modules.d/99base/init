@@ -43,6 +43,10 @@ mknod /dev/console c 5 1
 mkdir /dev/pts
 mount -t devpts -o gid=5,mode=620 /dev/pts /dev/pts >/dev/null 2>&1
 
+# run scriptlets to parse the command line
+getarg 'rdbreak=cmdline' && emergency_shell
+source_all cmdline
+
 # pre-udev scripts run before udev starts, and are run only once.
 getarg 'rdbreak=pre-udev' && emergency_shell
 source_all pre-udev
