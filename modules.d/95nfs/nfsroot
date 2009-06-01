@@ -46,7 +46,16 @@ getarg rw && nfsrw=rw
 nfsflags=${nfsflags+$nfsflags,}${nfsrw}
 
 # Load the modules so the filesystem type is there
-modprobe nfs || exit 1
+if [ ! -e /tmp/nfs.present ]; then
+    cat /proc/filesystems | while read t1 fst; do
+        case "$fst" in
+	    nfs|nfs4) >/tmp/nfs.present; break ;;
+	esac
+    done
+fi
+if [ ! -e /tmp/nfs.present ]; then
+    modprobe nfs || exit 1
+fi
 
 # XXX don't forget to move /var/lib/nfs/rpc_pipefs to new /
 
