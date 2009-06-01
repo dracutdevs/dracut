@@ -6,77 +6,38 @@ PATH=$PATH:/sbin:/usr/sbin
 
 # XXX needs error handling like ifup/dhclient-script
 
-# XXX need to lock our attempts if we're doing the mount here
-
 getarg rdnetdebug && {
     exec > /tmp/nfsroot.$1.$$.out
     exec 2>> /tmp/nfsroot.$1.$$.out
     set -x
 }
 
-[ "$NFS_LOCKED" ] || {
-	NFS_LOCKED=true
-	export NFS_LOCKED
-	exec flock -xo /tmp/nfs.lock -c "$0 $*"
-	exit 1
-}
+# root is in the form root=nfs[4]:server:path:[options]
+netif="$1"
+root="$2"
 
-[ -e /tmp/nfsdone ] && exit 0
-
-nfs_done() {
-    >/tmp/nfsdone
-    exit 0
-}
-
-root=$(getarg root)
-case $root in
-    nfs|/dev/nfs)	type=nfs  ;;
-    nfs4|/dev/nfs4)	type=nfs4 ;;
-    auto|'')		type=auto  ;;
-esac
-
-rootfstype=$(getarg rootfstype)
-case $rootfstype in
-    nfs|nfs4|auto)	type=$rootfstype  ;;
-esac
-
-# If we're not doing NFS at all, don't keep banging our head
-[ -n "$type" ] || nfs_done
-
-[ -e /tmp/net.$1.dhcpopts ] && . /tmp/net.$1.dhcpopts
-
-nfsroot=$(getarg nfsroot)
-[ -n "$nfsroot" ] || nfsroot="$new_root_path"
-[ -n "$nfsroot" ] || nfs_done
-
-# check for IP address at front, if there is none, use
-# new_dhcp_server_identifier
-#
-# XXX kernel nfsroot uses , to separate NFS options at end
-#
-nfsserver=${nfsroot%%:*}; nfsroot=${nfsroot#*:}
-nfspath=${nfsroot%%:*}
-flags=${nfsroot#*:}
-[ "$nfsserver" = "$nfspath" ] && nfsserver=$new_dhcp_server_identifier
-[ "$nfspath" = "$flags" ] && unset flags
-
-[ -n "$nfsserver" ] || no_nfs
+nfsver=${root%%:*}; root=${root#*:}
+nfsserver=${root%%:*}; root=${root#*:}
+nfspath=${root%%:*}
+flags=${root#*:}
 
 # look through the flags and see if any are overridden by the command line
+# Append a , so we know we terminate
+flags=${flags},
 while [ -n "$flags" ]; do
-    f=${flags%%,*}; flags=${flags#*,}
-    [ "$f" = "nfs" -o "$f" = "nfs4" ] && {
-	[ "$type" = "auto" ] && type=$f
-	continue
-    }
-    [ "$f" = "ro" -o "$f" = "rw" ] && {
+    f=${flags%%,*}
+    flags=${flags#*,}
+    if [ -z "$f" ]; then
+	break
+    fi
+    if [ "$f" = "ro" -o "$f" = "rw" ]; then
 	nfsrw=$f
 	continue
-    }
-    [ "$f" = "lock" -o "$f" = "nolock" ] && {
+    fi
+    if [ "$f" = "lock" -o "$f" = "nolock" ]; then
 	nfslock=$f
 	continue
-    }
+    fi
     nfsflags=${nfsflags+$nfsflags,}$f
 done
 
@@ -84,11 +45,10 @@ getarg ro && nfsrw=ro
 getarg rw && nfsrw=rw
 nfsflags=${nfsflags+$nfsflags,}${nfsrw}
 
-# load our modules explicitly, so we can fail fast in the future
-modprobe nfs || nfs_done
+# Load the modules so the filesystem type is there
+modprobe nfs || exit 1
 
 # XXX don't forget to move /var/lib/nfs/rpc_pipefs to new /
-# XXX need host name set before now?
 
 # Start rpcbind and rpc.statd as mount won't let us use locks on a NFSv4
 # filesystem without talking to them, even though they are unneeded
@@ -102,24 +62,21 @@ modprobe nfs || nfs_done
 
 # XXX really, want to retry in a loop I think, but not here...
 
-[ "$type" = "nfs4" -o "$type" = "auto" ] && {
+if [ "$nfsver" = "nfs4" ]; then
     # XXX really needed? Do we need non-root users before we start it in
     # XXX the real root image?
-    [ -n "$(pidof rpc.idmapd)" ] || rpc.idmapd
+    if [ -z "$(pidof rpc.idmapd)" ]; then
+	rpc.idmapd
+    fi
 
     # NFSv4 does locks internally
-    mount -t nfs4 -o${nfsflags}${nfslock+,$nfslock} \
-			$nfsserver:$nfspath /sysroot && nfs_done
+    exec mount -t nfs4 -o${nfsflags}${nfslock+,$nfslock} \
+			$nfsserver:$nfspath $NEWROOT
+fi
 
-    # If we're specified to be NFSv4, then stop when we fail
-    # Don't mark us done, as this may be transient
-    [ "$type" = "nfs4" ] && exit 0
-}
-
-# we're NFSv{2,3} or auto and NFSv4 failed. We don't support using locks
-# on NFSv{2,3} because that requires a helper to transfer the rpcbind state
-# rpcbind to the new root
+# NFSv{2,3} doesn't support using locks as it requires a helper to transfer
+# the rpcbind state to the new root
+#
 [ -z "$nfslock" -o "$nfslock" = "lock" ] &&
     echo "Locks unsupported on NFSv{2,3}, using nolock" 1>&2
-mount -t nfs -onolock,$nfsflags $nfsserver:$nfspath /sysroot && nfs_done
-exit 0
+exec mount -t nfs -onolock,$nfsflags $nfsserver:$nfspath $NEWROOT

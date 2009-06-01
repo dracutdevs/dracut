@@ -20,3 +20,19 @@ source_all() {
     [ "$1" ] && [  -d "/$1" ] || return
     for f in "/$1"/*.sh; do [ -f "$f" ] && . "$f"; done
 }
+
+check_occurances() {
+    # Count the number of times the character $ch occurs in $str
+    # Return 0 if the count matches the expected number, 1 otherwise
+    local str="$1"
+    local ch="$2"
+    local expected="$3"
+    local count=0
+
+    while [ "${str#*$ch}" != "${str}" ]; do
+	str="${str#*$ch}"
+	count=$(( $count + 1 ))
+    done
+
+    [ $count -eq $expected ]
+}
