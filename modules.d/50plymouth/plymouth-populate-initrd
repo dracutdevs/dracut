@@ -5,24 +5,23 @@ else
     LIBDIR="/usr/lib"
 fi
 PLYMOUTH_LOGO_FILE="/usr/share/pixmaps/system-logo-white.png"
-PLYMOUTH_PLUGIN_NAME=$(plymouth-set-default-theme)
+PLYMOUTH_THEME=$(plymouth-set-default-theme)
 
 inst /sbin/plymouthd /bin/plymouthd
 dracut_install /bin/plymouth "${LIBDIR}/plymouth/text.so" \
     "/usr/share/plymouth/themes/details/details.plymouth" \
-    "${LIBDIR}/plymouth/details.so" "${PLYMOUTH_LOGO_FILE}" \
+    "/usr/share/plymouth/themes/text/text.plymouth" \
+    "${PLYMOUTH_LOGO_FILE}" \
     /etc/system-release 
 
-if [[ -f "${LIBDIR}/plymouth/${PLYMOUTH_PLUGIN_NAME:=text}.so" ]]; then
-    dracut_install "${LIBDIR}/plymouth/${PLYMOUTH_PLUGIN_NAME:=text}.so" 
+if [[ -f "${LIBDIR}/plymouth/${PLYMOUTH_THEME:=text}.so" ]]; then
+    dracut_install "${LIBDIR}/plymouth/${PLYMOUTH_THEME:=text}.so" 
 fi
 
 mkdir -p "${initdir}/usr/share/plymouth"
 
-[[ -f ${LIBDIR}/plymouth/default.so ]] && inst ${LIBDIR}/plymouth/default.so
-
-if [[ -d /usr/share/plymouth/themes/${PLYMOUTH_PLUGIN_NAME} ]]; then
-    for x in "/usr/share/plymouth/themes/${PLYMOUTH_PLUGIN_NAME}"/* ; do
+if [[ -d /usr/share/plymouth/themes/${PLYMOUTH_THEME} ]]; then
+    for x in "/usr/share/plymouth/themes/${PLYMOUTH_THEME}"/* ; do
         [[ -f "$x" ]] || break
         inst $x
     done
@@ -30,6 +29,9 @@ fi
 
 if [ -L /usr/share/plymouth/themes/default.plymouth ]; then
     inst /usr/share/plymouth/themes/default.plymouth
+    # Install plugin for this theme
+    PLYMOUTH_PLUGIN=$(grep "^ModuleName=" /usr/share/plymouth/themes/default.plymouth |awk -F= {'print $2'})
+    inst ${LIBDIR}/plymouth/${PLYMOUTH_PLUGIN}.so
 fi
 
 # vim:ts=8:sw=4:sts=4:et
