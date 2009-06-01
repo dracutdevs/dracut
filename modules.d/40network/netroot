@@ -1,0 +1,52 @@
+#!/bin/sh
+
+. /lib/dracut-lib
+
+getarg rdnetdebug && {
+    exec >/tmp/netroot.$1.$$.out
+    exec 2>>/tmp/netroot.$1.$$.out
+    set -x
+}
+
+# Only try to configure from one network interface at a time
+#
+[ "$NETROOT_LOCKED" ] || {
+    NETROOT_LOCKED=true
+    export NETROOT_LOCKED
+    exec flock -xo /tmp/netroot.lock -c "$0 $*"
+    exit 1
+}
+
+netif=$1
+
+# If we've already found a root, or we don't have the info we need,
+# then no point in looking further
+#
+[ -e /tmp/netroot.done ] && exit 0
+[ -s /tmp/netroot.info -a -s /tmp/root.info ] || exit 0
+
+# Pick up our config from the command line; we may already know the
+# handler to run
+#
+. /tmp/root.info
+. /tmp/netroot.info
+[ -e /tmp/net.$netif.dhcpopts ] && . /tmp/net.$netif.dhcpopts
+
+# Now, let the installed network root handlers figure this out
+#
+source_all netroot
+
+# If we didn't get a handler set, then we're done
+#
+if [ -z "$handler" ]; then
+    # XXX informative error message?
+    exit 0
+fi
+
+# Run the handler; don't store the root, it may change from device to device
+# XXX other variables to export?
+export NEWROOT
+if $handler $netif $root; then
+    >/tmp/netroot.done
+fi
+exit 0

@@ -12,8 +12,10 @@ getarg rdnetdebug && {
 
 netif=$1
 
-# bail immediatly if the interface is already up
+# bail immediately if the interface is already up
+# or we don't need the network
 [ -f "/tmp/net.$netif.up" ] && exit 0
+[ ! -f /tmp/netroot.info ] && exit 0
 
 # loopback is always handled the same way
 [ "$netif" = "lo" ] && {
@@ -93,10 +95,8 @@ ip_to_var() {
     [ -n "$autoconf" ] || autoconf=off
 }
 
-root=$(getarg root)
 ip=$(getarg ip)
-
-if [ "$root" = "dhcp" -a -z "$ip" ]; then
+if [ -z "$ip" ]; then
     do_dhcp;
 else
     # spin through the kernel command line, looking for ip= lines

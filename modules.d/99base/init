@@ -47,11 +47,20 @@ fi
 
 if [ -z "${root%%error:*}" ]; then
     case "${root%%:*}" in
-       '') echo "FATAL: no root= option specified" ;;
+       '') echo "FATAL: no root= option specified, and no network support" ;;
        error) echo "FATAL: ${root#error:}" ;;
     esac
     emergency_shell
 fi
+
+# Network root scripts may need updated root= options,
+# so deposit them where they can see them (udev purges the env)
+{
+    echo "root='$root'"
+    echo "rflags='$rflags'"
+    echo "fstype='$fstype'"
+    echo "NEWROOT='$NEWROOT'"
+} > /tmp/root.info
 
 # pre-udev scripts run before udev starts, and are run only once.
 getarg 'rdbreak=pre-udev' && emergency_shell

@@ -2,8 +2,10 @@
 dracut_install ip dhclient hostname
 instmods =net
 inst "$moddir/ifup" "/sbin/ifup"
+inst "$moddir/netroot" "/sbin/netroot"
 inst "$moddir/dhclient-script" "/sbin/dhclient-script"
 instmods =networking ecb arc4
 inst_rules "$moddir/60-net.rules"
+inst_hook cmdline 99 "$moddir/dhcp-fallback.sh"
 inst_hook pre-pivot 10 "$moddir/kill-dhclient.sh"
 mkdir -p "${initdir}/var/run"
