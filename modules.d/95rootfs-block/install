@@ -1,5 +1,5 @@
 #!/bin/sh
-dracut_install echo
-inst_hook cmdline 20 "$moddir/parse-root-opts.sh"
+inst_hook cmdline 10 "$moddir/parse-root-opts.sh"
+inst_hook cmdline 95 "$moddir/parse-block.sh"
 inst_hook pre-udev 30 "$moddir/block-genrules.sh"
 inst_hook mount 99 "$moddir/mount-root.sh"

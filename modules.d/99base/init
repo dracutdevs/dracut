@@ -47,6 +47,18 @@ mount -t devpts -o gid=5,mode=620 /dev/pts /dev/pts >/dev/null 2>&1
 getarg 'rdbreak=cmdline' && emergency_shell
 source_all cmdline
 
+if [ -z "$rootok" -a -n "${root%%error:*}" ]; then
+    root="error: No handler for root=${root}"
+fi
+
+if [ -z "${root%%error:*}" ]; then
+    case "${root%%:*}" in
+       '') echo "FATAL: no root= option specified" ;;
+       error) echo "FATAL: ${root#error:}" ;;
+    esac
+    emergency_shell
+fi
+
 # pre-udev scripts run before udev starts, and are run only once.
 getarg 'rdbreak=pre-udev' && emergency_shell
 source_all pre-udev
