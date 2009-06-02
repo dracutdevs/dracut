@@ -4,5 +4,10 @@ inst_hook pre-udev 10 "$moddir"/plymouth-start.sh
 inst_hook pre-pivot 90 "$moddir"/plymouth-newroot.sh
 inst_hook emergency 50 "$moddir"/plymouth-emergency.sh
 inst "$moddir"/cryptroot-ask.sh /sbin/cryptroot-ask
-instmods i915 radeon nouveau
+# Include KMS capable drm drivers
+for modname in `find "/lib/modules/$kernel/kernel/drivers/gpu/drm" -name '*.ko'`; do
+  if nm -uPA $modname | grep -q drm_crtc_init; then
+    instmods $modname
+  fi
+done
 
