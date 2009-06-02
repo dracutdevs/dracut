@@ -1,0 +1,121 @@
+#!/bin/sh
+
+. /lib/dracut-lib
+
+PATH=$PATH:/sbin:/usr/sbin
+
+# XXX needs error handling like ifup/dhclient-script
+
+if getarg rdnetdebug; then
+    exec > /tmp/iscsiroot.$1.$$.out
+    exec 2>> /tmp/iscsiroot.$1.$$.out
+    set -x
+fi
+
+exec > /dev/console
+exec 2>/dev/console
+set -x
+
+# read static conf settings
+for conf in conf/conf.d/*; do
+	[ -f ${conf} ] && . ${conf}
+done
+
+# root is in the form root=iscsi:[<servername>]:[<protocol>]:[<port>]:[<LUN>]:<targetname>
+netif="$1"
+root="$2"
+
+
+if [ $root = ${root#iscsi:} ]; then
+	root=$(getarg iscsiroot)
+else
+	root=${root#iscsi:}
+fi
+
+if getarg iscsi_firmware >/dev/null; then
+	modprobe iscsi_tcp
+	modprobe crc32c
+	iscsistart -b
+else
+	OLDIFS="$IFS"
+	IFS=:
+	set $root
+
+	iscsi_target_ip=$1; shift
+	iscsi_protocol=$1; shift # ignored
+	iscsi_target_port=$1; shift
+	iscsi_lun=$1; shift
+	iscsi_target_name=$*
+	IFS="$OLDIFS"
+
+	# override conf settings by command line options
+	arg=$(getarg iscsi_initiator)
+	[ -n "$arg" ] && iscsi_initiator=$arg
+	arg=$(getarg iscsi_initiator)
+	[ -n "$arg" ] && iscsi_target_name=$arg
+	arg=$(getarg iscsi_target_ip)
+	[ -n "$arg" ] && iscsi_target_ip=$arg
+	arg=$(getarg iscsi_target_port)
+	[ -n "$arg" ] && iscsi_target_port=$arg
+	arg=$(getarg iscsi_target_group)
+	[ -n "$arg" ] && iscsi_target_group=$arg
+	arg=$(getarg iscsi_username)
+	[ -n "$arg" ] && iscsi_username=$arg
+	arg=$(getarg iscsi_password)
+	[ -n "$arg" ] && iscsi_password=$arg
+	arg=$(getarg iscsi_in_username)
+	[ -n "$arg" ] && iscsi_in_username=$arg
+	arg=$(getarg iscsi_in_password)
+	[ -n "$arg" ] && iscsi_in_password=$arg
+
+	getarg ro && iscsirw=ro
+	getarg rw && iscsirw=rw
+	fsopts=${fsopts+$fsopts,}${iscsirw}
+
+	modprobe iscsi_tcp
+	modprobe crc32c
+
+	if [ -z $iscsi_initiator ]; then
+		[ -f /etc/initiatorname.iscsi ] && . /etc/initiatorname.iscsi
+		[ -f /etc/iscsi/initiatorname.iscsi ] && . /etc/iscsi/initiatorname.iscsi
+		iscsi_initiator=$InitiatorName
+	fi
+
+	if [ -z $iscsi_target_port ]; then
+		iscsi_target_port=3260
+	fi
+
+	if [ -z $iscsi_target_group ]; then
+		iscsi_target_group=1
+	fi
+
+	if [ -z $iscsi_initiator ]; then
+		[ -f /tmp/net.$netif.dhcpopts ] && . /tmp/net.$netif.dhcpopts
+		hostname=$new_host_name
+		[ -z "$hostname" ] && hostname=arpa.in-addr.$new_ip_address
+		OLDIFS="$IFS"
+		IFS=.
+		unset revname
+		for i in $hostname; do 
+			revname=${i}${revname+.$revname}
+		done
+		IFS="$OLDIFS"
+		iscsi_initiator=iqn.2009-01.$revname
+	fi
+
+	echo "InitiatorName='$iscsi_initiator'" > /dev/.initiatorname.iscsi
+
+	# FIXME $iscsi_lun?? $iscsi_protocol??
+
+	iscsistart -i $iscsi_initiator -t $iscsi_target_name	\
+		   -g $iscsi_target_group -a $iscsi_target_ip	\
+		   -p $iscsi_target_port \
+		   ${iscsi_username+-u $iscsi_username} \
+	           ${iscsi_password+-w $iscsi_password} \
+	           ${iscsi_in_username+-U $iscsi_in_username} \
+	           ${iscsi_in_password+-W $iscsi_in_password}
+	# now we have a root filesystem somewhere in /dev/sda*
+	# let the normal block handler handle root=
+fi
+
+exit 0

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+inst iscsistart 
+inst hostname
+inst_hook cmdline 90 "$moddir/parse-iscsiroot.sh"
+inst_hook netroot 90 "$moddir/iscsi-netroot.sh"
+inst "$moddir/iscsiroot" "/sbin/iscsiroot"
+instmods iscsi_tcp crc32c
