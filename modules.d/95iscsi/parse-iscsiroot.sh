@@ -12,11 +12,6 @@
 #       root=??? iscsi_initiator= iscsi_target_name= iscsi_target_ip= iscsi_target_port= iscsi_target_group= iscsi_username= iscsi_password= iscsi_in_username= iscsi_in_password=
 #       root=??? iscsi_firmware
 
-exec >/dev/console
-exec 2>/dev/console
-
-set -x
-
 case "$root" in
     iscsi|dhcp|'')
 	if getarg iscsiroot= > /dev/null; then

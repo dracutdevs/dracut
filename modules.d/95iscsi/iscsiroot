@@ -12,10 +12,6 @@ if getarg rdnetdebug; then
     set -x
 fi
 
-exec > /dev/console
-exec 2>/dev/console
-set -x
-
 # read static conf settings
 for conf in conf/conf.d/*; do
 	[ -f ${conf} ] && . ${conf}
