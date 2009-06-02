@@ -7,5 +7,5 @@
 #[ "$1" = "-h" ] && ! egrep -q '/ /dev/nbd[0-9]*' /proc/mounts && exit 1
 
 # If our prerequisites are not met, fail anyways.
-which iscsistart hostname >/dev/null 2>&1 || exit 1
+which iscsistart hostname iscsi-iname >/dev/null 2>&1 || exit 1
 exit 0

@@ -87,17 +87,7 @@ else
 	fi
 
 	if [ -z $iscsi_initiator ]; then
-		[ -f /tmp/net.$netif.dhcpopts ] && . /tmp/net.$netif.dhcpopts
-		hostname=$new_host_name
-		[ -z "$hostname" ] && hostname=arpa.in-addr.$new_ip_address
-		OLDIFS="$IFS"
-		IFS=.
-		unset revname
-		for i in $hostname; do 
-			revname=${i}${revname+.$revname}
-		done
-		IFS="$OLDIFS"
-		iscsi_initiator=iqn.2009-01.$revname
+		iscsi_initiator=$(iscsi-iname)
 	fi
 
 	echo "InitiatorName='$iscsi_initiator'" > /dev/.initiatorname.iscsi

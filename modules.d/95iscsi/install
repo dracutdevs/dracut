@@ -2,6 +2,7 @@
 
 inst iscsistart 
 inst hostname
+inst iscsi-iname
 inst_hook cmdline 90 "$moddir/parse-iscsiroot.sh"
 inst_hook netroot 90 "$moddir/iscsi-netroot.sh"
 inst "$moddir/iscsiroot" "/sbin/iscsiroot"
