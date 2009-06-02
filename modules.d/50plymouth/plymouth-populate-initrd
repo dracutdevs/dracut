@@ -9,6 +9,7 @@ PLYMOUTH_THEME=$(plymouth-set-default-theme)
 
 inst /sbin/plymouthd /bin/plymouthd
 dracut_install /bin/plymouth "${LIBDIR}/plymouth/text.so" \
+    "${LIBDIR}/plymouth/details.so" \
     "/usr/share/plymouth/themes/details/details.plymouth" \
     "/usr/share/plymouth/themes/text/text.plymouth" \
     "${PLYMOUTH_LOGO_FILE}" \
