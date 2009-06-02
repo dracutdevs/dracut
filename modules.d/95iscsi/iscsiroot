@@ -23,9 +23,9 @@ root="$2"
 
 
 if [ $root = ${root#iscsi:} ]; then
-	root=$(getarg iscsiroot)
+	iroot=$(getarg iscsiroot)
 else
-	root=${root#iscsi:}
+	iroot=${root#iscsi:}
 fi
 
 if getarg iscsi_firmware >/dev/null; then
@@ -57,7 +57,7 @@ else
 	# override conf/commandline options by dhcp root_path
 	OLDIFS="$IFS"
 	IFS=:
-	set $root
+	set $iroot
 	iscsi_target_ip=$1; shift
 	iscsi_protocol=$1; shift # ignored
 	iscsi_target_port=$1; shift
