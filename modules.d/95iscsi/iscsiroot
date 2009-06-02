@@ -33,17 +33,6 @@ if getarg iscsi_firmware >/dev/null; then
 	modprobe crc32c
 	iscsistart -b
 else
-	OLDIFS="$IFS"
-	IFS=:
-	set $root
-
-	iscsi_target_ip=$1; shift
-	iscsi_protocol=$1; shift # ignored
-	iscsi_target_port=$1; shift
-	iscsi_lun=$1; shift
-	iscsi_target_name=$*
-	IFS="$OLDIFS"
-
 	# override conf settings by command line options
 	arg=$(getarg iscsi_initiator)
 	[ -n "$arg" ] && iscsi_initiator=$arg
@@ -63,6 +52,18 @@ else
 	[ -n "$arg" ] && iscsi_in_username=$arg
 	arg=$(getarg iscsi_in_password)
 	[ -n "$arg" ] && iscsi_in_password=$arg
+
+
+	# override conf/commandline options by dhcp root_path
+	OLDIFS="$IFS"
+	IFS=:
+	set $root
+	iscsi_target_ip=$1; shift
+	iscsi_protocol=$1; shift # ignored
+	iscsi_target_port=$1; shift
+	iscsi_lun=$1; shift
+	iscsi_target_name=$*
+	IFS="$OLDIFS"
 
 	getarg ro && iscsirw=ro
 	getarg rw && iscsirw=rw
