@@ -96,7 +96,7 @@ if [[ -f $outfile && ! $force ]]; then
     exit 1
 fi
 
-hookdirs="cmdline pre-udev netroot pre-mount pre-pivot mount emergency"
+hookdirs="cmdline pre-udev pre-trigger netroot pre-mount pre-pivot mount emergency"
 
 readonly initdir=$(mktemp -d -t initramfs.XXXXXX)
 trap 'rm -rf "$initdir"' 0 # clean up after ourselves no matter how we die.

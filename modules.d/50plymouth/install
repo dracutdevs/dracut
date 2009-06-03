@@ -2,6 +2,7 @@
 . "$moddir"/plymouth-populate-initrd
 inst_hook pre-udev 10 "$moddir"/plymouth-prep.sh
 inst_hook pre-pivot 90 "$moddir"/plymouth-newroot.sh
+inst_hook pre-trigger 10 "$moddir"/plymouth-pretrigger.sh
 inst_hook emergency 50 "$moddir"/plymouth-emergency.sh
 inst "$moddir"/cryptroot-ask.sh /sbin/cryptroot-ask
 # Include KMS capable drm drivers
@@ -10,4 +11,4 @@ for modname in `find "/lib/modules/$kernel/kernel/drivers/gpu/drm" -name '*.ko'`
     instmods $modname
   fi
 done
-inst_rules "$moddir/52-plymouth-start.rules"
+#inst_rules "$moddir/52-plymouth-start.rules"
