@@ -40,5 +40,5 @@ check: all
 	make -C test check
 
 testimage: all
-	./dracut -v -l -f test-$(shell uname -r).img $(shell uname -r)
+	./dracut -l -f test-$(shell uname -r).img $(shell uname -r)
 	@echo wrote  test-$(shell uname -r).img 
