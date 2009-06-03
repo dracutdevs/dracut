@@ -11,4 +11,3 @@ for modname in `find "/lib/modules/$kernel/kernel/drivers/gpu/drm" -name '*.ko'`
     instmods $modname
   fi
 done
-#inst_rules "$moddir/52-plymouth-start.rules"
