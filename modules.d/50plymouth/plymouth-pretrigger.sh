@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # first trigger graphics subsystem
+udevadm trigger --attr-match=class=0x030000
 udevadm trigger --subsystem-match=graphics --subsystem-match=tty >/dev/null 2>&1
 udevadm settle --timeout=30 >/dev/null 2>&1
 [ -c /dev/null ] || mknod /dev/null c 1 3
