@@ -21,7 +21,7 @@ as hooks are guaranteed to be the path to slow-down.
 
 Most of the initrd generation functionality in dracut is provided by a bunch
 of generator modules that are sourced by the main dracut script to install
-specific functionality into the initrd.  They live in the modules subdirectory,
+specific functionality into the initrd.  They live in the modules.d subdirectory,
 and use functionality provided by dracut-functions to do their work.
 Some general rules for writing modules:
  * Use one of the inst family of functions to actually install files

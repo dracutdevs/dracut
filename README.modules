@@ -16,7 +16,7 @@ dracut_install_dir/modules.d/
 	   it easy for an earlier module to override the functionality of a 
 	   later module, so that you can have a distro or system specific
 	   module override or modify the functionality of a generic module
-	   without having to patch the mode generic module.
+	   without having to patch the more generic module.
 
 install: dracut sources this script to install the functionality that a 
 	 module implements onto the initrd.  For the most part, this amounts
