@@ -27,5 +27,4 @@ mknod /dev/ttyS3 c 4 67
 /lib/udev/console_init tty0
 
 [ -x /bin/plymouthd ] && /bin/plymouthd 
-[ -x /bin/plymouth ] && /bin/plymouth --show-splash
 

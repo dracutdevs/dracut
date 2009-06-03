@@ -1,4 +1,6 @@
 #!/bin/sh
 
-[ -x /bin/plymouth ] && /bin/plymouth --newroot=$NEWROOT
-
+if [ -x /bin/plymouth ]; then
+  /bin/plymouth --show-splash
+  /bin/plymouth --newroot=$NEWROOT
+fi

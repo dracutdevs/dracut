@@ -1,0 +1,1 @@
+ACTION=="add", SUBSYSTEM=="graphics", KERNEL=="fb[0-9]*", RUN+="/bin/plymouth --show-splash"
