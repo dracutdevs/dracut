@@ -1,7 +1,7 @@
-# define gittag f8a22bfb
+# define gittag 2c02c831
 %define replace_mkinitrd 0
 Name: dracut
-Version: 0.0
+Version: 0.1
 %if %{defined gittag}
 Release: 1.git%{gittag}%{?dist}
 %define dashgittag -%{gittag}
@@ -11,7 +11,7 @@ Release: 1%{?dist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
 License: GPLv2	
-URL: http://fedoraproject.org/wiki/Initrdrewrite		
+URL: http://apps.sourceforge.net/trac/dracut/wiki
 Source0: dracut-%{version}%{?dashgittag}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: udev
@@ -32,9 +32,7 @@ Provides: mkinitrd = 7.0
 %endif
 
 %description
-dracut is an attempt to build a new, event-driven initramfs infrastructure 
-based around udev.
-
+dracut is a new, event-driven initramfs infrastructure based around udev.
 
 %prep
 %setup -q -n %{name}-%{version}%{?dashgittag}

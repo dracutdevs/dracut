@@ -1,4 +1,4 @@
-VERSION=0.0
+VERSION=0.1
 GITVERSION=$(shell [ -d .git ] && git rev-list  --abbrev-commit  -n 1 HEAD  |cut -b 1-8)
 
 modules.d/99base/switch_root: switch_root.c
