@@ -69,8 +69,9 @@ done
 [[ $dracutmodules_l ]] && dracutmodules=$dracutmodules_l
 [[ $omit_dracutmodules_l ]] && omit_dracutmodules=$omit_dracutmodules_l
 [[ $drivers_l ]] && drivers=$drivers_l
+[[ $dracutbasedir ]] || dracutbasedir=/usr/lib/dracut
 
-[[ $allowlocal && -f "$(dirname $0)/dracut-functions" ]] && dsrc="$(dirname $0)" || dsrc=/usr/lib/dracut
+[[ $allowlocal && -f "$(dirname $0)/dracut-functions" ]] && dsrc="$(dirname $0)" || dsrc=$dracutbasedir
 
 if [[ -f $dsrc/dracut-functions ]]; then
    . $dsrc/dracut-functions
