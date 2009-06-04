@@ -74,7 +74,7 @@ getarg rdudevdebug && udevadm control --log_priority=debug
 source_all pre-trigger
 
 # then the rest
-udevadm trigger >/dev/null 2>&1
+udevadm trigger $(cat /tmp/udevtriggeropts) >/dev/null 2>&1
 udevadm settle --timeout=30 >/dev/null 2>&1
 
 # pre-mount happens before we try to mount the root filesystem,
