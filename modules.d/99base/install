@@ -8,9 +8,10 @@ fi
 inst "$moddir/init" "/init"
 # Bail out if switch_root does not exist
 if [ ! -x "$moddir/switch_root" ]; then
-    derror "ERROR: $moddir/switch_root does not exist."
-    exit 1
+    # assume it is installed in the standard path
+    dracut_install switch_root
+else
+    inst "$moddir/switch_root" "/sbin/switch_root"
 fi
-inst "$moddir/switch_root" "/sbin/switch_root"
 inst "$moddir/dracut-lib" "/lib/dracut-lib"
 inst_hook pre-pivot 50 "$moddir/selinux-loadpolicy.sh"
