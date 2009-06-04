@@ -43,12 +43,15 @@ make
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT
+make install DESTDIR=$RPM_BUILD_ROOT sbindir=/sbin sysconfdir=/etc
 
 %if 0%{?replace_mkinitrd}
 ln -s dracut $RPM_BUILD_ROOT/sbin/mkinitrd
 ln -s dracut/dracut-functions $RPM_BUILD_ROOT/usr/libexec/initrd-functions
 %endif
+
+#mkdir -p $RPM_BUILD_ROOT/sbin
+#mv $RPM_BUILD_ROOT/%{_prefix}/lib/dracut/modules.d/99base/switch_root $RPM_BUILD_ROOT/sbin
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -57,13 +60,14 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %doc README HACKING TODO COPYING
 /sbin/dracut
+/sbin/switch_root
 %if 0%{?replace_mkinitrd}
 /sbin/mkinitrd
 /usr/libexec/initrd-functions
 %endif
-%dir /usr/lib/dracut
-/usr/lib/dracut/dracut-functions
-/usr/lib/dracut/modules.d
+%dir %{_prefix}/lib/dracut
+%{_prefix}/lib/dracut/dracut-functions
+%{_prefix}/lib/dracut/modules.d
 %config(noreplace) /etc/dracut.conf
 
 
