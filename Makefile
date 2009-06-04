@@ -1,6 +1,12 @@
 VERSION=0.1
 GITVERSION=$(shell [ -d .git ] && git rev-list  --abbrev-commit  -n 1 HEAD  |cut -b 1-8)
 
+prefix = /usr
+libdir = ${prefix}/lib
+pkglibdir = ${libdir}/dracut
+sysconfdir = ${prefix}/etc
+sbindir = ${prefix}/sbin
+
 modules.d/99base/switch_root: switch_root.c
 	gcc -o modules.d/99base/switch_root switch_root.c	
 
@@ -9,14 +15,14 @@ all: modules.d/99base/switch_root
 .PHONY: install clean archive rpm testimage test all check
 
 install:
-	mkdir -p $(DESTDIR)/usr/lib/dracut
-	mkdir -p $(DESTDIR)/sbin
-	mkdir -p $(DESTDIR)/etc
-	mkdir -p $(DESTDIR)/usr/lib/dracut/modules.d
-	install -m 0755 dracut $(DESTDIR)/sbin/dracut
-	install -m 0644 dracut.conf $(DESTDIR)/etc/dracut.conf
-	install -m 0755 dracut-functions $(DESTDIR)/usr/lib/dracut/dracut-functions
-	cp -arx modules.d $(DESTDIR)/usr/lib/dracut/
+	mkdir -p $(DESTDIR)$(pkglibdir)
+	mkdir -p $(DESTDIR)$(sbindir)
+	mkdir -p $(DESTDIR)$(sysconfdir)
+	mkdir -p $(DESTDIR)$(pkglibdir)/modules.d
+	install -m 0755 dracut $(DESTDIR)$(sbindir)/dracut
+	install -m 0644 dracut.conf $(DESTDIR)$(sysconfdir)/dracut.conf
+	install -m 0755 dracut-functions $(DESTDIR)$(pkglibdir)/dracut-functions
+	cp -arx modules.d $(DESTDIR)$(pkglibdir)
 
 clean:
 	rm -f *~
