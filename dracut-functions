@@ -31,24 +31,25 @@ strstr() { [[ ! ${1#*$2*} = $1 ]]; }
 # Log initrd creation.
 if ! [[ $dracutlogfile ]]; then
     [[ $dsrc = /usr/lib/dracut ]] && \
-       dracutlogfile=/var/log/dracut/log || \
+       dracutlogfile=/var/log/dracut.log || \
        dracutlogfile=/tmp/dracut.log
+    [[ -w "$dracutlogfile" ]] || dracutlogfile=/tmp/dracut.log
     >"$dracutlogfile"
 fi
 
 dwarning() {
     echo "W: $@" >&2
-    echo "W: $@" >>"$dracutlogfile"
+    [[ -w "$dracutlogfile" ]] && echo "W: $@" >>"$dracutlogfile"
 }
 
 dinfo() {
     [[ $beverbose ]] && echo "I: $@" >&2
-    echo "I: $@" >>"$dracutlogfile"
+    [[ -w "$dracutlogfile" ]] && echo "I: $@" >>"$dracutlogfile"
 }
 
 derror() {
     echo "E: $@" >&2
-    echo "E: $@" >>"$dracutlogfile"
+    [[ -w "$dracutlogfile" ]] && echo "E: $@" >>"$dracutlogfile"
 }
 
 # $1 = file to copy to ramdisk
