@@ -74,7 +74,6 @@ getarg rdudevdebug && udevadm control --log_priority=debug
 source_all pre-trigger
 
 # then the rest
-[ -f /tmp/udevtriggeropts ] && udevtriggeropts=$(while read line; do echo $line;done < /tmp/udevtriggeropts)
 udevadm trigger $udevtriggeropts  >/dev/null 2>&1
 udevadm settle --timeout=30 >/dev/null 2>&1
 
