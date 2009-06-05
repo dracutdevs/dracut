@@ -13,15 +13,16 @@ while (($# > 0)); do
 	    test_cleanup;
 	    exit $?;;
         --all) 
-	    echo "TEST: $TEST_DESCRIPTION";
-	    test_setup && test_run && test_cleanup;
+	    echo -n "TEST: $TEST_DESCRIPTION ";
+	    { test_setup && test_run && test_cleanup; } </dev/null >test.log 2>&1;
 	    ret=$?;
 	    if [ $ret -eq 0 ]; then
-	       echo "$TEST_DESCRIPTION [OK]";
+               rm test.log;
+	       echo "[OK]";
 	    else
-	       echo "$TEST_DESCRIPTION [FAILED]";
-	    fi
-	    exit $?;;
+	       echo "[FAILED] see $(pwd)/test.log";
+	    fi;
+	    exit $ret;;
         *) break ;;
     esac
     shift

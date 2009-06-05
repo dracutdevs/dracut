@@ -1,8 +1,8 @@
 all:
-	make -C ../.. all
+	@make -s --no-print-directory -C ../.. all
 	@basedir=../.. testdir=../ ./test.sh --all
 setup:
-	make -C ../.. all
+	@make --no-print-directory -C ../.. all
 	@basedir=../.. testdir=../ ./test.sh --setup
 clean:
 	@basedir=../.. testdir=../ ./test.sh --clean
