@@ -1,5 +1,5 @@
 #!/bin/bash
-dracut_install ip dhclient hostname cat
+dracut_install ip dhclient hostname
 # Include wired net drivers, excluding wireless
 for modname in `find "/lib/modules/$kernel/kernel/drivers" -name '*.ko'`; do
   if nm -uPA $modname | grep -q eth_type_trans; then

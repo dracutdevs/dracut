@@ -36,3 +36,17 @@ check_occurances() {
 
     [ $count -eq $expected ]
 }
+
+incol2() {
+    local dummy check;
+    local file="$1";
+    local str="$2";
+
+    [ -z "$file" ] && return;
+    [ -z "$str"  ] && return;
+
+    while read dummy check restofline; do
+	[ "$check" = "$str" ] && return 0
+    done < $file
+    return 1
+}

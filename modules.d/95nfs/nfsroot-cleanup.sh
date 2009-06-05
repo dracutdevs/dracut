@@ -4,7 +4,7 @@ pid=$(pidof rpc.statd)
 pid=$(pidof rpcbind)
 [ -n "$pid" ] && kill $pid
 
-if grep -q rpc_pipefs /proc/mounts; then 
+if incol2 /proc/mounts /var/lib/nfs/rpc_pipefs; then 
     # try to create the destination directory
     [ -d $NEWROOT/var/lib/nfs/rpc_pipefs ] || mkdir -p $NEWROOT/var/lib/nfs/rpc_pipefs 2>/dev/null
 

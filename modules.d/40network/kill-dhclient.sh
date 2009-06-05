@@ -1,5 +1,7 @@
 #!/bin/sh
 
 for f in /tmp/dhclient.*.pid; do
-    [ "$f" != "/tmp/dhclient.*.pid" ] && kill $(cat $f)
+    [ -e $f ] || continue
+    read PID < $f;
+    kill $PID;
 done

@@ -100,7 +100,8 @@ if [ -z "$ip" ]; then
     do_dhcp;
 else
     # spin through the kernel command line, looking for ip= lines
-    for p in $(cat /proc/cmdline); do
+    [ "$CMDLINE" ] || read CMDLINE </proc/cmdline;
+    for p in $CMDLINE; do
 	[ -n "${p%ip=*}" ] && continue
 	ip_to_var ${p#ip=}
 	

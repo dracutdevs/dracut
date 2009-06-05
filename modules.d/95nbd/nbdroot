@@ -71,17 +71,7 @@ getarg ro && nbdrw=ro
 getarg rw && nbdrw=rw
 fsopts=${fsopts+$fsopts,}${nbdrw}
 
-if [ ! -e /tmp/nbd.present ]; then
-    cat /proc/devices | while read t1 devt; do
-	if [ "$devt" = "nbd" ]; then
-	    >/tmp/nfs.present
-	    break
-	fi
-    done
-fi
-if [ ! -e /tmp/nbd.present ]; then
-    modprobe nbd || exit 1
-fi
+incol2 /proc/devices nbd || modprobe nbd || exit 1
 
 # XXX better way to wait for the device to be made?
 i=0
