@@ -47,7 +47,7 @@ while (($# > 0)); do
 	-o|--omit) omit_dracutmodules_l="$2"; shift;;
 	-d|--drivers) drivers_l="$2"; shift;;
 	-h|--help) usage; exit 1 ;;
-	--debug) debug="yes"; set -x;;
+	--debug) debug="yes";;
 	-v|--verbose) beverbose="yes";;
 	-c|--conf) conffile="$2"; shift;;
 	-l|--local) allowlocal="yes" ;;
@@ -58,6 +58,11 @@ while (($# > 0)); do
     esac
     shift
 done
+
+[[ $debug ]] && { 
+    export PS4='${BASH_SOURCE}@${LINENO}(${FUNCNAME[0]}): ';
+    set -x
+}
 
 # if we were not passed a config file, try the default one
 [[ ! -f $conffile ]] && conffile="/etc/dracut.conf"
