@@ -1,9 +1,11 @@
 #!/bin/bash
 TEST_DESCRIPTION="root filesystem on an encrypted LVM PV"
 
+KVERSION=${KVERSION-$(uname -r)}
+
 test_run() {
     $testdir/run-qemu -hda root.ext2 -m 512M -nographic \
-	-net none -kernel /boot/vmlinuz-$(uname -r) \
+	-net none -kernel /boot/vmlinuz-$KVERSION \
 	-append "root=/dev/dracut/root rw quiet console=ttyS0,115200n81" \
 	-initrd initramfs.testing
     grep -m 1 -q dracut-root-block-success root.ext2 || return 1
@@ -13,7 +15,7 @@ test_setup() {
     # Create the blank file to use as a root filesystem
     dd if=/dev/zero of=root.ext2 bs=1M count=20
 
-    kernel=$(uname -r)
+    kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
 	initdir=overlay/source
@@ -42,7 +44,7 @@ test_setup() {
     $basedir/dracut -l -i overlay / \
 	-m "dash crypt lvm mdraid udev-rules base rootfs-block" \
 	-d "ata_piix ext2 sd_mod" \
-	-f initramfs.makeroot || return 1
+	-f initramfs.makeroot $KVERSION || return 1
     rm -rf overlay
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     $testdir/run-qemu -hda root.ext2 -m 512M -nographic -net none \
@@ -60,7 +62,7 @@ test_setup() {
     sudo $basedir/dracut -l -i overlay / \
 	-m "dash crypt lvm mdraid udev-rules base rootfs-block" \
 	-d "ata_piix ext2 sd_mod" \
-	-f initramfs.testing || return 1
+	-f initramfs.testing $KVERSION || return 1
 }
 
 test_cleanup() {
