@@ -2,6 +2,7 @@
 dracut_install rpcbind rpc.statd mount.nfs mount.nfs4 umount 
 dracut_install /etc/netconfig /etc/passwd /etc/services
 dracut_install rpc.idmapd /etc/idmapd.conf
+dracut_install grep
 
 instmods nfs sunrpc
 inst_hook cmdline 90 "$moddir/parse-nfsroot.sh"
