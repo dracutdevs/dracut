@@ -99,8 +99,8 @@ test_setup() {
     )
 
     # Make client root inside server root
-    initdir=mnt/client
-    mkdir $initdir
+    initdir=mnt/nfs/client
+    mkdir -p $initdir
 
     (
 	. $basedir/dracut-functions
