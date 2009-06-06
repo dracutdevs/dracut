@@ -1,27 +1,33 @@
 while (($# > 0)); do
     case $1 in
         --run) 
-	    echo "TEST RUN: $TEST_DESCRIPTION";
-	    test_run;
+	    echo "TEST RUN: $TEST_DESCRIPTION"
+	    test_run
 	    exit $?;;
         --setup) 
-	    echo "TEST SETUP: $TEST_DESCRIPTION";
-	    test_setup;
+	    echo "TEST SETUP: $TEST_DESCRIPTION"
+	    test_setup
 	    exit $?;;
         --clean) 
-	    echo "TEST CLEANUP: $TEST_DESCRIPTION";
-	    test_cleanup;
+	    echo "TEST CLEANUP: $TEST_DESCRIPTION"
+	    test_cleanup
 	    exit $?;;
         --all) 
 	    echo -n "TEST: $TEST_DESCRIPTION ";
-	    { test_setup && test_run && test_cleanup; } </dev/null >test.log 2>&1;
-	    ret=$?;
+	    (
+		test_setup && test_run
+		ret=$?
+		test_cleanup
+		exit $ret
+	    ) </dev/null >test.log 2>&1
+	    ret=$?
 	    if [ $ret -eq 0 ]; then
-               rm test.log;
-	       echo "[OK]";
+               rm test.log
+	       echo "[OK]"
 	    else
-	       echo "[FAILED] see $(pwd)/test.log";
-	    fi;
+	       echo "[FAILED]"
+	       echo "see $(pwd)/test.log"
+	    fi
 	    exit $ret;;
         *) break ;;
     esac
