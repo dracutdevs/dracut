@@ -13,7 +13,8 @@ modprobe nfsd
 exportfs -r
 rpc.nfsd
 rpc.mountd
-/usr/sbin/dnsmasq
+>/var/lib/dhcpd/dhcpd.leases
+dhcpd
 #sh -i
 # Wait forever for the VM to die
 while sleep 60; do sleep 60; done

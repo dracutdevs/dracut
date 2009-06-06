@@ -71,34 +71,18 @@ test_setup() {
 	. $basedir/dracut-functions
 	dracut_install sh ls shutdown poweroff stty cat ps ln ip \
 	    /lib/terminfo/l/linux dmesg mkdir cp ping exportfs \
-	    rpcbind modprobe rpc.nfsd rpc.mountd dnsmasq showmount tcpdump \
+	    rpcbind modprobe rpc.nfsd rpc.mountd dhcpd showmount tcpdump \
 	    /etc/netconfig /etc/services sleep
 	instmods nfsd sunrpc
 	inst ./server-init /sbin/init
+	inst ./hosts /etc/hosts
+	inst ./exports /etc/exports
+	inst ./dhcpd.conf /etc/dhcpd.conf
 	(
 	    cd "$initdir";
-	    mkdir -p dev sys proc etc var/run tmp var/lib/{dnsmasq,rpcbind,nfs}
+	    mkdir -p dev sys proc etc var/run tmp var/lib/{dhcpd,rpcbind,nfs}
 	    mkdir -p var/lib/nfs/v4recovery
 	    chmod 777 var/lib/rpcbind var/lib/nfs
-
-	    cat > etc/hosts <<EOF 
-127.0.0.1                localhost
-192.168.50.1          server
-192.168.50.100        workstation1
-192.168.50.101        workstation2
-192.168.50.102        workstation3
-192.168.50.103        workstation4
-EOF
-	    cat > etc/dnsmasq.conf <<EOF
-expand-hosts
-domain=test.net
-dhcp-range=192.168.50.100,192.168.50.150,168h
-dhcp-option=17,"192.168.50.1:/client"
-EOF
-            cat > etc/exports <<EOF
-/	192.168.50.0/24(ro,fsid=0,insecure,no_subtree_check,no_root_squash)
-/client	192.168.50.0/24(ro,insecure,no_subtree_check,no_root_squash)
-EOF
 	)
 	inst /etc/nsswitch.conf /etc/nsswitch.conf
 	inst /etc/passwd /etc/passwd
