@@ -16,6 +16,9 @@ run_server() {
 	-initrd initramfs.server -pidfile server.pid -daemonize || return 1
     sudo chmod 644 server.pid || return 1
 
+    # Cleanup the terminal if we have one
+    tty -s && stty sane
+
     echo Sleeping 10 seconds to give the server a head start
     sleep 10
 }
