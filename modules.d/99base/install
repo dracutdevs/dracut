@@ -14,4 +14,5 @@ else
     inst "$moddir/switch_root" "/sbin/switch_root"
 fi
 inst "$moddir/dracut-lib" "/lib/dracut-lib"
+inst_hook cmdline 10 "$moddir/parse-root-opts.sh"
 inst_hook pre-pivot 50 "$moddir/selinux-loadpolicy.sh"
