@@ -31,7 +31,8 @@ client_test() {
     local mac=$2
     local cmdline="$3"
     local server="$4"
-    local nfsinfo
+    local check_opt="$5"
+    local nfsinfo opts found expected
 
     echo "CLIENT TEST START: $test_name"
 
@@ -57,9 +58,37 @@ client_test() {
     nfsinfo=($(awk '{print $2, $3, $4; exit}' client.img)) 
 
     if [[ "${nfsinfo[0]%%:*}" != "$server" ]]; then
-	echo "CLIENT TEST INFO: $test_name got: ${nfsinfo[0]%%:*}"
-	echo "CLIENT TEST INFO: $test_name expected: $server"
+	echo "CLIENT TEST INFO: got server: ${nfsinfo[0]%%:*}"
+	echo "CLIENT TEST INFO: expected server: $server"
 	echo "CLIENT TEST END: $test_name [FAILED - WRONG SERVER]"
+	return 1
+    fi
+
+    found=0
+    expected=1
+    if [[ ${check_opt:0:1} == '-' ]]; then
+	expected=0
+	check_opt=${check_opt:1}
+    fi
+	
+    opts=${nfsinfo[2]},
+    while [[ $opts ]]; do
+	if [[ ${opts%%,*} == $check_opt ]]; then
+	    found=1
+	    break
+	fi
+	opts=${opts#*,}
+    done
+
+    if [[ $found -ne $expected ]]; then
+	echo "CLIENT TEST INFO: got options: ${nfsinfo[2]%%:*}"
+	if [[ $expected -eq 0 ]]; then
+		echo "CLIENT TEST INFO: did not expect: $check_opt"
+		echo "CLIENT TEST END: $test_name [FAILED - UNEXPECTED OPTION]"
+	else
+		echo "CLIENT TEST INFO: missing: $check_opt"
+		echo "CLIENT TEST END: $test_name [FAILED - MISSING OPTION]"
+	fi
 	return 1
     fi
 
@@ -74,44 +103,50 @@ test_run() {
     fi
 
     client_test "NFSv3 root=dhcp DHCP path only" 52:54:00:12:34:00 \
-	"root=dhcp" 192.168.50.1 || return 1
+	"root=dhcp" 192.168.50.1 -wsize=4096 || return 1
 
     client_test "NFSv3 root=nfs DHCP path only" 52:54:00:12:34:00 \
-	"root=nfs" 192.168.50.1 || return 1
+	"root=nfs" 192.168.50.1 -wsize=4096 || return 1
 
     client_test "NFSv3 root=/dev/nfs DHCP path only" 52:54:00:12:34:00 \
-	"root=/dev/nfs" 192.168.50.1 || return 1
+	"root=/dev/nfs" 192.168.50.1 -wsize=4096 || return 1
 
     client_test "NFSv3 root=dhcp DHCP IP:path" 52:54:00:12:34:01 \
-	"root=dhcp" 192.168.50.2 || return 1
+	"root=dhcp" 192.168.50.2 -wsize=4096 || return 1
 
     client_test "NFSv3 root=nfs DHCP IP:path" 52:54:00:12:34:01 \
-	"root=nfs" 192.168.50.2 || return 1
+	"root=nfs" 192.168.50.2 -wsize=4096 || return 1
 
     client_test "NFSv3 root=/dev/nfs DHCP IP:path" 52:54:00:12:34:01 \
-	"root=/dev/nfs" 192.168.50.2 || return 1
+	"root=/dev/nfs" 192.168.50.2 -wsize=4096 || return 1
 
     client_test "NFSv3 root=dhcp DHCP proto:IP:path" 52:54:00:12:34:02 \
-	"root=dhcp" 192.168.50.3 || return 1
+	"root=dhcp" 192.168.50.3 -wsize=4096 || return 1
+
+    client_test "NFSv3 root=dhcp DHCP proto:IP:path:options" 52:54:00:12:34:06 \
+	"root=dhcp" 192.168.50.3 wsize=4096 || return 1
 
     # There is a mandatory 90 second recovery when starting the NFSv4
     # server, so put these later in the list to avoid a pause when doing
     # switch_root
 
     client_test "NFSv4 root=nfs4 DHCP path only" 52:54:00:12:34:03 \
-	"root=nfs4" 192.168.50.1 || return 1
+	"root=nfs4" 192.168.50.1 -wsize=4096 || return 1
 
     client_test "NFSv4 root=/dev/nfs4 DHCP path only" 52:54:00:12:34:03 \
-	"root=/dev/nfs4" 192.168.50.1 || return 1
+	"root=/dev/nfs4" 192.168.50.1 -wsize=4096 || return 1
 
     client_test "NFSv4 root=nfs4 DHCP IP:path" 52:54:00:12:34:04 \
-	"root=nfs4" 192.168.50.2 || return 1
+	"root=nfs4" 192.168.50.2 -wsize=4096 || return 1
 
     client_test "NFSv4 root=/dev/nfs4 DHCP IP:path" 52:54:00:12:34:04 \
-	"root=/dev/nfs4" 192.168.50.2 || return 1
+	"root=/dev/nfs4" 192.168.50.2 -wsize=4096 || return 1
 
     client_test "NFSv4 root=dhcp DHCP proto:IP:path" 52:54:00:12:34:05 \
-	"root=dhcp" 192.168.50.3 || return 1
+	"root=dhcp" 192.168.50.3 -wsize=4096 || return 1
+
+    client_test "NFSv4 root=dhcp DHCP proto:IP:path:options" 52:54:00:12:34:07 \
+	"root=dhcp" 192.168.50.3 wsize=4096 || return 1
 }
 
 test_setup() {
