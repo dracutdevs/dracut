@@ -137,6 +137,15 @@ test_nfsv3() {
     client_test "NFSv3 root=nfs nfsroot=/nfs/client" 52:54:00:12:34:04 \
 	"root=nfs nfsroot=/nfs/client" 192.168.50.1 -wsize=4096 || return 1
 
+    client_test "NFSv3 root=nfs nfsroot=/nfs/%s" 52:54:00:12:34:04 \
+	"root=nfs nfsroot=/nfs/%s" 192.168.50.1 -wsize=4096 || return 1
+
+    client_test "NFSv3 root=nfs nfsroot=/nfs/ip/%s no host name (use IP)" \
+	52:54:00:12:34:7f \
+	"root=nfs nfsroot=/nfs/ip/%s \
+		ip=192.168.50.101:192.168.50.1::255.255.255.0::eth0:static" \
+	192.168.50.1 -wsize=4096 || return 1
+
     client_test "NFSv3 root=nfs nfsroot=/nfs/client,wsize=4096" \
 	52:54:00:12:34:04 "root=nfs nfsroot=/nfs/client,wsize=4096" \
 	192.168.50.1 wsize=4096 || return 1
@@ -184,6 +193,11 @@ test_nfsv4() {
     client_test "NFSv4 root=nfs4 nfsroot=path,opts" \
 	52:54:00:12:34:84 "root=nfs4 nfsroot=/client,wsize=4096" \
 	192.168.50.1 wsize=4096 || return 1
+
+    # This one only works with NFSv4 in the test suite -- NFSv3 needs
+    # a /nfs prefix due to our server configuration
+    client_test "NFSv4 root=nfs4" 52:54:00:12:34:84 \
+	"root=nfs4" 192.168.50.1 -wsize=4096 || return 1
 
     client_test "NFSv4 root=nfs4 DHCP path,options" \
 	52:54:00:12:34:85 "root=nfs4" 192.168.50.1 wsize=4096 || return 1
@@ -266,6 +280,10 @@ test_setup() {
 
 	ldconfig -n -r "$initdir" /lib* /usr/lib*
     )
+
+    mkdir -p mnt/nfs/nfs3-5
+    mkdir -p mnt/nfs/ip/192.168.50.101
+    mkdir -p mnt/nfs/tftpboot/nfs4-5
 
     sudo umount mnt
     rm -fr mnt

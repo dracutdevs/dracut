@@ -21,6 +21,20 @@ nfsserver=${root%%:*}; root=${root#*:}
 nfspath=${root%%:*}
 flags=${root#*:}
 
+[ -z "$nfspath" ] && nfspath=/tftpboot/%s
+
+# Kernel replaces first %s with host name, and falls back to the ip address
+# if it isn't set. Only the first %s is substituted.
+#
+if [ "${nfspath#*%s}" != "$nfspath" ]; then
+    ip=$(ip -o -f inet addr show $netif)
+    ip=${ip%%/*}
+    ip=${ip##* }
+    read node < /proc/sys/kernel/hostname
+    [ "$node" = "(none)" ] && node=$ip
+    nfspath=${nfspath%%%s*}$node${nfspath#*%s}
+fi
+
 # look through the flags and see if any are overridden by the command line
 # Append a , so we know we terminate
 flags=${flags},

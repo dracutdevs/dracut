@@ -34,6 +34,7 @@ if [ "$root" = "dhcp" -o "$root" = "nfs" -o "$root" = "nfs4" ]; then
 	if check_occurances "$new_root_path" ':' 0; then
 	    root="$nfsver::$new_root_path:"
 	fi ;;
+    '') root="$nfsver:::" ;;
     esac
 fi
 
