@@ -30,6 +30,8 @@ client_test() {
     local test_name="$1"
     local mac=$2
     local cmdline="$3"
+    local server="$4"
+    local nfsinfo
 
     echo "CLIENT TEST START: $test_name"
 
@@ -46,13 +48,23 @@ client_test() {
 	-append "$cmdline $DEBUGFAIL ro quiet console=ttyS0,115200n81" \
 	-initrd initramfs.testing
 
-    if [[ $? -eq 0 ]] && grep -m 1 -q nfs-OK client.img; then
-	echo "CLIENT TEST END: $test_name [OK]"
-	return 0
-    else
-	echo "CLIENT TEST END: $test_name [FAILED]"
+    if [[ $? -ne 0 ]] || ! grep -m 1 -q nfs-OK client.img; then
+	echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
 	return 1
     fi
+
+    # nfsinfo=( server:/path nfs{,4} options )
+    nfsinfo=($(awk '{print $2, $3, $4; exit}' client.img)) 
+
+    if [[ "${nfsinfo[0]%%:*}" != "$server" ]]; then
+	echo "CLIENT TEST INFO: $test_name got: ${nfsinfo[0]%%:*}"
+	echo "CLIENT TEST INFO: $test_name expected: $server"
+	echo "CLIENT TEST END: $test_name [FAILED - WRONG SERVER]"
+	return 1
+    fi
+
+    echo "CLIENT TEST END: $test_name [OK]"
+    return 0
 }
 
 test_run() {
@@ -62,44 +74,44 @@ test_run() {
     fi
 
     client_test "NFSv3 root=dhcp DHCP path only" 52:54:00:12:34:00 \
-	"root=dhcp" || return 1
+	"root=dhcp" 192.168.50.1 || return 1
 
     client_test "NFSv3 root=nfs DHCP path only" 52:54:00:12:34:00 \
-	"root=nfs" || return 1
+	"root=nfs" 192.168.50.1 || return 1
 
     client_test "NFSv3 root=/dev/nfs DHCP path only" 52:54:00:12:34:00 \
-	"root=/dev/nfs" || return 1
+	"root=/dev/nfs" 192.168.50.1 || return 1
 
     client_test "NFSv3 root=dhcp DHCP IP:path" 52:54:00:12:34:01 \
-	"root=dhcp" || return 1
+	"root=dhcp" 192.168.50.2 || return 1
 
     client_test "NFSv3 root=nfs DHCP IP:path" 52:54:00:12:34:01 \
-	"root=nfs" || return 1
+	"root=nfs" 192.168.50.2 || return 1
 
     client_test "NFSv3 root=/dev/nfs DHCP IP:path" 52:54:00:12:34:01 \
-	"root=/dev/nfs" || return 1
+	"root=/dev/nfs" 192.168.50.2 || return 1
 
     client_test "NFSv3 root=dhcp DHCP proto:IP:path" 52:54:00:12:34:02 \
-	"root=dhcp" || return 1
+	"root=dhcp" 192.168.50.3 || return 1
 
     # There is a mandatory 90 second recovery when starting the NFSv4
     # server, so put these later in the list to avoid a pause when doing
     # switch_root
 
     client_test "NFSv4 root=nfs4 DHCP path only" 52:54:00:12:34:03 \
-	"root=nfs4" || return 1
+	"root=nfs4" 192.168.50.1 || return 1
 
     client_test "NFSv4 root=/dev/nfs4 DHCP path only" 52:54:00:12:34:03 \
-	"root=/dev/nfs4" || return 1
+	"root=/dev/nfs4" 192.168.50.1 || return 1
 
     client_test "NFSv4 root=nfs4 DHCP IP:path" 52:54:00:12:34:04 \
-	"root=nfs4" || return 1
+	"root=nfs4" 192.168.50.2 || return 1
 
     client_test "NFSv4 root=/dev/nfs4 DHCP IP:path" 52:54:00:12:34:04 \
-	"root=/dev/nfs4" || return 1
+	"root=/dev/nfs4" 192.168.50.2 || return 1
 
     client_test "NFSv4 root=dhcp DHCP proto:IP:path" 52:54:00:12:34:05 \
-	"root=dhcp" || return 1
+	"root=dhcp" 192.168.50.3 || return 1
 }
 
 test_setup() {
