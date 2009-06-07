@@ -133,6 +133,7 @@ for x in "$@"; do
     [ "${x%%=*}" = "rdinitdebug" ] && continue
     [ "${x%%=*}" = "rdudevinfo" ] && continue
     [ "${x%%=*}" = "rdudevdebug" ] && continue
+    [ "${x%%=*}" = "rdnetdebug" ] && continue
     initargs="$initargs $x"
 done
 exec switch_root "$NEWROOT" "$INIT" $initargs || {
