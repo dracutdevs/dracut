@@ -96,12 +96,7 @@ client_test() {
     return 0
 }
 
-test_run() {
-    if ! run_server; then
-	echo "Failed to start server" 1>&2
-	return 1
-    fi
-
+test_nfsv3() {
     # MAC numbering scheme:
     # NFSv3: last octect starts at 0x00 and works up
     # NFSv4: last octect starts at 0x80 and works up
@@ -154,7 +149,9 @@ test_run() {
 
     client_test "NFSv3 root=dhcp DHCP proto:IP:path,options" \
 	52:54:00:12:34:07 "root=dhcp" 192.168.50.3 wsize=4096 || return 1
+}
 
+test_nfsv4() {
     # There is a mandatory 90 second recovery when starting the NFSv4
     # server, so put these later in the list to avoid a pause when doing
     # switch_root
@@ -196,6 +193,16 @@ test_run() {
 
     client_test "NFSv4 root=dhcp DHCP proto:IP:path,options" \
 	52:54:00:12:34:87 "root=dhcp" 192.168.50.3 wsize=4096 || return 1
+}
+
+test_run() {
+    if ! run_server; then
+	echo "Failed to start server" 1>&2
+	return 1
+    fi
+
+    test_nfsv3 || return 1
+    test_nfsv4
 }
 
 test_setup() {
