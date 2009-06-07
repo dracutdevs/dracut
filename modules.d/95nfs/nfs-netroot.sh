@@ -14,12 +14,20 @@ if [ "$root" = "dhcp" -o "$root" = "nfs" -o "$root" = "nfs4" ]; then
 	if check_occurances "$new_root_path" ':' 2; then
 	    root="$nfsver:$new_root_path"
 	fi ;;
+    *:/*,*)
+	if check_occurances "$new_root_path" ':' 1; then
+	    root="$nfsver:$new_root_path"
+	fi ;;
     *:/*)
 	if check_occurances "$new_root_path" ':' 1; then
 	    root="$nfsver:$new_root_path:"
 	fi ;;
     /*:*)
 	if check_occurances "$new_root_path" ':' 1; then
+	    root="$nfsver::$new_root_path"
+	fi ;;
+    /*,*)
+	if check_occurances "$new_root_path" ':' 0; then
 	    root="$nfsver::$new_root_path"
 	fi ;;
     /*)
@@ -40,6 +48,14 @@ if [ -z "${root%%nfs:*}" -o -z "${root%%nfs4:*}" ]; then
     if [ -z "$nfsserver" -o "$nfsserver" = "$nfspath" ]; then
 	nfsserver=$new_dhcp_server_identifier
     fi
+
+    # Handle alternate syntax of path,options
+    if [ "$nfsflags" = "$nfspath" -a "${root#*,}" != "$root" ]; then
+	nfspath=${root%%,*}
+	nfsflags=${root#*,}
+    fi
+
+    # Catch the case when no additional flags are set
     if [ "$nfspath" = "$nfsflags" ]; then
 	unset nfsflags
     fi
