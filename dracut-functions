@@ -107,11 +107,13 @@ inst_binary() {
 	    derror "dracut cannot create an initrd."
 	    exit 1
 	fi
-	[[ $line =~ ([^ ]*/lib[^/]*/[^ ]*\.so[^ ]*) ]] || continue
+	so_regex='([^ ]*/lib[^/]*/[^ ]*\.so[^ ]*)'
+	[[ $line =~ $so_regex ]] || continue
 	FILE=${BASH_REMATCH[1]}
 	[[ -f ${initdir}$FILE ]] && continue
 	# see if we are loading an optimized version of a shared lib.
-	if [[ $FILE =~ ^(/lib[^/]*).* ]]; then
+	lib_regex='^(/lib[^/]*).*'
+	if [[ $FILE =~ $lib_regex ]]; then
             TLIBDIR=${BASH_REMATCH[1]}
             BASE="${FILE##*/}"
 	    # prefer nosegneg libs, then unoptimized ones.
@@ -137,7 +139,8 @@ inst_script() {
     read -r -n 80 line <"$1"
     # If debug is set, clean unprintable chars to prevent messing up the term
     [[ $debug ]] && line=$(echo -n "$line" | tr -c -d '[:print:][:space:]')
-    [[ $line =~ (#! *)(/[^ ]+).* ]] || return 1
+    shebang_regex='(#! *)(/[^ ]+).*'
+    [[ $line =~ $shebang_regex ]] || return 1
     inst "${BASH_REMATCH[2]}" && inst_simple "$@"
 }
 
