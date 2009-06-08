@@ -1,0 +1,10 @@
+#!/bin/sh
+exec >/dev/console 2>&1
+echo "nbd-OK" >/dev/sda
+export TERM=linux
+export PS1='nbdclient-test:\w\$ '
+stty sane
+echo "made it to the rootfs! Powering down."
+#sh -i
+mount -n -o remount,ro / &> /dev/null
+poweroff -f
