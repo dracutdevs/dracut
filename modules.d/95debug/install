@@ -1,2 +1,3 @@
 #!/bin/bash
-dracut_install ln ps grep more dmesg cat rm
+dracut_install ln ps grep more dmesg cat rm strace free showmount
+dracut_install ping netstat rpcinfo
