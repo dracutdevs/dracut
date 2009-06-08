@@ -22,7 +22,7 @@ exportfs -r
 rpc.nfsd
 rpc.mountd
 >/var/lib/dhcpd/dhcpd.leases
-dhcpd
+dhcpd -cf /etc/dhcpd.conf
 #sh -i
 # Wait forever for the VM to die
 while sleep 60; do sleep 60; done
