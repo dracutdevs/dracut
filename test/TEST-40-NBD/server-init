@@ -10,7 +10,7 @@ ip addr add 192.168.50.1/24 dev eth0
 ip link set eth0 up
 nbd-server 2000 /dev/sdb -C /dev/null
 >/var/lib/dhcpd/dhcpd.leases
-dhcpd
+dhcpd -cf /etc/dhcpd.conf
 sh -i
 # Wait forever for the VM to die
 while sleep 60; do sleep 60; done
