@@ -1,6 +1,9 @@
 pid=$(pidof rpc.statd)
 [ -n "$pid" ] && kill $pid
 
+pid=$(pidof rpc.idmapd)
+[ -n "$pid" ] && kill $pid
+
 pid=$(pidof rpcbind)
 [ -n "$pid" ] && kill $pid
 

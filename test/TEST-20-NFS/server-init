@@ -21,10 +21,13 @@ mount -t nfsd nfsd /proc/fs/nfsd
 exportfs -r
 rpc.nfsd
 rpc.mountd
+rpc.idmapd
+exportfs -r
 >/var/lib/dhcpd/dhcpd.leases
 dhcpd -cf /etc/dhcpd.conf
 #sh -i
 # Wait forever for the VM to die
+echo "Serving NFS mounts"
 while sleep 60; do sleep 60; done
 mount -n -o remount,ro /
 poweroff -f

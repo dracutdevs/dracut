@@ -228,7 +228,7 @@ test_run() {
 
 test_setup() {
     # Make server root
-    dd if=/dev/zero of=server.ext2 bs=1M count=30
+    dd if=/dev/zero of=server.ext2 bs=1M count=60
     mke2fs -F server.ext2
     mkdir mnt
     sudo mount -o loop server.ext2 mnt
@@ -241,11 +241,21 @@ test_setup() {
 	    /lib/terminfo/l/linux dmesg mkdir cp ping exportfs \
 	    rpcbind modprobe rpc.nfsd rpc.mountd dhcpd showmount tcpdump \
 	    /etc/netconfig /etc/services sleep mount
-	instmods nfsd sunrpc
+	instmods nfsd sunrpc ipv6
 	inst ./server-init /sbin/init
 	inst ./hosts /etc/hosts
 	inst ./exports /etc/exports
 	inst ./dhcpd.conf /etc/dhcpd.conf
+	dracut_install /etc/nsswitch.conf /etc/rpc /etc/protocols
+	dracut_install rpc.idmapd /etc/idmapd.conf
+	if ldd $(which rpc.idmapd) |grep -q lib64; then
+	    LIBDIR="/lib64"
+	else
+	    LIBDIR="/lib"
+	fi
+
+	dracut_install $(ls {/usr,}$LIBDIR/libnfsidmap*.so* 2>/dev/null )
+	dracut_install $(ls {/usr,}$LIBDIR/libnss*.so 2>/dev/null)
 	(
 	    cd "$initdir";
 	    mkdir -p dev sys proc etc var/run tmp var/lib/{dhcpd,rpcbind}

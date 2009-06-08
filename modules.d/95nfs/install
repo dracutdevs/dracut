@@ -1,10 +1,19 @@
 #!/bin/sh
 dracut_install rpcbind rpc.statd mount.nfs mount.nfs4 umount 
-dracut_install /etc/netconfig /etc/passwd /etc/services
+dracut_install /etc/netconfig /etc/passwd /etc/services 
+dracut_install /etc/nsswitch.conf /etc/rpc /etc/protocols
 dracut_install rpc.idmapd /etc/idmapd.conf
+if ldd $(which rpc.idmapd) |grep -q lib64; then
+    LIBDIR="/lib64"
+else
+    LIBDIR="/lib"
+fi
+
+dracut_install $(ls {/usr,}$LIBDIR/libnfsidmap*.so* 2>/dev/null )
+dracut_install $(ls {/usr,}$LIBDIR/libnss*.so 2>/dev/null)
 dracut_install grep
 
-instmods nfs sunrpc
+instmods nfs sunrpc ipv6
 inst_hook cmdline 90 "$moddir/parse-nfsroot.sh"
 inst_hook netroot 90 "$moddir/nfs-netroot.sh"
 inst_hook pre-pivot 70 "$moddir/nfsroot-cleanup.sh"
