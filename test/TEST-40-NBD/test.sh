@@ -4,11 +4,11 @@ TEST_DESCRIPTION="root filesystem on NBD"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-#DEBUGFAIL="rdinitdebug rdnetdebug rdbreak"
+#DEBUGFAIL="rdinitdebug rdnetdebug"
 
 run_server() {
     # Start server first
-    echo "NBD TEST SETUP: Starting DHCP/NFS server"
+    echo "NBD TEST SETUP: Starting DHCP/NBD server"
 
     $testdir/run-qemu -hda server.ext2 -hdb nbd.ext2 -m 512M -nographic \
 	-net nic,macaddr=52:54:00:12:34:56,model=e1000 \
