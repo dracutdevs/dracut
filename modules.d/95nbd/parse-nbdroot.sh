@@ -34,7 +34,7 @@ case "$root" in
     nbd:*,*)
 	if check_occurances "$root" ',' 1 && check_occurances "$root" ':' 1;
 	then
-	    root=${root%*,}:${root#*,}
+	    root=${root%,*}:${root#*,}
 	fi
 	;;
 esac
