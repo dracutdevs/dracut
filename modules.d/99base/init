@@ -134,8 +134,18 @@ for x in "$@"; do
     [ "${x%%=*}" = "rdudevinfo" ] && continue
     [ "${x%%=*}" = "rdudevdebug" ] && continue
     [ "${x%%=*}" = "rdnetdebug" ] && continue
+    [ "${x%%=*}" = "rdcopystate" ] && continue
     initargs="$initargs $x"
 done
+
+# Copy state
+mkdir /dev/.initramfs/
+if getarg rdcopystate; then
+    cp /tmp/* /dev/.initramfs/ >/dev/null 2>&1
+else
+    cp /tmp/net.* /dev/.initramfs/ >/dev/null 2>&1
+fi
+
 exec switch_root "$NEWROOT" "$INIT" $initargs || {
     # davej doesn't like initrd bugs
     echo "Something went very badly wrong in the initrd.  Please "
