@@ -45,7 +45,7 @@ if [ -z "$rootok" -a -n "${root%%error:*}" ]; then
     root="error: No handler for root=${root}"
 fi
 
-if [ -z "${root%%error:*}" ]; then
+if [ -n "$root" -a -z "${root%%error:*}" ]; then
     case "${root%%:*}" in
        '') echo "FATAL: no root= option specified, and no network support" ;;
        error) echo "FATAL: ${root#error:}" ;;

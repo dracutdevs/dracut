@@ -3,47 +3,47 @@
 # that the number of colons match what we expect, and our glob didn't
 # inadvertently match a different handler's.
 #
-if [ "$root" = "dhcp" -o "$root" = "nfs" -o "$root" = "nfs4" ]; then
+if [ "$netroot" = "dhcp" -o "$netroot" = "nfs" -o "$netroot" = "nfs4" ]; then
     nfsver=nfs
-    if [ "$root" = "nfs4" ]; then
+    if [ "$netroot" = "nfs4" ]; then
 	nfsver=nfs4
     fi
     case "$new_root_path" in
-    nfs:*|nfs4:*) root="$new_root_path" ;;
+    nfs:*|nfs4:*) netroot="$new_root_path" ;;
     *:/*:*)
 	if check_occurances "$new_root_path" ':' 2; then
-	    root="$nfsver:$new_root_path"
+	    netroot="$nfsver:$new_root_path"
 	fi ;;
     *:/*,*)
 	if check_occurances "$new_root_path" ':' 1; then
-	    root="$nfsver:$new_root_path"
+	    netroot="$nfsver:$new_root_path"
 	fi ;;
     *:/*)
 	if check_occurances "$new_root_path" ':' 1; then
-	    root="$nfsver:$new_root_path:"
+	    netroot="$nfsver:$new_root_path:"
 	fi ;;
     /*:*)
 	if check_occurances "$new_root_path" ':' 1; then
-	    root="$nfsver::$new_root_path"
+	    netroot="$nfsver::$new_root_path"
 	fi ;;
     /*,*)
 	if check_occurances "$new_root_path" ':' 0; then
-	    root="$nfsver::$new_root_path"
+	    netroot="$nfsver::$new_root_path"
 	fi ;;
     /*)
 	if check_occurances "$new_root_path" ':' 0; then
-	    root="$nfsver::$new_root_path:"
+	    netroot="$nfsver::$new_root_path:"
 	fi ;;
-    '') root="$nfsver:::" ;;
+    '') netroot="$nfsver:::" ;;
     esac
 fi
 
-if [ -z "${root%%nfs:*}" -o -z "${root%%nfs4:*}" ]; then
+if [ -z "${netroot%%nfs:*}" -o -z "${netroot%%nfs4:*}" ]; then
     # Fill in missing information from DHCP
-    nfsver=${root%%:*}; root=${root#*:}
-    nfsserver=${root%%:*}; root=${root#*:}
-    nfspath=${root%%:*}
-    nfsflags=${root#*:}
+    nfsver=${netroot%%:*}; netroot=${netroot#*:}
+    nfsserver=${netroot%%:*}; netroot=${netroot#*:}
+    nfspath=${netroot%%:*}
+    nfsflags=${netroot#*:}
 
     # XXX where does dhclient stash the next-server option? Do we care?
     if [ -z "$nfsserver" -o "$nfsserver" = "$nfspath" ]; then
@@ -51,9 +51,9 @@ if [ -z "${root%%nfs:*}" -o -z "${root%%nfs4:*}" ]; then
     fi
 
     # Handle alternate syntax of path,options
-    if [ "$nfsflags" = "$nfspath" -a "${root#*,}" != "$root" ]; then
-	nfspath=${root%%,*}
-	nfsflags=${root#*,}
+    if [ "$nfsflags" = "$nfspath" -a "${netroot#*,}" != "$netroot" ]; then
+	nfspath=${netroot%%,*}
+	nfsflags=${netroot#*,}
     fi
 
     # Catch the case when no additional flags are set
@@ -62,6 +62,6 @@ if [ -z "${root%%nfs:*}" -o -z "${root%%nfs4:*}" ]; then
     fi
 
     # XXX validate we have all the required info?
-    root="$nfsver:$nfsserver:$nfspath:$nfsflags"
+    netroot="$nfsver:$nfsserver:$nfspath:$nfsflags"
     handler=/sbin/nfsroot
 fi

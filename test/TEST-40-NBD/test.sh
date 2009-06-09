@@ -146,6 +146,14 @@ test_run() {
 
     client_test "NBD root=dhcp DHCP root-path nbd:srv:port:fstype:fsopts" \
 	52:54:00:12:34:04 "root=dhcp" ext2 errors=panic || return 1
+
+    # netroot handling
+
+    client_test "NBD netroot=nbd:IP:port" 52:54:00:12:34:00 \
+	"netroot=nbd:192.168.50.1:2000" || return 1
+
+    client_test "NBD netroot=dhcp DHCP root-path nbd:srv:port:fstype:fsopts" \
+	52:54:00:12:34:04 "netroot=dhcp" ext2 errors=panic || return 1
 }
 
 make_client_root() {

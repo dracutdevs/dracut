@@ -2,6 +2,7 @@
 #
 # Preferred format:
 #	root=nfs[4]:[server:]path[:options]
+#	netroot=nfs[4]:[server:]path[:options]
 #
 # If server is unspecified it will be pulled from one of the following
 # sources, in order:
@@ -38,9 +39,17 @@ case "$root" in
 	;;
 esac
 
-case "$root" in
+if [ -z "$netroot" -a -n "$root" -a -z "${root%%nfs*}" ]; then
+    netroot="$root"
+    unset root
+fi
+
+case "$netroot" in
     nfs|nfs4|nfs:*|nfs4:*)
     	rootok=1
-    	netroot=nfs
+	if [ -n "$root" -a "$netroot" != "$root" ]; then
+	    echo "WARNING: root= and netroot= do not match, ignoring root="
+	fi
+	unset root
     ;;
 esac

@@ -39,9 +39,13 @@ case "$root" in
 	;;
 esac
 
-if [ "${root%%:*}" = "nbd" ]; then
+if [ -z "$netroot" -a -n "$root" -a -z "${root%%nbd:*}" ]; then
+    netroot="$root"
+    unset root
+fi
+
+if [ "${netroot%%:*}" = "nbd" ]; then
     # XXX validate options here?
     # XXX generate udev rules?
     rootok=1
-    netroot=nbd
 fi

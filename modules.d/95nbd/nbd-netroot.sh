@@ -1,9 +1,9 @@
-if [ "$root" = "dhcp" ]; then
+if [ "$netroot" = "dhcp" ]; then
     if [ -n "$new_root_path" -a -z "${new_root_path%%nbd:*}" ]; then
-	root="$new_root_path"
+	netroot="$new_root_path"
     fi
 fi
 
-if [ -z "${root%nbd:*}" ]; then
+if [ -z "${netroot%nbd:*}" ]; then
     handler=/sbin/nbdroot
 fi
