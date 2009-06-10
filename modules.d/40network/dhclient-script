@@ -75,7 +75,7 @@ case $reason in
 	setup_interface 
 	set | while read line; do
 	    [ "${line#new_}" = "$line" ] && continue
-	    echo "$line" >>/tmp/net.$netif.dhcpopts
+	    echo "$line" >>/tmp/dhclient.$netif.dhcpopts
 	done
 	>/tmp/net.$netif.up
 	echo online > /sys/class/net/$netif/uevent ;;

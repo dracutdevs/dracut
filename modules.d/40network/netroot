@@ -30,7 +30,7 @@ netif=$1
 #
 . /tmp/root.info
 . /tmp/netroot.info
-[ -e /tmp/net.$netif.dhcpopts ] && . /tmp/net.$netif.dhcpopts
+[ -e /tmp/dhclient.$netif.dhcpopts ] && . /tmp/dhclient.$netif.dhcpopts
 
 # Now, let the installed network root handlers figure this out
 #
@@ -47,6 +47,8 @@ fi
 # XXX other variables to export?
 export NEWROOT
 if $handler $netif $root; then
+    [ -f /tmp/dhclient.$netif.lease ] &&    cp /tmp/dhclient.$netif.lease    /tmp/net.$netif.lease
+    [ -f /tmp/dhclient.$netif.dhcpopts ] && cp /tmp/dhclient.$netif.dhcpopts /tmp/net.$netif.dhcpopts
     >/tmp/netroot.done
 fi
 exit 0
