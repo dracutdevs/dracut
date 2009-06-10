@@ -49,6 +49,7 @@ export NEWROOT
 if $handler $netif $root; then
     [ -f /tmp/dhclient.$netif.lease ] &&    cp /tmp/dhclient.$netif.lease    /tmp/net.$netif.lease
     [ -f /tmp/dhclient.$netif.dhcpopts ] && cp /tmp/dhclient.$netif.dhcpopts /tmp/net.$netif.dhcpopts
+    cat /sys/class/net/eth0/address > /tmp/net.$netif.hwaddr
     >/tmp/netroot.done
 fi
 exit 0
