@@ -36,7 +36,7 @@ search=$new_domain_search
 namesrv=$new_domain_name_servers
 hostname=$new_host_name
 
-[ -f /tmp/net.$interface.override ] && . /tmp/net.$interface.override
+[ -f /tmp/dhclient.$interface.override ] && . /tmp/dhclient.$interface.override
 
 # save the offending command and let udev move on if we have an error
 trap 'log_err; exit 0' EXIT

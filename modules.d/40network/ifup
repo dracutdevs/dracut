@@ -64,8 +64,8 @@ do_dhcp() {
 
     for i in ip srv gw mask hostname; do
 	eval '[ "$'$i'" ] && echo '$i'="$'$i'"'
-    done > /tmp/net.$netif.override
-    [ -n "$ip" ] && echo bcast= >> /tmp/net.$netif.override
+    done > /tmp/dhclient.$netif.override
+    [ -n "$ip" ] && echo bcast= >> /tmp/dhclient.$netif.override
 
     # /sbin/dhclient-script will mark the netif up and generate the online
     # event for nfsroot
