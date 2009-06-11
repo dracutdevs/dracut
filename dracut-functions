@@ -280,6 +280,10 @@ instmods() {
 		fi
 		;;
 	    --*) mpargs+=" $mod";;
+            i2o_scsi)
+                    # Must never run this diagnostic-only module
+                    shift; continue;
+                ;;
 	    *)  mod=${mod##*/}
 	        # if we are already installed, skip this module and go on
 	        # to the next one.
