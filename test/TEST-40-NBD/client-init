@@ -1,7 +1,8 @@
 #!/bin/sh
 exec >/dev/console 2>&1
 while read dev fs fstype opts rest; do
-    [ "$dev" != "/dev/nbd0" ] && continue
+    [ "$dev" == "rootfs" ] && continue
+    [ "$fs" != "/" ] && continue
     echo "nbd-OK $fstype $opts" >/dev/sda
     break
 done < /proc/mounts

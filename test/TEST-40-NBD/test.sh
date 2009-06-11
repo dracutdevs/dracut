@@ -10,7 +10,8 @@ run_server() {
     # Start server first
     echo "NBD TEST SETUP: Starting DHCP/NBD server"
 
-    $testdir/run-qemu -hda server.ext2 -hdb nbd.ext2 -m 512M -nographic \
+    $testdir/run-qemu -hda server.ext2 -hdb nbd.ext2 -hdc encrypted.ext2 \
+	-m 512M -nographic \
 	-net nic,macaddr=52:54:00:12:34:56,model=e1000 \
 	-net socket,mcast=230.0.0.1:1234 \
 	-serial udp:127.0.0.1:9999 \
@@ -154,6 +155,62 @@ test_run() {
 
     client_test "NBD netroot=dhcp DHCP root-path nbd:srv:port:fstype:fsopts" \
 	52:54:00:12:34:04 "netroot=dhcp" ext2 errors=panic || return 1
+
+    # Encrypted root handling via LVM/LUKS over NBD
+
+    client_test "NBD root=/dev/dracut/root netroot=nbd:IP:port" \
+	52:54:00:12:34:00 \
+	"root=/dev/dracut/root netroot=nbd:192.168.50.1:2001" || return 1
+
+    # XXX This should be ext2,errors=panic but that doesn't currently
+    # XXX work when you have a real root= line in addition to netroot=
+    # XXX How we should work here needs clarification
+    client_test "NBD root=/dev/dracut/root netroot=dhcp (w/ fstype and opts)" \
+	52:54:00:12:34:05 \
+	"root=/dev/dracut/root netroot=dhcp" || return 1
+}
+
+make_encrypted_root() {
+    # Create the blank file to use as a root filesystem
+    dd if=/dev/zero of=encrypted.ext2 bs=1M count=20
+    dd if=/dev/zero of=flag.img bs=1M count=1
+
+    kernel=$KVERSION
+    # Create what will eventually be our root filesystem onto an overlay
+    (
+	initdir=overlay/source
+	. $basedir/dracut-functions
+	dracut_install sh df free ls shutdown poweroff stty cat ps ln ip \
+	    /lib/terminfo/l/linux mount dmesg mkdir cp ping
+	inst ./client-init /sbin/init
+	find_binary plymouth >/dev/null && dracut_install plymouth
+	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
+    )
+
+    # second, install the files needed to make the root filesystem
+    (
+	initdir=overlay
+	. $basedir/dracut-functions
+	dracut_install mke2fs poweroff cp umount
+	inst_simple ./create-root.sh /pre-mount/01create-root.sh
+    )
+
+    # create an initramfs that will create the target root filesystem.
+    # We do it this way so that we do not risk trashing the host mdraid
+    # devices, volume groups, encrypted partitions, etc.
+    $basedir/dracut -l -i overlay / \
+	-m "dash crypt lvm mdraid udev-rules base rootfs-block" \
+	-d "ata_piix ext2 sd_mod" \
+	-f initramfs.makeroot $KVERSION || return 1
+    rm -rf overlay
+
+    # Invoke KVM and/or QEMU to actually create the target filesystem.
+    $testdir/run-qemu -hda flag.img -hdb encrypted.ext2 -m 512M \
+	-nographic -net none \
+	-kernel "/boot/vmlinuz-$kernel" \
+	-append "root=/dev/dracut/root rw quiet console=ttyS0,115200n81" \
+	-initrd initramfs.makeroot  || return 1
+    grep -m 1 -q dracut-root-block-created flag.img || return 1
 }
 
 make_client_root() {
@@ -222,6 +279,7 @@ make_server_root() {
 }
 
 test_setup() {
+    make_encrypted_root || return 1
     make_client_root || return 1
     make_server_root || return 1
 
@@ -231,6 +289,7 @@ test_setup() {
 	. $basedir/dracut-functions
 	dracut_install poweroff shutdown
 	inst_simple ./hard-off.sh /emergency/01hard-off.sh
+	inst ./cryptroot-ask /sbin/cryptroot-ask
     )
 
     sudo $basedir/dracut -l -i overlay / \
@@ -250,7 +309,8 @@ test_cleanup() {
 	rm -f server.pid
     fi
     rm -fr overlay mnt
-    rm -f flag.img server.ext2 nbd.ext2 initramfs.server initramfs.testing
+    rm -f flag.img server.ext2 nbd.ext2 encrypted.ext2
+    rm -f initramfs.server initramfs.testing initramfs.makeroot
 }
 
 . $testdir/test-functions
