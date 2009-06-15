@@ -68,7 +68,7 @@ client_test() {
 
     opts=${nbdinfo[1]},
     while [[ $opts ]]; do
-	if [[ ${opts%%,*} == $fsopt ]]; then
+	if [[ ${opts%%,*} = $fsopt ]]; then
 	    found=1
 	    break
 	fi

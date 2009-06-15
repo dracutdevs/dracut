@@ -66,14 +66,14 @@ client_test() {
 
     found=0
     expected=1
-    if [[ ${check_opt:0:1} == '-' ]]; then
+    if [[ ${check_opt:0:1} = '-' ]]; then
 	expected=0
 	check_opt=${check_opt:1}
     fi
 	
     opts=${nfsinfo[2]},
     while [[ $opts ]]; do
-	if [[ ${opts%%,*} == $check_opt ]]; then
+	if [[ ${opts%%,*} = $check_opt ]]; then
 	    found=1
 	    break
 	fi
