@@ -69,7 +69,7 @@ setup_interface() {
 
 case $reason in
     PREINIT)
-	run /sbin/ip link set $netif up
+	run ip link set $netif up
 	;;
     BOUND)
 	setup_interface 
