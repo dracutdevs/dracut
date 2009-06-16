@@ -47,10 +47,9 @@ fi
 
 if [ -n "$root" -a -z "${root%%error:*}" ]; then
     case "${root%%:*}" in
-       '') echo "FATAL: no root= option specified, and no network support" ;;
-       error) echo "FATAL: ${root#error:}" ;;
+       '') die "No root= option specified, and no network support" ;;
+       error) die "${root#error:}" ;;
     esac
-    emergency_shell
 fi
 
 # Network root scripts may need updated root= options,
