@@ -23,22 +23,16 @@ getarg rdnetdebug && {
     exit 1
 }
 
+# There's no sense in doing something if no (net)root info is available
+# or root is already there
+[ -e /tmp/root.info ] || exit 1
+. /tmp/root.info
+[ -d $NEWROOT/proc ] && exit 0
+[ -z "$netroot" ] && exit 1
+
 netif=$1
 
-# If we've already found a root, or we don't have the info we need,
-# then no point in looking further
-#
-[ -e /tmp/netroot.done ] && exit 0
-[ -f /tmp/root.info ] || exit 1
-
-# Pick up our config from the command line; we may already know the
-# handler to run
-#
-. /tmp/root.info
 [ -e /tmp/dhclient.$netif.dhcpopts ] && . /tmp/dhclient.$netif.dhcpopts
-
-# Don't continue if netroot isn't needed
-[ -z "$netroot" ] && exit 0
 
 # Now, let the installed network root handlers figure this out
 #
@@ -75,6 +69,5 @@ if $handler $netif $netroot $NEWROOT; then
         #DNS2=1.2.3.5
         #GATEWAY=172.16.101.254
     fi
-    >/tmp/netroot.done
 fi
 exit 0
