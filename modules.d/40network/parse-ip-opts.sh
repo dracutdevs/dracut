@@ -26,6 +26,14 @@ ip_to_var() {
     esac
 }
 
+# Check if ip= lines should be used
+if getarg ip= >/dev/null ; then
+    if [ -z "$netroot" ] ; then
+	echo "Warning: No netboot configured, ignoring ip= lines"
+	return;
+    fi
+fi
+
 # Warn if defaulting to ip=dhcp
 if [ -n "$netroot" ] && [ -z "$(getarg ip=)" ] ; then
     warn "No ip= argument(s) for netroot provided, defaulting to DHCP"

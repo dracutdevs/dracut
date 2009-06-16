@@ -15,7 +15,7 @@ inst "$moddir/netroot" "/sbin/netroot"
 inst "$moddir/dhclient-script" "/sbin/dhclient-script"
 inst "$moddir/dhclient.conf" "/etc/dhclient.conf" 
 instmods ecb arc4
-inst_rules "$moddir/60-net.rules"
+inst_hook pre-udev 60 "$moddir/net-genrules.sh"
 inst_hook cmdline 91 "$moddir/dhcp-root.sh"
 inst_hook cmdline 99 "$moddir/parse-ip-opts.sh"
 inst_hook pre-pivot 10 "$moddir/kill-dhclient.sh"
