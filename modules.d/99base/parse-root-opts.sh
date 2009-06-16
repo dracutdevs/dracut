@@ -11,4 +11,3 @@ if [ -z "$fstype" ]; then
     fstype="auto"
 fi
 
-export fstype rflags root
