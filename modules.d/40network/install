@@ -13,7 +13,7 @@ done
 inst "$moddir/ifup" "/sbin/ifup"
 inst "$moddir/netroot" "/sbin/netroot"
 inst "$moddir/dhclient-script" "/sbin/dhclient-script"
-inst "$moddir/dhclient.conf" "/sbin/dhclient.conf" 
+inst "$moddir/dhclient.conf" "/etc/dhclient.conf" 
 instmods ecb arc4
 inst_rules "$moddir/60-net.rules"
 inst_hook cmdline 99 "$moddir/dhcp-fallback.sh"
