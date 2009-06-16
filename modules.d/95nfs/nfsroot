@@ -6,11 +6,11 @@ PATH=$PATH:/sbin:/usr/sbin
 
 # XXX needs error handling like ifup/dhclient-script
 
-getarg rdnetdebug && {
+if getarg rdnetdebug ; then 
     exec > /tmp/nfsroot.$1.$$.out
     exec 2>> /tmp/nfsroot.$1.$$.out
     set -x
-}
+fi
 
 # Huh? Empty $1?
 [ -z "$1" ] && exit 1
@@ -45,7 +45,7 @@ if [ "${nfspath#*%s}" != "$nfspath" ]; then
     nfspath=${nfspath%%%s*}$node${nfspath#*%s}
 fi
 
-# look through the flags and see if any are overridden by the command line
+# Look through the flags and see if any are overridden by the command line
 # Append a , so we know we terminate
 flags=${flags},
 while [ -n "$flags" ]; do
@@ -65,6 +65,7 @@ while [ -n "$flags" ]; do
     nfsflags=${nfsflags+$nfsflags,}$f
 done
 
+# Override rw/ro if set on cmdline
 getarg ro && nfsrw=ro
 getarg rw && nfsrw=rw
 nfsflags=${nfsflags+$nfsflags,}${nfsrw}
@@ -73,21 +74,16 @@ nfsflags=${nfsflags+$nfsflags,}${nfsrw}
 incol2 /proc/filesystems nfs  || modprobe nfs || exit 1
 incol2 /proc/filesystems nfs4 || modprobe nfs || exit 1
 
-# XXX don't forget to move /var/lib/nfs/rpc_pipefs to new /
-
 # Start rpcbind or rpcbind
-# XXX occasionally saw 'rpcbind: fork failed: No such device' -- why?
+# FIXME occasionally saw 'rpcbind: fork failed: No such device' -- why?
 [ -x /sbin/portmap ] && [ -z "$(pidof portmap)" ] && portmap
 [ -x /sbin/rpcbind ] && [ -z "$(pidof rpcbind)" ] && rpcbind
 
-# XXX should I do rpc.idmapd here, or wait and start in the new root
-# XXX waiting assumes root can read everything it needs right up until
-# XXX we start it...
-
-# XXX really, want to retry in a loop I think, but not here...
-
 if [ "$nfsver" = "nfs4" ]; then
-    [ -n "$(pidof rpc.statd)" ] || rpc.statd
+    # Start rpc.statd as mount won't let us use locks on a NFSv4
+    # filesystem without talking to it. NFSv4 does locks internally,
+    # rpc.lockd isn't needed
+    [ -z "$(pidof rpc.statd)" ] && rpc.statd
 
     # XXX really needed? Do we need non-root users before we start it in
     # XXX the real root image?
@@ -95,14 +91,15 @@ if [ "$nfsver" = "nfs4" ]; then
 	rpc.idmapd
     fi
 
-    # NFSv4 does locks internally
+    # XXX Should we loop here?
     exec mount -t nfs4 -o${nfsflags}${nfslock+,$nfslock} \
 			$nfsserver:$nfspath $NEWROOT
 fi
 
 # NFSv{2,3} doesn't support using locks as it requires a helper to transfer
 # the rpcbind state to the new root
-#
 [ -z "$nfslock" -o "$nfslock" = "lock" ] &&
-    echo "Locks unsupported on NFSv{2,3}, using nolock" 1>&2
+    echo "Warning: Locks unsupported on NFSv{2,3}, using nolock" 1>&2
+
+# XXX Should we loop here?
 exec mount -t nfs -onolock,$nfsflags $nfsserver:$nfspath $NEWROOT

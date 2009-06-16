@@ -2,11 +2,11 @@
 
 . /lib/dracut-lib
 
-getarg rdnetdebug && {
+if getarg rdnetdebug ; then
     exec >/tmp/netroot.$1.$$.out
     exec 2>>/tmp/netroot.$1.$$.out
     set -x
-}
+fi
 
 # Huh? Empty $1?
 [ -z "$1" ] && exit 1
@@ -16,12 +16,12 @@ getarg rdnetdebug && {
 
 # Only try to configure from one network interface at a time
 #
-[ "$NETROOT_LOCKED" ] || {
+if [ -z "$NETROOT_LOCKED" ] ; then
     NETROOT_LOCKED=true
     export NETROOT_LOCKED
     exec flock -xo /tmp/netroot.lock -c "$0 $*"
     exit 1
-}
+fi
 
 # There's no sense in doing something if no (net)root info is available
 # or root is already there

@@ -4,15 +4,6 @@
 
 LOG=/tmp/dhclient.$$.log
 ERR=/tmp/network.$$.err
-PATH=$PATH:/sbin:/usr/sbin
-
-. /lib/dracut-lib
-
-getarg rdnetdebug && {
-    exec >/tmp/dhclient.$interface.$$.out
-    exec 2>>/tmp/dhclient.$interface.$$.out
-    set -x
-}
 
 log_err() {
     # avoid the need for cat on the image
@@ -22,50 +13,62 @@ log_err() {
     while read line; do echo "     $line"; done < $LOG >> $ERR
 }
 
-# Catch unlikely initial errors
-trap 'echo Errors preparing to configure $netif > $ERR; exit 0' EXIT
-
-netif=$interface
-ip=$new_ip_address
-mtu=$new_interface_mtu
-mask=$new_subnet_mask
-bcast=$new_broadcast_address
-gw=${new_routers%%,*}
-domain=$new_domain_name
-search=$new_domain_search
-namesrv=$new_domain_name_servers
-hostname=$new_host_name
-
-[ -f /tmp/net.$interface.override ] && . /tmp/net.$interface.override
-
-# save the offending command and let udev move on if we have an error
-trap 'log_err; exit 0' EXIT
-
 run() {
     CMD="$@"
     "$@" >> $LOG 2>&1
 }
 
 setup_interface() {
-    [ -n "$mtu" ] && {
+    ip=$new_ip_address
+    mtu=$new_interface_mtu
+    mask=$new_subnet_mask
+    bcast=$new_broadcast_address
+    gw=${new_routers%%,*}
+    domain=$new_domain_name
+    search=$new_domain_search
+    namesrv=$new_domain_name_servers
+    hostname=$new_host_name
+
+    [ -f /tmp/net.$netif.override ] && . /tmp/net.$netif.override
+
+    if [ -n "$mtu" ] ; then
 	run ip link set $netif down
 	run ip link set $netif mtu $mtu
 	run ip link set $netif up
-    }
+    fi
 
     run ip addr add $ip${mask:+/$mask} ${bcast:+broadcast $bcast} dev $netif
     [ -n "$gw" ] && run ip route add default via $gw
-    [ -n "${search}${domain}" -a -n "$namesrv" ] && {
+    if [ -n "${search}${domain}" -a -n "$namesrv" ] ; then
 	echo search $search $domain > /etc/resolv.conf
 	for s in $namesrv; do
 	    echo nameserver $s >> /etc/resolv.conf
 	done
-    }
-    [ -e /tmp/hostname.set ] || {
+    fi
+    if [ ! -e /tmp/hostname.set ] ; then
 	[ -n "$hostname" ] && mknod /tmp/hostname.set p && run hostname $hostname
-    }
+    fi
     :
 }
+
+PATH=$PATH:/sbin:/usr/sbin
+
+. /lib/dracut-lib
+
+if getarg rdnetdebug ; then
+    exec >/tmp/dhclient.$interface.$$.out
+    exec 2>>/tmp/dhclient.$interface.$$.out
+    set -x
+fi
+
+# Huh? Interface configured?
+[ -f "/tmp/net.$netif.up" ] && exit 0
+
+# save offending commands and let udev move on if we have an error
+trap 'log_err; exit 0' EXIT
+
+# We already need a set netif here
+netif=$interface
 
 case $reason in
     PREINIT)
@@ -75,8 +78,8 @@ case $reason in
 	setup_interface 
 	set | while read line; do
 	    [ "${line#new_}" = "$line" ] && continue
-	    echo "$line" >>/tmp/dhclient.$netif.dhcpopts
-	done
+	    echo "$line" 
+	done >/tmp/dhclient.$netif.dhcpopts
 	>/tmp/net.$netif.up
 	echo online > /sys/class/net/$netif/uevent ;;
     *) ;;

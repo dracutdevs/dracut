@@ -1,34 +1,5 @@
 #!/bin/sh
 
-PATH=$PATH:/sbin:/usr/sbin
-
-. /lib/dracut-lib
-
-getarg rdnetdebug && {
-    exec >/tmp/ifup.$1.$$.out
-    exec 2>>/tmp/ifup.$1.$$.out
-    set -x
-}
-
-netif=$1
-
-# bail immediately if the interface is already up
-# or we don't need the network
-[ -f "/tmp/net.$netif.up" ] && exit 0
-[ -f "/tmp/root.info" ] || exit 0
-. /tmp/root.info
-[ -z "$netroot" ] && exit 0
-
-# loopback is always handled the same way
-[ "$netif" = "lo" ] && {
-    ip link set lo up
-    ip addr add 127.0.0.1/8 dev lo
-    >/tmp/net.$netif.up
-    exit 0
-}
-
-# XXX need error handling like dhclient-script
-
 die() {
     echo $netif: "$@" 1>&2
     exit 1
@@ -66,51 +37,63 @@ do_dhcp() {
     dhclient -1 -q -cf /etc/dhclient.conf -pf /tmp/dhclient.$netif.pid -lf /tmp/dhclient.$netif.lease $netif
 }
 
-ip_to_var() {
-    local v=${1}:
-    set --
-    while [ -n "$v" ]; do
-	set -- "$@" "${v%%:*}"
-	v=${v#*:}
-    done
+PATH=$PATH:/sbin:/usr/sbin
 
-    unset ip srv gw mask hostname dev autoconf
-    case $# in
-    0)	autoconf=off ;;
-    1)	autoconf=$1 ;;
-    2)	dev=$1; autoconf=$2 ;;
-    *)	ip=$1; srv=$2; gw=$3; mask=$4; hostname=$5; dev=$6; autoconf=$7
-	case $autoconf in
-	    ''|none|off) [ -n "$ip" ] && autoconf=static ;;
-	esac
-    esac
-    [ -n "$dev" ] || dev=$netif
-    [ -n "$autoconf" ] || autoconf=off
-}
+. /lib/dracut-lib
 
+if getarg rdnetdebug ; then
+    exec >/tmp/ifup.$1.$$.out
+    exec 2>>/tmp/ifup.$1.$$.out
+    set -x
+fi
+
+# Huh? No $1?
+[ -z "$1" ] && exit 1
+
+# $netif reads easier than $1
+netif=$1
+
+# bail immediately if the interface is already up
+# or we don't need the network
+[ -f "/tmp/net.$netif.up" ] && exit 0
+[ -f "/tmp/root.info" ] || exit 0
+. /tmp/root.info
+[ -z "$netroot" ] && exit 0
+
+# loopback is always handled the same way
+if [ "$netif" = "lo" ] ; then
+    ip link set lo up
+    ip addr add 127.0.0.1/8 dev lo
+    >/tmp/net.$netif.up
+    exit 0
+fi
+
+# XXX need error handling like dhclient-script
+
+# No ip lines default to dhcp
 ip=$(getarg ip)
-if [ -z "$ip" ]; then
-    do_dhcp;
-else
-    # spin through the kernel command line, looking for ip= lines
-    [ "$CMDLINE" ] || read CMDLINE </proc/cmdline;
-    for p in $CMDLINE; do
-	[ -n "${p%ip=*}" ] && continue
-	ip_to_var ${p#ip=}
+[ -z "$ip" ] && do_dhcp;
+
+# Specific configuration, spin through the kernel command line
+# looking for ip= lines
+[ "$CMDLINE" ] || read CMDLINE </proc/cmdline;
+for p in $CMDLINE; do
+    [ -n "${p%ip=*}" ] && continue
+    ip_to_var ${p#ip=}
 	
-        # If this option isn't directed at our interface, skip it
-	[ "$dev" = "$netif" ] || continue
+    # If this option isn't directed at our interface, skip it
+    [ "$dev" = "$netif" ] || continue
 
-        # Store config for later use
-	for i in ip srv gw mask hostname; do
-	    eval '[ "$'$i'" ] && echo '$i'="$'$i'"'
-	done > /tmp/net.$netif.override
+    # Store config for later use
+    for i in ip srv gw mask hostname; do
+	eval '[ "$'$i'" ] && echo '$i'="$'$i'"'
+    done > /tmp/net.$netif.override
 
-	case $autoconf in
-	    static)		 do_static ;;
-	    dhcp|on|any)	 do_dhcp ;;
-	    bootp|rarp|both) die "autoconfig type $autoconf is not supported" ;;
-	    ''|none|off)	 ;;
+    case $autoconf in
+	static)		 do_static ;;
+	dhcp|on|any)	 do_dhcp ;;
+	bootp|rarp|both) die "autoconfig type $autoconf is not supported" ;;
+	''|none|off)	 ;;
 	esac
 	break
     done
