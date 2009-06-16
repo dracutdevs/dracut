@@ -1,22 +1,4 @@
 #!/bin/sh -e
-# very simple dhclient-script.  All it cares about is bringing the interface
-# up, and it does not even try to do anything else.
-
-LOG=/tmp/dhclient.$$.log
-ERR=/tmp/network.$$.err
-
-log_err() {
-    # avoid the need for cat on the image
-    echo "On $netif, the following command:" > $ERR
-    echo "    " "$CMD" >> $ERR
-    echo "had errors:" >> $ERR
-    while read line; do echo "     $line"; done < $LOG >> $ERR
-}
-
-run() {
-    CMD="$@"
-    "$@" >> $LOG 2>&1
-}
 
 setup_interface() {
     ip=$new_ip_address
@@ -32,23 +14,23 @@ setup_interface() {
     [ -f /tmp/net.$netif.override ] && . /tmp/net.$netif.override
 
     if [ -n "$mtu" ] ; then
-	run ip link set $netif down
-	run ip link set $netif mtu $mtu
-	run ip link set $netif up
-    fi
+	echo ip link set $netif down
+	echo ip link set $netif mtu $mtu
+	echo ip link set $netif up
+    fi > /tmp/net.$netif.up
 
-    run ip addr add $ip${mask:+/$mask} ${bcast:+broadcast $bcast} dev $netif
-    [ -n "$gw" ] && run ip route add default via $gw
-    if [ -n "${search}${domain}" -a -n "$namesrv" ] ; then
-	echo search $search $domain > /etc/resolv.conf
+    echo ip addr add $ip${mask:+/$mask} ${bcast:+broadcast $bcast} dev $netif >> /tmp/net.$netif.up
+
+    [ -n "$gw" ] && echo ip route add default via $gw dev $netif > /tmp/net.$netif.gw
+
+    [ -n "${search}${domain}" ] && echo search $search $domain > /tmp/net.$netif.resolv.conf
+    if  [ -n "$namesrv" ] ; then
 	for s in $namesrv; do
-	    echo nameserver $s >> /etc/resolv.conf
+	    echo nameserver $s 
 	done
-    fi
-    if [ ! -e /tmp/hostname.set ] ; then
-	[ -n "$hostname" ] && mknod /tmp/hostname.set p && run hostname $hostname
-    fi
-    :
+    fi >> /tmp/net.$netif.resolv.conf
+
+    [ -n "$hostname" ] && echo hostname $hostname > /tmp/net.$netif.hostname
 }
 
 PATH=$PATH:/sbin:/usr/sbin
@@ -64,15 +46,12 @@ fi
 # Huh? Interface configured?
 [ -f "/tmp/net.$netif.up" ] && exit 0
 
-# save offending commands and let udev move on if we have an error
-trap 'log_err; exit 0' EXIT
-
 # We already need a set netif here
 netif=$interface
 
 case $reason in
     PREINIT)
-	run ip link set $netif up
+	ip link set $netif up
 	;;
     BOUND)
 	setup_interface 
@@ -80,10 +59,9 @@ case $reason in
 	    [ "${line#new_}" = "$line" ] && continue
 	    echo "$line" 
 	done >/tmp/dhclient.$netif.dhcpopts
-	>/tmp/net.$netif.up
-	echo online > /sys/class/net/$netif/uevent ;;
+	echo online > /sys/class/net/$netif/uevent
+	;;
     *) ;;
 esac
 
-trap - EXIT
 exit 0

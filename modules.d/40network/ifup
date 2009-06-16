@@ -1,40 +1,47 @@
 #!/bin/sh
+#
+# We don't need to check for ip= errors here, that is handled by the
+# cmdline parser script
+#
 
-die() {
-    echo $netif: "$@" 1>&2
-    exit 1
+# Sadly there's no easy way to split ':' separated lines into variables
+ip_to_var() {
+    local v=${1}:
+    set --
+    while [ -n "$v" ]; do
+	set -- "$@" "${v%%:*}"
+	v=${v#*:}
+    done
+
+    unset ip srv gw mask hostname dev autoconf
+    case $# in
+    0)	autoconf="error" ;;
+    1)	autoconf=$1 ;;
+    2)	dev=$1; autoconf=$2 ;;
+    *)	ip=$1; srv=$2; gw=$3; mask=$4; hostname=$5; dev=$6; autoconf=$7 ;;
+    esac
 }
 
-do_static() {
-    [ -n "$ip" ] || die "static: need IP address"
-    [ -n "$mask" ] || {
-	net=${ip%%.*}
-	mask=255.0.0.0
-	[ $net -ge 128 ] && mask=255.255.0.0
-	[ $net -ge 192 ] && mask=255.255.255.0
-    }
-    ip addr add $ip/$mask dev $netif || die "static: setting IP $ip/$mask"
-    [ -n "$gw" ] && {
-	ip route add default via $gw dev $netif ||
-	    die "static: setting default route via $gw"
-    }
-    ip link set $netif up 
-    [ -e /tmp/hostname.set ] || {
-	[ -n "$hostname" ] && mknod /tmp/hostname.set p 2>/dev/null &&
-	    hostname $hostname
-    }
-    [ -n "$srv" ] &&
-	echo "new_dhcp_server_identifier=$srv" > /tmp/dhclient.$netif.dhcpopts
-
-    >/tmp/net.$netif.up
-    echo online > /sys/class/net/$netif/uevent
-}
-
+# Run dhclient
 do_dhcp() {
     # /sbin/dhclient-script will mark the netif up and generate the online
     # event for nfsroot
     # XXX add -V vendor class and option parsing per kernel
-    dhclient -1 -q -cf /etc/dhclient.conf -pf /tmp/dhclient.$netif.pid -lf /tmp/dhclient.$netif.lease $netif
+    dhclient -1 -q -cf /sbin/dhclient.conf -pf /tmp/dhclient.$netif.pid -lf /tmp/dhclient.$netif.lease $netif
+}
+
+# Handle static ip configuration
+do_static() {
+{
+	echo ip link set $netif up 
+	echo ip addr flush dev $netif
+	echo ip addr add $ip/$mask dev $netif
+    } > /tmp/net.$netif.up
+
+    [ -n "$gw" ] && echo ip route add default via $gw dev $netif > /tmp/net.$netif.gw
+    [ -n "$hostname" ] && echo hostname $hostname > /tmp/net.$netif.hostname
+
+    echo online > /sys/class/net/$netif/uevent
 }
 
 PATH=$PATH:/sbin:/usr/sbin
@@ -82,7 +89,7 @@ for p in $CMDLINE; do
     ip_to_var ${p#ip=}
 	
     # If this option isn't directed at our interface, skip it
-    [ "$dev" = "$netif" ] || continue
+    [ -n "$dev" ] && [ "$dev" != "$netif" ] && continue
 
     # Store config for later use
     for i in ip srv gw mask hostname; do
@@ -90,12 +97,9 @@ for p in $CMDLINE; do
     done > /tmp/net.$netif.override
 
     case $autoconf in
-	static)		 do_static ;;
 	dhcp|on|any)	 do_dhcp ;;
-	bootp|rarp|both) die "autoconfig type $autoconf is not supported" ;;
-	''|none|off)	 ;;
-	esac
-	break
-    done
-fi
+        *) do_static ;;
+    esac
+    break
+done
 exit 0
