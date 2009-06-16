@@ -18,4 +18,9 @@ instmods ecb arc4
 inst_rules "$moddir/60-net.rules"
 inst_hook cmdline 99 "$moddir/dhcp-fallback.sh"
 inst_hook pre-pivot 10 "$moddir/kill-dhclient.sh"
+
+# TODO ifcfg config style is redhat specific, this should probably
+# go into its own module at one time
+inst_hook pre-pivot 20 "$moddir/write-ifcfg.sh"
+
 mkdir -p "${initdir}/var/run"
