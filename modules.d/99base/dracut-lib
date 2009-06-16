@@ -27,6 +27,10 @@ die() {
     exit 1
 }
 
+warn() {
+    printf "<1>Warning: $1\n" > /dev/kmsg
+}
+
 check_occurances() {
     # Count the number of times the character $ch occurs in $str
     # Return 0 if the count matches the expected number, 1 otherwise
