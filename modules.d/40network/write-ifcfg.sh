@@ -15,10 +15,9 @@ if [ -f /tmp/net.$netif.lease ]; then
     echo "BOOTPROTO=dhcp" >> /tmp/net.$netif.ifcfg
 else
     echo "BOOTPROTO=none" >> /tmp/net.$netif.ifcfg
-    # Static: XXX Implement me!
-    #IPADDR=172.16.101.1
-    #NETMASK=255.255.255.0
-    #DNS1=1.2.3.4
-    #DNS2=1.2.3.5
-    #GATEWAY=172.16.101.254
+    # If we've booted with static ip= lines, the override file is there
+    . /tmp/net.$netif.override 
+    echo "IPADDR=$ip" >> /tmp/net.$netif.ifcfg
+    echo "NETMASK=$mask" >> /tmp/net.$netif.ifcfg
+    [ -n "$gw" ] && echo "GATEWAY=$gw" >> /tmp/net.$netif.ifcfg
 fi
