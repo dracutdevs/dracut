@@ -51,7 +51,6 @@ if $handler $netif $netroot $NEWROOT; then
     # Network rootfs mount successful
     [ -f /tmp/dhclient.$netif.lease ] &&    cp /tmp/dhclient.$netif.lease    /tmp/net.$netif.lease
     [ -f /tmp/dhclient.$netif.dhcpopts ] && cp /tmp/dhclient.$netif.dhcpopts /tmp/net.$netif.dhcpopts
-    [ -f /tmp/dhclient.$netif.override ] && cp /tmp/dhclient.$netif.override /tmp/net.$netif.override
 
     # Save used netif for later use
     echo $netif > /tmp/net.bootdev

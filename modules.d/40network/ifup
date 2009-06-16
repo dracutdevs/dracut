@@ -60,11 +60,6 @@ do_static() {
 }
 
 do_dhcp() {
-    for i in ip srv gw mask hostname; do
-	eval '[ "$'$i'" ] && echo '$i'="$'$i'"'
-    done > /tmp/dhclient.$netif.override
-    [ -n "$ip" ] && echo bcast= >> /tmp/dhclient.$netif.override
-
     # /sbin/dhclient-script will mark the netif up and generate the online
     # event for nfsroot
     # XXX add -V vendor class and option parsing per kernel
@@ -105,6 +100,11 @@ else
 	
         # If this option isn't directed at our interface, skip it
 	[ "$dev" = "$netif" ] || continue
+
+        # Store config for later use
+	for i in ip srv gw mask hostname; do
+	    eval '[ "$'$i'" ] && echo '$i'="$'$i'"'
+	done > /tmp/net.$netif.override
 
 	case $autoconf in
 	    static)		 do_static ;;
