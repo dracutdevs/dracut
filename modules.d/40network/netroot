@@ -8,6 +8,12 @@ getarg rdnetdebug && {
     set -x
 }
 
+# Huh? Empty $1?
+[ -z "$1" ] && exit 1
+
+# Huh? No interface config?
+[ ! -e /tmp/net.$1.up ] && exit 1
+
 # Only try to configure from one network interface at a time
 #
 [ "$NETROOT_LOCKED" ] || {
