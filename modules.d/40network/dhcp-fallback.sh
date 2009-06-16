@@ -14,7 +14,3 @@ fi
 if [ "$netroot" = "$root" ]; then
     unset root
 fi
-
-if [ "${netroot+set}" = "set" ]; then
-    eval "echo netroot='$netroot'" > /tmp/netroot.info
-fi

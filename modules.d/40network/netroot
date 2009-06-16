@@ -29,14 +29,16 @@ netif=$1
 # then no point in looking further
 #
 [ -e /tmp/netroot.done ] && exit 0
-[ -s /tmp/netroot.info -a -s /tmp/root.info ] || exit 0
+[ -f /tmp/root.info ] || exit 1
 
 # Pick up our config from the command line; we may already know the
 # handler to run
 #
 . /tmp/root.info
-. /tmp/netroot.info
 [ -e /tmp/dhclient.$netif.dhcpopts ] && . /tmp/dhclient.$netif.dhcpopts
+
+# Don't continue if netroot isn't needed
+[ -z "$netroot" ] && exit 0
 
 # Now, let the installed network root handlers figure this out
 #

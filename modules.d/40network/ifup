@@ -15,7 +15,9 @@ netif=$1
 # bail immediately if the interface is already up
 # or we don't need the network
 [ -f "/tmp/net.$netif.up" ] && exit 0
-[ ! -f /tmp/netroot.info ] && exit 0
+[ -f "/tmp/root.info" ] || exit 0
+. /tmp/root.info
+[ -z "$netroot" ] && exit 0
 
 # loopback is always handled the same way
 [ "$netif" = "lo" ] && {

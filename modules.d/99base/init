@@ -59,6 +59,7 @@ fi
     echo "root='$root'"
     echo "rflags='$rflags'"
     echo "fstype='$fstype'"
+    echo "netroot='$netroot'"
     echo "NEWROOT='$NEWROOT'"
 } > /tmp/root.info
 
