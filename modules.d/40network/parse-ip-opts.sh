@@ -34,6 +34,13 @@ if getarg ip= >/dev/null ; then
     fi
 fi
 
+# Don't mix BOOTIF=macaddr from pxelinux and ip= lines
+getarg ip= >/dev/null && getarg BOOTIF= >/dev/null && \
+    die "Mixing BOOTIF and ip= lines is dangerous"
+
+# No more parsing stuff, BOOTIF says everything
+[ -n "$(getarg BOOTIF)" ] && return
+
 # Warn if defaulting to ip=dhcp
 if [ -n "$netroot" ] && [ -z "$(getarg ip=)" ] ; then
     warn "No ip= argument(s) for netroot provided, defaulting to DHCP"
