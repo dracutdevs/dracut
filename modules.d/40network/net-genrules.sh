@@ -15,12 +15,20 @@ fix_bootif() {
 # Write udev rules
 {
 
-# BOOTIF says everything, use only that one
+    # BOOTIF says everything, use only that one
     BOOTIF=$(getarg 'BOOTIF=')
     if [ -n "$BOOTIF" ] ; then
 	BOOTIF=$(fix_bootif "$BOOTIF")
 	printf 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="%s", RUN+="/sbin/ifup $env{INTERFACE}"\n' "$BOOTIF"
-    else 
+
+    # If we have to handle multiple interfaces, handle only them.
+    elif [ -n "$IFACES" ] ; then
+	for iface in $IFACES ; do
+	    printf 'ACTION=="add", SUBSYSTEM=="net", KERNEL=="%s", RUN+="/sbin/ifup $env{INTERFACE}"\n' "$iface"
+	done
+
+    # Default: We don't know the interface to use, handle all
+    else
 	printf 'ACTION=="add", SUBSYSTEM=="net", RUN+="/sbin/ifup $env{INTERFACE}"\n'
     fi
 
