@@ -6,6 +6,9 @@ dracut_install udevd udevadm /lib*/udev/*_id /etc/udev/udev.conf /etc/group
 inst_rules 50-udev-default.rules 60-persistent-storage.rules \
     61-persistent-storage-edd.rules 80-drivers.rules 95-udev-late.rules 
 
+#Some debian udev rules are named differently
+inst_rules 50-udev.rules 95-late.rules
+ 
 if ldd $(find_binary udevd) |grep -q /lib64/libc; then
     dracut_install /lib64/libnss_files*
 else
