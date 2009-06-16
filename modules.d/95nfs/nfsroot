@@ -68,7 +68,8 @@ incol2 /proc/filesystems nfs4 || modprobe nfs || exit 1
 # Start rpcbind and rpc.statd as mount won't let us use locks on a NFSv4
 # filesystem without talking to them, even though they are unneeded
 # XXX occasionally saw 'rpcbind: fork failed: No such device' -- why?
-[ -n "$(pidof rpcbind)" ] || rpcbind
+[ -x /sbin/portmap ] && [ -z "$(pidof portmap)" ] && portmap
+[ -x /sbin/rpcbind ] && [ -z "$(pidof rpcbind)" ] && rpcbind
 [ -n "$(pidof rpc.statd)" ] || rpc.statd
 
 # XXX should I do rpc.idmapd here, or wait and start in the new root

@@ -7,11 +7,11 @@
 
 emergency_shell()
 {
-    source_all emergency
     echo ; echo
     echo "Bug in initramfs /init detected. Dropping to a shell. Good luck!"
     echo
     sh -i
+    source_all emergency
 }
 
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin

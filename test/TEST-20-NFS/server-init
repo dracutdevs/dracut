@@ -15,7 +15,8 @@ mount --bind /nfs/client /nfs/ip/192.168.50.101
 mount --bind /nfs/client /nfs/tftpboot/nfs4-5
 modprobe sunrpc
 mount -t rpc_pipefs sunrpc /var/lib/nfs/rpc_pipefs
-rpcbind
+[ -x /sbin/portmap ] && portmap
+[ -x /sbin/rpcbind ] && rpcbind
 modprobe nfsd
 mount -t nfsd nfsd /proc/fs/nfsd
 exportfs -r

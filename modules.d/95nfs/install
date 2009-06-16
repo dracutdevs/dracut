@@ -1,6 +1,10 @@
 #!/bin/sh
-dracut_install rpcbind rpc.statd mount.nfs mount.nfs4 umount 
-dracut_install /etc/netconfig /etc/passwd /etc/services 
+which portmap >/dev/null 2>&1 && dracut_install portmap
+which rpcbind >/dev/null 2>&1 && dracut_install rpcbind
+
+dracut_install rpc.statd mount.nfs mount.nfs4 umount 
+[ -f /etc/netconfig ] && dracut_install /etc/netconfig 
+dracut_install /etc/passwd /etc/services 
 dracut_install /etc/nsswitch.conf /etc/rpc /etc/protocols
 dracut_install rpc.idmapd /etc/idmapd.conf
 if ldd $(which rpc.idmapd) |grep -q lib64; then

@@ -272,8 +272,11 @@ test_setup() {
 	. $basedir/dracut-functions
 	dracut_install sh ls shutdown poweroff stty cat ps ln ip \
 	    /lib/terminfo/l/linux dmesg mkdir cp ping exportfs \
-	    rpcbind modprobe rpc.nfsd rpc.mountd dhcpd showmount tcpdump \
-	    /etc/netconfig /etc/services sleep mount
+	    modprobe rpc.nfsd rpc.mountd dhcpd showmount tcpdump \
+	    /etc/services sleep mount
+	which portmap >/dev/null 2>&1 && dracut_install portmap
+	which rpcbind >/dev/null 2>&1 && dracut_install rpcbind
+	[ -f /etc/netconfig ] && dracut_install /etc/netconfig 
 	instmods nfsd sunrpc ipv6
 	inst ./server-init /sbin/init
 	inst ./hosts /etc/hosts
