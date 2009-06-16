@@ -125,7 +125,7 @@ netroot="$fstype:$server:$path:$options"
 
 # If we don't have a server, we need dhcp
 if [ -z "$server" ] ; then
-    NEEDDHCP="1"
+    DHCPORSERVER="1"
 fi;
 
 # Done, all good!

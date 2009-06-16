@@ -164,7 +164,7 @@ test_nfsv3() {
     client_test "NFSv3 root=nfs nfsroot=/nfs/ip/%s no host name (use IP)" \
 	52:54:00:12:34:7f \
 	"root=nfs nfsroot=/nfs/ip/%s \
-		ip=192.168.50.101:192.168.50.1::255.255.255.0::eth0:static" \
+		ip=192.168.50.101:192.168.50.1::255.255.255.0::eth0:off" \
 	192.168.50.1 -wsize=4096 || return 1
 
     client_test "NFSv3 root=nfs nfsroot=/nfs/client,wsize=4096" \
