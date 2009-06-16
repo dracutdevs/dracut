@@ -17,6 +17,16 @@ for conf in conf/conf.d/*; do
 	[ -f ${conf} ] && . ${conf}
 done
 
+# Huh? Empty $1?
+[ -z "$1" ] && exit 1
+
+# Huh? Empty $2?
+[ -z "$2" ] && exit 1
+
+# Huh? Empty $3? This isn't really necessary, since NEWROOT isn't 
+# used here. But let's be consistent
+[ -z "$3" ] && exit 1
+
 # root is in the form root=iscsi:[<servername>]:[<protocol>]:[<port>]:[<LUN>]:<targetname>
 netif="$1"
 root="$2"

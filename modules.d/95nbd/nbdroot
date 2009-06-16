@@ -12,6 +12,15 @@ if getarg rdnetdebug; then
     set -x
 fi
 
+# Huh? Empty $1?
+[ -z "$1" ] && exit 1
+
+# Huh? Empty $2?
+[ -z "$2" ] && exit 1
+
+# Huh? Empty $3?
+[ -z "$3" ] && exit 1
+
 # root is in the form root=nbd:server:port:fstype:fsopts:nbdopts
 netif="$1"
 root="$2"
