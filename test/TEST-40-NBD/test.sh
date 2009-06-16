@@ -293,7 +293,7 @@ test_setup() {
     )
 
     sudo $basedir/dracut -l -i overlay / \
-	-m "dash crypt lvm mdraid udev-rules rootfs-block base debug" \
+	-m "dash udev-rules rootfs-block base debug" \
 	-d "ata_piix ext2 sd_mod e1000" \
 	-f initramfs.server $KVERSION || return 1
 
