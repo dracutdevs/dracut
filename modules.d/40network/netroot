@@ -45,8 +45,7 @@ fi
 
 # Run the handler; don't store the root, it may change from device to device
 # XXX other variables to export?
-export NEWROOT
-if $handler $netif $netroot; then
+if $handler $netif $netroot $NEWROOT; then
     # Network rootfs mount successful
     [ -f /tmp/dhclient.$netif.lease ] &&    cp /tmp/dhclient.$netif.lease    /tmp/net.$netif.lease
     [ -f /tmp/dhclient.$netif.dhcpopts ] && cp /tmp/dhclient.$netif.dhcpopts /tmp/net.$netif.dhcpopts

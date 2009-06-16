@@ -15,6 +15,7 @@ getarg rdnetdebug && {
 # root is in the form root=nfs[4]:server:path:[options]
 netif="$1"
 root="$2"
+NEWROOT="$3"
 
 nfsver=${root%%:*}; root=${root#*:}
 nfsserver=${root%%:*}; root=${root#*:}

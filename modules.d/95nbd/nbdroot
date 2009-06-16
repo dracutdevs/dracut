@@ -15,6 +15,7 @@ fi
 # root is in the form root=nbd:server:port:fstype:fsopts:nbdopts
 netif="$1"
 root="$2"
+NEWROOT="$3"
 
 root=${root#nbd:}
 nbdserver=${root%%:*}; root=${root#*:}
