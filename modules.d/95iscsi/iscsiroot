@@ -10,8 +10,6 @@
 
 PATH=$PATH:/sbin:/usr/sbin
 
-# XXX needs error handling like ifup/dhclient-script
-
 if getarg rdnetdebug; then
     exec > /tmp/iscsiroot.$1.$$.out
     exec 2>> /tmp/iscsiroot.$1.$$.out
@@ -37,7 +35,11 @@ for conf in conf/conf.d/*; do
     [ -f ${conf} ] && . ${conf}
 done
 
-modprobe iscsi_tcp
+# If it's not iscsi we don't continue
+[ "${root%%:*}" = "iscsi" ] || exit 1
+
+# XXX modprobe crc32c should go in the cmdline parser, but I haven't yet
+# figured out a way how to check whether this is built-in or not
 modprobe crc32c
 
 if getarg iscsi_firmware ; then

@@ -18,7 +18,6 @@ dracut_install $(ls {/usr,}$LIBDIR/libnss*.so 2>/dev/null)
 
 instmods nfs sunrpc ipv6
 inst_hook cmdline 90 "$moddir/parse-nfsroot.sh"
-inst_hook netroot 90 "$moddir/nfs-netroot.sh"
 inst_hook pre-pivot 70 "$moddir/nfsroot-cleanup.sh"
 inst "$moddir/nfsroot" "/sbin/nfsroot"
 mkdir -p "$initdir/var/lib/nfs/rpc_pipefs"

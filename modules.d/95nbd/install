@@ -2,6 +2,5 @@
 
 inst nbd-client
 inst_hook cmdline 90 "$moddir/parse-nbdroot.sh"
-inst_hook netroot 90 "$moddir/nbd-netroot.sh"
 inst "$moddir/nbdroot" "/sbin/nbdroot"
 instmods nbd

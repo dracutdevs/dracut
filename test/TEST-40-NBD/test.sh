@@ -92,47 +92,49 @@ test_run() {
     # The default is ext3,errors=continue so use that to determine
     # if our options were parsed and used
 
-    client_test "NBD root=nbd:IP:port" 52:54:00:12:34:00 \
-	"root=nbd:192.168.50.1:2000" || return 1
+     client_test "NBD root=nbd:IP:port" 52:54:00:12:34:00 \
+ 	"root=nbd:192.168.50.1:2000" || return 1
 
-    client_test "NBD root=nbd:IP:port:fstype" 52:54:00:12:34:00 \
-	"root=nbd:192.168.50.1:2000:ext2" ext2 || return 1
+     client_test "NBD root=nbd:IP:port:fstype" 52:54:00:12:34:00 \
+ 	"root=nbd:192.168.50.1:2000:ext2" ext2 || return 1
 
-    client_test "NBD root=nbd:IP:port::fsopts" 52:54:00:12:34:00 \
-	"root=nbd:192.168.50.1:2000::errors=panic" \
-	ext3 errors=panic || return 1
+     client_test "NBD root=nbd:IP:port::fsopts" 52:54:00:12:34:00 \
+ 	"root=nbd:192.168.50.1:2000::errors=panic" \
+ 	ext3 errors=panic || return 1
 
-    client_test "NBD root=nbd:IP:port:fstype:fsopts" 52:54:00:12:34:00 \
-	"root=nbd:192.168.50.1:2000:ext2:errors=panic" \
-	ext2 errors=panic || return 1
+     client_test "NBD root=nbd:IP:port:fstype:fsopts" 52:54:00:12:34:00 \
+ 	"root=nbd:192.168.50.1:2000:ext2:errors=panic" \
+ 	ext2 errors=panic || return 1
 
-    # There doesn't seem to be a good way to validate the NBD options, so
-    # just check that we don't screw up the other options
+     # There doesn't seem to be a good way to validate the NBD options, so
+     # just check that we don't screw up the other options
 
-    client_test "NBD root=nbd:IP:port:::NBD opts" 52:54:00:12:34:00 \
-	"root=nbd:192.168.50.1:2000:::bs=2048" || return 1
+     client_test "NBD root=nbd:IP:port:::NBD opts" 52:54:00:12:34:00 \
+ 	"root=nbd:192.168.50.1:2000:::bs=2048" || return 1
 
-    client_test "NBD root=nbd:IP:port:fstype::NBD opts" 52:54:00:12:34:00 \
-	"root=nbd:192.168.50.1:2000:ext2::bs=2048" ext2 || return 1
+     client_test "NBD root=nbd:IP:port:fstype::NBD opts" 52:54:00:12:34:00 \
+ 	"root=nbd:192.168.50.1:2000:ext2::bs=2048" ext2 || return 1
 
-    client_test "NBD root=nbd:IP:port:fstype:fsopts:NBD opts" \
-	52:54:00:12:34:00 \
-	"root=nbd:192.168.50.1:2000:ext2:errors=panic:bs=2048" \
-	ext2 errors=panic || return 1
+     client_test "NBD root=nbd:IP:port:fstype:fsopts:NBD opts" \
+ 	52:54:00:12:34:00 \
+ 	"root=nbd:192.168.50.1:2000:ext2:errors=panic:bs=2048" \
+ 	ext2 errors=panic || return 1
 
-    # Check legacy parsing
+     # Check legacy parsing
 
-    client_test "NBD root=nbd nbdroot=srv:port" 52:54:00:12:34:00 \
-	"root=nbd nbdroot=192.168.50.1:2000" || return 1
+     client_test "NBD root=nbd nbdroot=srv:port" 52:54:00:12:34:00 \
+ 	"root=nbd nbdroot=192.168.50.1:2000" || return 1
 
-    client_test "NBD root=dhcp nbdroot=srv:port" 52:54:00:12:34:00 \
-	"root=dhcp nbdroot=192.168.50.1:2000" || return 1
+     # This test must fail: root=dhcp ignores nbdroot
+     client_test "NBD root=dhcp nbdroot=srv:port" 52:54:00:12:34:00 \
+	"root=dhcp nbdroot=192.168.50.1:2000" && return 1
 
-    client_test "NBD root=nbd nbdroot=srv,port" 52:54:00:12:34:00 \
-	"root=nbd nbdroot=192.168.50.1,2000" || return 1
+     client_test "NBD root=nbd nbdroot=srv,port" 52:54:00:12:34:00 \
+	 "root=nbd nbdroot=192.168.50.1,2000" || return 1
 
-    client_test "NBD root=dhcp nbdroot=srv,port" 52:54:00:12:34:00 \
-	"root=dhcp nbdroot=192.168.50.1,2000" || return 1
+     # This test must fail: root=dhcp ignores nbdroot
+     client_test "NBD root=dhcp nbdroot=srv,port" 52:54:00:12:34:00 \
+	"root=dhcp nbdroot=192.168.50.1,2000" && return 1
 
     # DHCP root-path parsing
 

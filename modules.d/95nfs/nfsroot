@@ -1,10 +1,46 @@
 #!/bin/sh
 
+# Copy from parse-nfsroot.sh
+root_to_var() {
+    local v=${1}:
+    set --
+    while [ -n "$v" ]; do
+	set -- "$@" "${v%%:*}"
+	v=${v#*:}
+    done
+
+    unset nfs server path options
+
+    # Ugly: Can't -z test $path after the case, since it might be allowed
+    # to be empty for root=nfs
+    nfs=$1
+    case $# in
+    0|1);;
+    2)	path=$2;;
+    3)
+    # This is ultra ugly. But we can't decide in which position path
+    # sits without checking if the string starts with '/'
+    case $2 in
+	/*) path=$2; options=$3;;
+	*) server=$2; path=$3;;
+    esac
+    ;;
+    *)	server=$2; path=$3; options=$4;
+    esac
+    
+    # Does it really start with '/'?
+    [ -n "${path%%/*}" ] && path="error";
+    
+    #Fix kernel legacy style separating path and options with ','
+    if [ "$path" != "${path#*,}" ] ; then
+	options=${path#*,}
+	path=${path%%,*}
+    fi
+}
+
 . /lib/dracut-lib
 
 PATH=$PATH:/sbin:/usr/sbin
-
-# XXX needs error handling like ifup/dhclient-script
 
 if getarg rdnetdebug ; then 
     exec > /tmp/nfsroot.$1.$$.out
@@ -21,65 +57,89 @@ fi
 # Huh? Empty $3?
 [ -z "$3" ] && exit 1
 
-# root is in the form root=nfs[4]:server:path:[options]
+# root is in the form root=nfs[4]:[server:]path[:options], either from
+# cmdline or dhcp root-path
 netif="$1"
 root="$2"
 NEWROOT="$3"
 
-nfsver=${root%%:*}; root=${root#*:}
-nfsserver=${root%%:*}; root=${root#*:}
-nfspath=${root%%:*}
-flags=${root#*:}
+# If it's not nfs we don't continue
+case "${root%%:*}" in
+    nfs|nfs4);;
+    *) return;;
+esac
 
-[ -z "$nfspath" ] && nfspath=/tftpboot/%s
+# Ugly: root=nfs[4] requires dhcp root-path
+if [ "$root" = "nfs" ] || [ "$root" = "nfs4" ] ; then
+    # No need to check if the file exists. ip cmdline parser takes care of this
+    . /tmp/dhclient.$netif.dhcpopts
+    [ -z "$new_root_path" ] && die "Required dhcp option root-path not available"
+    root=$root:$new_root_path
+fi 
+
+root_to_var $root
+
+#Load other data that might provide info
+[ -f /tmp/net.$netif.override ] && . /tmp/net.$netif.override
+[ -f /tmp/dhclient.$netif.dhcpopts ] && . /tmp/dhclient.$netif.dhcpopts
+
+#Empty path means try dhcp root-path, this is ok here since parse-nfsroot.sh
+#already takes care of nfs:... formatted root-path
+[ -z "$path" ] && root_to_var $nfs:$new_root_path
+
+#Empty path defaults to "/tftpboot/%s"
+[ -z "$path" ] && path="/tftpboot/%s"
+
+if [ -z "$server" ] ; then
+    # XXX new_dhcp_next_server is unconfirmed this is an assumption
+    for var in $srv $new_dhcp_server_identifier $new_dhcp_next_server $new_root_path '' ; do
+	[ -n "$var" ] && server=$var && break;
+    done
+
+    # XXX This blindly assumes that if new_root_path has to used that 
+    # XXX it really can be used as server
+    server=${server%%:*}
+fi
+
+[ -z "$server" ] && die "Required parameter 'server' is missing"
 
 # Kernel replaces first %s with host name, and falls back to the ip address
 # if it isn't set. Only the first %s is substituted.
-#
-if [ "${nfspath#*%s}" != "$nfspath" ]; then
+if [ "${path#*%s}" != "$path" ]; then
     ip=$(ip -o -f inet addr show $netif)
     ip=${ip%%/*}
     ip=${ip##* }
     read node < /proc/sys/kernel/hostname
     [ "$node" = "(none)" ] && node=$ip
-    nfspath=${nfspath%%%s*}$node${nfspath#*%s}
+    path=${path%%%s*}$node${path#*%s}
 fi
 
-# Look through the flags and see if any are overridden by the command line
-# Append a , so we know we terminate
-flags=${flags},
-while [ -n "$flags" ]; do
-    f=${flags%%,*}
-    flags=${flags#*,}
-    if [ -z "$f" ]; then
-	break
-    fi
-    if [ "$f" = "ro" -o "$f" = "rw" ]; then
-	nfsrw=$f
-	continue
-    fi
-    if [ "$f" = "lock" -o "$f" = "nolock" ]; then
-	nfslock=$f
-	continue
-    fi
-    nfsflags=${nfsflags+$nfsflags,}$f
+# Look through the options and remove rw/locking options
+OLDIFS=$IFS
+IFS=,
+for f in $options ; do
+    [ "$f" = "ro" -o "$f" = "rw" ] && nfsrw=$f && continue
+    [ "$f" = "lock" -o "$f" = "nolock" ] && nfslock=$f && continue
+    flags=${flags:+$flags,}$f
 done
+IFS=$OLDIFS
+options=$flags
 
 # Override rw/ro if set on cmdline
 getarg ro && nfsrw=ro
 getarg rw && nfsrw=rw
-nfsflags=${nfsflags+$nfsflags,}${nfsrw}
 
-# Load the modules so the filesystem type is there
-incol2 /proc/filesystems nfs  || modprobe nfs || exit 1
-incol2 /proc/filesystems nfs4 || modprobe nfs || exit 1
+# Default to ro if unset
+[ -z "$nfsrw" ] && nfsrw=ro
+
+options=${options:+$options,}$nfsrw
 
 # Start rpcbind or rpcbind
 # FIXME occasionally saw 'rpcbind: fork failed: No such device' -- why?
 [ -x /sbin/portmap ] && [ -z "$(pidof portmap)" ] && portmap
 [ -x /sbin/rpcbind ] && [ -z "$(pidof rpcbind)" ] && rpcbind
 
-if [ "$nfsver" = "nfs4" ]; then
+if [ "$nfs" = "nfs4" ]; then
     # Start rpc.statd as mount won't let us use locks on a NFSv4
     # filesystem without talking to it. NFSv4 does locks internally,
     # rpc.lockd isn't needed
@@ -87,19 +147,17 @@ if [ "$nfsver" = "nfs4" ]; then
 
     # XXX really needed? Do we need non-root users before we start it in
     # XXX the real root image?
-    if [ -z "$(pidof rpc.idmapd)" ]; then
-	rpc.idmapd
-    fi
+    [ -z "$(pidof rpc.idmapd)" ] && rpc.idmapd
 
     # XXX Should we loop here?
-    exec mount -t nfs4 -o${nfsflags}${nfslock+,$nfslock} \
-			$nfsserver:$nfspath $NEWROOT
+    exec mount -t nfs4 -o$options${nfslock+,$nfslock} \
+	$server:$path $NEWROOT
 fi
 
 # NFSv{2,3} doesn't support using locks as it requires a helper to transfer
 # the rpcbind state to the new root
-[ -z "$nfslock" -o "$nfslock" = "lock" ] &&
-    echo "Warning: Locks unsupported on NFSv{2,3}, using nolock" 1>&2
+[ "$nfslock" = "lock" ] && \
+    warn "Locks unsupported on NFSv{2,3}, using nolock" 1>&2
 
 # XXX Should we loop here?
-exec mount -t nfs -onolock,$nfsflags $nfsserver:$nfspath $NEWROOT
+exec mount -t nfs -o$options${options:+,}nolock $server:$path $NEWROOT

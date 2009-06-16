@@ -1,51 +1,81 @@
-# It'd be nice if this could share rules with 99-block.sh, but since
-# the kernel side adds nbd{1..16} when the module is loaded -- before
-# they are associated with a server -- we cannot use the udev add rule
-# to find it
-#
-# XXX actually we could, if we move to root=XXX and netroot=XXX, then
-# you could do root=LABEL=/ nbdroot=XXX, or netroot=nbd:XXX
-#
-# However, we need to be 90-nbd.sh to catch root=/dev/nbd*
+#!/bin/sh
 #
 # Preferred format:
 #	root=nbd:srv:port[:fstype[:rootflags[:nbdopts]]]
+#	[root=*] netroot=nbd:srv:port[:fstype[:rootflags[:nbdopts]]]
+#
+# Legacy formats:
+#	[net]root=[nbd] nbdroot=srv,port
+#	[net]root=[nbd] nbdroot=srv:port[:fstype[:rootflags[:nbdopts]]]
 #
 # nbdopts is a comma seperated list of options to give to nbd-client
 #
-#
-# Legacy formats:
-#	nbdroot=srv,port
-#	nbdroot=srv:port[:fstype[:rootflags[:nbdopts]]]
-#	root=dhcp nbdroot=srv:port[:fstype[:rootflags[:nbdopts]]]
-#	root=nbd nbdroot=srv:port[:fstype[:rootflags[:nbdopts]]]
+# root= takes precedence over netroot= if root=nbd[...]
 #
 
-case "$root" in
-    nbd|dhcp|'')
-	if getarg nbdroot= > /dev/null; then
-	    root=nbd:$(getarg nbdroot=)
-	fi
-	;;
-esac
+# Sadly there's no easy way to split ':' separated lines into variables
+netroot_to_var() {
+    local v=${1}:
+    set --
+    while [ -n "$v" ]; do
+        set -- "$@" "${v%%:*}"
+        v=${v#*:}
+    done
 
-# Convert the Debian style to our syntax, but avoid matches on fs arguments
-case "$root" in
-    nbd:*,*)
-	if check_occurances "$root" ',' 1 && check_occurances "$root" ':' 1;
-	then
-	    root=${root%,*}:${root#*,}
-	fi
-	;;
-esac
+    unset server port 
+    server=$2; port=$3;
+}
 
-if [ -z "$netroot" -a -n "$root" -a -z "${root%%nbd:*}" ]; then
-    netroot="$root"
-    unset root
+# Don't continue if root is ok
+[ -n "$rootok" ] && return
+
+# This script is sourced, so root should be set. But let's be paranoid
+[ -z "$root" ] && root=$(getarg root=)
+[ -z "$netroot" ] && netroot=$(getarg netroot=)
+[ -z "$nbdroot" ] && nbdroot=$(getarg nbdroot=)
+
+# Root takes precedence over netroot
+if [ "${root%%:*}" = "nbd" ] ; then
+    if [ -n "$netroot" ] ; then
+	warn "root takes precedence over netroot. Ignoring netroot"
+
+    fi
+    netroot=$root
 fi
 
-if [ "${netroot%%:*}" = "nbd" ]; then
-    # XXX validate options here?
-    # XXX generate udev rules?
-    rootok=1
+# If it's not empty or nbd we don't continue
+[ -z "$netroot" ] || [ "${netroot%%:*}" = "nbd" ] || return
+
+if [ -n "$nbdroot" ] ; then
+    [ -z "$netroot" ]  && netroot=$root
+
+    # Debian legacy style contains no ':' Converting is easy
+    [ "$nbdroot" = "${nbdroot##*:}" ] && nbdroot=${nbdroot%,*}:${nbdroot#*,}
+
+    # @deprecated
+    warn "Argument nbdroot is deprecated and might be removed in a future release. See http://apps.sourceforge.net/trac/dracut/wiki/commandline for more information."
+
+    # Accept nbdroot argument?
+    [ -z "$netroot" ] || [ "$netroot" = "nbd" ] || \
+	die "Argument nbdroot only accepted for empty root= or [net]root=nbd"
+
+    # Override netroot with nbdroot content?
+    [ -z "$netroot" ] || [ "$netroot" = "nbd" ] && netroot=nbd:$nbdroot
 fi
+
+# If it's not nbd we don't continue
+[ "${netroot%%:*}" = "nbd" ] || return
+
+# Check required arguments
+netroot_to_var $netroot
+[ -z "$server" ] && die "Argument server for nbdroot is missing"
+[ -z "$port" ] && die "Argument port for nbdroot is missing"
+
+# NBD actually supported?
+incol2 /proc/devices nbd || modprobe nbd || die "nbdroot requested but kernel/initrd does not support nbd"
+
+# Done, all good!
+rootok=1
+
+# Shut up init error check
+[ -z "$root" ] && root="nbd"

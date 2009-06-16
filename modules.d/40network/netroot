@@ -32,18 +32,38 @@ fi
 
 netif=$1
 
-[ -e /tmp/dhclient.$netif.dhcpopts ] && . /tmp/dhclient.$netif.dhcpopts
+# Figure out the handler for root=dhcp by recalling all netroot cmdline 
+# handlers
+if [ "$netroot" = "dhcp" ] ; then
+    # Unset root so we can check later
+    unset root
 
-# Now, let the installed network root handlers figure this out
-#
-source_all netroot
+    # Load dhcp options
+    [ -e /tmp/dhclient.$netif.dhcpopts ] && . /tmp/dhclient.$netif.dhcpopts
 
-# If we didn't get a handler set, then we're done
-#
-if [ -z "$handler" ]; then
-    # XXX informative error message?
-    exit 0
+    # Set netroot to new_root_path, so cmdline parsers don't call
+    netroot=$new_root_path
+
+    for f in ./cmdline/90*.sh; do
+	[ -f "$f" ] && . "$f";
+    done
+else 
+    rootok="1"
 fi
+
+# Check: do we really know how to handle (net)root?
+[ -z "$root" ] && die "No or empty root= argument"
+[ -z "$rootok" ] && die "Don't know how to handle 'root=$root'"
+
+handler=${netroot%%:*}
+handler=${handler%%4}
+handler="/sbin/${handler}root"
+if [ -z "$netroot" ] || [ ! -e "$handler" ] ; then
+    die "No handler for netroot type '$netroot'"
+fi
+
+# Source netroot hooks before we start the handler
+source_all netroot
 
 # Run the handler; don't store the root, it may change from device to device
 # XXX other variables to export?

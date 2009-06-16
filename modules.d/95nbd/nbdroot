@@ -4,8 +4,6 @@
 
 PATH=$PATH:/sbin:/usr/sbin
 
-# XXX needs error handling like ifup/dhclient-script
-
 if getarg rdnetdebug; then
     exec > /tmp/nbdroot.$1.$$.out
     exec 2>> /tmp/nbdroot.$1.$$.out
@@ -21,10 +19,13 @@ fi
 # Huh? Empty $3?
 [ -z "$3" ] && exit 1
 
-# root is in the form root=nbd:server:port:fstype:fsopts:nbdopts
+# root is in the form root=nbd:srv:port[:fstype[:rootflags[:nbdopts]]]
 netif="$1"
 root="$2"
 NEWROOT="$3"
+
+# If it's not nbd we don't continue
+[ "${root%%:*}" = "nbd" ] || return
 
 root=${root#nbd:}
 nbdserver=${root%%:*}; root=${root#*:}
@@ -80,8 +81,6 @@ done
 getarg ro && nbdrw=ro
 getarg rw && nbdrw=rw
 fsopts=${fsopts+$fsopts,}${nbdrw}
-
-incol2 /proc/devices nbd || modprobe nbd || exit 1
 
 # XXX better way to wait for the device to be made?
 i=0
