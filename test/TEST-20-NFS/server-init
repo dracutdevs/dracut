@@ -25,7 +25,8 @@ rpc.mountd
 rpc.idmapd
 exportfs -r
 >/var/lib/dhcpd/dhcpd.leases
-dhcpd -cf /etc/dhcpd.conf
+chmod 777 /var/lib/dhcpd/dhcpd.leases
+dhcpd -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases
 #sh -i
 # Wait forever for the VM to die
 echo "Serving NFS mounts"

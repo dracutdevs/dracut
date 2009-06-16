@@ -255,8 +255,10 @@ make_server_root() {
 	initdir=mnt
 	. $basedir/dracut-functions
 	dracut_install sh ls shutdown poweroff stty cat ps ln ip \
-	    /lib/terminfo/l/linux dmesg mkdir cp ping grep dhcpd \
-	    sleep nbd-server
+	    /lib/terminfo/l/linux dmesg mkdir cp ping grep \
+	    sleep nbd-server chmod
+	which dhcpd >/dev/null 2>&1 && dracut_install dhcpd
+	[ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
 	inst ./server-init /sbin/init
 	inst ./hosts /etc/hosts
 	inst ./dhcpd.conf /etc/dhcpd.conf
