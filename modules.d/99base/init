@@ -7,11 +7,11 @@
 
 emergency_shell()
 {
+    source_all emergency
     echo ; echo
     echo "Bug in initramfs /init detected. Dropping to a shell. Good luck!"
     echo
     sh -i
-    source_all emergency
 }
 
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
@@ -34,6 +34,7 @@ getarg rdinitdebug && set -x
 mknod /dev/null c 1 3
 mknod /dev/ptmx c 5 2
 mknod /dev/console c 5 1
+mknod /dev/kmsg c 1 11
 mkdir /dev/pts
 mount -t devpts -o gid=5,mode=620 /dev/pts /dev/pts >/dev/null 2>&1
 
@@ -41,16 +42,8 @@ mount -t devpts -o gid=5,mode=620 /dev/pts /dev/pts >/dev/null 2>&1
 getarg 'rdbreak=cmdline' && emergency_shell
 source_all cmdline
 
-if [ -z "$rootok" -a -n "${root%%error:*}" ]; then
-    root="error: No handler for root=${root}"
-fi
-
-if [ -n "$root" -a -z "${root%%error:*}" ]; then
-    case "${root%%:*}" in
-       '') die "No root= option specified, and no network support" ;;
-       error) die "${root#error:}" ;;
-    esac
-fi
+[ -z "$root" ] && die "No or empty root= argument"
+[ -z "$rootok" ] && die "Don't know how to handle 'root=$root'"
 
 # Network root scripts may need updated root= options,
 # so deposit them where they can see them (udev purges the env)

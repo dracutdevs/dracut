@@ -22,8 +22,8 @@ source_all() {
 }
 
 die() {
-    printf "FATAL: $1\n"
-    printf "Refusing to continue\n"
+    printf "<1>FATAL: $1\n" > /dev/kmsg
+    printf "<1>Refusing to continue\n" > /dev/kmsg
     exit 1
 }
 
