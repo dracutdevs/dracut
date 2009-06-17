@@ -43,7 +43,7 @@ make
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT sbindir=/sbin sysconfdir=/etc
+make install DESTDIR=$RPM_BUILD_ROOT sbindir=/sbin sysconfdir=/etc mandir=%{_mandir}
 
 %if 0%{?replace_mkinitrd}
 ln -s dracut $RPM_BUILD_ROOT/sbin/mkinitrd
@@ -69,7 +69,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/lib/dracut/dracut-functions
 %{_prefix}/lib/dracut/modules.d
 %config(noreplace) /etc/dracut.conf
-
+%{_mandir}/man8/dracut.8*
 
 %changelog
 * Thu Dec 18 2008 Jeremy Katz <katzj@redhat.com> - 0.0-1.gitc0815e4e%{?dist}
