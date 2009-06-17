@@ -71,6 +71,12 @@ netroot_to_var() {
 [ -z "$netroot" ] && netroot=$(getarg netroot=)
 [ -z "$nfsroot" ] && nfsroot=$(getarg nfsroot=)
 
+# Handle old style <server-ip>:/<path
+case "$netroot" in
+    [0-9]*:/*|[0-9]*\.[0-9]*\.[0-9]*[!:]|/*)
+       netroot=nfs:$netroot;;
+esac
+
 # Root takes precedence over netroot
 case "${root%%:*}" in
     nfs|nfs4|/dev/nfs|/dev/nfs4)

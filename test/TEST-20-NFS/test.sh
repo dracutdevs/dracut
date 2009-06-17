@@ -101,13 +101,12 @@ test_nfsv3() {
     # NFSv3: last octect starts at 0x00 and works up
     # NFSv4: last octect starts at 0x80 and works up
 
-    # This test must fail: dhcp root-path must have proto:...
-    client_test "NFSv3 netroot=dhcp DHCP path only" 52:54:00:12:34:00 \
- 	"netroot=dhcp" 192.168.50.1 -wsize=4096 && return 1
-
-    # This test must fail: dhcp root-path must have proto:...
     client_test "NFSv3 root=dhcp DHCP path only" 52:54:00:12:34:00 \
- 	"root=dhcp" 192.168.50.1 -wsize=4096 && return 1
+ 	"root=dhcp" 192.168.50.1 -wsize=4096 || return 1
+
+    # This test must fail: no root=
+    client_test "NFSv3 netroot=dhcp DHCP path only" 52:54:00:12:34:00 \
+ 	"netroot=dhcp" 192.168.50.1 -wsize=4096  && return 1
 
     client_test "NFSv3 root=nfs DHCP path only" 52:54:00:12:34:00 \
  	"root=nfs" 192.168.50.1 -wsize=4096 || return 1
@@ -171,13 +170,11 @@ test_nfsv3() {
 	52:54:00:12:34:04 "root=nfs nfsroot=/nfs/client,wsize=4096" \
 	192.168.50.1 wsize=4096 || return 1
 
-    # This test must fail: dhcp root-path must have proto:...
     client_test "NFSv3 root=dhcp DHCP path,options" \
-	52:54:00:12:34:05 "root=dhcp" 192.168.50.1 wsize=4096 && return 1
+	52:54:00:12:34:05 "root=dhcp" 192.168.50.1 wsize=4096 || return 1
 
-    # This test must fail: dhcp root-path must have proto:...
     client_test "NFSv3 root=dhcp DHCP IP:path,options" \
-	52:54:00:12:34:06 "root=dhcp" 192.168.50.2 wsize=4096 && return 1
+	52:54:00:12:34:06 "root=dhcp" 192.168.50.2 wsize=4096 || return 1
 
     client_test "NFSv3 root=dhcp DHCP proto:IP:path,options" \
 	52:54:00:12:34:07 "root=dhcp" 192.168.50.3 wsize=4096 || return 1
