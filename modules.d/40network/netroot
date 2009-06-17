@@ -1,5 +1,7 @@
 #!/bin/sh
 
+PATH=$PATH:/sbin:/usr/sbin
+
 . /lib/dracut-lib
 
 if getarg rdnetdebug ; then
