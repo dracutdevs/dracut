@@ -104,9 +104,8 @@ test_nfsv3() {
     client_test "NFSv3 root=dhcp DHCP path only" 52:54:00:12:34:00 \
  	"root=dhcp" 192.168.50.1 -wsize=4096 || return 1
 
-    # This test must fail: no root=
     client_test "NFSv3 netroot=dhcp DHCP path only" 52:54:00:12:34:00 \
- 	"netroot=dhcp" 192.168.50.1 -wsize=4096  && return 1
+ 	"netroot=dhcp" 192.168.50.1 -wsize=4096  || return 1
 
     client_test "NFSv3 root=nfs DHCP path only" 52:54:00:12:34:00 \
  	"root=nfs" 192.168.50.1 -wsize=4096 || return 1
@@ -114,13 +113,11 @@ test_nfsv3() {
     client_test "NFSv3 root=/dev/nfs DHCP path only" 52:54:00:12:34:00 \
  	"root=/dev/nfs" 192.168.50.1 -wsize=4096 || return 1
 
-    # This test must fail: dhcp root-path must have proto:...
     client_test "NFSv3 netroot=dhcp DHCP IP:path" 52:54:00:12:34:01 \
- 	"netroot=dhcp" 192.168.50.2 -wsize=4096 && return 1
+ 	"netroot=dhcp" 192.168.50.2 -wsize=4096 || return 1
 
-    # This test must fail: dhcp root-path must have proto:...
     client_test "NFSv3 root=dhcp DHCP IP:path" 52:54:00:12:34:01 \
- 	"root=dhcp" 192.168.50.2 -wsize=4096 && return 1
+ 	"root=dhcp" 192.168.50.2 -wsize=4096 || return 1
 
     client_test "NFSv3 root=nfs DHCP IP:path" 52:54:00:12:34:01 \
  	"root=nfs" 192.168.50.2 -wsize=4096 || return 1
