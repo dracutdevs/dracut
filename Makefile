@@ -6,6 +6,7 @@ libdir = ${prefix}/lib
 pkglibdir = ${libdir}/dracut
 sysconfdir = ${prefix}/etc
 sbindir = ${prefix}/sbin
+mandir = ${prefix}/share/man
 
 modules.d/99base/switch_root: switch_root.c
 	gcc -o modules.d/99base/switch_root switch_root.c	
@@ -19,11 +20,13 @@ install:
 	mkdir -p $(DESTDIR)$(sbindir)
 	mkdir -p $(DESTDIR)$(sysconfdir)
 	mkdir -p $(DESTDIR)$(pkglibdir)/modules.d
+	mkdir -p $(DESTDIR)$(mandir)/man8
 	install -m 0755 dracut $(DESTDIR)$(sbindir)/dracut
 	install -m 0755 modules.d/99base/switch_root $(DESTDIR)$(sbindir)/switch_root
 	install -m 0644 dracut.conf $(DESTDIR)$(sysconfdir)/dracut.conf
 	install -m 0755 dracut-functions $(DESTDIR)$(pkglibdir)/dracut-functions
 	cp -arx modules.d $(DESTDIR)$(pkglibdir)
+	install -m 0644 dracut.8 $(DESTDIR)$(mandir)/man8
 	rm $(DESTDIR)$(pkglibdir)/modules.d/99base/switch_root
 
 clean:
