@@ -1,8 +1,7 @@
-Right now, I'm doing most of my testing using a qemu/kvm guest and
+Right now, most of the testing is done using a qemu/kvm guest and
 generating the initramfs on another box but the support is all present
 to build for the "running" machine.  For the former, you can boot the guest
-using qemu's -kernel and -initrd options.  Currently supported rootfs
-types are regular partitions, root-on-lvm and root-on-lvm-on-encrypted-pv.
+using qemu's -kernel and -initrd options.  
 
 dracut exists and will build an image.  It is command-line equivalent
 to most mkinitrd implementations and should be pretty straight-forward
@@ -20,3 +19,5 @@ while kernel modules are called "drivers".
 
 Requirements:
 * udev
+* nfs module: nfs daemon and rpc helper
+* iscsi: iscsi

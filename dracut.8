@@ -1,0 +1,189 @@
+.TH DRACUT 8 "June 2009" "Linux"
+.SH NAME
+switch_root \- switch to another filesystem as the root of the mount tree.
+.SH SYNOPSIS
+\fBdracut\fR [\fIOPTION\fR]... \fI<image>\fR  \fI<kernel-version>\fR
+
+.SH DESCRIPTION
+.B switch_root
+\fBdracut\fR creates an initial image used by the kernel for
+preloading the block device modules (such as IDE, SCSI or RAID)
+which are needed to access the root filesystem.
+
+.SH OPTIONS
+.TP
+.BR \-f ", " \-\-force
+overwrite existing initramfs file.
+.TP
+.BR \-m ", " \-\-modules " \fILIST\fR"
+specify a space-separated list of dracut modules to call 
+when building the initramfs. 
+Modules are located in 
+.IR /usr/lib/dracut/modules.d .
+.TP
+.BR \-o ", " \-\-omit " \fILIST\fR"
+omit a space-separated list of dracut modules.
+.TP
+.BR \-d ", " \-\-drivers " \fILIST\fR"
+specify a space-separated list of kernel modules to include in the initramfs.
+.TP
+.BR \-h ", " \-\-help
+display help text and exit. 
+.TP
+.B \-\-debug
+output debug information of the build process
+.TP
+.BR \-v ", " \-\-verbose
+verbose output during the build process
+.TP
+.BR \-c ", " \-\-conf " \fIFILE\fR"
+specify configuration file to use.
+Default: 
+.IR /etc/dracut.conf
+.TP
+.BR \-l ", " \-\-local
+local mode. Use modules from the current working
+directory instead of the system-wide installed in
+.IR /usr/lib/dracut/modules.d .
+Useful when running dracut from a git checkout.
+.TP
+.BR \-H ", " \-\-hostonly
+Host-Only mode: Install only what is needed for
+booting the local host instead of a generic host.
+.TP
+.BR \-i ", " \-\-include " \fISOURCE\fR" "" " \fITARGET\fR"
+include the files in the SOURCE directory into the
+target directory in the final initramfs.
+.TP
+.BR \-I ", " \-\-install " \fILIST\fR"
+install the space separated list of files into the initramfs.
+
+.SH KERNEL COMMAND LINE
+The root filesystem used by the kernel is specified in the boot configuration
+file, as always. The traditional \fBroot=/dev/hda1\fR style device 
+specification is allowed. If a label is used, as in \fBroot=LABEL=rootPart\fR
+the initrd will search all available devices for an ext2 or ext3 filesystem
+with the appropriate label, and mount that device as the root filesystem.
+\fBroot=UUID=uuidnumber\fR will mount the partition with that UUID as the 
+root filesystem.
+
+.SH Standard
+.TP
+.B init=<path to real init>
+.TP
+.B root=<path to blockdevice>
+specify e.g. \fI/dev/sda1\fR or
+\fI/dev/disk/by-path/pci-0000:00:1f.1-scsi-0:0:1:0-part1\fR
+
+.SH DHCP
+.TP
+.B root=dhcp
+get IP from dhcp server, root-path option from dhcp specifies root location
+
+.SH NFS
+.TP
+.B root=[<server-ip>:]<root-dir>[:<nfs-options>]
+mount nfs share from <server-ip>:/<root-dir>, if no server-ip is given,
+use dhcp next_server. 
+NFS options can be appended with the prefix "." or ","
+.TP
+.B root=dhcp root-path=<server-ip>:<root-dir>[:<nfs-options>]
+root=dhcp alone directs initrd to look at the DHCP root-path where NFS 
+options can be specified.
+.TP
+.B root=/dev/nfs nfsroot=[<server-ip>:]<root-dir>[,<nfs-options>]
+\fBDeprecated!\fR kernel Documentation/filesystems/nfsroot.txt defines 
+this method.  
+This is supported by dracut but not recommended.
+
+.SH iSCSI
+.TP
+.B root=iscsi:[<servername>]:[<protocol>]:[<port>]:[<LUN>]:<targetname>
+protocol defaults to "6", LUN defaults to "0".
+
+If the "servername" field is provided by BOOTP or DHCP, then that
+field is used in conjunction with other associated fields to contact
+the boot server in the Boot stage (Section 7).  However, if the
+"servername" field is not provided, then the "targetname" field is
+then used in the Discovery Service stage in conjunction with other
+associated fields.
+
+http://tools.ietf.org/html/rfc4173
+
+.TP
+.B root=??? iscsiroot=...
+.TP
+.B root=??? iscsi_initiator= iscsi_target_name= iscsi_target_ip= iscsi_target_port= iscsi_target_group= iscsi_username=  iscsi_password= iscsi_in_username= iscsi_in_password=
+.TP
+.B root=??? iscsi_firmware
+
+.SH NBD
+.TP
+.B root=nbd:<server>:<port>[:<fstype>][:<mountopts>]
+mount nbd share from <server>
+.TP
+.B root=dhcp root-path=nbd:<server>:<port>[:<fstype>][:<mountopts>]
+root=dhcp alone directs initrd to look at the DHCP root-path where NBD options can be specified.
+This syntax is only usable in cases where you are directly mounting the volume as the rootfs.
+
+.SH Network
+.TP bootdev=<interface>
+.B specify the network interface to boot from
+.TP
+.B ip=[dhcp|on|any]
+get ip from dhcp server from all interfaces. If root=dhcp, loop sequentially through all interfaces (eth0, eth1, ...) and use the first with a valid DHCP root-path.
+.TP
+.B ip=<interface>:[dhcp|on|any]
+get ip from dhcp server on a specific interface
+.TP
+.B ip=<client-IP-number>:<gateway-IP-number>:<netmask>:<client-hostname>:<interface>:[dhcp|on|any|]
+explicit network configuration
+
+.SH Misc
+.TP
+.B rdblacklist=<modulename>
+TBD: do not load modulename
+
+.SH Debug
+.TP
+.B rdinitdebug
+set -x for the dracut shell
+.TP
+.B rdbreak=[pre-udev|pre-mount|mount|pre-pivot|]
+drop the shell on defined breakpoint
+.TP
+.B rdudevinfo
+set udev to loglevel info
+.TP
+.B rdudevdebug
+set udev to loglevel debug
+.TP
+.B rdnetdebug
+debug network scripts in dracut. Output is written to /tmp/
+
+
+.SH CONFIGURATION IN INITRAMFS
+.TP 
+.B /conf/conf.d/
+Any files found in /conf/conf.d/ will be sourced in the initramfs to 
+specify special variables. 
+Command line options can override values set here.
+
+.SH AUTHORS
+.nf
+Andreas Thienemann <andreas@bawue.net>
+Bill Nottingham <notting@redhat.com>
+Dave Jones <davej@redhat.com>
+David Dillow <dave@thedillows.org>
+Harald Hoyer <harald@redhat.com>
+Jeremy Katz <katzj@redhat.com>
+Peter Jones <pjones@redhat.com>
+Seewer Philippe <philippe.seewer@bfh.ch>
+Victor Lowther <victor.lowther@gmail.com>
+Warren Togami <wtogami@redhat.com>
+.fi
+.SH AVAILABILITY
+The dracut command is part of the dracut package and is available from
+https://sourceforge.net/apps/trac/dracut/wiki
+
+
