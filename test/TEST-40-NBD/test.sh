@@ -11,7 +11,7 @@ run_server() {
     echo "NBD TEST SETUP: Starting DHCP/NBD server"
 
     $testdir/run-qemu -hda server.ext2 -hdb nbd.ext2 -hdc encrypted.ext2 \
-	-m 512M -nographic \
+	-m 128M -nographic \
 	-net nic,macaddr=52:54:00:12:34:56,model=e1000 \
 	-net socket,mcast=230.0.0.1:1234 \
 	-serial udp:127.0.0.1:9999 \
@@ -46,7 +46,7 @@ client_test() {
 	return 1
     fi
 
-    $testdir/run-qemu -hda flag.img -m 512M -nographic \
+    $testdir/run-qemu -hda flag.img -m 128M -nographic \
 	-net nic,macaddr=$mac,model=e1000 \
 	-net socket,mcast=230.0.0.1:1234 \
 	-kernel /boot/vmlinuz-$KVERSION \
@@ -213,7 +213,7 @@ make_encrypted_root() {
     rm -rf overlay
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
-    $testdir/run-qemu -hda flag.img -hdb encrypted.ext2 -m 512M \
+    $testdir/run-qemu -hda flag.img -hdb encrypted.ext2 -m 128M \
 	-nographic -net none \
 	-kernel "/boot/vmlinuz-$kernel" \
 	-append "root=/dev/dracut/root rw quiet console=ttyS0,115200n81" \

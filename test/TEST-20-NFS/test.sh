@@ -10,7 +10,7 @@ run_server() {
     # Start server first
     echo "NFS TEST SETUP: Starting DHCP/NFS server"
 
-    $testdir/run-qemu -hda server.ext2 -m 512M -nographic \
+    $testdir/run-qemu -hda server.ext2 -m 128M -nographic \
 	-net nic,macaddr=52:54:00:12:34:56,model=e1000 \
 	-net socket,mcast=230.0.0.1:1234 \
 	-serial udp:127.0.0.1:9999 \
@@ -42,7 +42,7 @@ client_test() {
 	return 1
     fi
 
-    $testdir/run-qemu -hda client.img -m 512M -nographic \
+    $testdir/run-qemu -hda client.img -m 128M -nographic \
   	-net nic,macaddr=$mac,model=e1000 \
   	-net socket,mcast=230.0.0.1:1234 \
   	-kernel /boot/vmlinuz-$KVERSION \

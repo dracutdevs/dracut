@@ -4,7 +4,7 @@ TEST_DESCRIPTION="root filesystem on an encrypted LVM PV"
 KVERSION=${KVERSION-$(uname -r)}
 
 test_run() {
-    $testdir/run-qemu -hda root.ext2 -m 512M -nographic \
+    $testdir/run-qemu -hda root.ext2 -m 128M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
 	-append "root=/dev/dracut/root rw quiet console=ttyS0,115200n81" \
 	-initrd initramfs.testing
@@ -47,7 +47,7 @@ test_setup() {
 	-f initramfs.makeroot $KVERSION || return 1
     rm -rf overlay
     # Invoke KVM and/or QEMU to actually create the target filesystem.
-    $testdir/run-qemu -hda root.ext2 -m 512M -nographic -net none \
+    $testdir/run-qemu -hda root.ext2 -m 128M -nographic -net none \
 	-kernel "/boot/vmlinuz-$kernel" \
 	-append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81" \
 	-initrd initramfs.makeroot  || return 1
