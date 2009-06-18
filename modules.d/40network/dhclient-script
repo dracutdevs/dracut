@@ -43,11 +43,11 @@ if getarg rdnetdebug ; then
     set -x
 fi
 
-# Huh? Interface configured?
-[ -f "/tmp/net.$netif.up" ] && exit 0
-
 # We already need a set netif here
 netif=$interface
+
+# Huh? Interface configured?
+[ -f "/tmp/net.$netif.up" ] && exit 0
 
 case $reason in
     PREINIT)
