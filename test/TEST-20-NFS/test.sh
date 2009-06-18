@@ -258,6 +258,10 @@ test_run() {
 
     test_nfsv3 || return 1
     test_nfsv4
+    if [[ -s server.pid ]]; then
+	sudo kill -TERM $(cat server.pid)
+	rm -f server.pid
+    fi
 }
 
 test_setup() {

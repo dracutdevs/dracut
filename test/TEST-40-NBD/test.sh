@@ -170,6 +170,12 @@ test_run() {
     client_test "NBD root=/dev/dracut/root netroot=dhcp (w/ fstype and opts)" \
 	52:54:00:12:34:05 \
 	"root=/dev/dracut/root netroot=dhcp" || return 1
+
+    if [[ -s server.pid ]]; then
+	sudo kill -TERM $(cat server.pid)
+	rm -f server.pid
+    fi
+
 }
 
 make_encrypted_root() {
