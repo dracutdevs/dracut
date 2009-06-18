@@ -6,7 +6,7 @@ SUBSYSTEM!="block", GOTO="raid_end"
 ACTION!="add|change", GOTO="raid_end"
 KERNEL=="md/*", GOTO="raid_end"
 
-KERNEL!="sr*", IMPORT{program}="vol_id --export $tempnode"
+KERNEL=="md*", IMPORT{program}="vol_id --export $tempnode"
 ENV{ID_FS_TYPE}=="linux_raid_member", RUN+="/sbin/mdadm -IR $root/%k"
 
 LABEL="raid_end"

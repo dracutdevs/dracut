@@ -1,0 +1,6 @@
+SUBSYSTEM!="block", GOTO="nbd_end"
+ACTION!="add|change", GOTO="nbd_end"
+
+KERNEL=="nbd*", IMPORT{program}="vol_id --export $tempnode"
+
+LABEL="nbd_end"

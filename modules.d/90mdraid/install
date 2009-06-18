@@ -3,7 +3,7 @@ dracut_install mdadm
 inst /etc/passwd
 inst /etc/group
 instmods =drivers/md
-inst_rules "$moddir/70-mdadm.rules"
+inst_rules "$moddir/61-mdadm.rules"
 [ -f /etc/mdadm/mdadm.conf ] && inst /etc/mdadm/mdadm.conf /etc/mdadm.conf
 [ -f /etc/mdadm.conf ] && inst /etc/mdadm.conf
 if [ -x  /sbin/mdmon ] ; then
