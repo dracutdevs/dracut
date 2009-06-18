@@ -3,10 +3,13 @@ TEST_DESCRIPTION="root filesystem on an encrypted LVM PV"
 
 KVERSION=${KVERSION-$(uname -r)}
 
+# Uncomment this to debug failures
+#DEBUGFAIL="rdinitdebug rdnetdebug"
+
 test_run() {
     $testdir/run-qemu -hda root.ext2 -m 128M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "root=/dev/dracut/root rw quiet console=ttyS0,115200n81" \
+	-append "root=/dev/dracut/root rw quiet console=ttyS0,115200n81 $DEBUGFAIL" \
 	-initrd initramfs.testing
     grep -m 1 -q dracut-root-block-success root.ext2 || return 1
 }
