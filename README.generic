@@ -1,0 +1,10 @@
+To build a generic initramfs, you have to install the following software packages:
+ * device-mapper
+ * cryptsetup-luks
+ * rpcbind nfs-utils 
+ * lvm2
+ * iscsi-initiator-utils
+ * nbd
+ * mdadm
+ * net-tools iproute
+
