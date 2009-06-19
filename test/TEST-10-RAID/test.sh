@@ -28,7 +28,7 @@ test_setup() {
 	inst "$basedir/modules.d/40network/dhclient-script" "/sbin/dhclient-script"
 	inst "$basedir/modules.d/40network/ifup" "/sbin/ifup"
 	dracut_install grep
-	inst $testdir/test-init /sbin/init
+	inst ./test-init /sbin/init
 	find_binary plymouth >/dev/null && dracut_install plymouth
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
     )
