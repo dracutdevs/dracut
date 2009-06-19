@@ -2,6 +2,12 @@
 
 inst nbd-client
 inst_hook cmdline 90 "$moddir/parse-nbdroot.sh"
-inst_rules "$moddir/61-nbd.rules"
+
+if [ -x /lib/udev/vol_id ]; then
+    inst_rules "$moddir/61-nbd-vol_id.rules"
+else
+    inst_rules "$moddir/61-nbd.rules"
+fi
+
 inst "$moddir/nbdroot" "/sbin/nbdroot"
 instmods nbd

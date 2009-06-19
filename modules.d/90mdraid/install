@@ -3,7 +3,14 @@ dracut_install mdadm
 inst /etc/passwd
 inst /etc/group
 instmods =drivers/md
-inst_rules "$moddir/61-mdadm.rules"
+
+if [ -x /lib/udev/vol_id ]; then
+    inst_rules "$moddir/61-mdadm.rules"
+else
+    inst_rules "$moddir/65-md-incremental.rules"
+    inst_rules 64-md-raid.rules
+fi
+
 [ -f /etc/mdadm/mdadm.conf ] && inst /etc/mdadm/mdadm.conf /etc/mdadm.conf
 [ -f /etc/mdadm.conf ] && inst /etc/mdadm.conf
 if [ -x  /sbin/mdmon ] ; then

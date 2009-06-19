@@ -1,0 +1,8 @@
+# This file causes block devices with Linux RAID (mdadm) signatures to
+# automatically cause mdadm to be run.
+# See udev(8) for syntax
+
+SUBSYSTEM=="block", ACTION=="add", ENV{ID_FS_TYPE}=="linux_raid_member", \
+	IMPORT{program}="/sbin/mdadm --examine --export $tempnode", \
+	RUN+="/bin/bash -c '[ ! -f /dev/.in_sysinit ] && /sbin/mdadm -I $env{DEVNAME}'"
+
