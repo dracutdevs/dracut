@@ -20,7 +20,7 @@ NEWROOT="/sysroot"
 
 trap "emergency_shell" 0
 
-. /lib/dracut-lib
+. /lib/dracut-lib.sh
 
 mknod /dev/null c 1 3
 

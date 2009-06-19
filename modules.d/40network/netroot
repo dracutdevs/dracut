@@ -2,7 +2,7 @@
 
 PATH=$PATH:/sbin:/usr/sbin
 
-. /lib/dracut-lib
+. /lib/dracut-lib.sh
 
 if getarg rdnetdebug ; then
     exec >/tmp/netroot.$1.$$.out

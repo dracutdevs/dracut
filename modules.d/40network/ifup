@@ -46,7 +46,7 @@ do_static() {
 
 PATH=$PATH:/sbin:/usr/sbin
 
-. /lib/dracut-lib
+. /lib/dracut-lib.sh
 
 if getarg rdnetdebug ; then
     exec >/tmp/ifup.$1.$$.out

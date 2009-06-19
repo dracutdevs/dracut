@@ -38,7 +38,7 @@ root_to_var() {
     fi
 }
 
-. /lib/dracut-lib
+. /lib/dracut-lib.sh
 
 PATH=$PATH:/sbin:/usr/sbin
 

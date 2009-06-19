@@ -12,7 +12,7 @@ if which switch_root >/dev/null 2>&1; then
 else
     inst "$moddir/switch_root" "/sbin/switch_root"
 fi
-inst "$moddir/dracut-lib" "/lib/dracut-lib"
+inst "$moddir/dracut-lib.sh" "/lib/dracut-lib.sh"
 inst_hook cmdline 10 "$moddir/parse-root-opts.sh"
 inst_hook cmdline 20 "$moddir/parse-blacklist.sh"
 inst_hook pre-pivot 50 "$moddir/selinux-loadpolicy.sh"

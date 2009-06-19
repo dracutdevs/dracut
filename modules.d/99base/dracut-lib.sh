@@ -1,10 +1,3 @@
-#!/bin/sh
-#
-# Licensed under the GPLv2
-#
-# Copyright 2008, Red Hat, Inc.
-# Jeremy Katz <katzj@redhat.com>
-
 getarg() {
     local o line
     [ "$CMDLINE" ] || read CMDLINE </proc/cmdline;

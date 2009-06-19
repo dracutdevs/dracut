@@ -6,7 +6,7 @@
 # iscsistart needs this.
 #
 
-. /lib/dracut-lib
+. /lib/dracut-lib.sh
 
 PATH=$PATH:/sbin:/usr/sbin
 
