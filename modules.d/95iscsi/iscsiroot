@@ -118,6 +118,14 @@ echo "InitiatorName='$iscsi_initiator'" > /dev/.initiatorname.iscsi
 
 # FIXME $iscsi_lun?? $iscsi_protocol??
 
+# if root does not specify a block device
+# we set a fallback to recognize any filesystems labeled 
+# LABEL=/ or LABEL=ROOT
+if [ "${root#block:*}" = "$root" ]; then
+    ( root="block:/dev/disk/by-label/\x2f" . /pre-udev/30-block-genrules.sh )
+    ( root="block:/dev/disk/by-label/ROOT" . /pre-udev/30-block-genrules.sh )
+fi
+
 iscsistart -i $iscsi_initiator -t $iscsi_target_name	\
     -g $iscsi_target_group -a $iscsi_target_ip	\
     -p $iscsi_target_port \

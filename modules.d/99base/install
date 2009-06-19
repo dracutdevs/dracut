@@ -7,9 +7,8 @@ fi
 # install our scripts and hooks
 inst "$moddir/init" "/init"
 # Bail out if switch_root does not exist
-if [ ! -x "$moddir/switch_root" ]; then
-    # assume it is installed in the standard path
-    dracut_install switch_root
+if which switch_root >/dev/null 2>&1; then
+    dracut_install switch_root 
 else
     inst "$moddir/switch_root" "/sbin/switch_root"
 fi

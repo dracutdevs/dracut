@@ -37,7 +37,7 @@ run_client() {
   	-net nic,macaddr=52:54:00:12:34:00,model=e1000 \
   	-net socket,mcast=230.0.0.1:1234 \
   	-kernel /boot/vmlinuz-$KVERSION \
-	-append "root=LABEL=ROOT netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0 rw quiet console=ttyS0,115200n81 $DEBUGFAIL" \
+	-append "root=dhcp rw quiet console=ttyS0,115200n81 $DEBUGFAIL" \
   	-initrd initramfs.testing
     grep -m 1 -q iscsi-OK client.img || return 1
 }
