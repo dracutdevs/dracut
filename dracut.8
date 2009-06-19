@@ -19,7 +19,7 @@ overwrite existing initramfs file.
 specify a space-separated list of dracut modules to call 
 when building the initramfs. 
 Modules are located in 
-.IR /usr/lib/dracut/modules.d .
+.IR /usr/share/dracut/modules.d .
 .TP
 .BR \-o ", " \-\-omit " \fILIST\fR"
 omit a space-separated list of dracut modules.
@@ -44,7 +44,7 @@ Default:
 .BR \-l ", " \-\-local
 local mode. Use modules from the current working
 directory instead of the system-wide installed in
-.IR /usr/lib/dracut/modules.d .
+.IR /usr/share/dracut/modules.d .
 Useful when running dracut from a git checkout.
 .TP
 .BR \-H ", " \-\-hostonly

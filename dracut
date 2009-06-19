@@ -17,7 +17,7 @@ Creates initial ramdisk images for preloading modules
   -f, --force           Overwrite existing initramfs file.
   -m, --modules [LIST]  Specify a space-separated list of dracut modules to
                          call when building the initramfs. Modules are located
-                         in /usr/lib/dracut/modules.d.
+                         in /usr/share/dracut/modules.d.
   -o, --omit [LIST]     Omit a space-separated list of dracut modules.
   -d, --drivers [LIST]  Specify a space-separated list of kernel modules to
                          include in the initramfs.
@@ -28,7 +28,7 @@ Creates initial ramdisk images for preloading modules
                          Default: /etc/dracut.conf
   -l, --local           Local mode. Use modules from the current working
                          directory instead of the system-wide installed in
-                         /usr/lib/dracut/modules.d.
+                         /usr/share/dracut/modules.d.
                          Useful when running dracut from a git checkout.
   -H, --hostonly          Host-Only mode: Install only what is needed for
                          booting the local host instead of a generic host.
@@ -74,7 +74,7 @@ done
 [[ $dracutmodules_l ]] && dracutmodules=$dracutmodules_l
 [[ $omit_dracutmodules_l ]] && omit_dracutmodules=$omit_dracutmodules_l
 [[ $drivers_l ]] && drivers=$drivers_l
-[[ $dracutbasedir ]] || dracutbasedir=/usr/lib/dracut
+[[ $dracutbasedir ]] || dracutbasedir=/usr/share/dracut
 
 [[ $allowlocal && -f "$(dirname $0)/dracut-functions" ]] && dsrc="$(dirname $0)" || dsrc=$dracutbasedir
 

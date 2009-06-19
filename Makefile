@@ -2,8 +2,8 @@ VERSION=0.1
 GITVERSION=$(shell [ -d .git ] && git rev-list  --abbrev-commit  -n 1 HEAD  |cut -b 1-8)
 
 prefix = /usr
-libdir = ${prefix}/lib
-pkglibdir = ${libdir}/dracut
+datadir = ${prefix}/share
+pkglibdir = ${datadir}/dracut
 sysconfdir = ${prefix}/etc
 sbindir = ${prefix}/sbin
 mandir = ${prefix}/share/man
