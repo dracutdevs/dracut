@@ -110,12 +110,20 @@ associated fields.
 
 http://tools.ietf.org/html/rfc4173
 
+If the root partition is not specified using \fBroot=\fR, one of the partitions found 
+with label \fBROOT\fR or \fB/\fR will be used to boot from.
+
 .TP
-.B root=??? iscsiroot=...
+.B root=??? netroot=iscsi:[<servername>]:[<protocol>]:[<port>]:[<LUN>]:<targetname>
+e.g. root=LABEL=ROOT netroot=root=LABEL=ROOT netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0
+
 .TP
 .B root=??? iscsi_initiator= iscsi_target_name= iscsi_target_ip= iscsi_target_port= iscsi_target_group= iscsi_username=  iscsi_password= iscsi_in_username= iscsi_in_password=
+these variables can also be put in a file in /conf/conf.d/, which will be sourced
+
 .TP
 .B root=??? iscsi_firmware
+will read the iscsi parameter from the BIOS firmware
 
 .SH NBD
 .TP
