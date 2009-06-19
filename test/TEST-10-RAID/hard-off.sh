@@ -1,2 +1,2 @@
 #!/bin/sh
-poweroff -f
+getarg rdinitdebug || poweroff -f
