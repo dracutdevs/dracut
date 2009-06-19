@@ -1,5 +1,6 @@
 # define gittag 2c02c831
 %define replace_mkinitrd 0
+%define with_switch_root 0
 Name: dracut
 Version: 0.1
 %if %{defined gittag}
@@ -30,6 +31,9 @@ Requires: bash
 Obsoletes: mkinitrd < 7.0
 Provides: mkinitrd = 7.0
 %endif
+%if ! 0%{?with_switch_root}
+BuildArch: noarch
+%endif
 
 %description
 dracut is a new, event-driven initramfs infrastructure based around udev.
@@ -50,6 +54,10 @@ ln -s dracut $RPM_BUILD_ROOT/sbin/mkinitrd
 ln -s dracut/dracut-functions $RPM_BUILD_ROOT/usr/libexec/initrd-functions
 %endif
 
+%if ! 0%{?with_switch_root}
+rm -f $RPM_BUILD_ROOT/sbin/switch_root
+%endif
+
 #mkdir -p $RPM_BUILD_ROOT/sbin
 #mv $RPM_BUILD_ROOT/%{_prefix}/lib/dracut/modules.d/99base/switch_root $RPM_BUILD_ROOT/sbin
 
@@ -60,7 +68,9 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %doc README HACKING TODO COPYING
 /sbin/dracut
+%if 0%{?with_switch_root}
 /sbin/switch_root
+%endif
 %if 0%{?replace_mkinitrd}
 /sbin/mkinitrd
 /usr/libexec/initrd-functions
