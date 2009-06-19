@@ -9,7 +9,7 @@ sbindir = ${prefix}/sbin
 mandir = ${prefix}/share/man
 
 modules.d/99base/switch_root: switch_root.c
-	gcc -o modules.d/99base/switch_root switch_root.c	
+	gcc -D _GNU_SOURCE -D 'PACKAGE_STRING="dracut"' -std=gnu99 -fsigned-char -g -O2 -o modules.d/99base/switch_root switch_root.c	
 
 all: modules.d/99base/switch_root
 
