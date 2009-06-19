@@ -3,7 +3,7 @@ TEST_DESCRIPTION="root filesystem over iSCSI"
 
 KVERSION=${KVERSION-$(uname -r)}
 
-#DEBUGFAIL="rdinitdebug rdnetdebug udevinfo"
+#DEBUGFAIL="rdinitdebug rdnetdebug rdudevinfo"
 
 run_server() {
     # Start server first
@@ -110,7 +110,7 @@ test_setup() {
 	initdir=overlay
 	. $basedir/dracut-functions
 	dracut_install poweroff shutdown
-#	inst_simple ./hard-off.sh /emergency/01hard-off.sh
+	inst_simple ./hard-off.sh /emergency/01hard-off.sh
 #	inst ./cryptroot-ask /sbin/cryptroot-ask
     )
 #	-m "debug dash crypt lvm mdraid udev-rules base rootfs-block iscsi" \
