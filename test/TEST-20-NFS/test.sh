@@ -141,31 +141,9 @@ test_nfsv3() {
     client_test "NFSv3 root=nfs:..." 52:54:00:12:34:04 \
  	"root=nfs:192.168.50.1:/nfs/client" 192.168.50.1 -wsize=4096 || return 1
 
-    client_test "NFSv3 nfsroot=/nfs/client" 52:54:00:12:34:04 \
-	"nfsroot=/nfs/client" 192.168.50.1 -wsize=4096 || return 1
-
-    client_test "NFSv3 nfsroot=192.168.50.2:/nfs/client" 52:54:00:12:34:04 \
-	"nfsroot=192.168.50.2:/nfs/client" 192.168.50.2 -wsize=4096 || return 1
-
     # This test must fail: root=dhcp must ignore other arguments
     client_test "NFSv3 root=dhcp nfsroot=/nfs/client" 52:54:00:12:34:04 \
 	"root=dhcp nfsroot=/nfs/client" 192.168.50.1 -wsize=4096 && return 1
-
-    client_test "NFSv3 root=nfs nfsroot=/nfs/client" 52:54:00:12:34:04 \
-	"root=nfs nfsroot=/nfs/client" 192.168.50.1 -wsize=4096 || return 1
-
-    client_test "NFSv3 root=nfs nfsroot=/nfs/%s" 52:54:00:12:34:04 \
-	"root=nfs nfsroot=/nfs/%s" 192.168.50.1 -wsize=4096 || return 1
-
-    client_test "NFSv3 root=nfs nfsroot=/nfs/ip/%s no host name (use IP)" \
-	52:54:00:12:34:7f \
-	"root=nfs nfsroot=/nfs/ip/%s \
-		ip=192.168.50.101:192.168.50.1::255.255.255.0::eth0:off" \
-	192.168.50.1 -wsize=4096 || return 1
-
-    client_test "NFSv3 root=nfs nfsroot=/nfs/client,wsize=4096" \
-	52:54:00:12:34:04 "root=nfs nfsroot=/nfs/client,wsize=4096" \
-	192.168.50.1 wsize=4096 || return 1
 
     client_test "NFSv3 root=dhcp DHCP path,options" \
 	52:54:00:12:34:05 "root=dhcp" 192.168.50.1 wsize=4096 || return 1
@@ -188,17 +166,11 @@ test_nfsv4() {
     client_test "NFSv4 root=nfs4 DHCP path only" 52:54:00:12:34:80 \
   	"root=nfs4" 192.168.50.1 -wsize=4096 || return 1
 
-    client_test "NFSv4 root=/dev/nfs4 DHCP path only" 52:54:00:12:34:80 \
-  	"root=/dev/nfs4" 192.168.50.1 -wsize=4096 || return 1
-
     client_test "NFSv4 netroot=nfs4 DHCP IP:path" 52:54:00:12:34:81 \
   	"netroot=nfs4" 192.168.50.2 -wsize=4096 || return 1
 
     client_test "NFSv4 root=nfs4 DHCP IP:path" 52:54:00:12:34:81 \
   	"root=nfs4" 192.168.50.2 -wsize=4096 || return 1
-
-    client_test "NFSv4 root=/dev/nfs4 DHCP IP:path" 52:54:00:12:34:81 \
-  	"root=/dev/nfs4" 192.168.50.2 -wsize=4096 || return 1
 
     client_test "NFSv4 netroot=dhcp DHCP proto:IP:path" 52:54:00:12:34:82 \
  	"netroot=dhcp" 192.168.50.3 -wsize=4096 || return 1
@@ -219,20 +191,6 @@ test_nfsv4() {
     client_test "NFSv4 root=nfs4:..." 52:54:00:12:34:84 \
 	"root=nfs4:192.168.50.1:/client" 192.168.50.1 \
 	-wsize=4096 || return 1
-
-    client_test "NFSv4 root=nfs4 nfsroot=/client" 52:54:00:12:34:84 \
-	"root=nfs4 nfsroot=/client" 192.168.50.1 -wsize=4096 || return 1
-
-    client_test "NFSv4 root=nfs4 nfsroot=192.168.50.2:/client" \
-	52:54:00:12:34:84 "root=nfs4 nfsroot=192.168.50.2:/client" \
-	192.168.50.2 -wsize=4096 || return 1
-
-    client_test "NFSv4 root=nfs4 nfsroot=path,opts" \
-	52:54:00:12:34:84 "root=nfs4 nfsroot=/client,wsize=4096" \
-	192.168.50.1 wsize=4096 || return 1
-
-    # These two only work with NFSv4 in the test suite -- NFSv3 needs
-    # a /nfs prefix due to our server configuration
 
     client_test "NFSv4 netroot=nfs4" 52:54:00:12:34:84 \
 	"netroot=nfs4" 192.168.50.1 -wsize=4096 || return 1

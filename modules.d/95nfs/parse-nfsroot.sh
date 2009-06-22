@@ -2,12 +2,13 @@
 #
 # Preferred format:
 #	root=nfs[4]:[server:]path[:options]
+# FIXME: What is the below referring to other than root=dhcp?
 #	[root=*] netroot=nfs[4]:[server:]path[:options]
 #
-# Legacy formats:
-#	[net]root=[[/dev/]nfs[4]] nfsroot=[server:]path[,options]
-#	[net]root=[[/dev/]nfs[4]] nfsroot=[server:]path[:options]
+# Legacy format:
+#	root=/dev/nfs nfsroot=[server:]path[,options]
 #
+# FIXME: This blurb below refers to only legacy?
 # If the 'nfsroot' parameter is not given on the command line or is empty,
 # the dhcp root-path is used as [server:]path[:options] or the default
 # "/tftpboot/%s" will be used.
@@ -79,7 +80,7 @@ esac
 
 # Root takes precedence over netroot
 case "${root%%:*}" in
-    nfs|nfs4|/dev/nfs|/dev/nfs4)
+    nfs|nfs4|/dev/nfs)
     if [ -n "$netroot" ] ; then
 	warn "root takes precedence over netroot. Ignoring netroot"
 
@@ -90,7 +91,7 @@ esac
 
 # If it's not empty or nfs we don't continue
 case "${netroot%%:*}" in
-    ''|nfs|nfs4|/dev/nfs|/dev/nfs4);;
+    ''|nfs|nfs4|/dev/nfs);;
     *) return;;
 esac
 
@@ -101,14 +102,14 @@ if [ -n "$nfsroot" ] ; then
     warn "Argument nfsroot is deprecated and might be removed in a future release. See http://apps.sourceforge.net/trac/dracut/wiki/commandline for more information."
 
     case "$netroot" in
-	''|nfs|nfs4|/dev/nfs|/dev/nfs4) netroot=${netroot:-nfs}:$nfsroot;;
-	*) die "Argument nfsroot only accepted for empty root= or root=[/dev/]nfs[4]"
+	/dev/nfs) netroot=${netroot:-nfs}:$nfsroot;;
+	*) die "Argument nfsroot only accepted for legacy root=/dev/nfs"
     esac
 fi
 
 # If it's not nfs we don't continue
 case "${netroot%%:*}" in
-    nfs|nfs4|/dev/nfs|/dev/nfs4);;
+    nfs|nfs4|/dev/nfs);;
     *) return;;
 esac
 
