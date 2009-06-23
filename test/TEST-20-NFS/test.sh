@@ -107,9 +107,6 @@ test_nfsv3() {
     client_test "NFSv3 netroot=dhcp DHCP path only" 52:54:00:12:34:00 \
  	"netroot=dhcp" 192.168.50.1 -wsize=4096  || return 1
 
-    client_test "NFSv3 root=nfs DHCP path only" 52:54:00:12:34:00 \
- 	"root=nfs" 192.168.50.1 -wsize=4096 || return 1
-
     client_test "NFSv3 root=/dev/nfs DHCP path only" 52:54:00:12:34:00 \
  	"root=/dev/nfs" 192.168.50.1 -wsize=4096 || return 1
 
@@ -118,9 +115,6 @@ test_nfsv3() {
 
     client_test "NFSv3 root=dhcp DHCP IP:path" 52:54:00:12:34:01 \
  	"root=dhcp" 192.168.50.2 -wsize=4096 || return 1
-
-    client_test "NFSv3 root=nfs DHCP IP:path" 52:54:00:12:34:01 \
- 	"root=nfs" 192.168.50.2 -wsize=4096 || return 1
 
     client_test "NFSv3 root=/dev/nfs DHCP IP:path" 52:54:00:12:34:01 \
  	"root=/dev/nfs" 192.168.50.2 -wsize=4096 || return 1
@@ -160,18 +154,6 @@ test_nfsv4() {
     # server, so put these later in the list to avoid a pause when doing
     # switch_root
 
-    client_test "NFSv4 netroot=nfs4 DHCP path only" 52:54:00:12:34:80 \
-  	"netroot=nfs4" 192.168.50.1 -wsize=4096 || return 1
-    
-    client_test "NFSv4 root=nfs4 DHCP path only" 52:54:00:12:34:80 \
-  	"root=nfs4" 192.168.50.1 -wsize=4096 || return 1
-
-    client_test "NFSv4 netroot=nfs4 DHCP IP:path" 52:54:00:12:34:81 \
-  	"netroot=nfs4" 192.168.50.2 -wsize=4096 || return 1
-
-    client_test "NFSv4 root=nfs4 DHCP IP:path" 52:54:00:12:34:81 \
-  	"root=nfs4" 192.168.50.2 -wsize=4096 || return 1
-
     client_test "NFSv4 netroot=dhcp DHCP proto:IP:path" 52:54:00:12:34:82 \
  	"netroot=dhcp" 192.168.50.3 -wsize=4096 || return 1
 
@@ -191,18 +173,6 @@ test_nfsv4() {
     client_test "NFSv4 root=nfs4:..." 52:54:00:12:34:84 \
 	"root=nfs4:192.168.50.1:/client" 192.168.50.1 \
 	-wsize=4096 || return 1
-
-    client_test "NFSv4 netroot=nfs4" 52:54:00:12:34:84 \
-	"netroot=nfs4" 192.168.50.1 -wsize=4096 || return 1
-
-    client_test "NFSv4 root=nfs4" 52:54:00:12:34:84 \
-	"root=nfs4" 192.168.50.1 -wsize=4096 || return 1
-
-    client_test "NFSv4 root=nfs4 DHCP path,options" \
-	52:54:00:12:34:85 "root=nfs4" 192.168.50.1 wsize=4096 || return 1
-
-    client_test "NFSv4 root=nfs4 DHCP IP:path,options" \
-	52:54:00:12:34:86 "root=nfs4" 192.168.50.2 wsize=4096 || return 1
 
     client_test "NFSv4 root=dhcp DHCP proto:IP:path,options" \
 	52:54:00:12:34:87 "root=dhcp" 192.168.50.3 wsize=4096 || return 1

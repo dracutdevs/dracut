@@ -69,14 +69,6 @@ case "${root%%:*}" in
     *) return;;
 esac
 
-# Ugly: root=nfs[4] requires dhcp root-path
-if [ "$root" = "nfs" ] || [ "$root" = "nfs4" ] ; then
-    # No need to check if the file exists. ip cmdline parser takes care of this
-    . /tmp/dhclient.$netif.dhcpopts
-    [ -z "$new_root_path" ] && die "Required dhcp option root-path not available"
-    root=$root:$new_root_path
-fi 
-
 root_to_var $root
 
 #Load other data that might provide info
