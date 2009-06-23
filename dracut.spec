@@ -11,7 +11,7 @@ Release: 1%{?dist}
 %endif
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
-License: GPLv2	
+License: GPLv2+	
 URL: http://apps.sourceforge.net/trac/dracut/wiki
 Source0: dracut-%{version}%{?dashgittag}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -25,6 +25,17 @@ Requires: grep
 Requires: mktemp
 Requires: mount
 Requires: bash
+Requires: /bin/sh 
+Requires: fileutils, grep, mount, gzip, tar, mktemp >= 1.5-5, findutils
+Requires: lvm2 >= 2.02.33-9, dhclient
+Requires: filesystem >= 2.1.0, cpio, device-mapper, initscripts >= 8.63-1
+Requires: e2fsprogs >= 1.38-12, libselinux, libsepol, coreutils
+Requires: mdadm, elfutils-libelf, plymouth >= 0.7.0
+Requires: cryptsetup-luks
+%ifnarch s390 s390x
+Requires: dmraid
+Requires: kbd
+%endif
 
 %if 0%{?replace_mkinitrd}
 Obsoletes: mkinitrd < 7.0
@@ -42,17 +53,13 @@ dracut is a new, event-driven initramfs infrastructure based around udev.
 %package generic
 Summary: Metapackage to build a generic initramfs
 Requires: %{name} = %{version}-%{release}
-Requires: device-mapper
-Requires: cryptsetup-luks
 Requires: rpcbind nfs-utils 
-Requires: lvm2
 Requires: iscsi-initiator-utils
 Requires: nbd
-Requires: mdadm
 Requires: net-tools iproute
 
 %description generic
-This package requires everything, which is needed to build a generic
+This package requires everything which is needed to build a generic
 all purpose initramfs.
 
 
