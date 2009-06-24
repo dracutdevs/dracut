@@ -73,6 +73,7 @@ netroot_to_var() {
 [ -z "$nfsroot" ] && nfsroot=$(getarg nfsroot=)
 
 # Handle old style <server-ip>:/<path
+# FIXME: root= is not handled by this yet.
 case "$netroot" in
     [0-9]*:/*|[0-9]*\.[0-9]*\.[0-9]*[!:]|/*)
        netroot=nfs:$netroot;;
@@ -89,7 +90,7 @@ case "${root%%:*}" in
     ;;
 esac
 
-# If it's not empty or nfs we don't continue
+# Continue if nfs or blank prefix
 case "${netroot%%:*}" in
     ''|nfs|nfs4|/dev/nfs);;
     *) return;;
@@ -107,7 +108,7 @@ if [ -n "$nfsroot" ] ; then
     esac
 fi
 
-# If it's not nfs we don't continue
+# Continue if nfs prefix
 case "${netroot%%:*}" in
     nfs|nfs4|/dev/nfs);;
     *) return;;

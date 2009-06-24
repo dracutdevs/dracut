@@ -63,7 +63,7 @@ netif="$1"
 root="$2"
 NEWROOT="$3"
 
-# If it's not nfs we don't continue
+# Continue if nfs prefix
 case "${root%%:*}" in
     nfs|nfs4);;
     *) return;;
@@ -80,6 +80,7 @@ root_to_var $root
 [ -z "$path" ] && root_to_var $nfs:$new_root_path
 
 #Empty path defaults to "/tftpboot/%s"
+# FIXME: This should happen only in nfsroot.txt legacy mode
 [ -z "$path" ] && path="/tftpboot/%s"
 
 if [ -z "$server" ] ; then
