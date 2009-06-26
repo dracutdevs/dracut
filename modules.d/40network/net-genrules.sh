@@ -2,7 +2,7 @@
 
 # pxelinux provides macaddr '-' separated, but we need ':'
 fix_bootif() {
-    local macaddr=${1##??-}
+    local macaddr=${1}
     local IFS='-'
     macaddr=$(for i in ${macaddr} ; do echo -n $i:; done)
     macaddr=${macaddr%:}
