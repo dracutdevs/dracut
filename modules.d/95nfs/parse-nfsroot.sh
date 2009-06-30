@@ -72,15 +72,6 @@ netroot_to_var() {
 [ -z "$netroot" ] && netroot=$(getarg netroot=)
 [ -z "$nfsroot" ] && nfsroot=$(getarg nfsroot=)
 
-# nfsroot= is valid only if root=/dev/nfs
-if [ -n "$nfsroot" ] ; then
-    # @deprecated
-    warn "Argument nfsroot is deprecated and might be removed in a future release. See http://apps.sourceforge.net/trac/dracut/wiki/commandline for more information."
-    if [ "$(getarg root=)" != "/dev/nfs"  ]; then
-	die "Argument nfsroot only accepted for legacy root=/dev/nfs"
-    fi
-fi
-
 # netroot= cmdline argument must be ignored, but must be used if
 # we're inside netroot to parse dhcp root-path
 if [ -n "$netroot" ] ; then
@@ -92,7 +83,17 @@ else
     netroot=$root;
 fi 
 
-# Handle old style <server-ip>:/<path
+# LEGACY convert nfsroot= is valid only if root=/dev/nfs
+if [ -n "$nfsroot" ] ; then
+    # @deprecated
+    warn "Argument nfsroot is deprecated and might be removed in a future release. See http://apps.sourceforge.net/trac/dracut/wiki/commandline for more information."
+    if [ "$(getarg root=)" != "/dev/nfs"  ]; then
+	die "Argument nfsroot only accepted for legacy root=/dev/nfs"
+    fi
+    netroot=nfs:$nfsroot;
+fi
+
+# LEGACY convert root=<server-ip>:/<path
 case "$netroot" in
     [0-9]*:/*|[0-9]*\.[0-9]*\.[0-9]*[!:]|/*)
        netroot=nfs:$netroot;;

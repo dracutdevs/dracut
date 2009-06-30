@@ -104,10 +104,10 @@ test_nfsv3() {
     client_test "NFSv3 root=dhcp DHCP path only" 52:54:00:12:34:00 \
  	"root=dhcp" 192.168.50.1 -wsize=4096 || return 1
 
-# XXX: Temporarily not supported during refactoring
-#    client_test "NFSv3 Legacy root=/dev/nfs nfsroot=IP:path" 52:54:00:12:34:01 \
-# 	"root=/dev/nfs nfsroot=192.168.50.1:/nfs/client" 192.168.50.1 -wsize=4096 || return 1
-#
+    client_test "NFSv3 Legacy root=/dev/nfs nfsroot=IP:path" 52:54:00:12:34:01 \
+ 	"root=/dev/nfs nfsroot=192.168.50.1:/nfs/client" 192.168.50.1 -wsize=4096 || return 1
+
+# XXX Fix me
 #    client_test "NFSv3 Legacy root=/dev/nfs DHCP path only" 52:54:00:12:34:00 \
 # 	"root=/dev/nfs" 192.168.50.1 -wsize=4096 || return 1
 #
