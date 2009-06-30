@@ -72,7 +72,16 @@ netroot_to_var() {
 [ -z "$netroot" ] && netroot=$(getarg netroot=)
 [ -z "$nfsroot" ] && nfsroot=$(getarg nfsroot=)
 
-# Netroot cmdline argument must be ignored, but must be used if
+# nfsroot= is valid only if root=/dev/nfs
+if [ -n "$nfsroot" ] ; then
+    # @deprecated
+    warn "Argument nfsroot is deprecated and might be removed in a future release. See http://apps.sourceforge.net/trac/dracut/wiki/commandline for more information."
+    if [ "$(getarg root=)" != "/dev/nfs"  ]; then
+	die "Argument nfsroot only accepted for legacy root=/dev/nfs"
+    fi
+fi
+
+# netroot= cmdline argument must be ignored, but must be used if
 # we're inside netroot to parse dhcp root-path
 if [ -n "$netroot" ] ; then
     if [ "$netroot" = "$(getarg netroot=)" ] ; then
@@ -84,31 +93,12 @@ else
 fi 
 
 # Handle old style <server-ip>:/<path
-# FIXME: root= is not handled by this yet.
 case "$netroot" in
     [0-9]*:/*|[0-9]*\.[0-9]*\.[0-9]*[!:]|/*)
        netroot=nfs:$netroot;;
 esac
 
-# Continue if nfs or blank prefix
-case "${netroot%%:*}" in
-    ''|nfs|nfs4|/dev/nfs);;
-    *) return;;
-esac
-
-if [ -n "$nfsroot" ] ; then
-    [ -z "$netroot" ]  && netroot=$root
-
-    # @deprecated
-    warn "Argument nfsroot is deprecated and might be removed in a future release. See http://apps.sourceforge.net/trac/dracut/wiki/commandline for more information."
-
-    case "$netroot" in
-	/dev/nfs) netroot=${netroot:-nfs}:$nfsroot;;
-	*) die "Argument nfsroot only accepted for legacy root=/dev/nfs"
-    esac
-fi
-
-# Continue if nfs prefix
+# Continue if nfs
 case "${netroot%%:*}" in
     nfs|nfs4|/dev/nfs);;
     *) return;;

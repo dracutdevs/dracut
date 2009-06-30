@@ -105,14 +105,14 @@ test_nfsv3() {
  	"root=dhcp" 192.168.50.1 -wsize=4096 || return 1
 
 # XXX: Temporarily not supported during refactoring
-#    client_test "NFSv3 Legacy root=/dev/nfs DHCP path only" 52:54:00:12:34:00 \
-# 	"root=/dev/nfs" 192.168.50.1 -wsize=4096 || return 1
-
-#    client_test "NFSv3 Legacy root=/dev/nfs DHCP IP:path" 52:54:00:12:34:01 \
-# 	"root=/dev/nfs" 192.168.50.2 -wsize=4096 || return 1
-
 #    client_test "NFSv3 Legacy root=/dev/nfs nfsroot=IP:path" 52:54:00:12:34:01 \
 # 	"root=/dev/nfs nfsroot=192.168.50.1:/nfs/client" 192.168.50.1 -wsize=4096 || return 1
+#
+#    client_test "NFSv3 Legacy root=/dev/nfs DHCP path only" 52:54:00:12:34:00 \
+# 	"root=/dev/nfs" 192.168.50.1 -wsize=4096 || return 1
+#
+#    client_test "NFSv3 Legacy root=/dev/nfs DHCP IP:path" 52:54:00:12:34:01 \
+# 	"root=/dev/nfs" 192.168.50.2 -wsize=4096 || return 1
 
     client_test "NFSv3 root=dhcp DHCP IP:path" 52:54:00:12:34:01 \
  	"root=dhcp" 192.168.50.2 -wsize=4096 || return 1
@@ -129,8 +129,8 @@ test_nfsv3() {
     client_test "NFSv3 Legacy root=IP:path" 52:54:00:12:34:04 \
  	"root=192.168.50.1:/nfs/client" 192.168.50.1 -wsize=4096 || return 1
 
-    # This test must fail: root=dhcp must ignore other arguments
-    client_test "NFSv3 root=dhcp nfsroot=/nfs/client" 52:54:00:12:34:04 \
+    # This test must fail: nfsroot= requires root=/dev/nfs
+    client_test "NFSv3 Invalid root=dhcp nfsroot=/nfs/client" 52:54:00:12:34:04 \
 	"root=dhcp nfsroot=/nfs/client" 192.168.50.1 -wsize=4096 && return 1
 
     client_test "NFSv3 root=dhcp DHCP path,options" \
