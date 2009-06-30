@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ -z $drivers ]; then
+if [ -z "$drivers" ]; then
   drivers="sd_mod =fs"
   instmods $drivers
   # Include block controller drivers
