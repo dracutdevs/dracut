@@ -72,22 +72,22 @@ netroot_to_var() {
 [ -z "$netroot" ] && netroot=$(getarg netroot=)
 [ -z "$nfsroot" ] && nfsroot=$(getarg nfsroot=)
 
+# Netroot cmdline argument must be ignored, but must be used if
+# we're inside netroot to parse dhcp root-path
+if [ -n "$netroot" ] ; then
+    if [ "$netroot" = "$(getarg netroot=)" ] ; then
+        warn "Ignoring netroot argument for NFS"
+        netroot=$root
+    fi
+else
+    netroot=$root;
+fi 
+
 # Handle old style <server-ip>:/<path
 # FIXME: root= is not handled by this yet.
 case "$netroot" in
     [0-9]*:/*|[0-9]*\.[0-9]*\.[0-9]*[!:]|/*)
        netroot=nfs:$netroot;;
-esac
-
-# Root takes precedence over netroot
-case "${root%%:*}" in
-    nfs|nfs4|/dev/nfs)
-    if [ -n "$netroot" ] ; then
-	warn "root takes precedence over netroot. Ignoring netroot"
-
-    fi
-    netroot=$root
-    ;;
 esac
 
 # Continue if nfs or blank prefix
