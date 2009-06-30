@@ -79,9 +79,8 @@ root_to_var $root
 #already takes care of nfs:... formatted root-path
 [ -z "$path" ] && root_to_var $nfs:$new_root_path
 
-#Empty path defaults to "/tftpboot/%s"
-# FIXME: This should happen only in nfsroot.txt legacy mode
-[ -z "$path" ] && path="/tftpboot/%s"
+#Empty path defaults to "/tftpboot/%s" only in nfsroot.txt legacy mode
+[ -z "$path" ] && [ "$(getarg root=)" = "/dev/nfs" ] && path="/tftpboot/%s"
 
 if [ -z "$server" ] ; then
     # XXX new_dhcp_next_server is unconfirmed this is an assumption
