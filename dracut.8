@@ -87,9 +87,16 @@ mount nfs share from <server-ip>:/<root-dir>, if no server-ip is given,
 use dhcp next_server. 
 NFS options can be appended with the prefix "." or ","
 .TP
-.B root=dhcp root-path=<server-ip>:<root-dir>[:<nfs-options>]
+.B root=nfs:[<server-ip>:]<root-dir>[:<nfs-options>] 
+.TP
+.B root=nfs4:[<server-ip>:]<root-dir>[:<nfs-options>]
+.TP
+.B root=dhcp 
 root=dhcp alone directs initrd to look at the DHCP root-path where NFS 
 options can be specified.
+    root-path=<server-ip>:<root-dir>[,<nfs-options>]
+    root-path=nfs:<server-ip>:<root-dir>[,<nfs-options>]
+    root-path=nfs4:<server-ip>:<root-dir>[,<nfs-options>] 
 .TP
 .B root=/dev/nfs nfsroot=[<server-ip>:]<root-dir>[,<nfs-options>]
 \fBDeprecated!\fR kernel Documentation/filesystems/nfsroot.txt defines 
@@ -114,12 +121,17 @@ If the root partition is not specified using \fBroot=\fR, one of the partitions 
 with label \fBROOT\fR or \fB/\fR will be used to boot from.
 
 .TP
-.B root=??? netroot=iscsi:[<servername>]:[<protocol>]:[<port>]:[<LUN>]:<targetname>
-e.g. root=LABEL=ROOT netroot=root=LABEL=ROOT netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0
+.B root=iscsi:[<servername>]:[<protocol>]:[<port>]:[<LUN>]:<targetname>
+e.g. root=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0
 
 .TP
+.B root=??? netroot=iscsi:[<servername>]:[<protocol>]:[<port>]:[<LUN>]:<targetname> ...
+multiple netroot options allow setting up multiple iscsi disks
+e.g. 
+   root=UUID=12424547 netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0 netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target1
+.B not yet implemented
+.TP
 .B root=??? iscsi_initiator= iscsi_target_name= iscsi_target_ip= iscsi_target_port= iscsi_target_group= iscsi_username=  iscsi_password= iscsi_in_username= iscsi_in_password=
-these variables can also be put in a file in /conf/conf.d/, which will be sourced
 
 .TP
 .B root=??? iscsi_firmware
@@ -130,7 +142,8 @@ will read the iscsi parameter from the BIOS firmware
 .B root=nbd:<server>:<port>[:<fstype>][:<mountopts>]
 mount nbd share from <server>
 .TP
-.B root=dhcp root-path=nbd:<server>:<port>[:<fstype>][:<mountopts>]
+.B root=dhcp 
+   with dhcp root-path=nbd:<server>:<port>[:<fstype>][:<mountopts>]
 root=dhcp alone directs initrd to look at the DHCP root-path where NBD options can be specified.
 This syntax is only usable in cases where you are directly mounting the volume as the rootfs.
 
@@ -150,7 +163,7 @@ explicit network configuration
 .SH Misc
 .TP
 .B rdblacklist=<drivername>
-TBD: do not load kernel drivername
+do not load kernel module <drivername>
 
 .SH Debug
 .TP
@@ -169,13 +182,12 @@ set udev to loglevel debug
 .B rdnetdebug
 debug network scripts in dracut. Output is written to /tmp/
 
-
 .SH CONFIGURATION IN INITRAMFS
 .TP 
 .B /conf/conf.d/
 Any files found in /conf/conf.d/ will be sourced in the initramfs to 
-specify special variables. 
-Command line options can override values set here.
+set initial values. Command line options will override these values 
+set in the configuration files.
 
 .SH AUTHORS
 .nf
