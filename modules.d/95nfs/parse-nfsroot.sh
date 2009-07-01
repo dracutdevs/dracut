@@ -2,16 +2,15 @@
 #
 # Preferred format:
 #	root=nfs[4]:[server:]path[:options]
-# FIXME: What is the below referring to other than root=dhcp?
-#	[root=*] netroot=nfs[4]:[server:]path[:options]
+#
+# This syntax can come from DHCP root-path as well.
 #
 # Legacy format:
 #	root=/dev/nfs nfsroot=[server:]path[,options]
 #
-# FIXME: This blurb below refers to only legacy?
-# If the 'nfsroot' parameter is not given on the command line or is empty,
-# the dhcp root-path is used as [server:]path[:options] or the default
-# "/tftpboot/%s" will be used.
+# In Legacy root=/dev/nfs mode, if the 'nfsroot' parameter is not given
+# on the command line or is empty, the dhcp root-path is used as 
+# [server:]path[:options] or the default "/tftpboot/%s" will be used.
 #
 # If server is unspecified it will be pulled from one of the following
 # sources, in order:
@@ -20,10 +19,8 @@
 #	DHCP server-id option
 #       DHCP root-path option
 #
-# NFSv4 is only used if explicitly requested; default is NFSv2 or NFSv3
-# depending on kernel configuration
-#
-# root= takes precedence over netroot= if root=nfs[...]
+# NFSv4 is only used if explicitly requested with nfs4: prefix, otherwise
+# NFSv3 is used.
 #
 
 # Sadly there's no easy way to split ':' separated lines into variables
@@ -83,7 +80,7 @@ else
     netroot=$root;
 fi 
 
-# LEGACY convert nfsroot= is valid only if root=/dev/nfs
+# LEGACY: nfsroot= is valid only if root=/dev/nfs
 if [ -n "$nfsroot" ] ; then
     # @deprecated
     warn "Argument nfsroot is deprecated and might be removed in a future release. See http://apps.sourceforge.net/trac/dracut/wiki/commandline for more information."
