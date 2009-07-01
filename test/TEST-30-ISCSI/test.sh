@@ -11,7 +11,7 @@ run_server() {
 
     $testdir/run-qemu -hda server.ext2 -hdb root.ext2 -m 256M -nographic \
 	-net nic,macaddr=52:54:00:12:34:56,model=e1000 \
-	-net socket,mcast=230.0.0.1:1234 \
+	-net socket,mcast=230.0.0.1:1235 \
 	-serial udp:127.0.0.1:9999 \
 	-kernel /boot/vmlinuz-$KVERSION \
 	-append "root=/dev/sda rw quiet console=ttyS0,115200n81" \
@@ -35,7 +35,7 @@ run_client() {
 
     $testdir/run-qemu -hda client.img -m 256M -nographic \
   	-net nic,macaddr=52:54:00:12:34:00,model=e1000 \
-  	-net socket,mcast=230.0.0.1:1234 \
+  	-net socket,mcast=230.0.0.1:1235 \
   	-kernel /boot/vmlinuz-$KVERSION \
 	-append "root=dhcp rw quiet console=ttyS0,115200n81 $DEBUGFAIL" \
   	-initrd initramfs.testing
