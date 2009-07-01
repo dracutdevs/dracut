@@ -4,10 +4,6 @@
 #	root=nbd:srv:port[:fstype[:rootflags[:nbdopts]]]
 #	[root=*] netroot=nbd:srv:port[:fstype[:rootflags[:nbdopts]]]
 #
-# Legacy formats:
-#	[net]root=[nbd] nbdroot=srv,port
-#	[net]root=[nbd] nbdroot=srv:port[:fstype[:rootflags[:nbdopts]]]
-#
 # nbdopts is a comma seperated list of options to give to nbd-client
 #
 # root= takes precedence over netroot= if root=nbd[...]
@@ -32,7 +28,6 @@ netroot_to_var() {
 # This script is sourced, so root should be set. But let's be paranoid
 [ -z "$root" ] && root=$(getarg root=)
 [ -z "$netroot" ] && netroot=$(getarg netroot=)
-[ -z "$nbdroot" ] && nbdroot=$(getarg nbdroot=)
 
 # Root takes precedence over netroot
 if [ "${root%%:*}" = "nbd" ] ; then
@@ -41,26 +36,6 @@ if [ "${root%%:*}" = "nbd" ] ; then
 
     fi
     netroot=$root
-fi
-
-# If it's not empty or nbd we don't continue
-[ -z "$netroot" ] || [ "${netroot%%:*}" = "nbd" ] || return
-
-if [ -n "$nbdroot" ] ; then
-    [ -z "$netroot" ]  && netroot=$root
-
-    # Debian legacy style contains no ':' Converting is easy
-    [ "$nbdroot" = "${nbdroot##*:}" ] && nbdroot=${nbdroot%,*}:${nbdroot#*,}
-
-    # @deprecated
-    warn "Argument nbdroot is deprecated and might be removed in a future release. See http://apps.sourceforge.net/trac/dracut/wiki/commandline for more information."
-
-    # Accept nbdroot argument?
-    [ -z "$netroot" ] || [ "$netroot" = "nbd" ] || \
-	die "Argument nbdroot only accepted for empty root= or [net]root=nbd"
-
-    # Override netroot with nbdroot content?
-    [ -z "$netroot" ] || [ "$netroot" = "nbd" ] && netroot=nbd:$nbdroot
 fi
 
 # If it's not nbd we don't continue

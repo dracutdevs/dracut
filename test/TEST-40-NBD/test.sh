@@ -120,22 +120,6 @@ test_run() {
  	"root=nbd:192.168.50.1:2000:ext2:errors=panic:bs=2048" \
  	ext2 errors=panic || return 1
 
-     # Check legacy parsing
-
-     client_test "NBD root=nbd nbdroot=srv:port" 52:54:00:12:34:00 \
- 	"root=nbd nbdroot=192.168.50.1:2000" || return 1
-
-     # This test must fail: root=dhcp ignores nbdroot
-     client_test "NBD root=dhcp nbdroot=srv:port" 52:54:00:12:34:00 \
-	"root=dhcp nbdroot=192.168.50.1:2000" && return 1
-
-     client_test "NBD root=nbd nbdroot=srv,port" 52:54:00:12:34:00 \
-	 "root=nbd nbdroot=192.168.50.1,2000" || return 1
-
-     # This test must fail: root=dhcp ignores nbdroot
-     client_test "NBD root=dhcp nbdroot=srv,port" 52:54:00:12:34:00 \
-	"root=dhcp nbdroot=192.168.50.1,2000" && return 1
-
     # DHCP root-path parsing
 
     client_test "NBD root=dhcp DHCP root-path nbd:srv:port" 52:54:00:12:34:01 \
