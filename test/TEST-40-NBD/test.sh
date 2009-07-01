@@ -308,6 +308,7 @@ test_setup() {
 	-f initramfs.server $KVERSION || return 1
 
     sudo $basedir/dracut -l -i overlay / \
+        -o "plymouth" \
 	-d "ata_piix ext2 ext3 sd_mod e1000" \
 	-f initramfs.testing $KVERSION || return 1
 }
