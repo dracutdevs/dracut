@@ -1,14 +1,20 @@
-# define gittag 2c02c831
-%define replace_mkinitrd 0
+%if 0%{?fedora} < 12
+%define with_switch_root 1
+%else
 %define with_switch_root 0
-Name: dracut
-Version: 0.1
+%endif
+
 %if %{defined gittag}
-Release: 1.git%{gittag}%{?dist}
+%define rdist 1.git%{gittag}%{?dist}
 %define dashgittag -%{gittag}
 %else
-Release: 1%{?dist}
+%define rdist %{?dist}
 %endif
+
+
+Name: dracut
+Version: 0.1
+Release: 1%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
 License: GPLv2+	
@@ -35,11 +41,6 @@ Requires: cryptsetup-luks
 %ifnarch s390 s390x
 Requires: dmraid
 Requires: kbd
-%endif
-
-%if 0%{?replace_mkinitrd}
-Obsoletes: mkinitrd < 7.0
-Provides: mkinitrd = 7.0
 %endif
 
 %if ! 0%{?with_switch_root}
@@ -74,17 +75,9 @@ make
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT sbindir=/sbin sysconfdir=/etc mandir=%{_mandir}
 
-%if 0%{?replace_mkinitrd}
-ln -s dracut $RPM_BUILD_ROOT/sbin/mkinitrd
-ln -s dracut/dracut-functions $RPM_BUILD_ROOT/usr/libexec/initrd-functions
-%endif
-
 %if ! 0%{?with_switch_root}
 rm -f $RPM_BUILD_ROOT/sbin/switch_root
 %endif
-
-#mkdir -p $RPM_BUILD_ROOT/sbin
-#mv $RPM_BUILD_ROOT/%{_prefix}/lib/dracut/modules.d/99base/switch_root $RPM_BUILD_ROOT/sbin
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -95,10 +88,6 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/dracut
 %if 0%{?with_switch_root}
 /sbin/switch_root
-%endif
-%if 0%{?replace_mkinitrd}
-/sbin/mkinitrd
-/usr/libexec/initrd-functions
 %endif
 %dir %{_datadir}/dracut
 %{_datadir}/dracut/dracut-functions
