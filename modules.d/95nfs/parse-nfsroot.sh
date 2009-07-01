@@ -93,8 +93,10 @@ if [ -n "$nfsroot" ] ; then
     netroot=nfs:$nfsroot;
 fi
 
-# LEGACY convert root=<server-ip>:/<path
 case "$netroot" in
+    /dev/nfs) netroot=nfs;;
+    /dev/*) return;;
+# LEGACY: root=<server-ip>:/<path
     [0-9]*:/*|[0-9]*\.[0-9]*\.[0-9]*[!:]|/*)
        netroot=nfs:$netroot;;
 esac
