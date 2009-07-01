@@ -9,7 +9,7 @@ run_server() {
     # Start server first
     echo "iSCSI TEST SETUP: Starting DHCP/iSCSI server"
 
-    $testdir/run-qemu -hda server.ext2 -hdb root.ext2 -m 128M -nographic \
+    $testdir/run-qemu -hda server.ext2 -hdb root.ext2 -m 256M -nographic \
 	-net nic,macaddr=52:54:00:12:34:56,model=e1000 \
 	-net socket,mcast=230.0.0.1:1234 \
 	-serial udp:127.0.0.1:9999 \
@@ -33,7 +33,7 @@ run_client() {
 	return 1
     fi
 
-    $testdir/run-qemu -hda client.img -m 128M -nographic \
+    $testdir/run-qemu -hda client.img -m 256M -nographic \
   	-net nic,macaddr=52:54:00:12:34:00,model=e1000 \
   	-net socket,mcast=230.0.0.1:1234 \
   	-kernel /boot/vmlinuz-$KVERSION \
@@ -100,7 +100,7 @@ test_setup() {
 	return 1
     fi
     # Invoke KVM and/or QEMU to actually create the target filesystem.
-    $testdir/run-qemu -hda root.ext2 -hdb client.img -m 128M -nographic -net none \
+    $testdir/run-qemu -hda root.ext2 -hdb client.img -m 256M -nographic -net none \
 	-kernel "/boot/vmlinuz-$kernel" \
 	-append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81" \
 	-initrd initramfs.makeroot  || return 1
@@ -113,9 +113,7 @@ test_setup() {
 	inst_simple ./hard-off.sh /emergency/01hard-off.sh
 #	inst ./cryptroot-ask /sbin/cryptroot-ask
     )
-#	-m "debug dash crypt lvm mdraid udev-rules base rootfs-block iscsi" \
     sudo $basedir/dracut -l -i overlay / \
-	-m "debug dash udev-rules base rootfs-block iscsi" \
 	-d "ata_piix ext2 sd_mod" \
 	-f initramfs.testing $KVERSION || return 1
 
