@@ -95,7 +95,7 @@ fi
 
 case "$netroot" in
     /dev/nfs) netroot=nfs;;
-    /dev/*) return;;
+    /dev/*) unset netroot; return;;
 # LEGACY: root=<server-ip>:/<path
     [0-9]*:/*|[0-9]*\.[0-9]*\.[0-9]*[!:]|/*)
        netroot=nfs:$netroot;;
@@ -104,7 +104,7 @@ esac
 # Continue if nfs
 case "${netroot%%:*}" in
     nfs|nfs4|/dev/nfs);;
-    *) return;;
+    *) unset netroot; return;;
 esac
 
 # Check required arguments
