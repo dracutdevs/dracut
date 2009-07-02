@@ -115,7 +115,14 @@ done
 }
 
 getarg rdbreak && emergency_shell
-kill $(pidof udevd)
+
+HARD=""
+while pidof udevd >/dev/null 2>&1; do 
+    for pid in $(pidof udevd); do
+	kill $HARD $pid >/dev/null 2>&1
+    done
+    HARD="-9"
+done
 
 # Clean up the environment
 for i in $(export -p); do
