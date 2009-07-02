@@ -10,7 +10,8 @@ inst "$moddir/init" "/init"
 if which switch_root >/dev/null 2>&1; then
     dracut_install switch_root 
 else
-    inst "$moddir/switch_root" "/sbin/switch_root"
+    inst "$moddir/switch_root" "/sbin/switch_root" \
+	|| derror "Failed to install switch_root"
 fi
 inst "$moddir/dracut-lib.sh" "/lib/dracut-lib.sh"
 inst_hook cmdline 10 "$moddir/parse-root-opts.sh"
