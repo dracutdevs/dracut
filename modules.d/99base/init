@@ -14,6 +14,29 @@ emergency_shell()
     sh -i
 }
 
+do_initqueue()
+{
+    while :; do
+        # bail out, if we have mounted the root filesystem
+	[ -d "$NEWROOT/proc" ] && break;
+
+	if [ $UDEVVERSION -ge 143 ]; then
+	    udevadm settle --exit-if-exists=/initqueue/work
+	else
+	    udevadm settle --timeout=30
+	fi
+	[ -f /initqueue/work ] || break
+	rm /initqueue/work
+	
+	for job in /initqueue/*.job; do
+	    . $job
+	    rm -f $job
+            # bail out, if we have mounted the root filesystem
+	    [ -d "$NEWROOT/proc" ] && break;
+	done
+    done
+}
+
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export TERM=linux
 NEWROOT="/sysroot"
@@ -45,6 +68,8 @@ mkdir /dev/shm
 mkdir /dev/pts
 mount -t devpts -o gid=5,mode=620 /dev/pts /dev/pts >/dev/null 2>&1
 
+UDEVVERSION=$(udevadm --version)
+
 # run scriptlets to parse the command line
 getarg 'rdbreak=cmdline' && emergency_shell
 source_all cmdline
@@ -75,13 +100,16 @@ source_all pre-trigger
 
 # then the rest
 udevadm trigger $udevtriggeropts  >/dev/null 2>&1
-udevadm settle --timeout=30 >/dev/null 2>&1
+
+do_initqueue
 
 # pre-mount happens before we try to mount the root filesystem,
 # and happens once.
 getarg 'rdbreak=pre-mount' && emergency_shell
 source_all pre-mount
 getarg 'rdbreak=mount' && emergency_shell
+
+do_initqueue
 
 # mount scripts actually try to mount the root filesystem, and may
 # be sourced any number of times. As soon as one suceeds, no more are sourced.
@@ -90,7 +118,8 @@ while :; do
     [ -d "$NEWROOT/proc" ] && break;
 
     for f in /mount/*.sh; do
-       [ -x "$f" ] && . "$f";
+       [ -f "$f" ] && . "$f"
+       do_initqueue
        [ "$ROOTFS_MOUNTED" ] && break;
     done
 

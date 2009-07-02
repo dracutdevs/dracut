@@ -1,0 +1,5 @@
+#!/bin/sh
+
+echo "$@" > /tmp/$$.job
+mv /tmp/$$.job /initqueue/
+>> /initqueue/work
