@@ -257,7 +257,7 @@ check_modules() {
 	[[ $dracutmodules != all ]] && ! strstr "$dracutmodules" "$mod" && \
 	    continue
 	strstr "$omit_dracutmodules" "$mod" && continue
-	if ! strstr "$add_dracutmodules" " $mod "; then
+	if ! strstr "$add_dracutmodules" "$mod"; then
 	    should_source_module "$moddir" || continue
         fi
 	mods_to_load+=" $mod "
