@@ -307,7 +307,7 @@ instmods() {
 		    fi
 		    inst_simple "$modpath"
 		done
-		for fw in $(/sbin/modinfo -F firmware $mod 2>/dev/null); do
+		for fw in $(modinfo -F firmware $mod 2>/dev/null); do
 		    if [[ -f /lib/firmware/$fw ]]; then
 			inst_simple "/lib/firmware/$fw"
 		    else

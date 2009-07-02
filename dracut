@@ -61,6 +61,8 @@ while (($# > 0)); do
     shift
 done
 
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH
+
 [[ $debug ]] && { 
     export PS4='${BASH_SOURCE}@${LINENO}(${FUNCNAME[0]}): ';
     set -x
@@ -138,8 +140,8 @@ echo $mods_to_load
 ## final stuff that has to happen
 
 # generate module dependencies for the initrd
-if ! /sbin/depmod -a -b "$initdir" $kernel; then
-    echo "\"/sbin/depmod -a $kernel\" failed."
+if ! depmod -a -b "$initdir" $kernel; then
+    echo "\"depmod -a $kernel\" failed."
     exit 1
 fi
 
