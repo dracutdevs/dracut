@@ -19,6 +19,7 @@ Creates initial ramdisk images for preloading modules
                          call when building the initramfs. Modules are located
                          in /usr/share/dracut/modules.d.
   -o, --omit [LIST]     Omit a space-separated list of dracut modules.
+  -a, --add [LIST]      Add a space-separated list of dracut modules.
   -d, --drivers [LIST]  Specify a space-separated list of kernel modules to
                          include in the initramfs.
   -h, --help            This message
@@ -45,6 +46,7 @@ while (($# > 0)); do
 	-f|--force) force=yes;;
 	-m|--modules) dracutmodules_l="$2"; shift;;
 	-o|--omit) omit_dracutmodules_l="$2"; shift;;
+	-a|--add) add_dracutmodules_l="$2"; shift;;
 	-d|--drivers) drivers_l="$2"; shift;;
 	-h|--help) usage; exit 1 ;;
 	--debug) debug="yes";;
@@ -73,6 +75,7 @@ done
 # these options override the stuff in the config file
 [[ $dracutmodules_l ]] && dracutmodules=$dracutmodules_l
 [[ $omit_dracutmodules_l ]] && omit_dracutmodules=$omit_dracutmodules_l
+[[ $add_dracutmodules_l ]] && add_dracutmodules="$add_dracutmodules $add_dracutmodules_l"
 [[ $drivers_l ]] && drivers=$drivers_l
 [[ $dracutbasedir ]] || dracutbasedir=/usr/share/dracut
 
