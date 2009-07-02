@@ -1,7 +1,21 @@
 #!/bin/sh
 
+# do not ask, if we already have root
+[ -f /sysroot/proc ] && exit 0
+
+# check if destination already exists
 [ -b /dev/mapper/$2 ] && exit 0
+
+# we already asked for this device
+[ -f /tmp/cryptroot-asked-$2 ] && exit 0
+
+# flock against other interactive activities
 { flock -s 9; 
-  /sbin/cryptsetup luksOpen -T1 $1 $2 </dev/console >/dev/console 2>&1
+    echo -n "$1 is password protected " 
+    /sbin/cryptsetup luksOpen -T1 $1 $2
 } 9>/.console.lock
 
+# mark device as asked
+>> /tmp/cryptroot-asked-$2
+
+exit 0
