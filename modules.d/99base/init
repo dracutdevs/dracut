@@ -52,8 +52,9 @@ mount -t proc /proc /proc >/dev/null 2>&1
 mount -t sysfs /sys /sys >/dev/null 2>&1
 
 if [ ! -c /dev/ptmx ]; then
-    if mount -t devtmpfs -omode=0755 udev /dev >/dev/null 2>&1; then
-    :; else
+    # try to mount devtmpfs
+    if ! mount -t devtmpfs -omode=0755 udev /dev >/dev/null 2>&1; then
+        # if it failed fall back to normal tmpfs
 	mount -t tmpfs -omode=0755 udev /dev >/dev/null 2>&1 
 	# Make some basic devices first, let udev handle the rest
 	mknod /dev/null c 1 3
