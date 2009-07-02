@@ -140,9 +140,11 @@ echo $mods_to_load
 ## final stuff that has to happen
 
 # generate module dependencies for the initrd
-if ! depmod -a -b "$initdir" $kernel; then
-    echo "\"depmod -a $kernel\" failed."
-    exit 1
+if [ -d "$initdir/lib/modules/$kernel" ]; then
+    if ! depmod -a -b "$initdir" $kernel; then
+        echo "\"depmod -a $kernel\" failed."
+        exit 1
+    fi
 fi
 
 # make sure that library links are correct and up to date
