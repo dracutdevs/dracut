@@ -1,7 +1,7 @@
 %if 0%{?fedora} < 12
 %define with_switch_root 1
 %else
-%define with_switch_root 0
+%define with_switch_root 1
 %endif
 
 %if %{defined gittag}
@@ -44,6 +44,7 @@ Requires: kbd
 %endif
 
 %if ! 0%{?with_switch_root}
+Requires: /sbin/switch_root
 BuildArch: noarch
 %endif
 
