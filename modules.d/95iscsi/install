@@ -1,8 +1,9 @@
 #!/bin/bash
-
+dracut_install umount
 inst iscsistart 
 inst hostname
 inst iscsi-iname
 inst_hook cmdline 90 "$moddir/parse-iscsiroot.sh"
 inst "$moddir/iscsiroot" "/sbin/iscsiroot"
+inst "$moddir/mount-lun.sh" "/bin/mount-lun.sh"
 instmods iscsi_tcp crc32c
