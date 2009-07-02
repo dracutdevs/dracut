@@ -276,6 +276,8 @@ test_setup() {
 
     # Make client's dracut image
     $basedir/dracut -l -i overlay / \
+	-o "plymouth" \
+	-a "debug" \
 	-d "e1000 nfs sunrpc" \
 	-f initramfs.testing $KVERSION || return 1
 }

@@ -3,7 +3,7 @@ TEST_DESCRIPTION="root filesystem over iSCSI"
 
 KVERSION=${KVERSION-$(uname -r)}
 
-#DEBUGFAIL="rdinitdebug rdnetdebug rdudevinfo"
+#DEBUGFAIL="rdinitdebug rdnetdebug"
 
 run_server() {
     # Start server first
@@ -114,6 +114,8 @@ test_setup() {
 #	inst ./cryptroot-ask /sbin/cryptroot-ask
     )
     sudo $basedir/dracut -l -i overlay / \
+	-o "plymouth dmraid" \
+	-a "debug" \
 	-d "ata_piix ext2 sd_mod" \
 	-f initramfs.testing $KVERSION || return 1
 

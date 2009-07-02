@@ -63,6 +63,8 @@ test_setup() {
 	inst ./cryptroot-ask /sbin/cryptroot-ask
     )
     sudo $basedir/dracut -l -i overlay / \
+	-o "plymouth" \
+	-a "debug" \
 	-d "ata_piix ext2 sd_mod" \
 	-f initramfs.testing $KVERSION || return 1
 }

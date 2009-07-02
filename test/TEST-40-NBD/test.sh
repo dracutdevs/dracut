@@ -4,7 +4,7 @@ TEST_DESCRIPTION="root filesystem on NBD"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-#DEBUGFAIL="rdinitdebug rdnetdebug rdbreak"
+#DEBUGFAIL="rdinitdebug rdnetdebug"
 
 run_server() {
     # Start server first
@@ -292,7 +292,8 @@ test_setup() {
 	-f initramfs.server $KVERSION || return 1
 
     sudo $basedir/dracut -l -i overlay / \
-        -o "plymouth" \
+	-o "plymouth" \
+	-a "debug" \
 	-d "ata_piix ext2 ext3 sd_mod e1000" \
 	-f initramfs.testing $KVERSION || return 1
 }
