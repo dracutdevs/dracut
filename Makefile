@@ -1,4 +1,4 @@
-VERSION=0.2
+VERSION=0.3
 GITVERSION=$(shell [ -d .git ] && git rev-list  --abbrev-commit  -n 1 HEAD  |cut -b 1-8)
 
 prefix = /usr
