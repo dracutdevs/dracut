@@ -142,9 +142,9 @@ if [ "$nfs" = "nfs4" ]; then
     [ -z "$(pidof rpc.idmapd)" ] && rpc.idmapd
 
     # XXX Should we loop here?
-    echo mount -t nfs4 -o$options${nfslock+,$nfslock} \
-	$server:$path $NEWROOT > /mount/01-$$-nfs4.sh
-    [ -e /dev/root ] || >/dev/root
+    mount -t nfs4 -o$options${nfslock+,$nfslock} \
+	$server:$path $NEWROOT \
+	&& { [ -e /dev/root ] || >/dev/root ; }
 else
     # NFSv{2,3} doesn't support using locks as it requires a helper to transfer
     # the rpcbind state to the new root
@@ -152,7 +152,6 @@ else
         warn "Locks unsupported on NFSv{2,3}, using nolock" 1>&2
 
     # XXX Should we loop here?
-    echo mount -t nfs -o$options${options:+,}nolock $server:$path $NEWROOT \
-        > /mount/01-$$-nfs.sh
-    [ -e /dev/root ] || >/dev/root
+    mount -t nfs -o$options${options:+,}nolock $server:$path $NEWROOT \
+	&& { [ -e /dev/root ] || >/dev/root ; }
 fi
