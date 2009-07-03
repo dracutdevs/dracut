@@ -7,6 +7,8 @@
 
 emergency_shell()
 {
+    exec >/dev/console 2>&1 </dev/console
+    getarg rdinitdebug || dmesg
     source_all emergency
     echo ; echo
     echo "Bug in initramfs /init detected. Dropping to a shell. Good luck!"
@@ -64,7 +66,12 @@ if [ ! -c /dev/ptmx ]; then
     fi
 fi
 
-getarg rdinitdebug && set -x
+if getarg rdinitdebug; then
+    set -x
+else
+    exec >/dev/kmsg 2>&1
+fi
+
 mkdir /dev/shm
 mkdir /dev/pts
 mount -t devpts -o gid=5,mode=620 /dev/pts /dev/pts >/dev/null 2>&1
