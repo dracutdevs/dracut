@@ -130,7 +130,7 @@ iscsistart -i $iscsi_initiator -t $iscsi_target_name	\
     ${iscsi_username+-u $iscsi_username} \
     ${iscsi_password+-w $iscsi_password} \
     ${iscsi_in_username+-U $iscsi_in_username} \
-    ${iscsi_in_password+-W $iscsi_in_password}
+    ${iscsi_in_password+-W $iscsi_in_password} || exit 1
 
 # now we have a root filesystem somewhere in /dev/sda*
 # let the normal block handler handle root=
