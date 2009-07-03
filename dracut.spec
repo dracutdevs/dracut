@@ -60,11 +60,16 @@ Requires: rpcbind nfs-utils
 Requires: iscsi-initiator-utils
 Requires: nbd
 Requires: net-tools iproute
+Requires: kernel-firmware
+Requires: ql2100-firmware
+Requires: ql2200-firmware
+Requires: ql23xx-firmware
+Requires: ql2400-firmware
+Requires: ql2500-firmware
 
 %description generic
 This package requires everything which is needed to build a generic
 all purpose initramfs.
-
 
 %prep
 %setup -q -n %{name}-%{version}%{?dashgittag}
