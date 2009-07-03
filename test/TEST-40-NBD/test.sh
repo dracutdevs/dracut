@@ -191,7 +191,7 @@ make_encrypted_root() {
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     $basedir/dracut -l -i overlay / \
-	-m "dash crypt lvm mdraid udev-rules base rootfs-block" \
+	-m "dash crypt lvm mdraid udev-rules base rootfs-block kernel-modules" \
 	-d "ata_piix ext2 sd_mod" \
 	-f initramfs.makeroot $KVERSION || return 1
     rm -rf overlay
@@ -287,7 +287,7 @@ test_setup() {
     )
 
     sudo $basedir/dracut -l -i overlay / \
-	-m "dash udev-rules rootfs-block base debug" \
+	-m "dash udev-rules rootfs-block base debug kernel-modules" \
 	-d "ata_piix ext2 sd_mod e1000" \
 	-f initramfs.server $KVERSION || return 1
 

@@ -270,7 +270,7 @@ test_setup() {
 
     # Make server's dracut image
     $basedir/dracut -l -i overlay / \
-	-m "dash udev-rules base rootfs-block debug" \
+	-m "dash udev-rules base rootfs-block debug kernel-modules" \
 	-d "ata_piix ext2 sd_mod e1000" \
 	-f initramfs.server $KVERSION || return 1
 

@@ -88,7 +88,7 @@ test_setup() {
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     $basedir/dracut -l -i overlay / \
-	-m "dash crypt lvm mdraid udev-rules base rootfs-block" \
+	-m "dash crypt lvm mdraid udev-rules base rootfs-block kernel-modules" \
 	-d "ata_piix ext2 sd_mod" \
 	-f initramfs.makeroot $KVERSION || return 1
     rm -rf overlay
