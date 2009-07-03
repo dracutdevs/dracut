@@ -1,0 +1,12 @@
+# This file causes block devices with Linux RAID (mdadm) signatures to
+# automatically cause mdadm to be run.
+# See udev(8) for syntax
+
+SUBSYSTEM!="block", GOTO="dm_end"
+ACTION!="add|change", GOTO="dm_end"
+
+ENV{ID_FS_TYPE}=="linux_raid_member", GOTO="dm_end"
+
+ENV{ID_FS_TYPE}=="*_raid_member", RUN+="/sbin/initqueue /sbin/dmraid_scan \$0"
+
+LABEL="dm_end"

@@ -1,5 +1,12 @@
 #!/bin/sh
 
-echo "$@" > /tmp/$$.job
-mv /tmp/$$.job /initqueue/
+if [ "$1" = "--onetime" ]; then
+    onetime="yes"
+    shift
+fi
+echo "$@" > /tmp/$$.sh
+if [ -n "$onetime" ]; then
+   echo '[ -e "$job" ] && rm "$job"' >> /tmp/$$.sh
+fi
+mv /tmp/$$.sh /initqueue/
 >> /initqueue/work

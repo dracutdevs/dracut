@@ -1,4 +1,5 @@
 #!/bin/sh
+dracut_install ln
 inst_hook cmdline 95 "$moddir/parse-block.sh"
 inst_hook pre-udev 30 "$moddir/block-genrules.sh"
 inst_hook mount 99 "$moddir/mount-root.sh"

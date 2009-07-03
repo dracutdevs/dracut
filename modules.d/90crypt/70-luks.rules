@@ -7,6 +7,6 @@
 SUBSYSTEM!="block", GOTO="luks_end"
 ACTION!="add|change", GOTO="luks_end"
 
-ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="/sbin/initqueue /sbin/cryptroot-ask $env{DEVNAME} luks-$env{ID_FS_UUID}"
+ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="/sbin/initqueue --onetime /sbin/cryptroot-ask $env{DEVNAME} luks-$env{ID_FS_UUID}"
 
 LABEL="luks_end"

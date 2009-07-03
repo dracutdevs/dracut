@@ -38,7 +38,7 @@ test_setup() {
 	initdir=overlay
 	. $basedir/dracut-functions
 	dracut_install sfdisk mke2fs poweroff cp umount 
-	inst_simple ./create-root.sh /pre-mount/01create-root.sh
+	inst_simple ./create-root.sh /initqueue/01create-root.sh
     )
  
     # create an initramfs that will create the target root filesystem.

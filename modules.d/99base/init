@@ -16,36 +16,6 @@ emergency_shell()
     sh -i
 }
 
-do_initqueue()
-{
-    while :; do
-        # bail out, if we have mounted the root filesystem
-	[ -d "$NEWROOT/proc" ] && break;
-
-        # check if root can be mounted
-        [ -e /dev/root ] && break;
-
-	if [ $UDEVVERSION -ge 143 ]; then
-	    udevadm settle --exit-if-exists=/initqueue/work --exit-if-exists=/dev/root
-	else
-	    udevadm settle --timeout=30
-	fi
-	[ -f /initqueue/work ] || break
-	rm /initqueue/work
-	
-	for job in /initqueue/*.job; do
-	    . $job
-	    rm -f $job
-
-            # bail out, if we have mounted the root filesystem
-	    [ -d "$NEWROOT/proc" ] && break;
-
-            # check if root can be mounted
-	    [ -e /dev/root ] && break;
-	done
-    done
-}
-
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export TERM=linux
 NEWROOT="/sysroot"
@@ -116,7 +86,47 @@ source_all pre-trigger
 # then the rest
 udevadm trigger $udevtriggeropts  >/dev/null 2>&1
 
-do_initqueue
+i=0
+while :; do
+    # bail out, if we have mounted the root filesystem
+    [ -d "$NEWROOT/proc" ] && break;
+
+    # check if root can be mounted
+    [ -e /dev/root ] && break;
+
+    if [ $UDEVVERSION -ge 143 ]; then
+        udevadm settle --exit-if-exists=/initqueue/work --exit-if-exists=/dev/root 
+    else
+        udevadm settle --timeout=30
+    fi
+    unset queuetriggered
+    if [ -f /initqueue/work ]; then
+        rm /initqueue/work
+	queuetriggered="1"
+    fi
+    	
+    for job in /initqueue/*.sh; do
+	[ -e "$job" ] || break
+        job=$job . $job
+
+        # bail out, if we have mounted the root filesystem
+        [ -d "$NEWROOT/proc" ] && break;
+        # check if root can be mounted
+        [ -e /dev/root ] && break;
+    done
+
+    [ -n "$queuetriggered" ] && continue
+
+    if udevadm settle --timeout=0 >/dev/null 2>&1; then
+        # no more udev jobs
+        sleep 0.5
+        i=$(($i+1))
+        [ $i -gt 20 ] && getarg rdshell \
+            && { flock -s 9 ; emergency_shell; } 9>/.console_lock
+    fi
+done
+unset job
+unset queuetriggered
 
 # pre-mount happens before we try to mount the root filesystem,
 # and happens once.
@@ -124,23 +134,19 @@ getarg 'rdbreak=pre-mount' && emergency_shell
 source_all pre-mount
 getarg 'rdbreak=mount' && emergency_shell
 
-do_initqueue
-
 # mount scripts actually try to mount the root filesystem, and may
 # be sourced any number of times. As soon as one suceeds, no more are sourced.
 i=0
 while :; do
     [ -d "$NEWROOT/proc" ] && break;
-
     for f in /mount/*.sh; do
        [ -f "$f" ] && . "$f"
-       do_initqueue
-       [ "$ROOTFS_MOUNTED" ] && break;
+       [ -d "$NEWROOT/proc" ] && break;
     done
 
-    sleep 0.5
     i=$(($i+1))
-    { flock -s 9 ; [ $i -gt 20 ] && emergency_shell; } 9>/.console_lock
+    [ $i -gt 20 ] && getarg rdshell \
+        && { flock -s 9 ; emergency_shell; } 9>/.console_lock
 done
 
 # pre pivot scripts are sourced just before we switch over to the new root.
