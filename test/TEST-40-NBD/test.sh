@@ -50,7 +50,7 @@ client_test() {
 	-net nic,macaddr=$mac,model=e1000 \
 	-net socket,mcast=230.0.0.1:1236 \
 	-kernel /boot/vmlinuz-$KVERSION \
-	-append "$cmdline $DEBUGFAIL ro quiet console=ttyS0,115200n81" \
+	-append "$cmdline $DEBUGFAIL rdshell ro quiet console=ttyS0,115200n81" \
 	-initrd initramfs.testing
 
     if [[ $? -ne 0 ]] || ! grep -m 1 -q nbd-OK flag.img; then

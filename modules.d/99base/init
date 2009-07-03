@@ -8,19 +8,25 @@
 emergency_shell()
 {
     exec >/dev/console 2>&1 </dev/console
+    echo ; echo
+    echo $@
     getarg rdinitdebug || dmesg
     source_all emergency
-    echo ; echo
-    echo "Bug in initramfs /init detected. Dropping to a shell. Good luck!"
-    echo
-    sh -i
+    if getarg rdshell; then
+        echo ; echo
+        echo "Dropping to a shell. Good luck!"
+        echo
+        sh -i
+    else
+        while :; do sleep 1;done
+    fi
 }
 
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export TERM=linux
 NEWROOT="/sysroot"
 
-trap "emergency_shell" 0
+trap "emergency_shell Unkown signal caught!" 0
 
 . /lib/dracut-lib.sh
 
@@ -56,7 +62,7 @@ mount -t devpts -o gid=5,mode=620 /dev/pts /dev/pts >/dev/null 2>&1
 UDEVVERSION=$(udevadm --version)
 
 # run scriptlets to parse the command line
-getarg 'rdbreak=cmdline' && emergency_shell
+getarg 'rdbreak=cmdline' && emergency_shell "Break before cmdline"
 source_all cmdline
 
 [ -z "$root" ] && die "No or empty root= argument"
@@ -73,7 +79,7 @@ source_all cmdline
 } > /tmp/root.info
 
 # pre-udev scripts run before udev starts, and are run only once.
-getarg 'rdbreak=pre-udev' && emergency_shell
+getarg 'rdbreak=pre-udev' && emergency_shell "Break before pre-udev"
 source_all pre-udev
 
 # start up udev and trigger cold plugs
@@ -121,8 +127,8 @@ while :; do
         # no more udev jobs
         sleep 0.5
         i=$(($i+1))
-        [ $i -gt 20 ] && getarg rdshell \
-            && { flock -s 9 ; emergency_shell; } 9>/.console_lock
+        [ $i -gt 20 ] \
+            && { flock -s 9 ; emergency_shell "No root device found"; } 9>/.console_lock
     fi
 done
 unset job
@@ -130,10 +136,11 @@ unset queuetriggered
 
 # pre-mount happens before we try to mount the root filesystem,
 # and happens once.
-getarg 'rdbreak=pre-mount' && emergency_shell
+getarg 'rdbreak=pre-mount' && emergency_shell "Break pre-mount"
 source_all pre-mount
-getarg 'rdbreak=mount' && emergency_shell
 
+
+getarg 'rdbreak=mount' && emergency_shell "Break mount"
 # mount scripts actually try to mount the root filesystem, and may
 # be sourced any number of times. As soon as one suceeds, no more are sourced.
 i=0
@@ -145,8 +152,8 @@ while :; do
     done
 
     i=$(($i+1))
-    [ $i -gt 20 ] && getarg rdshell \
-        && { flock -s 9 ; emergency_shell; } 9>/.console_lock
+    [ $i -gt 20 ] \
+        && { flock -s 9 ; emergency_shell "Can't mount root filesystem"; } 9>/.console_lock
 done
 
 # pre pivot scripts are sourced just before we switch over to the new root.
@@ -159,8 +166,8 @@ for i in "$(getarg init=)" /sbin/init /etc/init /init /bin/sh; do
     [ -f "$NEWROOT$i" -a -x "$NEWROOT$i" ] && { INIT="$i"; break; }
 done
 [ "$INIT" ] || {
-    echo "Cannot find init! Please check to make sure you passed"
-    echo "a valid root filesystem!  Dropping to a shell."
+    echo "Cannot find init!"
+    echo "Please check to make sure you passed a valid root filesystem!"
     emergency_shell
 }
 

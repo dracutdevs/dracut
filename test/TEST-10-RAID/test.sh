@@ -9,7 +9,7 @@ KVERSION=${KVERSION-$(uname -r)}
 test_run() {
     $testdir/run-qemu -hda root.ext2 -m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "root=/dev/dracut/root rw quiet console=ttyS0,115200n81 $DEBUGFAIL" \
+	-append "root=/dev/dracut/root rw quiet console=ttyS0,115200n81 rdshell $DEBUGFAIL" \
 	-initrd initramfs.testing
     grep -m 1 -q dracut-root-block-success root.ext2 || return 1
 }
