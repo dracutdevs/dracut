@@ -27,6 +27,7 @@ Requires: module-init-tools
 Requires: cpio
 Requires: coreutils
 Requires: findutils
+Requires: binutils
 Requires: grep
 Requires: mktemp
 Requires: mount
