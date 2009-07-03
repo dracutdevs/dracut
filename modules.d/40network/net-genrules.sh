@@ -19,20 +19,20 @@ fix_bootif() {
     BOOTIF=$(getarg 'BOOTIF=')
     if [ -n "$BOOTIF" ] ; then
 	BOOTIF=$(fix_bootif "$BOOTIF")
-	printf 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="%s", RUN+="/sbin/initqueue /sbin/ifup $env{INTERFACE}"\n' "$BOOTIF"
+	printf 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="%s", RUN+="/sbin/ifup $env{INTERFACE}"\n' "$BOOTIF"
 
     # If we have to handle multiple interfaces, handle only them.
     elif [ -n "$IFACES" ] ; then
 	for iface in $IFACES ; do
-	    printf 'ACTION=="add", SUBSYSTEM=="net", KERNEL=="%s", RUN+="/sbin/initqueue /sbin/ifup $env{INTERFACE}"\n' "$iface"
+	    printf 'ACTION=="add", SUBSYSTEM=="net", KERNEL=="%s", RUN+="/sbin/ifup $env{INTERFACE}"\n' "$iface"
 	done
 
     # Default: We don't know the interface to use, handle all
     else
-	printf 'ACTION=="add", SUBSYSTEM=="net", RUN+="/sbin/initqueue /sbin/ifup $env{INTERFACE}"\n'
+	printf 'ACTION=="add", SUBSYSTEM=="net", RUN+="/sbin/ifup $env{INTERFACE}"\n'
     fi
 
     # Udev event 'online' only gets fired from ifup/dhclient-script.
     # No special rules required
-    printf 'ACTION=="online", SUBSYSTEM=="net", RUN+="/sbin/initqueue /sbin/netroot $env{INTERFACE}"\n'
+    printf 'ACTION=="online", SUBSYSTEM=="net", RUN+="/sbin/netroot $env{INTERFACE}"\n'
 } > /etc/udev/rules.d/60-net.rules

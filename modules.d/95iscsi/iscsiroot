@@ -122,7 +122,7 @@ echo "InitiatorName='$iscsi_initiator'" > /dev/.initiatorname.iscsi
 
 # FIXME $iscsi_protocol??
 
-echo "iscsi_lun=$iscsi_lun . /bin/mount-lun.sh " > /mount/iscsi.sh
+echo "iscsi_lun=$iscsi_lun . /bin/mount-lun.sh " > /mount/01-$$-iscsi.sh
 
 iscsistart -i $iscsi_initiator -t $iscsi_target_name	\
     -g $iscsi_target_group -a $iscsi_target_ip	\

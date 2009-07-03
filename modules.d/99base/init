@@ -22,8 +22,11 @@ do_initqueue()
         # bail out, if we have mounted the root filesystem
 	[ -d "$NEWROOT/proc" ] && break;
 
+        # check if root can be mounted
+        [ -e /dev/root ] && break;
+
 	if [ $UDEVVERSION -ge 143 ]; then
-	    udevadm settle --exit-if-exists=/initqueue/work
+	    udevadm settle --exit-if-exists=/initqueue/work --exit-if-exists=/dev/root
 	else
 	    udevadm settle --timeout=30
 	fi
@@ -33,8 +36,12 @@ do_initqueue()
 	for job in /initqueue/*.job; do
 	    . $job
 	    rm -f $job
+
             # bail out, if we have mounted the root filesystem
 	    [ -d "$NEWROOT/proc" ] && break;
+
+            # check if root can be mounted
+	    [ -e /dev/root ] && break;
 	done
     done
 }
