@@ -11,9 +11,8 @@
 %define rdist %{?dist}
 %endif
 
-
 Name: dracut
-Version: 0.3
+Version: 0.4
 Release: 1%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
@@ -107,6 +106,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc README.generic
 
 %changelog
+* Sat Jul 04 2009 Harald Hoyer <harald@redhat.com> 0.4-1
+- version 0.4
+
 * Thu Jul 02 2009 Harald Hoyer <harald@redhat.com> 0.3-1
 - version 0.3
 
