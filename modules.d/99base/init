@@ -10,7 +10,6 @@ emergency_shell()
     exec >/dev/console 2>&1 </dev/console
     echo ; echo
     echo $@
-    getarg rdinitdebug || dmesg
     source_all emergency
     if getarg rdshell; then
         echo ; echo
@@ -26,7 +25,7 @@ export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export TERM=linux
 NEWROOT="/sysroot"
 
-trap "emergency_shell Unkown signal caught!" 0
+trap "emergency_shell Signal caught!" 0
 
 . /lib/dracut-lib.sh
 
@@ -51,8 +50,6 @@ fi
 
 if getarg rdinitdebug; then
     set -x
-else
-    exec >/dev/kmsg 2>&1
 fi
 
 mkdir /dev/shm
