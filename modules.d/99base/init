@@ -11,12 +11,13 @@ emergency_shell()
     echo ; echo
     echo $@
     source_all emergency
-    if getarg rdshell; then
+    if getarg rdshell || getarg rdbreak; then
         echo ; echo
         echo "Dropping to a shell. Good luck!"
         echo
         sh -i
     else
+        echo "Boot has failed, sleeping forever"
         while :; do sleep 1;done
     fi
 }
