@@ -4,7 +4,7 @@ which rpcbind >/dev/null 2>&1 && dracut_install rpcbind
 
 dracut_install rpc.statd mount.nfs mount.nfs4 umount 
 [ -f /etc/netconfig ] && dracut_install /etc/netconfig 
-dracut_install /etc/passwd /etc/services 
+dracut_install /etc/services 
 dracut_install /etc/nsswitch.conf /etc/rpc /etc/protocols
 dracut_install rpc.idmapd /etc/idmapd.conf
 if ldd $(which rpc.idmapd) |grep -q lib64; then
@@ -26,7 +26,7 @@ mkdir -p "$initdir/var/lib/nfs/statd/sm"
 
 # Rather than copy the passwd file in, just set a user for rpcbind
 # We'll save the state and restart the daemon from the root anyway
-#echo "rpc:x:32:32:Rpcbind:/var/lib/rpcbind:/bin/false" >> "$initdir/etc/passwd"
+echo "rpc:x:32:32:Rpcbind:/var/lib/rpcbind:/bin/false" >> "$initdir/etc/passwd"
 
 # rpc user needs to be able to write to this directory to save the warmstart
 # file
