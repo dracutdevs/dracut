@@ -82,8 +82,17 @@ source_all pre-udev
 
 # start up udev and trigger cold plugs
 udevd --daemon
-getarg rdudevinfo && udevadm control --log_priority=info
-getarg rdudevdebug && udevadm control --log_priority=debug
+
+UDEV_LOG_PRIO_ARG=--log-priority
+UDEV_QUEUE_EMPTY="udevadm settle --timeout=0"
+
+if [ $UDEVVERSION -lt 140 ]; then
+   UDEV_LOG_PRIO_ARG=--log_priority
+   UDEV_QUEUE_EMPTY="udevadm settle --timeout=1"
+fi
+
+getarg rdudevinfo && udevadm control $UDEV_LOG_PRIO_ARG=info
+getarg rdudevdebug && udevadm control $UDEV_LOG_PRIO_ARG=debug
 
 source_all pre-trigger
 
@@ -127,7 +136,7 @@ while :; do
 
     [ -n "$queuetriggered" ] && continue
 
-    if udevadm settle --timeout=1 >/dev/null 2>&1; then
+    if $UDEV_QUEUE_EMPTY >/dev/null 2>&1; then
         # no more udev jobs
         sleep 0.5
         i=$(($i+1))
