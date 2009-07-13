@@ -9,7 +9,9 @@ ACTION!="add|change", GOTO="lvm_end"
 
 KERNEL=="dm-*", IMPORT{program}="vol_id --export $tempnode"
 
-ENV{ID_FS_TYPE}=="LVM2_member", RUN+="/bin/ln -fs /sbin/lvm_scan /initqueue/lvm_scan.sh"
+ENV{ID_FS_TYPE}=="LVM2_member", \
+    TEST!="/tmp/.lvm_scan-%k", \
+    RUN+="/bin/sh -c '>/tmp/.lvm_scan-%k; /bin/ln -fs /sbin/lvm_scan /initqueue/lvm_scan.sh'"
 
 OPTIONS="link_priority=-100"
 ENV{ID_FS_USAGE}=="filesystem|other|crypto", ENV{ID_FS_UUID_ENC}=="?*", SYMLINK+="disk/by-uuid/$env{ID_FS_UUID_ENC}"
