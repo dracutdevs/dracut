@@ -3,7 +3,7 @@ TEST_DESCRIPTION="root filesystem over iSCSI"
 
 KVERSION=${KVERSION-$(uname -r)}
 
-#DEBUGFAIL="rdinitdebug rdnetdebug"
+#DEBUGFAIL="rdinitdebug rdnetdebug rdudevinfo"
 
 run_server() {
     # Start server first
@@ -111,7 +111,6 @@ test_setup() {
 	. $basedir/dracut-functions
 	dracut_install poweroff shutdown
 	inst_simple ./hard-off.sh /emergency/01hard-off.sh
-#	inst ./cryptroot-ask /sbin/cryptroot-ask
     )
     sudo $basedir/dracut -l -i overlay / \
 	-o "plymouth dmraid" \
@@ -141,7 +140,6 @@ test_setup() {
 	dracut_install /usr/sbin/iscsi-target
 	instmods iscsi_tcp crc32c ipv6
         inst ./targets /etc/iscsi/targets
-#	inst ./root.ext2 /
 	[ -f /etc/netconfig ] && dracut_install /etc/netconfig 
 	which dhcpd >/dev/null 2>&1 && dracut_install dhcpd
 	[ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
@@ -158,10 +156,9 @@ test_setup() {
     sudo umount mnt
     rm -fr mnt
 
-
     # Make server's dracut image
     $basedir/dracut -l -i overlay / \
-	-m "dash udev-rules base rootfs-block debug" \
+	-m "dash udev-rules base rootfs-block debug kernel-modules" \
 	-d "ata_piix ext2 sd_mod e1000" \
 	-f initramfs.server $KVERSION || return 1
 
