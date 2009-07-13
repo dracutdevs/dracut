@@ -7,6 +7,6 @@ ACTION!="add|change", GOTO="dm_end"
 
 ENV{ID_FS_TYPE}=="linux_raid_member", GOTO="dm_end"
 
-ENV{ID_FS_TYPE}=="*_raid_member", RUN+="/bin/ln -s /sbin/dmraid_scan /initqueue/dmraid_scan"
+ENV{ID_FS_TYPE}=="*_raid_member", RUN+="/bin/ln -fs /sbin/dmraid_scan /initqueue/dmraid_scan.sh"
 
 LABEL="dm_end"
