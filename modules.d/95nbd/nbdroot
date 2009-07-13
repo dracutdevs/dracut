@@ -90,16 +90,16 @@ while [ ! -b /dev/nbd0 ]; do
     i=$(( $i + 1))
 done
 
+nbd-client $preopts "$nbdserver" "$nbdport" /dev/nbd0 $opts || exit 1
+
 # If we didn't get a root= on the command line, then we need to
 # add the udev rules for mounting the nbd0 device
 if [ ! -e /etc/udev/rules.d/99-mount.rules ]; then
-    printf 'KERNEL=="nbd0", SYMLINK+="root"\n'> /etc/udev/rules.d/99-mount.rules
+    ln -s /dev/nbd0 /dev/root
     printf '/bin/mount -t %s -o %s %s %s\n' \
 	   "$nbdfstype" "$fsopts" /dev/nbd0 "$NEWROOT" \
 	> /mount/01-$$-nbd.sh
 fi
-
-nbd-client $preopts "$nbdserver" "$nbdport" /dev/nbd0 $opts || exit 1
 
 # NBD doesn't emit uevents when it gets connected, so kick it
 echo change > /sys/block/nbd0/uevent
