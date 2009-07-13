@@ -45,9 +45,8 @@ getarg ip= >/dev/null && getarg BOOTIF= >/dev/null && \
 # No more parsing stuff, BOOTIF says everything
 [ -n "$(getarg BOOTIF)" ] && return
 
-# Warn if defaulting to ip=dhcp
 if [ -n "$netroot" ] && [ -z "$(getarg ip=)" ] ; then
-    warn "No ip= argument(s) for netroot provided, defaulting to DHCP"
+    # No ip= argument(s) for netroot provided, defaulting to DHCP
     return;
 fi
 
