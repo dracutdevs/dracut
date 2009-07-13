@@ -6,9 +6,8 @@
 
 SUBSYSTEM!="block", GOTO="lvm_end"
 ACTION!="add|change", GOTO="lvm_end"
-KERNEL!="dm-*", GOTO="lvm_end"
 
-IMPORT{program}="vol_id --export $tempnode"
+KERNEL=="dm-*", IMPORT{program}="vol_id --export $tempnode"
 
 ENV{ID_FS_TYPE}=="LVM2_member", RUN+="/bin/sh -c '/sbin/lvm vgscan; /sbin/lvm vgchange -ay'"
 
