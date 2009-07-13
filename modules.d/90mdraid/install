@@ -23,3 +23,5 @@ if [ -x  /sbin/mdmon ] ; then
     inst_hook pre-pivot 30 "$moddir/mdmon-pre-pivot.sh"
 fi 
 
+inst "$moddir/mdraid_start.sh" /sbin/mdraid_start
+
