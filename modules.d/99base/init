@@ -121,7 +121,7 @@ while :; do
 
     [ -n "$queuetriggered" ] && continue
 
-    if udevadm settle --timeout=0 >/dev/null 2>&1; then
+    if udevadm settle --timeout=1 >/dev/null 2>&1; then
         # no more udev jobs
         sleep 0.5
         i=$(($i+1))
