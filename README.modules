@@ -49,4 +49,48 @@ check: Dracut calls this program to check and see if a module can be installed
 
 Any other files in the module will not be touched by dracut directly. 
 
-You are encouraged to provide a README that descrobes what the module is for.
+You are encouraged to provide a README that describes what the module is for.
+
+
+HOOKS
+=====
+
+init has the following hook points to inject scripts:
+
+/cmdline/*.sh
+   scripts for command line parsing
+
+/pre-udev/*.sh
+   scripts to run before udev is started
+
+/pre-trigger/*.sh
+   scripts to run before the main udev trigger is pulled
+
+/initqueue/*.sh
+   runs in parallel to the udev trigger
+   Udev events can add scripts here with /sbin/initqueue.
+   If /sbin/initqueue is called with the "--onetime" option, the script
+   will be removed after it was run.
+   If /initqueue/work is created and udev >= 143 then this loop can
+   process the jobs in parallel to the udevtrigger.
+   If the udev queue is empty and no root device is found or no root
+   filesystem was mounted, the user will be dropped to a shell after
+   a timeout.
+   Scripts can remove themselves from the initqueue by "rm $job".
+
+/pre-mount/*.sh
+   scripts to run before the root filesystem is mounted
+   Network filesystems like NFS that do not use device files are an 
+   exception. Root can be mounted already at this point.
+
+/mount/*.sh
+   scripts to mount the root filesystem
+   If the udev queue is empty and no root device is found or no root
+   filesystem was mounted, the user will be dropped to a shell after
+   a timeout.
+
+/pre-pivot/*.sh
+   scripts to run before the real init is executed and the initramfs
+   disappears
+   All processes started before should be killed here.
+
