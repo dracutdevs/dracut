@@ -212,6 +212,7 @@ for x in "$@"; do
     [ "${x%%=*}" = "rdudevdebug" ] && continue
     [ "${x%%=*}" = "rdnetdebug" ] && continue
     [ "${x%%=*}" = "rdcopystate" ] && continue
+    [ "${x%%=*}" = "rdshell" ] && continue
     initargs="$initargs $x"
 done
 
