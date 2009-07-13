@@ -122,7 +122,10 @@ echo "InitiatorName='$iscsi_initiator'" > /dev/.initiatorname.iscsi
 
 # FIXME $iscsi_protocol??
 
-echo "iscsi_lun=$iscsi_lun . /bin/mount-lun.sh " > /mount/01-$$-iscsi.sh
+if [ -n "${root%%block:*}" ]; then
+    # if root is not specified try to mount the whole iSCSI LUN
+    printf 'SYMLINK=="disk/by-path/*-iscsi-*-%s", SYMLINK+="root"\n' $iscsi_lun >> /etc/udev/rules.d/99-iscsi-root.rules
+fi
 
 iscsistart -i $iscsi_initiator -t $iscsi_target_name	\
     -g $iscsi_target_group -a $iscsi_target_ip	\
@@ -131,6 +134,12 @@ iscsistart -i $iscsi_initiator -t $iscsi_target_name	\
     ${iscsi_password+-w $iscsi_password} \
     ${iscsi_in_username+-U $iscsi_in_username} \
     ${iscsi_in_password+-W $iscsi_in_password} || exit 1
+
+# install mount script
+if [ -n "${root%%block:*}" ]; then
+    # if root is not specified try to mount the whole iSCSI LUN
+    echo "iscsi_lun=$iscsi_lun . /bin/mount-lun.sh " > /mount/01-$$-iscsi.sh
+fi
 
 # now we have a root filesystem somewhere in /dev/sda*
 # let the normal block handler handle root=
