@@ -1,6 +1,6 @@
 #!/bin/bash
 dracut_install mount mknod mkdir modprobe pidof sleep chroot \
-    sed ls flock cp mv dmesg rm
+    sed ls flock cp mv dmesg rm ln
 if [ ! -e "${initdir}/bin/sh" ]; then
     dracut_install bash
     (ln -s bash "${initdir}/bin/sh" || :)
