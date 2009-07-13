@@ -103,6 +103,12 @@ while :; do
     else
         udevadm settle --timeout=30
     fi
+
+    # bail out, if we have mounted the root filesystem
+    [ -d "$NEWROOT/proc" ] && break;
+    # check if root can be mounted
+    [ -e /dev/root ] && break;
+ 
     unset queuetriggered
     if [ -f /initqueue/work ]; then
         rm /initqueue/work
