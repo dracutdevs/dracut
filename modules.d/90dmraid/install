@@ -1,5 +1,5 @@
 #!/bin/bash
-dracut_install dmraid 
+dracut_install dmraid ln
 inst "$moddir/dmraid.sh" /sbin/dmraid_scan
 inst_rules 64-md-raid.rules
 inst_rules "$moddir/61-dmraid.rules"
