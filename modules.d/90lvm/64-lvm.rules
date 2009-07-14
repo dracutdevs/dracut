@@ -7,7 +7,8 @@
 SUBSYSTEM!="block", GOTO="lvm_end"
 ACTION!="add|change", GOTO="lvm_end"
 
-KERNEL=="dm-*", IMPORT{program}="/sbin/blkid -o udev -p $tempnode"
+KERNEL=="dm-[0-9]*", IMPORT{program}="/sbin/blkid -o udev -p $tempnode"
+KERNEL=="md[0-9]*|md/*", IMPORT{program}="/sbin/blkid -o udev -p $tempnode"
 
 ENV{ID_FS_TYPE}=="LVM2_member", \
     TEST!="/tmp/.lvm_scan-%k", \
