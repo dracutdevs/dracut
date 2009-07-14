@@ -1,5 +1,5 @@
 #!/bin/bash
-TEST_DESCRIPTION="root filesystem on an encrypted LVM PV"
+TEST_DESCRIPTION="root filesystem on an encrypted LVM PV on a RAID-5"
 
 KVERSION=${KVERSION-$(uname -r)}
 
