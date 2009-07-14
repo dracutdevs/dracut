@@ -32,6 +32,14 @@ if [[ -f /etc/sysconfig/keyboard || -f /etc/sysconfig/console/default.kmap ]]; t
         findkeymap $KEYMAP
 
         for FN in $KEYMAPS; do
+            if [ -L $FN ]; then
+		TARGET=$(readlink -f $FN)
+		TG=$(echo $TARGET | sed -e 's/\.gz$//' -e 's/\.bz2$//')
+		LN=$(echo $FN | sed -e 's/\.gz$//' -e 's/\.bz2$//')
+                mkdir -p "$initdir/$(dirname $LN)"
+                ln -s "$TG" "$initdir/$LN"
+                FN=$TARGET
+            fi
             inst $FN
             case $FN in
                 *.gz) gzip -d "$initdir$FN" ;;
