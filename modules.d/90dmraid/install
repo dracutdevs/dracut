@@ -2,4 +2,8 @@
 dracut_install dmraid
 inst "$moddir/dmraid.sh" /sbin/dmraid_scan
 inst_rules 64-md-raid.rules
-inst_rules "$moddir/61-dmraid.rules"
+if [ ! -x /lib/udev/vol_id ] && mdadm -Q -e imsm /dev/null &> /dev/null; then
+    inst_rules "$moddir/61-dmraid-imsm.rules"
+else
+    inst_rules "$moddir/61-dmraid.rules"
+fi

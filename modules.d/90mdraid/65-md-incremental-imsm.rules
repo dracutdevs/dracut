@@ -1,0 +1,10 @@
+# This file causes block devices with Linux RAID (mdadm) signatures to
+# automatically cause mdadm to be run.
+# See udev(8) for syntax
+
+SUBSYSTEM=="block", ACTION=="add", \
+        ENV{ID_FS_TYPE}=="linux_raid_member|isw_raid_member", \
+        TEST!="/tmp/.mdraid_start-%k", \
+	IMPORT{program}="/sbin/mdadm --examine --export $tempnode", \
+	RUN+="/sbin/mdadm -I --no-degraded $env{DEVNAME}", \
+	RUN+="/bin/sh -c '>/tmp/.mdraid_start-%k; /bin/ln -s /sbin/mdraid_start /initqueue/mdraid_start.sh'"
