@@ -10,6 +10,6 @@ KERNEL=="md*", IMPORT{program}="vol_id --export $tempnode"
 ENV{ID_FS_TYPE}=="linux_raid_member", \
     TEST!="/tmp/.mdraid_start-%k", \
     RUN+="/sbin/mdadm -I $env{DEVNAME}", \
-    RUN+="sh -c '>/tmp/.mdraid_start-%k; /bin/ln -s /sbin/mdraid_start /initqueue/mdraid_start.sh'"
+    RUN+="/bin/sh -c '>/tmp/.mdraid_start-%k; /bin/ln -s /sbin/mdraid_start /initqueue/mdraid_start.sh'"
 
 LABEL="raid_end"
