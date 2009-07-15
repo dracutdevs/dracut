@@ -13,11 +13,11 @@ emergency_shell()
     source_all emergency
     if getarg rdshell || getarg rdbreak; then
         echo ; echo
-        echo "Dropping to a shell. Good luck!"
+        echo "Boot has failed, dropping to debug shell."
         echo
         sh -i
     else
-        echo "Boot has failed, sleeping forever"
+        echo "Boot has failed, sleeping forever."
         while :; do sleep 1;done
     fi
 }
