@@ -1,5 +1,5 @@
-# This file causes block devices with Linux RAID (mdadm) signatures to
-# automatically cause mdadm to be run.
+# This file causes block devices with RAID (dmraid) signatures to
+# automatically cause dmraid to be run.
 # See udev(8) for syntax
 
 SUBSYSTEM!="block", GOTO="dm_end"
