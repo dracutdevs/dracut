@@ -12,13 +12,15 @@ instmods =drivers/md
 if [ -x /lib/udev/vol_id ]; then
     inst_rules "$moddir/61-mdadm.rules"
 else
-    if mdadm -Q -e imsm /dev/null &> /dev/null; then
-        inst_rules "$moddir/65-md-incremental-imsm.rules"
-    else
-        inst_rules "$moddir/65-md-incremental.rules"
-    fi
     inst_rules 64-md-raid.rules
 fi
+
+if mdadm -Q -e imsm /dev/null &> /dev/null; then
+    inst_rules "$moddir/65-md-incremental-imsm.rules"
+else
+    inst_rules "$moddir/65-md-incremental.rules"
+fi
+
 
 [ -f /etc/mdadm/mdadm.conf ] && inst /etc/mdadm/mdadm.conf /etc/mdadm.conf
 [ -f /etc/mdadm.conf ] && inst /etc/mdadm.conf
@@ -28,4 +30,4 @@ if [ -x  /sbin/mdmon ] ; then
 fi 
 
 inst "$moddir/mdraid_start.sh" /sbin/mdraid_start
-inst grep
+inst_hook cmdline 30 "$moddir/parse-md.sh"

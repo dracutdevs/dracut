@@ -9,11 +9,26 @@
 # we already asked for this device
 [ -f /tmp/cryptroot-asked-$2 ] && exit 0
 
-# flock against other interactive activities
-{ flock -s 9; 
-    echo -n "$1 is password protected " 
-    /sbin/cryptsetup luksOpen -T1 $1 $2
-} 9>/.console.lock
+. /lib/dracut-lib.sh
+LUKS=$(getargs rd_LUKS_UUID=)
+ask=1
+
+if [ -n "$LUKS" ]; then
+    ask=0
+    for luks in $LUKS; do
+	if [ "${2##$luks}" != "$2" ]; then
+	    ask=1
+	fi
+    done
+fi
+
+if [ $ask -gt 0 ]; then
+    # flock against other interactive activities
+    { flock -s 9; 
+	echo -n "$1 is password protected " 
+	/sbin/cryptsetup luksOpen -T1 $1 $2
+    } 9>/.console.lock
+fi
 
 # mark device as asked
 >> /tmp/cryptroot-asked-$2

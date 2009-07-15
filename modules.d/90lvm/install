@@ -7,3 +7,4 @@ else
 fi
 
 inst "$moddir/lvm_scan.sh" /sbin/lvm_scan
+inst_hook cmdline 30 "$moddir/parse-lvm.sh"

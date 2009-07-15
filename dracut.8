@@ -78,6 +78,38 @@ root filesystem.
 specify e.g. \fI/dev/sda1\fR or
 \fI/dev/disk/by-path/pci-0000:00:1f.1-scsi-0:0:1:0-part1\fR
 
+.SH LVM
+.TP
+.B rd_NO_LVM
+disable LVM detection
+.TP
+.B rd_LVM_VG=<volume group name>
+only activate the volume groups with the given name
+
+.SH crypto LUKS
+.TP
+.B rd_NO_LUKS
+disable crypto LUKS detection
+.TP
+.B rd_LUKS_UUID=<luks uuid>
+only activate the LUKS partitions with the given UUID
+
+.SH MD
+.TP
+.B rd_NO_MD
+disable MD RAID detection
+.TP
+.B rd_MD_UUID=<md uuid>
+only activate the raid sets with the given UUID
+
+.SH DMRAID
+.TP
+.B rd_NO_DM
+disable DM RAID detection
+.TP
+.B rd_DM_UUID=<dmraid uuid>
+only activate the raid sets with the given UUID
+
 .SH DHCP
 .TP
 .B root=dhcp

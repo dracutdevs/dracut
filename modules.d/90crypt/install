@@ -3,3 +3,4 @@ inst cryptsetup
 instmods dm_crypt cbc aes sha256 xts
 inst_rules "$moddir/70-luks.rules"
 inst "$moddir"/cryptroot-ask.sh /sbin/cryptroot-ask
+inst_hook cmdline 30 "$moddir/parse-crypt.sh"
