@@ -11,4 +11,9 @@ ENV{ID_FS_TYPE}=="*_raid_member", \
     TEST!="/tmp/.dmraid_scan-%k", \
     RUN+="/bin/sh -c '>/tmp/.dmraid_scan-%k; /bin/ln -fs /sbin/dmraid_scan /initqueue/dmraid_scan.sh'"
 
+ENV{ID_FS_TYPE}=="*_raid_member", \
+    TEST!="/tmp/.dmraid_scan-%k", \
+    ATTR{partition}!="?*", \
+    RUN+="/sbin/partx -d $env{DEVNAME}"
+
 LABEL="dm_end"
