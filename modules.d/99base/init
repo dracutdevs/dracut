@@ -203,16 +203,12 @@ for i in $(export -p); do
 done
 
 initargs=""
+initrdargs="$initrdargs console BOOT_IMAGE rdbreak rdinitdebug rdudevinfo rdudevdebug rdnetdebug rdcopystate rdshell"
+
 for x in "$@"; do
-    [ "${x%%=*}" = "console" ] && continue
-    [ "${x%%=*}" = "BOOT_IMAGE" ] && continue
-    [ "${x%%=*}" = "rdbreak" ] && continue
-    [ "${x%%=*}" = "rdinitdebug" ] && continue
-    [ "${x%%=*}" = "rdudevinfo" ] && continue
-    [ "${x%%=*}" = "rdudevdebug" ] && continue
-    [ "${x%%=*}" = "rdnetdebug" ] && continue
-    [ "${x%%=*}" = "rdcopystate" ] && continue
-    [ "${x%%=*}" = "rdshell" ] && continue
+    for s in $initrdargs; do       
+	[ "${x%%=*}" = $s ] && continue 1
+    done
     initargs="$initargs $x"
 done
 
