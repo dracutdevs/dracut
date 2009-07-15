@@ -29,13 +29,33 @@ source_all() {
 }
 
 die() {
-    printf "<1>FATAL: $1\n" > /dev/kmsg
-    printf "<1>Refusing to continue\n" > /dev/kmsg
+    {
+        echo "<1>dracut: FATAL: $@";
+        echo "<1>dracut: Refusing to continue";
+    } > /dev/kmsg
+
+    {
+        echo "dracut: FATAL: $@";
+        echo "dracut: Refusing to continue";
+    } > /dev/console 
+    
     exit 1
 }
 
 warn() {
-    printf "<1>Warning: $1\n" > /dev/kmsg
+    echo "<4>dracut Warning: $@" > /dev/kmsg
+    echo "dracut Warning: $@" > /dev/console
+}
+
+info() {
+    echo "<6>dracut: $@" > /dev/kmsg
+    echo "dracut: $@" > /dev/console
+}
+
+vinfo() {
+    while read line; do 
+        info $line;
+    done
 }
 
 check_occurances() {
