@@ -8,6 +8,20 @@ getarg() {
     return 1
 }
 
+getargs() {
+    local o line found
+    [ "$CMDLINE" ] || read CMDLINE </proc/cmdline;
+    for o in $CMDLINE; do
+	[ "$o" = "$1" ] && return 0
+	if [ "${o%%=*}" = "${1%=}" ]; then
+	    echo -n "${o#*=} "; 
+	    found=1;
+	fi
+    done
+    [ -n "$found" ] && return 0
+    return 1
+}
+
 source_all() {
     local f
     [ "$1" ] && [  -d "/$1" ] || return
