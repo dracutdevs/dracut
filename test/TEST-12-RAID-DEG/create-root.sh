@@ -31,6 +31,13 @@ umount /sysroot && \
 lvm lvchange -a n /dev/dracut/root && \
 cryptsetup luksClose /dev/mapper/dracut_crypt_test && \
 mdadm /dev/md0 --fail /dev/sda2 --remove /dev/sda2 && \
-echo "dracut-root-block-created" >/dev/sda1
+{
+/sbin/mdadm --detail --export /dev/md0 > /tmp/mduuid ;
+. /tmp/mduuid;
+} && \
+{
+echo "dracut-root-block-created" 
+echo MD_UUID=$MD_UUID 
+}> /dev/sda1
 dd if=/dev/zero of=/dev/sda2
 poweroff -f

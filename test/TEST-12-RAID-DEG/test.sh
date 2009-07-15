@@ -6,12 +6,45 @@ KVERSION=${KVERSION-$(uname -r)}
 # Uncomment this to debug failures
 #DEBUGFAIL="rdinitdebug rdnetdebug"
 
-test_run() {
+client_run() {
+    echo "CLIENT TEST START: $@"
     $testdir/run-qemu -hda root.ext2 -m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "root=/dev/dracut/root rw quiet console=ttyS0,115200n81 rdshell $DEBUGFAIL" \
+	-append "$@ root=/dev/dracut/root rw quiet console=ttyS0,115200n81 rdshell $DEBUGFAIL " \
 	-initrd initramfs.testing
-    grep -m 1 -q dracut-root-block-success root.ext2 || return 1
+    if ! grep -m 1 -q dracut-root-block-success root.ext2; then
+	echo "CLIENT TEST END: $@ [FAIL]"
+	return 1;
+    fi
+
+    sed -i -e 's#dracut-root-block-success#dracut-root-block-xxxxxxx#' root.ext2
+    echo "CLIENT TEST END: $@ [OK]"
+    return 0
+}
+
+test_run() {
+    eval $(grep --binary-files=text -m 1 MD_UUID root.ext2)
+    echo "MD_UUID=$MD_UUID"
+
+    client_run || return 1
+
+    client_run rd_NO_LVM && return 1
+
+    client_run rd_LVM_VG=failme && return 1
+
+    client_run rd_LVM_VG=dracut || return 1
+
+    client_run rd_LVM_VG=dummy1 rd_LVM_VG=dracut rd_LVM_VG=dummy2 || return 1
+
+    client_run rd_MD_UUID=failme && return 1
+
+    client_run rd_NO_MD && return 1
+
+    client_run rd_MD_UUID=$MD_UUID || return 1
+
+    client_run rd_MD_UUID=dummy1 rd_MD_UUID=$MD_UUID rd_MD_UUID=dummy2 || return 1
+
+    return 0
 }
 
 test_setup() {
