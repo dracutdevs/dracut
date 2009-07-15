@@ -78,6 +78,27 @@ root filesystem.
 specify e.g. \fI/dev/sda1\fR or
 \fI/dev/disk/by-path/pci-0000:00:1f.1-scsi-0:0:1:0-part1\fR
 
+.SH I18N
+e.g. LANG=en_US.UTF-8 SYSFONT=latarcyrheb-sun16 KEYTABLE=de-latin1-nodeadkeys
+.TP
+.B KEYBOARDTYPE=sun|pc
+will be written to /etc/sysconfig/keyboard in the initramfs
+.TP
+.B KEYTABLE=<keytable filename>
+will be written to /etc/sysconfig/keyboard in the initramfs
+.TP
+.B SYSFONT= Console font
+will be written to /etc/sysconfig/i18n in the initramfs
+.TP
+.B SYSFONTACM= Unicode font map
+will be written to /etc/sysconfig/i18n in the initramfs
+.TP
+.B UNIMAP= Unicode font map
+will be written to /etc/sysconfig/i18n in the initramfs
+.TP
+.B LANG=<locale>
+will be written to /etc/sysconfig/i18n in the initramfs
+
 .SH LVM
 .TP
 .B rd_NO_LVM

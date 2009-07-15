@@ -1,4 +1,5 @@
 #!/bin/bash
+
 findkeymap () {
     local MAP=$1
     [[ ! -f $MAP ]] && \
@@ -18,54 +19,67 @@ findkeymap () {
     done
 }
 
+install_local()
+{
 # FIXME: i18n stuff isn't really distro-independent :/
-if [[ -f /etc/sysconfig/keyboard || -f /etc/sysconfig/console/default.kmap ]]; then
-    if [ -f /etc/sysconfig/console/default.kmap ]; then
-        KEYMAP=/etc/sysconfig/console/default.kmap
-    else
-        . /etc/sysconfig/keyboard
-        [[ $KEYTABLE && -d /lib/kbd/keymaps ]] && KEYMAP="$KEYTABLE.map"
-    fi
-    if [[ $KEYMAP ]]; then
-        [ -f /etc/sysconfig/keyboard ] && inst /etc/sysconfig/keyboard
-        inst loadkeys
-        findkeymap $KEYMAP
+    if [[ -f /etc/sysconfig/keyboard || -f /etc/sysconfig/console/default.kmap ]]; then
+	if [ -f /etc/sysconfig/console/default.kmap ]; then
+            KEYMAP=/etc/sysconfig/console/default.kmap
+	else
+            . /etc/sysconfig/keyboard
+            [[ $KEYTABLE && -d /lib/kbd/keymaps ]] && KEYMAP="$KEYTABLE.map"
+	fi
+	if [[ $KEYMAP ]]; then
+            [ -f /etc/sysconfig/keyboard ] && inst /etc/sysconfig/keyboard
+            inst loadkeys
+            findkeymap $KEYMAP
 
-        for FN in $KEYMAPS; do
-            if [ -L $FN ]; then
-		TARGET=$(readlink -f $FN)
-		TG=$(echo $TARGET | sed -e 's/\.gz$//' -e 's/\.bz2$//')
-		LN=$(echo $FN | sed -e 's/\.gz$//' -e 's/\.bz2$//')
-                mkdir -p "$initdir/$(dirname $LN)"
-                ln -s "$TG" "$initdir/$LN"
-                FN=$TARGET
-            fi
-            inst $FN
+            for FN in $KEYMAPS; do
+		if [ -L $FN ]; then
+		    TARGET=$(readlink -f $FN)
+		    TG=$(echo $TARGET | sed -e 's/\.gz$//' -e 's/\.bz2$//')
+		    LN=$(echo $FN | sed -e 's/\.gz$//' -e 's/\.bz2$//')
+                    mkdir -p "$initdir/$(dirname $LN)"
+                    ln -s "$TG" "$initdir/$LN"
+                    FN=$TARGET
+		fi
+		inst $FN
+		case $FN in
+                    *.gz) gzip -d "$initdir$FN" ;;
+                    *.bz2) bzip2 -d "$initdir$FN" ;;
+		esac
+            done
+	fi
+    fi
+
+    if [ -f /etc/sysconfig/i18n ]; then
+	. /etc/sysconfig/i18n
+	inst /etc/sysconfig/i18n
+	[[ $SYSFONT ]] || SYSFONT=latarcyrheb-sun16
+	inst setfont
+
+	for FN in /lib/kbd/consolefonts/$SYSFONT.* ; do
+            inst "$FN"
             case $FN in
-                *.gz) gzip -d "$initdir$FN" ;;
-                *.bz2) bzip2 -d "$initdir$FN" ;;
+		*.gz) gzip -d "$initdir$FN" ;;
+		*.bz2) bzip2 -d "$initdir$FN" ;;
             esac
-        done
+	done
+	[[ $SYSFONTACM ]] && inst /lib/kbd/consoletrans/$SYSFONTACM
+	[[ $UNIMAP ]] && inst /lib/kbd/unimaps/$UNIMAP
     fi
-fi
+}
 
-if [ -f /etc/sysconfig/i18n ]; then
-    . /etc/sysconfig/i18n
-    inst /etc/sysconfig/i18n
-    [[ $SYSFONT ]] || SYSFONT=latarcyrheb-sun16
-    inst setfont
-
-    for FN in /lib/kbd/consolefonts/$SYSFONT.* ; do
-        inst "$FN"
-        case $FN in
-            *.gz) gzip -d "$initdir$FN" ;;
-            *.bz2) bzip2 -d "$initdir$FN" ;;
-        esac
+if [[ $hostonly ]]; then 
+    install_local
+else
+    for i in $(find /lib/kbd -type f -print); do
+	dracut_install $i
     done
-    [[ $SYSFONTACM ]] && inst /lib/kbd/consoletrans/$SYSFONTACM
-    [[ $UNIMAP ]] && inst /lib/kbd/unimaps/$UNIMAP
+    dracut_install gzip bzip2
 fi
 
-dracut_install /lib/udev/console_*
+dracut_install /lib/udev/console_* 
+dracut_install setfont loadkeys
 inst_rules 10-console.rules
-
+inst_hook cmdline 20 "$moddir/parse-i18n.sh"
