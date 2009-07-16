@@ -125,6 +125,9 @@ test_nfsv3() {
     client_test "NFSv3 root=nfs:..." 52:54:00:12:34:04 \
  	"root=nfs:192.168.50.1:/nfs/client" 192.168.50.1 -wsize=4096 || return 1
 
+    client_test "NFSv3 Bridge root=nfs:..." 52:54:00:12:34:04 \
+ 	"root=nfs:192.168.50.1:/nfs/client bridge" 192.168.50.1 -wsize=4096 || return 1
+
     client_test "NFSv3 Legacy root=IP:path" 52:54:00:12:34:04 \
  	"root=192.168.50.1:/nfs/client" 192.168.50.1 -wsize=4096 || return 1
 
@@ -134,6 +137,9 @@ test_nfsv3() {
 
     client_test "NFSv3 root=dhcp DHCP path,options" \
 	52:54:00:12:34:05 "root=dhcp" 192.168.50.1 wsize=4096 || return 1
+
+    client_test "NFSv3 Bridge Customized root=dhcp DHCP path,options" \
+	52:54:00:12:34:05 "root=dhcp bridge=foobr0:eth0" 192.168.50.1 wsize=4096 || return 1
 
     client_test "NFSv3 root=dhcp DHCP IP:path,options" \
 	52:54:00:12:34:06 "root=dhcp" 192.168.50.2 wsize=4096 || return 1

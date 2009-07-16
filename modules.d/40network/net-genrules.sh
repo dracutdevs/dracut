@@ -14,6 +14,11 @@ fix_bootif() {
 
 # Write udev rules
 {
+    # bridge: attempt only the defined interface
+    if [ -e /tmp/bridge.info ]; then
+        . /tmp/bridge.info
+        IFACES=$ethname
+    fi
 
     # BOOTIF says everything, use only that one
     BOOTIF=$(getarg 'BOOTIF=')

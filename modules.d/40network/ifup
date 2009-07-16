@@ -60,6 +60,14 @@ fi
 # $netif reads easier than $1
 netif=$1
 
+# bridge this interface?
+if [ -e /tmp/bridge.info ]; then
+    . /tmp/bridge.info
+    if [ "$netif" = "$ethname" ]; then
+        netif="$bridgename"
+    fi
+fi
+
 # bail immediately if the interface is already up
 # or we don't need the network
 [ -f "/tmp/net.$netif.up" ] && exit 0
@@ -76,6 +84,15 @@ if [ "$netif" = "lo" ] ; then
 fi
 
 # XXX need error handling like dhclient-script
+
+# start bridge if necessary
+if [ "$netif" = "$bridgename" ] && [ ! -e /tmp/net.$bridgename.up ]; then
+    ip link set $ethname up
+    # Create bridge and add eth to bridge
+    brctl addbr $bridgename
+    brctl setfd $bridgename 0
+    brctl addif $bridgename $ethname
+fi
 
 # No ip lines default to dhcp
 ip=$(getarg ip)

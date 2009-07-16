@@ -106,6 +106,10 @@ test_run() {
  	"root=nbd:192.168.50.1:2000:ext2:errors=panic" \
  	ext2 errors=panic || return 1
 
+     client_test "NBD Bridge root=nbd:IP:port:fstype:fsopts" 52:54:00:12:34:00 \
+ 	"root=nbd:192.168.50.1:2000:ext2:errors=panic bridge" \
+ 	ext2 errors=panic || return 1
+
      # There doesn't seem to be a good way to validate the NBD options, so
      # just check that we don't screw up the other options
 
@@ -124,6 +128,9 @@ test_run() {
 
     client_test "NBD root=dhcp DHCP root-path nbd:srv:port" 52:54:00:12:34:01 \
 	"root=dhcp" || return 1
+
+    client_test "NBD Bridge root=dhcp DHCP root-path nbd:srv:port" 52:54:00:12:34:01 \
+	"root=dhcp bridge" || return 1
 
     client_test "NBD root=dhcp DHCP root-path nbd:srv:port:fstype" \
 	52:54:00:12:34:02 "root=dhcp" ext2 || return 1
