@@ -11,14 +11,14 @@ emergency_shell()
     echo ; echo
     echo $@
     source_all emergency
+    echo
     if getarg rdshell || getarg rdbreak; then
-        echo ; echo
-        echo "Boot has failed, dropping to debug shell."
+        echo "Dropping to debug shell."
         echo
         sh -i
     else
         echo "Boot has failed, sleeping forever."
-        while :; do sleep 1;done
+        while :; do sleep 365d;done
     fi
 }
 
@@ -170,7 +170,7 @@ while :; do
 done
 
 # pre pivot scripts are sourced just before we switch over to the new root.
-getarg 'rdbreak=pre-pivot' && emergency_shell
+getarg 'rdbreak=pre-pivot' && emergency_shell "Break pre-pivot"
 source_all pre-pivot
 
 # by the time we get here, the root filesystem should be mounted.
@@ -184,7 +184,7 @@ done
     emergency_shell
 }
 
-getarg rdbreak && emergency_shell
+getarg rdbreak && emergency_shell "Break before switch_root"
 
 HARD=""
 while pidof udevd >/dev/null 2>&1; do 
