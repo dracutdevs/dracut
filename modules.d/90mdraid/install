@@ -23,8 +23,11 @@ else
 fi
 
 
-[ -f /etc/mdadm/mdadm.conf ] && inst /etc/mdadm/mdadm.conf /etc/mdadm.conf
-[ -f /etc/mdadm.conf ] && inst /etc/mdadm.conf
+if [[ $hostonly ]]; then 
+    [ -f /etc/mdadm/mdadm.conf ] && inst /etc/mdadm/mdadm.conf /etc/mdadm.conf
+    [ -f /etc/mdadm.conf ] && inst /etc/mdadm.conf
+fi
+
 if [ -x  /sbin/mdmon ] ; then
     dracut_install mdmon
     inst_hook pre-pivot 30 "$moddir/mdmon-pre-pivot.sh"
