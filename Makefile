@@ -34,6 +34,7 @@ clean:
 	rm -f *~
 	rm -f modules.d/99base/switch_root
 	rm -f test-*.img
+	rm -f dracut-*.rpm dracut-*.tar.bz2
 	make -C test clean
 
 archive: dracut-$(VERSION)-$(GITVERSION).tar.bz2
@@ -47,7 +48,7 @@ dracut-$(VERSION)-$(GITVERSION).tar.bz2:
 	git archive --format=tar HEAD --prefix=dracut-$(VERSION)-$(GITVERSION)/ |bzip2 > dracut-$(VERSION)-$(GITVERSION).tar.bz2
 
 
-rpm: dracut-$(VERSION).tar.bz2
+rpm: clean dracut-$(VERSION).tar.bz2
 	rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" --define "_specdir $$PWD" --define "_srcrpmdir $$PWD" --define "_rpmdir $$PWD" -ba dracut.spec 
 	rm -fr BUILD BUILDROOT
 
