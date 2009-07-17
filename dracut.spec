@@ -65,6 +65,7 @@ Requires: ql2200-firmware
 Requires: ql23xx-firmware
 Requires: ql2400-firmware
 Requires: ql2500-firmware
+Requires: plymouth-system-theme plymouth-theme-charge plymouth-theme-solar
 
 %description generic
 This package requires everything which is needed to build a generic
