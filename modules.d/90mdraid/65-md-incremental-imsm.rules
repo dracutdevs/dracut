@@ -5,6 +5,7 @@
 ACTION!="add", GOTO="md_inc_end"
 SUBSYSTEM!="block", GOTO="md_inc_end"
 ENV{ID_FS_TYPE}!="linux_raid_member|isw_raid_member", GOTO="md_inc_end"
+ENV{ID_FS_TYPE}=="isw_raid_member", ENV{rd_NO_MDIMSM}=="?*", GOTO="md_inc_end"
 
 TEST=="/tmp/.mdraid_start-%k", GOTO="md_inc_end"
 

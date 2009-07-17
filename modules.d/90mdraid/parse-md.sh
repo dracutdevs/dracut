@@ -1,6 +1,7 @@
-initrdargs="$initrdargs rd_MD_UUID rd_NO_MD" 
+initrdargs="$initrdargs rd_MD_UUID rd_NO_MD rd_NO_MDIMSM" 
 
-if $(getarg rd_NO_MD); then
+if getarg rd_NO_MD; then
+    info "rd_NO_MD: removing MD RAID activation"
     rm /etc/udev/rules.d/65-md-incremental*.rules
 else
     MD_UUID=$(getargs rd_MD_UUID=)
@@ -25,3 +26,7 @@ else
     fi
 fi
 
+if getarg rd_NO_MDIMSM; then
+    info "rd_NO_MDIMSM: no MD RAID for imsm/isw raids"
+    udevadm control --property=rd_NO_MDIMSM=1
+fi
