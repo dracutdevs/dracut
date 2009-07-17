@@ -14,8 +14,7 @@ udevadm settle --timeout=30 >/dev/null 2>&1
 [ -c /dev/fb ] || mknod /dev/fb c 29 0
 [ -c /dev/hvc0 ] || mknod /dev/hvc0 c 229 0
 
+info "Starting plymouth daemon"
 [ -x /bin/plymouthd ] && /bin/plymouthd
-
-/lib/udev/console_init tty0
 /bin/plymouth --show-splash
 
