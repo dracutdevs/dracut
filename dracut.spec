@@ -93,6 +93,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,0755)
 %doc README HACKING TODO COPYING AUTHORS
 /sbin/dracut
+/sbin/dracut-gencmdline
 %if 0%{?with_switch_root}
 /sbin/switch_root
 %endif

@@ -1,0 +1,684 @@
+#!/bin/bash --norc
+#
+#
+# Copyright 2005-2008 Red Hat, Inc.  All rights reserved.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# code taken from mkinitrd
+#
+#. /usr/libexec/initrd-functions
+
+
+function error() {
+    local NONL=""
+    if [ "$1" == "-n" ]; then
+        NONL="-n"
+        shift
+    fi
+    echo $NONL "$@" >&2
+}
+
+function vecho() {
+    return
+    local NONL=""
+    if [ "$1" == "-n" ]; then
+        NONL="-n"
+        shift
+    fi
+    is_verbose && echo $NONL "$@"
+}
+
+# module dep finding and installation functions
+moduledep() {
+    MPARGS=""
+    if [ "$1" == "--ignore-install" ]; then
+        MPARGS="$MPARGS --ignore-install"
+        shift
+    fi
+    vecho -n "Looking for deps of module $1"
+    deps=""
+    deps=$(modprobe $MPARGS --set-version $kernel --show-depends $1 2>/dev/null| awk '/^insmod / { print gensub(".*/","","g",$2) }' | while read foo ; do [ "${foo%%.ko}" != "$1" ] && echo -n "${foo%%.ko} " ; done)
+    [ -n "$deps" ] && vecho ": $deps" || vecho
+}
+
+if [ $UID != 0 ]; then
+    error "$0 must be run as root."
+    exit 1
+fi
+
+export MALLOC_PERTURB_=204
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin:$PATH
+export PATH
+
+. /etc/rc.d/init.d/functions
+
+# Set the umask. For iscsi, the initrd can contain plaintext
+# password (chap secret), so only allow read by owner.
+umask 077
+
+VERSION=6.0.87
+
+PROBE="yes"
+MODULES=""
+GRAPHICSMODS=""
+PREMODS=""
+DMRAIDS=""
+ncryptodevs=0
+ncryptoparts=0
+ncryptolvs=0
+ncryptoraids=0
+root=""
+scsi_wait_scan="no"
+
+NET_LIST=""
+LD_SO_CONF=/etc/ld.so.conf
+LD_SO_CONF_D=/etc/ld.so.conf.d/
+
+[ -e /etc/sysconfig/mkinitrd ] && . /etc/sysconfig/mkinitrd
+
+CONFMODS="$MODULES"
+MODULES=""
+ARCH=$(uname -m | sed -e 's/s390x/s390/')
+
+compress=1
+allowmissing=""
+target=""
+kernel=""
+force=""
+img_vers=""
+builtins=""
+modulefile=/etc/modules.conf
+[ "$ARCH" != "s390" ] && withusb=1
+rc=0
+nolvm=""
+nodmraid=""
+
+IMAGESIZE=8000
+PRESCSIMODS=""
+fstab="/etc/fstab"
+
+vg_list=""
+net_list="$NET_LIST"
+
+usage () {
+    if [ "$1" == "-n" ]; then
+        cmd=echo
+    else
+        cmd=error
+    fi
+
+    $cmd "usage: `basename $0` [--version] [--help] [-v] [-f]"
+
+    if [ "$1" == "-n" ]; then
+        exit 0
+    else
+        exit 1
+    fi
+}
+
+
+qpushd() {
+    pushd "$1" >/dev/null 2>&1
+}
+
+qpopd() {
+    popd >/dev/null 2>&1
+}
+
+resolve_device_name() {
+    echo "$1" 
+#    echo "resolve_device_name $1"  1>&2
+}
+
+readlink() {
+    /usr/bin/readlink -f "$1"
+}
+
+finddevnoinsys() {
+    majmin="$1"
+    if [ -n "$majmin" ]; then
+        dev=$(for x in /sys/block/* ; do find $x/ -name dev ; done | while read device ; do \
+              echo "$majmin" | cmp -s $device && echo $device ; done)
+        if [ -n "$dev" ]; then
+            dev=${dev%%/dev}
+            dev=${dev%%/}
+            echo "$dev"
+            return 0
+        fi
+    fi
+    return 1
+}
+
+finddevicedriverinsys () {
+    if is_iscsi $PWD; then
+        handleiscsi "$PWD"
+        return
+    fi
+    while [ "$PWD" != "/sys/devices" ]; do
+        deps=
+        if [ -f modalias ]; then
+            MODALIAS=$(cat modalias)
+            if [ "${MODALIAS::7}" == "scsi:t-" ]; then
+                scsi_wait_scan=yes
+            fi
+            moduledep $MODALIAS
+            unset MODALIAS
+        fi
+
+        cd ..
+    done
+}
+
+findstoragedriverinsys () {
+    local sysfs=$(readlink "$1")
+
+    # if its a partition look at the device holding the partition
+    if [ -f "$sysfs/start" ]; then
+        sysfs=$(readlink ${sysfs%/*})
+    fi
+
+    if [[ ! "$sysfs" =~ '^/sys/.*block/.*$' ]]; then
+        #error "WARNING: $sysfs is a not a block sysfs path, skipping"
+        return
+    fi
+
+    case " $handleddevices " in
+        *" $sysfs "*)
+            return ;;
+        *) handleddevices="$handleddevices $sysfs" ;;
+    esac
+
+    if [[ "$sysfs" =~ '^/sys/.*block/md[0-9]+$' ]]; then
+        local raid=${sysfs##*/}
+        vecho "Found MDRAID component $raid"
+        handleraid $raid
+    fi
+    if [[ "$sysfs" =~ '^/sys/.*block/dm-[0-9]+$' ]]; then
+        vecho "Found DeviceMapper component ${sysfs##*/}"
+        handledm $(cat $sysfs/dev |cut -d : -f 1) $(cat $sysfs/dev |cut -d : -f 2)
+    fi
+
+    for slave in $(ls -d "$sysfs"/slaves/* 2>/dev/null) ; do
+        findstoragedriverinsys "$slave"
+    done
+
+    if [ -L "$sysfs/device" ]; then
+        qpushd $(readlink "$sysfs/device")
+        finddevicedriverinsys
+        qpopd
+    fi
+}
+
+findstoragedriver () {
+    local device="$1"
+
+    if [ ! -b "$device" ]; then
+        #error "WARNING: $device is a not a block device, skipping"
+        return
+    fi
+
+    local majmin=$(get_numeric_dev dec "$device")
+    local sysfs=$(finddevnoinsys "$majmin")
+
+    if [ -z "$sysfs" ]; then
+        #error "WARNING: $device major:minor $majmin not found, skipping"
+        return
+    fi
+
+    vecho "Looking for driver for $device in $sysfs"
+    findstoragedriverinsys "$sysfs"
+}
+
+iscsi_get_rec_val() {
+
+    # The open-iscsi 742 release changed to using flat files in
+    # /var/lib/iscsi.
+
+    result=$(grep "^${2} = " "$1" |  sed -e s'/.* = //')
+}
+
+iscsi_set_parameters() {
+    path=$1
+    vecho setting iscsi parameters
+
+    tmpfile=$(mktemp)
+
+    # Check once before getting explicit values, so we can output a decent
+    # error message.
+    /sbin/iscsiadm --show -m session -r $path > $tmpfile
+    if [ ! -s $tmpfile ]; then
+        echo Unable to find iscsi record for $path
+        exit 1
+    fi
+
+    nit_name=$(grep "^InitiatorName=" /etc/iscsi/initiatorname.iscsi | \
+        sed -e "s/^InitiatorName=//")
+
+    iscsi_get_rec_val $tmpfile "node.name"
+    tgt_name=${result}
+    iscsi_get_rec_val $tmpfile "node.tpgt"
+    tpgt=${result}
+    # iscsistart wants node.conn[0].address / port
+    iscsi_get_rec_val $tmpfile 'node.conn\[0\].address'
+    tgt_ipaddr=${result}
+    iscsi_get_rec_val $tmpfile 'node.conn\[0\].port'
+    tgt_port=${result}
+
+    # Note: we get chap secrets (passwords) in plaintext, and also store
+    # them in the initrd.
+
+    iscsi_get_rec_val $tmpfile "node.session.auth.username"
+    chap=${result}
+    if [ -n "${chap}" -a "${chap}" != "<empty>" ]; then
+        chap="-u ${chap}"
+        iscsi_get_rec_val $tmpfile "node.session.auth.password" 
+        chap_pw="-w ${result}"
+    else
+	chap=""
+    fi
+
+    iscsi_get_rec_val $tmpfile "node.session.auth.username_in"
+    chap_in=${result}
+    if [ -n "${chap_in}" -a "${chap_in}" != "<empty>" ]; then
+        chap_in="-U ${chap_in}"
+        iscsi_get_rec_val $tmpfile "node.session.auth.password_in" 
+        chap_in_pw="-W ${result}"
+    else
+	chap_in=""
+    fi
+
+    rm $tmpfile
+}
+
+emit_iscsi () {
+    if [ -n "${iscsi_devs}" ]; then
+        for dev in ${iscsi_devs}; do
+            iscsi_set_parameters $dev
+            # recid is not really used, just use 0 for it
+            echo "/bin/iscsistart -t ${tgt_name} -i ${nit_name} \
+                -g ${tpgt} -a ${tgt_ipaddr} ${chap} ${chap_pw} \
+                ${chap_in} ${chap_in_pw}"
+        done
+    fi
+}
+
+is_iscsi() {
+    path=$1
+    if echo $path | grep -q "/platform/host[0-9]*/session[0-9]*/target[0-9]*:[0-9]*:[0-9]*/[0-9]*:[0-9]*:[0-9]*:[0-9]*"; then
+        return 0
+    else 
+        return 1
+    fi
+}
+
+handledm() {
+    major=$1
+    minor=$2
+    while read dmstart dmend dmtype r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 ; do
+        case "$dmtype" in
+            crypt)
+                # this device is encrypted; find the slave device and see
+                # whether the encryption is LUKS; if not, bail.
+                slavedev=$(finddevnoinsys $r3)
+                # get the basename, then s,!,/, in case it's a cciss device
+                slavedev=$(echo ${slavedev##*/} | tr '!' '/')
+                cryptsetup isLuks "/dev/$slavedev" 2>/dev/null || continue
+                find_base_dm_mods
+                dmname=$(dmsetup info -j $major -m $minor -c --noheadings -o name)
+                # do the device resolution dance to get /dev/mapper/foo
+                # since 'lvm lvs' doesn't like dm-X device nodes
+                if [[ "$slavedev" =~ ^dm- ]]; then
+                    majmin=$(get_numeric_dev dec "/dev/$slavedev")
+                    for dmdev in /dev/mapper/* ; do
+                        dmnum=$(get_numeric_dev dev $dmdev)
+                        if [ $dmnum = $majmin ]; then
+                            slavedev=${dmdev#/dev/}
+                            break
+                        fi
+                    done
+                fi
+
+                # determine if $slavedev is an LV
+                #  if so, add the device to latecryptodevs
+                #  if not, add the device to cryptodevs
+                local vg=$(lvshow /dev/$slavedev)
+                if [ -n "$vg" ]; then
+                    eval cryptolv${ncryptolvs}='"'/dev/$slavedev $dmname'"'
+                    let ncryptolvs++
+                elif grep -q "^$slavedev :" /proc/mdstat ; then
+                    eval cryptoraid${ncryptoraids}='"'/dev/$slavedev $dmname'"'
+                    let ncryptoraids++
+                else
+                    eval cryptoparts${ncryptoparts}='"'/dev/$slavedev $dmname'"'
+                    let ncryptoparts++
+                fi
+
+                let ncryptodevs++
+                findstoragedriver "/dev/$slavedev"
+                ;;
+        esac
+    done << EOF
+        $(dmsetup table -j $major -m $minor 2>/dev/null)
+EOF
+    local name=$(dmsetup info --noheadings -c -j $major -m $minor -o name)
+    local vg=$(lvshow "/dev/mapper/$name")
+    local raids=$(/sbin/dmraid -s -craidname 2>/dev/null | grep -vi "no raid disks") 
+    if [ -n "$vg" ]; then
+        vg=`echo $vg` # strip whitespace
+        case " $vg_list " in
+        *" $vg "*) ;;
+        *)  vg_list="$vg_list $vg"
+            [ -z "$nolvm" ] && find_base_dm_mods
+            ;;
+        esac
+    fi
+    for raid in $raids ; do
+        if [ "$raid" == "$name" ]; then
+            case " $DMRAIDS " in
+                *" $raid "*) ;;
+                *)  DMRAIDS="$DMRAIDS $raid"
+                    [ -z "$nodmraid" ] && find_base_dm_mods
+                    ;;
+            esac
+            break
+        fi
+    done
+}
+
+handleiscsi() {
+    vecho "Found iscsi component $1"
+
+    # We call iscsi_set_parameters once here to figure out what network to
+    # use (it sets tgt_ipaddr), and once again to emit iscsi values,
+    # not very efficient.
+    iscsi_set_parameters $1
+    iscsi_devs="$iscsi_devs $1"
+    netdev=$(/sbin/ip route get to $tgt_ipaddr | \
+        sed 's|.*dev \(.*\).*|\1|g' | awk '{ print $1; exit }')
+    addnetdev $netdev
+}
+
+handleraid() {
+    local start=0
+
+    if [ -n "$noraid" -o ! -f /proc/mdstat ]; then
+        return 0
+    fi
+
+    levels=$(awk "/^$1[	 ]*:/ { print\$4 }" /proc/mdstat)
+
+    for level in $levels ; do
+        case $level in
+        linear)
+            start=1
+            ;;
+        multipath)
+            start=1
+            ;;
+        raid[01] | raid10)
+            start=1
+            ;;
+        raid[456])
+            start=1
+            ;;
+        *)
+            error "raid level $level (in /proc/mdstat) not recognized"
+            ;;
+        esac
+    done
+    if [ "$start" = 1 ]; then
+        raiddevices="$raiddevices $1"
+    fi
+    return $start
+}
+
+lvshow() {
+    lvm lvs --ignorelockingfailure --noheadings -o vg_name \
+        $1 2>/dev/null | egrep -v '^ *(WARNING:|Volume Groups with)'
+}
+
+vgdisplay() {
+    lvm vgdisplay --ignorelockingfailure -v $1 2>/dev/null |
+        sed -n 's/PV Name//p'
+}
+
+dmmods_found="n"
+find_base_dm_mods()
+{
+    [ "$dmmods_found" == "n" ] || return
+    dmmods_found="y"
+}
+
+savedargs=$*
+while [ $# -gt 0 ]; do
+    case $1 in
+        --fstab*)
+            if [ "$1" != "${1##--fstab=}" ]; then
+                fstab=${1##--fstab=}
+            else
+                fstab=$2
+                shift
+            fi
+            ;;
+
+
+        -v|--verbose)
+            set_verbose true
+            ;;
+        --net-dev*)
+            if [ "$1" != "${1##--net-dev=}" ]; then
+                net_list="$net_list ${1##--net-dev=}"
+            else
+                net_list="$net_list $2"
+                shift
+            fi
+            ;;
+	--rootdev*)
+            if [ "$1" != "${1##--rootdev=}" ]; then
+                rootdev="${1##--rootdev=}"
+            else
+                rootdev="$2"
+                shift
+            fi
+	    ;;
+	--thawdev*)
+            if [ "$1" != "${1##--thawdev=}" ]; then
+                thawdev="${1##--thawdev=}"
+            else
+                thawdev="$2"
+                shift
+            fi
+	    ;;
+	--rootfs*)
+            if [ "$1" != "${1##--rootfs=}" ]; then
+                rootfs="${1##--rootfs=}"
+            else
+                rootfs="$2"
+                shift
+            fi
+	    ;;
+	--rootopts*)
+            if [ "$1" != "${1##--rootopts=}" ]; then
+                rootopts="${1##--rootopts=}"
+            else
+                rootopts="$2"
+                shift
+            fi
+	    ;;
+	--root*)
+            if [ "$1" != "${1##--root=}" ]; then
+                root="${1##--root=}"
+            else
+                root="$2"
+                shift
+            fi
+	    ;;
+	--loopdev*)
+            if [ "$1" != "${1##--loopdev=}" ]; then
+                loopdev="${1##--loopdev=}"
+            else
+                loopdev="$2"
+                shift
+            fi
+	    ;;
+	--loopfs*)
+            if [ "$1" != "${1##--loopfs=}" ]; then
+                loopfs="${1##--loopfs=}"
+            else
+                loopfs="$2"
+                shift
+            fi
+	    ;;
+	--loopopts*)
+            if [ "$1" != "${1##--loopopts=}" ]; then
+                loopopts="${1##--loopopts=}"
+            else
+                loopopts="$2"
+                shift
+            fi
+	    ;;
+	--looppath*)
+            if [ "$1" != "${1##--looppath=}" ]; then
+                looppath="${1##--looppath=}"
+            else
+                looppath="$2"
+                shift
+            fi
+	    ;;
+        --help)
+            usage -n
+            ;;
+        *)
+            if [ -z "$target" ]; then
+                target=$1
+            elif [ -z "$kernel" ]; then
+                kernel=$1
+            else
+                usage
+            fi
+            ;;
+    esac
+
+    shift
+done
+
+    [ -z "$rootfs" ] && rootfs=$(awk '{ if ($1 !~ /^[ \t]*#/ && $2 == "/") { print $3; }}' $fstab)
+    [ -z "$rootopts" ] && rootopts=$(awk '{ if ($1 !~ /^[ \t]*#/ && $2 == "/") { print $4; }}' $fstab)
+    [ -z "$rootopts" ] && rootopts="defaults"
+
+
+    [ -z "$rootdev" ] && rootdev=$(awk '/^[ \t]*[^#]/ { if ($2 == "/") { print $1; }}' $fstab)
+    # check if it's nfsroot
+    physdev=""
+    if [ "$rootfs" == "nfs" ]; then
+        if [ "x$net_list" == "x" ]; then
+            handlenfs $rootdev
+        fi
+    else
+        # check if it's root by label
+        rdev=$rootdev
+        if [[ "$rdev" =~ ^(UUID=|LABEL=) ]]; then
+            rdev=$(resolve_device_name "$rdev")
+        fi
+        rootopts=$(echo $rootopts | sed -e 's/^r[ow],//' -e 's/,_netdev//' -e 's/_netdev//' -e 's/,r[ow],$//' -e 's/,r[ow],/,/' -e 's/^r[ow]$/defaults/' -e 's/$/,ro/')
+        findstoragedriver "$rdev"
+    fi
+
+    # find the first swap dev which would get used for swsusp
+    [ -z "$thawdev" ] && thawdev=$(awk '/^[ \t]*[^#]/ { if ($3 == "swap") { print $1; exit }}' $fstab)
+    swsuspdev="$thawdev"
+    if [ -n "$swsuspdev" ]; then
+        if [[ "$swsuspdev" =~ ^(UUID=|LABEL=) ]]; then
+            swsuspdev=$(resolve_device_name "$swsuspdev")
+        fi
+	findstoragedriver "$swsuspdev"
+    fi
+
+
+cemit()
+{
+    cat 
+}
+
+emit()
+{
+    NONL=""
+    if [ "$1" == "-n" ]; then
+        NONL="-n"
+        shift
+    fi
+    echo $NONL "$@" 
+}
+
+emitdmraids()
+{
+    if [ -z "$nodmraid" -a -n "$DMRAIDS" ]; then
+        for raid in $DMRAIDS; do
+            echo -n "rd_DM_UUID=$raid "
+        done
+    fi
+}
+
+
+# HACK: module loading + device creation isn't necessarily synchronous...
+# this will make sure that we have all of our devices before trying
+# things like RAID or LVM
+emitdmraids
+
+emitcrypto()
+{
+    local luksuuid=$(grep "^$2 " /etc/crypttab 2>/dev/null| awk '{ print $2 }')
+    if [ -z "$luksuuid" ]; then
+        luksuuid="$2"
+    fi
+    echo -n "rd_LUKS_UUID=$luksuuid "
+}
+
+for cryptdev in ${!cryptopart@} ; do
+    emitcrypto `eval echo '$'$cryptdev`
+done
+
+if [ -n "$raiddevices" ]; then
+    for dev in $raiddevices; do
+        echo -n "rd_MD_UUID=${dev} "
+    done
+fi
+
+for cryptdev in ${!cryptoraid@} ; do
+    emitcrypto `eval echo '$'$cryptdev`
+done
+
+if [ -z "$nolvm" -a -n "$vg_list" ]; then    
+    for vg in $vg_list; do 
+	echo -n "rd_LVM_VG=$vg "
+    done
+fi
+
+for cryptdev in ${!cryptolv@} ; do
+    emitcrypto `eval echo '$'$cryptdev`
+done
+
+# output local keyboard/18n settings
+. /etc/sysconfig/keyboard
+. /etc/sysconfig/i18n
+
+for i in KEYBOARDTYPE KEYTABLE SYSFONT SYSFONTACM UNIMAP LANG; do
+    val=$(eval echo \$$i)
+    [[ $val ]] && echo -n "$i=$val "
+done
+
+echo
+# vim:ts=8:sw=4:sts=4:et
