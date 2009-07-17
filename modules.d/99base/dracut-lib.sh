@@ -34,17 +34,17 @@ die() {
         echo "<1>dracut: Refusing to continue";
     } > /dev/kmsg
 
-    {
+    { 
         echo "dracut: FATAL: $@";
         echo "dracut: Refusing to continue";
-    } > /dev/console 
+    } >&2
     
     exit 1
 }
 
 warn() {
     echo "<4>dracut Warning: $@" > /dev/kmsg
-    echo "dracut Warning: $@" > /dev/console
+    echo "dracut Warning: $@" >&2
 }
 
 info() {
