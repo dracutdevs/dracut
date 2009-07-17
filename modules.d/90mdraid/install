@@ -5,8 +5,9 @@ dracut_install mdadm
 #      in a similar fashion to modules.d/95nfs.  Do not copy /etc/passwd and /etc/group from 
 #      the system into the initrd.
 #      dledford has hardware to test this, so he should be able to clean this up.
-inst /etc/passwd
-inst /etc/group
+# inst /etc/passwd
+# inst /etc/group
+
 instmods =drivers/md
 
 if [ -x /lib/udev/vol_id ]; then
