@@ -26,7 +26,9 @@ mkdir -p "$initdir/var/lib/nfs/statd/sm"
 
 # Rather than copy the passwd file in, just set a user for rpcbind
 # We'll save the state and restart the daemon from the root anyway
-echo "rpc:x:32:32:Rpcbind:/var/lib/rpcbind:/bin/false" >> "$initdir/etc/passwd"
+egrep '^rpc:' /etc/passwd >> "$initdir/etc/passwd"
+egrep '^rpcuser:' /etc/passwd >> "$initdir/etc/passwd"
+#which nologin >/dev/null 2>&1 && dracut_install nologin
 
 # rpc user needs to be able to write to this directory to save the warmstart
 # file
