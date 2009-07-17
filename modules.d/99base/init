@@ -94,10 +94,13 @@ fi
 getarg rdudevinfo && udevadm control $UDEV_LOG_PRIO_ARG=info
 getarg rdudevdebug && udevadm control $UDEV_LOG_PRIO_ARG=debug
 
+getarg 'rdbreak=pre-trigger' && emergency_shell "Break before pre-trigger"
 source_all pre-trigger
 
 # then the rest
 udevadm trigger $udevtriggeropts  >/dev/null 2>&1
+
+getarg 'rdbreak=initqueue' && emergency_shell "Break before initqueue"
 
 i=0
 while :; do
