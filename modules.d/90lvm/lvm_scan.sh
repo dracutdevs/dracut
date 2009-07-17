@@ -14,19 +14,24 @@ if $UDEV_QUEUE_EMPTY >/dev/null 2>&1; then
 	    echo -n "${f##/tmp/.lvm_scan-} "
 	done
 	)
-    {
-	echo 'devices {';
-	echo -n '    filter = [ '
-	for dev in $lvmdevs; do
-	    printf '"a|^/dev/%s$|", ' $dev;
-	done;
-	echo '"r/.*/" ]';
-	echo 'types = [ "blkext", 1024 ]'
-	echo '}';	  
-    } > /etc/lvm/lvm.conf
 
+    if [ ! -e /etc/lvm/lvm.conf ]; then 
+        {
+	    echo 'devices {';
+	    echo -n '    filter = [ '
+	    for dev in $lvmdevs; do
+		printf '"a|^/dev/%s$|", ' $dev;
+	    done;
+	    echo '"r/.*/" ]';
+	    echo 'types = [ "blkext", 1024 ]'
+	    echo '}';	  
+        } > /etc/lvm/lvm.conf
+	lvmwritten=1
+    fi
     info "Scanning devices $lvmdevs for LVM volume groups $VGS"
     lvm vgscan 2>&1 | vinfo
     lvm vgchange -ay $VGS 2>&1 | vinfo
+    [ "$lvmwritten" ] && rm -f /etc/lvm/lvm.conf
+    unset lvmwritten
 fi
 
