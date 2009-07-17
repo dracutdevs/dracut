@@ -6,7 +6,8 @@ SUBSYSTEM!="block", GOTO="dm_end"
 ACTION!="add|change", GOTO="dm_end"
 
 ENV{ID_FS_TYPE}=="linux_raid_member", GOTO="dm_end"
-ENV{ID_FS_TYPE}=="isw_raid_member", GOTO="dm_end"
+ENV{ID_FS_TYPE}=="isw_raid_member", ENV{rd_NO_MDIMSM}!="?*", GOTO="dm_end"
+
 ENV{ID_FS_TYPE}!="*_raid_member", , GOTO="dm_end"
 TEST=="/tmp/.dmraid_scan-%k", GOTO="dm_end"
 
