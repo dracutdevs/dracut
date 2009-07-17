@@ -48,10 +48,13 @@ warn() {
 }
 
 info() {
-    [ "$DRACUT_QUIET" ] || DRACUT_QUIET="x$(getarg quiet)"
+    if [ -z "$DRACUT_QUIET" ]; then
+	DRACUT_QUIET="no"
+	getarg quiet && DRACUT_QUIET="yes"
+    fi
     echo "<6>dracut: $@" > /dev/kmsg
-    [ "$DRACUT_QUIET" != "xquiet" ] && \
-	echo "dracut: $@" > /dev/console
+    [ "$DRACUT_QUIET" != "yes" ] && \
+	echo "dracut: $@" 
 }
 
 vinfo() {
