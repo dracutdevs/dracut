@@ -58,6 +58,7 @@ Requires: %{name} = %{version}-%{release}
 Requires: rpcbind nfs-utils 
 Requires: iscsi-initiator-utils
 Requires: nbd
+Requires: bridge-utils
 Requires: net-tools iproute
 Requires: ql2100-firmware
 Requires: ql2200-firmware
