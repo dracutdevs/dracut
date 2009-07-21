@@ -59,7 +59,6 @@ Requires: rpcbind nfs-utils
 Requires: iscsi-initiator-utils
 Requires: nbd
 Requires: net-tools iproute
-Requires: kernel-firmware
 Requires: ql2100-firmware
 Requires: ql2200-firmware
 Requires: ql23xx-firmware
