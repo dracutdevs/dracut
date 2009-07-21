@@ -310,10 +310,12 @@ instmods() {
 		    inst_simple "$modpath"
 		done
 		for fw in $(modinfo -F firmware $mod 2>/dev/null); do
-		    if [[ -f /lib/firmware/$fw ]]; then
+		    if [[ -n "$fw_dir" && -f $fw_dir/$fw ]]; then
+			inst_simple "$fw_dir/$fw"
+		    elif [[ -f /lib/firmware/$fw ]]; then
 			inst_simple "/lib/firmware/$fw"
 		    else
-			dwarning "Possible missing firmware /lib/firmware/${fw} for module ${mod}.ko"
+			dwarning "Possible missing firmware ${fw} for module ${mod}.ko"
 		    fi
 		done
 		;;
