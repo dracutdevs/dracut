@@ -143,7 +143,7 @@ resolve_device_name() {
 #    echo "resolve_device_name $1"  1>&2
 }
 
-readlink() {
+freadlink() {
     /usr/bin/readlink -f "$1"
 }
 
@@ -183,11 +183,11 @@ finddevicedriverinsys () {
 }
 
 findstoragedriverinsys () {
-    local sysfs=$(readlink "$1")
+    local sysfs=$(freadlink "$1")
 
     # if its a partition look at the device holding the partition
     if [ -f "$sysfs/start" ]; then
-        sysfs=$(readlink ${sysfs%/*})
+        sysfs=$(freadlink ${sysfs%/*})
     fi
 
     if [[ ! "$sysfs" =~ '^/sys/.*block/.*$' ]]; then
@@ -216,7 +216,7 @@ findstoragedriverinsys () {
     done
 
     if [ -L "$sysfs/device" ]; then
-        qpushd $(readlink "$sysfs/device")
+        qpushd $(freadlink "$sysfs/device")
         finddevicedriverinsys
         qpopd
     fi
@@ -675,10 +675,26 @@ done
 . /etc/sysconfig/keyboard
 . /etc/sysconfig/i18n
 
-for i in KEYBOARDTYPE KEYTABLE SYSFONT SYSFONTACM UNIMAP LANG; do
+for i in KEYTABLE SYSFONT SYSFONTACM UNIMAP LANG; do
     val=$(eval echo \$$i)
     [[ $val ]] && echo -n "$i=$val "
 done
+
+if [ -n "$KEYBOARDTYPE" -a "$KEYBOARDTYPE" != "pc" ]; then
+    echo -n "KEYBOARDTYPE=$KEYBOARDTYPE "
+fi
+
+if [ -n "$rootdev" ]; then
+    echo -n "root=$rootdev "
+fi
+
+if [ -L /usr/share/plymouth/themes/default.plymouth ]; then
+    theme=$(basename \
+	$(dirname \
+	$(readlink -f  \
+	/usr/share/plymouth/themes/default.plymouth)))
+    [ -n "$theme" ] && echo -n "rd_plytheme=$theme "
+fi
 
 echo
 # vim:ts=8:sw=4:sts=4:et
