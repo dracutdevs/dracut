@@ -13,7 +13,7 @@ TEST=="/tmp/.dmraid_scan-%k", GOTO="dm_end"
 
 RUN+="/bin/sh -c '>/tmp/.dmraid_scan-%k; /bin/ln -fs /sbin/dmraid_scan /initqueue/dmraid_scan.sh'"
 
-ATTR{partition}!="?*", \
+ENV{DEVTYPE}!="partition", \
     RUN+="/sbin/partx -d $env{DEVNAME}"
 
 LABEL="dm_end"
