@@ -4,7 +4,7 @@
 # first trigger graphics subsystem
 udevadm trigger --attr-match=class=0x030000 >/dev/null 2>&1
 # first trigger graphics and tty subsystem
-udevadm trigger --subsystem-match=graphics --subsystem-match=tty >/dev/null 2>&1
+udevadm trigger --subsystem-match=graphics --subsystem-match=drm --subsystem-match=tty >/dev/null 2>&1
 
 udevadm settle --timeout=30 2>&1 | vinfo
 [ -c /dev/zero ] || mknod /dev/zero c 1 5
