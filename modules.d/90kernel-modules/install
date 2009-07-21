@@ -2,7 +2,7 @@
 if [ -z "$drivers" ]; then
   drivers="sd_mod =fs"
   # Include block controller drivers
-  for modname in $(find "/lib/modules/$kernel/kernel/drivers" -name '*.ko'); do
+  for modname in $(find "$srcmods/kernel/drivers" -name '*.ko'); do
     if nm -uPA $modname | egrep -q 'ata_scsi_ioctl|scsi_add_host|blk_init_queue|register_mtd_blktrans|scsi_esp_register'; then
       drivers="${drivers} $modname"
     fi
