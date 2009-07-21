@@ -1,5 +1,8 @@
 #!/bin/bash
-dracut_install mdadm
+
+dracut_install mdadm partx
+
+
 # XXX: mdmon really needs to run as non-root?
 #      If so, write only the user it needs in the initrd's /etc/passwd (and maybe /etc/group)
 #      in a similar fashion to modules.d/95nfs.  Do not copy /etc/passwd and /etc/group from 
@@ -21,7 +24,6 @@ inst_rules "$moddir/65-md-incremental-imsm.rules"
 if ! mdadm -Q -e imsm /dev/null &> /dev/null; then    
     inst_hook pre-trigger 30 "$moddir/md-noimsm.sh"
 fi
-
 
 if [[ $hostonly ]]; then 
     [ -f /etc/mdadm/mdadm.conf ] && inst /etc/mdadm/mdadm.conf /etc/mdadm.conf
