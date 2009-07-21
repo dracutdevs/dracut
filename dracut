@@ -109,6 +109,10 @@ esac
 [[ $2 ]] && kernel=$2 || kernel=$(uname -r)
 [[ $1 ]] && outfile=$(readlink -f $1) || outfile="/boot/initrd-$kernel.img"
 
+srcmods="/lib/modules/$kernel/"
+[ -n "$drivers_dir" ] && srcmods="$drivers_dir"
+export srcmods
+
 if [[ -f $outfile && ! $force ]]; then
     echo "Will not override existing initramfs ($outfile) without --force"
     exit 1

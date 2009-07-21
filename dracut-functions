@@ -264,9 +264,6 @@ check_modules() {
     done
 }
 
-srcmods="/lib/modules/$kernel/"
-[ -n "$drivers_dir" ] && srcmods="$drivers_dir"
-
 # install kernel modules, and handle installing all their dependencies as well.
 instmods() {
     local mod mpargs modpath modname cmd
