@@ -1,8 +1,12 @@
 # live images are specified with
 # root=live:backingdev
 
-echo "parsing for live"
 [ -z "$root" ] && root=$(getarg root=)
+
+# support legacy syntax of passing liveimg and then just the base root
+if getarg liveimg; then
+    liveroot="live:$root"
+fi
 
 if [ "${root%%:*}" = "live" ] ; then
     liveroot=$root
@@ -15,6 +19,11 @@ case "$liveroot" in
 	root="${root#live:}"
 	root="$(echo $root | sed 's,/,\\x2f,g')"
 	root="live:/dev/disk/by-label/${root#LABEL=}"
+        rootok=1 ;;
+    live:CDLABEL=*|CDLABEL=*)
+	root="${root#live:}"
+	root="$(echo $root | sed 's,/,\\x2f,g')"
+	root="live:/dev/disk/by-label/${root#CDLABEL=}"
         rootok=1 ;;
     live:UUID=*|UUID=*)
 	root="${root#live:}"
