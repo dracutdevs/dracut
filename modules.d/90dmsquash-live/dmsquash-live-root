@@ -39,9 +39,11 @@ if [ "$RES" != "0" ]; then
     exit 1
 fi
 
-# need to handle parsing out some more pieces; keeping track of them here
+# parse various live image specific options that make sense to be
+# specified as their own things
+live_dir=$(getarg live_dir)
+[ -z "$live_dir" ] && live_dir="LiveOS"
 overlay=off
-live_dir="LiveOS"
 live_ram=0
 reset_overlay=0
 
