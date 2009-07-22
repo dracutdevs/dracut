@@ -44,7 +44,7 @@ fi
 live_dir=$(getarg live_dir)
 [ -z "$live_dir" ] && live_dir="LiveOS"
 getarg live_ram && live_ram="yes"
-reset_overlay=0
+getarg reset_overlay && reset_overlay="yes"
 overlay=$(getarg overlay)
 
 # overlay setup helper function
