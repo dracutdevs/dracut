@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# if dmsetup is not installed, then we cannot support fedora/red hat 
+# style live images
+which dmsetup >/dev/null 2>&1 || exit 1
+
+# a live host-only image doesn't really make a lot of sense
+if [ "$1" = "-h" ] ; then
+    exit 1
+fi
+
+exit 0

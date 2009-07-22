@@ -1,0 +1,164 @@
+#!/bin/sh
+
+. /lib/dracut-lib.sh
+[ -f /tmp/root.info ] && . /tmp/root.info
+
+PATH=$PATH:/sbin:/usr/sbin
+
+if getarg rdlivedebug; then
+    exec > /tmp/liveroot.$$.out
+    exec 2>> /tmp/liveroot.$$.out
+    set -x
+fi
+
+[ -z "$1" ] && exit 1
+livedev="$1"
+
+# FIXME: do cd check here
+
+getarg ro && liverw=ro
+getarg rw && liverw=rw
+[ -z "$liverw" ] && liverw=ro
+# mount the backing of the live image first
+mount -n -t $fstype -o $liverw $livedev $NEWROOT
+RES=$?
+if [ "$RES" != "0" ]; then
+    echo "Failed to mount block device of live image"
+    exit 1
+fi
+
+# need to handle parsing out some more pieces; keeping track of them here
+overlay=off
+live_dir="LiveOS"
+live_ram=0
+reset_overlay=0
+check=0
+
+# overlay setup helper function
+do_live_overlay() {
+    # create a sparse file for the overlay
+    # overlay: if non-ram overlay searching is desired, do it,
+    #              otherwise, create traditional overlay in ram
+    OVERLAY_LOOPDEV=$( losetup -f )
+
+    l=$(blkid -s LABEL -o value $livedev) || l=""
+    u=$(blkid -s UUID -o value $livedev) || u=""
+
+    if ( echo $overlay | grep -q ":" ); then
+        # pathspec specified, extract
+        pathspec=$( echo $overlay | sed -e 's/^.*://' )
+    elif [ "x${overlay}" != "xoff" ]; then
+        pathspec="/${live_dir}/overlay-$l-$u"
+    fi
+
+    if [ -z "$pathspec" -o "$pathspec" == "auto" ]; then
+        pathspec="/${live_dir}/overlay-$l-$u"
+    fi
+    devspec=$( echo $overlay | sed -e 's/:.*$//' )
+
+    # need to know where to look for the overlay
+    setup=""
+    if [ -n "$devspec" -a -n "$pathspec" -a "${overlay}" != "off" ]; then
+        mkdir /overlayfs
+        mount -n -t auto $devspec /overlayfs || :
+        if [ -f /overlayfs$pathspec -a -w /overlayfs$pathspec ]; then
+            losetup $OVERLAY_LOOPDEV /overlayfs$pathspec
+            if [ -n "$reset_overlay" ]; then
+               dd if=/dev/zero of=$OVERLAY_LOOPDEV bs=64k count=1 2>/dev/null
+            fi
+            setup="yes"
+        fi
+        umount -l /overlayfs || :
+    fi
+
+    if [ -z "$setup" ]; then
+        if [ -n "$devspec" -a -n "$pathspec" ]; then
+           echo "Unable to find persistent overlay; using temporary"
+           sleep 5
+        fi
+
+        dd if=/dev/null of=/overlay bs=1024 count=1 seek=$((512*1024)) 2> /dev/null
+        losetup $OVERLAY_LOOPDEV /overlay
+    fi
+
+    # set up the snapshot
+    echo 0 `blockdev --getsize $BASE_LOOPDEV` snapshot $BASE_LOOPDEV $OVERLAY_LOOPDEV p 8 | dmsetup create live-rw
+}
+
+# live cd helper function
+do_live_from_base_loop() {
+    do_live_overlay
+}
+
+# we might have a genMinInstDelta delta file for anaconda to take advantage of
+if [ -e $NEWROOT/${live_dir}/osmin.img ]; then
+    OSMINSQFS=$NEWROOT/${live_dir}/osmin.img
+fi
+
+if [ -n "$OSMINSQFS" ]; then
+    # decompress the delta data
+    dd if=$OSMINSQFS of=/osmin.img 2> /dev/null
+    OSMIN_SQUASHED_LOOPDEV=$( losetup -f )
+    losetup -r $OSMIN_SQUASHED_LOOPDEV /osmin.img
+    mkdir -p /squashfs.osmin
+    mount -n -t squashfs -o ro $OSMIN_SQUASHED_LOOPDEV /squashfs.osmin
+    OSMIN_LOOPDEV=$( losetup -f )
+    losetup -r $OSMIN_LOOPDEV /squashfs.osmin/osmin
+    umount -l /squashfs.osmin
+fi
+
+# we might have just an embedded ext3 to use as rootfs (uncompressed live)
+if [ -e $NEWROOT/${live_dir}/ext3fs.img ]; then
+  EXT3FS="$NEWROOT/${live_dir}/ext3fs.img"
+fi
+
+if [ -n "$EXT3FS" ] ; then
+    BASE_LOOPDEV=$( losetup -f )
+    losetup -r $BASE_LOOPDEV $EXT3FS
+    umount -l $NEWROOT
+
+    do_live_from_base_loop
+fi
+
+# we might have an embedded ext3 on squashfs to use as rootfs (compressed live)
+if [ -e $NEWROOT/${live_dir}/squashfs.img ]; then
+  SQUASHED="$NEWROOT/${live_dir}/squashfs.img"
+fi
+
+if [ -e "$SQUASHED" ] ; then
+    if [ "$live_ram" == "1" ] ; then
+        echo "Copying live image to RAM..."
+        echo "(this may take a few minutes)"
+        dd if=$SQUASHED of=/squashed.img bs=512 2> /dev/null
+        umount -n $NEWROOT
+        echo "Done copying live image to RAM."
+        eject -p $livedev || :
+        SQUASHED="/squashed.img"
+    fi
+
+    SQUASHED_LOOPDEV=$( losetup -f )
+    losetup -r $SQUASHED_LOOPDEV $SQUASHED
+    mkdir -p /squashfs
+    mount -n -t squashfs -o ro $SQUASHED_LOOPDEV /squashfs
+
+    BASE_LOOPDEV=$( losetup -f )
+    losetup -r $BASE_LOOPDEV /squashfs/LiveOS/ext3fs.img
+
+    umount -l /squashfs
+    if [ "$live_ram" == "0" ] ; then
+        umount -l $NEWROOT
+    fi
+
+    do_live_from_base_loop
+fi
+
+if [ -b "$OSMIN_LOOPDEV" ]; then
+    # set up the devicemapper snapshot device, which will merge
+    # the normal live fs image, and the delta, into a minimzied fs image
+    echo "0 $( blockdev --getsize $BASE_LOOPDEV ) snapshot $BASE_LOOPDEV $OSMIN_LOOPDEV p 8" | dmsetup create --readonly live-osimg-min
+fi
+
+ln -s /dev/mapper/live-rw /dev/root
+printf '/bin/mount /dev/mapper/live-rw %s\n' "$NEWROOT" > /mount/01-$$-live.sh
+
+exit 0
