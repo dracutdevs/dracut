@@ -14,6 +14,14 @@ fi
 [ -z "$1" ] && exit 1
 livedev="$1"
 
+# parse various live image specific options that make sense to be
+# specified as their own things
+live_dir=$(getarg live_dir)
+[ -z "$live_dir" ] && live_dir="LiveOS"
+getarg live_ram && live_ram="yes"
+getarg reset_overlay && reset_overlay="yes"
+overlay=$(getarg overlay)
+
 # FIXME: we need to be able to hide the plymouth splash for the check really
 [ -e $livedev ] & fs=$(blkid -s TYPE -o value $livedev)
 if [ "$fs" == "iso9660" -o "$fs" = "udf" ]; then
@@ -38,14 +46,6 @@ if [ "$RES" != "0" ]; then
     echo "Failed to mount block device of live image"
     exit 1
 fi
-
-# parse various live image specific options that make sense to be
-# specified as their own things
-live_dir=$(getarg live_dir)
-[ -z "$live_dir" ] && live_dir="LiveOS"
-getarg live_ram && live_ram="yes"
-getarg reset_overlay && reset_overlay="yes"
-overlay=$(getarg overlay)
 
 # overlay setup helper function
 do_live_overlay() {
