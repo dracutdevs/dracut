@@ -44,8 +44,8 @@ fi
 live_dir=$(getarg live_dir)
 [ -z "$live_dir" ] && live_dir="LiveOS"
 getarg live_ram && live_ram="yes"
-overlay=off
 reset_overlay=0
+overlay=$(getarg overlay)
 
 # overlay setup helper function
 do_live_overlay() {
@@ -57,11 +57,11 @@ do_live_overlay() {
     l=$(blkid -s LABEL -o value $livedev) || l=""
     u=$(blkid -s UUID -o value $livedev) || u=""
 
-    if ( echo $overlay | grep -q ":" ); then
+    if [ -z "$overlay" ]; then
+        pathspec="/${live_dir}/overlay-$l-$u"
+    elif ( echo $overlay | grep -q ":" ); then
         # pathspec specified, extract
         pathspec=$( echo $overlay | sed -e 's/^.*://' )
-    elif [ "x${overlay}" != "xoff" ]; then
-        pathspec="/${live_dir}/overlay-$l-$u"
     fi
 
     if [ -z "$pathspec" -o "$pathspec" == "auto" ]; then
@@ -71,7 +71,7 @@ do_live_overlay() {
 
     # need to know where to look for the overlay
     setup=""
-    if [ -n "$devspec" -a -n "$pathspec" -a "${overlay}" != "off" ]; then
+    if [ -n "$devspec" -a -n "$pathspec" -a -n "$overlay" ]; then
         mkdir /overlayfs
         mount -n -t auto $devspec /overlayfs || :
         if [ -f /overlayfs$pathspec -a -w /overlayfs$pathspec ]; then
