@@ -51,7 +51,6 @@ BuildArch: noarch
 %description
 dracut is a new, event-driven initramfs infrastructure based around udev.
 
-
 %package generic
 Summary: Metapackage to build a generic initramfs
 Requires: %{name} = %{version}-%{release}
@@ -60,16 +59,24 @@ Requires: iscsi-initiator-utils
 Requires: nbd
 Requires: bridge-utils
 Requires: net-tools iproute
-Requires: ql2100-firmware
-Requires: ql2200-firmware
-Requires: ql23xx-firmware
-Requires: ql2400-firmware
-Requires: ql2500-firmware
 Requires: plymouth-system-theme plymouth-theme-charge plymouth-theme-solar
 
 %description generic
 This package requires everything which is needed to build a generic
 all purpose initramfs.
+
+%package kernel
+Summary: Metapackage to build generic initramfs with only kernel modules
+Requires: %{name} = %{version}-%{release}
+Requires: ql2100-firmware
+Requires: ql2200-firmware
+Requires: ql23xx-firmware
+Requires: ql2400-firmware
+Requires: ql2500-firmware
+
+%description kernel
+This package requires everything which is needed to build a initramfs with all
+kernel modules and firmware files needed by dracut modules.
 
 %prep
 %setup -q -n %{name}-%{version}%{?dashgittag}
@@ -106,6 +113,10 @@ rm -rf $RPM_BUILD_ROOT
 %files generic
 %defattr(-,root,root,0755)
 %doc README.generic
+
+%files kernel 
+%defattr(-,root,root,0755)
+%doc README.kernel
 
 %changelog
 * Fri Jul 17 2009 Harald Hoyer <harald@redhat.com> 0.5-1

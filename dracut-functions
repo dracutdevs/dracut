@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# functions used by mkinitrd and other tools.
+# functions used by dracut and other tools.
 #
-# Copyright 2005-2008 Red Hat, Inc.  All rights reserved.
+# Copyright 2005-2009 Red Hat, Inc.  All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,10 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Authors:
-#       Peter Jones <pjones@redhat.com>
-#       Jeremy Katz <katzj@redhat.com>
-#       Jakub Jelinek <jakub@redhat.com>
 
 IF_RTLD=""
 IF_dynamic=""
@@ -238,6 +234,10 @@ check_module_deps() {
 should_source_module() {
     local dep
     [[ -x $1/install ]] || return 1
+    if [[ "$kernel_only" = "yes" ]]; then
+        [[ -x $1/installkernel ]] && return 0
+        return 1
+    fi
     [[ -x $1/check ]] || return 0
     "$1/check" $hostonly || return 1
     for dep in $("$1/check" -d); do
@@ -266,6 +266,7 @@ check_modules() {
 
 # install kernel modules, and handle installing all their dependencies as well.
 instmods() {
+    [[ "$no_kernel" = "yes" ]] && return
     local mod mpargs modpath modname cmd
     while (($# > 0)); do
 	mod=${1%.ko}
@@ -294,7 +295,7 @@ instmods() {
 		[[ $hostonly ]] && ! grep -q "$mod" /proc/modules && { 
 		    shift; continue; 
 		}
-                modprobe $mpargs --ignore-install --set-version $kernel \
+                modprobe $mpargs --ignore-install --set-version $kernel -d ${srcmods%%/lib/modules/*}/ \
 		    --show-depends $mod 2>/dev/null | \
 		    while read cmd modpath options; do
 		    [[ $cmd = insmod ]] || continue
@@ -304,16 +305,20 @@ instmods() {
 			dinfo "Installing dependencies for $mod ($modpath)"
 			instmods $mpargs $modname
 		    fi
-		    inst_simple "$modpath"
-		done
-		for fw in $(modinfo -F firmware $mod 2>/dev/null); do
-		    if [[ -n "$fw_dir" && -f $fw_dir/$fw ]]; then
-			inst_simple "$fw_dir/$fw"
-		    elif [[ -f /lib/firmware/$fw ]]; then
-			inst_simple "/lib/firmware/$fw"
-		    else
-			dwarning "Possible missing firmware ${fw} for module ${mod}.ko"
-		    fi
+		    inst_simple "$modpath" "/lib/modules/$kernel/${modpath##*/lib/modules/$kernel/}"
+		    for fw in $(modinfo -k $kernel -F firmware $modpath 2>/dev/null); do
+			unset found
+			IFS=: 
+			for fwdir in $fw_dir; do		    
+		            if [ -d "$fwdir" -a -f $fwdir/$fw ]; then
+				inst_simple "$fwdir/$fw" "/lib/firmware/$fw"
+				found=yes
+			    fi
+			done
+			if [ "$found" != "yes" ]; then
+			    dwarning "Possible missing firmware ${fw} for module ${mod}.ko"
+			fi
+		    done
 		done
 		;;
 	esac      

@@ -11,8 +11,6 @@ dracut_install mdadm partx
 # inst /etc/passwd
 # inst /etc/group
 
-instmods =drivers/md
-
 if [ -x /lib/udev/vol_id ]; then
     inst_rules "$moddir/61-mdadm.rules"
 else

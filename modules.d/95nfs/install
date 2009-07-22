@@ -16,7 +16,6 @@ fi
 dracut_install $(ls {/usr,}$LIBDIR/libnfsidmap*.so* 2>/dev/null )
 dracut_install $(ls {/usr,}$LIBDIR/libnss*.so 2>/dev/null)
 
-instmods nfs sunrpc ipv6
 inst_hook cmdline 90 "$moddir/parse-nfsroot.sh"
 inst_hook pre-pivot 70 "$moddir/nfsroot-cleanup.sh"
 inst "$moddir/nfsroot" "/sbin/nfsroot"

@@ -1,22 +1,9 @@
 #!/bin/bash
 dracut_install ip dhclient hostname brctl
-# Include wired net drivers, excluding wireless
-for modname in $(find "$srcmods/kernel/drivers" -name '*.ko'); do
-  if nm -uPA $modname | grep -q eth_type_trans; then
-    if echo "$modname" | grep -q wireless; then
-      continue
-    else
-      instmods $modname 
-    fi
-  fi
-done
 inst "$moddir/ifup" "/sbin/ifup"
 inst "$moddir/netroot" "/sbin/netroot"
 inst "$moddir/dhclient-script" "/sbin/dhclient-script"
 inst "$moddir/dhclient.conf" "/etc/dhclient.conf" 
-instmods ecb arc4
-# bridge modules
-instmods bridge stp llc
 inst_hook pre-udev 60 "$moddir/net-genrules.sh"
 inst_hook cmdline 91 "$moddir/dhcp-root.sh"
 inst_hook cmdline 99 "$moddir/parse-ip-opts.sh"

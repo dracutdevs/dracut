@@ -5,7 +5,3 @@ inst_hook pre-pivot 90 "$moddir"/plymouth-newroot.sh
 inst_hook pre-trigger 10 "$moddir"/plymouth-pretrigger.sh
 inst_hook emergency 50 "$moddir"/plymouth-emergency.sh
 inst "$moddir"/cryptroot-ask.sh /sbin/cryptroot-ask
-# Include KMS capable drm drivers
-for modname in $(find "$srcmods/kernel/drivers/gpu/drm" -name '*.ko'); do
-    nm -uPA $modname | grep -q drm_crtc_init && instmods $modname
-done

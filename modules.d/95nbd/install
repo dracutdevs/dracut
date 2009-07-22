@@ -9,4 +9,3 @@ else
 fi
 
 inst "$moddir/nbdroot" "/sbin/nbdroot"
-instmods nbd

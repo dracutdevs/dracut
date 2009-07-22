@@ -1,0 +1,14 @@
+#!/bin/bash
+# Include wired net drivers, excluding wireless
+for modname in $(find "$srcmods/kernel/drivers" -name '*.ko'); do
+  if nm -uPA $modname | grep -q eth_type_trans; then
+    if echo "$modname" | grep -q wireless; then
+      continue
+    else
+      instmods $modname 
+    fi
+  fi
+done
+instmods ecb arc4
+# bridge modules
+instmods bridge stp llc

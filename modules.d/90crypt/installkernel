@@ -1,0 +1,2 @@
+#!/bin/bash
+instmods dm_crypt cbc aes sha256 xts
