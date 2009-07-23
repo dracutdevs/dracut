@@ -16,7 +16,7 @@ IMPORT{program}="/sbin/mdadm --examine --export $tempnode"
 LABEL="do_md_inc"
 
 ENV{DEVTYPE}!="partition", \
-    RUN+="/sbin/partx -d $env{DEVNAME}"
+    RUN+="/sbin/partx -d --nr 1-1024 $env{DEVNAME}"
 
 RUN+="/sbin/mdadm -I --no-degraded $env{DEVNAME}"
 
