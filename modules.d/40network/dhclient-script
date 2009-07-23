@@ -7,7 +7,7 @@ setup_interface() {
     bcast=$new_broadcast_address
     gw=${new_routers%%,*}
     domain=$new_domain_name
-    search="$new_domain_search"
+    search="${new_domain_search//\\032/ }"
     namesrv=$new_domain_name_servers
     hostname=$new_host_name
 
@@ -23,7 +23,7 @@ setup_interface() {
 
     [ -n "$gw" ] && echo ip route add default via $gw dev $netif > /tmp/net.$netif.gw
 
-    [ -n "${search}${domain}" ] && echo search $search $domain > /tmp/net.$netif.resolv.conf
+    [ -n "${search}${domain}" ] && echo "search $search $domain" > /tmp/net.$netif.resolv.conf
     if  [ -n "$namesrv" ] ; then
 	for s in $namesrv; do
 	    echo nameserver $s 
