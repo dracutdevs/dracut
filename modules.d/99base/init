@@ -210,7 +210,7 @@ initrdargs="$initrdargs console BOOT_IMAGE rdbreak rdinitdebug rdudevinfo rdudev
 
 for x in "$@"; do
     for s in $initrdargs; do       
-	[ "${x%%=*}" = $s ] && continue 1
+	[ "${x%%=*}" = $s ] && continue 2
     done
     initargs="$initargs $x"
 done
