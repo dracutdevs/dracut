@@ -37,6 +37,7 @@ unset bridgename ethname
 
 # Parse bridge for bridgename and ethname
 if getarg bridge >/dev/null; then
+    initrdargs="$initrdargs bridge" 
     # Read bridge= parameters if they exist
     bridge="$(getarg bridge=)"
     if [ ! "$bridge" = "bridge" ]; then 
