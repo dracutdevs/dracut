@@ -200,12 +200,25 @@ inst_hook() {
 }
 
 dracut_install() {
+    local optional=
     while (($# > 0)); do
+        # Might be nice to optionally install a binary
+        if [ "$1" == "-o" ]; then
+           optional="yes"
+           shift
+           continue
+        fi
 	if inst "$1" ; then
             shift 
             continue
         fi
-        derror "Failed to install $1"; exit 1
+        if [ "$optional" == "yes" ]; then
+          dwarning "Skipping program $1 as it cannot be found and is flagged to be optional"
+          shift
+          continue
+        else
+          derror "Failed to install $1"; exit 1
+        fi
     done
 }
 
