@@ -1,4 +1,19 @@
 #!/bin/sh
-which ip dhclient hostname brctl >/dev/null 2>&1 || exit 1
+
+. ./dracut-functions
+
+for program in ip hostname; do 
+  which $program >/dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    dwarning "Could not find program \"$program\" required by network." 
+    exit 1
+  fi
+done
+for program in dhclient brctl; do
+  which $program >/dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    dwarning "Could not find program \"$program\" it might be required by network." 
+  fi
+done
 exit 255
 
