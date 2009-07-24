@@ -59,6 +59,8 @@ mount -t devpts -o gid=5,mode=620 /dev/pts /dev/pts >/dev/null 2>&1
 
 UDEVVERSION=$(udevadm --version)
 
+source_conf /etc/conf.d
+
 # run scriptlets to parse the command line
 getarg 'rdbreak=cmdline' && emergency_shell "Break before cmdline"
 source_all cmdline

@@ -28,6 +28,12 @@ source_all() {
     for f in "/$1"/*.sh; do [ -f "$f" ] && . "$f"; done
 }
 
+source_conf() {
+    local f
+    [ "$1" ] && [  -d "/$1" ] || return
+    for f in "/$1"/*.conf; do [ -f "$f" ] && . "$f"; done
+}
+
 die() {
     {
         echo "<1>dracut: FATAL: $@";
