@@ -23,6 +23,7 @@ install:
 	mkdir -p $(DESTDIR)$(mandir)/man8
 	install -m 0755 dracut $(DESTDIR)$(sbindir)/dracut
 	install -m 0755 dracut-gencmdline $(DESTDIR)$(sbindir)/dracut-gencmdline
+	install -m 0755 dracut-catimages $(DESTDIR)$(sbindir)/dracut-catimages
 	install -m 0755 modules.d/99base/switch_root $(DESTDIR)$(sbindir)/switch_root
 	install -m 0644 dracut.conf $(DESTDIR)$(sysconfdir)/dracut.conf
 	install -m 0755 dracut-functions $(DESTDIR)$(pkglibdir)/dracut-functions
