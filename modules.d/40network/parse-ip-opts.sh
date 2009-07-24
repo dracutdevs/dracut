@@ -52,10 +52,9 @@ fi
 
 # Count ip= lines to decide whether we need bootdev= or not
 if [ -z "$NEEDBOOTDEV" ] ; then
-    [ "$CMDLINE" ] || read CMDLINE < /proc/cmdline
     local count=0
-    for p in $CMDLINE; do
-	[ "${p%%=*}" = "ip" ] && count=$(( $count + 1 ))
+    for p in $(getargs ip=); do
+	count=$(( $count + 1 ))
     done
     [ $count -gt 1 ] && NEEDBOOTDEV=1
 fi
@@ -68,11 +67,8 @@ fi
 
 # Check ip= lines
 # XXX Would be nice if we could errorcheck ip addresses here as well
-[ "$CMDLINE" ] || read CMDLINE < /proc/cmdline
-for p in $CMDLINE; do
-    [ -n "${p%ip=*}" ] && continue
-
-    ip_to_var ${p#ip=}
+for p in $(getargs ip=); do
+    ip_to_var $p
 
     # We need to have an ip= line for the specified bootdev
     [ -n "$NEEDBOOTDEV" ] && [ "$dev" = "$BOOTDEV" ] && BOOTDEVOK=1
@@ -85,28 +81,28 @@ for p in $CMDLINE; do
 
     # Error checking for autoconf in combination with other values
     case $autoconf in
-	error) die "Error parsing option '$p'";;
+	error) die "Error parsing option 'ip=$p'";;
 	bootp|rarp|both) die "Sorry, ip=$autoconf is currenty unsupported";;
 	none|off) \
 	    [ -z "$ip" ] && \
-		die "For argument '$p'\nValue '$autoconf' without static configuration does not make sense"
+		die "For argument 'ip=$p'\nValue '$autoconf' without static configuration does not make sense"
 	    [ -z "$mask" ] && \
 		die "Sorry, automatic calculation of netmask is not yet supported"
 	    ;;
 	dhcp|on|any) \
 	    [ -n "$NEEDBOOTDEV" ] && [ -z "$dev" ] && \
-	        die "Sorry, '$p' does not make sense for multiple interface configurations"
+	        die "Sorry, 'ip=$p' does not make sense for multiple interface configurations"
 	    [ -n "$ip" ] && \
-		die "For argument '$p'\nSorry, setting client-ip does not make sense for '$autoconf'"
+		die "For argument 'ip=$p'\nSorry, setting client-ip does not make sense for '$autoconf'"
 	    ;;
-	*) die "For argument '$p'\nSorry, unknown value '$autoconf'";;
+	*) die "For argument 'ip=$p'\nSorry, unknown value '$autoconf'";;
     esac
 
     if [ -n "$dev" ] ; then
         # We don't like duplicate device configs
 	if [ -n "$IFACES" ] ; then
 	    for i in $IFACES ; do
-		[ "$dev" = "$i" ] && die "For argument '$p'\nDuplication configurations for '$dev'"
+		[ "$dev" = "$i" ] && die "For argument 'ip=$p'\nDuplication configurations for '$dev'"
 	    done
 	fi
 	# IFACES list for later use

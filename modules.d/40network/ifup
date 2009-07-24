@@ -100,10 +100,8 @@ ip=$(getarg ip)
 
 # Specific configuration, spin through the kernel command line
 # looking for ip= lines
-[ "$CMDLINE" ] || read CMDLINE </proc/cmdline;
-for p in $CMDLINE; do
-    [ -n "${p%ip=*}" ] && continue
-    ip_to_var ${p#ip=}
+for p in $(getargs ip=); do
+    ip_to_var $p
 	
     # If this option isn't directed at our interface, skip it
     [ -n "$dev" ] && [ "$dev" != "$netif" ] && continue
