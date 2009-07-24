@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# NFS root might have reached here before /tmp/net.ifaces was written
+udevadm settle --timeout=30
 # Don't write anything if we don't know our bootdev
 [ -f /tmp/net.ifaces ] || return 1
 
