@@ -65,6 +65,7 @@ while (($# > 0)); do
 	-H|--hostonly) hostonly="-h" ;;
 	-i|--include) include_src="$2"; include_target="$3"; shift 2;;
 	-I|--install) install_items="$2"; shift;;
+	-*) printf "\nUnknown option: %s\n\n" "$1" >&2; usage; exit 1;;
 	*) break ;;
     esac
     shift
