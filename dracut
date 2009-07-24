@@ -41,6 +41,8 @@ Creates initial ramdisk images for preloading modules
                         firmwares, separated by :
   --kernel-only         Only install kernel drivers and firmware files
   --no-kernel           Do not install kernel drivers and firmware files
+  --strip               Strip binaries in the initramfs (default)
+  --nostrip             Do not strip binaries in the initramfs
   -h, --help            This message
   --debug               Output debug information of the build process
   -v, --verbose         Verbose output during the build process
@@ -71,6 +73,8 @@ while (($# > 0)); do
 	--fwdir) fw_dir_l="$2"; shift;;
 	--kernel-only) kernel_only="yes"; nokernel="no";;
 	--no-kernel) kernel_only="no"; no_kernel="yes";;
+	--strip) do_strip_l="yes";;
+	--nostrip) do_strip_l="no";;
 	-h|--help) usage; exit 1 ;;
 	--debug) debug="yes";;
 	-v|--verbose) beverbose="yes";;
@@ -105,8 +109,10 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH
 [[ $drivers_l ]] && drivers=$drivers_l
 [[ $drivers_dir_l ]] && drivers_dir=$drivers_dir_l
 [[ $fw_dir_l ]] && fw_dir=$fw_dir_l
+[[ $do_strip_l ]] && do_strip=$do_strip_l
 [[ $dracutbasedir ]] || dracutbasedir=/usr/share/dracut
 [[ $fw_dir ]] || fw_dir=/lib/firmware
+[[ $do_strip ]] || do_strip=yes
 
 [[ $allowlocal && -f "$(dirname $0)/dracut-functions" ]] && dsrc="$(dirname $0)" || dsrc=$dracutbasedir
 
@@ -202,6 +208,35 @@ done
 unset item
 
 [[ "$beverbose" = "yes" ]] && (du -c "$initdir" | sort -n)
+
+# strip binaries 
+if [ "$do_strip" = "yes" ] ; then
+    for p in strip objdump sed grep find; do 
+	if ! which $p >/dev/null 2>&1; then
+	    derror "Could not find '$p'. You should run $0 with '--nostrip'."
+	    do_strip=no
+	fi
+    done
+fi
+
+if [ "$do_strip" = "yes" ] ; then
+    for f in $(find "$initdir" -type f \( -perm -0100 -or -perm -0010 -or -perm -0001 \) -exec file {} \; | 
+	grep -v ' shared object,' | 
+	sed -n -e 's/^\(.*\):[ 	]*ELF.*, not stripped/\1/p'); do
+	dinfo "Stripping $f"
+	strip -g "$f" || :
+        #
+        # FIXME: only strip -g for now
+        #
+	#strip -g --strip-unneeded "$f" || :
+	#note="-R .note"
+	#if objdump -h $f | grep '^[ 	]*[0-9]*[ 	]*.note[ 	]' -A 1 | \
+	#    grep -q ALLOC; then
+	#    note=
+	#fi
+	#strip -R .comment $note "$f" || :
+    done
+fi
 
 ( cd "$initdir"; find . |cpio -H newc -o |gzip -9 > "$outfile"; )
 
