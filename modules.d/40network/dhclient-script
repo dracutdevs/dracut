@@ -7,7 +7,7 @@ setup_interface() {
     bcast=$new_broadcast_address
     gw=${new_routers%%,*}
     domain=$new_domain_name
-    search="${new_domain_search//\\032/ }"
+    search=$(printf "$new_domain_search")
     namesrv=$new_domain_name_servers
     hostname=$new_host_name
 
