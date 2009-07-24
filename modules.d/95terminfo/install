@@ -1,3 +1,8 @@
 #!/bin/bash
 # terminfo bits make things work better if you fall into interactive mode
-dracut_install $(find /lib/terminfo -type f)
+TERMINFODIR="/lib/terminfo"
+
+[ ! -d ${TERMINFODIR} -a -d "/etc/terminfo" ] && \
+	TERMINFODIR="/etc/terminfo"
+
+dracut_install $(find ${TERMINFODIR} -type f)
