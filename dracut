@@ -22,7 +22,8 @@ Creates initial ramdisk images for preloading modules
   -a, --add [LIST]      Add a space-separated list of dracut modules.
   -d, --drivers [LIST]  Specify a space-separated list of kernel modules to
                          include in the initramfs.
-  -k, --kmoddir [DIR]   Specify the directory, where to look for kernel modules
+  -k, --kmoddir [DIR]   Specify the directory, where to look for kernel 
+                        modules
   --fwdir [DIR]         Specify additional directories, where to look for 
                         firmwares, separated by :
   --kernel-only         Only install kernel drivers and firmware files
