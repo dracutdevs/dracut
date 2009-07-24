@@ -1,6 +1,10 @@
 getarg() {
     local o line
-    [ "$CMDLINE" ] || read CMDLINE </proc/cmdline;
+    if [ -z "$CMDLINE" ]; then
+	read CMDLINE_ETC </etc/cmdline;
+	read CMDLINE </proc/cmdline;
+	CMDLINE="$CMDLINE $CMDLINE_ETC"
+    fi
     for o in $CMDLINE; do
 	[ "$o" = "$1" ] && return 0
 	[ "${o%%=*}" = "${1%=}" ] && { echo ${o#*=}; return 0; }
@@ -10,7 +14,11 @@ getarg() {
 
 getargs() {
     local o line found
-    [ "$CMDLINE" ] || read CMDLINE </proc/cmdline;
+    if [ -z "$CMDLINE" ]; then
+	read CMDLINE_ETC </etc/cmdline;
+	read CMDLINE </proc/cmdline;
+	CMDLINE="$CMDLINE $CMDLINE_ETC"
+    fi
     for o in $CMDLINE; do
 	[ "$o" = "$1" ] && return 0
 	if [ "${o%%=*}" = "${1%=}" ]; then
