@@ -39,6 +39,7 @@ Requires: e2fsprogs >= 1.38-12, libselinux, libsepol, coreutils
 Requires: mdadm, elfutils-libelf, plymouth >= 0.7.0
 Requires: cryptsetup-luks
 Requires: bridge-utils
+Requires: file
 %ifnarch s390 s390x
 Requires: dmraid
 Requires: kbd
