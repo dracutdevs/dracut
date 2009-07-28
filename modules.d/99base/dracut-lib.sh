@@ -1,7 +1,7 @@
 getarg() {
     local o line
     if [ -z "$CMDLINE" ]; then
-	read CMDLINE_ETC </etc/cmdline;
+	[ -f /etc/cmdline ] && read CMDLINE_ETC </etc/cmdline;
 	read CMDLINE </proc/cmdline;
 	CMDLINE="$CMDLINE $CMDLINE_ETC"
     fi
@@ -15,7 +15,7 @@ getarg() {
 getargs() {
     local o line found
     if [ -z "$CMDLINE" ]; then
-	read CMDLINE_ETC </etc/cmdline;
+	[ -f /etc/cmdline ] && read CMDLINE_ETC </etc/cmdline;
 	read CMDLINE </proc/cmdline;
 	CMDLINE="$CMDLINE $CMDLINE_ETC"
     fi
