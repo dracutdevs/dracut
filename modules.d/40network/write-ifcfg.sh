@@ -44,6 +44,7 @@ for netif in $IFACES ; do
         echo "DEVICE=$ethname" >> /tmp/ifcfg/ifcfg-$ethname
         echo "TYPE=Ethernet" >> /tmp/ifcfg/ifcfg-$ethname
         echo "ONBOOT=yes" >> /tmp/ifcfg/ifcfg-$ethname
+        echo "NETBOOT=yes" >> /tmp/ifcfg/ifcfg-$ethname
         echo "HWADDR=$(cat /sys/class/net/$ethname/address)" >> /tmp/ifcfg/ifcfg-$ethname
         echo "BRIDGE=$netif" >> /tmp/ifcfg/ifcfg-$ethname
         echo "NAME=$ethname" >> /tmp/ifcfg/ifcfg-$ethname
