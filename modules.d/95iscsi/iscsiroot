@@ -42,7 +42,7 @@ modprobe crc32c
 if getarg iscsi_firmware ; then
     if [ -n "${root%%block:*}" ]; then
         # if root is not specified try to mount the whole iSCSI LUN
-	printf 'ENV{DEVTYPE}!="partition", SYMLINK=="disk/by-path/*-iscsi-*-%s", SYMLINK+="root"\n' $iscsi_lun >> /etc/udev/rules.d/99-iscsi-root.rules
+	printf 'ENV{DEVTYPE}!="partition", SYMLINK=="disk/by-path/*-iscsi-*-*", SYMLINK+="root"\n' >> /etc/udev/rules.d/99-iscsi-root.rules
     fi
     iscsistart -b
     exit 0
