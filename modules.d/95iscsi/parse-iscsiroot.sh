@@ -53,6 +53,7 @@ fi
 # iscsi_firmware does not need argument checking
 if [ -n "$iscsi_firmware" ] ; then
     netroot=${netroot:-iscsi}
+    modprobe iscsi_ibft
 fi
 
 # If it's not iscsi we don't continue
