@@ -1,7 +1,7 @@
 #!/bin/bash
 # Include wired net drivers, excluding wireless
 for modname in $(find "$srcmods/kernel/drivers" -name '*.ko'); do
-  if nm -uPA $modname | grep -q eth_type_trans; then
+  if nm -uPA $modname | egrep -q 'eth_type_trans|register_virtio_device'; then
     if echo "$modname" | grep -q wireless; then
       continue
     else
