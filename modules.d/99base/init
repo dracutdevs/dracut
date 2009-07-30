@@ -223,6 +223,7 @@ if getarg rdcopystate; then
     cp /tmp/* /dev/.initramfs/ >/dev/null 2>&1
 else
     cp /tmp/net.* /dev/.initramfs/ >/dev/null 2>&1
+    cp /tmp/resolv.conf /dev/.initramfs/ >/dev/null 2>&1
     cp -a /tmp/ifcfg/ /dev/.initramfs/ >/dev/null 2>&1
 fi
 

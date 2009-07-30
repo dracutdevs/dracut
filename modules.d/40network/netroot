@@ -90,7 +90,7 @@ done
 
 [ -e /tmp/net.$netif.gw ]          && . /tmp/net.$netif.gw
 [ -e /tmp/net.$netif.hostname ]    && . /tmp/net.$netif.hostname
-[ -e /tmp/net.$netif.resolv.conf ] && cp -f /tmp/net.$netif.resolv.conf /etc/resolv.conf
+[ -e /tmp/resolv.conf ] && cp -f /tmp/resolv.conf /etc/resolv.conf
 
 # Source netroot hooks before we start the handler
 source_all netroot
