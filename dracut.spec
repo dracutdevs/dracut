@@ -1,7 +1,7 @@
 %if 0%{?fedora} < 12
 %define with_switch_root 1
 %else
-%define with_switch_root 1
+%define with_switch_root 0
 %endif
 
 %if %{defined gittag}
@@ -28,6 +28,7 @@ Requires: coreutils
 Requires: findutils
 Requires: binutils
 Requires: grep
+Requires: which
 Requires: mktemp
 Requires: mount
 Requires: bash
