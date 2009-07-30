@@ -40,8 +40,12 @@ source_all /etc/conf.d
 modprobe crc32c
 
 if getarg iscsi_firmware ; then
-	iscsistart -b
-	exit 0
+    if [ -n "${root%%block:*}" ]; then
+        # if root is not specified try to mount the whole iSCSI LUN
+	printf 'ENV{DEVTYPE}!="partition", SYMLINK=="disk/by-path/*-iscsi-*-%s", SYMLINK+="root"\n' $iscsi_lun >> /etc/udev/rules.d/99-iscsi-root.rules
+    fi
+    iscsistart -b
+    exit 0
 fi
 
 # override conf settings by command line options
