@@ -77,6 +77,24 @@ fi
 # override conf/commandline options by dhcp root_path
 # FIXME this assumes that all values have been provided
 OLDIFS="$IFS"
+IFS=@
+set $iroot
+if [ $# -gt 1 ]; then
+    authinfo=$1; shift 
+    iroot=$*
+    # allow empty authinfo to allow having an @ in iscsi_target_name like this:
+    # netroot=iscsi:@192.168.1.100::3260::iqn.2009-01.com.example:testdi@sk
+    if [ -n "$authinfo" ]; then
+        IFS=:
+        set $authinfo
+        iscsi_username=$1
+        iscsi_password=$2
+        if [ $# -gt 2 ]; then
+            iscsi_in_username=$3
+            iscsi_in_password=$4
+        fi
+    fi
+fi  
 IFS=:
 set $iroot
 iscsi_target_ip=$1; shift
