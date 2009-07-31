@@ -8,5 +8,11 @@ if [ -z "$drivers" ]; then
       drivers="${drivers} $modname"
     fi
   done
+  instmods $drivers
+  # hardcoded list of exceptions
+  rm -fr ${initdir}/lib/modules/*/kernel/fs/ocfs2
+else
+  instmods $drivers
 fi
-instmods $drivers
+
+
