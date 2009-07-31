@@ -29,11 +29,11 @@ Requires: findutils
 Requires: binutils
 Requires: grep
 Requires: which
-Requires: mktemp
+Requires: mktemp >= 1.5-5
 Requires: mount
 Requires: bash
 Requires: /bin/sh 
-Requires: fileutils, grep, mount, gzip, tar, mktemp >= 1.5-5, findutils
+Requires: fileutils, gzip, tar
 Requires: lvm2 >= 2.02.33-9, dhclient
 Requires: filesystem >= 2.1.0, cpio, device-mapper, initscripts >= 8.63-1
 Requires: e2fsprogs >= 1.38-12, libselinux, libsepol, coreutils
