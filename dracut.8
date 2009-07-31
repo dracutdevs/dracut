@@ -205,10 +205,10 @@ associated fields.
 http://tools.ietf.org/html/rfc4173
 
 .TP
-.B root=iscsi:[username:password[reverse:password]@][<servername>]:[<protocol>]:[<port>]:[<LUN>]:<targetname>
+.B root=iscsi:[username:password[:reverse:password]@][<servername>]:[<protocol>]:[<port>]:[<LUN>]:<targetname>
 e.g. root=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0
 .TP
-.B root=??? netroot=iscsi:[username:password[reverse:password]@][<servername>]:[<protocol>]:[<port>]:[<LUN>]:<targetname> ...
+.B root=??? netroot=iscsi:[username:password[:reverse:password]@][<servername>]:[<protocol>]:[<port>]:[<LUN>]:<targetname> ...
 multiple netroot options allow setting up multiple iscsi disks
 e.g. 
    root=UUID=12424547 netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0 netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target1
