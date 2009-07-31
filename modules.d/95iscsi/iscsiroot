@@ -28,16 +28,21 @@ fi
 
 # root is in the form root=iscsi:[<servername>]:[<protocol>]:[<port>]:[<LUN>]:<targetname>
 netif="$1"
-root="$2"
+iroot="$2"
 
 source_all /etc/conf.d
 
 # If it's not iscsi we don't continue
-[ "${root%%:*}" = "iscsi" ] || exit 1
+[ "${iroot%%:*}" = "iscsi" ] || exit 1
+
+iroot=${iroot#iscsi:}
 
 # XXX modprobe crc32c should go in the cmdline parser, but I haven't yet
 # figured out a way how to check whether this is built-in or not
 modprobe crc32c
+
+
+[ -e /tmp/root.info ] && . /tmp/root.info
 
 if getarg iscsi_firmware ; then
     if [ -n "${root%%block:*}" ]; then
@@ -67,12 +72,6 @@ arg=$(getarg iscsi_in_username)
 [ -n "$arg" ] && iscsi_in_username=$arg
 arg=$(getarg iscsi_in_password)
 [ -n "$arg" ] && iscsi_in_password=$arg
-
-if [ $root = ${root#iscsi:} ]; then
-	iroot=$(getarg iscsiroot)
-else
-	iroot=${root#iscsi:}
-fi
 
 # override conf/commandline options by dhcp root_path
 # FIXME this assumes that all values have been provided
