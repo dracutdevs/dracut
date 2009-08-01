@@ -83,7 +83,7 @@ inst_library() {
 # search in the usual places to find the binary.
 find_binary() {
     local binpath="/bin /sbin /usr/bin /usr/sbin" p
-    [[ -x $1 ]] && { echo $1; return 0; }
+    [[ -z ${1##/*} && -x $1 ]] && { echo $1; return 0; } 
     for p in $binpath; do
 	[[ -x $p/$1 ]] && { echo "$p/$1"; return 0; }
     done
