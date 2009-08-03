@@ -41,6 +41,7 @@ Requires: mdadm, elfutils-libelf, plymouth >= 0.7.0
 Requires: cryptsetup-luks
 Requires: bridge-utils
 Requires: file
+Requires: bzip2
 %ifnarch s390 s390x
 Requires: dmraid
 Requires: kbd
