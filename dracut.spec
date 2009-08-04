@@ -83,12 +83,10 @@ kernel modules and firmware files needed by dracut modules.
 
 %package tools
 Summary: dracut tools to build the local initramfs
-Requires: %{name} = %{version}-%{release}
-Requires: ql2100-firmware
-Requires: ql2200-firmware
-Requires: ql23xx-firmware
-Requires: ql2400-firmware
-Requires: ql2500-firmware
+Requires: coreutils cryptsetup-luks device-mapper
+Requires: diffutils dmraid findutils gawk grep lvm2
+Requires: module-init-tools sed
+Requires: cpio gzip
 
 %description tools
 This package contains tools to assemble the local initrd and host configuration.
