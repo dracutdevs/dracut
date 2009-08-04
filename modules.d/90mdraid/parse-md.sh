@@ -12,7 +12,7 @@ else
 	    [ -e "$f" ] || continue
 	    mv $f ${f}.bak 
 	    while read line; do 
-		if [ "${line/UUID CHECK//}" != "$line" ]; then
+		if [ "${line%%UUID CHECK}" != "$line" ]; then
 		    for uuid in $MD_UUID; do
 			printf 'ENV{MD_UUID}=="%s", GOTO="do_md_inc"\n' $uuid
 		    done;
