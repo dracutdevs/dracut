@@ -22,7 +22,7 @@ Source0: dracut-%{version}%{?dashgittag}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: udev
 Requires: util-linux-ng
-Requires: module-init-tools
+Requires: module-init-tools >= 3.7-9
 Requires: cpio
 Requires: coreutils
 Requires: findutils
