@@ -42,6 +42,7 @@ else
     done
     for x in ${LIBDIR}/plymouth/*.so ; do
         [[ -f "$x" ]] || continue
+        [[ "$x" != "${x%%/label.so}" ]] && continue
         dracut_install "$x"
     done
     (
