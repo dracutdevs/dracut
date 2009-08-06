@@ -1,0 +1,152 @@
+dracut-0.8
+==========
+- iSCSI with username and password
+- support for live images (dmsquashed live images)
+- iscsi_firmware fixes
+- smaller images
+- bugfixes
+
+dracut-0.7
+==========
+- dracut:     strip binaries in initramfs
+    
+           --strip
+                  strip binaries in the initramfs (default)
+    
+           --nostrip
+                  do not strip binaries in the initramfs
+- dracut-catimages
+    
+    Usage: ./dracut-catimages [OPTION]... <initramfs> <base image>
+    [<image>...]
+    Creates initial ramdisk image by concatenating several images from the
+    command
+    line and /boot/dracut/
+    
+      -f, --force           Overwrite existing initramfs file.
+      -i, --imagedir        Directory with additional images to add
+                            (default: /boot/dracut/)
+      -o, --overlaydir      Overlay directory, which contains files that
+                            will be used to create an additional image
+      --nooverlay           Do not use the overlay directory
+      --noimagedir          Do not use the additional image directory
+      -h, --help            This message
+      --debug               Output debug information of the build process
+      -v, --verbose         Verbose output during the build process
+
+- s390 dasd support
+
+dracut-0.6
+==========
+- dracut: add --kernel-only and --no-kernel arguments
+    
+           --kernel-only
+                  only install kernel drivers and firmware files
+    
+           --no-kernel
+                  do not install kernel drivers and firmware files
+    
+    All kernel module related install commands moved from "install"
+    to "installkernel".
+    
+    For "--kernel-only" all installkernel scripts of the specified
+    modules are used, regardless of any checks, so that all modules
+    which might be needed by any dracut generic image are in.
+    
+    The basic idea is to create two images. One image with the kernel
+    modules and one without. So if the kernel changes, you only have
+    to replace one image.
+    
+    Grub and the kernel can handle multiple images, so grub entry can
+    look like this:
+    
+    title Fedora (2.6.29.5-191.fc11.i586)
+            root (hd0,0)
+            kernel /vmlinuz-2.6.29.5-191.fc11.i586 ro rhgb quiet
+            initrd /initrd-20090722.img /initrd-kernel-2.6.29.5-191.fc11.i586.img /initrd-config.img
+    
+    initrd-20090722.img
+      the image provided by the initrd rpm
+      one old backup version is kept like with the kernel
+    
+    initrd-kernel-2.6.29.5-191.fc11.i586.img
+      the image provided by the kernel rpm
+    
+    initrd-config.img
+      optional image with local configuration files
+
+- dracut: add --kmoddir directory, where to look for kernel modules
+    
+           -k, --kmoddir [DIR]
+                  specify the directory, where to look for kernel modules
+
+
+
+dracut-0.5
+==========
+- more generic (all plymouth modules, all keyboards, all console fonts)
+- more kernel command line parameters (see also man dracut(8))
+- a helper tool, which generates the kernel command line (dracut-gencmdline)
+- bridged network boot
+- a lot of new command line parameter
+
+dracut-0.4
+==========
+- bugfixes
+- firmware loading support
+- new internal queue (initqueue)
+    initqueue now loops until /dev/root exists or root is mounted
+    
+    init now has the following points to inject scripts:
+    
+    /cmdline/*.sh
+       scripts for command line parsing
+    
+    /pre-udev/*.sh
+       scripts to run before udev is started
+    
+    /pre-trigger/*.sh
+       scripts to run before the main udev trigger is pulled
+    
+    /initqueue/*.sh
+       runs in parallel to the udev trigger
+       Udev events can add scripts here with /sbin/initqueue.
+       If /sbin/initqueue is called with the "--onetime" option, the script
+       will be removed after it was run.
+       If /initqueue/work is created and udev >= 143 then this loop can
+       process the jobs in parallel to the udevtrigger.
+       If the udev queue is empty and no root device is found or no root
+       filesystem was mounted, the user will be dropped to a shell after
+       a timeout.
+       Scripts can remove themselves from the initqueue by "rm $job".
+    
+    /pre-mount/*.sh
+       scripts to run before the root filesystem is mounted
+       NFS is an exception, because it has no device node to be created
+       and mounts in the udev events
+    
+    /mount/*.sh
+       scripts to mount the root filesystem
+       NFS is an exception, because it has no device node to be created
+       and mounts in the udev events
+       If the udev queue is empty and no root device is found or no root
+       filesystem was mounted, the user will be dropped to a shell after
+       a timeout.
+    
+    /pre-pivot/*.sh
+       scripts to run before the real init is executed and the initramfs
+       disappears
+       All processes started before should be killed here.
+    
+    The behaviour of the dmraid module demonstrates how to use the new
+    mechanism. If it detects a device which is part of a raidmember from a
+    udev rule, it installs a job to scan for dmraid devices, if the udev
+    queue is empty. After a scan, it removes itsself from the queue.
+
+
+
+dracut-0.3
+==========
+
+- first public version
+
