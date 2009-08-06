@@ -227,12 +227,6 @@ else
     cp -a /tmp/ifcfg/ /dev/.initramfs/ >/dev/null 2>&1
 fi
 
-# XXX: Temporary hack until we have a better plan
-if [ -d /dev/.initramfs/ifcfg ]; then
-    mkdir -p /dev/.initramfs/etc/sysconfig/
-    mv /dev/.initramfs/ifcfg/ /dev/.initramfs/etc/sysconfig/network-scripts/
-fi
-
 exec switch_root "$NEWROOT" "$INIT" $initargs || {
     # davej doesn't like initrd bugs
     echo "Something went very badly wrong in the initrd.  Please "
