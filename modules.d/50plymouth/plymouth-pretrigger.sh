@@ -13,6 +13,6 @@ udevadm settle --timeout=30 2>&1 | vinfo
 [ -c /dev/hvc0 ] || mknod /dev/hvc0 c 229 0
 
 info "Starting plymouth daemon"
-[ -x /bin/plymouthd ] && /bin/plymouthd
+[ -x /bin/plymouthd ] && /bin/plymouthd --attach-to-session
 /bin/plymouth --show-splash 2>&1 | vinfo
 
