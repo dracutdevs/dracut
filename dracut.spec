@@ -48,7 +48,7 @@ Requires: kbd
 %endif
 
 %if ! 0%{?with_switch_root}
-Requires: /sbin/switch_root
+Requires: util-linux-ng >= 2.16
 BuildArch: noarch
 %endif
 
