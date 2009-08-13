@@ -59,7 +59,7 @@ inst_simple() {
     [[ -f $target ]] && return 0
     mkdir -p "${target%/*}"
     dinfo "Installing $src" 
-    cp -fL "$src" "$target"
+    cp -pfL "$src" "$target"
 }
 
 # Same as above, but specialzed to handle dynamic libraries.
