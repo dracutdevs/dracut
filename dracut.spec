@@ -64,6 +64,7 @@ Requires: iscsi-initiator-utils
 Requires: nbd
 Requires: net-tools iproute
 Requires: plymouth-system-theme plymouth-theme-charge plymouth-theme-solar
+Requires: plymouth-theme-fade-in plymouth-theme-spinfinity
 
 %description generic
 This package requires everything which is needed to build a generic
