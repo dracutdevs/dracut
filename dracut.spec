@@ -32,6 +32,7 @@ Requires: which
 Requires: mktemp >= 1.5-5
 Requires: mount
 Requires: bash
+Requires: dash
 Requires: /bin/sh 
 Requires: fileutils, gzip, tar
 Requires: lvm2 >= 2.02.33-9, dhclient
