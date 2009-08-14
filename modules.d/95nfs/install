@@ -13,7 +13,8 @@ else
     LIBDIR="/lib"
 fi
 
-dracut_install $(ls {/usr,}$LIBDIR/libnfsidmap*.so* 2>/dev/null )
+dracut_install $(ls {/usr,}$LIBDIR/libnfsidmap_nsswitch.so* 2>/dev/null )
+#dracut_install $(ls {/usr,}$LIBDIR/libnfsidmap*.so* 2>/dev/null )
 
 nsslibs=$(for j in $(for i in \
                          $(egrep -v '^#.*' /etc/nsswitch.conf|cut -f2 -d :\
