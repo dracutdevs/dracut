@@ -643,6 +643,7 @@ emitcrypto()
     if [ -z "$luksuuid" ]; then
         luksuuid="$2"
     fi
+    luksuuid=${luksuuid##UUID=}
     echo -n "rd_LUKS_UUID=$luksuuid "
 }
 
@@ -652,7 +653,9 @@ done
 
 if [ -n "$raiddevices" ]; then
     for dev in $raiddevices; do
-        echo -n "rd_MD_UUID=${dev} "
+        uid=$(udevadm info --query=all --name=/dev/${dev}|grep  MD_UUID)
+        uid=$(IFS="=";set $uid;echo $2)
+        echo -n "rd_MD_UUID=$uid "
     done
 fi
 
