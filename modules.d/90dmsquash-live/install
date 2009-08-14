@@ -3,7 +3,14 @@ inst dmsetup
 inst blkid
 inst dd
 inst losetup
-inst eject
+
+# eject might be a symlink to consolehelper
+if [ -L /usr/bin/eject ]; then
+    dracut_install /usr/sbin/eject
+else
+    inst eject
+fi
+
 inst blockdev
 which checkisomd5 >/dev/null 2>&1 && inst checkisomd5
 inst_hook cmdline 30 "$moddir/parse-dmsquash-live.sh"
