@@ -238,7 +238,7 @@ if [ "$do_strip" = "yes" ] ; then
     done
 fi
 
-( cd "$initdir"; find . |cpio -H newc -o |gzip -9 > "$outfile"; )
+( cd "$initdir"; find . |cpio -R 0:0 -H newc -o |gzip -9 > "$outfile"; )
 
 [[ "$beverbose" = "yes" ]] && ls -lh "$outfile"
 
