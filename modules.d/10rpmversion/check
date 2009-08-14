@@ -1,0 +1,3 @@
+#!/bin/sh
+[ -f /etc/redhat-release ]
+

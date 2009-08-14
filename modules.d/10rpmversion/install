@@ -1,0 +1,8 @@
+
+dracut_rpm_version=$(rpm -q --qf '%{name}-%{version}-%{release}' $(which $0))
+if [ $? -eq 0 ]; then
+	echo $dracut_rpm_version > $initdir/$dracut_rpm_version
+fi
+
+inst_hook cmdline 01 "$moddir/version.sh"
+
