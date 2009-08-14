@@ -5,11 +5,11 @@ for x in 64-lvm.rules 70-mdadm.rules 99-mount-rules; do
 done
 udevadm control --reload-rules
 # save a partition at the beginning for future flagging purposes
-sfdisk -C 640 -H 2 -S 32 -L /dev/sda <<EOF
-,1
-,213
-,213
-,213
+sfdisk -C 1280 -H 2 -S 32 -L /dev/sda <<EOF
+,16
+,400
+,400
+,400
 EOF
 mdadm --create /dev/md0 --run --auto=yes --level=5 --raid-devices=3 /dev/sda2 /dev/sda3 /dev/sda4
 # wait for the array to finish initailizing, otherwise this sometimes fails
