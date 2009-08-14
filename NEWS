@@ -1,3 +1,13 @@
+dracut-0.9
+==========
+- let plymouth attach to the terminal (nice text output now)
+- new kernel command line parameter "rdinfo" show dracut output, even when
+  "quiet" is specified
+- rd_LUKS_UUID is now handled correctly
+- dracut-gencmdline: rd_LUKS_UUID and rd_MD_UUID is now correctly generated
+- now generates initrd-generic with around 15MB
+- smaller bugfixes
+
 dracut-0.8
 ==========
 - iSCSI with username and password

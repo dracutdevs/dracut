@@ -12,7 +12,7 @@
 %endif
 
 Name: dracut
-Version: 0.8
+Version: 0.9
 Release: 1%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
@@ -145,6 +145,10 @@ rm -rf $RPM_BUILD_ROOT
 %dir /var/lib/dracut/overlay
 
 %changelog
+* Fri Aug 14 2009 Harald Hoyer <harald@redhat.com> 0.9-1
+- version 0.9
+- see http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut;a=blob_plain;f=NEWS
+
 * Thu Aug 06 2009 Harald Hoyer <harald@redhat.com> 0.8-1
 - version 0.8 
 - see http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut;a=blob_plain;f=NEWS
