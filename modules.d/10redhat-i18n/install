@@ -76,10 +76,13 @@ else
     for i in $(find /lib/kbd -type f -print); do
 	dracut_install $i
     done
+    # remove unnecessary files
+    rm -f "$initdir/lib/kbd/consoletrans/utflist" 2>/dev/null
+    find "$initdir/lib/kbd/" -name README\* -exec rm -f '{}' \;
     dracut_install gzip bzip2
 fi
 
-dracut_install /lib/udev/console_* 
+dracut_install /lib/udev/console_init 
 dracut_install setfont loadkeys
 inst_rules 10-console.rules
 inst_hook cmdline 20 "$moddir/parse-i18n.sh"
