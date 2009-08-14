@@ -65,6 +65,7 @@ info() {
     if [ -z "$DRACUT_QUIET" ]; then
 	DRACUT_QUIET="no"
 	getarg quiet && DRACUT_QUIET="yes"
+	getarg rdinfo && DRACUT_QUIET="no"
     fi
     echo "<6>dracut: $@" > /dev/kmsg
     [ "$DRACUT_QUIET" != "yes" ] && \
