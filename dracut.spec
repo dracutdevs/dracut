@@ -116,7 +116,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,0755)
-%doc README HACKING TODO COPYING AUTHORS
+%doc README HACKING TODO COPYING AUTHORS NEWS
 /sbin/dracut
 %if 0%{?with_switch_root}
 /sbin/switch_root
@@ -137,7 +137,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files tools 
 %defattr(-,root,root,0755)
-%doc COPYING
+%doc COPYING NEWS
 /sbin/dracut-gencmdline
 /sbin/dracut-catimages
 %dir /boot/dracut
