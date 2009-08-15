@@ -136,7 +136,7 @@ esac
 [[ $1 ]] && outfile=$(readlink -f $1) || outfile="/boot/initrd-$kernel.img"
 
 srcmods="/lib/modules/$kernel/"
-[ -n "$drivers_dir" ] && srcmods="$drivers_dir"
+[[ $drivers_dir ]] && srcmods="$drivers_dir"
 export srcmods
 
 if [[ -f $outfile && ! $force ]]; then
