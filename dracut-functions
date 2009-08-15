@@ -203,32 +203,27 @@ inst_hook() {
 }
 
 dracut_install() {
-    local optional=
+    if [[ $1 = '-o' ]]; then 
+	local optional=yes
+	shift
+    fi
     while (($# > 0)); do
-        # Might be nice to optionally install a binary
-        if [[ $1 = '-o' ]]; then
-           optional=yes
-           shift
-           continue
-        fi
-	if inst "$1" ; then
-            shift 
-            continue
-        fi
-        if [ "$optional" == "yes" ]; then
-          dwarning "Skipping program $1 as it cannot be found and is flagged to be optional"
-          shift
-          continue
-        else
-          derror "Failed to install $1"; exit 1
-        fi
+	if ! inst "$1" ; then
+	    if [[ $optional = yes ]]; then
+		dwarning "Skipping program $1 as it cannot be found and is flagged to be optional"
+	    else
+		derror "Failed to install $1"
+		exit 1
+            fi
+	fi
+	shift
     done
 }
 
 check_module_deps() {
     local moddir dep ret
     # if we are already set to be loaded, we do not have to be checked again.
-    strstr "$mods_to_load" " $1 "
+    strstr "$mods_to_load" " $1 " && return
     # turn a module name into a directory, if we can.
     moddir=$(echo ${dsrc}/modules.d/??${1})
     [[ -d $moddir && -x $moddir/install ]] || return 1
