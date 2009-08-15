@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # if cryptsetup is not installed, then we cannot support encrypted devices.
 which cryptsetup >/dev/null 2>&1 || exit 1
@@ -6,8 +6,39 @@ which cryptsetup >/dev/null 2>&1 || exit 1
 # hostonly checking should only return true if root is on a LUKS device
 # in some way, but I am too lazy to figure out how to do that.
 # Instead, fail if we do not have a LUKS device in use somewhere.
-if [ "$1" = "-h" ] ; then
-    blkid | grep -q crypt_LUKS || exit 1
+
+is_crypt() { /lib/udev/vol_id /dev/block/$1 |grep -q crypto_LUKS; }
+
+check_block_and_slaves() (
+    # $1 = block device in major:minor format
+    local x
+    cd /sys/dev/block/$1
+    [[ -b /dev/block/$1 ]] || return 1 # Not a block device? So sorry.
+    is_crypt $1 && return
+    [[ -d slaves ]] || return 1 # there are no underlying devices, done.
+    # we want to search the tree breadthwise, so...
+    for x in slaves/*/dev; do
+	is_crypt $(cat "$x") && return 0
+    done
+    for x in slaves/*/dev; do
+	check_block_and_slaves $(cat "$x") &&  return 0
+    done
+    return 1
+)
+
+if [[ $1 = '-h' ]] ; then
+    rootdev=''
+    while read blkdev fs type opts misc; do
+	[[ $blkdev = rootfs ]] && continue # skip rootfs entry
+	[[ $fs = / ]] && { rootdev=$blkdev; break; }
+    done < /proc/mounts
+    [[ -b $rootdev ]] || exit 1 # Not on a block device?  Definitly not crypted.
+    # get major/minor for the device
+    majmin=$(ls -nLl "$rootdev" | \
+	(read x x x x maj min x; maj=${maj//,/}; echo $maj:$min))
+    # now, walk backwards though our master/slave relationships looking
+    # for a crypt_LUKS device
+    check_block_and_slaves $majmin || exit 1
 fi
 
 exit 0
