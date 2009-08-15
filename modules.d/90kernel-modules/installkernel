@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ -z "$drivers" ]; then
+if [[ -z $drivers ]]; then
   drivers="sd_mod =fs"
   # Include block controller drivers
   blockfuncs='ata_scsi_ioctl|scsi_add_host|blk_init_queue|register_mtd_blktrans|scsi_esp_register|register_virtio_device'
