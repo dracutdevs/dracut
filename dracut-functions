@@ -245,7 +245,7 @@ check_module_deps() {
 should_source_module() {
     local dep
     [[ -x $1/install ]] || return 1
-    if [[ "$kernel_only" = "yes" ]]; then
+    if [[ $kernel_only = yes ]]; then
         [[ -x $1/installkernel ]] && return 0
         return 1
     fi
@@ -277,14 +277,14 @@ check_modules() {
 
 # install kernel modules, and handle installing all their dependencies as well.
 instmods() {
-    [[ "$no_kernel" = "yes" ]] && return
+    [[ $no_kernel = yes ]] && return
     local mod mpargs modpath modname cmd
     while (($# > 0)); do
 	mod=${1%.ko}
 	case $mod in
 	    =*) # This introduces 2 incompatible meanings for =* arguments
                 # to instmods.  We need to decide which one to keep.
-		if [ "$mod" = "=ata" -a -f $srcmods/modules.block ] ; then 
+		if [[ $mod = =ata && -f $srcmods/modules.block ]] ; then 
 		    instmods $mpargs $(egrep 'ata|ahci' "${srcmods}/modules.block")
 		elif [ -f $srcmods/modules.${mod#=} ]; then
 		    instmods $mpargs $(cat ${srcmods}/modules.${mod#=} )
@@ -306,6 +306,8 @@ instmods() {
 		[[ $hostonly ]] && ! grep -q "$mod" /proc/modules && { 
 		    shift; continue; 
 		}
+		# ok, load the module, all its dependencies, and any firmware
+		# it may require
                 modprobe $mpargs --ignore-install --set-version $kernel -d ${srcmods%%/lib/modules/*}/ \
 		    --show-depends $mod 2>/dev/null | \
 		    while read cmd modpath options; do
@@ -326,7 +328,7 @@ instmods() {
 				found=yes
 			    fi
 			done
-			if [ "$found" != "yes" ]; then
+			if [[ $found != yes ]]; then
 			    dwarning "Possible missing firmware ${fw} for module ${mod}.ko"
 			fi
 		    done
