@@ -21,22 +21,11 @@
 
 
 function error() {
-    local NONL=""
-    if [ "$1" == "-n" ]; then
-        NONL="-n"
-        shift
-    fi
-    echo $NONL "$@" >&2
+    echo "$@" >&2
 }
 
 function vecho() {
-    return
-    local NONL=""
-    if [ "$1" == "-n" ]; then
-        NONL="-n"
-        shift
-    fi
-    is_verbose && echo $NONL "$@"
+    is_verbose && echo "$@"
 }
 
 # module dep finding and installation functions
