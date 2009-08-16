@@ -3,45 +3,20 @@
 # No point trying to support lvm if the binaries are missing
 which lvm >/dev/null 2>&1 || exit 1
 
+. $dracutfunctions
+
 is_lvm() { /lib/udev/vol_id /dev/block/$1 |grep -q LVM2_member; }
 
-check_block_and_slaves() (
-    # $1 = block device in major:minor format
-    local x
-    cd /sys/dev/block/$1
-    [[ -b /dev/block/$1 ]] || return 1 # Not a block device? So sorry.
-    is_lvm $1 && return
-    [[ -d slaves ]] || return 1 # there are no underlying devices, done.
-    # we want to search the tree breadthwise, so...
-    for x in slaves/*/dev; do
-	is_lvm $(cat "$x") && return 0
-    done
-    for x in slaves/*/dev; do
-	check_block_and_slaves $(cat "$x") &&  return 0
-    done
-    return 1
-)
-
-if [[ $1 = '-h' ]] ; then
-    rootdev=''
-    while read blkdev fs type opts misc; do
-	[[ $blkdev = rootfs ]] && continue # skip rootfs entry
-	[[ $fs = / ]] && { rootdev=$blkdev; break; }
-    done < /proc/mounts
-    [[ -b $rootdev ]] || exit 1 # Not on a block device?  Definitly not crypted.
-    # get major/minor for the device
-    majmin=$(ls -nLl "$rootdev" | \
-	(read x x x x maj min x; maj=${maj//,/}; echo $maj:$min))
-    # now, walk backwards though our master/slave relationships looking
-    # for a LVM2_member device
-    check_block_and_slaves $majmin || exit 1
-fi
-
-# We should really just check to see if root is on a logical volume
-# when running in hostonly mode. I am lazy. Therefore, fail the hostonly
-# check unless there is a logical volume in use somewhere.
-if [ "$1" = "-H" ] || [ "$1" = "--hostonly" ]; then
-    blkid | grep -q lvm2pv || exit 1
-fi
+[[ $1 = '-h' ]] && {
+    rootdev=$(find_root_block_device)
+    if [[ $rootdev ]]; then
+	# root lives on a block device, so we can be more precise about 
+	# hostonly checking
+	check_block_and_slaves is_lvm "$rootdev" || exit 1
+    else
+	# root is not on a block device, use the shotgun approach
+	blkid | grep -q lvm2pv || exit 1
+    fi
+}
 
 exit 0
