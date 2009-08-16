@@ -27,11 +27,11 @@ strstr() { [[ ! ${1#*$2*} = $1 ]]; }
 # Log initrd creation.
 if ! [[ $dracutlogfile ]]; then
     [[ $dsrc = /usr/share/dracut ]] && \
-       dracutlogfile=/var/log/dracut.log || \
-       dracutlogfile=/tmp/dracut.log
+	dracutlogfile=/var/log/dracut.log || \
+	dracutlogfile=/tmp/dracut.log
     [[ -w $dracutlogfile ]] || dracutlogfile=/tmp/dracut.log
     >"$dracutlogfile"
- fi
+fi
 
 dwarning() {
     echo "W: $@" >&2
