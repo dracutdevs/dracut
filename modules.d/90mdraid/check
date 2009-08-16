@@ -3,11 +3,38 @@
 # No mdadm?  No mdraid support.
 which mdadm >/dev/null 2>&1 || exit 1
 
-# We were asked to run in hostonly mode, so pass the check only if there
-# is an mdraid volume in use somewhere. This should really check to see if
-# root is on an mdraid volume only, but I am lazy.
-if [[ $1 = -h ]]; then
-    blkid | grep -q linux_raid || exit 1
+is_mdraid() { /lib/udev/vol_id /dev/block/$1 |egrep -q '(linux|isw)_raid'; }
+
+check_block_and_slaves() (
+    # $1 = block device in major:minor format
+    local x
+    cd /sys/dev/block/$1
+    [[ -b /dev/block/$1 ]] || return 1 # Not a block device? So sorry.
+    is_mdraid $1 && return
+    [[ -d slaves ]] || return 1 # there are no underlying devices, done.
+    # we want to search the tree breadthwise, so...
+    for x in slaves/*/dev; do
+	is_mdraid $(cat "$x") && return 0
+    done
+    for x in slaves/*/dev; do
+	check_block_and_slaves $(cat "$x") &&  return 0
+    done
+    return 1
+)
+
+if [[ $1 = '-h' ]] ; then
+    rootdev=''
+    while read blkdev fs type opts misc; do
+	[[ $blkdev = rootfs ]] && continue # skip rootfs entry
+	[[ $fs = / ]] && { rootdev=$blkdev; break; }
+    done < /proc/mounts
+    [[ -b $rootdev ]] || exit 1 # Not on a block device?  Definitly not mdraid.
+    # get major/minor for the device
+    majmin=$(ls -nLl "$rootdev" | \
+	(read x x x x maj min x; maj=${maj//,/}; echo $maj:$min))
+    # now, walk backwards though our master/slave relationships looking
+    # for a mdraid device
+    check_block_and_slaves $majmin || exit 1
 fi
 
 exit 0
