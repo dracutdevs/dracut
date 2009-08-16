@@ -48,6 +48,38 @@ derror() {
     [[ -w $dracutlogfile ]] && echo "E: $@" >>"$dracutlogfile"
 }
 
+# finds the major:minor of the block device backing the root filesystem.
+find_root_block_device() {
+    local rootdev blkdev fs type opts misc
+    while read blkdev fs type opts misc; do
+	[[ $blkdev = rootfs ]] && continue # skip rootfs entry
+	[[ $fs = / ]] && { rootdev=$blkdev; break; } # we have a winner!
+    done < /proc/mounts
+    [[ -b $rootdev ]] || return 1 # oops, not a block device.
+    # get major/minor for the device
+    ls -nLl "$rootdev" | \
+	(read x x x x maj min x; maj=${maj//,/}; echo $maj:$min)
+}
+
+# Walk all the slave relationships for a given block device.
+# Stop when our helper function returns success
+# $1 = function to call on every found block device
+# $2 = block device in major:minor format
+check_block_and_slaves() {    
+    local x 
+    [[ -b /dev/block/$2 ]] || return 1 # Not a block device? So sorry.
+    "$1" $2 && return
+    [[ -d /sys/dev/block/$2/slaves ]] || return 1
+    # we want to search the tree breadthwise, so...
+    for x in /sys/dev/block/$2/slaves/*/dev; do
+	$1 $(cat "$x") && return 0
+    done
+    for x in /sys/dev/block/$2/slaves/*/dev; do
+	check_block_and_slaves $1 $(cat "$x") &&  return 0
+    done
+    return 1
+}
+
 # $1 = file to copy to ramdisk
 # $2 (optional) Name for the file on the ramdisk
 # Location of the image dir is assumed to be $initdir
