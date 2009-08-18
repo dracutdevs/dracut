@@ -24,7 +24,7 @@ overlay=$(getarg overlay)
 
 # FIXME: we need to be able to hide the plymouth splash for the check really
 [ -e $livedev ] & fs=$(blkid -s TYPE -o value $livedev)
-if [ "$fs" == "iso9660" -o "$fs" = "udf" ]; then
+if [ "$fs" = "iso9660" -o "$fs" = "udf" ]; then
     check="yes"
 fi
 getarg check || check=""
@@ -64,7 +64,7 @@ do_live_overlay() {
         pathspec=$( echo $overlay | sed -e 's/^.*://' )
     fi
 
-    if [ -z "$pathspec" -o "$pathspec" == "auto" ]; then
+    if [ -z "$pathspec" -o "$pathspec" = "auto" ]; then
         pathspec="/${live_dir}/overlay-$l-$u"
     fi
     devspec=$( echo $overlay | sed -e 's/:.*$//' )
