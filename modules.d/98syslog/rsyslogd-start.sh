@@ -25,7 +25,7 @@ rsyslog_config() {
 }
 
 read server < /tmp/syslog.server
-read filters < /tmp/syslog.filter
+read filters < /tmp/syslog.filters
 [ -z "$filters" ] && filters="kern.*"
 read conf < /tmp/syslog.conf
 [ -z "$conf" ] && conf="/etc/rsyslog.conf" && echo "$conf" > /tmp/syslog.conf
