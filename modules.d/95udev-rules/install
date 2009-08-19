@@ -32,6 +32,7 @@ hid2hci \
 path_id \
 scsi_id \
 usb_id \
+vol_id \
 ; do
     [ -x /lib/udev/$i ] && dracut_install /lib/udev/$i
 done
