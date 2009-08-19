@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# do not add this module by default
+exit 255
