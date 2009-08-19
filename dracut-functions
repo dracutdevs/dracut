@@ -72,9 +72,11 @@ check_block_and_slaves() {
     [[ -d /sys/dev/block/$2/slaves ]] || return 1
     # we want to search the tree breadthwise, so...
     for x in /sys/dev/block/$2/slaves/*/dev; do
+        [[ -f $x ]] || continue
 	$1 $(cat "$x") && return 0
     done
     for x in /sys/dev/block/$2/slaves/*/dev; do
+        [[ -f $x ]] || continue
 	check_block_and_slaves $1 $(cat "$x") &&  return 0
     done
     return 1
