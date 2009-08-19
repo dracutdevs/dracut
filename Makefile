@@ -73,5 +73,8 @@ testimages: all
 	./dracut -l -a debug --no-kernel -f test-dracut.img $(shell uname -r)
 	@echo wrote  test-dracut.img 
 	
+hostimage: all
+	./dracut -H -l -a debug -f test-$(shell uname -r).img $(shell uname -r)
+	@echo wrote  test-$(shell uname -r).img 
 	
 
