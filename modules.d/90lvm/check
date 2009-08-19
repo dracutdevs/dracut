@@ -5,7 +5,11 @@ which lvm >/dev/null 2>&1 || exit 1
 
 . $dracutfunctions
 
-is_lvm() { /lib/udev/vol_id /dev/block/$1 |grep -q LVM2_member; }
+if [ -x /lib/udev/vol_id ]; then
+    is_lvm() { /lib/udev/vol_id /dev/block/$1 |grep -q LVM2_member; }
+else
+    is_lvm() { blkid /dev/block/$1 |grep -q LVM2_member; }
+fi
 
 [[ $1 = '-h' ]] && {
     rootdev=$(find_root_block_device)

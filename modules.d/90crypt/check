@@ -9,7 +9,11 @@ which cryptsetup >/dev/null 2>&1 || exit 1
 
 . $dracutfunctions
 
-is_crypt() { /lib/udev/vol_id /dev/block/$1 |grep -q crypto_LUKS; }
+if [ -x /lib/udev/vol_id ]; then
+	is_crypt() { /lib/udev/vol_id /dev/block/$1 |grep -q crypto_LUKS; }
+else
+	is_crypt() { blkid /dev/block/$1 |grep -q crypto_LUKS; }
+fi
 
 [[ $1 = '-h' ]] && {
     rootdev=$(find_root_block_device)

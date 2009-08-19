@@ -5,7 +5,11 @@ which mdadm >/dev/null 2>&1 || exit 1
 
 . $dracutfunctions
 
-is_mdraid() { /lib/udev/vol_id /dev/block/$1 |egrep -q '(linux|isw)_raid'; }
+if [ -x /lib/udev/vol_id ]; then
+    is_mdraid() { /lib/udev/vol_id /dev/block/$1 |egrep -q '(linux|isw)_raid'; }
+else
+    is_mdraid() { blkid /dev/block/$1 |egrep -q '(linux|isw)_raid'; }
+fi
 
 [[ $1 = '-h' ]] && {
     rootdev=$(find_root_block_device)
