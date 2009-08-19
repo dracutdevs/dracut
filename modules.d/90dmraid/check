@@ -6,7 +6,7 @@ which dmraid >/dev/null 2>&1 || exit 1
 
 . $dracutfunctions
 
-is_dmraid() { /lib/udev/vol_id /dev/block/$1 |grep -v linux_raid_member | \
+is_dmraid() { get_fs_type /dev/block/$1 |grep -v linux_raid_member | \
     grep -q _raid_member; }
 
 [[ $1 = '-h' ]] && {

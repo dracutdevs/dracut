@@ -48,6 +48,17 @@ derror() {
     [[ -w $dracutlogfile ]] && echo "E: $@" >>"$dracutlogfile"
 }
 
+get_fs_type() (
+    if [[ -x /lib/udev/vol_id ]]; then
+	eval /usr/udev/vol_id --export $1
+	echo $ID_FS_TYPE
+    elif find_binary >/dev/null; then
+	blkid -o value -s TYPE $1
+    else
+	return 1
+    fi
+)
+
 # finds the major:minor of the block device backing the root filesystem.
 find_root_block_device() {
     local rootdev blkdev fs type opts misc
