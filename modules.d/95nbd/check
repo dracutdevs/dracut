@@ -5,13 +5,12 @@
 # If our prerequisites are not met, fail.
 which nbd-client >/dev/null 2>&1 || exit 1
 
-is_nbd() { [[ -b /dev/block/$1 && $1 == 43:* ]] }
-
-. $dracutfunctions
-
 # if an nbd device is not somewhere in the chain of devices root is mounted on,
 # fail the hostonly check.
 [ "$1" = "-h" ] && {
+    is_nbd() { [[ -b /dev/block/$1 && $1 == 43:* ]] ;}
+    . $dracutfunctions
+
     rootdev=$(find_root_block_device)
     [[ -b /dev/block/$rootdev ]] || exit 1
     check_block_and_slaves is_nbd "$rootdev" || exit 1
