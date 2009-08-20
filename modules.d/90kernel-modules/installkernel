@@ -1,13 +1,24 @@
 #!/bin/bash
 if [[ -z $drivers ]]; then
-  drivers="sd_mod =fs"
+  drivers="sd_mod"
   # Include block controller drivers
   blockfuncs='ata_scsi_ioctl|scsi_add_host|blk_init_queue|register_mtd_blktrans|scsi_esp_register|register_virtio_device'
-  for modname in $(find "$srcmods/kernel/drivers" -name '*.ko'); do
-    if nm -uPA $modname | egrep -q "$blockfuncs"; then
-      drivers="${drivers} $modname"
-    fi
-  done
+  if [[ $hostonly = "" ]]; then
+      for modname in $(find "$srcmods/kernel/drivers" -name '*.ko'); do
+	  if nm -uPA $modname | egrep -q "$blockfuncs"; then
+	      drivers="${drivers} $modname"
+	  fi
+      done
+      drivers="${drivers} =fs"
+  else
+      while read modname rest; do
+	  modname=$(modinfo -F filename -k $kernel $modname)
+	  if nm -uPA $modname |egrep -q "$blockfuncs"; then
+	      drivers="${drivers} $modname"
+	  fi
+      done </proc/modules
+      instmods $(get_fs_type "/dev/block/$(find_root_block_device)")
+  fi
   instmods $drivers
   # hardcoded list of exceptions
   rm -fr ${initdir}/lib/modules/*/kernel/fs/ocfs2

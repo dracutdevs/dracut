@@ -22,7 +22,7 @@ IF_RTLD=""
 IF_dynamic=""
 
 # Generic substring function.  If $2 is in $1, return 0.
-strstr() { [[ ! ${1#*$2*} = $1 ]]; }
+strstr() { [[ $1 =~ $2 ]]; }
 
 # Log initrd creation.
 if ! [[ $dracutlogfile ]]; then
@@ -60,17 +60,19 @@ get_fs_type() (
 )
 
 # finds the major:minor of the block device backing the root filesystem.
-find_root_block_device() {
+find_block_device() {
     local rootdev blkdev fs type opts misc
     while read blkdev fs type opts misc; do
 	[[ $blkdev = rootfs ]] && continue # skip rootfs entry
-	[[ $fs = / ]] && { rootdev=$blkdev; break; } # we have a winner!
+	[[ $fs = $1 ]] && { rootdev=$blkdev; break; } # we have a winner!
     done < /proc/mounts
     [[ -b $rootdev ]] || return 1 # oops, not a block device.
     # get major/minor for the device
     ls -nLl "$rootdev" | \
 	(read x x x x maj min x; maj=${maj//,/}; echo $maj:$min)
 }
+
+find_root_block_device() { find_block_device /; }
 
 # Walk all the slave relationships for a given block device.
 # Stop when our helper function returns success
