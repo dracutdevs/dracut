@@ -21,8 +21,10 @@ as hooks are guaranteed to be the path to slow-down.
 
 Most of the initrd generation functionality in dracut is provided by a bunch
 of generator modules that are sourced by the main dracut script to install
-specific functionality into the initrd.  They live in the modules.d subdirectory,
-and use functionality provided by dracut-functions to do their work.
+specific functionality into the initrd.  They live in the modules.d 
+subdirectory, and use functionality provided by dracut-functions to do their 
+work.
+
 Some general rules for writing modules:
  * Use one of the inst family of functions to actually install files
    on to the initrd.  They handle mangling the pathnames and (for binaries,
@@ -59,13 +61,13 @@ the documentation, git access, etc.
 
 Git Repository:
 http://dracut.git.sourceforge.net/
-git://dracut.git.sourceforge.net/gitroot/dracut
+git://dracut.git.sourceforge.net/gitroot/dracut/dracut
 
 Trac Instance:
 http://apps.sourceforge.net/trac/dracut/ 
 
 The git tree can be found at
-git://dracut.git.sourceforge.net/gitroot/dracut  for now.  See the TODO
+git://dracut.git.sourceforge.net/gitroot/dracut/dracut for now.  See the TODO
 file for things which still need to be done and HACKING for some
 instructions on how to get started.  There is also a mailing list that
 is being used for the discussion -- initramfs@vger.kernel.org.  It is

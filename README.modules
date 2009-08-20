@@ -35,7 +35,7 @@ check: Dracut calls this program to check and see if a module can be installed
        are present.  It should exit with a 0 if they are, and a 1 if they are
        not.
 
-       When called with -H, it should perform the same check that it would
+       When called with -h, it should perform the same check that it would
        without any options, and it should also check to see if the 
        functionality the module implements is being used on the host system.
        For example, if this module handles installing support for LUKS
@@ -43,9 +43,12 @@ check: Dracut calls this program to check and see if a module can be installed
        encrpted volumes are available and the host system has the root
        partition on an encrypted volume, 1 otherwise.
 
+       When called with -d, it should output a list of dracut modules
+       that it relies upon.  An example would be the nfs and iscsi modules,
+       which rely on the network module to detect and configure network
+       interfaces.
+
        Check may take additional options in the future.  
-       We will most likely grow a module dependency checking system in the
-       near future, and check will need to handle a -d option when we do.
 
 Any other files in the module will not be touched by dracut directly. 
 
