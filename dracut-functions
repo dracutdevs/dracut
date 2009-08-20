@@ -358,6 +358,27 @@ for_each_kmod_dep() {
     done
 }
 
+# filter kernel modules to install certian modules that meet specific
+# requirements.
+# $1 = function to call with module name to filter.
+#      This function will be passed the full path to the module to test.
+# The behaviour of this function can vary depending on whether $hostonly is set.
+# If it is, we will only look at modules that are already in memory.
+# If it is not, we will look at all kernel modules
+# This function returns the full filenames of modules that match
+filter_kernel_modules () (
+    if [[ $hostonly = '' ]]; then
+	for modname in $(find "$srcmods/kernel/drivers" -name '*.ko'); do
+	    "$1" "$modname" && echo "$modname"
+	done
+    else
+	while read modname rest; do
+	    modname=$(modinfo -F filename -k $kernel $modname)
+	    "$1" "$modname" && echo "$modname"
+	done </proc/modules
+    fi
+)
+
 # install kernel modules along with all their dependencies.
 instmods() {
     [[ $no_kernel = yes ]] && return

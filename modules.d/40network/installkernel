@@ -1,15 +1,16 @@
 #!/bin/bash
 # Include wired net drivers, excluding wireless
-for modname in $(find "$srcmods/kernel/drivers" -name '*.ko'); do
-  if nm -uPA $modname | egrep -q 'eth_type_trans|register_virtio_device' \
- 	&& ! nm -uPA $modname | egrep -q 'iw_handler_get_spy'; then
-    if echo "$modname" | egrep -q '/wireless/|/isdn/|/uwb/'; then
-      continue
-    else
-      instmods $modname 
-    fi
-  fi
-done
+
+net_module_test() {
+    local net_drivers='eth_type_transfer|register_virtio_device'
+    local unwanted_drivers='/(wireless|isdn|uwb)/'
+    nm -uPA "$1" | egrep -q $net_drivers && \
+	nm -uPA "$1" | egrep -qv 'iw_handler_get_spy' && \
+	[[ ! $1 =~ $unwanted_drivers ]]
+}
+
+instmods $(filter_kernel_modules net_module_test)
+    
 instmods ecb arc4
 # bridge modules
 instmods bridge stp llc
