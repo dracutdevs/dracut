@@ -48,15 +48,24 @@ derror() {
     [[ -w $dracutlogfile ]] && echo "E: $@" >>"$dracutlogfile"
 }
 
-get_fs_type() (
+get_fs_env() {
     if [[ -x /lib/udev/vol_id ]]; then
-	eval /usr/udev/vol_id --export $1
-	echo $ID_FS_TYPE
-    elif find_binary >/dev/null; then
-	blkid -o value -s TYPE $1
+	eval $(/lib/udev/vol_id --export $1)
+    elif find_binary blkid >/dev/null; then
+	eval $(blkid -o udev $1)
     else
 	return 1
     fi
+}
+
+get_fs_type() (
+    get_fs_env $1 || return
+    echo $ID_FS_TYPE
+)
+
+get_fs_uuid() (
+    get_fs_env $1 || return
+    echo $ID_FS_UUID
 )
 
 # finds the major:minor of the block device backing the root filesystem.
@@ -83,11 +92,6 @@ check_block_and_slaves() {
     [[ -b /dev/block/$2 ]] || return 1 # Not a block device? So sorry.
     "$1" $2 && return
     [[ -d /sys/dev/block/$2/slaves ]] || return 1
-    # we want to search the tree breadthwise, so...
-    for x in /sys/dev/block/$2/slaves/*/dev; do
-        [[ -f $x ]] || continue
-	$1 $(cat "$x") && return 0
-    done
     for x in /sys/dev/block/$2/slaves/*/dev; do
         [[ -f $x ]] || continue
 	check_block_and_slaves $1 $(cat "$x") &&  return 0
