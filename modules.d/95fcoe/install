@@ -1,0 +1,7 @@
+#!/bin/bash
+
+dracut_install ip
+
+inst "$moddir/fcoe-up" "/sbin/fcoe-up"
+inst_hook pre-udev 60 "$moddir/fcoe-genrules.sh"
+inst_hook cmdline 99 "$moddir/parse-fcoe.sh"

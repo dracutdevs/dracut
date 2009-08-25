@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+# We get called like this:
+# /sbin/fcoe-up <network-device> <dcb|nodcb>
+#
+# Note currently only nodcb is supported, the dcb option is reserved for
+# future use.
+
+# Huh? Missing arguments ??
+[ -z "$1" -o -z "$2" ] && exit 1
+
+netif=$1
+dcb=$2
+
+/sbin/ip link set "$netif" up
+echo -n "$netif" > /sys/module/fcoe/parameters/create
