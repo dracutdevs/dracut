@@ -295,11 +295,11 @@ check_module_deps() {
 
 should_source_module() {
     local dep
-    [[ -x $1/install ]] || return 1
     if [[ $kernel_only = yes ]]; then
         [[ -x $1/installkernel ]] && return 0
         return 1
     fi
+    [[ -x $1/install ]] || [[ -x $1/installkernel ]] || return 1
     [[ -x $1/check ]] || return 0
     "$1/check" $hostonly || return 1
     for dep in $("$1/check" -d); do
