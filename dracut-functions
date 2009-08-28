@@ -387,8 +387,7 @@ instmods() {
     [[ $no_kernel = yes ]] && return
     local mod mpargs modpath modname cmd
     while (($# > 0)); do
-	mod=${1##*/}
-	mod=${mod%.ko}
+	mod=${1%.ko}
 	case $mod in
 	    =*) # This introduces 2 incompatible meanings for =* arguments
                 # to instmods.  We need to decide which one to keep.
@@ -400,12 +399,16 @@ instmods() {
 		    instmods $mpargs $(find "$srcmods" -path "*/${mod#=}/*")
 		fi
 		;;
-	    --*) mpargs+=" $mod";;
+	    --*) 
+	        mod=${mod##*/}
+                mpargs+=" $mod";;
             i2o_scsi)
                     # Must never run this diagnostic-only module
                     shift; continue;
                 ;;
-	    *)  # if we are already installed, skip this module and go on
+	    *)  
+	        mod=${mod##*/}
+                # if we are already installed, skip this module and go on
 	        # to the next one.
 	        [[ -f $initdir/$1 ]] && { shift; continue; }
 		# If we are building a host-specific initramfs and this
