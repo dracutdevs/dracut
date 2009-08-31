@@ -44,10 +44,8 @@ Requires: bridge-utils
 Requires: file
 Requires: bzip2
 Requires: policycoreutils
-%ifnarch s390 s390x
 Requires: dmraid
 Requires: kbd
-%endif
 
 %if ! 0%{?with_switch_root}
 Requires: util-linux-ng >= 2.16
