@@ -29,8 +29,10 @@ if ! [[ $dracutlogfile ]]; then
     [[ $dsrc = /usr/share/dracut ]] && \
 	dracutlogfile=/var/log/dracut.log || \
 	dracutlogfile=/tmp/dracut.log
-    [[ -w $dracutlogfile ]] || dracutlogfile=/tmp/dracut.log
-    >"$dracutlogfile"
+#    [[ -w $dracutlogfile ]] || dracutlogfile=/tmp/dracut.log
+    if [[ -w $dracutlogfile ]]; then
+        >"$dracutlogfile"
+    fi
 fi
 
 dwarning() {
@@ -114,11 +116,11 @@ check_vol_slaves() {
     for i in /dev/mapper/*; do 
 	lv=$(get_numeric_dev $i)
 	if [[ $lv = $2 ]]; then
-	    vg=$(lvs --noheadings -o vg_name $i 2>/dev/null)
+	    vg=$(lvm lvs --noheadings -o vg_name $i 2>/dev/null)
 	    # strip space
 	    vg=$(echo $vg)
 	    if [[ $vg ]]; then
-		for pv in $(vgs --noheadings -o pv_name "$vg" 2>/dev/null); \
+		for pv in $(lvm vgs --noheadings -o pv_name "$vg" 2>/dev/null); \
 		    do
  		    check_block_and_slaves $1 $(get_numeric_dev $pv) \
 			&&  return 0
