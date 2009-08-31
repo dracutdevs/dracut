@@ -91,10 +91,40 @@ check_block_and_slaves() {
     local x 
     [[ -b /dev/block/$2 ]] || return 1 # Not a block device? So sorry.
     "$1" $2 && return
+    check_vol_slaves "$@" && return 0
     [[ -d /sys/dev/block/$2/slaves ]] || return 1
     for x in /sys/dev/block/$2/slaves/*/dev; do
         [[ -f $x ]] || continue
 	check_block_and_slaves $1 $(cat "$x") &&  return 0
+    done
+    return 1
+}
+
+get_numeric_dev() {
+    ls -lH "$1" | { read a b c d maj min rest; printf "%d:%d" ${maj%%,} $min;}
+}
+
+# ugly workaround for the lvm design
+# There is no volume group device,
+# so, there are no slave devices for volume groups.
+# Logical volumes only have the slave devices they really live on,
+# but you cannot create the logical volume without the volume group.
+# And the volume group might be bigger than the devices the LV needes.
+check_vol_slaves() {
+    for i in /dev/mapper/*; do 
+	lv=$(get_numeric_dev $i)
+	if [[ $lv = $2 ]]; then
+	    vg=$(lvs --noheadings -o vg_name $i 2>/dev/null)
+	    # strip space
+	    vg=$(echo $vg)
+	    if [[ $vg ]]; then
+		for pv in $(vgs --noheadings -o pv_name "$vg" 2>/dev/null); \
+		    do
+ 		    check_block_and_slaves $1 $(get_numeric_dev $pv) \
+			&&  return 0
+		done
+	    fi
+	fi
     done
     return 1
 }
