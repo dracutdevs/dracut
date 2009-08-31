@@ -54,7 +54,12 @@ rpm: clean dracut-$(VERSION).tar.bz2
 	rm -fr BUILD BUILDROOT
 
 gitrpm: dracut-$(VERSION)-$(GITVERSION).tar.bz2
-	rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" --define "_specdir $$PWD" --define "_srcrpmdir $$PWD" --define "_rpmdir $$PWD" --define "gittag $(GITVERSION)" -ba dracut.spec 
+	echo "%define gittag $(GITVERSION)" > dracut.spec.git
+	cat dracut.spec >> dracut.spec.git
+	mv dracut.spec dracut.spec.bak
+	mv dracut.spec.git dracut.spec
+	rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" --define "_specdir $$PWD" --define "_srcrpmdir $$PWD" --define "_rpmdir $$PWD" --define "gittag $(GITVERSION)" -ba dracut.spec
+	mv dracut.spec.bak dracut.spec
 	rm -fr BUILD BUILDROOT
 
 check: all
