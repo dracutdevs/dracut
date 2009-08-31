@@ -43,6 +43,7 @@ Requires: cryptsetup-luks
 Requires: bridge-utils
 Requires: file
 Requires: bzip2
+Requires: policycoreutils
 %ifnarch s390 s390x
 Requires: dmraid
 Requires: kbd
