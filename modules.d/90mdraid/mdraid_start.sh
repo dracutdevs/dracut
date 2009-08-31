@@ -10,9 +10,14 @@ if $UDEV_QUEUE_EMPTY >/dev/null 2>&1; then
         case $md in
 	    /dev/md*p*) ;;
 	    *)
-		info "Starting MD RAID array $md"
-                mdadm -R $md 2>&1 | vinfo
-                mdadm -IR $md 2>&1 | vinfo
+                if mdadm --query --test --detail $md 2>&1|grep -q 'does not appear to be active'; then
+		    info "Starting MD RAID array $md"
+                    mdadm -R $md 2>&1 | vinfo
+                    if mdadm --query --test --detail $md 2>&1|grep -q 'does not appear to be active'; then
+                        mdadm -IR $md 2>&1 | vinfo
+                    fi
+                    udevsettle
+               fi
         esac
     done
 fi
