@@ -5,7 +5,7 @@
 %endif
 
 %if %{defined gittag}
-%define rdist 1.git%{gittag}%{?dist}
+%define rdist .git%{gittag}%{?dist}
 %define dashgittag -%{gittag}
 %else
 %define rdist %{?dist}
