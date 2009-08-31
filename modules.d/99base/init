@@ -112,11 +112,7 @@ while :; do
     # check if root can be mounted
     [ -e /dev/root ] && break;
 
-    if [ $UDEVVERSION -ge 143 ]; then
-        udevadm settle --exit-if-exists=/initqueue/work --exit-if-exists=/dev/root 
-    else
-        udevadm settle --timeout=30
-    fi
+    udevsettle
 
     # bail out, if we have mounted the root filesystem
     [ -d "$NEWROOT/proc" ] && break;

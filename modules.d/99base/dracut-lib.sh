@@ -107,3 +107,11 @@ incol2() {
     done < $file
     return 1
 }
+
+udevsettle() {
+    if [ $UDEVVERSION -ge 143 ]; then
+        udevadm settle --exit-if-exists=/initqueue/work --exit-if-exists=/dev/root 
+    else
+        udevadm settle --timeout=30
+    fi
+}

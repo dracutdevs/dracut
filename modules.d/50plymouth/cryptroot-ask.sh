@@ -24,6 +24,7 @@ if [ -n "$LUKS" ]; then
 fi
 
 if [ $ask -gt 0 ]; then
+    info "luksOpen $1 $2"
     # flock against other interactive activities
     { flock -s 9; 
 	/bin/plymouth ask-for-password \
@@ -34,6 +35,8 @@ fi
 
 # mark device as asked
 >> /tmp/cryptroot-asked-$2
+
+udevsettle
 
 unset LUKS
 unset ask

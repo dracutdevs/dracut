@@ -24,14 +24,17 @@ if [ -n "$LUKS" ]; then
 fi
 
 if [ $ask -gt 0 ]; then
+    info "luksOpen $1 $2"
     # flock against other interactive activities
     { flock -s 9; 
 	echo -n "$1 is password protected " 
-	/sbin/cryptsetup luksOpen -T1 $1 $2
+	/sbin/cryptsetup luksOpen -T1 $1 $2 
     } 9>/.console.lock
 fi
 
 # mark device as asked
 >> /tmp/cryptroot-asked-$2
+
+udevsettle
 
 exit 0
