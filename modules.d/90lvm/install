@@ -12,3 +12,5 @@ fi
 
 inst "$moddir/lvm_scan.sh" /sbin/lvm_scan
 inst_hook cmdline 30 "$moddir/parse-lvm.sh"
+inst_hook pre-pivot 30 "$moddir/lvm-cleanup.sh"
+inst_hook pre-pivot 60 "$moddir/lvm-cleanup.sh"
