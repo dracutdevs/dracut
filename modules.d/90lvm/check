@@ -4,6 +4,7 @@
 which lvm >/dev/null 2>&1 || exit 1
 
 . $dracutfunctions
+[[ $debug ]] && set -x
 
 is_lvm() { [[ $(get_fs_type /dev/block/$1) = LVM2_member ]]; }
 
