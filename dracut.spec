@@ -179,9 +179,12 @@ rm -rf $RPM_BUILD_ROOT
 %dir /var/lib/dracut/overlay
 
 %changelog
+* Wed Sep 02 2009 Harald Hoyer <harald@redhat.com> 001-1
+- version 001
+- see http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut/dracut;a=blob_plain;f=NEWS
+
 * Fri Aug 14 2009 Harald Hoyer <harald@redhat.com> 0.9-1
 - version 0.9
-- see http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut/dracut;a=blob_plain;f=NEWS
 
 * Thu Aug 06 2009 Harald Hoyer <harald@redhat.com> 0.8-1
 - version 0.8 
