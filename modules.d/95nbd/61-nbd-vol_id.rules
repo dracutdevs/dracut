@@ -1,7 +1,0 @@
-SUBSYSTEM!="block", GOTO="nbd_end"
-ACTION!="change", GOTO="nbd_end"
-
-KERNEL=="nbd[0-9]*", IMPORT{program}="vol_id --export $tempnode"
-KERNEL=="nbd[0-9]*", IMPORT{program}="/sbin/blkid -o udev -p $tempnode"
-
-LABEL="nbd_end"

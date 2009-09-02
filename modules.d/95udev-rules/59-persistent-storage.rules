@@ -1,0 +1,7 @@
+SUBSYSTEM!="block", GOTO="ps_end"
+ACTION!="add|change", GOTO="ps_end"
+ACTION=="change", KERNEL=="dm-[0-9]*", IMPORT{program}="/sbin/blkid -o udev -p $tempnode"
+KERNEL=="cciss[0-9]*", IMPORT{program}="/sbin/blkid -o udev -p $tempnode"
+KERNEL=="nbd[0-9]*", IMPORT{program}="/sbin/blkid -o udev -p $tempnode"
+KERNEL=="md[0-9]*|md_d[0-9]*|md/*", IMPORT{program}="/sbin/blkid -o udev -p $tempnode"
+LABEL="ps_end"

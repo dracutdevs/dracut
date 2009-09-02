@@ -6,9 +6,7 @@
 
 SUBSYSTEM!="block", GOTO="lvm_end"
 ACTION!="add|change", GOTO="lvm_end"
-KERNEL=="dm-[0-9]*", ACTION=="add", GOTO="lvm_end"
-
-KERNEL=="dm-[0-9]*", IMPORT{program}="vol_id --export $tempnode"
+KERNEL=="dm-[0-9]*", ACTION!="change", GOTO="lvm_end"
 
 ENV{ID_FS_TYPE}=="LVM2_member", \
     TEST!="/tmp/.lvm_scan-%k", \

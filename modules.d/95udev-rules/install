@@ -19,8 +19,12 @@ dracut_install cat uname
 
 if [ ! -x /lib/udev/vol_id ]; then
     dracut_install blkid
+    inst_rules "$moddir/59-persistent-storage.rules"
+else
+    inst_rules "$moddir/59-persistent-storage-volid.rules"
 fi
-
+inst_rules "$moddir/61-persistent-storage-volid.rules"
+    
 for i in \
 ata_id \
 cdrom_id \
