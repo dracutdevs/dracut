@@ -15,12 +15,14 @@ if $UDEV_QUEUE_EMPTY >/dev/null 2>&1; then
 		if [ "${s##$r}" != "$s" ]; then
 		    info "Activating $s"
 		    dmraid -ay $s 2>&1 | vinfo
+                    udevsettle
 		fi
 	    done
 	done
     else 
 	# scan and activate all DM RAIDS
 	dmraid -ay 2>&1 | vinfo
+        udevsettle
     fi
 fi
 

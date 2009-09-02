@@ -112,11 +112,7 @@ while :; do
     # check if root can be mounted
     [ -e /dev/root ] && break;
 
-    if [ $UDEVVERSION -ge 143 ]; then
-        udevadm settle --exit-if-exists=/initqueue/work --exit-if-exists=/dev/root 
-    else
-        udevadm settle --timeout=30
-    fi
+    udevsettle
 
     # bail out, if we have mounted the root filesystem
     [ -d "$NEWROOT/proc" ] && break;
@@ -217,14 +213,19 @@ for x in "$@"; do
     initargs="$initargs $x"
 done
 
-# Copy state
-mkdir /dev/.initramfs/
+# Prepare network opts for passing
+if [ -e /tmp/net.ifaces ]; then
+    mkdir /dev/.initramfs/
+    cp /tmp/net.* /dev/.initramfs/ >/dev/null 2>&1
+    mkdir -p /dev/.initramfs/state/etc/sysconfig/network-scripts/
+    cp /tmp/resolv.conf /dev/.initramfs/state/etc/ >/dev/null 2>&1
+    echo "files /etc/sysconfig/network-scripts" > /dev/.initramfs/rwtab
+    cp -a /tmp/ifcfg/* /dev/.initramfs/state/etc/sysconfig/network-scripts/ >/dev/null 2>&1
+fi
+
+# Debug: Copy state
 if getarg rdcopystate; then
     cp /tmp/* /dev/.initramfs/ >/dev/null 2>&1
-else
-    cp /tmp/net.* /dev/.initramfs/ >/dev/null 2>&1
-    cp /tmp/resolv.conf /dev/.initramfs/ >/dev/null 2>&1
-    cp -a /tmp/ifcfg/ /dev/.initramfs/ >/dev/null 2>&1
 fi
 
 exec switch_root "$NEWROOT" "$INIT" $initargs || {

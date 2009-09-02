@@ -23,7 +23,7 @@ if $UDEV_QUEUE_EMPTY >/dev/null 2>&1; then
 		printf '"a|^/dev/%s$|", ' $dev;
 	    done;
 	    echo '"r/.*/" ]';
-	    echo 'types = [ "blkext", 1024 ]'
+	    echo 'types = [ "blkext", 1024 , "cciss0", 1024 ]'
 	    echo '}';	  
         } > /etc/lvm/lvm.conf
 	lvmwritten=1
@@ -33,5 +33,6 @@ if $UDEV_QUEUE_EMPTY >/dev/null 2>&1; then
     lvm vgchange -ay $VGS 2>&1 | vinfo
     [ "$lvmwritten" ] && rm -f /etc/lvm/lvm.conf
     unset lvmwritten
+    udevsettle
 fi
 

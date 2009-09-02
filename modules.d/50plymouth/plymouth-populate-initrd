@@ -34,13 +34,13 @@ if [[ $hostonly ]]; then
 	inst ${LIBDIR}/plymouth/${PLYMOUTH_PLUGIN}.so
     fi
 else
-    for x in /usr/share/plymouth/themes/*/* ; do
+    for x in /usr/share/plymouth/themes/{text,details}/* ; do
         [[ -f "$x" ]] || continue
 	THEME_DIR=$(dirname "$x")
 	mkdir -p "${initdir}/$THEME_DIR"
         dracut_install "$x"
     done
-    for x in ${LIBDIR}/plymouth/*.so ; do
+    for x in ${LIBDIR}/plymouth/{text,details}.so ; do
         [[ -f "$x" ]] || continue
         [[ "$x" != "${x%%/label.so}" ]] && continue
         dracut_install "$x"

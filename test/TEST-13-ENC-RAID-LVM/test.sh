@@ -1,55 +1,22 @@
 #!/bin/bash
-TEST_DESCRIPTION="root filesystem on an encrypted LVM PV on a degraded RAID-5"
+TEST_DESCRIPTION="root filesystem on LVM on encrypted partitions of a RAID-5"
 
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
 #DEBUGFAIL="rdinitdebug rdnetdebug"
 
-client_run() {
-    echo "CLIENT TEST START: $@"
+test_run() {
     $testdir/run-qemu -hda root.ext2 -m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "$@ root=/dev/dracut/root rw quiet rdinfo console=ttyS0,115200n81 rdshell $DEBUGFAIL " \
+	-append "root=/dev/dracut/root rw quiet rdinfo console=ttyS0,115200n81 rdshell $DEBUGFAIL" \
 	-initrd initramfs.testing
-    if ! grep -m 1 -q dracut-root-block-success root.ext2; then
-	echo "CLIENT TEST END: $@ [FAIL]"
-	return 1;
-    fi
-
-    sed -i -e 's#dracut-root-block-success#dracut-root-block-xxxxxxx#' root.ext2
-    echo "CLIENT TEST END: $@ [OK]"
-    return 0
-}
-
-test_run() {
-    eval $(grep --binary-files=text -m 1 MD_UUID root.ext2)
-    echo "MD_UUID=$MD_UUID"
-
-    client_run || return 1
-
-    client_run rd_NO_LVM && return 1
-
-    client_run rd_LVM_VG=failme && return 1
-
-    client_run rd_LVM_VG=dracut || return 1
-
-    client_run rd_LVM_VG=dummy1 rd_LVM_VG=dracut rd_LVM_VG=dummy2 || return 1
-
-    client_run rd_MD_UUID=failme && return 1
-
-    client_run rd_NO_MD && return 1
-
-    client_run rd_MD_UUID=$MD_UUID || return 1
-
-    client_run rd_MD_UUID=dummy1 rd_MD_UUID=$MD_UUID rd_MD_UUID=dummy2 || return 1
-
-    return 0
+    grep -m 1 -q dracut-root-block-success root.ext2 || return 1
 }
 
 test_setup() {
     # Create the blank file to use as a root filesystem
-    dd if=/dev/zero of=root.ext2 bs=1M count=20
+    dd if=/dev/zero of=root.ext2 bs=1M count=40
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
@@ -70,7 +37,7 @@ test_setup() {
     (
 	initdir=overlay
 	. $basedir/dracut-functions
-	dracut_install sfdisk mke2fs poweroff cp umount dd
+	dracut_install sfdisk mke2fs poweroff cp umount 
 	inst_simple ./create-root.sh /initqueue/01create-root.sh
     )
  
