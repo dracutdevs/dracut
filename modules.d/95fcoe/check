@@ -4,8 +4,8 @@
 [ "$1" = "-d" ] && echo network
 
 # FIXME
-# If hostonly was requested, fail the check if we are not actually
-# booting from root.
-#[ "$1" = "-h" ] && ! egrep -q '/ /dev/nbd[0-9]*' /proc/mounts && exit 1
+# If hostonly was requested, fail the check until we have some way of
+# knowing we are booting from FCoE
+[ "$1" = "-h" ] && exit 1
 
 exit 0
