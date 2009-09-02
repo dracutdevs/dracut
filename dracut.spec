@@ -12,7 +12,7 @@
 %endif
 
 Name: dracut
-Version: 0.9
+Version: 001
 Release: 1%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
@@ -179,33 +179,36 @@ rm -rf $RPM_BUILD_ROOT
 %dir /var/lib/dracut/overlay
 
 %changelog
+* Wed Sep 02 2009 Harald Hoyer <harald@redhat.com> 001-1
+- version 001
+- see http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut/dracut;a=blob_plain;f=NEWS
+
 * Fri Aug 14 2009 Harald Hoyer <harald@redhat.com> 0.9-1
 - version 0.9
-- see http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut;a=blob_plain;f=NEWS
 
 * Thu Aug 06 2009 Harald Hoyer <harald@redhat.com> 0.8-1
 - version 0.8 
-- see http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut;a=blob_plain;f=NEWS
+- see http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut/dracut;a=blob_plain;f=NEWS
 
 * Fri Jul 24 2009 Harald Hoyer <harald@redhat.com> 0.7-1
 - version 0.7
-- see http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut;a=blob_plain;f=NEWS
+- see http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut/dracut;a=blob_plain;f=NEWS
 
 * Wed Jul 22 2009 Harald Hoyer <harald@redhat.com> 0.6-1
 - version 0.6
-- see http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut;a=blob_plain;f=NEWS
+- see http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut/dracut;a=blob_plain;f=NEWS
 
 * Fri Jul 17 2009 Harald Hoyer <harald@redhat.com> 0.5-1
 - version 0.5
-- see http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut;a=blob_plain;f=NEWS
+- see http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut/dracut;a=blob_plain;f=NEWS
 
 * Sat Jul 04 2009 Harald Hoyer <harald@redhat.com> 0.4-1
 - version 0.4
-- see http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut;a=blob_plain;f=NEWS
+- see http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut/dracut;a=blob_plain;f=NEWS
 
 * Thu Jul 02 2009 Harald Hoyer <harald@redhat.com> 0.3-1
 - version 0.3
-- see http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut;a=blob_plain;f=NEWS
+- see http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut/dracut;a=blob_plain;f=NEWS
 
 * Wed Jul 01 2009 Harald Hoyer <harald@redhat.com> 0.2-1
 - version 0.2

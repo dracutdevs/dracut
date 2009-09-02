@@ -1,3 +1,27 @@
+dracut-001
+==========
+- better --hostonly checks
+- better lvm/mdraid/dmraid handling
+- fcoe booting support
+    Supported cmdline formats:
+    fcoe=<networkdevice>:<dcb|nodcb>
+    fcoe=<macaddress>:<dcb|nodcb>
+    
+    Note currently only nodcb is supported, the dcb option is reserved for
+    future use.
+    
+    Note letters in the macaddress must be lowercase!
+    
+    Examples:
+    fcoe=eth0:nodcb
+    fcoe=4A:3F:4C:04:F8:D7:nodcb
+
+- Syslog support for dracut   
+    This module provides syslog functionality in the initrd.
+    This is especially interesting when complex configuration being
+    used to provide access to the device the rootfs resides on.
+
+
 dracut-0.9
 ==========
 - let plymouth attach to the terminal (nice text output now)
