@@ -11,9 +11,7 @@ dracut_install mdadm partx
 # inst /etc/passwd
 # inst /etc/group
 
-if [ -x /lib/udev/vol_id ]; then
-    inst_rules "$moddir/61-mdadm.rules"
-else
+if [ ! -x /lib/udev/vol_id ]; then
     inst_rules 64-md-raid.rules
 fi
 

@@ -1,1 +1,0 @@
-SUBSYSTEM=="block", ACTION=="add|change", KERNEL=="md[0-9]*|md_d[0-9]*|md/*", IMPORT{program}="vol_id --export $tempnode"
