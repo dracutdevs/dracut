@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dracut_install mdadm partx
+dracut_install mdadm partx grep
 
 
 # XXX: mdmon really needs to run as non-root?
