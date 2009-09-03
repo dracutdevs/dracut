@@ -34,4 +34,4 @@ fi
 inst "$moddir/mdraid_start.sh" /sbin/mdraid_start
 inst_hook pre-trigger 30 "$moddir/parse-md.sh"
 inst_hook pre-pivot 30 "$moddir/mdraid-cleanup.sh"
-inst_hook pre-pivot 60 "$moddir/mdraid-cleanup.sh"
+inst_hook pre-pivot 31 "$moddir/mdraid-cleanup.sh"

@@ -4,4 +4,4 @@ inst_rules "$moddir/70-luks.rules"
 inst "$moddir"/cryptroot-ask.sh /sbin/cryptroot-ask
 inst_hook cmdline 30 "$moddir/parse-crypt.sh"
 inst_hook pre-pivot 30 "$moddir/crypt-cleanup.sh"
-inst_hook pre-pivot 60 "$moddir/crypt-cleanup.sh"
+inst_hook pre-pivot 31 "$moddir/crypt-cleanup.sh"

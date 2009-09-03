@@ -4,4 +4,4 @@ inst "$moddir/dmraid.sh" /sbin/dmraid_scan
 inst_rules 64-md-raid.rules
 inst_rules "$moddir/61-dmraid-imsm.rules"
 inst_hook pre-pivot 30 "$moddir/dmraid-cleanup.sh"
-inst_hook pre-pivot 60 "$moddir/dmraid-cleanup.sh"
+inst_hook pre-pivot 31 "$moddir/dmraid-cleanup.sh"
