@@ -23,7 +23,7 @@ lvm pvcreate -ff  -y /dev/mapper/dracut_crypt_test && \
 lvm vgcreate dracut /dev/mapper/dracut_crypt_test && \
 lvm lvcreate -l 100%FREE -n root dracut && \
 lvm vgchange -ay && \
-mke2fs /dev/dracut/root && \
+mke2fs -L root /dev/dracut/root && \
 mkdir -p /sysroot && \
 mount /dev/dracut/root /sysroot && \
 cp -a -t /sysroot /source/* && \
