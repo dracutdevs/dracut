@@ -35,6 +35,4 @@ fi
 # mark device as asked
 >> /tmp/cryptroot-asked-$2
 
-udevsettle
-
 exit 0

@@ -117,3 +117,10 @@ udevsettle() {
         udevadm settle --timeout=30
     fi
 }
+
+if [ -e /proc/cmdline ]; then
+	if getarg rdinitdebug; then
+	    set -x
+	fi
+fi
+

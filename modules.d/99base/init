@@ -138,7 +138,22 @@ while :; do
     [ -n "$queuetriggered" ] && continue
 
     if $UDEV_QUEUE_EMPTY >/dev/null 2>&1; then
-        # no more udev jobs
+        unset queuetriggered
+	for job in /initqueue-settled/*.sh; do
+	    [ -e "$job" ] || break
+
+	    queuetriggered="1"
+
+            job=$job . $job
+	    
+            # bail out, if we have mounted the root filesystem
+            [ -d "$NEWROOT/proc" ] && break 2;
+
+            # check if root can be mounted
+            [ -e /dev/root ] && break 2;
+	done
+
+        # no more udev jobs and queues empty.
         sleep 0.5
         i=$(($i+1))
         [ $i -gt 20 ] \

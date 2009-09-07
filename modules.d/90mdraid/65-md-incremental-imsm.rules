@@ -20,12 +20,46 @@ ENV{DEVTYPE}!="partition", \
 
 RUN+="/sbin/mdadm -I --no-degraded $env{DEVNAME}"
 
-RUN+="/bin/sh -c '>/tmp/.mdraid_start-%k; /bin/ln -s /sbin/mdraid_start /initqueue/mdraid_start.sh'"
-
 LABEL="md_inc_end"
 
+#
+# Handle non-container raid arrays
+#
 ACTION=="add|change", \
+	KERNEL=="md[0-9]*|md/*", \
+	ENV{DEVTYPE}!="partition", \
+	ENV{MD_LEVEL}!="container", \
+	GOTO="do_raidstart"
+
+GOTO="end_raidstart"
+
+LABEL="do_raidstart"
+
+TEST!="/tmp/.mdraid_start-%k", \
+	RUN+="/sbin/initqueue --settled --onetime --unique /sbin/mdraid_start"
+
+ACTION=="change", \
+	RUN+="/bin/sh -c '>/tmp/.mdraid_start-%k'"
+
+LABEL="end_raidstart"
+
+#
+# Handle container raid arrays
+#
+ACTION=="add|change", \
+	KERNEL=="md[0-9]*|md/*", \
 	ENV{DEVTYPE}!="partition", \
 	ENV{MD_LEVEL}=="container", \
-	TEST!="/tmp/.mdcontainer_start-%k", \
-	RUN+="/bin/sh -c '>/tmp/.mdcontainer_start-%k; initqueue /sbin/mdcontainer_start $env{DEVNAME}'"
+	GOTO="do_container"
+
+GOTO="end_container"
+
+LABEL="do_container"
+
+TEST!="/tmp/.mdcontainer_start-%k", \
+	RUN+="/sbin/initqueue --settled --onetime /sbin/mdcontainer_start $env{DEVNAME}"
+
+ACTION=="change", \
+	RUN+="/bin/sh -c '>/tmp/.mdcontainer_start-%k'"
+
+LABEL="end_container"

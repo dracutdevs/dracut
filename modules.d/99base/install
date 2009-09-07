@@ -9,6 +9,7 @@ fi
 inst "$moddir/init" "/init"
 inst "$moddir/initqueue" "/sbin/initqueue"
 mkdir -p ${initdir}/initqueue
+mkdir -p ${initdir}/initqueue-settled
 mkdir -p ${initdir}/tmp
 # Bail out if switch_root does not exist
 if which switch_root >/dev/null 2>&1; then

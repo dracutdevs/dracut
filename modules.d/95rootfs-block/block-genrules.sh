@@ -8,5 +8,5 @@ if [ "${root%%:*}" = "block" ]; then
     (
     printf '[ -e "%s" ] && { ln -s "%s" /dev/root; rm "$job"; }\n' \
 	"${root#block:}" "${root#block:}"
-    ) >> /initqueue/blocksymlink.sh
+    ) >> /initqueue-settled/blocksymlink.sh
 fi

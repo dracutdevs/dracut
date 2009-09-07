@@ -1,9 +1,6 @@
 #!/bin/sh
 
-if $UDEV_QUEUE_EMPTY >/dev/null 2>&1; then
-    [ -h "$job" ] && rm -f "$job"
-    # run mdadm if udev has settled
-    info "Assembling MD RAID arrays"
-    mdadm -IRs 2>&1 | vinfo
-    udevsettle 
-fi
+. /lib/dracut-lib.sh
+# run mdadm if udev has settled
+info "Assembling MD RAID arrays"
+mdadm -IRs 2>&1 | vinfo
