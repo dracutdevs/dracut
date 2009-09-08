@@ -8,8 +8,9 @@ ENV{ID_FS_TYPE}!="linux_raid_member|isw_raid_member", GOTO="md_inc_end"
 ENV{ID_FS_TYPE}=="isw_raid_member", ENV{rd_NO_MDIMSM}=="?*", GOTO="md_inc_end"
 
 TEST=="/tmp/.mdraid_start-%k", GOTO="md_inc_end"
+TEST=="/tmp/.mdraid_container-%k", GOTO="md_inc_end"
 
-IMPORT{program}="/sbin/mdadm --examine --export $tempnode"
+KERNEL!="md*", IMPORT{program}="/sbin/mdadm --examine --export $tempnode"
 
 # UUID CHECK
 
@@ -20,6 +21,9 @@ ENV{DEVTYPE}!="partition", \
 
 RUN+="/sbin/mdadm -I --no-degraded $env{DEVNAME}"
 
+ACTION=="change", \
+	RUN+="/bin/sh -c '>/tmp/.mdraid_start-%k'"
+
 LABEL="md_inc_end"
 
 #
@@ -27,7 +31,6 @@ LABEL="md_inc_end"
 #
 ACTION=="add|change", \
 	KERNEL=="md[0-9]*|md/*", \
-	ENV{DEVTYPE}!="partition", \
 	ENV{MD_LEVEL}!="container", \
 	ENV{MD_CONTAINER}!="?*", \
 	GOTO="do_raidstart"
@@ -58,7 +61,7 @@ GOTO="end_container"
 LABEL="do_container"
 
 TEST!="/tmp/.mdcontainer_start-%k", \
-	RUN+="/sbin/initqueue --settled --onetime /sbin/mdcontainer_start $env{DEVNAME}"
+	RUN+="/sbin/initqueue --settled --onetime --unique --name mdcontainer_start-%k /sbin/mdcontainer_start $env{DEVNAME}"
 
 ACTION=="change", \
 	RUN+="/bin/sh -c '>/tmp/.mdcontainer_start-%k'"
