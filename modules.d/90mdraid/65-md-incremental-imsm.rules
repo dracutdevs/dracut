@@ -29,6 +29,7 @@ ACTION=="add|change", \
 	KERNEL=="md[0-9]*|md/*", \
 	ENV{DEVTYPE}!="partition", \
 	ENV{MD_LEVEL}!="container", \
+	ENV{MD_CONTAINER}!="?*", \
 	GOTO="do_raidstart"
 
 GOTO="end_raidstart"
