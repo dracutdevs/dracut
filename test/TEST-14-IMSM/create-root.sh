@@ -20,10 +20,13 @@ udevadm settle
 dmraid -a y
 udevadm settle
 sfdisk -l /dev/mapper/isw*Test0
-for i in /dev/mapper/isw*p[123]; do
-lvm pvcreate -ff  -y $i ;
-done && \
-lvm vgcreate dracut /dev/mapper/isw*p[123] && \
+
+mdadm --create /dev/md0 --run --auto=yes --level=5 --raid-devices=3 /dev/mapper/isw*p[123]
+# wait for the array to finish initailizing, otherwise this sometimes fails
+# randomly.
+mdadm -W /dev/md0
+lvm pvcreate -ff  -y /dev/md0
+lvm vgcreate dracut /dev/md0 && \
 lvm lvcreate -l 100%FREE -n root dracut && \
 lvm vgchange -ay && \
 mke2fs -L root /dev/dracut/root && \
