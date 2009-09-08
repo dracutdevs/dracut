@@ -6,7 +6,6 @@ KVERSION=${KVERSION-$(uname -r)}
 # Uncomment this to debug failures
 #DEBUGFAIL="rdinitdebug rdnetdebug"
 
-
 client_run() {
     echo "CLIENT TEST START: $@"
     $testdir/run-qemu -hda root.ext2 -hdb disk1 -hdc disk2 -m 256M -nographic \
@@ -26,11 +25,12 @@ client_run() {
 test_run() {
     client_run || return 1
     client_run rd_NO_MDIMSM || return 1
-    client_run rd_NO_MD rd_NO_MDIMSM || return 1
     client_run rd_NO_DM || return 1
+    client_run rd_NO_MD rd_NO_MDIMSM && return 1
 # FIXME:
 #    client_run rd_NO_DM rd_NO_MDIMSM && return 1
 #    client_run rd_NO_MD && return 1
+    return 0
 }
 
 test_setup() {
@@ -58,7 +58,7 @@ test_setup() {
     (
 	initdir=overlay
 	. $basedir/dracut-functions
-	dracut_install sfdisk mke2fs poweroff cp umount strace fdisk
+	dracut_install sfdisk mke2fs poweroff cp umount 
 	inst_simple ./create-root.sh /initqueue/01create-root.sh
     )
  
