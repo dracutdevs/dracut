@@ -44,6 +44,7 @@ Requires: file
 Requires: bzip2
 Requires: dmraid
 Requires: kbd
+Requires: plymouth-scripts
 
 %if ! 0%{?with_switch_root}
 Requires: util-linux-ng >= 2.16
