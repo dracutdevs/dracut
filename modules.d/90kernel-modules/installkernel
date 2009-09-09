@@ -18,4 +18,4 @@ else
   instmods $drivers
 fi
 
-
+instmods scsi_wait_scan

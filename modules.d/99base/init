@@ -138,6 +138,11 @@ while :; do
     [ -n "$queuetriggered" ] && continue
 
     if $UDEV_QUEUE_EMPTY >/dev/null 2>&1; then
+
+        modprobe scsi_wait_scan && rmmod scsi_wait_scan
+
+        $UDEV_QUEUE_EMPTY >/dev/null 2>&1 || continue
+
         unset queuetriggered
 	for job in /initqueue-settled/*.sh; do
 	    [ -e "$job" ] || break
