@@ -4,8 +4,7 @@
 if [ -x "$NEWROOT/usr/sbin/load_policy" -o -x "$NEWROOT/sbin/load_policy" ] && [ -e "$NEWROOT/etc/sysconfig/selinux" ]; then
     info "Loading SELinux policy"
     {
-    chroot "$NEWROOT" /bin/mount -t selinuxfs selinuxfs /selinux
-    chroot "$NEWROOT" /bin/mount -t proc proc  /proc
+    # load_policy does mount /proc and /selinux in libselinux,selinux_init_load_policy()
 
     if [ -x "$NEWROOT/sbin/load_policy" ]; then
         chroot "$NEWROOT" /sbin/load_policy -i 2>&1
@@ -19,6 +18,5 @@ if [ -x "$NEWROOT/usr/sbin/load_policy" -o -x "$NEWROOT/sbin/load_policy" ] && [
 	sleep 100d
 	exit 1
     fi
-    chroot "$NEWROOT" /bin/umount /proc
     } | vinfo
 fi
