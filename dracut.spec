@@ -42,7 +42,6 @@ Requires: mdadm, elfutils-libelf, plymouth >= 0.7.0
 Requires: cryptsetup-luks
 Requires: file
 Requires: bzip2
-Requires: policycoreutils
 Requires: dmraid
 Requires: kbd
 
