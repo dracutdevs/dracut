@@ -18,4 +18,6 @@ else
   instmods $drivers
 fi
 
+[[ $add_drivers ]] && instmods $add_drivers
+
 instmods scsi_wait_scan
