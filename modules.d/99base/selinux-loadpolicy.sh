@@ -2,6 +2,7 @@
 # FIXME: load selinux policy.  this should really be done after we switchroot 
 
 if [ -x "$NEWROOT/usr/sbin/load_policy" -o -x "$NEWROOT/sbin/load_policy" ] && [ -e "$NEWROOT/etc/sysconfig/selinux" ]; then
+    ret=0
     info "Loading SELinux policy"
     {
         # load_policy does mount /proc and /selinux in libselinux,selinux_init_load_policy()
