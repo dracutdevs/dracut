@@ -190,6 +190,11 @@ while :; do
         && { flock -s 9 ; emergency_shell "Can't mount root filesystem"; } 9>/.console_lock
 done
 
+{
+    echo -n "Mounted root filesystem "
+    while read dev mp rest; do [ "$mp" = "$NEWROOT" ] && echo $dev; done < /proc/mounts 
+} | vinfo
+
 # pre pivot scripts are sourced just before we switch over to the new root.
 getarg 'rdbreak=pre-pivot' && emergency_shell "Break pre-pivot"
 source_all pre-pivot
@@ -199,6 +204,7 @@ source_all pre-pivot
 for i in "$(getarg init=)" /sbin/init /etc/init /init /bin/sh; do
     [ -f "$NEWROOT$i" -a -x "$NEWROOT$i" ] && { INIT="$i"; break; }
 done
+
 [ "$INIT" ] || {
     echo "Cannot find init!"
     echo "Please check to make sure you passed a valid root filesystem!"
@@ -247,6 +253,8 @@ fi
 if getarg rdcopystate; then
     cp /tmp/* /dev/.initramfs/ >/dev/null 2>&1
 fi
+
+info "Switching root"
 
 exec switch_root "$NEWROOT" "$INIT" $initargs || {
     # davej doesn't like initrd bugs
