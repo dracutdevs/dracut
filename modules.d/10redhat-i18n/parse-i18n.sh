@@ -3,7 +3,6 @@ inst_key_val()
     local value
     value=$(getarg $1)
     [ -n "$value" ] && printf '%s="%s"\n' $1 $value >> $2
-    initrdargs="$initrdargs $1" 
 }
 
 mkdir -p /etc/sysconfig

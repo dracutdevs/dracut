@@ -1,5 +1,3 @@
-initrdargs="$initrdargs dasd" 
-
 [ -d /etc/modprobe.d ] || mkdir /etc/modprobe.d
 
 dasd_arg=$(getarg dasd=)

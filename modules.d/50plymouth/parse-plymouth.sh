@@ -1,5 +1,3 @@
-initrdargs="$initrdargs rd_plytheme" 
-
 PLYMOUTH_THEMEDIR=/usr/share/plymouth/themes
 PLYMOUTH_THEME=$(getarg rd_plytheme=)
 if [ -n "$PLYMOUTH_THEME" ]; then

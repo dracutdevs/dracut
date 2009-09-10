@@ -1,5 +1,3 @@
-initrdargs="$initrdargs rd_MD_UUID rd_NO_MD rd_NO_MDIMSM" 
-
 if getarg rd_NO_MD; then
     info "rd_NO_MD: removing MD RAID activation"
     rm /etc/udev/rules.d/65-md-incremental*.rules
