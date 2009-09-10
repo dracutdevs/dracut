@@ -1,7 +1,8 @@
 #!/bin/sh
 # FIXME: load selinux policy.  this should really be done after we switchroot 
 
-if [ -x "$NEWROOT/usr/sbin/load_policy" -o -x "$NEWROOT/sbin/load_policy" ] && [ -e "$NEWROOT/etc/sysconfig/selinux" ]; then
+if [ -x "$NEWROOT/usr/sbin/load_policy" -o -x "$NEWROOT/sbin/load_policy" ] \
+   && [ -e "$NEWROOT/etc/sysconfig/selinux" -o -e "$NEWROOT/etc/selinux/config" ]; then
     ret=0
     info "Loading SELinux policy"
     {
