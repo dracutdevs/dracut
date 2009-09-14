@@ -232,7 +232,8 @@ will read the iscsi parameter from the BIOS firmware
 .TP
 .B netroot=fcoe:<interface|MAC>:<dcb|nodcb>
 Try to connect to a FCoE SAN through the NIC specified by <interface> or <MAC>,
-for the second argument, currently only nodcb is supported.
+for the second argument, currently only nodcb is supported. Note letters in
+the MAC-address must be lowercase!
 
 .SH NBD
 .TP
@@ -265,6 +266,7 @@ do not start plymouth. This will not work with encrypted partitions.
 .TP
 .B ifname=<interface>:<MAC>
 Assign network device name <interface> (ie eth0) to the NIC with MAC <MAC>.
+Note letters in the MAC-address must be lowercase!
 Note that if you use this option you \fBmust\fR specify an ifname= argument
 for all interfaces used in ip= or fcoe= arguments
 
