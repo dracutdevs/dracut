@@ -9,6 +9,6 @@
     if [ -n "$fcoe_mac" ] ; then
 	printf 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="%s", RUN+="/sbin/fcoe-up $env{INTERFACE} %s"\n' "$fcoe_mac" "$fcoe_dcb"
     else
-	printf 'ACTION=="add", SUBSYSTEM=="net", KERNEL=="%s", RUN+="/sbin/fcoe-up $env{INTERFACE} %s"\n' "$fcoe_interface" "$fcoe_dcb"
+	printf 'ACTION=="add", SUBSYSTEM=="net", NAME=="%s", RUN+="/sbin/fcoe-up $env{INTERFACE} %s"\n' "$fcoe_interface" "$fcoe_dcb"
     fi
 } > /etc/udev/rules.d/60-fcoe.rules

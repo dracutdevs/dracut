@@ -256,6 +256,12 @@ explicit network configuration
 .B rd_NO_PLYMOUTH
 do not start plymouth. This will not work with encrypted partitions.
 
+.TP
+.B ifname=<interface>:<MAC>
+Assign network device name <interface> (ie eth0) to the NIC with MAC <MAC>.
+Note that if you use this option you \fBmust\fR specify an ifname= argument
+for all interfaces used in ip= or fcoe= arguments
+
 .SH Misc
 .TP
 .B rdblacklist=<drivername>

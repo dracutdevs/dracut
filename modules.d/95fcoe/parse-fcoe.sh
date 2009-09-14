@@ -11,7 +11,7 @@
 #
 # Examples:
 # fcoe=eth0:nodcb
-# fcoe=4A:3F:4C:04:F8:D7:nodcb
+# fcoe=4a:3f:4c:04:f8:d7:nodcb
 
 [ -z "$fcoe" ] && fcoe=$(getarg fcoe=)
 

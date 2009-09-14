@@ -29,7 +29,7 @@ fix_bootif() {
     # If we have to handle multiple interfaces, handle only them.
     elif [ -n "$IFACES" ] ; then
 	for iface in $IFACES ; do
-	    printf 'ACTION=="add", SUBSYSTEM=="net", KERNEL=="%s", RUN+="/sbin/ifup $env{INTERFACE}"\n' "$iface"
+	    printf 'ACTION=="add", SUBSYSTEM=="net", NAME=="%s", RUN+="/sbin/ifup $env{INTERFACE}"\n' "$iface"
 	done
 
     # Default: We don't know the interface to use, handle all
