@@ -228,6 +228,12 @@ e.g.
 .B root=??? iscsi_firmware
 will read the iscsi parameter from the BIOS firmware
 
+.SH FCoE
+.TP
+.B netroot=fcoe:<interface|MAC>:<dcb|nodcb>
+Try to connect to a FCoE SAN through the NIC specified by <interface> or <MAC>,
+for the second argument, currently only nodcb is supported.
+
 .SH NBD
 .TP
 .B root=nbd:<server>:<port>[:<fstype>][:<mountopts>]
