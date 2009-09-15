@@ -1,3 +1,5 @@
 # switch any mdmon instances to newroot
-[ -f /etc/mdadm.conf ] && /sbin/mdmon /proc/mdstat $NEWROOT
+if  pidof mdmon >/dev/null 2>&1; then
+    /sbin/mdmon /proc/mdstat $NEWROOT
+fi
 
