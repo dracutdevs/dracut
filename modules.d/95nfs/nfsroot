@@ -155,3 +155,10 @@ else
     mount -t nfs -o$options${options:+,}nolock $server:$path $NEWROOT \
 	&& { [ -e /dev/root ] || >/dev/root ; }
 fi
+
+# inject new exit_if_exists
+echo 'settle_exit_if_exists="--exit-if-exists=/dev/root"; rm "$job"' > /initqueue/nfs.sh
+# force udevsettle to break
+> /initqueue/work
+
+
