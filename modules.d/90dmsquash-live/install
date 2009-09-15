@@ -1,4 +1,5 @@
 #!/bin/bash
+dracut_install umount
 inst dmsetup
 inst blkid
 inst dd
