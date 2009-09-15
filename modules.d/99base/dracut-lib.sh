@@ -36,6 +36,12 @@ source_all() {
     for f in "/$1"/*.sh; do [ -f "$f" ] && . "$f"; done
 }
 
+check_finished() {
+    local f
+    for f in /initqueue-finished/*.sh; do [ -f "$f" ] && { ( . "$f" ) || return 1; } ; done
+    return 0
+}
+
 source_conf() {
     local f
     [ "$1" ] && [  -d "/$1" ] || return
@@ -109,10 +115,12 @@ incol2() {
 }
 
 udevsettle() {
+    local exit_if_exists;
+
     [ -z "$UDEVVERSION" ] && UDEVVERSION=$(udevadm --version)
 
     if [ $UDEVVERSION -ge 143 ]; then
-        udevadm settle --exit-if-exists=/initqueue/work --exit-if-exists=/dev/root 
+        udevadm settle --exit-if-exists=/initqueue/work $settle_exit_if_exists
     else
         udevadm settle --timeout=30
     fi

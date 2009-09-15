@@ -106,64 +106,42 @@ getarg 'rdbreak=initqueue' && emergency_shell "Break before initqueue"
 
 i=0
 while :; do
-    # bail out, if we have mounted the root filesystem
-    [ -d "$NEWROOT/proc" ] && break;
 
-    # check if root can be mounted
-    [ -e /dev/root ] && break;
-
+    check_finished && break
+ 
     udevsettle
 
-    # bail out, if we have mounted the root filesystem
-    [ -d "$NEWROOT/proc" ] && break;
-    # check if root can be mounted
-    [ -e /dev/root ] && break;
- 
-    unset queuetriggered
+    check_finished && break
+
     if [ -f /initqueue/work ]; then
         rm /initqueue/work
-	queuetriggered="1"
     fi
     	
     for job in /initqueue/*.sh; do
 	[ -e "$job" ] || break
         job=$job . $job
-
-        # bail out, if we have mounted the root filesystem
-        [ -d "$NEWROOT/proc" ] && break;
-        # check if root can be mounted
-        [ -e /dev/root ] && break;
+        check_finished && break 2
     done
 
-    [ -n "$queuetriggered" ] && continue
+    $UDEV_QUEUE_EMPTY >/dev/null 2>&1 || continue
 
-    if $UDEV_QUEUE_EMPTY >/dev/null 2>&1; then
+    modprobe scsi_wait_scan && rmmod scsi_wait_scan
 
-        modprobe scsi_wait_scan && rmmod scsi_wait_scan
+    $UDEV_QUEUE_EMPTY >/dev/null 2>&1 || continue
 
-        $UDEV_QUEUE_EMPTY >/dev/null 2>&1 || continue
+    for job in /initqueue-settled/*.sh; do
+        [ -e "$job" ] || break
+        job=$job . $job
+        check_finished && break 2
+    done
 
-        unset queuetriggered
-	for job in /initqueue-settled/*.sh; do
-	    [ -e "$job" ] || break
+    $UDEV_QUEUE_EMPTY >/dev/null 2>&1 || continue
 
-	    queuetriggered="1"
-
-            job=$job . $job
-	    
-            # bail out, if we have mounted the root filesystem
-            [ -d "$NEWROOT/proc" ] && break 2;
-
-            # check if root can be mounted
-            [ -e /dev/root ] && break 2;
-	done
-
-        # no more udev jobs and queues empty.
-        sleep 0.5
-        i=$(($i+1))
-        [ $i -gt 20 ] \
-            && { flock -s 9 ; emergency_shell "No root device found"; } 9>/.console_lock
-    fi
+    # no more udev jobs and queues empty.
+    sleep 0.5
+    i=$(($i+1))
+    [ $i -gt 20 ] \
+        && { flock -s 9 ; emergency_shell "No root device found"; } 9>/.console_lock
 done
 unset job
 unset queuetriggered
