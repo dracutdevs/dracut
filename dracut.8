@@ -251,6 +251,11 @@ get ip from dhcp server on a specific interface
 .B ip=<client-IP-number>:[<server-id>]:<gateway-IP-number>:<netmask>:<client-hostname>:<interface>:{none|off}
 explicit network configuration
 
+.SH Plymouth Boot Splash
+.TP
+.B rd_NO_PLYMOUTH
+do not start plymouth. This will not work with encrypted partitions.
+
 .SH Misc
 .TP
 .B rdblacklist=<drivername>
