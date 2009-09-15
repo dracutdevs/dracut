@@ -17,4 +17,5 @@ if [ "$root" = "dhcp" ] || [ "$netroot" = "dhcp" ] ; then
 
     # Shut up init error check
     [ -z "$root" ] && root="dhcp"
+    echo '[ -d $NEWROOT/proc -o -e /dev/root ]' > /initqueue-finished/dhcp.sh
 fi

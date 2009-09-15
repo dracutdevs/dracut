@@ -132,3 +132,5 @@ rootok=1
 # Shut up init error check or make sure that block parser wont get 
 # confused by having /dev/nfs[4]
 root="$fstype"
+
+echo '[ -e $NEWROOT/proc ]' > /initqueue-finished/nfsroot.sh
