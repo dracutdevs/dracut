@@ -1,7 +1,7 @@
 getarg() {
     local o line
     if [ -z "$CMDLINE" ]; then
-	[ -f /etc/cmdline ] && read CMDLINE_ETC </etc/cmdline;
+	[ -e /etc/cmdline ] && read CMDLINE_ETC </etc/cmdline;
 	read CMDLINE </proc/cmdline;
 	CMDLINE="$CMDLINE $CMDLINE_ETC"
     fi
@@ -15,7 +15,7 @@ getarg() {
 getargs() {
     local o line found
     if [ -z "$CMDLINE" ]; then
-	[ -f /etc/cmdline ] && read CMDLINE_ETC </etc/cmdline;
+	[ -e /etc/cmdline ] && read CMDLINE_ETC </etc/cmdline;
 	read CMDLINE </proc/cmdline;
 	CMDLINE="$CMDLINE $CMDLINE_ETC"
     fi
@@ -33,19 +33,19 @@ getargs() {
 source_all() {
     local f
     [ "$1" ] && [  -d "/$1" ] || return
-    for f in "/$1"/*.sh; do [ -f "$f" ] && . "$f"; done
+    for f in "/$1"/*.sh; do [ -e "$f" ] && . "$f"; done
 }
 
 check_finished() {
     local f
-    for f in /initqueue-finished/*.sh; do { [ -f "$f" ] && ( . "$f" ) ; } || return 1 ; done
+    for f in /initqueue-finished/*.sh; do { [ -e "$f" ] && ( . "$f" ) ; } || return 1 ; done
     return 0
 }
 
 source_conf() {
     local f
     [ "$1" ] && [  -d "/$1" ] || return
-    for f in "/$1"/*.conf; do [ -f "$f" ] && . "$f"; done
+    for f in "/$1"/*.conf; do [ -e "$f" ] && . "$f"; done
 }
 
 die() {
