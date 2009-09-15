@@ -1,6 +1,6 @@
 if getarg rd_NO_MD; then
     info "rd_NO_MD: removing MD RAID activation"
-    rm /etc/udev/rules.d/65-md-incremental*.rules
+    udevadm control --property=rd_NO_MD=1
 else
     MD_UUID=$(getargs rd_MD_UUID=)
 
@@ -22,6 +22,12 @@ else
 	    rm ${f}.bak 
 	done
     fi
+fi
+
+
+if [ -e /etc/mdadm.conf ] && ! getarg rd_NO_MDADMCONF; then
+    udevadm control --property=rd_MDADMCONF=1
+    rm -f /pre-pivot/*mdraid-cleanup.sh
 fi
 
 if getarg rd_NO_MDIMSM; then

@@ -45,6 +45,8 @@ Creates initial ramdisk images for preloading modules
   --no-kernel           Do not install kernel drivers and firmware files
   --strip               Strip binaries in the initramfs (default)
   --nostrip             Do not strip binaries in the initramfs
+  --mdadmconf           Include local /etc/mdadm.conf
+  --nomdadmconf         Do not include local /etc/mdadm.conf
   -h, --help            This message
   --debug               Output debug information of the build process
   -v, --verbose         Verbose output during the build process
@@ -78,6 +80,8 @@ while (($# > 0)); do
 	--no-kernel) kernel_only="no"; no_kernel="yes";;
 	--strip) do_strip_l="yes";;
 	--nostrip) do_strip_l="no";;
+        --mdadmconf) mdadmconf_l="yes";;
+        --nomdadmconf) mdadmconf_l="no";;
 	-h|--help) usage; exit 1 ;;
 	--debug) debug="yes";;
 	-v|--verbose) beverbose="yes";;
@@ -115,6 +119,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH
 [[ $fw_dir_l ]] && fw_dir=$fw_dir_l
 [[ $do_strip_l ]] && do_strip=$do_strip_l
 [[ $hostonly_l ]] && hostonly=$hostonly_l
+[[ $mdadmconf_l ]] && mdadmconf=$mdadmconf_l
 [[ $dracutbasedir ]] || dracutbasedir=/usr/share/dracut
 [[ $fw_dir ]] || fw_dir=/lib/firmware
 [[ $do_strip ]] || do_strip=yes
@@ -163,7 +168,7 @@ chmod 755 "$initdir"
 
 export initdir hookdirs dsrc dracutmodules drivers \
     fw_dir drivers_dir debug beverbose no_kernel kernel_only \
-    add_drivers
+    add_drivers mdadmconf
 
 if [[ $kernel_only != yes ]]; then
     # Create some directory structure first

@@ -30,7 +30,9 @@ cp -a -t /sysroot /source/* && \
 umount /sysroot && \
 lvm lvchange -a n /dev/dracut/root && \
 cryptsetup luksClose /dev/mapper/dracut_crypt_test && \
+{ mdadm -W /dev/md0 || : ;} && \
 mdadm /dev/md0 --fail /dev/sda2 --remove /dev/sda2 && \
+{ mdadm -W /dev/md0 || : ;} && \
 {
 /sbin/mdadm --detail --export /dev/md0 > /tmp/mduuid ;
 . /tmp/mduuid;

@@ -47,6 +47,7 @@ test_setup() {
     $basedir/dracut -l -i overlay / \
 	-m "dash crypt lvm mdraid udev-rules base rootfs-block kernel-modules" \
 	-d "ata_piix ext2 sd_mod" \
+        --nomdadmconf \
 	-f initramfs.makeroot $KVERSION || return 1
     rm -rf overlay
     # Invoke KVM and/or QEMU to actually create the target filesystem.

@@ -44,6 +44,12 @@ only install kernel drivers and firmware files
 .BR \-\-no-kernel
 do not install kernel drivers and firmware files
 .TP
+.BR \-\-mdadmconf
+include local /etc/mdadm.conf
+.TP
+.BR \-\-nomdadmconf
+do not include local /etc/mdadm.conf
+.TP
 .BR \-\-strip
 strip binaries in the initramfs (default)
 .TP
@@ -145,6 +151,9 @@ disable MD RAID detection
 .TP
 .B rd_NO_MDIMSM
 no MD RAID for imsm/isw raids, use dmraid instead
+.TP
+.B rd_NO_MDADMCONF
+ignore mdadm.conf included in initramfs
 .TP
 .B rd_MD_UUID=<md uuid>
 only activate the raid sets with the given UUID

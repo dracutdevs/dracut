@@ -27,6 +27,8 @@ test_run() {
     echo "MD_UUID=$MD_UUID"
 
     client_run || return 1
+    
+    client_run rd_NO_MDADMCONF || return 1
 
     client_run rd_NO_LVM && return 1
 
@@ -36,13 +38,13 @@ test_run() {
 
     client_run rd_LVM_VG=dummy1 rd_LVM_VG=dracut rd_LVM_VG=dummy2 || return 1
 
-    client_run rd_MD_UUID=failme && return 1
+    client_run rd_MD_UUID=failme rd_NO_MDADMCONF && return 1
 
     client_run rd_NO_MD && return 1
 
-    client_run rd_MD_UUID=$MD_UUID || return 1
+    client_run rd_MD_UUID=$MD_UUID rd_NO_MDADMCONF || return 1
 
-    client_run rd_MD_UUID=dummy1 rd_MD_UUID=$MD_UUID rd_MD_UUID=dummy2 || return 1
+    client_run rd_MD_UUID=dummy1 rd_MD_UUID=$MD_UUID rd_MD_UUID=dummy2 rd_NO_MDADMCONF|| return 1
 
     return 0
 }
@@ -50,7 +52,7 @@ test_run() {
 test_setup() {
     # Create the blank file to use as a root filesystem
     dd if=/dev/zero of=root.ext2 bs=1M count=20
-
+ 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
@@ -88,12 +90,15 @@ test_setup() {
 	-append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81" \
 	-initrd initramfs.makeroot  || return 1
     grep -m 1 -q dracut-root-block-created root.ext2 || return 1
+    eval $(grep --binary-files=text -m 1 MD_UUID root.ext2)
     (
 	initdir=overlay
 	. $basedir/dracut-functions
 	dracut_install poweroff shutdown
 	inst_simple ./hard-off.sh /emergency/01hard-off.sh
 	inst ./cryptroot-ask /sbin/cryptroot-ask
+        mkdir -p overlay/etc
+        echo "ARRAY /dev/md0 level=raid5 num-devices=3 UUID=$MD_UUID" > overlay/etc/mdadm.conf
     )
     sudo $basedir/dracut -l -i overlay / \
 	-o "plymouth" \
