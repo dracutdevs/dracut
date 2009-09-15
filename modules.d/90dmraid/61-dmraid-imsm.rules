@@ -6,16 +6,20 @@ SUBSYSTEM!="block", GOTO="dm_end"
 ACTION!="add|change", GOTO="dm_end"
 
 ENV{ID_FS_TYPE}=="linux_raid_member", GOTO="dm_end"
-ENV{ID_FS_TYPE}=="isw_raid_member", ENV{rd_NO_MDIMSM}!="?*", GOTO="dm_end"
 
 ENV{ID_FS_TYPE}!="*_raid_member", , GOTO="dm_end"
+
 TEST=="/tmp/.dmraid_scan-%k", GOTO="dm_end"
+
+ENV{DEVTYPE}!="partition", \
+    RUN+="/sbin/partx -d --nr 1-1024 $env{DEVNAME}"
+
+ENV{ID_FS_TYPE}=="isw_raid_member", ENV{rd_NO_MDIMSM}!="?*", GOTO="dm_end"
+
+ENV{rd_NO_DM}=="?*", GOTO="dm_end"
 
 RUN+="/sbin/initqueue --onetime --unique --settled /sbin/dmraid_scan"
 
 ACTION=="change", RUN+="/bin/sh -c '>/tmp/.dmraid_scan-%k'"
-
-ENV{DEVTYPE}!="partition", \
-    RUN+="/sbin/partx -d --nr 1-1024 $env{DEVNAME}"
 
 LABEL="dm_end"

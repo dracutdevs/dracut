@@ -1,4 +1,4 @@
 if getarg rd_NO_DM; then
     info "rd_NO_DM: removing DM RAID activation"
-    rm /etc/udev/rules.d/61-dmraid*.rules
+    udevadm control --property=rd_NO_DM=1
 fi
