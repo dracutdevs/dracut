@@ -25,9 +25,12 @@ else
 	job=${job##*/}
 fi
 
-echo "$@" > "/tmp/${job}.sh"
 if [ -n "$onetime" ]; then
-   echo '[ -e "$job" ] && rm "$job"' >> "/tmp/${job}.sh"
+   echo '[ -e "$job" ] && rm "$job"' > "/tmp/${job}.sh"
+   echo "$@" >> "/tmp/${job}.sh"
+else
+   echo "$@" > "/tmp/${job}.sh"
 fi
+
 mv -f "/tmp/${job}.sh" /initqueue${settled}/
 [ -z "$settled" ] && >> /initqueue/work
