@@ -18,22 +18,35 @@ TEST=="/tmp/.mdraid_container-%k", GOTO="md_inc_end"
 
 KERNEL!="md*", IMPORT{program}="/sbin/mdadm --examine --export $tempnode"
 
-
 # UUID CHECK
 
 LABEL="do_md_inc"
 
-ENV{rd_MDADMCONF}=="?*", \
-	RUN+="/sbin/initqueue --settled --onetime --unique /sbin/mdadm_auto", \
-        RUN+="/bin/sh -c 'echo return 1 > /initqueue-finished/mdraid.sh'", \
-        GOTO="md_inc_end"
+# 
+# if rd_MDADMCONF do not assemble incrementally
+# defer auto assembly until the udev queue is settled
+# 
+ENV{rd_MDADMCONF}!="?*", GOTO="md_auto_end"
 
+ACTION=="change", \
+        RUN+="/bin/sh -c '>/tmp/.mdraid_auto-%k'"
+
+TEST!="/tmp/.mdraid_auto-%k", \
+	RUN+="/bin/sh -c 'ln -s /sbin/md_finished.sh /initqueue-finished/md_finished.sh;/sbin/initqueue --settled --onetime --unique /sbin/mdadm_auto'"
+
+GOTO="md_inc_end"
+
+LABEL="md_auto_end"
+
+#
+# Incrementally build the md array
+#
 RUN+="/sbin/mdadm -I --no-degraded $env{DEVNAME}"
 
 ACTION=="change", \
 	RUN+="/bin/sh -c '>/tmp/.mdraid_start-%k'" 
 
-RUN+="/bin/sh -c 'echo return 1 > /initqueue-finished/mdraid.sh'"
+RUN+="/bin/ln -s /sbin/md_finished.sh /initqueue-finished/md_finished.sh"
 
 LABEL="md_inc_end"
 
@@ -53,8 +66,7 @@ GOTO="end_raidstart"
 LABEL="do_raidstart"
 
 TEST!="/tmp/.mdraid_start-%k", \
-	RUN+="/sbin/initqueue --settled --onetime --unique /sbin/mdraid_start", \
-        RUN+="/bin/sh -c 'echo return 1 > /initqueue-finished/mdraid.sh'"
+        RUN+="/bin/sh -c 'ln -s /sbin/md_finished.sh /initqueue-finished/md_finished.sh;/sbin/initqueue --settled --onetime --unique /sbin/mdraid_start'"
 
 ACTION=="change", \
 	RUN+="/bin/sh -c '>/tmp/.mdraid_start-%k'"
@@ -77,8 +89,7 @@ GOTO="end_container"
 LABEL="do_container"
 
 TEST!="/tmp/.mdcontainer_start-%k", \
-	RUN+="/sbin/initqueue --settled --onetime --unique --name mdcontainer_start-%k /sbin/mdcontainer_start $env{DEVNAME}", \
-        RUN+="/bin/sh -c 'echo return 1 > /initqueue-finished/mdraid.sh'"
+        RUN+="/bin/sh -c 'ln -s /sbin/md_finished.sh /initqueue-finished/md_finished.sh;/sbin/initqueue --settled --onetime --unique --name mdcontainer_start-%k /sbin/mdcontainer_start $env{DEVNAME}'"
 
 ACTION=="change", \
 	RUN+="/bin/sh -c '>/tmp/.mdcontainer_start-%k'"
