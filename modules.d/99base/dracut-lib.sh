@@ -38,7 +38,7 @@ source_all() {
 
 check_finished() {
     local f
-    for f in /initqueue-finished/*.sh; do [ -f "$f" ] && { ( . "$f" ) || return 1; } ; done
+    for f in /initqueue-finished/*.sh; do { [ -f "$f" ] && ( . "$f" ) ; } || return 1 ; done
     return 0
 }
 
@@ -115,8 +115,6 @@ incol2() {
 }
 
 udevsettle() {
-    local exit_if_exists;
-
     [ -z "$UDEVVERSION" ] && UDEVVERSION=$(udevadm --version)
 
     if [ $UDEVVERSION -ge 143 ]; then
