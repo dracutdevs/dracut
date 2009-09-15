@@ -1,3 +1,17 @@
+dracut-002
+==========
+- add ifname= argument for persistent netdev names
+- new /initqueue-finished to check if the main loop can be left
+- copy mdadm.conf if --mdadmconf set or mdadmconf in dracut.conf
+- plymouth: use plymouth-populate-initrd
+- add add_drivers for dracut and dracut.conf
+- add modprobe scsi_wait_scan to be sure everything was scanned
+- fix for several problems with md raid containers
+- fix for selinux policy loading
+- fix for mdraid for IMSM
+- fix for bug, which prevents installing 61-persistent-storage.rules (bug #520109)
+- fix for missing grep for md
+
 dracut-001
 ==========
 - better --hostonly checks

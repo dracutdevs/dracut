@@ -13,7 +13,7 @@
 
 Name: dracut
 Version: 001
-Release: 1%{?rdist}
+Release: 9%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
 License: GPLv2+	
@@ -179,6 +179,36 @@ rm -rf $RPM_BUILD_ROOT
 %dir /var/lib/dracut/overlay
 
 %changelog
+* Tue Sep 15 2009 Harald Hoyer <harald@redhat.com> 001-9
+- add ifname= argument for persistent netdev names
+- new /initqueue-finished to check if the main loop can be left
+- copy mdadm.conf if --mdadmconf set or mdadmconf in dracut.conf
+
+* Wed Sep 09 2009 Harald Hoyer <harald@redhat.com> 001-8
+- plymouth: use plymouth-populate-initrd
+- add add_drivers for dracut and dracut.conf
+- do not mount /proc and /selinux manually in selinux-load-policy
+
+* Wed Sep 09 2009 Harald Hoyer <harald@redhat.com> 001-7
+- add scsi_wait_scan to be sure everything was scanned
+
+* Tue Sep 08 2009 Harald Hoyer <harald@redhat.com> 001-6
+- fixed several problems with md raid containers
+- fixed selinux policy loading
+
+* Tue Sep 08 2009 Harald Hoyer <harald@redhat.com> 001-5
+- patch does not honor file modes, fixed them manually
+
+* Mon Sep 07 2009 Harald Hoyer <harald@redhat.com> 001-4
+- fixed mdraid for IMSM
+
+* Mon Sep 07 2009 Harald Hoyer <harald@redhat.com> 001-3
+- fixed bug, which prevents installing 61-persistent-storage.rules (bug #520109)
+
+* Thu Sep 03 2009 Harald Hoyer <harald@redhat.com> 001-2
+- fixed missing grep for md
+- reorder cleanup
+
 * Wed Sep 02 2009 Harald Hoyer <harald@redhat.com> 001-1
 - version 001
 - see http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut/dracut;a=blob_plain;f=NEWS
