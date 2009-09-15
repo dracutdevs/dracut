@@ -26,7 +26,7 @@ test_run() {
     client_run || return 1
     client_run rd_NO_MDIMSM || return 1
     client_run rd_NO_DM || return 1
-    client_run rd_NO_DM rd_NO_MDIMSM rd_NO_MDADMCONF || return 1
+    client_run rd_NO_DM rd_NO_MDIMSM rd_NO_MDADMCONF && return 1
     client_run rd_NO_MD rd_NO_MDIMSM  && return 1
     client_run rd_NO_MD && return 1
    return 0
