@@ -1,13 +1,11 @@
-
 if [ -e "$moddir/dracut-version" ]; then
     dracut_rpm_version=$(cat "$moddir/dracut-version")
     inst "$moddir/dracut-version" /$dracut_rpm_version
 else
-    dracut_rpm_version=$(rpm -qf --qf '%{name}-%{version}-%{release}\n' $(which $0) | { ver="";while read line;do ver=$line;done;echo $ver;} )
-    if [ $? -eq 0 ]; then
+    if rpm -qf $(which $0) &>/dev/null; then
+        dracut_rpm_version=$(rpm -qf --qf '%{name}-%{version}-%{release}\n' $(which $0) | { ver="";while read line;do ver=$line;done;echo $ver;} )
         echo $dracut_rpm_version > $initdir/$dracut_rpm_version
     fi
 fi
-
 inst_hook cmdline 01 "$moddir/version.sh"
 
