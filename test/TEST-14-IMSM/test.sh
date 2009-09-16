@@ -23,10 +23,12 @@ client_run() {
 }
 
 test_run() {
-    client_run || return 1
     client_run rd_NO_MDIMSM || return 1
+    client_run || return 1
     client_run rd_NO_DM || return 1
-    client_run rd_NO_DM rd_NO_MDIMSM rd_NO_MDADMCONF && return 1
+    # This test succeeds, because the mirror parts are found without
+    # assembling the mirror itsself, which is what we want
+    client_run rd_NO_DM rd_NO_MDIMSM rd_NO_MDADMCONF || return 1
     client_run rd_NO_MD rd_NO_MDIMSM  && return 1
     client_run rd_NO_MD && return 1
    return 0
