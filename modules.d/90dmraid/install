@@ -1,5 +1,5 @@
 #!/bin/bash
-dracut_install dmraid partx
+dracut_install dmraid partx kpartx
 inst "$moddir/dmraid.sh" /sbin/dmraid_scan
 
 if [ ! -x /lib/udev/vol_id ]; then

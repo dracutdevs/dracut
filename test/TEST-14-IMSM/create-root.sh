@@ -6,7 +6,16 @@ done
 udevadm control --reload-rules
 echo y|dmraid -f isw -C Test0 --type 1 --disk "/dev/sdb /dev/sdc" 
 udevadm settle
-dmraid -a y
+
+SETS=$(dmraid -c -s)
+# scan and activate all DM RAIDS
+for s in $SETS; do
+   dmraid -ay -i -p --rm_partitions "$s" 
+   [ -e "/dev/mapper/$s" ] && kpartx -a -p p "/dev/mapper/$s" 
+done
+
+udevadm settle
+
 # save a partition at the beginning for future flagging purposes
 sfdisk -H 255 -S 63 -L /dev/mapper/isw*Test0 <<EOF
 ,1
@@ -17,9 +26,15 @@ EOF
 udevadm settle
 dmraid -a n
 udevadm settle
-dmraid -a y
+
+SETS=$(dmraid -c -s)
+# scan and activate all DM RAIDS
+for s in $SETS; do
+   dmraid -ay -i -p --rm_partitions "$s" 
+   [ -e "/dev/mapper/$s" ] && kpartx -a -p p "/dev/mapper/$s" 
+done
+
 udevadm settle
-sfdisk -l /dev/mapper/isw*Test0
 
 mdadm --create /dev/md0 --run --auto=yes --level=5 --raid-devices=3 /dev/mapper/isw*p[123]
 # wait for the array to finish initailizing, otherwise this sometimes fails
