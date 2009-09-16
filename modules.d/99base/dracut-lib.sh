@@ -124,6 +124,16 @@ udevsettle() {
     fi
 }
 
+udevproperty() {
+    [ -z "$UDEVVERSION" ] && UDEVVERSION=$(udevadm --version)
+
+    if [ $UDEVVERSION -ge 143 ]; then
+	for i in "$@"; do udevadm control --property=$i; done
+    else
+	for i in "$@"; do udevadm control --env=$i; done
+    fi
+}
+
 if [ -e /proc/cmdline ]; then
 	if getarg rdinitdebug; then
 	    set -x
