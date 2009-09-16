@@ -1,3 +1,4 @@
+%define gittag 5948b0c8
 %if 0%{?fedora} < 12
 %define with_switch_root 1
 %else
@@ -106,11 +107,12 @@ This package contains tools to assemble the local initrd and host configuration.
 %build
 make
 
-
 %install
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT sbindir=/sbin \
      sysconfdir=/etc mandir=%{_mandir}
+
+echo %{name}-%{version}-%{release} > $RPM_BUILD_ROOT/%{_datadir}/dracut/modules.d/10rpmversion/dracut-version
 
 %if ! 0%{?with_switch_root}
 rm -f $RPM_BUILD_ROOT/sbin/switch_root
