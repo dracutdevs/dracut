@@ -3,23 +3,35 @@
 . /lib/dracut-lib.sh
 
 DM_RAIDS=$(getargs rd_DM_UUID=)
+
 # run dmraid if udev has settled
 info "Scanning for dmraid devices $DM_RAIDS"
+SETS=$(dmraid -c -s)
+
+if [ "$SETS" = "no raid disks" ]; then
+    return
+fi
+
+info "Found dmraid sets:"
+echo $SETS|vinfo
+
 if [ -n "$DM_RAIDS" ]; then
     # only activate specified DM RAIDS
-    SETS=$(dmraid -c -s)
-    info "Found dmraid sets:"
-    echo $SETS|vinfo
     for r in $DM_RAIDS; do 
 	for s in $SETS; do 
 	    if [ "${s##$r}" != "$s" ]; then
 		info "Activating $s"
-		dmraid -ay $s 2>&1 | vinfo
+                dmraid -ay -i -p --rm_partitions "$s" 2>&1 | vinfo
+                [ -e "/dev/mapper/$s" ] && kpartx -a -p p "/dev/mapper/$s" 2>&1 | vinfo
                 udevsettle
 	    fi
 	done
     done
 else 
     # scan and activate all DM RAIDS
-    dmraid -ay 2>&1 | vinfo
+    for s in $SETS; do
+	info "Activating $s"
+        dmraid -ay -i -p --rm_partitions "$s" 2>&1 | vinfo
+        [ -e "/dev/mapper/$s" ] && kpartx -a -p p "/dev/mapper/$s" 2>&1 | vinfo
+    done
 fi
