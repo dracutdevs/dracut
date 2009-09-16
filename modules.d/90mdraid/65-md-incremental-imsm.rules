@@ -58,6 +58,9 @@ GOTO="end_raidstart"
 
 LABEL="do_raidstart"
 
+# check if array is not inactive anymore
+TEST=="md/array_state", ATTR{md/array_state}!="|inactive", GOTO="end_raidstart"
+
 RUN+="/bin/sh -c 'ln -s /sbin/md_finished.sh /initqueue-finished/md_finished.sh;/sbin/initqueue --settled --onetime --unique /sbin/mdraid_start'"
 
 LABEL="end_raidstart"
