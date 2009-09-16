@@ -6,15 +6,15 @@ ACTION!="add|change", GOTO="md_inc_end"
 SUBSYSTEM!="block", GOTO="md_inc_end"
 ENV{ID_FS_TYPE}!="linux_raid_member|isw_raid_member", GOTO="md_inc_end"
 
-ENV{DEVTYPE}!="partition", \
-    RUN+="/sbin/partx -d --nr 1-1024 $env{DEVNAME}"
-
 ENV{ID_FS_TYPE}=="isw_raid_member", ENV{rd_NO_MDIMSM}=="?*", GOTO="md_inc_end"
 
 ENV{rd_NO_MD}=="?*", GOTO="md_inc_end"
 
-TEST=="/tmp/.mdraid_start-%k", GOTO="md_inc_end"
-TEST=="/tmp/.mdraid_container-%k", GOTO="md_inc_end"
+PROGRAM=="/bin/sh -c 'for i in $sys/$devpath/holders/md[0-9]*; do [ -e $$i ] && exit 0; done; exit 1;' ", \
+    GOTO="md_inc_end"
+
+ENV{DEVTYPE}!="partition", \
+    RUN+="/sbin/partx -d --nr 1-1024 $env{DEVNAME}"
 
 KERNEL!="md*", IMPORT{program}="/sbin/mdadm --examine --export $tempnode"
 
@@ -28,11 +28,7 @@ LABEL="do_md_inc"
 # 
 ENV{rd_MDADMCONF}!="?*", GOTO="md_auto_end"
 
-ACTION=="change", \
-        RUN+="/bin/sh -c '>/tmp/.mdraid_auto-%k'"
-
-TEST!="/tmp/.mdraid_auto-%k", \
-	RUN+="/bin/sh -c 'ln -s /sbin/md_finished.sh /initqueue-finished/md_finished.sh;/sbin/initqueue --settled --onetime --unique /sbin/mdadm_auto'"
+RUN+="/bin/sh -c 'ln -s /sbin/md_finished.sh /initqueue-finished/md_finished.sh;/sbin/initqueue --settled --onetime --unique /sbin/mdadm_auto'"
 
 GOTO="md_inc_end"
 
@@ -42,9 +38,6 @@ LABEL="md_auto_end"
 # Incrementally build the md array
 #
 RUN+="/sbin/mdadm -I --no-degraded $env{DEVNAME}"
-
-ACTION=="change", \
-	RUN+="/bin/sh -c '>/tmp/.mdraid_start-%k'" 
 
 RUN+="/bin/ln -s /sbin/md_finished.sh /initqueue-finished/md_finished.sh"
 
@@ -65,11 +58,7 @@ GOTO="end_raidstart"
 
 LABEL="do_raidstart"
 
-TEST!="/tmp/.mdraid_start-%k", \
-        RUN+="/bin/sh -c 'ln -s /sbin/md_finished.sh /initqueue-finished/md_finished.sh;/sbin/initqueue --settled --onetime --unique /sbin/mdraid_start'"
-
-ACTION=="change", \
-	RUN+="/bin/sh -c '>/tmp/.mdraid_start-%k'"
+RUN+="/bin/sh -c 'ln -s /sbin/md_finished.sh /initqueue-finished/md_finished.sh;/sbin/initqueue --settled --onetime --unique /sbin/mdraid_start'"
 
 LABEL="end_raidstart"
 
@@ -88,10 +77,6 @@ GOTO="end_container"
 
 LABEL="do_container"
 
-TEST!="/tmp/.mdcontainer_start-%k", \
-        RUN+="/bin/sh -c 'ln -s /sbin/md_finished.sh /initqueue-finished/md_finished.sh;/sbin/initqueue --settled --onetime --unique --name mdcontainer_start-%k /sbin/mdcontainer_start $env{DEVNAME}'"
-
-ACTION=="change", \
-	RUN+="/bin/sh -c '>/tmp/.mdcontainer_start-%k'"
+RUN+="/bin/sh -c 'ln -s /sbin/md_finished.sh /initqueue-finished/md_finished.sh;/sbin/initqueue --settled --onetime --unique --name mdcontainer_start-%k /sbin/mdcontainer_start $env{DEVNAME}'"
 
 LABEL="end_container"
