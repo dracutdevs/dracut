@@ -14,7 +14,7 @@
 
 Name: dracut
 Version: 001
-Release: 9%{?rdist}
+Release: 12%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
 License: GPLv2+	
@@ -181,10 +181,20 @@ rm -rf $RPM_BUILD_ROOT
 %dir /var/lib/dracut/overlay
 
 %changelog
-* Tue Sep 15 2009 Harald Hoyer <harald@redhat.com> 001-9
+* Wed Sep 16 2009 Harald Hoyer <harald@redhat.com> 001-12
+- removed lvm/mdraid/dmraid lock files
+- add missing ifname= files
+
+* Wed Sep 16 2009 Harald Hoyer <harald@redhat.com> 001-11
+- generate dracut-version during rpm build time
+
+* Tue Sep 15 2009 Harald Hoyer <harald@redhat.com> 001-10
 - add ifname= argument for persistent netdev names
 - new /initqueue-finished to check if the main loop can be left
 - copy mdadm.conf if --mdadmconf set or mdadmconf in dracut.conf
+
+* Wed Sep 09 2009 Harald Hoyer <harald@redhat.com> 001-9
+- added Requires: plymouth-scripts
 
 * Wed Sep 09 2009 Harald Hoyer <harald@redhat.com> 001-8
 - plymouth: use plymouth-populate-initrd
