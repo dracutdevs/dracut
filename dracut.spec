@@ -1,4 +1,3 @@
-%define gittag 5948b0c8
 %if 0%{?fedora} < 12
 %define with_switch_root 1
 %else
