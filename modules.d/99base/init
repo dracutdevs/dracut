@@ -248,6 +248,7 @@ fi
 
 # Debug: Copy state
 if getarg rdcopystate; then
+    mkdir /dev/.initramfs/
     cp /tmp/* /dev/.initramfs/ >/dev/null 2>&1
 fi
 
