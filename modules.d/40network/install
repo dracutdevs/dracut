@@ -1,5 +1,5 @@
 #!/bin/bash
-dracut_install ip dhclient brctl
+dracut_install ip dhclient brctl arping
 inst "$moddir/ifup" "/sbin/ifup"
 inst "$moddir/netroot" "/sbin/netroot"
 inst "$moddir/dhclient-script" "/sbin/dhclient-script"

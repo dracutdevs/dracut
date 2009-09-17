@@ -2,7 +2,7 @@
 
 . $dracutfunctions
 
-for program in ip hostname; do 
+for program in ip arping; do 
   which $program >/dev/null 2>&1
   if [ $? -ne 0 ]; then
     dwarning "Could not find program \"$program\" required by network." 
