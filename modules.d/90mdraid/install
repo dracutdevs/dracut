@@ -28,8 +28,8 @@ fi
 
 if [ -x  /sbin/mdmon ] ; then
     dracut_install mdmon
-    inst_hook pre-pivot 30 "$moddir/mdmon-pre-pivot.sh"
 fi 
+inst_hook pre-udev 30 "$moddir/mdmon-pre-udev.sh"
 
 inst "$moddir/mdraid_start.sh" /sbin/mdraid_start
 inst "$moddir/mdcontainer_start.sh" /sbin/mdcontainer_start
