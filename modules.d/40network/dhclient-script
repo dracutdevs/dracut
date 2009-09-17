@@ -64,6 +64,10 @@ case $reason in
 	wait_for_if_up $netif
 	;;
     BOUND)
+	if ! arping -q -D -c 2 -I $netif $new_ip_address ; then
+	    warn "Duplicate address detected for $new_ip_address while doing dhcp. retrying"
+	    exit 1
+	fi
 	setup_interface 
 	set | while read line; do
 	    [ "${line#new_}" = "$line" ] && continue
