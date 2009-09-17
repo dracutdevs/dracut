@@ -13,7 +13,7 @@
 
 Name: dracut
 Version: 001
-Release: 12%{?rdist}
+Release: 13%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
 License: GPLv2+	
