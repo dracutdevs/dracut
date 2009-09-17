@@ -50,3 +50,11 @@ for netif in $IFACES ; do
         echo "NAME=$ethname" >> /tmp/ifcfg/ifcfg-$ethname
     fi
 done
+
+# Pass network opts
+mkdir /dev/.initramfs/
+cp /tmp/net.* /dev/.initramfs/ >/dev/null 2>&1
+mkdir -p /dev/.initramfs/state/etc/sysconfig/network-scripts/
+cp /tmp/resolv.conf /dev/.initramfs/state/etc/ >/dev/null 2>&1
+echo "files /etc/sysconfig/network-scripts" > /dev/.initramfs/rwtab
+cp -a /tmp/ifcfg/* /dev/.initramfs/state/etc/sysconfig/network-scripts/ >/dev/null 2>&1

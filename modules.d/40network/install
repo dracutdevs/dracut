@@ -11,7 +11,3 @@ inst_hook cmdline 99 "$moddir/parse-ip-opts.sh"
 inst_hook cmdline 98 "$moddir/parse-bridge.sh"
 inst_hook cmdline 99 "$moddir/parse-ifname.sh"
 inst_hook pre-pivot 10 "$moddir/kill-dhclient.sh"
-
-# TODO ifcfg config style is redhat specific, this should probably
-# go into its own module at one time
-inst_hook pre-pivot 85 "$moddir/write-ifcfg.sh"

@@ -1,0 +1,6 @@
+#!/bin/sh
+[ -f /etc/redhat-release ] || exit 1
+
+[[ $1 = -d ]] && echo network
+
+exit 255
