@@ -198,7 +198,6 @@ for moddir in "$dsrc/modules.d"/[0-9][0-9]*; do
     fi
 done
 unset moddir
-echo $mods_to_load
 
 ## final stuff that has to happen
 
@@ -254,7 +253,7 @@ if [[ $do_strip = yes ]] ; then
     done
 fi
 
-( cd "$initdir"; find . |cpio -R 0:0 -H newc -o |gzip -9 > "$outfile"; )
+( cd "$initdir"; find . |cpio -R 0:0 -H newc -o --quiet |gzip -9 > "$outfile"; )
 
 [[ $beverbose = yes ]] && ls -lh "$outfile"
 
