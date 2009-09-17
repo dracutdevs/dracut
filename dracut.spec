@@ -12,8 +12,8 @@
 %endif
 
 Name: dracut
-Version: 001
-Release: 13%{?rdist}
+Version: 002
+Release: 1%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
 License: GPLv2+	
@@ -180,6 +180,11 @@ rm -rf $RPM_BUILD_ROOT
 %dir /var/lib/dracut/overlay
 
 %changelog
+* Thu Sep 17 2009 Harald Hoyer <harald@redhat.com> 002-1
+- version 002
+- set correct PATH
+- workaround for broken mdmon implementation
+
 * Wed Sep 16 2009 Harald Hoyer <harald@redhat.com> 001-12
 - removed lvm/mdraid/dmraid lock files
 - add missing ifname= files
