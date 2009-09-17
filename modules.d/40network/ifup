@@ -40,7 +40,7 @@ do_static() {
     } > /tmp/net.$netif.up
 
     [ -n "$gw" ] && echo ip route add default via $gw dev $netif > /tmp/net.$netif.gw
-    [ -n "$hostname" ] && echo hostname $hostname > /tmp/net.$netif.hostname
+    [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
 
     echo online > /sys/class/net/$netif/uevent
     /sbin/initqueue --onetime --name netroot-$netif  /sbin/netroot $netif 

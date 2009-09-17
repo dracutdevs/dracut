@@ -39,7 +39,7 @@ setup_interface() {
 	done
     fi >> /tmp/resolv.conf
 
-    [ -n "$hostname" ] && echo hostname $hostname > /tmp/net.$netif.hostname
+    [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
 }
 
 PATH=$PATH:/sbin:/usr/sbin
