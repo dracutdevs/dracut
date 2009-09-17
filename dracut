@@ -96,7 +96,8 @@ while (($# > 0)); do
     shift
 done
 
-PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export PATH
 
 [[ $debug ]] && { 
     export PS4='${BASH_SOURCE}@${LINENO}(${FUNCNAME[0]}): ';
