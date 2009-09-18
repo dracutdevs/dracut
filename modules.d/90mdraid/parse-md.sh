@@ -30,7 +30,9 @@ if [ -e /etc/mdadm.conf ] && ! getarg rd_NO_MDADMCONF; then
     rm -f /pre-pivot/*mdraid-cleanup.sh
 fi
 
-if getarg rd_NO_MDIMSM; then
+# noiswmd nodmraid for anaconda / rc.sysinit compatibility
+# note nodmraid really means nobiosraid, so we don't want MDIMSM then either
+if getarg rd_NO_MDIMSM || getarg noiswmd || getarg nodmraid; then
     info "rd_NO_MDIMSM: no MD RAID for imsm/isw raids"
     udevproperty rd_NO_MDIMSM=1
 fi
