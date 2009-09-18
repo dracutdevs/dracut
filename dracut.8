@@ -135,6 +135,9 @@ disable LVM detection
 .TP
 .B rd_LVM_VG=<volume group name>
 only activate the volume groups with the given name
+.TP
+.B rd_NO_LVMCONF
+remove any /etc/lvm/lvm.conf, which may exist in the initramfs
 
 .SH crypto LUKS
 .TP
