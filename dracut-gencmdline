@@ -19,6 +19,39 @@
 #
 #. /usr/libexec/initrd-functions
 
+IF_verbose=""
+function set_verbose() {
+    case $1 in
+        1|true|yes|on)
+            IF_verbose="-v"
+            ;;
+        0|false|no|off)
+            IF_verbose=""
+            ;;
+    esac
+}
+
+function is_verbose() {
+    [ -n "$IF_verbose" ] && return 0
+    return 1
+}
+
+function get_verbose() {
+    echo "$IF_verbose"
+    is_verbose
+}
+
+
+function get_numeric_dev() {
+(
+    fmt="%d:%d"
+    if [ "$1" == "hex" ]; then
+        fmt="%x:%x"
+    fi
+    ls -lH "$2" | awk '{ sub(/,/, "", $5); printf("'"$fmt"'", $5, $6); }'
+) 2>/dev/null
+}
+
 
 function error() {
     echo "$@" >&2
