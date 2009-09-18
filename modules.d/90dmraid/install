@@ -7,7 +7,6 @@ if [ ! -x /lib/udev/vol_id ]; then
 fi
 
 inst_rules "$moddir/61-dmraid-imsm.rules"
-inst_hook pre-pivot 30 "$moddir/dmraid-cleanup.sh"
-inst_hook pre-pivot 31 "$moddir/dmraid-cleanup.sh"
+inst "$moddir/dmraid-cleanup.sh" /sbin/dmraid-cleanup
 inst_hook pre-trigger 30 "$moddir/parse-dm.sh"
 

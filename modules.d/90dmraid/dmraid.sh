@@ -4,6 +4,8 @@
 
 DM_RAIDS=$(getargs rd_DM_UUID=)
 
+DM_CLEANUP="no"
+
 # run dmraid if udev has settled
 info "Scanning for dmraid devices $DM_RAIDS"
 SETS=$(dmraid -c -s)
@@ -35,3 +37,4 @@ else
         [ -e "/dev/mapper/$s" ] && kpartx -a -p p "/dev/mapper/$s" 2>&1 | vinfo
     done
 fi
+

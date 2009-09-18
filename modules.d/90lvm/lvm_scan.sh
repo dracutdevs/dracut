@@ -31,5 +31,9 @@ fi
 info "Scanning devices $lvmdevs for LVM volume groups $VGS"
 lvm vgscan 2>&1 | vinfo
 lvm vgchange -ay $VGS 2>&1 | vinfo
-[ "$lvmwritten" ] && rm -f /etc/lvm/lvm.conf
+if [ "$lvmwritten" ]; then
+    rm -f /etc/lvm/lvm.conf
+    ln -s /sbin/lvm-cleanup /pre-pivot/30-lvm-cleanup.sh 2>/dev/null
+    ln -s /sbin/lvm-cleanup /pre-pivot/31-lvm-cleanup.sh 2>/dev/null
+fi
 unset lvmwritten

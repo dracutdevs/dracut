@@ -36,5 +36,4 @@ inst "$moddir/mdcontainer_start.sh" /sbin/mdcontainer_start
 inst "$moddir/mdadm_auto.sh" /sbin/mdadm_auto
 inst "$moddir/md_finished.sh" /sbin/md_finished.sh
 inst_hook pre-trigger 30 "$moddir/parse-md.sh"
-inst_hook pre-pivot 30 "$moddir/mdraid-cleanup.sh"
-inst_hook pre-pivot 31 "$moddir/mdraid-cleanup.sh"
+inst "$moddir/mdraid-cleanup.sh" /sbin/mdraid-cleanup

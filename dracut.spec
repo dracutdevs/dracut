@@ -13,7 +13,7 @@
 
 Name: dracut
 Version: 002
-Release: 1%{?rdist}
+Release: 2%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
 License: GPLv2+	
@@ -180,6 +180,10 @@ rm -rf $RPM_BUILD_ROOT
 %dir /var/lib/dracut/overlay
 
 %changelog
+* Fri Sep 18 2009 Harald Hoyer <harald@redhat.com> 002-2
+- do not cleanup dmraids
+- copy over lvm.conf
+
 * Thu Sep 17 2009 Harald Hoyer <harald@redhat.com> 002-1
 - version 002
 - set correct PATH

@@ -3,11 +3,10 @@ inst lvm
 
 inst_rules "$moddir/64-lvm.rules" 64-lvm.rules
 
-if [[ $hostonly ]]; then 
+if [[ $hostonly ]] || [[ $lvmconf = "yes" ]]; then 
     [ -f /etc/lvm/lvm.conf ] && inst /etc/lvm/lvm.conf
 fi
 
 inst "$moddir/lvm_scan.sh" /sbin/lvm_scan
 inst_hook cmdline 30 "$moddir/parse-lvm.sh"
-inst_hook pre-pivot 30 "$moddir/lvm-cleanup.sh"
-inst_hook pre-pivot 31 "$moddir/lvm-cleanup.sh"
+inst "$moddir/lvm-cleanup.sh" /sbin/lvm-cleanup
