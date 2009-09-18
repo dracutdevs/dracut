@@ -20,4 +20,8 @@ fi
 
 [[ $add_drivers ]] && instmods $add_drivers
 
+# force install of scsi_wait_scan
+old_hostonly=$hostonly
+hostonly=''
 instmods scsi_wait_scan
+hostonly=$old_hostonly
