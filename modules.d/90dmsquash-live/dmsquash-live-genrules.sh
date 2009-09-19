@@ -10,4 +10,5 @@ if [ "${root%%:*}" = "live" ]; then
 	${root#live:/dev/} 
 
     ) >> /etc/udev/rules.d/99-live-mount.rules
+    echo '[ -e /dev/root ]' > /initqueue-finished/dmsquash.sh
 fi
