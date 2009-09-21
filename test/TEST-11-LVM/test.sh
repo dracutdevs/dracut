@@ -9,7 +9,7 @@ KVERSION=${KVERSION-$(uname -r)}
 test_run() {
     $testdir/run-qemu -hda root.ext2 -m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "root=/dev/dracut/root rw quiet rdinfo console=ttyS0,115200n81 rdshell $DEBUGFAIL" \
+	-append "root=/dev/dracut/root rw quiet rdinfo console=ttyS0,115200n81 selinux=0 rdshell $DEBUGFAIL" \
 	-initrd initramfs.testing
     grep -m 1 -q dracut-root-block-success root.ext2 || return 1
 }
@@ -52,7 +52,7 @@ test_setup() {
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     $testdir/run-qemu -hda root.ext2 -m 256M -nographic -net none \
 	-kernel "/boot/vmlinuz-$kernel" \
-	-append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81" \
+	-append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd initramfs.makeroot  || return 1
     grep -m 1 -q dracut-root-block-created root.ext2 || return 1
     (

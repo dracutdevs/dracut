@@ -16,7 +16,7 @@ run_server() {
 	-net socket,mcast=230.0.0.1:1236 \
 	-serial udp:127.0.0.1:9999 \
 	-kernel /boot/vmlinuz-$KVERSION \
-	-append "root=/dev/sda rw quiet console=ttyS0,115200n81" \
+	-append "root=/dev/sda rw quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd initramfs.server -pidfile server.pid -daemonize || return 1
     sudo chmod 644 server.pid || return 1
 
@@ -50,7 +50,7 @@ client_test() {
 	-net nic,macaddr=$mac,model=e1000 \
 	-net socket,mcast=230.0.0.1:1236 \
 	-kernel /boot/vmlinuz-$KVERSION \
-	-append "$cmdline $DEBUGFAIL rdshell ro quiet console=ttyS0,115200n81" \
+	-append "$cmdline $DEBUGFAIL rdshell ro quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd initramfs.testing
 
     if [[ $? -ne 0 ]] || ! grep -m 1 -q nbd-OK flag.img; then
@@ -207,7 +207,7 @@ make_encrypted_root() {
     $testdir/run-qemu -hda flag.img -hdb encrypted.ext2 -m 256M \
 	-nographic -net none \
 	-kernel "/boot/vmlinuz-$kernel" \
-	-append "root=/dev/dracut/root rw quiet console=ttyS0,115200n81" \
+	-append "root=/dev/dracut/root rw quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd initramfs.makeroot  || return 1
     grep -m 1 -q dracut-root-block-created flag.img || return 1
 }
