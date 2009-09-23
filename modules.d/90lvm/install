@@ -1,11 +1,15 @@
 #!/bin/bash
 inst lvm
+inst dmeventd
 
 inst_rules "$moddir/64-lvm.rules" 64-lvm.rules
 
 if [[ $hostonly ]] || [[ $lvmconf = "yes" ]]; then 
     [ -f /etc/lvm/lvm.conf ] && inst /etc/lvm/lvm.conf
 fi
+
+dracut_install /lib*/libdevmapper-event-lvm2mirror.so* /lib*/libdevmapper-event-lvm2snapshot.so*
+inst_rules 10-dm.rules 12-dm-disk.rules 95-dm-notify.rules 11-lvm.rules
 
 inst "$moddir/lvm_scan.sh" /sbin/lvm_scan
 inst_hook cmdline 30 "$moddir/parse-lvm.sh"

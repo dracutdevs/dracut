@@ -1,5 +1,5 @@
 #!/bin/bash
-dracut_install dmraid partx kpartx
+dracut_install dmraid partx kpartx dmeventd
 inst "$moddir/dmraid.sh" /sbin/dmraid_scan
 
 if [ ! -x /lib/udev/vol_id ]; then
@@ -9,4 +9,6 @@ fi
 inst_rules "$moddir/61-dmraid-imsm.rules"
 inst "$moddir/dmraid-cleanup.sh" /sbin/dmraid-cleanup
 inst_hook pre-trigger 30 "$moddir/parse-dm.sh"
+
+inst_rules 10-dm.rules 12-dm-disk.rules 95-dm-notify.rules 
 
