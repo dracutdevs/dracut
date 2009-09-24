@@ -13,7 +13,7 @@
 
 Name: dracut
 Version: 002
-Release: 2%{?rdist}
+Release: 6%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
 License: GPLv2+	
@@ -180,6 +180,23 @@ rm -rf $RPM_BUILD_ROOT
 %dir /var/lib/dracut/overlay
 
 %changelog
+* Wed Sep 23 2009 harald@redhat.com 002-6
+- add new device mapper udev rules and dmeventd 
+  bug 525319, 525015
+
+* Wed Sep 23 2009 Warren Togami <wtogami@redaht.com> 002-5
+- Revert back to -3, Add umount back to initrd
+  This makes no functional difference to LiveCD.  See Bug #525319
+
+* Mon Sep 21 2009 Warren Togami <wtogami@redhat.com> 002-4
+- Fix LiveCD boot regression
+
+* Mon Sep 21 2009 Harald Hoyer <harald@redhat.com> 002-3
+- bail out if selinux policy could not be loaded and 
+  selinux=0 not specified on kernel command line 
+  (bug #524113)
+- set finished criteria for dmsquash live images
+
 * Fri Sep 18 2009 Harald Hoyer <harald@redhat.com> 002-2
 - do not cleanup dmraids
 - copy over lvm.conf
