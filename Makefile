@@ -1,12 +1,12 @@
 VERSION=002
 GITVERSION=$(shell [ -d .git ] && git rev-list  --abbrev-commit  -n 1 HEAD  |cut -b 1-8)
 
-prefix = /usr
-datadir = ${prefix}/share
-pkglibdir = ${datadir}/dracut
-sysconfdir = ${prefix}/etc
-sbindir = ${prefix}/sbin
-mandir = ${prefix}/share/man
+prefix ?= /usr
+datadir ?= ${prefix}/share
+pkglibdir ?= ${datadir}/dracut
+sysconfdir ?= ${prefix}/etc
+sbindir ?= ${prefix}/sbin
+mandir ?= ${prefix}/share/man
 
 modules.d/99base/switch_root: switch_root.c
 	gcc -D _GNU_SOURCE -D 'PACKAGE_STRING="dracut"' -std=gnu99 -fsigned-char -g -O2 -o modules.d/99base/switch_root switch_root.c	
