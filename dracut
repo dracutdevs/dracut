@@ -179,7 +179,7 @@ export initdir hookdirs dsrc dracutmodules drivers \
 if [[ $kernel_only != yes ]]; then
     # Create some directory structure first
     for d in bin sbin usr/bin usr/sbin usr/lib etc proc sys sysroot tmp dev/pts var/run; do 
-	mkdir -p "$initdir/$d"; 
+	inst_dir "/$d"; 
     done
 fi
 
