@@ -689,8 +689,8 @@ for cryptdev in ${!cryptolv@} ; do
 done
 
 # output local keyboard/18n settings
-. /etc/sysconfig/keyboard
-. /etc/sysconfig/i18n
+[ -e /etc/sysconfig/keyboard ] && . /etc/sysconfig/keyboard
+[ -e /etc/sysconfig/i18n ] && . /etc/sysconfig/i18n
 
 for i in KEYTABLE SYSFONT SYSFONTACM UNIMAP LANG; do
     val=$(eval echo \$$i)
