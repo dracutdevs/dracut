@@ -1,3 +1,0 @@
-#!/bin/bash
-inst_hook cmdline 30 "$moddir/parse-s390.sh"
-
