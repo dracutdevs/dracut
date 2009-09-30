@@ -37,7 +37,4 @@ fix_bootif() {
 	printf 'ACTION=="add", SUBSYSTEM=="net", RUN+="/sbin/ifup $env{INTERFACE}"\n'
     fi
 
-    # Udev event 'online' only gets fired from ifup/dhclient-script.
-    # No special rules required
-    printf 'ACTION=="online", SUBSYSTEM=="net", RUN+="/sbin/netroot $env{INTERFACE}"\n'
 } > /etc/udev/rules.d/60-net.rules

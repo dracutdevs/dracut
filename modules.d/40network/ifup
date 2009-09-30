@@ -42,6 +42,7 @@ do_static() {
     [ -n "$hostname" ] && echo hostname $hostname > /tmp/net.$netif.hostname
 
     echo online > /sys/class/net/$netif/uevent
+    /sbin/initqueue --onetime --name netroot-$netif  /sbin/netroot $netif 
 }
 
 PATH=$PATH:/sbin:/usr/sbin

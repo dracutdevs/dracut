@@ -60,6 +60,7 @@ case $reason in
 	    echo "$line" 
 	done >/tmp/dhclient.$netif.dhcpopts
 	echo online > /sys/class/net/$netif/uevent
+	/sbin/initqueue --onetime --name netroot-$netif  /sbin/netroot $netif 
 	;;
     *) ;;
 esac
