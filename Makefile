@@ -8,12 +8,13 @@ sysconfdir ?= ${prefix}/etc
 sbindir ?= ${prefix}/sbin
 mandir ?= ${prefix}/share/man
 
-modules.d/99base/switch_root: switch_root.c
-	gcc -D _GNU_SOURCE -D 'PACKAGE_STRING="dracut"' -std=gnu99 -fsigned-char -g -O2 -o modules.d/99base/switch_root switch_root.c	
+
+.PHONY: install clean archive rpm testimage test all check
 
 all: modules.d/99base/switch_root
 
-.PHONY: install clean archive rpm testimage test all check
+modules.d/99base/switch_root: switch_root.c
+	gcc -D _GNU_SOURCE -D 'PACKAGE_STRING="dracut"' -std=gnu99 -fsigned-char -g -O2 -o modules.d/99base/switch_root switch_root.c	
 
 install:
 	mkdir -p $(DESTDIR)$(pkglibdir)
