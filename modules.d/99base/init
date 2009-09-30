@@ -56,6 +56,7 @@ fi
 mkdir /dev/shm
 mkdir /dev/pts
 mount -t devpts -o gid=5,mode=620 /dev/pts /dev/pts >/dev/null 2>&1
+mount -t tmpfs /dev/shm /dev/shm >/dev/null 2>&1
 
 UDEVVERSION=$(udevadm --version)
 
