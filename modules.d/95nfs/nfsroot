@@ -152,8 +152,9 @@ else
         warn "Locks unsupported on NFSv{2,3}, using nolock" 1>&2
 
     # XXX Should we loop here?
-    mount -t nfs -o$options${options:+,}nolock $server:$path $NEWROOT \
-	&& { [ -e /dev/root ] || >/dev/root ; }
+    { mount -t nfs -o$options${options:+,}nolock,nfsvers=3 $server:$path $NEWROOT || \
+    mount -t nfs -o$options${options:+,}nolock,nfsvers=2 $server:$path $NEWROOT ; } \
+	&& { [ -e /dev/root ] || >/dev/root ; } 
 fi
 
 # inject new exit_if_exists
