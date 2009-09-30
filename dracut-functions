@@ -169,7 +169,7 @@ inst_simple() {
     local src target
     [[ -f $1 ]] || return 1
     src=$1 target="${2:-$1}"
-    [[ -f ${initdir}$target ]] && return 0
+    [[ -e ${initdir}$target ]] && return 0
     inst_dir "${target%/*}"
     dinfo "Installing $src" 
     cp -pfL "$src" "${initdir}$target"
@@ -180,7 +180,7 @@ inst_simple() {
 # is referenced.
 inst_library() {
     local src=$1 dest=${2:-$1}
-    [[ -f $initdir$dest ]] && return 0
+    [[ -e $initdir$dest ]] && return 0
     if [[ -L $src ]]; then
 	reallib=$(readlink -f "$src")
 	lib=${src##*/}
@@ -209,8 +209,9 @@ inst_binary() {
     local bin target
     bin=$(find_binary "$1") || return 1
     target=${2:-$bin}
+    inst_symlink $bin $target && return 0
     local LDSO NAME IO FILE ADDR I1 n f TLIBDIR
-    [[ -f $initdir$target ]] && return 0
+    [[ -e $initdir$target ]] && return 0
     # I love bash!
     ldd $bin 2>/dev/null | while read line; do
 	[[ $line = 'not a dynamic executable' ]] && return 1
@@ -223,7 +224,7 @@ inst_binary() {
 	so_regex='([^ ]*/lib[^/]*/[^ ]*\.so[^ ]*)'
 	[[ $line =~ $so_regex ]] || continue
 	FILE=${BASH_REMATCH[1]}
-	[[ -f ${initdir}$FILE ]] && continue
+	[[ -e ${initdir}$FILE ]] && continue
 	# see if we are loading an optimized version of a shared lib.
 	lib_regex='^(/lib[^/]*).*'
 	if [[ $FILE =~ $lib_regex ]]; then
@@ -231,7 +232,7 @@ inst_binary() {
             BASE=${FILE##*/}
 	    # prefer nosegneg libs, then unoptimized ones.
 	    for f in "$TLIBDIR/i686/nosegneg" "$TLIBDIR"; do
-		[[ -f $f/$BASE ]] || continue
+		[[ -e $f/$BASE ]] || continue
 		FILE=$f/$BASE
 		break
 	    done
