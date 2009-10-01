@@ -31,7 +31,7 @@ getarg check || check=""
 if [ -n "$check" ]; then
     checkisomd5 --verbose $livedev || :
     if [ $? -ne 0 ]; then
-	echo "CD check failed!"
+	die "CD check failed!"
 	exit 1
     fi
 fi
@@ -43,7 +43,7 @@ getarg rw && liverw=rw
 mount -n -t $fstype -o $liverw $livedev $NEWROOT
 RES=$?
 if [ "$RES" != "0" ]; then
-    echo "Failed to mount block device of live image"
+    die "Failed to mount block device of live image"
     exit 1
 fi
 
@@ -86,7 +86,7 @@ do_live_overlay() {
 
     if [ -z "$setup" ]; then
         if [ -n "$devspec" -a -n "$pathspec" ]; then
-           echo "Unable to find persistent overlay; using temporary"
+           warn "Unable to find persistent overlay; using temporary"
            sleep 5
         fi
 

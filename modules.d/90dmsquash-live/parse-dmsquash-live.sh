@@ -33,8 +33,7 @@ case "$liveroot" in
 	root="live:${root}"
         rootok=1 ;;
 esac
-echo "root was $root, liveroot is now $liveroot"
-
+info "root was $root, liveroot is now $liveroot"
 
 # make sure that init doesn't complain
 [ -z "$root" ] && root="live"
