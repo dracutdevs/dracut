@@ -684,7 +684,7 @@ else
     echo -n "rd_NO_LVM "
 fi
 
-cryptdevs="${!cryptoraid@} ${!cryptopart@} ${!cryptolv@}"
+cryptdevs="$(echo ${!cryptoraid@} ${!cryptopart@} ${!cryptolv@})"
 
 if [ -z "$cryptdevs" ]; then
     echo -n "rd_NO_LUKS "
