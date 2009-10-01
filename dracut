@@ -240,7 +240,7 @@ if [[ $do_strip = yes ]] ; then
 fi
 
 if [[ $do_strip = yes ]] ; then
-    for f in $(find "$initdir" -type f \( -perm -0100 -or -perm -0010 -or -perm -0001 \) -exec file {} \; | 
+    for f in $(find "$initdir" -type f \( -perm -0100 -or -perm -0010 -or -perm -0001 -or -path '/lib/modules/*.ko' \) -exec file {} \; | 
 	grep -v ' shared object,' | 
 	sed -n -e 's/^\(.*\):[ 	]*ELF.*, not stripped/\1/p'); do
 	dinfo "Stripping $f"
