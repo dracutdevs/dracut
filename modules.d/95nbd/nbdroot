@@ -93,10 +93,8 @@ nbd-client $preopts "$nbdserver" "$nbdport" /dev/nbd0 $opts || exit 1
 # If we didn't get a root= on the command line, then we need to
 # add the udev rules for mounting the nbd0 device
 if [ ! -e /etc/udev/rules.d/99-mount.rules ]; then
-    echo 'settle_exit_if_exists="--exit-if-exists=/dev/nbd0"; [ -e /dev/nbd0 ] && { ln -s /dev/nbd0 /dev/root 2>/dev/null; rm "$job"; }' \
-       >> /initqueue/nbd.sh
-
-    echo '[ -e /dev/root ]' > /initqueue-finished/nbd.sh
+    echo '[ -e /dev/root ] || { info=$(udevadm info --query=env --name=/dev/nbd0); [ -z "${info%%*ID_FS_TYPE*}" ] && { ln -s /dev/nbd0 /dev/root 2>/dev/null; :; };} && rm $job;' \
+       > /initqueue-settled/nbd.sh
 
     printf '/bin/mount -t %s -o %s %s %s\n' \
 	   "$nbdfstype" "$fsopts" /dev/nbd0 "$NEWROOT" \
@@ -105,6 +103,4 @@ fi
 
 # NBD doesn't emit uevents when it gets connected, so kick it
 echo change > /sys/block/nbd0/uevent
-# force udevsettle to break
-> /initqueue/work
 exit 0
