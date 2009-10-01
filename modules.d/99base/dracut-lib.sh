@@ -1,4 +1,5 @@
 getarg() {
+    set +x
     local o line
     if [ -z "$CMDLINE" ]; then
 	[ -e /etc/cmdline ] && read CMDLINE_ETC </etc/cmdline;
@@ -7,12 +8,28 @@ getarg() {
     fi
     for o in $CMDLINE; do
 	[ "$o" = "$1" ] && return 0
-	[ "${o%%=*}" = "${1%=}" ] && { echo ${o#*=}; return 0; }
+	[ "${o%%=*}" = "${1%=}" ] && { echo ${o#*=}; setdebug; return 0; }
     done
+    setdebug
     return 1
 }
 
+setdebug() {
+    if [ -z "$RDDEBUG" ]; then
+        if [ -e /proc/cmdline ]; then
+            RDDEBUG=no
+	    if getarg rdinitdebug; then
+                RDDEBUG=yes 
+            fi
+        fi
+    fi
+    [ "$RDDEBUG" = "yes" ] && set -x 
+}
+
+setdebug
+
 getargs() {
+    set +x
     local o line found
     if [ -z "$CMDLINE" ]; then
 	[ -e /etc/cmdline ] && read CMDLINE_ETC </etc/cmdline;
@@ -26,7 +43,8 @@ getargs() {
 	    found=1;
 	fi
     done
-    [ -n "$found" ] && return 0
+    [ -n "$found" ] && { setdebug; return 0;}
+    setdebug
     return 1
 }
 
@@ -134,9 +152,4 @@ udevproperty() {
     fi
 }
 
-if [ -e /proc/cmdline ]; then
-	if getarg rdinitdebug; then
-	    set -x
-	fi
-fi
 

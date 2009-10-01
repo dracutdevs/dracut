@@ -28,6 +28,7 @@ NEWROOT="/sysroot"
 
 trap "emergency_shell Signal caught!" 0
 
+RDDEBUG=""
 . /lib/dracut-lib.sh
 
 mknod /dev/null c 1 3
@@ -49,9 +50,7 @@ if [ ! -c /dev/ptmx ]; then
     fi
 fi
 
-if getarg rdinitdebug; then
-    set -x
-fi
+setdebug
 
 mkdir /dev/shm
 mkdir /dev/pts
