@@ -10,15 +10,6 @@ PATH=$PATH:/sbin:/usr/sbin
 # Huh? No interface config?
 [ ! -e /tmp/net.$1.up ] && exit 1
 
-# Only try to configure from one network interface at a time
-#
-if [ -z "$NETROOT_LOCKED" ] ; then
-    NETROOT_LOCKED=true
-    export NETROOT_LOCKED
-    exec flock -xo /tmp/netroot.lock -c "$0 $*"
-    exit 1
-fi
-
 # There's no sense in doing something if no (net)root info is available
 # or root is already there
 [ -e /tmp/root.info ] || exit 1
