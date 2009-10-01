@@ -1,3 +1,29 @@
+- do not destroy assembled raid arrays if mdadm.conf present
+- mount /dev/shm
+- let udevd not resolve group and user names
+- preserve timestamps of tools on initramfs generation
+- generate symlinks for binaries correctly
+- moved network from udev to initqueue
+- mount nfs3 with nfsvers=3 option and retry with nfsvers=2
+- fixed nbd initqueue-finished
+- improved debug output: specifying "rdinitdebug" now logs
+  to dmesg, console and /init.log
+- stop udev before killing it
+- add ghost /var/log/dracut.log
+- dmsquash: use info() and die() rather than echo
+- strip kernel modules which have no x bit set
+- redirect stdin, stdout, stderr all RW to /dev/console
+  so the user can use "less" to view /init.log and dmesg
+- make install of new dm/lvm udev rules optionally
+- correct dasd module typo
+- add new device mapper udev rules and dmeventd
+- Fix LiveCD boot regression
+- bail out if selinux policy could not be loaded and
+  selinux=0 not specified on kernel command line
+- set finished criteria for dmsquash live images
+- do not cleanup dmraids
+- copy over lvm.conf
+
 dracut-002
 ==========
 - add ifname= argument for persistent netdev names
