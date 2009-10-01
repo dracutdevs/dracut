@@ -1,3 +1,4 @@
+- fixed dracut-gencmdline for root=UUID or LABEL
 - do not destroy assembled raid arrays if mdadm.conf present
 - mount /dev/shm
 - let udevd not resolve group and user names
