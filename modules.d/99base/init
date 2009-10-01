@@ -191,6 +191,9 @@ done
 
 getarg rdbreak && emergency_shell "Break before switch_root"
 
+# stop udev queue before killing it
+udevadm control --stop-exec-queue
+
 HARD=""
 while pidof udevd >/dev/null 2>&1; do 
     for pid in $(pidof udevd); do
