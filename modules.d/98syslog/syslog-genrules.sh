@@ -29,7 +29,7 @@ if [ -z "$syslogtype" ]; then
 	echo $syslogtype > /tmp/syslog.type
 fi
 if [ -e "/sbin/${syslogtype}-start" ]; then
-	printf 'ACTION=="online", SUBSYSTEM=="net", RUN+="/sbin/'${syslogtype}'-start $env{INTERFACE}"\n' > /etc/udev/rules.d/70-syslog.rules
+	printf 'ACTION=="online", SUBSYSTEM=="net", RUN+="/sbin/initqueue --onetime /sbin/'${syslogtype}'-start $env{INTERFACE}"\n' > /etc/udev/rules.d/70-syslog.rules
 else
 	warn "syslog-genrules: Could not find binary to start syslog of type \"$syslogtype\". Syslog will not be started."
 fi
