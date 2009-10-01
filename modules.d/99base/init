@@ -7,7 +7,10 @@
 
 emergency_shell()
 {
-    exec >/dev/console 2>&1 </dev/console
+    set +x
+    exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
+    # wait for loginit
+    wait
     echo ; echo
     echo $@
     source_all emergency
@@ -50,6 +53,12 @@ if [ ! -c /dev/ptmx ]; then
     fi
 fi
 
+if getarg rdinitdebug; then
+    getarg quiet && DRACUT_QUIET="yes"
+    mkfifo /dev/initlog.pipe
+    /sbin/loginit $DRACUT_QUIET </dev/initlog.pipe >/dev/console 2>&1 &
+    exec >/dev/initlog.pipe 2>&1
+fi
 setdebug
 
 mkdir /dev/shm
@@ -243,6 +252,10 @@ if getarg rdcopystate; then
 fi
 
 info "Switching root"
+
+exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
+# wait for loginit
+wait
 
 exec switch_root "$NEWROOT" "$INIT" $initargs || {
     echo "Something went very badly wrong in the initramfs.  Please "
