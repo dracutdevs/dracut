@@ -152,13 +152,21 @@ qpopd() {
     popd >/dev/null 2>&1
 }
 
-resolve_device_name() {
-    echo "$1" 
-#    echo "resolve_device_name $1"  1>&2
-}
 
 freadlink() {
     /usr/bin/readlink -f "$1"
+}
+
+resolve_device_name() {
+    if [ -z "${1##UUID=*}" ]; then
+        real=$(freadlink /dev/disk/by-uuid/${1##UUID=})
+        [ -b $real ] && { echo $real; return; }
+    fi
+    if [ -z "${1##LABEL=*}" ]; then
+        real=$(freadlink /dev/disk/by-label/${1##LABEL=})
+        [ -b $real ] && { echo $real; return; }
+    fi
+    echo "$1" 
 }
 
 finddevnoinsys() {
@@ -604,9 +612,7 @@ done
     else
         # check if it's root by label
         rdev=$rootdev
-        if [[ "$rdev" =~ ^(UUID=|LABEL=) ]]; then
-            rdev=$(resolve_device_name "$rdev")
-        fi
+        rdev=$(resolve_device_name "$rdev")
         rootopts=$(echo $rootopts | sed -e 's/^r[ow],//' -e 's/,_netdev//' -e 's/_netdev//' -e 's/,r[ow],$//' -e 's/,r[ow],/,/' -e 's/^r[ow]$/defaults/' -e 's/$/,ro/')
         findstoragedriver "$rdev"
     fi
@@ -615,9 +621,7 @@ done
     [ -z "$thawdev" ] && thawdev=$(awk '/^[ \t]*[^#]/ { if ($3 == "swap") { print $1; exit }}' $fstab)
     swsuspdev="$thawdev"
     if [ -n "$swsuspdev" ]; then
-        if [[ "$swsuspdev" =~ ^(UUID=|LABEL=) ]]; then
-            swsuspdev=$(resolve_device_name "$swsuspdev")
-        fi
+        swsuspdev=$(resolve_device_name "$swsuspdev")
 	findstoragedriver "$swsuspdev"
     fi
 
@@ -662,31 +666,33 @@ emitcrypto()
     echo -n "rd_LUKS_UUID=$luksuuid "
 }
 
-for cryptdev in ${!cryptopart@} ; do
-    emitcrypto `eval echo '$'$cryptdev`
-done
-
 if [ -n "$raiddevices" ]; then
     for dev in $raiddevices; do
-        uid=$(udevadm info --query=all --name=/dev/${dev}|grep  MD_UUID)
-        uid=$(IFS="=";set $uid;echo $2)
-        echo -n "rd_MD_UUID=$uid "
+        uid=$(udevadm info --query=env --name /dev/${dev}|grep MD_UUID)
+        uid=${uid##MD_UUID=}
+        [ -n "$uid" ] && echo -n "rd_MD_UUID=$uid "
     done
+else
+    echo -n "rd_NO_MD "
 fi
-
-for cryptdev in ${!cryptoraid@} ; do
-    emitcrypto `eval echo '$'$cryptdev`
-done
 
 if [ -z "$nolvm" -a -n "$vg_list" ]; then    
     for vg in $vg_list; do 
 	echo -n "rd_LVM_VG=$vg "
     done
+else
+    echo -n "rd_NO_LVM "
 fi
 
-for cryptdev in ${!cryptolv@} ; do
-    emitcrypto `eval echo '$'$cryptdev`
-done
+cryptdevs="${!cryptoraid@} ${!cryptopart@} ${!cryptolv@}"
+
+if [ -z "$cryptdevs" ]; then
+    echo -n "rd_NO_LUKS "
+else
+    for cryptdev in ${!cryptoraid@} ${!cryptopart@} ${!cryptolv@} ; do
+        emitcrypto `eval echo '$'$cryptdev`
+    done
+fi
 
 # output local keyboard/18n settings
 [ -e /etc/sysconfig/keyboard ] && . /etc/sysconfig/keyboard
@@ -703,14 +709,6 @@ fi
 
 if [ -n "$rootdev" ]; then
     echo -n "root=$rootdev "
-fi
-
-if [ -L /usr/share/plymouth/themes/default.plymouth ]; then
-    theme=$(basename \
-	$(dirname \
-	$(readlink -f  \
-	/usr/share/plymouth/themes/default.plymouth)))
-    [ -n "$theme" ] && echo -n "rd_plytheme=$theme "
 fi
 
 echo
