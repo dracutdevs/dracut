@@ -1,11 +1,11 @@
 .TH DRACUT 8 "June 2009" "Linux"
 .SH NAME
-switch_root \- switch to another filesystem as the root of the mount tree.
+dracut \- create initial ramdisk images for preloading modules
 .SH SYNOPSIS
 \fBdracut\fR [\fIOPTION\fR]... \fI<image>\fR  \fI<kernel-version>\fR
 
 .SH DESCRIPTION
-.B switch_root
+.B dracut
 \fBdracut\fR creates an initial image used by the kernel for
 preloading the block device modules (such as IDE, SCSI or RAID)
 which are needed to access the root filesystem.
@@ -325,6 +325,6 @@ Warren Togami <wtogami@redhat.com>
 .fi
 .SH AVAILABILITY
 The dracut command is part of the dracut package and is available from
-https://sourceforge.net/apps/trac/dracut/wiki
+http://sourceforge.net/apps/trac/dracut/wiki
 
 
