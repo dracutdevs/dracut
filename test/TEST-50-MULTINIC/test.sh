@@ -4,7 +4,7 @@ TEST_DESCRIPTION="root filesystem on NFS with multiple nics"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-#DEBUGFAIL="rdinitdebug rdnetdebug"
+#DEBUGFAIL="rdshell"
 
 run_server() {
     # Start server first
@@ -15,7 +15,7 @@ run_server() {
 	-net socket,mcast=230.0.0.1:1234 \
 	-serial udp:127.0.0.1:9999 \
 	-kernel /boot/vmlinuz-$KVERSION \
-	-append "selinux=0 root=/dev/sda rw quiet console=ttyS0,115200n81" \
+	-append "selinux=0 root=/dev/sda rdinitdebug rdnetdebug rw quiet console=ttyS0,115200n81" \
 	-initrd initramfs.server -pidfile server.pid -daemonize || return 1
     sudo chmod 644 server.pid || return 1
 
