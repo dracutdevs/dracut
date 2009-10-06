@@ -1,0 +1,13 @@
+#/bin/sh
+
+QUIET=$1
+
+[ -e /dev/kmsg ] && exec 5>/dev/kmsg || exec 5>/dev/null
+exec 6>/init.log
+
+while read line; do 
+   echo "<7>dracut: $line" >&5
+   # if "quiet" is specified we output to /dev/console
+   [ -n "$QUIET" ] && echo "dracut: $line" 
+   echo "$line" >&6
+done
