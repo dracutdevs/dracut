@@ -17,6 +17,7 @@ setup_interface() {
 	echo ip link set $netif down
 	echo ip link set $netif mtu $mtu
 	echo ip link set $netif up
+	echo wait_for_if_up $netif
     fi > /tmp/net.$netif.up
 
     echo ip addr add $ip${mask:+/$mask} ${bcast:+broadcast $bcast} dev $netif >> /tmp/net.$netif.up
@@ -52,6 +53,7 @@ netif=$interface
 case $reason in
     PREINIT)
 	ip link set $netif up
+	wait_for_if_up $netif
 	;;
     BOUND)
 	setup_interface 

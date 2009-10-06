@@ -32,8 +32,9 @@ do_dhcp() {
 
 # Handle static ip configuration
 do_static() {
-{
+    {
 	echo ip link set $netif up 
+	echo wait_for_if_up $netif
 	echo ip addr flush dev $netif
 	echo ip addr add $ip/$mask dev $netif
     } > /tmp/net.$netif.up
@@ -89,6 +90,7 @@ fi
 # start bridge if necessary
 if [ "$netif" = "$bridgename" ] && [ ! -e /tmp/net.$bridgename.up ]; then
     ip link set $ethname up
+    wait_for_if_up $ethname
     # Create bridge and add eth to bridge
     brctl addbr $bridgename
     brctl setfd $bridgename 0
