@@ -133,7 +133,7 @@ test_nfsv3() {
 
     # This test must fail: nfsroot= requires root=/dev/nfs
     client_test "NFSv3 Invalid root=dhcp nfsroot=/nfs/client" 52:54:00:12:34:04 \
-	"root=dhcp nfsroot=/nfs/client" 192.168.50.1 -wsize=4096 && return 1
+	"root=dhcp nfsroot=/nfs/client failme" 192.168.50.1 -wsize=4096 && return 1
 
     client_test "NFSv3 root=dhcp DHCP path,options" \
 	52:54:00:12:34:05 "root=dhcp" 192.168.50.1 wsize=4096 || return 1

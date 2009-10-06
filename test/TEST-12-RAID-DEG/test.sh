@@ -30,21 +30,21 @@ test_run() {
     
     client_run rd_NO_MDADMCONF || return 1
 
-    client_run rd_NO_LVM && return 1
+    client_run rd_NO_LVM failme && return 1
 
-    client_run rd_LVM_VG=failme && return 1
+    client_run rd_LVM_VG=failme failme && return 1
 
     client_run rd_LVM_VG=dracut || return 1
 
-    client_run rd_LVM_VG=dummy1 rd_LVM_VG=dracut rd_LVM_VG=dummy2 || return 1
+    client_run rd_LVM_VG=dummy1 rd_LVM_VG=dracut rd_LVM_VG=dummy2 rd_NO_LVMCONF || return 1
 
-    client_run rd_MD_UUID=failme rd_NO_MDADMCONF && return 1
+    client_run rd_MD_UUID=failme rd_NO_MDADMCONF failme && return 1
 
-    client_run rd_NO_MD && return 1
+    client_run rd_NO_MD failme && return 1
 
     client_run rd_MD_UUID=$MD_UUID rd_NO_MDADMCONF || return 1
 
-    client_run rd_MD_UUID=dummy1 rd_MD_UUID=$MD_UUID rd_MD_UUID=dummy2 rd_NO_MDADMCONF|| return 1
+    client_run rd_MD_UUID=dummy1 rd_MD_UUID=$MD_UUID rd_MD_UUID=dummy2 rd_NO_MDADMCONF || return 1
 
     return 0
 }
