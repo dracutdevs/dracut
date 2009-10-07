@@ -30,7 +30,7 @@ for netif in $IFACES ; do
 	[ -n "$gw" ] && echo "GATEWAY=$gw" >> /tmp/ifcfg/ifcfg-$netif
     fi
 
-    # bridge needs differente things written to ifcfg
+    # bridge needs different things written to ifcfg
     if [ -z "$bridge" ]; then
         # standard interface
         echo "HWADDR=$(cat /sys/class/net/$netif/address)" >> /tmp/ifcfg/ifcfg-$netif
