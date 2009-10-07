@@ -9,7 +9,7 @@ sbindir ?= ${prefix}/sbin
 mandir ?= ${prefix}/share/man
 
 
-.PHONY: install clean archive rpm testimage test all check
+.PHONY: install clean archive rpm testimage test all check AUTHORS
 
 all: modules.d/99base/switch_root
 
@@ -84,3 +84,5 @@ hostimage: all
 	@echo wrote  test-$(shell uname -r).img 
 	
 
+AUTHORS:
+	git shortlog  --numbered --summary -e |while read a rest; do echo $$rest;done > AUTHORS
