@@ -2,15 +2,40 @@
 #
 # Licensed under the GPLv2
 #
-# Copyright 2008, Red Hat, Inc.
+# Copyright 2008-2009, Red Hat, Inc.
+# Harald Hoyer <harald@redhat.com>
 # Jeremy Katz <katzj@redhat.com>
+
+wait_for_loginit()
+{
+    if getarg rdinitdebug; then
+	set +x
+	exec 1>- 2>-
+	exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
+	# wait for loginit
+	i=0
+	while [ $i -lt 10 ]; do 
+	    j=$(jobs)
+	    [ -z "$j" ] && break
+	    [ -z "${j##*Running*}" ] || break
+	    sleep 0.1
+	    i=$[$i+1]
+	done	
+	[ $i -eq 10 ] && kill %1 >/dev/null 2>&1
+
+        while pidof -x /sbin/loginit >/dev/null 2>&1; do
+            for pid in $(pidof -x /sbin/loginit); do
+                kill $HARD $pid >/dev/null 2>&1
+            done
+            HARD="-9"
+        done
+	set -x
+    fi
+}
 
 emergency_shell()
 {
-    set +x
-    exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
-    # wait for loginit
-    wait
+    wait_for_loginit
     echo ; echo
     echo $@
     source_all emergency
@@ -58,7 +83,10 @@ if getarg rdinitdebug; then
     mkfifo /dev/initlog.pipe
     /sbin/loginit $DRACUT_QUIET </dev/initlog.pipe >/dev/console 2>&1 &
     exec >/dev/initlog.pipe 2>&1
+else
+    exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
 fi
+
 setdebug
 
 mkdir /dev/shm
@@ -245,9 +273,7 @@ fi
 
 info "Switching root"
 
-exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
-# wait for loginit
-wait
+wait_for_loginit
 
 exec switch_root "$NEWROOT" "$INIT" $initargs || {
     echo "Something went very badly wrong in the initramfs.  Please "
