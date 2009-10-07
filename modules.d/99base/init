@@ -227,6 +227,7 @@ if getarg init= >/dev/null ; then
     read CLINE </proc/cmdline
     CLINE=${CLINE#*init=}
     set $CLINE
+    shift
     for x in "$@"; do
         for s in $ignoreargs; do       
             [ "${x%%=*}" = $s ] && continue 2
