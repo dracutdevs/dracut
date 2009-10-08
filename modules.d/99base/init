@@ -78,6 +78,8 @@ if [ ! -c /dev/ptmx ]; then
     fi
 fi
 
+ln -s /proc/self/fd /dev/fd >/dev/null 2>&1
+
 if getarg rdinitdebug; then
     getarg quiet && DRACUT_QUIET="yes"
     mkfifo /dev/initlog.pipe
@@ -91,8 +93,8 @@ setdebug
 
 mkdir /dev/shm
 mkdir /dev/pts
-mount -t devpts -o gid=5,mode=620 /dev/pts /dev/pts >/dev/null 2>&1
-mount -t tmpfs /dev/shm /dev/shm >/dev/null 2>&1
+mount -t devpts -o gid=5,mode=620 devpts /dev/pts >/dev/null 2>&1
+mount -t tmpfs tmpfs /dev/shm >/dev/null 2>&1
 
 UDEVVERSION=$(udevadm --version)
 
