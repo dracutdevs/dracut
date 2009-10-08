@@ -42,7 +42,7 @@ CHANNEL1="$1"
 shift
 while [ $# -gt 0 ]; do
     case $1 in
-	layer1=*) LAYER1=${1##layer1=};;
+	layer2=*) LAYER2=${1##layer2=};;
 	*=*) OPTIONS="$OPTIONS $1";;
 	[0-9]*) SUBCHANNELS="$SUBCHANNELS,$1";;
     esac
@@ -78,8 +78,8 @@ if [ -e $SYSDIR/online ]; then
     [ "$on" = "1" ] && exit 0
 fi
 
-# first set layer1, other options may depend on it
-[ -n "$LAYER1" ] && echo $LAYER1 > $SYSDIR/layer1
+# first set layer2, other options may depend on it
+[ -n "$LAYER2" ] && echo $LAYER2 > $SYSDIR/layer2
 
 if [ -n "$OPTIONS" ]; then         
     for i in $OPTIONS; do
