@@ -10,7 +10,7 @@
 [ -n "$bridgename" ] && return
 
 # Check if bridge parameter is valid 
-if getarg ip= >/dev/null ; then
+if getarg bridge= >/dev/null ; then
     if [ -z "$netroot" ] ; then
 	die "No netboot configured, bridge is invalid"
     fi
