@@ -1,0 +1,6 @@
+#!/bin/bash
+inst_hook cmdline 30 "$moddir/parse-zfcp.sh"
+dracut_install tr
+inst "$moddir/zfcpconf.sh" /sbin/zfcpconf.sh
+inst_rules "$moddir/56-zfcp.rules"
+inst /etc/zfcp.conf

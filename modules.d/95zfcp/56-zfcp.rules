@@ -1,0 +1,1 @@
+KERNEL=="zfcp_cfdc", RUN+="/sbin/zfcpconf.sh"
