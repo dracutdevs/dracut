@@ -167,7 +167,8 @@ fi
 hookdirs="cmdline pre-udev pre-trigger netroot pre-mount pre-pivot mount emergency"
 
 readonly initdir=$(mktemp -d -t initramfs.XXXXXX)
-trap 'rm -rf "$initdir"' 0 # clean up after ourselves no matter how we die.
+trap 'ret=$?;rm -rf "$initdir";exit $ret;' EXIT # clean up after ourselves no matter how we die.
+trap 'exit 1;' SIGINT # clean up after ourselves no matter how we die.
 
 # Need to be able to have non-root users read stuff (rpcbind etc)
 chmod 755 "$initdir"
