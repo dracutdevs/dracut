@@ -1,0 +1,90 @@
+#!/bin/sh
+
+[ -z "$DEVPATH" ] && exit 0
+[ "$SUBSYSTEM" != "ccw" ] && exit 0
+
+[ -e /etc/ccw.conf ] || exit 0
+
+get_config_by_subchannel()
+{
+    CHANNEL="$1"
+    while read line; do	
+	IFS=, 
+	set $line
+	for i in $@; do
+	    if [ "$CHANNEL" = "$i" ]; then
+	 	echo $line
+	 	return 0
+	     fi
+	done
+	if [ "$CHANNEL" = "$2" ]; then
+	    echo $line
+	    return 0
+	fi
+    done < /etc/ccw.conf
+    return 1
+}
+
+# First, determine our channel
+
+CHANNEL=${DEVPATH##*/}
+
+CONFIG=$(get_config_by_subchannel $CHANNEL)
+
+[ $? -ne 0 -o -z "$CONFIG" ] && exit 0
+
+set $CONFIG
+NETTYPE=$1
+shift
+SUBCHANNELS="$1"
+OPTIONS=""
+CHANNEL1="$1"
+shift
+while [ $# -gt 0 ]; do
+    case $1 in
+	layer1=*) LAYER1=${1##layer1=};;
+	*=*) OPTIONS="$OPTIONS $1";;
+	[0-9]*) SUBCHANNELS="$SUBCHANNELS,$1";;
+    esac
+    shift
+done
+
+# SUBCHANNELS is only set on mainframe ccwgroup devices
+[ -z "$SUBCHANNELS" -o -z "$NETTYPE" ] && exit 0
+DIR="/sys/bus/ccwgroup/drivers/$NETTYPE"
+
+i=0
+while [ $i -lt 20 ]; do
+    [ -e $DIR ] && break
+    sleep 0.1
+    i=$(($i+1))
+done
+
+SYSDIR="$DIR/$CHANNEL1"
+
+if [ ! -e $SYSDIR ]; then
+    echo "$SUBCHANNELS" > $DIR/group
+    i=0
+    while [ $i -lt 20 ]; do
+	[ -e $SYSDIR ] && break
+	sleep 0.1
+	i=$(($i+1))
+    done
+fi
+
+# check if the interface is already online
+if [ -e $SYSDIR/online ]; then
+    read on <$SYSDIR/online
+    [ "$on" = "1" ] && exit 0
+fi
+
+# first set layer1, other options may depend on it
+[ -n "$LAYER1" ] && echo $LAYER1 > $SYSDIR/layer1
+
+if [ -n "$OPTIONS" ]; then         
+    for i in $OPTIONS; do
+	echo "${i##*=}" > "$SYSDIR/${i%%=*}"
+    done
+fi
+
+[ -e $SYSDIR/online ] && echo 1 > $SYSDIR/online

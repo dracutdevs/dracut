@@ -183,6 +183,12 @@ example: rd_ZFCP=0.0.4000,0x5005076300C213e9,0x5022000000000000
 .B rd_NO_ZFCPCONF
 ignore zfcp.conf included in the initramfs
 
+.SH CCW
+.TP
+.B rd_CCW=<nettype>,<subchannels>,<options>
+rd_CCW can be specified multiple times on the kernel command line.
+e.g. rd_CCW=qeth,0.0.0600,0.0.0601,0.0.0602,layer2=1,portname=foo
+e.g. rd_CCW=ctc,0.0.0600,0.0.0601,0.0.0602,protocol=bar
 .SH DHCP
 .TP
 .B root=dhcp

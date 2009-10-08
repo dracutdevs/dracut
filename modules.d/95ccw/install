@@ -1,0 +1,5 @@
+#!/bin/bash
+inst_hook cmdline 30 "$moddir/parse-ccw.sh"
+inst "$moddir/ccw_init" /lib/udev/ccw_init
+#inst_rules 55-ccw.rules || inst_rules "$moddir/55-ccw.rules"
+inst_rules "$moddir/55-ccw.rules"
