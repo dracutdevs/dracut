@@ -1,3 +1,3 @@
 #!/bin/sh
-getarg rdinitdebug || poweroff -f
+getarg rdshell || poweroff -f
 getarg failme && poweroff -f
