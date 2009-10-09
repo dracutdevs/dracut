@@ -1,11 +1,9 @@
 #!/bin/bash
 dracut_install dmraid partx kpartx 
 
-if which dmeventd &>/dev/null ; then
-    dracut_install  dmeventd
-    dracut_install  /usr/lib*/libdmraid-events-isw.so*
-    inst_rules 10-dm.rules 12-dm-disk.rules 95-dm-notify.rules 
-fi
+inst  dmeventd
+inst  /usr/lib*/libdmraid-events-isw.so*
+inst_rules 10-dm.rules 12-dm-disk.rules 95-dm-notify.rules 
 
 inst "$moddir/dmraid.sh" /sbin/dmraid_scan
 
