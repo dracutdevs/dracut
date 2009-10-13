@@ -32,12 +32,12 @@ setup_interface() {
 
     [ -n "$gw" ] && echo ip route add default via $gw dev $netif > /tmp/net.$netif.gw
 
-    [ -n "${search}${domain}" ] && echo "search $search $domain" > /tmp/resolv.conf
+    [ -n "${search}${domain}" ] && echo "search $search $domain" > /tmp/net.$netif.resolv.conf
     if  [ -n "$namesrv" ] ; then
 	for s in $namesrv; do
 	    echo nameserver $s 
 	done
-    fi >> /tmp/resolv.conf
+    fi >> /tmp/net.$netif.resolv.conf
 
     [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
 }
