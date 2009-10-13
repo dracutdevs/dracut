@@ -1,5 +1,5 @@
 #!/bin/sh
-[ -f /etc/redhat-release ] || exit 1
+[ -d /etc/sysconfig/network-scripts/ ] || exit 1
 
 [[ $1 = -d ]] && echo network
 
