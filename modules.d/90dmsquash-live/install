@@ -4,6 +4,7 @@ inst dmsetup
 inst blkid
 inst dd
 inst losetup
+inst grep
 
 # eject might be a symlink to consolehelper
 if [ -L /usr/bin/eject ]; then
