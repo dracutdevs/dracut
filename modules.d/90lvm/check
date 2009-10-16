@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# We depend on dm_mod being loaded
+[ "$1" = "-d" ] && echo dm
+
 # No point trying to support lvm if the binaries are missing
 which lvm >/dev/null 2>&1 || exit 1
 

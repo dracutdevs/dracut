@@ -1,0 +1,4 @@
+#!/bin/bash
+
+inst_hook pre-udev 30 "$moddir/dm-pre-udev.sh"
+
