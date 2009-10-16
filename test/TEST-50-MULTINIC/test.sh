@@ -198,19 +198,20 @@ test_setup() {
  	. $basedir/dracut-functions
  	dracut_install poweroff shutdown
  	inst_simple ./hard-off.sh /emergency/01hard-off.sh
+	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 
     # Make server's dracut image
     $basedir/dracut -l -i overlay / \
 	-m "dash udev-rules base rootfs-block debug kernel-modules" \
-	-d "ata_piix ext2 sd_mod e1000" \
+	-d "piix ide-gd_mod ata_piix ext2 sd_mod e1000" \
 	-f initramfs.server $KVERSION || return 1
 
     # Make client's dracut image
     $basedir/dracut -l -i overlay / \
 	-o "plymouth" \
 	-a "debug" \
-	-d "e1000 nfs sunrpc" \
+	-d "piix ide-gd_mod e1000 nfs sunrpc" \
 	-f initramfs.testing $KVERSION || return 1
 }
 

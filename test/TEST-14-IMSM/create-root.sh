@@ -4,7 +4,12 @@ for x in 61-dmraid-imsm.rules 65-md-incremental-imsm.rules 65-md-incremental.rul
     > "/etc/udev/rules.d/$x"
 done
 udevadm control --reload-rules
-echo y|dmraid -f isw -C Test0 --type 1 --disk "/dev/sdb /dev/sdc" 
+# dmraid does not want symlinks in --disk "..."
+if [ -e /dev/hda ] ; then 
+    echo y|dmraid -f isw -C Test0 --type 1 --disk "/dev/hdb /dev/hdc"
+else 
+    echo y|dmraid -f isw -C Test0 --type 1 --disk "/dev/sdb /dev/sdc"
+fi
 udevadm settle
 
 SETS=$(dmraid -c -s)

@@ -74,14 +74,15 @@ test_setup() {
 	. $basedir/dracut-functions
 	dracut_install sfdisk mke2fs poweroff cp umount dd
 	inst_simple ./create-root.sh /initqueue/01create-root.sh
-    )
+ 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
+   )
  
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     $basedir/dracut -l -i overlay / \
 	-m "dash crypt lvm mdraid udev-rules base rootfs-block kernel-modules" \
-	-d "ata_piix ext2 sd_mod" \
+	-d "piix ide-gd_mod ata_piix ext2 sd_mod" \
 	-f initramfs.makeroot $KVERSION || return 1
     rm -rf overlay
     # Invoke KVM and/or QEMU to actually create the target filesystem.
@@ -96,6 +97,7 @@ test_setup() {
 	. $basedir/dracut-functions
 	dracut_install poweroff shutdown
 	inst_simple ./hard-off.sh /emergency/01hard-off.sh
+	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
 	inst ./cryptroot-ask /sbin/cryptroot-ask
         mkdir -p overlay/etc
         echo "ARRAY /dev/md0 level=raid5 num-devices=3 UUID=$MD_UUID" > overlay/etc/mdadm.conf
@@ -103,7 +105,7 @@ test_setup() {
     sudo $basedir/dracut -l -i overlay / \
 	-o "plymouth" \
 	-a "debug" \
-	-d "ata_piix ext2 sd_mod" \
+	-d "piix ide-gd_mod ata_piix ext2 sd_mod" \
 	-f initramfs.testing $KVERSION || return 1
 }
 

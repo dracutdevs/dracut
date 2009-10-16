@@ -82,6 +82,7 @@ test_setup() {
 	. $basedir/dracut-functions
 	dracut_install sfdisk mke2fs poweroff cp umount 
 	inst_simple ./create-root.sh /initqueue/01create-root.sh
+	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
  
     # create an initramfs that will create the target root filesystem.
@@ -89,7 +90,7 @@ test_setup() {
     # devices, volume groups, encrypted partitions, etc.
     $basedir/dracut -l -i overlay / \
 	-m "dash crypt lvm mdraid udev-rules base rootfs-block kernel-modules" \
-	-d "ata_piix ext2 sd_mod" \
+	-d "piix ide-gd_mod ata_piix ext2 sd_mod" \
 	-f initramfs.makeroot $KVERSION || return 1
     rm -rf overlay
 
@@ -111,11 +112,12 @@ test_setup() {
 	. $basedir/dracut-functions
 	dracut_install poweroff shutdown
 	inst_simple ./hard-off.sh /emergency/01hard-off.sh
+	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
     sudo $basedir/dracut -l -i overlay / \
 	-o "plymouth dmraid" \
 	-a "debug" \
-	-d "ata_piix ext2 sd_mod" \
+	-d "piix ide-gd_mod ata_piix ext2 sd_mod" \
 	-f initramfs.testing $KVERSION || return 1
 
     # Make server root
@@ -159,7 +161,7 @@ test_setup() {
     # Make server's dracut image
     $basedir/dracut -l -i overlay / \
 	-m "dash udev-rules base rootfs-block debug kernel-modules" \
-	-d "ata_piix ext2 sd_mod e1000" \
+	-d "piix ide-gd_mod ata_piix ext2 sd_mod e1000" \
 	-f initramfs.server $KVERSION || return 1
 
 }
