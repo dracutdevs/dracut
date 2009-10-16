@@ -5,7 +5,7 @@ if [[ -z $drivers ]]; then
 
 	 nm -uPA "$1" | egrep -q "$blockfuncs"
     }
-    instmods pcmcia sd_mod $(filter_kernel_modules block_module_test) "=drivers/pcmcia"
+    instmods pcmcia sd_mod $(filter_kernel_modules block_module_test) "=drivers/pcmcia" =ide
     # if not on hostonly mode, install all known filesystems.
     if [[ $hostonly = '' ]]; then
 	instmods '=fs'
