@@ -1,3 +1,4 @@
+%define gittag 35758e5c
 %define with_switch_root 1
 
 %if 0%{?fedora} > 11
@@ -17,7 +18,7 @@
 
 Name: dracut
 Version: 002
-Release: 12%{?rdist}
+Release: 17%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
 License: GPLv2+	
@@ -42,7 +43,9 @@ Requires: fileutils, gzip, tar
 Requires: lvm2 >= 2.02.33-9, dhclient
 Requires: filesystem >= 2.1.0, cpio, device-mapper, initscripts >= 8.63-1
 Requires: e2fsprogs >= 1.38-12, libselinux, libsepol, coreutils
-Requires: mdadm, elfutils-libelf, plymouth >= 0.7.0
+Requires: mdadm, elfutils-libelf 
+Requires(pre): plymouth >= 0.7.0
+Requires: plymouth >= 0.7.0
 Requires: cryptsetup-luks
 Requires: file
 Requires: bzip2
@@ -145,6 +148,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dracut/modules.d/10rpmversion
 %{_datadir}/dracut/modules.d/50plymouth
 %{_datadir}/dracut/modules.d/90crypt
+%{_datadir}/dracut/modules.d/90dm
 %{_datadir}/dracut/modules.d/90dmraid
 %{_datadir}/dracut/modules.d/90dmsquash-live
 %{_datadir}/dracut/modules.d/90kernel-modules
@@ -154,6 +158,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dracut/modules.d/95resume
 %{_datadir}/dracut/modules.d/95rootfs-block
 %{_datadir}/dracut/modules.d/95dasd
+%{_datadir}/dracut/modules.d/95zfcp
+%{_datadir}/dracut/modules.d/95ccw
 %{_datadir}/dracut/modules.d/95terminfo
 %{_datadir}/dracut/modules.d/95udev-rules
 %{_datadir}/dracut/modules.d/95udev-rules.ub810
@@ -188,6 +194,25 @@ rm -rf $RPM_BUILD_ROOT
 %dir /var/lib/dracut/overlay
 
 %changelog
+* Mon Oct 26 2009 Harald Hoyer <harald@redhat.com> 002-17
+- load dm_mod module (bug #530540)
+
+* Fri Oct 09 2009 Jesse Keating <jkeating@redhat.com> - 002-16
+- Upgrade plymouth to Requires(pre) to make it show up before kernel
+
+* Thu Oct 08 2009 Harald Hoyer <harald@redhat.com> 002-15
+- s390 ccw: s/layer1/layer2/g
+
+* Thu Oct 08 2009 Harald Hoyer <harald@redhat.com> 002-14
+- add multinic support
+- add s390 zfcp support
+- add s390 network support
+
+* Wed Oct 07 2009 Harald Hoyer <harald@redhat.com> 002-13
+- fixed init=<command> handling
+- kill loginit if "rdinitdebug" specified
+- run dmsquash-live-root after udev has settled (bug #527514)
+
 * Tue Oct 06 2009 Harald Hoyer <harald@redhat.com> 002-12
 - add missing loginit helper
 - corrected dracut manpage
