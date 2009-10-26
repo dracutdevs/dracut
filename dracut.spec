@@ -1,6 +1,10 @@
-%if 0%{?fedora} < 12
 %define with_switch_root 1
-%else
+
+%if 0%{?fedora} > 11
+%define with_switch_root 0
+%endif
+
+%if 0%{?rhel} > 5
 %define with_switch_root 0
 %endif
 
