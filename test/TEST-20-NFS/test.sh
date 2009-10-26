@@ -168,6 +168,11 @@ test_nfsv4() {
 }
 
 test_run() {
+    if [[ -s server.pid ]]; then
+	sudo kill -TERM $(cat server.pid)
+	rm -f server.pid
+    fi
+
     if ! run_server; then
 	echo "Failed to start server" 1>&2
 	return 1
