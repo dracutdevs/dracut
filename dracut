@@ -108,7 +108,9 @@ export PATH
     set -x
 }
 
-[[ $allowlocal && -f "$(readlink -f $(dirname $0))/dracut-functions" ]] && dsrc="$(dirname $0)" || dsrc=$dracutbasedir
+[[ $dracutbasedir ]] || dracutbasedir=/usr/share/dracut
+
+[[ $allowlocal && -f "$(readlink -f $(dirname $0))/dracut-functions" ]] && dracutbasedir="$(dirname $0)" 
 
 # if we were not passed a config file, try the default one
 if [[ ! -f $conffile ]]; then
@@ -139,15 +141,15 @@ fw_dir=${fw_dir//:/ }
 
 [[ $hostonly = yes ]] && hostonly="-h"
 
-if [[ -f $dsrc/dracut-functions ]]; then
-   . $dsrc/dracut-functions
+if [[ -f $dracutbasedir/dracut-functions ]]; then
+   . $dracutbasedir/dracut-functions
 else
-   echo "Cannot find $dsrc/dracut-functions. Are you running from a git checkout?"
+   echo "Cannot find $dracutbasedir/dracut-functions. Are you running from a git checkout?"
    echo "Try passing -l as an argument to $0"
    exit 1
 fi
 
-dracutfunctions=$dsrc/dracut-functions
+dracutfunctions=$dracutbasedir/dracut-functions
 export dracutfunctions
 
 # This is kinda legacy -- eventually it should go away.
@@ -176,7 +178,7 @@ trap 'exit 1;' SIGINT # clean up after ourselves no matter how we die.
 # Need to be able to have non-root users read stuff (rpcbind etc)
 chmod 755 "$initdir"
 
-export initdir hookdirs dsrc dracutmodules drivers \
+export initdir hookdirs dracutbasedir dracutmodules drivers \
     fw_dir drivers_dir debug beverbose no_kernel kernel_only \
     add_drivers mdadmconf lvmconf
 
@@ -192,7 +194,7 @@ fi
 check_modules
   
 #source our modules.
-for moddir in "$dsrc/modules.d"/[0-9][0-9]*; do
+for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
     mod=${moddir##*/}; mod=${mod#[0-9][0-9]}
     if strstr "$mods_to_load" " $mod "; then
 	if [[ $kernel_only = yes ]]; then
