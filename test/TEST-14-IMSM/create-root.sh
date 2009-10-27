@@ -41,7 +41,11 @@ done
 
 udevadm settle
 
-mdadm --create /dev/md0 --run --auto=yes --level=5 --raid-devices=3 /dev/mapper/isw*p[123]
+mdadm --create /dev/md0 --run --auto=yes --level=5 --raid-devices=3 \
+	/dev/mapper/isw*p1 \
+	/dev/mapper/isw*p2 \
+	/dev/mapper/isw*p3 
+
 # wait for the array to finish initailizing, otherwise this sometimes fails
 # randomly.
 mdadm -W /dev/md0
@@ -56,4 +60,5 @@ cp -a -t /sysroot /source/* && \
 umount /sysroot && \
 lvm lvchange -a n /dev/dracut/root && \
 echo "dracut-root-block-created" >/dev/sda
+mdadm --wait-clean /dev/md0
 poweroff -f
