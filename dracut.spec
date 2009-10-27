@@ -1,4 +1,3 @@
-%define gittag 35758e5c
 %define with_switch_root 1
 
 %if 0%{?fedora} > 11
@@ -18,7 +17,7 @@
 
 Name: dracut
 Version: 002
-Release: 17%{?rdist}
+Release: 18%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
 License: GPLv2+	
@@ -194,6 +193,10 @@ rm -rf $RPM_BUILD_ROOT
 %dir /var/lib/dracut/overlay
 
 %changelog
+* Tue Oct 27 2009 Harald Hoyer <harald@redhat.com> 002-18
+- renamed lvm/device-mapper udev rules according to upstream changes
+- fixed dracut search path issue
+
 * Mon Oct 26 2009 Harald Hoyer <harald@redhat.com> 002-17
 - load dm_mod module (bug #530540)
 
