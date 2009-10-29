@@ -111,7 +111,7 @@ get_numeric_dev() {
 # so, there are no slave devices for volume groups.
 # Logical volumes only have the slave devices they really live on,
 # but you cannot create the logical volume without the volume group.
-# And the volume group might be bigger than the devices the LV needes.
+# And the volume group might be bigger than the devices the LV needs.
 check_vol_slaves() {
     for i in /dev/mapper/*; do 
 	lv=$(get_numeric_dev $i)
@@ -175,7 +175,7 @@ inst_simple() {
     cp -pfL "$src" "${initdir}$target"
 }
 
-# Same as above, but specialzed to handle dynamic libraries.
+# Same as above, but specialized to handle dynamic libraries.
 # It handles making symlinks according to how the original library
 # is referenced.
 inst_library() {
@@ -268,7 +268,7 @@ inst_symlink() {
     inst "$realsrc" && ln -s "$realsrc" "$target"
 }
 
-# find a rule in the usual places.
+# find a udev rule in the usual places.
 find_rule() {
     [[ -f $1 ]] && { echo "$1"; return 0; }
     for r in . /lib/udev/rules.d /etc/udev/rules.d $dracutbasedir/rules.d; do
@@ -438,7 +438,7 @@ for_each_kmod_dep() {
     done
 }
 
-# filter kernel modules to install certian modules that meet specific
+# filter kernel modules to install certain modules that meet specific
 # requirements.
 # $1 = function to call with module name to filter.
 #      This function will be passed the full path to the module to test.
