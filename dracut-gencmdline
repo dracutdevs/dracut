@@ -212,7 +212,7 @@ findstoragedriverinsys () {
         sysfs=$(freadlink ${sysfs%/*})
     fi
 
-    if [[ ! "$sysfs" =~ '^/sys/.*block/.*$' ]]; then
+    if [[ ! "$sysfs" =~ ^/sys/.*block/.*$ ]]; then
         #error "WARNING: $sysfs is a not a block sysfs path, skipping"
         return
     fi
@@ -223,12 +223,12 @@ findstoragedriverinsys () {
         *) handleddevices="$handleddevices $sysfs" ;;
     esac
 
-    if [[ "$sysfs" =~ '^/sys/.*block/md[0-9]+$' ]]; then
+    if [[ "$sysfs" =~ ^/sys/.*block/md[0-9]+$ ]]; then
         local raid=${sysfs##*/}
         vecho "Found MDRAID component $raid"
         handleraid $raid
     fi
-    if [[ "$sysfs" =~ '^/sys/.*block/dm-[0-9]+$' ]]; then
+    if [[ "$sysfs" =~ ^/sys/.*block/dm-[0-9]+$ ]]; then
         vecho "Found DeviceMapper component ${sysfs##*/}"
         handledm $(cat $sysfs/dev |cut -d : -f 1) $(cat $sysfs/dev |cut -d : -f 2)
     fi
