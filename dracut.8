@@ -171,8 +171,13 @@ only activate the raid sets with the given UUID
 
 .SH DASD
 .TP
-.B rd_DASD=....
+.B rd_DASD_MOD=....
 same syntax as the kernel module parameter (s390 only)
+
+.TP
+.B rd_DASD=<CCW address>[,readonly=X][,use_diag=X][,erplog=X][,failfast=X]
+activate DASD device at given CCW address and setting the sysfs attributes
+to the specified values
 
 .SH ZFCP
 .TP
