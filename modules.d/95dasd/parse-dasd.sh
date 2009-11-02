@@ -1,7 +1,7 @@
-[ -d /etc/modprobe.d ] || mkdir /etc/modprobe.d
-
-dasd_arg=$(getarg rd_DASD=)
-if [ -n "$dasd_arg" ]; then
-	echo "options dasd_mod dasd=$dasd_arg" >> /etc/modprobe.d/dasd.conf
-fi
-unset dasd_arg
+for dasd_arg in $(getargs 'rd_DASD='); do
+    (
+        IFS=","
+        set $dasd_arg
+        echo "$@" >> /etc/dasd.conf
+    )
+done

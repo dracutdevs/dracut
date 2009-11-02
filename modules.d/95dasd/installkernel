@@ -1,5 +1,4 @@
 #!/bin/bash
 
 instmods dasd_mod dasd_eckd_mod dasd_fba_mod dasd_diag_mod
-	
 
