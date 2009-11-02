@@ -1,0 +1,5 @@
+#!/bin/bash
+arch=$(uname -m)
+[ "$arch" = "s390" -o "$arch" = "s390x" ] || exit 1 
+
+exit 0
