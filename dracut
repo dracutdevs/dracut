@@ -37,6 +37,9 @@ Creates initial ramdisk images for preloading modules
                         exclusively include in the initramfs.
   --add-drivers [LIST]  Specify a space-separated list of kernel 
                         modules to add to the initramfs.
+  --filesystems [LIST]  Specify a space-separated list of kernel filesystem
+                        modules to exclusively include in the generic
+                        initramfs.
   -k, --kmoddir [DIR]   Specify the directory, where to look for kernel 
                         modules
   --fwdir [DIR]         Specify additional directories, where to look for 
@@ -76,6 +79,7 @@ while (($# > 0)); do
 	-a|--add) add_dracutmodules_l="$2"; shift;;
 	-d|--drivers) drivers_l="$2"; shift;;
 	--add-drivers) add_drivers_l="$2"; shift;;
+	--filesystems) filesystems_l="$2"; shift;;
 	-k|--kmoddir) drivers_dir_l="$2"; shift;;
 	--fwdir) fw_dir_l="$2"; shift;;
 	--kernel-only) kernel_only="yes"; nokernel="no";;
@@ -127,6 +131,7 @@ fi
 [[ $add_dracutmodules_l ]] && add_dracutmodules="$add_dracutmodules $add_dracutmodules_l"
 [[ $drivers_l ]] && drivers=$drivers_l
 [[ $add_drivers_l ]] && add_drivers=$add_drivers_l
+[[ $filesystems_l ]] && filesystems=$filesystems_l
 [[ $drivers_dir_l ]] && drivers_dir=$drivers_dir_l
 [[ $fw_dir_l ]] && fw_dir=$fw_dir_l
 [[ $do_strip_l ]] && do_strip=$do_strip_l
@@ -180,7 +185,7 @@ chmod 755 "$initdir"
 
 export initdir hookdirs dracutbasedir dracutmodules drivers \
     fw_dir drivers_dir debug beverbose no_kernel kernel_only \
-    add_drivers mdadmconf lvmconf
+    add_drivers mdadmconf lvmconf filesystems
 
 if [[ $kernel_only != yes ]]; then
     # Create some directory structure first

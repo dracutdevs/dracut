@@ -6,16 +6,20 @@ if [[ -z $drivers ]]; then
 	 nm -uPA "$1" | egrep -q "$blockfuncs"
     }
     instmods pcmcia sd_mod $(filter_kernel_modules block_module_test) "=drivers/pcmcia" =ide "=drivers/usb/storage"
-    # if not on hostonly mode, install all known filesystems.
+    # if not on hostonly mode, install all known filesystems if the required list is not set via the filesystems variable
     if [[ $hostonly = '' ]]; then
-	instmods '=fs'
+	if [[ -z $filesystems ]]; then
+	    instmods '=fs'
+	else
+	    instmods $filesystems
+	fi
     else
 	instmods $(get_fs_type "/dev/block/$(find_root_block_device)")
     fi
     # hardcoded list of exceptions
     rm -fr ${initdir}/lib/modules/*/kernel/fs/ocfs2
 else
-  instmods $drivers
+  instmods $drivers $filesystems
 fi
 
 [[ $add_drivers ]] && instmods $add_drivers
