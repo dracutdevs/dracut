@@ -1,3 +1,4 @@
+%define gittag 78b52181
 %define with_switch_root 1
 
 %if 0%{?fedora} > 11
@@ -17,7 +18,7 @@
 
 Name: dracut
 Version: 002
-Release: 18%{?rdist}
+Release: 19%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
 License: GPLv2+	
@@ -157,6 +158,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dracut/modules.d/95resume
 %{_datadir}/dracut/modules.d/95rootfs-block
 %{_datadir}/dracut/modules.d/95dasd
+%{_datadir}/dracut/modules.d/95dasd_mod
 %{_datadir}/dracut/modules.d/95zfcp
 %{_datadir}/dracut/modules.d/95ccw
 %{_datadir}/dracut/modules.d/95terminfo
@@ -193,6 +195,10 @@ rm -rf $RPM_BUILD_ROOT
 %dir /var/lib/dracut/overlay
 
 %changelog
+* Tue Nov 03 2009 Harald Hoyer <harald@redhat.com> 002-19
+- changed rd_DASD to rd_DASD_MOD (bug #531720)
+- Resolves: rhbz#531720
+
 * Tue Oct 27 2009 Harald Hoyer <harald@redhat.com> 002-18
 - renamed lvm/device-mapper udev rules according to upstream changes
 - fixed dracut search path issue
