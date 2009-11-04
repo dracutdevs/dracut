@@ -2,4 +2,5 @@
 inst_hook cmdline 30 "$moddir/parse-dasd.sh"
 dracut_install tr
 inst "$moddir/dasdconf.sh" /sbin/dasdconf.sh
+inst_rules "$moddir/56-dasd.rules"
 inst /etc/dasd.conf
