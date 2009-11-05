@@ -146,6 +146,9 @@ disable crypto LUKS detection
 .TP
 .B rd_LUKS_UUID=<luks uuid>
 only activate the LUKS partitions with the given UUID
+Any "luks-" of the LUKS UUID is removed before comparing to <luks uuid>.
+The comparisons also matches, if <luks uuid> is only the beginning of the 
+LUKS UUID, so you don't have to specify the full UUID.
 .B rd_NO_CRYPTTAB
 do not check if LUKS partition is in /etc/crypttab
 
