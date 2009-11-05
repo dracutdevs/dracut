@@ -17,7 +17,8 @@ if [ -n "$LUKS" ]; then
     ask=0
     luuid=${2##luks-}
     for luks in $LUKS; do
-	if [ "${luuid##$luks}" != "$2" ]; then
+	luks=${luks##luks-}
+	if [ "${luuid##$luks}" != "$luuid" ]; then
 	    ask=1
 	fi
     done
