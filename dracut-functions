@@ -417,7 +417,7 @@ install_kmod_with_fw() {
 	    fi
 	done
 	if [[ $found != yes ]]; then
-	    dwarning "Possible missing firmware ${fw} for module ${mod}.ko"
+	    dinfo "Possible missing firmware ${fw} for module ${mod}.ko"
 	fi
     done
 }
