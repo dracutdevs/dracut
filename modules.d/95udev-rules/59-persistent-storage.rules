@@ -1,7 +1,18 @@
 SUBSYSTEM!="block", GOTO="ps_end"
 ACTION!="add|change", GOTO="ps_end"
-ACTION=="change", KERNEL=="dm-[0-9]*", IMPORT{program}="/sbin/blkid -o udev -p $tempnode"
+
 KERNEL=="cciss[0-9]*", IMPORT{program}="/sbin/blkid -o udev -p $tempnode"
 KERNEL=="nbd[0-9]*", IMPORT{program}="/sbin/blkid -o udev -p $tempnode"
 KERNEL=="md[0-9]*|md_d[0-9]*|md/*", IMPORT{program}="/sbin/blkid -o udev -p $tempnode"
+
+
+KERNEL!="dm-[0-9]*", GOTO="ps_end"
+ACTION=="add", GOTO="ps_end"
+IMPORT{program}="/sbin/dmsetup info -c --nameprefixes --unquoted --rows --noheadings -o name,uuid,suspended,readonly,major,minor,open,tables_loaded,names_using_dev -j%M -m%m"
+ENV{DM_NAME}!="?*", GOTO="ps_end"
+ENV{DM_UUID}=="CRYPT-TEMP-?*", GOTO="ps_end"
+ENV{DM_UUID}!="?*", ENV{DM_NAME}=="temporary-cryptsetup-?*", GOTO="ps_end"
+IMPORT{program}="/sbin/blkid -o udev -p $tempnode"
+
+
 LABEL="ps_end"
