@@ -5,7 +5,7 @@ if [[ -z $drivers ]]; then
 
 	 nm -uPA "$1" | egrep -q "$blockfuncs"
     }
-    instmods pcmcia sd_mod $(filter_kernel_modules block_module_test) "=drivers/pcmcia" =ide
+    instmods pcmcia sd_mod $(filter_kernel_modules block_module_test) "=drivers/pcmcia" =ide "=drivers/usb/storage"
     # if not on hostonly mode, install all known filesystems.
     if [[ $hostonly = '' ]]; then
 	instmods '=fs'
@@ -25,3 +25,4 @@ old_hostonly=$hostonly
 hostonly=''
 instmods scsi_wait_scan
 hostonly=$old_hostonly
+
