@@ -10,6 +10,21 @@
 [ -f /tmp/cryptroot-asked-$2 ] && exit 0
 
 . /lib/dracut-lib.sh
+
+luksname=$2
+
+if [ -f /etc/crypttab ] && ! getargs rd_NO_CRYPTTAB; then
+    found=0
+    while read name dev rest; do
+	cdev=$(readlink -f $dev)
+	mdev=$(readlink -f $1)
+	if [ "$cdev" = "$mdev" ]; then
+	    luksname="$name"
+	    break
+	fi
+    done < /etc/crypttab
+fi
+
 LUKS=$(getargs rd_LUKS_UUID=)
 ask=1
 
@@ -18,8 +33,9 @@ if [ -n "$LUKS" ]; then
     luuid=${2##luks-}
     for luks in $LUKS; do
 	luks=${luks##luks-}
-	if [ "${luuid##$luks}" != "$luuid" ]; then
+	if [ "${luuid##$luks}" != "$luuid" ] || [ "$luksname" == "$luks" ]; then
 	    ask=1
+	    break
 	fi
     done
 fi
@@ -30,7 +46,7 @@ if [ $ask -gt 0 ]; then
     { flock -s 9; 
 	/bin/plymouth ask-for-password \
 	    --prompt "$1 is password protected" \
-	    --command="/sbin/cryptsetup luksOpen -T1 $1 $2"
+	    --command="/sbin/cryptsetup luksOpen -T1 $1 $luksname"
     } 9>/.console.lock
 fi
 

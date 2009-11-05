@@ -7,3 +7,4 @@ inst_hook cmdline 30 "$moddir/parse-crypt.sh"
 inst_hook pre-pivot 30 "$moddir/crypt-cleanup.sh"
 inst_hook pre-pivot 31 "$moddir/crypt-cleanup.sh"
 inst_rules 10-dm.rules 95-dm-notify.rules
+inst /etc/crypttab
