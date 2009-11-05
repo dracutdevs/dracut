@@ -154,7 +154,7 @@ qpopd() {
 
 
 freadlink() {
-    /usr/bin/readlink -f "$1"
+    readlink -f "$1"
 }
 
 resolve_device_name() {
