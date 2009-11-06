@@ -17,7 +17,7 @@
 
 Name: dracut
 Version: 002
-Release: 20%{?rdist}
+Release: 21%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
 License: GPLv2+	
@@ -194,6 +194,10 @@ rm -rf $RPM_BUILD_ROOT
 %dir /var/lib/dracut/overlay
 
 %changelog
+* Fri Nov 06 2009 Harald Hoyer <harald@redhat.com> 002-21
+- fix rd_DASD argument handling (bug #531720)
+- Resolves: rhbz#531720
+
 * Wed Nov 04 2009 Harald Hoyer <harald@redhat.com> 002-20
 - fix rd_DASD argument handling (bug #531720)
 - Resolves: rhbz#531720
