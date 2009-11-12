@@ -18,8 +18,11 @@ if [ -f /etc/crypttab ] && ! getargs rd_NO_CRYPTTAB; then
 	cdev=$(readlink -f $dev)
 	mdev=$(readlink -f $1)
 	if [ "$cdev" = "$mdev" ]; then
-	    luksname="$name"
-	    break
+            # for now just ignore everything which is in crypttab
+            # anaconda does not write an entry for root
+            exit 0
+            #luksname="$name"
+            #break
 	fi
     done < /etc/crypttab
 fi

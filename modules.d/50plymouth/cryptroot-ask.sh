@@ -16,12 +16,15 @@ luksname=$2
 if [ -f /etc/crypttab ] && ! getargs rd_NO_CRYPTTAB; then
     found=0
     while read name dev rest; do
-	cdev=$(readlink -f $dev)
-	mdev=$(readlink -f $1)
-	if [ "$cdev" = "$mdev" ]; then
-	    luksname="$name"
-	    break
-	fi
+        cdev=$(readlink -f $dev)
+        mdev=$(readlink -f $1)
+        if [ "$cdev" = "$mdev" ]; then
+            # for now just ignore everything which is in crypttab
+            # anaconda does not write an entry for root
+            exit 0
+            #luksname="$name"
+            #break
+    fi
     done < /etc/crypttab
 fi
 
@@ -59,4 +62,5 @@ unset LUKS
 unset ask
 unset luks
 exit 0
+# vim:ts=8:sw=4:sts=4:et
 
