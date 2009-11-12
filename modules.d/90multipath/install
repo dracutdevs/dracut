@@ -1,0 +1,14 @@
+if [[ $hostonly ]]; then
+    inst /etc/multipath.conf
+fi
+
+for f in  \
+    /sbin/multipath  \
+    /sbin/multipathd \
+    /lib/libmultipath*  \
+    /lib/multipath/* ;do 
+    inst $f
+done
+
+inst_hook pre-trigger 02 "$moddir/multipathd.sh"
+inst_hook pre-pivot   02 "$moddir/multipathd-stop.sh"
