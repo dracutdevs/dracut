@@ -17,7 +17,7 @@
 
 Name: dracut
 Version: 002
-Release: 21%{?rdist}
+Release: 22%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
 License: GPLv2+	
@@ -61,7 +61,7 @@ BuildArch: noarch
 dracut is a new, event-driven initramfs infrastructure based around udev.
 
 %package network
-Summary: dracut modules to build a dracut initramfs with network support
+Summary: Dracut modules to build a dracut initramfs with network support
 Requires: %{name} = %{version}-%{release}
 Requires: rpcbind nfs-utils 
 Requires: iscsi-initiator-utils
@@ -97,7 +97,7 @@ This package requires everything which is needed to build a initramfs with all
 kernel modules and firmware files needed by dracut modules.
 
 %package tools
-Summary: dracut tools to build the local initramfs
+Summary: Dracut tools to build the local initramfs
 Requires: coreutils cryptsetup-luks device-mapper
 Requires: diffutils dmraid findutils gawk grep lvm2
 Requires: module-init-tools sed
@@ -143,6 +143,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/dracut.conf
 %{_mandir}/man8/dracut.8*
 %{_datadir}/dracut/modules.d/00dash
+%{_datadir}/dracut/modules.d/01fips
 %{_datadir}/dracut/modules.d/10redhat-i18n
 %{_datadir}/dracut/modules.d/10rpmversion
 %{_datadir}/dracut/modules.d/50plymouth
@@ -153,13 +154,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dracut/modules.d/90kernel-modules
 %{_datadir}/dracut/modules.d/90lvm
 %{_datadir}/dracut/modules.d/90mdraid
+%{_datadir}/dracut/modules.d/90multipath
 %{_datadir}/dracut/modules.d/95debug
 %{_datadir}/dracut/modules.d/95resume
 %{_datadir}/dracut/modules.d/95rootfs-block
 %{_datadir}/dracut/modules.d/95dasd
 %{_datadir}/dracut/modules.d/95dasd_mod
 %{_datadir}/dracut/modules.d/95zfcp
-%{_datadir}/dracut/modules.d/95ccw
+%{_datadir}/dracut/modules.d/95znet
 %{_datadir}/dracut/modules.d/95terminfo
 %{_datadir}/dracut/modules.d/95udev-rules
 %{_datadir}/dracut/modules.d/95udev-rules.ub810
@@ -168,6 +170,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0644,root,root) %ghost %config(missingok,noreplace) %{_localstatedir}/log/dracut.log
 
 %files network
+%doc README HACKING TODO COPYING AUTHORS NEWS
 %defattr(-,root,root,0755)
 %{_datadir}/dracut/modules.d/40network
 %{_datadir}/dracut/modules.d/95fcoe
@@ -194,6 +197,16 @@ rm -rf $RPM_BUILD_ROOT
 %dir /var/lib/dracut/overlay
 
 %changelog
+* Thu Nov 12 2009 Harald Hoyer <harald@redhat.com> 002-22
+- add module 90multipath
+- add module 01fips
+- renamed module 95ccw to 95znet (bug #533833)
+- crypt: ignore devices in /etc/crypttab (root is not in there)
+- dasd: only install /etc/dasd.conf in hostonly mode (bug #533833)
+- zfcp: only install /etc/zfcp.conf in hostonly mode (bug #533833)
+- kernel-modules: add scsi_dh scsi_dh_rdac scsi_dh_emc (bug #527750)
+- dasd: use dasdconf.sh from s390utils (bug #533833)
+
 * Fri Nov 06 2009 Harald Hoyer <harald@redhat.com> 002-21
 - fix rd_DASD argument handling (bug #531720)
 - Resolves: rhbz#531720
