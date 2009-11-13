@@ -3,6 +3,9 @@ if [[ $hostonly ]]; then
 fi
 
 for f in  \
+    /sbin/dmsetup \
+    /sbin/kpartx \
+    /sbin/mpath_wait \
     /sbin/multipath  \
     /sbin/multipathd \
     /lib/libmultipath*  \
@@ -12,3 +15,4 @@ done
 
 inst_hook pre-trigger 02 "$moddir/multipathd.sh"
 inst_hook pre-pivot   02 "$moddir/multipathd-stop.sh"
+inst_rules 40-multipath.rules
