@@ -1,3 +1,25 @@
+dracut-003
+==========
+- add module 90multipath
+- add module 01fips
+- crypt: ignore devices in /etc/crypttab (root is not in there)
+  unless rd_NO_CRYPTTAB is specified
+- kernel-modules: add scsi_dh scsi_dh_rdac scsi_dh_emc
+- add multinic support
+- add s390 zfcp support
+- add s390 dasd support
+- add s390 network support
+- fixed dracut-gencmdline for root=UUID or LABEL
+- do not destroy assembled raid arrays if mdadm.conf present
+- mount /dev/shm 
+- let udevd not resolve group and user names
+- moved network from udev to initqueue
+- improved debug output: specifying "rdinitdebug" now logs
+  to dmesg, console and /init.log
+- strip kernel modules which have no x bit set
+- redirect stdin, stdout, stderr all RW to /dev/console
+  so the user can use "less" to view /init.log and dmesg
+- add new device mapper udev rules and dmeventd 
 - fixed dracut-gencmdline for root=UUID or LABEL
 - do not destroy assembled raid arrays if mdadm.conf present
 - mount /dev/shm
@@ -9,19 +31,14 @@
 - fixed nbd initqueue-finished
 - improved debug output: specifying "rdinitdebug" now logs
   to dmesg, console and /init.log
-- stop udev before killing it
-- add ghost /var/log/dracut.log
-- dmsquash: use info() and die() rather than echo
 - strip kernel modules which have no x bit set
 - redirect stdin, stdout, stderr all RW to /dev/console
   so the user can use "less" to view /init.log and dmesg
 - make install of new dm/lvm udev rules optionally
-- correct dasd module typo
 - add new device mapper udev rules and dmeventd
 - Fix LiveCD boot regression
 - bail out if selinux policy could not be loaded and
   selinux=0 not specified on kernel command line
-- set finished criteria for dmsquash live images
 - do not cleanup dmraids
 - copy over lvm.conf
 
