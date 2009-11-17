@@ -1,1 +1,1 @@
-instmods dm-multipath dm-round-robin
+instmods dm-multipath dm-round-robin multipath
