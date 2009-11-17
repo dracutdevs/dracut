@@ -8,6 +8,9 @@ for f in  \
     /sbin/mpath_wait \
     /sbin/multipath  \
     /sbin/multipathd \
+    /sbin/xdrgetuid \
+    /sbin/xdrgetprio \
+    /etc/xdrdevices.conf \
     /lib/libmultipath*  \
     /lib/multipath/* ;do 
     inst $f
