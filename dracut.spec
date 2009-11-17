@@ -17,7 +17,7 @@
 
 Name: dracut
 Version: 002
-Release: 22%{?rdist}
+Release: 23%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
 License: GPLv2+	
@@ -197,6 +197,9 @@ rm -rf $RPM_BUILD_ROOT
 %dir /var/lib/dracut/overlay
 
 %changelog
+* Tue Nov 17 2009 Harald Hoyer <harald@redhat.com> 002-23
+- install xdr utils for multipath (bug #463458)
+
 * Thu Nov 12 2009 Harald Hoyer <harald@redhat.com> 002-22
 - add module 90multipath
 - add module 01fips
