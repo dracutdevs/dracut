@@ -174,9 +174,16 @@ if [[ -f $outfile && ! $force ]]; then
     exit 1
 fi
 
+if ! [[ -w $(dirname $outfile) ]]; then
+    echo "No permission to write $outfile."
+    exit 1
+fi
+
 hookdirs="cmdline pre-udev pre-trigger netroot pre-mount pre-pivot mount emergency"
 
+[[ -n "$TMPDIR" ]] && ! [[ -w "$TMPDIR" ]] && unset TMPDIR
 readonly initdir=$(mktemp -d -t initramfs.XXXXXX)
+
 trap 'ret=$?;rm -rf "$initdir";exit $ret;' EXIT # clean up after ourselves no matter how we die.
 trap 'exit 1;' SIGINT # clean up after ourselves no matter how we die.
 
@@ -220,7 +227,7 @@ unset moddir
 # generate module dependencies for the initrd
 if [[ -d $initdir/lib/modules/$kernel ]]; then
     if ! depmod -a -b "$initdir" $kernel; then
-        echo "\"depmod -a $kernel\" failed."
+        derror "\"depmod -a $kernel\" failed."
         exit 1
     fi
 fi
@@ -269,7 +276,11 @@ if [[ $do_strip = yes ]] ; then
     done
 fi
 
-( cd "$initdir"; find . |cpio -R 0:0 -H newc -o --quiet |gzip -9 > "$outfile"; )
+( cd "$initdir"; find . |cpio -R 0:0 -H newc -o --quiet |gzip -9 > "$outfile"; ) 
+if [ $? -ne 0 ]; then
+    derror "dracut: creation of $outfile failed"
+    exit 1
+fi 
 
 [[ $beverbose = yes ]] && ls -lh "$outfile"
 
