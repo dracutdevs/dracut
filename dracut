@@ -163,7 +163,7 @@ case $dracutmodules in
 esac
 
 [[ $2 ]] && kernel=$2 || kernel=$(uname -r)
-[[ $1 ]] && outfile=$(readlink -f $1) || outfile="/boot/initrd-$kernel.img"
+[[ $1 ]] && outfile=$(readlink -f $1) || outfile="/boot/initramfs-$kernel.img"
 
 srcmods="/lib/modules/$kernel/"
 [[ $drivers_dir ]] && srcmods="$drivers_dir"
