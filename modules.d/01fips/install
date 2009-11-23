@@ -6,9 +6,16 @@ if ldd $(find_binary sha512hmac) |grep -q /lib64/libc; then
     libdir="lib64"
 fi
 
-dracut_install \
-    /usr/$libdir/libsoftokn3.so /usr/$libdir/libsoftokn3.chk \
-    /usr/$libdir/libfreebl3.so /usr/$libdir/libfreebl3.chk \
-    /usr/$libdir/hmaccalc/sha512hmac.hmac
+if [ -e /usr/$libdir/libsoftokn3.so ]; then
+    dracut_install \
+        /usr/$libdir/libsoftokn3.so /usr/$libdir/libsoftokn3.chk \
+        /usr/$libdir/libfreebl3.so /usr/$libdir/libfreebl3.chk 
+else
+    dracut_install \
+        /$libdir/libsoftokn3.so /$libdir/libsoftokn3.chk \
+        /$libdir/libfreebl3.so /$libdir/libfreebl3.chk 
+fi
+
+dracut_install /usr/$libdir/hmaccalc/sha512hmac.hmac
 
 # vim:ts=8:sw=4:sts=4:et
