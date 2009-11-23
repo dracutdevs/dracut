@@ -6,6 +6,7 @@ if [[ -z $drivers ]]; then
 	 nm -uPA "$1" | egrep -q "$blockfuncs"
     }
     instmods pcmcia sd_mod scsi_dh scsi_dh_rdac scsi_dh_emc
+    instmods firewire-ohci
     instmods "=drivers/pcmcia" =ide "=drivers/usb/storage"
     instmods $(filter_kernel_modules block_module_test) 
     # if not on hostonly mode, install all known filesystems if the required list is not set via the filesystems variable
