@@ -11,7 +11,13 @@ mandir ?= ${prefix}/share/man
 
 .PHONY: install clean archive rpm testimage test all check AUTHORS
 
-all: modules.d/99base/switch_root
+ifeq (1,${WITH_SWITCH_ROOT})
+targets = modules.d/99base/switch_root
+else
+targets = 
+endif
+
+all: $(targets)
 
 modules.d/99base/switch_root: switch_root.c
 	gcc -D _GNU_SOURCE -D 'PACKAGE_STRING="dracut"' -std=gnu99 -fsigned-char -g -O2 -o modules.d/99base/switch_root switch_root.c	
@@ -25,12 +31,16 @@ install:
 	install -m 0755 dracut $(DESTDIR)$(sbindir)/dracut
 	install -m 0755 dracut-gencmdline $(DESTDIR)$(sbindir)/dracut-gencmdline
 	install -m 0755 dracut-catimages $(DESTDIR)$(sbindir)/dracut-catimages
+ifeq (1,${WITH_SWITCH_ROOT})
 	install -m 0755 modules.d/99base/switch_root $(DESTDIR)$(sbindir)/switch_root
+endif
 	install -m 0644 dracut.conf $(DESTDIR)$(sysconfdir)/dracut.conf
 	install -m 0755 dracut-functions $(DESTDIR)$(pkglibdir)/dracut-functions
 	cp -arx modules.d $(DESTDIR)$(pkglibdir)
 	install -m 0644 dracut.8 $(DESTDIR)$(mandir)/man8
+ifeq (1,${WITH_SWITCH_ROOT})
 	rm $(DESTDIR)$(pkglibdir)/modules.d/99base/switch_root
+endif
 
 clean:
 	rm -f *~
