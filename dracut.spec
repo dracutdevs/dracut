@@ -17,7 +17,7 @@
 
 Name: dracut
 Version: 002
-Release: 23%{?rdist}
+Release: 26%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
 License: GPLv2+	
@@ -73,6 +73,22 @@ Requires: bridge-utils
 This package requires everything which is needed to build a generic
 all purpose initramfs with network support with dracut.
 
+%package fips
+Summary: dracut modules to build a dracut initramfs with an integrity check.
+Requires: %{name} = %{version}-%{release}
+Requires: hmaccalc
+%if 0%{?rhel} > 5
+# For Alpha 3, we want nss instead of nss-softokn
+Requires: nss
+%else
+Requires: nss-softokn
+%endif
+Requires: nss-softokn-freebl
+
+%description fips
+This package requires everything which is needed to build an
+all purpose initramfs with dracut, which does an integrity check.
+
 %package generic
 Summary: Metapackage to build a generic initramfs with dracut
 Requires: %{name} = %{version}-%{release}
@@ -110,18 +126,14 @@ This package contains tools to assemble the local initrd and host configuration.
 %setup -q -n %{name}-%{version}%{?dashgittag}
 
 %build
-make
+make WITH_SWITCH_ROOT=0%{?with_switch_root}
 
 %install
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT sbindir=/sbin \
-     sysconfdir=/etc mandir=%{_mandir}
+     sysconfdir=/etc mandir=%{_mandir} WITH_SWITCH_ROOT=0%{?with_switch_root}
 
 echo %{name}-%{version}-%{release} > $RPM_BUILD_ROOT/%{_datadir}/dracut/modules.d/10rpmversion/dracut-version
-
-%if ! 0%{?with_switch_root}
-rm -f $RPM_BUILD_ROOT/sbin/switch_root
-%endif
 
 mkdir -p $RPM_BUILD_ROOT/boot/dracut
 mkdir -p $RPM_BUILD_ROOT/var/lib/dracut/overlay
@@ -143,7 +155,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/dracut.conf
 %{_mandir}/man8/dracut.8*
 %{_datadir}/dracut/modules.d/00dash
-%{_datadir}/dracut/modules.d/01fips
 %{_datadir}/dracut/modules.d/10redhat-i18n
 %{_datadir}/dracut/modules.d/10rpmversion
 %{_datadir}/dracut/modules.d/50plymouth
@@ -179,6 +190,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dracut/modules.d/95nfs
 %{_datadir}/dracut/modules.d/45ifcfg
 
+%files fips
+%defattr(-,root,root,0755)
+%doc COPYING
+%{_datadir}/dracut/modules.d/01fips
+
 %files kernel 
 %defattr(-,root,root,0755)
 %doc README.kernel
@@ -197,6 +213,20 @@ rm -rf $RPM_BUILD_ROOT
 %dir /var/lib/dracut/overlay
 
 %changelog
+* Mon Nov 23 2009 Harald Hoyer <harald@redhat.com> 002-26
+- add WITH_SWITCH_ROOT make flag
+- add fips requirement conditional
+- add more device mapper modules (bug #539656)
+
+* Fri Nov 20 2009 Dennis Gregorovic <dgregor@redhat.com> - 002-25.1
+- nss changes for Alpha 3
+
+* Thu Nov 19 2009 Harald Hoyer <harald@redhat.com> 002-25
+- add more requirements for dracut-fips (bug #539257)
+
+* Tue Nov 17 2009 Harald Hoyer <harald@redhat.com> 002-24
+- put fips module in a subpackage (bug #537619)
+
 * Tue Nov 17 2009 Harald Hoyer <harald@redhat.com> 002-23
 - install xdr utils for multipath (bug #463458)
 
