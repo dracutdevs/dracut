@@ -488,7 +488,7 @@ instmods() {
 	        [[ -f $initdir/$1 ]] && { shift; continue; }
 		# If we are building a host-specific initramfs and this
 		# module is not already loaded, move on to the next one.
-		[[ $hostonly ]] && ! grep -q "$mod" /proc/modules && { 
+		[[ $hostonly ]] && ! grep -q "${mod//-/_}" /proc/modules && {
 		    shift; continue; 
 		}
 		# ok, load the module, all its dependencies, and any firmware
