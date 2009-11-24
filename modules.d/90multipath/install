@@ -27,3 +27,6 @@ done
 inst_hook pre-trigger 02 "$moddir/multipathd.sh"
 inst_hook pre-pivot   02 "$moddir/multipathd-stop.sh"
 inst_rules 40-multipath.rules
+
+inst "$moddir/multipath-scan.sh" /sbin/multipath-scan
+inst_rules "$moddir/14-multipath-scan.rules"
