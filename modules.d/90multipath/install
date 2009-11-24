@@ -2,6 +2,12 @@ if [[ $hostonly ]]; then
     inst /etc/multipath.conf
 fi
 
+if ldd /sbin/multipath |grep -q lib64; then
+    LIBDIR="/lib64"
+else
+    LIBDIR="/lib"
+fi
+
 for f in  \
     /sbin/dmsetup \
     /sbin/kpartx \
@@ -11,8 +17,8 @@ for f in  \
     /sbin/xdrgetuid \
     /sbin/xdrgetprio \
     /etc/xdrdevices.conf \
-    /lib/libmultipath*  \
-    /lib/multipath/* ;do 
+    $(ls $LIBDIR/libmultipath* $LIBDIR/multipath/*) \
+    	;do
     inst $f
 done
 
