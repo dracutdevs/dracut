@@ -8,7 +8,10 @@ if [[ $hostonly ]] || [[ $lvmconf = "yes" ]]; then
     [ -f /etc/lvm/lvm.conf ] && inst /etc/lvm/lvm.conf
 fi
 
-inst /lib*/libdevmapper-event*.so
+for i in $(ls /lib*/libdevmapper-event*.so); do 
+    dracut_install $i
+done
+
 inst_rules 10-dm.rules 13-dm-disk.rules 95-dm-notify.rules 11-dm-lvm.rules
 
 inst "$moddir/lvm_scan.sh" /sbin/lvm_scan

@@ -2,7 +2,12 @@
 dracut_install dmraid partx kpartx 
 
 inst  dmeventd
-inst  /usr/lib*/libdmraid-events*.so
+
+for i in $(ls /usr/lib*/libdmraid-events*.so /lib*/libdmraid-events*.so); do
+    dracut_install $i
+done
+
+
 inst_rules 10-dm.rules 13-dm-disk.rules 95-dm-notify.rules 
 
 inst "$moddir/dmraid.sh" /sbin/dmraid_scan
