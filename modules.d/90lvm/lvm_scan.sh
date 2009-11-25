@@ -30,7 +30,7 @@ if [ ! -e /etc/lvm/lvm.conf ]; then
 fi
 info "Scanning devices $lvmdevs for LVM volume groups $VGS"
 lvm vgscan 2>&1 | vinfo
-lvm vgchange -ay $VGS 2>&1 | vinfo
+lvm vgchange -ay --monitor n $VGS 2>&1 | vinfo
 if [ "$lvmwritten" ]; then
     rm -f /etc/lvm/lvm.conf
     ln -s /sbin/lvm-cleanup /pre-pivot/30-lvm-cleanup.sh 2>/dev/null
