@@ -2,13 +2,19 @@
 inst lvm
 inst dmeventd
 
+if ldd $(which lvm) | grep -q lib64; then
+    LIBDIR="/lib64"
+else
+    LIBDIR="/lib"
+fi
+
 inst_rules "$moddir/64-lvm.rules" 64-lvm.rules
 
 if [[ $hostonly ]] || [[ $lvmconf = "yes" ]]; then 
     [ -f /etc/lvm/lvm.conf ] && inst /etc/lvm/lvm.conf
 fi
 
-for i in $(ls /lib*/libdevmapper-event*.so); do 
+for i in $(ls /$LIBDIR/libdevmapper-event*.so 2>/dev/null); do 
     dracut_install $i
 done
 

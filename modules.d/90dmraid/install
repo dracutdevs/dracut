@@ -3,7 +3,13 @@ dracut_install dmraid partx kpartx
 
 inst  dmeventd
 
-for i in $(ls /usr/lib*/libdmraid-events*.so /lib*/libdmraid-events*.so); do
+if ldd $(which dmraid) | grep -q lib64; then
+    LIBDIR="/lib64"
+else
+    LIBDIR="/lib"
+fi
+
+for i in $(ls /{usr,}/$LIBDIR/libdmraid-events*.so 2>/dev/null); do
     dracut_install $i
 done
 
