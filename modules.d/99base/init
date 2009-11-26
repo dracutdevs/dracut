@@ -282,3 +282,5 @@ exec switch_root "$NEWROOT" "$INIT" $initargs || {
     echo "file a bug against dracut."
     emergency_shell
 }
+# vim:ts=8:sw=4:sts=4:et
+

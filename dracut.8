@@ -111,7 +111,14 @@ specify e.g. \fI/dev/sda1\fR or
 "auto" if not specified, e.g. \fIrootfstype=ext3\fR
 .TP
 .B rootflags=<mount options>
-specify additional mount options for the root filesystem
+specify additional mount options for the root filesystem. If not set, /etc/fstab
+of the real root will be parsed for special mount options and mounted 
+accordingly.
+.TP
+.B rd_NO_FSTAB
+do not honor special mount options for the root filesystem found in 
+/etc/fstab of the real root.
+
 .SH I18N
 e.g. LANG=en_US.UTF-8 SYSFONT=latarcyrheb-sun16 KEYTABLE=de-latin1-nodeadkeys
 .TP
