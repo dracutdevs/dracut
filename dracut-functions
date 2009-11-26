@@ -169,8 +169,10 @@ inst_simple() {
     local src target
     [[ -f $1 ]] || return 1
     src=$1 target="${2:-$1}"
-    [[ -e ${initdir}$target ]] && return 0
-    inst_dir "${target%/*}"
+    if ! [[ -d ${initdir}$target ]]; then
+        [[ -e ${initdir}$target ]] && return 0
+        inst_dir "${target%/*}"
+    fi
     dinfo "Installing $src" 
     cp -pfL "$src" "${initdir}$target"
 }
