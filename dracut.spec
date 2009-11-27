@@ -136,6 +136,7 @@ make install DESTDIR=$RPM_BUILD_ROOT sbindir=/sbin \
      sysconfdir=/etc mandir=%{_mandir} WITH_SWITCH_ROOT=0%{?with_switch_root}
 
 echo %{name}-%{version}-%{release} > $RPM_BUILD_ROOT/%{_datadir}/dracut/modules.d/10rpmversion/dracut-version
+rm $RPM_BUILD_ROOT/%{_datadir}/dracut/modules.d/01fips/check
 
 mkdir -p $RPM_BUILD_ROOT/boot/dracut
 mkdir -p $RPM_BUILD_ROOT/var/lib/dracut/overlay
