@@ -1,0 +1,66 @@
+.TH DRACUT.CONF 5 "NOV 2009" "Linux"
+.SH NAME
+dracut.conf \- configuration file for dracut
+
+.SH SYNOPSIS
+\fB/etc/dracut.conf\fR
+
+.SH DESCRIPTION
+.B dracut.conf
+is loaded during the initialisation phase of dracut.
+Command line parameter will overwrite any values set here.
+
+.SH OPTIONS
+.TP
+.BR dracutmodules="[LIST]"
+Specify a space-separated list of dracut modules to
+call when building the initramfs. Modules are located
+in /usr/share/dracut/modules.d.
+.TP
+.BR omit_dracutmodules="[LIST]"
+Omit a space-separated list of dracut modules.
+.TP
+.BR add_dracutmodules="[LIST]"
+Add a space-separated list of dracut modules.
+.TP
+.BR drivers="[LIST]"
+Specify a space-separated list of kernel modules to
+exclusively include in the initramfs.
+.TP
+.BR add_drivers="[LIST]"
+Specify a space-separated list of kernel 
+modules to add to the initramfs.
+.TP
+.BR filesystems="[LIST]"
+Specify a space-separated list of kernel filesystem
+modules to exclusively include in the generic
+initramfs.
+.TP
+.BR drivers_dir="<dir>"
+Specify the directory, where to look for kernel modules
+.TP
+.BR fw_dir="<dir>[:<dir> ...]"
+Specify additional directories, where to look for firmwares, separated by :
+.TP
+.BR do_strip="yes|no"
+Strip binaries in the initramfs (default=yes)
+.TP
+.BR hostonly="-h|"
+Host-Only mode: Install only what is needed for booting 
+the local host instead of a generic host.
+.TP
+.BR mdadmconf="yes|no"
+Include local /etc/mdadm.conf (default=yes)
+.TP
+.BR lvmconf="yes|no"
+Include local /etc/lvm/lvm.conf (default=yes)
+.TP
+.BR kernel_only="yes|no" 
+Only install kernel drivers and firmware files. (default=no)
+.TP
+.BR no_kernel="yes|no"
+Do not install kernel drivers and firmware files (default=no)
+
+.SH SEE ALSO
+.BR dracut (8)
+

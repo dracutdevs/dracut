@@ -154,6 +154,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dracut/dracut-functions
 %config(noreplace) /etc/dracut.conf
 %{_mandir}/man8/dracut.8*
+%{_mandir}/man5/dracut.conf.5*
 %{_datadir}/dracut/modules.d/00dash
 %{_datadir}/dracut/modules.d/10redhat-i18n
 %{_datadir}/dracut/modules.d/10rpmversion

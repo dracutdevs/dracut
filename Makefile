@@ -27,7 +27,7 @@ install:
 	mkdir -p $(DESTDIR)$(sbindir)
 	mkdir -p $(DESTDIR)$(sysconfdir)
 	mkdir -p $(DESTDIR)$(pkglibdir)/modules.d
-	mkdir -p $(DESTDIR)$(mandir)/man8
+	mkdir -p $(DESTDIR)$(mandir)/man{5,8}
 	install -m 0755 dracut $(DESTDIR)$(sbindir)/dracut
 	install -m 0755 dracut-gencmdline $(DESTDIR)$(sbindir)/dracut-gencmdline
 	install -m 0755 dracut-catimages $(DESTDIR)$(sbindir)/dracut-catimages
@@ -38,6 +38,7 @@ endif
 	install -m 0755 dracut-functions $(DESTDIR)$(pkglibdir)/dracut-functions
 	cp -arx modules.d $(DESTDIR)$(pkglibdir)
 	install -m 0644 dracut.8 $(DESTDIR)$(mandir)/man8
+	install -m 0644 dracut.conf.5 $(DESTDIR)$(mandir)/man5
 ifeq (1,${WITH_SWITCH_ROOT})
 	rm $(DESTDIR)$(pkglibdir)/modules.d/99base/switch_root
 endif
@@ -88,11 +89,10 @@ testimages: all
 	@echo wrote  test-$(shell uname -r).img 
 	./dracut -l -a debug --no-kernel -f test-dracut.img $(shell uname -r)
 	@echo wrote  test-dracut.img 
-	
+
 hostimage: all
 	./dracut -H -l -a debug -f test-$(shell uname -r).img $(shell uname -r)
 	@echo wrote  test-$(shell uname -r).img 
-	
 
 AUTHORS:
 	git shortlog  --numbered --summary -e |while read a rest; do echo $$rest;done > AUTHORS
