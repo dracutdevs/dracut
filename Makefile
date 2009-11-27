@@ -70,7 +70,7 @@ gitrpm: dracut-$(VERSION)-$(GITVERSION).tar.bz2
 	cat dracut.spec >> dracut.spec.git
 	mv dracut.spec dracut.spec.bak
 	mv dracut.spec.git dracut.spec
-	rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" --define "_specdir $$PWD" --define "_srcrpmdir $$PWD" --define "_rpmdir $$PWD" --define "gittag $(GITVERSION)" -ba dracut.spec
+	rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" --define "_specdir $$PWD" --define "_srcrpmdir $$PWD" --define "_rpmdir $$PWD" --define "gittag $(GITVERSION)" -ba dracut.spec || :
 	mv dracut.spec.bak dracut.spec
 	rm -fr BUILD BUILDROOT
 
