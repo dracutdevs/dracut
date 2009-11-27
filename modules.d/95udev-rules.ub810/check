@@ -1,3 +1,0 @@
-#!/bin/sh
-# if we are not running Ubuntu 8.10, then we don't need to load this module.
-[ -f /etc/lsb-release ] && grep -q "Ubuntu 8.10" /etc/lsb-release 2>/dev/null 
