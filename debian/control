@@ -21,9 +21,9 @@ Description: A new initramfs infrastructure
  various things, we depend on udev to create device nodes for us and
  then when we have the rootfs's device node, we mount and carry on. 
  Having the root on MD, LVM2, LUKS is supported as well as NFS, iSCSI,
- NBD and FCOE with dracut-net.
+ NBD and FCOE with dracut-network.
 
-Package: dracut-net
+Package: dracut-network
 Architecture: all
 Recommends: nfs-common, open-iscsi, nbd-client
 Depends: dracut, iputils-arping, dhcp3-client, ${misc:Depends}
@@ -36,5 +36,5 @@ Description: A new initramfs infrastucture
  various things, we depend on udev to create device nodes for us and
  then when we have the rootfs's device node, we mount and carry on. 
  Having the root on MD, LVM2, LUKS is supported as well as NFS, iSCSI,
- NBD and FCOE with dracut-net.
+ NBD and FCOE with dracut-network.
 
