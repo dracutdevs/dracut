@@ -1,4 +1,4 @@
-#!/bin/dash
+#!/bin/sh
 # Creates the syslog udev rules to be triggered when interface becomes online.
 . /lib/dracut-lib.sh
 
