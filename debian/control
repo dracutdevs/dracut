@@ -1,0 +1,40 @@
+Source: dracut
+Section: utils
+Priority: optional
+Maintainer: Philippe Seewer <philippe.seewer@bfh.ch>
+Build-Depends: debhelper (>= 5.0), cdbs
+Standards-Version: 3.8.3
+Vcs-Browser: http://dracut.git.sourceforge.net/git/gitweb-index.cgi
+Vcs-Git: git://dracut.git.sourceforge.net/gitroot/dracut/dracut
+
+Package: dracut
+Architecture: all
+Recommends: cryptsetup, dmsetup, dmraid, lvm2, mdadm
+Depends: cpio, module-init-tools, udev, ${misc:Depends}
+Provides: linux-initramfs-tool
+Description: A new initramfs infrastructure
+ Unlike existing initramfs's, this is an attempt at having as little as
+ possible hard-coded into the initramfs as possible.  The initramfs has
+ (basically) one purpose in life -- getting the rootfs mounted so that
+ we can transition to the real rootfs.  This is all driven off of
+ device availability.  Therefore, instead of scripts hard-coded to do
+ various things, we depend on udev to create device nodes for us and
+ then when we have the rootfs's device node, we mount and carry on. 
+ Having the root on MD, LVM2, LUKS is supported as well as NFS, iSCSI,
+ NBD and FCOE with dracut-net.
+
+Package: dracut-net
+Architecture: all
+Recommends: nfs-common, open-iscsi, nbd-client
+Depends: dracut, iputils-arping, dhcp3-client, ${misc:Depends}
+Description: A new initramfs infrastucture
+ Unlike existing initramfs's, this is an attempt at having as little as
+ possible hard-coded into the initramfs as possible.  The initramfs has
+ (basically) one purpose in life -- getting the rootfs mounted so that
+ we can transition to the real rootfs.  This is all driven off of
+ device availability.  Therefore, instead of scripts hard-coded to do
+ various things, we depend on udev to create device nodes for us and
+ then when we have the rootfs's device node, we mount and carry on. 
+ Having the root on MD, LVM2, LUKS is supported as well as NFS, iSCSI,
+ NBD and FCOE with dracut-net.
+

@@ -1,0 +1,5 @@
+modules.d/40network	usr/share/dracut/modules.d
+modules.d/95fcoe	usr/share/dracut/modules.d
+modules.d/95iscsi	usr/share/dracut/modules.d
+modules.d/95nbd		usr/share/dracut/modules.d
+modules.d/95nfs		usr/share/dracut/modules.d
