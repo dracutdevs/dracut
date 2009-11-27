@@ -1,5 +1,7 @@
 dracut-003
 ==========
+- add debian package modules
+- add dracut.conf manpage
 - add module 90multipath
 - add module 01fips
 - crypt: ignore devices in /etc/crypttab (root is not in there)
