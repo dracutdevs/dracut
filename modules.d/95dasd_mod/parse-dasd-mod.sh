@@ -1,3 +1,4 @@
+#!/bin/sh
 [ -d /etc/modprobe.d ] || mkdir /etc/modprobe.d
 
 dasd_arg=$(getarg rd_DASD_MOD=)

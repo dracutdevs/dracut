@@ -1,3 +1,4 @@
+#!/bin/sh
 for dasd_arg in $(getargs 'rd_DASD='); do
     (
         IFS=","

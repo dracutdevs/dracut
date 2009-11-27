@@ -1,4 +1,4 @@
-
+#!/bin/sh
 getarg rd_NO_ZFCPCONF && rm /etc/zfcp.conf
 
 for zfcp_arg in $(getargs 'rd_ZFCP='); do

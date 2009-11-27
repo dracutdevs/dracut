@@ -1,3 +1,4 @@
+#!/bin/sh
 # stop everything which is not busy
 for i in /dev/md* /dev/md/*; do
     [ -b $i ] || continue
