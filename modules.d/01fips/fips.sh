@@ -1,3 +1,4 @@
+#!/bin/sh
 do_fips()
 {
     FIPSMODULES=$(cat /etc/fipsmodules)
