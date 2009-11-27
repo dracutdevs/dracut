@@ -145,6 +145,7 @@ fi
 fw_dir=${fw_dir//:/ }
 
 [[ $hostonly = yes ]] && hostonly="-h"
+[[ $hostonly != "-h" ]] && unset hostonly
 
 if [[ -f $dracutbasedir/dracut-functions ]]; then
    . $dracutbasedir/dracut-functions
