@@ -35,7 +35,7 @@ if [ -n "$LUKS" ]; then
     luuid=${2##luks-}
     for luks in $LUKS; do
         luks=${luks##luks-}
-	if [ "${luuid##$luks}" != "$luuid" ] || [ "$luksname" == "$luks" ]; then
+	if [ "${luuid##$luks}" != "$luuid" ] || [ "$luksname" = "$luks" ]; then
 	    ask=1
 	    break
 	fi
