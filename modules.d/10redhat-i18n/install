@@ -27,12 +27,20 @@ install_local()
             KEYMAP=/etc/sysconfig/console/default.kmap
 	else
             . /etc/sysconfig/keyboard
-            [[ $KEYTABLE && -d ${kbddir}/keymaps ]] && KEYMAP="$KEYTABLE.map"
+	    if [[ $KEYTABLE && -d ${kbddir}/keymaps ]]; then
+		[[ $KEYTABLE =~ *.uni ]] && UNIKEYMAP="$KEYTABLE.map" \
+		    || UNIKEYMAP="$KEYTABLE.uni.map"
+		KEYMAP="$KEYTABLE.map"
+	    fi
 	fi
 	if [[ $KEYMAP ]]; then
             [ -f /etc/sysconfig/keyboard ] && inst /etc/sysconfig/keyboard
             inst loadkeys
             findkeymap $KEYMAP
+            [[ $UNIKEYMAP ]] && findkeymap $UNIKEYMAP
+	    [[ $GRP_TOGGLE ]] && findkeymap $GRP_TOGGLE.map
+	    findkeymap delete.map
+	    findkeymap backspace.map
 
             for FN in $KEYMAPS; do
 		if [ -L $FN ]; then
