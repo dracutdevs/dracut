@@ -21,7 +21,7 @@ for f in  \
     /etc/xdrdevices.conf \
     $(ls $LIBDIR/libmultipath* $LIBDIR/multipath/* 2>/dev/null) \
     	;do
-    inst $f
+    [ -e "$f" ] && inst "$f"
 done
 
 inst_hook pre-trigger 02 "$moddir/multipathd.sh"
