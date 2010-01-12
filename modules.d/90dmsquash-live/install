@@ -20,3 +20,4 @@ inst_hook pre-udev 30 "$moddir/dmsquash-live-genrules.sh"
 inst "$moddir/dmsquash-live-root" "/sbin/dmsquash-live-root"
 # should probably just be generally included
 inst_rules 60-cdrom_id.rules
+inst "$moddir/cdrom-hack.sh" /sbin/cdrom-hack.sh

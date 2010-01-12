@@ -30,11 +30,12 @@ case "$liveroot" in
 	root="${root#live:}"
 	root="live:/dev/disk/by-uuid/${root#UUID=}"
         rootok=1 ;;
-    /dev/*)
-	root="live:${root}"
+    live:/dev/*)
         rootok=1 ;;
 esac
 info "root was $root, liveroot is now $liveroot"
+
+[ $rootok = "1" ] && initqueue --settled /sbin/cdrom-hack.sh
 
 # make sure that init doesn't complain
 [ -z "$root" ] && root="live"
