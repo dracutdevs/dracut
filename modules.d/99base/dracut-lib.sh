@@ -80,17 +80,23 @@ die() {
     exit 1
 }
 
+check_quiet() {
+    if [ -z "$DRACUT_QUIET" ]; then
+	DRACUT_QUIET="yes"
+	getarg rdinfo && DRACUT_QUIET="no"
+	getarg quiet || DRACUT_QUIET="yes"
+    fi
+}
+
 warn() {
+    check_quiet
     echo "<4>dracut Warning: $@" > /dev/kmsg
-    echo "dracut Warning: $@" >&2
+    [ "$DRACUT_QUIET" != "yes" ] && \
+    	echo "dracut Warning: $@" >&2
 }
 
 info() {
-    if [ -z "$DRACUT_QUIET" ]; then
-	DRACUT_QUIET="no"
-	getarg quiet && DRACUT_QUIET="yes"
-	getarg rdinfo && DRACUT_QUIET="no"
-    fi
+    check_quiet
     echo "<6>dracut: $@" > /dev/kmsg
     [ "$DRACUT_QUIET" != "yes" ] && \
 	echo "dracut: $@" 
