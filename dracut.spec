@@ -209,6 +209,8 @@ rm -rf $RPM_BUILD_ROOT
 %files tools 
 %defattr(-,root,root,0755)
 %doc COPYING NEWS
+%{_mandir}/man8/dracut-gencmdline.8*
+%{_mandir}/man8/dracut-catimages.8*
 /sbin/dracut-gencmdline
 /sbin/dracut-catimages
 %dir /boot/dracut
