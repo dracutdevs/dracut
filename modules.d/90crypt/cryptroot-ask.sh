@@ -11,42 +11,63 @@
 
 . /lib/dracut-lib.sh
 
+# default luksname - luks-UUID
 luksname=$2
+
+# if device name is /dev/dm-X, convert to /dev/mapper/name
+if [ "${1##/dev/dm-}" != "$1" ]; then
+    device="/dev/mapper/$(dmsetup info -c --noheadings -o name "$1")"
+else
+    device="$1"
+fi
+
 if [ -f /etc/crypttab ] && ! getargs rd_NO_CRYPTTAB; then
-    found=0
     while read name dev rest; do
-	cdev=$(readlink -f $dev)
-	mdev=$(readlink -f $1)
-	if [ "$cdev" = "$mdev" ]; then
-            # for now just ignore everything which is in crypttab
-            # anaconda does not write an entry for root
-            exit 0
-            #luksname="$name"
-            #break
+	# ignore blank lines and comments
+	if [ -z "$name" -o "${name#\#}" != "$name" ]; then
+	    continue
+	fi
+
+	# UUID used in crypttab
+	if [ "${dev%%=*}" = "UUID" ]; then
+	    if [ "luks-${dev##UUID=}" = "$2" ]; then
+		luksname="$name"
+		break
+	    fi
+	
+	# path used in crypttab
+	else
+	    cdev=$(readlink -f $dev)
+	    mdev=$(readlink -f $device)
+	    if [ "$cdev" = "$mdev" ]; then
+		luksname="$name"
+		break
+	    fi
 	fi
     done < /etc/crypttab
+    unset name dev rest
 fi
 
 LUKS=$(getargs rd_LUKS_UUID=)
 ask=1
-
 if [ -n "$LUKS" ]; then
     ask=0
     luuid=${2##luks-}
     for luks in $LUKS; do
-        luks=${luks##luks-}
+	luks=${luks##luks-}
 	if [ "${luuid##$luks}" != "$luuid" ] || [ "$luksname" = "$luks" ]; then
 	    ask=1
 	    break
 	fi
     done
 fi
+unset LUKS luks luuid
 
 if [ $ask -gt 0 ]; then
-    info "luksOpen $1 $2"
+    info "luksOpen $device $luksname"
     # flock against other interactive activities
     { flock -s 9; 
-	echo -n "$1 is password protected " 
+	echo -n "$device ($luksname) is password protected"
 	/sbin/cryptsetup luksOpen -T1 $1 $luksname 
     } 9>/.console.lock
 fi
@@ -55,3 +76,4 @@ fi
 >> /tmp/cryptroot-asked-$2
 
 exit 0
+# vim:ts=8:sw=4:sts=4:et
