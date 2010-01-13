@@ -1,8 +1,12 @@
 #!/bin/bash
 inst_hook cmdline 30 "$moddir/parse-zfcp.sh"
 dracut_install tr
+
 inst "$moddir/zfcpconf.sh" /sbin/zfcpconf.sh
-inst_rules "$moddir/56-zfcp.rules"
+inst_rules 56-zfcp.rules
+
 if [[ $hostonly ]]; then
     inst /etc/zfcp.conf
 fi
+dracut_install zfcp_cio_free grep sed
+

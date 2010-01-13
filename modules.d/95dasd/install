@@ -1,8 +1,8 @@
 #!/bin/bash
 inst_hook cmdline 30 "$moddir/parse-dasd.sh"
-dracut_install tr
+dracut_install tr dasdinfo dasdconf.sh
 if [[ $hostonly ]]; then
     inst /etc/dasd.conf
 fi
-inst /sbin/dasdconf.sh
 inst_rules 56-dasd.rules
+inst_rules 59-dasd.rules

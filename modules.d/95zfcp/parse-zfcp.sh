@@ -9,3 +9,4 @@ for zfcp_arg in $(getargs 'rd_ZFCP='); do
     )
 done
 
+zfcp_cio_free
