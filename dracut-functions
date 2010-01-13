@@ -407,7 +407,7 @@ check_modules() {
 # $1 = full path to kernel module to install
 install_kmod_with_fw() {
     local modname=${1##*/} fwdir found
-    modname=${modname%.ko}
+    modname=${modname%.ko*}
     inst_simple "$1" "/lib/modules/$kernel/${1##*/lib/modules/$kernel/}" || \
 	return 0 # no need to go further if the module is already installed
     for fw in $(modinfo -k $kernel -F firmware $1 2>/dev/null); do
@@ -450,12 +450,21 @@ for_each_kmod_dep() {
 # This function returns the full filenames of modules that match $1
 filter_kernel_modules () (
     if ! [[ $hostonly ]]; then
-	filtercmd='find "$srcmods/kernel/drivers" -name "*.ko"'
+	filtercmd='find "$srcmods/kernel/drivers" -name "*.ko" -o -name "*.ko.gz"'
     else
 	filtercmd='cut -d " " -f 1 </proc/modules|xargs modinfo -F filename -k $kernel'
     fi
     for modname in $(eval $filtercmd); do
-	"$1" "$modname" && echo "$modname"
+        case $modname in
+            *.ko)
+                "$1" "$modname" && echo "$modname"
+                ;;
+            *.ko.gz)
+                gzip -dc "$modname" > $initdir/$$.ko
+                $1 $initdir/$$.ko && echo "$modname"
+                rm -f $initdir/$$.ko
+                ;;
+        esac
     done
 )
 
@@ -464,7 +473,7 @@ instmods() {
     [[ $no_kernel = yes ]] && return
     local mod mpargs modpath modname cmd
     while (($# > 0)); do
-	mod=${1%.ko}
+	mod=${1%.ko*}
 	case $mod in
 	    =*) # This introduces 2 incompatible meanings for =* arguments
                 # to instmods.  We need to decide which one to keep.
