@@ -1,0 +1,6 @@
+#!/bin/bash
+inst /usr/sbin/resume
+[ -f /etc/suspend.conf ] && inst /etc/suspend.conf
+
+inst_hook cmdline 10 "$moddir/parse-uswsusp.sh"
+inst_hook mount 10 "$moddir/resume-uswsusp.sh"

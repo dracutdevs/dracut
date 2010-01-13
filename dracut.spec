@@ -186,6 +186,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dracut/modules.d/95znet
 %{_datadir}/dracut/modules.d/95terminfo
 %{_datadir}/dracut/modules.d/95udev-rules
+%{_datadir}/dracut/modules.d/95uswsusp
 %{_datadir}/dracut/modules.d/98syslog
 %{_datadir}/dracut/modules.d/99base
 %attr(0644,root,root) %ghost %config(missingok,noreplace) %{_localstatedir}/log/dracut.log
