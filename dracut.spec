@@ -17,7 +17,7 @@
 
 Name: dracut
 Version: 003
-Release: 1%{?rdist}
+Release: 2%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
 License: GPLv2+	
@@ -26,6 +26,12 @@ URL: http://apps.sourceforge.net/trac/dracut/wiki
 # http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut/dracut;a=snapshot;h=%{?dashgittag};sf=tgz
 Source0: dracut-%{version}%{?dashgittag}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
+Obsoletes: mkinitrd <= 6.0.93
+Obsoletes: mkinitrd-devel <= 6.0.93
+Obsoletes: nash <= 6.0.93
+Obsoletes:  libbdevid-python <= 6.0.93
+
 Requires: udev
 Requires: util-linux-ng
 Requires: module-init-tools >= 3.7-9
@@ -218,6 +224,13 @@ rm -rf $RPM_BUILD_ROOT
 %dir /var/lib/dracut/overlay
 
 %changelog
+* Wed Jan 13 2010 Harald Hoyer <harald@redhat.com> 003-2
+- add Obsoletes of mkinitrd/nash/libbdevid-python
+- Related: rhbz#543948
+
+* Fri Nov 27 2009 Harald Hoyer <harald@redhat.com> 003-1
+- version 003
+
 * Mon Nov 23 2009 Harald Hoyer <harald@redhat.com> 002-26
 - add WITH_SWITCH_ROOT make flag
 - add fips requirement conditional
