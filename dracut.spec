@@ -159,6 +159,8 @@ rm -rf $RPM_BUILD_ROOT
 %if 0%{?with_switch_root}
 /sbin/switch_root
 %endif
+/sbin/mkinitrd
+/sbin/lsinitrd
 %dir %{_datadir}/dracut
 %{_datadir}/dracut/dracut-functions
 %config(noreplace) /etc/dracut.conf

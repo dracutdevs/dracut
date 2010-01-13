@@ -31,6 +31,8 @@ install:
 	install -m 0755 dracut $(DESTDIR)$(sbindir)/dracut
 	install -m 0755 dracut-gencmdline $(DESTDIR)$(sbindir)/dracut-gencmdline
 	install -m 0755 dracut-catimages $(DESTDIR)$(sbindir)/dracut-catimages
+	install -m 0755 mkinitrd-dracut.sh $(DESTDIR)$(sbindir)/mkinitrd
+	install -m 0755 lsinitrd $(DESTDIR)$(sbindir)/lsinitrd
 ifeq (1,${WITH_SWITCH_ROOT})
 	install -m 0755 modules.d/99base/switch_root $(DESTDIR)$(sbindir)/switch_root
 endif
