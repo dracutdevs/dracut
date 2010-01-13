@@ -1,0 +1,4 @@
+#!/bin/bash
+inst xen-detect 
+inst_hook pre-udev 40 "$moddir/xen-pre-udev.sh"
+

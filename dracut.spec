@@ -168,6 +168,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dracut/modules.d/10redhat-i18n
 %{_datadir}/dracut/modules.d/10rpmversion
 %{_datadir}/dracut/modules.d/50plymouth
+%{_datadir}/dracut/modules.d/60xen
 %{_datadir}/dracut/modules.d/90crypt
 %{_datadir}/dracut/modules.d/90dm
 %{_datadir}/dracut/modules.d/90dmraid

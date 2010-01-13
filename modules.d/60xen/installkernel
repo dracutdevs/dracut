@@ -1,0 +1,9 @@
+#!/bin/bash
+
+for i in \
+    xenbus_probe_frontend xen-pcifront \
+    xen-fbfront xen-kbdfront xen-blkfront xen-netfront \
+    ; do
+    modinfo -k $kernel $i >/dev/null 2>&1 && instmods $i
+done
+
