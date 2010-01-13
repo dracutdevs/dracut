@@ -3,7 +3,7 @@
 findkeymap () {
     local MAP=$1
     [[ ! -f $MAP ]] && \
-	MAP=$(find /lib/kbd/keymaps -type f -name $MAP -o -name $MAP.\* | head -n1)
+	MAP=$(find ${kbddir}/keymaps -type f -name $MAP -o -name $MAP.\* | head -n1)
     [[ " $KEYMAPS " = *" $MAP "* ]] && return
     KEYMAPS="$KEYMAPS $MAP"
     case $MAP in
@@ -13,7 +13,7 @@ findkeymap () {
     esac
 
     for INCL in $($cmd "^include " $MAP | cut -d' ' -f2 | tr -d '"'); do
-        for FN in $(find /lib/kbd/keymaps -type f -name $INCL\*); do
+        for FN in $(find ${kbddir}/keymaps -type f -name $INCL\*); do
             findkeymap $FN
         done
     done
@@ -27,7 +27,7 @@ install_local()
             KEYMAP=/etc/sysconfig/console/default.kmap
 	else
             . /etc/sysconfig/keyboard
-            [[ $KEYTABLE && -d /lib/kbd/keymaps ]] && KEYMAP="$KEYTABLE.map"
+            [[ $KEYTABLE && -d ${kbddir}/keymaps ]] && KEYMAP="$KEYTABLE.map"
 	fi
 	if [[ $KEYMAP ]]; then
             [ -f /etc/sysconfig/keyboard ] && inst /etc/sysconfig/keyboard
@@ -58,27 +58,31 @@ install_local()
 	[[ $SYSFONT ]] || SYSFONT=latarcyrheb-sun16
 	inst setfont
 
-	for FN in /lib/kbd/consolefonts/$SYSFONT.* ; do
+	for FN in ${kbddir}/consolefonts/$SYSFONT.* ; do
             inst "$FN"
             case $FN in
 		*.gz) gzip -d "$initdir$FN" ;;
 		*.bz2) bzip2 -d "$initdir$FN" ;;
             esac
 	done
-	[[ $SYSFONTACM ]] && inst /lib/kbd/consoletrans/$SYSFONTACM
-	[[ $UNIMAP ]] && inst /lib/kbd/unimaps/$UNIMAP
+	[[ $SYSFONTACM ]] && inst ${kbddir}/consoletrans/$SYSFONTACM
+	[[ $UNIMAP ]] && inst ${kbddir}/unimaps/$UNIMAP
     fi
 }
+
+for kbddir in /usr/lib/kbd /lib/kbd; do
+	[[ -d ${kbddir} ]] && break
+done
 
 if [[ $hostonly ]]; then 
     install_local
 else
-    for i in $(find /lib/kbd -type f -print); do
+    for i in $(find ${kbddir} -type f -print); do
 	dracut_install $i
     done
     # remove unnecessary files
-    rm -f "$initdir/lib/kbd/consoletrans/utflist" 2>/dev/null
-    find "$initdir/lib/kbd/" -name README\* -exec rm -f '{}' \;
+    rm -f "$initdir${kbddir}/consoletrans/utflist" 2>/dev/null
+    find "$initdir${kbddir}/" -name README\* -exec rm -f '{}' \;
     dracut_install gzip bzip2
 fi
 
