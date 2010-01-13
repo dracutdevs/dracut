@@ -1,22 +1,16 @@
 #!/bin/bash
 inst lvm
-inst dmeventd
-
-if ldd $(which lvm) | grep -q lib64; then
-    LIBDIR="/lib64"
-else
-    LIBDIR="/lib"
-fi
 
 inst_rules "$moddir/64-lvm.rules" 64-lvm.rules
 
 if [[ $hostonly ]] || [[ $lvmconf = "yes" ]]; then 
-    [ -f /etc/lvm/lvm.conf ] && inst /etc/lvm/lvm.conf
+    if [ -f /etc/lvm/lvm.conf ]; then
+	inst /etc/lvm/lvm.conf
+	# FIXME: near-term hack to establish read-only locking;
+	# use command-line lvm.conf editor once it is available
+	sed -i -e 's/\(^[[:space:]]*\)locking_type[[:space:]]*=[[:space:]]*[[:digit:]]/\1locking_type = 4/' ${initdir}/etc/lvm/lvm.conf
+    fi
 fi
-
-for i in $(ls /$LIBDIR/libdevmapper-event*.so 2>/dev/null); do 
-    dracut_install $i
-done
 
 inst_rules 10-dm.rules 13-dm-disk.rules 95-dm-notify.rules 11-dm-lvm.rules
 

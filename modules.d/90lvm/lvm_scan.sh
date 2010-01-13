@@ -23,14 +23,17 @@ if [ ! -e /etc/lvm/lvm.conf ]; then
 	    printf '"a|^/dev/%s$|", ' $dev;
 	done;
 	echo '"r/.*/" ]';
-	echo 'types = [ "blkext", 1024 , "cciss0", 1024 ]'
 	echo '}';	  
+	# establish read-only locking
+	echo 'global {';
+	echo '    locking_type = 4';
+	echo '}';
     } > /etc/lvm/lvm.conf
     lvmwritten=1
 fi
 info "Scanning devices $lvmdevs for LVM volume groups $VGS"
-lvm vgscan 2>&1 | vinfo
-lvm vgchange -ay --monitor n $VGS 2>&1 | vinfo
+lvm vgscan --ignorelockingfailure 2>&1 | vinfo
+lvm vgchange -ay --ignorelockingfailure --monitor n $VGS 2>&1 | vinfo
 if [ "$lvmwritten" ]; then
     rm -f /etc/lvm/lvm.conf
     ln -s /sbin/lvm-cleanup /pre-pivot/30-lvm-cleanup.sh 2>/dev/null
