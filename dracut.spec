@@ -1,11 +1,14 @@
-%define with_switch_root 1
+# Variables must be defined
+%define with_switch_root	1
+%define with_nbd		1
 
-%if 0%{?fedora} > 11
+# switchroot provided by util-linux-ng in F-12+
+%if 0%{?fedora} > 11 || 0%{?rhel} >= 6
 %define with_switch_root 0
 %endif
-
-%if 0%{?rhel} > 5
-%define with_switch_root 0
+# nbd in Fedora only
+%if 0%{?rhel} >= 6
+%define with_nbd 0
 %endif
 
 %if %{defined gittag}
@@ -17,7 +20,7 @@
 
 Name: dracut
 Version: 003
-Release: 2%{?rdist}
+Release: 3%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
 License: GPLv2+	
@@ -75,7 +78,9 @@ Summary: Dracut modules to build a dracut initramfs with network support
 Requires: %{name} = %{version}-%{release}
 Requires: rpcbind nfs-utils 
 Requires: iscsi-initiator-utils
+%if %{with_nbd}
 Requires: nbd
+%endif
 Requires: net-tools iproute
 Requires: bridge-utils
 
@@ -230,9 +235,12 @@ rm -rf $RPM_BUILD_ROOT
 %dir /var/lib/dracut/overlay
 
 %changelog
-* Wed Jan 13 2010 Harald Hoyer <harald@redhat.com> 003-2
+* Wed Jan 13 2010 Harald Hoyer <harald@redhat.com> 003-3
 - add Obsoletes of mkinitrd/nash/libbdevid-python
 - Related: rhbz#543948
+
+* Wed Jan 13 2010 Warren Togami <wtogami@redhat.com> 003-2
+- nbd is Fedora only
 
 * Fri Nov 27 2009 Harald Hoyer <harald@redhat.com> 003-1
 - version 003
