@@ -16,4 +16,3 @@ inst_rules 10-dm.rules 13-dm-disk.rules 95-dm-notify.rules 11-dm-lvm.rules
 
 inst "$moddir/lvm_scan.sh" /sbin/lvm_scan
 inst_hook cmdline 30 "$moddir/parse-lvm.sh"
-inst "$moddir/lvm-cleanup.sh" /sbin/lvm-cleanup
