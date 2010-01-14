@@ -1,0 +1,11 @@
+#!/bin/bash 
+
+[[ $# -eq 1 ]] || { echo "Usage: $(basename $0) <initramfs file>" ; exit 1 ; }
+[[ -f $1 ]]    || { echo "$1 does not exist" ; exit 1 ; }
+
+echo "$1:"
+echo "========================================================================"
+zcat $1 | cpio --extract --verbose --quiet --to-stdout 'dracut-*' 2>/dev/null
+echo "========================================================================"
+zcat $1 | cpio --extract --verbose --quiet --list
+echo "========================================================================"
