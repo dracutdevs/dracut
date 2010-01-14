@@ -3,6 +3,8 @@
 for x in 61-dmraid-imsm.rules 65-md-incremental-imsm.rules 65-md-incremental.rules 64-lvm.rules 70-mdadm.rules 99-mount-rules; do
     > "/etc/udev/rules.d/$x"
 done
+rm /etc/lvm/lvm.conf
+
 udevadm control --reload-rules
 # dmraid does not want symlinks in --disk "..."
 if [ -e /dev/hda ] ; then 
