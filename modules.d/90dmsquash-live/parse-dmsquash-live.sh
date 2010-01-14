@@ -30,6 +30,10 @@ case "$liveroot" in
 	root="${root#live:}"
 	root="live:/dev/disk/by-uuid/${root#UUID=}"
         rootok=1 ;;
+    live:/*.[Ii][Ss][Oo]|/*.[Ii][Ss][Oo])
+	root="${root#live:}"
+	root="liveiso:${root}"
+	rootok=1 ;;
     live:/dev/*)
         rootok=1 ;;
 esac
