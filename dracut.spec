@@ -27,10 +27,12 @@ URL: http://apps.sourceforge.net/trac/dracut/wiki
 Source0: dracut-%{version}%{?dashgittag}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+# no "provides", because dracut does not offer
+# all functionality of the obsoleted packages
 Obsoletes: mkinitrd <= 6.0.93
 Obsoletes: mkinitrd-devel <= 6.0.93
 Obsoletes: nash <= 6.0.93
-Obsoletes:  libbdevid-python <= 6.0.93
+Obsoletes: libbdevid-python <= 6.0.93
 
 Requires: udev
 Requires: util-linux-ng
@@ -51,8 +53,8 @@ Requires: lvm2 >= 2.02.33-9, dhclient
 Requires: filesystem >= 2.1.0, cpio, device-mapper, initscripts >= 8.63-1
 Requires: e2fsprogs >= 1.38-12, libselinux, libsepol, coreutils
 Requires: mdadm, elfutils-libelf 
-Requires(pre): plymouth >= 0.7.0
-Requires: plymouth >= 0.7.0
+Requires(pre): plymouth >= 0.8.0-0.2009.29.09.19.1
+Requires: plymouth >= 0.8.0-0.2009.29.09.19.1
 Requires: cryptsetup-luks
 Requires: file
 Requires: bzip2
