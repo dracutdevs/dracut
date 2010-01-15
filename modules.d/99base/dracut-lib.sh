@@ -2,7 +2,11 @@ getarg() {
     set +x
     local o line
     if [ -z "$CMDLINE" ]; then
-	[ -e /etc/cmdline ] && read CMDLINE_ETC </etc/cmdline;
+        if [ -e /etc/cmdline ]; then
+            while read line; do
+                CMDLINE_ETC="$CMDLINE_ETC $line";
+            done </etc/cmdline;
+        fi
 	read CMDLINE </proc/cmdline;
 	CMDLINE="$CMDLINE $CMDLINE_ETC"
     fi
@@ -32,7 +36,11 @@ getargs() {
     set +x
     local o line found
     if [ -z "$CMDLINE" ]; then
-	[ -e /etc/cmdline ] && read CMDLINE_ETC </etc/cmdline;
+	if [ -e /etc/cmdline ]; then
+            while read line; do
+                CMDLINE_ETC="$CMDLINE_ETC $line";
+            done </etc/cmdline;
+        fi
 	read CMDLINE </proc/cmdline;
 	CMDLINE="$CMDLINE $CMDLINE_ETC"
     fi
