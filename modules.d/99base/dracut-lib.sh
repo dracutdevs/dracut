@@ -1,5 +1,4 @@
 getarg() {
-    set +x
     local o line
     if [ -z "$CMDLINE" ]; then
         if [ -e /etc/cmdline ]; then
@@ -12,28 +11,12 @@ getarg() {
     fi
     for o in $CMDLINE; do
 	[ "$o" = "$1" ] && return 0
-	[ "${o%%=*}" = "${1%=}" ] && { echo ${o#*=}; setdebug; return 0; }
+	[ "${o%%=*}" = "${1%=}" ] && { echo ${o#*=}; return 0; }
     done
-    setdebug
     return 1
 }
 
-setdebug() {
-    if [ -z "$RDDEBUG" ]; then
-        if [ -e /proc/cmdline ]; then
-            RDDEBUG=no
-	    if getarg rdinitdebug; then
-                RDDEBUG=yes 
-            fi
-        fi
-    fi
-    [ "$RDDEBUG" = "yes" ] && set -x 
-}
-
-setdebug
-
 getargs() {
-    set +x
     local o line found
     if [ -z "$CMDLINE" ]; then
 	if [ -e /etc/cmdline ]; then
@@ -51,10 +34,22 @@ getargs() {
 	    found=1;
 	fi
     done
-    [ -n "$found" ] && { setdebug; return 0;}
-    setdebug
-    return 1
+    [ -n "$found" ] && return 0
+    return 1;
 }
+
+setdebug() {
+    if [ -z "$RDDEBUG" ]; then
+        if [ -e /proc/cmdline ]; then
+            RDDEBUG=no
+           if getarg rdinitdebug; then
+                RDDEBUG=yes 
+            fi
+        fi
+    fi
+    [ "$RDDEBUG" = "yes" ] && set -x 
+}
+
 
 source_all() {
     local f
