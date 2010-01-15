@@ -30,12 +30,14 @@ URL: http://apps.sourceforge.net/trac/dracut/wiki
 Source0: dracut-%{version}%{?dashgittag}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+%if 0%{?fedora} > 12 || 0%{?rhel} >= 6
 # no "provides", because dracut does not offer
 # all functionality of the obsoleted packages
 Obsoletes: mkinitrd <= 6.0.93
 Obsoletes: mkinitrd-devel <= 6.0.93
 Obsoletes: nash <= 6.0.93
 Obsoletes: libbdevid-python <= 6.0.93
+%endif
 
 Requires: udev
 Requires: util-linux-ng
@@ -156,6 +158,11 @@ mkdir -p $RPM_BUILD_ROOT/var/lib/dracut/overlay
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/log
 touch $RPM_BUILD_ROOT%{_localstatedir}/log/dracut.log
 
+%if 0%{?fedora} <= 12 && 0%{?rhel} < 6
+rm $RPM_BUILD_ROOT/sbin/mkinitrd
+rm $RPM_BUILD_ROOT/sbin/lsinitrd
+%endif
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -166,8 +173,10 @@ rm -rf $RPM_BUILD_ROOT
 %if 0%{?with_switch_root}
 /sbin/switch_root
 %endif
+%if 0%{?fedora} > 12 || 0%{?rhel} >= 6
 /sbin/mkinitrd
 /sbin/lsinitrd
+%endif
 %dir %{_datadir}/dracut
 %{_datadir}/dracut/dracut-functions
 %config(noreplace) /etc/dracut.conf
