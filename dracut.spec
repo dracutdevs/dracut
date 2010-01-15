@@ -19,8 +19,8 @@
 %endif
 
 Name: dracut
-Version: 003
-Release: 3%{?rdist}
+Version: 004
+Release: 1%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base		
 License: GPLv2+	
@@ -244,6 +244,11 @@ rm -rf $RPM_BUILD_ROOT
 %dir /var/lib/dracut/overlay
 
 %changelog
+* Fri Jan 15 2010 Harald Hoyer <harald@redhat.com> 004-1
+- version 004
+- Resolves: rhbz#529339 rhbz#533494 rhbz#548550 
+- Resolves: rhbz#548555 rhbz#553195
+
 * Wed Jan 13 2010 Harald Hoyer <harald@redhat.com> 003-3
 - add Obsoletes of mkinitrd/nash/libbdevid-python
 - Related: rhbz#543948

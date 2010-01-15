@@ -1,3 +1,18 @@
+dracut-004
+==========
+- dracut-lib: read multiple lines from $init/etc/cmdline
+- lsinitrd and mkinitrd
+- dmsquash: add support for loopmounted *.iso files
+- lvm: add rd_LVM_LV and "--poll n"
+- user suspend support
+- add additional drivers in host-only mode, too
+- improved emergency shell
+- support for compressed kernel modules
+- support for loading Xen modules
+- rdloaddriver kernel command line parameter
+- man pages for dracut-catimages and dracut-gencmdline
+- bugfixes
+
 dracut-003
 ==========
 - add debian package modules
