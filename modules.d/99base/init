@@ -35,7 +35,7 @@ wait_for_loginit()
 
 emergency_shell()
 {
-    if [ $1 = "-n" ]; then
+    if [ "$1" = "-n" ]; then
         _rdshell_name=$2
         shift 2 
     else
