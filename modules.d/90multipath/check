@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# if there's no multipath binary, no go.
+which multipath >/dev/null 2>&1 || exit 1
+
+[[ $1 = -d ]] && exit 0
+
+. $dracutfunctions
+[[ $debug ]] && set -x
+
+is_mpath() {
+    [ -e /sys/dev/block/$1/dm/uuid ] || return 1
+    [[ $(cat /sys/dev/block/$1/dm/uuid) =~ ^mpath- ]] && return 0
+    return 1
+}
+
+# If we're in hostonly mode, do mpath if we appear to be using it for /
+if [[ $1 = -h ]]; then
+    rootdev=$(find_root_block_device)
+    if [[ $rootdev ]]; then
+        check_block_and_slaves is_mpath "$rootdev" && exit 0
+    fi
+    exit 1
+fi
+
+# the user installed it, they get it...
+exit 0
