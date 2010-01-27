@@ -37,6 +37,8 @@ rd_load_policy()
 	} 2>&1 | vinfo
 
 	if [ $ret -eq 0 -o $ret -eq 2 ]; then
+	    # If machine requires a relabel, force to permissive mode
+	    [ -e "$NEWROOT"/.autorelabel ] && ( echo 0 > "$NEWROOT"/selinux/enforce )
 	    return 0
 	fi
 
