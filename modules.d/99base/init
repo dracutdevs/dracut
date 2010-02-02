@@ -19,7 +19,7 @@ wait_for_loginit()
 	    [ -z "$j" ] && break
 	    [ -z "${j##*Running*}" ] || break
 	    sleep 0.1
-	    i=$[$i+1]
+	    i=$(($i+1))
 	done	
 	[ $i -eq 10 ] && kill %1 >/dev/null 2>&1
 
