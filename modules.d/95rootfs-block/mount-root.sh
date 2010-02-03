@@ -23,9 +23,29 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
             fi
 	done < "$NEWROOT/etc/fstab"
 
+
+	# strip ro and rw options
+	{
+	    local OLDIFS=$IFS
+	    IFS=,	
+	    set -- $rootopts
+	    IFS=$OLDIFS
+	    local v
+	    while [ $# -gt 0 ]; do
+		case $1 in 
+		    rw|ro);;
+		    *)
+			v="$v,${1}";;
+		esac
+		shift
+	    done
+	    rootopts=${v#,}
+	}
+
+
 	if [ "$rootopts" != "defaults" ]; then
             umount $NEWROOT
-            info "Remounting ${root#block:} with -o $rflags,$rootopts"
+            info "Remounting ${root#block:} with -o $rootopts,$rflags"
             mount -t "$rootfs" -o "$rflags","$rootopts" \
                 "${root#block:}" "$NEWROOT" 2>&1 | vinfo
 	fi
