@@ -37,7 +37,7 @@ run_client() {
   	-net nic,macaddr=52:54:00:12:34:00,model=e1000 \
   	-net socket,mcast=230.0.0.1:1235 \
   	-kernel /boot/vmlinuz-$KVERSION \
-	-append "root=dhcp rw quiet rdinitdebug rdinfo rdnetdebug console=ttyS0,115200n81 selinux=0 rdshell $DEBUGFAIL" \
+	-append "root=dhcp rw quiet rdinitdebug rdinfo rdnetdebug console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
   	-initrd initramfs.testing
     grep -m 1 -q iscsi-OK client.img || return 1
 }
@@ -48,10 +48,12 @@ test_run() {
 	return 1
     fi
     run_client
+    ret=$?
     if [[ -s server.pid ]]; then
 	sudo kill -TERM $(cat server.pid)
 	rm -f server.pid
     fi
+    return $ret
 }
 
 test_setup() {
