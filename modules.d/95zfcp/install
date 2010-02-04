@@ -2,7 +2,7 @@
 inst_hook cmdline 30 "$moddir/parse-zfcp.sh"
 dracut_install tr
 
-inst "$moddir/zfcpconf.sh" /sbin/zfcpconf.sh
+inst /sbin/zfcpconf.sh
 inst_rules 56-zfcp.rules
 
 if [[ $hostonly ]]; then
