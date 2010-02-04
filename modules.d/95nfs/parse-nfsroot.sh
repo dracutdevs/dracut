@@ -23,43 +23,7 @@
 # NFSv3 is used.
 #
 
-# Sadly there's no easy way to split ':' separated lines into variables
-netroot_to_var() {
-    local v=${1}:
-    set --
-    while [ -n "$v" ]; do
-	set -- "$@" "${v%%:*}"
-	v=${v#*:}
-    done
-
-    unset nfs server path options
-
-    nfs=$1
-    # Ugly: Can't -z test #path after the case, since it might be allowed
-    # to be empty for root=nfs
-    case $# in
-    0|1);;
-    2)	path=${2:-error};;
-    3)
-    # This is ultra ugly. But we can't decide in which position path
-    # sits without checking if the string starts with '/'
-    case $2 in
-	/*) path=$2; options=$3;;
-	*) server=$2; path=${3:-error};;
-    esac
-    ;;
-    *)	server=$2; path=${3:-error}; options=$4;
-    esac
-    
-    # Does it really start with '/'?
-    [ -n "${path%%/*}" ] && path="error";
-    
-    #Fix kernel legacy style separating path and options with ','
-    if [ "$path" != "${path#*,}" ] ; then
-	options=${path#*,}
-	path=${path%%,*}
-    fi
-}
+. /lib/dracut-lib.sh
 
 #Don't continue if root is ok
 [ -n "$rootok" ] && return
@@ -105,7 +69,7 @@ case "${netroot%%:*}" in
 esac
 
 # Check required arguments
-netroot_to_var $netroot
+nfsroot_to_var $netroot
 [ "$path" = "error" ] && die "Argument nfsroot must contain a valid path!"
 
 # Set fstype, might help somewhere

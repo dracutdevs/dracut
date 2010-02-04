@@ -88,15 +88,31 @@ if [ $# -gt 1 ]; then
         fi
     fi
 fi  
-IFS=:
-set $iroot
+
+IFS="$OLDIFS"
+
+local v=${iroot}:
+local i
+set -- 
+while [ -n "$v" ]; do
+    if [ "${v#\[*:*:*\]:}" != "$v" ]; then
+	# handle IPv6 address
+	i="${v%%\]:*}"
+	i="${i##\[}"
+	set -- "$@" "$i"
+	v=${v#\[$i\]:}
+    else		    
+	set -- "$@" "${v%%:*}"
+	v=${v#*:}
+    fi
+done
 iscsi_target_ip=$1; shift
 iscsi_protocol=$1; shift # ignored
 iscsi_target_port=$1; shift
 iscsi_lun=$1; shift
+IFS=:
 iscsi_target_name=$*
-IFS="$OLDIFS"
-
+IFS=$OLDIFS
 # XXX is this needed?
 getarg ro && iscsirw=ro
 getarg rw && iscsirw=rw

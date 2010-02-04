@@ -1,43 +1,5 @@
 #!/bin/sh
 
-# Copy from parse-nfsroot.sh
-root_to_var() {
-    local v=${1}:
-    set --
-    while [ -n "$v" ]; do
-	set -- "$@" "${v%%:*}"
-	v=${v#*:}
-    done
-
-    unset nfs server path options
-
-    # Ugly: Can't -z test $path after the case, since it might be allowed
-    # to be empty for root=nfs
-    nfs=$1
-    case $# in
-    0|1);;
-    2)	path=$2;;
-    3)
-    # This is ultra ugly. But we can't decide in which position path
-    # sits without checking if the string starts with '/'
-    case $2 in
-	/*) path=$2; options=$3;;
-	*) server=$2; path=$3;;
-    esac
-    ;;
-    *)	server=$2; path=$3; options=$4;
-    esac
-    
-    # Does it really start with '/'?
-    [ -n "${path%%/*}" ] && path="error";
-    
-    #Fix kernel legacy style separating path and options with ','
-    if [ "$path" != "${path#*,}" ] ; then
-	options=${path#*,}
-	path=${path%%,*}
-    fi
-}
-
 . /lib/dracut-lib.sh
 
 PATH=$PATH:/sbin:/usr/sbin
@@ -63,7 +25,7 @@ case "${root%%:*}" in
     *) return;;
 esac
 
-root_to_var $root
+nfsroot_to_var $root
 
 #Load other data that might provide info
 [ -f /tmp/net.$netif.override ] && . /tmp/net.$netif.override
@@ -71,7 +33,7 @@ root_to_var $root
 
 #Empty path means try dhcp root-path, this is ok here since parse-nfsroot.sh
 #already takes care of nfs:... formatted root-path
-[ -z "$path" ] && root_to_var $nfs:$new_root_path
+[ -z "$path" ] && nfsroot_to_var $nfs:$new_root_path
 
 #Empty path defaults to "/tftpboot/%s" only in nfsroot.txt legacy mode
 [ -z "$path" ] && [ "$(getarg root=)" = "/dev/nfs" ] && path="/tftpboot/%s"

@@ -236,22 +236,22 @@ only activate the raid sets with the given UUID
 
 .SS Network
 .TP
-.BR ip= {dhcp|on|any|auto6}
+.BR ip= {dhcp|on|any|dhcp6|auto6}
 dhcp|on|any: get ip from dhcp server from all interfaces. If root=dhcp, 
 loop sequentially through all interfaces (eth0, eth1, ...) and use the first 
 with a valid DHCP root-path.
 
-auto6: do ipv6 autoconfiguration
+auto6: do IPv6 autoconfiguration
 .TP
-.BR ip= <interface>:{dhcp|on|any|auto6}
-dhcp|on|any: get ip from dhcp server on a specific interface
+.BR ip= <interface>:{dhcp|on|any|dhcp6|auto6}
+dhcp|on|any|dhcp6: get ip from dhcp server on a specific interface
 
-auto6: do ipv6 autoconfiguration
+auto6: do IPv6 autoconfiguration
 .TP
 .ad l
 .BR ip= "\%<client-IP>\::[<server-id>]\::<gateway-IP>\::<netmask>\::<client\%hostname>\::<interface>\::{none|off}"
 .ad
-explicit network configuration
+explicit network configuration. If you want do define a IPv6 address, put it in brackets (e.g. [2001:DB8::1]).
 .TP
 .BR ifname= <interface>:<MAC>
 Assign network device name <interface> (ie eth0) to the NIC with MAC <MAC>.
@@ -277,7 +277,7 @@ NFS options can be appended with the prefix ":" or "," and are seperated by ",".
 .TP
 .BR root= "nfs4:[<server-ip>:]<root-dir>[:<nfs-options>]"
 .TP
-.BR root= dhcp 
+.BR root= dhcp|dhcp6 
 root=dhcp alone directs initrd to look at the DHCP root-path where NFS 
 options can be specified.
     root-path=<server-ip>:<root-dir>[,<nfs-options>]

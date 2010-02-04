@@ -12,23 +12,7 @@
 # routing,dns,dhcp-options,etc.
 #
 
-# Sadly there's no easy way to split ':' separated lines into variables
-ip_to_var() {
-    local v=${1}:
-    set --
-    while [ -n "$v" ]; do
-	set -- "$@" "${v%%:*}"
-	v=${v#*:}
-    done
-
-    unset ip srv gw mask hostname dev autoconf
-    case $# in
-    0)	autoconf="error" ;;
-    1)	autoconf=$1 ;;
-    2)	dev=$1; autoconf=$2 ;;
-    *)	ip=$1; srv=$2; gw=$3; mask=$4; hostname=$5; dev=$6; autoconf=$7 ;;
-    esac
-}
+. /lib/dracut-lib.sh
 
 # Check if ip= lines should be used
 if getarg ip= >/dev/null ; then

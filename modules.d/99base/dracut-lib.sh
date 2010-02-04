@@ -1,3 +1,9 @@
+
+# returns OK if $1 contains $2
+strstr() {
+  [ "${1#*$2*}" != "$1" ]
+}
+
 getarg() {
     local o line
     if [ -z "$CMDLINE" ]; then
@@ -50,6 +56,7 @@ setdebug() {
     [ "$RDDEBUG" = "yes" ] && set -x 
 }
 
+setdebug
 
 source_all() {
     local f
@@ -171,3 +178,65 @@ wait_for_if_up() {
     done 
     return 1
 }
+
+# root=nfs:[<server-ip>:]<root-dir>[:<nfs-options>] 
+# root=nfs4:[<server-ip>:]<root-dir>[:<nfs-options>]
+nfsroot_to_var() {
+    # strip nfs[4]:
+    local arg="$@:"
+    nfs="${arg%%:*}"
+    arg="${arg##$nfs:}"
+    # check for server
+    local OLDIFS="$IFS"
+
+    # check if we have a server
+    if strstr "$arg" ':/*' ; then
+	server="${arg%%:/*}"
+	arg="/${arg##*:/}"
+    fi
+
+    path="${arg%%:*}"
+
+    # rest are options
+    options="${arg##$path}"
+    # strip leading ":"
+    options="${options##:}"
+    # strip  ":"
+    options="${options%%:}"
+    
+    # Does it really start with '/'?
+    [ -n "${path%%/*}" ] && path="error";
+    
+    #Fix kernel legacy style separating path and options with ','
+    if [ "$path" != "${path#*,}" ] ; then
+	options=${path#*,}
+	path=${path%%,*}
+    fi
+}
+
+ip_to_var() {
+    local v=${1}:
+    local i
+    set -- 
+    while [ -n "$v" ]; do
+	if [ "${v#\[*:*:*\]:}" != "$v" ]; then
+	    # handle IPv6 address
+	    i="${v%%\]:*}"
+	    i="${i##\[}"
+	    set -- "$@" "$i"
+	    v=${v#\[$i\]:}
+	else		    
+	    set -- "$@" "${v%%:*}"
+	    v=${v#*:}
+	fi
+    done
+
+    unset ip srv gw mask hostname dev autoconf
+    case $# in
+    0)	autoconf="error" ;;
+    1)	autoconf=$1 ;;
+    2)	dev=$1; autoconf=$2 ;;
+    *)	ip=$1; srv=$2; gw=$3; mask=$4; hostname=$5; dev=$6; autoconf=$7 ;;
+    esac
+}
+

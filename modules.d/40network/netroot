@@ -31,7 +31,7 @@ netif=$1
 
 # Figure out the handler for root=dhcp by recalling all netroot cmdline 
 # handlers
-if [ "$netroot" = "dhcp" ] ; then
+if [ "$netroot" = "dhcp" ] || [ "$netroot" = "dhcp6" ] ; then
     # Unset root so we can check later
     unset root
 
