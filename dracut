@@ -94,6 +94,7 @@ while (($# > 0)); do
 	--debug) debug="yes";;
 	-v|--verbose) beverbose="yes";;
 	-c|--conf) conffile="$2"; shift;;
+	--confdir) confdir="$2"; shift;;
 	-l|--local) allowlocal="yes" ;;
 	-H|--hostonly) hostonly_l="yes" ;;
 	-i|--include) include_src="$2"; include_target="$3"; shift 2;;
@@ -120,6 +121,19 @@ export PATH
 if [[ ! -f $conffile ]]; then
     [[ $allowlocal ]] || conffile="/etc/dracut.conf"
     [[ $allowlocal ]] && conffile="$dracutbasedir/dracut.conf"
+fi
+
+if [[ ! -d $confdir ]]; then
+    [[ $allowlocal ]] || confdir="/etc/dracut.conf.d"
+    [[ $allowlocal ]] && confdir="$dracutbasedir/dracut.conf.d"
+fi
+
+# source our config dir
+if [ "$confdir" ] && [  -d "$confdir" ]; then
+    local f
+    for f in "$confdir"/*.conf; do 
+	[ -e "$f" ] && . "$f"
+    done
 fi
 
 # source our config file

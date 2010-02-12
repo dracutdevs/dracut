@@ -37,6 +37,7 @@ ifeq (1,${WITH_SWITCH_ROOT})
 	install -m 0755 modules.d/99base/switch_root $(DESTDIR)$(sbindir)/switch_root
 endif
 	install -m 0644 dracut.conf $(DESTDIR)$(sysconfdir)/dracut.conf
+	mkdir -p $(DESTDIR)$(sysconfdir)/dracut.conf.d
 	install -m 0755 dracut-functions $(DESTDIR)$(pkglibdir)/dracut-functions
 	cp -arx modules.d $(DESTDIR)$(pkglibdir)
 	install -m 0644 dracut.8 $(DESTDIR)$(mandir)/man8
