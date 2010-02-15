@@ -8,5 +8,5 @@ inst_rules 56-zfcp.rules
 if [[ $hostonly ]]; then
     inst /etc/zfcp.conf
 fi
-dracut_install zfcp_cio_free grep sed
+dracut_install zfcp_cio_free grep sed seq
 
