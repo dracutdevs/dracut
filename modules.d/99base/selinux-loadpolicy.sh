@@ -7,10 +7,11 @@ rd_load_policy()
     SELINUX="enforcing"
     [ -e "$NEWROOT/etc/selinux/config" ] && . "$NEWROOT/etc/selinux/config"
 
+    disabled=0
     # If SELinux is disabled exit now 
     getarg "selinux=0" > /dev/null
     if [ $? -eq 0 -o "$SELINUX" = "disabled" ]; then
-	return 0
+	disabled=1
     fi
 
     # Check whether SELinux is in permissive mode
@@ -35,6 +36,10 @@ rd_load_policy()
 		ret=$?
             fi
 	} 2>&1 | vinfo
+
+	if [ $disabled -eq 1 ]; then
+	    return 0;
+	fi
 
 	if [ $ret -eq 0 -o $ret -eq 2 ]; then
 	    # If machine requires a relabel, force to permissive mode
