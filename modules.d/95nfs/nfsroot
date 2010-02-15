@@ -93,13 +93,7 @@ if [ "$nfs" = "nfs4" ]; then
     # rpc.lockd isn't needed
     [ -z "$(pidof rpc.statd)" ] && rpc.statd
 
-    # XXX really needed? Do we need non-root users before we start it in
-    # XXX the real root image?
-    if nfsdomain=$(getarg rd_NFS_DOMAIN); then
-        [ -z "$(pidof rpc.idmapd)" ] && rpc.idmapd -d $nfsdomain
-    else
-        [ -z "$(pidof rpc.idmapd)" ] && rpc.idmapd
-    fi
+    [ -z "$(pidof rpc.idmapd)" ] && rpc.idmapd
 
     # XXX Should we loop here?
     mount -t nfs4 -o$options${nfslock+,$nfslock} \

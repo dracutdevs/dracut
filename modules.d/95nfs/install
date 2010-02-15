@@ -7,6 +7,8 @@ dracut_install rpc.statd mount.nfs mount.nfs4 umount
 dracut_install /etc/services 
 dracut_install /etc/nsswitch.conf /etc/rpc /etc/protocols
 dracut_install rpc.idmapd /etc/idmapd.conf
+dracut_install sed
+
 if ldd $(which rpc.idmapd) |grep -q lib64; then
     LIBDIR="/lib64"
 else
@@ -28,7 +30,7 @@ nsslibs=${nsslibs##|}
 dracut_install $(for i in $(ls {/usr,}$LIBDIR/libnss*.so 2>/dev/null); do echo $i;done | egrep "$nsslibs")
 
 inst_hook cmdline 90 "$moddir/parse-nfsroot.sh"
-inst_hook pre-pivot 70 "$moddir/nfsroot-cleanup.sh"
+inst_hook pre-pivot 99 "$moddir/nfsroot-cleanup.sh"
 inst "$moddir/nfsroot" "/sbin/nfsroot"
 mkdir -p "$initdir/var/lib/nfs/rpc_pipefs"
 mkdir -p "$initdir/var/lib/rpcbind"

@@ -69,6 +69,17 @@ case "${netroot%%:*}" in
 esac
 
 # Check required arguments
+
+if nfsdomain=$(getarg rd_NFS_DOMAIN); then
+    if [ -f /etc/idmapd.conf ]; then
+	sed -i -e \
+	    "s/^[[:space:]#]*Domain[[:space:]]*=.*/Domain = $nfsdomain/g" \
+	    /etc/idmapd.conf
+    fi
+    # and even again after the sed, in case it was not yet specified
+    echo "Domain = $nfsdomain" >> /etc/idmapd.conf
+fi
+
 nfsroot_to_var $netroot
 [ "$path" = "error" ] && die "Argument nfsroot must contain a valid path!"
 
