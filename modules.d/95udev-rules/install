@@ -45,7 +45,7 @@ pcmcia-check-broken-cis \
 done
 
 
-if ldd $(find_binary udevd) |grep -q /lib64/libc; then
+if ldd $(find_binary udevd) |grep -q /lib64/; then
     dracut_install /lib64/libnss_files*
 else
     dracut_install /lib/libnss_files*

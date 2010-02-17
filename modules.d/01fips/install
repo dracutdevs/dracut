@@ -4,7 +4,7 @@ inst_hook pre-trigger 01 "$moddir/fips.sh"
 dracut_install sha512hmac rmmod insmod mount uname umount
 
 libdir="lib"
-if ldd $(find_binary sha512hmac) |grep -q /lib64/libc; then
+if ldd $(find_binary sha512hmac) |grep -q /lib64/; then
     libdir="lib64"
 fi
 
