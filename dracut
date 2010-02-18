@@ -177,7 +177,8 @@ case $dracutmodules in
 esac
 
 [[ $2 ]] && kernel=$2 || kernel=$(uname -r)
-[[ $1 ]] && outfile=$(readlink -f $1) || outfile="/boot/initramfs-$kernel.img"
+[[ $1 ]] && outfile=$1 || outfile="/boot/initramfs-$kernel.img"
+abs_outfile=$(readlink -f "$outfile") && outfile="$abs_outfile"
 
 srcmods="/lib/modules/$kernel/"
 [[ $drivers_dir ]] && srcmods="$drivers_dir"
@@ -188,7 +189,18 @@ if [[ -f $outfile && ! $force ]]; then
     exit 1
 fi
 
-if ! [[ -w $(dirname $outfile) ]]; then
+outdir=$(dirname "$outfile")
+if ! [[ -d "$outdir" ]]; then
+    echo "Can't write $outfile: Directory $outdir does not exist."
+    exit 1
+fi
+
+if ! [[ -w "$outdir" ]]; then
+    echo "No permission to write $outdir."
+    exit 1
+fi
+
+if [[ -f "$outfile" ]] &&  ! [[ -w "$outfile" ]]; then
     echo "No permission to write $outfile."
     exit 1
 fi
