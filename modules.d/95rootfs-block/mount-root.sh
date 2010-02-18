@@ -36,6 +36,9 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
 	rootfs="auto"
 	rootopts="defaults"
 	while read dev mp fs opts rest; do 
+            # skip comments
+            [ "${dev%%#*}" != "$dev" ] && continue
+            
             if [ "$mp" = "/" ]; then
 		rootfs=$fs
 		rootopts=$opts
