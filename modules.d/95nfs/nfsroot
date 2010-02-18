@@ -63,14 +63,14 @@ if [ "${path#*%s}" != "$path" ]; then
 fi
 
 # Look through the options and remove rw/locking options
-OLDIFS=$IFS
+OLDIFS="$IFS"
 IFS=,
 for f in $options ; do
     [ "$f" = "ro" -o "$f" = "rw" ] && nfsrw=$f && continue
     [ "$f" = "lock" -o "$f" = "nolock" ] && nfslock=$f && continue
     flags=${flags:+$flags,}$f
 done
-IFS=$OLDIFS
+IFS="$OLDIFS"
 options=$flags
 
 # Override rw/ro if set on cmdline

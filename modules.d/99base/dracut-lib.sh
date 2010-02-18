@@ -48,7 +48,7 @@ setdebug() {
     if [ -z "$RDDEBUG" ]; then
         if [ -e /proc/cmdline ]; then
             RDDEBUG=no
-           if getarg rdinitdebug; then
+            if getarg rdinitdebug; then
                 RDDEBUG=yes 
             fi
         fi
@@ -186,8 +186,6 @@ nfsroot_to_var() {
     local arg="$@:"
     nfs="${arg%%:*}"
     arg="${arg##$nfs:}"
-    # check for server
-    local OLDIFS="$IFS"
 
     # check if we have a server
     if strstr "$arg" ':/*' ; then

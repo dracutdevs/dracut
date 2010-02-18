@@ -5,10 +5,10 @@
 filter_rootopts() {
     rootopts=$1
     # strip ro and rw options
-    local OLDIFS=$IFS
+    local OLDIFS="$IFS"
     IFS=,
     set -- $rootopts
-    IFS=$OLDIFS
+    IFS="$OLDIFS"
     local v
     while [ $# -gt 0 ]; do
         case $1 in

@@ -112,7 +112,7 @@ iscsi_target_port=$1; shift
 iscsi_lun=$1; shift
 IFS=:
 iscsi_target_name=$*
-IFS=$OLDIFS
+IFS="$OLDIFS"
 # XXX is this needed?
 getarg ro && iscsirw=ro
 getarg rw && iscsirw=rw
