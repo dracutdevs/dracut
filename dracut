@@ -130,7 +130,6 @@ fi
 
 # source our config dir
 if [ "$confdir" ] && [  -d "$confdir" ]; then
-    local f
     for f in "$confdir"/*.conf; do 
 	[ -e "$f" ] && . "$f"
     done
