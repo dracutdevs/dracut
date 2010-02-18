@@ -13,6 +13,7 @@ filter_rootopts() {
     while [ $# -gt 0 ]; do
         case $1 in
             rw|ro);;
+	    defaults);;
             *)
                 v="$v,${1}";;
         esac
@@ -48,7 +49,7 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
 
 	rootopts=$(filter_rootopts $rootopts)
 
-	if [ -n "$rootopts" -a "$rootopts" != "defaults" ]; then
+	if [ -n "$rootopts" ]; then
             umount $NEWROOT
             info "Remounting ${root#block:} with -o $rootopts,$rflags"
             mount -t "$rootfs" -o "$rflags","$rootopts" \
