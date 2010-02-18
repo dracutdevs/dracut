@@ -55,7 +55,7 @@ rd_load_policy()
 	    exit 1
 	fi
 	return 0
-    elif [ $permissive -eq 0 ]; then
+    elif [ $permissive -eq 0 -a $disabled -eq 0 ]; then
 	warn "Machine in enforcing mode and cannot execute load_policy."
 	warn "To disable selinux, add selinux=0 to the kernel command line."
 	warn "Not continuing"
