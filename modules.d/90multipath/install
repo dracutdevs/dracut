@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ $hostonly ]]; then
+if [ -f /etc/multipath.conf ]; then
     inst /etc/multipath.conf
 fi
 
