@@ -20,6 +20,7 @@ live_dir=$(getarg live_dir)
 [ -z "$live_dir" ] && live_dir="LiveOS"
 getarg live_ram && live_ram="yes"
 getarg reset_overlay && reset_overlay="yes"
+getarg readonly_overlay && readonly_overlay="--readonly" || readonly_overlay=""
 overlay=$(getarg overlay)
 
 # FIXME: we need to be able to hide the plymouth splash for the check really
@@ -95,7 +96,7 @@ do_live_overlay() {
     fi
 
     # set up the snapshot
-    echo 0 `blockdev --getsize $BASE_LOOPDEV` snapshot $BASE_LOOPDEV $OVERLAY_LOOPDEV p 8 | dmsetup create live-rw
+    echo 0 `blockdev --getsize $BASE_LOOPDEV` snapshot $BASE_LOOPDEV $OVERLAY_LOOPDEV p 8 | dmsetup create $readonly_overlay live-rw
 }
 
 # live cd helper function
