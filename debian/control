@@ -10,6 +10,7 @@ Vcs-Git: git://dracut.git.sourceforge.net/gitroot/dracut/dracut
 Package: dracut
 Architecture: all
 Recommends: cryptsetup, dmsetup, dmraid, lvm2, mdadm
+Suggests: dracut-network
 Depends: cpio, module-init-tools, udev, ${misc:Depends}
 Provides: linux-initramfs-tool
 Description: A new initramfs infrastructure
