@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Philippe Seewer <philippe.seewer@bfh.ch>
 Build-Depends: debhelper (>= 5.0), cdbs
-Standards-Version: 3.8.3
+Standards-Version: 3.8.4
 Vcs-Browser: http://dracut.git.sourceforge.net/git/gitweb-index.cgi
 Vcs-Git: git://dracut.git.sourceforge.net/gitroot/dracut/dracut
 
