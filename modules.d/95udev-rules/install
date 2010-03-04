@@ -15,7 +15,6 @@ inst_rules "$moddir/01-ignore.rules"
 
 # for firmware loading
 inst_rules 50-firmware.rules
-dracut_install /lib/udev/firmware.sh
 dracut_install cat uname
 
 if [ ! -x /lib/udev/vol_id ]; then
@@ -32,6 +31,9 @@ cdrom_id \
 create_floppy_devices \
 edd_id \
 firmware.sh \
+firmware \
+firmware.agent \
+hotplug.functions \
 fw_unit_symlinks.sh \
 hid2hci \
 path_id \
