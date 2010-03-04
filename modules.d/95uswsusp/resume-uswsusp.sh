@@ -8,4 +8,6 @@ case "$splash" in
     ;;
 esac
 
-/usr/sbin/resume $a_splash "$resume"
+if [ -n "$resume" ]; then
+    /usr/sbin/resume $a_splash "$resume"
+fi
