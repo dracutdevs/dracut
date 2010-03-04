@@ -43,7 +43,7 @@ vol_id \
 pcmcia-socket-startup \
 pcmcia-check-broken-cis \
 ; do
-    [ -x /lib/udev/$i ] && dracut_install /lib/udev/$i
+    [ -e /lib/udev/$i ] && dracut_install /lib/udev/$i
 done
 
 
