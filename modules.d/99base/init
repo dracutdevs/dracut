@@ -259,10 +259,10 @@ done
 
 initargs=""
 
+read CLINE </proc/cmdline
 if getarg init= >/dev/null ; then
     ignoreargs="console BOOT_IMAGE"
     # only pass arguments after init= to the init
-    read CLINE </proc/cmdline
     CLINE=${CLINE#*init=}
     set $CLINE
     shift
@@ -273,6 +273,16 @@ if getarg init= >/dev/null ; then
         initargs="$initargs $x"
     done
     unset CLINE
+else
+    set $CLINE
+    shift
+    for x in "$@"; do
+        case "$x" in
+            [0-9]|s|S|single|emergency|auto )
+                initargs="$initargs $x"
+            ;;
+        esac
+    done
 fi
 
 # Debug: Copy state
