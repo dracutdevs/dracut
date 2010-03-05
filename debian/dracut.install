@@ -1,6 +1,7 @@
 dracut			usr/sbin
 dracut-catimages	usr/sbin
 dracut-update-initramfs	usr/sbin
+dracut-gencmdline	usr/sbin
 dracut-functions	usr/share/dracut
 dracut.conf		etc
 modules.d/00dash		usr/share/dracut/modules.d
