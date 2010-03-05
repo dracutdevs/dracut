@@ -258,10 +258,6 @@ if [[ -d $initdir/lib/modules/$kernel ]]; then
     fi
 fi
 
-# make sure that library links are correct and up to date
-cp -ar /etc/ld.so.conf* "$initdir"/etc
-ldconfig -r "$initdir" || [[ $(id -u) != "0" ]] && dinfo "ldconfig might need uid=0 (root) for chroot()"
-
 if [[ $include_src && $include_target ]]; then
     mkdir -p "$initdir$include_target"
     cp -a -t "$initdir$include_target" "$include_src"/*
@@ -271,6 +267,10 @@ for item in $install_items; do
    dracut_install "$item"
 done
 unset item
+
+# make sure that library links are correct and up to date
+cp -ar /etc/ld.so.conf* "$initdir"/etc
+ldconfig -r "$initdir" || [[ $(id -u) != "0" ]] && dinfo "ldconfig might need uid=0 (root) for chroot()"
 
 [[ $beverbose = yes ]] && (du -c "$initdir" | sort -n)
 
