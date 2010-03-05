@@ -22,3 +22,4 @@ usr/share/dracut/modules.d/95znet
 usr/share/dracut/modules.d/98syslog
 usr/share/dracut/modules.d/99base
 /var/lib/dracut
+/etc/dracut.conf.d
