@@ -75,7 +75,8 @@ test_setup() {
 		cp ping grep
 	inst ./client-init /sbin/init
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
-	ldconfig -n -r "$initdir" /lib* /usr/lib*
+	cp -a /etc/ld.so.conf* $initdir/etc
+	sudo ldconfig -r "$initdir"
     )
  
     # second, install the files needed to make the root filesystem
@@ -154,7 +155,8 @@ test_setup() {
 	inst /etc/group /etc/group
 
 	/sbin/depmod -a -b "$initdir" $kernel
-	ldconfig -n -r "$initdir" /lib* /usr/lib*
+	cp -a /etc/ld.so.conf* $initdir/etc
+	sudo ldconfig -r "$initdir"
     )
 
     sudo umount mnt

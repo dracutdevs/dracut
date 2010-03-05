@@ -31,6 +31,8 @@ test_setup() {
 	inst ./test-init /sbin/init
 	find_binary plymouth >/dev/null && dracut_install plymouth
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
+	cp -a /etc/ld.so.conf* $initdir/etc
+	sudo ldconfig -r "$initdir"
     )
  
     # second, install the files needed to make the root filesystem

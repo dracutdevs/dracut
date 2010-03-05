@@ -237,7 +237,8 @@ make_client_root() {
 	    inst_library $i
 	done
 
-	ldconfig -n -r "$initdir" /lib* /usr/lib*
+	cp -a /etc/ld.so.conf* $initdir/etc
+	sudo ldconfig -r "$initdir"
     )
 
     sudo umount mnt
@@ -273,7 +274,8 @@ make_server_root() {
 	    inst_library $i
 	done
 
-	ldconfig -n -r "$initdir" /lib* /usr/lib*
+	cp -a /etc/ld.so.conf* $initdir/etc
+	sudo ldconfig -r "$initdir"
     )
 
     sudo umount mnt

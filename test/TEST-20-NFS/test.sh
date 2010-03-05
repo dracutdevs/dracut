@@ -235,7 +235,8 @@ test_setup() {
 	done
 
 	/sbin/depmod -a -b "$initdir" $kernel
-	ldconfig -n -r "$initdir" /lib* /usr/lib*
+	cp -a /etc/ld.so.conf* $initdir/etc
+	sudo ldconfig -r "$initdir"
     )
 
     # Make client root inside server root
@@ -260,7 +261,8 @@ test_setup() {
 	    inst_library $i
 	done
 
-	ldconfig -n -r "$initdir" /lib* /usr/lib*
+	cp -a /etc/ld.so.conf* $initdir/etc
+	sudo ldconfig -r "$initdir"
     )
 
     mkdir -p mnt/nfs/nfs3-5
