@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # No Xen-detect? Boo!!
-XENDETECT=$(which xen-detect)
+XENDETECT=$(which xen-detect 2>/dev/null)
 [ -z "$XENDETECT" ] && [ -d "/usr/lib/xen-default" ] && XENDETECT="/usr/lib/xen-default/bin/xen-detect"
 [ -z "$XENDETECT" ] && exit 1
 
