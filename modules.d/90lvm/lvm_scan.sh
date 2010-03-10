@@ -60,13 +60,13 @@ nopoll=$(
 if [ -n "$LVS" ] ; then
     info "Scanning devices $lvmdevs for LVM logical volumes $LVS"
     lvm lvscan --ignorelockingfailure 2>&1 | vinfo
-    lvm lvchange -ay --ignorelockingfailure $nopoll --monitor n $LVS 2>&1 | vinfo    
+    lvm lvchange -ay --ignorelockingfailure $nopoll --ignoremonitoring $LVS 2>&1 | vinfo
 fi
 
 if [ -z "$LVS" -o -n "$VGS" ]; then
     info "Scanning devices $lvmdevs for LVM volume groups $VGS"
     lvm vgscan --ignorelockingfailure 2>&1 | vinfo
-    lvm vgchange -ay --ignorelockingfailure $nopoll --monitor n $VGS 2>&1 | vinfo
+    lvm vgchange -ay --ignorelockingfailure $nopoll --ignoremonitoring $VGS 2>&1 | vinfo
 fi
 
 if [ "$lvmwritten" ]; then
