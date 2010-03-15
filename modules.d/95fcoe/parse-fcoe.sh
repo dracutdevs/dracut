@@ -39,8 +39,7 @@ parse_fcoe_opts() {
 
 parse_fcoe_opts
 
-# currently only nodcb is supported
-if [ "$fcoe_dcb" != "nodcb" ] ; then
+if [ "$fcoe_dcb" != "nodcb" -a "$fcoe_dcb" != "dcb" ] ; then
     die "Invalid FCoE DCB option: $fcoe_dcb"
 fi
 

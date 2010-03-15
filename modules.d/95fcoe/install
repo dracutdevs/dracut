@@ -1,6 +1,9 @@
 #!/bin/bash
 
-dracut_install ip
+dracut_install ip dcbtool fipvlan
+
+inst lldpad
+mkdir -p "$initdir/var/lib/lldpad"
 
 inst "$moddir/fcoe-up" "/sbin/fcoe-up"
 inst_hook pre-udev 60 "$moddir/fcoe-genrules.sh"

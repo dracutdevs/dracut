@@ -6,6 +6,8 @@
 # Note currently only nodcb is supported, the dcb option is reserved for
 # future use.
 
+PATH=$PATH:/sbin:/usr/sbin
+
 # Huh? Missing arguments ??
 [ -z "$1" -o -z "$2" ] && exit 1
 
@@ -13,4 +15,14 @@ netif=$1
 dcb=$2
 
 /sbin/ip link set "$netif" up
-echo -n "$netif" > /sys/module/fcoe/parameters/create
+if [ "$dcb" = "dcb" ]; then
+    # Note lldpad will stay running after switchroot, the system initscripts
+    # are to kill it and start a new lldpad to take over. Data is transfered
+    # between the 2 using a shm segment
+    lldpad -d
+    dcbtool sc "$netif" dcb on
+    dcbtool sc "$netif" app:fcoe e:1 a:1 w:1
+    fipvlan "$netif" -c -s
+else
+    echo -n "$netif" > /sys/module/fcoe/parameters/create
+fi
