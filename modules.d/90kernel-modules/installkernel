@@ -5,11 +5,11 @@ if [[ -z $drivers ]]; then
 
 	 nm -uPA "$1" | egrep -q "$blockfuncs"
     }
-    instmods pcmcia sd_mod scsi_dh scsi_dh_rdac scsi_dh_emc
-    instmods firewire-ohci
+    hostonly='' instmods pcmcia sd_mod scsi_dh scsi_dh_rdac scsi_dh_emc
+    hostonly='' instmods firewire-ohci
 
     # install keyboard support
-    instmods atkbd i8042 usbhid hid-apple ehci-hcd ohci-hcd uhci-hcd
+    hostonly='' instmods atkbd i8042 usbhid hid-apple ehci-hcd ohci-hcd uhci-hcd
 
     instmods "=drivers/pcmcia" =ide "=drivers/usb/storage"
     instmods $(filter_kernel_modules block_module_test) 
@@ -21,19 +21,16 @@ if [[ -z $drivers ]]; then
 	    instmods $filesystems
 	fi
     else
-	instmods $(get_fs_type "/dev/block/$(find_root_block_device)")
+	hostonly='' instmods $(get_fs_type "/dev/block/$(find_root_block_device)")
     fi
     # hardcoded list of exceptions
     rm -fr ${initdir}/lib/modules/*/kernel/fs/ocfs2
 else
-  instmods $drivers $filesystems
+  hostonly='' instmods $drivers $filesystems
 fi
 
-[[ $add_drivers ]] && instmods $add_drivers
+[[ $add_drivers ]] && hostonly='' instmods $add_drivers
 
 # force install of scsi_wait_scan
-old_hostonly=$hostonly
-hostonly=''
-instmods scsi_wait_scan
-hostonly=$old_hostonly
+hostonly='' instmods scsi_wait_scan
 
