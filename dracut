@@ -303,7 +303,8 @@ if [[ $do_strip = yes ]] ; then
     done
 fi
 
-( cd "$initdir"; find . |cpio -R 0:0 -H newc -o --quiet |gzip -9 > "$outfile"; ) 
+type pigz &>/dev/null && gzip=pigz || gzip=gzip
+( cd "$initdir"; find . |cpio -R 0:0 -H newc -o --quiet |$gzip -9 > "$outfile"; ) 
 if [ $? -ne 0 ]; then
     derror "dracut: creation of $outfile failed"
     exit 1
