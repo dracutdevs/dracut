@@ -1,7 +1,8 @@
 #!/bin/bash
 
-dracut_install ip dcbtool fipvlan
-
+dracut_install ip 
+inst dcbtool 
+inst fipvlan
 inst lldpad
 mkdir -p "$initdir/var/lib/lldpad"
 
