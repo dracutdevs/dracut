@@ -58,7 +58,7 @@ Requires: /bin/sh
 Requires: fileutils, gzip, tar
 Requires: lvm2 >= 2.02.33-9, dhclient
 Requires: filesystem >= 2.1.0, cpio, device-mapper, initscripts >= 8.63-1
-Requires: e2fsprogs >= 1.38-12, libselinux, libsepol, coreutils
+Requires: e2fsprogs >= 1.38-12, coreutils
 Requires: mdadm, elfutils-libelf 
 Requires(pre): plymouth >= 0.8.0-0.2009.29.09.19.1
 Requires: plymouth >= 0.8.0-0.2009.29.09.19.1
