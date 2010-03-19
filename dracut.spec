@@ -75,7 +75,11 @@ BuildArch: noarch
 %endif
 
 %description
-dracut is a new, event-driven initramfs infrastructure based around udev.
+Dracut contains tools to create a bootable initramfs for 2.6 Linux kernels. 
+Unlike existing implementations, dracut does hard-code as little as possible 
+into the initramfs. Dracut contains various modules which are driven by the 
+event-based udev. Having root on MD, DM, LVM2, LUKS is supported as well as 
+NFS, iSCSI, NBD, FCoE with the dracut-network package.
 
 %package network
 Summary: Dracut modules to build a dracut initramfs with network support
@@ -93,7 +97,7 @@ This package requires everything which is needed to build a generic
 all purpose initramfs with network support with dracut.
 
 %package fips
-Summary: dracut modules to build a dracut initramfs with an integrity check.
+Summary: Dracut modules to build a dracut initramfs with an integrity check
 Requires: %{name} = %{version}-%{release}
 Requires: hmaccalc
 %if 0%{?rhel} > 5
