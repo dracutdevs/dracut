@@ -38,6 +38,8 @@ Obsoletes: mkinitrd-devel <= 6.0.93
 Obsoletes: nash <= 6.0.93
 Obsoletes: libbdevid-python <= 6.0.93
 %endif
+Obsoletes: dracut-kernel < 005
+Provides:  dracut-kernel = %{version}-%{release}
 
 Requires: udev
 Requires: util-linux-ng
@@ -114,20 +116,6 @@ Requires: %{name}-network = %{version}-%{release}
 %description generic
 This package requires everything which is needed to build a generic
 all purpose initramfs with dracut.
-
-
-%package kernel
-Summary: Metapackage to build generic initramfs with dracut with only kernel modules
-Requires: %{name} = %{version}-%{release}
-Requires: ql2100-firmware
-Requires: ql2200-firmware
-Requires: ql23xx-firmware
-Requires: ql2400-firmware
-Requires: ql2500-firmware
-
-%description kernel
-This package requires everything which is needed to build a initramfs with all
-kernel modules and firmware files needed by dracut modules.
 
 %package tools
 Summary: Dracut tools to build the local initramfs
@@ -224,10 +212,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,0755)
 %doc COPYING
 %{_datadir}/dracut/modules.d/01fips
-
-%files kernel 
-%defattr(-,root,root,0755)
-%doc README.kernel
 
 %files generic
 %defattr(-,root,root,0755)
