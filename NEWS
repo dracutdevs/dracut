@@ -1,3 +1,14 @@
+dracut-005
+==========
+- dcb support to dracut's FCoE support 
+- add readonly overlay support for dmsquash
+- add keyboard kernel modules
+- dracut.conf: added add_dracutmodules
+- add /etc/dracut.conf.d
+- add preliminary IPv6 support
+- bugfixes
+
+
 dracut-004
 ==========
 - dracut-lib: read multiple lines from $init/etc/cmdline
