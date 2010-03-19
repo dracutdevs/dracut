@@ -19,7 +19,7 @@
 %endif
 
 Name: dracut
-Version: 004
+Version: 005
 Release: 1%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base          
