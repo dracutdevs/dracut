@@ -55,7 +55,7 @@ nopoll=$(
 	maj=${maj##*:}; 
 	sub=${sub%% *}; sub=${sub%%\(*}; 
 	check_lvm_ver $maj $min $sub && \
-	    echo " --poll n "))
+	    echo " --poll n ") 2>/dev/null )
 
 if [ -n "$LVS" ] ; then
     info "Scanning devices $lvmdevs for LVM logical volumes $LVS"
