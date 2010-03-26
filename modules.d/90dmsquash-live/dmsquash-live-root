@@ -172,7 +172,12 @@ if [ -b "$OSMIN_LOOPDEV" ]; then
     echo "0 $( blockdev --getsz $BASE_LOOPDEV ) snapshot $BASE_LOOPDEV $OSMIN_LOOPDEV p 8" | dmsetup create --readonly live-osimg-min
 fi
 
+ROOTFLAGS="$(getarg rootflags)"
+if [ -n "$ROOTFLAGS" ]; then
+    ROOTFLAGS="-o $ROOTFLAGS"
+fi
+
 ln -s /dev/mapper/live-rw /dev/root
-printf '/bin/mount /dev/mapper/live-rw %s\n' "$NEWROOT" > /mount/01-$$-live.sh
+printf '/bin/mount %s /dev/mapper/live-rw %s\n' "$ROOTFLAGS" "$NEWROOT" > /mount/01-$$-live.sh
 
 exit 0
