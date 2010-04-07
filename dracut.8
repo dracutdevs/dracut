@@ -132,9 +132,11 @@ do not honor special mount options for the root filesystem found in
 .TP
 .BR rdblacklist= <drivername>
 do not load kernel module <drivername>
+This parameter can be specified multiple times.
 .TP
 .BR rdloaddriver= <drivername>
 force loading kernel module <drivername>
+This parameter can be specified multiple times.
 
 .SS Debug
 .TP
@@ -214,6 +216,7 @@ only activate the LUKS partitions with the given UUID
 Any "luks-" of the LUKS UUID is removed before comparing to <luks uuid>.
 The comparisons also matches, if <luks uuid> is only the beginning of the 
 LUKS UUID, so you don't have to specify the full UUID.
+This parameter can be specified multiple times.
 .TP
 .BR rd_NO_CRYPTTAB
 do not check, if LUKS partition is in /etc/crypttab
@@ -230,7 +233,8 @@ no MD RAID for imsm/isw raids, use dmraid instead
 ignore mdadm.conf included in initramfs
 .TP
 .BR rd_MD_UUID= "<md uuid>"
-only activate the raid sets with the given UUID
+only activate the raid sets with the given UUID.
+This parameter can be specified multiple times.
 
 .SS DMRAID
 .TP
@@ -238,7 +242,8 @@ only activate the raid sets with the given UUID
 disable DM RAID detection
 .TP
 .BR rd_DM_UUID= "<dmraid uuid>"
-only activate the raid sets with the given UUID
+only activate the raid sets with the given UUID.
+This parameter can be specified multiple times.
 
 .SS Network
 .TP
@@ -251,19 +256,22 @@ auto6: do IPv6 autoconfiguration
 .TP
 .BR ip= <interface>:{dhcp|on|any|dhcp6|auto6}
 dhcp|on|any|dhcp6: get ip from dhcp server on a specific interface
-
 auto6: do IPv6 autoconfiguration
+This parameter can be specified multiple times.
+
 .TP
 .ad l
 .BR ip= "\%<client-IP>\::[<server-id>]\::<gateway-IP>\::<netmask>\::<client\%hostname>\::<interface>\::{none|off}"
 .ad
 explicit network configuration. If you want do define a IPv6 address, put it in brackets (e.g. [2001:DB8::1]).
+This parameter can be specified multiple times.
 .TP
 .BR ifname= <interface>:<MAC>
 Assign network device name <interface> (ie eth0) to the NIC with MAC <MAC>.
 Note letters in the MAC-address must be lowercase!
 Note that if you use this option you \fBmust\fR specify an ifname= argument
 for all interfaces used in ip= or fcoe= arguments
+This parameter can be specified multiple times.
 .TP
 .BR bootdev= <interface>
 specify network interface to use routing and netroot information from. 
@@ -371,6 +379,7 @@ same syntax as the kernel module parameter (s390 only)
 .ad
 activate DASD device with the given adaptor device bus ID and setting the sysfs attributes
 to the specified values
+This parameter can be specified multiple times.
 
 .SS ZFCP
 .TP
