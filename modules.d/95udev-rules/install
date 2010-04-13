@@ -24,7 +24,7 @@ else
     inst_rules "$moddir/59-persistent-storage-volid.rules"
 fi
 inst_rules "$moddir/61-persistent-storage.rules"
-    
+
 for i in \
 ata_id \
 cdrom_id \

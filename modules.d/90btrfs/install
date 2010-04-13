@@ -1,0 +1,4 @@
+#!/bin/bash
+
+inst_rules "$moddir/40-btrfs.rules"
+dracut_install btrfs
