@@ -10,7 +10,7 @@ DM_CLEANUP="no"
 info "Scanning for dmraid devices $DM_RAIDS"
 SETS=$(dmraid -c -s)
 
-if [ "$SETS" = "no raid disks" ]; then
+if [ "$SETS" = "no raid disks" -o "$SETS" = "no raid sets" ]; then
     return
 fi
 
