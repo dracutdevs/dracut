@@ -186,8 +186,20 @@ while :; do
 
     # no more udev jobs and queues empty.
     sleep 0.5
+
+    # dirty hack for some cdrom drives,
+    # which report no medium for quiet
+    # some time.
+    for cdrom in /sys/block/sr*; do
+	[ -e "$cdrom" ] || continue
+	# skip, if cdrom medium was already found
+        strstr "$(udevadm info --query=env --path=${cdrom##/sys})" \
+	    ID_CDROM_MEDIA && continue
+        echo change > "$cdrom"        
+    done
+    
     i=$(($i+1))
-    [ $i -gt 20 ] \
+    [ $i -gt 40 ] \
         && { flock -s 9 ; emergency_shell "No root device found"; } 9>/.console_lock
 done
 unset job
