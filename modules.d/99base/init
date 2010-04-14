@@ -147,7 +147,7 @@ getarg 'rdbreak=pre-trigger' && emergency_shell -n pre-trigger "Break before pre
 source_all pre-trigger
 
 # then the rest
-udevadm trigger $udevtriggeropts  >/dev/null 2>&1
+udevadm trigger --action=add $udevtriggeropts  >/dev/null 2>&1
 
 getarg 'rdbreak=initqueue' && emergency_shell -n initqueue "Break before initqueue"
 
