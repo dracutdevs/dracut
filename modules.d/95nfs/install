@@ -18,14 +18,10 @@ fi
 dracut_install $(ls {/usr,}$LIBDIR/libnfsidmap_nsswitch.so* 2>/dev/null )
 #dracut_install $(ls {/usr,}$LIBDIR/libnfsidmap*.so* 2>/dev/null )
 
-nsslibs=$(for j in $(for i in \
-                         $(egrep -v '^#.*' /etc/nsswitch.conf|cut -f2 -d :\
-                          |fgrep -v NOTFOUND); do \
-                         echo "libnss_${i}.so";\
-                     done|sort -u); do \
-              echo -n "|$j";\
-          done)
-nsslibs=${nsslibs##|}
+nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
+              |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
+nsslibs=${nsslibs#|}
+nsslibs=${nsslibs%|}
 
 dracut_install $(for i in $(ls {/usr,}$LIBDIR/libnss*.so 2>/dev/null); do echo $i;done | egrep "$nsslibs")
 
