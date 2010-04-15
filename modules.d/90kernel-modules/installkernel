@@ -5,8 +5,8 @@ if [[ -z $drivers ]]; then
 
 	 nm -uPA "$1" | egrep -q "$blockfuncs"
     }
-    hostonly='' instmods pcmcia sd_mod scsi_dh scsi_dh_rdac scsi_dh_emc
-    hostonly='' instmods firewire-ohci
+    hostonly='' instmods sr_mod sd_mod scsi_dh scsi_dh_rdac scsi_dh_emc
+    hostonly='' instmods pcmcia firewire-ohci
 
     # install keyboard support
     hostonly='' instmods atkbd i8042 usbhid hid-apple ehci-hcd ohci-hcd uhci-hcd
