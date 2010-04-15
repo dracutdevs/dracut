@@ -1,7 +1,7 @@
 Harald Hoyer <harald@redhat.com>
 Victor Lowther <victor.lowther@gmail.com>
-Warren Togami <wtogami@redhat.com>
 Philippe Seewer <philippe.seewer@bfh.ch>
+Warren Togami <wtogami@redhat.com>
 Jeremy Katz <katzj@redhat.com>
 David Dillow <dave@thedillows.org>
 Andreas Thienemann <andreas@bawue.net>
@@ -9,6 +9,7 @@ Hans de Goede <hdegoede@redhat.com>
 Peter Jones <pjones@redhat.com>
 Luca Berra <bluca@comedia.it>
 Marc Grimme <grimme@atix.de>
+Andrey Borzenkov <arvidjaar@mail.ru>
 Bill Nottingham <notting@redhat.com>
 Daniel Drake <dsd@laptop.org>
 David Cantrell <dcantrell@redhat.com>
@@ -16,12 +17,13 @@ Lance Albertson <lance@osuosl.org>
 Michael Ploujnikov <plouj@somanetworks.com>
 Alan Jenkins <alan-jenkins@tuffmail.co.uk>
 Dan Horák <dan@danny.cz>
-Andrey Borzenkov <arvidjaar@mail.ru>
+Joey Boggs <jboggs@redhat.com>
 Dave Jones <davej@redhat.com>
 Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Luca Berra <bluca@vodka.it>
 Michal Schmidt <mschmidt@redhat.com>
 Mike Snitzer <msnitzer@redhat.com>
+Mike Snitzer <snitzer@redhat.com>
 Munehiro Matsuda <haro@kgt.co.jp>
 Peter Rajnoha <prajnoha@redhat.com>
 Quentin Armitage <quentin@armitage.org.uk>
