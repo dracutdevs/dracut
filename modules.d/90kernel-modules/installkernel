@@ -17,14 +17,15 @@ if [[ -z $drivers ]]; then
     if ! [[ $hostonly ]]; then
 	if [[ -z $filesystems ]]; then
 	    instmods '=fs'
+	    # hardcoded list of exceptions
+	    # to save a lot of space
+	    rm -fr ${initdir}/lib/modules/*/kernel/fs/ocfs2
 	else
 	    instmods $filesystems
 	fi
     else
 	hostonly='' instmods $(get_fs_type "/dev/block/$(find_root_block_device)")
     fi
-    # hardcoded list of exceptions
-    rm -fr ${initdir}/lib/modules/*/kernel/fs/ocfs2
 else
   hostonly='' instmods $drivers $filesystems
 fi
