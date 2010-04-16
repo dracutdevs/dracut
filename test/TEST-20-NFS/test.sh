@@ -178,12 +178,17 @@ test_run() {
 	return 1
     fi
 
-    test_nfsv3 || return 1
-    test_nfsv4
+    test_nfsv3 && \
+	test_nfsv4
+
+    ret=$?
+
     if [[ -s server.pid ]]; then
 	sudo kill -TERM $(cat server.pid)
 	rm -f server.pid
     fi
+
+    return $ret
 }
 
 test_setup() {
