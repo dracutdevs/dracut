@@ -148,7 +148,16 @@ test_setup() {
  	fi
 
  	dracut_install $(ls {/usr,}$LIBDIR/libnfsidmap*.so* 2>/dev/null )
+ 	dracut_install $(ls {/usr,}$LIBDIR/libnfsidmap/*.so 2>/dev/null )
  	dracut_install $(ls {/usr,}$LIBDIR/libnss*.so 2>/dev/null)
+
+
+	nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
+              |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
+	nsslibs=${nsslibs#|}
+	nsslibs=${nsslibs%|}
+
+	dracut_install $(for i in $(ls {/usr,}$LIBDIR/libnss*.so 2>/dev/null); do echo $i;done | egrep "$nsslibs")
  	(
  	    cd "$initdir";
  	    mkdir -p dev sys proc etc var/run tmp var/lib/{dhcpd,rpcbind}
