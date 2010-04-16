@@ -112,6 +112,9 @@ test_client() {
 	00 01 02 \
 	"root=dhcp ip=eth0:dhcp ip=eth1:dhcp ip=eth2:dhcp bootdev=eth2" \
 	"eth0 eth1 eth2" || return 1
+
+    kill_server
+    return 0
 }
 
 test_setup() {
