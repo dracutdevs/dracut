@@ -35,7 +35,7 @@ cryptsetup luksClose /dev/mapper/dracut_crypt_test && \
 mdadm /dev/md0 --fail /dev/sda2 --remove /dev/sda2 && \
 { mdadm -W /dev/md0 || : ;} && \
 {
-/sbin/mdadm --detail --export /dev/md0 > /tmp/mduuid ;
+/sbin/mdadm --detail --export /dev/md0 |grep MD_UUID > /tmp/mduuid ;
 . /tmp/mduuid;
 } && \
 {

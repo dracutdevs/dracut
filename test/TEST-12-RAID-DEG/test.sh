@@ -74,7 +74,7 @@ test_setup() {
     (
 	initdir=overlay
 	. $basedir/dracut-functions
-	dracut_install sfdisk mke2fs poweroff cp umount dd
+	dracut_install sfdisk mke2fs poweroff cp umount dd grep
 	inst_simple ./create-root.sh /initqueue/01create-root.sh
  	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
    )
