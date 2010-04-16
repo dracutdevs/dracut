@@ -150,6 +150,10 @@ udevadm trigger --action=add $udevtriggeropts  >/dev/null 2>&1
 
 getarg 'rdbreak=initqueue' && emergency_shell -n initqueue "Break before initqueue"
 
+RDRETRY=$(getarg 'rd_retry=')
+RDRETRY=${RDRETRY:-20}
+RDRETRY=$(($RDRETRY*2))
+
 i=0
 while :; do
 
@@ -198,7 +202,7 @@ while :; do
     done
     
     i=$(($i+1))
-    [ $i -gt 40 ] \
+    [ $i -gt $RDRETRY ] \
         && { flock -s 9 ; emergency_shell "No root device found"; } 9>/.console_lock
 done
 unset job

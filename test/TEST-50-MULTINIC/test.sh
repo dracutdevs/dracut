@@ -48,7 +48,7 @@ client_test() {
   	-net nic,macaddr=52:54:00:12:34:$mac3,model=e1000 \
 	-net socket,connect=127.0.0.1:12345 \
   	-kernel /boot/vmlinuz-$KVERSION \
-  	-append "$cmdline $DEBUGFAIL rdinitdebug rdinfo rdnetdebug ro quiet console=ttyS0,115200n81 selinux=0 rdshell rdcopystate" \
+  	-append "$cmdline $DEBUGFAIL rd_retry=5 rdinitdebug rdinfo rdnetdebug ro quiet console=ttyS0,115200n81 selinux=0 rdcopystate" \
   	-initrd initramfs.testing
 
     if [[ $? -ne 0 ]] || ! grep -m 1 -q OK client.img; then

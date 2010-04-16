@@ -10,7 +10,7 @@ client_run() {
     echo "CLIENT TEST START: $@"
     $testdir/run-qemu -hda root.ext2 -m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "$@ root=LABEL=root rw quiet rdinfo console=ttyS0,115200n81 selinux=0 rdinitdebug rdnetdebug $DEBUGFAIL " \
+	-append "$@ root=LABEL=root rw quiet rd_retry=3 rdinfo console=ttyS0,115200n81 selinux=0 rdinitdebug rdnetdebug $DEBUGFAIL " \
 	-initrd initramfs.testing
     if ! grep -m 1 -q dracut-root-block-success root.ext2; then
 	echo "CLIENT TEST END: $@ [FAIL]"
