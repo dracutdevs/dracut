@@ -75,7 +75,10 @@ test_run() {
 	echo "Failed to start server" 1>&2
 	return 1
     fi
+    test_client || { kill_server; return 1; }
+}
 
+test_client() {
     # Mac Numbering Scheme
     # ...:00-02 receive IP adresses all others don't
     # ...:02 receives a dhcp root-path
@@ -217,11 +220,14 @@ test_setup() {
 	-f initramfs.testing $KVERSION || return 1
 }
 
-test_cleanup() {
+kill_server() {
     if [[ -s server.pid ]]; then
 	sudo kill -TERM $(cat server.pid)
 	rm -f server.pid
     fi
+}
+
+test_cleanup() {
     rm -rf mnt overlay
     rm -f server.ext2 client.img initramfs.server initramfs.testing
 }
