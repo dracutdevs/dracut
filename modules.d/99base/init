@@ -10,7 +10,6 @@ wait_for_loginit()
 {
     if getarg rdinitdebug; then
 	set +x
-	exec 1>- 2>-
 	exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
 	# wait for loginit
 	i=0
