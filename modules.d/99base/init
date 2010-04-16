@@ -195,7 +195,7 @@ while :; do
 	# skip, if cdrom medium was already found
         strstr "$(udevadm info --query=env --path=${cdrom##/sys})" \
 	    ID_CDROM_MEDIA && continue
-        echo change > "$cdrom"        
+        echo change > "$cdrom/uevent"        
     done
     
     i=$(($i+1))
