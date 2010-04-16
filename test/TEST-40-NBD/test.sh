@@ -88,6 +88,10 @@ test_run() {
 	echo "Failed to start server" 1>&2
 	return 1
     fi
+    client_run || { kill_server; return 1; }
+}
+
+client_run() {
 
     # The default is ext3,errors=continue so use that to determine
     # if our options were parsed and used
@@ -309,11 +313,15 @@ test_setup() {
 	-f initramfs.testing $KVERSION || return 1
 }
 
-test_cleanup() {
+kill_server() {
     if [[ -s server.pid ]]; then
 	sudo kill -TERM $(cat server.pid)
 	rm -f server.pid
     fi
+}
+
+test_cleanup() {
+    kill_server
     rm -fr overlay mnt
     rm -f flag.img server.ext2 nbd.ext2 encrypted.ext2
     rm -f initramfs.server initramfs.testing initramfs.makeroot
