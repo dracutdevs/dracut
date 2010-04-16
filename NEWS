@@ -1,3 +1,16 @@
+dracut-006
+==========
+- fixed mdraid with IMSM
+- fixed dracut manpages
+- dmraid parse different error messages
+- add cdrom polling mechanism for slow cdroms
+- add module btrfs
+- teach dmsquash live-root to use rootflags
+- trigger udev with action=add
+- fixed add_drivers handling 
+- add sr_mod
+- use pigz instead of gzip, if available
+
 dracut-005
 ==========
 - dcb support to dracut's FCoE support 
