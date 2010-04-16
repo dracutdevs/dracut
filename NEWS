@@ -5,6 +5,7 @@ dracut-006
 - dmraid parse different error messages
 - add cdrom polling mechanism for slow cdroms
 - add module btrfs
+- add btrfsctl scan for btrfs multi-devices (raid)
 - teach dmsquash live-root to use rootflags
 - trigger udev with action=add
 - fixed add_drivers handling 
