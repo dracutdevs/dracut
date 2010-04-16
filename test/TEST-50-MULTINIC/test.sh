@@ -225,7 +225,7 @@ test_setup() {
     $basedir/dracut -l -i overlay / \
 	-o "plymouth" \
 	-a "debug" \
-	-d "piix ide-gd_mod e1000 nfs sunrpc" \
+	-d "piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfs sunrpc" \
 	-f initramfs.testing $KVERSION || return 1
 }
 
