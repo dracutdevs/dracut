@@ -2,8 +2,6 @@
 
 # if there are no ifname parameters, just use NAME=KERNEL
 if ! getarg ifname= >/dev/null ; then
-    echo 'SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="?*", ATTR{type}=="1", NAME="%k"' \
-        > /etc/udev/rules.d/50-ifname.rules
     return
 fi
 
