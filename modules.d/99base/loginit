@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# turn off debugging
+set +x
+
 QUIET=$1
 
 [ -e /dev/kmsg ] && exec 5>/dev/kmsg || exec 5>/dev/null
