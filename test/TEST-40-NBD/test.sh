@@ -84,6 +84,7 @@ client_test() {
 }
 
 test_run() {
+    modinfo nbd &>/dev/null || { echo "Kernel does not support nbd"; exit 1; }
     if ! run_server; then
 	echo "Failed to start server" 1>&2
 	return 1
@@ -287,6 +288,9 @@ make_server_root() {
 }
 
 test_setup() {
+
+    modinfo nbd &>/dev/null || { echo "Kernel does not support nbd"; exit 1; }
+
     make_encrypted_root || return 1
     make_client_root || return 1
     make_server_root || return 1
