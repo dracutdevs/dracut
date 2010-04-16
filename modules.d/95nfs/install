@@ -16,7 +16,8 @@ else
 fi
 
 dracut_install $(ls {/usr,}$LIBDIR/libnfsidmap_nsswitch.so* 2>/dev/null )
-#dracut_install $(ls {/usr,}$LIBDIR/libnfsidmap*.so* 2>/dev/null )
+dracut_install $(ls {/usr,}$LIBDIR/libnfsidmap/*.so 2>/dev/null )
+dracut_install $(ls {/usr,}$LIBDIR/libnfsidmap*.so* 2>/dev/null )
 
 nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
               |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
