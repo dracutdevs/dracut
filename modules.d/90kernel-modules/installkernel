@@ -7,6 +7,7 @@ if [[ -z $drivers ]]; then
     }
     hostonly='' instmods sr_mod sd_mod scsi_dh scsi_dh_rdac scsi_dh_emc
     hostonly='' instmods pcmcia firewire-ohci
+    hostonly='' instmods usb_storage sdhci sdhci-pci
 
     # install keyboard support
     hostonly='' instmods atkbd i8042 usbhid hid-apple ehci-hcd ohci-hcd uhci-hcd
