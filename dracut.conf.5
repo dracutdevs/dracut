@@ -12,28 +12,28 @@ Command line parameter will overwrite any values set here.
 
 .SH OPTIONS
 .TP
-.BR dracutmodules= \%"[LIST]"
+.BR dracutmodules+= \%"[LIST]"
 Specify a space-separated list of dracut modules to
 call when building the initramfs. Modules are located
 in /usr/share/dracut/modules.d.
 .TP
-.BR omit_dracutmodules= \%"[LIST]"
+.BR omit_dracutmodules+= \%"[LIST]"
 Omit a space-separated list of dracut modules.
 .TP
-.BR add_dracutmodules= \%"[LIST]"
+.BR add_dracutmodules+= \%"[LIST]"
 Add a space-separated list of dracut modules.
 .TP
-.BR drivers= \%"[LIST]"
+.BR drivers+= \%"[LIST]"
 Specify a space-separated list of kernel modules to
 exclusively include in the initramfs.
 The kernel modules have to be specified without the ".ko" suffix.
 .TP
-.BR add_drivers= \%"[LIST]"
+.BR add_drivers+= \%"[LIST]"
 Specify a space-separated list of kernel 
 modules to add to the initramfs.
 The kernel modules have to be specified without the ".ko" suffix.
 .TP
-.BR filesystems= \%"[LIST]"
+.BR filesystems+= \%"[LIST]"
 Specify a space-separated list of kernel filesystem
 modules to exclusively include in the generic
 initramfs.
@@ -41,7 +41,7 @@ initramfs.
 .BR drivers_dir= \%"<dir>"
 Specify the directory, where to look for kernel modules
 .TP
-.BR fw_dir= \%"<dir>[:<dir>\ ...]"
+.BR fw_dir+= \%":<dir>[:<dir>\ ...]"
 Specify additional directories, where to look for firmwares, separated by :
 .TP
 .BR do_strip= \%"yes|no"

@@ -138,12 +138,14 @@ fi
 # source our config file
 [[ -f $conffile ]] && . "$conffile"
 
+# these optins add to the stuff in the config file
+[[ $add_dracutmodules_l ]] && add_dracutmodules+=" $add_dracutmodules_l"
+[[ $add_drivers_l ]] && add_drivers+=" $add_drivers_l"
+
 # these options override the stuff in the config file
 [[ $dracutmodules_l ]] && dracutmodules=$dracutmodules_l
 [[ $omit_dracutmodules_l ]] && omit_dracutmodules=$omit_dracutmodules_l
-[[ $add_dracutmodules_l ]] && add_dracutmodules="$add_dracutmodules $add_dracutmodules_l"
 [[ $drivers_l ]] && drivers=$drivers_l
-[[ $add_drivers_l ]] && add_drivers="$add_drivers $add_drivers_l"
 [[ $filesystems_l ]] && filesystems=$filesystems_l
 [[ $drivers_dir_l ]] && drivers_dir=$drivers_dir_l
 [[ $fw_dir_l ]] && fw_dir=$fw_dir_l
