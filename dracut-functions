@@ -51,6 +51,9 @@ derror() {
 }
 
 get_fs_env() {
+    eval $(udevadm info --query=env --name=$1|egrep 'ID_FS_(TYPE|UUID)=')
+    [[ $ID_FS_TYPE ]] && return
+
     if [[ -x /lib/udev/vol_id ]]; then
 	eval $(/lib/udev/vol_id --export $1)
     elif find_binary blkid >/dev/null; then
