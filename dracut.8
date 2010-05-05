@@ -394,12 +394,12 @@ example: rd_ZFCP=0.0.4000,0x5005076300C213e9,0x5022000000000000
 .BR rd_NO_ZFCPCONF
 ignore zfcp.conf included in the initramfs
 
-.SS CCW
+.SS ZNET
 .TP
-.BR rd_CCW= "<nettype>,<subchannels>,<options>"
-rd_CCW can be specified multiple times on the kernel command line. Examples:
-    rd_CCW=qeth,0.0.0600,0.0.0601,0.0.0602,layer2=1,portname=foo
-    rd_CCW=ctc,0.0.0600,0.0.0601,0.0.0602,protocol=bar
+.BR rd_ZNET= "<nettype>,<subchannels>,<options>"
+rd_ZNET can be specified multiple times on the kernel command line. Examples:
+    rd_ZNET=qeth,0.0.0600,0.0.0601,0.0.0602,layer2=1,portname=foo
+    rd_ZNET=ctc,0.0.0600,0.0.0601,0.0.0602,protocol=bar
 
 .SS "Plymouth Boot Splash"
 .TP
