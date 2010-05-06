@@ -4,6 +4,8 @@ dracut_install ip
 inst dcbtool 
 inst fipvlan
 inst lldpad
+inst vconfig
+
 mkdir -p "$initdir/var/lib/lldpad"
 
 inst "$moddir/fcoe-up" "/sbin/fcoe-up"

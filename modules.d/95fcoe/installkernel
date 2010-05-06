@@ -1,2 +1,2 @@
 #!/bin/bash
-instmods fcoe
+instmods fcoe 8021q
