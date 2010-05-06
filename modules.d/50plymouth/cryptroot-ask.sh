@@ -50,25 +50,37 @@ fi
 
 LUKS=$(getargs rd_LUKS_UUID=)
 ask=1
+num=0
 if [ -n "$LUKS" ]; then
     ask=0
     luuid=${2##luks-}
     for luks in $LUKS; do
+        num=$(($num+1))
 	luks=${luks##luks-}
 	if [ "${luuid##$luks}" != "$luuid" ] || [ "$luksname" = "$luks" ]; then
 	    ask=1
-	    break
 	fi
+        [ $num -ge 2 -a "$ask" = "1" ] && break
     done
 fi
 unset LUKS luks luuid
 
 if [ $ask -gt 0 ]; then
     info "luksOpen $device $luksname"
+    if [ $num -eq 1 ]; then
+         prompt="Password:"
+    else
+         prompt="Password [$device ($luksname)]:" 
+         if [ ${#luksname} -gt 8 ]; then
+	     sluksname=${sluksname##luks-}
+             sluksname=${luksname%%${luksname##????????}}
+             prompt="Password [$device ($sluksname...)]:"
+         fi
+    fi
     # flock against other interactive activities
     { flock -s 9; 
 	/bin/plymouth ask-for-password \
-	    --prompt "$device ($luksname) is password protected" \
+	    --prompt "$prompt" \
 	    --command="/sbin/cryptsetup luksOpen -T1 $device $luksname"
     } 9>/.console.lock
 fi
