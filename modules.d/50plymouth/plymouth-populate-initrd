@@ -30,7 +30,7 @@ if [[ $hostonly ]]; then
     if [ -L /usr/share/plymouth/themes/default.plymouth ]; then
 	inst /usr/share/plymouth/themes/default.plymouth
         # Install plugin for this theme
-	PLYMOUTH_PLUGIN=$(grep "^ModuleName=" /usr/share/plymouth/themes/default.plymouth |awk -F= {'print $2'})
+	PLYMOUTH_PLUGIN=$(grep "^ModuleName=" /usr/share/plymouth/themes/default.plymouth | while read a b c; do echo $b; done;)
 	inst ${LIBDIR}/plymouth/${PLYMOUTH_PLUGIN}.so
     fi
 else
