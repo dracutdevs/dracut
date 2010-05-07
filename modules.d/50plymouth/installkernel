@@ -1,5 +1,5 @@
 #!/bin/bash
 # Include KMS capable drm drivers
 for modname in $(find "$srcmods/kernel/drivers/gpu/drm" -name '*.ko' 2>/dev/null); do
-    nm -uPA $modname | grep -q drm_crtc_init && instmods $modname
+    grep -q drm_crtc_init  $modname && instmods $modname
 done

@@ -46,8 +46,8 @@ Creates initial ramdisk images for preloading modules
                         firmwares, separated by :
   --kernel-only         Only install kernel drivers and firmware files
   --no-kernel           Do not install kernel drivers and firmware files
-  --strip               Strip binaries in the initramfs (default)
-  --nostrip             Do not strip binaries in the initramfs
+  --strip               Strip binaries in the initramfs
+  --nostrip             Do not strip binaries in the initramfs (default)
   --mdadmconf           Include local /etc/mdadm.conf
   --nomdadmconf         Do not include local /etc/mdadm.conf
   --lvmconf             Include local /etc/lvm/lvm.conf
@@ -155,7 +155,7 @@ fi
 [[ $lvmconf_l ]] && lvmconf=$lvmconf_l
 [[ $dracutbasedir ]] || dracutbasedir=/usr/share/dracut
 [[ $fw_dir ]] || fw_dir=/lib/firmware
-[[ $do_strip ]] || do_strip=yes
+[[ $do_strip ]] || do_strip=no
 # eliminate IFS hackery when messing with fw_dir
 fw_dir=${fw_dir//:/ }
 

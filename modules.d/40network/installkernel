@@ -4,8 +4,8 @@
 net_module_test() {
     local net_drivers='eth_type_trans|register_virtio_device'
     local unwanted_drivers='/(wireless|isdn|uwb)/'
-    nm -uPA "$1" | egrep -q $net_drivers && \
-	nm -uPA "$1" | egrep -qv 'iw_handler_get_spy' && \
+    egrep -q $net_drivers "$1" && \
+	egrep -qv 'iw_handler_get_spy' "$1" && \
 	[[ ! $1 =~ $unwanted_drivers ]]
 }
 

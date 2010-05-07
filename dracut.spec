@@ -47,7 +47,6 @@ Requires: module-init-tools >= 3.7-9
 Requires: cpio
 Requires: coreutils
 Requires: findutils
-Requires: binutils
 Requires: grep
 Requires: which
 Requires: mktemp >= 1.5-5

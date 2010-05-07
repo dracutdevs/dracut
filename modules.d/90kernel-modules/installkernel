@@ -3,7 +3,7 @@ if [[ -z $drivers ]]; then
     block_module_test() {
 	local blockfuncs='ata_scsi_ioctl|scsi_add_host|blk_init_queue|register_mtd_blktrans|scsi_esp_register|register_virtio_device'
 
-	 nm -uPA "$1" | egrep -q "$blockfuncs"
+	egrep -q "$blockfuncs" "$1"
     }
     hostonly='' instmods sr_mod sd_mod scsi_dh scsi_dh_rdac scsi_dh_emc
     hostonly='' instmods pcmcia firewire-ohci
