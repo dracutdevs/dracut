@@ -278,7 +278,7 @@ ldconfig -r "$initdir" || [[ $(id -u) != "0" ]] && dinfo "ldconfig might need ui
 
 # strip binaries 
 if [[ $do_strip = yes ]] ; then
-    for p in strip objdump sed grep find; do 
+    for p in strip grep find; do 
 	if ! which $p >/dev/null 2>&1; then
 	    derror "Could not find '$p'. You should run $0 with '--nostrip'."
 	    do_strip=no
@@ -287,11 +287,9 @@ if [[ $do_strip = yes ]] ; then
 fi
 
 if [[ $do_strip = yes ]] ; then
-    for f in $(find "$initdir" -type f \( -perm -0100 -or -perm -0010 -or -perm -0001 -or -path '/lib/modules/*.ko' \) -exec file {} \; | 
-	grep -v ' shared object,' | 
-	sed -n -e 's/^\(.*\):[ 	]*ELF.*, not stripped/\1/p'); do
+    for f in $(find "$initdir" -type f \( -perm -0100 -or -perm -0010 -or -perm -0001 -or -path '/lib/modules/*.ko' \) ); do
 	dinfo "Stripping $f"
-	strip -g "$f" || :
+	strip -g "$f" 2>/dev/null|| :
         #
         # FIXME: only strip -g for now
         #
