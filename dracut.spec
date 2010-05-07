@@ -41,35 +41,26 @@ Obsoletes: libbdevid-python <= 6.0.93
 Obsoletes: dracut-kernel < 005
 Provides:  dracut-kernel = %{version}-%{release}
 
-Requires: udev
-Requires: util-linux-ng
-Requires: module-init-tools >= 3.7-9
-Requires: cpio
+Requires: bash
+Requires: bzip2
 Requires: coreutils
+Requires: cpio
+Requires: dash
+Requires: filesystem >= 2.1.0
 Requires: findutils
 Requires: grep
-Requires: which
+Requires: gzip
+Requires: initscripts >= 8.63-1
 Requires: mktemp >= 1.5-5
+Requires: module-init-tools >= 3.7-9
 Requires: mount
-Requires: bash
-Requires: dash
-Requires: /bin/sh 
-Requires: fileutils, gzip, tar
-Requires: lvm2 >= 2.02.33-9, dhclient
-Requires: filesystem >= 2.1.0, cpio, device-mapper, initscripts >= 8.63-1
-Requires: coreutils
-Requires: mdadm  
-Requires(pre): plymouth >= 0.8.0-0.2009.29.09.19.1
-Requires: plymouth >= 0.8.0-0.2009.29.09.19.1
-Requires: cryptsetup-luks
-Requires: file
-Requires: bzip2
-Requires: dmraid
-Requires: kbd
-Requires: plymouth-scripts
+Requires: sed
+Requires: tar
+Requires: udev
+Requires: util-linux-ng >= 2.16
+Requires: which
 
 %if ! 0%{?with_switch_root}
-Requires: util-linux-ng >= 2.16
 BuildArch: noarch
 %endif
 
@@ -85,6 +76,7 @@ Summary: Dracut modules to build a dracut initramfs with network support
 Requires: %{name} = %{version}-%{release}
 Requires: rpcbind nfs-utils 
 Requires: iscsi-initiator-utils
+Requires: dhclient
 %if %{with_nbd}
 Requires: nbd
 %endif
@@ -123,7 +115,7 @@ all purpose initramfs with dracut.
 %package tools
 Summary: Dracut tools to build the local initramfs
 Requires: coreutils cryptsetup-luks device-mapper
-Requires: diffutils dmraid findutils gawk grep lvm2
+Requires: diffutils dmraid findutils grep lvm2 gawk
 Requires: module-init-tools sed
 Requires: cpio gzip
 
