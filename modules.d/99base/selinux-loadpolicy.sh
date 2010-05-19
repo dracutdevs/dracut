@@ -3,20 +3,15 @@
 
 rd_load_policy()
 {
+    # If SELinux is disabled exit now 
+    getarg "selinux=0" > /dev/null && return 0
 
     SELINUX="enforcing"
     [ -e "$NEWROOT/etc/selinux/config" ] && . "$NEWROOT/etc/selinux/config"
 
-    disabled=0
-    # If SELinux is disabled exit now 
-    getarg "selinux=0" > /dev/null
-    if [ $? -eq 0 -o "$SELINUX" = "disabled" ]; then
-	disabled=1
-    fi
-
     # Check whether SELinux is in permissive mode
     permissive=0
-    getarg "enforcing=0" > /dev/null
+    getarg "enforcing=0" > /dev/null 
     if [ $? -eq 0 -o "$SELINUX" = "permissive" ]; then
 	permissive=1
     fi
@@ -37,13 +32,15 @@ rd_load_policy()
             fi
 	} 2>&1 | vinfo
 
-	if [ $disabled -eq 1 ]; then
+	if [ "$SELINUX" = "disabled" ]; then
 	    return 0;
 	fi
 
 	if [ $ret -eq 0 -o $ret -eq 2 ]; then
 	    # If machine requires a relabel, force to permissive mode
 	    [ -e "$NEWROOT"/.autorelabel ] && ( echo 0 > "$NEWROOT"/selinux/enforce )
+            mount --bind /dev "$NEWROOT/dev"
+            chroot "$NEWROOT" /sbin/restorecon -R /dev
 	    return 0
 	fi
 
@@ -55,7 +52,7 @@ rd_load_policy()
 	    exit 1
 	fi
 	return 0
-    elif [ $permissive -eq 0 -a $disabled -eq 0 ]; then
+    elif [ $permissive -eq 0 -a "$SELINUX" != "disabled" ]; then
 	warn "Machine in enforcing mode and cannot execute load_policy."
 	warn "To disable selinux, add selinux=0 to the kernel command line."
 	warn "Not continuing"
