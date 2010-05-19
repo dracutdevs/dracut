@@ -6,7 +6,7 @@ which mdadm >/dev/null 2>&1 || exit 1
 . $dracutfunctions
 [[ $debug ]] && set -x
 
-is_mdraid() { get_fs_type /dev/block/$1 |egrep -q '(linux|isw)_raid'; }
+is_mdraid() { [[ -d "/sys/dev/block/$1/md" ]]; }
 
 [[ $1 = '-h' ]] && {
     rootdev=$(find_root_block_device)
@@ -16,7 +16,7 @@ is_mdraid() { get_fs_type /dev/block/$1 |egrep -q '(linux|isw)_raid'; }
 	check_block_and_slaves is_mdraid "$rootdev" || exit 1
     else
 	# root is not on a block device, use the shotgun approach
-	blkid | grep -q linux_raid || exit 1
+	blkid | egrep -q '(linux|isw)_raid' || exit 1
     fi
 }
 
