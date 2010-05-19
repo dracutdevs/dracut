@@ -12,7 +12,9 @@ do_dhcp() {
     # /sbin/dhclient-script will mark the netif up and generate the online
     # event for nfsroot
     # XXX add -V vendor class and option parsing per kernel
-    dhclient "$@" -1 -q -cf /etc/dhclient.conf -pf /tmp/dhclient.$netif.pid -lf /tmp/dhclient.$netif.lease $netif
+    echo "Starting dhcp for interface $netif"
+    dhclient "$@" -1 -q -cf /etc/dhclient.conf -pf /tmp/dhclient.$netif.pid -lf /tmp/dhclient.$netif.lease $netif \
+    || echo "dhcp failed"
 }
 
 load_ipv6() {
@@ -78,13 +80,9 @@ do_static() {
 
 PATH=$PATH:/sbin:/usr/sbin
 
+export PS4="ifup.$1.$$ + "
+exec >>/dev/initlog.pipe 2>>/dev/initlog.pipe
 . /lib/dracut-lib.sh
-
-if getarg rdnetdebug ; then
-    exec >/tmp/ifup.$1.$$.out
-    exec 2>>/tmp/ifup.$1.$$.out
-    set -x
-fi
 
 # Huh? No $1?
 [ -z "$1" ] && exit 1
