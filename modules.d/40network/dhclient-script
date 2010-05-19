@@ -60,10 +60,12 @@ netif=$interface
 
 case $reason in
     PREINIT)
+	echo "dhcp: PREINIT $netif up"
 	ip link set $netif up
 	wait_for_if_up $netif
 	;;
     BOUND)
+	echo "dhcp: BOND setting $netif"
 	if ! arping -q -D -c 2 -I $netif $new_ip_address ; then
 	    warn "Duplicate address detected for $new_ip_address while doing dhcp. retrying"
 	    exit 1
@@ -76,7 +78,7 @@ case $reason in
 	echo online > /sys/class/net/$netif/uevent
 	/sbin/initqueue --onetime --name netroot-$netif  /sbin/netroot $netif 
 	;;
-    *) ;;
+    *) echo "dhcp: $reason";;
 esac
 
 exit 0
