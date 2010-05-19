@@ -52,7 +52,7 @@ setdebug() {
     if [ -z "$RDDEBUG" ]; then
         if [ -e /proc/cmdline ]; then
             RDDEBUG=no
-            if getarg rdinitdebug; then
+            if getarg rdinitdebug || getarg rdnetdebug; then
                 RDDEBUG=yes 
             fi
         fi

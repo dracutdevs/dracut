@@ -1,12 +1,7 @@
 #!/bin/sh
 # Triggered by udev and starts rsyslogd with bootparameters
-. /lib/dracut-lib.sh
 
-if getarg rdnetdebug ; then
-    exec >/tmp/rsyslogd-start.$1.$$.out
-    exec 2>>/tmp/rsyslogd-start.$1.$$.out
-    set -x
-fi
+. /lib/dracut-lib.sh
 
 rsyslog_config() {
 	local server=$1

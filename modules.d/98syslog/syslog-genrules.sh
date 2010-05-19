@@ -17,12 +17,6 @@ detect_syslog() {
     [ -n "$syslogtype" ]
 }	
 
-if getarg rdnetdebug ; then
-    exec >/tmp/syslog-genrules.$1.$$.out
-    exec 2>>/tmp/syslog-genrules.$1.$$.out
-    set -x
-fi
-
 read syslogtype < /tmp/syslog.type
 if [ -z "$syslogtype" ]; then
 	syslogtype=$(detect_syslog)

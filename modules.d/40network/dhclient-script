@@ -44,13 +44,9 @@ setup_interface() {
 
 PATH=$PATH:/sbin:/usr/sbin
 
+export PS4="dhclient.$interface.$$ + "
+exec >>/dev/initlog.pipe 2>>/dev/initlog.pipe
 . /lib/dracut-lib.sh
-
-if getarg rdnetdebug ; then
-    exec >/tmp/dhclient.$interface.$$.out
-    exec 2>>/tmp/dhclient.$interface.$$.out
-    set -x
-fi
 
 # We already need a set netif here
 netif=$interface
