@@ -50,6 +50,8 @@ endif
 
 clean:
 	rm -f *~
+	rm -f */*~
+	rm -f */*/*~
 	rm -f modules.d/99base/switch_root
 	rm -f test-*.img
 	rm -f dracut-*.rpm dracut-*.tar.bz2
