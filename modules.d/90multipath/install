@@ -1,9 +1,5 @@
 #!/bin/bash
 
-if [ -f /etc/multipath.conf ]; then
-    inst /etc/multipath.conf
-fi
-
 if ldd $(which multipath) 2>/dev/null |grep -q lib64; then
     LIBDIR="/lib64"
 else
@@ -19,6 +15,8 @@ for f in  \
     /sbin/xdrgetuid \
     /sbin/xdrgetprio \
     /etc/xdrdevices.conf \
+    /etc/multipath.conf \
+    /etc/multipath/wwids \
     $(ls $LIBDIR/libmultipath* $LIBDIR/multipath/* 2>/dev/null) \
     	;do
     [ -e "$f" ] && inst "$f"
@@ -28,5 +26,3 @@ inst_hook pre-trigger 02 "$moddir/multipathd.sh"
 inst_hook pre-pivot   02 "$moddir/multipathd-stop.sh"
 inst_rules 40-multipath.rules
 
-inst "$moddir/multipath-scan.sh" /sbin/multipath-scan
-inst_rules "$moddir/9-multipath-scan.rules"

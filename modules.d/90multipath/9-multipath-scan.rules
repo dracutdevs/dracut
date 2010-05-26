@@ -1,9 +1,0 @@
-# scan for multipath devices
-SUBSYSTEM!="block", GOTO="end_mpath_scan"
-KERNEL!="sd*", GOTO="end_mpath_scan"
-PROGRAM=="/bin/sh -c 'for i in $sys/$devpath/holders/dm-[0-9]*; do [ -e $$i ] && exit 0; done; exit 1;' ", GOTO="end_mpath_scan"
-RUN+="/sbin/modprobe dm-multipath"
-RUN+="/bin/echo 'queuing multipath scan'"
-RUN+="/sbin/initqueue --settled --onetime --unique --name mpscan /sbin/multipath-scan"
-RUN+="/bin/sh -c '>/tmp/.multipath-scan-%k;'"
-LABEL="end_mpath_scan"
