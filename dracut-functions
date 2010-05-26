@@ -387,7 +387,7 @@ should_source_module() {
     "$1/check" $hostonly || return 1
     for dep in $("$1/check" -d); do
 	check_module_deps "$dep" && continue
-	dwarning "Cannot load $mod, dependencies failed."
+	dwarning "Cannot load dracut module \"$mod\", dependencies failed."
 	return 1
     done
 }
@@ -435,7 +435,7 @@ install_kmod_with_fw() {
 	    fi
 	done
 	if [[ $found != yes ]]; then
-	    dinfo "Possible missing firmware ${fw} for module ${mod}.ko"
+	    dinfo "Possible missing firmware \"${fw}\" for kernel module \"${mod}.ko\""
 	fi
     done
 }
