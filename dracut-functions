@@ -393,6 +393,8 @@ should_source_module() {
 }
 
 check_modules() {
+    local modcheck;
+    local mod;
     for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
 	local mod=${moddir##*/}; mod=${mod#[0-9][0-9]}
 	# If we are already scheduled to be loaded, no need to check again.
@@ -406,6 +408,14 @@ check_modules() {
 	    should_source_module "$moddir" || continue
         fi
 	mods_to_load+=" $mod "
+    done
+
+    modcheck=$add_dracutmodules
+    [[ $dracutmodules != all ]] && modcheck="$m $dracutmodules"
+    for mod in $modcheck; do
+        strstr "$mods_to_load" "$mod" && continue
+        strstr "$omit_dracutmodules" "$mod" && continue
+        dwarning "Dracut module \"$mod\" cannot be found."
     done
 }
 
