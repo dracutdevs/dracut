@@ -68,7 +68,7 @@ if [ $ask -gt 0 ]; then
     # flock against other interactive activities
     { flock -s 9; 
 	echo -n "$device ($luksname) is password protected"
-	/sbin/cryptsetup luksOpen -T1 $1 $luksname 
+	cryptsetup luksOpen -T1 $1 $luksname 
     } 9>/.console.lock
 fi
 
