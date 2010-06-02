@@ -46,6 +46,7 @@ pcmcia-check-broken-cis \
     [ -e /lib/udev/$i ] && dracut_install /lib/udev/$i
 done
 
+[ -f /etc/arch-release ] && inst "$moddir/load-modules.sh" /lib/udev/load-modules.sh
 
 if ldd $(find_binary udevd) |grep -q /lib64/; then
     dracut_install /lib64/libnss_files*
