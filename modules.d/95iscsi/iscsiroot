@@ -33,7 +33,7 @@ iroot=${iroot#iscsi:}
 
 # XXX modprobe crc32c should go in the cmdline parser, but I haven't yet
 # figured out a way how to check whether this is built-in or not
-modprobe crc32c
+modprobe crc32c 2>/dev/null
 
 
 [ -e /tmp/root.info ] && . /tmp/root.info
@@ -67,112 +67,126 @@ arg=$(getarg iscsi_in_username)
 arg=$(getarg iscsi_in_password)
 [ -n "$arg" ] && iscsi_in_password=$arg
 
-# override conf/commandline options by dhcp root_path
-# FIXME this assumes that all values have been provided
-OLDIFS="$IFS"
-IFS=@
-set $iroot
-if [ $# -gt 1 ]; then
-    authinfo=$1; shift 
-    iroot=$*
+handle_netroot() 
+{
+    iroot=$1
+    # override conf/commandline options by dhcp root_path
+    # FIXME this assumes that all values have been provided
+    OLDIFS="$IFS"
+    IFS=@
+    set $iroot
+    if [ $# -gt 1 ]; then
+	authinfo=$1; shift 
+	iroot=$*
     # allow empty authinfo to allow having an @ in iscsi_target_name like this:
     # netroot=iscsi:@192.168.1.100::3260::iqn.2009-01.com.example:testdi@sk
-    if [ -n "$authinfo" ]; then
-        IFS=:
-        set $authinfo
-        iscsi_username=$1
-        iscsi_password=$2
-        if [ $# -gt 2 ]; then
-            iscsi_in_username=$3
-            iscsi_in_password=$4
-        fi
-    fi
-fi  
+	if [ -n "$authinfo" ]; then
+            IFS=:
+            set $authinfo
+            iscsi_username=$1
+            iscsi_password=$2
+            if [ $# -gt 2 ]; then
+		iscsi_in_username=$3
+		iscsi_in_password=$4
+            fi
+	fi
+    fi  
 
-IFS="$OLDIFS"
+    IFS="$OLDIFS"
 
-local v=${iroot}:
-local i
-set -- 
-while [ -n "$v" ]; do
-    if [ "${v#\[*:*:*\]:}" != "$v" ]; then
+    local v=${iroot}:
+    local i
+    set -- 
+    while [ -n "$v" ]; do
+	if [ "${v#\[*:*:*\]:}" != "$v" ]; then
 	# handle IPv6 address
-	i="${v%%\]:*}"
-	i="${i##\[}"
-	set -- "$@" "$i"
-	v=${v#\[$i\]:}
-    else		    
-	set -- "$@" "${v%%:*}"
-	v=${v#*:}
-    fi
-done
-iscsi_target_ip=$1; shift
-iscsi_protocol=$1; shift # ignored
-iscsi_target_port=$1; shift
-iscsi_lun=$1; shift
-IFS=:
-iscsi_target_name=$*
-IFS="$OLDIFS"
+	    i="${v%%\]:*}"
+	    i="${i##\[}"
+	    set -- "$@" "$i"
+	    v=${v#\[$i\]:}
+	else		    
+	    set -- "$@" "${v%%:*}"
+	    v=${v#*:}
+	fi
+    done
+    iscsi_target_ip=$1; shift
+    iscsi_protocol=$1; shift # ignored
+    iscsi_target_port=$1; shift
+    iscsi_lun=$1; shift
+    IFS=:
+    iscsi_target_name=$*
+    IFS="$OLDIFS"
 # XXX is this needed?
-getarg ro && iscsirw=ro
-getarg rw && iscsirw=rw
-fsopts=${fsopts+$fsopts,}${iscsirw}
+    getarg ro && iscsirw=ro
+    getarg rw && iscsirw=rw
+    fsopts=${fsopts+$fsopts,}${iscsirw}
 
-if [ -z $iscsi_initiator ]; then
+    if [ -z $iscsi_initiator ]; then
     # XXX Where are these from?
-    [ -f /etc/initiatorname.iscsi ] && . /etc/initiatorname.iscsi
-    [ -f /etc/iscsi/initiatorname.iscsi ] && . /etc/iscsi/initiatorname.iscsi
-    iscsi_initiator=$InitiatorName
+	[ -f /etc/initiatorname.iscsi ] && . /etc/initiatorname.iscsi
+	[ -f /etc/iscsi/initiatorname.iscsi ] && . /etc/iscsi/initiatorname.iscsi
+	iscsi_initiator=$InitiatorName
 
     # XXX rfc3720 says 'SCSI Initiator Name: The iSCSI Initiator Name specifies
     # the worldwide unique name of the initiator.' Could we use hostname/ip
     # if missing?
-fi
+    fi
 
-if [ -z $iscsi_target_port ]; then
-    iscsi_target_port=3260
-fi
+    if [ -z $iscsi_target_port ]; then
+	iscsi_target_port=3260
+    fi
 
-if [ -z $iscsi_target_group ]; then
-    iscsi_target_group=1
-fi
+    if [ -z $iscsi_target_group ]; then
+	iscsi_target_group=1
+    fi
 
-if [ -z $iscsi_initiator ]; then
+    if [ -z $iscsi_initiator ]; then
     # XXX is this correct?
-    iscsi_initiator=$(iscsi-iname)
-fi
+	iscsi_initiator=$(iscsi-iname)
+    fi
 
-if [ -z $iscsi_lun ]; then
-    iscsi_lun=0
-fi
+    if [ -z $iscsi_lun ]; then
+	iscsi_lun=0
+    fi
 
-echo "InitiatorName='$iscsi_initiator'" > /dev/.initiatorname.iscsi
+    echo "InitiatorName='$iscsi_initiator'" > /dev/.initiatorname.iscsi
 
 # FIXME $iscsi_protocol??
 
-if [ -n "${root%%block:*}" ]; then
+    if [ -n "${root%%block:*}" ]; then
     # if root is not specified try to mount the whole iSCSI LUN
-    printf 'SYMLINK=="disk/by-path/*-iscsi-*-%s", SYMLINK+="root"\n' $iscsi_lun >> /etc/udev/rules.d/99-iscsi-root.rules
-fi
+	printf 'SYMLINK=="disk/by-path/*-iscsi-*-%s", SYMLINK+="root"\n' $iscsi_lun >> /etc/udev/rules.d/99-iscsi-root.rules
+    fi
 
-# inject new exit_if_exists
-echo 'settle_exit_if_exists="--exit-if-exists=/dev/root"; rm "$job"' > /initqueue/iscsi-settle.sh
+    # inject new exit_if_exists
+    echo 'settle_exit_if_exists="--exit-if-exists=/dev/root"; rm "$job"' > /initqueue/iscsi-settle.sh
 
-# force udevsettle to break
-> /initqueue/work
+    # force udevsettle to break
+    > /initqueue/work
 
-iscsistart -i $iscsi_initiator -t $iscsi_target_name	\
-    -g $iscsi_target_group -a $iscsi_target_ip	\
-    -p $iscsi_target_port \
-    ${iscsi_username+-u $iscsi_username} \
-    ${iscsi_password+-w $iscsi_password} \
-    ${iscsi_in_username+-U $iscsi_in_username} \
-    ${iscsi_in_password+-W $iscsi_in_password} || exit 1
+    iscsistart -i $iscsi_initiator -t $iscsi_target_name	\
+	-g $iscsi_target_group -a $iscsi_target_ip	\
+	-p $iscsi_target_port \
+	${iscsi_username+-u $iscsi_username} \
+	${iscsi_password+-w $iscsi_password} \
+	${iscsi_in_username+-U $iscsi_in_username} \
+	${iscsi_in_password+-W $iscsi_in_password} || :
 
 # install mount script
-if [ -n "${root%%block:*}" ]; then
+    if [ -n "${root%%block:*}" ]; then
     # if root is not specified try to mount the whole iSCSI LUN
-    echo "iscsi_lun=$iscsi_lun . /bin/mount-lun.sh " > /mount/01-$$-iscsi.sh
+	echo "iscsi_lun=$iscsi_lun . /bin/mount-lun.sh " > /mount/01-$$-iscsi.sh
+    fi
+}
+
+# loop over all netroot parameter
+if getarg netroot; then 
+    for nroot in $(getargs netroot); do 
+        [ "${netroot%%:*}" = "iscsi" ] || continue
+	handle_netroot ${nroot##iscsi:}
+    done
+else
+    handle_netroot $iroot
 fi
 
 # now we have a root filesystem somewhere in /dev/sda*

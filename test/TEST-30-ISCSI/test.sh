@@ -10,6 +10,7 @@ run_server() {
     echo "iSCSI TEST SETUP: Starting DHCP/iSCSI server"
 
     $testdir/run-qemu -hda server.ext2 -hdb root.ext2 -m 256M -nographic \
+	-hdc iscsidisk2.img -hdd iscsidisk3.img \
 	-net nic,macaddr=52:54:00:12:34:56,model=e1000 \
 	-net socket,listen=127.0.0.1:12345 \
 	-serial udp:127.0.0.1:9999 \
@@ -37,9 +38,19 @@ run_client() {
   	-net nic,macaddr=52:54:00:12:34:00,model=e1000 \
 	-net socket,connect=127.0.0.1:12345 \
   	-kernel /boot/vmlinuz-$KVERSION \
+	-append "root=LABEL=sysroot ip=192.168.50.101::192.168.50.1:255.255.255.0:iscsi-1:eth0:off netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target1 netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2 rw quiet rd_retry=5 rdinitdebug rdinfo rdnetdebug console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
+  	-initrd initramfs.testing
+    grep -m 1 -q iscsi-OK client.img || return 1
+
+
+    $testdir/run-qemu -hda client.img -m 256M -nographic \
+  	-net nic,macaddr=52:54:00:12:34:00,model=e1000 \
+	-net socket,connect=127.0.0.1:12345 \
+  	-kernel /boot/vmlinuz-$KVERSION \
 	-append "root=dhcp rw quiet rd_retry=5 rdinitdebug rdinfo rdnetdebug console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
   	-initrd initramfs.testing
     grep -m 1 -q iscsi-OK client.img || return 1
+
 }
 
 test_run() {
@@ -64,6 +75,8 @@ test_setup() {
 
     # Create the blank file to use as a root filesystem
     dd if=/dev/zero of=root.ext2 bs=1M count=20
+    dd if=/dev/zero of=iscsidisk2.img bs=1M count=20
+    dd if=/dev/zero of=iscsidisk3.img bs=1M count=20
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
@@ -104,7 +117,9 @@ test_setup() {
 	return 1
     fi
     # Invoke KVM and/or QEMU to actually create the target filesystem.
-    $testdir/run-qemu -hda root.ext2 -hdb client.img -m 256M -nographic -net none \
+    $testdir/run-qemu -hda root.ext2 -hdb client.img \
+	-hdc iscsidisk2.img -hdd iscsidisk3.img \
+	-m 256M -nographic -net none \
 	-kernel "/boot/vmlinuz-$kernel" \
 	-append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd initramfs.makeroot  || return 1
@@ -177,7 +192,7 @@ test_cleanup() {
     fi
     rm -rf mnt overlay
     rm -f client.ext2 server.ext2 client.img initramfs.server initramfs.testing
-    rm -f initramfs.makeroot root.ext2
+    rm -f initramfs.makeroot root.ext2 iscsidisk2.img iscsidisk3.img
 }
 
 . $testdir/test-functions
