@@ -68,13 +68,13 @@ unset LUKS luks luuid
 if [ $ask -gt 0 ]; then
     info "luksOpen $device $luksname"
     if [ $num -eq 1 ]; then
-         prompt="Password:"
+         prompt="Password for filesystem"
     else
          prompt="Password [$device ($luksname)]:" 
          if [ ${#luksname} -gt 8 ]; then
 	     sluksname=${sluksname##luks-}
              sluksname=${luksname%%${luksname##????????}}
-             prompt="Password [$device ($sluksname...)]:"
+             prompt="Password for $device ($sluksname...)"
          fi
     fi
     # flock against other interactive activities
