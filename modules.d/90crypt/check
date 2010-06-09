@@ -19,7 +19,7 @@ is_crypt() { [[ $(get_fs_type /dev/block/$1) = crypto_LUKS ]]; }
 	check_block_and_slaves is_crypt "$rootdev" || exit 1
     else
 	# root is not on a block device, use the shotgun approach
-	blkid | grep -q crypt_LUKS || exit 1
+	blkid | grep -q crypto\?_LUKS || exit 1
     fi
 }
 
