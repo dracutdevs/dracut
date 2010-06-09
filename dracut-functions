@@ -27,19 +27,20 @@ strstr() { [[ $1 =~ $2 ]]; }
 # Version comparision function.  Returns result similar to C strcmp,
 # but instead of -1 is 2.  Function assumes version scheme like does
 # Linux kernel.
+# $1 < $2 -> 2
+# $1 = $2 -> 0
+# $1 > $2 -> 1
+# To remember it easy, ask the question: Which argument is greater? ;-)
 vercmp() {
-    local n1 n2 i=1
+    local i n1=(${1//./ }) n2=(${2//./ })
 
-    while true
-    do
-        n1=$(echo $1 | cut -d'.' -f$i)
-        n2=$(echo $2 | cut -d'.' -f$i)
-
-        [[ ! $n1 && ! $n2 ]] && return 0
-        [[ $n1 -lt $n2 ]] && return 2
-        [[ $n1 -gt $n2 ]] && return 1
-
-        ((i++))
+    for ((i=0; ; i++))
+    do 
+        [[ ${n1[i]} && ! ${n2[i]} ]] && return 1
+        [[ ! ${n1[i]} && ${n2[i]} ]] && return 2
+        [[ ${n1[i]} && ${n2[i]} ]] || return 0
+        ((${n1[i]} > ${n2[i]})) && return 1
+        ((${n1[i]} < ${n2[i]})) && return 2
     done
 }
 
