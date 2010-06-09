@@ -1,5 +1,10 @@
 #!/bin/bash
-inst /usr/sbin/resume
+for bin in /usr/sbin/resume /usr/lib/suspend/resume
+do
+    [ -x "${bin}" ] && break 
+done
+
+inst "${bin}" /usr/sbin/resume
 [ -f /etc/suspend.conf ] && inst /etc/suspend.conf
 
 inst_hook cmdline 10 "$moddir/parse-uswsusp.sh"
