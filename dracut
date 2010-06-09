@@ -183,7 +183,13 @@ esac
 abs_outfile=$(readlink -f "$outfile") && outfile="$abs_outfile"
 
 srcmods="/lib/modules/$kernel/"
-[[ $drivers_dir ]] && srcmods="$drivers_dir"
+[[ $drivers_dir ]] && {
+    if verlt $(modprobe --version | cut -d' ' -f3) 3.7; then
+        derror 'To use --kmoddir option module-init-tools >= 3.7 is required.'
+        exit 1
+    fi
+    srcmods="$drivers_dir"
+}
 export srcmods
 
 if [[ -f $outfile && ! $force ]]; then

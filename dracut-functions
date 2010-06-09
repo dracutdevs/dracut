@@ -24,6 +24,39 @@ IF_dynamic=""
 # Generic substring function.  If $2 is in $1, return 0.
 strstr() { [[ $1 =~ $2 ]]; }
 
+# Version comparision function.  Returns result similar to C strcmp,
+# but instead of -1 is 2.  Function assumes version scheme like does
+# Linux kernel.
+vercmp() {
+    local n1 n2 i=1
+
+    while true
+    do
+        n1=$(echo $1 | cut -d'.' -f$i)
+        n2=$(echo $2 | cut -d'.' -f$i)
+
+        [[ ! $n1 && ! $n2 ]] && return 0
+        [[ $n1 -lt $n2 ]] && return 2
+        [[ $n1 -gt $n2 ]] && return 1
+
+        ((i++))
+    done
+}
+
+# Variation of version comparision function.  If $1 >= $2, return 0.
+verge() {
+    vercmp $1 $2
+
+    [[ $? = 0 || $? = 1 ]]
+}
+
+# Variation of version comparision function.  If $1 < $2, return 0.
+verlt() {
+    vercmp $1 $2
+
+    [[ $? = 2 ]]
+}
+
 # Log initrd creation.
 if ! [[ $dracutlogfile ]]; then
     [[ $dracutbasedir = /usr/share/dracut ]] && \
@@ -487,7 +520,7 @@ filter_kernel_modules () (
 # install kernel modules along with all their dependencies.
 instmods() {
     [[ $no_kernel = yes ]] && return
-    local mod mpargs modpath modname cmd
+    local mod mpargs modpath modname cmd moddirname
     while (($# > 0)); do
 	mod=${1%.ko*}
 	case $mod in
@@ -519,10 +552,17 @@ instmods() {
 	        ! echo $add_drivers | grep -qe "\<${mod}\>" &&	{
 		    shift; continue; 
 		}
+
+		# We use '-d' option in modprobe only if modules prefix path
+		# differs from default '/'.  This allows us to use Dracut with
+		# old version of modprobe which doesn't have '-d' option.
+		moddirname=${srcmods%%/lib/modules/*}
+		[[ -n ${moddirname} ]] && moddirname="-d ${moddirname}/"
+
 		# ok, load the module, all its dependencies, and any firmware
 		# it may require
 		for_each_kmod_dep install_kmod_with_fw $mod \
-		    --set-version $kernel -d ${srcmods%%/lib/modules/*}/
+		    --set-version $kernel ${moddirname}
 		;;
 	esac      
 	shift
