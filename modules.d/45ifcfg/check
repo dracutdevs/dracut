@@ -1,6 +1,6 @@
 #!/bin/sh
-[ -d /etc/sysconfig/network-scripts/ ] || exit 1
 
-[[ $1 = -d ]] && echo network
+# ifcfg is required by network
+#[[ $1 = -d ]] && echo network
 
 exit 255

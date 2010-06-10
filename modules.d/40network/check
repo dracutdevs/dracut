@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [[ $1 = -d ]]; then
+  [ -d /etc/sysconfig/network-scripts/ ] && echo ifcfg
+  exit 0
+fi
+
 . $dracutfunctions
 
 for program in ip arping; do 
@@ -15,5 +20,8 @@ for program in dhclient brctl; do
     dwarning "Could not find program \"$program\" it might be required by network." 
   fi
 done
+
+
+
 exit 255
 
