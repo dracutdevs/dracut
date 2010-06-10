@@ -16,3 +16,14 @@ inst_rules 10-dm.rules 13-dm-disk.rules 95-dm-notify.rules 11-dm-lvm.rules
 
 inst "$moddir/lvm_scan.sh" /sbin/lvm_scan
 inst_hook cmdline 30 "$moddir/parse-lvm.sh"
+
+
+if ldd $(which lvm) | grep -q lib64; then
+    LIBDIR="/lib64"
+else
+    LIBDIR="/lib"
+fi
+
+for i in $(ls /{usr,}/$LIBDIR/libdevmapper-event-lvm*.so 2>/dev/null); do
+    dracut_install $i
+done
