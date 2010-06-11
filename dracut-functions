@@ -24,38 +24,31 @@ IF_dynamic=""
 # Generic substring function.  If $2 is in $1, return 0.
 strstr() { [[ $1 =~ $2 ]]; }
 
-# Version comparision function.  Returns result similar to C strcmp,
-# but instead of -1 is 2.  Function assumes version scheme like does
-# Linux kernel.
-# $1 < $2 -> 2
-# $1 = $2 -> 0
-# $1 > $2 -> 1
-# To remember it easy, ask the question: Which argument is greater? ;-)
+# Version comparision function.  Assumes Linux style version scheme.
+# $1 = version a
+# $2 = comparision op (gt, ge, eq, le, lt, ne)
+# $3 = version b
 vercmp() {
-    local i n1=(${1//./ }) n2=(${2//./ })
+    local n1=(${1//./ }) op=$2 n2=(${3//./ }) i res
 
     for ((i=0; ; i++))
-    do 
-        [[ ${n1[i]} && ! ${n2[i]} ]] && return 1
-        [[ ! ${n1[i]} && ${n2[i]} ]] && return 2
-        [[ ${n1[i]} && ${n2[i]} ]] || return 0
-        ((${n1[i]} > ${n2[i]})) && return 1
-        ((${n1[i]} < ${n2[i]})) && return 2
+    do
+        if [[ ! ${n1[i]}${n2[i]} ]]; then res=0
+        elif ((${n1[i]:-0} > ${n2[i]:-0})); then res=1
+        elif ((${n1[i]:-0} < ${n2[i]:-0})); then res=2
+        else continue
+        fi
+        break
     done
-}
 
-# Variation of version comparision function.  If $1 >= $2, return 0.
-verge() {
-    vercmp $1 $2
-
-    [[ $? = 0 || $? = 1 ]]
-}
-
-# Variation of version comparision function.  If $1 < $2, return 0.
-verlt() {
-    vercmp $1 $2
-
-    [[ $? = 2 ]]
+    case $op in
+        gt) ((res == 1));;
+        ge) ((res != 2));;
+        eq) ((res == 0));;
+        le) ((res != 1));;
+        lt) ((res == 2));;
+        ne) ((res != 0));;
+    esac
 }
 
 # Log initrd creation.
