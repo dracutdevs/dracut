@@ -6,6 +6,8 @@ fix_bootif() {
     local IFS='-'
     macaddr=$(for i in ${macaddr} ; do echo -n $i:; done)
     macaddr=${macaddr%:}
+    # strip hardware type field from pxelinux
+    [ -n "${macaddr%??:??:??:??:??:??}" ] && macaddr=${macaddr#??:}
     echo $macaddr
 }
 
