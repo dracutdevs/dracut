@@ -1,2 +1,3 @@
 #!/bin/bash
-instmods dm_crypt cbc aes sha256 xts
+instmods dm_crypt cbc sha256 xts aes aes_generic aesni-intel aes-x86_64
+
