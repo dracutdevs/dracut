@@ -186,7 +186,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dracut/modules.d/95dasd
 %{_datadir}/dracut/modules.d/95dasd_mod
 %{_datadir}/dracut/modules.d/95zfcp
-%{_datadir}/dracut/modules.d/95znet
 %{_datadir}/dracut/modules.d/95terminfo
 %{_datadir}/dracut/modules.d/95udev-rules
 %{_datadir}/dracut/modules.d/95uswsusp
@@ -205,6 +204,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dracut/modules.d/95nbd
 %{_datadir}/dracut/modules.d/95nfs
 %{_datadir}/dracut/modules.d/45ifcfg
+%{_datadir}/dracut/modules.d/95znet
 
 %files fips
 %defattr(-,root,root,0755)
