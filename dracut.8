@@ -284,7 +284,7 @@ specify nameserver(s) to use
 .TP
 .BR root= "[<server-ip>:]<root-dir>[:<nfs-options>]"
 mount nfs share from <server-ip>:/<root-dir>, if no server-ip is given,
-use dhcp next_server. 
+use dhcp next_server. if server-ip is an IPv6 address it has to be put in brackets, e.g. [fec0:0:a10:4000:3c67:6ff:fe1f:5904].
 NFS options can be appended with the prefix ":" or "," and are seperated by ",".
 .TP
 .BR root= "nfs:[<server-ip>:]<root-dir>[:<nfs-options>]"
@@ -327,6 +327,11 @@ http://tools.ietf.org/html/rfc4173
 .BR root= "\%iscsi:[username:password\:[:reverse:password]@]\:[<servername>]\::[<protocol>]\::[<port>]\::[<LUN>]\::<targetname>"
 .ad
 e.g. root=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0
+
+.ad l
+If servername is an IPv6 address, it has to be put in brackets.
+ e.g. 
+  root=iscsi:@[fec0:0:a10:4000:3c67:6ff:fe1f:5904]::::iqn.2009-06.dracut:target0
 .TP
 .ad l
 .BR root= ??? " netroot=" "\%iscsi:[username:password[:reverse:password]@]\:[<servername>]\::[<protocol>]\::[<port>]\::[<LUN>]\::<targetname> ..."
@@ -337,6 +342,10 @@ multiple netroot options allow setting up multiple iscsi disks
   netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0
   netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target1
 
+.ad l
+If servername is an IPv6 address, it has to be put in brackets.
+ e.g.
+  netroot=iscsi:@[fec0:0:a10:4000:3c67:6ff:fe1f:5904]::::iqn.2009-06.dracut:target0
 .TP
 .ad l
 .BR \%root= \%??? " \%iscsi_initiator=" \%<initiator> " \%iscsi_target_name=" "<target name>" " \%iscsi_target_ip=" "<target ip>" " \%iscsi_target_port=" "<target port>" " \%iscsi_target_group=" "<target group>" " \%iscsi_username=" "<username>" " \%iscsi_password=" <password> " \%iscsi_in_username=" "<in username>" " \%iscsi_in_password=" "<in password>"
