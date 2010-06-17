@@ -74,7 +74,7 @@ for p in $(getargs ip=); do
 		die "Sorry, automatic calculation of netmask is not yet supported"
 	    ;;
 	auto6);;
-	dhcp|on|any) \
+	dhcp|dhcp6|on|any) \
 	    [ -n "$NEEDBOOTDEV" ] && [ -z "$dev" ] && \
 	        die "Sorry, 'ip=$p' does not make sense for multiple interface configurations"
 	    [ -n "$ip" ] && \
