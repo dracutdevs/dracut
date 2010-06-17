@@ -19,7 +19,7 @@
 %endif
 
 Name: dracut
-Version: 005
+Version: 006
 Release: 1%{?rdist}
 Summary: Initramfs generator using udev
 Group: System Environment/Base          
@@ -51,9 +51,11 @@ Requires: findutils
 Requires: grep
 Requires: gzip
 Requires: initscripts >= 8.63-1
+Requires: kbd
 Requires: mktemp >= 1.5-5
 Requires: module-init-tools >= 3.7-9
 Requires: mount
+Requires: plymouth >= 0.8.0-0.2009.29.09.19.1
 Requires: sed
 Requires: tar
 Requires: udev
@@ -189,6 +191,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dracut/modules.d/95terminfo
 %{_datadir}/dracut/modules.d/95udev-rules
 %{_datadir}/dracut/modules.d/95uswsusp
+%{_datadir}/dracut/modules.d/98selinux
 %{_datadir}/dracut/modules.d/98syslog
 %{_datadir}/dracut/modules.d/99base
 # logfile needs no logrotate, because it gets overwritten
@@ -227,6 +230,100 @@ rm -rf $RPM_BUILD_ROOT
 %dir /var/lib/dracut/overlay
 
 %changelog
+* Thu Jun 17 2010 Harald Hoyer <harald@redhat.com> 006-1
+- version 006
+
+* Fri Jun 11 2010 Harald Hoyer <harald@redhat.com>
+- Remove requirements, which are not really needed
+Resolves: rhbz#598509
+- fixed copy of network config to /dev/.initramfs/ (patch 146)
+Resolves: rhbz#594649
+- more password beauty (patch 142)
+Resolves: rhbz#561092
+- support multiple iSCSI disks (patch 143)
+Resolves: rbhz#580190
+- fixed selinux=0 (patch 130)
+Resolves: rhbz#593080
+- add support for booting LVM snapshot root volume (patch 145)
+Resolves: rbhz#602723
+- remove hardware field from BOOTIF= (patch 148)
+Resolves: rhbz#599593
+- add aes kernel modules and fix crypt handling (patch 137, patch 140 and patch 147)
+Resolves: rhbz#600170
+
+* Thu May 27 2010 Harald Hoyer <harald@redhat.com> 
+- fixed Requirements
+- fixed autoip6 
+Resolves: rhbz#538388
+- fixed multipath
+Resolves: rhbz#595719
+
+* Thu May 06 2010 Harald Hoyer <harald@redhat.com> 
+- only display short password messages
+Resolves: rhbz#561092
+
+* Thu May 06 2010 Harald Hoyer <harald@redhat.com>
+- fixed dracut manpages 
+Resolves: rhbz#589109
+- use ccw-init and ccw rules from s390utils
+Resolves: rhbz#533494
+- fixed fcoe
+Resolves: rhbz#486244
+- various other bugfixes seen in Fedora
+
+* Tue Apr 20 2010 Harald Hoyer <harald@redhat.com> 
+- fixed network with multiple nics
+- fixed nfsidmap paths
+- do not run blkid on non active container raids
+- fixed cdrom polling mechanism
+- update to latest git
+
+* Thu Apr 15 2010 Harald Hoyer <harald@redhat.com>
+- fixed dracut manpages
+- dmraid parse different error messages
+- add cdrom polling mechanism for slow cdroms
+- add module btrfs
+- teach dmsquash live-root to use rootflags
+- trigger udev with action=add
+- fixed add_drivers handling 
+- add sr_mod
+- use pigz instead of gzip, if available
+
+* Thu Mar 25 2010 Harald Hoyer <harald@redhat.com> 
+- removed firmware requirements (rhbz#572634)
+- add /etc/dracut.conf.d
+- Resolves: rhbz#572634
+
+* Fri Mar 19 2010 Harald Hoyer <harald@redhat.com> 
+- version 005
+
+* Fri Mar 19 2010 Harald Hoyer <harald@redhat.com> 
+- fixed rpmlint errors (rhbz#570547)
+- removed firmware package from dracut-kernel (rhbz#572634)
+- add dcb support to dracut's FCoE support (rhbz#563794)
+- force install some modules in hostonly mode (rhbz#573094)
+- various other bugfixes
+- Resolves: rhbz#570547, rhbz#572634, rhbz#563794, rhbz#573094
+
+* Thu Feb 18 2010 Harald Hoyer <harald@redhat.com> 004-15
+- fixed "selinux=0" booting (rhbz#566376)
+- fixed internal IFS handling
+- Resolves: rhbz#566376
+
+* Fri Jan 29 2010 Harald Hoyer <harald@redhat.com> 004-5
+- fixed firmware.sh bug (#559975 #559597)
+
+* Tue Jan 26 2010 Harald Hoyer <harald@redhat.com> 004-4
+- add multipath check
+
+* Tue Jan 26 2010 Harald Hoyer <harald@redhat.com> 004-3
+- fix selinux handling if .autorelabel is present
+- Resolves: rhbz#557744
+
+* Wed Jan 20 2010 Harald Hoyer <harald@redhat.com> 004-2
+- fix emergency_shell argument parsing
+- Related: rhbz#543948
+
 * Fri Jan 15 2010 Harald Hoyer <harald@redhat.com> 004-1
 - version 004
 - Resolves: rhbz#529339 rhbz#533494 rhbz#548550 

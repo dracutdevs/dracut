@@ -11,6 +11,13 @@ dracut-006
 - fixed add_drivers handling 
 - add sr_mod
 - use pigz instead of gzip, if available
+- boot from LVM mirrors and snapshots
+- iscsi: add support for multiple netroot=iscsi:
+- Support old version of module-init-tools
+- got rid of rdnetdebug
+- fixed "ip=auto6"
+- dracut.conf: use "+=" as default for config variables
+- bugfixes
 
 dracut-005
 ==========
@@ -21,7 +28,6 @@ dracut-005
 - add /etc/dracut.conf.d
 - add preliminary IPv6 support
 - bugfixes
-
 
 dracut-004
 ==========
