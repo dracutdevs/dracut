@@ -248,7 +248,7 @@ inst_binary() {
     local LDSO NAME IO FILE ADDR I1 n f TLIBDIR
     [[ -e $initdir$target ]] && return 0
     # I love bash!
-    LANG=C ldd $bin 2>/dev/null | while read line; do
+    LC_ALL=C ldd $bin 2>/dev/null | while read line; do
 	[[ $line = 'not a dynamic executable' ]] && return 1
 	if [[ $line =~ not\ found ]]; then
 	    derror "Missing a shared library required by $bin."
