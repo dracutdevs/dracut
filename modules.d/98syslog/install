@@ -1,6 +1,6 @@
 #!/bin/sh
 if type -P rsyslogd >/dev/null; then
-	installs="rsyslogd /usr/lib/rsyslog/lmnet.so /usr/lib/rsyslog/imklog.so /usr/lib/rsyslog/imuxsock.so"
+	installs="rsyslogd /lib/rsyslog/lmnet.so /lib/rsyslog/imklog.so /lib/rsyslog/imuxsock.so"
 elif type -P syslogd >/dev/null; then
     installs="syslogd"
 elif type -P syslog-ng >/dev/null; then
