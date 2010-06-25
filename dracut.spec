@@ -84,6 +84,7 @@ Requires: nbd
 %endif
 Requires: net-tools iproute
 Requires: bridge-utils
+Requires: vconfig
 
 %description network
 This package requires everything which is needed to build a generic
