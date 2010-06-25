@@ -5,7 +5,7 @@ if [ -n "$resume" ]; then
 		${resume#/dev/};
     printf "SYMLINK==\"%s\", ACTION==\"add|change\", SYMLINK+=\"/dev/resume\"\n" \
 		${resume#/dev/};
-    } >> /dev/.udev/rules.d/99-resume.rules
+    } >> /dev/.udev/rules.d/99-resume-link.rules
 
     {
     printf "KERNEL==\"%s\", ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\", RUN+=\"/bin/sh -c 'echo %%M:%%m > /sys/power/resume'\"\n" \
