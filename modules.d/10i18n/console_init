@@ -1,0 +1,87 @@
+#!/bin/sh
+
+. /etc/sysconfig/i18n
+. /etc/sysconfig/keyboard
+
+DEFAULT_SYSFONT=LatArCyrHeb-16
+DEFAULT_KEYMAP=/etc/sysconfig/console/default.kmap
+
+
+set_keyboard() {
+    local param
+
+    [ "${UNICODE}" = 1 ] && param=-u || param=-a
+    kbd_mode ${param}
+}
+
+set_terminal() {
+    local dev=$1
+
+    if [ "${UNICODE}" = 1 ]; then
+        printf '\033%%G' >&7
+        stty -F ${dev} iutf8
+    else
+        printf '\033%%@' >&7
+    fi
+}
+
+set_keymap() {
+    local utf_switch
+
+    if [ -z "${KEYMAP}" ]; then
+        [ -f "${DEFAULT_KEYMAP}" ] && KEYMAP=${DEFAULT_KEYMAP}
+    fi
+
+    [ -n "${KEYMAP}" ] || return 1
+
+    [ "${UNICODE}" = 1 ] && utf_switch=-u
+
+    loadkeys ${utf_switch} ${KEYMAP} ${EXT_KEYMAPS}
+}
+
+set_font() {
+    local dev=$1; local trans=''; local uni=''
+
+    [ -z "${SYSFONT}" ] && SYSFONT=${DEFAULT_SYSFONT}
+    [ -n "${CONTRANS}" ] && trans="-m ${CONTRANS}"
+    [ -n "${UNIMAP}" ] && uni="-u ${UNIMAP}"
+
+    setfont ${SYSFONT} -C ${dev} ${trans} ${uni}
+}
+
+dev_close() {
+    exec 6>&-
+    exec 7>&-
+}
+
+dev_open() {
+    local dev=$1
+
+    exec 6<${dev} && \
+    exec 7>>${dev}
+}
+
+
+dev=/dev/${1#/dev/}
+
+[ -c "${dev}" ] || {
+    echo "Usage: $0 device" >&2
+    exit 1
+}
+
+dev_open ${dev}
+
+for fd in 6 7; do
+    if ! [ -t ${fd} ]; then
+        echo "ERROR: File descriptor not opened: ${fd}" >&2
+        dev_close
+        exit 1
+    fi
+done
+
+set_keyboard
+set_terminal ${dev}
+set_font ${dev}
+set_keymap
+
+dev_close

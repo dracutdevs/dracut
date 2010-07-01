@@ -24,6 +24,10 @@ IF_dynamic=""
 # Generic substring function.  If $2 is in $1, return 0.
 strstr() { [[ $1 =~ $2 ]]; }
 
+# Create all subdirectories for given path without creating the last element.
+# $1 = path
+mksubdirs() { mkdir -p ${1%/*}; }
+
 # Version comparision function.  Assumes Linux style version scheme.
 # $1 = version a
 # $2 = comparision op (gt, ge, eq, le, lt, ne)
@@ -75,6 +79,18 @@ dinfo() {
 derror() {
     echo "E: $@" >&2
     [[ -w $dracutlogfile ]] && echo "E: $@" >>"$dracutlogfile"
+}
+
+# Function prints global variables in format name=value line by line.
+# $@ = list of global variables' name
+print_vars() {
+    local var value
+
+    for var in $@
+    do
+        value=$(eval echo \$$var)
+        [[ ${value} ]] && echo "${var}=\"${value}\""
+    done
 }
 
 get_fs_env() {
@@ -378,6 +394,53 @@ dracut_install() {
             fi
 	fi
 	shift
+    done
+}
+
+# install function decompressing the target and handling symlinks
+# $@ = list of compressed (gz or bz2) files or symlinks pointing to such files
+#
+# Function install targets in the same paths inside overlay but decompressed
+# and without extensions (.gz, .bz2).
+inst_decompress() {
+    local src dst realsrc realdst cmd
+
+    for src in $@
+    do
+        case ${src} in
+            *.gz) cmd='gzip -d' ;;
+            *.bz2) cmd='bzip2 -d' ;;
+            *) return 1 ;;
+        esac
+
+        if [[ -L ${src} ]]
+        then
+            realsrc="$(readlink -f ${src})" # symlink target with extension
+            dst="${src%.*}" # symlink without extension
+            realdst="${realsrc%.*}" # symlink target without extension
+            mksubdirs "${initdir}/${src}"
+            # Create symlink without extension to target without extension.
+            ln -s "${realdst}" "${initdir}/${dst}"
+        fi
+
+        # If the source is symlink we operate on its target.
+        [[ ${realsrc} ]] && src=${realsrc}
+        inst ${src}
+        # Decompress with chosen tool.  We assume that tool changes name e.g.
+        # from 'name.gz' to 'name'.
+        ${cmd} "${initdir}${src}"
+    done
+}
+
+# It's similar to above, but if file is not compressed, performs standard
+# install.
+# $@ = list of files
+inst_opt_decompress() {
+    local src
+
+    for src in $@
+    do
+        inst_decompress "${src}" || inst "${src}"
     done
 }
 
