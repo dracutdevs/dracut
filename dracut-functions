@@ -331,13 +331,14 @@ find_rule() {
 # udev rules always get installed in the same place, so
 # create a function to install them to make life simpler.
 inst_rules() { 
-    local target=/etc/udev/rules.d
+    local target=/etc/udev/rules.d rule found
+
     inst_dir "/lib/udev/rules.d"
     inst_dir "$target"
     for rule in "$@"; do 
-	rule1=$(find_rule "$rule") && \
-	    inst_simple "$rule1" "$target/${rule1##*/}" \
-	    || dinfo "Skipping udev rule: $rule"
+        found=$(find_rule "$rule") && \
+            inst_simple "$found" "$target/${found##*/}" \
+            || dinfo "Skipping udev rule: $rule"
     done
 }
 
