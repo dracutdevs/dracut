@@ -57,6 +57,8 @@ Creates initial ramdisk images for preloading modules
   -v, --verbose         Verbose output during the build process
   -c, --conf [FILE]     Specify configuration file to use.
                          Default: /etc/dracut.conf
+  --confdir [DIR]       Specify configuration directory to use *.conf files from.
+                         Default: /etc/dracut.conf.d
   -l, --local           Local mode. Use modules from the current working
                          directory instead of the system-wide installed in
                          /usr/share/dracut/modules.d.
@@ -243,6 +245,7 @@ check_modules
 for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
     mod=${moddir##*/}; mod=${mod#[0-9][0-9]}
     if strstr "$mods_to_load" " $mod "; then
+	dinfo "*** Sourcing module $mod"
 	if [[ $kernel_only = yes ]]; then
 	    [[ -x $moddir/installkernel ]] && . "$moddir/installkernel"
 	else
