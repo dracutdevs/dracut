@@ -335,8 +335,9 @@ inst_rules() {
     inst_dir "/lib/udev/rules.d"
     inst_dir "$target"
     for rule in "$@"; do 
-	rule=$(find_rule "$rule") && \
-	    inst_simple "$rule" "$target/${rule##*/}"
+	rule1=$(find_rule "$rule") && \
+	    inst_simple "$rule1" "$target/${rule1##*/}" \
+	    || dinfo "Skipping udev rule: $rule"
     done
 }
 
