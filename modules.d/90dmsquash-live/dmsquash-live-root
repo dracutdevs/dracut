@@ -41,7 +41,8 @@ getarg ro && liverw=ro
 getarg rw && liverw=rw
 [ -z "$liverw" ] && liverw=ro
 # mount the backing of the live image first
-mount -n -t $fstype -o $liverw $livedev $NEWROOT
+mkdir -p /dev/.initramfs/live
+mount -n -t $fstype -o $liverw $livedev /dev/.initramfs/live
 RES=$?
 if [ "$RES" != "0" ]; then
     die "Failed to mount block device of live image"
@@ -105,8 +106,8 @@ do_live_from_base_loop() {
 }
 
 # we might have a genMinInstDelta delta file for anaconda to take advantage of
-if [ -e $NEWROOT/${live_dir}/osmin.img ]; then
-    OSMINSQFS=$NEWROOT/${live_dir}/osmin.img
+if [ -e /dev/.initramfs/live/${live_dir}/osmin.img ]; then
+    OSMINSQFS=/dev/.initramfs/live/${live_dir}/osmin.img
 fi
 
 if [ -n "$OSMINSQFS" ]; then
@@ -122,21 +123,21 @@ if [ -n "$OSMINSQFS" ]; then
 fi
 
 # we might have just an embedded ext3 to use as rootfs (uncompressed live)
-if [ -e $NEWROOT/${live_dir}/ext3fs.img ]; then
-  EXT3FS="$NEWROOT/${live_dir}/ext3fs.img"
+if [ -e /dev/.initramfs/live/${live_dir}/ext3fs.img ]; then
+  EXT3FS="/dev/.initramfs/live/${live_dir}/ext3fs.img"
 fi
 
 if [ -n "$EXT3FS" ] ; then
     BASE_LOOPDEV=$( losetup -f )
     losetup -r $BASE_LOOPDEV $EXT3FS
-    umount -l $NEWROOT
+    umount -l /dev/.initramfs/live
 
     do_live_from_base_loop
 fi
 
 # we might have an embedded ext3 on squashfs to use as rootfs (compressed live)
-if [ -e $NEWROOT/${live_dir}/squashfs.img ]; then
-  SQUASHED="$NEWROOT/${live_dir}/squashfs.img"
+if [ -e /dev/.initramfs/live/${live_dir}/squashfs.img ]; then
+  SQUASHED="/dev/.initramfs/live/${live_dir}/squashfs.img"
 fi
 
 if [ -e "$SQUASHED" ] ; then
@@ -144,7 +145,7 @@ if [ -e "$SQUASHED" ] ; then
         echo "Copying live image to RAM..."
         echo "(this may take a few minutes)"
         dd if=$SQUASHED of=/squashed.img bs=512 2> /dev/null
-        umount -n $NEWROOT
+        umount -n /dev/.initramfs/live
         echo "Done copying live image to RAM."
         eject -p $livedev || :
         SQUASHED="/squashed.img"
@@ -160,7 +161,7 @@ if [ -e "$SQUASHED" ] ; then
 
     umount -l /squashfs
     if [ -z "$live_ram" ] ; then
-        umount -l $NEWROOT
+        umount -l /dev/.initramfs/live
     fi
 
     do_live_from_base_loop
