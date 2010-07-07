@@ -1,7 +1,3 @@
 #!/bin/bash
 
-# TODO: We should check if ${keyboard_vars} && ${i18n_vars} are set for
-# hostonly setup.
-[[ $1 = -h ]] && exit 0
-
-exit 255
+exit 0
