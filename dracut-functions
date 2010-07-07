@@ -226,11 +226,36 @@ inst_simple() {
     cp -pfL "$src" "${initdir}$target"
 }
 
+# find symlinks linked to given library file
+# $1 = library file
+# Function searches for symlinks by stripping version numbers appended to
+# library filename, checks if it points to the same target and finally
+# prints the list of symlinks to stdout.
+#
+# Example:
+# rev_lib_symlinks libfoo.so.8.1
+# output: libfoo.so.8 libfoo.so
+# (Only if libfoo.so.8 and libfoo.so exists on host system.)
+rev_lib_symlinks() {
+    [[ ! $1 ]] && return 0
+
+    local fn="$1" orig="$(readlink -f "$1")" links=''
+
+    [[ ${fn} =~ .*\.so\..* ]] || return 1
+
+    until [[ ${fn##*.} == so ]]; do
+        fn="${fn%.*}"
+        [[ -L ${fn} && $(readlink -f "${fn}") == ${orig} ]] && links+=" ${fn}"
+    done
+
+    echo ${links}
+}
+
 # Same as above, but specialized to handle dynamic libraries.
 # It handles making symlinks according to how the original library
 # is referenced.
 inst_library() {
-    local src=$1 dest=${2:-$1}
+    local src=$1 dest=${2:-$1} lib reallib symlink
     [[ -e $initdir$dest ]] && return 0
     if [[ -L $src ]]; then
 	reallib=$(readlink -f "$src")
@@ -241,6 +266,14 @@ inst_library() {
     else
 	inst_simple "$src" "$dest"
     fi
+
+    # Create additional symlinks.  See rev_symlinks description.
+    for symlink in $(rev_lib_symlinks $src) $(rev_lib_symlinks $reallib); do
+        [[ ! -e $initdir$symlink ]] && {
+            dinfo "Creating extra symlink: $symlink"
+            inst_symlink $symlink
+        }
+    done
 }
 
 # find a binary.  If we were not passed the full path directly,
