@@ -2,7 +2,10 @@
 
 # if dmsetup is not installed, then we cannot support fedora/red hat 
 # style live images
-which dmsetup >/dev/null 2>&1 || exit 1
+if [ "$1" = "-d" ]; then
+    echo dm
+    exit 0
+fi
 
 # a live host-only image doesn't really make a lot of sense
 if [ "$1" = "-h" ] ; then
