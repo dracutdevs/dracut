@@ -121,6 +121,7 @@ Requires: coreutils cryptsetup-luks device-mapper
 Requires: diffutils dmraid findutils grep lvm2 gawk
 Requires: module-init-tools sed
 Requires: cpio gzip
+Requires: %{name} = %{version}-%{release}
 
 %description tools
 This package contains tools to assemble the local initrd and host configuration.
@@ -201,7 +202,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files network
 %defattr(-,root,root,0755)
-%doc README HACKING TODO COPYING AUTHORS NEWS
 %{_datadir}/dracut/modules.d/40network
 %{_datadir}/dracut/modules.d/95fcoe
 %{_datadir}/dracut/modules.d/95iscsi
@@ -212,7 +212,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files fips
 %defattr(-,root,root,0755)
-%doc COPYING
 %{_datadir}/dracut/modules.d/01fips
 
 %files generic
@@ -221,7 +220,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files tools 
 %defattr(-,root,root,0755)
-%doc COPYING NEWS
 %{_mandir}/man8/dracut-gencmdline.8*
 %{_mandir}/man8/dracut-catimages.8*
 /sbin/dracut-gencmdline
