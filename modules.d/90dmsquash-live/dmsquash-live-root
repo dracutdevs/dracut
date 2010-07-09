@@ -130,7 +130,6 @@ fi
 if [ -n "$EXT3FS" ] ; then
     BASE_LOOPDEV=$( losetup -f )
     losetup -r $BASE_LOOPDEV $EXT3FS
-    umount -l /dev/.initramfs/live
 
     do_live_from_base_loop
 fi
@@ -160,9 +159,6 @@ if [ -e "$SQUASHED" ] ; then
     losetup -r $BASE_LOOPDEV /squashfs/LiveOS/ext3fs.img
 
     umount -l /squashfs
-    if [ -z "$live_ram" ] ; then
-        umount -l /dev/.initramfs/live
-    fi
 
     do_live_from_base_loop
 fi
