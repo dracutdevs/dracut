@@ -56,6 +56,7 @@ setdebug() {
                 RDDEBUG=yes 
             fi
         fi
+	export RDDEBUG
     fi
     [ "$RDDEBUG" = "yes" ] && set -x 
 }
