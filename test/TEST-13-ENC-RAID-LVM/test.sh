@@ -7,11 +7,39 @@ KVERSION=${KVERSION-$(uname -r)}
 #DEBUGFAIL="rdshell"
 
 test_run() {
-    $testdir/run-qemu -hda root.ext2 -m 256M -nographic \
+    LUKSARGS=$(cat luks.txt)
+
+    dd if=/dev/zero of=check-success.img bs=1M count=1
+    
+    echo "CLIENT TEST START: $LUKSARGS"
+    $testdir/run-qemu -hda root.ext2 -hdb check-success.img -m 256M -nographic \
+	-net none -kernel /boot/vmlinuz-$KVERSION \
+	-append "root=/dev/dracut/root rw quiet rd_retry=3 rdinfo console=ttyS0,115200n81 selinux=0 rdinitdebug rdnetdebug $LUKSARGS $DEBUGFAIL" \
+	-initrd initramfs.testing
+    grep -m 1 -q dracut-root-block-success check-success.img || return 1
+    echo "CLIENT TEST END: [OK]"
+
+    dd if=/dev/zero of=check-success.img bs=1M count=1
+
+    echo "CLIENT TEST START: Any LUKS"
+    $testdir/run-qemu -hda root.ext2 -hdb check-success.img -m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
 	-append "root=/dev/dracut/root rw quiet rd_retry=3 rdinfo console=ttyS0,115200n81 selinux=0 rdinitdebug rdnetdebug $DEBUGFAIL" \
 	-initrd initramfs.testing
-    grep -m 1 -q dracut-root-block-success root.ext2 || return 1
+    grep -m 1 -q dracut-root-block-success check-success.img || return 1
+    echo "CLIENT TEST END: [OK]"
+
+    dd if=/dev/zero of=check-success.img bs=1M count=1
+
+    echo "CLIENT TEST START: Wrong LUKS UUID"
+    $testdir/run-qemu -hda root.ext2 -hdb check-success.img -m 256M -nographic \
+	-net none -kernel /boot/vmlinuz-$KVERSION \
+	-append "root=/dev/dracut/root rw quiet rd_retry=3 rdinfo console=ttyS0,115200n81 selinux=0 rdinitdebug rdnetdebug $DEBUGFAIL rd_LUKS_UUID=failme" \
+	-initrd initramfs.testing
+    grep -m 1 -q dracut-root-block-success check-success.img && return 1
+    echo "CLIENT TEST END: [OK]"
+
+    return 0
 }
 
 test_setup() {
@@ -39,7 +67,7 @@ test_setup() {
     (
 	initdir=overlay
 	. $basedir/dracut-functions
-	dracut_install sfdisk mke2fs poweroff cp umount 
+	dracut_install sfdisk mke2fs poweroff cp umount grep
 	inst_simple ./create-root.sh /initqueue/01create-root.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
@@ -58,6 +86,13 @@ test_setup() {
 	-append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd initramfs.makeroot  || return 1
     grep -m 1 -q dracut-root-block-created root.ext2 || return 1
+    cryptoUUIDS=$(grep --binary-files=text  -m 3 ID_FS_UUID root.ext2)
+    for uuid in $cryptoUUIDS; do
+	eval $uuid
+	printf ' rd_LUKS_UUID=%s ' $ID_FS_UUID 
+    done > luks.txt
+   
+
     (
 	initdir=overlay
 	. $basedir/dracut-functions
@@ -75,7 +110,7 @@ test_setup() {
 
 test_cleanup() {
     rm -fr overlay mnt
-    rm -f root.ext2 initramfs.makeroot initramfs.testing
+    rm -f root.ext2 initramfs.makeroot initramfs.testing luks.txt check-success.img
 }
 
 . $testdir/test-functions

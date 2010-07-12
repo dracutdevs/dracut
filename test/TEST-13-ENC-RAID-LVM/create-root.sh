@@ -43,5 +43,10 @@ cryptsetup luksClose /dev/mapper/dracut_sda2 && \
 cryptsetup luksClose /dev/mapper/dracut_sda3 && \
 cryptsetup luksClose /dev/mapper/dracut_sda4 && \
 :; :;} && \
-echo "dracut-root-block-created" >/dev/sda1
+{
+    echo "dracut-root-block-created" 
+    for i in /dev/sda[234]; do
+	udevadm info --query=env --name=$i|grep 'ID_FS_UUID='
+    done
+} >/dev/sda1
 poweroff -f
