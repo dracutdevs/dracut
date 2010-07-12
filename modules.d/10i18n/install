@@ -165,7 +165,8 @@ checks() {
         do
             [[ -d "${kbddir}/${dir}" ]] && continue
             false
-        done || kbddir=''
+        done && break
+	kbddir='' 
     done
 
     [[ ${kbddir} ]] || {
