@@ -17,7 +17,7 @@ else
 	echo 'ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="/sbin/initqueue --unique --onetime --name cryptroot-ask-%k /sbin/cryptroot-ask $env{DEVNAME} luks-$env{ID_FS_UUID}"' \
 	    >> /etc/udev/rules.d/70-luks.rules	
     fi
-    echo LABEL="luks_end" >> /etc/udev/rules.d/70-luks.rules
+    echo 'LABEL="luks_end"' >> /etc/udev/rules.d/70-luks.rules
 
 fi
 
