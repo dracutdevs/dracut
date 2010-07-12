@@ -18,8 +18,9 @@ getarg() {
     fi
     for o in $CMDLINE; do
 	[ "$o" = "$1" ] && { [ "$RDDEBUG" = "yes" ] && set -x; return 0; }
-	[ "${o%%=*}" = "${1%=}" ] && { echo ${o#*=}; [ "$RDDEBUG" = "yes" ] && set -x; return 0; }
+        [ "${o%%=*}" = "${1%=}" ] && val=${o#*=};
     done
+    [ -n "$val" ] && { echo $val; [ "$RDDEBUG" = "yes" ] && set -x; return 0; }
     [ "$RDDEBUG" = "yes" ] && set -x 
     return 1
 }
