@@ -51,29 +51,12 @@ if [ -f /etc/crypttab ] && ! getargs rd_NO_CRYPTTAB; then
     unset name dev rest
 fi
 
-LUKS=$(getargs rd_LUKS_UUID=)
-ask=1
-if [ -n "$LUKS" ]; then
-    ask=0
-    luuid=${2##luks-}
-    for luks in $LUKS; do
-	luks=${luks##luks-}
-	if [ "${luuid##$luks}" != "$luuid" ] || [ "$luksname" = "$luks" ]; then
-	    ask=1
-	    break
-	fi
-    done
-fi
-unset LUKS luks luuid
-
-if [ $ask -gt 0 ]; then
-    info "luksOpen $device $luksname"
-    # flock against other interactive activities
-    { flock -s 9; 
-	echo -n "$device ($luksname) is password protected"
-	cryptsetup luksOpen -T1 $1 $luksname 
-    } 9>/.console.lock
-fi
+info "luksOpen $device $luksname"
+# flock against other interactive activities
+{ flock -s 9; 
+    echo -n "$device ($luksname) is password protected"
+    cryptsetup luksOpen -T1 $1 $luksname 
+} 9>/.console.lock
 
 # mark device as asked
 >> /tmp/cryptroot-asked-$2
