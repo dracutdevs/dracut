@@ -21,7 +21,7 @@ else
     device="$1"
 fi
 
-if [ -f /etc/crypttab ] && ! getargs rd_NO_CRYPTTAB; then
+if [ -f /etc/crypttab ] && ! getarg rd_NO_CRYPTTAB; then
     while read name dev rest; do
 	# ignore blank lines and comments
 	if [ -z "$name" -o "${name#\#}" != "$name" ]; then
