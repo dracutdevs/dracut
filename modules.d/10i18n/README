@@ -53,7 +53,7 @@ runtime:
     CONTRANS - see description of '-m' parameter in setfont manual
     UNIMAP - see description of '-u' parameter in setfont manual
 
-The following are appended to EXT_KEYMAPS:
+The following are appended to EXT_KEYMAPS only during build time:
 
     UNIKEYMAP
     GRP_TOGGLE
@@ -120,5 +120,5 @@ file (the same where you put mappings).
 3. Kernel parameters
 
 If you create generic initramfs you can set up i18n by kernel
-parameters using variables listed in 2.1.  The recommended minimum is:
-SYSFONT, KEYMAP and UNICODE.
+parameters using variables listed in 2.1. (expect of UNIKEYMAP
+and GRP_TOGGLE) The recommended minimum is: SYSFONT, KEYMAP and UNICODE.
