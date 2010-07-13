@@ -130,15 +130,15 @@ if [[ ! -d $confdir ]]; then
     [[ $allowlocal ]] && confdir="$dracutbasedir/dracut.conf.d"
 fi
 
+# source our config file
+[[ -f $conffile ]] && . "$conffile"
+
 # source our config dir
 if [ "$confdir" ] && [  -d "$confdir" ]; then
     for f in "$confdir"/*.conf; do 
 	[ -e "$f" ] && . "$f"
     done
 fi
-
-# source our config file
-[[ -f $conffile ]] && . "$conffile"
 
 # these optins add to the stuff in the config file
 [[ $add_dracutmodules_l ]] && add_dracutmodules+=" $add_dracutmodules_l"
