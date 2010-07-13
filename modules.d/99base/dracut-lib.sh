@@ -49,6 +49,31 @@ getargs() {
     return 1;
 }
 
+# Prints value of given option.  If option is a flag and it's present,
+# it just returns 0.  Otherwise 1 is returned.
+# $1 = options separated by commas
+# $2 = option we are interested in
+# 
+# Example:
+# $1 = cipher=aes-cbc-essiv:sha256,hash=sha256,verify
+# $2 = hash
+# Output:
+# sha256
+getoptcomma() {
+    local line=",$1,"; local opt="$2"; local tmp
+
+    case "${line}" in
+        *,${opt}=*,*)
+            tmp="${line#*,${opt}=}"
+            echo "${tmp%%,*}"
+            return 0
+        ;;
+        *,${opt},*) return 0 ;;
+    esac
+
+    return 1
+}
+
 setdebug() {
     if [ -z "$RDDEBUG" ]; then
         if [ -e /proc/cmdline ]; then
@@ -244,3 +269,35 @@ ip_to_var() {
     esac
 }
 
+# Evaluate command for UUIDs either given as arguments for this function or all
+# listed in /dev/disk/by-uuid.  UUIDs doesn't have to be fully specified.  If
+# beginning is given it is expanded to all matching UUIDs.  To pass full UUID
+# to your command use '${full_uuid}'.  Remember to escape '$'!
+#
+# $1 = command to be evaluated
+# $2 = list of UUIDs separated by space
+#
+# The function returns after *first successful evaluation* of the given command
+# with status 0.  If evaluation fails for every UUID function returns with
+# status 1.
+#
+# Example:
+# foreach_uuid_until "mount -U \${full_uuid} /mnt; echo OK; umount /mnt" \
+#       "01234 f512 a235567f-12a3-c123-a1b1-01234567abcb"
+foreach_uuid_until() (
+    cd /dev/disk/by-uuid
+
+    local cmd="$1"; shift; local uuids_list="$*"
+    local uuid; local full_uuid
+
+    [ -n "${cmd}" ] || return 1
+
+    for uuid in ${uuids_list:-*}; do
+        for full_uuid in ${uuid}*; do
+            [ -e "${full_uuid}" ] || continue
+            eval ${cmd} && return 0
+        done
+    done
+
+    return 1
+)
