@@ -296,7 +296,7 @@ if [[ $do_strip = yes ]] ; then
 fi
 
 if [[ $do_strip = yes ]] ; then
-    for f in $(find "$initdir" -type f \( -perm -0100 -or -perm -0010 -or -perm -0001 -or -path '/lib/modules/*.ko' \) ); do
+    for f in $(find "$initdir" -type f \( -perm -0100 -or -perm -0010 -or -perm -0001 -or -path '*/lib/modules/*.ko' \) ); do
 	dinfo "Stripping $f"
 	strip -g "$f" 2>/dev/null|| :
         #
