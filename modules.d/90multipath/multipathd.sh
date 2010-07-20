@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ -e /etc/multipath.conf ]; then
+if [ -e /etc/multipath.conf -a -e /etc/multipath/wwids ]; then
     modprobe dm-multipath
     multipathd
 else
