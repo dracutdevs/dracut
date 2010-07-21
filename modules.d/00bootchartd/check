@@ -1,2 +1,5 @@
 #!/bin/sh
-[ -x /sbin/bootchartd ]
+[ -x /sbin/bootchartd ] || exit 1
+
+# do not enable bootchartd by default
+exit 255
