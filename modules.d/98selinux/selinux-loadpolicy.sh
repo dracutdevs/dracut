@@ -18,19 +18,20 @@ rd_load_policy()
 
     # Attempt to load SELinux Policy
     if [ -x "$NEWROOT/usr/sbin/load_policy" -o -x "$NEWROOT/sbin/load_policy" ]; then
-	ret=0
+	local ret=0
+	local out
 	info "Loading SELinux policy"
-	{
-            # load_policy does mount /proc and /selinux in 
-            # libselinux,selinux_init_load_policy()
-            if [ -x "$NEWROOT/sbin/load_policy" ]; then
-		chroot "$NEWROOT" /sbin/load_policy -i
-		ret=$?
-            else
-		chroot "$NEWROOT" /usr/sbin/load_policy -i
-		ret=$?
-            fi
-	} 2>&1 | vinfo
+        # load_policy does mount /proc and /selinux in 
+        # libselinux,selinux_init_load_policy()
+        if [ -x "$NEWROOT/sbin/load_policy" ]; then
+            out=$(chroot "$NEWROOT" /sbin/load_policy -i 2>&1)
+            ret=$?
+	    info $out
+        else
+	    out=$(chroot "$NEWROOT" /usr/sbin/load_policy -i 2>&1)
+	    ret=$?
+	    info $out
+        fi
 
 	if [ "$SELINUX" = "disabled" ]; then
 	    return 0;
