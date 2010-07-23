@@ -26,8 +26,12 @@ if [ "$dcb" = "dcb" ]; then
     # are to kill it and start a new lldpad to take over. Data is transfered
     # between the 2 using a shm segment
     lldpad -d
+    # stupid tools, need sleep
+    sleep 1
     dcbtool sc "$netif" dcb on
+    sleep 1
     dcbtool sc "$netif" app:fcoe e:1 a:1 w:1
+    sleep 1
     fipvlan "$netif" -c -s
 else
     echo -n "$netif" > /sys/module/fcoe/parameters/create
