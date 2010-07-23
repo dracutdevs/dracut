@@ -15,7 +15,6 @@ else
             settled='--settled'
 
     if [ -n "$LUKS" ]; then
-        echo '. /lib/dracut-lib.sh' > /emergency/crypt.sh
         for luksid in $LUKS; do 
             {
                 printf 'ENV{ID_FS_TYPE}=="crypto_LUKS", '
