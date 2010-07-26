@@ -63,11 +63,14 @@ dev_open() {
 
 
 dev=/dev/${1#/dev/}
+devname=${dev#/dev/}
 
 [ -c "${dev}" ] || {
     echo "Usage: $0 device" >&2
     exit 1
 }
+
+[ -e /tmp/console_init.${devname} ] && exit 0
 
 dev_open ${dev}
 
@@ -85,3 +88,4 @@ set_font ${dev}
 set_keymap
 
 dev_close
+>/tmp/console_init.${devname}
