@@ -526,12 +526,20 @@ check_modules() {
 	strstr "$mods_to_load" " $mod " && continue
 	# This should never happen, but...
 	[[ -d $moddir ]] || continue
-	[[ $dracutmodules != all ]] && ! strstr "$dracutmodules" "$mod" && \
-	    continue
+
 	strstr "$omit_dracutmodules" "$mod" && continue
-	if ! strstr "$add_dracutmodules" "$mod"; then
-	    should_source_module "$moddir" || continue
+
+        if ! strstr "$dracutmodules $add_dracutmodules" "$mod"; then
+            # module not in our list
+	    if [[ $dracutmodules = all ]]; then
+                # check, if we can install this module
+	        should_source_module "$moddir" || continue
+            else
+                # skip this module
+                continue
+            fi
         fi
+
 	mods_to_load+=" $mod "
     done
 
