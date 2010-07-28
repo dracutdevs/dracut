@@ -1,7 +1,7 @@
 #!/bin/bash
 inst lvm
 
-inst_rules "$moddir/64-lvm.rules" 64-lvm.rules
+inst_rules "$moddir/64-lvm.rules" 
 
 if [[ $hostonly ]] || [[ $lvmconf = "yes" ]]; then 
     if [ -f /etc/lvm/lvm.conf ]; then
