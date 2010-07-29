@@ -16,6 +16,7 @@ else
 
     if [ -n "$LUKS" ]; then
         for luksid in $LUKS; do 
+            luksid=${luksid##luks-}
             {
                 printf 'ENV{ID_FS_TYPE}=="crypto_LUKS", '
                 printf 'ENV{ID_FS_UUID}=="*%s*", ' $luksid
