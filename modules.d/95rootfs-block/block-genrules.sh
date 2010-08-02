@@ -1,5 +1,5 @@
 if [ "${root%%:*}" = "block" ]; then
-    [ -d /dev/.udev/rules.d ] || mkdir -p /dev/.udev/rules.d
+    [ -d /dev/.udev/rules.d ] || mkdir -m 0755 -p /dev/.udev/rules.d
     {
     printf 'KERNEL=="%s", SYMLINK+="root"\n' \
 	${root#block:/dev/} 
