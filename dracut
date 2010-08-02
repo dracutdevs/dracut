@@ -76,12 +76,12 @@ Creates initial ramdisk images for preloading modules
 while (($# > 0)); do
     case $1 in
 	-f|--force) force=yes;;
-	-m|--modules) dracutmodules_l="$2"; shift;;
-	-o|--omit) omit_dracutmodules_l="$2"; shift;;
-	-a|--add) add_dracutmodules_l="$2"; shift;;
-	-d|--drivers) drivers_l="$2"; shift;;
-	--add-drivers) add_drivers_l="$2"; shift;;
-	--filesystems) filesystems_l="$2"; shift;;
+	-m|--modules) dracutmodules_l="$dracutmodules_l $2"; shift;;
+	-o|--omit) omit_dracutmodules_l="$omit_dracutmodules_l $2"; shift;;
+	-a|--add) add_dracutmodules_l="$add_dracutmodules_l $2"; shift;;
+	-d|--drivers) drivers_l="$drivers_l $2"; shift;;
+	--add-drivers) add_drivers_l="$add_drivers_l $2"; shift;;
+	--filesystems) filesystems_l="$filesystems_l $2"; shift;;
 	-k|--kmoddir) drivers_dir_l="$2"; shift;;
 	--fwdir) fw_dir_l="$2"; shift;;
 	--kernel-only) kernel_only="yes"; no_kernel="no";;
