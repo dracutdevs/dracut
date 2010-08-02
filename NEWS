@@ -1,3 +1,13 @@
+dracut-007
+==========
+- module i18n is no longer fedora/red hat specific (Amadeusz Żołnowski)
+- distribution specific conf file
+- bootchartd support
+- debug module now has fsck
+- use "hardlink", if available, to safe some space
+- /etc/dracut.conf can be overwritten by settings in /etc/dracut.conf.d/*.conf
+- bugfixes
+
 dracut-006
 ==========
 - fixed mdraid with IMSM
