@@ -105,7 +105,7 @@ test_setup() {
         echo "ARRAY /dev/md0 level=raid5 num-devices=3 UUID=$MD_UUID" > overlay/etc/mdadm.conf
     )
     sudo $basedir/dracut -l -i overlay / \
-	-o "plymouth" \
+	-o "plymouth network" \
 	-a "debug" \
 	-d "piix ide-gd_mod ata_piix ext2 sd_mod" \
 	-f initramfs.testing $KVERSION || return 1
