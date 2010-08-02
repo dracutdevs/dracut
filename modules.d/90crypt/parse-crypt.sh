@@ -21,7 +21,7 @@ else
                 printf 'ENV{ID_FS_TYPE}=="crypto_LUKS", '
                 printf 'ENV{ID_FS_UUID}=="*%s*", ' $luksid
                 printf 'RUN+="/sbin/initqueue --unique --onetime %s ' "$settled"
-                printf '--name cryptroot-ask-%%k /sbin/cryptroot-ask '
+                printf -- '--name cryptroot-ask-%%k /sbin/cryptroot-ask '
                 printf '$env{DEVNAME} luks-$env{ID_FS_UUID}"\n'
             } >> /etc/udev/rules.d/70-luks.rules
 
