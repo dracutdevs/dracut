@@ -6,7 +6,7 @@ strstr() {
 
 getarg() {
     set +x 
-    local o line
+    local o line val
     if [ -z "$CMDLINE" ]; then
         if [ -e /etc/cmdline ]; then
             while read line; do
@@ -17,10 +17,17 @@ getarg() {
 	CMDLINE="$CMDLINE $CMDLINE_ETC"
     fi
     for o in $CMDLINE; do
-	[ "$o" = "$1" ] && { [ "$RDDEBUG" = "yes" ] && set -x; return 0; }
+	if [ "$o" = "$1" ]; then
+            [ "$RDDEBUG" = "yes" ] && set -x; 
+	    return 0; 
+        fi
         [ "${o%%=*}" = "${1%=}" ] && val=${o#*=};
     done
-    [ -n "$val" ] && { echo $val; [ "$RDDEBUG" = "yes" ] && set -x; return 0; }
+    if [ -n "$val" ]; then
+        echo $val; 
+        [ "$RDDEBUG" = "yes" ] && set -x; 
+	return 0;
+    fi
     [ "$RDDEBUG" = "yes" ] && set -x 
     return 1
 }
@@ -38,13 +45,19 @@ getargs() {
 	CMDLINE="$CMDLINE $CMDLINE_ETC"
     fi
     for o in $CMDLINE; do
-	[ "$o" = "$1" ] && { [ "$RDDEBUG" = "yes" ] && set -x; return 0; }
+	if [ "$o" = "$1" ]; then
+             [ "$RDDEBUG" = "yes" ] && set -x; 
+	     return 0;
+	fi
 	if [ "${o%%=*}" = "${1%=}" ]; then
 	    echo -n "${o#*=} "; 
 	    found=1;
 	fi
     done
-    [ -n "$found" ] && { [ "$RDDEBUG" = "yes" ] && set -x; return 0; }
+    if [ -n "$found" ]; then
+        [ "$RDDEBUG" = "yes" ] && set -x
+	return 0;
+    fi
     [ "$RDDEBUG" = "yes" ] && set -x 
     return 1;
 }
