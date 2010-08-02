@@ -63,6 +63,7 @@ NEWROOT="/sysroot"
 
 trap "emergency_shell Signal caught!" 0
 # set umask
+OLD_UMASK=$(umask)
 umask 0007
 
 RDDEBUG=""
@@ -311,6 +312,8 @@ fi
 info "Switching root"
 
 wait_for_loginit
+
+umask $OLD_UMASK
 
 exec switch_root "$NEWROOT" "$INIT" $initargs || {
     echo "Something went very badly wrong in the initramfs.  Please "
