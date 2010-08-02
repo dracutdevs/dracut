@@ -37,7 +37,7 @@ LABEL="md_auto_end"
 #
 # Incrementally build the md array
 #
-RUN+="/sbin/mdadm -I --no-degraded $env{DEVNAME}"
+RUN+="/sbin/mdadm -I $env{DEVNAME}"
 
 RUN+="/bin/ln -s /sbin/md_finished.sh /initqueue-finished/md_finished.sh"
 
