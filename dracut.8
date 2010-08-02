@@ -414,11 +414,16 @@ do not start plymouth. This will not work with encrypted partitions.
 .SH FILES
 .TP
 .B /var/log/dracut.log
+logfile of initramfs image creation
 .TP
 .B /tmp/dracut.log
-see \fBdracut.conf\fR(5)
+logfile of initramfs image creation, if /var/log/dracut.log is not writable
 .TP
 .B /etc/dracut.conf
+see \fBdracut.conf\fR(5)
+.TP 
+.B /etc/dracut.conf.d/*.conf
+see \fBdracut.conf\fR(5)
 .SS "Configuration in the Initramfs"
 .TP 
 .B /conf/conf.d/

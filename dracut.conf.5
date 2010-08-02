@@ -1,14 +1,16 @@
 .TH DRACUT.CONF 5 "NOV 2009" "Linux"
 .SH NAME
-dracut.conf \- configuration file for dracut
+dracut.conf \- configuration file(s) for dracut
 
 .SH SYNOPSIS
-\fB/etc/dracut.conf\fR
+\fB/etc/dracut.conf\fR \fB/etc/dracut.conf.d/*.conf\fR
 
 .SH DESCRIPTION
 .B dracut.conf
 is loaded during the initialisation phase of dracut.
 Command line parameter will overwrite any values set here.
+.B dracut.conf.d/*.conf files are read in alphanumerical order and will
+overwrite parameters set in /etc/dracut.conf.
 
 .SH OPTIONS
 .TP
@@ -62,6 +64,12 @@ Only install kernel drivers and firmware files. (default=no)
 .TP
 .BR no_kernel= \%"yes|no"
 Do not install kernel drivers and firmware files (default=no)
+
+.SH FILES
+.TP 
+.B /etc/dracut/conf.d/
+Any /etc/dracut/conf.d/*.conf file can overwrite the values in /etc/dracut.conf.
+The configuration files are read in alphanumerical order.
 
 .SH SEE ALSO
 .BR dracut (8)
