@@ -4,7 +4,7 @@ TEST_DESCRIPTION="root filesystem on LVM on encrypted partitions of a RAID-5"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-#DEBUGFAIL="rdshell"
+#DEBUGFAIL="rdshell" # udev.log-priority=debug
 
 test_run() {
     LUKSARGS=$(cat luks.txt)
@@ -89,7 +89,7 @@ test_setup() {
     cryptoUUIDS=$(grep --binary-files=text  -m 3 ID_FS_UUID root.ext2)
     for uuid in $cryptoUUIDS; do
 	eval $uuid
-	printf ' rd_LUKS_UUID=%s ' $ID_FS_UUID 
+	printf ' rd_LUKS_UUID=luks-%s ' $ID_FS_UUID 
     done > luks.txt
    
 
