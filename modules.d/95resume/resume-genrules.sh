@@ -1,5 +1,4 @@
 if [ -n "$resume" ]; then
-    [ -d /dev/.udev/rules.d ] || mkdir -m 0755 -p /dev/.udev/rules.d
     {
     printf "KERNEL==\"%s\", ACTION==\"add|change\", SYMLINK+=\"/dev/resume\"\n" \
 		${resume#/dev/};

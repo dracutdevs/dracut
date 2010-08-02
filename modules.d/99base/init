@@ -105,6 +105,8 @@ mkdir /dev/shm
 mkdir /dev/pts
 mount -t devpts -o gid=5,mode=620 devpts /dev/pts >/dev/null 2>&1
 mount -t tmpfs tmpfs /dev/shm >/dev/null 2>&1
+mkdir -m 0755 /dev/.udev
+mkdir -m 0755 /dev/.udev/rules.d
 
 UDEVVERSION=$(udevadm --version)
 

@@ -1,5 +1,4 @@
 if [ "${root%%:*}" = "live" ]; then
-    [ -d /dev/.udev/rules.d ] || mkdir -m 0755 -p /dev/.udev/rules.d
     {
     printf 'KERNEL=="%s", SYMLINK+="live"\n' \
     	${root#live:/dev/} 
