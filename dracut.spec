@@ -144,6 +144,7 @@ mkdir -p $RPM_BUILD_ROOT/boot/dracut
 mkdir -p $RPM_BUILD_ROOT/var/lib/dracut/overlay
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/log
 touch $RPM_BUILD_ROOT%{_localstatedir}/log/dracut.log
+install -m 0644 dracut.conf.d/fedora.conf $RPM_BUILD_ROOT/etc/dracut.conf.d/fedora.conf
 
 %if 0%{?fedora} <= 12 && 0%{?rhel} < 6
 rm $RPM_BUILD_ROOT/sbin/mkinitrd
@@ -167,6 +168,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_datadir}/dracut
 %{_datadir}/dracut/dracut-functions
 %config(noreplace) /etc/dracut.conf
+%config(noreplace) /etc/dracut.conf.d/fedora.conf
 %dir /etc/dracut.conf.d
 %{_mandir}/man8/dracut.8*
 %{_mandir}/man5/dracut.conf.5*
