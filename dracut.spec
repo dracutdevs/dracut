@@ -174,7 +174,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man5/dracut.conf.5*
 %{_datadir}/dracut/modules.d/00bootchartd
 %{_datadir}/dracut/modules.d/00dash
-%{_datadir}/dracut/modules.d/10redhat-i18n
+%{_datadir}/dracut/modules.d/10i18n
 %{_datadir}/dracut/modules.d/10rpmversion
 %{_datadir}/dracut/modules.d/50plymouth
 %{_datadir}/dracut/modules.d/60xen
