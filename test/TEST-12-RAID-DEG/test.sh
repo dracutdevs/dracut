@@ -4,7 +4,7 @@ TEST_DESCRIPTION="root filesystem on an encrypted LVM PV on a degraded RAID-5"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-#DEBUGFAIL="rdshell"
+DEBUGFAIL="rdshell"
 
 client_run() {
     echo "CLIENT TEST START: $@"
@@ -28,7 +28,7 @@ test_run() {
 
     client_run || return 1
     
-    client_run rd_NO_MDADMCONF || return 1
+#    client_run rd_NO_MDADMCONF || return 1
 
     client_run rd_NO_LVM failme && return 1
 
@@ -36,15 +36,15 @@ test_run() {
 
     client_run rd_LVM_VG=dracut || return 1
 
-    client_run rd_LVM_VG=dummy1 rd_LVM_VG=dracut rd_LVM_VG=dummy2 rd_NO_LVMCONF || return 1
+#    client_run rd_MD_UUID=$MD_UUID rd_NO_MDADMCONF || return 1
 
-    client_run rd_MD_UUID=failme rd_NO_MDADMCONF failme && return 1
+    client_run rd_LVM_VG=dummy1 rd_LVM_VG=dracut rd_LVM_VG=dummy2 rd_NO_LVMCONF failme && return 1
+
+#    client_run rd_MD_UUID=failme rd_NO_MDADMCONF failme && return 1
 
     client_run rd_NO_MD failme && return 1
 
-    client_run rd_MD_UUID=$MD_UUID rd_NO_MDADMCONF || return 1
-
-    client_run rd_MD_UUID=dummy1 rd_MD_UUID=$MD_UUID rd_MD_UUID=dummy2 rd_NO_MDADMCONF || return 1
+#    client_run rd_MD_UUID=dummy1 rd_MD_UUID=$MD_UUID rd_MD_UUID=dummy2 rd_NO_MDADMCONF failme && return 1
 
     return 0
 }
