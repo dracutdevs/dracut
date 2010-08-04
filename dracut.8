@@ -52,6 +52,10 @@ only install kernel drivers and firmware files
 .BR \-\-no-kernel
 do not install kernel drivers and firmware files
 .TP
+.BR \-\-ignore-kernel-modules
+don't try to load modules; it automatically implies \fB--no-kernel\fR; it's
+assumed that everything needed is built into kernel
+.TP
 .BR \-\-mdadmconf
 include local /etc/mdadm.conf
 .TP

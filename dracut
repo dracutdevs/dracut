@@ -46,6 +46,10 @@ Creates initial ramdisk images for preloading modules
                         firmwares, separated by :
   --kernel-only         Only install kernel drivers and firmware files
   --no-kernel           Do not install kernel drivers and firmware files
+  --ignore-kernel-modules
+                        Don't try to load modules. It automatically implies
+                        '--no-kernel'. It's assumed that everything needed
+                        is built into kernel.
   --strip               Strip binaries in the initramfs
   --nostrip             Do not strip binaries in the initramfs (default)
   --mdadmconf           Include local /etc/mdadm.conf
@@ -86,6 +90,10 @@ while (($# > 0)); do
 	--fwdir) fw_dir_l="$2"; shift;;
 	--kernel-only) kernel_only="yes"; no_kernel="no";;
 	--no-kernel) kernel_only="no"; no_kernel="yes";;
+    --ignore-kernel-modules) kernel_only="no"; no_kernel="yes"
+        ignore_kmodules="yes"
+        omit_dracutmodules_l+=\ kernel-modules
+        ;;
 	--strip) do_strip_l="yes";;
 	--nostrip) do_strip_l="no";;
         --mdadmconf) mdadmconf_l="yes";;
@@ -228,7 +236,7 @@ chmod 755 "$initdir"
 
 export initdir hookdirs dracutbasedir dracutmodules drivers \
     fw_dir drivers_dir debug beverbose no_kernel kernel_only \
-    add_drivers mdadmconf lvmconf filesystems
+    add_drivers mdadmconf lvmconf filesystems ignore_kmodules
 
 if [[ $kernel_only != yes ]]; then
     # Create some directory structure first
