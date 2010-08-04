@@ -528,6 +528,7 @@ check_modules() {
 	strstr " $mods_to_load " " $mod " && continue
 	# This should never happen, but...
 	[[ -d $moddir ]] || continue
+        strstr " $omit_dracutmodules " " $mod " && continue
 
         if ! strstr " $dracutmodules $add_dracutmodules " " $mod "; then
             # module not in our list
