@@ -39,7 +39,9 @@ Command line parameter will overwrite any values set here.
 overwrite parameters set in /etc/dracut.conf. Each line specifies an attribute and a value. A &apos;#&apos; indicates the beginning of a comment; following characters, up to the end of the line are not interpreted.</para>
     <variablelist>
       <varlistentry>
-        <term><envar>dracutmodules+=</envar>&quot;&nbsp;[LIST]&nbsp;&quot;</term>
+        <term>
+          <envar>dracutmodules+=&quot;&nbsp;<replaceable>&lt;dracut modules&gt;</replaceable>&nbsp;&quot;</envar>
+        </term>
         <listitem>
           <para>Specify a space-separated list of dracut modules to
 call when building the initramfs. Modules are located
@@ -47,19 +49,25 @@ in /usr/share/dracut/modules.d.</para>
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><envar>omit_dracutmodules+=</envar>&quot;&nbsp;[LIST]&nbsp;&quot;</term>
+        <term>
+          <envar>omit_dracutmodules+=&quot;&nbsp;<replaceable>&lt;dracut modules&gt;</replaceable>&nbsp;&quot;</envar>
+        </term>
         <listitem>
           <para>Omit a space-separated list of dracut modules.</para>
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><envar>add_dracutmodules+=</envar>&quot;&nbsp;[LIST]&nbsp;&quot;</term>
+        <term>
+          <envar>add_dracutmodules+=&quot;&nbsp;<replaceable>&lt;dracut modules&gt;</replaceable>&nbsp;&quot;</envar>
+        </term>
         <listitem>
           <para>Add a space-separated list of dracut modules.</para>
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><envar>drivers+=</envar>&quot;&nbsp;[LIST]&nbsp;&quot;</term>
+        <term>
+          <envar>drivers+=&quot;&nbsp;<replaceable>&lt;kernel modules&gt;</replaceable>&nbsp;&quot;</envar>
+        </term>
         <listitem>
           <para>Specify a space-separated list of kernel modules to
 exclusively include in the initramfs.
@@ -67,7 +75,9 @@ The kernel modules have to be specified without the &quot;.ko&quot; suffix.</par
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><envar>add_drivers+=</envar>&quot;&nbsp;[LIST]&nbsp;&quot;</term>
+        <term>
+          <envar>add_drivers+=&quot;&nbsp;<replaceable>&lt;kernel modules&gt;</replaceable>&nbsp;&quot;</envar>
+        </term>
         <listitem>
           <para>Specify a space-separated list of kernel 
 modules to add to the initramfs.
@@ -75,7 +85,9 @@ The kernel modules have to be specified without the &quot;.ko&quot; suffix.</par
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><envar>filesystems+=</envar>&quot;&nbsp;[LIST]&nbsp;&quot;</term>
+        <term>
+          <envar>filesystems+=&quot;&nbsp;<replaceable>&lt;filesystem names&gt;</replaceable>&nbsp;&quot;</envar>
+        </term>
         <listitem>
           <para>Specify a space-separated list of kernel filesystem
 modules to exclusively include in the generic
@@ -83,50 +95,66 @@ initramfs.</para>
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><envar>drivers_dir=</envar>&shy;&quot;&lt;dir&gt;</term>
+        <term>
+          <envar>drivers_dir=&quot;<replaceable>&lt;kernel modules directory&gt;</replaceable>&quot;</envar>
+        </term>
         <listitem>
           <para>Specify the directory, where to look for kernel modules</para>
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><envar>fw_dir+=</envar>&shy;&quot;:&lt;dir&gt;[:&lt;dir&gt;&nbsp;...]</term>
+        <term>
+          <envar>fw_dir+=&quot;&#160;:<replaceable>&lt;dir&gt;</replaceable>[:<replaceable>&lt;dir&gt;</replaceable>&nbsp;...]&nbsp;&quot;</envar>
+        </term>
         <listitem>
           <para>Specify additional directories, where to look for firmwares, separated by :</para>
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><envar>do_strip=</envar>&shy;&quot;yes|no</term>
+        <term>
+          <envar>do_strip=&quot;<replaceable>{yes|no}</replaceable>&quot;</envar>
+        </term>
         <listitem>
           <para>Strip binaries in the initramfs (default=yes)</para>
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><envar>hostonly=</envar>&shy;&quot;yes|no</term>
+        <term>
+          <envar>hostonly=&quot;<replaceable>{yes|no}</replaceable>&quot;</envar>
+        </term>
         <listitem>
           <para>Host-Only mode: Install only what is needed for booting 
 the local host instead of a generic host.</para>
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><envar>mdadmconf=</envar>&shy;&quot;yes|no</term>
+        <term>
+          <envar>mdadmconf=&quot;<replaceable>{yes|no}</replaceable>&quot;</envar>
+        </term>
         <listitem>
           <para>Include local /etc/mdadm.conf (default=yes)</para>
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><envar>lvmconf=</envar>&shy;&quot;yes|no</term>
+        <term>
+          <envar>lvmconf=&quot;<replaceable>{yes|no}</replaceable>&quot;</envar>
+        </term>
         <listitem>
           <para>Include local /etc/lvm/lvm.conf (default=yes)</para>
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><envar>kernel_only=</envar>yes|no</term>
+        <term>
+          <envar>kernel_only=&quot;<replaceable>{yes|no}</replaceable>&quot;</envar>
+        </term>
         <listitem>
           <para>Only install kernel drivers and firmware files. (default=no)</para>
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><envar>no_kernel=</envar>&quot;yes|no</term>
+        <term>
+          <envar>no_kernel=&quot;<replaceable>{yes|no}</replaceable>&quot;</envar>
+        </term>
         <listitem>
           <para>Do not install kernel drivers and firmware files (default=no)</para>
         </listitem>

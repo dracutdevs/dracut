@@ -1,15 +1,15 @@
 <?xml version='1.0' encoding='ISO-8859-1'?>
-<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" []>
+<!-- This document was created with Syntext Serna Free. --><!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" []>
 <refentry>
   <refentryinfo>
     <title>dracut.kernel</title>
     <productname>dracut</productname>
     <authorgroup>
       <author>
-	<contrib>Developer</contrib>
-	<firstname>Harald</firstname>
-	<surname>Hoyer</surname>
-	<email>harald@redhat.com</email>
+        <contrib>Developer</contrib>
+        <firstname>Harald</firstname>
+        <surname>Hoyer</surname>
+        <email>harald@redhat.com</email>
       </author>
     </authorgroup>
   </refentryinfo>
@@ -36,8 +36,7 @@ root filesystem.</para>
       <variablelist>
         <varlistentry>
           <term>
-            <envar>init=</envar>
-            <replaceable>&lt;path to real init&gt;</replaceable>
+            <envar>init=<replaceable>&lt;path to real init&gt;</replaceable></envar>
           </term>
           <listitem>
             <para> </para>
@@ -49,9 +48,11 @@ root filesystem.</para>
           </term>
           <listitem>
             <para>specify blockdevice to use as root filesystem. 
- e.g.
-  root=/dev/sda1
-  root=/dev/disk/by-path/pci-0000:00:1f.1-scsi-0:0:1:0-part1</para>
+     e.g.
+     <programlisting>
+root=/dev/sda1
+root=/dev/disk/by-path/pci-0000:00:1f.1-scsi-0:0:1:0-part1
+     </programlisting></para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -142,9 +143,7 @@ This parameter can be specified multiple times.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term>
-	    <envar>rdbreak=</envar>{cmdline|pre-udev|pre-trigger|initqueue|pre-mount|mount|pre-pivot}
-          </term>
+          <term><envar>rdbreak=</envar>{cmdline|pre-udev|pre-trigger|initqueue|pre-mount|mount|pre-pivot} </term>
           <listitem>
             <para>drop to a shell on defined breakpoint</para>
           </listitem>
@@ -170,13 +169,17 @@ This parameter can be specified multiple times.</para>
     <refsect2>
       <title>I18N</title>
       <para> e.g.
-  LANG=en_US.UTF-8
-  SYSFONT=latarcyrheb-sun16
-  KEYTABLE=de-latin1-nodeadkeys</para>
+      <programlisting>
+LANG=en_US.UTF-8
+SYSFONT=latarcyrheb-sun16
+KEYTABLE=de-latin1-nodeadkeys
+      </programlisting>
+      </para>
       <variablelist>
         <varlistentry>
           <term>
-            <envar>KEYBOARDTYPE=</envar>{sun|pc}
+            <envar>KEYBOARDTYPE=</envar>
+            <replaceable>{sun|pc}</replaceable>
           </term>
           <listitem>
             <para>will be written to /etc/sysconfig/keyboard in the initramfs</para>
@@ -191,20 +194,25 @@ This parameter can be specified multiple times.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term><envar>SYSFONT=<replaceable class="option">&lt;Console font&gt;</replaceable></envar></term>
-          <listitem>
-            <para>will be written to /etc/sysconfig/i18n in the initramfs</para>
-          </listitem>
-        </varlistentry>
-        <varlistentry>
-          <term><envar>SYSFONTACM=</envar>Console map</term>
+          <term>
+            <envar>SYSFONT=<replaceable>&lt;Console font&gt;</replaceable></envar>
+          </term>
           <listitem>
             <para>will be written to /etc/sysconfig/i18n in the initramfs</para>
           </listitem>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>UNIMAP=<replaceable class="parameter">&lt;Unicode font map&gt;</replaceable></envar>
+            <envar>SYSFONTACM=</envar>
+            <replaceable>&lt;Console map&gt;</replaceable>
+          </term>
+          <listitem>
+            <para>will be written to /etc/sysconfig/i18n in the initramfs</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>UNIMAP=<replaceable>&lt;Unicode font map&gt;</replaceable></envar>
           </term>
           <listitem>
             <para>will be written to /etc/sysconfig/i18n in the initramfs</para>
@@ -356,7 +364,10 @@ This parameter can be specified multiple times.</para>
       <title>Network</title>
       <variablelist>
         <varlistentry>
-          <term><envar>ip=</envar>{dhcp|on|any|dhcp6|auto6}</term>
+          <term>
+            <envar>ip=</envar>
+            <replaceable>{dhcp|on|any|dhcp6|auto6}</replaceable>
+          </term>
           <listitem>
             <para>dhcp|on|any: get ip from dhcp server from all interfaces. If root=dhcp, 
 loop sequentially through all interfaces (eth0, eth1, ...) and use the first 
@@ -365,7 +376,7 @@ with a valid DHCP root-path.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term><envar>ip=</envar><replaceable>&lt;interface&gt;</replaceable>:{dhcp|on|any|dhcp6|auto6}</term>
+          <term><envar>ip=</envar><replaceable>&lt;interface&gt;</replaceable>:<replaceable>{dhcp|on|any|dhcp6|auto6}</replaceable></term>
           <listitem>
             <para>dhcp|on|any|dhcp6: get ip from dhcp server on a specific interface
 auto6: do IPv6 autoconfiguration
@@ -375,14 +386,14 @@ This parameter can be specified multiple times.</para>
         <varlistentry>
           <term><envar>ip=</envar><replaceable>&lt;client-IP&gt;</replaceable>:<optional>
               <replaceable>&lt;server-id&gt;</replaceable>
-            </optional>:&lt;gateway-IP&gt;::&lt;netmask&gt;::&lt;client_hostname&gt;::&lt;interface&gt;::{none|off}</term>
+            </optional>:<replaceable>&lt;gateway-IP&gt;</replaceable>:<replaceable>&lt;netmask&gt;</replaceable>:<replaceable>&lt;client_hostname&gt;</replaceable>:<replaceable>&lt;interface&gt;</replaceable>:<replaceable>{none|off}</replaceable></term>
           <listitem>
             <para>explicit network configuration. If you want do define a IPv6 address, put it in brackets (e.g. [2001:DB8::1]).
 This parameter can be specified multiple times.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term><envar>ifname=</envar>&lt;interface&gt;:&lt;MAC&gt;</term>
+          <term><envar>ifname=</envar><replaceable>&lt;interface&gt;</replaceable>:<replaceable>&lt;MAC&gt;</replaceable></term>
           <listitem>
             <para>Assign network device name &lt;interface&gt; (ie eth0) to the NIC with MAC &lt;MAC&gt;.
 Note letters in the MAC-address must be lowercase!
@@ -392,14 +403,21 @@ This parameter can be specified multiple times.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term><envar>bootdev=</envar>&lt;interface&gt;</term>
+          <term>
+            <envar>bootdev=</envar>
+            <replaceable>&lt;interface&gt;</replaceable>
+          </term>
           <listitem>
             <para>specify network interface to use routing and netroot information from. 
 Required if multiple ip= lines are used.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term><envar>nameserver=</envar>&lt;IP&gt; [nameserver=&lt;IP&gt; ...]</term>
+          <term>
+            <envar>nameserver=</envar>
+            <replaceable>&lt;IP&gt;</replaceable>
+            <optional><envar>nameserver</envar>=<replaceable>&lt;IP&gt;</replaceable> ...</optional>
+          </term>
           <listitem>
             <para>specify nameserver(s) to use</para>
           </listitem>
@@ -410,7 +428,12 @@ Required if multiple ip= lines are used.</para>
       <title>NFS</title>
       <variablelist>
         <varlistentry>
-          <term><envar>root=</envar>[&lt;server-ip&gt;:]&lt;root-dir&gt;[:&lt;nfs-options&gt;]</term>
+          <term>
+            <envar>root=</envar>
+            <optional><replaceable>&lt;server-ip&gt;</replaceable>:</optional>
+            <replaceable>&lt;root-dir&gt;</replaceable>
+            <optional>:<replaceable>&lt;nfs-options&gt;</replaceable></optional>
+          </term>
           <listitem>
             <para>mount nfs share from &lt;server-ip&gt;:/&lt;root-dir&gt;, if no server-ip is given,
 use dhcp next_server. if server-ip is an IPv6 address it has to be put in brackets, e.g. [2001:DB8::1].
@@ -418,9 +441,12 @@ NFS options can be appended with the prefix &quot;:&quot; or &quot;,&quot; and a
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term><envar>root=</envar>nfs:[&lt;server-ip&gt;:]&lt;root-dir&gt;[:&lt;nfs-options&gt;]</term>
-          <term><envar>root=</envar>nfs4:[&lt;server-ip&gt;:]&lt;root-dir&gt;[:&lt;nfs-options&gt;]</term>
-          <term><envar>root=</envar>dhcp|dhcp6</term>
+          <term><envar>root=</envar>nfs:<optional><replaceable>&lt;server-ip&gt;</replaceable>:</optional><replaceable>&lt;root-dir&gt;</replaceable><optional>:<replaceable>&lt;nfs-options&gt;</replaceable></optional></term>
+          <term><envar>root=</envar>nfs4:<optional><replaceable>&lt;server-ip&gt;</replaceable>:</optional><replaceable>&lt;root-dir&gt;</replaceable><optional>:<replaceable>&lt;nfs-options&gt;</replaceable></optional></term>
+          <term>
+            <envar>root=</envar>
+            <replaceable>{dhcp|dhcp6}</replaceable>
+          </term>
           <listitem>
             <para>root=dhcp alone directs initrd to look at the DHCP root-path where NFS 
 options can be specified.
@@ -430,7 +456,14 @@ options can be specified.
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term><envar>root=</envar>/dev/nfs<envar> nfsroot=</envar>[&lt;server-ip&gt;:]&lt;root-dir&gt;[,&lt;nfs-options&gt;]</term>
+          <term>
+            <envar>root=</envar>
+            <filename>/dev/nfs</filename>
+            <envar> nfsroot=</envar>
+            <optional><replaceable>&lt;server-ip&gt;</replaceable>:</optional>
+            <replaceable>&lt;root-dir&gt;</replaceable>
+            <optional>:<replaceable>&lt;nfs-options&gt;</replaceable></optional>
+          </term>
           <listitem>
             <para><emphasis remap="B">Deprecated!</emphasis> kernel Documentation/filesystems/nfsroot.txt defines 
 this method.  
@@ -438,7 +471,10 @@ This is supported by dracut but not recommended.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term><emphasis remap="B">rd_NFS_DOMAIN=</emphasis>&lt;NFSv4 domain name&gt;</term>
+          <term>
+            <envar remap="B">rd_NFS_DOMAIN=</envar>
+            <replaceable>&lt;NFSv4 domain name&gt;</replaceable>
+          </term>
           <listitem>
             <para>Set the NFSv4 domain name. Will overwrite the settings in /etc/idmap.conf.</para>
           </listitem>
@@ -449,7 +485,15 @@ This is supported by dracut but not recommended.</para>
       <title>iSCSI</title>
       <variablelist>
         <varlistentry>
-          <term><envar>root=</envar>iscsi:[username:password[:reverse:password]@][&lt;servername&gt;]:[&lt;protocol&gt;]:[&lt;port&gt;]:[&lt;LUN&gt;]:&lt;targetname&gt;</term>
+          <term><envar>root=</envar>iscsi:<optional><replaceable>&lt;username&gt;</replaceable>:<replaceable>&lt;password&gt;</replaceable><optional>:<replaceable>&lt;reverse&gt;</replaceable>:<replaceable>&lt;password&gt;</replaceable></optional>@</optional><optional>
+              <replaceable>&lt;servername&gt;</replaceable>
+            </optional>:<optional>
+              <replaceable>&lt;protocol&gt;</replaceable>
+            </optional>:<optional>
+              <replaceable>&lt;port&gt;</replaceable>
+            </optional>:<optional>
+              <replaceable>&lt;LUN&gt;</replaceable>
+            </optional>:<replaceable>&lt;targetname&gt;</replaceable></term>
           <listitem>
             <para>protocol defaults to &quot;6&quot;, LUN defaults to &quot;0&quot;.</para>
             <para>If the &quot;servername&quot; field is provided by BOOTP or DHCP, then that
@@ -459,32 +503,52 @@ the boot server in the Boot stage (Section 7).  However, if the
 then used in the Discovery Service stage in conjunction with other
 associated fields.</para>
             <para><ulink url="http://tools.ietf.org/html/rfc4173">http://tools.ietf.org/html/rfc4173</ulink></para>
+            <para>e.g. 
+     <programlisting>
+root=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0
+     </programlisting>
+     </para>
+            <para>If servername is an IPv6 address, it has to be put in brackets. e.g. 
+     <programlisting>
+root=iscsi:[2001:DB8::1]::::iqn.2009-06.dracut:target0
+     </programlisting></para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term><envar>root=</envar>iscsi:[username:password[:reverse:password]@][&lt;servername&gt;]:[&lt;protocol&gt;]:[&lt;port&gt;]:[&lt;LUN&gt;]:&lt;targetname&gt;</term>
+          <term><envar>root=</envar><replaceable>???</replaceable><envar> netroot=</envar>iscsi:<optional><replaceable>&lt;username&gt;</replaceable>:<replaceable>&lt;password&gt;</replaceable><optional>:<replaceable>&lt;reverse&gt;</replaceable>:<replaceable>&lt;password&gt;</replaceable></optional>@</optional><optional>
+              <replaceable>&lt;servername&gt;</replaceable>
+            </optional>:<optional>
+              <replaceable>&lt;protocol&gt;</replaceable>
+            </optional>:<optional>
+              <replaceable>&lt;port&gt;</replaceable>
+            </optional>:<optional>
+              <replaceable>&lt;LUN&gt;</replaceable>
+            </optional>:<replaceable>&lt;targetname&gt;</replaceable> ...</term>
           <listitem>
-            <para>e.g. root=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0</para>
-            <para>If servername is an IPv6 address, it has to be put in brackets.
- e.g. 
-  root=iscsi:[2001:DB8::1]::::iqn.2009-06.dracut:target0</para>
-          </listitem>
-        </varlistentry>
-        <varlistentry>
-          <term><envar>root=</envar>???<envar> netroot=</envar>iscsi:[username:password[:reverse:password]@][&lt;servername&gt;]:[&lt;protocol&gt;]:[&lt;port&gt;]:[&lt;LUN&gt;]:&lt;targetname&gt; ...</term>
-          <listitem>
-            <para>multiple netroot options allow setting up multiple iscsi disks
- e.g. 
-  root=UUID=12424547
-  netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0
-  netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target1</para>
+            <para>multiple netroot options allow setting up multiple iscsi disks. e.g. 
+     <programlisting>
+root=UUID=12424547
+netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0
+netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target1
+     </programlisting></para>
             <para>If servername is an IPv6 address, it has to be put in brackets.
  e.g.
-  netroot=iscsi:[2001:DB8::1]::::iqn.2009-06.dracut:target0</para>
+  <programlisting>netroot=iscsi:[2001:DB8::1]::::iqn.2009-06.dracut:target0</programlisting></para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term><envar>root=</envar>???<envar> iscsi_initiator=</envar>&lt;initiator&gt;&lt;target name&gt;<envar>&nbsp;iscsi_target_ip=</envar>&lt;target ip&gt;<envar>&nbsp;iscsi_target_port=</envar>&lt;target port&gt;<envar>&nbsp;iscsi_target_group=</envar>&lt;target group&gt;<envar>&nbsp;iscsi_username=</envar>&lt;username&gt;<envar>&nbsp;iscsi_password=</envar>&lt;password&gt;<envar>&nbsp;iscsi_in_username=</envar>&lt;in username&gt;<envar>&nbsp;iscsi_in_password=</envar>&lt;in password&gt;</term>
+          <term>
+            <envar>root=<replaceable>???</replaceable></envar>
+            <envar> iscsi_initiator=<replaceable>&lt;initiator&gt; </replaceable></envar>
+            <envar>iscsi_target_name=<replaceable>&lt;target_name&gt; </replaceable></envar>
+            <envar>iscsi_target_ip=<replaceable>&lt;target ip&gt; </replaceable></envar>
+            <envar>iscsi_target_port=<replaceable>&lt;target port&gt; </replaceable></envar>
+            <envar>iscsi_target_group=<replaceable>&lt;target group&gt; </replaceable></envar>
+            <envar>iscsi_username=<replaceable>&lt;username&gt; </replaceable></envar>
+            <envar>iscsi_password=<replaceable>&lt;password&gt; </replaceable></envar>
+            <envar>iscsi_in_username=<replaceable>&lt;in username&gt; </replaceable></envar>
+            <envar>iscsi_in_password=<replaceable>&lt;in password&gt; </replaceable></envar>
+          </term>
           <listitem>
             <para>manually specify all iscsistart parameter (see <userinput>iscsistart&nbsp;--help</userinput>)</para>
           </listitem>
@@ -501,7 +565,7 @@ associated fields.</para>
       <title>FCoE</title>
       <variablelist>
         <varlistentry>
-          <term><envar>netroot=</envar>fcoe:&lt;interface|MAC&gt;:&lt;dcb|nodcb&gt;</term>
+          <term><envar>netroot=</envar>fcoe:<replaceable>&lt;interface|MAC&gt;</replaceable>:<replaceable>{dcb|nodcb}</replaceable></term>
           <listitem>
             <para>Try to connect to a FCoE SAN through the NIC specified by &lt;interface&gt; or &lt;MAC&gt;,
 for the second argument, currently only nodcb is supported. Note letters in
@@ -514,13 +578,15 @@ the MAC-address must be lowercase!</para>
       <title>NBD</title>
       <variablelist>
         <varlistentry>
-          <term><envar>root=</envar>nbd:&lt;server&gt;:&lt;port&gt;[:&lt;fstype&gt;][:&lt;mountopts&gt;]</term>
+          <term><envar>root=</envar><constant>nbd</constant>:<replaceable>&lt;server&gt;</replaceable>:<replaceable>&lt;port&gt;</replaceable><optional>:<replaceable>&lt;fstype&gt;</replaceable></optional><optional>:<replaceable>&lt;mountopts&gt;</replaceable></optional></term>
           <listitem>
             <para>mount nbd share from &lt;server&gt;</para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term><envar>root=</envar>dhcp</term>
+          <term>
+            <envar>root=dhcp</envar>
+          </term>
           <listitem>
             <para>with dhcp root-path=nbd:&lt;server&gt;:&lt;port&gt;[:&lt;fstype&gt;][:&lt;mountopts&gt;]
 root=dhcp alone directs initrd to look at the DHCP root-path where NBD 
@@ -541,7 +607,13 @@ as the rootfs.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term><envar>rd_DASD=</envar>&lt;dasd_adaptor device bus ID&gt;[,readonly=X][,use_diag=X][,erplog=X][,failfast=X]</term>
+          <term>
+            <envar>rd_DASD=</envar>
+            <replaceable>&lt;dasd_adaptor device bus ID&gt;</replaceable>
+            <optional>,readonly=<replaceable>X</replaceable></optional>
+            <optional>,use_diag=<replaceable>X</replaceable></optional>
+            <optional>,erplog=<replaceable>X</replaceable></optional>
+          </term>
           <listitem>
             <para>activate DASD device with the given adaptor device bus ID and setting the sysfs attributes
 to the specified values
@@ -554,7 +626,7 @@ This parameter can be specified multiple times.</para>
       <title>ZFCP</title>
       <variablelist>
         <varlistentry>
-          <term><envar>rd_ZFCP=</envar>&lt;zfcp adaptor device bus ID&gt;,&lt;WWPN&gt;,&lt;FCPLUN&gt;</term>
+          <term><envar>rd_ZFCP=</envar><replaceable>&lt;zfcp adaptor device bus ID&gt;</replaceable>,<replaceable>&lt;WWPN&gt;</replaceable>,<replaceable>&lt;FCPLUN&gt;</replaceable></term>
           <listitem>
             <para>rd_ZFCP can be specified multiple times on the kernel command line.</para>
             <para>example: rd_ZFCP=0.0.4000,0x5005076300C213e9,0x5022000000000000</para>
@@ -574,7 +646,7 @@ This parameter can be specified multiple times.</para>
       <title>ZNET</title>
       <variablelist>
         <varlistentry>
-          <term><envar>rd_ZNET=</envar>&lt;nettype&gt;,&lt;subchannels&gt;,&lt;options&gt;</term>
+          <term><envar>rd_ZNET=</envar><replaceable>&lt;nettype&gt;</replaceable>,<replaceable>&lt;subchannels&gt;</replaceable>,<replaceable>&lt;options&gt;</replaceable></term>
           <listitem>
             <para>rd_ZNET can be specified multiple times on the kernel command line. Examples:
     rd_ZNET=qeth,0.0.0600,0.0.0601,0.0.0602,layer2=1,portname=foo

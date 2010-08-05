@@ -1,45 +1,45 @@
 <?xml version='1.0' encoding='ISO-8859-1'?>
-<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" []>
+<!-- This document was created with Syntext Serna Free. --><!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" []>
 <refentry>
   <refentryinfo>
     <title>dracut</title>
     <productname>dracut</productname>
     <authorgroup>
       <author>
-	<contrib>Project Leader, Developer</contrib>
-	<firstname>Harald</firstname>
-	<surname>Hoyer</surname>
-	<email>harald@redhat.com</email>
+        <contrib>Project Leader, Developer</contrib>
+        <firstname>Harald</firstname>
+        <surname>Hoyer</surname>
+        <email>harald@redhat.com</email>
       </author>
       <author>
-	<contrib>Developer</contrib>
-	<firstname>Victor</firstname>
-	<surname>Lowther</surname>
-	<email>victor.lowther@gmail.com</email>
+        <contrib>Developer</contrib>
+        <firstname>Victor</firstname>
+        <surname>Lowther</surname>
+        <email>victor.lowther@gmail.com</email>
       </author>
       <author>
-	<contrib>Developer</contrib>
-	<firstname>Warren</firstname>
-	<surname>Togami</surname>
-	<email>wtogami@redhat.com</email>
+        <contrib>Developer</contrib>
+        <firstname>Warren</firstname>
+        <surname>Togami</surname>
+        <email>wtogami@redhat.com</email>
       </author>
       <author>
-	<contrib>Developer</contrib>
-	<firstname>Jeremy</firstname>
-	<surname>Katz</surname>
-	<email>katzj@redhat.com</email>
+        <contrib>Developer</contrib>
+        <firstname>Jeremy</firstname>
+        <surname>Katz</surname>
+        <email>katzj@redhat.com</email>
       </author>
       <author>
-	<contrib>Developer</contrib>
-	<firstname>Philippe</firstname>
-	<surname>Seewer</surname>
-	<email>philippe.seewer@bfh.ch</email>
+        <contrib>Developer</contrib>
+        <firstname>Philippe</firstname>
+        <surname>Seewer</surname>
+        <email>philippe.seewer@bfh.ch</email>
       </author>
       <author>
-	<contrib>Developer</contrib>
-	<firstname>David</firstname>
-	<surname>Dillow</surname>
-	<email>dave@thedillows.org</email>
+        <contrib>Developer</contrib>
+        <firstname>David</firstname>
+        <surname>Dillow</surname>
+        <email>dave@thedillows.org</email>
       </author>
     </authorgroup>
   </refentryinfo>
@@ -73,7 +73,7 @@
 creates an initial image used by the kernel for
 preloading the block device modules (such as IDE, SCSI or RAID)
 which are needed to access the root filesystem.</para>
-<para>
+    <para>
 For a complete list of kernel command line options see
       <citerefentry>
         <refentrytitle>dracut.kernel</refentrytitle>
@@ -99,13 +99,13 @@ For a complete list of kernel command line options see
             <option>-m</option>
           </term>
           <term>
-            <option>--modules&nbsp;<replaceable>LIST</replaceable></option>
+            <option>--modules&nbsp;<replaceable>&lt;list of dracut modules&gt;</replaceable></option>
           </term>
           <listitem>
             <para>specify a space-separated list of dracut modules to call 
 when building the initramfs. 
 Modules are located in 
-<filename>/usr/share/dracut/modules.d</filename>.</para>
+<filename>/usr/share/dracut/modules.d</filename>. This parameter can be specified multiple times.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -113,10 +113,10 @@ Modules are located in
             <option>-o</option>
           </term>
           <term>
-            <option>--omit&nbsp;<replaceable>LIST</replaceable></option>
+            <option>--omit&nbsp;<replaceable>&lt;list of dracut modules&gt;</replaceable></option>
           </term>
           <listitem>
-            <para>omit a space-separated list of dracut modules.</para>
+            <para>omit a space-separated list of dracut modules. This parameter can be specified multiple times.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -124,10 +124,10 @@ Modules are located in
             <option>-a</option>
           </term>
           <term>
-            <option>--add&nbsp;<replaceable>LIST</replaceable></option>
+            <option>--add&nbsp;<replaceable>&lt;list of dracut modules&gt;</replaceable></option>
           </term>
           <listitem>
-            <para>add a space-separated list of dracut modules.</para>
+            <para>add a space-separated list of dracut modules to the default set of modules. This parameter can be specified multiple times.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -135,30 +135,30 @@ Modules are located in
             <option>-d</option>
           </term>
           <term>
-            <option>--drivers&nbsp;<replaceable>LIST</replaceable></option>
+            <option>--drivers&nbsp;<replaceable>&lt;list of kernel modules&gt;</replaceable></option>
           </term>
           <listitem>
             <para>specify a space-separated list of kernel modules to exclusively include
 in the initramfs.
-The kernel modules have to be specified without the &quot;.ko&quot; suffix.</para>
+The kernel modules have to be specified without the &quot;.ko&quot; suffix. This parameter can be specified multiple times.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
           <term>
-            <option>--add-drivers&nbsp;<replaceable>LIST</replaceable></option>
+            <option>--add-drivers&nbsp;<replaceable>&lt;list of kernel modules&gt;</replaceable></option>
           </term>
           <listitem>
             <para>specify a space-separated list of kernel modules to add to the initramfs.
-The kernel modules have to be specified without the &quot;.ko&quot; suffix.</para>
+The kernel modules have to be specified without the &quot;.ko&quot; suffix. This parameter can be specified multiple times.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
           <term>
-            <option>--filesystems&nbsp;<replaceable>LIST</replaceable></option>
+            <option>--filesystems&nbsp;<replaceable>&lt;list of filesystems&gt;</replaceable></option>
           </term>
           <listitem>
             <para>specify a space-separated list of kernel filesystem modules to exclusively 
-include in the generic initramfs.</para>
+include in the generic initramfs. This parameter can be specified multiple times.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -166,7 +166,7 @@ include in the generic initramfs.</para>
             <option>-k</option>
           </term>
           <term>
-            <option>--kmoddir&nbsp;<replaceable>DIR</replaceable></option>
+            <option>--kmoddir&nbsp;<replaceable>&lt;kernel directory&gt;</replaceable></option>
           </term>
           <listitem>
             <para>specify the directory, where to look for kernel modules</para>
@@ -174,10 +174,10 @@ include in the generic initramfs.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <option> --fwdir&nbsp;<replaceable>DIR</replaceable></option>
+            <option> --fwdir&nbsp;<replaceable>&lt;dir&gt;[:&lt;dir&gt;...]</replaceable></option>
           </term>
           <listitem>
-            <para>specify additional directory, where to look for firmwares</para>
+            <para>specify additional directories, where to look for firmwares. This parameter can be specified multiple times.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -272,7 +272,7 @@ assumed that everything needed is built into kernel</para>
             <option>-c</option>
           </term>
           <term>
-            <option>--conf&nbsp;<replaceable>FILE</replaceable></option>
+            <option>--conf&nbsp;<replaceable>&lt;dracut configuration file&gt;</replaceable></option>
           </term>
           <listitem>
             <para>specify configuration file to use.
@@ -282,7 +282,7 @@ Default:
         </varlistentry>
         <varlistentry>
           <term>
-            <option>--confdir&nbsp;<replaceable>DIR</replaceable></option>
+            <option>--confdir&nbsp;<replaceable>&lt;configuration directory&gt;</replaceable></option>
           </term>
           <listitem>
             <para>specify configuration directory to use.
@@ -298,10 +298,10 @@ Default:
             <option>--local</option>
           </term>
           <listitem>
-            <para>local mode. Use modules from the current working
-directory instead of the system-wide installed in
+            <para>activates the local mode. Dracut will use modules from the current working
+directory instead of the system-wide installed modules in
 <filename>/usr/share/dracut/modules.d</filename>.
-Useful when running dracut from a git checkout.</para>
+Thsi is useful when running dracut from a git checkout.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -321,7 +321,7 @@ booting the local host instead of a generic host.</para>
             <option>-i</option>
           </term>
           <term>
-            <option>--include&nbsp;<replaceable>SOURCE</replaceable>&nbsp;<replaceable>TARGET</replaceable></option>
+            <option>--include&nbsp;<replaceable>&lt;source directory&gt;</replaceable>&nbsp;<replaceable>&lt;target directory&gt;</replaceable></option>
           </term>
           <listitem>
             <para>include the files in the SOURCE directory into the
@@ -333,7 +333,7 @@ target directory in the final initramfs.</para>
             <option>-I</option>
           </term>
           <term>
-            <option>--install&nbsp;<replaceable>LIST</replaceable></option>
+            <option>--install&nbsp;<replaceable>&lt;file list&gt;</replaceable></option>
           </term>
           <listitem>
             <para>install the space separated list of files into the initramfs.</para>
