@@ -124,7 +124,7 @@ initramfs.</para>
         </term>
         <listitem>
           <para>Host-Only mode: Install only what is needed for booting 
-the local host instead of a generic host.</para>
+the local host instead of a generic host. <emphasis role="bold">This does not work, if chrooted to another root other than the real root device.</emphasis></para>
         </listitem>
       </varlistentry>
       <varlistentry>
