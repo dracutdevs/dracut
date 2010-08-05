@@ -118,15 +118,10 @@ get_fs_uuid() (
 
 # finds the major:minor of the block device backing the root filesystem.
 find_block_device() {
-    local rootdev blkdev fs type opts misc
-    while read blkdev fs type opts misc; do
-	[[ $blkdev = rootfs ]] && continue # skip rootfs entry
-	[[ $fs = $1 ]] && { rootdev=$blkdev; break; } # we have a winner!
-    done < /proc/mounts
-    [[ -b $rootdev ]] || return 1 # oops, not a block device.
-    # get major/minor for the device
-    ls -nLl "$rootdev" | \
-	(read x x x x maj min x; maj=${maj//,/}; echo $maj:$min)
+    local majmin rootdev blkdev fs type opts misc
+    while read a b majmin c mpt opts d fs type opts misc; do
+	[[ $mpt = $1 ]] && { echo $majmin; break; } # we have a winner!
+    done < /proc/self/mountinfo
 }
 
 find_root_block_device() { find_block_device /; }
