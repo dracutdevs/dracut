@@ -1,3 +1,8 @@
 test*.img
 modules.d/99base/switch_root
 *~
+dracut.kernel.7
+dracut.conf.5
+dracut.8
+dracut-catimages.8
+dracut-gencmdline.8

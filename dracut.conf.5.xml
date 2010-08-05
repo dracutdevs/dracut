@@ -1,0 +1,162 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!-- This document was created with Syntext Serna Free. --><!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" []>
+<refentry id="dracutconf5">
+  <refentryinfo>
+    <title>dracut.conf</title>
+    <productname>dracut</productname>
+    <authorgroup>
+      <author>
+        <contrib>Developer</contrib>
+        <firstname>Harald</firstname>
+        <surname>Hoyer</surname>
+        <email>harald@redhat.com</email>
+      </author>
+    </authorgroup>
+  </refentryinfo>
+  <refmeta>
+    <refentrytitle>dracut.conf</refentrytitle>
+    <manvolnum>5</manvolnum>
+  </refmeta>
+  <refnamediv>
+    <refname>dracut.conf</refname>
+    <refpurpose>configuration file(s) for dracut</refpurpose>
+  </refnamediv>
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>/etc/dracut.conf</command>
+      <arg choice="plain">
+        <replaceable>/etc/dracut.conf.d/*.conf</replaceable>
+      </arg>
+      <sbr/>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+  <refsect1>
+    <title>Description</title>
+    <para><emphasis>dracut.conf</emphasis>
+is loaded during the initialisation phase of dracut.
+Command line parameter will overwrite any values set here.
+<emphasis>dracut.conf.d/*.conf files are read in alphanumerical order and will</emphasis>
+overwrite parameters set in /etc/dracut.conf. Each line specifies an attribute and a value. A &apos;#&apos; indicates the beginning of a comment; following characters, up to the end of the line are not interpreted.</para>
+    <variablelist>
+      <varlistentry>
+        <term><envar>dracutmodules+=</envar>&quot;&nbsp;[LIST]&nbsp;&quot;</term>
+        <listitem>
+          <para>Specify a space-separated list of dracut modules to
+call when building the initramfs. Modules are located
+in /usr/share/dracut/modules.d.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><envar>omit_dracutmodules+=</envar>&quot;&nbsp;[LIST]&nbsp;&quot;</term>
+        <listitem>
+          <para>Omit a space-separated list of dracut modules.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><envar>add_dracutmodules+=</envar>&quot;&nbsp;[LIST]&nbsp;&quot;</term>
+        <listitem>
+          <para>Add a space-separated list of dracut modules.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><envar>drivers+=</envar>&quot;&nbsp;[LIST]&nbsp;&quot;</term>
+        <listitem>
+          <para>Specify a space-separated list of kernel modules to
+exclusively include in the initramfs.
+The kernel modules have to be specified without the &quot;.ko&quot; suffix.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><envar>add_drivers+=</envar>&quot;&nbsp;[LIST]&nbsp;&quot;</term>
+        <listitem>
+          <para>Specify a space-separated list of kernel 
+modules to add to the initramfs.
+The kernel modules have to be specified without the &quot;.ko&quot; suffix.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><envar>filesystems+=</envar>&quot;&nbsp;[LIST]&nbsp;&quot;</term>
+        <listitem>
+          <para>Specify a space-separated list of kernel filesystem
+modules to exclusively include in the generic
+initramfs.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><envar>drivers_dir=</envar>&shy;&quot;&lt;dir&gt;</term>
+        <listitem>
+          <para>Specify the directory, where to look for kernel modules</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><envar>fw_dir+=</envar>&shy;&quot;:&lt;dir&gt;[:&lt;dir&gt;&nbsp;...]</term>
+        <listitem>
+          <para>Specify additional directories, where to look for firmwares, separated by :</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><envar>do_strip=</envar>&shy;&quot;yes|no</term>
+        <listitem>
+          <para>Strip binaries in the initramfs (default=yes)</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><envar>hostonly=</envar>&shy;&quot;yes|no</term>
+        <listitem>
+          <para>Host-Only mode: Install only what is needed for booting 
+the local host instead of a generic host.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><envar>mdadmconf=</envar>&shy;&quot;yes|no</term>
+        <listitem>
+          <para>Include local /etc/mdadm.conf (default=yes)</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><envar>lvmconf=</envar>&shy;&quot;yes|no</term>
+        <listitem>
+          <para>Include local /etc/lvm/lvm.conf (default=yes)</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><envar>kernel_only=</envar>yes|no</term>
+        <listitem>
+          <para>Only install kernel drivers and firmware files. (default=no)</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><envar>no_kernel=</envar>&quot;yes|no</term>
+        <listitem>
+          <para>Do not install kernel drivers and firmware files (default=no)</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+  <refsect1>
+    <title>Files</title>
+    <variablelist>
+      <varlistentry>
+        <term>
+          <filename>/etc/dracut/conf.d/</filename>
+        </term>
+        <listitem>
+          <para>Any /etc/dracut/conf.d/*.conf file can overwrite the values in /etc/dracut.conf.
+The configuration files are read in alphanumerical order.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+  <refsect1>
+    <title>See Also</title>
+    <para><citerefentry>
+        <refentrytitle>dracut</refentrytitle>
+        <manvolnum>8</manvolnum>
+      </citerefentry>
+      <citerefentry>
+        <refentrytitle>dracut.kernel</refentrytitle>
+        <manvolnum>7</manvolnum>
+      </citerefentry>
+    </para>
+  </refsect1>
+</refentry>

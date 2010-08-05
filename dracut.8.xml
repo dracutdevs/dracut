@@ -1,0 +1,429 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" []>
+<refentry>
+  <refentryinfo>
+    <title>dracut</title>
+    <productname>dracut</productname>
+    <authorgroup>
+      <author>
+	<contrib>Project Leader, Developer</contrib>
+	<firstname>Harald</firstname>
+	<surname>Hoyer</surname>
+	<email>harald@redhat.com</email>
+      </author>
+      <author>
+	<contrib>Developer</contrib>
+	<firstname>Victor</firstname>
+	<surname>Lowther</surname>
+	<email>victor.lowther@gmail.com</email>
+      </author>
+      <author>
+	<contrib>Developer</contrib>
+	<firstname>Warren</firstname>
+	<surname>Togami</surname>
+	<email>wtogami@redhat.com</email>
+      </author>
+      <author>
+	<contrib>Developer</contrib>
+	<firstname>Jeremy</firstname>
+	<surname>Katz</surname>
+	<email>katzj@redhat.com</email>
+      </author>
+      <author>
+	<contrib>Developer</contrib>
+	<firstname>Philippe</firstname>
+	<surname>Seewer</surname>
+	<email>philippe.seewer@bfh.ch</email>
+      </author>
+      <author>
+	<contrib>Developer</contrib>
+	<firstname>David</firstname>
+	<surname>Dillow</surname>
+	<email>dave@thedillows.org</email>
+      </author>
+    </authorgroup>
+  </refentryinfo>
+  <refmeta>
+    <refentrytitle>dracut</refentrytitle>
+    <manvolnum>8</manvolnum>
+    <refmiscinfo class="version"/>
+  </refmeta>
+  <refnamediv>
+    <refname>dracut</refname>
+    <refpurpose>create initial ramdisk images for preloading modules</refpurpose>
+  </refnamediv>
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>dracut</command>
+      <arg choice="opt" rep="repeat">
+        <replaceable>OPTION</replaceable>
+      </arg>
+      <arg choice="opt">
+        <replaceable>&lt;image&gt;</replaceable>
+        <arg choice="opt">
+          <replaceable>&lt;kernel-version&gt;</replaceable>
+        </arg>
+      </arg>
+      <sbr/>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+  <refsect1>
+    <title>Descrition</title>
+    <para><command>dracut</command>
+creates an initial image used by the kernel for
+preloading the block device modules (such as IDE, SCSI or RAID)
+which are needed to access the root filesystem.</para>
+<para>
+For a complete list of kernel command line options see
+      <citerefentry>
+        <refentrytitle>dracut.kernel</refentrytitle>
+        <manvolnum>7</manvolnum>
+      </citerefentry>
+</para>
+    <refsect2>
+      <title>Options</title>
+      <variablelist>
+        <varlistentry>
+          <term>
+            <option>-f</option>
+          </term>
+          <term>
+            <option>--force</option>
+          </term>
+          <listitem>
+            <para>overwrite existing initramfs file.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>-m</option>
+          </term>
+          <term>
+            <option>--modules&nbsp;<replaceable>LIST</replaceable></option>
+          </term>
+          <listitem>
+            <para>specify a space-separated list of dracut modules to call 
+when building the initramfs. 
+Modules are located in 
+<filename>/usr/share/dracut/modules.d</filename>.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>-o</option>
+          </term>
+          <term>
+            <option>--omit&nbsp;<replaceable>LIST</replaceable></option>
+          </term>
+          <listitem>
+            <para>omit a space-separated list of dracut modules.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>-a</option>
+          </term>
+          <term>
+            <option>--add&nbsp;<replaceable>LIST</replaceable></option>
+          </term>
+          <listitem>
+            <para>add a space-separated list of dracut modules.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>-d</option>
+          </term>
+          <term>
+            <option>--drivers&nbsp;<replaceable>LIST</replaceable></option>
+          </term>
+          <listitem>
+            <para>specify a space-separated list of kernel modules to exclusively include
+in the initramfs.
+The kernel modules have to be specified without the &quot;.ko&quot; suffix.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--add-drivers&nbsp;<replaceable>LIST</replaceable></option>
+          </term>
+          <listitem>
+            <para>specify a space-separated list of kernel modules to add to the initramfs.
+The kernel modules have to be specified without the &quot;.ko&quot; suffix.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--filesystems&nbsp;<replaceable>LIST</replaceable></option>
+          </term>
+          <listitem>
+            <para>specify a space-separated list of kernel filesystem modules to exclusively 
+include in the generic initramfs.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>-k</option>
+          </term>
+          <term>
+            <option>--kmoddir&nbsp;<replaceable>DIR</replaceable></option>
+          </term>
+          <listitem>
+            <para>specify the directory, where to look for kernel modules</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option> --fwdir&nbsp;<replaceable>DIR</replaceable></option>
+          </term>
+          <listitem>
+            <para>specify additional directory, where to look for firmwares</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--kernel-only</option>
+          </term>
+          <listitem>
+            <para>only install kernel drivers and firmware files</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--no-kernel</option>
+          </term>
+          <listitem>
+            <para>do not install kernel drivers and firmware files</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--ignore-kernel-modules</option>
+          </term>
+          <listitem>
+            <para>don&apos;t try to load modules; it automatically implies <option>--no-kernel</option>; it&apos;s
+assumed that everything needed is built into kernel</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--mdadmconf</option>
+          </term>
+          <listitem>
+            <para>include local /etc/mdadm.conf</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--nomdadmconf</option>
+          </term>
+          <listitem>
+            <para>do not include local /etc/mdadm.conf</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--strip</option>
+          </term>
+          <listitem>
+            <para>strip binaries in the initramfs (default)</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--nostrip</option>
+          </term>
+          <listitem>
+            <para>do not strip binaries in the initramfs</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>-h</option>
+          </term>
+          <term>
+            <option>--help</option>
+          </term>
+          <listitem>
+            <para>display help text and exit.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--debug</option>
+          </term>
+          <listitem>
+            <para>output debug information of the build process</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>-v</option>
+          </term>
+          <term>
+            <option>--verbose</option>
+          </term>
+          <listitem>
+            <para>verbose output during the build process</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>-c</option>
+          </term>
+          <term>
+            <option>--conf&nbsp;<replaceable>FILE</replaceable></option>
+          </term>
+          <listitem>
+            <para>specify configuration file to use.
+Default: 
+<filename>/etc/dracut.conf</filename></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--confdir&nbsp;<replaceable>DIR</replaceable></option>
+          </term>
+          <listitem>
+            <para>specify configuration directory to use.
+Default: 
+<filename>/etc/dracut.conf.d</filename></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>-l</option>
+          </term>
+          <term>
+            <option>--local</option>
+          </term>
+          <listitem>
+            <para>local mode. Use modules from the current working
+directory instead of the system-wide installed in
+<filename>/usr/share/dracut/modules.d</filename>.
+Useful when running dracut from a git checkout.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>-H</option>
+          </term>
+          <term>
+            <option>--hostonly</option>
+          </term>
+          <listitem>
+            <para>Host-Only mode: Install only what is needed for
+booting the local host instead of a generic host.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>-i</option>
+          </term>
+          <term>
+            <option>--include&nbsp;<replaceable>SOURCE</replaceable>&nbsp;<replaceable>TARGET</replaceable></option>
+          </term>
+          <listitem>
+            <para>include the files in the SOURCE directory into the
+target directory in the final initramfs.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>-I</option>
+          </term>
+          <term>
+            <option>--install&nbsp;<replaceable>LIST</replaceable></option>
+          </term>
+          <listitem>
+            <para>install the space separated list of files into the initramfs.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+  </refsect1>
+  <refsect1>
+    <title>FILES</title>
+    <variablelist>
+      <varlistentry>
+        <term>
+          <filename>/var/log/dracut.log</filename>
+        </term>
+        <listitem>
+          <para>logfile of initramfs image creation</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <filename>/tmp/dracut.log</filename>
+        </term>
+        <listitem>
+          <para>logfile of initramfs image creation, if /var/log/dracut.log is not writable</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <filename>/etc/dracut.conf</filename>
+        </term>
+        <listitem>
+          <para>see <citerefentry>
+              <refentrytitle>dracut.conf</refentrytitle>
+              <manvolnum>5</manvolnum>
+            </citerefentry></para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <filename>/etc/dracut.conf.d/*.conf</filename>
+        </term>
+        <listitem>
+          <para>see <citerefentry>
+              <refentrytitle>dracut.conf</refentrytitle>
+              <manvolnum>5</manvolnum>
+            </citerefentry></para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+    <refsect2>
+      <title>Configuration in the Initramfs</title>
+      <variablelist>
+        <varlistentry>
+          <term>
+            <filename>/conf/conf.d/</filename>
+          </term>
+          <listitem>
+            <para>Any files found in /conf/conf.d/ will be sourced in the initramfs to 
+set initial values. Command line options will override these values 
+set in the configuration files.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <filename>/etc/cmdline</filename>
+          </term>
+          <listitem>
+            <para>Can contain additional command line options.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+  </refsect1>
+  <refsect1>
+    <title>AVAILABILITY</title>
+    <para>The dracut command is part of the dracut package and is available from
+<ulink url="http://sourceforge.net/apps/trac/dracut/wiki">http://sourceforge.net/apps/trac/dracut/wiki</ulink></para>
+  </refsect1>
+  <refsect1>
+    <title>SEE ALSO</title>
+    <para>
+      <citerefentry>
+        <refentrytitle>dracut.kernel</refentrytitle>
+        <manvolnum>7</manvolnum>
+      </citerefentry>
+      <citerefentry>
+        <refentrytitle>dracut.conf</refentrytitle>
+        <manvolnum>5</manvolnum>
+      </citerefentry>
+    </para>
+  </refsect1>
+</refentry>

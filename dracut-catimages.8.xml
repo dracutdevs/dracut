@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+                   "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<!-- lifted from troff+man by doclifter -->
+<refentry id='dracutcatimages8'>
+<refmeta>
+<refentrytitle>DRACUT-CATIMAGES</refentrytitle>
+<manvolnum>8</manvolnum>
+<refmiscinfo class='source'>June 2009</refmiscinfo>
+<refmiscinfo class='manual'>Linux</refmiscinfo>
+</refmeta>
+<refnamediv id='name'>
+<refname>dracut-catimages</refname>
+<refpurpose>creates initial ramdisk image by concatenating images</refpurpose>
+</refnamediv>
+<!-- body begins here -->
+<refsynopsisdiv id='synopsis'>
+<cmdsynopsis>
+  <command>dracut-catimages</command>    <arg choice='opt' rep='repeat'><replaceable>OPTION</replaceable></arg>
+    <arg choice='plain'><replaceable>&lt;initramfs</replaceable></arg>
+    <arg choice='plain'><replaceable>base</replaceable></arg>
+    <arg choice='plain'><replaceable>image&gt;</replaceable></arg>
+    <arg choice='opt' rep='repeat'><replaceable>&lt;image&gt;</replaceable></arg>
+    <sbr/>
+</cmdsynopsis>
+</refsynopsisdiv>
+
+
+<refsect1 id='description'><title>DESCRIPTION</title>
+<para><command>dracut-catimages</command>
+creates an initial ramdisk image by concatenating several images from the command
+line and /boot/dracut/*.img</para>
+
+</refsect1>
+
+<refsect1 id='options'><title>OPTIONS</title>
+<variablelist remap='TP'>
+  <varlistentry>
+  <term><option>-f</option>, <option>--force</option></term>
+  <listitem>
+<para>overwrite existing initramfs file.</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-i</option>, <option>--imagedir</option></term>
+  <listitem>
+<para>Directory with additional images to add (default: /boot/dracut/)</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-o</option>, <option>--overlaydir</option></term>
+  <listitem>
+<para>Overlay directory, which contains additional files that will be used to create an additional image</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>--nooverlay</option></term>
+  <listitem>
+<para>Do not use the overlay directory</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>--noimagedir</option></term>
+  <listitem>
+<para>Do not use the additional image directory</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-h</option>, <option>--help</option></term>
+  <listitem>
+<para>display help text and exit.</para> 
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>--debug</option></term>
+  <listitem>
+<para>output debug information of the build process</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-v</option>, <option>--verbose</option></term>
+  <listitem>
+<para>verbose output during the build process</para>
+
+  </listitem>
+  </varlistentry>
+</variablelist>
+</refsect1>
+
+<refsect1 id='files'><title>FILES</title>
+<variablelist remap='TP'>
+  <varlistentry>
+  <term><filename>/boot/dracut/*.img</filename></term>
+  <listitem>
+<para></para> <!-- FIXME: blank list item -->
+  </listitem>
+  </varlistentry>
+</variablelist>
+</refsect1>
+
+<refsect1 id='authors'><title>AUTHORS</title>
+<literallayout remap='.nf'>
+Harald Hoyer &lt;harald@redhat.com&gt;
+</literallayout> <!-- .fi -->
+</refsect1>
+
+<refsect1 id='availability'><title>AVAILABILITY</title>
+<para>The dracut-catimages command is part of the dracut package and is available from
+<ulink url='http://sourceforge.net/apps/trac/dracut/wiki'>http://sourceforge.net/apps/trac/dracut/wiki</ulink></para>
+
+</refsect1>
+
+<refsect1 id='see_also'><title>SEE ALSO</title>
+<para><citerefentry><refentrytitle>dracut</refentrytitle><manvolnum>8</manvolnum></citerefentry></para>
+</refsect1>
+</refentry>
+

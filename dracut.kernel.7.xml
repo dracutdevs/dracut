@@ -1,0 +1,679 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" []>
+<refentry>
+  <refentryinfo>
+    <title>dracut.kernel</title>
+    <productname>dracut</productname>
+    <authorgroup>
+      <author>
+	<contrib>Developer</contrib>
+	<firstname>Harald</firstname>
+	<surname>Hoyer</surname>
+	<email>harald@redhat.com</email>
+      </author>
+    </authorgroup>
+  </refentryinfo>
+  <refmeta>
+    <refentrytitle>dracut.kernel</refentrytitle>
+    <manvolnum>7</manvolnum>
+    <refmiscinfo class="version"/>
+  </refmeta>
+  <refnamediv>
+    <refname>dracut.kernel</refname>
+    <refpurpose>dracut kernel command line options</refpurpose>
+  </refnamediv>
+  <refsect1>
+    <title>Description</title>
+    <para>The root filesystem used by the kernel is specified in the boot configuration
+file, as always. The traditional <emphasis remap="B">root=/dev/hda1</emphasis> style device 
+specification is allowed. If a label is used, as in <emphasis remap="B">root=LABEL=rootPart</emphasis>
+the initramfs will search all available devices for an ext2 or ext3 filesystem
+with the appropriate label, and mount that device as the root filesystem.
+<emphasis remap="B">root=UUID=uuidnumber</emphasis> will mount the partition with that UUID as the 
+root filesystem.</para>
+    <refsect2>
+      <title>Standard</title>
+      <variablelist>
+        <varlistentry>
+          <term>
+            <envar>init=</envar>
+            <replaceable>&lt;path to real init&gt;</replaceable>
+          </term>
+          <listitem>
+            <para> </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>root=<replaceable>&lt;path to blockdevice&gt;</replaceable></envar>
+          </term>
+          <listitem>
+            <para>specify blockdevice to use as root filesystem. 
+ e.g.
+  root=/dev/sda1
+  root=/dev/disk/by-path/pci-0000:00:1f.1-scsi-0:0:1:0-part1</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rootfstype=<replaceable>&lt;filesystem type&gt;</replaceable></envar>
+          </term>
+          <listitem>
+            <para>&quot;auto&quot; if not specified, e.g. rootfstype=ext3</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rootflags=<replaceable>&lt;mount options&gt;</replaceable></envar>
+          </term>
+          <listitem>
+            <para>specify additional mount options for the root filesystem. If not set, /etc/fstab
+of the real root will be parsed for special mount options and mounted 
+accordingly.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_FSTAB</envar>
+          </term>
+          <listitem>
+            <para>do not honor special mount options for the root filesystem found in 
+/etc/fstab of the real root.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+    <refsect2>
+      <title>Misc</title>
+      <variablelist>
+        <varlistentry>
+          <term>
+            <envar>rdblacklist=<replaceable>&lt;drivername&gt;</replaceable></envar>
+          </term>
+          <listitem>
+            <para>do not load kernel module &lt;drivername&gt;
+This parameter can be specified multiple times.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rdloaddriver=<replaceable>&lt;drivername&gt;</replaceable></envar>
+          </term>
+          <listitem>
+            <para>force loading kernel module &lt;drivername&gt;
+This parameter can be specified multiple times.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+    <refsect2>
+      <title>Debug</title>
+      <variablelist>
+        <varlistentry>
+          <term>
+            <envar>rdinfo</envar>
+          </term>
+          <listitem>
+            <para>print informational output though &quot;quiet&quot; is set</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rdshell</envar>
+          </term>
+          <listitem>
+            <para>allow dropping to a shell, if root mounting fails</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rdinitdebug</envar>
+          </term>
+          <listitem>
+            <para>set -x for the dracut shell and logs to dmesg, console and /init.log</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rdbreak</envar>
+          </term>
+          <listitem>
+            <para>drop to a shell at the end</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+	    <envar>rdbreak=</envar>{cmdline|pre-udev|pre-trigger|initqueue|pre-mount|mount|pre-pivot}
+          </term>
+          <listitem>
+            <para>drop to a shell on defined breakpoint</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rdudevinfo</envar>
+          </term>
+          <listitem>
+            <para>set udev to loglevel info</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rdudevdebug</envar>
+          </term>
+          <listitem>
+            <para>set udev to loglevel debug</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+    <refsect2>
+      <title>I18N</title>
+      <para> e.g.
+  LANG=en_US.UTF-8
+  SYSFONT=latarcyrheb-sun16
+  KEYTABLE=de-latin1-nodeadkeys</para>
+      <variablelist>
+        <varlistentry>
+          <term>
+            <envar>KEYBOARDTYPE=</envar>{sun|pc}
+          </term>
+          <listitem>
+            <para>will be written to /etc/sysconfig/keyboard in the initramfs</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>KEYTABLE=<replaceable>&lt;keytable filename&gt;</replaceable></envar>
+          </term>
+          <listitem>
+            <para>will be written to /etc/sysconfig/keyboard in the initramfs</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><envar>SYSFONT=<replaceable class="option">&lt;Console font&gt;</replaceable></envar></term>
+          <listitem>
+            <para>will be written to /etc/sysconfig/i18n in the initramfs</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><envar>SYSFONTACM=</envar>Console map</term>
+          <listitem>
+            <para>will be written to /etc/sysconfig/i18n in the initramfs</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>UNIMAP=<replaceable class="parameter">&lt;Unicode font map&gt;</replaceable></envar>
+          </term>
+          <listitem>
+            <para>will be written to /etc/sysconfig/i18n in the initramfs</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>LANG=<replaceable>&lt;locale&gt;</replaceable></envar>
+          </term>
+          <listitem>
+            <para>will be written to /etc/sysconfig/i18n in the initramfs</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+    <refsect2>
+      <title>LVM</title>
+      <variablelist>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_LVM</envar>
+          </term>
+          <listitem>
+            <para>disable LVM detection</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_LVM_VG=<replaceable>&lt;volume group name&gt;</replaceable></envar>
+          </term>
+          <listitem>
+            <para>only activate the volume groups with the given name
+rd_LVM_VG can be specified multiple times on the kernel command line.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_LVM_LV=<replaceable>&lt;logical volume name&gt;</replaceable></envar>
+          </term>
+          <listitem>
+            <para>only activate the logical volumes with the given name
+rd_LVM_LV can be specified multiple times on the kernel command line.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_LVMCONF</envar>
+          </term>
+          <listitem>
+            <para>remove any /etc/lvm/lvm.conf, which may exist in the initramfs</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+    <refsect2>
+      <title>crypto LUKS</title>
+      <variablelist>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_LUKS</envar>
+          </term>
+          <listitem>
+            <para>disable crypto LUKS detection</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_LUKS_UUID=<replaceable>&lt;luks uuid&gt;</replaceable></envar>
+          </term>
+          <listitem>
+            <para>only activate the LUKS partitions with the given UUID
+Any &quot;luks-&quot; of the LUKS UUID is removed before comparing to &lt;luks uuid&gt;.
+The comparisons also matches, if &lt;luks uuid&gt; is only the beginning of the 
+LUKS UUID, so you don&apos;t have to specify the full UUID.
+This parameter can be specified multiple times.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_CRYPTTAB</envar>
+          </term>
+          <listitem>
+            <para>do not check, if LUKS partition is in /etc/crypttab</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+    <refsect2>
+      <title>MD</title>
+      <variablelist>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_MD</envar>
+          </term>
+          <listitem>
+            <para>disable MD RAID detection</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_MDIMSM</envar>
+          </term>
+          <listitem>
+            <para>no MD RAID for imsm/isw raids, use dmraid instead</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_MDADMCONF</envar>
+          </term>
+          <listitem>
+            <para>ignore mdadm.conf included in initramfs</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_MD_UUID=<replaceable>&lt;md uuid&gt;</replaceable></envar>
+          </term>
+          <listitem>
+            <para>only activate the raid sets with the given UUID.
+This parameter can be specified multiple times.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+    <refsect2>
+      <title>DMRAID</title>
+      <variablelist>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_DM</envar>
+          </term>
+          <listitem>
+            <para>disable DM RAID detection</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_DM_UUID=<replaceable>&lt;dmraid uuid&gt;</replaceable></envar>
+          </term>
+          <listitem>
+            <para>only activate the raid sets with the given UUID.
+This parameter can be specified multiple times.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+    <refsect2>
+      <title>Network</title>
+      <variablelist>
+        <varlistentry>
+          <term><envar>ip=</envar>{dhcp|on|any|dhcp6|auto6}</term>
+          <listitem>
+            <para>dhcp|on|any: get ip from dhcp server from all interfaces. If root=dhcp, 
+loop sequentially through all interfaces (eth0, eth1, ...) and use the first 
+with a valid DHCP root-path.</para>
+            <para>auto6: do IPv6 autoconfiguration</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><envar>ip=</envar><replaceable>&lt;interface&gt;</replaceable>:{dhcp|on|any|dhcp6|auto6}</term>
+          <listitem>
+            <para>dhcp|on|any|dhcp6: get ip from dhcp server on a specific interface
+auto6: do IPv6 autoconfiguration
+This parameter can be specified multiple times.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><envar>ip=</envar><replaceable>&lt;client-IP&gt;</replaceable>:<optional>
+              <replaceable>&lt;server-id&gt;</replaceable>
+            </optional>:&lt;gateway-IP&gt;::&lt;netmask&gt;::&lt;client_hostname&gt;::&lt;interface&gt;::{none|off}</term>
+          <listitem>
+            <para>explicit network configuration. If you want do define a IPv6 address, put it in brackets (e.g. [2001:DB8::1]).
+This parameter can be specified multiple times.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><envar>ifname=</envar>&lt;interface&gt;:&lt;MAC&gt;</term>
+          <listitem>
+            <para>Assign network device name &lt;interface&gt; (ie eth0) to the NIC with MAC &lt;MAC&gt;.
+Note letters in the MAC-address must be lowercase!
+Note that if you use this option you <emphasis remap="B">must</emphasis> specify an ifname= argument
+for all interfaces used in ip= or fcoe= arguments
+This parameter can be specified multiple times.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><envar>bootdev=</envar>&lt;interface&gt;</term>
+          <listitem>
+            <para>specify network interface to use routing and netroot information from. 
+Required if multiple ip= lines are used.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><envar>nameserver=</envar>&lt;IP&gt; [nameserver=&lt;IP&gt; ...]</term>
+          <listitem>
+            <para>specify nameserver(s) to use</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+    <refsect2>
+      <title>NFS</title>
+      <variablelist>
+        <varlistentry>
+          <term><envar>root=</envar>[&lt;server-ip&gt;:]&lt;root-dir&gt;[:&lt;nfs-options&gt;]</term>
+          <listitem>
+            <para>mount nfs share from &lt;server-ip&gt;:/&lt;root-dir&gt;, if no server-ip is given,
+use dhcp next_server. if server-ip is an IPv6 address it has to be put in brackets, e.g. [2001:DB8::1].
+NFS options can be appended with the prefix &quot;:&quot; or &quot;,&quot; and are seperated by &quot;,&quot;.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><envar>root=</envar>nfs:[&lt;server-ip&gt;:]&lt;root-dir&gt;[:&lt;nfs-options&gt;]</term>
+          <term><envar>root=</envar>nfs4:[&lt;server-ip&gt;:]&lt;root-dir&gt;[:&lt;nfs-options&gt;]</term>
+          <term><envar>root=</envar>dhcp|dhcp6</term>
+          <listitem>
+            <para>root=dhcp alone directs initrd to look at the DHCP root-path where NFS 
+options can be specified.
+    root-path=&lt;server-ip&gt;:&lt;root-dir&gt;[,&lt;nfs-options&gt;]
+    root-path=nfs:&lt;server-ip&gt;:&lt;root-dir&gt;[,&lt;nfs-options&gt;]
+    root-path=nfs4:&lt;server-ip&gt;:&lt;root-dir&gt;[,&lt;nfs-options&gt;]</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><envar>root=</envar>/dev/nfs<envar> nfsroot=</envar>[&lt;server-ip&gt;:]&lt;root-dir&gt;[,&lt;nfs-options&gt;]</term>
+          <listitem>
+            <para><emphasis remap="B">Deprecated!</emphasis> kernel Documentation/filesystems/nfsroot.txt defines 
+this method.  
+This is supported by dracut but not recommended.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><emphasis remap="B">rd_NFS_DOMAIN=</emphasis>&lt;NFSv4 domain name&gt;</term>
+          <listitem>
+            <para>Set the NFSv4 domain name. Will overwrite the settings in /etc/idmap.conf.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+    <refsect2>
+      <title>iSCSI</title>
+      <variablelist>
+        <varlistentry>
+          <term><envar>root=</envar>iscsi:[username:password[:reverse:password]@][&lt;servername&gt;]:[&lt;protocol&gt;]:[&lt;port&gt;]:[&lt;LUN&gt;]:&lt;targetname&gt;</term>
+          <listitem>
+            <para>protocol defaults to &quot;6&quot;, LUN defaults to &quot;0&quot;.</para>
+            <para>If the &quot;servername&quot; field is provided by BOOTP or DHCP, then that
+field is used in conjunction with other associated fields to contact
+the boot server in the Boot stage (Section 7).  However, if the
+&quot;servername&quot; field is not provided, then the &quot;targetname&quot; field is
+then used in the Discovery Service stage in conjunction with other
+associated fields.</para>
+            <para><ulink url="http://tools.ietf.org/html/rfc4173">http://tools.ietf.org/html/rfc4173</ulink></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><envar>root=</envar>iscsi:[username:password[:reverse:password]@][&lt;servername&gt;]:[&lt;protocol&gt;]:[&lt;port&gt;]:[&lt;LUN&gt;]:&lt;targetname&gt;</term>
+          <listitem>
+            <para>e.g. root=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0</para>
+            <para>If servername is an IPv6 address, it has to be put in brackets.
+ e.g. 
+  root=iscsi:[2001:DB8::1]::::iqn.2009-06.dracut:target0</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><envar>root=</envar>???<envar> netroot=</envar>iscsi:[username:password[:reverse:password]@][&lt;servername&gt;]:[&lt;protocol&gt;]:[&lt;port&gt;]:[&lt;LUN&gt;]:&lt;targetname&gt; ...</term>
+          <listitem>
+            <para>multiple netroot options allow setting up multiple iscsi disks
+ e.g. 
+  root=UUID=12424547
+  netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0
+  netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target1</para>
+            <para>If servername is an IPv6 address, it has to be put in brackets.
+ e.g.
+  netroot=iscsi:[2001:DB8::1]::::iqn.2009-06.dracut:target0</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><envar>root=</envar>???<envar> iscsi_initiator=</envar>&lt;initiator&gt;&lt;target name&gt;<envar>&nbsp;iscsi_target_ip=</envar>&lt;target ip&gt;<envar>&nbsp;iscsi_target_port=</envar>&lt;target port&gt;<envar>&nbsp;iscsi_target_group=</envar>&lt;target group&gt;<envar>&nbsp;iscsi_username=</envar>&lt;username&gt;<envar>&nbsp;iscsi_password=</envar>&lt;password&gt;<envar>&nbsp;iscsi_in_username=</envar>&lt;in username&gt;<envar>&nbsp;iscsi_in_password=</envar>&lt;in password&gt;</term>
+          <listitem>
+            <para>manually specify all iscsistart parameter (see <userinput>iscsistart&nbsp;--help</userinput>)</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><envar>root=</envar>???<envar> iscsi_firmware</envar></term>
+          <listitem>
+            <para>will read the iscsi parameter from the BIOS firmware</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+    <refsect2>
+      <title>FCoE</title>
+      <variablelist>
+        <varlistentry>
+          <term><envar>netroot=</envar>fcoe:&lt;interface|MAC&gt;:&lt;dcb|nodcb&gt;</term>
+          <listitem>
+            <para>Try to connect to a FCoE SAN through the NIC specified by &lt;interface&gt; or &lt;MAC&gt;,
+for the second argument, currently only nodcb is supported. Note letters in
+the MAC-address must be lowercase!</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+    <refsect2>
+      <title>NBD</title>
+      <variablelist>
+        <varlistentry>
+          <term><envar>root=</envar>nbd:&lt;server&gt;:&lt;port&gt;[:&lt;fstype&gt;][:&lt;mountopts&gt;]</term>
+          <listitem>
+            <para>mount nbd share from &lt;server&gt;</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><envar>root=</envar>dhcp</term>
+          <listitem>
+            <para>with dhcp root-path=nbd:&lt;server&gt;:&lt;port&gt;[:&lt;fstype&gt;][:&lt;mountopts&gt;]
+root=dhcp alone directs initrd to look at the DHCP root-path where NBD 
+options can be specified.
+This syntax is only usable in cases where you are directly mounting the volume 
+as the rootfs.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+    <refsect2>
+      <title>DASD</title>
+      <variablelist>
+        <varlistentry>
+          <term><envar>rd_DASD_MOD=</envar>....</term>
+          <listitem>
+            <para>same syntax as the kernel module parameter (s390 only)</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><envar>rd_DASD=</envar>&lt;dasd_adaptor device bus ID&gt;[,readonly=X][,use_diag=X][,erplog=X][,failfast=X]</term>
+          <listitem>
+            <para>activate DASD device with the given adaptor device bus ID and setting the sysfs attributes
+to the specified values
+This parameter can be specified multiple times.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+    <refsect2>
+      <title>ZFCP</title>
+      <variablelist>
+        <varlistentry>
+          <term><envar>rd_ZFCP=</envar>&lt;zfcp adaptor device bus ID&gt;,&lt;WWPN&gt;,&lt;FCPLUN&gt;</term>
+          <listitem>
+            <para>rd_ZFCP can be specified multiple times on the kernel command line.</para>
+            <para>example: rd_ZFCP=0.0.4000,0x5005076300C213e9,0x5022000000000000</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_ZFCPCONF</envar>
+          </term>
+          <listitem>
+            <para>ignore zfcp.conf included in the initramfs</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+    <refsect2>
+      <title>ZNET</title>
+      <variablelist>
+        <varlistentry>
+          <term><envar>rd_ZNET=</envar>&lt;nettype&gt;,&lt;subchannels&gt;,&lt;options&gt;</term>
+          <listitem>
+            <para>rd_ZNET can be specified multiple times on the kernel command line. Examples:
+    rd_ZNET=qeth,0.0.0600,0.0.0601,0.0.0602,layer2=1,portname=foo
+    rd_ZNET=ctc,0.0.0600,0.0.0601,0.0.0602,protocol=bar</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+    <refsect2>
+      <title>Plymouth Boot Splash</title>
+      <variablelist>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_PLYMOUTH</envar>
+          </term>
+          <listitem>
+            <para>do not start plymouth. This will not work with encrypted partitions.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+  </refsect1>
+  <refsect1>
+    <title>FILES</title>
+    <variablelist>
+      <varlistentry>
+        <term>
+          <filename>/var/log/dracut.log</filename>
+        </term>
+        <listitem>
+          <para>logfile of initramfs image creation</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <filename>/tmp/dracut.log</filename>
+        </term>
+        <listitem>
+          <para>logfile of initramfs image creation, if /var/log/dracut.log is not writable</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <filename>/etc/dracut.conf</filename>
+        </term>
+        <listitem>
+          <para>see <citerefentry>
+              <refentrytitle>dracut.conf</refentrytitle>
+              <manvolnum>5</manvolnum>
+            </citerefentry></para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <filename>/etc/dracut.conf.d/*.conf</filename>
+        </term>
+        <listitem>
+          <para>see <citerefentry>
+              <refentrytitle>dracut.conf</refentrytitle>
+              <manvolnum>5</manvolnum>
+            </citerefentry></para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+    <refsect2>
+      <title>Configuration in the Initramfs</title>
+      <variablelist>
+        <varlistentry>
+          <term>
+            <filename>/conf/conf.d/</filename>
+          </term>
+          <listitem>
+            <para>Any files found in /conf/conf.d/ will be sourced in the initramfs to 
+set initial values. Command line options will override these values 
+set in the configuration files.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <filename>/etc/cmdline</filename>
+          </term>
+          <listitem>
+            <para>Can contain additional command line options.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+  </refsect1>
+  <refsect1>
+    <title>See Also</title>
+    <para>
+      <citerefentry>
+        <refentrytitle>dracut</refentrytitle>
+        <manvolnum>8</manvolnum>
+      </citerefentry>
+      <citerefentry>
+        <refentrytitle>dracut.conf</refentrytitle>
+        <manvolnum>5</manvolnum>
+      </citerefentry>
+    </para>
+  </refsect1>
+</refentry>
