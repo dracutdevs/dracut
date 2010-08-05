@@ -4,7 +4,7 @@ do_fips()
     FIPSMODULES=$(cat /etc/fipsmodules)
     BOOT=$(getarg boot=)
     KERNEL=$(uname -r)
-    udevadm trigger >/dev/null 2>&1
+    udevadm trigger --action=add >/dev/null 2>&1
     case "$boot" in
     block:LABEL=*|LABEL=*)
         boot="${boot#block:}"
