@@ -87,7 +87,7 @@ while (($# > 0)); do
 	--add-drivers) add_drivers_l="$add_drivers_l $2"; shift;;
 	--filesystems) filesystems_l="$filesystems_l $2"; shift;;
 	-k|--kmoddir) drivers_dir_l="$2"; shift;;
-	--fwdir) fw_dir_l="$2"; shift;;
+	--fwdir) fw_dir_l="$fw_dir_l:$2"; shift;;
 	--kernel-only) kernel_only="yes"; no_kernel="no";;
 	--no-kernel) kernel_only="no"; no_kernel="yes";;
     --ignore-kernel-modules) kernel_only="no"; no_kernel="yes"
