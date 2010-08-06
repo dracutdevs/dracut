@@ -48,7 +48,7 @@ endif
 	install -m 0644 dracut-catimages.8 $(DESTDIR)$(mandir)/man8
 	install -m 0644 dracut-gencmdline.8 $(DESTDIR)$(mandir)/man8
 	install -m 0644 dracut.conf.5 $(DESTDIR)$(mandir)/man5
-	install -m 0644 dracut.kernel.5 $(DESTDIR)$(mandir)/man7
+	install -m 0644 dracut.kernel.7 $(DESTDIR)$(mandir)/man7
 ifeq (1,${WITH_SWITCH_ROOT})
 	rm $(DESTDIR)$(pkglibdir)/modules.d/99base/switch_root
 endif
