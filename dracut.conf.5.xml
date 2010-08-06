@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- This document was created with Syntext Serna Free. --><!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" []>
+<!-- This document was created with Syntext Serna Free. --><!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" []>
 <refentry id="dracutconf5">
   <refentryinfo>
     <title>dracut.conf</title>
@@ -124,7 +124,15 @@ initramfs.</para>
         </term>
         <listitem>
           <para>Host-Only mode: Install only what is needed for booting 
-the local host instead of a generic host. <emphasis role="bold">This does not work, if chrooted to another root other than the real root device.</emphasis></para>
+the local host instead of a generic host. <emphasis role="bold">If chrooted to another root other than the real root device, use "--fstab" and provide a valid /etc/fstab.</emphasis></para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <envar>use_fstab=&quot;<replaceable>{yes|no}</replaceable>&quot;</envar>
+        </term>
+        <listitem>
+          <para>Use /etc/fstab instead of /proc/self/mountinfo.</para>
         </listitem>
       </varlistentry>
       <varlistentry>
