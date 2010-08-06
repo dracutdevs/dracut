@@ -120,5 +120,5 @@ file (the same where you put mappings).
 3. Kernel parameters
 
 If you create generic initramfs you can set up i18n by kernel
-parameters using variables listed in 2.1. (expect of UNIKEYMAP
+parameters using variables listed in 2.1. (except of UNIKEYMAP
 and GRP_TOGGLE) The recommended minimum is: SYSFONT, KEYMAP and UNICODE.
