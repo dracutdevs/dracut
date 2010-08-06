@@ -211,7 +211,7 @@ This parameter can be specified multiple times.</para>
             <replaceable>&lt;console map base file name&gt;</replaceable>
           </term>
           <listitem>
-            <para>see description of '-m' parameter in setfont manual; taken from consoletrans directory; will be written to /etc/sysconfig/i18n in the initramfs</para>
+            <para>see description of &apos;-m&apos; parameter in setfont manual; taken from consoletrans directory; will be written to /etc/sysconfig/i18n in the initramfs</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -220,7 +220,7 @@ This parameter can be specified multiple times.</para>
             <replaceable>&lt;unicode table base file name&gt;</replaceable>
           </term>
           <listitem>
-            <para>see description of '-u' parameter in setfont manual; taken from unimaps directory; will be written to /etc/sysconfig/i18n in the initramfs</para>
+            <para>see description of &apos;-u&apos; parameter in setfont manual; taken from unimaps directory; will be written to /etc/sysconfig/i18n in the initramfs</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -229,7 +229,7 @@ This parameter can be specified multiple times.</para>
             <replaceable>&lt;locale&gt;</replaceable>
           </term>
           <listitem>
-            <para>taken from the environment; if no UNICODE is defined we set its value in basis of LANG value (whether it ends with ".utf8" (or similar) or not); will be written to /etc/sysconfig/i18n in the initramfs; e.g.: <programlisting>LANG=pl_PL.utf8</programlisting></para>
+            <para>taken from the environment; if no UNICODE is defined we set its value in basis of LANG value (whether it ends with &quot;.utf8&quot; (or similar) or not); will be written to /etc/sysconfig/i18n in the initramfs; e.g.: <programlisting>LANG=pl_PL.utf8</programlisting></para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -334,7 +334,7 @@ This parameter can be specified multiple times.</para>
             <replaceable>&lt;rem. device uuid&gt;</replaceable>
           </term>
           <listitem>
-            <para>UUID of removalbe device storing keyfile; UUID doesn't have to be exact just like for rd_LUKS_UUID</para>
+            <para>UUID of removalbe device storing keyfile; UUID doesn&apos;t have to be exact just like for rd_LUKS_UUID</para>
           </listitem>
         </varlistentry>
       </variablelist>
@@ -709,7 +709,7 @@ This parameter can be specified multiple times.</para>
     </refsect2>
   </refsect1>
   <refsect1>
-    <title>FILES</title>
+    <title>Files</title>
     <variablelist>
       <varlistentry>
         <term>

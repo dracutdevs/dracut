@@ -68,7 +68,7 @@
     </cmdsynopsis>
   </refsynopsisdiv>
   <refsect1>
-    <title>Descrition</title>
+    <title>Description</title>
     <para><command>dracut</command>
 creates an initial image used by the kernel for
 preloading the block device modules (such as IDE, SCSI or RAID)
@@ -314,8 +314,10 @@ Thsi is useful when running dracut from a git checkout.</para>
           <listitem>
             <para>Host-Only mode: Install only what is needed for booting 
 the local host instead of a generic host. 
-	    <warning><para>If chrooted to another root other than the real root device, use &quot;--fstab&quot; and provide a valid /etc/fstab.</para></warning>
-	    </para>
+     <warning>
+                <para>If chrooted to another root other than the real root device, use &quot;--fstab&quot; and provide a valid /etc/fstab.</para>
+              </warning>
+     </para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -353,7 +355,7 @@ target directory in the final initramfs.</para>
     </refsect2>
   </refsect1>
   <refsect1>
-    <title>FILES</title>
+    <title>Files</title>
     <variablelist>
       <varlistentry>
         <term>
@@ -419,12 +421,12 @@ set in the configuration files.</para>
     </refsect2>
   </refsect1>
   <refsect1>
-    <title>AVAILABILITY</title>
+    <title>Availability</title>
     <para>The dracut command is part of the dracut package and is available from
 <ulink url="http://sourceforge.net/apps/trac/dracut/wiki">http://sourceforge.net/apps/trac/dracut/wiki</ulink></para>
   </refsect1>
   <refsect1>
-    <title>SEE ALSO</title>
+    <title>See Also</title>
     <para>
       <citerefentry>
         <refentrytitle>dracut.kernel</refentrytitle>
