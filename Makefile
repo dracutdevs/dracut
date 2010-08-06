@@ -54,14 +54,14 @@ ifeq (1,${WITH_SWITCH_ROOT})
 endif
 
 clean:
-	rm -f *~
-	rm -f */*~
-	rm -f */*/*~
-	rm -f modules.d/99base/switch_root
-	rm -f test-*.img
-	rm -f dracut-*.rpm dracut-*.tar.bz2
-	rm -f $(manpages)
-	make -C test clean
+	$(RM) *~
+	$(RM) */*~
+	$(RM) */*/*~
+	$(RM) modules.d/99base/switch_root
+	$(RM) test-*.img
+	$(RM) dracut-*.rpm dracut-*.tar.bz2
+	$(RM) $(manpages)
+	$(MAKE) -C test clean
 
 archive: dracut-$(VERSION)-$(GITVERSION).tar.bz2
 
@@ -91,7 +91,7 @@ check: all
 	@ret=0;for i in modules.d/99base/init modules.d/*/*.sh; do \
 		dash -n "$$i" ; ret=$$(($$ret+$$?)); \
 	done;exit $$ret
-	make -C test check
+	$(MAKE) -C test check
 
 testimage: all
 	./dracut -l -a debug -f test-$(shell uname -r).img $(shell uname -r)
