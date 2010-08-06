@@ -1,0 +1,6 @@
+# /etc/dracut.conf.d/redhat.conf
+# Dracut config file customized for RedHat/Fedora.
+
+# i18n
+keyboard_vars="/etc/sysconfig/keyboard:KEYTABLE-KEYMAP"
+i18n_vars="/etc/sysconfig/i18n:SYSFONT,SYSFONTACM-CONTRANS,UNIMAP"
