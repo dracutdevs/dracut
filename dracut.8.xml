@@ -312,8 +312,10 @@ Thsi is useful when running dracut from a git checkout.</para>
             <option>--hostonly</option>
           </term>
           <listitem>
-          <para>Host-Only mode: Install only what is needed for booting 
-the local host instead of a generic host. <emphasis role="bold">If chrooted to another root other than the real root device, use "--fstab" and provide a valid /etc/fstab.</emphasis></para>
+            <para>Host-Only mode: Install only what is needed for booting 
+the local host instead of a generic host. 
+	    <warning><para>If chrooted to another root other than the real root device, use &quot;--fstab&quot; and provide a valid /etc/fstab.</para></warning>
+	    </para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -321,7 +323,7 @@ the local host instead of a generic host. <emphasis role="bold">If chrooted to a
             <option>--fstab</option>
           </term>
           <listitem>
-          <para>Use /etc/fstab instead of /proc/self/mountinfo.</para>
+            <para>Use <filename>/etc/fstab</filename> instead of <filename>/proc/self/mountinfo</filename>.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -332,7 +334,7 @@ the local host instead of a generic host. <emphasis role="bold">If chrooted to a
             <option>--include&nbsp;<replaceable>&lt;source directory&gt;</replaceable>&nbsp;<replaceable>&lt;target directory&gt;</replaceable></option>
           </term>
           <listitem>
-            <para>include the files in the SOURCE directory into the
+            <para>include the files in the source directory into the
 target directory in the final initramfs.</para>
           </listitem>
         </varlistentry>
@@ -366,7 +368,7 @@ target directory in the final initramfs.</para>
           <filename>/tmp/dracut.log</filename>
         </term>
         <listitem>
-          <para>logfile of initramfs image creation, if /var/log/dracut.log is not writable</para>
+          <para>logfile of initramfs image creation, if <filename>/var/log/dracut.log</filename> is not writable</para>
         </listitem>
       </varlistentry>
       <varlistentry>
