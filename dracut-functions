@@ -94,6 +94,7 @@ print_vars() {
 }
 
 get_fs_env() {
+    [[ $1 ]] || return
     eval $(udevadm info --query=env --name=$1|egrep 'ID_FS_(TYPE|UUID)=')
     [[ $ID_FS_TYPE ]] && return
 
@@ -107,6 +108,13 @@ get_fs_env() {
 }
 
 get_fs_type() (
+    [[ $1 ]] || return
+    if [[ $1 != ${1#/dev/block/nfs:} ]] \
+	|| [[ $1 != ${1#/dev/block/nfs3:} ]] \
+	|| [[ $1 != ${1#/dev/block/nfs4:} ]]; then
+	echo "nfs"
+	return
+    fi
     get_fs_env $1 || return
     echo $ID_FS_TYPE
 )
@@ -118,10 +126,35 @@ get_fs_uuid() (
 
 # finds the major:minor of the block device backing the root filesystem.
 find_block_device() {
-    local majmin rootdev blkdev fs type opts misc
-    while read a b majmin c mpt opts d fs type opts misc; do
-	[[ $mpt = $1 ]] && { echo $majmin; break; } # we have a winner!
-    done < /proc/self/mountinfo
+    local x mpt majmin dev fs misc maj min
+    if [[ $use_fstab != yes ]]; then	
+	while read x x majmin x mpt x x fs misc; do
+            [[ $fs = nfs ]] && { echo $dev; return 0;}
+            [[ $fs = nfs3 ]] && { echo $dev; return 0;}
+            [[ $fs = nfs4 ]] && { echo $dev; return 0;}
+	    if [[ $mpt = $1 ]] && [[ ${majmin#0:} = $majmin ]]; then
+		echo $majmin; 
+		return 0 # we have a winner!
+	    fi
+	done < /proc/self/mountinfo       
+    fi
+    # fall back to /etc/fstab    
+    while read dev mpt fs misc; do
+	if [[ $mpt = $1 ]]; then
+            [[ $fs = nfs ]] && { echo $dev; return 0;}
+            [[ $fs = nfs3 ]] && { echo $dev; return 0;}
+            [[ $fs = nfs4 ]] && { echo $dev; return 0;}
+            [[ $dev != ${dev#UUID=} ]] && dev=/dev/disk/by-uuid/${dev#UUID=}
+            [[ $dev != ${dev#LABEL=} ]] && dev=/dev/disk/by-label/${dev#LABEL=}
+	    [[ -b $dev ]] || return 1 # oops, not a block device.
+	    ls -nLl "$dev" | { 
+		read x x x x maj min x;
+		maj=${maj//,/}; 
+		echo $maj:$min; 
+	    } && return 0
+	fi
+    done < /etc/fstab
+    return 1;
 }
 
 find_root_block_device() { find_block_device /; }
