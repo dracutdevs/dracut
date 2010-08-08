@@ -36,7 +36,7 @@ set_keymap() {
 
     [ "${UNICODE}" = 1 ] && utf_switch=-u
 
-    loadkeys ${utf_switch} ${KEYMAP} ${EXT_KEYMAPS}
+    loadkeys -q ${utf_switch} ${KEYMAP} ${EXT_KEYMAPS}
 }
 
 set_font() {
