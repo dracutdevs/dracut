@@ -6,6 +6,9 @@ dracut-007
 - debug module now has fsck
 - use "hardlink", if available, to safe some space
 - /etc/dracut.conf can be overwritten by settings in /etc/dracut.conf.d/*.conf
+- gentoo splash module
+- --ignore-kernel-modules option
+- crypto keys on external devices support
 - bugfixes
 
 dracut-006
