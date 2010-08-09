@@ -172,7 +172,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir /etc/dracut.conf.d
 %{_mandir}/man8/dracut.8*
 %{_mandir}/man5/dracut.conf.5*
-%{_datadir}/dracut/modules.d/00bootchartd
+%{_datadir}/dracut/modules.d/00bootchart
 %{_datadir}/dracut/modules.d/00dash
 %{_datadir}/dracut/modules.d/10i18n
 %{_datadir}/dracut/modules.d/10rpmversion
