@@ -1,3 +1,6 @@
+dracut-008
+==========
+
 dracut-007
 ==========
 - module i18n is no longer fedora/red hat specific (Amadeusz Żołnowski)
