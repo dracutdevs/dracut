@@ -139,6 +139,8 @@ make install DESTDIR=$RPM_BUILD_ROOT sbindir=/sbin \
 
 echo %{name}-%{version}-%{release} > $RPM_BUILD_ROOT/%{_datadir}/dracut/modules.d/10rpmversion/dracut-version
 rm $RPM_BUILD_ROOT/%{_datadir}/dracut/modules.d/01fips/check
+# remove gentoo specific modules
+rm -fr $RPM_BUILD_ROOT/%{_datadir}/dracut/modules.d/50gensplash
 
 mkdir -p $RPM_BUILD_ROOT/boot/dracut
 mkdir -p $RPM_BUILD_ROOT/var/lib/dracut/overlay
