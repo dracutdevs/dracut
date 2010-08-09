@@ -174,6 +174,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/dracut.conf.d/fedora.conf
 %dir /etc/dracut.conf.d
 %{_mandir}/man8/dracut.8*
+%{_mandir}/man7/dracut.kernel.7*
 %{_mandir}/man5/dracut.conf.5*
 %{_datadir}/dracut/modules.d/00bootchart
 %{_datadir}/dracut/modules.d/00dash
