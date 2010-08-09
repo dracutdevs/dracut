@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# TODO: splash_geninitramfs
+# TODO: /usr/share/splashutils/initrd.splash
+exit 255
