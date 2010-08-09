@@ -29,6 +29,7 @@ URL: http://apps.sourceforge.net/trac/dracut/wiki
 # http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut/dracut;a=snapshot;h=%{?dashgittag};sf=tgz
 Source0: dracut-%{version}%{?dashgittag}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildRequires: docbook-style-xsl docbook-dtds docbook-style-xsl libxslt 
 
 %if 0%{?fedora} > 12 || 0%{?rhel} >= 6
 # no "provides", because dracut does not offer
