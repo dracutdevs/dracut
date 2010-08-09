@@ -9,6 +9,9 @@
 # we already asked for this device
 [ -f /tmp/cryptroot-asked-$2 ] && exit 0
 
+# load dm_crypt if it is not already loaded
+[ -d /sys/module/dm_crypt ] || modprobe dm_crypt
+
 . /lib/dracut-lib.sh
 
 # default luksname - luks-UUID
