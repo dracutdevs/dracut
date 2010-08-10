@@ -632,7 +632,7 @@ for_each_kmod_dep() {
 # This function returns the full filenames of modules that match $1
 filter_kernel_modules () (
     if ! [[ $hostonly ]]; then
-        filtercmd='find "$srcmods/kernel/drivers" -name "*.ko" -o -name "*.ko.gz"'
+        filtercmd='find "$srcmods/kernel/drivers" "$srcmods/extra" "$srcmods/weak-updates" -name "*.ko" -o -name "*.ko.gz" 2>/dev/null'
     else
         filtercmd='cut -d " " -f 1 </proc/modules|xargs modinfo -F filename -k $kernel'
     fi
