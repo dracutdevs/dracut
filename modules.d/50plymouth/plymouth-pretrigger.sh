@@ -3,9 +3,9 @@
 if ! getarg rd_NO_PLYMOUTH; then
     [ -c /dev/null ] || mknod -m 0666 /dev/null c 1 3
     # first trigger graphics subsystem
-    udevadm trigger --attr-match=class=0x030000 >/dev/null 2>&1
+    udevadm trigger --action=add --attr-match=class=0x030000 >/dev/null 2>&1
     # first trigger graphics and tty subsystem
-    udevadm trigger --subsystem-match=graphics --subsystem-match=drm --subsystem-match=tty >/dev/null 2>&1
+    udevadm trigger --action=add --subsystem-match=graphics --subsystem-match=drm --subsystem-match=tty >/dev/null 2>&1
 
     udevadm settle --timeout=30 2>&1 | vinfo
     [ -c /dev/zero ] || mknod -m 0666 /dev/zero c 1 5
