@@ -131,13 +131,13 @@ export PATH
 
 # if we were not passed a config file, try the default one
 if [[ ! -f $conffile ]]; then
-    [[ $allowlocal ]] || conffile="/etc/dracut.conf"
-    [[ $allowlocal ]] && conffile="$dracutbasedir/dracut.conf"
+    [[ $allowlocal ]] && conffile="$dracutbasedir/dracut.conf" || \
+        conffile="/etc/dracut.conf"
 fi
 
 if [[ ! -d $confdir ]]; then
-    [[ $allowlocal ]] || confdir="/etc/dracut.conf.d"
-    [[ $allowlocal ]] && confdir="$dracutbasedir/dracut.conf.d"
+    [[ $allowlocal ]] && confdir="$dracutbasedir/dracut.conf.d" \
+        confdir="/etc/dracut.conf.d"
 fi
 
 # source our config file
