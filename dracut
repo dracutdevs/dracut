@@ -109,41 +109,41 @@ read_arg() {
 
 while (($# > 0)); do
     case ${1%%=*} in
-	-f|--force) force=yes;;
-	-m|--modules) read_arg dracutmodules_l "$@" ||shift;;
-	-o|--omit) read_arg omit_dracutmodules_l "$@" || shift;;
-	-a|--add) read_arg add_dracutmodules_l "$@" || shift;;
-	-d|--drivers) read_arg drivers_l "$@" || shift;;
-	--add-drivers) read_arg add_drivers_l "$@" || shift;;
-	--filesystems) read_arg filesystems_l "$@" || shift;;
-	-k|--kmoddir) read_arg drivers_dir_l "$@" || shift;;
-	--fwdir) read_arg fw_dir_l "$@" || shift;;
+	-m|--modules)  read_arg dracutmodules_l      "$@" || shift;;
+	-o|--omit)     read_arg omit_dracutmodules_l "$@" || shift;;
+	-a|--add)      read_arg add_dracutmodules_l  "$@" || shift;;
+	-d|--drivers)  read_arg drivers_l            "$@" || shift;;
+	--add-drivers) read_arg add_drivers_l        "$@" || shift;;
+	--filesystems) read_arg filesystems_l        "$@" || shift;;
+	-k|--kmoddir)  read_arg drivers_dir_l        "$@" || shift;;
+	-c|--conf)     read_arg conffile             "$@" || shift;;
+	--confdir)     read_arg confdir              "$@" || shift;;
+	-I|--install)  read_arg install_items        "$@" || shift;;
+	--fwdir)       read_arg fw_dir_l             "$@" || shift;;
+	-f|--force)    force=yes;;
 	--kernel-only) kernel_only="yes"; no_kernel="no";;
-	--no-kernel) kernel_only="no"; no_kernel="yes";;
+	--no-kernel)   kernel_only="no"; no_kernel="yes";;
+	--strip)       do_strip_l="yes";;
+	--nostrip)     do_strip_l="no";;
+        --mdadmconf)   mdadmconf_l="yes";;
+        --nomdadmconf) mdadmconf_l="no";;
+        --lvmconf)     lvmconf_l="yes";;
+        --nolvmconf)   lvmconf_l="no";;
+	--debug)       debug="yes";;
+	-v|--verbose)  beverbose="yes";;
+	-l|--local)    allowlocal="yes" ;;
+	-H|--hostonly) hostonly_l="yes" ;;
+	--fstab)       use_fstab_l="yes" ;;
+	-h|--help)     usage; exit 1 ;;
+	-i|--include)  include_src="$2"; include_target="$3"; shift 2;;
+        --gzip)        [[ $compress != cat ]] && compress="gzip -9";;
+        --bzip2)       [[ $compress != cat ]] && compress="bzip2 -9";;
+        --xz)          [[ $compress != cat ]] && compress="xz -9";;
+        --no-compress) compress="cat";;
         --ignore-kernel-modules) kernel_only="no"; no_kernel="yes"
             ignore_kmodules="yes"
             omit_dracutmodules_l+=\ kernel-modules
             ;;
-	--strip) do_strip_l="yes";;
-	--nostrip) do_strip_l="no";;
-        --mdadmconf) mdadmconf_l="yes";;
-        --nomdadmconf) mdadmconf_l="no";;
-        --lvmconf) lvmconf_l="yes";;
-        --nolvmconf) lvmconf_l="no";;
-	-h|--help) usage; exit 1 ;;
-	--debug) debug="yes";;
-	-v|--verbose) beverbose="yes";;
-	-c|--conf) read_arg conffile "$@" || shift;;
-	--confdir) read_arg confdir "$@" || shift;;
-	-l|--local) allowlocal="yes" ;;
-	-H|--hostonly) hostonly_l="yes" ;;
-	--fstab) use_fstab_l="yes" ;;
-	-i|--include) include_src="$2"; include_target="$3"; shift 2;;
-	-I|--install) read_arg install_items "$@" || shift;;
-        --gzip) [[ $compress != cat ]] && compress="gzip -9";;
-        --bzip2) [[$compress != cat ]] && compress="bzip2 -9";;
-        --xz) [[ $compress != cat ]] && compress="xz -9";;
-        --no-compress) compress="cat";;
 	-*) printf "\nUnknown option: %s\n\n" "$1" >&2; usage; exit 1;;
 	*) break ;;
     esac
