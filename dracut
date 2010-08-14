@@ -340,8 +340,8 @@ type hardlink &>/dev/null && {
 }
 
 [[ $compress = gzip* ]] && type pigz > /dev/null 2>&1 && compress="pigz -9"
-( cd "$initdir"; find . |cpio -R 0:0 -H newc -o --quiet |$compress > "$outfile"; ) 
-if [ $? -ne 0 ]; then
+if ! ( cd "$initdir"; find . |cpio -R 0:0 -H newc -o --quiet | \
+    $compress > "$outfile"; ); then 
     derror "dracut: creation of $outfile failed"
     exit 1
 fi 
