@@ -96,7 +96,7 @@ while [ $# -gt 0 ]; do
         --without*) ;;
         --without-usb) ;;
         --fstab*) ;;
-        --nocompress) ;;
+        --nocompress) dracut_args="$dracut_args --no-compress";;
         --ifneeded) ;;
         --omit-scsi-modules) ;;
         --omit-ide-modules) ;;

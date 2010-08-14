@@ -75,6 +75,17 @@ Creates initial ramdisk images for preloading modules
                          Target directory in the final initramfs.
   -I, --install [LIST]  Install the space separated list of files into the
                          initramfs.
+  --gzip                Compress the generated initramfs using gzip.
+                        This will be done by default, unless another
+                        compression option or --no-compress is passed.
+  --bzip2               Compress the generated initramfs using bzip2.
+                        Make sure your kernel has bzip2 decompression support
+                        compiled in, otherwise you will not be able to boot.
+  --xz                  Compress the generated initramfs using xz.
+                        Make sure your kernel has xz support compiled in, 
+                        otherwise you will not be able to boot.
+  --no-compress         Do not compress the generated initramfs.  This will
+                        override any other compression options.
 "
 }
 
@@ -111,6 +122,10 @@ while (($# > 0)); do
 	--fstab) use_fstab_l="yes" ;;
 	-i|--include) include_src="$2"; include_target="$3"; shift 2;;
 	-I|--install) install_items="$2"; shift;;
+        --gzip) [[ $compress != cat ]] && compress="gzip -9";;
+        --bzip2) [[$compress != cat ]] && compress="bzip2 -9";;
+        --xz) [[ $compress != cat ]] && compress="xz -9";;
+        --no-compress) compress="cat";;
 	-*) printf "\nUnknown option: %s\n\n" "$1" >&2; usage; exit 1;;
 	*) break ;;
     esac
@@ -174,6 +189,7 @@ fw_dir=${fw_dir//:/ }
 
 [[ $hostonly = yes ]] && hostonly="-h"
 [[ $hostonly != "-h" ]] && unset hostonly
+[[ $compress ]] || compress="gzip -9"
 
 if [[ -f $dracutbasedir/dracut-functions ]]; then
    . $dracutbasedir/dracut-functions
@@ -323,8 +339,8 @@ type hardlink &>/dev/null && {
 	hardlink "$initdir" 2>&1
 }
 
-type pigz &>/dev/null && gzip=pigz || gzip=gzip
-( cd "$initdir"; find . |cpio -R 0:0 -H newc -o --quiet |$gzip -9 > "$outfile"; ) 
+[[ $compress = gzip* ]] && type pigz > /dev/null 2>&1 && compress="pigz -9"
+( cd "$initdir"; find . |cpio -R 0:0 -H newc -o --quiet |$compress > "$outfile"; ) 
 if [ $? -ne 0 ]; then
     derror "dracut: creation of $outfile failed"
     exit 1
@@ -333,4 +349,3 @@ fi
 [[ $beverbose = yes ]] && ls -lh "$outfile"
 
 exit 0
-
