@@ -210,18 +210,14 @@ if [[ -f $outfile && ! $force ]]; then
     exit 1
 fi
 
-outdir=$(dirname "$outfile")
-if ! [[ -d "$outdir" ]]; then
+outdir=${outfile%/*}
+if [[ ! -d "$outdir" ]]; then
     echo "Can't write $outfile: Directory $outdir does not exist."
     exit 1
-fi
-
-if ! [[ -w "$outdir" ]]; then
+elif [[ ! -w "$outdir" ]]; then
     echo "No permission to write $outdir."
     exit 1
-fi
-
-if [[ -f "$outfile" ]] &&  ! [[ -w "$outfile" ]]; then
+elif [[ ! -w "$outfile" ]]; then
     echo "No permission to write $outfile."
     exit 1
 fi
