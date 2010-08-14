@@ -127,7 +127,7 @@ export PATH
 
 [[ $dracutbasedir ]] || dracutbasedir=/usr/share/dracut
 
-[[ $allowlocal && -f "$(readlink -f $(dirname $0))/dracut-functions" ]] && dracutbasedir="$(dirname $0)" 
+[[ $allowlocal && -f "$(readlink -f ${0%/*})/dracut-functions" ]] && dracutbasedir="${0%/*}" 
 
 # if we were not passed a config file, try the default one
 if [[ ! -f $conffile ]]; then
