@@ -1,32 +1,19 @@
 #!/bin/bash --norc
+kver=$(uname -r)
 
-error() {
-    local NONL=""
-    if [ "$1" == "-n" ]; then
-        NONL="-n"
-        shift
-    fi
-    echo $NONL "$@" > /dev/stderr
-}
+error() { echo "$@" >&2; }
 
 usage () {
-    if [ "$1" == "-n" ]; then
-        cmd=echo
-    else
-        cmd=error
-    fi
+    [[ $1 = '-n' ]] && cmd=echo || cmd=error
 
-    $cmd "usage: `basename $0` [--version] [--help] [-v] [-f] [--preload <module>]"
+    $cmd "usage: ${0%/*} [--version] [--help] [-v] [-f] [--preload <module>]"
     $cmd "       [--image-version] [--with=<module>]"
     $cmd "       <initrd-image> <kernel-version>"
     $cmd ""
-    $cmd "       (ex: `basename $0` /boot/initramfs-$(uname -r).img $(uname -r))"
+    $cmd "       (ex: ${0%/*} /boot/initramfs-$kver.img $kver)"
 
-    if [ "$1" == "-n" ]; then
-        exit 0
-    else
-        exit 1
-    fi
+    [[ $1 = '-n' ]] && exit 0
+    exit 1
 }
 
 
