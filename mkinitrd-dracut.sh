@@ -16,74 +16,50 @@ usage () {
     exit 1
 }
 
+# Little helper function for reading args from the commandline.
+# it automatically handles -a b and -a=b variants, and returns 1 if
+# we need to shift $3.
+read_arg() {
+    # $1 = arg name
+    # $2 = arg value
+    # $3 = arg parameter
+    local rematch='^[^=]*=(.*)$'
+    if [[ $2 =~ $rematch ]]; then
+	read "$1" <<< "${BASH_REMATCH[1]}"
+    elif [[ $3 != -* ]]; then
+        # Only read next arg if it not an arg itself.
+	read "$1" <<< "$3"
+	# There is no way to shift our callers args, so
+	# return 1 to indicate they should do it instead.
+	return 1
+    fi
+}
 
-while [ $# -gt 0 ]; do
-    case $1 in
-        --with-usb*)
-            if [ "$1" != "${1##--with-usb=}" ]; then
-                usbmodule=${1##--with-usb=}
-            else
-                usbmodule="usb-storage"
-            fi
-            basicmodules="$basicmodules $usbmodule"
-            unset usbmodule
-            ;;
-        --with-avail*)
-            if [ "$1" != "${1##--with-avail=}" ]; then
-                modname=${1##--with-avail=}
-            else
-                modname=$2
-                shift
-            fi
-
-            basicmodules="$basicmodules $modname"
-            ;;
-        --with*)
-            if [ "$1" != "${1##--with=}" ]; then
-                modname=${1##--with=}
-            else
-                modname=$2
-                shift
-            fi
-
-            basicmodules="$basicmodules $modname"
-            ;;
+while (($# > 0)); do
+    case ${1%%=*} in
+        --with-usb) read_arg usbmodule "$@" || shift
+            basicmodules="$basicmodules ${usbmodule:-usb-storage}"
+            unset usbmodule;;
+        --with-avail) read_arg modname "$@" || shift
+            basicmodules="$basicmodules $modname";;
+        --with) read_arg modname "$@" || shift
+            basicmodules="$basicmodules $modname";;
         --version)
             echo "mkinitrd: dracut compatibility wrapper"
-            exit 0
-            ;;
-        -v|--verbose)
-            dracut_args="${dracut_args} -v"
-            ;;
-        -f)
-            dracut_args="${dracut_args} -f"
-            ;;
-        --preload*)
-            if [ "$1" != "${1##--preload=}" ]; then
-                modname=${1##--preload=}
-            else
-                modname=$2
-                shift
-            fi
-            basicmodules="$basicmodules $modname"
-            ;;
-        --image-version)
-            img_vers=yes
-            ;;
-	--rootfs*)
-            if [ "$1" != "${1##--rootfs=}" ]; then
-                rootfs="${1##--rootfs=}"
-            else
-                rootfs="$2"
-                shift
-            fi
-	    dracut_args="${dracut_args} --filesystems $rootfs"
-	    ;;
-        --builtin*) ;;
+            exit 0;;
+        -v|--verbose) dracut_args="${dracut_args} -v";;
+        -f) dracut_args="${dracut_args} -f";;
+        --preload) read_args modname "$@" || shift
+            basicmodules="$basicmodules $modname";;
+        --image-version) img_vers=yes;;
+	--rootfs) read_args rootfs "$@" || shift
+            dracut_args="${dracut_args} --filesystems $rootfs";;
+        --nocompress) dracut_args="$dracut_args --no-compress";;
+        --help) usage -n;;
+        --builtin) ;;
         --without*) ;;
         --without-usb) ;;
         --fstab*) ;;
-        --nocompress) dracut_args="$dracut_args --no-compress";;
         --ifneeded) ;;
         --omit-scsi-modules) ;;
         --omit-ide-modules) ;;
@@ -103,32 +79,22 @@ while [ $# -gt 0 ]; do
 	--looppath*) ;;
 	--dsdt*) ;;
         --bootchart) ;;
-        --help)
-            usage -n
-            ;;
-        *)
-            if [ -z "$target" ]; then
-                target=$1
-            elif [ -z "$kernel" ]; then
-                kernel=$1
+        *) if [[ ! $target ]]; then
+            target=$1
+            elif [[ ! $kernel ]]; then
+            kernel=$1
             else
-                usage
-            fi
-            ;;
+            usage
+            fi;;
     esac
-
     shift
 done
 
-if [ -z "$target" -o -z "$kernel" ]; then
-    usage
+[[ $target && $kernel ]] || usage
+[[ $img_vers ]] && target="$target-$kernel"
 fi
 
-if [ -n "$img_vers" ]; then
-    target="$target-$kernel"
-fi
-
-if [ -n "$basicmodules" ]; then
+if [[ $basicmodules ]]; then
 	dracut -H $dracut_args --add-drivers "$basicmodules" "$target" "$kernel"
 else
 	dracut -H $dracut_args "$target" "$kernel"

@@ -89,23 +89,41 @@ Creates initial ramdisk images for preloading modules
 "
 }
 
+# Little helper function for reading args from the commandline.
+# it automatically handles -a b and -a=b variants, and returns 1 if
+# we need to shift $3.
+read_arg() {
+    # $1 = arg name
+    # $2 = arg value
+    # $3 = arg parameter
+    local rematch='^[^=]*=(.*)$'
+    if [[ $2 =~ $rematch ]]; then
+	read "$1" <<< "${BASH_REMATCH[1]}"
+    else
+	read "$1" <<< "$3"
+	# There is no way to shift our callers args, so
+	# return 1 to indicate they should do it instead.
+	return 1
+    fi
+}
+
 while (($# > 0)); do
-    case $1 in
+    case ${1%%=*} in
 	-f|--force) force=yes;;
-	-m|--modules) dracutmodules_l="$dracutmodules_l $2"; shift;;
-	-o|--omit) omit_dracutmodules_l="$omit_dracutmodules_l $2"; shift;;
-	-a|--add) add_dracutmodules_l="$add_dracutmodules_l $2"; shift;;
-	-d|--drivers) drivers_l="$drivers_l $2"; shift;;
-	--add-drivers) add_drivers_l="$add_drivers_l $2"; shift;;
-	--filesystems) filesystems_l="$filesystems_l $2"; shift;;
-	-k|--kmoddir) drivers_dir_l="$2"; shift;;
-	--fwdir) fw_dir_l="$fw_dir_l:$2"; shift;;
+	-m|--modules) read_arg dracutmodules_l "$@" ||shift;;
+	-o|--omit) read_arg omit_dracutmodules_l "$@" || shift;;
+	-a|--add) read_arg add_dracutmodules_l "$@" || shift;;
+	-d|--drivers) read_arg drivers_l "$@" || shift;;
+	--add-drivers) read_arg add_drivers_l "$@" || shift;;
+	--filesystems) read_arg filesystems_l "$@" || shift;;
+	-k|--kmoddir) read_arg drivers_dir_l "$@" || shift;;
+	--fwdir) read_arg fw_dir_l "$@" || shift;;
 	--kernel-only) kernel_only="yes"; no_kernel="no";;
 	--no-kernel) kernel_only="no"; no_kernel="yes";;
-    --ignore-kernel-modules) kernel_only="no"; no_kernel="yes"
-        ignore_kmodules="yes"
-        omit_dracutmodules_l+=\ kernel-modules
-        ;;
+        --ignore-kernel-modules) kernel_only="no"; no_kernel="yes"
+            ignore_kmodules="yes"
+            omit_dracutmodules_l+=\ kernel-modules
+            ;;
 	--strip) do_strip_l="yes";;
 	--nostrip) do_strip_l="no";;
         --mdadmconf) mdadmconf_l="yes";;
@@ -115,13 +133,13 @@ while (($# > 0)); do
 	-h|--help) usage; exit 1 ;;
 	--debug) debug="yes";;
 	-v|--verbose) beverbose="yes";;
-	-c|--conf) conffile="$2"; shift;;
-	--confdir) confdir="$2"; shift;;
+	-c|--conf) read_arg conffile "$@" || shift;;
+	--confdir) read_arg confdir "$@" || shift;;
 	-l|--local) allowlocal="yes" ;;
 	-H|--hostonly) hostonly_l="yes" ;;
 	--fstab) use_fstab_l="yes" ;;
 	-i|--include) include_src="$2"; include_target="$3"; shift 2;;
-	-I|--install) install_items="$2"; shift;;
+	-I|--install) read_arg install_items "$@" || shift;;
         --gzip) [[ $compress != cat ]] && compress="gzip -9";;
         --bzip2) [[$compress != cat ]] && compress="bzip2 -9";;
         --xz) [[ $compress != cat ]] && compress="xz -9";;
