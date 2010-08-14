@@ -270,11 +270,10 @@ unset moddir
 ## final stuff that has to happen
 
 # generate module dependencies for the initrd
-if [[ -d $initdir/lib/modules/$kernel ]]; then
-    if ! depmod -a -b "$initdir" $kernel; then
-        derror "\"depmod -a $kernel\" failed."
-        exit 1
-    fi
+if [[ -d $initdir/lib/modules/$kernel ]] && \
+    ! depmod -a -b "$initdir" $kernel; then
+    derror "\"depmod -a $kernel\" failed."
+    exit 1
 fi
 
 if [[ $include_src && $include_target ]]; then
