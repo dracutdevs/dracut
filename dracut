@@ -144,9 +144,9 @@ fi
 [[ -f $conffile ]] && . "$conffile"
 
 # source our config dir
-if [ "$confdir" ] && [  -d "$confdir" ]; then
+if [[ $confdir && -d $confdir ]]; then
     for f in "$confdir"/*.conf; do 
-	[ -e "$f" ] && . "$f"
+	[[ -e $f ]] && . "$f"
     done
 fi
 
