@@ -2,12 +2,7 @@
 
 # if cryptsetup is not installed, then we cannot support encrypted devices.
 which cryptsetup >/dev/null 2>&1 || exit 1
-
-[ "$1" = "-d" ] && echo dm
-
-# hostonly checking should only return true if root is on a LUKS device
-# in some way, but I am too lazy to figure out how to do that.
-# Instead, fail if we do not have a LUKS device in use somewhere.
+[[ $1 = -d ]] && echo dm
 
 . $dracutfunctions
 
