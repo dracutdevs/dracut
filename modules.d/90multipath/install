@@ -1,11 +1,5 @@
 #!/bin/bash
 
-if ldd $(type -P multipath) 2>/dev/null |grep -q lib64; then
-    LIBDIR="/lib64"
-else
-    LIBDIR="/lib"
-fi
-
 for f in  \
     /sbin/dmsetup \
     /sbin/kpartx \
@@ -17,12 +11,10 @@ for f in  \
     /etc/xdrdevices.conf \
     /etc/multipath.conf \
     /etc/multipath/wwids \
-    $(ls $LIBDIR/libmultipath* $LIBDIR/multipath/* 2>/dev/null) \
-    	;do
+    "$libdir"/libmultipath* "$libdir"/multipath/*; do
     [ -e "$f" ] && inst "$f"
 done
 
 inst_hook pre-trigger 02 "$moddir/multipathd.sh"
 inst_hook pre-pivot   02 "$moddir/multipathd-stop.sh"
 inst_rules 40-multipath.rules
-

@@ -3,16 +3,9 @@ dracut_install dmraid partx kpartx
 
 inst  dmeventd
 
-if ldd $(type -P dmraid) | grep -q lib64; then
-    LIBDIR="/lib64"
-else
-    LIBDIR="/lib"
-fi
-
-for i in $(ls /{usr,}/$LIBDIR/libdmraid-events*.so 2>/dev/null); do
-    dracut_install $i
+for i in {"$libdir","$usrlibdir"}/libdmraid-events*.so; do
+    dracut_install "$i"
 done
-
 
 inst_rules 10-dm.rules 13-dm-disk.rules 95-dm-notify.rules 
 

@@ -12,17 +12,12 @@ inst_hook cmdline 98 "$moddir/parse-bridge.sh"
 inst_hook cmdline 99 "$moddir/parse-ifname.sh"
 inst_hook pre-pivot 10 "$moddir/kill-dhclient.sh"
 
-if ldd $(type -P sh) | grep -q lib64; then
-    LIBDIR="/lib64"
-else
-    LIBDIR="/lib"
-fi
+arch=$(uname -m)
 
-ARCH=$(uname -m)
-
-for dir in /usr/$LIBDIR/tls/$ARCH/ /usr/$LIBDIR/tls/ /usr/$LIBDIR/$ARCH/ /usr/$LIBDIR/ /$LIBDIR/; do
-    for i in $(ls $dir/libnss_dns.so.* $dir/libnss_mdns4_minimal.so.* 2>/dev/null); do
-	dracut_install $i
+for dir in "$usrlibdir/tls/$arch" "$usrlibdir/tls" "$usrlibdir/$arch" \
+        "$usrlibdir" "$libdir"; do
+    for i in "$dir"/libnss_dns.so.* "$dir"/libnss_mdns4_minimal.so.*; do
+        dracut_install "$i"
     done
 done
 

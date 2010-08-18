@@ -9,15 +9,11 @@ dracut_install /etc/nsswitch.conf /etc/rpc /etc/protocols
 dracut_install rpc.idmapd /etc/idmapd.conf
 dracut_install sed
 
-if ldd $(type -P rpc.idmapd) |grep -q lib64; then
-    LIBDIR="/lib64"
-else
-    LIBDIR="/lib"
-fi
-
-dracut_install $(ls {/usr,}$LIBDIR/libnfsidmap_nsswitch.so* 2>/dev/null )
-dracut_install $(ls {/usr,}$LIBDIR/libnfsidmap/*.so 2>/dev/null )
-dracut_install $(ls {/usr,}$LIBDIR/libnfsidmap*.so* 2>/dev/null )
+for i in {"$libdir","$usrlibdir"}/libnfsidmap_nsswitch.so* \
+        {"$libdir","$usrlibdir"}/libnfsidmap/*.so \
+        {"$libdir","$usrlibdir"}/libnfsidmap*.so*; do
+    dracut_install "$i"
+done
 
 nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
               |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')

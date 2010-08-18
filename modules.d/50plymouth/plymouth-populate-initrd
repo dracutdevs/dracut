@@ -1,9 +1,4 @@
 #!/bin/bash
-if ldd /sbin/plymouthd |grep -q lib64; then
-    LIBDIR="/usr/lib64"
-else
-    LIBDIR="/usr/lib"
-fi
 PLYMOUTH_LOGO_FILE="/usr/share/pixmaps/system-logo-white.png"
 PLYMOUTH_THEME=$(plymouth-set-default-theme)
 
@@ -15,8 +10,8 @@ dracut_install /bin/plymouth \
 mkdir -p "${initdir}/usr/share/plymouth"
 
 if [[ $hostonly ]]; then 
-    dracut_install "${LIBDIR}/plymouth/text.so" \
-	"${LIBDIR}/plymouth/details.so" \
+    dracut_install "${usrlibdir}/plymouth/text.so" \
+	"${usrlibdir}/plymouth/details.so" \
 	"/usr/share/plymouth/themes/details/details.plymouth" \
 	"/usr/share/plymouth/themes/text/text.plymouth" \
 
@@ -31,7 +26,7 @@ if [[ $hostonly ]]; then
 	inst /usr/share/plymouth/themes/default.plymouth
         # Install plugin for this theme
 	PLYMOUTH_PLUGIN=$(grep "^ModuleName=" /usr/share/plymouth/themes/default.plymouth | while read a b c; do echo $b; done;)
-	inst ${LIBDIR}/plymouth/${PLYMOUTH_PLUGIN}.so
+	inst "${usrlibdir}/plymouth/${PLYMOUTH_PLUGIN}.so"
     fi
 else
     for x in /usr/share/plymouth/themes/{text,details}/* ; do
@@ -40,7 +35,7 @@ else
 	mkdir -p "${initdir}/$THEME_DIR"
         dracut_install "$x"
     done
-    for x in ${LIBDIR}/plymouth/{text,details}.so ; do
+    for x in "${usrlibdir}"/plymouth/{text,details}.so ; do
         [[ -f "$x" ]] || continue
         [[ "$x" != "${x%%/label.so}" ]] && continue
         dracut_install "$x"

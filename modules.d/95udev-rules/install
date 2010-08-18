@@ -48,8 +48,6 @@ done
 
 [ -f /etc/arch-release ] && inst "$moddir/load-modules.sh" /lib/udev/load-modules.sh
 
-if ldd $(find_binary udevd) |grep -q /lib64/; then
-    dracut_install /lib64/libnss_files*
-else
-    dracut_install /lib/libnss_files*
-fi
+for i in {"$libdir","$usrlibdir"}/libnss_files*; do
+    dracut_install "$i"
+done
