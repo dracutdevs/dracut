@@ -12,7 +12,7 @@ inst_hook cmdline 98 "$moddir/parse-bridge.sh"
 inst_hook cmdline 99 "$moddir/parse-ifname.sh"
 inst_hook pre-pivot 10 "$moddir/kill-dhclient.sh"
 
-if ldd $(which sh) | grep -q lib64; then
+if ldd $(type -P sh) | grep -q lib64; then
     LIBDIR="/lib64"
 else
     LIBDIR="/lib"

@@ -7,6 +7,6 @@
 [ "$1" = "-h" ] && ! egrep -q '/ nfs[34 ]' /proc/mounts && exit 1
 
 # If our prerequisites are not met, fail anyways.
-which rpcbind >/dev/null 2>&1 || which portmap >/dev/null 2>&1 || exit 1
-which rpc.statd mount.nfs mount.nfs4 umount >/dev/null 2>&1 || exit 1
+type -P rpcbind >/dev/null || type -P portmap >/dev/null || exit 1
+type -P rpc.statd mount.nfs mount.nfs4 umount >/dev/null || exit 1
 exit 0

@@ -14,7 +14,7 @@ else
 fi
 
 inst blockdev
-which checkisomd5 >/dev/null 2>&1 && inst checkisomd5
+type -P checkisomd5 >/dev/null && inst checkisomd5
 inst_hook cmdline 30 "$moddir/parse-dmsquash-live.sh"
 inst_hook pre-udev 30 "$moddir/dmsquash-live-genrules.sh"
 inst_hook pre-udev 30 "$moddir/dmsquash-liveiso-genrules.sh"

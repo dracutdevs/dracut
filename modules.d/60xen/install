@@ -1,5 +1,5 @@
 #!/bin/bash
-XENDETECT=$(which xen-detect)
+XENDETECT=$(type -P xen-detect)
 [ -z "$XENDETECT" ] && [ -d "/usr/lib/xen-default" ] && XENDETECT="/usr/lib/xen-default/bin/xen-detect"
 inst $XENDETECT /sbin/xen-detect
 inst_hook pre-udev 40 "$moddir/xen-pre-udev.sh"

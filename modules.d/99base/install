@@ -21,7 +21,7 @@ mkdir -p ${initdir}/initqueue-finished
 mkdir -p ${initdir}/initqueue-settled
 mkdir -p ${initdir}/tmp
 # Bail out if switch_root does not exist
-if which switch_root >/dev/null 2>&1; then
+if type -P switch_root >/dev/null; then
     dracut_install switch_root 
 else
     inst "$moddir/switch_root" "/sbin/switch_root" \

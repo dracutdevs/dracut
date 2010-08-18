@@ -332,7 +332,7 @@ ldconfig -r "$initdir" || [[ $UID != "0" ]] && dinfo "ldconfig might need uid=0 
 # strip binaries 
 if [[ $do_strip = yes ]] ; then
     for p in strip grep find; do 
-	if ! which $p >/dev/null 2>&1; then
+	if ! type -P $p >/dev/null; then
 	    derror "Could not find '$p'. You should run $0 with '--nostrip'."
 	    do_strip=no
 	fi

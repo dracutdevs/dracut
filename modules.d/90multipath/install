@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if ldd $(which multipath) 2>/dev/null |grep -q lib64; then
+if ldd $(type -P multipath) 2>/dev/null |grep -q lib64; then
     LIBDIR="/lib64"
 else
     LIBDIR="/lib"

@@ -3,7 +3,7 @@
 [ "$1" = "-d" ] && echo network
 
 # If our prerequisites are not met, fail.
-which nbd-client >/dev/null 2>&1 || exit 1
+type -P nbd-client >/dev/null || exit 1
 
 # if an nbd device is not somewhere in the chain of devices root is mounted on,
 # fail the hostonly check.

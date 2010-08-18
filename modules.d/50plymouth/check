@@ -1,3 +1,3 @@
 #!/bin/bash
-[[ $1 = -d ]] && which cryptsetup &>/dev/null && echo crypt
+[[ $1 = -d ]] && type -P cryptsetup >/dev/null && echo crypt
 [[ -x /sbin/plymouthd && -x /bin/plymouth && -x /usr/sbin/plymouth-set-default-theme ]]

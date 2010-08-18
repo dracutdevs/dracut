@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # if cryptsetup is not installed, then we cannot support encrypted devices.
-which cryptsetup >/dev/null 2>&1 || exit 1
-[[ $1 = -d ]] && echo dm
+type -P cryptsetup >/dev/null || exit 1
+
+[ "$1" = "-d" ] && echo dm
 
 . $dracutfunctions
 

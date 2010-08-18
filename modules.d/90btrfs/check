@@ -5,7 +5,7 @@
 
 # if we don't have btrfs (btrfsctl) installed on the host system,
 # no point in trying to support it in the initramfs.
-which btrfsctl >/dev/null 2>&1 || exit 1
+type -P btrfsctl >/dev/null || exit 1
 
 . $dracutfunctions
 [[ $debug ]] && set -x

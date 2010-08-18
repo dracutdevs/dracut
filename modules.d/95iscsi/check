@@ -3,7 +3,7 @@
 [ "$1" = "-d" ] && echo network
 
 # If our prerequisites are not met, fail anyways.
-which iscsistart hostname iscsi-iname >/dev/null 2>&1 || exit 1
+type -P iscsistart hostname iscsi-iname >/dev/null || exit 1
 
 # If hostonly was requested, fail the check if we are not actually
 # booting from root.

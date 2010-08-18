@@ -8,20 +8,15 @@ fi
 . $dracutfunctions
 
 for program in ip arping; do 
-  which $program >/dev/null 2>&1
-  if [ $? -ne 0 ]; then
+  if ! type -P $program >/dev/null; then
     dwarning "Could not find program \"$program\" required by network." 
     exit 1
   fi
 done
 for program in dhclient brctl; do
-  which $program >/dev/null 2>&1
-  if [ $? -ne 0 ]; then
+  if ! type -P $program >/dev/null; then
     dwarning "Could not find program \"$program\" it might be required by network." 
   fi
 done
 
-
-
 exit 255
-

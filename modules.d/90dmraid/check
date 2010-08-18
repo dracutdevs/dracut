@@ -5,7 +5,7 @@
 
 # if we don't have dmraid installed on the host system, no point
 # in trying to support it in the initramfs.
-which dmraid >/dev/null 2>&1 || exit 1
+type -P dmraid >/dev/null || exit 1
 
 . $dracutfunctions
 [[ $debug ]] && set -x

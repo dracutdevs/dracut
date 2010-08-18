@@ -135,10 +135,10 @@ test_setup() {
  	    /lib/terminfo/l/linux dmesg mkdir cp ping exportfs \
  	    modprobe rpc.nfsd rpc.mountd showmount tcpdump \
  	    /etc/services sleep mount chmod
- 	which portmap >/dev/null 2>&1 && dracut_install portmap
- 	which rpcbind >/dev/null 2>&1 && dracut_install rpcbind
+ 	type -P portmap >/dev/null && dracut_install portmap
+ 	type -P rpcbind >/dev/null && dracut_install rpcbind
  	[ -f /etc/netconfig ] && dracut_install /etc/netconfig 
- 	which dhcpd >/dev/null 2>&1 && dracut_install dhcpd
+ 	type -P dhcpd >/dev/null && dracut_install dhcpd
  	[ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
  	instmods nfsd sunrpc ipv6
  	inst ./server-init /sbin/init
@@ -147,7 +147,7 @@ test_setup() {
  	inst ./dhcpd.conf /etc/dhcpd.conf
  	dracut_install /etc/nsswitch.conf /etc/rpc /etc/protocols
  	dracut_install rpc.idmapd /etc/idmapd.conf
- 	if ldd $(which rpc.idmapd) |grep -q lib64; then
+ 	if ldd $(type -P rpc.idmapd) |grep -q lib64; then
  	    LIBDIR="/lib64"
  	else
  	    LIBDIR="/lib"

@@ -161,7 +161,7 @@ test_setup() {
 	instmods iscsi_tcp crc32c ipv6
         inst ./targets /etc/iscsi/targets
 	[ -f /etc/netconfig ] && dracut_install /etc/netconfig 
-	which dhcpd >/dev/null 2>&1 && dracut_install dhcpd
+	type -P dhcpd >/dev/null && dracut_install dhcpd
 	[ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
 	inst ./server-init /sbin/init
 	inst ./hosts /etc/hosts

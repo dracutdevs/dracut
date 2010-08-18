@@ -18,7 +18,7 @@ inst "$moddir/lvm_scan.sh" /sbin/lvm_scan
 inst_hook cmdline 30 "$moddir/parse-lvm.sh"
 
 
-if ldd $(which lvm) | grep -q lib64; then
+if ldd $(type -P lvm) | grep -q lib64; then
     LIBDIR="/lib64"
 else
     LIBDIR="/lib"

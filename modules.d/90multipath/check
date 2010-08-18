@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # if there's no multipath binary, no go.
-which multipath >/dev/null 2>&1 || exit 1
+type -P multipath >/dev/null || exit 1
 
 [[ $1 = -d ]] && exit 0
 
