@@ -223,6 +223,17 @@ fi
 dracutfunctions=$dracutbasedir/dracut-functions
 export dracutfunctions
 
+# Detect lib paths
+[[ $libdir ]] || for libdir in /lib64 /lib; do
+    [[ -d $libdir ]] && break
+done || {
+    derror 'No lib directory?!!!'
+    exit 1
+}
+[[ $usrlibdir ]] || for usrlibdir in /usr/lib64 /usr/lib; do
+    [[ -d $usrlibdir ]] && break
+done || dwarning 'No usr/lib directory!'
+
 # This is kinda legacy -- eventually it should go away.
 case $dracutmodules in
     ""|auto) dracutmodules="all" ;;
@@ -273,7 +284,7 @@ chmod 755 "$initdir"
 export initdir hookdirs dracutbasedir dracutmodules drivers \
     fw_dir drivers_dir debug beverbose no_kernel kernel_only \
     add_drivers mdadmconf lvmconf filesystems ignore_kmodules \
-    use_fstab
+    use_fstab libdir usrlibdir
 
 if [[ $kernel_only != yes ]]; then
     # Create some directory structure first
