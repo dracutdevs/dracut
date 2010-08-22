@@ -117,16 +117,42 @@ if [ -n "$keydev_uuid" ]; then
     cryptsetup -d "$mntp/$keypath" luksOpen "$device" "$luksname"
     umount "$mntp"
     rmdir -p "$mntp" 2>/dev/null
+    unset mntp keypath keydev_uuid
 else
-    # flock against other interactive activities
-    { flock -s 9;
-        echo -n "$device ($luksname) is password protected"
-        cryptsetup luksOpen -T1 $1 $luksname
-    } 9>/.console.lock
+    # Prompt for password with plymouth, if installed.
+    # Should we check if plymouthd is running?
+    if [ -x /bin/plymouth ]; then
+        prompt="Password [$device ($luksname)]:" 
+        if [ ${#luksname} -gt 8 ]; then
+            sluksname=${sluksname##luks-}
+            sluksname=${luksname%%${luksname##????????}}
+            prompt="Password for $device ($sluksname...)"
+        fi
+        
+	# flock against other interactive activities
+        { flock -s 9; 
+            /bin/plymouth ask-for-password \
+	        --prompt "$prompt" \
+	        --command="/sbin/cryptsetup luksOpen -T1 $device $luksname"
+        } 9>/.console.lock
+	
+	unset sluksname prompt
+	
+    else
+        # flock against other interactive activities
+        { flock -s 9;
+             echo "$device ($luksname) is password protected"
+             cryptsetup luksOpen -T5 $device $luksname
+        } 9>/.console.lock
+    fi
 fi
+
+unset device luksname
 
 # mark device as asked
 >> /tmp/cryptroot-asked-$2
+
+udevsettle
 
 exit 0
 # vim:ts=8:sw=4:sts=4:et
