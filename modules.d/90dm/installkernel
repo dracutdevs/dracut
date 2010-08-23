@@ -1,9 +1,5 @@
 #!/bin/bash
 
-for i in \
-    dm-snapshot dm-delay dm-mirror dm-mod dm-queue-length \
-    dm-region-hash dm-round-robin dm-service-time dm-snapshot \
-    ; do
-    modinfo -k $kernel $i >/dev/null 2>&1 && instmods $i
-done
+instmods =drivers/md
+
 
