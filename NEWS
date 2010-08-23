@@ -7,7 +7,7 @@ dracut-007
 - distribution specific conf file
 - bootchartd support
 - debug module now has fsck
-- use "hardlink", if available, to safe some space
+- use "hardlink", if available, to save some space
 - /etc/dracut.conf can be overwritten by settings in /etc/dracut.conf.d/*.conf
 - gentoo splash module
 - --ignore-kernel-modules option
