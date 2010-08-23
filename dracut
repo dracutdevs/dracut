@@ -172,7 +172,7 @@ if [[ ! -f $conffile ]]; then
 fi
 
 if [[ ! -d $confdir ]]; then
-    [[ $allowlocal ]] && confdir="$dracutbasedir/dracut.conf.d" \
+    [[ $allowlocal ]] && confdir="$dracutbasedir/dracut.conf.d" || \
         confdir="/etc/dracut.conf.d"
 fi
 
