@@ -92,7 +92,6 @@ done
 
 [[ $target && $kernel ]] || usage
 [[ $img_vers ]] && target="$target-$kernel"
-fi
 
 if [[ $basicmodules ]]; then
 	dracut $dracut_args --add-drivers "$basicmodules" "$target" "$kernel"
