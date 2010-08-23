@@ -17,7 +17,7 @@ arch=$(uname -m)
 for dir in "$usrlibdir/tls/$arch" "$usrlibdir/tls" "$usrlibdir/$arch" \
         "$usrlibdir" "$libdir"; do
     for i in "$dir"/libnss_dns.so.* "$dir"/libnss_mdns4_minimal.so.*; do
-        dracut_install "$i"
+        [ -e "$i" ] && dracut_install "$i"
     done
 done
 

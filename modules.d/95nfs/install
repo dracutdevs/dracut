@@ -12,7 +12,7 @@ dracut_install sed
 for i in {"$libdir","$usrlibdir"}/libnfsidmap_nsswitch.so* \
         {"$libdir","$usrlibdir"}/libnfsidmap/*.so \
         {"$libdir","$usrlibdir"}/libnfsidmap*.so*; do
-    dracut_install "$i"
+    [ -e "$i" ] && dracut_install "$i"
 done
 
 nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
