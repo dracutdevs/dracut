@@ -81,8 +81,8 @@ Creates initial ramdisk images for preloading modules
   --bzip2               Compress the generated initramfs using bzip2.
                         Make sure your kernel has bzip2 decompression support
                         compiled in, otherwise you will not be able to boot.
-  --xz                  Compress the generated initramfs using xz.
-                        Make sure your kernel has xz support compiled in, 
+  --lzma                  Compress the generated initramfs using lzma.
+                        Make sure your kernel has lzma support compiled in, 
                         otherwise you will not be able to boot.
   --no-compress         Do not compress the generated initramfs.  This will
                         override any other compression options.
@@ -137,7 +137,7 @@ while (($# > 0)); do
 	-h|--help)     usage; exit 1 ;;
 	-i|--include)  include_src="$2"; include_target="$3"; shift 2;;
         --bzip2)       [[ $compress != cat ]] && compress="bzip2 -9";;
-        --xz)          [[ $compress != cat ]] && compress="xz -9";;
+        --lzma)          [[ $compress != cat ]] && compress="lzma -9";;
         --no-compress) compress="cat";;
         --gzip)        if [[ $compress != cat ]]; then
             type pigz > /dev/null 2>&1 && compress="pigz -9" || \

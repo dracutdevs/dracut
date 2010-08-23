@@ -357,6 +357,51 @@ target directory in the final initramfs.</para>
             <para>install the space separated list of files into the initramfs.</para>
           </listitem>
         </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--gzip</option>
+          </term>
+          <listitem>
+            <para>Compress the generated initramfs using gzip.
+	    This will be done by default, unless another compression option or --no-compress is passed.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--bzip2</option>
+          </term>
+          <listitem>
+            <para>Compress the generated initramfs using bzip2.
+	    <warning><para>Make sure your kernel has bzip2 decompression support compiled in, otherwise you will not be able to boot.</para></warning>
+	    </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--lzma</option>
+          </term>
+          <listitem>
+            <para>Compress the generated initramfs using lzma.
+	    <warning><para>Make sure your kernel has lzma decompression support compiled in, otherwise you will not be able to boot.</para></warning>
+	    </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--no-compress</option>
+          </term>
+          <listitem>
+            <para>Do not compress the generated initramfs. This will override any other compression options.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option></option>
+          </term>
+          <listitem>
+            <para></para>
+          </listitem>
+        </varlistentry>
       </variablelist>
     </refsect2>
   </refsect1>
