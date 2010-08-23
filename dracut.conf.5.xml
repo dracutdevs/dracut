@@ -32,11 +32,11 @@
   </refsynopsisdiv>
   <refsect1>
     <title>Description</title>
-    <para><emphasis>dracut.conf</emphasis>
+    <para><filename>dracut.conf</filename>
 is loaded during the initialisation phase of dracut.
 Command line parameter will overwrite any values set here.
-<emphasis>dracut.conf.d/*.conf files are read in alphanumerical order and will</emphasis>
-overwrite parameters set in /etc/dracut.conf. Each line specifies an attribute and a value. A &apos;#&apos; indicates the beginning of a comment; following characters, up to the end of the line are not interpreted.</para>
+<emphasis><filename>dracut.conf.d/*.conf</filename> files are read in alphanumerical order and will</emphasis>
+overwrite parameters set in <filename>/etc/dracut.conf</filename>. Each line specifies an attribute and a value. A &apos;#&apos; indicates the beginning of a comment; following characters, up to the end of the line are not interpreted.</para>
     <variablelist>
       <varlistentry>
         <term>
@@ -45,7 +45,7 @@ overwrite parameters set in /etc/dracut.conf. Each line specifies an attribute a
         <listitem>
           <para>Specify a space-separated list of dracut modules to
 call when building the initramfs. Modules are located
-in /usr/share/dracut/modules.d.</para>
+in <filename>/usr/share/dracut/modules.d</filename>.</para>
         </listitem>
       </varlistentry>
       <varlistentry>
@@ -107,7 +107,7 @@ initramfs.</para>
           <envar>fw_dir+=&quot;&#160;:<replaceable>&lt;dir&gt;</replaceable>[:<replaceable>&lt;dir&gt;</replaceable>&nbsp;...]&nbsp;&quot;</envar>
         </term>
         <listitem>
-          <para>Specify additional directories, where to look for firmwares, separated by :</para>
+          <para>Specify additional directories, where to look for firmwares, separated by <constant>:</constant></para>
         </listitem>
       </varlistentry>
       <varlistentry>
@@ -124,9 +124,10 @@ initramfs.</para>
         </term>
         <listitem>
           <para>Host-Only mode: Install only what is needed for booting 
-	  the local host instead of a generic host.
-	  <warning><para>If chrooted to another root other than the real root device, use "--fstab" and provide a valid /etc/fstab.</para></warning>
-	  </para>
+   the local host instead of a generic host.
+   <warning><para>If chrooted to another root other than the real root device, use <option>--fstab</option> and provide a valid <filename>/etc/fstab</filename>.</para>
+            </warning>
+   </para>
         </listitem>
       </varlistentry>
       <varlistentry>
@@ -134,7 +135,7 @@ initramfs.</para>
           <envar>use_fstab=&quot;<replaceable>{yes|no}</replaceable>&quot;</envar>
         </term>
         <listitem>
-          <para>Use /etc/fstab instead of /proc/self/mountinfo.</para>
+          <para>Use <filename>/etc/fstab</filename> instead of <filename>/proc/self/mountinfo</filename>.</para>
         </listitem>
       </varlistentry>
       <varlistentry>
@@ -142,7 +143,7 @@ initramfs.</para>
           <envar>mdadmconf=&quot;<replaceable>{yes|no}</replaceable>&quot;</envar>
         </term>
         <listitem>
-          <para>Include local /etc/mdadm.conf (default=yes)</para>
+          <para>Include local <filename>/etc/mdadm.conf</filename> (default=yes)</para>
         </listitem>
       </varlistentry>
       <varlistentry>
@@ -150,7 +151,7 @@ initramfs.</para>
           <envar>lvmconf=&quot;<replaceable>{yes|no}</replaceable>&quot;</envar>
         </term>
         <listitem>
-          <para>Include local /etc/lvm/lvm.conf (default=yes)</para>
+          <para>Include local <filename>/etc/lvm/lvm.conf</filename> (default=yes)</para>
         </listitem>
       </varlistentry>
       <varlistentry>
@@ -179,7 +180,7 @@ initramfs.</para>
           <filename>/etc/dracut/conf.d/</filename>
         </term>
         <listitem>
-          <para>Any /etc/dracut/conf.d/*.conf file can overwrite the values in /etc/dracut.conf.
+          <para>Any <filename>/etc/dracut/conf.d/*.conf</filename> file can overwrite the values in <filename>/etc/dracut.conf</filename>.
 The configuration files are read in alphanumerical order.</para>
         </listitem>
       </varlistentry>

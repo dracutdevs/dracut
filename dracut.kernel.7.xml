@@ -48,11 +48,8 @@ root filesystem.</para>
           </term>
           <listitem>
             <para>specify blockdevice to use as root filesystem. 
-     e.g.
-     <programlisting>
-root=/dev/sda1
-root=/dev/disk/by-path/pci-0000:00:1f.1-scsi-0:0:1:0-part1
-     </programlisting></para>
+     e.g.: <programlisting>root=/dev/sda1
+root=/dev/disk/by-path/pci-0000:00:1f.1-scsi-0:0:1:0-part1     </programlisting></para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -60,7 +57,7 @@ root=/dev/disk/by-path/pci-0000:00:1f.1-scsi-0:0:1:0-part1
             <envar>rootfstype=<replaceable>&lt;filesystem type&gt;</replaceable></envar>
           </term>
           <listitem>
-            <para>&quot;auto&quot; if not specified, e.g. rootfstype=ext3</para>
+            <para>&quot;auto&quot; if not specified, e.g.: <programlisting>rootfstype=ext3</programlisting></para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -68,7 +65,7 @@ root=/dev/disk/by-path/pci-0000:00:1f.1-scsi-0:0:1:0-part1
             <envar>rootflags=<replaceable>&lt;mount options&gt;</replaceable></envar>
           </term>
           <listitem>
-            <para>specify additional mount options for the root filesystem. If not set, /etc/fstab
+            <para>specify additional mount options for the root filesystem. If not set, <filename>/etc/fstab</filename>
 of the real root will be parsed for special mount options and mounted 
 accordingly.</para>
           </listitem>
@@ -79,7 +76,7 @@ accordingly.</para>
           </term>
           <listitem>
             <para>do not honor special mount options for the root filesystem found in 
-/etc/fstab of the real root.</para>
+<filename>/etc/fstab</filename> of the real root.</para>
           </listitem>
         </varlistentry>
       </variablelist>
@@ -131,7 +128,7 @@ This parameter can be specified multiple times.</para>
             <envar>rdinitdebug</envar>
           </term>
           <listitem>
-            <para>set -x for the dracut shell and logs to dmesg, console and /init.log</para>
+            <para>set -x for the dracut shell and logs to dmesg, console and <filename>/init.log</filename></para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -143,7 +140,10 @@ This parameter can be specified multiple times.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term><envar>rdbreak=</envar>{cmdline|pre-udev|pre-trigger|initqueue|pre-mount|mount|pre-pivot} </term>
+          <term>
+            <envar>rdbreak=</envar>
+            <replaceable>{cmdline|pre-udev|pre-trigger|initqueue|pre-mount|mount|pre-pivot}</replaceable>
+          </term>
           <listitem>
             <para>drop to a shell on defined breakpoint</para>
           </listitem>
@@ -175,7 +175,7 @@ This parameter can be specified multiple times.</para>
             <replaceable>&lt;keymap base file name&gt;</replaceable>
           </term>
           <listitem>
-            <para>keyboard translation table loaded by loadkeys; taken from keymaps directory; will be written to /etc/sysconfig/keyboard in the initramfs, e.g.: <programlisting>KEYMAP=de-latin1-nodeadkeys</programlisting></para>
+            <para>keyboard translation table loaded by loadkeys; taken from keymaps directory; will be written to <filename>/etc/sysconfig/keyboard</filename> in the initramfs, e.g.: <programlisting>KEYMAP=de-latin1-nodeadkeys</programlisting></para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -184,7 +184,7 @@ This parameter can be specified multiple times.</para>
             <replaceable>&lt;list of keymap base file names&gt;</replaceable>
           </term>
           <listitem>
-            <para>list of extra keymaps to bo loaded (sep. by space); will be written to /etc/sysconfig/keyboard in the initramfs</para>
+            <para>list of extra keymaps to bo loaded (sep. by space); will be written to <filename>/etc/sysconfig/keyboard</filename> in the initramfs</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -193,7 +193,7 @@ This parameter can be specified multiple times.</para>
             <replaceable>&lt;1|0&gt;</replaceable>
           </term>
           <listitem>
-            <para>boolean, indicating UTF-8 mode; will be written to /etc/sysconfig/i18n in the initramfs</para>
+            <para>boolean, indicating UTF-8 mode; will be written to <filename>/etc/sysconfig/i18n</filename> in the initramfs</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -202,7 +202,7 @@ This parameter can be specified multiple times.</para>
             <replaceable>&lt;font base file name&gt;</replaceable>
           </term>
           <listitem>
-            <para>console font; taken from consolefonts directory;  will be written to /etc/sysconfig/i18n in the initramfs; e.g.: <programlisting>SYSFONT=LatArCyrHeb-16</programlisting></para>
+            <para>console font; taken from consolefonts directory;  will be written to <filename>/etc/sysconfig/i18n</filename> in the initramfs; e.g.: <programlisting>SYSFONT=LatArCyrHeb-16</programlisting></para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -211,7 +211,7 @@ This parameter can be specified multiple times.</para>
             <replaceable>&lt;console map base file name&gt;</replaceable>
           </term>
           <listitem>
-            <para>see description of &apos;-m&apos; parameter in setfont manual; taken from consoletrans directory; will be written to /etc/sysconfig/i18n in the initramfs</para>
+            <para>see description of &apos;-m&apos; parameter in setfont manual; taken from consoletrans directory; will be written to <filename>/etc/sysconfig/i18n</filename> in the initramfs</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -220,7 +220,7 @@ This parameter can be specified multiple times.</para>
             <replaceable>&lt;unicode table base file name&gt;</replaceable>
           </term>
           <listitem>
-            <para>see description of &apos;-u&apos; parameter in setfont manual; taken from unimaps directory; will be written to /etc/sysconfig/i18n in the initramfs</para>
+            <para>see description of &apos;-u&apos; parameter in setfont manual; taken from unimaps directory; will be written to <filename>/etc/sysconfig/i18n</filename> in the initramfs</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -229,7 +229,7 @@ This parameter can be specified multiple times.</para>
             <replaceable>&lt;locale&gt;</replaceable>
           </term>
           <listitem>
-            <para>taken from the environment; if no UNICODE is defined we set its value in basis of LANG value (whether it ends with &quot;.utf8&quot; (or similar) or not); will be written to /etc/sysconfig/i18n in the initramfs; e.g.: <programlisting>LANG=pl_PL.utf8</programlisting></para>
+            <para>taken from the environment; if no UNICODE is defined we set its value in basis of LANG value (whether it ends with &quot;.utf8&quot; (or similar) or not); will be written to <filename>/etc/sysconfig/i18n</filename> in the initramfs; e.g.: <programlisting>LANG=pl_PL.utf8</programlisting></para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -238,7 +238,7 @@ This parameter can be specified multiple times.</para>
             <replaceable>&lt;locale&gt;</replaceable>
           </term>
           <listitem>
-            <para>taken from the environment; will be written to /etc/sysconfig/i18n in the initramfs</para>
+            <para>taken from the environment; will be written to <filename>/etc/sysconfig/i18n</filename> in the initramfs</para>
           </listitem>
         </varlistentry>
       </variablelist>
@@ -260,7 +260,7 @@ This parameter can be specified multiple times.</para>
           </term>
           <listitem>
             <para>only activate the volume groups with the given name
-rd_LVM_VG can be specified multiple times on the kernel command line.</para>
+<envar>rd_LVM_VG</envar> can be specified multiple times on the kernel command line.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -269,7 +269,7 @@ rd_LVM_VG can be specified multiple times on the kernel command line.</para>
           </term>
           <listitem>
             <para>only activate the logical volumes with the given name
-rd_LVM_LV can be specified multiple times on the kernel command line.</para>
+<envar>rd_LVM_LV</envar> can be specified multiple times on the kernel command line.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -277,7 +277,7 @@ rd_LVM_LV can be specified multiple times on the kernel command line.</para>
             <envar>rd_NO_LVMCONF</envar>
           </term>
           <listitem>
-            <para>remove any /etc/lvm/lvm.conf, which may exist in the initramfs</para>
+            <para>remove any <filename>/etc/lvm/lvm.conf</filename>, which may exist in the initramfs</para>
           </listitem>
         </varlistentry>
       </variablelist>
@@ -299,8 +299,8 @@ rd_LVM_LV can be specified multiple times on the kernel command line.</para>
           </term>
           <listitem>
             <para>only activate the LUKS partitions with the given UUID
-Any &quot;luks-&quot; of the LUKS UUID is removed before comparing to &lt;luks uuid&gt;.
-The comparisons also matches, if &lt;luks uuid&gt; is only the beginning of the 
+Any &quot;luks-&quot; of the LUKS UUID is removed before comparing to <replaceable>&lt;luks uuid&gt;</replaceable>.
+The comparisons also matches, if <replaceable>&lt;luks uuid&gt;</replaceable> is only the beginning of the 
 LUKS UUID, so you don&apos;t have to specify the full UUID.
 This parameter can be specified multiple times.</para>
           </listitem>
@@ -310,7 +310,7 @@ This parameter can be specified multiple times.</para>
             <envar>rd_NO_CRYPTTAB</envar>
           </term>
           <listitem>
-            <para>do not check, if LUKS partition is in /etc/crypttab</para>
+            <para>do not check, if LUKS partition is in <filename>/etc/crypttab</filename></para>
           </listitem>
         </varlistentry>
       </variablelist>
@@ -334,7 +334,7 @@ This parameter can be specified multiple times.</para>
             <replaceable>&lt;rem. device uuid&gt;</replaceable>
           </term>
           <listitem>
-            <para>UUID of removalbe device storing keyfile; UUID doesn&apos;t have to be exact just like for rd_LUKS_UUID</para>
+            <para>UUID of removalbe device storing keyfile; UUID doesn&apos;t have to be exact just like for <envar>rd_LUKS_UUID</envar></para>
           </listitem>
         </varlistentry>
       </variablelist>
@@ -411,7 +411,8 @@ This parameter can be specified multiple times.</para>
             <para>dhcp|on|any: get ip from dhcp server from all interfaces. If root=dhcp, 
 loop sequentially through all interfaces (eth0, eth1, ...) and use the first 
 with a valid DHCP root-path.</para>
-            <para>auto6: do IPv6 autoconfiguration</para>
+            <para><constant>auto6</constant>: IPv6 autoconfiguration</para>
+            <para><constant>dhcp6</constant>: IPv6 DHCP</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -436,8 +437,7 @@ This parameter can be specified multiple times.</para>
           <listitem>
             <para>Assign network device name &lt;interface&gt; (ie eth0) to the NIC with MAC &lt;MAC&gt;.
 Note letters in the MAC-address must be lowercase!
-Note that if you use this option you <emphasis remap="B">must</emphasis> specify an ifname= argument
-for all interfaces used in ip= or fcoe= arguments
+<remark>Note: If you use this option you <emphasis remap="B">must</emphasis> specify an ifname= argument for all interfaces used in ip= or fcoe= arguments.</remark>
 This parameter can be specified multiple times.</para>
           </listitem>
         </varlistentry>
@@ -480,7 +480,7 @@ NFS options can be appended with the prefix &quot;:&quot; or &quot;,&quot; and a
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term><envar>root=</envar>nfs:<optional><replaceable>&lt;server-ip&gt;</replaceable>:</optional><replaceable>&lt;root-dir&gt;</replaceable><optional>:<replaceable>&lt;nfs-options&gt;</replaceable></optional></term>
+          <term><envar>root=</envar><constant>nfs</constant>:<optional><replaceable>&lt;server-ip&gt;</replaceable>:</optional><replaceable>&lt;root-dir&gt;</replaceable><optional>:<replaceable>&lt;nfs-options&gt;</replaceable></optional></term>
           <term><envar>root=</envar>nfs4:<optional><replaceable>&lt;server-ip&gt;</replaceable>:</optional><replaceable>&lt;root-dir&gt;</replaceable><optional>:<replaceable>&lt;nfs-options&gt;</replaceable></optional></term>
           <term>
             <envar>root=</envar>
@@ -504,9 +504,9 @@ options can be specified.
             <optional>:<replaceable>&lt;nfs-options&gt;</replaceable></optional>
           </term>
           <listitem>
-            <para><emphasis remap="B">Deprecated!</emphasis> kernel Documentation/filesystems/nfsroot.txt defines 
+            <para><emphasis remap="B">Deprecated!</emphasis> kernel Documentation<filename>/filesystems/nfsroot.txt</filename> defines 
 this method.  
-This is supported by dracut but not recommended.</para>
+This is supported by dracut, but not recommended.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -515,7 +515,7 @@ This is supported by dracut but not recommended.</para>
             <replaceable>&lt;NFSv4 domain name&gt;</replaceable>
           </term>
           <listitem>
-            <para>Set the NFSv4 domain name. Will overwrite the settings in /etc/idmap.conf.</para>
+            <para>Set the NFSv4 domain name. Will overwrite the settings in <filename>/etc/idmap.conf</filename>.</para>
           </listitem>
         </varlistentry>
       </variablelist>
@@ -524,7 +524,7 @@ This is supported by dracut but not recommended.</para>
       <title>iSCSI</title>
       <variablelist>
         <varlistentry>
-          <term><envar>root=</envar>iscsi:<optional><replaceable>&lt;username&gt;</replaceable>:<replaceable>&lt;password&gt;</replaceable><optional>:<replaceable>&lt;reverse&gt;</replaceable>:<replaceable>&lt;password&gt;</replaceable></optional>@</optional><optional>
+          <term><envar>root=</envar><constant>iscsi</constant>:<optional><replaceable>&lt;username&gt;</replaceable>:<replaceable>&lt;password&gt;</replaceable><optional>:<replaceable>&lt;reverse&gt;</replaceable>:<replaceable>&lt;password&gt;</replaceable></optional>@</optional><optional>
               <replaceable>&lt;servername&gt;</replaceable>
             </optional>:<optional>
               <replaceable>&lt;protocol&gt;</replaceable>
@@ -542,19 +542,13 @@ the boot server in the Boot stage (Section 7).  However, if the
 then used in the Discovery Service stage in conjunction with other
 associated fields.</para>
             <para><ulink url="http://tools.ietf.org/html/rfc4173">http://tools.ietf.org/html/rfc4173</ulink></para>
-            <para>e.g. 
-     <programlisting>
-root=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0
-     </programlisting>
-     </para>
-            <para>If servername is an IPv6 address, it has to be put in brackets. e.g. 
-     <programlisting>
-root=iscsi:[2001:DB8::1]::::iqn.2009-06.dracut:target0
-     </programlisting></para>
+            <para>e.g.:<programlisting>root=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0    </programlisting></para>
+            <para>If servername is an IPv6 address, it has to be put in brackets. e.g.: 
+     <programlisting>root=iscsi:[2001:DB8::1]::::iqn.2009-06.dracut:target0    </programlisting></para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term><envar>root=</envar><replaceable>???</replaceable><envar> netroot=</envar>iscsi:<optional><replaceable>&lt;username&gt;</replaceable>:<replaceable>&lt;password&gt;</replaceable><optional>:<replaceable>&lt;reverse&gt;</replaceable>:<replaceable>&lt;password&gt;</replaceable></optional>@</optional><optional>
+          <term><envar>root=</envar><replaceable>???</replaceable><envar> netroot=</envar><constant>iscsi</constant>:<optional><replaceable>&lt;username&gt;</replaceable>:<replaceable>&lt;password&gt;</replaceable><optional>:<replaceable>&lt;reverse&gt;</replaceable>:<replaceable>&lt;password&gt;</replaceable></optional>@</optional><optional>
               <replaceable>&lt;servername&gt;</replaceable>
             </optional>:<optional>
               <replaceable>&lt;protocol&gt;</replaceable>
@@ -564,14 +558,12 @@ root=iscsi:[2001:DB8::1]::::iqn.2009-06.dracut:target0
               <replaceable>&lt;LUN&gt;</replaceable>
             </optional>:<replaceable>&lt;targetname&gt;</replaceable> ...</term>
           <listitem>
-            <para>multiple netroot options allow setting up multiple iscsi disks. e.g. 
-     <programlisting>
-root=UUID=12424547
+            <para>multiple netroot options allow setting up multiple iscsi disks. e.g.: 
+     <programlisting>root=UUID=12424547
 netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0
-netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target1
-     </programlisting></para>
+netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target1  </programlisting></para>
             <para>If servername is an IPv6 address, it has to be put in brackets.
- e.g.
+ e.g.:
   <programlisting>netroot=iscsi:[2001:DB8::1]::::iqn.2009-06.dracut:target0</programlisting></para>
           </listitem>
         </varlistentry>
@@ -604,11 +596,10 @@ netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target1
       <title>FCoE</title>
       <variablelist>
         <varlistentry>
-          <term><envar>netroot=</envar>fcoe:<replaceable>&lt;interface|MAC&gt;</replaceable>:<replaceable>{dcb|nodcb}</replaceable></term>
+          <term><envar>netroot=</envar><constant>fcoe</constant>:<replaceable>&lt;interface|MAC&gt;</replaceable>:<replaceable>{dcb|nodcb}</replaceable></term>
           <listitem>
-            <para>Try to connect to a FCoE SAN through the NIC specified by &lt;interface&gt; or &lt;MAC&gt;,
-for the second argument, currently only nodcb is supported. Note letters in
-the MAC-address must be lowercase!</para>
+            <para>Try to connect to a FCoE SAN through the NIC specified by <replaceable>&lt;interface&gt;</replaceable> or <replaceable>&lt;MAC&gt;</replaceable>,
+for the second argument, currently only nodcb is supported. <remark>Note: letters in the MAC-address must be lowercase!</remark></para>
           </listitem>
         </varlistentry>
       </variablelist>
@@ -667,8 +658,7 @@ This parameter can be specified multiple times.</para>
         <varlistentry>
           <term><envar>rd_ZFCP=</envar><replaceable>&lt;zfcp adaptor device bus ID&gt;</replaceable>,<replaceable>&lt;WWPN&gt;</replaceable>,<replaceable>&lt;FCPLUN&gt;</replaceable></term>
           <listitem>
-            <para>rd_ZFCP can be specified multiple times on the kernel command line.</para>
-            <para>example: rd_ZFCP=0.0.4000,0x5005076300C213e9,0x5022000000000000</para>
+            <para>rd_ZFCP can be specified multiple times on the kernel command line. e.g.: <programlisting>rd_ZFCP=0.0.4000,0x5005076300C213e9,0x5022000000000000</programlisting></para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -687,9 +677,9 @@ This parameter can be specified multiple times.</para>
         <varlistentry>
           <term><envar>rd_ZNET=</envar><replaceable>&lt;nettype&gt;</replaceable>,<replaceable>&lt;subchannels&gt;</replaceable>,<replaceable>&lt;options&gt;</replaceable></term>
           <listitem>
-            <para>rd_ZNET can be specified multiple times on the kernel command line. Examples:
-    rd_ZNET=qeth,0.0.0600,0.0.0601,0.0.0602,layer2=1,portname=foo
-    rd_ZNET=ctc,0.0.0600,0.0.0601,0.0.0602,protocol=bar</para>
+            <para>rd_ZNET can be specified multiple times on the kernel command line. e.g.:
+    <programlisting>rd_ZNET=qeth,0.0.0600,0.0.0601,0.0.0602,layer2=1,portname=foo
+rd_ZNET=ctc,0.0.0600,0.0.0601,0.0.0602,protocol=bar</programlisting></para>
           </listitem>
         </varlistentry>
       </variablelist>
@@ -709,70 +699,27 @@ This parameter can be specified multiple times.</para>
     </refsect2>
   </refsect1>
   <refsect1>
-    <title>Files</title>
+    <title>Configuration in the Initramfs</title>
     <variablelist>
       <varlistentry>
         <term>
-          <filename>/var/log/dracut.log</filename>
+          <filename>/conf/conf.d/</filename>
         </term>
         <listitem>
-          <para>logfile of initramfs image creation</para>
+          <para>Any files found in <filename>/conf/conf.d/</filename> will be sourced in the initramfs to 
+set initial values. Command line options will override these values 
+set in the configuration files.</para>
         </listitem>
       </varlistentry>
       <varlistentry>
         <term>
-          <filename>/tmp/dracut.log</filename>
+          <filename>/etc/cmdline</filename>
         </term>
         <listitem>
-          <para>logfile of initramfs image creation, if /var/log/dracut.log is not writable</para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>
-          <filename>/etc/dracut.conf</filename>
-        </term>
-        <listitem>
-          <para>see <citerefentry>
-              <refentrytitle>dracut.conf</refentrytitle>
-              <manvolnum>5</manvolnum>
-            </citerefentry></para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>
-          <filename>/etc/dracut.conf.d/*.conf</filename>
-        </term>
-        <listitem>
-          <para>see <citerefentry>
-              <refentrytitle>dracut.conf</refentrytitle>
-              <manvolnum>5</manvolnum>
-            </citerefentry></para>
+          <para>Can contain additional command line options.</para>
         </listitem>
       </varlistentry>
     </variablelist>
-    <refsect2>
-      <title>Configuration in the Initramfs</title>
-      <variablelist>
-        <varlistentry>
-          <term>
-            <filename>/conf/conf.d/</filename>
-          </term>
-          <listitem>
-            <para>Any files found in /conf/conf.d/ will be sourced in the initramfs to 
-set initial values. Command line options will override these values 
-set in the configuration files.</para>
-          </listitem>
-        </varlistentry>
-        <varlistentry>
-          <term>
-            <filename>/etc/cmdline</filename>
-          </term>
-          <listitem>
-            <para>Can contain additional command line options.</para>
-          </listitem>
-        </varlistentry>
-      </variablelist>
-    </refsect2>
   </refsect1>
   <refsect1>
     <title>See Also</title>

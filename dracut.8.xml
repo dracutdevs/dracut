@@ -216,7 +216,7 @@ assumed that everything needed is built into kernel</para>
             <option>--mdadmconf</option>
           </term>
           <listitem>
-            <para>include local /etc/mdadm.conf</para>
+            <para>include local <filename>/etc/mdadm.conf</filename></para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -224,7 +224,7 @@ assumed that everything needed is built into kernel</para>
             <option>--nomdadmconf</option>
           </term>
           <listitem>
-            <para>do not include local /etc/mdadm.conf</para>
+            <para>do not include local <filename>/etc/mdadm.conf</filename></para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -304,7 +304,7 @@ Default:
             <option>--local</option>
           </term>
           <listitem>
-            <para>activates the local mode. Dracut will use modules from the current working
+            <para>activates the local mode. dracut will use modules from the current working
 directory instead of the system-wide installed modules in
 <filename>/usr/share/dracut/modules.d</filename>.
 Thsi is useful when running dracut from a git checkout.</para>
@@ -320,9 +320,7 @@ Thsi is useful when running dracut from a git checkout.</para>
           <listitem>
             <para>Host-Only mode: Install only what is needed for booting 
 the local host instead of a generic host. 
-     <warning>
-                <para>If chrooted to another root other than the real root device, use &quot;--fstab&quot; and provide a valid /etc/fstab.</para>
-              </warning>
+     <warning><para>If chrooted to another root other than the real root device, use &quot;--fstab&quot; and provide a valid <filename>/etc/fstab</filename>.</para></warning>
      </para>
           </listitem>
         </varlistentry>
@@ -455,7 +453,7 @@ target directory in the final initramfs.</para>
             <filename>/conf/conf.d/</filename>
           </term>
           <listitem>
-            <para>Any files found in /conf/conf.d/ will be sourced in the initramfs to 
+            <para>Any files found in <filename>/conf/conf.d/</filename> will be sourced in the initramfs to 
 set initial values. Command line options will override these values 
 set in the configuration files.</para>
           </listitem>
