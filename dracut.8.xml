@@ -320,7 +320,9 @@ Thsi is useful when running dracut from a git checkout.</para>
           <listitem>
             <para>Host-Only mode: Install only what is needed for booting 
 the local host instead of a generic host. 
-     <warning><para>If chrooted to another root other than the real root device, use &quot;--fstab&quot; and provide a valid <filename>/etc/fstab</filename>.</para></warning>
+     <warning>
+                <para>If chrooted to another root other than the real root device, use &quot;--fstab&quot; and provide a valid <filename>/etc/fstab</filename>.</para>
+              </warning>
      </para>
           </listitem>
         </varlistentry>
@@ -361,7 +363,7 @@ target directory in the final initramfs.</para>
           </term>
           <listitem>
             <para>Compress the generated initramfs using gzip.
-	    This will be done by default, unless another compression option or --no-compress is passed.</para>
+     This will be done by default, unless another compression option or --no-compress is passed.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -370,8 +372,10 @@ target directory in the final initramfs.</para>
           </term>
           <listitem>
             <para>Compress the generated initramfs using bzip2.
-	    <warning><para>Make sure your kernel has bzip2 decompression support compiled in, otherwise you will not be able to boot.</para></warning>
-	    </para>
+     <warning>
+                <para>Make sure your kernel has bzip2 decompression support compiled in, otherwise you will not be able to boot.</para>
+              </warning>
+     </para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -380,8 +384,10 @@ target directory in the final initramfs.</para>
           </term>
           <listitem>
             <para>Compress the generated initramfs using lzma.
-	    <warning><para>Make sure your kernel has lzma decompression support compiled in, otherwise you will not be able to boot.</para></warning>
-	    </para>
+     <warning>
+                <para>Make sure your kernel has lzma decompression support compiled in, otherwise you will not be able to boot.</para>
+              </warning>
+     </para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -394,10 +400,10 @@ target directory in the final initramfs.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <option></option>
+            <option>--list-modules</option>
           </term>
           <listitem>
-            <para></para>
+            <para>List all available dracut modules.</para>
           </listitem>
         </varlistentry>
       </variablelist>

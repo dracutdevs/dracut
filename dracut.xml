@@ -1,0 +1,422 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- This document was created with Syntext Serna Free. --><!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" []>
+<book>
+  <title>dracut</title>
+  <bookinfo>
+    <author>
+      <firstname>Harald</firstname>
+      <surname>Hoyer</surname>
+    </author>
+    <pubdate>2010</pubdate>
+    <edition>Version 1.0</edition>
+    <copyright>
+      <year>2010</year>
+      <holder>Harald Hoyer</holder>
+    </copyright>
+    <legalnotice>
+      <para>
+ This work is licensed under the Creative Commons Attribution/Share-Alike License. To view a copy of this license, visit <ulink url="http://creativecommons.org/licenses/by-sa/3.0/">http://creativecommons.org/licenses/by-sa/3.0/</ulink> or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+      </para>
+    </legalnotice>
+  </bookinfo>
+  <toc/>
+  <chapter>
+    <chapterinfo>
+      <legalnotice>
+        <para>
+ This section is a modified version of <ulink url="http://en.wikipedia.org/wiki/Initrd">http://en.wikipedia.org/wiki/Initrd</ulink>, which is licensed under the Creative Commons Attribution/Share-Alike License.
+      </para>
+      </legalnotice>
+    </chapterinfo>
+    <title>Introduction</title>
+    <section>
+      <title>Definition</title>
+      <para>An <emphasis>initial ramdisk</emphasis> is a temporary file system used in the boot process of the Linux kernel.  <emphasis>initrd</emphasis> and <emphasis>initramfs</emphasis> refer to slightly different schemes for loading this file system into memory.  Both are commonly used to make preparations before the real root file system can be mounted.</para>
+    </section>
+    <section>
+      <title>Rationale </title>
+      <para>Many Linux distributions ship a single, generic kernel image that is intended to boot as wide a variety of hardware as possible.  The device drivers for this generic kernel image are included as loadable modules, as it is not possible to statically compile them all into the one kernel without making it too large to boot from computers with limited memory or from lower-capacity media like floppy disks.
+        </para>
+      <para>This then raises the problem of detecting and loading the modules necessary to mount the root file system at boot time (or, for that matter, deducing where or what the root file system is).
+        </para>
+      <para>To further complicate matters, the root file system may be on a software RAID volume, LVM, NFS (on diskless workstations), or on an encrypted partition.  All of these require special preparations to mount.
+        </para>
+      <para>Another complication is kernel support for hibernation, which suspends the computer to disk by dumping an image of the entire system to a swap partition or a regular file, then powering off.  On next boot, this image has to be made accessible before it can be loaded back into memory. </para>
+      <para>To avoid having to hardcode handling for so many special cases into the kernel, an initial boot stage with a temporary root file system—now dubbed early user space—is used.  This root file system would contain user-space helpers that would do the hardware detection, module loading and device discovery necessary to get the real root file system mounted.
+      </para>
+    </section>
+    <section>
+      <title>Implementation </title>
+      <para>An image of this initial root file system (along with the kernel image) must be stored somewhere accessible by the Linux bootloader or the boot firmware of the computer.  This can be: </para>
+      <itemizedlist>
+        <listitem>
+          <para>The root file system itself </para>
+        </listitem>
+        <listitem>
+          <para>A boot image on an optical disc
+   </para>
+        </listitem>
+        <listitem>
+          <para>A small ext2/ext3 or FAT-formatted partition on a local disk (a <emphasis>boot partition</emphasis>)</para>
+        </listitem>
+        <listitem>
+          <para>A TFTP server (on systems that can boot from Ethernet) </para>
+        </listitem>
+      </itemizedlist>
+      <para>The bootloader will load the kernel and initial root file system image into memory and then start the kernel, passing in the memory address of the image. 
+    </para>
+      <para>Depending on which algorithms were compiled statically into it, the kernel can currently unpack initrd/initramfs images compressed with gzip, bzip2 and LZMA. </para>
+    </section>
+    <section>
+      <title>Mount preparations </title>
+      <para>dracut can generate a customized initrams image which contains only whatever is necessary to boot some particular computer, such as ATA, SCSI and filesystem kernel modules (host-only mode).</para>
+      <para>dracut can also generate a more generic initramfs image (default mode).  </para>
+      <para>dracut&apos;s initramfs starts only with the device name of the root file system (or its UUID) and must discover everything else at boot time.  A complex cascade of tasks must be performed to get the root file system mounted: </para>
+      <itemizedlist>
+        <listitem>
+          <para>Any hardware drivers that the boot process depends on must be loaded.  All kernel modules for common storage devices are packed onto the initramfs and then udev pulls in modules matching the computer&apos;s detected hardware. </para>
+        </listitem>
+        <listitem>
+          <para>On systems which display a boot splash screen, the video hardware must be initialized and a user-space helper started to paint animations onto the display in lockstep with the boot process. </para>
+        </listitem>
+        <listitem>
+          <para>If the root file system is on NFS, dracut does  then: <itemizedlist>
+              <listitem>
+                <para>Bring up the primary network interface. </para>
+              </listitem>
+              <listitem>
+                <para>Invoke a DHCP client, with which it can obtain a DHCP lease. </para>
+              </listitem>
+              <listitem>
+                <para>Extract the name of the NFS share and the address of the NFS server from the lease. </para>
+              </listitem>
+              <listitem>
+                <para>Mount the NFS share. </para>
+              </listitem>
+            </itemizedlist></para>
+        </listitem>
+        <listitem>
+          <para>If the root file system appears to be on a software RAID device, there is no way of knowing which devices the RAID volume spans; the standard MD utilities must be invoked to scan all available block devices with a raid signature and bring the required ones online. </para>
+        </listitem>
+        <listitem>
+          <para>If the root file system appears to be on a logical volume, the LVM utilities must be invoked to scan for and activate the volume group containing it. </para>
+        </listitem>
+        <listitem>
+          <para>If the root file system is on an encrypted block device: <itemizedlist>
+              <listitem>
+                <para>Invoke a helper script to prompt the user to type in a passphrase and/or insert a hardware token (such as a smart card or a USB security dongle). </para>
+              </listitem>
+              <listitem>
+                <para>Create a decryption target with the device mapper. </para>
+              </listitem>
+            </itemizedlist></para>
+        </listitem>
+      </itemizedlist>
+      <para>dracut uses udev, an event-driven hotplug agent, which invokes helper programs as hardware devices, disk partitions and storage volumes matching certain rules come online.  This allows discovery to run in parallel, and to progressively cascade into arbitrary nestings of LVM, RAID or encryption to get at the root file system. </para>
+      <para>When the root file system finally becomes visible: <itemizedlist>
+          <listitem>
+            <para>Any maintenance tasks which cannot run on a mounted root file system are done.  </para>
+          </listitem>
+          <listitem>
+            <para>The root file system is mounted read-only. </para>
+          </listitem>
+          <listitem>
+            <para>Any processes which must continue running (such as the splash screen helper and its command FIFO) are hoisted into the newly-mounted root file system. </para>
+          </listitem>
+        </itemizedlist></para>
+      <para>The final root file system cannot simply be mounted over /, since that would make the scripts and tools on the initial root file system inaccessible for any final cleanup tasks. On an initramfs, the initial root file system cannot be rotated away. Instead, it is simply emptied and the final root file system mounted over the top.
+    </para>
+    </section>
+  </chapter>
+  <chapter>
+    <title>User Manual</title>
+    <section>
+      <title>Creating an initramfs Image</title>
+      <para>To create a initramfs image, the most simple command is:</para>
+      <screen># dracut</screen>
+      <para>This will generate a general purpose initramfs image, with all possible functionality resulting of  the combination of the installed dracut modules and system tools. The image is /boot/initramfs-<replaceable>&lt;kernel version&gt;</replaceable>.img and contains the kernel modules of the currently active kernel with version <replaceable>&lt;kernel version&gt;</replaceable>.</para>
+      <para>If the initramfs image already exists, dracut will display an error message, and to overwrite the existing image, you have to use the <option>--force</option> option. </para>
+      <screen># dracut --force</screen>
+      <para>If you want to specify another filename for the resulting image you would issue a command like:</para>
+      <screen># dracut foobar.img</screen>
+      <para>To generate an image for a specific kernel version, the command would be:</para>
+      <screen># dracut foobar.img 2.6.40-1.rc5.f20</screen>
+      <para>A shortcut to generate the image at the default location for a specific kernel version is:</para>
+      <screen># dracut &apos;&apos; 2.6.40-1.rc5.f20</screen>
+      <para>If you want to create lighter, smaller initramfs images, you may want to specify the <option>--host-only</option> or  <option>-H</option> option. Using this option, the resulting image will contain only those dracut modules, kernel modules and filesystems, which are needed to boot this specific machine. This has the drawback, that you can&apos;t put the disk on another controller or machine, and that you can&apos;t switch to another root filesystem, without recreating the initramfs image. The usage of the <option>--host-only</option> option is only for experts and you will have to keep the broken pieces. At least keep a copy of a general purpose image (and corresponding kernel) as a fallback to rescue your system.</para>
+      <para/>
+      <section>
+        <title>Inspecting the Contents</title>
+        <para>To see the contents of the image created by dracut, you can use the <command>lsinitrd</command> tool.</para>
+        <screen># lsinitrd /boot/initramfs-$(uname -r).img | less</screen>
+        <para>To display the contents of a file in the initramfs also use the <command>lsinitrd</command> tool:</para>
+        <screen># lsinitrd /boot/initramfs-$(uname -r).img  /etc/ld.so.conf
+include ld.so.conf.d/*.conf</screen>
+      </section>
+      <section>
+        <title>Adding dracut Modules</title>
+        <para>Some dracut modules are turned off by default and have to be activated manually. You can do this by adding the dracut modules to the configuration file <filename>/etc/dracut.conf</filename> or <filename>/etc/dracut.conf.d/myconf.conf</filename>. See the dracut.conf(5) man page. You can also add dracut modules on the command line by using the <option>-a</option> or <option>--add</option> option:</para>
+        <screen># dracut --add bootchart initramfs-bootchart.img</screen>
+        <para>To see a list of available dracut modules, use the <option>--list-modules</option> option:</para>
+        <screen># dracut --list-modules</screen>
+        <para>or, if you have a dracut version earlier than 008, issue the command:</para>
+        <screen># for mod in /usr/share/dracut/modules.d/*; do echo ${mod##*/??}; done</screen>
+      </section>
+      <section>
+        <title>Omitting dracut Modules</title>
+        <para>Sometimes you don&apos;t want a dracut module to be included for reasons of speed, size or functionality. To do this, either specify the <envar>add_dracutmodules</envar> variable in  the <filename>dracut.conf</filename> or <filename>/etc/dracut.conf.d/myconf.conf</filename> configuration file (see dracut.conf(5) man page), or use the <option>-o</option> or <option>--omit</option> option on the command line:</para>
+        <screen># dracut -o &quot;multipath lvm&quot; no-multipath-lvm.img</screen>
+      </section>
+      <section>
+        <title>Adding Kernel Modules</title>
+        <para>If you need a special kernel module in the initramfs, which is not automatically picked up by dracut, you have the use the <option>--add-drivers</option> option on the command line or  the drivers vaiable in  the <filename>/etc/dracut.conf</filename> or <filename>/etc/dracut.conf.d/myconf.conf</filename> configuration file (see dracut.conf(5) man page):</para>
+        <screen># dracut --add-drivers mymod initramfs-with-mymod.img</screen>
+        <para/>
+      </section>
+    </section>
+    <section>
+      <title>Boot parameters</title>
+      <para>The generated initramfs.img file normally does not contain any system configuration files (except for some special exceptions), so the configuration has to be done on the kernel command line. With this flexibility, you can easily boot from a changed root partition, without the need to recompile the initramfs image. So, you could completly change your root partition (move it inside a md raid with encryption and LVM on top), as long as you specify the correct filesystem LABEL or UUID on the kernel command line for your root device, dracut will find it and boot from it.</para>
+      <para>The kernel command line usually can be configured in <filename>/boot/grub/grub.conf</filename>, if grub is your bootloader and it also can be edited in the real boot process in the grub menu.</para>
+      <para>The kernel command line can also be provided by the dhcp server with the root-path option. See the &quot;Network Boot&quot; section.</para>
+      <para>For a full reference of all kernel command line parameters, see the dracut.kernel(5) or dracut(8) man page.</para>
+      <section>
+        <title>Specifying the root Device</title>
+        <para>This is the only option dracut really needs to boot from your root partition. Because your root partition can live in various environments, there are a lot of formats for the <envar>root=</envar> option. The most basic one is <envar>root=<replaceable>&lt;path to device node&gt;</replaceable></envar>:</para>
+        <screen>root=/dev/sda2</screen>
+        <para>Because device node names can change, dependent on the drive ordering,  you are encouraged to use the filesystem identifier (UUID) or filesystem label (LABEL) to specify your root partition:</para>
+        <screen>root=UUID=19e9dda3-5a38-484d-a9b0-fa6b067d0331</screen>
+        <para>or</para>
+        <screen>root=LABEL=myrootpartitionlabel</screen>
+        <para>To see all UUIDs or LABELs on your system, do:</para>
+        <screen># ls -l /dev/disk/by-uuid</screen>
+        <para>or</para>
+        <screen># ls -l /dev/disk/by-label</screen>
+        <para>If your root partition is on the network see the &quot;Network Boot&quot; section.</para>
+        <para/>
+      </section>
+      <section>
+        <title>Keyboard Settings</title>
+        <para>If you have to input passwords for encrypted disk volumes, you might want to set the keyboard layout and specify a display font.</para>
+        <para>A typical german kernel command would contain:</para>
+        <screen>vconsole.font=latarcyrheb-sun16 vconsole.keymap=de-latin1-nodeadkeys locale.LANG=de_DE.UTF-8</screen>
+        <para>Setting these options can override the setting stored on your system, if you use a modern init system, like systemd.</para>
+        <para>For dracut versions prior to version 008 the line would look like:</para>
+        <screen>LANG=de_DE.UTF-8 SYSFONT=latarcyrheb-sun16 KEYBOARDTYPE=pc KEYTABLE=de-latin1-nodeadkeys</screen>
+      </section>
+      <section>
+        <title>Blacklisting Kernel Modules</title>
+        <para>Sometimes it is required to prevent the automatic kernel module loading of a specific kernel module. To do this, just add <envar>rd.blacklist=<replaceable>&lt;kernel module name&gt;</replaceable></envar>, with <replaceable>&lt;kernel module name&gt;</replaceable> not containing the .ko suffix, to the kernel command line. For example:</para>
+        <screen>rd.blacklist=mptsas rd.blacklist=nouveau</screen>
+        <para>The option can be specified multiple times on the kernel command line.</para>
+      </section>
+      <section>
+        <title>Speeding up the Boot Process</title>
+        <para>If you want to speed up the boot process, you can specify as much information for dracut on the kernel command as possible. For example, you can tell dracut, that you root partition is not on a LVM volume or not on a raid partition, or that it lives inside a specific crypto LUKS encrypted volume. By default, dracut searches everywhere. A typical dracut kernel command line for a plain primary or logical partition would contain:</para>
+        <screen>rd.luks=0 rd.lvm=0 rd.md=0 rd.dm=0</screen>
+        <para>on systems with dracut version prior to 008 the line would look like:</para>
+        <screen>rd_NO_LUKS rd_NO_LVM rd_NO_MD rd_NO_DM</screen>
+        <para>This turns off every automatic assembly of LVM, MD raids, DM raids and crypto LUKS.</para>
+        <para>Of course, you could also omit the dracut modules in the initramfs creation process, but then you would lose the posibility to turn it on on demand.</para>
+      </section>
+      <section>
+        <title>Injecting custom Files</title>
+        <para>To add your own files to the initramfs image, you have several possibilities.</para>
+        <para>The <option>--include</option> option let you specify a source path and a target path. For example</para>
+        <screen># dracut --include cmdline-preset /etc/cmdline initramfs-cmdline-pre.img</screen>
+        <para>will create an initramfs image, where the file cmdline-preset will be copied inside the initramfs to  <filename>/etc/cmdline</filename>. <option>--include</option> can only be specified once.</para>
+        <screen># mkdir overlay
+# mkdir overlay/etc
+# mkdir overlay/etc/conf.d
+# echo &quot;ip=auto&quot; &gt;&gt; overlay/etc/cmdline
+# echo export TESTVAR=testtest &gt;&gt; overlay/etc/conf.d/testvar.conf
+# echo export TESTVAR=testtest &gt;&gt; overlay/etc/conf.d/testvar.conf
+# tree overlay/
+overlay/
+└── etc
+    ├── cmdline
+    └── conf.d
+        └── testvar.conf
+# dracut --include overlay / initramfs-overlay.img</screen>
+        <para>This will put the contents of the overlay directory into the root of the initramfs image.</para>
+        <para>The <option>--install</option> option let you specify several files, which will get installed in the initramfs image at the same location, as they are present on initramfs creation time.</para>
+        <screen># dracut --install &apos;strace fsck.ext3 ssh&apos; initramfs-dbg.img</screen>
+        <para>This will create an initramfs with the <command>strace</command>, <command>fsck.ext3</command> and <command>ssh</command> executables, together with the libraries needed to start those. The <option>--install</option> option can be specified multiple times.</para>
+      </section>
+    </section>
+    <section>
+      <title>Network Boot</title>
+      <para>If your root partition is on a network drive, you have to have the network dracut modules installed to create a network aware initramfs image.</para>
+      <para>On a Red Hat Enterprise Linux or Fedora system, this means, you have to install the dracut-network rpm package:</para>
+      <screen># yum install dracut-network</screen>
+      <para>The resulting initramfs image can be served by a boot manager residing on your local hard drive or it can be served by a PXE/TFTP server.</para>
+      <para>How to setup your PXE/TFTP server can be read here:</para>
+      <para>blah, blub....</para>
+      <para>If you specify <envar>rd.ip=auto</envar> on the kernel command line,  then dracut asks a dhcp server about the ip adress for the machine. The dhcp server can also serve an additional root-path, which will set the root device for dracut.  With this mechanism, you have static configuration on your client machine and  a centralized boot configuration on your TFTP/dhcp server. If you can&apos;t pass a kernel command line, then you can inject <filename>/etc/cmdline</filename>, with a method described in the section &quot;Injecting custom files&quot;.
+</para>
+      <section>
+        <title>Reducing the Image Size</title>
+        <para>To reduce the size of the initramfs, you should create it with by ommitting all dracut modules, which you know, you don&apos;t need to boot the machine.</para>
+        <para>You can also specify the exact dracut and kernel modules to produce a very tiny initramfs image.</para>
+        <para>For example for a NFS image, you would do:</para>
+        <screen># dracut -m &quot;nfs network  base&quot; initramfs-nfs-only.img</screen>
+        <para>Then you would boot from this image with your target machine and reduce the size once more by creating it  on the target machine with the <option>--host-only</option> option:</para>
+        <screen># dracut -m &quot;nfs network base&quot; --host-only initramfs-nfs-host-only.img</screen>
+        <para>This will reduce the size of the initramfs image significantly.</para>
+        <para/>
+      </section>
+      <section>
+        <title>NFS Root Device</title>
+        <para/>
+      </section>
+      <section>
+        <title>iSCSI Root Device</title>
+        <para>
+ </para>
+      </section>
+      <section>
+        <title>FCoE Root Device</title>
+        <para>
+ </para>
+      </section>
+    </section>
+  </chapter>
+  <chapter>
+    <title>Developer Manual</title>
+    <section>
+      <title>dracut Components</title>
+      <para>
+      </para>
+    </section>
+    <section>
+      <title>Boot Process Stages</title>
+      <para>
+      </para>
+      <section>
+        <title>Basic Setup</title>
+        <para>
+ </para>
+      </section>
+      <section>
+        <title>Hook: cmdline</title>
+        <para>
+ </para>
+      </section>
+      <section>
+        <title>Hook: pre-udev</title>
+        <para>
+ </para>
+      </section>
+      <section>
+        <title>Start Udev</title>
+        <para>
+ </para>
+      </section>
+      <section>
+        <title>Hook: pre-trigger</title>
+        <para>
+ </para>
+      </section>
+      <section>
+        <title>Trigger Udev</title>
+        <para>
+ </para>
+      </section>
+      <section>
+        <title>Main Loop</title>
+        <para>
+ </para>
+        <section>
+          <title>Initqueue</title>
+          <para>
+   </para>
+        </section>
+        <section>
+          <title>Initqueue settled</title>
+          <para>
+   </para>
+        </section>
+        <section>
+          <title>Initqueue finished</title>
+          <para>
+   </para>
+        </section>
+      </section>
+      <section>
+        <title>Hook: pre-mount</title>
+        <para>
+ </para>
+      </section>
+      <section>
+        <title>Hook: mount</title>
+        <para>
+ </para>
+      </section>
+      <section>
+        <title>Hook: pre-pivot</title>
+        <para>
+ </para>
+      </section>
+      <section>
+        <title>Cleanup and switch_root</title>
+        <para>
+ </para>
+      </section>
+    </section>
+    <section>
+      <title>Network Infrastructure</title>
+      <para>
+      </para>
+    </section>
+    <section>
+      <title>Writing a Module</title>
+      <para>
+      </para>
+      <section>
+        <title>Check</title>
+        <para>
+ </para>
+      </section>
+      <section>
+        <title>Install</title>
+        <para>
+ </para>
+      </section>
+      <section>
+        <title>Installkernel</title>
+        <para>
+ </para>
+      </section>
+      <section>
+        <title>Creation Functions</title>
+        <para>
+ </para>
+      </section>
+      <section>
+        <title>Initramfs Functions</title>
+        <para>
+ </para>
+      </section>
+      <section>
+        <title>Network Modules</title>
+        <para>
+ </para>
+      </section>
+    </section>
+  </chapter>
+  <appendix>
+    <title>Man Pages</title>
+    <section>
+      <title>dracut</title>
+      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dracut.8.xml" encoding="UTF-8" parse="xml"/>
+    </section>
+    <section>
+      <title>dracut.conf </title>
+      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dracut.conf.5.xml" encoding="UTF-8" parse="xml"/>
+    </section>
+    <section>
+      <title>dracut.kernel</title>
+      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dracut.kernel.7.xml" encoding="UTF-8" parse="xml"/>
+    </section>
+  </appendix>
+</book>
