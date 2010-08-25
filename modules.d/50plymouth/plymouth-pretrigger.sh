@@ -13,7 +13,6 @@ if ! getarg rd_NO_PLYMOUTH; then
     [ -e /dev/systty ] || ln -s tty0 /dev/systty
     [ -c /dev/fb0 ] || mknod -m 0660 /dev/fb0 c 29 0
     [ -e /dev/fb ] || ln -s fb0 /dev/fb
-    [ -c /dev/hvc0 ] || mknod -m 0600 /dev/hvc0 c 229 0
 
     info "Starting plymouth daemon"
     [ -x /bin/plymouthd ] && /bin/plymouthd --attach-to-session
