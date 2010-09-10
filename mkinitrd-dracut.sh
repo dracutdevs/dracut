@@ -25,13 +25,13 @@ read_arg() {
     # $3 = arg parameter
     local rematch='^[^=]*=(.*)$'
     if [[ $2 =~ $rematch ]]; then
-	read "$1" <<< "${BASH_REMATCH[1]}"
+        read "$1" <<< "${BASH_REMATCH[1]}"
     elif [[ $3 != -* ]]; then
         # Only read next arg if it not an arg itself.
-	read "$1" <<< "$3"
-	# There is no way to shift our callers args, so
-	# return 1 to indicate they should do it instead.
-	return 1
+        read "$1" <<< "$3"
+        # There is no way to shift our callers args, so
+        # return 1 to indicate they should do it instead.
+        return 1
     fi
 }
 
@@ -52,7 +52,7 @@ while (($# > 0)); do
         --preload) read_args modname "$@" || shift
             basicmodules="$basicmodules $modname";;
         --image-version) img_vers=yes;;
-	--rootfs) read_args rootfs "$@" || shift
+        --rootfs) read_args rootfs "$@" || shift
             dracut_args="${dracut_args} --filesystems $rootfs";;
         --nocompress) dracut_args="$dracut_args --no-compress";;
         --help) usage -n;;
@@ -69,15 +69,15 @@ while (($# > 0)); do
         --allow-missing) ;;
         --net-dev*) ;;
         --noresume) ;;
-	--rootdev*) ;;
-	--thawdev*) ;;
-	--rootopts*) ;;
-	--root*) ;;
-	--loopdev*) ;;
-	--loopfs*) ;;
-	--loopopts*) ;;
-	--looppath*) ;;
-	--dsdt*) ;;
+        --rootdev*) ;;
+        --thawdev*) ;;
+        --rootopts*) ;;
+        --root*) ;;
+        --loopdev*) ;;
+        --loopfs*) ;;
+        --loopopts*) ;;
+        --looppath*) ;;
+        --dsdt*) ;;
         --bootchart) ;;
         *) if [[ ! $target ]]; then
             target=$1
@@ -94,7 +94,7 @@ done
 [[ $img_vers ]] && target="$target-$kernel"
 
 if [[ $basicmodules ]]; then
-	dracut $dracut_args --add-drivers "$basicmodules" "$target" "$kernel"
+        dracut $dracut_args --add-drivers "$basicmodules" "$target" "$kernel"
 else
-	dracut $dracut_args "$target" "$kernel"
+        dracut $dracut_args "$target" "$kernel"
 fi
