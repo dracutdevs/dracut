@@ -1,5 +1,7 @@
 #!/bin/bash --norc
-
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
+#
 # Copyright 2009 Red Hat, Inc.  All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -31,7 +33,8 @@ derror() {
 
 usage() {
 #                                                       80x25 linebreak here ^
-	echo "Usage: $0 [OPTION]... <initramfs> <base image> [<image>...]
+    cat << EOF
+Usage: $0 [OPTION]... <initramfs> <base image> [<image>...]
 Creates initial ramdisk image by concatenating several images from the command
 line and /boot/dracut/
 
@@ -45,7 +48,7 @@ line and /boot/dracut/
   -h, --help            This message
   --debug               Output debug information of the build process
   -v, --verbose         Verbose output during the build process
-"
+EOF
 }
 
 
@@ -54,16 +57,16 @@ overlay=/var/lib/dracut/overlay
 
 while (($# > 0)); do
     case $1 in
-	-f|--force) force=yes;;
-	-i|--imagedir) imagedir=$2;shift;;
-	-o|--overlaydir) overlay=$2;shift;;
-	--nooverlay) no_overlay=yes;shift;;
-	--noimagedir) no_imagedir=yes;shift;;
-	-h|--help) usage; exit 1 ;;
-	--debug) debug="yes";;
-	-v|--verbose) beverbose="yes";;
-	-*) printf "\nUnknown option: %s\n\n" "$1" >&2; usage; exit 1;;
-	*) break ;;
+        -f|--force) force=yes;;
+        -i|--imagedir) imagedir=$2;shift;;
+        -o|--overlaydir) overlay=$2;shift;;
+        --nooverlay) no_overlay=yes;shift;;
+        --noimagedir) no_imagedir=yes;shift;;
+        -h|--help) usage; exit 1 ;;
+        --debug) debug="yes";;
+        -v|--verbose) beverbose="yes";;
+        -*) printf "\nUnknown option: %s\n\n" "$1" >&2; usage; exit 1;;
+        *) break ;;
     esac
     shift
 done
@@ -108,7 +111,7 @@ fi
 
 if [[ ! $no_imagedir ]]; then
     for i in "$imagedir/"*.img; do
-	[[ -f $i ]] && images+=("$i")
+        [[ -f $i ]] && images+=("$i")
     done
 fi
 

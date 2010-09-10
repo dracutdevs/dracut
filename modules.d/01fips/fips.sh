@@ -1,4 +1,6 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 do_fips()
 {
     FIPSMODULES=$(cat /etc/fipsmodules)
@@ -6,21 +8,21 @@ do_fips()
     KERNEL=$(uname -r)
     udevadm trigger --action=add >/dev/null 2>&1
     case "$boot" in
-    block:LABEL=*|LABEL=*)
-        boot="${boot#block:}"
-        boot="$(echo $boot | sed 's,/,\\x2f,g')"
-        boot="/dev/disk/by-label/${boot#LABEL=}"
-        bootok=1 ;;
-    block:UUID=*|UUID=*)
-        boot="${boot#block:}"
-        boot="/dev/disk/by-uuid/${root#UUID=}"
-        bootok=1 ;;
-    /dev/*)
-        bootok=1 ;;
+        block:LABEL=*|LABEL=*)
+            boot="${boot#block:}"
+            boot="$(echo $boot | sed 's,/,\\x2f,g')"
+            boot="/dev/disk/by-label/${boot#LABEL=}"
+            bootok=1 ;;
+        block:UUID=*|UUID=*)
+            boot="${boot#block:}"
+            boot="/dev/disk/by-uuid/${root#UUID=}"
+            bootok=1 ;;
+        /dev/*)
+            bootok=1 ;;
     esac
 
     [ -z "$UDEVVERSION" ] && UDEVVERSION=$(udevadm --version)
-
+    
     if [ $UDEVVERSION -ge 143 ]; then
         udevadm settle --exit-if-exists=$boot
     else
@@ -66,5 +68,3 @@ else
     do_fips || die "FIPS integrity test failed"
     set +e
 fi
-
-# vim:ts=8:sw=4:sts=4:et

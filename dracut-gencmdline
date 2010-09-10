@@ -1,4 +1,6 @@
 #!/bin/bash --norc
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 #
 # Copyright 2005-2009 Red Hat, Inc.  All rights reserved.
 #
@@ -43,13 +45,13 @@ function get_verbose() {
 
 
 function get_numeric_dev() {
-(
-    fmt="%d:%d"
-    if [ "$1" == "hex" ]; then
-        fmt="%x:%x"
-    fi
-    ls -lH "$2" | awk '{ sub(/,/, "", $5); printf("'"$fmt"'", $5, $6); }'
-) 2>/dev/null
+    (
+        fmt="%d:%d"
+        if [ "$1" == "hex" ]; then
+            fmt="%x:%x"
+        fi
+        ls -lH "$2" | awk '{ sub(/,/, "", $5); printf("'"$fmt"'", $5, $6); }'
+    ) 2>/dev/null
 }
 
 
@@ -173,7 +175,7 @@ finddevnoinsys() {
     majmin="$1"
     if [ -n "$majmin" ]; then
         dev=$(for x in /sys/block/* ; do find $x/ -name dev ; done | while read device ; do \
-              echo "$majmin" | cmp -s $device && echo $device ; done)
+            echo "$majmin" | cmp -s $device && echo $device ; done)
         if [ -n "$dev" ]; then
             dev=${dev%%/dev}
             dev=${dev%%/}
@@ -309,7 +311,7 @@ iscsi_set_parameters() {
         iscsi_get_rec_val $tmpfile "node.session.auth.password" 
         chap_pw="-w ${result}"
     else
-	chap=""
+        chap=""
     fi
 
     iscsi_get_rec_val $tmpfile "node.session.auth.username_in"
@@ -319,7 +321,7 @@ iscsi_set_parameters() {
         iscsi_get_rec_val $tmpfile "node.session.auth.password_in" 
         chap_in_pw="-W ${result}"
     else
-	chap_in=""
+        chap_in=""
     fi
 
     rm $tmpfile
@@ -395,29 +397,29 @@ handledm() {
     done << EOF
         $(dmsetup table -j $major -m $minor 2>/dev/null)
 EOF
-    local name=$(dmsetup info --noheadings -c -j $major -m $minor -o name)
-    local vg=$(lvshow "/dev/mapper/$name")
-    local raids=$(/sbin/dmraid -s -craidname 2>/dev/null | grep -vi "no raid disks") 
-    if [ -n "$vg" ]; then
-        vg=`echo $vg` # strip whitespace
-        case " $vg_list " in
-        *" $vg "*) ;;
-        *)  vg_list="$vg_list $vg"
-            [ -z "$nolvm" ] && find_base_dm_mods
-            ;;
-        esac
-    fi
-    for raid in $raids ; do
-        if [ "$raid" == "$name" ]; then
-            case " $DMRAIDS " in
-                *" $raid "*) ;;
-                *)  DMRAIDS="$DMRAIDS $raid"
-                    [ -z "$nodmraid" ] && find_base_dm_mods
+        local name=$(dmsetup info --noheadings -c -j $major -m $minor -o name)
+        local vg=$(lvshow "/dev/mapper/$name")
+        local raids=$(/sbin/dmraid -s -craidname 2>/dev/null | grep -vi "no raid disks") 
+        if [ -n "$vg" ]; then
+            vg=`echo $vg` # strip whitespace
+            case " $vg_list " in
+                *" $vg "*) ;;
+                *)  vg_list="$vg_list $vg"
+                    [ -z "$nolvm" ] && find_base_dm_mods
                     ;;
             esac
-            break
         fi
-    done
+        for raid in $raids ; do
+            if [ "$raid" == "$name" ]; then
+                case " $DMRAIDS " in
+                    *" $raid "*) ;;
+                    *)  DMRAIDS="$DMRAIDS $raid"
+                        [ -z "$nodmraid" ] && find_base_dm_mods
+                        ;;
+                esac
+                break
+            fi
+        done
 }
 
 handleiscsi() {
@@ -440,25 +442,25 @@ handleraid() {
         return 0
     fi
 
-    levels=$(awk "/^$1[	 ]*:/ { print\$4 }" /proc/mdstat)
+    levels=$(awk "/^$1[  ]*:/ { print\$4 }" /proc/mdstat)
 
     for level in $levels ; do
         case $level in
-        linear)
-            start=1
-            ;;
-        multipath)
-            start=1
-            ;;
-        raid[01] | raid10)
-            start=1
-            ;;
-        raid[456])
-            start=1
-            ;;
-        *)
-            error "raid level $level (in /proc/mdstat) not recognized"
-            ;;
+            linear)
+                start=1
+                ;;
+            multipath)
+                start=1
+                ;;
+            raid[01] | raid10)
+                start=1
+                ;;
+            raid[456])
+                start=1
+                ;;
+            *)
+                error "raid level $level (in /proc/mdstat) not recognized"
+                ;;
         esac
     done
     if [ "$start" = 1 ]; then
@@ -474,7 +476,7 @@ lvshow() {
 
 vgdisplay() {
     lvm vgdisplay --ignorelockingfailure -v $1 2>/dev/null |
-        sed -n 's/PV Name//p'
+    sed -n 's/PV Name//p'
 }
 
 dmmods_found="n"
@@ -508,78 +510,78 @@ while [ $# -gt 0 ]; do
                 shift
             fi
             ;;
-	--rootdev*)
+        --rootdev*)
             if [ "$1" != "${1##--rootdev=}" ]; then
                 rootdev="${1##--rootdev=}"
             else
                 rootdev="$2"
                 shift
             fi
-	    ;;
-	--thawdev*)
+            ;;
+        --thawdev*)
             if [ "$1" != "${1##--thawdev=}" ]; then
                 thawdev="${1##--thawdev=}"
             else
                 thawdev="$2"
                 shift
             fi
-	    ;;
-	--rootfs*)
+            ;;
+        --rootfs*)
             if [ "$1" != "${1##--rootfs=}" ]; then
                 rootfs="${1##--rootfs=}"
             else
                 rootfs="$2"
                 shift
             fi
-	    ;;
-	--rootopts*)
+            ;;
+        --rootopts*)
             if [ "$1" != "${1##--rootopts=}" ]; then
                 rootopts="${1##--rootopts=}"
             else
                 rootopts="$2"
                 shift
             fi
-	    ;;
-	--root*)
+            ;;
+        --root*)
             if [ "$1" != "${1##--root=}" ]; then
                 root="${1##--root=}"
             else
                 root="$2"
                 shift
             fi
-	    ;;
-	--loopdev*)
+            ;;
+        --loopdev*)
             if [ "$1" != "${1##--loopdev=}" ]; then
                 loopdev="${1##--loopdev=}"
             else
                 loopdev="$2"
                 shift
             fi
-	    ;;
-	--loopfs*)
+            ;;
+        --loopfs*)
             if [ "$1" != "${1##--loopfs=}" ]; then
                 loopfs="${1##--loopfs=}"
             else
                 loopfs="$2"
                 shift
             fi
-	    ;;
-	--loopopts*)
+            ;;
+        --loopopts*)
             if [ "$1" != "${1##--loopopts=}" ]; then
                 loopopts="${1##--loopopts=}"
             else
                 loopopts="$2"
                 shift
             fi
-	    ;;
-	--looppath*)
+            ;;
+        --looppath*)
             if [ "$1" != "${1##--looppath=}" ]; then
                 looppath="${1##--looppath=}"
             else
                 looppath="$2"
                 shift
             fi
-	    ;;
+            ;;
         --help)
             usage -n
             ;;
@@ -597,33 +599,33 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-    [ -z "$rootfs" ] && rootfs=$(awk '{ if ($1 !~ /^[ \t]*#/ && $2 == "/") { print $3; }}' $fstab)
-    [ -z "$rootopts" ] && rootopts=$(awk '{ if ($1 !~ /^[ \t]*#/ && $2 == "/") { print $4; }}' $fstab)
-    [ -z "$rootopts" ] && rootopts="defaults"
+[ -z "$rootfs" ] && rootfs=$(awk '{ if ($1 !~ /^[ \t]*#/ && $2 == "/") { print $3; }}' $fstab)
+[ -z "$rootopts" ] && rootopts=$(awk '{ if ($1 !~ /^[ \t]*#/ && $2 == "/") { print $4; }}' $fstab)
+[ -z "$rootopts" ] && rootopts="defaults"
 
 
-    [ -z "$rootdev" ] && rootdev=$(awk '/^[ \t]*[^#]/ { if ($2 == "/") { print $1; }}' $fstab)
+[ -z "$rootdev" ] && rootdev=$(awk '/^[ \t]*[^#]/ { if ($2 == "/") { print $1; }}' $fstab)
     # check if it's nfsroot
-    physdev=""
-    if [ "$rootfs" == "nfs" ]; then
-        if [ "x$net_list" == "x" ]; then
-            handlenfs $rootdev
-        fi
-    else
-        # check if it's root by label
-        rdev=$rootdev
-        rdev=$(resolve_device_name "$rdev")
-        rootopts=$(echo $rootopts | sed -e 's/^r[ow],//' -e 's/,_netdev//' -e 's/_netdev//' -e 's/,r[ow],$//' -e 's/,r[ow],/,/' -e 's/^r[ow]$/defaults/' -e 's/$/,ro/')
-        findstoragedriver "$rdev"
+physdev=""
+if [ "$rootfs" == "nfs" ]; then
+    if [ "x$net_list" == "x" ]; then
+        handlenfs $rootdev
     fi
+else
+        # check if it's root by label
+    rdev=$rootdev
+    rdev=$(resolve_device_name "$rdev")
+    rootopts=$(echo $rootopts | sed -e 's/^r[ow],//' -e 's/,_netdev//' -e 's/_netdev//' -e 's/,r[ow],$//' -e 's/,r[ow],/,/' -e 's/^r[ow]$/defaults/' -e 's/$/,ro/')
+    findstoragedriver "$rdev"
+fi
 
     # find the first swap dev which would get used for swsusp
-    [ -z "$thawdev" ] && thawdev=$(awk '/^[ \t]*[^#]/ { if ($3 == "swap") { print $1; exit }}' $fstab)
-    swsuspdev="$thawdev"
-    if [ -n "$swsuspdev" ]; then
-        swsuspdev=$(resolve_device_name "$swsuspdev")
-	findstoragedriver "$swsuspdev"
-    fi
+[ -z "$thawdev" ] && thawdev=$(awk '/^[ \t]*[^#]/ { if ($3 == "swap") { print $1; exit }}' $fstab)
+swsuspdev="$thawdev"
+if [ -n "$swsuspdev" ]; then
+    swsuspdev=$(resolve_device_name "$swsuspdev")
+    findstoragedriver "$swsuspdev"
+fi
 
 
 cemit()
@@ -678,7 +680,7 @@ fi
 
 if [ -z "$nolvm" -a -n "$vg_list" ]; then    
     for vg in $vg_list; do 
-	echo -n "rd_LVM_VG=$vg "
+        echo -n "rd_LVM_VG=$vg "
     done
 else
     echo -n "rd_NO_LVM "
@@ -712,4 +714,3 @@ if [ -n "$rootdev" ]; then
 fi
 
 echo
-# vim:ts=8:sw=4:sts=4:et

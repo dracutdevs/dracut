@@ -1,4 +1,6 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 
 . /lib/dracut-lib.sh
 
@@ -13,7 +15,7 @@ filter_rootopts() {
     while [ $# -gt 0 ]; do
         case $1 in
             rw|ro);;
-	    defaults);;
+            defaults);;
             *)
                 v="$v,${1}";;
         esac
@@ -28,32 +30,32 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
         && ROOTFS_MOUNTED=yes 
 
     if ! getarg rd_NO_FSTAB \
-      && ! getarg rootflags \
-      && [ -f "$NEWROOT/etc/fstab" ] \
-      && ! [ -L "$NEWROOT/etc/fstab" ]; then
+        && ! getarg rootflags \
+        && [ -f "$NEWROOT/etc/fstab" ] \
+        && ! [ -L "$NEWROOT/etc/fstab" ]; then
         # if $NEWROOT/etc/fstab contains special mount options for 
         # the root filesystem,
         # remount it with the proper options
-	rootfs="auto"
-	rootopts="defaults"
-	while read dev mp fs opts rest; do 
+        rootfs="auto"
+        rootopts="defaults"
+        while read dev mp fs opts rest; do 
             # skip comments
             [ "${dev%%#*}" != "$dev" ] && continue
             
             if [ "$mp" = "/" ]; then
-		rootfs=$fs
-		rootopts=$opts
-		break
+                rootfs=$fs
+                rootopts=$opts
+                break
             fi
-	done < "$NEWROOT/etc/fstab"
+        done < "$NEWROOT/etc/fstab"
 
-	rootopts=$(filter_rootopts $rootopts)
+        rootopts=$(filter_rootopts $rootopts)
 
-	if [ -n "$rootopts" ]; then
+        if [ -n "$rootopts" ]; then
             umount $NEWROOT
             info "Remounting ${root#block:} with -o $rootopts,$rflags"
             mount -t "$rootfs" -o "$rflags","$rootopts" \
                 "${root#block:}" "$NEWROOT" 2>&1 | vinfo
-	fi
+        fi
     fi
 fi

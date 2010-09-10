@@ -1,4 +1,6 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 
 # config file syntax:
 # deviceno   WWPN   FCPLUN
@@ -22,34 +24,34 @@ CONFIG=/etc/zfcp.conf
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
 
 if [ -f "$CONFIG" ]; then
-   if [ ! -d /sys/bus/ccw/drivers/zfcp ]; then
-      modprobe zfcp
-   fi
-   if [ ! -d /sys/bus/ccw/drivers/zfcp ]; then
-      return
-   fi
-   tr "A-Z" "a-z" < $CONFIG| while read line; do
-       case $line in
-	   \#*) ;;
-	   *)
-	       [ -z "$line" ] && continue
-	       set $line
-	       if [ $# -eq 5 ]; then
-		   DEVICE=$1
-		   SCSIID=$2
-		   WWPN=$3
-		   SCSILUN=$4
-		   FCPLUN=$5
-		   echo "Warning: Deprecated values in /etc/zfcp.conf, ignoring SCSI ID $SCSIID and SCSI LUN $SCSILUN"
-	       elif [ $# -eq 3 ]; then
-		   DEVICE=${1##*0x}
-		   WWPN=$2
-		   FCPLUN=$3
-	       fi
-	       echo 1 > /sys/bus/ccw/drivers/zfcp/${DEVICE}/online
-	       [ ! -d /sys/bus/ccw/drivers/zfcp/${DEVICE}/${WWPN}/${FCPLUN} ] \
-		   && echo $FCPLUN > /sys/bus/ccw/drivers/zfcp/${DEVICE}/${WWPN}/unit_add
-	       ;;
-       esac
-   done
+    if [ ! -d /sys/bus/ccw/drivers/zfcp ]; then
+        modprobe zfcp
+    fi
+    if [ ! -d /sys/bus/ccw/drivers/zfcp ]; then
+        return
+    fi
+    tr "A-Z" "a-z" < $CONFIG| while read line; do
+    case $line in
+        \#*) ;;
+        *)
+            [ -z "$line" ] && continue
+            set $line
+            if [ $# -eq 5 ]; then
+                DEVICE=$1
+                SCSIID=$2
+                WWPN=$3
+                SCSILUN=$4
+                FCPLUN=$5
+                echo "Warning: Deprecated values in /etc/zfcp.conf, ignoring SCSI ID $SCSIID and SCSI LUN $SCSILUN"
+            elif [ $# -eq 3 ]; then
+                DEVICE=${1##*0x}
+                WWPN=$2
+                FCPLUN=$3
+            fi
+            echo 1 > /sys/bus/ccw/drivers/zfcp/${DEVICE}/online
+            [ ! -d /sys/bus/ccw/drivers/zfcp/${DEVICE}/${WWPN}/${FCPLUN} ] \
+                && echo $FCPLUN > /sys/bus/ccw/drivers/zfcp/${DEVICE}/${WWPN}/unit_add
+            ;;
+    esac
+    done
 fi

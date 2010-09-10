@@ -1,4 +1,6 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 #
 # We don't need to check for ip= errors here, that is handled by the
 # cmdline parser script
@@ -14,16 +16,16 @@ do_dhcp() {
     # XXX add -V vendor class and option parsing per kernel
     echo "Starting dhcp for interface $netif"
     dhclient "$@" -1 -q -cf /etc/dhclient.conf -pf /tmp/dhclient.$netif.pid -lf /tmp/dhclient.$netif.lease $netif \
-    || echo "dhcp failed"
+        || echo "dhcp failed"
 }
 
 load_ipv6() {
     modprobe ipv6
     i=0
     while [ ! -d /proc/sys/net/ipv6 ]; do
-	i=$(($i+1))
-	[ $i -gt 10 ] && break
-	sleep 0.1
+        i=$(($i+1))
+        [ $i -gt 10 ] && break
+        sleep 0.1
     done
 }
 
@@ -33,17 +35,17 @@ do_ipv6auto() {
         echo 0 > /proc/sys/net/ipv6/conf/$netif/forwarding 
         echo 1 > /proc/sys/net/ipv6/conf/$netif/accept_ra
         echo 1 > /proc/sys/net/ipv6/conf/$netif/accept_redirects
-	echo ip link set $netif up 
-	echo wait_for_if_up $netif
+        echo ip link set $netif up 
+        echo wait_for_if_up $netif
     } > /tmp/net.$netif.up
 
     [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
 
     namesrv=$(getargs nameserver)
     if  [ -n "$namesrv" ] ; then
-	for s in $namesrv; do
-	    echo nameserver $s 
-	done
+        for s in $namesrv; do
+            echo nameserver $s 
+        done
     fi >> /tmp/net.$netif.resolv.conf
 
 
@@ -56,12 +58,12 @@ do_static() {
     strstr $ip '*:*:*' && load_ipv6
 
     {
-	echo ip link set $netif up 
-	echo wait_for_if_up $netif
-	# do not flush addr for ipv6
-	strstr $ip '*:*:*' || \
-	    echo ip addr flush dev $netif
-	echo ip addr add $ip/$mask dev $netif
+        echo ip link set $netif up 
+        echo wait_for_if_up $netif
+        # do not flush addr for ipv6
+        strstr $ip '*:*:*' || \
+            echo ip addr flush dev $netif
+        echo ip addr add $ip/$mask dev $netif
     } > /tmp/net.$netif.up
 
     [ -n "$gw" ] && echo ip route add default via $gw dev $netif > /tmp/net.$netif.gw
@@ -69,9 +71,9 @@ do_static() {
 
     namesrv=$(getargs nameserver)
     if  [ -n "$namesrv" ] ; then
-	for s in $namesrv; do
-	    echo nameserver $s 
-	done
+        for s in $namesrv; do
+            echo nameserver $s 
+        done
     fi >> /tmp/net.$netif.resolv.conf
 
     echo online > /sys/class/net/$netif/uevent
@@ -130,9 +132,9 @@ ip=$(getarg ip)
 
 if [ -z "$ip" ]; then
     if [ "$netroot" = "dhcp6" ]; then
-	do_dhcp -6
+        do_dhcp -6
     else
-	do_dhcp -4
+        do_dhcp -4
     fi
 fi
 
@@ -140,24 +142,24 @@ fi
 # looking for ip= lines
 for p in $(getargs ip=); do
     ip_to_var $p
-	
+    
     # If this option isn't directed at our interface, skip it
     [ -n "$dev" ] && [ "$dev" != "$netif" ] && continue
 
     # Store config for later use
     for i in ip srv gw mask hostname; do
-	eval '[ "$'$i'" ] && echo '$i'="$'$i'"'
+        eval '[ "$'$i'" ] && echo '$i'="$'$i'"'
     done > /tmp/net.$netif.override
 
     case $autoconf in
-	dhcp|on|any)
-	    do_dhcp -4 ;;
-	dhcp6)
-	    do_dhcp -6 ;;
-	auto6)
-	    do_ipv6auto ;;
+        dhcp|on|any)
+            do_dhcp -4 ;;
+        dhcp6)
+            do_dhcp -6 ;;
+        auto6)
+            do_ipv6auto ;;
         *) 
-	    do_static ;;
+            do_static ;;
     esac
     break
 done

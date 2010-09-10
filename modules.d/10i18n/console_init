@@ -1,4 +1,6 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 
 [ -e /etc/sysconfig/i18n ] && . /etc/sysconfig/i18n
 [ -e /etc/sysconfig/keyboard ] && . /etc/sysconfig/keyboard
@@ -58,7 +60,7 @@ dev_open() {
     local dev=$1
 
     exec 6<${dev} && \
-    exec 7>>${dev}
+        exec 7>>${dev}
 }
 
 

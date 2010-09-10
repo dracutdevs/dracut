@@ -1,4 +1,6 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 
 KBDSUBDIRS=consolefonts,consoletrans,keymaps,unimaps
 DEFAULT_SYSFONT=LatArCyrHeb-16
@@ -10,7 +12,7 @@ KEYBOARD_CONF="${initdir}/etc/sysconfig/keyboard"
 findkeymap () {
     local MAP=$1
     [[ ! -f $MAP ]] && \
-    MAP=$(find ${kbddir}/keymaps -type f -name $MAP -o -name $MAP.\* | head -n1)
+        MAP=$(find ${kbddir}/keymaps -type f -name $MAP -o -name $MAP.\* | head -n1)
     [[ " $KEYMAPS " = *" $MAP "* ]] && return
     KEYMAPS="$KEYMAPS $MAP"
     case $MAP in
@@ -161,12 +163,12 @@ checks() {
     for kbddir in ${kbddir} /usr/lib/kbd /lib/kbd /usr/share
     do
         [[ -d "${kbddir}" ]] && \
-        for dir in ${KBDSUBDIRS//,/ }
-        do
-            [[ -d "${kbddir}/${dir}" ]] && continue
-            false
-        done && break
-	kbddir='' 
+            for dir in ${KBDSUBDIRS//,/ } 
+            do
+                [[ -d "${kbddir}/${dir}" ]] && continue
+                false
+            done && break
+        kbddir='' 
     done
 
     [[ ${kbddir} ]] || {

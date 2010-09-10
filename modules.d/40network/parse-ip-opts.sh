@@ -1,11 +1,13 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 #
 # Format:
-#	ip=[dhcp|on|any]
+#       ip=[dhcp|on|any]
 #
-#	ip=<interface>:[dhcp|on|any]
+#       ip=<interface>:[dhcp|on|any]
 #
-#	ip=<client-IP-number>:<server-id>:<gateway-IP-number>:<netmask>:<client-hostname>:<interface>:[dhcp|on|any|none|off]
+#       ip=<client-IP-number>:<server-id>:<gateway-IP-number>:<netmask>:<client-hostname>:<interface>:[dhcp|on|any|none|off]
 #
 # When supplying more than only ip= line, <interface> is mandatory and
 # bootdev= must contain the name of the primary interface to use for
@@ -17,8 +19,8 @@
 # Check if ip= lines should be used
 if getarg ip= >/dev/null ; then
     if [ -z "$netroot" ] ; then
-	echo "Warning: No netboot configured, ignoring ip= lines"
-	return;
+        echo "Warning: No netboot configured, ignoring ip= lines"
+        return;
     fi
 fi
 
@@ -38,7 +40,7 @@ fi
 if [ -z "$NEEDBOOTDEV" ] ; then
     local count=0
     for p in $(getargs ip=); do
-	count=$(( $count + 1 ))
+        count=$(( $count + 1 ))
     done
     [ $count -gt 1 ] && NEEDBOOTDEV=1
 fi
@@ -59,39 +61,39 @@ for p in $(getargs ip=); do
 
     # Empty autoconf defaults to 'dhcp'
     if [ -z "$autoconf" ] ; then
-	warn "Empty autoconf values default to dhcp"
-	autoconf="dhcp"
+        warn "Empty autoconf values default to dhcp"
+        autoconf="dhcp"
     fi
 
     # Error checking for autoconf in combination with other values
     case $autoconf in
-	error) die "Error parsing option 'ip=$p'";;
-	bootp|rarp|both) die "Sorry, ip=$autoconf is currenty unsupported";;
-	none|off) \
-	    [ -z "$ip" ] && \
-		die "For argument 'ip=$p'\nValue '$autoconf' without static configuration does not make sense"
-	    [ -z "$mask" ] && \
-		die "Sorry, automatic calculation of netmask is not yet supported"
-	    ;;
-	auto6);;
-	dhcp|dhcp6|on|any) \
-	    [ -n "$NEEDBOOTDEV" ] && [ -z "$dev" ] && \
-	        die "Sorry, 'ip=$p' does not make sense for multiple interface configurations"
-	    [ -n "$ip" ] && \
-		die "For argument 'ip=$p'\nSorry, setting client-ip does not make sense for '$autoconf'"
-	    ;;
-	*) die "For argument 'ip=$p'\nSorry, unknown value '$autoconf'";;
+        error) die "Error parsing option 'ip=$p'";;
+        bootp|rarp|both) die "Sorry, ip=$autoconf is currenty unsupported";;
+        none|off) \
+            [ -z "$ip" ] && \
+            die "For argument 'ip=$p'\nValue '$autoconf' without static configuration does not make sense"
+            [ -z "$mask" ] && \
+                die "Sorry, automatic calculation of netmask is not yet supported"
+            ;;
+        auto6);;
+        dhcp|dhcp6|on|any) \
+            [ -n "$NEEDBOOTDEV" ] && [ -z "$dev" ] && \
+            die "Sorry, 'ip=$p' does not make sense for multiple interface configurations"
+            [ -n "$ip" ] && \
+                die "For argument 'ip=$p'\nSorry, setting client-ip does not make sense for '$autoconf'"
+            ;;
+        *) die "For argument 'ip=$p'\nSorry, unknown value '$autoconf'";;
     esac
 
     if [ -n "$dev" ] ; then
         # We don't like duplicate device configs
-	if [ -n "$IFACES" ] ; then
-	    for i in $IFACES ; do
-		[ "$dev" = "$i" ] && die "For argument 'ip=$p'\nDuplication configurations for '$dev'"
-	    done
-	fi
-	# IFACES list for later use
-	IFACES="$IFACES $dev"
+        if [ -n "$IFACES" ] ; then
+            for i in $IFACES ; do
+                [ "$dev" = "$i" ] && die "For argument 'ip=$p'\nDuplication configurations for '$dev'"
+            done
+        fi
+        # IFACES list for later use
+        IFACES="$IFACES $dev"
     fi
 
     # Small optimization for udev rules
@@ -99,15 +101,15 @@ for p in $(getargs ip=); do
 
     # Do we need to check for specific options?
     if [ -n "$NEEDDHCP" ] || [ -n "$DHCPORSERVER" ] ; then
-	# Correct device? (Empty is ok as well)
-	[ "$dev" = "$BOOTDEV" ] || continue
-	# Server-ip is there?
-	[ -n "$DHCPORSERVER" ] && [ -n "$srv" ] && continue
-	# dhcp? (It's simpler to check for a set ip. Checks above ensure that if
-	# ip is there, we're static
-	[ -z "$ip" ] && continue
-	# Not good!
-	die "Server-ip or dhcp for netboot needed, but current arguments say otherwise"
+        # Correct device? (Empty is ok as well)
+        [ "$dev" = "$BOOTDEV" ] || continue
+        # Server-ip is there?
+        [ -n "$DHCPORSERVER" ] && [ -n "$srv" ] && continue
+        # dhcp? (It's simpler to check for a set ip. Checks above ensure that if
+        # ip is there, we're static
+        [ -z "$ip" ] && continue
+        # Not good!
+        die "Server-ip or dhcp for netboot needed, but current arguments say otherwise"
     fi
 
 done

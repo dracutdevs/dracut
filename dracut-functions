@@ -1,4 +1,6 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 #
 # functions used by dracut and other tools.
 #
@@ -58,8 +60,8 @@ vercmp() {
 # Log initrd creation.
 if ! [[ $dracutlogfile ]]; then
     [[ $dracutbasedir = /usr/share/dracut ]] && \
-	dracutlogfile=/var/log/dracut.log || \
-	dracutlogfile=/tmp/dracut.log
+        dracutlogfile=/var/log/dracut.log || \
+        dracutlogfile=/tmp/dracut.log
 #    [[ -w $dracutlogfile ]] || dracutlogfile=/tmp/dracut.log
     if [[ -w $dracutlogfile ]]; then
         >"$dracutlogfile"
@@ -99,21 +101,21 @@ get_fs_env() {
     [[ $ID_FS_TYPE ]] && return
 
     if [[ -x /lib/udev/vol_id ]]; then
-	eval $(/lib/udev/vol_id --export $1)
+        eval $(/lib/udev/vol_id --export $1)
     elif find_binary blkid >/dev/null; then
-	eval $(blkid -o udev $1)
+        eval $(blkid -o udev $1)
     else
-	return 1
+        return 1
     fi
 }
 
 get_fs_type() (
     [[ $1 ]] || return
     if [[ $1 != ${1#/dev/block/nfs:} ]] \
-	|| [[ $1 != ${1#/dev/block/nfs3:} ]] \
-	|| [[ $1 != ${1#/dev/block/nfs4:} ]]; then
-	echo "nfs"
-	return
+        || [[ $1 != ${1#/dev/block/nfs3:} ]] \
+        || [[ $1 != ${1#/dev/block/nfs4:} ]]; then
+        echo "nfs"
+        return
     fi
     get_fs_env $1 || return
     echo $ID_FS_TYPE
@@ -127,32 +129,32 @@ get_fs_uuid() (
 # finds the major:minor of the block device backing the root filesystem.
 find_block_device() {
     local x mpt majmin dev fs misc maj min
-    if [[ $use_fstab != yes ]]; then	
-	while read x x majmin x mpt x x fs misc; do
+    if [[ $use_fstab != yes ]]; then    
+        while read x x majmin x mpt x x fs misc; do
             [[ $fs = nfs ]] && { echo $dev; return 0;}
             [[ $fs = nfs3 ]] && { echo $dev; return 0;}
             [[ $fs = nfs4 ]] && { echo $dev; return 0;}
-	    if [[ $mpt = $1 ]] && [[ ${majmin#0:} = $majmin ]]; then
-		echo $majmin; 
-		return 0 # we have a winner!
-	    fi
-	done < /proc/self/mountinfo       
+            if [[ $mpt = $1 ]] && [[ ${majmin#0:} = $majmin ]]; then
+                echo $majmin; 
+                return 0 # we have a winner!
+            fi
+        done < /proc/self/mountinfo       
     fi
     # fall back to /etc/fstab    
     while read dev mpt fs misc; do
-	if [[ $mpt = $1 ]]; then
+        if [[ $mpt = $1 ]]; then
             [[ $fs = nfs ]] && { echo $dev; return 0;}
             [[ $fs = nfs3 ]] && { echo $dev; return 0;}
             [[ $fs = nfs4 ]] && { echo $dev; return 0;}
             [[ $dev != ${dev#UUID=} ]] && dev=/dev/disk/by-uuid/${dev#UUID=}
             [[ $dev != ${dev#LABEL=} ]] && dev=/dev/disk/by-label/${dev#LABEL=}
-	    [[ -b $dev ]] || return 1 # oops, not a block device.
-	    ls -nLl "$dev" | { 
-		read x x x x maj min x;
-		maj=${maj//,/}; 
-		echo $maj:$min; 
-	    } && return 0
-	fi
+            [[ -b $dev ]] || return 1 # oops, not a block device.
+            ls -nLl "$dev" | { 
+                read x x x x maj min x;
+                maj=${maj//,/}; 
+                echo $maj:$min; 
+            } && return 0
+        fi
     done < /etc/fstab
     return 1;
 }
@@ -169,12 +171,12 @@ check_block_and_slaves() {
     "$1" $2 && return
     check_vol_slaves "$@" && return 0
     if [[ -f /sys/dev/block/$2/../dev ]]; then
-	check_block_and_slaves $1 $(cat "/sys/dev/block/$2/../dev") &&  return 0
+        check_block_and_slaves $1 $(cat "/sys/dev/block/$2/../dev") &&  return 0
     fi
     [[ -d /sys/dev/block/$2/slaves ]] || return 1
     for x in /sys/dev/block/$2/slaves/*/dev; do
         [[ -f $x ]] || continue
-	check_block_and_slaves $1 $(cat "$x") &&  return 0
+        check_block_and_slaves $1 $(cat "$x") &&  return 0
     done
     return 1
 }
@@ -191,19 +193,19 @@ get_numeric_dev() {
 # And the volume group might be bigger than the devices the LV needs.
 check_vol_slaves() {
     for i in /dev/mapper/*; do 
-	lv=$(get_numeric_dev $i)
-	if [[ $lv = $2 ]]; then
-	    vg=$(lvm lvs --noheadings -o vg_name $i 2>/dev/null)
-	    # strip space
-	    vg=$(echo $vg)
-	    if [[ $vg ]]; then
-		for pv in $(lvm vgs --noheadings -o pv_name "$vg" 2>/dev/null); \
-		    do
- 		    check_block_and_slaves $1 $(get_numeric_dev $pv) \
-			&&  return 0
-		done
-	    fi
-	fi
+        lv=$(get_numeric_dev $i)
+        if [[ $lv = $2 ]]; then
+            vg=$(lvm lvs --noheadings -o vg_name $i 2>/dev/null)
+            # strip space
+            vg=$(echo $vg)
+            if [[ $vg ]]; then
+                for pv in $(lvm vgs --noheadings -o pv_name "$vg" 2>/dev/null); \
+                    do
+                    check_block_and_slaves $1 $(get_numeric_dev $pv) \
+                        &&  return 0
+                done
+            fi
+        fi
     done
     return 1
 }
@@ -286,13 +288,13 @@ inst_library() {
     local src=$1 dest=${2:-$1} lib reallib symlink
     [[ -e $initdir$dest ]] && return 0
     if [[ -L $src ]]; then
-	reallib=$(readlink -f "$src")
-	lib=${src##*/}
-	inst_simple "$reallib" "$reallib"
-	inst_dir "${dest%/*}"
-	(cd "${initdir}${dest%/*}" && ln -s "$reallib" "$lib")
+        reallib=$(readlink -f "$src")
+        lib=${src##*/}
+        inst_simple "$reallib" "$reallib"
+        inst_dir "${dest%/*}"
+        (cd "${initdir}${dest%/*}" && ln -s "$reallib" "$lib")
     else
-	inst_simple "$src" "$dest"
+        inst_simple "$src" "$dest"
     fi
 
     # Create additional symlinks.  See rev_symlinks description.
@@ -310,7 +312,7 @@ find_binary() {
     local binpath="/bin /sbin /usr/bin /usr/sbin" p
     [[ -z ${1##/*} && -x $1 ]] && { echo $1; return 0; } 
     for p in $binpath; do
-	[[ -x $p/$1 ]] && { echo "$p/$1"; return 0; }
+        [[ -x $p/$1 ]] && { echo "$p/$1"; return 0; }
     done
     return 1
 }
@@ -326,33 +328,33 @@ inst_binary() {
     [[ -e $initdir$target ]] && return 0
     # I love bash!
     LC_ALL=C ldd $bin 2>/dev/null | while read line; do
-	[[ $line = 'not a dynamic executable' ]] && return 1
-	if [[ $line =~ not\ found ]]; then
-	    derror "Missing a shared library required by $bin."
-	    derror "Run \"ldd $bin\" to find out what it is."
-	    derror "dracut cannot create an initrd."
-	    exit 1
-	fi
-	so_regex='([^ ]*/lib[^/]*/[^ ]*\.so[^ ]*)'
-	[[ $line =~ $so_regex ]] || continue
-	FILE=${BASH_REMATCH[1]}
-	[[ -e ${initdir}$FILE ]] && continue
-	# see if we are loading an optimized version of a shared lib.
-	lib_regex='^(/lib[^/]*).*'
-	if [[ $FILE =~ $lib_regex ]]; then
+        [[ $line = 'not a dynamic executable' ]] && return 1
+        if [[ $line =~ not\ found ]]; then
+            derror "Missing a shared library required by $bin."
+            derror "Run \"ldd $bin\" to find out what it is."
+            derror "dracut cannot create an initrd."
+            exit 1
+        fi
+        so_regex='([^ ]*/lib[^/]*/[^ ]*\.so[^ ]*)'
+        [[ $line =~ $so_regex ]] || continue
+        FILE=${BASH_REMATCH[1]}
+        [[ -e ${initdir}$FILE ]] && continue
+        # see if we are loading an optimized version of a shared lib.
+        lib_regex='^(/lib[^/]*).*'
+        if [[ $FILE =~ $lib_regex ]]; then
             TLIBDIR=${BASH_REMATCH[1]}
             BASE=${FILE##*/}
-	    # prefer nosegneg libs, then unoptimized ones.
-	    for f in "$TLIBDIR/i686/nosegneg" "$TLIBDIR"; do
-		[[ -e $f/$BASE ]] || continue
-		FILE=$f/$BASE
-		break
-	    done
-	    inst_library "$FILE" "$TLIBDIR/$BASE"
+            # prefer nosegneg libs, then unoptimized ones.
+            for f in "$TLIBDIR/i686/nosegneg" "$TLIBDIR"; do
+                [[ -e $f/$BASE ]] || continue
+                FILE=$f/$BASE
+                break
+            done
+            inst_library "$FILE" "$TLIBDIR/$BASE"
             IF_dynamic=yes
-	    continue
-	fi
-        inst_library "$FILE" 
+            continue
+            fi
+            inst_library "$FILE" 
     done
     inst_simple "$bin" "$target"
 }
@@ -384,7 +386,7 @@ inst_symlink() {
 find_rule() {
     [[ -f $1 ]] && { echo "$1"; return 0; }
     for r in . /lib/udev/rules.d /etc/udev/rules.d $dracutbasedir/rules.d; do
-	[[ -f $r/$1 ]] && { echo "$r/$1"; return 0; }
+        [[ -f $r/$1 ]] && { echo "$r/$1"; return 0; }
     done
     return 1
 }
@@ -409,14 +411,14 @@ inst() {
     case $# in
         1) ;;
         2) [[ ! $initdir && -d $2 ]] && export initdir=$2
-           [[ $initdir = $2 ]] && set $1;;
+            [[ $initdir = $2 ]] && set $1;;
         3) [[ -z $initdir ]] && export initdir=$2 
-           set $1 $3;;
+            set $1 $3;;
         *) derror "inst only takes 1 or 2 or 3 arguments"
-           exit 1;;
+            exit 1;;
     esac
     for x in inst_symlink inst_script inst_binary inst_simple; do
-       $x "$@" && return 0
+        $x "$@" && return 0
     done
     return 1
 }
@@ -426,31 +428,31 @@ inst() {
 # All hooks should be POSIX/SuS compliant, they will be sourced by init.
 inst_hook() {
     if ! [[ -f $3 ]]; then
-	derror "Cannot install a hook ($3) that does not exist."
-	derror "Aborting initrd creation."
-	exit 1
+        derror "Cannot install a hook ($3) that does not exist."
+        derror "Aborting initrd creation."
+        exit 1
     elif ! strstr "$hookdirs" "$1"; then
-	derror "No such hook type $1. Aborting initrd creation." 
-	exit 1
+        derror "No such hook type $1. Aborting initrd creation." 
+        exit 1
     fi
     inst_simple "$3" "/${1}/${2}${3##*/}"
 }
 
 dracut_install() {
     if [[ $1 = '-o' ]]; then 
-	local optional=yes
-	shift
+        local optional=yes
+        shift
     fi
     while (($# > 0)); do
-	if ! inst "$1" ; then
-	    if [[ $optional = yes ]]; then
-		dwarning "Skipping program $1 as it cannot be found and is flagged to be optional"
-	    else
-		derror "Failed to install $1"
-		exit 1
+        if ! inst "$1" ; then
+            if [[ $optional = yes ]]; then
+                dwarning "Skipping program $1 as it cannot be found and is flagged to be optional"
+            else
+                derror "Failed to install $1"
+                exit 1
             fi
-	fi
-	shift
+        fi
+        shift
     done
 }
 
@@ -511,15 +513,15 @@ check_module_deps() {
     [[ -d $moddir && -x $moddir/install ]] || return 1
     # if we do not have a check script, we are unconditionally included
     if [[ -x $moddir/check ]]; then
-	"$moddir/check"
+        "$moddir/check"
         ret=$?
-	# a return value of 255 = load module only as a dependency.
-	((ret==0||ret==255)) || return 1
-	for dep in $("$moddir/check" -d); do
-	    check_module_deps "$dep" && continue
-	    dwarning "Dependency $mod failed."
-	    return 1
-	done
+        # a return value of 255 = load module only as a dependency.
+        ((ret==0||ret==255)) || return 1
+        for dep in $("$moddir/check" -d); do
+            check_module_deps "$dep" && continue
+            dwarning "Dependency $mod failed."
+            return 1
+        done
     fi
     mods_to_load+=" $1 "
 }
@@ -535,9 +537,9 @@ should_source_module() {
     [[ -x $1/check ]] || return 0
     "$1/check" $hostonly || continue
     for dep in $("$1/check" -d); do
-	check_module_deps "$dep" && continue
-	dwarning "Cannot load dracut module \"$mod\", dependencies failed."
-	return 1
+        check_module_deps "$dep" && continue
+        dwarning "Cannot load dracut module \"$mod\", dependencies failed."
+        return 1
     done
 }
 
@@ -545,33 +547,33 @@ check_modules() {
     local modcheck;
     local mod;
     for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
-	local mod=${moddir##*/}; mod=${mod#[0-9][0-9]}
-	# If we are already scheduled to be loaded, no need to check again.
-	strstr " $mods_to_load " " $mod " && continue
-	# This should never happen, but...
-	[[ -d $moddir ]] || continue
+        local mod=${moddir##*/}; mod=${mod#[0-9][0-9]}
+        # If we are already scheduled to be loaded, no need to check again.
+        strstr " $mods_to_load " " $mod " && continue
+        # This should never happen, but...
+        [[ -d $moddir ]] || continue
         strstr " $omit_dracutmodules " " $mod " && continue
 
         if ! strstr " $dracutmodules $add_dracutmodules " " $mod "; then
             # module not in our list
-	    if [[ $dracutmodules = all ]]; then
+            if [[ $dracutmodules = all ]]; then
                 # check, if we can install this module
-	        should_source_module "$moddir" || continue
+                should_source_module "$moddir" || continue
             else
                 # skip this module
                 continue
             fi
-	else
-	    if [ -x "$moddir/check" ] \
+        else
+            if [ -x "$moddir/check" ] \
                 && "$moddir/check" -d > /dev/null 2>&1; then
-		check_module_deps "$mod" || {
-		    dwarning "Cannot load dracut module \"$mod\", dependencies failed."
+                check_module_deps "$mod" || {
+                    dwarning "Cannot load dracut module \"$mod\", dependencies failed."
                     continue
                 }
             fi
         fi
 
-	mods_to_load+=" $mod "
+        mods_to_load+=" $mod "
     done
 
     modcheck=$add_dracutmodules
@@ -589,18 +591,18 @@ install_kmod_with_fw() {
     local modname=${1##*/} fwdir found
     modname=${modname%.ko*}
     inst_simple "$1" "/lib/modules/$kernel/${1##*/lib/modules/$kernel/}" || \
-	return 0 # no need to go further if the module is already installed
+        return 0 # no need to go further if the module is already installed
     for fw in $(modinfo -k $kernel -F firmware $1 2>/dev/null); do
-	found=''
-	for fwdir in $fw_dir; do
-	    if [[ -d $fwdir && -f $fwdir/$fw ]]; then
-		inst_simple "$fwdir/$fw" "/lib/firmware/$fw"
-		found=yes
-	    fi
-	done
-	if [[ $found != yes ]]; then
-	    dinfo "Possible missing firmware \"${fw}\" for kernel module \"${mod}.ko\""
-	fi
+        found=''
+        for fwdir in $fw_dir; do
+            if [[ -d $fwdir && -f $fwdir/$fw ]]; then
+                inst_simple "$fwdir/$fw" "/lib/firmware/$fw"
+                found=yes
+            fi
+        done
+        if [[ $found != yes ]]; then
+            dinfo "Possible missing firmware \"${fw}\" for kernel module \"${mod}.ko\""
+        fi
     done
 }
 
@@ -614,9 +616,9 @@ for_each_kmod_dep() {
     local func=$1 kmod=$2 cmd modpapth options
     shift 2
     modprobe "$@" --ignore-install --show-depends $kmod 2>/dev/null | \
-	while read cmd modpath options; do
-	    [[ $cmd = insmod ]] || continue
-	    $func $modpath
+        while read cmd modpath options; do
+        [[ $cmd = insmod ]] || continue
+        $func $modpath
     done
 }
 
@@ -630,16 +632,16 @@ for_each_kmod_dep() {
 # This function returns the full filenames of modules that match $1
 filter_kernel_modules () (
     if ! [[ $hostonly ]]; then
-	filtercmd='find "$srcmods/kernel/drivers" -name "*.ko" -o -name "*.ko.gz"'
+        filtercmd='find "$srcmods/kernel/drivers" -name "*.ko" -o -name "*.ko.gz"'
     else
-	filtercmd='cut -d " " -f 1 </proc/modules|xargs modinfo -F filename -k $kernel'
+        filtercmd='cut -d " " -f 1 </proc/modules|xargs modinfo -F filename -k $kernel'
     fi
     for modname in $(eval $filtercmd); do
         case $modname in
             *.ko) "$1" "$modname" && echo "$modname";;
             *.ko.gz) gzip -dc "$modname" > $initdir/$$.ko
-                     $1 $initdir/$$.ko && echo "$modname"
-                     rm -f $initdir/$$.ko;;
+                $1 $initdir/$$.ko && echo "$modname"
+                rm -f $initdir/$$.ko;;
         esac
     done
 )
@@ -649,46 +651,46 @@ instmods() {
     [[ $no_kernel = yes ]] && return
     local mod mpargs modpath modname cmd moddirname
     while (($# > 0)); do
-	mod=${1%.ko*}
-	case $mod in
-	    =*) # This introduces 2 incompatible meanings for =* arguments
+        mod=${1%.ko*}
+        case $mod in
+            =*) 
+                # This introduces 2 incompatible meanings for =* arguments
                 # to instmods.  We need to decide which one to keep.
-		if [[ $mod = =ata && -f $srcmods/modules.block ]] ; then 
-		    instmods $mpargs $(egrep 'ata|ahci' "${srcmods}/modules.block")
-		elif [ -f $srcmods/modules.${mod#=} ]; then
-		    instmods $mpargs $(cat ${srcmods}/modules.${mod#=} )
-		else
-		    instmods $mpargs $(find "$srcmods" -path "*/${mod#=}/*")
-		fi
-		;;
-	    --*) mod=${mod##*/}
-                 mpargs+=" $mod";;
+                if [[ $mod = =ata && -f $srcmods/modules.block ]] ; then 
+                    instmods $mpargs $(egrep 'ata|ahci' "${srcmods}/modules.block")
+                elif [ -f $srcmods/modules.${mod#=} ]; then
+                    instmods $mpargs $(cat ${srcmods}/modules.${mod#=} )
+                else
+                    instmods $mpargs $(find "$srcmods" -path "*/${mod#=}/*")
+                fi
+                ;;
+            --*) 
+                mod=${mod##*/}
+                mpargs+=" $mod";;
             i2o_scsi) shift; continue;; # Do not load this diagnostic-only module
-	    *)  mod=${mod##*/}
+            *)  mod=${mod##*/}
                 # if we are already installed, skip this module and go on
-	        # to the next one.
-	        [[ -f $initdir/$1 ]] && { shift; continue; }
-		# If we are building a host-specific initramfs and this
-		# module is not already loaded, move on to the next one.
-		[[ $hostonly ]] && ! grep -qe "\<${mod//-/_}\>" /proc/modules && \
-	        ! echo $add_drivers | grep -qe "\<${mod}\>" &&	{
-		    shift; continue; 
-		}
+                # to the next one.
+                [[ -f $initdir/$1 ]] && { shift; continue; }
+                # If we are building a host-specific initramfs and this
+                # module is not already loaded, move on to the next one.
+                [[ $hostonly ]] && ! grep -qe "\<${mod//-/_}\>" /proc/modules && \
+                    ! echo $add_drivers | grep -qe "\<${mod}\>" &&  {
+                    shift; continue; 
+                }
 
-		# We use '-d' option in modprobe only if modules prefix path
-		# differs from default '/'.  This allows us to use Dracut with
-		# old version of modprobe which doesn't have '-d' option.
-		moddirname=${srcmods%%/lib/modules/*}
-		[[ -n ${moddirname} ]] && moddirname="-d ${moddirname}/"
+                # We use '-d' option in modprobe only if modules prefix path
+                # differs from default '/'.  This allows us to use Dracut with
+                # old version of modprobe which doesn't have '-d' option.
+                moddirname=${srcmods%%/lib/modules/*}
+                [[ -n ${moddirname} ]] && moddirname="-d ${moddirname}/"
 
-		# ok, load the module, all its dependencies, and any firmware
-		# it may require
-		for_each_kmod_dep install_kmod_with_fw $mod \
-		    --set-version $kernel ${moddirname}
-		;;
-	esac      
-	shift
+                # ok, load the module, all its dependencies, and any firmware
+                # it may require
+                for_each_kmod_dep install_kmod_with_fw $mod \
+                    --set-version $kernel ${moddirname}
+                ;;
+    esac      
+    shift
     done
 } 
-
-# vim:ts=8:sw=4:sts=4:et

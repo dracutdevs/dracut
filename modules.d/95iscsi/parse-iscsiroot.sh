@@ -1,12 +1,14 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 #
 # Preferred format:
-#	root=iscsi:[<servername>]:[<protocol>]:[<port>]:[<LUN>]:<targetname>
-#	[root=*] netroot=iscsi:[<servername>]:[<protocol>]:[<port>]:[<LUN>]:<targetname>
+#       root=iscsi:[<servername>]:[<protocol>]:[<port>]:[<LUN>]:<targetname>
+#       [root=*] netroot=iscsi:[<servername>]:[<protocol>]:[<port>]:[<LUN>]:<targetname>
 #
 # Legacy formats:
-#	[net]root=[iscsi] iscsiroot=[<servername>]:[<protocol>]:[<port>]:[<LUN>]:<targetname>
-# 	[net]root=[iscsi] iscsi_firmware
+#       [net]root=[iscsi] iscsiroot=[<servername>]:[<protocol>]:[<port>]:[<LUN>]:<targetname>
+#       [net]root=[iscsi] iscsi_firmware
 #
 # root= takes precedence over netroot= if root=iscsi[...]
 #
@@ -25,7 +27,7 @@
 # Root takes precedence over netroot
 if [ "${root%%:*}" = "iscsi" ] ; then
     if [ -n "$netroot" ] ; then
-	echo "Warning: root takes precedence over netroot. Ignoring netroot"
+        echo "Warning: root takes precedence over netroot. Ignoring netroot"
 
     fi
     netroot=$root
@@ -44,7 +46,7 @@ if [ -n "$iscsiroot" ] ; then
 
     # Accept iscsiroot argument?
     [ -z "$netroot" ] || [ "$netroot" = "iscsi" ] || \
-	die "Argument iscsiroot only accepted for empty root= or [net]root=iscsi"
+        die "Argument iscsiroot only accepted for empty root= or [net]root=iscsi"
 
     # Override root with iscsiroot content?
     [ -z "$netroot" ] || [ "$netroot" = "iscsi" ] && netroot=iscsi:$iscsiroot
@@ -62,7 +64,7 @@ fi
 # Check required arguments. there's only one, but it's at the end
 if [ -z "$iscsi_firmware" ] ; then
     case "${netroot##iscsi:*:*:*:*:}" in
-	$netroot|'') die "Argument targetname for iscsiroot is missing";;
+        $netroot|'') die "Argument targetname for iscsiroot is missing";;
     esac
 fi
 

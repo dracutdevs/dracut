@@ -1,26 +1,28 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 #
 # Licensed under the GPLv2
 #
-# Copyright 2008-2009, Red Hat, Inc.
+# Copyright 2008-2010, Red Hat, Inc.
 # Harald Hoyer <harald@redhat.com>
 # Jeremy Katz <katzj@redhat.com>
 
 wait_for_loginit()
 {
     if getarg rdinitdebug; then
-	set +x
-	exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
-	# wait for loginit
-	i=0
-	while [ $i -lt 10 ]; do 
-	    j=$(jobs)
-	    [ -z "$j" ] && break
-	    [ -z "${j##*Running*}" ] || break
-	    sleep 0.1
-	    i=$(($i+1))
-	done	
-	[ $i -eq 10 ] && kill %1 >/dev/null 2>&1
+        set +x
+        exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
+        # wait for loginit
+        i=0
+        while [ $i -lt 10 ]; do 
+            j=$(jobs)
+            [ -z "$j" ] && break
+            [ -z "${j##*Running*}" ] || break
+            sleep 0.1
+            i=$(($i+1))
+        done    
+        [ $i -eq 10 ] && kill %1 >/dev/null 2>&1
 
         while pidof -x /sbin/loginit >/dev/null 2>&1; do
             for pid in $(pidof -x /sbin/loginit); do
@@ -28,7 +30,7 @@ wait_for_loginit()
             done
             HARD="-9"
         done
-	set -x
+        set -x
     fi
 }
 
@@ -79,12 +81,12 @@ if [ ! -c /dev/ptmx ]; then
     # try to mount devtmpfs
     if ! mount -t devtmpfs -omode=0755 udev /dev >/dev/null 2>&1; then
         # if it failed fall back to normal tmpfs
-	mount -t tmpfs -omode=0755 udev /dev >/dev/null 2>&1 
-	# Make some basic devices first, let udev handle the rest
-	mknod -m 0666 /dev/null c 1 3
-	mknod -m 0666 /dev/ptmx c 5 2
-	mknod -m 0600 /dev/console c 5 1
-	mknod -m 0660 /dev/kmsg c 1 11
+        mount -t tmpfs -omode=0755 udev /dev >/dev/null 2>&1 
+        # Make some basic devices first, let udev handle the rest
+        mknod -m 0666 /dev/null c 1 3
+        mknod -m 0666 /dev/ptmx c 5 2
+        mknod -m 0600 /dev/console c 5 1
+        mknod -m 0660 /dev/kmsg c 1 11
     fi
 fi
 
@@ -140,8 +142,8 @@ UDEV_LOG_PRIO_ARG=--log-priority
 UDEV_QUEUE_EMPTY="udevadm settle --timeout=0"
 
 if [ $UDEVVERSION -lt 140 ]; then
-   UDEV_LOG_PRIO_ARG=--log_priority
-   UDEV_QUEUE_EMPTY="udevadm settle --timeout=1"
+    UDEV_LOG_PRIO_ARG=--log_priority
+    UDEV_QUEUE_EMPTY="udevadm settle --timeout=1"
 fi
 
 getarg rdudevinfo && udevadm control $UDEV_LOG_PRIO_ARG=info
@@ -163,7 +165,7 @@ i=0
 while :; do
 
     check_finished && break
- 
+    
     udevsettle
 
     check_finished && break
@@ -171,9 +173,9 @@ while :; do
     if [ -f /initqueue/work ]; then
         rm /initqueue/work
     fi
-    	
+    
     for job in /initqueue/*.sh; do
-	[ -e "$job" ] || break
+        [ -e "$job" ] || break
         job=$job . $job
         check_finished && break 2
     done
@@ -199,10 +201,10 @@ while :; do
     # which report no medium for quiet
     # some time.
     for cdrom in /sys/block/sr*; do
-	[ -e "$cdrom" ] || continue
-	# skip, if cdrom medium was already found
+        [ -e "$cdrom" ] || continue
+        # skip, if cdrom medium was already found
         strstr "$(udevadm info --query=env --path=${cdrom##/sys})" \
-	    ID_CDROM_MEDIA && continue
+            ID_CDROM_MEDIA && continue
         echo change > "$cdrom/uevent"        
     done
     
@@ -226,8 +228,8 @@ i=0
 while :; do
     [ -d "$NEWROOT/proc" ] && break;
     for f in /mount/*.sh; do
-       [ -f "$f" ] && . "$f"
-       [ -d "$NEWROOT/proc" ] && break;
+        [ -f "$f" ] && . "$f"
+        [ -d "$NEWROOT/proc" ] && break;
     done
 
     i=$(($i+1))
@@ -264,7 +266,7 @@ udevadm control --stop-exec-queue
 HARD=""
 while pidof udevd >/dev/null 2>&1; do 
     for pid in $(pidof udevd); do
-	kill $HARD $pid >/dev/null 2>&1
+        kill $HARD $pid >/dev/null 2>&1
     done
     HARD="-9"
 done
@@ -272,9 +274,9 @@ done
 # Clean up the environment
 for i in $(export -p); do
     i=${i#declare -x}
-    i=${i#export}
-    i=${i%%=*}
-    [ "$i" = "root" -o "$i" = "PATH" -o "$i" = "HOME" -o "$i" = "TERM" ] || unset $i
+        i=${i#export}
+            i=${i%%=*}
+            [ "$i" = "root" -o "$i" = "PATH" -o "$i" = "HOME" -o "$i" = "TERM" ] || unset $i
 done
 
 initargs=""
@@ -284,23 +286,23 @@ if getarg init= >/dev/null ; then
     ignoreargs="console BOOT_IMAGE"
     # only pass arguments after init= to the init
     CLINE=${CLINE#*init=}
-    set $CLINE
-    shift
-    for x in "$@"; do
-        for s in $ignoreargs; do       
-            [ "${x%%=*}" = $s ] && continue 2
+        set $CLINE
+        shift
+        for x in "$@"; do
+            for s in $ignoreargs; do       
+                [ "${x%%=*}" = $s ] && continue 2
+            done
+            initargs="$initargs $x"
         done
-        initargs="$initargs $x"
-    done
-    unset CLINE
+        unset CLINE
 else
     set $CLINE
     shift
     for x in "$@"; do
         case "$x" in
-            [0-9]|s|S|single|emergency|auto )
+            [0-9]|s|S|single|emergency|auto ) \
                 initargs="$initargs $x"
-            ;;
+                ;;
         esac
     done
 fi
@@ -322,5 +324,3 @@ exec switch_root "$NEWROOT" "$INIT" $initargs || {
     echo "file a bug against dracut."
     emergency_shell
 }
-# vim:ts=8:sw=4:sts=4:et
-

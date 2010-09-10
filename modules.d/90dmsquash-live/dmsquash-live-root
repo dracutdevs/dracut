@@ -1,4 +1,6 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 
 . /lib/dracut-lib.sh
 [ -f /tmp/root.info ] && . /tmp/root.info
@@ -32,8 +34,8 @@ getarg check || check=""
 if [ -n "$check" ]; then
     checkisomd5 --verbose $livedev || :
     if [ $? -ne 0 ]; then
-	die "CD check failed!"
-	exit 1
+        die "CD check failed!"
+        exit 1
     fi
 fi
 
@@ -79,7 +81,7 @@ do_live_overlay() {
         if [ -f /overlayfs$pathspec -a -w /overlayfs$pathspec ]; then
             losetup $OVERLAY_LOOPDEV /overlayfs$pathspec
             if [ -n "$reset_overlay" ]; then
-               dd if=/dev/zero of=$OVERLAY_LOOPDEV bs=64k count=1 2>/dev/null
+                dd if=/dev/zero of=$OVERLAY_LOOPDEV bs=64k count=1 2>/dev/null
             fi
             setup="yes"
         fi
@@ -88,8 +90,8 @@ do_live_overlay() {
 
     if [ -z "$setup" ]; then
         if [ -n "$devspec" -a -n "$pathspec" ]; then
-           warn "Unable to find persistent overlay; using temporary"
-           sleep 5
+            warn "Unable to find persistent overlay; using temporary"
+            sleep 5
         fi
 
         dd if=/dev/null of=/overlay bs=1024 count=1 seek=$((512*1024)) 2> /dev/null
@@ -124,7 +126,7 @@ fi
 
 # we might have just an embedded ext3 to use as rootfs (uncompressed live)
 if [ -e /dev/.initramfs/live/${live_dir}/ext3fs.img ]; then
-  EXT3FS="/dev/.initramfs/live/${live_dir}/ext3fs.img"
+    EXT3FS="/dev/.initramfs/live/${live_dir}/ext3fs.img"
 fi
 
 if [ -n "$EXT3FS" ] ; then
@@ -136,7 +138,7 @@ fi
 
 # we might have an embedded ext3 on squashfs to use as rootfs (compressed live)
 if [ -e /dev/.initramfs/live/${live_dir}/squashfs.img ]; then
-  SQUASHED="/dev/.initramfs/live/${live_dir}/squashfs.img"
+    SQUASHED="/dev/.initramfs/live/${live_dir}/squashfs.img"
 fi
 
 if [ -e "$SQUASHED" ] ; then

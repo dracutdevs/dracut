@@ -1,4 +1,6 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 
 # We depend on udev-rules being loaded
 [[ "$1" = "-d" ]] && exit 0
@@ -15,7 +17,7 @@ is_btrfs() { get_fs_type /dev/block/$1 |grep -q btrfs; }
 if [[ "$1" = "-h" ]]; then
     rootdev=$(find_root_block_device)
     if [[ $rootdev ]]; then
-	is_btrfs "$rootdev" || exit 1
+        is_btrfs "$rootdev" || exit 1
     fi
 fi
 

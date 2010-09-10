@@ -1,4 +1,6 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 if getarg rd_NO_LUKS; then
     info "rd_NO_LUKS: removing cryptoluks activation"
     rm -f /etc/udev/rules.d/70-luks.rules
@@ -11,8 +13,8 @@ else
     LUKS=$(getargs rd_LUKS_UUID)
     unset settled
     [ -n "$(getargs rd_LUKS_KEYPATH)" ] && \
-            [ -z "$(getargs rd_LUKS_KEYDEV_UUID)" ] && \
-            settled='--settled'
+        [ -z "$(getargs rd_LUKS_KEYDEV_UUID)" ] && \
+        settled='--settled'
 
     if [ -n "$LUKS" ]; then
         for luksid in $LUKS; do 
@@ -26,7 +28,7 @@ else
             } >> /etc/udev/rules.d/70-luks.rules
 
             printf '[ -e /dev/disk/by-uuid/*%s* ] || exit 1\n' $luksid \
-                    >> /initqueue-finished/crypt.sh
+                >> /initqueue-finished/crypt.sh
             {
                 printf '[ -e /dev/disk/by-uuid/*%s* ] || ' $luksid
                 printf 'warn "crypto LUKS UUID "%s" not found"\n' $luksid
@@ -34,9 +36,9 @@ else
         done
     else
         echo 'ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="/sbin/initqueue' $settled \
-                '--unique --onetime --name cryptroot-ask-%k' \
-                '/sbin/cryptroot-ask $env{DEVNAME} luks-$env{ID_FS_UUID}"' \
-                >> /etc/udev/rules.d/70-luks.rules
+            '--unique --onetime --name cryptroot-ask-%k' \
+            '/sbin/cryptroot-ask $env{DEVNAME} luks-$env{ID_FS_UUID}"' \
+            >> /etc/udev/rules.d/70-luks.rules
     fi
 
     echo 'LABEL="luks_end"' >> /etc/udev/rules.d/70-luks.rules

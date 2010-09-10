@@ -1,8 +1,10 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 #
 # Preferred format:
-#	root=nbd:srv:port[:fstype[:rootflags[:nbdopts]]]
-#	[root=*] netroot=nbd:srv:port[:fstype[:rootflags[:nbdopts]]]
+#       root=nbd:srv:port[:fstype[:rootflags[:nbdopts]]]
+#       [root=*] netroot=nbd:srv:port[:fstype[:rootflags[:nbdopts]]]
 #
 # nbdopts is a comma seperated list of options to give to nbd-client
 #
@@ -32,7 +34,7 @@ netroot_to_var() {
 # Root takes precedence over netroot
 if [ "${root%%:*}" = "nbd" ] ; then
     if [ -n "$netroot" ] ; then
-	warn "root takes precedence over netroot. Ignoring netroot"
+        warn "root takes precedence over netroot. Ignoring netroot"
 
     fi
     netroot=$root

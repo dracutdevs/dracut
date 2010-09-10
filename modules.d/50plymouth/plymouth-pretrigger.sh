@@ -1,4 +1,6 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 
 if ! getarg rd_NO_PLYMOUTH; then
     [ -c /dev/null ] || mknod -m 0666 /dev/null c 1 3
@@ -19,6 +21,3 @@ if ! getarg rd_NO_PLYMOUTH; then
     /lib/udev/console_init tty0
     /bin/plymouth --show-splash 2>&1 | vinfo
 fi
-
-
-# vim:ts=8:sw=4:sts=4:et

@@ -1,3 +1,5 @@
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 if getarg rd_NO_MD; then
     info "rd_NO_MD: removing MD RAID activation"
     udevproperty rd_NO_MD=1
@@ -6,21 +8,21 @@ else
 
     # rewrite the md rules to only process the specified raid array
     if [ -n "$MD_UUID" ]; then
-	for f in /etc/udev/rules.d/65-md-incremental*.rules; do
-	    [ -e "$f" ] || continue
-	    mv $f ${f}.bak 
-	    while read line; do 
-		if [ "${line%%UUID CHECK}" != "$line" ]; then
-		    for uuid in $MD_UUID; do
-			printf 'ENV{MD_UUID}=="%s", GOTO="do_md_inc"\n' $uuid
-		    done;
- 		    printf 'GOTO="md_inc_end"\n';		
-		else
-		    echo $line; 
-		fi
-	    done < ${f}.bak > $f
-	    rm ${f}.bak 
-	done
+        for f in /etc/udev/rules.d/65-md-incremental*.rules; do
+            [ -e "$f" ] || continue
+            mv $f ${f}.bak 
+            while read line; do 
+                if [ "${line%%UUID CHECK}" != "$line" ]; then
+                    for uuid in $MD_UUID; do
+                        printf 'ENV{MD_UUID}=="%s", GOTO="do_md_inc"\n' $uuid
+                    done;
+                    printf 'GOTO="md_inc_end"\n';               
+                else
+                    echo $line; 
+                fi
+            done < ${f}.bak > $f
+            rm ${f}.bak 
+        done
     fi
 fi
 
@@ -31,7 +33,7 @@ if [ -e /etc/mdadm.conf ] && ! getarg rd_NO_MDADMCONF; then
 fi
 
 if getarg rd_NO_MDADMCONF; then
-	rm -f /etc/mdadm/mdadm.conf /etc/mdadm.conf
+    rm -f /etc/mdadm/mdadm.conf /etc/mdadm.conf
 fi
 
 # noiswmd nodmraid for anaconda / rc.sysinit compatibility

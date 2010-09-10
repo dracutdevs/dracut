@@ -1,4 +1,6 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 
 # do not ask, if we already have root
 [ -f /sysroot/proc ] && exit 0
@@ -37,7 +39,7 @@ if [ -f /etc/crypttab ] && ! getarg rd_NO_CRYPTTAB; then
                 luksname="$name"
                 break
             fi
-        
+            
         # path used in crypttab
         else
             cdev=$(readlink -f $dev)
@@ -88,12 +90,12 @@ unset keydev_uuid keypath
 if [ -n "$keypaths" ]; then
     keydev_uuids="$(getargs rd_LUKS_KEYDEV_UUID)"
     [ -n "$keydev_uuids" ] || {
-            warn 'No UUID of device storing LUKS key specified.'
-            warn 'It is recommended to set rd_LUKS_KEYDEV_UUID.'
-            warn 'Performing scan of *all* devices accessible by UUID...'
+        warn 'No UUID of device storing LUKS key specified.'
+        warn 'It is recommended to set rd_LUKS_KEYDEV_UUID.'
+        warn 'Performing scan of *all* devices accessible by UUID...'
     }
     tmp=$(foreach_uuid_until "probe_keydev \$full_uuid $keypaths" \
-            $keydev_uuids) && {
+        $keydev_uuids) && {
         keydev_uuid="${tmp%% *}"
         keypath="${tmp#* }"
     } || {
@@ -129,20 +131,20 @@ else
             prompt="Password for $device ($sluksname...)"
         fi
         
-	# flock against other interactive activities
+        # flock against other interactive activities
         { flock -s 9; 
             /bin/plymouth ask-for-password \
-	        --prompt "$prompt" \
-	        --command="/sbin/cryptsetup luksOpen -T1 $device $luksname"
+                --prompt "$prompt" \
+                --command="/sbin/cryptsetup luksOpen -T1 $device $luksname"
         } 9>/.console.lock
-	
-	unset sluksname prompt
-	
+        
+        unset sluksname prompt
+        
     else
         # flock against other interactive activities
         { flock -s 9;
-             echo "$device ($luksname) is password protected"
-             cryptsetup luksOpen -T5 $device $luksname
+            echo "$device ($luksname) is password protected"
+            cryptsetup luksOpen -T5 $device $luksname
         } 9>/.console.lock
     fi
 fi
@@ -155,4 +157,3 @@ unset device luksname
 udevsettle
 
 exit 0
-# vim:ts=8:sw=4:sts=4:et

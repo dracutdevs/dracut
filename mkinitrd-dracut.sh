@@ -98,5 +98,3 @@ if [[ $basicmodules ]]; then
 else
 	dracut $dracut_args "$target" "$kernel"
 fi
-
-# vim:ts=8:sw=4:sts=4:et

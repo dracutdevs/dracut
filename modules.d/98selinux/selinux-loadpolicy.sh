@@ -1,4 +1,7 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
+
 # FIXME: load selinux policy.  this should really be done after we switchroot 
 
 rd_load_policy()
@@ -13,52 +16,52 @@ rd_load_policy()
     permissive=0
     getarg "enforcing=0" > /dev/null 
     if [ $? -eq 0 -o "$SELINUX" = "permissive" ]; then
-	permissive=1
+        permissive=1
     fi
 
     # Attempt to load SELinux Policy
     if [ -x "$NEWROOT/usr/sbin/load_policy" -o -x "$NEWROOT/sbin/load_policy" ]; then
-	local ret=0
-	local out
-	info "Loading SELinux policy"
+        local ret=0
+        local out
+        info "Loading SELinux policy"
         # load_policy does mount /proc and /selinux in 
         # libselinux,selinux_init_load_policy()
         if [ -x "$NEWROOT/sbin/load_policy" ]; then
             out=$(chroot "$NEWROOT" /sbin/load_policy -i 2>&1)
             ret=$?
-	    info $out
+            info $out
         else
-	    out=$(chroot "$NEWROOT" /usr/sbin/load_policy -i 2>&1)
-	    ret=$?
-	    info $out
+            out=$(chroot "$NEWROOT" /usr/sbin/load_policy -i 2>&1)
+            ret=$?
+            info $out
         fi
 
-	if [ "$SELINUX" = "disabled" ]; then
-	    return 0;
-	fi
+        if [ "$SELINUX" = "disabled" ]; then
+            return 0;
+        fi
 
-	if [ $ret -eq 0 -o $ret -eq 2 ]; then
-	    # If machine requires a relabel, force to permissive mode
-	    [ -e "$NEWROOT"/.autorelabel ] && ( echo 0 > "$NEWROOT"/selinux/enforce )
+        if [ $ret -eq 0 -o $ret -eq 2 ]; then
+            # If machine requires a relabel, force to permissive mode
+            [ -e "$NEWROOT"/.autorelabel ] && ( echo 0 > "$NEWROOT"/selinux/enforce )
             mount --bind /dev "$NEWROOT/dev"
             chroot "$NEWROOT" /sbin/restorecon -R /dev
-	    return 0
-	fi
+            return 0
+        fi
 
-	warn "Initial SELinux policy load failed."
-	if [ $ret -eq 3 -o $permissive -eq 0 ]; then
-	    warn "Machine in enforcing mode."
-	    warn "Not continuing"
-	    sleep 100d
-	    exit 1
-	fi
-	return 0
+        warn "Initial SELinux policy load failed."
+        if [ $ret -eq 3 -o $permissive -eq 0 ]; then
+            warn "Machine in enforcing mode."
+            warn "Not continuing"
+            sleep 100d
+            exit 1
+        fi
+        return 0
     elif [ $permissive -eq 0 -a "$SELINUX" != "disabled" ]; then
-	warn "Machine in enforcing mode and cannot execute load_policy."
-	warn "To disable selinux, add selinux=0 to the kernel command line."
-	warn "Not continuing"
-	sleep 100d
-	exit 1
+        warn "Machine in enforcing mode and cannot execute load_policy."
+        warn "To disable selinux, add selinux=0 to the kernel command line."
+        warn "Not continuing"
+        sleep 100d
+        exit 1
     fi
 }
 

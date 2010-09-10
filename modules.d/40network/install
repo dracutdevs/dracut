@@ -1,4 +1,6 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 dracut_install ip dhclient brctl arping
 inst "$moddir/ifup" "/sbin/ifup"
 inst "$moddir/netroot" "/sbin/netroot"
@@ -15,7 +17,7 @@ inst_hook pre-pivot 10 "$moddir/kill-dhclient.sh"
 arch=$(uname -m)
 
 for dir in "$usrlibdir/tls/$arch" "$usrlibdir/tls" "$usrlibdir/$arch" \
-        "$usrlibdir" "$libdir"; do
+    "$usrlibdir" "$libdir"; do
     for i in "$dir"/libnss_dns.so.* "$dir"/libnss_mdns4_minimal.so.*; do
         [ -e "$i" ] && dracut_install "$i"
     done

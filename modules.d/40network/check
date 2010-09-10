@@ -1,22 +1,24 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 
 if [[ $1 = -d ]]; then
-  [ -d /etc/sysconfig/network-scripts/ ] && echo ifcfg
-  exit 0
+    [ -d /etc/sysconfig/network-scripts/ ] && echo ifcfg
+    exit 0
 fi
 
 . $dracutfunctions
 
 for program in ip arping; do 
-  if ! type -P $program >/dev/null; then
-    dwarning "Could not find program \"$program\" required by network." 
-    exit 1
-  fi
+    if ! type -P $program >/dev/null; then
+        dwarning "Could not find program \"$program\" required by network." 
+        exit 1
+    fi
 done
 for program in dhclient brctl; do
-  if ! type -P $program >/dev/null; then
-    dwarning "Could not find program \"$program\" it might be required by network." 
-  fi
+    if ! type -P $program >/dev/null; then
+        dwarning "Could not find program \"$program\" it might be required by network." 
+    fi
 done
 
 exit 255

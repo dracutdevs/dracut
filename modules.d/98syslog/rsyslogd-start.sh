@@ -1,22 +1,25 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
+
 # Triggered by udev and starts rsyslogd with bootparameters
 
 . /lib/dracut-lib.sh
 
 rsyslog_config() {
-	local server=$1
-	shift
-	local syslog_template=$1
-	shift
+    local server=$1
+    shift
+    local syslog_template=$1
+    shift
     local filters=$*
     local filter=
     
     cat $syslog_template
 
-	for filter in $filters; do
-	   echo "${filter} @${server}"
+    for filter in $filters; do
+        echo "${filter} @${server}"
     done
-#	echo "*.* /tmp/syslog"
+#       echo "*.* /tmp/syslog"
 }
 
 read server < /tmp/syslog.server
@@ -27,6 +30,6 @@ read conf < /tmp/syslog.conf
 
 template=/etc/templates/rsyslog.conf
 if [ -n "$server" ]; then
-   rsyslog_config "$server" "$template" "$filters" > $conf
-   /sbin/rsyslogd -c3
+    rsyslog_config "$server" "$template" "$filters" > $conf
+    /sbin/rsyslogd -c3
 fi 

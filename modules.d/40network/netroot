@@ -1,4 +1,6 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 
 PATH=$PATH:/sbin:/usr/sbin
 
@@ -41,16 +43,16 @@ if [ "$netroot" = "dhcp" ] || [ "$netroot" = "dhcp6" ] ; then
     # If we have a specific bootdev with no dhcpoptions or empty root-path, 
     # we die. Otherwise we just warn
     if [ -z "$new_root_path" ] ; then
-	[ -n "$BOOTDEV" ] && die "No dhcp root-path received for '$BOOTDEV'"
-	warn "No dhcp root-path received for '$BOOTDEV' trying other interfaces if available"
-	exit 1
+        [ -n "$BOOTDEV" ] && die "No dhcp root-path received for '$BOOTDEV'"
+        warn "No dhcp root-path received for '$BOOTDEV' trying other interfaces if available"
+        exit 1
     fi
 
     # Set netroot to new_root_path, so cmdline parsers don't call
     netroot=$new_root_path
 
     for f in ./cmdline/90*.sh; do
-	[ -f "$f" ] && . "$f";
+        [ -f "$f" ] && . "$f";
     done
 else 
     rootok="1"
@@ -93,7 +95,7 @@ if [ -z "$dest" ] ; then
     dummy=${netroot#*:}
     dummy=${dummy%%:*}
     case "$dummy" in
-       [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*) dest=$dummy;;
+        [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*) dest=$dummy;;
     esac
 fi
 if [ -n "$dest" ] && ! arping -q -f -w 60 -I $netif $dest ; then
@@ -108,8 +110,8 @@ source_all netroot
 if $handler $netif $netroot $NEWROOT; then
     # Network rootfs mount successful
     for iface in $IFACES ; do
-	[ -f /tmp/dhclient.$iface.lease ] &&    cp /tmp/dhclient.$iface.lease    /tmp/net.$iface.lease
-	[ -f /tmp/dhclient.$iface.dhcpopts ] && cp /tmp/dhclient.$iface.dhcpopts /tmp/net.$iface.dhcpopts
+        [ -f /tmp/dhclient.$iface.lease ] &&    cp /tmp/dhclient.$iface.lease    /tmp/net.$iface.lease
+        [ -f /tmp/dhclient.$iface.dhcpopts ] && cp /tmp/dhclient.$iface.dhcpopts /tmp/net.$iface.dhcpopts
     done
 
     # Save used netif for later use
@@ -119,9 +121,9 @@ else
     # If we're trying with multiple interfaces, put that one down.
     # ip down/flush ensures that routeing info goes away as well
     if [ -z "$BOOTDEV" ] ; then
-	ip link set $netif down
-	ip addr flush dev $netif
-	echo "#empty" > /etc/resolv.conf
+        ip link set $netif down
+        ip addr flush dev $netif
+        echo "#empty" > /etc/resolv.conf
     fi
 fi
 exit 0

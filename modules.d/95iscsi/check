@@ -1,4 +1,7 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
+
 # We depend on network modules being loaded
 [ "$1" = "-d" ] && echo network
 
@@ -16,20 +19,20 @@ is_iscsi() (
     [[ -L /sys/dev/block/$1 ]] || return
     cd "$(readlink -f /sys/dev/block/$1)"
     until [[ -d sys || -d iscsi_session ]]; do
-	cd ..
+        cd ..
     done
     [[ -d iscsi_session ]]
 )
 
 case $1 in
     -h) rootdev=$(find_root_block_device)
-	if [[ $rootdev ]]; then
-	    # root lives on a block device, so we can be more precise about 
-	    # hostonly checking
-	    check_block_and_slaves is_iscsi "$rootdev" || exit 1
-	else
-	    exit 1
-	fi ;;
+        if [[ $rootdev ]]; then
+            # root lives on a block device, so we can be more precise about 
+            # hostonly checking
+            check_block_and_slaves is_iscsi "$rootdev" || exit 1
+        else
+            exit 1
+        fi ;;
 esac
 
 exit 0

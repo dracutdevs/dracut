@@ -1,4 +1,6 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 
 . /lib/dracut-lib.sh
 
@@ -41,7 +43,7 @@ nfsroot_to_var $root
 if [ -z "$server" ] ; then
     # XXX new_dhcp_next_server is unconfirmed this is an assumption
     for var in $srv $new_dhcp_server_identifier $new_dhcp_next_server $new_root_path '' ; do
-	[ -n "$var" ] && server=$var && break;
+        [ -n "$var" ] && server=$var && break;
     done
 
     # XXX This blindly assumes that if new_root_path has to used that 
@@ -97,8 +99,8 @@ if [ "$nfs" = "nfs4" ]; then
 
     # XXX Should we loop here?
     mount -t nfs4 -o$options${nfslock+,$nfslock} \
-	$server:$path $NEWROOT \
-	&& { [ -e /dev/root ] || >/dev/root ; }
+        $server:$path $NEWROOT \
+        && { [ -e /dev/root ] || >/dev/root ; }
 else
     # NFSv{2,3} doesn't support using locks as it requires a helper to transfer
     # the rpcbind state to the new root
@@ -107,8 +109,8 @@ else
 
     # XXX Should we loop here?
     { mount -t nfs -o$options${options:+,}nolock,nfsvers=3 $server:$path $NEWROOT || \
-    mount -t nfs -o$options${options:+,}nolock,nfsvers=2 $server:$path $NEWROOT ; } \
-	&& { [ -e /dev/root ] || >/dev/root ; } 
+        mount -t nfs -o$options${options:+,}nolock,nfsvers=2 $server:$path $NEWROOT ; } \
+        && { [ -e /dev/root ] || >/dev/root ; } 
 fi
 
 # inject new exit_if_exists

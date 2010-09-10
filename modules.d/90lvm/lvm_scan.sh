@@ -1,4 +1,6 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 
 # run lvm scan if udev has settled
 
@@ -11,24 +13,24 @@ LVS=$(getargs rd_LVM_LV=)
 # build a list of devices to scan
 lvmdevs=$(
     for f in /tmp/.lvm_scan-*; do
-	[ -e "$f" ] || continue
-	echo -n "${f##/tmp/.lvm_scan-} "
+        [ -e "$f" ] || continue
+        echo -n "${f##/tmp/.lvm_scan-} "
     done
 )
 
 if [ ! -e /etc/lvm/lvm.conf ]; then 
     {
-	echo 'devices {';
-	echo -n '    filter = [ '
-	for dev in $lvmdevs; do
-	    printf '"a|^/dev/%s$|", ' $dev;
-	done;
-	echo '"r/.*/" ]';
-	echo '}';	  
-	# establish read-only locking
-	echo 'global {';
-	echo '    locking_type = 4';
-	echo '}';
+        echo 'devices {';
+        echo -n '    filter = [ '
+        for dev in $lvmdevs; do
+            printf '"a|^/dev/%s$|", ' $dev;
+        done;
+        echo '"r/.*/" ]';
+        echo '}';         
+        # establish read-only locking
+        echo 'global {';
+        echo '    locking_type = 4';
+        echo '}';
     } > /etc/lvm/lvm.conf
     lvmwritten=1
 fi
@@ -50,28 +52,28 @@ nopoll=$(
     # hopefully this output format will never change, e.g.:
     #   LVM version:     2.02.53(1) (2009-09-25)
     lvm version 2>/dev/null | \
-	(
-	IFS=. read maj min sub; 
-	maj=${maj##*:}; 
-	sub=${sub%% *}; sub=${sub%%\(*}; 
-	check_lvm_ver $maj $min $sub && \
-	    echo " --poll n ") 2>/dev/null )
+        (
+        IFS=. read maj min sub; 
+        maj=${maj##*:}; 
+            sub=${sub%% *}; sub=${sub%%\(*}; 
+            check_lvm_ver $maj $min $sub && \
+                echo " --poll n ") 2>/dev/null )
 
-if [ -n "$LVS" ] ; then
-    info "Scanning devices $lvmdevs for LVM logical volumes $LVS"
-    lvm lvscan --ignorelockingfailure 2>&1 | vinfo
-    lvm lvchange -ay --ignorelockingfailure $nopoll --ignoremonitoring $LVS 2>&1 | vinfo
-fi
+    if [ -n "$LVS" ] ; then
+        info "Scanning devices $lvmdevs for LVM logical volumes $LVS"
+        lvm lvscan --ignorelockingfailure 2>&1 | vinfo
+        lvm lvchange -ay --ignorelockingfailure $nopoll --ignoremonitoring $LVS 2>&1 | vinfo
+    fi
 
-if [ -z "$LVS" -o -n "$VGS" ]; then
-    info "Scanning devices $lvmdevs for LVM volume groups $VGS"
-    lvm vgscan --ignorelockingfailure 2>&1 | vinfo
-    lvm vgchange -ay --ignorelockingfailure $nopoll --ignoremonitoring $VGS 2>&1 | vinfo
-fi
+    if [ -z "$LVS" -o -n "$VGS" ]; then
+        info "Scanning devices $lvmdevs for LVM volume groups $VGS"
+        lvm vgscan --ignorelockingfailure 2>&1 | vinfo
+        lvm vgchange -ay --ignorelockingfailure $nopoll --ignoremonitoring $VGS 2>&1 | vinfo
+    fi
 
-if [ "$lvmwritten" ]; then
-    rm -f /etc/lvm/lvm.conf
-    ln -s /sbin/lvm-cleanup /pre-pivot/30-lvm-cleanup.sh 2>/dev/null
-    ln -s /sbin/lvm-cleanup /pre-pivot/31-lvm-cleanup.sh 2>/dev/null
-fi
-unset lvmwritten
+    if [ "$lvmwritten" ]; then
+        rm -f /etc/lvm/lvm.conf
+        ln -s /sbin/lvm-cleanup /pre-pivot/30-lvm-cleanup.sh 2>/dev/null
+        ln -s /sbin/lvm-cleanup /pre-pivot/31-lvm-cleanup.sh 2>/dev/null
+    fi
+    unset lvmwritten

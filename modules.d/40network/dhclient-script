@@ -1,4 +1,6 @@
 #!/bin/sh 
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 
 setup_interface() {
     ip=$new_ip_address
@@ -20,12 +22,12 @@ setup_interface() {
     # disallow MTUs from 576 and below by default, so that broken
     # MTUs are ignored, but higher stuff is allowed (1492, 1500, etc).
     if [ -n "$mtu" ] && [ $mtu -gt 576 ] ; then
-	echo "if ! ip link set $netif mtu $mtu ; then"
-	echo "ip link set $netif down"
-	echo "ip link set $netif mtu $mtu"
-	echo "ip link set $netif up"
-	echo wait_for_if_up $netif
-	echo "fi"
+        echo "if ! ip link set $netif mtu $mtu ; then"
+        echo "ip link set $netif down"
+        echo "ip link set $netif mtu $mtu"
+        echo "ip link set $netif up"
+        echo wait_for_if_up $netif
+        echo "fi"
     fi > /tmp/net.$netif.up
 
     echo ip addr add $ip${mask:+/$mask} ${bcast:+broadcast $bcast} dev $netif >> /tmp/net.$netif.up
@@ -34,9 +36,9 @@ setup_interface() {
 
     [ -n "${search}${domain}" ] && echo "search $search $domain" > /tmp/net.$netif.resolv.conf
     if  [ -n "$namesrv" ] ; then
-	for s in $namesrv; do
-	    echo nameserver $s 
-	done
+        for s in $namesrv; do
+            echo nameserver $s 
+        done
     fi >> /tmp/net.$netif.resolv.conf
 
     [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
@@ -56,24 +58,24 @@ netif=$interface
 
 case $reason in
     PREINIT)
-	echo "dhcp: PREINIT $netif up"
-	ip link set $netif up
-	wait_for_if_up $netif
-	;;
+        echo "dhcp: PREINIT $netif up"
+        ip link set $netif up
+        wait_for_if_up $netif
+        ;;
     BOUND)
-	echo "dhcp: BOND setting $netif"
-	if ! arping -q -D -c 2 -I $netif $new_ip_address ; then
-	    warn "Duplicate address detected for $new_ip_address while doing dhcp. retrying"
-	    exit 1
-	fi
-	setup_interface 
-	set | while read line; do
-	    [ "${line#new_}" = "$line" ] && continue
-	    echo "$line" 
-	done >/tmp/dhclient.$netif.dhcpopts
-	echo online > /sys/class/net/$netif/uevent
-	/sbin/initqueue --onetime --name netroot-$netif  /sbin/netroot $netif 
-	;;
+        echo "dhcp: BOND setting $netif"
+        if ! arping -q -D -c 2 -I $netif $new_ip_address ; then
+            warn "Duplicate address detected for $new_ip_address while doing dhcp. retrying"
+            exit 1
+        fi
+        setup_interface 
+        set | while read line; do
+            [ "${line#new_}" = "$line" ] && continue
+            echo "$line" 
+        done >/tmp/dhclient.$netif.dhcpopts
+        echo online > /sys/class/net/$netif/uevent
+        /sbin/initqueue --onetime --name netroot-$netif  /sbin/netroot $netif 
+        ;;
     *) echo "dhcp: $reason";;
 esac
 

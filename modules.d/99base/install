@@ -1,6 +1,8 @@
-#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
+
 dracut_install mount mknod mkdir pidof sleep chroot sed ls flock cp mv dmesg \
-        rm ln mkfifo less 
+    rm ln mkfifo less 
 if [[ ${ignore_kmodules} = yes ]]; then
     inst /bin/true
     ln -s /bin/true "${initdir}"/sbin/modprobe
@@ -25,9 +27,10 @@ if type -P switch_root >/dev/null; then
     dracut_install switch_root 
 else
     inst "$moddir/switch_root" "/sbin/switch_root" \
-            || derror "Failed to install switch_root"
+        || derror "Failed to install switch_root"
 fi
 inst "$moddir/dracut-lib.sh" "/lib/dracut-lib.sh"
 inst_hook cmdline 10 "$moddir/parse-root-opts.sh"
 inst_hook cmdline 20 "$moddir/parse-blacklist.sh"
 mkdir -p "${initdir}/var/run"
+

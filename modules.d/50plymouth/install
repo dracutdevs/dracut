@@ -1,8 +1,10 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 
 if grep -q nash /usr/libexec/plymouth/plymouth-populate-initrd \
-   || ! grep -q PLYMOUTH_POPULATE_SOURCE_FUNCTIONS /usr/libexec/plymouth/plymouth-populate-initrd \
-   || [ ! -x /usr/libexec/plymouth/plymouth-populate-initrd ]; then
+    || ! grep -q PLYMOUTH_POPULATE_SOURCE_FUNCTIONS /usr/libexec/plymouth/plymouth-populate-initrd \
+    || [ ! -x /usr/libexec/plymouth/plymouth-populate-initrd ]; then
     . "$moddir"/plymouth-populate-initrd
 else
     PLYMOUTH_POPULATE_SOURCE_FUNCTIONS="$dracutfunctions" \

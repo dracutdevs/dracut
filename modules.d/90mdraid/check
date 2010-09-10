@@ -1,4 +1,6 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 
 # No mdadm?  No mdraid support.
 type -P mdadm >/dev/null || exit 1
@@ -11,12 +13,12 @@ is_mdraid() { [[ -d "/sys/dev/block/$1/md" ]]; }
 [[ $1 = '-h' ]] && {
     rootdev=$(find_root_block_device)
     if [[ $rootdev ]]; then
-	# root lives on a block device, so we can be more precise about 
-	# hostonly checking
-	check_block_and_slaves is_mdraid "$rootdev" || exit 1
+        # root lives on a block device, so we can be more precise about 
+        # hostonly checking
+        check_block_and_slaves is_mdraid "$rootdev" || exit 1
     else
-	# root is not on a block device, use the shotgun approach
-	blkid | egrep -q '(linux|isw)_raid' || exit 1
+        # root is not on a block device, use the shotgun approach
+        blkid | egrep -q '(linux|isw)_raid' || exit 1
     fi
 }
 

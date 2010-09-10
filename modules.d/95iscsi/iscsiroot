@@ -1,4 +1,6 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 #
 # This implementation is incomplete: Discovery mode is not implemented and
 # the argument handling doesn't follow currently agreed formats. This is mainly
@@ -41,7 +43,7 @@ modprobe crc32c 2>/dev/null
 if getarg iscsi_firmware ; then
     if [ -n "${root%%block:*}" ]; then
         # if root is not specified try to mount the whole iSCSI LUN
-	printf 'ENV{DEVTYPE}!="partition", SYMLINK=="disk/by-path/*-iscsi-*-*", SYMLINK+="root"\n' >> /etc/udev/rules.d/99-iscsi-root.rules
+        printf 'ENV{DEVTYPE}!="partition", SYMLINK=="disk/by-path/*-iscsi-*-*", SYMLINK+="root"\n' >> /etc/udev/rules.d/99-iscsi-root.rules
     fi
     iscsistart -b
     exit 0
@@ -76,20 +78,20 @@ handle_netroot()
     IFS=@
     set $iroot
     if [ $# -gt 1 ]; then
-	authinfo=$1; shift 
-	iroot=$*
+        authinfo=$1; shift 
+        iroot=$*
     # allow empty authinfo to allow having an @ in iscsi_target_name like this:
     # netroot=iscsi:@192.168.1.100::3260::iqn.2009-01.com.example:testdi@sk
-	if [ -n "$authinfo" ]; then
+        if [ -n "$authinfo" ]; then
             IFS=:
             set $authinfo
             iscsi_username=$1
             iscsi_password=$2
             if [ $# -gt 2 ]; then
-		iscsi_in_username=$3
-		iscsi_in_password=$4
+                iscsi_in_username=$3
+                iscsi_in_password=$4
             fi
-	fi
+        fi
     fi  
 
     IFS="$OLDIFS"
@@ -98,16 +100,16 @@ handle_netroot()
     local i
     set -- 
     while [ -n "$v" ]; do
-	if [ "${v#\[*:*:*\]:}" != "$v" ]; then
-	# handle IPv6 address
-	    i="${v%%\]:*}"
-	    i="${i##\[}"
-	    set -- "$@" "$i"
-	    v=${v#\[$i\]:}
-	else		    
-	    set -- "$@" "${v%%:*}"
-	    v=${v#*:}
-	fi
+        if [ "${v#\[*:*:*\]:}" != "$v" ]; then
+        # handle IPv6 address
+            i="${v%%\]:*}"
+            i="${i##\[}"
+            set -- "$@" "$i"
+            v=${v#\[$i\]:}
+        else                
+            set -- "$@" "${v%%:*}"
+            v=${v#*:}
+        fi
     done
     iscsi_target_ip=$1; shift
     iscsi_protocol=$1; shift # ignored
@@ -123,9 +125,9 @@ handle_netroot()
 
     if [ -z $iscsi_initiator ]; then
     # XXX Where are these from?
-	[ -f /etc/initiatorname.iscsi ] && . /etc/initiatorname.iscsi
-	[ -f /etc/iscsi/initiatorname.iscsi ] && . /etc/iscsi/initiatorname.iscsi
-	iscsi_initiator=$InitiatorName
+        [ -f /etc/initiatorname.iscsi ] && . /etc/initiatorname.iscsi
+        [ -f /etc/iscsi/initiatorname.iscsi ] && . /etc/iscsi/initiatorname.iscsi
+        iscsi_initiator=$InitiatorName
 
     # XXX rfc3720 says 'SCSI Initiator Name: The iSCSI Initiator Name specifies
     # the worldwide unique name of the initiator.' Could we use hostname/ip
@@ -133,20 +135,20 @@ handle_netroot()
     fi
 
     if [ -z $iscsi_target_port ]; then
-	iscsi_target_port=3260
+        iscsi_target_port=3260
     fi
 
     if [ -z $iscsi_target_group ]; then
-	iscsi_target_group=1
+        iscsi_target_group=1
     fi
 
     if [ -z $iscsi_initiator ]; then
     # XXX is this correct?
-	iscsi_initiator=$(iscsi-iname)
+        iscsi_initiator=$(iscsi-iname)
     fi
 
     if [ -z $iscsi_lun ]; then
-	iscsi_lun=0
+        iscsi_lun=0
     fi
 
     echo "InitiatorName='$iscsi_initiator'" > /dev/.initiatorname.iscsi
@@ -155,7 +157,7 @@ handle_netroot()
 
     if [ -n "${root%%block:*}" ]; then
     # if root is not specified try to mount the whole iSCSI LUN
-	printf 'SYMLINK=="disk/by-path/*-iscsi-*-%s", SYMLINK+="root"\n' $iscsi_lun >> /etc/udev/rules.d/99-iscsi-root.rules
+        printf 'SYMLINK=="disk/by-path/*-iscsi-*-%s", SYMLINK+="root"\n' $iscsi_lun >> /etc/udev/rules.d/99-iscsi-root.rules
     fi
 
     # inject new exit_if_exists
@@ -164,18 +166,18 @@ handle_netroot()
     # force udevsettle to break
     > /initqueue/work
 
-    iscsistart -i $iscsi_initiator -t $iscsi_target_name	\
-	-g $iscsi_target_group -a $iscsi_target_ip	\
-	-p $iscsi_target_port \
-	${iscsi_username+-u $iscsi_username} \
-	${iscsi_password+-w $iscsi_password} \
-	${iscsi_in_username+-U $iscsi_in_username} \
-	${iscsi_in_password+-W $iscsi_in_password} || :
+    iscsistart -i $iscsi_initiator -t $iscsi_target_name        \
+        -g $iscsi_target_group -a $iscsi_target_ip      \
+        -p $iscsi_target_port \
+        ${iscsi_username+-u $iscsi_username} \
+        ${iscsi_password+-w $iscsi_password} \
+        ${iscsi_in_username+-U $iscsi_in_username} \
+        ${iscsi_in_password+-W $iscsi_in_password} || :
 
 # install mount script
     if [ -n "${root%%block:*}" ]; then
     # if root is not specified try to mount the whole iSCSI LUN
-	echo "iscsi_lun=$iscsi_lun . /bin/mount-lun.sh " > /mount/01-$$-iscsi.sh
+        echo "iscsi_lun=$iscsi_lun . /bin/mount-lun.sh " > /mount/01-$$-iscsi.sh
     fi
 }
 
@@ -183,7 +185,7 @@ handle_netroot()
 if getarg netroot; then 
     for nroot in $(getargs netroot); do 
         [ "${netroot%%:*}" = "iscsi" ] || continue
-	handle_netroot ${nroot##iscsi:}
+        handle_netroot ${nroot##iscsi:}
     done
 else
     handle_netroot $iroot

@@ -1,9 +1,11 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 #
 # Format:
-#	bridge=<bridgename>:<ethname>
+#       bridge=<bridgename>:<ethname>
 #
-#	bridge without parameters assumes bridge=br0:eth0
+#       bridge without parameters assumes bridge=br0:eth0
 #
 
 # return if bridge already parsed
@@ -12,7 +14,7 @@
 # Check if bridge parameter is valid 
 if getarg bridge= >/dev/null ; then
     if [ -z "$netroot" ] ; then
-	die "No netboot configured, bridge is invalid"
+        die "No netboot configured, bridge is invalid"
     fi
 fi
 
@@ -26,10 +28,10 @@ parsebridge() {
 
     unset bridgename ethname
     case $# in
-    0)  bridgename=br0; ethname=eth0 ;;
-    1)  die "bridge= requires two parameters" ;;
-    2)  bridgename=$1; ethname=$2 ;;
-    *)  die "bridge= requires two parameters" ;;
+        0)  bridgename=br0; ethname=eth0 ;;
+        1)  die "bridge= requires two parameters" ;;
+        2)  bridgename=$1; ethname=$2 ;;
+        *)  die "bridge= requires two parameters" ;;
     esac
 }
 
