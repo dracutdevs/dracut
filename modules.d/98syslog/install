@@ -3,7 +3,12 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 if type -P rsyslogd >/dev/null; then
-    installs="rsyslogd /lib/rsyslog/lmnet.so /lib/rsyslog/imklog.so /lib/rsyslog/imuxsock.so"
+    installs="rsyslogd"
+    for i in {"$libdir","$usrlibdir"}/rsyslog/lmnet.so \
+            {"$libdir","$usrlibdir"}/rsyslog/imklog.so \
+            {"$libdir","$usrlibdir"}/rsyslog/imuxsock.so ; do
+        [ -e "$i" ] && installs="$installs $i"
+    done
 elif type -P syslogd >/dev/null; then
     installs="syslogd"
 elif type -P syslog-ng >/dev/null; then
