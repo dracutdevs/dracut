@@ -318,6 +318,8 @@ info "Switching root"
 wait_for_loginit
 
 umask $OLD_UMASK
+unset HOME
+unset TERM
 
 exec switch_root "$NEWROOT" "$INIT" $initargs || {
     echo "Something went very badly wrong in the initramfs.  Please "
