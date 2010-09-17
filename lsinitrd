@@ -19,8 +19,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-[[ $# -eq 1 ]] || { echo "Usage: $(basename $0) <initramfs file>" ; exit 1 ; }
+[[ $# -eq 1 || $# -eq 2 ]] || { echo "Usage: $(basename $0) <initramfs file> [<filename>]" ; exit 1 ; }
 [[ -f $1 ]]    || { echo "$1 does not exist" ; exit 1 ; }
+
+if [[ $# -eq 2 ]]; then
+    zcat $1 | cpio --extract --verbose --quiet --to-stdout ${2#/} 2>/dev/null
+    exit $?
+fi
 
 echo "$1:"
 echo "========================================================================"
