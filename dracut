@@ -89,6 +89,7 @@ Creates initial ramdisk images for preloading modules
                          otherwise you will not be able to boot.
   --no-compress         Do not compress the generated initramfs.  This will
                          override any other compression options.
+  --list-modules        List all available dracut modules.
 EOF
 }
 
@@ -149,6 +150,9 @@ while (($# > 0)); do
         --ignore-kernel-modules) kernel_only="no"; no_kernel="yes"
             ignore_kmodules="yes"
             omit_dracutmodules_l+=\ kernel-modules
+            ;;
+        --list-modules)
+            do_list="yes";
             ;;
         -*) printf "\nUnknown option: %s\n\n" "$1" >&2; usage; exit 1;;
         *) break ;;
@@ -227,6 +231,15 @@ fi
 
 dracutfunctions=$dracutbasedir/dracut-functions
 export dracutfunctions
+
+[[ $do_list = yes ]] && {
+    for mod in $dracutbasedir/modules.d/*; do
+        [[ -d $mod ]] || continue;
+        [[ -e $mod/install || -e $mod/installkernel ]] || continue;
+        echo ${mod##*/??}
+    done
+    exit 0
+}
 
 # Detect lib paths
 [[ $libdir ]] || for libdir in /lib64 /lib; do
