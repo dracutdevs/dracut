@@ -1,0 +1,3 @@
+#!/bin/sh
+dracut_install /etc/fstab.sys
+inst_hook pre-pivot 00 "$moddir/mount-sys.sh"
