@@ -250,8 +250,8 @@ overlay/
       <para>On a Red Hat Enterprise Linux or Fedora system, this means, you have to install the dracut-network rpm package:</para>
       <screen># yum install dracut-network</screen>
       <para>The resulting initramfs image can be served by a boot manager residing on your local hard drive or it can be served by a PXE/TFTP server.</para>
-      <para>How to setup your PXE/TFTP server can be read here:</para>
-      <para>blah, blub....</para>
+      <para>How to setup your PXE/TFTP server can be found in the Red Hat Enterprise Linux Storage Administration Guide http://docs.redhat.com/docs/en-US/Red_Hat_Enterprise_Linux/6/html/Storage_Administration_Guide/</para>
+      <para></para>
       <para>If you specify <envar>rd.ip=auto</envar> on the kernel command line,  then dracut asks a dhcp server about the ip adress for the machine. The dhcp server can also serve an additional root-path, which will set the root device for dracut.  With this mechanism, you have static configuration on your client machine and  a centralized boot configuration on your TFTP/dhcp server. If you can&apos;t pass a kernel command line, then you can inject <filename>/etc/cmdline</filename>, with a method described in the section &quot;Injecting custom files&quot;.
 </para>
       <section>
