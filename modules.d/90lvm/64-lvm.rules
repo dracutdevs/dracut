@@ -7,8 +7,7 @@
 SUBSYSTEM!="block", GOTO="lvm_end"
 ACTION!="add|change", GOTO="lvm_end"
 KERNEL=="dm-[0-9]*", ACTION=="add", GOTO="lvm_end"
-ENV{ID_FS_TYPE}!="LVM2_member", GOTO="lvm_end"
-
+ENV{ID_FS_TYPE}!="LVM?_member", GOTO="lvm_end"
 
 PROGRAM=="/bin/sh -c 'for i in $sys/$devpath/holders/dm-[0-9]*; do [ -e $$i ] && exit 0; done; exit 1;' ", \
     GOTO="lvm_end"
