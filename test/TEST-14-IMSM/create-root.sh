@@ -22,19 +22,20 @@ for s in $SETS; do
 done
 
 udevadm settle
-
+sfdisk -g /dev/mapper/isw*Test0 
 # save a partition at the beginning for future flagging purposes
-sfdisk -H 255 -S 63 -L /dev/mapper/isw*Test0 <<EOF
+sfdisk -C 1280 -H 2 -S 32 -L /dev/mapper/isw*Test0 <<EOF
 ,1
-,1
-,1
-,
+,300
+,300
+,300
 EOF
+
 udevadm settle
 dmraid -a n
 udevadm settle
 
-SETS=$(dmraid -c -s)
+SETS=$(dmraid -c -s -i)
 # scan and activate all DM RAIDS
 for s in $SETS; do
    dmraid -ay -i -p --rm_partitions "$s" 
@@ -44,9 +45,9 @@ done
 udevadm settle
 
 mdadm --create /dev/md0 --run --auto=yes --level=5 --raid-devices=3 \
-	/dev/mapper/isw*p1 \
 	/dev/mapper/isw*p2 \
-	/dev/mapper/isw*p3 
+	/dev/mapper/isw*p3 \
+	/dev/mapper/isw*p4 
 
 # wait for the array to finish initailizing, otherwise this sometimes fails
 # randomly.
