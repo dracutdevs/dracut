@@ -7,3 +7,11 @@ for f in /tmp/dhclient.*.pid; do
     read PID < $f;
     kill $PID;
 done
+
+sleep 0.1
+
+for f in /tmp/dhclient.*.pid; do
+    [ -e $f ] || continue
+    read PID < $f;
+    kill -9 $PID;
+done
