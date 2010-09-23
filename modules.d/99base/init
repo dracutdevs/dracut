@@ -308,7 +308,6 @@ else
                 ;;
         esac
     done
-    initargs="$initargs"
 fi
 
 # Debug: Copy state
