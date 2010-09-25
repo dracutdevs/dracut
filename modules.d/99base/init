@@ -59,8 +59,8 @@ emergency_shell()
     fi
 }
 
+OLD_PATH="$PATH"
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
-export TERM=linux
 NEWROOT="/sysroot"
 
 trap "emergency_shell Signal caught!" 0
@@ -327,8 +327,8 @@ info "Switching root"
 wait_for_loginit
 
 umask $OLD_UMASK
-unset HOME
-unset TERM
+export PATH="$OLD_PATH"
+
 exec switch_root "$NEWROOT" "$INIT" $initargs || {
     echo "Something went very badly wrong in the initramfs.  Please "
     echo "file a bug against dracut."
