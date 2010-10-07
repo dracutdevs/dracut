@@ -94,6 +94,9 @@ if [ ! -c /dev/ptmx ]; then
 fi
 
 ln -s /proc/self/fd /dev/fd >/dev/null 2>&1
+ln -s /proc/self/fd/0 /dev/stdin >/dev/null 2>&1
+ln -s /proc/self/fd/1 /dev/stdout >/dev/null 2>&1
+ln -s /proc/self/fd/2 /dev/stderr >/dev/null 2>&1
 
 if getarg rdinitdebug; then
     getarg quiet && DRACUT_QUIET="yes"
