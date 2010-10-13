@@ -1,5 +1,6 @@
 dracut-008
 ==========
+- removed --ignore-kernel-modules option (no longer necessary)
 
 dracut-007
 ==========

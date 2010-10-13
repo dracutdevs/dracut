@@ -204,15 +204,6 @@ include in the generic initramfs. This parameter can be specified multiple times
         </varlistentry>
         <varlistentry>
           <term>
-            <option>--ignore-kernel-modules</option>
-          </term>
-          <listitem>
-            <para>don&apos;t try to load modules; it automatically implies <option>--no-kernel</option>; it&apos;s
-assumed that everything needed is built into kernel</para>
-          </listitem>
-        </varlistentry>
-        <varlistentry>
-          <term>
             <option>--mdadmconf</option>
           </term>
           <listitem>
