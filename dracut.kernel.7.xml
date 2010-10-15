@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- This document was created with Syntext Serna Free. --><!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" []>
-<refentry>
+<refentry id="dracutkernel7">
   <refentryinfo>
     <title>dracut.kernel</title>
     <productname>dracut</productname>
@@ -543,13 +543,13 @@ This is supported by dracut, but not recommended.</para>
             </optional>:<replaceable>&lt;targetname&gt;</replaceable></term>
           <listitem>
             <para>protocol defaults to &quot;6&quot;, LUN defaults to &quot;0&quot;.</para>
-            <para>If the &quot;servername&quot; field is provided by BOOTP or DHCP, then that
+            <para>If the &quot;servername&quot; field is provided by <acronym>BOOTP</acronym> or <acronym>DHCP</acronym>, then that
 field is used in conjunction with other associated fields to contact
-the boot server in the Boot stage (Section 7).  However, if the
+the boot server in the Boot stage.  However, if the
 &quot;servername&quot; field is not provided, then the &quot;targetname&quot; field is
 then used in the Discovery Service stage in conjunction with other
 associated fields.</para>
-            <para><ulink url="http://tools.ietf.org/html/rfc4173">http://tools.ietf.org/html/rfc4173</ulink></para>
+            <para>See <ulink url="http://tools.ietf.org/html/rfc4173#section-5">http://tools.ietf.org/html/rfc4173</ulink>.</para>
             <para>e.g.:<programlisting>root=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0    </programlisting></para>
             <para>If servername is an IPv6 address, it has to be put in brackets. e.g.: 
      <programlisting>root=iscsi:[2001:DB8::1]::::iqn.2009-06.dracut:target0    </programlisting></para>

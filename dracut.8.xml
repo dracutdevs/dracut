@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- This document was created with Syntext Serna Free. --><!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" []>
-<refentry>
+<refentry id="dracut8">
   <refentryinfo>
     <title>dracut</title>
     <productname>dracut</productname>
@@ -313,8 +313,7 @@ Thsi is useful when running dracut from a git checkout.</para>
 the local host instead of a generic host. 
      <warning>
                 <para>If chrooted to another root other than the real root device, use &quot;--fstab&quot; and provide a valid <filename>/etc/fstab</filename>.</para>
-              </warning>
-     </para>
+              </warning></para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -365,8 +364,7 @@ target directory in the final initramfs.</para>
             <para>Compress the generated initramfs using bzip2.
      <warning>
                 <para>Make sure your kernel has bzip2 decompression support compiled in, otherwise you will not be able to boot.</para>
-              </warning>
-     </para>
+              </warning></para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -377,8 +375,7 @@ target directory in the final initramfs.</para>
             <para>Compress the generated initramfs using lzma.
      <warning>
                 <para>Make sure your kernel has lzma decompression support compiled in, otherwise you will not be able to boot.</para>
-              </warning>
-     </para>
+              </warning></para>
           </listitem>
         </varlistentry>
         <varlistentry>
