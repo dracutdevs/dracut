@@ -104,7 +104,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
       </variablelist>
     </refsect2>
-    <refsect2>
+    <refsect2 id="dracut-kernel-debug">
       <title>Debug</title>
       <variablelist>
         <varlistentry>

@@ -277,159 +277,246 @@ overlay/
     </section>
     <section>
       <title>Troubleshooting</title>
-      <para>If the boot process does not succeed, you have several options to debug the situation:</para>
-      <para>Follow the instructions on: <ulink url="http://fedoraproject.org/wiki/How_to_debug_Dracut_problems">http://fedoraproject.org/wiki/How_to_debug_Dracut_problems</ulink></para>
-      <para/>
-<para>
-<section><title>Identifying your problem area</title>
-<para>
-# Remove ''rhgb'' and ''quiet'' from the kernel command line
-# Add ''rdshell'' to the kernel command line.  This will present a shell should dracut be unable to locate your root device
-# Add ''rdshell rdinitdebug'' to the kernel command line so that dracut shell commands are printed as they are executed
-# With dracut >= 002-11 [http://koji.fedoraproject.org/koji/buildinfo?buildID=134721], you can inspect the rdinitdebug output with:
-#:<pre># less /init.log</pre>
-#:<pre># dmesg | less</pre>
+      <para>If the boot process does not succeed, you have several options to debug the situation. Some of the basic operations are covered here. For more information you should also visit:  <ulink url="http://fedoraproject.org/wiki/How_to_debug_Dracut_problems">http://fedoraproject.org/wiki/How_to_debug_Dracut_problems</ulink></para>
+      <section id="identifying-your-problem-area">
+        <title>Identifying your problem area</title>
+        <orderedlist>
+          <listitem>
+            <para>Remove &apos;&apos;rhgb&apos;&apos; and &apos;&apos;quiet&apos;&apos; from the kernel command line
 </para>
-</section>
-== Logical Volume Management related problems ==
-
-As well as the information from [[How_to_debug_Dracut_problems#AllInfo|the 'all bug reports' section]], include the following information:
-
-* Include physical volume information by running the command: {{command|lvm pvdisplay}}
-* Include volume group information by running the command: {{command|lvm vgdisplay}}
-* Include logical volume information by running the command: {{command|lvm lvdisplay}}
-
-== Software RAID related problems ==
-
-As well as the information from [[How_to_debug_Dracut_problems#AllInfo|the 'all bug reports' section]], include the following information:
-
-* If using software RAID disk partitions, please include the output of {{filename|/proc/mdstat}}
-
-== Network root device related problems ==
-
-This section details information to include when experiencing problems on a system whose root device is located on a network attached volume (e.g. iSCSI, NFS or NBD).  As well as the information from [[How_to_debug_Dracut_problems#AllInfo|the 'all bug reports' section]], include the following information:
-
-* Please include the output of {{command|ip addr show}}
-
-{{Anchor|Debugging}}
-
-= Debugging dracut =
-
-== Configure a serial console ==
-
-Successfully debugging dracut will require some form of console logging during the system boot.  This section documents configuring a serial console connection to record boot messages.
-
-# First, enable serial console output for both the kernel and the bootloader.
-#* Open the file {{filename|/etc/grub.conf}} for editing.  Below the line ''timeout=5'', add the following:
-#*: <pre>
-#*:serial --unit=0 --speed=9600
-#*:terminal --timeout=5 serial console
-#*:</pre> 
-#* Also in {{filename|/etc/grub.conf}}, add the following boot arguemnts to the ''kernel'' line:
-#*: <pre>console=tty0 console=ttyS0,9600</pre>
-#* When finished, the {{filename|/etc/grub.conf}} file should look similar to the example below.
-#*:<pre>
-#*:default=0
-#*:timeout=5
-#*:serial --unit=0 --speed=9600
-#*:terminal --timeout=5 serial console
-#*:title Fedora (2.6.29.5-191.fc11.x86_64)
-#*:   root (hd0,0)
-#*:   kernel /vmlinuz-2.6.29.5-191.fc11.x86_64 ro root=/dev/mapper/vg_uc1-lv_root console=tty0 console=ttyS0,9600
-#*:   initrd /dracut-2.6.29.5-191.fc11.x86_64.img</pre>
-#* More detailed information on how to configure the kernel for console output can be found at [http://www.faqs.org/docs/Linux-HOWTO/Remote-Serial-Console-HOWTO.html#CONFIGURE-KERNEL].
-
-{{admon/tip|Redirecting non-interactive output|You can redirect all non-interactive output to /dev/kmsg and the kernel will put it out on the console when it reaches the kernel buffer by doing
-<pre>exec >/dev/kmsg 2>&1 </dev/console</pre>}}
-
-== Using the dracut shell ==
-
-Dracut offers a shell for interactive debugging in the event dracut fails to locate your root filesystem.  To enable the shell:
-# Add the boot parameter ''rdshell'' to your bootloader configuration file (e.g. {{filename|/etc/grub.conf}}
-# Remove the boot arguments ''rhgb'' and ''quiet''
-
-A sample {{filename|/etc/grub.conf}} bootloader configuration file is listed below.
-
-<pre>default=0
+          </listitem>
+          <listitem>
+            <para>Add &apos;&apos;rdshell&apos;&apos; to the kernel command line.  This will present a shell should dracut be unable to locate your root device
+</para>
+          </listitem>
+          <listitem>
+            <para>Add &apos;&apos;rdshell rdinitdebug&apos;&apos; to the kernel command line so that dracut shell commands are printed as they are executed
+</para>
+          </listitem>
+          <listitem>
+            <para>With dracut &gt;= 002-11, you can inspect the rdinitdebug output with:
+</para>
+            <screen># less /init.log
+# dmesg | less</screen>
+          </listitem>
+        </orderedlist>
+      </section>
+      <section id="information-to-include-in-your-report">
+        <title id="information-to-include-in-your-report-title">Information to include in your report</title>
+        <section id="all-bug-reports">
+          <title id="all-bug-reports-title">All bug reports</title>
+          <para>In all cases, the following should be mentioned and attached to your bug report:
+</para>
+          <itemizedlist>
+            <listitem>
+              <para>The exact kernel command-line used.  Typically from the bootloader configuration file (e.g. <filename>/etc/grub.conf</filename>) or from <filename>/proc/cmdline</filename>.</para>
+            </listitem>
+            <listitem>
+              <para>A copy of your disk partition information from <filename>/etc/fstab</filename>, which might be obtained booting an old working initramfs or a rescue medium.</para>
+            </listitem>
+            <listitem>
+              <para>A device listing from device-mapper.  This can be obtained by running the command <screen># dmsetup ls --tree</screen></para>
+            </listitem>
+            <listitem>
+              <para>A list of block device attributes including vol_id compatible mode.  This can be obtained by running the commands: <screen># blkid -p
+# blkid -p -o udev</screen></para>
+            </listitem>
+            <listitem>
+              <para>Turn on dracut debugging (see <filename>the &apos;debugging dracut&apos; section</filename>), and attach all relevant information from the boot log.  This can be obtained by running the command <screen># dmesg|grep dracut</screen></para>
+            </listitem>
+            <listitem>
+              <para>If you use a dracut configuration file, please include <filename>/etc/dracut.conf</filename>
+ and all files in <filename>/etc/dracut.conf.d/*.conf</filename></para>
+            </listitem>
+          </itemizedlist>
+        </section>
+        <section id="logical-volume-management-related-problems">
+          <title id="logical-volume-management-related-problems-title">Logical Volume Management related problems</title>
+          <para>As well as the information from <xref linkend="all-bug-reports"/> include the following information:
+</para>
+          <itemizedlist>
+            <listitem>
+              <para>Include physical volume information by running the command: <screen># lvm pvdisplay</screen></para>
+            </listitem>
+            <listitem>
+              <para>Include volume group information by running the command: <screen># lvm vgdisplay</screen></para>
+            </listitem>
+            <listitem>
+              <para>Include logical volume information by running the command: <screen># lvm lvdisplay</screen></para>
+            </listitem>
+          </itemizedlist>
+        </section>
+        <section id="software-raid-related-problems">
+          <title id="software-raid-related-problems-title">Software RAID related problems</title>
+          <para>As well as the information from <xref linkend="all-bug-reports"/>, include the following information:
+</para>
+          <itemizedlist>
+            <listitem>
+              <para>If using software RAID disk partitions, please include the output of <screen># cat /proc/mdstat</screen></para>
+            </listitem>
+          </itemizedlist>
+        </section>
+        <section id="network-root-device-related-problems">
+          <title id="network-root-device-related-problems-title">Network root device related problems</title>
+          <para>This section details information to include when experiencing problems on a system whose root device is located on a network attached volume (e.g. iSCSI, NFS or NBD).  As well as the information from <xref linkend="all-bug-reports"/>, include the following information:
+</para>
+          <itemizedlist>
+            <listitem>
+              <para>Please include the output of  <screen># /sbin/ifup <replaceable>&lt;interfacename&gt;</replaceable>
+# ip addr show</screen></para>
+            </listitem>
+          </itemizedlist>
+        </section>
+      </section>
+      <section id="debugging-dracut">
+        <title id="debugging-dracut-title">Debugging dracut</title>
+        <section id="configure-a-serial-console">
+          <title id="configure-a-serial-console-title">Configure a serial console</title>
+          <para>Successfully debugging dracut will require some form of console logging during the system boot.  This section documents configuring a serial console connection to record boot messages.
+</para>
+          <orderedlist>
+            <listitem>
+              <para>First, enable serial console output for both the kernel and the bootloader.
+</para>
+            </listitem>
+            <listitem>
+              <para>Open the file <filename>/etc/grub.conf</filename> for editing.  Below the line &apos;&apos;timeout=5&apos;&apos;, add the following:
+<screen>serial --unit=0 --speed=9600
+terminal --timeout=5 serial console</screen></para>
+            </listitem>
+            <listitem>
+              <para>Also in <filename>/etc/grub.conf</filename>, add the following boot arguemnts to the &apos;&apos;kernel&apos;&apos; line:
+<screen>console=tty0 console=ttyS0,9600</screen></para>
+            </listitem>
+            <listitem>
+              <para>When finished, the <filename>/etc/grub.conf</filename> file should look similar to the example below.
+<screen>default=0
 timeout=5
 serial --unit=0 --speed=9600
 terminal --timeout=5 serial console
 title Fedora (2.6.29.5-191.fc11.x86_64)
-        root (hd0,0)
-        kernel /vmlinuz-2.6.29.5-191.fc11.x86_64 ro root=/dev/mapper/vg_uc1-lv_root console=tty0 rdshell 
-        initrd /dracut-2.6.29.5-191.fc11.x86_64.img</pre>
-
-If system boot fails, you will be dropped into a shell as seen in the example below.
-<pre>
-No root device found
+  root (hd0,0)
+  kernel /vmlinuz-2.6.29.5-191.fc11.x86_64 ro root=/dev/mapper/vg_uc1-lv_root console=tty0 console=ttyS0,9600
+  initrd /dracut-2.6.29.5-191.fc11.x86_64.img</screen></para>
+            </listitem>
+            <listitem>
+              <para>More detailed information on how to configure the kernel for console output can be found at <ulink url="http://www.faqs.org/docs/Linux-HOWTO/Remote-Serial-Console-HOWTO.html#CONFIGURE-KERNEL">http://www.faqs.org/docs/Linux-HOWTO/Remote-Serial-Console-HOWTO.html#CONFIGURE-KERNEL</ulink>.
+</para>
+            </listitem>
+          </orderedlist>
+          <note>
+            <title>Redirecting non-interactive output</title>
+            <para>You can redirect all non-interactive output to <filename>/dev/kmsg</filename> and the kernel will put it out on the console when it reaches the kernel buffer by doing<screen># exec &gt;/dev/kmsg 2&gt;&amp;1 &lt;/dev/console</screen></para>
+          </note>
+        </section>
+        <section id="using-the-dracut-shell">
+          <title id="using-the-dracut-shell-title">Using the dracut shell</title>
+          <para>Dracut offers a shell for interactive debugging in the event dracut fails to locate your root filesystem.  To enable the shell:
+<orderedlist>
+              <listitem>
+                <para>Add the boot parameter &apos;&apos;rdshell&apos;&apos; to your bootloader configuration file (e.g. <filename>/etc/grub.conf</filename>)</para>
+              </listitem>
+              <listitem>
+                <para>Remove the boot arguments &apos;&apos;rhgb&apos;&apos; and &apos;&apos;quiet&apos;&apos;
+</para>
+                <para>
+A sample <filename>/etc/grub.conf</filename> bootloader configuration file is listed below. 
+</para>
+                <para><screen>default=0
+timeout=5
+serial --unit=0 --speed=9600
+terminal --timeout=5 serial console
+title Fedora (2.6.29.5-191.fc11.x86_64)
+  root (hd0,0)
+  kernel /vmlinuz-2.6.29.5-191.fc11.x86_64 ro root=/dev/mapper/vg_uc1-lv_root console=tty0 rdshell 
+  initrd /dracut-2.6.29.5-191.fc11.x86_64.img</screen></para>
+              </listitem>
+              <listitem>
+                <para>If system boot fails, you will be dropped into a shell as seen in the example below.
+<screen>No root device found 
 Dropping to debug shell.
 
-sh: can't access tty; job control turned off
-# 
-</pre>
+sh: can&apos;t access tty; job control turned off
 
-Use this shell prompt to gather the information requested above (see [[How_to_debug_Dracut_problems#AllInfo|the 'all bug reports' section]]).
-
-== Accessing the root volume from the dracut shell ==
-
-From the dracut debug shell, you can manually perform the task of locating and preparing your root volume for boot.  The required steps will depend on how your root volume is configured.  Common scenarios include:
-* A block device (e.g. {{filename|/dev/sda7}})
-* A LVM logical volume (e.g. {{filename|/dev/VolGroup00/LogVol00}})
-* An encrypted device (e.g. {{filename|/dev/mapper/luks-4d5972ea-901c-4584-bd75-1da802417d83}})
-* A network attached device (e.g. {{filename|netroot{{=}}iscsi:@192.168.0.4::3260::iqn.2009-02.org.fedoraproject:for.all}})
-
-The exact method for locating and preparing will vary.  However, to continue with a successful boot, the objective is to locate your root volume and create a symlink {{filename|/dev/root}} which points to the file system.  For example, the following example demonstrates accessing and booting a root volume that is an encrypted LVM Logical volume.
-
-# Inspect your partitions using {{command|parted}}
-#: <pre>
-#: parted /dev/sda -s p
-#: Model: ATA HTS541060G9AT00 (scsi)
-#: Disk /dev/sda: 60.0GB
-#: Sector size (logical/physical): 512B/512B
-#: Partition Table: msdos
-#: 
-#: Number  Start   End     Size    Type      File system  Flags
-#:  1      32.3kB  10.8GB  107MB   primary   ext4         boot
-#:  2      10.8GB  55.6GB  44.7GB  logical                lvm</pre>
-# You recall that your root volume was a LVM logical volume.  Scan and activate any logical volumes
-#: <pre>
-#: lvm vgscan
-#: lvm vgchange -ay</pre>
-# You should see any logical volumes now using the command {{command|blkid}}:
-#: <pre>
-#: # blkid
-#: /dev/sda1: UUID="3de247f3-5de4-4a44-afc5-1fe179750cf7" TYPE="ext4" 
-#: /dev/sda2: UUID="Ek4dQw-cOtq-5MJu-OGRF-xz5k-O2l8-wdDj0I" TYPE="LVM2_member" 
-#: /dev/mapper/linux-root: UUID="def0269e-424b-4752-acf3-1077bf96ad2c" TYPE="crypto_LUKS" 
-#: /dev/mapper/linux-home: UUID="c69127c1-f153-4ea2-b58e-4cbfa9257c5e" TYPE="ext3" 
-#: /dev/mapper/linux-swap: UUID="47b4d329-975c-4c08-b218-f9c9bf3635f1" TYPE="swap" 
-#: </pre>
-# From the output above, you recall that your root volume exists on an encrypted block device.  Following the guidance disk encryption guidance from the [http://docs.fedoraproject.org/install-guide/f{{FedoraVersion}}/en-US/html/apcs04s04.html {{FedoraVersion|long}} Installation Guide], you unlock your encrypted root volume.
-#: <pre>
-#: UUID=$(cryptsetup luksUUID /dev/mapper/linux-root)
-#: cryptsetup luksOpen /dev/mapper/linux-root luks-$UUID
-#: Enter passphrase for /dev/mapper/linux-root:
-#: Key slot 0 unlocked. </pre>
-# Next, make a symbolic link to the unlocked root volume
-#: <pre>
-#: ln -s /dev/mapper/luks-$UUID /dev/root</pre>
-# With the root volume available, you may continue booting the system by exiting the dracut shell
-#: <pre>
-#: exit</pre>
-
-== Additional dracut boot parameters ==
-
-The following boot parameters are also available to further assist with debugging boot issues.
-
-; rdshell : Drop to a shell, if the initramfs fails.
-; rdinitdebug : set -x for the dracut shell.
-; rdbreak=[pre-udev|pre-mount|mount|pre-pivot|] : drop the shell on defined breakpoint
-; rdudevinfo : set udev to loglevel info
-; rdudevdebug : set udev to loglevel debug
-; rdnetdebug : debug network scripts in dracut. Output is written to /tmp
-
-[[Category:Debugging|D]] [[Category:How to]]
+# </screen></para>
+              </listitem>
+              <listitem>
+                <para>Use this shell prompt to gather the information requested above (see <xref linkend="all-bug-reports"/>).
 </para>
+              </listitem>
+            </orderedlist></para>
+        </section>
+        <section id="accessing-the-root-volume-from-the-dracut-shell">
+          <title id="accessing-the-root-volume-from-the-dracut-shell-title">Accessing the root volume from the dracut shell</title>
+          <para>From the dracut debug shell, you can manually perform the task of locating and preparing your root volume for boot.  The required steps will depend on how your root volume is configured.  Common scenarios include:
+</para>
+          <itemizedlist>
+            <listitem>
+              <para>A block device (e.g. <filename>/dev/sda7</filename>)
+</para>
+            </listitem>
+            <listitem>
+              <para>A LVM logical volume (e.g. <filename>/dev/VolGroup00/LogVol00</filename>)
+</para>
+            </listitem>
+            <listitem>
+              <para>An encrypted device (e.g. <filename>/dev/mapper/luks-4d5972ea-901c-4584-bd75-1da802417d83</filename>)
+</para>
+            </listitem>
+            <listitem>
+              <para>A network attached device (e.g. netroot=iscsi:@192.168.0.4::3260::iqn.2009-02.org.fedoraproject:for.all)
+</para>
+            </listitem>
+          </itemizedlist>
+          <para>The exact method for locating and preparing will vary. However, to continue with a successful boot, the objective is to locate your root volume and create a symlink <filename>/dev/root</filename> which points to the file system. For example, the following example demonstrates accessing and booting a root volume that is an encrypted LVM Logical volume. </para>
+          <orderedlist>
+            <listitem>
+              <para>Inspect your partitions using <command>parted</command><screen># parted /dev/sda -s p
+Model: ATA HTS541060G9AT00 (scsi)
+Disk /dev/sda: 60.0GB
+Sector size (logical/physical): 512B/512B
+Partition Table: msdos
+Number  Start   End     Size    Type      File system  Flags
+1      32.3kB  10.8GB  107MB   primary   ext4         boot
+2      10.8GB  55.6GB  44.7GB  logical                lvm</screen></para>
+            </listitem>
+            <listitem>
+              <para>You recall that your root volume was a LVM logical volume.  Scan and activate any logical volumes.
+                  <screen># lvm vgscan
+# lvm vgchange -ay</screen></para>
+            </listitem>
+            <listitem>
+              <para>You should see any logical volumes now using the command <command>blkid</command>:
+<screen># blkid
+/dev/sda1: UUID=&quot;3de247f3-5de4-4a44-afc5-1fe179750cf7&quot; TYPE=&quot;ext4&quot;
+/dev/sda2: UUID=&quot;Ek4dQw-cOtq-5MJu-OGRF-xz5k-O2l8-wdDj0I&quot; TYPE=&quot;LVM2_member&quot;
+/dev/mapper/linux-root: UUID=&quot;def0269e-424b-4752-acf3-1077bf96ad2c&quot; TYPE=&quot;crypto_LUKS&quot;
+/dev/mapper/linux-home: UUID=&quot;c69127c1-f153-4ea2-b58e-4cbfa9257c5e&quot; TYPE=&quot;ext3&quot;
+/dev/mapper/linux-swap: UUID=&quot;47b4d329-975c-4c08-b218-f9c9bf3635f1&quot; TYPE=&quot;swap&quot;
+</screen></para>
+            </listitem>
+            <listitem>
+              <para>From the output above, you recall that your root volume exists on an encrypted block device.  Following the guidance disk encryption guidance from the Installation Guide, you unlock your encrypted root volume.
+<screen># UUID=$(cryptsetup luksUUID /dev/mapper/linux-root)
+# cryptsetup luksOpen /dev/mapper/linux-root luks-$UUID
+Enter passphrase for /dev/mapper/linux-root:
+Key slot 0 unlocked. </screen></para>
+            </listitem>
+            <listitem>
+              <para>Next, make a symbolic link to the unlocked root volume
+<screen># ln -s /dev/mapper/luks-$UUID /dev/root</screen></para>
+            </listitem>
+            <listitem>
+              <para>With the root volume available, you may continue booting the system by exiting the dracut shell
+<screen># exit</screen></para>
+            </listitem>
+          </orderedlist>
+        </section>
+        <section id="additional-dracut-boot-parameters">
+          <title id="additional-dracut-boot-parameters-title">Additional dracut boot parameters</title>
+          <para>For more debugging options, see <xref linkend="dracut-kernel-debug"/> in the man page <xref linkend="dracutkernel7"/>.</para>
+        </section>
+      </section>
     </section>
   </chapter>
   <chapter>
