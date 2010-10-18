@@ -28,7 +28,7 @@ parsebridge() {
 
     unset bridgename ethname
     case $# in
-        0)  bridgename=br0; ethname=eth0 ;;
+        0)  bridgename=br0; ethname=$iface ;;
         1)  die "bridge= requires two parameters" ;;
         2)  bridgename=$1; ethname=$2 ;;
         *)  die "bridge= requires two parameters" ;;
@@ -36,6 +36,14 @@ parsebridge() {
 }
 
 unset bridgename ethname
+
+iface=eth0
+if [ -e /tmp/bond.info ]; then
+    . /tmp/bond.info
+    if [ -n "$bondname" ] ; then
+        iface=$bondname
+    fi
+fi
 
 # Parse bridge for bridgename and ethname
 if getarg bridge >/dev/null; then
@@ -47,7 +55,7 @@ if getarg bridge >/dev/null; then
     # Simple default bridge
     if [ -z "$bridgename" ]; then
         bridgename=br0
-        ethname=eth0
+        ethname=$iface
     fi
     echo "bridgename=$bridgename" > /tmp/bridge.info
     echo "ethname=$ethname" >> /tmp/bridge.info

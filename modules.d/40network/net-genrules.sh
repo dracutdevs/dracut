@@ -24,6 +24,13 @@ fix_bootif() {
         IFACES=$ethname
     fi
 
+    # bond: attempt only the defined interface (override bridge defines)
+    if [ -e /tmp/bond.info ]; then
+        . /tmp/bond.info
+        # It is enough to fire up only one
+        IFACES=${bondslaves%% *}
+    fi
+
     # BOOTIF says everything, use only that one
     BOOTIF=$(getarg 'BOOTIF=')
     if [ -n "$BOOTIF" ] ; then

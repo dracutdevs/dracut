@@ -92,11 +92,25 @@ exec >>/dev/initlog.pipe 2>>/dev/initlog.pipe
 # $netif reads easier than $1
 netif=$1
 
+# enslave this interface to bond?
+if [ -e /tmp/bond.info ]; then
+    . /tmp/bond.info
+    for slave in $bondslaves ; do
+        if [ "$netif" = "$slave" ] ; then
+            netif=$bondname
+        fi
+    done
+fi
+
 # bridge this interface?
 if [ -e /tmp/bridge.info ]; then
     . /tmp/bridge.info
     if [ "$netif" = "$ethname" ]; then
-        netif="$bridgename"
+        if [ "$netif" = "$bondname" ] && [ -n "$DO_BOND_SETUP" ] ; then
+            : # We need to really setup bond (recursive call)
+        else
+            netif="$bridgename"
+        fi
     fi
 fi
 
@@ -115,11 +129,62 @@ if [ "$netif" = "lo" ] ; then
     exit 0
 fi
 
+# start bond if needed
+if [ -e /tmp/bond.info ]; then
+    . /tmp/bond.info
+
+    if [ "$netif" = "$bondname" ] && [ ! -e /tmp/net.$bondname.up ] ; then # We are master bond device
+        modprobe bonding
+        ip link set $netif down
+
+        # Stolen from ifup-eth
+        # add the bits to setup driver parameters here
+        for arg in $bondoptions ; do
+            key=${arg%%=*};
+            value=${arg##*=};
+            # %{value:0:1} is replaced with non-bash specific construct
+            if [ "${key}" = "arp_ip_target" -a "${#value}" != "0" -a "+${value%%+*}" != "+" ]; then
+                OLDIFS=$IFS;
+                IFS=',';
+                for arp_ip in $value; do
+                    echo +$arp_ip > /sys/class/net/${netif}/bonding/$key
+                done
+                IFS=$OLDIFS;
+            else
+                echo $value > /sys/class/net/${netif}/bonding/$key
+            fi
+        done
+
+        ip link set $netif up
+
+        for slave in $bondslaves ; do
+            ip link set $slave down
+            ifenslave $bondname $slave
+            ip link set $slave up
+            wait_for_if_up $slave
+        done
+
+        # add the bits to setup the needed post enslavement parameters
+        for arg in $BONDING_OPTS ; do
+            key=${arg%%=*};
+            value=${arg##*=};
+            if [ "${key}" = "primary" ]; then
+                echo $value > /sys/class/net/${netif}/bonding/$key
+            fi
+        done
+    fi
+fi
+
+
 # XXX need error handling like dhclient-script
 
 # start bridge if necessary
 if [ "$netif" = "$bridgename" ] && [ ! -e /tmp/net.$bridgename.up ]; then
-    ip link set $ethname up
+    if [ "$ethname" = "$bondname" ] ; then
+        DO_BOND_SETUP=yes /sbin/ifup $bondname
+    else
+        ip link set $ethname up
+    fi
     wait_for_if_up $ethname
     # Create bridge and add eth to bridge
     brctl addbr $bridgename
