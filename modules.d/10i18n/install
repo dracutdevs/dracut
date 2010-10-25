@@ -160,7 +160,7 @@ install_local_i18n() {
 }
 
 checks() {
-    for kbddir in ${kbddir} /usr/lib/kbd /lib/kbd /usr/share
+    for kbddir in ${kbddir} /usr/lib/kbd /lib/kbd /usr/share /usr/share/kbd
     do
         [[ -d "${kbddir}" ]] && \
             for dir in ${KBDSUBDIRS//,/ } 
