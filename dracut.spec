@@ -1,9 +1,10 @@
+%define gittag ac3ec12
 # Variables must be defined
 %define with_switch_root        1
 %define with_nbd                1
 
 # switchroot provided by util-linux-ng in F-12+
-%if 0%{?fedora} > 11 || 0%{?rhel} >= 6
+%if 0%{?fedora} > 11 || 0%{?rhel} >= 6 || 0%{?suse_version} > 1110
 %define with_switch_root 0
 %endif
 # nbd in Fedora only
@@ -29,7 +30,14 @@ URL: http://apps.sourceforge.net/trac/dracut/wiki
 # http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut/dracut;a=snapshot;h=%{?dashgittag};sf=tgz
 Source0: dracut-%{version}%{?dashgittag}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: docbook-style-xsl docbook-dtds docbook-style-xsl libxslt 
+
+%if 0%{?fedora_version} > 0
+BuildRequires: docbook-style-xsl docbook-dtds libxslt
+%endif
+
+%if 0%{?suse_version} > 0
+BuildRequires: docbook-xsl-stylesheets libxslt
+%endif
 
 %if 0%{?fedora} > 12 || 0%{?rhel} >= 6
 # no "provides", because dracut does not offer
@@ -51,16 +59,24 @@ Requires: filesystem >= 2.1.0
 Requires: findutils
 Requires: grep
 Requires: gzip
-Requires: initscripts >= 8.63-1
 Requires: kbd
 Requires: mktemp >= 1.5-5
 Requires: module-init-tools >= 3.7-9
-Requires: mount
-Requires: plymouth >= 0.8.0-0.2009.29.09.19.1
 Requires: sed
 Requires: tar
 Requires: udev
+
+%if 0%{?fedora_version} > 0
 Requires: util-linux-ng >= 2.16
+Requires: initscripts >= 8.63-1
+Requires: plymouth >= 0.8.0-0.2009.29.09.19.1
+Requires: mount
+%endif
+
+%if 0%{?suse_version} > 0
+Requires: util-linux >= 2.16
+%endif
+
 
 %if ! 0%{?with_switch_root}
 BuildArch: noarch
@@ -138,6 +154,7 @@ make install DESTDIR=$RPM_BUILD_ROOT sbindir=/sbin \
      sysconfdir=/etc mandir=%{_mandir} WITH_SWITCH_ROOT=0%{?with_switch_root}
 
 echo %{name}-%{version}-%{release} > $RPM_BUILD_ROOT/%{_datadir}/dracut/modules.d/10rpmversion/dracut-version
+rm $RPM_BUILD_ROOT/%{_datadir}/dracut/modules.d/10rpmversion/check
 rm $RPM_BUILD_ROOT/%{_datadir}/dracut/modules.d/01fips/check
 # remove gentoo specific modules
 rm -fr $RPM_BUILD_ROOT/%{_datadir}/dracut/modules.d/50gensplash
@@ -146,9 +163,16 @@ mkdir -p $RPM_BUILD_ROOT/boot/dracut
 mkdir -p $RPM_BUILD_ROOT/var/lib/dracut/overlay
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/log
 touch $RPM_BUILD_ROOT%{_localstatedir}/log/dracut.log
-install -m 0644 dracut.conf.d/fedora.conf.example $RPM_BUILD_ROOT/etc/dracut.conf.d/fedora.conf
 
-%if 0%{?fedora} <= 12 && 0%{?rhel} < 6
+%if 0%{?fedora_version} > 0
+install -m 0644 dracut.conf.d/fedora.conf.example $RPM_BUILD_ROOT/etc/dracut.conf.d/01-dist.conf
+%endif
+
+%if 0%{?suse_version} > 0
+install -m 0644 dracut.conf.d/suse.conf.example   $RPM_BUILD_ROOT/etc/dracut.conf.d/01-dist.conf
+%endif
+
+%if 0%{?fedora} <= 12 && 0%{?rhel} < 6 && 0%{?suse_version} > 0
 rm $RPM_BUILD_ROOT/sbin/mkinitrd
 rm $RPM_BUILD_ROOT/sbin/lsinitrd
 %endif
@@ -170,7 +194,9 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_datadir}/dracut
 %{_datadir}/dracut/dracut-functions
 %config(noreplace) /etc/dracut.conf
-%config(noreplace) /etc/dracut.conf.d/fedora.conf
+%if 0%{?fedora_version} > 0 || 0%{?suse_version} > 0
+%config(noreplace) /etc/dracut.conf.d/01-dist.conf
+%endif
 %dir /etc/dracut.conf.d
 %{_mandir}/man8/dracut.8*
 %{_mandir}/man7/dracut.kernel.7*
