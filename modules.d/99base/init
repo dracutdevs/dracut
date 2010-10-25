@@ -332,7 +332,7 @@ wait_for_loginit
 umask $OLD_UMASK
 export PATH="$OLD_PATH"
 
-exec switch_root "$NEWROOT" "$INIT" $initargs || {
+exec /sbin/switch_root "$NEWROOT" "$INIT" $initargs || {
     echo "Something went very badly wrong in the initramfs.  Please "
     echo "file a bug against dracut."
     emergency_shell
