@@ -1,4 +1,3 @@
-%define gittag ac3ec12
 # Variables must be defined
 %define with_switch_root        1
 %define with_nbd                1
