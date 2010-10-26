@@ -113,7 +113,6 @@ Requires: bridge-utils
 Requires: iscsi-initiator-utils
 Requires: nfs-utils 
 Requires: dhclient
-Requires: vconfig
 %endif
 
 %if 0%{?suse_version} > 0
