@@ -615,7 +615,7 @@ else
         # check if it's root by label
     rdev=$rootdev
     rdev=$(resolve_device_name "$rdev")
-    rootopts=$(echo $rootopts | sed -e 's/^r[ow],//' -e 's/,_netdev//' -e 's/_netdev//' -e 's/,r[ow],$//' -e 's/,r[ow],/,/' -e 's/^r[ow]$/defaults/' -e 's/$/,ro/')
+    rootopts=$(echo $rootopts | sed -e 's/^r[ow],//' -e 's/,_netdev//' -e 's/_netdev//' -e 's/,_rnetdev//' -e 's/_rnetdev//' -e 's/,r[ow],$//' -e 's/,r[ow],/,/' -e 's/^r[ow]$/defaults/' -e 's/$/,ro/')
     findstoragedriver "$rdev"
 fi
 
