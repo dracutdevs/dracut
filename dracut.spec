@@ -208,6 +208,7 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/lsinitrd
 %endif
 %dir %{_datadir}/dracut
+%dir %{_datadir}/dracut/modules.d
 %{_datadir}/dracut/dracut-functions
 %config(noreplace) /etc/dracut.conf
 %if 0%{?fedora_version} > 0 || 0%{?suse_version} > 0
