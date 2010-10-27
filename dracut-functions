@@ -634,7 +634,7 @@ filter_kernel_modules () (
     if ! [[ $hostonly ]]; then
         filtercmd='find "$srcmods/kernel/drivers" "$srcmods/extra" "$srcmods/weak-updates" -name "*.ko" -o -name "*.ko.gz" 2>/dev/null'
     else
-        filtercmd='cut -d " " -f 1 </proc/modules|xargs modinfo -F filename -k $kernel'
+        filtercmd='cut -d " " -f 1 </proc/modules|xargs modinfo -F filename -k $kernel 2>/dev/null'
     fi
     for modname in $(eval $filtercmd); do
         case $modname in
