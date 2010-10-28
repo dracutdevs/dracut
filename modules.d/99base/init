@@ -317,7 +317,7 @@ fi
 
 # Debug: Copy state
 if getargbool 0 rd.copystate -y rdcopystate; then
-    mkdir /dev/.initramfs/
+    mkdir -p /dev/.initramfs
     cp /tmp/* /dev/.initramfs/ >/dev/null 2>&1
 fi
 
