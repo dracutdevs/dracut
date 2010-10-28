@@ -379,7 +379,8 @@ inst_symlink() {
     [[ -L $target ]] && return 0
     realsrc=$(readlink -f "$src")
     [[ $realsrc = ${realsrc##*/} ]] && realsrc=${src%/*}/$realsrc
-    inst "$realsrc" && ln -s "$realsrc" "$target"
+    inst "$realsrc" && mkdir -p "${target%/*}" && \
+        ln -s "$realsrc" "$target"
 }
 
 # find a udev rule in the usual places.
