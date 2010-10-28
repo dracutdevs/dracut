@@ -16,7 +16,7 @@ case "$resume" in
         resume="/dev/disk/by-uuid/${resume#UUID=}" ;;
 esac
 
-if splash=$(getarg splash=); then
+if splash=$(getarg rd.splash= splash=); then
     export splash
 else
     unset splash

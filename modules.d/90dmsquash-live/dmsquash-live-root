@@ -7,7 +7,7 @@
 
 PATH=$PATH:/sbin:/usr/sbin
 
-if getarg rdlivedebug; then
+if getargbool 0 rd.live.debug -y rdlivedebug; then
     exec > /tmp/liveroot.$$.out
     exec 2>> /tmp/liveroot.$$.out
     set -x
@@ -18,19 +18,19 @@ livedev="$1"
 
 # parse various live image specific options that make sense to be
 # specified as their own things
-live_dir=$(getarg live_dir)
+live_dir=$(getarg rd.live.dir live_dir)
 [ -z "$live_dir" ] && live_dir="LiveOS"
-getarg live_ram && live_ram="yes"
-getarg reset_overlay && reset_overlay="yes"
-getarg readonly_overlay && readonly_overlay="--readonly" || readonly_overlay=""
-overlay=$(getarg overlay)
+getargbool 0 rd.live.ram -y live_ram && live_ram="yes"
+getargbool 0 rd.live.overlay.reset -y reset_overlay && reset_overlay="yes"
+getargbool 0 rd.live.overlay.readonly -y readonly_overlay && readonly_overlay="--readonly" || readonly_overlay=""
+overlay=$(getarg rd.live.overlay overlay)
 
 # FIXME: we need to be able to hide the plymouth splash for the check really
 [ -e $livedev ] & fs=$(blkid -s TYPE -o value $livedev)
 if [ "$fs" = "iso9660" -o "$fs" = "udf" ]; then
     check="yes"
 fi
-getarg check || check=""
+getarg rd.live.check check || check=""
 if [ -n "$check" ]; then
     checkisomd5 --verbose $livedev || :
     if [ $? -ne 0 ]; then

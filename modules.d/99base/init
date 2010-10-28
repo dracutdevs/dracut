@@ -10,7 +10,7 @@
 
 wait_for_loginit()
 {
-    if getarg rdinitdebug; then
+    if getargbool 0 rd.debug -y rdinitdebug -y rdnetdebug; then
         set +x
         exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
         # wait for loginit
@@ -47,7 +47,7 @@ emergency_shell()
     echo $@
     source_all emergency
     echo
-    if getarg rdshell || getarg rdbreak; then
+    if getargbool 0 rd.shell -y rdshell || getarg rd.break rdbreak; then
         echo "Dropping to debug shell."
         echo
         export PS1="$_rdshell_name:\${PWD}# "
@@ -98,7 +98,7 @@ ln -s /proc/self/fd/0 /dev/stdin >/dev/null 2>&1
 ln -s /proc/self/fd/1 /dev/stdout >/dev/null 2>&1
 ln -s /proc/self/fd/2 /dev/stderr >/dev/null 2>&1
 
-if getarg rdinitdebug; then
+if getargbool 0 rd.debug -y rdinitdebug -y rdnetdebug; then
     getarg quiet && DRACUT_QUIET="yes"
     mkfifo /dev/initlog.pipe
     /sbin/loginit $DRACUT_QUIET </dev/initlog.pipe >/dev/console 2>&1 &
@@ -121,7 +121,7 @@ UDEVVERSION=$(udevadm --version)
 source_conf /etc/conf.d
 
 # run scriptlets to parse the command line
-getarg 'rdbreak=cmdline' && emergency_shell -n cmdline "Break before cmdline"
+getarg 'rd.break=cmdline' 'rdbreak=cmdline' && emergency_shell -n cmdline "Break before cmdline"
 source_all cmdline
 
 [ -z "$root" ] && die "No or empty root= argument"
@@ -138,7 +138,7 @@ source_all cmdline
 } > /tmp/root.info
 
 # pre-udev scripts run before udev starts, and are run only once.
-getarg 'rdbreak=pre-udev' && emergency_shell -n pre-udev "Break before pre-udev"
+getarg 'rd.break=pre-udev' 'rdbreak=pre-udev' && emergency_shell -n pre-udev "Break before pre-udev"
 source_all pre-udev
 
 # start up udev and trigger cold plugs
@@ -152,18 +152,18 @@ if [ $UDEVVERSION -lt 140 ]; then
     UDEV_QUEUE_EMPTY="udevadm settle --timeout=1"
 fi
 
-getarg rdudevinfo && udevadm control $UDEV_LOG_PRIO_ARG=info
-getarg rdudevdebug && udevadm control $UDEV_LOG_PRIO_ARG=debug
+getargbool 0 rd.udev.info -y rdudevinfo && udevadm control $UDEV_LOG_PRIO_ARG=info
+getargbool 0 rd.udev.debug -y rdudevdebug && udevadm control $UDEV_LOG_PRIO_ARG=debug
 
-getarg 'rdbreak=pre-trigger' && emergency_shell -n pre-trigger "Break before pre-trigger"
+getarg 'rd.break=pre-trigger' 'rdbreak=pre-trigger' && emergency_shell -n pre-trigger "Break before pre-trigger"
 source_all pre-trigger
 
 # then the rest
 udevadm trigger --action=add $udevtriggeropts  >/dev/null 2>&1
 
-getarg 'rdbreak=initqueue' && emergency_shell -n initqueue "Break before initqueue"
+getarg 'rd.break=initqueue' 'rdbreak=initqueue' && emergency_shell -n initqueue "Break before initqueue"
 
-RDRETRY=$(getarg 'rd_retry=')
+RDRETRY=$(getarg rd.retry 'rd_retry=')
 RDRETRY=${RDRETRY:-20}
 RDRETRY=$(($RDRETRY*2))
 
@@ -223,11 +223,11 @@ unset queuetriggered
 
 # pre-mount happens before we try to mount the root filesystem,
 # and happens once.
-getarg 'rdbreak=pre-mount' && emergency_shell -n pre-mount "Break pre-mount"
+getarg 'rd.break=pre-mount' 'rdbreak=pre-mount' && emergency_shell -n pre-mount "Break pre-mount"
 source_all pre-mount
 
 
-getarg 'rdbreak=mount' && emergency_shell -n mount "Break mount"
+getarg 'rd.break=mount' 'rdbreak=mount' && emergency_shell -n mount "Break mount"
 # mount scripts actually try to mount the root filesystem, and may
 # be sourced any number of times. As soon as one suceeds, no more are sourced.
 i=0
@@ -249,7 +249,7 @@ done
 } | vinfo
 
 # pre pivot scripts are sourced just before we switch over to the new root.
-getarg 'rdbreak=pre-pivot' && emergency_shell -n pre-pivot "Break pre-pivot"
+getarg 'rd.break=pre-pivot' 'rdbreak=pre-pivot' && emergency_shell -n pre-pivot "Break pre-pivot"
 source_all pre-pivot
 
 # by the time we get here, the root filesystem should be mounted.
@@ -264,7 +264,7 @@ done
     emergency_shell
 }
 
-getarg rdbreak && emergency_shell -n switch_root "Break before switch_root"
+getarg rd.break rdbreak && emergency_shell -n switch_root "Break before switch_root"
 
 # stop udev queue before killing it
 udevadm control --stop-exec-queue
@@ -314,12 +314,12 @@ else
 fi
 
 # Debug: Copy state
-if getarg rdcopystate; then
+if getargbool 0 rd.copystate -y rdcopystate; then
     mkdir /dev/.initramfs/
     cp /tmp/* /dev/.initramfs/ >/dev/null 2>&1
 fi
 
-if getarg rd.timestamp; then
+if getargbool 1 rd.timestamp; then
     export RDTIMESTAMP
 else
     unset RDTIMESTAMP

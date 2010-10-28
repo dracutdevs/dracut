@@ -11,9 +11,9 @@
 #                   Don't auto detect syslog but set it
 . /lib/dracut-lib.sh
 
-syslogserver=$(getarg syslog)
-syslogfilters=$(getargs filter)
-syslogtype=$(getarg syslogtype)
+syslogserver=$(getarg syslog.server syslog)
+syslogfilters=$(getargs syslog.filter filter)
+syslogtype=$(getarg syslog.type syslogtype)
 
 [ -n "$syslogserver" ] && echo $syslogserver > /tmp/syslog.server
 [ -n "$syslogfilters" ] && echo "$syslogfilters" > /tmp/syslog.filters

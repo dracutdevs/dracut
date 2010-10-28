@@ -1,10 +1,10 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
-if getarg rd_NO_MD; then
-    info "rd_NO_MD: removing MD RAID activation"
+if ! getargbool 1 rd.md -n rd_NO_MD; then
+    info "rd.md=0: removing MD RAID activation"
     udevproperty rd_NO_MD=1
 else
-    MD_UUID=$(getargs rd_MD_UUID=)
+    MD_UUID=$(getargs rd.md.uuid rd_MD_UUID=)
 
     # rewrite the md rules to only process the specified raid array
     if [ -n "$MD_UUID" ]; then
@@ -27,18 +27,18 @@ else
 fi
 
 
-if [ -e /etc/mdadm.conf ] && ! getarg rd_NO_MDADMCONF; then
+if [ -e /etc/mdadm.conf ] && getargbool 1 rd.md.conf -n rd_NO_MDADMCONF; then
     udevproperty rd_MDADMCONF=1
     rm -f /pre-pivot/*mdraid-cleanup.sh
 fi
 
-if getarg rd_NO_MDADMCONF; then
+if ! getargbool 1 rd.md.conf -n rd_NO_MDADMCONF; then
     rm -f /etc/mdadm/mdadm.conf /etc/mdadm.conf
 fi
 
 # noiswmd nodmraid for anaconda / rc.sysinit compatibility
 # note nodmraid really means nobiosraid, so we don't want MDIMSM then either
-if getarg rd_NO_MDIMSM || getarg noiswmd || getarg nodmraid; then
-    info "rd_NO_MDIMSM: no MD RAID for imsm/isw raids"
+if ! getargbool 1 rd.md.imsm -n rd_NO_MDIMSM || getarg noiswmd || getarg nodmraid; then
+    info "no MD RAID for imsm/isw raids"
     udevproperty rd_NO_MDIMSM=1
 fi

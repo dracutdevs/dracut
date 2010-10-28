@@ -4,7 +4,7 @@
 
 . /lib/dracut-lib.sh
 
-DM_RAIDS=$(getargs rd_DM_UUID=)
+DM_RAIDS=$(getargs rd.dm.uuid rd_DM_UUID=)
 
 DM_CLEANUP="no"
 

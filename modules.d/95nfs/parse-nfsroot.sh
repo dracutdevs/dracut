@@ -72,7 +72,7 @@ esac
 
 # Check required arguments
 
-if nfsdomain=$(getarg rd_NFS_DOMAIN); then
+if nfsdomain=$(getarg rd.nfs.domain rd_NFS_DOMAIN); then
     if [ -f /etc/idmapd.conf ]; then
         sed -i -e \
             "s/^[[:space:]#]*Domain[[:space:]]*=.*/Domain = $nfsdomain/g" \

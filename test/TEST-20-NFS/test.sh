@@ -4,7 +4,7 @@ TEST_DESCRIPTION="root filesystem on NFS"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-#DEBUGFAIL="rdshell"
+#DEBUGFAIL="rd.shell"
 
 run_server() {
     # Start server first
@@ -46,7 +46,7 @@ client_test() {
   	-net nic,macaddr=$mac,model=e1000 \
 	-net socket,connect=127.0.0.1:12345 \
   	-kernel /boot/vmlinuz-$KVERSION \
-  	-append "$cmdline $DEBUGFAIL rdinitdebug rd_retry=10 rdinfo quiet rdnetdebug ro console=ttyS0,115200n81 selinux=0" \
+  	-append "$cmdline $DEBUGFAIL rd.debug rd.retry=10 rd.info quiet  ro console=ttyS0,115200n81 selinux=0" \
   	-initrd initramfs.testing
 
     if [[ $? -ne 0 ]] || ! grep -m 1 -q nfs-OK client.img; then

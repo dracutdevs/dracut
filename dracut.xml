@@ -77,7 +77,7 @@
           <para>Any hardware drivers that the boot process depends on must be loaded.  All kernel modules for common storage devices are packed onto the initramfs and then udev pulls in modules matching the computer&apos;s detected hardware. </para>
         </listitem>
         <listitem>
-          <para>On systems which display a boot splash screen, the video hardware must be initialized and a user-space helper started to paint animations onto the display in lockstep with the boot process. </para>
+          <para>On systems which display a boot rd.splash screen, the video hardware must be initialized and a user-space helper started to paint animations onto the display in lockstep with the boot process. </para>
         </listitem>
         <listitem>
           <para>If the root file system is on NFS, dracut does  then: <itemizedlist>
@@ -121,7 +121,7 @@
             <para>The root file system is mounted read-only. </para>
           </listitem>
           <listitem>
-            <para>Any processes which must continue running (such as the splash screen helper and its command <acronym>FIFO</acronym>) are hoisted into the newly-mounted root file system. </para>
+            <para>Any processes which must continue running (such as the rd.splash screen helper and its command <acronym>FIFO</acronym>) are hoisted into the newly-mounted root file system. </para>
           </listitem>
         </itemizedlist></para>
       <para>The final root file system cannot simply be mounted over /, since that would make the scripts and tools on the initial root file system inaccessible for any final cleanup tasks. On an initramfs, the initial root file system cannot be rotated away. Instead, it is simply emptied and the final root file system mounted over the top.
@@ -222,20 +222,20 @@ include ld.so.conf.d/*.conf</screen>
         <para>The <option>--include</option> option let you specify a source path and a target path. For example</para>
         <screen># dracut --include cmdline-preset /etc/cmdline initramfs-cmdline-pre.img</screen>
         <para>will create an initramfs image, where the file cmdline-preset will be copied inside the initramfs to  <filename>/etc/cmdline</filename>. <option>--include</option> can only be specified once.</para>
-        <screen># mkdir overlay
-# mkdir overlay/etc
-# mkdir overlay/etc/conf.d
-# echo &quot;ip=auto&quot; &gt;&gt; overlay/etc/cmdline
-# echo export TESTVAR=testtest &gt;&gt; overlay/etc/conf.d/testvar.conf
-# echo export TESTVAR=testtest &gt;&gt; overlay/etc/conf.d/testvar.conf
-# tree overlay/
-overlay/
+        <screen># mkdir rd.live.overlay
+# mkdir rd.live.overlay/etc
+# mkdir rd.live.overlay/etc/conf.d
+# echo &quot;ip=auto&quot; &gt;&gt; rd.live.overlay/etc/cmdline
+# echo export TESTVAR=testtest &gt;&gt; rd.live.overlay/etc/conf.d/testvar.conf
+# echo export TESTVAR=testtest &gt;&gt; rd.live.overlay/etc/conf.d/testvar.conf
+# tree rd.live.overlay/
+rd.live.overlay/
 └── etc
     ├── cmdline
     └── conf.d
         └── testvar.conf
-# dracut --include overlay / initramfs-overlay.img</screen>
-        <para>This will put the contents of the overlay directory into the root of the initramfs image.</para>
+# dracut --include rd.live.overlay / initramfs-rd.live.overlay.img</screen>
+        <para>This will put the contents of the rd.live.overlay directory into the root of the initramfs image.</para>
         <para>The <option>--install</option> option let you specify several files, which will get installed in the initramfs image at the same location, as they are present on initramfs creation time.</para>
         <screen># dracut --install &apos;strace fsck.ext3 ssh&apos; initramfs-dbg.img</screen>
         <para>This will create an initramfs with the <command>strace</command>, <command>fsck.ext3</command> and <command>ssh</command> executables, together with the libraries needed to start those. The <option>--install</option> option can be specified multiple times.</para>
@@ -286,15 +286,15 @@ overlay/
 </para>
           </listitem>
           <listitem>
-            <para>Add &apos;&apos;rdshell&apos;&apos; to the kernel command line.  This will present a shell should dracut be unable to locate your root device
+            <para>Add &apos;&apos;rd.shell&apos;&apos; to the kernel command line.  This will present a shell should dracut be unable to locate your root device
 </para>
           </listitem>
           <listitem>
-            <para>Add &apos;&apos;rdshell rdinitdebug&apos;&apos; to the kernel command line so that dracut shell commands are printed as they are executed
+            <para>Add &apos;&apos;rd.shell rd.debug&apos;&apos; to the kernel command line so that dracut shell commands are printed as they are executed
 </para>
           </listitem>
           <listitem>
-            <para>With dracut &gt;= 002-11, you can inspect the rdinitdebug output with:
+            <para>With dracut &gt;= 002-11, you can inspect the rd.debug output with:
 </para>
             <screen># less /init.log
 # dmesg | less</screen>
@@ -414,7 +414,7 @@ title Fedora (2.6.29.5-191.fc11.x86_64)
           <para>Dracut offers a shell for interactive debugging in the event dracut fails to locate your root filesystem.  To enable the shell:
 <orderedlist>
               <listitem>
-                <para>Add the boot parameter &apos;&apos;rdshell&apos;&apos; to your bootloader configuration file (e.g. <filename>/etc/grub.conf</filename>)</para>
+                <para>Add the boot parameter &apos;&apos;rd.shell&apos;&apos; to your bootloader configuration file (e.g. <filename>/etc/grub.conf</filename>)</para>
               </listitem>
               <listitem>
                 <para>Remove the boot arguments &apos;&apos;rhgb&apos;&apos; and &apos;&apos;quiet&apos;&apos;
@@ -428,7 +428,7 @@ serial --unit=0 --speed=9600
 terminal --timeout=5 serial console
 title Fedora (2.6.29.5-191.fc11.x86_64)
   root (hd0,0)
-  kernel /vmlinuz-2.6.29.5-191.fc11.x86_64 ro root=/dev/mapper/vg_uc1-lv_root console=tty0 rdshell 
+  kernel /vmlinuz-2.6.29.5-191.fc11.x86_64 ro root=/dev/mapper/vg_uc1-lv_root console=tty0 rd.shell 
   initrd /dracut-2.6.29.5-191.fc11.x86_64.img</screen></para>
               </listitem>
               <listitem>
@@ -609,9 +609,9 @@ Common used functions are in <filename>dracut-lib.sh</filename>, which can be so
       <para><filename>install</filename>:</para>
       <programlisting>inst_hook cmdline 20 &quot;$moddir/parse-insmodpost.sh&quot;
 inst_simple &quot;$moddir/insmodpost.sh&quot; /sbin/insmodpost.sh</programlisting>
-      <para>The <filename>pase-instmodpost.sh</filename> parses the kernel command line for a argument <envar>rdinsmodpost</envar>, blacklists the module from being autoloaded and installs the hook <filename>insmodpost.sh</filename> in the <filename>initqueue-settled</filename>.</para>
+      <para>The <filename>pase-instmodpost.sh</filename> parses the kernel command line for a argument <envar>rd.driver.post</envar>, blacklists the module from being autoloaded and installs the hook <filename>insmodpost.sh</filename> in the <filename>initqueue-settled</filename>.</para>
       <para><filename>parse-insmodpost.sh</filename>:</para>
-      <programlisting>for p in $(getargs rdinsmodpost=); do 
+      <programlisting>for p in $(getargs rd.driver.post=); do 
     echo &quot;blacklist $p&quot; &gt;&gt; /etc/modprobe.d/initramfsblacklist.conf
     _do_insmodpost=1
 done
@@ -619,11 +619,11 @@ done
 [ -n &quot;$_do_insmodpost&quot; ] &amp;&amp; /sbin/initqueue --settled --unique --onetime /sbin/insmodpost.sh
 unset _do_insmodpost
 </programlisting>
-      <para><filename>insmodpost.sh</filename>, which is called in the <filename>initqueue-settled</filename> hook will just modprobe the kernel modules specified in all <envar>rdinsmodpost</envar> kernel command line parameters. It runs after <command>udev</command> has settled and is only called once (<parameter>--onetime</parameter>).</para>
+      <para><filename>insmodpost.sh</filename>, which is called in the <filename>initqueue-settled</filename> hook will just modprobe the kernel modules specified in all <envar>rd.driver.post</envar> kernel command line parameters. It runs after <command>udev</command> has settled and is only called once (<parameter>--onetime</parameter>).</para>
       <para><filename>insmodpost.sh</filename>:</para>
       <programlisting>. /lib/dracut-lib.sh
 
-for p in $(getargs rdinsmodpost=); do 
+for p in $(getargs rd.driver.post=); do 
     modprobe $p
 done
 </programlisting>

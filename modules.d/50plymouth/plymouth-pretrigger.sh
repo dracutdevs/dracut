@@ -2,7 +2,7 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
-if ! getarg rd_NO_PLYMOUTH; then
+if getargbool 1 rd.plymouth -n rd_NO_PLYMOUTH; then
     [ -c /dev/null ] || mknod -m 0666 /dev/null c 1 3
     # first trigger graphics subsystem
     udevadm trigger --action=add --attr-match=class=0x030000 >/dev/null 2>&1

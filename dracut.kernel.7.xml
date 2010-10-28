@@ -71,9 +71,7 @@ accordingly.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term>
-            <envar>rd_NO_FSTAB</envar>
-          </term>
+          <term><envar>rd.fstab</envar>=0</term>
           <listitem>
             <para>do not honor special mount options for the root filesystem found in 
 <filename>/etc/fstab</filename> of the real root.</para>
@@ -86,7 +84,7 @@ accordingly.</para>
       <variablelist>
         <varlistentry>
           <term>
-            <envar>rdblacklist=<replaceable>&lt;drivername&gt;</replaceable></envar>
+            <envar>rd.driver.blacklist=<replaceable>&lt;drivername&gt;</replaceable></envar>
           </term>
           <listitem>
             <para>do not load kernel module &lt;drivername&gt;
@@ -95,7 +93,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rdloaddriver=<replaceable>&lt;drivername&gt;</replaceable></envar>
+            <envar>rd.driver.pre=<replaceable>&lt;drivername&gt;</replaceable></envar>
           </term>
           <listitem>
             <para>force loading kernel module &lt;drivername&gt;
@@ -109,7 +107,7 @@ This parameter can be specified multiple times.</para>
       <variablelist>
         <varlistentry>
           <term>
-            <envar>rdinfo</envar>
+            <envar>rd.info</envar>
           </term>
           <listitem>
             <para>print informational output though &quot;quiet&quot; is set</para>
@@ -117,7 +115,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rdshell</envar>
+            <envar>rd.shell</envar>
           </term>
           <listitem>
             <para>allow dropping to a shell, if root mounting fails</para>
@@ -125,7 +123,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rdinitdebug</envar>
+            <envar>rd.debug</envar>
           </term>
           <listitem>
             <para>set -x for the dracut shell and logs to dmesg, console and <filename>/init.log</filename></para>
@@ -133,7 +131,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rdbreak</envar>
+            <envar>rd.break</envar>
           </term>
           <listitem>
             <para>drop to a shell at the end</para>
@@ -141,7 +139,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rdbreak=</envar>
+            <envar>rd.break=</envar>
             <replaceable>{cmdline|pre-udev|pre-trigger|initqueue|pre-mount|mount|pre-pivot}</replaceable>
           </term>
           <listitem>
@@ -150,7 +148,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rdudevinfo</envar>
+            <envar>rd.udev.info</envar>
           </term>
           <listitem>
             <para>set udev to loglevel info</para>
@@ -158,7 +156,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rdudevdebug</envar>
+            <envar>rd.udev.debug</envar>
           </term>
           <listitem>
             <para>set udev to loglevel debug</para>
@@ -255,34 +253,32 @@ This parameter can be specified multiple times.</para>
       <title>LVM</title>
       <variablelist>
         <varlistentry>
-          <term>
-            <envar>rd_NO_LVM</envar>
-          </term>
+          <term><envar>rd.lvm</envar>=0</term>
           <listitem>
             <para>disable LVM detection</para>
           </listitem>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rd_LVM_VG=<replaceable>&lt;volume group name&gt;</replaceable></envar>
+            <envar>rd.lvm.vg=<replaceable>&lt;volume group name&gt;</replaceable></envar>
           </term>
           <listitem>
             <para>only activate the volume groups with the given name
-<envar>rd_LVM_VG</envar> can be specified multiple times on the kernel command line.</para>
+<envar>rd.lvm.vg</envar> can be specified multiple times on the kernel command line.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rd_LVM_LV=<replaceable>&lt;logical volume name&gt;</replaceable></envar>
+            <envar>rd.lvm.lv=<replaceable>&lt;logical volume name&gt;</replaceable></envar>
           </term>
           <listitem>
             <para>only activate the logical volumes with the given name
-<envar>rd_LVM_LV</envar> can be specified multiple times on the kernel command line.</para>
+<envar>rd.lvm.lv</envar> can be specified multiple times on the kernel command line.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rd_NO_LVMCONF</envar>
+            <envar>rd.lvm.conf</envar>
           </term>
           <listitem>
             <para>remove any <filename>/etc/lvm/lvm.conf</filename>, which may exist in the initramfs</para>
@@ -294,16 +290,14 @@ This parameter can be specified multiple times.</para>
       <title>crypto LUKS</title>
       <variablelist>
         <varlistentry>
-          <term>
-            <envar>rd_NO_LUKS</envar>
-          </term>
+          <term><envar>rd.luks</envar>=0</term>
           <listitem>
             <para>disable crypto LUKS detection</para>
           </listitem>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rd_LUKS_UUID=<replaceable>&lt;luks uuid&gt;</replaceable></envar>
+            <envar>rd.luks.uuid=<replaceable>&lt;luks uuid&gt;</replaceable></envar>
           </term>
           <listitem>
             <para>only activate the LUKS partitions with the given UUID
@@ -315,7 +309,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rd_NO_CRYPTTAB</envar>
+            <envar>rd.luks.crypttab</envar>
           </term>
           <listitem>
             <para>do not check, if LUKS partition is in <filename>/etc/crypttab</filename></para>
@@ -329,7 +323,7 @@ This parameter can be specified multiple times.</para>
       <variablelist>
         <varlistentry>
           <term>
-            <envar>rd_LUKS_KEYPATH=</envar>
+            <envar>rd.luks.keypath=</envar>
             <replaceable>&lt;path to keyfile&gt;</replaceable>
           </term>
           <listitem>
@@ -338,11 +332,11 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rd_LUKS_KEYDEV_UUID=</envar>
+            <envar>rd.luks.keydev.uuid=</envar>
             <replaceable>&lt;rem. device uuid&gt;</replaceable>
           </term>
           <listitem>
-            <para>UUID of removalbe device storing keyfile; UUID doesn&apos;t have to be exact just like for <envar>rd_LUKS_UUID</envar></para>
+            <para>UUID of removalbe device storing keyfile; UUID doesn&apos;t have to be exact just like for <envar>rd.luks.uuid</envar></para>
           </listitem>
         </varlistentry>
       </variablelist>
@@ -351,24 +345,20 @@ This parameter can be specified multiple times.</para>
       <title>MD</title>
       <variablelist>
         <varlistentry>
-          <term>
-            <envar>rd_NO_MD</envar>
-          </term>
+          <term><envar>rd.md</envar>=0</term>
           <listitem>
             <para>disable MD RAID detection</para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term>
-            <envar>rd_NO_MDIMSM</envar>
-          </term>
+          <term><envar>rd.md.imsm</envar>=0</term>
           <listitem>
-            <para>no MD RAID for imsm/isw raids, use dmraid instead</para>
+            <para>disable MD RAID for imsm/isw raids, use DM RAID instead</para>
           </listitem>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rd_NO_MDADMCONF</envar>
+            <envar>rd.md.conf</envar>
           </term>
           <listitem>
             <para>ignore mdadm.conf included in initramfs</para>
@@ -376,7 +366,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rd_MD_UUID=<replaceable>&lt;md uuid&gt;</replaceable></envar>
+            <envar>rd.md.uuid=<replaceable>&lt;md raid uuid&gt;</replaceable></envar>
           </term>
           <listitem>
             <para>only activate the raid sets with the given UUID.
@@ -386,19 +376,17 @@ This parameter can be specified multiple times.</para>
       </variablelist>
     </refsect2>
     <refsect2>
-      <title>DMRAID</title>
+      <title>DM RAID</title>
       <variablelist>
         <varlistentry>
-          <term>
-            <envar>rd_NO_DM</envar>
-          </term>
+          <term><envar>rd.dm</envar>=0</term>
           <listitem>
             <para>disable DM RAID detection</para>
           </listitem>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rd_DM_UUID=<replaceable>&lt;dmraid uuid&gt;</replaceable></envar>
+            <envar>rd.dm.uuid=<replaceable>&lt;dm raid uuid&gt;</replaceable></envar>
           </term>
           <listitem>
             <para>only activate the raid sets with the given UUID.
@@ -519,7 +507,7 @@ This is supported by dracut, but not recommended.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar remap="B">rd_NFS_DOMAIN=</envar>
+            <envar remap="B">rd.nfs.domain=</envar>
             <replaceable>&lt;NFSv4 domain name&gt;</replaceable>
           </term>
           <listitem>
@@ -639,14 +627,14 @@ as the rootfs.</para>
       <title>DASD</title>
       <variablelist>
         <varlistentry>
-          <term><envar>rd_DASD_MOD=</envar>....</term>
+          <term><envar>rd.dasd_mod.dasd=</envar>....</term>
           <listitem>
             <para>same syntax as the kernel module parameter (s390 only)</para>
           </listitem>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rd_DASD=</envar>
+            <envar>rd.dasd=</envar>
             <replaceable>&lt;dasd_adaptor device bus ID&gt;</replaceable>
             <optional>,readonly=<replaceable>X</replaceable></optional>
             <optional>,use_diag=<replaceable>X</replaceable></optional>
@@ -664,14 +652,14 @@ This parameter can be specified multiple times.</para>
       <title>ZFCP</title>
       <variablelist>
         <varlistentry>
-          <term><envar>rd_ZFCP=</envar><replaceable>&lt;zfcp adaptor device bus ID&gt;</replaceable>,<replaceable>&lt;WWPN&gt;</replaceable>,<replaceable>&lt;FCPLUN&gt;</replaceable></term>
+          <term><envar>rd.zfcp=</envar><replaceable>&lt;zfcp adaptor device bus ID&gt;</replaceable>,<replaceable>&lt;WWPN&gt;</replaceable>,<replaceable>&lt;FCPLUN&gt;</replaceable></term>
           <listitem>
-            <para>rd_ZFCP can be specified multiple times on the kernel command line. e.g.: <programlisting>rd_ZFCP=0.0.4000,0x5005076300C213e9,0x5022000000000000</programlisting></para>
+            <para>rd.zfcp can be specified multiple times on the kernel command line. e.g.: <programlisting>rd.zfcp=0.0.4000,0x5005076300C213e9,0x5022000000000000</programlisting></para>
           </listitem>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rd_NO_ZFCPCONF</envar>
+            <envar>rd.zfcp.conf</envar>
           </term>
           <listitem>
             <para>ignore zfcp.conf included in the initramfs</para>
@@ -696,11 +684,383 @@ rd_ZNET=ctc,0.0.0600,0.0.0601,0.0.0602,protocol=bar</programlisting></para>
       <title>Plymouth Boot Splash</title>
       <variablelist>
         <varlistentry>
+          <term><envar>rd.plymouth</envar>=0</term>
+          <listitem>
+            <para>disable plymouth. This will not work with encrypted partitions.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+    <refsect2>
+      <title>Deprecated, renamed Options</title>
+      <para>Here is a list of options, which were used in dracut prior to version 008, and their new replacement.</para>
+      <variablelist>
+        <varlistentry>
+          <term>
+            <envar>rdbreak</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.break</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_CCW</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.ccw</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rdcopystate</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.copystate</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_DASD_MOD</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.dasd_mod.dasd</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_DASD</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.dasd</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rdinitdebug rdnetdebug</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.debug</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_DM</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.dm</envar>=0</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_DM_UUID</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.dm.uuid</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rdblacklist</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.driver.blacklist</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rdinsmodpost</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.driver.post</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rdloaddriver</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.driver.pre</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_FSTAB</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.fstab</envar>=0</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rdinfo</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.info</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>check</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.live.check</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rdlivedebug</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.live.debug</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>live_dir</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.live.dir</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>liveimg</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.live.image</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>overlay</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.live.overlay</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>readonly_overlay</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.live.overlay.readonly</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>reset_overlay</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.live.overlay.reset</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>live_ram</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.live.ram</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_CRYPTTAB</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.luks.crypttab</envar>=0</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_LUKS_KEYDEV_UUID</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.luks.keydev.uuid</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_LUKS_KEYPATH</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.luks.keypath</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_LUKS</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.luks</envar>=0</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_LUKS_UUID</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.luks.uuid</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_LUKS_UUID</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.luks.uuid</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_LVMCONF</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.lvm.conf</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_LVM_LV</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.lvm.lv</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_LVM</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.lvm</envar>=0</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_LVM_SNAPSHOT</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.lvm.snapshot</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_LVM_SNAPSIZE</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.lvm.snapsize</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_LVM_VG</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.lvm.vg</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_MDADMCONF</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.md.conf</envar>=0</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_MDIMSM</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.md.imsm</envar>=0</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_MD</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.md</envar>=0</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_MD_UUID</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.md.uuid</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_NFS_DOMAIN</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.nfs.domain</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
           <term>
             <envar>rd_NO_PLYMOUTH</envar>
           </term>
           <listitem>
-            <para>do not start plymouth. This will not work with encrypted partitions.</para>
+            <para><envar>rd.plymouth</envar>=0</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_retry</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.retry</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rdshell</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.shell</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_SPLASH</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.splash</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rdudevdebug</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.udev.debug</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rdudevinfo</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.udev.info</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_NO_ZFCPCONF</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.zfcp.conf</envar>=0</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_ZFCP</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.zfcp</envar></para>
           </listitem>
         </varlistentry>
       </variablelist>

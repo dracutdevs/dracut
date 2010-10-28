@@ -4,7 +4,7 @@ TEST_DESCRIPTION="root filesystem on LVM on encrypted partitions of a RAID-5"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-#DEBUGFAIL="rdshell" # udev.log-priority=debug
+#DEBUGFAIL="rd.shell" # udev.log-priority=debug
 
 test_run() {
     LUKSARGS=$(cat luks.txt)
@@ -14,7 +14,7 @@ test_run() {
     echo "CLIENT TEST START: $LUKSARGS"
     $testdir/run-qemu -hda root.ext2 -hdb check-success.img -m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "root=/dev/dracut/root rw quiet rd_retry=3 rdinfo console=ttyS0,115200n81 selinux=0 rdinitdebug rdnetdebug $LUKSARGS $DEBUGFAIL" \
+	-append "root=/dev/dracut/root rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $LUKSARGS $DEBUGFAIL" \
 	-initrd initramfs.testing
     grep -m 1 -q dracut-root-block-success check-success.img || return 1
     echo "CLIENT TEST END: [OK]"
@@ -24,7 +24,7 @@ test_run() {
     echo "CLIENT TEST START: Any LUKS"
     $testdir/run-qemu -hda root.ext2 -hdb check-success.img -m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "root=/dev/dracut/root rw quiet rd_retry=3 rdinfo console=ttyS0,115200n81 selinux=0 rdinitdebug rdnetdebug $DEBUGFAIL" \
+	-append "root=/dev/dracut/root rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL" \
 	-initrd initramfs.testing
     grep -m 1 -q dracut-root-block-success check-success.img || return 1
     echo "CLIENT TEST END: [OK]"
@@ -34,7 +34,7 @@ test_run() {
     echo "CLIENT TEST START: Wrong LUKS UUID"
     $testdir/run-qemu -hda root.ext2 -hdb check-success.img -m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "root=/dev/dracut/root rw quiet rd_retry=3 rdinfo console=ttyS0,115200n81 selinux=0 rdinitdebug rdnetdebug $DEBUGFAIL rd_LUKS_UUID=failme" \
+	-append "root=/dev/dracut/root rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL rd.luks.uuid=failme" \
 	-initrd initramfs.testing
     grep -m 1 -q dracut-root-block-success check-success.img && return 1
     echo "CLIENT TEST END: [OK]"
@@ -89,7 +89,7 @@ test_setup() {
     cryptoUUIDS=$(grep --binary-files=text  -m 3 ID_FS_UUID root.ext2)
     for uuid in $cryptoUUIDS; do
 	eval $uuid
-	printf ' rd_LUKS_UUID=luks-%s ' $ID_FS_UUID 
+	printf ' rd.luks.uuid=luks-%s ' $ID_FS_UUID 
     done > luks.txt
    
 

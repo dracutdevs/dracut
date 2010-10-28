@@ -21,7 +21,7 @@ if [ -n "$resume" ]; then
 
     echo '[ -e /dev/resume ]' > /initqueue-finished/resume.sh
 
-elif  ! getarg noresume; then
+elif ! getarg noresume; then
     {
         echo "SUBSYSTEM==\"block\", ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\"," \
             " RUN+=\"/bin/sh -c 'echo %M:%m > /sys/power/resume'\"";

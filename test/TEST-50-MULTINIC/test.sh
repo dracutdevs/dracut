@@ -4,7 +4,7 @@ TEST_DESCRIPTION="root filesystem on NFS with multiple nics"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-#DEBUGFAIL="rdshell"
+#DEBUGFAIL="rd.shell"
 
 run_server() {
     # Start server first
@@ -15,7 +15,7 @@ run_server() {
 	-net socket,listen=127.0.0.1:12345 \
 	-serial udp:127.0.0.1:9999 \
 	-kernel /boot/vmlinuz-$KVERSION \
-	-append "selinux=0 root=/dev/sda rdinitdebug rdinfo rdnetdebug rw quiet console=ttyS0,115200n81" \
+	-append "selinux=0 root=/dev/sda rd.debug rd.info  rw quiet console=ttyS0,115200n81" \
 	-initrd initramfs.server -pidfile server.pid -daemonize || return 1
     sudo chmod 644 server.pid || return 1
 
@@ -51,7 +51,7 @@ client_test() {
         -drive if=ide,index=2,media=disk \
         -drive if=ide,index=3,media=disk \
   	-kernel /boot/vmlinuz-$KVERSION \
-  	-append "$cmdline $DEBUGFAIL rd_retry=5 rdinitdebug rdinfo rdnetdebug ro quiet console=ttyS0,115200n81 selinux=0 rdcopystate" \
+  	-append "$cmdline $DEBUGFAIL rd.retry=5 rd.debug rd.info  ro quiet console=ttyS0,115200n81 selinux=0 rd.copystate" \
   	-initrd initramfs.testing
 
     if [[ $? -ne 0 ]] || ! grep -m 1 -q OK client.img; then

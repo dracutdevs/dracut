@@ -29,7 +29,7 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
     mount -t ${fstype:-auto} -o "$rflags" "${root#block:}" "$NEWROOT" \
         && ROOTFS_MOUNTED=yes 
 
-    if ! getarg rd_NO_FSTAB \
+    if getargbool 1 rd.fstab -n rd_NO_FSTAB \
         && ! getarg rootflags \
         && [ -f "$NEWROOT/etc/fstab" ] \
         && ! [ -L "$NEWROOT/etc/fstab" ]; then

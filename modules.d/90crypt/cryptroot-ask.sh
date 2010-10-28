@@ -26,7 +26,7 @@ else
     device="$1"
 fi
 
-if [ -f /etc/crypttab ] && ! getarg rd_NO_CRYPTTAB; then
+if [ -f /etc/crypttab ] && getargbool 1 rd.luks.crypttab -n rd_NO_CRYPTTAB; then
     while read name dev rest; do
         # ignore blank lines and comments
         if [ -z "$name" -o "${name#\#}" != "$name" ]; then
@@ -84,11 +84,11 @@ probe_keydev() {
     return ${ret}
 }
 
-keypaths="$(getargs rd_LUKS_KEYPATH)"
+keypaths="$(getargs rd.luks.keypath rd_LUKS_KEYPATH)"
 unset keydev_uuid keypath
 
 if [ -n "$keypaths" ]; then
-    keydev_uuids="$(getargs rd_LUKS_KEYDEV_UUID)"
+    keydev_uuids="$(getargs rd.luks.keydev.uuid rd_LUKS_KEYDEV_UUID)"
     [ -n "$keydev_uuids" ] || {
         warn 'No UUID of device storing LUKS key specified.'
         warn 'It is recommended to set rd_LUKS_KEYDEV_UUID.'

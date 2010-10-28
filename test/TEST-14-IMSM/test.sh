@@ -4,14 +4,14 @@ TEST_DESCRIPTION="root filesystem on LVM PV on a isw dmraid"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-DEBUGFAIL="rdshell"
+DEBUGFAIL="rd.shell"
 #DEBUGFAIL="$DEBUGFAIL udev.log-priority=debug"
 
 client_run() {
     echo "CLIENT TEST START: $@"
     $testdir/run-qemu -hda root.ext2 -hdb disk1 -hdc disk2 -m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "$@ root=LABEL=root rw quiet rd_retry=5 rdinitdebug console=ttyS0,115200n81 selinux=0 rdinfo $DEBUGFAIL" \
+	-append "$@ root=LABEL=root rw quiet rd.retry=5 rd.debug console=ttyS0,115200n81 selinux=0 rd.info $DEBUGFAIL" \
 	-initrd initramfs.testing
     if ! grep -m 1 -q dracut-root-block-success root.ext2; then
 	echo "CLIENT TEST END: $@ [FAIL]"
@@ -24,15 +24,15 @@ client_run() {
 }
 
 test_run() {
-    client_run rd_NO_MDIMSM || return 1
+    client_run rd.md.imsm || return 1
     client_run || return 1
-    client_run rd_NO_DM || return 1
+    client_run rd.dm=0 || return 1
     # This test succeeds, because the mirror parts are found without
     # assembling the mirror itsself, which is what we want
-    client_run rd_NO_MD rd_NO_MDIMSM failme && return 1
-    client_run rd_NO_MD failme && return 1
+    client_run rd.md=0 rd.md.imsm failme && return 1
+    client_run rd.md=0 failme && return 1
     # the following test hangs on newer md
-    #client_run rd_NO_DM rd_NO_MDIMSM rd_NO_MDADMCONF || return 1
+    #client_run rd.dm=0 rd.md.imsm rd.md.conf=0 || return 1
    return 0
 }
 

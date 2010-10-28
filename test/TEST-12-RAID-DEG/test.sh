@@ -4,13 +4,13 @@ TEST_DESCRIPTION="root filesystem on an encrypted LVM PV on a degraded RAID-5"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-DEBUGFAIL="rdshell"
+DEBUGFAIL="rd.shell"
 
 client_run() {
     echo "CLIENT TEST START: $@"
     $testdir/run-qemu -hda root.ext2 -m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "$@ root=LABEL=root rw quiet rd_retry=3 rdinfo console=ttyS0,115200n81 selinux=0 rdinitdebug rdnetdebug $DEBUGFAIL " \
+	-append "$@ root=LABEL=root rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL " \
 	-initrd initramfs.testing
     if ! grep -m 1 -q dracut-root-block-success root.ext2; then
 	echo "CLIENT TEST END: $@ [FAIL]"
@@ -28,23 +28,23 @@ test_run() {
 
     client_run || return 1
     
-#    client_run rd_NO_MDADMCONF || return 1
+#    client_run rd.md.conf=0 || return 1
 
-    client_run rd_NO_LVM failme && return 1
+    client_run rd.lvm=0 failme && return 1
 
-    client_run rd_LVM_VG=failme failme && return 1
+    client_run rd.lvm.vg=failme failme && return 1
 
-    client_run rd_LVM_VG=dracut || return 1
+    client_run rd.lvm.vg=dracut || return 1
 
-#    client_run rd_MD_UUID=$MD_UUID rd_NO_MDADMCONF || return 1
+#    client_run rd.md.uuid=$MD_UUID rd.md.conf=0 || return 1
 
-    client_run rd_LVM_VG=dummy1 rd_LVM_VG=dracut rd_LVM_VG=dummy2 rd_NO_LVMCONF failme && return 1
+    client_run rd.lvm.vg=dummy1 rd.lvm.vg=dracut rd.lvm.vg=dummy2 rd.lvm.conf=0 failme && return 1
 
-#    client_run rd_MD_UUID=failme rd_NO_MDADMCONF failme && return 1
+#    client_run rd.md.uuid=failme rd.md.conf=0 failme && return 1
 
-    client_run rd_NO_MD failme && return 1
+    client_run rd.md=0 failme && return 1
 
-#    client_run rd_MD_UUID=dummy1 rd_MD_UUID=$MD_UUID rd_MD_UUID=dummy2 rd_NO_MDADMCONF failme && return 1
+#    client_run rd.md.uuid=dummy1 rd.md.uuid=$MD_UUID rd.md.uuid=dummy2 rd.md.conf=0 failme && return 1
 
     return 0
 }

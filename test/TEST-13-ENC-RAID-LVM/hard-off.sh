@@ -1,3 +1,3 @@
 #!/bin/sh
-getarg rdshell || poweroff -f
+getarg rd.shell || poweroff -f
 getarg failme && poweroff -f

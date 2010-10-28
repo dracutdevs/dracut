@@ -3,7 +3,7 @@ TEST_DESCRIPTION="root filesystem over iSCSI"
 
 KVERSION=${KVERSION-$(uname -r)}
 
-#DEBUGFAIL="rdshell"
+#DEBUGFAIL="rd.shell"
 
 run_server() {
     # Start server first
@@ -38,7 +38,7 @@ run_client() {
   	-net nic,macaddr=52:54:00:12:34:00,model=e1000 \
 	-net socket,connect=127.0.0.1:12345 \
   	-kernel /boot/vmlinuz-$KVERSION \
-	-append "root=LABEL=sysroot ip=192.168.50.101::192.168.50.1:255.255.255.0:iscsi-1:eth0:off netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target1 netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2 rw quiet rd_retry=5 rdinitdebug rdinfo rdnetdebug console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
+	-append "root=LABEL=sysroot ip=192.168.50.101::192.168.50.1:255.255.255.0:iscsi-1:eth0:off netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target1 netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2 rw quiet rd.retry=5 rd.debug rd.info  console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
   	-initrd initramfs.testing
     grep -m 1 -q iscsi-OK client.img || return 1
 
@@ -47,7 +47,7 @@ run_client() {
   	-net nic,macaddr=52:54:00:12:34:00,model=e1000 \
 	-net socket,connect=127.0.0.1:12345 \
   	-kernel /boot/vmlinuz-$KVERSION \
-	-append "root=dhcp rw quiet rd_retry=5 rdinitdebug rdinfo rdnetdebug console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
+	-append "root=dhcp rw quiet rd.retry=5 rd.debug rd.info  console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
   	-initrd initramfs.testing
     grep -m 1 -q iscsi-OK client.img || return 1
 

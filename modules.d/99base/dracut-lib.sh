@@ -6,63 +6,117 @@ strstr() {
     [ "${1#*$2*}" != "$1" ]
 }
 
-getarg() {
-    set +x 
-    local o line val
+_getcmdline() {
+    local _line
+    unset _line
     if [ -z "$CMDLINE" ]; then
         if [ -e /etc/cmdline ]; then
-            while read line; do
-                CMDLINE_ETC="$CMDLINE_ETC $line";
+            while read _line; do
+                CMDLINE_ETC="$CMDLINE_ETC $_line";
             done </etc/cmdline;
         fi
         read CMDLINE </proc/cmdline;
         CMDLINE="$CMDLINE $CMDLINE_ETC"
     fi
-    for o in $CMDLINE; do
-        if [ "$o" = "$1" ]; then
-            [ "$RDDEBUG" = "yes" ] && set -x; 
+}
+
+_dogetarg() {
+    local _o _val
+    unset _val
+    unset _o
+    _getcmdline
+
+    for _o in $CMDLINE; do
+        if [ "$_o" = "$1" ]; then
             return 0; 
         fi
-        [ "${o%%=*}" = "${1%=}" ] && val=${o#*=};
+        [ "${_o%%=*}" = "${1%=}" ] && _val=${_o#*=};
     done
-    if [ -n "$val" ]; then
-        echo $val; 
-        [ "$RDDEBUG" = "yes" ] && set -x; 
+    if [ -n "$_val" ]; then
+        echo $_val; 
         return 0;
     fi
+    return 1;
+}
+
+getarg() {
+    set +x
+    while [ $# -gt 0 ]; do
+        case $1 in
+            -y) if _dogetarg $2; then
+                    echo 1
+                    [ "$RDDEBUG" = "yes" ] && set -x
+                    return 0
+                fi
+                shift 2;;
+            -n) if _dogetarg $2; then
+                    echo 0;
+                    [ "$RDDEBUG" = "yes" ] && set -x
+                    return 1
+                fi
+                shift 2;;
+            *)  if _dogetarg $1; then
+                    [ "$RDDEBUG" = "yes" ] && set -x
+                    return 0;
+                fi
+                shift;;
+        esac
+    done
     [ "$RDDEBUG" = "yes" ] && set -x 
     return 1
 }
 
-getargs() {
-    set +x 
-    local o line found
-    if [ -z "$CMDLINE" ]; then
-        if [ -e /etc/cmdline ]; then
-            while read line; do
-                CMDLINE_ETC="$CMDLINE_ETC $line";
-            done </etc/cmdline;
-        fi
-        read CMDLINE </proc/cmdline;
-        CMDLINE="$CMDLINE $CMDLINE_ETC"
+getargbool() {
+    local _b
+    unset _b
+    local _default
+    _default=$1; shift
+    _b=$(getarg "$@")
+    [ $? -ne 0 -a -z "$_b" ] && _b=$_default
+    if [ -n "$_b" ]; then
+        [ $_b -eq 0 ] && return 1
+        [ $_b = "no" ] && return 1
     fi
-    for o in $CMDLINE; do
-        if [ "$o" = "$1" ]; then
-            [ "$RDDEBUG" = "yes" ] && set -x; 
+    return 0
+}
+
+_dogetargs() {
+    set +x 
+    local _o _found
+    unset _o
+    unset _found
+    _getcmdline
+
+    for _o in $CMDLINE; do
+        if [ "$_o" = "$1" ]; then
             return 0;
         fi
-        if [ "${o%%=*}" = "${1%=}" ]; then
-            echo -n "${o#*=} "; 
-            found=1;
+        if [ "${_o%%=*}" = "${1%=}" ]; then
+            echo -n "${_o#*=} "; 
+            _found=1;
         fi
     done
-    if [ -n "$found" ]; then
-        [ "$RDDEBUG" = "yes" ] && set -x
-        return 0;
+    [ -n "$_found" ] && return 0;
+    return 1;
+}
+
+getargs() {
+    local _val
+    unset _val
+    set +x
+    while [ $# -gt 0 ]; do
+        _val="$_val $(_dogetargs $1)"
+        shift
+    done
+    if [ -n "$_val" ]; then
+        echo -n $_val
+        [ "$RDDEBUG" = "yes" ] && set -x 
+        return 0
     fi
     [ "$RDDEBUG" = "yes" ] && set -x 
     return 1;
 }
+
 
 # Prints value of given option.  If option is a flag and it's present,
 # it just returns 0.  Otherwise 1 is returned.
@@ -92,7 +146,7 @@ setdebug() {
     if [ -z "$RDDEBUG" ]; then
         if [ -e /proc/cmdline ]; then
             RDDEBUG=no
-            if getarg rdinitdebug || getarg rdnetdebug; then
+            if getargbool 0 rd.debug -y rdinitdebug -y rdnetdebug; then
                 RDDEBUG=yes 
             fi
         fi
@@ -138,7 +192,7 @@ die() {
 check_quiet() {
     if [ -z "$DRACUT_QUIET" ]; then
         DRACUT_QUIET="yes"
-        getarg rdinfo && DRACUT_QUIET="no"
+        getargbool 0 rd.info -y rdinfo && DRACUT_QUIET="no"
         getarg quiet || DRACUT_QUIET="yes"
     fi
 }

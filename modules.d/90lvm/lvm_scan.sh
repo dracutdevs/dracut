@@ -6,10 +6,10 @@
 
 . /lib/dracut-lib.sh
 
-VGS=$(getargs rd_LVM_VG=)
-LVS=$(getargs rd_LVM_LV=)
-SNAPSHOT=$(getargs rd_LVM_SNAPSHOT=)
-SNAPSIZE=$(getargs rd_LVM_SNAPSIZE=)
+VGS=$(getargs rd.lvm.vg rd_LVM_VG=)
+LVS=$(getargs rd.lvm.lv rd_LVM_LV=)
+SNAPSHOT=$(getargs rd.lvm.snapshot rd_LVM_SNAPSHOT=)
+SNAPSIZE=$(getargs rd.lvm.snapsize rd_LVM_SNAPSIZE=)
 
 [ -d /etc/lvm ] || mkdir -p /etc/lvm
 # build a list of devices to scan
