@@ -255,7 +255,8 @@ source_all pre-pivot
 # by the time we get here, the root filesystem should be mounted.
 # Try to find init.
 for i in "$(getarg init=)" /sbin/init /etc/init /init /bin/sh; do
-    [ -f "$NEWROOT$i" -a -x "$NEWROOT$i" ] && { INIT="$i"; break; }
+    [ -n "$i" ] || continue
+    [ -d "$NEWROOT$i" ] || [ -L "$NEWROOT$i" -o -x "$NEWROOT$i" ] && { INIT="$i"; break; }
 done
 
 [ "$INIT" ] || {
