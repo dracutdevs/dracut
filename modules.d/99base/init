@@ -12,6 +12,7 @@ wait_for_loginit()
 {
     if getargbool 0 rd.debug -y rdinitdebug -y rdnetdebug; then
         set +x
+        echo "DRACUT_LOG_END"
         exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
         # wait for loginit
         i=0
