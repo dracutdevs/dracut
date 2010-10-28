@@ -83,20 +83,39 @@ done
 [ -e /tmp/net.$netif.override ] && . /tmp/net.$netif.override
 [ -e /tmp/dhclient.$netif.dhcpopts ] && . /tmp/dhclient.$netif.dhcpopts
 
-# Handle STP Timeout: arping default router or if not available the
-# root server. Note: This assumes that if no router is present the
+# Handle STP Timeout: arping the default router if root server is
+# unknown or not local, or if not available the root server.
+# Note: This assumes that if no router is present the
 # root server is on the same subnet.
 #
 # TODO There's some netroot variants that don't (yet) have their 
 # server-ip netroot
-[ -n "$new_routers" ] && dest=${new_routers%%,*}
-[ -n "$gw" ] && dest=$gw
-if [ -z "$dest" ] ; then
+
+# Get router IP if set
+[ -n "$new_routers" ] && gw_ip=${new_routers%%,*}
+[ -n "$gw" ] && gw_ip=$gw
+# Get root server IP if set
+if [ -n "$netroot" ]; then
     dummy=${netroot#*:}
     dummy=${dummy%%:*}
     case "$dummy" in
-        [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*) dest=$dummy;;
+        [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*) netroot_ip=$dummy;;
     esac
+fi
+# Default arping dest to router
+dest="$gw_ip"
+# Change to arping root server if appropriate
+if [ -n "$netroot_ip" ]; then
+    if [ -z "$dest" ]; then
+         # no gateway so check root server
+        dest="$netroot_ip"
+    else
+        r=$(ip route get "$netroot_ip")
+        if ! strstr "$r" ' via ' ; then
+            # local root server, so don't arping gateway
+            dest="$netroot_ip"
+        fi
+    fi
 fi
 if [ -n "$dest" ] && ! arping -q -f -w 60 -I $netif $dest ; then
     die "Resolving $dest via ARP on $netif failed"
