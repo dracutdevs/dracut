@@ -5,6 +5,8 @@ KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
 #DEBUGFAIL="rd.shell"
+#SERIAL="udp:127.0.0.1:9999"
+SERIAL="null"
 
 run_server() {
     # Start server first
@@ -14,7 +16,7 @@ run_server() {
 	-m 256M -nographic \
 	-net nic,macaddr=52:54:00:12:34:56,model=e1000 \
 	-net socket,listen=127.0.0.1:12345 \
-	-serial udp:127.0.0.1:9999 \
+	-serial $SERIAL \
 	-kernel /boot/vmlinuz-$KVERSION \
 	-append "root=/dev/sda rw quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd initramfs.server -pidfile server.pid -daemonize || return 1

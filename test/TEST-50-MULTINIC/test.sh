@@ -5,6 +5,8 @@ KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
 #DEBUGFAIL="rd.shell"
+#SERIAL="udp:127.0.0.1:9999"
+SERIAL="null"
 
 run_server() {
     # Start server first
@@ -13,7 +15,7 @@ run_server() {
     $testdir/run-qemu -hda server.ext2 -m 256M -nographic \
 	-net nic,macaddr=52:54:00:12:34:56,model=e1000 \
 	-net socket,listen=127.0.0.1:12345 \
-	-serial udp:127.0.0.1:9999 \
+	-serial $SERIAL \
 	-kernel /boot/vmlinuz-$KVERSION \
 	-append "selinux=0 root=/dev/sda rd.debug rd.info  rw quiet console=ttyS0,115200n81" \
 	-initrd initramfs.server -pidfile server.pid -daemonize || return 1
