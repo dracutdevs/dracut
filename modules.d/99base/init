@@ -78,7 +78,7 @@ mknod -m 0666 /dev/null c 1 3
 mount -t proc /proc /proc >/dev/null 2>&1
 mount -t sysfs /sys /sys >/dev/null 2>&1
 
-read RDTIMESTAMP _tmp < /proc/uptime
+read RD_TIMESTAMP _tmp < /proc/uptime
 unset _tmp
 
 if [ ! -c /dev/ptmx ]; then
@@ -322,9 +322,9 @@ if getargbool 0 rd.copystate -y rdcopystate; then
 fi
 
 if getargbool 1 rd.timestamp; then
-    export RDTIMESTAMP
+    export RD_TIMESTAMP
 else
-    unset RDTIMESTAMP
+    unset RD_TIMESTAMP
 fi    
 
 info "Switching root"
