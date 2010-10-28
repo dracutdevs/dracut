@@ -49,9 +49,7 @@ client_test() {
   	-net nic,macaddr=52:54:00:12:34:$mac2,model=e1000 \
   	-net nic,macaddr=52:54:00:12:34:$mac3,model=e1000 \
 	-net socket,connect=127.0.0.1:12345 \
-        -drive if=ide,index=1,media=disk \
-        -drive if=ide,index=2,media=disk \
-        -drive if=ide,index=3,media=disk \
+        -hdc /dev/null \
   	-kernel /boot/vmlinuz-$KVERSION \
   	-append "$cmdline $DEBUGFAIL rd.retry=5 rd.debug rd.info  ro quiet console=ttyS0,115200n81 selinux=0 rd.copystate" \
   	-initrd initramfs.testing
