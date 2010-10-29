@@ -4,8 +4,8 @@
 
 KBDSUBDIRS=consolefonts,consoletrans,keymaps,unimaps
 DEFAULT_FONT=LatArCyrHeb-16
-I18N_CONF="${initdir}/etc/locale.conf"
-KEYBOARD_CONF="${initdir}/etc/vconsole.conf"
+I18N_CONF="/etc/locale.conf"
+VCONFIG_CONF="/etc/vconsole.conf"
 
 # This is from 10redhat-i18n.
 findkeymap () {
@@ -99,16 +99,12 @@ install_all_kbd() {
     dracut_install gzip bzip2
 }
 
-install_local_keyboard() {
-
-    eval $(gather_vars ${keyboard_vars})
-
-    mksubdirs ${KEYBOARD_CONF}
-}
-
 install_local_i18n() {
     local map
+
     eval $(gather_vars ${i18n_vars})
+    [ -f $I18N_CONF ] && . $I18N_CONF
+    [ -f $VCONFIG_CONF ] && . $VCONFIG_CONF
 
     # Gentoo user may have KEYMAP set to something like "-u pl2",
     KEYMAP=${KEYMAP#-* }
@@ -160,10 +156,10 @@ install_local_i18n() {
         UNICODE=1
     fi
 
-    mksubdirs ${I18N_CONF}
-    mksubdirs ${KEYBOARD_CONF}
-    print_vars LC_ALL LANG >> ${I18N_CONF}
-    print_vars KEYMAP EXT_KEYMAPS UNICODE FONT FONT_MAP FONT_UNIMAP >> ${KEYBOARD_CONF}
+    mksubdirs ${initdir}${I18N_CONF}
+    mksubdirs ${initdir}${VCONFIG_CONF}
+    print_vars LC_ALL LANG >> ${initdir}${I18N_CONF}
+    print_vars KEYMAP EXT_KEYMAPS UNICODE FONT FONT_MAP FONT_UNIMAP >> ${initdir}${VCONFIG_CONF}
 }
 
 checks() {
@@ -183,6 +179,7 @@ checks() {
         return 1
     }
 
+    [[ -f $I18N_CONF && -f $VCONFIG_CONF ]] || \
     [[ ! ${hostonly} || ${i18n_vars} ]] || {
         derror 'Please set up i18n_vars in configuration file.'
         return 1
