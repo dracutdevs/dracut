@@ -48,7 +48,7 @@ emergency_shell()
     echo $@
     source_all emergency
     echo
-    if getargbool 0 rd.shell -y rdshell || getarg rd.break rdbreak; then
+    if getargbool 1 rd.shell -y rdshell || getarg rd.break rdbreak; then
         echo "Dropping to debug shell."
         echo
         export PS1="$_rdshell_name:\${PWD}# "
