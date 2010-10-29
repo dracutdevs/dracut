@@ -30,3 +30,10 @@ if [ -f /etc/locale.conf ]; then
     export LANG
     export LC_ALL
 fi
+
+if [ -e /dev/tty0 ]; then
+    # if the device already exists, yes
+    # clear the udev rules and run it
+    /lib/udev/console_init /dev/tty0
+    > /etc/udev/rules.d/10-console.rules
+fi
