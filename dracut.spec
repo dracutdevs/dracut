@@ -120,6 +120,8 @@ Requires: dhcp-client
 Requires: nfs-client
 Requires: vlan
 %endif
+Obsoletes: dracut-generic < 008
+Provides:  dracut-generic = %{version}-%{release}
 
 %description network
 This package requires everything which is needed to build a generic
