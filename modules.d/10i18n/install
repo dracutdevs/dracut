@@ -112,7 +112,7 @@ install_local_i18n() {
     # original redhat-i18n module.  Anyway it won't hurt.
     EXT_KEYMAPS+=\ ${UNIKEYMAP}\ ${GRP_TOGGLE}
 
-    [[ ${KEYMAP} ]] || derror 'No KEYMAP.' || return 1
+    [[ ${KEYMAP} ]] || dwarning 'No KEYMAP.' || return 1
     findkeymap ${KEYMAP}
 
     for map in ${EXT_KEYMAPS}
@@ -160,6 +160,7 @@ install_local_i18n() {
     mksubdirs ${initdir}${VCONFIG_CONF}
     print_vars LC_ALL LANG >> ${initdir}${I18N_CONF}
     print_vars KEYMAP EXT_KEYMAPS UNICODE FONT FONT_MAP FONT_UNIMAP >> ${initdir}${VCONFIG_CONF}
+    return 0
 }
 
 checks() {
@@ -183,6 +184,7 @@ checks() {
     [[ ! ${hostonly} || ${i18n_vars} ]] || {
         dwarning 'Please set up i18n_vars in configuration file.'
     }
+    return 0
 }
 
 
@@ -192,7 +194,7 @@ then
 
     if [[ ${hostonly} ]]
     then
-        install_local_i18n
+        install_local_i18n || install_all_kbd
     else
         install_all_kbd
     fi
