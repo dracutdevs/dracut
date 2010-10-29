@@ -181,7 +181,7 @@ checks() {
 
     [[ -f $I18N_CONF && -f $VCONFIG_CONF ]] || \
     [[ ! ${hostonly} || ${i18n_vars} ]] || {
-        dwarn 'Please set up i18n_vars in configuration file.'
+        dwarning 'Please set up i18n_vars in configuration file.'
     }
 }
 
