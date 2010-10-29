@@ -3,24 +3,30 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 inst_key_val() {
-    local value
-    value=$(getarg $1)
-    [ -n "${value}" ] && printf '%s="%s"\n' $1 ${value} >> $2
+    local _value
+    local _file
+    _file=$1
+    shift
+    _value=$(getarg $@)
+    if [ -n "${_value}" ]; then
+        printf '%s="%s"\n' $1 ${_value} >> $_file
+    fi
+    unset _file
+    unset _value
 }
 
+inst_key_val /etc/vconsole.conf KEYMAP      vconsole.keymap      KEYTABLE
+inst_key_val /etc/vconsole.conf FONT        vconsole.font        SYSFONT 
+inst_key_val /etc/vconsole.conf FONT_MAP    vconsole.font.map    CONTRANS 
+inst_key_val /etc/vconsole.conf FONT_UNIMAP vconsole.font.unimap UNIMAP 
+inst_key_val /etc/vconsole.conf UNICODE     vconsole.font.unicode
+inst_key_val /etc/vconsole.conf EXT_KEYMAP  vconsole.keymap.ext
 
-mkdir -p /etc/sysconfig
-inst_key_val KEYMAP /etc/sysconfig/keyboard
-inst_key_val EXT_KEYMAPS /etc/sysconfig/keyboard
-inst_key_val UNICODE /etc/sysconfig/i18n
-inst_key_val SYSFONT /etc/sysconfig/i18n
-inst_key_val CONTRANS /etc/sysconfig/i18n
-inst_key_val UNIMAP /etc/sysconfig/i18n
-inst_key_val LANG /etc/sysconfig/i18n
-inst_key_val LC_ALL /etc/sysconfig/i18n
+inst_key_val /etc/locale.conf   LANG   locale.LANG
+inst_key_val /etc/locale.conf   LC_ALL locale.LC_ALL
 
-if [ -f /etc/sysconfig/i18n ]; then
-    . /etc/sysconfig/i18n
+if [ -f /etc/locale.conf ]; then
+    . /etc/locale.conf
     export LANG
     export LC_ALL
 fi

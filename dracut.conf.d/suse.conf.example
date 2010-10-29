@@ -1,5 +1,4 @@
-i18n_vars="/etc/sysconfig/language:RC_LANG-LANG,RC_LC_ALL-LC_ALL /etc/sysconfig/console:CONSOLE_UNICODEMAP-UNIMAP,CONSOLE_FONT-SYSFONT,CONSOLE_SCREENMAP-CONTRANS"
-keyboard_vars="/etc/sysconfig/keyboard:KEYTABLE-KEYMAP"
+i18n_vars="/etc/sysconfig/language:RC_LANG-LANG,RC_LC_ALL-LC_ALL /etc/sysconfig/console:CONSOLE_UNICODEMAP-FONT_UNIMAP,CONSOLE_FONT-FONT,CONSOLE_SCREENMAP-FONT_MAP /etc/sysconfig/keyboard:KEYTABLE-KEYMAP"
 
 omit_dracutmodules+=" selinux "
 hostonly="yes"

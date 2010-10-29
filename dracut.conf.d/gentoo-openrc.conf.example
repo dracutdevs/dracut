@@ -6,5 +6,4 @@
 #
 
 # i18n
-keyboard_vars="/etc/conf.d/keymaps:keymap-KEYMAP,extended_keymaps-EXT_KEYMAPS"
-i18n_vars="/etc/conf.d/consolefont:consolefont-SYSFONT,consoletranslation-CONTRANS /etc/rc.conf:unicode-UNICODE"
+i18n_vars="/etc/conf.d/keymaps:keymap-KEYMAP,extended_keymaps-EXT_KEYMAPS /etc/conf.d/consolefont:consolefont-FONT,consoletranslation-FONT_MAP /etc/rc.conf:unicode-UNICODE"

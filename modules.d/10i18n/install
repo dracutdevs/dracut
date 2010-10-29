@@ -3,10 +3,9 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 KBDSUBDIRS=consolefonts,consoletrans,keymaps,unimaps
-DEFAULT_SYSFONT=LatArCyrHeb-16
-I18N_CONF="${initdir}/etc/sysconfig/i18n"
-KEYBOARD_CONF="${initdir}/etc/sysconfig/keyboard"
-
+DEFAULT_FONT=LatArCyrHeb-16
+I18N_CONF="${initdir}/etc/locale.conf"
+KEYBOARD_CONF="${initdir}/etc/vconsole.conf"
 
 # This is from 10redhat-i18n.
 findkeymap () {
@@ -73,7 +72,14 @@ gather_vars() {
 
 install_base() {
     dracut_install setfont loadkeys kbd_mode stty
-    inst ${moddir}/console_init /lib/udev/console_init
+
+    if [ -x /lib/systemd/systemd-vconsole-setup ]; then
+        dracut_install /lib/systemd/systemd-vconsole-setup
+        inst_dir /lib/udev
+        ln -s /lib/systemd/systemd-vconsole-setup "${initdir}/lib/udev/console_init"
+    else
+        inst ${moddir}/console_init /lib/udev/console_init
+    fi
     inst_rules ${moddir}/10-console.rules
     inst_hook cmdline 20 "${moddir}/parse-i18n.sh"
 }
@@ -94,9 +100,15 @@ install_all_kbd() {
 }
 
 install_local_keyboard() {
-    local map
 
     eval $(gather_vars ${keyboard_vars})
+
+    mksubdirs ${KEYBOARD_CONF}
+}
+
+install_local_i18n() {
+    local map
+    eval $(gather_vars ${i18n_vars})
 
     # Gentoo user may have KEYMAP set to something like "-u pl2",
     KEYMAP=${KEYMAP#-* }
@@ -115,27 +127,20 @@ install_local_keyboard() {
 
     inst_opt_decompress ${KEYMAPS}
 
-    mksubdirs ${KEYBOARD_CONF}
-    print_vars KEYMAP EXT_KEYMAPS >> ${KEYBOARD_CONF}
-}
+    [[ ${FONT} ]] || FONT=${DEFAULT_FONT}
+    FONT=${FONT%.psf*}
+    inst_opt_decompress ${kbddir}/consolefonts/${FONT}.*
 
-install_local_i18n() {
-    eval $(gather_vars ${i18n_vars})
-
-    [[ ${SYSFONT} ]] || SYSFONT=${DEFAULT_SYSFONT}
-    SYSFONT=${SYSFONT%.psf*}
-    inst_opt_decompress ${kbddir}/consolefonts/${SYSFONT}.*
-
-    if [[ ${CONTRANS} ]]
+    if [[ ${FONT_MAP} ]]
     then
-        CONTRANS=${CONTRANS%.trans}
-        inst ${kbddir}/consoletrans/${CONTRANS}.trans
+        FONT_MAP=${FONT_MAP%.trans}
+        inst ${kbddir}/consoletrans/${FONT_MAP}.trans
     fi
 
-    if [[ ${UNIMAP} ]]
+    if [[ ${FONT_UNIMAP} ]]
     then
-        UNIMAP=${UNIMAP%.uni}
-        inst ${kbddir}/unimaps/${UNIMAP}.uni
+        FONT_UNIMAP=${FONT_UNIMAP%.uni}
+        inst ${kbddir}/unimaps/${FONT_UNIMAP}.uni
     fi
 
     if [[ ${UNICODE} ]]
@@ -156,7 +161,9 @@ install_local_i18n() {
     fi
 
     mksubdirs ${I18N_CONF}
-    print_vars LC_ALL LANG UNICODE SYSFONT CONTRANS UNIMAP >> ${I18N_CONF}
+    mksubdirs ${KEYBOARD_CONF}
+    print_vars LC_ALL LANG >> ${I18N_CONF}
+    print_vars KEYMAP EXT_KEYMAPS UNICODE FONT FONT_MAP FONT_UNIMAP >> ${KEYBOARD_CONF}
 }
 
 checks() {
@@ -176,8 +183,8 @@ checks() {
         return 1
     }
 
-    [[ ! ${hostonly} || ${keyboard_vars} && ${i18n_vars} ]] || {
-        derror 'Please set up keyboard_vars and i18n_vars in configuration file.'
+    [[ ! ${hostonly} || ${i18n_vars} ]] || {
+        derror 'Please set up i18n_vars in configuration file.'
         return 1
     }
 }
@@ -189,7 +196,6 @@ then
 
     if [[ ${hostonly} ]]
     then
-        install_local_keyboard
         install_local_i18n
     else
         install_all_kbd

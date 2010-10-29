@@ -49,9 +49,9 @@ runtime:
     KEYMAP - keyboard translation table loaded by loadkeys
     EXT_KEYMAPS - list of extra keymaps to bo loaded (sep. by space)
     UNICODE - boolean, indicating UTF-8 mode
-    SYSFONT - console font
-    CONTRANS - see description of '-m' parameter in setfont manual
-    UNIMAP - see description of '-u' parameter in setfont manual
+    FONT - console font
+    FONT_MAP - see description of '-m' parameter in setfont manual
+    FONT_UNIMAP - see description of '-u' parameter in setfont manual
 
 The following are appended to EXT_KEYMAPS only during build time:
 
@@ -72,11 +72,9 @@ used on the basis of LANG value (if it ends with ".utf8" or similar).
 
 Mappings between variables listed in 2.1. and the ones spread around
 your system are set up in /etc/dracut.conf.d/<foo>.conf.  You need to
-assign mappings to fields keyboard_vars and i18n_vars.  Here's an
-example:
+assign mappings to i18n_vars.  Here's an example:
 
-keyboard_vars="/etc/conf.d/keymaps:KEYMAP,EXTENDED_KEYMAPS-EXT_KEYMAPS"
-i18n_vars="/etc/conf.d/consolefont:CONSOLEFONT-SYSFONT,CONSOLETRANSLATION-CONTRANS /etc/rc.conf:UNICODE"
+i18n_vars="/etc/conf.d/keymaps:KEYMAP,EXTENDED_KEYMAPS-EXT_KEYMAPS /etc/conf.d/consolefont:CONSOLEFONT-FONT,CONSOLETRANSLATION-FONT_MAP /etc/rc.conf:UNICODE"
 
 First we've got name of file in host file system tree.  After colon
 there's mapping: <from>-<to>.  If both variables have the same name you
@@ -121,4 +119,4 @@ file (the same where you put mappings).
 
 If you create generic initramfs you can set up i18n by kernel
 parameters using variables listed in 2.1. (except of UNIKEYMAP
-and GRP_TOGGLE) The recommended minimum is: SYSFONT, KEYMAP and UNICODE.
+and GRP_TOGGLE) The recommended minimum is: FONT and KEYMAP.

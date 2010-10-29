@@ -1,2 +1,2 @@
 # Console initialization - keyboard, font, etc.
-KERNEL=="tty0",		RUN+="/lib/udev/console_init %k"
+KERNEL=="tty0",		RUN+="/lib/udev/console_init $root/$name"

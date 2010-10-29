@@ -177,74 +177,74 @@ This parameter can be specified multiple times.</para>
       <variablelist>
         <varlistentry>
           <term>
-            <envar>KEYMAP=</envar>
+            <envar>voonsole.keymap=</envar>
             <replaceable>&lt;keymap base file name&gt;</replaceable>
           </term>
           <listitem>
-            <para>keyboard translation table loaded by loadkeys; taken from keymaps directory; will be written to <filename>/etc/sysconfig/keyboard</filename> in the initramfs, e.g.: <programlisting>KEYMAP=de-latin1-nodeadkeys</programlisting></para>
+            <para>keyboard translation table loaded by loadkeys; taken from keymaps directory; will be written as <envar>KEYMAP</envar> to <filename>/etc/vconsole.conf</filename> in the initramfs, e.g.: <programlisting>vconsole.keymap=de-latin1-nodeadkeys</programlisting></para>
           </listitem>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>EXT_KEYMAPS=</envar>
+            <envar>vconsole.keymap.ext=</envar>
             <replaceable>&lt;list of keymap base file names&gt;</replaceable>
           </term>
           <listitem>
-            <para>list of extra keymaps to bo loaded (sep. by space); will be written to <filename>/etc/sysconfig/keyboard</filename> in the initramfs</para>
+            <para>list of extra keymaps to bo loaded (sep. by space); will be written as <envar>EXT_KEYMAP</envar> to <filename>/etc/vconsole.conf</filename> in the initramfs</para>
           </listitem>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>UNICODE=</envar>
+            <envar>vconsole.font.unicode=</envar>
             <replaceable>&lt;1|0&gt;</replaceable>
           </term>
           <listitem>
-            <para>boolean, indicating UTF-8 mode; will be written to <filename>/etc/sysconfig/i18n</filename> in the initramfs</para>
+            <para>boolean, indicating UTF-8 mode; will be written as <envar>UNICODE</envar> to <filename>/etc/vconsole.conf</filename> in the initramfs</para>
           </listitem>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>SYSFONT=</envar>
+            <envar>vconsole.font=</envar>
             <replaceable>&lt;font base file name&gt;</replaceable>
           </term>
           <listitem>
-            <para>console font; taken from consolefonts directory;  will be written to <filename>/etc/sysconfig/i18n</filename> in the initramfs; e.g.: <programlisting>SYSFONT=LatArCyrHeb-16</programlisting></para>
+            <para>console font; taken from consolefonts directory;  will be written as <envar>FONT</envar> to <filename>/etc/vconsole.conf</filename> in the initramfs; e.g.: <programlisting>vconsole.font=LatArCyrHeb-16</programlisting></para>
           </listitem>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>CONTRANS=</envar>
+            <envar>vconsole.font.map=</envar>
             <replaceable>&lt;console map base file name&gt;</replaceable>
           </term>
           <listitem>
-            <para>see description of &apos;-m&apos; parameter in setfont manual; taken from consoletrans directory; will be written to <filename>/etc/sysconfig/i18n</filename> in the initramfs</para>
+            <para>see description of &apos;-m&apos; parameter in setfont manual; taken from consoletrans directory; will be written as <envar>FONT_MAP</envar> to <filename>/etc/vconsole.conf</filename> in the initramfs</para>
           </listitem>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>UNIMAP=</envar>
+            <envar>vconsole.font.unimap=</envar>
             <replaceable>&lt;unicode table base file name&gt;</replaceable>
           </term>
           <listitem>
-            <para>see description of &apos;-u&apos; parameter in setfont manual; taken from unimaps directory; will be written to <filename>/etc/sysconfig/i18n</filename> in the initramfs</para>
+            <para>see description of &apos;-u&apos; parameter in setfont manual; taken from unimaps directory; will be written as <envar>FONT_UNIMAP</envar> to <filename>/etc/vconsole.conf</filename> in the initramfs</para>
           </listitem>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>LANG=</envar>
+            <envar>locale.LANG=</envar>
             <replaceable>&lt;locale&gt;</replaceable>
           </term>
           <listitem>
-            <para>taken from the environment; if no UNICODE is defined we set its value in basis of LANG value (whether it ends with &quot;.utf8&quot; (or similar) or not); will be written to <filename>/etc/sysconfig/i18n</filename> in the initramfs; e.g.: <programlisting>LANG=pl_PL.utf8</programlisting></para>
+            <para>taken from the environment; if no UNICODE is defined we set its value in basis of LANG value (whether it ends with &quot;.utf8&quot; (or similar) or not); will be written as <envar>LANG</envar> to <filename>/etc/locale.conf</filename> in the initramfs; e.g.: <programlisting>locale.LANG=pl_PL.utf8</programlisting></para>
           </listitem>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>LC_ALL=</envar>
+            <envar>locale.LC_ALL=</envar>
             <replaceable>&lt;locale&gt;</replaceable>
           </term>
           <listitem>
-            <para>taken from the environment; will be written to <filename>/etc/sysconfig/i18n</filename> in the initramfs</para>
+            <para>taken from the environment; will be written as <envar>LC_ALL</envar> to <filename>/etc/locale.conf</filename> in the initramfs</para>
           </listitem>
         </varlistentry>
       </variablelist>
@@ -1061,6 +1061,62 @@ rd_ZNET=ctc,0.0.0600,0.0.0601,0.0.0602,protocol=bar</programlisting></para>
           </term>
           <listitem>
             <para><envar>rd.zfcp</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>KEYMAP</envar>
+          </term>
+          <listitem>
+            <para><envar>vconsole.keymap</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>KEYTABLE</envar>
+          </term>
+          <listitem>
+            <para><envar>vconsole.keymap</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>SYSFONT</envar>
+          </term>
+          <listitem>
+            <para><envar>vconsole.font</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>CONTRANS</envar>
+          </term>
+          <listitem>
+            <para><envar>vconsole.font.map</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>UNIMAP</envar>
+          </term>
+          <listitem>
+            <para><envar>vconsole.font.unimap</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>UNICODE</envar>
+          </term>
+          <listitem>
+            <para><envar>vconsole.font.unicode</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>EXT_KEYMAP</envar>
+          </term>
+          <listitem>
+            <para><envar>vconsole.keymap.ext</envar></para>
           </listitem>
         </varlistentry>
       </variablelist>
