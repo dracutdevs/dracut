@@ -26,9 +26,51 @@ filter_rootopts() {
 }
 
 if [ -n "$root" -a -z "${root%%block:*}" ]; then
-    mount -t ${fstype:-auto} -o "$rflags" "${root#block:}" "$NEWROOT" \
+    mount -t ${fstype:-auto} -o "$rflags",ro "${root#block:}" "$NEWROOT" \
         && ROOTFS_MOUNTED=yes 
 
+    READONLY=
+    if [ -f "$NEWROOT"/etc/sysconfig/readonly-root ]; then
+        . "$NEWROOT"/etc/sysconfig/readonly-root
+    fi
+
+    if getargbool 0 "readonlyroot=" -y readonlyroot; then
+        READONLY=yes
+    fi
+
+    if getarg noreadonlyroot ; then
+        READONLY=no
+    fi
+
+    if [ -f "$NEWROOT"/fastboot ] || getargbool 0 fastboot ; then
+        fastboot=yes
+    fi
+
+    if [ -f "$NEWROOT"/fsckoptions ]; then
+        fsckoptions=$(cat "$NEWROOT"/fsckoptions)
+    fi
+
+    if [ -f "$NEWROOT"/forcefsck ] || getargbool 0 forcefsck ; then
+        fsckoptions="-f $fsckoptions"
+    elif [ -f "$NEWROOT"/.autofsck ]; then
+        [ -f "$NEWROOT"/etc/sysconfig/autofsck ] && . "$NEWROOT"/etc/sysconfig/autofsck
+        if [ "$AUTOFSCK_DEF_CHECK" = "yes" ]; then
+            AUTOFSCK_OPT="$AUTOFSCK_OPT -f"
+        fi
+        if [ -n "$AUTOFSCK_SINGLEUSER" ]; then
+            warn "*** Warning -- the system did not shut down cleanly. "
+            warn "*** Dropping you to a shell; the system will continue"
+            warn "*** when you leave the shell."
+            emergency_shell
+        fi
+        fsckoptions="$AUTOFSCK_OPT $fsckoptions"
+    fi
+
+    if strstr " $fsckoptions" " -y"; then
+        fsckoptions="-a $fsckoptions"
+    fi
+
+    rootopts=
     if getargbool 1 rd.fstab -n rd_NO_FSTAB \
         && ! getarg rootflags \
         && [ -f "$NEWROOT/etc/fstab" ] \
@@ -36,7 +78,7 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
         # if $NEWROOT/etc/fstab contains special mount options for 
         # the root filesystem,
         # remount it with the proper options
-        rootfs="auto"
+        rootfs=${fstype:-auto}
         rootopts="defaults"
         while read dev mp fs opts rest; do 
             # skip comments
@@ -50,12 +92,43 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
         done < "$NEWROOT/etc/fstab"
 
         rootopts=$(filter_rootopts $rootopts)
+    fi
 
-        if [ -n "$rootopts" ]; then
-            umount $NEWROOT
-            info "Remounting ${root#block:} with -o $rootopts,$rflags"
-            mount -t "$rootfs" -o "$rflags","$rootopts" \
-                "${root#block:}" "$NEWROOT" 2>&1 | vinfo
+    umount "$NEWROOT"
+    if [ "$rootfs" = "auto" ]; then
+        udevadm info --query=env --name=${root#block:} | \
+            while read line; do
+                if strstr $line ID_FS_TYPE; then
+                    eval $line
+                    rootfs=$ID_FS_TYPE
+                    break
+                fi
+            done
+    fi
+
+    echo ${root#block:} "$NEWROOT" "$rootfs" ${rflags},${rootopts} 1 1 > /etc/fstab
+
+    if [ -z "$fastboot" -a "$READONLY" != "yes" ]; then
+        info "Checking filesystems"
+        info fsck -T -t noopts=_netdev -A $fsckoptions
+        out=$(fsck -T -t noopts=_netdev -A $fsckoptions) 
+        export RD_ROOTFS_FSCK=$?
+        
+        # A return of 4 or higher means there were serious problems.
+        if [ $RD_ROOTFS_FSCK -gt 3 ]; then
+            warn $out
+            warn "fsck returned with error code $RD_ROOTFS_FSCK"
+            warn "*** An error occurred during the file system check."
+            warn "*** Dropping you to a shell; the system will retry"
+            warn "*** to mount the system, when you leave the shell."
+            emergency_shell "(Repair filesystem)"
+        else
+            echo $out|vinfo
+            warn "fsck returned with $RD_ROOTFS_FSCK"
         fi
     fi
+
+    info "Remounting ${root#block:} with -o ${rflags},${rootopts}"
+    mount -t "$rootfs" -o "$rflags","$rootopts" \
+        "${root#block:}" "$NEWROOT" 2>&1 | vinfo
 fi
