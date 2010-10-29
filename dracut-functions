@@ -130,10 +130,17 @@ get_fs_uuid() (
 find_block_device() {
     local x mpt majmin dev fs misc maj min
     if [[ $use_fstab != yes ]]; then    
-        while read x x majmin x mpt x x fs misc; do
+        while read x x majmin x mpt x x fs dev misc; do
             [[ $fs = nfs ]] && { echo $dev; return 0;}
             [[ $fs = nfs3 ]] && { echo $dev; return 0;}
             [[ $fs = nfs4 ]] && { echo $dev; return 0;}
+            [[ $fs = btrfs ]] && {
+                ls -nLl "$dev" | { 
+                    read x x x x maj min x;
+                    maj=${maj//,/}; 
+                    echo $maj:$min; 
+                } && return 0
+            }
             if [[ $mpt = $1 ]] && [[ ${majmin#0:} = $majmin ]]; then
                 echo $majmin; 
                 return 0 # we have a winner!
