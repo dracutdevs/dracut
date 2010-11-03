@@ -280,9 +280,9 @@ done
 # Clean up the environment
 for i in $(export -p); do
     i=${i#declare -x}
-        i=${i#export}
-            i=${i%%=*}
-            [ "$i" = "root" -o "$i" = "PATH" -o "$i" = "HOME" -o "$i" = "TERM" ] || unset $i
+    i=${i#export}
+    i=${i%%=*}
+    [ "$i" = "root" -o "$i" = "PATH" -o "$i" = "HOME" -o "$i" = "TERM" ] || unset $i
 done
 
 initargs=""
