@@ -66,7 +66,7 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
         fsckoptions="$AUTOFSCK_OPT $fsckoptions"
     fi
 
-    if strstr " $fsckoptions" " -y"; then
+    if ! strstr " $fsckoptions" " -y"; then
         fsckoptions="-a $fsckoptions"
     fi
 
