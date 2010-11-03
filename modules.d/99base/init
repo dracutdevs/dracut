@@ -72,7 +72,7 @@ umask 0007
 RDDEBUG=""
 . /lib/dracut-lib.sh
 
-mknod -m 0666 /dev/null c 1 3
+[ -c /dev/null ] || mknod -m 0666 /dev/null c 1 3
 
 # mount some important things
 mount -t proc /proc /proc >/dev/null 2>&1
