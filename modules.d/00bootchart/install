@@ -5,7 +5,7 @@
 inst /sbin/bootchartd 
 inst /bin/bash 
 inst_symlink /init /sbin/init
-inst_dir /lib/bootchart/
+inst_dir /lib/bootchart/tmpfs
 inst /lib/bootchart/bootchart-collector 
 inst /etc/bootchartd.conf 
 inst /sbin/accton 
