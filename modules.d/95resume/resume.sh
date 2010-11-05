@@ -3,6 +3,17 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 [ -s /.resume -a -b "$resume" ] && {
+    # First try user level resume; it offers splash etc
+    case "$splash" in
+        quiet )
+            a_splash="-P splash=y"
+        ;;
+        * )
+            a_splash="-P splash=n"
+        ;;
+    esac
+    [ -x /usr/sbin/resume ] && /usr/sbin/resume $a_splash "$resume"
+
     # parsing the output of ls is Bad, but until there is a better way...
     ls -lH "$resume" | ( 
         read x x x x maj min x;

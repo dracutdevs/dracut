@@ -16,3 +16,9 @@ case "$resume" in
     UUID=*) \
         resume="/dev/disk/by-uuid/${resume#UUID=}" ;;
 esac
+
+if splash=$(getarg splash=); then
+    export splash
+else
+    unset splash
+fi
