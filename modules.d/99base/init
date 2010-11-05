@@ -187,18 +187,6 @@ while :; do
 
     $UDEV_QUEUE_EMPTY >/dev/null 2>&1 || continue
 
-    modprobe scsi_wait_scan && rmmod scsi_wait_scan
-
-    $UDEV_QUEUE_EMPTY >/dev/null 2>&1 || continue
-
-    for job in /initqueue-settled/*.sh; do
-        [ -e "$job" ] || break
-        job=$job . $job
-        check_finished && break 2
-    done
-
-    $UDEV_QUEUE_EMPTY >/dev/null 2>&1 || continue
-
     # no more udev jobs and queues empty.
     sleep 0.5
 
