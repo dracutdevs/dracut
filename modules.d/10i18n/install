@@ -73,13 +73,7 @@ gather_vars() {
 install_base() {
     dracut_install setfont loadkeys kbd_mode stty
 
-    if [ -x /lib/systemd/systemd-vconsole-setup ]; then
-        dracut_install /lib/systemd/systemd-vconsole-setup
-        inst_dir /lib/udev
-        ln -s /lib/systemd/systemd-vconsole-setup "${initdir}/lib/udev/console_init"
-    else
-        inst ${moddir}/console_init /lib/udev/console_init
-    fi
+    inst ${moddir}/console_init /lib/udev/console_init
     inst_rules ${moddir}/10-console.rules
     inst_hook cmdline 20 "${moddir}/parse-i18n.sh"
 }
@@ -123,9 +117,13 @@ install_local_i18n() {
 
     inst_opt_decompress ${KEYMAPS}
 
-    [[ ${FONT} ]] || FONT=${DEFAULT_FONT}
-    FONT=${FONT%.psf*}
-    inst_opt_decompress ${kbddir}/consolefonts/${FONT}.*
+    inst_opt_decompress ${kbddir}/consolefonts/${DEFAULT_FONT}.*
+
+    if [[ ${FONT} ]]
+    then
+        FONT=${FONT%.psf*}
+        inst_opt_decompress ${kbddir}/consolefonts/${FONT}.*
+    fi
 
     if [[ ${FONT_MAP} ]]
     then

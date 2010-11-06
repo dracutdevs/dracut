@@ -4,7 +4,7 @@
 
 [ -e /etc/vconsole.conf ] && . /etc/vconsole.conf
 
-DEFAULT_SYSFONT=LatArCyrHeb-16
+DEFAULT_FONT=LatArCyrHeb-16
 DEFAULT_KEYMAP=/etc/sysconfig/console/default.kmap
 
 set_keyboard() {
@@ -42,11 +42,11 @@ set_keymap() {
 set_font() {
     local dev=$1; local trans=''; local uni=''
 
-    [ -z "${SYSFONT}" ] && SYSFONT=${DEFAULT_SYSFONT}
-    [ -n "${CONTRANS}" ] && trans="-m ${CONTRANS}"
-    [ -n "${UNIMAP}" ] && uni="-u ${UNIMAP}"
+    [ -z "${FONT}" ] && FONT=${DEFAULT_FONT}
+    [ -n "${FONT_MAP}" ] && trans="-m ${FONT_MAP}"
+    [ -n "${FONT_UNIMAP}" ] && uni="-u ${FONT_UNIMAP}"
 
-    setfont ${SYSFONT} -C ${dev} ${trans} ${uni}
+    setfont ${FONT} -C ${dev} ${trans} ${uni}
 }
 
 dev_close() {
