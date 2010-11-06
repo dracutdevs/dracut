@@ -106,7 +106,9 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
             done
     fi
 
-    echo ${root#block:} "$NEWROOT" "$rootfs" ${rflags},${rootopts} 1 1 > /etc/fstab
+    # backslashes are treated as escape character in fstab
+    esc_root=$(echo ${root#block:} | sed 's,\\,\\\\,g')
+    printf "%s $NEWROOT $rootfs ${rflags},${rootopts} 1 1\n" "$esc_root" > /etc/fstab
 
     if [ -z "$fastboot" -a "$READONLY" != "yes" ]; then
         info "Checking filesystems"
