@@ -31,8 +31,8 @@ with us, so we can include it in source package.
 If you invoke dracut with '-H' option, i18n module install script will
 gather variables values from your configuration files using mappings
 provided in "/etc/dracut.conf.d/<foo>.conf".  Those variables will be
-put in "etc/sysconfig/{i18n,keyboard}" files inside initramfs image.
-Next it will install only declared font, keymaps and so.
+put in "etc/vconsole.conf" and "etc/locale.conf" files inside initramfs
+image. Next it will install only declared font, keymaps and so.
 
 When building generic image (dracut without '-H' option), install script
 copies all content of directories: consolefonts, consoletrans, unimaps
