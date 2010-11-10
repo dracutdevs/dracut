@@ -30,6 +30,7 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
         && ROOTFS_MOUNTED=yes 
 
     READONLY=
+    fsckoptions=
     if [ -f "$NEWROOT"/etc/sysconfig/readonly-root ]; then
         . "$NEWROOT"/etc/sysconfig/readonly-root
     fi
