@@ -117,6 +117,8 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
         info fsck -T -t noopts=_netdev -A $fsckoptions
         out=$(fsck -T -t noopts=_netdev -A $fsckoptions) 
         export RD_ROOTFS_FSCK=$?
+        mkdir -p /dev/.initramfs
+        echo $RD_ROOTFS_FSCK > /dev/.initramfs/fsck
         
         # A return of 4 or higher means there were serious problems.
         if [ $RD_ROOTFS_FSCK -gt 3 ]; then
