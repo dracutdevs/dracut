@@ -137,4 +137,6 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
     info "Remounting ${root#block:} with -o ${rflags},${rootopts}"
     mount -t "$rootfs" -o "$rflags","$rootopts" \
         "${root#block:}" "$NEWROOT" 2>&1 | vinfo
+
+    [ -f "$NEWROOT"/forcefsck ] && rm -f "$NEWROOT"/forcefsck 2>/dev/null
 fi
