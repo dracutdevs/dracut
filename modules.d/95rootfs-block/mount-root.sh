@@ -127,7 +127,7 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
             warn "*** An error occurred during the file system check."
             warn "*** Dropping you to a shell; the system will retry"
             warn "*** to mount the system, when you leave the shell."
-            emergency_shell "(Repair filesystem)"
+            emergency_shell -n "(Repair filesystem)"
         else
             echo $out|vinfo
             [ $RD_ROOTFS_FSCK -gt 0 ] && warn "fsck returned with $RD_ROOTFS_FSCK"
