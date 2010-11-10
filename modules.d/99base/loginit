@@ -11,7 +11,7 @@ QUIET=$1
 exec 6>/init.log
 
 while read line; do 
-    [ "$line" == "DRACUT_LOG_END" ] && exit 0
+    [ "$line" = "DRACUT_LOG_END" ] && exit 0
     echo "<7>dracut: $line" >&5
     # if "quiet" is specified we output to /dev/console
     [ -n "$QUIET" ] && echo "dracut: $line" 
