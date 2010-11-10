@@ -97,14 +97,15 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
 
     umount "$NEWROOT"
     if [ "$rootfs" = "auto" ]; then
-        udevadm info --query=env --name=${root#block:} | \
+        rootfs=$(udevadm info --query=env --name=${root#block:} | \
             while read line; do
                 if strstr $line ID_FS_TYPE; then
                     eval $line
-                    rootfs=$ID_FS_TYPE
+                    echo $ID_FS_TYPE
                     break
                 fi
-            done
+            done)
+        rootfs=${rootfs:-auto}
     fi
 
     # backslashes are treated as escape character in fstab
