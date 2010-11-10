@@ -109,7 +109,7 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
 
     # backslashes are treated as escape character in fstab
     esc_root=$(echo ${root#block:} | sed 's,\\,\\\\,g')
-    printf "%s $NEWROOT $rootfs ${rflags},${rootopts} 1 1\n" "$esc_root" > /etc/fstab
+    printf '%s %s %s %s,%s 1 1 \n' "$esc_root" "$NEWROOT" "$rootfs" "$rflags" "$rootopts"  > /etc/fstab
 
     if [ -z "$fastboot" -a "$READONLY" != "yes" ]; then
         info "Checking filesystems"
