@@ -127,7 +127,7 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
             emergency_shell "(Repair filesystem)"
         else
             echo $out|vinfo
-            warn "fsck returned with $RD_ROOTFS_FSCK"
+            [ $RD_ROOTFS_FSCK -gt 0 ] && warn "fsck returned with $RD_ROOTFS_FSCK"
         fi
     fi
 
