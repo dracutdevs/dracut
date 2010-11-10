@@ -71,6 +71,7 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
         fsckoptions="-a $fsckoptions"
     fi
 
+    rootfs=${fstype:-auto}
     rootopts=
     if getargbool 1 rd.fstab -n rd_NO_FSTAB \
         && ! getarg rootflags \
@@ -79,7 +80,6 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
         # if $NEWROOT/etc/fstab contains special mount options for 
         # the root filesystem,
         # remount it with the proper options
-        rootfs=${fstype:-auto}
         rootopts="defaults"
         while read dev mp fs opts rest; do 
             # skip comments
