@@ -139,4 +139,5 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
         "${root#block:}" "$NEWROOT" 2>&1 | vinfo
 
     [ -f "$NEWROOT"/forcefsck ] && rm -f "$NEWROOT"/forcefsck 2>/dev/null
+    [ -f "$NEWROOT"/.autofsck ] && rm -f "$NEWROOT"/.autofsck 2>/dev/null
 fi
