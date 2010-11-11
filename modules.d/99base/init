@@ -33,6 +33,7 @@ wait_for_loginit()
         done
         set -x
     fi
+    rm -f /dev/.initramfs/initlog.pipe
 }
 
 emergency_shell()
@@ -105,9 +106,9 @@ mount -t tmpfs -o mode=1777,noexec,nosuid,nodev  tmpfs /dev/shm >/dev/null 2>&1
 
 if getargbool 0 rd.debug -y rdinitdebug -y rdnetdebug; then
     getarg quiet && DRACUT_QUIET="yes"
-    mkfifo /dev/initlog.pipe
-    /sbin/loginit $DRACUT_QUIET </dev/initlog.pipe >/dev/console 2>&1 &
-    exec >/dev/initlog.pipe 2>&1
+    mkfifo /dev/.initramfs/initlog.pipe
+    /sbin/loginit $DRACUT_QUIET </dev/.initramfs/initlog.pipe >/dev/console 2>&1 &
+    exec >/dev/.initramfs/initlog.pipe 2>&1
 else
     exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
 fi
