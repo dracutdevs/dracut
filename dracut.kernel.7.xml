@@ -318,25 +318,20 @@ This parameter can be specified multiple times.</para>
       </variablelist>
     </refsect2>
     <refsect2>
-      <title>crypt LUKS - experimental removable keys support</title>
-      <para>works only when plymouth module is not included</para>
+      <title>crypto LUKS - key on removable device support</title>
       <variablelist>
         <varlistentry>
           <term>
-            <envar>rd.luks.keypath=</envar>
-            <replaceable>&lt;path to keyfile&gt;</replaceable>
+            <envar>rd.luks.key=</envar>
+	    <replaceable>&lt;keypath&gt;:&lt;keydev&gt;:&lt;luksdev&gt;</replaceable>
           </term>
           <listitem>
-            <para>path to keyfile inside remove device filesystem</para>
-          </listitem>
-        </varlistentry>
-        <varlistentry>
-          <term>
-            <envar>rd.luks.keydev.uuid=</envar>
-            <replaceable>&lt;rem. device uuid&gt;</replaceable>
-          </term>
-          <listitem>
-            <para>UUID of removalbe device storing keyfile; UUID doesn&apos;t have to be exact just like for <envar>rd.luks.uuid</envar></para>
+		  <para><replaceable>keypath</replaceable> is a path to key file to look for. It's REQUIRED.</para>
+		  <para><replaceable>keydev</replaceable> is a device on which key file resides. It might be kernel name of devices (should start with "/dev/"), UUID (prefixed with "UUID=") or label (prefix with "LABEL=").  You don't have to specify full UUID. Just its beginning will suffice, even if its ambiguous. All matching devices will be probed. This parameter is recommended, but not required. If not present, all block devices will be probed, which may significantly increase boot time.</para>
+		  <para>If <replaceable>luksdev</replaceable> is given, the specified key will only be applied for that LUKS device. Possible values are the same as for <replaceable>keydev</replaceable>. Unless you have several LUKS devices, you don't have to specify this parameter.</para>
+		  <para>The simplest usage is:</para>
+		  <programlisting>rd.luks.key=/foo/bar.key</programlisting>
+		  <para>As you see, you can skip colons in such case.</para>
           </listitem>
         </varlistentry>
       </variablelist>
