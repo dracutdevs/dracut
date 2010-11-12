@@ -62,8 +62,8 @@ info "luksOpen $device $luksname"
 
 if [ -n "$(getarg rd.luks.key)" ]; then
     if tmp=$(getkey /tmp/luks.keys $device); then
-        keydev="${tmp%%|*}"
-        keypath="${tmp#*|}"
+        keydev="${tmp%%:*}"
+        keypath="${tmp#*:}"
     else
         info "No key found for $device.  Will try later."
         /sbin/initqueue --unique --onetime --settled \

@@ -95,12 +95,12 @@ $dev
 #
 # Reads file <keysfile> produced by probe-keydev and looks for first line to
 # which device <for_dev> matches.  The successful result is printed in format
-# "<keydev>|<keypath>".  When nothing found, just false is returned.
+# "<keydev>:<keypath>".  When nothing found, just false is returned.
 #
 # Example:
 #   getkey /tmp/luks.keys /dev/sdb1
 # May print:
-#   /dev/sdc1|/keys/some.key
+#   /dev/sdc1:/keys/some.key
 getkey() {
     local keys_file="$1"; local for_dev="$2"
     local luks_dev; local key_dev; local key_path
@@ -108,9 +108,9 @@ getkey() {
     [ -z "$keys_file" -o -z "$for_dev" ] && die 'getkey: wrong usage!'
     [ -f "$keys_file" ] || return 1
 
-    while IFS='|' read luks_dev key_dev key_path; do
+    while IFS=':' read luks_dev key_dev key_path; do
         if match_dev "$luks_dev" "$for_dev"; then
-            echo "${key_dev}|${key_path}"
+            echo "${key_dev}:${key_path}"
             return 0
         fi
     done < "$keys_file"
