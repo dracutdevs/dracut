@@ -11,10 +11,6 @@ else
     } > /etc/udev/rules.d/70-luks.rules
 
     LUKS=$(getargs rd.luks.uuid rd_LUKS_UUID)
-    unset settled
-    [ -n "$(getargs rd.luks.keypath rd_LUKS_KEYPATH)" ] && \
-        [ -z "$(getargs rd.luks.keydev.uuid rd_LUKS_KEYDEV_UUID)" ] && \
-        settled='--settled'
 
     if [ -n "$LUKS" ]; then
         for luksid in $LUKS; do 
@@ -22,7 +18,7 @@ else
             {
                 printf 'ENV{ID_FS_TYPE}=="crypto_LUKS", '
                 printf 'ENV{ID_FS_UUID}=="*%s*", ' $luksid
-                printf 'RUN+="/sbin/initqueue --unique --onetime %s ' "$settled"
+                printf 'RUN+="/sbin/initqueue --unique --onetime '
                 printf -- '--name cryptroot-ask-%%k /sbin/cryptroot-ask '
                 printf '$env{DEVNAME} luks-$env{ID_FS_UUID}"\n'
             } >> /etc/udev/rules.d/70-luks.rules
@@ -35,7 +31,7 @@ else
             } >> /emergency/00-crypt.sh
         done
     else
-        echo 'ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="/sbin/initqueue' $settled \
+        echo 'ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="/sbin/initqueue' \
             '--unique --onetime --name cryptroot-ask-%k' \
             '/sbin/cryptroot-ask $env{DEVNAME} luks-$env{ID_FS_UUID}"' \
             >> /etc/udev/rules.d/70-luks.rules
