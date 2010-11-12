@@ -221,6 +221,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man5/dracut.conf.5*
 %{_datadir}/dracut/modules.d/00bootchart
 %{_datadir}/dracut/modules.d/00dash
+%{_datadir}/dracut/modules.d/05busybox
 %{_datadir}/dracut/modules.d/10i18n
 %{_datadir}/dracut/modules.d/10rpmversion
 %{_datadir}/dracut/modules.d/50plymouth
@@ -243,7 +244,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dracut/modules.d/95zfcp
 %{_datadir}/dracut/modules.d/95terminfo
 %{_datadir}/dracut/modules.d/95udev-rules
-%{_datadir}/dracut/modules.d/95uswsusp
 %{_datadir}/dracut/modules.d/96insmodpost
 %{_datadir}/dracut/modules.d/98selinux
 %{_datadir}/dracut/modules.d/98syslog
