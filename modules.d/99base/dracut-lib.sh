@@ -183,10 +183,10 @@ splitsep() {
     local tmp
 
     while [ -n "$str" -a -n "$*" ]; do
-        tmp="${str%%:*}"
+        tmp="${str%%$sep*}"
         eval "$1=${tmp}"
         str="${str#$tmp}"
-        str="${str#:}"
+        str="${str#$sep}"
         shift
     done
 
