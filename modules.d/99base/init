@@ -66,9 +66,6 @@ export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 NEWROOT="/sysroot"
 
 trap "emergency_shell Signal caught!" 0
-# set umask
-OLD_UMASK=$(umask)
-umask 0007
 
 RDDEBUG=""
 . /lib/dracut-lib.sh
@@ -326,7 +323,6 @@ info "Switching root"
 
 wait_for_loginit
 
-umask $OLD_UMASK
 export PATH="$OLD_PATH"
 
 exec /sbin/switch_root "$NEWROOT" "$INIT" $initargs || {
