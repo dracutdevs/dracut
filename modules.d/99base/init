@@ -76,8 +76,13 @@ RDDEBUG=""
 mount -t proc -o nosuid,noexec,nodev /proc /proc >/dev/null 2>&1
 mount -t sysfs -o nosuid,noexec,nodev /sys /sys >/dev/null 2>&1
 
-read RD_TIMESTAMP _tmp < /proc/uptime
-unset _tmp
+
+if [ -x /lib/systemd/systemd-timestamp ]; then
+    RD_TIMESTAMP=$(/lib/systemd/systemd-timestamp)
+else
+    read RD_TIMESTAMP _tmp < /proc/uptime
+    unset _tmp
+fi
 
 if [ ! -c /dev/ptmx ]; then
     # try to mount devtmpfs
