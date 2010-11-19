@@ -253,7 +253,10 @@ source_all pre-pivot
 # Try to find init.
 for i in "$(getarg real_init=)" "$(getarg init=)" /sbin/init /etc/init /init /bin/sh; do
     [ -n "$i" ] || continue
-    [ -d "$NEWROOT$i" ] || [ -L "$NEWROOT$i" -o -x "$NEWROOT$i" ] && { INIT="$i"; break; }
+    if ! [ -d "$NEWROOT$i" ] && [ -L "$NEWROOT$i" -o -x "$NEWROOT$i" ]; then
+        INIT="$i"
+        break
+    fi
 done
 
 [ "$INIT" ] || {
