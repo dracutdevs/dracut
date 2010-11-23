@@ -163,7 +163,7 @@ include ld.so.conf.d/*.conf</screen>
       </section>
       <section>
         <title>Omitting dracut Modules</title>
-        <para>Sometimes you don&apos;t want a dracut module to be included for reasons of speed, size or functionality. To do this, either specify the <envar>add_dracutmodules</envar> variable in  the <filename>dracut.conf</filename> or <filename>/etc/dracut.conf.d/myconf.conf</filename> configuration file (see man page <xref linkend="dracutconf5"/>), or use the <option>-o</option> or <option>--omit</option> option on the command line:</para>
+        <para>Sometimes you don&apos;t want a dracut module to be included for reasons of speed, size or functionality. To do this, either specify the <envar>omit_dracutmodules</envar> variable in  the <filename>dracut.conf</filename> or <filename>/etc/dracut.conf.d/myconf.conf</filename> configuration file (see man page <xref linkend="dracutconf5"/>), or use the <option>-o</option> or <option>--omit</option> option on the command line:</para>
         <screen># dracut -o &quot;multipath lvm&quot; no-multipath-lvm.img</screen>
       </section>
       <section>
