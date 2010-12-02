@@ -199,7 +199,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,0755)
-%doc README HACKING TODO COPYING AUTHORS NEWS dracut.html
+%doc README HACKING TODO COPYING AUTHORS NEWS dracut.html dracut.png dracut.svg
 /sbin/dracut
 %if 0%{?with_switch_root}
 /sbin/switch_root

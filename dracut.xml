@@ -1,7 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- This document was created with Syntext Serna Free. --><!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" []>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" []>
 <book>
-  <title>dracut</title>
+  <title>
+  <inlinemediaobject><imageobject><imagedata valign="middle" fileref="dracut.png" format="PNG"/></imageobject><imageobject><imagedata valign="middle" fileref="dracut.svg" format="SVG"/></imageobject><imageobject>
+      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dracut.svg" encoding="UTF-8" parse="xml"/></imageobject></inlinemediaobject>dracut</title>
   <bookinfo>
     <author>
       <firstname>Harald</firstname>
