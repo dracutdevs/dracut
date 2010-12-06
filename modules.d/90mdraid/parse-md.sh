@@ -10,7 +10,6 @@ else
     if [ -n "$MD_UUID" ]; then
         for f in /etc/udev/rules.d/65-md-incremental*.rules; do
             [ -e "$f" ] || continue
-            mv $f ${f}.bak 
             while read line; do 
                 if [ "${line%%UUID CHECK}" != "$line" ]; then
                     for uuid in $MD_UUID; do
@@ -20,8 +19,8 @@ else
                 else
                     echo $line; 
                 fi
-            done < ${f}.bak > $f
-            rm ${f}.bak 
+            done < "${f}" > "${f}.new"
+            mv "${f}.new" "$f" 
         done
     fi
 fi
