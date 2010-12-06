@@ -12,7 +12,7 @@ for f in  \
     /sbin/xdrgetprio \
     /etc/xdrdevices.conf \
     /etc/multipath.conf \
-    /etc/multipath/wwids \
+    /etc/multipath/* \
     "$libdir"/libmultipath* "$libdir"/multipath/*; do
     [ -e "$f" ] && inst "$f"
 done
