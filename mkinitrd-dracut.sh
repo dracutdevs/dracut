@@ -48,7 +48,7 @@ while (($# > 0)); do
             echo "mkinitrd: dracut compatibility wrapper"
             exit 0;;
         -v|--verbose) dracut_args="${dracut_args} -v";;
-        -f) dracut_args="${dracut_args} -f";;
+        -f|--force) dracut_args="${dracut_args} -f";;
         --preload) read_args modname "$@" || shift
             basicmodules="$basicmodules $modname";;
         --image-version) img_vers=yes;;
