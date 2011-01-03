@@ -61,7 +61,7 @@ do_fips()
     return 0
 }
 
-if ! fipsmode=$(getarg fips) || [ $fipsmode == "0" ]; then
+if ! fipsmode=$(getarg fips) || [ $fipsmode = "0" ]; then
     rm -f /etc/modprobe.d/fips.conf >/dev/null 2>&1
 else
     set -e
