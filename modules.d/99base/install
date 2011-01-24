@@ -13,6 +13,7 @@ inst "$moddir/init" "/init"
 inst "$moddir/initqueue" "/sbin/initqueue"
 inst "$moddir/loginit" "/sbin/loginit"
 mkdir -p ${initdir}/initqueue
+mkdir -p ${initdir}/emergency
 mkdir -p ${initdir}/initqueue-finished
 mkdir -p ${initdir}/initqueue-settled
 mkdir -p ${initdir}/tmp
