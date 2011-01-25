@@ -323,15 +323,15 @@ This parameter can be specified multiple times.</para>
         <varlistentry>
           <term>
             <envar>rd.luks.key=</envar>
-	    <replaceable>&lt;keypath&gt;:&lt;keydev&gt;:&lt;luksdev&gt;</replaceable>
+            <replaceable>&lt;keypath&gt;:&lt;keydev&gt;:&lt;luksdev&gt;</replaceable>
           </term>
           <listitem>
-		  <para><replaceable>keypath</replaceable> is a path to key file to look for. It's REQUIRED.</para>
-		  <para><replaceable>keydev</replaceable> is a device on which key file resides. It might be kernel name of devices (should start with "/dev/"), UUID (prefixed with "UUID=") or label (prefix with "LABEL=").  You don't have to specify full UUID. Just its beginning will suffice, even if its ambiguous. All matching devices will be probed. This parameter is recommended, but not required. If not present, all block devices will be probed, which may significantly increase boot time.</para>
-		  <para>If <replaceable>luksdev</replaceable> is given, the specified key will only be applied for that LUKS device. Possible values are the same as for <replaceable>keydev</replaceable>. Unless you have several LUKS devices, you don't have to specify this parameter.</para>
-		  <para>The simplest usage is:</para>
-		  <programlisting>rd.luks.key=/foo/bar.key</programlisting>
-		  <para>As you see, you can skip colons in such case.</para>
+            <para><replaceable>keypath</replaceable> is a path to key file to look for. It&apos;s REQUIRED.</para>
+            <para><replaceable>keydev</replaceable> is a device on which key file resides. It might be kernel name of devices (should start with &quot;/dev/&quot;), UUID (prefixed with &quot;UUID=&quot;) or label (prefix with &quot;LABEL=&quot;).  You don&apos;t have to specify full UUID. Just its beginning will suffice, even if its ambiguous. All matching devices will be probed. This parameter is recommended, but not required. If not present, all block devices will be probed, which may significantly increase boot time.</para>
+            <para>If <replaceable>luksdev</replaceable> is given, the specified key will only be applied for that LUKS device. Possible values are the same as for <replaceable>keydev</replaceable>. Unless you have several LUKS devices, you don&apos;t have to specify this parameter.</para>
+            <para>The simplest usage is:</para>
+            <programlisting>rd.luks.key=/foo/bar.key</programlisting>
+            <para>As you see, you can skip colons in such case.</para>
           </listitem>
         </varlistentry>
       </variablelist>
@@ -666,11 +666,11 @@ This parameter can be specified multiple times.</para>
       <title>ZNET</title>
       <variablelist>
         <varlistentry>
-          <term><envar>rd_ZNET=</envar><replaceable>&lt;nettype&gt;</replaceable>,<replaceable>&lt;subchannels&gt;</replaceable>,<replaceable>&lt;options&gt;</replaceable></term>
+          <term><envar>rd.znet=</envar><replaceable>&lt;nettype&gt;</replaceable>,<replaceable>&lt;subchannels&gt;</replaceable>,<replaceable>&lt;options&gt;</replaceable></term>
           <listitem>
-            <para>rd_ZNET can be specified multiple times on the kernel command line. e.g.:
-    <programlisting>rd_ZNET=qeth,0.0.0600,0.0.0601,0.0.0602,layer2=1,portname=foo
-rd_ZNET=ctc,0.0.0600,0.0.0601,0.0.0602,protocol=bar</programlisting></para>
+            <para>rd.znet can be specified multiple times on the kernel command line. e.g.:
+    <programlisting>rd.znet=qeth,0.0.0600,0.0.0601,0.0.0602,layer2=1,portname=foo
+rd.znet=ctc,0.0.0600,0.0.0601,0.0.0602,protocol=bar</programlisting></para>
           </listitem>
         </varlistentry>
       </variablelist>
@@ -900,14 +900,6 @@ rd_ZNET=ctc,0.0.0600,0.0.0601,0.0.0602,protocol=bar</programlisting></para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rd_LUKS_UUID</envar>
-          </term>
-          <listitem>
-            <para><envar>rd.luks.uuid</envar></para>
-          </listitem>
-        </varlistentry>
-        <varlistentry>
-          <term>
             <envar>rd_NO_LVMCONF</envar>
           </term>
           <listitem>
@@ -1056,6 +1048,14 @@ rd_ZNET=ctc,0.0.0600,0.0.0601,0.0.0602,protocol=bar</programlisting></para>
           </term>
           <listitem>
             <para><envar>rd.zfcp</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd_ZNET</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.znet</envar></para>
           </listitem>
         </varlistentry>
         <varlistentry>
