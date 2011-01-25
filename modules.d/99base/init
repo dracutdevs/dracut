@@ -104,7 +104,7 @@ ln -s /proc/self/fd/1 /dev/stdout >/dev/null 2>&1
 ln -s /proc/self/fd/2 /dev/stderr >/dev/null 2>&1
 mkdir -m 0755 /dev/shm /dev/pts /dev/.udev /dev/.udev/rules.d /dev/.initramfs
 mount -t devpts -o gid=5,mode=620,noexec,nosuid devpts /dev/pts >/dev/null 2>&1
-mount -t tmpfs -o mode=1777,noexec,nosuid,nodev  tmpfs /dev/shm >/dev/null 2>&1
+mount -t tmpfs -o mode=1777,nosuid,nodev  tmpfs /dev/shm >/dev/null 2>&1
 
 if getargbool 0 rd.debug -y rdinitdebug -y rdnetdebug; then
     getarg quiet && DRACUT_QUIET="yes"
