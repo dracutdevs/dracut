@@ -139,8 +139,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rd.break=</envar>
-            <replaceable>{cmdline|pre-udev|pre-trigger|initqueue|pre-mount|mount|pre-pivot}</replaceable>
+            <envar>rd.break=</envar><replaceable>{cmdline|pre-udev|pre-trigger|initqueue|pre-mount|mount|pre-pivot}</replaceable>
           </term>
           <listitem>
             <para>drop to a shell on defined breakpoint</para>
@@ -186,8 +185,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>vconsole.keymap.ext=</envar>
-            <replaceable>&lt;list of keymap base file names&gt;</replaceable>
+            <envar>vconsole.keymap.ext=</envar><replaceable>&lt;list of keymap base file names&gt;</replaceable>
           </term>
           <listitem>
             <para>list of extra keymaps to bo loaded (sep. by space); will be written as <envar>EXT_KEYMAP</envar> to <filename>/etc/vconsole.conf</filename> in the initramfs</para>
@@ -195,8 +193,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>vconsole.font.unicode=</envar>
-            <replaceable>&lt;1|0&gt;</replaceable>
+            <envar>vconsole.font.unicode=</envar><replaceable>&lt;1|0&gt;</replaceable>
           </term>
           <listitem>
             <para>boolean, indicating UTF-8 mode; will be written as <envar>UNICODE</envar> to <filename>/etc/vconsole.conf</filename> in the initramfs</para>
@@ -204,8 +201,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>vconsole.font=</envar>
-            <replaceable>&lt;font base file name&gt;</replaceable>
+            <envar>vconsole.font=</envar><replaceable>&lt;font base file name&gt;</replaceable>
           </term>
           <listitem>
             <para>console font; taken from consolefonts directory;  will be written as <envar>FONT</envar> to <filename>/etc/vconsole.conf</filename> in the initramfs; e.g.: <programlisting>vconsole.font=LatArCyrHeb-16</programlisting></para>
@@ -213,8 +209,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>vconsole.font.map=</envar>
-            <replaceable>&lt;console map base file name&gt;</replaceable>
+            <envar>vconsole.font.map=</envar><replaceable>&lt;console map base file name&gt;</replaceable>
           </term>
           <listitem>
             <para>see description of &apos;-m&apos; parameter in setfont manual; taken from consoletrans directory; will be written as <envar>FONT_MAP</envar> to <filename>/etc/vconsole.conf</filename> in the initramfs</para>
@@ -222,8 +217,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>vconsole.font.unimap=</envar>
-            <replaceable>&lt;unicode table base file name&gt;</replaceable>
+            <envar>vconsole.font.unimap=</envar><replaceable>&lt;unicode table base file name&gt;</replaceable>
           </term>
           <listitem>
             <para>see description of &apos;-u&apos; parameter in setfont manual; taken from unimaps directory; will be written as <envar>FONT_UNIMAP</envar> to <filename>/etc/vconsole.conf</filename> in the initramfs</para>
@@ -231,8 +225,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>locale.LANG=</envar>
-            <replaceable>&lt;locale&gt;</replaceable>
+            <envar>locale.LANG=</envar><replaceable>&lt;locale&gt;</replaceable>
           </term>
           <listitem>
             <para>taken from the environment; if no UNICODE is defined we set its value in basis of LANG value (whether it ends with &quot;.utf8&quot; (or similar) or not); will be written as <envar>LANG</envar> to <filename>/etc/locale.conf</filename> in the initramfs; e.g.: <programlisting>locale.LANG=pl_PL.utf8</programlisting></para>
@@ -240,8 +233,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>locale.LC_ALL=</envar>
-            <replaceable>&lt;locale&gt;</replaceable>
+            <envar>locale.LC_ALL=</envar><replaceable>&lt;locale&gt;</replaceable>
           </term>
           <listitem>
             <para>taken from the environment; will be written as <envar>LC_ALL</envar> to <filename>/etc/locale.conf</filename> in the initramfs</para>
@@ -278,7 +270,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rd.lvm.conf</envar>
+            <envar>rd.lvm.conf</envar>=0
           </term>
           <listitem>
             <para>remove any <filename>/etc/lvm/lvm.conf</filename>, which may exist in the initramfs</para>
@@ -309,7 +301,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rd.luks.crypttab</envar>
+            <envar>rd.luks.crypttab</envar>=0
           </term>
           <listitem>
             <para>do not check, if LUKS partition is in <filename>/etc/crypttab</filename></para>
@@ -322,8 +314,7 @@ This parameter can be specified multiple times.</para>
       <variablelist>
         <varlistentry>
           <term>
-            <envar>rd.luks.key=</envar>
-            <replaceable>&lt;keypath&gt;:&lt;keydev&gt;:&lt;luksdev&gt;</replaceable>
+            <envar>rd.luks.key=</envar><replaceable>&lt;keypath&gt;:&lt;keydev&gt;:&lt;luksdev&gt;</replaceable>
           </term>
           <listitem>
             <para><replaceable>keypath</replaceable> is a path to key file to look for. It&apos;s REQUIRED.</para>
@@ -353,7 +344,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rd.md.conf</envar>
+            <envar>rd.md.conf</envar>=0
           </term>
           <listitem>
             <para>ignore mdadm.conf included in initramfs</para>
@@ -395,8 +386,7 @@ This parameter can be specified multiple times.</para>
       <variablelist>
         <varlistentry>
           <term>
-            <envar>ip=</envar>
-            <replaceable>{dhcp|on|any|dhcp6|auto6}</replaceable>
+            <envar>ip=</envar><replaceable>{dhcp|on|any|dhcp6|auto6}</replaceable>
           </term>
           <listitem>
             <para>dhcp|on|any: get ip from dhcp server from all interfaces. If root=dhcp, 
@@ -434,8 +424,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>bootdev=</envar>
-            <replaceable>&lt;interface&gt;</replaceable>
+            <envar>bootdev=</envar><replaceable>&lt;interface&gt;</replaceable>
           </term>
           <listitem>
             <para>specify network interface to use routing and netroot information from. 
@@ -444,9 +433,7 @@ Required if multiple ip= lines are used.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>nameserver=</envar>
-            <replaceable>&lt;IP&gt;</replaceable>
-            <optional><envar>nameserver</envar>=<replaceable>&lt;IP&gt;</replaceable> ...</optional>
+            <envar>nameserver=</envar><replaceable>&lt;IP&gt;</replaceable><optional><envar>nameserver</envar>=<replaceable>&lt;IP&gt;</replaceable> ...</optional>
           </term>
           <listitem>
             <para>specify nameserver(s) to use</para>
@@ -459,10 +446,7 @@ Required if multiple ip= lines are used.</para>
       <variablelist>
         <varlistentry>
           <term>
-            <envar>root=</envar>
-            <optional><replaceable>&lt;server-ip&gt;</replaceable>:</optional>
-            <replaceable>&lt;root-dir&gt;</replaceable>
-            <optional>:<replaceable>&lt;nfs-options&gt;</replaceable></optional>
+            <envar>root=</envar><optional><replaceable>&lt;server-ip&gt;</replaceable>:</optional><replaceable>&lt;root-dir&gt;</replaceable><optional>:<replaceable>&lt;nfs-options&gt;</replaceable></optional>
           </term>
           <listitem>
             <para>mount nfs share from &lt;server-ip&gt;:/&lt;root-dir&gt;, if no server-ip is given,
@@ -474,8 +458,7 @@ NFS options can be appended with the prefix &quot;:&quot; or &quot;,&quot; and a
           <term><envar>root=</envar><constant>nfs</constant>:<optional><replaceable>&lt;server-ip&gt;</replaceable>:</optional><replaceable>&lt;root-dir&gt;</replaceable><optional>:<replaceable>&lt;nfs-options&gt;</replaceable></optional></term>
           <term><envar>root=</envar>nfs4:<optional><replaceable>&lt;server-ip&gt;</replaceable>:</optional><replaceable>&lt;root-dir&gt;</replaceable><optional>:<replaceable>&lt;nfs-options&gt;</replaceable></optional></term>
           <term>
-            <envar>root=</envar>
-            <replaceable>{dhcp|dhcp6}</replaceable>
+            <envar>root=</envar><replaceable>{dhcp|dhcp6}</replaceable>
           </term>
           <listitem>
             <para>root=dhcp alone directs initrd to look at the DHCP root-path where NFS 
@@ -487,12 +470,8 @@ options can be specified.
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>root=</envar>
-            <filename>/dev/nfs</filename>
-            <envar> nfsroot=</envar>
-            <optional><replaceable>&lt;server-ip&gt;</replaceable>:</optional>
-            <replaceable>&lt;root-dir&gt;</replaceable>
-            <optional>:<replaceable>&lt;nfs-options&gt;</replaceable></optional>
+            <envar>root=</envar><filename>/dev/nfs</filename>
+            <envar> nfsroot=</envar><optional><replaceable>&lt;server-ip&gt;</replaceable>:</optional><replaceable>&lt;root-dir&gt;</replaceable><optional>:<replaceable>&lt;nfs-options&gt;</replaceable></optional>
           </term>
           <listitem>
             <para><emphasis remap="B">Deprecated!</emphasis> kernel Documentation<filename>/filesystems/nfsroot.txt</filename> defines 
@@ -561,22 +540,24 @@ netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target1  </programlisting></par
         <varlistentry>
           <term>
             <envar>root=<replaceable>???</replaceable></envar>
-            <envar> iscsi_initiator=<replaceable>&lt;initiator&gt; </replaceable></envar>
-            <envar>iscsi_target_name=<replaceable>&lt;target_name&gt; </replaceable></envar>
-            <envar>iscsi_target_ip=<replaceable>&lt;target ip&gt; </replaceable></envar>
-            <envar>iscsi_target_port=<replaceable>&lt;target port&gt; </replaceable></envar>
-            <envar>iscsi_target_group=<replaceable>&lt;target group&gt; </replaceable></envar>
-            <envar>iscsi_username=<replaceable>&lt;username&gt; </replaceable></envar>
-            <envar>iscsi_password=<replaceable>&lt;password&gt; </replaceable></envar>
-            <envar>iscsi_in_username=<replaceable>&lt;in username&gt; </replaceable></envar>
-            <envar>iscsi_in_password=<replaceable>&lt;in password&gt; </replaceable></envar>
+            <envar>rd.iscsi.initiator=<replaceable>&lt;initiator&gt; </replaceable></envar>
+            <envar>rd.iscsi.target.name=<replaceable>&lt;target name&gt; </replaceable></envar>
+            <envar>rd.iscsi.target.ip=<replaceable>&lt;target ip&gt; </replaceable></envar>
+            <envar>rd.iscsi.target.port=<replaceable>&lt;target port&gt; </replaceable></envar>
+            <envar>rd.iscsi.target.group=<replaceable>&lt;target group&gt; </replaceable></envar>
+            <envar>rd.iscsi.username=<replaceable>&lt;username&gt; </replaceable></envar>
+            <envar>rd.iscsi.password=<replaceable>&lt;password&gt; </replaceable></envar>
+            <envar>rd.iscsi.in.username=<replaceable>&lt;in username&gt; </replaceable></envar>
+            <envar>rd.iscsi.in.password=<replaceable>&lt;in password&gt; </replaceable></envar>
           </term>
           <listitem>
             <para>manually specify all iscsistart parameter (see <userinput>iscsistart&nbsp;--help</userinput>)</para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term><envar>root=</envar>???<envar> iscsi_firmware</envar></term>
+          <term>
+	    <envar>root=</envar><replaceable>??? </replaceable><envar>rd.iscsi.firmware=1</envar>
+	  </term>
           <listitem>
             <para>will read the iscsi parameter from the BIOS firmware</para>
           </listitem>
@@ -629,11 +610,7 @@ as the rootfs.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rd.dasd=</envar>
-            <replaceable>&lt;dasd_adaptor device bus ID&gt;</replaceable>
-            <optional>,readonly=<replaceable>X</replaceable></optional>
-            <optional>,use_diag=<replaceable>X</replaceable></optional>
-            <optional>,erplog=<replaceable>X</replaceable></optional>
+            <envar>rd.dasd=</envar><replaceable>&lt;dasd_adaptor device bus ID&gt;</replaceable><optional>,readonly=<replaceable>X</replaceable></optional><optional>,use_diag=<replaceable>X</replaceable></optional><optional>,erplog=<replaceable>X</replaceable></optional>
           </term>
           <listitem>
             <para>activate DASD device with the given adaptor device bus ID and setting the sysfs attributes
@@ -984,6 +961,86 @@ rd.znet=ctc,0.0.0600,0.0.0601,0.0.0602,protocol=bar</programlisting></para>
           </term>
           <listitem>
             <para><envar>rd.nfs.domain</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>iscsi_initiator</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.iscsi.initiator</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>iscsi_target_name</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.iscsi.target.name</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>iscsi_target_ip</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.iscsi.target.ip</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>iscsi_target_port</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.iscsi.target.port</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>iscsi_target_group</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.iscsi.target.group</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>iscsi_username</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.iscsi.username</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>iscsi_password</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.iscsi.password</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>iscsi_in_username</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.iscsi.in.username</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>iscsi_in_password</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.iscsi.in.password</envar></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>iscsi_firmware</envar>
+          </term>
+          <listitem>
+            <para><envar>rd.iscsi.firmware</envar>=0</para>
           </listitem>
         </varlistentry>
         <varlistentry>

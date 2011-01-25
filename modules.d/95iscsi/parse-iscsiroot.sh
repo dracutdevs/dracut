@@ -20,7 +20,7 @@
 [ -z "$root" ] && root=$(getarg root=)
 [ -z "$netroot" ] && netroot=$(getarg netroot=)
 [ -z "$iscsiroot" ] && iscsiroot=$(getarg iscsiroot=)
-[ -z "$iscsi_firmware" ] && getarg iscsi_firmware && iscsi_firmware="1"
+[ -z "$iscsi_firmware" ] && getargbool 0 rd.iscsi.firmware -y iscsi_firmware && iscsi_firmware="1"
 
 [ -n "$iscsiroot" ] && [ -n "$iscsi_firmware" ] && die "Mixing iscsiroot and iscsi_firmware is dangerous"
 
