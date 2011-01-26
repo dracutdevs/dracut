@@ -439,6 +439,14 @@ Required if multiple ip= lines are used.</para>
             <para>specify nameserver(s) to use</para>
           </listitem>
         </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>biosdevname=</envar><replaceable>{0|1}</replaceable>
+          </term>
+          <listitem>
+            <para>turn on/off biosdevname network interface renaming</para>
+          </listitem>
+        </varlistentry>
       </variablelist>
     </refsect2>
     <refsect2>
