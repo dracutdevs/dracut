@@ -215,9 +215,9 @@ fw_dir=${fw_dir//:/ }
 if [[ -f $dracutbasedir/dracut-functions ]]; then
     . $dracutbasedir/dracut-functions
 else
-    echo "Cannot find $dracutbasedir/dracut-functions."
-    echo "Are you running from a git checkout?"
-    echo "Try passing -l as an argument to $0"
+    derror "Cannot find $dracutbasedir/dracut-functions."
+    derror "Are you running from a git checkout?"
+    derror "Try passing -l as an argument to $0"
     exit 1
 fi
 
@@ -264,19 +264,19 @@ srcmods="/lib/modules/$kernel/"
 export srcmods
 
 if [[ -f $outfile && ! $force ]]; then
-    echo "Will not override existing initramfs ($outfile) without --force"
+    derror "Will not override existing initramfs ($outfile) without --force"
     exit 1
 fi
 
 outdir=${outfile%/*}
 if [[ ! -d "$outdir" ]]; then
-    echo "Can't write $outfile: Directory $outdir does not exist."
+    derror "Can't write $outfile: Directory $outdir does not exist."
     exit 1
 elif [[ ! -w "$outdir" ]]; then
-    echo "No permission to write $outdir."
+    derror "No permission to write $outdir."
     exit 1
 elif [[ -f "$outfile" && ! -w "$outfile" ]]; then
-    echo "No permission to write $outfile."
+    derror "No permission to write $outfile."
     exit 1
 fi
 
