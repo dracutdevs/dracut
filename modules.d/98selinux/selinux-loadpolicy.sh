@@ -52,7 +52,7 @@ rd_load_policy()
         if [ $ret -eq 3 -o $permissive -eq 0 ]; then
             warn "Machine in enforcing mode."
             warn "Not continuing"
-            sleep 100d
+            emergency_shell -n selinux
             exit 1
         fi
         return 0
@@ -60,7 +60,7 @@ rd_load_policy()
         warn "Machine in enforcing mode and cannot execute load_policy."
         warn "To disable selinux, add selinux=0 to the kernel command line."
         warn "Not continuing"
-        sleep 100d
+        emergency_shell -n selinux
         exit 1
     fi
 }
