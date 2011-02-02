@@ -1,6 +1,21 @@
 dracut-008
 ==========
 - removed --ignore-kernel-modules option (no longer necessary)
+- renamed kernel command line arguments to follow the rd. naming scheme
+- merged check, install, installkernel to module-info.sh
+- support for bzip2 and xz compressed initramfs images.
+- source code beautification
+- lots of documentation
+- lsinitrd: "catinitrd" functionality
+- dracut: --list-modules
+- lvm: support for dynamic LVM SNAPSHOT root volume
+- 95fstab-sys: mount all /etc/fstab.sys volumes before switch_root
+- 96insmodpost dracut module
+- rd.shell=1 per default
+- rootfs-block:mount-root.sh add fsck
+- busybox shell replacements module
+- honor old "real_init="
+- 97biosdevname dracut module
 
 dracut-007
 ==========

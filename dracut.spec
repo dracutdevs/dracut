@@ -15,7 +15,7 @@
 
 Name: dracut
 Version: 008
-%define release_prefix 0.10%{?rdist}
+%define release_prefix 1%{?rdist}
 Release: %{release_prefix}
 
 Summary: Initramfs generator using udev
@@ -81,7 +81,7 @@ Requires: tar
 Requires: udev
 
 %if 0%{?fedora}
-Requires: util-linux-ng >= 2.16
+Requires: util-linux >= 2.16
 Requires: initscripts >= 8.63-1
 Requires: plymouth >= 0.8.0-0.2009.29.09.19.1
 %endif
