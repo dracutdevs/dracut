@@ -165,8 +165,6 @@ make install DESTDIR=$RPM_BUILD_ROOT sbindir=/sbin \
      sysconfdir=/etc mandir=%{_mandir} WITH_SWITCH_ROOT=0%{?with_switch_root}
 
 echo %{name}-%{version}-%{release} > $RPM_BUILD_ROOT/%{_datadir}/dracut/modules.d/10rpmversion/dracut-version
-rm $RPM_BUILD_ROOT/%{_datadir}/dracut/modules.d/10rpmversion/check
-rm $RPM_BUILD_ROOT/%{_datadir}/dracut/modules.d/01fips/check
 
 %if 0%{?fedora} == 0
 rm -fr $RPM_BUILD_ROOT/%{_datadir}/dracut/modules.d/01fips
