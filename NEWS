@@ -2,7 +2,7 @@ dracut-008
 ==========
 - removed --ignore-kernel-modules option (no longer necessary)
 - renamed kernel command line arguments to follow the rd. naming scheme
-- merged check, install, installkernel to module-info.sh
+- merged check, install, installkernel to module-setup.sh
 - support for bzip2 and xz compressed initramfs images.
 - source code beautification
 - lots of documentation

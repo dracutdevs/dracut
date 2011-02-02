@@ -613,7 +613,7 @@ Common used functions are in <filename>dracut-lib.sh</filename>, which can be so
     <section>
       <title>Writing a Module</title>
       <para>A simple example module is <filename>96insmodpost</filename>, which modprobes a kernel module after udev has settled and the basic device drivers have been loaded.</para>
-      <para>All module installation information is in the file module-info.sh.</para>
+      <para>All module installation information is in the file module-setup.sh.</para>
       <para>First we create a <function>check()</function> function, which just exits with <errorcode>0</errorcode> indicating that this module should be included by default.</para>
       <para><function>check()</function>:</para>
       <programlisting>return 0</programlisting>
