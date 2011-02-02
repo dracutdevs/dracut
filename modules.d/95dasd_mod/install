@@ -1,6 +1,0 @@
-#!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
-# ex: ts=8 sw=4 sts=4 et filetype=sh
-inst_hook cmdline 31 "$moddir/parse-dasd-mod.sh"
-dracut_install dasd_cio_free grep sed seq
-

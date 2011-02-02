@@ -1,9 +1,18 @@
 <?xml version='1.0' encoding='UTF-8'?>
+<!-- This document was created with Syntext Serna Free. -->
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" []>
 <book>
-  <title>
-  <inlinemediaobject><imageobject><imagedata valign="middle" fileref="dracut.png" format="PNG"/></imageobject><imageobject><imagedata valign="middle" fileref="dracut.svg" format="SVG"/></imageobject><imageobject>
-      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dracut.svg" encoding="UTF-8" parse="xml"/></imageobject></inlinemediaobject>dracut</title>
+  <title><inlinemediaobject>
+      <imageobject>
+        <imagedata valign="middle" fileref="dracut.png" format="PNG"/>
+      </imageobject>
+      <imageobject>
+        <imagedata valign="middle" fileref="dracut.svg" format="SVG"/>
+      </imageobject>
+      <imageobject>
+        <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dracut.svg" encoding="UTF-8" parse="xml"/>
+      </imageobject>
+    </inlinemediaobject>dracut</title>
   <bookinfo>
     <author>
       <firstname>Harald</firstname>
@@ -604,11 +613,12 @@ Common used functions are in <filename>dracut-lib.sh</filename>, which can be so
     <section>
       <title>Writing a Module</title>
       <para>A simple example module is <filename>96insmodpost</filename>, which modprobes a kernel module after udev has settled and the basic device drivers have been loaded.</para>
-      <para>First we create a <filename>check</filename> script, which just exits with <errorcode>0</errorcode> indicating that this module should be included by default.</para>
-      <para><filename>check</filename>:</para>
-      <programlisting>exit 0</programlisting>
-      <para>The we create the install script, which installs a cmdline hook with priority number 20 called <filename>parse-insmodpost.sh</filename>. It also installs the <filename>insmodpost.sh</filename> script in <filename>/sbin</filename>.</para>
-      <para><filename>install</filename>:</para>
+      <para>All module installation information is in the file module-info.sh.</para>
+      <para>First we create a <function>check()</function> function, which just exits with <errorcode>0</errorcode> indicating that this module should be included by default.</para>
+      <para><function>check()</function>:</para>
+      <programlisting>return 0</programlisting>
+      <para>The we create the <function>install()</function> function, which installs a cmdline hook with priority number 20 called <filename>parse-insmodpost.sh</filename>. It also installs the <filename>insmodpost.sh</filename> script in <filename>/sbin</filename>.</para>
+      <para><function>install()</function>:</para>
       <programlisting>inst_hook cmdline 20 &quot;$moddir/parse-insmodpost.sh&quot;
 inst_simple &quot;$moddir/insmodpost.sh&quot; /sbin/insmodpost.sh</programlisting>
       <para>The <filename>pase-instmodpost.sh</filename> parses the kernel command line for a argument <envar>rd.driver.post</envar>, blacklists the module from being autoloaded and installs the hook <filename>insmodpost.sh</filename> in the <filename>initqueue-settled</filename>.</para>
@@ -630,39 +640,34 @@ for p in $(getargs rd.driver.post=); do
 done
 </programlisting>
       <section>
-        <title>check</title>
-        <para><filename>check</filename> is called by dracut to evaluate the inclusion of a dracut module in the initramfs.</para>
-        <para><filename>check</filename> also can be called with arguments, which are described in the following list.</para>
+        <title>check()</title>
+        <para><filename>
+            <function>check()</function>
+          </filename> is called by dracut to evaluate the inclusion of a dracut module in the initramfs.</para>
         <variablelist>
           <varlistentry>
-            <term><filename>check</filename> -d</term>
+            <term> $hostonly</term>
             <listitem>
-              <para>If <filename>check</filename> is called with parameter <parameter>-d</parameter>, then the stdout output is taken as the dracut module names of the dependencies this module needs.</para>
-            </listitem>
-          </varlistentry>
-          <varlistentry>
-            <term><filename>check</filename> -h</term>
-            <listitem>
-              <para>If check is called with parameter <parameter>-h</parameter>, then the module check should be in &quot;hostonly&quot; mode, which means, that the check should only return 0, if the module is really needed to boot this specific host.</para>
+              <para>If  the $hostonly variable is set, then the module check() function  should be in &quot;hostonly&quot; mode, which means, that the check() should only return 0, if the module is really needed to boot this specific host.</para>
             </listitem>
           </varlistentry>
         </variablelist>
-        <para>If <filename>check</filename> is called without parameters, it should return the following exit codes.</para>
+        <para><function>check()</function> should return with:</para>
         <variablelist>
           <varlistentry>
-            <term>exit 0</term>
+            <term>0</term>
             <listitem>
               <para>Include the dracut module in the initramfs.</para>
             </listitem>
           </varlistentry>
           <varlistentry>
-            <term>exit 1</term>
+            <term>1</term>
             <listitem>
               <para>Do not include the dracut module. The requirements are not fullfilled (missing tools, etc.)</para>
             </listitem>
           </varlistentry>
           <varlistentry>
-            <term>exit 255</term>
+            <term>255</term>
             <listitem>
               <para>Only include the dracut module, if another module requires it or  if explicitly specified in the config file or on the argument list.</para>
             </listitem>
@@ -670,7 +675,11 @@ done
         </variablelist>
       </section>
       <section>
-        <title>Install</title>
+        <title>depends()</title>
+        <para>The function <function>depends()</function> should <function>echo</function> all other dracut module names the module depends on.</para>
+      </section>
+      <section>
+        <title>install()</title>
         <para>dracut_install</para>
         <para>inst</para>
         <para>inst_hook</para>
@@ -678,7 +687,7 @@ done
         <para/>
       </section>
       <section>
-        <title>Installkernel</title>
+        <title>installkernel()</title>
         <para>instmods</para>
       </section>
       <section>

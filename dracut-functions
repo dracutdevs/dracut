@@ -57,6 +57,10 @@ vercmp() {
     esac
 }
 
+is_func() {
+     [[ $(type -t $1) = "function" ]] 
+}
+
 # Log initrd creation.
 if ! [[ $dracutlogfile ]]; then
     [[ $dracutbasedir = /usr/share/dracut ]] && \
@@ -511,85 +515,129 @@ inst_opt_decompress() {
     done
 }
 
-check_module_deps() {
-    local moddir dep ret
-    # if we are already set to be loaded, we do not have to be checked again.
-    strstr " $mods_to_load " " $1 " && return
-    strstr " $omit_dracutmodules " " $1 " && return 1
-    # turn a module name into a directory, if we can.
-    moddir=$(echo ${dracutbasedir}/modules.d/??${1})
-    [[ -d $moddir && -x $moddir/install ]] || return 1
-    # if we do not have a check script, we are unconditionally included
-    if [[ -x $moddir/check ]]; then
-        "$moddir/check"
+module_check() {
+    local moddir=$(echo ${dracutbasedir}/modules.d/??${1})
+    [[ -d $moddir ]] || return 1
+    if [[ ! -f $moddir/module-info.sh ]]; then
+        # if we do not have a check script, we are unconditionally included
+        [[ -x $moddir/check ]] || return 0
+        $moddir/check $hostonly
+        return $?
+    else
+        unset check depends install installkernel
+        . $moddir/module-info.sh
+        is_func check || return 0
+        check
         ret=$?
-        # a return value of 255 = load module only as a dependency.
-        ((ret==0||ret==255)) || return 1
-        for dep in $("$moddir/check" -d); do
-            check_module_deps "$dep" && continue
-            dwarning "Dependency $mod failed."
+        unset check depends install installkernel
+        return $ret
+    fi
+}
+
+module_depends() {
+    local moddir=$(echo ${dracutbasedir}/modules.d/??${1})
+    [[ -d $moddir ]] || return 1
+    if [[ ! -f $moddir/module-info.sh ]]; then
+        # if we do not have a check script, we have no deps
+        [[ -x $moddir/check ]] || return 0
+        $moddir/check -d
+        return $?
+    else
+        unset check depends install installkernel
+        . $moddir/module-info.sh
+        is_func depends || return 0
+        depends
+        ret=$?
+        unset check depends install installkernel
+        return $ret
+    fi
+}
+
+module_install() {
+    local moddir=$(echo ${dracutbasedir}/modules.d/??${1})
+    [[ -d $moddir ]] || return 1
+    if [[ ! -f $moddir/module-info.sh ]]; then
+        [[ -x $moddir/install ]] && . "$moddir/install"
+        return $?
+    else
+        unset check depends install installkernel
+        . $moddir/module-info.sh
+        is_func install || return 0
+        install
+        ret=$?
+        unset check depends install installkernel
+        return $ret
+    fi
+}
+
+module_installkernel() {
+    local moddir=$(echo ${dracutbasedir}/modules.d/??${1})
+    [[ -d $moddir ]] || return 1
+    if [[ ! -f $moddir/module-info.sh ]]; then
+        [[ -x $moddir/installkernel ]] && . "$moddir/installkernel"
+        return $?
+    else
+        unset check depends install installkernel
+        . $moddir/module-info.sh
+        is_func installkernel || return 0
+        installkernel
+        ret=$?
+        unset check depends install installkernel
+        return $ret
+    fi
+}
+
+check_module() {
+    local mod=$1;
+    local moddir=$(echo ${dracutbasedir}/modules.d/??${1})
+    local moddep;
+    # If we are already scheduled to be loaded, no need to check again.
+    strstr " $mods_to_load " " $mod " && return 0
+    strstr " $mods_checked_as_dep " " $mod " && return 1
+
+    # This should never happen, but...
+    [[ -d $moddir ]] || return 1
+
+    [[ $2 ]] || mods_checked_as_dep+=" $mod "
+
+    strstr " $omit_dracutmodules " " $mod " && return 1
+
+    if strstr " $dracutmodules $add_dracutmodules " " $mod "; then
+        module_check $mod; ret=$?
+        # explicit module, so also accept ret=255
+        [[ $ret = 0 || $ret = 255 ]] || return 1
+    else
+        # module not in our list
+        if [[ $dracutmodules = all ]]; then
+            # check, if we can and should install this module
+            module_check $mod || return 1
+        else
+            # skip this module
             return 1
-        done
+        fi
     fi
-    mods_to_load+=" $1 "
-}
 
-should_source_module() {
-    local dep
-    local ret
-    if [[ $kernel_only = yes ]]; then
-        [[ -x $1/installkernel ]] && return 0
-        return 1
-    fi
-    [[ -x $1/install || -x $1/installkernel ]] || return 1
-    [[ -x $1/check ]] || return 0
-    "$1/check" $hostonly || continue
-    for dep in $("$1/check" -d); do
-        check_module_deps "$dep" && continue
-        dwarning "Cannot load dracut module \"$mod\", dependencies failed."
-        return 1
+    for moddep in $(module_depends $mod); do
+        # handle deps as if they were manually added
+        strstr " $add_dracutmodules " " $moddep " || \
+            add_dracutmodules+=" $moddep "
+        # if a module we depend on fail, fail also
+        check_module $moddep || return 1
     done
+
+    strstr " $mods_to_load " " $mod " || \
+        mods_to_load+=" $mod "
+
+    return 0
 }
 
-check_modules() {
+check_module_dir() {
     local modcheck;
     local mod;
+    mods_to_load=""
     for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
         local mod=${moddir##*/}; mod=${mod#[0-9][0-9]}
-        # If we are already scheduled to be loaded, no need to check again.
-        strstr " $mods_to_load " " $mod " && continue
-        # This should never happen, but...
-        [[ -d $moddir ]] || continue
-        strstr " $omit_dracutmodules " " $mod " && continue
-
-        if ! strstr " $dracutmodules $add_dracutmodules " " $mod "; then
-            # module not in our list
-            if [[ $dracutmodules = all ]]; then
-                # check, if we can install this module
-                should_source_module "$moddir" || continue
-            else
-                # skip this module
-                continue
-            fi
-        else
-            if [ -x "$moddir/check" ] \
-                && "$moddir/check" -d > /dev/null 2>&1; then
-                check_module_deps "$mod" || {
-                    dwarning "Cannot load dracut module \"$mod\", dependencies failed."
-                    continue
-                }
-            fi
-        fi
-
-        mods_to_load+=" $mod "
-    done
-
-    modcheck=$add_dracutmodules
-    [[ $dracutmodules != all ]] && modcheck="$m $dracutmodules"
-    for mod in $modcheck; do
-        strstr " $mods_to_load " " $mod " && continue
-        strstr " $omit_dracutmodules " " $mod " && continue
-        dwarning "Dracut module \"$mod\" cannot be found."
+        check_module $mod 1
     done
 }
 
