@@ -65,8 +65,7 @@ is_func() {
 if ! [[ $dracutlogfile ]]; then
     [[ $dracutbasedir = /usr/share/dracut ]] && \
         dracutlogfile=/var/log/dracut.log || \
-        dracutlogfile=/tmp/dracut.log
-#    [[ -w $dracutlogfile ]] || dracutlogfile=/tmp/dracut.log
+        dracutlogfile=$HOME/dracut.log
     if [[ -w $dracutlogfile ]]; then
         >"$dracutlogfile"
     fi
