@@ -298,7 +298,7 @@ Default:
             <para>activates the local mode. dracut will use modules from the current working
 directory instead of the system-wide installed modules in
 <filename>/usr/share/dracut/modules.d</filename>.
-Thsi is useful when running dracut from a git checkout.</para>
+This is useful when running dracut from a git checkout.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
