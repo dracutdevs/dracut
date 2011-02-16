@@ -72,7 +72,7 @@ moduledep() {
     fi
     vecho -n "Looking for deps of module $1"
     deps=""
-    deps=$(modprobe $MPARGS --set-version $kernel --show-depends $1 2>/dev/null| awk '/^insmod / { print gensub(".*/","","g",$2) }' | while read foo ; do [ "${foo%%.ko}" != "$1" ] && echo -n "${foo%%.ko} " ; done)
+    deps=$(modprobe $MPARGS --set-version $kernel --quiet --show-depends $1 | awk '/^insmod / { print gensub(".*/","","g",$2) }' | while read foo ; do [ "${foo%%.ko}" != "$1" ] && echo -n "${foo%%.ko} " ; done)
     [ -n "$deps" ] && vecho ": $deps" || vecho
 }
 

@@ -670,7 +670,7 @@ install_kmod_with_fw() {
 for_each_kmod_dep() {
     local func=$1 kmod=$2 cmd modpapth options
     shift 2
-    modprobe "$@" --ignore-install --show-depends $kmod 2>/dev/null | \
+    modprobe "$@" --ignore-install --quiet --show-depends $kmod | \
         while read cmd modpath options; do
         [[ $cmd = insmod ]] || continue
         $func $modpath
