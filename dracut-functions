@@ -320,7 +320,12 @@ inst_library() {
 # search in the usual places to find the binary.
 find_binary() {
     local binpath="/bin /sbin /usr/bin /usr/sbin" p
-    [[ -z ${1##/*} && -x $1 ]] && { echo $1; return 0; } 
+    if [[ -z ${1##/*} ]]; then
+        if [[ -x $1 ]] || ldd $1 &>/dev/null; then
+            echo $1
+            return 0
+        fi
+    fi
     for p in $binpath; do
         [[ -x $p/$1 ]] && { echo "$p/$1"; return 0; }
     done
