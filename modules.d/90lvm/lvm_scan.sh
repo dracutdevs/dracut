@@ -45,29 +45,39 @@ if [ ! -e /etc/lvm/lvm.conf ]; then
 fi
 
 check_lvm_ver() {
+    maj=$1; shift;
+    min=$1; shift;
+    ver=$1; shift;
     # --poll is supported since 2.2.57
-    [ $1 -lt 2 ] && return 1
-    [ $1 -gt 2 ] && return 0
-    # major is 2
-    [ $2 -lt 2 ] && return 1
-    [ $2 -gt 2 ] && return 0
-    # minor is 2, check for 
-    # greater or equal 57
-    [ $3 -ge 57 ] && return 0
+    [ $1 -lt $maj ] && return 1
+    [ $1 -gt $maj ] && return 0
+    [ $2 -lt $min ] && return 1
+    [ $2 -gt $min ] && return 0
+    [ $3 -ge $ver ] && return 0
     return 1
 }
+
+lvm version 2>/dev/null | ( \
+    IFS=. read maj min sub; 
+    maj=${maj##*:}; 
+    sub=${sub%% *}; sub=${sub%%\(*}; 
+    ) 2>/dev/null 
 
 nopoll=$(
     # hopefully this output format will never change, e.g.:
     #   LVM version:     2.02.53(1) (2009-09-25)
-    lvm version 2>/dev/null | ( \
-        IFS=. read maj min sub; 
-        maj=${maj##*:}; 
-        sub=${sub%% *}; sub=${sub%%\(*}; 
-        check_lvm_ver $maj $min $sub && \
+        check_lvm_ver 2 2 57 $maj $min $sub && \
             echo " --poll n ";
-    ) 2>/dev/null 
 )
+
+sysinit=$(
+    # hopefully this output format will never change, e.g.:
+    #   LVM version:     2.02.53(1) (2009-09-25)
+        check_lvm_ver 2 2 65 $maj $min $sub && \
+            echo " --sysinit ";
+)
+
+export LVM_SUPPRESS_LOCKING_FAILURE_MESSAGES=1
 
 if [ -n "$SNAPSHOT" ] ; then
     # HACK - this should probably be done elsewhere or turned into a function
@@ -94,13 +104,21 @@ fi
 if [ -n "$LVS" ] ; then
     info "Scanning devices $lvmdevs for LVM logical volumes $LVS"
     lvm lvscan --ignorelockingfailure 2>&1 | vinfo
-    lvm lvchange -ay --ignorelockingfailure $nopoll --ignoremonitoring $LVS 2>&1 | vinfo
+    if [ -z "$sysinit" ]; then
+        lvm lvchange -ay --ignorelockingfailure $nopoll --ignoremonitoring $LVS 2>&1 | vinfo
+    else
+        lvm lvchange -ay $sysinit $LVS 2>&1 | vinfo
+    fi
 fi
 
 if [ -z "$LVS" -o -n "$VGS" ]; then
     info "Scanning devices $lvmdevs for LVM volume groups $VGS"
     lvm vgscan --ignorelockingfailure 2>&1 | vinfo
-    lvm vgchange -ay --ignorelockingfailure $nopoll --ignoremonitoring $VGS 2>&1 | vinfo
+    if [ -z "$sysinit" ]; then
+        lvm vgchange -ay --ignorelockingfailure $nopoll --ignoremonitoring $VGS 2>&1 | vinfo
+    else
+        lvm vgchange -ay $sysinit $VGS 2>&1 | vinfo
+    fi
 fi
 
 if [ "$lvmwritten" ]; then
