@@ -5,9 +5,13 @@
 inst_key_val() {
     local _value
     local _file
+    local _default
+    _default=$1
+    shift
     _file=$1
     shift
     _value=$(getarg $@)
+    [ -z "${_value}" ] && _value=$_default
     if [ -n "${_value}" ]; then
         printf '%s="%s"\n' $1 ${_value} >> $_file
     fi
@@ -15,12 +19,12 @@ inst_key_val() {
     unset _value
 }
 
-inst_key_val /etc/vconsole.conf KEYMAP      vconsole.keymap      KEYTABLE
-inst_key_val /etc/vconsole.conf FONT        vconsole.font        SYSFONT 
-inst_key_val /etc/vconsole.conf FONT_MAP    vconsole.font.map    CONTRANS 
-inst_key_val /etc/vconsole.conf FONT_UNIMAP vconsole.font.unimap UNIMAP 
-inst_key_val /etc/vconsole.conf UNICODE     vconsole.font.unicode
-inst_key_val /etc/vconsole.conf EXT_KEYMAP  vconsole.keymap.ext
+inst_key_val /etc/vconsole.conf '' KEYMAP      vconsole.keymap      KEYTABLE
+inst_key_val /etc/vconsole.conf '' FONT        vconsole.font        SYSFONT 
+inst_key_val /etc/vconsole.conf '' FONT_MAP    vconsole.font.map    CONTRANS 
+inst_key_val /etc/vconsole.conf '' FONT_UNIMAP vconsole.font.unimap UNIMAP 
+inst_key_val /etc/vconsole.conf 1  UNICODE     vconsole.font.unicode
+inst_key_val /etc/vconsole.conf '' EXT_KEYMAP  vconsole.keymap.ext
 
 inst_key_val /etc/locale.conf   LANG   locale.LANG
 inst_key_val /etc/locale.conf   LC_ALL locale.LC_ALL
