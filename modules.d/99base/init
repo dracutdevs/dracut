@@ -203,15 +203,19 @@ while :; do
     # dirty hack for some cdrom drives,
     # which report no medium for quiet
     # some time.
-    if [ ! -e /sys/module/block/parameters/events_dfl_poll_msecs ]; then
-        for cdrom in /sys/block/sr*; do
-            [ -e "$cdrom" ] || continue       
+    for cdrom in /sys/block/sr*; do
+        [ -e "$cdrom" ] || continue 
+        if [ -e "$cdrom"/events_poll_msecs ]; then
+            msecs=$(while read a; do echo $a;done < "$cdrom"/events_poll_msecs)
+            [ "$msecs" = "-1" ] && \
+                echo 1000 > "$cdrom"/events_poll_msecs
+        else
             # skip, if cdrom medium was already found
             strstr "$(udevadm info --query=env --path=${cdrom##/sys})" \
                 ID_CDROM_MEDIA && continue
             echo change > "$cdrom/uevent"        
-        done
-    fi
+        fi
+    done
     
     i=$(($i+1))
     [ $i -gt $RDRETRY ] \
@@ -219,6 +223,14 @@ while :; do
 done
 unset job
 unset queuetriggered
+
+# reset cdrom polling
+for cdrom in /sys/block/sr*; do
+    [ -e "$cdrom" ] || continue 
+    if [ -e "$cdrom"/events_poll_msecs ]; then
+        echo -1 > "$cdrom"/events_poll_msecs
+    fi
+done
 
 # pre-mount happens before we try to mount the root filesystem,
 # and happens once.
