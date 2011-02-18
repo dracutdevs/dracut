@@ -68,10 +68,10 @@ install() {
 
         for item in $@
         do
-            item=${item/:/ }
+            item=(${item/:/ })
             for map in ${item[1]//,/ }
             do
-                map=${map//-/ }
+                map=(${map//-/ })
                 value=$(grep "^${map[0]}=" "${item[0]}")
                 value=${value#*=}
                 echo "${map[1]:-${map[0]}}=${value}"
