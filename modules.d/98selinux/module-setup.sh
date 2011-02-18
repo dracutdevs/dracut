@@ -3,11 +3,7 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 check() {
-    [[ $hostonly ]] && {
-        [ -x "/usr/sbin/load_policy" -o -x "/sbin/load_policy" ] || return 1
-        return 0
-    }
-    return 0
+    return 255
 }
 
 depends() {
