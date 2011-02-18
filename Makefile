@@ -95,6 +95,7 @@ gitrpm: dracut-$(VERSION)-$(GITVERSION).tar.bz2
 
 check: all
 	@ret=0;for i in modules.d/99base/init modules.d/*/*.sh; do \
+                [ "$${i##*/}" = "module-setup.sh" ] && continue; \
 		dash -n "$$i" ; ret=$$(($$ret+$$?)); \
 	done;exit $$ret
 	$(MAKE) -C test check
