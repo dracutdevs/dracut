@@ -19,15 +19,15 @@ inst_key_val() {
     unset _value
 }
 
-inst_key_val /etc/vconsole.conf '' KEYMAP      vconsole.keymap      KEYTABLE
-inst_key_val /etc/vconsole.conf '' FONT        vconsole.font        SYSFONT 
-inst_key_val /etc/vconsole.conf '' FONT_MAP    vconsole.font.map    CONTRANS 
-inst_key_val /etc/vconsole.conf '' FONT_UNIMAP vconsole.font.unimap UNIMAP 
-inst_key_val /etc/vconsole.conf 1  UNICODE     vconsole.font.unicode
-inst_key_val /etc/vconsole.conf '' EXT_KEYMAP  vconsole.keymap.ext
+inst_key_val '' /etc/vconsole.conf KEYMAP      vconsole.keymap      KEYTABLE
+inst_key_val '' /etc/vconsole.conf FONT        vconsole.font        SYSFONT 
+inst_key_val '' /etc/vconsole.conf FONT_MAP    vconsole.font.map    CONTRANS 
+inst_key_val '' /etc/vconsole.conf FONT_UNIMAP vconsole.font.unimap UNIMAP 
+inst_key_val 1  /etc/vconsole.conf UNICODE     vconsole.unicode
+inst_key_val '' /etc/vconsole.conf EXT_KEYMAP  vconsole.keymap.ext
 
-inst_key_val /etc/locale.conf   LANG   locale.LANG
-inst_key_val /etc/locale.conf   LC_ALL locale.LC_ALL
+inst_key_val '' /etc/locale.conf   LANG        locale.LANG
+inst_key_val '' /etc/locale.conf   LC_ALL      locale.LC_ALL
 
 if [ -f /etc/locale.conf ]; then
     . /etc/locale.conf
