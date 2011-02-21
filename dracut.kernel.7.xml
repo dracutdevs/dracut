@@ -193,7 +193,7 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>vconsole.font.unicode=</envar><replaceable>&lt;1|0&gt;</replaceable>
+            <envar>vconsole.unicode=</envar><replaceable>&lt;1|0&gt;</replaceable>
           </term>
           <listitem>
             <para>boolean, indicating UTF-8 mode; will be written as <envar>UNICODE</envar> to <filename>/etc/vconsole.conf</filename> in the initramfs</para>
@@ -1168,7 +1168,7 @@ rd.znet=ctc,0.0.0600,0.0.0601,0.0.0602,protocol=bar</programlisting></para>
             <envar>UNICODE</envar>
           </term>
           <listitem>
-            <para><envar>vconsole.font.unicode</envar></para>
+            <para><envar>vconsole.unicode</envar></para>
           </listitem>
         </varlistentry>
         <varlistentry>
