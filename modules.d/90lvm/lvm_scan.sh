@@ -63,7 +63,6 @@ OLDIFS=$IFS
 IFS=.
 set $(lvm version 2>/dev/null)
 IFS=$OLDIFS
-maj min sub
 maj=${1##*:}
 min=$2
 sub=${3%% *}
