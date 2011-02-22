@@ -45,37 +45,35 @@ if [ ! -e /etc/lvm/lvm.conf ]; then
 fi
 
 check_lvm_ver() {
-    maj=$1; shift;
-    min=$1; shift;
-    ver=$1; shift;
+    maj=$1
+    min=$2
+    ver=$3
     # --poll is supported since 2.2.57
-    [ $1 -lt $maj ] && return 1
-    [ $1 -gt $maj ] && return 0
-    [ $2 -lt $min ] && return 1
-    [ $2 -gt $min ] && return 0
-    [ $3 -ge $ver ] && return 0
+    [ $4 -lt $maj ] && return 1
+    [ $4 -gt $maj ] && return 0
+    [ $5 -lt $min ] && return 1
+    [ $5 -gt $min ] && return 0
+    [ $6 -ge $ver ] && return 0
     return 1
 }
 
-lvm version 2>/dev/null | ( \
-    IFS=. read maj min sub; 
-    maj=${maj##*:}; 
-    sub=${sub%% *}; sub=${sub%%\(*}; 
-    ) 2>/dev/null 
+# hopefully this output format will never change, e.g.:
+#   LVM version:     2.02.53(1) (2009-09-25)
+OLDIFS=$IFS
+IFS=.
+set $(lvm version 2>/dev/null)
+IFS=$OLDIFS
+maj min sub
+maj=${1##*:}
+min=$2
+sub=${3%% *}
+sub=${sub%%\(*}; 
 
-nopoll=$(
-    # hopefully this output format will never change, e.g.:
-    #   LVM version:     2.02.53(1) (2009-09-25)
-        check_lvm_ver 2 2 57 $maj $min $sub && \
-            echo " --poll n ";
-)
+check_lvm_ver 2 2 57 $maj $min $sub && \
+    nopoll="--poll n"
 
-sysinit=$(
-    # hopefully this output format will never change, e.g.:
-    #   LVM version:     2.02.53(1) (2009-09-25)
-        check_lvm_ver 2 2 65 $maj $min $sub && \
-            echo " --sysinit ";
-)
+check_lvm_ver 2 2 65 $maj $min $sub && \
+    sysinit=" --sysinit "
 
 export LVM_SUPPRESS_LOCKING_FAILURE_MESSAGES=1
 
