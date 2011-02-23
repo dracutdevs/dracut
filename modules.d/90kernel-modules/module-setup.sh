@@ -14,7 +14,7 @@ installkernel() {
         hostonly='' instmods usb_storage sdhci sdhci-pci
 
         # install keyboard support
-        hostonly='' instmods atkbd i8042 usbhid hid-apple hid-sunplus ehci-hcd ohci-hcd uhci-hcd
+        hostonly='' instmods atkbd i8042 usbhid hid-apple hid-sunplus hid-cherry hid-logitech hid-microsoft ehci-hcd ohci-hcd uhci-hcd
 
         instmods "=drivers/pcmcia" =ide "=drivers/usb/storage"
         instmods $(filter_kernel_modules block_module_test) 
