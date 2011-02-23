@@ -215,9 +215,9 @@ fw_dir=${fw_dir//:/ }
 if [[ -f $dracutbasedir/dracut-functions ]]; then
     . $dracutbasedir/dracut-functions
 else
-    derror "Cannot find $dracutbasedir/dracut-functions."
-    derror "Are you running from a git checkout?"
-    derror "Try passing -l as an argument to $0"
+    echo "Cannot find $dracutbasedir/dracut-functions." >&2
+    echo "Are you running from a git checkout?" >&2
+    echo "Try passing -l as an argument to $0" >&2
     exit 1
 fi
 
