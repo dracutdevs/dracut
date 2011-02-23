@@ -177,6 +177,7 @@ mkdir -p $RPM_BUILD_ROOT/boot/dracut
 mkdir -p $RPM_BUILD_ROOT/var/lib/dracut/overlay
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/log
 touch $RPM_BUILD_ROOT%{_localstatedir}/log/dracut.log
+mkdir -p $RPM_BUILD_ROOT%{_sharedstatedir}/initramfs
 
 %if 0%{?fedora}
 install -m 0644 dracut.conf.d/fedora.conf.example $RPM_BUILD_ROOT/etc/dracut.conf.d/01-dist.conf
@@ -249,6 +250,7 @@ rm -rf $RPM_BUILD_ROOT
 # logfile needs no logrotate, because it gets overwritten
 # for every dracut run
 %attr(0644,root,root) %ghost %config(missingok,noreplace) %{_localstatedir}/log/dracut.log
+%dir %{_sharedstatedir}/initramfs
 
 %files network
 %defattr(-,root,root,0755)
