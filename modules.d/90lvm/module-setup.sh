@@ -47,6 +47,9 @@ install() {
     fi
 
     inst_rules 10-dm.rules 13-dm-disk.rules 95-dm-notify.rules 11-dm-lvm.rules
+    # Gentoo ebuild for LVM2 prior to 2.02.63-r1 doesn't install above rules
+    # files, but provides the one below:
+    inst_rules 64-device-mapper.rules
 
     inst "$moddir/lvm_scan.sh" /sbin/lvm_scan
     inst_hook cmdline 30 "$moddir/parse-lvm.sh"
