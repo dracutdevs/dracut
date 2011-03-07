@@ -31,8 +31,7 @@ depends() {
 }
 
 installkernel() {
-    instmods dm_crypt cbc sha256 xts aes aes_generic aesni-intel aes-x86_64 fpu
-
+    instmods dm_crypt =crypto
 }
 
 install() {
