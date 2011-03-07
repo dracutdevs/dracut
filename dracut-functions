@@ -58,7 +58,7 @@ vercmp() {
 }
 
 is_func() {
-     [[ $(type -t $1) = "function" ]] 
+    [[ $(type -t $1) = "function" ]] 
 }
 
 # Log initrd creation.
