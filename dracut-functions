@@ -64,10 +64,10 @@ is_func() {
 # Log initrd creation.
 if ! [[ $dracutlogfile ]]; then
     [[ $dracutbasedir = /usr/share/dracut ]] && \
-        dracutlogfile=/var/log/dracut.log || \
-        dracutlogfile=$HOME/dracut.log
-    if [[ -w $dracutlogfile ]]; then
-        >"$dracutlogfile"
+	dracutlogfile=/var/log/dracut.log || \
+	dracutlogfile=$HOME/dracut.log
+    if [[ -w ${dracutlogfile%/*} ]]; then
+        >>"$dracutlogfile"
     fi
 fi
 
