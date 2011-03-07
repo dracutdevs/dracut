@@ -6,7 +6,6 @@ do_fips()
     FIPSMODULES=$(cat /etc/fipsmodules)
     BOOT=$(getarg boot=)
     KERNEL=$(uname -r)
-    udevadm trigger --action=add >/dev/null 2>&1
     case "$boot" in
         block:LABEL=*|LABEL=*)
             boot="${boot#block:}"
@@ -21,12 +20,15 @@ do_fips()
             bootok=1 ;;
     esac
 
-    [ -z "$UDEVVERSION" ] && UDEVVERSION=$(udevadm --version)
-    
-    if [ $UDEVVERSION -ge 143 ]; then
-        udevadm settle --exit-if-exists=$boot
-    else
-        udevadm settle --timeout=30
+    if ! [ -e "$boot" ]; then
+        udevadm trigger --action=add >/dev/null 2>&1
+        [ -z "$UDEVVERSION" ] && UDEVVERSION=$(udevadm --version)
+
+        if [ $UDEVVERSION -ge 143 ]; then
+            udevadm settle --exit-if-exists=$boot
+        else
+            udevadm settle --timeout=30
+        fi
     fi
 
     [ -e "$boot" ]
