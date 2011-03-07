@@ -18,6 +18,8 @@ do_fips()
             bootok=1 ;;
         /dev/*)
             bootok=1 ;;
+        *)
+            die "You have to specify boot=<boot device> as a boot option for fips=1" ;;
     esac
 
     if ! [ -e "$boot" ]; then
