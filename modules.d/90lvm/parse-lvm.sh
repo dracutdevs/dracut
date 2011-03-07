@@ -15,7 +15,7 @@ else
         {
             printf '[ -e "/dev/%s" ] || ' $dev
             printf 'warn "LVM "%s" not found"\n' $dev
-        } >> /emergency/00-lvm.sh
+        } >> /emergency/90-lvm.sh
     done
 fi
 
