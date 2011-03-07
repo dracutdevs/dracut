@@ -17,7 +17,7 @@ depends() {
 }
 
 installkernel() {
-    instmods fcoe 8021q
+    instmods fcoe 8021q edd
 }
 
 install() {
@@ -29,6 +29,7 @@ install() {
     mkdir -p "$initdir/var/lib/lldpad"
 
     inst "$moddir/fcoe-up" "/sbin/fcoe-up"
+    inst "$moddir/fcoe-genrules.sh" "/sbin/fcoe-genrules.sh"
     inst_hook pre-udev 60 "$moddir/fcoe-genrules.sh"
     inst_hook cmdline 99 "$moddir/parse-fcoe.sh"
 }

@@ -20,6 +20,9 @@
 # If it's not set we don't continue
 [ -z "$fcoe" ] && return
 
+# FCoE actually supported?
+[ -e /sys/module/fcoe/parameters/create ] || modprobe fcoe || die "FCoE requested but kernel/initrd does not support FCoE"
+
 parse_fcoe_opts() {
     local IFS=:
     set $fcoe
@@ -28,22 +31,48 @@ parse_fcoe_opts() {
         2)
             fcoe_interface=$1
             fcoe_dcb=$2
+            return 0
             ;;
         7)
             fcoe_mac=$1:$2:$3:$4:$5:$6
             fcoe_dcb=$7
+            return 0
             ;;
         *)
-            die "Invalid arguments for fcoe="
+            warn "Invalid arguments for fcoe=$fcoe"
+            return 1
             ;;
     esac
 }
 
 parse_fcoe_opts
 
-if [ "$fcoe_dcb" != "nodcb" -a "$fcoe_dcb" != "dcb" ] ; then
-    die "Invalid FCoE DCB option: $fcoe_dcb"
+if [ "$fcoe_interface" = "edd" ]; then
+    if [ "$fcoe_dcb" != "nodcb" -a "$fcoe_dcb" != "dcb" ] ; then
+        warn "Invalid FCoE DCB option: $fcoe_dcb"
+    fi
+    [ -d /sys/firmware/edd ] || modprobe edd
+    # parse edd interfaces
+    for disk in /sys/firmware/edd/int13_*; do
+        [ -d $disk ] || continue
+        for nic in ${disk}/pci_dev/net/*; do
+            [ -d $nic ] || continue
+            if [ -e ${nic}/address ]; then
+                unset fcoe_mac
+                unset fcoe_interface
+                fcoe_mac=$(cat ${nic}/address)
+                [ -n "$fcoe_mac" ] && source /sbin/fcoe-genrules.sh
+            fi
+        done
+    done
+else
+    for fcoe in $(getargs fcoe=); do
+        unset fcoe_mac
+        unset fcoe_interface
+        parse_fcoe_opts
+        if [ "$fcoe_dcb" != "nodcb" -a "$fcoe_dcb" != "dcb" ] ; then
+            warn "Invalid FCoE DCB option: $fcoe_dcb"
+        fi
+        source /sbin/fcoe-genrules.sh
+    done
 fi
-
-# FCoE actually supported?
-[ -e /sys/module/fcoe/parameters/create ] || modprobe fcoe || die "FCoE requested but kernel/initrd does not support FCoE"

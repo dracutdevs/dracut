@@ -577,10 +577,10 @@ netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target1  </programlisting></par
       <title>FCoE</title>
       <variablelist>
         <varlistentry>
-          <term><envar>netroot=</envar><constant>fcoe</constant>:<replaceable>&lt;interface|MAC&gt;</replaceable>:<replaceable>{dcb|nodcb}</replaceable></term>
+          <term><envar>fcoe=</envar><replaceable>&lt;edd|interface|MAC&gt;</replaceable>:<replaceable>{dcb|nodcb}</replaceable></term>
           <listitem>
-            <para>Try to connect to a FCoE SAN through the NIC specified by <replaceable>&lt;interface&gt;</replaceable> or <replaceable>&lt;MAC&gt;</replaceable>,
-for the second argument, currently only nodcb is supported. <remark>Note: letters in the MAC-address must be lowercase!</remark></para>
+            <para>Try to connect to a FCoE SAN through the NIC specified by <replaceable>&lt;interface&gt;</replaceable> or <replaceable>&lt;MAC&gt;</replaceable> or EDD settings.
+For the second argument, currently only nodcb is supported. This parameter can be specified multiple times. <remark>Note: letters in the MAC-address must be lowercase!</remark></para>
           </listitem>
         </varlistentry>
       </variablelist>
