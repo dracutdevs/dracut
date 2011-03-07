@@ -51,10 +51,42 @@ if [ -n "$NEEDBOOTDEV" ] ; then
     [ -z "$BOOTDEV" ] && die "Bootdev argument is empty"
 fi
 
+if [ "ibft" = "$(getarg ip=)" ]; then
+    modprobe ibft
+    num=0
+    (   
+	for iface in /sys/firmware/ibft/ethernet*; do
+	    [ -e ${iface}/mac ] || continue
+            ifname_mac=$(read a < ${iface}/mac; echo $a)
+	    [ -z "$ifname_mac" ] || continue
+            ifname_if=ibft$num
+	    num=$(( $num + 1 ))
+	    echo "ifname=$ifname_if:$ifname_mac"
+	    dev=$ifname_if
+
+	    dhcp=$(read a < ${iface}/dhcp; echo $a)
+	    if [ -n "$dhcp" ]; then
+		echo "ip=$dev:dhcp"
+	    else
+		ip=$(read a < ${iface}/ip-addr; echo $a)
+		gw=$(read a < ${iface}/gateway; echo $a)
+		mask=$(read a < ${iface}/subnet-mask; echo $a)
+		hostname=$(read a < ${iface}/hostname; echo $a)
+		echo "ip=$ip::$gw:$mask:$hostname:$dev:none"
+	    fi
+	done
+    ) >> /etc/cmdline
+    # reread cmdline
+    unset CMDLINE
+fi
+
 # Check ip= lines
 # XXX Would be nice if we could errorcheck ip addresses here as well
 for p in $(getargs ip=); do
     ip_to_var $p
+
+    # skip ibft
+    [ "$autoconf" = "ibft" ] && continue
 
     # We need to have an ip= line for the specified bootdev
     [ -n "$NEEDBOOTDEV" ] && [ "$dev" = "$BOOTDEV" ] && BOOTDEVOK=1

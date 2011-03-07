@@ -55,9 +55,9 @@ install() {
     inst_hook pre-udev 50 "$moddir/ifname-genrules.sh"
     inst_hook pre-udev 60 "$moddir/net-genrules.sh"
     inst_hook cmdline 91 "$moddir/dhcp-root.sh"
-    inst_hook cmdline 99 "$moddir/parse-ip-opts.sh"
-    inst_hook cmdline 97 "$moddir/parse-bond.sh"
-    inst_hook cmdline 98 "$moddir/parse-bridge.sh"
+    inst_hook cmdline 96 "$moddir/parse-bond.sh"
+    inst_hook cmdline 97 "$moddir/parse-bridge.sh"
+    inst_hook cmdline 98 "$moddir/parse-ip-opts.sh"
     inst_hook cmdline 99 "$moddir/parse-ifname.sh"
     inst_hook pre-pivot 10 "$moddir/kill-dhclient.sh"
 

@@ -207,7 +207,9 @@ fi
 # looking for ip= lines
 for p in $(getargs ip=); do
     ip_to_var $p
-    
+    # skip ibft
+    [ "$autoconf" = "ibft" ] && continue
+	
     # If this option isn't directed at our interface, skip it
     [ -n "$dev" ] && [ "$dev" != "$netif" ] && continue
 

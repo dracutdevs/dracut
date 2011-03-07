@@ -386,7 +386,7 @@ This parameter can be specified multiple times.</para>
       <variablelist>
         <varlistentry>
           <term>
-            <envar>ip=</envar><replaceable>{dhcp|on|any|dhcp6|auto6}</replaceable>
+            <envar>ip=</envar><replaceable>{dhcp|on|any|dhcp6|auto6|ibft}</replaceable>
           </term>
           <listitem>
             <para>dhcp|on|any: get ip from dhcp server from all interfaces. If root=dhcp, 
@@ -394,6 +394,7 @@ loop sequentially through all interfaces (eth0, eth1, ...) and use the first
 with a valid DHCP root-path.</para>
             <para><constant>auto6</constant>: IPv6 autoconfiguration</para>
             <para><constant>dhcp6</constant>: IPv6 DHCP</para>
+            <para><constant>ibft</constant>: iBFT autoconfiguration</para>
           </listitem>
         </varlistentry>
         <varlistentry>
