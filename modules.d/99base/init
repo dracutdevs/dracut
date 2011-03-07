@@ -38,17 +38,19 @@ wait_for_loginit()
 
 emergency_shell()
 {
+    set +e
     if [ "$1" = "-n" ]; then
         _rdshell_name=$2
         shift 2 
     else
         _rdshell_name=dracut
     fi
-    wait_for_loginit
     echo ; echo
-    echo $@
+    warn $@
     source_all emergency
     echo
+    wait_for_loginit
+    [ -e /.die ] && exit 1
     if getargbool 1 rd.shell -y rdshell || getarg rd.break rdbreak; then
         echo "Dropping to debug shell."
         echo
@@ -56,8 +58,9 @@ emergency_shell()
         [ -e /.profile ] || echo "exec 0<>/dev/console 1<>/dev/console 2<>/dev/console" > /.profile
         sh -i -l
     else
-        echo "Boot has failed, sleeping forever."
-        while :; do sleep 365d;done
+        warn "Boot has failed. To debug this issue add \"rdshell\" to the kernel command line."
+        # cause a kernel panic
+        exit 1
     fi
 }
 
@@ -219,7 +222,7 @@ while :; do
     
     i=$(($i+1))
     [ $i -gt $RDRETRY ] \
-        && { flock -s 9 ; emergency_shell "No root device found"; } 9>/.console_lock
+        && { flock -s 9 ; emergency_shell "No root device \"$root\" found"; } 9>/.console_lock
 done
 unset job
 unset queuetriggered
