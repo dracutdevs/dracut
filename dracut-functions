@@ -651,6 +651,15 @@ check_module_dir() {
         local mod=${moddir##*/}; mod=${mod#[0-9][0-9]}
         check_module $mod 1
     done
+
+    # Report any missing dracut modules, the user has specified
+    modcheck=$add_dracutmodules
+    [[ $dracutmodules != all ]] && modcheck="$m $dracutmodules"
+    for mod in $modcheck; do
+        strstr "$mods_to_load" "$mod" && continue
+        strstr "$omit_dracutmodules" "$mod" && continue
+        dwarning "Dracut module \"$mod\" cannot be found."
+    done
 }
 
 # Install a single kernel module along with any firmware it may require.
