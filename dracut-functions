@@ -73,17 +73,17 @@ fi
 
 dwarning() {
     echo "W: $@" >&2
-    [[ -w $dracutlogfile ]] && echo "W: $@" >>"$dracutlogfile"
+    [[ -w $dracutlogfile ]] && echo $(date) "Warn:" $@ >>"$dracutlogfile"
 }
 
 dinfo() {
     [[ $beverbose ]] && echo "I: $@" >&2
-    [[ -w $dracutlogfile ]] && echo "I: $@" >>"$dracutlogfile"
+    [[ -w $dracutlogfile ]] && echo $(date) "Info:" $@ >>"$dracutlogfile"
 }
 
 derror() {
     echo "E: $@" >&2
-    [[ -w $dracutlogfile ]] && echo "E: $@" >>"$dracutlogfile"
+    [[ -w $dracutlogfile ]] && echo $(date) "Err:" $@ >>"$dracutlogfile"
 }
 
 # Function prints global variables in format name=value line by line.
