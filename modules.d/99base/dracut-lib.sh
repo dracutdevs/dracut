@@ -234,10 +234,12 @@ die() {
     } > /dev/kmsg
 
     { 
-        echo "dracut: FATAL: $@";
-        echo "dracut: Refusing to continue";
-    } >&2
-    
+        echo "warn dracut: FATAL: \"$@\"";
+        echo "warn dracut: Refusing to continue";
+	echo "exit 1"
+    } >> /emergency/01-die.sh
+
+    > /.die
     exit 1
 }
 
