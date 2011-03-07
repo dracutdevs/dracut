@@ -23,6 +23,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# store for logging
+dracut_args="$@"
 
 usage() {
 #                                                       80x25 linebreak here ^
@@ -224,6 +226,8 @@ fi
 dracutfunctions=$dracutbasedir/dracut-functions
 export dracutfunctions
 
+dinfo "Executing $0 $dracut_args"
+
 [[ $do_list = yes ]] && {
     for mod in $dracutbasedir/modules.d/*; do
         [[ -d $mod ]] || continue;
@@ -383,7 +387,7 @@ if ! ( cd "$initdir"; find . |cpio -R 0:0 -H newc -o --quiet | \
     derror "dracut: creation of $outfile failed"
     exit 1
 fi 
-
-[[ $beverbose = yes ]] && ls -lh "$outfile"
+dinfo "Wrote $outfile"
+dinfo $(ls -l "$outfile")
 
 exit 0
