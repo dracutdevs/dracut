@@ -217,7 +217,7 @@ test_setup() {
  	mkdir overlay
  	. $basedir/dracut-functions
  	dracut_install poweroff shutdown
- 	inst_simple ./hard-off.sh /emergency/01hard-off.sh
+ 	inst_simple ./hard-off.sh /emergency/000-hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 
