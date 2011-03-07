@@ -108,7 +108,8 @@ getkey() {
     [ -z "$keys_file" -o -z "$for_dev" ] && die 'getkey: wrong usage!'
     [ -f "$keys_file" ] || return 1
 
-    while IFS=':' read luks_dev key_dev key_path; do
+    local IFS=:
+    while read luks_dev key_dev key_path; do
         if match_dev "$luks_dev" "$for_dev"; then
             echo "${key_dev}:${key_path}"
             return 0
