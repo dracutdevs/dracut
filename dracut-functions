@@ -255,12 +255,16 @@ inst_dir() {
 # Location of the image dir is assumed to be $initdir
 # We never overwrite the target if it exists.
 inst_simple() {
-    local src target
+    local src target 
     [[ -f $1 ]] || return 1
     src=$1 target="${2:-$1}"
     if ! [[ -d ${initdir}$target ]]; then
         [[ -e ${initdir}$target ]] && return 0
         inst_dir "${target%/*}"
+    fi
+    # install checksum files also
+    if [[ -e  "${src%/*}/.${src##*/}.hmac" ]]; then 
+	inst "${src%/*}/.${src##*/}.hmac" "${target%/*}/.${target##*/}.hmac"
     fi
     dinfo "Installing $src" 
     cp -pfL "$src" "${initdir}$target"
@@ -298,15 +302,15 @@ inst_library() {
     local src=$1 dest=${2:-$1} lib reallib symlink
     [[ -e $initdir$dest ]] && return 0
     if [[ -L $src ]]; then
-        reallib=$(readlink -f "$src")
-        lib=${src##*/}
-        inst_simple "$reallib" "$reallib"
-        inst_dir "${dest%/*}"
-        if [[ -L ${initdir}${dest%/*} ]]; then
-            dest=$(readlink -f ${initdir}${dest%/*})/
-            dest=${dest#${initdir}}
+	# install checksum files also
+        if [[ -e  "${src%/*}/.${src##*/}.hmac" ]]; then 
+            inst "${src%/*}/.${src##*/}.hmac" "${dest%/*}/.${dest##*/}.hmac"
         fi
-        (cd "${initdir}${dest%/*}" && ln -s "$reallib" "$lib")
+	reallib=$(readlink -f "$src")
+	lib=${src##*/}
+	inst_simple "$reallib" "$reallib"
+	inst_dir "${dest%/*}"
+	(cd "${initdir}${dest%/*}" && ln -s "$reallib" "$lib")
     else
         inst_simple "$src" "$dest"
     fi
