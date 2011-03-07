@@ -58,7 +58,7 @@ do_fips()
         fi
     done
     info "Self testing crypto algorithms"
-    modprobe tcrypt noexit=1 || return 1
+    modprobe tcrypt || return 1
     rmmod tcrypt
     info "All initrd crypto checks done"  
 
