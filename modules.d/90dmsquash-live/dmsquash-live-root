@@ -44,11 +44,19 @@ getarg rw && liverw=rw
 [ -z "$liverw" ] && liverw=ro
 # mount the backing of the live image first
 mkdir -p /dev/.initramfs/live
-mount -n -t $fstype -o $liverw $livedev /dev/.initramfs/live
-RES=$?
-if [ "$RES" != "0" ]; then
-    die "Failed to mount block device of live image"
-    exit 1
+if [ -f $livedev ]; then
+    # no mount needed - we've already got the LiveOS image in initramfs
+    case $livedev in
+        *squashfs.img) SQUASHED=$livedev ;;
+        *ext3fs.img|*btrfs.img) FSIMG=$livedev ;;
+    esac
+else
+    mount -n -t $fstype -o $liverw $livedev /dev/.initramfs/live
+    RES=$?
+    if [ "$RES" != "0" ]; then
+        die "Failed to mount block device of live image"
+        exit 1
+    fi
 fi
 
 # overlay setup helper function

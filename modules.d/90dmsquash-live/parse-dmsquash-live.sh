@@ -38,6 +38,8 @@ case "$liveroot" in
         rootok=1 ;;
     live:/dev/*)
         rootok=1 ;;
+    live:/*.[Ii][Mm][Gg]|/*.[Ii][Mm][Gg])
+        [ -f "${root#live:}" ] && rootok=1 ;;
 esac
 info "root was $root, liveroot is now $liveroot"
 
