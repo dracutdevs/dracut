@@ -240,8 +240,8 @@ inst_dir() {
             # create link as the original
             local target=$(readlink "$file")
             ln -sfn "$target" "${initdir}$file" || return 1
-            # resolve relative path and recursively install destionation
-            [[ $target = ${target##*/} ]] && target="${file%/*}/$target"
+            # resolve relative path and recursively install destination
+            [[ $target == ${target#/} ]] && target=$(dirname "$file")/$target
             inst_dir "$target"
         else
             # create directory
