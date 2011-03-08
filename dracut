@@ -231,7 +231,8 @@ dinfo "Executing $0 $dracut_args"
 [[ $do_list = yes ]] && {
     for mod in $dracutbasedir/modules.d/*; do
         [[ -d $mod ]] || continue;
-        [[ -e $mod/install || -e $mod/installkernel ]] || continue;
+        [[ -e $mod/install || -e $mod/installkernel || \
+            -e $mod/module-setup.sh ]] || continue
         echo ${mod##*/??}
     done
     exit 0
