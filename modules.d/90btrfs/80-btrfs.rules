@@ -2,7 +2,7 @@ SUBSYSTEM!="block", GOTO="btrfs_end"
 ACTION!="add|change", GOTO="btrfs_end"
 
 ENV{ID_FS_TYPE}=="btrfs", RUN+="/sbin/modprobe btrfs"
-ENV{ID_FS_TYPE}=="btrfs", RUN+="/sbin/btrfsctl -A $env{DEVNAME}"
+ENV{ID_FS_TYPE}=="btrfs", RUN+="/sbin/btrfs device scan $env{DEVNAME}"
 
 LABEL="btrfs_end"
 
