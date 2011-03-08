@@ -15,6 +15,10 @@ depends() {
     return 0
 }
 
+installkernel() {
+    instmods squashfs
+}
+
 install() {
     dracut_install umount
     inst dmsetup
