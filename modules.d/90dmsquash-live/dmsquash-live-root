@@ -124,19 +124,19 @@ if [ -n "$OSMINSQFS" ]; then
     umount -l /squashfs.osmin
 fi
 
-# we might have just an embedded ext3 to use as rootfs (uncompressed live)
+# we might have an embedded fs image to use as rootfs (uncompressed live)
 if [ -e /dev/.initramfs/live/${live_dir}/ext3fs.img ]; then
-    EXT3FS="/dev/.initramfs/live/${live_dir}/ext3fs.img"
+    FSIMG="/dev/.initramfs/live/${live_dir}/ext3fs.img"
 fi
 
-if [ -n "$EXT3FS" ] ; then
+if [ -n "$FSIMG" ] ; then
     BASE_LOOPDEV=$( losetup -f )
-    losetup -r $BASE_LOOPDEV $EXT3FS
+    losetup -r $BASE_LOOPDEV $FSIMG
 
     do_live_from_base_loop
 fi
 
-# we might have an embedded ext3 on squashfs to use as rootfs (compressed live)
+# we might have an embedded fs image on squashfs (compressed live)
 if [ -e /dev/.initramfs/live/${live_dir}/squashfs.img ]; then
     SQUASHED="/dev/.initramfs/live/${live_dir}/squashfs.img"
 fi
