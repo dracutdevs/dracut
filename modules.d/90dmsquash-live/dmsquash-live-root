@@ -127,6 +127,8 @@ fi
 # we might have an embedded fs image to use as rootfs (uncompressed live)
 if [ -e /dev/.initramfs/live/${live_dir}/ext3fs.img ]; then
     FSIMG="/dev/.initramfs/live/${live_dir}/ext3fs.img"
+elif [ -e /dev/.initramfs/live/${live_dir}/btrfs.img ]; then
+    FSIMG="/dev/.initramfs/live/${live_dir}/btrfs.img"
 fi
 
 if [ -n "$FSIMG" ] ; then
@@ -158,7 +160,11 @@ if [ -e "$SQUASHED" ] ; then
     mount -n -t squashfs -o ro $SQUASHED_LOOPDEV /squashfs
 
     BASE_LOOPDEV=$( losetup -f )
-    losetup -r $BASE_LOOPDEV /squashfs/LiveOS/ext3fs.img
+    if [ -f /squashfs/LiveOS/ext3fs.img ]; then
+        losetup -r $BASE_LOOPDEV /squashfs/LiveOS/ext3fs.img
+    elif [ -f /squashfs/LiveOS/btrfs.img ]; then
+        losetup -r $BASE_LOOPDEV /squashfs/LiveOS/btrfs.img
+    fi
 
     umount -l /squashfs
 
