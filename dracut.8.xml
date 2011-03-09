@@ -329,11 +329,11 @@ the local host instead of a generic host.
             <option>-i</option>
           </term>
           <term>
-            <option>--include&nbsp;<replaceable>&lt;source directory&gt;</replaceable>&nbsp;<replaceable>&lt;target directory&gt;</replaceable></option>
+            <option>--include&nbsp;<replaceable>&lt;SOURCE&gt;</replaceable>&nbsp;<replaceable>&lt;TARGET&gt;</replaceable></option>
           </term>
           <listitem>
-            <para>include the files in the source directory into the
-target directory in the final initramfs.</para>
+            <para>include the files in the SOURCE directory into the
+TARGET directory in the final initramfs. If SOURCE is a file, it will be installed to TARGET in the final initramfs.</para>
           </listitem>
         </varlistentry>
         <varlistentry>

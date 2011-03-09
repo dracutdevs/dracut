@@ -74,6 +74,8 @@ Creates initial ramdisk images for preloading modules
   -i, --include [SOURCE] [TARGET]
                         Include the files in the SOURCE directory into the
                          Target directory in the final initramfs.
+                        If SOURCE is a file, it will be installed to TARGET 
+                         in the final initramfs.
   -I, --install [LIST]  Install the space separated list of files into the
                          initramfs.
   --gzip                Compress the generated initramfs using gzip.
@@ -344,8 +346,12 @@ if [[ -d $initdir/lib/modules/$kernel ]] && \
 fi
 
 if [[ $include_src && $include_target ]]; then
-    mkdir -p "$initdir$include_target"
-    cp -a -t "$initdir$include_target" "$include_src"/*
+    if [[ -f $include_src ]]; then
+        inst $include_src $include_target
+    else
+        mkdir -p "$initdir$include_target"
+        cp -a -t "$initdir$include_target" "$include_src"/*
+    fi
 fi
 
 for item in $install_items; do
