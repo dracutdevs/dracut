@@ -359,8 +359,19 @@ wait_for_loginit
 
 export PATH="$OLD_PATH"
 
-exec /sbin/switch_root "$NEWROOT" "$INIT" $initargs || {
-    echo "Something went very badly wrong in the initramfs.  Please "
-    echo "file a bug against dracut."
-    emergency_shell
-}
+if [ -f /etc/capsdrop ]; then
+    . /etc/capsdrop
+    info "Calling $INIT with capabilities $CAPS_INIT_DROP dropped."
+    exec /usr/sbin/capsh --drop="$CAPS_INIT_DROP" -- -c "exec /sbin/switch_root \"$NEWROOT\" \"$INIT\" $initargs" || {
+	warn "Command:"
+	warn capsh --drop=$CAPS_INIT_DROP -- -c exec switch_root "$NEWROOT" "$INIT" $initargs
+	warn "failed."
+	emergency_shell
+    }
+else
+    exec /sbin/switch_root "$NEWROOT" "$INIT" $initargs || {
+	warn "Something went very badly wrong in the initramfs.  Please "
+	warn "file a bug against dracut."
+	emergency_shell
+    }
+fi
