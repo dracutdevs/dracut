@@ -84,7 +84,7 @@ accordingly.</para>
       <variablelist>
         <varlistentry>
           <term>
-            <envar>rd.driver.blacklist=<replaceable>&lt;drivername&gt;</replaceable></envar>
+            <envar>rd.driver.blacklist=<replaceable>&lt;drivername&gt;<optional>,&lt;drivername&gt;,...</optional></replaceable></envar>
           </term>
           <listitem>
             <para>do not load kernel module &lt;drivername&gt;
@@ -93,11 +93,19 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rd.driver.pre=<replaceable>&lt;drivername&gt;</replaceable></envar>
+            <envar>rd.driver.pre=<replaceable>&lt;drivername&gt;<optional>,&lt;drivername&gt;,...</optional></replaceable></envar>
           </term>
           <listitem>
             <para>force loading kernel module &lt;drivername&gt;
 This parameter can be specified multiple times.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd.driver.post=<replaceable>&lt;drivername&gt;<optional>,&lt;drivername&gt;,...</optional></replaceable></envar>
+          </term>
+          <listitem>
+	    <para>force loading kernel module &lt;drivername&gt; after all automatic loading modules have been loaded. This parameter can be specified multiple times.</para>
           </listitem>
         </varlistentry>
       </variablelist>

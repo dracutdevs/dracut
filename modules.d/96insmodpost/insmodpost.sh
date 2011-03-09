@@ -4,5 +4,10 @@
 . /lib/dracut-lib.sh
 
 for p in $(getargs rd.insmodpost rdinsmodpost=); do 
-    modprobe $p
+    (
+        IFS=,
+        for p in $i; do 
+            modprobe $p
+        done
+    )
 done
