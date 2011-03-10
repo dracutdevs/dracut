@@ -190,6 +190,7 @@ mkdir -p $RPM_BUILD_ROOT%{_sharedstatedir}/initramfs
 
 %if 0%{?fedora}
 install -m 0644 dracut.conf.d/fedora.conf.example $RPM_BUILD_ROOT/etc/dracut.conf.d/01-dist.conf
+install -m 0644 dracut.conf.d/fips.conf.example $RPM_BUILD_ROOT/etc/dracut.conf.d/40-fips.conf
 %endif
 
 %if 0%{?suse_version}
@@ -278,6 +279,7 @@ rm -rf $RPM_BUILD_ROOT
 %files fips
 %defattr(-,root,root,0755)
 %{_datadir}/dracut/modules.d/01fips
+%config(noreplace) /etc/dracut.conf.d/40-fips.conf
 %endif
 
 %files caps
