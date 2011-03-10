@@ -26,17 +26,16 @@ installkernel() {
                 # hardcoded list of exceptions
                 # to save a lot of space
                 rm -fr ${initdir}/lib/modules/*/kernel/fs/ocfs2
-            else
-                instmods $filesystems
             fi
         else
             hostonly='' instmods $(get_fs_type "/dev/block/$(find_root_block_device)")
         fi
     else
-        hostonly='' instmods $drivers $filesystems
+        hostonly='' instmods $drivers
     fi
 
     [[ $add_drivers ]] && hostonly='' instmods $add_drivers
+    [[ $filesystems ]] && hostonly='' instmods $filesystems
 
     # force install of scsi_wait_scan
     hostonly='' instmods scsi_wait_scan
