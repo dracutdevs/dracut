@@ -344,7 +344,7 @@ fi
 
 # Debug: Copy state
 if getargbool 0 rd.copystate -y rdcopystate; then
-    cp /tmp/* /dev/.run/initramfs/ >/dev/null 2>&1
+    cp /init.log /tmp/* /dev/.run/initramfs/ >/dev/null 2>&1
 fi
 
 if getargbool 1 rd.timestamp; then
