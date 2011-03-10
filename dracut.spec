@@ -14,8 +14,8 @@
 %endif
 
 Name: dracut
-Version: 008
-%define release_prefix 1%{?rdist}
+Version: 009
+%define release_prefix 0%{?rdist}
 Release: %{release_prefix}
 
 Summary: Initramfs generator using udev
