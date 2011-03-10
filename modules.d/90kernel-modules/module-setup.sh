@@ -46,5 +46,6 @@ install() {
     [ -f /etc/modprobe.conf ] && dracut_install /etc/modprobe.conf
     dracut_install $(find /etc/modprobe.d/ -type f -name '*.conf')
     inst_hook cmdline 01 "$moddir/parse-kernel.sh"
+    inst_simple "$moddir/insmodpost.sh" /sbin/insmodpost.sh
     inst "$srcmods/modules.builtin.bin" "/lib/modules/$kernel/modules.builtin.bin"
 }

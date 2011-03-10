@@ -38,7 +38,6 @@ install() {
     fi
     inst "$moddir/dracut-lib.sh" "/lib/dracut-lib.sh"
     inst_hook cmdline 10 "$moddir/parse-root-opts.sh"
-    inst_hook cmdline 20 "$moddir/parse-blacklist.sh"
     mkdir -p "${initdir}/var"
     [ -x /lib/systemd/systemd-timestamp ] && inst /lib/systemd/systemd-timestamp
 }
