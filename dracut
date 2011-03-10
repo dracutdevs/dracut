@@ -111,6 +111,8 @@ read_arg() {
     fi
 }
 
+kernel="unset"
+
 while (($# > 0)); do
     case ${1%%=*} in
         -m|--modules)  read_arg dracutmodules_l      "$@" || shift;;
@@ -151,10 +153,22 @@ while (($# > 0)); do
             do_list="yes";
             ;;
         -*) printf "\nUnknown option: %s\n\n" "$1" >&2; usage; exit 1;;
-        *) break ;;
+        *) 
+            if ! [[ $outfile ]]; then
+                outfile=$1
+            elif [[ $kernel = "unset" ]]; then
+                kernel=$1
+            else
+                usage; exit 1;
+            fi
+            ;;
     esac
     shift
 done
+if ! [[ $kernel ]] || [[ $kernel = "unset" ]]; then
+    kernel=$(uname -r)
+fi
+[[ $outfile ]] || outfile="/boot/initramfs-$kernel.img"
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export PATH
@@ -256,8 +270,6 @@ case $dracutmodules in
     ""|auto) dracutmodules="all" ;;
 esac
 
-[[ $2 ]] && kernel=$2 || kernel=$(uname -r)
-[[ $1 ]] && outfile=$1 || outfile="/boot/initramfs-$kernel.img"
 abs_outfile=$(readlink -f "$outfile") && outfile="$abs_outfile"
 
 srcmods="/lib/modules/$kernel/"
