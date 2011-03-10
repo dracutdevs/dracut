@@ -144,6 +144,15 @@ This package requires everything which is needed to build an
 all purpose initramfs with dracut, which does an integrity check.
 %endif
 
+%package caps
+Summary: Dracut modules to build a dracut initramfs which drops capabilities
+Requires: %{name} = %{version}-%{release}
+Requires: libcap
+
+%description caps
+This package requires everything which is needed to build an
+all purpose initramfs with dracut, which drops capabilities.
+
 %package tools
 Summary: Dracut tools to build the local initramfs
 Requires: %{name} = %{version}-%{release}
@@ -271,6 +280,10 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,0755)
 %{_datadir}/dracut/modules.d/01fips
 %endif
+
+%files caps
+%defattr(-,root,root,0755)
+%{_datadir}/dracut/modules.d/02caps
 
 %files tools 
 %defattr(-,root,root,0755)
