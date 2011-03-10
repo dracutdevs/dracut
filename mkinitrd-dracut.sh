@@ -6,11 +6,11 @@ error() { echo "$@" >&2; }
 usage () {
     [[ $1 = '-n' ]] && cmd=echo || cmd=error
 
-    $cmd "usage: ${0%/*} [--version] [--help] [-v] [-f] [--preload <module>]"
+    $cmd "usage: ${0##*/} [--version] [--help] [-v] [-f] [--preload <module>]"
     $cmd "       [--image-version] [--with=<module>]"
     $cmd "       <initrd-image> <kernel-version>"
     $cmd ""
-    $cmd "       (ex: ${0%/*} /boot/initramfs-$kver.img $kver)"
+    $cmd "       (ex: ${0##*/} /boot/initramfs-$kver.img $kver)"
 
     [[ $1 = '-n' ]] && exit 0
     exit 1
