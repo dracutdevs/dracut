@@ -14,7 +14,7 @@ PATH=$PATH:/sbin:/usr/sbin
 [ -z "$1" -o -z "$2" ] && exit 1
 
 export PS4="fcoe-up.$1.$$ + "
-exec >>/dev/.initramfs/initlog.pipe 2>>/dev/.initramfs/initlog.pipe
+exec >>/dev/.run/initramfs/initlog.pipe 2>>/dev/.run/initramfs/initlog.pipe
 . /lib/dracut-lib.sh
 
 netif=$1

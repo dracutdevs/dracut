@@ -33,7 +33,7 @@ wait_for_loginit()
         done
         set -x
     fi
-    rm -f /dev/.initramfs/initlog.pipe
+    rm -f /dev/.run/initramfs/initlog.pipe
 }
 
 emergency_shell()
@@ -105,15 +105,24 @@ ln -s /proc/self/fd /dev/fd >/dev/null 2>&1
 ln -s /proc/self/fd/0 /dev/stdin >/dev/null 2>&1
 ln -s /proc/self/fd/1 /dev/stdout >/dev/null 2>&1
 ln -s /proc/self/fd/2 /dev/stderr >/dev/null 2>&1
-mkdir -m 0755 /dev/shm /dev/pts /dev/.udev /dev/.udev/rules.d /dev/.initramfs
+mkdir -m 0755 /dev/shm /dev/pts /dev/.run 
 mount -t devpts -o gid=5,mode=620,noexec,nosuid devpts /dev/pts >/dev/null 2>&1
 mount -t tmpfs -o mode=1777,nosuid,nodev  tmpfs /dev/shm >/dev/null 2>&1
 
+# creat /dev/.run which will be /var/run
+mount -t tmpfs -o mode=0755,nodev,noexec,nosuid tmpfs /dev/.run >/dev/null 2>&1
+mkdir -m 0755 /dev/.run/udev /dev/.run/udev/rules.d  /dev/.run/initramfs
+
+# create compat symlinks
+ln -s .run/initramfs /dev/.initramfs
+ln -s /dev/.run /var/run
+ln -s .run/udev /dev/.udev
+
 if getargbool 0 rd.debug -y rdinitdebug -y rdnetdebug; then
     getarg quiet && DRACUT_QUIET="yes"
-    mkfifo /dev/.initramfs/initlog.pipe
-    /sbin/loginit $DRACUT_QUIET </dev/.initramfs/initlog.pipe >/dev/console 2>&1 &
-    exec >/dev/.initramfs/initlog.pipe 2>&1
+    mkfifo /dev/.run/initramfs/initlog.pipe
+    /sbin/loginit $DRACUT_QUIET </dev/.run/initramfs/initlog.pipe >/dev/console 2>&1 &
+    exec >/dev/.run/initramfs/initlog.pipe 2>&1
 else
     exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
 fi
@@ -335,7 +344,7 @@ fi
 
 # Debug: Copy state
 if getargbool 0 rd.copystate -y rdcopystate; then
-    cp /tmp/* /dev/.initramfs/ >/dev/null 2>&1
+    cp /tmp/* /dev/.run/initramfs/ >/dev/null 2>&1
 fi
 
 if getargbool 1 rd.timestamp; then
