@@ -8,7 +8,7 @@ if [ "${root%%:*}" = "block" ]; then
             ${root#block:/dev/} 
         printf 'SYMLINK=="%s", SYMLINK+="root"\n' \
             ${root#block:/dev/} 
-    } >> /dev/.udev/rules.d/99-root.rules
+    } >> $UDEVRULESD/99-root.rules
     
     printf '[ -e "%s" ] && { ln -s "%s" /dev/root 2>/dev/null; rm "$job"; }\n' \
         "${root#block:}" "${root#block:}" >> /initqueue-settled/blocksymlink.sh

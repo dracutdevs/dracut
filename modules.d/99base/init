@@ -108,15 +108,23 @@ ln -s /proc/self/fd/2 /dev/stderr >/dev/null 2>&1
 mkdir -m 0755 /dev/shm /dev/pts /dev/.run 
 mount -t devpts -o gid=5,mode=620,noexec,nosuid devpts /dev/pts >/dev/null 2>&1
 mount -t tmpfs -o mode=1777,nosuid,nodev  tmpfs /dev/shm >/dev/null 2>&1
-
-# creat /dev/.run which will be /var/run
+# create /dev/.run which will be /var/run
 mount -t tmpfs -o mode=0755,nodev,noexec,nosuid tmpfs /dev/.run >/dev/null 2>&1
-mkdir -m 0755 /dev/.run/udev /dev/.run/udev/rules.d  /dev/.run/initramfs
 
-# create compat symlinks
-ln -s .run/initramfs /dev/.initramfs
-ln -s /dev/.run /var/run
-ln -s .run/udev /dev/.udev
+mkdir -m 0755 /dev/.run/initramfs
+
+UDEVVERSION=$(udevadm --version)
+if [ $UDEVVERSION -ge 999 ]; then
+    # newer versions of udev use /dev/.run/udev/rules.d
+    mkdir -m 0755 /dev/.run/udev /dev/.run/udev/rules.d  
+    export UDEVRULESD=/dev/.run/udev/rules.d
+else
+    mkdir -m 0755 /dev/.udev /dev/.udev/rules.d  
+    export UDEVRULESD=/dev/.udev/rules.d
+fi
+
+[ -e /var/run ] && rm -fr /var/run
+ln -fs /dev/.run /var/run
 
 if getargbool 0 rd.debug -y rdinitdebug -y rdnetdebug; then
     getarg quiet && DRACUT_QUIET="yes"
@@ -128,8 +136,6 @@ else
 fi
 
 setdebug
-
-UDEVVERSION=$(udevadm --version)
 
 source_conf /etc/conf.d
 
