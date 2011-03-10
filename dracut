@@ -93,6 +93,46 @@ Creates initial ramdisk images for preloading modules
 EOF
 }
 
+# function push()
+# push values to a stack
+# $1 = stack variable
+# $2.. values
+# example:
+# push stack 1 2 "3 4"
+push() {
+    local __stack=$1; shift
+    for i in "$@"; do
+        eval ${__stack}'[${#'${__stack}'[@]}]="$i"'
+    done
+}
+
+# function pop()
+# pops the last value from a stack
+# assigns value to second argument variable
+# or echo to stdout, if no second argument
+# $1 = stack variable
+# $2 = optional variable to store the value
+# example:
+# pop stack val
+# val=$(pop stack)
+pop() {
+    local __stack=$1; shift
+    local __resultvar=$1    
+    local myresult;
+    # check for empty stack
+    eval '[[ ${#'${__stack}'[@]} -eq 0 ]] && return 1'
+
+    eval myresult='${'${__stack}'[${#'${__stack}'[@]}-1]}'
+
+    if [[ "$__resultvar" ]]; then
+        eval $__resultvar="'$myresult'"
+    else
+        echo "$myresult"
+    fi
+    eval unset ${__stack}'[${#'${__stack}'[@]}-1]'
+    return 0
+}
+
 # Little helper function for reading args from the commandline.
 # it automatically handles -a b and -a=b variants, and returns 1 if
 # we need to shift $3.
