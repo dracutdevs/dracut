@@ -92,7 +92,7 @@ else
         # flock against other interactive activities
         { flock -s 9; 
             /bin/plymouth ask-for-password \
-                --prompt "$prompt" \
+                --prompt "$prompt" --number-of-tries=5 \
                 --command="/sbin/cryptsetup luksOpen -T1 $device $luksname"
         } 9>/.console.lock
         
