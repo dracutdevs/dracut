@@ -48,7 +48,7 @@ if [ -f $livedev ]; then
     # no mount needed - we've already got the LiveOS image in initramfs
     case $livedev in
         *squashfs.img) SQUASHED=$livedev ;;
-        *ext3fs.img|*btrfs.img) FSIMG=$livedev ;;
+        *ext3fs.img|*rootfs.img) FSIMG=$livedev ;;
     esac
 else
     mount -n -t $fstype -o $liverw $livedev /dev/.run/initramfs/live
@@ -135,8 +135,8 @@ fi
 # we might have an embedded fs image to use as rootfs (uncompressed live)
 if [ -e /dev/.run/initramfs/live/${live_dir}/ext3fs.img ]; then
     FSIMG="/dev/.run/initramfs/live/${live_dir}/ext3fs.img"
-elif [ -e /dev/.run/initramfs/live/${live_dir}/btrfs.img ]; then
-    FSIMG="/dev/.run/initramfs/live/${live_dir}/btrfs.img"
+elif [ -e /dev/.run/initramfs/live/${live_dir}/rootfs.img ]; then
+    FSIMG="/dev/.run/initramfs/live/${live_dir}/rootfs.img"
 fi
 
 if [ -n "$FSIMG" ] ; then
@@ -170,8 +170,8 @@ if [ -e "$SQUASHED" ] ; then
     BASE_LOOPDEV=$( losetup -f )
     if [ -f /squashfs/LiveOS/ext3fs.img ]; then
         losetup -r $BASE_LOOPDEV /squashfs/LiveOS/ext3fs.img
-    elif [ -f /squashfs/LiveOS/btrfs.img ]; then
-        losetup -r $BASE_LOOPDEV /squashfs/LiveOS/btrfs.img
+    elif [ -f /squashfs/LiveOS/rootfs.img ]; then
+        losetup -r $BASE_LOOPDEV /squashfs/LiveOS/rootfs.img
     fi
 
     umount -l /squashfs
