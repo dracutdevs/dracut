@@ -179,6 +179,7 @@ push_arg() {
 }
 
 kernel="unset"
+stdloglvl_l=0
 
 while (($# > 0)); do
     case ${1%%=*} in
