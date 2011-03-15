@@ -201,7 +201,8 @@ while (($# > 0)); do
         -h|--help)     usage; exit 1 ;;
         -i|--include)  push include_src "$2"; push include_target "$3"; shift 2;;
         --bzip2)       [[ $compress != cat ]] && compress="bzip2 -9";;
-        --lzma)          [[ $compress != cat ]] && compress="lzma -9";;
+        --lzma)        [[ $compress != cat ]] && compress="lzma -9";;
+        --xz)          [[ $compress != cat ]] && compress="xz -9";;
         --no-compress) compress="cat";;
         --gzip)        if [[ $compress != cat ]]; then
             type pigz > /dev/null 2>&1 && compress="pigz -9" || \
