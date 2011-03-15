@@ -218,7 +218,7 @@ _lvl2syslogpri() {
 #   - @c WARN to @c warning
 #   - @c INFO to @c info
 #   - @c DEBUG and @c TRACE both to @c debug
-dlog() {
+_do_dlog() {
     [ -z "$_maxloglvl" ] && return 0
     local lvl="$1"; shift
     local lvlc=$(_lvl2char "$lvl") || return 0
@@ -237,12 +237,39 @@ dlog() {
     [ $lvl -le $kmsgloglvl ] && echo "[dracut[$$]] $msg" >/dev/kmsg
 }
 
+## @brief Internal helper function for _do_dlog()
+#
+# @param lvl Numeric logging level.
+# @param msg Message.
+# @retval 0 It's always returned, even if logging failed.
+#
+# @note This function is not supposed to be called manually. Please use
+# dtrace(), ddebug(), or others instead which wrap this one.
+#
+# This function calls _do_dlog() either with parameter msg, or if
+# none is given, it will read standard input and will use every line as
+# a message.
+#
+# This enables:
+# dwarn "This is a warning"
+# echo "This is a warning" | dwarn
+dlog() {
+    if [ $# -gt 1 ]; then
+        _do_dlog "$@"
+    else
+        while read line; do
+            _do_dlog "$1" "$line"
+        done
+    fi
+    return 0
+}
+
 ## @brief Logs message at TRACE level (6)
 #
 # @param msg Message.
 # @retval 0 It's always returned, even if logging failed.
 dtrace() {
-    dlog 6 "$*"
+    dlog 6 "$@"
 }
 
 ## @brief Logs message at DEBUG level (5)
@@ -250,7 +277,7 @@ dtrace() {
 # @param msg Message.
 # @retval 0 It's always returned, even if logging failed.
 ddebug() {
-    dlog 5 "$*"
+    dlog 5 "$@"
 }
 
 ## @brief Logs message at INFO level (4)
@@ -258,7 +285,7 @@ ddebug() {
 # @param msg Message.
 # @retval 0 It's always returned, even if logging failed.
 dinfo() {
-    dlog 4 "$*"
+    dlog 4 "$@"
 }
 
 ## @brief Logs message at WARN level (3)
@@ -266,7 +293,7 @@ dinfo() {
 # @param msg Message.
 # @retval 0 It's always returned, even if logging failed.
 dwarn() {
-    dlog 3 "$*"
+    dlog 3 "$@"
 }
 
 ## @brief It's an alias to dwarn() function.
@@ -274,7 +301,7 @@ dwarn() {
 # @param msg Message.
 # @retval 0 It's always returned, even if logging failed.
 dwarning() {
-    dwarn "$*"
+    dwarn "$@"
 }
 
 ## @brief Logs message at ERROR level (2)
@@ -282,7 +309,7 @@ dwarning() {
 # @param msg Message.
 # @retval 0 It's always returned, even if logging failed.
 derror() {
-    dlog 2 "$*"
+    dlog 2 "$@"
 }
 
 ## @brief Logs message at FATAL level (1)
@@ -290,5 +317,5 @@ derror() {
 # @param msg Message.
 # @retval 0 It's always returned, even if logging failed.
 dfatal() {
-    dlog 1 "$*"
+    dlog 1 "$@"
 }
