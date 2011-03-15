@@ -59,7 +59,16 @@ Creates initial ramdisk images for preloading modules
   --nolvmconf           Do not include local /etc/lvm/lvm.conf
   -h, --help            This message
   --debug               Output debug information of the build process
-  -v, --verbose         Verbose output during the build process
+  -L, --stdlog [0-6]    Specify logging level (to standard error)
+                         0 - suppress any messages
+                         1 - only fatal errors
+                         2 - all errors
+                         3 - warnings
+                         4 - info (default)
+                         5 - debug info (here starts lots of output)
+                         6 - trace info (and even more)
+  -v, --verbose         Verbose output during the build process (info level)
+  -q, --quiet           Display only errors and fatal errors during build
   -c, --conf [FILE]     Specify configuration file to use.
                          Default: /etc/dracut.conf
   --confdir [DIR]       Specify configuration directory to use *.conf files 
@@ -184,6 +193,7 @@ while (($# > 0)); do
         -k|--kmoddir)  read_arg drivers_dir_l        "$@" || shift;;
         -c|--conf)     read_arg conffile             "$@" || shift;;
         --confdir)     read_arg confdir              "$@" || shift;;
+        -L|--stdlog)   read_arg stdloglvl_l          "$@" || shift;;
         -f|--force)    force=yes;;
         --kernel-only) kernel_only="yes"; no_kernel="no";;
         --no-kernel)   kernel_only="no"; no_kernel="yes";;
@@ -195,6 +205,7 @@ while (($# > 0)); do
         --nolvmconf)   lvmconf_l="no";;
         --debug)       debug="yes";;
         -v|--verbose)  beverbose="yes";;
+        -q|--quiet)    bequiet="yes";;
         -l|--local)    allowlocal="yes" ;;
         -H|--hostonly) hostonly_l="yes" ;;
         --fstab)       use_fstab_l="yes" ;;
@@ -236,6 +247,12 @@ export PATH
     export PS4='${BASH_SOURCE}@${LINENO}(${FUNCNAME[0]}): ';
     set -x
 }
+
+# For compatibility with -v behaviour. Set to info level.
+[[ $beverbose ]] && (( $stdloglvl_l < 4 )) && stdloglvl_l=4
+
+# When quiet, display only errors and fatal errors.
+[[ $bequiet ]] && (( $stdloglvl_l > 2 )) && stdloglvl_l=2
 
 [[ $dracutbasedir ]] || dracutbasedir=/usr/share/dracut
 
@@ -312,6 +329,7 @@ if [[ ${#fw_dir_l[@]} ]]; then
     done
 fi
 
+[[ $stdloglvl_l ]] && stdloglvl=$stdloglvl_l
 [[ $drivers_dir_l ]] && drivers_dir=$drivers_dir_l
 [[ $do_strip_l ]] && do_strip=$do_strip_l
 [[ $hostonly_l ]] && hostonly=$hostonly_l
@@ -412,9 +430,10 @@ trap 'exit 1;' SIGINT
 chmod 755 "$initdir"
 
 export initdir hookdirs dracutbasedir dracutmodules drivers \
-    fw_dir drivers_dir debug beverbose no_kernel kernel_only \
+    fw_dir drivers_dir debug no_kernel kernel_only \
     add_drivers mdadmconf lvmconf filesystems \
-    use_fstab libdir usrlibdir
+    use_fstab libdir usrlibdir \
+    stdloglvl sysloglvl fileloglvl kmsgloglvl logfile
 
 if [[ $kernel_only != yes ]]; then
     # Create some directory structure first

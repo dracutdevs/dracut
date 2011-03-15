@@ -20,6 +20,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+if [[ ! $__DRACUT_LOGGER__ ]]; then
+    . "$dracutbasedir/dracut-logger"
+    dlog_init
+fi
+
 IF_RTLD=""
 IF_dynamic=""
 
@@ -59,31 +64,6 @@ vercmp() {
 
 is_func() {
     [[ $(type -t $1) = "function" ]] 
-}
-
-# Log initrd creation.
-if ! [[ $dracutlogfile ]]; then
-    [[ $dracutbasedir = /usr/share/dracut ]] && \
-	dracutlogfile=/var/log/dracut.log || \
-	dracutlogfile=$HOME/dracut.log
-    if [[ -w ${dracutlogfile%/*} ]]; then
-        >>"$dracutlogfile"
-    fi
-fi
-
-dwarning() {
-    echo "W: $@" >&2
-    [[ -w $dracutlogfile ]] && echo $(date) "Warn:" $@ >>"$dracutlogfile"
-}
-
-dinfo() {
-    [[ $beverbose ]] && echo "I: $@" >&2
-    [[ -w $dracutlogfile ]] && echo $(date) "Info:" $@ >>"$dracutlogfile"
-}
-
-derror() {
-    echo "E: $@" >&2
-    [[ -w $dracutlogfile ]] && echo $(date) "Err:" $@ >>"$dracutlogfile"
 }
 
 # Function prints global variables in format name=value line by line.
