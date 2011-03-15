@@ -444,10 +444,10 @@ TARGET directory in the final initramfs. If SOURCE is a file, it will be install
       <variablelist>
         <varlistentry>
           <term>
-            <filename>/conf/conf.d/</filename>
+            <filename>/etc/conf.d/</filename>
           </term>
           <listitem>
-            <para>Any files found in <filename>/conf/conf.d/</filename> will be sourced in the initramfs to 
+            <para>Any files found in <filename>/etc/conf.d/</filename> will be sourced in the initramfs to
 set initial values. Command line options will override these values 
 set in the configuration files.</para>
           </listitem>
