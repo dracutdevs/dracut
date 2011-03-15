@@ -22,14 +22,25 @@
 [[ $# -eq 1 || $# -eq 2 ]] || { echo "Usage: $(basename $0) <initramfs file> [<filename>]" ; exit 1 ; }
 [[ -f $1 ]]    || { echo "$1 does not exist" ; exit 1 ; }
 
+CAT=zcat
+FILE_T=$(file $1)
+
+if [[ "$FILE_T" =~ ": gzip compressed data" ]]; then
+    CAT=zcat
+elif [[ "$FILE_T" =~ ": xz compressed data" ]]; then
+    CAT=xzcat
+elif [[ "$FILE_T" =~ ": data" ]]; then
+    CAT=lzcat
+fi
+
 if [[ $# -eq 2 ]]; then
-    zcat $1 | cpio --extract --verbose --quiet --to-stdout ${2#/} 2>/dev/null
+    $CAT $1 | cpio --extract --verbose --quiet --to-stdout ${2#/} 2>/dev/null
     exit $?
 fi
 
 echo "$1:"
 echo "========================================================================"
-zcat $1 | cpio --extract --verbose --quiet --to-stdout 'dracut-*' 2>/dev/null
+$CAT $1 | cpio --extract --verbose --quiet --to-stdout 'dracut-*' 2>/dev/null
 echo "========================================================================"
-zcat $1 | cpio --extract --verbose --quiet --list
+$CAT $1 | cpio --extract --verbose --quiet --list
 echo "========================================================================"
