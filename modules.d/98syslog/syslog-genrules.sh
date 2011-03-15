@@ -14,7 +14,7 @@ detect_syslog() {
     elif [ /sbin/syslog-ng ]; then
         syslogtype="syslog-ng"
     else
-        dwarn "Could not find any syslog binary although the syslogmodule is selected to be installed. Please check."
+        warn "Could not find any syslog binary although the syslogmodule is selected to be installed. Please check."
     fi
     echo "$syslogtype"
     [ -n "$syslogtype" ]
