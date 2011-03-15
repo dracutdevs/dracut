@@ -192,6 +192,38 @@ _lvl2syslogpri() {
     esac
 }
 
+## @brief Converts dracut-logger numeric level to kernel console log level
+#
+# @param lvl Numeric logging level in range from 1 to 6.
+# @retval 1 if @a lvl is out of range.
+# @retval 0 if @a lvl is correct.
+# @result Echoes kernel console numeric log level
+#
+# Conversion is done as follows:
+#
+# <tt>
+#   none     -> KERN_EMERG (0)
+#   FATAL(1) -> KERN_ALERT (1)
+#   none     -> KERN_CRIT (2)
+#   ERROR(2) -> KERN_ERR (3)
+#   WARN(3)  -> KERN_WARNING (4)
+#   none     -> KERN_NOTICE (5)
+#   INFO(4)  -> KERN_INFO (6)
+#   DEBUG(5) -> KERN_DEBUG (7)
+#   TRACE(6) /
+# </tt>
+_dlvl2klvl() {
+    case "$1" in
+        1) echo 1;;
+        2) echo 3;;
+        3) echo 4;;
+        4) echo 6;;
+        5) echo 7;;
+        6) echo 7;;
+        *) return 1;;
+    esac
+}
+
 ## @brief Prints to stderr and/or writes to file, to syslog and/or /dev/kmsg
 # given message with given level (priority).
 #
@@ -234,7 +266,8 @@ _do_dlog() {
     if [ $lvl -le $fileloglvl -a -w "$logfile" -a -f "$logfile" ]; then
         echo "$msg" >>"$logfile"
     fi
-    [ $lvl -le $kmsgloglvl ] && echo "[dracut[$$]] $msg" >/dev/kmsg
+    [ $lvl -le $kmsgloglvl ] && \
+        echo "<$(_dlvl2klvl $lvl)>dracut[$$] $msg" >/dev/kmsg
 }
 
 ## @brief Internal helper function for _do_dlog()
