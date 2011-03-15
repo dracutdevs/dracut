@@ -149,6 +149,7 @@ dlog_init() {
     for lvl in $stdloglvl $sysloglvl $fileloglvl; do
         [ $lvl -gt $_maxloglvl ] && _maxloglvl=$lvl
     done
+    export _maxloglvl
 
     [ -n "$errmsg" ] && derror "$errmsg"
 
