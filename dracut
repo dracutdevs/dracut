@@ -494,7 +494,7 @@ done
 unset item
 
 # make sure that library links are correct and up to date
-cp -ar /etc/ld.so.conf* "$initdir"/etc
+dracut_install /etc/ld.so.conf /etc/ld.so.conf.d/*
 ldconfig -r "$initdir" || [[ $UID != "0" ]] && \
     dinfo "ldconfig might need uid=0 (root) for chroot()"
 
