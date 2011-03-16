@@ -114,7 +114,7 @@ mount -t tmpfs -o mode=0755,nodev,noexec,nosuid tmpfs /dev/.run >/dev/null 2>&1
 mkdir -m 0755 /dev/.run/initramfs
 
 UDEVVERSION=$(udevadm --version)
-if [ $UDEVVERSION -ge 999 ]; then
+if [ $UDEVVERSION -gt 166 ]; then
     # newer versions of udev use /dev/.run/udev/rules.d
     mkdir -m 0755 /dev/.run/udev /dev/.run/udev/rules.d  
     export UDEVRULESD=/dev/.run/udev/rules.d
