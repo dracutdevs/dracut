@@ -222,6 +222,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_datadir}/dracut
 %dir %{_datadir}/dracut/modules.d
 %{_datadir}/dracut/dracut-functions
+%{_datadir}/dracut/dracut-logger
 %config(noreplace) /etc/dracut.conf
 %if 0%{?fedora} || 0%{?suse_version}
 %config(noreplace) /etc/dracut.conf.d/01-dist.conf
