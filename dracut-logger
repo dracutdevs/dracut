@@ -294,6 +294,7 @@ dlog() {
             _do_dlog "$1" "$line"
         done
     fi
+    [ -n "$debug" ] && set -x
     return 0
 }
 
@@ -302,6 +303,7 @@ dlog() {
 # @param msg Message.
 # @retval 0 It's always returned, even if logging failed.
 dtrace() {
+    set +x
     dlog 6 "$@"
 }
 
@@ -310,6 +312,7 @@ dtrace() {
 # @param msg Message.
 # @retval 0 It's always returned, even if logging failed.
 ddebug() {
+    set +x
     dlog 5 "$@"
 }
 
@@ -318,6 +321,7 @@ ddebug() {
 # @param msg Message.
 # @retval 0 It's always returned, even if logging failed.
 dinfo() {
+    set +x
     dlog 4 "$@"
 }
 
@@ -326,6 +330,7 @@ dinfo() {
 # @param msg Message.
 # @retval 0 It's always returned, even if logging failed.
 dwarn() {
+    set +x
     dlog 3 "$@"
 }
 
@@ -334,6 +339,7 @@ dwarn() {
 # @param msg Message.
 # @retval 0 It's always returned, even if logging failed.
 dwarning() {
+    set +x
     dwarn "$@"
 }
 
@@ -342,6 +348,7 @@ dwarning() {
 # @param msg Message.
 # @retval 0 It's always returned, even if logging failed.
 derror() {
+    set +x
     dlog 2 "$@"
 }
 
@@ -350,5 +357,6 @@ derror() {
 # @param msg Message.
 # @retval 0 It's always returned, even if logging failed.
 dfatal() {
+    set +x
     dlog 1 "$@"
 }

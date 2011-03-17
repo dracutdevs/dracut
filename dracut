@@ -433,7 +433,8 @@ export initdir hookdirs dracutbasedir dracutmodules drivers \
     fw_dir drivers_dir debug no_kernel kernel_only \
     add_drivers mdadmconf lvmconf filesystems \
     use_fstab libdir usrlibdir \
-    stdloglvl sysloglvl fileloglvl kmsgloglvl logfile
+    stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
+    debug
 
 if [[ $kernel_only != yes ]]; then
     # Create some directory structure first
