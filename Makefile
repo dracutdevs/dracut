@@ -94,11 +94,17 @@ gitrpm: dracut-$(VERSION)-$(GITVERSION).tar.bz2
 	mv dracut.spec.bak dracut.spec
 	rm -fr BUILD BUILDROOT
 
-check: all
-	@ret=0;for i in modules.d/99base/init modules.d/*/*.sh; do \
+syncheck:
+	@ret=0;for i in dracut-logger modules.d/99base/init modules.d/*/*.sh; do \
                 [ "$${i##*/}" = "module-setup.sh" ] && continue; \
+                [ "$${i##*/}" = "caps.sh" ] && continue; \
 		dash -n "$$i" ; ret=$$(($$ret+$$?)); \
 	done;exit $$ret
+	@ret=0;for i in dracut modules.d/02caps/caps.sh modules.d/*/module-setup.sh; do \
+		bash -n "$$i" ; ret=$$(($$ret+$$?)); \
+	done;exit $$ret
+
+check: all syncheck
 	$(MAKE) -C test check
 
 testimage: all
