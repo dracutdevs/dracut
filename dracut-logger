@@ -294,8 +294,7 @@ dlog() {
             _do_dlog "$1" "$line"
         done
     fi
-    [ -n "$debug" ] && set -x
-    return 0
+    [ -n "$debug" ] && set -x || :
 }
 
 ## @brief Logs message at TRACE level (6)
