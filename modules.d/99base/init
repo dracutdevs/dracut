@@ -33,7 +33,7 @@ wait_for_loginit()
         done
         set -x
     fi
-    rm -f /dev/.run/initramfs/initlog.pipe
+    rm -f /run/initramfs/initlog.pipe
 }
 
 emergency_shell()
@@ -79,7 +79,6 @@ RDDEBUG=""
 mount -t proc -o nosuid,noexec,nodev /proc /proc >/dev/null 2>&1
 mount -t sysfs -o nosuid,noexec,nodev /sys /sys >/dev/null 2>&1
 
-
 if [ -x /lib/systemd/systemd-timestamp ]; then
     RD_TIMESTAMP=$(/lib/systemd/systemd-timestamp)
 else
@@ -105,32 +104,38 @@ ln -s /proc/self/fd /dev/fd >/dev/null 2>&1
 ln -s /proc/self/fd/0 /dev/stdin >/dev/null 2>&1
 ln -s /proc/self/fd/1 /dev/stdout >/dev/null 2>&1
 ln -s /proc/self/fd/2 /dev/stderr >/dev/null 2>&1
-mkdir -m 0755 /dev/shm /dev/pts /dev/.run 
+mkdir -m 0755 /dev/shm /dev/pts /run 
 mount -t devpts -o gid=5,mode=620,noexec,nosuid devpts /dev/pts >/dev/null 2>&1
 mount -t tmpfs -o mode=1777,nosuid,nodev  tmpfs /dev/shm >/dev/null 2>&1
-# create /dev/.run which will be /var/run
-mount -t tmpfs -o mode=0755,nodev,noexec,nosuid tmpfs /dev/.run >/dev/null 2>&1
+# create /run which will obsolete /var/run
+mount -t tmpfs -o mode=0755,nodev,noexec,nosuid tmpfs /run >/dev/null 2>&1
 
-mkdir -m 0755 /dev/.run/initramfs
+mkdir -m 0755 /run/initramfs
 
 UDEVVERSION=$(udevadm --version)
 if [ $UDEVVERSION -gt 166 ]; then
-    # newer versions of udev use /dev/.run/udev/rules.d
-    mkdir -m 0755 /dev/.run/udev /dev/.run/udev/rules.d  
-    export UDEVRULESD=/dev/.run/udev/rules.d
+    # newer versions of udev use /run/udev/rules.d
+    mkdir -m 0755 /run/udev /run/udev/rules.d  
+    export UDEVRULESD=/run/udev/rules.d
 else
     mkdir -m 0755 /dev/.udev /dev/.udev/rules.d  
     export UDEVRULESD=/dev/.udev/rules.d
 fi
 
-[ -e /var/run ] && rm -fr /var/run
-ln -fs /dev/.run /var/run
+[ -e /var/run ] &&  mv /var/run /var/run.bak
+[ -e /var/lock ] &&  mv /var/lock /var/lock.bak
+ln -fs /run /var/run
+mkdir -m 0755 /run/lock
+ln -fs /run/lock /var/lock
+# copy over any possible directory structure
+cp -ar /var/run.bak/* /run/ 2>/dev/null
+cp -ar /var/lock.bak/* /run/lock/ 2>/dev/null
 
 if getargbool 0 rd.debug -y rdinitdebug -y rdnetdebug; then
     getarg quiet && DRACUT_QUIET="yes"
-    mkfifo /dev/.run/initramfs/initlog.pipe
-    /sbin/loginit $DRACUT_QUIET </dev/.run/initramfs/initlog.pipe >/dev/console 2>&1 &
-    exec >/dev/.run/initramfs/initlog.pipe 2>&1
+    mkfifo /run/initramfs/initlog.pipe
+    /sbin/loginit $DRACUT_QUIET </run/initramfs/initlog.pipe >/dev/console 2>&1 &
+    exec >/run/initramfs/initlog.pipe 2>&1
 else
     exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
 fi
@@ -350,7 +355,7 @@ fi
 
 # Debug: Copy state
 if getargbool 0 rd.copystate -y rdcopystate; then
-    cp /init.log /tmp/* /dev/.run/initramfs/ >/dev/null 2>&1
+    cp /init.log /tmp/* /run/initramfs/ >/dev/null 2>&1
 fi
 
 if getargbool 1 rd.timestamp; then
@@ -364,6 +369,16 @@ info "Switching root"
 wait_for_loginit
 
 export PATH="$OLD_PATH"
+
+if [ -d "$NEWROOT"/run ]; then
+    mount --move /run "$NEWROOT"/run
+else
+    # make compat symlinks for old systems without /run
+    mkdir -m 0755 /dev/.run
+    mount --move /run /dev/.run
+    ln -s /dev/.run/initramfs /dev/.initramfs
+    [ -e /dev/.run/mdadm ] && ln -s /dev/.run/mdadm /dev/.mdadm
+fi
 
 if [ -f /etc/capsdrop ]; then
     . /etc/capsdrop

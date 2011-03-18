@@ -151,8 +151,8 @@ handle_netroot()
         iscsi_lun=0
     fi
 
-    echo "InitiatorName='$iscsi_initiator'" > /dev/.run/initiatorname.iscsi
-    ln -s .run/initiatorname.iscsi /dev/.initiatorname.iscsi
+    echo "InitiatorName='$iscsi_initiator'" > /run/initiatorname.iscsi
+    ln -s /run/initiatorname.iscsi /dev/.initiatorname.iscsi
 
 # FIXME $iscsi_protocol??
 

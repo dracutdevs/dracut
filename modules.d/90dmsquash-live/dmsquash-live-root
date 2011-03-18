@@ -43,7 +43,7 @@ getarg ro && liverw=ro
 getarg rw && liverw=rw
 [ -z "$liverw" ] && liverw=ro
 # mount the backing of the live image first
-mkdir -p /dev/.run/initramfs/live
+mkdir -p /run/initramfs/live
 if [ -f $livedev ]; then
     # no mount needed - we've already got the LiveOS image in initramfs
     case $livedev in
@@ -51,7 +51,7 @@ if [ -f $livedev ]; then
         *ext3fs.img|*rootfs.img) FSIMG=$livedev ;;
     esac
 else
-    mount -n -t $fstype -o $liverw $livedev /dev/.run/initramfs/live
+    mount -n -t $fstype -o $liverw $livedev /run/initramfs/live
     RES=$?
     if [ "$RES" != "0" ]; then
         die "Failed to mount block device of live image"
@@ -116,8 +116,8 @@ do_live_from_base_loop() {
 }
 
 # we might have a genMinInstDelta delta file for anaconda to take advantage of
-if [ -e /dev/.run/initramfs/live/${live_dir}/osmin.img ]; then
-    OSMINSQFS=/dev/.run/initramfs/live/${live_dir}/osmin.img
+if [ -e /run/initramfs/live/${live_dir}/osmin.img ]; then
+    OSMINSQFS=/run/initramfs/live/${live_dir}/osmin.img
 fi
 
 if [ -n "$OSMINSQFS" ]; then
@@ -133,10 +133,10 @@ if [ -n "$OSMINSQFS" ]; then
 fi
 
 # we might have an embedded fs image to use as rootfs (uncompressed live)
-if [ -e /dev/.run/initramfs/live/${live_dir}/ext3fs.img ]; then
-    FSIMG="/dev/.run/initramfs/live/${live_dir}/ext3fs.img"
-elif [ -e /dev/.run/initramfs/live/${live_dir}/rootfs.img ]; then
-    FSIMG="/dev/.run/initramfs/live/${live_dir}/rootfs.img"
+if [ -e /run/initramfs/live/${live_dir}/ext3fs.img ]; then
+    FSIMG="/run/initramfs/live/${live_dir}/ext3fs.img"
+elif [ -e /run/initramfs/live/${live_dir}/rootfs.img ]; then
+    FSIMG="/run/initramfs/live/${live_dir}/rootfs.img"
 fi
 
 if [ -n "$FSIMG" ] ; then
@@ -147,8 +147,8 @@ if [ -n "$FSIMG" ] ; then
 fi
 
 # we might have an embedded fs image on squashfs (compressed live)
-if [ -e /dev/.run/initramfs/live/${live_dir}/squashfs.img ]; then
-    SQUASHED="/dev/.run/initramfs/live/${live_dir}/squashfs.img"
+if [ -e /run/initramfs/live/${live_dir}/squashfs.img ]; then
+    SQUASHED="/run/initramfs/live/${live_dir}/squashfs.img"
 fi
 
 if [ -e "$SQUASHED" ] ; then
@@ -156,7 +156,7 @@ if [ -e "$SQUASHED" ] ; then
         echo "Copying live image to RAM..."
         echo "(this may take a few minutes)"
         dd if=$SQUASHED of=/squashed.img bs=512 2> /dev/null
-        umount -n /dev/.run/initramfs/live
+        umount -n /run/initramfs/live
         echo "Done copying live image to RAM."
         eject -p $livedev || :
         SQUASHED="/squashed.img"

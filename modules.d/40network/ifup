@@ -83,7 +83,7 @@ do_static() {
 PATH=$PATH:/sbin:/usr/sbin
 
 export PS4="ifup.$1.$$ + "
-exec >>/dev/.run/initramfs/initlog.pipe 2>>/dev/.run/initramfs/initlog.pipe
+exec >>/run/initramfs/initlog.pipe 2>>/run/initramfs/initlog.pipe
 . /lib/dracut-lib.sh
 
 # Huh? No $1?
