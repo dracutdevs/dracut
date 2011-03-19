@@ -10,6 +10,7 @@ provides=('dracut=9999' 'mkinitcpio=9999')
 depends=('bash')
 optdepends=('cryptsetup' 'lvm2')
 makedepends=('libxslt')
+backup=(etc/dracut.conf)
 source=()
 md5sums=()
 
