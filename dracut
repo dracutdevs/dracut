@@ -96,6 +96,13 @@ Creates initial ramdisk images for preloading modules
   --lzma                Compress the generated initramfs using lzma.
                          Make sure your kernel has lzma support compiled in, 
                          otherwise you will not be able to boot.
+  --xz                  Compress the generated initramfs using xz.
+                         Make sure that your kernel has xz support compiled
+                         in, otherwise you will not be able to boot.
+  --compress [COMPRESSION] Compress the generated initramfs with the
+                         passed compression program.  Make sure your kernel
+                         knows how to decompress the generated initramfs, 
+                         otherwise you will not be able to boot.
   --no-compress         Do not compress the generated initramfs.  This will
                          override any other compression options.
   --list-modules        List all available dracut modules.
@@ -195,6 +202,9 @@ while (($# > 0)); do
         -c|--conf)     read_arg conffile             "$@" || shift;;
         --confdir)     read_arg confdir              "$@" || shift;;
         -L|--stdlog)   read_arg stdloglvl_l          "$@" || shift;;
+        -I|--install)  read_arg install_items        "$@" || shift;;
+        --fwdir)       read_arg fw_dir_l             "$@" || shift;;
+        --compress)    read_arg compress             "$@" || shift;;
         -f|--force)    force=yes;;
         --kernel-only) kernel_only="yes"; no_kernel="no";;
         --no-kernel)   kernel_only="no"; no_kernel="yes";;
@@ -212,14 +222,11 @@ while (($# > 0)); do
         --fstab)       use_fstab_l="yes" ;;
         -h|--help)     usage; exit 1 ;;
         -i|--include)  push include_src "$2"; push include_target "$3"; shift 2;;
-        --bzip2)       [[ $compress != cat ]] && compress="bzip2 -9";;
-        --lzma)        [[ $compress != cat ]] && compress="lzma -9";;
-        --xz)          [[ $compress != cat ]] && compress="xz --check=crc32";;
-        --no-compress) compress="cat";;
-        --gzip)        if [[ $compress != cat ]]; then
-            type pigz > /dev/null 2>&1 && compress="pigz -9" || \
-                compress="gzip -9"
-            fi;;
+        --bzip2)       compress="bzip2";;
+        --lzma)        compress="lzma";;
+        --xz)          compress="xz";;
+        --no-compress) _no_compress="cat";;
+        --gzip)        compress="gzip";;
         --list-modules)
             do_list="yes";
             ;;
@@ -240,6 +247,17 @@ if ! [[ $kernel ]] || [[ $kernel = "unset" ]]; then
     kernel=$(uname -r)
 fi
 [[ $outfile ]] || outfile="/boot/initramfs-$kernel.img"
+
+case $compress in
+    bzip2) compress="bzip -9";;
+    lzma)  compress="lzma -9";;
+    xz)    compress="xz --check=crc32 --lzma2=dict=1MiB";;
+    gzip)  type pigz > /dev/null 2>&1 && compress="pigz -9" || \
+                                         compress="gzip -9";;
+esac
+if [[ $_no_compress = "cat" ]]; then
+    compress="cat"
+fi
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export PATH

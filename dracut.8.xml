@@ -353,7 +353,7 @@ TARGET directory in the final initramfs. If SOURCE is a file, it will be install
           </term>
           <listitem>
             <para>Compress the generated initramfs using gzip.
-     This will be done by default, unless another compression option or --no-compress is passed.</para>
+     This will be done by default, unless another compression option or --no-compress is passed. Equivalent to "--compress=gzip -9"</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -363,7 +363,7 @@ TARGET directory in the final initramfs. If SOURCE is a file, it will be install
           <listitem>
             <para>Compress the generated initramfs using bzip2.
      <warning>
-                <para>Make sure your kernel has bzip2 decompression support compiled in, otherwise you will not be able to boot.</para>
+                <para>Make sure your kernel has bzip2 decompression support compiled in, otherwise you will not be able to boot. Equivalent to "--compress=bzip2"</para>
               </warning></para>
           </listitem>
         </varlistentry>
@@ -374,8 +374,27 @@ TARGET directory in the final initramfs. If SOURCE is a file, it will be install
           <listitem>
             <para>Compress the generated initramfs using lzma.
      <warning>
-                <para>Make sure your kernel has lzma decompression support compiled in, otherwise you will not be able to boot.</para>
+                <para>Make sure your kernel has lzma decompression support compiled in, otherwise you will not be able to boot. Equivalent to "--compress=lzma -9"</para>
               </warning></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--xz</option>
+          </term>
+          <listitem>
+            <para>Compress the generated initramfs using xz.
+     <warning>
+                <para>Make sure your kernel has xz decompression support compiled in, otherwise you will not be able to boot. Equivalent to "--compress=xz --check=crc32 --lzma2=dict=1MiB"</para>
+              </warning></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--compress&nbsp;<replaceable>&lt;compressor&gt;</replaceable></option>
+          </term>
+          <listitem>
+            <para>Compress the generated initramfs using the passed compression program.  If you pass it just the name of a compression program, it will call that program with known-working arguments.  If you pass a quoted string with arguments, it will be called with exactly those arguments.  Depending on what you pass, this may result in an initramfs that the kernel cannot decompress.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
