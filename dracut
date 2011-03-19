@@ -204,7 +204,7 @@ while (($# > 0)); do
         -L|--stdlog)   read_arg stdloglvl_l          "$@" || shift;;
         -I|--install)  read_arg install_items        "$@" || shift;;
         --fwdir)       read_arg fw_dir_l             "$@" || shift;;
-        --compress)    read_arg compress             "$@" || shift;;
+        --compress)    read_arg compress_l           "$@" || shift;;
         -f|--force)    force=yes;;
         --kernel-only) kernel_only="yes"; no_kernel="no";;
         --no-kernel)   kernel_only="no"; no_kernel="yes";;
@@ -222,11 +222,11 @@ while (($# > 0)); do
         --fstab)       use_fstab_l="yes" ;;
         -h|--help)     usage; exit 1 ;;
         -i|--include)  push include_src "$2"; push include_target "$3"; shift 2;;
-        --bzip2)       compress="bzip2";;
-        --lzma)        compress="lzma";;
-        --xz)          compress="xz";;
-        --no-compress) _no_compress="cat";;
-        --gzip)        compress="gzip";;
+        --bzip2)       compress_l="bzip2";;
+        --lzma)        compress_l="lzma";;
+        --xz)          compress_l="xz";;
+        --no-compress) _no_compress_l="cat";;
+        --gzip)        compress_l="gzip";;
         --list-modules)
             do_list="yes";
             ;;
@@ -247,17 +247,6 @@ if ! [[ $kernel ]] || [[ $kernel = "unset" ]]; then
     kernel=$(uname -r)
 fi
 [[ $outfile ]] || outfile="/boot/initramfs-$kernel.img"
-
-case $compress in
-    bzip2) compress="bzip -9";;
-    lzma)  compress="lzma -9";;
-    xz)    compress="xz --check=crc32 --lzma2=dict=1MiB";;
-    gzip)  type pigz > /dev/null 2>&1 && compress="pigz -9" || \
-                                         compress="gzip -9";;
-esac
-if [[ $_no_compress = "cat" ]]; then
-    compress="cat"
-fi
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export PATH
@@ -356,8 +345,21 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $dracutbasedir ]] || dracutbasedir=/usr/share/dracut
 [[ $fw_dir ]] || fw_dir=/lib/firmware
 [[ $do_strip ]] || do_strip=no
+[[ $compress_l ]] && compress=$compress_l
 # eliminate IFS hackery when messing with fw_dir
 fw_dir=${fw_dir//:/ }
+
+# handle compression options.
+case $compress in
+    bzip2) compress="bzip -9";;
+    lzma)  compress="lzma -9";;
+    xz)    compress="xz --check=crc32 --lzma2=dict=1MiB";;
+    gzip)  type pigz > /dev/null 2>&1 && compress="pigz -9" || \
+                                         compress="gzip -9";;
+esac
+if [[ $_no_compress_l = "cat" ]]; then
+    compress="cat"
+fi
 
 [[ $hostonly = yes ]] && hostonly="-h"
 [[ $hostonly != "-h" ]] && unset hostonly
