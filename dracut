@@ -276,48 +276,48 @@ if [[ $confdir && -d $confdir ]]; then
 fi
 
 # these optins add to the stuff in the config file
-if [[ ${#add_dracutmodules_l[@]} ]]; then
+if (( ${#add_dracutmodules_l[@]} )); then
     while pop add_dracutmodules_l val; do
         add_dracutmodules+=" $val "
     done
 fi
 
-if [[ ${#add_drivers_l[@]} ]]; then
+if (( ${#add_drivers_l[@]} )); then
     while pop add_drivers_l val; do
         add_drivers+=" $val "
     done
 fi
 
 # these options override the stuff in the config file
-if [[ ${#dracutmodules_l[@]} ]]; then
+if (( ${#dracutmodules_l[@]} )); then
     dracutmodules=''
     while pop dracutmodules_l val; do
         dracutmodules+="$val "
     done
 fi
 
-if [[ ${#omit_dracutmodules_l[@]} ]]; then
+if (( ${#omit_dracutmodules_l[@]} )); then
     omit_dracutmodules=''
     while pop omit_dracutmodules_l val; do
         omit_dracutmodules+="$val "
     done
 fi
 
-if [[ ${#drivers_l[@]} ]]; then
+if (( ${#drivers_l[@]} )); then
     drivers=''
     while pop drivers_l val; do
         drivers+="$val "
     done
 fi
 
-if [[ ${#filesystems_l[@]} ]]; then
+if (( ${#filesystems_l[@]} )); then
     filesystems=''
     while pop filesystems_l val; do
         filesystems+="$val "
     done
 fi
 
-if [[ ${#fw_dir_l[@]} ]]; then
+if (( ${#fw_dir_l[@]} )); then
     fw_dir=''
     while pop fw_dir_l val; do
         fw_dir+="$val "
