@@ -5,6 +5,6 @@ export TERM=linux
 export PS1='initramfs-test:\w\$ '
 stty sane
 echo "made it to the rootfs! Powering down."
-echo OK $(cat /dev/.run/initramfs/net.ifaces) > /dev/sda
+echo OK $(cat /dev/.initramfs/net.ifaces) > /dev/sda
 #sh -i
 poweroff -f

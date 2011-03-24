@@ -355,7 +355,7 @@ fi
 
 # Debug: Copy state
 if getargbool 0 rd.copystate -y rdcopystate; then
-    cp /init.log /tmp/* /run/initramfs/ >/dev/null 2>&1
+    cp -axr /init.log /tmp/* /run/initramfs/ >/dev/null 2>&1
 fi
 
 if getargbool 1 rd.timestamp; then
@@ -373,11 +373,14 @@ export PATH="$OLD_PATH"
 if [ -d "$NEWROOT"/run ]; then
     mount --move /run "$NEWROOT"/run
 else
-    # make compat symlinks for old systems without /run
-    mkdir -m 0755 /dev/.run
-    mount --move /run /dev/.run
-    ln -s /dev/.run/initramfs /dev/.initramfs
-    [ -e /dev/.run/mdadm ] && ln -s /dev/.run/mdadm /dev/.mdadm
+    if [ -e /run/initramfs ]; then
+        mkdir -m 0755 /dev/.initramfs
+        cp -axr /run/initramfs/* /dev/.initramfs >/dev/null 2>&1
+    fi
+    if [ -e /run/mdadm ]; then
+        mkdir -m 0755 /dev/.mdadm
+        cp -axr /run/mdadm/* /dev/.mdadm >/dev/null 2>&1
+    fi
 fi
 
 if [ -f /etc/capsdrop ]; then
