@@ -424,6 +424,8 @@ if [[ -f $outfile && ! $force ]]; then
 fi
 
 outdir=${outfile%/*}
+[[ $outdir ]] || outdir="/"
+
 if [[ ! -d "$outdir" ]]; then
     dfatal "Can't write $outfile: Directory $outdir does not exist."
     exit 1
