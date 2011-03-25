@@ -106,6 +106,8 @@ Creates initial ramdisk images for preloading modules
   --no-compress         Do not compress the generated initramfs.  This will
                          override any other compression options.
   --list-modules        List all available dracut modules.
+  -M, --show-modules    Print included module's name to standard output during
+                         build.
 EOF
 }
 
@@ -230,6 +232,9 @@ while (($# > 0)); do
         --list-modules)
             do_list="yes";
             ;;
+        -M|--show-modules)
+                       show_modules_l="yes"
+                       ;;
         -*) printf "\nUnknown option: %s\n\n" "$1" >&2; usage; exit 1;;
         *) 
             if ! [[ $outfile ]]; then
@@ -347,6 +352,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $fw_dir ]] || fw_dir=/lib/firmware
 [[ $do_strip ]] || do_strip=no
 [[ $compress_l ]] && compress=$compress_l
+[[ $show_modules_l ]] && show_modules=$show_modules_l
 # eliminate IFS hackery when messing with fw_dir
 fw_dir=${fw_dir//:/ }
 
@@ -472,7 +478,8 @@ check_module_dir
 for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
     mod=${moddir##*/}; mod=${mod#[0-9][0-9]}
     if strstr "$mods_to_load" " $mod "; then
-        dinfo "*** Including module: $mod ***"
+        [[ $show_modules = yes ]] && echo "$mod" || \
+            dinfo "*** Including module: $mod ***"
         if [[ $kernel_only = yes ]]; then
             module_installkernel $mod
         else
