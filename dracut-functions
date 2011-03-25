@@ -403,9 +403,19 @@ inst_rules() {
     inst_dir "/lib/udev/rules.d"
     inst_dir "$target"
     for rule in "$@"; do 
-        found=$(find_rule "$rule") && \
-            inst_simple "$found" "$target/${found##*/}" \
-            || dinfo "Skipping udev rule: $rule"
+        for r in /lib/udev/rules.d /etc/udev/rules.d; do
+            if [[ -f $r/$rule ]]; then
+                found="$r/$rule"
+                inst_simple "$found"
+            fi
+        done    
+        for r in '' ./ $dracutbasedir/rules.d/; do
+            if [[ -f ${r}$rule ]]; then
+                found="${r}$rule"
+                inst_simple "$found" "$target/${found##*/}" 
+            fi
+        done
+        [[ $found ]] || dinfo "Skipping udev rule: $rule"
     done
 }
 
