@@ -17,9 +17,11 @@ wait_for_loginit()
         # wait for loginit
         i=0
         while [ $i -lt 10 ]; do 
-            j=$(jobs)
-            [ -z "$j" ] && break
-            [ -z "${j##*Running*}" ] || break
+            if [ -e /run/initramfs/init.log.end ]; then
+                j=$(jobs)
+                [ -z "$j" ] && break
+                [ -z "${j##*Running*}" ] || break
+            fi
             sleep 0.1
             i=$(($i+1))
         done    
@@ -33,7 +35,7 @@ wait_for_loginit()
         done
         set -x
     fi
-    rm -f /run/initramfs/initlog.pipe
+    rm -f /run/initramfs/initlog.pipe /run/initramfs/init.log.end
 }
 
 emergency_shell()

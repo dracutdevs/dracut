@@ -11,7 +11,10 @@ QUIET=$1
 exec 6>/init.log
 
 while read line; do 
-    [ "$line" = "DRACUT_LOG_END" ] && exit 0
+    if [ "$line" = "DRACUT_LOG_END" ]; then
+        > /run/initramfs/init.log.end
+        exit 0
+    fi
     echo "<7>dracut: $line" >&5
     # if "quiet" is specified we output to /dev/console
     [ -n "$QUIET" ] && echo "dracut: $line" 
