@@ -24,7 +24,8 @@ install() {
     elif type -P syslog-ng >/dev/null; then
         installs="syslog-ng"
     else
-        dwarning "Could not find any syslog binary although the syslogmodule is selected to be installed. Please check."
+        derror "Could not find any syslog binary although the syslogmodule" \
+            "is selected to be installed. Please check."
     fi
     if [ -n "$installs" ]; then
         dracut_install cat

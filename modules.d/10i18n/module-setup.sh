@@ -115,12 +115,15 @@ install() {
         # original redhat-i18n module.  Anyway it won't hurt.
         EXT_KEYMAPS+=\ ${UNIKEYMAP}\ ${GRP_TOGGLE}
 
-        [[ ${KEYMAP} ]] || dwarning 'No KEYMAP.' || return 1
+        [[ ${KEYMAP} ]] || {
+            derror 'No KEYMAP.'
+            return 1
+        }
         findkeymap ${KEYMAP}
 
         for map in ${EXT_KEYMAPS}
         do
-            dinfo "Adding extra map: ${map}"
+            ddebug "Adding extra map: ${map}"
             findkeymap ${map}
         done
 
@@ -183,13 +186,15 @@ install() {
         done
 
         [[ ${kbddir} ]] || {
-            derror "Directories ${KBDSUBDIRS//,/, } not found.  Please inform us about the issue including your OS name and version."
+            derror "Directories ${KBDSUBDIRS//,/, } not found.  Please" \
+                "inform us about the issue including your OS name and version."
             return 1
         }
 
         [[ -f $I18N_CONF && -f $VCONFIG_CONF ]] || \
             [[ ! ${hostonly} || ${i18n_vars} ]] || {
-            dwarning 'Please set up i18n_vars in configuration file.'
+            derror 'i18n_vars not set!  Please set up i18n_vars in ' \
+                'configuration file.'
         }
         return 0
     }

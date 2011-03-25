@@ -24,7 +24,7 @@ install() {
 '
             for line in ${out}; do
                 if [[ ${line} =~ ^Warning ]]; then
-                    dwarning "${line}"
+                    dwarn "${line}"
                 else
                     derror "${line}"
                     (( ret == 0 )) && ret=1

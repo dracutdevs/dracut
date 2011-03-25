@@ -7,13 +7,14 @@ check() {
 
     for program in ip arping; do 
         if ! type -P $program >/dev/null; then
-            dwarning "Could not find program \"$program\" required by network." 
+            derror "Could not find program \"$program\" required by network."
             return 1
         fi
     done
     for program in dhclient brctl ifenslave tr; do
         if ! type -P $program >/dev/null; then
-            dwarning "Could not find program \"$program\" it might be required by network." 
+            dwarn "Could not find program \"$program\" it might be required " \
+                "by network."
         fi
     done
 
