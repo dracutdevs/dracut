@@ -33,7 +33,7 @@ strstr() { [[ $1 =~ $2 ]]; }
 
 # Create all subdirectories for given path without creating the last element.
 # $1 = path
-mksubdirs() { mkdir -p ${1%/*}; }
+mksubdirs() { mkdir -m 0755 -p ${1%/*}; }
 
 # Version comparision function.  Assumes Linux style version scheme.
 # $1 = version a
@@ -225,7 +225,7 @@ inst_dir() {
             inst_dir "$target"
         else
             # create directory
-            mkdir -p "${initdir}$file" || return 1
+            mkdir -m 0755 -p "${initdir}$file" || return 1
         fi
     done
 }
@@ -382,7 +382,7 @@ inst_symlink() {
     [[ -L $target ]] && return 0
     realsrc=$(readlink -f "$src")
     [[ $realsrc = ${realsrc##*/} ]] && realsrc=${src%/*}/$realsrc
-    inst "$realsrc" && mkdir -p "${target%/*}" && \
+    inst "$realsrc" && mkdir -m 0755 -p "${target%/*}" && \
         ln -s "$realsrc" "$target"
 }
 
