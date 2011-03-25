@@ -20,7 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-if [[ ! $__DRACUT_LOGGER__ ]]; then
+if ! type dinfo >/dev/null 2>&1; then
     . "$dracutbasedir/dracut-logger"
     dlog_init
 fi
