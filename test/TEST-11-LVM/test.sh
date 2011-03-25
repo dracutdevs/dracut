@@ -40,7 +40,7 @@ test_setup() {
 	initdir=overlay
 	. $basedir/dracut-functions
 	dracut_install sfdisk mke2fs poweroff cp umount 
-	inst_simple ./create-root.sh /initqueue/01create-root.sh
+	inst_hook initqueue 01 ./create-root.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
  
@@ -62,7 +62,7 @@ test_setup() {
 	initdir=overlay
 	. $basedir/dracut-functions
 	dracut_install poweroff shutdown
-	inst_simple ./hard-off.sh /emergency/000-hard-off.sh
+	inst_hook emergency 000 ./hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
     sudo $basedir/dracut -l -i overlay / \

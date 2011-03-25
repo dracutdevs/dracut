@@ -15,12 +15,12 @@ case "$root" in
         printf 'SYMLINK=="%s", RUN+="/sbin/initqueue --settled --onetime --unique /sbin/dmsquash-live-root $env{DEVNAME}"\n' \
             ${root#live:/dev/} 
     } >> $UDEVRULESD/99-live-squash.rules
-    echo '[ -e /dev/root ]' > /initqueue-finished/dmsquash.sh
+    echo '[ -e /dev/root ]' > $hookdir/initqueue/finished/dmsquash.sh
   ;;
   live:*)
     if [ -f "${root#live:}" ]; then
         /sbin/initqueue --settled --onetime --unique /sbin/dmsquash-live-root "${root#live:}"
-        echo '[ -e /dev/root ]' > /initqueue-finished/dmsquash.sh
+        echo '[ -e /dev/root ]' > $hookdir/initqueue/finished/dmsquash.sh
     fi
   ;;
 esac

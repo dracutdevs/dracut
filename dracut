@@ -437,9 +437,6 @@ elif [[ -f "$outfile" && ! -w "$outfile" ]]; then
     exit 1
 fi
 
-hookdirs="cmdline pre-udev pre-trigger netroot pre-mount"
-hookdirs+=" pre-pivot mount emergency"
-
 [[ $TMPDIR && ! -w $TMPDIR ]] && unset TMPDIR
 readonly initdir=$(mktemp -d -t initramfs.XXXXXX)
 
@@ -451,7 +448,7 @@ trap 'exit 1;' SIGINT
 # Need to be able to have non-root users read stuff (rpcbind etc)
 chmod 755 "$initdir"
 
-export initdir hookdirs dracutbasedir dracutmodules drivers \
+export initdir dracutbasedir dracutmodules drivers \
     fw_dir drivers_dir debug no_kernel kernel_only \
     add_drivers mdadmconf lvmconf filesystems \
     use_fstab libdir usrlibdir \

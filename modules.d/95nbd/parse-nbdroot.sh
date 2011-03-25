@@ -57,5 +57,5 @@ rootok=1
 # Shut up init error check
 [ -z "$root" ] && root="nbd"
 
-echo '[ -e /dev/root ]' > /initqueue-finished/nbd.sh
+echo '[ -e /dev/root ]' > $hookdir/initqueue/finished/nbd.sh
 

@@ -24,11 +24,11 @@ else
             } >> /etc/udev/rules.d/70-luks.rules
 
             printf '[ -e /dev/disk/by-uuid/*%s* ] || exit 1\n' $luksid \
-                >> /initqueue-finished/90-crypt.sh
+                >> $hookdir/initqueue/finished/90-crypt.sh
             {
                 printf '[ -e /dev/disk/by-uuid/*%s* ] || ' $luksid
                 printf 'warn "crypto LUKS UUID "%s" not found"\n' $luksid
-            } >> /emergency/90-crypt.sh
+            } >> $hookdir/emergency/90-crypt.sh
         done
     else
         echo 'ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="/sbin/initqueue' \

@@ -11,11 +11,11 @@ if ! getargbool 1 rd.lvm -n rd_NO_LVM; then
 else
     for dev in $(getargs rd.lvm.vg rd_LVM_VG=) $(getargs rd.lvm.lv rd_LVM_LV=); do
         printf '[ -e "/dev/%s" ] || exit 1\n' $dev \
-            >> /initqueue-finished/lvm.sh
+            >> $hookdir/initqueue/finished/lvm.sh
         {
             printf '[ -e "/dev/%s" ] || ' $dev
             printf 'warn "LVM "%s" not found"\n' $dev
-        } >> /emergency/90-lvm.sh
+        } >> $hookdir/emergency/90-lvm.sh
     done
 fi
 

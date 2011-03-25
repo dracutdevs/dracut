@@ -29,7 +29,7 @@ fi
 
 if [ -e /etc/mdadm.conf ] && getargbool 1 rd.md.conf -n rd_NO_MDADMCONF; then
     udevproperty rd_MDADMCONF=1
-    rm -f /pre-pivot/*mdraid-cleanup.sh
+    rm -f $hookdir/pre-pivot/*mdraid-cleanup.sh
 fi
 
 if ! getargbool 1 rd.md.conf -n rd_NO_MDADMCONF; then

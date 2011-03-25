@@ -51,7 +51,8 @@ if [ "$netroot" = "dhcp" ] || [ "$netroot" = "dhcp6" ] ; then
     # Set netroot to new_root_path, so cmdline parsers don't call
     netroot=$new_root_path
 
-    for f in ./cmdline/90*.sh; do
+    # FIXME!
+    for f in $hookdir/cmdline/90*.sh; do
         [ -f "$f" ] && . "$f";
     done
 else 

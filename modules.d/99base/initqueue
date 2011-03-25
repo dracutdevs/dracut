@@ -7,14 +7,14 @@
 # Copyright 2008-2010, Red Hat, Inc.
 # Harald Hoyer <harald@redhat.com>
 
-type getarg >/dev/null || . /lib/dracut-lib.sh
+type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 while [ $# -gt 0 ]; do
     case "$1" in
         --onetime)
             onetime="yes";;
         --settled)
-            settled="-settled";;
+            settled="/settled";;
         --unique)
             unique="yes";;
         --name)
@@ -42,6 +42,6 @@ else
     echo "$@" > "/tmp/$$-${job}.sh"
 fi
 
-mv -f "/tmp/$$-${job}.sh" "/initqueue${settled}/${job}.sh"
-[ -z "$settled" ] && >> /initqueue/work
+mv -f "/tmp/$$-${job}.sh" "$hookdir/initqueue${settled}/${job}.sh"
+[ -z "$settled" ] && >> $hookdir/initqueue/work
 

@@ -23,10 +23,15 @@ install() {
     inst "$moddir/init" "/init"
     inst "$moddir/initqueue" "/sbin/initqueue"
     inst "$moddir/loginit" "/sbin/loginit"
-    mkdir -p ${initdir}/initqueue
-    mkdir -p ${initdir}/emergency
-    mkdir -p ${initdir}/initqueue-finished
-    mkdir -p ${initdir}/initqueue-settled
+
+    mkdir -m 0755 -p ${initdir}/lib
+    mkdir -m 0755 -p ${initdir}/lib/dracut
+    mkdir -m 0755 -p ${initdir}/lib/dracut/hooks
+    for d in $hookdirs emergency \
+        initqueue initqueue/finished initqueue/settled; do
+        mkdir -m 0755 -p ${initdir}/lib/dracut/hooks/$d
+    done
+
     mkdir -p ${initdir}/tmp
     # Bail out if switch_root does not exist
     if type -P switch_root >/dev/null; then

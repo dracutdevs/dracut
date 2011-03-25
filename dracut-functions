@@ -437,6 +437,12 @@ inst() {
     return 1
 }
 
+[[ $hookdirs ]] || {
+    hookdirs="cmdline pre-udev pre-trigger netroot initqueue pre-mount"
+    hookdirs+=" pre-pivot mount emergency"
+    export hookdirs
+}
+
 # install function specialized for hooks
 # $1 = type of hook, $2 = hook priority (lower runs first), $3 = hook
 # All hooks should be POSIX/SuS compliant, they will be sourced by init.
@@ -449,7 +455,7 @@ inst_hook() {
         derror "No such hook type $1. Aborting initrd creation." 
         exit 1
     fi
-    inst_simple "$3" "/${1}/${2}${3##*/}"
+    inst_simple "$3" "/lib/dracut/hooks/${1}/${2}${3##*/}"
 }
 
 dracut_install() {

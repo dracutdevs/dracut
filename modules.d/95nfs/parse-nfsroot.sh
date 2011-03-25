@@ -110,4 +110,4 @@ rootok=1
 # confused by having /dev/nfs[4]
 root="$fstype"
 
-echo '[ -e $NEWROOT/proc ]' > /initqueue-finished/nfsroot.sh
+echo '[ -e $NEWROOT/proc ]' > $hookdir/initqueue/finished/nfsroot.sh

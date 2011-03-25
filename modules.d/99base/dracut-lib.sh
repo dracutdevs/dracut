@@ -215,9 +215,16 @@ source_all() {
     for f in "/$1"/*.sh; do [ -e "$f" ] && . "$f"; done
 }
 
+hookdir=/lib/dracut/hooks
+export hookdir
+
+source_hook() {
+    source_all "/lib/dracut/hooks/$1"
+}
+
 check_finished() {
     local f
-    for f in /initqueue-finished/*.sh; do { [ -e "$f" ] && ( . "$f" ) ; } || return 1 ; done
+    for f in $hookdir/initqueue/finished/*.sh; do { [ -e "$f" ] && ( . "$f" ) ; } || return 1 ; done
     return 0
 }
 
@@ -237,7 +244,7 @@ die() {
         echo "warn dracut: FATAL: \"$@\"";
         echo "warn dracut: Refusing to continue";
 	echo "exit 1"
-    } >> /emergency/01-die.sh
+    } >> $hookdir/emergency/01-die.sh
 
     > /.die
     exit 1
@@ -305,7 +312,7 @@ udevsettle() {
     [ -z "$UDEVVERSION" ] && UDEVVERSION=$(udevadm --version)
 
     if [ $UDEVVERSION -ge 143 ]; then
-        udevadm settle --exit-if-exists=/initqueue/work $settle_exit_if_exists
+        udevadm settle --exit-if-exists=$hookdir/initqueue/work $settle_exit_if_exists
     else
         udevadm settle --timeout=30
     fi

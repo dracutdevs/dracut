@@ -33,14 +33,14 @@ if [ -n "$resume" ]; then
     } >> /etc/udev/rules.d/99-resume.rules
 
     printf '[ -e "%s" ] && { ln -s "%s" /dev/resume; rm "$job"; }\n' \
-        "$resume" "$resume" >> /initqueue-settled/resume.sh
+        "$resume" "$resume" >> $hookdir/initqueue/settled/resume.sh
 
-    echo '[ -e /dev/resume ]' > /initqueue-finished/resume.sh
+    echo '[ -e /dev/resume ]' > $hookdir/initqueue/finished/resume.sh
 
     {
         printf '[ -e /dev/resume ] || '
         printf 'warn "resume device "%s" not found"\n' "$resume"
-    } >> /emergency/00-resume.sh
+    } >> $hookdir/emergency/00-resume.sh
 
 
 elif ! getarg noresume; then

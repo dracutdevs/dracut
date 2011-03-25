@@ -21,6 +21,6 @@ for md in /dev/md[0-9]* /dev/md/*; do
 done
 unset udevinfo
 
-ln -s /sbin/mdraid-cleanup /pre-pivot/30-mdraid-cleanup.sh 2>/dev/null
-ln -s /sbin/mdraid-cleanup /pre-pivot/31-mdraid-cleanup.sh 2>/dev/null
+ln -s /sbin/mdraid-cleanup $hookdir/pre-pivot/30-mdraid-cleanup.sh 2>/dev/null
+ln -s /sbin/mdraid-cleanup $hookdir/pre-pivot/31-mdraid-cleanup.sh 2>/dev/null
 udevadm control --start-exec-queue

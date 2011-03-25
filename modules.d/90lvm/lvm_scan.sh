@@ -120,7 +120,7 @@ fi
 
 if [ "$lvmwritten" ]; then
     rm -f /etc/lvm/lvm.conf
-    ln -s /sbin/lvm-cleanup /pre-pivot/30-lvm-cleanup.sh 2>/dev/null
-    ln -s /sbin/lvm-cleanup /pre-pivot/31-lvm-cleanup.sh 2>/dev/null
+    ln -s /sbin/lvm-cleanup $hookdir/pre-pivot/30-lvm-cleanup.sh 2>/dev/null
+    ln -s /sbin/lvm-cleanup $hookdir/pre-pivot/31-lvm-cleanup.sh 2>/dev/null
 fi
 unset lvmwritten
