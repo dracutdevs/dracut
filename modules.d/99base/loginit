@@ -8,7 +8,7 @@ set +x
 QUIET=$1
 
 [ -e /dev/kmsg ] && exec 5>/dev/kmsg || exec 5>/dev/null
-exec 6>/init.log
+exec 6>/run/initramfs/init.log
 
 while read line; do 
     if [ "$line" = "DRACUT_LOG_END" ]; then
