@@ -14,7 +14,7 @@
 # routing,dns,dhcp-options,etc.
 #
 
-. /lib/dracut-lib.sh
+type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 # Check if ip= lines should be used
 if getarg ip= >/dev/null ; then

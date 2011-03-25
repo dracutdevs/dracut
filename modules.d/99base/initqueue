@@ -7,7 +7,7 @@
 # Copyright 2008-2010, Red Hat, Inc.
 # Harald Hoyer <harald@redhat.com>
 
-. /lib/dracut-lib.sh
+type getarg >/dev/null || . /lib/dracut-lib.sh
 
 while [ $# -gt 0 ]; do
     case "$1" in

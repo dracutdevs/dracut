@@ -4,7 +4,7 @@
 
 # run lvm scan if udev has settled
 
-. /lib/dracut-lib.sh
+type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 VGS=$(getargs rd.lvm.vg rd_LVM_VG=)
 LVS=$(getargs rd.lvm.lv rd_LVM_LV=)

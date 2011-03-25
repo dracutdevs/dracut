@@ -7,7 +7,7 @@
 #
 PATH=$PATH:/sbin:/usr/sbin
 
-. /lib/dracut-lib.sh
+type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 # Run dhclient
 do_dhcp() {
@@ -84,7 +84,7 @@ PATH=$PATH:/sbin:/usr/sbin
 
 export PS4="ifup.$1.$$ + "
 exec >>/run/initramfs/initlog.pipe 2>>/run/initramfs/initlog.pipe
-. /lib/dracut-lib.sh
+type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 # Huh? No $1?
 [ -z "$1" ] && exit 1

@@ -25,7 +25,7 @@
 # NFSv3 is used.
 #
 
-. /lib/dracut-lib.sh
+type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 #Don't continue if root is ok
 [ -n "$rootok" ] && return

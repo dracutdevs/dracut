@@ -9,7 +9,7 @@
 #sysloglevel=level  What level has to be logged
 #syslogtype=rsyslog|syslog|syslogng  
 #                   Don't auto detect syslog but set it
-. /lib/dracut-lib.sh
+type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 syslogserver=$(getarg syslog.server syslog)
 syslogfilters=$(getargs syslog.filter filter)

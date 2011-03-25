@@ -15,7 +15,7 @@ PATH=$PATH:/sbin:/usr/sbin
 
 export PS4="fcoe-up.$1.$$ + "
 exec >>/run/initramfs/initlog.pipe 2>>/run/initramfs/initlog.pipe
-. /lib/dracut-lib.sh
+type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 netif=$1
 dcb=$2

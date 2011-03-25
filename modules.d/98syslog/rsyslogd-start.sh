@@ -4,7 +4,7 @@
 
 # Triggered by udev and starts rsyslogd with bootparameters
 
-. /lib/dracut-lib.sh
+type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 rsyslog_config() {
     local server=$1
