@@ -11,12 +11,6 @@ check() {
             return 1
         fi
     done
-    for program in dhclient brctl ifenslave tr; do
-        if ! type -P $program >/dev/null; then
-            dwarn "Could not find program \"$program\" it might be required " \
-                "by network."
-        fi
-    done
 
     return 255
 }
@@ -48,8 +42,8 @@ installkernel() {
 }
 
 install() {
-    dracut_install ip dhclient arping ifenslave tr
-    dracut_install -o brctl
+    dracut_install ip arping tr
+    dracut_install -o dhclient brctl ifenslave
     inst "$moddir/ifup" "/sbin/ifup"
     inst "$moddir/netroot" "/sbin/netroot"
     inst "$moddir/dhclient-script" "/sbin/dhclient-script"
