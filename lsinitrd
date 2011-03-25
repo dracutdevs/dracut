@@ -40,7 +40,7 @@ fi
 
 echo "$1:"
 echo "========================================================================"
-$CAT $1 | cpio --extract --verbose --quiet --to-stdout 'dracut-*' 2>/dev/null
+$CAT $1 | cpio --extract --verbose --quiet --to-stdout 'lib/dracut/dracut-*' 2>/dev/null
 echo "========================================================================"
 $CAT $1 | cpio --extract --verbose --quiet --list
 echo "========================================================================"

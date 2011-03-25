@@ -13,11 +13,12 @@ depends() {
 install() {
     if [ -e "$moddir/dracut-version" ]; then
         dracut_rpm_version=$(cat "$moddir/dracut-version")
-        inst "$moddir/dracut-version" /$dracut_rpm_version
+        inst "$moddir/dracut-version" /lib/dracut/$dracut_rpm_version
     else
         if rpm -qf $(type -P $0) &>/dev/null; then
             dracut_rpm_version=$(rpm -qf --qf '%{name}-%{version}-%{release}\n' $(type -P $0) | { ver="";while read line;do ver=$line;done;echo $ver;} )
-            echo $dracut_rpm_version > $initdir/$dracut_rpm_version
+            mkdir -m 0755 -p $initdir/lib $initdir/lib/dracut
+            echo $dracut_rpm_version > $initdir/lib/dracut/$dracut_rpm_version
         fi
     fi
     inst_hook cmdline 01 "$moddir/version.sh"
