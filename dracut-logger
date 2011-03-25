@@ -137,12 +137,12 @@ dlog_init() {
     fi
 
     if [ $sysloglvl -gt 0 ]; then
-        if ! [ -c /dev/log -a -w /dev/log ] || ! command -v logger >/dev/null
+        if ! [ -S /dev/log -a -w /dev/log ] || ! command -v logger >/dev/null
         then
             # We cannot log to syslog, so turn this facility off.
             sysloglvl=0
             ret=1
-            errmsg="No '/dev/log' or 'logger' not included for syslog logging"
+            errmsg="No '/dev/log' or 'logger' included for syslog logging"
         fi
     fi
 
