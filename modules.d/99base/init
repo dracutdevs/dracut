@@ -386,6 +386,7 @@ fi
 if [ -f /etc/capsdrop ]; then
     . /etc/capsdrop
     info "Calling $INIT with capabilities $CAPS_INIT_DROP dropped."
+    unset RD_DEBUG
     exec /usr/sbin/capsh --drop="$CAPS_INIT_DROP" -- -c "exec /sbin/switch_root \"$NEWROOT\" \"$INIT\" $initargs" || {
 	warn "Command:"
 	warn capsh --drop=$CAPS_INIT_DROP -- -c exec switch_root "$NEWROOT" "$INIT" $initargs
@@ -393,6 +394,7 @@ if [ -f /etc/capsdrop ]; then
 	emergency_shell
     }
 else
+    unset RD_DEBUG
     exec /sbin/switch_root "$NEWROOT" "$INIT" $initargs || {
 	warn "Something went very badly wrong in the initramfs.  Please "
 	warn "file a bug against dracut."

@@ -69,24 +69,24 @@ getarg() {
         case $1 in
             -y) if _dogetarg $2; then
                     echo 1
-                    [ "$RDDEBUG" = "yes" ] && set -x
+                    [ "$RD_DEBUG" = "yes" ] && set -x
                     return 0
                 fi
                 shift 2;;
             -n) if _dogetarg $2; then
                     echo 0;
-                    [ "$RDDEBUG" = "yes" ] && set -x
+                    [ "$RD_DEBUG" = "yes" ] && set -x
                     return 1
                 fi
                 shift 2;;
             *)  if _dogetarg $1; then
-                    [ "$RDDEBUG" = "yes" ] && set -x
+                    [ "$RD_DEBUG" = "yes" ] && set -x
                     return 0;
                 fi
                 shift;;
         esac
     done
-    [ "$RDDEBUG" = "yes" ] && set -x 
+    [ "$RD_DEBUG" = "yes" ] && set -x 
     return 1
 }
 
@@ -134,10 +134,10 @@ getargs() {
     done
     if [ -n "$_val" ]; then
         echo -n $_val
-        [ "$RDDEBUG" = "yes" ] && set -x 
+        [ "$RD_DEBUG" = "yes" ] && set -x 
         return 0
     fi
-    [ "$RDDEBUG" = "yes" ] && set -x 
+    [ "$RD_DEBUG" = "yes" ] && set -x 
     return 1;
 }
 
@@ -195,16 +195,16 @@ splitsep() {
 }
 
 setdebug() {
-    if [ -z "$RDDEBUG" ]; then
+    if [ -z "$RD_DEBUG" ]; then
         if [ -e /proc/cmdline ]; then
-            RDDEBUG=no
+            RD_DEBUG=no
             if getargbool 0 rd.debug -y rdinitdebug -y rdnetdebug; then
-                RDDEBUG=yes 
+                RD_DEBUG=yes 
             fi
         fi
-        export RDDEBUG
+        export RD_DEBUG
     fi
-    [ "$RDDEBUG" = "yes" ] && set -x 
+    [ "$RD_DEBUG" = "yes" ] && set -x 
 }
 
 setdebug
