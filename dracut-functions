@@ -20,6 +20,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+if ! [[ $dracutbasedir ]]; then
+    dracutbasedir=${BASH_SOURCE[0]%/*}
+    [[ $dracutbasedir = "dracut-functions" ]] && dracutbasedir="."
+    [[ $dracutbasedir ]] || dracutbasedir="."
+    dracutbasedir="$(readlink -f $dracutbasedir)"
+fi
+
 if ! type dinfo >/dev/null 2>&1; then
     . "$dracutbasedir/dracut-logger"
     dlog_init
