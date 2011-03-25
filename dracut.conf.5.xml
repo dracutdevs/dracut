@@ -170,6 +170,46 @@ initramfs.</para>
           <para>Do not install kernel drivers and firmware files (default=no)</para>
         </listitem>
       </varlistentry>
+      <varlistentry>
+        <term>
+          <envar>stdloglvl=&quot;<replaceable>{0-6}</replaceable>&quot;</envar>
+        </term>
+        <listitem>
+          <para>Set logging to standard error level.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <envar>sysloglvl=&quot;<replaceable>{0-6}</replaceable>&quot;</envar>
+        </term>
+        <listitem>
+          <para>Set logging to syslog level.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <envar>fileloglvl=&quot;<replaceable>{0-6}</replaceable>&quot;</envar>
+        </term>
+        <listitem>
+          <para>Set logging to file level.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <envar>logfile=&quot;<replaceable>&lt;file&gt;</replaceable>&quot;</envar>
+        </term>
+        <listitem>
+          <para>Path to log file.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <envar>show_modules=&quot;<replaceable>{yes|no}</replaceable>&quot;</envar>
+        </term>
+        <listitem>
+          <para>Print included module's name to standard output during build.</para>
+        </listitem>
+      </varlistentry>
     </variablelist>
   </refsect1>
   <refsect1>

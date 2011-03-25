@@ -261,7 +261,18 @@ include in the generic initramfs. This parameter can be specified multiple times
             <option>--verbose</option>
           </term>
           <listitem>
-            <para>verbose output during the build process</para>
+            <para>increase verbosity level (default is info(4))</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>-q</option>
+          </term>
+          <term>
+            <option>--quiet</option>
+          </term>
+          <listitem>
+            <para>decrease verbosity level (default is info(4))</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -411,6 +422,17 @@ TARGET directory in the final initramfs. If SOURCE is a file, it will be install
           </term>
           <listitem>
             <para>List all available dracut modules.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>-M</option>
+          </term>
+          <term>
+            <option>--show-modules</option>
+          </term>
+          <listitem>
+            <para>Print included module's name to standard output during build.</para>
           </listitem>
         </varlistentry>
       </variablelist>
