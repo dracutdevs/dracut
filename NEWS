@@ -1,3 +1,19 @@
+dracut UNRELEASED
+=================
+- dracut generator
+  - dracut-logger
+  - xz compression
+  - better argument handling
+
+- initramfs
+  - hooks moved to /lib/dracut/hooks in initramfs
+  - rd.driver.{blacklist|pre|post} accept comma seperated driver list
+  - iSCSI: iSCSI Boot Firmware Table (iBFT) support
+  - support for /run
+  - live image: support for generic rootfs.img (instead of ext3fs.img)
+  - caps module
+  - FCoE: EDD support
+
 dracut-008
 ==========
 - removed --ignore-kernel-modules option (no longer necessary)
