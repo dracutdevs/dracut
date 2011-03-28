@@ -1,5 +1,5 @@
-dracut UNRELEASED
-=================
+dracut-009
+==========
 - dracut generator
   - dracut-logger
   - xz compression
