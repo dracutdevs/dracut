@@ -237,7 +237,7 @@ while (($# > 0)); do
                        ;;
         -*) printf "\nUnknown option: %s\n\n" "$1" >&2; usage; exit 1;;
         *) 
-            if ! [[ $outfile ]]; then
+            if ! [[ ${outfile+x} ]]; then
                 outfile=$1
             elif [[ $kernel = "unset" ]]; then
                 kernel=$1
