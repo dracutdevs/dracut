@@ -230,15 +230,18 @@ while :; do
     # some time.
     for cdrom in /sys/block/sr*; do
         [ -e "$cdrom" ] || continue 
-        if [ -e "$cdrom"/events_poll_msecs ]; then
+        # skip, if cdrom medium was already found
+        strstr "$(udevadm info --query=env --path=${cdrom##/sys})" \
+            ID_CDROM_MEDIA && continue
+
+        if [ -e "$cdrom"/events_poll_msecs -a -n -e "/tmp/.poll_${cdrom##*/}" ]; then
             msecs=$(while read a; do echo $a;done < "$cdrom"/events_poll_msecs)
-            [ "$msecs" = "-1" ] && \
-                echo 1000 > "$cdrom"/events_poll_msecs
+            if [ "$msecs" = "-1" ]; then
+                echo 250 > "$cdrom"/events_poll_msecs
+                > "/tmp/.poll_${cdrom##*/}"
+            fi
         else
-            # skip, if cdrom medium was already found
-            strstr "$(udevadm info --query=env --path=${cdrom##/sys})" \
-                ID_CDROM_MEDIA && continue
-            echo change > "$cdrom/uevent"        
+            echo change > "$cdrom/uevent"
         fi
     done
     
