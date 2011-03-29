@@ -234,7 +234,7 @@ while :; do
         strstr "$(udevadm info --query=env --path=${cdrom##/sys})" \
             ID_CDROM_MEDIA && continue
 
-        if [ -e "$cdrom"/events_poll_msecs -a -n -e "/tmp/.poll_${cdrom##*/}" ]; then
+        if [ -e "$cdrom"/events_poll_msecs -a ! -e "/tmp/.poll_${cdrom##*/}" ]; then
             msecs=$(while read a; do echo $a;done < "$cdrom"/events_poll_msecs)
             if [ "$msecs" = "-1" ]; then
                 echo 250 > "$cdrom"/events_poll_msecs
