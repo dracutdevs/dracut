@@ -187,7 +187,6 @@ push_arg() {
     fi
 }
 
-kernel="unset"
 verbosity_mod_l=0
 
 while (($# > 0)); do
@@ -239,7 +238,7 @@ while (($# > 0)); do
         *) 
             if ! [[ ${outfile+x} ]]; then
                 outfile=$1
-            elif [[ $kernel = "unset" ]]; then
+            elif ! [[ ${kernel+x} ]]; then
                 kernel=$1
             else
                 usage; exit 1;
@@ -248,7 +247,7 @@ while (($# > 0)); do
     esac
     shift
 done
-if ! [[ $kernel ]] || [[ $kernel = "unset" ]]; then
+if ! [[ $kernel ]]; then
     kernel=$(uname -r)
 fi
 [[ $outfile ]] || outfile="/boot/initramfs-$kernel.img"
