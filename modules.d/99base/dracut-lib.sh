@@ -98,7 +98,7 @@ getargbool() {
     _b=$(getarg "$@")
     [ $? -ne 0 -a -z "$_b" ] && _b=$_default
     if [ -n "$_b" ]; then
-        [ $_b -eq 0 ] && return 1
+        [ $_b = "0" ] && return 1
         [ $_b = "no" ] && return 1
     fi
     return 0
