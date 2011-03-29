@@ -787,7 +787,7 @@ instmods() {
                 # it may require
                 for_each_kmod_dep install_kmod_with_fw $mod \
                     --set-version $kernel ${moddirname}
-                ret=$((ret+$?))
+                ((ret+=$?))
                 ;;
         esac
         shift
