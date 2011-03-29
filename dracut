@@ -222,7 +222,9 @@ while (($# > 0)); do
         -H|--hostonly) hostonly_l="yes" ;;
         --fstab)       use_fstab_l="yes" ;;
         -h|--help)     usage; exit 1 ;;
-        -i|--include)  push include_src "$2"; push include_target "$3"; shift 2;;
+        -i|--include)  push include_src "$2"
+                       push include_target "$3"
+                       shift 2;;
         --bzip2)       compress_l="bzip2";;
         --lzma)        compress_l="lzma";;
         --xz)          compress_l="xz";;
