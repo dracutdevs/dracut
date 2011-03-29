@@ -9,7 +9,7 @@ if getargbool 1 rd.splash -n rd_NO_SPLASH; then
 
     info "Starting Gentoo Splash"
 
-    /lib/udev/console_init tty0
+    [ -x /lib/udev/console_init ] && /lib/udev/console_init tty0
     CDROOT=0
     . /lib/gensplash-lib.sh
     splash init

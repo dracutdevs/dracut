@@ -19,6 +19,6 @@ if getargbool 1 rd.plymouth -n rd_NO_PLYMOUTH; then
     info "Starting plymouth daemon"
     [ -x /bin/plymouthd ] && /bin/plymouthd --attach-to-session
     >/run/initramfs/plymouth
-    /lib/udev/console_init tty0
+    [ -x /lib/udev/console_init ] && /lib/udev/console_init tty0
     /bin/plymouth --show-splash 2>&1 | vinfo
 fi
