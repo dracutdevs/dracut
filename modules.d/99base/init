@@ -379,13 +379,13 @@ if [ -d "$NEWROOT"/run ]; then
     mount --move /run "$NEWROOT"/run
 else
     if [ -e /run/initramfs ]; then
-        mkdir -m 0755 /dev/.initramfs
-        cp -axr /run/initramfs/* /dev/.initramfs >/dev/null 2>&1
+        cp -axr /run/initramfs /dev/.initramfs >/dev/null 2>&1
+        if [ -e /run/initramfs/live ]; then
+            mkdir -m 0755 /dev/.initramfs/live
+            mount --move /run/initramfs/live /dev/.initramfs/live
+        fi
     fi
-    if [ -e /run/mdadm ]; then
-        mkdir -m 0755 /dev/.mdadm
-        cp -axr /run/mdadm/* /dev/.mdadm >/dev/null 2>&1
-    fi
+    umount -l /run
 fi
 
 if [ -f /etc/capsdrop ]; then
