@@ -4,20 +4,18 @@
 do_fips()
 {
     FIPSMODULES=$(cat /etc/fipsmodules)
-    BOOT=$(getarg boot=)
+    boot=$(getarg boot=)
     KERNEL=$(uname -r)
     case "$boot" in
-        block:LABEL=*|LABEL=*)
-            boot="${boot#block:}"
+        LABEL=*)
             boot="$(echo $boot | sed 's,/,\\x2f,g')"
             boot="/dev/disk/by-label/${boot#LABEL=}"
-            bootok=1 ;;
-        block:UUID=*|UUID=*)
-            boot="${boot#block:}"
-            boot="/dev/disk/by-uuid/${root#UUID=}"
-            bootok=1 ;;
+            ;;
+        UUID=*)
+            boot="/dev/disk/by-uuid/${boot#UUID=}"
+            ;;
         /dev/*)
-            bootok=1 ;;
+            ;;
         *)
             die "You have to specify boot=<boot device> as a boot option for fips=1" ;;
     esac
