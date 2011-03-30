@@ -134,7 +134,7 @@ This parameter can be specified multiple times.</para>
             <envar>rd.debug</envar>
           </term>
           <listitem>
-            <para>set -x for the dracut shell and logs to dmesg, console and <filename>/init.log</filename></para>
+            <para>set -x for the dracut shell and logs to dmesg, console and <filename>/run/initramfs/init.log</filename></para>
           </listitem>
         </varlistentry>
         <varlistentry>

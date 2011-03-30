@@ -307,7 +307,7 @@ rd.live.overlay/
           <listitem>
             <para>With dracut &gt;= 002-11, you can inspect the rd.debug output with:
 </para>
-            <screen># less /init.log
+            <screen># less /run/initramfs/init.log
 # dmesg | less</screen>
           </listitem>
         </orderedlist>
