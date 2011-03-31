@@ -3,7 +3,7 @@ pkgver=$(date +%s)
 pkgrel=$(git log --pretty=format:%h |head -n 1)
 pkgdesc="Initramfs generation utility"
 arch=('i686' 'x86_64')
-url="http://sourceforge.net/apps/trac/dracut/"
+url="https://dracut.wiki.kernel.org/"
 license=('GPL')
 conflicts=('dracut' 'mkinitcpio')
 provides=('dracut=9999' 'mkinitcpio=9999')
