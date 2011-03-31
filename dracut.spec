@@ -106,7 +106,7 @@ Requires: rpcbind
 %if %{with_nbd}
 Requires: nbd
 %endif
-Requires: net-tools iproute
+Requires: iproute
 Requires: bridge-utils
 
 %if 0%{?fedora}
