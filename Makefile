@@ -72,10 +72,13 @@ clean:
 
 archive: dracut-$(VERSION)-$(GITVERSION).tar.bz2
 
-dist: dracut-$(VERSION).tar.bz2
+dist: dracut-$(VERSION).tar.gz
 
 dracut-$(VERSION).tar.bz2:
 	git archive --format=tar $(VERSION) --prefix=dracut-$(VERSION)/ |bzip2 > dracut-$(VERSION).tar.bz2
+
+dracut-$(VERSION).tar.gz:
+	git archive --format=tar $(VERSION) --prefix=dracut-$(VERSION)/ |gzip > dracut-$(VERSION).tar.gz
 
 dracut-$(VERSION)-$(GITVERSION).tar.bz2:
 	git archive --format=tar HEAD --prefix=dracut-$(VERSION)-$(GITVERSION)/ |bzip2 > dracut-$(VERSION)-$(GITVERSION).tar.bz2
