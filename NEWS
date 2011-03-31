@@ -1,3 +1,9 @@
+dracut-010
+==========
+- lots of bugfixes
+- plymouth: use /run/plymouth/pid instead of /run/initramfs/plymouth
+- add "/lib/firmware/updates" to default firmware path
+
 dracut-009
 ==========
 - dracut generator
