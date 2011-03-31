@@ -373,7 +373,6 @@ info "Switching root"
 
 wait_for_loginit
 
-export PATH="$OLD_PATH"
 
 if [ -d "$NEWROOT"/run ]; then
     mount --move /run "$NEWROOT"/run
@@ -387,6 +386,8 @@ else
     fi
     umount -l /run
 fi
+
+export PATH="$OLD_PATH"
 
 if [ -f /etc/capsdrop ]; then
     . /etc/capsdrop
