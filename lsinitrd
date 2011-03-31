@@ -19,11 +19,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-[[ $# -eq 1 || $# -eq 2 ]] || { echo "Usage: $(basename $0) <initramfs file> [<filename>]" ; exit 1 ; }
-[[ -f $1 ]]    || { echo "$1 does not exist" ; exit 1 ; }
+[[ $# -le 2 ]] || { echo "Usage: $(basename $0) [<initramfs file> [<filename>]]" ; exit 1 ; }
+image="${1:-/boot/initramfs-$(uname -r).img}"
+[[ -f "$image" ]]    || { echo "$image does not exist" ; exit 1 ; }
 
 CAT=zcat
-FILE_T=$(file $1)
+FILE_T=$(file "$image")
 
 if [[ "$FILE_T" =~ ": gzip compressed data" ]]; then
     CAT=zcat
@@ -34,13 +35,13 @@ elif [[ "$FILE_T" =~ ": data" ]]; then
 fi
 
 if [[ $# -eq 2 ]]; then
-    $CAT $1 | cpio --extract --verbose --quiet --to-stdout ${2#/} 2>/dev/null
+    $CAT $image | cpio --extract --verbose --quiet --to-stdout ${2#/} 2>/dev/null
     exit $?
 fi
 
-echo "$1:"
+echo "$image:"
 echo "========================================================================"
-$CAT $1 | cpio --extract --verbose --quiet --to-stdout 'lib/dracut/dracut-*' 2>/dev/null
+$CAT "$image" | cpio --extract --verbose --quiet --to-stdout 'lib/dracut/dracut-*' 2>/dev/null 
 echo "========================================================================"
-$CAT $1 | cpio --extract --verbose --quiet --list
+$CAT "$image" | cpio --extract --verbose --quiet --list
 echo "========================================================================"
