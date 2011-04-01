@@ -524,7 +524,9 @@ done
 unset item
 
 # make sure that library links are correct and up to date
-dracut_install /etc/ld.so.conf /etc/ld.so.conf.d/*
+for f in /etc/ld.so.conf /etc/ld.so.conf.d/*; do
+    [[ -e $f ]] && dracut_install "$f"
+done
 if ! ldconfig -r "$initdir"; then
     if [[ $UID = 0 ]]; then
         derror "ldconfig exited ungracefully"
