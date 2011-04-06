@@ -24,7 +24,11 @@ install() {
 
     for i in $progs; do
 	path=$(find_binary "$i")
-	ln -s /sbin/busybox "$initdir/$path"
+        if [[ $path != ${path#/usr} ]]; then
+    	    ln -s ../../sbin/busybox "$initdir/$path"
+        else
+            ln -s ../sbin/busybox "$initdir/$path"
+        fi
     done
 
 }
