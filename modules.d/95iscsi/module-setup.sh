@@ -40,7 +40,7 @@ depends() {
 }
 
 installkernel() {
-    instmods iscsi_tcp crc32c iscsi_ibft
+    instmods iscsi_tcp crc32c iscsi_ibft be2iscsi bnx2 bnx2x bnx2i
 }
 
 install() {
