@@ -4,7 +4,7 @@ structure:
 
 dracut_install_dir/modules.d/
 	00modname/
-		install
+		module-setup.sh
 		check
 		<other files as needed by the hook>
 
@@ -18,16 +18,27 @@ dracut_install_dir/modules.d/
 	   module override or modify the functionality of a generic module
 	   without having to patch the more generic module.
 
-install: dracut sources this script to install the functionality that a 
+module-setup.sh:
+	 dracut sources this script to install the functionality that a 
 	 module implements onto the initrd.  For the most part, this amounts
 	 to copying files from the host system onto the initrd in a controlled
-	 manner.  dracut supplies several install functions that are
+	 manner.  
+
+install():
+	 This function of module-setup.sh is called to install all 
+	 non-kernel files. dracut supplies several install functions that are
 	 specialized for different file types.  Browse through dracut-functions
 	 fore more details.  dracut also provides a $moddir variable if you
 	 need to install a file from the module directory, such as an initrd
 	 hook, a udev rule, or a specialized executable.
 
-check: Dracut calls this program to check and see if a module can be installed
+installkernel():
+	 This function of module-setup.sh is called to install all 
+	 kernel related files.
+
+
+check(): 
+       Dracut calls this function to check and see if a module can be installed
        on the initrd.
        
        When called without options, check should check to make sure that
@@ -35,20 +46,19 @@ check: Dracut calls this program to check and see if a module can be installed
        are present.  It should exit with a 0 if they are, and a 1 if they are
        not.
 
-       When called with -h, it should perform the same check that it would
-       without any options, and it should also check to see if the 
+       When called with $hostonly set, it should perform the same check 
+       that it would without it set, and it should also check to see if the 
        functionality the module implements is being used on the host system.
        For example, if this module handles installing support for LUKS
        encrypted volumes, it should return 0 if all the tools to handle
        encrpted volumes are available and the host system has the root
        partition on an encrypted volume, 1 otherwise.
 
-       When called with -d, it should output a list of dracut modules
+depends():
+       This function should output a list of dracut modules
        that it relies upon.  An example would be the nfs and iscsi modules,
        which rely on the network module to detect and configure network
        interfaces.
-
-       Check may take additional options in the future.  
 
 Any other files in the module will not be touched by dracut directly. 
 
@@ -60,39 +70,39 @@ HOOKS
 
 init has the following hook points to inject scripts:
 
-/cmdline/*.sh
+/lib/dracut/hooks/cmdline/*.sh
    scripts for command line parsing
 
-/pre-udev/*.sh
+/lib/dracut/hooks/pre-udev/*.sh
    scripts to run before udev is started
 
-/pre-trigger/*.sh
+/lib/dracut/hooks/pre-trigger/*.sh
    scripts to run before the main udev trigger is pulled
 
-/initqueue/*.sh
+/lib/dracut/hooks/initqueue/*.sh
    runs in parallel to the udev trigger
    Udev events can add scripts here with /sbin/initqueue.
    If /sbin/initqueue is called with the "--onetime" option, the script
    will be removed after it was run.
-   If /initqueue/work is created and udev >= 143 then this loop can
-   process the jobs in parallel to the udevtrigger.
+   If /lib/dracut/hooks/initqueue/work is created and udev >= 143 then 
+   this loop can process the jobs in parallel to the udevtrigger.
    If the udev queue is empty and no root device is found or no root
    filesystem was mounted, the user will be dropped to a shell after
    a timeout.
    Scripts can remove themselves from the initqueue by "rm $job".
 
-/pre-mount/*.sh
+/lib/dracut/hooks/pre-mount/*.sh
    scripts to run before the root filesystem is mounted
    Network filesystems like NFS that do not use device files are an 
    exception. Root can be mounted already at this point.
 
-/mount/*.sh
+/lib/dracut/hooks/mount/*.sh
    scripts to mount the root filesystem
    If the udev queue is empty and no root device is found or no root
    filesystem was mounted, the user will be dropped to a shell after
    a timeout.
 
-/pre-pivot/*.sh
+/lib/dracut/hooks/pre-pivot/*.sh
    scripts to run before the real init is executed and the initramfs
    disappears
    All processes started before should be killed here.
