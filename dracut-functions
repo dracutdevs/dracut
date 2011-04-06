@@ -297,7 +297,7 @@ inst_library() {
         lib=${src##*/}
         inst_simple "$reallib" "$reallib"
         inst_dir "${dest%/*}"
-        (cd "${initdir}${dest%/*}" && ln -s "$reallib" "$lib")
+        (cd "${initdir}${dest%/*}" && ln -sfn "$reallib" "$lib")
     else
         inst_simple "$src" "$dest"
     fi
@@ -390,7 +390,7 @@ inst_symlink() {
     realsrc=$(readlink -f "$src")
     [[ $realsrc = ${realsrc##*/} ]] && realsrc=${src%/*}/$realsrc
     inst "$realsrc" && mkdir -m 0755 -p "${target%/*}" && \
-        ln -s "$realsrc" "$target"
+        ln -sfn "$realsrc" "$target"
 }
 
 # find a udev rule in the usual places.
@@ -507,7 +507,7 @@ inst_decompress() {
             realdst="${realsrc%.*}" # symlink target without extension
             mksubdirs "${initdir}/${src}"
             # Create symlink without extension to target without extension.
-            ln -s "${realdst}" "${initdir}/${dst}"
+            ln -sfn "${realdst}" "${initdir}/${dst}"
         fi
 
         # If the source is symlink we operate on its target.
