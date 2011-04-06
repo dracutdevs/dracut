@@ -26,7 +26,7 @@ install() {
     inst fipvlan
     inst lldpad
 
-    mkdir -p "$initdir/var/lib/lldpad"
+    mkdir -m 0755 -p "$initdir/var/lib/lldpad"
 
     inst "$moddir/fcoe-up" "/sbin/fcoe-up"
     inst "$moddir/fcoe-genrules.sh" "/sbin/fcoe-genrules.sh"

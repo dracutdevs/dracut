@@ -49,9 +49,9 @@ install() {
     inst_hook cmdline 90 "$moddir/parse-nfsroot.sh"
     inst_hook pre-pivot 99 "$moddir/nfsroot-cleanup.sh"
     inst "$moddir/nfsroot" "/sbin/nfsroot"
-    mkdir -p "$initdir/var/lib/nfs/rpc_pipefs"
-    mkdir -p "$initdir/var/lib/rpcbind"
-    mkdir -p "$initdir/var/lib/nfs/statd/sm"
+    mkdir -m 0755 -p "$initdir/var/lib/nfs/rpc_pipefs"
+    mkdir -m 0755 -p "$initdir/var/lib/rpcbind"
+    mkdir -m 0755 -p "$initdir/var/lib/nfs/statd/sm"
 
     # Rather than copy the passwd file in, just set a user for rpcbind
     # We'll save the state and restart the daemon from the root anyway

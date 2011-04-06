@@ -35,7 +35,7 @@ install() {
         inst_hook pre-pivot 99 "$moddir/syslog-cleanup.sh"
         inst_simple "$moddir/rsyslogd-start.sh" /sbin/rsyslogd-start
         inst_simple "$moddir/rsyslogd-stop.sh" /sbin/rsyslogd-stop
-        mkdir -p ${initdir}/etc/templates
+        mkdir -m 0755 -p ${initdir}/etc/templates
         inst_simple "${moddir}/rsyslog.conf" /etc/templates
     fi
 }

@@ -9,7 +9,7 @@ dracut_install /bin/plymouth \
     "${PLYMOUTH_LOGO_FILE}" \
     /etc/system-release 
 
-mkdir -p "${initdir}/usr/share/plymouth"
+mkdir -m 0755 -p "${initdir}/usr/share/plymouth"
 
 if [[ $hostonly ]]; then 
     dracut_install "${usrlibdir}/plymouth/text.so" \
@@ -34,7 +34,7 @@ else
     for x in /usr/share/plymouth/themes/{text,details}/* ; do
         [[ -f "$x" ]] || continue
         THEME_DIR=$(dirname "$x")
-        mkdir -p "${initdir}/$THEME_DIR"
+        mkdir -m 0755 -p "${initdir}/$THEME_DIR"
         dracut_install "$x"
     done
     for x in "${usrlibdir}"/plymouth/{text,details}.so ; do

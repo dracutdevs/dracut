@@ -17,7 +17,7 @@ if [ -e /tmp/bridge.info ]; then
     . /tmp/bridge.info
 fi
 
-mkdir -p /tmp/ifcfg/
+mkdir -m 0755 -p /tmp/ifcfg/
 
 for netif in $IFACES ; do
     # bridge?
@@ -134,9 +134,9 @@ for netif in $IFACES ; do
 done
 
 # Pass network opts
-mkdir -p /run/initramfs
+mkdir -m 0755 -p /run/initramfs
 cp /tmp/net.* /run/initramfs/ >/dev/null 2>&1
-mkdir -p /run/initramfs/state/etc/sysconfig/network-scripts/
+mkdir -m 0755 -p /run/initramfs/state/etc/sysconfig/network-scripts/
 cp /tmp/net.$netif.resolv.conf /run/initramfs/state/etc/ >/dev/null 2>&1
 echo "files /etc/sysconfig/network-scripts" > /run/initramfs/rwtab
 cp -a /tmp/ifcfg/* /run/initramfs/state/etc/sysconfig/network-scripts/ >/dev/null 2>&1

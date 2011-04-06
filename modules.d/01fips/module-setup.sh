@@ -15,7 +15,7 @@ installkernel() {
     FIPSMODULES="$FIPSMODULES des deflate ecb eseqiv hmac seqiv sha256 sha512"
     FIPSMODULES="$FIPSMODULES cryptomgr crypto_null tcrypt" 
 
-    mkdir -p "${initdir}/etc/modprobe.d"
+    mkdir -m 0755 -p "${initdir}/etc/modprobe.d"
 
     for mod in $FIPSMODULES; do 
         if instmods $mod; then

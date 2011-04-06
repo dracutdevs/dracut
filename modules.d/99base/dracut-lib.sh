@@ -453,10 +453,10 @@ mkuniqdir() {
     local dir="$1"; local prefix="$2"
     local retdir; local retdir_new
 
-    [ -d "${dir}" ] || mkdir -p "${dir}" || return 1
+    [ -d "${dir}" ] || mkdir -m 0755 -p "${dir}" || return 1
 
     retdir=$(funiq "${dir}" "${prefix}") || return 1
-    until mkdir "${retdir}" 2>/dev/null; do
+    until mkdir -m 0755 "${retdir}" 2>/dev/null; do
         retdir_new=$(funiq "${dir}" "${prefix}") || return 1
         [ "$retdir_new" = "$retdir" ] && return 1
         retdir="$retdir_new"

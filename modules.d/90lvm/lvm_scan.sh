@@ -11,7 +11,7 @@ LVS=$(getargs rd.lvm.lv rd_LVM_LV=)
 SNAPSHOT=$(getargs rd.lvm.snapshot rd_LVM_SNAPSHOT=)
 SNAPSIZE=$(getargs rd.lvm.snapsize rd_LVM_SNAPSIZE=)
 
-[ -d /etc/lvm ] || mkdir -p /etc/lvm
+[ -d /etc/lvm ] || mkdir -m 0755 -p /etc/lvm
 # build a list of devices to scan
 lvmdevs=$(
     for f in /tmp/.lvm_scan-*; do

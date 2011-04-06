@@ -33,7 +33,7 @@ do_fipskernel()
 
     [ -e "$boot" ]
 
-    mkdir /boot
+    mkdir -m 0755 /boot
     info "Mounting $boot as /boot"
     mount -oro "$boot" /boot
 
