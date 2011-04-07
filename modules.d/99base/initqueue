@@ -14,7 +14,9 @@ while [ $# -gt 0 ]; do
         --onetime)
             onetime="yes";;
         --settled)
-            settled="/settled";;
+            qname="/settled";;
+        --finished)
+            qname="/finished";;
         --unique)
             unique="yes";;
         --name)
@@ -42,6 +44,6 @@ else
     echo "$@" > "/tmp/$$-${job}.sh"
 fi
 
-mv -f "/tmp/$$-${job}.sh" "$hookdir/initqueue${settled}/${job}.sh"
-[ -z "$settled" ] && >> $hookdir/initqueue/work
+mv -f "/tmp/$$-${job}.sh" "$hookdir/initqueue${qname}/${job}.sh"
+[ -z "$qname" ] && >> $hookdir/initqueue/work
 
