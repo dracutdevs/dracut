@@ -21,6 +21,10 @@ install() {
     inst_rules 50-firmware.rules
     dracut_install cat uname
 
+
+    inst_dir /run/udev 
+    inst_dir /run/udev/rules.d  
+
     if [ ! -x /lib/udev/vol_id ]; then
         dracut_install blkid
         inst_rules "$moddir/59-persistent-storage.rules"
