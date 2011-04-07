@@ -2,7 +2,7 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
-PATH=$PATH:/sbin:/usr/sbin
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
@@ -65,7 +65,7 @@ fi
 
 handler=${netroot%%:*}
 handler=${handler%%4}
-handler="/sbin/${handler}root"
+handler=$(command -v ${handler}root)
 if [ -z "$netroot" ] || [ ! -e "$handler" ] ; then
     die "No handler for netroot type '$netroot'"
 fi

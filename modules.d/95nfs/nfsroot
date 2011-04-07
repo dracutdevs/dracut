@@ -4,7 +4,7 @@
 
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
-PATH=$PATH:/sbin:/usr/sbin
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 # Huh? Empty $1?
 [ -z "$1" ] && exit 1
@@ -86,8 +86,8 @@ options=${options:+$options,}$nfsrw
 
 # Start rpcbind or rpcbind
 # FIXME occasionally saw 'rpcbind: fork failed: No such device' -- why?
-[ -x /sbin/portmap ] && [ -z "$(pidof portmap)" ] && portmap
-[ -x /sbin/rpcbind ] && [ -z "$(pidof rpcbind)" ] && rpcbind
+command -v portmap >/dev/null && [ -z "$(pidof portmap)" ] && portmap
+command -v rpcbind >/dev/null && [ -z "$(pidof rpcbind)" ] && rpcbind
 
 if [ "$nfs" = "nfs4" ]; then
     [ ! -d /var/lib/nfs/rpc_pipefs/nfs ] && \

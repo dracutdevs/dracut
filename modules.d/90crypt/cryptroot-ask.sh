@@ -2,6 +2,8 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
+
 # do not ask, if we already have root
 [ -f /sysroot/proc ] && exit 0
 
@@ -66,9 +68,9 @@ if [ -n "$(getarg rd.luks.key)" ]; then
         keypath="${tmp#*:}"
     else
         info "No key found for $device.  Will try later."
-        /sbin/initqueue --unique --onetime --settled \
+        initqueue --unique --onetime --settled \
             --name cryptroot-ask-$luksname \
-            /sbin/cryptroot-ask "$@"
+            $(command -v cryptroot-ask) "$@"
         exit 0
     fi
     unset tmp
@@ -93,7 +95,7 @@ else
         { flock -s 9; 
             /bin/plymouth ask-for-password \
                 --prompt "$prompt" --number-of-tries=5 \
-                --command="/sbin/cryptsetup luksOpen -T1 $device $luksname"
+                --command="$(command -v cryptsetup) luksOpen -T1 $device $luksname"
         } 9>/.console.lock
         
         unset sluksname prompt

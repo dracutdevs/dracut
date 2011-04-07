@@ -16,24 +16,25 @@ else
         for luksid in $LUKS; do 
             luksid=${luksid##luks-}
             {
-                printf 'ENV{ID_FS_TYPE}=="crypto_LUKS", '
-                printf 'ENV{ID_FS_UUID}=="*%s*", ' $luksid
-                printf 'RUN+="/sbin/initqueue --unique --onetime '
-                printf -- '--name cryptroot-ask-%%k /sbin/cryptroot-ask '
-                printf '$env{DEVNAME} luks-$env{ID_FS_UUID}"\n'
+                printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", '
+                printf -- 'ENV{ID_FS_UUID}=="*%s*", ' $luksid
+                printf -- 'RUN+="%s --unique --onetime ' $(command -v initqueue)
+                printf -- '--name cryptroot-ask-%%k %s ' $(command -v cryptroot-ask)
+                printf -- '$env{DEVNAME} luks-$env{ID_FS_UUID}"\n'
             } >> /etc/udev/rules.d/70-luks.rules
 
-            printf '[ -e /dev/disk/by-uuid/*%s* ] || exit 1\n' $luksid \
+            printf -- '[ -e /dev/disk/by-uuid/*%s* ]\n' $luksid \
                 >> $hookdir/initqueue/finished/90-crypt.sh
             {
-                printf '[ -e /dev/disk/by-uuid/*%s* ] || ' $luksid
-                printf 'warn "crypto LUKS UUID "%s" not found"\n' $luksid
+                printf -- '[ -e /dev/disk/by-uuid/*%s* ] || ' $luksid
+                printf -- 'warn "crypto LUKS UUID "%s" not found"\n' $luksid
             } >> $hookdir/emergency/90-crypt.sh
         done
     else
-        echo 'ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="/sbin/initqueue' \
-            '--unique --onetime --name cryptroot-ask-%%k' \
-            '/sbin/cryptroot-ask $env{DEVNAME} luks-$env{ID_FS_UUID}"\n' \
+        printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="%s' \
+            '--unique --onetime --name cryptroot-ask-%k' \
+            '%s $env{DEVNAME} luks-$env{ID_FS_UUID}"' \
+            $(command -v initqueue) $(command -v cryptroot-ask) \
             >> /etc/udev/rules.d/70-luks.rules
     fi
 

@@ -31,5 +31,5 @@ read conf < /tmp/syslog.conf
 template=/etc/templates/rsyslog.conf
 if [ -n "$server" ]; then
     rsyslog_config "$server" "$template" "$filters" > $conf
-    /sbin/rsyslogd -c3
+    rsyslogd -c3
 fi 

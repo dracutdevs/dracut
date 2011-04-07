@@ -44,7 +44,7 @@ setup_interface() {
     [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
 }
 
-PATH=$PATH:/sbin:/usr/sbin
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 export PS4="dhclient.$interface.$$ + "
 exec >>/run/initramfs/initlog.pipe 2>>/run/initramfs/initlog.pipe
@@ -74,7 +74,7 @@ case $reason in
             echo "$line" 
         done >/tmp/dhclient.$netif.dhcpopts
         echo online > /sys/class/net/$netif/uevent
-        /sbin/initqueue --onetime --name netroot-$netif  /sbin/netroot $netif 
+        initqueue --onetime --name netroot-$netif netroot $netif 
         ;;
     *) echo "dhcp: $reason";;
 esac

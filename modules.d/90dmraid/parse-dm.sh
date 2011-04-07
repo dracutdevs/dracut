@@ -7,7 +7,7 @@ if ! getargbool 1 rd.dm -n rd_NO_DM || getarg nodmraid; then
     udevproperty rd_NO_DM=1
 fi
 
-if [ ! -x /sbin/mdadm ] || ! getargbool 1 rd.md.imsm -n rd_NO_MDIMSM || getarg noiswmd; then
+if  ! command -v mdadm >/dev/null || ! getargbool 1 rd.md.imsm -n rd_NO_MDIMSM || getarg noiswmd; then
     info "rd.md.imsm=0: no MD RAID for imsm/isw raids"
     udevproperty rd_NO_MDIMSM=1
 fi

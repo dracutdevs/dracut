@@ -27,8 +27,8 @@ wait_for_loginit()
         done    
         [ $i -eq 10 ] && kill %1 >/dev/null 2>&1
 
-        while pidof -x /sbin/loginit >/dev/null 2>&1; do
-            for pid in $(pidof -x /sbin/loginit); do
+        while pidof -x $(command -v loginit) >/dev/null 2>&1; do
+            for pid in $(pidof -x $(command -v loginit)); do
                 kill $HARD $pid >/dev/null 2>&1
             done
             HARD="-9"
@@ -136,7 +136,7 @@ cp -ar /var/lock.bak/* /run/lock/ 2>/dev/null
 if getargbool 0 rd.debug -y rdinitdebug -y rdnetdebug; then
     getarg quiet && DRACUT_QUIET="yes"
     mkfifo /run/initramfs/initlog.pipe
-    /sbin/loginit $DRACUT_QUIET </run/initramfs/initlog.pipe >/dev/console 2>&1 &
+    loginit $DRACUT_QUIET </run/initramfs/initlog.pipe >/dev/console 2>&1 &
     exec >/run/initramfs/initlog.pipe 2>&1
 else
     exec 0<>/dev/console 1<>/dev/console 2<>/dev/console

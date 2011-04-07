@@ -3,12 +3,12 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 #
 # We get called like this:
-# /sbin/fcoe-up <network-device> <dcb|nodcb>
+# fcoe-up <network-device> <dcb|nodcb>
 #
 # Note currently only nodcb is supported, the dcb option is reserved for
 # future use.
 
-PATH=$PATH:/sbin:/usr/sbin
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 # Huh? Missing arguments ??
 [ -z "$1" -o -z "$2" ] && exit 1
@@ -20,7 +20,7 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 netif=$1
 dcb=$2
 
-/sbin/ip link set "$netif" up
+ip link set "$netif" up
 wait_for_if_up "$netif"
 
 if [ "$dcb" = "dcb" ]; then
