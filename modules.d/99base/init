@@ -324,10 +324,16 @@ done
 for i in $(export -p); do
     i=${i#declare -x}
     i=${i#export}
+    strstr "$i" "=" || continue
     # skip RD_ vars
-    [ "$i" != "${i#RD_}" ] && continue
     i=${i%%=*}
-    [ "$i" = "root" -o "$i" = "PATH" -o "$i" = "HOME" -o "$i" = "TERM" ] || unset $i
+    [ -z "$i" ] && continue
+    case $i in
+        root|PATH|HOME|TERM|PS4|RD_*)
+            :;;
+        *)
+            unset "$i";;
+    esac
 done
 
 initargs=""
