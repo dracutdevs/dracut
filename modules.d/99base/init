@@ -52,7 +52,7 @@ emergency_shell()
     source_hook emergency
     echo
     wait_for_loginit
-    [ -e /.die ] && exit 1
+    [ -e /run/initramfs/.die ] && exit 1
     if getargbool 1 rd.shell -y rdshell || getarg rd.break rdbreak; then
         echo "Dropping to debug shell."
         echo

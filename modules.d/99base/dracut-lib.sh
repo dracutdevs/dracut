@@ -246,7 +246,7 @@ die() {
 	echo "exit 1"
     } >> $hookdir/emergency/01-die.sh
 
-    > /.die
+    > /run/initramfs/.die
     exit 1
 }
 
