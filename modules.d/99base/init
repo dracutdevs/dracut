@@ -72,7 +72,7 @@ NEWROOT="/sysroot"
 
 trap "emergency_shell Signal caught!" 0
 
-RDDEBUG=""
+RD_DEBUG=""
 . /lib/dracut-lib.sh
 
 [ -c /dev/null ] || mknod -m 0666 /dev/null c 1 3
