@@ -299,8 +299,8 @@ incol2() {
     local file="$1";
     local str="$2";
 
-    [ -z "$file" ] && return;
-    [ -z "$str"  ] && return;
+    [ -z "$file" ] && return 1;
+    [ -z "$str"  ] && return 1;
 
     while read dummy check restofline; do
         [ "$check" = "$str" ] && return 0
