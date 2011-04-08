@@ -4,7 +4,7 @@ TEST_DESCRIPTION="root filesystem on a ext3 filesystem"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-DEBUGFAIL="rd.shell rd.break"
+#DEBUGFAIL="rd.shell rd.break"
 
 test_run() {
     $testdir/run-qemu -hda root.ext3 -m 256M -nographic \
