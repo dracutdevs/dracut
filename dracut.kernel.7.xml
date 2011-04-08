@@ -390,6 +390,37 @@ This parameter can be specified multiple times.</para>
       </variablelist>
     </refsect2>
     <refsect2>
+      <title>FIPS</title>
+      <variablelist>
+        <varlistentry>
+          <term><envar>rd.fips</envar></term>
+          <listitem>
+            <para>enable FIPS</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>boot=<replaceable>&lt;boot device&gt;</replaceable></envar>
+          </term>
+          <listitem>
+            <para>specify the device, where /boot is located.<programlisting>
+e.g.
+  boot=/dev/sda1
+  boot=/dev/disk/by-path/pci-0000:00:1f.1-scsi-0:0:1:0-part1
+  boot=UUID=&lt;uuid&gt;
+  boot=LABEL=&lt;label&gt;</programlisting>
+</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><envar>rd.fips.skipkernel</envar></term>
+          <listitem>
+            <para>skip checksum check of the kernel image. Useful, if the kernel image is not in a separate boot partition.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
+    <refsect2>
       <title>Network</title>
       <variablelist>
         <varlistentry>
