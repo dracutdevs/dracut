@@ -32,8 +32,8 @@ else
         done
     else
         echo 'ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="/sbin/initqueue' \
-            '--unique --onetime --name cryptroot-ask-%k' \
-            '/sbin/cryptroot-ask $env{DEVNAME} luks-$env{ID_FS_UUID}"' \
+            '--unique --onetime --name cryptroot-ask-%%k' \
+            '/sbin/cryptroot-ask $env{DEVNAME} luks-$env{ID_FS_UUID}"\n' \
             >> /etc/udev/rules.d/70-luks.rules
     fi
 
