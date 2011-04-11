@@ -3,9 +3,10 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
+NEWROOT=${NEWROOT:-"/sysroot"}
 
 # do not ask, if we already have root
-[ -f /sysroot/proc ] && exit 0
+[ -f $NEWROOT/proc ] && exit 0
 
 # check if destination already exists
 [ -b /dev/mapper/$2 ] && exit 0
