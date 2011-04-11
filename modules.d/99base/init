@@ -10,32 +10,30 @@
 
 wait_for_loginit()
 {
-    if getargbool 0 rd.debug -y rdinitdebug -y rdnetdebug; then
-        set +x
-        echo "DRACUT_LOG_END"
-        exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
+    set +x
+    [ "$RD_DEBUG" = "yes" ] || return
+    [ -e /run/initramfs/initlog.pipe ] || return
+    echo "DRACUT_LOG_END"
+    exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
         # wait for loginit
-        i=0
-        while [ $i -lt 10 ]; do 
-            if [ -e /run/initramfs/init.log.end ]; then
-                j=$(jobs)
-                [ -z "$j" ] && break
-                [ -z "${j##*Running*}" ] || break
-            fi
-            sleep 0.1
-            i=$(($i+1))
-        done    
-        [ $i -eq 10 ] && kill %1 >/dev/null 2>&1
+    i=0
+    while [ $i -lt 10 ]; do 
+        if [ ! -e /run/initramfs/initlog.pipe ]; then
+            j=$(jobs)
+            [ -z "$j" ] && break
+            [ -z "${j##*Running*}" ] || break
+        fi
+        sleep 0.1
+        i=$(($i+1))
+    done    
 
-        while pidof -x $(command -v loginit) >/dev/null 2>&1; do
-            for pid in $(pidof -x $(command -v loginit)); do
-                kill $HARD $pid >/dev/null 2>&1
-            done
-            HARD="-9"
-        done
-        set -x
+    if [ $i -eq 10 ]; then
+        kill %1 >/dev/null 2>&1
+        kill $(while read line;do echo $line;done</run/initramfs/initlog.pid)
     fi
-    rm -f /run/initramfs/initlog.pipe /run/initramfs/init.log.end
+
+    set -x
+    rm -f /run/initramfs/initlog.pipe /run/initramfs/initlog.pid
 }
 
 emergency_shell()

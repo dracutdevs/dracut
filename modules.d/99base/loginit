@@ -7,12 +7,14 @@ set +x
 
 QUIET=$1
 
+printf -- "$$" > /run/initramfs/loginit.pid
+
 [ -e /dev/kmsg ] && exec 5>/dev/kmsg || exec 5>/dev/null
 exec 6>/run/initramfs/init.log
 
 while read line; do 
     if [ "$line" = "DRACUT_LOG_END" ]; then
-        > /run/initramfs/init.log.end
+        rm -f /run/initramfs/initlog.pipe
         exit 0
     fi
     echo "<31>dracut: $line" >&5
