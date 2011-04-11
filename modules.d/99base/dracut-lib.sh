@@ -330,6 +330,13 @@ udevproperty() {
     fi
 }
 
+ismounted() {
+    while read a m a; do
+        [ "$m" = "$1" ] && return 0
+    done < /proc/mounts
+    return 1
+}
+
 wait_for_if_up() {
     local cnt=0
     while [ $cnt -lt 20 ]; do 
