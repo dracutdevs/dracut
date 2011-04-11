@@ -236,6 +236,22 @@ include in the generic initramfs. This parameter can be specified multiple times
         </varlistentry>
         <varlistentry>
           <term>
+            <option>--prefix</option>
+          </term>
+          <listitem>
+            <para>prefix initramfs files with /run/initramfs/</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--noprefix</option>
+          </term>
+          <listitem>
+            <para>do not prefix initramfs files with /run/initramfs/ (default)</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
             <option>-h</option>
           </term>
           <term>

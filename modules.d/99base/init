@@ -98,9 +98,12 @@ else
     unset _tmp
 fi
 
-if [ ! -c /dev/ptmx ]; then
+ismounted sys || \
+    mount -t sysfs -o nosuid,noexec,nodev /sys /sys >/dev/null 2>&1
+
+if ! ismounted /dev; then
     # try to mount devtmpfs
-    if ! mount -t devtmpfs -o mode=0755,nosuid udev /dev >/dev/null 2>&1; then
+    if ! mount -t devtmpfs -o mode=0755,nosuid,noexec,nosuid udev /dev >/dev/null 2>&1; then
         # if it failed fall back to normal tmpfs
         mount -t tmpfs -o mode=0755,nosuid udev /dev >/dev/null 2>&1 
         # Make some basic devices first, let udev handle the rest
@@ -112,17 +115,28 @@ if [ ! -c /dev/ptmx ]; then
 fi
 
 # prepare the /dev directory
-ln -s /proc/self/fd /dev/fd >/dev/null 2>&1
-ln -s /proc/self/fd/0 /dev/stdin >/dev/null 2>&1
-ln -s /proc/self/fd/1 /dev/stdout >/dev/null 2>&1
-ln -s /proc/self/fd/2 /dev/stderr >/dev/null 2>&1
-mkdir -m 0755 /dev/shm /dev/pts /run 
-mount -t devpts -o gid=5,mode=620,noexec,nosuid devpts /dev/pts >/dev/null 2>&1
-mount -t tmpfs -o mode=1777,nosuid,nodev  tmpfs /dev/shm >/dev/null 2>&1
-# create /run which will obsolete /var/run
-mount -t tmpfs -o mode=0755,nodev,noexec,nosuid tmpfs /run >/dev/null 2>&1
+[ ! -h /dev/fd ] && ln -s /proc/self/fd /dev/fd >/dev/null 2>&1
+[ ! -h /dev/stdin ] && ln -s /proc/self/fd/0 /dev/stdin >/dev/null 2>&1
+[ ! -h /dev/stdout ] && ln -s /proc/self/fd/1 /dev/stdout >/dev/null 2>&1
+[ ! -h /dev/stderr ] && ln -s /proc/self/fd/2 /dev/stderr >/dev/null 2>&1
 
-mkdir -m 0755 /run/initramfs
+if ! ismounted /dev/pts; then
+    mkdir -m 0755 /dev/pts
+    mount -t devpts -o gid=5,mode=620,noexec,nosuid devpts /dev/pts >/dev/null 2>&1
+fi
+
+if ! ismounted /dev/shm; then
+    mkdir -m 0755 /dev/shm
+    mount -t tmpfs -o mode=1777,nosuid,nodev  tmpfs /dev/shm >/dev/null 2>&1
+fi
+
+if ! ismounted /run; then
+    mkdir -m 0755 /newrun
+    mount -t tmpfs -o mode=0755,nosuid,nodev tmpfs /newrun >/dev/null 2>&1
+    cp -a -t /newrun /run/*
+    mount --move /newrun /run
+    rm -fr /newrun
+fi
 
 UDEVVERSION=$(udevadm --version)
 if [ $UDEVVERSION -gt 166 ]; then
@@ -132,15 +146,6 @@ else
     mkdir -m 0755 /dev/.udev /dev/.udev/rules.d  
     export UDEVRULESD=/dev/.udev/rules.d
 fi
-
-[ -e /var/run ] &&  mv /var/run /var/run.bak
-[ -e /var/lock ] &&  mv /var/lock /var/lock.bak
-ln -fs /run /var/run
-mkdir -m 0755 /run/lock
-ln -fs /run/lock /var/lock
-# copy over any possible directory structure
-cp -ar /var/run.bak/* /run/ 2>/dev/null
-cp -ar /var/lock.bak/* /run/lock/ 2>/dev/null
 
 if [ "$RD_DEBUG" = "yes" ]; then
     mkfifo /run/initramfs/loginit.pipe
@@ -374,31 +379,44 @@ else
         esac
     done
 fi
-
-info "Switching root"
-
-wait_for_loginit
-
+[ "$RD_DEBUG" = "yes" ] && set -x
+ 
 if [ -d "$NEWROOT"/run ]; then
-    mount --move /run "$NEWROOT"/run
-else
-    if [ -e /run/initramfs ]; then
-        cp -axr /run/initramfs /dev/.initramfs >/dev/null 2>&1
-        if [ -e /run/initramfs/live ]; then
-            mkdir -m 0755 /dev/.initramfs/live
-            mount --move /run/initramfs/live /dev/.initramfs/live
-        fi
+    NEWRUN="${NEWROOT}/run"
+    mount --bind /run "$NEWRUN"
+    NEWINITRAMFSROOT="$NEWRUN/initramfs"
+
+    if [ "$NEWINITRAMFSROOT/lib" -ef "/lib" ]; then
+        for d in bin etc lib lib64 sbin tmp usr var; do 
+            [ -h /$d ] && ln -fsn $NEWINITRAMFSROOT/$d /$d
+        done
     fi
-    umount -l /run
+else
+    NEWRUN=/dev/.initramfs
+    mkdir -m 0755 "$NEWRUN"
+    mount --bind /run/initramfs "$NEWRUN"
 fi
 
-export PATH="$OLD_PATH"
+wait_for_loginit
+ 
+info "Switching root"
+ 
+umount -l /run
+
+unset PS4
+
+CAPSH=$(command -v capsh)
+SWITCH_ROOT=$(command -v switch_root)
+PATH=$OLDPATH
+export PATH
 
 if [ -f /etc/capsdrop ]; then
     . /etc/capsdrop
     info "Calling $INIT with capabilities $CAPS_INIT_DROP dropped."
     unset RD_DEBUG
-    exec /usr/sbin/capsh --drop="$CAPS_INIT_DROP" -- -c "exec /sbin/switch_root \"$NEWROOT\" \"$INIT\" $initargs" || {
+    exec $CAPSH --drop="$CAPS_INIT_DROP" -- \
+        -c "exec switch_root \"$NEWROOT\" \"$INIT\" $initargs" || \
+    {
 	warn "Command:"
 	warn capsh --drop=$CAPS_INIT_DROP -- -c exec switch_root "$NEWROOT" "$INIT" $initargs
 	warn "failed."
@@ -406,7 +424,7 @@ if [ -f /etc/capsdrop ]; then
     }
 else
     unset RD_DEBUG
-    exec /sbin/switch_root "$NEWROOT" "$INIT" $initargs || {
+    exec $SWITCH_ROOT "$NEWROOT" "$INIT" $initargs || {
 	warn "Something went very badly wrong in the initramfs.  Please "
 	warn "file a bug against dracut."
 	emergency_shell

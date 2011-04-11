@@ -53,6 +53,9 @@ Creates initial ramdisk images for preloading modules
   --no-kernel           Do not install kernel drivers and firmware files
   --strip               Strip binaries in the initramfs
   --nostrip             Do not strip binaries in the initramfs (default)
+  --prefix              Prefix initramfs files with /run/initramfs/
+  --noprefix            Do not prefix initramfs files with /run/initramfs/ 
+                        (default)
   --mdadmconf           Include local /etc/mdadm.conf
   --nomdadmconf         Do not include local /etc/mdadm.conf
   --lvmconf             Include local /etc/lvm/lvm.conf
@@ -211,6 +214,8 @@ while (($# > 0)); do
         --no-kernel)   kernel_only="no"; no_kernel="yes";;
         --strip)       do_strip_l="yes";;
         --nostrip)     do_strip_l="no";;
+        --prefix)      do_prefix_l="yes";;
+        --noprefix)    do_prefix_l="no";;
         --mdadmconf)   mdadmconf_l="yes";;
         --nomdadmconf) mdadmconf_l="no";;
         --lvmconf)     lvmconf_l="yes";;
@@ -345,6 +350,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 
 [[ $drivers_dir_l ]] && drivers_dir=$drivers_dir_l
 [[ $do_strip_l ]] && do_strip=$do_strip_l
+[[ $do_prefix_l ]] && do_prefix=$do_prefix_l
 [[ $hostonly_l ]] && hostonly=$hostonly_l
 [[ $use_fstab_l ]] && use_fstab=$use_fstab_l
 [[ $mdadmconf_l ]] && mdadmconf=$mdadmconf_l
@@ -352,6 +358,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $dracutbasedir ]] || dracutbasedir=/usr/share/dracut
 [[ $fw_dir ]] || fw_dir="/lib/firmware/updates /lib/firmware"
 [[ $do_strip ]] || do_strip=no
+[[ $do_prefix ]] || do_prefix=no
 [[ $compress_l ]] && compress=$compress_l
 [[ $show_modules_l ]] && show_modules=$show_modules_l
 # eliminate IFS hackery when messing with fw_dir
@@ -463,12 +470,27 @@ export initdir dracutbasedir dracutmodules drivers \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
     debug
 
+[[ $do_prefix = yes ]] && PREFIX=/run/initramfs
+
+# Create some directory structure first
+[[ $PREFIX ]] && mkdir -m 0755 -p "${initdir}${PREFIX}"
+
+mkdir -m 0755 -p "${initdir}${PREFIX}/lib"
+[[ $PREFIX ]] && ln -sfn "${PREFIX#/}/lib" "$initdir/lib"
+
 if [[ $kernel_only != yes ]]; then
-    # Create some directory structure first
-    for d in bin sbin usr/bin usr/sbin usr/lib etc \
-        proc sys sysroot tmp dev/pts var/run; do 
-        inst_dir "/$d"; 
+    for d in bin etc lib "$libdir" sbin tmp usr var; do 
+        [[ -e "${initdir}${PREFIX}/$d" ]] && continue
+        mkdir -m 0755 -p "${initdir}${PREFIX}/$d"
+        [[ $PREFIX ]] && ln -sfn "${PREFIX#/}/${d#/}" "$initdir/$d"
+    done    
+
+    for d in proc sys sysroot root run run/lock run/initramfs; do 
+        mkdir -m 0755 -p "$initdir/$d"; 
     done
+
+    ln -sfn /run "$initdir/var/run"
+    ln -sfn /run/lock "$initdir/var/lock"
 fi
 
 # check all our modules to see if they should be sourced.
@@ -509,9 +531,23 @@ while pop include_src src && pop include_target tgt; do
         if [[ -f $src ]]; then
             inst $src $tgt
         else
-            ddebug "Including directory: $src"
+            ddebug "Including directory: $src"            
             mkdir -p "${initdir}/${tgt}"
-            cp -a -t "${initdir}/${tgt}" "$src"/*
+            # check for preexisting symlinks, so we can cope with the
+            # symlinks to $PREFIX
+            for i in "$src"/*; do
+                [[ -e "$i" || -h "$i" ]] || continue
+                s=${initdir}/${tgt}/${i#$src/}
+                if [[ -d "$i" ]]; then
+                    if ! [[ -e "$s" ]]; then
+                        mkdir -m 0755 -p "$s"
+                        chmod --reference="$i" "$s"
+                    fi
+                    cp -a -t "$s" "$i"/*
+                else
+                    cp -a -t "$s" "$i"
+                fi                
+            done
         fi
     fi
 done
