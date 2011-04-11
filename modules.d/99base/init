@@ -64,11 +64,12 @@ emergency_shell()
     fi
 }
 
-OLD_PATH="$PATH"
-export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 NEWROOT="/sysroot"
 
 trap "emergency_shell Signal caught!" 0
+OLDPATH=$PATH
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
+export PATH
 
 RD_DEBUG=""
 . /lib/dracut-lib.sh
