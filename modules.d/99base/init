@@ -77,8 +77,19 @@ RD_DEBUG=""
 [ -c /dev/null ] || mknod -m 0666 /dev/null c 1 3
 
 # mount some important things
-mount -t proc -o nosuid,noexec,nodev /proc /proc >/dev/null 2>&1
-mount -t sysfs -o nosuid,noexec,nodev /sys /sys >/dev/null 2>&1
+[ ! -d /proc/self ] && \
+    mount -t proc -o nosuid,noexec,nodev /proc /proc >/dev/null 2>&1
+
+[ ! -d /sys/kernel ] && \
+    mount -t sysfs -o nosuid,noexec,nodev /sys /sys >/dev/null 2>&1
+
+setdebug
+
+if [ "$RD_DEBUG" = "yes" ]; then
+    getarg quiet && DRACUT_QUIET="yes"
+    a=$(getarg loglevel=)
+    [ -n "$a" ] && [ $a -ge 8 ] && unset DRACUT_QUIET
+fi
 
 if [ -x /lib/systemd/systemd-timestamp ]; then
     RD_TIMESTAMP=$(/lib/systemd/systemd-timestamp)
@@ -131,16 +142,13 @@ ln -fs /run/lock /var/lock
 cp -ar /var/run.bak/* /run/ 2>/dev/null
 cp -ar /var/lock.bak/* /run/lock/ 2>/dev/null
 
-if getargbool 0 rd.debug -y rdinitdebug -y rdnetdebug; then
-    getarg quiet && DRACUT_QUIET="yes"
+if [ "$RD_DEBUG" = "yes" ]; then
     mkfifo /run/initramfs/initlog.pipe
     loginit $DRACUT_QUIET </run/initramfs/initlog.pipe >/dev/console 2>&1 &
     exec >/run/initramfs/initlog.pipe 2>&1
 else
     exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
 fi
-
-setdebug
 
 source_conf /etc/conf.d
 
@@ -318,6 +326,7 @@ while pidof udevd >/dev/null 2>&1; do
     HARD="-9"
 done
 
+set +x # Turn off debugging for this section
 # Clean up the environment
 for i in $(export -p); do
     i=${i#declare -x}
@@ -335,9 +344,9 @@ for i in $(export -p); do
 done
 
 initargs=""
-
 read CLINE </proc/cmdline
 if getarg init= >/dev/null ; then
+    set +x # Turn off debugging for this section
     ignoreargs="console BOOT_IMAGE"
     # only pass arguments after init= to the init
     CLINE=${CLINE#*init=}
@@ -351,6 +360,7 @@ if getarg init= >/dev/null ; then
         done
         unset CLINE
 else
+    set +x # Turn off debugging for this section
     set $CLINE
     shift
     for x in "$@"; do
