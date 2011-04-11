@@ -8,7 +8,7 @@ NEWROOT=${NEWROOT:-"/sysroot"}
 
 for disk in /dev/disk/by-path/*-iscsi-*-$iscsi_lun; do
     if mount -t ${fstype:-auto} -o "$rflags" $disk $NEWROOT; then
-        if [ ! -d /sysroot/proc ]; then
+        if [ ! -d $NEWROOT/proc ]; then
             umount $disk
             continue
         fi
