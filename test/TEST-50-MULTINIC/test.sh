@@ -190,11 +190,11 @@ test_setup() {
  	. $basedir/dracut-functions
  	dracut_install sh shutdown poweroff stty cat ps ln ip \
          	/lib/terminfo/l/linux mount dmesg mkdir \
- 		cp ping grep
+ 		cp ping grep ls
  	inst ./client-init /sbin/init
  	(
  	    cd "$initdir"
- 	    mkdir -p dev sys proc etc
+ 	    mkdir -p dev sys proc etc run
  	    mkdir -p var/lib/nfs/rpc_pipefs
 	)
  	inst /etc/nsswitch.conf /etc/nsswitch.conf
