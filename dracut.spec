@@ -165,14 +165,14 @@ This package contains tools to assemble the local initrd and host configuration.
 %setup -q -n %{name}-%{version}%{?dashgittag}
 
 %build
-make WITH_SWITCH_ROOT=0%{?with_switch_root}
+make 
 
 %install
 %if 0%{?fedora}
 rm -rf $RPM_BUILD_ROOT
 %endif
 make install DESTDIR=$RPM_BUILD_ROOT sbindir=/sbin \
-     sysconfdir=/etc mandir=%{_mandir} WITH_SWITCH_ROOT=0%{?with_switch_root}
+     sysconfdir=/etc mandir=%{_mandir} 
 
 echo %{name}-%{version}-%{release} > $RPM_BUILD_ROOT/%{_datadir}/dracut/modules.d/10rpmversion/dracut-version
 
@@ -213,9 +213,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,0755)
 %doc README HACKING TODO COPYING AUTHORS NEWS dracut.html dracut.png dracut.svg
 /sbin/dracut
-%if 0%{?with_switch_root}
-/sbin/switch_root
-%endif
 %if 0%{?fedora} > 12 || 0%{?rhel} >= 6 || 0%{?suse_version} > 9999
 /sbin/mkinitrd
 /sbin/lsinitrd

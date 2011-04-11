@@ -12,13 +12,7 @@ manpages = dracut.8 dracut.kernel.7 dracut.conf.5 dracut-catimages.8  dracut-gen
 
 .PHONY: install clean archive rpm testimage test all check AUTHORS
 
-ifeq (1,${WITH_SWITCH_ROOT})
-targets = modules.d/99base/switch_root
-else
-targets = 
-endif
-
-all: $(targets) $(manpages) dracut.html
+all: syncheck $(manpages) dracut.html
 
 %: %.xml
 	xsltproc -o $@ -nonet http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
@@ -28,9 +22,6 @@ dracut.html: dracut.xml $(manpages)
 		--stringparam draft.mode yes \
 		--stringparam html.stylesheet http://docs.redhat.com/docs/en-US/Common_Content/css/default.css \
 		http://docbook.sourceforge.net/release/xsl/current/xhtml/docbook.xsl dracut.xml
-
-modules.d/99base/switch_root: switch_root.c
-	gcc -D _GNU_SOURCE -D 'PACKAGE_STRING="dracut"' -std=gnu99 -fsigned-char -g -O2 -o modules.d/99base/switch_root switch_root.c	
 
 install:
 	mkdir -p $(DESTDIR)$(pkglibdir)
@@ -43,9 +34,6 @@ install:
 	install -m 0755 dracut-catimages $(DESTDIR)$(sbindir)/dracut-catimages
 	install -m 0755 mkinitrd-dracut.sh $(DESTDIR)$(sbindir)/mkinitrd
 	install -m 0755 lsinitrd $(DESTDIR)$(sbindir)/lsinitrd
-ifeq (1,${WITH_SWITCH_ROOT})
-	install -m 0755 modules.d/99base/switch_root $(DESTDIR)$(sbindir)/switch_root
-endif
 	install -m 0644 dracut.conf $(DESTDIR)$(sysconfdir)/dracut.conf
 	mkdir -p $(DESTDIR)$(sysconfdir)/dracut.conf.d
 	install -m 0755 dracut-functions $(DESTDIR)$(pkglibdir)/dracut-functions
@@ -56,15 +44,11 @@ endif
 	install -m 0644 dracut-gencmdline.8 $(DESTDIR)$(mandir)/man8
 	install -m 0644 dracut.conf.5 $(DESTDIR)$(mandir)/man5
 	install -m 0644 dracut.kernel.7 $(DESTDIR)$(mandir)/man7
-ifeq (1,${WITH_SWITCH_ROOT})
-	rm $(DESTDIR)$(pkglibdir)/modules.d/99base/switch_root
-endif
 
 clean:
 	$(RM) *~
 	$(RM) */*~
 	$(RM) */*/*~
-	$(RM) modules.d/99base/switch_root
 	$(RM) test-*.img
 	$(RM) dracut-*.rpm dracut-*.tar.bz2
 	$(RM) $(manpages) dracut.html

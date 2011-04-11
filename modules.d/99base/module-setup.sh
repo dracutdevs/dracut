@@ -33,14 +33,9 @@ install() {
     done
 
     mkdir -p ${initdir}/tmp
-    # Bail out if switch_root does not exist
-    if type -P switch_root >/dev/null; then
-        inst $(type -P switch_root) /sbin/switch_root \
-            || dfatal "Failed to install switch_root"
-    else
-        inst "$moddir/switch_root" "/sbin/switch_root" \
-            || dfatal "Failed to install switch_root"
-    fi
+
+    dracut_install switch_root || dfatal "Failed to install switch_root"
+
     inst "$moddir/dracut-lib.sh" "/lib/dracut-lib.sh"
     inst_hook cmdline 10 "$moddir/parse-root-opts.sh"
     mkdir -p "${initdir}/var"
