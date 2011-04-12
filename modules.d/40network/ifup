@@ -81,7 +81,7 @@ do_static() {
 }
 
 export PS4="ifup.$1.$$ + "
-exec >>/run/initramfs/initlog.pipe 2>>/run/initramfs/initlog.pipe
+exec >>/run/initramfs/loginit.pipe 2>>/run/initramfs/loginit.pipe
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 # Huh? No $1?

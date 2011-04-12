@@ -12,13 +12,13 @@ wait_for_loginit()
 {
     set +x
     [ "$RD_DEBUG" = "yes" ] || return
-    [ -e /run/initramfs/initlog.pipe ] || return
+    [ -e /run/initramfs/loginit.pipe ] || return
     echo "DRACUT_LOG_END"
     exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
         # wait for loginit
     i=0
     while [ $i -lt 10 ]; do 
-        if [ ! -e /run/initramfs/initlog.pipe ]; then
+        if [ ! -e /run/initramfs/loginit.pipe ]; then
             j=$(jobs)
             [ -z "$j" ] && break
             [ -z "${j##*Running*}" ] || break
@@ -29,11 +29,11 @@ wait_for_loginit()
 
     if [ $i -eq 10 ]; then
         kill %1 >/dev/null 2>&1
-        kill $(while read line;do echo $line;done</run/initramfs/initlog.pid)
+        kill $(while read line;do echo $line;done</run/initramfs/loginit.pid)
     fi
 
     set -x
-    rm -f /run/initramfs/initlog.pipe /run/initramfs/initlog.pid
+    rm -f /run/initramfs/loginit.pipe /run/initramfs/loginit.pid
 }
 
 emergency_shell()
@@ -143,9 +143,9 @@ cp -ar /var/run.bak/* /run/ 2>/dev/null
 cp -ar /var/lock.bak/* /run/lock/ 2>/dev/null
 
 if [ "$RD_DEBUG" = "yes" ]; then
-    mkfifo /run/initramfs/initlog.pipe
-    loginit $DRACUT_QUIET </run/initramfs/initlog.pipe >/dev/console 2>&1 &
-    exec >/run/initramfs/initlog.pipe 2>&1
+    mkfifo /run/initramfs/loginit.pipe
+    loginit $DRACUT_QUIET </run/initramfs/loginit.pipe >/dev/console 2>&1 &
+    exec >/run/initramfs/loginit.pipe 2>&1
 else
     exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
 fi
