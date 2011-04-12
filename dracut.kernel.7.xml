@@ -169,14 +169,6 @@ This parameter can be specified multiple times.</para>
             <para>set udev to loglevel debug</para>
           </listitem>
         </varlistentry>
-        <varlistentry>
-          <term>
-            <envar>rd.timestamp</envar>
-          </term>
-          <listitem>
-            <para>export RDTIMESTAMP environment variable to init, which is set to the uptime of the dracut start.</para>
-          </listitem>
-        </varlistentry>
       </variablelist>
     </refsect2>
     <refsect2>
