@@ -725,14 +725,6 @@ rd.znet=ctc,0.0.0600,0.0.0601,0.0.0602,protocol=bar</programlisting></para>
         </varlistentry>
         <varlistentry>
           <term>
-            <envar>rdcopystate</envar>
-          </term>
-          <listitem>
-            <para><envar>rd.copystate</envar></para>
-          </listitem>
-        </varlistentry>
-        <varlistentry>
-          <term>
             <envar>rd_DASD_MOD</envar>
           </term>
           <listitem>

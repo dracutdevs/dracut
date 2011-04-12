@@ -374,15 +374,9 @@ else
     done
 fi
 
-# Debug: Copy state
-if getargbool 0 rd.copystate -y rdcopystate; then
-    cp -axr /tmp/* /run/initramfs/ >/dev/null 2>&1
-fi
-
 info "Switching root"
 
 wait_for_loginit
-
 
 if [ -d "$NEWROOT"/run ]; then
     mount --move /run "$NEWROOT"/run
