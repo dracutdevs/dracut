@@ -184,8 +184,9 @@ if [ $UDEVVERSION -lt 140 ]; then
     UDEV_QUEUE_EMPTY="udevadm settle --timeout=1"
 fi
 
-getargbool 0 rd.udev.info -y rdudevinfo && udevadm control $UDEV_LOG_PRIO_ARG=info
-getargbool 0 rd.udev.debug -y rdudevdebug && udevadm control $UDEV_LOG_PRIO_ARG=debug
+getargbool 0 rd.udev.info -y rdudevinfo && udevproperty "$UDEV_LOG_PRIO_ARG=info"
+getargbool 0 rd.udev.debug -y rdudevdebug && udevproperty "$UDEV_LOG_PRIO_ARG=debug"
+udevproperty "hookdir=$hookdir"
 
 getarg 'rd.break=pre-trigger' 'rdbreak=pre-trigger' && emergency_shell -n pre-trigger "Break before pre-trigger"
 source_hook pre-trigger
