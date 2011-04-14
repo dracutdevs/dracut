@@ -4,7 +4,7 @@ TEST_DESCRIPTION="root filesystem on LVM PV"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-#DEBUGFAIL="rd.shell"
+#DEBUGFAIL="rd.break rd.shell"
 
 test_run() {
     $testdir/run-qemu -hda root.ext2 -m 256M -nographic \
@@ -32,6 +32,7 @@ test_setup() {
 	find_binary plymouth >/dev/null && dracut_install plymouth
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
 	cp -a /etc/ld.so.conf* $initdir/etc
+	mkdir $initdir/run
 	sudo ldconfig -r "$initdir"
     )
  

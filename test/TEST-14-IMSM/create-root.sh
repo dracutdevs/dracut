@@ -24,11 +24,11 @@ done
 udevadm settle
 sfdisk -g /dev/mapper/isw*Test0 
 # save a partition at the beginning for future flagging purposes
-sfdisk -C 1280 -H 2 -S 32 -L /dev/mapper/isw*Test0 <<EOF
+sfdisk -C 2560 -H 2 -S 32 -L /dev/mapper/isw*Test0 <<EOF
 ,1
-,300
-,300
-,300
+,600
+,600
+,600
 EOF
 
 udevadm settle

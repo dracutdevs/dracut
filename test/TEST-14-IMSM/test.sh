@@ -4,7 +4,7 @@ TEST_DESCRIPTION="root filesystem on LVM PV on a isw dmraid"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-DEBUGFAIL="rd.shell"
+#DEBUGFAIL="rd.shell rd.break"
 #DEBUGFAIL="$DEBUGFAIL udev.log-priority=debug"
 
 client_run() {
@@ -39,8 +39,8 @@ test_run() {
 test_setup() {
     # Create the blank file to use as a root filesystem
     dd if=/dev/zero of=root.ext2 bs=1M count=1
-    dd if=/dev/zero of=disk1 bs=1M count=40
-    dd if=/dev/zero of=disk2 bs=1M count=40
+    dd if=/dev/zero of=disk1 bs=1M count=80
+    dd if=/dev/zero of=disk2 bs=1M count=80
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
@@ -56,6 +56,7 @@ test_setup() {
 	find_binary plymouth >/dev/null && dracut_install plymouth
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
 	cp -a /etc/ld.so.conf* $initdir/etc
+	mkdir $initdir/run
 	sudo ldconfig -r "$initdir"
     )
  
