@@ -321,16 +321,23 @@ done
 
 getarg rd.break rdbreak && emergency_shell -n switch_root "Break before switch_root"
 
-# stop udev queue before killing it
-udevadm control --stop-exec-queue
 
-HARD=""
-while pidof udevd >/dev/null 2>&1; do 
-    for pid in $(pidof udevd); do
-        kill $HARD $pid >/dev/null 2>&1
+
+if [ $UDEVVERSION -lt 168 ]; then
+    # stop udev queue before killing it
+    udevadm control --stop-exec-queue
+
+    HARD=""
+    while pidof udevd >/dev/null 2>&1; do 
+        for pid in $(pidof udevd); do
+            kill $HARD $pid >/dev/null 2>&1
+        done
+        HARD="-9"
     done
-    HARD="-9"
-done
+else
+    udevadm control --exit
+    udevadm info --cleanup-db
+fi
 
 set +x # Turn off debugging for this section
 # Clean up the environment
