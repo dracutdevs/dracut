@@ -321,8 +321,6 @@ done
 
 getarg rd.break rdbreak && emergency_shell -n switch_root "Break before switch_root"
 
-
-
 if [ $UDEVVERSION -lt 168 ]; then
     # stop udev queue before killing it
     udevadm control --stop-exec-queue
@@ -339,6 +337,7 @@ else
     udevadm info --cleanup-db
 fi
 
+export RD_TIMESTAMP
 set +x # Turn off debugging for this section
 # Clean up the environment
 for i in $(export -p); do
@@ -350,9 +349,6 @@ for i in $(export -p); do
     case $i in
         root|PATH|HOME|TERM|PS4|RD_*)
             :;;
-        # skip RD_ vars and export them
-        RD_*)
-            export $i;;
         *)
             unset "$i";;
     esac
