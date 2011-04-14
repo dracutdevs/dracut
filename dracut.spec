@@ -14,7 +14,7 @@
 %endif
 
 Name: dracut
-Version: 010
+Version: 011
 %define release_prefix 0%{?rdist}
 Release: %{release_prefix}
 

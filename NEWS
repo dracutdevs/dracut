@@ -1,3 +1,8 @@
+dracut-011
+==========
+- use udev-168 features for shutting down udev
+- introduce "--prefix" to put all initramfs files in /run/initramfs
+
 dracut-010
 ==========
 - lots of bugfixes
