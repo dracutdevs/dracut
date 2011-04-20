@@ -53,9 +53,8 @@ Creates initial ramdisk images for preloading modules
   --no-kernel           Do not install kernel drivers and firmware files
   --strip               Strip binaries in the initramfs
   --nostrip             Do not strip binaries in the initramfs (default)
-  --prefix              Prefix initramfs files with /run/initramfs/
-  --noprefix            Do not prefix initramfs files with /run/initramfs/ 
-                        (default)
+  --prefix [DIR]        Prefix initramfs files with [DIR]
+  --noprefix            Do not prefix initramfs files (default)
   --mdadmconf           Include local /etc/mdadm.conf
   --nomdadmconf         Do not include local /etc/mdadm.conf
   --lvmconf             Include local /etc/lvm/lvm.conf
@@ -209,13 +208,13 @@ while (($# > 0)); do
         -I|--install)  read_arg install_items        "$@" || shift;;
         --fwdir)       read_arg fw_dir_l             "$@" || shift;;
         --compress)    read_arg compress_l           "$@" || shift;;
+        --prefix)      read_arg prefix_l             "$@" || shift;;
         -f|--force)    force=yes;;
         --kernel-only) kernel_only="yes"; no_kernel="no";;
         --no-kernel)   kernel_only="no"; no_kernel="yes";;
         --strip)       do_strip_l="yes";;
         --nostrip)     do_strip_l="no";;
-        --prefix)      do_prefix_l="yes";;
-        --noprefix)    do_prefix_l="no";;
+        --noprefix)    prefix_l="/";;
         --mdadmconf)   mdadmconf_l="yes";;
         --nomdadmconf) mdadmconf_l="no";;
         --lvmconf)     lvmconf_l="yes";;
@@ -350,7 +349,8 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 
 [[ $drivers_dir_l ]] && drivers_dir=$drivers_dir_l
 [[ $do_strip_l ]] && do_strip=$do_strip_l
-[[ $do_prefix_l ]] && do_prefix=$do_prefix_l
+[[ $prefix_l ]] && prefix=$prefix_l
+[[ $prefix = "/" ]] && unset prefix
 [[ $hostonly_l ]] && hostonly=$hostonly_l
 [[ $use_fstab_l ]] && use_fstab=$use_fstab_l
 [[ $mdadmconf_l ]] && mdadmconf=$mdadmconf_l
@@ -358,7 +358,6 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $dracutbasedir ]] || dracutbasedir=/usr/share/dracut
 [[ $fw_dir ]] || fw_dir="/lib/firmware/updates /lib/firmware"
 [[ $do_strip ]] || do_strip=no
-[[ $do_prefix ]] || do_prefix=no
 [[ $compress_l ]] && compress=$compress_l
 [[ $show_modules_l ]] && show_modules=$show_modules_l
 # eliminate IFS hackery when messing with fw_dir
@@ -470,19 +469,17 @@ export initdir dracutbasedir dracutmodules drivers \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
     debug
 
-[[ $do_prefix = yes ]] && PREFIX=/run/initramfs
-
 # Create some directory structure first
-[[ $PREFIX ]] && mkdir -m 0755 -p "${initdir}${PREFIX}"
+[[ $prefix ]] && mkdir -m 0755 -p "${initdir}${prefix}"
 
-mkdir -m 0755 -p "${initdir}${PREFIX}/lib"
-[[ $PREFIX ]] && ln -sfn "${PREFIX#/}/lib" "$initdir/lib"
+mkdir -m 0755 -p "${initdir}${prefix}/lib"
+[[ $prefix ]] && ln -sfn "${prefix#/}/lib" "$initdir/lib"
 
 if [[ $kernel_only != yes ]]; then
     for d in bin etc lib "$libdir" sbin tmp usr var; do 
-        [[ -e "${initdir}${PREFIX}/$d" ]] && continue
-        mkdir -m 0755 -p "${initdir}${PREFIX}/$d"
-        [[ $PREFIX ]] && ln -sfn "${PREFIX#/}/${d#/}" "$initdir/$d"
+        [[ -e "${initdir}${prefix}/$d" ]] && continue
+        mkdir -m 0755 -p "${initdir}${prefix}/$d"
+        [[ $prefix ]] && ln -sfn "${prefix#/}/${d#/}" "$initdir/$d"
     done    
 
     for d in proc sys sysroot root run run/lock run/initramfs; do 
@@ -534,7 +531,7 @@ while pop include_src src && pop include_target tgt; do
             ddebug "Including directory: $src"            
             mkdir -p "${initdir}/${tgt}"
             # check for preexisting symlinks, so we can cope with the
-            # symlinks to $PREFIX
+            # symlinks to $prefix
             for i in "$src"/*; do
                 [[ -e "$i" || -h "$i" ]] || continue
                 s=${initdir}/${tgt}/${i#$src/}
