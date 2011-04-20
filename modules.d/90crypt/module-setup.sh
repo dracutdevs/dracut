@@ -35,9 +35,7 @@ installkernel() {
 }
 
 install() {
-    inst cryptsetup 
-    inst rmdir
-    inst readlink
+    dracut_install cryptsetup rmdir readlink umount
     inst "$moddir"/cryptroot-ask.sh /sbin/cryptroot-ask
     inst "$moddir"/probe-keydev.sh /sbin/probe-keydev
     inst_hook cmdline 10 "$moddir/parse-keydev.sh"
