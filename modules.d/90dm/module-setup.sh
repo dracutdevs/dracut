@@ -25,5 +25,6 @@ install() {
     # Gentoo ebuild for LVM2 prior to 2.02.63-r1 doesn't install above rules
     # files, but provides the one below:
     inst_rules 64-device-mapper.rules
+    inst_rules "$moddir/11-dm.rules"
 }
 
