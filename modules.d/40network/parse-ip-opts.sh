@@ -58,7 +58,7 @@ if [ "ibft" = "$(getarg ip=)" ]; then
 	for iface in /sys/firmware/ibft/ethernet*; do
 	    [ -e ${iface}/mac ] || continue
             ifname_mac=$(read a < ${iface}/mac; echo $a)
-	    [ -z "$ifname_mac" ] || continue
+	    [ -z "$ifname_mac" ] && continue
             ifname_if=ibft$num
 	    num=$(( $num + 1 ))
 	    echo "ifname=$ifname_if:$ifname_mac"
