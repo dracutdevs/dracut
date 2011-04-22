@@ -52,7 +52,7 @@ if [ -n "$NEEDBOOTDEV" ] ; then
 fi
 
 if [ "ibft" = "$(getarg ip=)" ]; then
-    modprobe ibft
+    modprobe iscsi_ibft
     num=0
     (   
 	for iface in /sys/firmware/ibft/ethernet*; do
