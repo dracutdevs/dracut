@@ -46,5 +46,14 @@ install() {
     dracut_install $(find /etc/modprobe.d/ -type f -name '*.conf')
     inst_hook cmdline 01 "$moddir/parse-kernel.sh"
     inst_simple "$moddir/insmodpost.sh" /sbin/insmodpost.sh
-    inst "$srcmods/modules.builtin.bin" "/lib/modules/$kernel/modules.builtin.bin"
+
+    local f
+
+    for f in modules.builtin.bin modules.builtin; do
+        [[ $srcmods/$f ]] && inst "$srcmods/$f" "/lib/modules/$kernel/$f" \
+            && break
+    done || {
+        dfatal "No modules.builtin.bin and modules.builtin found!"
+        return 1
+    }
 }
