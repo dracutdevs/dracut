@@ -98,7 +98,7 @@ else
     unset _tmp
 fi
 
-ismounted sys || \
+ismounted /sys || \
     mount -t sysfs -o nosuid,noexec,nodev /sys /sys >/dev/null 2>&1
 
 if ! ismounted /dev; then
