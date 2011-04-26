@@ -59,16 +59,19 @@ if [ "ibft" = "$(getarg ip=)" ]; then
 	    [ -e ${iface}/mac ] || continue
             ifname_mac=$(read a < ${iface}/mac; echo $a)
 	    [ -z "$ifname_mac" ] && continue
+            unset dev
             for ifname in $(getargs ifname=); do
 		if strstr "$ifname" "$ifname_mac"; then
 		    dev=${ifname%%:*}
-		else
-		    ifname_if=ibft$num
-		    num=$(( $num + 1 ))
-		    echo "ifname=$ifname_if:$ifname_mac"
-		    dev=$ifname_if
-		fi
+                    break
+                fi
 	    done
+            if [ -z "$dev" ]; then
+		ifname_if=ibft$num
+		num=$(( $num + 1 ))
+		echo "ifname=$ifname_if:$ifname_mac"
+		dev=$ifname_if
+	    fi
 
 	    dhcp=$(read a < ${iface}/dhcp; echo $a)
 	    if [ -n "$dhcp" ]; then
