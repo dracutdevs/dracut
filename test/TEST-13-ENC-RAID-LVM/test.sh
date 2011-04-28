@@ -44,7 +44,7 @@ test_run() {
 
 test_setup() {
     # Create the blank file to use as a root filesystem
-    dd if=/dev/zero of=root.ext2 bs=1M count=40
+    dd if=/dev/zero of=root.ext2 bs=1M count=80
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay

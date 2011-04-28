@@ -7,11 +7,11 @@ done
 rm /etc/lvm/lvm.conf
 udevadm control --reload-rules
 # save a partition at the beginning for future flagging purposes
-sfdisk -C 1280 -H 2 -S 32 -L /dev/sda <<EOF
+sfdisk -C 2560 -H 2 -S 32 -L /dev/sda <<EOF
 ,16
-,400
-,400
-,400
+,800
+,800
+,800
 EOF
 echo -n test >keyfile
 cryptsetup -q luksFormat /dev/sda2 /keyfile
