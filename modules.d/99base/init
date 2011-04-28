@@ -103,7 +103,7 @@ ismounted /sys || \
 
 if ! ismounted /dev; then
     # try to mount devtmpfs
-    if ! mount -t devtmpfs -o mode=0755,nosuid,noexec,nosuid udev /dev >/dev/null 2>&1; then
+    if ! mount -t devtmpfs -o mode=0755,nosuid,noexec udev /dev >/dev/null 2>&1; then
         # if it failed fall back to normal tmpfs
         mount -t tmpfs -o mode=0755,nosuid udev /dev >/dev/null 2>&1 
         # Make some basic devices first, let udev handle the rest
