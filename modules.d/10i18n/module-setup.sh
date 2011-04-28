@@ -11,6 +11,7 @@ depends() {
 }
 
 install() {
+    [ -x /lib/systemd/systemd-vconsole ] && dracut_install /lib/systemd/systemd-vconsole
     KBDSUBDIRS=consolefonts,consoletrans,keymaps,unimaps
     DEFAULT_FONT=LatArCyrHeb-16
     I18N_CONF="/etc/locale.conf"
