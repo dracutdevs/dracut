@@ -26,7 +26,10 @@ installkernel() {
 }
 
 install() {
-    inst_hook pre-trigger 01 "$moddir/fips.sh"
+    inst_hook pre-trigger 01 "$moddir/fips-boot.sh"
+    inst_hook pre-pivot 01 "$moddir/fips-noboot.sh"
+    inst "$moddir/fips.sh" /sbin/fips.sh
+
     dracut_install sha512hmac rmmod insmod mount uname umount
 
     for dir in "$usrlibdir" "$libdir"; do
@@ -37,5 +40,8 @@ install() {
     done
 
     dracut_install $usrlibdir/hmaccalc/sha512hmac.hmac
+    if command -v prelink >/dev/null; then
+        dracut_install prelink
+    fi
 }
 
