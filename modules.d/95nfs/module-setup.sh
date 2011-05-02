@@ -61,9 +61,11 @@ install() {
     egrep '^rpc:' /etc/passwd >> "$initdir/etc/passwd"
     egrep '^rpcuser:' /etc/passwd >> "$initdir/etc/passwd"
     #type -P nologin >/dev/null && dracut_install nologin
+    egrep '^rpc:' /etc/group >> "$initdir/etc/group"
 
     # rpc user needs to be able to write to this directory to save the warmstart
     # file
-    chmod 777 "$initdir/var/lib/rpcbind"
+    chmod 770 "$initdir/var/lib/rpcbind"
+    chown rpc.rpc "$initdir/var/lib/rpcbind"
 }
 
