@@ -596,7 +596,7 @@ netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target1  </programlisting></par
         </varlistentry>
         <varlistentry>
           <term>
-	    <envar>root=</envar><replaceable>??? </replaceable><envar>rd.iscsi.firmware=1</envar>
+	    <envar>root=</envar><replaceable>??? </replaceable><envar>netroot=iscsi </envar><envar>rd.iscsi.firmware=1</envar>
 	  </term>
           <listitem>
             <para>will read the iscsi parameter from the BIOS firmware</para>
