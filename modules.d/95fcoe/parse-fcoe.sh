@@ -51,20 +51,7 @@ if [ "$fcoe_interface" = "edd" ]; then
     if [ "$fcoe_dcb" != "nodcb" -a "$fcoe_dcb" != "dcb" ] ; then
         warn "Invalid FCoE DCB option: $fcoe_dcb"
     fi
-    [ -d /sys/firmware/edd ] || modprobe edd
-    # parse edd interfaces
-    for disk in /sys/firmware/edd/int13_*; do
-        [ -d $disk ] || continue
-        for nic in ${disk}/pci_dev/net/*; do
-            [ -d $nic ] || continue
-            if [ -e ${nic}/address ]; then
-                unset fcoe_mac
-                unset fcoe_interface
-                fcoe_mac=$(cat ${nic}/address)
-                [ -n "$fcoe_mac" ] && . $(command -v fcoe-genrules.sh)
-            fi
-        done
-    done
+    /sbin/initqueue --settled --unique /sbin/fcoe-edd $fcoe_dcb
 else
     for fcoe in $(getargs fcoe=); do
         unset fcoe_mac
