@@ -493,22 +493,23 @@ fi
 # check all our modules to see if they should be sourced.
 # This builds a list of modules that we will install next.
 check_module_dir
-
+modules_loaded=" "
 # source our modules.
 for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
-    mod=${moddir##*/}; mod=${mod#[0-9][0-9]}
-    if strstr "$mods_to_load" " $mod "; then
-        [[ $show_modules = yes ]] && echo "$mod" || \
-            dinfo "*** Including module: $mod ***"
+    _d_mod=${moddir##*/}; _d_mod=${_d_mod#[0-9][0-9]}
+    if strstr "$mods_to_load" " $_d_mod "; then
+        [[ $show_modules = yes ]] && echo "$_d_mod" || \
+            dinfo "*** Including module: $_d_mod ***"
         if [[ $kernel_only = yes ]]; then
-            module_installkernel $mod
+            module_installkernel $_d_mod
         else
-            module_install $mod
+            module_install $_d_mod
             if [[ $no_kernel != yes ]]; then
-                module_installkernel $mod
+                module_installkernel $_d_mod
             fi
         fi
-        mods_to_load=${mods_to_load// $mod /}
+        mods_to_load=${mods_to_load// $_d_mod /}
+        modules_loaded+="$_d_mod "
     fi
 done
 unset moddir
@@ -598,6 +599,15 @@ fi
 type hardlink &>/dev/null && {
     hardlink "$initdir" 2>&1
 }
+
+if strstr "$modules_loaded" " fips " && command -v prelink >/dev/null; then
+    for i in $initdir/bin/* \
+       $initdir/bin/* \
+       $initdir/usr/bin/* \
+       $initdir/usr/sbin/*; do
+       [ -x $i ] && prelink -u $i &>/dev/null
+    done
+fi
 
 if ! ( cd "$initdir"; find . |cpio -R 0:0 -H newc -o --quiet | \
     $compress > "$outfile"; ); then 
