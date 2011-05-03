@@ -18,7 +18,9 @@ if getargbool 1 rd.plymouth -n rd_NO_PLYMOUTH; then
 
     info "Starting plymouth daemon"
     mkdir -m 0755 /run/plymouth
-    [ -x /lib/udev/console_init ] && /lib/udev/console_init tty0
+    [ -x /lib/udev/console_init ] && /lib/udev/console_init /dev/tty0
     [ -x /bin/plymouthd ] && /bin/plymouthd --attach-to-session --pid-file /run/plymouth/pid
     /bin/plymouth --show-splash 2>&1 | vinfo
+    # reset tty after plymouth messed with it
+    [ -x /lib/udev/console_init ] && /lib/udev/console_init /dev/tty0
 fi
