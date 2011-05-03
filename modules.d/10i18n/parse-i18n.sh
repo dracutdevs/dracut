@@ -20,9 +20,9 @@ inst_key_val() {
 }
 
 inst_key_val '' /etc/vconsole.conf KEYMAP      vconsole.keymap      KEYTABLE
-inst_key_val '' /etc/vconsole.conf FONT        vconsole.font        SYSFONT 
-inst_key_val '' /etc/vconsole.conf FONT_MAP    vconsole.font.map    CONTRANS 
-inst_key_val '' /etc/vconsole.conf FONT_UNIMAP vconsole.font.unimap UNIMAP 
+inst_key_val '' /etc/vconsole.conf FONT        vconsole.font        SYSFONT
+inst_key_val '' /etc/vconsole.conf FONT_MAP    vconsole.font.map    CONTRANS
+inst_key_val '' /etc/vconsole.conf FONT_UNIMAP vconsole.font.unimap UNIMAP
 inst_key_val 1  /etc/vconsole.conf UNICODE     vconsole.unicode vconsole.font.unicode
 inst_key_val '' /etc/vconsole.conf EXT_KEYMAP  vconsole.keymap.ext
 
@@ -35,3 +35,9 @@ if [ -f /etc/locale.conf ]; then
     export LC_ALL
 fi
 
+if [ -x /lib/systemd/systemd-vconsole-setup ]; then
+    /lib/systemd/systemd-vconsole-setup
+    rm -f /{etc,lib}/udev/rules.d/10-console.rules
+    rm -f /lib/udev/console_init
+    ln -s /lib/systemd/systemd-vconsole-setup /lib/udev/console_init
+fi

@@ -61,7 +61,6 @@ dev_open() {
         exec 7>>${dev}
 }
 
-
 dev=/dev/${1#/dev/}
 devname=${dev#/dev/}
 
@@ -70,27 +69,20 @@ devname=${dev#/dev/}
     exit 1
 }
 
-[ -e /tmp/console_init.${devname} ] && exit 0
+dev_open ${dev}
 
-if [ -x /lib/systemd/systemd-vconsole-setup ]; then
-    /lib/systemd/systemd-vconsole-setup
-else
-    dev_open ${dev}
+for fd in 6 7; do
+    if ! [ -t ${fd} ]; then
+        echo "ERROR: File descriptor not opened: ${fd}" >&2
+        dev_close
+        exit 1
+    fi
+done
 
-    for fd in 6 7; do
-        if ! [ -t ${fd} ]; then
-            echo "ERROR: File descriptor not opened: ${fd}" >&2
-            dev_close
-            exit 1
-        fi
-    done
+set_keyboard
+set_terminal ${dev}
+set_font ${dev}
+set_keymap
 
-    set_keyboard
-    set_terminal ${dev}
-    set_font ${dev}
-    set_keymap
+dev_close
 
-    dev_close
-fi
-
->/tmp/console_init.${devname}
