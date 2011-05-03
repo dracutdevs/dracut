@@ -72,8 +72,8 @@ devname=${dev#/dev/}
 
 [ -e /tmp/console_init.${devname} ] && exit 0
 
-if [ -x /lib/systemd/systemd-vconsole ]; then
-    /lib/systemd/systemd-vconsole
+if [ -x /lib/systemd/systemd-vconsole-setup ]; then
+    /lib/systemd/systemd-vconsole-setup
 else
     dev_open ${dev}
 
