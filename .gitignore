@@ -1,7 +1,10 @@
 /dracut.8
 /dracut-catimages.8
 /dracut.conf.5
+/dracut.conf.d/*.conf
 /dracut-gencmdline.8
+/dracut.html
 /dracut.kernel.7
 /modules.d/99base/switch_root
+/test/*/test.log
 test*.img
