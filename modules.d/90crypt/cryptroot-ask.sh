@@ -76,38 +76,18 @@ if [ -n "$(getarg rd.luks.key)" ]; then
     fi
     unset tmp
 
-    mntp=$(mkuniqdir /mnt keydev)
-    mount -r "$keydev" "$mntp" || die 'Mounting rem. dev. failed!'
-    cryptsetup -d "$mntp/$keypath" luksOpen "$device" "$luksname"
-    umount "$mntp"
-    rmdir "$mntp"
-    unset mntp keypath keydev
+    info "Using '$keypath' on '$keydev'"
+    readkey "$keypath" "$keydev" "$device" \
+        | cryptsetup -d - luksOpen "$device" "$luksname"
+    unset keypath keydev
 else
-    # Prompt for password with plymouth, if installed and running.
-    if [ -x /bin/plymouth ] && /bin/plymouth --has-active-vt; then
-        prompt="Password [$device ($luksname)]:" 
-        if [ ${#luksname} -gt 8 ]; then
-            sluksname=${sluksname##luks-}
-            sluksname=${luksname%%${luksname##????????}}
-            prompt="Password for $device ($sluksname...)"
-        fi
-        
-        # flock against other interactive activities
-        { flock -s 9; 
-            /bin/plymouth ask-for-password \
-                --prompt "$prompt" --number-of-tries=5 \
-                --command="$(command -v cryptsetup) luksOpen -T1 $device $luksname"
-        } 9>/.console.lock
-        
-        unset sluksname prompt
-        
-    else
-        # flock against other interactive activities
-        { flock -s 9;
-            echo "$device ($luksname) is password protected"
-            cryptsetup luksOpen -T5 $device $luksname
-        } 9>/.console.lock
-    fi
+    luks_open="$(command -v cryptsetup) luksOpen"
+    ask_for_password --ply-tries 5 \
+        --ply-cmd "$luks_open -T1 $device $luksname" \
+        --ply-prompt "Password ($device)" \
+        --tty-tries 1 \
+        --tty-cmd "$luks_open -T5 $device $luksname"
+    unset luks_open
 fi
 
 unset device luksname

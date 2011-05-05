@@ -4,6 +4,78 @@
 
 command -v getarg >/dev/null || . /lib/dracut-lib.sh
 
+# ask_for_password
+#
+# Wraps around plymouth ask-for-password and adds fallback to tty password ask
+# if plymouth is not present.
+#
+# --cmd command
+#   Command to execute. Required.
+# --prompt prompt
+#   Password prompt. Note that function already adds ':' at the end.
+#   Recommended.
+# --tries n
+#   How many times repeat command on its failure.  Default is 3.
+# --ply-[cmd|prompt|tries]
+#   Command/prompt/tries specific for plymouth password ask only.
+# --tty-[cmd|prompt|tries]
+#   Command/prompt/tries specific for tty password ask only.
+# --tty-echo-off
+#   Turn off input echo before tty command is executed and turn on after.
+#   It's useful when password is read from stdin.
+ask_for_password() {
+    local cmd; local prompt; local tries=3
+    local ply_cmd; local ply_prompt; local ply_tries=3
+    local tty_cmd; local tty_prompt; local tty_tries=3
+    local ret
+
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --cmd) ply_cmd="$2"; tty_cmd="$2" shift;;
+            --ply-cmd) ply_cmd="$2"; shift;;
+            --tty-cmd) tty_cmd="$2"; shift;;
+            --prompt) ply_prompt="$2"; tty_prompt="$2" shift;;
+            --ply-prompt) ply_prompt="$2"; shift;;
+            --tty-prompt) tty_prompt="$2"; shift;;
+            --tries) ply_tries="$2"; tty_tries="$2"; shift;;
+            --ply-tries) ply_tries="$2"; shift;;
+            --tty-tries) tty_tries="$2"; shift;;
+            --tty-echo-off) tty_echo_off=yes;;
+        esac
+        shift
+    done
+
+    { flock -s 9;
+        # Prompt for password with plymouth, if installed and running.
+        if [ -x /bin/plymouth ] && /bin/plymouth --has-active-vt; then
+            /bin/plymouth ask-for-password \
+                --prompt "$ply_prompt" --number-of-tries=$ply_tries \
+                --command="$ply_cmd"
+            ret=$?
+        else
+            if [ "$tty_echo_off" = yes ]; then
+                stty_orig="$(stty -g)"
+                stty -echo
+            fi
+
+            local i=1
+            while [ $i -le $tty_tries ]; do
+                [ -n "$tty_prompt" ] && \
+                    printf "$tty_prompt [$i/$tty_tries]:" >&2
+                eval "$tty_cmd" && ret=0 && break
+                ret=$?
+                i=$(($i+1))
+                [ -n "$tty_prompt" ] && printf '\n' >&2
+            done
+
+            [ "$tty_echo_off" = yes ] && stty $stty_orig
+        fi
+    } 9>/.console.lock
+
+    [ $ret -ne 0 ] && echo "Wrong password" >&2
+    return $ret
+}
+
 # Try to mount specified device (by path, by UUID or by label) and check
 # the path with 'test'.
 #
@@ -117,4 +189,34 @@ getkey() {
     done < "$keys_file"
 
     return 1
+}
+
+# readkey keypath keydev device
+#
+# Mounts <keydev>, reads key from file <keypath>, optionally processes it (e.g.
+# if encrypted with GPG) and prints to standard output which is supposed to be
+# read by cryptsetup.  <device> is just passed to helper function for
+# informational purpose.
+readkey() {
+    local keypath="$1"
+    local keydev="$2"
+    local device="$3"
+
+    local mntp=$(mkuniqdir /mnt keydev)
+    mount -r "$keydev" "$mntp" || die 'Mounting rem. dev. failed!'
+
+    case "${keypath##*.}" in
+        gpg)
+            if [ -f /lib/dracut-crypt-gpg-lib.sh ]; then
+                . /lib/dracut-crypt-gpg-lib.sh
+                gpg_decrypt "$mntp" "$keypath" "$keydev" "$device"
+            else
+                die "No GPG support to decrypt '$keypath' on '$keydev'."
+            fi
+            ;;
+        *) cat "$mntp/$keypath" ;;
+    esac 
+
+    umount "$mntp"
+    rmdir "$mntp"
 }
