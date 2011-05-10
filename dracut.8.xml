@@ -523,7 +523,7 @@ set in the configuration files.</para>
   <refsect1>
     <title>Availability</title>
     <para>The dracut command is part of the dracut package and is available from
-<ulink url="http://sourceforge.net/apps/trac/dracut/wiki">http://sourceforge.net/apps/trac/dracut/wiki</ulink></para>
+<ulink url='https://dracut.wiki.kernel.org'>https://dracut.wiki.kernel.org</ulink></para>
   </refsect1>
   <refsect1>
     <title>See Also</title>
