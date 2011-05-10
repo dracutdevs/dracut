@@ -1,2 +1,23 @@
-See https://sourceforge.net/apps/trac/dracut/wiki/TODO
+Current TODO list, broken into things which are relevant for the initramfs itself (/init et al) vs the generator. A lot of things are/should be marked with "FIXME" in the code
+INITRAMFS TODO
+
+- The hard-coded list of udev rules that we care about is kind of lame.
+
+GENERATOR TODO
+
+- Default module specification could use some work
+- udev rule copying, as mentioned above, is a bit too hard-coded
+- pkg-config integration, to make it easy for other packages to use us.
+
+CODE TODO
+- document functions
+- make function vars local, and prefix with "_"
+
+Future Enhancement Requests
+
+Note that our main concern, especially right now, is proving viability of some of the ideas and then showing it with the things that we already support. If things work out, then it should be doable to start putting in support for new things that we don't already have support for. Nothing in this list is guaranteed but if people have ideas about new things, put them here and they'll at least be considered.
+
+- run ssh server to enter crypto password or perform debugging (supported by debian)
+- cryptokey on usbkey rhbz#459485
+- Bug 524727 - Dracut + encrypted root + networking
 
