@@ -452,7 +452,7 @@ elif [[ -f "$outfile" && ! -w "$outfile" ]]; then
 fi
 
 [[ $TMPDIR && ! -w $TMPDIR ]] && unset TMPDIR
-readonly initdir=$(mktemp -d -t initramfs.XXXXXX)
+readonly initdir=$(mktemp --tmpdir=/var/tmp/ -d -t initramfs.XXXXXX)
 
 # clean up after ourselves no matter how we die.
 trap 'ret=$?;rm -rf "$initdir";exit $ret;' EXIT 
