@@ -32,9 +32,6 @@ if ! type dinfo >/dev/null 2>&1; then
     dlog_init
 fi
 
-IF_RTLD=""
-IF_dynamic=""
-
 # Generic substring function.  If $2 is in $1, return 0.
 strstr() { [[ $1 =~ $2 ]]; }
 
@@ -330,14 +327,20 @@ find_binary() {
 # Same as above, but specialized to install binary executables.
 # Install binary executable, and all shared library dependencies, if any.
 inst_binary() {
-    local bin target
+    local bin target f self so_regex lib_regex TLIBDIR BASE FILE
+
     bin=$(find_binary "$1") || return 1
     target=${2:-$bin}
     inst_symlink $bin $target && return 0
-    local LDSO NAME IO FILE ADDR I1 n f TLIBDIR
     [[ -e $initdir$target ]] && return 0
+
+    # If the binary being installed is also a library, add it to the loop.
+    so_regex='([^ ]*/lib[^/]*/[^ ]*\.so[^ ]*)'
+    [[ $bin =~ $so_regex ]] && self="\t${bin##*/} => ${bin} (0x0)\n"
+
+    lib_regex='^(/lib[^/]*).*'
     # I love bash!
-    LC_ALL=C ldd $bin 2>/dev/null | while read line; do
+    { LC_ALL=C ldd $bin 2>/dev/null; echo -en "$self"; } | while read line; do
         [[ $line = 'not a dynamic executable' ]] && return 1
         if [[ $line =~ not\ found ]]; then
             dfatal "Missing a shared library required by $bin."
@@ -345,28 +348,28 @@ inst_binary() {
             dfatal "dracut cannot create an initrd."
             exit 1
         fi
-        so_regex='([^ ]*/lib[^/]*/[^ ]*\.so[^ ]*)'
         [[ $line =~ $so_regex ]] || continue
         FILE=${BASH_REMATCH[1]}
         [[ -e ${initdir}$FILE ]] && continue
-        # see if we are loading an optimized version of a shared lib.
-        lib_regex='^(/lib[^/]*).*'
+
+        # See if we are loading an optimized version of a shared lib.
         if [[ $FILE =~ $lib_regex ]]; then
             TLIBDIR=${BASH_REMATCH[1]}
             BASE=${FILE##*/}
-            # prefer nosegneg libs, then unoptimized ones.
+            # Prefer nosegneg libs to unoptimized ones.
             for f in "$TLIBDIR/i686/nosegneg" "$TLIBDIR"; do
                 [[ -e $f/$BASE ]] || continue
                 FILE=$f/$BASE
                 break
             done
             inst_library "$FILE" "$TLIBDIR/$BASE"
-            IF_dynamic=yes
-            continue
-            fi
+        else
             inst_library "$FILE"
+        fi
     done
-    inst_simple "$bin" "$target"
+
+    # Install the binary if it wasn't handled in the above loop.
+    [[ -z $self ]] && inst_simple "$bin" "$target"
 }
 
 # same as above, except for shell scripts.
