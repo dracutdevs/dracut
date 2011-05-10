@@ -685,8 +685,13 @@ install_kmod_with_fw() {
             fi
         done
         if [[ $found != yes ]]; then
-            dwarn "Possible missing firmware \"${fw}\" for kernel module" \
-                "\"${mod}.ko\""
+            if ! grep -qe "\<${modname//-/_}\>" /proc/modules; then
+                dinfo "Possible missing firmware \"${fw}\" for kernel module" \
+                    "\"${modname}.ko\""
+            else
+                dwarn "Possible missing firmware \"${fw}\" for kernel module" \
+                    "\"${modname}.ko\""
+            fi
         fi
     done
     return 0
