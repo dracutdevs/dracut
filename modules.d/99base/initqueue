@@ -42,9 +42,9 @@ shift
 [ -x "$exe" ] || exe=$(command -v $exe)
 
 if [ -n "$onetime" ]; then
-    { 
+    {
         echo '[ -e "$job" ] && rm "$job"'
-        echo "$exe $@" 
+        echo "$exe $@"
     } > "/tmp/$$-${job}.sh"
 else
     echo "$exe $@" > "/tmp/$$-${job}.sh"

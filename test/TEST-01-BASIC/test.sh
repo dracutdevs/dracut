@@ -15,7 +15,7 @@ test_run() {
 }
 
 test_setup() {
-    
+
     if [ ! -e root.ext3 ]; then
 
     # Create the blank file to use as a root filesystem
@@ -43,7 +43,7 @@ test_setup() {
 	(
 	    initdir=overlay
 	    . $basedir/dracut-functions
-	    dracut_install sfdisk mkfs.ext3 poweroff cp umount 
+	    dracut_install sfdisk mkfs.ext3 poweroff cp umount
 	    inst_hook initqueue 01 ./create-root.sh
 	    inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
 	)
@@ -77,7 +77,7 @@ test_setup() {
 	-d "piix ide-gd_mod ata_piix ext3 sd_mod" \
 	-f initramfs.testing $KVERSION || return 1
 
-#	-o "plymouth network md dmraid multipath fips caps crypt btrfs resume dmsquash-live dm" 
+#	-o "plymouth network md dmraid multipath fips caps crypt btrfs resume dmsquash-live dm"
 }
 
 test_cleanup() {

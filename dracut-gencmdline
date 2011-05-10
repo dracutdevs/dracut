@@ -168,7 +168,7 @@ resolve_device_name() {
         real=$(freadlink /dev/disk/by-label/${1##LABEL=})
         [ -b $real ] && { echo $real; return; }
     fi
-    echo "$1" 
+    echo "$1"
 }
 
 finddevnoinsys() {
@@ -308,7 +308,7 @@ iscsi_set_parameters() {
     chap=${result}
     if [ -n "${chap}" -a "${chap}" != "<empty>" ]; then
         chap="-u ${chap}"
-        iscsi_get_rec_val $tmpfile "node.session.auth.password" 
+        iscsi_get_rec_val $tmpfile "node.session.auth.password"
         chap_pw="-w ${result}"
     else
         chap=""
@@ -318,7 +318,7 @@ iscsi_set_parameters() {
     chap_in=${result}
     if [ -n "${chap_in}" -a "${chap_in}" != "<empty>" ]; then
         chap_in="-U ${chap_in}"
-        iscsi_get_rec_val $tmpfile "node.session.auth.password_in" 
+        iscsi_get_rec_val $tmpfile "node.session.auth.password_in"
         chap_in_pw="-W ${result}"
     else
         chap_in=""
@@ -343,7 +343,7 @@ is_iscsi() {
     path=$1
     if echo $path | grep -q "/platform/host[0-9]*/session[0-9]*/target[0-9]*:[0-9]*:[0-9]*/[0-9]*:[0-9]*:[0-9]*:[0-9]*"; then
         return 0
-    else 
+    else
         return 1
     fi
 }
@@ -399,7 +399,7 @@ handledm() {
 EOF
         local name=$(dmsetup info --noheadings -c -j $major -m $minor -o name)
         local vg=$(lvshow "/dev/mapper/$name")
-        local raids=$(/sbin/dmraid -s -craidname 2>/dev/null | grep -vi "no raid disks") 
+        local raids=$(/sbin/dmraid -s -craidname 2>/dev/null | grep -vi "no raid disks")
         if [ -n "$vg" ]; then
             vg=`echo $vg` # strip whitespace
             case " $vg_list " in
@@ -630,7 +630,7 @@ fi
 
 cemit()
 {
-    cat 
+    cat
 }
 
 emit()
@@ -640,7 +640,7 @@ emit()
         NONL="-n"
         shift
     fi
-    echo $NONL "$@" 
+    echo $NONL "$@"
 }
 
 emitdmraids()
@@ -678,8 +678,8 @@ else
     echo -n "rd_NO_MD "
 fi
 
-if [ -z "$nolvm" -a -n "$vg_list" ]; then    
-    for vg in $vg_list; do 
+if [ -z "$nolvm" -a -n "$vg_list" ]; then
+    for vg in $vg_list; do
         echo -n "rd_LVM_VG=$vg "
     done
 else

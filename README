@@ -2,8 +2,8 @@ Dracut
 ------
 Dracut is a new initramfs infrastructure.
 
-Information about the initial goals and aims can be found at 
-https://fedoraproject.org/wiki/Initrdrewrite 
+Information about the initial goals and aims can be found at
+https://fedoraproject.org/wiki/Initrdrewrite
 
 Unlike existing initramfs's, this is an attempt at having as little as
 possible hard-coded into the initramfs as possible.  The initramfs has
@@ -21,8 +21,8 @@ as hooks are guaranteed to be the path to slow-down.
 
 Most of the initrd generation functionality in dracut is provided by a bunch
 of generator modules that are sourced by the main dracut script to install
-specific functionality into the initrd.  They live in the modules.d 
-subdirectory, and use functionality provided by dracut-functions to do their 
+specific functionality into the initrd.  They live in the modules.d
+subdirectory, and use functionality provided by dracut-functions to do their
 work.
 
 Some general rules for writing modules:
@@ -44,7 +44,7 @@ Some general rules for writing modules:
  * We have some breakpoints for debugging your hooks.  If you pass 'rdbreak'
    as a kernel parameter, the initramfs will drop to a shell just before
    switching to a new root. You can pass 'rdbreak=hookpoint', and the initramfs
-   will break just before hooks in that hookpoint run. 
+   will break just before hooks in that hookpoint run.
 
 Also, there is an attempt to keep things as distribution-agnostic as
 possible.  Every distribution has their own tool here and it's not
@@ -56,7 +56,7 @@ Currently dracut lives on sourceforge.
 Project Page:
 https://sourceforge.net/projects/dracut/
 
-Drop Harald Hoyer <harald@redhat.com> a mail, if you want to help with 
+Drop Harald Hoyer <harald@redhat.com> a mail, if you want to help with
 the documentation, git access, etc.
 
 Git Repository:
@@ -64,7 +64,7 @@ http://dracut.git.sourceforge.net/
 git://dracut.git.sourceforge.net/gitroot/dracut/dracut
 
 Trac Instance:
-http://apps.sourceforge.net/trac/dracut/ 
+http://apps.sourceforge.net/trac/dracut/
 
 The git tree can be found at
 git://dracut.git.sourceforge.net/gitroot/dracut/dracut for now.  See the TODO
@@ -72,7 +72,7 @@ file for things which still need to be done and HACKING for some
 instructions on how to get started.  There is also a mailing list that
 is being used for the discussion -- initramfs@vger.kernel.org.  It is
 a typical vger list, send mail to majordomo@vger.kernel.org with body
-of 'subscribe initramfs email@host.com' 
+of 'subscribe initramfs email@host.com'
 
 
 Licensed under the GPLv2

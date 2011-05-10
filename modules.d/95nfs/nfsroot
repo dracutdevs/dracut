@@ -46,7 +46,7 @@ if [ -z "$server" ] ; then
         [ -n "$var" ] && server=$var && break;
     done
 
-    # XXX This blindly assumes that if new_root_path has to used that 
+    # XXX This blindly assumes that if new_root_path has to used that
     # XXX it really can be used as server
     server=${server%%:*}
 fi
@@ -113,7 +113,7 @@ else
     # XXX Should we loop here?
     { mount -t nfs -o$options${options:+,}nolock,nfsvers=3 $server:$path $NEWROOT || \
         mount -t nfs -o$options${options:+,}nolock,nfsvers=2 $server:$path $NEWROOT ; } \
-        && { [ -e /dev/root ] || >/dev/root ; } 
+        && { [ -e /dev/root ] || >/dev/root ; }
 fi
 
 # inject new exit_if_exists

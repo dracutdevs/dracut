@@ -18,7 +18,7 @@ detect_syslog() {
     fi
     echo "$syslogtype"
     [ -n "$syslogtype" ]
-}       
+}
 
 read syslogtype < /tmp/syslog.type
 if [ -z "$syslogtype" ]; then

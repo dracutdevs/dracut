@@ -11,7 +11,7 @@
 # return if bridge already parsed
 [ -n "$bridgename" ] && return
 
-# Check if bridge parameter is valid 
+# Check if bridge parameter is valid
 if getarg bridge= >/dev/null ; then
     if [ -z "$netroot" ] ; then
         die "No netboot configured, bridge is invalid"
@@ -49,7 +49,7 @@ fi
 if getarg bridge >/dev/null; then
     # Read bridge= parameters if they exist
     bridge="$(getarg bridge=)"
-    if [ ! "$bridge" = "bridge" ]; then 
+    if [ ! "$bridge" = "bridge" ]; then
         parsebridge "$(getarg bridge=)"
     fi
     # Simple default bridge

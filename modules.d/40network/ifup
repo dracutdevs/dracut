@@ -32,10 +32,10 @@ load_ipv6() {
 do_ipv6auto() {
     load_ipv6
     {
-        echo 0 > /proc/sys/net/ipv6/conf/$netif/forwarding 
+        echo 0 > /proc/sys/net/ipv6/conf/$netif/forwarding
         echo 1 > /proc/sys/net/ipv6/conf/$netif/accept_ra
         echo 1 > /proc/sys/net/ipv6/conf/$netif/accept_redirects
-        echo ip link set $netif up 
+        echo ip link set $netif up
         echo wait_for_if_up $netif
     } > /tmp/net.$netif.up
 
@@ -44,13 +44,13 @@ do_ipv6auto() {
     namesrv=$(getargs nameserver)
     if  [ -n "$namesrv" ] ; then
         for s in $namesrv; do
-            echo nameserver $s 
+            echo nameserver $s
         done
     fi >> /tmp/net.$netif.resolv.conf
 
 
     echo online > /sys/class/net/$netif/uevent
-    initqueue --onetime --name netroot-$netif netroot $netif 
+    initqueue --onetime --name netroot-$netif netroot $netif
 }
 
 # Handle static ip configuration
@@ -58,7 +58,7 @@ do_static() {
     strstr $ip '*:*:*' && load_ipv6
 
     {
-        echo ip link set $netif up 
+        echo ip link set $netif up
         echo wait_for_if_up $netif
         # do not flush addr for ipv6
         strstr $ip '*:*:*' || \
@@ -72,12 +72,12 @@ do_static() {
     namesrv=$(getargs nameserver)
     if  [ -n "$namesrv" ] ; then
         for s in $namesrv; do
-            echo nameserver $s 
+            echo nameserver $s
         done
     fi >> /tmp/net.$netif.resolv.conf
 
     echo online > /sys/class/net/$netif/uevent
-    initqueue --onetime --name netroot-$netif netroot $netif 
+    initqueue --onetime --name netroot-$netif netroot $netif
 }
 
 export PS4="ifup.$1.$$ + "
@@ -223,7 +223,7 @@ for p in $(getargs ip=); do
             do_dhcp -6 ;;
         auto6)
             do_ipv6auto ;;
-        *) 
+        *)
             do_static ;;
     esac
     break

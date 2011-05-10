@@ -5,7 +5,7 @@
 getargbool 1 rd.zfcp.conf -n rd_NO_ZFCPCONF || rm /etc/zfcp.conf
 
 for zfcp_arg in $(getargs rd.zfcp 'rd_ZFCP='); do
-    ( 
+    (
         IFS=","
         set $zfcp_arg
         echo "$@" >> /etc/zfcp.conf

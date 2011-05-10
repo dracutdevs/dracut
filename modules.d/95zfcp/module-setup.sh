@@ -4,14 +4,14 @@
 
 check() {
     arch=$(uname -m)
-    [ "$arch" = "s390" -o "$arch" = "s390x" ] || return 1 
+    [ "$arch" = "s390" -o "$arch" = "s390x" ] || return 1
 
     return 0
 }
 
 depends() {
     arch=$(uname -m)
-    [ "$arch" = "s390" -o "$arch" = "s390x" ] || return 1 
+    [ "$arch" = "s390" -o "$arch" = "s390x" ] || return 1
 
     return 0
 }

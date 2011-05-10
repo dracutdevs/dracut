@@ -16,7 +16,7 @@ check() {
     [[ $hostonly ]] && {
         rootdev=$(find_root_block_device)
         if [[ $rootdev ]]; then
-        # root lives on a block device, so we can be more precise about 
+        # root lives on a block device, so we can be more precise about
         # hostonly checking
             check_block_and_slaves is_dmraid "$rootdev" || return 1
         else
@@ -34,7 +34,7 @@ depends() {
 }
 
 install() {
-    dracut_install dmraid partx kpartx 
+    dracut_install dmraid partx kpartx
 
     inst  dmeventd
 
@@ -42,7 +42,7 @@ install() {
         [ -e "$i" ] && dracut_install "$i"
     done
 
-    inst_rules 10-dm.rules 13-dm-disk.rules 95-dm-notify.rules 
+    inst_rules 10-dm.rules 13-dm-disk.rules 95-dm-notify.rules
     # Gentoo ebuild for LVM2 prior to 2.02.63-r1 doesn't install above rules
     # files, but provides the one below:
     inst_rules 64-device-mapper.rules

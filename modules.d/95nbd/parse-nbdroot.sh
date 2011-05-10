@@ -20,7 +20,7 @@ netroot_to_var() {
         v=${v#*:}
     done
 
-    unset server port 
+    unset server port
     server=$2; port=$3;
 }
 

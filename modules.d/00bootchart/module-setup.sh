@@ -12,16 +12,16 @@ depends() {
 }
 
 install() {
-    inst /sbin/bootchartd 
-    inst /bin/bash 
+    inst /sbin/bootchartd
+    inst /bin/bash
     inst_symlink /init /sbin/init
     inst_dir /lib/bootchart/tmpfs
-    inst /lib/bootchart/bootchart-collector 
-    inst /etc/bootchartd.conf 
-    inst /sbin/accton 
+    inst /lib/bootchart/bootchart-collector
+    inst /etc/bootchartd.conf
+    inst /sbin/accton
     inst /usr/bin/pkill /bin/pkill
     inst /bin/echo
-    inst /bin/grep 
+    inst /bin/grep
     inst /bin/usleep
     inst /usr/bin/[  /bin/[
 

@@ -11,17 +11,17 @@ else
     if [ -n "$MD_UUID" ]; then
         for f in /etc/udev/rules.d/65-md-incremental*.rules; do
             [ -e "$f" ] || continue
-            while read line; do 
+            while read line; do
                 if [ "${line%%UUID CHECK}" != "$line" ]; then
                     for uuid in $MD_UUID; do
                         printf 'ENV{MD_UUID}=="%s", GOTO="do_md_inc"\n' $uuid
                     done;
-                    printf 'GOTO="md_inc_end"\n';               
+                    printf 'GOTO="md_inc_end"\n';
                 else
-                    echo $line; 
+                    echo $line;
                 fi
             done < "${f}" > "${f}.new"
-            mv "${f}.new" "$f" 
+            mv "${f}.new" "$f"
         done
     fi
 fi

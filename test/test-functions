@@ -4,19 +4,19 @@ export PATH
 
 while (($# > 0)); do
     case $1 in
-        --run) 
+        --run)
 	    echo "TEST RUN: $TEST_DESCRIPTION"
 	    test_run
 	    exit $?;;
-        --setup) 
+        --setup)
 	    echo "TEST SETUP: $TEST_DESCRIPTION"
 	    test_setup
 	    exit $?;;
-        --clean) 
+        --clean)
 	    echo "TEST CLEANUP: $TEST_DESCRIPTION"
 	    test_cleanup
 	    exit $?;;
-        --all) 
+        --all)
 	    echo -n "TEST: $TEST_DESCRIPTION ";
 	    (
 		test_setup && test_run

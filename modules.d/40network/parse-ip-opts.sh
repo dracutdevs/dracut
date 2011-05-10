@@ -156,7 +156,7 @@ for p in $(getargs ip=); do
 done
 
 # This ensures that BOOTDEV is always first in IFACES
-if [ -n "$BOOTDEV" ] && [ -n "$IFACES" ] ; then 
+if [ -n "$BOOTDEV" ] && [ -n "$IFACES" ] ; then
     IFACES="${IFACES%$BOOTDEV*} ${IFACES#*$BOOTDEV}"
     IFACES="$BOOTDEV $IFACES"
 fi
@@ -165,5 +165,5 @@ fi
 [ -n "$BOOTDEV" ] && echo $BOOTDEV > /tmp/net.bootdev
 [ -n "$IFACES" ]  && echo $IFACES > /tmp/net.ifaces
 
-# We need a ip= line for the configured bootdev= 
+# We need a ip= line for the configured bootdev=
 [ -n "$NEEDBOOTDEV" ] && [ -z "$BOOTDEVOK" ] && die "Bootdev Argument '$BOOTDEV' not found"

@@ -10,7 +10,7 @@ install() {
     dracut_install basename
     inst_rules 50-udev-default.rules 60-persistent-storage.rules \
         61-persistent-storage-edd.rules 80-drivers.rules 95-udev-late.rules \
-        60-pcmcia.rules 
+        60-pcmcia.rules
     #Some debian udev rules are named differently
     inst_rules 50-udev.rules 95-late.rules
 
@@ -22,8 +22,8 @@ install() {
     dracut_install cat uname
 
 
-    inst_dir /run/udev 
-    inst_dir /run/udev/rules.d  
+    inst_dir /run/udev
+    inst_dir /run/udev/rules.d
 
     if [ ! -x /lib/udev/vol_id ]; then
         dracut_install blkid

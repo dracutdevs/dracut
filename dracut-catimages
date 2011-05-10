@@ -39,7 +39,7 @@ Creates initial ramdisk image by concatenating several images from the command
 line and /boot/dracut/
 
   -f, --force           Overwrite existing initramfs file.
-  -i, --imagedir        Directory with additional images to add 
+  -i, --imagedir        Directory with additional images to add
                         (default: /boot/dracut/)
   -o, --overlaydir      Overlay directory, which contains files that
                         will be used to create an additional image
@@ -120,7 +120,7 @@ images+=($@)
 dinfo "Using base image $baseimage"
 cat "$baseimage" > "$outfile"
 
-for i in "${images[@]}"; do 
+for i in "${images[@]}"; do
     dinfo "Appending $i"
     cat "$i" >> "$outfile"
 done

@@ -3,5 +3,5 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
-info "Autoassembling MD Raid"    
+info "Autoassembling MD Raid"
 mdadm -As --auto=yes --run 2>&1 | vinfo

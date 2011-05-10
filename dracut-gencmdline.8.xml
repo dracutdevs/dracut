@@ -15,7 +15,7 @@
 <!-- body begins here -->
 <refsynopsisdiv id='synopsis'>
 <cmdsynopsis>
-  <command>dracut-gencmdline</command>    
+  <command>dracut-gencmdline</command>
     <sbr/>
 </cmdsynopsis>
 </refsynopsisdiv>

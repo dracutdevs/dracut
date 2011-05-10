@@ -27,7 +27,7 @@ test_run() {
     echo "MD_UUID=$MD_UUID"
 
     client_run || return 1
-    
+
 #    client_run rd.md.conf=0 || return 1
 
     client_run rd.lvm=0 failme && return 1
@@ -52,14 +52,14 @@ test_run() {
 test_setup() {
     # Create the blank file to use as a root filesystem
     dd if=/dev/zero of=root.ext2 bs=1M count=40
- 
+
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
 	initdir=overlay/source
 	. $basedir/dracut-functions
 	dracut_install sh df free ls shutdown poweroff stty cat ps ln ip route \
-	    /lib/terminfo/l/linux mount dmesg ifconfig dhclient mkdir cp ping dhclient 
+	    /lib/terminfo/l/linux mount dmesg ifconfig dhclient mkdir cp ping dhclient
 	inst "$basedir/modules.d/40network/dhclient-script" "/sbin/dhclient-script"
 	inst "$basedir/modules.d/40network/ifup" "/sbin/ifup"
 	dracut_install grep
@@ -69,7 +69,7 @@ test_setup() {
 	cp -a /etc/ld.so.conf* $initdir/etc
 	sudo ldconfig -r "$initdir"
     )
- 
+
     # second, install the files needed to make the root filesystem
     (
 	initdir=overlay
@@ -78,7 +78,7 @@ test_setup() {
 	inst_hook initqueue 01 ./create-root.sh
  	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
    )
- 
+
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.

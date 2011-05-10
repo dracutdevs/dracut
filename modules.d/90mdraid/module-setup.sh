@@ -14,7 +14,7 @@ check() {
     [[ $hostonly ]] && {
         rootdev=$(find_root_block_device)
         if [[ $rootdev ]]; then
-            # root lives on a block device, so we can be more precise about 
+            # root lives on a block device, so we can be more precise about
             # hostonly checking
             check_block_and_slaves is_mdraid "$rootdev" || return 1
         else
@@ -36,12 +36,12 @@ installkernel() {
 }
 
 install() {
-    dracut_install mdadm partx 
+    dracut_install mdadm partx
 
 
      # XXX: mdmon really needs to run as non-root?
      #      If so, write only the user it needs in the initrd's /etc/passwd (and maybe /etc/group)
-     #      in a similar fashion to modules.d/95nfs.  Do not copy /etc/passwd and /etc/group from 
+     #      in a similar fashion to modules.d/95nfs.  Do not copy /etc/passwd and /etc/group from
      #      the system into the initrd.
      #      dledford has hardware to test this, so he should be able to clean this up.
      # inst /etc/passwd
@@ -53,11 +53,11 @@ install() {
 
     inst_rules "$moddir/65-md-incremental-imsm.rules"
 
-    if ! mdadm -Q -e imsm /dev/null &> /dev/null; then    
+    if ! mdadm -Q -e imsm /dev/null &> /dev/null; then
         inst_hook pre-trigger 30 "$moddir/md-noimsm.sh"
     fi
 
-    if [[ $hostonly ]] || [[ $mdadmconf = "yes" ]]; then 
+    if [[ $hostonly ]] || [[ $mdadmconf = "yes" ]]; then
         if [ -f /etc/mdadm.conf ]; then
             inst /etc/mdadm.conf
         else
@@ -67,7 +67,7 @@ install() {
 
     if [ -x  /sbin/mdmon ] ; then
         dracut_install mdmon
-    fi 
+    fi
     inst_hook pre-udev 30 "$moddir/mdmon-pre-udev.sh"
 
     inst "$moddir/mdraid_start.sh" /sbin/mdraid_start

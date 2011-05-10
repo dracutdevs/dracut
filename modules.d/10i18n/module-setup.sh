@@ -178,12 +178,12 @@ install() {
         for kbddir in ${kbddir} /usr/lib/kbd /lib/kbd /usr/share /usr/share/kbd
         do
             [[ -d "${kbddir}" ]] && \
-                for dir in ${KBDSUBDIRS//,/ } 
+                for dir in ${KBDSUBDIRS//,/ }
             do
                 [[ -d "${kbddir}/${dir}" ]] && continue
                 false
             done && break
-            kbddir='' 
+            kbddir=''
         done
 
         [[ ${kbddir} ]] || {

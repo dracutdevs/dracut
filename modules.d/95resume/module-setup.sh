@@ -9,7 +9,7 @@ install() {
         [[ -x "${bin}" ]] && {
             inst "${bin}" /usr/sbin/resume
             [[ -f /etc/suspend.conf ]] && inst /etc/suspend.conf
-            break 
+            break
         }
     done
 

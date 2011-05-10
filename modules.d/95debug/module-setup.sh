@@ -12,7 +12,7 @@ depends() {
 }
 
 install() {
-    dracut_install -o ps grep more cat rm strace free showmount 
+    dracut_install -o ps grep more cat rm strace free showmount
     dracut_install -o ping netstat rpcinfo vi scp ping6 ssh
     dracut_install -o fsck fsck.ext2 fsck.ext4 fsck.ext3 fsck.ext4dev fsck.vfat e2fsck
 

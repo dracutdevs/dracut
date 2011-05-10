@@ -13,11 +13,11 @@ depends() {
 installkernel() {
     FIPSMODULES="aead aes_generici aes-xts aes-x86_64 ansi_cprng cbc ccm chainiv ctr"
     FIPSMODULES="$FIPSMODULES des deflate ecb eseqiv hmac seqiv sha256 sha512"
-    FIPSMODULES="$FIPSMODULES cryptomgr crypto_null tcrypt" 
+    FIPSMODULES="$FIPSMODULES cryptomgr crypto_null tcrypt"
 
     mkdir -m 0755 -p "${initdir}/etc/modprobe.d"
 
-    for mod in $FIPSMODULES; do 
+    for mod in $FIPSMODULES; do
         if instmods $mod; then
             echo $mod >> "${initdir}/etc/fipsmodules"
             echo "blacklist $mod" >> "${initdir}/etc/modprobe.d/fips.conf"

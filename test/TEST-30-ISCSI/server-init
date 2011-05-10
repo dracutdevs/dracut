@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/sh
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export TERM=linux
 export PS1='nfstest-server:\w\$ '

@@ -13,7 +13,7 @@
 # return if bond already parsed
 [ -n "$bondname" ] && return
 
-# Check if bond parameter is valid 
+# Check if bond parameter is valid
 if getarg bond= >/dev/null ; then
     if [ -z "$netroot" ] ; then
         die "No netboot configured, bond is invalid"
@@ -46,7 +46,7 @@ unset bondname bondslaves bondoptions
 if getarg bond >/dev/null; then
     # Read bond= parameters if they exist
     bond="$(getarg bond=)"
-    if [ ! "$bond" = "bond" ]; then 
+    if [ ! "$bond" = "bond" ]; then
         parsebond "$(getarg bond=)"
     fi
     # Simple default bond

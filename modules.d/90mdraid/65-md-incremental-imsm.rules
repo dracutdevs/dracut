@@ -22,10 +22,10 @@ KERNEL!="md*", IMPORT{program}="/sbin/mdadm --examine --export $tempnode"
 
 LABEL="do_md_inc"
 
-# 
+#
 # if rd_MDADMCONF do not assemble incrementally
 # defer auto assembly until the udev queue is settled
-# 
+#
 ENV{rd_MDADMCONF}!="?*", GOTO="md_auto_end"
 
 RUN+="/bin/sh -c 'ln -s /sbin/md_finished.sh $hookdir/initqueue/finished/md_finished.sh;/sbin/initqueue --settled --onetime --unique /sbin/mdadm_auto'"

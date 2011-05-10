@@ -10,7 +10,7 @@ test_run() {
     LUKSARGS=$(cat luks.txt)
 
     dd if=/dev/zero of=check-success.img bs=1M count=1
-    
+
     echo "CLIENT TEST START: $LUKSARGS"
     $testdir/run-qemu -hda root.ext2 -hdb check-success.img -m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
@@ -52,7 +52,7 @@ test_setup() {
 	initdir=overlay/source
 	. $basedir/dracut-functions
 	dracut_install sh df free ls shutdown poweroff stty cat ps ln ip route \
-	    /lib/terminfo/l/linux mount dmesg ifconfig dhclient mkdir cp ping dhclient 
+	    /lib/terminfo/l/linux mount dmesg ifconfig dhclient mkdir cp ping dhclient
 	inst "$basedir/modules.d/40network/dhclient-script" "/sbin/dhclient-script"
 	inst "$basedir/modules.d/40network/ifup" "/sbin/ifup"
 	dracut_install grep
@@ -62,7 +62,7 @@ test_setup() {
 	cp -a /etc/ld.so.conf* $initdir/etc
 	sudo ldconfig -r "$initdir"
     )
- 
+
     # second, install the files needed to make the root filesystem
     (
 	initdir=overlay
@@ -71,7 +71,7 @@ test_setup() {
 	inst_hook initqueue 01 ./create-root.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
- 
+
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
@@ -89,9 +89,9 @@ test_setup() {
     cryptoUUIDS=$(grep --binary-files=text  -m 3 ID_FS_UUID root.ext2)
     for uuid in $cryptoUUIDS; do
 	eval $uuid
-	printf ' rd.luks.uuid=luks-%s ' $ID_FS_UUID 
+	printf ' rd.luks.uuid=luks-%s ' $ID_FS_UUID
     done > luks.txt
-   
+
 
     (
 	initdir=overlay

@@ -2,7 +2,7 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
-if resume=$(getarg resume=) && ! getarg noresume; then 
+if resume=$(getarg resume=) && ! getarg noresume; then
     export resume
     echo "$resume" >/.resume
 else

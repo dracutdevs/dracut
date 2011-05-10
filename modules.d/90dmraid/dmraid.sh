@@ -21,8 +21,8 @@ echo $SETS|vinfo
 
 if [ -n "$DM_RAIDS" ]; then
     # only activate specified DM RAIDS
-    for r in $DM_RAIDS; do 
-        for s in $SETS; do 
+    for r in $DM_RAIDS; do
+        for s in $SETS; do
             if [ "${s##$r}" != "$s" ]; then
                 info "Activating $s"
                 dmraid -ay -i -p --rm_partitions "$s" 2>&1 | vinfo
@@ -31,7 +31,7 @@ if [ -n "$DM_RAIDS" ]; then
             fi
         done
     done
-else 
+else
     # scan and activate all DM RAIDS
     for s in $SETS; do
         info "Activating $s"

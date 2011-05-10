@@ -108,9 +108,9 @@ For a complete list of kernel command line options see
             <option>--modules&nbsp;<replaceable>&lt;list of dracut modules&gt;</replaceable></option>
           </term>
           <listitem>
-            <para>specify a space-separated list of dracut modules to call 
-when building the initramfs. 
-Modules are located in 
+            <para>specify a space-separated list of dracut modules to call
+when building the initramfs.
+Modules are located in
 <filename>/usr/share/dracut/modules.d</filename>. This parameter can be specified multiple times.</para>
           </listitem>
         </varlistentry>
@@ -163,7 +163,7 @@ The kernel modules have to be specified without the &quot;.ko&quot; suffix. This
             <option>--filesystems&nbsp;<replaceable>&lt;list of filesystems&gt;</replaceable></option>
           </term>
           <listitem>
-            <para>specify a space-separated list of kernel filesystem modules to exclusively 
+            <para>specify a space-separated list of kernel filesystem modules to exclusively
 include in the generic initramfs. This parameter can be specified multiple times.</para>
           </listitem>
         </varlistentry>
@@ -300,7 +300,7 @@ include in the generic initramfs. This parameter can be specified multiple times
           </term>
           <listitem>
             <para>specify configuration file to use.
-Default: 
+Default:
 <filename>/etc/dracut.conf</filename></para>
           </listitem>
         </varlistentry>
@@ -310,7 +310,7 @@ Default:
           </term>
           <listitem>
             <para>specify configuration directory to use.
-Default: 
+Default:
 <filename>/etc/dracut.conf.d</filename></para>
           </listitem>
         </varlistentry>
@@ -336,8 +336,8 @@ This is useful when running dracut from a git checkout.</para>
             <option>--hostonly</option>
           </term>
           <listitem>
-            <para>Host-Only mode: Install only what is needed for booting 
-the local host instead of a generic host. 
+            <para>Host-Only mode: Install only what is needed for booting
+the local host instead of a generic host.
      <warning>
                 <para>If chrooted to another root other than the real root device, use &quot;--fstab&quot; and provide a valid <filename>/etc/fstab</filename>.</para>
               </warning></para>
@@ -505,7 +505,7 @@ TARGET directory in the final initramfs. If SOURCE is a file, it will be install
           </term>
           <listitem>
             <para>Any files found in <filename>/etc/conf.d/</filename> will be sourced in the initramfs to
-set initial values. Command line options will override these values 
+set initial values. Command line options will override these values
 set in the configuration files.</para>
           </listitem>
         </varlistentry>

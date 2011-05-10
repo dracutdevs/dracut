@@ -43,7 +43,7 @@ if [ -f /etc/crypttab ] && getargbool 1 rd.luks.crypttab -n rd_NO_CRYPTTAB; then
                 luksname="$name"
                 break
             fi
-            
+
         # path used in crypttab
         else
             cdev=$(readlink -f $dev)

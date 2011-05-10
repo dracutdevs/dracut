@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/sh
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
@@ -37,7 +37,7 @@ setup_interface() {
     [ -n "${search}${domain}" ] && echo "search $search $domain" > /tmp/net.$netif.resolv.conf
     if  [ -n "$namesrv" ] ; then
         for s in $namesrv; do
-            echo nameserver $s 
+            echo nameserver $s
         done
     fi >> /tmp/net.$netif.resolv.conf
 
@@ -68,13 +68,13 @@ case $reason in
             warn "Duplicate address detected for $new_ip_address while doing dhcp. retrying"
             exit 1
         fi
-        setup_interface 
+        setup_interface
         set | while read line; do
             [ "${line#new_}" = "$line" ] && continue
-            echo "$line" 
+            echo "$line"
         done >/tmp/dhclient.$netif.dhcpopts
         echo online > /sys/class/net/$netif/uevent
-        initqueue --onetime --name netroot-$netif netroot $netif 
+        initqueue --onetime --name netroot-$netif netroot $netif
         ;;
     *) echo "dhcp: $reason";;
 esac

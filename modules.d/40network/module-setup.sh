@@ -5,7 +5,7 @@
 check() {
     . $dracutfunctions
 
-    for program in ip arping dhclient ; do 
+    for program in ip arping dhclient ; do
         if ! type -P $program >/dev/null; then
             derror "Could not find program \"$program\" required by network."
             return 1
@@ -42,12 +42,12 @@ installkernel() {
 }
 
 install() {
-    dracut_install ip arping tr dhclient 
+    dracut_install ip arping tr dhclient
     dracut_install -o brctl ifenslave
     inst "$moddir/ifup" "/sbin/ifup"
     inst "$moddir/netroot" "/sbin/netroot"
     inst "$moddir/dhclient-script" "/sbin/dhclient-script"
-    inst "$moddir/dhclient.conf" "/etc/dhclient.conf" 
+    inst "$moddir/dhclient.conf" "/etc/dhclient.conf"
     inst_hook pre-udev 50 "$moddir/ifname-genrules.sh"
     inst_hook pre-udev 60 "$moddir/net-genrules.sh"
     inst_hook cmdline 91 "$moddir/dhcp-root.sh"

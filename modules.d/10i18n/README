@@ -23,7 +23,7 @@ distributions.  To deal with it avoiding hardcoding those differences in
 the installation script we handle it by mappings between variables used
 by Dracut and the ones in the system.  Package maintainer is expected to
 create those for his/her distribution and it's appreciated to share it
-with us, so we can include it in source package. 
+with us, so we can include it in source package.
 
 
 1. Hostonly vs Generic

@@ -27,7 +27,7 @@ filter_rootopts() {
 
 if [ -n "$root" -a -z "${root%%block:*}" ]; then
     mount -t ${fstype:-auto} -o "$rflags",ro "${root#block:}" "$NEWROOT" \
-        && ROOTFS_MOUNTED=yes 
+        && ROOTFS_MOUNTED=yes
 
     READONLY=
     fsckoptions=
@@ -77,14 +77,14 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
         && ! getarg rootflags \
         && [ -f "$NEWROOT/etc/fstab" ] \
         && ! [ -L "$NEWROOT/etc/fstab" ]; then
-        # if $NEWROOT/etc/fstab contains special mount options for 
+        # if $NEWROOT/etc/fstab contains special mount options for
         # the root filesystem,
         # remount it with the proper options
         rootopts="defaults"
-        while read dev mp fs opts rest; do 
+        while read dev mp fs opts rest; do
             # skip comments
             [ "${dev%%#*}" != "$dev" ] && continue
-            
+
             if [ "$mp" = "/" ]; then
                 rootfs=$fs
                 rootopts=$opts
@@ -115,10 +115,10 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
     if [ -z "$fastboot" -a "$READONLY" != "yes" ]; then
         info "Checking filesystems"
         info fsck -T -t noopts=_netdev -A $fsckoptions
-        out=$(fsck -T -t noopts=_netdev -A $fsckoptions) 
+        out=$(fsck -T -t noopts=_netdev -A $fsckoptions)
         export RD_ROOTFS_FSCK=$?
         echo $RD_ROOTFS_FSCK > /run/initramfs/root-fsck
-        
+
         # A return of 4 or higher means there were serious problems.
         if [ $RD_ROOTFS_FSCK -gt 3 ]; then
             warn $out

@@ -20,7 +20,7 @@ lvmdevs=$(
     done
 )
 
-if [ ! -e /etc/lvm/lvm.conf ]; then 
+if [ ! -e /etc/lvm/lvm.conf ]; then
     {
         echo 'devices {';
         echo -n '    filter = [ '
@@ -28,7 +28,7 @@ if [ ! -e /etc/lvm/lvm.conf ]; then
             printf '"a|^/dev/%s$|", ' $dev;
         done;
         echo '"r/.*/" ]';
-        echo '}';         
+        echo '}';
 
         # establish LVM locking
         if [ -n $SNAPSHOT ]; then
@@ -66,7 +66,7 @@ IFS=$OLDIFS
 maj=${1##*:}
 min=$2
 sub=${3%% *}
-sub=${sub%%\(*}; 
+sub=${sub%%\(*};
 
 check_lvm_ver 2 2 57 $maj $min $sub && \
     nopoll="--poll n"

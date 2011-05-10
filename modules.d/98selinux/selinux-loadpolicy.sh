@@ -2,11 +2,11 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
-# FIXME: load selinux policy.  this should really be done after we switchroot 
+# FIXME: load selinux policy.  this should really be done after we switchroot
 
 rd_load_policy()
 {
-    # If SELinux is disabled exit now 
+    # If SELinux is disabled exit now
     getarg "selinux=0" > /dev/null && return 0
 
     SELINUX="enforcing"
@@ -14,7 +14,7 @@ rd_load_policy()
 
     # Check whether SELinux is in permissive mode
     permissive=0
-    getarg "enforcing=0" > /dev/null 
+    getarg "enforcing=0" > /dev/null
     if [ $? -eq 0 -o "$SELINUX" = "permissive" ]; then
         permissive=1
     fi
@@ -24,7 +24,7 @@ rd_load_policy()
         local ret=0
         local out
         info "Loading SELinux policy"
-        # load_policy does mount /proc and /selinux in 
+        # load_policy does mount /proc and /selinux in
         # libselinux,selinux_init_load_policy()
         if [ -x "$NEWROOT/sbin/load_policy" ]; then
             out=$(chroot "$NEWROOT" /sbin/load_policy -i 2>&1)

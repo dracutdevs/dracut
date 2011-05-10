@@ -14,7 +14,7 @@ depends() {
 
 install() {
     call_splash_geninitramfs() {
-        local out ret 
+        local out ret
 
         out=$(splash_geninitramfs -c "$1" ${@:2} 2>&1)
         ret=$?

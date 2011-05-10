@@ -39,8 +39,8 @@ mdadm /dev/md0 --fail /dev/sda2 --remove /dev/sda2 && \
 . /tmp/mduuid;
 } && \
 {
-echo "dracut-root-block-created" 
-echo MD_UUID=$MD_UUID 
+echo "dracut-root-block-created"
+echo MD_UUID=$MD_UUID
 }> /dev/sda1
 dd if=/dev/zero of=/dev/sda2
 poweroff -f

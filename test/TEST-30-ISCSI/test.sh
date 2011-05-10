@@ -93,16 +93,16 @@ test_setup() {
 	cp -a /etc/ld.so.conf* $initdir/etc
 	sudo ldconfig -r "$initdir"
     )
- 
+
     # second, install the files needed to make the root filesystem
     (
 	initdir=overlay
 	. $basedir/dracut-functions
-	dracut_install sfdisk mke2fs poweroff cp umount 
+	dracut_install sfdisk mke2fs poweroff cp umount
 	inst_hook initqueue 01 ./create-root.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
- 
+
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
@@ -162,7 +162,7 @@ test_setup() {
 	dracut_install /usr/sbin/iscsi-target
 	instmods iscsi_tcp crc32c ipv6
         inst ./targets /etc/iscsi/targets
-	[ -f /etc/netconfig ] && dracut_install /etc/netconfig 
+	[ -f /etc/netconfig ] && dracut_install /etc/netconfig
 	type -P dhcpd >/dev/null && dracut_install dhcpd
 	[ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
 	inst ./server-init /sbin/init

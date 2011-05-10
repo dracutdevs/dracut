@@ -7,7 +7,7 @@ install() {
     for TERMINFODIR in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
         [ -d ${TERMINFODIR} ] && break
     done
-    
+
     [ -d ${TERMINFODIR} ] && \
         dracut_install $(find ${TERMINFODIR} -type f)
 }

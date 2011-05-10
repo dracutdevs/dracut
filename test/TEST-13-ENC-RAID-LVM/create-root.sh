@@ -18,7 +18,7 @@ cryptsetup -q luksFormat /dev/sda2 /keyfile
 cryptsetup -q luksFormat /dev/sda3 /keyfile
 cryptsetup -q luksFormat /dev/sda4 /keyfile
 cryptsetup luksOpen /dev/sda2 dracut_sda2 </keyfile
-cryptsetup luksOpen /dev/sda3 dracut_sda3 </keyfile 
+cryptsetup luksOpen /dev/sda3 dracut_sda3 </keyfile
 cryptsetup luksOpen /dev/sda4 dracut_sda4 </keyfile
 mdadm --create /dev/md0 --run --auto=yes --level=5 --raid-devices=3 /dev/mapper/dracut_sda2 /dev/mapper/dracut_sda3 /dev/mapper/dracut_sda4
 # wait for the array to finish initailizing, otherwise this sometimes fails
@@ -44,7 +44,7 @@ cryptsetup luksClose /dev/mapper/dracut_sda3 && \
 cryptsetup luksClose /dev/mapper/dracut_sda4 && \
 :; :;} && \
 {
-    echo "dracut-root-block-created" 
+    echo "dracut-root-block-created"
     for i in /dev/sda[234]; do
 	udevadm info --query=env --name=$i|grep 'ID_FS_UUID='
     done

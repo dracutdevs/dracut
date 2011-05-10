@@ -215,7 +215,7 @@ readkey() {
             fi
             ;;
         *) cat "$mntp/$keypath" ;;
-    esac 
+    esac
 
     umount "$mntp"
     rmdir "$mntp"

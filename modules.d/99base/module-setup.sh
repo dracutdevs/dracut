@@ -7,14 +7,14 @@ check() {
 }
 
 depends() {
-    echo udev-rules 
+    echo udev-rules
     return 0
 }
 
 install() {
     dracut_install mount mknod mkdir modprobe pidof sleep chroot \
         sed ls flock cp mv dmesg rm ln rmmod mkfifo umount
-    dracut_install -o less 
+    dracut_install -o less
     if [ ! -e "${initdir}/bin/sh" ]; then
         dracut_install bash
         (ln -s bash "${initdir}/bin/sh" || :)

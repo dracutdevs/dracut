@@ -11,7 +11,7 @@
 #       root=/dev/nfs nfsroot=[server:]path[,options]
 #
 # In Legacy root=/dev/nfs mode, if the 'nfsroot' parameter is not given
-# on the command line or is empty, the dhcp root-path is used as 
+# on the command line or is empty, the dhcp root-path is used as
 # [server:]path[:options] or the default "/tftpboot/%s" will be used.
 #
 # If server is unspecified it will be pulled from one of the following
@@ -44,7 +44,7 @@ if [ -n "$netroot" ] ; then
     fi
 else
     netroot=$root;
-fi 
+fi
 
 # LEGACY: nfsroot= is valid only if root=/dev/nfs
 if [ -n "$nfsroot" ] ; then
@@ -106,7 +106,7 @@ fi;
 # Done, all good!
 rootok=1
 
-# Shut up init error check or make sure that block parser wont get 
+# Shut up init error check or make sure that block parser wont get
 # confused by having /dev/nfs[4]
 root="$fstype"
 

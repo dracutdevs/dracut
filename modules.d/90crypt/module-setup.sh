@@ -13,7 +13,7 @@ check() {
     [[ $hostonly ]] && {
         rootdev=$(find_root_block_device)
         if [[ $rootdev ]]; then
-            # root lives on a block device, so we can be more precise about 
+            # root lives on a block device, so we can be more precise about
             # hostonly checking
             check_block_and_slaves is_crypt "$rootdev" || return 1
         else

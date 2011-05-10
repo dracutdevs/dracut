@@ -14,7 +14,7 @@ check() {
     [[ $hostonly ]] && {
         rootdev=$(find_root_block_device)
         if [[ $rootdev ]]; then
-            # root lives on a block device, so we can be more precise about 
+            # root lives on a block device, so we can be more precise about
             # hostonly checking
             check_block_and_slaves is_lvm "$rootdev" || return 1
         else
@@ -35,9 +35,9 @@ depends() {
 install() {
     inst lvm
 
-    inst_rules "$moddir/64-lvm.rules" 
+    inst_rules "$moddir/64-lvm.rules"
 
-    if [[ $hostonly ]] || [[ $lvmconf = "yes" ]]; then 
+    if [[ $hostonly ]] || [[ $lvmconf = "yes" ]]; then
         if [ -f /etc/lvm/lvm.conf ]; then
             inst /etc/lvm/lvm.conf
             # FIXME: near-term hack to establish read-only locking;

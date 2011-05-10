@@ -25,11 +25,11 @@
   <refsect1>
     <title>Description</title>
     <para>The root filesystem used by the kernel is specified in the boot configuration
-file, as always. The traditional <emphasis remap="B">root=/dev/hda1</emphasis> style device 
+file, as always. The traditional <emphasis remap="B">root=/dev/hda1</emphasis> style device
 specification is allowed. If a label is used, as in <emphasis remap="B">root=LABEL=rootPart</emphasis>
 the initramfs will search all available devices for an ext2 or ext3 filesystem
 with the appropriate label, and mount that device as the root filesystem.
-<emphasis remap="B">root=UUID=uuidnumber</emphasis> will mount the partition with that UUID as the 
+<emphasis remap="B">root=UUID=uuidnumber</emphasis> will mount the partition with that UUID as the
 root filesystem.</para>
     <refsect2>
       <title>Standard</title>
@@ -47,7 +47,7 @@ root filesystem.</para>
             <envar>root=<replaceable>&lt;path to blockdevice&gt;</replaceable></envar>
           </term>
           <listitem>
-            <para>specify blockdevice to use as root filesystem. 
+            <para>specify blockdevice to use as root filesystem.
      e.g.: <programlisting>root=/dev/sda1
 root=/dev/disk/by-path/pci-0000:00:1f.1-scsi-0:0:1:0-part1     </programlisting></para>
           </listitem>
@@ -66,14 +66,14 @@ root=/dev/disk/by-path/pci-0000:00:1f.1-scsi-0:0:1:0-part1     </programlisting>
           </term>
           <listitem>
             <para>specify additional mount options for the root filesystem. If not set, <filename>/etc/fstab</filename>
-of the real root will be parsed for special mount options and mounted 
+of the real root will be parsed for special mount options and mounted
 accordingly.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
           <term><envar>rd.fstab</envar>=0</term>
           <listitem>
-            <para>do not honor special mount options for the root filesystem found in 
+            <para>do not honor special mount options for the root filesystem found in
 <filename>/etc/fstab</filename> of the real root.</para>
           </listitem>
         </varlistentry>
@@ -294,7 +294,7 @@ This parameter can be specified multiple times.</para>
           <listitem>
             <para>only activate the LUKS partitions with the given UUID
 Any &quot;luks-&quot; of the LUKS UUID is removed before comparing to <replaceable>&lt;luks uuid&gt;</replaceable>.
-The comparisons also matches, if <replaceable>&lt;luks uuid&gt;</replaceable> is only the beginning of the 
+The comparisons also matches, if <replaceable>&lt;luks uuid&gt;</replaceable> is only the beginning of the
 LUKS UUID, so you don&apos;t have to specify the full UUID.
 This parameter can be specified multiple times.</para>
           </listitem>
@@ -420,8 +420,8 @@ e.g.
             <envar>ip=</envar><replaceable>{dhcp|on|any|dhcp6|auto6|ibft}</replaceable>
           </term>
           <listitem>
-            <para>dhcp|on|any: get ip from dhcp server from all interfaces. If root=dhcp, 
-loop sequentially through all interfaces (eth0, eth1, ...) and use the first 
+            <para>dhcp|on|any: get ip from dhcp server from all interfaces. If root=dhcp,
+loop sequentially through all interfaces (eth0, eth1, ...) and use the first
 with a valid DHCP root-path.</para>
             <para><constant>auto6</constant>: IPv6 autoconfiguration</para>
             <para><constant>dhcp6</constant>: IPv6 DHCP</para>
@@ -459,7 +459,7 @@ This parameter can be specified multiple times.</para>
             <envar>bootdev=</envar><replaceable>&lt;interface&gt;</replaceable>
           </term>
           <listitem>
-            <para>specify network interface to use routing and netroot information from. 
+            <para>specify network interface to use routing and netroot information from.
 Required if multiple ip= lines are used.</para>
           </listitem>
         </varlistentry>
@@ -501,7 +501,7 @@ NFS options can be appended with the prefix &quot;:&quot; or &quot;,&quot; and a
             <envar>root=</envar><replaceable>{dhcp|dhcp6}</replaceable>
           </term>
           <listitem>
-            <para>root=dhcp alone directs initrd to look at the DHCP root-path where NFS 
+            <para>root=dhcp alone directs initrd to look at the DHCP root-path where NFS
 options can be specified.
     root-path=&lt;server-ip&gt;:&lt;root-dir&gt;[,&lt;nfs-options&gt;]
     root-path=nfs:&lt;server-ip&gt;:&lt;root-dir&gt;[,&lt;nfs-options&gt;]
@@ -514,8 +514,8 @@ options can be specified.
             <envar> nfsroot=</envar><optional><replaceable>&lt;server-ip&gt;</replaceable>:</optional><replaceable>&lt;root-dir&gt;</replaceable><optional>:<replaceable>&lt;nfs-options&gt;</replaceable></optional>
           </term>
           <listitem>
-            <para><emphasis remap="B">Deprecated!</emphasis> kernel Documentation<filename>/filesystems/nfsroot.txt</filename> defines 
-this method.  
+            <para><emphasis remap="B">Deprecated!</emphasis> kernel Documentation<filename>/filesystems/nfsroot.txt</filename> defines
+this method.
 This is supported by dracut, but not recommended.</para>
           </listitem>
         </varlistentry>
@@ -553,7 +553,7 @@ then used in the Discovery Service stage in conjunction with other
 associated fields.</para>
             <para>See <ulink url="http://tools.ietf.org/html/rfc4173#section-5">http://tools.ietf.org/html/rfc4173</ulink>.</para>
             <para>e.g.:<programlisting>root=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0    </programlisting></para>
-            <para>If servername is an IPv6 address, it has to be put in brackets. e.g.: 
+            <para>If servername is an IPv6 address, it has to be put in brackets. e.g.:
      <programlisting>root=iscsi:[2001:DB8::1]::::iqn.2009-06.dracut:target0    </programlisting></para>
           </listitem>
         </varlistentry>
@@ -568,7 +568,7 @@ associated fields.</para>
               <replaceable>&lt;LUN&gt;</replaceable>
             </optional>:<replaceable>&lt;targetname&gt;</replaceable> ...</term>
           <listitem>
-            <para>multiple netroot options allow setting up multiple iscsi disks. e.g.: 
+            <para>multiple netroot options allow setting up multiple iscsi disks. e.g.:
      <programlisting>root=UUID=12424547
 netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0
 netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target1  </programlisting></para>
@@ -631,9 +631,9 @@ For the second argument, currently only nodcb is supported. This parameter can b
           </term>
           <listitem>
             <para>with dhcp root-path=nbd:&lt;server&gt;:&lt;port&gt;[:&lt;fstype&gt;][:&lt;mountopts&gt;]
-root=dhcp alone directs initrd to look at the DHCP root-path where NBD 
+root=dhcp alone directs initrd to look at the DHCP root-path where NBD
 options can be specified.
-This syntax is only usable in cases where you are directly mounting the volume 
+This syntax is only usable in cases where you are directly mounting the volume
 as the rootfs.</para>
           </listitem>
         </varlistentry>
@@ -1215,7 +1215,7 @@ rd.znet=ctc,0.0.0600,0.0.0601,0.0.0602,protocol=bar</programlisting></para>
         </term>
         <listitem>
           <para>Any files found in <filename>/etc/conf.d/</filename> will be sourced in the initramfs to
-set initial values. Command line options will override these values 
+set initial values. Command line options will override these values
 set in the configuration files.</para>
         </listitem>
       </varlistentry>

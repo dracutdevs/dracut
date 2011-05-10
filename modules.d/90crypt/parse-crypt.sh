@@ -13,7 +13,7 @@ else
     LUKS=$(getargs rd.luks.uuid rd_LUKS_UUID)
 
     if [ -n "$LUKS" ]; then
-        for luksid in $LUKS; do 
+        for luksid in $LUKS; do
             luksid=${luksid##luks-}
             {
                 printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", '
@@ -34,7 +34,7 @@ else
         {
             printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="%s ' $(command -v initqueue)
             printf -- '--unique --onetime --name cryptroot-ask-%%k '
-            printf -- '%s $env{DEVNAME} luks-$env{ID_FS_UUID}"\n' $(command -v cryptroot-ask) 
+            printf -- '%s $env{DEVNAME} luks-$env{ID_FS_UUID}"\n' $(command -v cryptroot-ask)
         } >> /etc/udev/rules.d/70-luks.rules.new
     fi
 

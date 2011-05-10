@@ -7,8 +7,8 @@ for i in /dev/md* /dev/md/*; do
     [ -b $i ] || continue
 
     mddetail=$(udevadm info --query=property --name=$i)
-    case "$mddetail" in 
-        *MD_LEVEL=container*) 
+    case "$mddetail" in
+        *MD_LEVEL=container*)
         ;;
         *DEVTYPE=partition*)
         ;;

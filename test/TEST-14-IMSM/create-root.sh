@@ -7,9 +7,9 @@ rm /etc/lvm/lvm.conf
 
 udevadm control --reload-rules
 # dmraid does not want symlinks in --disk "..."
-if [ -e /dev/hda ] ; then 
+if [ -e /dev/hda ] ; then
     echo y|dmraid -f isw -C Test0 --type 1 --disk "/dev/hdb /dev/hdc"
-else 
+else
     echo y|dmraid -f isw -C Test0 --type 1 --disk "/dev/sdb /dev/sdc"
 fi
 udevadm settle
@@ -17,12 +17,12 @@ udevadm settle
 SETS=$(dmraid -c -s)
 # scan and activate all DM RAIDS
 for s in $SETS; do
-   dmraid -ay -i -p --rm_partitions "$s" 
-   [ -e "/dev/mapper/$s" ] && kpartx -a -p p "/dev/mapper/$s" 
+   dmraid -ay -i -p --rm_partitions "$s"
+   [ -e "/dev/mapper/$s" ] && kpartx -a -p p "/dev/mapper/$s"
 done
 
 udevadm settle
-sfdisk -g /dev/mapper/isw*Test0 
+sfdisk -g /dev/mapper/isw*Test0
 # save a partition at the beginning for future flagging purposes
 sfdisk -C 2560 -H 2 -S 32 -L /dev/mapper/isw*Test0 <<EOF
 ,1
@@ -38,8 +38,8 @@ udevadm settle
 SETS=$(dmraid -c -s -i)
 # scan and activate all DM RAIDS
 for s in $SETS; do
-   dmraid -ay -i -p --rm_partitions "$s" 
-   [ -e "/dev/mapper/$s" ] && kpartx -a -p p "/dev/mapper/$s" 
+   dmraid -ay -i -p --rm_partitions "$s"
+   [ -e "/dev/mapper/$s" ] && kpartx -a -p p "/dev/mapper/$s"
 done
 
 udevadm settle
@@ -47,7 +47,7 @@ udevadm settle
 mdadm --create /dev/md0 --run --auto=yes --level=5 --raid-devices=3 \
 	/dev/mapper/isw*p2 \
 	/dev/mapper/isw*p3 \
-	/dev/mapper/isw*p4 
+	/dev/mapper/isw*p4
 
 # wait for the array to finish initailizing, otherwise this sometimes fails
 # randomly.

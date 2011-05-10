@@ -21,8 +21,8 @@ installkernel() {
 }
 
 install() {
-    dracut_install ip 
-    inst dcbtool 
+    dracut_install ip
+    inst dcbtool
     inst fipvlan
     inst lldpad
 

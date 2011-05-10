@@ -67,7 +67,7 @@ line and /boot/dracut/*.img</para>
   <varlistentry>
   <term><option>-h</option>, <option>--help</option></term>
   <listitem>
-<para>display help text and exit.</para> 
+<para>display help text and exit.</para>
   </listitem>
   </varlistentry>
   <varlistentry>

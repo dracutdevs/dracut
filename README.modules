@@ -12,20 +12,20 @@ dracut_install_dir/modules.d/
 	   The numeric code must be present and in the range of 00 - 99.
 	   Modules with lower numbers are installed first.  This is important
 	   because the dracut install functions (which install files onto
-	   the initrd) refuse to overwrite already installed files. This makes 
-	   it easy for an earlier module to override the functionality of a 
+	   the initrd) refuse to overwrite already installed files. This makes
+	   it easy for an earlier module to override the functionality of a
 	   later module, so that you can have a distro or system specific
 	   module override or modify the functionality of a generic module
 	   without having to patch the more generic module.
 
 module-setup.sh:
-	 dracut sources this script to install the functionality that a 
+	 dracut sources this script to install the functionality that a
 	 module implements onto the initrd.  For the most part, this amounts
 	 to copying files from the host system onto the initrd in a controlled
-	 manner.  
+	 manner.
 
 install():
-	 This function of module-setup.sh is called to install all 
+	 This function of module-setup.sh is called to install all
 	 non-kernel files. dracut supplies several install functions that are
 	 specialized for different file types.  Browse through dracut-functions
 	 fore more details.  dracut also provides a $moddir variable if you
@@ -33,21 +33,21 @@ install():
 	 hook, a udev rule, or a specialized executable.
 
 installkernel():
-	 This function of module-setup.sh is called to install all 
+	 This function of module-setup.sh is called to install all
 	 kernel related files.
 
 
-check(): 
+check():
        Dracut calls this function to check and see if a module can be installed
        on the initrd.
-       
+
        When called without options, check should check to make sure that
        any files it needs to install into the initrd from the host system
        are present.  It should exit with a 0 if they are, and a 1 if they are
        not.
 
-       When called with $hostonly set, it should perform the same check 
-       that it would without it set, and it should also check to see if the 
+       When called with $hostonly set, it should perform the same check
+       that it would without it set, and it should also check to see if the
        functionality the module implements is being used on the host system.
        For example, if this module handles installing support for LUKS
        encrypted volumes, it should return 0 if all the tools to handle
@@ -60,7 +60,7 @@ depends():
        which rely on the network module to detect and configure network
        interfaces.
 
-Any other files in the module will not be touched by dracut directly. 
+Any other files in the module will not be touched by dracut directly.
 
 You are encouraged to provide a README that describes what the module is for.
 
@@ -84,7 +84,7 @@ init has the following hook points to inject scripts:
    Udev events can add scripts here with /sbin/initqueue.
    If /sbin/initqueue is called with the "--onetime" option, the script
    will be removed after it was run.
-   If /lib/dracut/hooks/initqueue/work is created and udev >= 143 then 
+   If /lib/dracut/hooks/initqueue/work is created and udev >= 143 then
    this loop can process the jobs in parallel to the udevtrigger.
    If the udev queue is empty and no root device is found or no root
    filesystem was mounted, the user will be dropped to a shell after
@@ -93,7 +93,7 @@ init has the following hook points to inject scripts:
 
 /lib/dracut/hooks/pre-mount/*.sh
    scripts to run before the root filesystem is mounted
-   Network filesystems like NFS that do not use device files are an 
+   Network filesystems like NFS that do not use device files are an
    exception. Root can be mounted already at this point.
 
 /lib/dracut/hooks/mount/*.sh

@@ -6,7 +6,7 @@ check() {
     # If our prerequisites are not met, fail.
     type -P nbd-client >/dev/null || return 1
 
-    # if an nbd device is not somewhere in the chain of devices root is 
+    # if an nbd device is not somewhere in the chain of devices root is
     # mounted on, fail the hostonly check.
     [[ $hostonly ]] && {
         is_nbd() { [[ -b /dev/block/$1 && $1 == 43:* ]] ;}

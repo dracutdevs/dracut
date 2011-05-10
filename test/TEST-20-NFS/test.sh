@@ -57,7 +57,7 @@ client_test() {
     fi
 
     # nfsinfo=( server:/path nfs{,4} options )
-    nfsinfo=($(awk '{print $2, $3, $4; exit}' client.img)) 
+    nfsinfo=($(awk '{print $2, $3, $4; exit}' client.img))
 
     if [[ "${nfsinfo[0]%%:*}" != "$server" ]]; then
 	echo "CLIENT TEST INFO: got server: ${nfsinfo[0]%%:*}"
@@ -210,7 +210,7 @@ test_setup() {
 	    /etc/services sleep mount chmod
 	type -P portmap >/dev/null && dracut_install portmap
 	type -P rpcbind >/dev/null && dracut_install rpcbind
-	[ -f /etc/netconfig ] && dracut_install /etc/netconfig 
+	[ -f /etc/netconfig ] && dracut_install /etc/netconfig
 	type -P dhcpd >/dev/null && dracut_install dhcpd
 	[ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
 	instmods nfsd sunrpc ipv6

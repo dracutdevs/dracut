@@ -26,9 +26,9 @@ install() {
     type -P portmap >/dev/null && dracut_install portmap
     type -P rpcbind >/dev/null && dracut_install rpcbind
 
-    dracut_install rpc.statd mount.nfs mount.nfs4 umount 
-    [ -f /etc/netconfig ] && dracut_install /etc/netconfig 
-    dracut_install /etc/services 
+    dracut_install rpc.statd mount.nfs mount.nfs4 umount
+    [ -f /etc/netconfig ] && dracut_install /etc/netconfig
+    dracut_install /etc/services
     dracut_install /etc/nsswitch.conf /etc/rpc /etc/protocols
     dracut_install rpc.idmapd /etc/idmapd.conf
     dracut_install sed

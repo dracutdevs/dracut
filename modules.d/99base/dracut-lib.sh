@@ -52,12 +52,12 @@ _dogetarg() {
 
     for _o in $CMDLINE; do
         if [ "$_o" = "$1" ]; then
-            return 0; 
+            return 0;
         fi
         [ "${_o%%=*}" = "${1%=}" ] && _val=${_o#*=};
     done
     if [ -n "$_val" ]; then
-        echo $_val; 
+        echo $_val;
         return 0;
     fi
     return 1;
@@ -86,7 +86,7 @@ getarg() {
                 shift;;
         esac
     done
-    [ "$RD_DEBUG" = "yes" ] && set -x 
+    [ "$RD_DEBUG" = "yes" ] && set -x
     return 1
 }
 
@@ -105,7 +105,7 @@ getargbool() {
 }
 
 _dogetargs() {
-    set +x 
+    set +x
     local _o _found
     unset _o
     unset _found
@@ -116,7 +116,7 @@ _dogetargs() {
             return 0;
         fi
         if [ "${_o%%=*}" = "${1%=}" ]; then
-            echo -n "${_o#*=} "; 
+            echo -n "${_o#*=} ";
             _found=1;
         fi
     done
@@ -134,10 +134,10 @@ getargs() {
     done
     if [ -n "$_val" ]; then
         echo -n $_val
-        [ "$RD_DEBUG" = "yes" ] && set -x 
+        [ "$RD_DEBUG" = "yes" ] && set -x
         return 0
     fi
-    [ "$RD_DEBUG" = "yes" ] && set -x 
+    [ "$RD_DEBUG" = "yes" ] && set -x
     return 1;
 }
 
@@ -146,7 +146,7 @@ getargs() {
 # it just returns 0.  Otherwise 1 is returned.
 # $1 = options separated by commas
 # $2 = option we are interested in
-# 
+#
 # Example:
 # $1 = cipher=aes-cbc-essiv:sha256,hash=sha256,verify
 # $2 = hash
@@ -199,14 +199,14 @@ setdebug() {
         if [ -e /proc/cmdline ]; then
             RD_DEBUG=no
             if getargbool 0 rd.debug -y rdinitdebug -y rdnetdebug; then
-                RD_DEBUG=yes 
+                RD_DEBUG=yes
                 [ -n "$BASH" ] && \
                     export PS4='${BASH_SOURCE}@${LINENO}(${FUNCNAME[0]}): ';
            fi
         fi
         export RD_DEBUG
     fi
-    [ "$RD_DEBUG" = "yes" ] && set -x 
+    [ "$RD_DEBUG" = "yes" ] && set -x
 }
 
 setdebug
@@ -242,7 +242,7 @@ die() {
         echo "<24>dracut: Refusing to continue";
     } > /dev/kmsg
 
-    { 
+    {
         echo "warn dracut: FATAL: \"$@\"";
         echo "warn dracut: Refusing to continue";
 	echo "exit 1"
@@ -271,11 +271,11 @@ info() {
     check_quiet
     echo "<30>dracut: $@" > /dev/kmsg
     [ "$DRACUT_QUIET" != "yes" ] && \
-        echo "dracut: $@" 
+        echo "dracut: $@"
 }
 
 vinfo() {
-    while read line; do 
+    while read line; do
         info $line;
     done
 }
@@ -339,16 +339,16 @@ ismounted() {
 
 wait_for_if_up() {
     local cnt=0
-    while [ $cnt -lt 20 ]; do 
+    while [ $cnt -lt 20 ]; do
         li=$(ip link show $1)
         [ -z "${li##*state UP*}" ] && return 0
         sleep 0.1
         cnt=$(($cnt+1))
-    done 
+    done
     return 1
 }
 
-# root=nfs:[<server-ip>:]<root-dir>[:<nfs-options>] 
+# root=nfs:[<server-ip>:]<root-dir>[:<nfs-options>]
 # root=nfs4:[<server-ip>:]<root-dir>[:<nfs-options>]
 nfsroot_to_var() {
     # strip nfs[4]:
@@ -370,10 +370,10 @@ nfsroot_to_var() {
     options="${options##:}"
     # strip  ":"
     options="${options%%:}"
-    
+
     # Does it really start with '/'?
     [ -n "${path%%/*}" ] && path="error";
-    
+
     #Fix kernel legacy style separating path and options with ','
     if [ "$path" != "${path#*,}" ] ; then
         options=${path#*,}
@@ -384,7 +384,7 @@ nfsroot_to_var() {
 ip_to_var() {
     local v=${1}:
     local i
-    set -- 
+    set --
     while [ -n "$v" ]; do
         if [ "${v#\[*:*:*\]:}" != "$v" ]; then
             # handle IPv6 address
@@ -392,7 +392,7 @@ ip_to_var() {
             i="${i##\[}"
             set -- "$@" "$i"
             v=${v#\[$i\]:}
-        else                
+        else
             set -- "$@" "${v%%:*}"
             v=${v#*:}
         fi

@@ -79,7 +79,7 @@ The kernel modules have to be specified without the &quot;.ko&quot; suffix.</par
           <envar>add_drivers+=&quot;&nbsp;<replaceable>&lt;kernel modules&gt;</replaceable>&nbsp;&quot;</envar>
         </term>
         <listitem>
-          <para>Specify a space-separated list of kernel 
+          <para>Specify a space-separated list of kernel
 modules to add to the initramfs.
 The kernel modules have to be specified without the &quot;.ko&quot; suffix.</para>
         </listitem>
@@ -123,7 +123,7 @@ initramfs.</para>
           <envar>hostonly=&quot;<replaceable>{yes|no}</replaceable>&quot;</envar>
         </term>
         <listitem>
-          <para>Host-Only mode: Install only what is needed for booting 
+          <para>Host-Only mode: Install only what is needed for booting
    the local host instead of a generic host.
    <warning><para>If chrooted to another root other than the real root device, use <option>--fstab</option> and provide a valid <filename>/etc/fstab</filename>.</para>
             </warning>

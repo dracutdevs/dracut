@@ -74,7 +74,7 @@
           <para>A <acronym>TFTP</acronym> server (on systems that can boot from Ethernet) </para>
         </listitem>
       </itemizedlist>
-      <para>The bootloader will load the kernel and initial root file system image into memory and then start the kernel, passing in the memory address of the image. 
+      <para>The bootloader will load the kernel and initial root file system image into memory and then start the kernel, passing in the memory address of the image.
     </para>
       <para>Depending on which algorithms were compiled statically into it, the kernel can currently unpack initrd/initramfs images compressed with gzip, bzip2 and <acronym>LZMA</acronym>. </para>
     </section>
@@ -431,7 +431,7 @@ title Fedora (2.6.29.5-191.fc11.x86_64)
                 <para>Remove the boot arguments &apos;&apos;rhgb&apos;&apos; and &apos;&apos;quiet&apos;&apos;
 </para>
                 <para>
-A sample <filename>/etc/grub.conf</filename> bootloader configuration file is listed below. 
+A sample <filename>/etc/grub.conf</filename> bootloader configuration file is listed below.
 </para>
                 <para><screen>default=0
 timeout=5
@@ -439,12 +439,12 @@ serial --unit=0 --speed=9600
 terminal --timeout=5 serial console
 title Fedora (2.6.29.5-191.fc11.x86_64)
   root (hd0,0)
-  kernel /vmlinuz-2.6.29.5-191.fc11.x86_64 ro root=/dev/mapper/vg_uc1-lv_root console=tty0 rd.shell 
+  kernel /vmlinuz-2.6.29.5-191.fc11.x86_64 ro root=/dev/mapper/vg_uc1-lv_root console=tty0 rd.shell
   initrd /dracut-2.6.29.5-191.fc11.x86_64.img</screen></para>
               </listitem>
               <listitem>
                 <para>If system boot fails, you will be dropped into a shell as seen in the example below.
-<screen>No root device found 
+<screen>No root device found
 Dropping to debug shell.
 
 sh: can&apos;t access tty; job control turned off
@@ -623,7 +623,7 @@ Common used functions are in <filename>dracut-lib.sh</filename>, which can be so
 inst_simple &quot;$moddir/insmodpost.sh&quot; /sbin/insmodpost.sh</programlisting>
       <para>The <filename>pase-instmodpost.sh</filename> parses the kernel command line for a argument <envar>rd.driver.post</envar>, blacklists the module from being autoloaded and installs the hook <filename>insmodpost.sh</filename> in the <filename>initqueue-settled</filename>.</para>
       <para><filename>parse-insmodpost.sh</filename>:</para>
-      <programlisting>for p in $(getargs rd.driver.post=); do 
+      <programlisting>for p in $(getargs rd.driver.post=); do
     echo &quot;blacklist $p&quot; &gt;&gt; /etc/modprobe.d/initramfsblacklist.conf
     _do_insmodpost=1
 done
@@ -635,7 +635,7 @@ unset _do_insmodpost
       <para><filename>insmodpost.sh</filename>:</para>
       <programlisting>. /lib/dracut-lib.sh
 
-for p in $(getargs rd.driver.post=); do 
+for p in $(getargs rd.driver.post=); do
     modprobe $p
 done
 </programlisting>

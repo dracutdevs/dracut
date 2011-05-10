@@ -12,7 +12,7 @@ if [ "$capsmode" = "1" ]; then
 
     info "Loading CAPS_MODULES $CAPS_MODULES"
     for i in $CAPS_MODULES;do modprobe $i 2>&1 >/dev/null | vinfo; done
-    
+
     if [ "$CAPS_MODULES_DISABLED" = "1" -a -e /proc/sys/kernel/modules_disabled ]; then
         info "Disabling module loading."
         echo $CAPS_MODULES_DISABLED > /proc/sys/kernel/modules_disabled
@@ -29,7 +29,7 @@ if [ "$capsmode" = "1" ]; then
         echo $CAPS_USERMODEHELPER_BSET > /proc/sys/kernel/usermodehelper/bset
         echo $CAPS_USERMODEHELPER_BSET > /proc/sys/kernel/usermodehelper/inheritable
     fi
-    
+
     echo "CAPS_INIT_DROP=\"$CAPS_INIT_DROP\"" > /etc/capsdrop
     info "Will drop capabilities $CAPS_INIT_DROP from init."
 fi

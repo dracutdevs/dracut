@@ -14,7 +14,7 @@ pid=$(pidof rpc.idmapd)
 pid=$(pidof rpcbind)
 [ -n "$pid" ] && kill $pid
 
-if incol2 /proc/mounts /var/lib/nfs/rpc_pipefs; then 
+if incol2 /proc/mounts /var/lib/nfs/rpc_pipefs; then
     # try to create the destination directory
     [ -d $NEWROOT/$rpcpipefspath ] || \
         mkdir -m 0755 -p $NEWROOT/$rpcpipefspath 2>/dev/null

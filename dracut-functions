@@ -253,7 +253,7 @@ inst_simple() {
     if [[ -e "${src%/*}/.${src##*/}.hmac" ]]; then
         inst "${src%/*}/.${src##*/}.hmac" "${target%/*}/.${target##*/}.hmac"
     fi
-    ddebug "Installing $src" 
+    ddebug "Installing $src"
     cp -pfL "$src" "${initdir}$target"
 }
 
@@ -409,17 +409,17 @@ inst_rules() {
 
     inst_dir "/lib/udev/rules.d"
     inst_dir "$target"
-    for rule in "$@"; do 
+    for rule in "$@"; do
         for r in /lib/udev/rules.d /etc/udev/rules.d; do
             if [[ -f $r/$rule ]]; then
                 found="$r/$rule"
                 inst_simple "$found"
             fi
-        done    
+        done
         for r in '' ./ $dracutbasedir/rules.d/; do
             if [[ -f ${r}$rule ]]; then
                 found="${r}$rule"
-                inst_simple "$found" "$target/${found##*/}" 
+                inst_simple "$found" "$target/${found##*/}"
             fi
         done
         [[ $found ]] || dinfo "Skipping udev rule: $rule"
@@ -459,7 +459,7 @@ inst_hook() {
         dfatal "Aborting initrd creation."
         exit 1
     elif ! strstr "$hookdirs" "$1"; then
-        dfatal "No such hook type $1. Aborting initrd creation." 
+        dfatal "No such hook type $1. Aborting initrd creation."
         exit 1
     fi
     inst_simple "$3" "/lib/dracut/hooks/${1}/${2}${3##*/}"

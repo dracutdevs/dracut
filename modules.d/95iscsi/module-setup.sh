@@ -45,7 +45,7 @@ installkernel() {
         local iscsifuncs='iscsi_register_transport'
         fgrep -q "$iscsifuncs" "$1"
     }
-    instmods $(filter_kernel_modules iscsi_module_test) 
+    instmods $(filter_kernel_modules iscsi_module_test)
 }
 
 install() {

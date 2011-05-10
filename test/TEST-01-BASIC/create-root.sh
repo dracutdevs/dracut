@@ -13,9 +13,9 @@ sfdisk -C 1280 -H 2 -S 32 -L /dev/sda <<EOF
 EOF
 
 mkfs.ext3 -L dracut /dev/sda2
-mkdir -p /root 
-mount /dev/sda2 /root 
-cp -a -t /root /source/* 
+mkdir -p /root
+mount /dev/sda2 /root
+cp -a -t /root /source/*
 mkdir -p /root/run
 umount /root
 echo "dracut-root-block-created" >/dev/sda1

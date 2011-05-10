@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 #
@@ -41,7 +41,7 @@ fi
 
 echo "$image:"
 echo "========================================================================"
-$CAT "$image" | cpio --extract --verbose --quiet --to-stdout 'lib/dracut/dracut-*' 2>/dev/null 
+$CAT "$image" | cpio --extract --verbose --quiet --to-stdout 'lib/dracut/dracut-*' 2>/dev/null
 echo "========================================================================"
 $CAT "$image" | cpio --extract --verbose --quiet --list
 echo "========================================================================"
