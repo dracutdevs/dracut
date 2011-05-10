@@ -42,7 +42,7 @@ for netif in $IFACES ; do
         else
             echo "BOOTPROTO=none" 
         # If we've booted with static ip= lines, the override file is there
-            . /tmp/net.$netif.override 
+            [ -e /tmp/net.$netif.override ] && . /tmp/net.$netif.override 
             echo "IPADDR=$ip"
             echo "NETMASK=$mask"
             [ -n "$gw" ] && echo "GATEWAY=$gw"
