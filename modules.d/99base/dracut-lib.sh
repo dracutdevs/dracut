@@ -245,7 +245,6 @@ die() {
     {
         echo "warn dracut: FATAL: \"$@\"";
         echo "warn dracut: Refusing to continue";
-	echo "exit 1"
     } >> $hookdir/emergency/01-die.sh
 
     > /run/initramfs/.die
@@ -263,8 +262,7 @@ check_quiet() {
 warn() {
     check_quiet
     echo "<28>dracut Warning: $@" > /dev/kmsg
-    [ "$DRACUT_QUIET" != "yes" ] && \
-        echo "dracut Warning: $@" >&2
+    echo "dracut Warning: $@" >&2
 }
 
 info() {
