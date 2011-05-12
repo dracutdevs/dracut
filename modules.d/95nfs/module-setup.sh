@@ -23,6 +23,8 @@ installkernel() {
 }
 
 install() {
+    local _i
+    local _nsslibs
     type -P portmap >/dev/null && dracut_install portmap
     type -P rpcbind >/dev/null && dracut_install rpcbind
 
@@ -33,18 +35,18 @@ install() {
     dracut_install rpc.idmapd /etc/idmapd.conf
     dracut_install sed
 
-    for i in {"$libdir","$usrlibdir"}/libnfsidmap_nsswitch.so* \
+    for _i in {"$libdir","$usrlibdir"}/libnfsidmap_nsswitch.so* \
         {"$libdir","$usrlibdir"}/libnfsidmap/*.so \
         {"$libdir","$usrlibdir"}/libnfsidmap*.so*; do
-        [ -e "$i" ] && dracut_install "$i"
+        [ -e "$_i" ] && dracut_install "$_i"
     done
 
-    nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
+    _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
         |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
-    nsslibs=${nsslibs#|}
-    nsslibs=${nsslibs%|}
+    _nsslibs=${_nsslibs#|}
+    _nsslibs=${_nsslibs%|}
 
-    dracut_install $(for i in $(ls {/usr,}$libdir/libnss*.so 2>/dev/null); do echo $i;done | egrep "$nsslibs")
+    dracut_install $(for _i in $(ls {/usr,}$libdir/libnss*.so 2>/dev/null); do echo $_i;done | egrep "$_nsslibs")
 
     inst_hook cmdline 90 "$moddir/parse-nfsroot.sh"
     inst_hook pre-pivot 99 "$moddir/nfsroot-cleanup.sh"

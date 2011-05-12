@@ -23,11 +23,12 @@ depends() {
 }
 
 installkernel() {
-    for i in \
+    local _i
+    for _i in \
         xenbus_probe_frontend xen-pcifront \
         xen-fbfront xen-kbdfront xen-blkfront xen-netfront \
         ; do
-        modinfo -k $kernel $i >/dev/null 2>&1 && instmods $i
+        modinfo -k $kernel $_i >/dev/null 2>&1 && instmods $_i
     done
 
 }

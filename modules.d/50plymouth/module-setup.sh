@@ -11,9 +11,10 @@ depends() {
 }
 
 installkernel() {
+    local _modname
     # Include KMS capable drm drivers
-    for modname in $(find "$srcmods/kernel/drivers/gpu/drm" "$srcmods/extra" -name '*.ko' 2>/dev/null); do
-        grep -q drm_crtc_init  $modname && instmods $modname
+    for _modname in $(find "$srcmods/kernel/drivers/gpu/drm" "$srcmods/extra" -name '*.ko' 2>/dev/null); do
+        grep -q drm_crtc_init  $_modname && instmods $_modname
     done
 }
 

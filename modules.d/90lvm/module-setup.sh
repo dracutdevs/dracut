@@ -3,6 +3,7 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 check() {
+    local _rootdev
     # No point trying to support lvm if the binaries are missing
     type -P lvm >/dev/null || return 1
 
@@ -12,11 +13,11 @@ check() {
     is_lvm() { [[ $(get_fs_type /dev/block/$1) = LVM2_member ]]; }
 
     [[ $hostonly ]] && {
-        rootdev=$(find_root_block_device)
-        if [[ $rootdev ]]; then
+        _rootdev=$(find_root_block_device)
+        if [[ $_rootdev ]]; then
             # root lives on a block device, so we can be more precise about
             # hostonly checking
-            check_block_and_slaves is_lvm "$rootdev" || return 1
+            check_block_and_slaves is_lvm "$_rootdev" || return 1
         else
             # root is not on a block device, use the shotgun approach
             blkid | grep -q LVM2_member || return 1
@@ -33,6 +34,7 @@ depends() {
 }
 
 install() {
+    local _i
     inst lvm
 
     inst_rules "$moddir/64-lvm.rules"
@@ -54,8 +56,8 @@ install() {
     inst "$moddir/lvm_scan.sh" /sbin/lvm_scan
     inst_hook cmdline 30 "$moddir/parse-lvm.sh"
 
-    for i in {"$libdir","$usrlibdir"}/libdevmapper-event-lvm*.so; do
-        [ -e "$i" ] && dracut_install "$i"
+    for _i in {"$libdir","$usrlibdir"}/libdevmapper-event-lvm*.so; do
+        [ -e "$_i" ] && dracut_install "$_i"
     done
 }
 

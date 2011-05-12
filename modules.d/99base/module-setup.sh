@@ -12,6 +12,7 @@ depends() {
 }
 
 install() {
+    local _d
     dracut_install mount mknod mkdir modprobe pidof sleep chroot \
         sed ls flock cp mv dmesg rm ln rmmod mkfifo umount
     dracut_install -o less
@@ -27,9 +28,9 @@ install() {
     mkdir -m 0755 -p ${initdir}/lib
     mkdir -m 0755 -p ${initdir}/lib/dracut
     mkdir -m 0755 -p ${initdir}/lib/dracut/hooks
-    for d in $hookdirs emergency \
+    for _d in $hookdirs emergency \
         initqueue initqueue/finished initqueue/settled; do
-        mkdir -m 0755 -p ${initdir}/lib/dracut/hooks/$d
+        mkdir -m 0755 -p ${initdir}/lib/dracut/hooks/$_d
     done
 
     mkdir -p ${initdir}/tmp

@@ -3,11 +3,12 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 install() {
+    local _bin
     # Optional uswsusp support
-    for bin in /usr/sbin/resume /usr/lib/suspend/resume
+    for _bin in /usr/sbin/resume /usr/lib/suspend/resume
     do
-        [[ -x "${bin}" ]] && {
-            inst "${bin}" /usr/sbin/resume
+        [[ -x "${_bin}" ]] && {
+            inst "${_bin}" /usr/sbin/resume
             [[ -f /etc/suspend.conf ]] && inst /etc/suspend.conf
             break
         }

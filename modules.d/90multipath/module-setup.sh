@@ -3,6 +3,7 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 check() {
+    local _rootdev
     # if there's no multipath binary, no go.
     type -P multipath >/dev/null || return 1
 
@@ -16,9 +17,9 @@ check() {
     }
 
     if [[ $hostonly ]]; then
-        rootdev=$(find_root_block_device)
-        if [[ $rootdev ]]; then
-            check_block_and_slaves is_mpath "$rootdev" && return 0
+        _rootdev=$(find_root_block_device)
+        if [[ $_rootdev ]]; then
+            check_block_and_slaves is_mpath "$_rootdev" && return 0
         fi
         return 1
     fi
@@ -41,7 +42,8 @@ installkernel() {
 }
 
 install() {
-    for f in  \
+    local _f
+    for _f in  \
         /sbin/dmsetup \
         /sbin/kpartx \
         /sbin/mpath_wait \
@@ -53,7 +55,7 @@ install() {
         /etc/multipath.conf \
         /etc/multipath/* \
         "$libdir"/libmultipath* "$libdir"/multipath/*; do
-        [ -e "$f" ] && inst "$f"
+        [ -e "$_f" ] && inst "$_f"
     done
 
     inst_hook pre-trigger 02 "$moddir/multipathd.sh"

@@ -3,11 +3,12 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 check() {
+    local _program
     . $dracutfunctions
 
-    for program in ip arping dhclient ; do
-        if ! type -P $program >/dev/null; then
-            derror "Could not find program \"$program\" required by network."
+    for _program in ip arping dhclient ; do
+        if ! type -P $_program >/dev/null; then
+            derror "Could not find program \"$_program\" required by network."
             return 1
         fi
     done
@@ -24,11 +25,11 @@ installkernel() {
     # Include wired net drivers, excluding wireless
 
     net_module_test() {
-        local net_drivers='eth_type_trans|register_virtio_device'
-        local unwanted_drivers='/(wireless|isdn|uwb)/'
-        egrep -q $net_drivers "$1" && \
+        local _net_drivers='eth_type_trans|register_virtio_device'
+        local _unwanted_drivers='/(wireless|isdn|uwb)/'
+        egrep -q $_net_drivers "$1" && \
             egrep -qv 'iw_handler_get_spy' "$1" && \
-            [[ ! $1 =~ $unwanted_drivers ]]
+            [[ ! $1 =~ $_unwanted_drivers ]]
     }
 
     instmods $(filter_kernel_modules net_module_test)
@@ -42,6 +43,7 @@ installkernel() {
 }
 
 install() {
+    local _arch _i _dir
     dracut_install ip arping tr dhclient
     dracut_install -o brctl ifenslave
     inst "$moddir/ifup" "/sbin/ifup"
@@ -57,12 +59,12 @@ install() {
     inst_hook cmdline 99 "$moddir/parse-ifname.sh"
     inst_hook pre-pivot 10 "$moddir/kill-dhclient.sh"
 
-    arch=$(uname -m)
+    _arch=$(uname -m)
 
-    for dir in "$usrlibdir/tls/$arch" "$usrlibdir/tls" "$usrlibdir/$arch" \
+    for _dir in "$usrlibdir/tls/$_arch" "$usrlibdir/tls" "$usrlibdir/$_arch" \
         "$usrlibdir" "$libdir"; do
-        for i in "$dir"/libnss_dns.so.* "$dir"/libnss_mdns4_minimal.so.*; do
-            [ -e "$i" ] && dracut_install "$i"
+        for _i in "$_dir"/libnss_dns.so.* "$_dir"/libnss_mdns4_minimal.so.*; do
+            [ -e "$_i" ] && dracut_install "$_i"
         done
     done
 

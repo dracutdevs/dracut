@@ -3,6 +3,7 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 check() {
+    local _rootdev
     # If our prerequisites are not met, fail.
     type -P nbd-client >/dev/null || return 1
 
@@ -12,9 +13,9 @@ check() {
         is_nbd() { [[ -b /dev/block/$1 && $1 == 43:* ]] ;}
         . $dracutfunctions
 
-        rootdev=$(find_root_block_device)
-        [[ -b /dev/block/$rootdev ]] || return 1
-        check_block_and_slaves is_nbd "$rootdev" || return 1
+        _rootdev=$(find_root_block_device)
+        [[ -b /dev/block/$_rootdev ]] || return 1
+        check_block_and_slaves is_nbd "$_rootdev" || return 1
     }
 
     return 0

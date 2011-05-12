@@ -11,31 +11,33 @@ depends() {
 }
 
 installkernel() {
-    FIPSMODULES="aead aes_generici aes-xts aes-x86_64 ansi_cprng cbc ccm chainiv ctr"
-    FIPSMODULES="$FIPSMODULES des deflate ecb eseqiv hmac seqiv sha256 sha512"
-    FIPSMODULES="$FIPSMODULES cryptomgr crypto_null tcrypt"
+    local _fipsmodules _mod
+    _fipsmodules="aead aes_generici aes-xts aes-x86_64 ansi_cprng cbc ccm chainiv ctr"
+    _fipsmodules+=" des deflate ecb eseqiv hmac seqiv sha256 sha512"
+    _fipsmodules+=" cryptomgr crypto_null tcrypt"
 
     mkdir -m 0755 -p "${initdir}/etc/modprobe.d"
 
-    for mod in $FIPSMODULES; do
-        if instmods $mod; then
-            echo $mod >> "${initdir}/etc/fipsmodules"
-            echo "blacklist $mod" >> "${initdir}/etc/modprobe.d/fips.conf"
+    for _mod in $_fipsmodules; do
+        if instmods $_mod; then
+            echo $_mod >> "${initdir}/etc/fipsmodules"
+            echo "blacklist $_mod" >> "${initdir}/etc/modprobe.d/fips.conf"
         fi
     done
 }
 
 install() {
+    local _dir
     inst_hook pre-trigger 01 "$moddir/fips-boot.sh"
     inst_hook pre-pivot 01 "$moddir/fips-noboot.sh"
     inst "$moddir/fips.sh" /sbin/fips.sh
 
     dracut_install sha512hmac rmmod insmod mount uname umount
 
-    for dir in "$usrlibdir" "$libdir"; do
-        [[ -e $dir/libsoftokn3.so ]] && \
-            dracut_install $dir/libsoftokn3.so $dir/libsoftokn3.chk \
-            $dir/libfreebl3.so $dir/libfreebl3.chk && \
+    for _dir in "$usrlibdir" "$libdir"; do
+        [[ -e $_dir/libsoftokn3.so ]] && \
+            dracut_install $_dir/libsoftokn3.so $_dir/libsoftokn3.chk \
+            $_dir/libfreebl3.so $_dir/libfreebl3.chk && \
             break
     done
 

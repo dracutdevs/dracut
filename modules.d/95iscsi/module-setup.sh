@@ -3,6 +3,7 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 check() {
+    local _rootdev
     # If our prerequisites are not met, fail anyways.
     type -P iscsistart hostname iscsi-iname >/dev/null || return 1
 
@@ -23,11 +24,11 @@ check() {
     )
 
     [[ $hostonly ]] && {
-        rootdev=$(find_root_block_device)
-        if [[ $rootdev ]]; then
+        _rootdev=$(find_root_block_device)
+        if [[ $_rootdev ]]; then
             # root lives on a block device, so we can be more precise about
             # hostonly checking
-            check_block_and_slaves is_iscsi "$rootdev" || return 1
+            check_block_and_slaves is_iscsi "$_rootdev" || return 1
         else
             return 1
         fi
@@ -42,8 +43,8 @@ depends() {
 installkernel() {
     instmods iscsi_tcp iscsi_ibft crc32c
     iscsi_module_test() {
-        local iscsifuncs='iscsi_register_transport'
-        fgrep -q "$iscsifuncs" "$1"
+        local _iscsifuncs='iscsi_register_transport'
+        fgrep -q "$_iscsifuncs" "$1"
     }
     instmods $(filter_kernel_modules iscsi_module_test)
 }

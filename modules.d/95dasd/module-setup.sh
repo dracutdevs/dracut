@@ -3,8 +3,8 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 check() {
-    arch=$(uname -m)
-    [ "$arch" = "s390" -o "$arch" = "s390x" ] || return 1
+    local _arch=$(uname -m)
+    [ "$_arch" = "s390" -o "$_arch" = "s390x" ] || return 1
     return 0
 }
 

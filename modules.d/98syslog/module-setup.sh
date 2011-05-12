@@ -12,24 +12,26 @@ depends() {
 }
 
 install() {
+    local _i
+    local _installs
     if type -P rsyslogd >/dev/null; then
-        installs="rsyslogd"
-        for i in {"$libdir","$usrlibdir"}/rsyslog/lmnet.so \
+        _installs="rsyslogd"
+        for _i in {"$libdir","$usrlibdir"}/rsyslog/lmnet.so \
             {"$libdir","$usrlibdir"}/rsyslog/imklog.so \
             {"$libdir","$usrlibdir"}/rsyslog/imuxsock.so ; do
-            [ -e "$i" ] && installs="$installs $i"
+            [ -e "$_i" ] && _installs="$_installs $_i"
         done
     elif type -P syslogd >/dev/null; then
-        installs="syslogd"
+        _installs="syslogd"
     elif type -P syslog-ng >/dev/null; then
-        installs="syslog-ng"
+        _installs="syslog-ng"
     else
         derror "Could not find any syslog binary although the syslogmodule" \
             "is selected to be installed. Please check."
     fi
-    if [ -n "$installs" ]; then
+    if [ -n "$_installs" ]; then
         dracut_install cat
-        dracut_install $installs
+        dracut_install $_installs
         inst_hook cmdline  90 "$moddir/parse-syslog-opts.sh"
         inst_hook pre-udev 61 "$moddir/syslog-genrules.sh"
         inst_hook pre-pivot 99 "$moddir/syslog-cleanup.sh"

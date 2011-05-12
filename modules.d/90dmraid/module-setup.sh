@@ -3,6 +3,7 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 check() {
+    local _rootdev
     # if we don't have dmraid installed on the host system, no point
     # in trying to support it in the initramfs.
     type -P dmraid >/dev/null || return 1
@@ -14,11 +15,11 @@ check() {
         grep -q _raid_member; }
 
     [[ $hostonly ]] && {
-        rootdev=$(find_root_block_device)
-        if [[ $rootdev ]]; then
+        _rootdev=$(find_root_block_device)
+        if [[ $_rootdev ]]; then
         # root lives on a block device, so we can be more precise about
         # hostonly checking
-            check_block_and_slaves is_dmraid "$rootdev" || return 1
+            check_block_and_slaves is_dmraid "$_rootdev" || return 1
         else
         # root is not on a block device, use the shotgun approach
             dmraid -r | grep -q ok || return 1
@@ -34,12 +35,13 @@ depends() {
 }
 
 install() {
+    local _i
     dracut_install dmraid partx kpartx
 
     inst  dmeventd
 
-    for i in {"$libdir","$usrlibdir"}/libdmraid-events*.so; do
-        [ -e "$i" ] && dracut_install "$i"
+    for _i in {"$libdir","$usrlibdir"}/libdmraid-events*.so; do
+        [ -e "$_i" ] && dracut_install "$_i"
     done
 
     inst_rules 10-dm.rules 13-dm-disk.rules 95-dm-notify.rules
