@@ -169,13 +169,13 @@ if [ -e "$SQUASHED" ] ; then
     mount -n -t squashfs -o ro $SQUASHED_LOOPDEV /run/initramfs/squashfs
 
     BASE_LOOPDEV=$( losetup -f )
-    if [ -f /squashfs/LiveOS/ext3fs.img ]; then
-        losetup -r $BASE_LOOPDEV /squashfs/LiveOS/ext3fs.img
-    elif [ -f /squashfs/LiveOS/rootfs.img ]; then
-        losetup -r $BASE_LOOPDEV /squashfs/LiveOS/rootfs.img
+    if [ -f /run/initramfs/squashfs/LiveOS/ext3fs.img ]; then
+        losetup -r $BASE_LOOPDEV /run/initramfs/squashfs/LiveOS/ext3fs.img
+    elif [ -f /run/initramfs/squashfs/LiveOS/rootfs.img ]; then
+        losetup -r $BASE_LOOPDEV /run/initramfs/squashfs/LiveOS/rootfs.img
     fi
 
-    umount -l /squashfs
+    umount -l /run/initramfs/squashfs
 
     do_live_from_base_loop
 fi
