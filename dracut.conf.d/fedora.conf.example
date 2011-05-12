@@ -1,4 +1,3 @@
-# /etc/dracut.conf.d/redhat.conf
 # Dracut config file customized for RedHat/Fedora.
 
 # i18n
