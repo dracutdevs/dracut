@@ -19,19 +19,19 @@ we'll grow some hooks for running arbitrary commands in the flow of
 the script, but it's worth trying to resist the urge as much as we can
 as hooks are guaranteed to be the path to slow-down.
 
-Most of the initrd generation functionality in dracut is provided by a bunch
+Most of the initramfs generation functionality in dracut is provided by a bunch
 of generator modules that are sourced by the main dracut script to install
-specific functionality into the initrd.  They live in the modules.d
+specific functionality into the initramfs.  They live in the modules.d
 subdirectory, and use functionality provided by dracut-functions to do their
 work.
 
 Some general rules for writing modules:
  * Use one of the inst family of functions to actually install files
-   on to the initrd.  They handle mangling the pathnames and (for binaries,
+   on to the initramfs.  They handle mangling the pathnames and (for binaries,
    scripts, and kernel modules) installing dependencies as appropriate so
    you do not have to.
- * Scripts that end up on the initrd should be POSIX compliant. dracut
-   will try to use /bin/dash as /bin/sh for the initrd if it is available,
+ * Scripts that end up on the initramfs should be POSIX compliant. dracut
+   will try to use /bin/dash as /bin/sh for the initramfs if it is available,
    so you should install it on your system -- dash aims for strict POSIX
    compliance to the extent possible.
  * Hooks MUST be POSIX compliant -- they are sourced by the init script,
