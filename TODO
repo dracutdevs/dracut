@@ -21,3 +21,8 @@ Note that our main concern, especially right now, is proving viability of some o
 - cryptokey on usbkey rhbz#459485
 - Bug 524727 - Dracut + encrypted root + networking
 
+
+- add recovery image creator (mkrecovery)
+- parameters for automatic kexec fallback
+- parameters for automatic panic fallback
+
