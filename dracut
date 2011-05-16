@@ -451,7 +451,7 @@ elif [[ -f "$outfile" && ! -w "$outfile" ]]; then
     exit 1
 fi
 
-[[ $TMPDIR && ! -w $TMPDIR ]] && unset TMPDIR
+readonly TMPDIR=/var/tmp
 readonly initdir=$(mktemp --tmpdir=/var/tmp/ -d -t initramfs.XXXXXX)
 
 # clean up after ourselves no matter how we die.
