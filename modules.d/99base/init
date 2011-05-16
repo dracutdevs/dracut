@@ -361,19 +361,18 @@ if getarg init= >/dev/null ; then
     ignoreargs="console BOOT_IMAGE"
     # only pass arguments after init= to the init
     CLINE=${CLINE#*init=}
-        set $CLINE
-        shift
-        for x in "$@"; do
-            for s in $ignoreargs; do
-                [ "${x%%=*}" = $s ] && continue 2
-            done
-            initargs="$initargs $x"
+    set -- $CLINE
+    shift # clear out the rest of the "init=" arg
+    for x in "$@"; do
+        for s in $ignoreargs; do
+            [ "${x%%=*}" = $s ] && continue 2
         done
-        unset CLINE
+        initargs="$initargs $x"
+    done
+    unset CLINE
 else
     set +x # Turn off debugging for this section
-    set $CLINE
-    shift
+    set -- $CLINE
     for x in "$@"; do
         case "$x" in
             [0-9]|s|S|single|emergency|auto ) \
