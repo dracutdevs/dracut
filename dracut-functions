@@ -233,8 +233,10 @@ inst_dir() {
             [[ $target == ${target#/} ]] && target="$(dirname "$_file")/$target"
             inst_dir "$target"
         else
+            [[ -h ${initdir}$_file ]] && _file=$(readlink "${initdir}$_file")
             # create directory
             mkdir -m 0755 -p "${initdir}$_file" || return 1
+            [[ -d "$_file" ]] && chmod --reference="$_file" "${initdir}$_file"
         fi
     done
 }
@@ -249,6 +251,7 @@ inst_simple() {
     _src=$1 target="${2:-$1}"
     if ! [[ -d ${initdir}$target ]]; then
         [[ -e ${initdir}$target ]] && return 0
+        [[ -h ${initdir}$target ]] && return 0
         inst_dir "${target%/*}"
     fi
     # install checksum files also
@@ -256,7 +259,7 @@ inst_simple() {
         inst "${_src%/*}/.${_src##*/}.hmac" "${target%/*}/.${target##*/}.hmac"
     fi
     ddebug "Installing $_src"
-    cp -pfL "$_src" "${initdir}$target"
+    cp -pfL "$_src" "${initdir}$target" 
 }
 
 # find symlinks linked to given library file
@@ -397,8 +400,16 @@ inst_symlink() {
     [[ -L $_target ]] && return 0
     _realsrc=$(readlink -f "$_src")
     [[ $_realsrc = ${_realsrc##*/} ]] && _realsrc=${_src%/*}/$_realsrc
-    inst "$_realsrc" && mkdir -m 0755 -p "${_target%/*}" && \
+    if [[ -d $_realsrc ]]; then
+        inst_dir "$_realsrc"
+    else
+        inst "$_realsrc" && mkdir -m 0755 -p "${_target%/*}" 
+    fi
+    if [[ -e "${_src}" ]]; then
+        cp -aP "${_src}" "$_target"
+    else
         ln -sfn "$_realsrc" "$_target"
+    fi
 }
 
 # udev rules always get installed in the same place, so
