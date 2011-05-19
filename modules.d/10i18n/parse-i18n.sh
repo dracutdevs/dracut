@@ -35,9 +35,10 @@ if [ -f /etc/locale.conf ]; then
     export LC_ALL
 fi
 
-if [ -x /lib/systemd/systemd-vconsole-setup ]; then
-    /lib/systemd/systemd-vconsole-setup
-    rm -f /{etc,lib}/udev/rules.d/10-console.rules
-    rm -f /lib/udev/console_init
-    ln -s /lib/systemd/systemd-vconsole-setup /lib/udev/console_init
-fi
+# FIXME: fix systemd-vconsole-setup
+#if [ -x /lib/systemd/systemd-vconsole-setup ]; then
+#    /lib/systemd/systemd-vconsole-setup
+#    rm -f /{etc,lib}/udev/rules.d/10-console.rules
+#    rm -f /lib/udev/console_init
+#    ln -s /lib/systemd/systemd-vconsole-setup /lib/udev/console_init
+#fi
