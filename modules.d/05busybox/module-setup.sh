@@ -14,7 +14,7 @@ depends() {
 
 install() {
     local _i _progs _path
-    inst busybox /sbin/busybox
+    inst busybox /usr/bin/busybox
 
     # List of shell programs that we use in other official dracut modules, that
     # must be supported by the busybox installed on the host system
@@ -26,9 +26,9 @@ install() {
     for _i in $_progs; do
 	_path=$(find_binary "$_i")
         if [[ $_path != ${_path#/usr} ]]; then
-    	    ln -s ../../sbin/busybox "$initdir/$_path"
+    	    ln -s ../../usr/bin/busybox "$initdir/$_path"
         else
-            ln -s ../sbin/busybox "$initdir/$_path"
+            ln -s ../usr/bin/busybox "$initdir/$_path"
         fi
     done
 
