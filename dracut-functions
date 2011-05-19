@@ -319,7 +319,7 @@ inst_library() {
 # find a binary.  If we were not passed the full path directly,
 # search in the usual places to find the binary.
 find_binary() {
-    local _binpath="/bin /sbin /usr/bin /usr/sbin" _p
+    local _binpath="/usr/sbin /sbin /usr/bin /bin" _p
     if [[ -z ${1##/*} ]]; then
         if [[ -x $1 ]] || ldd $1 &>/dev/null; then
             echo $1
