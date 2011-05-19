@@ -30,6 +30,8 @@ if [[ "$FILE_T" =~ ": gzip compressed data" ]]; then
     CAT=zcat
 elif [[ "$FILE_T" =~ ": xz compressed data" ]]; then
     CAT=xzcat
+elif [[ "$FILE_T" =~ ": XZ compressed data" ]]; then
+    CAT=xzcat
 elif [[ "$FILE_T" =~ ": data" ]]; then
     CAT=lzcat
 fi
