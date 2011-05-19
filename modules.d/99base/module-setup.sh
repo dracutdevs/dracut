@@ -25,7 +25,7 @@ install() {
     inst "$moddir/initqueue" "/sbin/initqueue"
     inst "$moddir/loginit" "/sbin/loginit"
 
-    mkdir -m 0755 -p ${initdir}/lib
+    [ -e "${initdir}/lib" ] || mkdir -m 0755 -p ${initdir}/lib
     mkdir -m 0755 -p ${initdir}/lib/dracut
     mkdir -m 0755 -p ${initdir}/lib/dracut/hooks
     for _d in $hookdirs emergency \
