@@ -365,7 +365,7 @@ fw_dir=${fw_dir//:/ }
 
 # handle compression options.
 case $compress in
-    bzip2) compress="bzip -9";;
+    bzip2) compress="bzip2 -9";;
     lzma)  compress="lzma -9";;
     xz)    compress="xz --check=crc32 --lzma2=dict=1MiB";;
     gzip)  type pigz > /dev/null 2>&1 && compress="pigz -9" || \
