@@ -472,18 +472,31 @@ export initdir dracutbasedir dracutmodules drivers \
 # Create some directory structure first
 [[ $prefix ]] && mkdir -m 0755 -p "${initdir}${prefix}"
 
-mkdir -m 0755 -p "${initdir}${prefix}/lib"
+[[ -h /lib ]] || mkdir -m 0755 -p "${initdir}${prefix}/lib"
 [[ $prefix ]] && ln -sfn "${prefix#/}/lib" "$initdir/lib"
 
-if [[ $kernel_only != yes ]]; then
+if [[ $prefix ]]; then
     for d in bin etc lib "$libdir" sbin tmp usr var; do
+        ln -sfn "${prefix#/}/${d#/}" "$initdir/$d"
+    done
+fi
+
+if [[ $kernel_only != yes ]]; then
+    for d in bin etc lib "$libdir" sbin tmp usr var usr/bin usr/sbin; do
         [[ -e "${initdir}${prefix}/$d" ]] && continue
-        mkdir -m 0755 -p "${initdir}${prefix}/$d"
-        [[ $prefix ]] && ln -sfn "${prefix#/}/${d#/}" "$initdir/$d"
+        if [ -h "/$d" ]; then
+            inst "/$d" "${prefix}/$d"
+        else
+            mkdir -m 0755 -p "${initdir}${prefix}/$d"
+        fi
     done
 
     for d in proc sys sysroot root run run/lock run/initramfs; do
-        mkdir -m 0755 -p "$initdir/$d";
+        if [ -h "/$d" ]; then
+            inst "/$d"
+        else
+            mkdir -m 0755 -p "$initdir/$d"
+        fi
     done
 
     ln -sfn /run "$initdir/var/run"
