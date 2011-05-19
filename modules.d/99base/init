@@ -136,10 +136,14 @@ if ! ismounted /run; then
     rm -fr /newrun
 fi
 
+[ -d /run/initramfs ] || mkdir -p -m 0755 /run/initramfs
+
 UDEVVERSION=$(udevadm --version)
 if [ $UDEVVERSION -gt 166 ]; then
     # newer versions of udev use /run/udev/rules.d
     export UDEVRULESD=/run/udev/rules.d
+    [ -d /run/udev ] || mkdir -p -m 0755 /run/udev
+    [ -d $UDEVRULESD ] || mkdir -p -m 0755 $UDEVRULESD
 else
     mkdir -m 0755 /dev/.udev /dev/.udev/rules.d
     export UDEVRULESD=/dev/.udev/rules.d
