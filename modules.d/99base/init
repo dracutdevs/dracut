@@ -65,6 +65,7 @@ emergency_shell()
 }
 
 NEWROOT="/sysroot"
+[ -d $NEWROOT ] || mkdir -p -m 0755 $NEWROOT
 
 trap "emergency_shell Signal caught!" 0
 OLDPATH=$PATH
