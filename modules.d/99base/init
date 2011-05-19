@@ -84,14 +84,6 @@ RD_DEBUG=""
 [ ! -d /sys/kernel ] && \
     mount -t sysfs -o nosuid,noexec,nodev /sys /sys >/dev/null 2>&1
 
-setdebug
-
-if [ "$RD_DEBUG" = "yes" ]; then
-    getarg quiet && DRACUT_QUIET="yes"
-    a=$(getarg loglevel=)
-    [ -n "$a" ] && [ $a -ge 8 ] && unset DRACUT_QUIET
-fi
-
 if [ -x /lib/systemd/systemd-timestamp ]; then
     RD_TIMESTAMP=$(/lib/systemd/systemd-timestamp)
 else
@@ -99,8 +91,13 @@ else
     unset _tmp
 fi
 
-ismounted /sys || \
-    mount -t sysfs -o nosuid,noexec,nodev /sys /sys >/dev/null 2>&1
+setdebug
+
+if [ "$RD_DEBUG" = "yes" ]; then
+    getarg quiet && DRACUT_QUIET="yes"
+    a=$(getarg loglevel=)
+    [ -n "$a" ] && [ $a -ge 8 ] && unset DRACUT_QUIET
+fi
 
 if ! ismounted /dev; then
     # try to mount devtmpfs
