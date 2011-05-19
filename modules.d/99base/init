@@ -405,8 +405,6 @@ wait_for_loginit
 
 info "Switching root"
 
-umount -l /run
-
 unset PS4
 
 CAPSH=$(command -v capsh)
