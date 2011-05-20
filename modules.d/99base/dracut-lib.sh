@@ -272,6 +272,12 @@ info() {
         echo "dracut: $@"
 }
 
+vwarn() {
+    while read line; do
+        warn $line;
+    done
+}
+
 vinfo() {
     while read line; do
         info $line;
