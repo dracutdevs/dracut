@@ -26,8 +26,10 @@ filter_rootopts() {
 }
 
 if [ -n "$root" -a -z "${root%%block:*}" ]; then
-    mount -t ${fstype:-auto} -o "$rflags",ro "${root#block:}" "$NEWROOT" \
-        && ROOTFS_MOUNTED=yes
+
+    # sanity - determine/fix fstype
+    rootfs=$(det_fs "${root#block:}" "$fstype" "cmdline")
+    mount -t ${rootfs} -o "$rflags",ro "${root#block:}" "$NEWROOT"
 
     READONLY=
     fsckoptions=
@@ -71,7 +73,6 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
         fsckoptions="-a $fsckoptions"
     fi
 
-    rootfs=${fstype:-auto}
     rootopts=
     if getargbool 1 rd.fstab -n rd_NO_FSTAB \
         && ! getarg rootflags \
@@ -86,7 +87,8 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
             [ "${dev%%#*}" != "$dev" ] && continue
 
             if [ "$mp" = "/" ]; then
-                rootfs=$fs
+                # sanity - determine/fix fstype
+                rootfs=$(det_fs "${root#block:}" "$fs" "$NEWROOT/etc/fstab")
                 rootopts=$opts
                 break
             fi
@@ -96,41 +98,10 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
     fi
 
     umount "$NEWROOT"
-    if [ "$rootfs" = "auto" ]; then
-        rootfs=$(udevadm info --query=env --name=${root#block:} | \
-            while read line; do
-                if strstr $line ID_FS_TYPE; then
-                    eval $line
-                    echo $ID_FS_TYPE
-                    break
-                fi
-            done)
-        rootfs=${rootfs:-auto}
-    fi
 
-    # backslashes are treated as escape character in fstab
-    esc_root=$(echo ${root#block:} | sed 's,\\,\\\\,g')
-    printf '%s %s %s %s,%s 1 1 \n' "$esc_root" "$NEWROOT" "$rootfs" "$rflags" "$rootopts"  > /etc/fstab
-
-    if [ -z "$fastboot" -a "$READONLY" != "yes" ]; then
-        info "Checking filesystems"
-        info fsck -T -t noopts=_netdev -A $fsckoptions
-        out=$(fsck -T -t noopts=_netdev -A $fsckoptions)
-        export RD_ROOTFS_FSCK=$?
-        echo $RD_ROOTFS_FSCK > /run/initramfs/root-fsck
-
-        # A return of 4 or higher means there were serious problems.
-        if [ $RD_ROOTFS_FSCK -gt 3 ]; then
-            warn $out
-            warn "fsck returned with error code $RD_ROOTFS_FSCK"
-            warn "*** An error occurred during the file system check."
-            warn "*** Dropping you to a shell; the system will retry"
-            warn "*** to mount the system, when you leave the shell."
-            emergency_shell -n "(Repair filesystem)"
-        else
-            echo $out|vinfo
-            [ $RD_ROOTFS_FSCK -gt 0 ] && warn "fsck returned with $RD_ROOTFS_FSCK"
-        fi
+    if [ -z "$fastboot" -a "$READONLY" != "yes" ] && ! strstr "${rflags},${rootopts}" _netdev; then
+        wrap_fsck "${root#block:}" "$fsckoptions"
+        echo $? >/run/initramfs/root-fsck
     fi
 
     info "Remounting ${root#block:} with -o ${rflags},${rootopts}"
