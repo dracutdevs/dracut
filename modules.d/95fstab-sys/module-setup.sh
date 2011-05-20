@@ -12,5 +12,7 @@ depends() {
 
 install() {
     dracut_install /etc/fstab.sys
+    dracut_install /sbin/fsck*
+    type -P e2fsck >/dev/null && dracut_install e2fsck
     inst_hook pre-pivot 00 "$moddir/mount-sys.sh"
 }
