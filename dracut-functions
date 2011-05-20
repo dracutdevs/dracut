@@ -236,7 +236,10 @@ inst_dir() {
             [[ -h ${initdir}$_file ]] && _file=$(readlink "${initdir}$_file")
             # create directory
             mkdir -m 0755 -p "${initdir}$_file" || return 1
-            [[ -d "$_file" ]] && chmod --reference="$_file" "${initdir}$_file"
+            if [[ -d "$_file" ]]; then
+                chmod --reference="$_file" "${initdir}$_file"
+                chmod u+w "${initdir}$_file"
+            fi
         fi
     done
 }
