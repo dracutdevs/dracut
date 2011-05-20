@@ -32,7 +32,7 @@ URL: https://dracut.wiki.kernel.org/
 Source0: http://www.kernel.org/pub/linux/utils/boot/dracut/dracut-%{version}%{?dashgittag}.tar.bz2
 
 BuildArch: noarch
-
+BuildRequires: dash bash
 %if 0%{?fedora}
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %endif
