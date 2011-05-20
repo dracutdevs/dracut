@@ -86,9 +86,9 @@ do_live_overlay() {
     setup=""
     if [ -n "$devspec" -a -n "$pathspec" -a -n "$overlay" ]; then
         mkdir -m 0755 /run/initramfs/overlayfs
-        mount -n -t auto $devspec /overlayfs || :
-        if [ -f /overlayfs$pathspec -a -w /overlayfs$pathspec ]; then
-            losetup $OVERLAY_LOOPDEV /overlayfs$pathspec
+        mount -n -t auto $devspec /run/initramfs/overlayfs || :
+        if [ -f /run/initramfs/overlayfs$pathspec -a -w /run/initramfs/overlayfs$pathspec ]; then
+            losetup $OVERLAY_LOOPDEV /run/initramfs/overlayfs$pathspec
             if [ -n "$reset_overlay" ]; then
                 dd if=/dev/zero of=$OVERLAY_LOOPDEV bs=64k count=1 2>/dev/null
             fi
