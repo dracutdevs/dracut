@@ -110,6 +110,7 @@ Creates initial ramdisk images for preloading modules
   --list-modules        List all available dracut modules.
   -M, --show-modules    Print included module's name to standard output during
                          build.
+  --keep                Keep the temporary initramfs for debugging purposes
 EOF
 }
 
@@ -240,6 +241,7 @@ while (($# > 0)); do
         -M|--show-modules)
                        show_modules_l="yes"
                        ;;
+        --keep)        keep="yes";;
         -*) printf "\nUnknown option: %s\n\n" "$1" >&2; usage; exit 1;;
         *)
             if ! [[ ${outfile+x} ]]; then
@@ -455,7 +457,7 @@ readonly TMPDIR=/var/tmp
 readonly initdir=$(mktemp --tmpdir=/var/tmp/ -d -t initramfs.XXXXXX)
 
 # clean up after ourselves no matter how we die.
-trap 'ret=$?;rm -rf "$initdir";exit $ret;' EXIT
+trap 'ret=$?;[[ $keep ]] && echo "Not removing $initdir." >&2 || rm -rf "$initdir";exit $ret;' EXIT
 # clean up after ourselves no matter how we die.
 trap 'exit 1;' SIGINT
 

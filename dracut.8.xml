@@ -451,6 +451,14 @@ TARGET directory in the final initramfs. If SOURCE is a file, it will be install
             <para>Print included module's name to standard output during build.</para>
           </listitem>
         </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--keep</option>
+          </term>
+          <listitem>
+            <para>Keep the initramfs temporary directory for debugging purposes.</para>
+          </listitem>
+        </varlistentry>
       </variablelist>
     </refsect2>
   </refsect1>
