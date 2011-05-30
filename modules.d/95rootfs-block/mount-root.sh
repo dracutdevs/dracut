@@ -69,7 +69,7 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
         fsckoptions="$AUTOFSCK_OPT $fsckoptions"
     fi
 
-    if ! strstr " $fsckoptions" " -y"; then
+    if ! strstr " $fsckoptions" " -y" && strstr "$rootfs" ext; then
         fsckoptions="-a $fsckoptions"
     fi
 
@@ -99,7 +99,11 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
 
     umount "$NEWROOT"
 
-    if [ -z "$fastboot" -a "$READONLY" != "yes" ] && ! strstr "${rflags},${rootopts}" _netdev; then
+    # backslashes are treated as escape character in fstab
+    esc_root=$(echo ${root#block:} | sed 's,\\,\\\\,g')
+    printf '%s %s %s %s,%s 1 1 \n' "$esc_root" "$NEWROOT" "$rootfs" "$rflags" "$rootopts"  > /etc/fstab
+
+    if [ -x "/sbin/fsck.$rootfs" -a -z "$fastboot" -a "$READONLY" != "yes" ] && ! strstr "${rflags},${rootopts}" _netdev; then
         wrap_fsck "${root#block:}" "$fsckoptions"
         echo $? >/run/initramfs/root-fsck
     fi
