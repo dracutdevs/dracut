@@ -260,6 +260,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dracut/modules.d/98selinux
 %{_datadir}/dracut/modules.d/98syslog
 %{_datadir}/dracut/modules.d/99base
+%{_datadir}/dracut/modules.d/99shutdown
 # logfile needs no logrotate, because it gets overwritten
 # for every dracut run
 %attr(0644,root,root) %ghost %config(missingok,noreplace) %{_localstatedir}/log/dracut.log
