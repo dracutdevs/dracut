@@ -1,4 +1,4 @@
-VERSION=011
+VERSION=010
 GITVERSION=$(shell [ -d .git ] && git rev-list  --abbrev-commit  -n 1 HEAD  |cut -b 1-8)
 
 prefix ?= /usr
@@ -10,9 +10,10 @@ mandir ?= ${prefix}/share/man
 
 manpages = dracut.8 dracut.kernel.7 dracut.conf.5 dracut-catimages.8  dracut-gencmdline.8
 
-.PHONY: install clean archive rpm testimage test all check AUTHORS
+.PHONY: install clean archive rpm testimage test all check AUTHORS doc
 
-all: syncheck $(manpages) dracut.html
+doc: $(manpages) dracut.html
+all: syncheck
 
 %: %.xml
 	xsltproc -o $@ -nonet http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
@@ -23,7 +24,7 @@ dracut.html: dracut.xml $(manpages)
 		--stringparam html.stylesheet http://docs.redhat.com/docs/en-US/Common_Content/css/default.css \
 		http://docbook.sourceforge.net/release/xsl/current/xhtml/docbook.xsl dracut.xml
 
-install:
+install: doc
 	mkdir -p $(DESTDIR)$(pkglibdir)
 	mkdir -p $(DESTDIR)$(sbindir)
 	mkdir -p $(DESTDIR)$(sysconfdir)
@@ -64,22 +65,15 @@ dracut-$(VERSION).tar.bz2:
 dracut-$(VERSION).tar.gz:
 	git archive --format=tar $(VERSION) --prefix=dracut-$(VERSION)/ |gzip > dracut-$(VERSION).tar.gz
 
-dracut-$(VERSION)-$(GITVERSION).tar.bz2:
-	git archive --format=tar HEAD --prefix=dracut-$(VERSION)-$(GITVERSION)/ |bzip2 > dracut-$(VERSION)-$(GITVERSION).tar.bz2
-
-
-rpm: clean dracut-$(VERSION).tar.bz2
-	rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" --define "_specdir $$PWD" --define "_srcrpmdir $$PWD" --define "_rpmdir $$PWD" -ba dracut.spec 
-	rm -fr BUILD BUILDROOT
-
-gitrpm: dracut-$(VERSION)-$(GITVERSION).tar.bz2
-	echo "%define gittag $(GITVERSION)" > dracut.spec.git
-	cat dracut.spec >> dracut.spec.git
-	mv dracut.spec dracut.spec.bak
-	mv dracut.spec.git dracut.spec
-	rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" --define "_specdir $$PWD" --define "_srcrpmdir $$PWD" --define "_rpmdir $$PWD" --define "gittag $(GITVERSION)" -ba dracut.spec || :
-	mv dracut.spec.bak dracut.spec
-	rm -fr BUILD BUILDROOT
+rpm: dracut-$(VERSION).tar.bz2
+	mkdir -p rpmbuild
+	cp dracut-$(VERSION).tar.bz2 rpmbuild
+	cd rpmbuild; ../git2spec.pl $(VERSION) < ../dracut.spec > dracut.spec; \
+	rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" \
+	        --define "_specdir $$PWD" --define "_srcrpmdir $$PWD" \
+		--define "_rpmdir $$PWD" -ba dracut.spec || :; \
+	cd ..;
+	rm -fr rpmbuild
 
 syncheck:
 	@ret=0;for i in dracut-logger modules.d/99base/init modules.d/*/*.sh; do \
