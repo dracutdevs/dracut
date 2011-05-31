@@ -26,5 +26,7 @@ install() {
     # files, but provides the one below:
     inst_rules 64-device-mapper.rules
     inst_rules "$moddir/11-dm.rules"
+
+    inst_hook shutdown 30 "$moddir/dm-shutdown.sh"
 }
 
