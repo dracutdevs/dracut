@@ -101,8 +101,8 @@ mount_root() {
     umount "$NEWROOT"
 
     # backslashes are treated as escape character in fstab
-    esc_root=$(echo ${root#block:} | sed 's,\\,\\\\,g')
-    printf '%s %s %s %s 1 1 \n' "$esc_root" "$NEWROOT" "$rootfs" "$rflags" >/etc/fstab
+    # esc_root=$(echo ${root#block:} | sed 's,\\,\\\\,g')
+    # printf '%s %s %s %s 1 1 \n' "$esc_root" "$NEWROOT" "$rootfs" "$rflags" >/etc/fstab
 
     if [ -z "$fastboot" -a "$READONLY" != "yes" ] && ! strstr "${rflags}" _netdev; then
         fsck_single "${root#block:}" "$rootfs" "$fsckoptions"
