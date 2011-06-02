@@ -3,6 +3,7 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type det_fs >/dev/null 2>&1 || . /lib/fs-lib.sh
 
 fstab_mount() {
     local _dev _mp _fs _opts _dump _pass _rest
@@ -15,9 +16,9 @@ fstab_mount() {
             continue
         fi
         if [ "$_pass" -gt 0 ] && ! strstr "$_opts" _netdev; then
-            wrap_fsck "$_dev"
+            fsck_single "$_dev" "$_fs"
         fi
-        _fs=$(det_fs "$_dev" "$_fs" /etc/fstab.sys)
+        _fs=$(det_fs "$_dev" "$_fs")
         info "Mounting $_dev"
         mount -v -t $_fs -o $_opts $_dev $NEWROOT/$_mp 2>&1 | vinfo
     done < $1

@@ -3,6 +3,7 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type det_fs >/dev/null 2>&1 || . /lib/fs-lib.sh
 
 filter_rootopts() {
     rootopts=$1
@@ -25,10 +26,10 @@ filter_rootopts() {
     echo $rootopts
 }
 
-if [ -n "$root" -a -z "${root%%block:*}" ]; then
-
+mount_root() {
+    local _ret
     # sanity - determine/fix fstype
-    rootfs=$(det_fs "${root#block:}" "$fstype" "cmdline")
+    rootfs=$(det_fs "${root#block:}" "$fstype")
     mount -t ${rootfs} -o "$rflags",ro "${root#block:}" "$NEWROOT"
 
     READONLY=
@@ -84,7 +85,7 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
 
             if [ "$mp" = "/" ]; then
                 # sanity - determine/fix fstype
-                rootfs=$(det_fs "${root#block:}" "$fs" "$NEWROOT/etc/fstab")
+                rootfs=$(det_fs "${root#block:}" "$fs")
                 rootopts=$opts
                 break
             fi
@@ -99,9 +100,10 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
     esc_root=$(echo ${root#block:} | sed 's,\\,\\\\,g')
     printf '%s %s %s %s,%s 1 1 \n' "$esc_root" "$NEWROOT" "$rootfs" "$rflags" "$rootopts"  > /etc/fstab
 
-    if [ -x "/sbin/fsck.$rootfs" -a -z "$fastboot" -a "$READONLY" != "yes" ] && ! strstr "${rflags},${rootopts}" _netdev; then
-        wrap_fsck "${root#block:}" "$fsckoptions"
-        echo $? >/run/initramfs/root-fsck
+    if [ -z "$fastboot" -a "$READONLY" != "yes" ] && ! strstr "${rflags},${rootopts}" _netdev; then
+        fsck_single "${root#block:}" "$rootfs" "$fsckoptions"
+        _ret=$?
+        [ $_ret -ne 255 ] && echo $_ret >/run/initramfs/root-fsck
     fi
 
     info "Remounting ${root#block:} with -o ${rflags},${rootopts}"
@@ -110,4 +112,8 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
 
     [ -f "$NEWROOT"/forcefsck ] && rm -f "$NEWROOT"/forcefsck 2>/dev/null
     [ -f "$NEWROOT"/.autofsck ] && rm -f "$NEWROOT"/.autofsck 2>/dev/null
+}
+
+if [ -n "$root" -a -z "${root%%block:*}" ]; then
+    mount_root
 fi
