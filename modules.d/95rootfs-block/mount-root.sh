@@ -69,10 +69,6 @@ if [ -n "$root" -a -z "${root%%block:*}" ]; then
         fsckoptions="$AUTOFSCK_OPT $fsckoptions"
     fi
 
-    if ! strstr " $fsckoptions" " -y" && strstr "$rootfs" ext; then
-        fsckoptions="-a $fsckoptions"
-    fi
-
     rootopts=
     if getargbool 1 rd.fstab -n rd_NO_FSTAB \
         && ! getarg rootflags \
