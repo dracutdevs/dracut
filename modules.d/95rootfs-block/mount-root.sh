@@ -94,21 +94,24 @@ mount_root() {
         rootopts=$(filter_rootopts $rootopts)
     fi
 
+    # we want rootflags (rflags) to take precedence so prepend rootopts to
+    # them; rflags is guaranteed to not be empty
+    rflags="${rootopts:+"${rootopts},"}${rflags}"
+
     umount "$NEWROOT"
 
     # backslashes are treated as escape character in fstab
     esc_root=$(echo ${root#block:} | sed 's,\\,\\\\,g')
-    printf '%s %s %s %s,%s 1 1 \n' "$esc_root" "$NEWROOT" "$rootfs" "$rflags" "$rootopts"  > /etc/fstab
+    printf '%s %s %s %s 1 1 \n' "$esc_root" "$NEWROOT" "$rootfs" "$rflags" >/etc/fstab
 
-    if [ -z "$fastboot" -a "$READONLY" != "yes" ] && ! strstr "${rflags},${rootopts}" _netdev; then
+    if [ -z "$fastboot" -a "$READONLY" != "yes" ] && ! strstr "${rflags}" _netdev; then
         fsck_single "${root#block:}" "$rootfs" "$fsckoptions"
         _ret=$?
         [ $_ret -ne 255 ] && echo $_ret >/run/initramfs/root-fsck
     fi
 
-    info "Remounting ${root#block:} with -o ${rflags},${rootopts}"
-    mount -t "$rootfs" -o "$rflags","$rootopts" \
-        "${root#block:}" "$NEWROOT" 2>&1 | vinfo
+    info "Remounting ${root#block:} with -o ${rflags}"
+    mount -t "$rootfs" -o "$rflags" "${root#block:}" "$NEWROOT" 2>&1 | vinfo
 
     [ -f "$NEWROOT"/forcefsck ] && rm -f "$NEWROOT"/forcefsck 2>/dev/null
     [ -f "$NEWROOT"/.autofsck ] && rm -f "$NEWROOT"/.autofsck 2>/dev/null
