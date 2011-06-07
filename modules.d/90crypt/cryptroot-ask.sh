@@ -22,6 +22,9 @@ NEWROOT=${NEWROOT:-"/sysroot"}
 # default luksname - luks-UUID
 luksname=$2
 
+# fallback to passphrase
+ask_passphrase=1
+
 # if device name is /dev/dm-X, convert to /dev/mapper/name
 if [ "${1##/dev/dm-}" != "$1" ]; then
     device="/dev/mapper/$(dmsetup info -c --noheadings -o name "$1")"
@@ -63,12 +66,21 @@ fi
 
 info "luksOpen $device $luksname"
 
-if [ -n "$(getarg rd.luks.key)" ]; then
+while [ -n "$(getarg rd.luks.key)" ]; do
     if tmp=$(getkey /tmp/luks.keys $device); then
         keydev="${tmp%%:*}"
         keypath="${tmp#*:}"
     else
-        info "No key found for $device.  Will try later."
+        if [ $# -eq 3 ]; then
+            if [ $3 -eq 0 ]; then
+                info "No key found for $device.  Fallback to passphrase mode."
+                break
+            fi
+            info "No key found for $device.  Will try $3 time(s) more later."
+            set -- "$1" "$2" "$(($3 - 1))"
+        else
+            info "No key found for $device.  Will try later."
+        fi
         initqueue --unique --onetime --settled \
             --name cryptroot-ask-$luksname \
             $(command -v cryptroot-ask) "$@"
@@ -80,7 +92,10 @@ if [ -n "$(getarg rd.luks.key)" ]; then
     readkey "$keypath" "$keydev" "$device" \
         | cryptsetup -d - luksOpen "$device" "$luksname"
     unset keypath keydev
-else
+    ask_passphrase=0
+    break
+done    
+if [ $ask_passphrase -ne 0 ]; then
     luks_open="$(command -v cryptsetup) luksOpen"
     ask_for_password --ply-tries 5 \
         --ply-cmd "$luks_open -T1 $device $luksname" \
