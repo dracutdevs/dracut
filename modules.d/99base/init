@@ -79,10 +79,10 @@ RD_DEBUG=""
 
 # mount some important things
 [ ! -d /proc/self ] && \
-    mount -t proc -o nosuid,noexec,nodev /proc /proc >/dev/null 2>&1
+    mount -t proc -o nosuid,noexec,nodev proc /proc >/dev/null 2>&1
 
 [ ! -d /sys/kernel ] && \
-    mount -t sysfs -o nosuid,noexec,nodev /sys /sys >/dev/null 2>&1
+    mount -t sysfs -o nosuid,noexec,nodev sysfs /sys >/dev/null 2>&1
 
 if [ -x /lib/systemd/systemd-timestamp ]; then
     RD_TIMESTAMP=$(/lib/systemd/systemd-timestamp)
@@ -101,9 +101,9 @@ fi
 
 if ! ismounted /dev; then
     # try to mount devtmpfs
-    if ! mount -t devtmpfs -o mode=0755,nosuid,noexec udev /dev >/dev/null 2>&1; then
+    if ! mount -t devtmpfs -o mode=0755,nosuid,noexec devtmpfs /dev >/dev/null 2>&1; then
         # if it failed fall back to normal tmpfs
-        mount -t tmpfs -o mode=0755,nosuid udev /dev >/dev/null 2>&1
+        mount -t tmpfs -o mode=0755,nosuid tmpfs /dev >/dev/null 2>&1
         # Make some basic devices first, let udev handle the rest
         mknod -m 0666 /dev/null c 1 3
         mknod -m 0666 /dev/ptmx c 5 2
@@ -125,7 +125,7 @@ fi
 
 if ! ismounted /dev/shm; then
     mkdir -m 0755 /dev/shm
-    mount -t tmpfs -o mode=1777,nosuid,nodev  tmpfs /dev/shm >/dev/null 2>&1
+    mount -t tmpfs -o mode=1777,nosuid,nodev tmpfs /dev/shm >/dev/null 2>&1
 fi
 
 if ! ismounted /run; then
