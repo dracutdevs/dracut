@@ -70,7 +70,7 @@ ask_for_password() {
 
             [ "$tty_echo_off" = yes ] && stty $stty_orig
         fi
-    } 9>/.console.lock
+    } 9>/.console_lock
 
     [ $ret -ne 0 ] && echo "Wrong password" >&2
     return $ret
