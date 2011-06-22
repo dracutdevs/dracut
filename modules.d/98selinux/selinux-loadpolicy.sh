@@ -27,11 +27,11 @@ rd_load_policy()
         # load_policy does mount /proc and /selinux in
         # libselinux,selinux_init_load_policy()
         if [ -x "$NEWROOT/sbin/load_policy" ]; then
-            out=$(chroot "$NEWROOT" /sbin/load_policy -i 2>&1)
+            out=$(LANG=C chroot "$NEWROOT" /sbin/load_policy -i 2>&1)
             ret=$?
             info $out
         else
-            out=$(chroot "$NEWROOT" /usr/sbin/load_policy -i 2>&1)
+            out=$(LANG=C chroot "$NEWROOT" /usr/sbin/load_policy -i 2>&1)
             ret=$?
             info $out
         fi
@@ -44,7 +44,7 @@ rd_load_policy()
             # If machine requires a relabel, force to permissive mode
             [ -e "$NEWROOT"/.autorelabel ] && ( echo 0 > "$NEWROOT"/selinux/enforce )
             mount --bind /dev "$NEWROOT/dev"
-            chroot "$NEWROOT" /sbin/restorecon -R /dev
+            LANG=C chroot "$NEWROOT" /sbin/restorecon -R /dev
             return 0
         fi
 
