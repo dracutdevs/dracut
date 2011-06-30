@@ -47,7 +47,7 @@ ask_for_password() {
 
     { flock -s 9;
         # Prompt for password with plymouth, if installed and running.
-        if [ -x /bin/plymouth ] && /bin/plymouth --has-active-vt; then
+        if [ -x /bin/plymouth ]; then
             /bin/plymouth ask-for-password \
                 --prompt "$ply_prompt" --number-of-tries=$ply_tries \
                 --command="$ply_cmd"
