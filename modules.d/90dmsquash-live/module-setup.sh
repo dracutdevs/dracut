@@ -27,12 +27,7 @@ install() {
     inst losetup
     inst grep
 
-    # eject might be a symlink to consolehelper
-    if [ -L /usr/bin/eject ]; then
-        dracut_install /usr/sbin/eject
-    else
-        inst eject
-    fi
+    dracut_install eject
 
     inst blockdev
     type -P checkisomd5 >/dev/null && inst checkisomd5
