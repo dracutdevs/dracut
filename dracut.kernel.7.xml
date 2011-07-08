@@ -703,6 +703,23 @@ rd.znet=ctc,0.0.0600,0.0.0601,0.0.0602,protocol=bar</programlisting></para>
         </varlistentry>
       </variablelist>
     </refsect2>
+   <refsect2>
+      <title>Kernel keys</title>
+      <variablelist>
+        <varlistentry>
+          <term><envar>masterkey=</envar><replaceable>&lt;kernel master key path name&gt;</replaceable></term>
+          <listitem>
+            <para>Set the path name of the kernel master key. e.g.: <programlisting>masterkey=/etc/keys/kmk-trusted.blob</programlisting></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><envar>masterkeytype=</envar><replaceable>&lt;kernel master key type&gt;</replaceable></term>
+          <listitem>
+            <para>Set the type of the kernel master key. e.g.: <programlisting>masterkeytype=trusted</programlisting></para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect2>
     <refsect2>
       <title>Deprecated, renamed Options</title>
       <para>Here is a list of options, which were used in dracut prior to version 008, and their new replacement.</para>
