@@ -718,6 +718,12 @@ rd.znet=ctc,0.0.0600,0.0.0601,0.0.0602,protocol=bar</programlisting></para>
             <para>Set the type of the kernel master key. e.g.: <programlisting>masterkeytype=trusted</programlisting></para>
           </listitem>
         </varlistentry>
+        <varlistentry>
+          <term><envar>evmkey=</envar><replaceable>&lt;EVM key path name&gt;</replaceable></term>
+          <listitem>
+            <para>Set the path name of the EVM key. e.g.: <programlisting>evmkey=/etc/keys/evm-trusted.blob</programlisting></para>
+          </listitem>
+        </varlistentry>
       </variablelist>
     </refsect2>
     <refsect2>

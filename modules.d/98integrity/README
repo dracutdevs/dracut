@@ -1,0 +1,40 @@
+# Directions for creating the encrypted key that will be used to initialize
+# the EVM software.
+
+# Create the EVM key (encrypted key type)
+#
+# The encrypted key is a random number encrypted/decrypted using the
+# kernel master key.  The encrypted key is only exposed to userspace
+# as an encrypted datablob.
+$ keyctl add encrypted evm-key "new trusted:kmk-trusted 32" @u
+782117972
+
+# Save the encrypted key
+$ su -c 'keyctl pipe `keyctl search @u encrypted evm_key` > /etc/keys/evm-trusted.blob'
+
+# The EVM key path name can be set in one of the following ways (specified in
+# the order in which the variable is overwritten):
+
+1) use the default value:
+--------------------------------------------------------------------------
+EVMKEY="/etc/keys/evm-trusted.blob"
+--------------------------------------------------------------------------
+
+2) create the configuration file '/etc/sysconfig/evm' and set the EVMKEY variable;
+
+3) specify the EVM key path name in the 'evmkey=' parameter of the kernel command
+line.
+
+
+# Directions for loading a custom IMA policy.
+
+# Write the policy following the instructions provided in the file
+# 'Documentation/ABI/testing/ima_policy' of the kernel documentation.
+
+# Save the policy in a file.
+
+# Create the configuration file '/etc/sysconfig/ima' to override the path name of
+# the IMA custom policy.
+------------- '/etc/sysconfig/ima' (with the default value) -------------
+IMAPOLICY="/etc/sysconfig/ima-policy"
+-------------------------------------------------------------------------
