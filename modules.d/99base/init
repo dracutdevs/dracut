@@ -84,6 +84,12 @@ RD_DEBUG=""
 [ ! -d /sys/kernel ] && \
     mount -t sysfs -o nosuid,noexec,nodev sysfs /sys >/dev/null 2>&1
 
+SECURITYFSDIR="/sys/kernel/security"
+export SECURITYFSDIR
+if ! ismounted "${SECURITYFSDIR}"; then
+    mount -t securityfs -o nosuid,noexec,nodev ${SECURITYFSDIR} ${SECURITYFSDIR} >/dev/null 2>&1
+fi
+
 if [ -x /lib/systemd/systemd-timestamp ]; then
     RD_TIMESTAMP=$(/lib/systemd/systemd-timestamp)
 else
