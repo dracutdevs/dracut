@@ -1,8 +1,10 @@
 dracut-011
 ==========
 - use udev-168 features for shutting down udev
-- introduce "--prefix" to put all initramfs files in /run/initramfs
-- new shutdown script
+- introduce "--prefix" to put all initramfs files in e.g "/run/initramfs"
+- new shutdown script (called by systemd >= 030) to disassemble the root device
+- lots of bugfixes
+- new module for gpg-encrypted keys - 91crypt-gpg
 
 dracut-010
 ==========
