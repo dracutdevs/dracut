@@ -52,7 +52,7 @@ _dogetarg() {
     _getcmdline
 
     for _o in $CMDLINE; do
-        if [ "${_o%%=*}" = "${1%=}" ]; then
+        if [ "${_o%%=*}" = "${1%%=*}" ]; then
             if [ -n "${1#*=}" -a "${1#*=*}" != "${1}" ]; then
                 # if $1 has a "=<value>", we want the exact match
                 if [ "$_o" = "$1" ]; then
