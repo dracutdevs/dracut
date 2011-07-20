@@ -64,21 +64,25 @@ while [ $_cnt -le 40 ]; do
 done
 [ $_cnt -ge 40 ] && umount_a
 
-check_finished() {
-    local f
-    for f in $hookdir/shutdown/*.sh; do
-        [ -e "$f" ] || continue
-        ( . "$f" ) || return 1
+_check_shutdown() {
+    local __f
+    local __s=1
+    for __f in $hookdir/shutdown/*.sh; do
+        [ -e "$__f" ] || continue
+        ( . "$__f" $1 ) 
+        if [ $? -eq 0 ]; then 
+            rm -f $__f
+            __s=0
+        fi
     done
-    return 0
+    return $__s
 }
 
 _cnt=0
-while [ $_cnt -le 40 ]; do
-    check_finished 2>/dev/null && break
-    _cnt=$(($_cnt+1))
+while _check_shutdown; do
+:
 done
-[ $_cnt -ge 40 ] && check_finished 
+_check_shutdown final
 
 getarg 'rd.break=shutdown' && emergency_shell -n cmdline "Break before shutdown"
 [ "$1" = "reboot" ] && reboot -f -d -n --no-wall
