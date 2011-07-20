@@ -14,7 +14,8 @@ echo "made it to the rootfs!"
 strstr "$CMDLINE" "rd.shell" && sh -i
 echo "Powering down."
 mount -n -o remount,ro /
-echo " rd.debug=0 " > /run/initramfs/etc/cmdline
+#echo " rd.break=shutdown " >> /run/initramfs/etc/cmdline
+echo " rd.debug=0 " >> /run/initramfs/etc/cmdline
 if [ -e /lib/systemd/systemd-shutdown ]; then
 	exec /lib/systemd/systemd-shutdown poweroff
 fi
