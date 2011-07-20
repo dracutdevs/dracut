@@ -27,7 +27,7 @@ install() {
     inst losetup
     inst grep
 
-    dracut_install eject
+    dracut_install -o eject
 
     inst blockdev
     type -P checkisomd5 >/dev/null && inst checkisomd5
