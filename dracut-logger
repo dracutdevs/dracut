@@ -106,6 +106,7 @@ __DRACUT_LOGGER__=1
 # @warning Function sets global variables @var maxloglvl and @syslogfacility.
 # See file doc comment for details.
 dlog_init() {
+    local __oldumask
     # Skip initialization if it's already done.
     [ -n "$maxloglvl" ] && return 0
 
@@ -118,7 +119,10 @@ dlog_init() {
     if [ -z "$fileloglvl" ]; then
         [ -w "$logfile" ] && fileloglvl=4 || fileloglvl=0
     elif [ $fileloglvl -gt 0 ]; then
+        __oldumask=$(umask)
+        umask 0377
         ! [ -e "$logfile" ] && >"$logfile"
+        umask $__oldumask
         if [ -w "$logfile" -a -f "$logfile" ]; then
             # Mark new run in the log file
             echo >>"$logfile"
