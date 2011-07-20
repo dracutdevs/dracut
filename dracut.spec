@@ -215,7 +215,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dracut/dracut-logger
 %config(noreplace) /etc/dracut.conf
 %if 0%{?fedora} || 0%{?suse_version}
-%config(noreplace) /etc/dracut.conf.d/01-dist.conf
+%config /etc/dracut.conf.d/01-dist.conf
 %endif
 %dir /etc/dracut.conf.d
 %{_mandir}/man8/dracut.8*
