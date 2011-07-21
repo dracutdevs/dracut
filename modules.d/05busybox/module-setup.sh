@@ -15,22 +15,22 @@ depends() {
 install() {
     local _i _progs _path
     inst busybox /usr/bin/busybox
-
-    # List of shell programs that we use in other official dracut modules, that
-    # must be supported by the busybox installed on the host system
-    _progs="echo grep usleep [ rmmod insmod mount uname umount setfont kbd_mode stty gzip bzip2 chvt readlink blkid dd losetup tr sed seq ps more cat rm free ping netstat vi ping6 fsck ip hostname basename mknod mkdir pidof sleep chroot ls cp mv dmesg mkfifo less ln modprobe"
+    for _i in `/sbin/busybox | sed -ne '1,/Currently/!{s/,//g; s/busybox//g; p}'`
+    do
+        _progs="$_progs $_i"
+    done
 
     # FIXME: switch_root should be in the above list, but busybox version hangs
     # (using busybox-1.15.1-7.fc14.i686 at the time of writing)
 
     for _i in $_progs; do
-	_path=$(find_binary "$_i")
+        _path=$(find_binary "$_i")
+        [ -z "$_path" ] && continue
         if [[ $_path != ${_path#/usr} ]]; then
-    	    ln -s ../../usr/bin/busybox "$initdir/$_path"
+            ln -sf ../../usr/bin/busybox "$initdir/$_path"
         else
-            ln -s ../usr/bin/busybox "$initdir/$_path"
+            ln -sf ../usr/bin/busybox "$initdir/$_path"
         fi
     done
-
 }
 
