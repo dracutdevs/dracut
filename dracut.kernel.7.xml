@@ -176,7 +176,7 @@ This parameter can be specified multiple times.</para>
       <variablelist>
         <varlistentry>
           <term>
-            <envar>voonsole.keymap=</envar>
+            <envar>vconsole.keymap=</envar>
             <replaceable>&lt;keymap base file name&gt;</replaceable>
           </term>
           <listitem>
