@@ -4,6 +4,7 @@ INITRAMFS TODO
 - The hard-coded list of udev rules that we care about is kind of lame.
 - automatic kexec fallback
 - panic fallback
+- fsck for $NEWROOT/usr
 
 GENERATOR TODO
 
