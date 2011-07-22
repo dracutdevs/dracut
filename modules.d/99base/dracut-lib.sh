@@ -272,6 +272,7 @@ check_quiet() {
     if [ -z "$DRACUT_QUIET" ]; then
         DRACUT_QUIET="yes"
         getargbool 0 rd.info -y rdinfo && DRACUT_QUIET="no"
+        getargbool 0 rd.debug -y rdinitdebug && DRACUT_QUIET="no"
         getarg quiet || DRACUT_QUIET="yes"
     fi
 }
