@@ -277,12 +277,10 @@ inst_dir() {
         if [[ -L $_file ]]; then
             # create link as the original
             local target=$(readlink "$_file")
+            # resolve relative path and recursively install destination
+            [[ $target == ${target#/} ]] && target="$(dirname "$_file")/$target"
             inst_dir "$target"
             inst_symlink "$_file"
-            #ln -sfn "$target" "${initdir}$_file" || return 1
-            # resolve relative path and recursively install destination
-            #[[ $target == ${target#/} ]] && target="$(dirname "$_file")/$target"
-            #inst_dir "$target"
         else
             [[ -h ${initdir}$_file ]] && _file=$(readlink "${initdir}$_file")
             # create directory
