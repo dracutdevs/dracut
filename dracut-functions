@@ -82,6 +82,55 @@ print_vars() {
     done
 }
 
+
+convert_abs_rel() {
+    local __current __absolute __abssize __cursize __i __level __newpath
+#    PS4='${BASH_SOURCE}@${LINENO}(${FUNCNAME[0]}): ';
+
+    if [[ "$1" == "$2" ]]
+    then
+        echo "."
+        return
+    fi
+
+    IFS="/"
+
+    __current=($1)
+    __absolute=($2)
+
+    __abssize=${#__absolute[@]}
+    __cursize=${#__current[@]}
+
+    while [[ ${__absolute[__level]} == ${__current[__level]} ]]
+    do
+        (( __level++ ))
+        if (( __level > __abssize || __level > __cursize ))
+        then
+            break
+        fi
+    done
+
+    for ((__i = __level; __i < __cursize-1; __i++))
+    do
+        if ((__i > __level))
+        then
+            __newpath=$__newpath"/"
+        fi
+        __newpath=$__newpath".."
+    done
+
+    for ((__i = __level; __i < __abssize; __i++))
+    do
+        if [[ -n $__newpath ]]
+        then
+            __newpath=$__newpath"/"
+        fi
+        __newpath=$__newpath${__absolute[__i]}
+    done
+
+    echo "$__newpath"
+}
+
 get_fs_env() {
     [[ $1 ]] || return
     unset ID_FS_TYPE
@@ -228,10 +277,12 @@ inst_dir() {
         if [[ -L $_file ]]; then
             # create link as the original
             local target=$(readlink "$_file")
-            ln -sfn "$target" "${initdir}$_file" || return 1
-            # resolve relative path and recursively install destination
-            [[ $target == ${target#/} ]] && target="$(dirname "$_file")/$target"
             inst_dir "$target"
+            inst_symlink "$_file"
+            #ln -sfn "$target" "${initdir}$_file" || return 1
+            # resolve relative path and recursively install destination
+            #[[ $target == ${target#/} ]] && target="$(dirname "$_file")/$target"
+            #inst_dir "$target"
         else
             [[ -h ${initdir}$_file ]] && _file=$(readlink "${initdir}$_file")
             # create directory
@@ -409,7 +460,7 @@ inst_symlink() {
         inst "$_realsrc" && mkdir -m 0755 -p "${_target%/*}" 
     fi
     if [[ -e "${_src}" ]]; then
-        cp -aP "${_src}" "$_target"
+        ln -sfn $(convert_abs_rel "${_src}" "${_realsrc}") "$_target"
     else
         ln -sfn "$_realsrc" "$_target"
     fi
