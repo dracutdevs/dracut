@@ -2,7 +2,7 @@ This adds the following parameters:
 rd.caps=1
         turn the caps module on/off
 rd.caps.initdrop=cap_sys_module,cap_sys_rawio
-        drop the specified comma seperated capabilities
+        drop the specified comma separated capabilities
 rd.caps.disablemodules=1
         turn off module loading
 rd.caps.disablekexec=1

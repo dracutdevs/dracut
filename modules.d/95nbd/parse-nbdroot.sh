@@ -6,7 +6,7 @@
 #       root=nbd:srv:port[:fstype[:rootflags[:nbdopts]]]
 #       [root=*] netroot=nbd:srv:port[:fstype[:rootflags[:nbdopts]]]
 #
-# nbdopts is a comma seperated list of options to give to nbd-client
+# nbdopts is a comma separated list of options to give to nbd-client
 #
 # root= takes precedence over netroot= if root=nbd[...]
 #

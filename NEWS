@@ -21,7 +21,7 @@ dracut-009
 
 - initramfs
   - hooks moved to /lib/dracut/hooks in initramfs
-  - rd.driver.{blacklist|pre|post} accept comma seperated driver list
+  - rd.driver.{blacklist|pre|post} accept comma separated driver list
   - iSCSI: iSCSI Boot Firmware Table (iBFT) support
   - support for /run
   - live image: support for generic rootfs.img (instead of ext3fs.img)
