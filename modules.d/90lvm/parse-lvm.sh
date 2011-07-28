@@ -10,7 +10,7 @@ if ! getargbool 1 rd.lvm -n rd_NO_LVM; then
     rm -f /etc/udev/rules.d/64-lvm*.rules
 else
     for dev in $(getargs rd.lvm.vg rd_LVM_VG=) $(getargs rd.lvm.lv rd_LVM_LV=); do
-        printf '[ -e "/dev/%s" ]\n' $dev \
+        printf '[ -e "/dev/%s" ] || return 1\n' $dev \
             >> $hookdir/initqueue/finished/lvm.sh
         {
             printf '[ -e "/dev/%s" ] || ' $dev
