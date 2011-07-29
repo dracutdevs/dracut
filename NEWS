@@ -1,3 +1,26 @@
+dracut-012
+==========
+- better fsck handling
+- fixed wait condition for LVM volumes
+- fix for hardlinks (welcome Debian! :-)
+- shutdown bugfixes
+- automatic busybox symlink creation
+- try to mount /usr, if init points to a path in /usr
+- btrfs with multiple devices
+- "--force-add" option for dracut, to force-add dracut modules,
+  without hostonly checks
+- lsinitrd also display the initramfs size in human readable form
+- livenet module, to mount live-isos over http
+- masterkey,ecryptfs,integrity security modules
+- initqueue/timeout queue e.g. for starting degraded raids
+- "make rpm" creates an rpm with an increasing release number from any
+  git checkout
+- support lvm mirrors
+- start degraded lvm mirrors after a timeout
+- start degraded md raids after a timeout
+- getarg() now returns wildcards without file matching to the current fs
+- lots of bugfixes
+
 dracut-011
 ==========
 - use udev-168 features for shutting down udev
