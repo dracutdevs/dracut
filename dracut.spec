@@ -248,6 +248,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dracut/modules.d/95terminfo
 %{_datadir}/dracut/modules.d/95udev-rules
 %{_datadir}/dracut/modules.d/97biosdevname
+%{_datadir}/dracut/modules.d/97masterkey
+%{_datadir}/dracut/modules.d/98ecryptfs
+%{_datadir}/dracut/modules.d/98integrity
 %{_datadir}/dracut/modules.d/98selinux
 %{_datadir}/dracut/modules.d/98syslog
 %{_datadir}/dracut/modules.d/99base
