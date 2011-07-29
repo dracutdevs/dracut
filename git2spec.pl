@@ -19,7 +19,7 @@ sub last_tag {
 sub create_patches {
     my $tag=shift;
     my $num=0;
-    open( GIT, 'git format-patch -M -N --no-signature '.$tag.' |');
+    open( GIT, 'git format-patch --no-renames -N --no-signature '.$tag.' |');
     @lines=<GIT>;
     close GIT;         # be done
     return @lines;
