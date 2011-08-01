@@ -1,0 +1,41 @@
+#!/bin/bash
+# livenetroot - fetch a live image from the network and run it
+#
+# TODO:
+# * HTTPS: arg to use --no-check-certificate with https (boo)
+#          args for --certificate, --ca-certificate
+# * NFS support?
+
+type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+[ -f /tmp/root.info ] && . /tmp/root.info
+
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
+
+# args get passed from 40network/netroot
+netroot=$2
+
+liveurl=${netroot#livenet:}
+
+if [ ${liveurl##*.} == "iso" ]; then
+    imgfile="/run/live.iso"
+else
+    imgfile="/run/rootfs.img"
+fi
+
+
+case "$liveurl" in
+  http://*|https://*|ftp://*)
+    wget -O $imgfile "$liveurl"
+  ;;
+  *) die "don't know how to handle URL: $liveurl" ;;
+esac
+[ $? == 0 ] || die "failed to download live image"
+
+
+if [ ${imgfile##*.} == "iso" ]; then
+    root=$(losetup -f)
+    losetup $root $imgfile
+else
+    root=$imgfile
+fi
+exec /sbin/dmsquash-live-root $root
