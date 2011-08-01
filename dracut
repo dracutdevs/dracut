@@ -195,6 +195,7 @@ verbosity_mod_l=0
 while (($# > 0)); do
     case ${1%%=*} in
         -a|--add)      push_arg add_dracutmodules_l  "$@" || shift;;
+        --force-add)   push_arg force_add_dracutmodules_l  "$@" || shift;;
         --add-drivers) push_arg add_drivers_l        "$@" || shift;;
         -m|--modules)  push_arg dracutmodules_l      "$@" || shift;;
         -o|--omit)     push_arg omit_dracutmodules_l "$@" || shift;;
@@ -300,6 +301,13 @@ if (( ${#add_dracutmodules_l[@]} )); then
         add_dracutmodules+=" $val "
     done
 fi
+
+if (( ${#force_add_dracutmodules_l[@]} )); then
+    while pop force_add_dracutmodules_l val; do
+        force_add_dracutmodules+=" $val "
+    done
+fi
+
 
 if (( ${#add_drivers_l[@]} )); then
     while pop add_drivers_l val; do

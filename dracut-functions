@@ -606,21 +606,27 @@ inst_opt_decompress() {
 module_check() {
     local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
     local _ret
+    local _forced=0
+    local _hostonly=$hostonly
+    [ $# -eq 2 ] && _forced=$2
     [[ -d $_moddir ]] || return 1
     if [[ ! -f $_moddir/module-setup.sh ]]; then
         # if we do not have a check script, we are unconditionally included
         [[ -x $_moddir/check ]] || return 0
+        [ $_forced -ne 0 ] && unset hostonly
         $_moddir/check $hostonly
-        return $?
+        _ret=$?
     else
         unset check depends install installkernel
         . $_moddir/module-setup.sh
         is_func check || return 0
-        check
+        [ $_forced -ne 0 ] && unset hostonly
+        check $hostonly
         _ret=$?
         unset check depends install installkernel
-        return $_ret
     fi
+    hostonly=$_hostonly
+    return $_ret
 }
 
 module_depends() {
@@ -695,8 +701,12 @@ check_module() {
 
     strstr " $omit_dracutmodules " " $_mod " && return 1
 
-    if strstr " $dracutmodules $add_dracutmodules " " $_mod "; then
-        module_check $_mod; ret=$?
+    if strstr " $dracutmodules $add_dracutmodules $force_add_dracutmodules" " $_mod "; then
+        if strstr " $force_add_dracutmodules" " $_mod"; then
+            module_check $_mod 1; ret=$?
+        else
+            module_check $_mod 0; ret=$?
+        fi
         # explicit module, so also accept ret=255
         [[ $ret = 0 || $ret = 255 ]] || return 1
     else
@@ -714,6 +724,8 @@ check_module() {
         # handle deps as if they were manually added
         strstr " $add_dracutmodules " " $_moddep " || \
             add_dracutmodules+=" $_moddep "
+        strstr " $force_add_dracutmodules " " $_moddep " || \
+            force_add_dracutmodules+=" $_moddep "
         # if a module we depend on fail, fail also
         check_module $_moddep || return 1
     done
@@ -735,7 +747,7 @@ check_module_dir() {
     done
 
     # Report any missing dracut modules, the user has specified
-    _modcheck=$add_dracutmodules
+    _modcheck="$add_dracutmodules $force_add_dracutmodules"
     [[ $dracutmodules != all ]] && _modcheck="$m $dracutmodules"
     for _mod in $_modcheck; do
         strstr "$mods_to_load" "$_mod" && continue

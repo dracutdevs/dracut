@@ -138,6 +138,15 @@ Modules are located in
         </varlistentry>
         <varlistentry>
           <term>
+            <option>--force-add&nbsp;<replaceable>&lt;list of dracut modules&gt;</replaceable></option>
+          </term>
+          <listitem>
+            <para>force to add a space-separated list of dracut modules to the default set of modules, when -H is specified. This parameter can be specified multiple times.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>
             <option>-d</option>
           </term>
           <term>
