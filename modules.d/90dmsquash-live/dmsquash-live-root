@@ -25,7 +25,8 @@ getargbool 0 rd.live.overlay.reset -y reset_overlay && reset_overlay="yes"
 getargbool 0 rd.live.overlay.readonly -y readonly_overlay && readonly_overlay="--readonly" || readonly_overlay=""
 overlay=$(getarg rd.live.overlay overlay)
 
-[ -e $livedev ] && fs=$(blkid -s TYPE -o value $livedev)
+# CD/DVD media check
+[ -b $livedev ] && fs=$(blkid -s TYPE -o value $livedev)
 if [ "$fs" = "iso9660" -o "$fs" = "udf" ]; then
     check="yes"
 fi
@@ -40,9 +41,7 @@ if [ -n "$check" ]; then
     [ -x /bin/plymouth ] && /bin/plymouth --show-splash
 fi
 
-getarg ro && liverw=ro
-getarg rw && liverw=rw
-[ -z "$liverw" ] && liverw=ro
+for arg in $CMDLINE; do case $arg in ro|rw) liverw=$arg ;; esac; done
 # mount the backing of the live image first
 mkdir -m 0755 -p /run/initramfs/live
 if [ -f $livedev ]; then
@@ -52,9 +51,8 @@ if [ -f $livedev ]; then
         *ext3fs.img|*rootfs.img) FSIMG=$livedev ;;
     esac
 else
-    mount -n -t $fstype -o $liverw $livedev /run/initramfs/live
-    RES=$?
-    if [ "$RES" != "0" ]; then
+    mount -n -t $fstype -o ${liverw:-ro} $livedev /run/initramfs/live
+    if [ "$?" != "0" ]; then
         die "Failed to mount block device of live image"
         exit 1
     fi
