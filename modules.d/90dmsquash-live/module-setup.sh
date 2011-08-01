@@ -34,6 +34,7 @@ install() {
     inst_hook cmdline 30 "$moddir/parse-dmsquash-live.sh"
     inst_hook pre-udev 30 "$moddir/dmsquash-live-genrules.sh"
     inst_hook pre-udev 30 "$moddir/dmsquash-liveiso-genrules.sh"
+    inst_hook pre-pivot 20 "$moddir/apply-live-updates.sh"
     inst "$moddir/dmsquash-live-root" "/sbin/dmsquash-live-root"
     # should probably just be generally included
     inst_rules 60-cdrom_id.rules
