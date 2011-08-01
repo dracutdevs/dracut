@@ -41,14 +41,23 @@ if [ -n "$check" ]; then
     [ -x /bin/plymouth ] && /bin/plymouth --show-splash
 fi
 
+# determine filesystem type for a filesystem image
+det_img_fs() {
+    local _img="$1" _loop=$(losetup -f) _fs
+    losetup $_loop $_img; _fs=$(det_fs $_loop); losetup -d $_loop
+    echo $_fs
+}
+
 for arg in $CMDLINE; do case $arg in ro|rw) liverw=$arg ;; esac; done
 # mount the backing of the live image first
 mkdir -m 0755 -p /run/initramfs/live
 if [ -f $livedev ]; then
     # no mount needed - we've already got the LiveOS image in initramfs
-    case $livedev in
-        *squashfs.img) SQUASHED=$livedev ;;
-        *ext3fs.img|*rootfs.img) FSIMG=$livedev ;;
+    # check filesystem type and handle accordingly
+    case `det_img_fs $livedev` in
+        squashfs) SQUASHED=$livedev ;;
+        auto) die "cannot mount live image (unknown filesystem type)" ;;
+        *) FSIMG=$livedev ;;
     esac
 else
     mount -n -t $fstype -o ${liverw:-ro} $livedev /run/initramfs/live
