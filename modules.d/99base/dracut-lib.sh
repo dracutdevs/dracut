@@ -74,7 +74,7 @@ _dogetarg() {
         fi
     done
     if [ -n "$_val" ]; then
-        [ "x$_doecho" != "x" ] && echo $_val;
+        [ "x$_doecho" != "x" ] && echo "$_val";
         return 0;
     fi
     return 1;
@@ -150,7 +150,7 @@ getargs() {
         shift
     done
     if [ -n "$_val" ]; then
-        echo -n $_val
+        echo -n "$_val"
         [ "$RD_DEBUG" = "yes" ] && set -x
         return 0
     fi
