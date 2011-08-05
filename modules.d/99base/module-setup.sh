@@ -29,7 +29,7 @@ install() {
     mkdir -m 0755 -p ${initdir}/lib/dracut
     mkdir -m 0755 -p ${initdir}/lib/dracut/hooks
     for _d in $hookdirs emergency \
-        initqueue initqueue/finished initqueue/settled; do
+        initqueue initqueue/timeout initqueue/finished initqueue/settled; do
         mkdir -m 0755 -p ${initdir}/lib/dracut/hooks/$_d
     done
 

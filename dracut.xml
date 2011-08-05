@@ -572,7 +572,7 @@ Common used functions are in <filename>dracut-lib.sh</filename>, which can be so
       </section>
       <section>
         <title>Main Loop</title>
-        <para>Now the main loop of <command>99base/init</command> begins. Here we loop until <command>udev</command> has settled and all scripts in <filename>initqueue-finished</filename> returned true. In this loop there are three hooks, where scripts can be inserted by calling <command>/sbin/initqueue</command>.
+        <para>Now the main loop of <command>99base/init</command> begins. Here we loop until <command>udev</command> has settled and all scripts in <filename>initqueue/finished</filename> returned true. In this loop there are three hooks, where scripts can be inserted by calling <command>/sbin/initqueue</command>.
  </para>
         <section>
           <title>Initqueue</title>
@@ -581,6 +581,10 @@ Common used functions are in <filename>dracut-lib.sh</filename>, which can be so
         <section>
           <title>Initqueue settled</title>
           <para>This hooks gets executed every time <command>udev</command> has settled.</para>
+        </section>
+        <section>
+          <title>Initqueue timeout</title>
+          <para>This hooks gets executed, when the main loop counter becomes half of the rd.retry counter.</para>
         </section>
         <section>
           <title>Initqueue finished</title>
@@ -621,7 +625,7 @@ Common used functions are in <filename>dracut-lib.sh</filename>, which can be so
       <para><function>install()</function>:</para>
       <programlisting>inst_hook cmdline 20 &quot;$moddir/parse-insmodpost.sh&quot;
 inst_simple &quot;$moddir/insmodpost.sh&quot; /sbin/insmodpost.sh</programlisting>
-      <para>The <filename>pase-instmodpost.sh</filename> parses the kernel command line for a argument <envar>rd.driver.post</envar>, blacklists the module from being autoloaded and installs the hook <filename>insmodpost.sh</filename> in the <filename>initqueue-settled</filename>.</para>
+      <para>The <filename>pase-instmodpost.sh</filename> parses the kernel command line for a argument <envar>rd.driver.post</envar>, blacklists the module from being autoloaded and installs the hook <filename>insmodpost.sh</filename> in the <filename>initqueue/settled</filename>.</para>
       <para><filename>parse-insmodpost.sh</filename>:</para>
       <programlisting>for p in $(getargs rd.driver.post=); do
     echo &quot;blacklist $p&quot; &gt;&gt; /etc/modprobe.d/initramfsblacklist.conf
@@ -631,7 +635,7 @@ done
 [ -n &quot;$_do_insmodpost&quot; ] &amp;&amp; /sbin/initqueue --settled --unique --onetime /sbin/insmodpost.sh
 unset _do_insmodpost
 </programlisting>
-      <para><filename>insmodpost.sh</filename>, which is called in the <filename>initqueue-settled</filename> hook will just modprobe the kernel modules specified in all <envar>rd.driver.post</envar> kernel command line parameters. It runs after <command>udev</command> has settled and is only called once (<parameter>--onetime</parameter>).</para>
+      <para><filename>insmodpost.sh</filename>, which is called in the <filename>initqueue/settled</filename> hook will just modprobe the kernel modules specified in all <envar>rd.driver.post</envar> kernel command line parameters. It runs after <command>udev</command> has settled and is only called once (<parameter>--onetime</parameter>).</para>
       <para><filename>insmodpost.sh</filename>:</para>
       <programlisting>. /lib/dracut-lib.sh
 

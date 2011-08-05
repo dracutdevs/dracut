@@ -19,6 +19,8 @@ while [ $# -gt 0 ]; do
             qname="/settled";;
         --finished)
             qname="/finished";;
+	--timeout)
+	    qname="/timeout";;
         --unique)
             unique="yes";;
         --name)
