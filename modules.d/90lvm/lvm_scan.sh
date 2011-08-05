@@ -4,6 +4,7 @@
 
 # run lvm scan if udev has settled
 
+extraargs="$@"
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 VGS=$(getargs rd.lvm.vg rd_LVM_VG=)
@@ -71,8 +72,11 @@ sub=${sub%%\(*};
 check_lvm_ver 2 2 57 $maj $min $sub && \
     nopoll="--poll n"
 
-check_lvm_ver 2 2 65 $maj $min $sub && \
-    sysinit=" --sysinit "
+if check_lvm_ver 2 2 65 $maj $min $sub; then
+    sysinit=" --sysinit $extraargs"
+fi
+
+unset extraargs
 
 export LVM_SUPPRESS_LOCKING_FAILURE_MESSAGES=1
 
