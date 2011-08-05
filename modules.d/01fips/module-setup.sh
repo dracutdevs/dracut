@@ -14,7 +14,7 @@ installkernel() {
     local _fipsmodules _mod
     _fipsmodules="aead aes_generici aes-xts aes-x86_64 ansi_cprng cbc ccm chainiv ctr"
     _fipsmodules+=" des deflate ecb eseqiv hmac seqiv sha256 sha512"
-    _fipsmodules+=" cryptomgr crypto_null tcrypt"
+    _fipsmodules+=" cryptomgr crypto_null tcrypt dm-mod dm-crypt"
 
     mkdir -m 0755 -p "${initdir}/etc/modprobe.d"
 
