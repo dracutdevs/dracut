@@ -123,34 +123,45 @@ getargbool() {
 
 _dogetargs() {
     set +x
-    local _o _found
+    local _o _found _key
     unset _o
     unset _found
     _getcmdline
-
+    _key=$1
+    set --
     for _o in $CMDLINE; do
-        if [ "$_o" = "$1" ]; then
-            return 0;
-        fi
-        if [ "${_o%%=*}" = "${1%=}" ]; then
-            echo -n "${_o#*=} ";
+        if [ "$_o" = "$_key" ]; then
+            _found=1;
+        elif [ "${_o%%=*}" = "${_key%=}" ]; then
+            [ -n "${_o%%=*}" ] && set -- "$@" "${_o#*=}";
             _found=1;
         fi
     done
-    [ -n "$_found" ] && return 0;
+    if [ -n "$_found" ]; then
+        [ $# -gt 0 ] && echo -n "$@"
+        return 0
+    fi
     return 1;
 }
 
 getargs() {
-    local _val
-    unset _val
     set +x
-    while [ $# -gt 0 ]; do
-        _val="$_val $(_dogetargs $1)"
-        shift
+    local _val _i _args _gfound
+    unset _val
+    unset _gfound
+    _args="$@"
+    set --
+    for _i in $_args; do
+        _val="$(_dogetargs $_i)"
+        [ $? -eq 0 ] && _gfound=1
+        [ -n "$_val" ] && set -- "$@" "$_val"
     done
-    if [ -n "$_val" ]; then
-        echo -n "$_val"
+    if [ -n "$_gfound" ]; then
+        if [ $# -gt 0 ]; then
+            echo -n "$@"
+        else
+            echo -n 1
+        fi
         [ "$RD_DEBUG" = "yes" ] && set -x
         return 0
     fi
