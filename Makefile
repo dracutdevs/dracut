@@ -71,9 +71,8 @@ rpm: dracut-$(VERSION).tar.bz2
 	cd rpmbuild; ../git2spec.pl $(VERSION) < ../dracut.spec > dracut.spec; \
 	rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" \
 	        --define "_specdir $$PWD" --define "_srcrpmdir $$PWD" \
-		--define "_rpmdir $$PWD" -ba dracut.spec || :; \
-	cd ..;
-	mv rpmbuild/noarch/*.rpm .; mv rpmbuild/*.src.rpm .;rm -fr rpmbuild; ls *.rpm
+		--define "_rpmdir $$PWD" -ba dracut.spec && \
+	( cd ..; mv rpmbuild/noarch/*.rpm .; mv rpmbuild/*.src.rpm .;rm -fr rpmbuild; ls *.rpm )
 
 syncheck:
 	@ret=0;for i in dracut-logger modules.d/99base/init modules.d/*/*.sh; do \
