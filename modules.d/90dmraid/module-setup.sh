@@ -38,17 +38,6 @@ install() {
     local _i
     dracut_install dmraid partx kpartx
 
-    inst  dmeventd
-
-    for _i in {"$libdir","$usrlibdir"}/libdmraid-events*.so; do
-        [ -e "$_i" ] && dracut_install "$_i"
-    done
-
-    inst_rules 10-dm.rules 13-dm-disk.rules 95-dm-notify.rules
-    # Gentoo ebuild for LVM2 prior to 2.02.63-r1 doesn't install above rules
-    # files, but provides the one below:
-    inst_rules 64-device-mapper.rules
-
     inst "$moddir/dmraid.sh" /sbin/dmraid_scan
 
     if [ ! -x /lib/udev/vol_id ]; then
@@ -58,6 +47,4 @@ install() {
     inst_rules "$moddir/61-dmraid-imsm.rules"
     inst "$moddir/dmraid-cleanup.sh" /sbin/dmraid-cleanup
     inst_hook pre-trigger 30 "$moddir/parse-dm.sh"
-
 }
-
