@@ -23,6 +23,8 @@ mkdir -p /sysroot && \
 mount /dev/dracut/root /sysroot && \
 cp -a -t /sysroot /source/* && \
 umount /sysroot && \
+sleep 1 && \
 lvm lvchange -a n /dev/dracut/root && \
+sleep 1 && \
 echo "dracut-root-block-created" >/dev/sda1
 poweroff -f
