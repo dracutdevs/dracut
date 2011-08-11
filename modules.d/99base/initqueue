@@ -52,4 +52,4 @@ fi
 
 mv -f "/tmp/$$-${job}.sh" "$hookdir/initqueue${qname}/${job}.sh"
 [ -z "$qname" ] && >> $hookdir/initqueue/work
-
+exit 0
