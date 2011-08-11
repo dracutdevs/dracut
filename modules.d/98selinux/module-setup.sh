@@ -12,5 +12,6 @@ depends() {
 
 install() {
     inst_hook pre-pivot 50 "$moddir/selinux-loadpolicy.sh"
+    dracut_install setenforce
 }
 
