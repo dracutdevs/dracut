@@ -46,11 +46,10 @@ if [ -e /tmp/bond.info ]; then
 fi
 
 # Parse bridge for bridgename and ethname
-if getarg bridge >/dev/null; then
+if bridge="$(getarg bridge)"; then
     # Read bridge= parameters if they exist
-    bridge="$(getarg bridge=)"
-    if [ ! "$bridge" = "bridge" ]; then
-        parsebridge "$(getarg bridge=)"
+    if [ -n "$bridge" ]; then
+        parsebridge $bridge
     fi
     # Simple default bridge
     if [ -z "$bridgename" ]; then
