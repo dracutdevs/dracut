@@ -18,7 +18,10 @@ mkdir -p /sysroot && \
 mount /dev/dracut/root /sysroot && \
 cp -a -t /sysroot /source/* && \
 umount /sysroot && \
+sleep 1 && \
 lvm lvchange -a n /dev/dracut/root && \
+sleep 1 && \
 cryptsetup luksClose /dev/mapper/dracut_crypt_test && \
+sleep 1 && \
 echo "dracut-root-block-created" >/dev/sda
 poweroff -f
