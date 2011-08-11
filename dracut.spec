@@ -254,6 +254,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dracut/modules.d/98selinux
 %{_datadir}/dracut/modules.d/98syslog
 %{_datadir}/dracut/modules.d/99base
+%{_datadir}/dracut/modules.d/99fs-lib
 %{_datadir}/dracut/modules.d/99shutdown
 %config(noreplace) /etc/logrotate.d/dracut_log
 %attr(0644,root,root) %ghost %config(missingok,noreplace) %{_localstatedir}/log/dracut.log
@@ -264,6 +265,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dracut/modules.d/40network
 %{_datadir}/dracut/modules.d/95fcoe
 %{_datadir}/dracut/modules.d/95iscsi
+%{_datadir}/dracut/modules.d/90livenet
 %{_datadir}/dracut/modules.d/95nbd
 %{_datadir}/dracut/modules.d/95nfs
 %{_datadir}/dracut/modules.d/45ifcfg
