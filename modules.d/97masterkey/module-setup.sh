@@ -7,7 +7,7 @@ check() {
         [ -x "/bin/keyctl" ] || return 1
     }
 
-    return 0
+    return 255
 }
 
 depends() {
