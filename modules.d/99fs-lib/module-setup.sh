@@ -15,6 +15,7 @@ install() {
     dracut_install -o e2fsck
     dracut_install -o jfs_fsck
     dracut_install -o reiserfsck
+    dracut_install -o btrfsck
     dracut_install -o /sbin/fsck*
 
     inst "$moddir/fs-lib.sh" "/lib/fs-lib.sh"
