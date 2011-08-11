@@ -33,7 +33,9 @@ mkdir -p /sysroot && \
 mount /dev/dracut/root /sysroot && \
 cp -a -t /sysroot /source/* && \
 umount /sysroot && \
+sleep 2 && \
 lvm lvchange -a n /dev/dracut/root && \
+sleep 2 && \
 lvm vgchange -a n dracut && \
 {
 lvm vgdisplay  && \
