@@ -15,7 +15,7 @@ depends() {
 install() {
     dracut_install wget
     mkdir -m 0755 -p "$initdir/etc/ssl/certs"
-    if ! inst /etc/ssl/certs/ca-bundle.crt; then
+    if ! inst_simple /etc/ssl/certs/ca-bundle.crt; then
         dwarn "Couldn't find SSL CA cert bundle; HTTPS won't work."
     fi
 

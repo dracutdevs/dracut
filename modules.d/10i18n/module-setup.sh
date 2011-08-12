@@ -93,7 +93,7 @@ install() {
 
         for f in $(eval find ${kbddir}/{${KBDSUBDIRS}} -type f -print)
         do
-            inst $f
+            inst_simple $f
         done
 
         # remove unnecessary files
@@ -141,13 +141,13 @@ install() {
         if [[ ${FONT_MAP} ]]
         then
             FONT_MAP=${FONT_MAP%.trans}
-            inst ${kbddir}/consoletrans/${FONT_MAP}.trans
+            inst_simple ${kbddir}/consoletrans/${FONT_MAP}.trans
         fi
 
         if [[ ${FONT_UNIMAP} ]]
         then
             FONT_UNIMAP=${FONT_UNIMAP%.uni}
-            inst ${kbddir}/unimaps/${FONT_UNIMAP}.uni
+            inst_simple ${kbddir}/unimaps/${FONT_UNIMAP}.uni
         fi
 
         if [[ ${UNICODE} ]]

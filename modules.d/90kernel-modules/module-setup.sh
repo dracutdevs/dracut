@@ -45,14 +45,16 @@ installkernel() {
 install() {
     local _f
     [ -f /etc/modprobe.conf ] && dracut_install /etc/modprobe.conf
-    dracut_install $(find /etc/modprobe.d/ -type f -name '*.conf')
+    for i in $(find /etc/modprobe.d/ -type f -name '*.conf'); do
+        inst_simple "$i"
+    done
     inst_hook cmdline 01 "$moddir/parse-kernel.sh"
     inst_simple "$moddir/insmodpost.sh" /sbin/insmodpost.sh
 
     local f
 
     for _f in modules.builtin.bin modules.builtin; do
-        [[ $srcmods/$_f ]] && inst "$srcmods/$_f" "/lib/modules/$kernel/$_f" \
+        [[ $srcmods/$_f ]] && inst_simple "$srcmods/$_f" "/lib/modules/$kernel/$_f" \
             && break
     done || {
         dfatal "No modules.builtin.bin and modules.builtin found!"

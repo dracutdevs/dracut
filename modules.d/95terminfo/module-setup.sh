@@ -9,7 +9,10 @@ install() {
         [ -d ${_terminfodir} ] && break
     done
 
-    [ -d ${_terminfodir} ] && \
-        dracut_install $(find ${_terminfodir} -type f)
+    if [ -d ${_terminfodir} ]; then
+        for f in $(find ${_terminfodir} -type f); do
+            inst_simple $f
+        done
+    fi
 }
 

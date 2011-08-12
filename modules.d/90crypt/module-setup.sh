@@ -42,7 +42,7 @@ install() {
     inst_hook cmdline 10 "$moddir/parse-keydev.sh"
     inst_hook cmdline 30 "$moddir/parse-crypt.sh"
     inst_hook pre-pivot 30 "$moddir/crypt-cleanup.sh"
-    inst /etc/crypttab
+    inst_simple /etc/crypttab
     inst "$moddir/crypt-lib.sh" "/lib/dracut-crypt-lib.sh"
 }
 

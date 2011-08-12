@@ -316,7 +316,7 @@ inst_simple() {
     fi
     # install checksum files also
     if [[ -e "${_src%/*}/.${_src##*/}.hmac" ]]; then
-        inst "${_src%/*}/.${_src##*/}.hmac" "${target%/*}/.${target##*/}.hmac"
+        inst_simple "${_src%/*}/.${_src##*/}.hmac" "${target%/*}/.${target##*/}.hmac"
     fi
     ddebug "Installing $_src"
     cp -pfL "$_src" "${initdir}$target" 
@@ -356,7 +356,7 @@ inst_library() {
     if [[ -L $_src ]]; then
         # install checksum files also
         if [[ -e "${_src%/*}/.${_src##*/}.hmac" ]]; then
-            inst "${_src%/*}/.${_src##*/}.hmac" "${_dest%/*}/.${_dest##*/}.hmac"
+            inst_simple "${_src%/*}/.${_src##*/}.hmac" "${_dest%/*}/.${_dest##*/}.hmac"
         fi
         _reallib=$(readlink -f "$_src")
         inst_simple "$_reallib" "$_reallib"

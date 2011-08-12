@@ -29,10 +29,12 @@ install() {
     type -P rpcbind >/dev/null && dracut_install rpcbind
 
     dracut_install rpc.statd mount.nfs mount.nfs4 umount
-    [ -f /etc/netconfig ] && dracut_install /etc/netconfig
-    dracut_install /etc/services
-    dracut_install /etc/nsswitch.conf /etc/rpc /etc/protocols
-    dracut_install rpc.idmapd /etc/idmapd.conf
+    [ -f /etc/netconfig ] && inst_simple /etc/netconfig
+    inst_simple /etc/services
+    for i in /etc/nsswitch.conf /etc/rpc /etc/protocols /etc/idmapd.conf; do
+        inst_simple $i
+    done
+    dracut_install rpc.idmapd 
     dracut_install sed
 
     for _i in {"$libdir","$usrlibdir"}/libnfsidmap_nsswitch.so* \
