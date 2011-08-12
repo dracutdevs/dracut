@@ -812,6 +812,36 @@ for_each_kmod_dep() {
 
 # filter kernel modules to install certain modules that meet specific
 # requirements.
+# $1 = search only in subdirectory of /kernel/$1
+# $2 = function to call with module name to filter.
+#      This function will be passed the full path to the module to test.
+# The behaviour of this function can vary depending on whether $hostonly is set.
+# If it is, we will only look at modules that are already in memory.
+# If it is not, we will look at all kernel modules
+# This function returns the full filenames of modules that match $1
+filter_kernel_modules_by_path () (
+    local _modname _filtercmd
+    if ! [[ $hostonly ]]; then
+        _filtercmd='find "$srcmods/kernel/$1" "$srcmods/extra"'
+        _filtercmd+=' "$srcmods/weak-updates" -name "*.ko" -o -name "*.ko.gz"'
+        _filtercmd+=' 2>/dev/null'
+    else
+        _filtercmd='cut -d " " -f 1 </proc/modules|xargs modinfo -F filename '
+        _filtercmd+='-k $kernel 2>/dev/null'
+    fi
+    for _modname in $(eval $_filtercmd); do
+        case $_modname in
+            *.ko) "$2" "$_modname" && echo "$_modname";;
+            *.ko.gz) gzip -dc "$_modname" > $initdir/$$.ko
+                $2 $initdir/$$.ko && echo "$_modname"
+                rm -f $initdir/$$.ko
+                ;;
+        esac
+    done
+)
+
+# filter kernel modules to install certain modules that meet specific
+# requirements.
 # $1 = function to call with module name to filter.
 #      This function will be passed the full path to the module to test.
 # The behaviour of this function can vary depending on whether $hostonly is set.

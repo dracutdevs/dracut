@@ -32,7 +32,7 @@ installkernel() {
             [[ ! $1 =~ $_unwanted_drivers ]]
     }
 
-    instmods $(filter_kernel_modules net_module_test)
+    instmods $(filter_kernel_modules_by_path drivers/net net_module_test)
 
     instmods ecb arc4
     # bridge modules

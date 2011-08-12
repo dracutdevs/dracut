@@ -38,7 +38,8 @@ installkernel() {
         egrep -q "$mpfuncs" "$1"
     }
 
-    instmods $(filter_kernel_modules mp_mod_test)
+    instmods $(filter_kernel_modules_by_path drivers/scsi mp_mod_test)
+    instmods $(filter_kernel_modules_by_path drivers/md mp_mod_test)
 }
 
 install() {
