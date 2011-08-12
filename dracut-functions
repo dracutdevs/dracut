@@ -270,10 +270,14 @@ check_vol_slaves() {
 # will create ${initdir}/lib64, ${initdir}/lib64/file,
 # and a symlink ${initdir}/lib -> lib64.
 inst_dir() {
-    local _dir="$1"
     local _file=""
-    local IFS="/"
+    local _oldifs="$IFS"
     local _part
+    local _dir="$1"
+    IFS="/"
+    set -- $_dir
+    IFS=$_oldifs
+    _dir="$@"
     [[ -e ${initdir}$_dir ]] && return 0
 
     # iterate over parent directories
@@ -284,7 +288,7 @@ inst_dir() {
 
         if [[ -L $_file ]]; then
             # create link as the original
-            local target=$(readlink "$_file")
+            local target=$(readlink -f "$_file")
             # resolve relative path and recursively install destination
             [[ $target == ${target#/} ]] && target="$(dirname "$_file")/$target"
             inst_dir "$target"
