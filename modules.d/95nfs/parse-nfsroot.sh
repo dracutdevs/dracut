@@ -49,7 +49,7 @@ fi
 # LEGACY: nfsroot= is valid only if root=/dev/nfs
 if [ -n "$nfsroot" ] ; then
     # @deprecated
-    warn "Argument nfsroot is deprecated and might be removed in a future release. See http://apps.sourceforge.net/trac/dracut/wiki/commandline for more information."
+    warn "Argument nfsroot is deprecated and might be removed in a future release. See 'man dracut.kernel' for more information."
     if [ "$(getarg root=)" != "/dev/nfs"  ]; then
         die "Argument nfsroot only accepted for legacy root=/dev/nfs"
     fi

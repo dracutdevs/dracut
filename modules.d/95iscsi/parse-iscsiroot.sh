@@ -41,8 +41,7 @@ if [ -n "$iscsiroot" ] ; then
 
     # @deprecated
     echo "Warning: Argument isciroot is deprecated and might be removed in a future"
-    echo "release. See http://apps.sourceforge.net/trac/dracut/wiki/commandline for"
-    echo "more information."
+    echo "release. See 'man dracut.kernel' for more information."
 
     # Accept iscsiroot argument?
     [ -z "$netroot" ] || [ "$netroot" = "iscsi" ] || \
