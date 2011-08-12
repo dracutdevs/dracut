@@ -1,3 +1,9 @@
+dracut-013
+==========
+- speedup of initramfs creation
+- fixed inst_dir for symbolic links
+- add unix kernel module
+
 dracut-012
 ==========
 - better fsck handling
