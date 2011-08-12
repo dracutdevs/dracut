@@ -15,7 +15,8 @@ installkernel() {
 
         # install keyboard support
         hostonly='' instmods atkbd i8042 usbhid hid-apple hid-sunplus hid-cherry hid-logitech hid-microsoft ehci-hcd ohci-hcd uhci-hcd
-
+        # install unix socket support
+        hostonly='' instmods unix
         instmods "=drivers/pcmcia" =ide "=drivers/usb/storage"
         instmods $(filter_kernel_modules block_module_test)
         # if not on hostonly mode, install all known filesystems,
