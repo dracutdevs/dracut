@@ -61,6 +61,7 @@ Creates initial ramdisk images for preloading modules
   --nolvmconf           Do not include local /etc/lvm/lvm.conf
   -h, --help            This message
   --debug               Output debug information of the build process
+  --profile             Output profile information of the build process
   -L, --stdlog [0-6]    Specify logging level (to standard error)
                          0 - suppress any messages
                          1 - only fatal errors
@@ -222,6 +223,7 @@ while (($# > 0)); do
         --lvmconf)     lvmconf_l="yes";;
         --nolvmconf)   lvmconf_l="no";;
         --debug)       debug="yes";;
+        --profile)     profile="yes";;
         -v|--verbose)  ((verbosity_mod_l++));;
         -q|--quiet)    ((verbosity_mod_l--));;
         -l|--local)    allowlocal="yes" ;;
@@ -267,6 +269,12 @@ export PATH
 [[ $debug ]] && {
     export PS4='${BASH_SOURCE}@${LINENO}(${FUNCNAME[0]}): ';
     set -x
+}
+
+[[ $profile ]] && {
+    export PS4='+ $(date "+%s.%N") ${BASH_SOURCE}@${LINENO}: ';
+    set -x
+    debug=yes
 }
 
 [[ $dracutbasedir ]] || dracutbasedir=/usr/share/dracut
