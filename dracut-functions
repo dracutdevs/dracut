@@ -378,17 +378,14 @@ inst_library() {
 # find a binary.  If we were not passed the full path directly,
 # search in the usual places to find the binary.
 find_binary() {
-    local _binpath="/usr/sbin /sbin /usr/bin /bin" _p
     if [[ -z ${1##/*} ]]; then
         if [[ -x $1 ]] || ldd $1 &>/dev/null; then
             echo $1
             return 0
         fi
     fi
-    for _p in $_binpath; do
-        [[ -x $_p/$1 ]] && { echo "$_p/$1"; return 0; }
-    done
-    return 1
+
+    PATH="/usr/sbin:/sbin:/usr/bin:/bin" type -P $1
 }
 
 # Same as above, but specialized to install binary executables.
