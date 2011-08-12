@@ -45,6 +45,6 @@ install() {
     fi
 
     inst_rules "$moddir/61-dmraid-imsm.rules"
-    inst "$moddir/dmraid-cleanup.sh" /sbin/dmraid-cleanup
+    #inst "$moddir/dmraid-cleanup.sh" /sbin/dmraid-cleanup
     inst_hook pre-trigger 30 "$moddir/parse-dm.sh"
 }
