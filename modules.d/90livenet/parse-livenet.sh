@@ -12,8 +12,8 @@ liveurl="${liveurl#live:}"
 case "$liveurl" in
     http://*|https://*|ftp://*)
         netroot="livenet:$liveurl"
+        root="livenet" # quiet complaints from init
         rootok=1 ;;
 esac
 
-root="livenet" # quiet complaints from init
 echo '[ -e /dev/root ]' > $hookdir/initqueue/finished/livenet.sh
