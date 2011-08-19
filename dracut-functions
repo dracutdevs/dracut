@@ -274,18 +274,18 @@ inst_dir() {
     local _oldifs="$IFS"
     local _part
     local _dir="$1"
-    IFS="/"
-    set -- $_dir
-    IFS=$_oldifs
-    _dir="$@"
+
+    # fast out
     [[ -e ${initdir}$_dir ]] && return 0
 
-    # iterate over parent directories
-    for _part in $_dir; do
-        [[ $_part ]] || continue
-        _file="$_file/$_part"
-        [[ -e ${initdir}$_file ]] && continue
+    _part=${_dir%/*}
+    while ! [[ -e "${initdir}${_part}" ]]; do
+        _dir="$_part $_dir"
+        _part=${_part%/*}
+    done
 
+    # iterate over parent directories
+    for _file in $_dir; do
         if [[ -L $_file ]]; then
             # create link as the original
             local target=$(readlink -f "$_file")
