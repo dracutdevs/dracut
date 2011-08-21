@@ -537,6 +537,34 @@ inst_hook() {
     inst_simple "$3" "/lib/dracut/hooks/${1}/${2}${3##*/}"
 }
 
+# install any of listed files
+#
+# If first argument is '-d' and second some destination path, first accessible
+# source is installed into this path, otherwise it will installed in the same
+# path as source.  If none of listed files was installed, function return 1.
+# On first successful installation it returns with 0 status.
+#
+# Example:
+#
+# inst_any -d /bin/foo /bin/bar /bin/baz
+#
+# Lets assume that /bin/baz exists, so it will be installed as /bin/foo in
+# initramfs.
+inst_any() {
+    local to f
+
+    [[ $1 = '-d' ]] && to="$2" && shift 2
+
+    for f in "$@"; do
+        if [[ -e $f ]]; then
+            [[ $to ]] && inst "$f" "$to" && return 0
+            inst "$f" && return 0
+        fi
+    done
+
+    return 1
+}
+
 dracut_install() {
     local _optional=no
     if [[ $1 = '-o' ]]; then
