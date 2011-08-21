@@ -11,7 +11,7 @@ else
     } > /etc/udev/rules.d/70-luks.rules.new
 
     LUKS=$(getargs rd.luks.uuid rd_LUKS_UUID)
-    tout=$(getarg rd.luks.tout)
+    tout=$(getarg rd.luks.key.tout)
 
     if [ -n "$LUKS" ]; then
         for luksid in $LUKS; do
