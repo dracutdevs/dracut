@@ -279,7 +279,7 @@ inst_dir() {
     [[ -e ${initdir}$_dir ]] && return 0
 
     _part=${_dir%/*}
-    while ! [[ -e "${initdir}${_part}" ]]; do
+    while [[ "$_part" != "${_part%/*}" ]] && ! [[ -e "${initdir}${_part}" ]]; do
         _dir="$_part $_dir"
         _part=${_part%/*}
     done
