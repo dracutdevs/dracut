@@ -29,7 +29,7 @@ LABEL="do_md_inc"
 ENV{rd_MDADMCONF}!="?*", GOTO="md_auto_end"
 
 RUN+="/sbin/initqueue --finished --unique --name md_finished /sbin/md_finished.sh"
-RUN+="/sbin/initqueue --timeout --onetime --unique /sbin/mdadm_auto"
+RUN+="/sbin/initqueue --settled --onetime --unique /sbin/mdadm_auto"
 
 GOTO="md_inc_end"
 
