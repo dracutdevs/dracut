@@ -266,19 +266,13 @@ check_vol_slaves() {
 }
 
 # Install a directory, keeping symlinks as on the original system.
-# Example: if /lib64 points to /lib on the host, "inst_dir /lib/file"
+# Example: if /lib points to /lib64 on the host, "inst_dir /lib/file"
 # will create ${initdir}/lib64, ${initdir}/lib64/file,
 # and a symlink ${initdir}/lib -> lib64.
 inst_dir() {
-    local _file=""
-    local _oldifs="$IFS"
-    local _part
-    local _dir="$1"
+    [[ -e ${initdir}"$1" ]] && return 0  # already there
 
-    # fast out
-    [[ -e ${initdir}$_dir ]] && return 0
-
-    _part=${_dir%/*}
+    local _dir="$1" _part=${_dir%/*} _file
     while [[ "$_part" != "${_part%/*}" ]] && ! [[ -e "${initdir}${_part}" ]]; do
         _dir="$_part $_dir"
         _part=${_part%/*}
@@ -310,9 +304,9 @@ inst_dir() {
 # Location of the image dir is assumed to be $initdir
 # We never overwrite the target if it exists.
 inst_simple() {
-    local _src target
     [[ -f $1 ]] || return 1
-    _src=$1 target="${2:-$1}"
+
+    local _src=$1 target="${2:-$1}"
     if ! [[ -d ${initdir}$target ]]; then
         [[ -e ${initdir}$target ]] && return 0
         [[ -h ${initdir}$target ]] && return 0
