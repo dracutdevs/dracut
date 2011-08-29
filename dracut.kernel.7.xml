@@ -696,9 +696,15 @@ rd.znet=ctc,0.0.0600,0.0.0601,0.0.0602,protocol=bar</programlisting></para>
       <title>Plymouth Boot Splash</title>
       <variablelist>
         <varlistentry>
-          <term><envar>rd.plymouth</envar>=0</term>
+          <term><envar>plymouth.enable</envar>=0</term>
           <listitem>
             <para>disable the plymouth bootsplash.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><envar>rd.plymouth</envar>=0</term>
+          <listitem>
+            <para>disable the plymouth bootsplash only for the initramfs.</para>
           </listitem>
         </varlistentry>
       </variablelist>
