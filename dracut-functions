@@ -919,7 +919,6 @@ instmods() {
                 fi
                 ;;
             --*)
-                _mod=${_mod##*/}
                 _mpargs+=" $_mod";;
             i2o_scsi) shift; continue;; # Do not load this diagnostic-only module
             *)  _mod=${_mod##*/}
@@ -942,7 +941,7 @@ instmods() {
                 # ok, load the module, all its dependencies, and any firmware
                 # it may require
                 for_each_kmod_dep install_kmod_with_fw $_mod \
-                    --set-version $kernel ${_moddirname}
+                    --set-version $kernel ${_moddirname} $_mpargs
                 ((_ret+=$?))
                 ;;
         esac
