@@ -24,15 +24,24 @@ depends() {
 installkernel() {
     # Include wired net drivers, excluding wireless
 
-    net_module_test() {
+    net_module_filter() {
         local _net_drivers='eth_type_trans|register_virtio_device'
         local _unwanted_drivers='/(wireless|isdn|uwb)/'
-        egrep -q $_net_drivers "$1" && \
-            egrep -qv 'iw_handler_get_spy' "$1" && \
-            [[ ! $1 =~ $_unwanted_drivers ]]
+        local _fname
+        while read _fname; do
+            local _fcont
+            case "$_fname" in
+                *.ko)    _fcont="$(<        $_fname)" ;;
+                *.ko.gz) _fcont="$(gzip -dc $_fname)" ;;
+            esac
+            [[   $_fcont =~ $_net_drivers
+            && ! $_fcont =~ iw_handler_get_spy \
+            && ! $_fname =~ $_unwanted_drivers ]] \
+            && echo "$_fname"
+        done
     }
 
-    instmods $(filter_kernel_modules_by_path drivers/net net_module_test)
+    find_kernel_modules_by_path drivers/net | net_module_filter | instmods
 
     instmods ecb arc4
     # bridge modules

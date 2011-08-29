@@ -42,11 +42,17 @@ depends() {
 
 installkernel() {
     instmods iscsi_tcp iscsi_ibft crc32c
-    iscsi_module_test() {
+    iscsi_module_filter() {
         local _iscsifuncs='iscsi_register_transport'
-        fgrep -q "$_iscsifuncs" "$1"
+        local _f
+        while read _f; do case "$_f" in
+            *.ko)    [[ $(<         $_f) =~ $_iscsifuncs ]] && echo "$_f" ;;
+            *.ko.gz) [[ $(gzip -dc <$_f) =~ $_iscsifuncs ]] && echo "$_f" ;;
+            esac
+        done
     }
-    instmods $(filter_kernel_modules_by_path drivers/scsi iscsi_module_test)
+    find_kernel_modules_by_path drivers/scsi \
+    | iscsi_module_filter  |  instmods
 }
 
 install() {

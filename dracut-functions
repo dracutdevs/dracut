@@ -863,49 +863,63 @@ filter_kernel_modules_by_path () (
         esac
     done
 )
+find_kernel_modules_by_path () (
+    if ! [[ $hostonly ]]; then
+        find "$srcmods/kernel/$1" "$srcmods/extra" "$srcmods/weak-updates" \
+          -name "*.ko" -o -name "*.ko.gz" 2>/dev/null
+    else
+        cut -d " " -f 1 </proc/modules \
+        | xargs modinfo -F filename -k $kernel 2>/dev/null
+    fi
+)
 
 filter_kernel_modules () {
     filter_kernel_modules_by_path  drivers  "$1"
 }
 
+find_kernel_modules () {
+    find_kernel_modules_by_path  drivers
+}
+
 # install kernel modules along with all their dependencies.
 instmods() {
     [[ $no_kernel = yes ]] && return
-    local _mod _mpargs _moddirname
-    local _ret=0
-    while (($# > 0)); do
-        _mod=${1%.ko*}
+
+    function inst1mod() {
+        local _mod="$1"
         case $_mod in
             =*)
                 # This introduces 2 incompatible meanings for =* arguments
                 # to instmods.  We need to decide which one to keep.
                 if [[ $_mod = =ata && -f $srcmods/modules.block ]]; then
-                    instmods $_mpargs \
-                        $(egrep 'ata|ahci' "${srcmods}/modules.block")
+                    ( echo -n "$_mpargs"; egrep 'ata|ahci' "${srcmods}/modules.block" ) \
+                    | instmods
                 elif [ -f $srcmods/modules.${_mod#=} ]; then
-                    instmods $_mpargs $(cat ${srcmods}/modules.${_mod#=} )
+                    ( echo -n "$_mpargs"; cat "${srcmods}/modules.${_mod#=}" ) \
+                    | instmods
                 else
-                    instmods $_mpargs $(find "$srcmods" -path "*/${_mod#=}/*")
+                    ( echo -n "$_mpargs"; find "$srcmods" -path "*/${_mod#=}/*" ) \
+                    | instmods
                 fi
                 ;;
-            --*)
-                _mpargs+=" $_mod";;
-            i2o_scsi) shift; continue;; # Do not load this diagnostic-only module
+            --*) _mpargs+="${_mod##*/}"$'\n' ;;  # one _mod per line; lops '--'
+            i2o_scsi) return ;; # Do not load this diagnostic-only module
             *)  _mod=${_mod##*/}
+
                 # if we are already installed, skip this module and go on
                 # to the next one.
-                [[ -f $initdir/$1 ]] && { shift; continue; }
+                [[ -f $initdir/$1 ]] && return
+
                 # If we are building a host-specific initramfs and this
                 # module is not already loaded, move on to the next one.
                 [[ $hostonly ]] && ! grep -qe "\<${_mod//-/_}\>" /proc/modules \
-                    && ! echo $add_drivers | grep -qe "\<${_mod}\>" && {
-                        shift; continue
-                    }
+                    && ! echo $add_drivers | grep -qe "\<${_mod}\>" \
+                    && return
 
                 # We use '-d' option in modprobe only if modules prefix path
                 # differs from default '/'.  This allows us to use Dracut with
                 # old version of modprobe which doesn't have '-d' option.
-                _moddirname=${srcmods%%/lib/modules/*}
+                local _moddirname=${srcmods%%/lib/modules/*}
                 [[ -n ${_moddirname} ]] && _moddirname="-d ${_moddirname}/"
 
                 # ok, load the module, all its dependencies, and any firmware
@@ -915,6 +929,17 @@ instmods() {
                 ((_ret+=$?))
                 ;;
         esac
+    }
+
+    local _mpargs _ret=0
+    if (($# == 0)); then  # filenames from stdin
+        local _mod
+        while read _mod; do
+            inst1mod "${_mod%.ko*}"
+        done
+    fi
+    while (($# > 0)); do  # filenames as args
+        inst1mod ${1%.ko*}
         shift
     done
     return $_ret

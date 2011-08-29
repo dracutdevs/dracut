@@ -9,6 +9,15 @@ installkernel() {
 
             egrep -q "$blockfuncs" "$1"
         }
+        block_module_filter() {
+            local _blockfuncs='ahci_init_controller|ata_scsi_ioctl|scsi_add_host|blk_init_queue|register_mtd_blktrans|scsi_esp_register|register_virtio_device'
+            local _f
+            while read _f; do case "$_f" in
+                *.ko)    [[ $(<         $_f) =~ $_blockfuncs ]] && echo "$_f" ;;
+                *.ko.gz) [[ $(gzip -dc <$_f) =~ $_blockfuncs ]] && echo "$_f" ;;
+                esac
+            done
+        }
         hostonly='' instmods sr_mod sd_mod scsi_dh scsi_dh_rdac scsi_dh_emc
         hostonly='' instmods pcmcia firewire-ohci
         hostonly='' instmods usb_storage sdhci sdhci-pci
@@ -18,7 +27,7 @@ installkernel() {
         # install unix socket support
         hostonly='' instmods unix
         instmods "=drivers/pcmcia" =ide "=drivers/usb/storage"
-        instmods $(filter_kernel_modules block_module_test)
+        find_kernel_modules  |  block_module_filter  |  instmods
         # if not on hostonly mode, install all known filesystems,
         # if the required list is not set via the filesystems variable
         if ! [[ $hostonly ]]; then

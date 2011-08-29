@@ -33,13 +33,18 @@ depends() {
 }
 
 installkernel() {
-    mp_mod_test() {
-        local mpfuncs='scsi_register_device_handler|dm_dirty_log_type_register|dm_register_path_selector|dm_register_target'
-        egrep -q "$mpfuncs" "$1"
+    mp_mod_filter() {
+        local _mpfuncs='scsi_register_device_handler|dm_dirty_log_type_register|dm_register_path_selector|dm_register_target'
+        local _f
+        while read _f; do case "$_f" in
+            *.ko)    [[ $(<         $_f) =~ $_mpfuncs ]] && echo "$_f" ;;
+            *.ko.gz) [[ $(gzip -dc <$_f) =~ $_mpfuncs ]] && echo "$_f" ;;
+            esac
+        done
     }
 
-    instmods $(filter_kernel_modules_by_path drivers/scsi mp_mod_test)
-    instmods $(filter_kernel_modules_by_path drivers/md mp_mod_test)
+    ( find_kernel_modules_by_path drivers/scsi;
+      find_kernel_modules_by_path drivers/md )  |  mp_mod_filter  |  instmods
 }
 
 install() {
