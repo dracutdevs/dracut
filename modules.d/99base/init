@@ -359,7 +359,6 @@ done
     emergency_shell
 }
 
-getarg rd.break rdbreak && emergency_shell -n switch_root "Break before switch_root"
 
 if [ $UDEVVERSION -lt 168 ]; then
     # stop udev queue before killing it
@@ -443,6 +442,7 @@ fi
 
 wait_for_loginit
 
+getarg rd.break rdbreak && emergency_shell -n switch_root "Break before switch_root"
 info "Switching root"
 
 unset PS4
