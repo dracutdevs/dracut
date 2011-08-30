@@ -38,7 +38,7 @@ else
             } > $hookdir/initqueue/finished/90-crypt.sh
             uuid=$luksid
             while [ "$uuid" != "${uuid#*-}" ]; do uuid=${uuid%%-*}${uuid#*-}; done
-            printf -- '[ "x${UUIDS#*:%s:}" != "x$UUIDS" ] || exit 1\n' $uuid >> $hookdir/initqueue/finished/90-crypt.sh
+            printf -- '[ "x${UUIDS#*:%s*:}" != "x$UUIDS" ] || exit 1\n' $uuid >> $hookdir/initqueue/finished/90-crypt.sh
 
             {
                 printf -- '[ -e /dev/disk/by-uuid/*%s* ] || ' $luksid
