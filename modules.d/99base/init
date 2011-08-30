@@ -8,6 +8,8 @@
 # Harald Hoyer <harald@redhat.com>
 # Jeremy Katz <katzj@redhat.com>
 
+export -p > /tmp/export.orig
+
 wait_for_loginit()
 {
     set +x
@@ -391,6 +393,8 @@ for i in $(export -p); do
             unset "$i";;
     esac
 done
+. /tmp/export.orig
+rm -f /tmp/export.orig
 
 initargs=""
 read CLINE </proc/cmdline
