@@ -49,6 +49,7 @@ install() {
         fw_unit_symlinks.sh \
         hid2hci \
         path_id \
+        input_id \
         scsi_id \
         usb_id \
         vol_id \
