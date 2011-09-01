@@ -392,7 +392,7 @@ for i in $(export -p); do
             unset "$i";;
     esac
 done
-. /tmp/export.orig
+. /tmp/export.orig 2>/dev/null || :
 rm -f /tmp/export.orig
 
 initargs=""
