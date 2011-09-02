@@ -281,14 +281,6 @@ unset queuetriggered
 unset main_loop
 unset RDRETRY
 
-# reset cdrom polling
-for cdrom in /sys/block/sr*; do
-    [ -e "$cdrom" ] || continue
-    if [ -e "$cdrom"/events_poll_msecs ]; then
-        echo -1 > "$cdrom"/events_poll_msecs
-    fi
-done
-
 # pre-mount happens before we try to mount the root filesystem,
 # and happens once.
 getarg 'rd.break=pre-mount' 'rdbreak=pre-mount' && emergency_shell -n pre-mount "Break pre-mount"
