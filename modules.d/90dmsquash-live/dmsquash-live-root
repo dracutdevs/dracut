@@ -54,11 +54,13 @@ mkdir -m 0755 -p /run/initramfs/live
 if [ -f $livedev ]; then
     # no mount needed - we've already got the LiveOS image in initramfs
     # check filesystem type and handle accordingly
-    case `det_img_fs $livedev` in
-        squashfs) SQUASHED=$livedev ;;
+    fstype=$(det_img_fs $livedev)
+    case $fstype in
+        squashfs) SQUASHED=$livedev;;
         auto) die "cannot mount live image (unknown filesystem type)" ;;
         *) FSIMG=$livedev ;;
     esac
+    [ -e /sys/fs/$fstype ] || modprobe $fstype
 else
     mount -n -t $fstype -o ${liverw:-ro} $livedev /run/initramfs/live
     if [ "$?" != "0" ]; then
