@@ -650,7 +650,7 @@ if strstr "$modules_loaded" " fips " && command -v prelink >/dev/null; then
     done
 fi
 
-if ! ( cd "$initdir"; find . |cpio -R 0:0 -H newc -o --quiet | \
+if ! ( cd "$initdir"; find . |cpio -R 0:0 -H newc -o --quiet| \
     $compress > "$outfile"; ); then
     dfatal "dracut: creation of $outfile failed"
     exit 1
