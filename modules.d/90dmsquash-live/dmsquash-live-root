@@ -45,9 +45,7 @@ fi
 
 # determine filesystem type for a filesystem image
 det_img_fs() {
-    local _img="$1" _loop=$(losetup -f) _fs
-    losetup $_loop $_img; _fs=$(det_fs $_loop); losetup -d $_loop
-    echo $_fs
+    blkid -s TYPE -u noraid -o value "$1"
 }
 
 for arg in $CMDLINE; do case $arg in ro|rw) liverw=$arg ;; esac; done
