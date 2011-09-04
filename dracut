@@ -510,7 +510,7 @@ if [[ $kernel_only != yes ]]; then
         fi
     done
 
-    for d in proc sys sysroot root run run/lock run/initramfs; do
+    for d in dev proc sys sysroot root run run/lock run/initramfs; do
         if [ -h "/$d" ]; then
             inst "/$d"
         else
