@@ -77,7 +77,6 @@ install() {
     inst_hook pre-udev 30 "$moddir/mdmon-pre-udev.sh"
 
     inst "$moddir/mdraid_start.sh" /sbin/mdraid_start
-    inst "$moddir/mdcontainer_start.sh" /sbin/mdcontainer_start
     inst "$moddir/mdadm_auto.sh" /sbin/mdadm_auto
     inst "$moddir/md_finished.sh" /sbin/md_finished.sh
     inst_hook pre-trigger 30 "$moddir/parse-md.sh"

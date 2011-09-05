@@ -66,23 +66,3 @@ RUN+="/sbin/initqueue --finished --unique --name md_finished /sbin/md_finished.s
 RUN+="/sbin/initqueue --timeout --onetime --unique /sbin/mdraid_start"
 
 LABEL="end_raidstart"
-
-#
-# Handle container raid arrays
-#
-ACTION=="add|change", \
-	KERNEL=="md[0-9]*|md/*", \
-	ENV{DEVTYPE}!="partition", \
-	ENV{MD_LEVEL}=="container", \
-        ENV{rd_MDADMCONF}!="?*", \
-        ENV{rd_NO_MD}!="?*", \
-	GOTO="do_container"
-
-GOTO="end_container"
-
-LABEL="do_container"
-
-RUN+="/sbin/initqueue --finished --unique --name md_finished /sbin/md_finished.sh"
-RUN+="/sbin/initqueue --timeout --onetime --unique --name mdcontainer_start-%k /sbin/mdcontainer_start $env{DEVNAME}"
-
-LABEL="end_container"
