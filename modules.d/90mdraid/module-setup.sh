@@ -50,6 +50,11 @@ install() {
 
     if [ ! -x /lib/udev/vol_id ]; then
         inst_rules 64-md-raid.rules
+        # remove incremental assembly from stock rules, so they don't shadow
+        # 65-md-inc*.rules and its fine-grained controls, or cause other problems
+        # when we explicitly don't want certain components to be incrementally
+        # assembled
+        sed -i -e '/^ENV{ID_FS_TYPE}==.*ACTION=="add".*RUN+="\/sbin\/mdadm --incremental $env{DEVNAME}"$/d' "${initdir}/lib/udev/rules.d/64-md-raid.rules"
     fi
 
     inst_rules "$moddir/65-md-incremental-imsm.rules"
