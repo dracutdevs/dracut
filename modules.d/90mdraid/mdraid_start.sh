@@ -3,23 +3,34 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
-# run mdadm if udev has settled
-info "Assembling MD RAID arrays"
-udevadm control --stop-exec-queue
-mdadm -As --auto=yes --run 2>&1 | vinfo
-mdadm -Is --run 2>&1 | vinfo
+_md_force_run() {
+    local _udevinfo
+    local _path_s
+    local _path_d
+    # try to force-run anything not running yet
+    for md in /dev/md[0-9]*; do
+        [ -b "$md" ] || continue
+        _udevinfo="$(udevadm info --query=env --name="$md")"
+        strstr "$_udevinfo" "MD_LEVEL=container" && continue
+        strstr "$_udevinfo" "DEVTYPE=partition" && continue
 
-# there could still be some leftover devices
-# which have had a container added
-for md in /dev/md[0-9]* /dev/md/*; do
-    [ -b "$md" ] || continue
-    udevinfo="$(udevadm info --query=env --name=$md)"
-    strstr "$udevinfo" "MD_UUID=" && continue
-    strstr "$udevinfo" "MD_LEVEL=container" && continue
-    strstr "$udevinfo" "DEVTYPE=partition" && continue
-    mdadm --run "$md" 2>&1 | vinfo
-done
-unset udevinfo
+        _path_s="$(udevadm info -q path -n "$md")/md/array_state"
+        [ ! -r "$_path_s" ] && continue
 
-ln -s $(command -v mdraid-cleanup) $hookdir/pre-pivot/31-mdraid-cleanup.sh 2>/dev/null
-udevadm control --start-exec-queue
+        # inactive ?
+        [ "$(cat "$_path_s")" != "inactive" ] && continue
+
+        mdadm -R "$md" 2>&1 | vinfo
+
+        # still inactive ?
+        [ "$(cat "$_path_s")" = "inactive" ] && continue
+
+        _path_d="${_path_s%/*}/degraded"
+        [ ! -r "$_path_d" ] && continue
+
+        # workaround for mdmon bug
+        [ "$(cat "$_path_d")" -gt "0" ] && mdmon --takeover "$md"
+    done
+}
+
+_md_force_run

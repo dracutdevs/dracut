@@ -37,7 +37,7 @@ installkernel() {
 }
 
 install() {
-    dracut_install mdadm partx
+    dracut_install mdadm partx cat
 
 
      # XXX: mdmon really needs to run as non-root?

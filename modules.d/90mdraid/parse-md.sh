@@ -34,6 +34,7 @@ fi
 
 if ! getargbool 1 rd.md.conf -n rd_NO_MDADMCONF; then
     rm -f /etc/mdadm/mdadm.conf /etc/mdadm.conf
+    ln -s $(command -v mdraid-cleanup) $hookdir/pre-pivot/31-mdraid-cleanup.sh 2>/dev/null
 fi
 
 # noiswmd nodmraid for anaconda / rc.sysinit compatibility
