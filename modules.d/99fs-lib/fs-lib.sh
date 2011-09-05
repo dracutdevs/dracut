@@ -210,10 +210,10 @@ fsck_batch() {
         info "    $_dev"
     done
 
+    export FSTAB_FILE
     _out="$(fsck -M -T "$@" -- -a)"
     _ret=$?
 
-    export FSTAB_FILE
     fsck_tail
 
     return $_ret
