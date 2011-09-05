@@ -4,4 +4,4 @@
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 info "Autoassembling MD Raid"
-mdadm -As --auto=yes --run 2>&1 | vinfo
+mdadm -As --auto=yes 2>&1 | vinfo

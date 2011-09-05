@@ -13,12 +13,14 @@ else
             [ -e "$f" ] || continue
             while read line; do
                 if [ "${line%%UUID CHECK}" != "$line" ]; then
+                    printf 'IMPORT{program}="/sbin/mdadm --examine --export $tempnode"\n'
                     for uuid in $MD_UUID; do
-                        printf 'ENV{MD_UUID}=="%s", GOTO="do_md_inc"\n' $uuid
+                        printf 'ENV{MD_UUID}=="%s", GOTO="md_uuid_ok"\n' $uuid
                     done;
-                    printf 'GOTO="md_inc_end"\n';
+                    printf 'GOTO="md_end"\n'
+                    printf 'LABEL="md_uuid_ok"\n'
                 else
-                    echo $line;
+                    echo "$line"
                 fi
             done < "${f}" > "${f}.new"
             mv "${f}.new" "$f"

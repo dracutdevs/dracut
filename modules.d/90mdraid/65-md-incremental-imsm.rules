@@ -2,68 +2,45 @@
 # automatically cause mdadm to be run.
 # See udev(8) for syntax
 
-ACTION!="add|change", GOTO="md_inc_end"
-SUBSYSTEM!="block", GOTO="md_inc_end"
-ENV{ID_FS_TYPE}!="*_raid_member", GOTO="md_inc_end"
+ACTION!="add|change", GOTO="md_end"
+SUBSYSTEM!="block", GOTO="md_end"
+ENV{rd_NO_MD}=="?*", GOTO="md_end"
+KERNEL=="md*", GOTO="md_end"
 
-ENV{ID_FS_TYPE}=="isw_raid_member", ENV{rd_NO_MDIMSM}=="?*", GOTO="md_inc_end"
-ENV{ID_FS_TYPE}=="ddf_raid_member", ENV{rd_NO_MDDDF}=="?*", GOTO="md_inc_end"
+ENV{ID_FS_TYPE}!="*_raid_member", GOTO="md_end"
+ENV{ID_FS_TYPE}=="isw_raid_member", ENV{rd_NO_MDIMSM}=="?*", GOTO="md_end"
+ENV{ID_FS_TYPE}=="ddf_raid_member", ENV{rd_NO_MDDDF}=="?*", GOTO="md_end"
 
-ENV{rd_NO_MD}=="?*", GOTO="md_inc_end"
+# already done ?
+PROGRAM="/bin/sh -c 'for i in $sys/$devpath/holders/md[0-9]*; do [ -e $$i ] && exit 0; done; exit 1;' ", \
+    GOTO="md_end"
 
-PROGRAM=="/bin/sh -c 'for i in $sys/$devpath/holders/md[0-9]*; do [ -e $$i ] && exit 0; done; exit 1;' ", \
-    GOTO="md_inc_end"
+# for native arrays - array's uuid has to be specified
+# for containers - container's uuid has to be specified
+# TODO : how to get embedded array's uuid having container's component ?
+#
+# UUID CHECK
 
 ENV{DEVTYPE}!="partition", \
     RUN+="/sbin/partx -d --nr 1-1024 $env{DEVNAME}"
 
-KERNEL!="md*", IMPORT{program}="/sbin/mdadm --examine --export $tempnode"
-
-# UUID CHECK
-
-LABEL="do_md_inc"
-
-#
-# if rd_MDADMCONF do not assemble incrementally
-# defer auto assembly until the udev queue is settled
-#
-ENV{rd_MDADMCONF}!="?*", GOTO="md_auto_end"
-
-RUN+="/sbin/initqueue --finished --unique --name md_finished /sbin/md_finished.sh"
-RUN+="/sbin/initqueue --settled --onetime --unique /sbin/mdadm_auto"
-
-GOTO="md_inc_end"
-
-LABEL="md_auto_end"
-
-#
-# Incrementally build the md array
-#
-RUN+="/sbin/mdadm -I $env{DEVNAME}"
-
-RUN+="/sbin/initqueue --finished --unique --name md_finished /sbin/md_finished.sh"
-
-LABEL="md_inc_end"
-
-#
-# Handle non-container raid arrays
-#
-ACTION=="add|change", \
-	KERNEL=="md[0-9]*|md/*", \
-	ENV{MD_LEVEL}!="container", \
-	ENV{MD_CONTAINER}!="?*", \
-        ENV{rd_MDADMCONF}!="?*", \
-        ENV{rd_NO_MD}!="?*", \
-	GOTO="do_raidstart"
-
-GOTO="end_raidstart"
-
-LABEL="do_raidstart"
-
-# check if array is not inactive anymore
-TEST=="md/array_state", ATTR{md/array_state}!="|inactive", GOTO="end_raidstart"
-
-RUN+="/sbin/initqueue --finished --unique --name md_finished /sbin/md_finished.sh"
 RUN+="/sbin/initqueue --timeout --onetime --unique /sbin/mdraid_start"
 
-LABEL="end_raidstart"
+# if rd_MDADMCONF is set, do not assemble incrementally;
+# defer conf-based assembly until the udev queue is settled
+#
+ENV{rd_MDADMCONF}!="?*", GOTO="md_incremental"
+
+RUN+="/sbin/initqueue --settled --onetime --unique /sbin/mdadm_auto"
+
+GOTO="md_end"
+
+#
+# Incrementally build the md array; this will automatically assemble
+# any eventual containers as well (imsm, ddf)
+#
+LABEL="md_incremental"
+
+RUN+="/sbin/mdadm -I $env{DEVNAME}"
+
+LABEL="md_end"
