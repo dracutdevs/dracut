@@ -12,3 +12,7 @@ if  ! command -v mdadm >/dev/null || ! getargbool 1 rd.md.imsm -n rd_NO_MDIMSM |
     udevproperty rd_NO_MDIMSM=1
 fi
 
+if  ! command -v mdadm >/dev/null || ! getargbool 1 rd.md.ddf -n rd_NO_MDDDF || getarg noddfmd; then
+    info "rd.md.ddf=0: no MD RAID for SNIA ddf raids"
+    udevproperty rd_NO_MDDDF=1
+fi

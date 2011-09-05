@@ -343,6 +343,12 @@ This parameter can be specified multiple times.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
+          <term><envar>rd.md.ddf</envar>=0</term>
+          <listitem>
+            <para>disable MD RAID for SNIA ddf raids, use DM RAID instead</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
           <term>
             <envar>rd.md.conf</envar>=0
           </term>

@@ -20,7 +20,7 @@ check() {
             check_block_and_slaves is_mdraid "$_rootdev" || return 1
         else
             # root is not on a block device, use the shotgun approach
-            blkid | egrep -q '(linux|isw)_raid' || return 1
+            blkid | grep -q '"[^"]*_raid_member"' || return 1
         fi
     }
 
@@ -59,8 +59,12 @@ install() {
 
     inst_rules "$moddir/65-md-incremental-imsm.rules"
 
+    # guard against pre-3.0 mdadm versions, that can't handle containers
     if ! mdadm -Q -e imsm /dev/null &> /dev/null; then
         inst_hook pre-trigger 30 "$moddir/md-noimsm.sh"
+    fi
+    if ! mdadm -Q -e ddf /dev/null &> /dev/null; then
+        inst_hook pre-trigger 30 "$moddir/md-noddf.sh"
     fi
 
     if [[ $hostonly ]] || [[ $mdadmconf = "yes" ]]; then

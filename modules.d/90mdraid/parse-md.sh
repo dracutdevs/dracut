@@ -43,3 +43,9 @@ if ! getargbool 1 rd.md.imsm -n rd_NO_MDIMSM || getarg noiswmd || getarg nodmrai
     info "no MD RAID for imsm/isw raids"
     udevproperty rd_NO_MDIMSM=1
 fi
+
+# same thing with ddf containers
+if ! getargbool 1 rd.md.ddf -n rd_NO_MDDDF || getarg noddfmd || getarg nodmraid; then
+    info "no MD RAID for SNIA ddf raids"
+    udevproperty rd_NO_MDDDF=1
+fi
