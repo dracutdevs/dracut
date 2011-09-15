@@ -24,7 +24,7 @@ str_replace() {
 
     while strstr "${in}" "$s"; do
         chop="${in%%$s*}"
-        out="${out}${chop# }$r"
+        out="${out}${chop}$r"
         in="${in#*$s}"
     done
     echo "${out}${in}"
