@@ -434,6 +434,9 @@ fi
 
 wait_for_loginit
 
+# remove helper symlink
+[ -h /dev/root ] && rm -f /dev/root
+
 getarg rd.break rdbreak && emergency_shell -n switch_root "Break before switch_root"
 info "Switching root"
 
