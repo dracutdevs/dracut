@@ -17,7 +17,7 @@ if [ -n "$resume" ]; then
             ${resume#/dev/};
         printf "SYMLINK==\"%s\", ACTION==\"add|change\", SYMLINK+=\"/dev/resume\"\n" \
             ${resume#/dev/};
-    } >> $UDEVRULESD/99-resume-link.rules
+    } >> /etc/udev/rules.d/99-resume-link.rules
 
     {
         if [ -x /usr/sbin/resume ]; then

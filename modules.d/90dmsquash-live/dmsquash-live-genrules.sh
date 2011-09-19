@@ -8,7 +8,7 @@ case "$root" in
             ${root#live:/dev/}
         printf 'SYMLINK=="%s", RUN+="/sbin/initqueue --settled --onetime --unique /sbin/dmsquash-live-root $env{DEVNAME}"\n' \
             ${root#live:/dev/}
-    } >> $UDEVRULESD/99-live-squash.rules
+    } >> /etc/udev/rules.d/99-live-squash.rules
     echo '[ -e /dev/root ]' > $hookdir/initqueue/finished/dmsquash.sh
   ;;
   live:*)
