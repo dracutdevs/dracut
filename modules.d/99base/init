@@ -89,7 +89,7 @@ RD_DEBUG=""
 SECURITYFSDIR="/sys/kernel/security"
 export SECURITYFSDIR
 if ! ismounted "${SECURITYFSDIR}"; then
-    mount -t securityfs -o nosuid,noexec,nodev ${SECURITYFSDIR} ${SECURITYFSDIR} >/dev/null 2>&1
+    mount -t securityfs -o nosuid,noexec,nodev securityfs ${SECURITYFSDIR} >/dev/null 2>&1
 fi
 
 if [ -x /lib/systemd/systemd-timestamp ]; then
