@@ -7,11 +7,9 @@ check() {
 }
 
 depends() {
-    echo masterkey securityfs
     return 0
 }
 
 install() {
-    inst_hook pre-pivot 61 "$moddir/evm-enable.sh"
-    inst_hook pre-pivot 62 "$moddir/ima-policy-load.sh"
+    inst_hook cmdline 60 "$moddir/securityfs.sh"
 }
