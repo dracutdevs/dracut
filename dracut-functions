@@ -474,7 +474,7 @@ inst_rules() {
     inst_dir "/lib/udev/rules.d"
     inst_dir "$_target"
     for _rule in "$@"; do
-        if [ "${rule#/}" = $rule ]; then
+        if [ "${rule#/}" = "$rule" ]; then
             for r in /lib/udev/rules.d /etc/udev/rules.d; do
                 if [[ -f $r/$_rule ]]; then
                     _found="$r/$_rule"
