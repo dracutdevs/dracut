@@ -40,7 +40,7 @@ client_test() {
     local found opts nbdinfo
 
     [[ $fstype ]] || fstype=ext3
-    [[ $fsopt ]] || fsopt="errors=continue"
+    [[ $fsopt ]] || fsopt="ro"
 
     echo "CLIENT TEST START: $test_name"
 
@@ -198,7 +198,7 @@ make_encrypted_root() {
     (
 	initdir=overlay
 	. $basedir/dracut-functions
-	dracut_install mke2fs poweroff cp umount
+	dracut_install mke2fs poweroff cp umount tune2fs
 	inst_hook initqueue 01 ./create-root.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )

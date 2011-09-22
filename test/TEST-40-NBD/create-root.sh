@@ -14,6 +14,7 @@ lvm vgcreate dracut /dev/mapper/dracut_crypt_test && \
 lvm lvcreate -l 100%FREE -n root dracut && \
 lvm vgchange -ay && \
 mke2fs -j /dev/dracut/root && \
+/sbin/tune2fs -e continue /dev/dracut/root && \
 mkdir -p /sysroot && \
 mount /dev/dracut/root /sysroot && \
 cp -a -t /sysroot /source/* && \

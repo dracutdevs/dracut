@@ -5,6 +5,7 @@ while read dev fs fstype opts rest; do
     [ "$dev" = "rootfs" ] && continue
     [ "$fs" != "/" ] && continue
     echo "nbd-OK $fstype $opts" >/dev/sda
+    echo "nbd-OK $fstype $opts" 
     break
 done < /proc/mounts
 export TERM=linux
