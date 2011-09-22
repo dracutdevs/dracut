@@ -474,12 +474,14 @@ inst_rules() {
     inst_dir "/lib/udev/rules.d"
     inst_dir "$_target"
     for _rule in "$@"; do
-        for r in /lib/udev/rules.d /etc/udev/rules.d; do
-            if [[ -f $r/$_rule ]]; then
-                _found="$r/$_rule"
-                inst_simple "$_found"
-            fi
-        done
+        if [ "${rule#/}" = $rule ]; then
+            for r in /lib/udev/rules.d /etc/udev/rules.d; do
+                if [[ -f $r/$_rule ]]; then
+                    _found="$r/$_rule"
+                    inst_simple "$_found"
+                fi
+            done
+        fi
         for r in '' ./ $dracutbasedir/rules.d/; do
             if [[ -f ${r}$_rule ]]; then
                 _found="${r}$_rule"
