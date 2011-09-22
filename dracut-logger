@@ -271,12 +271,8 @@ _dlvl2syslvl() {
 #   - @c INFO to @c info
 #   - @c DEBUG and @c TRACE both to @c debug
 _do_dlog() {
-    [ -z "$maxloglvl" ] && return 0
     local lvl="$1"; shift
     local lvlc=$(_lvl2char "$lvl") || return 0
-
-    [ $lvl -le $maxloglvl ] || return 0
-
     local msg="$lvlc: $*"
 
     [ $lvl -le $stdloglvl ] && echo "$msg" >&2
@@ -307,6 +303,9 @@ _do_dlog() {
 # dwarn "This is a warning"
 # echo "This is a warning" | dwarn
 dlog() {
+    [ -z "$maxloglvl" ] && return 0
+    [ $1 -le $maxloglvl ] || return 0
+
     if [ $# -gt 1 ]; then
         _do_dlog "$@"
     else
