@@ -8,7 +8,7 @@ _md_force_run() {
     local _path_s
     local _path_d
     # try to force-run anything not running yet
-    for md in /dev/md[0-9]*; do
+    for md in /dev/md[0-9_]*; do
         [ -b "$md" ] || continue
         _udevinfo="$(udevadm info --query=env --name="$md")"
         strstr "$_udevinfo" "MD_LEVEL=container" && continue

@@ -15,7 +15,7 @@ ENV{ID_FS_TYPE}=="isw_raid_member", ENV{rd_NO_MDIMSM}=="?*", GOTO="md_end"
 ENV{ID_FS_TYPE}=="ddf_raid_member", ENV{rd_NO_MDDDF}=="?*", GOTO="md_end"
 
 # already done ?
-PROGRAM="/bin/sh -c 'for i in $sys/$devpath/holders/md[0-9]*; do [ -e $$i ] && exit 0; done; exit 1;' ", \
+PROGRAM="/bin/sh -c 'for i in $sys/$devpath/holders/md[0-9_]*; do [ -e $$i ] && exit 0; done; exit 1;' ", \
     GOTO="md_end"
 
 # for native arrays - array's uuid has to be specified
