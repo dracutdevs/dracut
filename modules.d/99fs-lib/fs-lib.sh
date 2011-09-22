@@ -59,7 +59,7 @@ fsck_able() {
             ;;
         btrfs)
             type btrfsck >/dev/null 2>&1 &&
-            _drv="_drv=btrfsck fsck_drv_com" &&
+            _drv="_drv=none fsck_drv_btrfs" &&
             return 0
             ;;
         *)
@@ -103,6 +103,37 @@ fsck_drv_xfs() {
     rm -r /tmp/.xfs
     return $_ret
 }
+
+fsck_drv_btrfs() {
+    local _ret
+
+    # fs must be cleanly mounted (and umounted) first, before attempting any
+    # btrfs tools - if this works, nothing else should be needed
+    # note, that user is always dropped into the shell, if the filesystem is
+    # not mountable or if -f flag is found among _fop
+    mkdir -p /tmp/.btrfs
+
+    info "trying to mount $_dev"
+    if mount -t btrfs "$_dev" "/tmp/.btrfs" >/dev/null 2>&1; then
+        _ret=0
+        info "btrfs: $_dev is clean"
+        umount "$_dev" >/dev/null 2>&1
+    else
+        _ret=4
+        warn "*** $_dev is unmountable"
+    fi
+    if [ $_ret -gt 0 ] || strstr "$_fop" "-f"; then
+        warn "*** Dropping you to a shell. You have"
+        warn "*** btrfsck available."
+        warn "*** Note that if btrfs didn't mount properly, it's"
+        warn "*** probably pretty serious condition."
+        emergency_shell -n "(Repair filesystem)"
+    fi
+
+    rm -r /tmp/.btrfs
+    return $_ret
+}
+
 
 # common code for checkers that follow usual subset of options and return codes
 fsck_drv_com() {
