@@ -20,7 +20,7 @@ check() {
             check_block_and_slaves is_mdraid "$_rootdev" || return 1
         else
             # root is not on a block device, use the shotgun approach
-            blkid | grep -q '"[^"]*_raid_member"' || return 1
+            blkid | egrep -q '(linux|isw|ddf)_raid' || return 1
         fi
     }
 

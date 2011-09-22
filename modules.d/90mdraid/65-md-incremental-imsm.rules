@@ -7,7 +7,10 @@ SUBSYSTEM!="block", GOTO="md_end"
 ENV{rd_NO_MD}=="?*", GOTO="md_end"
 KERNEL=="md*", GOTO="md_end"
 
-ENV{ID_FS_TYPE}!="*_raid_member", GOTO="md_end"
+ENV{ID_FS_TYPE}=="ddf_raid_member|isw_raid_member|linux_raid_member", GOTO="md_try"
+GOTO="md_end"
+
+LABEL="md_try"
 ENV{ID_FS_TYPE}=="isw_raid_member", ENV{rd_NO_MDIMSM}=="?*", GOTO="md_end"
 ENV{ID_FS_TYPE}=="ddf_raid_member", ENV{rd_NO_MDDDF}=="?*", GOTO="md_end"
 
