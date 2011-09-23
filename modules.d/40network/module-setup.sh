@@ -27,18 +27,27 @@ installkernel() {
     net_module_filter() {
         local _net_drivers='eth_type_trans|register_virtio_device'
         local _unwanted_drivers='/(wireless|isdn|uwb)/'
-        local _fname
-        while read _fname; do
-            local _fcont
-            case "$_fname" in
-                *.ko)    _fcont="$(<        $_fname)" ;;
-                *.ko.gz) _fcont="$(gzip -dc $_fname)" ;;
-            esac
-            [[   $_fcont =~ $_net_drivers
-            && ! $_fcont =~ iw_handler_get_spy \
-            && ! $_fname =~ $_unwanted_drivers ]] \
-            && echo "$_fname"
-        done
+        function nmf1() {
+            local _fname _fcont
+            while read _fname; do
+                [[ $_fname =~ $_unwanted_drivers ]] && continue
+                case "$_fname" in
+                    *.ko)    _fcont="$(<        $_fname)" ;;
+                    *.ko.gz) _fcont="$(gzip -dc $_fname)" ;;
+                esac
+                [[   $_fcont =~ $_net_drivers
+                && ! $_fcont =~ iw_handler_get_spy ]] \
+                && echo "$_fname"
+            done
+        }
+        # Use two parallel streams to filter alternating modules.
+        local merge side2
+        ( ( local _f1 _f2
+            while  read _f1; do   echo "$_f1"
+                if read _f2; then echo "$_f2" 1>&${side2}; fi
+            done \
+            | nmf1     1>&${merge}    ) {side2}>&1 \
+            | nmf1  )      {merge}>&1
     }
 
     find_kernel_modules_by_path drivers/net | net_module_filter | instmods

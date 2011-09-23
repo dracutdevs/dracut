@@ -11,12 +11,22 @@ installkernel() {
         }
         block_module_filter() {
             local _blockfuncs='ahci_init_controller|ata_scsi_ioctl|scsi_add_host|blk_init_queue|register_mtd_blktrans|scsi_esp_register|register_virtio_device'
-            local _f
-            while read _f; do case "$_f" in
-                *.ko)    [[ $(<         $_f) =~ $_blockfuncs ]] && echo "$_f" ;;
-                *.ko.gz) [[ $(gzip -dc <$_f) =~ $_blockfuncs ]] && echo "$_f" ;;
-                esac
-            done
+            function bmf1() {
+                local _f
+                while read _f; do case "$_f" in
+                    *.ko)    [[ $(<         $_f) =~ $_blockfuncs ]] && echo "$_f" ;;
+                    *.ko.gz) [[ $(gzip -dc <$_f) =~ $_blockfuncs ]] && echo "$_f" ;;
+                    esac
+                done
+            }
+            # Use two parallel streams to filter alternating modules.
+            local merge side2
+            ( ( local _f1 _f2
+                while  read _f1; do   echo "$_f1"
+                    if read _f2; then echo "$_f2" 1>&${side2}; fi
+                done \
+                | bmf1     1>&${merge}    ) {side2}>&1 \
+                | bmf1  )      {merge}>&1
         }
         hostonly='' instmods sr_mod sd_mod scsi_dh scsi_dh_rdac scsi_dh_emc
         hostonly='' instmods pcmcia firewire-ohci
