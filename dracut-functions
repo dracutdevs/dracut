@@ -272,7 +272,7 @@ check_vol_slaves() {
 inst_dir() {
     [[ -e ${initdir}"$1" ]] && return 0  # already there
 
-    local _dir="$1" _part=${_dir%/*} _file
+    local _dir="$1" _part="${1%/*}" _file
     while [[ "$_part" != "${_part%/*}" ]] && ! [[ -e "${initdir}${_part}" ]]; do
         _dir="$_part $_dir"
         _part=${_part%/*}
