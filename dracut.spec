@@ -132,6 +132,15 @@ This package requires everything which is needed to build an
 all purpose initramfs with dracut, which does an integrity check.
 %endif
 
+%package fips-aesni
+Summary: Dracut modules to build a dracut initramfs with an integrity check with aesni-intel
+Requires: %{name}-fips = %{version}-%{release}
+
+%description fips-aesni
+This package requires everything which is needed to build an
+all purpose initramfs with dracut, which does an integrity check 
+and adds the aesni-intel kernel module.
+
 %package caps
 Summary: Dracut modules to build a dracut initramfs which drops capabilities
 Requires: %{name} = %{version}-%{release}
@@ -173,6 +182,7 @@ echo %{name}-%{version}-%{release} > $RPM_BUILD_ROOT/%{_datadir}/dracut/modules.
 
 %if 0%{?fedora} == 0 && 0%{?rhel} == 0
 rm -fr $RPM_BUILD_ROOT/%{_datadir}/dracut/modules.d/01fips
+rm -fr $RPM_BUILD_ROOT/%{_datadir}/dracut/modules.d/02fips-aesni
 %endif
 
 # remove gentoo specific modules
@@ -281,6 +291,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dracut/modules.d/01fips
 %config(noreplace) /etc/dracut.conf.d/40-fips.conf
 %endif
+
+%files fips-aesni
+%defattr(-,root,root,0755)
+%doc COPYING
+%{_datadir}/dracut/modules.d/02fips-aesni
 
 %files caps
 %defattr(-,root,root,0755)
