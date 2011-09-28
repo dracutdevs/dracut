@@ -587,3 +587,16 @@ wait_for_dev()
         printf 'warn "\"%s\" does not exist"\n' $1
     } >> "$hookdir/emergency/80-${_name}.sh"
 }
+
+killproc() {
+    local exe="$(command -v $1)"
+    local sig=$2
+    local i
+    [ -x "$exe" ] || return 1
+    for i in /proc/[0-9]*; do 
+        [ "$i" = "/proc/1" ] && continue
+        if [ -e "$i"/exe ] && [  "$i/exe" -ef "$exe" ] ; then
+            kill $sig ${i##*/}
+        fi
+    done
+}
