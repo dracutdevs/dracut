@@ -14,7 +14,7 @@ _md_force_run() {
         strstr "$_udevinfo" "MD_LEVEL=container" && continue
         strstr "$_udevinfo" "DEVTYPE=partition" && continue
 
-        _path_s="$(udevadm info -q path -n "$md")/md/array_state"
+        _path_s="/sys/$(udevadm info -q path -n "$md")/md/array_state"
         [ ! -r "$_path_s" ] && continue
 
         # inactive ?
