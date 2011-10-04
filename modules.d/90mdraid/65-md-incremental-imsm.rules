@@ -27,7 +27,7 @@ PROGRAM="/bin/sh -c 'for i in $sys/$devpath/holders/md[0-9_]*; do [ -e $$i ] && 
 ENV{DEVTYPE}!="partition", \
     RUN+="/sbin/partx -d --nr 1-1024 $env{DEVNAME}"
 
-RUN+="/sbin/initqueue --timeout --onetime --unique /sbin/mdraid_start"
+RUN+="/sbin/initqueue --timeout --name 50-mdraid_start --onetime --unique /sbin/mdraid_start"
 
 # if rd_MDADMCONF is set, do not assemble incrementally;
 # defer conf-based assembly until the udev queue is settled
