@@ -7,7 +7,9 @@ install() {
     # FIXME: would be nice if we didn't have to know which rules to grab....
     # ultimately, /lib/initramfs/rules.d or somesuch which includes links/copies
     # of the rules we want so that we just copy those in would be best
-    dracut_install udevd udevadm
+    dracut_install udevadm
+    [ -x /sbin/udevd ] && dracut_install udevd
+
     for i in /etc/udev/udev.conf /etc/group; do
         inst_simple $i
     done
@@ -55,9 +57,14 @@ install() {
         vol_id \
         pcmcia-socket-startup \
         pcmcia-check-broken-cis \
+        udevd \
         ; do
         [ -e /lib/udev/$_i ] && dracut_install /lib/udev/$_i
+        [ -e /usr/lib/udev/$_i ] && dracut_install /usr/lib/udev/$_i
     done
+
+    [ -x /lib/udev/udevd ] && ln -s ../lib/udev/udevd /sbin/udevd
+    [ -x /usr/lib/udev/udevd ] && ln -s ../usr/lib/udev/udevd /sbin/udevd
 
     [ -f /etc/arch-release ] && \
         inst "$moddir/load-modules.sh" /lib/udev/load-modules.sh
