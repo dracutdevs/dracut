@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- This document was created with Syntext Serna Free. --><!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" []>
+<!-- vim: set ts=8 sts=2 sw=2 et: -->
 <refentry id="dracutconf5">
   <refentryinfo>
     <title>dracut.conf</title>
@@ -152,6 +153,27 @@ initramfs.</para>
         </term>
         <listitem>
           <para>Include local <filename>/etc/lvm/lvm.conf</filename> (default=yes)</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <envar>fscks=&quot;&nbsp;<replaceable>&lt;fsck tools&gt;</replaceable>&nbsp;&quot;</envar>
+        </term>
+        <listitem>
+          <para>Add a space-separated list of fsck tools. If nothing is
+            specified, the default is: &quot;<replaceable>umount mount
+            /sbin/fsck* xfs_db xfs_check xfs_repair e2fsck jfs_fsck
+            reiserfsck btrfsck</replaceable>&quot;
+          </para>
+          <para>The installation is opportunistic (non-exisiting tools are ignored).<para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <envar>nofscks=&quot;<replaceable>{yes}</replaceable>&quot;</envar>
+        </term>
+        <listitem>
+          <para>If specified, inhibit installation of any fsck tools.</para>
         </listitem>
       </varlistentry>
       <varlistentry>

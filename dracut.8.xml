@@ -246,6 +246,25 @@ include in the generic initramfs. This parameter can be specified multiple times
         </varlistentry>
         <varlistentry>
           <term>
+            <option>--fscks [LIST]</option>
+          </term>
+          <listitem>
+            <para>add a space-separated list of fsck tools, in addition to
+              <filename>dracut.conf</filename>'s specification; the
+              installation is opportunistic (non-exisiting tools are ignored)
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--nofscks</option>
+          </term>
+          <listitem>
+            <para>inhibit installation of any fsck tools</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
             <option>--strip</option>
           </term>
           <listitem>
