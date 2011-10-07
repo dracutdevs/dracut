@@ -91,20 +91,24 @@ normalize_path() {
 }
 
 convert_abs_rel() {
-    local __current __absolute __abssize __cursize __i __level __newpath
+    local __current __absolute __abssize __cursize __newpath="" __oldifs
+    local -i __i __level=0
 #    PS4='${BASH_SOURCE}@${LINENO}(${FUNCNAME[0]}): ';
 
-    if [[ "$1" == "$2" ]]
-    then
-        echo "."
-        return
-    fi
+    # corner case #1 - self looping link
+    [[ "$1" == "$2" ]] && { echo "${1##*/}"; return; }
+
+    # corner case #2 - own dir link
+    [[ "${1%/*}" == "$2" ]] && { echo "."; return; }
+
     __current=$(normalize_path "$1")
     __absolute=$(normalize_path "$2")
-    IFS="/"
 
+    __oldifs="$IFS"
+    IFS="/"
     __current=($__current)
     __absolute=($__absolute)
+    IFS="$__oldifs"
 
     __abssize=${#__absolute[@]}
     __cursize=${#__current[@]}
