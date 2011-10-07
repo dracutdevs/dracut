@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- This document was created with Syntext Serna Free. --><!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" []>
+<!-- vim: set ts=8 sts=2 sw=2 et: -->
 <refentry id="dracut8">
   <refentryinfo>
     <title>dracut</title>
@@ -225,6 +226,22 @@ include in the generic initramfs. This parameter can be specified multiple times
           </term>
           <listitem>
             <para>do not include local <filename>/etc/mdadm.conf</filename></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--lvmconf</option>
+          </term>
+          <listitem>
+            <para>include local <filename>/etc/lvm/lvm.conf</filename></para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <option>--nolvmconf</option>
+          </term>
+          <listitem>
+            <para>do not include local <filename>/etc/lvm/lvm.conf</filename></para>
           </listitem>
         </varlistentry>
         <varlistentry>
