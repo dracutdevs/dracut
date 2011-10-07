@@ -11,13 +11,22 @@ depends() {
 }
 
 install() {
-    dracut_install -o umount mount xfs_db xfs_check xfs_repair
-    dracut_install -o e2fsck
-    dracut_install -o jfs_fsck
-    dracut_install -o reiserfsck
-    dracut_install -o btrfsck
-    dracut_install -o /sbin/fsck*
+    local _helpers
 
     inst "$moddir/fs-lib.sh" "/lib/fs-lib.sh"
-    touch ${initdir}/etc/fstab.fslib
+    touch ${initdir}/etc/fstab.empty
+
+    [[ "$nofscks" = "yes" ]] && return
+
+    if [[ "$fscks" = "${fscks#*[^ ]*}" ]]; then
+        _helpers="\
+            umount mount /sbin/fsck*
+            xfs_db xfs_check xfs_repair
+            e2fsck jfs_fsck reiserfsck btrfsck
+        "
+    else
+        _helpers="$fscks"
+    fi
+
+    dracut_install -o $_helpers
 }

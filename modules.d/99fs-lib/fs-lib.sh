@@ -177,7 +177,7 @@ fsck_drv_std() {
 # returns 255 if filesystem wasn't checked at all (e.g. due to lack of
 # necessary tools or insufficient options)
 fsck_single() {
-    local FSTAB_FILE=/etc/fstab.fslib
+    local FSTAB_FILE=/etc/fstab.empty
     local _dev="$1"
     local _fs="${2:-auto}"
     local _fop="$3"
@@ -197,13 +197,13 @@ fsck_single() {
 # takes list of filesystems to check in parallel; we don't rely on automatic
 # checking based on fstab, so empty one is passed
 fsck_batch() {
-    local FSTAB_FILE=/etc/fstab.fslib
+    local FSTAB_FILE=/etc/fstab.empty
     local _drv=fsck
     local _dev
     local _ret
     local _out
 
-    [ $# -eq 0 ] && return 255
+    [ $# -eq 0 ] || ! type fsck >/dev/null 2>&1 && return 255
 
     info "Checking filesystems (fsck -M -T -a):"
     for _dev in "$@"; do
