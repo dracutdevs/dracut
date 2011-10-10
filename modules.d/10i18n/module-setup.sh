@@ -150,22 +150,24 @@ install() {
             inst_simple ${kbddir}/unimaps/${FONT_UNIMAP}.uni
         fi
 
+        shopt -q -s nocasematch
         if [[ ${UNICODE} ]]
         then
-            if [[ ${UNICODE^^} = YES || ${UNICODE} = 1 ]]
+            if [[ ${UNICODE} = YES || ${UNICODE} = 1 ]]
             then
                 UNICODE=1
-            elif [[ ${UNICODE^^} = NO || ${UNICODE} = 0 ]]
+            elif [[ ${UNICODE} = NO || ${UNICODE} = 0 ]]
             then
                 UNICODE=0
             else
                 UNICODE=''
             fi
         fi
-        if [[ ! ${UNICODE} && ${LANG^^} =~ .*\.UTF-?8 ]]
+        if [[ ! ${UNICODE} && ${LANG} =~ .*\.UTF-?8 ]]
         then
             UNICODE=1
         fi
+        shopt -q -u nocasematch
 
         mksubdirs ${initdir}${I18N_CONF}
         mksubdirs ${initdir}${VCONFIG_CONF}
