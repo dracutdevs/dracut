@@ -418,6 +418,13 @@ else
     exit 1
 fi
 
+# Verify bash version, curret minimum is 3.1
+if (( ${BASH_VERSINFO[0]} < 3 ||
+    ( ${BASH_VERSINFO[0]} == 3 && ${BASH_VERSINFO[1]} < 1 ) )); then
+    dfatal 'You need at least Bash 3.1 to use dracut, sorry.'
+    exit 1
+fi
+
 dracutfunctions=$dracutbasedir/dracut-functions
 export dracutfunctions
 
