@@ -63,8 +63,8 @@ install() {
         [ -e /usr/lib/udev/$_i ] && dracut_install /usr/lib/udev/$_i
     done
 
-    [ -x /lib/udev/udevd ] && ln -s ../lib/udev/udevd /sbin/udevd
-    [ -x /usr/lib/udev/udevd ] && ln -s ../usr/lib/udev/udevd /sbin/udevd
+    [ -x /lib/udev/udevd ] && ln -s ../lib/udev/udevd "$initdir/sbin/udevd"
+    [ -x /usr/lib/udev/udevd ] && ln -s ../usr/lib/udev/udevd "$initdir/sbin/udevd"
 
     [ -f /etc/arch-release ] && \
         inst "$moddir/load-modules.sh" /lib/udev/load-modules.sh
