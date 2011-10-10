@@ -472,6 +472,10 @@ fi
 
 readonly TMPDIR=/var/tmp
 readonly initdir=$(mktemp --tmpdir=/var/tmp/ -d -t initramfs.XXXXXX)
+[ -d "$initdir" ] || {
+    dfatal "mktemp failed."
+    exit 1
+}
 
 # clean up after ourselves no matter how we die.
 trap 'ret=$?;[[ $keep ]] && echo "Not removing $initdir." >&2 || rm -rf "$initdir";exit $ret;' EXIT
