@@ -165,7 +165,7 @@ initramfs.</para>
             /sbin/fsck* xfs_db xfs_check xfs_repair e2fsck jfs_fsck
             reiserfsck btrfsck</replaceable>&quot;
           </para>
-          <para>The installation is opportunistic (non-existing tools are ignored).<para>
+          <para>The installation is opportunistic (non-existing tools are ignored).</para>
         </listitem>
       </varlistentry>
       <varlistentry>
