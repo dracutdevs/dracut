@@ -35,11 +35,11 @@ _getcmdline() {
     unset _line
     if [ -z "$CMDLINE" ]; then
         if [ -e /etc/cmdline ]; then
-            while read _line; do
+            while read -r _line; do
                 CMDLINE_ETC="$CMDLINE_ETC $_line";
             done </etc/cmdline;
         fi
-        read CMDLINE </proc/cmdline;
+        read -r CMDLINE </proc/cmdline;
         CMDLINE="$CMDLINE $CMDLINE_ETC"
     fi
 }
