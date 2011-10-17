@@ -212,8 +212,6 @@ while (($# > 0)); do
         -c|--conf)     read_arg conffile             "$@" || shift;;
         --confdir)     read_arg confdir              "$@" || shift;;
         -L|--stdlog)   read_arg stdloglvl_l          "$@" || shift;;
-        -I|--install)  read_arg install_items        "$@" || shift;;
-        --fwdir)       read_arg fw_dir_l             "$@" || shift;;
         --compress)    read_arg compress_l           "$@" || shift;;
         --prefix)      read_arg prefix_l             "$@" || shift;;
         -f|--force)    force=yes;;
