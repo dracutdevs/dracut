@@ -286,10 +286,18 @@ getarg 'rd.break=mount' 'rdbreak=mount' && emergency_shell -n mount "Break mount
 # be sourced any number of times. As soon as one suceeds, no more are sourced.
 i=0
 while :; do
-    [ -d "$NEWROOT/proc" ] && break;
+    if ismounted "$NEWROOT"; then
+        usable_root "$NEWROOT" && break;
+        umount "$NEWROOT"
+    fi
     for f in $hookdir/mount/*.sh; do
         [ -f "$f" ] && . "$f"
-        [ -d "$NEWROOT/proc" ] && break;
+        if ismounted "$NEWROOT"; then
+            usable_root "$NEWROOT" && break;
+            warn "$NEWROOT has no proper rootfs layout, ignoring and removing offending mount hook"
+            umount "$NEWROOT"
+            rm -f "$f"
+        fi
     done
 
     i=$(($i+1))

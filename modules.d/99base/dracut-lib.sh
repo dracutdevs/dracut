@@ -544,3 +544,12 @@ foreach_uuid_until() (
 
     return 1
 )
+
+usable_root() {
+    local _d
+    [ -d $1 ] || return 1
+    for _d in proc sys dev; do
+        [ -e "$1"/$_d ] || return 1
+    done
+    return 0
+}
