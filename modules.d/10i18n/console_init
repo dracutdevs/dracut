@@ -22,6 +22,7 @@ set_terminal() {
         stty -F ${dev} iutf8
     else
         printf '\033%%@' >&7
+        stty -F ${dev} -iutf8
     fi
 }
 
