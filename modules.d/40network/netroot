@@ -119,7 +119,7 @@ if [ -n "$netroot_ip" ]; then
     fi
 fi
 if [ -n "$dest" ] && ! arping -q -f -w 60 -I $netif $dest ; then
-    die "Resolving $dest via ARP on $netif failed"
+    dinfo "Resolving $dest via ARP on $netif failed"
 fi
 
 # Source netroot hooks before we start the handler
