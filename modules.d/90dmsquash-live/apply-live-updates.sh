@@ -1,7 +1,8 @@
 #!/bin/sh
 if [ -b /dev/mapper/live-rw ]; then
-    if [ "`echo /updates/*`" != "/updates/*" ]; then
+    if pushd /updates &>/dev/null; then
         echo "Applying updates to live image..."
-        /bin/cp -a /updates/* $NEWROOT
+        /bin/cp -a -t $NEWROOT .
+        popd &>/dev/null
     fi
 fi
