@@ -243,7 +243,7 @@ while :; do
     # no more udev jobs and queues empty.
     sleep 0.5
 
-    if [ ! -e /sys/module/block/parameters/uevent ]; then
+    if [ ! -e /sys/module/block/parameters/events_dfl_poll_msecs ]; then
         # if the kernel does not support autopolling
         # then we have to do a
         # dirty hack for some cdrom drives,
