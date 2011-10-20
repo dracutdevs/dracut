@@ -33,6 +33,7 @@ depends() {
 }
 
 installkernel() {
+    set +x
     mp_mod_filter() {
         local _mpfuncs='scsi_register_device_handler|dm_dirty_log_type_register|dm_register_path_selector|dm_register_target'
         local _f
@@ -45,6 +46,7 @@ installkernel() {
 
     ( find_kernel_modules_by_path drivers/scsi;
       find_kernel_modules_by_path drivers/md )  |  mp_mod_filter  |  instmods
+    [[ $debug ]] && set -x
 }
 
 install() {

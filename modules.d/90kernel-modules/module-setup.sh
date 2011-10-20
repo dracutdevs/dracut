@@ -31,7 +31,9 @@ installkernel() {
                 done | bmf1 1>&${_merge}
             }
             # Use two parallel streams to filter alternating modules.
+            set +x
             eval "( ( rotor ) ${_side2}>&1 | bmf1 ) ${_merge}>&1"
+            [[ $debug ]] && set -x
         }
         hostonly='' instmods sr_mod sd_mod scsi_dh scsi_dh_rdac scsi_dh_emc
         hostonly='' instmods pcmcia firewire-ohci

@@ -52,7 +52,9 @@ installkernel() {
             done | nmf1 1>&${_merge}
         }
         # Use two parallel streams to filter alternating modules.
+        set +x
         eval "( ( rotor ) ${_side2}>&1 | nmf1 ) ${_merge}>&1"
+        [[ $debug ]] && set -x
     }
 
     find_kernel_modules_by_path drivers/net | net_module_filter | instmods
