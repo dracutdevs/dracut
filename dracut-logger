@@ -313,7 +313,6 @@ dlog() {
             _do_dlog "$1" "$line"
         done
     fi
-    [ -n "$debug" ] && set -x || :
 }
 
 ## @brief Logs message at TRACE level (6)
@@ -323,6 +322,7 @@ dlog() {
 dtrace() {
     set +x
     dlog 6 "$@"
+    [ -n "$debug" ] && set -x || :
 }
 
 ## @brief Logs message at DEBUG level (5)
@@ -332,6 +332,7 @@ dtrace() {
 ddebug() {
     set +x
     dlog 5 "$@"
+    [ -n "$debug" ] && set -x || :
 }
 
 ## @brief Logs message at INFO level (4)
@@ -341,6 +342,7 @@ ddebug() {
 dinfo() {
     set +x
     dlog 4 "$@"
+    [ -n "$debug" ] && set -x || :
 }
 
 ## @brief Logs message at WARN level (3)
@@ -350,6 +352,7 @@ dinfo() {
 dwarn() {
     set +x
     dlog 3 "$@"
+    [ -n "$debug" ] && set -x || :
 }
 
 ## @brief It's an alias to dwarn() function.
@@ -359,6 +362,7 @@ dwarn() {
 dwarning() {
     set +x
     dwarn "$@"
+    [ -n "$debug" ] && set -x || :
 }
 
 ## @brief Logs message at ERROR level (2)
@@ -368,6 +372,7 @@ dwarning() {
 derror() {
     set +x
     dlog 2 "$@"
+    [ -n "$debug" ] && set -x || :
 }
 
 ## @brief Logs message at FATAL level (1)
@@ -377,4 +382,5 @@ derror() {
 dfatal() {
     set +x
     dlog 1 "$@"
+    [ -n "$debug" ] && set -x || :
 }
