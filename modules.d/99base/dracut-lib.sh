@@ -32,6 +32,7 @@ str_replace() {
 
 _getcmdline() {
     local _line
+    local _i
     unset _line
     if [ -z "$CMDLINE" ]; then
         if [ -e /etc/cmdline ]; then
@@ -39,8 +40,14 @@ _getcmdline() {
                 CMDLINE_ETC="$CMDLINE_ETC $_line";
             done </etc/cmdline;
         fi
+        for _i in /etc/cmdline.d/*.conf; do
+            [ -e "$_i" ] || continue
+            while read -r _line; do
+                CMDLINE_ETC_D="$CMDLINE_ETC_D $_line";
+            done <"$_i";
+        done
         read -r CMDLINE </proc/cmdline;
-        CMDLINE="$CMDLINE $CMDLINE_ETC"
+        CMDLINE="$CMDLINE_ETC_D $CMDLINE_ETC $CMDLINE"
     fi
 }
 

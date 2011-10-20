@@ -1268,6 +1268,14 @@ set in the configuration files.</para>
           <para>Can contain additional command line options.</para>
         </listitem>
       </varlistentry>
+      <varlistentry>
+        <term>
+          <filename>/etc/cmdline.d/*.conf</filename>
+        </term>
+        <listitem>
+          <para>Can contain additional command line options.</para>
+        </listitem>
+      </varlistentry>
     </variablelist>
   </refsect1>
   <refsect1>
