@@ -443,13 +443,14 @@ inst_binary() {
 inst_script() {
     local _bin
     _bin=$(find_binary "$1") || return 1
+    shift
     local _line _shebang_regex
     read -r -n 80 _line <"$_bin"
     # If debug is set, clean unprintable chars to prevent messing up the term
     [[ $debug ]] && _line=$(echo -n "$_line" | tr -c -d '[:print:][:space:]')
     _shebang_regex='(#! *)(/[^ ]+).*'
     [[ $_line =~ $_shebang_regex ]] || return 1
-    inst "${BASH_REMATCH[2]}" && inst_binary "$@"
+    inst "${BASH_REMATCH[2]}" && inst_binary "$_bin" "$@"
 }
 
 # same as above, but specialized for symlinks
