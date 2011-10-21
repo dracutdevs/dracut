@@ -272,10 +272,10 @@ check_vol_slaves() {
 # will create ${initdir}/lib64, ${initdir}/lib64/file,
 # and a symlink ${initdir}/lib -> lib64.
 inst_dir() {
-    [[ -e ${initdir}"$1" ]] && return 0  # already there
+    [[ -e ${initdir}/"$1" ]] && return 0  # already there
 
     local _dir="$1" _part="${1%/*}" _file
-    while [[ "$_part" != "${_part%/*}" ]] && ! [[ -e "${initdir}${_part}" ]]; do
+    while [[ "$_part" != "${_part%/*}" ]] && ! [[ -e "${initdir}/${_part}" ]]; do
         _dir="$_part $_dir"
         _part=${_part%/*}
     done
@@ -306,12 +306,13 @@ inst_dir() {
 # Location of the image dir is assumed to be $initdir
 # We never overwrite the target if it exists.
 inst_simple() {
-    [[ -f $1 ]] || return 1
+    [[ -f "$1" ]] || return 1
+    strstr "$1" "/" || return 1
 
     local _src=$1 target="${2:-$1}"
-    if ! [[ -d ${initdir}$target ]]; then
-        [[ -e ${initdir}$target ]] && return 0
-        [[ -h ${initdir}$target ]] && return 0
+    if ! [[ -d ${initdir}/$target ]]; then
+        [[ -e ${initdir}/$target ]] && return 0
+        [[ -h ${initdir}/$target ]] && return 0
         inst_dir "${target%/*}"
     fi
     # install checksum files also
@@ -319,7 +320,7 @@ inst_simple() {
         inst "${_src%/*}/.${_src##*/}.hmac" "${target%/*}/.${target##*/}.hmac"
     fi
     ddebug "Installing $_src"
-    cp --sparse=always -pfL "$_src" "${initdir}$target" 
+    cp --sparse=always -pfL "$_src" "${initdir}/$target" 
 }
 
 # find symlinks linked to given library file
@@ -351,8 +352,9 @@ rev_lib_symlinks() {
 # It handles making symlinks according to how the original library
 # is referenced.
 inst_library() {
-    local _src=$1 _dest=${2:-$1} _lib _reallib _symlink
-    [[ -e $initdir$_dest ]] && return 0
+    local _src="$1" _dest=${2:-$1} _lib _reallib _symlink
+    strstr "$1" "/" || return 1
+    [[ -e $initdir/$_dest ]] && return 0
     if [[ -L $_src ]]; then
         # install checksum files also
         if [[ -e "${_src%/*}/.${_src##*/}.hmac" ]]; then
@@ -361,14 +363,14 @@ inst_library() {
         _reallib=$(readlink -f "$_src")
         inst_simple "$_reallib" "$_reallib"
         inst_dir "${_dest%/*}"
-        ln -sfn $(convert_abs_rel "${_dest}" "${_reallib}") "${initdir}${_dest}"
+        ln -sfn $(convert_abs_rel "${_dest}" "${_reallib}") "${initdir}/${_dest}"
     else
         inst_simple "$_src" "$_dest"
     fi
 
     # Create additional symlinks.  See rev_symlinks description.
     for _symlink in $(rev_lib_symlinks $_src) $(rev_lib_symlinks $_reallib); do
-        [[ ! -e $initdir$_symlink ]] && {
+        [[ ! -e $initdir/$_symlink ]] && {
             ddebug "Creating extra symlink: $_symlink"
             inst_symlink $_symlink
         }
@@ -396,7 +398,7 @@ inst_binary() {
     _bin=$(find_binary "$1") || return 1
     _target=${2:-$_bin}
     inst_symlink $_bin $_target && return 0
-    [[ -e $initdir$_target ]] && return 0
+    [[ -e $initdir/$_target ]] && return 0
 
     # If the binary being installed is also a library, add it to the loop.
     _so_regex='([^ ]*/lib[^/]*/[^ ]*\.so[^ ]*)'
@@ -414,7 +416,7 @@ inst_binary() {
         fi
         [[ $_line =~ $_so_regex ]] || continue
         _file=${BASH_REMATCH[1]}
-        [[ -e ${initdir}$_file ]] && continue
+        [[ -e ${initdir}/$_file ]] && continue
 
         # See if we are loading an optimized version of a shared lib.
         if [[ $_file =~ $_lib_regex ]]; then
@@ -439,19 +441,21 @@ inst_binary() {
 # same as above, except for shell scripts.
 # If your shell script does not start with shebang, it is not a shell script.
 inst_script() {
-    [[ -f $1 ]] || return 1
+    local _bin
+    _bin=$(find_binary "$1") || return 1
     local _line _shebang_regex
-    read -r -n 80 _line <"$1"
+    read -r -n 80 _line <"$_bin"
     # If debug is set, clean unprintable chars to prevent messing up the term
     [[ $debug ]] && _line=$(echo -n "$_line" | tr -c -d '[:print:][:space:]')
     _shebang_regex='(#! *)(/[^ ]+).*'
     [[ $_line =~ $_shebang_regex ]] || return 1
-    inst "${BASH_REMATCH[2]}" && inst_simple "$@"
+    inst "${BASH_REMATCH[2]}" && inst_binary "$@"
 }
 
 # same as above, but specialized for symlinks
 inst_symlink() {
-    local _src=$1 _target=$initdir${2:-$1} _realsrc
+    local _src=$1 _target=$initdir/${2:-$1} _realsrc
+    strstr "$1" "/" || return 1
     [[ -L $1 ]] || return 1
     [[ -L $_target ]] && return 0
     _realsrc=$(readlink -f "$_src")
