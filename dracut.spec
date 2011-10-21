@@ -72,17 +72,12 @@ Requires: module-init-tools >= 3.7-9
 Requires: sed
 Requires: tar
 Requires: udev
+Requires: util-linux >= 2.20
 
 %if 0%{?fedora} || 0%{?rhel} > 6
-Requires: util-linux >= 2.16
 Requires: initscripts >= 8.63-1
 Requires: plymouth >= 0.8.0-0.2009.29.09.19.1
 %endif
-
-%if 0%{?suse_version}
-Requires: util-linux >= 2.16
-%endif
-
 
 %description
 Dracut contains tools to create a bootable initramfs for 2.6 Linux kernels.
