@@ -24,7 +24,7 @@ URL: https://dracut.wiki.kernel.org/
 Source0: http://www.kernel.org/pub/linux/utils/boot/dracut/dracut-%{version}.tar.bz2
 
 BuildArch: noarch
-BuildRequires: dash bash
+BuildRequires: dash bash git
 %if 0%{?fedora} || 0%{?rhel} > 6
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %endif
@@ -155,6 +155,14 @@ This package contains tools to assemble the local initrd and host configuration.
 
 %prep
 %setup -q -n %{name}-%{version}
+git init
+git config user.email "dracut-maint@redhat.com"
+git config user.name "Fedora dracut team"
+git add .
+git commit -a -q -m "%{version} baseline."
+
+# Apply all the patches.
+git am -p1 %{patches}
 
 %build
 make
