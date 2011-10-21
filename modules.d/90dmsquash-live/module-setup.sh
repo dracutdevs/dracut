@@ -5,7 +5,7 @@
 check() {
     # a live host-only image doesn't really make a lot of sense
     [[ $hostonly ]] && return 1
-    return 0
+    return 255
 }
 
 depends() {
