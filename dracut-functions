@@ -450,7 +450,7 @@ inst_script() {
     [[ $debug ]] && _line=$(echo -n "$_line" | tr -c -d '[:print:][:space:]')
     _shebang_regex='(#! *)(/[^ ]+).*'
     [[ $_line =~ $_shebang_regex ]] || return 1
-    inst "${BASH_REMATCH[2]}" && inst_binary "$_bin" "$@"
+    inst "${BASH_REMATCH[2]}" && inst_simple "$_bin" "$@"
 }
 
 # same as above, but specialized for symlinks
