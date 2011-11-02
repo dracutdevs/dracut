@@ -28,5 +28,9 @@ install() {
         _helpers="$fscks"
     fi
 
+    if strstr "$_helpers" e2fsck && [ -e /etc/e2fsck.conf ]; then
+        inst_simple /etc/e2fsck.conf
+    fi
+
     dracut_install -o $_helpers
 }
