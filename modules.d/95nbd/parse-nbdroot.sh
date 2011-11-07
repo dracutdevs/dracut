@@ -38,6 +38,7 @@ if [ "${root%%:*}" = "nbd" ] ; then
 
     fi
     netroot=$root
+    unset root
 fi
 
 # If it's not nbd we don't continue
@@ -55,7 +56,8 @@ incol2 /proc/devices nbd || modprobe nbd || die "nbdroot requested but kernel/in
 rootok=1
 
 # Shut up init error check
-[ -z "$root" ] && root="nbd"
-
-echo '[ -e /dev/root ]' > $hookdir/initqueue/finished/nbd.sh
+if [ -z "$root" ]; then
+    root=block:/dev/root
+    wait_for_dev /dev/root
+fi
 

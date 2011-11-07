@@ -261,7 +261,10 @@ source_hook() {
 
 check_finished() {
     local f
-    for f in $hookdir/initqueue/finished/*.sh; do { [ -e "$f" ] && ( . "$f" ) ; } || return 1 ; done
+    for f in $hookdir/initqueue/finished/*.sh; do 
+        [ "$f" = "$hookdir/initqueue/finished/*.sh" ] && return 0
+        { [ -e "$f" ] && ( . "$f" ) ; } || return 1
+    done
     return 0
 }
 
@@ -559,4 +562,28 @@ usable_root() {
         [ -e "$1"/$_d ] || return 1
     done
     return 0
+}
+
+wait_for_mount()
+{
+    local _name
+    _name="$(str_replace "$1" '/' '\\x2f')"
+    printf '. /lib/dracut-lib.sh\nismounted "%s"\n' $1 \
+        >> "$hookdir/initqueue/finished/ismounted-${_name}.sh"
+    {
+        printf 'ismounted "%s" || ' $1
+        printf 'warn "\"%s\" is not mounted"\n' $1
+    } >> "$hookdir/emergency/90-${_name}.sh"
+}
+
+wait_for_dev()
+{
+    local _name
+    _name="$(str_replace "$1" '/' '\\x2f')"
+    printf '[ -e "%s" ]\n' $1 \
+        >> "$hookdir/initqueue/finished/devexists-${_name}.sh"
+    {
+        printf '[ -e "%s" ] || ' $1
+        printf 'warn "\"%s\" does not exist"\n' $1
+    } >> "$hookdir/emergency/80-${_name}.sh"
 }

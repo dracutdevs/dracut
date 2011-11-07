@@ -76,5 +76,3 @@ rootok=1
 # Shut up init error check
 [ -z "$root" ] && root="iscsi"
 
-echo '[ -e /dev/root ]' > $hookdir/initqueue/finished/iscsi.sh
-

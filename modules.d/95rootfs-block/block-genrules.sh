@@ -13,5 +13,5 @@ if [ "${root%%:*}" = "block" ]; then
     printf '[ -e "%s" ] && { ln -s "%s" /dev/root 2>/dev/null; rm "$job"; }\n' \
         "${root#block:}" "${root#block:}" > $hookdir/initqueue/settled/blocksymlink.sh
 
-    echo '[ -e /dev/root ]' > $hookdir/initqueue/finished/block.sh
+    wait_for_dev "${root#block:}"
 fi

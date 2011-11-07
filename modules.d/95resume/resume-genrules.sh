@@ -35,13 +35,7 @@ if [ -n "$resume" ]; then
     printf '[ -e "%s" ] && { ln -s "%s" /dev/resume; rm "$job"; }\n' \
         "$resume" "$resume" >> $hookdir/initqueue/settled/resume.sh
 
-    echo '[ -e /dev/resume ]' > $hookdir/initqueue/finished/resume.sh
-
-    {
-        printf '[ -e /dev/resume ] || '
-        printf 'warn "resume device "%s" not found"\n' "$resume"
-    } >> $hookdir/emergency/00-resume.sh
-
+    wait_for_dev "/dev/resume"
 
 elif ! getarg noresume; then
     {
