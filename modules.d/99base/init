@@ -314,33 +314,12 @@ done
 getarg 'rd.break=pre-pivot' 'rdbreak=pre-pivot' && emergency_shell -n pre-pivot "Break pre-pivot"
 source_hook pre-pivot
 
-# by the time we get here, the root filesystem should be mounted.
-# Try to find init and mount /usr, if needed to access init.
-unset __usr_found
+# By the time we get here, the root filesystem should be mounted.
+# Try to find init. 
 for i in "$(getarg real_init=)" "$(getarg init=)" /sbin/init /etc/init /init /bin/sh; do
     [ -n "$i" ] || continue
 
-    __p=$(readlink -m "$NEWROOT$i")
-    if [ -n "$__p" ] \
-        && [ "x$__usr_found" = "x" ] \
-        && [ ! -x "$__p" ] \
-        && strstr "$__p" "$NEWROOT/usr" \
-        ; then
-        # we have to mount /usr
-        while read dev mp fs opts rest; do
-            if [ "$mp" = "/usr" ]; then
-                echo "$dev $NEWROOT$mp $fs ${opts},ro $rest"
-                __usr_found="1"
-                break
-            fi
-        done < "$NEWROOT/etc/fstab" >> /etc/fstab
-        if [ "x$__usr_found" != "x" ]; then
-            info "Mounting /usr"
-            mount "$NEWROOT/usr" 2>&1 | vinfo
-        fi
-    fi
-
-    __p=$(readlink -f "$NEWROOT$i")
+    __p=$(readlink -f "${NEWROOT}/${i}")
     if [ -x "$__p" ]; then
         INIT="$i"
         break

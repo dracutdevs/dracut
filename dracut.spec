@@ -257,6 +257,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dracut/modules.d/98integrity
 %{_datadir}/dracut/modules.d/98selinux
 %{_datadir}/dracut/modules.d/98syslog
+%{_datadir}/dracut/modules.d/98usrmount
 %{_datadir}/dracut/modules.d/99base
 %{_datadir}/dracut/modules.d/99fs-lib
 %{_datadir}/dracut/modules.d/99shutdown
