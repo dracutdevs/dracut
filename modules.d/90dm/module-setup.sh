@@ -22,7 +22,7 @@ install() {
 
     type -P dmeventd >/dev/null && dracut_install dmeventd
 
-    for _i in {"$libdir","$usrlibdir"}/libdmraid-events*.so; do
+    for _i in {"$libdir","$usrlibdir"}/libdevmapper-event.so*; do
         [ -e "$_i" ] && dracut_install "$_i"
     done
 
