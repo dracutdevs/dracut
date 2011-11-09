@@ -57,10 +57,12 @@ installkernel() {
 
 install() {
     dracut_install umount
+    dracut_install -o iscsiuio
     inst iscsistart
     inst hostname
     inst iscsi-iname
     inst_hook cmdline 90 "$moddir/parse-iscsiroot.sh"
+    inst_hook pre-pivot 90 "$moddir/cleanup-iscsi.sh"
     inst "$moddir/iscsiroot" "/sbin/iscsiroot"
     inst "$moddir/mount-lun.sh" "/bin/mount-lun.sh"
 }

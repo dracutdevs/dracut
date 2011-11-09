@@ -40,6 +40,8 @@ modprobe crc32c 2>/dev/null
 
 [ -e /tmp/root.info ] && . /tmp/root.info
 
+[ -e /sys/module/bnx2i ] && iscsiuio
+
 if getargbool 0 rd.iscsi.firmware -y iscsi_firmware ; then
     if [ -n "${root%%block:*}" ]; then
         # if root is not specified try to mount the whole iSCSI LUN
