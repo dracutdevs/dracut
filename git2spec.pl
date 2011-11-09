@@ -18,8 +18,9 @@ sub last_tag {
 
 sub create_patches {
     my $tag=shift;
+    my $pdir=shift;
     my $num=0;
-    open( GIT, 'git format-patch -N --no-signature '.$tag.' |');
+    open( GIT, 'git format-patch -N --no-signature -o "'.$pdir.'" '.$tag.' |');
     @lines=<GIT>;
     close GIT;         # be done
     return @lines;
@@ -29,8 +30,9 @@ use POSIX qw(strftime);
 my $datestr = strftime "%Y%m%d", gmtime;
 
 my $tag=shift;
+my $pdir=shift;
 $tag=&last_tag if not defined $tag;
-my @patches=&create_patches($tag);
+my @patches=&create_patches($tag, $pdir);
 my $num=$#patches + 2;
 $tag=~s/[^0-9]+?([0-9]+)/$1/;
 my $release="$num.git$datestr";

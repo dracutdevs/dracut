@@ -66,13 +66,13 @@ dracut-$(VERSION).tar.gz:
 	git archive --format=tar $(VERSION) --prefix=dracut-$(VERSION)/ |gzip > dracut-$(VERSION).tar.gz
 
 rpm: dracut-$(VERSION).tar.bz2
-	mkdir -p rpmbuild
-	cp dracut-$(VERSION).tar.bz2 rpmbuild
-	cd rpmbuild; ../git2spec.pl $(VERSION) < ../dracut.spec > dracut.spec; \
-	rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" \
+	rpmbuild=$$(mktemp -d -t rpmbuild-dracut.XXXXXX); src=$$(pwd); \
+	cp dracut-$(VERSION).tar.bz2 "$$rpmbuild"; \
+	$$src/git2spec.pl $(VERSION) "$$rpmbuild" < dracut.spec > $$rpmbuild/dracut.spec; \
+	(cd "$$rpmbuild"; rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" \
 	        --define "_specdir $$PWD" --define "_srcrpmdir $$PWD" \
-		--define "_rpmdir $$PWD" -ba dracut.spec && \
-	( cd ..; mv rpmbuild/noarch/*.rpm .; mv rpmbuild/*.src.rpm .;rm -fr rpmbuild; ls *.rpm )
+		--define "_rpmdir $$PWD" -ba dracut.spec; ) && \
+	( mv "$$rpmbuild"/noarch/*.rpm .; mv "$$rpmbuild"/*.src.rpm .;rm -fr "$$rpmbuild"; ls *.rpm )
 
 syncheck:
 	@ret=0;for i in dracut-logger modules.d/99base/init modules.d/*/*.sh; do \
