@@ -521,7 +521,7 @@ if [[ $prefix ]]; then
 fi
 
 if [[ $kernel_only != yes ]]; then
-    for d in bin etc lib "$libdir" sbin tmp usr var usr/bin usr/sbin; do
+    for d in bin etc lib "$libdir" sbin tmp usr var var/log usr/bin usr/sbin; do
         [[ -e "${initdir}${prefix}/$d" ]] && continue
         if [ -h "/$d" ]; then
             inst "/$d" "${prefix}/$d"
