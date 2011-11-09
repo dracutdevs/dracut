@@ -134,6 +134,12 @@ handle_netroot()
     # if missing?
     fi
 
+    if [ -z $iscsi_initiator ]; then
+       if [ -f /sys/firmware/ibft/initiator/initiator-name ]; then
+           iscsi_initiator=$(while read line; do echo $line;done < /sys/firmware/ibft/initiator-name)
+       fi
+    fi
+
     if [ -z $iscsi_target_port ]; then
         iscsi_target_port=3260
     fi
