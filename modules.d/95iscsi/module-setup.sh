@@ -41,7 +41,7 @@ depends() {
 }
 
 installkernel() {
-    instmods iscsi_tcp iscsi_ibft crc32c
+    instmods iscsi_tcp iscsi_ibft crc32c bnx2i iscsi_boot_sysfs qla4xxx cxgb3i cxgb4i be2iscsi
     iscsi_module_filter() {
         local _iscsifuncs='iscsi_register_transport'
         local _f
