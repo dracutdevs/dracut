@@ -25,6 +25,7 @@ install() {
     inst dcbtool
     inst fipvlan
     inst lldpad
+    inst readlink
 
     mkdir -m 0755 -p "$initdir/var/lib/lldpad"
 
