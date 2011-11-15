@@ -204,7 +204,7 @@ while (($# > 0)); do
         -o|--omit)     push_arg omit_dracutmodules_l "$@" || shift;;
         -d|--drivers)  push_arg drivers_l            "$@" || shift;;
         --filesystems) push_arg filesystems_l        "$@" || shift;;
-        -I|--install)  push_arg install_items        "$@" || shift;;
+        -I|--install)  push_arg install_items_l      "$@" || shift;;
         --fwdir)       push_arg fw_dir_l             "$@" || shift;;
         --fscks)       push_arg fscks_l              "$@" || shift;;
         --nofscks)     nofscks_l="yes";;
@@ -329,6 +329,12 @@ fi
 if (( ${#fscks_l[@]} )); then
     while pop fscks_l val; do
         fscks+=" $val "
+    done
+fi
+
+if (( ${#install_items_l[@]} )); then
+    while pop install_items_l val; do
+        push install_items $val
     done
 fi
 

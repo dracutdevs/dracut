@@ -113,6 +113,14 @@ initramfs.</para>
       </varlistentry>
       <varlistentry>
         <term>
+          <envar>install_items+=&quot;&#160;<replaceable>&lt;file&gt;</replaceable>[ <replaceable>&lt;file&gt;</replaceable>&nbsp;...]&nbsp;&quot;</envar>
+        </term>
+        <listitem>
+          <para>Specify additional files to include in the initramfs, separated by spaces.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
           <envar>do_strip=&quot;<replaceable>{yes|no}</replaceable>&quot;</envar>
         </term>
         <listitem>
