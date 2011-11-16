@@ -45,3 +45,5 @@ info "liveroot was $liveroot, is now $root"
 
 # make sure that init doesn't complain
 [ -z "$root" ] && root="live"
+
+wait_for_dev /dev/mapper/live-rw
