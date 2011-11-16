@@ -40,11 +40,11 @@ install: doc
 	install -m 0755 dracut-functions $(DESTDIR)$(pkglibdir)/dracut-functions
 	install -m 0755 dracut-logger $(DESTDIR)$(pkglibdir)/dracut-logger
 	cp -arx modules.d $(DESTDIR)$(pkglibdir)
-	install -m 0644 dracut.8 $(DESTDIR)$(mandir)/man8
-	install -m 0644 dracut-catimages.8 $(DESTDIR)$(mandir)/man8
-	install -m 0644 dracut-gencmdline.8 $(DESTDIR)$(mandir)/man8
-	install -m 0644 dracut.conf.5 $(DESTDIR)$(mandir)/man5
-	install -m 0644 dracut.kernel.7 $(DESTDIR)$(mandir)/man7
+	install -m 0644 dracut.8 $(DESTDIR)$(mandir)/man8/dracut.8
+	install -m 0644 dracut-catimages.8 $(DESTDIR)$(mandir)/man8/dracut-catimages.8
+	install -m 0644 dracut-gencmdline.8 $(DESTDIR)$(mandir)/man8/dracut-gencmdline.8
+	install -m 0644 dracut.conf.5 $(DESTDIR)$(mandir)/man5/dracut.conf.5
+	install -m 0644 dracut.kernel.7 $(DESTDIR)$(mandir)/man7/dracut.kernel.7
 
 clean:
 	$(RM) *~
