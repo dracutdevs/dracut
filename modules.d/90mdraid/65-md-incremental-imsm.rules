@@ -29,15 +29,6 @@ ENV{DEVTYPE}!="partition", \
 
 RUN+="/sbin/initqueue --timeout --name 50-mdraid_start --onetime --unique /sbin/mdraid_start"
 
-# if rd_MDADMCONF is set, do not assemble incrementally;
-# defer conf-based assembly until the udev queue is settled
-#
-ENV{rd_MDADMCONF}!="?*", GOTO="md_incremental"
-
-RUN+="/sbin/initqueue --settled --onetime --unique /sbin/mdadm_auto"
-
-GOTO="md_end"
-
 #
 # Incrementally build the md array; this will automatically assemble
 # any eventual containers as well (imsm, ddf)
