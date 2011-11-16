@@ -9,21 +9,28 @@ KVERSION=${KVERSION-$(uname -r)}
 
 client_run() {
     echo "CLIENT TEST START: $@"
-    $testdir/run-qemu -hda root.ext2 -hdb disk1 -hdc disk2 -m 256M -nographic \
+    $testdir/run-qemu \
+	-hda $TESTDIR/root.ext2 \
+	-hdb $TESTDIR/disk1 \
+	-hdc $TESTDIR/disk2 \
+	-m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
 	-append "$@ root=LABEL=root rw quiet rd.retry=5 rd.debug console=ttyS0,115200n81 selinux=0 rd.info $DEBUGFAIL" \
-	-initrd initramfs.testing
-    if ! grep -m 1 -q dracut-root-block-success root.ext2; then
+	-initrd $TESTDIR/initramfs.testing
+    if ! grep -m 1 -q dracut-root-block-success $TESTDIR/root.ext2; then
 	echo "CLIENT TEST END: $@ [FAIL]"
 	return 1;
     fi
 
-    sed -i -e 's#dracut-root-block-success#dracut-root-block-xxxxxxx#' root.ext2
+    sed -i -e 's#dracut-root-block-success#dracut-root-block-xxxxxxx#' $TESTDIR/root.ext2
     echo "CLIENT TEST END: $@ [OK]"
     return 0
 }
 
 test_run() {
+    echo "IMSM test does not work anymore"
+    return 1
+
     client_run rd.md.imsm || return 1
     client_run || return 1
     client_run rd.dm=0 || return 1
@@ -37,15 +44,21 @@ test_run() {
 }
 
 test_setup() {
+    echo "IMSM test does not work anymore"
+    return 1
+
     # Create the blank file to use as a root filesystem
-    dd if=/dev/zero of=root.ext2 bs=1M count=1
-    dd if=/dev/zero of=disk1 bs=1M count=80
-    dd if=/dev/zero of=disk2 bs=1M count=80
+    rm -f $TESTDIR/root.ext2
+    rm -f $TESTDIR/disk1
+    rm -f $TESTDIR/disk2
+    dd if=/dev/null of=$TESTDIR/root.ext2 bs=1M seek=1
+    dd if=/dev/null of=$TESTDIR/disk1 bs=1M seek=80
+    dd if=/dev/null of=$TESTDIR/disk2 bs=1M seek=80
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
-	initdir=overlay/source
+	initdir=$TESTDIR/overlay/source
 	. $basedir/dracut-functions
 	dracut_install sh df free ls shutdown poweroff stty cat ps ln ip route \
 	    /lib/terminfo/l/linux mount dmesg ifconfig dhclient mkdir cp ping dhclient
@@ -62,7 +75,7 @@ test_setup() {
 
     # second, install the files needed to make the root filesystem
     (
-	initdir=overlay
+	initdir=$TESTDIR/overlay
 	. $basedir/dracut-functions
 	dracut_install sfdisk mke2fs poweroff cp umount
 	inst_hook initqueue 01 ./create-root.sh
@@ -72,35 +85,37 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    $basedir/dracut -l -i overlay / \
+    $basedir/dracut -l -i $TESTDIR/overlay / \
 	-m "dash lvm mdraid dmraid udev-rules base rootfs-block kernel-modules" \
 	-d "piix ide-gd_mod ata_piix ext2 sd_mod dm-multipath dm-crypt dm-round-robin faulty linear multipath raid0 raid10 raid1 raid456" \
-	-f initramfs.makeroot $KVERSION || return 1
-    rm -rf overlay
+	-f $TESTDIR/initramfs.makeroot $KVERSION || return 1
+    rm -rf $TESTDIR/overlay
     # Invoke KVM and/or QEMU to actually create the target filesystem.
-    $testdir/run-qemu -hda root.ext2 -hdb disk1 -hdc disk2 -m 256M -nographic -net none \
+    $testdir/run-qemu \
+	-hda $TESTDIR/root.ext2 \
+	-hdb $TESTDIR/disk1 \
+	-hdc $TESTDIR/disk2 \
+	-m 256M -nographic -net none \
 	-kernel "/boot/vmlinuz-$kernel" \
 	-append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
-	-initrd initramfs.makeroot  || return 1
-    grep -m 1 -q dracut-root-block-created root.ext2 || return 1
+	-initrd $TESTDIR/initramfs.makeroot  || return 1
+    grep -m 1 -q dracut-root-block-created $TESTDIR/root.ext2 || return 1
     (
-	initdir=overlay
+	initdir=$TESTDIR/overlay
 	. $basedir/dracut-functions
 	dracut_install poweroff shutdown
 	inst_hook emergency 000 ./hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
-    sudo $basedir/dracut -l -i overlay / \
+    sudo $basedir/dracut -l -i $TESTDIR/overlay / \
 	-o "plymouth network" \
 	-a "debug" \
 	-d "piix ide-gd_mod ata_piix ext2 sd_mod" \
-	-f initramfs.testing $KVERSION || return 1
+	-f $TESTDIR/initramfs.testing $KVERSION || return 1
 }
 
 test_cleanup() {
-    rm -fr overlay mnt
-    rm -f root.ext2 initramfs.makeroot initramfs.testing
-    rm -f disk1 disk2
+    return 0
 }
 
 . $testdir/test-functions

@@ -12,14 +12,14 @@ run_server() {
     # Start server first
     echo "MULTINIC TEST SETUP: Starting DHCP/NFS server"
 
-    $testdir/run-qemu -hda server.ext2 -m 256M -nographic \
+    $testdir/run-qemu -hda $TESTDIR/server.ext2 -m 256M -nographic \
 	-net nic,macaddr=52:54:00:12:34:56,model=e1000 \
-	-net socket,listen=127.0.0.1:12345 \
+	-net socket,listen=127.0.0.1:12350 \
 	-serial $SERIAL \
 	-kernel /boot/vmlinuz-$KVERSION \
 	-append "selinux=0 root=/dev/sda rd.debug rd.info  rw quiet console=ttyS0,115200n81" \
-	-initrd initramfs.server -pidfile server.pid -daemonize || return 1
-    sudo chmod 644 server.pid || return 1
+	-initrd $TESTDIR/initramfs.server -pidfile $TESTDIR/server.pid -daemonize || return 1
+    sudo chmod 644 $TESTDIR/server.pid || return 1
 
     # Cleanup the terminal if we have one
     tty -s && stty sane
@@ -39,22 +39,22 @@ client_test() {
     echo "CLIENT TEST START: $test_name"
 
     # Need this so kvm-qemu will boot (needs non-/dev/zero local disk)
-    if ! dd if=/dev/zero of=client.img bs=1M count=1; then
+    if ! dd if=/dev/zero of=$TESTDIR/client.img bs=1M count=1; then
 	echo "Unable to make client sda image" 1>&2
 	return 1
     fi
 
-    $testdir/run-qemu -hda client.img -m 512M -nographic \
+    $testdir/run-qemu -hda $TESTDIR/client.img -m 512M -nographic \
   	-net nic,macaddr=52:54:00:12:34:$mac1,model=e1000 \
   	-net nic,macaddr=52:54:00:12:34:$mac2,model=e1000 \
   	-net nic,macaddr=52:54:00:12:34:$mac3,model=e1000 \
-	-net socket,connect=127.0.0.1:12345 \
+	-net socket,connect=127.0.0.1:12350 \
         -hdc /dev/null \
   	-kernel /boot/vmlinuz-$KVERSION \
   	-append "$cmdline $DEBUGFAIL rd.retry=5 rd.debug rd.info  ro quiet console=ttyS0,115200n81 selinux=0 rd.copystate" \
-  	-initrd initramfs.testing
+  	-initrd $TESTDIR/initramfs.testing
 
-    if [[ $? -ne 0 ]] || ! grep -m 1 -q OK client.img; then
+    if [[ $? -ne 0 ]] || ! grep -m 1 -q OK $TESTDIR/client.img; then
 	echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
 	return 1
     fi
@@ -62,7 +62,7 @@ client_test() {
 
     for i in $check ; do
 	echo $i
-	if ! grep -m 1 -q $i client.img; then
+	if ! grep -m 1 -q $i $TESTDIR/client.img; then
 	    echo "CLIENT TEST END: $test_name [FAILED - BAD IF]"
 	    return 1
 	fi
@@ -122,14 +122,14 @@ test_client() {
 
 test_setup() {
      # Make server root
-     dd if=/dev/zero of=server.ext2 bs=1M count=60
-     mke2fs -F server.ext2
-     mkdir mnt
-     sudo mount -o loop server.ext2 mnt
+     dd if=/dev/null of=$TESTDIR/server.ext2 bs=1M seek=60
+     mke2fs -F $TESTDIR/server.ext2
+     mkdir $TESTDIR/mnt
+     sudo mount -o loop $TESTDIR/server.ext2 $TESTDIR/mnt
 
      kernel=$KVERSION
      (
-     	initdir=mnt
+     	initdir=$TESTDIR/mnt
  	. $basedir/dracut-functions
  	dracut_install sh ls shutdown poweroff stty cat ps ln ip \
  	    /lib/terminfo/l/linux dmesg mkdir cp ping exportfs \
@@ -183,7 +183,7 @@ test_setup() {
      )
 
     # Make client root inside server root
-    initdir=mnt/nfs/client
+    initdir=$TESTDIR/mnt/nfs/client
     mkdir -p $initdir
 
     (
@@ -208,13 +208,13 @@ test_setup() {
 	sudo ldconfig -r "$initdir"
      )
 
-     sudo umount mnt
-     rm -fr mnt
+     sudo umount $TESTDIR/mnt
+     rm -fr $TESTDIR/mnt
 
     # Make an overlay with needed tools for the test harness
     (
- 	initdir=overlay
- 	mkdir overlay
+ 	initdir=$TESTDIR/overlay
+ 	mkdir $TESTDIR/overlay
  	. $basedir/dracut-functions
  	dracut_install poweroff shutdown
  	inst_hook emergency 000 ./hard-off.sh
@@ -222,29 +222,28 @@ test_setup() {
     )
 
     # Make server's dracut image
-    $basedir/dracut -l -i overlay / \
+    $basedir/dracut -l -i $TESTDIR/overlay / \
 	-m "dash udev-rules base rootfs-block debug kernel-modules" \
 	-d "piix ide-gd_mod ata_piix ext2 sd_mod e1000" \
-	-f initramfs.server $KVERSION || return 1
+	-f $TESTDIR/initramfs.server $KVERSION || return 1
 
     # Make client's dracut image
-    $basedir/dracut -l -i overlay / \
+    $basedir/dracut -l -i $TESTDIR/overlay / \
 	-o "plymouth" \
 	-a "debug" \
 	-d "piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfs sunrpc" \
-	-f initramfs.testing $KVERSION || return 1
+	-f $TESTDIR/initramfs.testing $KVERSION || return 1
 }
 
 kill_server() {
-    if [[ -s server.pid ]]; then
-	sudo kill -TERM $(cat server.pid)
-	rm -f server.pid
+    if [[ -s $TESTDIR/server.pid ]]; then
+	sudo kill -TERM $(cat $TESTDIR/server.pid)
+	rm -f $TESTDIR/server.pid
     fi
 }
 
 test_cleanup() {
-    rm -rf mnt overlay
-    rm -f server.ext2 client.img initramfs.server initramfs.testing
+    kill_server
 }
 
 . $testdir/test-functions

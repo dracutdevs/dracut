@@ -5,23 +5,26 @@ KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
 #DEBUGFAIL="rd.shell"
-DISKIMAGE=/var/tmp/TEST-15-BTRFSRAID-root.img
+DISKIMAGE=$TESTDIR/TEST-15-BTRFSRAID-root.img
 test_run() {
-    $testdir/run-qemu -hda $DISKIMAGE -m 256M -nographic \
+    $testdir/run-qemu \
+	-hda $DISKIMAGE \
+	-m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
 	-append "root=LABEL=root rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL" \
-	-initrd initramfs.testing
+	-initrd $TESTDIR/initramfs.testing
     grep -m 1 -q dracut-root-block-success $DISKIMAGE || return 1
 }
 
 test_setup() {
     # Create the blank file to use as a root filesystem
+    rm -f $DISKIMAGE
     dd if=/dev/null of=$DISKIMAGE bs=1M seek=1024
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
-	initdir=overlay/source
+	initdir=$TESTDIR/overlay/source
 	. $basedir/dracut-functions
 	dracut_install sh df free ls shutdown poweroff stty cat ps ln ip route \
 	    /lib/terminfo/l/linux mount dmesg ifconfig dhclient mkdir cp ping dhclient
@@ -37,7 +40,7 @@ test_setup() {
 
     # second, install the files needed to make the root filesystem
     (
-	initdir=overlay
+	initdir=$TESTDIR/overlay
 	. $basedir/dracut-functions
 	dracut_install sfdisk mkfs.btrfs poweroff cp umount
 	inst_hook initqueue 01 ./create-root.sh
@@ -47,36 +50,41 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    $basedir/dracut -l -i overlay / \
+    $basedir/dracut -l -i $TESTDIR/overlay / \
 	-m "dash btrfs udev-rules base rootfs-block kernel-modules" \
 	-d "piix ide-gd_mod ata_piix btrfs sd_mod" \
         --nomdadmconf \
-	-f initramfs.makeroot $KVERSION || return 1
-    rm -rf overlay
+	-f $TESTDIR/initramfs.makeroot $KVERSION || return 1
+
+    rm -rf $TESTDIR/overlay
+
     # Invoke KVM and/or QEMU to actually create the target filesystem.
-    $testdir/run-qemu -hda $DISKIMAGE -m 256M -nographic -net none \
+    $testdir/run-qemu \
+	-hda $DISKIMAGE \
+	-m 256M -nographic -net none \
 	-kernel "/boot/vmlinuz-$kernel" \
 	-append "root=LABEL=root rw quiet console=ttyS0,115200n81 selinux=0" \
-	-initrd initramfs.makeroot  || return 1
+	-initrd $TESTDIR/initramfs.makeroot  || return 1
+
     grep -m 1 -q dracut-root-block-created $DISKIMAGE || return 1
-    (
-	initdir=overlay
+
+   (
+	initdir=$TESTDIR/overlay
 	. $basedir/dracut-functions
 	dracut_install poweroff shutdown
 	inst_hook emergency 000 ./hard-off.sh
 	inst ./cryptroot-ask /sbin/cryptroot-ask
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
-    sudo $basedir/dracut -l -i overlay / \
+    sudo $basedir/dracut -l -i $TESTDIR/overlay / \
 	-o "plymouth network" \
 	-a "debug" \
 	-d "piix ide-gd_mod ata_piix btrfs sd_mod" \
-	-f initramfs.testing $KVERSION || return 1
+	-f $TESTDIR/initramfs.testing $KVERSION || return 1
 }
 
 test_cleanup() {
-    rm -fr overlay mnt
-    rm -f $DISKIMAGE initramfs.makeroot initramfs.testing
+    return 0
 }
 
 . $testdir/test-functions

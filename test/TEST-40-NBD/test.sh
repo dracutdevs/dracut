@@ -14,15 +14,18 @@ run_server() {
     # Start server first
     echo "NBD TEST SETUP: Starting DHCP/NBD server"
 
-    $testdir/run-qemu -hda server.ext2 -hdb nbd.ext2 -hdc encrypted.ext2 \
+    $testdir/run-qemu \
+        -hda $TESTDIR/server.ext2 \
+        -hdb $TESTDIR/nbd.ext2 \
+        -hdc $TESTDIR/encrypted.ext2 \
 	-m 256M -nographic \
 	-net nic,macaddr=52:54:00:12:34:56,model=e1000 \
-	-net socket,listen=127.0.0.1:12345 \
+	-net socket,listen=127.0.0.1:12340 \
 	-serial $SERIAL \
 	-kernel /boot/vmlinuz-$KVERSION \
 	-append "root=/dev/sda rw quiet console=ttyS0,115200n81 selinux=0" \
-	-initrd initramfs.server -pidfile server.pid -daemonize || return 1
-    sudo chmod 644 server.pid || return 1
+	-initrd $TESTDIR/initramfs.server -pidfile $TESTDIR/server.pid -daemonize || return 1
+    sudo chmod 644 $TESTDIR/server.pid || return 1
 
     # Cleanup the terminal if we have one
     tty -s && stty sane
@@ -45,25 +48,27 @@ client_test() {
     echo "CLIENT TEST START: $test_name"
 
     # Clear out the flags for each test
-    if ! dd if=/dev/zero of=flag.img bs=1M count=1; then
+    if ! dd if=/dev/zero of=$TESTDIR/flag.img bs=1M count=1; then
 	echo "Unable to make client sda image" 1>&2
 	return 1
     fi
 
-    $testdir/run-qemu -hda flag.img -m 256M -nographic \
+    $testdir/run-qemu \
+        -hda $TESTDIR/flag.img \
+        -m 256M -nographic \
 	-net nic,macaddr=$mac,model=e1000 \
-	-net socket,connect=127.0.0.1:12345 \
+	-net socket,connect=127.0.0.1:12340 \
 	-kernel /boot/vmlinuz-$KVERSION \
 	-append "$cmdline $DEBUGFAIL rd.debug rd.info  ro quiet console=ttyS0,115200n81 selinux=0" \
-	-initrd initramfs.testing
+	-initrd $TESTDIR/initramfs.testing
 
-    if [[ $? -ne 0 ]] || ! grep -m 1 -q nbd-OK flag.img; then
+    if [[ $? -ne 0 ]] || ! grep -m 1 -q nbd-OK $TESTDIR/flag.img; then
 	echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
 	return 1
     fi
 
     # nbdinfo=( fstype fsoptions )
-    nbdinfo=($(awk '{print $2, $3; exit}' flag.img))
+    nbdinfo=($(awk '{print $2, $3; exit}' $TESTDIR/flag.img))
 
     if [[ "${nbdinfo[0]}" != "$fstype" ]]; then
 	echo "CLIENT TEST END: $test_name [FAILED - WRONG FS TYPE]"
@@ -171,21 +176,21 @@ client_run() {
 	"root=/dev/dracut/root netroot=dhcp" || return 1
 
     if [[ -s server.pid ]]; then
-	sudo kill -TERM $(cat server.pid)
-	rm -f server.pid
+	sudo kill -TERM $(cat $TESTDIR/server.pid)
+	rm -f $TESTDIR/server.pid
     fi
 
 }
 
 make_encrypted_root() {
     # Create the blank file to use as a root filesystem
-    dd if=/dev/zero of=encrypted.ext2 bs=1M count=20
-    dd if=/dev/zero of=flag.img bs=1M count=1
+    dd if=/dev/null of=$TESTDIR/encrypted.ext2 bs=1M seek=20
+    dd if=/dev/null of=$TESTDIR/flag.img bs=1M seek=1
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
-	initdir=overlay/source
+	initdir=$TESTDIR/overlay/source
 	. $basedir/dracut-functions
 	dracut_install sh df free ls shutdown poweroff stty cat ps ln ip \
 	    /lib/terminfo/l/linux mount dmesg mkdir cp ping
@@ -196,7 +201,7 @@ make_encrypted_root() {
 
     # second, install the files needed to make the root filesystem
     (
-	initdir=overlay
+	initdir=$TESTDIR/overlay
 	. $basedir/dracut-functions
 	dracut_install mke2fs poweroff cp umount tune2fs
 	inst_hook initqueue 01 ./create-root.sh
@@ -206,30 +211,33 @@ make_encrypted_root() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    $basedir/dracut -l -i overlay / \
+    $basedir/dracut -l -i $TESTDIR/overlay / \
 	-m "dash crypt lvm mdraid udev-rules base rootfs-block kernel-modules" \
 	-d "piix ide-gd_mod ata_piix ext2 ext3 sd_mod" \
-	-f initramfs.makeroot $KVERSION || return 1
-    rm -rf overlay
+	-f $TESTDIR/initramfs.makeroot $KVERSION || return 1
+    rm -rf $TESTDIR/overlay
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
-    $testdir/run-qemu -hda flag.img -hdb encrypted.ext2 -m 256M \
+    $testdir/run-qemu \
+        -hda $TESTDIR/flag.img \
+        -hdb $TESTDIR/encrypted.ext2 \
+        -m 256M \
 	-nographic -net none \
 	-kernel "/boot/vmlinuz-$kernel" \
 	-append "root=/dev/dracut/root rw quiet console=ttyS0,115200n81 selinux=0" \
-	-initrd initramfs.makeroot  || return 1
-    grep -m 1 -q dracut-root-block-created flag.img || return 1
+	-initrd $TESTDIR/initramfs.makeroot  || return 1
+    grep -m 1 -q dracut-root-block-created $TESTDIR/flag.img || return 1
 }
 
 make_client_root() {
-    dd if=/dev/zero of=nbd.ext2 bs=1M count=30
-    mke2fs -F -j nbd.ext2
-    mkdir mnt
-    sudo mount -o loop nbd.ext2 mnt
+    dd if=/dev/null of=$TESTDIR/nbd.ext2 bs=1M seek=30
+    mke2fs -F -j $TESTDIR/nbd.ext2
+    mkdir $TESTDIR/mnt
+    sudo mount -o loop $TESTDIR/nbd.ext2 $TESTDIR/mnt
 
     kernel=$KVERSION
     (
-	initdir=mnt
+	initdir=$TESTDIR/mnt
 	. $basedir/dracut-functions
 	dracut_install sh ls shutdown poweroff stty cat ps ln ip \
 	    /lib/terminfo/l/linux dmesg mkdir cp ping
@@ -249,19 +257,19 @@ make_client_root() {
 	sudo ldconfig -r "$initdir"
     )
 
-    sudo umount mnt
-    rm -fr mnt
+    sudo umount $TESTDIR/mnt
+    rm -fr $TESTDIR/mnt
 }
 
 make_server_root() {
-    dd if=/dev/zero of=server.ext2 bs=1M count=30
-    mke2fs -F server.ext2
-    mkdir mnt
-    sudo mount -o loop server.ext2 mnt
+    dd if=/dev/null of=$TESTDIR/server.ext2 bs=1M seek=30
+    mke2fs -F $TESTDIR/server.ext2
+    mkdir $TESTDIR/mnt
+    sudo mount -o loop $TESTDIR/server.ext2 $TESTDIR/mnt
 
     kernel=$KVERSION
     (
-	initdir=mnt
+	initdir=$TESTDIR/mnt
 	. $basedir/dracut-functions
 	dracut_install sh ls shutdown poweroff stty cat ps ln ip \
 	    /lib/terminfo/l/linux dmesg mkdir cp ping grep \
@@ -286,8 +294,8 @@ make_server_root() {
 	sudo ldconfig -r "$initdir"
     )
 
-    sudo umount mnt
-    rm -fr mnt
+    sudo umount $TESTDIR/mnt
+    rm -fr $TESTDIR/mnt
 }
 
 test_setup() {
@@ -300,7 +308,7 @@ test_setup() {
 
     # Make the test image
     (
-	initdir=overlay
+	initdir=$TESTDIR/overlay
 	. $basedir/dracut-functions
 	dracut_install poweroff shutdown
 	inst_hook emergency 000 ./hard-off.sh
@@ -308,30 +316,27 @@ test_setup() {
 	inst ./cryptroot-ask /sbin/cryptroot-ask
     )
 
-    sudo $basedir/dracut -l -i overlay / \
+    sudo $basedir/dracut -l -i $TESTDIR/overlay / \
 	-m "dash udev-rules rootfs-block base debug kernel-modules" \
 	-d "piix ide-gd_mod ata_piix ext2 ext3 sd_mod e1000" \
-	-f initramfs.server $KVERSION || return 1
+	-f $TESTDIR/initramfs.server $KVERSION || return 1
 
-    sudo $basedir/dracut -l -i overlay / \
+    sudo $basedir/dracut -l -i $TESTDIR/overlay / \
 	-o "plymouth" \
 	-a "debug" \
 	-d "piix ide-gd_mod ata_piix ext2 ext3 sd_mod e1000" \
-	-f initramfs.testing $KVERSION || return 1
+	-f $TESTDIR/initramfs.testing $KVERSION || return 1
 }
 
 kill_server() {
-    if [[ -s server.pid ]]; then
-	sudo kill -TERM $(cat server.pid)
-	rm -f server.pid
+    if [[ -s $TESTDIR/server.pid ]]; then
+	sudo kill -TERM $(cat $TESTDIR/server.pid)
+	rm -f $TESTDIR/server.pid
     fi
 }
 
 test_cleanup() {
     kill_server
-    rm -fr overlay mnt
-    rm -f flag.img server.ext2 nbd.ext2 encrypted.ext2
-    rm -f initramfs.server initramfs.testing initramfs.makeroot
 }
 
 . $testdir/test-functions

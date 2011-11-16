@@ -1,6 +1,12 @@
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export PATH
 
+[[ -e .testdir ]] && . .testdir
+if [[ -z "$TESTDIR" ]] || [[ ! -d "$TESTDIR" ]]; then
+   TESTDIR=$(mktemp -d -t dracut-test.XXXXXX)
+fi
+echo "TESTDIR=\"$TESTDIR\"" > .testdir
+export TESTDIR
 
 while (($# > 0)); do
     case $1 in
@@ -15,6 +21,8 @@ while (($# > 0)); do
         --clean)
 	    echo "TEST CLEANUP: $TEST_DESCRIPTION"
 	    test_cleanup
+	    rm -fr "$TESTDIR"
+	    rm -f .testdir
 	    exit $?;;
         --all)
 	    echo -n "TEST: $TEST_DESCRIPTION ";
@@ -22,6 +30,8 @@ while (($# > 0)); do
 		test_setup && test_run
 		ret=$?
 		test_cleanup
+		rm -fr "$TESTDIR"
+		rm -f .testdir
 		exit $ret
 	    ) </dev/null >test.log 2>&1
 	    ret=$?

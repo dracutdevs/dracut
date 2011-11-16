@@ -30,8 +30,18 @@ import imgcreate
 from imgcreate.fs import makedirs
 
 class myLiveImageCreator(imgcreate.x86LiveImageCreator):
+    def __init__(self, ks, name, fslabel=None, releasever=None, tmpdir="/tmp",
+                 title="Linux", product="Linux"):
+
+        imgcreate.x86LiveImageCreator.__init__(self, ks, name,
+                                               fslabel=fslabel,
+                                               releasever=releasever,
+                                               tmpdir=tmpdir)
+
+        #self._outdir=os.getenv("TESTDIR", ".")
+
     def install(self, repo_urls = {}):
-        copy_tree("root-source", self._instroot)
+        copy_tree(os.environ.get("TESTDIR", ".") + "/root-source", self._instroot)
 
     def configure(self):
         self._create_bootconfig()
@@ -173,7 +183,7 @@ def main():
             print "----------------------------------"
             creator.launch_shell()
         creator.unmount()
-        creator.package()
+        creator.package(os.environ.get("TESTDIR", "."))
     except imgcreate.CreatorError, e:
         logging.error(u"Error creating Live CD : %s" % e)
         return 1
