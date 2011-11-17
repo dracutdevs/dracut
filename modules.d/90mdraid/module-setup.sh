@@ -83,6 +83,7 @@ install() {
     inst "$moddir/mdraid_start.sh" /sbin/mdraid_start
     inst "$moddir/mdadm_auto.sh" /sbin/mdadm_auto
     inst_hook pre-trigger 30 "$moddir/parse-md.sh"
+    inst_hook pre-mount 10 "$moddir/mdraid-waitclean.sh"
     inst "$moddir/mdraid-cleanup.sh" /sbin/mdraid-cleanup
     inst_hook shutdown 30 "$moddir/md-shutdown.sh"
 }
