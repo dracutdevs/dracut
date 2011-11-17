@@ -49,6 +49,7 @@ while(<>) {
 	print $_;
 	$num=1;
 	for(@patches) {
+	    s/.*\///g;
 	    print "Patch$num: $_";
 	    $num++;
 	}
