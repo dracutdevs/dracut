@@ -179,7 +179,7 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 make install DESTDIR=$RPM_BUILD_ROOT \
      libdir=%{_prefix}/lib \
-     sbindir=/sbin \
+     bindir=%{_bindir} \
      sysconfdir=/etc mandir=%{_mandir}
 
 echo %{name}-%{version}-%{release} > $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/10rpmversion/dracut-version
@@ -208,8 +208,8 @@ install -m 0644 dracut.conf.d/suse.conf.example   $RPM_BUILD_ROOT/etc/dracut.con
 %endif
 
 %if 0%{?fedora} <= 12 && 0%{?rhel} < 6 && 0%{?suse_version} <= 9999
-rm $RPM_BUILD_ROOT/sbin/mkinitrd
-rm $RPM_BUILD_ROOT/sbin/lsinitrd
+rm $RPM_BUILD_ROOT%{_bindir}/mkinitrd
+rm $RPM_BUILD_ROOT%{_bindir}/lsinitrd
 %endif
 
 mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
@@ -221,10 +221,10 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root,0755)
 %doc README HACKING TODO COPYING AUTHORS NEWS dracut.html dracut.png dracut.svg
-/sbin/dracut
+%{_bindir}/dracut
 %if 0%{?fedora} > 12 || 0%{?rhel} >= 6 || 0%{?suse_version} > 9999
-/sbin/mkinitrd
-/sbin/lsinitrd
+%{_bindir}/mkinitrd
+%{_bindir}/lsinitrd
 %endif
 %dir %{dracutlibdir}
 %dir %{dracutlibdir}/modules.d
@@ -309,8 +309,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,0755)
 %{_mandir}/man8/dracut-gencmdline.8*
 %{_mandir}/man8/dracut-catimages.8*
-/sbin/dracut-gencmdline
-/sbin/dracut-catimages
+%{_bindir}/dracut-gencmdline
+%{_bindir}/dracut-catimages
 %dir /boot/dracut
 %dir /var/lib/dracut
 %dir /var/lib/dracut/overlay

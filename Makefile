@@ -6,7 +6,7 @@ libdir ?= ${prefix}/lib
 datadir ?= ${prefix}/share
 pkglibdir ?= ${libdir}/dracut
 sysconfdir ?= ${prefix}/etc
-sbindir ?= ${prefix}/sbin
+bindir ?= ${prefix}/sbin
 mandir ?= ${prefix}/share/man
 
 manpages = dracut.8 dracut.kernel.7 dracut.conf.5 dracut-catimages.8  dracut-gencmdline.8
@@ -27,15 +27,15 @@ dracut.html: dracut.xml $(manpages)
 
 install: doc
 	mkdir -p $(DESTDIR)$(pkglibdir)
-	mkdir -p $(DESTDIR)$(sbindir)
+	mkdir -p $(DESTDIR)$(bindir)
 	mkdir -p $(DESTDIR)$(sysconfdir)
 	mkdir -p $(DESTDIR)$(pkglibdir)/modules.d
 	mkdir -p $(DESTDIR)$(mandir)/man{5,7,8}
-	install -m 0755 dracut $(DESTDIR)$(sbindir)/dracut
-	install -m 0755 dracut-gencmdline $(DESTDIR)$(sbindir)/dracut-gencmdline
-	install -m 0755 dracut-catimages $(DESTDIR)$(sbindir)/dracut-catimages
-	install -m 0755 mkinitrd-dracut.sh $(DESTDIR)$(sbindir)/mkinitrd
-	install -m 0755 lsinitrd $(DESTDIR)$(sbindir)/lsinitrd
+	install -m 0755 dracut $(DESTDIR)$(bindir)/dracut
+	install -m 0755 dracut-gencmdline $(DESTDIR)$(bindir)/dracut-gencmdline
+	install -m 0755 dracut-catimages $(DESTDIR)$(bindir)/dracut-catimages
+	install -m 0755 mkinitrd-dracut.sh $(DESTDIR)$(bindir)/mkinitrd
+	install -m 0755 lsinitrd $(DESTDIR)$(bindir)/lsinitrd
 	install -m 0644 dracut.conf $(DESTDIR)$(sysconfdir)/dracut.conf
 	mkdir -p $(DESTDIR)$(sysconfdir)/dracut.conf.d
 	install -m 0755 dracut-functions $(DESTDIR)$(pkglibdir)/dracut-functions
