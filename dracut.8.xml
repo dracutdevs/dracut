@@ -112,7 +112,7 @@ For a complete list of kernel command line options see
             <para>specify a space-separated list of dracut modules to call
 when building the initramfs.
 Modules are located in
-<filename>/usr/share/dracut/modules.d</filename>. This parameter can be specified multiple times.</para>
+<filename>/usr/lib/dracut/modules.d</filename>. This parameter can be specified multiple times.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -369,7 +369,7 @@ Default:
           <listitem>
             <para>activates the local mode. dracut will use modules from the current working
 directory instead of the system-wide installed modules in
-<filename>/usr/share/dracut/modules.d</filename>.
+<filename>/usr/lib/dracut/modules.d</filename>.
 This is useful when running dracut from a git checkout.</para>
           </listitem>
         </varlistentry>

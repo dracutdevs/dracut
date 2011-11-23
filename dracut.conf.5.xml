@@ -46,7 +46,7 @@ overwrite parameters set in <filename>/etc/dracut.conf</filename>. Each line spe
         <listitem>
           <para>Specify a space-separated list of dracut modules to
 call when building the initramfs. Modules are located
-in <filename>/usr/share/dracut/modules.d</filename>.</para>
+in <filename>/usr/lib/dracut/modules.d</filename>.</para>
         </listitem>
       </varlistentry>
       <varlistentry>

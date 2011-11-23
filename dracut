@@ -35,7 +35,7 @@ Creates initial ramdisk images for preloading modules
   -f, --force           Overwrite existing initramfs file.
   -m, --modules [LIST]  Specify a space-separated list of dracut modules to
                          call when building the initramfs. Modules are located
-                         in /usr/share/dracut/modules.d.
+                         in /usr/lib/dracut/modules.d.
   -o, --omit [LIST]     Omit a space-separated list of dracut modules.
   -a, --add [LIST]      Add a space-separated list of dracut modules.
   -d, --drivers [LIST]  Specify a space-separated list of kernel modules to
@@ -80,7 +80,7 @@ Creates initial ramdisk images for preloading modules
                          from. Default: /etc/dracut.conf.d
   -l, --local           Local mode. Use modules from the current working
                          directory instead of the system-wide installed in
-                         /usr/share/dracut/modules.d.
+                         /usr/lib/dracut/modules.d.
                          Useful when running dracut from a git checkout.
   -H, --hostonly        Host-Only mode: Install only what is needed for
                          booting the local host instead of a generic host.
@@ -280,7 +280,7 @@ unset LD_LIBRARY_PATH
     debug=yes
 }
 
-[[ $dracutbasedir ]] || dracutbasedir=/usr/share/dracut
+[[ $dracutbasedir ]] || dracutbasedir=/usr/lib/dracut
 
 [[ $allowlocal && -f "$(readlink -f ${0%/*})/dracut-functions" ]] && \
     dracutbasedir="$(readlink -f ${0%/*})"
@@ -388,7 +388,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $use_fstab_l ]] && use_fstab=$use_fstab_l
 [[ $mdadmconf_l ]] && mdadmconf=$mdadmconf_l
 [[ $lvmconf_l ]] && lvmconf=$lvmconf_l
-[[ $dracutbasedir ]] || dracutbasedir=/usr/share/dracut
+[[ $dracutbasedir ]] || dracutbasedir=/usr/lib/dracut
 [[ $fw_dir ]] || fw_dir="/lib/firmware/updates /lib/firmware"
 [[ $do_strip ]] || do_strip=no
 [[ $compress_l ]] && compress=$compress_l
