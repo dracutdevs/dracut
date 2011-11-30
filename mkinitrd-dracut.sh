@@ -8,6 +8,7 @@ usage () {
 
     $cmd "usage: ${0##*/} [--version] [--help] [-v] [-f] [--preload <module>]"
     $cmd "       [--image-version] [--with=<module>]"
+    $cmd "       [--nocompress]"
     $cmd "       <initrd-image> <kernel-version>"
     $cmd ""
     $cmd "       (ex: ${0##*/} /boot/initramfs-$kver.img $kver)"
