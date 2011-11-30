@@ -47,6 +47,8 @@ The following variables are used by i18n install script and at initramfs
 runtime:
 
     KEYMAP - keyboard translation table loaded by loadkeys
+    KEYTABLE - base name for keyboard translation table; if UNICODE is
+    true, Unicode version will be loaded. Overrides KEYMAP.
     EXT_KEYMAPS - list of extra keymaps to bo loaded (sep. by space)
     UNICODE - boolean, indicating UTF-8 mode
     FONT - console font

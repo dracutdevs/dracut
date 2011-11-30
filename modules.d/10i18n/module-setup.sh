@@ -110,8 +110,38 @@ install() {
         [ -f $I18N_CONF ] && . $I18N_CONF
         [ -f $VCONFIG_CONF ] && . $VCONFIG_CONF
 
+        shopt -q -s nocasematch
+        if [[ ${UNICODE} ]]
+        then
+            if [[ ${UNICODE} = YES || ${UNICODE} = 1 ]]
+            then
+                UNICODE=1
+            elif [[ ${UNICODE} = NO || ${UNICODE} = 0 ]]
+            then
+                UNICODE=0
+            else
+                UNICODE=''
+            fi
+        fi
+        if [[ ! ${UNICODE} && ${LANG} =~ .*\.UTF-?8 ]]
+        then
+            UNICODE=1
+        fi
+        shopt -q -u nocasematch
+
         # Gentoo user may have KEYMAP set to something like "-u pl2",
         KEYMAP=${KEYMAP#-* }
+
+        # KEYTABLE is a bit special - it defines base keymap name and UNICODE
+        # determines whether non-UNICODE or UNICODE version is used
+
+        if [[ ${KEYTABLE} ]]; then
+           if [[ ${UNICODE} == 1 ]]; then
+               [[ ${KEYTABLE} =~ .*\.uni.* ]] || KEYTABLE=${KEYTABLE%.map*}.uni
+           fi
+           KEYMAP=${KEYTABLE}
+        fi
+
         # I'm not sure of the purpose of UNIKEYMAP and GRP_TOGGLE.  They were in
         # original redhat-i18n module.  Anyway it won't hurt.
         EXT_KEYMAPS+=\ ${UNIKEYMAP}\ ${GRP_TOGGLE}
@@ -149,25 +179,6 @@ install() {
             FONT_UNIMAP=${FONT_UNIMAP%.uni}
             inst_simple ${kbddir}/unimaps/${FONT_UNIMAP}.uni
         fi
-
-        shopt -q -s nocasematch
-        if [[ ${UNICODE} ]]
-        then
-            if [[ ${UNICODE} = YES || ${UNICODE} = 1 ]]
-            then
-                UNICODE=1
-            elif [[ ${UNICODE} = NO || ${UNICODE} = 0 ]]
-            then
-                UNICODE=0
-            else
-                UNICODE=''
-            fi
-        fi
-        if [[ ! ${UNICODE} && ${LANG} =~ .*\.UTF-?8 ]]
-        then
-            UNICODE=1
-        fi
-        shopt -q -u nocasematch
 
         mksubdirs ${initdir}${I18N_CONF}
         mksubdirs ${initdir}${VCONFIG_CONF}
