@@ -100,43 +100,6 @@ test_dev() {
     return $ret
 }
 
-# Get kernel name for given device.  Device may be the name too (then the same
-# is returned), a symlink (full path), UUID (prefixed with "UUID=") or label
-# (prefixed with "LABEL=").  If just a beginning of the UUID is specified or
-# even an empty, function prints all device names which UUIDs match - every in
-# single line.
-#
-# NOTICE: The name starts with "/dev/".
-#
-# Example:
-#   devnames UUID=123
-# May print:
-#   /dev/dm-1
-#   /dev/sdb1
-#   /dev/sdf3
-devnames() {
-    local dev="$1"; local d; local names
-
-    case "$dev" in
-    UUID=*)
-        dev="$(foreach_uuid_until '! blkid -U $___' "${dev#UUID=}")" \
-            && return 255
-        [ -z "$dev" ] && return 255
-        ;;
-    LABEL=*) dev="$(blkid -L "${dev#LABEL=}")" || return 255 ;;
-    /dev/?*) ;;
-    *) return 255 ;;
-    esac
-
-    for d in $dev; do
-        names="$names
-$(readlink -e -q "$d")" || return 255
-    done
-
-    echo "${names#
-}"
-}
-
 # match_dev devpattern dev
 #
 # Returns true if 'dev' matches 'devpattern'.  Both 'devpattern' and 'dev' are
