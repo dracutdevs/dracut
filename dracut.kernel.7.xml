@@ -359,6 +359,14 @@ This parameter can be specified multiple times.</para>
         </varlistentry>
         <varlistentry>
           <term>
+            <envar>rd.md.waitclean</envar>=1
+          </term>
+          <listitem>
+            <para>wait for any resync, recovery, or reshape activity to finish before continuing</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
             <envar>rd.md.uuid=<replaceable>&lt;md raid uuid&gt;</replaceable></envar>
           </term>
           <listitem>
