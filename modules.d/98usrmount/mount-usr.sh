@@ -17,7 +17,7 @@ mount_usr()
         fi
     done < "$NEWROOT/etc/fstab" >> /etc/fstab
 
-    if [ "x$__usr_found" != "x" ]; then
+    if [ "x$_usr_found" != "x" ]; then
         # we have to mount /usr
         fsck_single "$_dev" "$_fs" "$_opts"
         _ret=$?
