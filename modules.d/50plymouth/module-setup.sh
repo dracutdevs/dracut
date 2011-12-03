@@ -14,7 +14,17 @@ installkernel() {
     local _modname
     # Include KMS capable drm drivers
     for _modname in $(find "$srcmods/kernel/drivers/gpu/drm" "$srcmods/extra" \( -name '*.ko' -o -name '*.ko.gz' \) 2>/dev/null); do
-        zgrep -q drm_crtc_init  $_modname && instmods $_modname
+        if zgrep -q drm_crtc_init  $_modname; then
+            # if the hardware is present, include module even if it is not currently loaded,
+            # as we could e.g. be in the installer; nokmsboot boot parameter will disable
+            # loading of the driver if needed
+            if [[ $hostonly ]] && modinfo -F alias $_modname | sed -e 's,\?,\.,g' -e 's,\*,\.\*,g' \
+                                  | grep -qxf - /sys/bus/pci/devices/*/modalias; then
+                hostonly='' instmods $_modname
+                continue
+            fi
+            instmods $_modname
+        fi
     done
 }
 
