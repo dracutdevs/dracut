@@ -62,6 +62,11 @@ fsck_able() {
             _drv="_drv=none fsck_drv_btrfs" &&
             return 0
             ;;
+        nfs*)
+            # nfs can be a nop, returning success
+            _drv="_drv=none :" &&
+            return 0
+            ;;
         *)
             type fsck >/dev/null 2>&1 &&
             _drv="_drv=fsck fsck_drv_std" &&
