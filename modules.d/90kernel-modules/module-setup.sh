@@ -50,7 +50,11 @@ installkernel() {
                 rm -fr ${initdir}/lib/modules/*/kernel/fs/ocfs2
             fi
         else
-            hostonly='' instmods $(get_fs_type "/dev/block/$(find_root_block_device)")
+            inst_fs() {
+                [[ $2 ]] || return 1
+                hostonly='' instmods $2
+            }
+            for_each_host_dev_fs inst_fs
         fi
     else
         hostonly='' instmods $drivers

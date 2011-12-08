@@ -11,6 +11,6 @@ depends() {
 }
 
 install() {
-    dracut_install /etc/fstab.sys
+    inst /etc/fstab.sys /etc/fstab
     inst_hook pre-pivot 00 "$moddir/mount-sys.sh"
 }

@@ -11,14 +11,14 @@ check() {
     . $dracutfunctions
     [[ $debug ]] && set -x
 
-    is_btrfs() { get_fs_type /dev/block/$1 | grep -q btrfs; }
-
-    if [[ $hostonly ]]; then
-        _rootdev=$(find_root_block_device)
-        if [[ $_rootdev ]]; then
-            is_btrfs "$_rootdev" || return 1
-        fi
-    fi
+    [[ $hostonly ]] && {
+        local _found
+        for fs in $host_fs_types; do
+            [[ "$fs" = "|btrfs" ]] && _found="1"
+        done
+        [[ $_found ]] || return 1
+        unset _found
+    }
 
     return 0
 }

@@ -10,18 +10,38 @@ check() {
     . $dracutfunctions
     [[ $debug ]] && set -x
 
-    is_mdraid() { [[ -d "/sys/dev/block/$1/md" ]]; }
+    check_mdraid() {
+        local dev=$1 fs=$2 holder DEVPATH MD_UUID
+        [[ "$fs" = "linux_raid_member" ]] && continue
+        [[ "$fs" = "${fs%%_raid_member}" ]] && continue
+
+        DEVPATH=$(udevadm info --query=property --name=$dev \
+            | while read line; do
+                [[ ${line#DEVPATH} = $line ]] && continue
+                eval "$line"
+                echo $DEVPATH
+                break
+                done)
+
+        for holder in /sys/$DEVPATH/holders/*; do
+            [[ -e $holder ]] || continue
+            MD_UUID=$(udevadm info --query=property --path=$holder \
+                | while read line; do
+                    [[ ${line#MD_UUID} = $line ]] && continue
+                    eval "$line"
+                    echo $MD_UUID
+                    break
+                    done)
+        done
+
+        [[ ${MD_UUID} ]] || continue
+        echo " rd.md.uuid=${MD_UUID} " >> "${initdir}/etc/cmdline.d/90mdraid.conf"
+    }
 
     [[ $hostonly ]] && {
-        _rootdev=$(find_root_block_device)
-        if [[ $_rootdev ]]; then
-            # root lives on a block device, so we can be more precise about
-            # hostonly checking
-            check_block_and_slaves is_mdraid "$_rootdev" || return 1
-        else
-            # root is not on a block device, use the shotgun approach
-            blkid | egrep -q '(linux|isw|ddf)_raid' || return 1
-        fi
+        [[ -d "${initdir}/etc/cmdline.d" ]] || mkdir -p "${initdir}/etc/cmdline.d"
+        for_each_host_dev_fs check_mdraid
+        [[ -f "${initdir}/etc/cmdline.d/90mdraid.conf" ]] || return 1
     }
 
     return 0

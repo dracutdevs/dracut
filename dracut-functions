@@ -177,6 +177,14 @@ get_fs_uuid() (
     echo $ID_FS_UUID
 )
 
+
+get_maj_min() {
+    local _dev
+    _dev=$(stat -c '$((0x%T)):$((0x%t))' "$1" 2>/dev/null)
+    _dev=$(eval "echo $_dev")
+    echo $_dev
+}
+
 find_block_device() {
     local _x _mpt _majmin _dev _fs _maj _min
     if [[ $use_fstab != yes ]]; then
@@ -186,11 +194,8 @@ find_block_device() {
             [[ $_fs = nfs3 ]] && { echo $_dev; return 0;}
             [[ $_fs = nfs4 ]] && { echo $_dev; return 0;}
             [[ $_fs = btrfs ]] && {
-                ls -nLl "$_dev" | {
-                    read _x _x _x _x _maj _min _x
-                    _maj=${_maj//,/}
-                    echo $_maj:$_min
-                } && return 0
+                get_maj_min $_dev
+                return 0;
             }
             if [[ ${_majmin#0:} = $_majmin ]]; then
                 echo $_majmin
@@ -238,6 +243,22 @@ find_dev_fstype() {
 
 # finds the major:minor of the block device backing the root filesystem.
 find_root_block_device() { find_block_device /; }
+
+for_each_host_dev_fs()
+{
+    local _func="$1"
+    for f in ${host_fs_types[@]}; do
+        OLDIFS="$IFS"
+        IFS="|"
+        set -- $f
+        IFS="$OLDIFS"
+        dev=$1
+        [[ -b /dev/block/$dev ]] && dev="/dev/block/$dev"
+        [[ -b $dev ]] || continue
+        fs="$2"
+        $_func $dev $fs
+    done
+}
 
 # Walk all the slave relationships for a given block device.
 # Stop when our helper function returns success

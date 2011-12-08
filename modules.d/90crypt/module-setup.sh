@@ -9,18 +9,24 @@ check() {
 
     . $dracutfunctions
 
-    is_crypt() { [[ $(get_fs_type /dev/block/$1) = crypto_LUKS ]]; }
+    check_crypt() {
+        local dev=$1 fs=$2
+        [[ $fs = "crypto_LUKS" ]] || continue
+        ID_FS_UUID=$(udevadm info --query=property --name=$dev \
+            | while read line; do
+                [[ ${line#ID_FS_UUID} = $line ]] && continue
+                eval "$line"
+                echo $ID_FS_UUID
+                break
+                done)
+        [[ ${ID_FS_UUID} ]] || continue
+        echo " rd.luks.uuid=${ID_FS_UUID} " >> "${initdir}/etc/cmdline.d/90crypt.conf"
+    }
 
     [[ $hostonly ]] && {
-        _rootdev=$(find_root_block_device)
-        if [[ $_rootdev ]]; then
-            # root lives on a block device, so we can be more precise about
-            # hostonly checking
-            check_block_and_slaves is_crypt "$_rootdev" || return 1
-        else
-            # root is not on a block device, use the shotgun approach
-            blkid | grep -q crypto\?_LUKS || return 1
-        fi
+        [[ -d "${initdir}/etc/cmdline.d" ]] || mkdir -p "${initdir}/etc/cmdline.d"
+        for_each_host_dev_fs check_crypt
+        [ -f "${initdir}/etc/cmdline.d/90crypt.conf" ] || return 1
     }
 
     return 0

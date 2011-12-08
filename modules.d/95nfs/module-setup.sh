@@ -3,13 +3,19 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 check() {
-    # If hostonly was requested, fail the check if we are not actually
-    # booting from root.
-    [ $hostonly ] && ! egrep -q '/ nfs[34 ]' /proc/mounts && return 1
-
     # If our prerequisites are not met, fail anyways.
     type -P rpcbind >/dev/null || type -P portmap >/dev/null || return 1
     type -P rpc.statd mount.nfs mount.nfs4 umount >/dev/null || return 1
+
+    [[ $hostonly ]] && {
+        for fs in ${host_fs_types[@]}; do
+            strstr "$fs" "|nfs"  && return 0
+            strstr "$fs" "|nfs3" && return 0
+            strstr "$fs" "|nfs4" && return 0
+        done
+        return 255
+    }
+
     return 0
 }
 

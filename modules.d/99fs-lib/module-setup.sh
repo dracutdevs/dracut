@@ -10,6 +10,32 @@ depends() {
     return 0
 }
 
+
+echo_fs_helper() {
+    local dev=$1 fs=$2
+    case "$fs" in
+        xfs)
+            echo -n " xfs_db xfs_repair xfs_check "
+            ;;
+        ext?)
+            echo -n " e2fsck "
+            ;;
+        jfs)
+            echo -n " jfs_fsck "
+            ;;
+        reiserfs)
+            echo -n " reiserfsck "
+            ;;
+        btrfs)
+            echo -n " btrfsck "
+            ;;
+        *)
+            [[ -x fsck.$fs ]] && echo -n " fsck.$fs "
+            ;;
+    esac
+}
+
+
 install() {
     local _helpers
 
@@ -25,33 +51,8 @@ install() {
             e2fsck jfs_fsck reiserfsck btrfsck
         "
         if [[ $hostonly ]]; then
-            print_fs_type() { get_fs_type /dev/block/$1; }
-            _rootdev=$(find_root_block_device)
-            if [[ $_rootdev ]]; then
-                _helpers="umount mount "
-                for fs in $(check_block_and_slaves print_fs_type  "$_rootdev"); do
-                    case "$fs" in
-                        xfs)
-                            _helpers+=" xfs_db xfs_repair xfs_check "
-                            ;;
-                        ext?)
-                            _helpers+=" e2fsck "
-                            ;;
-                        jfs)
-                            _helpers+=" jfs_fsck "
-                            ;;
-                        reiserfs)
-                            _helpers+=" reiserfsck "
-                            ;;
-                        btrfs)
-                            _helpers+=" btrfsck "
-                            ;;
-                        *)
-                            [[ -x fsck.$fs ]] && _helpers+= " fsck.$fs "
-                            ;;
-                    esac
-                done
-            fi
+            _helpers="umount mount "
+            _helpers+=$(for_each_host_dev_fs echo_fs_helper)
         fi
     else
         _helpers="$fscks"

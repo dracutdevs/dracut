@@ -508,15 +508,19 @@ trap 'exit 1;' SIGINT
 chmod 755 "$initdir"
 
 if [[ $hostonly ]]; then
+    # in hostonly mode, determine all devices, which have to be accessed
+    # and examine them for filesystem types
+
+    unset host_fs_types
 
     _get_fs_type() (
         [[ $1 ]] || return
         if [[ -b /dev/block/$1 ]] && get_fs_env /dev/block/$1; then
-            echo -n "$ID_FS_TYPE "
+            echo "$1|$ID_FS_TYPE"
             return 1
         fi
-        if find_dev_fstype $1; then
-            echo -n " "
+        if fstype=$(find_dev_fstype $1); then
+            echo "$1|$fstype"
             return 1
         fi
         return 1
@@ -532,7 +536,6 @@ if [[ $hostonly ]]; then
         "/usr/lib64" \
         "/boot"
 
-    host_fs_types=""
     for mp in "${host_mp[@]}"; do
         mountpoint "$mp" >/dev/null 2>&1 || continue
         push host_devs $(find_block_device "$mp")
@@ -541,11 +544,12 @@ if [[ $hostonly ]]; then
         unset fs_type
         for fstype in $(_get_fs_type $dev) \
             $(check_block_and_slaves _get_fs_type $dev); do
-            strstr " $host_fs_types " "$fstype" || host_fs_types+="$fstype "
+            if ! strstr " ${host_fs_types[*]} " " $fstype ";then
+                push host_fs_types "$fstype"
+            fi
         done
     done
 fi
-echo "host_fs_types=$host_fs_types"
 
 export initdir dracutbasedir dracutmodules drivers \
     fw_dir drivers_dir debug no_kernel kernel_only \
