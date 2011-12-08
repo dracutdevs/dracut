@@ -507,12 +507,52 @@ trap 'exit 1;' SIGINT
 # Need to be able to have non-root users read stuff (rpcbind etc)
 chmod 755 "$initdir"
 
+if [[ $hostonly ]]; then
+
+    _get_fs_type() (
+        [[ $1 ]] || return
+        if [[ -b /dev/block/$1 ]] && get_fs_env /dev/block/$1; then
+            echo -n "$ID_FS_TYPE "
+            return 1
+        fi
+        if find_dev_fstype $1; then
+            echo -n " "
+            return 1
+        fi
+        return 1
+    )
+
+    push host_mp \
+        "/" \
+        "/etc" \
+        "/usr" \
+        "/usr/bin" \
+        "/usr/sbin" \
+        "/usr/lib" \
+        "/usr/lib64" \
+        "/boot"
+
+    host_fs_types=""
+    for mp in "${host_mp[@]}"; do
+        mountpoint "$mp" >/dev/null 2>&1 || continue
+        push host_devs $(find_block_device "$mp")
+    done
+    for dev in "${host_devs[@]}"; do
+        unset fs_type
+        for fstype in $(_get_fs_type $dev) \
+            $(check_block_and_slaves _get_fs_type $dev); do
+            strstr " $host_fs_types " "$fstype" || host_fs_types+="$fstype "
+        done
+    done
+fi
+echo "host_fs_types=$host_fs_types"
+
 export initdir dracutbasedir dracutmodules drivers \
     fw_dir drivers_dir debug no_kernel kernel_only \
     add_drivers mdadmconf lvmconf filesystems \
     use_fstab libdir usrlibdir fscks nofscks \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
-    debug
+    debug host_fs_types host_devs
 
 # Create some directory structure first
 [[ $prefix ]] && mkdir -m 0755 -p "${initdir}${prefix}"

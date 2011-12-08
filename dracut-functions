@@ -165,8 +165,11 @@ get_fs_type() (
         echo "nfs"
         return
     fi
-    get_fs_env $1 || return
-    echo $ID_FS_TYPE
+    if get_fs_env $1; then
+        echo $ID_FS_TYPE
+        return
+    fi
+    find_dev_fstype $1
 )
 
 get_fs_uuid() (
@@ -174,11 +177,11 @@ get_fs_uuid() (
     echo $ID_FS_UUID
 )
 
-# finds the major:minor of the block device backing the root filesystem.
 find_block_device() {
     local _x _mpt _majmin _dev _fs _maj _min
     if [[ $use_fstab != yes ]]; then
         while read _x _x _majmin _x _mpt _x _x _fs _dev _x; do
+            [[ $_mpt = $1 ]] || continue
             [[ $_fs = nfs ]] && { echo $_dev; return 0;}
             [[ $_fs = nfs3 ]] && { echo $_dev; return 0;}
             [[ $_fs = nfs4 ]] && { echo $_dev; return 0;}
@@ -189,7 +192,7 @@ find_block_device() {
                     echo $_maj:$_min
                 } && return 0
             }
-            if [[ $_mpt = $1 ]] && [[ ${_majmin#0:} = $_majmin ]]; then
+            if [[ ${_majmin#0:} = $_majmin ]]; then
                 echo $_majmin
                 return 0 # we have a winner!
             fi
@@ -215,6 +218,25 @@ find_block_device() {
     return 1
 }
 
+find_dev_fstype() {
+    local _x _mpt _majmin _dev _fs _maj _min
+    while read _x _x _majmin _x _mpt _x _x _fs _dev _x; do
+        [[ $_dev = $1 ]] || continue
+        echo -n $_fs;
+        return 0;
+    done < /proc/self/mountinfo
+
+    # fall back to /etc/fstab
+    while read _dev _mpt _fs _x; do
+        [[ $_dev = $1 ]] || continue
+        echo -n $_fs;
+        return 0;
+    done < /etc/fstab
+
+    return 1
+}
+
+# finds the major:minor of the block device backing the root filesystem.
 find_root_block_device() { find_block_device /; }
 
 # Walk all the slave relationships for a given block device.
