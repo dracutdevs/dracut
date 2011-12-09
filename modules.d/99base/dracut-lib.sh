@@ -627,14 +627,14 @@ wait_for_dev()
 }
 
 killproc() {
-    local exe="$(command -v $1)"
-    local sig=$2
-    local i
-    [ -x "$exe" ] || return 1
-    for i in /proc/[0-9]*; do 
-        [ "$i" = "/proc/1" ] && continue
-        if [ -e "$i"/exe ] && [  "$i/exe" -ef "$exe" ] ; then
-            kill $sig ${i##*/}
+    local _exe="$(command -v $1)"
+    local _sig=$2
+    local _i
+    [ -x "$_exe" ] || return 1
+    for _i in /proc/[0-9]*; do
+        [ "$_i" = "/proc/1" ] && continue
+        if [ -e "$_i"/_exe ] && [  "$_i/_exe" -ef "$_exe" ] ; then
+            kill $_sig ${_i##*/}
         fi
     done
 }
