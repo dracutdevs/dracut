@@ -3,7 +3,7 @@
 <!-- vim: set ts=8 sts=2 sw=2 et: -->
 <refentry id="dracutkernel7">
   <refentryinfo>
-    <title>dracut.kernel</title>
+    <title>dracut.cmdline</title>
     <productname>dracut</productname>
     <authorgroup>
       <author>
@@ -15,12 +15,12 @@
     </authorgroup>
   </refentryinfo>
   <refmeta>
-    <refentrytitle>dracut.kernel</refentrytitle>
+    <refentrytitle>dracut.cmdline</refentrytitle>
     <manvolnum>7</manvolnum>
     <refmiscinfo class="version"/>
   </refmeta>
   <refnamediv>
-    <refname>dracut.kernel</refname>
+    <refname>dracut.cmdline</refname>
     <refpurpose>dracut kernel command line options</refpurpose>
   </refnamediv>
   <refsect1>

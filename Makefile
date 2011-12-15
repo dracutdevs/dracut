@@ -9,7 +9,7 @@ sysconfdir ?= ${prefix}/etc
 bindir ?= ${prefix}/sbin
 mandir ?= ${prefix}/share/man
 
-manpages = dracut.8 dracut.kernel.7 dracut.conf.5 dracut-catimages.8  dracut-gencmdline.8
+manpages = dracut.8 dracut.cmdline.7 dracut.conf.5 dracut-catimages.8  dracut-gencmdline.8
 
 .PHONY: install clean archive rpm testimage test all check AUTHORS doc
 
@@ -45,7 +45,8 @@ install: doc
 	install -m 0644 dracut-catimages.8 $(DESTDIR)$(mandir)/man8/dracut-catimages.8
 	install -m 0644 dracut-gencmdline.8 $(DESTDIR)$(mandir)/man8/dracut-gencmdline.8
 	install -m 0644 dracut.conf.5 $(DESTDIR)$(mandir)/man5/dracut.conf.5
-	install -m 0644 dracut.kernel.7 $(DESTDIR)$(mandir)/man7/dracut.kernel.7
+	install -m 0644 dracut.cmdline.7 $(DESTDIR)$(mandir)/man7/dracut.cmdline.7
+	ln -s dracut.cmdline.7 $(DESTDIR)$(mandir)/man7/dracut.kernel.7
 
 clean:
 	$(RM) *~

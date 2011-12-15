@@ -149,6 +149,14 @@ initramfs.</para>
       </varlistentry>
       <varlistentry>
         <term>
+          <envar>add_fstab+=&quot;&nbsp;<replaceable>&lt;filename&gt;</replaceable>&nbsp;&quot;</envar>
+        </term>
+        <listitem>
+          <para>Add entries of <replaceable>&lt;filename&gt;</replaceable> to the initramfs /etc/fstab.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
           <envar>mdadmconf=&quot;<replaceable>{yes|no}</replaceable>&quot;</envar>
         </term>
         <listitem>
@@ -263,7 +271,7 @@ The configuration files are read in alphanumerical order.</para>
         <manvolnum>8</manvolnum>
       </citerefentry>
       <citerefentry>
-        <refentrytitle>dracut.kernel</refentrytitle>
+        <refentrytitle>dracut.cmdline</refentrytitle>
         <manvolnum>7</manvolnum>
       </citerefentry>
     </para>

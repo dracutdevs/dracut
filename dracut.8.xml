@@ -83,7 +83,7 @@ which are needed to access the root filesystem.</para>
     <para>
 For a complete list of kernel command line options see
       <citerefentry>
-        <refentrytitle>dracut.kernel</refentrytitle>
+        <refentrytitle>dracut.cmdline</refentrytitle>
         <manvolnum>7</manvolnum>
       </citerefentry>
 </para>
@@ -396,7 +396,23 @@ the local host instead of a generic host.
             <para>Use <filename>/etc/fstab</filename> instead of <filename>/proc/self/mountinfo</filename>.</para>
           </listitem>
         </varlistentry>
-        <varlistentry>
+	<varlistentry>
+	  <term>
+	    <option>--add_fstab;&nbsp;<replaceable>&lt;filename&gt;</replaceable>&nbsp;</option>
+	  </term>
+	  <listitem>
+	    <para>Add entries of <replaceable>&lt;filename&gt;</replaceable> to the initramfs /etc/fstab.</para>
+	  </listitem>
+	  </varlistentry>
+	<varlistentry>
+	  <term>
+	    <option>--mount;&nbsp;&quot;<replaceable>&lt;device&gt;</replaceable> <replaceable>&lt;mountpoint&gt;</replaceable> <replaceable>&lt;filesystem type&gt;</replaceable> <replaceable>&lt;filesystem options&gt;</replaceable>&quot;</option>
+	  </term>
+	  <listitem>
+	    <para>Add entries of <replaceable>&lt;filename&gt;</replaceable> to the initramfs /etc/fstab.</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry>
           <term>
             <option>-i</option>
           </term>
@@ -582,7 +598,7 @@ set in the configuration files.</para>
     <title>See Also</title>
     <para>
       <citerefentry>
-        <refentrytitle>dracut.kernel</refentrytitle>
+        <refentrytitle>dracut.cmdline</refentrytitle>
         <manvolnum>7</manvolnum>
       </citerefentry>
       <citerefentry>

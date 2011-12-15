@@ -721,9 +721,9 @@ done
       <title>dracut.conf</title>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dracut.conf.5.xml" encoding="UTF-8" parse="xml"/>
     </section>
-    <section id="dracut.kernel">
-      <title>dracut.kernel</title>
-      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dracut.kernel.7.xml" encoding="UTF-8" parse="xml"/>
+    <section id="dracut.cmdline">
+      <title>dracut.cmdline</title>
+      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dracut.cmdline.7.xml" encoding="UTF-8" parse="xml"/>
     </section>
   </appendix>
 </book>
