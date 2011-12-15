@@ -1,3 +1,43 @@
+dracut-014
+==========
+- new dracut arguments:
+  --lvmconf
+  --nolvmconf
+  --fscks [LIST]
+  --nofscks
+- new .conf options:
+  install_items
+  fscks
+  nofscks
+- new kernel options:
+  rd.md.ddf
+  rd.md.waitclean
+  plymouth.enable
+- dracut move from /sbin to /usr/bin
+- dracut modules dir moved from /usr/share/dracut to /usr/lib/dracut
+- profiling with "dracut --profile"
+- new TEST-16-DMSQUASH, test for Fedora LiveCDs
+- speedup of initramfs creation
+- ask_for_password fallback to CLI
+- mdraid completely switched to incremental assembly
+- no more cdrom polling
+- "switch_root" breakpoint is now very late
+- /dev/live is gone
+- /dev/root is gone
+- fs-lib dracut module for fscks added
+- xen dracut module removed
+- usb mass storage kernel drivers now included
+- usrmount dracut module added:
+  mount /usr if found in /sysroot/etc/fstab
+- only include fsck helper needed for hostonly
+- fcoe: support for bnx2fc
+- support iSCSI drivers: qla4xxx, cxgb3i, cxgb4i, bnx2i, be2iscsi
+- fips-aesni dracut module added
+- add install_items to dracut.conf
+    install_items+=" <file>[ <file> ...] "
+- speedup internal testsuite
+- internal testsuite: store temporary data in a temporary dir
+
 dracut-013
 ==========
 - speedup of initramfs creation
