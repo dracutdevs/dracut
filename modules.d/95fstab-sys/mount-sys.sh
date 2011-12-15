@@ -25,6 +25,6 @@ fstab_mount() {
     return 0
 }
 
-for r in $NEWROOT /; do
-    fstab_mount "$r/etc/fstab.sys" && break
+for r in $NEWROOT/etc/fstab.sys /etc/fstab; do
+    fstab_mount $r && break
 done

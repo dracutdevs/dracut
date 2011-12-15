@@ -85,6 +85,10 @@ Creates initial ramdisk images for preloading modules
   -H, --hostonly        Host-Only mode: Install only what is needed for
                          booting the local host instead of a generic host.
   --fstab               Use /etc/fstab to determine the root device.
+  --add-fstab [FILE]    Add file to the initramfs fstab
+  --mount "[DEV] [MP] [FSTYPE] [FSOPTS]"
+                        Mount device [DEV] on mountpoint [MP] with filesystem
+                        [FSTYPE] and options [FSOPTS] in the initramfs
   -i, --include [SOURCE] [TARGET]
                         Include the files in the SOURCE directory into the
                          Target directory in the final initramfs.
@@ -207,6 +211,8 @@ while (($# > 0)); do
         -I|--install)  push_arg install_items_l      "$@" || shift;;
         --fwdir)       push_arg fw_dir_l             "$@" || shift;;
         --fscks)       push_arg fscks_l              "$@" || shift;;
+        --add-fstab)   push_arg add_fstab_l          "$@" || shift;;
+        --mount)       push_arg fstab_lines          "$@" || shift;;
         --nofscks)     nofscks_l="yes";;
         -k|--kmoddir)  read_arg drivers_dir_l        "$@" || shift;;
         -c|--conf)     read_arg conffile             "$@" || shift;;
@@ -329,6 +335,18 @@ fi
 if (( ${#fscks_l[@]} )); then
     while pop fscks_l val; do
         fscks+=" $val "
+    done
+fi
+
+if (( ${#add_fstab_l[@]} )); then
+    while pop add_fstab_l val; do
+        add_fstab+=" $val "
+    done
+fi
+
+if (( ${#fstab_lines_l[@]} )); then
+    while pop fstab_lines_l val; do
+        push fstab_lines $val
     done
 fi
 
@@ -526,6 +544,21 @@ if [[ $hostonly ]]; then
         return 1
     )
 
+    for line in "${fstab_lines[@]}"; do
+        set -- $line
+        #dev mp fs fsopts
+        dev="$(get_maj_min $1)"
+        push host_devs "${dev:-$1}"
+        push host_fs_types "$dev|$3"
+    done
+
+    for f in $add_fstab; do
+        [ -e $f ] || continue
+        while read dev rest; do
+            push host_devs $dev
+        done < $f
+    done
+
     push host_mp \
         "/" \
         "/etc" \
@@ -668,6 +701,13 @@ while pop install_items items; do
 done
 unset item
 
+while pop fstab_lines line; do
+    echo "$line 0 0" >> "${initdir}/etc/fstab"
+done
+
+for f in $add_fstab; do
+    cat $f >> "${initdir}/etc/fstab"
+done
 
 if [[ $kernel_only != yes ]]; then
     # make sure that library links are correct and up to date
