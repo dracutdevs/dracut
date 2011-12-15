@@ -602,6 +602,92 @@ usable_root() {
     return 0
 }
 
+inst_hook() {
+    local _hookname _unique _name _job _exe
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --hook)
+                _hookname="/$2";shift;;
+            --unique)
+                _unique="yes";;
+            --name)
+                _name="$2";shift;;
+            *)
+                break;;
+        esac
+        shift
+    done
+
+    if [ -z "$_unique" ]; then
+        _job="${_name}$$"
+    else
+        _job="${_name:-$1}"
+        _job=${_job##*/}
+    fi
+
+    _exe=$1
+    shift
+
+    [ -x "$_exe" ] || _exe=$(command -v $_exe)
+
+    if [ -n "$onetime" ]; then
+        {
+            echo '[ -e "$_job" ] && rm "$_job"'
+            echo "$_exe $@"
+        } > "/tmp/$$-${_job}.sh"
+    else
+        echo "$_exe $@" > "/tmp/$$-${_job}.sh"
+    fi
+
+    mv -f "/tmp/$$-${_job}.sh" "$hookdir/${_hookname}/${_job}.sh"
+}
+
+# inst_mount_hook <mountpoint> <prio> <name> <script>
+#
+# Install a mount hook with priority <prio>,
+# which executes <script> as soon as <mountpoint> is mounted.
+inst_mount_hook() {
+    local _prio="$2" _jobname="$3" _script="$4"
+    local _hookname="mount-$(str_replace "$1" '/' '\\x2f')"
+    [ -d "$hookdir/${_hookname}" ] || mkdir -p "$hookdir/${_hookname}"
+    inst_hook --hook "$_hookname" --unique --name "${_prio}-${_jobname}" "$_script"
+}
+
+# add_mount_point <dev> <mountpoint> <filesystem> <fsopts>
+#
+# Mount <dev> on <mountpoint> with <filesystem> and <fsopts>
+# and call any mount hooks, as soon, as it is mounted
+add_mount_point() {
+    local _dev="$1" _mp="$2" _fs="$3" _fsopts="$4"
+    local _hookname="mount-$(str_replace "$2" '/' '\\x2f')"
+    local _devname="dev-$(str_replace "$1" '/' '\\x2f')"
+    echo "$_dev $_mp $_fs $_fsopts 0 0" >> /etc/fstab
+
+    exec 7>/etc/udev/rules.d/99-mount-${_devname}.rules
+    echo 'SUBSYSTEM!="block", GOTO="mount_end"' >&7
+    echo 'ACTION!="add|change", GOTO="mount_end"' >&7
+    if [ -n "$_dev" ]; then
+        udevmatch "$_dev" >&7 || {
+            warn "add_mount_point dev=$_dev incorrect!"
+            continue
+        }
+        printf ', ' >&7
+    fi
+
+    {
+        printf -- 'RUN+="%s --unique --onetime ' $(command -v initqueue)
+        printf -- '--name mount-%%k '
+        printf -- '%s %s"\n' "$(command -v mount_hook)" "${_mp}"
+    } >&7
+    echo 'LABEL="mount_end"' >&7
+    exec 7>&-
+}
+
+# wait_for_mount <mountpoint>
+#
+# Installs a initqueue-finished script,
+# which will cause the main loop only to exit,
+# if <mountpoint> is mounted.
 wait_for_mount()
 {
     local _name
@@ -614,6 +700,11 @@ wait_for_mount()
     } >> "$hookdir/emergency/90-${_name}.sh"
 }
 
+# wait_for_dev <dev>
+#
+# Installs a initqueue-finished script,
+# which will cause the main loop only to exit,
+# if the device <dev> is recognized by the system.
 wait_for_dev()
 {
     local _name
