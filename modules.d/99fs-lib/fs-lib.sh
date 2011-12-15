@@ -197,7 +197,7 @@ fsck_single() {
 
     info "Checking $_fs: $_dev"
     export FSTAB_FILE
-    eval "$_drv" "\"$_dev\"" "\"$_fop\""
+    eval "$_drv"
     return $?
 }
 
