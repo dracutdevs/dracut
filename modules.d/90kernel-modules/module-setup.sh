@@ -70,7 +70,7 @@ installkernel() {
 install() {
     local _f
     [ -f /etc/modprobe.conf ] && dracut_install /etc/modprobe.conf
-    for i in $(find /etc/modprobe.d/ -type f -name '*.conf'); do
+    for i in $(find -L /etc/modprobe.d/ -maxdepth 1 -type f -name '*.conf'); do
         inst_simple "$i"
     done
     inst_hook cmdline 01 "$moddir/parse-kernel.sh"
