@@ -516,6 +516,27 @@ inst_symlink() {
     fi
 }
 
+# attempt to install any programs specified in a udev rule
+inst_rule_programs() {
+    local _prog _bin
+
+    if grep -qE 'PROGRAM==?"[^ "]+' "$1"; then
+        for _prog in $(grep -E 'PROGRAM==?"[^ "]+' "$1" | sed -r 's/.*PROGRAM==?"([^ "]+).*/\1/'); do
+            if [ -x /lib/udev/$_prog ]; then
+                _bin=/lib/udev/$_prog
+            else
+                _bin=$(find_binary "$_prog") || {
+                    dinfo "Skipping program $_prog using in udev rule $(basename $1) as it cannot be found"
+                    continue;
+                }
+            fi
+
+            #dinfo "Installing $_bin due to it's use in the udev rule $(basename $1)"
+            dracut_install "$_bin"
+        done
+    fi
+}
+
 # udev rules always get installed in the same place, so
 # create a function to install them to make life simpler.
 inst_rules() {
@@ -529,6 +550,7 @@ inst_rules() {
                 if [[ -f $r/$_rule ]]; then
                     _found="$r/$_rule"
                     inst_simple "$_found"
+                    inst_rule_programs "$_found"
                 fi
             done
         fi
@@ -536,6 +558,7 @@ inst_rules() {
             if [[ -f ${r}$_rule ]]; then
                 _found="${r}$_rule"
                 inst_simple "$_found" "$_target/${_found##*/}"
+                inst_rule_programs "$_found"
             fi
         done
         [[ $_found ]] || dinfo "Skipping udev rule: $_rule"
