@@ -11,16 +11,11 @@ check() {
     [[ $debug ]] && set -x
 
     check_lvm() {
-        local dev=$1
-        DM_LV_NAME=$(udevadm info --query=property --name=$dev \
-            | while read line; do
-                [[ ${line#DM_LV_NAME} = $line ]] && continue
-                eval "$line"
-                echo $DM_LV_NAME
-                break
-                done)
-        [[ ${DM_LV_NAME} ]] || continue
-        echo " rd.lvm.lv=${DM_LV_NAME} " >> "${initdir}/etc/cmdline.d/90lvm.conf"
+        unset DM_VG_NAME
+        unset DM_LV_NAME
+        eval $(udevadm info --query=property --name=$1|egrep '(DM_VG_NAME|DM_LV_NAME)=')
+        [[ ${DM_VG_NAME} ]] && [[ ${DM_LV_NAME} ]] || return
+        echo " rd.lvm.lv=${DM_VG_NAME}/${DM_LV_NAME} " >> "${initdir}/etc/cmdline.d/90lvm.conf"
     }
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
