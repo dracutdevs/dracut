@@ -6,7 +6,7 @@ check() {
     # FIXME
     # If hostonly was requested, fail the check until we have some way of
     # knowing we are booting from FCoE
-    [[ $hostonly ]] && return 1
+    [[ $hostonly ]] || [[ $mount_needs ]] && return 1
 
     return 0
 }

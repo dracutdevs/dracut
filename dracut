@@ -633,9 +633,12 @@ else
     done
 fi
 
+mods_to_load=""
 # check all our modules to see if they should be sourced.
 # This builds a list of modules that we will install next.
-check_module_dir
+for_each_module_dir check_module
+for_each_module_dir check_mount
+
 modules_loaded=" "
 # source our modules.
 for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do

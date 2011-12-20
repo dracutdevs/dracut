@@ -783,6 +783,67 @@ module_installkernel() {
     fi
 }
 
+module_check_mount() {
+    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
+    local _ret
+    mount_needs=1
+    [[ -d $_moddir ]] || return 1
+    if [[ ! -f $_moddir/module-setup.sh ]]; then
+        # if we do not have a check script, we are unconditionally included
+        [[ -x $_moddir/check ]] || return 0
+        mount_needs=1 $_moddir/check 0
+        _ret=$?
+    else
+        unset check depends install installkernel
+        . $_moddir/module-setup.sh
+        is_func check || return 1
+        check 0
+        _ret=$?
+        unset check depends install installkernel
+    fi
+    unset mount_needs
+    return $_ret
+}
+
+check_mount() {
+    local _mod=$1
+    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
+    local _ret
+    local _moddep
+    # If we are already scheduled to be loaded, no need to check again.
+    strstr " $mods_to_load " " $_mod " && return 0
+    strstr " $mods_checked_as_dep " " $_mod " && return 1
+
+    # This should never happen, but...
+    [[ -d $_moddir ]] || return 1
+
+    [[ $2 ]] || mods_checked_as_dep+=" $_mod "
+
+    strstr " $omit_dracutmodules " " $_mod " && return 1
+
+    if [ "${#host_fs_types[*]}" -gt 0 ]; then
+        module_check_mount $_mod || return 1
+    else
+        # skip this module
+        return 1
+    fi
+
+    for _moddep in $(module_depends $_mod); do
+        # handle deps as if they were manually added
+        strstr " $add_dracutmodules " " $_moddep " || \
+            add_dracutmodules+=" $_moddep "
+        strstr " $force_add_dracutmodules " " $_moddep " || \
+            force_add_dracutmodules+=" $_moddep "
+        # if a module we depend on fail, fail also
+        check_module $_moddep || return 1
+    done
+
+    strstr " $mods_to_load " " $_mod " || \
+        mods_to_load+=" $_mod "
+
+    return 0
+}
+
 check_module() {
     local _mod=$1
     local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
@@ -834,14 +895,15 @@ check_module() {
     return 0
 }
 
-check_module_dir() {
+for_each_module_dir() {
     local _modcheck
     local _mod
     local _moddir
-    mods_to_load=""
+    local _func
+    _func=$1
     for _moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
         _mod=${_moddir##*/}; _mod=${_mod#[0-9][0-9]}
-        check_module $_mod 1
+        $_func $_mod 1
     done
 
     # Report any missing dracut modules, the user has specified

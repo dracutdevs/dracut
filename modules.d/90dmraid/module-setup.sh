@@ -38,7 +38,7 @@ check() {
         echo " rd.dm.uuid=${DM_NAME} " >> "${initdir}/etc/cmdline.d/90dmraid.conf"
     }
 
-    [[ $hostonly ]] && {
+    [[ $hostonly ]] || [[ $mount_needs ]] && {
         [[ -d "${initdir}/etc/cmdline.d" ]] || mkdir -p "${initdir}/etc/cmdline.d"
         for_each_host_dev_fs check_dmraid
         [ -f "${initdir}/etc/cmdline.d/90dmraid.conf" ] || return 1

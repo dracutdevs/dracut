@@ -11,7 +11,7 @@ check() {
     . $dracutfunctions
     [[ $debug ]] && set -x
 
-    [[ $hostonly ]] && {
+    [[ $hostonly ]] || [[ $mount_needs ]] && {
         local _found
         for fs in $host_fs_types; do
             [[ "$fs" = "|btrfs" ]] && _found="1"

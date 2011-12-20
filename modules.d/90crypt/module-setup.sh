@@ -23,7 +23,7 @@ check() {
         echo " rd.luks.uuid=${ID_FS_UUID} " >> "${initdir}/etc/cmdline.d/90crypt.conf"
     }
 
-    [[ $hostonly ]] && {
+    [[ $hostonly ]] || [[ $mount_needs ]] && {
         [[ -d "${initdir}/etc/cmdline.d" ]] || mkdir -p "${initdir}/etc/cmdline.d"
         for_each_host_dev_fs check_crypt
         [ -f "${initdir}/etc/cmdline.d/90crypt.conf" ] || return 1

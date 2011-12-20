@@ -23,7 +23,7 @@ check() {
         echo " rd.lvm.lv=${DM_LV_NAME} " >> "${initdir}/etc/cmdline.d/90lvm.conf"
     }
 
-    [[ $hostonly ]] && {
+    [[ $hostonly ]] || [[ $mount_needs ]] && {
         [[ -d "${initdir}/etc/cmdline.d" ]] || mkdir -p "${initdir}/etc/cmdline.d"
         for_each_host_dev_fs check_lvm
         [ -f "${initdir}/etc/cmdline.d/90lvm.conf" ] || return 1

@@ -7,7 +7,7 @@ check() {
     type -P rpcbind >/dev/null || type -P portmap >/dev/null || return 1
     type -P rpc.statd mount.nfs mount.nfs4 umount >/dev/null || return 1
 
-    [[ $hostonly ]] && {
+    [[ $hostonly ]] || [[ $mount_needs ]] && {
         for fs in ${host_fs_types[@]}; do
             strstr "$fs" "|nfs"  && return 0
             strstr "$fs" "|nfs3" && return 0

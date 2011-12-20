@@ -3,6 +3,7 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 check() {
+    [[ "$mount_needs" ]] && return 1
     [ -f /etc/redhat-release ]
 }
 
