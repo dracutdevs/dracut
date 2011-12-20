@@ -528,9 +528,8 @@ chmod 755 "$initdir"
 for line in "${fstab_lines[@]}"; do
     set -- $line
     #dev mp fs fsopts
-    dev="$(get_maj_min $1)"
-    push host_devs "${dev:-$1}"
-    push host_fs_types "$dev|$3"
+    push host_devs "$1"
+    push host_fs_types "$1|$3"
 done
 
 for f in $add_fstab; do
@@ -556,13 +555,13 @@ if [[ $hostonly ]]; then
 
     for mp in "${host_mp[@]}"; do
         mountpoint "$mp" >/dev/null 2>&1 || continue
-        push host_devs $(find_block_device "$mp")
+        push host_devs $(readlink -f "/dev/block/$(find_block_device "$mp")")
     done
 fi
 
 _get_fs_type() (
     [[ $1 ]] || return
-    if [[ -b /dev/block/$1 ]] && get_fs_env /dev/block/$1; then
+    if [[ -b $1 ]] && get_fs_env $1; then
         echo "$1|$ID_FS_TYPE"
         return 1
     fi
@@ -576,7 +575,7 @@ _get_fs_type() (
 for dev in "${host_devs[@]}"; do
     unset fs_type
     for fstype in $(_get_fs_type $dev) \
-        $(check_block_and_slaves _get_fs_type $dev); do
+        $(check_block_and_slaves _get_fs_type $(get_maj_min $dev)); do
         if ! strstr " ${host_fs_types[*]} " " $fstype ";then
             push host_fs_types "$fstype"
         fi
