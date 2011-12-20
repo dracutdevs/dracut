@@ -9,9 +9,9 @@ check() {
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for fs in ${host_fs_types[@]}; do
-            strstr "$fs" "|nfs"  && return 0
-            strstr "$fs" "|nfs3" && return 0
-            strstr "$fs" "|nfs4" && return 0
+            strstr "$fs" "\|nfs"  && return 0
+            strstr "$fs" "\|nfs3" && return 0
+            strstr "$fs" "\|nfs4" && return 0
         done
         return 255
     }
