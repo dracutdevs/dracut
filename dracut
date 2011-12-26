@@ -119,6 +119,7 @@ Creates initial ramdisk images for preloading modules
                          build.
   --keep                Keep the temporary initramfs for debugging purposes
   --sshkey [SSHKEY]     Add ssh key to initramfs (use with ssh-client module)
+  --ctty                Add control tty for emergency shells
 EOF
 }
 
