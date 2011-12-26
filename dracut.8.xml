@@ -370,6 +370,14 @@ Default:
         </varlistentry>
         <varlistentry>
           <term>
+            <option>--sshkey&nbsp;<replaceable>&lt;sshkey file&gt;</replaceable></option>
+          </term>
+          <listitem>
+            <para>ssh key file used with ssh-client module.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
             <option>-l</option>
           </term>
           <term>
