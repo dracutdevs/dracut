@@ -65,8 +65,6 @@ install() {
 
     # Rather than copy the passwd file in, just set a user for rpcbind
     # We'll save the state and restart the daemon from the root anyway
-    egrep '^root:' "$initdir/etc/passwd" 2>/dev/null || echo  'root:x:0:0::/:/bin/sh' >> "$initdir/etc/passwd"
-    egrep '^nobody:' /etc/passwd >> "$initdir/etc/passwd"
     egrep '^nfsnobody:' /etc/passwd >> "$initdir/etc/passwd"
     egrep '^rpc:' /etc/passwd >> "$initdir/etc/passwd"
     egrep '^rpcuser:' /etc/passwd >> "$initdir/etc/passwd"

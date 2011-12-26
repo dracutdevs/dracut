@@ -20,6 +20,10 @@ install() {
         dracut_install bash
         (ln -s bash "${initdir}/bin/sh" || :)
     fi
+
+    #add common users in /etc/passwd, it will be used by nfs/ssh currently
+    egrep '^root:' "$initdir/etc/passwd" 2>/dev/null || echo  'root:x:0:0::/:/bin/sh' >> "$initdir/etc/passwd"
+    egrep '^nobody:' /etc/passwd >> "$initdir/etc/passwd"
     # install our scripts and hooks
     inst "$moddir/init" "/init"
     inst "$moddir/initqueue" "/sbin/initqueue"
