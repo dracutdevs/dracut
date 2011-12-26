@@ -7,7 +7,7 @@
 #
 #       ip=<interface>:[dhcp|on|any]
 #
-#       ip=<client-IP-number>:<server-id>:<gateway-IP-number>:<netmask>:<client-hostname>:<interface>:[dhcp|on|any|none|off]
+#       ip=<client-IP-number>:<server-IP-number>:<gateway-IP-number>:<netmask>:<client-hostname>:<interface>:[dhcp|on|any|none|off]
 #
 # When supplying more than only ip= line, <interface> is mandatory and
 # bootdev= must contain the name of the primary interface to use for
