@@ -25,7 +25,8 @@ parse_ifname_opts() {
     case $# in
         7)
             ifname_if=$1
-            ifname_mac=$2:$3:$4:$5:$6:$7
+            # udev requires MAC addresses to be lower case
+            ifname_mac=`echo $2:$3:$4:$5:$6:$7 | tr '[:upper:]' '[:lower:]'`
             ;;
         *)
             die "Invalid arguments for ifname="

@@ -464,7 +464,6 @@ This parameter can be specified multiple times.</para>
           <term><envar>ifname=</envar><replaceable>&lt;interface&gt;</replaceable>:<replaceable>&lt;MAC&gt;</replaceable></term>
           <listitem>
             <para>Assign network device name &lt;interface&gt; (ie eth0) to the NIC with MAC &lt;MAC&gt;.
-Note letters in the MAC-address must be lowercase!
 <remark>Note: If you use this option you <emphasis remap="B">must</emphasis> specify an ifname= argument for all interfaces used in ip= or fcoe= arguments.</remark>
 This parameter can be specified multiple times.</para>
           </listitem>
