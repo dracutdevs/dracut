@@ -452,9 +452,9 @@ with a valid DHCP root-path.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term><envar>ip=</envar><replaceable>&lt;client-IP&gt;</replaceable>:<optional>
+          <term><envar>ip=</envar><replaceable>&lt;client-IP&gt;</replaceable>:
               <replaceable>&lt;server-id&gt;</replaceable>
-            </optional>:<replaceable>&lt;gateway-IP&gt;</replaceable>:<replaceable>&lt;netmask&gt;</replaceable>:<replaceable>&lt;client_hostname&gt;</replaceable>:<replaceable>&lt;interface&gt;</replaceable>:<replaceable>{none|off}</replaceable></term>
+            :<replaceable>&lt;gateway-IP&gt;</replaceable>:<replaceable>&lt;netmask&gt;</replaceable>:<replaceable>&lt;client_hostname&gt;</replaceable>:<replaceable>&lt;interface&gt;</replaceable>:<replaceable>{none|off}</replaceable></term>
           <listitem>
             <para>explicit network configuration. If you want do define a IPv6 address, put it in brackets (e.g. [2001:DB8::1]).
 This parameter can be specified multiple times.</para>
