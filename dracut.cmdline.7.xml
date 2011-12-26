@@ -109,6 +109,20 @@ This parameter can be specified multiple times.</para>
 	    <para>force loading kernel module &lt;drivername&gt; after all automatic loading modules have been loaded. This parameter can be specified multiple times.</para>
           </listitem>
         </varlistentry>
+        <varlistentry>
+          <term>
+            <envar>rd.ctty=<replaceable>&lt;terminal&gt;</replaceable></envar>
+          </term>
+          <listitem>
+            <para>
+              if the dracut image was generated with --ctty option, try to
+              spawn an emergency shell on the specified terminal; if
+              <envar>rd.ctty</envar> is specified without a value or not
+              provided at all, the default is /dev/tty1. The '/dev' prefix
+              can be omitted.
+            </para>
+          </listitem>
+        </varlistentry>
       </variablelist>
     </refsect2>
     <refsect2 id="dracut-kernel-debug">

@@ -297,6 +297,15 @@ include in the generic initramfs. This parameter can be specified multiple times
         </varlistentry>
         <varlistentry>
           <term>
+            <option>--ctty</option>
+          </term>
+          <listitem>
+            <para>if possible, try to spawn an emergency shell on a terminal
+              with job control</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
             <option>-h</option>
           </term>
           <term>
