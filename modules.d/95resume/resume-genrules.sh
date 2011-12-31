@@ -35,6 +35,9 @@ if [ -n "$resume" ]; then
     printf '[ -e "%s" ] && { ln -s "%s" /dev/resume; rm "$job"; }\n' \
         "$resume" "$resume" >> $hookdir/initqueue/settled/resume.sh
 
+    printf 'warn "Cancelling resume operation. Device not found."; cancel_wait_for_dev /dev/resume; rm "$job" "%s/initqueue/settled/resume.sh";' \
+        "$hookdir" >> $hookdir/initqueue/timeout/resume.sh
+
     wait_for_dev "/dev/resume"
 
 elif ! getarg noresume; then
