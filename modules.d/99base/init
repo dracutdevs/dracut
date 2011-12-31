@@ -259,16 +259,16 @@ while :; do
     fi
 
     if [ $main_loop -gt $(($RDRETRY/2)) ]; then
-	for job in $hookdir/initqueue/timeout/*.sh; do
+        for job in $hookdir/initqueue/timeout/*.sh; do
             [ -e "$job" ] || break
             job=$job . $job
             main_loop=0
-	done
+        done
     fi
 
     main_loop=$(($main_loop+1))
     [ $main_loop -gt $RDRETRY ] \
-        && { flock -s 9 ; emergency_shell "No root device \"$root\" found"; } 9>/.console_lock
+        && { flock -s 9 ; emergency_shell "Unable to process initqueue"; } 9>/.console_lock
 done
 unset job
 unset queuetriggered
