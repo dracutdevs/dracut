@@ -1,8 +1,9 @@
 #!/bin/sh
 if [ -b /dev/mapper/live-rw ]; then
-    if pushd /updates &>/dev/null; then
+    if [ -d /updates ]; then
         echo "Applying updates to live image..."
+        cd /updates
         /bin/cp -a -t $NEWROOT .
-        popd &>/dev/null
+        cd -
     fi
 fi
