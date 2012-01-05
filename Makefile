@@ -30,7 +30,7 @@ install: doc
 	mkdir -p $(DESTDIR)$(bindir)
 	mkdir -p $(DESTDIR)$(sysconfdir)
 	mkdir -p $(DESTDIR)$(pkglibdir)/modules.d
-	mkdir -p $(DESTDIR)$(mandir)/man{5,7,8}
+	mkdir -p $(DESTDIR)$(mandir)/man5 $(DESTDIR)$(mandir)/man7 $(DESTDIR)$(mandir)/man8
 	install -m 0755 dracut $(DESTDIR)$(bindir)/dracut
 	install -m 0755 dracut-gencmdline $(DESTDIR)$(bindir)/dracut-gencmdline
 	install -m 0755 dracut-catimages $(DESTDIR)$(bindir)/dracut-catimages
