@@ -6,7 +6,7 @@ libdir ?= ${prefix}/lib
 datadir ?= ${prefix}/share
 pkglibdir ?= ${libdir}/dracut
 sysconfdir ?= ${prefix}/etc
-bindir ?= ${prefix}/sbin
+bindir ?= ${prefix}/bin
 mandir ?= ${prefix}/share/man
 
 manpages = dracut.8 dracut.cmdline.7 dracut.conf.5 dracut-catimages.8  dracut-gencmdline.8
