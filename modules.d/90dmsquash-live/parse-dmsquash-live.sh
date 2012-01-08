@@ -17,6 +17,8 @@ fi
 
 [ "${liveroot%%:*}" = "live" ] || return
 
+modprobe -q loop
+
 case "$liveroot" in
     live:LABEL=*|LABEL=*) \
         root="${root#live:}"
