@@ -398,7 +398,7 @@ the local host instead of a generic host.
         </varlistentry>
 	<varlistentry>
 	  <term>
-	    <option>--add_fstab;&nbsp;<replaceable>&lt;filename&gt;</replaceable>&nbsp;</option>
+	    <option>--add_fstab&nbsp;<replaceable>&lt;filename&gt;</replaceable>&nbsp;</option>
 	  </term>
 	  <listitem>
 	    <para>Add entries of <replaceable>&lt;filename&gt;</replaceable> to the initramfs /etc/fstab.</para>
@@ -406,7 +406,7 @@ the local host instead of a generic host.
 	  </varlistentry>
 	<varlistentry>
 	  <term>
-	    <option>--mount;&nbsp;&quot;<replaceable>&lt;device&gt;</replaceable> <replaceable>&lt;mountpoint&gt;</replaceable> <replaceable>&lt;filesystem type&gt;</replaceable> <replaceable>&lt;filesystem options&gt;</replaceable>&quot;</option>
+	    <option>--mount&nbsp;&quot;<replaceable>&lt;device&gt;</replaceable> <replaceable>&lt;mountpoint&gt;</replaceable> <replaceable>&lt;filesystem type&gt;</replaceable> <replaceable>&lt;filesystem options&gt;</replaceable>&quot;</option>
 	  </term>
 	  <listitem>
 	    <para>Add entries of <replaceable>&lt;filename&gt;</replaceable> to the initramfs /etc/fstab.</para>
