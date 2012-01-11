@@ -68,7 +68,6 @@ Requires: filesystem >= 2.1.0
 Requires: findutils
 Requires: grep
 Requires: gzip
-Requires: mktemp >= 1.5-5
 Requires: module-init-tools >= 3.7-9
 Requires: sed
 Requires: udev
