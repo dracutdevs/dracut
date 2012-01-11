@@ -124,6 +124,7 @@ getargbool() {
     if [ -n "$_b" ]; then
         [ $_b = "0" ] && return 1
         [ $_b = "no" ] && return 1
+        [ $_b = "off" ] && return 1
     fi
     return 0
 }
