@@ -16,4 +16,4 @@ case "$liveurl" in
         rootok=1 ;;
 esac
 
-echo '[ -e /dev/root ]' > $hookdir/initqueue/finished/livenet.sh
+wait_for_dev /dev/root
