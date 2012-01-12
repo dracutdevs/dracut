@@ -20,7 +20,12 @@ fstab_mount() {
         fi
         _fs=$(det_fs "$_dev" "$_fs")
         info "Mounting $_dev"
-        mount -v -t $_fs -o $_opts $_dev $NEWROOT/$_mp 2>&1 | vinfo
+        if [[ -d $NEWROOT/$_mp ]]; then
+            mount -v -t $_fs -o $_opts $_dev $NEWROOT/$_mp 2>&1 | vinfo
+        else
+            mkdir -p "$_mp"
+            mount -v -t $_fs -o $_opts $_dev $_mp 2>&1 | vinfo
+        fi
     done < $1
     return 0
 }
