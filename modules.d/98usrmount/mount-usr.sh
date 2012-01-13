@@ -19,7 +19,7 @@ mount_usr()
 
     if [ "x$_usr_found" != "x" ]; then
         # we have to mount /usr
-        fsck_single "$_dev" "$_fs" "$_opts"
+        fsck_single "$_dev" "$_fs"
         _ret=$?
         echo $_ret >/run/initramfs/usr-fsck
         if [ $_ret -ne 255 ]; then
