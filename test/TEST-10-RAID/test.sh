@@ -5,8 +5,8 @@ KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
 #DEBUGFAIL="rd.shell"
-DISKIMAGE=$TESTDIR/TEST-10-RAID-root.img
 test_run() {
+    DISKIMAGE=$TESTDIR/TEST-10-RAID-root.img
     $testdir/run-qemu \
 	-hda $DISKIMAGE \
 	-m 256M -nographic \
@@ -17,6 +17,7 @@ test_run() {
 }
 
 test_setup() {
+    DISKIMAGE=$TESTDIR/TEST-10-RAID-root.img
     # Create the blank file to use as a root filesystem
     rm -f $DISKIMAGE
     dd if=/dev/null of=$DISKIMAGE bs=1M seek=40
