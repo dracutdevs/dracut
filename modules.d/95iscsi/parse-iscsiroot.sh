@@ -40,7 +40,7 @@ if [ -n "$iscsiroot" ] ; then
     [ -z "$netroot" ]  && netroot=$root
 
     # @deprecated
-    echo "Warning: Argument isciroot is deprecated and might be removed in a future"
+    echo "Warning: Argument iscsiroot is deprecated and might be removed in a future"
     echo "release. See 'man dracut.kernel' for more information."
 
     # Accept iscsiroot argument?
