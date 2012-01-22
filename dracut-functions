@@ -364,7 +364,7 @@ inst_simple() {
         inst "${_src%/*}/.${_src##*/}.hmac" "${target%/*}/.${target##*/}.hmac"
     fi
     ddebug "Installing $_src"
-    cp --sparse=always -pfL "$_src" "${initdir}/$target" 
+    cp --sparse=always -pfL "$_src" "${initdir}/$target"
 }
 
 # find symlinks linked to given library file
@@ -508,7 +508,7 @@ inst_symlink() {
     if [[ -d $_realsrc ]]; then
         inst_dir "$_realsrc"
     else
-        inst "$_realsrc" && mkdir -m 0755 -p "${_target%/*}" 
+        inst "$_realsrc" && mkdir -m 0755 -p "${_target%/*}"
     fi
     if [[ -e "${_src}" ]]; then
         ln -sfn $(convert_abs_rel "${_src}" "${_realsrc}") "$_target"
@@ -984,6 +984,7 @@ filter_kernel_modules_by_path () (
     if ! [[ $hostonly ]]; then
         _filtercmd='find "$srcmods/kernel/$1" "$srcmods/extra"'
         _filtercmd+=' "$srcmods/weak-updates" -name "*.ko" -o -name "*.ko.gz"'
+        _filtercmd+=' -o -name "*.ko.xz"'
         _filtercmd+=' 2>/dev/null'
     else
         _filtercmd='cut -d " " -f 1 </proc/modules|xargs modinfo -F filename '
@@ -996,13 +997,17 @@ filter_kernel_modules_by_path () (
                 $2 $initdir/$$.ko && echo "$_modname"
                 rm -f $initdir/$$.ko
                 ;;
+            *.ko.xz) xz -dc "$_modname" > $initdir/$$.ko
+                $2 $initdir/$$.ko && echo "$_modname"
+                rm -f $initdir/$$.ko
+                ;;
         esac
     done
 )
 find_kernel_modules_by_path () (
     if ! [[ $hostonly ]]; then
         find "$srcmods/kernel/$1" "$srcmods/extra" "$srcmods/weak-updates" \
-          -name "*.ko" -o -name "*.ko.gz" 2>/dev/null
+          -name "*.ko" -o -name "*.ko.gz" -o -name "*.ko.xz" 2>/dev/null
     else
         cut -d " " -f 1 </proc/modules \
         | xargs modinfo -F filename -k $kernel 2>/dev/null

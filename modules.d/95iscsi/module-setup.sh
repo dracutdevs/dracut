@@ -48,6 +48,7 @@ installkernel() {
         while read _f; do case "$_f" in
             *.ko)    [[ $(<         $_f) =~ $_iscsifuncs ]] && echo "$_f" ;;
             *.ko.gz) [[ $(gzip -dc <$_f) =~ $_iscsifuncs ]] && echo "$_f" ;;
+            *.ko.xz) [[ $(xz -dc   <$_f) =~ $_iscsifuncs ]] && echo "$_f" ;;
             esac
         done
     }
