@@ -110,16 +110,7 @@ if [ "$RD_DEBUG" = "yes" ]; then
 fi
 
 if ! ismounted /dev; then
-    # try to mount devtmpfs
-    if ! mount -t devtmpfs -o mode=0755,nosuid devtmpfs /dev >/dev/null 2>&1; then
-        # if it failed fall back to normal tmpfs
-        mount -t tmpfs -o mode=0755,nosuid tmpfs /dev >/dev/null 2>&1
-        # Make some basic devices first, let udev handle the rest
-        mknod -m 0666 /dev/null c 1 3
-        mknod -m 0666 /dev/ptmx c 5 2
-        mknod -m 0600 /dev/console c 5 1
-        mknod -m 0660 /dev/kmsg c 1 11
-    fi
+    mount -t devtmpfs -o mode=0755,nosuid devtmpfs /dev >/dev/null 2>&1
 fi
 
 # prepare the /dev directory
