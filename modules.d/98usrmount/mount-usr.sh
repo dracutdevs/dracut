@@ -11,7 +11,7 @@ mount_usr()
     # check, if we have to mount the /usr filesystem
     while read _dev _mp _fs _opts _rest; do
         if [ "$_mp" = "/usr" ]; then
-            echo "$_dev $NEWROOT/$_mp $_fs ${_opts},ro $_rest"
+            echo "$_dev $NEWROOT/$_mp $_fs ${_opts} $_rest"
             _usr_found="1"
             break
         fi
