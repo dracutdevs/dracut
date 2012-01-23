@@ -278,6 +278,7 @@ fi
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export PATH
 unset LD_LIBRARY_PATH
+unset GREP_OPTIONS
 
 [[ $debug ]] && {
     export PS4='${BASH_SOURCE}@${LINENO}(${FUNCNAME[0]}): ';
