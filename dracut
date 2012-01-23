@@ -120,6 +120,10 @@ Creates initial ramdisk images for preloading modules
   --keep                Keep the temporary initramfs for debugging purposes
   --sshkey [SSHKEY]     Add ssh key to initramfs (use with ssh-client module)
   --ctty                Add control tty for emergency shells
+
+If [LIST] has multiple arguments, then you have to put these in quotes.
+For example:
+# dracut --add-drivers "module1 module2"  ...
 EOF
 }
 

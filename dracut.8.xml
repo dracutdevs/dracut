@@ -20,33 +20,31 @@
       </author>
       <author>
         <contrib>Developer</contrib>
-        <firstname>Warren</firstname>
-        <surname>Togami</surname>
-        <email>wtogami@redhat.com</email>
-      </author>
-      <author>
-        <contrib>Developer</contrib>
-        <firstname>Jeremy</firstname>
-        <surname>Katz</surname>
-        <email>katzj@redhat.com</email>
-      </author>
-      <author>
-        <contrib>Developer</contrib>
         <firstname>Philippe</firstname>
         <surname>Seewer</surname>
         <email>philippe.seewer@bfh.ch</email>
       </author>
       <author>
         <contrib>Developer</contrib>
-        <firstname>David</firstname>
-        <surname>Dillow</surname>
-        <email>dave@thedillows.org</email>
+        <firstname>Warren</firstname>
+        <surname>Togami</surname>
       </author>
       <author>
         <contrib>Developer</contrib>
         <firstname>Amadeusz</firstname>
         <surname>Żołnowski</surname>
         <email>aidecoe@aidecoe.name</email>
+      </author>
+      <author>
+        <contrib>Developer</contrib>
+        <firstname>Jeremy</firstname>
+        <surname>Katz</surname>
+      </author>
+      <author>
+        <contrib>Developer</contrib>
+        <firstname>David</firstname>
+        <surname>Dillow</surname>
+        <email>dave@thedillows.org</email>
       </author>
     </authorgroup>
   </refentryinfo>
@@ -113,6 +111,11 @@ For a complete list of kernel command line options see
 when building the initramfs.
 Modules are located in
 <filename>/usr/lib/dracut/modules.d</filename>. This parameter can be specified multiple times.</para>
+	    <para>
+	      If [LIST] has multiple arguments, then you have to put these in quotes.
+	      For example:
+	      <screen># dracut --modules "module1 module2"  ...</screen>
+	    </para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -124,6 +127,11 @@ Modules are located in
           </term>
           <listitem>
             <para>omit a space-separated list of dracut modules. This parameter can be specified multiple times.</para>
+	    <para>
+	      If [LIST] has multiple arguments, then you have to put these in quotes.
+	      For example:
+	      <screen># dracut --omit "module1 module2"  ...</screen>
+	    </para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -135,6 +143,11 @@ Modules are located in
           </term>
           <listitem>
             <para>add a space-separated list of dracut modules to the default set of modules. This parameter can be specified multiple times.</para>
+	    <para>
+	      If [LIST] has multiple arguments, then you have to put these in quotes.
+	      For example:
+	      <screen># dracut --add "module1 module2"  ...</screen>
+	    </para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -143,6 +156,11 @@ Modules are located in
           </term>
           <listitem>
             <para>force to add a space-separated list of dracut modules to the default set of modules, when -H is specified. This parameter can be specified multiple times.</para>
+	    <para>
+	      If [LIST] has multiple arguments, then you have to put these in quotes.
+	      For example:
+	      <screen># dracut --force-add "module1 module2"  ...</screen>
+	    </para>
           </listitem>
         </varlistentry>
 
@@ -157,6 +175,11 @@ Modules are located in
             <para>specify a space-separated list of kernel modules to exclusively include
 in the initramfs.
 The kernel modules have to be specified without the &quot;.ko&quot; suffix. This parameter can be specified multiple times.</para>
+	    <para>
+	      If [LIST] has multiple arguments, then you have to put these in quotes.
+	      For example:
+	      <screen># dracut --drivers "kmodule1 kmodule2"  ...</screen>
+	    </para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -166,6 +189,11 @@ The kernel modules have to be specified without the &quot;.ko&quot; suffix. This
           <listitem>
             <para>specify a space-separated list of kernel modules to add to the initramfs.
 The kernel modules have to be specified without the &quot;.ko&quot; suffix. This parameter can be specified multiple times.</para>
+	    <para>
+	      If [LIST] has multiple arguments, then you have to put these in quotes.
+	      For example:
+	      <screen># dracut --add-drivers "kmodule1 kmodule2"  ...</screen>
+	    </para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -175,6 +203,11 @@ The kernel modules have to be specified without the &quot;.ko&quot; suffix. This
           <listitem>
             <para>specify a space-separated list of kernel filesystem modules to exclusively
 include in the generic initramfs. This parameter can be specified multiple times.</para>
+	    <para>
+	      If [LIST] has multiple arguments, then you have to put these in quotes.
+	      For example:
+	      <screen># dracut --filesystems "filesystem1 filesystem2"  ...</screen>
+	    </para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -253,6 +286,11 @@ include in the generic initramfs. This parameter can be specified multiple times
               <filename>dracut.conf</filename>'s specification; the
               installation is opportunistic (non-existing tools are ignored)
             </para>
+	    <para>
+	      If [LIST] has multiple arguments, then you have to put these in quotes.
+	      For example:
+	      <screen># dracut --fscks "fsck.foo barfsck"  ...</screen>
+	    </para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -450,6 +488,11 @@ TARGET directory in the final initramfs. If SOURCE is a file, it will be install
           </term>
           <listitem>
             <para>install the space separated list of files into the initramfs.</para>
+	    <para>
+	      If [LIST] has multiple arguments, then you have to put these in quotes.
+	      For example:
+	      <screen># dracut --install "/bin/foo /sbin/bar"  ...</screen>
+	    </para>
           </listitem>
         </varlistentry>
         <varlistentry>
