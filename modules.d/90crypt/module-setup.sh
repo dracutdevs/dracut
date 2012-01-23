@@ -20,7 +20,7 @@ check() {
                 break
                 done)
         [[ ${ID_FS_UUID} ]] || continue
-        echo " rd.luks.uuid=${ID_FS_UUID} " >> "${initdir}/etc/cmdline.d/90crypt.conf"
+        echo " rd.luks.uuid=luks-${ID_FS_UUID} " >> "${initdir}/etc/cmdline.d/90crypt.conf"
     }
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
