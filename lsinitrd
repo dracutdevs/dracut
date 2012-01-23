@@ -36,12 +36,16 @@ image="${1:-/boot/initramfs-$(uname -r).img}"
 CAT=zcat
 FILE_T=$(file "$image")
 
+if echo "test"|xz|xz -dc --single-stream; then
+    XZ_SINGLE_STREAM="--single-stream"
+fi
+
 if [[ "$FILE_T" =~ ": gzip compressed data" ]]; then
     CAT=zcat
 elif [[ "$FILE_T" =~ ": xz compressed data" ]]; then
-    CAT=xzcat
+    CAT="xzcat $XZ_SINGLE_STREAM"
 elif [[ "$FILE_T" =~ ": XZ compressed data" ]]; then
-    CAT=xzcat
+    CAT="xzcat $XZ_SINGLE_STREAM"
 elif [[ "$FILE_T" =~ ": data" ]]; then
     CAT=lzcat
 fi
