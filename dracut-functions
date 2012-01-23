@@ -180,7 +180,7 @@ get_fs_uuid() (
 
 get_maj_min() {
     local _dev
-    _dev=$(stat -L -c '$((0x%T)):$((0x%t))' "$1" 2>/dev/null)
+    _dev=$(stat -L -c '$((0x%t)):$((0x%T))' "$1" 2>/dev/null)
     _dev=$(eval "echo $_dev")
     echo $_dev
 }
