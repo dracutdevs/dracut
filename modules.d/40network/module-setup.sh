@@ -58,7 +58,7 @@ installkernel() {
         [[ $debug ]] && set -x
     }
 
-    find_kernel_modules_by_path drivers/net | net_module_filter | instmods
+    find_kernel_modules_by_path drivers/net drivers/s390/net | net_module_filter | instmods
 
     instmods ecb arc4
     # bridge modules
