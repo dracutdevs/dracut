@@ -123,7 +123,7 @@ if [ -n "$dest" ] && ! arping -q -f -w 60 -I $netif $dest ; then
 fi
 
 # Source netroot hooks before we start the handler
-source_all netroot
+source_all $hookdir/netroot
 
 # Run the handler; don't store the root, it may change from device to device
 # XXX other variables to export?
