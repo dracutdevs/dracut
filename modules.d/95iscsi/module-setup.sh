@@ -23,7 +23,7 @@ check() {
         [[ -d iscsi_session ]]
     )
 
-    [[ $hostonly ]] && {
+    [[ $hostonly ]] || [[ $mount_needs ]] && {
         _rootdev=$(find_root_block_device)
         if [[ $_rootdev ]]; then
             # root lives on a block device, so we can be more precise about

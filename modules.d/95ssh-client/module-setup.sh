@@ -8,6 +8,7 @@ check() {
     # If our prerequisites are not met, fail.
     type -P ssh >/dev/null || return 1
     type -P scp >/dev/null || return 1
+    [[ $mount_needs ]] && return 1
     if [[ $sshkey ]]; then
         [ ! -f $sshkey ] && {
             derror "sshkey is not found!"
