@@ -9,22 +9,18 @@ check() {
     type -P ssh >/dev/null || return 1
     type -P scp >/dev/null || return 1
     [[ $mount_needs ]] && return 1
+
     if [[ $sshkey ]]; then
         [ ! -f $sshkey ] && {
-            derror "sshkey is not found!"
+            derror "ssh key: $sshkey is not found!"
             return 1
         }
         [[ ! $cttyhack = yes ]] && {
             dinfo "--ctty is not used, you should make sure the machine is a knownhost and copy the sshkey to remote machine!"
         }
-    else
-        [[ ! $cttyhack = yes ]] && {
-            derror "ssh interactive mode needs option --ctty!"
-            return 1
-        }
     fi
 
-    return 0
+    return 255
 }
 
 depends() {
@@ -54,6 +50,11 @@ inst_sshenv()
 }
 
 install() {
+    [[ ! $cttyhack = yes ]] && {
+        derror "ssh interactive mode needs option --ctty!"
+        return 1
+    }
+
     inst ssh
     inst scp
     inst_sshenv
