@@ -15,11 +15,11 @@ check() {
             return 1
         }
         [[ ! $cttyhack = yes ]] && {
-            dinfo "--ctty is not used, you should make sure the machine is knowhost and copy the sshkey to remote machine!"
+            dinfo "--ctty is not used, you should make sure the machine is a knownhost and copy the sshkey to remote machine!"
         }
     else
         [[ ! $cttyhack = yes ]] && {
-            derror "ssh interactive mode need option --ctty!"
+            derror "ssh interactive mode needs option --ctty!"
             return 1
         }
     fi
