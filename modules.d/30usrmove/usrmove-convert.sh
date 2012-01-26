@@ -141,6 +141,14 @@ for dir in bin sbin lib lib64; do
         && rm -rf "$ROOT/${dir}.usrmove-old~" || :
 done
 
+for dir in lib lib64; do
+    [[ -d "$ROOT/$dir" ]] || continue
+    for lib in "$ROOT"/usr/${dir}/lib*.so*.usrmove~; do
+        [[ -f $lib ]] || continue
+        mv $lib ${lib/.so/_so}
+    done
+done
+
 set +e
 
 echo "Run ldconfig."
