@@ -197,25 +197,19 @@ rm $RPM_BUILD_ROOT%{_bindir}/lsinitrd
 mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
 install -m 0644 dracut.logrotate $RPM_BUILD_ROOT/etc/logrotate.d/dracut_log
 
-# create the ghosts
-mkdir -p $RPM_BUILD_ROOT%{_sbindir} $RPM_BUILD_ROOT/sbin
-ln -s ../bin/dracut $RPM_BUILD_ROOT%{_sbindir}/dracut
-ln -s ../usr/bin/dracut $RPM_BUILD_ROOT/sbin/dracut
+# create compat symlink
+mkdir -p $RPM_BUILD_ROOT/sbin
+ln -s /usr/bin/dracut $RPM_BUILD_ROOT/sbin/dracut
 
 %clean
 rm -rf $RPM_BUILD_ROOT
-
-%post -p <lua>
-posix.symlink("../bin/dracut", "%{_sbindir}/dracut")
-posix.symlink("../usr/bin/dracut", "/sbin/dracut")
-return 0
 
 %files
 %defattr(-,root,root,0755)
 %doc README HACKING TODO COPYING AUTHORS NEWS dracut.html dracut.png dracut.svg
 %{_bindir}/dracut
-%ghost /sbin/dracut
-%ghost %{_sbindir}/dracut
+# compat symlink
+/sbin/dracut
 %if 0%{?fedora} > 12 || 0%{?rhel} >= 6 || 0%{?suse_version} > 9999
 %{_bindir}/mkinitrd
 %{_bindir}/lsinitrd
