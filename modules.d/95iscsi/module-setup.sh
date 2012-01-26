@@ -52,7 +52,7 @@ installkernel() {
             esac
         done
     }
-    { find_kernel_modules_by_path drivers/scsi; find_kernel_modules_by_path drivers/s390/scsi } \
+    { find_kernel_modules_by_path drivers/scsi; find_kernel_modules_by_path drivers/s390/scsi; } \
     | iscsi_module_filter  |  instmods
 }
 
