@@ -45,7 +45,7 @@ installkernel() {
         done
     }
 
-    ( find_kernel_modules_by_path drivers/scsi drivers/s390/scsi ;
+    ( find_kernel_modules_by_path drivers/scsi; find_kernel_modules_by_path drivers/s390/scsi ;
       find_kernel_modules_by_path drivers/md )  |  mp_mod_filter  |  instmods
     [[ $debug ]] && set -x
 }
