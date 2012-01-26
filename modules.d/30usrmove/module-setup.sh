@@ -13,6 +13,7 @@ depends() {
 
 install() {
     dracut_install bash
+    dracut_install find ldconfig mv rm cp ln 
     inst_hook pre-pivot 99 "$moddir/do-usrmove.sh"
     inst "$moddir/usrmove-convert.sh" /usr/bin/usrmove-convert
 }
