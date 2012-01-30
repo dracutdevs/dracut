@@ -153,7 +153,7 @@ set +e
 
 echo "Run ldconfig."
 ldconfig -r "$ROOT"
-echo "Set autorelabel flag."
-> "$ROOT/.autorelabel"
+#echo "Set autorelabel flag."
+#> "$ROOT/.autorelabel"
 echo "Done."
 exit 0
