@@ -13,8 +13,8 @@ check() {
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         local _found
-        for fs in $host_fs_types; do
-            [[ "$fs" = "|btrfs" ]] && _found="1"
+        for fs in ${host_fs_types[@]}; do
+            strstr "$fs" "\|btrfs" && _found="1"
         done
         [[ $_found ]] || return 1
         unset _found
