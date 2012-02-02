@@ -598,7 +598,7 @@ done
 export initdir dracutbasedir dracutmodules drivers \
     fw_dir drivers_dir debug no_kernel kernel_only \
     add_drivers mdadmconf lvmconf filesystems \
-    use_fstab libdir usrlibdir fscks nofscks cttyhack \
+    use_fstab fstab_lines libdir usrlibdir fscks nofscks cttyhack \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
     debug host_fs_types host_devs sshkey
 
