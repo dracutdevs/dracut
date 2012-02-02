@@ -160,13 +160,13 @@ if [ "$SELINUX" != "disabled" ] && [ -f /etc/selinux/${SELINUXTYPE}/contexts/fil
     /usr/sbin/setfiles -r $ROOT -p /etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts $ROOT/sbin $ROOT/bin $ROOT/lib $ROOT/lib64 $ROOT/usr/lib $ROOT/usr/lib64 $ROOT/etc/ld.so.cache $ROOT/var/cache/ldconfig || :
 fi
 
-if [ -d $ROOT/var/run ]; then
+if [ ! -L $ROOT/var/run ]; then
     echo "Converting /var/run to symlink"
     mv -f $ROOT/var/run $ROOT/var/run.runmove~
     ln -sfn ../run $ROOT/var/run
 fi
 
-if [ -d $ROOT/var/lock ]; then
+if [ ! -L $ROOT/var/lock ]; then
     echo "Converting /var/lock to symlink"
     mv -f $ROOT/var/lock $ROOT/var/lock.lockmove~
     ln -sfn ../run/lock $ROOT/var/lock
