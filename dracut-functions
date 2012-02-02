@@ -464,18 +464,16 @@ inst_binary() {
 
         # See if we are loading an optimized version of a shared lib.
         if [[ $_file =~ $_lib_regex ]]; then
-            _tlibdir=${BASH_REMATCH[1]}
-            _base=${_file##*/}
-            # Prefer nosegneg libs to unoptimized ones.
+           _tlibdir=${BASH_REMATCH[1]}
+           _base=${_file##*/}
+           # Prefer nosegneg libs to unoptimized ones.
             for _f in "$_tlibdir/i686/nosegneg" "$_tlibdir"; do
                 [[ -e $_f/$_base ]] || continue
-                _file=$_f/$_base
+                inst_library $_f/$_base
                 break
             done
-            inst_library "$_file" "$_tlibdir/$_base"
-        else
-            inst_library "$_file"
         fi
+        inst_library "$_file"
     done
 
     # Install the binary if it wasn't handled in the above loop.
