@@ -14,7 +14,7 @@ fix_bootif() {
 }
 
 # Don't continue if we don't need network
-[ -z "$netroot" ] && return;
+[ -z "$netroot" ] && ! getargbool 0 rd.neednet && return;
 
 # Write udev rules
 {
@@ -35,17 +35,29 @@ fix_bootif() {
     BOOTIF=$(getarg 'BOOTIF=')
     if [ -n "$BOOTIF" ] ; then
         BOOTIF=$(fix_bootif "$BOOTIF")
-        printf 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="%s", RUN+="/sbin/ifup $env{INTERFACE}"\n' "$BOOTIF"
+        if [ -n "$netroot" ]; then
+            printf 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="%s", RUN+="/sbin/ifup $env{INTERFACE}"\n' "$BOOTIF"
+        else
+            printf 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="%s", RUN+="/sbin/ifup $env{INTERFACE} -m"\n' "$BOOTIF"
+        fi
 
     # If we have to handle multiple interfaces, handle only them.
     elif [ -n "$IFACES" ] ; then
         for iface in $IFACES ; do
-            printf 'SUBSYSTEM=="net", ENV{INTERFACE}=="%s", RUN+="/sbin/ifup $env{INTERFACE}"\n' "$iface"
+            if [ -n "$netroot" ]; then
+                printf 'SUBSYSTEM=="net", ENV{INTERFACE}=="%s", RUN+="/sbin/ifup $env{INTERFACE}"\n' "$iface"
+            else
+                printf 'SUBSYSTEM=="net", ENV{INTERFACE}=="%s", RUN+="/sbin/ifup $env{INTERFACE} -m"\n' "$iface"
+            fi
         done
 
     # Default: We don't know the interface to use, handle all
     else
-        printf 'SUBSYSTEM=="net", RUN+="/sbin/ifup $env{INTERFACE}"\n'
+        if [ -n "$netroot" ]; then
+            printf 'SUBSYSTEM=="net", RUN+="/sbin/ifup $env{INTERFACE}"\n'
+        else
+            printf 'SUBSYSTEM=="net", RUN+="/sbin/ifup $env{INTERFACE} -m"\n'
+        fi
     fi
 
 } > /etc/udev/rules.d/60-net.rules
