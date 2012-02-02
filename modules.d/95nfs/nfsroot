@@ -84,22 +84,7 @@ getarg rw && nfsrw=rw
 
 options=${options:+$options,}$nfsrw
 
-# Start rpcbind or rpcbind
-# FIXME occasionally saw 'rpcbind: fork failed: No such device' -- why?
-command -v portmap >/dev/null && [ -z "$(pidof portmap)" ] && portmap
-command -v rpcbind >/dev/null && [ -z "$(pidof rpcbind)" ] && rpcbind
-
 if [ "$nfs" = "nfs4" ]; then
-    [ ! -d /var/lib/nfs/rpc_pipefs/nfs ] && \
-         mount -t rpc_pipefs rpc_pipefs /var/lib/nfs/rpc_pipefs
-
-    # Start rpc.statd as mount won't let us use locks on a NFSv4
-    # filesystem without talking to it. NFSv4 does locks internally,
-    # rpc.lockd isn't needed
-    [ -z "$(pidof rpc.statd)" ] && rpc.statd
-
-    [ -z "$(pidof rpc.idmapd)" ] && rpc.idmapd
-
     # XXX Should we loop here?
     mount -t nfs4 -o$options${nfslock+,$nfslock} \
         $server:$path $NEWROOT \
