@@ -11,7 +11,7 @@ fstab_mount() {
     info "Mounting from $1"
     while read _dev _mp _fs _opts _dump _pass _rest; do
         [ -z "${_dev%%#*}" ] && continue # Skip comment lines
-        if [ ! -e "$_dev" ]; then
+        if [[ ! "$_fs" =~ "nfs" ]] && [ ! -e "$_dev" ]; then
             warn "Device $_dev doesn't exist, skipping mount."
             continue
         fi
