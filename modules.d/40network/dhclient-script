@@ -76,7 +76,13 @@ case $reason in
             echo "$line"
         done >/tmp/dhclient.$netif.dhcpopts
         echo online > /sys/class/net/$netif/uevent
-        initqueue --onetime --name netroot-$netif netroot $netif
+
+        if [ -e /tmp/net.$netif.manualup ]; then
+            /sbin/netroot $netif -m
+            rm -f /tmp/net.$netif.manualup
+        else
+            initqueue --onetime --name netroot-$netif netroot $netif
+        fi
         ;;
     *) echo "dhcp: $reason";;
 esac

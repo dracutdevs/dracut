@@ -5,9 +5,54 @@
 # We don't need to check for ip= errors here, that is handled by the
 # cmdline parser script
 #
+# without $2 means this is for real netroot case
+# or it is for manually bring up network ie. for kdump scp vmcore
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+export PS4="ifup.$1.$$ + "
+exec >>/run/initramfs/loginit.pipe 2>>/run/initramfs/loginit.pipe
+type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+
+# Huh? No $1?
+[ -z "$1" ] && exit 1
+
+# $netif reads easier than $1
+netif=$1
+
+# enslave this interface to bond?
+if [ -e /tmp/bond.info ]; then
+    . /tmp/bond.info
+    for slave in $bondslaves ; do
+        if [ "$netif" = "$slave" ] ; then
+            netif=$bondname
+        fi
+    done
+fi
+
+# bridge this interface?
+if [ -e /tmp/bridge.info ]; then
+    . /tmp/bridge.info
+    if [ "$netif" = "$ethname" ]; then
+        if [ "$netif" = "$bondname" ] && [ -n "$DO_BOND_SETUP" ] ; then
+            : # We need to really setup bond (recursive call)
+        else
+            netif="$bridgename"
+        fi
+    fi
+fi
+
+# bail immediately if the interface is already up
+# or we don't need the network
+[ -f "/tmp/net.$netif.up" ] && exit 0
+[ -f "/tmp/root.info" ] || exit 0
+. /tmp/root.info
+
+# disable manual ifup while netroot is set for simplifying our logic
+# in netroot case we prefer netroot to bringup $netif automaticlly
+[ -n "$2" ] && [ -z "$netroot" ] && manualup="$2"
+[ -z "$netroot" ] && [ -z "$manualup" ] && exit 0
+[ -n "$manualup" ] && >/tmp/net.$netif.manualup
 
 # Run dhclient
 do_dhcp() {
@@ -50,7 +95,11 @@ do_ipv6auto() {
 
 
     echo online > /sys/class/net/$netif/uevent
-    initqueue --onetime --name netroot-$netif netroot $netif
+    if [ -n "$manualup" ]; then
+        /sbin/netroot $netif -m
+    else
+        initqueue --onetime --name netroot-$netif netroot $netif
+    fi
 }
 
 # Handle static ip configuration
@@ -77,47 +126,12 @@ do_static() {
     fi >> /tmp/net.$netif.resolv.conf
 
     echo online > /sys/class/net/$netif/uevent
-    initqueue --onetime --name netroot-$netif netroot $netif
-}
-
-export PS4="ifup.$1.$$ + "
-exec >>/run/initramfs/loginit.pipe 2>>/run/initramfs/loginit.pipe
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
-
-# Huh? No $1?
-[ -z "$1" ] && exit 1
-
-# $netif reads easier than $1
-netif=$1
-
-# enslave this interface to bond?
-if [ -e /tmp/bond.info ]; then
-    . /tmp/bond.info
-    for slave in $bondslaves ; do
-        if [ "$netif" = "$slave" ] ; then
-            netif=$bondname
-        fi
-    done
-fi
-
-# bridge this interface?
-if [ -e /tmp/bridge.info ]; then
-    . /tmp/bridge.info
-    if [ "$netif" = "$ethname" ]; then
-        if [ "$netif" = "$bondname" ] && [ -n "$DO_BOND_SETUP" ] ; then
-            : # We need to really setup bond (recursive call)
-        else
-            netif="$bridgename"
-        fi
+    if [ -n "$manualup" ]; then
+        /sbin/netroot $netif -m
+    else
+        initqueue --onetime --name netroot-$netif netroot $netif
     fi
-fi
-
-# bail immediately if the interface is already up
-# or we don't need the network
-[ -f "/tmp/net.$netif.up" ] && exit 0
-[ -f "/tmp/root.info" ] || exit 0
-. /tmp/root.info
-[ -z "$netroot" ] && exit 0
+}
 
 # loopback is always handled the same way
 if [ "$netif" = "lo" ] ; then
@@ -228,5 +242,4 @@ for p in $(getargs ip=); do
     esac
     break
 done
-
 exit 0
