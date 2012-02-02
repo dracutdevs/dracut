@@ -11,7 +11,7 @@ fi
 
 if [[ "$ROOT" -ef / ]]; then
     echo "Can't convert the running system."
-    echo "Please boot with 'usrmove' on the kernel command line,"
+    echo "Please boot with 'rd.convertfs' on the kernel command line,"
     echo "to update with the help of the initramfs,"
     echo "or run this script from a rescue system."
     exit 1
@@ -153,7 +153,24 @@ set +e
 
 echo "Run ldconfig."
 ldconfig -r "$ROOT"
-#echo "Set autorelabel flag."
-#> "$ROOT/.autorelabel"
+
+. $ROOT/etc/selinux/config
+if [ "$SELINUX" != "disabled" ] && [ -f /etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts ]; then
+    echo "Fixing SELinux labels"
+    /usr/sbin/setfiles -r $ROOT -p /etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts $ROOT/sbin $ROOT/bin $ROOT/lib $ROOT/lib64 $ROOT/usr/lib $ROOT/usr/lib64 $ROOT/etc/ld.so.cache $ROOT/var/cache/ldconfig || :
+fi
+
+if [ -d $ROOT/var/run ]; then
+    echo "Converting /var/run to symlink"
+    mv -f $ROOT/var/run $ROOT/var/run.runmove~
+    ln -sfn ../run $ROOT/var/run
+fi
+
+if [ -d $ROOT/var/lock ]; then
+    echo "Converting /var/lock to symlink"
+    mv -f $ROOT/var/lock $ROOT/var/lock.lockmove~
+    ln -sfn ../run/lock $ROOT/var/lock
+fi
+
 echo "Done."
 exit 0
