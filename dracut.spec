@@ -232,7 +232,7 @@ rm -rf $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/05busybox
 %{dracutlibdir}/modules.d/10i18n
 %{dracutlibdir}/modules.d/10rpmversion
-%{dracutlibdir}/modules.d/30usrmove
+%{dracutlibdir}/modules.d/30convertfs
 %{dracutlibdir}/modules.d/50plymouth
 %{dracutlibdir}/modules.d/90btrfs
 %{dracutlibdir}/modules.d/90crypt
