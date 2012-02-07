@@ -36,27 +36,27 @@ fix_bootif() {
     if [ -n "$BOOTIF" ] ; then
         BOOTIF=$(fix_bootif "$BOOTIF")
         if [ -n "$netroot" ]; then
-            printf 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="%s", RUN+="/sbin/ifup $env{INTERFACE}"\n' "$BOOTIF"
+            printf 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="%s", OPTIONS+="event_timeout=360", RUN+="/sbin/ifup $env{INTERFACE}"\n' "$BOOTIF"
         else
-            printf 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="%s", RUN+="/sbin/ifup $env{INTERFACE} -m"\n' "$BOOTIF"
+            printf 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="%s", OPTIONS+="event_timeout=360", RUN+="/sbin/ifup $env{INTERFACE} -m"\n' "$BOOTIF"
         fi
 
     # If we have to handle multiple interfaces, handle only them.
     elif [ -n "$IFACES" ] ; then
         for iface in $IFACES ; do
             if [ -n "$netroot" ]; then
-                printf 'SUBSYSTEM=="net", ENV{INTERFACE}=="%s", RUN+="/sbin/ifup $env{INTERFACE}"\n' "$iface"
+                printf 'SUBSYSTEM=="net", ENV{INTERFACE}=="%s", OPTIONS+="event_timeout=360", RUN+="/sbin/ifup $env{INTERFACE}"\n' "$iface"
             else
-                printf 'SUBSYSTEM=="net", ENV{INTERFACE}=="%s", RUN+="/sbin/ifup $env{INTERFACE} -m"\n' "$iface"
+                printf 'SUBSYSTEM=="net", ENV{INTERFACE}=="%s", OPTIONS+="event_timeout=360", RUN+="/sbin/ifup $env{INTERFACE} -m"\n' "$iface"
             fi
         done
 
     # Default: We don't know the interface to use, handle all
     else
         if [ -n "$netroot" ]; then
-            printf 'SUBSYSTEM=="net", RUN+="/sbin/ifup $env{INTERFACE}"\n'
+            printf 'SUBSYSTEM=="net", OPTIONS+="event_timeout=360", RUN+="/sbin/ifup $env{INTERFACE}"\n'
         else
-            printf 'SUBSYSTEM=="net", RUN+="/sbin/ifup $env{INTERFACE} -m"\n'
+            printf 'SUBSYSTEM=="net", OPTIONS+="event_timeout=360", RUN+="/sbin/ifup $env{INTERFACE} -m"\n'
         fi
     fi
 
