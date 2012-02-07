@@ -441,8 +441,8 @@ inst_binary() {
 
     _bin=$(find_binary "$1") || return 1
     _target=${2:-$_bin}
-    inst_symlink $_bin $_target && return 0
     [[ -e $initdir/$_target ]] && return 0
+    inst_symlink $_bin $_target && return 0
 
     # If the binary being installed is also a library, add it to the loop.
     _so_regex='([^ ]*/lib[^/]*/[^ ]*\.so[^ ]*)'
