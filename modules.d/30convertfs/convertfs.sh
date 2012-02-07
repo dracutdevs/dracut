@@ -21,6 +21,18 @@ while [[ "$ROOT" != "${ROOT%/}" ]]; do
     ROOT=${ROOT%/}
 done
 
+if [ ! -L $ROOT/var/run ]; then
+    echo "Converting /var/run to symlink"
+    mv -f $ROOT/var/run $ROOT/var/run.runmove~
+    ln -sfn ../run $ROOT/var/run
+fi
+
+if [ ! -L $ROOT/var/lock ]; then
+    echo "Converting /var/lock to symlink"
+    mv -f $ROOT/var/lock $ROOT/var/lock.lockmove~
+    ln -sfn ../run/lock $ROOT/var/lock
+fi
+
 needconvert() {
     for dir in "$ROOT/bin" "$ROOT/sbin" "$ROOT/lib" "$ROOT/lib64"; do
         if [[ -e "$dir" ]]; then
@@ -158,18 +170,6 @@ ldconfig -r "$ROOT"
 if [ "$SELINUX" != "disabled" ] && [ -f /etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts ]; then
     echo "Fixing SELinux labels"
     /usr/sbin/setfiles -r $ROOT -p /etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts $ROOT/sbin $ROOT/bin $ROOT/lib $ROOT/lib64 $ROOT/usr/lib $ROOT/usr/lib64 $ROOT/etc/ld.so.cache $ROOT/var/cache/ldconfig || :
-fi
-
-if [ ! -L $ROOT/var/run ]; then
-    echo "Converting /var/run to symlink"
-    mv -f $ROOT/var/run $ROOT/var/run.runmove~
-    ln -sfn ../run $ROOT/var/run
-fi
-
-if [ ! -L $ROOT/var/lock ]; then
-    echo "Converting /var/lock to symlink"
-    mv -f $ROOT/var/lock $ROOT/var/lock.lockmove~
-    ln -sfn ../run/lock $ROOT/var/lock
 fi
 
 echo "Done."
