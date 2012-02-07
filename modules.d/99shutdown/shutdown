@@ -32,7 +32,7 @@ emergency_shell()
         export PS1="$_rdshell_name:\${PWD}# "
         [ -e /.profile ] || >/.profile
         _ctty=/dev/console
-        if type setsid >/dev/null 2>&1; then
+        if [ -n "$(command -v setsid)" ]; then
             _ctty="$(getarg rd.ctty=)" && _ctty="/dev/${_ctty##*/}"
             [ -c "$_ctty" ] || _ctty=/dev/tty1
             setsid sh -i -l 0<$_ctty 1>$_ctty 2>&1
