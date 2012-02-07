@@ -63,7 +63,6 @@ Requires: bash
 Requires: bzip2
 Requires: coreutils
 Requires: cpio
-Requires: dash
 Requires: filesystem >= 2.1.0
 Requires: findutils
 Requires: grep
