@@ -431,7 +431,7 @@ find_binary() {
         fi
     fi
 
-    PATH="/usr/sbin:/sbin:/usr/bin:/bin" type -P $1
+    type -P $1
 }
 
 # Same as above, but specialized to install binary executables.
