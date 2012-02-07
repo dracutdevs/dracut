@@ -467,7 +467,7 @@ inst_binary() {
            _tlibdir=${BASH_REMATCH[1]}
            _base=${_file##*/}
            # Prefer nosegneg libs to unoptimized ones.
-            for _f in "$_tlibdir/i686/nosegneg" "$_tlibdir"; do
+            for _f in "$_tlibdir/i686/nosegneg"; do
                 [[ -e $_f/$_base ]] || continue
                 inst_library $_f/$_base
                 break
