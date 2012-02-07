@@ -497,21 +497,27 @@ inst_script() {
 
 # same as above, but specialized for symlinks
 inst_symlink() {
-    local _src=$1 _target=$initdir/${2:-$1} _realsrc
+    local _src=$1 _target=${2:-$1} _realsrc
     strstr "$1" "/" || return 1
     [[ -L $1 ]] || return 1
-    [[ -L $_target ]] && return 0
+    [[ -L $initdir/$_target ]] && return 0
     _realsrc=$(readlink -f "$_src")
-    [[ $_realsrc = ${_realsrc##*/} ]] && _realsrc=${_src%/*}/$_realsrc
+    [[ -d ${_target%/*} ]] && _target=$(readlink -f ${_target%/*})/${_target##*/}
     if [[ -d $_realsrc ]]; then
         inst_dir "$_realsrc"
     else
-        inst "$_realsrc" && mkdir -m 0755 -p "${_target%/*}"
+        {
+            local _t
+            _t=${2:-$1}
+            _t="${_t%/*}"
+            [[ $_t ]] && inst_dir "$_t"
+            inst "$_realsrc"
+        }
     fi
     if [[ -e "${_src}" ]]; then
-        ln -sfn $(convert_abs_rel "${_src}" "${_realsrc}") "$_target"
+        ln -sfn $(convert_abs_rel "${_target}" "${_realsrc}") "$initdir/$_target"
     else
-        ln -sfn "$_realsrc" "$_target"
+        ln -sfn "$_realsrc" "$initdir/$_target"
     fi
 }
 
