@@ -7,6 +7,8 @@ echo \#buildapi-variable-no-builddir >/dev/null
 
 prefix=/usr
 
+enable_documentation=yes
+
 # Little helper function for reading args from the commandline.
 # it automatically handles -a b and -a=b variants, and returns 1 if
 # we need to shift $3.
@@ -33,6 +35,7 @@ while (($# > 0)); do
         --sysconfdir) read_arg sysconfdir "$@" || shift;;
         --sbindir) read_arg sbindir "$@" || shift;;
         --mandir) read_arg mandir "$@" || shift;;
+        --disable-documentation) enable_documentation=no;;
         *) echo "Ignoring unknown option '$1'";;
     esac
     shift
@@ -45,5 +48,6 @@ datadir ?= ${datadir:-${prefix}/share}
 sysconfdir ?= ${sysconfdir:-${prefix}/etc}
 sbindir ?= ${sbindir:-${prefix}/sbin}
 mandir ?= ${mandir:-${prefix}/share/man}
+enable_documentation ?= ${enable_documentation}
 EOF
 mv Makefile.inc.tmp Makefile.inc
