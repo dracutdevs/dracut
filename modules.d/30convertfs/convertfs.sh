@@ -167,9 +167,9 @@ echo "Run ldconfig."
 ldconfig -r "$ROOT"
 
 . $ROOT/etc/selinux/config
-if [ "$SELINUX" != "disabled" ] && [ -f /etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts ]; then
+if [ -n "$(command -v setfiles)" ] && [ "$SELINUX" != "disabled" ] && [ -f /etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts ]; then
     echo "Fixing SELinux labels"
-    /usr/sbin/setfiles -r $ROOT -p /etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts $ROOT/sbin $ROOT/bin $ROOT/lib $ROOT/lib64 $ROOT/usr/lib $ROOT/usr/lib64 $ROOT/etc/ld.so.cache $ROOT/var/cache/ldconfig || :
+    setfiles -r $ROOT -p /etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts $ROOT/sbin $ROOT/bin $ROOT/lib $ROOT/lib64 $ROOT/usr/lib $ROOT/usr/lib64 $ROOT/etc/ld.so.cache $ROOT/var/cache/ldconfig || :
 fi
 
 echo "Done."
