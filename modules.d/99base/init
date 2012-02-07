@@ -64,6 +64,8 @@ emergency_shell()
             _ctty="$(getarg rd.ctty=)" && _ctty="/dev/${_ctty##*/}"
             [ -c "$_ctty" ] || _ctty=/dev/tty1
             setsid sh -i -l 0<$_ctty 1>$_ctty 2>&1
+        elif [ -n "$(command -v openvt)" ] && ! getarg "console=" >/dev/null 2>&1 && getargbool 1 "rd.openvt" ; then
+            openvt -f -c 1 -w -s -l -- sh
         else
             sh -i -l 0<$_ctty 1>$_ctty 2>&1
         fi

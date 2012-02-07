@@ -7,4 +7,4 @@ omit_dracutmodules+=" dash "
 stdloglvl=3
 prefix=/run/initramfs
 realinitpath="/usr/lib/systemd/systemd"
-install_items+=" vi /etc/virc ps grep cat rm "
+install_items+=" vi /etc/virc ps grep cat rm openvt "
