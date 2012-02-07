@@ -87,6 +87,7 @@ install() {
         inst ${moddir}/console_init /lib/udev/console_init
         inst_rules ${moddir}/10-console.rules
         inst_hook cmdline 20 "${moddir}/parse-i18n.sh"
+        inst_hook pre-pivot 20 "${moddir}/i18n-cleanup.sh"
     }
 
     install_all_kbd() {

@@ -14,5 +14,7 @@ install() {
             inst_simple $f
         done
     fi
+
+    inst_hook pre-pivot 20 "${moddir}/terminfo-cleanup.sh"
 }
 
