@@ -5,3 +5,4 @@ i18n_vars="/etc/sysconfig/keyboard:KEYTABLE-KEYMAP /etc/sysconfig/i18n:SYSFONT-F
 add_dracutmodules+=" rpmversion "
 stdloglvl=3
 prefix=/run/initramfs
+realinitpath="/usr/lib/systemd/systemd"

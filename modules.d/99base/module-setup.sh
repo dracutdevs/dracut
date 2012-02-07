@@ -47,5 +47,11 @@ install() {
     inst_hook cmdline 10 "$moddir/parse-root-opts.sh"
     mkdir -p "${initdir}/var"
     [ -x /lib/systemd/systemd-timestamp ] && inst /lib/systemd/systemd-timestamp
+    if [[ $realinitpath ]]; then
+        for i in $realinitpath; do 
+            echo "rd.distroinit=$i"
+        done > "${initdir}/etc/cmdline.d/distroinit.conf"
+    fi
+
 }
 
