@@ -39,7 +39,6 @@ check() {
     }
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        [[ -d "${initdir}/etc/cmdline.d" ]] || mkdir -p "${initdir}/etc/cmdline.d"
         for_each_host_dev_fs check_mdraid
         [[ -f "${initdir}/etc/cmdline.d/90mdraid.conf" ]] || return 1
     }

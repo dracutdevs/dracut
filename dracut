@@ -651,6 +651,8 @@ else
     done
 fi
 
+mkdir -p "${initdir}/etc/cmdline.d"
+
 mods_to_load=""
 # check all our modules to see if they should be sourced.
 # This builds a list of modules that we will install next.
