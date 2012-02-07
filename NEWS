@@ -1,3 +1,18 @@
+dracut-015
+==========
+- hostonly mode automatically adds command line options for root and /usr
+- --add-fstab --mount parameters
+- ssh-client module
+- --ctty option: add job control
+- cleanup /run/initramfs
+- convertfs module
+- /sbin/ifup can be called directly
+- support kernel modules compressed with xz
+- s390 iscsi modules added
+- terminfo module
+- lsinitrd can handle concatened images
+- lsinitrd can sort by size
+
 dracut-014
 ==========
 - new dracut arguments:
