@@ -592,7 +592,7 @@ inst() {
 
 [[ $hookdirs ]] || {
     hookdirs="cmdline pre-udev pre-trigger netroot initqueue pre-mount"
-    hookdirs+=" pre-pivot mount emergency shutdown-emergency shutdown"
+    hookdirs+=" pre-pivot mount emergency shutdown-emergency shutdown cleanup"
     export hookdirs
 }
 

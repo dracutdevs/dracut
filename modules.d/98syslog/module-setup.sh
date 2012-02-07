@@ -34,7 +34,7 @@ install() {
         dracut_install $_installs
         inst_hook cmdline  90 "$moddir/parse-syslog-opts.sh"
         inst_hook pre-udev 61 "$moddir/syslog-genrules.sh"
-        inst_hook pre-pivot 99 "$moddir/syslog-cleanup.sh"
+        inst_hook cleanup 99 "$moddir/syslog-cleanup.sh"
         inst_simple "$moddir/rsyslogd-start.sh" /sbin/rsyslogd-start
         inst_simple "$moddir/rsyslogd-stop.sh" /sbin/rsyslogd-stop
         mkdir -m 0755 -p ${initdir}/etc/templates

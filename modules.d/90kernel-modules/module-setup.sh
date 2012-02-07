@@ -75,7 +75,7 @@ install() {
         inst_simple "$i"
     done
     inst_hook cmdline 01 "$moddir/parse-kernel.sh"
-    inst_hook pre-pivot 20 "$moddir/kernel-cleanup.sh"
+    inst_hook cleanup 20 "$moddir/kernel-cleanup.sh"
     inst_simple "$moddir/insmodpost.sh" /sbin/insmodpost.sh
 
     for _f in modules.builtin.bin modules.builtin; do

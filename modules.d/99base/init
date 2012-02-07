@@ -422,6 +422,8 @@ wait_for_loginit
 getarg rd.break rdbreak && emergency_shell -n switch_root "Break before switch_root"
 info "Switching root"
 
+source_hook cleanup
+
 unset PS4
 
 CAPSH=$(command -v capsh)
