@@ -367,7 +367,7 @@ fi
 
 if (( ${#install_items_l[@]} )); then
     while pop install_items_l val; do
-        push install_items $val
+        install_items+=" $val "
     done
 fi
 
@@ -716,10 +716,8 @@ while pop include_src src && pop include_target tgt; do
     fi
 done
 
-while pop install_items items; do
-    for item in $items; do
-        dracut_install "$item"
-    done
+for item in $install_items; do
+    dracut_install -o "$item"
 done
 unset item
 
