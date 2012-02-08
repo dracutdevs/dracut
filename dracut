@@ -284,9 +284,10 @@ for i in /usr/bin /bin /usr/sbin /sbin; do
     if [ -L "$i" ]; then
         rl=$(readlink -f $i)
     fi
-    PATH="$PATH:$rl"
+    NPATH="$NPATH:$rl"
 done
-export PATH
+export PATH="$NPATH"
+unset NPATH
 unset LD_LIBRARY_PATH
 unset GREP_OPTIONS
 
