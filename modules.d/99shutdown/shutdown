@@ -26,7 +26,6 @@ emergency_shell()
     source_hook shutdown-emergency
     echo
     if getargbool 1 rd.shell -y rdshell || getarg rd.break rdbreak; then
-        [ -x /lib/udev/console_init ] && /lib/udev/console_init /dev/console
         echo "Dropping to debug shell."
         echo
         export PS1="$_rdshell_name:\${PWD}# "
