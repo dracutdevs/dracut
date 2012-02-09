@@ -279,14 +279,14 @@ if ! [[ $kernel ]]; then
 fi
 [[ $outfile ]] || outfile="/boot/initramfs-$kernel.img"
 
-for i in /usr/bin /bin /usr/sbin /sbin; do
+for i in /usr/sbin /sbin /usr/bin /bin; do
     rl=$i
     if [ -L "$i" ]; then
         rl=$(readlink -f $i)
     fi
-    NPATH="$NPATH:$rl"
+    NPATH+=":$rl"
 done
-export PATH="$NPATH"
+export PATH="${NPATH#:}"
 unset NPATH
 unset LD_LIBRARY_PATH
 unset GREP_OPTIONS
