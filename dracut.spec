@@ -27,6 +27,7 @@ Source0: http://www.kernel.org/pub/linux/utils/boot/dracut/dracut-%{version}.tar
 
 BuildArch: noarch
 BuildRequires: dash bash git
+
 %if 0%{?fedora} || 0%{?rhel} > 6
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %endif
@@ -49,6 +50,10 @@ Obsoletes: mkinitrd <= 6.0.93
 Obsoletes: mkinitrd-devel <= 6.0.93
 Obsoletes: nash <= 6.0.93
 Obsoletes: libbdevid-python <= 6.0.93
+%endif
+
+%if 0%{?fedora} > 16 || 0%{?rhel} > 6
+BuildRequires: systemd-units
 %endif
 
 %if 0%{?suse_version} > 9999
@@ -161,7 +166,8 @@ rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT \
      libdir=%{_prefix}/lib \
      bindir=%{_bindir} \
-     sysconfdir=/etc mandir=%{_mandir}
+     sysconfdir=/etc mandir=%{_mandir} \
+     systemdsystemunitdir=%{_unitdir}
 
 echo %{name}-%{version}-%{release} > $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/10rpmversion/dracut-version
 
@@ -217,6 +223,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{dracutlibdir}/modules.d
 %{dracutlibdir}/dracut-functions
 %{dracutlibdir}/dracut-logger
+%{dracutlibdir}/dracut-initramfs-backup
 %config(noreplace) /etc/dracut.conf
 %if 0%{?fedora} || 0%{?suse_version} || 0%{?rhel} > 6
 %config /etc/dracut.conf.d/01-dist.conf
@@ -266,6 +273,10 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/logrotate.d/dracut_log
 %attr(0644,root,root) %ghost %config(missingok,noreplace) %{_localstatedir}/log/dracut.log
 %dir %{_sharedstatedir}/initramfs
+%if 0%{?fedora} > 16 || 0%{?rhel} > 6
+%{_unitdir}/*.service
+%{_unitdir}/*/*.service
+%endif
 
 %files network
 %defattr(-,root,root,0755)

@@ -40,6 +40,7 @@ install: doc
 	mkdir -p $(DESTDIR)$(sysconfdir)/dracut.conf.d
 	install -m 0755 dracut-functions $(DESTDIR)$(pkglibdir)/dracut-functions
 	install -m 0755 dracut-logger $(DESTDIR)$(pkglibdir)/dracut-logger
+	install -m 0755 dracut-initramfs-backup.sh $(DESTDIR)$(pkglibdir)/dracut-initramfs-backup
 	cp -arx modules.d $(DESTDIR)$(pkglibdir)
 	install -m 0644 dracut.8 $(DESTDIR)$(mandir)/man8/dracut.8
 	install -m 0644 dracut-catimages.8 $(DESTDIR)$(mandir)/man8/dracut-catimages.8
@@ -47,6 +48,15 @@ install: doc
 	install -m 0644 dracut.conf.5 $(DESTDIR)$(mandir)/man5/dracut.conf.5
 	install -m 0644 dracut.cmdline.7 $(DESTDIR)$(mandir)/man7/dracut.cmdline.7
 	ln -s dracut.cmdline.7 $(DESTDIR)$(mandir)/man7/dracut.kernel.7
+	if [ -n "$(systemdsystemunitdir)" ]; then \
+		mkdir -p $(DESTDIR)$(systemdsystemunitdir); \
+		install -m 0644 dracut-backup.service $(DESTDIR)$(systemdsystemunitdir); \
+		install -m 0644 dracut-restore.service $(DESTDIR)$(systemdsystemunitdir); \
+		mkdir -p $(DESTDIR)$(systemdsystemunitdir)/sysinit.target.wants; \
+		mkdir -p $(DESTDIR)$(systemdsystemunitdir)/reboot.target.wants; \
+		ln -s ../dracut-backup.service $(DESTDIR)$(systemdsystemunitdir)/sysinit.target.wants/dracut-backup.service; \
+		ln -s ../dracut-restore.service $(DESTDIR)$(systemdsystemunitdir)/reboot.target.wants/dracut-restore.service; \
+	fi
 
 clean:
 	$(RM) *~
@@ -77,12 +87,14 @@ rpm: dracut-$(VERSION).tar.bz2
 	( mv "$$rpmbuild"/noarch/*.rpm .; mv "$$rpmbuild"/*.src.rpm .;rm -fr "$$rpmbuild"; ls *.rpm )
 
 syncheck:
-	@ret=0;for i in dracut-logger modules.d/99base/init modules.d/*/*.sh; do \
+	@ret=0;for i in dracut-initramfs-backup.sh dracut-logger \
+                        modules.d/99base/init modules.d/*/*.sh; do \
                 [ "$${i##*/}" = "module-setup.sh" ] && continue; \
                 [ "$${i##*/}" = "caps.sh" ] && continue; \
 		dash -n "$$i" ; ret=$$(($$ret+$$?)); \
 	done;exit $$ret
-	@ret=0;for i in dracut modules.d/02caps/caps.sh modules.d/*/module-setup.sh; do \
+	@ret=0;for i in mkinitrd-dracut.sh dracut modules.d/02caps/caps.sh \
+	                modules.d/*/module-setup.sh; do \
 		bash -n "$$i" ; ret=$$(($$ret+$$?)); \
 	done;exit $$ret
 
