@@ -223,7 +223,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{dracutlibdir}/modules.d
 %{dracutlibdir}/dracut-functions
 %{dracutlibdir}/dracut-logger
-%{dracutlibdir}/dracut-initramfs-backup
+%{dracutlibdir}/dracut-initramfs-restore
 %config(noreplace) /etc/dracut.conf
 %if 0%{?fedora} || 0%{?suse_version} || 0%{?rhel} > 6
 %config /etc/dracut.conf.d/01-dist.conf

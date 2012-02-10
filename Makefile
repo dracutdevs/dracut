@@ -40,7 +40,7 @@ install: doc
 	mkdir -p $(DESTDIR)$(sysconfdir)/dracut.conf.d
 	install -m 0755 dracut-functions $(DESTDIR)$(pkglibdir)/dracut-functions
 	install -m 0755 dracut-logger $(DESTDIR)$(pkglibdir)/dracut-logger
-	install -m 0755 dracut-initramfs-backup.sh $(DESTDIR)$(pkglibdir)/dracut-initramfs-backup
+	install -m 0755 dracut-initramfs-restore.sh $(DESTDIR)$(pkglibdir)/dracut-initramfs-restore
 	cp -arx modules.d $(DESTDIR)$(pkglibdir)
 	install -m 0644 dracut.8 $(DESTDIR)$(mandir)/man8/dracut.8
 	install -m 0644 dracut-catimages.8 $(DESTDIR)$(mandir)/man8/dracut-catimages.8
@@ -50,12 +50,9 @@ install: doc
 	ln -s dracut.cmdline.7 $(DESTDIR)$(mandir)/man7/dracut.kernel.7
 	if [ -n "$(systemdsystemunitdir)" ]; then \
 		mkdir -p $(DESTDIR)$(systemdsystemunitdir); \
-		install -m 0644 dracut-backup.service $(DESTDIR)$(systemdsystemunitdir); \
-		install -m 0644 dracut-restore.service $(DESTDIR)$(systemdsystemunitdir); \
-		mkdir -p $(DESTDIR)$(systemdsystemunitdir)/sysinit.target.wants; \
+		install -m 0644 dracut-shutdown.service $(DESTDIR)$(systemdsystemunitdir); \
 		mkdir -p $(DESTDIR)$(systemdsystemunitdir)/reboot.target.wants; \
-		ln -s ../dracut-backup.service $(DESTDIR)$(systemdsystemunitdir)/sysinit.target.wants/dracut-backup.service; \
-		ln -s ../dracut-restore.service $(DESTDIR)$(systemdsystemunitdir)/reboot.target.wants/dracut-restore.service; \
+		ln -s ../dracut-shutdown.service $(DESTDIR)$(systemdsystemunitdir)/reboot.target.wants/dracut-shutdown.service; \
 	fi
 
 clean:

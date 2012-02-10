@@ -205,6 +205,8 @@ else
     handle_netroot $iroot
 fi
 
+need_shutdown
+
 # now we have a root filesystem somewhere in /dev/sda*
 # let the normal block handler handle root=
 exit 0

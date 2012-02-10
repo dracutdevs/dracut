@@ -106,4 +106,4 @@ echo 'settle_exit_if_exists="--exit-if-exists=/dev/root"; rm "$job"' > $hookdir/
 # force udevsettle to break
 > $hookdir/initqueue/work
 
-
+need_shutdown

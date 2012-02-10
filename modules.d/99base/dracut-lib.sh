@@ -738,3 +738,7 @@ killproc() {
         fi
     done
 }
+
+need_shutdown() {
+    >/run/initramfs/.need_shutdown
+}

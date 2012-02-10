@@ -40,3 +40,4 @@ else
     done
 fi
 
+need_shutdown

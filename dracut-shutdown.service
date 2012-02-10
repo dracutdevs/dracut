@@ -10,9 +10,9 @@ Description=Restore /run/initramfs
 After=getty@tty1.service prefdm.service
 Before=reboot.service
 DefaultDependencies=no
-ConditionPathExists=/run/initramfs/.backuped
+ConditionPathExists=/run/initramfs/.need_shutdown
 
 [Service]
-ExecStart=/usr/lib/dracut/dracut-initramfs-backup restore
+ExecStart=/usr/lib/dracut/dracut-initramfs-restore
 Type=oneshot
 RemainAfterExit=yes

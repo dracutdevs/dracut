@@ -5,6 +5,5 @@ i18n_vars="/etc/sysconfig/keyboard:KEYTABLE-KEYMAP /etc/sysconfig/i18n:SYSFONT-F
 add_dracutmodules+=" rpmversion "
 omit_dracutmodules+=" dash "
 stdloglvl=3
-prefix=/run/initramfs
 realinitpath="/usr/lib/systemd/systemd"
 install_items+=" vi /etc/virc ps grep cat rm openvt "

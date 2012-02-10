@@ -107,4 +107,5 @@ fi
 # NBD doesn't emit uevents when it gets connected, so kick it
 echo change > /sys/block/nbd0/uevent
 udevadm settle
+need_shutdown
 exit 0

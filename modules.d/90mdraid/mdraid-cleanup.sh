@@ -13,11 +13,11 @@ for md in /dev/md[0-9_]*; do
         containers="$containers $md"
         continue
     fi
-    mdadm -S "$md" >/dev/null 2>&1
+    mdadm -S "$md" >/dev/null 2>&1 || need_shutdown
 done
 
 for md in $containers; do
-    mdadm -S "$md" >/dev/null 2>&1
+    mdadm -S "$md" >/dev/null 2>&1 || need_shutdown
 done
 
 unset containers udevinfo

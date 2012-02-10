@@ -126,3 +126,5 @@ if [ "$lvmwritten" ]; then
     rm -f /etc/lvm/lvm.conf
 fi
 unset lvmwritten
+
+need_shutdown

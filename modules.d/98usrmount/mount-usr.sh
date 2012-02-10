@@ -11,6 +11,16 @@ mount_usr()
     # check, if we have to mount the /usr filesystem
     while read _dev _mp _fs _opts _rest; do
         if [ "$_mp" = "/usr" ]; then
+            case "$_dev" in
+                LABEL=*)
+                    _dev="$(echo $_dev | sed 's,/,\\x2f,g')"
+                    _dev="/dev/disk/by-label/${_dev#LABEL=}"
+		    ;;
+                UUID=*)
+                    _dev="${_dev#block:}"
+                    _dev="/dev/disk/by-uuid/${_dev#UUID=}"
+                    ;;
+            esac
             echo "$_dev ${NEWROOT}${_mp} $_fs ${_opts} $_rest"
             _usr_found="1"
             break

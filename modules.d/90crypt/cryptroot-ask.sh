@@ -117,6 +117,7 @@ unset device luksname luksfile
 # mark device as asked
 >> /tmp/cryptroot-asked-$2
 
+need_shutdown
 udevsettle
 
 exit 0

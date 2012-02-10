@@ -46,3 +46,5 @@ elif [ "$netdriver" = "bnx2x" ]; then
 else
     echo -n "$netif" > /sys/module/fcoe/parameters/create
 fi
+
+need_shutdown
