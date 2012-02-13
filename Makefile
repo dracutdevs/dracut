@@ -84,7 +84,7 @@ rpm: dracut-$(VERSION).tar.bz2
 	( mv "$$rpmbuild"/noarch/*.rpm .; mv "$$rpmbuild"/*.src.rpm .;rm -fr "$$rpmbuild"; ls *.rpm )
 
 syncheck:
-	@ret=0;for i in dracut-initramfs-backup.sh dracut-logger \
+	@ret=0;for i in dracut-initramfs-restore.sh dracut-logger \
                         modules.d/99base/init modules.d/*/*.sh; do \
                 [ "$${i##*/}" = "module-setup.sh" ] && continue; \
                 [ "$${i##*/}" = "caps.sh" ] && continue; \
