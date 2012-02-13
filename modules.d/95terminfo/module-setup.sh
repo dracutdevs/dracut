@@ -6,7 +6,7 @@ install() {
     local _terminfodir
     # terminfo bits make things work better if you fall into interactive mode
     for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
-        [ -d ${_terminfodir} ] && break
+        [ -f ${_terminfodir}/l/linux ] && break
     done
 
     if [ -d ${_terminfodir} ]; then
