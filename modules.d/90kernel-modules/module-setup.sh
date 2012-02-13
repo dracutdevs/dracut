@@ -31,7 +31,7 @@ installkernel() {
             eval "( ( rotor ) ${_side2}>&1 | bmf1 ) ${_merge}>&1"
             [[ $debug ]] && set -x
         }
-        hostonly='' instmods sr_mod sd_mod scsi_dh scsi_dh_rdac scsi_dh_emc
+        hostonly='' instmods sr_mod sd_mod scsi_dh scsi_dh_rdac scsi_dh_emc ata_piix
         hostonly='' instmods pcmcia firewire-ohci
         hostonly='' instmods usb_storage sdhci sdhci-pci
 
