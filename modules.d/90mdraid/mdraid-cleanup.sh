@@ -4,6 +4,7 @@
 
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
+_offroot=$(strstr "$(mdadm --help-options 2>&1)" offroot && echo --offroot)
 containers=""
 for md in /dev/md[0-9_]*; do
     [ -b "$md" ] || continue
@@ -13,11 +14,11 @@ for md in /dev/md[0-9_]*; do
         containers="$containers $md"
         continue
     fi
-    mdadm -S "$md" >/dev/null 2>&1 || need_shutdown
+    mdadm $_offroot -S "$md" >/dev/null 2>&1 || need_shutdown
 done
 
 for md in $containers; do
-    mdadm -S "$md" >/dev/null 2>&1 || need_shutdown
+    mdadm $_offroot -S "$md" >/dev/null 2>&1 || need_shutdown
 done
 
-unset containers udevinfo
+unset containers udevinfo _offroot

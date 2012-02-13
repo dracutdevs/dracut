@@ -7,6 +7,8 @@ _md_force_run() {
     local _udevinfo
     local _path_s
     local _path_d
+    local _offroot
+    _offroot=$(strstr "$(mdadm --help-options 2>&1)" offroot && echo --offroot)
     # try to force-run anything not running yet
     for md in /dev/md[0-9_]*; do
         [ -b "$md" ] || continue
@@ -20,7 +22,7 @@ _md_force_run() {
         # inactive ?
         [ "$(cat "$_path_s")" != "inactive" ] && continue
 
-        mdadm -R "$md" 2>&1 | vinfo
+        mdadm $_offroot -R "$md" 2>&1 | vinfo
 
         # still inactive ?
         [ "$(cat "$_path_s")" = "inactive" ] && continue
@@ -29,7 +31,7 @@ _md_force_run() {
         [ ! -r "$_path_d" ] && continue
 
         # workaround for mdmon bug
-        [ "$(cat "$_path_d")" -gt "0" ] && mdmon --takeover "$md"
+        [ "$(cat "$_path_d")" -gt "0" ] && mdmon $_offroot --takeover "$md"
     done
 }
 

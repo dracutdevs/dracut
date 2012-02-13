@@ -4,8 +4,9 @@
 _do_md_shutdown() {
     local ret
     local final=$1
+    local _offroot=$(strstr "$(mdadm --help-options 2>&1)" offroot && echo --offroot)
     info "Disassembling mdraid devices."
-    mdadm -v --stop --scan 
+    mdadm $_offroot -v --stop --scan
     ret=$?
     if [ "x$final" != "x" ]; then
         info "cat /proc/mdstat"

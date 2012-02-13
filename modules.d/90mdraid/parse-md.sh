@@ -51,3 +51,5 @@ if ! getargbool 1 rd.md.ddf -n rd_NO_MDDDF || getarg noddfmd || getarg nodmraid;
     info "no MD RAID for SNIA ddf raids"
     udevproperty rd_NO_MDDDF=1
 fi
+
+strstr "$(mdadm --help-options 2>&1)" offroot && udevproperty rd_MD_OFFROOT=--offroot
