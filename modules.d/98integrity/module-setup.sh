@@ -7,7 +7,7 @@ check() {
 }
 
 depends() {
-    echo masterkey securityfs
+    echo masterkey securityfs selinux
     return 0
 }
 
