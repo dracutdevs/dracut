@@ -99,8 +99,11 @@ test_setup() {
 	initdir=$TESTDIR/overlay/source
 	. $basedir/dracut-functions
 	dracut_install sh shutdown poweroff stty cat ps ln ip \
-        	/lib/terminfo/l/linux mount dmesg mkdir \
-		cp ping grep
+            mount dmesg mkdir cp ping grep
+        for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
+	    [ -f ${_terminfodir}/l/linux ] && break
+	done
+	dracut_install -o ${_terminfodir}/l/linux
 	inst ./client-init /sbin/init
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
 	cp -a /etc/ld.so.conf* $initdir/etc
@@ -172,10 +175,14 @@ test_setup() {
 	)
 	inst /etc/passwd /etc/passwd
 	dracut_install sh ls shutdown poweroff stty cat ps ln ip \
-	    /lib/terminfo/l/linux dmesg mkdir cp ping \
+	    dmesg mkdir cp ping \
 	    modprobe tcpdump \
 	    /etc/services sleep mount chmod
 	dracut_install /usr/sbin/iscsi-target
+        for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
+	    [ -f ${_terminfodir}/l/linux ] && break
+	done
+	dracut_install -o ${_terminfodir}/l/linux
 	instmods iscsi_tcp crc32c ipv6
         inst ./targets /etc/iscsi/targets
 	[ -f /etc/netconfig ] && dracut_install /etc/netconfig

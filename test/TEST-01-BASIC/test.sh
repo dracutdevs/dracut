@@ -25,10 +25,15 @@ test_setup() {
     # Create what will eventually be our root filesystem onto an overlay
     (
 	initdir=$TESTDIR/overlay/source
+	mkdir -p $initdir
 	. $basedir/dracut-functions
 	dracut_install sh df free ls shutdown poweroff stty cat ps ln ip route \
-	    /lib/terminfo/l/linux mount dmesg ifconfig dhclient mkdir cp ping dhclient \
+	    mount dmesg ifconfig dhclient mkdir cp ping dhclient \
 	    umount strace less
+	for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
+            [ -f ${_terminfodir}/l/linux ] && break
+	done
+	dracut_install -o ${_terminfodir}/l/linux
 	inst "$basedir/modules.d/40network/dhclient-script" "/sbin/dhclient-script"
 	inst "$basedir/modules.d/40network/ifup" "/sbin/ifup"
 	dracut_install grep

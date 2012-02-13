@@ -26,16 +26,20 @@ test_setup() {
     # Create what will eventually be our root filesystem onto an overlay
     (
 	initdir=$TESTDIR/overlay/source
+	(mkdir -p "$initdir"; cd "$initdir"; mkdir -p dev sys proc etc var/run tmp run)
 	. $basedir/dracut-functions
 	dracut_install sh df free ls shutdown poweroff stty cat ps ln ip route \
-	    /lib/terminfo/l/linux mount dmesg ifconfig dhclient mkdir cp ping dhclient
+	    mount dmesg ifconfig dhclient mkdir cp ping dhclient
+        for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
+	    [ -f ${_terminfodir}/l/linux ] && break
+	done
+	dracut_install -o ${_terminfodir}/l/linux
+	inst ./test-init /sbin/init
 	inst "$basedir/modules.d/40network/dhclient-script" "/sbin/dhclient-script"
 	inst "$basedir/modules.d/40network/ifup" "/sbin/ifup"
 	dracut_install grep
 	dracut_install /lib/systemd/systemd-shutdown
-	inst ./test-init /sbin/init
 	find_binary plymouth >/dev/null && dracut_install plymouth
-	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp run)
 	cp -a /etc/ld.so.conf* $initdir/etc
 	sudo ldconfig -r "$initdir"
     )

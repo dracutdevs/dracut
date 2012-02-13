@@ -213,9 +213,13 @@ test_setup() {
     	initdir=$TESTDIR/mnt
 	. $basedir/dracut-functions
 	dracut_install sh ls shutdown poweroff stty cat ps ln ip \
-	    /lib/terminfo/l/linux dmesg mkdir cp ping exportfs \
+	    dmesg mkdir cp ping exportfs \
 	    modprobe rpc.nfsd rpc.mountd showmount tcpdump \
 	    /etc/services sleep mount chmod
+        for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
+	    [ -f ${_terminfodir}/l/linux ] && break
+	done
+	dracut_install -o ${_terminfodir}/l/linux
 	type -P portmap >/dev/null && dracut_install portmap
 	type -P rpcbind >/dev/null && dracut_install rpcbind
 	[ -f /etc/netconfig ] && dracut_install /etc/netconfig
@@ -261,8 +265,11 @@ test_setup() {
     (
 	. $basedir/dracut-functions
 	dracut_install sh shutdown poweroff stty cat ps ln ip \
-        	/lib/terminfo/l/linux mount dmesg mkdir \
-		cp ping grep
+            mount dmesg mkdir cp ping grep
+        for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
+	    [ -f ${_terminfodir}/l/linux ] && break
+	done
+	dracut_install -o ${_terminfodir}/l/linux
 	inst ./client-init /sbin/init
 	(
 	    cd "$initdir"

@@ -193,7 +193,11 @@ make_encrypted_root() {
 	initdir=$TESTDIR/overlay/source
 	. $basedir/dracut-functions
 	dracut_install sh df free ls shutdown poweroff stty cat ps ln ip \
-	    /lib/terminfo/l/linux mount dmesg mkdir cp ping
+	    mount dmesg mkdir cp ping
+        for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
+	    [ -f ${_terminfodir}/l/linux ] && break
+	done
+	dracut_install -o ${_terminfodir}/l/linux
 	inst ./client-init /sbin/init
 	find_binary plymouth >/dev/null && dracut_install plymouth
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
@@ -240,7 +244,11 @@ make_client_root() {
 	initdir=$TESTDIR/mnt
 	. $basedir/dracut-functions
 	dracut_install sh ls shutdown poweroff stty cat ps ln ip \
-	    /lib/terminfo/l/linux dmesg mkdir cp ping
+	    dmesg mkdir cp ping
+        for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
+	    [ -f ${_terminfodir}/l/linux ] && break
+	done
+	dracut_install -o ${_terminfodir}/l/linux
 	inst ./client-init /sbin/init
 	(
 	    cd "$initdir";
@@ -272,8 +280,12 @@ make_server_root() {
 	initdir=$TESTDIR/mnt
 	. $basedir/dracut-functions
 	dracut_install sh ls shutdown poweroff stty cat ps ln ip \
-	    /lib/terminfo/l/linux dmesg mkdir cp ping grep \
+	    dmesg mkdir cp ping grep \
 	    sleep nbd-server chmod
+        for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
+	    [ -f ${_terminfodir}/l/linux ] && break
+	done
+	dracut_install -o ${_terminfodir}/l/linux
 	type -P dhcpd >/dev/null && dracut_install dhcpd
 	[ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
 	inst ./server-init /sbin/init
