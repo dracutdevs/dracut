@@ -301,7 +301,7 @@ rd.live.overlay/
 </para>
           </listitem>
           <listitem>
-            <para>Add &apos;&apos;rd.shell rd.debug&apos;&apos; to the kernel command line so that dracut shell commands are printed as they are executed
+            <para>Add &apos;&apos;rd.shell rd.debug log_buf_len=1M&apos;&apos; to the kernel command line so that dracut shell commands are printed as they are executed
 </para>
           </listitem>
           <listitem>
