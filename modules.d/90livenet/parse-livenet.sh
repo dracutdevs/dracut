@@ -3,17 +3,20 @@
 # root=live:[url-to-backing-file]
 
 [ -z "$root" ] && root=$(getarg root=)
+. /lib/url-lib.sh
 
-str_starts $root "live:" && liveurl=$root
-str_starts $liveurl "live:" || return
+str_starts "$root" "live:" && liveurl="$root"
+str_starts "$liveurl" "live:" || return
 liveurl="${liveurl#live:}"
 
 # setting netroot to "livenet:..." makes "livenetroot" get run after ifup
-case "$liveurl" in
-    http://*|https://*|ftp://*)
-        netroot="livenet:$liveurl"
-        root="livenet" # quiet complaints from init
-        rootok=1 ;;
-esac
+if get_url_handler "$liveurl" >/dev/null; then
+    info "livenet: root image at $liveurl"
+    netroot="livenet:$liveurl"
+    root="livenet" # quiet complaints from init
+    rootok=1
+else
+    info "livenet: no url handler for $liveurl"
+fi
 
 wait_for_dev /dev/root
