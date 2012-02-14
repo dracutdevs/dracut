@@ -76,6 +76,7 @@ install() {
     inst "$moddir/ifup" "/sbin/ifup"
     inst "$moddir/netroot" "/sbin/netroot"
     inst "$moddir/dhclient-script" "/sbin/dhclient-script"
+    inst "$moddir/net-lib.sh" "/lib/net-lib.sh"
     inst_simple "$moddir/dhclient.conf" "/etc/dhclient.conf"
     inst_hook pre-udev 50 "$moddir/ifname-genrules.sh"
     inst_hook pre-udev 60 "$moddir/net-genrules.sh"
