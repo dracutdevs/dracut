@@ -51,6 +51,8 @@ add_url_handler() {
 
 ### HTTP, HTTPS, FTP #################################################
 
+export CURL_HOME="/run/initramfs/url-lib"
+mkdir -p $CURL_HOME
 curl_args="--location --retry 3 --fail --show-error"
 curl_fetch_url() {
     local url="$1" outloc="$2"
@@ -69,19 +71,41 @@ curl_fetch_url() {
 }
 add_url_handler curl_fetch_url http https ftp
 
+set_http_header() {
+    echo "header = \"$1: $2\"" >> $CURL_HOME/.curlrc
+}
+
 ### NFS ##############################################################
 
 . /lib/nfs-lib.sh
 
+nfs_already_mounted() {
+    local server="$1" path="$2" localdir="" s="" p=""
+    cat /proc/mounts | while read src mnt rest; do
+        splitsep ":" "$src" s p
+        if [ "$server" = "$s" ]; then
+            if [ "$path" = "$p" ]; then
+                echo $mnt
+            elif str_starts "$path" "$p"; then
+                echo $mnt/${path#$p/}
+            fi
+        fi
+    done
+}
+
 nfs_fetch_url() {
     local url="$1" outloc="$2" nfs="" server="" path="" options=""
     nfs_to_var "$url" || return 255
-    local filepath="${path%/*}" filename="${path##*/}"
+    local filepath="${path%/*}" filename="${path##*/}" mntdir=""
 
-    # TODO: check to see if server:/filepath is already mounted
-    local mntdir="$(mkuniqdir /run nfs_mnt)"
-    mount_nfs $nfs:$server:$path${options:+:$options} $mntdir
-    # FIXME: schedule lazy unmount during pre-pivot hook
+    # skip mount if server:/filepath is already mounted
+    mntdir=$(nfs_already_mounted $server $path)
+    if [ -z "$mntdir" ]; then
+        local mntdir="$(mkuniqdir /run nfs_mnt)"
+        mount_nfs $nfs:$server:$path${options:+:$options} $mntdir
+        # lazy unmount during pre-pivot hook
+        inst_hook --hook pre-pivot --name 99url-lib-umount-nfs umount -l $mntdir
+    fi
 
     if [ -z "$outloc" ]; then
         outloc="$mntdir/$filename"
