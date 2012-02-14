@@ -60,6 +60,7 @@ install() {
     inst_hook pre-udev 99 "$moddir/nfs-start-rpc.sh"
     inst_hook pre-pivot 99 "$moddir/nfsroot-cleanup.sh"
     inst "$moddir/nfsroot" "/sbin/nfsroot"
+    inst "$moddir/nfs-lib.sh" "/lib/nfs-lib.sh"
     mkdir -m 0755 -p "$initdir/var/lib/nfs/rpc_pipefs"
     mkdir -m 0755 -p "$initdir/var/lib/rpcbind"
     mkdir -m 0755 -p "$initdir/var/lib/nfs/statd/sm"
