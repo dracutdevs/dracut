@@ -46,7 +46,6 @@ install() {
 
     inst_hook pre-pivot 90 "$moddir"/plymouth-newroot.sh
     inst_hook pre-trigger 10 "$moddir"/plymouth-pretrigger.sh
-    inst_hook cleanup 10 "$moddir"/plymouth-cleanup.sh
     inst_hook emergency 50 "$moddir"/plymouth-emergency.sh
     inst readlink
 }

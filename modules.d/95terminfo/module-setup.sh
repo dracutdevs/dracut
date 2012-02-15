@@ -14,7 +14,5 @@ install() {
             inst_simple $f
         done
     fi
-
-    inst_hook cleanup 20 "${moddir}/terminfo-cleanup.sh"
 }
 
