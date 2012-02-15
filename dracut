@@ -40,8 +40,10 @@ Creates initial ramdisk images for preloading modules
   -a, --add [LIST]      Add a space-separated list of dracut modules.
   -d, --drivers [LIST]  Specify a space-separated list of kernel modules to
                         exclusively include in the initramfs.
-  --add-drivers [LIST]  Specify a space-separated list of kernel
+  --add-drivers [LIST] Specify a space-separated list of kernel
                         modules to add to the initramfs.
+  --omit-drivers [LIST] Specify a space-separated list of kernel
+                        modules not to add to the initramfs.
   --filesystems [LIST]  Specify a space-separated list of kernel filesystem
                         modules to exclusively include in the generic
                         initramfs.
@@ -210,6 +212,7 @@ while (($# > 0)); do
         -a|--add)      push_arg add_dracutmodules_l  "$@" || shift;;
         --force-add)   push_arg force_add_dracutmodules_l  "$@" || shift;;
         --add-drivers) push_arg add_drivers_l        "$@" || shift;;
+        --omit-drivers) push_arg omit_drivers_l      "$@" || shift;;
         -m|--modules)  push_arg dracutmodules_l      "$@" || shift;;
         -o|--omit)     push_arg omit_dracutmodules_l "$@" || shift;;
         -d|--drivers)  push_arg drivers_l            "$@" || shift;;
@@ -341,13 +344,6 @@ if (( ${#force_add_dracutmodules_l[@]} )); then
     done
 fi
 
-
-if (( ${#add_drivers_l[@]} )); then
-    while pop add_drivers_l val; do
-        add_drivers+=" $val "
-    done
-fi
-
 if (( ${#fscks_l[@]} )); then
     while pop fscks_l val; do
         fscks+=" $val "
@@ -384,13 +380,6 @@ if (( ${#omit_dracutmodules_l[@]} )); then
     omit_dracutmodules=''
     while pop omit_dracutmodules_l val; do
         omit_dracutmodules+="$val "
-    done
-fi
-
-if (( ${#drivers_l[@]} )); then
-    drivers=''
-    while pop drivers_l val; do
-        drivers+="$val "
     done
 fi
 
@@ -465,6 +454,37 @@ fi
 
 dracutfunctions=$dracutbasedir/dracut-functions
 export dracutfunctions
+
+if (( ${#drivers_l[@]} )); then
+    drivers=''
+    while pop drivers_l val; do
+        drivers+="$val "
+    done
+fi
+drivers=${drivers/-/_}
+
+if (( ${#add_drivers_l[@]} )); then
+    while pop add_drivers_l val; do
+        add_drivers+=" $val "
+    done
+fi
+add_drivers=${add_drivers/-/_}
+
+if (( ${#omit_drivers_l[@]} )); then
+    while pop omit_drivers_l val; do
+        omit_drivers+=" $val "
+    done
+fi
+omit_drivers=${omit_drivers/-/_}
+
+unset omit_drivers_corrected
+for d in $omit_drivers; do
+    strstr " $drivers $add_drivers " " $d " && continue
+    omit_drivers_corrected+=" $d "
+done
+omit_drivers=$omit_drivers_corrected
+unset omit_drivers_corrected
+
 
 ddebug "Executing $0 $dracut_args"
 
@@ -604,7 +624,7 @@ done
 
 export initdir dracutbasedir dracutmodules drivers \
     fw_dir drivers_dir debug no_kernel kernel_only \
-    add_drivers mdadmconf lvmconf filesystems \
+    add_drivers omit_drivers mdadmconf lvmconf filesystems \
     use_fstab fstab_lines libdir usrlibdir fscks nofscks cttyhack \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
     debug host_fs_types host_devs sshkey

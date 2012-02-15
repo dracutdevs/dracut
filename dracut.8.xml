@@ -198,6 +198,20 @@ The kernel modules have to be specified without the &quot;.ko&quot; suffix. This
         </varlistentry>
         <varlistentry>
           <term>
+            <option>--omit-drivers&nbsp;<replaceable>&lt;list of kernel modules&gt;</replaceable></option>
+          </term>
+          <listitem>
+            <para>specify a space-separated list of kernel modules not to add to the initramfs.
+The kernel modules have to be specified without the &quot;.ko&quot; suffix. This parameter can be specified multiple times.</para>
+	    <para>
+	      If [LIST] has multiple arguments, then you have to put these in quotes.
+	      For example:
+	      <screen># dracut --omit-drivers "kmodule1 kmodule2"  ...</screen>
+	    </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
             <option>--filesystems&nbsp;<replaceable>&lt;list of filesystems&gt;</replaceable></option>
           </term>
           <listitem>

@@ -927,6 +927,17 @@ install_kmod_with_fw() {
     # no need to go further if the module is already installed
     [[ -e "${initdir}/lib/modules/$kernel/${1##*/lib/modules/$kernel/}" ]] \
         && return 0
+
+    if [[ $omit_drivers ]]; then
+        local _kmod=${1##*/}
+        _kmod=${_kmod%.ko}
+        _kmod=${_kmod/-/_}
+        if strstr " $omit_drivers " " $_kmod " ; then
+            dinfo "Omitting driver $_kmod"
+            return 1
+        fi
+    fi
+
     inst_simple "$1" "/lib/modules/$kernel/${1##*/lib/modules/$kernel/}" \
         || return $?
 

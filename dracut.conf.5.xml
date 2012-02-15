@@ -87,6 +87,16 @@ The kernel modules have to be specified without the &quot;.ko&quot; suffix.</par
       </varlistentry>
       <varlistentry>
         <term>
+          <envar>omit_drivers+=&quot;&nbsp;<replaceable>&lt;kernel modules&gt;</replaceable>&nbsp;&quot;</envar>
+        </term>
+        <listitem>
+          <para>Specify a space-separated list of kernel
+modules not to add to the initramfs.
+The kernel modules have to be specified without the &quot;.ko&quot; suffix.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
           <envar>install_items+=&quot;&nbsp;<replaceable>&lt;kernel modules&gt;</replaceable>&nbsp;&quot;</envar>
         </term>
         <listitem>
