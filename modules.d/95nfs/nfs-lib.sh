@@ -91,7 +91,7 @@ anaconda_nfs_to_var() {
 nfsroot_from_dhcp() {
     local f
     for f in /tmp/net.$1.override /tmp/dhclient.$1.dhcpopts; do
-        [ -f $f ] && . $f || return
+        [ -f $f ] && . $f
     done
     [ -n "$new_root_path" ] && nfsroot_to_var "$nfs:$new_root_path"
     [ -z "$path" ] && [ "$(getarg root=)" == "/dev/nfs" ] && path=/tftpboot/%s
