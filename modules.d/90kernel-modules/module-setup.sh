@@ -46,9 +46,6 @@ installkernel() {
         if ! [[ $hostonly ]]; then
             if [[ -z $filesystems ]]; then
                 instmods '=fs'
-                # hardcoded list of exceptions
-                # to save a lot of space
-                rm -fr ${initdir}/lib/modules/*/kernel/fs/ocfs2
             fi
         else
             inst_fs() {
