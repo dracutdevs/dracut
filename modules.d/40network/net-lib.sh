@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 get_ip() {
     local iface="$1" ip=""
