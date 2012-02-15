@@ -1,3 +1,17 @@
+dracut-016
+==========
+- fixed lsinitrd
+- honor binaries in sbin first
+- fixed usrmount module
+- added systemd service for shutdown
+- fixed terminfo on distros with /usr/share/terminfo
+- reload udev rules after "pre-trigger" hook
+- improved test suite
+- new parameter "--omit-drivers" and new conf param omit_drivers
+- "--offroot" support for mdraid
+- new libs: net-lib.sh, nfs-lib.sh, url-lib.sh, img-lib.sh
+  full of functions to use in your dracut module
+
 dracut-015
 ==========
 - hostonly mode automatically adds command line options for root and /usr
