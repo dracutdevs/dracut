@@ -201,6 +201,7 @@ udevproperty "hookdir=$hookdir"
 getarg 'rd.break=pre-trigger' 'rdbreak=pre-trigger' && emergency_shell -n pre-trigger "Break before pre-trigger"
 source_hook pre-trigger
 
+udevadm control --reload >/dev/null 2>&1 || :
 # then the rest
 udevadm trigger --type=subsystems --action=add >/dev/null 2>&1
 udevadm trigger --type=devices --action=add >/dev/null 2>&1
