@@ -239,6 +239,7 @@ rm -rf $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/10i18n
 %{dracutlibdir}/modules.d/10rpmversion
 %{dracutlibdir}/modules.d/30convertfs
+%{dracutlibdir}/modules.d/45url-lib
 %{dracutlibdir}/modules.d/50plymouth
 %{dracutlibdir}/modules.d/90btrfs
 %{dracutlibdir}/modules.d/90crypt
@@ -269,6 +270,7 @@ rm -rf $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/98usrmount
 %{dracutlibdir}/modules.d/99base
 %{dracutlibdir}/modules.d/99fs-lib
+%{dracutlibdir}/modules.d/99img-lib
 %{dracutlibdir}/modules.d/99shutdown
 %config(noreplace) /etc/logrotate.d/dracut_log
 %attr(0644,root,root) %ghost %config(missingok,noreplace) %{_localstatedir}/log/dracut.log
