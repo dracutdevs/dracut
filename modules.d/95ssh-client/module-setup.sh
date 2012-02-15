@@ -50,8 +50,8 @@ inst_sshenv()
 }
 
 install() {
-    [[ ! $cttyhack = yes ]] && {
-        derror "ssh interactive mode needs option --ctty!"
+    [[ ! $cttyhack = yes && ! $sshkey ]] && {
+        derror "ssh-client needs option --ctty or --sshkey!"
         return 1
     }
 
