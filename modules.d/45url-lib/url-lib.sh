@@ -60,11 +60,8 @@ curl_fetch_url() {
         curl $curl_args --output "$outloc" "$url" || return $?
     else
         local outdir="$(mkuniqdir /tmp curl_fetch_url)"
-        local cwd="$(pwd)"
-        cd "$outdir"
-        curl $curl_args --remote-name "$url" || return $?
-        cd "$cwd"
-        outloc="$(echo $outdir/*)"
+        ( cd "$outdir"; curl $curl_args --remote-name "$url" || return $? )
+        outloc="$outdir/$(ls -A $outdir)"
     fi
     [ -f "$outloc" ] || return 253
     echo "$outloc"
