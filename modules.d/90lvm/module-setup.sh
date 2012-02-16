@@ -3,7 +3,7 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 check() {
-    local _rootdev
+    local _rootdev _activated
     # No point trying to support lvm if the binaries are missing
     type -P lvm >/dev/null || return 1
 
@@ -15,7 +15,10 @@ check() {
         unset DM_LV_NAME
         eval $(udevadm info --query=property --name=$1|egrep '(DM_VG_NAME|DM_LV_NAME)=')
         [[ ${DM_VG_NAME} ]] && [[ ${DM_LV_NAME} ]] || return
-        echo " rd.lvm.lv=${DM_VG_NAME}/${DM_LV_NAME} " >> "${initdir}/etc/cmdline.d/90lvm.conf"
+        if ! strstr " ${_activated[*]} " " ${DM_VG_NAME}/${DM_LV_NAME} "; then
+            echo " rd.lvm.lv=${DM_VG_NAME}/${DM_LV_NAME} " >> "${initdir}/etc/cmdline.d/90lvm.conf"
+            push _activated "${DM_VG_NAME}/${DM_LV_NAME}"
+        fi
     }
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
