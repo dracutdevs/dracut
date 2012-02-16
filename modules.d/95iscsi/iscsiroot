@@ -46,6 +46,7 @@ if getargbool 0 rd.iscsi.firmware -y iscsi_firmware ; then
     if [ -n "${root%%block:*}" ]; then
         # if root is not specified try to mount the whole iSCSI LUN
         printf 'ENV{DEVTYPE}!="partition", SYMLINK=="disk/by-path/*-iscsi-*-*", SYMLINK+="root"\n' >> /etc/udev/rules.d/99-iscsi-root.rules
+        udevadm control --reload
     fi
     iscsistart -b
     exit 0

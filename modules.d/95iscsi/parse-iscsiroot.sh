@@ -28,9 +28,11 @@
 if [ "${root%%:*}" = "iscsi" ] ; then
     if [ -n "$netroot" ] ; then
         echo "Warning: root takes precedence over netroot. Ignoring netroot"
-
     fi
     netroot=$root
+    # if root is not specified try to mount the whole iSCSI LUN
+    printf 'ENV{DEVTYPE}!="partition", SYMLINK=="disk/by-path/*-iscsi-*-*", SYMLINK+="root"\n' >> /etc/udev/rules.d/99-iscsi-root.rules
+    root=/dev/root
 fi
 
 # If it's not empty or iscsi we don't continue
