@@ -32,6 +32,13 @@ if ! type dinfo >/dev/null 2>&1; then
     dlog_init
 fi
 
+# export standard hookdirs
+[[ $hookdirs ]] || {
+    hookdirs="cmdline pre-udev pre-trigger netroot initqueue pre-mount"
+    hookdirs+=" pre-pivot mount emergency shutdown-emergency shutdown cleanup"
+    export hookdirs
+}
+
 # Generic substring function.  If $2 is in $1, return 0.
 strstr() { [[ $1 =~ $2 ]]; }
 
@@ -66,6 +73,8 @@ vercmp() {
     esac
 }
 
+# is_func <command>
+# Check whether $1 is a function.
 is_func() {
     [[ $(type -t $1) = "function" ]]
 }
@@ -82,6 +91,12 @@ print_vars() {
     done
 }
 
+# normalize_path <path>
+# Prints the normalized path, where it removes any duplicated
+# and trailing slashes.
+# Example:
+# $ normalize_path ///test/test//
+# /test/test
 normalize_path() {
     shopt -q -s extglob
     set -- "${1//+(\/)//}"
@@ -89,10 +104,15 @@ normalize_path() {
     echo "${1%/}"
 }
 
+# convert_abs_rel <from> <to>
+# Prints the relative path, when creating a symlink to <to> from <from>.
+# Example:
+# $ convert_abs_rel /usr/bin/test /bin/test-2
+# ../../bin/test-2
+# $ ln -s $(convert_abs_rel /usr/bin/test /bin/test-2) /usr/bin/test
 convert_abs_rel() {
     local __current __absolute __abssize __cursize __newpath __oldifs
     local -i __i __level
-#    PS4='${BASH_SOURCE}@${LINENO}(${FUNCNAME[0]}): ';
 
     set -- "$(normalize_path "$1")" "$(normalize_path "$2")"
 
@@ -141,6 +161,12 @@ convert_abs_rel() {
     echo "$__newpath"
 }
 
+# get_fs_env <device>
+# Get and set the ID_FS_TYPE and ID_FS_UUID variable from udev for a device.
+# Example:
+# $ get_fs_env /dev/sda2; echo $ID_FS_TYPE; echo $ID_FS_UUID
+# ext4
+# 551a39aa-4ae9-4e70-a262-ef665cadb574
 get_fs_env() {
     [[ $1 ]] || return
     unset ID_FS_TYPE
@@ -157,6 +183,21 @@ get_fs_env() {
     fi
 }
 
+# get_fs_uuid <device>
+# Prints the filesystem UUID for a device.
+# Example:
+# $ get_fs_uuid /dev/sda2
+# 551a39aa-4ae9-4e70-a262-ef665cadb574
+get_fs_uuid() (
+    get_fs_env $1 || return
+    echo $ID_FS_UUID
+)
+
+# get_fs_type <device>
+# Prints the filesystem type for a device.
+# Example:
+# $ get_fs_type /dev/sda1
+# ext4
 get_fs_type() (
     [[ $1 ]] || return
     if [[ $1 != ${1#/dev/block/nfs:} ]] \
@@ -172,12 +213,11 @@ get_fs_type() (
     find_dev_fstype $1
 )
 
-get_fs_uuid() (
-    get_fs_env $1 || return
-    echo $ID_FS_UUID
-)
-
-
+# get_maj_min <device>
+# Prints the major and minor of a device node.
+# Example:
+# $ get_maj_min /dev/sda2
+# 8:2
 get_maj_min() {
     local _dev
     _dev=$(stat -L -c '$((0x%t)):$((0x%T))' "$1" 2>/dev/null)
@@ -185,6 +225,16 @@ get_maj_min() {
     echo $_dev
 }
 
+# find_block_device <mountpoint>
+# Prints the major and minor number of the block device
+# for a given mountpoint.
+# Unless $use_fstab is set to "yes" the functions
+# uses /proc/self/mountinfo as the primary source of the
+# information and only falls back to /etc/fstab, if the mountpoint
+# is not found there.
+# Example:
+# $ find_block_device /usr
+# 8:4
 find_block_device() {
     local _x _mpt _majmin _dev _fs _maj _min
     if [[ $use_fstab != yes ]]; then
@@ -219,6 +269,14 @@ find_block_device() {
     return 1
 }
 
+# find_dev_fstype <device>
+# Echo the filesystem type for a given device.
+# /proc/self/mountinfo is taken as the primary source of information
+# and /etc/fstab is used as a fallback.
+# No newline is appended!
+# Example:
+# $ find_dev_fstype /dev/sda2;echo
+# ext4
 find_dev_fstype() {
     local _x _mpt _majmin _dev _fs _maj _min
     while read _x _x _majmin _x _mpt _x _x _fs _dev _x; do
@@ -240,6 +298,9 @@ find_dev_fstype() {
 # finds the major:minor of the block device backing the root filesystem.
 find_root_block_device() { find_block_device /; }
 
+# for_each_host_dev_fs <func>
+# Execute "<func> <dev> <filesystem>" for every "<dev>|<fs>" pair found
+# in ${host_fs_types[@]}
 for_each_host_dev_fs()
 {
     local _func="$1"
@@ -581,12 +642,6 @@ inst() {
     return 1
 }
 
-[[ $hookdirs ]] || {
-    hookdirs="cmdline pre-udev pre-trigger netroot initqueue pre-mount"
-    hookdirs+=" pre-pivot mount emergency shutdown-emergency shutdown cleanup"
-    export hookdirs
-}
-
 # install function specialized for hooks
 # $1 = type of hook, $2 = hook priority (lower runs first), $3 = hook
 # All hooks should be POSIX/SuS compliant, they will be sourced by init.
@@ -630,6 +685,9 @@ inst_any() {
     return 1
 }
 
+# dracut_install [-o ] <file> [<file> ... ]
+# Install <file> to the initramfs image
+# -o optionally install the <file> and don't fail, if it is not there
 dracut_install() {
     local _optional=no
     if [[ $1 = '-o' ]]; then
@@ -697,6 +755,10 @@ inst_opt_decompress() {
     done
 }
 
+# module_check <dracut module>
+# execute the check() function of module-setup.sh of <dracut module>
+# or the "check" script, if module-setup.sh is not found
+# "check $hostonly" is called
 module_check() {
     local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
     local _ret
@@ -723,62 +785,10 @@ module_check() {
     return $_ret
 }
 
-module_depends() {
-    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
-    local _ret
-    [[ -d $_moddir ]] || return 1
-    if [[ ! -f $_moddir/module-setup.sh ]]; then
-        # if we do not have a check script, we have no deps
-        [[ -x $_moddir/check ]] || return 0
-        $_moddir/check -d
-        return $?
-    else
-        unset check depends install installkernel
-        . $_moddir/module-setup.sh
-        is_func depends || return 0
-        depends
-        _ret=$?
-        unset check depends install installkernel
-        return $_ret
-    fi
-}
-
-module_install() {
-    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
-    local _ret
-    [[ -d $_moddir ]] || return 1
-    if [[ ! -f $_moddir/module-setup.sh ]]; then
-        [[ -x $_moddir/install ]] && . "$_moddir/install"
-        return $?
-    else
-        unset check depends install installkernel
-        . $_moddir/module-setup.sh
-        is_func install || return 0
-        install
-        _ret=$?
-        unset check depends install installkernel
-        return $_ret
-    fi
-}
-
-module_installkernel() {
-    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
-    local _ret
-    [[ -d $_moddir ]] || return 1
-    if [[ ! -f $_moddir/module-setup.sh ]]; then
-        [[ -x $_moddir/installkernel ]] && . "$_moddir/installkernel"
-        return $?
-    else
-        unset check depends install installkernel
-        . $_moddir/module-setup.sh
-        is_func installkernel || return 0
-        installkernel
-        _ret=$?
-        unset check depends install installkernel
-        return $_ret
-    fi
-}
-
+# module_check_mount <dracut module>
+# execute the check() function of module-setup.sh of <dracut module>
+# or the "check" script, if module-setup.sh is not found
+# "mount_needs=1 check 0" is called
 module_check_mount() {
     local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
     local _ret
@@ -801,6 +811,74 @@ module_check_mount() {
     return $_ret
 }
 
+# module_depends <dracut module>
+# execute the depends() function of module-setup.sh of <dracut module>
+# or the "depends" script, if module-setup.sh is not found
+module_depends() {
+    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
+    local _ret
+    [[ -d $_moddir ]] || return 1
+    if [[ ! -f $_moddir/module-setup.sh ]]; then
+        # if we do not have a check script, we have no deps
+        [[ -x $_moddir/check ]] || return 0
+        $_moddir/check -d
+        return $?
+    else
+        unset check depends install installkernel
+        . $_moddir/module-setup.sh
+        is_func depends || return 0
+        depends
+        _ret=$?
+        unset check depends install installkernel
+        return $_ret
+    fi
+}
+
+# module_install <dracut module>
+# execute the install() function of module-setup.sh of <dracut module>
+# or the "install" script, if module-setup.sh is not found
+module_install() {
+    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
+    local _ret
+    [[ -d $_moddir ]] || return 1
+    if [[ ! -f $_moddir/module-setup.sh ]]; then
+        [[ -x $_moddir/install ]] && . "$_moddir/install"
+        return $?
+    else
+        unset check depends install installkernel
+        . $_moddir/module-setup.sh
+        is_func install || return 0
+        install
+        _ret=$?
+        unset check depends install installkernel
+        return $_ret
+    fi
+}
+
+# module_installkernel <dracut module>
+# execute the installkernel() function of module-setup.sh of <dracut module>
+# or the "installkernel" script, if module-setup.sh is not found
+module_installkernel() {
+    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
+    local _ret
+    [[ -d $_moddir ]] || return 1
+    if [[ ! -f $_moddir/module-setup.sh ]]; then
+        [[ -x $_moddir/installkernel ]] && . "$_moddir/installkernel"
+        return $?
+    else
+        unset check depends install installkernel
+        . $_moddir/module-setup.sh
+        is_func installkernel || return 0
+        installkernel
+        _ret=$?
+        unset check depends install installkernel
+        return $_ret
+    fi
+}
+
+# check_mount <dracut module>
+# check_mount checks, if a dracut module is needed for the given
+# device and filesystem types in "${host_fs_types[@]}"
 check_mount() {
     local _mod=$1
     local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
@@ -840,6 +918,10 @@ check_mount() {
     return 0
 }
 
+# check_module <dracut module> [<use_as_dep>]
+# check if a dracut module is to be used in the initramfs process
+# if <use_as_dep> is set, then the process also keeps track
+# that the modules were checked for the dependency tracking process
 check_module() {
     local _mod=$1
     local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
@@ -891,6 +973,8 @@ check_module() {
     return 0
 }
 
+# for_each_module_dir <func>
+# execute "<func> <dracut module> 1"
 for_each_module_dir() {
     local _modcheck
     local _mod
@@ -1028,7 +1112,10 @@ find_kernel_modules () {
     find_kernel_modules_by_path  drivers
 }
 
+# instmods <kernel module> [<kernel module> ... ]
+# instmods <kernel subsystem>
 # install kernel modules along with all their dependencies.
+# <kernel subsystem> can be e.g. "=block" or "=drivers/usb/storage"
 instmods() {
     [[ $no_kernel = yes ]] && return
     # called [sub]functions inherit _fderr
