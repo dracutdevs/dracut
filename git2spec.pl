@@ -20,7 +20,7 @@ sub create_patches {
     my $tag=shift;
     my $pdir=shift;
     my $num=0;
-    open( GIT, 'git format-patch -N --no-signature -o "'.$pdir.'" '.$tag.' |');
+    open( GIT, 'git format-patch -M -N --no-signature -o "'.$pdir.'" '.$tag.' |');
     @lines=<GIT>;
     close GIT;         # be done
     return @lines;
