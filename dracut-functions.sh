@@ -405,8 +405,8 @@ inst_simple() {
     local _src=$1 target="${2:-$1}"
     if ! [[ -d ${initdir}/$target ]]; then
         [[ -e ${initdir}/$target ]] && return 0
-        [[ -h ${initdir}/$target ]] && return 0
-        inst_dir "${target%/*}"
+        [[ -L ${initdir}/$target ]] && return 0
+        [[ -d "${initdir}/${target%/*}" ]] || inst_dir "${target%/*}"
     fi
     # install checksum files also
     if [[ -e "${_src%/*}/.${_src##*/}.hmac" ]]; then
