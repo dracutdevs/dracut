@@ -793,11 +793,14 @@ type hardlink &>/dev/null && {
 }
 
 if strstr "$modules_loaded" " fips " && command -v prelink >/dev/null; then
-    for i in $initdir/bin/* \
-       $initdir/sbin/* \
-       $initdir/usr/bin/* \
-       $initdir/usr/sbin/*; do
-       [ -x $i ] && prelink -u $i &>/dev/null
+    for dir in "$initdir/bin" \
+       "$initdir/sbin" \
+       "$initdir/usr/bin" \
+       "$initdir/usr/sbin"; do
+        [[ -L "$dir" ]] && continue
+        for i in "$dir"/*; do
+            [[ -x $i ]] && prelink -u $i &>/dev/null
+        done
     done
 fi
 
