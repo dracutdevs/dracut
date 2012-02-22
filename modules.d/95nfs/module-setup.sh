@@ -40,7 +40,7 @@ install() {
     for i in /etc/nsswitch.conf /etc/rpc /etc/protocols /etc/idmapd.conf; do
         inst_simple $i
     done
-    dracut_install rpc.idmapd 
+    dracut_install rpc.idmapd
     dracut_install sed
 
     for _i in {"$libdir","$usrlibdir"}/libnfsidmap_nsswitch.so* \
