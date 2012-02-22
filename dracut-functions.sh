@@ -40,7 +40,7 @@ fi
 }
 
 # Generic substring function.  If $2 is in $1, return 0.
-strstr() { [[ $1 =~ $2 ]]; }
+strstr() { [ "${1#*$2*}" != "$1" ]; }
 
 # Create all subdirectories for given path without creating the last element.
 # $1 = path
