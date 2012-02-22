@@ -31,15 +31,15 @@ install: doc
 	mkdir -p $(DESTDIR)$(sysconfdir)
 	mkdir -p $(DESTDIR)$(pkglibdir)/modules.d
 	mkdir -p $(DESTDIR)$(mandir)/man5 $(DESTDIR)$(mandir)/man7 $(DESTDIR)$(mandir)/man8
-	install -m 0755 dracut $(DESTDIR)$(bindir)/dracut
-	install -m 0755 dracut-gencmdline $(DESTDIR)$(bindir)/dracut-gencmdline
-	install -m 0755 dracut-catimages $(DESTDIR)$(bindir)/dracut-catimages
+	install -m 0755 dracut.sh $(DESTDIR)$(bindir)/dracut
+	install -m 0755 dracut-gencmdline.sh $(DESTDIR)$(bindir)/dracut-gencmdline
+	install -m 0755 dracut-catimages.sh $(DESTDIR)$(bindir)/dracut-catimages
 	install -m 0755 mkinitrd-dracut.sh $(DESTDIR)$(bindir)/mkinitrd
-	install -m 0755 lsinitrd $(DESTDIR)$(bindir)/lsinitrd
+	install -m 0755 lsinitrd.sh $(DESTDIR)$(bindir)/lsinitrd
 	install -m 0644 dracut.conf $(DESTDIR)$(sysconfdir)/dracut.conf
 	mkdir -p $(DESTDIR)$(sysconfdir)/dracut.conf.d
-	install -m 0755 dracut-functions $(DESTDIR)$(pkglibdir)/dracut-functions
-	install -m 0755 dracut-logger $(DESTDIR)$(pkglibdir)/dracut-logger
+	install -m 0755 dracut-functions.sh $(DESTDIR)$(pkglibdir)/dracut-functions.sh
+	install -m 0755 dracut-logger.sh $(DESTDIR)$(pkglibdir)/dracut-logger.sh
 	install -m 0755 dracut-initramfs-restore.sh $(DESTDIR)$(pkglibdir)/dracut-initramfs-restore
 	cp -arx modules.d $(DESTDIR)$(pkglibdir)
 	install -m 0644 dracut.8 $(DESTDIR)$(mandir)/man8/dracut.8
@@ -86,13 +86,13 @@ rpm: dracut-$(VERSION).tar.bz2
 	( mv "$$rpmbuild"/noarch/*.rpm .; mv "$$rpmbuild"/*.src.rpm .;rm -fr "$$rpmbuild"; ls *.rpm )
 
 syncheck:
-	@ret=0;for i in dracut-initramfs-restore.sh dracut-logger \
-                        modules.d/99base/init modules.d/*/*.sh; do \
+	@ret=0;for i in dracut-initramfs-restore.sh dracut-logger.sh \
+                        modules.d/99base/init.sh modules.d/*/*.sh; do \
                 [ "$${i##*/}" = "module-setup.sh" ] && continue; \
                 [ "$${i##*/}" = "caps.sh" ] && continue; \
 		dash -n "$$i" ; ret=$$(($$ret+$$?)); \
 	done;exit $$ret
-	@ret=0;for i in mkinitrd-dracut.sh dracut modules.d/02caps/caps.sh \
+	@ret=0;for i in *.sh mkinitrd-dracut.sh modules.d/02caps/caps.sh \
 	                modules.d/*/module-setup.sh; do \
 		bash -n "$$i" ; ret=$$(($$ret+$$?)); \
 	done;exit $$ret
@@ -101,17 +101,17 @@ check: all syncheck
 	$(MAKE) -C test check
 
 testimage: all
-	./dracut -l -a debug -f test-$(shell uname -r).img $(shell uname -r)
+	./dracut.sh -l -a debug -f test-$(shell uname -r).img $(shell uname -r)
 	@echo wrote  test-$(shell uname -r).img 
 
 testimages: all
-	./dracut -l -a debug --kernel-only -f test-kernel-$(shell uname -r).img $(shell uname -r)
+	./dracut.sh -l -a debug --kernel-only -f test-kernel-$(shell uname -r).img $(shell uname -r)
 	@echo wrote  test-$(shell uname -r).img 
-	./dracut -l -a debug --no-kernel -f test-dracut.img $(shell uname -r)
+	./dracut.sh -l -a debug --no-kernel -f test-dracut.img $(shell uname -r)
 	@echo wrote  test-dracut.img 
 
 hostimage: all
-	./dracut -H -l -a debug -f test-$(shell uname -r).img $(shell uname -r)
+	./dracut.sh -H -l -a debug -f test-$(shell uname -r).img $(shell uname -r)
 	@echo wrote  test-$(shell uname -r).img 
 
 AUTHORS:

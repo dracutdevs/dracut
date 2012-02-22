@@ -27,14 +27,14 @@ test_setup() {
     (
 	initdir=$TESTDIR/overlay/source
 	(mkdir -p "$initdir"; cd "$initdir"; mkdir -p dev sys proc etc var/run tmp run)
-	. $basedir/dracut-functions
+	. $basedir/dracut-functions.sh
 	dracut_install sh df free ls shutdown poweroff stty cat ps ln ip route \
 	    mount dmesg ifconfig dhclient mkdir cp ping dhclient
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
 	    [ -f ${_terminfodir}/l/linux ] && break
 	done
 	dracut_install -o ${_terminfodir}/l/linux
-	inst ./test-init /sbin/init
+	inst ./test-init.sh /sbin/init
 	inst "$basedir/modules.d/40network/dhclient-script" "/sbin/dhclient-script"
 	inst "$basedir/modules.d/40network/ifup" "/sbin/ifup"
 	dracut_install grep
@@ -47,7 +47,7 @@ test_setup() {
     # second, install the files needed to make the root filesystem
     (
 	initdir=$TESTDIR/overlay
-	. $basedir/dracut-functions
+	. $basedir/dracut-functions.sh
 	dracut_install sfdisk mke2fs poweroff cp umount
 	inst_hook initqueue 01 ./create-root.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
@@ -56,7 +56,7 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    $basedir/dracut -l -i $TESTDIR/overlay / \
+    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-m "dash crypt lvm mdraid udev-rules base rootfs-block kernel-modules" \
 	-d "piix ide-gd_mod ata_piix ext2 sd_mod" \
         --nomdadmconf \
@@ -73,13 +73,13 @@ test_setup() {
 
     (
 	initdir=$TESTDIR/overlay
-	. $basedir/dracut-functions
+	. $basedir/dracut-functions.sh
 	dracut_install poweroff shutdown
 	inst_hook emergency 000 ./hard-off.sh
-	inst ./cryptroot-ask /sbin/cryptroot-ask
+	inst ./cryptroot-ask.sh /sbin/cryptroot-ask
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
-    sudo $basedir/dracut -l -i $TESTDIR/overlay / \
+    sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-o "plymouth network" \
 	-a "debug" \
 	-d "piix ide-gd_mod ata_piix ext2 sd_mod" \

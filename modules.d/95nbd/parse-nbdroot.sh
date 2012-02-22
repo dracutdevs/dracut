@@ -24,15 +24,16 @@ netroot_to_var() {
     server=$2; port=$3;
 }
 
-# Don't continue if root is ok
-[ -n "$rootok" ] && return
-
 # This script is sourced, so root should be set. But let's be paranoid
 [ -z "$root" ] && root=$(getarg root=)
 [ -z "$netroot" ] && netroot=$(getarg netroot=)
 
 # Root takes precedence over netroot
 if [ "${root%%:*}" = "nbd" ] ; then
+
+    # Don't continue if root is ok
+    [ -n "$rootok" ] && return
+
     if [ -n "$netroot" ] ; then
         warn "root takes precedence over netroot. Ignoring netroot"
 

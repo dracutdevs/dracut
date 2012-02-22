@@ -28,7 +28,7 @@ if ! [[ $dracutbasedir ]]; then
 fi
 
 if ! type dinfo >/dev/null 2>&1; then
-    . "$dracutbasedir/dracut-logger"
+    . "$dracutbasedir/dracut-logger.sh"
     dlog_init
 fi
 

@@ -29,7 +29,7 @@ install() {
 
     mkdir -m 0755 -p "$initdir/var/lib/lldpad"
 
-    inst "$moddir/fcoe-up" "/sbin/fcoe-up"
+    inst "$moddir/fcoe-up.sh" "/sbin/fcoe-up"
     inst "$moddir/fcoe-edd.sh" "/sbin/fcoe-edd"
     inst "$moddir/fcoe-genrules.sh" "/sbin/fcoe-genrules.sh"
     inst_hook cmdline 99 "$moddir/parse-fcoe.sh"

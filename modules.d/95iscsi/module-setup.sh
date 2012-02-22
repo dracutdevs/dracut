@@ -64,6 +64,6 @@ install() {
     inst iscsi-iname
     inst_hook cmdline 90 "$moddir/parse-iscsiroot.sh"
     inst_hook pre-pivot 90 "$moddir/cleanup-iscsi.sh"
-    inst "$moddir/iscsiroot" "/sbin/iscsiroot"
+    inst "$moddir/iscsiroot.sh" "/sbin/iscsiroot"
     inst "$moddir/mount-lun.sh" "/bin/mount-lun.sh"
 }

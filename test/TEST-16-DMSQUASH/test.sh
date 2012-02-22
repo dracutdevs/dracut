@@ -22,7 +22,7 @@ test_setup() {
     mkdir -p $TESTDIR/overlay
     (
 	initdir=$TESTDIR/overlay
-	. $basedir/dracut-functions
+	. $basedir/dracut-functions.sh
 	dracut_install poweroff shutdown
 	inst_hook emergency 000 ./hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
@@ -30,7 +30,7 @@ test_setup() {
 
     dd if=/dev/zero of=$TESTDIR/root.img count=100
 
-    sudo $basedir/dracut -l -i $TESTDIR/overlay / \
+    sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-a "debug dmsquash-live" \
 	-d "piix ide-gd_mod ata_piix ext3 sd_mod" \
 	-f $TESTDIR/initramfs.testing $KVERSION || return 1
@@ -40,7 +40,7 @@ test_setup() {
     # Create what will eventually be our root filesystem onto an overlay
     (
 	initdir=$TESTDIR/root-source
-	. $basedir/dracut-functions
+	. $basedir/dracut-functions.sh
 	dracut_install sh df free ls shutdown poweroff stty cat ps ln ip route \
 	    mount dmesg ifconfig dhclient mkdir cp ping dhclient \
 	    umount strace less
@@ -54,7 +54,7 @@ test_setup() {
 	for f in /usr/share/syslinux/*; do
 	    inst_simple "$f"
 	done
-	inst ./test-init /sbin/init
+	inst ./test-init.sh /sbin/init
 	inst $TESTDIR/initramfs.testing "/boot/initramfs-$KVERSION.img"
 	inst /boot/vmlinuz-$KVERSION
 	find_binary plymouth >/dev/null && dracut_install plymouth

@@ -12,6 +12,6 @@ depends() {
 
 install() {
     inst_hook cmdline 29 "$moddir/parse-livenet.sh"
-    inst "$moddir/livenetroot" "/sbin/livenetroot"
+    inst "$moddir/livenetroot.sh" "/sbin/livenetroot"
 }
 

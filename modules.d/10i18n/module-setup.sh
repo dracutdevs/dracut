@@ -84,7 +84,7 @@ install() {
     install_base() {
         dracut_install setfont loadkeys kbd_mode stty
 
-        inst ${moddir}/console_init /lib/udev/console_init
+        inst ${moddir}/console_init.sh /lib/udev/console_init
         inst_rules ${moddir}/10-console.rules
         inst_hook cmdline 20 "${moddir}/parse-i18n.sh"
     }

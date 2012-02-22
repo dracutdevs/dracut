@@ -307,7 +307,7 @@ unset GREP_OPTIONS
 
 [[ $dracutbasedir ]] || dracutbasedir=/usr/lib/dracut
 
-[[ $allowlocal && -f "$(readlink -f ${0%/*})/dracut-functions" ]] && \
+[[ $allowlocal && -f "$(readlink -f ${0%/*})/dracut-functions.sh" ]] && \
     dracutbasedir="$(readlink -f ${0%/*})"
 
 # if we were not passed a config file, try the default one
@@ -436,10 +436,10 @@ fi
 [[ $hostonly = yes ]] && hostonly="-h"
 [[ $hostonly != "-h" ]] && unset hostonly
 
-if [[ -f $dracutbasedir/dracut-functions ]]; then
-    . $dracutbasedir/dracut-functions
+if [[ -f $dracutbasedir/dracut-functions.sh ]]; then
+    . $dracutbasedir/dracut-functions.sh
 else
-    echo "Cannot find $dracutbasedir/dracut-functions." >&2
+    echo "Cannot find $dracutbasedir/dracut-functions.sh." >&2
     echo "Are you running from a git checkout?" >&2
     echo "Try passing -l as an argument to $0" >&2
     exit 1
@@ -452,7 +452,7 @@ if (( ${BASH_VERSINFO[0]} < 3 ||
     exit 1
 fi
 
-dracutfunctions=$dracutbasedir/dracut-functions
+dracutfunctions=$dracutbasedir/dracut-functions.sh
 export dracutfunctions
 
 if (( ${#drivers_l[@]} )); then

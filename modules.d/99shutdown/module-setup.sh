@@ -16,7 +16,7 @@ install() {
     dracut_install umount
     dracut_install poweroff reboot halt
     dracut_install -o kexec
-    inst "$moddir/shutdown" "$prefix/shutdown"
+    inst "$moddir/shutdown.sh" "$prefix/shutdown"
     [ -e "${initdir}/lib" ] || mkdir -m 0755 -p ${initdir}/lib
     mkdir -m 0755 -p ${initdir}/lib/dracut
     mkdir -m 0755 -p ${initdir}/lib/dracut/hooks

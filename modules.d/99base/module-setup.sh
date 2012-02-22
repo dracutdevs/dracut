@@ -26,9 +26,9 @@ install() {
     egrep '^root:' "$initdir/etc/passwd" 2>/dev/null || echo  'root:x:0:0::/root:/bin/sh' >> "$initdir/etc/passwd"
     egrep '^nobody:' /etc/passwd >> "$initdir/etc/passwd"
     # install our scripts and hooks
-    inst "$moddir/init" "/init"
-    inst "$moddir/initqueue" "/sbin/initqueue"
-    inst "$moddir/loginit" "/sbin/loginit"
+    inst "$moddir/init.sh" "/init"
+    inst "$moddir/initqueue.sh" "/sbin/initqueue"
+    inst "$moddir/loginit.sh" "/sbin/loginit"
 
     [ -e "${initdir}/lib" ] || mkdir -m 0755 -p ${initdir}/lib
     mkdir -m 0755 -p ${initdir}/lib/dracut

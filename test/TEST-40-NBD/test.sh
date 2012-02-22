@@ -193,14 +193,14 @@ make_encrypted_root() {
 	initdir=$TESTDIR/overlay/source
         mkdir -p "$initdir"
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
-	. $basedir/dracut-functions
+	. $basedir/dracut-functions.sh
 	dracut_install sh df free ls shutdown poweroff stty cat ps ln ip \
 	    mount dmesg mkdir cp ping
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
 	    [ -f ${_terminfodir}/l/linux ] && break
 	done
 	dracut_install -o ${_terminfodir}/l/linux
-	inst ./client-init /sbin/init
+	inst ./client-init.sh /sbin/init
 	find_binary plymouth >/dev/null && dracut_install plymouth
 	cp -a /etc/ld.so.conf* $initdir/etc
 	sudo ldconfig -r "$initdir"
@@ -209,7 +209,7 @@ make_encrypted_root() {
     # second, install the files needed to make the root filesystem
     (
 	initdir=$TESTDIR/overlay
-	. $basedir/dracut-functions
+	. $basedir/dracut-functions.sh
 	dracut_install mke2fs poweroff cp umount tune2fs
 	inst_hook initqueue 01 ./create-root.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
@@ -218,7 +218,7 @@ make_encrypted_root() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    $basedir/dracut -l -i $TESTDIR/overlay / \
+    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-m "dash crypt lvm mdraid udev-rules base rootfs-block kernel-modules" \
 	-d "piix ide-gd_mod ata_piix ext2 ext3 sd_mod" \
 	-f $TESTDIR/initramfs.makeroot $KVERSION || return 1
@@ -245,7 +245,7 @@ make_client_root() {
     kernel=$KVERSION
     (
 	initdir=$TESTDIR/mnt
-	. $basedir/dracut-functions
+	. $basedir/dracut-functions.sh
         mkdir -p "$initdir"
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
 	dracut_install sh ls shutdown poweroff stty cat ps ln ip \
@@ -254,7 +254,7 @@ make_client_root() {
 	    [ -f ${_terminfodir}/l/linux ] && break
 	done
 	dracut_install -o ${_terminfodir}/l/linux
-	inst ./client-init /sbin/init
+	inst ./client-init.sh /sbin/init
 	inst /etc/nsswitch.conf /etc/nsswitch.conf
 	inst /etc/passwd /etc/passwd
 	inst /etc/group /etc/group
@@ -279,7 +279,7 @@ make_server_root() {
     kernel=$KVERSION
     (
 	initdir=$TESTDIR/mnt
-	. $basedir/dracut-functions
+	. $basedir/dracut-functions.sh
         mkdir -p "$initdir"
 	(
 	    cd "$initdir";
@@ -294,7 +294,7 @@ make_server_root() {
 	dracut_install -o ${_terminfodir}/l/linux
 	type -P dhcpd >/dev/null && dracut_install dhcpd
 	[ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
-	inst ./server-init /sbin/init
+	inst ./server-init.sh /sbin/init
 	inst ./hosts /etc/hosts
 	inst ./dhcpd.conf /etc/dhcpd.conf
 	inst /etc/nsswitch.conf /etc/nsswitch.conf
@@ -324,19 +324,19 @@ test_setup() {
     # Make the test image
     (
 	initdir=$TESTDIR/overlay
-	. $basedir/dracut-functions
+	. $basedir/dracut-functions.sh
 	dracut_install poweroff shutdown
 	inst_hook emergency 000 ./hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
-	inst ./cryptroot-ask /sbin/cryptroot-ask
+	inst ./cryptroot-ask.sh /sbin/cryptroot-ask
     )
 
-    sudo $basedir/dracut -l -i $TESTDIR/overlay / \
+    sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-m "dash udev-rules rootfs-block base debug kernel-modules" \
 	-d "piix ide-gd_mod ata_piix ext2 ext3 sd_mod e1000" \
 	-f $TESTDIR/initramfs.server $KVERSION || return 1
 
-    sudo $basedir/dracut -l -i $TESTDIR/overlay / \
+    sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-o "plymouth" \
 	-a "debug" \
 	-d "piix ide-gd_mod ata_piix ext2 ext3 sd_mod e1000" \

@@ -58,7 +58,7 @@ test_setup() {
     # Create what will eventually be our root filesystem onto an overlay
     (
 	initdir=$TESTDIR/overlay/source
-	. $basedir/dracut-functions
+	. $basedir/dracut-functions.sh
 	dracut_install sh df free ls shutdown poweroff stty cat ps ln ip route \
 	    mount dmesg ifconfig dhclient mkdir cp ping dhclient
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
@@ -68,7 +68,7 @@ test_setup() {
 	inst "$basedir/modules.d/40network/dhclient-script" "/sbin/dhclient-script"
 	inst "$basedir/modules.d/40network/ifup" "/sbin/ifup"
 	dracut_install grep
-	inst ./test-init /sbin/init
+	inst ./test-init.sh /sbin/init
 	find_binary plymouth >/dev/null && dracut_install plymouth
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
 	cp -a /etc/ld.so.conf* $initdir/etc
@@ -79,7 +79,7 @@ test_setup() {
     # second, install the files needed to make the root filesystem
     (
 	initdir=$TESTDIR/overlay
-	. $basedir/dracut-functions
+	. $basedir/dracut-functions.sh
 	dracut_install sfdisk mke2fs poweroff cp umount
 	inst_hook initqueue 01 ./create-root.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
@@ -88,7 +88,7 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    $basedir/dracut -l -i $TESTDIR/overlay / \
+    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-m "dash lvm mdraid dmraid udev-rules base rootfs-block kernel-modules" \
 	-d "piix ide-gd_mod ata_piix ext2 sd_mod dm-multipath dm-crypt dm-round-robin faulty linear multipath raid0 raid10 raid1 raid456" \
 	-f $TESTDIR/initramfs.makeroot $KVERSION || return 1
@@ -105,12 +105,12 @@ test_setup() {
     grep -m 1 -q dracut-root-block-created $TESTDIR/root.ext2 || return 1
     (
 	initdir=$TESTDIR/overlay
-	. $basedir/dracut-functions
+	. $basedir/dracut-functions.sh
 	dracut_install poweroff shutdown
 	inst_hook emergency 000 ./hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
-    sudo $basedir/dracut -l -i $TESTDIR/overlay / \
+    sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-o "plymouth network" \
 	-a "debug" \
 	-d "piix ide-gd_mod ata_piix ext2 sd_mod" \

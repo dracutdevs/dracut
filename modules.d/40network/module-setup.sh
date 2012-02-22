@@ -73,9 +73,9 @@ install() {
     local _arch _i _dir
     dracut_install ip arping tr dhclient
     dracut_install -o brctl ifenslave
-    inst "$moddir/ifup" "/sbin/ifup"
-    inst "$moddir/netroot" "/sbin/netroot"
-    inst "$moddir/dhclient-script" "/sbin/dhclient-script"
+    inst "$moddir/ifup.sh" "/sbin/ifup"
+    inst "$moddir/netroot.sh" "/sbin/netroot"
+    inst "$moddir/dhclient-script.sh" "/sbin/dhclient-script"
     inst "$moddir/net-lib.sh" "/lib/net-lib.sh"
     inst_simple "$moddir/dhclient.conf" "/etc/dhclient.conf"
     inst_hook pre-udev 50 "$moddir/ifname-genrules.sh"
