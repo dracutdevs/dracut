@@ -8,3 +8,5 @@
 /modules.d/99base/switch_root
 /test/*/test.log
 test*.img
+/.buildpath
+/.project
