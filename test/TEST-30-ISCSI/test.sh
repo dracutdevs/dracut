@@ -34,12 +34,10 @@ run_server() {
 }
 
 run_client() {
+    local test_name=$1; shift
+    echo "CLIENT TEST START: $test_name"
 
-    # Need this so kvm-qemu will boot (needs non-/dev/zero local disk)
-    if ! dd if=/dev/zero of=$TESTDIR/client.img bs=1M count=1; then
-        echo "Unable to make client sda image" 1>&2
-        return 1
-    fi
+    dd if=/dev/zero of=$TESTDIR/client.img bs=1M count=1
 
     $testdir/run-qemu \
         -hda $TESTDIR/client.img \
@@ -47,40 +45,33 @@ run_client() {
         -net nic,macaddr=52:54:00:12:34:00,model=e1000 \
         -net socket,connect=127.0.0.1:12330 \
         -kernel /boot/vmlinuz-$KVERSION \
-        -append "root=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0 ip=192.168.50.101::192.168.50.1:255.255.255.0:iscsi-1:eth0:off rw quiet rd.retry=5 rd.debug rd.info  console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
+        -append "$@ rw quiet rd.retry=5 rd.debug rd.info  console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
         -initrd $TESTDIR/initramfs.testing
-    grep -m 1 -q iscsi-OK $TESTDIR/client.img || return 1
-
-    if ! dd if=/dev/zero of=$TESTDIR/client.img bs=1M count=1; then
-        echo "Unable to make client sda image" 1>&2
-        return 1
+    if ! grep -m 1 -q iscsi-OK $TESTDIR/client.img; then
+	echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
+	return 1
     fi
 
-    $testdir/run-qemu \
-        -hda $TESTDIR/client.img \
-        -m 256M -nographic \
-        -net nic,macaddr=52:54:00:12:34:00,model=e1000 \
-        -net socket,connect=127.0.0.1:12330 \
-        -kernel /boot/vmlinuz-$KVERSION \
-        -append "root=LABEL=sysroot ip=192.168.50.101::192.168.50.1:255.255.255.0:iscsi-1:eth0:off netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target1 netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2 rw quiet rd.retry=5 rd.debug rd.info  console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
-        -initrd $TESTDIR/initramfs.testing
-    grep -m 1 -q iscsi-OK $TESTDIR/client.img || return 1
+    echo "CLIENT TEST END: $test_name [OK]"
+    return 0
+}
 
-    if ! dd if=/dev/zero of=$TESTDIR/client.img bs=1M count=1; then
-        echo "Unable to make client sda image" 1>&2
-        return 1
-    fi
+do_test_run() {
 
-    $testdir/run-qemu \
-        -hda $TESTDIR/client.img \
-        -m 256M -nographic \
-        -net nic,macaddr=52:54:00:12:34:00,model=e1000 \
-        -net socket,connect=127.0.0.1:12330 \
-        -kernel /boot/vmlinuz-$KVERSION \
-        -append "root=dhcp rw quiet rd.retry=5 rd.debug rd.info  console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
-        -initrd $TESTDIR/initramfs.testing
-    grep -m 1 -q iscsi-OK $TESTDIR/client.img || return 1
+    run_client "root=dhcp" \
+        "root=dhcp" \
+	|| return 1
 
+    run_client "root=iscsi" \
+	"root=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0" \
+	"ip=192.168.50.101::192.168.50.1:255.255.255.0:iscsi-1:eth0:off" \
+	|| return 1
+
+    run_client "netroot=iscsi" \
+	"root=LABEL=sysroot ip=192.168.50.101::192.168.50.1:255.255.255.0:iscsi-1:eth0:off" \
+	"netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target1 netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2" \
+	|| return 1
+    return 0
 }
 
 test_run() {
@@ -88,7 +79,7 @@ test_run() {
         echo "Failed to start server" 1>&2
         return 1
     fi
-    run_client
+    do_test_run
     ret=$?
     if [[ -s $TESTDIR/server.pid ]]; then
         sudo kill -TERM $(cat $TESTDIR/server.pid)
