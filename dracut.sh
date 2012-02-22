@@ -672,7 +672,9 @@ else
     done
 fi
 
-mkdir -p "${initdir}/etc/cmdline.d"
+if [[ $kernel_only != yes ]]; then
+    mkdir -p "${initdir}/etc/cmdline.d"
+fi
 
 mods_to_load=""
 # check all our modules to see if they should be sourced.
@@ -737,20 +739,20 @@ while pop include_src src && pop include_target tgt; do
     fi
 done
 
-for item in $install_items; do
-    dracut_install -o "$item"
-done
-unset item
-
-while pop fstab_lines line; do
-    echo "$line 0 0" >> "${initdir}/etc/fstab"
-done
-
-for f in $add_fstab; do
-    cat $f >> "${initdir}/etc/fstab"
-done
-
 if [[ $kernel_only != yes ]]; then
+    for item in $install_items; do
+        dracut_install -o "$item"
+    done
+    unset item
+
+    while pop fstab_lines line; do
+        echo "$line 0 0" >> "${initdir}/etc/fstab"
+    done
+
+    for f in $add_fstab; do
+        cat $f >> "${initdir}/etc/fstab"
+    done
+
     # make sure that library links are correct and up to date
     for f in /etc/ld.so.conf /etc/ld.so.conf.d/*; do
         [[ -f $f ]] && inst_simple "$f"
