@@ -45,7 +45,7 @@ installkernel() {
         # if the required list is not set via the filesystems variable
         if ! [[ $hostonly ]]; then
             if [[ -z $filesystems ]]; then
-                instmods '=fs'
+                omit_drivers="$omit_drivers|kernel/fs/nfs|kernel/fs/nfsd|kernel/fs/lockd" omit_drivers="${omit_drivers##|}" instmods '=fs'
             fi
         else
             inst_fs() {
