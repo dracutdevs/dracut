@@ -11,7 +11,7 @@ check() {
 
     check_crypt() {
         local dev=$1 fs=$2
-        [[ $fs = "crypto_LUKS" ]] || continue
+        [[ $fs = "crypto_LUKS" ]] || return 1
         ID_FS_UUID=$(udevadm info --query=property --name=$dev \
             | while read line; do
                 [[ ${line#ID_FS_UUID} = $line ]] && continue
@@ -19,13 +19,15 @@ check() {
                 echo $ID_FS_UUID
                 break
                 done)
-        [[ ${ID_FS_UUID} ]] || continue
-        echo " rd.luks.uuid=luks-${ID_FS_UUID} " >> "${initdir}/etc/cmdline.d/90crypt.conf"
+        [[ ${ID_FS_UUID} ]] || return 1
+        if ! [[ $kernel_only ]]; then
+            echo " rd.luks.uuid=luks-${ID_FS_UUID} " >> "${initdir}/etc/cmdline.d/90crypt.conf"
+        fi
+        return 0
     }
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        for_each_host_dev_fs check_crypt
-        [ -f "${initdir}/etc/cmdline.d/90crypt.conf" ] || return 1
+        for_each_host_dev_fs check_crypt || return 1
     }
 
     return 0

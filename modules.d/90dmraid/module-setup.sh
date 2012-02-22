@@ -13,8 +13,7 @@ check() {
 
     check_dmraid() {
         local dev=$1 fs=$2 holder DEVPATH DM_NAME
-        [[ "$fs" = "linux_raid_member" ]] && continue
-        [[ "$fs" = "${fs%%_raid_member}" ]] && continue
+        [[ "$fs" = "${fs%%_raid_member}" ]] && return 1
 
         DEVPATH=$(udevadm info --query=property --name=$dev \
             | while read line; do
@@ -34,13 +33,15 @@ check() {
                     done)
         done
 
-        [[ ${DM_NAME} ]] || continue
-        echo " rd.dm.uuid=${DM_NAME} " >> "${initdir}/etc/cmdline.d/90dmraid.conf"
+        [[ ${DM_NAME} ]] || return 1
+        if ! [[ $kernel_only ]]; then
+            echo " rd.dm.uuid=${DM_NAME} " >> "${initdir}/etc/cmdline.d/90dmraid.conf"
+        fi
+        return 0
     }
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        for_each_host_dev_fs check_dmraid
-        [ -f "${initdir}/etc/cmdline.d/90dmraid.conf" ] || return 1
+        for_each_host_dev_fs check_dmraid || return 1
     }
 
     return 0

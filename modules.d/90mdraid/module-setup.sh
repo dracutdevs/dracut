@@ -12,35 +12,25 @@ check() {
 
     check_mdraid() {
         local dev=$1 fs=$2 holder DEVPATH MD_UUID
-        [[ "$fs" = "linux_raid_member" ]] && continue
-        [[ "$fs" = "${fs%%_raid_member}" ]] && continue
+        [[ "$fs" = "${fs%%_raid_member}" ]] && return 1
 
-        DEVPATH=$(udevadm info --query=property --name=$dev \
+        MD_UUID=$(/sbin/mdadm --examine --export $dev \
             | while read line; do
-                [[ ${line#DEVPATH} = $line ]] && continue
+                [[ ${line#MD_UUID} = $line ]] && continue
                 eval "$line"
-                echo $DEVPATH
+                echo $MD_UUID
                 break
                 done)
 
-        for holder in /sys/$DEVPATH/holders/*; do
-            [[ -e $holder ]] || continue
-            MD_UUID=$(udevadm info --query=property --path=$holder \
-                | while read line; do
-                    [[ ${line#MD_UUID} = $line ]] && continue
-                    eval "$line"
-                    echo $MD_UUID
-                    break
-                    done)
-        done
-
-        [[ ${MD_UUID} ]] || continue
-        echo " rd.md.uuid=${MD_UUID} " >> "${initdir}/etc/cmdline.d/90mdraid.conf"
+        [[ ${MD_UUID} ]] || return 1
+        if ! [[ $kernel_only ]]; then
+            echo " rd.md.uuid=${MD_UUID} " >> "${initdir}/etc/cmdline.d/90mdraid.conf"
+        fi
+        return 0
     }
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        for_each_host_dev_fs check_mdraid
-        [[ -f "${initdir}/etc/cmdline.d/90mdraid.conf" ]] || return 1
+        for_each_host_dev_fs check_mdraid || return 1
     }
 
     return 0
