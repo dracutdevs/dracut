@@ -456,6 +456,7 @@ inst_library() {
         _reallib=$(readlink -f "$_src")
         inst_simple "$_reallib" "$_reallib"
         inst_dir "${_dest%/*}"
+        [[ -d "${_dest%/*}" ]] && _dest=$(readlink -f "${_dest%/*}")/${_dest##*/}
         ln -sfn $(convert_abs_rel "${_dest}" "${_reallib}") "${initdir}/${_dest}"
     else
         inst_simple "$_src" "$_dest"
