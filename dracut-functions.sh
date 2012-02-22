@@ -111,7 +111,7 @@ normalize_path() {
 # ../../bin/test-2
 # $ ln -s $(convert_abs_rel /usr/bin/test /bin/test-2) /usr/bin/test
 convert_abs_rel() {
-    local __current __absolute __abssize __cursize __newpath __oldifs
+    local __current __absolute __abssize __cursize __newpath
     local -i __i __level
 
     set -- "$(normalize_path "$1")" "$(normalize_path "$2")"
@@ -122,11 +122,8 @@ convert_abs_rel() {
     # corner case #2 - own dir link
     [[ "${1%/*}" == "$2" ]] && { echo "."; return; }
 
-    __oldifs="$IFS"
-    IFS="/"
-    __current=($1)
-    __absolute=($2)
-    IFS="$__oldifs"
+    IFS="/" __current=($1)
+    IFS="/" __absolute=($2)
 
     __abssize=${#__absolute[@]}
     __cursize=${#__current[@]}
