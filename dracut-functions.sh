@@ -1005,7 +1005,11 @@ install_kmod_with_fw() {
         local _kmod=${1##*/}
         _kmod=${_kmod%.ko}
         _kmod=${_kmod/-/_}
-        if strstr " $omit_drivers " " $_kmod " ; then
+        if [[ "$_kmod" =~ $omit_drivers ]]; then
+            dinfo "Omitting driver $_kmod"
+            return 1
+        fi
+        if [[ "${1##*/lib/modules/$kernel/}" =~ $omit_drivers ]]; then
             dinfo "Omitting driver $_kmod"
             return 1
         fi
@@ -1141,12 +1145,17 @@ instmods() {
                 ;;
             --*) _mpargs+=" $_mod" ;;
             i2o_scsi) return ;; # Do not load this diagnostic-only module
-            *)  _mod=${_mod##*/}
-
+            *)
                 # if we are already installed, skip this module and go on
                 # to the next one.
                 [[ -f $initdir/$1 ]] && return
 
+                if [[ $omit_drivers ]] && [[ "$1" =~ $omit_drivers ]]; then
+                    dinfo "Omitting driver ${_mod##$srcmods}"
+                    return
+                fi
+
+                _mod=${_mod##*/}
                 # If we are building a host-specific initramfs and this
                 # module is not already loaded, move on to the next one.
                 [[ $hostonly ]] && ! grep -qe "\<${_mod//-/_}\>" /proc/modules \

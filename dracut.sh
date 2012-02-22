@@ -477,12 +477,12 @@ if (( ${#omit_drivers_l[@]} )); then
 fi
 omit_drivers=${omit_drivers/-/_}
 
-unset omit_drivers_corrected
+omit_drivers_corrected=""
 for d in $omit_drivers; do
     strstr " $drivers $add_drivers " " $d " && continue
-    omit_drivers_corrected+=" $d "
+    omit_drivers_corrected+="$d|"
 done
-omit_drivers=$omit_drivers_corrected
+omit_drivers="${omit_drivers_corrected%|}"
 unset omit_drivers_corrected
 
 
