@@ -63,16 +63,6 @@ installkernel() {
 
     # force install of scsi_wait_scan
     hostonly='' instmods scsi_wait_scan
-}
-
-install() {
-    local _f i
-    [ -f /etc/modprobe.conf ] && dracut_install /etc/modprobe.conf
-    for i in $(find -L /etc/modprobe.d/ -maxdepth 1 -type f -name '*.conf'); do
-        inst_simple "$i"
-    done
-    inst_hook cmdline 01 "$moddir/parse-kernel.sh"
-    inst_simple "$moddir/insmodpost.sh" /sbin/insmodpost.sh
 
     for _f in modules.builtin.bin modules.builtin; do
         [[ $srcmods/$_f ]] && break
@@ -84,4 +74,15 @@ install() {
     for _f in modules.builtin.bin modules.builtin modules.order; do
         [[ $srcmods/$_f ]] && inst_simple "$srcmods/$_f" "/lib/modules/$kernel/$_f"
     done
+
+}
+
+install() {
+    local _f i
+    [ -f /etc/modprobe.conf ] && dracut_install /etc/modprobe.conf
+    for i in $(find -L /etc/modprobe.d/ -maxdepth 1 -type f -name '*.conf'); do
+        inst_simple "$i"
+    done
+    inst_hook cmdline 01 "$moddir/parse-kernel.sh"
+    inst_simple "$moddir/insmodpost.sh" /sbin/insmodpost.sh
 }
