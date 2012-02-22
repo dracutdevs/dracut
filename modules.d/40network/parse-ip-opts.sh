@@ -38,12 +38,13 @@ fi
 
 # Count ip= lines to decide whether we need bootdev= or not
 if [ -z "$NEEDBOOTDEV" ] ; then
-    local count=0
+    count=0
     for p in $(getargs ip=); do
         count=$(( $count + 1 ))
     done
     [ $count -gt 1 ] && NEEDBOOTDEV=1
 fi
+unset count
 
 # If needed, check if bootdev= contains anything usable
 if [ -n "$NEEDBOOTDEV" ] ; then
