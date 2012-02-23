@@ -377,21 +377,14 @@ inst_dir() {
 
     # iterate over parent directories
     for _file in $_dir; do
+        [[ -e "${initdir}/$_file" ]] && continue
         if [[ -L $_file ]]; then
-            # create link as the original
-            local target=$(readlink -f "$_file")
-            # resolve relative path and recursively install destination
-            [[ $target == ${target#/} ]] && target="$(dirname "$_file")/$target"
-            inst_dir "$target"
             inst_symlink "$_file"
         else
-            [[ -h ${initdir}/$_file ]] && _file=$(readlink "${initdir}/$_file")
             # create directory
-            [[ -e "${initdir}/$_file" ]] || mkdir -m 0755 -p "${initdir}/$_file" || return 1
-            if [[ -d "$_file" ]]; then
-                chmod --reference="$_file" "${initdir}/$_file"
-                chmod u+w "${initdir}/$_file"
-            fi
+            mkdir -m 0755 -p "${initdir}/$_file" || return 1
+            [[ -e "$_file" ]] && chmod --reference="$_file" "${initdir}/$_file"
+            chmod u+w "${initdir}/$_file"
         fi
     done
 }
@@ -554,23 +547,15 @@ inst_symlink() {
     [[ -L $1 ]] || return 1
     [[ -L $initdir/$_target ]] && return 0
     _realsrc=$(readlink -f "$_src")
-    [[ -d ${_target%/*} ]] && _target=$(readlink -f ${_target%/*})/${_target##*/}
-    if [[ -d $_realsrc ]]; then
-        inst_dir "$_realsrc"
-    else
-        {
-            local _t
-            _t=${2:-$1}
-            _t="${_t%/*}"
-            [[ $_t ]] && inst_dir "$_t"
+    if ! [[ -e $initdir/$_realsrc ]]; then
+        if [[ -d $_realsrc ]]; then
+            inst_dir "$_realsrc"
+        else
             inst "$_realsrc"
-        }
+        fi
     fi
-    if [[ -e "${_src}" ]]; then
-        ln -sfn $(convert_abs_rel "${_target}" "${_realsrc}") "$initdir/$_target"
-    else
-        ln -sfn "$_realsrc" "$initdir/$_target"
-    fi
+    [[ -d ${_target%/*} ]] && _target=$(readlink -f ${_target%/*})/${_target##*/}
+    ln -sfn $(convert_abs_rel "${_target}" "${_realsrc}") "$initdir/$_target"
 }
 
 # attempt to install any programs specified in a udev rule
