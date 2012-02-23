@@ -642,18 +642,18 @@ if [[ $prefix ]]; then
 fi
 
 if [[ $kernel_only != yes ]]; then
-    for d in bin etc lib "$libdir" sbin tmp usr var var/log usr/bin usr/sbin; do
+    for d in usr/bin usr/sbin bin etc lib "$libdir" sbin tmp usr var var/log; do
         [[ -e "${initdir}${prefix}/$d" ]] && continue
-        if [ -h "/$d" ]; then
-            inst "/$d" "${prefix}/$d"
+        if [ -L "/$d" ]; then
+            inst_symlink "/$d" "${prefix}/$d"
         else
             mkdir -m 0755 -p "${initdir}${prefix}/$d"
         fi
     done
 
     for d in dev proc sys sysroot root run run/lock run/initramfs; do
-        if [ -h "/$d" ]; then
-            inst "/$d"
+        if [ -L "/$d" ]; then
+            inst_symlink "/$d"
         else
             mkdir -m 0755 -p "$initdir/$d"
         fi
