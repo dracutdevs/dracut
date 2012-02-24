@@ -47,6 +47,11 @@ if ! needconvert; then
     exit 0
 fi
 
+if [ -e "$ROOT/usr/bin" ]; then
+    echo "$ROOT/usr/bin does not exist"
+    exit 1
+fi
+
 testfile="$ROOT/.usrmovecheck$$"
 rm -f "$testfile"
 > "$testfile"
