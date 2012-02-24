@@ -1,3 +1,16 @@
+dracut-017
+==========
+- a _lot_ faster than dracut-016 in image creation
+- systemd service dracut-shutdown.service
+- livenet fixes
+- ssh-client module install fix
+- root=iscsi:... fixed
+- lots of restructuring and optimizing in dracut-functions.sh
+- usrmount: honor fs_passno in /etc/fstab
+- renamed all shell scripts to .sh
+- new option "--omit-drivers" and config option "omit_drivers"
+- hostonly mode fixups
+
 dracut-016
 ==========
 - fixed lsinitrd
