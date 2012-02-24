@@ -470,7 +470,7 @@ inst_library() {
 # search in the usual places to find the binary.
 find_binary() {
     if [[ -z ${1##/*} ]]; then
-        if [[ -x $1 ]] || ldd $1 &>/dev/null; then
+        if [[ -x $1 ]] || { strstr "$1" ".so" && ldd $1 &>/dev/null; };  then
             echo $1
             return 0
         fi
