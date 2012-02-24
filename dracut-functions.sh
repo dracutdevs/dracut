@@ -482,47 +482,33 @@ find_binary() {
 # Same as above, but specialized to install binary executables.
 # Install binary executable, and all shared library dependencies, if any.
 inst_binary() {
-    local _bin _target _f _self _so_regex _lib_regex _tlibdir _base _file _line
-
+    local _bin _target
     _bin=$(find_binary "$1") || return 1
     _target=${2:-$_bin}
     [[ -e $initdir/$_target ]] && return 0
-    inst_symlink $_bin $_target && return 0
-
-    # If the binary being installed is also a library, add it to the loop.
-    _so_regex='([^ ]*/lib[^/]*/[^ ]*\.so[^ ]*)'
-    [[ $_bin =~ $_so_regex ]] && _self="\t${_bin##*/} => ${_bin} (0x0)\n"
-
-    _lib_regex='^(/lib[^/]*).*'
+    [[ -L $_bin ]] && inst_symlink $_bin $_target && return 0
+    local _file _line
+    local _so_regex='([^ ]*/lib[^/]*/[^ ]*\.so[^ ]*)'
     # I love bash!
-    { LC_ALL=C ldd $_bin 2>/dev/null; echo -en "$_self"; } | while read _line; do
-        [[ $_line = 'not a dynamic executable' ]] && return 1
+    LC_ALL=C ldd "$_bin" 2>/dev/null | while read _line; do
+        [[ $_line = 'not a dynamic executable' ]] && break
+
+        if [[ $_line =~ $_so_regex ]]; then
+            _file=${BASH_REMATCH[1]}
+            [[ -e ${initdir}/$_file ]] && continue
+            inst_library "$_file"
+            continue
+        fi
+
         if [[ $_line =~ not\ found ]]; then
             dfatal "Missing a shared library required by $_bin."
             dfatal "Run \"ldd $_bin\" to find out what it is."
+            dfatal "$_line"
             dfatal "dracut cannot create an initrd."
             exit 1
         fi
-        [[ $_line =~ $_so_regex ]] || continue
-        _file=${BASH_REMATCH[1]}
-        [[ -e ${initdir}/$_file ]] && continue
-
-        # See if we are loading an optimized version of a shared lib.
-        if [[ $_file =~ $_lib_regex ]]; then
-           _tlibdir=${BASH_REMATCH[1]}
-           _base=${_file##*/}
-           # Prefer nosegneg libs to unoptimized ones.
-            for _f in "$_tlibdir/i686/nosegneg"; do
-                [[ -e $_f/$_base ]] || continue
-                inst_library $_f/$_base
-                break
-            done
-        fi
-        inst_library "$_file"
     done
-
-    # Install the binary if it wasn't handled in the above loop.
-    [[ -z $_self ]] && inst_simple "$_bin" "$_target"
+    inst_simple "$_bin" "$_target"
 }
 
 # same as above, except for shell scripts.
