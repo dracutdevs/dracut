@@ -92,8 +92,8 @@ install() {
     install_all_kbd() {
         local rel f
 
-        for f in $(eval find ${kbddir}/{${KBDSUBDIRS}} -type f -print)
-        do
+        find $(eval echo ${kbddir}/{${KBDSUBDIRS}}) -type f -print | \
+            while read f; do
             inst_simple $f
         done
 
