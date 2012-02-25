@@ -54,7 +54,11 @@ install() {
     _nsslibs=${_nsslibs#|}
     _nsslibs=${_nsslibs%|}
 
-    dracut_install $(for _i in $(ls {/usr,}$libdir/libnss*.so 2>/dev/null); do echo $_i;done | egrep "$_nsslibs")
+    for _i in {/usr,}$libdir/libnss*.so; do
+        [[ -e $_i ]] || continue
+        [[ "$_i" =~ $_nsslibs ]] || continue
+        dracut_install "$_i"
+    done
 
     inst_hook cmdline 90 "$moddir/parse-nfsroot.sh"
     inst_hook pre-udev 99 "$moddir/nfs-start-rpc.sh"
