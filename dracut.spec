@@ -65,7 +65,6 @@ Obsoletes: dracut-kernel < 005
 Provides:  dracut-kernel = %{version}-%{release}
 
 Requires: bash
-Requires: bzip2
 Requires: coreutils
 Requires: cpio
 Requires: filesystem >= 2.1.0

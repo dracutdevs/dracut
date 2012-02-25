@@ -17,7 +17,7 @@ install() {
     dracut_install tar gzip dd
     dracut_install -o cpio xz
     # TODO: make this conditional on a cmdline flag / config option
-    # dracut_install -o bzip2
+    dracut_install -o bzip2
     inst "$moddir/img-lib.sh" "/lib/img-lib.sh"
 }
 
