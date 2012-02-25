@@ -10,7 +10,7 @@ install() {
     done
 
     if [ -d ${_terminfodir} ]; then
-        for f in $(find ${_terminfodir} -type f); do
+        for f in ${_terminfodir}/*/*; do
             inst_simple $f
         done
     fi
