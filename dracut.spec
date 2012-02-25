@@ -71,6 +71,7 @@ Requires: cpio
 Requires: filesystem >= 2.1.0
 Requires: findutils
 Requires: grep
+Requires: hardlink
 Requires: gzip
 Requires: module-init-tools >= 3.7-9
 Requires: sed
