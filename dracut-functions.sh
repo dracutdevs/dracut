@@ -1109,7 +1109,7 @@ instmods() {
                     | instmods
                 else
                     ( [[ "$_mpargs" ]] && echo $_mpargs
-                      find "$srcmods" -path "*/${_mod#=}/*" ) \
+                      find "$srcmods" -path "*/${_mod#=}/*" -printf '%f\n' ) \
                     | instmods
                 fi
                 ;;
