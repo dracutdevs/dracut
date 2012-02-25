@@ -168,7 +168,10 @@ get_fs_env() {
     [[ $1 ]] || return
     unset ID_FS_TYPE
     unset ID_FS_UUID
-    eval $(udevadm info --query=env --name=$1|egrep 'ID_FS_(TYPE|UUID)=')
+    eval $(udevadm info --query=env --name=$1 \
+        | while read line; do
+            [[ "$line" =~ 'ID_FS_(TYPE|UUID)=' ]] && echo $line;
+            done)
     [[ $ID_FS_TYPE ]] && return
 
     if [[ -x /lib/udev/vol_id ]]; then
