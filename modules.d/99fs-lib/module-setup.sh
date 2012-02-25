@@ -40,7 +40,7 @@ install() {
     local _helpers
 
     inst "$moddir/fs-lib.sh" "/lib/fs-lib.sh"
-    touch ${initdir}/etc/fstab.empty
+    > ${initdir}/etc/fstab.empty
 
     [[ "$nofscks" = "yes" ]] && return
 
