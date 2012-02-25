@@ -1167,9 +1167,10 @@ instmods() {
         return $_ret
     }
 
+    local _filter_not_found='FATAL: Module .* not found.'
     # Capture all stderr from modprobe to _fderr. We could use {var}>...
     # redirections, but that would make dracut require bash4 at least.
     eval "( instmods_1 \"\$@\" ) ${_fderr}>&1" \
-    | egrep -v 'FATAL: Module .* not found.' | derror
+    | while read line; do [[ "$line" =~ $_filter_not_found ]] || echo $line;done | derror
     return $?
 }
