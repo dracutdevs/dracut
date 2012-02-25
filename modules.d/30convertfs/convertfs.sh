@@ -106,7 +106,7 @@ for dir in bin sbin lib lib64; do
     [[ -d "$ROOT/$dir" ]] || continue
     echo "Make a copy of \`$ROOT/usr/$dir'."
     [[ -d "$ROOT/usr/$dir" ]] \
-        && cp -ax $CP_HARDLINK "$ROOT/usr/$dir" "$ROOT/usr/${dir}.usrmove-new"
+        && cp -ax -l "$ROOT/usr/$dir" "$ROOT/usr/${dir}.usrmove-new"
     echo "Merge the copy with \`$ROOT/$dir'."
     [[ -d "$ROOT/usr/${dir}.usrmove-new" ]] \
         || mkdir -p "$ROOT/usr/${dir}.usrmove-new"
