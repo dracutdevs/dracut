@@ -974,8 +974,13 @@ for_each_module_dir() {
 # $1 = full path to kernel module to install
 install_kmod_with_fw() {
     # no need to go further if the module is already installed
+
     [[ -e "${initdir}/lib/modules/$kernel/${1##*/lib/modules/$kernel/}" ]] \
         && return 0
+
+    [[ -e "$initdir/.kernelmodseen/${1##*/}" ]] && return 0
+
+    > "$initdir/.kernelmodseen/${1##*/}"
 
     if [[ $omit_drivers ]]; then
         local _kmod=${1##*/}
@@ -1116,16 +1121,15 @@ instmods() {
             --*) _mpargs+=" $_mod" ;;
             i2o_scsi) return ;; # Do not load this diagnostic-only module
             *)
+                _mod=${_mod##*/}
                 # if we are already installed, skip this module and go on
                 # to the next one.
-                [[ -f $initdir/$1 ]] && return
+                [[ -f "$initdir/.kernelmodseen/${_mod%.ko}.ko" ]] && return
 
                 if [[ $omit_drivers ]] && [[ "$1" =~ $omit_drivers ]]; then
                     dinfo "Omitting driver ${_mod##$srcmods}"
                     return
                 fi
-
-                _mod=${_mod##*/}
                 # If we are building a host-specific initramfs and this
                 # module is not already loaded, move on to the next one.
                 [[ $hostonly ]] && ! grep -qe "\<${_mod//-/_}\>" /proc/modules \

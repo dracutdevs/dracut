@@ -676,6 +676,8 @@ if [[ $kernel_only != yes ]]; then
     mkdir -p "${initdir}/etc/cmdline.d"
 fi
 
+mkdir -p "$initdir/.kernelmodseen"
+
 mods_to_load=""
 # check all our modules to see if they should be sourced.
 # This builds a list of modules that we will install next.
@@ -765,6 +767,9 @@ if [[ $kernel_only != yes ]]; then
         fi
     fi
 fi
+
+rm -fr "$initdir/.kernelmodseen"
+
 
 if (($maxloglvl >= 5)); then
     ddebug "Listing sizes of included files:"
