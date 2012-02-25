@@ -1103,13 +1103,7 @@ instmods() {
         local _mod="$1"
         case $_mod in
             =*)
-                # This introduces 2 incompatible meanings for =* arguments
-                # to instmods.  We need to decide which one to keep.
-                if [[ $_mod = =ata && -f $srcmods/modules.block ]]; then
-                    ( [[ "$_mpargs" ]] && echo $_mpargs
-                      egrep 'ata|ahci' "${srcmods}/modules.block" ) \
-                    | instmods
-                elif [ -f $srcmods/modules.${_mod#=} ]; then
+                if [ -f $srcmods/modules.${_mod#=} ]; then
                     ( [[ "$_mpargs" ]] && echo $_mpargs
                       cat "${srcmods}/modules.${_mod#=}" ) \
                     | instmods
