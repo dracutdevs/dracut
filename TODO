@@ -1,24 +1,33 @@
-Current TODO list, broken into things which are relevant for the initramfs itself (/init et al) vs the generator. A lot of things are/should be marked with "FIXME" in the code
+Current TODO list, broken into things which are relevant for the
+initramfs itself (/init et al) vs the generator.
+A lot of things are/should be marked with "FIXME" in the code.
+
+Items are ordered in priority.
+
 INITRAMFS TODO
 
-- The hard-coded list of udev rules that we care about is kind of lame.
+- put "root=" parsing hooks in separate hook dir
+- call "root=" parsing hooks after getting new rootpath from dhcp
+- put mount hook in main initqueue loop
+- the hard-coded list of udev rules that we care about is kind of lame.
 - automatic kexec fallback
 - panic fallback
-- fsck for $NEWROOT/usr
 
 GENERATOR TODO
 
-- Default module specification could use some work
-- udev rule copying, as mentioned above, is a bit too hard-coded
+- add mechanism for module specific command line options
 - pkg-config integration, to make it easy for other packages to use us.
 - add recovery image creator (mkrecovery)
+- default module specification could use some work
+- udev rule copying, as mentioned above, is a bit too hard-coded
 
 CODE TODO
-- document functions
+
+- document more functions
 - make function vars local, and prefix with "_"
 
 Future Enhancement Requests
 
 - run ssh server to enter crypto password or perform debugging (supported by debian)
-- Bug 524727 - Dracut + encrypted root + networking
+- https://bugzilla.redhat.com/show_bug.cgi?id=524727 - Dracut + encrypted root + networking
 
