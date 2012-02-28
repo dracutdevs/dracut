@@ -73,4 +73,6 @@ mount_usr()
     fi
 }
 
-mount_usr
+if [ -f "$NEWROOT/etc/fstab" ]; then
+    mount_usr
+fi
