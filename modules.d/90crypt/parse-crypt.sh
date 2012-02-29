@@ -24,21 +24,10 @@ else
                 printf -- '$env{DEVNAME} luks-$env{ID_FS_UUID} %s"\n' $tout
             } >> /etc/udev/rules.d/70-luks.rules.new
 
-
-            [ -e $hookdir/initqueue/finished/90-crypt.sh ] || \
-            {
-                printf -- 'UUIDS=:\n'
-                printf -- 'for dm in /dev/dm-*; do\n'
-                printf -- '[ -e "$dm" ] || exit 1\n'
-                printf -- 'dmid=`/sbin/dmsetup info -c -o uuid --noheadings "$dm"`\n'
-                printf -- 'uuid=${dmid#CRYPT-LUKS*-}\n'
-                printf -- '[ "x$uuid" = "x$dmid" ] && continue\n'
-                printf -- 'UUIDS="${UUIDS}${uuid%%%%-*}:"\n'
-                printf -- 'done\n'
-            } > $hookdir/initqueue/finished/90-crypt.sh
             uuid=$luksid
             while [ "$uuid" != "${uuid#*-}" ]; do uuid=${uuid%%-*}${uuid#*-}; done
-            printf -- '[ "x${UUIDS#*:%s*:}" != "x$UUIDS" ] || exit 1\n' $uuid >> $hookdir/initqueue/finished/90-crypt.sh
+            printf -- '[ -e /dev/disk/by-id/dm-uuid-CRYPT-LUKS?-*%s*-* ] || exit 1\n' $uuid \
+                >> $hookdir/initqueue/finished/90-crypt.sh
 
             {
                 printf -- '[ -e /dev/disk/by-uuid/*%s* ] || ' $luksid
