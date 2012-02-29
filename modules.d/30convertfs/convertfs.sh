@@ -21,13 +21,13 @@ while [[ "$ROOT" != "${ROOT%/}" ]]; do
     ROOT=${ROOT%/}
 done
 
-if [ ! -L $ROOT/var/run ]; then
+if [ ! -L $ROOT/var/run -a -e $ROOT/var/run ]; then
     echo "Converting /var/run to symlink"
     mv -f $ROOT/var/run $ROOT/var/run.runmove~
     ln -sfn ../run $ROOT/var/run
 fi
 
-if [ ! -L $ROOT/var/lock ]; then
+if [ ! -L $ROOT/var/lock -a -e $ROOT/var/lock ]; then
     echo "Converting /var/lock to symlink"
     mv -f $ROOT/var/lock $ROOT/var/lock.lockmove~
     ln -sfn ../run/lock $ROOT/var/lock
@@ -42,14 +42,17 @@ needconvert() {
     return 1
 }
 
+if ! [ -e "$ROOT/usr/bin" ]; then
+    echo "$ROOT/usr/bin does not exist!"
+    echo "Make sure, the kernel command line has enough information"
+    echo "to mount /usr (man dracut.cmdline)"
+    exit 1
+fi
+
+
 if ! needconvert; then
     echo "Your system is already converted."
     exit 0
-fi
-
-if [ -e "$ROOT/usr/bin" ]; then
-    echo "$ROOT/usr/bin does not exist"
-    exit 1
 fi
 
 testfile="$ROOT/.usrmovecheck$$"
