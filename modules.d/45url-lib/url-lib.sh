@@ -74,7 +74,7 @@ set_http_header() {
 
 ### NFS ##############################################################
 
-. /lib/nfs-lib.sh
+[ -e /lib/nfs-lib.sh ] && . /lib/nfs-lib.sh
 
 nfs_already_mounted() {
     local server="$1" path="$2" localdir="" s="" p=""
@@ -112,4 +112,4 @@ nfs_fetch_url() {
     [ -f "$outloc" ] || return 253
     echo "$outloc"
 }
-add_url_handler nfs_fetch_url nfs nfs4
+command -v nfs_to_var >/dev/null && add_url_handler nfs_fetch_url nfs nfs4
