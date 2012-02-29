@@ -753,3 +753,41 @@ killproc() {
 need_shutdown() {
     >/run/initramfs/.need_shutdown
 }
+
+emergency_shell()
+{
+    local _ctty
+    set +e
+    if [ "$1" = "-n" ]; then
+        _rdshell_name=$2
+        shift 2
+    else
+        _rdshell_name=dracut
+    fi
+    echo ; echo
+    warn $@
+    source_hook emergency
+    echo
+    wait_for_loginit
+    [ -e /run/initramfs/.die ] && exit 1
+    if getargbool 1 rd.shell -y rdshell || getarg rd.break rdbreak; then
+        echo "Dropping to debug shell."
+        echo
+        export PS1="$_rdshell_name:\${PWD}# "
+        [ -e /.profile ] || >/.profile
+        _ctty=/dev/console
+        if [ -n "$(command -v setsid)" ]; then
+            _ctty="$(getarg rd.ctty=)" && _ctty="/dev/${_ctty##*/}"
+            [ -c "$_ctty" ] || _ctty=/dev/tty1
+            setsid sh -i -l 0<$_ctty 1>$_ctty 2>&1
+        elif [ -n "$(command -v openvt)" ] && ! getarg "console=" >/dev/null 2>&1 && getargbool 1 "rd.openvt" ; then
+            openvt -f -c 1 -w -s -l -- sh
+        else
+            sh -i -l 0<$_ctty 1>$_ctty 2>&1
+        fi
+    else
+        warn "Boot has failed. To debug this issue add \"rdshell\" to the kernel command line."
+        # cause a kernel panic
+        exit 1
+    fi
+}
