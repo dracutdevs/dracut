@@ -99,7 +99,7 @@ nfs_fetch_url() {
     mntdir=$(nfs_already_mounted $server $path)
     if [ -z "$mntdir" ]; then
         local mntdir="$(mkuniqdir /run nfs_mnt)"
-        mount_nfs $nfs:$server:$path${options:+:$options} $mntdir
+        mount_nfs $nfs:$server:$filepath${options:+:$options} $mntdir
         # lazy unmount during pre-pivot hook
         inst_hook --hook pre-pivot --name 99url-lib-umount-nfs umount -l $mntdir
     fi
