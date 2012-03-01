@@ -980,8 +980,6 @@ install_kmod_with_fw() {
 
     [[ -e "$initdir/.kernelmodseen/${1##*/}" ]] && return 0
 
-    > "$initdir/.kernelmodseen/${1##*/}"
-
     if [[ $omit_drivers ]]; then
         local _kmod=${1##*/}
         _kmod=${_kmod%.ko}
@@ -995,6 +993,8 @@ install_kmod_with_fw() {
             return 1
         fi
     fi
+
+    > "$initdir/.kernelmodseen/${1##*/}"
 
     inst_simple "$1" "/lib/modules/$kernel/${1##*/lib/modules/$kernel/}" \
         || return $?
