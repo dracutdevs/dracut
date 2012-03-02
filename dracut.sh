@@ -674,6 +674,9 @@ fi
 
 if [[ $kernel_only != yes ]]; then
     mkdir -p "${initdir}/etc/cmdline.d"
+    for _d in $hookdirs; do
+        mkdir -m 0755 -p ${initdir}/lib/dracut/hooks/$_d
+    done
 fi
 
 mkdir -p "$initdir/.kernelmodseen"
