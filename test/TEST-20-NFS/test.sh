@@ -12,8 +12,9 @@ run_server() {
     # Start server first
     echo "NFS TEST SETUP: Starting DHCP/NFS server"
 
+    fsck $TESTDIR/server.ext3 || return 1
     $testdir/run-qemu \
-	-hda $TESTDIR/server.ext2 -m 256M -nographic \
+	-hda $TESTDIR/server.ext3 -m 256M -nographic \
 	-net nic,macaddr=52:54:00:12:34:56,model=e1000 \
 	-net socket,listen=127.0.0.1:12320 \
 	-serial $SERIAL \
@@ -203,10 +204,10 @@ test_run() {
 
 test_setup() {
     # Make server root
-    dd if=/dev/null of=$TESTDIR/server.ext2 bs=1M seek=60
-    mke2fs -F $TESTDIR/server.ext2
+    dd if=/dev/null of=$TESTDIR/server.ext3 bs=1M seek=60
+    mke2fs -j -F $TESTDIR/server.ext3
     mkdir $TESTDIR/mnt
-    sudo mount -o loop $TESTDIR/server.ext2 $TESTDIR/mnt
+    sudo mount -o loop $TESTDIR/server.ext3 $TESTDIR/mnt
 
     kernel=$KVERSION
     (
@@ -307,7 +308,7 @@ test_setup() {
     # Make server's dracut image
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-m "dash udev-rules base rootfs-block debug kernel-modules" \
-	-d "piix ide-gd_mod ata_piix ext2 sd_mod e1000" \
+	-d "piix ide-gd_mod ata_piix ext3 sd_mod e1000" \
 	-f $TESTDIR/initramfs.server $KVERSION || return 1
 
     # Make client's dracut image
