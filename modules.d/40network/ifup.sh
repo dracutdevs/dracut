@@ -50,7 +50,7 @@ fi
 
 # disable manual ifup while netroot is set for simplifying our logic
 # in netroot case we prefer netroot to bringup $netif automaticlly
-[ -n "$2" ] && [ -z "$netroot" ] && manualup="$2"
+[ -n "$2" -a "$2" = "-m" ] && [ -z "$netroot" ] && manualup="$2"
 [ -z "$netroot" ] && [ -z "$manualup" ] && exit 0
 [ -n "$manualup" ] && >/tmp/net.$netif.manualup
 
