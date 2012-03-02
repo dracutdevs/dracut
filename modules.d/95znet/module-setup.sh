@@ -13,6 +13,10 @@ depends() {
     return 0
 }
 
+installkernel() {
+    instmods ctcm
+}
+
 install() {
     inst_hook cmdline 30 "$moddir/parse-ccw.sh"
     inst /lib/udev/ccw_init
