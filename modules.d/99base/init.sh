@@ -131,15 +131,7 @@ source_hook cmdline
 [ -z "$root" ] && die "No or empty root= argument"
 [ -z "$rootok" ] && die "Don't know how to handle 'root=$root'"
 
-# Network root scripts may need updated root= options,
-# so deposit them where they can see them (udev purges the env)
-{
-    echo "root='$root'"
-    echo "rflags='$rflags'"
-    echo "fstype='$fstype'"
-    echo "netroot='$netroot'"
-    echo "NEWROOT='$NEWROOT'"
-} > /tmp/root.info
+export root rflags fstype netroot NEWROOT
 
 # pre-udev scripts run before udev starts, and are run only once.
 getarg 'rd.break=pre-udev' 'rdbreak=pre-udev' && emergency_shell -n pre-udev "Break before pre-udev"
@@ -314,6 +306,7 @@ else
 fi
 
 export RD_TIMESTAMP
+export -n root rflags fstype netroot NEWROOT
 set +x # Turn off debugging for this section
 # Clean up the environment
 for i in $(export -p); do

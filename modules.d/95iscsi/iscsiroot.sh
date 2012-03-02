@@ -37,9 +37,6 @@ iroot=${iroot#iscsi:}
 # figured out a way how to check whether this is built-in or not
 modprobe crc32c 2>/dev/null
 
-
-[ -e /tmp/root.info ] && . /tmp/root.info
-
 [ -e /sys/module/bnx2i ] && iscsiuio
 
 if getargbool 0 rd.iscsi.firmware -y iscsi_firmware ; then
@@ -54,7 +51,7 @@ fi
 
 unset iscsi_initiator iscsi_target_name iscsi_target_ip iscsi_target_port
 unset iscsi_target_group iscsi_protocol iscsirw iscsi_lun
-unset iscsi_username iscsi_password 
+unset iscsi_username iscsi_password
 unset iscsi_in_username iscsi_in_password
 
 # override conf settings by command line options

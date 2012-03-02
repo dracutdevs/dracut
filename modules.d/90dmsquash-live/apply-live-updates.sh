@@ -1,7 +1,5 @@
 #!/bin/sh
 
-. /tmp/root.info
-
 if [ -b /dev/mapper/live-rw ] && [ -d /updates ]; then
     info "Applying updates to live image..."
     # avoid overwriting symlinks (e.g. /lib -> /usr/lib) with directories

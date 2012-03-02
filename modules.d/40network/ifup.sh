@@ -45,8 +45,6 @@ fi
 # bail immediately if the interface is already up
 # or we don't need the network
 [ -f "/tmp/net.$netif.up" ] && exit 0
-[ -f "/tmp/root.info" ] || exit 0
-. /tmp/root.info
 
 # disable manual ifup while netroot is set for simplifying our logic
 # in netroot case we prefer netroot to bringup $netif automaticlly

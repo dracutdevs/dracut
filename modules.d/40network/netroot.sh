@@ -15,8 +15,6 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 # instead of real netroot; If It's called without $2, then there's
 # no sense in doing something if no (net)root info is available
 # or root is already there
-[ -e /tmp/root.info ] || exit 1
-. /tmp/root.info
 if [ -z "$2" ]; then
     [ -d $NEWROOT/proc ] && exit 0
     [ -z "$netroot" ] && exit 1
