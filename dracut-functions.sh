@@ -994,7 +994,8 @@ install_kmod_with_fw() {
         fi
     fi
 
-    > "$initdir/.kernelmodseen/${1##*/}"
+    [ -d "$initdir/.kernelmodseen" ] && \
+        > "$initdir/.kernelmodseen/${1##*/}"
 
     inst_simple "$1" "/lib/modules/$kernel/${1##*/lib/modules/$kernel/}" \
         || return $?
