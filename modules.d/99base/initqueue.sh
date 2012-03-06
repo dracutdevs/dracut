@@ -25,6 +25,8 @@ while [ $# -gt 0 ]; do
             unique="yes";;
         --name)
             name="$2";shift;;
+        --env)
+            env="$2"; shift;;
         *)
             break;;
     esac
@@ -43,14 +45,11 @@ shift
 
 [ -x "$exe" ] || exe=$(command -v $exe)
 
-if [ -n "$onetime" ]; then
-    {
-        echo '[ -e "$job" ] && rm "$job"'
-        echo "$exe $@"
-    } > "/tmp/$$-${job}.sh"
-else
-    echo "$exe $@" > "/tmp/$$-${job}.sh"
-fi
+{
+    [ -n "$onetime" ] && echo '[ -e "$job" ] && rm "$job"'
+    [ -n "$env" ] && echo "$env"
+    echo "$exe $@"
+} > "/tmp/$$-${job}.sh"
 
 mv -f "/tmp/$$-${job}.sh" "$hookdir/initqueue${qname}/${job}.sh"
 [ -z "$qname" ] && >> $hookdir/initqueue/work

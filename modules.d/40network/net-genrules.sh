@@ -31,33 +31,27 @@ fix_bootif() {
         IFACES=${bondslaves%% *}
     fi
 
+    ifup='/sbin/ifup $env{INTERFACE}'
+    [ -z "$netroot" ] && ifup="$ifup -m"
+
     # BOOTIF says everything, use only that one
     BOOTIF=$(getarg 'BOOTIF=')
     if [ -n "$BOOTIF" ] ; then
         BOOTIF=$(fix_bootif "$BOOTIF")
-        if [ -n "$netroot" ]; then
-            printf 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="%s", OPTIONS+="event_timeout=360", RUN+="/sbin/initqueue --onetime /sbin/ifup $env{INTERFACE}"\n' "$BOOTIF"
-        else
-            printf 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="%s", OPTIONS+="event_timeout=360", RUN+="/sbin/initqueue --onetime /sbin/ifup $env{INTERFACE} -m"\n' "$BOOTIF"
-        fi
+        printf 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="%s", RUN+="%s"\n' "$BOOTIF" "/sbin/initqueue --onetime $ifup"
 
     # If we have to handle multiple interfaces, handle only them.
     elif [ -n "$IFACES" ] ; then
         for iface in $IFACES ; do
-            if [ -n "$netroot" ]; then
-                printf 'SUBSYSTEM=="net", ENV{INTERFACE}=="%s", OPTIONS+="event_timeout=360", RUN+="/sbin/initqueue --onetime /sbin/ifup $env{INTERFACE}"\n' "$iface"
-            else
-                printf 'SUBSYSTEM=="net", ENV{INTERFACE}=="%s", OPTIONS+="event_timeout=360", RUN+="/sbin/initqueue --onetime /sbin/ifup $env{INTERFACE} -m"\n' "$iface"
-            fi
+            printf 'SUBSYSTEM=="net", ENV{INTERFACE}=="%s", RUN+="%s"\n' "$iface" "/sbin/initqueue --onetime $ifup"
         done
 
     # Default: We don't know the interface to use, handle all
     else
-        if [ -n "$netroot" ]; then
-            printf 'SUBSYSTEM=="net", OPTIONS+="event_timeout=360", RUN+="/sbin/initqueue --onetime /sbin/ifup $env{INTERFACE}"\n'
-        else
-            printf 'SUBSYSTEM=="net", OPTIONS+="event_timeout=360", RUN+="/sbin/initqueue --onetime /sbin/ifup $env{INTERFACE} -m"\n'
-        fi
+        printf 'SUBSYSTEM=="net", RUN+="%s"\n' "/sbin/initqueue --onetime $ifup"
     fi
+
+    # Run the "online" hook
+    printf 'SUBSYSTEM=="net", ACTION=="online", RUN+="/sbin/initqueue --onetime --env netif=$env{INTERFACE} source_hook initqueue/online"\n'
 
 } > /etc/udev/rules.d/60-net.rules
