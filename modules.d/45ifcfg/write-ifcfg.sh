@@ -134,11 +134,10 @@ for netif in $IFACES ; do
 done
 
 # Pass network opts
-[ -d /run/initramfs ] || mkdir -m 0755 -p /run/initramfs
-cp /tmp/net.* /run/initramfs/ >/dev/null 2>&1
-for i in /run/initramfs/state /run/initramfs/state/etc/ /run/initramfs/state/etc/sysconfig /run/initramfs/state/etc/sysconfig/network-scripts; do
-    [ -d $i ] || mkdir -m 0755 -p $i
-done
-cp /tmp/net.$netif.resolv.conf /run/initramfs/state/etc/ >/dev/null 2>&1
-echo "files /etc/sysconfig/network-scripts" > /run/initramfs/rwtab
-cp -a -t /run/initramfs/state/etc/sysconfig/network-scripts/ /tmp/ifcfg/* >/dev/null 2>&1
+mkdir -m 0755 -p /run/initramfs/state/etc/sysconfig/network-scripts
+echo "files /etc/sysconfig/network-scripts" >> /run/initramfs/rwtab
+{
+    cp /tmp/net.* /run/initramfs/
+    cp /tmp/net.$netif.resolv.conf /run/initramfs/state/etc/
+    cp -a -t /run/initramfs/state/etc/sysconfig/network-scripts/ /tmp/ifcfg/*
+} > /dev/null 2>&1
