@@ -18,11 +18,13 @@ if [ -e /tmp/bridge.info ]; then
 fi
 
 mkdir -m 0755 -p /tmp/ifcfg/
+mkdir -m 0755 -p /tmp/ifcfg-leases/
 
 for netif in $IFACES ; do
     # bridge?
     unset bridge
     unset bond
+    uuid=$(cat /proc/sys/kernel/random/uuid)
     if [ "$netif" = "$bridgename" ]; then
         bridge=yes
     elif [ "$netif" = "$bondname" ]; then
@@ -35,10 +37,12 @@ for netif in $IFACES ; do
         echo "DEVICE=$netif"
         echo "ONBOOT=yes"
         echo "NETBOOT=yes"
+        echo "UUID=$uuid"
         if [ -f /tmp/net.$netif.lease ]; then
             strstr "$ip" '*:*:*' &&
             echo "DHCPV6C=yes"
             echo "BOOTPROTO=dhcp"
+            cp /tmp/net.$netif.lease /tmp/ifcfg-leases/dhclient-$uuid-$netif.lease
         else
             echo "BOOTPROTO=none"
         # If we've booted with static ip= lines, the override file is there
@@ -135,9 +139,12 @@ done
 
 # Pass network opts
 mkdir -m 0755 -p /run/initramfs/state/etc/sysconfig/network-scripts
+mkdir -m 0755 -p /run/initramfs/state/var/lib/dhclient
 echo "files /etc/sysconfig/network-scripts" >> /run/initramfs/rwtab
+echo "files /var/lib/dhclient" >> /run/initramfs/rwtab
 {
     cp /tmp/net.* /run/initramfs/
     cp /tmp/net.$netif.resolv.conf /run/initramfs/state/etc/
     cp -a -t /run/initramfs/state/etc/sysconfig/network-scripts/ /tmp/ifcfg/*
+    cp /tmp/ifcfg-leases/* /run/initramfs/state/var/lib/dhclient
 } > /dev/null 2>&1
