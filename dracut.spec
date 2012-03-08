@@ -272,6 +272,7 @@ rm -rf $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/97masterkey
 %{dracutlibdir}/modules.d/98ecryptfs
 %{dracutlibdir}/modules.d/98integrity
+%{dracutlibdir}/modules.d/98pollcdrom
 %{dracutlibdir}/modules.d/98selinux
 %{dracutlibdir}/modules.d/98syslog
 %{dracutlibdir}/modules.d/98usrmount
