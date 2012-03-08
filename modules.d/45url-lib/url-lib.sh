@@ -53,9 +53,10 @@ add_url_handler() {
 
 export CURL_HOME="/run/initramfs/url-lib"
 mkdir -p $CURL_HOME
-curl_args="--location --retry 3 --fail --show-error"
+curl_args="--location --retry 3 --fail --show-error --progress-bar"
 curl_fetch_url() {
     local url="$1" outloc="$2"
+    echo "$url" > /proc/self/fd/0
     if [ -n "$outloc" ]; then
         curl $curl_args --output "$outloc" "$url" || return $?
     else
@@ -64,7 +65,7 @@ curl_fetch_url() {
         outloc="$outdir/$(ls -A $outdir)"
     fi
     [ -f "$outloc" ] || return 253
-    echo "$outloc"
+    if [ -z "$2" ]; then echo "$outloc" ; fi
 }
 add_url_handler curl_fetch_url http https ftp
 
@@ -110,6 +111,6 @@ nfs_fetch_url() {
         cp -f "$mntdir/$filename" "$outloc" || return $?
     fi
     [ -f "$outloc" ] || return 253
-    echo "$outloc"
+    if [ -z "$2" ]; then echo "$outloc" ; fi
 }
 command -v nfs_to_var >/dev/null && add_url_handler nfs_fetch_url nfs nfs4
