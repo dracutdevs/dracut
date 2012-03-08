@@ -40,7 +40,7 @@ modprobe crc32c 2>/dev/null
 [ -e /sys/module/bnx2i ] && iscsiuio
 
 if getargbool 0 rd.iscsi.firmware -y iscsi_firmware ; then
-    if [ -n "${root%%block:*}" ]; then
+    if [ -z "$root" -o -n "${root%%block:*}" ]; then
         # if root is not specified try to mount the whole iSCSI LUN
         printf 'ENV{DEVTYPE}!="partition", SYMLINK=="disk/by-path/*-iscsi-*-*", SYMLINK+="root"\n' >> /etc/udev/rules.d/99-iscsi-root.rules
         udevadm control --reload
@@ -167,9 +167,12 @@ handle_netroot()
 
 # FIXME $iscsi_protocol??
 
-    if [ -n "${root%%block:*}" ]; then
-    # if root is not specified try to mount the whole iSCSI LUN
+    if [ -z "$root" -o -n "${root%%block:*}" ]; then
+        # if root is not specified try to mount the whole iSCSI LUN
         printf 'SYMLINK=="disk/by-path/*-iscsi-*-%s", SYMLINK+="root"\n' $iscsi_lun >> /etc/udev/rules.d/99-iscsi-root.rules
+
+        # install mount script
+        echo "iscsi_lun=$iscsi_lun . /bin/mount-lun.sh " > $hookdir/mount/01-$$-iscsi.sh
     fi
 
     # inject new exit_if_exists
@@ -185,12 +188,6 @@ handle_netroot()
         ${iscsi_password+-w $iscsi_password} \
         ${iscsi_in_username+-U $iscsi_in_username} \
         ${iscsi_in_password+-W $iscsi_in_password} || :
-
-# install mount script
-    if [ -n "${root%%block:*}" ]; then
-    # if root is not specified try to mount the whole iSCSI LUN
-        echo "iscsi_lun=$iscsi_lun . /bin/mount-lun.sh " > $hookdir/mount/01-$$-iscsi.sh
-    fi
 }
 
 # loop over all netroot parameter
