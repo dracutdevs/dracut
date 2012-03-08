@@ -12,7 +12,7 @@ run_server() {
     # Start server first
     echo "NFS TEST SETUP: Starting DHCP/NFS server"
 
-    fsck $TESTDIR/server.ext3 || return 1
+    fsck -a $TESTDIR/server.ext3 || return 1
     $testdir/run-qemu \
 	-hda $TESTDIR/server.ext3 -m 256M -nographic \
 	-net nic,macaddr=52:54:00:12:34:56,model=e1000 \
