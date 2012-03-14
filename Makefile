@@ -19,11 +19,16 @@ all: syncheck
 %: %.xml
 	xsltproc -o $@ -nonet http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
 
-dracut.html: dracut.xml $(manpages)
+%.xml: %.asc
+	asciidoc -d manpage -b docbook -o $@ $<
+
+dracut.html: dracut.asc $(manpages)
+	asciidoc -a numbered -d book -b docbook -o dracut.xml dracut.asc
 	xsltproc -o dracut.html --xinclude -nonet \
 		--stringparam draft.mode yes \
 		--stringparam html.stylesheet http://docs.redhat.com/docs/en-US/Common_Content/css/default.css \
 		http://docbook.sourceforge.net/release/xsl/current/xhtml/docbook.xsl dracut.xml
+	rm dracut.xml
 
 install: doc
 	mkdir -p $(DESTDIR)$(pkglibdir)
