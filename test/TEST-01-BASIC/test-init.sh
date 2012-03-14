@@ -11,7 +11,10 @@ export PS1='initramfs-test:\w\$ '
 [ -f /etc/fstab ] || ln -sfn /proc/mounts /etc/fstab
 stty sane
 echo "made it to the rootfs!"
-strstr "$CMDLINE" "rd.shell" && sh -i
+if strstr "$CMDLINE" "rd.shell"; then
+	strstr "$(setsid --help)" "control" && CTTY="-c"
+	setsid $CTTY sh -i
+fi
 echo "Powering down."
 mount -n -o remount,ro /
 poweroff -f

@@ -29,7 +29,7 @@ test_setup() {
 	. $basedir/dracut-functions.sh
 	dracut_install sh df free ls shutdown poweroff stty cat ps ln ip route \
 	    mount dmesg ifconfig dhclient mkdir cp ping dhclient \
-	    umount strace less
+	    umount strace less setsid
 	for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
 	done
