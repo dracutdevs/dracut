@@ -62,8 +62,16 @@ Git:
 	http://git.kernel.org/pub/scm/boot/dracut/dracut.git
 	https://git.kernel.org/pub/scm/boot/dracut/dracut.git
 
+	git://github.com/haraldh/dracut.git
+
+	git://dracut.git.sourceforge.net/gitroot/dracut/dracut
+
 Git Web:
 	http://git.kernel.org/?p=boot/dracut/dracut.git
+
+	https://haraldh@github.com/haraldh/dracut.git
+
+	http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut/dracut
 
 Git Web RSS Feed:
 	http://git.kernel.org/?p=boot/dracut/dracut.git;a=rss
