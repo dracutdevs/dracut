@@ -756,9 +756,9 @@ need_shutdown() {
 
 wait_for_loginit()
 {
-    set +x
     [ "$RD_DEBUG" = "yes" ] || return
     [ -e /run/initramfs/loginit.pipe ] || return
+    set +x
     echo "DRACUT_LOG_END"
     exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
         # wait for loginit
@@ -778,7 +778,7 @@ wait_for_loginit()
         kill $(while read line;do echo $line;done</run/initramfs/loginit.pid)
     fi
 
-    set -x
+    setdebug
     rm -f /run/initramfs/loginit.pipe /run/initramfs/loginit.pid
 }
 
