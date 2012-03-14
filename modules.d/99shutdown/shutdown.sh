@@ -30,16 +30,19 @@ emergency_shell()
         echo
         export PS1="$_rdshell_name:\${PWD}# "
         [ -e /.profile ] || >/.profile
-        _ctty=/dev/console
-        if [ -n "$(command -v setsid)" ]; then
-            _ctty="$(getarg rd.ctty=)" && _ctty="/dev/${_ctty##*/}"
-            [ -c "$_ctty" ] || _ctty=/dev/tty1
-            setsid sh -i -l 0<$_ctty 1>$_ctty 2>&1
-        elif [ -n "$(command -v openvt)" ] && ! getarg "console=" >/dev/null 2>&1 && getargbool 1 "rd.openvt" ; then
-            openvt -f -c 1 -w -s -l -- sh
-        else
-            sh -i -l 0<$_ctty 1>$_ctty 2>&1
+
+        _ctty="$(getarg rd.ctty=)" && _ctty="/dev/${_ctty##*/}"
+        if [ -z "$_ctty" ]; then
+            _ctty=console
+            while [ -f /sys/class/tty/$_ctty/active ]; do
+                _ctty=$(cat /sys/class/tty/$_ctty/active)
+                _ctty=${_ctty##* } # last one in the list
+            done
+            _ctty=/dev/$_ctty
         fi
+        [ -c "$_ctty" ] || _ctty=/dev/tty1
+        strstr "$(setsid --help)" "control" && CTTY="-c"
+        setsid $CTTY /bin/sh -i -l 0<$_ctty 1>$_ctty 2>&1
     else
         exec /lib/systemd/systemd-shutdown "$@"
         warn "Shutdown has failed. To debug this issue add \"rdshell\" to the kernel command line."
