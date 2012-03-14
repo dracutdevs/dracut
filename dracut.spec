@@ -318,9 +318,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files tools
 %defattr(-,root,root,0755)
-%{_mandir}/man8/dracut-gencmdline.8*
 %{_mandir}/man8/dracut-catimages.8*
-%{_bindir}/dracut-gencmdline
 %{_bindir}/dracut-catimages
 %dir /boot/dracut
 %dir /var/lib/dracut
