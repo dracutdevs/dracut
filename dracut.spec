@@ -40,8 +40,10 @@ BuildRequires: docbook-style-xsl docbook-dtds libxslt
 %endif
 
 %if 0%{?suse_version}
-BuildRequires: docbook-xsl-stylesheets libxslt
+-BuildRequires: docbook-xsl-stylesheets libxslt
 %endif
+
+BuildRequires: asciidoc
 
 %if 0%{?fedora} > 12 || 0%{?rhel}
 # no "provides", because dracut does not offer
@@ -161,7 +163,7 @@ git am -p1 %{patches}
 %endif
 
 %build
-make
+make all
 
 %install
 %if 0%{?fedora} || 0%{?rhel}

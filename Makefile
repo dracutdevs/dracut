@@ -13,8 +13,9 @@ manpages = dracut.8 dracut.cmdline.7 dracut.conf.5 dracut-catimages.8
 
 .PHONY: install clean archive rpm testimage test all check AUTHORS doc
 
-doc: $(manpages) dracut.html
 all: syncheck
+
+doc: $(manpages) dracut.html
 
 %: %.xml
 	xsltproc -o $@ -nonet http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
@@ -26,7 +27,8 @@ dracut.html: dracut.asc $(manpages)
 	asciidoc -a numbered -d book -b docbook -o dracut.xml dracut.asc
 	xsltproc -o dracut.html --xinclude -nonet \
 		--stringparam draft.mode yes \
-		--stringparam html.stylesheet http://docs.redhat.com/docs/en-US/Common_Content/css/default.css \
+		--stringparam html.stylesheet \
+		http://docs.redhat.com/docs/en-US/Common_Content/css/default.css \
 		http://docbook.sourceforge.net/release/xsl/current/xhtml/docbook.xsl dracut.xml
 	rm dracut.xml
 
@@ -57,8 +59,10 @@ install: doc
 		install -m 0644 dracut-shutdown.service $(DESTDIR)$(systemdsystemunitdir); \
 		mkdir -p $(DESTDIR)$(systemdsystemunitdir)/reboot.target.wants; \
 		mkdir -p $(DESTDIR)$(systemdsystemunitdir)/shutdown.target.wants; \
-		ln -s ../dracut-shutdown.service $(DESTDIR)$(systemdsystemunitdir)/reboot.target.wants/dracut-shutdown.service; \
-		ln -s ../dracut-shutdown.service $(DESTDIR)$(systemdsystemunitdir)/shutdown.target.wants/dracut-shutdown.service; \
+		ln -s ../dracut-shutdown.service \
+		$(DESTDIR)$(systemdsystemunitdir)/reboot.target.wants/dracut-shutdown.service; \
+		ln -s ../dracut-shutdown.service \
+		$(DESTDIR)$(systemdsystemunitdir)/shutdown.target.wants/dracut-shutdown.service; \
 	fi
 
 clean:
@@ -72,13 +76,16 @@ clean:
 
 archive: dracut-$(VERSION)-$(GITVERSION).tar.bz2
 
-dist: dracut-$(VERSION).tar.gz
+dist: dracut-$(VERSION).tar.bz2
 
-dracut-$(VERSION).tar.bz2:
-	git archive --format=tar $(VERSION) --prefix=dracut-$(VERSION)/ |bzip2 > dracut-$(VERSION).tar.bz2
-
-dracut-$(VERSION).tar.gz:
-	git archive --format=tar $(VERSION) --prefix=dracut-$(VERSION)/ |gzip > dracut-$(VERSION).tar.gz
+dracut-$(VERSION).tar.bz2: doc
+	git archive --format=tar $(VERSION) --prefix=dracut-$(VERSION)/ > dracut-$(VERSION).tar
+	mkdir -p dracut-$(VERSION)
+	cp $(manpages) dracut.html dracut-$(VERSION)
+	tar -rf dracut-$(VERSION).tar dracut-$(VERSION)/*.[0-9] dracut-$(VERSION)/dracut.html
+	rm -fr dracut-$(VERSION).tar.bz2 dracut-$(VERSION)
+	bzip2 -9 dracut-$(VERSION).tar
+	rm -f dracut-$(VERSION).tar
 
 rpm: dracut-$(VERSION).tar.bz2
 	rpmbuild=$$(mktemp -d -t rpmbuild-dracut.XXXXXX); src=$$(pwd); \
