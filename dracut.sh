@@ -121,7 +121,6 @@ Creates initial ramdisk images for preloading modules
                          build.
   --keep                Keep the temporary initramfs for debugging purposes
   --sshkey [SSHKEY]     Add ssh key to initramfs (use with ssh-client module)
-  --ctty                Add control tty for emergency shells
 
 If [LIST] has multiple arguments, then you have to put these in quotes.
 For example:
@@ -241,7 +240,6 @@ while (($# > 0)); do
         --nolvmconf)   lvmconf_l="no";;
         --debug)       debug="yes";;
         --profile)     profile="yes";;
-        --ctty)        cttyhack="yes";;
         --sshkey)      read_arg sshkey   "$@" || shift;;
         -v|--verbose)  ((verbosity_mod_l++));;
         -q|--quiet)    ((verbosity_mod_l--));;
@@ -625,7 +623,7 @@ done
 export initdir dracutbasedir dracutmodules drivers \
     fw_dir drivers_dir debug no_kernel kernel_only \
     add_drivers omit_drivers mdadmconf lvmconf filesystems \
-    use_fstab fstab_lines libdir usrlibdir fscks nofscks cttyhack \
+    use_fstab fstab_lines libdir usrlibdir fscks nofscks \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
     debug host_fs_types host_devs sshkey
 

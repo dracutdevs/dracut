@@ -16,7 +16,6 @@ install() {
     dracut_install mount mknod mkdir modprobe pidof sleep chroot \
         sed ls flock cp mv dmesg rm ln rmmod mkfifo umount readlink
     dracut_install -o less
-    [[ $cttyhack = yes ]] && dracut_install -o setsid
     if [ ! -e "${initdir}/bin/sh" ]; then
         dracut_install bash
         (ln -s bash "${initdir}/bin/sh" || :)
