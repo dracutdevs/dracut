@@ -814,7 +814,7 @@ emergency_shell()
             _ctty=/dev/$_ctty
         fi
         [ -c "$_ctty" ] || _ctty=/dev/tty1
-        strstr "$(setsid --help)" "control" && CTTY="-c"
+        strstr "$(setsid --help 2>/dev/null)" "control" && CTTY="-c"
         setsid $CTTY /bin/sh -i -l 0<$_ctty 1>$_ctty 2>&1
     else
         warn "Boot has failed. To debug this issue add \"rdshell\" to the kernel command line."
