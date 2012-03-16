@@ -263,8 +263,15 @@ else
     udevadm info --cleanup-db
 fi
 
+# Retain the values of these variables but ensure that they are unexported
+# This is a POSIX-compliant equivalent of bash's "export -n"
+for var in root rflags fstype netroot NEWROOT; do
+    eval tmp=\$$var
+    unset $var
+    [ -n "$tmp" ] && eval $var=\"$tmp\"
+done
+
 export RD_TIMESTAMP
-export -n root rflags fstype netroot NEWROOT
 set +x # Turn off debugging for this section
 # Clean up the environment
 for i in $(export -p); do
