@@ -30,6 +30,11 @@ nbdfstype=${root%%:*}; root=${root#*:}
 nbdflags=${root%%:*}
 nbdopts=${root#*:}
 
+# If nbdport not an integer, then assume name based import
+if [[ $nbdport != [0-9]* ]]; then
+    nbdport="-N $nbdport"
+fi
+
 if [ "$nbdopts" = "$nbdflags" ]; then
     unset nbdopts
 fi
