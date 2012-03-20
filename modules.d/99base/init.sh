@@ -68,7 +68,7 @@ fi
 if ! ismounted /run; then
     mkdir -m 0755 /newrun
     mount -t tmpfs -o mode=0755,nosuid,nodev tmpfs /newrun >/dev/null 
-    cp -a /run/* /newrun
+    mv /run/* /newrun >/dev/null 2>&1
     mount --move /newrun /run
     rm -fr /newrun
 fi
@@ -312,20 +312,10 @@ else
 fi
 [ "$RD_DEBUG" = "yes" ] && set -x
 
-if [ -d "$NEWROOT"/run ]; then
-    NEWRUN="${NEWROOT}/run"
-    mount --bind /run "$NEWRUN"
-    NEWINITRAMFSROOT="$NEWRUN/initramfs"
-
-    if [ "$NEWINITRAMFSROOT/lib" -ef "/lib" ]; then
-        for d in bin etc lib lib64 sbin tmp usr var; do
-            [ -h /$d ] && ln -fsn $NEWINITRAMFSROOT/$d /$d
-        done
-    fi
-else
+if ! [ -d "$NEWROOT"/run ]; then
     NEWRUN=/dev/.initramfs
     mkdir -m 0755 "$NEWRUN"
-    mount --bind /run/initramfs "$NEWRUN"
+    mount --rbind /run/initramfs "$NEWRUN"
 fi
 
 wait_for_loginit

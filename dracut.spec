@@ -76,11 +76,11 @@ Requires: hardlink
 Requires: gzip
 Requires: module-init-tools >= 3.7-9
 Requires: sed
-Requires: udev
+Requires: udev > 166
 %if 0%{?fedora} || 0%{?rhel} > 6
-Requires: util-linux >= 2.20
+Requires: util-linux >= 2.21
 %else
-Requires: util-linux-ng >= 2.17.2
+Requires: util-linux-ng >= 2.21
 %endif
 
 %if 0%{?fedora} || 0%{?rhel} > 6
