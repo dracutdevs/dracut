@@ -10,6 +10,7 @@
 #!/bin/sh
 . /lib/dracut-lib.sh
 export TERM=linux
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 emergency_shell()
 {
