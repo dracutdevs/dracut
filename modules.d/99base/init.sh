@@ -68,7 +68,7 @@ fi
 if ! ismounted /run; then
     mkdir -m 0755 /newrun
     mount -t tmpfs -o mode=0755,nosuid,nodev tmpfs /newrun >/dev/null 
-    mv /run/* /newrun >/dev/null 2>&1
+    cp -a /run/* /newrun >/dev/null 2>&1
     mount --move /newrun /run
     rm -fr /newrun
 fi
