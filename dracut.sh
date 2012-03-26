@@ -80,6 +80,8 @@ Creates initial ramdisk images for preloading modules
                          Default: /etc/dracut.conf
   --confdir [DIR]       Specify configuration directory to use *.conf files
                          from. Default: /etc/dracut.conf.d
+  --tmpdir [DIR]        Temporary directory to be used instead of default
+                         /var/tmp.
   -l, --local           Local mode. Use modules from the current working
                          directory instead of the system-wide installed in
                          /usr/lib/dracut/modules.d.
@@ -226,6 +228,7 @@ while (($# > 0)); do
         -k|--kmoddir)  read_arg drivers_dir_l        "$@" || shift;;
         -c|--conf)     read_arg conffile             "$@" || shift;;
         --confdir)     read_arg confdir              "$@" || shift;;
+        --tmpdir)      read_arg tmpdir_l             "$@" || shift;;
         -L|--stdlog)   read_arg stdloglvl_l          "$@" || shift;;
         --compress)    read_arg compress_l           "$@" || shift;;
         --prefix)      read_arg prefix_l             "$@" || shift;;
@@ -413,6 +416,8 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $lvmconf_l ]] && lvmconf=$lvmconf_l
 [[ $dracutbasedir ]] || dracutbasedir=/usr/lib/dracut
 [[ $fw_dir ]] || fw_dir="/lib/firmware/updates /lib/firmware"
+[[ $tmpdir_l ]] && tmpdir="$tmpdir_l"
+[[ $tmpdir ]] || tmpdir=/var/tmp
 [[ $do_strip ]] || do_strip=no
 [[ $compress_l ]] && compress=$compress_l
 [[ $show_modules_l ]] && show_modules=$show_modules_l
@@ -546,8 +551,8 @@ elif [[ -f "$outfile" && ! -w "$outfile" ]]; then
     exit 1
 fi
 
-readonly TMPDIR=/var/tmp
-readonly initdir=$(mktemp --tmpdir=/var/tmp/ -d -t initramfs.XXXXXX)
+readonly TMPDIR="$tmpdir"
+readonly initdir=$(mktemp --tmpdir="$TMPDIR/" -d -t initramfs.XXXXXX)
 [ -d "$initdir" ] || {
     dfatal "mktemp failed."
     exit 1
