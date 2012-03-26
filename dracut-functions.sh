@@ -545,6 +545,7 @@ inst_symlink() {
             inst "$_realsrc"
         fi
     fi
+    [[ ! -e $initdir/${_target%/*} ]] && inst_dir "${_target%/*}"
     [[ -d ${_target%/*} ]] && _target=$(readlink -f ${_target%/*})/${_target##*/}
     ln -sfn $(convert_abs_rel "${_target}" "${_realsrc}") "$initdir/$_target"
 }
