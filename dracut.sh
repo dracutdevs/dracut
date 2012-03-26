@@ -86,6 +86,7 @@ Creates initial ramdisk images for preloading modules
                          Useful when running dracut from a git checkout.
   -H, --hostonly        Host-Only mode: Install only what is needed for
                          booting the local host instead of a generic host.
+  --no-hostonly         Disables Host-Only mode
   --fstab               Use /etc/fstab to determine the root device.
   --add-fstab [FILE]    Add file to the initramfs fstab
   --mount "[DEV] [MP] [FSTYPE] [FSOPTS]"
@@ -245,6 +246,7 @@ while (($# > 0)); do
         -q|--quiet)    ((verbosity_mod_l--));;
         -l|--local)    allowlocal="yes" ;;
         -H|--hostonly) hostonly_l="yes" ;;
+        --no-hostonly) hostonly_l="no" ;;
         --fstab)       use_fstab_l="yes" ;;
         -h|--help)     usage; exit 1 ;;
         -i|--include)  push include_src "$2"
