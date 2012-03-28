@@ -257,6 +257,8 @@ find_block_device() {
     fi
     # fall back to /etc/fstab
     while read _dev _mpt _fs _x; do
+        [ "${_dev%%#*}" != "$_dev" ] && continue
+
         if [[ $_mpt = $1 ]]; then
             [[ $_fs = nfs ]] && { echo $_dev; return 0;}
             [[ $_fs = nfs3 ]] && { echo $_dev; return 0;}
