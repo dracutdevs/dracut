@@ -172,7 +172,7 @@ get_fs_env() {
     unset ID_FS_UUID
     eval $(udevadm info --query=env --name=$1 \
         | while read line; do
-            [[ "$line" =~ 'ID_FS_(TYPE|UUID)=' ]] && echo $line;
+            [[ "$line" =~ ID_FS_(TYPE|UUID)= ]] && echo $line;
             done)
     [[ $ID_FS_TYPE ]] && return 0
 
