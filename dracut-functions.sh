@@ -174,7 +174,7 @@ get_fs_env() {
         | while read line; do
             [[ "$line" =~ 'ID_FS_(TYPE|UUID)=' ]] && echo $line;
             done)
-    [[ $ID_FS_TYPE ]] && return
+    [[ $ID_FS_TYPE ]] && return 0
 
     if [[ -x /lib/udev/vol_id ]]; then
         eval $(/lib/udev/vol_id --export $1)
@@ -206,11 +206,11 @@ get_fs_type() (
         || [[ $1 != ${1#/dev/block/nfs3:} ]] \
         || [[ $1 != ${1#/dev/block/nfs4:} ]]; then
         echo "nfs"
-        return
+        return 0
     fi
     if get_fs_env $1; then
         echo $ID_FS_TYPE
-        return
+        return 0
     fi
     find_dev_fstype $1
 )
