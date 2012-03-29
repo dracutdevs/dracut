@@ -41,6 +41,8 @@ if [ -n "$check" ]; then
     [ -x /bin/plymouth ] && /bin/plymouth --show-splash
 fi
 
+ln -s $livedev /run/initramfs/livedev
+
 # determine filesystem type for a filesystem image
 det_img_fs() {
     blkid -s TYPE -u noraid -o value "$1"
