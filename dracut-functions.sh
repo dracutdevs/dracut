@@ -177,14 +177,14 @@ get_fs_env() {
     [[ $ID_FS_TYPE ]] && return 0
 
     if [[ -x /lib/udev/vol_id ]]; then
-        eval $(/lib/udev/vol_id --export $1 |
+        eval $(/lib/udev/vol_id --export $1 \
             | while read line; do
                 strstr "$line" "ID_FS_TYPE=" && echo $line;
                 done)
         [[ $ID_FS_TYPE ]] && return 0
     fi
     if find_binary blkid >/dev/null; then
-        eval $(blkid -o udev $1 |
+        eval $(blkid -o udev $1 \
             | while read line; do
                 strstr "$line" "ID_FS_TYPE=" && echo $line;
                 done)
