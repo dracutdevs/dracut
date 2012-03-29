@@ -46,7 +46,12 @@ if getargbool 0 rd.iscsi.firmware -y iscsi_firmware ; then
         printf 'ENV{DEVTYPE}!="partition", SYMLINK=="disk/by-path/*-iscsi-*-*", SYMLINK+="root"\n' >> /etc/udev/rules.d/99-iscsi-root.rules
         udevadm control --reload
     fi
-    iscsistart -b
+
+    for p in $(getargs rd.iscsi_param iscsi_param); do
+	iscsi_param="$iscsi_param --param $p"
+    done
+
+    iscsistart -b $iscsi_param
     exit 0
 fi
 
@@ -79,6 +84,9 @@ handle_netroot()
     [ -n "$arg" ] && iscsi_in_username=$arg
     arg=$(getargs rd.iscsi.in.password iscsi_in_password=)
     [ -n "$arg" ] && iscsi_in_password=$arg
+    for p in $(getargs rd.iscsi_param iscsi_param); do
+	iscsi_param="$iscsi_param --param $p"
+    done
 
     parse_iscsi_root "$1" || return 1
 
@@ -149,6 +157,7 @@ handle_netroot()
         ${iscsi_in_password+-W $iscsi_in_password} \
 	${iscsi_iface_name+--param iface.iscsi_ifacename=$iscsi_iface_name} \
 	${iscsi_netdev_name+--param iface.net_ifacename=$iscsi_netdev_name} \
+        ${iscsi_param} \
 	|| :
 }
 
