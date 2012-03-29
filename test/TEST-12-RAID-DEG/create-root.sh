@@ -35,7 +35,9 @@ cp -a -t /sysroot /source/*
 mkdir /sysroot/run
 umount /sysroot
 lvm lvchange -a n /dev/dracut/root 
+udevadm settle
 cryptsetup luksClose /dev/mapper/dracut_crypt_test
+udevadm settle
 mdadm -W /dev/md0 || :
 mdadm --detail --export /dev/md0 |grep MD_UUID > /tmp/mduuid
 . /tmp/mduuid
