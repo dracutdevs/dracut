@@ -632,7 +632,7 @@ export initdir dracutbasedir dracutmodules drivers \
     add_drivers omit_drivers mdadmconf lvmconf filesystems \
     use_fstab fstab_lines libdir usrlibdir fscks nofscks \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
-    debug host_fs_types host_devs sshkey
+    debug host_fs_types host_devs sshkey add_fstab
 
 # Create some directory structure first
 [[ $prefix ]] && mkdir -m 0755 -p "${initdir}${prefix}"

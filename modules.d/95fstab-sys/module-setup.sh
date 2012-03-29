@@ -3,7 +3,7 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 check() {
-    test -f /etc/fstab.sys || [[ -n $use_fstab  ||  -n $fstab_lines ]]
+    test -f /etc/fstab.sys || [[ -n $add_fstab  ||  -n $fstab_lines ]]
 }
 
 depends() {
@@ -11,6 +11,6 @@ depends() {
 }
 
 install() {
-    inst /etc/fstab.sys /etc/fstab
+    [ -f /etc/fstab.sys ] && inst /etc/fstab.sys
     inst_hook pre-pivot 00 "$moddir/mount-sys.sh"
 }
