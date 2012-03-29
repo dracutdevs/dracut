@@ -172,48 +172,26 @@ get_fs_env() {
     unset ID_FS_UUID
     eval $(udevadm info --query=env --name=$1 \
         | while read line; do
-            [[ "$line" =~ ID_FS_(TYPE|UUID)= ]] && echo $line;
+            strstr "$line" "ID_FS_TYPE=" && echo $line;
             done)
     [[ $ID_FS_TYPE ]] && return 0
 
     if [[ -x /lib/udev/vol_id ]]; then
-        eval $(/lib/udev/vol_id --export $1)
-    elif find_binary blkid >/dev/null; then
-        eval $(blkid -o udev $1)
-    else
-        return 1
+        eval $(/lib/udev/vol_id --export $1 |
+            | while read line; do
+                strstr "$line" "ID_FS_TYPE=" && echo $line;
+                done)
+        [[ $ID_FS_TYPE ]] && return 0
     fi
+    if find_binary blkid >/dev/null; then
+        eval $(blkid -o udev $1 |
+            | while read line; do
+                strstr "$line" "ID_FS_TYPE=" && echo $line;
+                done)
+        [[ $ID_FS_TYPE ]] && return 0
+    fi
+    return 1
 }
-
-# get_fs_uuid <device>
-# Prints the filesystem UUID for a device.
-# Example:
-# $ get_fs_uuid /dev/sda2
-# 551a39aa-4ae9-4e70-a262-ef665cadb574
-get_fs_uuid() (
-    get_fs_env $1 || return
-    echo $ID_FS_UUID
-)
-
-# get_fs_type <device>
-# Prints the filesystem type for a device.
-# Example:
-# $ get_fs_type /dev/sda1
-# ext4
-get_fs_type() (
-    [[ $1 ]] || return
-    if [[ $1 != ${1#/dev/block/nfs:} ]] \
-        || [[ $1 != ${1#/dev/block/nfs3:} ]] \
-        || [[ $1 != ${1#/dev/block/nfs4:} ]]; then
-        echo "nfs"
-        return 0
-    fi
-    if get_fs_env $1; then
-        echo $ID_FS_TYPE
-        return 0
-    fi
-    find_dev_fstype $1
-)
 
 # get_maj_min <device>
 # Prints the major and minor of a device node.
