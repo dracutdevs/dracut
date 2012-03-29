@@ -40,13 +40,13 @@ if echo "test"|xz|xz -dc --single-stream >/dev/null 2>&1; then
     XZ_SINGLE_STREAM="--single-stream"
 fi
 
-if [[ "$FILE_T" =~ ": gzip compressed data" ]]; then
+if [[ "$FILE_T" =~ :\ gzip\ compressed\ data ]]; then
     CAT=zcat
-elif [[ "$FILE_T" =~ ": xz compressed data" ]]; then
+elif [[ "$FILE_T" =~ :\ xz\ compressed\ data ]]; then
     CAT="xzcat $XZ_SINGLE_STREAM"
-elif [[ "$FILE_T" =~ ": XZ compressed data" ]]; then
+elif [[ "$FILE_T" =~ :\ XZ\ compressed\ data ]]; then
     CAT="xzcat $XZ_SINGLE_STREAM"
-elif [[ "$FILE_T" =~ ": data" ]]; then
+elif [[ "$FILE_T" =~ :\ data ]]; then
     CAT=lzcat
 fi
 
