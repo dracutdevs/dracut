@@ -9,6 +9,7 @@
 #
 
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type parse_iscsi_root >/dev/null 2>&1 || . /lib/net-lib.sh
 
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
@@ -49,80 +50,38 @@ if getargbool 0 rd.iscsi.firmware -y iscsi_firmware ; then
     exit 0
 fi
 
-unset iscsi_initiator iscsi_target_name iscsi_target_ip iscsi_target_port
-unset iscsi_target_group iscsi_protocol iscsirw iscsi_lun
-unset iscsi_username iscsi_password
-unset iscsi_in_username iscsi_in_password
-
-# override conf settings by command line options
-arg=$(getargs rd.iscsi.initiator iscsi_initiator=)
-[ -n "$arg" ] && iscsi_initiator=$arg
-arg=$(getargs rd.iscsi.target.name iscsi_target_name=)
-[ -n "$arg" ] && iscsi_target_name=$arg
-arg=$(getargs rd.iscsi.target.ip iscsi_target_ip)
-[ -n "$arg" ] && iscsi_target_ip=$arg
-arg=$(getargs rd.iscsi.target.port iscsi_target_port=)
-[ -n "$arg" ] && iscsi_target_port=$arg
-arg=$(getargs rd.iscsi.target.group iscsi_target_group=)
-[ -n "$arg" ] && iscsi_target_group=$arg
-arg=$(getargs rd.iscsi.username iscsi_username=)
-[ -n "$arg" ] && iscsi_username=$arg
-arg=$(getargs rd.iscsi.password iscsi_password)
-[ -n "$arg" ] && iscsi_password=$arg
-arg=$(getargs rd.iscsi.in.username iscsi_in_username=)
-[ -n "$arg" ] && iscsi_in_username=$arg
-arg=$(getargs rd.iscsi.in.password iscsi_in_password=)
-[ -n "$arg" ] && iscsi_in_password=$arg
-
 handle_netroot()
 {
-    iroot=$1
-    # override conf/commandline options by dhcp root_path
-    # FIXME this assumes that all values have been provided
-    OLDIFS="$IFS"
-    IFS=@
-    set $iroot
-    if [ $# -gt 1 ]; then
-        authinfo=$1; shift
-        iroot=$*
-    # allow empty authinfo to allow having an @ in iscsi_target_name like this:
-    # netroot=iscsi:@192.168.1.100::3260::iqn.2009-01.com.example:testdi@sk
-        if [ -n "$authinfo" ]; then
-            IFS=:
-            set $authinfo
-            iscsi_username=$1
-            iscsi_password=$2
-            if [ $# -gt 2 ]; then
-                iscsi_in_username=$3
-                iscsi_in_password=$4
-            fi
-        fi
-    fi
+    local iscsi_initiator iscsi_target_name iscsi_target_ip iscsi_target_port
+    local iscsi_target_group iscsi_protocol iscsirw iscsi_lun
+    local iscsi_username iscsi_password
+    local iscsi_in_username iscsi_in_password
+    local iscsi_iface_name iscsi_netdev_name
+    local iscsi_param
+    local p
 
-    IFS="$OLDIFS"
+    # override conf settings by command line options
+    arg=$(getargs rd.iscsi.initiator iscsi_initiator=)
+    [ -n "$arg" ] && iscsi_initiator=$arg
+    arg=$(getargs rd.iscsi.target.name iscsi_target_name=)
+    [ -n "$arg" ] && iscsi_target_name=$arg
+    arg=$(getargs rd.iscsi.target.ip iscsi_target_ip)
+    [ -n "$arg" ] && iscsi_target_ip=$arg
+    arg=$(getargs rd.iscsi.target.port iscsi_target_port=)
+    [ -n "$arg" ] && iscsi_target_port=$arg
+    arg=$(getargs rd.iscsi.target.group iscsi_target_group=)
+    [ -n "$arg" ] && iscsi_target_group=$arg
+    arg=$(getargs rd.iscsi.username iscsi_username=)
+    [ -n "$arg" ] && iscsi_username=$arg
+    arg=$(getargs rd.iscsi.password iscsi_password)
+    [ -n "$arg" ] && iscsi_password=$arg
+    arg=$(getargs rd.iscsi.in.username iscsi_in_username=)
+    [ -n "$arg" ] && iscsi_in_username=$arg
+    arg=$(getargs rd.iscsi.in.password iscsi_in_password=)
+    [ -n "$arg" ] && iscsi_in_password=$arg
 
-    local v=${iroot}:
-    local i
-    set --
-    while [ -n "$v" ]; do
-        if [ "${v#\[*:*:*\]:}" != "$v" ]; then
-        # handle IPv6 address
-            i="${v%%\]:*}"
-            i="${i##\[}"
-            set -- "$@" "$i"
-            v=${v#\[$i\]:}
-        else
-            set -- "$@" "${v%%:*}"
-            v=${v#*:}
-        fi
-    done
-    iscsi_target_ip=$1; shift
-    iscsi_protocol=$1; shift # ignored
-    iscsi_target_port=$1; shift
-    iscsi_lun=$1; shift
-    IFS=:
-    iscsi_target_name=$*
-    IFS="$OLDIFS"
+    parse_iscsi_root "$1" || return 1
+
 # XXX is this needed?
     getarg ro && iscsirw=ro
     getarg rw && iscsirw=rw
@@ -187,7 +146,10 @@ handle_netroot()
         ${iscsi_username+-u $iscsi_username} \
         ${iscsi_password+-w $iscsi_password} \
         ${iscsi_in_username+-U $iscsi_in_username} \
-        ${iscsi_in_password+-W $iscsi_in_password} || :
+        ${iscsi_in_password+-W $iscsi_in_password} \
+	${iscsi_iface_name+--param iface.iscsi_ifacename=$iscsi_iface_name} \
+	${iscsi_netdev_name+--param iface.net_ifacename=$iscsi_netdev_name} \
+	|| :
 }
 
 # loop over all netroot parameter

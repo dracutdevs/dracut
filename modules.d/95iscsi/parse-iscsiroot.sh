@@ -69,11 +69,9 @@ fi
 # If it's not iscsi we don't continue
 [ "${netroot%%:*}" = "iscsi" ] || return
 
-# Check required arguments. there's only one, but it's at the end
 if [ -z "$iscsi_firmware" ] ; then
-    case "${netroot##iscsi:*:*:*:*:}" in
-        $netroot|'') die "Argument targetname for iscsiroot is missing";;
-    esac
+    type parse_iscsi_root >/dev/null 2>&1 || . /lib/net-lib.sh
+    parse_iscsi_root "$netroot" || return
 fi
 
 # ISCSI actually supported?
