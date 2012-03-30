@@ -167,22 +167,34 @@ convert_abs_rel() {
 # ext4
 # 551a39aa-4ae9-4e70-a262-ef665cadb574
 get_fs_env() {
+    local evalstr
+    local found
+
     [[ $1 ]] || return
     unset ID_FS_TYPE
     unset ID_FS_UUID
-    eval $(udevadm info --query=env --name=$1 \
-        | while read line; do
-            strstr "$line" "ID_FS_TYPE=" && echo $line;
-            done)
-    [[ $ID_FS_TYPE ]] && return 0
-
-    if [[ -x /lib/udev/vol_id ]]; then
-        eval $(/lib/udev/vol_id --export $1 \
-            | while read line; do
-                strstr "$line" "ID_FS_TYPE=" && echo $line;
-                done)
+    if evalstr=$(udevadm info --query=env --name=$1 \
+        | { while read line; do
+            strstr "$line" "DEVPATH" && found=1;
+            strstr "$line" "ID_FS_TYPE=" && { echo $line; exit 0;}
+            done; [[ $found ]] && exit 0; exit 1; }) ; then
+        eval $evalstr
         [[ $ID_FS_TYPE ]] && return 0
+        return 1
     fi
+
+    # Fallback, for the old vol_id
+    if [[ -x /lib/udev/vol_id ]]; then
+        if evalstr=$(/lib/udev/vol_id --export $1 \
+            | while read line; do
+                strstr "$line" "ID_FS_TYPE=" && { echo $line; exit 0;}
+                done;) ; then
+            eval $evalstr
+            [[ $ID_FS_TYPE ]] && return 0
+        fi
+    fi
+
+    # Fallback, if we don't have udev information
     if find_binary blkid >/dev/null; then
         eval $(blkid -o udev $1 \
             | while read line; do
