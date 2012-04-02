@@ -46,8 +46,10 @@ elif [[ "$FILE_T" =~ :\ xz\ compressed\ data ]]; then
     CAT="xzcat $XZ_SINGLE_STREAM"
 elif [[ "$FILE_T" =~ :\ XZ\ compressed\ data ]]; then
     CAT="xzcat $XZ_SINGLE_STREAM"
+elif [[ "$FILE_T" =~ :\ LZMA ]]; then
+    CAT="xzcat $XZ_SINGLE_STREAM"
 elif [[ "$FILE_T" =~ :\ data ]]; then
-    CAT=lzcat
+    CAT="xzcat $XZ_SINGLE_STREAM"
 fi
 
 if [[ $# -eq 2 ]]; then
