@@ -1,5 +1,14 @@
 dracut-018
 ==========
+- lvm: ignore lvm mirrors
+- lsinitrd: handle LZMA images
+- iscsi: add rd.iscsi.param
+- iscsi: add iscsi interface binding
+- new module cms to read and handle z-Series cms config files
+- fixed fstab.sys handling
+- new dracut option "--tmpdir"
+- new dracut option "--no-hostonly"
+- nbd: name based nbd connects
 - converted manpage and documentation source to asciidoc
 - write-ifcfg fixes and cleanups
 - ifup is now done in the initqueue
