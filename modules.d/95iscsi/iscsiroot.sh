@@ -47,7 +47,7 @@ if getargbool 0 rd.iscsi.firmware -y iscsi_firmware ; then
         udevadm control --reload
     fi
 
-    for p in $(getargs rd.iscsi_param iscsi_param); do
+    for p in $(getargs rd.iscsi.param iscsi_param); do
 	iscsi_param="$iscsi_param --param $p"
     done
 
@@ -84,7 +84,7 @@ handle_netroot()
     [ -n "$arg" ] && iscsi_in_username=$arg
     arg=$(getargs rd.iscsi.in.password iscsi_in_password=)
     [ -n "$arg" ] && iscsi_in_password=$arg
-    for p in $(getargs rd.iscsi_param iscsi_param); do
+    for p in $(getargs rd.iscsi.param iscsi_param); do
 	iscsi_param="$iscsi_param --param $p"
     done
 
