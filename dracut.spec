@@ -250,6 +250,7 @@ rm -rf $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/30convertfs
 %{dracutlibdir}/modules.d/45url-lib
 %{dracutlibdir}/modules.d/50plymouth
+%{dracutlibdir}/modules.d/80cms
 %{dracutlibdir}/modules.d/90btrfs
 %{dracutlibdir}/modules.d/90crypt
 %{dracutlibdir}/modules.d/90dm

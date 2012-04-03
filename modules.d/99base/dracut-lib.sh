@@ -383,9 +383,10 @@ ismounted() {
 
 wait_for_if_up() {
     local cnt=0
+    local li
     while [ $cnt -lt 200 ]; do
-        li=$(ip link show $1)
-        [ -z "${li##*state UP*}" ] && return 0
+        li=$(ip -o link show up dev $1)
+        [ -n "$li" ] && return 0
         sleep 0.1
         cnt=$(($cnt+1))
     done

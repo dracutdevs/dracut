@@ -1,0 +1,40 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
+
+check() {
+    arch=$(uname -m)
+    [ "$arch" = "s390" -o "$arch" = "s390x" ] || return 1
+    return 255
+}
+
+depends() {
+    arch=$(uname -m)
+    [ "$arch" = "s390" -o "$arch" = "s390x" ] || return 1
+    echo znet zfcp dasd dasd_mod
+    return 0
+}
+
+installkernel() {
+    instmods zfcp
+}
+
+install() {
+    inst_hook pre-trigger 30 "$moddir/cmssetup.sh"
+    inst_hook pre-pivot 95 "$moddir/cms-write-ifcfg.sh"
+    inst "$moddir/cmsifup.sh" /sbin/cmsifup
+    inst /etc/cmsfs-fuse/filetypes.conf
+    inst /etc/udev/rules.d/99-fuse.rules
+    inst /etc/fuse.conf
+
+    for file in $(rpm -ql s390utils-base); do
+	[[ -f $file ]] && inst $file
+    done
+
+    for file in {"$usrlibdir","$libdir"}/gconv/*; do
+        [[ -f $file ]] && inst $file
+    done
+#inst /usr/lib/locale/locale-archive
+
+    dracut_install cmsfs-fuse fusermount ulockmgr_server bash tr insmod rmmod cat
+}
