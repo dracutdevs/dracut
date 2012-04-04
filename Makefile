@@ -100,10 +100,10 @@ syncheck:
 	@ret=0;for i in dracut-initramfs-restore.sh dracut-logger.sh \
                         modules.d/99base/init.sh modules.d/*/*.sh; do \
                 [ "$${i##*/}" = "module-setup.sh" ] && continue; \
-                [ "$${i##*/}" = "caps.sh" ] && continue; \
+                read line < "$$i"; [ "$${line#*bash*}" != "$$line" ] && continue; \
 		dash -n "$$i" ; ret=$$(($$ret+$$?)); \
 	done;exit $$ret
-	@ret=0;for i in *.sh mkinitrd-dracut.sh modules.d/02caps/caps.sh \
+	@ret=0;for i in *.sh mkinitrd-dracut.sh modules.d/*/*.sh \
 	                modules.d/*/module-setup.sh; do \
 		bash -n "$$i" ; ret=$$(($$ret+$$?)); \
 	done;exit $$ret
