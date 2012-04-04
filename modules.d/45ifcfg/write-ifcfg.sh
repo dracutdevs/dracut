@@ -38,6 +38,8 @@ for netif in $IFACES ; do
         echo "ONBOOT=yes"
         echo "NETBOOT=yes"
         echo "UUID=$uuid"
+        [ -n "$macaddr" ] && echo "MACADDR=$macaddr"
+        [ -n "$mtu" ] && echo "MTU=$mtu"
         if [ -f /tmp/net.$netif.lease ]; then
             strstr "$ip" '*:*:*' &&
             echo "DHCPV6C=yes"
@@ -60,6 +62,7 @@ for netif in $IFACES ; do
             echo "HWADDR=$(cat /sys/class/net/$netif/address)"
             echo "TYPE=Ethernet"
             echo "NAME=\"Boot Disk\""
+            [ -n "$mtu" ] && echo "MTU=$mtu"
         } >> /tmp/ifcfg/ifcfg-$netif
     fi
 

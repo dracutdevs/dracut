@@ -225,3 +225,30 @@ parse_iscsi_root()
     fi
 }
 
+ip_to_var() {
+    local v=${1}:
+    local i
+    set --
+    while [ -n "$v" ]; do
+        if [ "${v#\[*:*:*\]:}" != "$v" ]; then
+            # handle IPv6 address
+            i="${v%%\]:*}"
+            i="${i##\[}"
+            set -- "$@" "$i"
+            v=${v#\[$i\]:}
+        else
+            set -- "$@" "${v%%:*}"
+            v=${v#*:}
+        fi
+    done
+
+    unset ip srv gw mask hostname dev autoconf macaddr mtu
+    case $# in
+        0)  autoconf="error" ;;
+        1)  autoconf=$1 ;;
+        2)  dev=$1; autoconf=$2 ;;
+        3)  dev=$1; autoconf=$2; mtu=$3 ;;
+        4)  dev=$1; autoconf=$2; mtu=$3; macaddr=$4 ;;
+        *)  ip=$1; srv=$2; gw=$3; mask=$4; hostname=$5; dev=$6; autoconf=$7; mtu=$8; macaddr=$9 ;;
+    esac
+}

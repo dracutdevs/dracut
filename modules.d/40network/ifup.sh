@@ -10,9 +10,7 @@
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
-export PS4="ifup.$1.$$ + "
-exec >>/run/initramfs/loginit.pipe 2>>/run/initramfs/loginit.pipe
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type ip_to_var >/dev/null 2>&1 || . /lib/net-lib.sh
 
 # Huh? No $1?
 [ -z "$1" ] && exit 1
@@ -107,6 +105,8 @@ do_static() {
     {
         echo ip link set $netif up
         echo wait_for_if_up $netif
+        [ -n "$macaddr" ] && echo ip link set address $macaddr
+        [ -n "$mtu" ] && echo ip link set mtu $mtu
         # do not flush addr for ipv6
         strstr $ip '*:*:*' || \
             echo ip addr flush dev $netif
@@ -219,12 +219,12 @@ for p in $(getargs ip=); do
     ip_to_var $p
     # skip ibft
     [ "$autoconf" = "ibft" ] && continue
-	
+
     # If this option isn't directed at our interface, skip it
     [ -n "$dev" ] && [ "$dev" != "$netif" ] && continue
 
     # Store config for later use
-    for i in ip srv gw mask hostname; do
+    for i in ip srv gw mask hostname macaddr; do
         eval '[ "$'$i'" ] && echo '$i'="$'$i'"'
     done > /tmp/net.$netif.override
 
