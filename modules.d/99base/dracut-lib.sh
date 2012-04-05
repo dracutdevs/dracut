@@ -767,15 +767,17 @@ emergency_shell()
 {
     local _ctty
     set +e
+    local _rdshell_name="dracut" action="Boot" hook="emergency"
     if [ "$1" = "-n" ]; then
         _rdshell_name=$2
         shift 2
-    else
-        _rdshell_name=dracut
+    elif [ "$1" = "--shutdown" ]; then
+        _rdshell_name=$2; action="Shutdown"; hook="shutdown-emergency"
+        shift 2
     fi
     echo ; echo
     warn $@
-    source_hook emergency
+    source_hook "$hook"
     echo
     wait_for_loginit
     [ -e /run/initramfs/.die ] && exit 1
@@ -798,7 +800,7 @@ emergency_shell()
         strstr "$(setsid --help 2>/dev/null)" "ctty" && CTTY="-c"
         setsid $CTTY /bin/sh -i -l 0<$_ctty 1>$_ctty 2>&1
     else
-        warn "Boot has failed. To debug this issue add \"rdshell\" to the kernel command line."
+        warn "$action has failed. To debug this issue add \"rd.shell\" to the kernel command line."
         # cause a kernel panic
         exit 1
     fi

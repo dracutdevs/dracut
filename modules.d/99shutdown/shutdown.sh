@@ -12,49 +12,8 @@
 export TERM=linux
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
-emergency_shell()
-{
-    local _ctty
-    set +e
-    if [ "$1" = "-n" ]; then
-        _rdshell_name=$2
-        shift 2
-    else
-        _rdshell_name=dracut
-    fi
-    echo ; echo
-    warn $@
-    source_hook shutdown-emergency
-    echo
-    if getargbool 1 rd.shell -y rdshell || getarg rd.break rdbreak; then
-        echo "Dropping to debug shell."
-        echo
-        export PS1="$_rdshell_name:\${PWD}# "
-        [ -e /.profile ] || >/.profile
-
-        _ctty="$(getarg rd.ctty=)" && _ctty="/dev/${_ctty##*/}"
-        if [ -z "$_ctty" ]; then
-            _ctty=console
-            while [ -f /sys/class/tty/$_ctty/active ]; do
-                _ctty=$(cat /sys/class/tty/$_ctty/active)
-                _ctty=${_ctty##* } # last one in the list
-            done
-            _ctty=/dev/$_ctty
-        fi
-        [ -c "$_ctty" ] || _ctty=/dev/tty1
-        strstr "$(setsid --help)" "control" && CTTY="-c"
-        setsid $CTTY /bin/sh -i -l 0<$_ctty 1>$_ctty 2>&1
-    else
-        exec /lib/systemd/systemd-shutdown "$@"
-        warn "Shutdown has failed. To debug this issue add \"rdshell\" to the kernel command line."
-        # cause a kernel panic
-        exit 1
-    fi
-}
-
-trap "emergency_shell Signal caught!" 0
-
-getarg 'rd.break=pre-shutdown' && emergency_shell -n cmdline "Break before pre-shutdown"
+trap "emergency_shell --shutdown shutdown Signal caught!" 0
+getarg 'rd.break=pre-shutdown' && emergency_shell --shutdown pre-shutdown "Break before pre-shutdown"
 
 umount_a() {
     local _did_umount="n"
@@ -97,7 +56,7 @@ while _check_shutdown; do
 done
 _check_shutdown final
 
-getarg 'rd.break=shutdown' && emergency_shell -n cmdline "Break before shutdown"
+getarg 'rd.break=shutdown' && emergency_shell --shutdown shutdown "Break before shutdown"
 [ "$1" = "reboot" ] && reboot -f -d -n --no-wall
 [ "$1" = "poweroff" ] && poweroff -f -d -n --no-wall
 [ "$1" = "halt" ] && halt -f -d -n --no-wall
