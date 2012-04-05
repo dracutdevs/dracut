@@ -12,6 +12,11 @@ str_starts() {
     [ "${1#$2*}" != "$1" ]
 }
 
+# returns OK if $1 contains $2 at the end
+str_ends() {
+    [ "${1%*$2}" != "$1" ]
+}
+
 # replaces all occurrences of 'search' in 'str' with 'replacement'
 #
 # str_replace str search replacement
