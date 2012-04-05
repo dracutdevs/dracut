@@ -73,7 +73,7 @@ Requires: filesystem >= 2.1.0
 Requires: findutils
 Requires: grep
 Requires: hardlink
-Requires: gzip
+Requires: gzip xz
 Requires: module-init-tools >= 3.7-9
 Requires: sed
 Requires: udev > 166
