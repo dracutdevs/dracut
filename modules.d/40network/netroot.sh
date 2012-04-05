@@ -84,14 +84,8 @@ source_hook netroot
 # Run the handler; don't store the root, it may change from device to device
 # XXX other variables to export?
 if $handler $netif $netroot $NEWROOT; then
-    # Network rootfs mount successful
-    for iface in $IFACES ; do
-        [ -f /tmp/dhclient.$iface.lease ] &&    cp /tmp/dhclient.$iface.lease    /tmp/net.$iface.lease
-        [ -f /tmp/dhclient.$iface.dhcpopts ] && cp /tmp/dhclient.$iface.dhcpopts /tmp/net.$iface.dhcpopts
-    done
-
-    # Save used netif for later use
-    [ ! -f /tmp/net.ifaces ] && echo $netif > /tmp/net.ifaces
+    # Network rootfs mount successful - save interface info for ifcfg etc.
+    save_netinfo $netif
 else
     warn "Mounting root via '$netif' failed"
     # If we're trying with multiple interfaces, put that one down.

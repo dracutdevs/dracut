@@ -105,6 +105,22 @@ setup_net() {
     > /tmp/net.$netif.did-setup
 }
 
+save_netinfo() {
+    local netif="$1" IFACES="" f="" i=""
+    [ -e /tmp/net.ifaces ] && read IFACES < /tmp/net.ifaces
+    # Add $netif to the front of IFACES (if it's not there already).
+    set -- "$netif"
+    for i in $IFACES; do [ "$i" != "$netif" ] && set -- "$@" "$i"; done
+    IFACES="$*"
+    for i in $IFACES; do
+        for f in /tmp/dhclient.$i.*; do
+            [ -f $f ] && cp -f $f /tmp/net.${f#/tmp/dhclient.}
+        done
+    done
+    echo $IFACES > /tmp/.net.ifaces.new
+    mv /tmp/.net.ifaces.new /tmp/net.ifaces
+}
+
 set_ifname() {
     local name="$1" mac="$2" num=0 n=""
     # if it's already set, return the existing name
