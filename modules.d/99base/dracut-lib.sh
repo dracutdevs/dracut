@@ -224,13 +224,14 @@ splitsep() {
     local sep="$1"; local str="$2"; shift 2
     local tmp
 
-    while [ -n "$str" -a -n "$*" ]; do
+    while [ -n "$str" -a "$#" -gt 1 ]; do
         tmp="${str%%$sep*}"
         eval "$1=${tmp}"
         str="${str#$tmp}"
         str="${str#$sep}"
         shift
     done
+    [ -n "$str" -a -n "$1" ] && eval "$1=$str"
 
     return 0
 }
