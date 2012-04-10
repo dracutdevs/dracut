@@ -62,10 +62,12 @@ install() {
         /sbin/xdrgetprio \
         /etc/xdrdevices.conf \
         /etc/multipath.conf \
-        /etc/multipath/* \
-        "$libdir"/libmultipath* "$libdir"/multipath/*; do
+        /etc/multipath/*; do
         [ -e "$_f" ] && inst "$_f"
     done
+
+    inst_libdir_file "libmultipath*"
+    inst_libdir_file "multipath/*"
 
     inst_hook pre-trigger 02 "$moddir/multipathd.sh"
     inst_hook pre-pivot   02 "$moddir/multipathd-stop.sh"

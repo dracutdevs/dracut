@@ -60,8 +60,6 @@ install() {
     inst "$moddir/lvm_scan.sh" /sbin/lvm_scan
     inst_hook cmdline 30 "$moddir/parse-lvm.sh"
 
-    for _i in {"$libdir","$usrlibdir"}/libdevmapper-event-lvm*.so; do
-        [ -e "$_i" ] && dracut_install "$_i"
-    done
+    inst_libdir_file "libdevmapper-event-lvm*.so"
 }
 

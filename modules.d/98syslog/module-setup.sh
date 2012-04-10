@@ -16,11 +16,9 @@ install() {
     local _installs
     if type -P rsyslogd >/dev/null; then
         _installs="rsyslogd"
-        for _i in {"$libdir","$usrlibdir"}/rsyslog/lmnet.so \
-            {"$libdir","$usrlibdir"}/rsyslog/imklog.so \
-            {"$libdir","$usrlibdir"}/rsyslog/imuxsock.so ; do
-            [ -e "$_i" ] && _installs="$_installs $_i"
-        done
+        inst_libdir_file rsyslog/lmnet.so
+        inst_libdir_file rsyslog/imklog.so
+        inst_libdir_file rsyslog/imuxsock.so
     elif type -P syslogd >/dev/null; then
         _installs="syslogd"
     elif type -P syslog-ng >/dev/null; then

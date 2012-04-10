@@ -89,12 +89,7 @@ install() {
 
     _arch=$(uname -m)
 
-    for _dir in "$usrlibdir/tls/$_arch" "$usrlibdir/tls" "$usrlibdir/$_arch" \
-        "$usrlibdir" "$libdir"; do
-        for _i in "$_dir"/libnss_dns.so.* "$_dir"/libnss_mdns4_minimal.so.*; do
-            [ -e "$_i" ] && dracut_install "$_i"
-        done
-    done
-
+    inst_libdir_file {"tls/$_arch/",tls/,"$_arch/",}"libnss_dns.so.*"
+    inst_libdir_file {"tls/$_arch/",tls/,"$_arch/",}"libnss_mdns4_minimal.so.*"
 }
 

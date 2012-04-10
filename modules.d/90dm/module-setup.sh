@@ -22,9 +22,7 @@ install() {
 
     type -P dmeventd >/dev/null && dracut_install dmeventd
 
-    for _i in {"$libdir","$usrlibdir"}/libdevmapper-event.so*; do
-        [ -e "$_i" ] && dracut_install "$_i"
-    done
+    inst_libdir_file "libdevmapper-event.so*"
 
     inst_rules 10-dm.rules 13-dm-disk.rules 95-dm-notify.rules
     # Gentoo ebuild for LVM2 prior to 2.02.63-r1 doesn't install above rules

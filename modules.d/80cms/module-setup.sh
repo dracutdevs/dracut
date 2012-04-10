@@ -31,9 +31,7 @@ install() {
 	[[ -f $file ]] && inst $file
     done
 
-    for file in {"$usrlibdir","$libdir"}/gconv/*; do
-        [[ -f $file ]] && inst $file
-    done
+    inst_libdir_file "gconv/*"
 #inst /usr/lib/locale/locale-archive
 
     dracut_install cmsfs-fuse fusermount ulockmgr_server bash tr insmod rmmod cat

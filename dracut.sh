@@ -221,6 +221,7 @@ while (($# > 0)); do
         --filesystems) push_arg filesystems_l        "$@" || shift;;
         -I|--install)  push_arg install_items_l      "$@" || shift;;
         --fwdir)       push_arg fw_dir_l             "$@" || shift;;
+        --libdirs)     push_arg libdirs_l            "$@" || shift;;
         --fscks)       push_arg fscks_l              "$@" || shift;;
         --add-fstab)   push_arg add_fstab_l          "$@" || shift;;
         --mount)       push_arg fstab_lines          "$@" || shift;;
@@ -400,6 +401,13 @@ if (( ${#fw_dir_l[@]} )); then
     done
 fi
 
+if (( ${#libdirs_l[@]} )); then
+    libdirs=''
+    while pop libdirs_l val; do
+        libdirs+="$val "
+    done
+fi
+
 [[ $stdloglvl_l ]] && stdloglvl=$stdloglvl_l
 [[ ! $stdloglvl ]] && stdloglvl=4
 stdloglvl=$((stdloglvl + verbosity_mod_l))
@@ -505,14 +513,14 @@ ddebug "Executing $0 $dracut_args"
 
 # Detect lib paths
 [[ $libdir ]] || for libdir in /lib64 /lib; do
-    [[ -d $libdir ]] && break
+    [[ -d $libdir ]] && libdirs+=" $libdir" && break
 done || {
     dfatal 'No lib directory?!!!'
     exit 1
 }
 
 [[ $usrlibdir ]] || for usrlibdir in /usr/lib64 /usr/lib; do
-    [[ -d $usrlibdir ]] && break
+    [[ -d $usrlibdir ]] && libdirs+=" $usrlibdir" && break
 done || dwarn 'No usr/lib directory!'
 
 # This is kinda legacy -- eventually it should go away.

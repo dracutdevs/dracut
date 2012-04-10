@@ -62,9 +62,7 @@ install() {
         inst_rules 64-md-raid.rules
     fi
 
-    for _i in {"$libdir","$usrlibdir"}/libdmraid-events*.so*; do
-        [ -e "$_i" ] && dracut_install "$_i"
-    done
+    inst_libdir_file "libdmraid-events*.so*"
 
     inst_rules "$moddir/61-dmraid-imsm.rules"
     #inst "$moddir/dmraid-cleanup.sh" /sbin/dmraid-cleanup

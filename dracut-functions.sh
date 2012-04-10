@@ -677,6 +677,34 @@ dracut_install() {
     done
 }
 
+
+# inst_libdir_file [-n <pattern>] <file> [<file>...]
+# Install a <file> located on a lib directory to the initramfs image
+# -n <pattern> install non-matching files
+inst_libdir_file() {
+    if [[ "$1" == "-n" ]]; then
+        local _pattern=$1
+        shift 2
+        for _dir in $libdirs; do
+            for _i in "$@"; do
+                for _f in "$_dir"/$_i; do
+                    [[ "$_i" =~ $_pattern ]] || continue
+                    [[ -e "$_i" ]] && dracut_install "$_i"
+                done
+            done
+        done
+    else
+        for _dir in $libdirs; do
+            for _i in "$@"; do
+                for _f in "$_dir"/$_i; do
+                    [[ -e "$_f" ]] && dracut_install "$_f"
+                done
+            done
+        done
+    fi
+}
+
+
 # install function decompressing the target and handling symlinks
 # $@ = list of compressed (gz or bz2) files or symlinks pointing to such files
 #

@@ -74,8 +74,6 @@ install() {
     [ -f /etc/arch-release ] && \
         inst "$moddir/load-modules.sh" /lib/udev/load-modules.sh
 
-    for _i in {"$libdir","$usrlibdir"}/libnss_files*; do
-        [ -e "$_i" ] && dracut_install "$_i"
-    done
+    inst_libdir_file "libnss_files*"
 }
 

@@ -34,12 +34,11 @@ install() {
 
     dracut_install sha512hmac rmmod insmod mount uname umount
 
-    for _dir in "$usrlibdir" "$libdir"; do
-        [[ -e $_dir/libsoftokn3.so ]] && \
-            dracut_install $_dir/libsoftokn3.so $_dir/libsoftokn3.chk \
-            $_dir/libfreebl3.so $_dir/libfreebl3.chk && \
-            break
-    done
+    inst_libdir_file libsoftokn3.so
+    inst_libdir_file libsoftokn3.so
+    inst_libdir_file libsoftokn3.chk
+    inst_libdir_file libfreebl3.so
+    inst_libdir_file libfreebl3.chk
 
     dracut_install $usrlibdir/hmaccalc/sha512hmac.hmac
     if command -v prelink >/dev/null; then
