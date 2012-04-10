@@ -35,10 +35,12 @@ if [ ! -e /etc/lvm/lvm.conf ]; then
         if [ -n $SNAPSHOT ]; then
             echo 'global {';
             echo '    locking_type = 1';
+            echo '    use_lvmetad = 0';
             echo '}';
         else
             echo 'global {';
             echo '    locking_type = 4';
+            echo '    use_lvmetad = 0';
             echo '}';
         fi
     } > /etc/lvm/lvm.conf
