@@ -20,9 +20,6 @@ install() {
     #Some debian udev rules are named differently
     inst_rules 50-udev.rules 95-late.rules
 
-    # ignore some devices in the initrd
-    inst_rules "$moddir/01-ignore.rules"
-
     # for firmware loading
     inst_rules 50-firmware.rules
     dracut_install cat uname
