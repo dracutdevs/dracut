@@ -720,6 +720,11 @@ for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
     fi
 done
 unset moddir
+
+for i in $modules_loaded; do
+    echo "$i" >> $initdir/lib/dracut/modules.txt
+done
+
 dinfo "*** Including modules done ***"
 
 ## final stuff that has to happen
