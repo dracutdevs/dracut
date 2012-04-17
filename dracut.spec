@@ -187,6 +187,14 @@ rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/02fips-aesni
 # remove gentoo specific modules
 rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/50gensplash
 
+%if %{defined _unitdir}
+# with systemd IMA and selinux modules do not make sense
+rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/96securityfs
+rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/97masterkey
+rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/98integrity
+rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/98selinux
+%endif
+
 mkdir -p $RPM_BUILD_ROOT/boot/dracut
 mkdir -p $RPM_BUILD_ROOT/var/lib/dracut/overlay
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/log
@@ -271,13 +279,15 @@ rm -rf $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/95terminfo
 %{dracutlibdir}/modules.d/95udev-rules
 %{dracutlibdir}/modules.d/95virtfs
+%if %{undefined _unitdir}
 %{dracutlibdir}/modules.d/96securityfs
-%{dracutlibdir}/modules.d/97biosdevname
 %{dracutlibdir}/modules.d/97masterkey
-%{dracutlibdir}/modules.d/98ecryptfs
-%{dracutlibdir}/modules.d/98integrity
-%{dracutlibdir}/modules.d/98pollcdrom
 %{dracutlibdir}/modules.d/98selinux
+%{dracutlibdir}/modules.d/98integrity
+%endif
+%{dracutlibdir}/modules.d/97biosdevname
+%{dracutlibdir}/modules.d/98ecryptfs
+%{dracutlibdir}/modules.d/98pollcdrom
 %{dracutlibdir}/modules.d/98syslog
 %{dracutlibdir}/modules.d/98usrmount
 %{dracutlibdir}/modules.d/99base
