@@ -34,7 +34,7 @@ image="${1:-/boot/initramfs-$(uname -r).img}"
 [[ -f "$image" ]]    || { echo "$image does not exist" ; exit 1 ; }
 
 CAT=zcat
-FILE_T=$(file "$image")
+FILE_T=$(file --dereference "$image")
 
 if echo "test"|xz|xz -dc --single-stream >/dev/null 2>&1; then
     XZ_SINGLE_STREAM="--single-stream"
