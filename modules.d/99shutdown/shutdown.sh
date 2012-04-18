@@ -7,10 +7,9 @@
 # Copyright 2011, Red Hat, Inc.
 # Harald Hoyer <harald@redhat.com>
 
-#!/bin/sh
-. /lib/dracut-lib.sh
 export TERM=linux
-PATH=/usr/sbin:/usr/bin:/sbin:/bin
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+. /lib/dracut-lib.sh
 
 trap "emergency_shell --shutdown shutdown Signal caught!" 0
 getarg 'rd.break=pre-shutdown' && emergency_shell --shutdown pre-shutdown "Break before pre-shutdown"
