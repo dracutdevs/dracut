@@ -61,6 +61,7 @@ installkernel() {
     { find_kernel_modules_by_path drivers/net; find_kernel_modules_by_path drivers/s390/net; } \
         | net_module_filter | instmods
 
+    instmods =drivers/net/phy
     instmods ecb arc4
     # bridge modules
     instmods bridge stp llc
