@@ -46,7 +46,7 @@ if [ "$RD_DEBUG" = "yes" ]; then
 fi
 
 if ! ismounted /dev; then
-    mount -t devtmpfs -o mode=0755,nosuid devtmpfs /dev >/dev/null 
+    mount -t devtmpfs -o mode=0755,nosuid,strictatime devtmpfs /dev >/dev/null 
 fi
 
 # prepare the /dev directory
@@ -62,12 +62,12 @@ fi
 
 if ! ismounted /dev/shm; then
     mkdir -m 0755 /dev/shm
-    mount -t tmpfs -o mode=1777,nosuid,nodev tmpfs /dev/shm >/dev/null 
+    mount -t tmpfs -o mode=1777,nosuid,nodev,strictatime tmpfs /dev/shm >/dev/null 
 fi
 
 if ! ismounted /run; then
     mkdir -m 0755 /newrun
-    mount -t tmpfs -o mode=0755,nosuid,nodev tmpfs /newrun >/dev/null 
+    mount -t tmpfs -o mode=0755,nosuid,nodev,strictatime tmpfs /newrun >/dev/null 
     cp -a /run/* /newrun >/dev/null 2>&1
     mount --move /newrun /run
     rm -fr /newrun
