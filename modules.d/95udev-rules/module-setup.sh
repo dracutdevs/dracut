@@ -8,12 +8,20 @@ install() {
     # ultimately, /lib/initramfs/rules.d or somesuch which includes links/copies
     # of the rules we want so that we just copy those in would be best
     dracut_install udevadm
-    [ -x /sbin/udevd ] && dracut_install udevd
+    if [ -x /sbin/udevd ]; then
+        dracut_install udevd
+        mkdir -p ${initdir}/lib/systemd
+        ln -s /sbin/udevd ${initdir}/lib/systemd/systemd-udevd
+    elif [ -x /lib/systemd/systemd-udevd ]; then
+        inst /lib/systemd/systemd-udevd
+    fi
 
     for i in /etc/udev/udev.conf /etc/group; do
         inst_simple $i
     done
+
     dracut_install basename
+
     inst_rules 50-udev-default.rules 60-persistent-storage.rules \
         61-persistent-storage-edd.rules 80-drivers.rules 95-udev-late.rules \
         60-pcmcia.rules

@@ -110,7 +110,7 @@ getarg 'rd.break=pre-udev' 'rdbreak=pre-udev' && emergency_shell -n pre-udev "Br
 source_hook pre-udev
 
 # start up udev and trigger cold plugs
-udevd --daemon --resolve-names=never
+/lib/systemd/systemd-udevd --daemon --resolve-names=never
 
 UDEV_LOG_PRIO_ARG=--log-priority
 UDEV_QUEUE_EMPTY="udevadm settle --timeout=0"
