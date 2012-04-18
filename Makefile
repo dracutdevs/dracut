@@ -57,10 +57,7 @@ install: doc
 	if [ -n "$(systemdsystemunitdir)" ]; then \
 		mkdir -p $(DESTDIR)$(systemdsystemunitdir); \
 		install -m 0644 dracut-shutdown.service $(DESTDIR)$(systemdsystemunitdir); \
-		mkdir -p $(DESTDIR)$(systemdsystemunitdir)/reboot.target.wants; \
 		mkdir -p $(DESTDIR)$(systemdsystemunitdir)/shutdown.target.wants; \
-		ln -s ../dracut-shutdown.service \
-		$(DESTDIR)$(systemdsystemunitdir)/reboot.target.wants/dracut-shutdown.service; \
 		ln -s ../dracut-shutdown.service \
 		$(DESTDIR)$(systemdsystemunitdir)/shutdown.target.wants/dracut-shutdown.service; \
 	fi
