@@ -17,14 +17,6 @@
 command -v getarg >/dev/null          || . /lib/dracut-lib.sh
 command -v ibft_to_cmdline >/dev/null || . /lib/net-lib.sh
 
-# Check if ip= lines should be used
-if getarg ip= >/dev/null ; then
-    if [ -z "$netroot" ] ; then
-        echo "Warning: No netboot configured, ignoring ip= lines"
-        return;
-    fi
-fi
-
 # Don't mix BOOTIF=macaddr from pxelinux and ip= lines
 getarg ip= >/dev/null && getarg BOOTIF= >/dev/null && \
     die "Mixing BOOTIF and ip= lines is dangerous"
