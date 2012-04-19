@@ -86,7 +86,7 @@ install() {
     inst_hook cmdline 97 "$moddir/parse-bridge.sh"
     inst_hook cmdline 98 "$moddir/parse-ip-opts.sh"
     inst_hook cmdline 99 "$moddir/parse-ifname.sh"
-    inst_hook pre-pivot 10 "$moddir/kill-dhclient.sh"
+    inst_hook pre-pivot-cleanup 10 "$moddir/kill-dhclient.sh"
 
     _arch=$(uname -m)
 
