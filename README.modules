@@ -103,6 +103,9 @@ init has the following hook points to inject scripts:
    a timeout.
 
 /lib/dracut/hooks/pre-pivot/*.sh
+   scripts to run before latter initramfs cleanups
+
+/lib/dracut/hooks/pre-pivot-cleanup/*.sh
    scripts to run before the real init is executed and the initramfs
    disappears
    All processes started before should be killed here.

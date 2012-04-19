@@ -36,7 +36,7 @@ fi
 [[ $hookdirs ]] || {
     hookdirs="cmdline pre-udev pre-trigger netroot "
     hookdirs+="initqueue initqueue/settled initqueue/online initqueue/finished initqueue/timeout "
-    hookdirs+="pre-mount pre-pivot mount "
+    hookdirs+="pre-mount pre-pivot pre-pivot-cleanup mount "
     hookdirs+="emergency shutdown-emergency shutdown cleanup "
     export hookdirs
 }

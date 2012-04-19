@@ -224,9 +224,14 @@ done
     while read dev mp rest; do [ "$mp" = "$NEWROOT" ] && echo $dev; done < /proc/mounts
 } | vinfo
 
-# pre pivot scripts are sourced just before we switch over to the new root.
+# pre pivot scripts are sourced just before we doing cleanup and switch over
+# to the new root.
 getarg 'rd.break=pre-pivot' 'rdbreak=pre-pivot' && emergency_shell -n pre-pivot "Break pre-pivot"
 source_hook pre-pivot
+
+# pre pivot cleanup scripts are sourced just before we switch over to the new root.
+getarg 'rd.break=pre-pivot-cleanup' 'rdbreak=pre-pivot-cleanup' && emergency_shell -n pre-pivot-cleanup "Break pre-pivot-cleanup"
+source_hook pre-pivot-cleanup
 
 # By the time we get here, the root filesystem should be mounted.
 # Try to find init. 
