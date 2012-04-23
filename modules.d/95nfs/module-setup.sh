@@ -58,7 +58,7 @@ install() {
 
     inst_hook cmdline 90 "$moddir/parse-nfsroot.sh"
     inst_hook pre-udev 99 "$moddir/nfs-start-rpc.sh"
-    inst_hook pre-pivot-cleanup 99 "$moddir/nfsroot-cleanup.sh"
+    inst_hook cleanup 99 "$moddir/nfsroot-cleanup.sh"
     inst "$moddir/nfsroot.sh" "/sbin/nfsroot"
     inst "$moddir/nfs-lib.sh" "/lib/nfs-lib.sh"
     mkdir -m 0755 -p "$initdir/var/lib/nfs/rpc_pipefs"

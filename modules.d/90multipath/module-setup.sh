@@ -70,7 +70,7 @@ install() {
     inst_libdir_file "multipath/*"
 
     inst_hook pre-trigger 02 "$moddir/multipathd.sh"
-    inst_hook pre-pivot-cleanup   02 "$moddir/multipathd-stop.sh"
+    inst_hook cleanup   02 "$moddir/multipathd-stop.sh"
     inst_rules 40-multipath.rules
 }
 

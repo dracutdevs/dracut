@@ -230,8 +230,8 @@ getarg 'rd.break=pre-pivot' 'rdbreak=pre-pivot' && emergency_shell -n pre-pivot 
 source_hook pre-pivot
 
 # pre pivot cleanup scripts are sourced just before we switch over to the new root.
-getarg 'rd.break=pre-pivot-cleanup' 'rdbreak=pre-pivot-cleanup' && emergency_shell -n pre-pivot-cleanup "Break pre-pivot-cleanup"
-source_hook pre-pivot-cleanup
+getarg 'rd.break=cleanup' 'rdbreak=cleanup' && emergency_shell -n cleanup "Break cleanup"
+source_hook cleanup
 
 # By the time we get here, the root filesystem should be mounted.
 # Try to find init. 
@@ -332,7 +332,6 @@ wait_for_loginit
 getarg rd.break rdbreak && emergency_shell -n switch_root "Break before switch_root"
 info "Switching root"
 
-source_hook cleanup
 
 unset PS4
 
