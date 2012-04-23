@@ -264,15 +264,19 @@ setdebug
 
 source_all() {
     local f
-    [ "$1" ] && [  -d "/$1" ] || return
-    for f in "/$1"/*.sh; do [ -e "$f" ] && . "$f"; done
+    local _dir
+    _dir=$1; shift
+    [ "$_dir" ] && [  -d "/$_dir" ] || return
+    for f in "/$_dir"/*.sh; do [ -e "$f" ] && . "$f" "$@"; done
 }
 
 hookdir=/lib/dracut/hooks
 export hookdir
 
 source_hook() {
-    source_all "/lib/dracut/hooks/$1"
+    local _dir
+    _dir=$1; shift
+    source_all "/lib/dracut/hooks/$_dir" "$@"
 }
 
 check_finished() {
