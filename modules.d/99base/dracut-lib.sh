@@ -821,3 +821,16 @@ emergency_shell()
         exit 1
     fi
 }
+
+# Retain the values of these variables but ensure that they are unexported
+# This is a POSIX-compliant equivalent of bash's "export -n"
+export_n()
+{
+    local var
+    local val
+    for var in "$@"; do
+        eval val=\$$var
+        unset $var
+        [ -n "$val" ] && eval $var=\"$val\"
+    done
+}

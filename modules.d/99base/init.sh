@@ -251,7 +251,6 @@ done
     emergency_shell
 }
 
-
 if [ $UDEVVERSION -lt 168 ]; then
     # stop udev queue before killing it
     udevadm control --stop-exec-queue
@@ -268,13 +267,10 @@ else
     udevadm info --cleanup-db
 fi
 
-# Retain the values of these variables but ensure that they are unexported
-# This is a POSIX-compliant equivalent of bash's "export -n"
-for var in root rflags fstype netroot NEWROOT; do
-    eval tmp=\$$var
-    unset $var
-    [ -n "$tmp" ] && eval $var=\"$tmp\"
-done
+debug_off # Turn off debugging for this section
+
+# unexport some vars
+export_n root rflags fstype netroot NEWROOT
 
 export RD_TIMESTAMP
 # Clean up the environment
