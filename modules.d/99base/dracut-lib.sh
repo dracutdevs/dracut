@@ -2,6 +2,14 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+debug_off() {
+    set +x
+}
+
+debug_on() {
+    [ "$RD_DEBUG" = "yes" ] && set -x
+}
+
 # returns OK if $1 contains $2
 strstr() {
     [ "${1#*$2*}" != "$1" ]
@@ -93,29 +101,29 @@ _dogetarg() {
 }
 
 getarg() {
-    set +x
+    debug_off
     while [ $# -gt 0 ]; do
         case $1 in
             -y) if _dogetarg $2 >/dev/null; then
                     echo 1
-                    [ "$RD_DEBUG" = "yes" ] && set -x
+                    debug_on
                     return 0
                 fi
                 shift 2;;
             -n) if _dogetarg $2 >/dev/null; then
                     echo 0;
-                    [ "$RD_DEBUG" = "yes" ] && set -x
+                    debug_on
                     return 1
                 fi
                 shift 2;;
             *)  if _dogetarg $1; then
-                    [ "$RD_DEBUG" = "yes" ] && set -x
+                    debug_on
                     return 0;
                 fi
                 shift;;
         esac
     done
-    [ "$RD_DEBUG" = "yes" ] && set -x
+    debug_on
     return 1
 }
 
@@ -135,7 +143,7 @@ getargbool() {
 }
 
 _dogetargs() {
-    set +x
+    debug_off
     local _o _found _key
     unset _o
     unset _found
@@ -158,7 +166,7 @@ _dogetargs() {
 }
 
 getargs() {
-    set +x
+    debug_off
     local _val _i _args _gfound
     unset _val
     unset _gfound
@@ -175,10 +183,10 @@ getargs() {
         else
             echo -n 1
         fi
-        [ "$RD_DEBUG" = "yes" ] && set -x
+        debug_on
         return 0
     fi
-    [ "$RD_DEBUG" = "yes" ] && set -x
+    debug_on
     return 1;
 }
 
@@ -221,6 +229,7 @@ getoptcomma() {
 #
 # TODO: ':' inside fields.
 splitsep() {
+    debug_off
     local sep="$1"; local str="$2"; shift 2
     local tmp
 
@@ -232,7 +241,7 @@ splitsep() {
         shift
     done
     [ -n "$str" -a -n "$1" ] && eval "$1=$str"
-
+    debug_on
     return 0
 }
 
@@ -248,7 +257,7 @@ setdebug() {
         fi
         export RD_DEBUG
     fi
-    [ "$RD_DEBUG" = "yes" ] && set -x
+    debug_on
 }
 
 setdebug
@@ -347,6 +356,7 @@ check_occurances() {
 }
 
 incol2() {
+    debug_off
     local dummy check;
     local file="$1";
     local str="$2";
@@ -355,8 +365,12 @@ incol2() {
     [ -z "$str"  ] && return 1;
 
     while read dummy check restofline; do
-        [ "$check" = "$str" ] && return 0
+        if [ "$check" = "$str" ]; then
+            debug_on
+            return 0
+        fi
     done < $file
+    debug_on
     return 1
 }
 
@@ -719,6 +733,7 @@ cancel_wait_for_dev()
 }
 
 killproc() {
+    debug_off
     local _exe="$(command -v $1)"
     local _sig=$2
     local _i
@@ -729,6 +744,7 @@ killproc() {
             kill $_sig ${_i##*/}
         fi
     done
+    debug_on
 }
 
 need_shutdown() {
@@ -739,7 +755,7 @@ wait_for_loginit()
 {
     [ "$RD_DEBUG" = "yes" ] || return
     [ -e /run/initramfs/loginit.pipe ] || return
-    set +x
+    debug_off
     echo "DRACUT_LOG_END"
     exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
         # wait for loginit

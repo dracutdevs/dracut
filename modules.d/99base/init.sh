@@ -277,7 +277,6 @@ for var in root rflags fstype netroot NEWROOT; do
 done
 
 export RD_TIMESTAMP
-set +x # Turn off debugging for this section
 # Clean up the environment
 for i in $(export -p); do
     i=${i#declare -x}
@@ -298,7 +297,6 @@ rm -f /tmp/export.orig
 initargs=""
 read CLINE </proc/cmdline
 if getarg init= >/dev/null ; then
-    set +x # Turn off debugging for this section
     ignoreargs="console BOOT_IMAGE"
     # only pass arguments after init= to the init
     CLINE=${CLINE#*init=}
@@ -312,7 +310,7 @@ if getarg init= >/dev/null ; then
     done
     unset CLINE
 else
-    set +x # Turn off debugging for this section
+    debug_off # Turn off debugging for this section
     set -- $CLINE
     for x in "$@"; do
         case "$x" in
@@ -322,7 +320,7 @@ else
         esac
     done
 fi
-[ "$RD_DEBUG" = "yes" ] && set -x
+debug_on
 
 if ! [ -d "$NEWROOT"/run ]; then
     NEWRUN=/dev/.initramfs
