@@ -40,10 +40,6 @@ if [ -e /tmp/bridge.info ]; then
     fi
 fi
 
-# bail immediately if the interface is already up
-# or we don't need the network
-[ -f "/tmp/net.$netif.up" ] && exit 0
-
 # disable manual ifup while netroot is set for simplifying our logic
 # in netroot case we prefer netroot to bringup $netif automaticlly
 [ -n "$2" -a "$2" = "-m" ] && [ -z "$netroot" ] && manualup="$2"
@@ -72,13 +68,11 @@ load_ipv6() {
 
 do_ipv6auto() {
     load_ipv6
-    {
-        echo 0 > /proc/sys/net/ipv6/conf/$netif/forwarding
-        echo 1 > /proc/sys/net/ipv6/conf/$netif/accept_ra
-        echo 1 > /proc/sys/net/ipv6/conf/$netif/accept_redirects
-        echo ip link set $netif up
-        echo wait_for_if_up $netif
-    } > /tmp/net.$netif.up
+    echo 0 > /proc/sys/net/ipv6/conf/$netif/forwarding
+    echo 1 > /proc/sys/net/ipv6/conf/$netif/accept_ra
+    echo 1 > /proc/sys/net/ipv6/conf/$netif/accept_redirects
+    ip link set $netif up
+    wait_for_if_up $netif
 
     [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
 
@@ -88,30 +82,20 @@ do_ipv6auto() {
             echo nameserver $s
         done
     fi >> /tmp/net.$netif.resolv.conf
-
-
-    echo online > /sys/class/net/$netif/uevent
-    if [ -n "$manualup" ]; then
-        /sbin/netroot $netif -m
-    else
-        initqueue --onetime --name netroot-$netif netroot $netif
-    fi
 }
 
 # Handle static ip configuration
 do_static() {
     strstr $ip '*:*:*' && load_ipv6
 
-    {
-        echo ip link set $netif up
-        echo wait_for_if_up $netif
-        [ -n "$macaddr" ] && echo ip link set address $macaddr
-        [ -n "$mtu" ] && echo ip link set mtu $mtu
-        # do not flush addr for ipv6
-        strstr $ip '*:*:*' || \
-            echo ip addr flush dev $netif
-        echo ip addr add $ip/$mask brd + dev $netif
-    } > /tmp/net.$netif.up
+    ip link set $netif up
+    wait_for_if_up $netif
+    [ -n "$macaddr" ] && ip link set address $macaddr
+    [ -n "$mtu" ] && ip link set mtu $mtu
+    # do not flush addr for ipv6
+    strstr $ip '*:*:*' || \
+        ip addr flush dev $netif
+    ip addr add $ip/$mask brd + dev $netif
 
     [ -n "$gw" ] && echo ip route add default via $gw dev $netif > /tmp/net.$netif.gw
     [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
@@ -122,20 +106,12 @@ do_static() {
             echo nameserver $s
         done
     fi >> /tmp/net.$netif.resolv.conf
-
-    echo online > /sys/class/net/$netif/uevent
-    if [ -n "$manualup" ]; then
-        /sbin/netroot $netif -m
-    else
-        initqueue --onetime --name netroot-$netif netroot $netif
-    fi
 }
 
 # loopback is always handled the same way
 if [ "$netif" = "lo" ] ; then
     ip link set lo up
     ip addr add 127.0.0.1/8 dev lo
-    >/tmp/net.$netif.up
     exit 0
 fi
 
@@ -238,6 +214,21 @@ for p in $(getargs ip=); do
         *)
             do_static ;;
     esac
+
+    case $autoconf in
+        dhcp|on|any|dhcp6)
+            ;;
+        *)
+            if [ $? -eq 0 ]; then
+                setup_net $netif
+                source_hook initqueue/online $netif
+                if [ -z "$manualup" ]; then
+                    /sbin/netroot $netif
+                fi
+            fi
+            ;;
+    esac
+
     break
 done
 exit 0

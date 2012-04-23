@@ -65,13 +65,9 @@ ifdown() {
 
 setup_net() {
     local netif="$1" f="" gw_ip="" netroot_ip="" iface="" IFACES=""
-    [ -e /tmp/net.$netif.up ] || return 1
     [ -e /tmp/net.$netif.did-setup ] && return
     [ -e "/tmp/net.ifaces" ] && read IFACES < /tmp/net.ifaces
     [ -z "$IFACES" ] && IFACES="$netif"
-    for iface in $IFACES ; do
-        . /tmp/net.$iface.up
-    done
     # run the scripts written by ifup
     [ -e /tmp/net.$netif.gw ]            && . /tmp/net.$netif.gw
     [ -e /tmp/net.$netif.hostname ]      && . /tmp/net.$netif.hostname

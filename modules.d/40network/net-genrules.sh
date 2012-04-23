@@ -51,10 +51,4 @@ fix_bootif() {
         printf 'SUBSYSTEM=="net", RUN+="%s"\n' "/sbin/initqueue --onetime $ifup"
     fi
 
-    # Run the "online" hook
-    printf 'SUBSYSTEM=="net", ACTION=="online", RUN+="/sbin/initqueue --onetime --env netif=$env{INTERFACE} source_hook initqueue/online"\n'
-    # And make sure we run setup_net at the start of the hook
-    echo '. /lib/net-lib.sh; setup_net $netif' > \
-            $hookdir/initqueue/online/05-setup_net.sh
-
 } > /etc/udev/rules.d/60-net.rules
