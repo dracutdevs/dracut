@@ -138,6 +138,11 @@ for netif in $IFACES ; do
             } >> /tmp/ifcfg/ifcfg-$ethname
         fi
     fi
+    i=1
+    for ns in $(getargs nameserver); do
+        echo "DNS${i}=${ns}" >> /tmp/ifcfg/ifcfg-$netif
+        i=$((i+1))
+    done
 done
 
 # Pass network opts
