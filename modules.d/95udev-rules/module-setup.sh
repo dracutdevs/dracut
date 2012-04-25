@@ -8,13 +8,14 @@ install() {
     # ultimately, /lib/initramfs/rules.d or somesuch which includes links/copies
     # of the rules we want so that we just copy those in would be best
     dracut_install udevadm
-    if [ -x /sbin/udevd ]; then
-        dracut_install udevd
-        mkdir -p ${initdir}/lib/systemd
-        ln -s /sbin/udevd ${initdir}/lib/systemd/systemd-udevd
-    elif [ -x /lib/systemd/systemd-udevd ]; then
-        inst /lib/systemd/systemd-udevd
-    fi
+    [ -d ${initdir}/lib/systemd ] || mkdir -p ${initdir}/lib/systemd
+    for _i in /lib/systemd/systemd-udevd /lib/udev/udevd /sbin/udevd; do
+        [ -x "$_i" ] || continue
+        inst "$_i"
+        [[ $_i != "/lib/systemd/systemd-udevd" ]] \
+            && ln -s "$_i" ${initdir}/lib/systemd/systemd-udevd
+        break
+    done
 
     for i in /etc/udev/udev.conf /etc/group; do
         inst_simple $i
@@ -62,19 +63,10 @@ install() {
         vol_id \
         pcmcia-socket-startup \
         pcmcia-check-broken-cis \
-        udevd \
         ; do
         [ -e /lib/udev/$_i ] && dracut_install /lib/udev/$_i
         [ -e /usr/lib/udev/$_i ] && dracut_install /usr/lib/udev/$_i
     done
-
-    if ! [ -e "$initdir/sbin/udevd" ]; then
-        if [ -x /usr/lib/udev/udevd ]; then
-            ln -s /usr/lib/udev/udevd "$initdir/sbin/udevd"
-        elif [ -x /lib/udev/udevd ]; then
-            ln -s /lib/udev/udevd "$initdir/sbin/udevd"
-        fi
-    fi
 
     [ -f /etc/arch-release ] && \
         inst "$moddir/load-modules.sh" /lib/udev/load-modules.sh
