@@ -5,17 +5,23 @@ for x in 64-lvm.rules 70-mdadm.rules 99-mount-rules; do
 done
 udevadm control --reload-rules
 # save a partition at the beginning for future flagging purposes
-sfdisk -C 524288 -H 2 -S 32 -L /dev/sda <<EOF
+sfdisk -C 655600 -H 2 -S 32 -L /dev/sda <<EOF
 ,16
+,,E
+;
+;
+,10240
 ,10240
 ,10240
 ,10240
 EOF
-mkfs.btrfs -mraid10 -L root /dev/sda2 /dev/sda3 /dev/sda4
+mkfs.btrfs -draid10 -mraid10 -L root /dev/sda5 /dev/sda6 /dev/sda7 /dev/sda8
+udevadm settle
 btrfs device scan
+udevadm settle
 set -e
 mkdir -p /sysroot 
-mount /dev/sda4 /sysroot 
+mount -t btrfs /dev/sda8 /sysroot 
 cp -a -t /sysroot /source/* 
 umount /sysroot 
 echo "dracut-root-block-created" >/dev/sda1

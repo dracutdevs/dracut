@@ -20,7 +20,7 @@ test_setup() {
     # Create the blank file to use as a root filesystem
     DISKIMAGE=$TESTDIR/TEST-15-BTRFSRAID-root.img
     rm -f $DISKIMAGE
-    dd if=/dev/null of=$DISKIMAGE bs=1M seek=1024
+    dd if=/dev/null of=$DISKIMAGE bs=2M seek=1024
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
