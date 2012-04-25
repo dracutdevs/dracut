@@ -15,8 +15,11 @@ check() {
     [[ $debug ]] && set -x
 
     is_iscsi() (
-        [[ -L /sys/dev/block/$1 ]] || return
-        cd "$(readlink -f /sys/dev/block/$1)"
+        local _dev
+        _dev=$(get_maj_min $1)
+
+        [[ -L /sys/dev/block/$_dev ]] || return
+        cd "$(readlink -f /sys/dev/block/$_dev)"
         until [[ -d sys || -d iscsi_session ]]; do
             cd ..
         done
@@ -24,14 +27,7 @@ check() {
     )
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        _rootdev=$(find_root_block_device)
-        if [[ $_rootdev ]]; then
-            # root lives on a block device, so we can be more precise about
-            # hostonly checking
-            check_block_and_slaves is_iscsi "$_rootdev" || return 1
-        else
-            return 1
-        fi
+        for_each_host_dev_fs is_iscsi || return 1
     }
     return 0
 }
