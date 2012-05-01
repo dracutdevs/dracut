@@ -48,6 +48,7 @@ _getcmdline() {
     local _i
     unset _line
     if [ -z "$CMDLINE" ]; then
+        unset CMDLINE_ETC CMDLINE_ETC_D
         if [ -e /etc/cmdline ]; then
             while read -r _line; do
                 CMDLINE_ETC="$CMDLINE_ETC $_line";
