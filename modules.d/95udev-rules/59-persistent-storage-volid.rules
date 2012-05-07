@@ -1,7 +1,0 @@
-SUBSYSTEM!="block", GOTO="psv_end"
-ACTION!="add|change", GOTO="psv_end"
-ACTION=="change", KERNEL=="dm-[0-9]*", ENV{DM_UDEV_DISABLE_OTHER_RULES_FLAG}!="1", IMPORT{program}="vol_id --export $tempnode"
-KERNEL=="cciss[0-9]*", IMPORT{program}="vol_id --export $tempnode"
-KERNEL=="nbd[0-9]*", IMPORT{program}="vol_id --export $tempnode"
-KERNEL=="md[0-9]*|md_d[0-9]*|md/*", IMPORT{program}="vol_id --export $tempnode"
-LABEL="psv_end"

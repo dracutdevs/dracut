@@ -183,17 +183,6 @@ get_fs_env() {
         return 1
     fi
 
-    # Fallback, for the old vol_id
-    if [[ -x /lib/udev/vol_id ]]; then
-        if evalstr=$(/lib/udev/vol_id --export $1 \
-            | while read line; do
-                strstr "$line" "ID_FS_TYPE=" && { echo $line; exit 0;}
-                done;) ; then
-            eval $evalstr
-            [[ $ID_FS_TYPE ]] && return 0
-        fi
-    fi
-
     # Fallback, if we don't have udev information
     if find_binary blkid >/dev/null; then
         eval $(blkid -o udev $1 \

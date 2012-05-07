@@ -58,9 +58,7 @@ install() {
 
     inst "$moddir/dmraid.sh" /sbin/dmraid_scan
 
-    if [ ! -x /lib/udev/vol_id ]; then
-        inst_rules 64-md-raid.rules
-    fi
+    inst_rules 64-md-raid.rules
 
     inst_libdir_file "libdmraid-events*.so*"
 

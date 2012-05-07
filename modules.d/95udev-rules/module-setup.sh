@@ -37,12 +37,8 @@ install() {
     inst_dir /run/udev
     inst_dir /run/udev/rules.d
 
-    if [ ! -x /lib/udev/vol_id ]; then
-        dracut_install blkid
-        inst_rules "$moddir/59-persistent-storage.rules"
-    else
-        inst_rules "$moddir/59-persistent-storage-volid.rules"
-    fi
+    dracut_install blkid
+    inst_rules "$moddir/59-persistent-storage.rules"
     inst_rules "$moddir/61-persistent-storage.rules"
 
     for _i in \
@@ -60,7 +56,6 @@ install() {
         input_id \
         scsi_id \
         usb_id \
-        vol_id \
         pcmcia-socket-startup \
         pcmcia-check-broken-cis \
         ; do
