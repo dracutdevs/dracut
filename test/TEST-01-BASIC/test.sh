@@ -61,7 +61,7 @@ test_setup() {
 	-d "piix ide-gd_mod ata_piix ext3 sd_mod" \
         --nomdadmconf \
 	-f $TESTDIR/initramfs.makeroot $KVERSION || return 1
-    rm -rf overlay
+    rm -rf $TESTDIR/overlay
     # Invoke KVM and/or QEMU to actually create the target filesystem.
 
     $testdir/run-qemu \
