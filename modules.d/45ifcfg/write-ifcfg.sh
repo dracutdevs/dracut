@@ -50,7 +50,11 @@ for netif in $IFACES ; do
         # If we've booted with static ip= lines, the override file is there
             [ -e /tmp/net.$netif.override ] && . /tmp/net.$netif.override
             echo "IPADDR=$ip"
-            echo "NETMASK=$mask"
+            if strstr "$mask" "."; then
+                echo "NETMASK=$mask"
+            else
+                echo "PREFIX=$mask"
+            fi
             [ -n "$gw" ] && echo "GATEWAY=$gw"
         fi
     } > /tmp/ifcfg/ifcfg-$netif
