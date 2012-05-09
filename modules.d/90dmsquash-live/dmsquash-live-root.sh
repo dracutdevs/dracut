@@ -33,7 +33,7 @@ fi
 getarg rd.live.check check || check=""
 if [ -n "$check" ]; then
     [ -x /bin/plymouth ] && /bin/plymouth --hide-splash
-    checkisomd5 --verbose $livedev || :
+    checkisomd5 --verbose $livedev
     if [ $? -ne 0 ]; then
         die "CD check failed!"
         exit 1
