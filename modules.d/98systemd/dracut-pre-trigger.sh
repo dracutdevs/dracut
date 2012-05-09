@@ -1,0 +1,20 @@
+#!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
+exec </dev/console >/dev/console 2>&1
+
+if [ -f /dracut-state.sh ]; then
+    . /dracut-state.sh || :
+fi
+. /lib/dracut-lib.sh
+source_conf /etc/conf.d
+
+getargbool 0 rd.udev.info -y rdudevinfo && udevadm control "$UDEV_LOG_PRIO_ARG=info"
+getargbool 0 rd.udev.debug -y rdudevdebug && udevadm control "$UDEV_LOG_PRIO_ARG=debug"
+udevproperty "hookdir=$hookdir"
+
+source_hook pre-trigger
+
+udevadm control --reload >/dev/null 2>&1 || :
+
+export -p > /dracut-state.sh
