@@ -290,6 +290,7 @@ rm -rf $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/98ecryptfs
 %{dracutlibdir}/modules.d/98pollcdrom
 %{dracutlibdir}/modules.d/98syslog
+%{dracutlibdir}/modules.d/98systemd
 %{dracutlibdir}/modules.d/98usrmount
 %{dracutlibdir}/modules.d/99base
 %{dracutlibdir}/modules.d/99fs-lib
