@@ -383,7 +383,7 @@ incol2() {
 }
 
 udevsettle() {
-    [ -z "$UDEVVERSION" ] && UDEVVERSION=$(udevadm --version)
+    [ -z "$UDEVVERSION" ] && export UDEVVERSION=$(udevadm --version)
 
     if [ $UDEVVERSION -ge 143 ]; then
         udevadm settle --exit-if-exists=$hookdir/initqueue/work $settle_exit_if_exists
@@ -393,7 +393,7 @@ udevsettle() {
 }
 
 udevproperty() {
-    [ -z "$UDEVVERSION" ] && UDEVVERSION=$(udevadm --version)
+    [ -z "$UDEVVERSION" ] && export UDEVVERSION=$(udevadm --version)
 
     if [ $UDEVVERSION -ge 143 ]; then
         for i in "$@"; do udevadm control --property=$i; done
