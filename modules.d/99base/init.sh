@@ -39,12 +39,6 @@ fi
 
 setdebug
 
-if [ "$RD_DEBUG" = "yes" ]; then
-    getarg quiet && DRACUT_QUIET="yes"
-    a=$(getarg loglevel=)
-    [ -n "$a" ] && [ $a -ge 8 ] && unset DRACUT_QUIET
-fi
-
 if ! ismounted /dev; then
     mount -t devtmpfs -o mode=0755,nosuid,strictatime devtmpfs /dev >/dev/null 
 fi

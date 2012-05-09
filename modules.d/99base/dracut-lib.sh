@@ -316,6 +316,9 @@ check_quiet() {
         getargbool 0 rd.info -y rdinfo && DRACUT_QUIET="no"
         getargbool 0 rd.debug -y rdinitdebug && DRACUT_QUIET="no"
         getarg quiet || DRACUT_QUIET="yes"
+        a=$(getarg loglevel=)
+        [ -n "$a" ] && [ $a -ge 28 ] && DRACUT_QUIET="yes"
+        export DRACUT_QUIET
     fi
 }
 
