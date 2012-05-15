@@ -106,6 +106,7 @@ done
     while read dev mp rest; do [ "$mp" = "$NEWROOT" ] && echo $dev; done < /proc/mounts
 } | vinfo
 
-systemctl switch-root
 
 export -p > /dracut-state.sh
+
+systemctl isolate switch-root.target

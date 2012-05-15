@@ -20,26 +20,19 @@ source_hook cleanup
 
 # By the time we get here, the root filesystem should be mounted.
 # Try to find init. 
-for i in "$(getarg real_init=)" "$(getarg init=)" $(getargs rd.distroinit=) /sbin/init; do
+
+for i in "$(getarg real_init=)" "$(getarg init=)"; do
     [ -n "$i" ] || continue
 
     __p=$(readlink -f "${NEWROOT}/${i}")
     if [ -x "$__p" ]; then
         INIT="$i"
+        echo "NEWINIT=\"$INIT\"" > /etc/switch-root.conf
         break
     fi
 done
 
-if [ -n "$INIT" ]; then
-    {
-        echo "NEWROOT=\"$NEWROOT\""
-        echo "NEWINIT=\"$INIT\""
-    } > /etc/switch-root.conf
-else
-    echo "Cannot find init!"
-    echo "Please check to make sure you passed a valid root filesystem!"
-    emergency_shell
-fi
+echo "NEWROOT=\"$NEWROOT\"" >> /etc/switch-root.conf
 
 udevadm control --stop-exec-queue
 systemctl stop udevd.service

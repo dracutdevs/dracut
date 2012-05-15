@@ -17,7 +17,7 @@ Before=shutdown.target
 Environment=HOME=/
 WorkingDirectory=/
 ExecStart=-/bin/sh -i -l
-ExecStopPost=-/usr/bin/systemctl --fail --no-block switch-root 
+ExecStopPost=-/usr/bin/systemctl --fail --no-block default
 Type=idle
 StandardInput=tty-force
 StandardOutput=inherit

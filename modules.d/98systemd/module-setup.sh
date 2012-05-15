@@ -114,10 +114,10 @@ install() {
 
     ln -fs /lib/systemd/systemd "$initdir/init"
 
-    {
-        echo "LogLevel=debug"
-        echo "LogTarget=console"
-    } >> "$initdir/etc/systemd/system.conf"
+#    {
+#        echo "LogLevel=debug"
+#        echo "LogTarget=console"
+#    } >> "$initdir/etc/systemd/system.conf"
 
     rm -f "$initdir/lib/systemd/system/emergency.service"
     inst "$moddir/emergency.service" /lib/systemd/system/emergency.service
@@ -145,6 +145,6 @@ install() {
     inst "$moddir/dracut-pre-pivot.service" /lib/systemd/system/dracut-pre-pivot.service
     mkdir -p "$initdir/lib/systemd/system/switch-root.target.wants"
     ln -s ../dracut-pre-pivot.service "$initdir/lib/systemd/system/switch-root.target.wants/dracut-pre-pivot.service"
-    
+    > "$initdir/etc/machine-id" 
 }
 
