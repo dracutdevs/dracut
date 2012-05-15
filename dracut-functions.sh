@@ -1108,17 +1108,22 @@ find_kernel_modules () {
     find_kernel_modules_by_path  drivers
 }
 
-# instmods <kernel module> [<kernel module> ... ]
-# instmods <kernel subsystem>
+# instmods [-c] <kernel module> [<kernel module> ... ]
+# instmods [-c] <kernel subsystem>
 # install kernel modules along with all their dependencies.
 # <kernel subsystem> can be e.g. "=block" or "=drivers/usb/storage"
 instmods() {
     [[ $no_kernel = yes ]] && return
     # called [sub]functions inherit _fderr
     local _fderr=9
+    local _check=no
+    if [[ $1 = '-c' ]]; then
+        _check=yes
+        shift
+    fi
 
     function inst1mod() {
-        local _mod="$1"
+        local _ret=0 _mod="$1"
         case $_mod in
             =*)
                 if [ -f $srcmods/modules.${_mod#=} ]; then
@@ -1162,26 +1167,40 @@ instmods() {
                 ((_ret+=$?))
                 ;;
         esac
-    }
-
-    function instmods_1() {
-        local _ret=0 _mod _mpargs
-        if (($# == 0)); then  # filenames from stdin
-            while read _mod; do
-                inst1mod "${_mod%.ko*}"
-            done
-        fi
-        while (($# > 0)); do  # filenames as arguments
-            inst1mod ${1%.ko*}
-            shift
-        done
         return $_ret
     }
 
-    local _filter_not_found='FATAL: Module .* not found.'
+    function instmods_1() {
+        local _mod _mpargs
+        if (($# == 0)); then  # filenames from stdin
+            while read _mod; do
+                inst1mod "${_mod%.ko*}" || {
+                    if [ "$_check" = "yes" ]; then
+                        dfatal "Failed to install $_mod"
+                        return 1
+                    fi
+                }
+            done
+        fi
+        while (($# > 0)); do  # filenames as arguments
+            inst1mod ${1%.ko*} || {
+                if [ "$_check" = "yes" ]; then
+                    dfatal "Failed to install $1"
+                    return 1
+                fi
+            }
+            shift
+        done
+        return 0
+    }
+
+    local _ret _filter_not_found='FATAL: Module .* not found.'
+    set -o pipefail
     # Capture all stderr from modprobe to _fderr. We could use {var}>...
     # redirections, but that would make dracut require bash4 at least.
     eval "( instmods_1 \"\$@\" ) ${_fderr}>&1" \
     | while read line; do [[ "$line" =~ $_filter_not_found ]] || echo $line;done | derror
-    return $?
+    _ret=$?
+    set +o pipefail
+    return $_ret
 }

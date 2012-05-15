@@ -708,11 +708,17 @@ for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
         [[ $show_modules = yes ]] && echo "$_d_mod" || \
             dinfo "*** Including module: $_d_mod ***"
         if [[ $kernel_only = yes ]]; then
-            module_installkernel $_d_mod
+            module_installkernel $_d_mod || {
+                dfatal "installkernel failed in module $_d_mod"
+                exit 1
+            }
         else
             module_install $_d_mod
             if [[ $no_kernel != yes ]]; then
-                module_installkernel $_d_mod
+                module_installkernel $_d_mod || {
+                    dfatal "installkernel failed in module $_d_mod"
+                    exit 1
+                }
             fi
         fi
         mods_to_load=${mods_to_load// $_d_mod /}

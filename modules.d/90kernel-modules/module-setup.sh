@@ -58,8 +58,12 @@ installkernel() {
         hostonly='' instmods $drivers
     fi
 
-    [[ $add_drivers ]] && hostonly='' instmods $add_drivers
-    [[ $filesystems ]] && hostonly='' instmods $filesystems
+    if [[ $add_drivers ]]; then
+        hostonly='' instmods -c $add_drivers || return 1
+    fi
+    if [[ $filesystems ]]; then
+        hostonly='' instmods -c $filesystems || return 1
+    fi
 
     # force install of scsi_wait_scan
     hostonly='' instmods scsi_wait_scan
