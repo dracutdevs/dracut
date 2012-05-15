@@ -770,7 +770,7 @@ done
 
 if [[ $kernel_only != yes ]]; then
     for item in $install_items; do
-        dracut_install -o "$item"
+        dracut_install "$item"
     done
     unset item
 
