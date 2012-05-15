@@ -48,5 +48,6 @@ install() {
         done > "${initdir}/etc/cmdline.d/distroinit.conf"
     fi
 
+    ln -s /proc/self/mounts "$initdir/etc/mtab"
 }
 
