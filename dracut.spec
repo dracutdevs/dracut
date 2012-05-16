@@ -301,6 +301,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_sharedstatedir}/initramfs
 %if %{defined _unitdir}
 %{_unitdir}/*.service
+%{_unitdir}/*.target
 %{_unitdir}/*/*.service
 %endif
 

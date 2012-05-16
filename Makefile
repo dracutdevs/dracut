@@ -56,7 +56,16 @@ install: doc
 	ln -s dracut.cmdline.7 $(DESTDIR)$(mandir)/man7/dracut.kernel.7
 	if [ -n "$(systemdsystemunitdir)" ]; then \
 		mkdir -p $(DESTDIR)$(systemdsystemunitdir); \
-		install -m 0644 dracut-shutdown.service $(DESTDIR)$(systemdsystemunitdir); \
+		for i in \
+			modules.d/98systemd/dracut-initqueue.service \
+			modules.d/98systemd/dracut-pre-pivot.service \
+			modules.d/98systemd/dracut-pre-trigger.service \
+			modules.d/98systemd/dracut-pre-udev.service \
+			modules.d/98systemd/switch-root.service \
+			modules.d/98systemd/switch-root.target \
+			dracut-shutdown.service; do \
+				install -m 0644 $$i $(DESTDIR)$(systemdsystemunitdir); \
+		done; \
 		mkdir -p $(DESTDIR)$(systemdsystemunitdir)/shutdown.target.wants; \
 		ln -s ../dracut-shutdown.service \
 		$(DESTDIR)$(systemdsystemunitdir)/shutdown.target.wants/dracut-shutdown.service; \
