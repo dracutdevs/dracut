@@ -11,6 +11,6 @@
 Description=Switch Root
 DefaultDependencies=no
 Requires=switch-root.service
-After=switch-root.service
+Before=switch-root.service
 AllowIsolate=yes
 
