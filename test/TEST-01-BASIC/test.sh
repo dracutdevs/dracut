@@ -48,7 +48,7 @@ test_setup() {
     (
 	initdir=$TESTDIR/overlay
 	. $basedir/dracut-functions.sh
-	dracut_install sfdisk mkfs.ext3 poweroff cp umount
+	dracut_install sfdisk mkfs.ext3 poweroff cp umount sync
 	inst_hook initqueue 01 ./create-root.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
