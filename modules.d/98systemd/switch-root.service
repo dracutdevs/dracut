@@ -11,6 +11,6 @@ DefaultDependencies=no
 
 [Service]
 Type=oneshot
-EnvironmentFile=/etc/switch-root.conf
+EnvironmentFile=/run/initramfs/switch-root.conf
 ExecStart=/usr/bin/systemctl --force switch-root ${NEWROOT} ${NEWINIT}
 ExecStopPost=-/usr/bin/systemctl isolate default.target
