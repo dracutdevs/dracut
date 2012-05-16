@@ -35,7 +35,7 @@ done
 echo "NEWROOT=\"$NEWROOT\"" >> /etc/switch-root.conf
 
 udevadm control --stop-exec-queue
-systemctl stop udevd.service
+systemctl stop systemd-udev.service
 udevadm info --cleanup-db
 
 # remove helper symlink
