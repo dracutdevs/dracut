@@ -35,6 +35,9 @@ installkernel() {
         hostonly='' instmods pcmcia firewire-ohci
         hostonly='' instmods usb_storage sdhci sdhci-pci
 
+        # arm specific modules
+        hostonly='' instmods sdhci_esdhc_imx mmci sdhci_tegra mvsdio omap sdhci_dove ahci_platform pata_imx sata_mv
+
         # install keyboard support
         hostonly='' instmods atkbd i8042 usbhid hid-apple hid-sunplus hid-cherry hid-logitech hid-logitech-dj hid-microsoft ehci-hcd ohci-hcd uhci-hcd xhci-hcd
         # install unix socket support
