@@ -34,5 +34,5 @@ install() {
     inst_libdir_file "gconv/*"
 #inst /usr/lib/locale/locale-archive
 
-    dracut_install cmsfs-fuse fusermount ulockmgr_server bash tr insmod rmmod cat
+    dracut_install cmsfs-fuse fusermount ulockmgr_server bash tr insmod rmmod cat normalize_dasd_arg
 }

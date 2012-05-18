@@ -169,8 +169,8 @@ processcmsfile()
     fi
 
     if [[ $DASD ]]; then
-	echo $DASD >> /etc/dasd.conf
-	echo "options dasd_mod dasd=$DASD" >> /etc/modprobe.d/dasd_mod.conf
+	echo $DASD | normalize_dasd_arg > /etc/dasd.conf
+	echo "options dasd_mod dasd=$DASD" > /etc/modprobe.d/dasd_mod.conf
 	dasd_cio_free
     fi
 
