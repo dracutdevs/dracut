@@ -123,6 +123,7 @@ Creates initial ramdisk images for preloading modules
   -M, --show-modules    Print included module's name to standard output during
                          build.
   --keep                Keep the temporary initramfs for debugging purposes
+  --printsize           Print out the module install size
   --sshkey [SSHKEY]     Add ssh key to initramfs (use with ssh-client module)
 
 If [LIST] has multiple arguments, then you have to put these in quotes.
@@ -268,6 +269,7 @@ while (($# > 0)); do
                        show_modules_l="yes"
                        ;;
         --keep)        keep="yes";;
+        --printsize)   printsize="yes";;
         -*) printf "\nUnknown option: %s\n\n" "$1" >&2; usage; exit 1;;
         *)
             if ! [[ ${outfile+x} ]]; then
@@ -700,6 +702,7 @@ mods_to_load=""
 for_each_module_dir check_module
 for_each_module_dir check_mount
 
+_isize=0 #initramfs size
 modules_loaded=" "
 # source our modules.
 for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
@@ -723,6 +726,14 @@ for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
         fi
         mods_to_load=${mods_to_load// $_d_mod /}
         modules_loaded+="$_d_mod "
+
+        #print the module install size
+        if [ -n "$printsize" ]; then
+            _isize_new=$(du -sk ${initdir}|cut -f1)
+            _isize_delta=$(($_isize_new - $_isize))
+            echo "$_d_mod install size: ${_isize_delta}k"
+            _isize=$_isize_new
+        fi
     fi
 done
 unset moddir
