@@ -307,6 +307,7 @@ die() {
     } >> $hookdir/emergency/01-die.sh
 
     > /run/initramfs/.die
+    emergency_shell
     exit 1
 }
 
@@ -814,7 +815,6 @@ emergency_shell()
     warn $@
     source_hook "$hook"
     echo
-    [ -e /run/initramfs/.die ] && exit 1
     if getargbool 1 rd.shell -y rdshell || getarg rd.break rdbreak; then
         echo "Dropping to debug shell."
         echo
@@ -838,6 +838,7 @@ emergency_shell()
         # cause a kernel panic
         exit 1
     fi
+    [ -e /run/initramfs/.die ] && exit 1
 }
 
 # Retain the values of these variables but ensure that they are unexported
