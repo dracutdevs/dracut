@@ -10,7 +10,7 @@
 [Unit]
 Description=Dracut pre-pivot and cleanup hook
 DefaultDependencies=no
-Before=switch-root.service
+Before=initrd-switch-root.service
 
 [Service]
 Environment=HOME=/

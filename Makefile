@@ -62,8 +62,8 @@ install: doc dracut-version.sh
 			modules.d/98systemd/dracut-pre-pivot.service \
 			modules.d/98systemd/dracut-pre-trigger.service \
 			modules.d/98systemd/dracut-pre-udev.service \
-			modules.d/98systemd/switch-root.service \
-			modules.d/98systemd/switch-root.target \
+			modules.d/98systemd/initrd-switch-root.service \
+			modules.d/98systemd/initrd-switch-root.target \
 			dracut-shutdown.service; do \
 				install -m 0644 $$i $(DESTDIR)$(systemdsystemunitdir); \
 		done; \

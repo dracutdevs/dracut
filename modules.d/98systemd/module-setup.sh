@@ -102,8 +102,8 @@ install() {
     system/single.service \
     system/syslog.socket \
     system/syslog.target \
-    system/switch-root.target \
-    system/switch-root.service \
+    system/initrd-switch-root.target \
+    system/initrd-switch-root.service \
     system/umount.target \
     ;do
         [ -e "/lib/systemd/$i" ] && dracut_install "/lib/systemd/$i"
@@ -123,8 +123,8 @@ install() {
     inst "$moddir/emergency.service" /lib/systemd/system/emergency.service
     rm -f "$initdir/lib/systemd/system/rescue.service"
     inst "$moddir/rescue.service" /lib/systemd/system/rescue.service
-    inst "$moddir/switch-root.target" /lib/systemd/system/switch-root.target
-    inst "$moddir/switch-root.service" /lib/systemd/system/switch-root.service
+    inst "$moddir/initrd-switch-root.target" /lib/systemd/system/initrd-switch-root.target
+    inst "$moddir/initrd-switch-root.service" /lib/systemd/system/initrd-switch-root.service
     ln -s basic.target "$initdir/lib/systemd/system/default.target"
 
     inst "$moddir/dracut-cmdline.sh" /lib/systemd/system-generators/dracut-cmdline.sh
@@ -140,11 +140,11 @@ install() {
     inst "$moddir/dracut-initqueue.sh" /bin/dracut-initqueue
     inst "$moddir/dracut-initqueue.service" /lib/systemd/system/dracut-initqueue.service
     ln -s ../dracut-initqueue.service "$initdir/lib/systemd/system/basic.target.wants/dracut-initqueue.service"
-    
+
     inst "$moddir/dracut-pre-pivot.sh" /bin/dracut-pre-pivot
     inst "$moddir/dracut-pre-pivot.service" /lib/systemd/system/dracut-pre-pivot.service
-    mkdir -p "$initdir/lib/systemd/system/switch-root.target.wants"
-    ln -s ../dracut-pre-pivot.service "$initdir/lib/systemd/system/switch-root.target.wants/dracut-pre-pivot.service"
-    > "$initdir/etc/machine-id" 
+    mkdir -p "$initdir/lib/systemd/system/initrd-switch-root.target.wants"
+    ln -s ../dracut-pre-pivot.service "$initdir/lib/systemd/system/initrd-switch-root.target.wants/dracut-pre-pivot.service"
+    > "$initdir/etc/machine-id"
 }
 
