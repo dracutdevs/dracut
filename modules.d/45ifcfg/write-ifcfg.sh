@@ -225,6 +225,6 @@ echo "files /var/lib/dhclient" >> /run/initramfs/rwtab
 {
     cp /tmp/net.* /run/initramfs/
     cp /tmp/net.$netif.resolv.conf /run/initramfs/state/etc/resolv.conf
-    cp -a -t /run/initramfs/state/etc/sysconfig/network-scripts/ /tmp/ifcfg/*
+    copytree /tmp/ifcfg /run/initramfs/state/etc/sysconfig/network-scripts
     cp /tmp/ifcfg-leases/* /run/initramfs/state/var/lib/dhclient
 } > /dev/null 2>&1

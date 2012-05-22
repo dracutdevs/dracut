@@ -532,6 +532,17 @@ mkuniqdir() {
     echo "${retdir}"
 }
 
+# Copy the contents of SRC into DEST, merging the contents of existing
+# directories (kinda like rsync, or cpio -p).
+# Creates DEST if it doesn't exist. Overwrites files with the same names.
+#
+# copytree SRC DEST
+copytree() {
+    local src="$1" dest="$2"
+    mkdir -p "$dest"; dest=$(readlink -e -q "$dest")
+    ( cd "$src"; cp -af . -t "$dest" )
+}
+
 # Evaluates command for UUIDs either given as arguments for this function or all
 # listed in /dev/disk/by-uuid.  UUIDs doesn't have to be fully specified.  If
 # beginning is given it is expanded to all matching UUIDs.  To pass full UUID to

@@ -27,6 +27,5 @@ if [ $? != 0 ]; then
     warn "url: $url"
     return 1
 fi
-rm -rf /updates
-mv -f /updates.tmp.$$ /updates
+copytree /updates.tmp.$$ /updates
 mv /tmp/liveupdates.info /tmp/liveupdates.done

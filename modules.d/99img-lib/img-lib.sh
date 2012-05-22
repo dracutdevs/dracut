@@ -53,7 +53,7 @@ unpack_fs() {
     local img="$1" outdir="$2" mnt="$(mkuniqdir /tmp unpack_fs.)"
     mount -o loop $img $mnt || { rmdir $mnt; return 1; }
     mkdir -p $outdir; outdir="$(cd $outdir; pwd)"
-    ( cd $mnt; cp -a -t $outdir . )
+    copytree $mnt $outdir
     umount $mnt
     rmdir $mnt
 }
