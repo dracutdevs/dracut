@@ -49,5 +49,30 @@ install() {
     fi
 
     ln -s /proc/self/mounts "$initdir/etc/mtab"
-}
 
+    if [ -e /etc/os-release ]; then
+        . /etc/os-release
+        VERSION+=" "
+        PRETTY_NAME+=" "
+    else
+        VERSION=""
+        PRETTY_NAME=""
+    fi
+    NAME=Dracut
+    ID=dracut
+    VERSION+="dracut-$DRACUT_VERSION"
+    PRETTY_NAME+="dracut-$DRACUT_VERSION (Initramfs)"
+    VERSION_ID=$DRACUT_VERSION
+    ANSI_COLOR="0;34"
+
+    {
+        echo NAME=\"$NAME\"
+        echo VERSION=\"$VERSION\"
+        echo ID=$ID
+        echo VERSION_ID=$VERSION_ID
+        echo PRETTY_NAME=\"$PRETTY_NAME\"
+        echo ANSI_COLOR=\"$ANSI_COLOR\"
+    } > $initdir/etc/initrd-release
+    echo dracut-$DRACUT_VERSION > $initdir/lib/dracut/dracut-$DRACUT_VERSION
+    ln -s initrd-release $initdir/etc/os-release
+}

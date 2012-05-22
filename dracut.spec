@@ -178,7 +178,7 @@ make install DESTDIR=$RPM_BUILD_ROOT \
 %endif
      sysconfdir=/etc mandir=%{_mandir}
 
-echo %{name}-%{version}-%{release} > $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/10rpmversion/dracut-version
+echo "DRACUT_VERSION=%{version}-%{release}" > $RPM_BUILD_ROOT/%{dracutlibdir}/dracut-version.sh
 
 %if 0%{?fedora} == 0 && 0%{?rhel} == 0
 rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/01fips
@@ -256,7 +256,6 @@ rm -rf $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/00dash
 %{dracutlibdir}/modules.d/05busybox
 %{dracutlibdir}/modules.d/10i18n
-%{dracutlibdir}/modules.d/10rpmversion
 %{dracutlibdir}/modules.d/30convertfs
 %{dracutlibdir}/modules.d/45url-lib
 %{dracutlibdir}/modules.d/50plymouth
