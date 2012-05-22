@@ -10,3 +10,4 @@
 test*.img
 /.buildpath
 /.project
+/dracut-version.sh

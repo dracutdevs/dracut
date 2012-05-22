@@ -13,7 +13,7 @@ manpages = dracut.8 dracut.cmdline.7 dracut.conf.5 dracut-catimages.8
 
 .PHONY: install clean archive rpm testimage test all check AUTHORS doc
 
-all: syncheck
+all: syncheck dracut-version.sh
 
 doc: $(manpages) dracut.html
 
@@ -32,7 +32,7 @@ dracut.html: dracut.asc $(manpages)
 		http://docbook.sourceforge.net/release/xsl/current/xhtml/docbook.xsl dracut.xml
 	rm dracut.xml
 
-install: doc
+install: doc dracut-version.sh
 	mkdir -p $(DESTDIR)$(pkglibdir)
 	mkdir -p $(DESTDIR)$(bindir)
 	mkdir -p $(DESTDIR)$(sysconfdir)
@@ -45,6 +45,7 @@ install: doc
 	install -m 0644 dracut.conf $(DESTDIR)$(sysconfdir)/dracut.conf
 	mkdir -p $(DESTDIR)$(sysconfdir)/dracut.conf.d
 	install -m 0755 dracut-functions.sh $(DESTDIR)$(pkglibdir)/dracut-functions.sh
+	install -m 0755 dracut-version.sh $(DESTDIR)$(pkglibdir)/dracut-version.sh
 	ln -s dracut-functions.sh $(DESTDIR)$(pkglibdir)/dracut-functions
 	install -m 0755 dracut-logger.sh $(DESTDIR)$(pkglibdir)/dracut-logger.sh
 	install -m 0755 dracut-initramfs-restore.sh $(DESTDIR)$(pkglibdir)/dracut-initramfs-restore
@@ -70,6 +71,9 @@ install: doc
 		ln -s ../dracut-shutdown.service \
 		$(DESTDIR)$(systemdsystemunitdir)/shutdown.target.wants/dracut-shutdown.service; \
 	fi
+
+dracut-version.sh:
+	@echo "DRACUT_VERSION=$(VERSION)-$(GITVERSION)" > dracut-version.sh
 
 clean:
 	$(RM) *~

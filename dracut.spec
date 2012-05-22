@@ -240,6 +240,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{dracutlibdir}/modules.d
 %{dracutlibdir}/dracut-functions.sh
 %{dracutlibdir}/dracut-functions
+%{dracutlibdir}/dracut-version.sh
 %{dracutlibdir}/dracut-logger.sh
 %{dracutlibdir}/dracut-initramfs-restore
 %config(noreplace) /etc/dracut.conf

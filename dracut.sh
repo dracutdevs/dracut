@@ -27,9 +27,17 @@
 dracut_args="$@"
 
 usage() {
+    [[ $dracutbasedir ]] || dracutbasedir=/usr/lib/dracut
+    if [[ -f $dracutbasedir/dracut-version.sh ]]; then
+        . $dracutbasedir/dracut-version.sh
+    fi
+
 #                                                       80x25 linebreak here ^
     cat << EOF
 Usage: $0 [OPTION]... <initramfs> <kernel-version>
+
+Version: $DRACUT_VERSION
+
 Creates initial ramdisk images for preloading modules
 
   -f, --force           Overwrite existing initramfs file.
@@ -249,7 +257,11 @@ while (($# > 0)); do
         --sshkey)      read_arg sshkey   "$@" || shift;;
         -v|--verbose)  ((verbosity_mod_l++));;
         -q|--quiet)    ((verbosity_mod_l--));;
-        -l|--local)    allowlocal="yes" ;;
+        -l|--local)
+                       allowlocal="yes"
+                       [[ -f "$(readlink -f ${0%/*})/dracut-functions.sh" ]] \
+                           && dracutbasedir="$(readlink -f ${0%/*})"
+                       ;;
         -H|--hostonly) hostonly_l="yes" ;;
         --no-hostonly) hostonly_l="no" ;;
         --fstab)       use_fstab_l="yes" ;;
@@ -312,9 +324,6 @@ unset GREP_OPTIONS
 }
 
 [[ $dracutbasedir ]] || dracutbasedir=/usr/lib/dracut
-
-[[ $allowlocal && -f "$(readlink -f ${0%/*})/dracut-functions.sh" ]] && \
-    dracutbasedir="$(readlink -f ${0%/*})"
 
 # if we were not passed a config file, try the default one
 if [[ ! -f $conffile ]]; then
@@ -458,6 +467,10 @@ else
     echo "Are you running from a git checkout?" >&2
     echo "Try passing -l as an argument to $0" >&2
     exit 1
+fi
+
+if [[ -f $dracutbasedir/dracut-version.sh ]]; then
+    . $dracutbasedir/dracut-version.sh
 fi
 
 # Verify bash version, curret minimum is 3.1
@@ -642,7 +655,8 @@ export initdir dracutbasedir dracutmodules drivers \
     add_drivers omit_drivers mdadmconf lvmconf filesystems \
     use_fstab fstab_lines libdir usrlibdir fscks nofscks \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
-    debug host_fs_types host_devs sshkey add_fstab
+    debug host_fs_types host_devs sshkey add_fstab \
+    DRACUT_VERSION
 
 # Create some directory structure first
 [[ $prefix ]] && mkdir -m 0755 -p "${initdir}${prefix}"
