@@ -814,7 +814,6 @@ emergency_shell()
     warn $@
     source_hook "$hook"
     echo
-    wait_for_loginit
     [ -e /run/initramfs/.die ] && exit 1
     if getargbool 1 rd.shell -y rdshell || getarg rd.break rdbreak; then
         echo "Dropping to debug shell."
