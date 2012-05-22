@@ -266,4 +266,18 @@ ip_to_var() {
         4)  dev=$1; autoconf=$2; mtu=$3; macaddr=$4 ;;
         *)  ip=$1; srv=$2; gw=$3; mask=$4; hostname=$5; dev=$6; autoconf=$7; mtu=$8; macaddr=$9 ;;
     esac
+    # anaconda-style argument cluster
+    if strstr "$autoconf" "*.*.*.*"; then
+        ip="$autoconf"
+        gw=$(getarg gateway=)
+        mask=$(getarg netmask=)
+        hostname=$(getarg hostname=)
+        dev=$(getarg ksdevice=)
+        autoconf="none"
+        mtu=$(getarg mtu=)
+        case "$dev" in
+            # ignore fancy values for ksdevice=XXX
+            link|bootif|BOOTIF|ibft|*:*:*:*:*:*) dev="" ;;
+        esac
+    fi
 }
