@@ -43,6 +43,7 @@ print_s390() {
     local CONFIG_LINE
     local i
     local channel
+    local OLD_IFS
 
     _netif="$1"
     # if we find ccw channel, then use those, instead of
@@ -62,9 +63,10 @@ print_s390() {
 
     [ $? -ne 0 -o -z "$CONFIG_LINE" ] && return
 
+    OLD_IFS=$IFS
     IFS=","
-    set $CONFIG_LINE
-    IFS="$OLD_IFS"
+    set -- $CONFIG_LINE
+    IFS=$OLD_IFS
     NETTYPE=$1
     shift
     SUBCHANNELS="$1"
