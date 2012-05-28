@@ -237,7 +237,7 @@ for i in "$(getarg real_init=)" "$(getarg init=)" $(getargs rd.distroinit=) /sbi
     [ -n "$i" ] || continue
 
     __p=$(readlink -f "${NEWROOT}/${i}")
-    if [ -x "$__p" ]; then
+    if [ -x "$__p" -o -x "${NEWROOT}/${__p}" ]; then
         INIT="$i"
         break
     fi
