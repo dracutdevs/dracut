@@ -156,7 +156,7 @@ if [ -e /tmp/bond.info ]; then
 
         for slave in $bondslaves ; do
             ip link set $slave down
-            ifenslave $bondname $slave
+            echo "+$slave" > /sys/class/net/$bondname/bonding/slaves
             ip link set $slave up
             wait_for_if_up $slave
         done

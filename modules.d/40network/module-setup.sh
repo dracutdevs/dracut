@@ -75,7 +75,7 @@ installkernel() {
 install() {
     local _arch _i _dir
     dracut_install ip arping tr dhclient
-    dracut_install -o brctl ifenslave
+    dracut_install -o brctl
     inst "$moddir/ifup.sh" "/sbin/ifup"
     inst "$moddir/netroot.sh" "/sbin/netroot"
     inst "$moddir/dhclient-script.sh" "/sbin/dhclient-script"
