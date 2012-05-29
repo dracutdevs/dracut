@@ -9,9 +9,6 @@
 
 # Check if vlan parameter is valid
 if getarg vlan= >/dev/null ; then
-    if [ -z "$netroot" ] ; then
-        die "No netboot configured, vlan is invalid"
-    fi
     :
 fi
 
