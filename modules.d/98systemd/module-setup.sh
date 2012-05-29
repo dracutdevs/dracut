@@ -112,6 +112,8 @@ install() {
         dracut_install "$i"
     done
 
+    dracut_install journalctl systemctl
+
     ln -fs /lib/systemd/systemd "$initdir/init"
 
 #    {
