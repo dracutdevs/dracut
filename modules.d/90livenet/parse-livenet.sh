@@ -10,7 +10,7 @@ updates=$(getarg live.updates=)
 if [ -n "$updates" ]; then
     # make sure network comes up even if we're doing a local live device
     if [ -z "$netroot" ]; then
-	echo "rd.neednet=1" > /etc/cmdline.d/90livenet.conf
+	echo > /tmp/net.ifaces
 	unset CMDLINE
     fi
     echo "$updates" > /tmp/liveupdates.info

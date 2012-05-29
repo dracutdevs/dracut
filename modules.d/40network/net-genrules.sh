@@ -14,7 +14,7 @@ fix_bootif() {
 }
 
 # Don't continue if we don't need network
-[ -z "$netroot" ] && ! getargbool 0 rd.neednet && return;
+[ -z "$netroot" ] && ! [ -e "/tmp/net.ifaces" ] && return;
 
 # Write udev rules
 {
