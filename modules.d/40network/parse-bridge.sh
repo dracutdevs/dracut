@@ -13,9 +13,6 @@
 
 # Check if bridge parameter is valid
 if getarg bridge= >/dev/null ; then
-    if [ -z "$netroot" ] ; then
-        die "No netboot configured, bridge is invalid"
-    fi
     command -v brctl >/dev/null 2>&1 || die "No 'brctl' installed" 
 fi
 
