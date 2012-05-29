@@ -56,10 +56,6 @@ export CURL_HOME="/run/initramfs/url-lib"
 mkdir -p $CURL_HOME
 curl_args="--location --retry 3 --fail --show-error"
 
-# technically "dumb" can handle the progress bar, but the only thing I've ever
-# seen using TERM=dumb is s390 CMS, and it's too dumb for --progress-bar
-[ "$TERM" != "dumb" ] && curl_args="$curl_args --progress-bar"
-
 curl_fetch_url() {
     local url="$1" outloc="$2"
     echo "$url" > /proc/self/fd/0
