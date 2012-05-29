@@ -95,9 +95,17 @@ setup_net() {
     else
         dest="$gw_ip"
     fi
-    if [ -n "$dest" ] && ! arping -q -f -w 60 -I $netif $dest ; then
+
+    unset layer2
+    if [ -f /sys/class/net/$netif/device/layer2 ]; then
+        read layer2 < /sys/class/net/$netif/device/layer2
+    fi
+
+    if [ "$layer2" != "0" ] && [ -n "$dest" ] && ! arping -q -f -w 60 -I $netif $dest ; then
         info "Resolving $dest via ARP on $netif failed"
     fi
+    unset layer2
+
     > /tmp/net.$netif.did-setup
 }
 

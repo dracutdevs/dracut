@@ -66,10 +66,17 @@ case $reason in
         ;;
     BOUND)
         echo "dhcp: BOND setting $netif"
-        if ! arping -q -D -c 2 -I $netif $new_ip_address ; then
-            warn "Duplicate address detected for $new_ip_address while doing dhcp. retrying"
-            exit 1
+        unset layer2
+        if [ -f /sys/class/net/$netif/device/layer2 ]; then
+            read layer2 < /sys/class/net/$netif/device/layer2
         fi
+        if [ "$layer2" != "0" ]; then
+            if ! arping -q -D -c 2 -I $netif $new_ip_address ; then
+                warn "Duplicate address detected for $new_ip_address while doing dhcp. retrying"
+                exit 1
+            fi
+        fi
+        unset layer2
         setup_interface
         set | while read line; do
             [ "${line#new_}" = "$line" ] && continue
