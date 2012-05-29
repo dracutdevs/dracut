@@ -40,6 +40,17 @@ if [ -e /tmp/bridge.info ]; then
     fi
 fi
 
+if [ -e /tmp/vlan.info ]; then
+    . /tmp/vlan.info
+    if [ "$netif" = "$phydevice" ]; then
+        if [ "$netif" = "$bondname" ] && [ -n "$DO_BOND_SETUP" ] ; then
+            : # We need to really setup bond (recursive call)
+        else
+            netif="$vlanname"
+        fi
+    fi
+fi
+
 # disable manual ifup while netroot is set for simplifying our logic
 # in netroot case we prefer netroot to bringup $netif automaticlly
 [ -n "$2" -a "$2" = "-m" ] && [ -z "$netroot" ] && manualup="$2"
@@ -176,6 +187,24 @@ if [ "$netif" = "$bridgename" ] && [ ! -e /tmp/net.$bridgename.up ]; then
     brctl addbr $bridgename
     brctl setfd $bridgename 0
     brctl addif $bridgename $ethname
+fi
+
+get_vid() {
+    case "$1" in
+    vlan*)
+        return ${1#vlan}
+        ;;
+    *.*)
+        return ${1##*.}
+        ;;
+    esac
+}
+
+if [ "$netif" = "$vlanname" ] && [ ! -e /tmp/net.$vlanname.up ]; then
+    modprobe 8021q
+    ip link set "$phydevice" up
+    wait_for_if_up "$phydevice"
+    ip link add dev "$vlanname" link "$phydevice" type vlan id "$(get_vid $vlanname; echo $?)"
 fi
 
 # No ip lines default to dhcp

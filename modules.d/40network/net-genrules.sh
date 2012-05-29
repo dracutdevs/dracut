@@ -31,6 +31,11 @@ fix_bootif() {
         IFACES=${bondslaves%% *}
     fi
 
+    if [ -e /tmp/vlan.info ]; then
+        . /tmp/vlan.info
+        IFACES=$phydevice
+    fi
+
     ifup='/sbin/ifup $env{INTERFACE}'
     [ -z "$netroot" ] && ifup="$ifup -m"
 
