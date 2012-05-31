@@ -31,13 +31,15 @@ fi
 # bridge this interface?
 if [ -e /tmp/bridge.info ]; then
     . /tmp/bridge.info
-    if [ "$netif" = "$ethname" ]; then
-        if [ "$netif" = "$bondname" ] && [ -n "$DO_BOND_SETUP" ] ; then
-            : # We need to really setup bond (recursive call)
-        else
-            netif="$bridgename"
+    for ethname in $ethnames ; do
+        if [ "$netif" = "$ethname" ]; then
+            if [ "$netif" = "$bondname" ] && [ -n "$DO_BOND_SETUP" ] ; then
+                : # We need to really setup bond (recursive call)
+            else
+                netif="$bridgename"
+            fi
         fi
-    fi
+    done
 fi
 
 if [ -e /tmp/vlan.info ]; then
@@ -175,18 +177,22 @@ fi
 
 # XXX need error handling like dhclient-script
 
+if [ -e /tmp/bridge.info ]; then
+    . /tmp/bridge.info
 # start bridge if necessary
-if [ "$netif" = "$bridgename" ] && [ ! -e /tmp/net.$bridgename.up ]; then
-    if [ "$ethname" = "$bondname" ] ; then
-        DO_BOND_SETUP=yes ifup $bondname
-    else
-        ip link set $ethname up
+    if [ "$netif" = "$bridgename" ] && [ ! -e /tmp/net.$bridgename.up ]; then
+        brctl addbr $bridgename
+        brctl setfd $bridgename 0
+        for ethname in $ethnames ; do
+            if [ "$ethname" = "$bondname" ] ; then
+                DO_BOND_SETUP=yes ifup $bondname
+            else
+                ip link set $ethname up
+            fi
+            wait_for_if_up $ethname
+            brctl addif $bridgename $ethname
+        done
     fi
-    wait_for_if_up $ethname
-    # Create bridge and add eth to bridge
-    brctl addbr $bridgename
-    brctl setfd $bridgename 0
-    brctl addif $bridgename $ethname
 fi
 
 get_vid() {

@@ -3,8 +3,9 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 #
 # Format:
-#       bridge=<bridgename>:<ethname>
+#       bridge=<bridgename>:<ethnames>
 #
+#       <ethnames> is a comma-separated list of physical (ethernet) interfaces
 #       bridge without parameters assumes bridge=br0:eth0
 #
 
@@ -24,16 +25,16 @@ parsebridge() {
         v=${v#*:}
     done
 
-    unset bridgename ethname
+    unset bridgename ethnames
     case $# in
-        0)  bridgename=br0; ethname=$iface ;;
+        0)  bridgename=br0; ethnames=$iface ;;
         1)  die "bridge= requires two parameters" ;;
-        2)  bridgename=$1; ethname=$2 ;;
+        2)  bridgename=$1; ethnames=$(echo $2|tr "," " ") ;;
         *)  die "bridge= requires two parameters" ;;
     esac
 }
 
-unset bridgename ethname
+unset bridgename ethnames
 
 iface=eth0
 if [ -e /tmp/bond.info ]; then
@@ -43,7 +44,7 @@ if [ -e /tmp/bond.info ]; then
     fi
 fi
 
-# Parse bridge for bridgename and ethname
+# Parse bridge for bridgename and ethnames
 if bridge="$(getarg bridge)"; then
     # Read bridge= parameters if they exist
     if [ -n "$bridge" ]; then
@@ -52,9 +53,9 @@ if bridge="$(getarg bridge)"; then
     # Simple default bridge
     if [ -z "$bridgename" ]; then
         bridgename=br0
-        ethname=$iface
+        ethnames=$iface
     fi
     echo "bridgename=$bridgename" > /tmp/bridge.info
-    echo "ethname=$ethname" >> /tmp/bridge.info
+    echo "ethnames=\"$ethnames\"" >> /tmp/bridge.info
     return
 fi

@@ -21,7 +21,7 @@ fix_bootif() {
     # bridge: attempt only the defined interface
     if [ -e /tmp/bridge.info ]; then
         . /tmp/bridge.info
-        IFACES=$ethname
+        IFACES=${ethnames%% *}
     fi
 
     # bond: attempt only the defined interface (override bridge defines)
