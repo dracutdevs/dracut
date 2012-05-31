@@ -19,11 +19,12 @@ installkernel() {
     mkdir -m 0755 -p "${initdir}/etc/modprobe.d"
 
     for _mod in $_fipsmodules; do
-        if instmods $_mod; then
+        if hostonly='' instmods $_mod; then
             echo $_mod >> "${initdir}/etc/fipsmodules"
             echo "blacklist $_mod" >> "${initdir}/etc/modprobe.d/fips.conf"
         fi
     done
+    hostonly='' instmods scsi_wait_scan
 }
 
 install() {

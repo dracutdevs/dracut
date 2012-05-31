@@ -68,9 +68,6 @@ installkernel() {
         hostonly='' instmods -c $filesystems || return 1
     fi
 
-    # force install of scsi_wait_scan
-    hostonly='' instmods scsi_wait_scan
-
     for _f in modules.builtin.bin modules.builtin; do
         [[ $srcmods/$_f ]] && break
     done || {
