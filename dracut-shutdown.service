@@ -11,6 +11,7 @@ After=getty@tty1.service prefdm.service
 Before=reboot.service
 DefaultDependencies=no
 ConditionPathExists=/run/initramfs/.need_shutdown
+ConditionPathExists=!/run/initramfs/bin/sh
 
 [Service]
 ExecStart=/usr/lib/dracut/dracut-initramfs-restore
