@@ -32,9 +32,12 @@ else
     device="$1"
 fi
 
+# number of tries
+numtries=${3:-10}
+
 # TODO: improve to support what cmdline does
 if [ -f /etc/crypttab ] && getargbool 1 rd.luks.crypttab -n rd_NO_CRYPTTAB; then
-    while read name dev luksfile rest; do
+    while read name dev luksfile luksoptions; do
         # ignore blank lines and comments
         if [ -z "$name" -o "${name#\#}" != "$name" ]; then
             continue
@@ -57,17 +60,59 @@ if [ -f /etc/crypttab ] && getargbool 1 rd.luks.crypttab -n rd_NO_CRYPTTAB; then
             fi
         fi
     done < /etc/crypttab
-    unset name dev rest
+    unset name dev
 fi
 
 #
 # Open LUKS device
 #
 
-info "luksOpen $device $luksname $luksfile"
+info "luksOpen $device $luksname $luksfile $luksoptions"
+
+OLD_IFS="$IFS"
+IFS=,
+set -- $luksoptions
+IFS="$OLD_IFS"
+
+while [ $# -gt 0 ]; do
+    case $1 in
+        noauto)
+            # skip this
+            exit 0
+            ;;
+        swap)
+            # skip this
+            exit 0
+            ;;
+        tmp)
+            # skip this
+            exit 0
+            ;;
+        allow-discards)
+            allowdiscards="--allow-discards"
+    esac
+    shift
+done
+
+# parse for allow-discards
+if strstr "$(cryptsetup --help)" "allow-discards"; then
+    if discarduuids=$(getargs "rd.luks.allow-discards"); then
+        if strstr " $discarduuids " " ${luksdev##luks-}"; then
+            allowdiscards="--allow-discards"
+        fi
+    elif getargbool rd.luks.allow-discards; then
+        allowdiscards="--allow-discards"
+    fi
+fi
+
+if strstr "$(cryptsetup --help)" "allow-discards"; then
+    cryptsetupopts="$cryptsetupopts $allowdiscards"
+fi
+
+unset allowdiscards
 
 if [ -n "$luksfile" -a "$luksfile" != "none" -a -e "$luksfile" ]; then
-    if cryptsetup --key-file "$luksfile" luksOpen "$device" "$luksname"; then
+    if cryptsetup --key-file "$luksfile" $cryptsetupopts luksOpen "$device" "$luksname"; then
         ask_passphrase=0
     fi
 else
@@ -76,26 +121,22 @@ else
             keydev="${tmp%%:*}"
             keypath="${tmp#*:}"
         else
-            if [ $# -eq 3 ]; then
-                if [ $3 -eq 0 ]; then
-                    info "No key found for $device.  Fallback to passphrase mode."
-                    break
-                fi
-                info "No key found for $device.  Will try $3 time(s) more later."
-                set -- "$1" "$2" "$(($3 - 1))"
-            else
-                info "No key found for $device.  Will try later."
+            if [ $numtries -eq 0 ]; then
+                warn "No key found for $device.  Fallback to passphrase mode."
+                break
             fi
+            sleep 1
+            info "No key found for $device.  Will try $numtries time(s) more later."
             initqueue --unique --onetime --settled \
                 --name cryptroot-ask-$luksname \
-                $(command -v cryptroot-ask) "$@"
+                $(command -v cryptroot-ask) "$device" "$luksname" "$(($numtries-1))"
             exit 0
         fi
         unset tmp
 
         info "Using '$keypath' on '$keydev'"
         readkey "$keypath" "$keydev" "$device" \
-            | cryptsetup -d - luksOpen "$device" "$luksname"
+            | cryptsetup -d - $cryptsetupopts luksOpen "$device" "$luksname"
         unset keypath keydev
         ask_passphrase=0
         break
@@ -103,7 +144,7 @@ else
 fi
 
 if [ $ask_passphrase -ne 0 ]; then
-    luks_open="$(command -v cryptsetup) luksOpen"
+    luks_open="$(command -v cryptsetup) $cryptsetupopts luksOpen"
     ask_for_password --ply-tries 5 \
         --ply-cmd "$luks_open -T1 $device $luksname" \
         --ply-prompt "Password ($device)" \
