@@ -9,6 +9,7 @@ fsck_usr()
 {
     local _dev=$1
     local _fs=$2
+    local _fsopts=$3
     local _fsckoptions
 
     if [ -f "$NEWROOT"/fsckoptions ]; then
@@ -31,7 +32,7 @@ fsck_usr()
         _fsckoptions="$AUTOFSCK_OPT $_fsckoptions"
     fi
 
-    fsck_single "$_dev" "$_fs" "$_fsckoptions"
+    fsck_single "$_dev" "$_fs" "$_fsopts" "$_fsckoptions"
 }
 
 mount_usr()
@@ -60,7 +61,7 @@ mount_usr()
     if [ "x$_usr_found" != "x" ]; then
         # we have to mount /usr
         if [ "0" != "${_passno:-0}" ]; then
-            fsck_usr "$_dev" "$_fs"
+            fsck_usr "$_dev" "$_fs" "$_opts"
         else
             :
         fi

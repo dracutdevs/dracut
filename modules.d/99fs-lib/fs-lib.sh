@@ -89,7 +89,7 @@ fsck_drv_xfs() {
     mkdir -p /tmp/.xfs
 
     info "trying to mount $_dev"
-    if mount -t xfs "$_dev" "/tmp/.xfs" >/dev/null 2>&1; then
+    if mount -t xfs ${_fsopts+-o $_fsopts} "$_dev" "/tmp/.xfs" >/dev/null 2>&1; then
         _ret=0
         info "xfs: $_dev is clean"
         umount "$_dev" >/dev/null 2>&1
@@ -119,7 +119,7 @@ fsck_drv_btrfs() {
     mkdir -p /tmp/.btrfs
 
     info "trying to mount $_dev"
-    if mount -t btrfs "$_dev" "/tmp/.btrfs" >/dev/null 2>&1; then
+    if mount -t btrfs ${_fsopts+-o $_fsopts} "$_dev" "/tmp/.btrfs" >/dev/null 2>&1; then
         _ret=0
         info "btrfs: $_dev is clean"
         umount "$_dev" >/dev/null 2>&1
@@ -177,7 +177,7 @@ fsck_drv_std() {
 
 # checks single filesystem, relying on specific "driver"; we don't rely on
 # automatic checking based on fstab, so empty one is passed;
-# takes 3 arguments - device, filesystem, additional fsck options;
+# takes 4 arguments - device, filesystem, filesystem options, additional fsck options;
 # first 2 arguments are mandatory (fs may be auto or "")
 # returns 255 if filesystem wasn't checked at all (e.g. due to lack of
 # necessary tools or insufficient options)
@@ -185,7 +185,8 @@ fsck_single() {
     local FSTAB_FILE=/etc/fstab.empty
     local _dev="$1"
     local _fs="${2:-auto}"
-    local _fop="$3"
+    local _fsopts="$3"
+    local _fop="$4"
     local _drv
 
     [ $# -lt 2 ] && return 255

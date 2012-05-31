@@ -105,7 +105,7 @@ mount_root() {
     ran_fsck=0
     if [ -z "$fastboot" -a "$READONLY" != "yes" ] && ! strstr "${rflags},${rootopts}" _netdev; then
         umount "$NEWROOT"
-        fsck_single "${root#block:}" "$rootfs" "$fsckoptions"
+        fsck_single "${root#block:}" "$rootfs" "$rflags" "$fsckoptions"
         _ret=$?
         [ $_ret -ne 255 ] && echo $_ret >/run/initramfs/root-fsck
         ran_fsck=1

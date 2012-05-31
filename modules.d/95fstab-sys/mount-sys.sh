@@ -12,7 +12,7 @@ fstab_mount() {
     while read _dev _mp _fs _opts _dump _pass _rest; do
         [ -z "${_dev%%#*}" ] && continue # Skip comment lines
         if [ "$_pass" -gt 0 ] && ! strstr "$_opts" _netdev; then
-            fsck_single "$_dev" "$_fs"
+            fsck_single "$_dev" "$_fs" "$_opts"
         fi
         _fs=$(det_fs "$_dev" "$_fs")
         info "Mounting $_dev"
