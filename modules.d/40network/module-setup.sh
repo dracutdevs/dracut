@@ -27,6 +27,7 @@ installkernel() {
     net_module_filter() {
         local _net_drivers='eth_type_trans|register_virtio_device'
         local _unwanted_drivers='/(wireless|isdn|uwb)/'
+        local _ret
         # subfunctions inherit following FDs
         local _merge=8 _side2=9
         function nmf1() {
@@ -55,7 +56,9 @@ installkernel() {
         # Use two parallel streams to filter alternating modules.
         set +x
         eval "( ( rotor ) ${_side2}>&1 | nmf1 ) ${_merge}>&1"
+        _ret=$?
         [[ $debug ]] && set -x
+        return $_ret
     }
 
     { find_kernel_modules_by_path drivers/net; find_kernel_modules_by_path drivers/s390/net; } \

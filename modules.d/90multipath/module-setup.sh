@@ -31,6 +31,7 @@ depends() {
 }
 
 installkernel() {
+    local _ret
     set +x
     mp_mod_filter() {
         local _mpfuncs='scsi_register_device_handler|dm_dirty_log_type_register|dm_register_path_selector|dm_register_target'
@@ -45,7 +46,9 @@ installkernel() {
 
     ( find_kernel_modules_by_path drivers/scsi; find_kernel_modules_by_path drivers/s390/scsi ;
       find_kernel_modules_by_path drivers/md )  |  mp_mod_filter  |  instmods
+    _ret=$?
     [[ $debug ]] && set -x
+    return $_ret
 }
 
 install() {
