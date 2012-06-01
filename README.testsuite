@@ -1,0 +1,11 @@
+For the testsuite to work, you will have to install at least the following software packages:
+dash
+asciidoc
+mdadm
+lvm2
+cryptsetup
+nfs-utils
+netbsd-iscsi
+nbd
+dhcp
+iscsi-initiator-utils
