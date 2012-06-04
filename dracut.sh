@@ -527,16 +527,23 @@ ddebug "Executing $0 $dracut_args"
 }
 
 # Detect lib paths
-[[ $libdir ]] || for libdir in /lib64 /lib; do
-    [[ -d $libdir ]] && libdirs+=" $libdir" && break
-done || {
-    dfatal 'No lib directory?!!!'
-    exit 1
-}
-
-[[ $usrlibdir ]] || for usrlibdir in /usr/lib64 /usr/lib; do
-    [[ -d $usrlibdir ]] && libdirs+=" $usrlibdir" && break
-done || dwarn 'No usr/lib directory!'
+if ! [[ $libdir ]] || ! [[ $usrlibdir ]] ; then
+    if strstr "$(ldd /bin/sh)" "/lib64/" &>/dev/null \
+        && [[ -d /lib64 ]]; then
+        libdir=/lib64
+        usrlibdir=/usr/lib64
+    else
+        libdir=/lib
+        usrlibdir=/usr/lib
+    fi
+    for i in $libdir $usrlibdir; do
+        if [[ -d $i ]]; then
+            libdirs+=" $i"
+        else
+            dwarn 'No $i directory??!!'
+        fi
+    done
+fi
 
 # This is kinda legacy -- eventually it should go away.
 case $dracutmodules in
