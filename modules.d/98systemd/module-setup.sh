@@ -105,8 +105,8 @@ install() {
         $systemdsystemunitdir/sockets.target.wants/systemd-udev-control.socket \
         $systemdsystemunitdir/sockets.target.wants/systemd-udev-kernel.socket \
         $systemdsystemunitdir/sockets.target.wants/systemd-journald.socket \
-        $systemdsystemunitdir/basic.target.wants/systemd-udev.service \
-        $systemdsystemunitdir/basic.target.wants/systemd-udev-trigger.service \
+        $systemdsystemunitdir/sysinit.target.wants/systemd-udev.service \
+        $systemdsystemunitdir/sysinit.target.wants/systemd-udev-trigger.service \
         $systemdsystemunitdir/local-fs.target.wants/systemd-remount-fs.service \
         $systemdsystemunitdir/local-fs.target.wants/fsck-root.service \
         $systemdsystemunitdir/local-fs.target.wants/tmp.mount \
