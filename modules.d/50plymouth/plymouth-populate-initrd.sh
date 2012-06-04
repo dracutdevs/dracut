@@ -12,8 +12,8 @@ dracut_install /bin/plymouth \
 mkdir -m 0755 -p "${initdir}/usr/share/plymouth"
 
 if [[ $hostonly ]]; then
-    dracut_install "${usrlibdir}/plymouth/text.so" \
-        "${usrlibdir}/plymouth/details.so" \
+    inst_libdir_file "plymouth/text.so" "plymouth/details.so"
+    dracut_install \
         "/usr/share/plymouth/themes/details/details.plymouth" \
         "/usr/share/plymouth/themes/text/text.plymouth" \
 
@@ -28,7 +28,7 @@ if [[ $hostonly ]]; then
         inst /usr/share/plymouth/themes/default.plymouth
         # Install plugin for this theme
         PLYMOUTH_PLUGIN=$(grep "^ModuleName=" /usr/share/plymouth/themes/default.plymouth | while read a b c; do echo $b; done;)
-        inst "${usrlibdir}/plymouth/${PLYMOUTH_PLUGIN}.so"
+        inst_libdir_file "plymouth/${PLYMOUTH_PLUGIN}.so"
     fi
 else
     for x in /usr/share/plymouth/themes/{text,details}/* ; do
@@ -37,11 +37,7 @@ else
         mkdir -m 0755 -p "${initdir}/$THEME_DIR"
         dracut_install "$x"
     done
-    for x in "${usrlibdir}"/plymouth/{text,details}.so ; do
-        [[ -f "$x" ]] || continue
-        [[ "$x" != "${x%%/label.so}" ]] && continue
-        dracut_install "$x"
-    done
+    inst_libdir_file "/plymouth/{text,details}.so"
     (
         cd ${initdir}/usr/share/plymouth/themes;
         ln -s text/text.plymouth default.plymouth 2>&1;

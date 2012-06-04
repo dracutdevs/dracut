@@ -41,7 +41,7 @@ install() {
     inst_libdir_file libfreebl3.so
     inst_libdir_file libfreebl3.chk
 
-    dracut_install $usrlibdir/hmaccalc/sha512hmac.hmac
+    inst_libdir_file 'hmaccalc/sha512hmac.hmac'
     if command -v prelink >/dev/null; then
         dracut_install prelink
     fi

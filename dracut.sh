@@ -527,22 +527,15 @@ ddebug "Executing $0 $dracut_args"
 }
 
 # Detect lib paths
-if ! [[ $libdir ]] || ! [[ $usrlibdir ]] ; then
+if ! [[ $libdirs ]] ; then
     if strstr "$(ldd /bin/sh)" "/lib64/" &>/dev/null \
         && [[ -d /lib64 ]]; then
-        libdir=/lib64
-        usrlibdir=/usr/lib64
+        libdirs+=" /lib64"
+        [[ -d /usr/lib64 ]] && libdirs+=" /usr/lib64"
     else
-        libdir=/lib
-        usrlibdir=/usr/lib
+        libdirs+=" /lib"
+        [[ -d /usr/lib ]] && libdirs+=" /usr/lib"
     fi
-    for i in $libdir $usrlibdir; do
-        if [[ -d $i ]]; then
-            libdirs+=" $i"
-        else
-            dwarn 'No $i directory??!!'
-        fi
-    done
 fi
 
 # This is kinda legacy -- eventually it should go away.
@@ -660,7 +653,7 @@ done
 export initdir dracutbasedir dracutmodules drivers \
     fw_dir drivers_dir debug no_kernel kernel_only \
     add_drivers omit_drivers mdadmconf lvmconf filesystems \
-    use_fstab fstab_lines libdir usrlibdir fscks nofscks \
+    use_fstab fstab_lines libdirs fscks nofscks \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
     debug host_fs_types host_devs sshkey add_fstab \
     DRACUT_VERSION
@@ -672,13 +665,13 @@ export initdir dracutbasedir dracutmodules drivers \
 [[ $prefix ]] && ln -sfn "${prefix#/}/lib" "$initdir/lib"
 
 if [[ $prefix ]]; then
-    for d in bin etc lib "$libdir" sbin tmp usr var; do
+    for d in bin etc lib $libdirs sbin tmp usr var; do
         ln -sfn "${prefix#/}/${d#/}" "$initdir/$d"
     done
 fi
 
 if [[ $kernel_only != yes ]]; then
-    for d in usr/bin usr/sbin bin etc lib "$libdir" sbin tmp usr var var/log var/run var/lock; do
+    for d in usr/bin usr/sbin bin etc lib $libdirs sbin tmp usr var var/log var/run var/lock; do
         [[ -e "${initdir}${prefix}/$d" ]] && continue
         if [ -L "/$d" ]; then
             inst_symlink "/$d" "${prefix}/$d"

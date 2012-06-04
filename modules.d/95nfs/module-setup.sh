@@ -43,11 +43,9 @@ install() {
     dracut_install rpc.idmapd
     dracut_install sed
 
-    for _i in {"$libdir","$usrlibdir"}/libnfsidmap_nsswitch.so* \
-        {"$libdir","$usrlibdir"}/libnfsidmap/*.so \
-        {"$libdir","$usrlibdir"}/libnfsidmap*.so*; do
-        [ -e "$_i" ] && dracut_install "$_i"
-    done
+    inst_libdir_file 'libnfsidmap_nsswitch.so*'
+    inst_libdir_file 'libnfsidmap/*.so'
+    inst_libdir_file 'libnfsidmap*.so*'
 
     _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
         |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
