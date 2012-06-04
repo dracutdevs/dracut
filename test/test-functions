@@ -1,3 +1,6 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export PATH
 
@@ -8,15 +11,19 @@ fi
 echo "TESTDIR=\"$TESTDIR\"" > .testdir
 export TESTDIR
 
+command -v test_check &>/dev/null || test_check() {
+    :
+}
+
 while (($# > 0)); do
     case $1 in
         --run)
 	    echo "TEST RUN: $TEST_DESCRIPTION"
-	    test_run
+	    test_check && test_run
 	    exit $?;;
         --setup)
 	    echo "TEST SETUP: $TEST_DESCRIPTION"
-	    test_setup
+	    test_check && test_setup
 	    exit $?;;
         --clean)
 	    echo "TEST CLEANUP: $TEST_DESCRIPTION"
@@ -26,6 +33,10 @@ while (($# > 0)); do
 	    exit $?;;
         --all)
 	    echo -n "TEST: $TEST_DESCRIPTION ";
+            if ! test_check 2&>test.log ; then
+                echo "[SKIPPED]"
+		exit 0;
+            fi
 	    (
 		test_setup && test_run
 		ret=$?
