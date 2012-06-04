@@ -131,6 +131,7 @@ install() {
 
     inst "$moddir/dracut-cmdline.sh" /lib/systemd/system-generators/dracut-cmdline.sh
 
+    mkdir -p "$initdir/lib/systemd/system/basic.target.wants"
     inst "$moddir/dracut-pre-udev.sh" /bin/dracut-pre-udev
     inst "$moddir/dracut-pre-udev.service" /lib/systemd/system/dracut-pre-udev.service
     ln -s ../dracut-pre-udev.service "$initdir/lib/systemd/system/basic.target.wants/dracut-pre-udev.service"
