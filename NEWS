@@ -1,3 +1,30 @@
+dracut-019
+==========
+- initqueue/online hook
+- fixes for ifcfg write out
+- rootfs-block: avoid remount when options don't change
+- Debian multiarch support
+- virtfs root filesystem support
+- cope with systemd-udevd
+- mount tmpfs with strictatime
+- include all kernel/drivers/net/phy drivers
+- add debug_on() and debug_off() functions
+- add arguments for source_hook() and source_all()
+- cleanup hook
+- plymouth: get consoledev from /sys/class/tty/console/active
+- experimental systemd dracut module for systemd in the initramfs
+- install xhci-hcd kernel module
+- dracut: new "--mount" option
+- lsinitrd: new option --printsize
+- ARM storage kernel modules added
+- s390 cms conf file support
+- /etc/initrd-release in the initrd
+- vlan support
+- full bonding and bridge support
+- removed scsi_wait_scan kernel module from standard install
+- support rd.luks.allow-discards and honor options in crypttab
+- lots of bugfixes
+
 dracut-018
 ==========
 - lvm: ignore lvm mirrors
