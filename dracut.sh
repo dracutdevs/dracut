@@ -713,6 +713,9 @@ if [[ $kernel_only != yes ]]; then
     for _d in $hookdirs; do
         mkdir -m 0755 -p ${initdir}/lib/dracut/hooks/$_d
     done
+    if [[ "$UID" = "0" ]]; then
+        cp -a /dev/kmsg /dev/null /dev/console $initdir/dev
+    fi
 fi
 
 mkdir -p "$initdir/.kernelmodseen"
