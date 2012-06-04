@@ -25,8 +25,10 @@ install() {
     for _i in ${systemdutildir}/systemd-udevd ${udevdir}/udevd /sbin/udevd; do
         [ -x "$_i" ] || continue
         inst "$_i"
-        [[ $_i != "/lib/systemd/systemd-udevd" ]] \
-            && ln -s "$_i" ${initdir}/lib/systemd/systemd-udevd
+
+        if ! [[ -f  ${initdir}/lib/systemd/systemd-udevd ]]; then
+            ln -s "$_i" ${initdir}/lib/systemd/systemd-udevd
+        fi
         break
     done
 
