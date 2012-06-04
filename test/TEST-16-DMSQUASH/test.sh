@@ -6,6 +6,14 @@ KVERSION=${KVERSION-$(uname -r)}
 # Uncomment this to debug failures
 #DEBUGFAIL="rd.shell rd.break"
 
+test_check() {
+    if ! [ -d "/usr/lib/python2.7/site-packages/imgcreate" ]; then
+        echo "python-imgcreate not installed"
+	return 1
+    fi
+    return 0
+}
+
 test_run() {
     $testdir/run-qemu \
 	-boot order=d \
