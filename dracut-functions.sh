@@ -531,14 +531,50 @@ inst_symlink() {
     ln -sfn $(convert_abs_rel "${_target}" "${_realsrc}") "$initdir/$_target"
 }
 
+udevdir=$(pkg-config udev --variable=udevdir)
+if ! [[ -d "$udevdir" ]]; then
+    [[ -d /lib/udev ]] && udevdir=/lib/udev
+    [[ -d /usr/lib/udev ]] && udevdir=/usr/lib/udev
+fi
+
 # attempt to install any programs specified in a udev rule
 inst_rule_programs() {
     local _prog _bin
 
     if grep -qE 'PROGRAM==?"[^ "]+' "$1"; then
         for _prog in $(grep -E 'PROGRAM==?"[^ "]+' "$1" | sed -r 's/.*PROGRAM==?"([^ "]+).*/\1/'); do
-            if [ -x /lib/udev/$_prog ]; then
-                _bin=/lib/udev/$_prog
+            if [ -x ${udevdir}/$_prog ]; then
+                _bin=${udevdir}/$_prog
+            else
+                _bin=$(find_binary "$_prog") || {
+                    dinfo "Skipping program $_prog using in udev rule $(basename $1) as it cannot be found"
+                    continue;
+                }
+            fi
+
+            #dinfo "Installing $_bin due to it's use in the udev rule $(basename $1)"
+            dracut_install "$_bin"
+        done
+    fi
+    if grep -qE 'RUN==?"[^ "]+' "$1"; then
+        for _prog in $(grep -E 'RUN==?"[^ "]+' "$1" | sed -r 's/.*RUN==?"([^ "]+).*/\1/'); do
+            if [ -x ${udevdir}/$_prog ]; then
+                _bin=${udevdir}/$_prog
+            else
+                _bin=$(find_binary "$_prog") || {
+                    dinfo "Skipping program $_prog using in udev rule $(basename $1) as it cannot be found"
+                    continue;
+                }
+            fi
+
+            #dinfo "Installing $_bin due to it's use in the udev rule $(basename $1)"
+            dracut_install "$_bin"
+        done
+    fi
+    if grep -qE 'PROGRAM==?"[^ "]+' "$1"; then
+        for _prog in $(grep -E 'IMPORT==?"[^ "]+' "$1" | sed -r 's/.*IMPORT==?"([^ "]+).*/\1/'); do
+            if [ -x ${udevdir}/$_prog ]; then
+                _bin=${udevdir}/$_prog
             else
                 _bin=$(find_binary "$_prog") || {
                     dinfo "Skipping program $_prog using in udev rule $(basename $1) as it cannot be found"
@@ -557,23 +593,23 @@ inst_rule_programs() {
 inst_rules() {
     local _target=/etc/udev/rules.d _rule _found
 
-    inst_dir "/lib/udev/rules.d"
+    inst_dir "${udevdir}/rules.d"
     inst_dir "$_target"
     for _rule in "$@"; do
         if [ "${rule#/}" = "$rule" ]; then
-            for r in /lib/udev/rules.d /etc/udev/rules.d; do
+            for r in ${udevdir}/rules.d /etc/udev/rules.d; do
                 if [[ -f $r/$_rule ]]; then
                     _found="$r/$_rule"
-                    inst_simple "$_found"
                     inst_rule_programs "$_found"
+                    inst_simple "$_found"
                 fi
             done
         fi
         for r in '' ./ $dracutbasedir/rules.d/; do
             if [[ -f ${r}$_rule ]]; then
                 _found="${r}$_rule"
-                inst_simple "$_found" "$_target/${_found##*/}"
                 inst_rule_programs "$_found"
+                inst_simple "$_found" "$_target/${_found##*/}"
             fi
         done
         [[ $_found ]] || dinfo "Skipping udev rule: $_rule"

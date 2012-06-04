@@ -62,7 +62,7 @@ install() {
      # 65-md-inc*.rules and its fine-grained controls, or cause other problems
      # when we explicitly don't want certain components to be incrementally
      # assembled
-     sed -i -r -e '/RUN\+?="[[:alpha:]/]*mdadm[[:blank:]]+(--incremental|-I)[[:blank:]]+(\$env\{DEVNAME\}|\$tempnode)"/d' "${initdir}/lib/udev/rules.d/64-md-raid.rules"
+     sed -i -r -e '/RUN\+?="[[:alpha:]/]*mdadm[[:blank:]]+(--incremental|-I)[[:blank:]]+(\$env\{DEVNAME\}|\$tempnode)"/d' "${initdir}${udevdir}/rules.d/64-md-raid.rules"
 
     inst_rules "$moddir/65-md-incremental-imsm.rules"
 

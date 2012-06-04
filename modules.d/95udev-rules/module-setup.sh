@@ -4,12 +4,25 @@
 
 install() {
     local _i
-    # FIXME: would be nice if we didn't have to know which rules to grab....
+
+    systemdutildir=$(pkg-config systemd --variable=systemdutildir)
+    if ! [[ -d "$systemdutildir" ]]; then
+        [[ -d /lib/systemd ]] && systemdutildir=/lib/systemd
+        [[ -d /usr/lib/systemd ]] && systemdutildir=/usr/lib/systemd
+    fi
+
+    udevdir=$(pkg-config udev --variable=udevdir)
+    if ! [[ -d "$udevdir" ]]; then
+        [[ -d /lib/udev ]] && udevdir=/lib/udev
+        [[ -d /usr/lib/udev ]] && udevdir=/usr/lib/udev
+    fi
+
+    # Fixme: would be nice if we didn't have to know which rules to grab....
     # ultimately, /lib/initramfs/rules.d or somesuch which includes links/copies
     # of the rules we want so that we just copy those in would be best
     dracut_install udevadm
     [ -d ${initdir}/lib/systemd ] || mkdir -p ${initdir}/lib/systemd
-    for _i in /lib/systemd/systemd-udevd /lib/udev/udevd /sbin/udevd; do
+    for _i in ${systemdutildir}/systemd-udevd ${udevdir}/udevd /sbin/udevd; do
         [ -x "$_i" ] || continue
         inst "$_i"
         [[ $_i != "/lib/systemd/systemd-udevd" ]] \
@@ -59,8 +72,7 @@ install() {
         pcmcia-socket-startup \
         pcmcia-check-broken-cis \
         ; do
-        [ -e /lib/udev/$_i ] && dracut_install /lib/udev/$_i
-        [ -e /usr/lib/udev/$_i ] && dracut_install /usr/lib/udev/$_i
+        [ -e ${udevdir}/$_i ] && dracut_install ${udevdir}/$_i
     done
 
     [ -f /etc/arch-release ] && \
