@@ -9,8 +9,8 @@ fi
 . /lib/dracut-lib.sh
 source_conf /etc/conf.d
 
-getargbool 0 rd.udev.info -y rdudevinfo && udevadm control "$UDEV_LOG_PRIO_ARG=info"
-getargbool 0 rd.udev.debug -y rdudevdebug && udevadm control "$UDEV_LOG_PRIO_ARG=debug"
+getargbool 0 rd.udev.info -y rdudevinfo && udevadm control --log-priority=info
+getargbool 0 rd.udev.debug -y rdudevdebug && udevadm control --log-priority=debug
 udevproperty "hookdir=$hookdir"
 
 source_hook pre-trigger
