@@ -8,3 +8,6 @@ stdloglvl=3
 realinitpath="/usr/lib/systemd/systemd"
 install_items+=" vi /etc/virc ps grep cat rm "
 prefix="/"
+systemdutildir=/usr/lib/systemd
+systemdsystemunitdir=/usr/lib/systemd/system
+udevdir=/usr/lib/udev

@@ -16,17 +16,6 @@ depends() {
 }
 
 install() {
-    local systemdutildir systemdsystemunitdir
-
-    systemdutildir=$(pkg-config systemd --variable=systemdutildir)
-    systemdsystemunitdir=$(pkg-config systemd --variable=systemdsystemunitdir)
-
-    if ! [[ -d "$systemdutildir" ]]; then
-        [[ -d /lib/systemd ]] && systemdutildir=/lib/systemd
-        [[ -d /usr/lib/systemd ]] && systemdutildir=/usr/lib/systemd
-    fi
-    [[ -d "$systemdsystemunitdir" ]] || systemdsystemunitdir=${systemdutildir}/system
-
     dracut_install -o "$i" \
         $systemdutildir/systemd \
         $systemdutildir/systemd-cgroups-agent \

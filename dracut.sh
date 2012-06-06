@@ -650,13 +650,31 @@ for dev in "${host_devs[@]}"; do
     done
 done
 
+[[ -d $udevdir ]] \
+    || udevdir=$(pkg-config udev --variable=udevdir 2>/dev/null)
+if ! [[ -d "$udevdir" ]]; then
+    [[ -d /lib/udev ]] && udevdir=/lib/udev
+    [[ -d /usr/lib/udev ]] && udevdir=/usr/lib/udev
+fi
+
+[[ -d $systemdutildir ]] \
+    || systemdutildir=$(pkg-config systemd --variable=systemdutildir 2>/dev/null)
+[[ -d $systemdsystemunitdir ]] \
+    || systemdsystemunitdir=$(pkg-config systemd --variable=systemdsystemunitdir 2>/dev/null)
+
+if ! [[ -d "$systemdutildir" ]]; then
+    [[ -d /lib/systemd ]] && systemdutildir=/lib/systemd
+    [[ -d /usr/lib/systemd ]] && systemdutildir=/usr/lib/systemd
+fi
+[[ -d "$systemdsystemunitdir" ]] || systemdsystemunitdir=${systemdutildir}/system
+
 export initdir dracutbasedir dracutmodules drivers \
     fw_dir drivers_dir debug no_kernel kernel_only \
     add_drivers omit_drivers mdadmconf lvmconf filesystems \
     use_fstab fstab_lines libdirs fscks nofscks \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
     debug host_fs_types host_devs sshkey add_fstab \
-    DRACUT_VERSION
+    DRACUT_VERSION udevdir systemdutildir systemdsystemunitdir
 
 # Create some directory structure first
 [[ $prefix ]] && mkdir -m 0755 -p "${initdir}${prefix}"
