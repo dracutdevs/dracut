@@ -555,6 +555,11 @@ srcmods="/lib/modules/$kernel/"
 }
 export srcmods
 
+[[ -f $srcmods/modules.dep ]] || {
+    dfatal "$srcmods/modules.dep is missing. Did you run depmod?"
+    exit 1
+}
+
 if [[ -f $outfile && ! $force ]]; then
     dfatal "Will not override existing initramfs ($outfile) without --force"
     exit 1

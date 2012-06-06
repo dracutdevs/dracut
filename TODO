@@ -17,7 +17,8 @@ INITRAMFS TODO
 
 GENERATOR TODO
 
-- remove /proc/modules use /sys/module
+- add interpreter/plugin-scripts to be sourced at the beginning or end (can use dracut-functions)
+- provide "installkernel" and "new-kernel-pkg"
 - add mechanism for module specific command line options
 - pkg-config integration, to make it easy for other packages to use us.
 - add recovery image creator (mkrecovery)

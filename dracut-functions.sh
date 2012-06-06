@@ -1053,7 +1053,7 @@ install_kmod_with_fw() {
             fi
         done
         if [[ $_found != yes ]]; then
-            if ! grep -qe "\<${_modname//-/_}\>" /proc/modules; then
+            if ! [[ -d $(echo /sys/module/${_modname//-/_}|{ read a b; echo $a; }) ]]; then
                 dinfo "Possible missing firmware \"${_fw}\" for kernel module" \
                     "\"${_modname}.ko\""
             else
@@ -1086,53 +1086,20 @@ for_each_kmod_dep() {
     )
 }
 
-# filter kernel modules to install certain modules that meet specific
-# requirements.
-# $1 = search only in subdirectory of /kernel/$1
-# $2 = function to call with module name to filter.
-#      This function will be passed the full path to the module to test.
-# The behaviour of this function can vary depending on whether $hostonly is set.
-# If it is, we will only look at modules that are already in memory.
-# If it is not, we will look at all kernel modules
-# This function returns the full filenames of modules that match $1
-filter_kernel_modules_by_path () (
-    local _modname _filtercmd
-    if ! [[ $hostonly ]]; then
-        _filtercmd='find "$srcmods/kernel/$1" "$srcmods/extra"'
-        _filtercmd+=' "$srcmods/weak-updates" -name "*.ko" -o -name "*.ko.gz"'
-        _filtercmd+=' -o -name "*.ko.xz"'
-        _filtercmd+=' 2>/dev/null'
-    else
-        _filtercmd='cut -d " " -f 1 </proc/modules|xargs modinfo -F filename '
-        _filtercmd+='-k $kernel 2>/dev/null'
-    fi
-    for _modname in $(eval $_filtercmd); do
-        case $_modname in
-            *.ko) "$2" "$_modname" && echo "$_modname";;
-            *.ko.gz) gzip -dc "$_modname" > $initdir/$$.ko
-                $2 $initdir/$$.ko && echo "$_modname"
-                rm -f $initdir/$$.ko
-                ;;
-            *.ko.xz) xz -dc "$_modname" > $initdir/$$.ko
-                $2 $initdir/$$.ko && echo "$_modname"
-                rm -f $initdir/$$.ko
-                ;;
-        esac
-    done
-)
+
 find_kernel_modules_by_path () (
     if ! [[ $hostonly ]]; then
-        find "$srcmods/kernel/$1" "$srcmods/extra" "$srcmods/weak-updates" \
-          -name "*.ko" -o -name "*.ko.gz" -o -name "*.ko.xz" 2>/dev/null
+        while read a rest; do
+            if [[ "${a##kernel}" != "$a" ]]; then
+                [[ "${a##kernel/$1}" != "$a" ]] || continue
+            fi
+            echo $srcmods/${a%:}
+        done < $srcmods/modules.dep
     else
-        cut -d " " -f 1 </proc/modules \
+        ( cd /sys/module; echo *; ) \
         | xargs modinfo -F filename -k $kernel 2>/dev/null
     fi
 )
-
-filter_kernel_modules () {
-    filter_kernel_modules_by_path  drivers  "$1"
-}
 
 find_kernel_modules () {
     find_kernel_modules_by_path  drivers
@@ -1180,8 +1147,9 @@ instmods() {
                 fi
                 # If we are building a host-specific initramfs and this
                 # module is not already loaded, move on to the next one.
-                [[ $hostonly ]] && ! grep -qe "\<${_mod//-/_}\>" /proc/modules \
-                    && ! echo $add_drivers | grep -qe "\<${_mod}\>" \
+                [[ $hostonly ]] \
+                    && ! [[ -d $(echo /sys/module/${_mod//-/_}|{ read a b; echo $a; }) ]] \
+                    && ! [[ "$add_drivers" =~ " ${_mod} " ]] \
                     && return
 
                 # We use '-d' option in modprobe only if modules prefix path
