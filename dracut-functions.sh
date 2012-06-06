@@ -531,7 +531,7 @@ inst_symlink() {
     ln -sfn $(convert_abs_rel "${_target}" "${_realsrc}") "$initdir/$_target"
 }
 
-udevdir=$(pkg-config udev --variable=udevdir)
+udevdir=$(pkg-config udev --variable=udevdir 2>/dev/null)
 if ! [[ -d "$udevdir" ]]; then
     [[ -d /lib/udev ]] && udevdir=/lib/udev
     [[ -d /usr/lib/udev ]] && udevdir=/usr/lib/udev

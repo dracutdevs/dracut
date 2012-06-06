@@ -5,13 +5,13 @@
 install() {
     local _i
 
-    systemdutildir=$(pkg-config systemd --variable=systemdutildir)
+    systemdutildir=$(pkg-config systemd --variable=systemdutildir 2>/dev/null)
     if ! [[ -d "$systemdutildir" ]]; then
         [[ -d /lib/systemd ]] && systemdutildir=/lib/systemd
         [[ -d /usr/lib/systemd ]] && systemdutildir=/usr/lib/systemd
     fi
 
-    udevdir=$(pkg-config udev --variable=udevdir)
+    udevdir=$(pkg-config udev --variable=udevdir 2>/dev/null)
     if ! [[ -d "$udevdir" ]]; then
         [[ -d /lib/udev ]] && udevdir=/lib/udev
         [[ -d /usr/lib/udev ]] && udevdir=/usr/lib/udev
