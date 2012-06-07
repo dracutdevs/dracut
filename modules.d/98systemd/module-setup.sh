@@ -20,21 +20,16 @@ install() {
         $systemdutildir/systemd \
         $systemdutildir/systemd-cgroups-agent \
         $systemdutildir/systemd-initctl \
-        $systemdutildir/systemd-shutdownd \
         $systemdutildir/systemd-shutdown \
         $systemdutildir/systemd-modules-load \
         $systemdutildir/systemd-remount-fs \
         $systemdutildir/systemd-reply-password \
         $systemdutildir/systemd-fsck \
-        $systemdutildir/systemd-timestamp \
-        $systemdutildir/systemd-ac-power \
         $systemdutildir/systemd-sysctl \
         $systemdutildir/systemd-udevd \
         $systemdutildir/systemd-journald \
-        $systemdutildir/systemd-coredump \
         $systemdutildir/systemd-vconsole-setup \
         $systemdutildir/systemd-cryptsetup \
-        $systemdutildir/systemd-localed \
         $systemdsystemunitdir/emergency.target \
         $systemdsystemunitdir/sysinit.target \
         $systemdsystemunitdir/basic.target \
