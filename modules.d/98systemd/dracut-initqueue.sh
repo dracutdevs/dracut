@@ -8,7 +8,6 @@ if [ -f /dracut-state.sh ]; then
 fi
 . /lib/dracut-lib.sh
 source_conf /etc/conf.d
-source_hook pre-trigger
 
 getarg 'rd.break=initqueue' 'rdbreak=initqueue' && emergency_shell -n initqueue "Break before initqueue"
 
