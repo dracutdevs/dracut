@@ -13,4 +13,9 @@ _do_dm_shutdown() {
     fi
     return $ret
 }
-_do_dm_shutdown $1
+
+if command -v dmsetup >/dev/null; then
+    _do_dm_shutdown $1
+else
+    :
+fi
