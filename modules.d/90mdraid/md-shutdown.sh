@@ -18,4 +18,8 @@ _do_md_shutdown() {
     return $ret
 }
 
-_do_md_shutdown $1
+if command -v mdadm >/dev/null; then
+    _do_md_shutdown $1
+else
+    :
+fi
