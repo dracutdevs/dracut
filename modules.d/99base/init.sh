@@ -180,7 +180,7 @@ while :; do
 
     main_loop=$(($main_loop+1))
     [ $main_loop -gt $RDRETRY ] \
-        && { flock -s 9 ; emergency_shell "Unable to process initqueue"; } 9>/.console_lock
+        && { flock -s 9 ; emergency_shell "Could not boot."; } 9>/.console_lock
 done
 unset job
 unset queuetriggered
