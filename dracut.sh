@@ -688,13 +688,14 @@ export initdir dracutbasedir dracutmodules drivers \
 [[ $prefix ]] && ln -sfn "${prefix#/}/lib" "$initdir/lib"
 
 if [[ $prefix ]]; then
-    for d in bin etc lib $libdirs sbin tmp usr var; do
+    for d in bin etc lib sbin tmp usr var $libdirs; do
+        strstr "$d" "/" && continue
         ln -sfn "${prefix#/}/${d#/}" "$initdir/$d"
     done
 fi
 
 if [[ $kernel_only != yes ]]; then
-    for d in usr/bin usr/sbin bin etc lib $libdirs sbin tmp usr var var/log var/run var/lock; do
+    for d in usr/bin usr/sbin bin etc lib sbin tmp usr var var/log var/run var/lock $libdirs; do
         [[ -e "${initdir}${prefix}/$d" ]] && continue
         if [ -L "/$d" ]; then
             inst_symlink "/$d" "${prefix}/$d"
