@@ -109,16 +109,25 @@ for netif in $IFACES ; do
             echo "BOOTPROTO=dhcp"
             cp /tmp/net.$netif.lease /tmp/ifcfg-leases/dhclient-$uuid-$netif.lease
         else
-            echo "BOOTPROTO=none"
-        # If we've booted with static ip= lines, the override file is there
+            # If we've booted with static ip= lines, the override file is there
             [ -e /tmp/net.$netif.override ] && . /tmp/net.$netif.override
-            echo "IPADDR=$ip"
-            if strstr "$mask" "."; then
-                echo "NETMASK=$mask"
+            if strstr "$ip" '*:*:*'; then
+                echo "IPV6_AUTOCONF=no"
+                echo "IPV6ADDR=$ip/$mask"
             else
-                echo "PREFIX=$mask"
+                echo "BOOTPROTO=none"
+                echo "IPADDR=$ip"
+                if strstr "$mask" "."; then
+                    echo "NETMASK=$mask"
+                else
+                    echo "PREFIX=$mask"
+                fi
             fi
-            [ -n "$gw" ] && echo "GATEWAY=$gw"
+            if strstr "$gw" '*:*:*'; then
+                echo "IPV6_DEFAULTGW=$gw"
+            elif [ -n "$gw" ]; then
+                echo "GATEWAY=$gw"
+            fi
         fi
     } > /tmp/ifcfg/ifcfg-$netif
 
