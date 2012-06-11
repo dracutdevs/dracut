@@ -105,10 +105,13 @@ do_static() {
     wait_for_if_up $netif
     [ -n "$macaddr" ] && ip link set address $macaddr
     [ -n "$mtu" ] && ip link set mtu $mtu
-    # do not flush addr for ipv6
-    strstr $ip '*:*:*' || \
+    if strstr $ip '*:*:*'; then
+        # note no ip addr flush for ipv6
+        ip addr add $ip/$mask dev $netif
+    else
         ip addr flush dev $netif
-    ip addr add $ip/$mask brd + dev $netif
+        ip addr add $ip/$mask brd + dev $netif
+    fi
 
     [ -n "$gw" ] && echo ip route add default via $gw dev $netif > /tmp/net.$netif.gw
     [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
