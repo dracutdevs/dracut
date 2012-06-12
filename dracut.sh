@@ -731,7 +731,10 @@ if [[ $kernel_only != yes ]]; then
         mkdir -m 0755 -p ${initdir}/lib/dracut/hooks/$_d
     done
     if [[ "$UID" = "0" ]]; then
-        cp -a /dev/kmsg /dev/null /dev/console $initdir/dev
+        for i in /dev/kmsg /dev/null /dev/console; do
+            [ -e $i ] || continue
+            cp -a $i $initdir/dev
+        done
     fi
 fi
 
@@ -780,6 +783,7 @@ done
 unset moddir
 
 for i in $modules_loaded; do
+    mkdir -p $initdir/lib/dracut
     echo "$i" >> $initdir/lib/dracut/modules.txt
 done
 
