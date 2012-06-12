@@ -166,6 +166,8 @@ processcmsfile()
         fi
 
 	printf 'SUBSYSTEM=="net", ACTION=="add", DRIVERS=="%s", KERNELS=="%s", ENV{INTERFACE}=="?*", RUN+="/sbin/initqueue --onetime --unique --name cmsifup-$env{INTERFACE} /sbin/cmsifup $env{INTERFACE}"\n' "$driver" "$devbusid" > /etc/udev/rules.d/99-cms.rules
+        # remove the default net rules
+        rm -f /etc/udev/rules.d/61-default-net.rules
 	[[ -f /etc/udev/rules.d/60-net.rules ]] \
 	    || printf 'SUBSYSTEM=="net", ACTION=="online", RUN+="/sbin/initqueue --onetime --env netif=$env{INTERFACE} source_hook initqueue/online"\n' >> /etc/udev/rules.d/99-cms.rules
 
