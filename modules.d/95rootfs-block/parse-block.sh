@@ -12,6 +12,10 @@ case "$root" in
         root="${root#block:}"
         root="block:/dev/disk/by-uuid/${root#UUID=}"
         rootok=1 ;;
+    block:PARTUUID=*|PARTUUID=*)
+        root="${root#block:}"
+        root="block:/dev/disk/by-partuuid/${root#PARTUUID=}"
+        rootok=1 ;;
     /dev/*)
         root="block:${root}"
         rootok=1 ;;
