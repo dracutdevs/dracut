@@ -12,7 +12,7 @@ run_server() {
     # Start server first
     echo "MULTINIC TEST SETUP: Starting DHCP/NFS server"
 
-    $testdir/run-qemu -hda $TESTDIR/server.ext2 -m 256M -nographic \
+    $testdir/run-qemu -hda $TESTDIR/server.ext3 -m 512M -nographic \
 	-net nic,macaddr=52:54:00:12:34:56,model=e1000 \
 	-net socket,listen=127.0.0.1:12350 \
 	-serial $SERIAL \
@@ -122,15 +122,41 @@ test_client() {
 
 test_setup() {
      # Make server root
-     dd if=/dev/null of=$TESTDIR/server.ext2 bs=1M seek=60
-     mke2fs -F $TESTDIR/server.ext2
-     mkdir $TESTDIR/mnt
-     sudo mount -o loop $TESTDIR/server.ext2 $TESTDIR/mnt
+    dd if=/dev/null of=$TESTDIR/server.ext3 bs=1M seek=60
+    mke2fs -j -F $TESTDIR/server.ext3
+    mkdir $TESTDIR/mnt
+    sudo mount -o loop $TESTDIR/server.ext3 $TESTDIR/mnt
 
-     kernel=$KVERSION
-     (
+    export kernel=$KVERSION
+    export srcmods="/lib/modules/$kernel/"
+    # Detect lib paths
+
+    . $basedir/dracut-functions.sh
+    if ! [[ $libdirs ]] ; then
+	if strstr "$(ldd /bin/sh)" "/lib64/" &>/dev/null \
+            && [[ -d /lib64 ]]; then
+            libdirs+=" /lib64"
+            [[ -d /usr/lib64 ]] && libdirs+=" /usr/lib64"
+	else
+            libdirs+=" /lib"
+            [[ -d /usr/lib ]] && libdirs+=" /usr/lib"
+	fi
+    fi
+
+    (
      	initdir=$TESTDIR/mnt
- 	. $basedir/dracut-functions.sh
+
+	for _f in modules.builtin.bin modules.builtin; do
+	    [[ $srcmods/$_f ]] && break
+	done || {
+	    dfatal "No modules.builtin.bin and modules.builtin found!"
+	    return 1
+	}
+
+        for _f in modules.builtin.bin modules.builtin modules.order; do
+	    [[ $srcmods/$_f ]] && inst_simple "$srcmods/$_f" "/lib/modules/$kernel/$_f"
+	done
+
  	dracut_install sh ls shutdown poweroff stty cat ps ln ip \
  	    dmesg mkdir cp ping exportfs \
  	    modprobe rpc.nfsd rpc.mountd showmount tcpdump \
@@ -144,36 +170,32 @@ test_setup() {
  	[ -f /etc/netconfig ] && dracut_install /etc/netconfig
  	type -P dhcpd >/dev/null && dracut_install dhcpd
  	[ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
- 	instmods nfsd sunrpc ipv6
+ 	instmods nfsd sunrpc ipv6 lockd
  	inst ./server-init.sh /sbin/init
  	inst ./hosts /etc/hosts
  	inst ./exports /etc/exports
  	inst ./dhcpd.conf /etc/dhcpd.conf
  	dracut_install /etc/nsswitch.conf /etc/rpc /etc/protocols
  	dracut_install rpc.idmapd /etc/idmapd.conf
- 	if ldd $(type -P rpc.idmapd) |grep -q lib64; then
- 	    LIBDIR="/lib64"
- 	else
- 	    LIBDIR="/lib"
- 	fi
 
- 	dracut_install $(ls {/usr,}$LIBDIR/libnfsidmap*.so* 2>/dev/null )
- 	dracut_install $(ls {/usr,}$LIBDIR/libnfsidmap/*.so 2>/dev/null )
- 	dracut_install $(ls {/usr,}$LIBDIR/libnss*.so 2>/dev/null)
+	inst_libdir_file 'libnfsidmap_nsswitch.so*'
+	inst_libdir_file 'libnfsidmap/*.so*'
+	inst_libdir_file 'libnfsidmap*.so*'
 
+        _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
+	    |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
+        _nsslibs=${_nsslibs#|}
+        _nsslibs=${_nsslibs%|}
 
-	nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
-              |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
-	nsslibs=${nsslibs#|}
-	nsslibs=${nsslibs%|}
+	inst_libdir_file -n "$_nsslibs" 'libnss*.so*'
 
-	dracut_install $(for i in $(ls {/usr,}$LIBDIR/libnss*.so 2>/dev/null); do echo $i;done | egrep "$nsslibs")
  	(
  	    cd "$initdir";
  	    mkdir -p dev sys proc etc var/run tmp var/lib/{dhcpd,rpcbind}
  	    mkdir -p var/lib/nfs/{v4recovery,rpc_pipefs}
  	    chmod 777 var/lib/rpcbind var/lib/nfs
  	)
+
  	inst /etc/nsswitch.conf /etc/nsswitch.conf
  	inst /etc/passwd /etc/passwd
  	inst /etc/group /etc/group
@@ -181,49 +203,57 @@ test_setup() {
  	    inst_library $i
  	done
 
- 	/sbin/depmod -a -b "$initdir" $kernel
+	/sbin/depmod -a -b "$initdir" $kernel
+
 	cp -a /etc/ld.so.conf* $initdir/etc
 	sudo ldconfig -r "$initdir"
-     )
+    )
 
     # Make client root inside server root
     initdir=$TESTDIR/mnt/nfs/client
     mkdir -p $initdir
 
     (
- 	. $basedir/dracut-functions.sh
- 	dracut_install sh shutdown poweroff stty cat ps ln ip \
-            mount dmesg mkdir \
- 	    cp ping grep ls
+	dracut_install sh shutdown poweroff stty cat ps ln ip \
+            mount dmesg mkdir cp ping grep ls
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
 	    [ -f ${_terminfodir}/l/linux ] && break
 	done
 	dracut_install -o ${_terminfodir}/l/linux
- 	inst ./client-init.sh /sbin/init
- 	(
- 	    cd "$initdir"
- 	    mkdir -p dev sys proc etc run
- 	    mkdir -p var/lib/nfs/rpc_pipefs
+	inst ./client-init.sh /sbin/init
+	(
+	    cd "$initdir"
+	    mkdir -p dev sys proc etc run
+	    mkdir -p var/lib/nfs/rpc_pipefs
 	)
- 	inst /etc/nsswitch.conf /etc/nsswitch.conf
- 	inst /etc/passwd /etc/passwd
- 	inst /etc/group /etc/group
- 	for i in /lib*/libnss_files*;do
- 	    inst_library $i
- 	done
+	inst /etc/nsswitch.conf /etc/nsswitch.conf
+	inst /etc/passwd /etc/passwd
+	inst /etc/group /etc/group
+
+	inst_libdir_file 'libnfsidmap_nsswitch.so*'
+	inst_libdir_file 'libnfsidmap/*.so*'
+	inst_libdir_file 'libnfsidmap*.so*'
+
+        _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
+	    |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
+        _nsslibs=${_nsslibs#|}
+        _nsslibs=${_nsslibs%|}
+
+	inst_libdir_file -n "$_nsslibs" 'libnss*.so*'
 
 	cp -a /etc/ld.so.conf* $initdir/etc
 	sudo ldconfig -r "$initdir"
-     )
+    )
 
-     sudo umount $TESTDIR/mnt
-     rm -fr $TESTDIR/mnt
+    chroot $initdir
+
+    sudo umount $TESTDIR/mnt
+    rm -fr $TESTDIR/mnt
 
     # Make an overlay with needed tools for the test harness
     (
  	initdir=$TESTDIR/overlay
  	mkdir $TESTDIR/overlay
- 	. $basedir/dracut-functions.sh
  	dracut_install poweroff shutdown
  	inst_hook emergency 000 ./hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
@@ -232,7 +262,7 @@ test_setup() {
     # Make server's dracut image
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-m "dash udev-rules base rootfs-block debug kernel-modules" \
-	-d "piix ide-gd_mod ata_piix ext2 sd_mod e1000" \
+	-d "piix ide-gd_mod ata_piix ext3 sd_mod e1000" \
 	-f $TESTDIR/initramfs.server $KVERSION || return 1
 
     # Make client's dracut image
