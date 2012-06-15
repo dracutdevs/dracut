@@ -289,6 +289,7 @@ while (($# > 0)); do
             elif ! [[ ${kernel+x} ]]; then
                 kernel=$1
             else
+                echo "Unknown argument: $1"
                 usage; exit 1;
             fi
             ;;
