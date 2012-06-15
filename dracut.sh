@@ -217,6 +217,8 @@ push_arg() {
 }
 
 verbosity_mod_l=0
+unset kernel
+unset outfile
 
 while (($# > 0)); do
     case ${1%%=*} in
