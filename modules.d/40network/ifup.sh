@@ -216,6 +216,17 @@ if [ "$netif" = "$vlanname" ] && [ ! -e /tmp/net.$vlanname.up ]; then
     ip link add dev "$vlanname" link "$phydevice" type vlan id "$(get_vid $vlanname; echo $?)"
 fi
 
+# No ip lines default to dhcp
+ip=$(getarg ip)
+
+if [ -z "$ip" ]; then
+    if [ "$netroot" = "dhcp6" ]; then
+        do_dhcp -6
+    else
+        do_dhcp -4
+    fi
+fi
+
 # Specific configuration, spin through the kernel command line
 # looking for ip= lines
 for p in $(getargs ip=); do
