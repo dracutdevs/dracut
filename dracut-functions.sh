@@ -705,16 +705,16 @@ inst_libdir_file() {
         local _pattern=$2
         shift 2
         for _dir in $libdirs; do
-            for _i in $_dir/$@; do
+            for _i in "$@"; do
                 for _f in "$_dir"/$_i; do
-                    [[ "$_i" =~ $_pattern ]] || continue
-                    [[ -e "$_i" ]] && dracut_install "$_i"
+                    [[ "$_f" =~ $_pattern ]] || continue
+                    [[ -e "$_f" ]] && dracut_install "$_f"
                 done
             done
         done
     else
         for _dir in $libdirs; do
-            for _i in $_dir/$@; do
+            for _i in "$@"; do
                 for _f in "$_dir"/$_i; do
                     [[ -e "$_f" ]] && dracut_install "$_f"
                 done
