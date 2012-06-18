@@ -20,12 +20,43 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# Generic substring function.  If $2 is in $1, return 0.
+strstr() { [ "${1#*$2*}" != "$1" ]; }
+
 if ! [[ $dracutbasedir ]]; then
     dracutbasedir=${BASH_SOURCE[0]%/*}
     [[ $dracutbasedir = "dracut-functions" ]] && dracutbasedir="."
     [[ $dracutbasedir ]] || dracutbasedir="."
     dracutbasedir="$(readlink -f $dracutbasedir)"
 fi
+
+# Detect lib paths
+if ! [[ $libdirs ]] ; then
+    if strstr "$(ldd /bin/sh)" "/lib64/" &>/dev/null \
+        && [[ -d /lib64 ]]; then
+        libdirs+=" /lib64"
+        [[ -d /usr/lib64 ]] && libdirs+=" /usr/lib64"
+    else
+        libdirs+=" /lib"
+        [[ -d /usr/lib ]] && libdirs+=" /usr/lib"
+    fi
+    export libdirs
+fi
+
+if ! [[ $kernel ]]; then
+    kernel=$(uname -r)
+    export kernel
+fi
+
+srcmods="/lib/modules/$kernel/"
+[[ $drivers_dir ]] && {
+    if vercmp $(modprobe --version | cut -d' ' -f3) lt 3.7; then
+        dfatal 'To use --kmoddir option module-init-tools >= 3.7 is required.'
+        exit 1
+    fi
+    srcmods="$drivers_dir"
+}
+export srcmods
 
 if ! type dinfo >/dev/null 2>&1; then
     . "$dracutbasedir/dracut-logger.sh"
@@ -40,9 +71,6 @@ fi
     hookdirs+="emergency shutdown-emergency shutdown "
     export hookdirs
 }
-
-# Generic substring function.  If $2 is in $1, return 0.
-strstr() { [ "${1#*$2*}" != "$1" ]; }
 
 # Create all subdirectories for given path without creating the last element.
 # $1 = path
