@@ -1,10 +1,11 @@
 #!/bin/sh
+>/dev/watchdog
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 strstr() { [ "${1#*$2*}" != "$1" ]; }
 CMDLINE=$(while read line; do echo $line;done < /proc/cmdline)
 plymouth --quit
 exec >/dev/console 2>&1
-echo "dracut-root-block-success" >/dev/sda1
+echo "dracut-root-block-success" >/dev/sdb
 export TERM=linux
 export PS1='initramfs-test:\w\$ '
 [ -f /etc/mtab ] || ln -sfn /proc/mounts /etc/mtab
