@@ -13,12 +13,13 @@ run_server() {
     echo "MULTINIC TEST SETUP: Starting DHCP/NFS server"
 
     $testdir/run-qemu -hda $TESTDIR/server.ext3 -m 512M -nographic \
-	-net nic,macaddr=52:54:00:12:34:56,model=e1000 \
-	-net socket,listen=127.0.0.1:12350 \
-	-serial $SERIAL \
-	-kernel /boot/vmlinuz-$KVERSION \
-	-append "selinux=0 root=/dev/sda rd.debug rd.info  rw quiet console=ttyS0,115200n81" \
-	-initrd $TESTDIR/initramfs.server -pidfile $TESTDIR/server.pid -daemonize || return 1
+        -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
+        -net socket,listen=127.0.0.1:12350 \
+        -serial $SERIAL \
+        -watchdog ib700 -watchdog-action poweroff \
+        -kernel /boot/vmlinuz-$KVERSION \
+        -append "selinux=0 root=/dev/sda rd.debug rd.info  rw quiet console=ttyS0,115200n81" \
+        -initrd $TESTDIR/initramfs.server -pidfile $TESTDIR/server.pid -daemonize || return 1
     sudo chmod 644 $TESTDIR/server.pid || return 1
 
     # Cleanup the terminal if we have one
@@ -50,9 +51,10 @@ client_test() {
   	-net nic,macaddr=52:54:00:12:34:$mac3,model=e1000 \
 	-net socket,connect=127.0.0.1:12350 \
         -hdc /dev/null \
-  	-kernel /boot/vmlinuz-$KVERSION \
-  	-append "$cmdline $DEBUGFAIL rd.retry=5 rd.debug rd.info  ro quiet console=ttyS0,115200n81 selinux=0 rd.copystate" \
-  	-initrd $TESTDIR/initramfs.testing
+        -watchdog ib700 -watchdog-action poweroff \
+        -kernel /boot/vmlinuz-$KVERSION \
+        -append "$cmdline $DEBUGFAIL rd.retry=5 rd.debug rd.info  ro quiet console=ttyS0,115200n81 selinux=0 rd.copystate rd.chroot init=/sbin/init" \
+        -initrd $TESTDIR/initramfs.testing
 
     if [[ $? -ne 0 ]] || ! grep -m 1 -q OK $TESTDIR/client.img; then
 	echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
@@ -261,16 +263,16 @@ test_setup() {
 
     # Make server's dracut image
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-	-m "dash udev-rules base rootfs-block debug kernel-modules" \
-	-d "piix ide-gd_mod ata_piix ext3 sd_mod e1000" \
-	-f $TESTDIR/initramfs.server $KVERSION || return 1
+        -m "dash udev-rules base rootfs-block debug kernel-modules watchdog" \
+        -d "piix ide-gd_mod ata_piix ext3 sd_mod e1000 ib700wdt" \
+        -f $TESTDIR/initramfs.server $KVERSION || return 1
 
     # Make client's dracut image
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-	-o "plymouth" \
-	-a "debug" \
-	-d "piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfs sunrpc" \
-	-f $TESTDIR/initramfs.testing $KVERSION || return 1
+        -o "plymouth" \
+        -a "debug watchdog" \
+        -d "piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfs sunrpc ib700wdt" \
+        -f $TESTDIR/initramfs.testing $KVERSION || return 1
 }
 
 kill_server() {
