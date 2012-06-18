@@ -1028,11 +1028,11 @@ install_kmod_with_fw() {
         _kmod=${_kmod/-/_}
         if [[ "$_kmod" =~ $omit_drivers ]]; then
             dinfo "Omitting driver $_kmod"
-            return 1
+            return 0
         fi
         if [[ "${1##*/lib/modules/$kernel/}" =~ $omit_drivers ]]; then
             dinfo "Omitting driver $_kmod"
-            return 1
+            return 0
         fi
     fi
 
@@ -1073,16 +1073,13 @@ install_kmod_with_fw() {
 # rest of args = arguments to modprobe
 # _fderr specifies FD passed from surrounding scope
 for_each_kmod_dep() {
-    local _func=$1 _kmod=$2 _cmd _modpath _options _found=0
+    local _func=$1 _kmod=$2 _cmd _modpath _options
     shift 2
     modprobe "$@" --ignore-install --show-depends $_kmod 2>&${_fderr} | (
         while read _cmd _modpath _options; do
             [[ $_cmd = insmod ]] || continue
             $_func ${_modpath} || exit $?
-            _found=1
         done
-        [[ $_found -eq 0 ]] && exit 1
-        exit 0
     )
 }
 
@@ -1127,14 +1124,16 @@ instmods() {
                     ( [[ "$_mpargs" ]] && echo $_mpargs
                       cat "${srcmods}/modules.${_mod#=}" ) \
                     | instmods
+                    ((_ret+=$?))
                 else
                     ( [[ "$_mpargs" ]] && echo $_mpargs
-                      find "$srcmods" -path "*/${_mod#=}/*" -printf '%f\n' ) \
+                      find "$srcmods" -type f -path "*/${_mod#=}/*" -printf '%f\n' ) \
                     | instmods
+                    ((_ret+=$?))
                 fi
                 ;;
             --*) _mpargs+=" $_mod" ;;
-            i2o_scsi) return ;; # Do not load this diagnostic-only module
+            i2o_scsi) return 0;; # Do not load this diagnostic-only module
             *)
                 _mod=${_mod##*/}
                 # if we are already installed, skip this module and go on
@@ -1143,14 +1142,14 @@ instmods() {
 
                 if [[ $omit_drivers ]] && [[ "$1" =~ $omit_drivers ]]; then
                     dinfo "Omitting driver ${_mod##$srcmods}"
-                    return
+                    return 0
                 fi
                 # If we are building a host-specific initramfs and this
                 # module is not already loaded, move on to the next one.
                 [[ $hostonly ]] \
                     && ! [[ -d $(echo /sys/module/${_mod//-/_}|{ read a b; echo $a; }) ]] \
                     && ! [[ "$add_drivers" =~ " ${_mod} " ]] \
-                    && return
+                    && return 0
 
                 # We use '-d' option in modprobe only if modules prefix path
                 # differs from default '/'.  This allows us to use Dracut with
@@ -1193,12 +1192,10 @@ instmods() {
     }
 
     local _ret _filter_not_found='FATAL: Module .* not found.'
-    set -o pipefail
     # Capture all stderr from modprobe to _fderr. We could use {var}>...
     # redirections, but that would make dracut require bash4 at least.
     eval "( instmods_1 \"\$@\" ) ${_fderr}>&1" \
     | while read line; do [[ "$line" =~ $_filter_not_found ]] || echo $line;done | derror
     _ret=$?
-    set +o pipefail
     return $_ret
 }

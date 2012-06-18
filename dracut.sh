@@ -26,6 +26,8 @@
 # store for logging
 dracut_args="$@"
 
+set -o pipefail
+
 usage() {
     [[ $dracutbasedir ]] || dracutbasedir=/usr/lib/dracut
     if [[ -f $dracutbasedir/dracut-version.sh ]]; then
