@@ -832,6 +832,8 @@ emergency_shell()
         fi
         [ -c "$_ctty" ] || _ctty=/dev/tty1
         strstr "$(setsid --help 2>/dev/null)" "ctty" && CTTY="-c"
+        # stop watchdog
+        echo 'V' > /dev/watchdog
         setsid $CTTY /bin/sh -i -l 0<$_ctty 1>$_ctty 2>&1
     else
         warn "$action has failed. To debug this issue add \"rd.shell\" to the kernel command line."

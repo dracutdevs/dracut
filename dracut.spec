@@ -254,6 +254,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man5/dracut.conf.5*
 %{dracutlibdir}/modules.d/00bootchart
 %{dracutlibdir}/modules.d/00dash
+%{dracutlibdir}/modules.d/04watchdog
 %{dracutlibdir}/modules.d/05busybox
 %{dracutlibdir}/modules.d/10i18n
 %{dracutlibdir}/modules.d/30convertfs
