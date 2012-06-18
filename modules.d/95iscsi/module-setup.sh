@@ -37,6 +37,8 @@ depends() {
 }
 
 installkernel() {
+    local _arch=$(uname -m)
+
     instmods iscsi_tcp iscsi_ibft crc32c bnx2i iscsi_boot_sysfs qla4xxx cxgb3i cxgb4i be2iscsi
     iscsi_module_filter() {
         local _iscsifuncs='iscsi_register_transport'
@@ -47,8 +49,9 @@ installkernel() {
             *.ko.xz) [[ $(xz -dc   <$_f) =~ $_iscsifuncs ]] && echo "$_f" ;;
             esac
         done
+        return 0;
     }
-    { find_kernel_modules_by_path drivers/scsi; find_kernel_modules_by_path drivers/s390/scsi; } \
+    { find_kernel_modules_by_path drivers/scsi; if [ "$_arch" = "s390" -o "$_arch" = "s390x" ]; then find_kernel_modules_by_path drivers/s390/scsi; fi;} \
     | iscsi_module_filter  |  instmods
 }
 
