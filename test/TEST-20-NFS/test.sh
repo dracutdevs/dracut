@@ -18,6 +18,7 @@ run_server() {
 	-net nic,macaddr=52:54:00:12:34:56,model=e1000 \
 	-net socket,listen=127.0.0.1:12320 \
 	-serial $SERIAL \
+        -watchdog ib700 -watchdog-action poweroff \
 	-kernel /boot/vmlinuz-$KVERSION \
 	-append "root=/dev/sda rw quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.server \
@@ -53,6 +54,7 @@ client_test() {
   	-net nic,macaddr=$mac,model=e1000 \
 	-net socket,connect=127.0.0.1:12320 \
   	-kernel /boot/vmlinuz-$KVERSION \
+        -watchdog ib700 -watchdog-action poweroff \
   	-append "$cmdline $DEBUGFAIL rd.debug rd.retry=10 rd.info quiet  ro console=ttyS0,115200n81 selinux=0" \
   	-initrd $TESTDIR/initramfs.testing
 
@@ -307,15 +309,15 @@ test_setup() {
 
     # Make server's dracut image
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-	-m "dash udev-rules base rootfs-block debug kernel-modules" \
-	-d "piix ide-gd_mod ata_piix ext3 sd_mod e1000" \
+	-m "dash udev-rules base rootfs-block debug kernel-modules watchdog" \
+	-d "piix ide-gd_mod ata_piix ext3 sd_mod e1000 ib700wdt" \
 	-f $TESTDIR/initramfs.server $KVERSION || return 1
 
     # Make client's dracut image
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-o "plymouth" \
-	-a "debug" \
-	-d "piix ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
+	-a "debug watchdog" \
+	-d "piix ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc ib700wdt" \
 	-f $TESTDIR/initramfs.testing $KVERSION || return 1
 }
 

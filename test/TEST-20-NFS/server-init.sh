@@ -31,6 +31,6 @@ dhcpd -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases
 #sh -i
 # Wait forever for the VM to die
 echo "Serving NFS mounts"
-while sleep 60; do sleep 60; done
+while sleep 30; do >/dev/watchdog; done
 mount -n -o remount,ro /
 poweroff -f
