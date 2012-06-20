@@ -18,7 +18,7 @@ getarg 'rd.break=cleanup' 'rdbreak=cleanup' && emergency_shell -n cleanup "Break
 source_hook cleanup
 
 # By the time we get here, the root filesystem should be mounted.
-# Try to find init. 
+# Try to find init.
 
 for i in "$(getarg real_init=)" "$(getarg init=)"; do
     [ -n "$i" ] || continue
