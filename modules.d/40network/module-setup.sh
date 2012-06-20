@@ -61,7 +61,7 @@ installkernel() {
         return $_ret
     }
 
-    { find_kernel_modules_by_path drivers/net; find_kernel_modules_by_path drivers/s390/net; } \
+    { find_kernel_modules_by_path drivers/net; if [ "$_arch" = "s390" -o "$_arch" = "s390x" ]; then find_kernel_modules_by_path drivers/s390/net; fi; } \
         | net_module_filter | instmods
 
     instmods =drivers/net/phy
