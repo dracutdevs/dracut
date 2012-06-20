@@ -116,7 +116,7 @@ install() {
         dracut_install "$i"
     done
 
-    dracut_install journalctl systemctl
+    dracut_install journalctl systemctl echo
 
     ln -fs $systemdutildir/systemd "$initdir/init"
 

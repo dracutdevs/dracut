@@ -10,17 +10,17 @@
 [Unit]
 Description=Emergency Shell
 DefaultDependencies=no
-Conflicts=shutdown.target
-Before=shutdown.target
 
 [Service]
 Environment=HOME=/
 WorkingDirectory=/
+ExecStartPre=-/bin/plymouth quit
+ExecStartPre=-/bin/echo -e '\n\nEntering emergency mode. Exit the shell to continue.\nType "journalctl" to view system logs.\n'
 ExecStart=-/bin/sh -i -l
-ExecStopPost=-/usr/bin/systemctl --fail --no-block default
+ExecStopPost=-/bin/rm -f /.console_lock
 Type=idle
-StandardInput=tty
-StandardOutput=journal+console
+StandardInput=tty-force
+StandardOutput=inherit
 StandardError=inherit
 KillMode=process
 IgnoreSIGPIPE=no
