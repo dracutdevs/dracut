@@ -102,6 +102,15 @@ install() {
         $systemdsystemunitdir/initrd-switch-root.target \
         $systemdsystemunitdir/initrd-switch-root.service \
         $systemdsystemunitdir/umount.target \
+        $systemdsystemunitdir/udev-control.socket \
+        $systemdsystemunitdir/udev-kernel.socket \
+        $systemdsystemunitdir/udev.service \
+        $systemdsystemunitdir/udev-settle.service \
+        $systemdsystemunitdir/udev-trigger.service \
+        $systemdsystemunitdir/basic.target.wants/udev.service \
+        $systemdsystemunitdir/basic.target.wants/udev-trigger.service \
+        $systemdsystemunitdir/sockets.target.wants/udev-control.socket \
+        $systemdsystemunitdir/sockets.target.wants/udev-kernel.socket
 
     for i in /etc/systemd/*.conf; do
         dracut_install "$i"
