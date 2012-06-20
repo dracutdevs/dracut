@@ -34,7 +34,11 @@ done
 echo "NEWROOT=\"$NEWROOT\"" >> /run/initramfs/switch-root.conf
 
 udevadm control --stop-exec-queue
-systemctl stop systemd-udev.service
+
+for i in systemd-udev.service udev.service; do
+    systemctl is-active $i >/dev/null 2>&1 && systemctl stop $i
+done
+
 udevadm info --cleanup-db
 
 # remove helper symlink
