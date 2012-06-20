@@ -188,6 +188,19 @@ convert_abs_rel() {
     echo "$__newpath"
 }
 
+if strstr "$(ln --help)" "relative"; then
+    ln_r() {
+        ln -sfnr "${initdir}/$1" "${initdir}/$2"
+    }
+else
+    ln_r() {
+        local _source=$1
+        local _dest=$2
+        [[ -d "${_dest%/*}" ]] && _dest=$(readlink -f "${_dest%/*}")/${_dest##*/}
+        ln -sfn $(convert_abs_rel "${_dest}" "${_source}") "${initdir}/${_dest}"
+    }
+fi
+
 # get_fs_env <device>
 # Get and set the ID_FS_TYPE and ID_FS_UUID variable from udev for a device.
 # Example:
@@ -465,8 +478,7 @@ inst_library() {
         _reallib=$(readlink -f "$_src")
         inst_simple "$_reallib" "$_reallib"
         inst_dir "${_dest%/*}"
-        [[ -d "${_dest%/*}" ]] && _dest=$(readlink -f "${_dest%/*}")/${_dest##*/}
-        ln -sfn $(convert_abs_rel "${_dest}" "${_reallib}") "${initdir}/${_dest}"
+        ln_r "${_reallib}" "${_dest}"
     else
         inst_simple "$_src" "$_dest"
     fi
@@ -555,8 +567,8 @@ inst_symlink() {
         fi
     fi
     [[ ! -e $initdir/${_target%/*} ]] && inst_dir "${_target%/*}"
-    [[ -d ${_target%/*} ]] && _target=$(readlink -f ${_target%/*})/${_target##*/}
-    ln -sfn $(convert_abs_rel "${_target}" "${_realsrc}") "$initdir/$_target"
+
+    ln_r "${_realsrc}" "${_target}"
 }
 
 # attempt to install any programs specified in a udev rule
