@@ -21,8 +21,8 @@ ExecStart=-/bin/sh -i -l
 #ExecStopPost=-/usr/bin/systemctl --fail --no-block switch-root /sysroot /sbin/init
 ExecStopPost=-/usr/bin/systemctl --fail --no-block default
 Type=idle
-StandardInput=tty-force
-StandardOutput=inherit
+StandardInput=tty
+StandardOutput=journal+console
 StandardError=inherit
 KillMode=process
 

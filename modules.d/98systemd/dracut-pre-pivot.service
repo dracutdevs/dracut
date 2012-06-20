@@ -17,8 +17,8 @@ Environment=HOME=/
 WorkingDirectory=/
 ExecStart=-/bin/dracut-pre-pivot
 Type=oneshot
-StandardInput=tty-force
-StandardOutput=inherit
+StandardInput=tty
+StandardOutput=journal+console
 StandardError=inherit
 KillMode=process
 

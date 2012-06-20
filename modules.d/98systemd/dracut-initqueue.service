@@ -17,8 +17,8 @@ Environment=HOME=/
 WorkingDirectory=/
 ExecStart=-/bin/dracut-initqueue
 Type=simple
-StandardInput=tty-force
-StandardOutput=inherit
+StandardInput=tty
+StandardOutput=journal+console
 StandardError=inherit
 KillMode=process
 
