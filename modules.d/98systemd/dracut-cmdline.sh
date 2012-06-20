@@ -7,8 +7,6 @@ NEWROOT="/sysroot"
 [ -d /run/initramfs ] || mkdir -p -m 0755 /run/initramfs
 [ -d /run/lock ] || mkdir -p -m 0755 /run/lock
 
-exec </dev/console >/dev/console 2>&1
-
 if [ -f /dracut-state.sh ]; then
     . /dracut-state.sh || :
 fi
