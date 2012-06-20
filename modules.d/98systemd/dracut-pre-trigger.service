@@ -10,8 +10,9 @@
 [Unit]
 Description=Dracut pre-trigger hook
 DefaultDependencies=no
-After=systemd-udev.service
-Before=systemd-udev-trigger.service
+Before=systemd-udev-trigger.service udev-trigger.service dracut-initqueue.service
+After=dracut-pre-udev.service systemd-udev.service udev.service
+Wants=dracut-pre-udev.service systemd-udev.service udev.service
 
 [Service]
 Environment=HOME=/

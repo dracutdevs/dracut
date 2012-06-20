@@ -10,7 +10,8 @@
 [Unit]
 Description=Dracut initqueue hook
 DefaultDependencies=no
-After=systemd-udev-trigger.service
+After=systemd-udev-trigger.service udev-trigger.service
+Wants=systemd-udev-trigger.service udev-trigger.service
 
 [Service]
 Environment=HOME=/
