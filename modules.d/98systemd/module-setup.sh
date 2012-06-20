@@ -130,9 +130,12 @@ install() {
     inst "$moddir/initrd-switch-root.service" ${systemdsystemunitdir}/initrd-switch-root.service
     ln -s basic.target "${initdir}${systemdsystemunitdir}/default.target"
 
-    inst "$moddir/dracut-cmdline.sh" ${systemdsystemunitdir}-generators/dracut-cmdline.sh
-
     mkdir -p "${initdir}${systemdsystemunitdir}/basic.target.wants"
+
+    inst "$moddir/dracut-cmdline.sh" /bin/dracut-cmdline
+    inst "$moddir/dracut-cmdline.service" ${systemdsystemunitdir}/dracut-cmdline.service
+    ln -s ../dracut-cmdline.service "${initdir}${systemdsystemunitdir}/basic.target.wants/dracut-cmdline.service"
+
     inst "$moddir/dracut-pre-udev.sh" /bin/dracut-pre-udev
     inst "$moddir/dracut-pre-udev.service" ${systemdsystemunitdir}/dracut-pre-udev.service
     ln -s ../dracut-pre-udev.service "${initdir}${systemdsystemunitdir}/basic.target.wants/dracut-pre-udev.service"
