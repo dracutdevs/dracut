@@ -8,7 +8,7 @@
 [Unit]
 Description=Restore /run/initramfs
 After=getty@tty1.service prefdm.service
-Before=reboot.service
+Before=reboot.service shutdown.target
 DefaultDependencies=no
 ConditionPathExists=/run/initramfs/.need_shutdown
 ConditionPathExists=!/run/initramfs/bin/sh
