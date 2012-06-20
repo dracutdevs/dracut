@@ -323,18 +323,32 @@ check_quiet() {
     fi
 }
 
-warn() {
-    check_quiet
-    echo "<28>dracut Warning: $@" > /dev/kmsg
-    echo "dracut Warning: $@" >&2
-}
+if [ ! -x /lib/systemd/systemd ]; then
 
-info() {
-    check_quiet
-    echo "<30>dracut: $@" > /dev/kmsg
-    [ "$DRACUT_QUIET" != "yes" ] && \
-        echo "dracut: $@"
-}
+    warn() {
+        check_quiet
+        echo "<28>dracut Warning: $@" > /dev/kmsg
+        echo "dracut Warning: $@" >&2
+    }
+
+    info() {
+        check_quiet
+        echo "<30>dracut: $@" > /dev/kmsg
+        [ "$DRACUT_QUIET" != "yes" ] && \
+            echo "dracut: $@"
+    }
+
+else
+
+    warn() {
+        echo "Warning: $@" >&2
+    }
+
+    info() {
+        echo "$@"
+    }
+
+fi
 
 vwarn() {
     while read line; do
