@@ -17,9 +17,9 @@ Environment=HOME=/
 WorkingDirectory=/
 ExecStart=-/bin/dracut-pre-pivot
 Type=oneshot
-StandardInput=tty
-StandardOutput=journal+console
-StandardError=inherit
+StandardInput=null
+StandardOutput=syslog
+StandardError=syslog+console
 KillMode=process
 
 # Bash ignores SIGTERM, so we send SIGHUP instead, to ensure that bash
