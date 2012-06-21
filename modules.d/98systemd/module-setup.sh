@@ -21,15 +21,10 @@ install() {
         $systemdutildir/systemd-cgroups-agent \
         $systemdutildir/systemd-initctl \
         $systemdutildir/systemd-shutdown \
-        $systemdutildir/systemd-modules-load \
-        $systemdutildir/systemd-remount-fs \
         $systemdutildir/systemd-reply-password \
         $systemdutildir/systemd-fsck \
-        $systemdutildir/systemd-sysctl \
         $systemdutildir/systemd-udevd \
         $systemdutildir/systemd-journald \
-        $systemdutildir/systemd-vconsole-setup \
-        $systemdutildir/systemd-cryptsetup \
         $systemdsystemunitdir/emergency.target \
         $systemdsystemunitdir/sysinit.target \
         $systemdsystemunitdir/basic.target \
@@ -53,19 +48,13 @@ install() {
         $systemdsystemunitdir/swap.target \
         $systemdsystemunitdir/systemd-initctl.socket \
         $systemdsystemunitdir/systemd-shutdownd.socket \
-        $systemdsystemunitdir/bluetooth.target \
         $systemdsystemunitdir/systemd-ask-password-console.path \
         $systemdsystemunitdir/systemd-udev-control.socket \
         $systemdsystemunitdir/systemd-udev-kernel.socket \
         $systemdsystemunitdir/systemd-ask-password-plymouth.path \
         $systemdsystemunitdir/systemd-journald.socket \
-        $systemdsystemunitdir/cryptsetup.target \
-        $systemdsystemunitdir/console-shell.service \
-        $systemdsystemunitdir/console-getty.service \
         $systemdsystemunitdir/systemd-initctl.service \
         $systemdsystemunitdir/systemd-shutdownd.service \
-        $systemdsystemunitdir/systemd-modules-load.service \
-        $systemdsystemunitdir/systemd-remount-fs.service \
         $systemdsystemunitdir/systemd-ask-password-console.service \
         $systemdsystemunitdir/halt.service \
         $systemdsystemunitdir/poweroff.service \
@@ -78,12 +67,9 @@ install() {
         $systemdsystemunitdir/systemd-ask-password-plymouth.service \
         $systemdsystemunitdir/systemd-journald.service \
         $systemdsystemunitdir/systemd-vconsole-setup.service \
-        $systemdsystemunitdir/systemd-localed.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-modules-load.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-ask-password-console.path \
         $systemdsystemunitdir/sysinit.target.wants/systemd-journald.service \
-        $systemdsystemunitdir/sysinit.target.wants/systemd-vconsole-setup.service \
-        $systemdsystemunitdir/sysinit.target.wants/cryptsetup.target \
         $systemdsystemunitdir/sockets.target.wants/systemd-initctl.socket \
         $systemdsystemunitdir/sockets.target.wants/systemd-shutdownd.socket \
         $systemdsystemunitdir/sockets.target.wants/systemd-udev-control.socket \
@@ -91,11 +77,8 @@ install() {
         $systemdsystemunitdir/sockets.target.wants/systemd-journald.socket \
         $systemdsystemunitdir/sysinit.target.wants/systemd-udev.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-udev-trigger.service \
-        $systemdsystemunitdir/local-fs.target.wants/systemd-remount-fs.service \
-        $systemdsystemunitdir/local-fs.target.wants/fsck-root.service \
         $systemdsystemunitdir/local-fs.target.wants/tmp.mount \
         $systemdsystemunitdir/ctrl-alt-del.target \
-        $systemdsystemunitdir/autovt@.service \
         $systemdsystemunitdir/single.service \
         $systemdsystemunitdir/syslog.socket \
         $systemdsystemunitdir/syslog.target \
