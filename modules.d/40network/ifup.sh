@@ -188,7 +188,7 @@ if [ -e /tmp/bridge.info ]; then
         brctl setfd $bridgename 0
         for ethname in $ethnames ; do
             if [ "$ethname" = "$bondname" ] ; then
-                DO_BOND_SETUP=yes ifup $bondname
+                DO_BOND_SETUP=yes ifup $bondname -m
             else
                 ip link set $ethname up
             fi
@@ -211,7 +211,11 @@ get_vid() {
 
 if [ "$netif" = "$vlanname" ] && [ ! -e /tmp/net.$vlanname.up ]; then
     modprobe 8021q
-    ip link set "$phydevice" up
+    if [ "$phydevice" = "$bondname" ] ; then
+        DO_BOND_SETUP=yes ifup $phydevice -m
+    else
+        ip link set "$phydevice" up
+    fi
     wait_for_if_up "$phydevice"
     ip link add dev "$vlanname" link "$phydevice" type vlan id "$(get_vid $vlanname; echo $?)"
 fi

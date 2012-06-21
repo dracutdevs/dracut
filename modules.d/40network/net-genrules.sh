@@ -21,19 +21,19 @@ fix_bootif() {
     # bridge: attempt only the defined interface
     if [ -e /tmp/bridge.info ]; then
         . /tmp/bridge.info
-        IFACES=${ethnames%% *}
+        IFACES+=" ${ethnames%% *}"
     fi
 
     # bond: attempt only the defined interface (override bridge defines)
     if [ -e /tmp/bond.info ]; then
         . /tmp/bond.info
         # It is enough to fire up only one
-        IFACES=${bondslaves%% *}
+        IFACES+=" ${bondslaves%% *}"
     fi
 
     if [ -e /tmp/vlan.info ]; then
         . /tmp/vlan.info
-        IFACES=$phydevice
+        IFACES+=" $phydevice"
     fi
 
     ifup='/sbin/ifup $env{INTERFACE}'
