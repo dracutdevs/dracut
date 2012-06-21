@@ -2,6 +2,8 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+[ -x /lib/systemd/systemd-vconsole-setup ] && exit 0
+
 [ -e /etc/vconsole.conf ] && . /etc/vconsole.conf
 
 DEFAULT_FONT=LatArCyrHeb-16

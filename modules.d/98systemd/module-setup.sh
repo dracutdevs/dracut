@@ -7,7 +7,8 @@ check() {
     if [[ -x /lib/systemd/systemd ]] || [[ -x /usr/lib/systemd/systemd ]]; then
         return 255
     fi
-    pkg-config systemd --variable=systemdutildir >/dev/null && return 255
+    [[ $systemdutildir ]] && return 255
+
     return 1
 }
 
@@ -69,6 +70,7 @@ install() {
         $systemdsystemunitdir/systemd-vconsole-setup.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-modules-load.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-ask-password-console.path \
+        $systemdsystemunitdir/sysinit.target.wants/systemd-vconsole-setup.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-journald.service \
         $systemdsystemunitdir/sockets.target.wants/systemd-initctl.socket \
         $systemdsystemunitdir/sockets.target.wants/systemd-shutdownd.socket \
@@ -77,7 +79,6 @@ install() {
         $systemdsystemunitdir/sockets.target.wants/systemd-journald.socket \
         $systemdsystemunitdir/sysinit.target.wants/systemd-udev.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-udev-trigger.service \
-        $systemdsystemunitdir/local-fs.target.wants/tmp.mount \
         $systemdsystemunitdir/ctrl-alt-del.target \
         $systemdsystemunitdir/single.service \
         $systemdsystemunitdir/syslog.socket \
@@ -100,6 +101,17 @@ install() {
     done
 
     dracut_install journalctl systemctl echo
+
+    if [[ $hostonly ]]; then
+        dracut_install -o /etc/systemd/journald.conf \
+            /etc/systemd/system.conf \
+            /etc/hostname \
+            /etc/machine-id \
+            /etc/vconsole.conf \
+            /etc/locale.conf
+    else
+        > "$initdir/etc/machine-id"
+    fi
 
     ln -fs $systemdutildir/systemd "$initdir/init"
 
@@ -136,6 +148,5 @@ install() {
     mkdir -p "${initdir}${systemdsystemunitdir}/initrd-switch-root.target.wants"
     ln -s ../dracut-pre-pivot.service "${initdir}${systemdsystemunitdir}/initrd-switch-root.target.wants/dracut-pre-pivot.service"
 
-    > "$initdir/etc/machine-id"
 }
 
