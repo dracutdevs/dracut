@@ -13,6 +13,7 @@ DefaultDependencies=no
 Before=dracut-pre-udev.service
 After=systemd-journald.socket
 Wants=systemd-journald.socket
+ConditionPathExists=/etc/initrd-release
 
 [Service]
 Environment=HOME=/

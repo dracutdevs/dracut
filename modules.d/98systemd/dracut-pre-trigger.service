@@ -13,6 +13,7 @@ DefaultDependencies=no
 Before=systemd-udev-trigger.service dracut-initqueue.service
 After=dracut-pre-udev.service systemd-udev.service
 Wants=dracut-pre-udev.service systemd-udev.service
+ConditionPathExists=/etc/initrd-release
 
 [Service]
 Environment=HOME=/

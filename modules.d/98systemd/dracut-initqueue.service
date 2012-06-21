@@ -12,6 +12,7 @@ Description=Dracut initqueue hook
 DefaultDependencies=no
 After=systemd-udev-trigger.service
 Wants=systemd-udev-trigger.service
+ConditionPathExists=/etc/initrd-release
 
 [Service]
 Environment=HOME=/

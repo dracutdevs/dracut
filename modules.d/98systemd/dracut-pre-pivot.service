@@ -11,6 +11,7 @@
 Description=Dracut pre-pivot and cleanup hook
 DefaultDependencies=no
 Before=initrd-switch-root.service
+ConditionPathExists=/etc/initrd-release
 
 [Service]
 Environment=HOME=/
