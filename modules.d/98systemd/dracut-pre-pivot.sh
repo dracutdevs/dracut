@@ -45,6 +45,7 @@ udevadm info --cleanup-db
 [ -h /dev/root ] && rm -f /dev/root
 
 getarg rd.break rdbreak && emergency_shell -n switch_root "Break before switch_root"
-info "Switching root"
+
+cp -avr /lib/systemd/system/dracut*.service /run/systemd/system/
 
 export -p > /dracut-state.sh
