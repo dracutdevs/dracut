@@ -92,9 +92,9 @@ install() {
     install_all_kbd() {
         local rel f
 
-        find $(eval echo ${kbddir}/{${KBDSUBDIRS}}) -type f -print | \
-            while read f; do
-            inst_simple $f
+        for _src in $(eval echo ${kbddir}/{${KBDSUBDIRS}}); do
+            inst_dir "$_src"
+            cp --reflink=auto --sparse=auto -prfL -t "${initdir}/${_src%/*}" "$_src"
         done
 
         # remove unnecessary files
