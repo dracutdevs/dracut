@@ -10,9 +10,7 @@ install() {
     done
 
     if [ -d ${_terminfodir} ]; then
-        for f in ${_terminfodir}/*/*; do
-            inst_simple $f
-        done
+        inst_dir "$_terminfodir"
+        cp --reflink=auto --sparse=auto -prfL -t "${initdir}/${_terminfodir%/*}" "$_terminfodir"
     fi
 }
-
