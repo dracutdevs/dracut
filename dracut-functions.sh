@@ -1115,17 +1115,22 @@ for_each_kmod_dep() {
 
 
 find_kernel_modules_by_path () (
+    local _OLDIFS
     if ! [[ $hostonly ]]; then
+        _OLDIFS=$IFS
+        IFS=:
         while read a rest; do
             if [[ "${a##kernel}" != "$a" ]]; then
                 [[ "${a##kernel/$1}" != "$a" ]] || continue
             fi
-            echo $srcmods/${a%:}
+            echo $srcmods/$a
         done < $srcmods/modules.dep
+        IFS=$_OLDIFS
     else
         ( cd /sys/module; echo *; ) \
         | xargs modinfo -F filename -k $kernel 2>/dev/null
     fi
+    return 0
 )
 
 find_kernel_modules () {
