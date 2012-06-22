@@ -16,6 +16,7 @@ installkernel() {
                     *.ko.xz) [[ $(xz -dc   <$_f) =~ $_blockfuncs ]] && echo "$_f" ;;
                     esac
                 done
+                return 0
             }
             function rotor() {
                 local _f1 _f2
@@ -25,12 +26,15 @@ installkernel() {
                         echo "$_f2" 1>&${_side2}
                     fi
                 done | bmf1 1>&${_merge}
+                return 0
             }
             # Use two parallel streams to filter alternating modules.
             set +x
             eval "( ( rotor ) ${_side2}>&1 | bmf1 ) ${_merge}>&1"
             [[ $debug ]] && set -x
+            return 0
         }
+
         hostonly='' instmods sr_mod sd_mod scsi_dh scsi_dh_rdac scsi_dh_emc ata_piix
         hostonly='' instmods pcmcia firewire-ohci
         hostonly='' instmods usb_storage sdhci sdhci-pci
