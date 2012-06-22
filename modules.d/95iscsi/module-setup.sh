@@ -10,10 +10,6 @@ check() {
     # If hostonly was requested, fail the check if we are not actually
     # booting from root.
 
-    . $dracutfunctions
-
-    [[ $debug ]] && set -x
-
     is_iscsi() (
         local _dev
         _dev=$(get_maj_min $1)

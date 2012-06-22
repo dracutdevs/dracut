@@ -7,9 +7,6 @@ check() {
     # No mdadm?  No mdraid support.
     type -P mdadm >/dev/null || return 1
 
-    . $dracutfunctions
-    [[ $debug ]] && set -x
-
     check_mdraid() {
         local dev=$1 fs=$2 holder DEVPATH MD_UUID
         [[ "$fs" = "${fs%%_raid_member}" ]] && return 1

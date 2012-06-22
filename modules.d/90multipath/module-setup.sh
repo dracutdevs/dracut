@@ -7,9 +7,6 @@ check() {
     # if there's no multipath binary, no go.
     type -P multipath >/dev/null || return 1
 
-    . $dracutfunctions
-    [[ $debug ]] && set -x
-
     is_mpath() {
         local _dev
         _dev=$(get_maj_min $1)

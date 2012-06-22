@@ -8,9 +8,6 @@ check() {
     # no point in trying to support it in the initramfs.
     type -P btrfs >/dev/null || return 1
 
-    . $dracutfunctions
-    [[ $debug ]] && set -x
-
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         local _found
         for fs in ${host_fs_types[@]}; do

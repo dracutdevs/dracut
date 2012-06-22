@@ -11,7 +11,6 @@ check() {
     # mounted on, fail the hostonly check.
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         is_nbd() { [[ -b /dev/block/$1 && $1 == 43:* ]] ;}
-        . $dracutfunctions
 
         _rootdev=$(find_root_block_device)
         [[ -b /dev/block/$_rootdev ]] || return 1

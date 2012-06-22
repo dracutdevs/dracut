@@ -7,8 +7,6 @@ check() {
     # if cryptsetup is not installed, then we cannot support encrypted devices.
     type -P cryptsetup >/dev/null || return 1
 
-    . $dracutfunctions
-
     check_crypt() {
         local dev=$1 fs=$2
         [[ $fs = "crypto_LUKS" ]] || return 1

@@ -8,9 +8,6 @@ check() {
     # in trying to support it in the initramfs.
     type -P dmraid >/dev/null || return 1
 
-    . $dracutfunctions
-    [[ $debug ]] && set -x
-
     check_dmraid() {
         local dev=$1 fs=$2 holder DEVPATH DM_NAME
         [[ "$fs" = "${fs%%_raid_member}" ]] && return 1
