@@ -844,7 +844,7 @@ fi
 
 # strip binaries
 if [[ $do_strip = yes ]] ; then
-    for p in strip grep find; do
+    for p in strip xargs find; do
         if ! type -P $p >/dev/null; then
             derror "Could not find '$p'. You should run $0 with '--nostrip'."
             do_strip=no
@@ -853,12 +853,10 @@ if [[ $do_strip = yes ]] ; then
 fi
 
 if [[ $do_strip = yes ]] ; then
-    for f in $(find "$initdir" -type f \
-        \( -perm -0100 -or -perm -0010 -or -perm -0001 \
-           -or -path '*/lib/modules/*.ko' \) ); do
-        dinfo "Stripping $f"
-        strip -g "$f" 2>/dev/null|| :
-    done
+    find "$initdir" -type f \
+         \( -perm -0100 -or -perm -0010 -or -perm -0001 \
+        -or -path '*/lib/modules/*.ko' \) -print0 \
+        | xargs -0 strip -g 2>/dev/null
 fi
 
 type hardlink &>/dev/null && {
