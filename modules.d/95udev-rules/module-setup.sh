@@ -15,7 +15,7 @@ install() {
         inst "$_i"
 
         if ! [[ -f  ${initdir}/lib/systemd/systemd-udevd ]]; then
-            ln -s "$_i" ${initdir}/lib/systemd/systemd-udevd
+            ln -fs "$_i" ${initdir}/lib/systemd/systemd-udevd
         fi
         break
     done
