@@ -773,7 +773,7 @@ inst_libdir_file() {
 # Function install targets in the same paths inside overlay but decompressed
 # and without extensions (.gz, .bz2).
 inst_decompress() {
-    local _src _dst _realsrc _realdst _cmd
+    local _src _cmd
 
     for _src in $@
     do
@@ -782,20 +782,7 @@ inst_decompress() {
             *.bz2) _cmd='bzip2 -d' ;;
             *) return 1 ;;
         esac
-
-        if [[ -L ${_src} ]]
-        then
-            _realsrc="$(readlink -f ${_src})" # symlink target with extension
-            _dst="${_src%.*}" # symlink without extension
-            _realdst="${_realsrc%.*}" # symlink target without extension
-            mksubdirs "${initdir}/${_src}"
-            # Create symlink without extension to target without extension.
-            ln -sfn "${_realdst}" "${initdir}/${_dst}"
-        fi
-
-        # If the source is symlink we operate on its target.
-        [[ ${_realsrc} ]] && _src=${_realsrc}
-        inst ${_src}
+        inst_simple ${_src}
         # Decompress with chosen tool.  We assume that tool changes name e.g.
         # from 'name.gz' to 'name'.
         ${_cmd} "${initdir}${_src}"
