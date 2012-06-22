@@ -25,7 +25,5 @@ install() {
     inst /bin/grep
     inst /bin/usleep
     inst /usr/bin/[  /bin/[
-
-    mknod -m 0666 "${initdir}/dev/null" c 1 3
 }
 
