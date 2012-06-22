@@ -714,10 +714,9 @@ if [[ $kernel_only != yes ]]; then
         mkdir -m 0755 -p ${initdir}/lib/dracut/hooks/$_d
     done
     if [[ "$UID" = "0" ]]; then
-        for i in /dev/kmsg /dev/null /dev/console; do
-            [ -e $i ] || continue
-            cp -a $i $initdir/dev
-        done
+        [ -c ${initdir}/dev/null ] || mknod ${initdir}/dev/null c 1 3
+        [ -c ${initdir}/dev/kmsg ] || mknod ${initdir}/dev/kmsg c 1 11
+        [ -c ${initdir}/dev/console ] || mknod ${initdir}/dev/console c 5 1
     fi
 fi
 
