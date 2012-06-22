@@ -424,18 +424,21 @@ inst_simple() {
     [[ -f "$1" ]] || return 1
     strstr "$1" "/" || return 1
 
-    local _src=$1 target="${2:-$1}"
-    if ! [[ -d ${initdir}/$target ]]; then
-        [[ -e ${initdir}/$target ]] && return 0
-        [[ -L ${initdir}/$target ]] && return 0
-        [[ -d "${initdir}/${target%/*}" ]] || inst_dir "${target%/*}"
+    local _src=$1 _target="${2:-$1}"
+
+    [[ -L $_src ]] && return inst_symlink $_src $_target
+
+    if ! [[ -d ${initdir}/$_target ]]; then
+        [[ -e ${initdir}/$_target ]] && return 0
+        [[ -L ${initdir}/$_target ]] && return 0
+        [[ -d "${initdir}/${_target%/*}" ]] || inst_dir "${_target%/*}"
     fi
     # install checksum files also
     if [[ -e "${_src%/*}/.${_src##*/}.hmac" ]]; then
-        inst "${_src%/*}/.${_src##*/}.hmac" "${target%/*}/.${target##*/}.hmac"
+        inst "${_src%/*}/.${_src##*/}.hmac" "${_target%/*}/.${_target##*/}.hmac"
     fi
     ddebug "Installing $_src"
-    cp --reflink=auto --sparse=auto -pfL "$_src" "${initdir}/$target"
+    cp --reflink=auto --sparse=auto -pfL "$_src" "${initdir}/$_target"
 }
 
 # find symlinks linked to given library file
