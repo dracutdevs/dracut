@@ -24,6 +24,7 @@ install() {
     #add common users in /etc/passwd, it will be used by nfs/ssh currently
     egrep '^root:' "$initdir/etc/passwd" 2>/dev/null || echo  'root:x:0:0::/root:/bin/sh' >> "$initdir/etc/passwd"
     egrep '^nobody:' /etc/passwd >> "$initdir/etc/passwd"
+
     # install our scripts and hooks
     inst "$moddir/init.sh" "/init"
     inst "$moddir/initqueue.sh" "/sbin/initqueue"
@@ -43,12 +44,12 @@ install() {
     mkdir -p "${initdir}/var"
     [ -x /lib/systemd/systemd-timestamp ] && inst /lib/systemd/systemd-timestamp
     if [[ $realinitpath ]]; then
-        for i in $realinitpath; do 
+        for i in $realinitpath; do
             echo "rd.distroinit=$i"
         done > "${initdir}/etc/cmdline.d/distroinit.conf"
     fi
 
-    ln -s /proc/self/mounts "$initdir/etc/mtab"
+    ln -fs /proc/self/mounts "$initdir/etc/mtab"
 
     if [ -e /etc/os-release ]; then
         . /etc/os-release
@@ -74,5 +75,5 @@ install() {
         echo ANSI_COLOR=\"$ANSI_COLOR\"
     } > $initdir/etc/initrd-release
     echo dracut-$DRACUT_VERSION > $initdir/lib/dracut/dracut-$DRACUT_VERSION
-    ln -s initrd-release $initdir/etc/os-release
+    ln -sf initrd-release $initdir/etc/os-release
 }
