@@ -21,7 +21,7 @@
 #
 
 # Generic substring function.  If $2 is in $1, return 0.
-strstr() { [ "${1#*$2*}" != "$1" ]; }
+strstr() { [[ $1 = *$2* ]]; }
 
 if ! [[ $dracutbasedir ]]; then
     dracutbasedir=${BASH_SOURCE[0]%/*}
