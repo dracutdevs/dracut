@@ -101,7 +101,9 @@ install() {
             /etc/vconsole.conf \
             /etc/locale.conf
     else
-        > "$initdir/etc/machine-id"
+        if ! [[ -e "$initdir/etc/machine-id" ]]; then
+            > "$initdir/etc/machine-id"
+        fi
     fi
 
     ln -fs $systemdutildir/systemd "$initdir/init"
