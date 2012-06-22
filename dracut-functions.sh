@@ -435,7 +435,7 @@ inst_simple() {
         inst "${_src%/*}/.${_src##*/}.hmac" "${target%/*}/.${target##*/}.hmac"
     fi
     ddebug "Installing $_src"
-    cp --sparse=always -pfL "$_src" "${initdir}/$target"
+    cp --reflink=auto --sparse=auto -pfL "$_src" "${initdir}/$target"
 }
 
 # find symlinks linked to given library file
