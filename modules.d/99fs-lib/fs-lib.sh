@@ -80,63 +80,13 @@ fsck_able() {
 # note: all drivers inherit: _drv _fop _dev
 
 fsck_drv_xfs() {
-    local _ret
-
-    # fs must be cleanly mounted (and umounted) first, before attempting any
-    # xfs tools - if this works, nothing else should be needed
-    # note, that user is always dropped into the shell, if the filesystem is
-    # not mountable or if -f flag is found among _fop
-    mkdir -p /tmp/.xfs
-
-    info "trying to mount $_dev"
-    if mount -t xfs ${_fsopts+-o $_fsopts} "$_dev" "/tmp/.xfs" >/dev/null 2>&1; then
-        _ret=0
-        info "xfs: $_dev is clean"
-        umount "$_dev" >/dev/null 2>&1
-    else
-        _ret=4
-        warn "*** $_dev is unmountable"
-    fi
-    if [ $_ret -gt 0 ] || strstr "$_fop" "-f"; then
-        warn "*** Dropping you to a shell. You have"
-        warn "*** xfs_repair and xfs_check (xfs_db) available."
-        warn "*** Note that if xfs didn't mount properly, it's"
-        warn "*** probably pretty serious condition."
-        emergency_shell -n "(Repair filesystem)"
-    fi
-
-    rm -r /tmp/.xfs
-    return $_ret
+    # xfs fsck is not necessary... Either it mounts or not
+    return 0
 }
 
 fsck_drv_btrfs() {
-    local _ret
-
-    # fs must be cleanly mounted (and umounted) first, before attempting any
-    # btrfs tools - if this works, nothing else should be needed
-    # note, that user is always dropped into the shell, if the filesystem is
-    # not mountable or if -f flag is found among _fop
-    mkdir -p /tmp/.btrfs
-
-    info "trying to mount $_dev"
-    if mount -t btrfs ${_fsopts+-o $_fsopts} "$_dev" "/tmp/.btrfs" >/dev/null 2>&1; then
-        _ret=0
-        info "btrfs: $_dev is clean"
-        umount "$_dev" >/dev/null 2>&1
-    else
-        _ret=4
-        warn "*** $_dev is unmountable"
-    fi
-    if [ $_ret -gt 0 ] || strstr "$_fop" "-f"; then
-        warn "*** Dropping you to a shell. You have"
-        warn "*** btrfsck available."
-        warn "*** Note that if btrfs didn't mount properly, it's"
-        warn "*** probably pretty serious condition."
-        emergency_shell -n "(Repair filesystem)"
-    fi
-
-    rm -r /tmp/.btrfs
-    return $_ret
+    # btrfs fsck is not necessary... Either it mounts or not
+    return 0
 }
 
 
