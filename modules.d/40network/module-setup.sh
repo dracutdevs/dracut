@@ -4,7 +4,6 @@
 
 check() {
     local _program
-    . $dracutfunctions
 
     for _program in ip arping dhclient ; do
         if ! type -P $_program >/dev/null; then
@@ -43,6 +42,7 @@ installkernel() {
                 && ! $_fcont =~ iw_handler_get_spy ]] \
                 && echo "$_fname"
             done
+            return 0
         }
         function rotor() {
             local _f1 _f2
@@ -52,13 +52,13 @@ installkernel() {
                     echo "$_f2" 1>&${_side2}
                 fi
             done | nmf1 1>&${_merge}
+            return 0
         }
         # Use two parallel streams to filter alternating modules.
         set +x
         eval "( ( rotor ) ${_side2}>&1 | nmf1 ) ${_merge}>&1"
-        _ret=$?
         [[ $debug ]] && set -x
-        return $_ret
+        return 0
     }
 
     { find_kernel_modules_by_path drivers/net; if [ "$_arch" = "s390" -o "$_arch" = "s390x" ]; then find_kernel_modules_by_path drivers/s390/net; fi; } \
