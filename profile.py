@@ -36,7 +36,8 @@ def gen_times(t):
         fx=float(x[0])
         if oldx:
             #print fx - float(oldx[0]), x[0], x[1], oldx[0], oldx[1]
-            yield (fx - float(oldx[0]), oldx[1])
+            if ((fx - float(oldx[0])) > 0):
+                    yield (fx - float(oldx[0]), oldx[1])
 
         oldx = x
 
