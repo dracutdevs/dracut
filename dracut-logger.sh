@@ -164,6 +164,39 @@ dlog_init() {
     readonly maxloglvl=$maxloglvl_l
     export maxloglvl
 
+
+    if (($stdloglvl < 6)) && (($kmsgloglvl < 6)) && (($fileloglvl < 6)); then
+        unset dtrace
+        dtrace() { :; };
+    fi
+
+    if (($stdloglvl < 5)) && (($kmsgloglvl < 5)) && (($fileloglvl < 5)); then
+        unset ddebug
+        ddebug() { :; };
+    fi
+
+    if (($stdloglvl < 4)) && (($kmsgloglvl < 4)) && (($fileloglvl < 4)); then
+        unset dinfo
+        dinfo() { :; };
+    fi
+
+    if (($stdloglvl < 3)) && (($kmsgloglvl < 3)) && (($fileloglvl < 3)); then
+        unset dwarn
+        dwarn() { :; };
+        unset dwarning
+        dwarning() { :; };
+    fi
+
+    if (($stdloglvl < 2)) && (($kmsgloglvl < 2)) && (($fileloglvl < 2)); then
+        unset derror
+        derror() { :; };
+    fi
+
+    if (($stdloglvl < 1)) && (($kmsgloglvl < 1)) && (($fileloglvl < 1)); then
+        unset dfatal
+        dfatal() { :; };
+    fi
+
     [ -n "$errmsg" ] && derror "$errmsg"
 
     return $ret
