@@ -22,8 +22,6 @@ RD_DEBUG=""
 
 trap "emergency_shell Signal caught!" 0
 
-[ -c /dev/null ] || mknod -m 0666 /dev/null c 1 3
-
 # mount some important things
 [ ! -d /proc/self ] && \
     mount -t proc -o nosuid,noexec,nodev proc /proc >/dev/null 2>&1
