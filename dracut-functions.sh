@@ -74,7 +74,7 @@ fi
 
 # Create all subdirectories for given path without creating the last element.
 # $1 = path
-mksubdirs() { mkdir -m 0755 -p ${1%/*}; }
+mksubdirs() { [[ -e ${1%/*} ]] || mkdir -m 0755 -p ${1%/*}; }
 
 # Version comparision function.  Assumes Linux style version scheme.
 # $1 = version a
