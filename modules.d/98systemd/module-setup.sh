@@ -116,30 +116,30 @@ install() {
 
     inst "$moddir/initrd-switch-root.target" ${systemdsystemunitdir}/initrd-switch-root.target
     inst "$moddir/initrd-switch-root.service" ${systemdsystemunitdir}/initrd-switch-root.service
-    ln -s basic.target "${initdir}${systemdsystemunitdir}/default.target"
+    ln -fs basic.target "${initdir}${systemdsystemunitdir}/default.target"
 
     mkdir -p "${initdir}${systemdsystemunitdir}/basic.target.wants"
 
     inst "$moddir/dracut-cmdline.sh" /bin/dracut-cmdline
     inst "$moddir/dracut-cmdline.service" ${systemdsystemunitdir}/dracut-cmdline.service
-    ln -s ../dracut-cmdline.service "${initdir}${systemdsystemunitdir}/basic.target.wants/dracut-cmdline.service"
+    ln -fs ../dracut-cmdline.service "${initdir}${systemdsystemunitdir}/basic.target.wants/dracut-cmdline.service"
 
     inst "$moddir/dracut-pre-udev.sh" /bin/dracut-pre-udev
     inst "$moddir/dracut-pre-udev.service" ${systemdsystemunitdir}/dracut-pre-udev.service
-    ln -s ../dracut-pre-udev.service "${initdir}${systemdsystemunitdir}/basic.target.wants/dracut-pre-udev.service"
+    ln -fs ../dracut-pre-udev.service "${initdir}${systemdsystemunitdir}/basic.target.wants/dracut-pre-udev.service"
 
     inst "$moddir/dracut-pre-trigger.sh" /bin/dracut-pre-trigger
     inst "$moddir/dracut-pre-trigger.service" ${systemdsystemunitdir}/dracut-pre-trigger.service
-    ln -s ../dracut-pre-trigger.service "${initdir}${systemdsystemunitdir}/basic.target.wants/dracut-pre-trigger.service"
+    ln -fs ../dracut-pre-trigger.service "${initdir}${systemdsystemunitdir}/basic.target.wants/dracut-pre-trigger.service"
 
     inst "$moddir/dracut-initqueue.sh" /bin/dracut-initqueue
     inst "$moddir/dracut-initqueue.service" ${systemdsystemunitdir}/dracut-initqueue.service
-    ln -s ../dracut-initqueue.service "${initdir}${systemdsystemunitdir}/basic.target.wants/dracut-initqueue.service"
+    ln -fs ../dracut-initqueue.service "${initdir}${systemdsystemunitdir}/basic.target.wants/dracut-initqueue.service"
 
     inst "$moddir/dracut-pre-pivot.sh" /bin/dracut-pre-pivot
     inst "$moddir/dracut-pre-pivot.service" ${systemdsystemunitdir}/dracut-pre-pivot.service
     mkdir -p "${initdir}${systemdsystemunitdir}/initrd-switch-root.target.wants"
-    ln -s ../dracut-pre-pivot.service "${initdir}${systemdsystemunitdir}/initrd-switch-root.target.wants/dracut-pre-pivot.service"
+    ln -fs ../dracut-pre-pivot.service "${initdir}${systemdsystemunitdir}/initrd-switch-root.target.wants/dracut-pre-pivot.service"
 
 }
 
