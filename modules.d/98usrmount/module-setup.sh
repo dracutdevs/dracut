@@ -8,7 +8,7 @@ check() {
 }
 
 depends() {
-    return 0
+    echo 'fs-lib'
 }
 
 install() {
