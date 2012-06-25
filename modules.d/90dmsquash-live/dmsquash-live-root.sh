@@ -3,7 +3,6 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
-type det_fs >/dev/null 2>&1 || . /lib/fs-lib.sh
 
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
