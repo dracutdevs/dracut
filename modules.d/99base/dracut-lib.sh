@@ -297,12 +297,12 @@ source_conf() {
 
 die() {
     {
-        echo "<24>dracut: FATAL: $@";
+        echo "<24>dracut: FATAL: $*";
         echo "<24>dracut: Refusing to continue";
     } > /dev/kmsg
 
     {
-        echo "warn dracut: FATAL: \"$@\"";
+        echo "warn dracut: FATAL: \"$*\"";
         echo "warn dracut: Refusing to continue";
     } >> $hookdir/emergency/01-die.sh
 
@@ -327,25 +327,25 @@ if [ ! -x /lib/systemd/systemd ]; then
 
     warn() {
         check_quiet
-        echo "<28>dracut Warning: $@" > /dev/kmsg
-        echo "dracut Warning: $@" >&2
+        echo "<28>dracut Warning: $*" > /dev/kmsg
+        echo "dracut Warning: $*" >&2
     }
 
     info() {
         check_quiet
-        echo "<30>dracut: $@" > /dev/kmsg
+        echo "<30>dracut: $*" > /dev/kmsg
         [ "$DRACUT_QUIET" != "yes" ] && \
-            echo "dracut: $@"
+            echo "dracut: $*"
     }
 
 else
 
     warn() {
-        echo "Warning: $@" >&2
+        echo "Warning: $*" >&2
     }
 
     info() {
-        echo "$@"
+        echo "$*"
     }
 
 fi
@@ -827,7 +827,7 @@ emergency_shell()
     fi
 
     echo ; echo
-    warn $@
+    warn "$*"
     source_hook "$hook"
     echo
 
