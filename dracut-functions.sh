@@ -20,6 +20,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+[[ $initdir ]] || { echo "ERROR: initdir $initdir not set" 2>&1; exit 10; }
+[[ -d $initdir ]] || mkdir -p $initdir
+export initdir
+
 # Generic substring function.  If $2 is in $1, return 0.
 strstr() { [[ $1 = *$2* ]]; }
 
