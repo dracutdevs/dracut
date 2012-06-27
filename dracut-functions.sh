@@ -1050,7 +1050,10 @@ install_kmod_with_fw() {
     [[ -e "${initdir}/lib/modules/$kernel/${1##*/lib/modules/$kernel/}" ]] \
         && return 0
 
-    [[ -e "$initdir/.kernelmodseen/${1##*/}" ]] && return 0
+    if [[ -e "$initdir/.kernelmodseen/${1##*/}" ]]; then
+        read ret < "$initdir/.kernelmodseen/${1##*/}"
+        return $ret
+    fi
 
     if [[ $omit_drivers ]]; then
         local _kmod=${1##*/}
@@ -1066,11 +1069,11 @@ install_kmod_with_fw() {
         fi
     fi
 
+    inst_simple "$1" "/lib/modules/$kernel/${1##*/lib/modules/$kernel/}"
+    ret=$?
     [ -d "$initdir/.kernelmodseen" ] && \
-        > "$initdir/.kernelmodseen/${1##*/}"
-
-    inst_simple "$1" "/lib/modules/$kernel/${1##*/lib/modules/$kernel/}" \
-        || return $?
+        echo $ret > "$initdir/.kernelmodseen/${1##*/}"
+    (($ret != 0)) && return $ret
 
     local _modname=${1##*/} _fwdir _found _fw
     _modname=${_modname%.ko*}
@@ -1113,6 +1116,35 @@ for_each_kmod_dep() {
     )
 }
 
+do_lazy_kmod_dep() {
+    local _moddirname=${srcmods%%/lib/modules/*}
+
+    [[ -f "$initdir/.kernelmodseen/lazylist" ]] || return 0
+
+    [[ -n ${_moddirname} ]] && _moddirname="-d ${_moddirname}/"
+
+    xargs modprobe -a $_moddirname --ignore-install --show-depends \
+        < "$initdir/.kernelmodseen/lazylist" 2>/dev/null \
+        | sort -u \
+        | while read _cmd _modpath _options; do
+        [[ $_cmd = insmod ]] || continue
+        echo "$_modpath"
+    done > "$initdir/.kernelmodseen/lazylist.dep"
+
+    ( while read _modpath; do
+        inst_simple "$_modpath" "/lib/modules/$kernel/${_modpath##*/lib/modules/$kernel/}" || exit $?
+    done < "$initdir/.kernelmodseen/lazylist.dep" ) &
+
+    for _fw in $(xargs modinfo -k $kernel -F firmware < "$initdir/.kernelmodseen/lazylist.dep"); do
+        for _fwdir in $fw_dir; do
+            if [[ -d $_fwdir && -f $_fwdir/$_fw ]]; then
+                inst_simple "$_fwdir/$_fw" "/lib/firmware/$_fw"
+                break
+            fi
+        done
+    done
+    wait
+}
 
 find_kernel_modules_by_path () (
     local _OLDIFS
@@ -1120,9 +1152,7 @@ find_kernel_modules_by_path () (
         _OLDIFS=$IFS
         IFS=:
         while read a rest; do
-            if [[ "${a##kernel}" != "$a" ]]; then
-                [[ "${a##kernel/$1}" != "$a" ]] || continue
-            fi
+            [[ $a = kernel*/$1/* ]] || continue
             echo $srcmods/$a
         done < $srcmods/modules.dep
         IFS=$_OLDIFS
@@ -1155,17 +1185,10 @@ instmods() {
         local _ret=0 _mod="$1"
         case $_mod in
             =*)
-                if [ -f $srcmods/modules.${_mod#=} ]; then
-                    ( [[ "$_mpargs" ]] && echo $_mpargs
-                      cat "${srcmods}/modules.${_mod#=}" ) \
-                    | instmods
-                    ((_ret+=$?))
-                else
-                    ( [[ "$_mpargs" ]] && echo $_mpargs
-                      find "$srcmods" -type f -path "*/${_mod#=}/*" -printf '%f\n' ) \
-                    | instmods
-                    ((_ret+=$?))
-                fi
+                ( [[ "$_mpargs" ]] && echo $_mpargs
+                    find_kernel_modules_by_path "${_mod#=}" ) \
+                        | instmods
+                ((_ret+=$?))
                 ;;
             --*) _mpargs+=" $_mod" ;;
             i2o_scsi) return 0;; # Do not load this diagnostic-only module
@@ -1173,7 +1196,10 @@ instmods() {
                 _mod=${_mod##*/}
                 # if we are already installed, skip this module and go on
                 # to the next one.
-                [[ -f "$initdir/.kernelmodseen/${_mod%.ko}.ko" ]] && return
+                if [[ -f "$initdir/.kernelmodseen/${_mod%.ko}.ko" ]]; then
+                    read _ret <"$initdir/.kernelmodseen/${_mod%.ko}.ko"
+                    return $_ret
+                fi
 
                 if [[ $omit_drivers ]] && [[ "$1" =~ $omit_drivers ]]; then
                     dinfo "Omitting driver ${_mod##$srcmods}"
@@ -1186,17 +1212,21 @@ instmods() {
                     && ! [[ "$add_drivers" =~ " ${_mod} " ]] \
                     && return 0
 
-                # We use '-d' option in modprobe only if modules prefix path
-                # differs from default '/'.  This allows us to use Dracut with
-                # old version of modprobe which doesn't have '-d' option.
-                local _moddirname=${srcmods%%/lib/modules/*}
-                [[ -n ${_moddirname} ]] && _moddirname="-d ${_moddirname}/"
+                if [[ "$_check" = "yes" ]]; then
+                    # We use '-d' option in modprobe only if modules prefix path
+                    # differs from default '/'.  This allows us to use Dracut with
+                    # old version of modprobe which doesn't have '-d' option.
+                    local _moddirname=${srcmods%%/lib/modules/*}
+                    [[ -n ${_moddirname} ]] && _moddirname="-d ${_moddirname}/"
 
-                # ok, load the module, all its dependencies, and any firmware
-                # it may require
-                for_each_kmod_dep install_kmod_with_fw $_mod \
-                    --set-version $kernel ${_moddirname} $_mpargs
-                ((_ret+=$?))
+                    # ok, load the module, all its dependencies, and any firmware
+                    # it may require
+                    for_each_kmod_dep install_kmod_with_fw $_mod \
+                        --set-version $kernel ${_moddirname} $_mpargs
+                    ((_ret+=$?))
+                else
+                    echo $_mod >> "$initdir/.kernelmodseen/lazylist"
+                fi
                 ;;
         esac
         return $_ret

@@ -773,6 +773,10 @@ dinfo "*** Including modules done ***"
 
 ## final stuff that has to happen
 
+dinfo "*** Installing kernel module dependencies and firmware ***"
+do_lazy_kmod_dep
+dinfo "*** Installing kernel module dependencies and firmware done ***"
+
 # generate module dependencies for the initrd
 if [[ -d $initdir/lib/modules/$kernel ]] && \
     ! depmod -a -b "$initdir" $kernel; then
@@ -834,7 +838,6 @@ if [[ $kernel_only != yes ]]; then
 fi
 
 rm -fr "$initdir/.kernelmodseen"
-
 
 if (($maxloglvl >= 5)); then
     ddebug "Listing sizes of included files:"
