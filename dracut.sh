@@ -465,12 +465,19 @@ fi
 [[ $hostonly = yes ]] && hostonly="-h"
 [[ $hostonly != "-h" ]] && unset hostonly
 
+readonly TMPDIR="$tmpdir"
+readonly initdir=$(mktemp --tmpdir="$TMPDIR/" -d -t initramfs.XXXXXX)
+[ -d "$initdir" ] || {
+    echo "dracut: mktemp --tmpdir=\"$TMPDIR/\" -d -t initramfs.XXXXXXfailed." >&2
+    exit 1
+}
+
 if [[ -f $dracutbasedir/dracut-functions.sh ]]; then
     . $dracutbasedir/dracut-functions.sh
 else
-    echo "Cannot find $dracutbasedir/dracut-functions.sh." >&2
-    echo "Are you running from a git checkout?" >&2
-    echo "Try passing -l as an argument to $0" >&2
+    echo "dracut: Cannot find $dracutbasedir/dracut-functions.sh." >&2
+    echo "dracut: Are you running from a git checkout?" >&2
+    echo "dracut: Try passing -l as an argument to $0" >&2
     exit 1
 fi
 
@@ -561,13 +568,6 @@ elif [[ -f "$outfile" && ! -w "$outfile" ]]; then
     dfatal "No permission to write $outfile."
     exit 1
 fi
-
-readonly TMPDIR="$tmpdir"
-readonly initdir=$(mktemp --tmpdir="$TMPDIR/" -d -t initramfs.XXXXXX)
-[ -d "$initdir" ] || {
-    dfatal "mktemp failed."
-    exit 1
-}
 
 # clean up after ourselves no matter how we die.
 trap 'ret=$?;[[ $keep ]] && echo "Not removing $initdir." >&2 || rm -rf "$initdir";exit $ret;' EXIT
