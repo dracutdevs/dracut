@@ -12,7 +12,7 @@ depends() {
 }
 
 install() {
-    inst "$moddir/url-lib.sh" "/lib/url-lib.sh"
+    inst_simple "$moddir/url-lib.sh" "/lib/url-lib.sh"
     dracut_install curl
     mkdir -m 0755 -p "$initdir/etc/ssl/certs"
     if ! inst_any -t /etc/ssl/certs/ca-bundle.crt \

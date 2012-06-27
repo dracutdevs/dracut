@@ -26,9 +26,9 @@ install() {
     egrep '^nobody:' /etc/passwd >> "$initdir/etc/passwd"
 
     # install our scripts and hooks
-    inst "$moddir/init.sh" "/init"
-    inst "$moddir/initqueue.sh" "/sbin/initqueue"
-    inst "$moddir/loginit.sh" "/sbin/loginit"
+    inst_script "$moddir/init.sh" "/init"
+    inst_script "$moddir/initqueue.sh" "/sbin/initqueue"
+    inst_script "$moddir/loginit.sh" "/sbin/loginit"
 
     [ -e "${initdir}/lib" ] || mkdir -m 0755 -p ${initdir}/lib
     mkdir -m 0755 -p ${initdir}/lib/dracut
@@ -38,8 +38,8 @@ install() {
 
     dracut_install switch_root || dfatal "Failed to install switch_root"
 
-    inst "$moddir/dracut-lib.sh" "/lib/dracut-lib.sh"
-    inst "$moddir/mount-hook.sh" "/usr/bin/mount-hook"
+    inst_simple "$moddir/dracut-lib.sh" "/lib/dracut-lib.sh"
+    inst_script "$moddir/mount-hook.sh" "/usr/bin/mount-hook"
     inst_hook cmdline 10 "$moddir/parse-root-opts.sh"
     mkdir -p "${initdir}/var"
     [ -x /lib/systemd/systemd-timestamp ] && inst /lib/systemd/systemd-timestamp

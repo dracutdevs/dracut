@@ -12,9 +12,8 @@ depends() {
 }
 
 install() {
-    dracut_install bash
-    dracut_install find ldconfig mv rm cp ln 
+    dracut_install bash find ldconfig mv rm cp ln
     inst_hook pre-pivot 99 "$moddir/do-convertfs.sh"
-    inst "$moddir/convertfs.sh" /usr/bin/convertfs
+    inst_script "$moddir/convertfs.sh" /usr/bin/convertfs
 }
 

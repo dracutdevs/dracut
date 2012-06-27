@@ -55,7 +55,7 @@ install() {
     # files, but provides the one below:
     inst_rules 64-device-mapper.rules
 
-    inst "$moddir/lvm_scan.sh" /sbin/lvm_scan
+    inst_script "$moddir/lvm_scan.sh" /sbin/lvm_scan
     inst_hook cmdline 30 "$moddir/parse-lvm.sh"
 
     inst_libdir_file "libdevmapper-event-lvm*.so"

@@ -16,9 +16,7 @@ install() {
     local _installs
     if type -P rsyslogd >/dev/null; then
         _installs="rsyslogd"
-        inst_libdir_file rsyslog/lmnet.so
-        inst_libdir_file rsyslog/imklog.so
-        inst_libdir_file rsyslog/imuxsock.so
+        inst_libdir_file rsyslog/lmnet.so rsyslog/imklog.so rsyslog/imuxsock.so
     elif type -P syslogd >/dev/null; then
         _installs="syslogd"
     elif type -P syslog-ng >/dev/null; then
@@ -28,8 +26,7 @@ install() {
             "is selected to be installed. Please check."
     fi
     if [ -n "$_installs" ]; then
-        dracut_install cat
-        dracut_install $_installs
+        dracut_install cat $_installs
         inst_hook cmdline  90 "$moddir/parse-syslog-opts.sh"
         inst_hook pre-udev 61 "$moddir/syslog-genrules.sh"
         inst_hook cleanup 99 "$moddir/syslog-cleanup.sh"

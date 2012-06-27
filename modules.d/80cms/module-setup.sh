@@ -22,17 +22,11 @@ installkernel() {
 install() {
     inst_hook pre-trigger 30 "$moddir/cmssetup.sh"
     inst_hook pre-pivot 95 "$moddir/cms-write-ifcfg.sh"
-    inst "$moddir/cmsifup.sh" /sbin/cmsifup
-    inst /etc/cmsfs-fuse/filetypes.conf
-    inst /etc/udev/rules.d/99-fuse.rules
-    inst /etc/fuse.conf
-
-    for file in $(rpm -ql s390utils-base); do
-	[[ -f $file ]] && inst $file
-    done
+    inst_script "$moddir/cmsifup.sh" /sbin/cmsifup
+    dracut_install /etc/cmsfs-fuse/filetypes.conf /etc/udev/rules.d/99-fuse.rules /etc/fuse.conf \
+        cmsfs-fuse fusermount ulockmgr_server bash tr insmod rmmod cat normalize_dasd_arg \
+        $(rpm -ql s390utils-base)
 
     inst_libdir_file "gconv/*"
-#inst /usr/lib/locale/locale-archive
-
-    dracut_install cmsfs-fuse fusermount ulockmgr_server bash tr insmod rmmod cat normalize_dasd_arg
+    #inst /usr/lib/locale/locale-archive
 }

@@ -22,13 +22,12 @@ installkernel() {
 
 install() {
     inst_hook cmdline 30 "$moddir/parse-zfcp.sh"
-    dracut_install tr
+    dracut_install tr zfcp_cio_free grep sed seq
 
-    inst /sbin/zfcpconf.sh
+    inst_script /sbin/zfcpconf.sh
     inst_rules 56-zfcp.rules
 
     if [[ $hostonly ]]; then
-        inst /etc/zfcp.conf
+        inst_simple /etc/zfcp.conf
     fi
-    dracut_install zfcp_cio_free grep sed seq
 }

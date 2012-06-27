@@ -32,7 +32,6 @@ installkernel() {
 install() {
     inst nbd-client
     inst_hook cmdline 90 "$moddir/parse-nbdroot.sh"
-
-    inst "$moddir/nbdroot.sh" "/sbin/nbdroot"
+    inst_script "$moddir/nbdroot.sh" "/sbin/nbdroot"
 }
 

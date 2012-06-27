@@ -37,14 +37,14 @@ inst_sshenv()
 
     # Copy over ssh key and knowhosts if needed
     [[ $sshkey ]] && {
-        inst $sshkey
-        [[ -f /root/.ssh/known_hosts ]] && inst /root/.ssh/known_hosts
-        [[ -f /etc/ssh/ssh_known_hosts ]] && inst /etc/ssh/ssh_known_hosts
+        inst_simple $sshkey
+        [[ -f /root/.ssh/known_hosts ]] && inst_simple /root/.ssh/known_hosts
+        [[ -f /etc/ssh/ssh_known_hosts ]] && inst_simple /etc/ssh/ssh_known_hosts
     }
 
     # Copy over root and system-wide ssh configs.
-    [[ -f /root/.ssh/config ]] && inst /root/.ssh/config
-    [[ -f /etc/ssh/ssh_config ]] && inst /etc/ssh/ssh_config
+    [[ -f /root/.ssh/config ]] && inst_simple /root/.ssh/config
+    [[ -f /etc/ssh/ssh_config ]] && inst_simple /etc/ssh/ssh_config
 
     return 0
 }
@@ -55,8 +55,7 @@ install() {
         return 1
     }
 
-    inst ssh
-    inst scp
+    dracut_install ssh scp
     inst_sshenv
 }
 

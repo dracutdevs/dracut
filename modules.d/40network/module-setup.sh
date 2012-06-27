@@ -79,10 +79,10 @@ install() {
     local _arch _i _dir
     dracut_install ip arping tr dhclient
     dracut_install -o brctl
-    inst "$moddir/ifup.sh" "/sbin/ifup"
-    inst "$moddir/netroot.sh" "/sbin/netroot"
-    inst "$moddir/dhclient-script.sh" "/sbin/dhclient-script"
-    inst "$moddir/net-lib.sh" "/lib/net-lib.sh"
+    inst_script "$moddir/ifup.sh" "/sbin/ifup"
+    inst_script "$moddir/netroot.sh" "/sbin/netroot"
+    inst_script "$moddir/dhclient-script.sh" "/sbin/dhclient-script"
+    inst_simple "$moddir/net-lib.sh" "/lib/net-lib.sh"
     inst_simple "$moddir/dhclient.conf" "/etc/dhclient.conf"
     inst_hook pre-udev 50 "$moddir/ifname-genrules.sh"
     inst_hook pre-udev 60 "$moddir/net-genrules.sh"
@@ -96,7 +96,7 @@ install() {
 
     _arch=$(uname -m)
 
-    inst_libdir_file {"tls/$_arch/",tls/,"$_arch/",}"libnss_dns.so.*"
-    inst_libdir_file {"tls/$_arch/",tls/,"$_arch/",}"libnss_mdns4_minimal.so.*"
+    inst_libdir_file {"tls/$_arch/",tls/,"$_arch/",}"libnss_dns.so.*" \
+        {"tls/$_arch/",tls/,"$_arch/",}"libnss_mdns4_minimal.so.*"
 }
 

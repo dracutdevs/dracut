@@ -69,7 +69,7 @@ installkernel() {
 
 install() {
     local _f
-    for _f in  \
+    dracut_install -o  \
         /sbin/dmsetup \
         /sbin/kpartx \
         /sbin/mpath_wait \
@@ -79,12 +79,9 @@ install() {
         /sbin/xdrgetprio \
         /etc/xdrdevices.conf \
         /etc/multipath.conf \
-        /etc/multipath/*; do
-        [ -e "$_f" ] && inst "$_f"
-    done
+        /etc/multipath/*
 
-    inst_libdir_file "libmultipath*"
-    inst_libdir_file "multipath/*"
+    inst_libdir_file "libmultipath*" "multipath/*"
 
     inst_hook pre-trigger 02 "$moddir/multipathd.sh"
     inst_hook cleanup   02 "$moddir/multipathd-stop.sh"
