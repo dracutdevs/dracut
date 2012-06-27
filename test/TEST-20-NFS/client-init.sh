@@ -14,5 +14,7 @@ while read dev fs fstype opts rest; do
     echo "nfs-OK $dev $fstype $opts" > /dev/sda
     break
 done < /proc/mounts
+#echo 'V' > /dev/watchdog
 #sh -i
+>/dev/watchdog
 poweroff -f
