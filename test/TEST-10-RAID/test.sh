@@ -35,8 +35,8 @@ test_setup() {
 	done
 	dracut_install -o ${_terminfodir}/l/linux
 	inst ./test-init.sh /sbin/init
-	inst "$basedir/modules.d/40network/dhclient-script" "/sbin/dhclient-script"
-	inst "$basedir/modules.d/40network/ifup" "/sbin/ifup"
+	inst "$basedir/modules.d/40network/dhclient-script.sh" "/sbin/dhclient-script"
+	inst "$basedir/modules.d/40network/ifup.sh" "/sbin/ifup"
 	dracut_install grep
 	dracut_install /lib/systemd/systemd-shutdown
 	find_binary plymouth >/dev/null && dracut_install plymouth
