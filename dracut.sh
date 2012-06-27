@@ -720,8 +720,6 @@ if [[ $kernel_only != yes ]]; then
     fi
 fi
 
-mkdir -p "$initdir/.kernelmodseen"
-
 mods_to_load=""
 # check all our modules to see if they should be sourced.
 # This builds a list of modules that we will install next.
@@ -774,15 +772,8 @@ dinfo "*** Including modules done ***"
 ## final stuff that has to happen
 
 dinfo "*** Installing kernel module dependencies and firmware ***"
-do_lazy_kmod_dep
+dracut_kernel_post
 dinfo "*** Installing kernel module dependencies and firmware done ***"
-
-# generate module dependencies for the initrd
-if [[ -d $initdir/lib/modules/$kernel ]] && \
-    ! depmod -a -b "$initdir" $kernel; then
-    dfatal "\"depmod -a $kernel\" failed."
-    exit 1
-fi
 
 while pop include_src src && pop include_target tgt; do
     if [[ $src && $tgt ]]; then
@@ -836,8 +827,6 @@ if [[ $kernel_only != yes ]]; then
         fi
     fi
 fi
-
-rm -fr "$initdir/.kernelmodseen"
 
 if (($maxloglvl >= 5)); then
     ddebug "Listing sizes of included files:"

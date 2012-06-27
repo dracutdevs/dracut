@@ -22,6 +22,7 @@
 
 [[ $initdir ]] || { echo "ERROR: initdir $initdir not set" 2>&1; exit 10; }
 [[ -d $initdir ]] || mkdir -p $initdir
+[[ -d "$initdir/.kernelmodseen" ]] || mkdir -p "$initdir/.kernelmodseen"
 export initdir
 
 # Generic substring function.  If $2 is in $1, return 0.
@@ -1122,7 +1123,7 @@ for_each_kmod_dep() {
     )
 }
 
-do_lazy_kmod_dep() {
+dracut_kernel_post() {
     local _moddirname=${srcmods%%/lib/modules/*}
 
     [[ -f "$initdir/.kernelmodseen/lazylist" ]] || return 0
@@ -1150,6 +1151,26 @@ do_lazy_kmod_dep() {
         done
     done
     wait
+
+    for _f in modules.builtin.bin modules.builtin; do
+        [[ $srcmods/$_f ]] && break
+    done || {
+        dfatal "No modules.builtin.bin and modules.builtin found!"
+        return 1
+    }
+
+    for _f in modules.builtin.bin modules.builtin modules.order; do
+        [[ $srcmods/$_f ]] && inst_simple "$srcmods/$_f" "/lib/modules/$kernel/$_f"
+    done
+
+    # generate module dependencies for the initrd
+    if [[ -d $initdir/lib/modules/$kernel ]] && \
+        ! depmod -a -b "$initdir" $kernel; then
+        dfatal "\"depmod -a $kernel\" failed."
+        exit 1
+    fi
+
+    rm -fr "$initdir/.kernelmodseen"
 }
 
 find_kernel_modules_by_path () (
