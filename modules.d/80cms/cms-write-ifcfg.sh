@@ -89,7 +89,7 @@ EOF
     for option in LAYER2 PORTNO; do
 	[ -z "${!option}" ] && continue
 	[ -n "$optstr" ] && optstr=${optstr}" "
-	optstr=${optstr}$(echo ${option} | tr [[:upper:]] [[:lower:]])"="${!option}
+	optstr=${optstr}$(echo ${option} | sed 'y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/')"="${!option}
     done
 # write single quotes since network.py removes double quotes but we need quotes
     echo "OPTIONS='$optstr'" >> $IFCFGFILE

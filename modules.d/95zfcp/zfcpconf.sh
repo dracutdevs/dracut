@@ -30,7 +30,7 @@ if [ -f "$CONFIG" ]; then
     if [ ! -d /sys/bus/ccw/drivers/zfcp ]; then
         return
     fi
-    tr "A-Z" "a-z" < $CONFIG| while read line; do
+    sed 'y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/' < $CONFIG| while read line; do
     case $line in
         \#*) ;;
         *)

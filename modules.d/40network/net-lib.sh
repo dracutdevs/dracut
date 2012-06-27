@@ -13,7 +13,7 @@ iface_for_remote_addr() {
 }
 
 iface_for_mac() {
-    local interface="" mac="$(echo $1 | tr '[:upper:]' '[:lower:]')"
+    local interface="" mac="$(echo $1 | sed 'y/ABCDEF/abcdef/')"
     for interface in /sys/class/net/*; do
         if [ $(cat $interface/address) = "$mac" ]; then
             echo ${interface##*/}

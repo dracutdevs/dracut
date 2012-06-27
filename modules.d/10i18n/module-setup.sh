@@ -31,7 +31,7 @@ install() {
             *) cmd=grep ;;
         esac
 
-        for INCL in $($cmd "^include " $MAP | cut -d' ' -f2 | tr -d '"'); do
+        for INCL in $($cmd "^include " $MAP | while read a a b; do echo ${a/\"/}; done); do
             for FN in $(find ${kbddir}/keymaps -type f -name $INCL\*); do
                 findkeymap $FN
             done

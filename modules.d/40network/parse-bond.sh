@@ -32,8 +32,8 @@ parsebond() {
     case $# in
     0)  bondname=bond0; bondslaves="eth0 eth1" ;;
     1)  bondname=$1; bondslaves="eth0 eth1" ;;
-    2)  bondname=$1; bondslaves=$(echo $2|tr "," " ") ;;
-    3)  bondname=$1; bondslaves=$(echo $2|tr "," " "); bondoptions=$(echo $3|tr "," " ") ;;
+    2)  bondname=$1; bondslaves=$(str_replace "$2" "," " ") ;;
+    3)  bondname=$1; bondslaves=$(str_replace "$2" "," " "); bondoptions=$(str_replace "$3" "," " ") ;;
     *)  die "bond= requires zero to four parameters" ;;
     esac
 }
@@ -53,7 +53,7 @@ if getarg bond >/dev/null; then
         bondslaves="eth0 eth1"
     fi
     # Make it suitable for initscripts export
-    bondoptions=$(echo $bondoptions|tr ";" ",")
+    bondoptions=$(str_replace "$bondoptions" ";" ",")
     echo "bondname=$bondname" > /tmp/bond.info
     echo "bondslaves=\"$bondslaves\"" >> /tmp/bond.info
     echo "bondoptions=\"$bondoptions\"" >> /tmp/bond.info

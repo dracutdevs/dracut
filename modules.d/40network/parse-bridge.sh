@@ -29,7 +29,7 @@ parsebridge() {
     case $# in
         0)  bridgename=br0; ethnames=$iface ;;
         1)  die "bridge= requires two parameters" ;;
-        2)  bridgename=$1; ethnames=$(echo $2|tr "," " ") ;;
+        2)  bridgename=$1; ethnames=$(str_replace "$2" "," " ") ;;
         *)  die "bridge= requires two parameters" ;;
     esac
 }
