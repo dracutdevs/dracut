@@ -5,7 +5,7 @@ KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
 #DEBUGFAIL="rd.shell"
-#SERIAL="-serial udp:127.0.0.1:9999"
+#SERIAL="tcp:127.0.0.1:9999"
 SERIAL="null"
 
 run_server() {
@@ -20,7 +20,7 @@ run_server() {
 	-serial $SERIAL \
         -watchdog ib700 -watchdog-action poweroff \
 	-kernel /boot/vmlinuz-$KVERSION \
-	-append "root=/dev/sda rw quiet console=ttyS0,115200n81 selinux=0" \
+	-append "rd.debug loglevel=77 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.server \
 	-pidfile $TESTDIR/server.pid -daemonize || return 1
     sudo chmod 644 $TESTDIR/server.pid || return 1
@@ -216,20 +216,9 @@ test_setup() {
     export srcmods="/lib/modules/$kernel/"
     # Detect lib paths
 
-    . $basedir/dracut-functions.sh
-    if ! [[ $libdirs ]] ; then
-	if strstr "$(ldd /bin/sh)" "/lib64/" &>/dev/null \
-            && [[ -d /lib64 ]]; then
-            libdirs+=" /lib64"
-            [[ -d /usr/lib64 ]] && libdirs+=" /usr/lib64"
-	else
-            libdirs+=" /lib"
-            [[ -d /usr/lib ]] && libdirs+=" /usr/lib"
-	fi
-    fi
-
    (
     	initdir=$TESTDIR/mnt
+	. $basedir/dracut-functions.sh
 
 	for _f in modules.builtin.bin modules.builtin; do
 	    [[ $srcmods/$_f ]] && break
@@ -285,16 +274,17 @@ test_setup() {
 	inst /etc/passwd /etc/passwd
 	inst /etc/group /etc/group
 
-	/sbin/depmod -a -b "$initdir" $kernel
 	cp -a /etc/ld.so.conf* $initdir/etc
 	sudo ldconfig -r "$initdir"
+	dracut_kernel_post
     )
 
-    # Make client root inside server root
-    initdir=$TESTDIR/mnt/nfs/client
-    mkdir -p $initdir
 
+    # Make client root inside server root
     (
+	initdir=$TESTDIR/mnt/nfs/client
+	. $basedir/dracut-functions.sh
+
 	dracut_install sh shutdown poweroff stty cat ps ln ip \
             mount dmesg mkdir cp ping grep
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
@@ -336,6 +326,7 @@ test_setup() {
     # Make an overlay with needed tools for the test harness
     (
 	initdir=$TESTDIR/overlay
+	. $basedir/dracut-functions.sh
 	mkdir $TESTDIR/overlay
 	dracut_install poweroff shutdown
 	inst_hook emergency 000 ./hard-off.sh

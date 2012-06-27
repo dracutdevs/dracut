@@ -19,9 +19,8 @@ run_server() {
         -m 256M -nographic \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net socket,listen=127.0.0.1:12330 \
-        -serial $SERIAL \
         -kernel /boot/vmlinuz-$KVERSION \
-        -append "root=/dev/sda rw quiet console=ttyS0,115200n81 selinux=0" \
+        -append "root=/dev/sda rootfstype=ext2 rw quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.server \
         -pidfile $TESTDIR/server.pid -daemonize || return 1
     sudo chmod 644 $TESTDIR/server.pid || return 1
@@ -156,7 +155,7 @@ test_setup() {
         initdir=$TESTDIR/overlay
         . $basedir/dracut-functions.sh
         dracut_install poweroff shutdown
-        inst_hook emergency 000 ./hard-off.sh
+#        inst_hook emergency 000 ./hard-off.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
@@ -200,9 +199,9 @@ test_setup() {
         dracut_install /etc/nsswitch.conf /etc/rpc /etc/protocols
         inst /etc/group /etc/group
 
-        /sbin/depmod -a -b "$initdir" $kernel
         cp -a /etc/ld.so.conf* $initdir/etc
         sudo ldconfig -r "$initdir"
+        dracut_kernel_post
     )
 
     sudo umount $TESTDIR/mnt

@@ -7,7 +7,7 @@ KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
 #DEBUGFAIL="rd.shell"
-#SERIAL="udp:127.0.0.1:9999"
+#SERIAL="tcp:127.0.0.1:9999"
 SERIAL="null"
 
 run_server() {
@@ -20,7 +20,7 @@ run_server() {
         -serial $SERIAL \
         -watchdog ib700 -watchdog-action poweroff \
         -kernel /boot/vmlinuz-$KVERSION \
-        -append "selinux=0 root=/dev/sda rd.debug rd.info  rw quiet console=ttyS0,115200n81" \
+        -append "selinux=0 root=/dev/sda rootfstype=ext3 rd.debug rd.info rw loglevel=77 console=ttyS0,115200n81" \
         -initrd $TESTDIR/initramfs.server -pidfile $TESTDIR/server.pid -daemonize || return 1
     sudo chmod 644 $TESTDIR/server.pid || return 1
 
@@ -55,7 +55,7 @@ client_test() {
         -hdc /dev/null \
         -watchdog ib700 -watchdog-action poweroff \
         -kernel /boot/vmlinuz-$KVERSION \
-        -append "$cmdline $DEBUGFAIL rd.retry=5 rd.debug rd.info  ro quiet console=ttyS0,115200n81 selinux=0 rd.copystate rd.chroot init=/sbin/init" \
+        -append "$cmdline $DEBUGFAIL rd.retry=5 rd.debug rd.info  ro rd.systemd.log_level=debug console=ttyS0,115200n81 selinux=0 rd.copystate rd.chroot init=/sbin/init" \
         -initrd $TESTDIR/initramfs.testing
 
     if [[ $? -ne 0 ]] || ! grep -m 1 -q OK $TESTDIR/client.img; then
@@ -91,10 +91,10 @@ test_client() {
     # ...:02 receives a dhcp root-path
 
     # PXE Style BOOTIF=
-    client_test "MULTINIC root=nfs BOOTIF=" \
-        00 01 02 \
-        "root=nfs:192.168.50.1:/nfs/client BOOTIF=52-54-00-12-34-00" \
-        "eth0" || return 1
+#    client_test "MULTINIC root=nfs BOOTIF=" \
+#        00 01 02 \
+#        "root=nfs:192.168.50.1:/nfs/client BOOTIF=52-54-00-12-34-00" \
+#        "eth0" || return 1
 
     # PXE Style BOOTIF= with dhcp root-path
     client_test "MULTINIC root=dhcp BOOTIF=" \
@@ -131,10 +131,9 @@ test_setup() {
     mkdir $TESTDIR/mnt
     sudo mount -o loop $TESTDIR/server.ext3 $TESTDIR/mnt
 
-    . $basedir/dracut-functions.sh
-
     (
         initdir=$TESTDIR/mnt
+        . $basedir/dracut-functions.sh
 
         (
             cd "$initdir";
@@ -191,17 +190,15 @@ test_setup() {
         inst /etc/passwd /etc/passwd
         inst /etc/group /etc/group
 
-        /sbin/depmod -a -b "$initdir" $kernel
-
         cp -a /etc/ld.so.conf* $initdir/etc
         sudo ldconfig -r "$initdir"
+        dracut_kernel_post
     )
 
     # Make client root inside server root
-    initdir=$TESTDIR/mnt/nfs/client
-    mkdir -p $initdir
-
     (
+        initdir=$TESTDIR/mnt/nfs/client
+        . $basedir/dracut-functions.sh
         dracut_install sh shutdown poweroff stty cat ps ln ip \
             mount dmesg mkdir cp ping grep ls
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
@@ -240,7 +237,7 @@ test_setup() {
     # Make an overlay with needed tools for the test harness
     (
         initdir=$TESTDIR/overlay
-        mkdir $TESTDIR/overlay
+        . $basedir/dracut-functions.sh
         dracut_install poweroff shutdown
         inst_hook emergency 000 ./hard-off.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
@@ -255,7 +252,7 @@ test_setup() {
     # Make client's dracut image
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
         -o "plymouth" \
-        -a "debug watchdog" \
+        -a "debug" \
         -d "piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfs sunrpc ib700wdt" \
         -f $TESTDIR/initramfs.testing $KVERSION || return 1
 }

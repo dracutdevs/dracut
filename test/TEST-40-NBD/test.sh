@@ -23,7 +23,7 @@ run_server() {
 	-net socket,listen=127.0.0.1:12340 \
 	-serial $SERIAL \
 	-kernel /boot/vmlinuz-$KVERSION \
-	-append "root=/dev/sda rw quiet console=ttyS0,115200n81 selinux=0" \
+	-append "root=/dev/sda rootfstype=ext2 rw quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.server -pidfile $TESTDIR/server.pid -daemonize || return 1
     sudo chmod 644 $TESTDIR/server.pid || return 1
 
@@ -191,9 +191,9 @@ make_encrypted_root() {
     # Create what will eventually be our root filesystem onto an overlay
     (
 	initdir=$TESTDIR/overlay/source
+        . $basedir/dracut-functions.sh
         mkdir -p "$initdir"
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
-	. $basedir/dracut-functions.sh
 	dracut_install sh df free ls shutdown poweroff stty cat ps ln ip \
 	    mount dmesg mkdir cp ping
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do

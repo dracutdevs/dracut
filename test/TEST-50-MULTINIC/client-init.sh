@@ -1,8 +1,9 @@
 #!/bin/sh
+exec >/dev/console 2>&1
+set -x
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 strstr() { [ "${1#*$2*}" != "$1" ]; }
 CMDLINE=$(while read line; do echo $line;done < /proc/cmdline)
-exec >/dev/console 2>&1
 export TERM=linux
 export PS1='initramfs-test:\w\$ '
 stty sane
