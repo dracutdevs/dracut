@@ -426,7 +426,7 @@ inst_simple() {
 
     local _src=$1 _target="${2:-$1}"
 
-    [[ -L $_src ]] && return inst_symlink $_src $_target
+    [[ -L $_src ]] && { inst_symlink $_src $_target; return $?; }
 
     if ! [[ -d ${initdir}/$_target ]]; then
         [[ -e ${initdir}/$_target ]] && return 0
@@ -515,7 +515,7 @@ inst_binary() {
     _bin=$(find_binary "$1") || return 1
     _target=${2:-$_bin}
     [[ -e $initdir/$_target ]] && return 0
-    [[ -L $_bin ]] && inst_symlink $_bin $_target && return 0
+    [[ -L $_bin ]] && { inst_symlink $_bin $_target; return $?; }
     local _file _line
     local _so_regex='([^ ]*/lib[^/]*/[^ ]*\.so[^ ]*)'
     # I love bash!
