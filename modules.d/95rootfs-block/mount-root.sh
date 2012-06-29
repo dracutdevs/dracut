@@ -54,20 +54,23 @@ mount_root() {
         fsckoptions=$(cat "$NEWROOT"/fsckoptions)
     fi
 
-    if [ -f "$NEWROOT"/forcefsck ] || getargbool 0 forcefsck ; then
-        fsckoptions="-f $fsckoptions"
-    elif [ -f "$NEWROOT"/.autofsck ]; then
-        [ -f "$NEWROOT"/etc/sysconfig/autofsck ] && . "$NEWROOT"/etc/sysconfig/autofsck
-        if [ "$AUTOFSCK_DEF_CHECK" = "yes" ]; then
-            AUTOFSCK_OPT="$AUTOFSCK_OPT -f"
+    if ! getargbool 0 rd.skipfsck; then
+        if [ -f "$NEWROOT"/forcefsck ] || getargbool 0 forcefsck ; then
+            fsckoptions="-f $fsckoptions"
+        elif [ -f "$NEWROOT"/.autofsck ]; then
+            [ -f "$NEWROOT"/etc/sysconfig/autofsck ] && \
+                . "$NEWROOT"/etc/sysconfig/autofsck
+            if [ "$AUTOFSCK_DEF_CHECK" = "yes" ]; then
+                AUTOFSCK_OPT="$AUTOFSCK_OPT -f"
+            fi
+            if [ -n "$AUTOFSCK_SINGLEUSER" ]; then
+                warn "*** Warning -- the system did not shut down cleanly. "
+                warn "*** Dropping you to a shell; the system will continue"
+                warn "*** when you leave the shell."
+                emergency_shell
+            fi
+            fsckoptions="$AUTOFSCK_OPT $fsckoptions"
         fi
-        if [ -n "$AUTOFSCK_SINGLEUSER" ]; then
-            warn "*** Warning -- the system did not shut down cleanly. "
-            warn "*** Dropping you to a shell; the system will continue"
-            warn "*** when you leave the shell."
-            emergency_shell
-        fi
-        fsckoptions="$AUTOFSCK_OPT $fsckoptions"
     fi
 
     rootopts=
