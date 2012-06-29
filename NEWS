@@ -1,3 +1,32 @@
+dracut-020
+==========
+- changed rd.dasd kernel parameter
+- arm kernel modules added to kernel-modules
+- make udevdir systemdutildir systemdsystemunitdir global vars
+  your distribution should ship those settings in
+  /etc/dracut.conf.d/01-distro.conf
+  see dracut.conf.d/fedora.conf.example
+- kernel modules are now only handled with /sys/modules and modules.dep
+- systemd fixups
+- mdraid: wait for md devices to be clean, before shutdown
+- ifup fixed for ipv6
+- add PARTUUID as root=PARTUUID=<partition uuid> parameter
+- fixed instmods() return code and set pipefail globally
+- add 04watchdog dracut module
+- dracut-shutdown.service: fixed ordering to be before shutdown.target
+- make use of "ln -r" instead of shell functions, if new coreutils is installed
+- network: support vlan tagged bonding
+- new dracut module qemu and qemu-net to install all kernel driver
+- fs-lib/fs-lib.sh: removed test mounting of btrfs and xfs
+- no more "mknod" in the initramfs!!
+- replaced all "tr" calls with "sed"
+- speedup with lazy kernel module dependency resolving
+- lots of speedup optimizations and last but not least
+- dracut-install:
+  - new binary to significanlty speedup the installation process
+  - dracut-functions.sh makes use of it, if installed
+
+
 dracut-019
 ==========
 - initqueue/online hook
