@@ -317,7 +317,9 @@ unset NPATH
 unset LD_LIBRARY_PATH
 unset GREP_OPTIONS
 
+export DRACUT_LOG_LEVEL=warning
 [[ $debug ]] && {
+    export DRACUT_LOG_LEVEL=debug
     export PS4='${BASH_SOURCE}@${LINENO}(${FUNCNAME[0]}): ';
     set -x
 }
@@ -471,6 +473,9 @@ readonly initdir=$(mktemp --tmpdir="$TMPDIR/" -d -t initramfs.XXXXXX)
     echo "dracut: mktemp --tmpdir=\"$TMPDIR/\" -d -t initramfs.XXXXXXfailed." >&2
     exit 1
 }
+
+export DRACUT_KERNEL_LAZY="1"
+export DRACUT_RESOLVE_LAZY="1"
 
 if [[ -f $dracutbasedir/dracut-functions.sh ]]; then
     . $dracutbasedir/dracut-functions.sh
@@ -726,6 +731,8 @@ mods_to_load=""
 for_each_module_dir check_module
 for_each_module_dir check_mount
 
+strstr "$mods_to_load" "fips" && export DRACUT_FIPS_MODE=1
+
 _isize=0 #initramfs size
 modules_loaded=" "
 # source our modules.
@@ -770,10 +777,11 @@ done
 dinfo "*** Including modules done ***"
 
 ## final stuff that has to happen
-
-dinfo "*** Installing kernel module dependencies and firmware ***"
-dracut_kernel_post
-dinfo "*** Installing kernel module dependencies and firmware done ***"
+if [[ $no_kernel != yes ]]; then
+    dinfo "*** Installing kernel module dependencies and firmware ***"
+    dracut_kernel_post
+    dinfo "*** Installing kernel module dependencies and firmware done ***"
+fi
 
 while pop include_src src && pop include_target tgt; do
     if [[ $src && $tgt ]]; then
@@ -792,9 +800,9 @@ while pop include_src src && pop include_target tgt; do
                         mkdir -m 0755 -p "$s"
                         chmod --reference="$i" "$s"
                     fi
-                    cp -a -t "$s" "$i"/*
+                    cp --reflink=auto --sparse=auto -pfLr -t "$s" "$i"/*
                 else
-                    cp -a -t "$s" "$i"
+                    cp --reflink=auto --sparse=auto -pfLr -t "$s" "$i"
                 fi
             done
         fi
@@ -802,10 +810,7 @@ while pop include_src src && pop include_target tgt; do
 done
 
 if [[ $kernel_only != yes ]]; then
-    for item in $install_items; do
-        dracut_install "$item"
-    done
-    unset item
+    (( ${#install_items[@]} > 0 )) && dracut_install  ${install_items[@]}
 
     while pop fstab_lines line; do
         echo "$line 0 0" >> "${initdir}/etc/fstab"
@@ -814,6 +819,15 @@ if [[ $kernel_only != yes ]]; then
     for f in $add_fstab; do
         cat $f >> "${initdir}/etc/fstab"
     done
+
+    if [[ $DRACUT_RESOLVE_LAZY ]] && [[ -x /usr/bin/dracut-install ]]; then
+        dinfo "*** Resolving executable dependencies ***"
+        find "$initdir" -type f \
+            '(' -perm -0100 -or -perm -0010 -or -perm -0001 ')' \
+            -not -path '*.ko' -print0 \
+        | xargs -0 dracut-install ${initdir+-D "$initdir"} -R ${DRACUT_FIPS_MODE+-H}
+        dinfo "*** Resolving executable dependencies done***"
+    fi
 
     # make sure that library links are correct and up to date
     for f in /etc/ld.so.conf /etc/ld.so.conf.d/*; do
@@ -843,34 +857,43 @@ if [[ $do_strip = yes ]] ; then
     done
 fi
 
-if [[ $do_strip = yes ]] ; then
-    find "$initdir" -type f \
-         \( -perm -0100 -or -perm -0010 -or -perm -0001 \
-        -or -path '*/lib/modules/*.ko' \) -print0 \
-        | xargs -0 strip -g 2>/dev/null
-fi
-
-type hardlink &>/dev/null && {
-    hardlink "$initdir" 2>&1
-}
-
 if strstr "$modules_loaded" " fips " && command -v prelink >/dev/null; then
+    dinfo "*** pre-unlinking files ***"
     for dir in "$initdir/bin" \
        "$initdir/sbin" \
        "$initdir/usr/bin" \
        "$initdir/usr/sbin"; do
         [[ -L "$dir" ]] && continue
         for i in "$dir"/*; do
+            [[ -L $i ]] && continue
             [[ -x $i ]] && prelink -u $i &>/dev/null
         done
     done
+    dinfo "*** pre-unlinking files done ***"
 fi
 
+if [[ $do_strip = yes ]] ; then
+    dinfo "*** Stripping files ***"
+    find "$initdir" -type f \
+        '(' -perm -0100 -or -perm -0010 -or -perm -0001 \
+        -or -path '*/lib/modules/*.ko' ')' -print0 \
+        | xargs -0 strip -g 2>/dev/null
+    dinfo "*** Stripping files done ***"
+fi
+
+type hardlink &>/dev/null && {
+    dinfo "*** hardlinking files ***"
+    hardlink "$initdir" 2>&1
+    dinfo "*** hardlinking files done ***"
+}
+
+dinfo "*** Creating image file ***"
 if ! ( cd "$initdir"; find . |cpio -R 0:0 -H newc -o --quiet| \
     $compress > "$outfile"; ); then
     dfatal "dracut: creation of $outfile failed"
     exit 1
 fi
+dinfo "*** Creating image file done ***"
 
 dinfo "Wrote $outfile:"
 dinfo "$(ls -l "$outfile")"
