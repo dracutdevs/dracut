@@ -68,8 +68,13 @@ mount_usr()
         _ret=$?
         echo $_ret >/run/initramfs/usr-fsck
         if [ $_ret -ne 255 ]; then
-            info "Mounting /usr"
-            mount "$NEWROOT/usr" 2>&1 | vinfo
+            if getargbool 0 rd.usrmount.ro; then
+                info "Mounting /usr (read-only forced)"
+                mount -r "$NEWROOT/usr" 2>&1 | vinfo
+            else
+                info "Mounting /usr"
+                mount "$NEWROOT/usr" 2>&1 | vinfo
+            fi
         fi
     fi
 }
