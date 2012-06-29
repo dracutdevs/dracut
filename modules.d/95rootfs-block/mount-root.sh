@@ -103,7 +103,9 @@ mount_root() {
     # printf '%s %s %s %s 1 1 \n' "$esc_root" "$NEWROOT" "$rootfs" "$rflags" >/etc/fstab
 
     ran_fsck=0
-    if [ -z "$fastboot" -a "$READONLY" != "yes" ] && ! strstr "${rflags},${rootopts}" _netdev; then
+    if [ -z "$fastboot" -a "$READONLY" != "yes" ] && \
+            ! strstr "${rflags},${rootopts}" _netdev && \
+            ! getargbool 0 rd.skipfsck; then
         umount "$NEWROOT"
         fsck_single "${root#block:}" "$rootfs" "$rflags" "$fsckoptions"
         _ret=$?

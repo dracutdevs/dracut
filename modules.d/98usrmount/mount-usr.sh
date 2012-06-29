@@ -60,14 +60,15 @@ mount_usr()
 
     if [ "x$_usr_found" != "x" ]; then
         # we have to mount /usr
-        if [ "0" != "${_passno:-0}" ]; then
-            fsck_usr "$_dev" "$_fs" "$_opts"
-        else
-            :
+        _fsck_ret=0
+        if ! getargbool 0 rd.skipfsck; then
+            if [ "0" != "${_passno:-0}" ]; then
+                fsck_usr "$_dev" "$_fs" "$_opts"
+                _fsck_ret=$?
+                echo $_fsck_ret >/run/initramfs/usr-fsck
+            fi
         fi
-        _ret=$?
-        echo $_ret >/run/initramfs/usr-fsck
-        if [ $_ret -ne 255 ]; then
+        if [ $_fsck_ret -ne 255 ]; then
             if getargbool 0 rd.usrmount.ro; then
                 info "Mounting /usr (read-only forced)"
                 mount -r "$NEWROOT/usr" 2>&1 | vinfo
