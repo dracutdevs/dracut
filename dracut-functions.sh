@@ -193,7 +193,7 @@ convert_abs_rel() {
     echo "$__newpath"
 }
 
-if strstr "$(ln --help)" "relative"; then
+if strstr "$(ln --help)" "--relative"; then
     ln_r() {
         ln -sfnr "${initdir}/$1" "${initdir}/$2"
     }
