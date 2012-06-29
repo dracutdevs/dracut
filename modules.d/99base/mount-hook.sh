@@ -4,7 +4,9 @@
 
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
-type det_fs >/dev/null 2>&1 || . /lib/fs-lib.sh
+type det_fs >/dev/null 2>&1 || [ -f /lib/fs-lib.sh ] && . /lib/fs-lib.sh
+# If fs-lib is not included use following det_fs replacement.
+type det_fs >/dev/null 2>&1 || det_fs() { echo "${2:-auto}"; }
 
 mountpoint="$1"
 ismounted "$mountpoint" && exit 0
