@@ -25,7 +25,6 @@ URL: https://dracut.wiki.kernel.org/
 # http://git.kernel.org/?p=boot/dracut/dracut.git;a=snapshot;h=%{version};sf=tgz
 Source0: http://www.kernel.org/pub/linux/utils/boot/dracut/dracut-%{version}.tar.bz2
 
-BuildArch: noarch
 BuildRequires: dash bash git
 
 %if 0%{?fedora} || 0%{?rhel}
@@ -236,6 +235,7 @@ rm -rf $RPM_BUILD_ROOT
 %if 0%{?fedora} > 12 || 0%{?rhel} >= 6 || 0%{?suse_version} > 9999
 %{_bindir}/mkinitrd
 %{_bindir}/lsinitrd
+%{_bindir}/dracut-install
 %endif
 %dir %{dracutlibdir}
 %dir %{dracutlibdir}/modules.d

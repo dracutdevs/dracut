@@ -13,7 +13,10 @@ manpages = dracut.8 dracut.cmdline.7 dracut.conf.5 dracut-catimages.8
 
 .PHONY: install clean archive rpm testimage test all check AUTHORS doc
 
-all: syncheck dracut-version.sh
+all: syncheck dracut-version.sh install/dracut-install
+
+install/dracut-install:
+	$(MAKE) -C install dracut-install
 
 doc: $(manpages) dracut.html
 
@@ -71,6 +74,7 @@ install: doc dracut-version.sh
 		ln -s ../dracut-shutdown.service \
 		$(DESTDIR)$(systemdsystemunitdir)/shutdown.target.wants/dracut-shutdown.service; \
 	fi
+	$(MAKE) -C install install
 
 dracut-version.sh:
 	@echo "DRACUT_VERSION=$(VERSION)-$(GITVERSION)" > dracut-version.sh
@@ -83,6 +87,7 @@ clean:
 	$(RM) dracut-*.rpm dracut-*.tar.bz2
 	$(RM) $(manpages) dracut.html
 	$(MAKE) -C test clean
+	$(MAKE) -C install clean
 
 archive: dracut-$(VERSION)-$(GITVERSION).tar.bz2
 
@@ -104,7 +109,7 @@ rpm: dracut-$(VERSION).tar.bz2
 	(cd "$$rpmbuild"; rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" \
 	        --define "_specdir $$PWD" --define "_srcrpmdir $$PWD" \
 		--define "_rpmdir $$PWD" -ba dracut.spec; ) && \
-	( mv "$$rpmbuild"/noarch/*.rpm .; mv "$$rpmbuild"/*.src.rpm .;rm -fr "$$rpmbuild"; ls *.rpm )
+	( mv "$$rpmbuild"/$$(arch)/*.rpm .; mv "$$rpmbuild"/*.src.rpm .;rm -fr "$$rpmbuild"; ls *.rpm )
 
 syncheck:
 	@ret=0;for i in dracut-initramfs-restore.sh dracut-logger.sh \
@@ -123,17 +128,17 @@ check: all syncheck
 
 testimage: all
 	./dracut.sh -l -a debug -f test-$(shell uname -r).img $(shell uname -r)
-	@echo wrote  test-$(shell uname -r).img 
+	@echo wrote  test-$(shell uname -r).img
 
 testimages: all
 	./dracut.sh -l -a debug --kernel-only -f test-kernel-$(shell uname -r).img $(shell uname -r)
-	@echo wrote  test-$(shell uname -r).img 
+	@echo wrote  test-$(shell uname -r).img
 	./dracut.sh -l -a debug --no-kernel -f test-dracut.img $(shell uname -r)
-	@echo wrote  test-dracut.img 
+	@echo wrote  test-dracut.img
 
 hostimage: all
 	./dracut.sh -H -l -a debug -f test-$(shell uname -r).img $(shell uname -r)
-	@echo wrote  test-$(shell uname -r).img 
+	@echo wrote  test-$(shell uname -r).img
 
 AUTHORS:
 	git shortlog  --numbered --summary -e |while read a rest; do echo $$rest;done > AUTHORS
