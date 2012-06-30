@@ -29,7 +29,10 @@ mount_root() {
     local _ret
     # sanity - determine/fix fstype
     rootfs=$(det_fs "${root#block:}" "$fstype")
-    mount -t ${rootfs} -o "$rflags",ro "${root#block:}" "$NEWROOT"
+    while ! mount -t ${rootfs} -o "$rflags",ro "${root#block:}" "$NEWROOT"; do
+        warn "Failed to mount -t ${rootfs} -o $rflags,ro ${root#block:} $NEWROOT"
+        fsck_ask_err
+    done
 
     READONLY=
     fsckoptions=
@@ -106,9 +109,11 @@ mount_root() {
     # printf '%s %s %s %s 1 1 \n' "$esc_root" "$NEWROOT" "$rootfs" "$rflags" >/etc/fstab
 
     ran_fsck=0
-    if [ "$rootfsck" != "0" -a -z "$fastboot" -a "$READONLY" != "yes" ] && \
+    if fsck_able "$rootfs" && \
+        [ "$rootfsck" != "0" -a -z "$fastboot" -a "$READONLY" != "yes" ] && \
             ! strstr "${rflags}" _netdev && \
             ! getargbool 0 rd.skipfsck; then
+        umount "$NEWROOT"
         fsck_single "${root#block:}" "$rootfs" "$rflags" "$fsckoptions"
         _ret=$?
         [ $_ret -ne 255 ] && echo $_ret >/run/initramfs/root-fsck
@@ -117,8 +122,13 @@ mount_root() {
 
     echo "${root#block:} $NEWROOT $rootfs ${rflags:-defaults} 0 $rootfsck" >> /etc/fstab
 
-    info "Remounting ${root#block:} with -o ${rflags}"
-    mount -o remount "$NEWROOT" 2>&1 | vinfo
+    if ! ismounted "$NEWROOT"; then
+        info "Mounting ${root#block:} with -o ${rflags}"
+        mount "$NEWROOT" 2>&1 | vinfo
+    else
+        info "Remounting ${root#block:} with -o ${rflags}"
+        mount -o remount "$NEWROOT" 2>&1 | vinfo
+    fi
 
     [ -f "$NEWROOT"/forcefsck ] && rm -f "$NEWROOT"/forcefsck 2>/dev/null
     [ -f "$NEWROOT"/.autofsck ] && rm -f "$NEWROOT"/.autofsck 2>/dev/null
