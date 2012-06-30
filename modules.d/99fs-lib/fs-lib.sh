@@ -32,15 +32,17 @@ fsck_tail() {
 # note: this function sets _drv of the caller
 fsck_able() {
     case "$1" in
-        xfs) {
-                type xfs_db &&
-                type xfs_repair &&
-                type xfs_check &&
-                type mount &&
-                type umount
-            } >/dev/null 2>&1 &&
-            _drv="_drv=none fsck_drv_xfs" &&
-            return 0
+        xfs)
+            # {
+            #     type xfs_db &&
+            #     type xfs_repair &&
+            #     type xfs_check &&
+            #     type mount &&
+            #     type umount
+            # } >/dev/null 2>&1 &&
+            # _drv="_drv=none fsck_drv_xfs" &&
+            # return 0
+            return 1
             ;;
         ext?)
             type e2fsck >/dev/null 2>&1 &&
@@ -58,9 +60,10 @@ fsck_able() {
             return 0
             ;;
         btrfs)
-            type btrfsck >/dev/null 2>&1 &&
-            _drv="_drv=none fsck_drv_btrfs" &&
-            return 0
+            # type btrfsck >/dev/null 2>&1 &&
+            # _drv="_drv=none fsck_drv_btrfs" &&
+            # return 0
+            return 1
             ;;
         nfs*)
             # nfs can be a nop, returning success
@@ -88,7 +91,6 @@ fsck_drv_btrfs() {
     # btrfs fsck is not necessary... Either it mounts or not
     return 0
 }
-
 
 # common code for checkers that follow usual subset of options and return codes
 fsck_drv_com() {
