@@ -28,6 +28,10 @@ if [[ $DRACUT_KERNEL_LAZY ]] && ! [[ $DRACUT_KERNEL_LAZY_HASHDIR ]]; then
     DRACUT_KERNEL_LAZY_HASHDIR="$initdir/.kernelmodseen"
 fi
 
+if [[ $initdir ]] && ! [[ -d $initdir ]]; then
+    mkdir -p "$initdir"
+fi
+
 # Generic substring function.  If $2 is in $1, return 0.
 strstr() { [[ $1 = *$2* ]]; }
 
