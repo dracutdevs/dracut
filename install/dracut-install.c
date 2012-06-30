@@ -39,6 +39,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <sys/ioctl.h>
 
 #include "log.h"
 #include "hashmap.h"
@@ -163,25 +164,78 @@ static int ln_r(const char *src, const char *dst)
         return 0;
 }
 
+/* Perform the O(1) btrfs clone operation, if possible.
+   Upon success, return 0.  Otherwise, return -1 and set errno.  */
+static inline int clone_file(int dest_fd, int src_fd)
+{
+#undef BTRFS_IOCTL_MAGIC
+#define BTRFS_IOCTL_MAGIC 0x94
+#undef BTRFS_IOC_CLONE
+#define BTRFS_IOC_CLONE _IOW (BTRFS_IOCTL_MAGIC, 9, int)
+        return ioctl(dest_fd, BTRFS_IOC_CLONE, src_fd);
+}
+
+static bool use_clone = true;
+
 static int cp(const char *src, const char *dst)
 {
         int pid;
-        int status;
+        int ret;
 
+        if(use_clone) {
+                struct stat sb;
+                int dest_desc, source_desc;
+
+                if (lstat(src, &sb) != 0)
+                        goto normal_copy;
+
+                if (S_ISLNK(sb.st_mode))
+                        goto normal_copy;
+
+                source_desc = open(src, O_RDONLY | O_CLOEXEC);
+                if (source_desc < 0)
+                        goto normal_copy;
+
+                dest_desc =
+                        open(dst, O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC,
+                             (sb.st_mode) & (S_ISUID | S_ISGID | S_ISVTX | S_IRWXU | S_IRWXG | S_IRWXO));
+
+                if (dest_desc < 0) {
+                        close(source_desc);
+                        goto normal_copy;
+                }
+
+                ret = clone_file(dest_desc, source_desc);
+                close(source_desc);
+                if (ret == 0) {
+                        if (fchown(dest_desc, sb.st_uid, sb.st_gid) != 0)
+                                fchown(dest_desc, -1, sb.st_gid);
+                        close(dest_desc);
+                        return ret;
+                }
+                close(dest_desc);
+
+                /* clone did not work, remove the file */
+                unlink(dst);
+                /* do not try clone again */
+                use_clone = false;
+        }
+
+ normal_copy:
         pid = fork();
         if (pid == 0) {
                 execlp("cp", "cp", "--reflink=auto", "--sparse=auto", "--preserve=mode", "-fL", src, dst, NULL);
                 _exit(EXIT_FAILURE);
         }
 
-        while (waitpid(pid, &status, 0) < 0) {
+        while (waitpid(pid, &ret, 0) < 0) {
                 if (errno != EINTR) {
-                        status = -1;
+                        ret = -1;
                         break;
                 }
         }
 
-        return status;
+        return ret;
 }
 
 static int resolve_deps(const char *src)
@@ -643,7 +697,7 @@ static int install_all(int argc, char **argv)
                         free(dest);
                 }
 
-                if ((ret != 0) &&  (!arg_optional)) {
+                if ((ret != 0) && (!arg_optional)) {
                         log_error("ERROR: installing '%s'", argv[i]);
                         r = EXIT_FAILURE;
                 }
