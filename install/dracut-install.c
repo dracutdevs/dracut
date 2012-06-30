@@ -601,6 +601,7 @@ static int parse_argv(int argc, char *argv[])
         }
 
         if (!optind || optind == argc) {
+                log_error("No SOURCE argument given");
                 usage(EXIT_FAILURE);
         }
 
