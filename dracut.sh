@@ -783,6 +783,27 @@ if [[ $no_kernel != yes ]]; then
     dinfo "*** Installing kernel module dependencies and firmware done ***"
 fi
 
+if [[ $kernel_only != yes ]]; then
+    (( ${#install_items[@]} > 0 )) && dracut_install  ${install_items[@]}
+
+    while pop fstab_lines line; do
+        echo "$line 0 0" >> "${initdir}/etc/fstab"
+    done
+
+    for f in $add_fstab; do
+        cat $f >> "${initdir}/etc/fstab"
+    done
+
+    if [[ $DRACUT_RESOLVE_LAZY ]] && [[ $DRACUT_INSTALL ]]; then
+        dinfo "*** Resolving executable dependencies ***"
+        find "$initdir" -type f \
+            '(' -perm -0100 -or -perm -0010 -or -perm -0001 ')' \
+            -not -path '*.ko' -print0 \
+        | xargs -r -0 $DRACUT_INSTALL ${initdir+-D "$initdir"} -R ${DRACUT_FIPS_MODE+-H}
+        dinfo "*** Resolving executable dependencies done***"
+    fi
+fi
+
 while pop include_src src && pop include_target tgt; do
     if [[ $src && $tgt ]]; then
         if [[ -f $src ]]; then
@@ -810,25 +831,6 @@ while pop include_src src && pop include_target tgt; do
 done
 
 if [[ $kernel_only != yes ]]; then
-    (( ${#install_items[@]} > 0 )) && dracut_install  ${install_items[@]}
-
-    while pop fstab_lines line; do
-        echo "$line 0 0" >> "${initdir}/etc/fstab"
-    done
-
-    for f in $add_fstab; do
-        cat $f >> "${initdir}/etc/fstab"
-    done
-
-    if [[ $DRACUT_RESOLVE_LAZY ]] && [[ $DRACUT_INSTALL ]]; then
-        dinfo "*** Resolving executable dependencies ***"
-        find "$initdir" -type f \
-            '(' -perm -0100 -or -perm -0010 -or -perm -0001 ')' \
-            -not -path '*.ko' -print0 \
-        | xargs -0 $DRACUT_INSTALL ${initdir+-D "$initdir"} -R ${DRACUT_FIPS_MODE+-H}
-        dinfo "*** Resolving executable dependencies done***"
-    fi
-
     # make sure that library links are correct and up to date
     for f in /etc/ld.so.conf /etc/ld.so.conf.d/*; do
         [[ -f $f ]] && inst_simple "$f"
