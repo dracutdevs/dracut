@@ -65,6 +65,8 @@ Creates initial ramdisk images for preloading modules
   --no-kernel           Do not install kernel drivers and firmware files
   --strip               Strip binaries in the initramfs
   --nostrip             Do not strip binaries in the initramfs (default)
+  --hardlink            Hardlink files in the initramfs (default)
+  --nohardlink          Do not hardlink files in the initramfs
   --prefix [DIR]        Prefix initramfs files with [DIR]
   --noprefix            Do not prefix initramfs files (default)
   --mdadmconf           Include local /etc/mdadm.conf
@@ -251,6 +253,8 @@ while (($# > 0)); do
         --no-kernel)   kernel_only="no"; no_kernel="yes";;
         --strip)       do_strip_l="yes";;
         --nostrip)     do_strip_l="no";;
+        --hardlink)    do_hardlink_l="yes";;
+        --nohardlink)  do_hardlink_l="no";;
         --noprefix)    prefix_l="/";;
         --mdadmconf)   mdadmconf_l="yes";;
         --nomdadmconf) mdadmconf_l="no";;
@@ -434,6 +438,9 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 
 [[ $drivers_dir_l ]] && drivers_dir=$drivers_dir_l
 [[ $do_strip_l ]] && do_strip=$do_strip_l
+[[ $do_strip ]] || do_strip=no
+[[ $do_hardlink_l ]] && do_hardlink=$do_hardlink_l
+[[ $do_hardlink ]] || do_hardlink=yes
 [[ $prefix_l ]] && prefix=$prefix_l
 [[ $prefix = "/" ]] && unset prefix
 [[ $hostonly_l ]] && hostonly=$hostonly_l
@@ -444,7 +451,6 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $fw_dir ]] || fw_dir="/lib/firmware/updates /lib/firmware"
 [[ $tmpdir_l ]] && tmpdir="$tmpdir_l"
 [[ $tmpdir ]] || tmpdir=/var/tmp
-[[ $do_strip ]] || do_strip=no
 [[ $compress_l ]] && compress=$compress_l
 [[ $show_modules_l ]] && show_modules=$show_modules_l
 [[ $nofscks_l ]] && nofscks="yes"
@@ -883,11 +889,13 @@ if [[ $do_strip = yes ]] ; then
     dinfo "*** Stripping files done ***"
 fi
 
-type hardlink &>/dev/null && {
-    dinfo "*** hardlinking files ***"
-    hardlink "$initdir" 2>&1
-    dinfo "*** hardlinking files done ***"
-}
+if [[ $do_hardlink = yes ]] ; then
+    type hardlink &>/dev/null && {
+        dinfo "*** hardlinking files ***"
+        hardlink "$initdir" 2>&1
+        dinfo "*** hardlinking files done ***"
+    }
+fi
 
 dinfo "*** Creating image file ***"
 if ! ( cd "$initdir"; find . |cpio -R 0:0 -H newc -o --quiet| \
