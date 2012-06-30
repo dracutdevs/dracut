@@ -5,9 +5,11 @@
 root=$(getarg root=)
 
 if rflags="$(getarg rootflags=)"; then
-    getarg rw && rflags="${rflags},rw" || rflags="${rflags},ro"
+    getarg rw && rflags="${rflags},rw"
+    getarg ro && rflags="${rflags},ro"
 else
-    getarg rw && rflags=rw || rflags=ro
+    getarg rw && rflags=rw
+    getarg ro && rflags=ro
 fi
 
 fstype="$(getarg rootfstype=)"

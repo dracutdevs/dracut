@@ -15,7 +15,6 @@ filter_rootopts() {
     local v
     while [ $# -gt 0 ]; do
         case $1 in
-            rw|ro);;
             defaults);;
             *)
                 v="$v,${1}";;
@@ -82,7 +81,7 @@ mount_root() {
         # the root filesystem,
         # remount it with the proper options
         rootopts="defaults"
-        while read dev mp fs opts rest; do
+        while read dev mp fs opts dump fsck; do
             # skip comments
             [ "${dev%%#*}" != "$dev" ] && continue
 
@@ -90,6 +89,7 @@ mount_root() {
                 # sanity - determine/fix fstype
                 rootfs=$(det_fs "${root#block:}" "$fs")
                 rootopts=$opts
+                rootfsck=$fsck
                 break
             fi
         done < "$NEWROOT/etc/fstab"
@@ -99,28 +99,26 @@ mount_root() {
 
     # we want rootflags (rflags) to take precedence so prepend rootopts to
     # them; rflags is guaranteed to not be empty
-    rflags="${rootopts:+"${rootopts},"}${rflags}"
+    rflags="${rootopts:+${rootopts},}${rflags}"
 
     # backslashes are treated as escape character in fstab
     # esc_root=$(echo ${root#block:} | sed 's,\\,\\\\,g')
     # printf '%s %s %s %s 1 1 \n' "$esc_root" "$NEWROOT" "$rootfs" "$rflags" >/etc/fstab
 
     ran_fsck=0
-    if [ -z "$fastboot" -a "$READONLY" != "yes" ] && \
-            ! strstr "${rflags},${rootopts}" _netdev && \
+    if [ "$rootfsck" != "0" -a -z "$fastboot" -a "$READONLY" != "yes" ] && \
+            ! strstr "${rflags}" _netdev && \
             ! getargbool 0 rd.skipfsck; then
-        umount "$NEWROOT"
         fsck_single "${root#block:}" "$rootfs" "$rflags" "$fsckoptions"
         _ret=$?
         [ $_ret -ne 255 ] && echo $_ret >/run/initramfs/root-fsck
         ran_fsck=1
     fi
 
-    if [ -n "$rootopts" -o "$ran_fsck" = "1" ]; then
-        info "Remounting ${root#block:} with -o ${rflags}"
-        umount "$NEWROOT" &>/dev/null
-        mount -t "$rootfs" -o "$rflags" "${root#block:}" "$NEWROOT" 2>&1 | vinfo
-    fi
+    echo "${root#block:} $NEWROOT $rootfs ${rflags:-defaults} 0 $rootfsck" >> /etc/fstab
+
+    info "Remounting ${root#block:} with -o ${rflags}"
+    mount -o remount "$NEWROOT" 2>&1 | vinfo
 
     [ -f "$NEWROOT"/forcefsck ] && rm -f "$NEWROOT"/forcefsck 2>/dev/null
     [ -f "$NEWROOT"/.autofsck ] && rm -f "$NEWROOT"/.autofsck 2>/dev/null

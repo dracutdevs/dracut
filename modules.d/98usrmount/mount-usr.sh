@@ -52,6 +52,15 @@ mount_usr()
                     _dev="/dev/disk/by-uuid/${_dev#UUID=}"
                     ;;
             esac
+            if strstr "$_opts" "subvol=" && \
+                [ "${root#block:}" -ef $_dev ]
+                [ -n "$rflags" ]; then
+                # for btrfs subvolumes we have to mount /usr with the same rflags
+                _opts="${_opts:+${_opts},}${rflags}"
+            elif getarg ro; then
+                # if "ro" is specified, we want /usr to be readonly, too
+                _opts="${_opts:+${_opts},}ro"
+            fi
             echo "$_dev ${NEWROOT}${_mp} $_fs ${_opts} $_freq $_passno"
             _usr_found="1"
             break
