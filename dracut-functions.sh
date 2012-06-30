@@ -1197,7 +1197,7 @@ dracut_kernel_post() {
     local _moddirname=${srcmods%%/lib/modules/*}
 
     if [[ $DRACUT_KERNEL_LAZY_HASHDIR ]] && [[ -f "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist" ]]; then
-        xargs modprobe -a ${_moddirname+-d ${_moddirname}/} --ignore-install --show-depends \
+        xargs -r modprobe -a ${_moddirname+-d ${_moddirname}/} --ignore-install --show-depends \
             < "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist" 2>/dev/null \
             | sort -u \
             | while read _cmd _modpath _options; do
@@ -1206,8 +1206,8 @@ dracut_kernel_post() {
         done > "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist.dep"
 
         (
-            if [[ -x $DRACUT_INSTALL ]] && [[ -z $_moddirname ]]; then
-                xargs $DRACUT_INSTALL ${initdir+-D "$initdir"} -a < "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist.dep"
+            if [[ $DRACUT_INSTALL ]] && [[ -z $_moddirname ]]; then
+                xargs -r $DRACUT_INSTALL ${initdir+-D "$initdir"} -a < "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist.dep"
             else
                 while read _modpath; do
                     local _destpath=$_modpath
@@ -1218,16 +1218,15 @@ dracut_kernel_post() {
             fi
         ) &
 
-
-        if [[ -x $DRACUT_INSTALL ]]; then
-            xargs modinfo -k $kernel -F firmware < "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist.dep" \
+        if [[ $DRACUT_INSTALL ]]; then
+            xargs -r modinfo -k $kernel -F firmware < "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist.dep" \
                 | while read line; do
                 for _fwdir in $fw_dir; do
                     echo $_fwdir/$line;
                 done;
-            done |xargs $DRACUT_INSTALL ${initdir+-D "$initdir"} -a -o
+            done | xargs -r $DRACUT_INSTALL ${initdir+-D "$initdir"} -a -o
         else
-            for _fw in $(xargs modinfo -k $kernel -F firmware < "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist.dep"); do
+            for _fw in $(xargs -r modinfo -k $kernel -F firmware < "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist.dep"); do
                 for _fwdir in $fw_dir; do
                     if [[ -d $_fwdir && -f $_fwdir/$_fw ]]; then
                         inst_simple "$_fwdir/$_fw" "/lib/firmware/$_fw"
@@ -1273,7 +1272,7 @@ find_kernel_modules_by_path () (
         IFS=$_OLDIFS
     else
         ( cd /sys/module; echo *; ) \
-        | xargs modinfo -F filename -k $kernel 2>/dev/null
+        | xargs -r modinfo -F filename -k $kernel 2>/dev/null
     fi
     return 0
 )

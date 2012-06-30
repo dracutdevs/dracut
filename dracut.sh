@@ -879,7 +879,7 @@ if [[ $do_strip = yes ]] ; then
     find "$initdir" -type f \
         '(' -perm -0100 -or -perm -0010 -or -perm -0001 \
         -or -path '*/lib/modules/*.ko' ')' -print0 \
-        | xargs -0 strip -g 2>/dev/null
+        | xargs -r -0 strip -g 2>/dev/null
     dinfo "*** Stripping files done ***"
 fi
 
