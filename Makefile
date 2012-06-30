@@ -13,10 +13,25 @@ manpages = dracut.8 dracut.cmdline.7 dracut.conf.5 dracut-catimages.8
 
 .PHONY: install clean archive rpm testimage test all check AUTHORS doc
 
-all: syncheck dracut-version.sh install/dracut-install
+all: syncheck dracut-version.sh dracut-install
 
-install/dracut-install:
-	$(MAKE) -C install dracut-install
+DRACUT_INSTALL_SOURCE = \
+	install/dracut-install.c \
+	install/hashmap.c\
+	install/log.c \
+	install/util.c
+
+DRACUT_INSTALL_HEADER = \
+	install/hashmap.h \
+	install/log.h \
+	install/macro.h \
+	install/util.h
+
+dracut-install: $(DRACUT_INSTALL_SOURCE) $(DRACUT_INSTALL_HEADER)
+	gcc -std=gnu99 -O2 -g -Wall -o dracut-install $(DRACUT_INSTALL_SOURCE)
+
+indent:
+	indent -i8 -nut -br -linux -l120 install/dracut-install.c
 
 doc: $(manpages) dracut.html
 
@@ -74,7 +89,7 @@ install: doc dracut-version.sh
 		ln -s ../dracut-shutdown.service \
 		$(DESTDIR)$(systemdsystemunitdir)/shutdown.target.wants/dracut-shutdown.service; \
 	fi
-	$(MAKE) -C install install
+	install $(strip) -m 0755 dracut-install $(DESTDIR)$(pkglibdir)/dracut-install
 
 dracut-version.sh:
 	@echo "DRACUT_VERSION=$(VERSION)-$(GITVERSION)" > dracut-version.sh
@@ -85,9 +100,9 @@ clean:
 	$(RM) */*/*~
 	$(RM) test-*.img
 	$(RM) dracut-*.rpm dracut-*.tar.bz2
+	$(RM) dracut-install
 	$(RM) $(manpages) dracut.html
 	$(MAKE) -C test clean
-	$(MAKE) -C install clean
 
 archive: dracut-$(VERSION)-$(GITVERSION).tar.bz2
 

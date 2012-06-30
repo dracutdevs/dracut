@@ -820,12 +820,12 @@ if [[ $kernel_only != yes ]]; then
         cat $f >> "${initdir}/etc/fstab"
     done
 
-    if [[ $DRACUT_RESOLVE_LAZY ]] && [[ -x /usr/bin/dracut-install ]]; then
+    if [[ $DRACUT_RESOLVE_LAZY ]] && [[ $DRACUT_INSTALL ]]; then
         dinfo "*** Resolving executable dependencies ***"
         find "$initdir" -type f \
             '(' -perm -0100 -or -perm -0010 -or -perm -0001 ')' \
             -not -path '*.ko' -print0 \
-        | xargs -0 dracut-install ${initdir+-D "$initdir"} -R ${DRACUT_FIPS_MODE+-H}
+        | xargs -0 $DRACUT_INSTALL ${initdir+-D "$initdir"} -R ${DRACUT_FIPS_MODE+-H}
         dinfo "*** Resolving executable dependencies done***"
     fi
 
