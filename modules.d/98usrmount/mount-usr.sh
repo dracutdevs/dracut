@@ -74,17 +74,21 @@ mount_usr()
             if [ "0" != "${_passno:-0}" ]; then
                 fsck_usr "$_dev" "$_fs" "$_opts"
                 _fsck_ret=$?
-                echo $_fsck_ret >/run/initramfs/usr-fsck
+                [ $_fsck_ret -ne 255 ] && echo $_fsck_ret >/run/initramfs/usr-fsck
             fi
         fi
-        if [ $_fsck_ret -ne 255 ]; then
-            if getargbool 0 rd.usrmount.ro; then
-                info "Mounting /usr (read-only forced)"
-                mount -r "$NEWROOT/usr" 2>&1 | vinfo
-            else
-                info "Mounting /usr"
-                mount "$NEWROOT/usr" 2>&1 | vinfo
-            fi
+        if getargbool 0 rd.usrmount.ro; then
+            info "Mounting /usr (read-only forced)"
+            mount -r "$NEWROOT/usr" 2>&1 | vinfo
+        else
+            info "Mounting /usr"
+            mount "$NEWROOT/usr" 2>&1 | vinfo
+        fi
+        if ! ismounted /usr; then
+            warn "Mounting /usr to $NEWROOT/usr failed"
+            warn "*** Dropping you to a shell; the system will continue"
+            warn "*** when you leave the shell."
+            emergency_shell
         fi
     fi
 }
