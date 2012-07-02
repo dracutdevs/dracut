@@ -57,7 +57,7 @@ static char *destrootdir = NULL;
 static Hashmap *items = NULL;
 static Hashmap *items_failed = NULL;
 
-static int dracut_install(const char *src, const char *dst, bool isdir, bool resolvedeps);
+static int dracut_install(const char *src, const char *dst, bool isdir, bool resolvedeps, bool hashdst);
 
 static size_t dir_len(char const *file)
 {
@@ -260,7 +260,7 @@ static int resolve_deps(const char *src)
                         for (q = p; *q && (!isspace(*q)); q++) ;
                         *q = '\0';
                         log_debug("Script install: '%s'", p);
-                        ret = dracut_install(p, p, false, true);
+                        ret = dracut_install(p, p, false, true, false);
                         if (ret != 0)
                                 log_error("ERROR: failed to install '%s'", p);
                         return ret;
@@ -287,7 +287,7 @@ static int resolve_deps(const char *src)
                         int r;
                         for (q = p; *q && *q != ' ' && *q != '\n'; q++) ;
                         *q = '\0';
-                        r = dracut_install(p, p, false, false);
+                        r = dracut_install(p, p, false, false, true);
                         if (r != 0)
                                 log_error("ERROR: failed to install '%s' for '%s'", p, src);
                         else
@@ -301,7 +301,7 @@ static int resolve_deps(const char *src)
                                 *q = '\0';
 
                                 /* ignore errors for base lib symlink */
-                                if (dracut_install(p, p, false, false) == 0)
+                                if (dracut_install(p, p, false, false, true) == 0)
                                         log_debug("Lib install: '%s'", p);
                         }
                 }
@@ -328,7 +328,7 @@ static int hmac_install(const char *src, const char *dst)
         asprintf(&srchmacname, "%s/.%s.hmac", srcpath, &src[dlen + 1]);
         asprintf(&dsthmacname, "%s/.%s.hmac", dstpath, &src[dlen + 1]);
         log_debug("hmac cp '%s' '%s')", srchmacname, dsthmacname);
-        dracut_install(srchmacname, dsthmacname, false, false);
+        dracut_install(srchmacname, dsthmacname, false, false, true);
         free(dsthmacname);
         free(srchmacname);
         free(srcpath);
@@ -336,7 +336,7 @@ static int hmac_install(const char *src, const char *dst)
         return 0;
 }
 
-static int dracut_install(const char *src, const char *dst, bool isdir, bool resolvedeps)
+static int dracut_install(const char *src, const char *dst, bool isdir, bool resolvedeps, bool hashdst)
 {
         struct stat sb, db;
         char *dname = NULL;
@@ -356,11 +356,13 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
                 }
         }
 
-        existing = hashmap_get(items, dst);
-        if (existing) {
-                if (strcmp(existing, dst) == 0) {
-                        log_debug("hash hit items for '%s'", dst);
-                        return 0;
+        if (hashdst) {
+                existing = hashmap_get(items, dst);
+                if (existing) {
+                        if (strcmp(existing, dst) == 0) {
+                                log_debug("hash hit items for '%s'", dst);
+                                return 0;
+                        }
                 }
         }
 
@@ -373,6 +375,7 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
                         return 1;
                 }
         }
+
 
         i = strdup(dst);
         hashmap_put(items, i, i);
@@ -408,7 +411,7 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
                 log_debug("dest dir '%s' does not exist", fulldstdir);
                 dname = strdup(dst);
                 dname[dir_len(dname)] = '\0';
-                ret = dracut_install(dname, dname, true, false);
+                ret = dracut_install(dname, dname, true, false, true);
 
                 free(dname);
 
@@ -442,7 +445,7 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
                 if (abspath == NULL)
                         return 1;
 
-                if (dracut_install(abspath, abspath, false, resolvedeps)) {
+                if (dracut_install(abspath, abspath, false, resolvedeps, hashdst)) {
                         log_debug("'%s' install error", abspath);
                         return 1;
                 }
@@ -683,7 +686,7 @@ static int install_all(int argc, char **argv)
                                 dest = strdup(newsrc);
 
                                 log_debug("dracut_install '%s'", newsrc);
-                                ret = dracut_install(newsrc, dest, arg_createdir, arg_resolvedeps);
+                                ret = dracut_install(newsrc, dest, arg_createdir, arg_resolvedeps, true);
                                 if (ret == 0) {
                                         end = true;
                                         log_debug("dracut_install '%s' OK", newsrc);
@@ -694,7 +697,7 @@ static int install_all(int argc, char **argv)
                         free(path);
                 } else {
                         char *dest = strdup(argv[i]);
-                        ret = dracut_install(argv[i], dest, arg_createdir, arg_resolvedeps);
+                        ret = dracut_install(argv[i], dest, arg_createdir, arg_resolvedeps, true);
                         free(dest);
                 }
 
@@ -764,7 +767,7 @@ int main(int argc, char **argv)
                 r = install_all(argc - optind, &argv[optind]);
         } else {
                 /* simple "inst src dst" */
-                r = dracut_install(argv[optind], argv[optind + 1], arg_createdir, arg_resolvedeps);
+                r = dracut_install(argv[optind], argv[optind + 1], arg_createdir, arg_resolvedeps, true);
                 if ((r != 0) && (!arg_optional)) {
                         log_error("ERROR: installing '%s' to '%s'", argv[optind], argv[optind + 1]);
                         r = EXIT_FAILURE;
