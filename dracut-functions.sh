@@ -1201,7 +1201,8 @@ dracut_kernel_post() {
     local _moddirname=${srcmods%%/lib/modules/*}
 
     if [[ $DRACUT_KERNEL_LAZY_HASHDIR ]] && [[ -f "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist" ]]; then
-        xargs -r modprobe -a ${_moddirname+-d ${_moddirname}/} --ignore-install --show-depends \
+        xargs -r modprobe -a ${_moddirname+-d ${_moddirname}/} \
+            --ignore-install --show-depends --set-version $kernel \
             < "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist" 2>/dev/null \
             | sort -u \
             | while read _cmd _modpath _options; do
