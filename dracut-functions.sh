@@ -1277,7 +1277,11 @@ find_kernel_modules_by_path () (
         IFS=$_OLDIFS
     else
         ( cd /sys/module; echo *; ) \
-        | xargs -r modinfo -F filename -k $kernel 2>/dev/null
+        | xargs -r modinfo -F filename -k $kernel 2>/dev/null \
+        | while read a; do
+            [[ $a = kernel*/$1/* ]] || continue
+            echo $srcmods/$a
+        done
     fi
     return 0
 )
