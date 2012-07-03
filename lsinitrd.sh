@@ -63,7 +63,7 @@ if [[ $# -eq 2 ]]; then
     exit $?
 fi
 
-echo "$image: $(du -h $image | awk '{print $1}')"
+echo "$image: $(du -h $image | while read a b; do echo $a;done)"
 echo "========================================================================"
 $CAT "$image" | cpio --extract --verbose --quiet --to-stdout 'lib/dracut/dracut-*' 2>/dev/null
 echo "========================================================================"
