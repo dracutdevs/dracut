@@ -255,9 +255,11 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 %dir /etc/dracut.conf.d
 %{_mandir}/man8/dracut.8*
+%{_mandir}/man8/mkinitrd.8*
 %{_mandir}/man7/dracut.kernel.7*
 %{_mandir}/man7/dracut.cmdline.7*
 %{_mandir}/man5/dracut.conf.5*
+%{_mandir}/man1/lsinitrd.1*
 %{dracutlibdir}/modules.d/00bootchart
 %{dracutlibdir}/modules.d/00dash
 %{dracutlibdir}/modules.d/04watchdog

@@ -9,7 +9,12 @@ sysconfdir ?= ${prefix}/etc
 bindir ?= ${prefix}/bin
 mandir ?= ${prefix}/share/man
 
-manpages = dracut.8 dracut.cmdline.7 dracut.conf.5 dracut-catimages.8
+manpages = dracut.8 \
+	   dracut.cmdline.7 \
+	   dracut.conf.5 \
+	   dracut-catimages.8 \
+	   lsinitrd.1 \
+	   mkinitrd.8
 
 .PHONY: install clean archive rpm testimage test all check AUTHORS doc
 
@@ -55,7 +60,7 @@ install: doc dracut-version.sh
 	mkdir -p $(DESTDIR)$(bindir)
 	mkdir -p $(DESTDIR)$(sysconfdir)
 	mkdir -p $(DESTDIR)$(pkglibdir)/modules.d
-	mkdir -p $(DESTDIR)$(mandir)/man5 $(DESTDIR)$(mandir)/man7 $(DESTDIR)$(mandir)/man8
+	mkdir -p $(DESTDIR)$(mandir)/man1 $(DESTDIR)$(mandir)/man5 $(DESTDIR)$(mandir)/man7 $(DESTDIR)$(mandir)/man8
 	install -m 0755 dracut.sh $(DESTDIR)$(bindir)/dracut
 	install -m 0755 dracut-catimages.sh $(DESTDIR)$(bindir)/dracut-catimages
 	install -m 0755 mkinitrd-dracut.sh $(DESTDIR)$(bindir)/mkinitrd
@@ -68,8 +73,11 @@ install: doc dracut-version.sh
 	install -m 0755 dracut-logger.sh $(DESTDIR)$(pkglibdir)/dracut-logger.sh
 	install -m 0755 dracut-initramfs-restore.sh $(DESTDIR)$(pkglibdir)/dracut-initramfs-restore
 	cp -arx modules.d $(DESTDIR)$(pkglibdir)
+	install -m 0644 lsinitrd.1 $(DESTDIR)$(mandir)/man1/lsinitrd.1
+	install -m 0644 mkdinitrd.8 $(DESTDIR)$(mandir)/man8/mkinitrd.8
 	install -m 0644 dracut.8 $(DESTDIR)$(mandir)/man8/dracut.8
-	install -m 0644 dracut-catimages.8 $(DESTDIR)$(mandir)/man8/dracut-catimages.8
+	install -m 0644 dracut-catimages.8 \
+                        $(DESTDIR)$(mandir)/man8/dracut-catimages.8
 	install -m 0644 dracut.conf.5 $(DESTDIR)$(mandir)/man5/dracut.conf.5
 	install -m 0644 dracut.cmdline.7 $(DESTDIR)$(mandir)/man7/dracut.cmdline.7
 	ln -s dracut.cmdline.7 $(DESTDIR)$(mandir)/man7/dracut.kernel.7
