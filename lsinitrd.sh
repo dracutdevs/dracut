@@ -19,13 +19,19 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-[[ $# -le 2 ]] || { echo "Usage: $(basename $0) [-s] [<initramfs file> [<filename>]]" ; exit 1 ; }
+usage()
+{
+    echo "Usage: $(basename $0) [-s] [<initramfs file> [<filename>]]"
+}
+
+[[ $# -le 2 ]] || { usage ; exit 1 ; }
 
 sorted=0
 while getopts "s" opt; do
     case $opt in
         s)  sorted=1;;
-        \?) exit 1;;
+        h)  usage; exit 0;;
+        \?) usage; exit 1;;
     esac
 done
 shift $((OPTIND-1))
