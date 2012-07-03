@@ -14,7 +14,7 @@ ismounted() {
 }
 
 if ismounted /usr; then
-    echo "dracut-root-block-success" >/dev/sdb
+    echo "dracut-root-block-success" >/dev/sdc
 fi
 export TERM=linux
 export PS1='initramfs-test:\w\$ '

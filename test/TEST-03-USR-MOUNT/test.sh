@@ -16,7 +16,8 @@ client_run() {
     dd if=/dev/zero of=$TESTDIR/result bs=1M count=1
     $testdir/run-qemu \
 	-hda $TESTDIR/root.btrfs \
-	-hdb $TESTDIR/result \
+	-hdb $TESTDIR/usr.btrfs \
+	-hdc $TESTDIR/result \
 	-m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
 	-watchdog ib700 -watchdog-action poweroff \
@@ -37,7 +38,7 @@ client_run() {
 }
 
 test_run() {
-    client_run "no option specified, should fail" && return 1
+    client_run "no option specified" || return 1
     client_run "readonly root" "ro" || return 1
     client_run "writeable root" "rw" || return 1
     return 0
@@ -45,8 +46,10 @@ test_run() {
 
 test_setup() {
     rm -f $TESTDIR/root.btrfs
+    rm -f $TESTDIR/usr.btrfs
     # Create the blank file to use as a root filesystem
     dd if=/dev/null of=$TESTDIR/root.btrfs bs=1M seek=160
+    dd if=/dev/null of=$TESTDIR/usr.btrfs bs=1M seek=160
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
@@ -100,6 +103,7 @@ test_setup() {
 
     $testdir/run-qemu \
 	-hda $TESTDIR/root.btrfs \
+	-hdb $TESTDIR/usr.btrfs \
 	-m 256M -nographic -net none \
 	-kernel "/boot/vmlinuz-$kernel" \
 	-append "root=/dev/dracut/root rw rootfstype=btrfs quiet console=ttyS0,115200n81 selinux=0" \

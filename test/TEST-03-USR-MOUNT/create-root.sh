@@ -12,13 +12,23 @@ sfdisk -C 5120 -H 2 -S 32 -L /dev/sda <<EOF
 ,
 EOF
 
+sfdisk -C 5120 -H 2 -S 32 -L /dev/sdb <<EOF
+,16
+,
+EOF
+
+
 mkfs.btrfs -L dracut /dev/sda2
+mkfs.btrfs -L dracutusr /dev/sdb2
 btrfs device scan /dev/sda2
+btrfs device scan /dev/sdb2
 mkdir -p /root
 mount -t btrfs /dev/sda2 /root
-btrfs subvolume create /root/usr
 [ -d /root/usr ] || mkdir /root/usr
-mount -t btrfs -o subvol=usr /dev/sda2 /root/usr
+mount -t btrfs /dev/sdb2 /root/usr
+btrfs subvolume create /root/usr/usr
+umount /root/usr
+mount -t btrfs -o subvol=usr /dev/sdb2 /root/usr
 cp -a -t /root /source/*
 mkdir -p /root/run
 umount /root/usr
