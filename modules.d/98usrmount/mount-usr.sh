@@ -84,7 +84,7 @@ mount_usr()
             info "Mounting /usr"
             mount "$NEWROOT/usr" 2>&1 | vinfo
         fi
-        if ! ismounted /usr; then
+        if ! ismounted "$NEWROOT/usr"; then
             warn "Mounting /usr to $NEWROOT/usr failed"
             warn "*** Dropping you to a shell; the system will continue"
             warn "*** when you leave the shell."
