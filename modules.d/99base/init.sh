@@ -20,14 +20,22 @@ export PATH
 RD_DEBUG=""
 . /lib/dracut-lib.sh
 
-trap "emergency_shell Signal caught!" 0
-
 # mount some important things
 [ ! -d /proc/self ] && \
-    mount -t proc -o nosuid,noexec,nodev proc /proc >/dev/null 2>&1
+    mount -t proc -o nosuid,noexec,nodev proc /proc >/dev/null
+
+if [ "$?" != "0" ]; then
+    echo "Cannot mount proc on /proc! Compile the kernel with CONFIG_PROC_FS!"
+    exit 1
+fi
 
 [ ! -d /sys/kernel ] && \
-    mount -t sysfs -o nosuid,noexec,nodev sysfs /sys >/dev/null 2>&1
+    mount -t sysfs -o nosuid,noexec,nodev sysfs /sys >/dev/null
+
+if [ "$?" != "0" ]; then
+    echo "Cannot mount sysfs on /sys! Compile the kernel with CONFIG_SYSFS!"
+    exit 1
+fi
 
 if [ -x /lib/systemd/systemd-timestamp ]; then
     RD_TIMESTAMP=$(/lib/systemd/systemd-timestamp)
@@ -39,7 +47,12 @@ fi
 setdebug
 
 if ! ismounted /dev; then
-    mount -t devtmpfs -o mode=0755,nosuid,strictatime devtmpfs /dev >/dev/null 
+    mount -t devtmpfs -o mode=0755,nosuid,strictatime devtmpfs /dev >/dev/null
+fi
+
+if ! ismounted /dev; then
+    echo "Cannot mount devtmpfs on /dev! Compile the kernel with CONFIG_DEVTMPFS!"
+    exit 1
 fi
 
 # prepare the /dev directory
@@ -65,6 +78,8 @@ if ! ismounted /run; then
     mount --move /newrun /run
     rm -fr /newrun
 fi
+
+trap "emergency_shell Signal caught!" 0
 
 [ -d /run/initramfs ] || mkdir -p -m 0755 /run/initramfs
 
