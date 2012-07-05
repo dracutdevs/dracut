@@ -13,13 +13,13 @@ depends() {
 installkernel() {
     local _fipsmodules _mod
     _fipsmodules="aead aes_generic xts aes-x86_64 ansi_cprng cbc ccm chainiv ctr"
-    _fipsmodules+=" des deflate ecb eseqiv hmac seqiv sha256_generic sha512"
+    _fipsmodules+=" des deflate ecb eseqiv hmac seqiv sha256 sha256_generic sha512 sha512_generic"
     _fipsmodules+=" cryptomgr crypto_null tcrypt dm-mod dm-crypt"
 
     mkdir -m 0755 -p "${initdir}/etc/modprobe.d"
 
     for _mod in $_fipsmodules; do
-        if hostonly='' instmods $_mod; then
+        if hostonly='' instmods -c -s $_mod; then
             echo $_mod >> "${initdir}/etc/fipsmodules"
             echo "blacklist $_mod" >> "${initdir}/etc/modprobe.d/fips.conf"
         fi

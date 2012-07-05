@@ -1290,8 +1290,8 @@ find_kernel_modules () {
     find_kernel_modules_by_path  drivers
 }
 
-# instmods [-c] <kernel module> [<kernel module> ... ]
-# instmods [-c] <kernel subsystem>
+# instmods [-c [-s]] <kernel module> [<kernel module> ... ]
+# instmods [-c [-s]] <kernel subsystem>
 # install kernel modules along with all their dependencies.
 # <kernel subsystem> can be e.g. "=block" or "=drivers/usb/storage"
 instmods() {
@@ -1299,8 +1299,14 @@ instmods() {
     # called [sub]functions inherit _fderr
     local _fderr=9
     local _check=no
+    local _silent=no
     if [[ $1 = '-c' ]]; then
         _check=yes
+        shift
+    fi
+
+    if [[ $1 = '-s' ]]; then
+        _silent=yes
         shift
     fi
 
@@ -1362,8 +1368,8 @@ instmods() {
         if (($# == 0)); then  # filenames from stdin
             while read _mod; do
                 inst1mod "${_mod%.ko*}" || {
-                    if [ "$_check" = "yes" ]; then
-                        dfatal "Failed to install $_mod"
+                    if [[ "$_check" == "yes" ]]; then
+                        [[ "$_silent" == "no" ]] && dfatal "Failed to install $_mod"
                         return 1
                     fi
                 }
@@ -1371,8 +1377,8 @@ instmods() {
         fi
         while (($# > 0)); do  # filenames as arguments
             inst1mod ${1%.ko*} || {
-                if [ "$_check" = "yes" ]; then
-                    dfatal "Failed to install $1"
+                if [[ "$_check" == "yes" ]]; then
+                    [[ "$_silent" == "no" ]] && dfatal "Failed to install $1"
                     return 1
                 fi
             }
