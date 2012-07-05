@@ -74,9 +74,11 @@ install() {
             for map in ${item[1]//,/ }
             do
                 map=(${map//-/ })
-                value=$(grep "^${map[0]}=" "${item[0]}")
-                value=${value#*=}
-                echo "${map[1]:-${map[0]}}=${value}"
+                if [[ -f "${item[0]}" ]]; then
+                    value=$(grep "^${map[0]}=" "${item[0]}")
+                    value=${value#*=}
+                    echo "${map[1]:-${map[0]}}=${value}"
+                fi
             done
         done
     }
@@ -155,9 +157,10 @@ install() {
         EXT_KEYMAPS+=\ ${UNIKEYMAP}\ ${GRP_TOGGLE}
 
         [[ ${KEYMAP} ]] || {
-            derror 'No KEYMAP.'
+            dinfo 'No KEYMAP configured.'
             return 1
         }
+
         findkeymap ${KEYMAP}
 
         for map in ${EXT_KEYMAPS}
