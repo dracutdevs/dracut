@@ -7,6 +7,8 @@ if ! getarg ifname= >/dev/null ; then
     return
 fi
 
+command -v parse_ifname_opts >/dev/null || . /lib/net-lib.sh
+
 {
     for p in $(getargs ifname=); do
         parse_ifname_opts $p

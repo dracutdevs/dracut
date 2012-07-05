@@ -18,21 +18,7 @@ if ! getarg ifname= >/dev/null ; then
     return
 fi
 
-parse_ifname_opts() {
-    local IFS=:
-    set $1
-
-    case $# in
-        7)
-            ifname_if=$1
-            # udev requires MAC addresses to be lower case
-            ifname_mac=$(echo $2:$3:$4:$5:$6:$7 | sed 'y/ABCDEF/abcdef/')
-            ;;
-        *)
-            die "Invalid arguments for ifname="
-            ;;
-    esac
-}
+command -v parse_ifname_opts >/dev/null || . /lib/net-lib.sh
 
 # Check ifname= lines
 for p in $(getargs ifname=); do
