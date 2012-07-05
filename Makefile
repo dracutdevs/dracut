@@ -74,7 +74,7 @@ install: doc dracut-version.sh
 	install -m 0755 dracut-initramfs-restore.sh $(DESTDIR)$(pkglibdir)/dracut-initramfs-restore
 	cp -arx modules.d $(DESTDIR)$(pkglibdir)
 	install -m 0644 lsinitrd.1 $(DESTDIR)$(mandir)/man1/lsinitrd.1
-	install -m 0644 mkdinitrd.8 $(DESTDIR)$(mandir)/man8/mkinitrd.8
+	install -m 0644 mkinitrd.8 $(DESTDIR)$(mandir)/man8/mkinitrd.8
 	install -m 0644 dracut.8 $(DESTDIR)$(mandir)/man8/dracut.8
 	install -m 0644 dracut-catimages.8 \
                         $(DESTDIR)$(mandir)/man8/dracut-catimages.8
