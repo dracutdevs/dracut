@@ -101,6 +101,11 @@ install() {
         fi
     fi
 
+    # install adm user/group for journald
+    dracut_install nologin
+    egrep '^adm:' "$initdir/etc/passwd" 2>/dev/null >> "$initdir/etc/passwd"
+    egrep '^adm:' /etc/group >> "$initdir/etc/group"
+
     ln -fs $systemdutildir/systemd "$initdir/init"
 
     rm -f "${initdir}${systemdsystemunitdir}/emergency.service"
