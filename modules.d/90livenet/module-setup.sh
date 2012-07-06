@@ -6,7 +6,7 @@ check() {
 }
 
 depends() {
-    echo network url-lib dmsquash-live
+    echo network url-lib dmsquash-live img-lib
     return 0
 }
 

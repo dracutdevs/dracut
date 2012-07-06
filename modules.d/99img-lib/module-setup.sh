@@ -13,8 +13,7 @@ depends() {
 }
 
 install() {
-    # NOTE/TODO: we require bash, but I don't know how to specify that..
-    dracut_install tar gzip dd
+    dracut_install tar gzip dd bash
     # TODO: make this conditional on a cmdline flag / config option
     dracut_install -o cpio xz bzip2
     inst_simple "$moddir/img-lib.sh" "/lib/img-lib.sh"

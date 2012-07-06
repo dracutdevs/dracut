@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # livenetroot - fetch a live image from the network and run it
 
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
