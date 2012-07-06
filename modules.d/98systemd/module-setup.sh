@@ -4,10 +4,9 @@
 
 check() {
     [[ $mount_needs ]] && return 1
-    if [[ -x /lib/systemd/systemd ]] || [[ -x /usr/lib/systemd/systemd ]]; then
-        return 255
+    if [[ -x $systemdutildir/systemd ]]; then
+       return 255
     fi
-    [[ $systemdutildir ]] && return 255
 
     return 1
 }
@@ -17,6 +16,11 @@ depends() {
 }
 
 install() {
+    if strstr "$prefix" "/run/"; then
+        dfatal "systemd does not work a prefix, which contains \"/run\"!!"
+        exit 1
+    fi
+
     dracut_install -o \
         $systemdutildir/systemd \
         $systemdutildir/systemd-cgroups-agent \
