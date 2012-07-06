@@ -2,13 +2,12 @@
 
 # i18n
 i18n_vars="/etc/sysconfig/keyboard:KEYTABLE-KEYMAP /etc/sysconfig/i18n:SYSFONT-FONT,FONTACM-FONT_MAP,FONT_UNIMAP"
-omit_dracutmodules+=" dash "
 omit_drivers+=" .*/fs/ocfs/.* "
-add_dracutmodules+=" systemd "
 stdloglvl=3
-realinitpath="/usr/lib/systemd/systemd"
 install_items+=" vi /etc/virc ps grep cat rm "
-prefix="/"
+readonly prefix="/"
 systemdutildir=/usr/lib/systemd
 systemdsystemunitdir=/usr/lib/systemd/system
 udevdir=/usr/lib/udev
+add_dracutmodules+=" systemd "
+realinitpath="/usr/lib/systemd/systemd"

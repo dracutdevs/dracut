@@ -190,6 +190,9 @@ rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/01fips
 rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/02fips-aesni
 %endif
 
+# we do not support dash in the initramfs
+rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00dash
+
 # remove gentoo specific modules
 rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/50gensplash
 
@@ -261,7 +264,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man5/dracut.conf.5*
 %{_mandir}/man1/lsinitrd.1*
 %{dracutlibdir}/modules.d/00bootchart
-%{dracutlibdir}/modules.d/00dash
 %{dracutlibdir}/modules.d/04watchdog
 %{dracutlibdir}/modules.d/05busybox
 %{dracutlibdir}/modules.d/10i18n
