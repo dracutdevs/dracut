@@ -55,7 +55,9 @@ install() {
         $systemdsystemunitdir/systemd-shutdownd.socket \
         $systemdsystemunitdir/systemd-ask-password-console.path \
         $systemdsystemunitdir/systemd-udev-control.socket \
+        $systemdsystemunitdir/systemd-udevd-control.socket \
         $systemdsystemunitdir/systemd-udev-kernel.socket \
+        $systemdsystemunitdir/systemd-udevd-kernel.socket \
         $systemdsystemunitdir/systemd-ask-password-plymouth.path \
         $systemdsystemunitdir/systemd-journald.socket \
         $systemdsystemunitdir/systemd-initctl.service \
@@ -67,8 +69,11 @@ install() {
         $systemdsystemunitdir/kexec.service \
         $systemdsystemunitdir/fsck@.service \
         $systemdsystemunitdir/systemd-udev.service \
+        $systemdsystemunitdir/systemd-udevd.service \
         $systemdsystemunitdir/systemd-udev-trigger.service \
+        $systemdsystemunitdir/systemd-udevd-trigger.service \
         $systemdsystemunitdir/systemd-udev-settle.service \
+        $systemdsystemunitdir/systemd-udevd-settle.service \
         $systemdsystemunitdir/systemd-ask-password-plymouth.service \
         $systemdsystemunitdir/systemd-journald.service \
         $systemdsystemunitdir/systemd-vconsole-setup.service \
@@ -79,10 +84,14 @@ install() {
         $systemdsystemunitdir/sockets.target.wants/systemd-initctl.socket \
         $systemdsystemunitdir/sockets.target.wants/systemd-shutdownd.socket \
         $systemdsystemunitdir/sockets.target.wants/systemd-udev-control.socket \
+        $systemdsystemunitdir/sockets.target.wants/systemd-udevd-control.socket \
         $systemdsystemunitdir/sockets.target.wants/systemd-udev-kernel.socket \
+        $systemdsystemunitdir/sockets.target.wants/systemd-udevd-kernel.socket \
         $systemdsystemunitdir/sockets.target.wants/systemd-journald.socket \
         $systemdsystemunitdir/sysinit.target.wants/systemd-udev.service \
+        $systemdsystemunitdir/sysinit.target.wants/systemd-udevd.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-udev-trigger.service \
+        $systemdsystemunitdir/sysinit.target.wants/systemd-udevd-trigger.service \
         $systemdsystemunitdir/ctrl-alt-del.target \
         $systemdsystemunitdir/single.service \
         $systemdsystemunitdir/syslog.socket \
