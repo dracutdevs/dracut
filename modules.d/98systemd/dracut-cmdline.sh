@@ -8,9 +8,10 @@ NEWROOT="/sysroot"
 [ -d /run/lock ] || mkdir -p -m 0755 /run/lock
 
 if [ -f /dracut-state.sh ]; then
-    . /dracut-state.sh || :
+    . /dracut-state.sh 2>/dev/null
 fi
-. /lib/dracut-lib.sh
+type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+
 source_conf /etc/conf.d
 
 # run scriptlets to parse the command line
@@ -23,3 +24,4 @@ source_hook cmdline
 export root rflags fstype netroot NEWROOT
 
 export -p > /dracut-state.sh
+exit 0
