@@ -641,6 +641,7 @@ unset omit_drivers_corrected
 for ((i=0; i < ${#dracut_args[@]}; i++)); do
     strstr "${dracut_args[$i]}" " " && \
         dracut_args[$i]="\"${dracut_args[$i]}\""
+        #" keep vim happy
 done
 ddebug "Executing: $0 ${dracut_args[@]}"
 
