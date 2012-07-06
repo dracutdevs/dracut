@@ -15,9 +15,4 @@ command -v parse_ifname_opts >/dev/null || . /lib/net-lib.sh
         printf 'SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="%s", ATTR{type}=="1", NAME="%s"\n' "$ifname_mac" "$ifname_if"
     done
 
-    # Rename non named interfaces out of the way for named ones.
-    for p in $(getargs ifname=); do
-        parse_ifname_opts $p
-        printf 'SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="?*", ATTR{type}=="1", NAME!="?*", KERNEL=="%s", NAME="%%k-renamed"\n' "$ifname_if"
-    done
-} > /etc/udev/rules.d/50-ifname.rules
+} >> /etc/udev/rules.d/80-ifname.rules

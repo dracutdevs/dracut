@@ -54,7 +54,7 @@ fix_bootif() {
 
     # Default: We don't know the interface to use, handle all
     else
-        printf 'SUBSYSTEM=="net", RUN+="%s"\n' "/sbin/initqueue --onetime $ifup" > /etc/udev/rules.d/61-default-net.rules
+        printf 'SUBSYSTEM=="net", RUN+="%s"\n' "/sbin/initqueue --onetime $ifup" > /etc/udev/rules.d/91-default-net.rules
     fi
 
-} > /etc/udev/rules.d/60-net.rules
+} > /etc/udev/rules.d/90-net.rules
