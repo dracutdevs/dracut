@@ -65,7 +65,6 @@ installkernel() {
 
 install() {
     if grep -q nash /usr/libexec/plymouth/plymouth-populate-initrd \
-        || ! grep -q PLYMOUTH_POPULATE_SOURCE_FUNCTIONS /usr/libexec/plymouth/plymouth-populate-initrd \
         || [ ! -x /usr/libexec/plymouth/plymouth-populate-initrd ]; then
         . "$moddir"/plymouth-populate-initrd.sh
     else
