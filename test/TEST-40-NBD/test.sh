@@ -190,7 +190,7 @@ make_encrypted_root() {
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
-	initdir=$TESTDIR/overlay/source
+	export initdir=$TESTDIR/overlay/source
         . $basedir/dracut-functions.sh
         mkdir -p "$initdir"
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
@@ -208,7 +208,7 @@ make_encrypted_root() {
 
     # second, install the files needed to make the root filesystem
     (
-	initdir=$TESTDIR/overlay
+	export initdir=$TESTDIR/overlay
 	. $basedir/dracut-functions.sh
 	dracut_install mke2fs poweroff cp umount tune2fs
 	inst_hook initqueue 01 ./create-root.sh
@@ -244,7 +244,7 @@ make_client_root() {
 
     kernel=$KVERSION
     (
-	initdir=$TESTDIR/mnt
+	export initdir=$TESTDIR/mnt
 	. $basedir/dracut-functions.sh
         mkdir -p "$initdir"
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
@@ -278,7 +278,7 @@ make_server_root() {
 
     kernel=$KVERSION
     (
-	initdir=$TESTDIR/mnt
+	export initdir=$TESTDIR/mnt
 	. $basedir/dracut-functions.sh
         mkdir -p "$initdir"
 	(
@@ -323,7 +323,7 @@ test_setup() {
 
     # Make the test image
     (
-	initdir=$TESTDIR/overlay
+	export initdir=$TESTDIR/overlay
 	. $basedir/dracut-functions.sh
 	dracut_install poweroff shutdown
 	inst_hook emergency 000 ./hard-off.sh

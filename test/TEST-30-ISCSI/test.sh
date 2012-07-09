@@ -102,7 +102,7 @@ test_setup() {
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
-        initdir=$TESTDIR/overlay/source
+        export initdir=$TESTDIR/overlay/source
         . $basedir/dracut-functions.sh
         dracut_install sh shutdown poweroff stty cat ps ln ip \
             mount dmesg mkdir cp ping grep
@@ -118,7 +118,7 @@ test_setup() {
 
     # second, install the files needed to make the root filesystem
     (
-        initdir=$TESTDIR/overlay
+        export initdir=$TESTDIR/overlay
         . $basedir/dracut-functions.sh
         dracut_install sfdisk mkfs.ext3 poweroff cp umount
         inst_hook initqueue 01 ./create-root.sh
@@ -153,7 +153,7 @@ test_setup() {
     grep -m 1 -q dracut-root-block-created $TESTDIR/client.img || return 1
     rm $TESTDIR/client.img
     (
-        initdir=$TESTDIR/overlay
+        export initdir=$TESTDIR/overlay
         . $basedir/dracut-functions.sh
         dracut_install poweroff shutdown
         inst_hook emergency 000 ./hard-off.sh
@@ -173,7 +173,7 @@ test_setup() {
 
     kernel=$KVERSION
     (
-        initdir=$TESTDIR/mnt
+        export initdir=$TESTDIR/mnt
         . $basedir/dracut-functions.sh
         (
             cd "$initdir";

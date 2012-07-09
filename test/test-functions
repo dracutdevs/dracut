@@ -6,7 +6,7 @@ export PATH
 
 [[ -e .testdir ]] && . .testdir
 if [[ -z "$TESTDIR" ]] || [[ ! -d "$TESTDIR" ]]; then
-   TESTDIR=$(mktemp -d -t dracut-test.XXXXXX)
+   TESTDIR=$(mktemp -d --tmpdir="/var/tmp" -t dracut-test.XXXXXX)
 fi
 echo "TESTDIR=\"$TESTDIR\"" > .testdir
 export TESTDIR

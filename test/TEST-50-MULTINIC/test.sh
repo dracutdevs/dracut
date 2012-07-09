@@ -132,7 +132,7 @@ test_setup() {
     sudo mount -o loop $TESTDIR/server.ext3 $TESTDIR/mnt
 
     (
-        initdir=$TESTDIR/mnt
+        export initdir=$TESTDIR/mnt
         . $basedir/dracut-functions.sh
 
         (
@@ -197,7 +197,7 @@ test_setup() {
 
     # Make client root inside server root
     (
-        initdir=$TESTDIR/mnt/nfs/client
+        export initdir=$TESTDIR/mnt/nfs/client
         . $basedir/dracut-functions.sh
         dracut_install sh shutdown poweroff stty cat ps ln ip \
             mount dmesg mkdir cp ping grep ls
@@ -236,7 +236,7 @@ test_setup() {
 
     # Make an overlay with needed tools for the test harness
     (
-        initdir=$TESTDIR/overlay
+        export initdir=$TESTDIR/overlay
         . $basedir/dracut-functions.sh
         dracut_install poweroff shutdown
         inst_hook emergency 000 ./hard-off.sh
