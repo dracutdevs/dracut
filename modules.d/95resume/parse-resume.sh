@@ -15,6 +15,8 @@ case "$resume" in
         resume="/dev/disk/by-label/${resume#LABEL=}" ;;
     UUID=*) \
         resume="/dev/disk/by-uuid/${resume#UUID=}" ;;
+    PARTUUID=*) \
+        resume="/dev/disk/by-partuuid/${resume#PARTUUID=}" ;;
 esac
 
 if splash=$(getarg splash=); then

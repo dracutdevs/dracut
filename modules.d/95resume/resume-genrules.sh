@@ -21,18 +21,18 @@ if [ -n "$resume" ]; then
 
     {
         if [ -x /usr/sbin/resume ]; then
-            printf "KERNEL==\"%s\", ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\", RUN+=\"/usr/sbin/resume %s '%s'\"\n" \
+            printf "KERNEL==\"%s\", ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\", RUN+=\"/sbin/initqueue /usr/sbin/resume %s '%s'\"\n" \
                 ${resume#/dev/} "$a_splash" "$resume";
-            printf "SYMLINK==\"%s\", ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\", RUN+=\"/usr/sbin/resume %s '%s'\"\n" \
+            printf "SYMLINK==\"%s\", ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\", RUN+=\"/sbin/initqueue /usr/sbin/resume %s '%s'\"\n" \
                 ${resume#/dev/} "$a_splash" "$resume";
         fi
-        printf "KERNEL==\"%s\", ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\", RUN+=\"/bin/sh -c 'echo %%M:%%m > /sys/power/resume'\"\n" \
+        printf "KERNEL==\"%s\", ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\", RUN+=\"/sbin/initqueue /bin/sh -c 'echo %%M:%%m > /sys/power/resume'\"\n" \
             ${resume#/dev/};
-        printf "SYMLINK==\"%s\", ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\", RUN+=\"/bin/sh -c 'echo %%M:%%m > /sys/power/resume'\"\n" \
+        printf "SYMLINK==\"%s\", ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\", RUN+=\"/sbin/initqueue /bin/sh -c 'echo %%M:%%m > /sys/power/resume'\"\n" \
             ${resume#/dev/};
     } >> /etc/udev/rules.d/99-resume.rules
 
-    printf '[ -e "%s" ] && { ln -s "%s" /dev/resume; rm "$job"; }\n' \
+    printf '[ -e "%s" ] && { ln -s "%s" /dev/resume; rm "$job"; udevadm settle; }\n' \
         "$resume" "$resume" >> $hookdir/initqueue/settled/resume.sh
 
     printf 'warn "Cancelling resume operation. Device not found."; cancel_wait_for_dev /dev/resume; rm "$job" "%s/initqueue/settled/resume.sh";' \
@@ -43,9 +43,9 @@ if [ -n "$resume" ]; then
 elif ! getarg noresume; then
     {
         if [ -x /usr/sbin/resume ]; then
-            printf "SUBSYSTEM==\"block\", ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\", RUN+=\"/usr/sbin/resume %s '\$tempnode'\"\n" "$a_splash"
+            printf "SUBSYSTEM==\"block\", ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\", RUN+=\"/sbin/initqueue /usr/sbin/resume %s '\$tempnode'\"\n" "$a_splash"
         fi
         echo "SUBSYSTEM==\"block\", ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\"," \
-            " RUN+=\"/bin/sh -c 'echo %M:%m > /sys/power/resume'\"";
+            " RUN+=\"/sbin/initqueue /bin/sh -c 'echo %M:%m > /sys/power/resume'\"";
     } >> /etc/udev/rules.d/99-resume.rules
 fi
