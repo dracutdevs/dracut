@@ -10,7 +10,7 @@
 [Unit]
 Description=Dracut pre-udev hook
 DefaultDependencies=no
-Before=systemd-udev.service dracut-pre-trigger.service
+Before=systemd-udevd.service dracut-pre-trigger.service
 After=dracut-cmdline.service
 Wants=dracut-cmdline.service
 ConditionPathExists=/etc/initrd-release
