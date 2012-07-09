@@ -96,6 +96,11 @@ if ! type dinfo >/dev/null 2>&1; then
     dlog_init
 fi
 
+if ! [[ $initdir ]]; then
+    dfatal "initdir not set"
+    exit 1
+fi
+
 # export standard hookdirs
 [[ $hookdirs ]] || {
     hookdirs="cmdline pre-udev pre-trigger netroot "
