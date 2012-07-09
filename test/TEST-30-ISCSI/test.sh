@@ -4,7 +4,7 @@ TEST_DESCRIPTION="root filesystem over iSCSI"
 KVERSION=${KVERSION-$(uname -r)}
 
 #DEBUGFAIL="rd.shell"
-#SERIAL="-serial udp:127.0.0.1:9999"
+#SERIAL="tcp:127.0.0.1:9999"
 SERIAL="null"
 
 run_server() {
@@ -12,15 +12,16 @@ run_server() {
     echo "iSCSI TEST SETUP: Starting DHCP/iSCSI server"
 
     $testdir/run-qemu \
-        -hda $TESTDIR/server.ext2 \
-        -hdb $TESTDIR/root.ext2 \
+        -hda $TESTDIR/server.ext3 \
+        -hdb $TESTDIR/root.ext3 \
         -hdc $TESTDIR/iscsidisk2.img \
         -hdd $TESTDIR/iscsidisk3.img \
         -m 256M -nographic \
+        -serial $SERIAL \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net socket,listen=127.0.0.1:12330 \
         -kernel /boot/vmlinuz-$KVERSION \
-        -append "root=/dev/sda rootfstype=ext2 rw quiet console=ttyS0,115200n81 selinux=0" \
+        -append "root=/dev/sda rootfstype=ext3 rw rd.debug loglevel=77 console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.server \
         -pidfile $TESTDIR/server.pid -daemonize || return 1
     sudo chmod 644 $TESTDIR/server.pid || return 1
@@ -94,7 +95,7 @@ test_setup() {
     fi
 
     # Create the blank file to use as a root filesystem
-    dd if=/dev/null of=$TESTDIR/root.ext2 bs=1M seek=20
+    dd if=/dev/null of=$TESTDIR/root.ext3 bs=1M seek=20
     dd if=/dev/null of=$TESTDIR/iscsidisk2.img bs=1M seek=20
     dd if=/dev/null of=$TESTDIR/iscsidisk3.img bs=1M seek=20
 
@@ -119,7 +120,7 @@ test_setup() {
     (
         initdir=$TESTDIR/overlay
         . $basedir/dracut-functions.sh
-        dracut_install sfdisk mke2fs poweroff cp umount
+        dracut_install sfdisk mkfs.ext3 poweroff cp umount
         inst_hook initqueue 01 ./create-root.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
@@ -129,7 +130,7 @@ test_setup() {
     # devices, volume groups, encrypted partitions, etc.
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
         -m "dash crypt lvm mdraid udev-rules base rootfs-block kernel-modules" \
-        -d "piix ide-gd_mod ata_piix ext2 sd_mod" \
+        -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
         -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
     rm -rf $TESTDIR/overlay
 
@@ -141,13 +142,13 @@ test_setup() {
     fi
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     $testdir/run-qemu \
-        -hda $TESTDIR/root.ext2 \
+        -hda $TESTDIR/root.ext3 \
         -hdb $TESTDIR/client.img \
         -hdc $TESTDIR/iscsidisk2.img \
         -hdd $TESTDIR/iscsidisk3.img \
         -m 256M -nographic -net none \
         -kernel "/boot/vmlinuz-$kernel" \
-        -append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
+        -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
     grep -m 1 -q dracut-root-block-created $TESTDIR/client.img || return 1
     rm $TESTDIR/client.img
@@ -161,14 +162,14 @@ test_setup() {
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
         -o "plymouth dmraid" \
         -a "debug" \
-        -d "piix ide-gd_mod ata_piix ext2 sd_mod" \
+        -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
         -f $TESTDIR/initramfs.testing $KVERSION || return 1
 
     # Make server root
-    dd if=/dev/null of=$TESTDIR/server.ext2 bs=1M seek=60
-    mke2fs -F $TESTDIR/server.ext2
+    dd if=/dev/null of=$TESTDIR/server.ext3 bs=1M seek=60
+    mkfs.ext3 -j -F $TESTDIR/server.ext3
     mkdir $TESTDIR/mnt
-    sudo mount -o loop $TESTDIR/server.ext2 $TESTDIR/mnt
+    sudo mount -o loop $TESTDIR/server.ext3 $TESTDIR/mnt
 
     kernel=$KVERSION
     (
@@ -210,7 +211,7 @@ test_setup() {
     # Make server's dracut image
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
         -m "dash udev-rules base rootfs-block debug kernel-modules" \
-        -d "piix ide-gd_mod ata_piix ext2 sd_mod e1000" \
+        -d "piix ide-gd_mod ata_piix ext3 sd_mod e1000" \
         -f $TESTDIR/initramfs.server $KVERSION || return 1
 
 }

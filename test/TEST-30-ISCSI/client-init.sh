@@ -6,7 +6,7 @@ export PS1='initramfs-test:\w\$ '
 stty sane
 echo "made it to the rootfs! Powering down."
 while read dev fs fstype opts rest; do
-    [ "$fstype" != "ext2" ] && continue
+    [ "$fstype" != "ext3" ] && continue
     echo "iscsi-OK $dev $fstype $opts" > /dev/sda
     break
 done < /proc/mounts
