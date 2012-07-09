@@ -312,9 +312,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0644,root,root) %ghost %config(missingok,noreplace) %{_localstatedir}/log/dracut.log
 %dir %{_sharedstatedir}/initramfs
 %if %{defined _unitdir}
-%{_unitdir}/*.service
-%{_unitdir}/*.target
-%{_unitdir}/*/*.service
+%{_unitdir}/dracut-shutdown.service
+%{_unitdir}/shutdown.target.wants/dracut-shutdown.service
 %endif
 
 %files network
