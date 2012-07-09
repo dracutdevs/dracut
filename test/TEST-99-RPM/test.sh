@@ -14,6 +14,9 @@ test_run() {
     mkdir -p "$rootdir/sys"
     mkdir -p "$rootdir/dev"
 
+trap 'ret=$?; [[ -d $rootdir ]] && { umount "$rootdir/proc"; umount "$rootdir/sys"; umount "$rootdir/dev"; rm -rf "$rootdir"; }; exit $ret;' EXIT
+trap '[[ -d $rootdir ]] && { umount "$rootdir/proc"; umount "$rootdir/sys"; umount "$rootdir/dev"; rm -rf "$rootdir"; }; exit 1;' SIGINT
+
     mount --bind /proc "$rootdir/proc"
     mount --bind /sys "$rootdir/sys"
     mount -t devtmpfs devtmpfs "$rootdir/dev"
