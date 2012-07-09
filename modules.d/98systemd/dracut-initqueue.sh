@@ -106,5 +106,4 @@ done
 
 export -p > /dracut-state.sh
 
-systemctl isolate initrd-switch-root.target
 exit 0

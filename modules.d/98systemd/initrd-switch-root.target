@@ -13,4 +13,4 @@ DefaultDependencies=no
 Requires=initrd-switch-root.service
 Before=initrd-switch-root.service
 AllowIsolate=yes
-
+Wants=systemd-journald.service

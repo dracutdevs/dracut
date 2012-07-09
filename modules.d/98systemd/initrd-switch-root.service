@@ -9,9 +9,13 @@
 Description=Switch Root
 DefaultDependencies=no
 ConditionPathExists=/etc/initrd-release
+OnFailure=emergency.service
 
 [Service]
 Type=oneshot
 EnvironmentFile=/run/initramfs/switch-root.conf
 ExecStart=/usr/bin/systemctl --force switch-root ${NEWROOT} ${NEWINIT}
-ExecStopPost=-/usr/bin/systemctl isolate default.target
+ExecStopPost=-/usr/bin/systemctl restart systemd-journald.service
+StandardInput=null
+StandardOutput=null
+StandardError=null

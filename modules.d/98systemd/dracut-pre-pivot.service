@@ -10,14 +10,13 @@
 [Unit]
 Description=Dracut pre-pivot and cleanup hook
 DefaultDependencies=no
-Before=initrd-switch-root.service
+After=dracut-initqueue.service
 ConditionPathExists=/etc/initrd-release
 
 [Service]
-Environment=HOME=/
-WorkingDirectory=/
-ExecStart=-/bin/dracut-pre-pivot
 Type=oneshot
+ExecStart=-/bin/dracut-pre-pivot
+ExecStopPost=-/usr/bin/systemctl isolate initrd-switch-root.target
 StandardInput=null
 StandardOutput=syslog
 StandardError=syslog+console

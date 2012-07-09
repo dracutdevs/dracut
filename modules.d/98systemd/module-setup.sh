@@ -63,7 +63,7 @@ install() {
         $systemdsystemunitdir/systemd-ask-password-console.service \
         $systemdsystemunitdir/halt.service \
         $systemdsystemunitdir/poweroff.service \
-        $systemdsystemunitdir/reboot.service \
+        $systemdsystemunitdir/systemd-reboot.service \
         $systemdsystemunitdir/kexec.service \
         $systemdsystemunitdir/fsck@.service \
         $systemdsystemunitdir/systemd-udevd.service \
@@ -142,8 +142,12 @@ install() {
 
     inst_script "$moddir/dracut-pre-pivot.sh" /bin/dracut-pre-pivot
     inst_simple "$moddir/dracut-pre-pivot.service" ${systemdsystemunitdir}/dracut-pre-pivot.service
-    mkdir -p "${initdir}${systemdsystemunitdir}/initrd-switch-root.target.wants"
-    ln -fs ../dracut-pre-pivot.service "${initdir}${systemdsystemunitdir}/initrd-switch-root.target.wants/dracut-pre-pivot.service"
+    ln -fs ../dracut-pre-pivot.service "${initdir}${systemdsystemunitdir}/basic.target.wants/dracut-pre-pivot.service"
 
+    inst_simple "$moddir/udevadm-cleanup-db.service" ${systemdsystemunitdir}/udevadm-cleanup-db.service
+    mkdir -p "${initdir}${systemdsystemunitdir}/initrd-switch-root.target.requires"
+    ln -fs ../udevadm-cleanup-db.service "${initdir}${systemdsystemunitdir}/initrd-switch-root.target.requires/udevadm-cleanup-db.service"
+
+    inst_script "$moddir/service-to-run.sh" $systemdutildir/system-generators/service-to-run
 }
 

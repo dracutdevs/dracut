@@ -16,10 +16,8 @@ Wants=dracut-cmdline.service
 ConditionPathExists=/etc/initrd-release
 
 [Service]
-Environment=HOME=/
-WorkingDirectory=/
-ExecStart=-/bin/dracut-pre-udev
 Type=oneshot
+ExecStart=-/bin/dracut-pre-udev
 StandardInput=null
 StandardOutput=syslog
 StandardError=syslog+console

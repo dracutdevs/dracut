@@ -34,20 +34,9 @@ done
 
 echo "NEWROOT=\"$NEWROOT\"" >> /run/initramfs/switch-root.conf
 
-udevadm control --stop-exec-queue
-
-for i in systemd-udevd.service; do
-    systemctl is-active $i >/dev/null 2>&1 && systemctl stop $i
-done
-
-udevadm info --cleanup-db
-
 # remove helper symlink
 [ -h /dev/root ] && rm -f /dev/root
 
 getarg rd.break rdbreak && emergency_shell -n switch_root "Break before switch_root"
 
-cp -avr /lib/systemd/system/dracut*.service /run/systemd/system/
-
-export -p > /dracut-state.sh
 exit 0

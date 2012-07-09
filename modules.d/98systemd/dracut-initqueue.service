@@ -15,10 +15,8 @@ Wants=systemd-udev-trigger.service
 ConditionPathExists=/etc/initrd-release
 
 [Service]
-Environment=HOME=/
-WorkingDirectory=/
+Type=oneshot
 ExecStart=-/bin/dracut-initqueue
-Type=simple
 StandardInput=null
 StandardOutput=syslog
 StandardError=syslog+console

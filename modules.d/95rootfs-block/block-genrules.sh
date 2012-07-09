@@ -13,22 +13,22 @@ if [ "${root%%:*}" = "block" ]; then
     printf '[ -e "%s" ] && { ln -s "%s" /dev/root 2>/dev/null; rm "$job"; }\n' \
         "${root#block:}" "${root#block:}" > $hookdir/initqueue/settled/blocksymlink.sh
 
-    if [ -d /lib/systemd/system/ ]; then
-        echo "${root#block:} $NEWROOT ${fstype:-auto} ${rflags:-defaults} 1 1" >> /etc/fstab
-        {
-           echo '[Unit]'
-           echo 'Description=New Root File System'
-           echo 'DefaultDependencies=no'
-           echo 'Before=switch-root.service'
-           echo '[Mount]'
-           echo "What=${root#block:}"
-           echo "Where=$NEWROOT"
+    # if [ -d /lib/systemd/system/ ]; then
+    #     echo "${root#block:} $NEWROOT ${fstype:-auto} ${rflags:-defaults} 1 1" >> /etc/fstab
+    #     {
+    #        echo '[Unit]'
+    #        echo 'Description=New Root File System'
+    #        echo 'DefaultDependencies=no'
+    #        echo 'Before=initrd-switch-root.service'
+    #        echo '[Mount]'
+    #        echo "What=${root#block:}"
+    #        echo "Where=$NEWROOT"
 
-       } >/lib/systemd/system/${NEWROOT#/}.mount
+    #    } >/lib/systemd/system/${NEWROOT#/}.mount
 
-       mkdir -p /lib/systemd/system/switch-root.target.wants
-       ln -s ../${NEWROOT#/}.mount /lib/systemd/system/switch-root.target.wants/${NEWROOT#/}.mount
-    fi
+    #    mkdir -p /lib/systemd/system/initrd-switch-root.target.requires
+    #    ln -s ../${NEWROOT#/}.mount /lib/systemd/system/initrd-switch-root.target.requires/${NEWROOT#/}.mount
+    # fi
 
     wait_for_dev "${root#block:}"
 fi
