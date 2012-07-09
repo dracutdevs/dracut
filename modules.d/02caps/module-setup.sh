@@ -14,6 +14,6 @@ install() {
     inst_hook pre-pivot 00 "$moddir/caps.sh"
     inst $(type -P capsh 2>/dev/null) /usr/sbin/capsh
     # capsh wants bash and we need bash also
-    inst /bin/bash && ln -sf bash "${initdir}/bin/sh"
+    inst /bin/bash
 }
 
