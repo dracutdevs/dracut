@@ -76,5 +76,9 @@ install() {
     inst_hook pre-trigger 10 "$moddir"/plymouth-pretrigger.sh
     inst_hook emergency 50 "$moddir"/plymouth-emergency.sh
     dracut_install readlink
+
+    if [[ -x $systemdutildir/systemd ]]; then
+        dracut_install -o $systemdsystemunitdir/plymouth-quit-wait.service
+    fi
 }
 
