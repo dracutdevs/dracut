@@ -67,8 +67,8 @@ install() {
         $systemdsystemunitdir/kexec.service \
         $systemdsystemunitdir/fsck@.service \
         $systemdsystemunitdir/systemd-udevd.service \
-        $systemdsystemunitdir/systemd-udevd-trigger.service \
-        $systemdsystemunitdir/systemd-udevd-settle.service \
+        $systemdsystemunitdir/systemd-udev-trigger.service \
+        $systemdsystemunitdir/systemd-udev-settle.service \
         $systemdsystemunitdir/systemd-ask-password-plymouth.service \
         $systemdsystemunitdir/systemd-journald.service \
         $systemdsystemunitdir/systemd-vconsole-setup.service \
@@ -82,7 +82,7 @@ install() {
         $systemdsystemunitdir/sockets.target.wants/systemd-udevd-kernel.socket \
         $systemdsystemunitdir/sockets.target.wants/systemd-journald.socket \
         $systemdsystemunitdir/sysinit.target.wants/systemd-udevd.service \
-        $systemdsystemunitdir/sysinit.target.wants/systemd-udevd-trigger.service \
+        $systemdsystemunitdir/sysinit.target.wants/systemd-udev-trigger.service \
         $systemdsystemunitdir/ctrl-alt-del.target \
         $systemdsystemunitdir/single.service \
         $systemdsystemunitdir/syslog.socket \
