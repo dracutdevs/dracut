@@ -268,7 +268,7 @@ static int resolve_deps(const char *src)
         }
 
         /* run ldd */
-        asprintf(&cmd, "ldd %s", src);
+        asprintf(&cmd, "ldd %s 2>&1", src);
         fptr = popen(cmd, "r");
 
         while (!feof(fptr)) {
@@ -280,6 +280,9 @@ static int resolve_deps(const char *src)
                 log_debug("ldd: '%s'", buf);
 
                 if (strstr(buf, "not a dynamic executable"))
+                        break;
+
+                if (strstr(buf, "loader cannot load itself"))
                         break;
 
                 p = strstr(buf, "/");
