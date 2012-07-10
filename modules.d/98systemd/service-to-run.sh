@@ -1,6 +1,4 @@
 #!/bin/sh
-
-cp -a /lib/systemd/system/dracut*.service /run/systemd/system/
-cp -a /lib/systemd/system/initrd-* /run/systemd/system/
-cp -a /lib/systemd/system/udevadm*.service /run/systemd/system/
+mkdir -p /run/systemd/system/
+cp -a -t /run/systemd/system/ /etc/systemd/system/*
 

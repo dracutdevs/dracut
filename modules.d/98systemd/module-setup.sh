@@ -112,42 +112,41 @@ install() {
 
     ln -fs $systemdutildir/systemd "$initdir/init"
 
-    rm -f "${initdir}${systemdsystemunitdir}/emergency.service"
     inst_simple "$moddir/emergency.service" ${systemdsystemunitdir}/emergency.service
-
-    rm -f "${initdir}${systemdsystemunitdir}/rescue.service"
     inst_simple "$moddir/rescue.service" ${systemdsystemunitdir}/rescue.service
+    ln -fs "basic.target" "${initdir}${systemdsystemunitdir}/default.target"
 
-    inst_simple "$moddir/initrd-switch-root.target" ${systemdsystemunitdir}/initrd-switch-root.target
-    inst_simple "$moddir/initrd-switch-root.service" ${systemdsystemunitdir}/initrd-switch-root.service
-    ln -fs basic.target "${initdir}${systemdsystemunitdir}/default.target"
+    dracutsystemunitdir="/etc/systemd/system"
 
-    mkdir -p "${initdir}${systemdsystemunitdir}/basic.target.wants"
+    mkdir -p "${initdir}${dracutsystemunitdir}/basic.target.wants"
+
+    inst_simple "$moddir/initrd-switch-root.target" ${dracutsystemunitdir}/initrd-switch-root.target
+    inst_simple "$moddir/initrd-switch-root.service" ${dracutsystemunitdir}/initrd-switch-root.service
 
     inst_script "$moddir/dracut-cmdline.sh" /bin/dracut-cmdline
-    inst_simple "$moddir/dracut-cmdline.service" ${systemdsystemunitdir}/dracut-cmdline.service
-    ln -fs ../dracut-cmdline.service "${initdir}${systemdsystemunitdir}/basic.target.wants/dracut-cmdline.service"
+    inst_simple "$moddir/dracut-cmdline.service" ${dracutsystemunitdir}/dracut-cmdline.service
+    ln -fs ../dracut-cmdline.service "${initdir}${dracutsystemunitdir}/basic.target.wants/dracut-cmdline.service"
 
     inst_script "$moddir/dracut-pre-udev.sh" /bin/dracut-pre-udev
-    inst_simple "$moddir/dracut-pre-udev.service" ${systemdsystemunitdir}/dracut-pre-udev.service
-    ln -fs ../dracut-pre-udev.service "${initdir}${systemdsystemunitdir}/basic.target.wants/dracut-pre-udev.service"
+    inst_simple "$moddir/dracut-pre-udev.service" ${dracutsystemunitdir}/dracut-pre-udev.service
+    ln -fs ../dracut-pre-udev.service "${initdir}${dracutsystemunitdir}/basic.target.wants/dracut-pre-udev.service"
 
     inst_script "$moddir/dracut-pre-trigger.sh" /bin/dracut-pre-trigger
-    inst_simple "$moddir/dracut-pre-trigger.service" ${systemdsystemunitdir}/dracut-pre-trigger.service
-    ln -fs ../dracut-pre-trigger.service "${initdir}${systemdsystemunitdir}/basic.target.wants/dracut-pre-trigger.service"
+    inst_simple "$moddir/dracut-pre-trigger.service" ${dracutsystemunitdir}/dracut-pre-trigger.service
+    ln -fs ../dracut-pre-trigger.service "${initdir}${dracutsystemunitdir}/basic.target.wants/dracut-pre-trigger.service"
 
     inst_script "$moddir/dracut-initqueue.sh" /bin/dracut-initqueue
-    inst_simple "$moddir/dracut-initqueue.service" ${systemdsystemunitdir}/dracut-initqueue.service
-    ln -fs ../dracut-initqueue.service "${initdir}${systemdsystemunitdir}/basic.target.wants/dracut-initqueue.service"
+    inst_simple "$moddir/dracut-initqueue.service" ${dracutsystemunitdir}/dracut-initqueue.service
+    ln -fs ../dracut-initqueue.service "${initdir}${dracutsystemunitdir}/basic.target.wants/dracut-initqueue.service"
 
     inst_script "$moddir/dracut-pre-pivot.sh" /bin/dracut-pre-pivot
-    inst_simple "$moddir/dracut-pre-pivot.service" ${systemdsystemunitdir}/dracut-pre-pivot.service
-    ln -fs ../dracut-pre-pivot.service "${initdir}${systemdsystemunitdir}/basic.target.wants/dracut-pre-pivot.service"
+    inst_simple "$moddir/dracut-pre-pivot.service" ${dracutsystemunitdir}/dracut-pre-pivot.service
+    ln -fs ../dracut-pre-pivot.service "${initdir}${dracutsystemunitdir}/basic.target.wants/dracut-pre-pivot.service"
 
-    inst_simple "$moddir/udevadm-cleanup-db.service" ${systemdsystemunitdir}/udevadm-cleanup-db.service
-    mkdir -p "${initdir}${systemdsystemunitdir}/initrd-switch-root.target.requires"
-    ln -fs ../udevadm-cleanup-db.service "${initdir}${systemdsystemunitdir}/initrd-switch-root.target.requires/udevadm-cleanup-db.service"
+    inst_simple "$moddir/udevadm-cleanup-db.service" ${dracutsystemunitdir}/udevadm-cleanup-db.service
+    mkdir -p "${initdir}${dracutsystemunitdir}/initrd-switch-root.target.requires"
+    ln -fs ../udevadm-cleanup-db.service "${initdir}${dracutsystemunitdir}/initrd-switch-root.target.requires/udevadm-cleanup-db.service"
 
-    inst_script "$moddir/service-to-run.sh" $systemdutildir/system-generators/service-to-run
+    inst_script "$moddir/service-to-run.sh" "${systemdutildir}/system-generators/service-to-run"
 }
 
