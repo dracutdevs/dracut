@@ -14,7 +14,7 @@ test_run() {
 	-m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
 	-watchdog ib700 -watchdog-action poweroff \
-	-append "root=LABEL=dracut rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug $DEBUGFAIL" \
+	-append "root=LABEL=dracut rw systemd.log_level=debug systemd.log_target=console rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing || return 1
     grep -m 1 -q dracut-root-block-success $TESTDIR/result || return 1
 }
