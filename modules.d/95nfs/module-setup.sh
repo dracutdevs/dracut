@@ -35,6 +35,12 @@ install() {
         mount.nfs4 umount rpc.idmapd sed /etc/netconfig
     dracut_install /etc/services /etc/nsswitch.conf /etc/rpc /etc/protocols /etc/idmapd.conf
 
+    if [ -f /lib/modprobe.d/nfs.conf ]; then
+        dracut_install /lib/modprobe.d/nfs.conf
+    else
+        echo "alias nfs4 nfs" > $initdir/etc/modprobe.d/nfs.conf
+    fi
+
     inst_libdir_file 'libnfsidmap_nsswitch.so*' 'libnfsidmap/*.so' 'libnfsidmap*.so*'
 
     _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
