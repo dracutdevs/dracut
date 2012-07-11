@@ -934,9 +934,9 @@ while pop include_src src && pop include_target tgt; do
                         mkdir -m 0755 -p "$s"
                         chmod --reference="$i" "$s"
                     fi
-                    cp --reflink=auto --sparse=auto -pfLr -t "$s" "$i"/*
+                    cp --reflink=auto --sparse=auto -fa -t "$s" "$i"/*
                 else
-                    cp --reflink=auto --sparse=auto -pfLr -t "$s" "$i"
+                    cp --reflink=auto --sparse=auto -fa -t "$s" "$i"
                 fi
             done
         fi
