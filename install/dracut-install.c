@@ -182,7 +182,7 @@ static int cp(const char *src, const char *dst)
         int pid;
         int ret;
 
-        if(use_clone) {
+        if (use_clone) {
                 struct stat sb;
                 int dest_desc, source_desc;
 
@@ -197,8 +197,8 @@ static int cp(const char *src, const char *dst)
                         goto normal_copy;
 
                 dest_desc =
-                        open(dst, O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC,
-                             (sb.st_mode) & (S_ISUID | S_ISGID | S_ISVTX | S_IRWXU | S_IRWXG | S_IRWXO));
+                    open(dst, O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC,
+                         (sb.st_mode) & (S_ISUID | S_ISGID | S_ISVTX | S_IRWXU | S_IRWXG | S_IRWXO));
 
                 if (dest_desc < 0) {
                         close(source_desc);
@@ -378,7 +378,6 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
                         return 1;
                 }
         }
-
 
         i = strdup(dst);
         hashmap_put(items, i, i);
@@ -731,13 +730,19 @@ int main(int argc, char **argv)
 
         umask(0022);
 
-        if (destrootdir == NULL) {
+        if (destrootdir == NULL || strlen(destrootdir) == 0) {
                 destrootdir = getenv("DESTROOTDIR");
-                if (destrootdir == NULL) {
+                if (destrootdir == NULL || strlen(destrootdir) == 0) {
                         log_error("Environment DESTROOTDIR or argument -D is not set!");
                         usage(EXIT_FAILURE);
                 }
                 destrootdir = strdup(destrootdir);
+        }
+
+        if (strcmp(destrootdir, "/") == 0) {
+                log_error("Environment DESTROOTDIR or argument -D is set to '/'!");
+                usage(EXIT_FAILURE);
+
         }
 
         items = hashmap_new(string_hash_func, string_compare_func);
