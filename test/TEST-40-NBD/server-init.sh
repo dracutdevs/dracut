@@ -1,4 +1,6 @@
 #!/bin/sh
+exec </dev/console >/dev/console 2>&1
+set -x
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export TERM=linux
 export PS1='nbdtest-server:\w\$ '
