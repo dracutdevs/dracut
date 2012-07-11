@@ -10,11 +10,13 @@ Description=Switch Root
 DefaultDependencies=no
 ConditionPathExists=/etc/initrd-release
 OnFailure=emergency.service
+After=initrd-switch-root.target
+Before=systemd-journal-flush.service
 
 [Service]
 Type=oneshot
 EnvironmentFile=/run/initramfs/switch-root.conf
-ExecStart=/usr/bin/systemctl --force switch-root ${NEWROOT} ${NEWINIT}
+ExecStart=/usr/bin/systemctl switch-root ${NEWROOT} ${NEWINIT}
 ExecStopPost=-/usr/bin/systemctl stop systemd-journald.service
 StandardInput=null
 StandardOutput=null
