@@ -16,8 +16,10 @@ Before=systemd-journal-flush.service
 [Service]
 Type=oneshot
 EnvironmentFile=/run/initramfs/switch-root.conf
-ExecStart=/usr/bin/systemctl switch-root ${NEWROOT} ${NEWINIT}
+# we have to use "--force" here, otherwise systemd would umount /run
+ExecStart=/usr/bin/systemctl --force switch-root ${NEWROOT} ${NEWINIT}
 ExecStopPost=-/usr/bin/systemctl stop systemd-journald.service
+ExecStopPost=-/bin/rm -f /run/initramfs/switch-root.conf
 StandardInput=null
 StandardOutput=null
 StandardError=null
