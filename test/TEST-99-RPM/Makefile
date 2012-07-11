@@ -1,8 +1,8 @@
 all:
-	@make -s --no-print-directory -C ../.. clean all rpm
-	@basedir=../.. testdir=../ ./test.sh --all
+	$(MAKE) -s --no-print-directory -C ../.. all
+	V=$(V) basedir=../.. testdir=../ ./test.sh --all
 setup:
-	@make --no-print-directory -C ../.. clean rpm
+	@$(MAKE) --no-print-directory -C ../.. all
 	@basedir=../.. testdir=../ ./test.sh --setup
 clean:
 	@basedir=../.. testdir=../ ./test.sh --clean
