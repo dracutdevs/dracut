@@ -6,7 +6,9 @@ KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
 #DEBUGFAIL="rd.shell rd.break"
-
+#DEBUGFAIL="rd.shell"
+#DEBUGOUT="quiet systemd.log_level=debug systemd.log_target=console loglevel=77  rd.info rd.debug"
+DEBUGOUT="loglevel=0 systemd.log_level=debug systemd.log_target=kmsg"
 client_run() {
     local test_name="$1"; shift
     local client_opts="$*"
@@ -20,7 +22,7 @@ client_run() {
 	-hdc $TESTDIR/result \
 	-m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "root=LABEL=dracut $client_opts quiet systemd.log_level=debug systemd.log_target=console loglevel=77 rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug $DEBUGFAIL" \
+	-append "root=LABEL=dracut $client_opts rd.retry=3 console=ttyS0,115200n81 selinux=0 $DEBUGOUT $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
 
     if (($? != 0)); then
@@ -57,7 +59,7 @@ test_setup() {
 	mkdir -p $initdir
 	. $basedir/dracut-functions.sh
 
-        for d in usr/bin usr/sbin bin etc lib "$libdir" sbin tmp usr var var/log dev proc sys sysroot root run run/lock run/initramfs; do
+        for d in usr/bin usr/sbin bin etc lib "$libdir" sbin tmp usr var var/log dev proc sys sysroot root run; do
             if [ -L "/$d" ]; then
                 inst_symlink "/$d"
             else
@@ -70,7 +72,8 @@ test_setup() {
 
 	dracut_install sh df free ls shutdown poweroff stty cat ps ln ip route \
 	    mount dmesg ifconfig dhclient mkdir cp ping dhclient \
-	    umount strace less setsid
+	    umount strace less setsid tree systemctl
+
 	for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
 	done
@@ -112,8 +115,8 @@ test_setup() {
         cat >$initdir/etc/systemd/system/testsuite.target <<EOF
 [Unit]
 Description=Testsuite target
-Requires=multi-user.target
-After=multi-user.target
+Requires=basic.target
+After=basic.target
 Conflicts=rescue.target
 AllowIsolate=yes
 EOF
@@ -124,12 +127,14 @@ EOF
         cat >$initdir/etc/systemd/system/testsuite.service <<EOF
 [Unit]
 Description=Testsuite service
-After=multi-user.target
+After=basic.target
 
 [Service]
 ExecStart=/sbin/test-init
 ExecStopPost=/usr/bin/systemctl poweroff
 Type=oneshot
+StandardInput=tty
+StandardOutput=tty
 EOF
         mkdir -p $initdir/etc/systemd/system/testsuite.target.wants
         ln -fs ../testsuite.service $initdir/etc/systemd/system/testsuite.target.wants/testsuite.service

@@ -13,9 +13,19 @@ ismounted() {
     return 1
 }
 
-if ismounted /usr; then
+systemctl --failed --no-legend --no-pager > /failed
+
+if ismounted /usr && [ -f /run/systemd/system/initrd-switch-root.service ] && [ ! -s /failed ]; then
     echo "dracut-root-block-success" >/dev/sdc
 fi
+
+set -x
+   cat /proc/mounts
+   tree /run
+   dmesg
+   cat /failed
+set +x
+
 export TERM=linux
 export PS1='initramfs-test:\w\$ '
 [ -f /etc/mtab ] || ln -sfn /proc/mounts /etc/mtab
@@ -23,6 +33,7 @@ export PS1='initramfs-test:\w\$ '
 stty sane
 echo "made it to the rootfs!"
 if strstr "$CMDLINE" "rd.shell"; then
+#	while sleep 1; do sleep 1;done
 	strstr "$(setsid --help)" "control" && CTTY="-c"
 	setsid $CTTY sh -i
 fi
