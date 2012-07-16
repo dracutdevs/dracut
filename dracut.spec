@@ -111,7 +111,7 @@ Provides:  dracut-generic = %{version}-%{release}
 This package requires everything which is needed to build a generic
 all purpose initramfs with network support with dracut.
 
-%if 0%{?fedora} || 0%{?rhel} >= 6
+%if 0%{?fedora} || 0%{?rhel} >= 6 || 0%{?suse_version}
 %package fips
 Summary: Dracut modules to build a dracut initramfs with an integrity check
 Requires: %{name} = %{version}-%{release}
@@ -185,7 +185,7 @@ make install DESTDIR=$RPM_BUILD_ROOT \
 
 echo "DRACUT_VERSION=%{version}-%{release}" > $RPM_BUILD_ROOT/%{dracutlibdir}/dracut-version.sh
 
-%if 0%{?fedora} == 0 && 0%{?rhel} == 0
+%if 0%{?fedora} == 0 && 0%{?rhel} == 0 && 0%{?suse_version} == 0
 rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/01fips
 rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/02fips-aesni
 %endif
@@ -210,7 +210,7 @@ mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/log
 touch $RPM_BUILD_ROOT%{_localstatedir}/log/dracut.log
 mkdir -p $RPM_BUILD_ROOT%{_sharedstatedir}/initramfs
 
-%if 0%{?fedora} || 0%{?rhel}
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
 install -m 0644 dracut.conf.d/fedora.conf.example $RPM_BUILD_ROOT/etc/dracut.conf.d/01-dist.conf
 install -m 0644 dracut.conf.d/fips.conf.example $RPM_BUILD_ROOT/etc/dracut.conf.d/40-fips.conf
 %endif
@@ -258,11 +258,13 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 %dir /etc/dracut.conf.d
 %{_mandir}/man8/dracut.8*
+%if 0%{?fedora} > 12 || 0%{?rhel} >= 6 || 0%{?suse_version} > 9999
 %{_mandir}/man8/mkinitrd.8*
+%{_mandir}/man1/lsinitrd.1*
+%endif
 %{_mandir}/man7/dracut.kernel.7*
 %{_mandir}/man7/dracut.cmdline.7*
 %{_mandir}/man5/dracut.conf.5*
-%{_mandir}/man1/lsinitrd.1*
 %{dracutlibdir}/modules.d/00bootchart
 %{dracutlibdir}/modules.d/04watchdog
 %{dracutlibdir}/modules.d/05busybox
@@ -329,7 +331,7 @@ rm -rf $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/45ifcfg
 %{dracutlibdir}/modules.d/95znet
 
-%if 0%{?fedora} || 0%{?rhel}
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
 %files fips
 %defattr(-,root,root,0755)
 %{dracutlibdir}/modules.d/01fips
