@@ -1024,7 +1024,10 @@ check_mount() {
 
     [[ $2 ]] || mods_checked_as_dep+=" $_mod "
 
-    strstr " $omit_dracutmodules " " $_mod " && return 1
+    if strstr " $omit_dracutmodules " " $_mod "; then
+        dinfo "Dracut module '$_mod' will not be installed, because it's in the list to be omitted!"
+        return 1
+    fi
 
     if [ "${#host_fs_types[*]}" -gt 0 ]; then
         module_check_mount $_mod || return 1
@@ -1040,7 +1043,10 @@ check_mount() {
         strstr " $force_add_dracutmodules " " $_moddep " || \
             force_add_dracutmodules+=" $_moddep "
         # if a module we depend on fail, fail also
-        check_module $_moddep || return 1
+        if ! check_module $_moddep; then
+            derror "Dracut module '$_mod' depends on '$_moddep', which can't be installed"
+            return 1
+        fi
     done
 
     strstr " $mods_to_load " " $_mod " || \
@@ -1067,7 +1073,10 @@ check_module() {
 
     [[ $2 ]] || mods_checked_as_dep+=" $_mod "
 
-    strstr " $omit_dracutmodules " " $_mod " && return 1
+    if strstr " $omit_dracutmodules " " $_mod "; then
+        dinfo "Dracut module '$_mod' will not be installed, because it's in the list to be omitted!"
+        return 1
+    fi
 
     if strstr " $dracutmodules $add_dracutmodules $force_add_dracutmodules" " $_mod "; then
         if strstr " $force_add_dracutmodules" " $_mod"; then
@@ -1095,7 +1104,10 @@ check_module() {
         strstr " $force_add_dracutmodules " " $_moddep " || \
             force_add_dracutmodules+=" $_moddep "
         # if a module we depend on fail, fail also
-        check_module $_moddep || return 1
+        if ! check_module $_moddep; then
+            derror "Dracut module '$_mod' depends on '$_moddep', which can't be installed"
+            return 1
+        fi
     done
 
     strstr " $mods_to_load " " $_mod " || \
