@@ -84,7 +84,7 @@ Requires: file
 Requires: udev > 166
 %if 0%{?fedora} || 0%{?rhel} > 6
 Requires: util-linux >= 2.21
-Requires: systemd >= 186
+Conflicts: systemd <= 187
 %else
 Requires: util-linux-ng >= 2.21
 %endif
