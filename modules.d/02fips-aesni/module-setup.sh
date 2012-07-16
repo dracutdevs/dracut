@@ -12,7 +12,7 @@ depends() {
 
 installkernel() {
     local _fipsmodules _mod
-    _fipsmodules="aesni-intel"
+    _fipsmodules="aesni-intel ghash_clmulni_intel"
 
     mkdir -m 0755 -p "${initdir}/etc/modprobe.d"
 
