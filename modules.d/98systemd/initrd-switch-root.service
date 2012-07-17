@@ -22,3 +22,4 @@ ExecStopPost=-/bin/rm -f /run/initramfs/switch-root.conf
 StandardInput=null
 StandardOutput=null
 StandardError=null
+KillMode=none
