@@ -261,7 +261,7 @@ EOF
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-	-a "debug watchdog" \
+	-a "debug watchdog systemd" \
         -o "network" \
 	-d "piix ide-gd_mod ata_piix btrfs sd_mod ib700wdt" \
 	-f $TESTDIR/initramfs.testing $KVERSION || return 1
