@@ -36,6 +36,4 @@ while ! udevadm settle --timeout=0; do
     [ $cnt -gt 10 ] && break
 done
 
-udevadm control --exit
-
 exit 0
