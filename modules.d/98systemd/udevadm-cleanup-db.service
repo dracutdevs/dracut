@@ -5,23 +5,16 @@
 #  the Free Software Foundation; either version 2.1 of the License, or
 #  (at your option) any later version.
 
-# See systemd.special(7) for details
-
 [Unit]
-Description=Dracut pre-pivot and cleanup hook
+Description=Cleanup udevd DB
 DefaultDependencies=no
-After=dracut-initqueue.service
 ConditionPathExists=/etc/initrd-release
+Conflicts=systemd-udevd.service systemd-udevd-control.socket systemd-udevd-kernel.socket
+Before=initrd-switch-root.service
 
 [Service]
 Type=oneshot
-ExecStart=-/bin/dracut-pre-pivot
-ExecStopPost=-/usr/bin/systemctl isolate initrd-switch-root.target
+ExecStart=-/usr/bin/udevadm info --cleanup-db
 StandardInput=null
-StandardOutput=syslog
-StandardError=syslog+console
-KillMode=process
-
-# Bash ignores SIGTERM, so we send SIGHUP instead, to ensure that bash
-# terminates cleanly.
-KillSignal=SIGHUP
+StandardOutput=null
+StandardError=null
