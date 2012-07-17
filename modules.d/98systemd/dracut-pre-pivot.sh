@@ -39,4 +39,7 @@ echo "NEWROOT=\"$NEWROOT\"" >> /run/initramfs/switch-root.conf
 
 getarg rd.break rdbreak && emergency_shell -n switch_root "Break before switch_root"
 
+/usr/bin/udevadm control --exit || warn "/usr/bin/udevadm control --exit failed"
+/usr/bin/udevadm info --cleanup-db || warn "/usr/bin/udevadm info --cleanup-db failed"
+
 exit 0

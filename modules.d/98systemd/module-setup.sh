@@ -143,10 +143,6 @@ install() {
     inst_simple "$moddir/dracut-pre-pivot.service" ${dracutsystemunitdir}/dracut-pre-pivot.service
     ln -fs ../dracut-pre-pivot.service "${initdir}${dracutsystemunitdir}/basic.target.wants/dracut-pre-pivot.service"
 
-    inst_simple "$moddir/udevadm-cleanup-db.service" ${dracutsystemunitdir}/udevadm-cleanup-db.service
-    mkdir -p "${initdir}${dracutsystemunitdir}/initrd-switch-root.target.requires"
-    ln -fs ../udevadm-cleanup-db.service "${initdir}${dracutsystemunitdir}/initrd-switch-root.target.requires/udevadm-cleanup-db.service"
-
     inst_script "$moddir/service-to-run.sh" "${systemdutildir}/system-generators/service-to-run"
 }
 
