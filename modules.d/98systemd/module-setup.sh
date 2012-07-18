@@ -52,14 +52,12 @@ install() {
         $systemdsystemunitdir/sockets.target \
         $systemdsystemunitdir/swap.target \
         $systemdsystemunitdir/systemd-initctl.socket \
-        $systemdsystemunitdir/systemd-shutdownd.socket \
         $systemdsystemunitdir/systemd-ask-password-console.path \
         $systemdsystemunitdir/systemd-udevd-control.socket \
         $systemdsystemunitdir/systemd-udevd-kernel.socket \
         $systemdsystemunitdir/systemd-ask-password-plymouth.path \
         $systemdsystemunitdir/systemd-journald.socket \
         $systemdsystemunitdir/systemd-initctl.service \
-        $systemdsystemunitdir/systemd-shutdownd.service \
         $systemdsystemunitdir/systemd-ask-password-console.service \
         $systemdsystemunitdir/halt.service \
         $systemdsystemunitdir/poweroff.service \
@@ -77,7 +75,6 @@ install() {
         $systemdsystemunitdir/sysinit.target.wants/systemd-vconsole-setup.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-journald.service \
         $systemdsystemunitdir/sockets.target.wants/systemd-initctl.socket \
-        $systemdsystemunitdir/sockets.target.wants/systemd-shutdownd.socket \
         $systemdsystemunitdir/sockets.target.wants/systemd-udevd-control.socket \
         $systemdsystemunitdir/sockets.target.wants/systemd-udevd-kernel.socket \
         $systemdsystemunitdir/sockets.target.wants/systemd-journald.socket \
