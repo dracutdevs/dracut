@@ -9,15 +9,15 @@ KVERSION=${KVERSION-$(uname -r)}
 
 client_run() {
     echo "CLIENT TEST START: $@"
-    cp --sparse=always $TESTDIR/disk2.img $TESTDIR/disk2.img.new
-    cp --sparse=always $TESTDIR/disk3.img $TESTDIR/disk3.img.new
+    cp --sparse=always --reflink=auto $TESTDIR/disk2.img $TESTDIR/disk2.img.new
+    cp --sparse=always --reflink=auto $TESTDIR/disk3.img $TESTDIR/disk3.img.new
 
     $testdir/run-qemu \
 	-hda $TESTDIR/root.ext2 -m 256M -nographic \
 	-hdc $TESTDIR/disk2.img.new \
 	-hdd $TESTDIR/disk3.img.new \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "$@ root=LABEL=root rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL " \
+	-append "$* root=LABEL=root rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL " \
 	-initrd $TESTDIR/initramfs.testing
     if ! grep -m 1 -q dracut-root-block-success $TESTDIR/root.ext2; then
 	echo "CLIENT TEST END: $@ [FAIL]"

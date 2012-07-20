@@ -15,6 +15,16 @@ command -v test_check &>/dev/null || test_check() {
     :
 }
 
+# terminal sequence to set color to a 'success' color (currently: green)
+function SETCOLOR_SUCCESS() { echo -en '\033[0;32m'; }
+# terminal sequence to set color to a 'failure' color (currently: red)
+function SETCOLOR_FAILURE() { echo -en '\033[0;31m'; }
+# terminal sequence to set color to a 'warning' color (currently: yellow)
+function SETCOLOR_WARNING() { echo -en '\033[0;33m'; }
+# terminal sequence to reset to the default color.
+function SETCOLOR_NORMAL() { echo -en '\033[0;39m'; }
+
+
 while (($# > 0)); do
     case $1 in
         --run)
@@ -34,7 +44,9 @@ while (($# > 0)); do
         --all)
 	    echo -n "TEST: $TEST_DESCRIPTION ";
             if ! test_check 2&>test.log ; then
+                SETCOLOR_WARNING
                 echo "[SKIPPED]"
+                SETCOLOR_NORMAL
 		exit 0;
             fi
             if [ "$V" != "1" ]; then
@@ -61,9 +73,13 @@ while (($# > 0)); do
             set +o pipefail
 	    if [ $ret -eq 0 ]; then
                rm test.log
+               SETCOLOR_SUCCESS
 	       echo "[OK]"
+               SETCOLOR_NORMAL
 	    else
+               SETCOLOR_FAILURE
 	       echo "[FAILED]"
+               SETCOLOR_NORMAL
 	       echo "see $(pwd)/test.log"
 	    fi
 	    exit $ret;;

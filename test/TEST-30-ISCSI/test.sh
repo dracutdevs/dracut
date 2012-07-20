@@ -45,7 +45,7 @@ run_client() {
         -net nic,macaddr=52:54:00:12:34:00,model=e1000 \
         -net socket,connect=127.0.0.1:12330 \
         -kernel /boot/vmlinuz-$KVERSION \
-        -append "$@ rw quiet rd.retry=5 rd.debug rd.info  console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
+        -append "$* rw quiet rd.retry=5 rd.debug rd.info  console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
         -initrd $TESTDIR/initramfs.testing
     if ! grep -m 1 -q iscsi-OK $TESTDIR/client.img; then
 	echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
