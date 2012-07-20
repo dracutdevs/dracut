@@ -1296,8 +1296,8 @@ find_kernel_modules_by_path () (
         ( cd /sys/module; echo *; ) \
         | xargs -r modinfo -F filename -k $kernel 2>/dev/null \
         | while read a; do
-            [[ $a = kernel*/$1/* ]] || continue
-            echo $srcmods/$a
+            [[ $a = */kernel*/$1/* ]] || continue
+            echo $a
         done
     fi
     return 0
