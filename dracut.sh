@@ -67,6 +67,7 @@ Version: $DRACUT_VERSION
 
 Creates initial ramdisk images for preloading modules
 
+  --kver [VERSION]      Set kernel version to [VERSION].
   -f, --force           Overwrite existing initramfs file.
   -m, --modules [LIST]  Specify a space-separated list of dracut modules to
                          call when building the initramfs. Modules are located
@@ -244,6 +245,7 @@ set -- "${@/%-i/++include}"
 
 TEMP=$(unset POSIXLY_CORRECT; getopt \
     -o "a:m:o:d:I:k:c:L:fvqlHhM" \
+    --long kver: \
     --long add: \
     --long force-add: \
     --long add-drivers: \
@@ -308,6 +310,7 @@ eval set -- "$TEMP"
 
 while :; do
     case $1 in
+        --kver)        kernel="$2"; shift;;
         -a|--add)      push add_dracutmodules_l  "$2"; shift;;
         --force-add)   push force_add_dracutmodules_l  "$2"; shift;;
         --add-drivers) push add_drivers_l        "$2"; shift;;
