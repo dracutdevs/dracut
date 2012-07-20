@@ -1,3 +1,7 @@
+dracut-022
+==========
+- fixed host-only kernel module bug
+
 dracut-021
 ==========
 - fixed systemd in the initramfs (requires systemd >= 187)

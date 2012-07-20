@@ -1,4 +1,4 @@
-VERSION=021
+VERSION=022
 GITVERSION=$(shell [ -d .git ] && git rev-list  --abbrev-commit  -n 1 HEAD  |cut -b 1-8)
 
 prefix ?= /usr
@@ -156,3 +156,10 @@ hostimage: all
 
 AUTHORS:
 	git shortlog  --numbered --summary -e |while read a rest; do echo $$rest;done > AUTHORS
+
+dracut.html.sign: dracut-$(VERSION).tar.bz2
+	gpg-sign-all dracut-$(VERSION).tar.bz2 dracut.html
+
+upload: dracut.html.sign
+	kup put dracut-$(VERSION).tar.bz2 dracut-$(VERSION).tar.sign /pub/linux/utils/boot/dracut/
+	kup put dracut.html dracut.html.sign /pub/linux/utils/boot/dracut/
