@@ -9,6 +9,7 @@
 
 [Unit]
 Description=Dracut initqueue hook
+Documentation=man:dracut-initqueue.service(8)
 DefaultDependencies=no
 After=systemd-udev-trigger.service
 Wants=systemd-udev-trigger.service

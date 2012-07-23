@@ -258,6 +258,7 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 %dir /etc/dracut.conf.d
 %{_mandir}/man8/dracut.8*
+%{_mandir}/man8/*service.8*
 %if 0%{?fedora} > 12 || 0%{?rhel} >= 6 || 0%{?suse_version} > 9999
 %{_mandir}/man8/mkinitrd.8*
 %{_mandir}/man1/lsinitrd.1*

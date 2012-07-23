@@ -9,28 +9,41 @@ sysconfdir ?= ${prefix}/etc
 bindir ?= ${prefix}/bin
 mandir ?= ${prefix}/share/man
 
-manpages = dracut.8 \
-	   dracut.cmdline.7 \
-	   dracut.conf.5 \
-	   dracut-catimages.8 \
-	   lsinitrd.1 \
-	   mkinitrd.8
+man1pages = lsinitrd.1
+
+man5pages = dracut.conf.5
+
+man7pages = dracut.cmdline.7
+
+man8pages = dracut.8 \
+            dracut-catimages.8 \
+            mkinitrd.8 \
+            modules.d/98systemd/dracut-cmdline.service.8 \
+            modules.d/98systemd/dracut-initqueue.service.8 \
+            modules.d/98systemd/dracut-pre-pivot.service.8 \
+            modules.d/98systemd/dracut-pre-trigger.service.8 \
+            modules.d/98systemd/dracut-pre-udev.service.8 \
+            modules.d/98systemd/initrd-switch-root.service.8 \
+            modules.d/98systemd/udevadm-cleanup-db.service.8
+
+manpages = $(man1pages) $(man5pages) $(man7pages) $(man8pages)
+
 
 .PHONY: install clean archive rpm testimage test all check AUTHORS doc
 
 all: syncheck dracut-version.sh dracut-install
 
 DRACUT_INSTALL_SOURCE = \
-	install/dracut-install.c \
-	install/hashmap.c\
-	install/log.c \
-	install/util.c
+        install/dracut-install.c \
+        install/hashmap.c\
+        install/log.c \
+        install/util.c
 
 DRACUT_INSTALL_HEADER = \
-	install/hashmap.h \
-	install/log.h \
-	install/macro.h \
-	install/util.h
+        install/hashmap.h \
+        install/log.h \
+        install/macro.h \
+        install/util.h
 
 dracut-install: $(DRACUT_INSTALL_SOURCE) $(DRACUT_INSTALL_HEADER)
 	gcc -std=gnu99 -O2 -g -Wall -o dracut-install $(DRACUT_INSTALL_SOURCE)
@@ -73,13 +86,10 @@ install: doc dracut-version.sh
 	install -m 0755 dracut-logger.sh $(DESTDIR)$(pkglibdir)/dracut-logger.sh
 	install -m 0755 dracut-initramfs-restore.sh $(DESTDIR)$(pkglibdir)/dracut-initramfs-restore
 	cp -arx modules.d $(DESTDIR)$(pkglibdir)
-	install -m 0644 lsinitrd.1 $(DESTDIR)$(mandir)/man1/lsinitrd.1
-	install -m 0644 mkinitrd.8 $(DESTDIR)$(mandir)/man8/mkinitrd.8
-	install -m 0644 dracut.8 $(DESTDIR)$(mandir)/man8/dracut.8
-	install -m 0644 dracut-catimages.8 \
-                        $(DESTDIR)$(mandir)/man8/dracut-catimages.8
-	install -m 0644 dracut.conf.5 $(DESTDIR)$(mandir)/man5/dracut.conf.5
-	install -m 0644 dracut.cmdline.7 $(DESTDIR)$(mandir)/man7/dracut.cmdline.7
+	for i in $(man1pages); do install -m 0644 $$i $(DESTDIR)$(mandir)/man1/$${i##*/}; done
+	for i in $(man5pages); do install -m 0644 $$i $(DESTDIR)$(mandir)/man5/$${i##*/}; done
+	for i in $(man7pages); do install -m 0644 $$i $(DESTDIR)$(mandir)/man7/$${i##*/}; done
+	for i in $(man8pages); do install -m 0644 $$i $(DESTDIR)$(mandir)/man8/$${i##*/}; done
 	ln -s dracut.cmdline.7 $(DESTDIR)$(mandir)/man7/dracut.kernel.7
 	if [ -n "$(systemdsystemunitdir)" ]; then \
 		mkdir -p $(DESTDIR)$(systemdsystemunitdir); \

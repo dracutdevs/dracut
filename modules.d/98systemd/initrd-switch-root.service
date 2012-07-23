@@ -7,6 +7,7 @@
 
 [Unit]
 Description=Switch Root
+Documentation=man:initrd-switch-root.service(8)
 DefaultDependencies=no
 ConditionPathExists=/etc/initrd-release
 OnFailure=emergency.service

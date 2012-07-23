@@ -9,6 +9,7 @@
 
 [Unit]
 Description=Dracut cmdline hook
+Documentation=man:dracut-cmdline.service(8)
 DefaultDependencies=no
 Before=dracut-pre-udev.service
 After=systemd-journald.socket

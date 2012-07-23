@@ -9,6 +9,7 @@
 
 [Unit]
 Description=Dracut pre-pivot and cleanup hook
+Documentation=man:dracut-pre-pivot.service(8)
 DefaultDependencies=no
 After=dracut-initqueue.service
 ConditionPathExists=/etc/initrd-release
