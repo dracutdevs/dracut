@@ -129,4 +129,6 @@ if [ "$lvmwritten" ]; then
 fi
 unset lvmwritten
 
+udevadm settle
+
 need_shutdown
