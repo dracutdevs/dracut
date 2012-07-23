@@ -77,10 +77,7 @@ installkernel() {
 install() {
     local _f i
     [ -f /etc/modprobe.conf ] && dracut_install /etc/modprobe.conf
-    set -- /{etc,lib}/modprobe.d/*.conf
-    if [[ -f $1 ]]; then
-        dracut_install "$@"
-    fi
+    dracut_install -o /{etc,lib}/modprobe.d/*.conf
     inst_hook cmdline 01 "$moddir/parse-kernel.sh"
     inst_simple "$moddir/insmodpost.sh" /sbin/insmodpost.sh
 }
