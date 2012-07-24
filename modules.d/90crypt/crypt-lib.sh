@@ -165,8 +165,15 @@ readkey() {
     local keydev="$2"
     local device="$3"
 
-    local mntp=$(mkuniqdir /mnt keydev)
-    mount -r "$keydev" "$mntp" || die 'Mounting rem. dev. failed!'
+    # This creates a unique single mountpoint for *, or several for explicitly
+    # given LUKS devices. It accomplishes unlocking multiple LUKS devices with
+    # a single password entry.
+    local mntp="/mnt/$(str_replace "keydev-$keydev-$keypath" '/' '-')"
+
+    if [ ! -d "$mntp" ]; then
+        mkdir "$mntp"
+        mount -r "$keydev" "$mntp" || die 'Mounting rem. dev. failed!'
+    fi
 
     case "${keypath##*.}" in
         gpg)
@@ -188,6 +195,8 @@ readkey() {
         *) cat "$mntp/$keypath" ;;
     esac
 
+    # General unmounting mechanism, modules doing custom cleanup should return earlier
+    # and install a pre-pivot cleanup hook
     umount "$mntp"
     rmdir "$mntp"
 }
