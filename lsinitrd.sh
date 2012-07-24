@@ -21,7 +21,7 @@
 
 usage()
 {
-    echo "Usage: $(basename $0) [-s] [<initramfs file> [<filename>]]"
+    echo "Usage: $(${0##*/}) [-s] [<initramfs file> [<filename>]]"
 }
 
 [[ $# -le 2 ]] || { usage ; exit 1 ; }

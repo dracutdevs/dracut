@@ -710,12 +710,12 @@ inst_rule_programs() {
                 _bin=${udevdir}/$_prog
             else
                 _bin=$(find_binary "$_prog") || {
-                    dinfo "Skipping program $_prog using in udev rule $(basename $1) as it cannot be found"
+                    dinfo "Skipping program $_prog using in udev rule $(${1##*/}) as it cannot be found"
                     continue;
                 }
             fi
 
-            #dinfo "Installing $_bin due to it's use in the udev rule $(basename $1)"
+            #dinfo "Installing $_bin due to it's use in the udev rule $(${1##*/})"
             dracut_install "$_bin"
         done
     fi
@@ -725,12 +725,12 @@ inst_rule_programs() {
                 _bin=${udevdir}/$_prog
             else
                 _bin=$(find_binary "$_prog") || {
-                    dinfo "Skipping program $_prog using in udev rule $(basename $1) as it cannot be found"
+                    dinfo "Skipping program $_prog using in udev rule $(${1##*/}) as it cannot be found"
                     continue;
                 }
             fi
 
-            #dinfo "Installing $_bin due to it's use in the udev rule $(basename $1)"
+            #dinfo "Installing $_bin due to it's use in the udev rule $(${1##*/})"
             dracut_install "$_bin"
         done
     fi
@@ -740,12 +740,12 @@ inst_rule_programs() {
                 _bin=${udevdir}/$_prog
             else
                 _bin=$(find_binary "$_prog") || {
-                    dinfo "Skipping program $_prog using in udev rule $(basename $1) as it cannot be found"
+                    dinfo "Skipping program $_prog using in udev rule $(${1##*/}) as it cannot be found"
                     continue;
                 }
             fi
 
-            #dinfo "Installing $_bin due to it's use in the udev rule $(basename $1)"
+            #dinfo "Installing $_bin due to it's use in the udev rule $(${1##*/})"
             dracut_install "$_bin"
         done
     fi
