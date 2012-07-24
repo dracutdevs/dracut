@@ -32,6 +32,11 @@ loop_decrypt() {
             --tty-echo-off
 
         [ -b $key ] || die "Tried setting it up, but keyfile block device was still not found!" 
+
+        initqueue --onetime --finished --unique --name "crypt-loop-cleanup-10-$(basename $key)" \
+            $(command -v cryptsetup) "luksClose $key"
+        initqueue --onetime --finished --unique --name "crypt-loop-cleanup-20-$(basename $loopdev)" \
+            $(command -v losetup) "-d $loopdev"
     else
         info "Existing keyfile found, re-using it for $device"
     fi

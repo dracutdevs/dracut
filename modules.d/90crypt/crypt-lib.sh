@@ -188,6 +188,9 @@ readkey() {
             if [ -f /lib/dracut-crypt-loop-lib.sh ]; then
                 . /lib/dracut-crypt-loop-lib.sh
                 loop_decrypt "$mntp" "$keypath" "$keydev" "$device"
+                initqueue --onetime --finished --unique --name "crypt-loop-cleanup-99-$(basename $mntp)" \
+                    $(command -v umount) "$mntp; " $(command -v rmdir) "$mntp"
+                return 0
             else
                 die "No loop file support to decrypt '$keypath' on '$keydev'."
             fi
