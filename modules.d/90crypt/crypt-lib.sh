@@ -177,6 +177,14 @@ readkey() {
                 die "No GPG support to decrypt '$keypath' on '$keydev'."
             fi
             ;;
+        img)
+            if [ -f /lib/dracut-crypt-loop-lib.sh ]; then
+                . /lib/dracut-crypt-loop-lib.sh
+                loop_decrypt "$mntp" "$keypath" "$keydev" "$device"
+            else
+                die "No loop file support to decrypt '$keypath' on '$keydev'."
+            fi
+            ;;
         *) cat "$mntp/$keypath" ;;
     esac
 
