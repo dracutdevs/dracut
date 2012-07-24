@@ -1135,7 +1135,7 @@ for_each_module_dir() {
     for _mod in $_modcheck; do
         strstr "$mods_to_load" "$_mod" && continue
         strstr "$omit_dracutmodules" "$_mod" && continue
-        derror "Dracut module \"$_mod\" cannot be found or installed."
+        derror "Dracut module '$_mod' cannot be found or installed."
     done
 }
 
