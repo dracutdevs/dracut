@@ -27,8 +27,6 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
 netif="$1"
 iroot="$2"
 
-source_all /etc/conf.d
-
 # If it's not iscsi we don't continue
 [ "${iroot%%:*}" = "iscsi" ] || exit 1
 
