@@ -6,6 +6,7 @@ Items are ordered in priority.
 
 INITRAMFS TODO
 
+- add sosreport
 - generate systemd unit dracut-initramfs-restore in /run/systemd dynamically
 - put "root=" parsing hooks in separate hook dir
 - call "root=" parsing hooks after getting new rootpath from dhcp
