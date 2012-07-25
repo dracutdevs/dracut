@@ -19,10 +19,10 @@ inst_key_val() {
     unset _value
 }
 
-inst_key_val '' /etc/vconsole.conf KEYMAP      vconsole.keymap      KEYTABLE
-inst_key_val '' /etc/vconsole.conf FONT        vconsole.font        SYSFONT
-inst_key_val '' /etc/vconsole.conf FONT_MAP    vconsole.font.map    CONTRANS
-inst_key_val '' /etc/vconsole.conf FONT_UNIMAP vconsole.font.unimap UNIMAP
+inst_key_val '' /etc/vconsole.conf KEYMAP      vconsole.keymap      -d KEYTABLE
+inst_key_val '' /etc/vconsole.conf FONT        vconsole.font        -d SYSFONT
+inst_key_val '' /etc/vconsole.conf FONT_MAP    vconsole.font.map    -d CONTRANS
+inst_key_val '' /etc/vconsole.conf FONT_UNIMAP vconsole.font.unimap -d UNIMAP
 inst_key_val 1  /etc/vconsole.conf UNICODE     vconsole.unicode vconsole.font.unicode
 inst_key_val '' /etc/vconsole.conf EXT_KEYMAP  vconsole.keymap.ext
 

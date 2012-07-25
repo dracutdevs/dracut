@@ -9,9 +9,9 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 source_conf /etc/conf.d
 
-getarg 'rd.break=initqueue' 'rdbreak=initqueue' && emergency_shell -n initqueue "Break before initqueue"
+getarg 'rd.break=initqueue' -d 'rdbreak=initqueue' && emergency_shell -n initqueue "Break before initqueue"
 
-RDRETRY=$(getarg rd.retry 'rd_retry=')
+RDRETRY=$(getarg rd.retry -d 'rd_retry=')
 RDRETRY=${RDRETRY:-20}
 RDRETRY=$(($RDRETRY*2))
 export RDRETRY
@@ -71,11 +71,11 @@ unset RDRETRY
 
 # pre-mount happens before we try to mount the root filesystem,
 # and happens once.
-getarg 'rd.break=pre-mount' 'rdbreak=pre-mount' && emergency_shell -n pre-mount "Break pre-mount"
+getarg 'rd.break=pre-mount' -d 'rdbreak=pre-mount' && emergency_shell -n pre-mount "Break pre-mount"
 source_hook pre-mount
 
 
-getarg 'rd.break=mount' 'rdbreak=mount' && emergency_shell -n mount "Break mount"
+getarg 'rd.break=mount' -d 'rdbreak=mount' && emergency_shell -n mount "Break mount"
 # mount scripts actually try to mount the root filesystem, and may
 # be sourced any number of times. As soon as one suceeds, no more are sourced.
 i=0

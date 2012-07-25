@@ -37,6 +37,6 @@ echo "NEWROOT=\"$NEWROOT\"" >> /run/initramfs/switch-root.conf
 # remove helper symlink
 [ -h /dev/root ] && rm -f /dev/root
 
-getarg rd.break rdbreak && emergency_shell -n switch_root "Break before switch_root"
+getarg rd.break -d rdbreak && emergency_shell -n switch_root "Break before switch_root"
 
 exit 0

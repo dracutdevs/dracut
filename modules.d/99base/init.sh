@@ -108,7 +108,7 @@ fi
 source_conf /etc/conf.d
 
 # run scriptlets to parse the command line
-getarg 'rd.break=cmdline' 'rdbreak=cmdline' && emergency_shell -n cmdline "Break before cmdline"
+getarg 'rd.break=cmdline' -d 'rdbreak=cmdline' && emergency_shell -n cmdline "Break before cmdline"
 source_hook cmdline
 
 [ -z "$root" ] && die "No or empty root= argument"
@@ -117,7 +117,7 @@ source_hook cmdline
 export root rflags fstype netroot NEWROOT
 
 # pre-udev scripts run before udev starts, and are run only once.
-getarg 'rd.break=pre-udev' 'rdbreak=pre-udev' && emergency_shell -n pre-udev "Break before pre-udev"
+getarg 'rd.break=pre-udev' -d 'rdbreak=pre-udev' && emergency_shell -n pre-udev "Break before pre-udev"
 source_hook pre-udev
 
 # start up udev and trigger cold plugs
@@ -131,11 +131,11 @@ if [ $UDEVVERSION -lt 140 ]; then
     UDEV_QUEUE_EMPTY="udevadm settle --timeout=1"
 fi
 
-getargbool 0 rd.udev.info -y rdudevinfo && udevadm control "$UDEV_LOG_PRIO_ARG=info"
-getargbool 0 rd.udev.debug -y rdudevdebug && udevadm control "$UDEV_LOG_PRIO_ARG=debug"
+getargbool 0 rd.udev.info -d -y rdudevinfo && udevadm control "$UDEV_LOG_PRIO_ARG=info"
+getargbool 0 rd.udev.debug -d -y rdudevdebug && udevadm control "$UDEV_LOG_PRIO_ARG=debug"
 udevproperty "hookdir=$hookdir"
 
-getarg 'rd.break=pre-trigger' 'rdbreak=pre-trigger' && emergency_shell -n pre-trigger "Break before pre-trigger"
+getarg 'rd.break=pre-trigger' -d 'rdbreak=pre-trigger' && emergency_shell -n pre-trigger "Break before pre-trigger"
 source_hook pre-trigger
 
 udevadm control --reload >/dev/null 2>&1 || :
@@ -143,9 +143,9 @@ udevadm control --reload >/dev/null 2>&1 || :
 udevadm trigger --type=subsystems --action=add >/dev/null 2>&1
 udevadm trigger --type=devices --action=add >/dev/null 2>&1
 
-getarg 'rd.break=initqueue' 'rdbreak=initqueue' && emergency_shell -n initqueue "Break before initqueue"
+getarg 'rd.break=initqueue' -d 'rdbreak=initqueue' && emergency_shell -n initqueue "Break before initqueue"
 
-RDRETRY=$(getarg rd.retry 'rd_retry=')
+RDRETRY=$(getarg rd.retry -d 'rd_retry=')
 RDRETRY=${RDRETRY:-20}
 RDRETRY=$(($RDRETRY*2))
 export RDRETRY
@@ -202,11 +202,11 @@ unset RDRETRY
 
 # pre-mount happens before we try to mount the root filesystem,
 # and happens once.
-getarg 'rd.break=pre-mount' 'rdbreak=pre-mount' && emergency_shell -n pre-mount "Break pre-mount"
+getarg 'rd.break=pre-mount' -d 'rdbreak=pre-mount' && emergency_shell -n pre-mount "Break pre-mount"
 source_hook pre-mount
 
 
-getarg 'rd.break=mount' 'rdbreak=mount' && emergency_shell -n mount "Break mount"
+getarg 'rd.break=mount' -d 'rdbreak=mount' && emergency_shell -n mount "Break mount"
 # mount scripts actually try to mount the root filesystem, and may
 # be sourced any number of times. As soon as one suceeds, no more are sourced.
 i=0
@@ -237,11 +237,11 @@ done
 
 # pre pivot scripts are sourced just before we doing cleanup and switch over
 # to the new root.
-getarg 'rd.break=pre-pivot' 'rdbreak=pre-pivot' && emergency_shell -n pre-pivot "Break pre-pivot"
+getarg 'rd.break=pre-pivot' -d 'rdbreak=pre-pivot' && emergency_shell -n pre-pivot "Break pre-pivot"
 source_hook pre-pivot
 
 # pre pivot cleanup scripts are sourced just before we switch over to the new root.
-getarg 'rd.break=cleanup' 'rdbreak=cleanup' && emergency_shell -n cleanup "Break cleanup"
+getarg 'rd.break=cleanup' -d 'rdbreak=cleanup' && emergency_shell -n cleanup "Break cleanup"
 source_hook cleanup
 
 # By the time we get here, the root filesystem should be mounted.
@@ -340,7 +340,7 @@ wait_for_loginit
 # remove helper symlink
 [ -h /dev/root ] && rm -f /dev/root
 
-getarg rd.break rdbreak && emergency_shell -n switch_root "Break before switch_root"
+getarg rd.break -d rdbreak && emergency_shell -n switch_root "Break before switch_root"
 info "Switching root"
 
 

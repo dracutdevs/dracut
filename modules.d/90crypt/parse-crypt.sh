@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
-if ! getargbool 1 rd.luks -n rd_NO_LUKS; then
+if ! getargbool 1 rd.luks -d -n rd_NO_LUKS; then
     info "rd.luks=0: removing cryptoluks activation"
     rm -f /etc/udev/rules.d/70-luks.rules
 else
@@ -10,7 +10,7 @@ else
         echo 'ACTION!="add|change", GOTO="luks_end"'
     } > /etc/udev/rules.d/70-luks.rules.new
 
-    LUKS=$(getargs rd.luks.uuid rd_LUKS_UUID)
+    LUKS=$(getargs rd.luks.uuid -d rd_LUKS_UUID)
     tout=$(getarg rd.luks.key.tout)
 
     if [ -n "$LUKS" ]; then

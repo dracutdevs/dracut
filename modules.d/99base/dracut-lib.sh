@@ -103,24 +103,41 @@ _dogetarg() {
 
 getarg() {
     debug_off
+    local _deprecated _newoption
     while [ $# -gt 0 ]; do
         case $1 in
+            -d) _deprecated=1; shift;;
             -y) if _dogetarg $2 >/dev/null; then
+                    if [ "$_deprecated" = "1" ]; then
+                        [ -n "$_newoption" ] && warn "Option '$2' is deprecated, use '$_newoption' instead." || warn "Option '$2' is deprecated."
+                    fi
                     echo 1
                     debug_on
                     return 0
                 fi
+                _deprecated=0
                 shift 2;;
             -n) if _dogetarg $2 >/dev/null; then
                     echo 0;
+                    if [ "$_deprecated" = "1" ]; then
+                        [ -n "$_newoption" ] && warn "Option '$2' is deprecated, use '$_newoption=0' instead." || warn "Option '$2' is deprecated."
+                    fi
                     debug_on
                     return 1
                 fi
+                _deprecated=0
                 shift 2;;
-            *)  if _dogetarg $1; then
+            *)  if [ -z "$_newoption" ]; then
+                    _newoption=$1
+                fi
+                if _dogetarg $1; then
+                    if [ "$_deprecated" = "1" ]; then
+                        [ -n "$_newoption" ] && warn "Option '$1' is deprecated, use '$_newoption' instead." || warn "Option '$1' is deprecated."
+                    fi
                     debug_on
                     return 0;
                 fi
+                _deprecated=0
                 shift;;
         esac
     done
@@ -168,15 +185,26 @@ _dogetargs() {
 
 getargs() {
     debug_off
-    local _val _i _args _gfound
+    local _val _i _args _gfound _deprecated
     unset _val
     unset _gfound
+    _newoption="$1"
     _args="$@"
     set --
     for _i in $_args; do
+        if [ "$i" = "-d" ]; then
+            _deprecated=1
+            continue
+        fi
         _val="$(_dogetargs $_i)"
-        [ $? -eq 0 ] && _gfound=1
+        if [ $? -eq 0 ]; then
+            if [ "$_deprecated" = "1" ]; then
+                [ -n "$_newoption" ] && warn "Option '$_i' is deprecated, use '$_newoption' instead." || warn "Option $_i is deprecated!"
+            fi
+            _gfound=1
+        fi
         [ -n "$_val" ] && set -- "$@" "$_val"
+        _deprecated=0
     done
     if [ -n "$_gfound" ]; then
         if [ $# -gt 0 ]; then
@@ -250,7 +278,7 @@ setdebug() {
     if [ -z "$RD_DEBUG" ]; then
         if [ -e /proc/cmdline ]; then
             RD_DEBUG=no
-            if getargbool 0 rd.debug -y rdinitdebug -y rdnetdebug; then
+            if getargbool 0 rd.debug -d -y rdinitdebug -d -y rdnetdebug; then
                 RD_DEBUG=yes
                 [ -n "$BASH" ] && \
                     export PS4='${BASH_SOURCE}@${LINENO}(${FUNCNAME[0]}): ';
@@ -314,8 +342,8 @@ die() {
 check_quiet() {
     if [ -z "$DRACUT_QUIET" ]; then
         DRACUT_QUIET="yes"
-        getargbool 0 rd.info -y rdinfo && DRACUT_QUIET="no"
-        getargbool 0 rd.debug -y rdinitdebug && DRACUT_QUIET="no"
+        getargbool 0 rd.info -d -y rdinfo && DRACUT_QUIET="no"
+        getargbool 0 rd.debug -d -y rdinitdebug && DRACUT_QUIET="no"
         getarg quiet || DRACUT_QUIET="yes"
         a=$(getarg loglevel=)
         [ -n "$a" ] && [ $a -ge 28 ] && DRACUT_QUIET="yes"
@@ -831,7 +859,7 @@ emergency_shell()
     source_hook "$hook"
     echo
 
-    if getargbool 1 rd.shell -y rdshell || getarg rd.break rdbreak; then
+    if getargbool 1 rd.shell -d -y rdshell || getarg rd.break -d rdbreak; then
         if [ -x /lib/systemd/systemd ]; then
             > /.console_lock
             echo "PS1=\"$_rdshell_name:\${PWD}# \"" >/etc/profile

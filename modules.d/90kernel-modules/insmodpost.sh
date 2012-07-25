@@ -4,7 +4,7 @@
 
 . /lib/dracut-lib.sh
 
-for modlist in $(getargs rd.driver.post rdinsmodpost=); do
+for modlist in $(getargs rd.driver.post -d rdinsmodpost=); do
     (
         IFS=,
         for m in $modlist; do

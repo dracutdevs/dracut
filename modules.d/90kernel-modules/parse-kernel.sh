@@ -2,7 +2,7 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
-for i in $(getargs rd.driver.pre rdloaddriver=); do
+for i in $(getargs rd.driver.pre -d rdloaddriver=); do
     (
         IFS=,
         for p in $i; do
@@ -11,7 +11,7 @@ for i in $(getargs rd.driver.pre rdloaddriver=); do
     )
 done
 
-for i in $(getargs rd.driver.blacklist rdblacklist=); do
+for i in $(getargs rd.driver.blacklist -d rdblacklist=); do
     (
         IFS=,
         for p in $i; do
@@ -20,7 +20,7 @@ for i in $(getargs rd.driver.blacklist rdblacklist=); do
     )
 done
 
-for p in $(getargs rd.driver.post rdinsmodpost=); do
+for p in $(getargs rd.driver.post -d rdinsmodpost=); do
     echo "blacklist $p" >> /etc/modprobe.d/initramfsblacklist.conf
     _do_insmodpost=1
 done

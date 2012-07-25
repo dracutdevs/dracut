@@ -15,7 +15,7 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 source_conf /etc/conf.d
 
 # run scriptlets to parse the command line
-getarg 'rd.break=cmdline' 'rdbreak=cmdline' && emergency_shell -n cmdline "Break before cmdline"
+getarg 'rd.break=cmdline' -d 'rdbreak=cmdline' && emergency_shell -n cmdline "Break before cmdline"
 source_hook cmdline
 
 [ -z "$root" ] && die "No or empty root= argument"

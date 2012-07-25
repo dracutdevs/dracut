@@ -2,17 +2,17 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 # nodmraid for anaconda / rc.sysinit compatibility
-if ! getargbool 1 rd.dm -n rd_NO_DM || getarg nodmraid; then
+if ! getargbool 1 rd.dm -d -n rd_NO_DM || getarg "rd.dm=0" -d nodmraid; then
     info "rd.dm=0: removing DM RAID activation"
     udevproperty rd_NO_DM=1
 fi
 
-if  ! command -v mdadm >/dev/null || ! getargbool 1 rd.md.imsm -n rd_NO_MDIMSM || getarg noiswmd; then
+if  ! command -v mdadm >/dev/null || ! getargbool 1 rd.md.imsm -d -n rd_NO_MDIMSM -n noiswmd; then
     info "rd.md.imsm=0: no MD RAID for imsm/isw raids"
     udevproperty rd_NO_MDIMSM=1
 fi
 
-if  ! command -v mdadm >/dev/null || ! getargbool 1 rd.md.ddf -n rd_NO_MDDDF || getarg noddfmd; then
+if  ! command -v mdadm >/dev/null || ! getargbool 1 rd.md.ddf -n rd_NO_MDDDF -n noddfmd; then
     info "rd.md.ddf=0: no MD RAID for SNIA ddf raids"
     udevproperty rd_NO_MDDDF=1
 fi

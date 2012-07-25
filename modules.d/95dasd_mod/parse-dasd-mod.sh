@@ -3,7 +3,7 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 mod_args=""
 
-for dasd_arg in $(getargs rd.dasd= rd_DASD= DASD=); do
+for dasd_arg in $(getargs rd.dasd= -d rd_DASD= DASD=); do
     mod_args="$mod_args,$dasd_arg"
 done
 
