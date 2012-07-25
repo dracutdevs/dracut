@@ -8,6 +8,7 @@ pkglibdir ?= ${libdir}/dracut
 sysconfdir ?= ${prefix}/etc
 bindir ?= ${prefix}/bin
 mandir ?= ${prefix}/share/man
+CFLAGS ?= -std=gnu99 -O2 -g -Wall
 
 man1pages = lsinitrd.1
 
@@ -46,7 +47,7 @@ DRACUT_INSTALL_HEADER = \
         install/util.h
 
 dracut-install: $(DRACUT_INSTALL_SOURCE) $(DRACUT_INSTALL_HEADER)
-	gcc -std=gnu99 -O2 -g -Wall -o dracut-install $(DRACUT_INSTALL_SOURCE)
+	gcc $(CFLAGS) -o dracut-install $(DRACUT_INSTALL_SOURCE)
 
 indent:
 	indent -i8 -nut -br -linux -l120 install/dracut-install.c
