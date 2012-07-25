@@ -70,13 +70,14 @@ installkernel() {
 install() {
     local _f
     dracut_install -o  \
-        /sbin/dmsetup \
-        /sbin/kpartx \
-        /sbin/mpath_wait \
-        /sbin/multipath  \
-        /sbin/multipathd \
-        /sbin/xdrgetuid \
-        /sbin/xdrgetprio \
+        dmsetup \
+        kpartx \
+        partx \
+        mpath_wait \
+        multipath  \
+        multipathd \
+        xdrgetuid \
+        xdrgetprio \
         /etc/xdrdevices.conf \
         /etc/multipath.conf \
         /etc/multipath/*
