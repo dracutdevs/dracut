@@ -73,6 +73,7 @@ installkernel() {
     instmods bonding
     # vlan
     instmods 8021q
+    instmods af_packet
 }
 
 install() {
