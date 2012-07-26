@@ -906,3 +906,41 @@ export_n()
         [ -n "$val" ] && eval $var=\"$val\"
     done
 }
+
+# returns OK if list1 contains all elements of list2, i.e. checks if list2 is a
+# sublist of list1.  An order and a duplication doesn't matter.
+#
+# $1 = separator
+# $2 = list1
+# $3 = list2
+# $4 = ignore values, separated by $1
+listlist() {
+    local _sep="$1"
+    local _list="${_sep}${2}${_sep}"
+    local _sublist="$3"
+    [ -n "$4" ] && local _iglist="${_sep}${4}${_sep}"
+    local IFS="$_sep"
+    local _v
+
+    [ "$_list" = "$_sublist" ] && return 0
+
+    for _v in $_sublist; do
+        if [ -n "$_v" ] && ! ( [ -n "$_iglist" ] && strstr "$_iglist" "$_v" )
+        then
+            strstr "$_list" "$_v" || return 1
+        fi
+    done
+
+    return 0
+}
+
+# returns OK if both lists contain the same values.  An order and a duplication
+# doesn't matter.
+# 
+# $1 = separator
+# $2 = list1
+# $3 = list2
+# $4 = ignore values, separated by $1
+are_lists_eq() {
+    listlist "$1" "$2" "$3" "$4" && listlist "$1" "$3" "$2" "$4"
+}
