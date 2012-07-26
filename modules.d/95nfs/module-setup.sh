@@ -71,6 +71,8 @@ install() {
     # rpc user needs to be able to write to this directory to save the warmstart
     # file
     chmod 770 "$initdir/var/lib/rpcbind"
-    chown rpc.rpc "$initdir/var/lib/rpcbind"
+    egrep -q '^rpc:' /etc/passwd \
+        && egrep -q '^rpc:' /etc/group \
+        && chown rpc.rpc "$initdir/var/lib/rpcbind"
 }
 
