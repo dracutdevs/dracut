@@ -4,13 +4,10 @@
 
 root=$(getarg root=)
 
-if rflags="$(getarg rootflags=)"; then
-    getarg rw && rflags="${rflags},rw"
-    getarg ro && rflags="${rflags},ro"
-else
-    getarg rw && rflags=rw
-    getarg ro && rflags=ro
-fi
+rflags="$(getarg rootflags=)"
+getargbool 0 rw && rflags="${rflags},rw"
+getargbool 0 ro && rflags="${rflags},ro"
+rflags="${rflags#,}"
 
 fstype="$(getarg rootfstype=)"
 if [ -z "$fstype" ]; then
