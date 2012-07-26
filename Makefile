@@ -33,24 +33,18 @@ manpages = $(man1pages) $(man5pages) $(man7pages) $(man8pages)
 
 .PHONY: install clean archive rpm testimage test all check AUTHORS doc
 
-DRACUT_INSTALL_BIN = dracut-install
+all: syncheck dracut-version.sh dracut-install
 
-all: syncheck dracut-version.sh $(DRACUT_INSTALL_BIN)
+DRACUT_INSTALL_OBJECTS = \
+        install/dracut-install.o \
+        install/hashmap.o\
+        install/log.o \
+        install/util.o
 
-DRACUT_INSTALL_SOURCE = \
-        install/dracut-install.c \
-        install/hashmap.c\
-        install/log.c \
-        install/util.c
+install/dracut-install: $(DRACUT_INSTALL_OBJECTS)
 
-DRACUT_INSTALL_HEADER = \
-        install/hashmap.h \
-        install/log.h \
-        install/macro.h \
-        install/util.h
-
-$(DRACUT_INSTALL_BIN): $(DRACUT_INSTALL_SOURCE) $(DRACUT_INSTALL_HEADER)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $(DRACUT_INSTALL_BIN) $(DRACUT_INSTALL_SOURCE)
+dracut-install: install/dracut-install
+	ln -fs $< $@
 
 indent:
 	indent -i8 -nut -br -linux -l120 install/dracut-install.c
@@ -86,7 +80,7 @@ install: doc dracut-version.sh
 	mkdir -p $(DESTDIR)$(sysconfdir)/dracut.conf.d
 	install -m 0755 dracut-functions.sh $(DESTDIR)$(pkglibdir)/dracut-functions.sh
 	install -m 0755 dracut-version.sh $(DESTDIR)$(pkglibdir)/dracut-version.sh
-	ln -s dracut-functions.sh $(DESTDIR)$(pkglibdir)/dracut-functions
+	ln -fs dracut-functions.sh $(DESTDIR)$(pkglibdir)/dracut-functions
 	install -m 0755 dracut-logger.sh $(DESTDIR)$(pkglibdir)/dracut-logger.sh
 	install -m 0755 dracut-initramfs-restore.sh $(DESTDIR)$(pkglibdir)/dracut-initramfs-restore
 	cp -arx modules.d $(DESTDIR)$(pkglibdir)
@@ -94,7 +88,7 @@ install: doc dracut-version.sh
 	for i in $(man5pages); do install -m 0644 $$i $(DESTDIR)$(mandir)/man5/$${i##*/}; done
 	for i in $(man7pages); do install -m 0644 $$i $(DESTDIR)$(mandir)/man7/$${i##*/}; done
 	for i in $(man8pages); do install -m 0644 $$i $(DESTDIR)$(mandir)/man8/$${i##*/}; done
-	ln -s dracut.cmdline.7 $(DESTDIR)$(mandir)/man7/dracut.kernel.7
+	ln -fs dracut.cmdline.7 $(DESTDIR)$(mandir)/man7/dracut.kernel.7
 	if [ -n "$(systemdsystemunitdir)" ]; then \
 		mkdir -p $(DESTDIR)$(systemdsystemunitdir); \
 		install -m 0644 dracut-shutdown.service $(DESTDIR)$(systemdsystemunitdir); \
@@ -102,8 +96,8 @@ install: doc dracut-version.sh
 		ln -s ../dracut-shutdown.service \
 		$(DESTDIR)$(systemdsystemunitdir)/shutdown.target.wants/dracut-shutdown.service; \
 	fi
-	if [ -f $(DRACUT_INSTALL_BIN) ]; then \
-		install -m 0755 $(DRACUT_INSTALL_BIN) $(DESTDIR)$(pkglibdir)/dracut-install; \
+	if [ -f install/dracut-install ]; then \
+		install -m 0755 install/dracut-install $(DESTDIR)$(pkglibdir)/dracut-install; \
 	fi
 
 dracut-version.sh:
@@ -115,7 +109,7 @@ clean:
 	$(RM) */*/*~
 	$(RM) test-*.img
 	$(RM) dracut-*.rpm dracut-*.tar.bz2
-	$(RM) $(DRACUT_INSTALL_BIN) 
+	$(RM) $(DRACUT_INSTALL_BIN) install/dracut-install $(DRACUT_INSTALL_OBJECTS)
 	$(RM) $(manpages) dracut.html
 	$(MAKE) -C test clean
 
