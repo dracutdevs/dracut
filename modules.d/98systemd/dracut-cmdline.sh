@@ -12,6 +12,9 @@ if [ -f /dracut-state.sh ]; then
 fi
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
+[ -f /etc/initrd-release ] && . /etc/initrd-release
+[ -n "$VERSION" ] && info "dracut-$VERSION"
+
 source_conf /etc/conf.d
 
 # run scriptlets to parse the command line
