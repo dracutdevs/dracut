@@ -1,9 +1,0 @@
-# /etc/dracut.conf.d/gentoo-openrc.conf
-# Dracut config file customized for Gentoo Base System release 2
-
-#
-# Modules
-#
-
-# i18n
-i18n_vars="/etc/conf.d/keymaps:keymap-KEYMAP,extended_keymaps-EXT_KEYMAPS /etc/conf.d/consolefont:consolefont-FONT,consoletranslation-FONT_MAP /etc/rc.conf:unicode-UNICODE"
