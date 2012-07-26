@@ -75,7 +75,6 @@ installkernel() {
 }
 
 install() {
-    local _f i
     [ -f /etc/modprobe.conf ] && dracut_install /etc/modprobe.conf
     dracut_install -o /{etc,lib}/modprobe.d/*.conf
     inst_hook cmdline 01 "$moddir/parse-kernel.sh"
