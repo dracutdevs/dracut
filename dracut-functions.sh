@@ -357,13 +357,13 @@ find_dev_fstype() {
     return 1
 }
 
-# find_dev_fstype <device>
-# Echo the filesystem type for a given device.
+# find_mp_fstype <mountpoint>
+# Echo the filesystem type for a given mountpoint.
 # /proc/self/mountinfo is taken as the primary source of information
 # and /etc/fstab is used as a fallback.
 # No newline is appended!
 # Example:
-# $ find_dev_fstype /dev/sda2;echo
+# $ find_mp_fstype /;echo
 # ext4
 find_mp_fstype() {
     local _x _mpt _majmin _dev _fs _maj _min
