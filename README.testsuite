@@ -9,3 +9,4 @@ netbsd-iscsi
 nbd
 dhcp
 iscsi-initiator-utils
+TEST-04-FULL-SYSTEMD: systemd >= 187
