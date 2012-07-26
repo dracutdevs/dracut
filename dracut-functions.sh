@@ -454,6 +454,26 @@ check_vol_slaves() {
     return 1
 }
 
+# fs_get_option <filesystem options> <search for option>
+# search for a specific option in a bunch of filesystem options
+# and return the value
+fs_get_option() {
+    local _fsopts=$1
+    local _option=$2
+    local OLDIFS="$IFS"
+    IFS=,
+    set -- $_fsopts
+    IFS="$OLDIFS"
+    while [ $# -gt 0 ]; do
+        case $1 in
+            $_option=*)
+                echo ${1#${_option}=}
+                break
+        esac
+        shift
+    done
+}
+
 if [[ $DRACUT_INSTALL ]]; then
     [[ $DRACUT_RESOLVE_LAZY ]] || export DRACUT_RESOLVE_DEPS=1
     inst_dir() {

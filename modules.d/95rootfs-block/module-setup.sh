@@ -2,23 +2,6 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
-search_option() {
-    rootopts=$1
-    option=$2
-    local OLDIFS="$IFS"
-    IFS=,
-    set -- $rootopts
-    IFS="$OLDIFS"
-    while [ $# -gt 0 ]; do
-        case $1 in
-            $option=*)
-                echo ${1#${option}=}
-                break
-        esac
-        shift
-    done
-}
-
 check() {
         rootopts="defaults"
         while read dev mp fs opts dump fsck; do
@@ -34,8 +17,8 @@ check() {
             fi
         done < "$NEWROOT/etc/fstab"
 
-        [ "$rootfs" = "reiserfs" ] && journaldev=$(search_option $rootopts "jdev")
-        [ "$rootfs" = "xfs" ] && journaldev=$(search_option $rootopts "logdev")
+        [ "$rootfs" = "reiserfs" ] && journaldev=$(fs_get_option $rootopts "jdev")
+        [ "$rootfs" = "xfs" ] && journaldev=$(fs_get_option $rootopts "logdev")
         if [ -n "$journaldev" ]; then
             echo "root.journaldev=$journaldev" >> "${initdir}/etc/cmdline.d/95root-jurnaldev.conf"
         fi
