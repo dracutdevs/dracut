@@ -57,9 +57,12 @@ mount_usr()
                 [ -n "$rflags" ]; then
                 # for btrfs subvolumes we have to mount /usr with the same rflags
                 _opts="${_opts:+${_opts},}${rflags}"
-            elif getarg ro; then
-                # if "ro" is specified, we want /usr to be readonly, too
+            elif getargbool 0 ro; then
+                # if "ro" is specified, we want /usr to be mounted read-only
                 _opts="${_opts:+${_opts},}ro"
+            elif getargbool 0 rw; then
+                # if "rw" is specified, we want /usr to be mounted read-write
+                _opts="${_opts:+${_opts},}rw"
             fi
             echo "$_dev ${NEWROOT}${_mp} $_fs ${_opts} $_freq $_passno"
             _usr_found="1"
@@ -77,13 +80,10 @@ mount_usr()
                 [ $_fsck_ret -ne 255 ] && echo $_fsck_ret >/run/initramfs/usr-fsck
             fi
         fi
-        if getargbool 0 rd.usrmount.ro; then
-            info "Mounting /usr (read-only forced)"
-            mount -r "$NEWROOT/usr" 2>&1 | vinfo
-        else
-            info "Mounting /usr"
-            mount "$NEWROOT/usr" 2>&1 | vinfo
-        fi
+
+        info "Mounting /usr"
+        mount "$NEWROOT/usr" 2>&1 | vinfo
+
         if ! ismounted "$NEWROOT/usr"; then
             warn "Mounting /usr to $NEWROOT/usr failed"
             warn "*** Dropping you to a shell; the system will continue"
