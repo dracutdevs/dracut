@@ -517,6 +517,7 @@ Install SOURCE to DEST in DESTROOTDIR with all needed dependencies.\n\
   -h --help           Show this help\n\
 \n\
 Example:\n\
+# mkdir -p /var/tmp/test-root\n\
 # %s -D /var/tmp/test-root --ldd -a sh tr\n\
 # tree /var/tmp/test-root\n\
 /var/tmp/test-root\n\
@@ -742,8 +743,16 @@ int main(int argc, char **argv)
         if (strcmp(destrootdir, "/") == 0) {
                 log_error("Environment DESTROOTDIR or argument -D is set to '/'!");
                 usage(EXIT_FAILURE);
-
         }
+
+        i = destrootdir;
+        destrootdir = realpath(destrootdir, NULL);
+        if (!destrootdir) {
+                log_error("Environment DESTROOTDIR or argument -D is set to '%s': %m", i);
+                r = EXIT_FAILURE;
+                goto finish;
+        }
+        free(i);
 
         items = hashmap_new(string_hash_func, string_compare_func);
         items_failed = hashmap_new(string_hash_func, string_compare_func);
