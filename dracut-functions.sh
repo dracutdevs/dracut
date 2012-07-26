@@ -357,6 +357,33 @@ find_dev_fstype() {
     return 1
 }
 
+# find_dev_fstype <device>
+# Echo the filesystem type for a given device.
+# /proc/self/mountinfo is taken as the primary source of information
+# and /etc/fstab is used as a fallback.
+# No newline is appended!
+# Example:
+# $ find_dev_fstype /dev/sda2;echo
+# ext4
+find_mp_fstype() {
+    local _x _mpt _majmin _dev _fs _maj _min
+    while read _x _x _majmin _x _mpt _x _x _fs _dev _x; do
+        [[ $_mpt = $1 ]] || continue
+        echo -n $_fs;
+        return 0;
+    done < /proc/self/mountinfo
+
+    # fall back to /etc/fstab
+    while read _dev _mpt _fs _x; do
+        [[ $_mpt = $1 ]] || continue
+        echo -n $_fs;
+        return 0;
+    done < /etc/fstab
+
+    return 1
+}
+
+
 # finds the major:minor of the block device backing the root filesystem.
 find_root_block_device() { find_block_device /; }
 
