@@ -1,6 +1,8 @@
 # /etc/dracut.conf.d/gentoo-openrc.conf
 # Dracut config file customized for Gentoo Base System release 2
 
+udevdir=/lib/udev
+
 #
 # Modules
 #
