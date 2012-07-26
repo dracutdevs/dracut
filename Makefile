@@ -33,17 +33,24 @@ manpages = $(man1pages) $(man5pages) $(man7pages) $(man8pages)
 
 .PHONY: install clean archive rpm testimage test all check AUTHORS doc
 
-DRACUT_INSTALL_BIN = install/dracut-install
-
-DRACUT_INSTALL_OBJECTS = \
-        install/dracut-install.o \
-        install/hashmap.o\
-        install/log.o \
-        install/util.o
+DRACUT_INSTALL_BIN = dracut-install
 
 all: syncheck dracut-version.sh $(DRACUT_INSTALL_BIN)
 
-$(DRACUT_INSTALL_BIN): $(DRACUT_INSTALL_OBJECTS)
+DRACUT_INSTALL_SOURCE = \
+        install/dracut-install.c \
+        install/hashmap.c\
+        install/log.c \
+        install/util.c
+
+DRACUT_INSTALL_HEADER = \
+        install/hashmap.h \
+        install/log.h \
+        install/macro.h \
+        install/util.h
+
+$(DRACUT_INSTALL_BIN): $(DRACUT_INSTALL_SOURCE) $(DRACUT_INSTALL_HEADER)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(DRACUT_INSTALL_BIN) $(DRACUT_INSTALL_SOURCE)
 
 indent:
 	indent -i8 -nut -br -linux -l120 install/dracut-install.c
@@ -95,7 +102,7 @@ install: doc dracut-version.sh
 		ln -s ../dracut-shutdown.service \
 		$(DESTDIR)$(systemdsystemunitdir)/shutdown.target.wants/dracut-shutdown.service; \
 	fi
-	if [ -x $(DRACUT_INSTALL_BIN) ]; then \
+	if [ -f $(DRACUT_INSTALL_BIN) ]; then \
 		install -m 0755 $(DRACUT_INSTALL_BIN) $(DESTDIR)$(pkglibdir)/dracut-install; \
 	fi
 
@@ -108,7 +115,7 @@ clean:
 	$(RM) */*/*~
 	$(RM) test-*.img
 	$(RM) dracut-*.rpm dracut-*.tar.bz2
-	$(RM) $(DRACUT_INSTALL_BIN) $(DRACUT_INSTALL_OBJECTS)
+	$(RM) $(DRACUT_INSTALL_BIN) 
 	$(RM) $(manpages) dracut.html
 	$(MAKE) -C test clean
 

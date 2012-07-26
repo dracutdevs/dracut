@@ -286,6 +286,7 @@ rm -rf $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/90multipath
 %{dracutlibdir}/modules.d/90qemu
 %{dracutlibdir}/modules.d/91crypt-gpg
+%{dracutlibdir}/modules.d/91crypt-loop
 %{dracutlibdir}/modules.d/95debug
 %{dracutlibdir}/modules.d/95resume
 %{dracutlibdir}/modules.d/95rootfs-block
