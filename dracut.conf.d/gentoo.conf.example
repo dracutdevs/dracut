@@ -2,6 +2,7 @@
 # Dracut config file customized for Gentoo Base System release 2
 
 udevdir=/lib/udev
+ro_mnt=yes
 
 #
 # Modules
