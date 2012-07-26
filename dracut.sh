@@ -101,6 +101,7 @@ Creates initial ramdisk images for preloading modules
   --nolvmconf           Do not include local /etc/lvm/lvm.conf
   --fscks [LIST]        Add a space-separated list of fsck helpers.
   --nofscks             Inhibit installation of any fsck helpers.
+  --ro-mnt              Mount / and /usr read-only by default.
   -h, --help            This message
   --debug               Output debug information of the build process
   --profile             Output profile information of the build process
@@ -261,6 +262,7 @@ TEMP=$(unset POSIXLY_CORRECT; getopt \
     --long add-fstab: \
     --long mount: \
     --long nofscks: \
+    --long ro-mnt \
     --long kmoddir: \
     --long conf: \
     --long confdir: \
@@ -326,6 +328,7 @@ while :; do
         --add-fstab)   push add_fstab_l          "$2"; shift;;
         --mount)       push fstab_lines          "$2"; shift;;
         --nofscks)     nofscks_l="yes";;
+        --ro-mnt)      ro_mnt_l="yes";;
         -k|--kmoddir)  drivers_dir_l="$2"; shift;;
         -c|--conf)     conffile="$2"; shift;;
         --confdir)     confdir="$2"; shift;;
@@ -558,6 +561,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $compress_l ]] && compress=$compress_l
 [[ $show_modules_l ]] && show_modules=$show_modules_l
 [[ $nofscks_l ]] && nofscks="yes"
+[[ $ro_mnt_l ]] && ro_mnt="yes"
 # eliminate IFS hackery when messing with fw_dir
 fw_dir=${fw_dir//:/ }
 
@@ -779,7 +783,7 @@ fi
 export initdir dracutbasedir dracutmodules drivers \
     fw_dir drivers_dir debug no_kernel kernel_only \
     add_drivers omit_drivers mdadmconf lvmconf filesystems \
-    use_fstab fstab_lines libdirs fscks nofscks \
+    use_fstab fstab_lines libdirs fscks nofscks ro_mnt \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
     debug host_fs_types host_devs sshkey add_fstab \
     DRACUT_VERSION udevdir systemdutildir systemdsystemunitdir \

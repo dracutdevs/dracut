@@ -50,6 +50,9 @@ install() {
     fi
 
     ln -fs /proc/self/mounts "$initdir/etc/mtab"
+    if [[ $ro_mnt = yes ]]; then
+        echo ro >> "${initdir}/etc/cmdline.d/base.conf"
+    fi
 
     if [ -e /etc/os-release ]; then
         . /etc/os-release
