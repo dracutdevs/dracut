@@ -81,7 +81,7 @@ mount_usr()
             fi
         fi
 
-        info "Mounting /usr"
+        info "Mounting /usr with -o $_opts"
         mount "$NEWROOT/usr" 2>&1 | vinfo
 
         if ! ismounted "$NEWROOT/usr"; then
