@@ -11,6 +11,7 @@ fstab_mount() {
     info "Mounting from $1"
     while read _dev _mp _fs _opts _dump _pass _rest; do
         [ -z "${_dev%%#*}" ] && continue # Skip comment lines
+        ismounted $_mp && continue # Skip mounted filesystem
         if [ "$_pass" -gt 0 ] && ! strstr "$_opts" _netdev; then
             fsck_single "$_dev" "$_fs" "$_opts"
         fi
