@@ -11,7 +11,7 @@ check() {
         local _dev
         _dev=$(get_maj_min $1)
         [ -e /sys/dev/block/$_dev/dm/uuid ] || return 1
-        [[ $(cat /sys/dev/block/$_dev/dm/uuid) =~ ^mpath- ]] && return 0
+        [[ $(cat /sys/dev/block/$_dev/dm/uuid) =~ mpath- ]] && return 0
         return 1
     }
 
