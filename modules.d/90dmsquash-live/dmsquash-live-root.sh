@@ -167,7 +167,6 @@ if [ -e "$SQUASHED" ] ; then
         dd if=$SQUASHED of=/squashed.img bs=512 2> /dev/null
         umount -n /run/initramfs/live
         echo "Done copying live image to RAM."
-        eject -p $livedev || :
         SQUASHED="/squashed.img"
     fi
 

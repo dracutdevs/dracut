@@ -21,7 +21,7 @@ installkernel() {
 
 install() {
     dracut_install umount dmsetup blkid dd losetup grep blockdev
-    dracut_install -o eject checkisomd5
+    dracut_install -o checkisomd5
     inst_hook cmdline 30 "$moddir/parse-dmsquash-live.sh"
     inst_hook pre-udev 30 "$moddir/dmsquash-live-genrules.sh"
     inst_hook pre-udev 30 "$moddir/dmsquash-liveiso-genrules.sh"
