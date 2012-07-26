@@ -70,7 +70,7 @@ mount_usr()
         fi
     done < "$NEWROOT/etc/fstab" >> /etc/fstab
 
-    if [ "x$_usr_found" != "x" ]; then
+    if [ "$_usr_found" != "" ]; then
         # we have to mount /usr
         _fsck_ret=0
         if ! getargbool 0 rd.skipfsck; then
