@@ -7,9 +7,26 @@ type det_fs >/dev/null 2>&1 || . /lib/fs-lib.sh
 
 mount_root() {
     local _ret
-    local _rflags_ro="$rflags,ro"
+    local _rflags_ro
     # sanity - determine/fix fstype
     rootfs=$(det_fs "${root#block:}" "$fstype")
+
+    journaldev=$(getarg root.journaldev)
+    if [ -n $journaldev ]; then
+        case "$rootfs" in
+            xfs)
+                rflags="${rflags:+${rflags},}logdev=$journaldev"
+                ;;
+            reiserfs)
+                fsckoptions="-j $journaldev $fsckoptions"
+                rflags="${rflags:+${rflags},}jdev=$journaldev"
+                ;;
+            *);;
+        esac
+    fi
+
+    _rflags_ro="$rflags,ro"
+
     while ! mount -t ${rootfs} -o "$_rflags_ro" "${root#block:}" "$NEWROOT"; do
         warn "Failed to mount -t ${rootfs} -o $_rflags_ro ${root#block:} $NEWROOT"
         fsck_ask_err
