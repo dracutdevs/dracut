@@ -2,7 +2,7 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
-if [ -x /bin/plymouthd ]; then
+if [ -x /bin/plymouthd -a ! -x /lib/systemd/systemd ]; then
     if getargbool 1 plymouth.enable && getargbool 1 rd.plymouth -d -n rd_NO_PLYMOUTH; then
         # first trigger graphics subsystem
         udevadm trigger --action=add --attr-match=class=0x030000 >/dev/null 2>&1
