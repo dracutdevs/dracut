@@ -52,11 +52,11 @@ mount_root() {
         fastboot=yes
     fi
 
-    if [ -f "$NEWROOT"/fsckoptions ]; then
-        fsckoptions=$(cat "$NEWROOT"/fsckoptions)
-    fi
-
     if ! getargbool 0 rd.skipfsck; then
+        if [ -f "$NEWROOT"/fsckoptions ]; then
+            fsckoptions=$(cat "$NEWROOT"/fsckoptions)
+        fi
+
         if [ -f "$NEWROOT"/forcefsck ] || getargbool 0 forcefsck ; then
             fsckoptions="-f $fsckoptions"
         elif [ -f "$NEWROOT"/.autofsck ]; then
@@ -130,8 +130,10 @@ mount_root() {
         mount -o remount "$NEWROOT" 2>&1 | vinfo
     fi
 
-    [ -f "$NEWROOT"/forcefsck ] && rm -f "$NEWROOT"/forcefsck 2>/dev/null
-    [ -f "$NEWROOT"/.autofsck ] && rm -f "$NEWROOT"/.autofsck 2>/dev/null
+    if ! getargbool 0 rd.skipfsck; then
+        [ -f "$NEWROOT"/forcefsck ] && rm -f "$NEWROOT"/forcefsck 2>/dev/null
+        [ -f "$NEWROOT"/.autofsck ] && rm -f "$NEWROOT"/.autofsck 2>/dev/null
+    fi
 }
 
 if [ -n "$root" -a -z "${root%%block:*}" ]; then
