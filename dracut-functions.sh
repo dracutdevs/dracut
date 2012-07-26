@@ -781,8 +781,8 @@ inst_rule_programs() {
             dracut_install "$_bin"
         done
     fi
-    if grep -qE 'PROGRAM==?"[^ "]+' "$1"; then
-        for _prog in $(grep -E 'IMPORT==?"[^ "]+' "$1" | sed -r 's/.*IMPORT==?"([^ "]+).*/\1/'); do
+    if grep -qE 'IMPORT\{program\}==?"[^ "]+' "$1"; then
+        for _prog in $(grep -E 'IMPORT\{program\}==?"[^ "]+' "$1" | sed -r 's/.*IMPORT\{program\}==?"([^ "]+).*/\1/'); do
             if [ -x ${udevdir}/$_prog ]; then
                 _bin=${udevdir}/$_prog
             else
