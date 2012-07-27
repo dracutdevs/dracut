@@ -162,7 +162,7 @@ test_setup() {
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
         -o "plymouth dmraid" \
         -a "debug" \
-        -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
+        -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod" \
         -f $TESTDIR/initramfs.testing $KVERSION || return 1
 
     # Make server root
@@ -211,7 +211,7 @@ test_setup() {
     # Make server's dracut image
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
         -m "dash udev-rules base rootfs-block debug kernel-modules" \
-        -d "piix ide-gd_mod ata_piix ext3 sd_mod e1000" \
+        -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000" \
         -f $TESTDIR/initramfs.server $KVERSION || return 1
 
 }

@@ -246,14 +246,14 @@ test_setup() {
     # Make server's dracut image
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
         -m "dash udev-rules base rootfs-block debug kernel-modules watchdog" \
-        -d "piix ide-gd_mod ata_piix ext3 sd_mod e1000 ib700wdt" \
+        -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 ib700wdt" \
         -f $TESTDIR/initramfs.server $KVERSION || return 1
 
     # Make client's dracut image
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
         -o "plymouth" \
         -a "debug" \
-        -d "piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfs sunrpc ib700wdt" \
+        -d "af_packet piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfs sunrpc ib700wdt" \
         -f $TESTDIR/initramfs.testing $KVERSION || return 1
 }
 
