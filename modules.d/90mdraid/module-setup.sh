@@ -43,8 +43,10 @@ installkernel() {
 }
 
 install() {
-    dracut_install mdadm cat
-    dracut_install -o mdmon partx
+    dracut_install cat
+    dracut_install -o mdmon
+    inst $(command -v partx) /sbin/partx
+    inst $(command -v mdadm) /sbin/mdadm
 
      # XXX: mdmon really needs to run as non-root?
      #      If so, write only the user it needs in the initrd's /etc/passwd (and maybe /etc/group)

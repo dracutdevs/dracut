@@ -33,6 +33,7 @@ install() {
     inst_rules "$moddir/80-btrfs.rules"
     inst_script "$moddir/btrfs_finished.sh" /sbin/btrfs_finished
     inst_script "$moddir/btrfs_timeout.sh" /sbin/btrfs_timeout
-    dracut_install btrfs btrfsck
+    dracut_install btrfsck
+    inst $(command -v btrfs) /sbin/btrfs
 }
 

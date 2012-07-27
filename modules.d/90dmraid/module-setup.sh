@@ -52,7 +52,8 @@ depends() {
 install() {
     local _i
     dracut_install dmraid
-    dracut_install -o partx kpartx
+    dracut_install -o kpartx
+    inst $(command -v partx) /sbin/partx
 
     inst "$moddir/dmraid.sh" /sbin/dmraid_scan
 

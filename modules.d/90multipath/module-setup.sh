@@ -73,7 +73,6 @@ install() {
     dracut_install -o  \
         dmsetup \
         kpartx \
-        partx \
         mpath_wait \
         multipath  \
         multipathd \
@@ -83,10 +82,12 @@ install() {
         /etc/multipath.conf \
         /etc/multipath/*
 
+    inst $(command -v partx) /sbin/partx
+
     inst_libdir_file "libmultipath*" "multipath/*"
 
     inst_hook pre-trigger 02 "$moddir/multipathd.sh"
     inst_hook cleanup   02 "$moddir/multipathd-stop.sh"
-    inst_rules 40-multipath.rules 65-multipath.rules 66-kpartx.rules
+    inst_rules 40-multipath.rules 62-multipath.rules 65-multipath.rules 66-kpartx.rules
 }
 
