@@ -328,6 +328,7 @@ rm -rf $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/95iscsi
 %{dracutlibdir}/modules.d/90livenet
 %{dracutlibdir}/modules.d/90qemu-net
+%{dracutlibdir}/modules.d/95cifs
 %{dracutlibdir}/modules.d/95nbd
 %{dracutlibdir}/modules.d/95nfs
 %{dracutlibdir}/modules.d/95ssh-client
