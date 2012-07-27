@@ -96,7 +96,7 @@ install() {
 
         for _src in $(eval echo ${kbddir}/{${KBDSUBDIRS}}); do
             inst_dir "$_src"
-            cp --reflink=auto --sparse=auto -prfL -t "${initdir}/${_src%/*}" "$_src"
+            cp --reflink=auto --sparse=auto -prfL -t "${initdir}/${_src}" "$_src"/*
         done
 
         # remove unnecessary files

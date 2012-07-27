@@ -11,6 +11,6 @@ install() {
 
     if [ -d ${_terminfodir} ]; then
         inst_dir "$_terminfodir"
-        cp --reflink=auto --sparse=auto -prfL -t "${initdir}/${_terminfodir%/*}" "$_terminfodir"
+        cp --reflink=auto --sparse=auto -prfL -t "${initdir}/${_terminfodir}" "$_terminfodir"/*
     fi
 }
