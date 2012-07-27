@@ -2,23 +2,23 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
-if [ -x /bin/plymouthd -a ! -x /lib/systemd/systemd ]; then
-    if getargbool 1 plymouth.enable && getargbool 1 rd.plymouth -d -n rd_NO_PLYMOUTH; then
+[ -x /bin/plymouthd -a ! -x /lib/systemd/systemd ] || exit 0
+
+if getargbool 1 plymouth.enable && getargbool 1 rd.plymouth -d -n rd_NO_PLYMOUTH; then
         # first trigger graphics subsystem
-        udevadm trigger --action=add --attr-match=class=0x030000 >/dev/null 2>&1
+    udevadm trigger --action=add --attr-match=class=0x030000 >/dev/null 2>&1
         # first trigger graphics and tty subsystem
-        udevadm trigger --action=add --subsystem-match=graphics --subsystem-match=drm --subsystem-match=tty >/dev/null 2>&1
+    udevadm trigger --action=add --subsystem-match=graphics --subsystem-match=drm --subsystem-match=tty >/dev/null 2>&1
 
-        udevadm settle --timeout=30 2>&1 | vinfo
+    udevadm settle --timeout=30 2>&1 | vinfo
 
-        info "Starting plymouth daemon"
-        mkdir -m 0755 /run/plymouth
-        read consoledev rest < /sys/class/tty/console/active
-        consoledev=${consoledev:-tty0}
-        [ -x /lib/udev/console_init -a -e "/dev/$consoledev" ] && /lib/udev/console_init "/dev/$consoledev"
-        [ -x /bin/plymouthd ] && /bin/plymouthd --attach-to-session --pid-file /run/plymouth/pid
-        /bin/plymouth --show-splash 2>&1 | vinfo
+    info "Starting plymouth daemon"
+    mkdir -m 0755 /run/plymouth
+    read consoledev rest < /sys/class/tty/console/active
+    consoledev=${consoledev:-tty0}
+    [ -x /lib/udev/console_init -a -e "/dev/$consoledev" ] && /lib/udev/console_init "/dev/$consoledev"
+    [ -x /bin/plymouthd ] && /bin/plymouthd --attach-to-session --pid-file /run/plymouth/pid
+    /bin/plymouth --show-splash 2>&1 | vinfo
         # reset tty after plymouth messed with it
-        [ -x /lib/udev/console_init -a -e "/dev/$consoledev" ] && /lib/udev/console_init "/dev/$consoledev"
-    fi
+    [ -x /lib/udev/console_init -a -e "/dev/$consoledev" ] && /lib/udev/console_init "/dev/$consoledev"
 fi
