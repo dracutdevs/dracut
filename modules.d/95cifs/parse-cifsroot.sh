@@ -21,22 +21,22 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 [ -z "$root" ] && root=$(getarg root=)
 [ -z "$netroot" ] && netroot=$(getarg netroot=)
 
-# netroot= cmdline argument must be ignored, but must be used if
-# we're inside netroot to parse dhcp root-path
-if [ -n "$netroot" ] ; then
-    if [ "$netroot" = "$(getarg netroot=)" ] ; then
-        warn "Ignoring netroot argument for CIFS"
-        netroot=$root
+# Root takes precedence over netroot
+if [ "${root%%:*}" = "cifs" ] ; then
+
+    # Don't continue if root is ok
+    [ -n "$rootok" ] && return
+
+    if [ -n "$netroot" ] ; then
+        warn "root takes precedence over netroot. Ignoring netroot"
+
     fi
-else
-    netroot=$root;
+    netroot=$root
+    unset root
 fi
 
-# Continue if cifs
-case "${netroot%%:*}" in
-    cifs);;
-    *) return;;
-esac
+# If it's not cifs we don't continue
+[ "${netroot%%:*}" = "cifs" ] || return
 
 # Check required arguments
 cifs_to_var $netroot
