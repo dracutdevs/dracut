@@ -787,7 +787,7 @@ export initdir dracutbasedir dracutmodules \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
     debug host_fs_types host_devs sshkey add_fstab \
     DRACUT_VERSION udevdir systemdutildir systemdsystemunitdir \
-    prefix
+    prefix filesystems drivers
 
 # Create some directory structure first
 [[ $prefix ]] && mkdir -m 0755 -p "${initdir}${prefix}"
