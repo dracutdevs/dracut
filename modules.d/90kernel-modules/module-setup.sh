@@ -61,17 +61,6 @@ installkernel() {
             }
             for_each_host_dev_fs inst_fs
         fi
-    else
-        hostonly='' instmods $drivers
-    fi
-
-    if [[ $add_drivers ]]; then
-        hostonly='' instmods -c $add_drivers || return 1
-    fi
-    if [[ $filesystems ]]; then
-        hostonly='' instmods -c $filesystems || return 1
-    fi
-
 }
 
 install() {

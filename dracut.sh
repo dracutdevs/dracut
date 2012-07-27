@@ -780,9 +780,9 @@ if ! [[ -d "$systemdutildir" ]]; then
 fi
 [[ -d "$systemdsystemunitdir" ]] || systemdsystemunitdir=${systemdutildir}/system
 
-export initdir dracutbasedir dracutmodules drivers \
+export initdir dracutbasedir dracutmodules \
     fw_dir drivers_dir debug no_kernel kernel_only \
-    add_drivers omit_drivers mdadmconf lvmconf filesystems \
+    omit_drivers mdadmconf lvmconf \
     use_fstab fstab_lines libdirs fscks nofscks ro_mnt \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
     debug host_fs_types host_devs sshkey add_fstab \
@@ -898,6 +898,18 @@ dinfo "*** Including modules done ***"
 
 ## final stuff that has to happen
 if [[ $no_kernel != yes ]]; then
+
+    if [[ $drivers ]]; then
+        hostonly='' instmods $drivers
+    fi
+
+    if [[ $add_drivers ]]; then
+        hostonly='' instmods -c $add_drivers
+    fi
+    if [[ $filesystems ]]; then
+        hostonly='' instmods -c $filesystems
+    fi
+
     dinfo "*** Installing kernel module dependencies and firmware ***"
     dracut_kernel_post
     dinfo "*** Installing kernel module dependencies and firmware done ***"
