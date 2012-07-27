@@ -35,7 +35,7 @@ fi
 # Continue if cifs
 case "${netroot%%:*}" in
     cifs);;
-    *) unset netroot; return;;
+    *) return;;
 esac
 
 # Check required arguments
