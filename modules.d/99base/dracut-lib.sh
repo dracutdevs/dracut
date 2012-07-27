@@ -145,6 +145,13 @@ getarg() {
     return 1
 }
 
+# getargbool <defaultval> <args...>
+# False if "getarg <args...>" returns "0", "no", or "off".
+# True if getarg returns any other non-empty string.
+# If not found, assumes <defaultval> - usually 0 for false, 1 for true.
+# example: getargbool 0 rd.info
+#   true: rd.info, rd.info=1, rd.info=xxx
+#   false: rd.info=0, rd.info=off, rd.info not present (default val is 0)
 getargbool() {
     local _b
     unset _b
