@@ -41,6 +41,14 @@ DRACUT_INSTALL_OBJECTS = \
         install/log.o \
         install/util.o
 
+# deps generated with gcc -MM
+install/dracut-install.o: install/dracut-install.c install/log.h install/macro.h \
+	install/hashmap.h install/util.h
+install/hashmap.o: install/hashmap.c install/util.h install/macro.h install/log.h \
+	install/hashmap.h
+install/log.o: install/log.c install/log.h install/macro.h install/util.h
+install/util.o: install/util.c install/util.h install/macro.h install/log.h
+
 install/dracut-install: $(DRACUT_INSTALL_OBJECTS)
 
 dracut-install: install/dracut-install
@@ -109,7 +117,7 @@ clean:
 	$(RM) */*/*~
 	$(RM) test-*.img
 	$(RM) dracut-*.rpm dracut-*.tar.bz2
-	$(RM) $(DRACUT_INSTALL_BIN) install/dracut-install $(DRACUT_INSTALL_OBJECTS)
+	$(RM) dracut-install install/dracut-install $(DRACUT_INSTALL_OBJECTS)
 	$(RM) $(manpages) dracut.html
 	$(MAKE) -C test clean
 
