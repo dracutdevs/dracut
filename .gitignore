@@ -11,3 +11,4 @@ test*.img
 /.buildpath
 /.project
 /dracut-version.sh
+/install/dracut-install
