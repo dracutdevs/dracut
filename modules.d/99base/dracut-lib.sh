@@ -452,11 +452,16 @@ udevproperty() {
     fi
 }
 
-ismounted() {
-    while read a m a; do
-        [ "$m" = "$1" ] && return 0
+find_mount() {
+    local dev mnt etc wanted_dev="$(readlink -e -q $1)"
+    while read dev mnt etc; do
+        [ "$dev" = "$wanted_dev" ] && echo "$dev" && return 0
     done < /proc/mounts
     return 1
+}
+
+ismounted() {
+    find_mount "$1" > /dev/null
 }
 
 wait_for_if_up() {
