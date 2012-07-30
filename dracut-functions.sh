@@ -423,7 +423,6 @@ check_block_and_slaves() {
     fi
     [[ -d /sys/dev/block/$2/slaves ]] || return 1
     for _x in /sys/dev/block/$2/slaves/*/dev; do
-        [[ -f $_x ]] || continue
         check_block_and_slaves $1 $(cat "$_x") && return 0
     done
     return 1
