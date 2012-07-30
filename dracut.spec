@@ -83,6 +83,7 @@ Requires: sed
 Requires: file
 Requires: kpartx
 Requires: udev > 166
+Requires: kbd kbd-misc
 %if 0%{?fedora} || 0%{?rhel} > 6
 Requires: util-linux >= 2.21
 Conflicts: systemd < 187
