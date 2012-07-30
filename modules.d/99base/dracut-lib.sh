@@ -358,7 +358,7 @@ check_quiet() {
     fi
 }
 
-if [ ! -x /lib/systemd/systemd ]; then
+if [ -z "$DRACUT_SYSTEMD" ]; then
 
     warn() {
         check_quiet

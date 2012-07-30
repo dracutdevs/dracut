@@ -35,7 +35,7 @@ if [ -f /etc/locale.conf ]; then
     export LC_ALL
 fi
 
-if [ -x /lib/systemd/systemd ]; then
+if [ -n "$DRACUT_SYSTEMD" ]; then
     rm -f /{etc,lib}/udev/rules.d/10-console.rules
     rm -f /lib/udev/console_init
 fi

@@ -2,7 +2,7 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
-[ -x /bin/plymouthd -a ! -x /lib/systemd/systemd ] || exit 0
+[ -x /bin/plymouthd -a ! -n "$DRACUT_SYSTEMD" ] || exit 0
 
 if getargbool 1 plymouth.enable && getargbool 1 rd.plymouth -d -n rd_NO_PLYMOUTH; then
         # first trigger graphics subsystem

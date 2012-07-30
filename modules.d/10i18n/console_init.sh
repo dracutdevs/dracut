@@ -2,7 +2,7 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
-[ -x /lib/systemd/systemd ] && exit 0
+[ -n "$DRACUT_SYSTEMD" ] && exit 0
 
 if [ -x /lib/systemd/systemd-vconsole-setup ]; then
     /lib/systemd/systemd-vconsole-setup "$@"

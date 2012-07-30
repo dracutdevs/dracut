@@ -1,6 +1,9 @@
 #!/bin/sh
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
+
+[ -n "$DRACUT_SYSTEMD" ] && exit 0
+
 if ! getargbool 1 rd.luks -d -n rd_NO_LUKS; then
     info "rd.luks=0: removing cryptoluks activation"
     rm -f /etc/udev/rules.d/70-luks.rules

@@ -2,7 +2,8 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
-NEWROOT="/sysroot"
+export DRACUT_SYSTEMD=1
+export NEWROOT="/sysroot"
 [ -d $NEWROOT ] || mkdir -p -m 0755 $NEWROOT
 [ -d /run/initramfs ] || mkdir -p -m 0755 /run/initramfs
 [ -d /run/lock ] || mkdir -p -m 0755 /run/lock
