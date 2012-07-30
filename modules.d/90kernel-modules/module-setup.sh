@@ -61,6 +61,7 @@ installkernel() {
             }
             for_each_host_dev_fs inst_fs
         fi
+    fi
 }
 
 install() {
