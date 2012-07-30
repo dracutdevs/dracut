@@ -73,3 +73,4 @@ mount_root() {
 if [ -n "$root" -a -z "${root%%virtfs:*}" ]; then
     mount_root
 fi
+:
