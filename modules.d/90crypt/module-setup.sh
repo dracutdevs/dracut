@@ -49,5 +49,16 @@ install() {
     inst_hook cleanup 30 "$moddir/crypt-cleanup.sh"
     inst_simple /etc/crypttab
     inst_simple "$moddir/crypt-lib.sh" "/lib/dracut-crypt-lib.sh"
-}
 
+    dracut_install -o \
+        $systemdutildir/system-generators/systemd-cryptsetup-generator \
+        $systemdutildir/system-generators/systemd-cryptsetup-generator \
+        $systemdutildir/systemd-cryptsetup \
+        $systemdsystemunitdir/systemd-ask-password-console.path \
+        $systemdsystemunitdir/systemd-ask-password-console.service \
+        $systemdsystemunitdir/cryptsetup.target \
+        $systemdsystemunitdir/sysinit.target.wants/cryptsetup.target \
+        systemd-ask-password systemd-tty-ask-password-agent
+    inst_hook initqueue/finished 01 "$moddir/finished-ask-password.sh"
+    inst_script "$moddir"/crypt-run-generator.sh /sbin/crypt-run-generator
+}

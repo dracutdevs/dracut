@@ -2,8 +2,6 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
-[ -n "$DRACUT_SYSTEMD" ] && exit 0
-
 if ! getargbool 1 rd.luks -d -n rd_NO_LUKS; then
     info "rd.luks=0: removing cryptoluks activation"
     rm -f /etc/udev/rules.d/70-luks.rules
@@ -18,14 +16,26 @@ else
 
     if [ -n "$LUKS" ]; then
         for luksid in $LUKS; do
+
             luksid=${luksid##luks-}
-            {
-                printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", '
-                printf -- 'ENV{ID_FS_UUID}=="*%s*", ' $luksid
-                printf -- 'RUN+="%s --unique --onetime ' $(command -v initqueue)
-                printf -- '--name cryptroot-ask-%%k %s ' $(command -v cryptroot-ask)
-                printf -- '$env{DEVNAME} luks-$env{ID_FS_UUID} %s"\n' $tout
-            } >> /etc/udev/rules.d/70-luks.rules.new
+
+            if [ -z "$DRACUT_SYSTEMD" ]; then
+                {
+                    printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", '
+                    printf -- 'ENV{ID_FS_UUID}=="*%s*", ' $luksid
+                    printf -- 'RUN+="%s --unique --onetime ' $(command -v initqueue)
+                    printf -- '--name cryptroot-ask-%%k %s ' $(command -v cryptroot-ask)
+                    printf -- '$env{DEVNAME} luks-$env{ID_FS_UUID} %s"\n' $tout
+                } >> /etc/udev/rules.d/70-luks.rules.new
+            else
+                {
+                    printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", '
+                    printf -- 'ENV{ID_FS_UUID}=="*%s*", ' $luksid
+                    printf -- 'RUN+="%s --unique --onetime ' $(command -v initqueue)
+                    printf -- '--name crypt-run-generator-%%k %s ' $(command -v crypt-run-generator)
+                    printf -- '$env{DEVNAME} luks-$env{ID_FS_UUID}"\n'
+                } >> /etc/udev/rules.d/70-luks.rules.new
+            fi
 
             uuid=$luksid
             while [ "$uuid" != "${uuid#*-}" ]; do uuid=${uuid%%-*}${uuid#*-}; done
@@ -38,11 +48,19 @@ else
             } >> $hookdir/emergency/90-crypt.sh
         done
     else
-        {
-            printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="%s ' $(command -v initqueue)
-            printf -- '--unique --onetime --name cryptroot-ask-%%k '
-            printf -- '%s $env{DEVNAME} luks-$env{ID_FS_UUID} %s"\n' $(command -v cryptroot-ask) $tout
-        } >> /etc/udev/rules.d/70-luks.rules.new
+        if [ -z "$DRACUT_SYSTEMD" ]; then
+            {
+                printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="%s ' $(command -v initqueue)
+                printf -- '--unique --onetime --name cryptroot-ask-%%k '
+                printf -- '%s $env{DEVNAME} luks-$env{ID_FS_UUID} %s"\n' $(command -v cryptroot-ask) $tout
+            } >> /etc/udev/rules.d/70-luks.rules.new
+        else
+            {
+                printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="%s ' $(command -v initqueue)
+                printf -- '--unique --onetime --name crypt-run-generator-%%k '
+                printf -- '%s $env{DEVNAME} luks-$env{ID_FS_UUID}"\n' $(command -v crypt-run-generator)
+            } >> /etc/udev/rules.d/70-luks.rules.new
+        fi
     fi
 
     echo 'LABEL="luks_end"' >> /etc/udev/rules.d/70-luks.rules.new
