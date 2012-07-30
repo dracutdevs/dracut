@@ -141,5 +141,6 @@ install() {
     ln -fs ../udevadm-cleanup-db.service "${initdir}${dracutsystemunitdir}/initrd-switch-root.target.requires/udevadm-cleanup-db.service"
 
     inst_script "$moddir/service-to-run.sh" "${systemdutildir}/system-generators/service-to-run"
+    inst_rules 99-systemd.rules
 }
 
