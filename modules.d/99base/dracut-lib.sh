@@ -453,15 +453,26 @@ udevproperty() {
 }
 
 find_mount() {
-    local dev mnt etc wanted_dev="$(readlink -e -q $1)"
+    local dev mnt etc wanted_dev
+    wanted_dev="$(readlink -e -q $1)"
     while read dev mnt etc; do
         [ "$dev" = "$wanted_dev" ] && echo "$dev" && return 0
     done < /proc/mounts
     return 1
 }
 
+# usage: ismounted <mountpoint>
+# usage: ismounted /dev/<device>
 ismounted() {
-    find_mount "$1" > /dev/null
+    if str_starts "$1" "/dev"; then
+        find_mount "$1" > /dev/null && return 0
+        return 1
+    fi
+
+    while read a m a; do
+        [ "$m" = "$1" ] && return 0
+    done < /proc/mounts
+    return 1
 }
 
 wait_for_if_up() {
