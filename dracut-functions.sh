@@ -837,7 +837,7 @@ inst_hook() {
         dfatal "No such hook type $1. Aborting initrd creation."
         exit 1
     fi
-    inst_simple "$3" "/lib/dracut/hooks/${1}/${2}${3##*/}"
+    inst_simple "$3" "/lib/dracut/hooks/${1}/${2}-${3##*/}"
 }
 
 # install any of listed files
