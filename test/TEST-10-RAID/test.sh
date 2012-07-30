@@ -4,14 +4,14 @@ TEST_DESCRIPTION="root filesystem on an encrypted LVM PV on a RAID-5"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-#DEBUGFAIL="rd.shell"
+DEBUGFAIL="rd.shell rd.udev.log-priority=debug loglevel=70 systemd.log_target=kmsg"
 test_run() {
     DISKIMAGE=$TESTDIR/TEST-10-RAID-root.img
     $testdir/run-qemu \
 	-hda $DISKIMAGE \
 	-m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "root=/dev/dracut/root rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL" \
+	-append "root=/dev/dracut/root rw rd.retry=10 console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     grep -m 1 -q dracut-root-block-success $DISKIMAGE || return 1
 }
@@ -70,6 +70,7 @@ test_setup() {
 	-append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
     grep -m 1 -q dracut-root-block-created $DISKIMAGE || return 1
+    eval $(grep -a -m 1 ID_FS_UUID $DISKIMAGE)
 
     (
 	export initdir=$TESTDIR/overlay
@@ -77,8 +78,12 @@ test_setup() {
 	dracut_install poweroff shutdown
 	inst_hook emergency 000 ./hard-off.sh
 	inst ./cryptroot-ask.sh /sbin/cryptroot-ask
+        mkdir -p $initdir/etc
+        echo "luks-$ID_FS_UUID /dev/md0 /etc/key" > $initdir/etc/crypttab
+        echo -n "test" > $initdir/etc/key
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
+
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-o "plymouth network" \
 	-a "debug" \

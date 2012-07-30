@@ -18,11 +18,13 @@ mke2fs -j /dev/dracut/root && \
 mkdir -p /sysroot && \
 mount /dev/dracut/root /sysroot && \
 cp -a -t /sysroot /source/* && \
-umount /sysroot && \
-sleep 1 && \
-lvm lvchange -a n /dev/dracut/root && \
-sleep 1 && \
-cryptsetup luksClose /dev/mapper/dracut_crypt_test && \
-sleep 1 && \
-echo "dracut-root-block-created" >/dev/sda
+umount /sysroot
+sleep 1
+lvm lvchange -a n /dev/dracut/root
+udevadm settle
+cryptsetup luksClose /dev/mapper/dracut_crypt_test
+udevadm settle
+sleep 1
+eval $(udevadm info --query=env --name=/dev/sdb|while read line; do [ "$line" != "${line#*ID_FS_UUID*}" ] && echo $line; done;)
+{ echo "dracut-root-block-created"; echo "ID_FS_UUID=$ID_FS_UUID"; } >/dev/sda
 poweroff -f

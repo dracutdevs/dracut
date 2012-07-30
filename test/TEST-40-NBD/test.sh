@@ -52,7 +52,6 @@ client_test() {
 	echo "Unable to make client sda image" 1>&2
 	return 1
     fi
-
     $testdir/run-qemu \
         -hda $TESTDIR/flag.img \
         -m 256M -nographic \
@@ -234,6 +233,7 @@ make_encrypted_root() {
 	-append "root=/dev/dracut/root rw quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
     grep -m 1 -q dracut-root-block-created $TESTDIR/flag.img || return 1
+    grep -a -m 1 ID_FS_UUID $TESTDIR/flag.img > $TESTDIR/luks.uuid
 }
 
 make_client_root() {
@@ -328,7 +328,11 @@ test_setup() {
 	dracut_install poweroff shutdown
 	inst_hook emergency 000 ./hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
-	inst ./cryptroot-ask.sh /sbin/cryptroot-ask
+        inst ./cryptroot-ask.sh /sbin/cryptroot-ask
+        . $TESTDIR/luks.uuid
+        mkdir -p $initdir/etc
+	echo "luks-$ID_FS_UUID /dev/nbd0 /etc/key" > $initdir/etc/crypttab
+        echo -n test > $initdir/etc/key
     )
 
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
