@@ -600,11 +600,18 @@ else
     exit 1
 fi
 
+inst /bin/sh
+if ! $DRACUT_INSTALL ${initdir+-D "$initdir"} -R "$initdir/bin/sh" &>/dev/null; then
+    unset DRACUT_RESOLVE_LAZY
+    export DRACUT_RESOLVE_DEPS=1
+fi
+rm -fr ${initdir}/*
+
 if [[ -f $dracutbasedir/dracut-version.sh ]]; then
     . $dracutbasedir/dracut-version.sh
 fi
 
-# Verify bash version, curret minimum is 3.1
+# Verify bash version, current minimum is 3.1
 if (( ${BASH_VERSINFO[0]} < 3 ||
     ( ${BASH_VERSINFO[0]} == 3 && ${BASH_VERSINFO[1]} < 1 ) )); then
     dfatal 'You need at least Bash 3.1 to use dracut, sorry.'
