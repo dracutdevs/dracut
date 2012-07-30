@@ -59,6 +59,5 @@ install() {
         $systemdsystemunitdir/cryptsetup.target \
         $systemdsystemunitdir/sysinit.target.wants/cryptsetup.target \
         systemd-ask-password systemd-tty-ask-password-agent
-    inst_hook initqueue/finished 01 "$moddir/finished-ask-password.sh"
     inst_script "$moddir"/crypt-run-generator.sh /sbin/crypt-run-generator
 }
