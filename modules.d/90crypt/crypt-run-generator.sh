@@ -5,10 +5,11 @@
 dev=$1
 luks=$2
 
-while read l rest; do
-    strstr "${l##luks-}" "${luks##luks-}" && exit 0
-done < /etc/crypttab
-
+if [ -f /etc/crypttab ]; then
+    while read l rest; do
+        strstr "${l##luks-}" "${luks##luks-}" && exit 0
+    done < /etc/crypttab
+fi
 
 echo "$luks $dev" >> /etc/crypttab
 /lib/systemd/system-generators/systemd-cryptsetup-generator
