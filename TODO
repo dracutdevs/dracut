@@ -6,7 +6,7 @@ Items are ordered in priority.
 
 INITRAMFS TODO
 
-- use systemd crypto passwd mechanisms
+- use info and warn prefix
 - add sosreport
 - generate systemd unit dracut-initramfs-restore in /run/systemd dynamically
 - put "root=" parsing hooks in separate hook dir
