@@ -4,7 +4,7 @@ TEST_DESCRIPTION="root filesystem on an encrypted LVM PV on a RAID-5"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-DEBUGFAIL="rd.shell rd.udev.log-priority=debug loglevel=70 systemd.log_target=kmsg"
+#DEBUGFAIL="rd.shell rd.udev.log-priority=debug loglevel=70 systemd.log_target=kmsg"
 test_run() {
     DISKIMAGE=$TESTDIR/TEST-10-RAID-root.img
     $testdir/run-qemu \
