@@ -11,8 +11,8 @@ mount_root() {
     # sanity - determine/fix fstype
     rootfs=$(det_fs "${root#block:}" "$fstype")
 
-    journaldev=$(getarg root.journaldev)
-    if [ -n $journaldev ]; then
+    journaldev=$(getarg "root.journaldev=")
+    if [ -n "$journaldev" ]; then
         case "$rootfs" in
             xfs)
                 rflags="${rflags:+${rflags},}logdev=$journaldev"
