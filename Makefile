@@ -156,7 +156,8 @@ syncheck:
 	done;exit $$ret
 
 check: all syncheck
-	$(MAKE) -C test check
+	@[ "$$EUID" == "0" ] || { echo "'check' must be run as root! Please use 'sudo'."; exit 1; }
+	@$(MAKE) -C test check
 
 testimage: all
 	./dracut.sh -l -a debug -f test-$(shell uname -r).img $(shell uname -r)

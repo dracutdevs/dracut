@@ -24,14 +24,22 @@ function SETCOLOR_WARNING() { echo -en '\033[0;33m'; }
 # terminal sequence to reset to the default color.
 function SETCOLOR_NORMAL() { echo -en '\033[0;39m'; }
 
+check_root() {
+    if (( $EUID != 0 )); then
+        SETCOLOR_FAILURE; echo "Tests must be run as root! Please use 'sudo'."; SETCOLOR_NORMAL
+        exit 1
+    fi
+}
 
 while (($# > 0)); do
     case $1 in
         --run)
+            check_root
 	    echo "TEST RUN: $TEST_DESCRIPTION"
 	    test_check && test_run
 	    exit $?;;
         --setup)
+            check_root
 	    echo "TEST SETUP: $TEST_DESCRIPTION"
 	    test_check && test_setup
 	    exit $?;;
@@ -42,6 +50,7 @@ while (($# > 0)); do
 	    rm -f .testdir
 	    exit $?;;
         --all)
+            check_root
 	    echo -n "TEST: $TEST_DESCRIPTION ";
             if ! test_check 2&>test.log ; then
                 SETCOLOR_WARNING
