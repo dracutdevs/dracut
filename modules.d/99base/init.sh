@@ -146,7 +146,7 @@ udevadm trigger --type=devices --action=add >/dev/null 2>&1
 getarg 'rd.break=initqueue' -d 'rdbreak=initqueue' && emergency_shell -n initqueue "Break before initqueue"
 
 RDRETRY=$(getarg rd.retry -d 'rd_retry=')
-RDRETRY=${RDRETRY:-20}
+RDRETRY=${RDRETRY:-30}
 RDRETRY=$(($RDRETRY*2))
 export RDRETRY
 main_loop=0
@@ -183,7 +183,7 @@ while :; do
     sleep 0.5
 
 
-    if [ $main_loop -gt $(($RDRETRY/2)) ]; then
+    if [ $main_loop -gt $((2*$RDRETRY/3)) ]; then
         for job in $hookdir/initqueue/timeout/*.sh; do
             [ -e "$job" ] || break
             job=$job . $job
