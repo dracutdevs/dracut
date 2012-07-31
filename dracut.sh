@@ -827,8 +827,8 @@ if [[ $kernel_only != yes ]]; then
         fi
     done
 
-    ln -sfn /run "$initdir/var/run"
-    ln -sfn /run/lock "$initdir/var/lock"
+    ln -sfn ../run "$initdir/var/run"
+    ln -sfn ../run/lock "$initdir/var/lock"
 else
     for d in lib "$libdir"; do
         [[ -e "${initdir}${prefix}/$d" ]] && continue
