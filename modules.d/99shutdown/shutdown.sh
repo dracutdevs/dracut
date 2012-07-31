@@ -56,7 +56,7 @@ done
 _check_shutdown final
 
 getarg 'rd.break=shutdown' && emergency_shell --shutdown shutdown "Break before shutdown"
-[ "$1" = "reboot" ] && reboot -f -d -n --no-wall
-[ "$1" = "poweroff" ] && poweroff -f -d -n --no-wall
-[ "$1" = "halt" ] && halt -f -d -n --no-wall
+[ "$1" = "reboot" ] && reboot -f -d -n
+[ "$1" = "poweroff" ] && poweroff -f -d -n
+[ "$1" = "halt" ] && halt -f -d -n
 [ "$1" = "kexec" ] && kexec -e
