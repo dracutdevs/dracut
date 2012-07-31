@@ -7,7 +7,7 @@ cryptsetup
 nfs-utils
 netbsd-iscsi
 nbd
-dhcp
+dhcp (dhcp-server on openSUSE)
 iscsi-initiator-utils
 TEST-04-FULL-SYSTEMD: systemd >= 187
 
