@@ -464,7 +464,7 @@ find_mount() {
 # usage: ismounted <mountpoint>
 # usage: ismounted /dev/<device>
 ismounted() {
-    if str_starts "$1" "/dev"; then
+    if str_starts "$1" "/dev/"; then
         find_mount "$1" > /dev/null && return 0
         return 1
     fi
