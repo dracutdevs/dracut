@@ -244,7 +244,7 @@ test_setup() {
 	[ -f /etc/netconfig ] && dracut_install /etc/netconfig
 	type -P dhcpd >/dev/null && dracut_install dhcpd
 	[ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
-	instmods nfsd sunrpc ipv6 lockd
+	instmods nfsd sunrpc ipv6 lockd af_packet
 	inst ./server-init.sh /sbin/init
 	inst ./hosts /etc/hosts
 	inst ./exports /etc/exports

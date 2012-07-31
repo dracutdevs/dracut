@@ -11,6 +11,7 @@ ip addr add 127.0.0.1/8 dev lo
 ip link set lo up
 ip addr add 192.168.50.1/24 dev eth0
 ip link set eth0 up
+modprobe af_packet
 nbd-server 2000 /dev/sdb -C /dev/null
 nbd-server 2001 /dev/sdc -C /dev/null
 >/var/lib/dhcpd/dhcpd.leases

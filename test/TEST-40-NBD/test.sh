@@ -292,6 +292,7 @@ make_server_root() {
 	    [ -f ${_terminfodir}/l/linux ] && break
 	done
 	dracut_install -o ${_terminfodir}/l/linux
+	instmods af_packet
 	type -P dhcpd >/dev/null && dracut_install dhcpd
 	[ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
 	inst ./server-init.sh /sbin/init

@@ -15,6 +15,8 @@ ip addr add 192.168.50.2/24 dev eth0
 ip addr add 192.168.50.3/24 dev eth0
 ip link set eth0 up
 echo > /dev/watchdog
+modprobe af_packet
+echo > /dev/watchdog
 mount --bind /nfs/client /nfs/nfs3-5
 echo > /dev/watchdog
 mount --bind /nfs/client /nfs/ip/192.168.50.101
