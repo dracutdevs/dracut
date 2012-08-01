@@ -1,3 +1,23 @@
+dracut-023
+==========
+- resume from hibernate fixes
+- -N option for --no-hostonly
+- support for systemd crypto handling
+- new dracut module "crypt-loop"
+- deprecate the old kernel command line options
+- more documentation
+- honor CFLAGS for dracut-install build
+- multipath fixes
+- / is mounted according to rootflags parameter but forced ro at first.
+  Later it is remounted according to /etc/fstab + rootflags parameter
+  and "ro"/"rw".
+- support for xfs / reiserfs separate journal device
+- new "ro_mnt" option to force ro mount of / and /usr
+- root on cifs support
+- dracut-install: fixed issue for /var/tmp containing a symlink
+- only lazy resolve with ldd, if the /var/tmp partition is not mounted with "noexec"
+- i18n: fixed inclusion of "include" keymaps
+
 dracut-022
 ==========
 - fixed host-only kernel module bug
