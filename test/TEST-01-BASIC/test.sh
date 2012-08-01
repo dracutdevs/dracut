@@ -13,7 +13,7 @@ test_run() {
 	-hdb $TESTDIR/result \
 	-m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-watchdog ib700 -watchdog-action poweroff \
+	-watchdog i6300esb -watchdog-action poweroff \
 	-append "root=LABEL=dracut rw systemd.log_level=debug systemd.log_target=console rd.retry=3 rd.debug console=ttyS0,115200n81 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing || return 1
     grep -m 1 -q dracut-root-block-success $TESTDIR/result || return 1
@@ -85,7 +85,7 @@ test_setup() {
     )
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-a "debug watchdog" \
-	-d "piix ide-gd_mod ata_piix ext3 sd_mod ib700wdt" \
+	-d "piix ide-gd_mod ata_piix ext3 sd_mod i6300esbwdt" \
 	-f $TESTDIR/initramfs.testing $KVERSION || return 1
 
 #	-o "plymouth network md dmraid multipath fips caps crypt btrfs resume dmsquash-live dm"

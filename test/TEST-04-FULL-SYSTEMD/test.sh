@@ -263,7 +263,7 @@ EOF
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-a "debug watchdog systemd" \
         -o "network" \
-	-d "piix ide-gd_mod ata_piix btrfs sd_mod ib700wdt" \
+	-d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esbwdt" \
 	-f $TESTDIR/initramfs.testing $KVERSION || return 1
 
     rm -rf $TESTDIR/overlay

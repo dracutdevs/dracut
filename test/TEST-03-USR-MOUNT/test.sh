@@ -20,7 +20,7 @@ client_run() {
 	-hdc $TESTDIR/result \
 	-m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-watchdog ib700 -watchdog-action poweroff \
+	-watchdog i6300esb -watchdog-action poweroff \
 	-append "root=LABEL=dracut $client_opts quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
 
@@ -121,7 +121,7 @@ test_setup() {
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-a "debug watchdog" \
         -o "network" \
-	-d "piix ide-gd_mod ata_piix btrfs sd_mod ib700wdt" \
+	-d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esbwdt" \
 	-f $TESTDIR/initramfs.testing $KVERSION || return 1
 
     rm -rf $TESTDIR/overlay
