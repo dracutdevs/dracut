@@ -867,7 +867,7 @@ wait_for_loginit()
 _emergency_shell()
 {
     local _name="$1"
-    if [ -x /lib/systemd/systemd ]; then
+    if [ -n "$DRACUT_SYSTEMD" ]; then
         > /.console_lock
         echo "PS1=\"$_name:\${PWD}# \"" >/etc/profile
         systemctl start emergency.service
