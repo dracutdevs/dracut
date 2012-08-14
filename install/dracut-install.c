@@ -392,10 +392,15 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
         }
 
         if (ret == 0) {
-                log_debug("'%s' already exists", fulldstpath);
+                if (resolvedeps) {
+                        log_debug("'%s' already exists, but checking for any deps", fulldstpath);
+                        ret = resolve_deps(src);
+                } else
+                        log_debug("'%s' already exists", fulldstpath);
+
                 free(fulldstpath);
                 /* dst does already exist */
-                return 0;
+                return ret;
         }
 
         /* check destination directory */
