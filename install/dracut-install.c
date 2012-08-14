@@ -64,7 +64,7 @@ static size_t dir_len(char const *file)
         size_t length;
         /* Strip the basename and any redundant slashes before it.  */
         for (length = strlen(file); 0 < length; length--)
-                if (file[length] == '/')
+                if (file[length] == '/' && file[length-1] != '/')
                         break;
         return length;
 }
@@ -91,7 +91,13 @@ static char *convert_abs_rel(const char *from, const char *target)
                 return strdup(from);
         }
 
-        asprintf(&realtarget, "%s/%s", q, &p[dirlen + 1]);
+        /* dir_len() skips double /'s e.g. //lib64, so we can't skip just one
+         * character - need to skip all leading /'s */
+        rl = strlen(target);
+        for (i = dirlen+1; i < rl; ++i)
+            if (p[i] != '/')
+                break;
+        asprintf(&realtarget, "%s/%s", q, &p[i]);
         free(p);
         free(q);
 
