@@ -12,7 +12,7 @@ install() {
         /etc/udev/udev.conf /etc/group
 
     [ -d ${initdir}/lib/systemd ] || mkdir -p ${initdir}/lib/systemd
-    for _i in ${systemdutildir}/systemd-udevd ${udevdir}/udevd /sbin/udevd; do
+    for _i in ${systemdutildir}/systemd-udevd ${udevdir}/udevd /lib/systemd/systemd-udevd /sbin/udevd; do
         [ -x "$_i" ] || continue
         inst "$_i"
 
@@ -21,6 +21,10 @@ install() {
         fi
         break
     done
+    if ! [[ -e ${initdir}/lib/systemd/systemd-udevd ]]; then
+        derror "Cannot find [systemd-]udevd binary!"
+        exit 1
+    fi
 
     inst_rules 50-udev-default.rules 60-persistent-storage.rules \
         61-persistent-storage-edd.rules 80-drivers.rules 95-udev-late.rules \
