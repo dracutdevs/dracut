@@ -63,7 +63,7 @@ static size_t dir_len(char const *file)
 {
         size_t length;
         /* Strip the basename and any redundant slashes before it.  */
-        for (length = strlen(file); 0 < length; length--)
+        for (length = strlen(file)-1; 0 < length; length--)
                 if (file[length] == '/' && file[length-1] != '/')
                         break;
         return length;
