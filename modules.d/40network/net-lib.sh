@@ -139,6 +139,18 @@ set_ifname() {
     echo "$name$num"
 }
 
+# pxelinux provides macaddr '-' separated, but we need ':'
+fix_bootif() {
+    local macaddr=${1}
+    local IFS='-'
+    macaddr=$(for i in ${macaddr} ; do echo -n $i:; done)
+    macaddr=${macaddr%:}
+    # strip hardware type field from pxelinux
+    [ -n "${macaddr%??:??:??:??:??:??}" ] && macaddr=${macaddr#??:}
+    # return macaddr with lowercase alpha characters expected by udev
+    echo $macaddr | sed 'y/ABCDEF/abcdef/'
+}
+
 ibft_to_cmdline() {
     local iface="" mac="" dev=""
     local dhcp="" ip="" gw="" mask="" hostname=""

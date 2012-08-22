@@ -2,24 +2,14 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
-# pxelinux provides macaddr '-' separated, but we need ':'
-fix_bootif() {
-    local macaddr=${1}
-    local IFS='-'
-    macaddr=$(for i in ${macaddr} ; do echo -n $i:; done)
-    macaddr=${macaddr%:}
-    # strip hardware type field from pxelinux
-    [ -n "${macaddr%??:??:??:??:??:??}" ] && macaddr=${macaddr#??:}
-    # return macaddr with lowercase alpha characters expected by udev
-    echo $macaddr | sed 'y/ABCDEF/abcdef/'
-}
-
 getargbool 0 rd.neednet && NEEDNET=1
 
 # Don't continue if we don't need network
 if [ -z "$netroot" ] && [ ! -e "/tmp/net.ifaces" ] && [ "$NEEDNET" != "1" ]; then
     return
 fi
+
+command -v fix_bootif >/dev/null || . /lib/net-lib.sh
 
 # Write udev rules
 {
