@@ -14,7 +14,7 @@ depends() {
 }
 
 installkernel() {
-    instmods ctcm
+    instmods ctcm lcs qeth qeth_l2 qeth_l3
 }
 
 install() {
