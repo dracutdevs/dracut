@@ -8,15 +8,14 @@ check() {
     type -P multipath >/dev/null || return 1
 
     is_mpath() {
-        local _dev
-        _dev=$(get_maj_min $1)
+        local _dev=$1
         [ -e /sys/dev/block/$_dev/dm/uuid ] || return 1
         [[ $(cat /sys/dev/block/$_dev/dm/uuid) =~ mpath- ]] && return 0
         return 1
     }
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        for_each_host_dev_fs is_mpath || return 1
+        for_each_host_dev_and_slaves is_mpath || return 1
     }
 
     return 0

@@ -11,8 +11,7 @@ check() {
     # booting from root.
 
     is_iscsi() (
-        local _dev
-        _dev=$(get_maj_min $1)
+        local _dev=$1
 
         [[ -L /sys/dev/block/$_dev ]] || return
         cd "$(readlink -f /sys/dev/block/$_dev)"
@@ -23,7 +22,7 @@ check() {
     )
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        for_each_host_dev_fs is_iscsi || return 1
+        for_each_host_dev_and_slaves is_iscsi || return 1
     }
     return 0
 }

@@ -383,7 +383,6 @@ find_mp_fstype() {
     return 1
 }
 
-
 # finds the major:minor of the block device backing the root filesystem.
 find_root_block_device() { find_block_device /; }
 
@@ -425,6 +424,53 @@ check_block_and_slaves() {
     for _x in /sys/dev/block/$2/slaves/*/dev; do
         [[ -f $_x ]] || continue
         check_block_and_slaves $1 $(cat "$_x") && return 0
+    done
+    return 1
+}
+
+check_block_and_slaves_all() {
+    local _x _ret=1
+    [[ -b /dev/block/$2 ]] || return 1 # Not a block device? So sorry.
+    if "$1" $2; then
+          _ret=0
+    fi
+    check_vol_slaves "$@" && return 0
+    if [[ -f /sys/dev/block/$2/../dev ]]; then
+        check_block_and_slaves_all $1 $(cat "/sys/dev/block/$2/../dev") && _ret=0
+    fi
+    [[ -d /sys/dev/block/$2/slaves ]] || return 1
+    for _x in /sys/dev/block/$2/slaves/*/dev; do
+        [[ -f $_x ]] || continue
+        check_block_and_slaves_all $1 $(cat "$_x") && _ret=0
+    done
+    return $_ret
+}
+# for_each_host_dev_and_slaves <func>
+# Execute "<func> <dev>" for every "<dev>" found
+# in ${host_devs[@]} and their slaves
+for_each_host_dev_and_slaves_all()
+{
+    local _func="$1"
+    local _dev
+    local _ret=1
+    for _dev in ${host_devs[@]}; do
+        [[ -b "$_dev" ]] || continue
+        echo host_devs: $_dev
+        if check_block_and_slaves_all $_func $(get_maj_min $_dev); then
+               _ret=0
+        fi
+    done
+    return $_ret
+}
+
+for_each_host_dev_and_slaves()
+{
+    local _func="$1"
+    local _dev
+    for _dev in ${host_devs[@]}; do
+        [[ -b "$_dev" ]] || continue
+        echo host_devs: $_dev
+        check_block_and_slaves_all $_func $(get_maj_min $_dev) && return 0
     done
     return 1
 }
