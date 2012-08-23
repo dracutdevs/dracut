@@ -11,6 +11,19 @@ depends() {
     return 0
 }
 
+get_persistent_dev() {
+    local i _tmp
+    local _dev=${1##*/}
+
+    for i in /dev/disk/by-id/*; do
+        _tmp=$(readlink $i)
+        if [ "$i" = "$_dev" ]; then
+            echo $i
+            return
+        fi
+    done
+}
+
 install() {
     local _d
     dracut_install mount mknod mkdir pidof sleep chroot \
@@ -41,7 +54,14 @@ install() {
     dracut_install switch_root || dfatal "Failed to install switch_root"
 
     inst_simple "$moddir/dracut-lib.sh" "/lib/dracut-lib.sh"
+
+    ## save host_devs which we need bring up
     inst_hook cmdline 00 "$moddir/wait-host-devs.sh"
+    for _dev in ${host_devs[@]}; do
+        _pdev=$(get_persistent_dev $_dev)
+        [ -n "$_pdev" ] && echo $_pdev >> $initdir/etc/host_devs
+    done
+
     inst_hook cmdline 10 "$moddir/parse-root-opts.sh"
     mkdir -p "${initdir}/var"
     [ -x /lib/systemd/systemd-timestamp ] && inst /lib/systemd/systemd-timestamp

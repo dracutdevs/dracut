@@ -455,7 +455,6 @@ for_each_host_dev_and_slaves_all()
     local _ret=1
     for _dev in ${host_devs[@]}; do
         [[ -b "$_dev" ]] || continue
-        echo host_devs: $_dev
         if check_block_and_slaves_all $_func $(get_maj_min $_dev); then
                _ret=0
         fi
@@ -469,7 +468,6 @@ for_each_host_dev_and_slaves()
     local _dev
     for _dev in ${host_devs[@]}; do
         [[ -b "$_dev" ]] || continue
-        echo host_devs: $_dev
         check_block_and_slaves_all $_func $(get_maj_min $_dev) && return 0
     done
     return 1
