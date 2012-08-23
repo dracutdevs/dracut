@@ -321,7 +321,7 @@ static int resolve_deps(const char *src)
 }
 
 /* Install ".<filename>.hmac" file for FIPS self-checks */
-static int hmac_install(const char *src, const char *dst)
+static int hmac_install(const char *src, const char *dst, const char *hmacpath)
 {
         char *srcpath = strdup(src);
         char *dstpath = strdup(dst);
@@ -332,10 +332,20 @@ static int hmac_install(const char *src, const char *dst)
         if (endswith(src, ".hmac"))
                 return 0;
 
+	if (!hmacpath) {
+                hmac_install(src, dst, "/lib/fipscheck");
+                hmac_install(src, dst, "/lib64/fipscheck");
+        }
+
         srcpath[dlen] = '\0';
         dstpath[dir_len(dst)] = '\0';
-        asprintf(&srchmacname, "%s/.%s.hmac", srcpath, &src[dlen + 1]);
-        asprintf(&dsthmacname, "%s/.%s.hmac", dstpath, &src[dlen + 1]);
+        if (hmacpath) {
+                asprintf(&srchmacname, "%s/%s.hmac", hmacpath, &src[dlen + 1]);
+                asprintf(&dsthmacname, "%s/%s.hmac", hmacpath, &src[dlen + 1]);
+        } else {
+                asprintf(&srchmacname, "%s/.%s.hmac", srcpath, &src[dlen + 1]);
+                asprintf(&dsthmacname, "%s/.%s.hmac", dstpath, &src[dlen + 1]);
+        }
         log_debug("hmac cp '%s' '%s')", srchmacname, dsthmacname);
         dracut_install(srchmacname, dsthmacname, false, false, true);
         free(dsthmacname);
@@ -480,7 +490,7 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
                 free(abspath);
                 if (arg_hmac) {
                         /* copy .hmac files also */
-                        hmac_install(src, dst);
+                        hmac_install(src, dst, NULL);
                 }
 
                 return 0;
@@ -491,7 +501,7 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
                         ret += resolve_deps(src);
                 if (arg_hmac) {
                         /* copy .hmac files also */
-                        hmac_install(src, dst);
+                        hmac_install(src, dst, NULL);
                 }
         }
 
