@@ -13,5 +13,4 @@ depends() {
 install() {
     [ -f /etc/fstab.sys ] && inst_simple /etc/fstab.sys
     inst_hook pre-pivot 00 "$moddir/mount-sys.sh"
-    inst_hook cmdline 00 "$moddir/wait-mount-dev.sh"
 }

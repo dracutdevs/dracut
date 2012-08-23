@@ -903,6 +903,22 @@ done
 
 dinfo "*** Including modules done ***"
 
+get_persistent_dev() {
+    local i _tmp
+    local _dev=${1##*/}
+
+    for i in /dev/disk/by-id/*; do
+        _tmp=$(readlink $i)
+        [ "${_tmp##*/}" = "$_dev" ] && echo $i && return
+    done
+}
+
+## save host_devs which we need bring up
+for _dev in ${host_devs[@]}; do
+    _pdev=$(get_persistent_dev $_dev)
+    [ -n "$_pdev" ] && echo $_pdev >> $initdir/etc/host_devs
+done
+
 ## final stuff that has to happen
 if [[ $no_kernel != yes ]]; then
 

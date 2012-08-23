@@ -41,6 +41,7 @@ install() {
     dracut_install switch_root || dfatal "Failed to install switch_root"
 
     inst_simple "$moddir/dracut-lib.sh" "/lib/dracut-lib.sh"
+    inst_hook cmdline 00 "$moddir/wait-host-devs.sh"
     inst_hook cmdline 10 "$moddir/parse-root-opts.sh"
     mkdir -p "${initdir}/var"
     [ -x /lib/systemd/systemd-timestamp ] && inst /lib/systemd/systemd-timestamp
