@@ -271,12 +271,12 @@ splitsep() {
 
     while [ -n "$str" -a "$#" -gt 1 ]; do
         tmp="${str%%$sep*}"
-        eval "$1=${tmp}"
-        str="${str#$tmp}"
+        eval "$1='${tmp}'"
+        str="${str#"$tmp"}"
         str="${str#$sep}"
         shift
     done
-    [ -n "$str" -a -n "$1" ] && eval "$1=$str"
+    [ -n "$str" -a -n "$1" ] && eval "$1='$str'"
     debug_on
     return 0
 }
