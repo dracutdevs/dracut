@@ -521,7 +521,7 @@ Install SOURCE to DEST in DESTROOTDIR with all needed dependencies.\n\
   -d --dir            SOURCE is a directory\n\
   -l --ldd            Also install shebang executables and libraries\n\
   -R --resolvelazy    Only install shebang executables and libraries for all SOURCE files\n\
-  -f --fips           Also install all '.SOURCE.hmac' files\n\
+  -H --fips           Also install all '.SOURCE.hmac' files\n\
   -v --verbose        Show more output\n\
      --debug          Show debug output\n\
      --version        Show package version\n\
