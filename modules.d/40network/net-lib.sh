@@ -294,7 +294,10 @@ ip_to_var() {
             fi
 	    ;;
     esac
-    # anaconda-style argument cluster
+
+    # ip=<ipv4-address> means anaconda-style static config argument cluster:
+    # ip=<ip> gateway=<gw> netmask=<nm> hostname=<host> mtu=<mtu>
+    # ksdevice={link|bootif|ibft|<MAC>|<ifname>}
     if strstr "$autoconf" "*.*.*.*"; then
         ip="$autoconf"
         gw=$(getarg gateway=)
@@ -303,9 +306,12 @@ ip_to_var() {
         dev=$(getarg ksdevice=)
         autoconf="none"
         mtu=$(getarg mtu=)
+
+        # handle special values for ksdevice
         case "$dev" in
-            # ignore fancy values for ksdevice=XXX
-            link|bootif|BOOTIF|ibft|*:*:*:*:*:*) dev="" ;;
+            bootif|BOOTIF) dev=$(fix_bootif $(getarg BOOTIF=)) ;;
+            link) dev="" ;; # FIXME: do something useful with this
+            ibft) dev="" ;; # ignore - ibft is handled elsewhere
         esac
     fi
 }

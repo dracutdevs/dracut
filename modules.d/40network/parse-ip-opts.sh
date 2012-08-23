@@ -17,13 +17,6 @@
 command -v getarg >/dev/null          || . /lib/dracut-lib.sh
 command -v ibft_to_cmdline >/dev/null || . /lib/net-lib.sh
 
-# Don't mix BOOTIF=macaddr from pxelinux and ip= lines
-getarg ip= >/dev/null && getarg BOOTIF= >/dev/null && \
-    die "Mixing BOOTIF and ip= lines is dangerous"
-
-# No more parsing stuff, BOOTIF says everything
-[ -n "$(getarg BOOTIF)" ] && return
-
 if [ -n "$netroot" ] && [ -z "$(getarg ip=)" ] ; then
     # No ip= argument(s) for netroot provided, defaulting to DHCP
     return;
@@ -117,6 +110,11 @@ for p in $(getargs ip=); do
     fi
 
 done
+
+# put BOOTIF in IFACES to make sure it comes up
+if BOOTIF="$(getarg BOOTIF=)"; then
+    IFACES="$IFACES $(fix_bootif $BOOTIF)"
+fi
 
 # This ensures that BOOTDEV is always first in IFACES
 if [ -n "$BOOTDEV" ] && [ -n "$IFACES" ] ; then
