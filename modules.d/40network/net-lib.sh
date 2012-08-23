@@ -34,6 +34,19 @@ iface_has_link() {
     # XXX Do we need to reset the flags here? anaconda never bothered..
 }
 
+find_iface_with_link() {
+    local iface_path="" iface=""
+    for iface_path in /sys/class/net/*; do
+        iface=${iface_path##*/}
+        str_starts "$iface" "lo" && continue
+        if iface_has_link $iface; then
+            echo "$iface"
+            return 0
+        fi
+    done
+    return 1
+}
+
 all_ifaces_up() {
     local iface="" IFACES=""
     [ -e "/tmp/net.ifaces" ] && read IFACES < /tmp/net.ifaces
