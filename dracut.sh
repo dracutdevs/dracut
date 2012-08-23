@@ -133,6 +133,7 @@ Creates initial ramdisk images for preloading modules
   --mount "[DEV] [MP] [FSTYPE] [FSOPTS]"
                         Mount device [DEV] on mountpoint [MP] with filesystem
                         [FSTYPE] and options [FSOPTS] in the initramfs
+  --device "[DEV]"      Bring up [DEV] in initramfs
   -i, --include [SOURCE] [TARGET]
                         Include the files in the SOURCE directory into the
                          Target directory in the final initramfs.
@@ -261,6 +262,7 @@ TEMP=$(unset POSIXLY_CORRECT; getopt \
     --long fscks: \
     --long add-fstab: \
     --long mount: \
+    --long device: \
     --long nofscks: \
     --long ro-mnt \
     --long kmoddir: \
@@ -327,6 +329,7 @@ while :; do
         --fscks)       push fscks_l              "$2"; shift;;
         --add-fstab)   push add_fstab_l          "$2"; shift;;
         --mount)       push fstab_lines          "$2"; shift;;
+        --device)      push host_devs            "$2"; shift;;
         --nofscks)     nofscks_l="yes";;
         --ro-mnt)      ro_mnt_l="yes";;
         -k|--kmoddir)  drivers_dir_l="$2"; shift;;
