@@ -620,6 +620,12 @@ else
             if [[ -e "${_src%/*}/.${_src##*/}.hmac" ]]; then
                 inst "${_src%/*}/.${_src##*/}.hmac" "${_target%/*}/.${_target##*/}.hmac"
             fi
+            if [[ -e "/lib/fipscheck/${_src##*/}.hmac" ]]; then
+                inst "/lib/fipscheck/${_src##*/}.hmac" "/lib/fipscheck/${_target##*/}.hmac"
+            fi
+            if [[ -e "/lib64/fipscheck/${_src##*/}.hmac" ]]; then
+                inst "/lib64/fipscheck/${_src##*/}.hmac" "/lib64/fipscheck/${_target##*/}.hmac"
+            fi
         fi
         ddebug "Installing $_src"
         cp --reflink=auto --sparse=auto -pfL "$_src" "${initdir}/$_target"
@@ -656,6 +662,12 @@ else
                 # install checksum files also
                 if [[ -e "${_src%/*}/.${_src##*/}.hmac" ]]; then
                     inst "${_src%/*}/.${_src##*/}.hmac" "${_dest%/*}/.${_dest##*/}.hmac"
+                fi
+                if [[ -e "/lib/fipscheck/${_src##*/}.hmac" ]]; then
+                    inst "/lib/fipscheck/${_src##*/}.hmac" "/lib/fipscheck/${_dest##*/}.hmac"
+                fi
+                if [[ -e "/lib64/fipscheck/${_src##*/}.hmac" ]]; then
+                    inst "/lib64/fipscheck/${_src##*/}.hmac" "/lib64/fipscheck/${_dest##*/}.hmac"
                 fi
             fi
             _reallib=$(readlink -f "$_src")
