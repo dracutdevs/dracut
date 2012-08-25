@@ -95,7 +95,7 @@ while [ ! -b /dev/nbd0 ]; do
     i=$(( $i + 1))
 done
 
-nbd-client $preopts "$nbdserver" "$nbdport" /dev/nbd0 $opts || exit 1
+nbd-client $preopts "$nbdserver" $nbdport /dev/nbd0 $opts || exit 1
 
 # If we didn't get a root= on the command line, then we need to
 # add the udev rules for mounting the nbd0 device
