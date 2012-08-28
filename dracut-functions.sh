@@ -468,7 +468,7 @@ for_each_host_dev_and_slaves()
     local _dev
     for _dev in ${host_devs[@]}; do
         [[ -b "$_dev" ]] || continue
-        check_block_and_slaves_all $_func $(get_maj_min $_dev) && return 0
+        check_block_and_slaves $_func $(get_maj_min $_dev) && return 0
     done
     return 1
 }
