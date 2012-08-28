@@ -890,7 +890,7 @@ _emergency_shell()
             _ctty=/dev/$_ctty
         fi
         [ -c "$_ctty" ] || _ctty=/dev/tty1
-        strstr "$(setsid --help 2>/dev/null)" "ctty" && CTTY="-c"
+        case "$(/usr/bin/setsid --help 2>&1)" in *--ctty*) CTTY="--ctty";; esac
         setsid $CTTY /bin/sh -i -l 0<$_ctty 1>$_ctty 2>&1
     fi
 }
