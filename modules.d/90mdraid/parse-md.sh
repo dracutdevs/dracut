@@ -1,12 +1,13 @@
 #!/bin/sh
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
-if ! getargbool 1 rd.md -d -n rd_NO_MD; then
+
+MD_UUID=$(getargs rd.md.uuid -d rd_MD_UUID=)
+
+if ! [ -n "$MD_UUID" ] || ! getargbool 1 rd.md -d -n rd_NO_MD; then
     info "rd.md=0: removing MD RAID activation"
     udevproperty rd_NO_MD=1
 else
-    MD_UUID=$(getargs rd.md.uuid -d rd_MD_UUID=)
-
     # rewrite the md rules to only process the specified raid array
     if [ -n "$MD_UUID" ]; then
         for f in /etc/udev/rules.d/65-md-incremental*.rules; do
