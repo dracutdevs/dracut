@@ -145,8 +145,8 @@ ibft_to_cmdline() {
         for iface in /sys/firmware/ibft/ethernet*; do
             [ -e ${iface}/mac ] || continue
             mac=$(read a < ${iface}/mac; echo $a)
-            [ -z "$ifname_mac" ] && continue
-            dev=$(set_ifname ibft $ifname_mac)
+            [ -z "$mac" ] && continue
+            dev=$(set_ifname ibft $mac)
             dhcp=$(read a < ${iface}/dhcp; echo $a)
             if [ -n "$dhcp" ]; then
                 echo "ip=$dev:dhcp"
