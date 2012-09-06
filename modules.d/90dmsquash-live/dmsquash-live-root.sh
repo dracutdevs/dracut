@@ -98,7 +98,7 @@ do_live_overlay() {
         if [ -f /run/initramfs/overlayfs$pathspec -a -w /run/initramfs/overlayfs$pathspec ]; then
             losetup $OVERLAY_LOOPDEV /run/initramfs/overlayfs$pathspec
             if [ -n "$reset_overlay" ]; then
-                dd if=/dev/zero of=$OVERLAY_LOOPDEV bs=64k count=1 2>/dev/null
+                dd if=/dev/zero of=$OVERLAY_LOOPDEV bs=64k count=1 conv=fsync 2>/dev/null
             fi
             setup="yes"
         fi
