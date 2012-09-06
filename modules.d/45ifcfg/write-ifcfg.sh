@@ -105,6 +105,7 @@ for netif in $IFACES ; do
         [ -n "$mtu" ] && echo "MTU=$mtu"
         if [ -f /tmp/net.$netif.lease ]; then
             strstr "$ip" '*:*:*' &&
+            echo "IPV6INIT=yes"
             echo "DHCPV6C=yes"
             echo "BOOTPROTO=dhcp"
             cp /tmp/net.$netif.lease /tmp/ifcfg-leases/dhclient-$uuid-$netif.lease
@@ -112,6 +113,7 @@ for netif in $IFACES ; do
             # If we've booted with static ip= lines, the override file is there
             [ -e /tmp/net.$netif.override ] && . /tmp/net.$netif.override
             if strstr "$ip" '*:*:*'; then
+                echo "IPV6INIT=yes"
                 echo "IPV6_AUTOCONF=no"
                 echo "IPV6ADDR=$ip/$mask"
             else
