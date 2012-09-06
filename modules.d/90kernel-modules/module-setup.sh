@@ -36,7 +36,7 @@ installkernel() {
         }
 
         hostonly='' instmods sr_mod sd_mod scsi_dh scsi_dh_rdac scsi_dh_emc ata_piix
-        hostonly='' instmods pcmcia firewire-ohci
+        hostonly='' instmods pcmcia firewire-ohci yenta_socket
         hostonly='' instmods usb_storage sdhci sdhci-pci
 
         # arm specific modules
