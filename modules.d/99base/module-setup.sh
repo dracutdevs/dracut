@@ -11,19 +11,6 @@ depends() {
     return 0
 }
 
-get_persistent_dev() {
-    local i _tmp
-    local _dev=${1##*/}
-
-    for i in /dev/disk/by-id/*; do
-        _tmp=$(readlink $i)
-        if [ "$i" = "$_dev" ]; then
-            echo $i
-            return
-        fi
-    done
-}
-
 install() {
     local _d
     dracut_install mount mknod mkdir pidof sleep chroot \

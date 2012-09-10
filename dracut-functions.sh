@@ -239,6 +239,21 @@ else
     }
 fi
 
+get_persistent_dev() {
+    local i _tmp _dev
+
+    _dev=$(udevadm info --query=name --name="$1" 2>/dev/null)
+    [ -z "$_dev" ] && return
+
+    for i in /dev/disk/by-id/*; do
+        _tmp=$(udevadm info --query=name --name="$i" 2>/dev/null)
+        if [ "$_tmp" = "$_dev" ]; then
+            echo $i
+            return
+        fi
+    done
+}
+
 # get_fs_env <device>
 # Get and set the ID_FS_TYPE and ID_FS_UUID variable from udev for a device.
 # Example:
