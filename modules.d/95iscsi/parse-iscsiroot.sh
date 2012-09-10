@@ -53,12 +53,6 @@ if [ -n "$iscsiroot" ] ; then
     [ -z "$netroot" ] || [ "$netroot" = "iscsi" ] && netroot=iscsi:$iscsiroot
 fi
 
-modprobe -q qla4xxx
-modprobe -q cxgb3i
-modprobe -q cxgb4i
-modprobe -q bnx2i
-modprobe -q be2iscsi
-
 # iscsi_firmware does not need argument checking
 if [ -n "$iscsi_firmware" ] ; then
     netroot=${netroot:-iscsi}
@@ -68,6 +62,12 @@ fi
 
 # If it's not iscsi we don't continue
 [ "${netroot%%:*}" = "iscsi" ] || return
+
+modprobe -q qla4xxx
+modprobe -q cxgb3i
+modprobe -q cxgb4i
+modprobe -q bnx2i
+modprobe -q be2iscsi
 
 if [ -z "$iscsi_firmware" ] ; then
     type parse_iscsi_root >/dev/null 2>&1 || . /lib/net-lib.sh
