@@ -25,7 +25,7 @@ depends() {
 }
 
 installkernel() {
-    instmods nfs sunrpc ipv6
+    instmods nfs sunrpc ipv6 nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files
 }
 
 install() {
