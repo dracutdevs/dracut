@@ -14,6 +14,11 @@ iface_for_remote_addr() {
     echo $5
 }
 
+iface_for_ip() {
+    set -- $(ip -o addr show to $1)
+    echo $2
+}
+
 iface_for_mac() {
     local interface="" mac="$(echo $1 | sed 'y/ABCDEF/abcdef/')"
     for interface in /sys/class/net/*; do
@@ -45,6 +50,32 @@ find_iface_with_link() {
         fi
     done
     return 1
+}
+
+# get the iface name for the given identifier - either a MAC, IP, or iface name
+iface_name() {
+    case $1 in
+        ??:??:??:??:??:??|??-??-??-??-??-??) iface_for_mac $1 ;;
+        *:*:*|*.*.*.*) iface_for_ip $1 ;;
+        *) echo $1 ;;
+    esac
+}
+
+# list the configured interfaces
+configured_ifaces() {
+    local IFACES="" iface_id="" rv=1
+    [ -e "/tmp/net.ifaces" ] && read IFACES < /tmp/net.ifaces
+    if { pidof udevd || pidof systemd-udevd; } > /dev/null; then
+        for iface_id in $IFACES; do
+            echo $(iface_name $iface_id)
+            rv=0
+        done
+    else
+        warn "configured_ifaces called before udev is running"
+        echo $IFACES
+        [ -n "$IFACES" ] && rv=0
+    fi
+    return $rv
 }
 
 all_ifaces_up() {
