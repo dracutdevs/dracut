@@ -178,7 +178,7 @@ set_ifname() {
         strstr "$n" "$mac" && echo ${n%%:*} && return
     done
     # otherwise, pick a new name and use that
-    while [ -e /sys/class/$name$num ]; do num=$(($num+1)); done
+    while [ -e /sys/class/net/$name$num ]; do num=$(($num+1)); done
     echo "ifname=$name$num:$mac" >> /etc/cmdline.d/45-ifname.conf
     echo "$name$num"
 }
