@@ -13,7 +13,7 @@ depends() {
 
 install() {
     local _d
-    dracut_install mount mknod mkdir pidof sleep chroot \
+    dracut_install mount mknod mkdir pidof sleep chroot findmnt\
         sed ls flock cp mv dmesg rm ln rmmod mkfifo umount readlink setsid
     inst $(command -v modprobe) /sbin/modprobe
 
