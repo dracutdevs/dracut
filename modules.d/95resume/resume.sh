@@ -14,7 +14,7 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
             a_splash="-P splash=n"
         ;;
     esac
-    [ -x $(command -v resume) ] && command resume $a_splash "$resume"
+    [ -x "$(command -v resume)" ] && command resume $a_splash "$resume"
 
     # parsing the output of ls is Bad, but until there is a better way...
     ls -lH "$resume" | (
