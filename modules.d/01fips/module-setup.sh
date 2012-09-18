@@ -24,7 +24,6 @@ installkernel() {
             echo "blacklist $_mod" >> "${initdir}/etc/modprobe.d/fips.conf"
         fi
     done
-    hostonly='' instmods scsi_wait_scan
 }
 
 install() {

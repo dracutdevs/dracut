@@ -32,8 +32,6 @@ mount_boot()
                     udevadm settle --timeout=30
                 fi
                 [ -e $boot ] && break
-                modprobe scsi_wait_scan && rmmod scsi_wait_scan
-                [ -e $boot ] && break
                 sleep 0.5
                 i=$(($i+1))
                 [ $i -gt 40 ] && break

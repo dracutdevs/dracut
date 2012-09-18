@@ -156,7 +156,6 @@ while :; do
     check_finished && break
 
     udevsettle
-    modprobe -q scsi_wait_scan && modprobe -q -r scsi_wait_scan
 
     check_finished && break
 
