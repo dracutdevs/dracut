@@ -54,7 +54,7 @@ add_url_handler() {
 
 export CURL_HOME="/run/initramfs/url-lib"
 mkdir -p $CURL_HOME
-curl_args="--location --retry 3 --fail --show-error"
+curl_args="--location --retry 3 --fail --show-error --insecure"
 
 curl_fetch_url() {
     local url="$1" outloc="$2"
@@ -66,7 +66,10 @@ curl_fetch_url() {
         ( cd "$outdir"; curl $curl_args --remote-name "$url" || return $? )
         outloc="$outdir/$(ls -A $outdir)"
     fi
-    [ -f "$outloc" ] || return 253
+    if ! [ -f "$outloc" ]; then
+	    warn "Downloading '$url' failed!"
+	    return 253
+    fi
     if [ -z "$2" ]; then echo "$outloc" ; fi
 }
 add_url_handler curl_fetch_url http https ftp
