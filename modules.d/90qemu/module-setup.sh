@@ -3,8 +3,8 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 check() {
-    if type -P systemd-detect-virt &>/dev/null; then
-        vm=$(systemd-detect-virt --vm &>/dev/null)
+    if type -P systemd-detect-virt >/dev/null 2>&1; then
+        vm=$(systemd-detect-virt --vm >/dev/null 2>&1)
         (($? != 0)) && return 255
         [[ $vm = "qemu" ]] && return 0
         [[ $vm = "kvm" ]] && return 0

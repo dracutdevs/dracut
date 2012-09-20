@@ -66,10 +66,10 @@ install() {
     inst_rules "$moddir/65-md-incremental-imsm.rules"
 
     # guard against pre-3.0 mdadm versions, that can't handle containers
-    if ! mdadm -Q -e imsm /dev/null &> /dev/null; then
+    if ! mdadm -Q -e imsm /dev/null >/dev/null 2>&1; then
         inst_hook pre-trigger 30 "$moddir/md-noimsm.sh"
     fi
-    if ! mdadm -Q -e ddf /dev/null &> /dev/null; then
+    if ! mdadm -Q -e ddf /dev/null >/dev/null 2>&1; then
         inst_hook pre-trigger 30 "$moddir/md-noddf.sh"
     fi
 
