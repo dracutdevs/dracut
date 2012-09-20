@@ -73,12 +73,34 @@ if [[ ! -e "$testfile" ]]; then
 fi
 rm -f "$testfile"
 
-ismounted() {
-    while read a m a; do
-        [[ "$m" = "$1" ]] && return 0
+find_mount() {
+    local dev mnt etc wanted_dev
+    wanted_dev="$(readlink -e -q $1)"
+    while read dev mnt etc; do
+        [ "$dev" = "$wanted_dev" ] && echo "$dev" && return 0
     done < /proc/mounts
     return 1
 }
+
+# usage: ismounted <mountpoint>
+# usage: ismounted /dev/<device>
+if command -v findmnt >/dev/null; then
+    ismounted() {
+        findmnt "$1" > /dev/null 2>&1
+    }
+else
+    ismounted() {
+        if [ -b "$1" ]; then
+            find_mount "$1" > /dev/null && return 0
+            return 1
+        fi
+
+        while read a m a; do
+            [ "$m" = "$1" ] && return 0
+        done < /proc/mounts
+        return 1
+    }
+fi
 
 # clean up after ourselves no matter how we die.
 cleanup() {
