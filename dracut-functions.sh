@@ -245,7 +245,7 @@ get_persistent_dev() {
     _dev=$(udevadm info --query=name --name="$1" 2>/dev/null)
     [ -z "$_dev" ] && return
 
-    for i in /dev/disk/by-id/*; do
+    for i in /dev/disk/by-uuid/* /dev/disk/by-id/*; do
         _tmp=$(udevadm info --query=name --name="$i" 2>/dev/null)
         if [ "$_tmp" = "$_dev" ]; then
             echo $i
