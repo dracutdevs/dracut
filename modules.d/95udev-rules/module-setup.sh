@@ -37,6 +37,21 @@ install() {
     inst_dir /run/udev
     inst_dir /run/udev/rules.d
 
+    {
+        for i in cdrom tape dialout floppy; do
+            if ! egrep -q "^$i:" "$initdir/etc/group" 2>/dev/null; then
+                if ! egrep "^$i:" /etc/group 2>/dev/null; then
+                        case $i in 
+                            cdrom)   echo "$i:x:11:";;
+                            dialout) echo "$i:x:18:";;
+                            floppy)  echo "$i:x:19:";;
+                            tape)    echo "$i:x:33:";;
+                        esac
+                fi
+            fi
+        done
+    } >> "$initdir/etc/group"
+
     dracut_install -o \
         ${udevdir}/ata_id \
         ${udevdir}/cdrom_id \
