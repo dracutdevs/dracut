@@ -116,7 +116,7 @@ dlog_init() {
 
     if [ -z "$fileloglvl" ]; then
         [ -w "$logfile" ] && fileloglvl=4 || fileloglvl=0
-    elif (( $fileloglvl >= 0 )); then
+    elif (( $fileloglvl > 0 )); then
         __oldumask=$(umask)
         umask 0377
         ! [ -e "$logfile" ] && >"$logfile"
@@ -138,7 +138,7 @@ dlog_init() {
         fi
     fi
 
-    if (( $sysloglvl >= 0 )); then
+    if (( $sysloglvl > 0 )); then
         if ! [ -S /dev/log -a -w /dev/log ] || ! command -v logger >/dev/null
         then
             # We cannot log to syslog, so turn this facility off.
@@ -148,7 +148,7 @@ dlog_init() {
         fi
     fi
 
-    if (($sysloglvl >= 0)) || (($kmsgloglvl >= 0 )); then
+    if (($sysloglvl > 0)) || (($kmsgloglvl > 0 )); then
         if [ -n "$dracutbasedir" ]; then
             readonly syslogfacility=user
         else
