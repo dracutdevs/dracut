@@ -12,6 +12,7 @@ Description=Switch Root
 DefaultDependencies=no
 Requires=initrd-switch-root.service
 Before=initrd-switch-root.service
+After=cryptsetup.target
 AllowIsolate=yes
 Wants=systemd-journald.service
 ConditionPathExists=/etc/initrd-release
