@@ -17,7 +17,7 @@ sfdisk -C 5120 -H 2 -S 32 -L /dev/sdb <<EOF
 ,
 EOF
 
-
+modprobe btrfs
 mkfs.btrfs -L dracut /dev/sda2
 mkfs.btrfs -L dracutusr /dev/sdb2
 btrfs device scan /dev/sda2
