@@ -13,9 +13,10 @@ depends() {
 }
 
 install() {
-    local _i _progs _path
-    inst busybox /usr/bin/busybox
-    for _i in `/sbin/busybox | sed -ne '1,/Currently/!{s/,//g; s/busybox//g; p}'`
+    local _i _progs _path _busybox
+    _busybox=$(type -P busybox)
+    inst $_busybox /usr/bin/busybox
+    for _i in `$_busybox | sed -ne '1,/Currently/!{s/,//g; s/busybox//g; p}'`
     do
         _progs="$_progs $_i"
     done
