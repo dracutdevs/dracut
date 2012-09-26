@@ -13,6 +13,7 @@ depends() {
 
 installkernel() {
     instmods =drivers/md
+    instmods dm_mod
 }
 
 install() {
