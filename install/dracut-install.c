@@ -666,6 +666,81 @@ static int resolve_lazy(int argc, char **argv)
         return ret;
 }
 
+static char *find_binary(const char *src)
+{
+        char *path;
+        char *p, *q;
+        bool end = false;
+        char *newsrc = NULL;
+        path = getenv("PATH");
+
+        if (path == NULL) {
+                log_error("PATH is not set");
+                exit(EXIT_FAILURE);
+        }
+        path = strdup(path);
+        p = path;
+        log_debug("PATH=%s", path);
+
+        do {
+                struct stat sb;
+
+                for (q = p; *q && *q != ':'; q++) ;
+
+                if (*q == '\0')
+                        end = true;
+                else
+                        *q = '\0';
+
+                asprintf(&newsrc, "%s/%s", p, src);
+                p = q + 1;
+
+                if (stat(newsrc, &sb) != 0) {
+                        log_debug("stat(%s) != 0", newsrc);
+                        free(newsrc);
+                        newsrc = NULL;
+                        continue;
+                }
+
+                end = true;
+
+        } while (!end);
+
+        free(path);
+        if (newsrc)
+                log_debug("find_binary(%s) == %s", src, newsrc);
+        return newsrc;
+}
+
+static int install_one(const char *src, const char *dst)
+{
+        int r = 0;
+        int ret;
+
+        if (strchr(src, '/') == NULL) {
+                char *newsrc = find_binary(src);
+                if (newsrc) {
+                        log_debug("dracut_install '%s' '%s'", newsrc, dst);
+                        ret = dracut_install(newsrc, dst, arg_createdir, arg_resolvedeps, true);
+                        if (ret == 0) {
+                                log_debug("dracut_install '%s' '%s' OK", newsrc, dst);
+                        }
+                        free(newsrc);
+                } else {
+                        ret = -1;
+                }
+        } else {
+                ret = dracut_install(src, dst, arg_createdir, arg_resolvedeps, true);
+        }
+
+        if ((ret != 0) && (!arg_optional)) {
+                log_error("ERROR: installing '%s' to '%s'", src, dst);
+                r = EXIT_FAILURE;
+        }
+
+        return r;
+}
+
 static int install_all(int argc, char **argv)
 {
         int r = 0;
@@ -675,50 +750,18 @@ static int install_all(int argc, char **argv)
                 log_debug("Handle '%s'", argv[i]);
 
                 if (strchr(argv[i], '/') == NULL) {
-                        char *path;
-                        char *p, *q;
-                        bool end = false;
-                        path = getenv("PATH");
-                        if (path == NULL) {
-                                log_error("PATH is not set");
-                                exit(EXIT_FAILURE);
-                        }
-                        path = strdup(path);
-                        p = path;
-                        log_debug("PATH=%s", path);
-                        do {
-                                char *newsrc = NULL;
-                                char *dest;
-                                struct stat sb;
-
-                                for (q = p; *q && *q != ':'; q++) ;
-
-                                if (*q == '\0')
-                                        end = true;
-                                else
-                                        *q = '\0';
-
-                                asprintf(&newsrc, "%s/%s", p, argv[i]);
-                                p = q + 1;
-
-                                if (stat(newsrc, &sb) != 0) {
-                                        free(newsrc);
-                                        ret = -1;
-                                        continue;
-                                }
-
-                                dest = strdup(newsrc);
-
+                        char *newsrc = find_binary(argv[i]);
+                        if (newsrc) {
                                 log_debug("dracut_install '%s'", newsrc);
-                                ret = dracut_install(newsrc, dest, arg_createdir, arg_resolvedeps, true);
+                                ret = dracut_install(newsrc, newsrc, arg_createdir, arg_resolvedeps, true);
                                 if (ret == 0) {
-                                        end = true;
                                         log_debug("dracut_install '%s' OK", newsrc);
                                 }
                                 free(newsrc);
-                                free(dest);
-                        } while (!end);
-                        free(path);
+                        } else {
+                                ret = -1;
+                        }
+
                 } else {
                         char *dest = strdup(argv[i]);
                         ret = dracut_install(argv[i], dest, arg_createdir, arg_resolvedeps, true);
@@ -805,11 +848,7 @@ int main(int argc, char **argv)
                 r = install_all(argc - optind, &argv[optind]);
         } else {
                 /* simple "inst src dst" */
-                r = dracut_install(argv[optind], argv[optind + 1], arg_createdir, arg_resolvedeps, true);
-                if ((r != 0) && (!arg_optional)) {
-                        log_error("ERROR: installing '%s' to '%s'", argv[optind], argv[optind + 1]);
-                        r = EXIT_FAILURE;
-                }
+                r = install_one(argv[optind], argv[optind + 1]);
         }
 
         if (arg_optional)
