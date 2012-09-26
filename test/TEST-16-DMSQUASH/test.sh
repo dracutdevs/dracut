@@ -11,7 +11,7 @@ test_check() {
         echo "python-imgcreate not installed"
 	return 1
     fi
-    return 1
+    return 0
 }
 
 test_run() {
