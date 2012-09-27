@@ -1,0 +1,49 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
+
+# We don't support srcdir != builddir
+echo \#buildapi-variable-no-builddir >/dev/null
+
+prefix=/usr
+
+# Little helper function for reading args from the commandline.
+# it automatically handles -a b and -a=b variants, and returns 1 if
+# we need to shift $3.
+read_arg() {
+    # $1 = arg name
+    # $2 = arg value
+    # $3 = arg parameter
+    local rematch='^[^=]*=(.*)$'
+    if [[ $2 =~ $rematch ]]; then
+        read "$1" <<< "${BASH_REMATCH[1]}"
+    else
+        read "$1" <<< "$3"
+        # There is no way to shift our callers args, so
+        # return 1 to indicate they should do it instead.
+        return 1
+    fi
+}
+
+while (($# > 0)); do
+    case "${1%%=*}" in
+        --prefix) read_arg prefix "$@" || shift;;
+        --libdir) read_arg libdir "$@" || shift;;
+        --datadir) read_arg datadir "$@" || shift;;
+        --sysconfdir) read_arg sysconfdir "$@" || shift;;
+        --sbindir) read_arg sbindir "$@" || shift;;
+        --mandir) read_arg mandir "$@" || shift;;
+        *) echo "Ignoring unknown option '$1'";;
+    esac
+    shift
+done
+
+cat > Makefile.inc.tmp <<EOF
+prefix ?= ${prefix}
+libdir ?= ${libdir:-${prefix}/lib}
+datadir ?= ${datadir:-${prefix}/share}
+sysconfdir ?= ${sysconfdir:-${prefix}/etc}
+sbindir ?= ${sbindir:-${prefix}/sbin}
+mandir ?= ${mandir:-${prefix}/share/man}
+EOF
+mv Makefile.inc.tmp Makefile.inc

@@ -1,6 +1,8 @@
 VERSION=023
 GITVERSION=$(shell [ -d .git ] && git rev-list  --abbrev-commit  -n 1 HEAD  |cut -b 1-8)
 
+-include Makefile.inc
+
 prefix ?= /usr
 libdir ?= ${prefix}/lib
 datadir ?= ${prefix}/share
