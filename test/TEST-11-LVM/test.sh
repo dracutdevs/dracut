@@ -11,7 +11,7 @@ test_run() {
 	-hda $TESTDIR/root.ext2 \
 	-m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "root=/dev/dracut/root rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL" \
+	-append "root=/dev/dracut/root rw rd.auto=1 quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     grep -m 1 -q dracut-root-block-success $TESTDIR/root.ext2 || return 1
 }

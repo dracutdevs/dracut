@@ -11,7 +11,7 @@ test_run() {
 	-hda $DISKIMAGE \
 	-m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "root=/dev/dracut/root rd.auto=1 rw rd.retry=10 console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
+	-append "root=/dev/dracut/root rd.auto rw rd.retry=10 console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     grep -m 1 -q dracut-root-block-success $DISKIMAGE || return 1
 }

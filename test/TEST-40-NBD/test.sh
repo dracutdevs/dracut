@@ -58,7 +58,7 @@ client_test() {
 	-net nic,macaddr=$mac,model=e1000 \
 	-net socket,connect=127.0.0.1:12340 \
 	-kernel /boot/vmlinuz-$KVERSION \
-	-append "$cmdline $DEBUGFAIL rd.debug rd.info rd.retry=10 ro quiet console=ttyS0,115200n81 selinux=0" \
+	-append "$cmdline $DEBUGFAIL rd.debug rd.auto rd.info rd.retry=10 ro quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.testing
 
     if [[ $? -ne 0 ]] || ! grep -m 1 -q nbd-OK $TESTDIR/flag.img; then

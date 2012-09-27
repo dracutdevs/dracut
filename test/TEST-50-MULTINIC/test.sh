@@ -91,10 +91,10 @@ test_client() {
     # ...:02 receives a dhcp root-path
 
     # PXE Style BOOTIF=
-#    client_test "MULTINIC root=nfs BOOTIF=" \
-#        00 01 02 \
-#        "root=nfs:192.168.50.1:/nfs/client BOOTIF=52-54-00-12-34-00" \
-#        "eth0" || return 1
+    client_test "MULTINIC root=nfs BOOTIF=" \
+        00 01 02 \
+        "root=nfs:192.168.50.1:/nfs/client BOOTIF=52-54-00-12-34-00" \
+        "eth0" || return 1
 
     # PXE Style BOOTIF= with dhcp root-path
     client_test "MULTINIC root=dhcp BOOTIF=" \

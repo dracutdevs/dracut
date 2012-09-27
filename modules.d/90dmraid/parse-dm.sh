@@ -16,3 +16,9 @@ if  ! command -v mdadm >/dev/null || ! getargbool 1 rd.md.ddf -n rd_NO_MDDDF -n 
     info "rd.md.ddf=0: no MD RAID for SNIA ddf raids"
     udevproperty rd_NO_MDDDF=1
 fi
+
+DM_RAIDS=$(getargs rd.dm.uuid -d rd_DM_UUID=)
+
+if [ -z "$DM_RAIDS" ] && ! getargbool 0 rd.auto; then
+    udevproperty rd_NO_DM=1
+fi

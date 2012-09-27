@@ -47,7 +47,7 @@ else
                 printf -- 'warn "crypto LUKS UUID "%s" not found"\n' $luksid
             } >> $hookdir/emergency/90-crypt.sh
         done
-    else
+    elif getargbool 0 rd.auto; then
         if [ -z "$DRACUT_SYSTEMD" ]; then
             {
                 printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="%s ' $(command -v initqueue)

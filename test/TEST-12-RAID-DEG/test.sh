@@ -32,18 +32,21 @@ client_run() {
 test_run() {
     eval $(grep --binary-files=text -m 1 MD_UUID $TESTDIR/root.ext2)
     echo "MD_UUID=$MD_UUID"
+    read LUKS_UUID < $TESTDIR/luksuuid
 
-    client_run || return 1
+    client_run failme && return 1
+    client_run rd.auto || return 1
 
-    client_run rd.md.uuid=$MD_UUID rd.md.conf=0 || return 1
+    client_run rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.md.conf=0 rd.lvm.vg=dracut || return 1
 
-    client_run rd.md.uuid=failme rd.md.conf=0 failme && return 1
+    client_run rd.luks.uuid=$LUKS_UUID rd.md.uuid=failme rd.md.conf=0 rd.lvm.vg=dracut failme && return 1
 
-    client_run rd.lvm=0 failme && return 1
-    client_run rd.lvm.vg=failme failme && return 1
-    client_run rd.lvm.vg=dracut || return 1
-    client_run rd.lvm.lv=dracut/failme failme && return 1
-    client_run rd.lvm.lv=dracut/root || return 1
+    client_run rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.lvm=0 failme && return 1
+    client_run rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.lvm=0 rd.auto=1 failme && return 1
+    client_run rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.lvm.vg=failme failme && return 1
+    client_run rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.lvm.vg=dracut || return 1
+    client_run rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.lvm.lv=dracut/failme failme && return 1
+    client_run rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.lvm.lv=dracut/root || return 1
     return 0
 }
 
@@ -107,6 +110,7 @@ test_setup() {
     grep -m 1 -q dracut-root-block-created $TESTDIR/root.ext2 || return 1
     eval $(grep --binary-files=text -m 1 MD_UUID $TESTDIR/root.ext2)
     eval $(grep -a -m 1 ID_FS_UUID $TESTDIR/root.ext2)
+    echo $ID_FS_UUID > $TESTDIR/luksuuid
 
     (
 	export initdir=$TESTDIR/overlay

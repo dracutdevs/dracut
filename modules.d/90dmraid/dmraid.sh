@@ -6,38 +6,42 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 DM_RAIDS=$(getargs rd.dm.uuid -d rd_DM_UUID=)
 
-DM_CLEANUP="no"
+if [ -n "$DM_RAIDS" ] || getargbool 0 rd.auto; then
 
-# run dmraid if udev has settled
-info "Scanning for dmraid devices $DM_RAIDS"
-SETS=$(dmraid -c -s)
+    DM_CLEANUP="no"
 
-if [ "$SETS" = "no raid disks" -o "$SETS" = "no raid sets" ]; then
-    return
-fi
+    # run dmraid if udev has settled
+    info "Scanning for dmraid devices $DM_RAIDS"
+    SETS=$(dmraid -c -s)
 
-info "Found dmraid sets:"
-echo $SETS|vinfo
+    if [ "$SETS" = "no raid disks" -o "$SETS" = "no raid sets" ]; then
+        return
+    fi
 
-if [ -n "$DM_RAIDS" ]; then
+    info "Found dmraid sets:"
+    echo $SETS|vinfo
+
+    if [ -n "$DM_RAIDS" ]; then
     # only activate specified DM RAIDS
-    for r in $DM_RAIDS; do
-        for s in $SETS; do
-            if [ "${s##$r}" != "$s" ]; then
-                info "Activating $s"
-                dmraid -ay -i -p --rm_partitions "$s" 2>&1 | vinfo
-                [ -e "/dev/mapper/$s" ] && kpartx -a -p p "/dev/mapper/$s" 2>&1 | vinfo
-                udevsettle
-            fi
+        for r in $DM_RAIDS; do
+            for s in $SETS; do
+                if [ "${s##$r}" != "$s" ]; then
+                    info "Activating $s"
+                    dmraid -ay -i -p --rm_partitions "$s" 2>&1 | vinfo
+                    [ -e "/dev/mapper/$s" ] && kpartx -a -p p "/dev/mapper/$s" 2>&1 | vinfo
+                    udevsettle
+                fi
+            done
         done
-    done
-else
+    else
     # scan and activate all DM RAIDS
-    for s in $SETS; do
-        info "Activating $s"
-        dmraid -ay -i -p --rm_partitions "$s" 2>&1 | vinfo
-        [ -e "/dev/mapper/$s" ] && kpartx -a -p p "/dev/mapper/$s" 2>&1 | vinfo
-    done
-fi
+        for s in $SETS; do
+            info "Activating $s"
+            dmraid -ay -i -p --rm_partitions "$s" 2>&1 | vinfo
+            [ -e "/dev/mapper/$s" ] && kpartx -a -p p "/dev/mapper/$s" 2>&1 | vinfo
+        done
+    fi
 
-need_shutdown
+    need_shutdown
+
+fi
