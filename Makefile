@@ -61,7 +61,7 @@ indent:
 
 doc: $(manpages) dracut.html
 
-ifeq ($(enable_documentation),yes)
+ifneq ($(enable_documentation),no)
 all: doc
 endif
 
@@ -98,7 +98,7 @@ install: dracut-version.sh
 	install -m 0755 dracut-logger.sh $(DESTDIR)$(pkglibdir)/dracut-logger.sh
 	install -m 0755 dracut-initramfs-restore.sh $(DESTDIR)$(pkglibdir)/dracut-initramfs-restore
 	cp -arx modules.d $(DESTDIR)$(pkglibdir)
-ifeq ($(enable_documentation),yes)
+ifneq ($(enable_documentation),no)
 	for i in $(man1pages); do install -m 0644 $$i $(DESTDIR)$(mandir)/man1/$${i##*/}; done
 	for i in $(man5pages); do install -m 0644 $$i $(DESTDIR)$(mandir)/man5/$${i##*/}; done
 	for i in $(man7pages); do install -m 0644 $$i $(DESTDIR)$(mandir)/man7/$${i##*/}; done
