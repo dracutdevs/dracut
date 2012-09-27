@@ -1033,8 +1033,9 @@ if [[ $do_hardlink = yes ]] ; then
     }
 fi
 
+rm -f "$outfile"
 dinfo "*** Creating image file ***"
-if ! ( cd "$initdir"; find . |cpio -R 0:0 -H newc -o --quiet| \
+if ! ( umask 077; cd "$initdir"; find . |cpio -R 0:0 -H newc -o --quiet| \
     $compress > "$outfile"; ); then
     dfatal "dracut: creation of $outfile failed"
     exit 1
