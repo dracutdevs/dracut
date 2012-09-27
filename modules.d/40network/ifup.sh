@@ -88,13 +88,6 @@ do_ipv6auto() {
     wait_for_if_up $netif
 
     [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
-
-    namesrv=$(getargs nameserver)
-    if  [ -n "$namesrv" ] ; then
-        for s in $namesrv; do
-            echo nameserver $s
-        done
-    fi >> /tmp/net.$netif.resolv.conf
 }
 
 # Handle static ip configuration
@@ -115,13 +108,6 @@ do_static() {
 
     [ -n "$gw" ] && echo ip route add default via $gw dev $netif > /tmp/net.$netif.gw
     [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
-
-    namesrv=$(getargs nameserver)
-    if  [ -n "$namesrv" ] ; then
-        for s in $namesrv; do
-            echo nameserver $s
-        done
-    fi >> /tmp/net.$netif.resolv.conf
 }
 
 # loopback is always handled the same way
@@ -219,6 +205,14 @@ if [ "$netif" = "$vlanname" ] && [ ! -e /tmp/net.$vlanname.up ]; then
     wait_for_if_up "$phydevice"
     ip link add dev "$vlanname" link "$phydevice" type vlan id "$(get_vid $vlanname; echo $?)"
 fi
+
+# setup nameserver
+namesrv=$(getargs nameserver)
+if  [ -n "$namesrv" ] ; then
+    for s in $namesrv; do
+        echo nameserver $s
+    done
+fi >> /tmp/net.$netif.resolv.conf
 
 # No ip lines default to dhcp
 ip=$(getarg ip)
