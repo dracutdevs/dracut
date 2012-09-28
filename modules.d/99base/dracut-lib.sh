@@ -109,7 +109,7 @@ getarg() {
             -d) _deprecated=1; shift;;
             -y) if _dogetarg $2 >/dev/null; then
                     if [ "$_deprecated" = "1" ]; then
-                        [ -n "$_newoption" ] && warn "Option '$2' is deprecated, use '$_newoption' instead." || warn "Option '$2' is deprecated."
+                        [ -n "$_newoption" ] && warn "Kernel command line option '$2' is deprecated, use '$_newoption' instead." || warn "Option '$2' is deprecated."
                     fi
                     echo 1
                     debug_on
@@ -120,7 +120,7 @@ getarg() {
             -n) if _dogetarg $2 >/dev/null; then
                     echo 0;
                     if [ "$_deprecated" = "1" ]; then
-                        [ -n "$_newoption" ] && warn "Option '$2' is deprecated, use '$_newoption=0' instead." || warn "Option '$2' is deprecated."
+                        [ -n "$_newoption" ] && warn "Kernel command line option '$2' is deprecated, use '$_newoption=0' instead." || warn "Option '$2' is deprecated."
                     fi
                     debug_on
                     return 1
@@ -132,7 +132,7 @@ getarg() {
                 fi
                 if _dogetarg $1; then
                     if [ "$_deprecated" = "1" ]; then
-                        [ -n "$_newoption" ] && warn "Option '$1' is deprecated, use '$_newoption' instead." || warn "Option '$1' is deprecated."
+                        [ -n "$_newoption" ] && warn "Kernel command line option '$1' is deprecated, use '$_newoption' instead." || warn "Option '$1' is deprecated."
                     fi
                     debug_on
                     return 0;
