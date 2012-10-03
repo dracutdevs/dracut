@@ -2,7 +2,7 @@
 
 # i18n
 i18n_vars="/etc/sysconfig/keyboard:KEYTABLE-KEYMAP /etc/sysconfig/i18n:SYSFONT-FONT,FONTACM-FONT_MAP,FONT_UNIMAP"
-omit_drivers+=" .*/fs/ocfs/.* "
+omit_drivers+=" .*/fs/ocfs/.*  i2o_scsi"
 stdloglvl=3
 install_items+=" vi /etc/virc ps grep cat rm "
 prefix="/"

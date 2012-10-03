@@ -1478,7 +1478,6 @@ instmods() {
                 ((_ret+=$?))
                 ;;
             --*) _mpargs+=" $_mod" ;;
-            i2o_scsi) return 0;; # Do not load this diagnostic-only module
             *)
                 _mod=${_mod##*/}
                 # if we are already installed, skip this module and go on
