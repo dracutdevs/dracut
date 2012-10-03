@@ -877,9 +877,7 @@ _emergency_shell()
         > /.console_lock
         echo "PS1=\"$_name:\${PWD}# \"" >/etc/profile
         systemctl start emergency.service
-        debug_off
-        while [ -e /.console_lock ]; do sleep 1; done
-        debug_on
+        rm -f /.console_lock
     else
         echo "Dropping to debug shell."
         echo
@@ -897,7 +895,7 @@ _emergency_shell()
         fi
         [ -c "$_ctty" ] || _ctty=/dev/tty1
         case "$(/usr/bin/setsid --help 2>&1)" in *--ctty*) CTTY="--ctty";; esac
-        setsid $CTTY /bin/sh -i -l 0<$_ctty 1>$_ctty 2>&1
+        setsid $CTTY /bin/sh -i -l 0<>$_ctty 1<>$_ctty 2<>$_ctty
     fi
 }
 
