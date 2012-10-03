@@ -1133,6 +1133,9 @@ check_mount() {
     local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
     local _ret
     local _moddep
+
+    [ "${#host_fs_types[*]}" -le 0 ] && return 1
+
     # If we are already scheduled to be loaded, no need to check again.
     strstr " $mods_to_load " " $_mod " && return 0
     strstr " $mods_checked_as_dep " " $_mod " && return 1
@@ -1147,12 +1150,22 @@ check_mount() {
         return 1
     fi
 
-    if [ "${#host_fs_types[*]}" -gt 0 ]; then
-        module_check_mount $_mod || return 1
+    if strstr " $dracutmodules $add_dracutmodules $force_add_dracutmodules" " $_mod "; then
+        module_check_mount $_mod; ret=$?
+
+        # explicit module, so also accept ret=255
+        [[ $ret = 0 || $ret = 255 ]] || return 1
     else
-        # skip this module
-        return 1
+        # module not in our list
+        if [[ $dracutmodules = all ]]; then
+            # check, if we can and should install this module
+            module_check_mount $_mod || return 1
+        else
+            # skip this module
+            return 1
+        fi
     fi
+
 
     for _moddep in $(module_depends $_mod); do
         # handle deps as if they were manually added
