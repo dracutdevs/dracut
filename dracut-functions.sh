@@ -1400,9 +1400,27 @@ dracut_kernel_post() {
     [[ $DRACUT_KERNEL_LAZY_HASHDIR ]] && rm -fr "$DRACUT_KERNEL_LAZY_HASHDIR"
 }
 
+module_is_host_only() (
+    local _mod=$1
+    _mod=${_mod##*/}
+    _mod=${_mod%.ko}
+
+    [[ "$add_drivers" =~ " ${_mod} " ]] && return 0
+
+    # check if module is loaded
+    [[ -d $(echo /sys/module/${_mod//-/_}|{ read a b; echo $a; }) ]] && return 0
+
+    # check if module is loadable on the current kernel
+    # this covers the case, where a new module is introduced
+    # or a module was renamed
+    # or a module changed from builtin to a module
+    modinfo -F filename "$_mod" &>/dev/null || return 0
+
+    return 1
+)
+
 find_kernel_modules_by_path () (
     local _OLDIFS
-    if ! [[ $hostonly ]]; then
         _OLDIFS=$IFS
         IFS=:
         while read a rest; do
@@ -1410,14 +1428,6 @@ find_kernel_modules_by_path () (
             echo $srcmods/$a
         done < $srcmods/modules.dep
         IFS=$_OLDIFS
-    else
-        ( cd /sys/module; echo *; ) \
-        | xargs -r modinfo -F filename -k $kernel 2>/dev/null \
-        | while read a; do
-            [[ $a = */kernel*/$1/* ]] || continue
-            echo $a
-        done
-    fi
     return 0
 )
 
@@ -1470,11 +1480,11 @@ instmods() {
                     dinfo "Omitting driver ${_mod##$srcmods}"
                     return 0
                 fi
+
                 # If we are building a host-specific initramfs and this
                 # module is not already loaded, move on to the next one.
                 [[ $hostonly ]] \
-                    && ! [[ -d $(echo /sys/module/${_mod//-/_}|{ read a b; echo $a; }) ]] \
-                    && ! [[ "$add_drivers" =~ " ${_mod} " ]] \
+                    && ! module_is_host_only "$_mod" \
                     && return 0
 
                 if [[ "$_check" = "yes" ]] || ! [[ $DRACUT_KERNEL_LAZY_HASHDIR ]]; then
