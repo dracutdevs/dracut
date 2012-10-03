@@ -291,6 +291,9 @@ static int resolve_deps(const char *src)
                 if (strstr(buf, "loader cannot load itself"))
                         break;
 
+                if (strstr(buf, "not regular file"))
+                        break;
+
                 p = strstr(buf, "/");
                 if (p) {
                         int r;
@@ -408,7 +411,7 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
         }
 
         if (ret == 0) {
-                if (resolvedeps) {
+                if (resolvedeps && S_ISREG(sb.st_mode) && (sb.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))) {
                         log_debug("'%s' already exists, but checking for any deps", fulldstpath);
                         ret = resolve_deps(src);
                 } else
