@@ -89,6 +89,7 @@ Creates initial ramdisk images for preloading modules
                         firmwares, separated by :
   --kernel-only         Only install kernel drivers and firmware files
   --no-kernel           Do not install kernel drivers and firmware files
+  --kernel-cmdline [PARAMETERS] Specify default kernel command line parameters
   --strip               Strip binaries in the initramfs
   --nostrip             Do not strip binaries in the initramfs (default)
   --hardlink            Hardlink files in the initramfs (default)
@@ -275,6 +276,7 @@ TEMP=$(unset POSIXLY_CORRECT; getopt \
     --long force \
     --long kernel-only \
     --long no-kernel \
+    --long kernel-cmdline: \
     --long strip \
     --long nostrip \
     --long hardlink \
@@ -330,6 +332,7 @@ while :; do
         --add-fstab)   push add_fstab_l          "$2"; shift;;
         --mount)       push fstab_lines          "$2"; shift;;
         --device)      push host_devs            "$2"; shift;;
+        --kernel-cmdline) push kernel_cmdline_l  "$2"; shift;;
         --nofscks)     nofscks_l="yes";;
         --ro-mnt)      ro_mnt_l="yes";;
         -k|--kmoddir)  drivers_dir_l="$2"; shift;;
@@ -646,6 +649,12 @@ if (( ${#omit_drivers_l[@]} )); then
 fi
 omit_drivers=${omit_drivers/-/_}
 
+if (( ${#kernel_cmdline_l[@]} )); then
+    while pop kernel_cmdline_l val; do
+        kernel_cmdline+=" $val "
+    done
+fi
+
 omit_drivers_corrected=""
 for d in $omit_drivers; do
     strstr " $drivers $add_drivers " " $d " && continue
@@ -927,6 +936,8 @@ fi
 
 if [[ $kernel_only != yes ]]; then
     (( ${#install_items[@]} > 0 )) && dracut_install  ${install_items[@]}
+
+    echo "$kernel_cmdline" >> "${initdir}/etc/cmdline.d/01-default.conf"
 
     while pop fstab_lines line; do
         echo "$line 0 0" >> "${initdir}/etc/fstab"
