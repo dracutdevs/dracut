@@ -869,6 +869,26 @@ inst_rule_programs() {
     fi
 }
 
+# attempt to install any programs specified in a udev rule
+inst_rule_group_owner() {
+    local i
+
+    if grep -qE 'OWNER=?"[^ "]+' "$1"; then
+        for i in $(grep -E 'OWNER=?"[^ "]+' "$1" | sed -r 's/.*OWNER=?"([^ "]+).*/\1/'); do
+            if ! egrep -q "^$i:" "$initdir/etc/passwd" 2>/dev/null; then
+                egrep "^$i:" /etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
+            fi
+        done
+    fi
+    if grep -qE 'GROUP=?"[^ "]+' "$1"; then
+        for i in $(grep -E 'GROUP=?"[^ "]+' "$1" | sed -r 's/.*GROUP=?"([^ "]+).*/\1/'); do
+            if ! egrep -q "^$i:" "$initdir/etc/group" 2>/dev/null; then
+                egrep "^$i:" /etc/group 2>/dev/null >> "$initdir/etc/group"
+            fi
+        done
+    fi
+}
+
 # udev rules always get installed in the same place, so
 # create a function to install them to make life simpler.
 inst_rules() {
@@ -882,6 +902,7 @@ inst_rules() {
                 if [[ -f $r/$_rule ]]; then
                     _found="$r/$_rule"
                     inst_rule_programs "$_found"
+                    inst_rule_group_owner "$_found"
                     inst_simple "$_found"
                 fi
             done
@@ -890,6 +911,7 @@ inst_rules() {
             if [[ -f ${r}$_rule ]]; then
                 _found="${r}$_rule"
                 inst_rule_programs "$_found"
+                inst_rule_group_owner "$_found"
                 inst_simple "$_found" "$_target/${_found##*/}"
             fi
         done
