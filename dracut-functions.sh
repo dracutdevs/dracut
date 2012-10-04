@@ -837,8 +837,8 @@ inst_rule_programs() {
             dracut_install "$_bin"
         done
     fi
-    if grep -qE 'RUN==?"[^ "]+' "$1"; then
-        for _prog in $(grep -E 'RUN==?"[^ "]+' "$1" | sed -r 's/.*RUN==?"([^ "]+).*/\1/'); do
+    if grep -qE 'RUN[+=]=?"[^ "]+' "$1"; then
+        for _prog in $(grep -E 'RUN[+=]=?"[^ "]+' "$1" | sed -r 's/.*RUN[+=]=?"([^ "]+).*/\1/'); do
             if [ -x ${udevdir}/$_prog ]; then
                 _bin=${udevdir}/$_prog
             else
