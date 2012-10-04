@@ -38,7 +38,7 @@ install() {
     _nsslibs=${_nsslibs#|}
     _nsslibs=${_nsslibs%|}
 
-    inst_libdir_file -n "$_nsslibs" 'libnss*.so*'
+    inst_libdir_file -n "$_nsslibs" 'libnss_*.so*'
 
     inst_hook cmdline 90 "$moddir/parse-cifsroot.sh"
     inst "$moddir/cifsroot.sh" "/sbin/cifsroot"

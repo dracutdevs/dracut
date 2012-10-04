@@ -184,7 +184,7 @@ test_setup() {
         _nsslibs=${_nsslibs#|}
         _nsslibs=${_nsslibs%|}
 
-        inst_libdir_file -n "$_nsslibs" 'libnss*.so*'
+        inst_libdir_file -n "$_nsslibs" 'libnss_*.so*'
 
         inst /etc/nsswitch.conf /etc/nsswitch.conf
         inst /etc/passwd /etc/passwd
@@ -225,7 +225,7 @@ test_setup() {
         _nsslibs=${_nsslibs#|}
         _nsslibs=${_nsslibs%|}
 
-        inst_libdir_file -n "$_nsslibs" 'libnss*.so*'
+        inst_libdir_file -n "$_nsslibs" 'libnss_*.so*'
 
         cp -a /etc/ld.so.conf* $initdir/etc
         sudo ldconfig -r "$initdir"
