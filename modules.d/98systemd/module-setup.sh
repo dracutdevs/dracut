@@ -29,6 +29,7 @@ install() {
         $systemdutildir/systemd-fsck \
         $systemdutildir/systemd-udevd \
         $systemdutildir/systemd-journald \
+        $systemdutildir/systemd-sysctl \
         $systemdsystemunitdir/emergency.target \
         $systemdsystemunitdir/sysinit.target \
         $systemdsystemunitdir/basic.target \
@@ -56,6 +57,7 @@ install() {
         $systemdsystemunitdir/systemd-ask-password-plymouth.path \
         $systemdsystemunitdir/systemd-journald.socket \
         $systemdsystemunitdir/systemd-ask-password-console.service \
+        $systemdsystemunitdir/emergency.service \
         $systemdsystemunitdir/halt.service \
         $systemdsystemunitdir/poweroff.service \
         $systemdsystemunitdir/systemd-reboot.service \
@@ -105,7 +107,7 @@ install() {
 
     ln -fs $systemdutildir/systemd "$initdir/init"
 
-    inst_simple "$moddir/emergency.service" ${systemdsystemunitdir}/emergency.service
+    inst_simple "$moddir/dracut-emergency.service" ${systemdsystemunitdir}/dracut-emergency.service
     inst_simple "$moddir/rescue.service" ${systemdsystemunitdir}/rescue.service
     ln -fs "basic.target" "${initdir}${systemdsystemunitdir}/default.target"
 

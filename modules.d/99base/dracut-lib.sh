@@ -876,7 +876,7 @@ _emergency_shell()
     if [ -n "$DRACUT_SYSTEMD" ]; then
         > /.console_lock
         echo "PS1=\"$_name:\${PWD}# \"" >/etc/profile
-        systemctl start emergency.service
+        systemctl start dracut-emergency.service
         rm -f /.console_lock
     else
         echo "Dropping to debug shell."
