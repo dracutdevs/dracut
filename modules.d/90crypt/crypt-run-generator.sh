@@ -23,6 +23,9 @@ if strstr "$(cryptsetup --help)" "allow-discards"; then
 fi
 
 echo "$luks $dev none $allowdiscards" >> /etc/crypttab
-systemctl daemon-reload
-systemctl start cryptsetup.target
+
+if command -v systemctl >/dev/null; then
+    systemctl daemon-reload
+    systemctl start cryptsetup.target
+fi
 exit 0
