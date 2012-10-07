@@ -45,7 +45,7 @@ find_binary() {
         fi
     fi
 
-    type -P $1
+    type -P ${1##*/}
 }
 
 if ! [[ $dracutbasedir ]]; then
