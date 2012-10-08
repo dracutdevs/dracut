@@ -54,7 +54,8 @@ add_url_handler() {
 
 export CURL_HOME="/run/initramfs/url-lib"
 mkdir -p $CURL_HOME
-curl_args="--location --retry 3 --fail --show-error --insecure"
+curl_args="--location --retry 3 --fail --show-error"
+getargbool 0 rd.noverifyssl && curl_args+=" --insecure"
 
 curl_fetch_url() {
     local url="$1" outloc="$2"
