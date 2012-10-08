@@ -827,47 +827,47 @@ inst_rule_programs() {
 
     if grep -qE 'PROGRAM==?"[^ "]+' "$1"; then
         for _prog in $(grep -E 'PROGRAM==?"[^ "]+' "$1" | sed -r 's/.*PROGRAM==?"([^ "]+).*/\1/'); do
+            _bin=""
             if [ -x ${udevdir}/$_prog ]; then
                 _bin=${udevdir}/$_prog
-            else
+            elif [[ "${_prog/\$\{/}" != "$_prog" ]]; then
                 _bin=$(find_binary "$_prog") || {
                     dinfo "Skipping program $_prog using in udev rule ${1##*/} as it cannot be found"
                     continue;
                 }
             fi
 
-            #dinfo "Installing $_bin due to it's use in the udev rule $(${1##*/})"
-            dracut_install "$_bin"
+            [[ $_bin ]] && dracut_install "$_bin"
         done
     fi
     if grep -qE 'RUN[+=]=?"[^ "]+' "$1"; then
         for _prog in $(grep -E 'RUN[+=]=?"[^ "]+' "$1" | sed -r 's/.*RUN[+=]=?"([^ "]+).*/\1/'); do
+            _bin=""
             if [ -x ${udevdir}/$_prog ]; then
                 _bin=${udevdir}/$_prog
-            else
+            elif [[ "${_prog/\$\{/}" != "$_prog" ]]; then
                 _bin=$(find_binary "$_prog") || {
                     dinfo "Skipping program $_prog using in udev rule ${1##*/} as it cannot be found"
                     continue;
                 }
             fi
 
-            #dinfo "Installing $_bin due to it's use in the udev rule $(${1##*/})"
-            dracut_install "$_bin"
+            [[ $_bin ]] && dracut_install "$_bin"
         done
     fi
     if grep -qE 'IMPORT\{program\}==?"[^ "]+' "$1"; then
         for _prog in $(grep -E 'IMPORT\{program\}==?"[^ "]+' "$1" | sed -r 's/.*IMPORT\{program\}==?"([^ "]+).*/\1/'); do
+            _bin=""
             if [ -x ${udevdir}/$_prog ]; then
                 _bin=${udevdir}/$_prog
-            else
+            elif [[ "${_prog/\$\{/}" != "$_prog" ]]; then
                 _bin=$(find_binary "$_prog") || {
                     dinfo "Skipping program $_prog using in udev rule ${1##*/} as it cannot be found"
                     continue;
                 }
             fi
 
-            #dinfo "Installing $_bin due to it's use in the udev rule $(${1##*/})"
-            dracut_install "$_bin"
+            [[ $_bin ]] && dracut_install "$_bin"
         done
     fi
 }
