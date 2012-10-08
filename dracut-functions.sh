@@ -563,9 +563,12 @@ if [[ $DRACUT_INSTALL ]]; then
     }
 
     dracut_install() {
+        local ret
         #dinfo "initdir=$initdir $DRACUT_INSTALL -l $@"
         $DRACUT_INSTALL ${initdir+-D "$initdir"} -a ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@"
-        (($? != 0)) && derror $DRACUT_INSTALL ${initdir+-D "$initdir"} -a ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@" || :
+        ret=$?
+        (($ret != 0)) && derror $DRACUT_INSTALL ${initdir+-D "$initdir"} -a ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@" || :
+        return $ret
     }
 
     inst_library() {
