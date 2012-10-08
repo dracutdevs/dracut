@@ -14,14 +14,19 @@ run_server() {
     # Start server first
     echo "MULTINIC TEST SETUP: Starting DHCP/NFS server"
 
-    $testdir/run-qemu -hda $TESTDIR/server.ext3 -m 512M -nographic \
-        -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
-        -net socket,listen=127.0.0.1:12350 \
+    fsck -a $TESTDIR/server.ext3 || return 1
+    $testdir/run-qemu \
+        -hda $TESTDIR/server.ext3 \
+        -m 512M \
+        -nographic \
+        -netdev socket,mcast=230.0.0.1:12320,id=net0 \
+        -net nic,macaddr=52:54:01:12:34:56,model=e1000,netdev=net0 \
         -serial $SERIAL \
         -watchdog i6300esb -watchdog-action poweroff \
         -kernel /boot/vmlinuz-$KVERSION \
-        -append "selinux=0 root=/dev/sda rootfstype=ext3 rd.debug rd.info rw loglevel=77 console=ttyS0,115200n81" \
-        -initrd $TESTDIR/initramfs.server -pidfile $TESTDIR/server.pid -daemonize || return 1
+        -append "rd.debug loglevel=77 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
+        -initrd $TESTDIR/initramfs.server \
+        -pidfile $TESTDIR/server.pid -daemonize || return 1
     sudo chmod 644 $TESTDIR/server.pid || return 1
 
     # Cleanup the terminal if we have one
@@ -48,11 +53,12 @@ client_test() {
     fi
 
     $testdir/run-qemu -hda $TESTDIR/client.img -m 512M -nographic \
-        -net nic,macaddr=52:54:00:12:34:$mac1,model=e1000 \
-        -net nic,macaddr=52:54:00:12:34:$mac2,model=e1000 \
-        -net nic,macaddr=52:54:00:12:34:$mac3,model=e1000 \
-        -net socket,connect=127.0.0.1:12350 \
-        -hdc /dev/null \
+        -netdev socket,mcast=230.0.0.1:12320,id=net0 \
+        -net nic,netdev=net0,macaddr=52:54:00:12:34:$mac1,model=e1000 \
+        -netdev socket,mcast=230.0.0.1:12320,id=net1 \
+        -net nic,netdev=net1,macaddr=52:54:00:12:34:$mac2,model=e1000 \
+        -netdev socket,mcast=230.0.0.1:12320,id=net2 \
+        -net nic,netdev=net2,macaddr=52:54:00:12:34:$mac3,model=e1000 \
         -watchdog i6300esb -watchdog-action poweroff \
         -kernel /boot/vmlinuz-$KVERSION \
         -append "$cmdline $DEBUGFAIL rd.retry=5 rd.debug rd.info  ro rd.systemd.log_level=debug console=ttyS0,115200n81 selinux=0 rd.copystate rd.chroot init=/sbin/init" \
