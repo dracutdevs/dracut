@@ -12,6 +12,15 @@ export TERM=linux
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 . /lib/dracut-lib.sh
 
+# if "kexec" was installed after creating the initramfs, we try to copy it from the real root
+# libz normally is pulled in via kmod/modprobe and udevadm
+if [ "$ACTION" = "kexec" ] && ! command -v kexec >/dev/null 2>&1; then
+    for p in /usr/sbin /usr/bin /sbin /bin; do
+        cp -a /oldroot/${p}/kexec $p >/dev/null 2>&1 && break
+    done
+    hash kexec
+fi
+
 trap "emergency_shell --shutdown shutdown Signal caught!" 0
 getarg 'rd.break=pre-shutdown' && emergency_shell --shutdown pre-shutdown "Break before pre-shutdown"
 
@@ -56,10 +65,20 @@ done
 _check_shutdown final
 
 getarg 'rd.break=shutdown' && emergency_shell --shutdown shutdown "Break before shutdown"
-[ "$ACTION" = "reboot" ] && reboot -f -d -n
-[ "$ACTION" = "poweroff" ] && poweroff -f -d -n
-[ "$ACTION" = "halt" ] && halt -f -d -n
-[ "$ACTION" = "kexec" ] && kexec -e
 
-warn "Shutdown called without an argument. Rebooting!"
-reboot -f -d -n
+case "$ACTION" in
+    reboot|poweroff|halt)
+        $ACTION -f -d -n
+        warn "$ACTION failed!"
+        ;;
+    kexec)
+        kexec -e
+        warn "$ACTION failed!"
+        ;;
+    *)
+        warn "Shutdown called with argument '$ACTION'. Rebooting!"
+        reboot -f -d -n
+        ;;
+esac
+
+emergency_shell --shutdown shutdown
