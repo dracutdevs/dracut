@@ -65,15 +65,7 @@ installkernel() {
         | net_module_filter | instmods
 
     instmods =drivers/net/phy
-    instmods ecb arc4
-    # bridge modules
-    instmods bridge stp llc
-    instmods ipv6
-    # bonding
-    instmods bonding
-    # vlan
-    instmods 8021q
-    instmods af_packet
+    instmods ecb arc4 bridge stp llc ipv6 bonding 8021q af_packet virtio_net
 }
 
 install() {

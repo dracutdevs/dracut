@@ -46,6 +46,10 @@ installkernel() {
         hostonly='' instmods atkbd i8042 usbhid hid-apple hid-sunplus hid-cherry hid-logitech hid-logitech-dj hid-microsoft ehci-hcd ohci-hcd uhci-hcd xhci-hcd hid_generic
         # install unix socket support
         hostonly='' instmods unix
+
+        # install virtual machine support
+        instmods virtio virtio_blk virtio_ring virtio_pci virtio_scsi
+
         instmods "=drivers/pcmcia" =ide "=drivers/usb/storage"
         find_kernel_modules  |  block_module_filter  |  instmods
         # if not on hostonly mode, install all known filesystems,
