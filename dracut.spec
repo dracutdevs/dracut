@@ -97,14 +97,14 @@ Conflicts: plymouth < 0.8.0-0.2009.29.09.19.1
 %endif
 
 %description
-Dracut contains tools to create a bootable initramfs for 2.6 Linux kernels.
+dracut contains tools to create a bootable initramfs for 2.6 Linux kernels.
 Unlike existing implementations, dracut does hard-code as little as possible
-into the initramfs. Dracut contains various modules which are driven by the
+into the initramfs. dracut contains various modules which are driven by the
 event-based udev. Having root on MD, DM, LVM2, LUKS is supported as well as
 NFS, iSCSI, NBD, FCoE with the dracut-network package.
 
 %package network
-Summary: Dracut modules to build a dracut initramfs with network support
+Summary: dracut modules to build a dracut initramfs with network support
 Requires: %{name} = %{version}-%{release}
 Obsoletes: dracut-generic < 008
 Provides:  dracut-generic = %{version}-%{release}
@@ -115,7 +115,7 @@ all purpose initramfs with network support with dracut.
 
 %if 0%{?fedora} || 0%{?rhel} >= 6 || 0%{?suse_version}
 %package fips
-Summary: Dracut modules to build a dracut initramfs with an integrity check
+Summary: dracut modules to build a dracut initramfs with an integrity check
 Requires: %{name} = %{version}-%{release}
 Requires: hmaccalc
 %if 0%{?rhel} > 5
@@ -132,7 +132,7 @@ all purpose initramfs with dracut, which does an integrity check.
 %endif
 
 %package fips-aesni
-Summary: Dracut modules to build a dracut initramfs with an integrity check with aesni-intel
+Summary: dracut modules to build a dracut initramfs with an integrity check with aesni-intel
 Requires: %{name}-fips = %{version}-%{release}
 
 %description fips-aesni
@@ -141,7 +141,7 @@ all purpose initramfs with dracut, which does an integrity check
 and adds the aesni-intel kernel module.
 
 %package caps
-Summary: Dracut modules to build a dracut initramfs which drops capabilities
+Summary: dracut modules to build a dracut initramfs which drops capabilities
 Requires: %{name} = %{version}-%{release}
 Requires: libcap
 
@@ -150,7 +150,7 @@ This package requires everything which is needed to build an
 all purpose initramfs with dracut, which drops capabilities.
 
 %package tools
-Summary: Dracut tools to build the local initramfs
+Summary: dracut tools to build the local initramfs
 Requires: %{name} = %{version}-%{release}
 
 %description tools

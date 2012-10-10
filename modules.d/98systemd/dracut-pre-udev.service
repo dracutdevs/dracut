@@ -8,7 +8,7 @@
 # See systemd.special(7) for details
 
 [Unit]
-Description=Dracut pre-udev hook
+Description=dracut pre-udev hook
 Documentation=man:dracut-pre-udev.service(8)
 DefaultDependencies=no
 Before=systemd-udevd.service dracut-pre-trigger.service

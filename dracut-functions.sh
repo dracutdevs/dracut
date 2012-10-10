@@ -1171,7 +1171,7 @@ check_mount() {
     [[ $2 ]] || mods_checked_as_dep+=" $_mod "
 
     if strstr " $omit_dracutmodules " " $_mod "; then
-        dinfo "Dracut module '$_mod' will not be installed, because it's in the list to be omitted!"
+        dinfo "dracut module '$_mod' will not be installed, because it's in the list to be omitted!"
         return 1
     fi
 
@@ -1200,7 +1200,7 @@ check_mount() {
             force_add_dracutmodules+=" $_moddep "
         # if a module we depend on fail, fail also
         if ! check_module $_moddep; then
-            derror "Dracut module '$_mod' depends on '$_moddep', which can't be installed"
+            derror "dracut module '$_mod' depends on '$_moddep', which can't be installed"
             return 1
         fi
     done
@@ -1230,7 +1230,7 @@ check_module() {
     [[ $2 ]] || mods_checked_as_dep+=" $_mod "
 
     if strstr " $omit_dracutmodules " " $_mod "; then
-        dinfo "Dracut module '$_mod' will not be installed, because it's in the list to be omitted!"
+        dinfo "dracut module '$_mod' will not be installed, because it's in the list to be omitted!"
         return 1
     fi
 
@@ -1261,7 +1261,7 @@ check_module() {
             force_add_dracutmodules+=" $_moddep "
         # if a module we depend on fail, fail also
         if ! check_module $_moddep; then
-            derror "Dracut module '$_mod' depends on '$_moddep', which can't be installed"
+            derror "dracut module '$_mod' depends on '$_moddep', which can't be installed"
             return 1
         fi
     done
@@ -1291,7 +1291,7 @@ for_each_module_dir() {
     for _mod in $_modcheck; do
         strstr "$mods_to_load" "$_mod" && continue
         strstr "$omit_dracutmodules" "$_mod" && continue
-        derror "Dracut module '$_mod' cannot be found or installed."
+        derror "dracut module '$_mod' cannot be found or installed."
     done
 }
 
@@ -1526,7 +1526,7 @@ instmods() {
 
                 if [[ "$_check" = "yes" ]] || ! [[ $DRACUT_KERNEL_LAZY_HASHDIR ]]; then
                     # We use '-d' option in modprobe only if modules prefix path
-                    # differs from default '/'.  This allows us to use Dracut with
+                    # differs from default '/'.  This allows us to use dracut with
                     # old version of modprobe which doesn't have '-d' option.
                     local _moddirname=${srcmods%%/lib/modules/*}
                     [[ -n ${_moddirname} ]] && _moddirname="-d ${_moddirname}/"

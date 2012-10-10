@@ -1,5 +1,5 @@
 Most of the functionality that dracut implements are actually implemented
-by dracut modules.  Dracut modules live in modules.d, and have the following
+by dracut modules.  dracut modules live in modules.d, and have the following
 structure:
 
 dracut_install_dir/modules.d/
@@ -38,7 +38,7 @@ installkernel():
 
 
 check():
-       Dracut calls this function to check and see if a module can be installed
+       dracut calls this function to check and see if a module can be installed
        on the initrd.
 
        When called without options, check should check to make sure that

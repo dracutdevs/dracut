@@ -72,7 +72,7 @@ install() {
         VERSION=""
         PRETTY_NAME=""
     fi
-    NAME=Dracut
+    NAME=dracut
     ID=dracut
     VERSION+="dracut-$DRACUT_VERSION"
     PRETTY_NAME+="dracut-$DRACUT_VERSION (Initramfs)"

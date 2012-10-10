@@ -8,7 +8,7 @@
 # See systemd.special(7) for details
 
 [Unit]
-Description=Dracut initqueue hook
+Description=dracut initqueue hook
 Documentation=man:dracut-initqueue.service(8)
 DefaultDependencies=no
 After=systemd-udev-trigger.service

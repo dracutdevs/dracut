@@ -8,7 +8,7 @@
 # See systemd.special(7) for details
 
 [Unit]
-Description=Dracut pre-pivot and cleanup hook
+Description=dracut pre-pivot and cleanup hook
 Documentation=man:dracut-pre-pivot.service(8)
 DefaultDependencies=no
 After=dracut-initqueue.service

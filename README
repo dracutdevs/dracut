@@ -1,6 +1,6 @@
-Dracut
+dracut
 ------
-Dracut is a new initramfs infrastructure.
+dracut is a new initramfs infrastructure.
 
 Information about the initial goals and aims can be found at
 https://fedoraproject.org/wiki/Initrdrewrite

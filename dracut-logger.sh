@@ -23,7 +23,7 @@
 __DRACUT_LOGGER__=1
 
 
-## @brief Logging facility module for Dracut both at build- and boot-time.
+## @brief Logging facility module for dracut both at build- and boot-time.
 #
 # @section intro Introduction
 #
@@ -89,7 +89,7 @@ __DRACUT_LOGGER__=1
 # @see dlog_init()
 
 
-## @brief Initializes Dracut Logger.
+## @brief Initializes dracut Logger.
 #
 # @retval 1 if something has gone wrong
 # @retval 0 on success.

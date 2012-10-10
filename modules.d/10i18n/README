@@ -1,4 +1,4 @@
-Dracut i18n module
+dracut i18n module
 ------------------
 
 INDEX
@@ -21,7 +21,7 @@ is intended to be generic across different GNU/Linux distributions.
 i18n and keyboard settings are stored in different files among
 distributions.  To deal with it avoiding hardcoding those differences in
 the installation script we handle it by mappings between variables used
-by Dracut and the ones in the system.  Package maintainer is expected to
+by dracut and the ones in the system.  Package maintainer is expected to
 create those for his/her distribution and it's appreciated to share it
 with us, so we can include it in source package.
 
