@@ -2,7 +2,7 @@
 
 TEST_DESCRIPTION="Full systemd serialization/deserialization test with /usr mount"
 
-KVERSION=${KVERSION-$(uname -r)}
+export KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
 #DEBUGFAIL="rd.shell rd.break"
@@ -52,7 +52,7 @@ test_setup() {
     dd if=/dev/null of=$TESTDIR/root.btrfs bs=1M seek=320
     dd if=/dev/null of=$TESTDIR/usr.btrfs bs=1M seek=320
 
-    kernel=$KVERSION
+    export kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
 	export initdir=$TESTDIR/overlay/source
@@ -206,12 +206,12 @@ EOF
         find "$initdir" -perm +111 -type f | xargs strip --strip-unneeded | ddebug
 
         # copy depmod files
-        inst /lib/modules/$KERNEL_VER/modules.order
-        inst /lib/modules/$KERNEL_VER/modules.builtin
+        inst /lib/modules/$kernel/modules.order
+        inst /lib/modules/$kernel/modules.builtin
         # generate module dependencies
-        if [[ -d $initdir/lib/modules/$KERNEL_VER ]] && \
-            ! depmod -a -b "$initdir" $KERNEL_VER; then
-                dfatal "\"depmod -a $KERNEL_VER\" failed."
+        if [[ -d $initdir/lib/modules/$kernel ]] && \
+            ! depmod -a -b "$initdir" $kernel; then
+                dfatal "\"depmod -a $kernel\" failed."
                 exit 1
         fi
 
