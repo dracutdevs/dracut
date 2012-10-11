@@ -42,6 +42,8 @@ elif [ "$netdriver" = "bnx2x" ]; then
     # If driver is bnx2x, do not use /sys/module/fcoe/parameters/create but fipvlan
     modprobe 8021q
     udevadm settle --timeout=30
+    # Sleep for 3 s to allow dcb negotiation
+    sleep 3
     fipvlan "$netif" -c -s
 else
     echo -n "$netif" > /sys/module/fcoe/parameters/create
