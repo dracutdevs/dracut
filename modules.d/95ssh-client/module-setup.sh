@@ -15,9 +15,6 @@ check() {
             derror "ssh key: $sshkey is not found!"
             return 1
         }
-        [[ ! $cttyhack = yes ]] && {
-            dinfo "--ctty is not used, you should make sure the machine is a knownhost and copy the sshkey to remote machine!"
-        }
     fi
 
     return 255
@@ -50,11 +47,6 @@ inst_sshenv()
 }
 
 install() {
-    [[ ! $cttyhack = yes && ! $sshkey ]] && {
-        derror "ssh-client needs option --ctty or --sshkey!"
-        return 1
-    }
-
     dracut_install ssh scp
     inst_sshenv
 }
