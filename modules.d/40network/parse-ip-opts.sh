@@ -40,9 +40,10 @@ fi
 unset count
 
 # If needed, check if bootdev= contains anything usable
+BOOTDEV=$(getarg bootdev=)
+
 if [ -n "$NEEDBOOTDEV" ] ; then
-    BOOTDEV=$(getarg bootdev=) || die "Please supply bootdev argument for multiple ip= lines"
-    [ -z "$BOOTDEV" ] && die "Bootdev argument is empty"
+    [ -z "$BOOTDEV" ] && warn "Please supply bootdev argument for multiple ip= lines"
 fi
 
 # If ibft is requested, read ibft vals and write ip=XXX cmdline args
@@ -95,9 +96,6 @@ for p in $(getargs ip=); do
         # IFACES list for later use
         IFACES="$IFACES $dev"
     fi
-
-    # Small optimization for udev rules
-    [ -z "$NEEDBOOTDEV" ] && [ -n "$dev" ] && BOOTDEV=$dev
 
     # Do we need to check for specific options?
     if [ -n "$NEEDDHCP" ] || [ -n "$DHCPORSERVER" ] ; then
