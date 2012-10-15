@@ -173,7 +173,7 @@ install() {
 
         inst_opt_decompress ${kbddir}/consolefonts/${DEFAULT_FONT}.*
 
-        if [[ ${FONT} ]]
+        if [[ ${FONT} ]] && [[ ${FONT} != ${DEFAULT_FONT} ]]
         then
             FONT=${FONT%.psf*}
             inst_opt_decompress ${kbddir}/consolefonts/${FONT}.*
