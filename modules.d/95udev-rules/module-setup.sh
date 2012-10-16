@@ -9,7 +9,7 @@ install() {
     # ultimately, /lib/initramfs/rules.d or somesuch which includes links/copies
     # of the rules we want so that we just copy those in would be best
     dracut_install udevadm cat uname blkid \
-        /etc/udev/udev.conf /etc/group
+        /etc/udev/udev.conf
 
     [ -d ${initdir}/lib/systemd ] || mkdir -p ${initdir}/lib/systemd
     for _i in ${systemdutildir}/systemd-udevd ${udevdir}/udevd /lib/systemd/systemd-udevd /sbin/udevd; do
