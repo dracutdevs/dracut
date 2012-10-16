@@ -38,6 +38,7 @@ install() {
     if [ -f /lib/modprobe.d/nfs.conf ]; then
         dracut_install /lib/modprobe.d/nfs.conf
     else
+        [ -d $initdir/etc/modprobe.d/ ] || mkdir $initdir/etc/modprobe.d
         echo "alias nfs4 nfs" > $initdir/etc/modprobe.d/nfs.conf
     fi
 
