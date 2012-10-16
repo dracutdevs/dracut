@@ -90,8 +90,8 @@ Creates initial ramdisk images for preloading modules
   --kernel-only         Only install kernel drivers and firmware files
   --no-kernel           Do not install kernel drivers and firmware files
   --kernel-cmdline [PARAMETERS] Specify default kernel command line parameters
-  --strip               Strip binaries in the initramfs
-  --nostrip             Do not strip binaries in the initramfs (default)
+  --strip               Strip binaries in the initramfs (default)
+  --nostrip             Do not strip binaries in the initramfs
   --hardlink            Hardlink files in the initramfs (default)
   --nohardlink          Do not hardlink files in the initramfs
   --prefix [DIR]        Prefix initramfs files with [DIR]
@@ -551,7 +551,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 
 [[ $drivers_dir_l ]] && drivers_dir=$drivers_dir_l
 [[ $do_strip_l ]] && do_strip=$do_strip_l
-[[ $do_strip ]] || do_strip=no
+[[ $do_strip ]] || do_strip=yes
 [[ $do_hardlink_l ]] && do_hardlink=$do_hardlink_l
 [[ $do_hardlink ]] || do_hardlink=yes
 [[ $prefix_l ]] && prefix=$prefix_l
@@ -1029,10 +1029,23 @@ fi
 
 if [[ $do_strip = yes ]] ; then
     dinfo "*** Stripping files ***"
-    find "$initdir" -type f \
-        '(' -perm -0100 -or -perm -0010 -or -perm -0001 \
-        -or -path '*/lib/modules/*.ko' ')' -print0 \
-        | xargs -r -0 strip -g 2>/dev/null
+    if [[ $DRACUT_FIPS_MODE ]]; then
+        find "$initdir" -type f \
+            '(' -perm -0100 -or -perm -0010 -or -perm -0001 \
+            -or -path '*/lib/modules/*.ko' ')' -print0 \
+            | while read -r -d $'\0' f; do
+            if ! [[ -e "${f%/*}/.${f##*/}.hmac" ]] \
+                && ! [[ -e "/lib/fipscheck/${f##*/}.hmac" ]] \
+                && ! [[ -e "/lib64/fipscheck/${f##*/}.hmac" ]]; then
+                echo -n "$f"; echo -n -e "\000"
+            fi
+        done |xargs -r -0 strip -g 2>/dev/null
+    else
+        find "$initdir" -type f \
+            '(' -perm -0100 -or -perm -0010 -or -perm -0001 \
+            -or -path '*/lib/modules/*.ko' ')' -print0 \
+            | xargs -r -0 strip -g 2>/dev/null
+    fi
     dinfo "*** Stripping files done ***"
 fi
 
