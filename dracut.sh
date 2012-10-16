@@ -1002,6 +1002,31 @@ if (($maxloglvl >= 5)); then
     du -c "$initdir" | sort -n | ddebug
 fi
 
+PRELINK_BIN=$(command -v prelink)
+if [[ $UID = 0 ]] && [[ $PRELINK_BIN ]]; then
+    if [[ $DRACUT_FIPS_MODE ]]; then
+        dinfo "*** Pre-unlinking files ***"
+        dracut_install -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf /etc/prelink.cache
+        chroot "$initdir" $PRELINK_BIN -u -a
+        rm -f "$initdir"/$PRELINK_BIN
+        rm -fr "$initdir"/etc/prelink.*
+        dinfo "*** Pre-unlinking files done ***"
+    else
+        dinfo "*** Pre-linking files ***"
+        dracut_install -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf
+        chroot "$initdir" $PRELINK_BIN -a
+        rm -f "$initdir"/$PRELINK_BIN
+        rm -fr "$initdir"/etc/prelink.*
+        dinfo "*** Pre-linking files done ***"
+    fi
+fi
+
+if [[ $do_hardlink = yes ]] && command -v hardlink >/dev/null; then
+    dinfo "*** Hardlinking files ***"
+    hardlink "$initdir" 2>&1
+    dinfo "*** Hardlinking files done ***"
+fi
+
 # strip binaries
 if [[ $do_strip = yes ]] ; then
     for p in strip xargs find; do
@@ -1010,21 +1035,6 @@ if [[ $do_strip = yes ]] ; then
             do_strip=no
         fi
     done
-fi
-
-if strstr "$modules_loaded" " fips " && command -v prelink >/dev/null; then
-    dinfo "*** pre-unlinking files ***"
-    for dir in "$initdir/bin" \
-       "$initdir/sbin" \
-       "$initdir/usr/bin" \
-       "$initdir/usr/sbin"; do
-        [[ -L "$dir" ]] && continue
-        for i in "$dir"/*; do
-            [[ -L $i ]] && continue
-            [[ -x $i ]] && prelink -u $i &>/dev/null
-        done
-    done
-    dinfo "*** pre-unlinking files done ***"
 fi
 
 if [[ $do_strip = yes ]] ; then
@@ -1047,14 +1057,6 @@ if [[ $do_strip = yes ]] ; then
             | xargs -r -0 strip -g 2>/dev/null
     fi
     dinfo "*** Stripping files done ***"
-fi
-
-if [[ $do_hardlink = yes ]] ; then
-    type hardlink &>/dev/null && {
-        dinfo "*** hardlinking files ***"
-        hardlink "$initdir" 2>&1
-        dinfo "*** hardlinking files done ***"
-    }
 fi
 
 rm -f "$outfile"
