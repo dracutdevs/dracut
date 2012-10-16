@@ -1,3 +1,17 @@
+dracut-024
+==========
+- new dracut option "--device"
+- new dracut kernel command line options "rd.auto"
+- new dracut kernel command line options "rd.noverifyssl"
+- new dracut option "--kernel-cmdline" and "kernel_cmdline" option for default parameters
+- fixes for systemd and crypto
+- fix for kexec in shutdown, if not included in initramfs
+- create the initramfs non-world readable
+- prelink/preunlink in the initramfs
+- strip binaries in the initramfs by default now
+- various FIPS fixes
+- various dracut-install fixes
+
 dracut-023
 ==========
 - resume from hibernate fixes
