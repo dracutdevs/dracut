@@ -1006,7 +1006,7 @@ inst_decompress() {
     for _src in $@
     do
         case ${_src} in
-            *.gz) _cmd='gzip -d' ;;
+            *.gz) _cmd='gzip -f -d' ;;
             *.bz2) _cmd='bzip2 -d' ;;
             *) return 1 ;;
         esac
