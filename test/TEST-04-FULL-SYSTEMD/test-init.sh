@@ -37,4 +37,6 @@ if strstr "$CMDLINE" "rd.shell"; then
 	strstr "$(setsid --help)" "control" && CTTY="-c"
 	setsid $CTTY sh -i
 fi
+set -x
+/usr/bin/systemctl poweroff
 echo "Powering down."

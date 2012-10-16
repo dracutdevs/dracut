@@ -131,7 +131,6 @@ After=basic.target
 
 [Service]
 ExecStart=/sbin/test-init
-ExecStopPost=/usr/bin/systemctl poweroff
 Type=oneshot
 StandardInput=tty
 StandardOutput=tty
@@ -141,11 +140,12 @@ EOF
 
         # make the testsuite the default target
         ln -fs testsuite.target $initdir/etc/systemd/system/default.target
-        mkdir -p $initdir/etc/rc.d
-        cat >$initdir/etc/rc.d/rc.local <<EOF
-#!/bin/bash
-exit 0
-EOF
+
+#         mkdir -p $initdir/etc/rc.d
+#         cat >$initdir/etc/rc.d/rc.local <<EOF
+# #!/bin/bash
+# exit 0
+# EOF
 
         # install basic tools needed
         dracut_install sh bash setsid loadkeys setfont \
@@ -263,7 +263,7 @@ EOF
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-a "debug watchdog systemd" \
         -o "network" \
-	-d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esbwdt" \
+	-d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \
 	-f $TESTDIR/initramfs.testing $KVERSION || return 1
 
     rm -rf $TESTDIR/overlay
