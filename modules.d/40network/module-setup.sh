@@ -64,8 +64,7 @@ installkernel() {
     { find_kernel_modules_by_path drivers/net; if [ "$_arch" = "s390" -o "$_arch" = "s390x" ]; then find_kernel_modules_by_path drivers/s390/net; fi; } \
         | net_module_filter | instmods
 
-    instmods =drivers/net/phy
-    instmods ecb arc4 bridge stp llc ipv6 bonding 8021q af_packet virtio_net
+    instmods =drivers/net/phy ecb arc4 bridge stp llc ipv6 bonding 8021q af_packet virtio_net
 }
 
 install() {
