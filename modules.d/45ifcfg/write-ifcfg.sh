@@ -85,6 +85,7 @@ print_s390() {
 
 
 for netif in $IFACES ; do
+    [ -e /tmp/ifcfg/ifcfg-$netif ] && continue
     # bridge?
     unset bridge
     unset bond
