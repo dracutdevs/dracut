@@ -88,6 +88,8 @@ do_ipv6auto() {
     wait_for_if_up $netif
 
     [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
+
+    return 0
 }
 
 # Handle static ip configuration
@@ -108,6 +110,8 @@ do_static() {
 
     [ -n "$gw" ] && echo ip route add default via $gw dev $netif > /tmp/net.$netif.gw
     [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
+
+    return 0
 }
 
 # loopback is always handled the same way
