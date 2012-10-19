@@ -11,4 +11,5 @@ systemdsystemunitdir=/usr/lib/systemd/system
 udevdir=/usr/lib/udev
 add_dracutmodules+=" systemd "
 realinitpath="/usr/lib/systemd/systemd"
-kernelcmdline+=" rd.auto=1 "
+kernel_cmdline+=" rd.auto=1 "
+
