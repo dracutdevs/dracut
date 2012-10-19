@@ -937,7 +937,7 @@ fi
 if [[ $kernel_only != yes ]]; then
     (( ${#install_items[@]} > 0 )) && dracut_install  ${install_items[@]}
 
-    echo "$kernel_cmdline" >> "${initdir}/etc/cmdline.d/01-default.conf"
+    [[ $kernel_cmdline ]] && echo "$kernel_cmdline" >> "${initdir}/etc/cmdline.d/01-default.conf"
 
     while pop fstab_lines line; do
         echo "$line 0 0" >> "${initdir}/etc/fstab"
