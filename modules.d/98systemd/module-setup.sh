@@ -85,7 +85,7 @@ install() {
         $systemdsystemunitdir/initrd-switch-root.target \
         $systemdsystemunitdir/initrd-switch-root.service \
         $systemdsystemunitdir/umount.target \
-        journalctl systemctl echo
+        journalctl systemctl echo swapoff
 
     if [[ $hostonly ]]; then
         dracut_install -o /etc/systemd/journald.conf \
