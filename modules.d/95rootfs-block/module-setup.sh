@@ -15,7 +15,7 @@ check() {
                 rootopts=$opts
                 break
             fi
-        done < "$NEWROOT/etc/fstab"
+        done < /etc/fstab
 
         [ "$rootfs" = "reiserfs" ] && journaldev=$(fs_get_option $rootopts "jdev")
         [ "$rootfs" = "xfs" ] && journaldev=$(fs_get_option $rootopts "logdev")
