@@ -74,5 +74,7 @@ install() {
         inst_script "$moddir/load-modules.sh" /lib/udev/load-modules.sh
 
     inst_libdir_file "libnss_files*"
+
+    inst_hook pre-udev 10 "$moddir/udev-rules-prepare.sh"
 }
 

@@ -83,7 +83,7 @@ trap "emergency_shell Signal caught!" 0
 
 [ -d /run/initramfs ] || mkdir -p -m 0755 /run/initramfs
 
-UDEVVERSION=$(udevadm --version)
+export UDEVVERSION=$(udevadm --version)
 if [ $UDEVVERSION -gt 166 ]; then
     # newer versions of udev use /run/udev/rules.d
     export UDEVRULESD=/run/udev/rules.d
