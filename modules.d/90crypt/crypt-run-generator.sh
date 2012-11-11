@@ -14,7 +14,7 @@ fi
 # parse for allow-discards
 if strstr "$(cryptsetup --help)" "allow-discards"; then
     if discarduuids=$(getargs "rd.luks.allow-discards"); then
-        if strstr " $discarduuids " " ${luks##luks-}"; then
+        if strstr " ${luksdev##luks-} " " ${discarduuids##luks-}"; then
 	    allowdiscards="allow-discards"
 	fi
     elif getargbool rd.luks.allow-discards; then
