@@ -879,12 +879,23 @@ _emergency_shell()
         systemctl start dracut-emergency.service
         rm -f /.console_lock
     else
-        echo "Dropping to debug shell."
+        debug_off
+        echo
+        /sbin/sosreport
+        echo 'You might want to save "/run/initramfs/sosreport.txt" to a USB stick or /boot'
+        echo 'after mounting them and attach it to a bug report.'
+        if ! RD_DEBUG= getargbool 0 rd.debug -d -y rdinitdebug -d -y rdnetdebug; then
+            echo
+            echo 'To get more debug information in the report,'
+            echo 'reboot with "rd.debug" added to the kernel command line.'
+        fi
+        echo
+        echo 'Dropping to debug shell.'
         echo
         export PS1="$_name:\${PWD}# "
         [ -e /.profile ] || >/.profile
 
-        _ctty="$(getarg rd.ctty=)" && _ctty="/dev/${_ctty##*/}"
+        _ctty="$(RD_DEBUG= getarg rd.ctty=)" && _ctty="/dev/${_ctty##*/}"
         if [ -z "$_ctty" ]; then
             _ctty=console
             while [ -f /sys/class/tty/$_ctty/active ]; do
@@ -920,7 +931,7 @@ emergency_shell()
     if getargbool 1 rd.shell -d -y rdshell || getarg rd.break -d rdbreak; then
         _emergency_shell $_rdshell_name
     else
-        warn "$action has failed. To debug this issue add \"rd.shell\" to the kernel command line."
+        warn "$action has failed. To debug this issue add \"rd.shell rd.debug\" to the kernel command line."
         # cause a kernel panic
         exit 1
     fi
