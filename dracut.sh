@@ -1041,21 +1041,27 @@ if [[ $do_strip = yes ]] ; then
     dinfo "*** Stripping files ***"
     if [[ $DRACUT_FIPS_MODE ]]; then
         find "$initdir" -type f \
-            '(' -perm -0100 -or -perm -0010 -or -perm -0001 \
-            -or -path '*/lib/modules/*.ko' ')' -print0 \
+            -executable -not -path '*/lib/modules/*.ko' -print0 \
             | while read -r -d $'\0' f; do
             if ! [[ -e "${f%/*}/.${f##*/}.hmac" ]] \
                 && ! [[ -e "/lib/fipscheck/${f##*/}.hmac" ]] \
                 && ! [[ -e "/lib64/fipscheck/${f##*/}.hmac" ]]; then
                 echo -n "$f"; echo -n -e "\000"
             fi
-        done |xargs -r -0 strip -g 2>/dev/null
+        done | xargs -r -0 strip -g 2>/dev/null
     else
         find "$initdir" -type f \
-            '(' -perm -0100 -or -perm -0010 -or -perm -0001 \
-            -or -path '*/lib/modules/*.ko' ')' -print0 \
+            -executable -not -path '*/lib/modules/*.ko' -print0 \
             | xargs -r -0 strip -g 2>/dev/null
     fi
+
+    # strip kernel modules, but do not touch signed modules
+    find "$initdir" -type f -path '*/lib/modules/*.ko' -print0 \
+        | while read -r -d $'\0' f; do
+        SIG=$(tail -c 28 "$f")
+        [[ $SIG == '~Module signature appended~' ]] || { echo -n "$f"; echo -n -e "\000"; }
+    done | xargs -r -0 strip -g
+
     dinfo "*** Stripping files done ***"
 fi
 
