@@ -1,4 +1,6 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 
 . /lib/dracut-lib.sh
 
@@ -11,18 +13,21 @@ if [ -f /etc/crypttab ]; then
     done < /etc/crypttab
 fi
 
+allowdiscards="-"
+
 # parse for allow-discards
 if strstr "$(cryptsetup --help)" "allow-discards"; then
     if discarduuids=$(getargs "rd.luks.allow-discards"); then
-        if strstr " ${luksdev##luks-} " " ${discarduuids##luks-}"; then
-	    allowdiscards="allow-discards"
-	fi
-    elif getargbool rd.luks.allow-discards; then
-	allowdiscards="allow-discards"
+        discarduuids=$(str_replace "$discarduuids" 'luks-' '')
+        if strstr " $discarduuids " " ${luks##luks-}"; then
+            allowdiscards="allow-discards"
+        fi
+    elif getargbool 0 rd.luks.allow-discards; then
+        allowdiscards="allow-discards"
     fi
 fi
 
-echo "$luks $dev none $allowdiscards" >> /etc/crypttab
+echo "$luks $dev - $allowdiscards" >> /etc/crypttab
 
 if command -v systemctl >/dev/null; then
     systemctl daemon-reload
