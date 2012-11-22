@@ -56,7 +56,9 @@ fi
 
     # Default: We don't know the interface to use, handle all
     else
+        # if you change the name of "91-default-net.rules", also change modules.d/80cms/cmssetup.sh
         printf 'SUBSYSTEM=="net", RUN+="%s"\n' "/sbin/initqueue --onetime $ifup" > /etc/udev/rules.d/91-default-net.rules
     fi
 
+# if you change the name of "90-net.rules", also change modules.d/80cms/cmssetup.sh
 } > /etc/udev/rules.d/90-net.rules
