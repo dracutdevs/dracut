@@ -26,8 +26,8 @@ inst_key_val '' /etc/vconsole.conf vconsole.font.unimap FONT_UNIMAP -d UNIMAP
 inst_key_val 1  /etc/vconsole.conf vconsole.font.unicode UNICODE vconsole.unicode
 inst_key_val '' /etc/vconsole.conf vconsole.keymap.ext  EXT_KEYMAP
 
-inst_key_val '' /etc/locale.conf   LANG        locale.LANG
-inst_key_val '' /etc/locale.conf   LC_ALL      locale.LC_ALL
+inst_key_val '' /etc/locale.conf   locale.LANG   LANG
+inst_key_val '' /etc/locale.conf   locale.LC_ALL LC_ALL
 
 if [ -f /etc/locale.conf ]; then
     . /etc/locale.conf
