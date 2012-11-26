@@ -1,4 +1,6 @@
 #!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
 
 get_ip() {
     local iface="$1" ip=""
@@ -272,7 +274,12 @@ ip_to_var() {
         2)  dev=$1; autoconf=$2 ;;
         3)  dev=$1; autoconf=$2; mtu=$3 ;;
         4)  dev=$1; autoconf=$2; mtu=$3; macaddr=$4 ;;
-        *)  ip=$1; srv=$2; gw=$3; mask=$4; hostname=$5; dev=$6; autoconf=$7; mtu=$8; macaddr=$9 ;;
+        *)  ip=$1; srv=$2; gw=$3; mask=$4;
+            hostname=$5; dev=$6; autoconf=$7; mtu=$8;
+            if [ -n "${9}" -a -n "${10}" -a -n "${11}" -a -n "${12}" -a -n "${13}" -a -n "${14}" ]; then
+                macaddr="${9}:${10}:${11}:${12}:${13}:${14}"
+            fi
+	    ;;
     esac
     # anaconda-style argument cluster
     if strstr "$autoconf" "*.*.*.*"; then

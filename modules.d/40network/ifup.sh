@@ -96,10 +96,10 @@ do_ipv6auto() {
 do_static() {
     strstr $ip '*:*:*' && load_ipv6
 
-    ip link set $netif up
+    ip link set dev $netif up
     wait_for_if_up $netif
-    [ -n "$macaddr" ] && ip link set address $macaddr
-    [ -n "$mtu" ] && ip link set mtu $mtu
+    [ -n "$macaddr" ] && ip link set address $macaddr dev $netif
+    [ -n "$mtu" ] && ip link set mtu $mtu dev $netif
     if strstr $ip '*:*:*'; then
         # note no ip addr flush for ipv6
         ip addr add $ip/$mask dev $netif
