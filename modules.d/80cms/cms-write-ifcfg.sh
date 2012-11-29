@@ -32,6 +32,7 @@ function cms_write_config()
     cat > /etc/sysconfig/network << EOF
 HOSTNAME=$HOSTNAME
 EOF
+    echo "$HOSTNAME" > /etc/hostname
     if [ "$ipv6" ]; then
 	echo "NETWORKING_IPV6=yes" >> /etc/sysconfig/network
     else
