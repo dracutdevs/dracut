@@ -22,7 +22,9 @@ if incol2 /proc/mounts /var/lib/nfs/rpc_pipefs; then
         mkdir -m 0755 -p $NEWROOT/$rpcpipefspath 2>/dev/null
 
     if [ -d $NEWROOT/$rpcpipefspath ]; then
-        mount --move /var/lib/nfs/rpc_pipefs $NEWROOT/$rpcpipefspath
+        # mount --move does not seem to work???
+        mount --bind /var/lib/nfs/rpc_pipefs $NEWROOT/$rpcpipefspath
+        umount /var/lib/nfs/rpc_pipefs
     else
         umount /var/lib/nfs/rpc_pipefs
     fi
