@@ -2,6 +2,8 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+[ -z "$UDEVVERSION" ] && export UDEVVERSION=$(udevadm --version)
+
 for f in /etc/udev/rules.d/*-persistent-storage.rules; do
     [ -e "$f" ] || continue
     while read line; do
