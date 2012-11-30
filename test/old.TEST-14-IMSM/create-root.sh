@@ -5,7 +5,7 @@ for x in 61-dmraid-imsm.rules 64-md-raid.rules 65-md-incremental-imsm.rules 65-m
 done
 rm /etc/lvm/lvm.conf
 
-udevadm control --reload-rules
+udevadm control --reload
 # dmraid does not want symlinks in --disk "..."
 if [ -e /dev/hda ] ; then
     echo y|dmraid -f isw -C Test0 --type 1 --disk "/dev/hdb /dev/hdc"

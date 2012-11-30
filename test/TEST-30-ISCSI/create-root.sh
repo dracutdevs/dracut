@@ -4,7 +4,7 @@ for x in 64-lvm.rules 70-mdadm.rules 99-mount-rules; do
     > "/etc/udev/rules.d/$x"
 done
 rm /etc/lvm/lvm.conf
-udevadm control --reload-rules
+udevadm control --reload
 mkfs.ext3 -j -F /dev/sda && \
 mkdir -p /sysroot && \
 mount /dev/sda /sysroot && \
