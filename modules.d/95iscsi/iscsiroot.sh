@@ -135,6 +135,7 @@ handle_netroot()
     if [ -z "$root" -o -n "${root%%block:*}" ]; then
         # if root is not specified try to mount the whole iSCSI LUN
         printf 'SYMLINK=="disk/by-path/*-iscsi-*-%s", SYMLINK+="root"\n' $iscsi_lun >> /etc/udev/rules.d/99-iscsi-root.rules
+        udevadm control --reload
 
         # install mount script
         echo "iscsi_lun=$iscsi_lun . /bin/mount-lun.sh " > $hookdir/mount/01-$$-iscsi.sh
