@@ -44,6 +44,10 @@ fi
         IFACES+=" $phydevice"
     fi
 
+    if [ -z "$IFACES" ]; then
+        [ -e /tmp/net.ifaces ] && read IFACES < /tmp/net.ifaces
+    fi
+
     ifup='/sbin/ifup $env{INTERFACE}'
     [ -z "$netroot" ] && ifup="$ifup -m"
 
