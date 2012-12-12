@@ -51,6 +51,7 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
 export PS4="dhclient.$interface.$$ + "
 exec >>/run/initramfs/loginit.pipe 2>>/run/initramfs/loginit.pipe
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type ip_to_var >/dev/null 2>&1 || . /lib/net-lib.sh
 
 # We already need a set netif here
 netif=$interface

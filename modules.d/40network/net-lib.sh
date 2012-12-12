@@ -322,3 +322,26 @@ parse_ifname_opts() {
     esac
 
 }
+
+wait_for_if_up() {
+    local cnt=0
+    local li
+    while [ $cnt -lt 200 ]; do
+        li=$(ip -o link show up dev $1)
+        [ -n "$li" ] && return 0
+        sleep 0.1
+        cnt=$(($cnt+1))
+    done
+    return 1
+}
+
+wait_for_route_ok() {
+    local cnt=0
+    while [ $cnt -lt 200 ]; do
+        li=$(ip route show)
+        [ -n "$li" ] && [ -z "${li##*$1*}" ] && return 0
+        sleep 0.1
+        cnt=$(($cnt+1))
+    done
+    return 1
+}
