@@ -345,3 +345,8 @@ wait_for_route_ok() {
     done
     return 1
 }
+
+linkup() {
+    ip link set $1 up 2>/dev/null && wait_for_if_up $1 2>/dev/null
+}
+
