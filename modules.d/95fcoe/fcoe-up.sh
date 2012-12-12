@@ -21,8 +21,7 @@ type ip_to_var >/dev/null 2>&1 || . /lib/net-lib.sh
 netif=$1
 dcb=$2
 
-ip link set "$netif" up
-wait_for_if_up "$netif"
+linkup "$netif"
 
 netdriver=$(readlink -f /sys/class/net/$netif/device/driver)
 netdriver=${netdriver##*/}

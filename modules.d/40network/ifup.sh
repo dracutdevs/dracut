@@ -93,8 +93,7 @@ do_ipv6auto() {
     echo 0 > /proc/sys/net/ipv6/conf/$netif/forwarding
     echo 1 > /proc/sys/net/ipv6/conf/$netif/accept_ra
     echo 1 > /proc/sys/net/ipv6/conf/$netif/accept_redirects
-    ip link set $netif up
-    wait_for_if_up $netif
+    linkup $netif
 
     [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
 
@@ -105,8 +104,7 @@ do_ipv6auto() {
 do_static() {
     strstr $ip '*:*:*' && load_ipv6
 
-    ip link set dev $netif up
-    wait_for_if_up $netif
+    linkup $netif
     [ -n "$macaddr" ] && ip link set address $macaddr dev $netif
     [ -n "$mtu" ] && ip link set mtu $mtu dev $netif
     if strstr $ip '*:*:*'; then
@@ -156,13 +154,12 @@ if [ -e /tmp/bond.info ]; then
             fi
         done
 
-        ip link set $netif up
+        linkup $netif
 
         for slave in $bondslaves ; do
             ip link set $slave down
             echo "+$slave" > /sys/class/net/$bondname/bonding/slaves
-            ip link set $slave up
-            wait_for_if_up $slave
+            linkup $slave
         done
 
         # add the bits to setup the needed post enslavement parameters
@@ -211,9 +208,8 @@ if [ -e /tmp/bridge.info ]; then
             if [ "$ethname" = "$bondname" ] ; then
                 DO_BOND_SETUP=yes ifup $bondname -m
             else
-                ip link set $ethname up
+                linkup $ethname
             fi
-            wait_for_if_up $ethname
             brctl addif $bridgename $ethname
         done
     fi
@@ -235,9 +231,8 @@ if [ "$netif" = "$vlanname" ] && [ ! -e /tmp/net.$vlanname.up ]; then
     if [ "$phydevice" = "$bondname" ] ; then
         DO_BOND_SETUP=yes ifup $phydevice -m
     else
-        ip link set "$phydevice" up
+        linkup "$phydevice"
     fi
-    wait_for_if_up "$phydevice"
     ip link add dev "$vlanname" link "$phydevice" type vlan id "$(get_vid $vlanname; echo $?)"
 fi
 
