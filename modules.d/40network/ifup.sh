@@ -118,6 +118,7 @@ do_static() {
     [ -n "$gw" ] && echo ip route add default via $gw dev $netif > /tmp/net.$netif.gw
     [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
 
+    > /tmp/setup_net_${netif}.ok
     return 0
 }
 

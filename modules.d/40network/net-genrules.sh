@@ -48,6 +48,10 @@ fi
         [ -e /tmp/net.ifaces ] && read IFACES < /tmp/net.ifaces
     fi
 
+    if [ -e /tmp/net.bootdev ]; then
+        bootdev=$(cat /tmp/net.bootdev)
+    fi
+
     ifup='/sbin/ifup $env{INTERFACE}'
     [ -z "$netroot" ] && ifup="$ifup -m"
 
@@ -56,14 +60,19 @@ fi
     if [ -n "$BOOTIF" ] ; then
         BOOTIF=$(fix_bootif "$BOOTIF")
         printf 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="%s", RUN+="%s"\n' "$BOOTIF" "/sbin/initqueue --onetime $ifup"
+        echo "[ -f /tmp/setup_net_${BOOTIF}.ok ]" >$hookdir/initqueue/finished/wait-${BOOTIF}.sh
 
     # If we have to handle multiple interfaces, handle only them.
     elif [ -n "$IFACES" ] ; then
         for iface in $IFACES ; do
             printf 'SUBSYSTEM=="net", ENV{INTERFACE}=="%s", RUN+="%s"\n' "$iface" "/sbin/initqueue --onetime $ifup"
+            if [ "$bootdev" = "$iface" ]; then
+                echo "[ -f /tmp/setup_net_${iface}.ok ]" >$hookdir/initqueue/finished/wait-$iface.sh
+            fi
         done
 
     # Default: We don't know the interface to use, handle all
+    # Fixme: waiting for the interface as well.
     else
         # if you change the name of "91-default-net.rules", also change modules.d/80cms/cmssetup.sh
         printf 'SUBSYSTEM=="net", RUN+="%s"\n' "/sbin/initqueue --onetime $ifup" > /etc/udev/rules.d/91-default-net.rules
