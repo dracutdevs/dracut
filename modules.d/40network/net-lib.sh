@@ -323,6 +323,19 @@ parse_ifname_opts() {
 
 }
 
+# some network driver need long time to initialize, wait before it's ready.
+wait_for_if_link() {
+    local cnt=0
+    local li
+    while [ $cnt -lt 600 ]; do
+        li=$(ip -o link show dev $1 2>/dev/null)
+        [ -n "$li" ] && return 0
+        sleep 0.1
+        cnt=$(($cnt+1))
+    done
+    return 1
+}
+
 wait_for_if_up() {
     local cnt=0
     local li
@@ -347,6 +360,8 @@ wait_for_route_ok() {
 }
 
 linkup() {
-    ip link set $1 up 2>/dev/null && wait_for_if_up $1 2>/dev/null
+    wait_for_if_link $1 2>/dev/null\
+     && ip link set $1 up 2>/dev/null\
+     && wait_for_if_up $1 2>/dev/null
 }
 
