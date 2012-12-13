@@ -28,6 +28,15 @@ if [ -e /tmp/bond.info ]; then
     done
 fi
 
+if [ -e /tmp/team.info ]; then
+    . /tmp/team.info
+    for slave in $teamslaves ; do
+        if [ "$netif" = "$slave" ] ; then
+            netif=$teammaster
+        fi
+    done
+fi
+
 # bridge this interface?
 if [ -e /tmp/bridge.info ]; then
     . /tmp/bridge.info
@@ -167,6 +176,28 @@ if [ -e /tmp/bond.info ]; then
     fi
 fi
 
+if [ -e /tmp/team.info ]; then
+    . /tmp/team.info
+    if [ "$netif" = "$teammaster" ] && [ ! -e /tmp/net.$teammaster.up ] ; then
+        # We shall only bring up those _can_ come up
+        # in case of some slave is gone in active-backup mode
+        working_slaves=""
+        for slave in $teamslaves ; do
+            ip link set $slave up 2>/dev/null
+            if wait_for_if_up $slave; then
+                working_slaves+="$slave "
+            fi
+        done
+        # Do not add slaves now
+        teamd -d -U -n -f /etc/teamd/$teammaster.conf
+        for slave in $working_slaves; do
+            # team requires the slaves to be down before joining team
+            ip link set $slave down
+            teamdctl $teammaster port add $slave
+        done
+        ip link set $teammaster up
+    fi
+fi
 
 # XXX need error handling like dhclient-script
 

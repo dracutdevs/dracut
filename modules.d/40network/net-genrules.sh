@@ -34,6 +34,11 @@ fi
         IFACES+=" ${bondslaves%% *}"
     fi
 
+    if [ -e /tmp/team.info ]; then
+        . /tmp/team.info
+        IFACES+=" ${teamslaves}"
+    fi
+
     if [ -e /tmp/vlan.info ]; then
         . /tmp/vlan.info
         IFACES+=" $phydevice"

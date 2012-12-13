@@ -64,7 +64,8 @@ installkernel() {
     { find_kernel_modules_by_path drivers/net; if [ "$_arch" = "s390" -o "$_arch" = "s390x" ]; then find_kernel_modules_by_path drivers/s390/net; fi; } \
         | net_module_filter | instmods
 
-    instmods =drivers/net/phy ecb arc4 bridge stp llc ipv6 bonding 8021q af_packet virtio_net
+    #instmods() will take care of hostonly
+    instmods =drivers/net/phy ecb arc4 bridge stp llc ipv6 bonding 8021q af_packet virtio_net =drivers/net/team
 }
 
 install() {
@@ -72,6 +73,8 @@ install() {
     dracut_install ip arping dhclient sed
     dracut_install -o ping ping6
     dracut_install -o brctl
+    dracut_install -o teamd teamdctl teamnl
+    inst_simple /etc/libnl/classid
     inst_script "$moddir/ifup.sh" "/sbin/ifup"
     inst_script "$moddir/netroot.sh" "/sbin/netroot"
     inst_script "$moddir/dhclient-script.sh" "/sbin/dhclient-script"
@@ -82,6 +85,7 @@ install() {
     inst_hook cmdline 91 "$moddir/dhcp-root.sh"
     inst_hook cmdline 95 "$moddir/parse-vlan.sh"
     inst_hook cmdline 96 "$moddir/parse-bond.sh"
+    inst_hook cmdline 96 "$moddir/parse-team.sh"
     inst_hook cmdline 97 "$moddir/parse-bridge.sh"
     inst_hook cmdline 98 "$moddir/parse-ip-opts.sh"
     inst_hook cmdline 99 "$moddir/parse-ifname.sh"
