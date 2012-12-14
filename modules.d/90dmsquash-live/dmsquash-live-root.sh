@@ -32,7 +32,12 @@ fi
 getarg rd.live.check -d check || check=""
 if [ -n "$check" ]; then
     [ -x /bin/plymouth ] && /bin/plymouth --hide-splash
-    checkisomd5 --verbose $livedev
+    if [ -n "DRACUT_SYSTEMD" ]; then
+        p=$(str_replace "$livedev" "-" '\x2d')
+        systemctl start checkisomd5@${p}.service
+    else
+        checkisomd5 --verbose $livedev
+    fi
     if [ $? -ne 0 ]; then
         die "CD check failed!"
         exit 1
