@@ -32,7 +32,7 @@ fi
 getarg rd.live.check -d check || check=""
 if [ -n "$check" ]; then
     [ -x /bin/plymouth ] && /bin/plymouth --hide-splash
-    if [ -n "DRACUT_SYSTEMD" ]; then
+    if [ -n "$DRACUT_SYSTEMD" ]; then
         p=$(str_replace "$livedev" "-" '\x2d')
         systemctl start checkisomd5@${p}.service
     else
