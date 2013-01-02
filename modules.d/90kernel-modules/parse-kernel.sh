@@ -20,6 +20,9 @@ for i in $(getargs rd.driver.pre -d rdloaddriver=); do
     )
 done
 
+
+[ -d /etc/modprobe.d ] || mkdir -p /etc/modprobe.d
+
 for i in $(getargs rd.driver.blacklist -d rdblacklist=); do
     (
         IFS=,
