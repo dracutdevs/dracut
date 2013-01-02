@@ -5,6 +5,21 @@
 type info >/dev/null 2>&1 || . /lib/dracut-lib.sh
 type fsck_single >/dev/null 2>&1 || . /lib/fs-lib.sh
 
+filtersubvol() {
+    local _oldifs
+    _oldifs="$IFS"
+    IFS=","
+    set $*
+    IFS="$_oldifs"
+    while [ $# -gt 0 ]; do
+        case $1 in
+            subvol\=*) :;;
+            *) echo -n "${1}," ;;
+        esac
+        shift
+    done
+}
+
 fsck_usr()
 {
     local _dev=$1
@@ -56,6 +71,8 @@ mount_usr()
                 [ "${root#block:}" -ef $_dev ]
                 [ -n "$rflags" ]; then
                 # for btrfs subvolumes we have to mount /usr with the same rflags
+                rflags=$(filtersubvol "$rflags")
+                rflags=${rflags%%,}
                 _opts="${_opts:+${_opts},}${rflags}"
             elif getargbool 0 ro; then
                 # if "ro" is specified, we want /usr to be mounted read-only
