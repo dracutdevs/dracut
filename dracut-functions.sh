@@ -900,7 +900,7 @@ inst_rules() {
     inst_dir "${udevdir}/rules.d"
     inst_dir "$_target"
     for _rule in "$@"; do
-        if [ "${rule#/}" = "$rule" ]; then
+        if [ "${_rule#/}" = "$_rule" ]; then
             for r in ${udevdir}/rules.d /etc/udev/rules.d; do
                 if [[ -f $r/$_rule ]]; then
                     _found="$r/$_rule"
