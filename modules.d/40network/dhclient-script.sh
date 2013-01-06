@@ -25,8 +25,7 @@ setup_interface() {
         if ! ip link set $netif mtu $mtu ; then
             ip link set $netif down
             ip link set $netif mtu $mtu
-            ip link set $netif up
-            wait_for_if_up $netif
+            linkup $netif
         fi
     fi
 
@@ -62,8 +61,7 @@ netif=$interface
 case $reason in
     PREINIT)
         echo "dhcp: PREINIT $netif up"
-        ip link set $netif up
-        wait_for_if_up $netif
+        linkup $netif
         ;;
     BOUND)
         echo "dhcp: BOND setting $netif"
