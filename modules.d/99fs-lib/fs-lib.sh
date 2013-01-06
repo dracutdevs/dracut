@@ -248,3 +248,42 @@ write_fs_tab() {
         systemctl --no-block start initrd-root-fs.target
     fi
 }
+
+# fstab_mount FSTAB
+# go through FSTAB and mount each line
+# cannot be used to mount rootfs for 40network, because it will not create /dev/root
+fstab_mount() {
+    local _dev _mp _fs _opts _dump _pass _rest
+    test -e "$1" || return 1
+    info "Mounting from $1"
+    while read _dev _mp _fs _opts _dump _pass _rest; do
+        [ -z "${_dev%%#*}" ] && continue # Skip comment lines
+        ismounted $_mp && continue # Skip mounted filesystem
+        if [ "$_pass" -gt 0 ] && ! strstr "$_opts" _netdev; then
+            fsck_single "$_dev" "$_fs" "$_opts"
+        fi
+        _fs=$(det_fs "$_dev" "$_fs")
+        info "Mounting $_dev"
+        if [ -d "$NEWROOT/$_mp" ]; then
+            mount -v -t $_fs -o $_opts $_dev "$NEWROOT/$_mp" 2>&1 | vinfo
+        else
+            [ -d "$_mp" ] || mkdir -p "$_mp"
+            mount -v -t $_fs -o $_opts $_dev $_mp 2>&1 | vinfo
+        fi
+    done < $1
+    return 0
+}
+
+# fs_add_mount PHASE FS MOUNTPOINT FSTYPE OPTIONS DUMP PASS
+# add line to fstab used by pre-mount (PHASE=early) or pre-pivot (PHASE=late) hook
+# FS is anything that could be found in the first column of fstab
+fs_add_mount() {
+	local phase="$1" fs="$2" mountpoint="$3" fstype="$4" options="$5" dump="$6" pass="$7"
+	[ "${fs}" ] || die "FS passed to $0 is empty"
+	[ "${mountpoint}" ] || die "Mountpoint passed to $0 is empty"
+	[ "${fstype}" ] || fstype=auto
+	[ "${options}" ] || options=defaults
+	[ "${dump}" ] || dump=0
+	[ "${pass}" ] || pass=0
+	echo "${fs} ${mountpoint} ${fstype} ${options} ${dump} ${pass}" >> /etc/fstab."${phase}"
+}
