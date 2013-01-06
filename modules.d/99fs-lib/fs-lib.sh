@@ -287,3 +287,29 @@ fs_add_mount() {
 	[ "${pass}" ] || pass=0
 	echo "${fs} ${mountpoint} ${fstype} ${options} ${dump} ${pass}" >> /etc/fstab."${phase}"
 }
+
+# fs_mount_to_var MOUNTSPEC
+# use MOUNTSPEC to set $mountpoint, $fstype, $fs and $options.
+# MOUNTSPEC is something like: [<mountpoint>]:<fstype>:<fs>[,<options>]
+fs_mount_to_var() {
+	local arg="$1"
+
+	options="${arg#*,}"
+	[ "${options}" = "${arg}" ] && unset options
+	arg="${arg%%,${options}}"
+
+	mountpoint="${arg%%:*}"
+	[ "${mountpoint}" = "${arg}" ] && die "Unable to parse mountpoint out of $1"
+	arg="${arg##${mountpoint}:}"
+
+	if [ "${mountpoint}" = "${mountpoint#/}" ] ; then
+		fstype="${mountpoint}"
+		mountpoint=/
+	else
+		fstype="${arg%%:*}"
+		[ "${fstype}" = "${arg}" ] && die "Unable to parse fstype out of $1"
+		arg="${arg##${fstype}:}"
+	fi
+
+	fs="${arg}"
+}
