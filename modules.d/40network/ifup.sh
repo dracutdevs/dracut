@@ -187,7 +187,7 @@ if [ -e /tmp/team.info ]; then
             fi
         done
         # Do not add slaves now
-        teamd -d -U -n -f /etc/teamd/$teammaster.conf
+        teamd -d -U -n -t $teammaster -f /etc/teamd/$teammaster.conf
         for slave in $working_slaves; do
             # team requires the slaves to be down before joining team
             ip link set $slave down
