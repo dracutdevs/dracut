@@ -26,7 +26,7 @@ depends() {
 }
 
 installkernel() {
-    instmods btrfs crc32c
+    instmods btrfs
 }
 
 install() {

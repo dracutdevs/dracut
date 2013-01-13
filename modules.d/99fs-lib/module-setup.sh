@@ -35,6 +35,24 @@ echo_fs_helper() {
     esac
 }
 
+include_fs_helper_modules() {
+    local dev=$1 fs=$2
+    case "$fs" in
+        xfs|btrfs)
+            instmods crc32c
+            ;;
+    esac
+}
+
+installkernel() {
+    # xfs and btrfs needs crc32c...
+    if [[ $hostonly ]]; then
+        for_each_host_dev_fs include_fs_helper_modules
+        :
+    else
+        instmods crc32c
+    fi
+}
 
 install() {
     local _helpers
