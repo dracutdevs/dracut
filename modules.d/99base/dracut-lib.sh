@@ -181,6 +181,35 @@ getargbool() {
     return 0
 }
 
+isdigit() {
+    case "$1" in
+        *[!0-9]*|"") return 1;;
+    esac
+
+    return 0
+}
+
+# getargnum <defaultval> <minval> <maxval> <arg>
+# Will echo the arg if it's in range [minval - maxval].
+# If it's not set or it's not valid, will set it <defaultval>.
+# Note all values are required to be >= 0 here.
+# <defaultval> should be with [minval -maxval].
+getargnum() {
+    local _b
+    unset _b
+    local _default _min _max
+    _default=$1; shift
+    _min=$1; shift
+    _max=$1; shift
+    _b=$(getarg "$1")
+    [ $? -ne 0 -a -z "$_b" ] && _b=$_default
+    if [ -n "$_b" ]; then
+        isdigit "$_b" && _b=$(($_b)) && \
+        [ $_b -ge $_min ] && [ $_b -le $_max ] && echo $_b && return
+    fi
+    echo $_default
+}
+
 _dogetargs() {
     debug_off
     local _o _found _key
