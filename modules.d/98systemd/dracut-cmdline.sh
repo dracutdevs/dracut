@@ -18,6 +18,7 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 source_conf /etc/conf.d
 
+make_trace_mem "hook cmdline" '1+:mem' '1+:iomem' '3+:slab'
 # run scriptlets to parse the command line
 getarg 'rd.break=cmdline' -d 'rdbreak=cmdline' && emergency_shell -n cmdline "Break before cmdline"
 source_hook cmdline

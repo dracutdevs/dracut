@@ -1013,3 +1013,98 @@ listlist() {
 are_lists_eq() {
     listlist "$1" "$2" "$3" "$4" && listlist "$1" "$3" "$2" "$4"
 }
+
+setmemdebug() {
+    if [ -z "$DEBUG_MEM_LEVEL" ]; then
+        export DEBUG_MEM_LEVEL=$(getargnum 0 0 3 rd.memdebug)
+    fi
+}
+
+setmemdebug
+
+# parameters: msg [trace_level:trace]...
+make_trace_mem()
+{
+    local msg
+    msg="$1"
+    shift
+    if [ -n "$DEBUG_MEM_LEVEL" ] && [ "$DEBUG_MEM_LEVEL" -gt 0 ]; then
+        make_trace show_memstats $DEBUG_MEM_LEVEL "[debug_mem]" "$msg" "$@"
+    fi
+}
+
+# parameters: func log_level prefix msg [trace_level:trace]...
+make_trace()
+{
+    local func log_level prefix msg msg_printed
+    local trace trace_level trace_in_higher_levels insert_trace
+
+    func=$1
+    shift
+
+    log_level=$1
+    shift
+
+    prefix=$1
+    shift
+
+    msg=$1
+    shift
+
+    if [ -z "$log_level" ]; then
+        return
+    fi
+
+    msg=$(echo $msg)
+
+    msg_printed=0
+    while [ $# -gt 0 ]; do
+        trace=${1%%:*}
+        trace_level=${trace%%+}
+        [ "$trace" != "$trace_level" ] && trace_in_higher_levels="yes"
+        trace=${1##*:}
+
+        if [ -z "$trace_level" ]; then
+            trace_level=0
+        fi
+
+        insert_trace=0
+        if [ -n "$trace_in_higher_levels" ]; then
+            if [ "$log_level" -ge "$trace_level" ]; then
+                insert_trace=1
+            fi
+        else
+            if [ "$log_level" -eq "$trace_level" ]; then
+                insert_trace=1
+            fi
+        fi
+
+        if [ $insert_trace -eq 1 ]; then
+            if [ $msg_printed -eq 0 ]; then
+                echo "$prefix $msg"
+                msg_printed=1
+            fi
+            $func $trace
+        fi
+        shift
+    done
+}
+
+# parameters: type
+show_memstats()
+{
+    case $1 in
+        shortmem)
+            cat /proc/meminfo  | grep -e "^MemFree" -e "^Cached" -e "^Slab"
+            ;;
+        mem)
+            cat /proc/meminfo
+            ;;
+        slab)
+            cat /proc/slabinfo
+            ;;
+        iomem)
+            cat /proc/iomem
+            ;;
+    esac
+}
