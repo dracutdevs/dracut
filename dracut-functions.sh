@@ -106,7 +106,7 @@ fi
     hookdirs="cmdline pre-udev pre-trigger netroot "
     hookdirs+="initqueue initqueue/settled initqueue/online initqueue/finished initqueue/timeout "
     hookdirs+="pre-mount pre-pivot cleanup mount "
-    hookdirs+="emergency shutdown-emergency shutdown "
+    hookdirs+="emergency shutdown-emergency pre-shutdown shutdown "
     export hookdirs
 }
 
