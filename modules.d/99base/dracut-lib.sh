@@ -897,6 +897,11 @@ emergency_shell()
         shift 2
     elif [ "$1" = "--shutdown" ]; then
         _rdshell_name=$2; action="Shutdown"; hook="shutdown-emergency"
+        if [ -x /bin/plymouth ]; then
+            /bin/plymouth --hide-splash
+        elif [ -x /oldroot/bin/plymouth ]; then
+            /oldroot/bin/plymouth --hide-splash
+        fi
         shift 2
     fi
 
