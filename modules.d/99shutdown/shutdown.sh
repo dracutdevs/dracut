@@ -24,6 +24,10 @@ fi
 trap "emergency_shell --shutdown shutdown Signal caught!" 0
 getarg 'rd.break=pre-shutdown' && emergency_shell --shutdown pre-shutdown "Break before pre-shutdown"
 
+source_hook pre-shutdown
+
+/bin/plymouth --quit || /oldroot/bin/plymouth --quit
+
 umount_a() {
     local _did_umount="n"
     while read a mp a; do
