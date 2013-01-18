@@ -8,6 +8,8 @@
 # Harald Hoyer <harald@redhat.com>
 ACTION="$1"
 
+exec </dev/console >>/dev/console 2>>/dev/console
+
 export TERM=linux
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 . /lib/dracut-lib.sh
@@ -26,7 +28,13 @@ getarg 'rd.break=pre-shutdown' && emergency_shell --shutdown pre-shutdown "Break
 
 source_hook pre-shutdown
 
-/bin/plymouth --quit || /oldroot/bin/plymouth --quit
+if ! ( [ -x /bin/plymouth ] && /bin/plymouth --quit ); then
+    [ -x /oldroot/bin/plymouth ] && /oldroot/bin/plymouth --quit
+fi
+
+warn "Killing all remaining processes"
+
+killall_proc_mountpoint /oldroot
 
 umount_a() {
     local _did_umount="n"
@@ -34,7 +42,7 @@ umount_a() {
         if strstr "$mp" oldroot; then
             if umount "$mp"; then
                 _did_umount="y"
-                echo "Unmounted $mp."
+                warn "Unmounted $mp."
             fi
         fi
     done </proc/mounts
@@ -47,7 +55,26 @@ while [ $_cnt -le 40 ]; do
     umount_a 2>/dev/null || break
     _cnt=$(($_cnt+1))
 done
+
 [ $_cnt -ge 40 ] && umount_a
+
+if strstr "$(cat /proc/mounts)" "/oldroot"; then
+    warn "Cannot umount /oldroot"
+    for _pid in /proc/*; do
+        _pid=${_pid##/proc/}
+        case $_pid in
+            *[!0-9]*) continue;;
+        esac
+        [ -e /proc/$_pid/exe ] || continue
+        [ -e /proc/$_pid/root ] || continue
+        if strstr "$(ls -l /proc/$_pid /proc/$_pid/fd 2>/dev/null)" "oldroot"; then
+            warn "Blocking umount of /oldroot [$_pid] $(cat /proc/$_pid/cmdline)"
+        elif [ $_pid -ne $$ ]; then
+            warn "Still running [$_pid] $(cat /proc/$_pid/cmdline)"
+        fi
+        ls -l /proc/$_pid/fd 2>&1 | vwarn
+    done
+fi
 
 _check_shutdown() {
     local __f
