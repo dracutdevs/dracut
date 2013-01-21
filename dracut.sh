@@ -134,7 +134,7 @@ Creates initial ramdisk images for preloading modules
   --mount "[DEV] [MP] [FSTYPE] [FSOPTS]"
                         Mount device [DEV] on mountpoint [MP] with filesystem
                         [FSTYPE] and options [FSOPTS] in the initramfs
-  --device "[DEV]"      Bring up [DEV] in initramfs
+  --add-device "[DEV]"  Bring up [DEV] in initramfs
   -i, --include [SOURCE] [TARGET]
                         Include the files in the SOURCE directory into the
                          Target directory in the final initramfs.
@@ -331,7 +331,8 @@ while :; do
         --fscks)       push fscks_l              "$2"; shift;;
         --add-fstab)   push add_fstab_l          "$2"; shift;;
         --mount)       push fstab_lines          "$2"; shift;;
-        --device)      push host_devs            "$2"; shift;;
+        --add-device|--device)
+                       push add_device_l         "$2"; shift;;
         --kernel-cmdline) push kernel_cmdline_l  "$2"; shift;;
         --nofscks)     nofscks_l="yes";;
         --ro-mnt)      ro_mnt_l="yes";;
@@ -732,6 +733,16 @@ for f in $add_fstab; do
     while read dev rest; do
         push host_devs $dev
     done < $f
+done
+
+if (( ${#add_device_l[@]} )); then
+    while pop add_device_l val; do
+        add_device+=" $val "
+    done
+fi
+
+for dev in $add_device; do
+    push host_devs $dev
 done
 
 if [[ $hostonly ]]; then
