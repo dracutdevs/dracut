@@ -311,10 +311,17 @@ get_maj_min() {
 # $ find_block_device /usr
 # 8:4
 find_block_device() {
-    local _x _mpt _majmin _dev _fs _maj _min
+    local _x _mpt _majmin _dev _fs _maj _min _find_mpt
+    _find_mpt="$1"
     if [[ $use_fstab != yes ]]; then
-        while read _x _x _majmin _x _mpt _x _x _fs _dev _x; do
-            [[ $_mpt = $1 ]] || continue
+        while read _x; do
+            set -- $_x
+            _majmin="$3"
+            _mpt="$5"
+            [[ $8 = "-" ]] && shift
+            _fs="$8"
+            _dev="$9"
+            [[ $_mpt = $_find_mpt ]] || continue
             [[ $_fs = nfs ]] && { echo $_dev; return 0;}
             [[ $_fs = nfs3 ]] && { echo $_dev; return 0;}
             [[ $_fs = nfs4 ]] && { echo $_dev; return 0;}
@@ -332,7 +339,7 @@ find_block_device() {
     while read _dev _mpt _fs _x; do
         [ "${_dev%%#*}" != "$_dev" ] && continue
 
-        if [[ $_mpt = $1 ]]; then
+        if [[ $_mpt = $_find_mpt ]]; then
             [[ $_fs = nfs ]] && { echo $_dev; return 0;}
             [[ $_fs = nfs3 ]] && { echo $_dev; return 0;}
             [[ $_fs = nfs4 ]] && { echo $_dev; return 0;}
@@ -355,16 +362,40 @@ find_block_device() {
 # $ find_dev_fstype /dev/sda2;echo
 # ext4
 find_dev_fstype() {
-    local _x _mpt _majmin _dev _fs _maj _min
-    while read _x _x _majmin _x _mpt _x _x _fs _dev _x; do
-        [[ $_dev = $1 ]] || continue
+    local _x _mpt _majmin _dev _fs _maj _min _find_dev
+    _find_dev="$1"
+    strstr "$_find_dev" "/dev" || _find_dev="/dev/block/$_find_dev"
+    while read _x; do
+        set -- $_x
+        _majmin="$3"
+        _mpt="$5"
+        [[ $8 = "-" ]] && shift
+        _fs="$8"
+        _dev="$9"
+        strstr "$_dev" "/dev" || continue
+        [[ $_dev -ef $_find_dev ]] || continue
+        [[ $_fs = "autofs" ]] && continue
         echo -n $_fs;
         return 0;
     done < /proc/self/mountinfo
 
     # fall back to /etc/fstab
     while read _dev _mpt _fs _x; do
-        [[ $_dev = $1 ]] || continue
+        [ "${_dev%%#*}" != "$_dev" ] && continue
+        case "$_dev" in
+            LABEL=*)
+                _dev="$(echo $_dev | sed 's,/,\\x2f,g')"
+                _dev="/dev/disk/by-label/${_dev#LABEL=}"
+                ;;
+            UUID=*)
+                _dev="/dev/disk/by-uuid/${_dev#UUID=}"
+                ;;
+            PARTUUID=*)
+                _dev="/dev/disk/by-partuuid/${_dev#PARTUUID=}"
+                ;;
+        esac
+
+        [[ $_dev -ef $_find_dev ]] || continue
         echo -n $_fs;
         return 0;
     done < /etc/fstab
@@ -381,16 +412,25 @@ find_dev_fstype() {
 # $ find_mp_fstype /;echo
 # ext4
 find_mp_fstype() {
-    local _x _mpt _majmin _dev _fs _maj _min
-    while read _x _x _majmin _x _mpt _x _x _fs _dev _x; do
-        [[ $_mpt = $1 ]] || continue
+    local _x _mpt _majmin _dev _fs _maj _min _find_mpt
+    _find_mpt="$1"
+    while read _x; do
+        set -- $_x
+        _majmin="$3"
+        _mpt="$5"
+        [[ $8 = "-" ]] && shift
+        _fs="$8"
+        _dev="$9"
+        [[ $_mpt = $_find_mpt ]] || continue
+        [[ $_fs = "autofs" ]] && continue
         echo -n $_fs;
         return 0;
     done < /proc/self/mountinfo
 
     # fall back to /etc/fstab
     while read _dev _mpt _fs _x; do
-        [[ $_mpt = $1 ]] || continue
+        [ "${_dev%%#*}" != "$_dev" ] && continue
+        [[ $_mpt = $_find_mpt ]] || continue
         echo -n $_fs;
         return 0;
     done < /etc/fstab
