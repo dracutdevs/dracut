@@ -88,6 +88,7 @@ case $reason in
             echo "source_hook initqueue/online $netif"
             [ -e /tmp/net.$netif.manualup ] || echo "/sbin/netroot $netif"
             echo "> /tmp/setup_net_$netif.ok"
+            echo "> /tmp/setup_net_\$(cat /sys/class/net/$netif/address).ok"
             echo "rm -f $hookdir/initqueue/setup_net_$netif.sh"
         } > $hookdir/initqueue/setup_net_$netif.sh
 
