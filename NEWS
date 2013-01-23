@@ -1,3 +1,21 @@
+dracut-025
+==========
+- do not strip signed kernel modules
+- add sosreport script and generate /run/initramfs/sosreport.txt
+- make short uuid specification for allow-discards work
+- turn off RateLimit for the systemd journal
+- fixed MAC address assignment
+- add systemd checkisomd5 service
+- splitout drm kernel modules from plymouth module
+- add 'swapoff' to initramfs to fix shutdown/reboot
+- add team device support
+- add pre-shutdown hook
+- kill all processes in shutdown and report remaining ones
+- "--device" changed to "--add-device" and "add_device=" added for conf files
+- add memory usage trace to different hook points
+- cope with optional field #7 in /proc/self/mountinfo
+- lots of small bugfixes
+
 dracut-024
 ==========
 - new dracut option "--device"
