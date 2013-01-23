@@ -41,7 +41,8 @@ installkernel() {
             sdhci_esdhc_imx mmci sdhci_tegra mvsdio \
             omap omapdrm omap_hsmmc sdhci_dove ahci_platform pata_imx sata_mv \
             atkbd i8042 usbhid hid-apple hid-sunplus hid-cherry hid-logitech \
-            hid-logitech-dj hid-microsoft ehci-hcd ohci-hcd uhci-hcd xhci-hcd hid_generic \
+            hid-logitech-dj hid-microsoft ehci-hcd ehci-pci ehci-platform \
+            ohci-hcd uhci-hcd xhci-hcd hid_generic \
             unix
 
         # install virtual machine support
