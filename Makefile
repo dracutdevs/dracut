@@ -1,4 +1,4 @@
-VERSION=024
+VERSION=025
 GITVERSION=$(shell [ -d .git ] && git rev-list  --abbrev-commit  -n 1 HEAD  |cut -b 1-8)
 
 -include Makefile.inc
