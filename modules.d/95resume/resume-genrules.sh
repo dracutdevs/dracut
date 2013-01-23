@@ -32,8 +32,8 @@ if [ -n "$resume" ]; then
             ${resume#/dev/};
     } >> /etc/udev/rules.d/99-resume.rules
 
-    printf '[ -e "%s" ] && { ln -s "%s" /dev/resume; rm "$job"; udevadm settle; }\n' \
-        "$resume" "$resume" >> $hookdir/initqueue/settled/resume.sh
+    printf '[ -e "%s" ] && { ln -s "%s" /dev/resume; rm "$job" "%s/initqueue/timeout/resume.sh"; }\n' \
+        "$resume" "$resume" "$hookdir" >> $hookdir/initqueue/settled/resume.sh
 
     printf 'warn "Cancelling resume operation. Device not found."; cancel_wait_for_dev /dev/resume; rm "$job" "%s/initqueue/settled/resume.sh";' \
         "$hookdir" >> $hookdir/initqueue/timeout/resume.sh
