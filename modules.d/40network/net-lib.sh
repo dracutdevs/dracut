@@ -271,11 +271,11 @@ ip_to_var() {
     case $# in
         0)  autoconf="error" ;;
         1)  autoconf=$1 ;;
-        2)  dev=$1; autoconf=$2 ;;
-        3)  dev=$1; autoconf=$2; mtu=$3 ;;
-        4)  dev=$1; autoconf=$2; mtu=$3; macaddr=$4 ;;
-        *)  ip=$1; srv=$2; gw=$3; mask=$4;
-            hostname=$5; dev=$6; autoconf=$7; mtu=$8;
+        2)  [ -n "$1" ] && dev=$1; [ -n "$2" ] && autoconf=$2 ;;
+        3)  [ -n "$1" ] && dev=$1; [ -n "$2" ] && autoconf=$2; [ -n "$3" ] && mtu=$3 ;;
+        4)  [ -n "$1" ] && dev=$1; [ -n "$2" ] && autoconf=$2; [ -n "$3" ] && mtu=$3; [ -n "$4" ] && macaddr=$4 ;;
+        *)  [ -n "$1" ] && ip=$1; [ -n "$2" ] && srv=$2; [ -n "$3" ] && gw=$3; [ -n "$4" ] && mask=$4;
+            [ -n "$5" ] && hostname=$5; [ -n "$6" ] && dev=$6; [ -n "$7" ] && autoconf=$7; [ -n "$8" ] && mtu=$8;
             if [ -n "${9}" -a -n "${10}" -a -n "${11}" -a -n "${12}" -a -n "${13}" -a -n "${14}" ]; then
                 macaddr="${9}:${10}:${11}:${12}:${13}:${14}"
             fi
