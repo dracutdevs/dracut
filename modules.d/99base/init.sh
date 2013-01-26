@@ -17,9 +17,6 @@ OLDPATH=$PATH
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 export PATH
 
-RD_DEBUG=""
-. /lib/dracut-lib.sh
-
 # mount some important things
 [ ! -d /proc/self ] && \
     mount -t proc -o nosuid,noexec,nodev proc /proc >/dev/null
@@ -36,6 +33,9 @@ if [ "$?" != "0" ]; then
     echo "Cannot mount sysfs on /sys! Compile the kernel with CONFIG_SYSFS!"
     exit 1
 fi
+
+RD_DEBUG=""
+. /lib/dracut-lib.sh
 
 if [ -x /lib/systemd/systemd-timestamp ]; then
     RD_TIMESTAMP=$(/lib/systemd/systemd-timestamp)
