@@ -24,24 +24,24 @@ fi
     # bridge: attempt only the defined interface
     if [ -e /tmp/bridge.info ]; then
         . /tmp/bridge.info
-        IFACES+=" ${ethnames%% *}"
+        IFACES="$IFACES ${ethnames%% *}"
     fi
 
     # bond: attempt only the defined interface (override bridge defines)
     if [ -e /tmp/bond.info ]; then
         . /tmp/bond.info
         # It is enough to fire up only one
-        IFACES+=" ${bondslaves%% *}"
+        IFACES="$IFACES ${bondslaves%% *}"
     fi
 
     if [ -e /tmp/team.info ]; then
         . /tmp/team.info
-        IFACES+=" ${teamslaves}"
+        IFACES="$IFACES ${teamslaves}"
     fi
 
     if [ -e /tmp/vlan.info ]; then
         . /tmp/vlan.info
-        IFACES+=" $phydevice"
+        IFACES="$IFACES $phydevice"
     fi
 
     if [ -z "$IFACES" ]; then
