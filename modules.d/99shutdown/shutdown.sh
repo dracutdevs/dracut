@@ -46,6 +46,7 @@ umount_a() {
             fi
         fi
     done </proc/mounts
+    losetup -D
     [ "$_did_umount" = "y" ] && return 0
     return 1
 }
