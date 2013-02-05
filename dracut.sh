@@ -766,18 +766,18 @@ if [[ $hostonly ]]; then
 fi
 
 _get_fs_type() (
-    [[ $1 ]] || return 1
+    [[ $1 ]] || return
     if [[ -b $1 ]] && get_fs_env $1; then
         echo "$(readlink -f $1)|$ID_FS_TYPE"
-        return 0
+        return 1
     fi
     if [[ -b /dev/block/$1 ]] && get_fs_env /dev/block/$1; then
         echo "$(readlink -f /dev/block/$1)|$ID_FS_TYPE"
-        return 0
+        return 1
     fi
     if fstype=$(find_dev_fstype $1); then
         echo "$1|$fstype"
-        return 0
+        return 1
     fi
     return 1
 )
