@@ -7,7 +7,6 @@ Items are ordered in priority.
 INITRAMFS TODO
 
 - use info and warn prefix
-- add sosreport
 - generate systemd unit dracut-initramfs-restore in /run/systemd dynamically
 - put "root=" parsing hooks in separate hook dir
 - call "root=" parsing hooks after getting new rootpath from dhcp
@@ -20,10 +19,10 @@ INITRAMFS TODO
 - disable write-ifcfg https://bugzilla.redhat.com/show_bug.cgi?id=840784
 - check for /var to be mounted in convertfs https://bugzilla.redhat.com/show_bug.cgi?id=848172
 - probably fix "--include" https://bugzilla.redhat.com/show_bug.cgi?id=849338
-- iscsi livecd boot
 
 GENERATOR TODO
 
+- add presets (predefined set of modules)
 - add interpreter/plugin-scripts to be sourced at the beginning or end (can use dracut-functions)
 - provide "installkernel" and "new-kernel-pkg"
 - add mechanism for module specific command line options
