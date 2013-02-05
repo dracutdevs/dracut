@@ -96,6 +96,8 @@ Conflicts: initscripts < 8.63-1
 Conflicts: plymouth < 0.8.0-0.2009.29.09.19.1
 %endif
 
+Conflicts: mdadm < 3.2.6-14
+
 %description
 dracut contains tools to create a bootable initramfs for 2.6 Linux kernels.
 Unlike existing implementations, dracut does hard-code as little as possible
