@@ -223,10 +223,10 @@ fi
 get_vid() {
     case "$1" in
     vlan*)
-        return ${1#vlan}
+        echo ${1#vlan}
         ;;
     *.*)
-        return ${1##*.}
+        echo ${1##*.}
         ;;
     esac
 }
@@ -238,7 +238,7 @@ if [ "$netif" = "$vlanname" ] && [ ! -e /tmp/net.$vlanname.up ]; then
     else
         linkup "$phydevice"
     fi
-    ip link add dev "$vlanname" link "$phydevice" type vlan id "$(get_vid $vlanname; echo $?)"
+    ip link add dev "$vlanname" link "$phydevice" type vlan id "$(get_vid $vlanname)"
 fi
 
 # setup nameserver
