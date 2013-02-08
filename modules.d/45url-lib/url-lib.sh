@@ -61,7 +61,7 @@ curl_fetch_url() {
     local url="$1" outloc="$2"
     echo "$url" > /proc/self/fd/0
     if [ -n "$outloc" ]; then
-        curl $curl_args --output "$outloc" "$url" || return $?
+        curl --globoff $curl_args --output "$outloc" "$url" || return $?
     else
         local outdir="$(mkuniqdir /tmp curl_fetch_url)"
         ( cd "$outdir"; curl $curl_args --remote-name "$url" || return $? )
