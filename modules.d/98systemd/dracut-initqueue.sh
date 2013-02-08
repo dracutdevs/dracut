@@ -39,7 +39,7 @@ while :; do
         check_finished && break 2
     done
 
-    $UDEV_QUEUE_EMPTY >/dev/null 2>&1 || continue
+    udevadm settle --timeout=0 >/dev/null 2>&1 || continue
 
     for job in $hookdir/initqueue/settled/*.sh; do
         [ -e "$job" ] || break
@@ -47,11 +47,10 @@ while :; do
         check_finished && break 2
     done
 
-    $UDEV_QUEUE_EMPTY >/dev/null 2>&1 || continue
+    udevadm settle --timeout=0 >/dev/null 2>&1 || continue
 
     # no more udev jobs and queues empty.
     sleep 0.5
-
 
     if [ $main_loop -gt $((2*$RDRETRY/3)) ]; then
         for job in $hookdir/initqueue/timeout/*.sh; do
