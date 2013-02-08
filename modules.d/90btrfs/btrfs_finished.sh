@@ -11,6 +11,7 @@ btrfs_check_complete() {
     _rootinfo=$(udevadm info --query=env "--name=$_dev" 2>/dev/null)
     if strstr "$_rootinfo" "ID_FS_TYPE=btrfs"; then
         info "Checking, if btrfs device complete"
+        btrfs device ready "$_dev" >/dev/null 2>&1 && return 0
         unset __btrfs_mount
         mount -o ro "$_dev" /tmp >/dev/null 2>&1
         __btrfs_mount=$?
