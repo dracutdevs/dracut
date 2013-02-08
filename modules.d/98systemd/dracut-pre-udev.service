@@ -15,6 +15,8 @@ Before=systemd-udevd.service dracut-pre-trigger.service
 After=dracut-cmdline.service
 Wants=dracut-cmdline.service
 ConditionPathExists=/etc/initrd-release
+ConditionDirectoryNotEmpty=|/lib/dracut/hooks/pre-udev
+ConditionKernelCommandLine=|rd.break=pre-udev
 
 [Service]
 Type=oneshot
