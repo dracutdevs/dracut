@@ -75,6 +75,6 @@ install() {
 
     inst_libdir_file "libnss_files*"
 
-    inst_hook pre-udev 10 "$moddir/udev-rules-prepare.sh"
+    . "$moddir/udev-rules-prepare.sh"
 }
 

@@ -4,7 +4,7 @@
 
 [ -z "$UDEVVERSION" ] && export UDEVVERSION=$(udevadm --version)
 
-for f in /etc/udev/rules.d/*-persistent-storage.rules; do
+for f in ${initdir}/etc/udev/rules.d/*-persistent-storage.rules; do
     [ -e "$f" ] || continue
     while read line; do
         if [ "${line%%IMPORT PATH_ID}" != "$line" ]; then
