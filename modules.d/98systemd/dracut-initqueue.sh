@@ -25,7 +25,7 @@ while :; do
 
     check_finished && break
 
-    udevsettle
+    udevadm settle --exit-if-exists=$hookdir/initqueue/work
 
     check_finished && break
 
