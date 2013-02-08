@@ -17,6 +17,8 @@ udevproperty "hookdir=$hookdir"
 
 source_hook pre-trigger
 
+getarg 'rd.break=pre-trigger' 'rdbreak=pre-trigger' && emergency_shell -n pre-trigger "Break pre-trigger"
+
 udevadm control --reload >/dev/null 2>&1 || :
 
 export -p > /dracut-state.sh
