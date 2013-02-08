@@ -71,7 +71,6 @@ install() {
         $systemdsystemunitdir/systemd-vconsole-setup.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-modules-load.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-ask-password-console.path \
-        $systemdsystemunitdir/sysinit.target.wants/systemd-vconsole-setup.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-journald.service \
         $systemdsystemunitdir/sockets.target.wants/systemd-udevd-control.socket \
         $systemdsystemunitdir/sockets.target.wants/systemd-udevd-kernel.socket \
@@ -106,6 +105,7 @@ install() {
     egrep '^adm:' /etc/group >> "$initdir/etc/group"
 
     ln -fs $systemdutildir/systemd "$initdir/init"
+    ln -fs $systemdutildir/systemd "$initdir/sbin/init"
 
     inst_simple "$moddir/dracut-emergency.service" ${systemdsystemunitdir}/dracut-emergency.service
     inst_simple "$moddir/rescue.service" ${systemdsystemunitdir}/rescue.service
@@ -145,6 +145,19 @@ install() {
 
     inst_script "$moddir/service-to-run.sh" "${systemdutildir}/system-generators/service-to-run"
     inst_rules 99-systemd.rules
+
+
+    for i in \
+        emergency.target \
+        dracut-emergency.service \
+        rescue.service \
+        systemd-ask-password-console.service \
+        systemd-ask-password-plymouth.service \
+        ; do
+        mkdir -p "${initdir}${dracutsystemunitdir}/${i}.requires"
+        ln_r "${systemdsystemunitdir}/systemd-vconsole-setup.service" \
+            "${dracutsystemunitdir}/${i}.requires/systemd-vconsole-setup.service"
+    done
 
     # turn off RateLimit for journal
     {
