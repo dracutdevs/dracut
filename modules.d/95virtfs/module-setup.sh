@@ -32,7 +32,7 @@ depends() {
 }
 
 installkernel() {
-    instmods 9p 9pnet_virtio
+    instmods 9p 9pnet_virtio virtio_pci
 }
 
 install() {
