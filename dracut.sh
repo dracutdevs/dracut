@@ -833,7 +833,7 @@ if [[ $prefix ]]; then
 fi
 
 if [[ $kernel_only != yes ]]; then
-    for d in usr/bin usr/sbin bin etc lib sbin tmp usr var var/log $libdirs; do
+    for d in usr/bin usr/sbin bin etc lib sbin tmp usr var $libdirs; do
         [[ -e "${initdir}${prefix}/$d" ]] && continue
         if [ -L "/$d" ]; then
             inst_symlink "/$d" "${prefix}/$d"
@@ -852,6 +852,7 @@ if [[ $kernel_only != yes ]]; then
 
     ln -sfn ../run "$initdir/var/run"
     ln -sfn ../run/lock "$initdir/var/lock"
+    ln -sfn ../run/log "$initdir/var/log"
 else
     for d in lib "$libdir"; do
         [[ -e "${initdir}${prefix}/$d" ]] && continue
