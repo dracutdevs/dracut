@@ -31,7 +31,7 @@ nbdflags=${root%%:*}
 nbdopts=${root#*:}
 
 # If nbdport not an integer, then assume name based import
-if [ "${nbdport%[0-9]}" = "$nbdport" ]; then
+if [ ! -z $(echo "$nbdport" | sed 's/[0-9]//g') ]; then
     nbdport="-N $nbdport"
 fi
 
