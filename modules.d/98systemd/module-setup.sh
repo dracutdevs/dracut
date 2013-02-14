@@ -59,10 +59,14 @@ install() {
         $systemdsystemunitdir/systemd-ask-password-console.service \
         $systemdsystemunitdir/emergency.service \
         $systemdsystemunitdir/halt.service \
+        $systemdsystemunitdir/systemd-halt.service \
         $systemdsystemunitdir/poweroff.service \
+        $systemdsystemunitdir/systemd-poweroff.service \
         $systemdsystemunitdir/systemd-reboot.service \
         $systemdsystemunitdir/kexec.service \
+        $systemdsystemunitdir/systemd-kexec.service \
         $systemdsystemunitdir/fsck@.service \
+        $systemdsystemunitdir/systemd-fsck@.service \
         $systemdsystemunitdir/systemd-udevd.service \
         $systemdsystemunitdir/systemd-udev-trigger.service \
         $systemdsystemunitdir/systemd-udev-settle.service \
@@ -78,7 +82,6 @@ install() {
         $systemdsystemunitdir/sysinit.target.wants/systemd-udevd.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-udev-trigger.service \
         $systemdsystemunitdir/ctrl-alt-del.target \
-        $systemdsystemunitdir/single.service \
         $systemdsystemunitdir/syslog.socket \
         $systemdsystemunitdir/syslog.target \
         $systemdsystemunitdir/initrd-switch-root.target \
