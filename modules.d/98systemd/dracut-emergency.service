@@ -10,6 +10,8 @@
 [Unit]
 Description=Emergency Shell
 DefaultDependencies=no
+After=systemd-vconsole-setup.service
+Wants=systemd-vconsole-setup.service
 
 [Service]
 Environment=HOME=/
