@@ -1499,13 +1499,16 @@ module_is_host_only() (
 
 find_kernel_modules_by_path () (
     local _OLDIFS
-        _OLDIFS=$IFS
-        IFS=:
-        while read a rest; do
-            [[ $a = */$1/* ]] || continue
-            echo $srcmods/$a
-        done < $srcmods/modules.dep
-        IFS=$_OLDIFS
+
+    [[ -f $srcmods/modules.dep ]] || return 0
+
+    _OLDIFS=$IFS
+    IFS=:
+    while read a rest; do
+        [[ $a = */$1/* ]] || continue
+        echo $srcmods/$a
+    done < $srcmods/modules.dep
+    IFS=$_OLDIFS
     return 0
 )
 

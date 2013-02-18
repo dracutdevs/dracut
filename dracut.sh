@@ -689,10 +689,11 @@ esac
 
 abs_outfile=$(readlink -f "$outfile") && outfile="$abs_outfile"
 
-[[ -f $srcmods/modules.dep ]] || {
-    dfatal "$srcmods/modules.dep is missing. Did you run depmod?"
-    exit 1
-}
+if [[ -d $srcmods ]]; then
+    [[ -f $srcmods/modules.dep ]] || {
+      dwarn "$srcmods/modules.dep is missing. Did you run depmod?"
+    }
+fi
 
 if [[ -f $outfile && ! $force ]]; then
     dfatal "Will not override existing initramfs ($outfile) without --force"
