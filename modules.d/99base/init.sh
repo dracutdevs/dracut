@@ -82,6 +82,7 @@ fi
 trap "emergency_shell Signal caught!" 0
 
 [ -d /run/initramfs ] || mkdir -p -m 0755 /run/initramfs
+[ -d /run/log ] || mkdir -p -m 0755 /run/log
 
 export UDEVVERSION=$(udevadm --version)
 if [ $UDEVVERSION -gt 166 ]; then
