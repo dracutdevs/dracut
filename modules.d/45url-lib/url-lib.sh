@@ -58,7 +58,7 @@ curl_args="--location --retry 3 --fail --show-error"
 getargbool 0 rd.noverifyssl && curl_args="$curl_args --insecure"
 
 proxy=$(getarg proxy=)
-[ -n "$proxy" ] && curl_args+="$curl_args --proxy $proxy"
+[ -n "$proxy" ] && curl_args="$curl_args --proxy $proxy"
 
 curl_fetch_url() {
     local url="$1" outloc="$2"
