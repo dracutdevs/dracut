@@ -235,6 +235,30 @@ read_arg() {
     fi
 }
 
+
+source_dirs_prio()
+{
+    suffix=$1; shift
+    args=("$@")
+    files=$(
+        while (( $# > 0 )); do
+            for i in ${1}/*${suffix}; do
+                [[ -f $i ]] && echo ${i##*/}
+            done
+            shift
+        done | sort -Vu
+    )
+
+    for f in $files; do
+        for d in "${args[@]}"; do
+            if [[ -f "$d/$f" ]]; then
+                echo "$d/$f"
+                continue 2
+            fi
+        done
+    done
+}
+
 verbosity_mod_l=0
 unset kernel
 unset outfile
@@ -465,11 +489,9 @@ fi
 [[ -f $conffile ]] && . "$conffile"
 
 # source our config dir
-if [[ $confdir && -d $confdir ]]; then
-    for f in "$confdir"/*.conf; do
-        [[ -e $f ]] && . "$f"
-    done
-fi
+for f in $(source_dirs_prio ".conf" "$confdir" "$dracutbasedir/dracut.conf.d"); do
+    [[ -e $f ]] && . "$f"
+done
 
 # these optins add to the stuff in the config file
 if (( ${#add_dracutmodules_l[@]} )); then

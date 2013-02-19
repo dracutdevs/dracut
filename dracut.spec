@@ -217,12 +217,12 @@ touch $RPM_BUILD_ROOT%{_localstatedir}/log/dracut.log
 mkdir -p $RPM_BUILD_ROOT%{_sharedstatedir}/initramfs
 
 %if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
-install -m 0644 dracut.conf.d/fedora.conf.example $RPM_BUILD_ROOT/etc/dracut.conf.d/01-dist.conf
-install -m 0644 dracut.conf.d/fips.conf.example $RPM_BUILD_ROOT/etc/dracut.conf.d/40-fips.conf
+install -m 0644 dracut.conf.d/fedora.conf.example $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/01-dist.conf
+install -m 0644 dracut.conf.d/fips.conf.example $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/40-fips.conf
 %endif
 
 %if 0%{?suse_version}
-install -m 0644 dracut.conf.d/suse.conf.example   $RPM_BUILD_ROOT/etc/dracut.conf.d/01-dist.conf
+install -m 0644 dracut.conf.d/suse.conf.example   $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/01-dist.conf
 %endif
 
 %if 0%{?fedora} <= 12 && 0%{?rhel} < 6 && 0%{?suse_version} <= 9999
@@ -260,9 +260,10 @@ rm -rf $RPM_BUILD_ROOT
 %{dracutlibdir}/dracut-install
 %config(noreplace) /etc/dracut.conf
 %if 0%{?fedora} || 0%{?suse_version} || 0%{?rhel}
-%config /etc/dracut.conf.d/01-dist.conf
+%{dracutlibdir}/dracut.conf.d/01-dist.conf
 %endif
 %dir /etc/dracut.conf.d
+%dir %{dracutlibdir}/dracut.conf.d
 %{_mandir}/man8/dracut.8*
 %{_mandir}/man8/*service.8*
 %if 0%{?fedora} > 12 || 0%{?rhel} >= 6 || 0%{?suse_version} > 9999
@@ -345,7 +346,7 @@ rm -rf $RPM_BUILD_ROOT
 %files fips
 %defattr(-,root,root,0755)
 %{dracutlibdir}/modules.d/01fips
-%config(noreplace) /etc/dracut.conf.d/40-fips.conf
+%{dracutlibdir}/dracut.conf.d/40-fips.conf
 %endif
 
 %files fips-aesni
