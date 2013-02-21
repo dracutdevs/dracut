@@ -30,16 +30,19 @@ installkernel() {
 }
 
 install() {
-    inst_rules "$moddir/80-btrfs.rules"
-    inst_script "$moddir/btrfs_timeout.sh" /sbin/btrfs_timeout
+    if ! inst_rules 64-btrfs.rules; then
+        inst_rules "$moddir/80-btrfs.rules"
+        case "$(btrfs --help)" in
+            *device\ ready*)
+                inst_script "$moddir/btrfs_device_ready.sh" /sbin/btrfs_finished ;;
+            *)
+                inst_script "$moddir/btrfs_finished.sh" /sbin/btrfs_finished ;;
+        esac
+    fi
+
+    inst_script "$moddir/btrfs_timeout.sh" \
+        /usr/lib/dracut/hooks/initqueue/timeout/btrfs_timeout.sh
     dracut_install btrfsck
     inst $(command -v btrfs) /sbin/btrfs
-
-    case "$(btrfs --help)" in
-        *device\ ready*)
-            inst_script "$moddir/btrfs_device_ready.sh" /sbin/btrfs_finished ;;
-        *)
-            inst_script "$moddir/btrfs_finished.sh" /sbin/btrfs_finished ;;
-    esac
 }
 

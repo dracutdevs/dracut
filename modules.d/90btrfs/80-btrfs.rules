@@ -4,6 +4,5 @@ ENV{ID_FS_TYPE}!="btrfs", GOTO="btrfs_end"
 RUN+="/sbin/btrfs device scan $env{DEVNAME}"
 
 RUN+="/sbin/initqueue --finished --unique --name btrfs_finished /sbin/btrfs_finished"
-RUN+="/sbin/initqueue --timeout --onetime --unique --name btrfs_timeout /sbin/btrfs_timeout"
 
 LABEL="btrfs_end"
