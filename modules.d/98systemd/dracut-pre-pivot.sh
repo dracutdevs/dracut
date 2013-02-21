@@ -29,12 +29,12 @@ for i in "$(getarg real_init=)" "$(getarg init=)"; do
     __p=$(readlink -f "${NEWROOT}/${i}")
     if [ -x "$__p" ]; then
         INIT="$i"
-        echo "NEWINIT=\"$INIT\"" > /run/initramfs/switch-root.conf
+        echo "NEWINIT=\"$INIT\"" > /etc/switch-root.conf
         break
     fi
 done
 
-echo "NEWROOT=\"$NEWROOT\"" >> /run/initramfs/switch-root.conf
+echo "NEWROOT=\"$NEWROOT\"" >> /etc/switch-root.conf
 
 getarg rd.break -d rdbreak && emergency_shell -n switch_root "Break before switch_root"
 
