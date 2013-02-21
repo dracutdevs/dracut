@@ -30,6 +30,7 @@ install() {
         $systemdutildir/systemd-udevd \
         $systemdutildir/systemd-journald \
         $systemdutildir/systemd-sysctl \
+        $systemdutildir/systemd-modules-load \
         $systemdsystemunitdir/emergency.target \
         $systemdsystemunitdir/sysinit.target \
         $systemdsystemunitdir/basic.target \
@@ -57,6 +58,7 @@ install() {
         $systemdsystemunitdir/systemd-ask-password-plymouth.path \
         $systemdsystemunitdir/systemd-journald.socket \
         $systemdsystemunitdir/systemd-ask-password-console.service \
+        $systemdsystemunitdir/systemd-modules-load.service \
         $systemdsystemunitdir/emergency.service \
         $systemdsystemunitdir/halt.service \
         $systemdsystemunitdir/systemd-halt.service \
@@ -81,6 +83,7 @@ install() {
         $systemdsystemunitdir/sockets.target.wants/systemd-journald.socket \
         $systemdsystemunitdir/sysinit.target.wants/systemd-udevd.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-udev-trigger.service \
+\
         $systemdsystemunitdir/ctrl-alt-del.target \
         $systemdsystemunitdir/syslog.socket \
         $systemdsystemunitdir/syslog.target \
@@ -89,13 +92,20 @@ install() {
         $systemdsystemunitdir/umount.target \
         journalctl systemctl echo swapoff
 
+    dracut_install -o \
+        /usr/lib/modules-load.d/*.conf
+
     if [[ $hostonly ]]; then
-        dracut_install -o /etc/systemd/journald.conf \
+        dracut_install -o \
+            /etc/systemd/journald.conf \
             /etc/systemd/system.conf \
             /etc/hostname \
             /etc/machine-id \
             /etc/vconsole.conf \
             /etc/locale.conf
+
+        dracut_install -o \
+            /etc/modules-load.d/*.conf
     else
         if ! [[ -e "$initdir/etc/machine-id" ]]; then
             > "$initdir/etc/machine-id"
