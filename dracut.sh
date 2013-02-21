@@ -1103,10 +1103,11 @@ fi
 rm -f "$outfile"
 dinfo "*** Creating image file ***"
 if ! ( umask 077; cd "$initdir"; find . |cpio -R 0:0 -H newc -o --quiet| \
-    $compress > "$outfile"; ); then
-    dfatal "dracut: creation of $outfile failed"
+    $compress > "$outfile.$$"; ); then
+    dfatal "dracut: creation of $outfile.$$ failed"
     exit 1
 fi
+mv $outfile.$$ $outfile
 dinfo "*** Creating image file done ***"
 
 dinfo "Wrote $outfile:"
