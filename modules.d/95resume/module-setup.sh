@@ -16,6 +16,6 @@ install() {
 
     inst_hook cmdline 10 "$moddir/parse-resume.sh"
     inst_hook pre-udev 30 "$moddir/resume-genrules.sh"
-    inst_hook mount 10 "$moddir/resume.sh"
+    inst_hook pre-mount 10 "$moddir/resume.sh"
 }
 
