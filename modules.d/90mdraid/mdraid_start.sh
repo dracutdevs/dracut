@@ -29,9 +29,6 @@ _md_force_run() {
 
         _path_d="${_path_s%/*}/degraded"
         [ ! -r "$_path_d" ] && continue
-
-        # workaround for mdmon bug
-        [ "$(cat "$_path_d")" -gt "0" ] && mdmon $_offroot --takeover "$md"
     done
 }
 
