@@ -56,7 +56,7 @@ while :; do
         for job in $hookdir/initqueue/timeout/*.sh; do
             [ -e "$job" ] || break
             job=$job . $job
-            main_loop=0
+            udevadm settle --timeout=0 >/dev/null 2>&1 || main_loop=0
         done
     fi
 
