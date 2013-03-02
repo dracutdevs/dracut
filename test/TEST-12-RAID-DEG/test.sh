@@ -4,8 +4,10 @@ TEST_DESCRIPTION="root filesystem on an encrypted LVM PV on a degraded RAID-5"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-#DEBUGFAIL="rd.shell"
+#DEBUGFAIL="rd.shell rd.break rd.debug"
 #DEBUGFAIL="rd.shell rd.break=pre-mount udev.log-priority=debug"
+#DEBUGFAIL="rd.shell rd.udev.log-priority=debug loglevel=70 systemd.log_target=kmsg"
+#DEBUGFAIL="rd.shell loglevel=70 systemd.log_target=kmsg"
 
 client_run() {
     echo "CLIENT TEST START: $@"
@@ -17,7 +19,7 @@ client_run() {
 	-hdc $TESTDIR/disk2.img.new \
 	-hdd $TESTDIR/disk3.img.new \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "$* root=LABEL=root rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL " \
+	-append "$* root=LABEL=root rw rd.retry=20 rd.info console=ttyS0,115200n81 selinux=0 rd.debug $DEBUGFAIL " \
 	-initrd $TESTDIR/initramfs.testing
     if ! grep -m 1 -q dracut-root-block-success $TESTDIR/root.ext2; then
 	echo "CLIENT TEST END: $@ [FAIL]"
@@ -36,6 +38,7 @@ test_run() {
 
     client_run failme && return 1
     client_run rd.auto || return 1
+
 
     client_run rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.md.conf=0 rd.lvm.vg=dracut || return 1
 
@@ -127,7 +130,7 @@ test_setup() {
     )
 
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-	-o "plymouth network systemd" \
+	-o "plymouth network" \
 	-a "debug" \
 	-d "piix ide-gd_mod ata_piix ext2 sd_mod" \
 	-f $TESTDIR/initramfs.testing $KVERSION || return 1
