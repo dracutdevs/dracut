@@ -211,6 +211,7 @@ make_encrypted_root() {
 	. $basedir/dracut-functions.sh
 	dracut_install mke2fs poweroff cp umount tune2fs
 	inst_hook initqueue 01 ./create-root.sh
+        inst_hook initqueue/finished 01 ./finished-false.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 
