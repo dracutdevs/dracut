@@ -24,6 +24,8 @@
 
 [ -n "$iscsiroot" ] && [ -n "$iscsi_firmware" ] && die "Mixing iscsiroot and iscsi_firmware is dangerous"
 
+type write_fs_tab >/dev/null 2>&1 || . /lib/fs-lib.sh
+
 # Root takes precedence over netroot
 if [ "${root%%:*}" = "iscsi" ] ; then
     if [ -n "$netroot" ] ; then
@@ -33,6 +35,8 @@ if [ "${root%%:*}" = "iscsi" ] ; then
     # if root is not specified try to mount the whole iSCSI LUN
     printf 'ENV{DEVTYPE}!="partition", SYMLINK=="disk/by-path/*-iscsi-*-*", SYMLINK+="root"\n' >> /etc/udev/rules.d/99-iscsi-root.rules
     root=/dev/root
+
+    write_fs_tab /dev/root
 fi
 
 # If it's not empty or iscsi we don't continue

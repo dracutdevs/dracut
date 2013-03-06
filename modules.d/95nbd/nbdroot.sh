@@ -101,11 +101,14 @@ nbd-client $preopts "$nbdserver" $nbdport /dev/nbd0 $opts || exit 1
 # add the udev rules for mounting the nbd0 device
 root=$(getarg root=)
 if [ -z "$root" ] || strstr "$root" "nbd:" || strstr "$root" "dhcp"; then
-    echo '[ -e /dev/root ] || { info=$(udevadm info --query=env --name=/dev/nbd0); [ -z "${info%%*ID_FS_TYPE*}" ] && { ln -s /dev/nbd0 /dev/root 2>/dev/null; :; };} && rm $job;' \
+    echo '[ -e /dev/root ] || { info=$(udevadm info --query=env --name=/dev/nbd0); [ -z "${info%%*ID_FS_TYPE*}" ] && { ln -s /dev/nbd0 /dev/root 2>/dev/null; type systemctl >/dev/null 2>&1 && systemctl --no-block start sysroot.mount;:; };} && rm $job;' \
         > $hookdir/initqueue/settled/nbd.sh
 
-    printf '/bin/mount -t %s -o %s %s %s\n' \
-        "$nbdfstype" "$fsopts" /dev/nbd0 "$NEWROOT" \
+    type write_fs_tab >/dev/null 2>&1 || . /lib/fs-lib.sh
+    write_fs_tab /dev/nbd0 "$nbdfstype" "$fsopts"
+
+    printf '/bin/mount %s\n' \
+        "$NEWROOT" \
         > $hookdir/mount/01-$$-nbd.sh
 fi
 
