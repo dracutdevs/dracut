@@ -826,13 +826,24 @@ wait_for_mount()
 wait_for_dev()
 {
     local _name
-    _name="$(str_replace "$1" '/' '\\x2f')"
+    _name="$(str_replace "$1" '/' '\x2f')"
     printf '[ -e "%s" ]\n' $1 \
-        >> "$hookdir/initqueue/finished/devexists-${_name}.sh"
+        >> "${PREFIX}$hookdir/initqueue/finished/devexists-${_name}.sh"
     {
         printf '[ -e "%s" ] || ' $1
         printf 'warn "\"%s\" does not exist"\n' $1
-    } >> "$hookdir/emergency/80-${_name}.sh"
+    } >> "${PREFIX}$hookdir/emergency/80-${_name}.sh"
+
+    if [ -n "$DRACUT_SYSTEMD" ]; then
+        _name="${1%%/}"
+        _name="${_name##/}"
+        _name="$(str_replace "$_name" '-' '\x2d')"
+        _name="$(str_replace "$_name" '/' '-')"
+        if ! [ -L ${PREFIX}/etc/systemd/system/dracut.target.requires/${_name}.device ]; then
+            [ -d ${PREFIX}/etc/systemd/system/dracut.target.requires ] || mkdir -p ${PREFIX}/etc/systemd/system/dracut.target.requires
+            ln -s ../${_name}.device ${PREFIX}/etc/systemd/system/dracut.target.requires/${_name}.device
+        fi
+    fi
 }
 
 cancel_wait_for_dev()
