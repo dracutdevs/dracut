@@ -86,4 +86,23 @@ install() {
     } > $initdir/etc/initrd-release
     echo dracut-$DRACUT_VERSION > $initdir/lib/dracut/dracut-$DRACUT_VERSION
     ln -sf initrd-release $initdir/etc/os-release
+
+    ## save host_devs which we need bring up
+    (
+        . "$moddir/dracut-lib.sh"
+        for _dev in ${host_devs[@]}; do
+            _pdev=$(get_persistent_dev $_dev)
+
+            case "$_pdev" in
+                /dev/?*)
+                    if ! dracut_module_included "systemd"; then
+                        PREFIX="$initdir" wait_for_dev $_pdev
+                    else
+                        DRACUT_SYSTEMD=1 PREFIX="$initdir" wait_for_dev $_pdev
+                    fi
+                    ;;
+                *) ;;
+            esac
+        done
+    )
 }
