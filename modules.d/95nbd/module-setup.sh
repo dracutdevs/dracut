@@ -33,5 +33,6 @@ install() {
     inst nbd-client
     inst_hook cmdline 90 "$moddir/parse-nbdroot.sh"
     inst_script "$moddir/nbdroot.sh" "/sbin/nbdroot"
+    dracut_need_initqueue
 }
 

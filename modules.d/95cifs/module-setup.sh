@@ -43,4 +43,5 @@ install() {
     inst_hook cmdline 90 "$moddir/parse-cifsroot.sh"
     inst "$moddir/cifsroot.sh" "/sbin/cifsroot"
     inst "$moddir/cifs-lib.sh" "/lib/cifs-lib.sh"
+    dracut_need_initqueue
 }

@@ -35,5 +35,6 @@ install() {
         mkdir -m 0755 -p ${initdir}/etc/templates
         inst_simple "${moddir}/rsyslog.conf" /etc/templates
     fi
+    dracut_need_initqueue
 }
 

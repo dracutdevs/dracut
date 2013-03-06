@@ -33,5 +33,6 @@ install() {
     inst "$moddir/fcoe-edd.sh" "/sbin/fcoe-edd"
     inst "$moddir/fcoe-genrules.sh" "/sbin/fcoe-genrules.sh"
     inst_hook cmdline 99 "$moddir/parse-fcoe.sh"
+    dracut_need_initqueue
 }
 

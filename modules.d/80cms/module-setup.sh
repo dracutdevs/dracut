@@ -29,4 +29,5 @@ install() {
 
     inst_libdir_file "gconv/*"
     #inst /usr/lib/locale/locale-archive
+    dracut_need_initqueue
 }

@@ -79,4 +79,5 @@ install() {
     inst_hook cleanup 90 "$moddir/cleanup-iscsi.sh"
     inst "$moddir/iscsiroot.sh" "/sbin/iscsiroot"
     inst "$moddir/mount-lun.sh" "/bin/mount-lun.sh"
+    dracut_need_initqueue
 }

@@ -75,5 +75,6 @@ install() {
     egrep -q '^rpc:' /etc/passwd \
         && egrep -q '^rpc:' /etc/group \
         && chown rpc.rpc "$initdir/var/lib/rpcbind"
+    dracut_need_initqueue
 }
 

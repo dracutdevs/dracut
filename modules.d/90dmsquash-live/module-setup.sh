@@ -30,5 +30,5 @@ install() {
     # should probably just be generally included
     inst_rules 60-cdrom_id.rules
     inst_simple "$moddir/checkisomd5@.service" "/etc/systemd/system/checkisomd5@.service"
+    dracut_need_initqueue
 }
-
