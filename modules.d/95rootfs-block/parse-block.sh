@@ -20,3 +20,5 @@ case "$root" in
         root="block:${root}"
         rootok=1 ;;
 esac
+
+[ "${root%%:*}" = "block" ] && wait_for_dev "${root#block:}"
