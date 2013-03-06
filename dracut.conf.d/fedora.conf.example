@@ -10,6 +10,3 @@ systemdutildir=/usr/lib/systemd
 systemdsystemunitdir=/usr/lib/systemd/system
 udevdir=/usr/lib/udev
 add_dracutmodules+=" systemd "
-realinitpath="/usr/lib/systemd/systemd"
-kernel_cmdline+=" rd.auto=1 "
-
