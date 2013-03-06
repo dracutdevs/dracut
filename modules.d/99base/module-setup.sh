@@ -44,14 +44,10 @@ install() {
 
     inst_simple "$moddir/dracut-lib.sh" "/lib/dracut-lib.sh"
 
-    ## save host_devs which we need bring up
-    inst_hook cmdline 00 "$moddir/wait-host-devs.sh"
-    for _dev in ${host_devs[@]}; do
-        _pdev=$(get_persistent_dev $_dev)
-        [ -n "$_pdev" ] && echo $_pdev >> $initdir/etc/host_devs
-    done
+    if ! dracut_module_included "systemd"; then
+        inst_hook cmdline 10 "$moddir/parse-root-opts.sh"
+    fi
 
-    inst_hook cmdline 10 "$moddir/parse-root-opts.sh"
     mkdir -p "${initdir}/var"
     [ -x /lib/systemd/systemd-timestamp ] && inst /lib/systemd/systemd-timestamp
     if [[ $realinitpath ]]; then
