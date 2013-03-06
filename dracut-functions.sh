@@ -110,6 +110,14 @@ fi
     export hookdirs
 }
 
+dracut_need_initqueue() {
+    >"$initdir/lib/dracut/need-initqueue"
+}
+
+dracut_module_included() {
+    strstr "$mods_to_load $modules_loaded" "$@"
+}
+
 # Create all subdirectories for given path without creating the last element.
 # $1 = path
 mksubdirs() { [[ -e ${1%/*} ]] || mkdir -m 0755 -p ${1%/*}; }
@@ -932,6 +940,12 @@ inst_rule_group_owner() {
     fi
 }
 
+inst_rule_initqueue() {
+    if grep -q -F initqueue "$1"; then
+        dracut_need_initqueue
+    fi
+}
+
 # udev rules always get installed in the same place, so
 # create a function to install them to make life simpler.
 inst_rules() {
@@ -946,6 +960,7 @@ inst_rules() {
                     _found="$r/$_rule"
                     inst_rule_programs "$_found"
                     inst_rule_group_owner "$_found"
+                    inst_rule_initqueue "$_found"
                     inst_simple "$_found"
                 fi
             done
@@ -955,6 +970,7 @@ inst_rules() {
                 _found="${r}$_rule"
                 inst_rule_programs "$_found"
                 inst_rule_group_owner "$_found"
+                inst_rule_initqueue "$_found"
                 inst_simple "$_found" "$_target/${_found##*/}"
             fi
         done
