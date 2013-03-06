@@ -14,8 +14,13 @@ install() {
         }
     done
 
-    inst_hook cmdline 10 "$moddir/parse-resume.sh"
-    inst_hook pre-udev 30 "$moddir/resume-genrules.sh"
-    inst_hook pre-mount 10 "$moddir/resume.sh"
+    if ! dracut_module_included "systemd"; then
+        inst_hook cmdline 10 "$moddir/parse-resume.sh"
+    else
+        inst_script "$moddir/parse-resume.sh" /lib/dracut/parse-resume.sh
+        inst_hook pre-udev 30 "$moddir/resume-genrules.sh"
+    fi
+
+    inst_script  "$moddir/resume.sh" /lib/dracut/resume.sh
 }
 
