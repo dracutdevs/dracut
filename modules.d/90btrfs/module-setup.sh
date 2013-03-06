@@ -40,8 +40,11 @@ install() {
         esac
     fi
 
-    inst_script "$moddir/btrfs_timeout.sh" \
-        /usr/lib/dracut/hooks/initqueue/timeout/btrfs_timeout.sh
+    if ! dracut_module_included "systemd"; then
+        inst_script "$moddir/btrfs_timeout.sh" \
+            /usr/lib/dracut/hooks/initqueue/timeout/btrfs_timeout.sh
+    fi
+
     dracut_install btrfsck
     inst $(command -v btrfs) /sbin/btrfs
 }
