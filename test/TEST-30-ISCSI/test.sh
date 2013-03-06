@@ -161,7 +161,7 @@ test_setup() {
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-        -o "plymouth dmraid" \
+        -o "dash plymouth dmraid" \
         -a "debug" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod" \
         -f $TESTDIR/initramfs.testing $KVERSION || return 1

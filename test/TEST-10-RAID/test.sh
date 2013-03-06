@@ -39,7 +39,7 @@ test_setup() {
 	inst "$basedir/modules.d/40network/dhclient-script.sh" "/sbin/dhclient-script"
 	inst "$basedir/modules.d/40network/ifup.sh" "/sbin/ifup"
 	dracut_install grep
-	dracut_install /lib/systemd/systemd-shutdown
+	dracut_install -o /lib/systemd/systemd-shutdown
 	find_binary plymouth >/dev/null && dracut_install plymouth
 	cp -a /etc/ld.so.conf* $initdir/etc
 	sudo ldconfig -r "$initdir"

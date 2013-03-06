@@ -8,7 +8,7 @@ export KVERSION=${KVERSION-$(uname -r)}
 #DEBUGFAIL="rd.shell rd.break"
 #DEBUGFAIL="rd.shell"
 #DEBUGOUT="quiet systemd.log_level=debug systemd.log_target=console loglevel=77  rd.info rd.debug"
-DEBUGOUT="loglevel=0 systemd.log_level=debug systemd.log_target=kmsg"
+DEBUGOUT="loglevel=0 systemd.log_level=debug"
 client_run() {
     local test_name="$1"; shift
     local client_opts="$*"
@@ -83,10 +83,10 @@ test_setup() {
 	dracut_install grep
         inst_simple ./fstab /etc/fstab
         rpm -ql systemd | xargs -r $DRACUT_INSTALL ${initdir+-D "$initdir"} -o -a -l
+        inst /lib/systemd/system/systemd-remount-fs.service
+        inst /lib/systemd/systemd-remount-fs
         inst /lib/systemd/system/systemd-journal-flush.service
         inst /etc/sysconfig/init
-        # activate kmsg import
-        echo 'ImportKernel=yes' >> $initdir/etc/systemd/journald.conf
 
         # make a journal directory
         mkdir -p $initdir/var/log/journal
@@ -262,8 +262,8 @@ EOF
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-	-a "debug watchdog systemd" \
-        -o "network" \
+	-a "debug systemd" \
+        -o "dash network plymouth lvm mdraid resume crypt i18n caps dm terminfo usrmount" \
 	-d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \
 	-f $TESTDIR/initramfs.testing $KVERSION || return 1
 

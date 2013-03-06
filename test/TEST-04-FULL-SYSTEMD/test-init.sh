@@ -15,16 +15,19 @@ ismounted() {
 
 systemctl --failed --no-legend --no-pager > /failed
 
-if ismounted /usr && [ -f /run/systemd/system/initrd-switch-root.service ] && [ ! -s /failed ]; then
+if ismounted /usr && [ ! -s /failed ]; then
     echo "dracut-root-block-success" >/dev/sdc
 fi
 
-set -x
-   cat /proc/mounts
-   tree /run
-   dmesg
-   cat /failed
-set +x
+journalctl --full --no-pager -o short-monotonic
+
+if [ -s /failed ]; then
+    echo "**************************FAILED**************************"
+    cat /failed
+    echo "**************************FAILED**************************"
+fi
+
+ls -al /run/systemd/system
 
 export TERM=linux
 export PS1='initramfs-test:\w\$ '
