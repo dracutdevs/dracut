@@ -12,6 +12,9 @@ depends() {
 }
 
 install() {
-    inst_hook pre-pivot 50 "$moddir/mount-usr.sh"
+    if ! dracut_module_included "systemd"; then
+        inst_hook pre-pivot 50 "$moddir/mount-usr.sh"
+    fi
+    :
 }
 
