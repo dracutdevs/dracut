@@ -189,6 +189,7 @@ while :; do
             [ -e "$job" ] || break
             job=$job . $job
             udevadm settle --timeout=0 >/dev/null 2>&1 || main_loop=0
+            [ -f $hookdir/initqueue/work ] && main_loop=0
         done
     fi
 
