@@ -72,6 +72,8 @@ installkernel() {
 install() {
     dracut_install -o /lib/modprobe.d/*.conf
     [[ $hostonly ]] && dracut_install -o /etc/modprobe.d/*.conf /etc/modprobe.conf
-    inst_hook cmdline 01 "$moddir/parse-kernel.sh"
+    if ! dracut_module_included "systemd"; then
+        inst_hook cmdline 01 "$moddir/parse-kernel.sh"
+    fi
     inst_simple "$moddir/insmodpost.sh" /sbin/insmodpost.sh
 }
