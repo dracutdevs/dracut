@@ -27,14 +27,6 @@ else
                     printf -- '--name cryptroot-ask-%%k %s ' $(command -v cryptroot-ask)
                     printf -- '$env{DEVNAME} luks-$env{ID_FS_UUID} %s"\n' $tout
                 } >> /etc/udev/rules.d/70-luks.rules.new
-            else
-                {
-                    printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", '
-                    printf -- 'ENV{ID_FS_UUID}=="*%s*", ' $luksid
-                    printf -- 'RUN+="%s --unique --onetime ' $(command -v initqueue)
-                    printf -- '--name crypt-run-generator-%%k %s ' $(command -v crypt-run-generator)
-                    printf -- '$env{DEVNAME} luks-$env{ID_FS_UUID}"\n'
-                } >> /etc/udev/rules.d/70-luks.rules.new
             fi
 
             uuid=$luksid
