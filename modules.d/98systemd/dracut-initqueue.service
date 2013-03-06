@@ -13,8 +13,10 @@ Documentation=man:dracut-initqueue.service(8)
 DefaultDependencies=no
 After=systemd-udev-trigger.service
 Wants=systemd-udev-trigger.service
-After=cryptsetup.target
 ConditionPathExists=/etc/initrd-release
+ConditionPathExists=|/lib/dracut/need-initqueue
+ConditionPathExistsGlob=|/lib/dracut/hooks/initqueue/*.sh
+ConditionKernelCommandLine=|rd.break=pre-mount
 
 [Service]
 Type=oneshot
@@ -23,6 +25,7 @@ StandardInput=null
 StandardOutput=syslog
 StandardError=syslog+console
 KillMode=process
+RemainAfterExit=yes
 
 # Bash ignores SIGTERM, so we send SIGHUP instead, to ensure that bash
 # terminates cleanly.

@@ -17,6 +17,9 @@ Wants=dracut-cmdline.service
 ConditionPathExists=/etc/initrd-release
 ConditionDirectoryNotEmpty=|/lib/dracut/hooks/pre-udev
 ConditionKernelCommandLine=|rd.break=pre-udev
+ConditionKernelCommandLine=|rd.driver.blacklist
+ConditionKernelCommandLine=|rd.driver.pre
+ConditionKernelCommandLine=|rd.driver.post
 
 [Service]
 Type=oneshot
@@ -25,6 +28,7 @@ StandardInput=null
 StandardOutput=syslog
 StandardError=syslog+console
 KillMode=process
+RemainAfterExit=yes
 
 # Bash ignores SIGTERM, so we send SIGHUP instead, to ensure that bash
 # terminates cleanly.

@@ -27,7 +27,6 @@ man8pages = dracut.8 \
             modules.d/98systemd/dracut-pre-pivot.service.8 \
             modules.d/98systemd/dracut-pre-trigger.service.8 \
             modules.d/98systemd/dracut-pre-udev.service.8 \
-            modules.d/98systemd/initrd-switch-root.service.8 \
             modules.d/98systemd/udevadm-cleanup-db.service.8
 
 manpages = $(man1pages) $(man5pages) $(man7pages) $(man8pages)

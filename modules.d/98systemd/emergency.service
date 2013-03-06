@@ -8,17 +8,16 @@
 # See systemd.special(7) for details
 
 [Unit]
-Description=Dracut Emergency Shell
+Description=Emergency Shell
 DefaultDependencies=no
 After=systemd-vconsole-setup.service
 Wants=systemd-vconsole-setup.service
-Conflicts=emergency.service emergency.target
 
 [Service]
 Environment=HOME=/
 WorkingDirectory=/
 ExecStart=/bin/dracut-emergency
-ExecStopPost=-/bin/rm -f /.console_lock
+ExecStopPost=-/usr/bin/systemctl --no-block isolate dracut.target
 Type=oneshot
 StandardInput=tty-force
 StandardOutput=inherit

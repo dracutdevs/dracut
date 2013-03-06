@@ -11,13 +11,16 @@
 Description=dracut pre-pivot and cleanup hook
 Documentation=man:dracut-pre-pivot.service(8)
 DefaultDependencies=no
-After=dracut-initqueue.service
+After=dracut-mount.service dracut-initqueue.service initrd-parse-etc.service local-fs.target
+Wants=local-fs.target
+Before=initrd-cleanup.service
 ConditionPathExists=/etc/initrd-release
+ConditionDirectoryNotEmpty=|/lib/dracut/hooks/pre-pivot
+ConditionKernelCommandLine=|rd.break=pre-pivot
 
 [Service]
 Type=oneshot
 ExecStart=-/bin/dracut-pre-pivot
-ExecStopPost=-/usr/bin/systemctl --no-block isolate initrd-switch-root.target
 StandardInput=null
 StandardOutput=syslog
 StandardError=syslog+console

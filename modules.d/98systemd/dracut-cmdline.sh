@@ -22,10 +22,49 @@ getargbool 0 rd.udev.log-priority=debug -d rd.udev.debug -d -n -y rdudevdebug &&
 
 source_conf /etc/conf.d
 
+root=$(getarg root=)
+
+rflags="$(getarg rootflags=)"
+getargbool 0 ro && rflags="${rflags},ro"
+getargbool 0 rw && rflags="${rflags},rw"
+rflags="${rflags#,}"
+
+fstype="$(getarg rootfstype=)"
+if [ -z "$fstype" ]; then
+    fstype="auto"
+fi
+
+export root
+export rflags
+export fstype
+
 make_trace_mem "hook cmdline" '1+:mem' '1+:iomem' '3+:slab'
 # run scriptlets to parse the command line
 getarg 'rd.break=cmdline' -d 'rdbreak=cmdline' && emergency_shell -n cmdline "Break before cmdline"
 source_hook cmdline
+
+[ -f /lib/dracut/parse-resume.sh ] && . /lib/dracut/parse-resume.sh
+
+case "$root" in
+    block:LABEL=*|LABEL=*)
+        root="${root#block:}"
+        root="$(echo $root | sed 's,/,\\x2f,g')"
+        root="block:/dev/disk/by-label/${root#LABEL=}"
+        rootok=1 ;;
+    block:UUID=*|UUID=*)
+        root="${root#block:}"
+        root="block:/dev/disk/by-uuid/${root#UUID=}"
+        rootok=1 ;;
+    block:PARTUUID=*|PARTUUID=*)
+        root="${root#block:}"
+        root="block:/dev/disk/by-partuuid/${root#PARTUUID=}"
+        rootok=1 ;;
+    /dev/*)
+        root="block:${root}"
+        rootok=1 ;;
+esac
+
+[ "${root%%:*}" = "block" ] && wait_for_dev "${root#block:}"
 
 [ -z "$root" ] && die "No or empty root= argument"
 [ -z "$rootok" ] && die "Don't know how to handle 'root=$root'"
@@ -33,4 +72,7 @@ source_hook cmdline
 export root rflags fstype netroot NEWROOT
 
 export -p > /dracut-state.sh
+
+service="${0##*/}"
+cp "/etc/systemd/system/${service%.sh}.service" /run/systemd/system/
 exit 0

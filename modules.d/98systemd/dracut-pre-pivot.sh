@@ -20,25 +20,11 @@ source_hook pre-pivot
 getarg 'rd.break=cleanup' 'rdbreak=cleanup' && emergency_shell -n cleanup "Break cleanup"
 source_hook cleanup
 
-# By the time we get here, the root filesystem should be mounted.
-# Try to find init.
-
-for i in "$(getarg real_init=)" "$(getarg init=)"; do
-    [ -n "$i" ] || continue
-
-    __p=$(readlink -f "${NEWROOT}/${i}")
-    if [ -x "$__p" ]; then
-        INIT="$i"
-        echo "NEWINIT=\"$INIT\"" > /etc/switch-root.conf
-        break
-    fi
-done
-
-echo "NEWROOT=\"$NEWROOT\"" >> /etc/switch-root.conf
-
 getarg rd.break -d rdbreak && emergency_shell -n switch_root "Break before switch_root"
 
 # remove helper symlink
 [ -h /dev/root ] && rm -f /dev/root
 
+service="${0##*/}"
+cp "/etc/systemd/system/${service%.sh}.service" /run/systemd/system/
 exit 0

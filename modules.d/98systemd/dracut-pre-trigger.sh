@@ -19,4 +19,7 @@ getarg 'rd.break=pre-trigger' 'rdbreak=pre-trigger' && emergency_shell -n pre-tr
 udevadm control --reload >/dev/null 2>&1 || :
 
 export -p > /dracut-state.sh
+
+service="${0##*/}"
+cp "/etc/systemd/system/${service%.sh}.service" /run/systemd/system/
 exit 0
