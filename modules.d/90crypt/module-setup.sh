@@ -46,7 +46,9 @@ install() {
     inst_script "$moddir"/probe-keydev.sh /sbin/probe-keydev
     inst_hook cmdline 10 "$moddir/parse-keydev.sh"
     inst_hook cmdline 30 "$moddir/parse-crypt.sh"
-    inst_hook cleanup 30 "$moddir/crypt-cleanup.sh"
+    if ! dracut_module_included "systemd"; then
+        inst_hook cleanup 30 "$moddir/crypt-cleanup.sh"
+    fi
     [[ $hostonly ]]  && inst_simple /etc/crypttab
     inst_simple "$moddir/crypt-lib.sh" "/lib/dracut-crypt-lib.sh"
 
@@ -60,4 +62,5 @@ install() {
         $systemdsystemunitdir/sysinit.target.wants/cryptsetup.target \
         systemd-ask-password systemd-tty-ask-password-agent
     inst_script "$moddir"/crypt-run-generator.sh /sbin/crypt-run-generator
+    dracut_need_initqueue
 }
