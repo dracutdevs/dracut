@@ -25,7 +25,7 @@ check() {
     }
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        for_each_host_dev_fs check_crypt || return 1
+        for_each_host_dev_and_slaves_all check_crypt || return 1
     }
 
     return 0
