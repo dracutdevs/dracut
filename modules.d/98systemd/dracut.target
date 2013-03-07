@@ -1,0 +1,11 @@
+[Unit]
+Description=dracut
+Requires=basic.target
+Conflicts=rescue.service rescue.target
+After=basic.target rescue.service rescue.target
+AllowIsolate=yes
+OnFailure=emergency.target
+OnFailureIsolate=yes
+
+[Install]
+Alias=default.target
