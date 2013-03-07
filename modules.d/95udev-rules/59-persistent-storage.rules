@@ -6,35 +6,4 @@ ENV{DM_MULTIPATH_DEVICE_PATH}=="?*", GOTO="ps_end"
 KERNEL=="cciss[0-9]*", IMPORT BLKID
 KERNEL=="nbd[0-9]*", IMPORT BLKID
 
-
-KERNEL!="md[0-9]*|md_d[0-9]*|md/*", KERNEL!="md*", GOTO="md_end"
-
-# partitions have no md/{array_state,metadata_version}
-ENV{DEVTYPE}=="partition", GOTO="md_ignore_state"
-
-# container devices have a metadata version of e.g. 'external:ddf' and
-# never leave state 'inactive'
-ATTR{md/metadata_version}=="external:[A-Za-z]*", ATTR{md/array_state}=="inactive", GOTO="md_ignore_state"
-TEST!="md/array_state", GOTO="md_end"
-ATTR{md/array_state}=="|clear|inactive", GOTO="md_end"
-
-LABEL="md_ignore_state"
-
-IMPORT{program}="/sbin/mdadm --detail --export $tempnode"
-IMPORT BLKID
-OPTIONS+="link_priority=100"
-OPTIONS+="watch"
-LABEL="md_end"
-
-
-KERNEL!="dm-[0-9]*", GOTO="ps_end"
-ACTION=="add", GOTO="ps_end"
-IMPORT{program}="/sbin/dmsetup info -c --nameprefixes --unquoted --rows --noheadings -o name,uuid,suspended,readonly,major,minor,open,tables_loaded,names_using_dev -j%M -m%m"
-ENV{DM_NAME}!="?*", GOTO="ps_end"
-ENV{DM_UDEV_DISABLE_OTHER_RULES_FLAG}=="1", GOTO="ps_end"
-ENV{DM_UUID}=="CRYPT-TEMP-?*", GOTO="ps_end"
-ENV{DM_UUID}!="?*", ENV{DM_NAME}=="temporary-cryptsetup-?*", GOTO="ps_end"
-IMPORT BLKID
-
-
 LABEL="ps_end"

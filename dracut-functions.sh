@@ -978,6 +978,33 @@ inst_rules() {
     done
 }
 
+prepare_udev_rules() {
+    [ -z "$UDEVVERSION" ] && export UDEVVERSION=$(udevadm --version)
+
+    for f in "$@"; do
+        f="${initdir}/etc/udev/rules.d/$f"
+        [ -e "$f" ] || continue
+        while read line; do
+            if [ "${line%%IMPORT PATH_ID}" != "$line" ]; then
+                if [ $UDEVVERSION -ge 174 ]; then
+                    printf '%sIMPORT{builtin}="path_id"\n' "${line%%IMPORT PATH_ID}"
+                else
+                    printf '%sIMPORT{program}="path_id %%p"\n' "${line%%IMPORT PATH_ID}"
+                fi
+            elif [ "${line%%IMPORT BLKID}" != "$line" ]; then
+                if [ $UDEVVERSION -ge 176 ]; then
+                    printf '%sIMPORT{builtin}="blkid"\n' "${line%%IMPORT BLKID}"
+                else
+                    printf '%sIMPORT{program}="/sbin/blkid -o udev -p $tempnode"\n' "${line%%IMPORT BLKID}"
+                fi
+            else
+                echo "$line"
+            fi
+        done < "${f}" > "${f}.new"
+        mv "${f}.new" "$f"
+    done
+}
+
 # install function specialized for hooks
 # $1 = type of hook, $2 = hook priority (lower runs first), $3 = hook
 # All hooks should be POSIX/SuS compliant, they will be sourced by init.
