@@ -236,7 +236,7 @@ read_arg() {
 }
 
 
-source_dirs_prio()
+dropindirs_sort()
 {
     suffix=$1; shift
     args=("$@")
@@ -489,7 +489,7 @@ fi
 [[ -f $conffile ]] && . "$conffile"
 
 # source our config dir
-for f in $(source_dirs_prio ".conf" "$confdir" "$dracutbasedir/dracut.conf.d"); do
+for f in $(dropindirs_sort ".conf" "$confdir" "$dracutbasedir/dracut.conf.d"); do
     [[ -e $f ]] && . "$f"
 done
 
