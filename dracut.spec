@@ -336,6 +336,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_unitdir}/dracut-shutdown.service
 %{_unitdir}/shutdown.target.wants/dracut-shutdown.service
 %endif
+%if 0%{?fedora} || 0%{?rhel} > 6
+%{_prefix}/lib/kernel/install.d/50-dracut.install
+%endif
 
 %files network
 %defattr(-,root,root,0755)

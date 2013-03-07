@@ -116,6 +116,8 @@ endif
 	if [ -f install/dracut-install ]; then \
 		install -m 0755 install/dracut-install $(DESTDIR)$(pkglibdir)/dracut-install; \
 	fi
+	mkdir -p $(DESTDIR)${prefix}/lib/kernel/install.d
+	install -m 0755 50-dracut.install $(DESTDIR)${prefix}/lib/kernel/install.d/50-dracut.install
 
 dracut-version.sh:
 	@echo "DRACUT_VERSION=$(VERSION)-$(GITVERSION)" > dracut-version.sh
