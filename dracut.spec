@@ -196,6 +196,11 @@ rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/01fips
 rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/02fips-aesni
 %endif
 
+%if %{defined _unitdir}
+# for systemd, better use systemd-bootchart
+rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00bootchart
+%endif
+
 # we do not support dash in the initramfs
 rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00dash
 
@@ -273,7 +278,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man7/dracut.kernel.7*
 %{_mandir}/man7/dracut.cmdline.7*
 %{_mandir}/man5/dracut.conf.5*
+%if %{defined _unitdir}
+%{dracutlibdir}/modules.d/00systemd-bootchart
+%else
 %{dracutlibdir}/modules.d/00bootchart
+%endif
 %{dracutlibdir}/modules.d/04watchdog
 %{dracutlibdir}/modules.d/05busybox
 %{dracutlibdir}/modules.d/10i18n
