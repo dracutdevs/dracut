@@ -35,15 +35,20 @@ installkernel() {
             return 0
         }
 
-        hostonly='' instmods sr_mod sd_mod scsi_dh scsi_dh_rdac scsi_dh_emc ata_piix \
-            pcmcia firewire-ohci yenta_socket \
-            usb_storage sdhci sdhci-pci \
-            sdhci_esdhc_imx mmci sdhci_tegra mvsdio \
-            omap omapdrm omap_hsmmc sdhci_dove ahci_platform pata_imx sata_mv \
-            atkbd i8042 usbhid hid-apple hid-sunplus hid-cherry hid-logitech \
-            hid-logitech-dj hid-microsoft ehci-hcd ehci-pci ehci-platform \
-            ohci-hcd uhci-hcd xhci-hcd hid_generic \
+        hostonly='' instmods sr_mod sd_mod scsi_dh ata_piix \
+            pcmcia usb_storage \
+            ehci-hcd ehci-pci ehci-platform ohci-hcd uhci-hcd xhci-hcd hid_generic \
             unix
+
+        instmods yenta_socket scsi_dh_rdac scsi_dh_emc \
+            atkbd i8042 usbhid hid-apple hid-sunplus hid-cherry hid-logitech \
+            hid-logitech-dj hid-microsoft firewire-ohci
+
+        if strstr "$(uname -i)" "arm"; then
+            # arm specific modules
+            hostonly='' instmods sdhci_esdhc_imx mmci sdhci_tegra mvsdio omap omapdrm \
+                omap_hsmmc sdhci_dove ahci_platform pata_imx sata_mv
+        fi
 
         # install virtual machine support
         instmods virtio virtio_blk virtio_ring virtio_pci virtio_scsi \
