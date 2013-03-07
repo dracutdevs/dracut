@@ -53,6 +53,8 @@ if getargbool 0 rd.iscsi.firmware -d -y iscsi_firmware ; then
     done
 
     iscsistart -b $iscsi_param
+    echo 'started' > "/tmp/iscsistarted-iscsi"
+    echo 'started' > "/tmp/iscsistarted-firmware"
     exit 0
 fi
 
@@ -146,9 +148,6 @@ handle_netroot()
         echo "iscsi_lun=$iscsi_lun . /bin/mount-lun.sh " > $hookdir/mount/01-$$-iscsi.sh
     fi
 
-    # inject new exit_if_exists
-    echo 'settle_exit_if_exists="--exit-if-exists=/dev/root"; rm "$job"' > $hookdir/initqueue/iscsi-settle.sh
-
     # force udevsettle to break
     > $hookdir/initqueue/work
 
@@ -163,6 +162,10 @@ handle_netroot()
 	${iscsi_netdev_name+--param iface.net_ifacename=$iscsi_netdev_name} \
         ${iscsi_param} \
 	|| :
+
+    netroot_enc=$(str_replace "$1" '/' '\2f')
+    echo 'started' > "/tmp/iscsistarted-iscsi:${netroot_enc}"
+
 }
 
 # loop over all netroot parameter
