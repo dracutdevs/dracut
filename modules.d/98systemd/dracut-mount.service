@@ -1,0 +1,31 @@
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+# See systemd.special(7) for details
+
+[Unit]
+Description=dracut mount hook
+Documentation=man:dracut-mount.service(8)
+DefaultDependencies=no
+After=dracut-pre-mount.service dracut-initqueue.service initrd-parse-etc.service local-fs.target
+Wants=local-fs.target
+ConditionPathExists=/etc/initrd-release
+ConditionDirectoryNotEmpty=|/lib/dracut/hooks/mount
+ConditionKernelCommandLine=|rd.break=mount
+
+[Service]
+Type=oneshot
+ExecStart=-/bin/dracut-mount
+StandardInput=null
+StandardOutput=syslog
+StandardError=syslog+console
+KillMode=process
+RemainAfterExit=yes
+
+# Bash ignores SIGTERM, so we send SIGHUP instead, to ensure that bash
+# terminates cleanly.
+KillSignal=SIGHUP
