@@ -878,7 +878,7 @@ inst_rule_programs() {
             _bin=""
             if [ -x ${udevdir}/$_prog ]; then
                 _bin=${udevdir}/$_prog
-            elif [[ "${_prog/\$\{/}" != "$_prog" ]]; then
+            elif [[ "${_prog/\$env\{/}" == "$_prog" ]]; then
                 _bin=$(find_binary "$_prog") || {
                     dinfo "Skipping program $_prog using in udev rule ${1##*/} as it cannot be found"
                     continue;
@@ -893,7 +893,7 @@ inst_rule_programs() {
             _bin=""
             if [ -x ${udevdir}/$_prog ]; then
                 _bin=${udevdir}/$_prog
-            elif [[ "${_prog/\$\{/}" != "$_prog" ]]; then
+            elif [[ "${_prog/\$env\{/}" == "$_prog" ]] && [[ "${_prog}" != "/sbin/initqueue" ]]; then
                 _bin=$(find_binary "$_prog") || {
                     dinfo "Skipping program $_prog using in udev rule ${1##*/} as it cannot be found"
                     continue;
@@ -908,7 +908,7 @@ inst_rule_programs() {
             _bin=""
             if [ -x ${udevdir}/$_prog ]; then
                 _bin=${udevdir}/$_prog
-            elif [[ "${_prog/\$\{/}" != "$_prog" ]]; then
+            elif [[ "${_prog/\$env\{/}" == "$_prog" ]]; then
                 _bin=$(find_binary "$_prog") || {
                     dinfo "Skipping program $_prog using in udev rule ${1##*/} as it cannot be found"
                     continue;
