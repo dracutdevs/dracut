@@ -24,6 +24,8 @@ man8pages = dracut.8 \
             mkinitrd.8 \
             modules.d/98systemd/dracut-cmdline.service.8 \
             modules.d/98systemd/dracut-initqueue.service.8 \
+            modules.d/98systemd/dracut-mount.service.8 \
+            modules.d/98systemd/dracut-pre-mount.service.8 \
             modules.d/98systemd/dracut-pre-pivot.service.8 \
             modules.d/98systemd/dracut-pre-trigger.service.8 \
             modules.d/98systemd/dracut-pre-udev.service.8 \
