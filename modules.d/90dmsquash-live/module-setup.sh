@@ -16,7 +16,7 @@ depends() {
 }
 
 installkernel() {
-    instmods squashfs loop
+    instmods squashfs loop iso9660
 }
 
 install() {
