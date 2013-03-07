@@ -21,7 +21,13 @@
 
 usage()
 {
-    echo "Usage: $(${0##*/}) [-s] [<initramfs file> [<filename>]]"
+    {
+        echo "Usage: ${0##*/} [-s] [<initramfs file> [<filename>]]"
+        echo
+        echo "-h, --help     print a help message and exit."
+        echo "-s, --size     sort the contents of the initramfs by size."
+        echo
+    } >&2
 }
 
 [[ $# -le 2 ]] || { usage ; exit 1 ; }
@@ -36,8 +42,36 @@ while getopts "s" opt; do
 done
 shift $((OPTIND-1))
 
-image="${1:-/boot/initramfs-$(uname -r).img}"
-[[ -f "$image" ]]    || { echo "$image does not exist" ; exit 1 ; }
+KERNEL_VERSION="$(uname -r)"
+
+if [[ "$1" ]]; then
+    image="$1"
+    if ! [[ -f "$image" ]]; then
+        {
+            echo "$image does not exist"
+            echo
+        } >&2
+        usage
+        exit 1
+    fi
+fi
+
+[[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
+
+if [[ $MACHINE_ID ]] && ( [[ -d /boot/${MACHINE_ID} ]] || [[ -L /boot/${MACHINE_ID} ]] ); then
+    image="/boot/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
+else
+    image="/boot/initramfs-${KERNEL_VERSION}.img}"
+fi
+
+if ! [[ -f "$image" ]]; then
+    {
+        echo "No <initramfs file> specified and the default image '$image' cannot be accessed!"
+        echo
+    } >&2
+    usage
+    exit 1
+fi
 
 CAT=zcat
 FILE_T=$(file --dereference "$image")
