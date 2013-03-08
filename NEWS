@@ -1,3 +1,27 @@
+dracut-026
+==========
+- introduce /usr/lib/dracut/dracut.conf.d/ drop-in directory
+
+  /usr/lib/dracut/dracut.conf.d/*.conf can be overwritten by the same
+  filenames in /etc/dracut.conf.d.
+
+  Packages should use /usr/lib/dracut/dracut.conf.d rather than
+  /etc/dracut.conf.d for drop-in configuration files.
+
+  /etc/dracut.conf and /etc/dracut.conf.d belong to the system administrator.
+
+- uses systemd-198 native initrd units
+- totally rely on the fstab-generator in systemd mode for block devices
+- dracut systemd now uses dracut.target rather than basic.target
+- dracut systemd services optimize themselves away
+- fixed hostonly parameter generation
+- turn off curl globbing (fixes IPv6)
+- modify the udev rules on install and not runtime time
+- enable initramfs building without kernel modules (fixed regression)
+- in the initqueue/timeout,
+  reset the main loop counter, as we see new udev events or initqueue/work
+- fixed udev rule installation
+
 dracut-025
 ==========
 - do not strip signed kernel modules
