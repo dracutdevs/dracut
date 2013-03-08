@@ -16,6 +16,13 @@ depends() {
 }
 
 install() {
+
+    SYSTEMD_VERSION=$(systemd --version | { read a b a; echo $b; })
+    if (( $SYSTEMD_VERSION < 198 )); then
+        dfatal "systemd version $SYSTEMD_VERSION is too low. Need at least version 198."
+        exit 1
+    fi
+
     if strstr "$prefix" "/run/"; then
         dfatal "systemd does not work a prefix, which contains \"/run\"!!"
         exit 1
