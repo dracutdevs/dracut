@@ -132,7 +132,7 @@ Requires: nss-softokn-freebl
 
 %description fips
 This package requires everything which is needed to build an
-all purpose initramfs with dracut, which does an integrity check.
+initramfs with dracut, which does an integrity check.
 %endif
 
 %package fips-aesni
@@ -141,8 +141,7 @@ Requires: %{name}-fips = %{version}-%{release}
 
 %description fips-aesni
 This package requires everything which is needed to build an
-all purpose initramfs with dracut, which does an integrity check
-and adds the aesni-intel kernel module.
+initramfs with dracut, which does an integrity check and adds the aesni-intel kernel module.
 
 %package caps
 Summary: dracut modules to build a dracut initramfs which drops capabilities
@@ -151,7 +150,7 @@ Requires: libcap
 
 %description caps
 This package requires everything which is needed to build an
-all purpose initramfs with dracut, which drops capabilities.
+initramfs with dracut, which drops capabilities.
 
 %package tools
 Summary: dracut tools to build the local initramfs

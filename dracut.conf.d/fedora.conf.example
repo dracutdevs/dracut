@@ -12,3 +12,4 @@ systemdutildir=/usr/lib/systemd
 systemdsystemunitdir=/usr/lib/systemd/system
 udevdir=/usr/lib/udev
 add_dracutmodules+=" systemd "
+hostonly="yes"
