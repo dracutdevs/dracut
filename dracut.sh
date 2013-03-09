@@ -69,11 +69,11 @@ Creates initial ramdisk images for preloading modules
 
   --kver [VERSION]      Set kernel version to [VERSION].
   -f, --force           Overwrite existing initramfs file.
+  -a, --add [LIST]      Add a space-separated list of dracut modules.
   -m, --modules [LIST]  Specify a space-separated list of dracut modules to
                          call when building the initramfs. Modules are located
                          in /usr/lib/dracut/modules.d.
   -o, --omit [LIST]     Omit a space-separated list of dracut modules.
-  -a, --add [LIST]      Add a space-separated list of dracut modules.
   -d, --drivers [LIST]  Specify a space-separated list of kernel modules to
                         exclusively include in the initramfs.
   --add-drivers [LIST] Specify a space-separated list of kernel
@@ -90,12 +90,12 @@ Creates initial ramdisk images for preloading modules
   --kernel-only         Only install kernel drivers and firmware files
   --no-kernel           Do not install kernel drivers and firmware files
   --kernel-cmdline [PARAMETERS] Specify default kernel command line parameters
-  --strip               Strip binaries in the initramfs (default)
+  --strip               Strip binaries in the initramfs
   --nostrip             Do not strip binaries in the initramfs
-  --hardlink            Hardlink files in the initramfs (default)
+  --hardlink            Hardlink files in the initramfs
   --nohardlink          Do not hardlink files in the initramfs
   --prefix [DIR]        Prefix initramfs files with [DIR]
-  --noprefix            Do not prefix initramfs files (default)
+  --noprefix            Do not prefix initramfs files
   --mdadmconf           Include local /etc/mdadm.conf
   --nomdadmconf         Do not include local /etc/mdadm.conf
   --lvmconf             Include local /etc/lvm/lvm.conf
@@ -111,11 +111,11 @@ Creates initial ramdisk images for preloading modules
                          1 - only fatal errors
                          2 - all errors
                          3 - warnings
-                         4 - info (default)
+                         4 - info
                          5 - debug info (here starts lots of output)
                          6 - trace info (and even more)
-  -v, --verbose         Increase verbosity level (default is info(4))
-  -q, --quiet           Decrease verbosity level (default is info(4))
+  -v, --verbose         Increase verbosity level
+  -q, --quiet           Decrease verbosity level
   -c, --conf [FILE]     Specify configuration file to use.
                          Default: /etc/dracut.conf
   --confdir [DIR]       Specify configuration directory to use *.conf files
