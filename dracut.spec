@@ -338,6 +338,7 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 %if 0%{?fedora} || 0%{?rhel} > 6
 %{_prefix}/lib/kernel/install.d/50-dracut.install
+%{_prefix}/lib/kernel/install.d/51-dracut-rescue.install
 %endif
 
 %files network
