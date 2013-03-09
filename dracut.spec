@@ -282,6 +282,7 @@ rm -rf $RPM_BUILD_ROOT
 %else
 %{dracutlibdir}/modules.d/00bootchart
 %endif
+%{dracutlibdir}/modules.d/03rescue
 %{dracutlibdir}/modules.d/04watchdog
 %{dracutlibdir}/modules.d/05busybox
 %{dracutlibdir}/modules.d/10i18n
