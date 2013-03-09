@@ -623,6 +623,11 @@ readonly initdir=$(mktemp --tmpdir="$TMPDIR/" -d -t initramfs.XXXXXX)
     exit 1
 }
 
+# clean up after ourselves no matter how we die.
+trap 'ret=$?;[[ $keep ]] && echo "Not removing $initdir." >&2 || { [[ $initdir ]] && rm -rf "$initdir";exit $ret; };' EXIT
+# clean up after ourselves no matter how we die.
+trap 'exit 1;' SIGINT
+
 export DRACUT_KERNEL_LAZY="1"
 export DRACUT_RESOLVE_LAZY="1"
 
@@ -741,11 +746,6 @@ elif [[ -f "$outfile" && ! -w "$outfile" ]]; then
     dfatal "No permission to write $outfile."
     exit 1
 fi
-
-# clean up after ourselves no matter how we die.
-trap 'ret=$?;[[ $keep ]] && echo "Not removing $initdir." >&2 || rm -rf "$initdir";exit $ret;' EXIT
-# clean up after ourselves no matter how we die.
-trap 'exit 1;' SIGINT
 
 # Need to be able to have non-root users read stuff (rpcbind etc)
 chmod 755 "$initdir"
