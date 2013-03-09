@@ -442,7 +442,13 @@ if ! [[ $kernel ]]; then
 fi
 
 if ! [[ $outfile ]]; then
-    outfile="/boot/initramfs-$kernel.img"
+    [[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
+
+    if [[ $MACHINE_ID ]] && ( [[ -d /boot/${MACHINE_ID} ]] || [[ -L /boot/${MACHINE_ID} ]] ); then
+        outfile="/boot/${MACHINE_ID}/$kernel/initrd"
+    else
+        outfile="/boot/initramfs-$kernel.img"
+    fi
 fi
 
 for i in /usr/sbin /sbin /usr/bin /bin; do
@@ -726,7 +732,7 @@ outdir=${outfile%/*}
 [[ $outdir ]] || outdir="/"
 
 if [[ ! -d "$outdir" ]]; then
-    dfatal "Can't write $outfile: Directory $outdir does not exist."
+    dfatal "Can't write to $outdir: Directory $outdir does not exist or is not accessible."
     exit 1
 elif [[ ! -w "$outdir" ]]; then
     dfatal "No permission to write to $outdir."
