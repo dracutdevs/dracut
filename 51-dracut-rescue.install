@@ -55,12 +55,6 @@ case "$COMMAND" in
         [[ -f $LOADER_ENTRY ]] || exit 0
 
         rm -f "$LOADER_ENTRY" "$3"/initrd-rescue
-
-        if command -v yumdb &>/dev/null; then
-            if [[ $(yumdb get installonly kernel-$KERNEL_VERSION 2>/dev/null) == *installonly\ \=\ keep* ]]; then
-                yumdb del installonly kernel-$KERNEL_VERSION >/dev/null
-            fi
-        fi
         ;;
 
     *)
