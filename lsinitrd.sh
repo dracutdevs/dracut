@@ -54,15 +54,16 @@ if [[ "$1" ]]; then
         usage
         exit 1
     fi
-fi
-
-[[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
-
-if [[ $MACHINE_ID ]] && ( [[ -d /boot/${MACHINE_ID} ]] || [[ -L /boot/${MACHINE_ID} ]] ); then
-    image="/boot/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
 else
-    image="/boot/initramfs-${KERNEL_VERSION}.img}"
+    [[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
+
+    if [[ $MACHINE_ID ]] && ( [[ -d /boot/${MACHINE_ID} ]] || [[ -L /boot/${MACHINE_ID} ]] ); then
+        image="/boot/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
+    else
+        image="/boot/initramfs-${KERNEL_VERSION}.img}"
+    fi
 fi
+
 
 if ! [[ -f "$image" ]]; then
     {
