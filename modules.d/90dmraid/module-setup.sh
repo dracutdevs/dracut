@@ -8,9 +8,27 @@ check() {
     # in trying to support it in the initramfs.
     type -P dmraid >/dev/null || return 1
 
+    [[ $hostonly ]] || [[ $mount_needs ]] && {
+        for fs in "${host_fs_types[@]}"; do
+            [[ $fs = *_raid_member ]] && return 0
+        done
+        return 255
+    }
+
+    return 0
+}
+
+depends() {
+    echo dm rootfs-block
+    return 0
+}
+
+install() {
+    local _i
+
     check_dmraid() {
         local dev=$1 fs=$2 holder DEVPATH DM_NAME
-        [[ "$fs" = "${fs%%_raid_member}" ]] && return 1
+        [[ "$fs" != *_raid_member ]] && return 1
 
         DEVPATH=$(udevadm info --query=property --name=$dev \
             | while read line; do
@@ -37,20 +55,8 @@ check() {
         return 0
     }
 
-    [[ $hostonly ]] || [[ $mount_needs ]] && {
-        for_each_host_dev_and_slaves_all check_dmraid || return 1
-    }
+    for_each_host_dev_fs check_dmraid
 
-    return 0
-}
-
-depends() {
-    echo dm rootfs-block
-    return 0
-}
-
-install() {
-    local _i
     dracut_install dmraid
     dracut_install -o kpartx
     inst $(command -v partx) /sbin/partx

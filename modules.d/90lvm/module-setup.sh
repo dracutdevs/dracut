@@ -7,22 +7,11 @@ check() {
     # No point trying to support lvm if the binaries are missing
     type -P lvm >/dev/null || return 1
 
-    check_lvm() {
-        local DM_VG_NAME DM_LV_NAME DM_UDEV_DISABLE_DISK_RULES_FLAG
-        eval $(udevadm info --query=property --name=/dev/block/$1|egrep '(DM_VG_NAME|DM_LV_NAME|DM_UDEV_DISABLE_DISK_RULES_FLAG)=')
-        [[ "$DM_UDEV_DISABLE_DISK_RULES_FLAG" = "1" ]] && return 1
-        [[ ${DM_VG_NAME} ]] && [[ ${DM_LV_NAME} ]] || return 1
-        if ! strstr " ${_activated[*]} " " ${DM_VG_NAME}/${DM_LV_NAME} "; then
-            if ! [[ $kernel_only ]]; then
-                echo " rd.lvm.lv=${DM_VG_NAME}/${DM_LV_NAME} " >> "${initdir}/etc/cmdline.d/90lvm.conf"
-            fi
-            push _activated "${DM_VG_NAME}/${DM_LV_NAME}"
-        fi
-        return 0
-    }
-
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        for_each_host_dev_and_slaves_all check_lvm || return 1
+        for fs in "${host_fs_types[@]}"; do
+            [[ $fs = LVM*_member ]] && return 0
+        done
+        return 255
     }
 
     return 0
@@ -37,6 +26,23 @@ depends() {
 install() {
     local _i
     inst lvm
+
+    check_lvm() {
+        local DM_VG_NAME DM_LV_NAME DM_UDEV_DISABLE_DISK_RULES_FLAG
+
+        eval $(udevadm info --query=property --name=$1 | egrep '(DM_VG_NAME|DM_LV_NAME|DM_UDEV_DISABLE_DISK_RULES_FLAG)=')
+        [[ "$DM_UDEV_DISABLE_DISK_RULES_FLAG" = "1" ]] && return 1
+        [[ ${DM_VG_NAME} ]] && [[ ${DM_LV_NAME} ]] || return 1
+        if ! strstr " ${_activated[*]} " " ${DM_VG_NAME}/${DM_LV_NAME} "; then
+            if ! [[ $kernel_only ]]; then
+                echo " rd.lvm.lv=${DM_VG_NAME}/${DM_LV_NAME} " >> "${initdir}/etc/cmdline.d/90lvm.conf"
+            fi
+            push _activated "${DM_VG_NAME}/${DM_LV_NAME}"
+        fi
+        return 0
+    }
+
+    for_each_host_dev_fs check_lvm
 
     inst_rules "$moddir/64-lvm.rules"
 

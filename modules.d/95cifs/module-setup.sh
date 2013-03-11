@@ -8,7 +8,7 @@ check() {
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for fs in ${host_fs_types[@]}; do
-            strstr "$fs" "\|cifs"  && return 0
+            [[ "$fs" == "cifs" ]] && return 0
         done
         return 255
     }

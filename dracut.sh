@@ -750,11 +750,13 @@ fi
 # Need to be able to have non-root users read stuff (rpcbind etc)
 chmod 755 "$initdir"
 
+declare -A host_fs_types
+
 for line in "${fstab_lines[@]}"; do
     set -- $line
     #dev mp fs fsopts
     push host_devs "$1"
-    push host_fs_types "$1|$3"
+    host_fs_types["$1"]="$3"
 done
 
 for f in $add_fstab; do
@@ -797,28 +799,27 @@ fi
 _get_fs_type() (
     [[ $1 ]] || return
     if [[ -b $1 ]] && get_fs_env $1; then
-        echo "$(readlink -f $1)|$ID_FS_TYPE"
+        echo "$(readlink -f $1) $ID_FS_TYPE"
         return 1
     fi
     if [[ -b /dev/block/$1 ]] && get_fs_env /dev/block/$1; then
-        echo "$(readlink -f /dev/block/$1)|$ID_FS_TYPE"
+        echo "$(readlink -f /dev/block/$1) $ID_FS_TYPE"
         return 1
     fi
     if fstype=$(find_dev_fstype $1); then
-        echo "$1|$fstype"
+        echo "$1 $fstype"
         return 1
     fi
     return 1
 )
 
 for dev in "${host_devs[@]}"; do
-    unset fs_type
-    for fstype in $(_get_fs_type $dev) \
-        $(check_block_and_slaves _get_fs_type $(get_maj_min $dev)); do
-        if ! strstr " ${host_fs_types[*]} " " $fstype ";then
-            push host_fs_types "$fstype"
-        fi
-    done
+    while read key val; do
+        host_fs_types["$key"]="$val"
+    done < <(
+        _get_fs_type $dev
+        check_block_and_slaves_all _get_fs_type $(get_maj_min $dev)
+    )
 done
 
 [[ -d $udevdir ]] \

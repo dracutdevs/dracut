@@ -9,12 +9,10 @@ check() {
     type -P btrfs >/dev/null || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        local _found
         for fs in ${host_fs_types[@]}; do
-            strstr "$fs" "\|btrfs" && _found="1"
+            [[ "$fs" == "btrfs" ]] && return 0
         done
-        [[ $_found ]] || return 1
-        unset _found
+        return 255
     }
 
     return 0

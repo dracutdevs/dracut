@@ -450,23 +450,15 @@ find_mp_fstype() {
 find_root_block_device() { find_block_device /; }
 
 # for_each_host_dev_fs <func>
-# Execute "<func> <dev> <filesystem>" for every "<dev>|<fs>" pair found
+# Execute "<func> <dev> <filesystem>" for every "<dev> <fs>" pair found
 # in ${host_fs_types[@]}
 for_each_host_dev_fs()
 {
     local _func="$1"
     local _dev
-    local _fs
     local _ret=1
-    for f in ${host_fs_types[@]}; do
-        OLDIFS="$IFS"
-        IFS="|"
-        set -- $f
-        IFS="$OLDIFS"
-        _dev="$1"
-        [[ -b "$_dev" ]] || continue
-        _fs="$2"
-        $_func $_dev $_fs && _ret=0
+    for _dev in "${!host_fs_types[@]}"; do
+        $_func "$_dev" "${host_fs_types[$_dev]}" && _ret=0
     done
     return $_ret
 }

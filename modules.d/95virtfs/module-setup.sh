@@ -5,9 +5,9 @@
 check() {
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for fs in ${host_fs_types[@]}; do
-            strstr "$fs" "\|9p" && return 0
+            [[ "$fs" == "9p" ]] && return 0
         done
-        return 1
+        return 255
     }
 
     if type -P systemd-detect-virt >/dev/null 2>&1; then
