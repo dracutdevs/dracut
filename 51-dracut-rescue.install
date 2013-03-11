@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
@@ -6,8 +6,29 @@ export LANG=C
 
 COMMAND="$1"
 KERNEL_VERSION="$2"
-BOOT_DIR_ABS="$3"
-BOOT_DIR="${3#/boot}"
+
+dropindirs_sort()
+{
+    suffix=$1; shift
+    args=("$@")
+    files=$(
+        while (( $# > 0 )); do
+            for i in ${1}/*${suffix}; do
+                [[ -f $i ]] && echo ${i##*/}
+            done
+            shift
+        done | sort -Vu
+    )
+
+    for f in $files; do
+        for d in "${args[@]}"; do
+            if [[ -f "$d/$f" ]]; then
+                echo "$d/$f"
+                continue 2
+            fi
+        done
+    done
+}
 
 [[ -f /etc/os-release ]] && . /etc/os-release
 [[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
@@ -21,17 +42,30 @@ if ! [[ $BOOT_OPTIONS ]]; then
     exit 1
 fi
 
-LOADER_ENTRY="/boot/loader/entries/${MACHINE_ID}-00-${KERNEL_VERSION}-rescue.conf"
+LOADER_ENTRY="/boot/loader/entries/${MACHINE_ID}-0-rescue.conf"
+BOOT_DIR="/${MACHINE_ID}/0-rescue"
+BOOT_DIR_ABS="/boot${BOOT_DIR}"
 
 ret=0
 
 case "$COMMAND" in
     add)
-        for i in "/boot/loader/entries/${MACHINE_ID}-00-"*"-rescue.conf"; do
+        for i in "/boot/loader/entries/${MACHINE_ID}-0-rescue.conf"; do
             [[ -f $i ]] && exit 0
         done
 
-	dracut --no-hostonly  -a "rescue" "$3"/initrd-rescue "$2"
+        # source our config dir
+        for f in $(dropindirs_sort ".conf" "/etc/dracut.conf.d" "/usr/lib/dracut/dracut.conf.d"); do
+            [[ -e $f ]] && . "$f"
+        done
+
+        [[ $dracut_rescue_image != "yes" ]] && exit 0
+
+        if ! cp --preserve "$KERNEL_IMAGE" "$BOOT_DIR_ABS"/linux; then
+            echo "Can't copy '$KERNEL_IMAGE to '$BOOT_DIR_ABS/linux'!" >&2
+        fi
+
+        dracut --no-hostonly  -a "rescue" "$BOOT_DIR_ABS"/initrd "$2"
         ((ret+=$?))
 
         {
@@ -40,21 +74,13 @@ case "$COMMAND" in
             echo "machine-id $MACHINE_ID"
             echo "options    ${BOOT_OPTIONS[@]} rd.auto=1"
             echo "linux      $BOOT_DIR/linux"
-            echo "initrd     $BOOT_DIR/initrd-rescue"
+            echo "initrd     $BOOT_DIR/initrd"
         } > $LOADER_ENTRY
         ((ret+=$?))
-
-        if (( $ret == 0 )); then
-            command -v yumdb &>/dev/null && \
-                yumdb set installonly keep kernel-$KERNEL_VERSION >/dev/null
-        fi
-
         ;;
 
     remove)
-        [[ -f $LOADER_ENTRY ]] || exit 0
-
-        rm -f "$LOADER_ENTRY" "$3"/initrd-rescue
+        exit 0
         ;;
 
     *)

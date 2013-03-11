@@ -84,6 +84,7 @@ Requires: file
 Requires: kpartx
 Requires: udev > 166
 Requires: kbd kbd-misc
+
 %if 0%{?fedora} || 0%{?rhel} > 6
 Requires: util-linux >= 2.21
 Conflicts: systemd < 198
@@ -234,8 +235,14 @@ rm $RPM_BUILD_ROOT%{_bindir}/mkinitrd
 rm $RPM_BUILD_ROOT%{_bindir}/lsinitrd
 %endif
 
-mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
-install -m 0644 dracut.logrotate $RPM_BUILD_ROOT/etc/logrotate.d/dracut_log
+# FIXME: remove after F19
+%if 0%{?fedora} || 0%{?rhel} > 6
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/kernel/postinst.d
+install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kernel/postinst.d/51-dracut-rescue-postinst.sh
+%endif
+
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d
+install -m 0644 dracut.logrotate $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d/dracut_log
 
 # create compat symlink
 mkdir -p $RPM_BUILD_ROOT/sbin
@@ -262,11 +269,11 @@ rm -rf $RPM_BUILD_ROOT
 %{dracutlibdir}/dracut-logger.sh
 %{dracutlibdir}/dracut-initramfs-restore
 %{dracutlibdir}/dracut-install
-%config(noreplace) /etc/dracut.conf
+%config(noreplace) %{_sysconfdir}/dracut.conf
 %if 0%{?fedora} || 0%{?suse_version} || 0%{?rhel}
 %{dracutlibdir}/dracut.conf.d/01-dist.conf
 %endif
-%dir /etc/dracut.conf.d
+%dir %{_sysconfdir}/dracut.conf.d
 %dir %{dracutlibdir}/dracut.conf.d
 %{_mandir}/man8/dracut.8*
 %{_mandir}/man8/*service.8*
@@ -329,7 +336,7 @@ rm -rf $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/99fs-lib
 %{dracutlibdir}/modules.d/99img-lib
 %{dracutlibdir}/modules.d/99shutdown
-%config(noreplace) /etc/logrotate.d/dracut_log
+%config(noreplace) %{_sysconfdir}/logrotate.d/dracut_log
 %attr(0644,root,root) %ghost %config(missingok,noreplace) %{_localstatedir}/log/dracut.log
 %dir %{_sharedstatedir}/initramfs
 %if %{defined _unitdir}
@@ -339,6 +346,7 @@ rm -rf $RPM_BUILD_ROOT
 %if 0%{?fedora} || 0%{?rhel} > 6
 %{_prefix}/lib/kernel/install.d/50-dracut.install
 %{_prefix}/lib/kernel/install.d/51-dracut-rescue.install
+%{_sysconfdir}/kernel/postinst.d/51-dracut-rescue-postinst.sh
 %endif
 
 %files network
