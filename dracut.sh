@@ -794,6 +794,23 @@ if [[ $hostonly ]]; then
         mountpoint "$mp" >/dev/null 2>&1 || continue
         push host_devs $(readlink -f "/dev/block/$(find_block_device "$mp")")
     done
+
+    while read dev type rest; do
+        [[ -b $dev ]] || continue
+        [[ "$type" == "partition" ]] || continue
+        while read _d _m _t _o _r; do
+            [[ "$_d" == \#* ]] && continue
+            [[ $_d ]] || continue
+            [[ $_t != "swap" ]] || [[ $_m != "swap" ]] && continue
+            [[ "$_o" == *noauto* ]] && continue
+            [[ "$_d" == UUID\=* ]] && _d="/dev/disk/by-uuid/${_d#UUID=}"
+            [[ "$_d" == LABEL\=* ]] && _d="/dev/disk/by-label/$_d#LABEL=}"
+            [[ "$_d" -ef "$dev" ]] || continue
+            push host_devs $(readlink -f $dev)
+            break
+        done < /etc/fstab
+    done < /proc/swaps
+
 fi
 
 _get_fs_type() (
