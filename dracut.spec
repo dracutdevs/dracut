@@ -153,6 +153,22 @@ Requires: libcap
 This package requires everything which is needed to build an
 initramfs with dracut, which drops capabilities.
 
+%package nohostonly
+Summary: dracut configuration to turn off hostonly image generation
+Requires: %{name} = %{version}-%{release}
+
+%description nohostonly
+This package provides the configuration to turn off the host specific initramfs
+generation with dracut.
+
+%package norescue
+Summary: dracut configuration to turn off rescue image generation
+Requires: %{name} = %{version}-%{release}
+
+%description norescue
+This package provides the configuration to turn off the rescue initramfs
+generation with dracut.
+
 %package tools
 Summary: dracut tools to build the local initramfs
 Requires: %{name} = %{version}-%{release}
@@ -235,10 +251,13 @@ rm $RPM_BUILD_ROOT%{_bindir}/mkinitrd
 rm $RPM_BUILD_ROOT%{_bindir}/lsinitrd
 %endif
 
-# FIXME: remove after F19
 %if 0%{?fedora} || 0%{?rhel} > 6
+# FIXME: remove after F19
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/kernel/postinst.d
 install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kernel/postinst.d/51-dracut-rescue-postinst.sh
+
+echo 'hostonly="no"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-nohostonly.conf
+echo 'dracut_rescue_image="no"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-norescue.conf
 %endif
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d
@@ -386,5 +405,13 @@ rm -rf $RPM_BUILD_ROOT
 %dir /boot/dracut
 %dir /var/lib/dracut
 %dir /var/lib/dracut/overlay
+
+%files nohostonly
+%defattr(-,root,root,0755)
+%{dracutlibdir}/dracut.conf.d/02-nohostonly.conf
+
+%files norescue
+%defattr(-,root,root,0755)
+%{dracutlibdir}/dracut.conf.d/02-norescue.conf
 
 %changelog
