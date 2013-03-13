@@ -71,14 +71,10 @@ install() {
         $systemdsystemunitdir/systemd-journald.socket \
         $systemdsystemunitdir/systemd-ask-password-console.service \
         $systemdsystemunitdir/systemd-modules-load.service \
-        $systemdsystemunitdir/halt.service \
         $systemdsystemunitdir/systemd-halt.service \
-        $systemdsystemunitdir/poweroff.service \
         $systemdsystemunitdir/systemd-poweroff.service \
         $systemdsystemunitdir/systemd-reboot.service \
-        $systemdsystemunitdir/kexec.service \
         $systemdsystemunitdir/systemd-kexec.service \
-        $systemdsystemunitdir/fsck@.service \
         $systemdsystemunitdir/systemd-fsck@.service \
         $systemdsystemunitdir/systemd-udevd.service \
         $systemdsystemunitdir/systemd-udev-trigger.service \
@@ -97,7 +93,6 @@ install() {
 \
         $systemdsystemunitdir/ctrl-alt-del.target \
         $systemdsystemunitdir/syslog.socket \
-        $systemdsystemunitdir/syslog.target \
         $systemdsystemunitdir/initrd-switch-root.target \
         $systemdsystemunitdir/initrd-switch-root.service \
         $systemdsystemunitdir/initrd-cleanup.service \
