@@ -7,7 +7,7 @@
 # of the various mkinitrd implementations out there
 #
 
-# Copyright 2005-2010 Red Hat, Inc.  All rights reserved.
+# Copyright 2005-2013 Red Hat, Inc.  All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -329,6 +329,7 @@ TEMP=$(unset POSIXLY_CORRECT; getopt \
     --long show-modules \
     --long keep \
     --long printsize \
+    --long regenerate-all \
     -- "$@")
 
 if (( $? != 0 )); then
@@ -406,6 +407,7 @@ while :; do
                        ;;
         --keep)        keep="yes";;
         --printsize)   printsize="yes";;
+        --regenerate-all) regenerate_all="yes";;
 
         --) shift; break;;
 
@@ -436,6 +438,33 @@ while (($# > 0)); do
     esac
     shift
 done
+
+if [[ $regenerate_all == "yes" ]]; then
+    ret=0
+    if [[ $kernel ]]; then
+        echo "--regenerate-all cannot be called with a kernel version" >&2
+        exit 1
+    fi
+
+    if [[ $outfile ]]; then
+        echo "--regenerate-all cannot be called with a image file" >&2
+        exit 1
+    fi
+
+    ((len=${#dracut_args[@]}))
+    for ((i=0; i < len; i++)); do
+        [[ ${dracut_args[$i]} == "--regenerate-all" ]] && \
+            unset dracut_args[$i]
+    done
+
+    cd /lib/modules
+    for i in *; do
+        [[ -f $i/modules.builtin ]] || continue
+        dracut --kver=$i "${dracut_args[@]}"
+        ((ret+=$?))
+    done
+    exit $ret
+fi
 
 if ! [[ $kernel ]]; then
     kernel=$(uname -r)
