@@ -61,7 +61,9 @@ case "$COMMAND" in
 
         [[ $dracut_rescue_image != "yes" ]] && exit 0
 
-        if ! cp --preserve "$KERNEL_IMAGE" "$BOOT_DIR_ABS"/linux; then
+        [[ -d "$BOOT_DIR_ABS" ]] || mkdir -p "$BOOT_DIR_ABS"
+
+        if ! cp "$KERNEL_IMAGE" "$BOOT_DIR_ABS"/linux; then
             echo "Can't copy '$KERNEL_IMAGE to '$BOOT_DIR_ABS/linux'!" >&2
         fi
 
