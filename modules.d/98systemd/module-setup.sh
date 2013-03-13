@@ -16,6 +16,7 @@ depends() {
 }
 
 install() {
+    local _mods
 
     SYSTEMD_VERSION=$($systemdutildir/systemd --version | { read a b a; echo $b; })
     if (( $SYSTEMD_VERSION < 198 )); then
@@ -109,6 +110,26 @@ install() {
     dracut_install -o \
         /usr/lib/modules-load.d/*.conf
 
+    modules_load_get() {
+        local _line i
+        for i in "$1"/*.conf; do
+            [[ -f $i ]] || continue
+            while read _line; do
+                case $_line in
+                    \#*)
+                        ;;
+                    \;*)
+                        ;;
+                    *)
+                        echo $_line
+                esac
+            done < "$i"
+        done
+    }
+
+    _mods=$(modules_load_get /usr/lib/modules-load.d)
+    [[ $_mods ]] && instmods $_mods
+
     if [[ $hostonly ]]; then
         dracut_install -o \
             /etc/systemd/journald.conf \
@@ -120,6 +141,8 @@ install() {
 
         dracut_install -o \
             /etc/modules-load.d/*.conf
+        _mods=$(modules_load_get /etc/modules-load.d)
+        [[ $_mods ]] && instmods $_mods
     else
         if ! [[ -e "$initdir/etc/machine-id" ]]; then
             > "$initdir/etc/machine-id"
