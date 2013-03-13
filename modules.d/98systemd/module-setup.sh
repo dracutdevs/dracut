@@ -45,6 +45,8 @@ install() {
         $systemdsystemunitdir/basic.target \
         $systemdsystemunitdir/halt.target \
         $systemdsystemunitdir/kexec.target \
+        $systemdsystemunitdir/initrd-fs.target \
+        $systemdsystemunitdir/root-fs.target \
         $systemdsystemunitdir/local-fs.target \
         $systemdsystemunitdir/local-fs-pre.target \
         $systemdsystemunitdir/remote-fs.target \
@@ -139,7 +141,7 @@ install() {
 
     dracutsystemunitdir="/etc/systemd/system"
 
-    mkdir -p "${initdir}${dracutsystemunitdir}/dracut.target.wants"
+    mkdir -p "${initdir}${dracutsystemunitdir}/initrd.target.wants"
 
     mkdir -p "${initdir}${systemdsystemunitdir}/sysinit.target.d"
     {
@@ -148,38 +150,38 @@ install() {
         echo "After=emergency.service emergency.target"
     } > "${initdir}${systemdsystemunitdir}/sysinit.target.d/nolocalfs.conf"
 
-    inst_simple "$moddir/dracut.target" ${dracutsystemunitdir}/dracut.target
-    ln -fs ${dracutsystemunitdir}/dracut.target "${initdir}${systemdsystemunitdir}/default.target"
+    inst_simple "$moddir/initrd.target" ${dracutsystemunitdir}/initrd.target
+    ln -fs ${dracutsystemunitdir}/initrd.target "${initdir}${systemdsystemunitdir}/default.target"
 
     inst_script "$moddir/dracut-cmdline.sh" /bin/dracut-cmdline
     inst_simple "$moddir/dracut-cmdline.service" ${dracutsystemunitdir}/dracut-cmdline.service
-    ln -fs ../dracut-cmdline.service "${initdir}${dracutsystemunitdir}/dracut.target.wants/dracut-cmdline.service"
+    ln -fs ../dracut-cmdline.service "${initdir}${dracutsystemunitdir}/initrd.target.wants/dracut-cmdline.service"
 
     inst_script "$moddir/dracut-pre-udev.sh" /bin/dracut-pre-udev
     inst_simple "$moddir/dracut-pre-udev.service" ${dracutsystemunitdir}/dracut-pre-udev.service
-    ln -fs ../dracut-pre-udev.service "${initdir}${dracutsystemunitdir}/dracut.target.wants/dracut-pre-udev.service"
+    ln -fs ../dracut-pre-udev.service "${initdir}${dracutsystemunitdir}/initrd.target.wants/dracut-pre-udev.service"
 
     inst_script "$moddir/dracut-pre-trigger.sh" /bin/dracut-pre-trigger
     inst_simple "$moddir/dracut-pre-trigger.service" ${dracutsystemunitdir}/dracut-pre-trigger.service
-    ln -fs ../dracut-pre-trigger.service "${initdir}${dracutsystemunitdir}/dracut.target.wants/dracut-pre-trigger.service"
+    ln -fs ../dracut-pre-trigger.service "${initdir}${dracutsystemunitdir}/initrd.target.wants/dracut-pre-trigger.service"
 
     inst_script "$moddir/dracut-initqueue.sh" /bin/dracut-initqueue
     inst_simple "$moddir/dracut-initqueue.service" ${dracutsystemunitdir}/dracut-initqueue.service
-    ln -fs ../dracut-initqueue.service "${initdir}${dracutsystemunitdir}/dracut.target.wants/dracut-initqueue.service"
+    ln -fs ../dracut-initqueue.service "${initdir}${dracutsystemunitdir}/initrd.target.wants/dracut-initqueue.service"
 
     inst_script "$moddir/dracut-pre-mount.sh" /bin/dracut-pre-mount
     inst_simple "$moddir/dracut-pre-mount.service" ${dracutsystemunitdir}/dracut-pre-mount.service
-    ln -fs ../dracut-pre-mount.service "${initdir}${dracutsystemunitdir}/dracut.target.wants/dracut-pre-mount.service"
+    ln -fs ../dracut-pre-mount.service "${initdir}${dracutsystemunitdir}/initrd.target.wants/dracut-pre-mount.service"
 
     inst_script "$moddir/dracut-mount.sh" /bin/dracut-mount
     inst_simple "$moddir/dracut-mount.service" ${dracutsystemunitdir}/dracut-mount.service
-    ln -fs ../dracut-mount.service "${initdir}${dracutsystemunitdir}/dracut.target.wants/dracut-mount.service"
+    ln -fs ../dracut-mount.service "${initdir}${dracutsystemunitdir}/initrd.target.wants/dracut-mount.service"
 
     inst_script "$moddir/dracut-pre-pivot.sh" /bin/dracut-pre-pivot
     inst_simple "$moddir/dracut-pre-pivot.service" ${dracutsystemunitdir}/dracut-pre-pivot.service
-    ln -fs ../dracut-pre-pivot.service "${initdir}${dracutsystemunitdir}/dracut.target.wants/dracut-pre-pivot.service"
+    ln -fs ../dracut-pre-pivot.service "${initdir}${dracutsystemunitdir}/initrd.target.wants/dracut-pre-pivot.service"
 
-    ln -fs ../initrd-parse-etc.service "${initdir}${dracutsystemunitdir}/dracut.target.wants/initrd-parse-etc.service"
+    ln -fs ../initrd-parse-etc.service "${initdir}${dracutsystemunitdir}/initrd.target.wants/initrd-parse-etc.service"
 
     inst_rules 99-systemd.rules
 

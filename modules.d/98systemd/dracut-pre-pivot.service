@@ -11,8 +11,8 @@
 Description=dracut pre-pivot and cleanup hook
 Documentation=man:dracut-pre-pivot.service(8)
 DefaultDependencies=no
-After=dracut-mount.service dracut-initqueue.service initrd-parse-etc.service local-fs.target
-Wants=local-fs.target
+After=dracut-mount.service dracut-initqueue.service initrd-parse-etc.service initrd-fs.target root-fs.target
+Wants=initrd-fs.target root-fs.target
 Before=initrd-cleanup.service
 ConditionPathExists=/etc/initrd-release
 ConditionDirectoryNotEmpty=|/lib/dracut/hooks/pre-pivot

@@ -839,9 +839,9 @@ wait_for_dev()
         _name="${_name##/}"
         _name="$(str_replace "$_name" '-' '\x2d')"
         _name="$(str_replace "$_name" '/' '-')"
-        if ! [ -L ${PREFIX}/etc/systemd/system/dracut.target.requires/${_name}.device ]; then
-            [ -d ${PREFIX}/etc/systemd/system/dracut.target.requires ] || mkdir -p ${PREFIX}/etc/systemd/system/dracut.target.requires
-            ln -s ../${_name}.device ${PREFIX}/etc/systemd/system/dracut.target.requires/${_name}.device
+        if ! [ -L ${PREFIX}/etc/systemd/system/initrd.target.requires/${_name}.device ]; then
+            [ -d ${PREFIX}/etc/systemd/system/initrd.target.requires ] || mkdir -p ${PREFIX}/etc/systemd/system/initrd.target.requires
+            ln -s ../${_name}.device ${PREFIX}/etc/systemd/system/initrd.target.requires/${_name}.device
         fi
     fi
 }

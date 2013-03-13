@@ -17,7 +17,7 @@ Wants=systemd-vconsole-setup.service
 Environment=HOME=/
 WorkingDirectory=/
 ExecStart=/bin/dracut-emergency
-ExecStopPost=-/usr/bin/systemctl --no-block isolate dracut.target
+ExecStopPost=-/usr/bin/systemctl --no-block isolate initrd.target
 Type=oneshot
 StandardInput=tty-force
 StandardOutput=inherit

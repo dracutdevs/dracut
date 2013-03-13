@@ -11,7 +11,7 @@
 Description=dracut pre-mount hook
 Documentation=man:dracut-pre-mount.service(8)
 DefaultDependencies=no
-Before=sysroot.mount local-fs.target
+Before=sysroot.mount root-fs.target
 After=dracut-initqueue.service
 After=cryptsetup.target
 ConditionPathExists=/etc/initrd-release
