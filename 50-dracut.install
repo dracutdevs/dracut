@@ -2,10 +2,27 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+if [[ -f /etc/kernel/cmdline ]]; then
+    readarray -t BOOT_OPTIONS < /etc/kernel/cmdline
+fi
+
+if ! [[ "${BOOT_OPTIONS[@]}" ]]; then
+    readarray -t BOOT_OPTIONS < /proc/cmdline
+fi
+
+unset noimageifnotneeded
+
+for ((i=0; i < "${#BOOT_OPTIONS[@]}"; i++)); do
+    if [[ ${BOOT_OPTIONS[$i]} == root\=PARTUUID\=* ]]; then
+        noimageifnotneeded="yes"
+        break
+    fi
+done
+
 ret=0
 case "$1" in
     add)
-	dracut "$3"/initrd "$2"
+	dracut ${noimageifnotneeded+--noimageifnotneeded} "$3"/initrd "$2"
         ret=$?
 	;;
     remove)

@@ -33,7 +33,7 @@ _dracut() {
                               --lvmconf --nolvmconf --debug --profile --verbose --quiet
                               --local --hostonly --no-hostonly --fstab --help --bzip2 --lzma
                               --xz --no-compress --gzip --list-modules --show-modules --keep
-                              --printsize --regenerate-all'
+                              --printsize --regenerate-all --noimageifnotneeded'
 
                        [ARG]='-a -m -o -d -I -k -c -L --kver --add --force-add --add-drivers
                               --omit-drivers --modules --omit --drivers --filesystems --install

@@ -330,6 +330,7 @@ TEMP=$(unset POSIXLY_CORRECT; getopt \
     --long keep \
     --long printsize \
     --long regenerate-all \
+    --long noimageifnotneeded \
     -- "$@")
 
 if (( $? != 0 )); then
@@ -408,6 +409,7 @@ while :; do
         --keep)        keep="yes";;
         --printsize)   printsize="yes";;
         --regenerate-all) regenerate_all="yes";;
+        --noimageifnotneeded) noimageifnotneeded="yes";;
 
         --) shift; break;;
 
@@ -1020,6 +1022,16 @@ if [[ $no_kernel != yes ]]; then
     dinfo "*** Installing kernel module dependencies and firmware ***"
     dracut_kernel_post
     dinfo "*** Installing kernel module dependencies and firmware done ***"
+
+    if [[ $noimageifnotneeded == yes ]] && [[ $hostonly ]]; then
+        if [[ ! -f "$initdir/lib/dracut/need-initqueue" ]] && \
+            [[ -f ${initdir}/lib/modules/$kernel/modules.dep && ! -s ${initdir}/lib/modules/$kernel/modules.dep ]]; then
+            for i in ${initdir}/etc/cmdline.d/*.conf; do
+                # We need no initramfs image and do not generate one.
+                [[ $i == "${initdir}/etc/cmdline.d/*.conf" ]] && exit 0
+            done
+        fi
+    fi
 fi
 
 if [[ $kernel_only != yes ]]; then
