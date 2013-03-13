@@ -108,7 +108,8 @@ install() {
         journalctl systemctl echo swapoff systemd-cgls
 
     dracut_install -o \
-        /usr/lib/modules-load.d/*.conf
+        /usr/lib/modules-load.d/*.conf \
+        /usr/lib/sysctl.d/*.conf
 
     modules_load_get() {
         local _line i
@@ -137,10 +138,11 @@ install() {
             /etc/hostname \
             /etc/machine-id \
             /etc/vconsole.conf \
-            /etc/locale.conf
+            /etc/locale.conf \
+            /etc/modules-load.d/*.conf \
+            /etc/sysctl.d/*.conf \
+            /etc/sysctl.conf
 
-        dracut_install -o \
-            /etc/modules-load.d/*.conf
         _mods=$(modules_load_get /etc/modules-load.d)
         [[ $_mods ]] && instmods $_mods
     else
