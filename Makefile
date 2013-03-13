@@ -12,6 +12,7 @@ bindir ?= ${prefix}/bin
 mandir ?= ${prefix}/share/man
 CFLAGS ?= -O2 -g -Wall
 CFLAGS += -std=gnu99
+bashcompletiondir ?= ${datadir}/bash-completion/completions
 
 man1pages = lsinitrd.1
 
@@ -119,6 +120,8 @@ endif
 	mkdir -p $(DESTDIR)${prefix}/lib/kernel/install.d
 	install -m 0755 50-dracut.install $(DESTDIR)${prefix}/lib/kernel/install.d/50-dracut.install
 	install -m 0755 51-dracut-rescue.install $(DESTDIR)${prefix}/lib/kernel/install.d/51-dracut-rescue.install
+	mkdir -p $(DESTDIR)${bashcompletiondir}
+	install -m 0644 dracut-bash-completion.sh $(DESTDIR)${bashcompletiondir}/dracut
 
 dracut-version.sh:
 	@echo "DRACUT_VERSION=$(VERSION)-$(GITVERSION)" > dracut-version.sh
