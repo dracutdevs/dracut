@@ -51,7 +51,7 @@ cp "$KERNEL_IMAGE" "${KERNEL_IMAGE%/*}/vmlinuz-${MACHINE_ID}-rescue"
 
 KERNEL_IMAGE="${KERNEL_IMAGE%/*}/vmlinuz-${MACHINE_ID}-rescue"
 
-new-kernel-image --install "$KERNEL_VERSION" --kernel-image "$KERNEL_IMAGE" --initrdfile "$INITRDFILE" --banner "$PRETTY_NAME Rescue"
+new-kernel-pkg --install "$KERNEL_VERSION" --kernel-image "$KERNEL_IMAGE" --initrdfile "$INITRDFILE" --banner "$PRETTY_NAME Rescue"
 
 ((ret+=$?))
 
