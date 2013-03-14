@@ -159,6 +159,7 @@ ibft_to_cmdline() {
                 hostname=$(read a < ${iface}/hostname; echo $a)
                 echo "ip=$ip::$gw:$mask:$hostname:$dev:none"
             fi
+            echo $mac > /tmp/net.${dev}.has_ibft_config
         done
     ) >> /etc/cmdline.d/40-ibft.conf
     # reread cmdline
