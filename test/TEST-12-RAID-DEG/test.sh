@@ -15,7 +15,7 @@ client_run() {
     cp --sparse=always --reflink=auto $TESTDIR/disk3.img $TESTDIR/disk3.img.new
 
     $testdir/run-qemu \
-	-hda $TESTDIR/root.ext2 -m 256M -nographic \
+	-hda $TESTDIR/root.ext2 -m 256M -nographic  -smp 2 \
 	-hdc $TESTDIR/disk2.img.new \
 	-hdd $TESTDIR/disk3.img.new \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
@@ -106,9 +106,9 @@ test_setup() {
 	-hdb $TESTDIR/disk1.img \
 	-hdc $TESTDIR/disk2.img \
 	-hdd $TESTDIR/disk3.img \
-	-m 256M -nographic -net none \
+	-m 256M -smp 2 -nographic -net none \
 	-kernel "/boot/vmlinuz-$kernel" \
-	-append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
+	-append "root=/dev/fakeroot rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
 
     grep -m 1 -q dracut-root-block-created $TESTDIR/root.ext2 || return 1

@@ -17,7 +17,7 @@ run_server() {
     fsck -a $TESTDIR/server.ext3 || return 1
     $testdir/run-qemu \
         -hda $TESTDIR/server.ext3 \
-        -m 256M \
+        -m 256M -smp 2 \
         -nographic \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net socket,listen=127.0.0.1:12320 \
@@ -54,7 +54,7 @@ client_test() {
 
     $testdir/run-qemu \
         -hda $TESTDIR/client.img \
-        -m 256M -nographic \
+        -m 256M -smp 2 -nographic \
         -net nic,macaddr=$mac,model=e1000 \
         -net socket,connect=127.0.0.1:12320 \
         -kernel /boot/vmlinuz-$KVERSION \

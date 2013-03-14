@@ -20,7 +20,7 @@ client_run() {
 	-hda $TESTDIR/root.btrfs \
 	-hdb $TESTDIR/usr.btrfs \
 	-hdc $TESTDIR/result \
-	-m 256M -nographic \
+	-m 256M -smp 2 -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
 	-append "root=LABEL=dracut $client_opts rd.retry=3 console=ttyS0,115200n81 selinux=0 $DEBUGOUT $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
@@ -247,9 +247,9 @@ EOF
     $testdir/run-qemu \
 	-hda $TESTDIR/root.btrfs \
 	-hdb $TESTDIR/usr.btrfs \
-	-m 256M -nographic -net none \
+	-m 256M -smp 2 -nographic -net none \
 	-kernel "/boot/vmlinuz-$kernel" \
-	-append "root=/dev/dracut/root rw rootfstype=btrfs quiet console=ttyS0,115200n81 selinux=0" \
+	-append "root=/dev/fakeroot rw rootfstype=btrfs quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
     grep -m 1 -q dracut-root-block-created $TESTDIR/root.btrfs || return 1
 

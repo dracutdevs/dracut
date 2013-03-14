@@ -17,7 +17,7 @@ run_server() {
     fsck -a $TESTDIR/server.ext3 || return 1
     $testdir/run-qemu \
         -hda $TESTDIR/server.ext3 \
-        -m 512M \
+        -m 512M -smp 2 \
         -nographic \
         -netdev socket,mcast=230.0.0.1:12320,id=net0 \
         -net nic,macaddr=52:54:01:12:34:56,model=e1000,netdev=net0 \
@@ -52,7 +52,7 @@ client_test() {
         return 1
     fi
 
-    $testdir/run-qemu -hda $TESTDIR/client.img -m 512M -nographic \
+    $testdir/run-qemu -hda $TESTDIR/client.img -m 512M -smp 2 -nographic \
         -netdev socket,mcast=230.0.0.1:12320,id=net0 \
         -net nic,netdev=net0,macaddr=52:54:00:12:34:$mac1,model=e1000 \
         -netdev socket,mcast=230.0.0.1:12320,id=net1 \

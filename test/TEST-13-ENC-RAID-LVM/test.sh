@@ -17,7 +17,7 @@ test_run() {
     $testdir/run-qemu \
 	-hda $TESTDIR/root.ext2 \
 	-hdb $TESTDIR/check-success.img \
-	-m 256M -nographic \
+	-m 256M -smp 2 -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
 	-append "root=/dev/dracut/root rw rd.auto rd.retry=20 console=ttyS0,115200n81 selinux=0 rd.debug rootwait $LUKSARGS $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
@@ -30,7 +30,7 @@ test_run() {
     $testdir/run-qemu \
 	-hda $TESTDIR/root.ext2 \
 	-hdb $TESTDIR/check-success.img \
-	-m 256M -nographic \
+	-m 256M -smp 2 -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
 	-append "root=/dev/dracut/root rw quiet rd.auto rd.retry=20 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
@@ -43,7 +43,7 @@ test_run() {
     $testdir/run-qemu \
 	-hda $TESTDIR/root.ext2 \
 	-hdb $TESTDIR/check-success.img \
-	-m 256M -nographic \
+	-m 256M -smp 2 -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
 	-append "root=/dev/dracut/root rw quiet rd.auto rd.retry=10 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL rd.luks.uuid=failme" \
 	-initrd $TESTDIR/initramfs.testing
@@ -98,9 +98,9 @@ test_setup() {
 	-f $TESTDIR/initramfs.makeroot $KVERSION || return 1
     rm -rf $TESTDIR/overlay
     # Invoke KVM and/or QEMU to actually create the target filesystem.
-    $testdir/run-qemu -hda $TESTDIR/root.ext2 -m 256M -nographic -net none \
+    $testdir/run-qemu -hda $TESTDIR/root.ext2 -m 256M -smp 2 -nographic -net none \
 	-kernel "/boot/vmlinuz-$kernel" \
-	-append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
+	-append "root=/dev/fakeroot rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
     grep -m 1 -q dracut-root-block-created $TESTDIR/root.ext2 || return 1
     cryptoUUIDS=$(grep --binary-files=text  -m 3 ID_FS_UUID $TESTDIR/root.ext2)

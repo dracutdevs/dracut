@@ -10,7 +10,7 @@ test_run() {
     DISKIMAGE=$TESTDIR/TEST-10-RAID-root.img
     $testdir/run-qemu \
 	-hda $DISKIMAGE \
-	-m 256M -nographic \
+	-m 256M -smp 2 -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
 	-append "root=/dev/dracut/root rd.auto rw rd.retry=10 console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
@@ -67,7 +67,7 @@ test_setup() {
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     $testdir/run-qemu \
 	-hda $DISKIMAGE \
-	-m 256M -nographic -net none \
+	-m 256M -smp 2 -nographic -net none \
 	-kernel "/boot/vmlinuz-$kernel" \
 	-append "root=/dev/cannotreach rw rootfstype=ext2 console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1

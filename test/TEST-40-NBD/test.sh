@@ -18,7 +18,7 @@ run_server() {
         -hda $TESTDIR/server.ext2 \
         -hdb $TESTDIR/nbd.ext2 \
         -hdc $TESTDIR/encrypted.ext2 \
-        -m 256M -nographic \
+        -m 256M -smp 2 -nographic \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net socket,listen=127.0.0.1:12340 \
         -serial $SERIAL \
@@ -55,7 +55,7 @@ client_test() {
 
     $testdir/run-qemu \
         -hda $TESTDIR/flag.img \
-        -m 512M \
+        -m 512M -smp 2 \
         -nographic \
         -net nic,macaddr=$mac,model=e1000 \
         -net socket,connect=127.0.0.1:12340 \
@@ -166,16 +166,16 @@ client_run() {
 
     . $TESTDIR/luks.uuid
 
-    client_test "NBD root=/dev/dracut/root netroot=nbd:IP:port" \
+    client_test "NBD root=LABEL=dracut netroot=nbd:IP:port" \
         52:54:00:12:34:00 \
-        "root=/dev/dracut/root rd.luks.uuid=$ID_FS_UUID rd.lv.vg=dracut netroot=nbd:192.168.50.1:2001" || return 1
+        "root=LABEL=dracut rd.luks.uuid=$ID_FS_UUID rd.lv.vg=dracut netroot=nbd:192.168.50.1:2001" || return 1
 
     # XXX This should be ext2,errors=panic but that doesn't currently
     # XXX work when you have a real root= line in addition to netroot=
     # XXX How we should work here needs clarification
-    client_test "NBD root=/dev/dracut/root netroot=dhcp (w/ fstype and opts)" \
+    client_test "NBD root=LABEL=dracut netroot=dhcp (w/ fstype and opts)" \
         52:54:00:12:34:05 \
-        "root=/dev/dracut/root  rd.luks.uuid=$ID_FS_UUID rd.lv.vg=dracut netroot=dhcp" || return 1
+        "root=LABEL=dracut rd.luks.uuid=$ID_FS_UUID rd.lv.vg=dracut netroot=dhcp" || return 1
 
     if [[ -s server.pid ]]; then
         sudo kill -TERM $(cat $TESTDIR/server.pid)
@@ -213,6 +213,7 @@ make_encrypted_root() {
         export initdir=$TESTDIR/overlay
         . $basedir/dracut-functions.sh
         dracut_install mke2fs poweroff cp umount tune2fs
+        inst_hook emergency 000 ./hard-off.sh
         inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
@@ -231,10 +232,10 @@ make_encrypted_root() {
     $testdir/run-qemu \
         -hda $TESTDIR/flag.img \
         -hdb $TESTDIR/encrypted.ext2 \
-        -m 256M \
+        -m 256M -smp 2\
         -nographic -net none \
         -kernel "/boot/vmlinuz-$kernel" \
-        -append "root=/dev/dracut/root rw quiet console=ttyS0,115200n81 selinux=0" \
+        -append "root=/dev/fakeroot rw quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
     grep -m 1 -q dracut-root-block-created $TESTDIR/flag.img || return 1
     grep -a -m 1 ID_FS_UUID $TESTDIR/flag.img > $TESTDIR/luks.uuid

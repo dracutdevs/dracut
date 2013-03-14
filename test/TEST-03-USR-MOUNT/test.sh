@@ -18,7 +18,7 @@ client_run() {
 	-hda $TESTDIR/root.btrfs \
 	-hdb $TESTDIR/usr.btrfs \
 	-hdc $TESTDIR/result \
-	-m 256M -nographic \
+	-m 256M -smp 2 -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
 	-watchdog i6300esb -watchdog-action poweroff \
 	-append "root=LABEL=dracut $client_opts quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug $DEBUGFAIL" \
@@ -105,7 +105,7 @@ test_setup() {
     $testdir/run-qemu \
 	-hda $TESTDIR/root.btrfs \
 	-hdb $TESTDIR/usr.btrfs \
-	-m 256M -nographic -net none \
+	-m 256M -smp 2 -nographic -net none \
 	-kernel "/boot/vmlinuz-$kernel" \
 	-append "root=/dev/dracut/root rw rootfstype=btrfs quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1

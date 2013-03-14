@@ -19,7 +19,7 @@ test_run() {
 	-boot order=d \
 	-cdrom $TESTDIR/livecd.iso \
 	-hda $TESTDIR/root.img \
-	-m 256M -nographic \
+	-m 256M -smp 2 -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
 	-append "root=live:CDLABEL=LiveCD live rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing

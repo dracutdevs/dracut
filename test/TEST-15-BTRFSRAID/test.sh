@@ -9,9 +9,9 @@ test_run() {
     DISKIMAGE=$TESTDIR/TEST-15-BTRFSRAID-root.img
     $testdir/run-qemu \
 	-hda $DISKIMAGE \
-	-m 256M -nographic \
+	-m 256M  -smp 2 -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "root=LABEL=root rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL" \
+	-append "root=LABEL=root rw rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     grep -m 1 -q dracut-root-block-success $DISKIMAGE || return 1
 }
@@ -67,9 +67,9 @@ test_setup() {
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     $testdir/run-qemu \
 	-hda $DISKIMAGE \
-	-m 256M -nographic -net none \
+	-m 256M  -smp 2 -nographic -net none \
 	-kernel "/boot/vmlinuz-$kernel" \
-	-append "root=LABEL=root rw quiet console=ttyS0,115200n81 selinux=0" \
+	-append "root=/dev/fakeroot rw quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
 
     grep -m 1 -q dracut-root-block-created $DISKIMAGE || return 1
@@ -79,7 +79,6 @@ test_setup() {
 	. $basedir/dracut-functions.sh
 	dracut_install poweroff shutdown
 	inst_hook emergency 000 ./hard-off.sh
-	inst ./cryptroot-ask.sh /sbin/cryptroot-ask
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
