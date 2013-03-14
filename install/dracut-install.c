@@ -294,6 +294,12 @@ static int resolve_deps(const char *src)
                 if (strstr(buf, "not regular file"))
                         break;
 
+                if (strstr(buf, "cannot read header"))
+                        break;
+
+                if (strstr(buf, destrootdir))
+                        break;
+
                 p = strstr(buf, "/");
                 if (p) {
                         int r;
