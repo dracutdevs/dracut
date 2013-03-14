@@ -36,9 +36,6 @@ install() {
 
     prepare_udev_rules 59-persistent-storage.rules 61-persistent-storage.rules
 
-    inst_dir /run/udev
-    inst_dir /run/udev/rules.d
-
     {
         for i in cdrom tape dialout floppy; do
             if ! egrep -q "^$i:" "$initdir/etc/group" 2>/dev/null; then
