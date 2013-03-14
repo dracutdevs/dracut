@@ -120,7 +120,7 @@ for netif in $IFACES ; do
                 echo "IPV6_AUTOCONF=no"
                 echo "IPV6ADDR=$ip/$mask"
             else
-                if [-f /tmp/net.$netif.has_ibft_config ]; then
+                if [ -f /tmp/net.$netif.has_ibft_config ]; then
                     echo "BOOTPROTO=ibft"
                 else
                     echo "BOOTPROTO=none"
