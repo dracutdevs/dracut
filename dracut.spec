@@ -70,7 +70,7 @@ Provides: mkinitrd = 2.6.1
 Obsoletes: dracut-kernel < 005
 Provides:  dracut-kernel = %{version}-%{release}
 
-Requires: bash > 4
+Requires: bash >= 4
 Requires: coreutils
 Requires: cpio
 Requires: filesystem >= 2.1.0
@@ -86,7 +86,7 @@ Requires: kbd kbd-misc
 
 %if 0%{?fedora} || 0%{?rhel} > 6
 Requires: util-linux >= 2.21
-Requires: systemd > 198-4
+Requires: systemd >= 198-4
 Conflicts: grubby < 8.23
 %else
 Requires: udev > 166
