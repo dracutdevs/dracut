@@ -24,10 +24,8 @@ GENERATOR TODO
 
 - add presets (predefined set of modules)
 - add interpreter/plugin-scripts to be sourced at the beginning or end (can use dracut-functions)
-- provide "installkernel" and "new-kernel-pkg"
 - add mechanism for module specific command line options
 - pkg-config integration, to make it easy for other packages to use us.
-- add recovery image creator (mkrecovery)
 - default module specification could use some work
 - udev rule copying, as mentioned above, is a bit too hard-coded
 
