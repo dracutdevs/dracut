@@ -145,7 +145,8 @@ handle_netroot()
         wait_for_dev /dev/root
 
         # install mount script
-        echo "iscsi_lun=$iscsi_lun . /bin/mount-lun.sh " > $hookdir/mount/01-$$-iscsi.sh
+        [ -z "$DRACUT_SYSTEMD" ] && \
+            echo "iscsi_lun=$iscsi_lun . /bin/mount-lun.sh " > $hookdir/mount/01-$$-iscsi.sh
     fi
 
     # force udevsettle to break

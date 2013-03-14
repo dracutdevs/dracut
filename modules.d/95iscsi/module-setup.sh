@@ -78,6 +78,8 @@ install() {
     inst_hook cmdline 90 "$moddir/parse-iscsiroot.sh"
     inst_hook cleanup 90 "$moddir/cleanup-iscsi.sh"
     inst "$moddir/iscsiroot.sh" "/sbin/iscsiroot"
-    inst "$moddir/mount-lun.sh" "/bin/mount-lun.sh"
+    if ! dracut_module_included "systemd"; then
+        inst "$moddir/mount-lun.sh" "/bin/mount-lun.sh"
+    fi
     dracut_need_initqueue
 }
