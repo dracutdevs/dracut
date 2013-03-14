@@ -11,8 +11,7 @@
 Description=dracut pre-pivot and cleanup hook
 Documentation=man:dracut-pre-pivot.service(8)
 DefaultDependencies=no
-After=dracut-mount.service dracut-initqueue.service initrd-parse-etc.service initrd-fs.target root-fs.target
-Wants=initrd-fs.target root-fs.target
+After=initrd-fs.target
 Before=initrd-cleanup.service
 ConditionPathExists=/etc/initrd-release
 ConditionDirectoryNotEmpty=|/lib/dracut/hooks/pre-pivot
@@ -25,6 +24,7 @@ StandardInput=null
 StandardOutput=syslog
 StandardError=syslog+console
 KillMode=process
+RemainAfterExit=yes
 
 # Bash ignores SIGTERM, so we send SIGHUP instead, to ensure that bash
 # terminates cleanly.

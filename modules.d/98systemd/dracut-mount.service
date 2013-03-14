@@ -11,8 +11,8 @@
 Description=dracut mount hook
 Documentation=man:dracut-mount.service(8)
 DefaultDependencies=no
-After=dracut-pre-mount.service dracut-initqueue.service initrd-parse-etc.service root-fs.target initrd-fs.target
-Wants=root-fs.target initrd-fs.target
+After=initrd-root-fs.target initrd-parse-etc.service
+
 ConditionPathExists=/etc/initrd-release
 ConditionDirectoryNotEmpty=|/lib/dracut/hooks/mount
 ConditionKernelCommandLine=|rd.break=mount

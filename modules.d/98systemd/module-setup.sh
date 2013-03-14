@@ -46,8 +46,9 @@ install() {
         $systemdsystemunitdir/basic.target \
         $systemdsystemunitdir/halt.target \
         $systemdsystemunitdir/kexec.target \
+        $systemdsystemunitdir/initrd.target \
         $systemdsystemunitdir/initrd-fs.target \
-        $systemdsystemunitdir/root-fs.target \
+        $systemdsystemunitdir/initrd-root-fs.target \
         $systemdsystemunitdir/local-fs.target \
         $systemdsystemunitdir/local-fs-pre.target \
         $systemdsystemunitdir/remote-fs.target \
@@ -148,8 +149,8 @@ install() {
 
     # install adm user/group for journald
     dracut_install nologin
-    egrep '^adm:' "$initdir/etc/passwd" 2>/dev/null >> "$initdir/etc/passwd"
-    egrep '^adm:' /etc/group >> "$initdir/etc/group"
+    egrep '^systemd-journal:' "$initdir/etc/passwd" 2>/dev/null >> "$initdir/etc/passwd"
+    egrep '^systemd-journal:' /etc/group >> "$initdir/etc/group"
 
     ln -fs $systemdutildir/systemd "$initdir/init"
     ln -fs $systemdutildir/systemd "$initdir/sbin/init"
@@ -163,15 +164,7 @@ install() {
 
     mkdir -p "${initdir}${dracutsystemunitdir}/initrd.target.wants"
 
-    mkdir -p "${initdir}${systemdsystemunitdir}/sysinit.target.d"
-    {
-        echo "[Unit]"
-        echo "After="
-        echo "After=emergency.service emergency.target"
-    } > "${initdir}${systemdsystemunitdir}/sysinit.target.d/nolocalfs.conf"
-
-    inst_simple "$moddir/initrd.target" ${dracutsystemunitdir}/initrd.target
-    ln -fs ${dracutsystemunitdir}/initrd.target "${initdir}${systemdsystemunitdir}/default.target"
+    ln -fs initrd.target "${initdir}${systemdsystemunitdir}/default.target"
 
     inst_script "$moddir/dracut-cmdline.sh" /bin/dracut-cmdline
     inst_simple "$moddir/dracut-cmdline.service" ${dracutsystemunitdir}/dracut-cmdline.service
@@ -201,8 +194,6 @@ install() {
     inst_simple "$moddir/dracut-pre-pivot.service" ${dracutsystemunitdir}/dracut-pre-pivot.service
     ln -fs ../dracut-pre-pivot.service "${initdir}${dracutsystemunitdir}/initrd.target.wants/dracut-pre-pivot.service"
 
-    ln -fs ../initrd-parse-etc.service "${initdir}${dracutsystemunitdir}/initrd.target.wants/initrd-parse-etc.service"
-
     inst_rules 99-systemd.rules
 
     for i in \
@@ -223,7 +214,6 @@ install() {
         echo "RateLimitInterval=0"
         echo "RateLimitBurst=0"
     } >> "$initdir/etc/systemd/journald.conf"
-
 
 }
 
