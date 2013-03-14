@@ -105,9 +105,7 @@ for netif in $IFACES ; do
         echo "UUID=$uuid"
         [ -n "$mtu" ] && echo "MTU=$mtu"
         if [ -f /tmp/net.$netif.lease ]; then
-            strstr "$ip" '*:*:*' &&
-            echo "IPV6INIT=yes"
-            echo "DHCPV6C=yes"
+            strstr "$ip" '*:*:*' && echo "IPV6INIT=yes"
             echo "BOOTPROTO=dhcp"
             cp /tmp/net.$netif.lease /tmp/ifcfg-leases/dhclient-$uuid-$netif.lease
         else
