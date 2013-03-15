@@ -6,7 +6,7 @@ selinux --enforcing
 firewall --disabled
 part / --size 1024
 
-repo --name=fedora --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-16&arch=$basearch
+repo --name=fedora --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-$version&arch=$basearch
 
 %packages
 @core
