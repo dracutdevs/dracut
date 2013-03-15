@@ -51,6 +51,9 @@ _dracut() {
                         -a|-m|-o|--add|--modules|--omit)
                                 comps=$(dracut --list-modules 2>/dev/null)
                         ;;
+                        --kver)
+                                comps=$(cd /lib/modules; echo *)
+                        ;;
                         *)
                                 return 0
                         ;;
