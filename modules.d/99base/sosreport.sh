@@ -41,7 +41,7 @@ command -v dmsetup >/dev/null 2>/dev/null && dmsetup ls --tree
 cat /proc/mdstat
 
 if command -v journalctl >/dev/null 2>/dev/null; then
-    journalctl -ab --no-pager
+    journalctl -ab --no-pager -o short-monotonic
 else
     dmesg
     [ -f /run/initramfs/init.log ] && cat /run/initramfs/init.log
