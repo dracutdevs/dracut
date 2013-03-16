@@ -2,6 +2,8 @@
 
 echo 'Generating "/run/initramfs/sosreport.txt"'
 
+[ -d /run/initramfs ] || mkdir -p /run/initramfs
+
 exec >/run/initramfs/sosreport.txt 2>&1
 
 set -x
