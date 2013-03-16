@@ -49,8 +49,11 @@ ln -s $livedev /run/initramfs/livedev
 
 # determine filesystem type for a filesystem image
 det_img_fs() {
+    udevadm settle
     blkid -s TYPE -u noraid -o value "$1"
 }
+
+modprobe squashfs
 
 for arg in $CMDLINE; do case $arg in ro|rw) liverw=$arg ;; esac; done
 # mount the backing of the live image first
