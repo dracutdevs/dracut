@@ -70,6 +70,7 @@ installkernel() {
             done
         fi
     fi
+    :
 }
 
 install() {
