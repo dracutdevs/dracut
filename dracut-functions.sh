@@ -457,10 +457,18 @@ for_each_host_dev_fs()
     local _func="$1"
     local _dev
     local _ret=1
+
+    [[ "${!host_fs_types[@]}" ]] || return 0
+
     for _dev in "${!host_fs_types[@]}"; do
         $_func "$_dev" "${host_fs_types[$_dev]}" && _ret=0
     done
     return $_ret
+}
+
+host_fs_all()
+{
+    echo "${host_fs_types[@]}"
 }
 
 # Walk all the slave relationships for a given block device.
@@ -508,6 +516,9 @@ for_each_host_dev_and_slaves_all()
     local _func="$1"
     local _dev
     local _ret=1
+
+    [[ "${host_devs[@]}" ]] || return 0
+
     for _dev in ${host_devs[@]}; do
         [[ -b "$_dev" ]] || continue
         if check_block_and_slaves_all $_func $(get_maj_min $_dev); then
@@ -521,6 +532,9 @@ for_each_host_dev_and_slaves()
 {
     local _func="$1"
     local _dev
+
+    [[ "${host_devs[@]}" ]] || return 0
+
     for _dev in ${host_devs[@]}; do
         [[ -b "$_dev" ]] || continue
         check_block_and_slaves $_func $(get_maj_min $_dev) && return 0

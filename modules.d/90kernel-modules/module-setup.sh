@@ -65,11 +65,9 @@ installkernel() {
                     instmods '=fs'
             fi
         else
-            inst_fs() {
-                [[ $2 ]] || return 1
-                hostonly='' instmods $2
-            }
-            for_each_host_dev_fs inst_fs
+            for i in $(host_fs_all); do
+                hostonly='' instmods $i
+            done
         fi
     fi
 }
