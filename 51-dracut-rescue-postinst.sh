@@ -10,6 +10,9 @@ KERNEL_IMAGE="$2"
 [[ -f /etc/os-release ]] && . /etc/os-release
 [[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
 
+[[ $MACHINE_ID ]] || exit 1
+[[ -f $KERNEL_IMAGE ]] || exit 1
+
 INITRDFILE="/boot/initramfs-${MACHINE_ID}-rescue.img"
 [[ -f $INITRDFILE ]] && exit 0
 
