@@ -10,9 +10,8 @@
 [Unit]
 Description=dracut mount hook
 Documentation=man:dracut-mount.service(8)
-DefaultDependencies=no
 After=initrd-root-fs.target initrd-parse-etc.service
-
+After=dracut-initqueue.service dracut-pre-mount.service
 ConditionPathExists=/etc/initrd-release
 ConditionDirectoryNotEmpty=|/lib/dracut/hooks/mount
 ConditionKernelCommandLine=|rd.break=mount
