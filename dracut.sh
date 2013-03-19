@@ -1651,6 +1651,9 @@ if [[ $hostonly_cmdline ]] ; then
 fi
 rm -f -- "$outfile"
 dinfo "*** Creating image file '$outfile' ***"
+if [[ -n "${DRACUT_CPIO_NO_MTIME}" ]]; then
+    find "$initdir" -exec touch -h -t 197001010000 {} \;
+fi
 
 if [[ $uefi = yes ]]; then
     uefi_outfile="$outfile"
