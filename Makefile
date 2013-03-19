@@ -18,7 +18,8 @@ man1pages = lsinitrd.1
 
 man5pages = dracut.conf.5
 
-man7pages = dracut.cmdline.7
+man7pages = dracut.cmdline.7 \
+            dracut.bootup.7
 
 man8pages = dracut.8 \
             dracut-catimages.8 \
