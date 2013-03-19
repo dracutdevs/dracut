@@ -17,18 +17,18 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 # root is in the form root=nbd:srv:port[:fstype[:rootflags[:nbdopts]]]
 netif="$1"
-root="$2"
+nroot="$2"
 NEWROOT="$3"
 
 # If it's not nbd we don't continue
-[ "${root%%:*}" = "nbd" ] || return
+[ "${nroot%%:*}" = "nbd" ] || return
 
-root=${root#nbd:}
-nbdserver=${root%%:*}; root=${root#*:}
-nbdport=${root%%:*}; root=${root#*:}
-nbdfstype=${root%%:*}; root=${root#*:}
-nbdflags=${root%%:*}
-nbdopts=${root#*:}
+nroot=${nroot#nbd:}
+nbdserver=${nroot%%:*}; nroot=${nroot#*:}
+nbdport=${nroot%%:*}; nroot=${nroot#*:}
+nbdfstype=${nroot%%:*}; nroot=${nroot#*:}
+nbdflags=${nroot%%:*}
+nbdopts=${nroot#*:}
 
 # If nbdport not an integer, then assume name based import
 if [ ! -z $(echo "$nbdport" | sed 's/[0-9]//g') ]; then
@@ -92,25 +92,26 @@ while [ ! -b /dev/nbd0 ]; do
     else
         sleep 0.1
     fi
-    i=$(( $i + 1))
+    i=$(($i + 1))
 done
-
-nbd-client $preopts "$nbdserver" $nbdport /dev/nbd0 $opts || exit 1
 
 # If we didn't get a root= on the command line, then we need to
 # add the udev rules for mounting the nbd0 device
-root=$(getarg root=)
-if [ -z "$root" ] || strstr "$root" "nbd:" || strstr "$root" "dhcp"; then
-    echo '[ -e /dev/root ] || { info=$(udevadm info --query=env --name=/dev/nbd0); [ -z "${info%%*ID_FS_TYPE*}" ] && { ln -s /dev/nbd0 /dev/root 2>/dev/null; type systemctl >/dev/null 2>&1 && systemctl --no-block start sysroot.mount;:; };} && rm $job;' \
-        > $hookdir/initqueue/settled/nbd.sh
-
+if [ -z "$root" -o -n "${root%%block:*}" -o "$root" = "block:/dev/root" ]; then
+    printf 'KERNEL=="nbd0", ENV{DEVTYPE}!="partition", ENV{ID_FS_TYPE}=="?*", SYMLINK+="root"\n' >> /etc/udev/rules.d/99-nbd-root.rules
+    udevadm control --reload
     type write_fs_tab >/dev/null 2>&1 || . /lib/fs-lib.sh
-    write_fs_tab /dev/nbd0 "$nbdfstype" "$fsopts"
+    write_fs_tab /dev/root "$nbdfstype" "$fsopts"
+    wait_for_dev /dev/root
 
-    printf '/bin/mount %s\n' \
-        "$NEWROOT" \
-        > $hookdir/mount/01-$$-nbd.sh
+    if [ -z "$DRACUT_SYSTEMD" ]; then
+        printf '/bin/mount %s\n' \
+             "$NEWROOT" \
+             > $hookdir/mount/01-$$-nbd.sh
+    fi
 fi
+
+nbd-client $preopts "$nbdserver" $nbdport /dev/nbd0 $opts || exit 1
 
 # NBD doesn't emit uevents when it gets connected, so kick it
 echo change > /sys/block/nbd0/uevent
