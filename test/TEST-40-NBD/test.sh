@@ -99,7 +99,8 @@ test_run() {
         echo "Failed to start server" 1>&2
         return 1
     fi
-    client_run || { kill_server; return 1; }
+    client_run
+    kill_server
 }
 
 client_run() {
