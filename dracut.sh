@@ -788,6 +788,10 @@ if [[ $hostonly ]]; then
             unset hostonly
         fi
     done
+    if ! [[ -d /run/udev/data ]]; then
+        dwarning "Turning off host-only mode: udev database not found!"
+        unset hostonly
+    fi
 fi
 
 declare -A host_fs_types
