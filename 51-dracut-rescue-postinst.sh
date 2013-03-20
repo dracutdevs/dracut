@@ -13,8 +13,10 @@ KERNEL_IMAGE="$2"
 [[ $MACHINE_ID ]] || exit 1
 [[ -f $KERNEL_IMAGE ]] || exit 1
 
-INITRDFILE="/boot/initramfs-${MACHINE_ID}-rescue.img"
-[[ -f $INITRDFILE ]] && exit 0
+INITRDFILE="/boot/initramfs-0-rescue-${MACHINE_ID}.img"
+NEW_KERNEL_IMAGE="${KERNEL_IMAGE%/*}/vmlinuz-0-rescue-${MACHINE_ID}"
+
+[[ -f $INITRDFILE ]] && [[ -f $NEW_KERNEL_IMAGE ]] && exit 0
 
 dropindirs_sort()
 {
@@ -46,15 +48,17 @@ done
 
 [[ $dracut_rescue_image != "yes" ]] && exit 0
 
-dracut --no-hostonly  -a "rescue" "$INITRDFILE" "$KERNEL_VERSION"
-((ret+=$?))
+if [[ ! -f $INITRDFILE ]]; then
+    dracut --no-hostonly -a "rescue" "$INITRDFILE" "$KERNEL_VERSION"
+    ((ret+=$?))
+fi
 
-cp "$KERNEL_IMAGE" "${KERNEL_IMAGE%/*}/vmlinuz-${MACHINE_ID}-rescue"
-((ret+=$?))
+if [[ ! -f $NEW_KERNEL_IMAGE ]]; then
+    cp "$KERNEL_IMAGE" "$NEW_KERNEL_IMAGE"
+    ((ret+=$?))
+fi
 
-KERNEL_IMAGE="${KERNEL_IMAGE%/*}/vmlinuz-${MACHINE_ID}-rescue"
-
-new-kernel-pkg --install "$KERNEL_VERSION" --kernel-image "$KERNEL_IMAGE" --initrdfile "$INITRDFILE" --banner "$PRETTY_NAME Rescue"
+new-kernel-pkg --install "$KERNEL_VERSION" --kernel-image "$NEW_KERNEL_IMAGE" --initrdfile "$INITRDFILE" --banner "$NAME $VERSION_ID Rescue $MACHINE_ID"
 
 ((ret+=$?))
 
