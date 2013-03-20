@@ -8,6 +8,11 @@ KERNEL_VERSION="$1"
 KERNEL_IMAGE="$2"
 
 [[ -f /etc/os-release ]] && . /etc/os-release
+
+if [[ ! -f /etc/machine-id ]] || [[ ! -s /etc/machine-id ]]; then
+    systemd-machine-id-setup
+fi
+
 [[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
 
 [[ $MACHINE_ID ]] || exit 1
