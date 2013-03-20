@@ -34,6 +34,8 @@ BuildRequires: dash bash git
 
 %if 0%{?fedora} || 0%{?rhel}
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildRequires: bash-completion
+BuildRequires: pkgconfig
 %endif
 %if 0%{?suse_version}
 BuildRoot: %{_tmppath}/%{name}-%{version}-build
@@ -204,7 +206,8 @@ make install DESTDIR=$RPM_BUILD_ROOT \
 %if %{defined _unitdir}
      systemdsystemunitdir=%{_unitdir} \
 %endif
-     sysconfdir=/etc mandir=%{_mandir}
+     sysconfdir=/etc mandir=%{_mandir} \
+     bashcompletiondir=$(pkg-config --variable=completionsdir bash-completion)
 
 echo "DRACUT_VERSION=%{version}-%{release}" > $RPM_BUILD_ROOT/%{dracutlibdir}/dracut-version.sh
 
