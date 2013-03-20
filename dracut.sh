@@ -655,7 +655,7 @@ readonly initdir=$(mktemp --tmpdir="$TMPDIR/" -d -t initramfs.XXXXXX)
 }
 
 # clean up after ourselves no matter how we die.
-trap 'ret=$?;[[ $keep ]] && echo "Not removing $initdir." >&2 || { [[ $initdir ]] && rm -rf "$initdir";exit $ret; };' EXIT
+trap 'ret=$?;[[ $outfile ]] && [[ -f $outfile.$$ ]] && rm -f "$outfile.$$";[[ $keep ]] && echo "Not removing $initdir." >&2 || { [[ $initdir ]] && rm -rf "$initdir";exit $ret; };' EXIT
 # clean up after ourselves no matter how we die.
 trap 'exit 1;' SIGINT
 
