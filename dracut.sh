@@ -781,6 +781,15 @@ fi
 # Need to be able to have non-root users read stuff (rpcbind etc)
 chmod 755 "$initdir"
 
+if [[ $hostonly ]]; then
+    for i in /sys /proc /run /dev; do
+        if ! findmnt "$i" &>/dev/null; then
+            dwarning "Turning off host-only mode: '$i' is not mounted!"
+            unset hostonly
+        fi
+    done
+fi
+
 declare -A host_fs_types
 
 for line in "${fstab_lines[@]}"; do
