@@ -25,6 +25,7 @@ read_arg() {
         # return 1 to indicate they should do it instead.
         return 1
     fi
+    return 0
 }
 
 while (($# > 0)); do
@@ -36,18 +37,42 @@ while (($# > 0)); do
         --sbindir) read_arg sbindir "$@" || shift;;
         --mandir) read_arg mandir "$@" || shift;;
         --disable-documentation) enable_documentation=no;;
+        --program-prefix) read_arg programprefix "$@" || shift;;
+        --exec-prefix) read_arg execprefix "$@" || shift;;
+        --bindir) read_arg bindir "$@" || shift;;
+        --includedir) read_arg includedir "$@" || shift;;
+        --libexecdir) read_arg libexecdir "$@" || shift;;
+        --localstatedir) read_arg localstatedir "$@" || shift;;
+        --sharedstatedir) read_arg sharedstatedir "$@" || shift;;
+        --infodir) read_arg infodir "$@" || shift;;
+        --systemdsystemunitdir) read_arg systemdsystemunitdir "$@" || shift;;
+        --bashcompletiondir) read_arg bashcompletiondir "$@" || shift;;
         *) echo "Ignoring unknown option '$1'";;
     esac
     shift
 done
 
-cat > Makefile.inc.tmp <<EOF
+cat > Makefile.inc.$$ <<EOF
 prefix ?= ${prefix}
 libdir ?= ${libdir:-${prefix}/lib}
 datadir ?= ${datadir:-${prefix}/share}
 sysconfdir ?= ${sysconfdir:-${prefix}/etc}
 sbindir ?= ${sbindir:-${prefix}/sbin}
 mandir ?= ${mandir:-${prefix}/share/man}
-enable_documentation ?= ${enable_documentation}
+enable_documentation ?= ${enable_documentation:-yes}
+bindir ?= ${bindir:-${prefix}/bin}
 EOF
-mv Makefile.inc.tmp Makefile.inc
+
+{
+    [[ $programprefix ]] && echo "programprefix ?= ${programprefix}"
+    [[ $execprefix ]] && echo "execprefix ?= ${execprefix}"
+    [[ $includedir ]] && echo "includedir ?= ${includedir}"
+    [[ $libexecdir ]] && echo "libexecdir ?= ${libexecdir}"
+    [[ $localstatedir ]] && echo "localstatedir ?= ${localstatedir}"
+    [[ $sharedstatedir ]] && echo "sharedstatedir ?= ${sharedstatedir}"
+    [[ $infodir ]] && echo "infodir ?= ${infodir}"
+    [[ $systemdsystemunitdir ]] && echo "systemdsystemunitdir ?= ${systemdsystemunitdir}"
+    [[ $bashcompletiondir ]] && echo "bashcompletiondir ?= ${bashcompletiondir}"
+} >> Makefile.inc.$$
+
+mv Makefile.inc.$$ Makefile.inc

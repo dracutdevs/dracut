@@ -194,20 +194,17 @@ git am -p1 %{patches}
 %endif
 
 %build
-make all
+%configure --systemdsystemunitdir=%{_unitdir} --bashcompletiondir=$(pkg-config --variable=completionsdir bash-completion) --libdir=%{_prefix}/lib
+
+make %{?_smp_mflags}
 
 %install
 %if 0%{?fedora} || 0%{?rhel}
 rm -rf $RPM_BUILD_ROOT
 %endif
-make install DESTDIR=$RPM_BUILD_ROOT \
-     libdir=%{_prefix}/lib \
-     bindir=%{_bindir} \
-%if %{defined _unitdir}
-     systemdsystemunitdir=%{_unitdir} \
-%endif
-     sysconfdir=/etc mandir=%{_mandir} \
-     bashcompletiondir=$(pkg-config --variable=completionsdir bash-completion)
+make %{?_smp_mflags} install \
+     DESTDIR=$RPM_BUILD_ROOT \
+     libdir=%{_prefix}/lib
 
 echo "DRACUT_VERSION=%{version}-%{release}" > $RPM_BUILD_ROOT/%{dracutlibdir}/dracut-version.sh
 
