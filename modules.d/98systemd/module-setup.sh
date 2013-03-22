@@ -91,7 +91,22 @@ install() {
         $systemdsystemunitdir/sockets.target.wants/systemd-journald.socket \
         $systemdsystemunitdir/sysinit.target.wants/systemd-udevd.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-udev-trigger.service \
-\
+        \
+        $systemdsystemunitdir/dracut-cmdline.service \
+        $systemdsystemunitdir/dracut-initqueue.service \
+        $systemdsystemunitdir/dracut-mount.service \
+        $systemdsystemunitdir/dracut-pre-mount.service \
+        $systemdsystemunitdir/dracut-pre-pivot.service \
+        $systemdsystemunitdir/dracut-pre-trigger.service \
+        $systemdsystemunitdir/dracut-pre-udev.service \
+        $systemdsystemunitdir/initrd.target.wants/dracut-cmdline.service \
+        $systemdsystemunitdir/initrd.target.wants/dracut-initqueue.service \
+        $systemdsystemunitdir/initrd.target.wants/dracut-mount.service \
+        $systemdsystemunitdir/initrd.target.wants/dracut-pre-mount.service \
+        $systemdsystemunitdir/initrd.target.wants/dracut-pre-pivot.service \
+        $systemdsystemunitdir/initrd.target.wants/dracut-pre-trigger.service \
+        $systemdsystemunitdir/initrd.target.wants/dracut-pre-udev.service \
+        \
         $systemdsystemunitdir/ctrl-alt-del.target \
         $systemdsystemunitdir/syslog.socket \
         $systemdsystemunitdir/initrd-switch-root.target \
@@ -99,7 +114,7 @@ install() {
         $systemdsystemunitdir/initrd-cleanup.service \
         $systemdsystemunitdir/initrd-udevadm-cleanup-db.service \
         $systemdsystemunitdir/initrd-parse-etc.service \
-\
+        \
         $systemdsystemunitdir/umount.target \
         journalctl systemctl echo swapoff systemd-cgls
 
@@ -160,39 +175,15 @@ install() {
     inst_simple "$moddir/dracut-emergency.service" ${systemdsystemunitdir}/dracut-emergency.service
     inst_simple "$moddir/emergency.service" ${systemdsystemunitdir}/rescue.service
 
-    dracutsystemunitdir="/etc/systemd/system"
-
-    mkdir -p "${initdir}${dracutsystemunitdir}/initrd.target.wants"
-
     ln -fs initrd.target "${initdir}${systemdsystemunitdir}/default.target"
 
     inst_script "$moddir/dracut-cmdline.sh" /bin/dracut-cmdline
-    inst_simple "$moddir/dracut-cmdline.service" ${dracutsystemunitdir}/dracut-cmdline.service
-    ln -fs ../dracut-cmdline.service "${initdir}${dracutsystemunitdir}/initrd.target.wants/dracut-cmdline.service"
-
     inst_script "$moddir/dracut-pre-udev.sh" /bin/dracut-pre-udev
-    inst_simple "$moddir/dracut-pre-udev.service" ${dracutsystemunitdir}/dracut-pre-udev.service
-    ln -fs ../dracut-pre-udev.service "${initdir}${dracutsystemunitdir}/initrd.target.wants/dracut-pre-udev.service"
-
     inst_script "$moddir/dracut-pre-trigger.sh" /bin/dracut-pre-trigger
-    inst_simple "$moddir/dracut-pre-trigger.service" ${dracutsystemunitdir}/dracut-pre-trigger.service
-    ln -fs ../dracut-pre-trigger.service "${initdir}${dracutsystemunitdir}/initrd.target.wants/dracut-pre-trigger.service"
-
     inst_script "$moddir/dracut-initqueue.sh" /bin/dracut-initqueue
-    inst_simple "$moddir/dracut-initqueue.service" ${dracutsystemunitdir}/dracut-initqueue.service
-    ln -fs ../dracut-initqueue.service "${initdir}${dracutsystemunitdir}/initrd.target.wants/dracut-initqueue.service"
-
     inst_script "$moddir/dracut-pre-mount.sh" /bin/dracut-pre-mount
-    inst_simple "$moddir/dracut-pre-mount.service" ${dracutsystemunitdir}/dracut-pre-mount.service
-    ln -fs ../dracut-pre-mount.service "${initdir}${dracutsystemunitdir}/initrd.target.wants/dracut-pre-mount.service"
-
     inst_script "$moddir/dracut-mount.sh" /bin/dracut-mount
-    inst_simple "$moddir/dracut-mount.service" ${dracutsystemunitdir}/dracut-mount.service
-    ln -fs ../dracut-mount.service "${initdir}${dracutsystemunitdir}/initrd.target.wants/dracut-mount.service"
-
     inst_script "$moddir/dracut-pre-pivot.sh" /bin/dracut-pre-pivot
-    inst_simple "$moddir/dracut-pre-pivot.service" ${dracutsystemunitdir}/dracut-pre-pivot.service
-    ln -fs ../dracut-pre-pivot.service "${initdir}${dracutsystemunitdir}/initrd.target.wants/dracut-pre-pivot.service"
 
     inst_rules 99-systemd.rules
 
@@ -203,9 +194,9 @@ install() {
         systemd-ask-password-console.service \
         systemd-ask-password-plymouth.service \
         ; do
-        mkdir -p "${initdir}${dracutsystemunitdir}/${i}.wants"
+        mkdir -p "${initdir}${systemdsystemconfdir}/${i}.wants"
         ln_r "${systemdsystemunitdir}/systemd-vconsole-setup.service" \
-            "${dracutsystemunitdir}/${i}.wants/systemd-vconsole-setup.service"
+            "${systemdsystemconfdir}/${i}.wants/systemd-vconsole-setup.service"
     done
 
     # turn off RateLimit for journal

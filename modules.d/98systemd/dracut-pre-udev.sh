@@ -55,6 +55,4 @@ unset _do_insmodpost _modprobe_d
 unset i
 
 export -p > /dracut-state.sh
-service="${0##*/}"
-cp "/etc/systemd/system/${service%.sh}.service" /run/systemd/system/
 exit 0

@@ -20,6 +20,4 @@ udevadm control --reload >/dev/null 2>&1 || :
 
 export -p > /dracut-state.sh
 
-service="${0##*/}"
-cp "/etc/systemd/system/${service%.sh}.service" /run/systemd/system/
 exit 0

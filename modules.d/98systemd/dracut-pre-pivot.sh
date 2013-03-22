@@ -25,6 +25,4 @@ getarg rd.break -d rdbreak && emergency_shell -n switch_root "Break before switc
 # remove helper symlink
 [ -h /dev/root ] && rm -f /dev/root
 
-service="${0##*/}"
-cp "/etc/systemd/system/${service%.sh}.service" /run/systemd/system/
 exit 0
