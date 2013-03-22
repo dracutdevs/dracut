@@ -15,7 +15,7 @@ check() {
     }
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        for_each_host_dev_and_slaves is_mpath || return 1
+        for_each_host_dev_and_slaves is_mpath || return 255
     }
 
     return 0
@@ -75,6 +75,7 @@ install() {
         mpath_wait \
         multipath  \
         multipathd \
+        mpathpersist \
         xdrgetuid \
         xdrgetprio \
         /etc/xdrdevices.conf \
@@ -85,8 +86,15 @@ install() {
 
     inst_libdir_file "libmultipath*" "multipath/*"
 
-    inst_hook pre-trigger 02 "$moddir/multipathd.sh"
-    inst_hook cleanup   02 "$moddir/multipathd-stop.sh"
+    if dracut_module_included "systemd"; then
+        dracut_install \
+            $systemdsystemunitdir/multipathd.service
+        mkdir -p "${initdir}${systemdsystemconfdir}/sysinit.target.wants"
+        ln -rfs "${initdir}${systemdsystemunitdir}/multipathd.service" "${initdir}${systemdsystemconfdir}/sysinit.target.wants/multipathd.service"
+    else
+        inst_hook pre-trigger 02 "$moddir/multipathd.sh"
+        inst_hook cleanup   02 "$moddir/multipathd-stop.sh"
+    fi
     inst_rules 40-multipath.rules 62-multipath.rules 65-multipath.rules 66-kpartx.rules
 }
 
