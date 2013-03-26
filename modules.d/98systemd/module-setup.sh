@@ -197,6 +197,7 @@ install() {
     inst_rules 99-systemd.rules
 
     for i in \
+        initrd.target \
         emergency.target \
         dracut-emergency.service \
         rescue.service \
