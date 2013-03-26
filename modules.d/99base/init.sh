@@ -39,6 +39,8 @@ RD_DEBUG=""
 
 if [ -x /lib/systemd/systemd-timestamp ]; then
     RD_TIMESTAMP=$(/lib/systemd/systemd-timestamp)
+elif [ -x /usr/lib/systemd/systemd-timestamp ]; then
+    RD_TIMESTAMP=$(/usr/lib/systemd/systemd-timestamp)
 else
     read RD_TIMESTAMP _tmp < /proc/uptime
     unset _tmp
@@ -124,7 +126,8 @@ getarg 'rd.break=pre-udev' -d 'rdbreak=pre-udev' && emergency_shell -n pre-udev 
 source_hook pre-udev
 
 # start up udev and trigger cold plugs
-/lib/systemd/systemd-udevd --daemon --resolve-names=never
+if [ -x /lib/systemd/systemd-udevd ]; then /lib/systemd/systemd-udevd --daemon --resolve-names=never
+elif [ -x /usr/lib/systemd/systemd-udevd ]; then /usr/lib/systemd/systemd-udevd --daemon --resolve-names=never ; fi
 
 UDEV_LOG_PRIO_ARG=--log-priority
 UDEV_QUEUE_EMPTY="udevadm settle --timeout=0"

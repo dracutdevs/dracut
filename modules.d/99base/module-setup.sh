@@ -49,7 +49,7 @@ install() {
     fi
 
     mkdir -p "${initdir}/var"
-    [ -x /lib/systemd/systemd-timestamp ] && inst /lib/systemd/systemd-timestamp
+    [ -x $systemdutildir/systemd-timestamp ] && inst $systemdutildir/systemd-timestamp
     if [[ $realinitpath ]]; then
         for i in $realinitpath; do
             echo "rd.distroinit=$i"
