@@ -92,7 +92,7 @@ Requires: kbd kbd-misc
 
 %if 0%{?fedora} || 0%{?rhel} > 6
 Requires: util-linux >= 2.21
-Requires: systemd >= 198-5
+Requires: systemd >= 199
 Conflicts: grubby < 8.23
 %else
 Requires: udev > 166
