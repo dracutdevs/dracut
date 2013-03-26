@@ -6,6 +6,8 @@
 
 if [ -x /lib/systemd/systemd-vconsole-setup ]; then
     /lib/systemd/systemd-vconsole-setup "$@"
+elif [ -x /usr/lib/systemd/systemd-vconsole-setup ]; then
+    /usr/lib/systemd/systemd-vconsole-setup "$@"
 fi
 
 [ -e /etc/vconsole.conf ] && . /etc/vconsole.conf
