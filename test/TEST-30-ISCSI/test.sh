@@ -16,7 +16,8 @@ run_server() {
         -hdb $TESTDIR/root.ext3 \
         -hdc $TESTDIR/iscsidisk2.img \
         -hdd $TESTDIR/iscsidisk3.img \
-        -m 256M  -smp 2 -nographic \
+        -m 256M  -smp 2 \
+        -display none \
         -serial $SERIAL \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net socket,listen=127.0.0.1:12330 \

@@ -18,7 +18,7 @@ run_server() {
     $testdir/run-qemu \
         -hda $TESTDIR/server.ext3 \
         -m 256M -smp 2 \
-        -nographic \
+        -display none \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net socket,listen=127.0.0.1:12320 \
         -serial $SERIAL \

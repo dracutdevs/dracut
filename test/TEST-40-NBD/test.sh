@@ -18,7 +18,8 @@ run_server() {
         -hda $TESTDIR/server.ext2 \
         -hdb $TESTDIR/nbd.ext2 \
         -hdc $TESTDIR/encrypted.ext2 \
-        -m 256M -smp 2 -nographic \
+        -m 256M -smp 2 \
+        -display none \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net socket,listen=127.0.0.1:12340 \
         -serial $SERIAL \
