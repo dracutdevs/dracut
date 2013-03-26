@@ -37,8 +37,8 @@ fi
 RD_DEBUG=""
 . /lib/dracut-lib.sh
 
-if [ -x /lib/systemd/systemd-timestamp ]; then
-    RD_TIMESTAMP=$(/lib/systemd/systemd-timestamp)
+if [ -x $systemdutildir/systemd-timestamp ]; then
+    RD_TIMESTAMP=$($systemdutildir/systemd-timestamp)
 else
     read RD_TIMESTAMP _tmp < /proc/uptime
     unset _tmp
@@ -124,7 +124,7 @@ getarg 'rd.break=pre-udev' -d 'rdbreak=pre-udev' && emergency_shell -n pre-udev 
 source_hook pre-udev
 
 # start up udev and trigger cold plugs
-/lib/systemd/systemd-udevd --daemon --resolve-names=never
+$systemdutildir/systemd-udevd --daemon --resolve-names=never
 
 UDEV_LOG_PRIO_ARG=--log-priority
 UDEV_QUEUE_EMPTY="udevadm settle --timeout=0"

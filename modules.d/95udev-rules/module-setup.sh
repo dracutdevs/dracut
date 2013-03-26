@@ -11,17 +11,17 @@ install() {
     dracut_install udevadm cat uname blkid \
         /etc/udev/udev.conf
 
-    [ -d ${initdir}/lib/systemd ] || mkdir -p ${initdir}/lib/systemd
-    for _i in ${systemdutildir}/systemd-udevd ${udevdir}/udevd /lib/systemd/systemd-udevd /sbin/udevd; do
+    [ -d ${initdir}/$systemdutildir ] || mkdir -p ${initdir}/$systemdutildir
+    for _i in ${systemdutildir}/systemd-udevd ${udevdir}/udevd /sbin/udevd; do
         [ -x "$_i" ] || continue
         inst "$_i"
 
-        if ! [[ -f  ${initdir}/lib/systemd/systemd-udevd ]]; then
-            ln -fs "$_i" ${initdir}/lib/systemd/systemd-udevd
+        if ! [[ -f  ${initdir}${systemdutildir}/systemd-udevd ]]; then
+            ln -fs "$_i" ${initdir}${systemdutildir}/systemd-udevd
         fi
         break
     done
-    if ! [[ -e ${initdir}/lib/systemd/systemd-udevd ]]; then
+    if ! [[ -e ${initdir}${systemdutildir}/systemd-udevd ]]; then
         derror "Cannot find [systemd-]udevd binary!"
         exit 1
     fi

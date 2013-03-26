@@ -1067,6 +1067,15 @@ if [[ $kernel_only != yes ]]; then
         cat $f >> "${initdir}/etc/fstab"
     done
 
+    if [ -d ${initdir}/$systemdutildir ]; then
+        mkdir -p ${initdir}/etc/conf.d
+        {
+            echo "systemdutildir=\"$systemdutildir\""
+            echo "systemdsystemunitdir=\"$systemdsystemunitdir\""
+            echo "systemdsystemconfdir=\"$systemdsystemconfdir\""
+        } > ${initdir}/etc/conf.d/systemd.conf
+    fi
+
     if [[ $DRACUT_RESOLVE_LAZY ]] && [[ $DRACUT_INSTALL ]]; then
         dinfo "*** Resolving executable dependencies ***"
         find "$initdir" -type f \

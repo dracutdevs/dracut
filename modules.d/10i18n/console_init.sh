@@ -4,8 +4,8 @@
 
 [ -n "$DRACUT_SYSTEMD" ] && exit 0
 
-if [ -x /lib/systemd/systemd-vconsole-setup ]; then
-    /lib/systemd/systemd-vconsole-setup "$@"
+if [ -x $systemdutildir/systemd-vconsole-setup ]; then
+    $systemdutildir/systemd-vconsole-setup "$@"
 fi
 
 [ -e /etc/vconsole.conf ] && . /etc/vconsole.conf

@@ -88,8 +88,10 @@ install() {
     inst_hook shutdown 30 "$moddir/md-shutdown.sh"
     inst_script "$moddir/mdraid-cleanup.sh" /sbin/mdraid-cleanup
     inst_script "$moddir/mdraid_start.sh" /sbin/mdraid_start
-    if [ -e /lib/systemd/system/mdmon@.service ]; then
-        inst_simple /lib/systemd/system/mdmon@.service
+    if dracut_module_included "systemd"; then
+        if [ -e $systemdsystemunitdir/mdmon@.service ]; then
+            inst_simple $systemdsystemunitdir/mdmon@.service
+        fi
     fi
     inst_hook pre-shutdown 30 "$moddir/mdmon-pre-shutdown.sh"
 }
