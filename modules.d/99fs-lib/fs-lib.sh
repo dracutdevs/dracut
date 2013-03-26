@@ -220,9 +220,9 @@ write_fs_tab() {
     [ -z "$_rootfstype" ] && _rootfstype="auto"
 
     if [ -z "$_rootflags" ]; then
-        _rootflags="ro,x-initrd-rootfs.mount"
+        _rootflags="ro,x-initrd.mount"
     else
-        _rootflags="ro,$_rootflags,x-initrd-rootfs.mount"
+        _rootflags="ro,$_rootflags,x-initrd.mount"
     fi
 
     _rw=0
