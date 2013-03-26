@@ -1,3 +1,21 @@
+dracut-027
+==========
+- dracut now has bash-completion
+- require bash version 4
+- systemd module now requires systemd >= 199
+- dracut makes use of native systemd initrd units
+- added hooks for new-kernel-pkg and kernel-install
+- hostonly is now default for fedora
+- comply with the BootLoaderSpec paths
+  http://www.freedesktop.org/wiki/Specifications/BootLoaderSpec
+- added rescue module
+- host_fs_types is now a hashmap
+- new dracut argument "--regenerate-all"
+- new dracut argument "--noimageifnotneeded"
+- new man page dracut.bootup
+- install all host filesystem drivers
+- use -D_FILE_OFFSET_BITS=64 to build dracut-install
+
 dracut-026
 ==========
 - introduce /usr/lib/dracut/dracut.conf.d/ drop-in directory
