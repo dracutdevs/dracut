@@ -65,6 +65,8 @@ install() {
         $systemdsystemunitdir/sigpwr.target \
         $systemdsystemunitdir/sockets.target \
         $systemdsystemunitdir/swap.target \
+        $systemdsystemunitdir/timers.target \
+        $systemdsystemunitdir/paths.target \
         $systemdsystemunitdir/systemd-ask-password-console.path \
         $systemdsystemunitdir/systemd-udevd-control.socket \
         $systemdsystemunitdir/systemd-udevd-kernel.socket \
