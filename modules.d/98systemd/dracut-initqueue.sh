@@ -62,7 +62,7 @@ while :; do
     fi
 
     main_loop=$(($main_loop+1))
-    [ $main_loop -gt $RDRETRY ] && emergency_shell "Could not boot."
+    [ $main_loop -gt $RDRETRY ] && action_on_fail "Could not boot." && break
 done
 
 unset job

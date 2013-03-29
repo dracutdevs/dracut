@@ -79,7 +79,7 @@ if ! ismounted /run; then
     rm -fr /newrun
 fi
 
-trap "emergency_shell Signal caught!" 0
+trap "action_on_fail Signal caught!" 0
 
 [ -d /run/initramfs ] || mkdir -p -m 0755 /run/initramfs
 [ -d /run/log ] || mkdir -p -m 0755 /run/log
@@ -199,7 +199,7 @@ while :; do
 
     main_loop=$(($main_loop+1))
     [ $main_loop -gt $RDRETRY ] \
-        && { flock -s 9 ; emergency_shell "Could not boot."; } 9>/.console_lock
+        && { flock -s 9 ; action_on_fail "Could not boot." && break; } 9>/.console_lock
 done
 unset job
 unset queuetriggered
@@ -234,7 +234,7 @@ while :; do
 
     i=$(($i+1))
     [ $i -gt 20 ] \
-        && { flock -s 9 ; emergency_shell "Can't mount root filesystem"; } 9>/.console_lock
+        && { flock -s 9 ; action_on_fail "Can't mount root filesystem" && break; } 9>/.console_lock
 done
 
 {
@@ -268,7 +268,7 @@ done
 [ "$INIT" ] || {
     echo "Cannot find init!"
     echo "Please check to make sure you passed a valid root filesystem!"
-    emergency_shell
+    action_on_fail
 }
 
 if [ $UDEVVERSION -lt 168 ]; then
@@ -370,13 +370,13 @@ if [ -f /etc/capsdrop ]; then
 	warn "Command:"
 	warn capsh --drop=$CAPS_INIT_DROP -- -c exec switch_root "$NEWROOT" "$INIT" $initargs
 	warn "failed."
-	emergency_shell
+	action_on_fail
     }
 else
     unset RD_DEBUG
     exec $SWITCH_ROOT "$NEWROOT" "$INIT" $initargs || {
 	warn "Something went very badly wrong in the initramfs.  Please "
 	warn "file a bug against dracut."
-	emergency_shell
+	action_on_fail
     }
 fi

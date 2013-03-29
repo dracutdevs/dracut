@@ -68,7 +68,7 @@ mount_root() {
                 warn "*** Warning -- the system did not shut down cleanly. "
                 warn "*** Dropping you to a shell; the system will continue"
                 warn "*** when you leave the shell."
-                emergency_shell
+                action_on_fail
             fi
             fsckoptions="$AUTOFSCK_OPT $fsckoptions"
         fi
