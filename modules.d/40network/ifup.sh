@@ -46,6 +46,8 @@ if [ -e /tmp/bridge.info ]; then
         if [ "$netif" = "$ethname" ]; then
             if [ "$netif" = "$bondname" ] && [ -n "$DO_BOND_SETUP" ] ; then
                 : # We need to really setup bond (recursive call)
+            elif [ "$netif" = "$teammaster" ] && [ -n "$DO_TEAM_SETUP" ] ; then
+                : # We need to really setup team (recursive call)
             else
                 netif="$bridgename"
                 use_bridge='true'
@@ -59,6 +61,8 @@ if [ -e /tmp/vlan.info ]; then
     if [ "$netif" = "$phydevice" ]; then
         if [ "$netif" = "$bondname" ] && [ -n "$DO_BOND_SETUP" ] ; then
             : # We need to really setup bond (recursive call)
+        elif [ "$netif" = "$teammaster" ] && [ -n "$DO_TEAM_SETUP" ] ; then
+            : # We need to really setup team (recursive call)
         else
             netif="$vlanname"
             use_vlan='true'
@@ -212,6 +216,8 @@ if [ -e /tmp/bridge.info ]; then
         for ethname in $ethnames ; do
             if [ "$ethname" = "$bondname" ] ; then
                 DO_BOND_SETUP=yes ifup $bondname -m
+            elif [ "$ethname" = "$teammaster" ] ; then
+                DO_TEAM_SETUP=yes ifup $teammaster -m
             else
                 linkup $ethname
             fi
@@ -235,6 +241,8 @@ if [ "$netif" = "$vlanname" ] && [ ! -e /tmp/net.$vlanname.up ]; then
     modprobe 8021q
     if [ "$phydevice" = "$bondname" ] ; then
         DO_BOND_SETUP=yes ifup $phydevice -m
+    elif [ "$phydevice" = "$teammaster" ] ; then
+        DO_TEAM_SETUP=yes ifup $phydevice -m
     else
         linkup "$phydevice"
     fi
