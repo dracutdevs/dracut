@@ -104,7 +104,7 @@ else
 fi
 
 [ -f /etc/initrd-release ] && . /etc/initrd-release
-[ -n "$VERSION" ] && info "dracut-$VERSION"
+[ -n "$VERSION_ID" ] && info "$NAME-$VERSION_ID"
 
 source_conf /etc/conf.d
 
