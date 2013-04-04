@@ -818,6 +818,15 @@ wait_for_mount()
     } >> "$hookdir/emergency/90-${_name}.sh"
 }
 
+dev_unit_name()
+{
+    _name="${1%%/}"
+    _name="${_name##/}"
+    _name="$(str_replace "$_name" '-' '\x2d')"
+    _name="$(str_replace "$_name" '/' '-')"
+    echo "$_name"
+}
+
 # wait_for_dev <dev>
 #
 # Installs a initqueue-finished script,
@@ -835,10 +844,7 @@ wait_for_dev()
     } >> "${PREFIX}$hookdir/emergency/80-${_name}.sh"
 
     if [ -n "$DRACUT_SYSTEMD" ]; then
-        _name="${1%%/}"
-        _name="${_name##/}"
-        _name="$(str_replace "$_name" '-' '\x2d')"
-        _name="$(str_replace "$_name" '/' '-')"
+        _name=$(dev_unit_name "$1")
         if ! [ -L ${PREFIX}/etc/systemd/system/initrd.target.requires/${_name}.device ]; then
             [ -d ${PREFIX}/etc/systemd/system/initrd.target.requires ] || mkdir -p ${PREFIX}/etc/systemd/system/initrd.target.requires
             ln -s ../${_name}.device ${PREFIX}/etc/systemd/system/initrd.target.requires/${_name}.device
