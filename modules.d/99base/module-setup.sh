@@ -89,18 +89,18 @@ install() {
 
     ## save host_devs which we need bring up
     (
+        if dracut_module_included "systemd"; then
+            DRACUT_SYSTEMD=1
+        fi
+        PREFIX="$initdir"
+
         . "$moddir/dracut-lib.sh"
+
         for _dev in ${host_devs[@]}; do
             _pdev=$(get_persistent_dev $_dev)
 
             case "$_pdev" in
-                /dev/?*)
-                    if ! dracut_module_included "systemd"; then
-                        PREFIX="$initdir" wait_for_dev $_pdev
-                    else
-                        DRACUT_SYSTEMD=1 PREFIX="$initdir" wait_for_dev $_pdev
-                    fi
-                    ;;
+                /dev/?*) wait_for_dev $_pdev;;
                 *) ;;
             esac
         done

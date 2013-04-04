@@ -849,6 +849,13 @@ wait_for_dev()
             [ -d ${PREFIX}/etc/systemd/system/initrd.target.requires ] || mkdir -p ${PREFIX}/etc/systemd/system/initrd.target.requires
             ln -s ../${_name}.device ${PREFIX}/etc/systemd/system/initrd.target.requires/${_name}.device
         fi
+
+        mkdir -p ${PREFIX}/etc/systemd/system/${_name}.device.d
+        {
+            echo "[Unit]"
+            echo "JobTimeoutSec=3600"
+        } > ${PREFIX}/etc/systemd/system/${_name}.device.d/timeout.conf
+        [ -z "$PREFIX" ] && /sbin/initqueue --onetime --unique --name daemon-reload systemctl daemon-reload
     fi
 }
 
@@ -858,6 +865,12 @@ cancel_wait_for_dev()
     _name="$(str_replace "$1" '/' '\\x2f')"
     rm -f "$hookdir/initqueue/finished/devexists-${_name}.sh"
     rm -f "$hookdir/emergency/80-${_name}.sh"
+    if [ -n "$DRACUT_SYSTEMD" ]; then
+        _name=$(dev_unit_name "$1")
+        rm -f ${PREFIX}/etc/systemd/system/initrd.target.requires/${_name}.device
+        rm -f ${PREFIX}/etc/systemd/system/${_name}.device.d/timeout.conf
+        /sbin/initqueue --onetime --unique --name daemon-reload systemctl daemon-reload
+    fi
 }
 
 killproc() {
@@ -1023,7 +1036,7 @@ listlist() {
 
 # returns OK if both lists contain the same values.  An order and a duplication
 # doesn't matter.
-# 
+#
 # $1 = separator
 # $2 = list1
 # $3 = list2
