@@ -74,19 +74,21 @@ Creates initial ramdisk images for preloading modules
                          call when building the initramfs. Modules are located
                          in /usr/lib/dracut/modules.d.
   -o, --omit [LIST]     Omit a space-separated list of dracut modules.
+  --force-add [LIST]    Force to add a space-separated list of dracut modules
+                         to the default set of modules, when -H is specified.
   -d, --drivers [LIST]  Specify a space-separated list of kernel modules to
-                        exclusively include in the initramfs.
-  --add-drivers [LIST] Specify a space-separated list of kernel
-                        modules to add to the initramfs.
+                         exclusively include in the initramfs.
+  --add-drivers [LIST]  Specify a space-separated list of kernel
+                         modules to add to the initramfs.
   --omit-drivers [LIST] Specify a space-separated list of kernel
-                        modules not to add to the initramfs.
+                         modules not to add to the initramfs.
   --filesystems [LIST]  Specify a space-separated list of kernel filesystem
-                        modules to exclusively include in the generic
-                        initramfs.
+                         modules to exclusively include in the generic
+                         initramfs.
   -k, --kmoddir [DIR]   Specify the directory, where to look for kernel
-                        modules
+                         modules
   --fwdir [DIR]         Specify additional directories, where to look for
-                        firmwares, separated by :
+                         firmwares, separated by :
   --kernel-only         Only install kernel drivers and firmware files
   --no-kernel           Do not install kernel drivers and firmware files
   --kernel-cmdline [PARAMETERS] Specify default kernel command line parameters
@@ -317,7 +319,9 @@ TEMP=$(unset POSIXLY_CORRECT; getopt \
     --long quiet \
     --long local \
     --long hostonly \
+    --long host-only \
     --long no-hostonly \
+    --long no-host-only \
     --long fstab \
     --long help \
     --long bzip2 \
@@ -391,8 +395,10 @@ while :; do
                        [[ -f "$(readlink -f ${0%/*})/dracut-functions.sh" ]] \
                            && dracutbasedir="$(readlink -f ${0%/*})"
                        ;;
-        -H|--hostonly) hostonly_l="yes" ;;
-        -N|--no-hostonly) hostonly_l="no" ;;
+        -H|--hostonly|--host-only)
+                       hostonly_l="yes" ;;
+        -N|--no-hostonly|--no-host-only)
+                       hostonly_l="no" ;;
         --fstab)       use_fstab_l="yes" ;;
         -h|--help)     long_usage; exit 1 ;;
         -i|--include)  push include_src "$2"
