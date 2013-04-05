@@ -122,7 +122,7 @@ test_setup() {
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-a "debug watchdog" \
         -o "network" \
-	-d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esbwdt" \
+	-d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \
 	-f $TESTDIR/initramfs.testing $KVERSION || return 1
 
     rm -rf $TESTDIR/overlay

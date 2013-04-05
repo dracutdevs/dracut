@@ -356,7 +356,7 @@ test_setup() {
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
         -o "plymouth" \
         -a "debug watchdog" \
-        -d "af_packet piix ide-gd_mod ata_piix ext2 ext3 sd_mod e1000 i6300esbwdt" \
+        -d "af_packet piix ide-gd_mod ata_piix ext2 ext3 sd_mod e1000 i6300esb ib700wdt" \
         -f $TESTDIR/initramfs.testing $KVERSION || return 1
 }
 

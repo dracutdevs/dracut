@@ -86,7 +86,7 @@ test_setup() {
     )
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-a "debug watchdog" \
-	-d "piix ide-gd_mod ata_piix ext3 sd_mod i6300esbwdt" \
+	-d "piix ide-gd_mod ata_piix ext3 sd_mod i6300esb ib700wdt" \
 	-f $TESTDIR/initramfs.testing $KVERSION || return 1
 
 #	-o "plymouth network md dmraid multipath fips caps crypt btrfs resume dmsquash-live dm"
