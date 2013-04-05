@@ -8,7 +8,6 @@ KVERSION=${KVERSION-$(uname -r)}
 # Uncomment this to debug failures
 #DEBUGFAIL="rd.shell"
 #SERIAL="tcp:127.0.0.1:9999"
-SERIAL="null"
 
 run_server() {
     # Start server first
@@ -19,9 +18,9 @@ run_server() {
         -hda $TESTDIR/server.ext3 \
         -m 512M -smp 2 \
         -display none \
-        -netdev socket,mcast=230.0.0.1:12320,id=net0 \
-        -net nic,macaddr=52:54:01:12:34:56,model=e1000,netdev=net0 \
-        -serial $SERIAL \
+        -net socket,listen=127.0.0.1:12350 \
+        -net nic,macaddr=52:54:01:12:34:56,model=e1000 \
+        ${SERIAL+-serial $SERIAL} \
         -watchdog i6300esb -watchdog-action poweroff \
         -kernel /boot/vmlinuz-$KVERSION \
         -append "loglevel=77 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
@@ -53,15 +52,13 @@ client_test() {
     fi
 
     $testdir/run-qemu -hda $TESTDIR/client.img -m 512M -smp 2 -nographic \
-        -netdev socket,mcast=230.0.0.1:12320,id=net0 \
-        -net nic,netdev=net0,macaddr=52:54:00:12:34:$mac1,model=e1000 \
-        -netdev socket,mcast=230.0.0.1:12320,id=net1 \
-        -net nic,netdev=net1,macaddr=52:54:00:12:34:$mac2,model=e1000 \
-        -netdev socket,mcast=230.0.0.1:12320,id=net2 \
-        -net nic,netdev=net2,macaddr=52:54:00:12:34:$mac3,model=e1000 \
+        -net socket,connect=127.0.0.1:12350 \
+        -net nic,macaddr=52:54:00:12:34:$mac1,model=e1000 \
+        -net nic,macaddr=52:54:00:12:34:$mac2,model=e1000 \
+        -net nic,macaddr=52:54:00:12:34:$mac3,model=e1000 \
         -watchdog i6300esb -watchdog-action poweroff \
         -kernel /boot/vmlinuz-$KVERSION \
-        -append "$cmdline $DEBUGFAIL rd.retry=5 rd.info  ro rd.systemd.log_level=debug console=ttyS0,115200n81 selinux=0 rd.copystate rd.chroot init=/sbin/init" \
+        -append "$cmdline $DEBUGFAIL rd.retry=5 rd.info ro console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
         -initrd $TESTDIR/initramfs.testing
 
     if [[ $? -ne 0 ]] || ! grep -m 1 -q OK $TESTDIR/client.img; then
@@ -252,14 +249,14 @@ test_setup() {
     # Make server's dracut image
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
         -m "dash udev-rules base rootfs-block debug kernel-modules watchdog" \
-        -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files nfsd e1000 i6300esbwdt" \
+        -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files nfsd e1000 i6300esb ib700wdt" \
         -f $TESTDIR/initramfs.server $KVERSION || return 1
 
     # Make client's dracut image
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
         -o "plymouth" \
         -a "debug" \
-        -d "af_packet piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files sunrpc i6300esbwdt" \
+        -d "af_packet piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files sunrpc i6300esb ib700wdt" \
         -f $TESTDIR/initramfs.testing $KVERSION || return 1
 }
 
