@@ -21,14 +21,18 @@ use_bridge='false'
 use_vlan='false'
 
 # enslave this interface to bond?
-if [ -e /tmp/bond.info ]; then
-    . /tmp/bond.info
+for i in /tmp/bond.*.info; do
+    [ -e "$i" ] || continue
+    unset bondslaves
+    unset bondname
+    . "$i"
     for slave in $bondslaves ; do
         if [ "$netif" = "$slave" ] ; then
             netif=$bondname
+            break 2
         fi
     done
-fi
+done
 
 if [ -e /tmp/team.info ]; then
     . /tmp/team.info
@@ -138,11 +142,12 @@ if [ "$netif" = "lo" ] ; then
 fi
 
 # start bond if needed
-if [ -e /tmp/bond.info ]; then
-    . /tmp/bond.info
+if [ -e /tmp/bond.${netif}.info ]; then
+    . /tmp/bond.${netif}.info
 
     if [ "$netif" = "$bondname" ] && [ ! -e /tmp/net.$bondname.up ] ; then # We are master bond device
         modprobe bonding
+        echo "+$netif" >  /sys/class/net/bonding_masters
         ip link set $netif down
 
         # Stolen from ifup-eth

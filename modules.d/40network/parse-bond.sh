@@ -54,8 +54,8 @@ if getarg bond >/dev/null; then
     fi
     # Make it suitable for initscripts export
     bondoptions=$(str_replace "$bondoptions" ";" ",")
-    echo "bondname=$bondname" > /tmp/bond.info
-    echo "bondslaves=\"$bondslaves\"" >> /tmp/bond.info
-    echo "bondoptions=\"$bondoptions\"" >> /tmp/bond.info
+    echo "bondname=$bondname" > /tmp/bond.${bondname}.info
+    echo "bondslaves=\"$bondslaves\"" >> /tmp/bond.${bondname}.info
+    echo "bondoptions=\"$bondoptions\"" >> /tmp/bond.${bondname}.info
     return
 fi

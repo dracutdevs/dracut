@@ -37,12 +37,6 @@ parsebridge() {
 unset bridgename ethnames
 
 iface=eth0
-if [ -e /tmp/bond.info ]; then
-    . /tmp/bond.info
-    if [ -n "$bondname" ] ; then
-        iface=$bondname
-    fi
-fi
 
 # Parse bridge for bridgename and ethnames
 if bridge="$(getarg bridge)"; then

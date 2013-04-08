@@ -28,11 +28,14 @@ fi
     fi
 
     # bond: attempt only the defined interface (override bridge defines)
-    if [ -e /tmp/bond.info ]; then
-        . /tmp/bond.info
+    for i in /tmp/bond.*.info; do
+        [ -e "$i" ] || continue
+        unset bondslaves
+        unset bondname
+        . "$i"
         # It is enough to fire up only one
         IFACES="$IFACES ${bondslaves%% *}"
-    fi
+    done
 
     if [ -e /tmp/team.info ]; then
         . /tmp/team.info

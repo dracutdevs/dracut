@@ -9,10 +9,6 @@ udevadm settle --timeout=30
 
 read IFACES < /tmp/net.ifaces
 
-if [ -e /tmp/bond.info ]; then
-    . /tmp/bond.info
-fi
-
 if [ -e /tmp/bridge.info ]; then
     . /tmp/bridge.info
 fi
@@ -89,6 +85,11 @@ for netif in $IFACES ; do
     # bridge?
     unset bridge
     unset bond
+    unset bondslaves
+    unset bondname
+    unset bondoptions
+    [ -e /tmp/bond.${netif}.info ] && . /tmp/bond.${netif}.info
+
     uuid=$(cat /proc/sys/kernel/random/uuid)
     if [ "$netif" = "$bridgename" ]; then
         bridge=yes
