@@ -25,6 +25,7 @@ fi
     if [ -e /tmp/bridge.info ]; then
         . /tmp/bridge.info
         IFACES="$IFACES ${ethnames%% *}"
+        MASTER_IFACES="$MASTER_IFACES $bridgename"
     fi
 
     # bond: attempt only the defined interface (override bridge defines)
@@ -35,16 +36,19 @@ fi
         . "$i"
         # It is enough to fire up only one
         IFACES="$IFACES ${bondslaves%% *}"
+        MASTER_IFACES="$MASTER_IFACES ${bondname}"
     done
 
     if [ -e /tmp/team.info ]; then
         . /tmp/team.info
         IFACES="$IFACES ${teamslaves}"
+        MASTER_IFACES="$MASTER_IFACES ${teammaster}"
     fi
 
     if [ -e /tmp/vlan.info ]; then
         . /tmp/vlan.info
         IFACES="$IFACES $phydevice"
+        MASTER_IFACES="$MASTER_IFACES ${vlanname}"
     fi
 
     if [ -z "$IFACES" ]; then
@@ -74,6 +78,11 @@ fi
             fi
         done
 
+        for iface in $MASTER_IFACES; do
+            if [ "$bootdev" = "$iface" ]; then
+                echo "[ -f /tmp/setup_net_${iface}.ok ]" >$hookdir/initqueue/finished/wait-$iface.sh
+            fi
+        done
     # Default: We don't know the interface to use, handle all
     # Fixme: waiting for the interface as well.
     else
