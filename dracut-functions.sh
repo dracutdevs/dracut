@@ -319,44 +319,79 @@ get_maj_min() {
 # $ find_block_device /usr
 # 8:4
 find_block_device() {
-    local _x _mpt _majmin _dev _fs _maj _min _find_mpt
+    local _majmin _dev _majmin _find_mpt
     _find_mpt="$1"
     if [[ $use_fstab != yes ]]; then
-        while read _x; do
-            set -- $_x
-            _majmin="$3"
-            _mpt="$5"
-            [[ $8 = "-" ]] && shift
-            _fs="$8"
-            _dev="$9"
-            [[ $_mpt = $_find_mpt ]] || continue
-            [[ $_fs = nfs ]] && { echo $_dev; return 0;}
-            [[ $_fs = nfs3 ]] && { echo $_dev; return 0;}
-            [[ $_fs = nfs4 ]] && { echo $_dev; return 0;}
-            [[ $_fs = btrfs ]] && {
-                get_maj_min $_dev
-                return 0;
-            }
-            if [[ ${_majmin#0:} = $_majmin ]]; then
-                echo $_majmin
-                return 0 # we have a winner!
+        [[ -d $_find_mpt/. ]]
+        while read _majmin _dev; do
+            if [[ -b $_dev ]]; then
+                if ! [[ $_majmin ]] || [[ $_majmin == 0:* ]]; then
+                    read _majmin < <(get_maj_min $_dev)
+                fi
+                if [[ $_majmin ]]; then
+                    echo $_majmin
+                else
+                    echo $_dev
+                fi
+                return 0
             fi
-        done < /proc/self/mountinfo
+            if [[ $_dev = *:* ]]; then
+                echo $_dev
+                return 0
+            fi
+        done < <(findmnt -e -v -n -o 'MAJ:MIN,SOURCE' "$_find_mpt")
     fi
     # fall back to /etc/fstab
-    while read _dev _mpt _fs _x; do
-        [ "${_dev%%#*}" != "$_dev" ] && continue
 
-        if [[ $_mpt = $_find_mpt ]]; then
-            [[ $_fs = nfs ]] && { echo $_dev; return 0;}
-            [[ $_fs = nfs3 ]] && { echo $_dev; return 0;}
-            [[ $_fs = nfs4 ]] && { echo $_dev; return 0;}
-            [[ $_dev != ${_dev#UUID=} ]] && _dev=/dev/disk/by-uuid/${_dev#UUID=}
-            [[ $_dev != ${_dev#LABEL=} ]] && _dev=/dev/disk/by-label/${_dev#LABEL=}
-            [[ -b $_dev ]] || return 1 # oops, not a block device.
-            get_maj_min "$_dev" && return 0
+    while read _majmin _dev; do
+        if ! [[ $_dev ]]; then
+            _dev="$_majmin"
+            unset _majmin
         fi
-    done < /etc/fstab
+        if [[ -b $_dev ]]; then
+            [[ $_majmin ]] || read _majmin < <(get_maj_min $_dev)
+            if [[ $_majmin ]]; then
+                echo $_majmin
+            else
+                echo $_dev
+            fi
+            return 0
+        fi
+        if [[ $_dev = *:* ]]; then
+            echo $_dev
+            return 0
+        fi
+    done < <(findmnt -e --fstab -v -n -o 'MAJ:MIN,SOURCE' "$_find_mpt")
+
+    return 1
+}
+
+# find_mp_fstype <mountpoint>
+# Echo the filesystem type for a given mountpoint.
+# /proc/self/mountinfo is taken as the primary source of information
+# and /etc/fstab is used as a fallback.
+# No newline is appended!
+# Example:
+# $ find_mp_fstype /;echo
+# ext4
+find_mp_fstype() {
+    local _fs
+
+    if [[ $use_fstab != yes ]]; then
+        while read _fs; do
+            [[ $_fs ]] || continue
+            [[ $_fs = "autofs" ]] && continue
+            echo -n $_fs
+            return 0
+        done < <(findmnt -e -v -n -o 'FSTYPE' "$1")
+    fi
+
+    while read _fs; do
+        [[ $_fs ]] || continue
+        [[ $_fs = "autofs" ]] && continue
+        echo -n $_fs
+        return 0
+    done < <(findmnt --fstab -e -v -n -o 'FSTYPE' "$1")
 
     return 1
 }
@@ -372,78 +407,8 @@ find_block_device() {
 find_dev_fstype() {
     local _x _mpt _majmin _dev _fs _maj _min _find_dev
     _find_dev="$1"
-    strstr "$_find_dev" "/dev" || _find_dev="/dev/block/$_find_dev"
-    while read _x; do
-        set -- $_x
-        _majmin="$3"
-        _mpt="$5"
-        [[ $8 = "-" ]] && shift
-        _fs="$8"
-        _dev="$9"
-        strstr "$_dev" "/dev" || continue
-        [[ $_dev -ef $_find_dev ]] || continue
-        [[ $_fs = "autofs" ]] && continue
-        echo -n $_fs;
-        return 0;
-    done < /proc/self/mountinfo
-
-    # fall back to /etc/fstab
-    while read _dev _mpt _fs _x; do
-        [ "${_dev%%#*}" != "$_dev" ] && continue
-        case "$_dev" in
-            LABEL=*)
-                _dev="$(echo $_dev | sed 's,/,\\x2f,g')"
-                _dev="/dev/disk/by-label/${_dev#LABEL=}"
-                ;;
-            UUID=*)
-                _dev="/dev/disk/by-uuid/${_dev#UUID=}"
-                ;;
-            PARTUUID=*)
-                _dev="/dev/disk/by-partuuid/${_dev#PARTUUID=}"
-                ;;
-        esac
-
-        [[ $_dev -ef $_find_dev ]] || continue
-        echo -n $_fs;
-        return 0;
-    done < /etc/fstab
-
-    return 1
-}
-
-# find_mp_fstype <mountpoint>
-# Echo the filesystem type for a given mountpoint.
-# /proc/self/mountinfo is taken as the primary source of information
-# and /etc/fstab is used as a fallback.
-# No newline is appended!
-# Example:
-# $ find_mp_fstype /;echo
-# ext4
-find_mp_fstype() {
-    local _x _mpt _majmin _dev _fs _maj _min _find_mpt
-    _find_mpt="$1"
-    while read _x; do
-        set -- $_x
-        _majmin="$3"
-        _mpt="$5"
-        [[ $8 = "-" ]] && shift
-        _fs="$8"
-        _dev="$9"
-        [[ $_mpt = $_find_mpt ]] || continue
-        [[ $_fs = "autofs" ]] && continue
-        echo -n $_fs;
-        return 0;
-    done < /proc/self/mountinfo
-
-    # fall back to /etc/fstab
-    while read _dev _mpt _fs _x; do
-        [ "${_dev%%#*}" != "$_dev" ] && continue
-        [[ $_mpt = $_find_mpt ]] || continue
-        echo -n $_fs;
-        return 0;
-    done < /etc/fstab
-
-    return 1
+    [[ "$_find_dev" = /dev* ]] || _find_dev="/dev/block/$_find_dev"
+    find_mp_fstype "$_find_dev"
 }
 
 # finds the major:minor of the block device backing the root filesystem.
