@@ -43,23 +43,6 @@ if [ -e /tmp/team.info ]; then
     done
 fi
 
-# bridge this interface?
-if [ -e /tmp/bridge.info ]; then
-    . /tmp/bridge.info
-    for ethname in $ethnames ; do
-        if [ "$netif" = "$ethname" ]; then
-            if [ "$netif" = "$bondname" ] && [ -n "$DO_BOND_SETUP" ] ; then
-                : # We need to really setup bond (recursive call)
-            elif [ "$netif" = "$teammaster" ] && [ -n "$DO_TEAM_SETUP" ] ; then
-                : # We need to really setup team (recursive call)
-            else
-                netif="$bridgename"
-                use_bridge='true'
-            fi
-        fi
-    done
-fi
-
 if [ -e /tmp/vlan.info ]; then
     . /tmp/vlan.info
     if [ "$netif" = "$phydevice" ]; then
@@ -72,6 +55,25 @@ if [ -e /tmp/vlan.info ]; then
             use_vlan='true'
         fi
     fi
+fi
+
+# bridge this interface?
+if [ -e /tmp/bridge.info ]; then
+    . /tmp/bridge.info
+    for ethname in $ethnames ; do
+        if [ "$netif" = "$ethname" ]; then
+            if [ "$netif" = "$bondname" ] && [ -n "$DO_BOND_SETUP" ] ; then
+                : # We need to really setup bond (recursive call)
+            elif [ "$netif" = "$teammaster" ] && [ -n "$DO_TEAM_SETUP" ] ; then
+                : # We need to really setup team (recursive call)
+            elif [ "$netif" = "$vlanname" ] && [ -n "$DO_VLAN_SETUP" ]; then
+                : # We need to really setup vlan (recursive call)
+            else
+                netif="$bridgename"
+                use_bridge='true'
+            fi
+        fi
+    done
 fi
 
 # disable manual ifup while netroot is set for simplifying our logic
@@ -223,6 +225,8 @@ if [ -e /tmp/bridge.info ]; then
                 DO_BOND_SETUP=yes ifup $bondname -m
             elif [ "$ethname" = "$teammaster" ] ; then
                 DO_TEAM_SETUP=yes ifup $teammaster -m
+            elif [ "$ethname" = "$vlanname" ]; then
+                DO_VLAN_SETUP=yes ifup $vlanname -m
             else
                 linkup $ethname
             fi
@@ -252,6 +256,7 @@ if [ "$netif" = "$vlanname" ] && [ ! -e /tmp/net.$vlanname.up ]; then
         linkup "$phydevice"
     fi
     ip link add dev "$vlanname" link "$phydevice" type vlan id "$(get_vid $vlanname)"
+    ip link set "$vlanname" up
 fi
 
 # setup nameserver
