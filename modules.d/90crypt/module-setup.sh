@@ -62,6 +62,10 @@ install() {
         while read _mapper _dev _rest; do
             [[ $_mapper = \#* ]] && continue
             [[ $_dev ]] || continue
+
+            [[ $_dev == UUID=* ]] && \
+                _dev="/dev/disk/by-uuid/${_dev#UUID=}"
+
             for _hdev in "${!host_fs_types[@]}"; do
                 [[ ${host_fs_types[$_hdev]} == "crypto_LUKS" ]] || continue
                 if [[ $_hdev -ef $_dev ]] || [[ /dev/block/$_hdev -ef $_dev ]]; then
