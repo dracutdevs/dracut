@@ -31,7 +31,7 @@ if [ "$fs" = "iso9660" -o "$fs" = "udf" ]; then
 fi
 getarg rd.live.check -d check || check=""
 if [ -n "$check" ]; then
-    [ -x /bin/plymouth ] && /bin/plymouth --hide-splash
+    type plymouth >/dev/null 2>&1 && plymouth --hide-splash
     if [ -n "$DRACUT_SYSTEMD" ]; then
         p=$(str_replace "$livedev" "-" '\x2d')
         systemctl start checkisomd5@${p}.service
@@ -42,7 +42,7 @@ if [ -n "$check" ]; then
         die "CD check failed!"
         exit 1
     fi
-    [ -x /bin/plymouth ] && /bin/plymouth --show-splash
+    type plymouth >/dev/null 2>&1 && plymouth --show-splash
 fi
 
 ln -s $livedev /run/initramfs/livedev

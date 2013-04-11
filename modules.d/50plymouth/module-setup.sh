@@ -4,7 +4,7 @@
 
 check() {
     [[ "$mount_needs" ]] && return 1
-    [[ -x /sbin/plymouthd && -x /bin/plymouth && -x /usr/sbin/plymouth-set-default-theme ]]
+    type -P plymouthd >/dev/null && type -P plymouth >/dev/null
 }
 
 depends() {

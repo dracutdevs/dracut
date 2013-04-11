@@ -10,7 +10,7 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 source_conf /etc/conf.d
 
-[ -x /bin/plymouth ] && /bin/plymouth quit
+type plymouth >/dev/null 2>&1 && plymouth quit
 
 export _rdshell_name="dracut" action="Boot" hook="emergency"
 
