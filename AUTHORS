@@ -6,9 +6,9 @@ Warren Togami <wtogami@redhat.com>
 Will Woods <wwoods@redhat.com>
 Jeremy Katz <katzj@redhat.com>
 David Dillow <dave@thedillows.org>
+Dave Young <dyoung@redhat.com>
 Michal Soltys <soltys@ziu.info>
 Amerigo Wang <amwang@redhat.com>
-Dave Young <dyoung@redhat.com>
 Colin Guthrie <colin@mageia.org>
 Andrey Borzenkov <arvidjaar@gmail.com>
 Andreas Thienemann <andreas@bawue.net>
@@ -17,53 +17,61 @@ Peter Jones <pjones@redhat.com>
 John Reiser <jreiser@bitwagon.com>
 Luca Berra <bluca@vodka.it>
 Daniel Drake <dsd@laptop.org>
+Dan Horák <dhorak@redhat.com>
 Leho Kraav <leho@kraav.com>
 Brian C. Lane <bcl@redhat.com>
 Marc Grimme <grimme@atix.de>
 Chao Wang <chaowang@redhat.com>
-Dan Horák <dhorak@redhat.com>
+Frederic Crozat <fcrozat@suse.com>
 Jesse Keating <jkeating@redhat.com>
 Milan Broz <mbroz@redhat.com>
 Roberto Sassu <roberto.sassu@polito.it>
-dyoung@redhat.com <dyoung@redhat.com>
 Anton Blanchard <anton@samba.org>
 Bill Nottingham <notting@redhat.com>
 David Cantrell <dcantrell@redhat.com>
-Frederic Crozat <fcrozat@suse.com>
 Jon Ander Hernandez <jonan.h@gmail.com>
 Juan RP <xtraeme@gmail.com>
 Lance Albertson <lance@osuosl.org>
 Marian Ganisin <mganisin@redhat.com>
 Michael Ploujnikov <plouj@somanetworks.com>
 Peter Rajnoha <prajnoha@redhat.com>
+Radek Vykydal <rvykydal@redhat.com>
+WANG Chao <chaowang@redhat.com>
+Wim Muskee <wimmuskee@gmail.com>
 Alan Jenkins <alan-jenkins@tuffmail.co.uk>
 Alan Pevec <apevec@redhat.com>
+Baoquan He <bhe@redhat.com>
 Colin Walters <walters@verbum.org>
 Dennis Gilmore <dennis@ausil.us>
+Frederick Grose <fgrose@sugarlabs.org>
 Ian Dall <ian@beware.dropbear.id.au>
 James Buren <ryuo@frugalware.org>
 Joey Boggs <jboggs@redhat.com>
 Mike Snitzer <snitzer@redhat.com>
 Przemysław Rudy <prudy1@o2.pl>
+Stefan Reimer <it@startux.de>
 Thomas Lange <lange@informatik.uni-koeln.de>
 Vivek Goyal <vgoyal@redhat.com>
 Vladislav Bogdanov <bubble@hoster-ok.com>
-Wim Muskee <wimmuskee@gmail.com>
 Alexander Todorov <atodorov@redhat.com>
 Andy Lutomirski <luto@mit.edu>
 Anssi Hannula <anssi@mageia.org>
 Canek Peláez Valdés <caneko@gmail.com>
 Chris Leech <cleech@redhat.com>
 Christian Heinz <christian.ch.heinz@gmail.com>
+Cong Wang <amwang@redhat.com>
 Dave Jones <davej@redhat.com>
+Dave Young <dave@redhat.com>
 Duane Griffin <duaneg@dghda.com>
-Frederic Crozat <fcrozat@mandriva.com>
-Frederick Grose <fgrose@gmail.com>
 Glen Gray <slaine@slaine.org>
 Hermann Gausterer <git-dracut-2012@mrq1.org>
 James Laska <jlaska@redhat.com>
 Jan Stodola <jstodola@redhat.com>
+Jiri Pirko <jiri@resnulli.us>
+Joe Lawrence <Joe.Lawrence@stratus.com>
+Kevin Yung <Kevin.Yung@myob.com>
 Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Lars R. Damerow <lars@pixar.com>
 Lennert Buytenhek <buytenh@wantstofly.org>
 Lubomir Rintel <lkundrak@v3.sk>
 Matt <smoothsailing72@hotmail.com>
@@ -71,17 +79,18 @@ Matt Smith <shadowfax@gmx.com>
 Michal Schmidt <mschmidt@redhat.com>
 Mike Gorse <mgorse@suse.com>
 Munehiro Matsuda <haro@kgt.co.jp>
+Nicolas Chauvet <kwizart@gmail.com>
 Nikoli <nikoli@lavabit.com>
 Olivier Blin <dev@blino.org>
 Paolo Bonzini <pbonzini@redhat.com>
 Peter Robinson <pbrobinson@fedoraproject.org>
 Pádraig Brady <P@draigBrady.com>
 Quentin Armitage <quentin@armitage.org.uk>
-Radek Vykydal <rvykydal@redhat.com>
+Robert Buchholz <rbu@goodpoint.de>
 Sergey Fionov <fionov@gmail.com>
 Srinivasa T N <seenutn@linux.vnet.ibm.com>
-Stefan Reimer <it@startux.de>
 Thilo Bangert <thilo.bangert@gmx.net>
+Thomas Backlund <tmb@mageia.org>
 Tomasz Torcz <tomek@pipebreaker.pl>
 Vadim Kuznetsov <vadimk@gentoo.org>
 Ville Skyttä <ville.skytta@iki.fi>
