@@ -1,5 +1,6 @@
-VERSION=027
-GITVERSION=$(shell [ -d .git ] && git rev-list  --abbrev-commit  -n 1 HEAD  |cut -b 1-8)
+RELEASEDVERSION = -- will be replaced by "make dist" --
+VERSION = $(shell [ -d .git ] && git describe --abbrev=0 --tags || echo $(RELEASEDVERSION))
+GITVERSION = $(shell [ -d .git ] && { v=$$(git describe --tags); echo -$${v\#*-}; } )
 
 -include Makefile.inc
 
@@ -35,7 +36,7 @@ man8pages = dracut.8 \
 manpages = $(man1pages) $(man5pages) $(man7pages) $(man8pages)
 
 
-.PHONY: install clean archive rpm testimage test all check AUTHORS doc
+.PHONY: install clean archive rpm testimage test all check AUTHORS doc dracut-version.sh
 
 all: syncheck dracut-version.sh dracut-install
 
@@ -138,7 +139,7 @@ endif
 	install -m 0644 dracut-bash-completion.sh $(DESTDIR)${bashcompletiondir}/dracut
 
 dracut-version.sh:
-	@echo "DRACUT_VERSION=$(VERSION)-$(GITVERSION)" > dracut-version.sh
+	@echo "DRACUT_VERSION=$(VERSION)$(GITVERSION)" > dracut-version.sh
 
 clean:
 	$(RM) *~
@@ -151,15 +152,14 @@ clean:
 	$(RM) $(manpages) dracut.html
 	$(MAKE) -C test clean
 
-archive: dracut-$(VERSION)-$(GITVERSION).tar.bz2
-
 dist: dracut-$(VERSION).tar.bz2
 
 dracut-$(VERSION).tar.bz2: doc
 	git archive --format=tar $(VERSION) --prefix=dracut-$(VERSION)/ > dracut-$(VERSION).tar
 	mkdir -p dracut-$(VERSION)
 	cp $(manpages) dracut.html dracut-$(VERSION)
-	tar -rf dracut-$(VERSION).tar dracut-$(VERSION)/*.[0-9] dracut-$(VERSION)/dracut.html
+	sed 's/^RELEASEDVERSION =.*/RELEASEDVERSION = $(VERSION)/' Makefile > dracut-$(VERSION)/Makefile
+	tar --owner=root --group=root -rf dracut-$(VERSION).tar dracut-$(VERSION)/*.[0-9] dracut-$(VERSION)/dracut.html dracut-$(VERSION)/Makefile
 	rm -fr dracut-$(VERSION).tar.bz2 dracut-$(VERSION)
 	bzip2 -9 dracut-$(VERSION).tar
 	rm -f dracut-$(VERSION).tar

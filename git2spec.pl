@@ -1,21 +1,5 @@
 #!/usr/bin/perl
 
-sub last_tag {
-    open( GIT, 'git log  --pretty=format:%H |');
-  LINE: while( <GIT> ) {
-      open( GIT2, "git tag --contains $_ |");
-      while( <GIT2> ) {
-	  chomp;
-	  last LINE if /..*/;
-      }
-      close GIT2;
-  }
-    $tag=$_;
-    close GIT2;
-    close GIT;         # be done
-    return $tag;
-};
-
 sub create_patches {
     my $tag=shift;
     my $pdir=shift;
@@ -31,7 +15,8 @@ my $datestr = strftime "%Y%m%d", gmtime;
 
 my $tag=shift;
 my $pdir=shift;
-$tag=&last_tag if not defined $tag;
+$tag=`git describe --abbrev=0 --tags` if not defined $tag;
+chomp($tag);
 my @patches=&create_patches($tag, $pdir);
 my $num=$#patches + 2;
 $tag=~s/[^0-9]+?([0-9]+)/$1/;
