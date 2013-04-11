@@ -85,6 +85,7 @@ install() {
         $systemdsystemunitdir/systemd-ask-password-plymouth.service \
         $systemdsystemunitdir/systemd-journald.service \
         $systemdsystemunitdir/systemd-vconsole-setup.service \
+        $systemdsystemunitdir/systemd-random-seed-load.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-modules-load.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-ask-password-console.path \
         $systemdsystemunitdir/sysinit.target.wants/systemd-journald.service \
