@@ -158,7 +158,7 @@ dracut-$(VERSION).tar.bz2: doc
 	git archive --format=tar $(VERSION) --prefix=dracut-$(VERSION)/ > dracut-$(VERSION).tar
 	mkdir -p dracut-$(VERSION)
 	cp $(manpages) dracut.html dracut-$(VERSION)
-	sed 's/^RELEASEDVERSION =.*/RELEASEDVERSION = $(VERSION)/' Makefile > dracut-$(VERSION)/Makefile
+	git show $(VERSION):Makefile | sed 's/^RELEASEDVERSION =.*/RELEASEDVERSION = $(VERSION)/' > dracut-$(VERSION)/Makefile
 	tar --owner=root --group=root -rf dracut-$(VERSION).tar dracut-$(VERSION)/*.[0-9] dracut-$(VERSION)/dracut.html dracut-$(VERSION)/Makefile
 	rm -fr dracut-$(VERSION).tar.bz2 dracut-$(VERSION)
 	bzip2 -9 dracut-$(VERSION).tar
