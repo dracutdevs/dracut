@@ -13,3 +13,7 @@ test*.img
 /.project
 /dracut-version.sh
 /install/dracut-install
+/*.rpm
+/*.[0-9]
+/modules.d/98systemd/*.service.8
+/*.sign
