@@ -44,15 +44,19 @@ _dracut() {
 
         if __contains_word "$prev" ${OPTS[ARG]}; then
                 case $prev in
-                        --kmoddir|-k|--fwdir|-c|--conf|--confdir|--tmpdir|--sshkey|--add-fstab|--add-device|-I|--install)
+                        --kmoddir|-k|--fwdir|--confdir|--tmpdir)
                                 comps=$(compgen -d -- "$cur")
+                                compopt -o filenames
+                        ;;
+                        -c|--conf|--sshkey|--add-fstab|--add-device|-I|--install)
+                                comps=$(compgen -f -- "$cur")
                                 compopt -o filenames
                         ;;
                         -a|-m|-o|--add|--modules|--omit)
                                 comps=$(dracut --list-modules 2>/dev/null)
                         ;;
                         --kver)
-                                comps=$(cd /lib/modules; echo *)
+                                comps=$(cd /lib/modules; echo [0-9]*)
                         ;;
                         *)
                                 return 0
