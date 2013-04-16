@@ -149,6 +149,7 @@ clean:
 	$(RM) $(manpages:%=%.xml) dracut.xml
 	$(RM) test-*.img
 	$(RM) dracut-*.rpm dracut-*.tar.bz2
+	$(RM) dracut-version.sh
 	$(RM) dracut-install install/dracut-install $(DRACUT_INSTALL_OBJECTS)
 	$(RM) $(manpages) dracut.html
 	$(MAKE) -C test clean
