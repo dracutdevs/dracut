@@ -84,11 +84,9 @@ Requires: findutils
 Requires: grep
 Requires: hardlink
 Requires: gzip xz
-Requires: module-init-tools >= 3.7-9
+Requires: kmod
 Requires: sed
-Requires: file
 Requires: kpartx
-Requires: kbd kbd-misc
 
 %if 0%{?fedora} || 0%{?rhel} > 6
 Requires: util-linux >= 2.21

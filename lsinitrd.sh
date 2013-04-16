@@ -103,37 +103,39 @@ if ! [[ -f "$image" ]]; then
     exit 1
 fi
 
-CAT=zcat
-FILE_T=$(file --dereference "$image")
-
-if echo "test"|xz|xz -dc --single-stream >/dev/null 2>&1; then
-    XZ_SINGLE_STREAM="--single-stream"
-fi
-
-if [[ "$FILE_T" =~ :\ gzip\ compressed\ data ]]; then
-    CAT=zcat
-elif [[ "$FILE_T" =~ :\ xz\ compressed\ data ]]; then
-    CAT="xzcat $XZ_SINGLE_STREAM"
-elif [[ "$FILE_T" =~ :\ XZ\ compressed\ data ]]; then
-    CAT="xzcat $XZ_SINGLE_STREAM"
-elif [[ "$FILE_T" =~ :\ LZMA ]]; then
-    CAT="xzcat $XZ_SINGLE_STREAM"
-elif [[ "$FILE_T" =~ :\ data ]]; then
-    CAT="xzcat $XZ_SINGLE_STREAM"
-fi
+read -N 6 bin < "$image"
+case $bin in
+    $'\x1f\x8b'*)
+        CAT="zcat";;
+    BZh*)
+        CAT="bzcat";;
+    070701)
+        CAT="cat";;
+    *)
+        CAT="xzcat";
+        if echo "test"|xz|xzcat --single-stream >/dev/null 2>&1; then
+            CAT="xzcat --single-stream"
+        fi
+        ;;
+esac
 
 if (( ${#filenames[@]} > 0 )); then
     $CAT $image | cpio --extract --verbose --quiet --to-stdout ${!filenames[@]} 2>/dev/null
     exit $?
 fi
 
+ret=0
+
 echo "$image: $(du -h $image | while read a b; do echo $a;done)"
 echo "========================================================================"
 $CAT "$image" | cpio --extract --verbose --quiet --to-stdout '*lib/dracut/dracut-*' 2>/dev/null
+((ret+=$?))
 echo "========================================================================"
 if [ "$sorted" -eq 1 ]; then
     $CAT "$image" | cpio --extract --verbose --quiet --list | sort -n -k5
 else
     $CAT "$image" | cpio --extract --verbose --quiet --list | sort -k9
 fi
+((ret+=$?))
 echo "========================================================================"
+exit $ret
