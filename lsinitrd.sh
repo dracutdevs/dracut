@@ -22,29 +22,51 @@
 usage()
 {
     {
-        echo "Usage: ${0##*/} [-s] [<initramfs file> [<filename>]]"
+        echo "Usage: ${0##*/} [options] [<initramfs file> [<filename> [<filename> [...] ]]]"
+        echo "Usage: ${0##*/} [options] -k <kernel version>"
         echo
-        echo "-h, --help     print a help message and exit."
-        echo "-s, --size     sort the contents of the initramfs by size."
+        echo "-h, --help                  print a help message and exit."
+        echo "-s, --size                  sort the contents of the initramfs by size."
+        echo "-f, --file <filename>       print the contents of <filename>."
+        echo "-k, --kver <kernel version> inspect the initramfs of <kernel version>."
         echo
     } >&2
 }
 
-[[ $# -le 2 ]] || { usage ; exit 1 ; }
-
 sorted=0
-while getopts "s" opt; do
-    case $opt in
-        s)  sorted=1;;
-        h)  usage; exit 0;;
-        \?) usage; exit 1;;
+declare -A filenames
+
+unset POSIXLY_CORRECT
+TEMP=$(getopt \
+    -o "shf:k:" \
+    --long kver: \
+    --long file: \
+    --long help \
+    --long size \
+    -- "$@")
+
+if (( $? != 0 )); then
+    usage
+    exit 1
+fi
+
+eval set -- "$TEMP"
+
+while (($# > 0)); do
+    case $1 in
+        -k|--kver)  KERNEL_VERSION="$2"; shift;;
+        -f|--file)  filenames[${2#/}]=1; shift;;
+        -s|--size)  sorted=1;;
+        -h|--help)  usage; exit 0;;
+        --)         shift;break;;
+        *)          usage; exit 1;;
     esac
+    shift
 done
-shift $((OPTIND-1))
 
-KERNEL_VERSION="$(uname -r)"
+[[ $KERNEL_VERSION ]] || KERNEL_VERSION="$(uname -r)"
 
-if [[ "$1" ]]; then
+if [[ $1 ]]; then
     image="$1"
     if ! [[ -f "$image" ]]; then
         {
@@ -57,13 +79,20 @@ if [[ "$1" ]]; then
 else
     [[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
 
-    if [[ $MACHINE_ID ]] && [[ -d /boot/${MACHINE_ID} || -L /boot/${MACHINE_ID} ]] ; then
+    if [[ -d /boot/loader/entries || -L /boot/loader/entries ]] \
+        && [[ $MACHINE_ID ]] \
+        && [[ -d /boot/${MACHINE_ID} || -L /boot/${MACHINE_ID} ]] ; then
         image="/boot/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
     else
         image="/boot/initramfs-${KERNEL_VERSION}.img"
     fi
 fi
 
+shift
+while (($# > 0)); do
+    filenames[${1#/}]=1;
+    shift
+done
 
 if ! [[ -f "$image" ]]; then
     {
@@ -93,8 +122,8 @@ elif [[ "$FILE_T" =~ :\ data ]]; then
     CAT="xzcat $XZ_SINGLE_STREAM"
 fi
 
-if [[ $# -eq 2 ]]; then
-    $CAT $image | cpio --extract --verbose --quiet --to-stdout ${2#/} 2>/dev/null
+if (( ${#filenames[@]} > 0 )); then
+    $CAT $image | cpio --extract --verbose --quiet --to-stdout ${!filenames[@]} 2>/dev/null
     exit $?
 fi
 
