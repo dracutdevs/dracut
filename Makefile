@@ -137,6 +137,7 @@ endif
 	install -m 0755 51-dracut-rescue.install $(DESTDIR)${prefix}/lib/kernel/install.d/51-dracut-rescue.install
 	mkdir -p $(DESTDIR)${bashcompletiondir}
 	install -m 0644 dracut-bash-completion.sh $(DESTDIR)${bashcompletiondir}/dracut
+	install -m 0644 lsinitrd-bash-completion.sh $(DESTDIR)${bashcompletiondir}/lsinitrd
 
 dracut-version.sh:
 	@echo "DRACUT_VERSION=$(VERSION)$(GITVERSION)" > dracut-version.sh

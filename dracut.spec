@@ -282,6 +282,7 @@ rm -rf $RPM_BUILD_ROOT
 # compat symlink
 /sbin/dracut
 %{_datadir}/bash-completion/completions/dracut
+%{_datadir}/bash-completion/completions/lsinitrd
 %if 0%{?fedora} > 12 || 0%{?rhel} >= 6 || 0%{?suse_version} > 9999
 %{_bindir}/mkinitrd
 %{_bindir}/lsinitrd
