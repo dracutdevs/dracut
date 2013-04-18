@@ -325,6 +325,7 @@ splitsep() {
 }
 
 setdebug() {
+    [ -f /etc/initrd-release ] || return
     if [ -z "$RD_DEBUG" ]; then
         if [ -e /proc/cmdline ]; then
             RD_DEBUG=no
