@@ -285,6 +285,12 @@ static int resolve_deps(const char *src)
 
                 log_debug("ldd: '%s'", buf);
 
+                if (strstr(buf, "you do not have execution permission")) {
+                        log_error(buf);
+                        ret+=1;
+                        break;
+                }
+
                 if (strstr(buf, "not a dynamic executable"))
                         break;
 
