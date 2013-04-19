@@ -8,7 +8,7 @@
 # Harald Hoyer <harald@redhat.com>
 ACTION="$1"
 
-[ test -w /dev/console ] && exec </dev/console >>/dev/console 2>>/dev/console
+[ -w /dev/console ] && exec </dev/console >>/dev/console 2>>/dev/console
 
 export TERM=linux
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
