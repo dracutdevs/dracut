@@ -1140,12 +1140,8 @@ fi
 PRELINK_BIN=$(command -v prelink)
 if [[ $UID = 0 ]] && [[ $PRELINK_BIN ]]; then
     if [[ $DRACUT_FIPS_MODE ]]; then
-        dinfo "*** Pre-unlinking files ***"
+        dinfo "*** Installing prelink files ***"
         dracut_install -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf /etc/prelink.cache
-        chroot "$initdir" $PRELINK_BIN -u -a
-        rm -f "$initdir"/$PRELINK_BIN
-        rm -fr "$initdir"/etc/prelink.*
-        dinfo "*** Pre-unlinking files done ***"
     else
         dinfo "*** Pre-linking files ***"
         dracut_install -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf
