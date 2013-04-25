@@ -214,8 +214,14 @@ static int cp(const char *src, const char *dst)
                 ret = clone_file(dest_desc, source_desc);
                 close(source_desc);
                 if (ret == 0) {
+                        struct timeval tv[2];
                         if (fchown(dest_desc, sb.st_uid, sb.st_gid) != 0)
                                 fchown(dest_desc, -1, sb.st_gid);
+                        tv[0].tv_sec = sb.st_atime;
+                        tv[0].tv_usec = 0;
+                        tv[1].tv_sec = sb.st_mtime;
+                        tv[1].tv_usec = 0;
+                        futimes(dest_desc, tv);
                         close(dest_desc);
                         return ret;
                 }
@@ -230,7 +236,7 @@ static int cp(const char *src, const char *dst)
  normal_copy:
         pid = fork();
         if (pid == 0) {
-                execlp("cp", "cp", "--reflink=auto", "--sparse=auto", "--preserve=mode", "-fL", src, dst, NULL);
+                execlp("cp", "cp", "--reflink=auto", "--sparse=auto", "--preserve=mode,timestamps", "-fL", src, dst, NULL);
                 _exit(EXIT_FAILURE);
         }
 
@@ -350,6 +356,8 @@ static int hmac_install(const char *src, const char *dst, const char *hmacpath)
 	if (!hmacpath) {
                 hmac_install(src, dst, "/lib/fipscheck");
                 hmac_install(src, dst, "/lib64/fipscheck");
+                hmac_install(src, dst, "/lib/hmaccalc");
+                hmac_install(src, dst, "/lib64/hmaccalc");
         }
 
         srcpath[dlen] = '\0';

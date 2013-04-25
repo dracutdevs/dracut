@@ -1179,6 +1179,8 @@ if [[ $do_strip = yes ]] ; then
             -executable -not -path '*/lib/modules/*.ko' -print0 \
             | while read -r -d $'\0' f; do
             if ! [[ -e "${f%/*}/.${f##*/}.hmac" ]] \
+                && ! [[ -e "/lib/hmaccalc/${f##*/}.hmac" ]] \
+                && ! [[ -e "/lib64/hmaccalc/${f##*/}.hmac" ]] \
                 && ! [[ -e "/lib/fipscheck/${f##*/}.hmac" ]] \
                 && ! [[ -e "/lib64/fipscheck/${f##*/}.hmac" ]]; then
                 echo -n "$f"; echo -n -e "\000"

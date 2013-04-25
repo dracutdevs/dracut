@@ -384,7 +384,7 @@ die() {
         echo "warn dracut: FATAL: \"$*\"";
         echo "warn dracut: Refusing to continue";
     } >> $hookdir/emergency/01-die.sh
-
+    [ -d /run/initramfs ] || mkdir -p /run/initramfs
     > /run/initramfs/.die
     emergency_shell
     exit 1
