@@ -926,7 +926,7 @@ _emergency_shell()
     local _name="$1"
     if [ -n "$DRACUT_SYSTEMD" ]; then
         > /.console_lock
-        echo "PS1=\"$_name:\${PWD}# \"" >/etc/profile
+        echo "PS1=\"$_name:\\\${PWD}# \"" >/etc/profile
         systemctl start dracut-emergency.service
         rm -f /etc/profile
         rm -f /.console_lock
