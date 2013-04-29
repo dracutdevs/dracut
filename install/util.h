@@ -507,6 +507,42 @@ void* memdup(const void *p, size_t l);
 
 int is_kernel_thread(pid_t pid);
 
+static inline void freep(void *p) {
+        free(*(void**) p);
+}
+
+static inline void fclosep(FILE **f) {
+        if (*f)
+                fclose(*f);
+}
+
+static inline void pclosep(FILE **f) {
+        if (*f)
+                pclose(*f);
+}
+
+static inline void closep(int *fd) {
+        if (*fd >= 0)
+                close_nointr_nofail(*fd);
+}
+
+static inline void closedirp(DIR **d) {
+        if (*d)
+                closedir(*d);
+}
+
+static inline void umaskp(mode_t *u) {
+        umask(*u);
+}
+
+#define _cleanup_free_ _cleanup_(freep)
+#define _cleanup_fclose_ _cleanup_(fclosep)
+#define _cleanup_pclose_ _cleanup_(pclosep)
+#define _cleanup_close_ _cleanup_(closep)
+#define _cleanup_closedir_ _cleanup_(closedirp)
+#define _cleanup_umask_ _cleanup_(umaskp)
+#define _cleanup_globfree_ _cleanup_(globfree)
+
 int fd_inc_sndbuf(int fd, size_t n);
 int fd_inc_rcvbuf(int fd, size_t n);
 
