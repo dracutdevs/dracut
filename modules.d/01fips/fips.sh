@@ -63,7 +63,7 @@ do_fips()
     info "Loading and integrity checking all crypto modules"
     for module in $FIPSMODULES; do
         if [ "$module" != "tcrypt" ]; then
-            modprobe ${module} || return 1
+            modprobe ${module}
         fi
     done
     info "Self testing crypto algorithms"
