@@ -48,7 +48,7 @@ run_client() {
         -kernel /boot/vmlinuz-$KVERSION \
         -append "$* rw quiet rd.auto rd.retry=5 rd.debug rd.info  console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
         -initrd $TESTDIR/initramfs.testing
-    if ! grep -m 1 -q iscsi-OK $TESTDIR/client.img; then
+    if ! grep -F -m 1 -q iscsi-OK $TESTDIR/client.img; then
 	echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
 	return 1
     fi
@@ -111,6 +111,7 @@ test_setup() {
             [ -f ${_terminfodir}/l/linux ] && break
         done
         dracut_install -o ${_terminfodir}/l/linux
+        inst_simple /etc/os-release
         inst ./client-init.sh /sbin/init
         (cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
         cp -a /etc/ld.so.conf* $initdir/etc
@@ -152,7 +153,7 @@ test_setup() {
         -kernel "/boot/vmlinuz-$kernel" \
         -append "root=/dev/fakeroot rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
-    grep -m 1 -q dracut-root-block-created $TESTDIR/client.img || return 1
+    grep -F -m 1 -q dracut-root-block-created $TESTDIR/client.img || return 1
     rm $TESTDIR/client.img
     (
         export initdir=$TESTDIR/overlay
@@ -196,6 +197,7 @@ test_setup() {
         [ -f /etc/netconfig ] && dracut_install /etc/netconfig
         type -P dhcpd >/dev/null && dracut_install dhcpd
         [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
+        inst_simple /etc/os-release
         inst ./server-init.sh /sbin/init
         inst ./hosts /etc/hosts
         inst ./dhcpd.conf /etc/dhcpd.conf

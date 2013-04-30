@@ -13,14 +13,14 @@ test_run() {
 	-net none -kernel /boot/vmlinuz-$KVERSION \
 	-append "root=LABEL=root rw rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
-    grep -m 1 -q dracut-root-block-success $DISKIMAGE || return 1
+    dd if=$DISKIMAGE bs=512 count=2 | grep -F -m 1 -q dracut-root-block-success $DISKIMAGE || return 1
 }
 
 test_setup() {
     # Create the blank file to use as a root filesystem
     DISKIMAGE=$TESTDIR/TEST-15-BTRFSRAID-root.img
     rm -f $DISKIMAGE
-    dd if=/dev/null of=$DISKIMAGE bs=2M seek=1024
+    dd if=/dev/null of=$DISKIMAGE bs=1M seek=1024
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
@@ -72,7 +72,7 @@ test_setup() {
 	-append "root=/dev/fakeroot rw quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
 
-    grep -m 1 -q dracut-root-block-created $DISKIMAGE || return 1
+    dd if=$DISKIMAGE bs=512 count=2 | grep -F -m 1 -q dracut-root-block-created || return 1
 
    (
         export initdir=$TESTDIR/overlay

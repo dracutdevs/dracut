@@ -53,7 +53,7 @@ find / -xdev -type f -not -path '/var/*' \
   -not -path '/boot/*0-rescue*' \
   -not -path '/dev/null' \
   -exec rpm -qf '{}' ';' | \
-  fgrep 'not owned' &> /test.output
+  grep -F 'not owned' &> /test.output
 exit
 EOF
 

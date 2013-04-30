@@ -21,7 +21,7 @@ test_run() {
 	-net none -kernel /boot/vmlinuz-$KVERSION \
 	-append "root=/dev/dracut/root rw rd.auto rd.retry=20 console=ttyS0,115200n81 selinux=0 rd.debug rootwait $LUKSARGS $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
-    grep -m 1 -q dracut-root-block-success $TESTDIR/check-success.img || return 1
+    grep -F -m 1 -q dracut-root-block-success $TESTDIR/check-success.img || return 1
     echo "CLIENT TEST END: [OK]"
 
     dd if=/dev/zero of=$TESTDIR/check-success.img bs=1M count=1
@@ -34,7 +34,7 @@ test_run() {
 	-net none -kernel /boot/vmlinuz-$KVERSION \
 	-append "root=/dev/dracut/root rw quiet rd.auto rd.retry=20 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
-    grep -m 1 -q dracut-root-block-success $TESTDIR/check-success.img || return 1
+    grep -F -m 1 -q dracut-root-block-success $TESTDIR/check-success.img || return 1
     echo "CLIENT TEST END: [OK]"
 
     dd if=/dev/zero of=$TESTDIR/check-success.img bs=1M count=1
@@ -47,7 +47,7 @@ test_run() {
 	-net none -kernel /boot/vmlinuz-$KVERSION \
 	-append "root=/dev/dracut/root rw quiet rd.auto rd.retry=10 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL rd.luks.uuid=failme" \
 	-initrd $TESTDIR/initramfs.testing
-    grep -m 1 -q dracut-root-block-success $TESTDIR/check-success.img && return 1
+    grep -F -m 1 -q dracut-root-block-success $TESTDIR/check-success.img && return 1
     echo "CLIENT TEST END: [OK]"
 
     return 0
@@ -72,6 +72,7 @@ test_setup() {
 	inst "$basedir/modules.d/40network/dhclient-script.sh" "/sbin/dhclient-script"
 	inst "$basedir/modules.d/40network/ifup.sh" "/sbin/ifup"
 	dracut_install grep
+        inst_simple /etc/os-release
 	inst ./test-init.sh /sbin/init
 	find_binary plymouth >/dev/null && dracut_install plymouth
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
@@ -102,8 +103,8 @@ test_setup() {
 	-kernel "/boot/vmlinuz-$kernel" \
 	-append "root=/dev/fakeroot rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
-    grep -m 1 -q dracut-root-block-created $TESTDIR/root.ext2 || return 1
-    cryptoUUIDS=$(grep --binary-files=text  -m 3 ID_FS_UUID $TESTDIR/root.ext2)
+    grep -F -m 1 -q dracut-root-block-created $TESTDIR/root.ext2 || return 1
+    cryptoUUIDS=$(grep -F --binary-files=text  -m 3 ID_FS_UUID $TESTDIR/root.ext2)
     for uuid in $cryptoUUIDS; do
 	eval $uuid
 	printf ' rd.luks.uuid=luks-%s ' $ID_FS_UUID

@@ -29,7 +29,7 @@ client_run() {
         return 1
     fi
 
-    if ! grep -m 1 -q dracut-root-block-success $TESTDIR/result; then
+    if ! grep -F -m 1 -q dracut-root-block-success $TESTDIR/result; then
 	echo "CLIENT TEST END: $test_name [FAILED]"
         return 1
     fi
@@ -68,6 +68,7 @@ test_setup() {
 	inst "$basedir/modules.d/40network/ifup.sh" "/sbin/ifup"
 	dracut_install grep
         inst_simple ./fstab /etc/fstab
+        inst_simple /etc/os-release
 	inst ./test-init.sh /sbin/init
 	find_binary plymouth >/dev/null && dracut_install plymouth
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
@@ -109,7 +110,7 @@ test_setup() {
 	-kernel "/boot/vmlinuz-$kernel" \
 	-append "root=/dev/dracut/root rw rootfstype=btrfs quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
-    grep -m 1 -q dracut-root-block-created $TESTDIR/root.btrfs || return 1
+    grep -F -m 1 -q dracut-root-block-created $TESTDIR/root.btrfs || return 1
 
 
     (

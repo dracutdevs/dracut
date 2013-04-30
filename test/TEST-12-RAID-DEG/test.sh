@@ -21,7 +21,7 @@ client_run() {
 	-net none -kernel /boot/vmlinuz-$KVERSION \
 	-append "$* root=LABEL=root rw rd.retry=10 rd.info console=ttyS0,115200n81 selinux=0 rd.debug $DEBUGFAIL " \
 	-initrd $TESTDIR/initramfs.testing
-    if ! grep -m 1 -q dracut-root-block-success $TESTDIR/root.ext2; then
+    if ! grep -F -m 1 -q dracut-root-block-success $TESTDIR/root.ext2; then
 	echo "CLIENT TEST END: $@ [FAIL]"
 	return 1;
     fi
@@ -32,7 +32,7 @@ client_run() {
 }
 
 test_run() {
-    eval $(grep --binary-files=text -m 1 MD_UUID $TESTDIR/root.ext2)
+    eval $(grep -F --binary-files=text -m 1 MD_UUID $TESTDIR/root.ext2)
     echo "MD_UUID=$MD_UUID"
     read LUKS_UUID < $TESTDIR/luksuuid
 
@@ -75,6 +75,7 @@ test_setup() {
 	inst "$basedir/modules.d/40network/dhclient-script.sh" "/sbin/dhclient-script"
 	inst "$basedir/modules.d/40network/ifup.sh" "/sbin/ifup"
 	dracut_install grep
+        inst_simple /etc/os-release
 	inst ./test-init.sh /sbin/init
 	find_binary plymouth >/dev/null && dracut_install plymouth
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
@@ -111,9 +112,9 @@ test_setup() {
 	-append "root=/dev/fakeroot rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
 
-    grep -m 1 -q dracut-root-block-created $TESTDIR/root.ext2 || return 1
-    eval $(grep --binary-files=text -m 1 MD_UUID $TESTDIR/root.ext2)
-    eval $(grep -a -m 1 ID_FS_UUID $TESTDIR/root.ext2)
+    grep -F -m 1 -q dracut-root-block-created $TESTDIR/root.ext2 || return 1
+    eval $(grep -F --binary-files=text -m 1 MD_UUID $TESTDIR/root.ext2)
+    eval $(grep -F -a -m 1 ID_FS_UUID $TESTDIR/root.ext2)
     echo $ID_FS_UUID > $TESTDIR/luksuuid
 
     (

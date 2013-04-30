@@ -5,15 +5,15 @@ for x in 64-lvm.rules 70-mdadm.rules 99-mount-rules; do
 done
 udevadm control --reload
 # save a partition at the beginning for future flagging purposes
-sfdisk -C 655600 -H 2 -S 32 -L /dev/sda <<EOF
+sfdisk  -C 327800 -H 2 -S 32 -L /dev/sda <<EOF
 ,16
 ,,E
 ;
 ;
-,10240
-,10240
-,10240
-,10240
+,5120
+,5120
+,5120
+,5120
 EOF
 mkfs.btrfs -draid10 -mraid10 -L root /dev/sda5 /dev/sda6 /dev/sda7 /dev/sda8
 udevadm settle

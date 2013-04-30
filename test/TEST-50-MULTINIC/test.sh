@@ -61,7 +61,7 @@ client_test() {
         -append "$cmdline $DEBUGFAIL rd.retry=5 rd.info ro console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
         -initrd $TESTDIR/initramfs.testing
 
-    if [[ $? -ne 0 ]] || ! grep -m 1 -q OK $TESTDIR/client.img; then
+    if [[ $? -ne 0 ]] || ! grep -F -m 1 -q OK $TESTDIR/client.img; then
         echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
         return 1
     fi
@@ -69,7 +69,7 @@ client_test() {
 
     for i in $check ; do
         echo $i
-        if ! grep -m 1 -q $i $TESTDIR/client.img; then
+        if ! grep -F -m 1 -q $i $TESTDIR/client.img; then
             echo "CLIENT TEST END: $test_name [FAILED - BAD IF]"
             return 1
         fi
@@ -170,6 +170,7 @@ test_setup() {
         type -P dhcpd >/dev/null && dracut_install dhcpd
         [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
         instmods nfsd sunrpc ipv6 lockd af_packet
+        inst_simple /etc/os-release
         inst ./server-init.sh /sbin/init
         inst ./hosts /etc/hosts
         inst ./exports /etc/exports
@@ -208,6 +209,7 @@ test_setup() {
             [ -f ${_terminfodir}/l/linux ] && break
         done
         dracut_install -o ${_terminfodir}/l/linux
+        inst_simple /etc/os-release
         inst ./client-init.sh /sbin/init
         (
             cd "$initdir"

@@ -23,7 +23,7 @@ test_run() {
 	-net none -kernel /boot/vmlinuz-$KVERSION \
 	-append "root=live:CDLABEL=LiveCD live rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
-    grep -m 1 -q dracut-root-block-success $TESTDIR/root.img || return 1
+    grep -F -m 1 -q dracut-root-block-success $TESTDIR/root.img || return 1
 }
 
 test_setup() {
@@ -62,6 +62,7 @@ test_setup() {
 	for f in /usr/share/syslinux/*; do
 	    inst_simple "$f"
 	done
+        inst_simple /etc/os-release
 	inst ./test-init.sh /sbin/init
 	inst $TESTDIR/initramfs.testing "/boot/initramfs-$KVERSION.img"
 	inst /boot/vmlinuz-$KVERSION

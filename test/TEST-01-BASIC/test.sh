@@ -16,7 +16,7 @@ test_run() {
 	-watchdog i6300esb -watchdog-action poweroff \
 	-append "root=LABEL=dracut rw systemd.log_level=debug systemd.log_target=console rd.retry=3 rd.debug console=ttyS0,115200n81 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing || return 1
-    grep -m 1 -q dracut-root-block-success $TESTDIR/result || return 1
+    grep -F -m 1 -q dracut-root-block-success $TESTDIR/result || return 1
 }
 
 test_setup() {
@@ -40,6 +40,7 @@ test_setup() {
 	inst "$basedir/modules.d/40network/dhclient-script.sh" "/sbin/dhclient-script"
 	inst "$basedir/modules.d/40network/ifup.sh" "/sbin/ifup"
 	dracut_install grep
+        inst_simple /etc/os-release
 	inst ./test-init.sh /sbin/init
 	find_binary plymouth >/dev/null && dracut_install plymouth
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
@@ -74,7 +75,7 @@ test_setup() {
 	-kernel "/boot/vmlinuz-$kernel" \
 	-append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
-    grep -m 1 -q dracut-root-block-created $TESTDIR/root.ext3 || return 1
+    grep -F -m 1 -q dracut-root-block-created $TESTDIR/root.ext3 || return 1
 
 
     (
