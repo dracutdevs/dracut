@@ -1162,7 +1162,7 @@ fi
 if [[ $do_strip = yes ]] ; then
     for p in strip xargs find; do
         if ! type -P $p >/dev/null; then
-            dwarn "Could not find '$p'. Not stripping the initramfs."
+            dinfo "Could not find '$p'. Not stripping the initramfs."
             do_strip=no
         fi
     done
