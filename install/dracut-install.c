@@ -258,7 +258,7 @@ static int resolve_deps(const char *src)
 {
         int ret = 0;
 
-        char *buf = malloc(LINE_MAX);
+        _cleanup_free_ char *buf = malloc(LINE_MAX);
         size_t linesize = LINE_MAX;
         _cleanup_pclose_ FILE *fptr = NULL;
         _cleanup_free_ char *cmd = NULL;
