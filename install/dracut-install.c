@@ -80,9 +80,9 @@ static char *convert_abs_rel(const char *from, const char *target)
         _cleanup_free_ char *realtarget = NULL;
         _cleanup_free_ char *target_dir_p = NULL, *realpath_p = NULL;
         const char *realfrom = from;
-        int level = 0, fromlevel = 0, targetlevel = 0;
-        int l, i, rl;
-        int dirlen;
+        size_t level = 0, fromlevel = 0, targetlevel = 0;
+        int l;
+        size_t i, rl, dirlen;
 
         target_dir_p = strdup(target);
         if (!target_dir_p)
@@ -215,7 +215,7 @@ static int cp(const char *src, const char *dst)
                 if (ret == 0) {
                         struct timeval tv[2];
                         if (fchown(dest_desc, sb.st_uid, sb.st_gid) != 0)
-                                fchown(dest_desc, -1, sb.st_gid);
+                                fchown(dest_desc, (__uid_t)-1, sb.st_gid);
                         tv[0].tv_sec = sb.st_atime;
                         tv[0].tv_usec = 0;
                         tv[1].tv_sec = sb.st_mtime;
@@ -297,7 +297,7 @@ static int resolve_deps(const char *src)
                 log_debug("ldd: '%s'", buf);
 
                 if (strstr(buf, "you do not have execution permission")) {
-                        log_error(buf);
+                        log_error("%s", buf);
                         ret+=1;
                         break;
                 }
@@ -670,7 +670,7 @@ static int parse_argv(int argc, char *argv[])
 static int resolve_lazy(int argc, char **argv)
 {
         int i;
-        int destrootdirlen = strlen(destrootdir);
+        size_t destrootdirlen = strlen(destrootdir);
         int ret = 0;
         char *item;
         for (i = 0; i < argc; i++) {
