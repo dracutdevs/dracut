@@ -83,6 +83,7 @@ static char *convert_abs_rel(const char *from, const char *target)
         size_t level = 0, fromlevel = 0, targetlevel = 0;
         int l;
         size_t i, rl, dirlen;
+        int ret;
 
         target_dir_p = strdup(target);
         if (!target_dir_p)
@@ -103,7 +104,11 @@ static char *convert_abs_rel(const char *from, const char *target)
         for (i = dirlen+1; i < rl; ++i)
             if (target_dir_p[i] != '/')
                 break;
-        asprintf(&realtarget, "%s/%s", realpath_p, &target_dir_p[i]);
+        ret = asprintf(&realtarget, "%s/%s", realpath_p, &target_dir_p[i]);
+        if (ret < 0) {
+                log_error("Out of memory!");
+                exit(EXIT_FAILURE);
+        }
 
         /* now calculate the relative path from <from> to <target> and
            store it in <relative_from>
@@ -282,8 +287,11 @@ static int resolve_deps(const char *src)
 
         /* run ldd */
         ret = asprintf(&cmd, "ldd %s 2>&1", src);
-        if (ret < 0)
-                return ret;
+        if (ret < 0) {
+                log_error("Out of memory!");
+                exit(EXIT_FAILURE);
+        }
+
         ret = 0;
 
         fptr = popen(cmd, "r");
@@ -352,6 +360,7 @@ static int hmac_install(const char *src, const char *dst, const char *hmacpath)
         _cleanup_free_ char *dstpath = strdup(dst);
         _cleanup_free_ char *srchmacname = NULL;
         _cleanup_free_ char *dsthmacname = NULL;
+        int ret;
 
         if (!(srcpath && dstpath))
                 return -ENOMEM;
@@ -371,11 +380,29 @@ static int hmac_install(const char *src, const char *dst, const char *hmacpath)
         srcpath[dlen] = '\0';
         dstpath[dir_len(dst)] = '\0';
         if (hmacpath) {
-                asprintf(&srchmacname, "%s/%s.hmac", hmacpath, &src[dlen + 1]);
-                asprintf(&dsthmacname, "%s/%s.hmac", hmacpath, &src[dlen + 1]);
+                ret = asprintf(&srchmacname, "%s/%s.hmac", hmacpath, &src[dlen + 1]);
+                if (ret < 0) {
+                        log_error("Out of memory!");
+                        exit(EXIT_FAILURE);
+                }
+
+                ret = asprintf(&dsthmacname, "%s/%s.hmac", hmacpath, &src[dlen + 1]);
+                if (ret < 0) {
+                        log_error("Out of memory!");
+                        exit(EXIT_FAILURE);
+                }
         } else {
-                asprintf(&srchmacname, "%s/.%s.hmac", srcpath, &src[dlen + 1]);
-                asprintf(&dsthmacname, "%s/.%s.hmac", dstpath, &src[dlen + 1]);
+                ret = asprintf(&srchmacname, "%s/.%s.hmac", srcpath, &src[dlen + 1]);
+                if (ret < 0) {
+                        log_error("Out of memory!");
+                        exit(EXIT_FAILURE);
+                }
+
+                ret = asprintf(&dsthmacname, "%s/.%s.hmac", dstpath, &src[dlen + 1]);
+                if (ret < 0) {
+                        log_error("Out of memory!");
+                        exit(EXIT_FAILURE);
+                }
         }
         log_debug("hmac cp '%s' '%s')", srchmacname, dsthmacname);
         dracut_install(srchmacname, dsthmacname, false, false, true);
@@ -428,7 +455,11 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
 
         hashmap_put(items, i, i);
 
-        asprintf(&fulldstpath, "%s%s", destrootdir, dst);
+        ret = asprintf(&fulldstpath, "%s%s", destrootdir, dst);
+        if (ret < 0) {
+                log_error("Out of memory!");
+                exit(EXIT_FAILURE);
+        }
 
         ret = stat(fulldstpath, &sb);
 
@@ -511,7 +542,11 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
                 if (lstat(fulldstpath, &sb) != 0) {
                         _cleanup_free_ char *absdestpath = NULL;
 
-                        asprintf(&absdestpath, "%s%s", destrootdir, abspath);
+                        ret = asprintf(&absdestpath, "%s%s", destrootdir, abspath);
+                        if (ret < 0) {
+                                log_error("Out of memory!");
+                                exit(EXIT_FAILURE);
+                        }
 
                         ln_r(absdestpath, fulldstpath);
                 }
@@ -704,6 +739,8 @@ static char *find_binary(const char *src)
         char *p, *q;
         bool end = false;
         char *newsrc = NULL;
+        int ret;
+
         path = getenv("PATH");
 
         if (path == NULL) {
@@ -730,8 +767,8 @@ static char *find_binary(const char *src)
                 else
                         *q = '\0';
 
-                asprintf(&newsrc, "%s/%s", p, src);
-                if (newsrc == NULL) {
+                ret = asprintf(&newsrc, "%s/%s", p, src);
+                if (ret < 0) {
                         log_error("Out of memory!");
                         exit(EXIT_FAILURE);
                 }
