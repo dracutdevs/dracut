@@ -757,7 +757,7 @@ static char *find_binary(const char *src)
 
 static int install_one(const char *src, const char *dst)
 {
-        int r = 0;
+        int r = EXIT_SUCCESS;
         int ret;
 
         if (strchr(src, '/') == NULL) {
@@ -786,7 +786,7 @@ static int install_one(const char *src, const char *dst)
 
 static int install_all(int argc, char **argv)
 {
-        int r = 0;
+        int r = EXIT_SUCCESS;
         int i;
         for (i = 0; i < argc; i++) {
                 int ret;
