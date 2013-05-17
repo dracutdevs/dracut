@@ -366,3 +366,7 @@ linkup() {
      && wait_for_if_up $1 2>/dev/null
 }
 
+type hostname >/dev/null 2>&1 || \
+hostname() {
+	cat /proc/sys/kernel/hostname
+}
