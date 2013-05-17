@@ -422,3 +422,8 @@ net_add_parse_vars() {
 		[ -f /tmp/40network.parse.finished."${jobid}" ]
 	EOF
 }
+
+type hostname >/dev/null 2>&1 || \
+hostname() {
+	cat /proc/sys/kernel/hostname
+}
