@@ -13,6 +13,8 @@ DefaultDependencies=no
 
 [Service]
 Environment=HOME=/
+Environment=DRACUT_SYSTEMD=1
+Environment=NEWROOT=/sysroot
 WorkingDirectory=/
 ExecStartPre=-/bin/plymouth quit
 ExecStart=-/bin/sh -i -l

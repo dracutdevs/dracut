@@ -17,6 +17,8 @@ ConditionDirectoryNotEmpty=|/lib/dracut/hooks/mount
 ConditionKernelCommandLine=|rd.break=mount
 
 [Service]
+Environment=DRACUT_SYSTEMD=1
+Environment=NEWROOT=/sysroot
 Type=oneshot
 ExecStart=-/bin/dracut-mount
 StandardInput=null

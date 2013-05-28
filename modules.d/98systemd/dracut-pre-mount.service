@@ -19,6 +19,8 @@ ConditionDirectoryNotEmpty=|/lib/dracut/hooks/pre-mount
 ConditionKernelCommandLine=|rd.break=pre-mount
 
 [Service]
+Environment=DRACUT_SYSTEMD=1
+Environment=NEWROOT=/sysroot
 Type=oneshot
 ExecStart=-/bin/dracut-pre-mount
 StandardInput=null

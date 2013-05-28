@@ -19,6 +19,8 @@ ConditionDirectoryNotEmpty=|/lib/dracut/hooks/pre-trigger
 ConditionKernelCommandLine=|rd.break=pre-trigger
 
 [Service]
+Environment=DRACUT_SYSTEMD=1
+Environment=NEWROOT=/sysroot
 Type=oneshot
 ExecStart=-/bin/dracut-pre-trigger
 StandardInput=null

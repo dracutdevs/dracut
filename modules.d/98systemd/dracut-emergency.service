@@ -16,6 +16,8 @@ Conflicts=emergency.service emergency.target
 
 [Service]
 Environment=HOME=/
+Environment=DRACUT_SYSTEMD=1
+Environment=NEWROOT=/sysroot
 WorkingDirectory=/
 ExecStart=/bin/dracut-emergency
 ExecStopPost=-/bin/rm -f /.console_lock

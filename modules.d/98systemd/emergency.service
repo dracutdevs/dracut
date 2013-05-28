@@ -15,6 +15,8 @@ Wants=systemd-vconsole-setup.service
 
 [Service]
 Environment=HOME=/
+Environment=DRACUT_SYSTEMD=1
+Environment=NEWROOT=/sysroot
 WorkingDirectory=/
 ExecStart=/bin/dracut-emergency
 ExecStopPost=-/usr/bin/systemctl --fail --no-block default

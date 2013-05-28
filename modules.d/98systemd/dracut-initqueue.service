@@ -19,6 +19,8 @@ ConditionPathExistsGlob=|/lib/dracut/hooks/initqueue/*.sh
 ConditionKernelCommandLine=|rd.break=pre-mount
 
 [Service]
+Environment=DRACUT_SYSTEMD=1
+Environment=NEWROOT=/sysroot
 Type=oneshot
 ExecStart=-/bin/dracut-initqueue
 StandardInput=null
