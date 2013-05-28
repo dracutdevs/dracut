@@ -54,7 +54,7 @@ add_url_handler() {
 
 export CURL_HOME="/run/initramfs/url-lib"
 mkdir -p $CURL_HOME
-curl_args="--location --retry 3 --fail --show-error"
+curl_args="--globoff --location --retry 3 --fail --show-error"
 getargbool 0 rd.noverifyssl && curl_args="$curl_args --insecure"
 
 proxy=$(getarg proxy=)
@@ -64,7 +64,7 @@ curl_fetch_url() {
     local url="$1" outloc="$2"
     echo "$url" > /proc/self/fd/0
     if [ -n "$outloc" ]; then
-        curl --globoff $curl_args --output "$outloc" "$url" || return $?
+        curl $curl_args --output "$outloc" "$url" || return $?
     else
         local outdir="$(mkuniqdir /tmp curl_fetch_url)"
         ( cd "$outdir"; curl $curl_args --remote-name "$url" || return $? )
