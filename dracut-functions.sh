@@ -1608,7 +1608,7 @@ instmods() {
             while read _mod; do
                 inst1mod "${_mod%.ko*}" || {
                     if [[ "$_check" == "yes" ]]; then
-                        [[ "$_silent" == "no" ]] && dfatal "Failed to install $_mod"
+                        [[ "$_silent" == "no" ]] && dfatal "Failed to install module $_mod"
                         return 1
                     fi
                 }
@@ -1617,7 +1617,7 @@ instmods() {
         while (($# > 0)); do  # filenames as arguments
             inst1mod ${1%.ko*} || {
                 if [[ "$_check" == "yes" ]]; then
-                    [[ "$_silent" == "no" ]] && dfatal "Failed to install $1"
+                    [[ "$_silent" == "no" ]] && dfatal "Failed to install module $1"
                     return 1
                 fi
             }
