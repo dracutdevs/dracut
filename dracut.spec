@@ -231,7 +231,6 @@ rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/50gensplash
 rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/96securityfs
 rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/97masterkey
 rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/98integrity
-rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/98selinux
 %endif
 
 mkdir -p $RPM_BUILD_ROOT/boot/dracut
@@ -348,12 +347,12 @@ rm -rf $RPM_BUILD_ROOT
 %if %{undefined _unitdir}
 %{dracutlibdir}/modules.d/96securityfs
 %{dracutlibdir}/modules.d/97masterkey
-%{dracutlibdir}/modules.d/98selinux
 %{dracutlibdir}/modules.d/98integrity
 %endif
 %{dracutlibdir}/modules.d/97biosdevname
 %{dracutlibdir}/modules.d/98ecryptfs
 %{dracutlibdir}/modules.d/98pollcdrom
+%{dracutlibdir}/modules.d/98selinux
 %{dracutlibdir}/modules.d/98syslog
 %{dracutlibdir}/modules.d/98systemd
 %{dracutlibdir}/modules.d/98usrmount
