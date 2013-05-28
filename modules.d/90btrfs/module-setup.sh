@@ -43,7 +43,7 @@ install() {
             /usr/lib/dracut/hooks/initqueue/timeout/btrfs_timeout.sh
     fi
 
-    dracut_install btrfsck
+    dracut_install -o btrfsck btrfs-zero-log
     inst $(command -v btrfs) /sbin/btrfs
 }
 
