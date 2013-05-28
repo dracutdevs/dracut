@@ -830,7 +830,7 @@ if [[ $hostonly ]]; then
     # in hostonly mode, determine all devices, which have to be accessed
     # and examine them for filesystem types
 
-    push host_mp \
+    for mp in \
         "/" \
         "/etc" \
         "/usr" \
@@ -838,9 +838,8 @@ if [[ $hostonly ]]; then
         "/usr/sbin" \
         "/usr/lib" \
         "/usr/lib64" \
-        "/boot"
-
-    for mp in "${host_mp[@]}"; do
+        "/boot";
+    do
         mountpoint "$mp" >/dev/null 2>&1 || continue
         push host_devs $(readlink -f "/dev/block/$(find_block_device "$mp")")
     done
@@ -856,11 +855,19 @@ if [[ $hostonly ]]; then
             [[ "$_d" == UUID\=* ]] && _d="/dev/disk/by-uuid/${_d#UUID=}"
             [[ "$_d" == LABEL\=* ]] && _d="/dev/disk/by-label/$_d#LABEL=}"
             [[ "$_d" -ef "$dev" ]] || continue
+
+            while read _mapper _a _p _o; do
+                [[ $_mapper = \#* ]] && continue
+                [[ "$_d" -ef /dev/mapper/"$_mapper" ]] || continue
+                [[ "$_o" ]] || _o="$_p"
+                # skip mkswap swap
+                [[ $_o == *swap* ]] && continue 2
+            done < /etc/crypttab
+
             push host_devs $(readlink -f $dev)
             break
         done < /etc/fstab
     done < /proc/swaps
-
 fi
 
 _get_fs_type() (

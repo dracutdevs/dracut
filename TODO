@@ -22,6 +22,7 @@ INITRAMFS TODO
 
 GENERATOR TODO
 
+- remove wait for swap devs, if no "resume=" is given on the kernel command line
 - add presets (predefined set of modules)
 - add interpreter/plugin-scripts to be sourced at the beginning or end (can use dracut-functions)
 - add mechanism for module specific command line options
