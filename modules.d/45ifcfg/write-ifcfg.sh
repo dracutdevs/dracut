@@ -152,7 +152,7 @@ for netif in $IFACES ; do
             fi
             print_s390 $netif
             echo "TYPE=Ethernet"
-            echo "NAME=\"Boot Disk\""
+            echo "NAME=\"$netif\""
             [ -n "$mtu" ] && echo "MTU=$mtu"
         } >> /tmp/ifcfg/ifcfg-$netif
     fi
@@ -162,7 +162,7 @@ for netif in $IFACES ; do
         {
             # This variable is an indicator of a bond interface for initscripts
             echo "BONDING_OPTS=\"$bondoptions\""
-            echo "NAME=\"Boot Disk\""
+            echo "NAME=\"$netif\""
         } >> /tmp/ifcfg/ifcfg-$netif
 
         for slave in $bondslaves ; do
@@ -186,7 +186,7 @@ for netif in $IFACES ; do
         # bridge
         {
             echo "TYPE=Bridge"
-            echo "NAME=\"Boot Disk\""
+            echo "NAME=\"$netif\""
         } >> /tmp/ifcfg/ifcfg-$netif
         if [ "$ethname" = "$bondname" ] ; then
             {
