@@ -42,7 +42,7 @@ installkernel() {
         instmods yenta_socket scsi_dh_rdac scsi_dh_emc \
             atkbd i8042 usbhid hid-apple hid-sunplus hid-cherry hid-logitech \
             hid-logitech-dj hid-microsoft firewire-ohci \
-            pcmcia usb_storage
+            pcmcia usb_storage nvme
 
         if [[ "$(uname -p)" == arm* ]]; then
             # arm specific modules
