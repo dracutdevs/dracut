@@ -60,6 +60,9 @@ install() {
     inst "$moddir/fs-lib.sh" "/lib/fs-lib.sh"
     > ${initdir}/etc/fstab.empty
 
+    inst_hook pre-mount 99 "$moddir/mount-early.sh"
+    inst_hook pre-pivot 99 "$moddir/mount-late.sh"
+
     [[ "$nofscks" = "yes" ]] && return
 
     if [[ "$fscks" = "${fscks#*[^ ]*}" ]]; then
