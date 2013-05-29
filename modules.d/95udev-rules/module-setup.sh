@@ -69,6 +69,8 @@ install() {
         ${udevdir}/pcmcia-socket-startup \
         ${udevdir}/pcmcia-check-broken-cis
 
+    dracut_install -o /etc/pcmcia/config.opts
+
     [ -f /etc/arch-release ] && \
         inst_script "$moddir/load-modules.sh" /lib/udev/load-modules.sh
 
