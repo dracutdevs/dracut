@@ -15,7 +15,7 @@ echo_fs_helper() {
     local dev=$1 fs=$2
     case "$fs" in
         xfs)
-            echo -n " xfs_db xfs_repair xfs_check "
+            echo -n " xfs_db xfs_repair xfs_check xfs_metadump "
             ;;
         ext?)
             echo -n " e2fsck "
@@ -65,7 +65,7 @@ install() {
     if [[ "$fscks" = "${fscks#*[^ ]*}" ]]; then
         _helpers="\
             umount mount /sbin/fsck*
-            xfs_db xfs_check xfs_repair
+            xfs_db xfs_check xfs_repair xfs_metadump
             e2fsck jfs_fsck reiserfsck btrfsck
         "
         if [[ $hostonly ]]; then
