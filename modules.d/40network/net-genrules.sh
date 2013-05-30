@@ -14,8 +14,10 @@ fix_bootif() {
     echo $macaddr | sed 'y/ABCDEF/abcdef/'
 }
 
+getargbool 0 rd.neednet && NEEDNET=1
+
 # Don't continue if we don't need network
-if [ -z "$netroot" ] && [ ! -e "/tmp/net.ifaces" ] && ! getargbool 0 rd.neednet >/dev/null; then
+if [ -z "$netroot" ] && [ ! -e "/tmp/net.ifaces" ] && [ "$NEEDNET" != "1" ]; then
     return
 fi
 
@@ -73,13 +75,13 @@ fi
     elif [ -n "$IFACES" ] ; then
         for iface in $IFACES ; do
             printf 'SUBSYSTEM=="net", ENV{INTERFACE}=="%s", RUN+="%s"\n' "$iface" "/sbin/initqueue --onetime $ifup"
-            if [ "$bootdev" = "$iface" ]; then
+            if [ "$bootdev" = "$iface" ] || [ "$NEEDNET" = "1" ]; then
                 echo "[ -f /tmp/setup_net_${iface}.ok ]" >$hookdir/initqueue/finished/wait-$iface.sh
             fi
         done
 
         for iface in $MASTER_IFACES; do
-            if [ "$bootdev" = "$iface" ]; then
+            if [ "$bootdev" = "$iface" ] || [ "$NEEDNET" = "1" ]; then
                 echo "[ -f /tmp/setup_net_${iface}.ok ]" >$hookdir/initqueue/finished/wait-$iface.sh
             fi
         done

@@ -54,6 +54,12 @@ fi
 for p in $(getargs ip=); do
     ip_to_var $p
 
+    # make first device specified the BOOTDEV
+    if [ -z "$BOOTDEV" ] && [ -n "$dev" ]; then
+        BOOTDEV="$dev"
+        [ -n "$NEEDBOOTDEV" ] && warn "Setting bootdev to '$BOOTDEV'"
+    fi
+
     # skip ibft since we did it above
     [ "$autoconf" = "ibft" ] && continue
 
@@ -121,6 +127,3 @@ fi
 # Store BOOTDEV and IFACES for later use
 [ -n "$BOOTDEV" ] && echo $BOOTDEV > /tmp/net.bootdev
 [ -n "$IFACES" ]  && echo $IFACES > /tmp/net.ifaces
-
-# We need a ip= line for the configured bootdev=
-[ -n "$NEEDBOOTDEV" ] && [ -z "$BOOTDEVOK" ] && die "Bootdev Argument '$BOOTDEV' not found"
