@@ -52,6 +52,8 @@ find / -xdev -type f -not -path '/var/*' \
   -not -path '/etc/iscsi/initiatorname.iscsi' \
   -not -path '/boot/*0-rescue*' \
   -not -path '/dev/null' \
+  -not -path "/boot/loader/entries/\$(cat /etc/machine-id)-*" \
+  -not -path "/boot/\$(cat /etc/machine-id)/*" \
   -exec rpm -qf '{}' ';' | \
   grep -F 'not owned' &> /test.output
 exit
