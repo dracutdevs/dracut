@@ -254,6 +254,7 @@ get_persistent_dev() {
     [ -z "$_dev" ] && return
 
     for i in /dev/mapper/* /dev/disk/by-uuid/* /dev/disk/by-id/*; do
+        [[ $i == /dev/mapper/mpath* ]] && continue
         _tmp=$(udevadm info --query=name --name="$i" 2>/dev/null)
         if [ "$_tmp" = "$_dev" ]; then
             echo $i
