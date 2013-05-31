@@ -20,7 +20,7 @@ livedev="$1"
 live_dir=$(getarg rd.live.dir -d live_dir)
 [ -z "$live_dir" ] && live_dir="LiveOS"
 squash_image=$(getarg rd.live.squashimg)
-[ -z "squash_image" ] && squash_image="squashfs.img"
+[ -z "$squash_image" ] && squash_image="squashfs.img"
 
 getargbool 0 rd.live.ram -d -y live_ram && live_ram="yes"
 getargbool 0 rd.live.overlay.reset -d -y reset_overlay && reset_overlay="yes"
