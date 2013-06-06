@@ -55,6 +55,15 @@ if ! ismounted /dev; then
     exit 1
 fi
 
+# setup system time
+if [ -f /etc/adjtime ]; then
+    if strstr "$(cat /etc/adjtime)" LOCAL; then
+        hwclock --hctosys --localtime
+    else
+        hwclock --hctosys --utc
+    fi
+fi
+
 # prepare the /dev directory
 [ ! -h /dev/fd ] && ln -s /proc/self/fd /dev/fd >/dev/null 2>&1
 [ ! -h /dev/stdin ] && ln -s /proc/self/fd/0 /dev/stdin >/dev/null 2>&1
