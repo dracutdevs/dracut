@@ -148,9 +148,9 @@ processcmsfile()
     if [[ $NETTYPE ]]; then
 	(
 	    echo -n $NETTYPE,$SUBCHANNELS
-	    [[ $PORTNAME ]] && echo ",portname=$PORTNAME"
-	    [[ $LAYER2 ]] && echo ",layer2=$LAYER"
-	    [[ "$NETTYPE" = "ctc" ]] && [[ $CTCPROT ]] && echo ",protocol=$CTCPROT"
+	    [[ $PORTNAME ]] && echo -n ",portname=$PORTNAME"
+	    [[ $LAYER2 ]] && echo -n ",layer2=$LAYER"
+	    [[ "$NETTYPE" = "ctc" ]] && [[ $CTCPROT ]] && echo -n ",protocol=$CTCPROT"
 	    echo
 	) >> /etc/ccw.conf
 
