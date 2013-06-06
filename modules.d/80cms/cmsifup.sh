@@ -27,7 +27,7 @@ else
 fi
 
 {
-    echo "ip=$IPADDR::$GATEWAY:$NETMASK:$HOSTNAME:$DEVICE:none:$MACADDR"
+    echo "ip=$IPADDR::$GATEWAY:$NETMASK:$HOSTNAME:$DEVICE:none:$MTU:$MACADDR"
     for i in $DNS1 $DNS2; do
 	echo "nameserver=$i"
     done
