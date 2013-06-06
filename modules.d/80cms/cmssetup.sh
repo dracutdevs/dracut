@@ -170,7 +170,7 @@ processcmsfile()
         rm -f /etc/udev/rules.d/91-default-net.rules
 	[[ -f /etc/udev/rules.d/90-net.rules ]] \
 	    || printf 'SUBSYSTEM=="net", ACTION=="online", RUN+="/sbin/initqueue --onetime --env netif=$env{INTERFACE} source_hook initqueue/online"\n' >> /etc/udev/rules.d/99-cms.rules
-
+        udevadm control --reload
 	znet_cio_free
     fi
 
