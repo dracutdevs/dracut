@@ -149,7 +149,7 @@ processcmsfile()
 	(
 	    echo -n $NETTYPE,$SUBCHANNELS
 	    [[ $PORTNAME ]] && echo -n ",portname=$PORTNAME"
-	    [[ $LAYER2 ]] && echo -n ",layer2=$LAYER"
+	    [[ $LAYER2 ]] && echo -n ",layer2=$LAYER2"
 	    [[ "$NETTYPE" = "ctc" ]] && [[ $CTCPROT ]] && echo -n ",protocol=$CTCPROT"
 	    echo
 	) >> /etc/ccw.conf
