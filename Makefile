@@ -180,11 +180,11 @@ syncheck:
                         modules.d/99base/init.sh modules.d/*/*.sh; do \
                 [ "$${i##*/}" = "module-setup.sh" ] && continue; \
                 read line < "$$i"; [ "$${line#*bash*}" != "$$line" ] && continue; \
-		dash -n "$$i" ; ret=$$(($$ret+$$?)); \
+		[ $$V ] && echo "dash syntax check: $$i"; dash -n "$$i" ; ret=$$(($$ret+$$?)); \
 	done;exit $$ret
 	@ret=0;for i in *.sh mkinitrd-dracut.sh modules.d/*/*.sh \
 	                modules.d/*/module-setup.sh; do \
-		bash -n "$$i" ; ret=$$(($$ret+$$?)); \
+		[ $$V ] && echo "bash syntax check: $$i"; bash -n "$$i" ; ret=$$(($$ret+$$?)); \
 	done;exit $$ret
 
 check: all syncheck rpm
