@@ -41,7 +41,7 @@ install() {
             push _activated "${DM_VG_NAME}/${DM_LV_NAME}"
         fi
         if ! [[ $_needthin ]]; then
-            [[ $(lvs --noheadings -o segtype $1) == *thin* ]] && _needthin=1
+            [[ $(lvs --noheadings -o segtype ${DM_VG_NAME}) == *thin* ]] && _needthin=1
         fi
 
         return 0
