@@ -185,3 +185,95 @@ static const char *const log_level_table[] = {
 };
 
 DEFINE_STRING_TABLE_LOOKUP(log_level, int);
+
+char *strnappend(const char *s, const char *suffix, size_t b) {
+        size_t a;
+        char *r;
+
+        if (!s && !suffix)
+                return strdup("");
+
+        if (!s)
+                return strndup(suffix, b);
+
+        if (!suffix)
+                return strdup(s);
+
+        assert(s);
+        assert(suffix);
+
+        a = strlen(s);
+        if (b > ((size_t) -1) - a)
+                return NULL;
+
+        r = new(char, a+b+1);
+        if (!r)
+                return NULL;
+
+        memcpy(r, s, a);
+        memcpy(r+a, suffix, b);
+        r[a+b] = 0;
+
+        return r;
+}
+
+char *strappend(const char *s, const char *suffix) {
+        return strnappend(s, suffix, suffix ? strlen(suffix) : 0);
+}
+
+char *strjoin(const char *x, ...) {
+        va_list ap;
+        size_t l;
+        char *r, *p;
+
+        va_start(ap, x);
+
+        if (x) {
+                l = strlen(x);
+
+                for (;;) {
+                        const char *t;
+                        size_t n;
+
+                        t = va_arg(ap, const char *);
+                        if (!t)
+                                break;
+
+                        n = strlen(t);
+                        if (n > ((size_t) -1) - l) {
+                                va_end(ap);
+                                return NULL;
+                        }
+
+                        l += n;
+                }
+        } else
+                l = 0;
+
+        va_end(ap);
+
+        r = new(char, l+1);
+        if (!r)
+                return NULL;
+
+        if (x) {
+                p = stpcpy(r, x);
+
+                va_start(ap, x);
+
+                for (;;) {
+                        const char *t;
+
+                        t = va_arg(ap, const char *);
+                        if (!t)
+                                break;
+
+                        p = stpcpy(p, t);
+                }
+
+                va_end(ap);
+        } else
+                r[0] = 0;
+
+        return r;
+}

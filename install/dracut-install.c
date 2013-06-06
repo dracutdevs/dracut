@@ -254,6 +254,72 @@ static int cp(const char *src, const char *dst)
         return ret;
 }
 
+static int library_install(const char *src, const char *lib)
+{
+        _cleanup_free_ char *p = NULL;
+        _cleanup_free_ char *pdir = NULL, *ppdir = NULL, *clib = NULL;
+        char *q;
+        int r, ret = 0;
+
+        p = strdup(lib);
+
+        r = dracut_install(p, p, false, false, true);
+        if (r != 0)
+                log_error("ERROR: failed to install '%s' for '%s'", p, src);
+        else
+                log_debug("Lib install: '%s'", p);
+        ret += r;
+
+        /* also install lib.so for lib.so.* files */
+        q = strstr(p, ".so.");
+        if (q) {
+                q[3] = '\0';
+
+                /* ignore errors for base lib symlink */
+                if (dracut_install(p, p, false, false, true) == 0)
+                        log_debug("Lib install: '%s'", p);
+        }
+
+        /* Also try to install the same library from one directory above.
+           This fixes the case, where only the HWCAP lib would be installed
+           # ldconfig -p|fgrep libc.so
+           libc.so.6 (libc6,64bit, hwcap: 0x0000001000000000, OS ABI: Linux 2.6.32) => /lib64/power6/libc.so.6
+           libc.so.6 (libc6,64bit, hwcap: 0x0000000000000200, OS ABI: Linux 2.6.32) => /lib64/power6x/libc.so.6
+           libc.so.6 (libc6,64bit, OS ABI: Linux 2.6.32) => /lib64/libc.so.6
+        */
+
+        free(p);
+        p = strdup(lib);
+
+        pdir = dirname(p);
+        if (!pdir)
+                return ret;
+
+        pdir = strdup(pdir);
+        ppdir = dirname(pdir);
+        if (!ppdir)
+                return ret;
+
+        ppdir = strdup(ppdir);
+
+        strcpy(p, lib);
+
+        clib = strjoin(ppdir, "/", basename(p), NULL);
+        if (dracut_install(clib, clib, false, false, true) == 0)
+                log_debug("Lib install: '%s'", clib);
+        /* also install lib.so for lib.so.* files */
+        q = strstr(clib, ".so.");
+        if (q) {
+                q[3] = '\0';
+
+                /* ignore errors for base lib symlink */
+                if (dracut_install(clib, clib, false, false, true) == 0)
+                        log_debug("Lib install: '%s'", p);
+        }
+
+        return ret;
+}
+
 static int resolve_deps(const char *src)
 {
         int ret = 0;
@@ -325,28 +391,13 @@ static int resolve_deps(const char *src)
                 if (strstr(buf, destrootdir))
                         break;
 
-                p = strstr(buf, "/");
+                p = strchr(buf, '/');
                 if (p) {
-                        int r;
                         for (q = p; *q && *q != ' ' && *q != '\n'; q++) ;
                         *q = '\0';
-                        r = dracut_install(p, p, false, false, true);
-                        if (r != 0)
-                                log_error("ERROR: failed to install '%s' for '%s'", p, src);
-                        else
-                                log_debug("Lib install: '%s'", p);
-                        ret += r;
 
-                        /* also install lib.so for lib.so.* files */
-                        q = strstr(p, ".so.");
-                        if (q) {
-                                q += 3;
-                                *q = '\0';
+                        ret += library_install(src, p);
 
-                                /* ignore errors for base lib symlink */
-                                if (dracut_install(p, p, false, false, true) == 0)
-                                        log_debug("Lib install: '%s'", p);
-                        }
                 }
         }
 

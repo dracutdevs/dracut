@@ -560,4 +560,6 @@ bool in_initrd(void);
 
 void warn_melody(void);
 
+char *strjoin(const char *x, ...) _sentinel_;
+
 #endif
