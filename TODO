@@ -30,6 +30,8 @@ GENERATOR TODO
 - default module specification could use some work
 - udev rule copying, as mentioned above, is a bit too hard-coded
 
+- dracut-install parse LD_SHOW_AUXV="" AT_PLATFORM for lib install
+
 CODE TODO
 
 - document more functions
