@@ -15,8 +15,8 @@ After=systemd-udev-trigger.service
 Wants=systemd-udev-trigger.service
 ConditionPathExists=/etc/initrd-release
 ConditionPathExists=|/lib/dracut/need-initqueue
-ConditionPathExistsGlob=|/lib/dracut/hooks/initqueue/*.sh
-ConditionKernelCommandLine=|rd.break=pre-mount
+ConditionPathExistsGlob=|/lib/dracut/hooks/initqueue/*/*.sh
+ConditionKernelCommandLine=|rd.break=initqueue
 
 [Service]
 Environment=DRACUT_SYSTEMD=1
