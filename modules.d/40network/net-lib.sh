@@ -360,6 +360,18 @@ wait_for_route_ok() {
     return 1
 }
 
+wait_for_ipv6_auto() {
+    local cnt=0
+    local li
+    while [ $cnt -lt 400 ]; do
+        li=$(ip -6 addr show dev $1)
+        strstr "$li" "dynamic" && return 0
+        sleep 0.1
+        cnt=$(($cnt+1))
+    done
+    return 1
+}
+
 linkup() {
     wait_for_if_link $1 2>/dev/null\
      && ip link set $1 up 2>/dev/null\

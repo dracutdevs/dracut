@@ -108,6 +108,7 @@ do_ipv6auto() {
     echo 1 > /proc/sys/net/ipv6/conf/$netif/accept_ra
     echo 1 > /proc/sys/net/ipv6/conf/$netif/accept_redirects
     linkup $netif
+    wait_for_ipv6_auto $netif
 
     [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
 
