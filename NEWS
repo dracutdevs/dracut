@@ -1,3 +1,38 @@
+dracut-028
+==========
+- full integration of crypto devs in systemd logic
+- support for bridge over team and vlan tagged team
+- support multiple bonding interfaces
+- new kernel command line param "rd.action_on_fail"
+  to control the emergency action
+- support for bridge over a vlan tagged interface
+- support for "iso-scan/filename" kernel parameter
+- lsinitrd got some love and does not use "file" anymore
+- fixed issue with noexec mounted tmp dirs
+- FIPS mode fixed
+- dracut_install got some love
+- fixed some /usr mounting problems
+- ifcfg dracut module got some love and fixes
+- default installed font is now latarcyrheb-sun16
+- new parameters rd.live.dir and rd.live.squashimg
+- lvm: add tools for thin provisioning
+- also install non-hwcap libs
+- setup correct system time and time zone in initrd
+- s390: fixed cms setup
+- add systemd-udevd persistent network interface naming
+
+Contributions from:
+Harald Hoyer
+Kamil Rytarowski
+WANG Chao
+Baoquan He
+Adam Williamson
+Colin Guthrie
+Dan Horák
+Dave Young
+Dennis Gilmore
+Dennis Schridde
+
 dracut-027
 ==========
 - dracut now has bash-completion
