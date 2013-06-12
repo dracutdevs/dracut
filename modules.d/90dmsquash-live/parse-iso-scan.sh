@@ -8,7 +8,7 @@ isofile=$(getarg iso-scan/filename)
 
 if [ -n "$isofile" ]; then
     {
-        printf 'KERNEL=="loop0", RUN+="/sbin/initqueue --settled --onetime --unique /sbin/iso-scan %s"\n' \
+        printf 'KERNEL=="loop0", RUN+="/sbin/initqueue --settled --unique /sbin/iso-scan %s"\n' \
             "'${isofile}'"
     } >> /etc/udev/rules.d/99-isofile-mount.rules
 fi
