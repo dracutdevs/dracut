@@ -38,7 +38,7 @@ manpages = $(man1pages) $(man5pages) $(man7pages) $(man8pages)
 
 .PHONY: install clean archive rpm testimage test all check AUTHORS doc dracut-version.sh
 
-all: syncheck dracut-version.sh dracut-install
+all: dracut-version.sh dracut-install
 
 DRACUT_INSTALL_OBJECTS = \
         install/dracut-install.o \
@@ -176,11 +176,11 @@ rpm: dracut-$(VERSION).tar.bz2
 	( mv "$$rpmbuild"/$$(arch)/*.rpm .; mv "$$rpmbuild"/*.src.rpm .;rm -fr "$$rpmbuild"; ls *.rpm )
 
 syncheck:
-	@ret=0;for i in dracut-initramfs-restore.sh dracut-logger.sh \
-                        modules.d/99base/init.sh modules.d/*/*.sh; do \
+	@ret=0;for i in dracut-initramfs-restore.sh modules.d/*/*.sh; do \
                 [ "$${i##*/}" = "module-setup.sh" ] && continue; \
                 read line < "$$i"; [ "$${line#*bash*}" != "$$line" ] && continue; \
-		[ $$V ] && echo "dash syntax check: $$i"; dash -n "$$i" ; ret=$$(($$ret+$$?)); \
+		[ $$V ] && echo "posix syntax check: $$i"; bash --posix -n "$$i" ; ret=$$(($$ret+$$?)); \
+		[ $$V ] && echo "checking for [[: $$i"; if grep -Fq '[[ ' "$$i" ; then ret=$$(($$ret+1)); echo "$$i contains [["; fi \
 	done;exit $$ret
 	@ret=0;for i in *.sh mkinitrd-dracut.sh modules.d/*/*.sh \
 	                modules.d/*/module-setup.sh; do \
