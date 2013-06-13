@@ -1,6 +1,6 @@
 RELEASEDVERSION = -- will be replaced by "make dist" --
-VERSION = $(shell [ -d .git ] && git describe --abbrev=0 --tags || echo $(RELEASEDVERSION))
-GITVERSION = $(shell [ -d .git ] && { v=$$(git describe --tags); echo -$${v\#*-}; } )
+VERSION = $(shell [ -d .git ] && git describe --abbrev=0 --tags 2>/dev/null || echo $(RELEASEDVERSION))
+GITVERSION = $(shell [ -d .git ] && { v=$$(git describe --tags 2>/dev/null); echo -$${v\#*-}; } )
 
 -include Makefile.inc
 
