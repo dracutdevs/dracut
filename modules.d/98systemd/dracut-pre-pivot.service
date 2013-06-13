@@ -15,7 +15,10 @@ After=dracut-initqueue.service dracut-pre-mount.service dracut-mount.service
 Before=initrd-cleanup.service
 ConditionPathExists=/etc/initrd-release
 ConditionDirectoryNotEmpty=|/lib/dracut/hooks/pre-pivot
+ConditionDirectoryNotEmpty=|/lib/dracut/hooks/cleanup
 ConditionKernelCommandLine=|rd.break=pre-pivot
+ConditionKernelCommandLine=|rd.break=cleanup
+ConditionKernelCommandLine=|rd.break
 
 [Service]
 Environment=DRACUT_SYSTEMD=1
