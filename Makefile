@@ -1,6 +1,7 @@
-RELEASEDVERSION = -- will be replaced by "make dist" --
-VERSION = $(shell [ -d .git ] && git describe --abbrev=0 --tags 2>/dev/null || echo $(RELEASEDVERSION))
-GITVERSION = $(shell [ -d .git ] && { v=$$(git describe --tags 2>/dev/null); echo -$${v\#*-}; } )
+-include dracut-version.sh
+
+VERSION = $(shell [ -d .git ] && git describe --abbrev=0 --tags 2>/dev/null || echo $(DRACUT_VERSION))
+GITVERSION = $(shell [ -d .git ] && { v=$$(git describe --tags 2>/dev/null); [ $${v\#*-} != $$v ] && echo -$${v\#*-}; } )
 
 -include Makefile.inc
 
@@ -158,11 +159,11 @@ clean:
 dist: dracut-$(VERSION).tar.bz2
 
 dracut-$(VERSION).tar.bz2: doc
+	@echo "DRACUT_VERSION=$(VERSION)" > dracut-version.sh
 	git archive --format=tar $(VERSION) --prefix=dracut-$(VERSION)/ > dracut-$(VERSION).tar
 	mkdir -p dracut-$(VERSION)
-	cp $(manpages) dracut.html dracut-$(VERSION)
-	git show $(VERSION):Makefile | sed 's/^RELEASEDVERSION =.*/RELEASEDVERSION = $(VERSION)/' > dracut-$(VERSION)/Makefile
-	tar --owner=root --group=root -rf dracut-$(VERSION).tar dracut-$(VERSION)/*.[0-9] dracut-$(VERSION)/dracut.html dracut-$(VERSION)/Makefile
+	for i in $(manpages) dracut.html dracut-version.sh; do [ "$${i%/*}" != "$$i" ] && mkdir -p "dracut-$(VERSION)/$${i%/*}"; cp "$$i" "dracut-$(VERSION)/$$i"; done
+	tar --owner=root --group=root -rf dracut-$(VERSION).tar $$(find dracut-$(VERSION) -type f)
 	rm -fr dracut-$(VERSION).tar.bz2 dracut-$(VERSION)
 	bzip2 -9 dracut-$(VERSION).tar
 	rm -f dracut-$(VERSION).tar
