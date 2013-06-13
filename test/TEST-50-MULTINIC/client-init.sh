@@ -8,7 +8,11 @@ export TERM=linux
 export PS1='initramfs-test:\w\$ '
 stty sane
 echo "made it to the rootfs! Powering down."
-[ -e /dev/.initramfs/net.ifaces ] && echo OK $(cat /dev/.initramfs/net.ifaces) > /dev/sda
-[ -e /run/initramfs/net.ifaces ] && echo OK $(cat /run/initramfs/net.ifaces) > /dev/sda
+for i in /run/initramfs/net.*.did-setup; do
+	i=${i%.did-setup}
+	IFACES+="${i##*/net.} "
+done
+echo "OK $IFACES" > /dev/sda
+
 strstr "$CMDLINE" "rd.shell" && sh -i
 poweroff -f
