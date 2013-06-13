@@ -7,6 +7,7 @@
 
 [Unit]
 Description=Restore /run/initramfs
+Documentation=man:dracut-shutdown.service(8)
 After=getty@tty1.service prefdm.service
 Before=systemd-reboot.service shutdown.target
 DefaultDependencies=no
