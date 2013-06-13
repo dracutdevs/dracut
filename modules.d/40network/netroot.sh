@@ -20,6 +20,18 @@ command -v setup_net >/dev/null || . /lib/net-lib.sh
 netif=$1
 [ -e "/tmp/net.bootdev" ] && read netif < /tmp/net.bootdev
 
+case "$netif" in
+    ??:??:??:??:??:??)  # MAC address
+        for i in /sys/class/net/*/address; do
+            mac=$(cat $i)
+            if [ "$mac" = "$netif" ]; then
+                i=${i%/address}
+                netif=${i##*/}
+                break
+            fi
+        done
+esac
+
 # Figure out the handler for root=dhcp by recalling all netroot cmdline
 # handlers when this is not called from manually network bringing up.
 if [ -z "$2" ]; then

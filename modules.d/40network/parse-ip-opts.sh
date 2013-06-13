@@ -17,7 +17,7 @@
 command -v getarg >/dev/null          || . /lib/dracut-lib.sh
 command -v ibft_to_cmdline >/dev/null || . /lib/net-lib.sh
 
-if [ -n "$netroot" ] && [ -z "$(getarg ip=)" ] ; then
+if [ -n "$netroot" ] && [ -z "$(getarg ip=)" ] && [ -z "$(getarg BOOTIF=)" ]; then
     # No ip= argument(s) for netroot provided, defaulting to DHCP
     return;
 fi
@@ -113,7 +113,8 @@ done
 
 # put BOOTIF in IFACES to make sure it comes up
 if BOOTIF="$(getarg BOOTIF=)"; then
-    IFACES="$IFACES $(fix_bootif $BOOTIF)"
+    BOOTDEV=$(fix_bootif $BOOTIF)
+    IFACES="$BOOTDEV $IFACES"
 fi
 
 # This ensures that BOOTDEV is always first in IFACES
