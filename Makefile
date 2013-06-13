@@ -124,9 +124,9 @@ endif
 		    dracut-pre-trigger.service \
 		    dracut-pre-udev.service \
 		    ; do \
-			install -m 0644 modules.d/98systemd/$$i $(DESTDIR)$(systemdsystemunitdir); \
+			ln -srf $(DESTDIR)$(pkglibdir)/modules.d/98systemd/$$i $(DESTDIR)$(systemdsystemunitdir); \
 			ln -s ../$$i \
-			$(DESTDIR)$(systemdsystemunitdir)/initrd.target.wants/$i; \
+			$(DESTDIR)$(systemdsystemunitdir)/initrd.target.wants/$$i; \
 		done \
 	fi
 	if [ -f install/dracut-install ]; then \

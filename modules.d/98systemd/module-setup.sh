@@ -95,21 +95,6 @@ install() {
         $systemdsystemunitdir/sysinit.target.wants/systemd-udevd.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-udev-trigger.service \
         \
-        $systemdsystemunitdir/dracut-cmdline.service \
-        $systemdsystemunitdir/dracut-initqueue.service \
-        $systemdsystemunitdir/dracut-mount.service \
-        $systemdsystemunitdir/dracut-pre-mount.service \
-        $systemdsystemunitdir/dracut-pre-pivot.service \
-        $systemdsystemunitdir/dracut-pre-trigger.service \
-        $systemdsystemunitdir/dracut-pre-udev.service \
-        $systemdsystemunitdir/initrd.target.wants/dracut-cmdline.service \
-        $systemdsystemunitdir/initrd.target.wants/dracut-initqueue.service \
-        $systemdsystemunitdir/initrd.target.wants/dracut-mount.service \
-        $systemdsystemunitdir/initrd.target.wants/dracut-pre-mount.service \
-        $systemdsystemunitdir/initrd.target.wants/dracut-pre-pivot.service \
-        $systemdsystemunitdir/initrd.target.wants/dracut-pre-trigger.service \
-        $systemdsystemunitdir/initrd.target.wants/dracut-pre-udev.service \
-        \
         $systemdsystemunitdir/ctrl-alt-del.target \
         $systemdsystemunitdir/syslog.socket \
         $systemdsystemunitdir/initrd-switch-root.target \
@@ -197,10 +182,25 @@ install() {
         systemd-ask-password-console.service \
         systemd-ask-password-plymouth.service \
         ; do
-        mkdir -p "${initdir}${systemdsystemconfdir}/${i}.wants"
+        mkdir -p "${initdir}${systemdsystemunitdir}/${i}.wants"
         ln_r "${systemdsystemunitdir}/systemd-vconsole-setup.service" \
-            "${systemdsystemconfdir}/${i}.wants/systemd-vconsole-setup.service"
+            "${systemdsystemunitdir}/${i}.wants/systemd-vconsole-setup.service"
     done
+
+    mkdir -p "${initdir}/$systemdsystemunitdir/initrd.target.wants"
+    for i in \
+        dracut-cmdline.service \
+        dracut-initqueue.service \
+        dracut-mount.service \
+        dracut-pre-mount.service \
+        dracut-pre-pivot.service \
+        dracut-pre-trigger.service \
+        dracut-pre-udev.service \
+        ; do
+        inst_simple "$moddir/${i}" "$systemdsystemunitdir/${i}"
+        ln_r "$systemdsystemunitdir/${i}" "$systemdsystemunitdir/initrd.target.wants/${i}"
+    done
+
 
     # turn off RateLimit for journal
     {
