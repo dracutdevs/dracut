@@ -110,7 +110,7 @@ ifneq ($(enable_documentation),no)
 endif
 	if [ -n "$(systemdsystemunitdir)" ]; then \
 		mkdir -p $(DESTDIR)$(systemdsystemunitdir); \
-		install -m 0644 dracut-shutdown.service $(DESTDIR)$(systemdsystemunitdir); \
+		ln -srf $(DESTDIR)$(pkglibdir)/modules.d/98systemd/dracut-shutdown.service $(DESTDIR)$(systemdsystemunitdir)/dracut-shutdown.service; \
 		mkdir -p $(DESTDIR)$(systemdsystemunitdir)/shutdown.target.wants; \
 		ln -s ../dracut-shutdown.service \
 		$(DESTDIR)$(systemdsystemunitdir)/shutdown.target.wants/dracut-shutdown.service; \
