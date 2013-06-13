@@ -201,7 +201,7 @@ install() {
         ln_r "$systemdsystemunitdir/${i}" "$systemdsystemunitdir/initrd.target.wants/${i}"
     done
 
-
+    mkdir -p "$initdir/etc/systemd"
     # turn off RateLimit for journal
     {
         echo "[Journal]"
