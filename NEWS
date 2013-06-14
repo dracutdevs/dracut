@@ -1,3 +1,24 @@
+dracut-029
+==========
+- wait for IPv6 autoconfiguration
+- i18n: make the default font configurable
+  To set the default font for your distribution, add
+  i18n_default_font="latarcyrheb-sun16"
+  to your /lib/dracut/dracut.conf.d/01-dist.conf distribution config.
+- proper handle "rd.break" in systemd mode before switch-root
+- systemd: make unit files symlinks
+- build without dash requirement
+- add dracut-shutdown.service.8 manpage
+- handle MACs for "ip="
+  "ip=77-77-6f-6f-64-73:dhcp"
+- don't explode when mixing BOOTIF and ip=
+- 90lvm/module-setup.sh: redirect error message of lvs to /dev/null
+
+Contributions from:
+Harald Hoyer
+Will Woods
+Baoquan He
+
 dracut-028
 ==========
 - full integration of crypto devs in systemd logic
