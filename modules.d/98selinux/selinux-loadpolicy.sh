@@ -48,6 +48,7 @@ rd_load_policy()
             [ -e "$NEWROOT"/.autorelabel ] && LANG=C /usr/sbin/setenforce 0
             mount --rbind /dev "$NEWROOT/dev"
             LANG=C chroot "$NEWROOT" /sbin/restorecon -R /dev
+            umount -R "$NEWROOT/dev"
             return 0
         fi
 
