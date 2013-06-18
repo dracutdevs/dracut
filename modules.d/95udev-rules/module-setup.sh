@@ -31,7 +31,7 @@ install() {
         60-pcmcia.rules \
         50-udev.rules 95-late.rules \
         50-firmware.rules \
-        80-net-name-slot.rules \
+        75-net-description.rules 80-net-name-slot.rules \
         "$moddir/59-persistent-storage.rules" \
         "$moddir/61-persistent-storage.rules"
 
