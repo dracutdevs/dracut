@@ -789,7 +789,7 @@ chmod 755 "$initdir"
 
 if [[ $hostonly ]]; then
     for i in /sys /proc /run /dev; do
-        if ! findmnt "$i" &>/dev/null; then
+        if ! findmnt --target "$i" &>/dev/null; then
             dwarning "Turning off host-only mode: '$i' is not mounted!"
             unset hostonly
         fi

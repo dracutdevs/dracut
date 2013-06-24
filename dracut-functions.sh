@@ -340,7 +340,7 @@ find_block_device() {
                 echo $_dev
                 return 0
             fi
-        done < <(findmnt -e -v -n -o 'MAJ:MIN,SOURCE' "$_find_mpt")
+        done < <(findmnt -e -v -n -o 'MAJ:MIN,SOURCE' --target "$_find_mpt")
     fi
     # fall back to /etc/fstab
 
@@ -362,7 +362,7 @@ find_block_device() {
             echo $_dev
             return 0
         fi
-    done < <(findmnt -e --fstab -v -n -o 'MAJ:MIN,SOURCE' "$_find_mpt")
+    done < <(findmnt -e --fstab -v -n -o 'MAJ:MIN,SOURCE' --target "$_find_mpt")
 
     return 1
 }
@@ -384,7 +384,7 @@ find_mp_fstype() {
             [[ $_fs = "autofs" ]] && continue
             echo -n $_fs
             return 0
-        done < <(findmnt -e -v -n -o 'FSTYPE' "$1")
+        done < <(findmnt -e -v -n -o 'FSTYPE' --target "$1")
     fi
 
     while read _fs; do
@@ -392,7 +392,7 @@ find_mp_fstype() {
         [[ $_fs = "autofs" ]] && continue
         echo -n $_fs
         return 0
-    done < <(findmnt --fstab -e -v -n -o 'FSTYPE' "$1")
+    done < <(findmnt --fstab -e -v -n -o 'FSTYPE' --target "$1")
 
     return 1
 }
@@ -406,10 +406,28 @@ find_mp_fstype() {
 # $ find_dev_fstype /dev/sda2;echo
 # ext4
 find_dev_fstype() {
-    local _x _mpt _majmin _dev _fs _maj _min _find_dev
+    local _find_dev _fs
     _find_dev="$1"
     [[ "$_find_dev" = /dev* ]] || _find_dev="/dev/block/$_find_dev"
-    find_mp_fstype "$_find_dev"
+
+    if [[ $use_fstab != yes ]]; then
+        while read _fs; do
+            [[ $_fs ]] || continue
+            [[ $_fs = "autofs" ]] && continue
+            echo -n $_fs
+            return 0
+        done < <(findmnt -e -v -n -o 'FSTYPE' --source "$_find_dev")
+    fi
+
+    while read _fs; do
+        [[ $_fs ]] || continue
+        [[ $_fs = "autofs" ]] && continue
+        echo -n $_fs
+        return 0
+    done < <(findmnt --fstab -e -v -n -o 'FSTYPE' --source "$_find_dev")
+
+    return 1
+
 }
 
 # finds the major:minor of the block device backing the root filesystem.
