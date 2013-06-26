@@ -104,6 +104,9 @@ install() {
         $systemdsystemunitdir/initrd-parse-etc.service \
         \
         $systemdsystemunitdir/umount.target \
+        \
+        $systemdsystemunitdir/system.slice
+        \
         journalctl systemctl echo swapoff systemd-cgls
 
     dracut_install -o \
