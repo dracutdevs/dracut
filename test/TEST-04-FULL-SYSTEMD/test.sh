@@ -203,7 +203,7 @@ EOF
         cp -a /etc/ld.so.conf* $initdir/etc
         ldconfig -r "$initdir"
         ddebug "Strip binaeries"
-        find "$initdir" -perm +111 -type f | xargs strip --strip-unneeded | ddebug
+        find "$initdir" -perm +111 -type f | xargs -r strip --strip-unneeded | ddebug
 
         # copy depmod files
         inst /lib/modules/$kernel/modules.order
