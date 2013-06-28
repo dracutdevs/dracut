@@ -39,6 +39,7 @@ install() {
         $systemdutildir/systemd-journald \
         $systemdutildir/systemd-sysctl \
         $systemdutildir/systemd-modules-load \
+        $systemdutildir/systemd-vconsole-setup \
         $systemdutildir/system-generators/systemd-fstab-generator \
         $systemdsystemunitdir/cryptsetup.target \
         $systemdsystemunitdir/emergency.target \
@@ -67,6 +68,7 @@ install() {
         $systemdsystemunitdir/swap.target \
         $systemdsystemunitdir/timers.target \
         $systemdsystemunitdir/paths.target \
+        $systemdsystemunitdir/umount.target \
         $systemdsystemunitdir/systemd-ask-password-console.path \
         $systemdsystemunitdir/systemd-udevd-control.socket \
         $systemdsystemunitdir/systemd-udevd-kernel.socket \
@@ -103,9 +105,8 @@ install() {
         $systemdsystemunitdir/initrd-udevadm-cleanup-db.service \
         $systemdsystemunitdir/initrd-parse-etc.service \
         \
-        $systemdsystemunitdir/umount.target \
-        \
-        $systemdsystemunitdir/system.slice
+        $systemdsystemunitdir/slices.target \
+        $systemdsystemunitdir/system.slice \
         \
         journalctl systemctl echo swapoff systemd-cgls
 
