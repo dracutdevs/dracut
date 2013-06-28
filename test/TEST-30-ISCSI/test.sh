@@ -84,7 +84,7 @@ test_run() {
     ret=$?
     if [[ -s $TESTDIR/server.pid ]]; then
         sudo kill -TERM $(cat $TESTDIR/server.pid)
-        rm -f $TESTDIR/server.pid
+        rm -f -- $TESTDIR/server.pid
     fi
     return $ret
 }
@@ -135,7 +135,7 @@ test_setup() {
         -m "dash crypt lvm mdraid udev-rules base rootfs-block kernel-modules" \
         -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
         -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
-    rm -rf $TESTDIR/overlay
+    rm -rf -- $TESTDIR/overlay
 
 
     # Need this so kvm-qemu will boot (needs non-/dev/zero local disk)
@@ -154,7 +154,7 @@ test_setup() {
         -append "root=/dev/fakeroot rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
     grep -F -m 1 -q dracut-root-block-created $TESTDIR/client.img || return 1
-    rm $TESTDIR/client.img
+    rm -- $TESTDIR/client.img
     (
         export initdir=$TESTDIR/overlay
         . $basedir/dracut-functions.sh
@@ -210,7 +210,7 @@ test_setup() {
     )
 
     sudo umount $TESTDIR/mnt
-    rm -fr $TESTDIR/mnt
+    rm -fr -- $TESTDIR/mnt
 
     # Make server's dracut image
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
@@ -223,7 +223,7 @@ test_setup() {
 test_cleanup() {
     if [[ -s $TESTDIR/server.pid ]]; then
         sudo kill -TERM $(cat $TESTDIR/server.pid)
-        rm -f $TESTDIR/server.pid
+        rm -f -- $TESTDIR/server.pid
     fi
 }
 

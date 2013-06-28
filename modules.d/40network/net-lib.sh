@@ -105,7 +105,7 @@ ifdown() {
     ip link set $netif down
     ip addr flush dev $netif
     echo "#empty" > /etc/resolv.conf
-    rm -f /tmp/net.$netif.did-setup
+    rm -f -- /tmp/net.$netif.did-setup
     # TODO: send "offline" uevent?
 }
 

@@ -82,7 +82,7 @@ dracut.html: dracut.asc $(manpages)
 		--stringparam html.stylesheet \
 		http://docs.fedoraproject.org/en-US/Common_Content/css/default.css \
 		http://docbook.sourceforge.net/release/xsl/current/xhtml/docbook.xsl dracut.xml
-	rm dracut.xml
+	rm -f -- dracut.xml
 
 install: dracut-version.sh
 	mkdir -p $(DESTDIR)$(pkglibdir)
@@ -164,9 +164,9 @@ dracut-$(VERSION).tar.bz2: doc
 	mkdir -p dracut-$(VERSION)
 	for i in $(manpages) dracut.html dracut-version.sh; do [ "$${i%/*}" != "$$i" ] && mkdir -p "dracut-$(VERSION)/$${i%/*}"; cp "$$i" "dracut-$(VERSION)/$$i"; done
 	tar --owner=root --group=root -rf dracut-$(VERSION).tar $$(find dracut-$(VERSION) -type f)
-	rm -fr dracut-$(VERSION).tar.bz2 dracut-$(VERSION)
+	rm -fr -- dracut-$(VERSION).tar.bz2 dracut-$(VERSION)
 	bzip2 -9 dracut-$(VERSION).tar
-	rm -f dracut-$(VERSION).tar
+	rm -f -- dracut-$(VERSION).tar
 
 rpm: dracut-$(VERSION).tar.bz2
 	rpmbuild=$$(mktemp -d -t rpmbuild-dracut.XXXXXX); src=$$(pwd); \
@@ -175,7 +175,7 @@ rpm: dracut-$(VERSION).tar.bz2
 	(cd "$$rpmbuild"; rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" \
 	        --define "_specdir $$PWD" --define "_srcrpmdir $$PWD" \
 		--define "_rpmdir $$PWD" -ba dracut.spec; ) && \
-	( mv "$$rpmbuild"/$$(arch)/*.rpm .; mv "$$rpmbuild"/*.src.rpm .;rm -fr "$$rpmbuild"; ls *.rpm )
+	( mv "$$rpmbuild"/$$(arch)/*.rpm .; mv "$$rpmbuild"/*.src.rpm .;rm -fr -- "$$rpmbuild"; ls *.rpm )
 
 syncheck:
 	@ret=0;for i in dracut-initramfs-restore.sh modules.d/*/*.sh; do \

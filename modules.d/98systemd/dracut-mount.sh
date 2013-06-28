@@ -26,7 +26,7 @@ while :; do
             usable_root "$NEWROOT" && break;
             warn "$NEWROOT has no proper rootfs layout, ignoring and removing offending mount hook"
             umount "$NEWROOT"
-            rm -f "$f"
+            rm -f -- "$f"
         fi
     done
 

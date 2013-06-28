@@ -21,7 +21,7 @@ mount_nfs $root $NEWROOT $netif && { [ -e /dev/root ] || ln -s null /dev/root ; 
 [ -f $NEWROOT/etc/fstab ] && cat $NEWROOT/etc/fstab > /dev/null
 
 # inject new exit_if_exists
-echo 'settle_exit_if_exists="--exit-if-exists=/dev/root"; rm "$job"' > $hookdir/initqueue/nfs.sh
+echo 'settle_exit_if_exists="--exit-if-exists=/dev/root"; rm -- "$job"' > $hookdir/initqueue/nfs.sh
 # force udevsettle to break
 > $hookdir/initqueue/work
 

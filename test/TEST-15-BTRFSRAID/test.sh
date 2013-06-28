@@ -19,7 +19,7 @@ test_run() {
 test_setup() {
     # Create the blank file to use as a root filesystem
     DISKIMAGE=$TESTDIR/TEST-15-BTRFSRAID-root.img
-    rm -f $DISKIMAGE
+    rm -f -- $DISKIMAGE
     dd if=/dev/null of=$DISKIMAGE bs=1M seek=1024
 
     kernel=$KVERSION
@@ -62,7 +62,7 @@ test_setup() {
         --nomdadmconf \
 	-f $TESTDIR/initramfs.makeroot $KVERSION || return 1
 
-    rm -rf $TESTDIR/overlay
+    rm -rf -- $TESTDIR/overlay
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     $testdir/run-qemu \

@@ -102,7 +102,7 @@ install() {
         done
 
         # remove unnecessary files
-        rm -f "${initdir}${kbddir}/consoletrans/utflist"
+        rm -f -- "${initdir}${kbddir}/consoletrans/utflist"
         find "${initdir}${kbddir}/" -name README\* -delete
         find "${initdir}${kbddir}/" -name '*.gz' -print -quit \
             | while read line; do

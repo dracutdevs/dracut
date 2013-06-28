@@ -36,6 +36,6 @@ else
     exit 1
 fi
 
-/bin/rm -f /.console_lock
+/bin/rm -f -- /.console_lock
 
 exit 0

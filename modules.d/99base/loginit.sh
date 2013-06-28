@@ -14,7 +14,7 @@ exec 6>/run/initramfs/init.log
 
 while read line; do
     if [ "$line" = "DRACUT_LOG_END" ]; then
-        rm -f /run/initramfs/loginit.pipe
+        rm -f -- /run/initramfs/loginit.pipe
         exit 0
     fi
     echo "<31>dracut: $line" >&5

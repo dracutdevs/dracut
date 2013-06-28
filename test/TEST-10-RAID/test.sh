@@ -20,7 +20,7 @@ test_run() {
 test_setup() {
     DISKIMAGE=$TESTDIR/TEST-10-RAID-root.img
     # Create the blank file to use as a root filesystem
-    rm -f $DISKIMAGE
+    rm -f -- $DISKIMAGE
     dd if=/dev/null of=$DISKIMAGE bs=1M seek=40
 
     kernel=$KVERSION
@@ -64,7 +64,7 @@ test_setup() {
 	-d "piix ide-gd_mod ata_piix ext2 sd_mod" \
         --nomdadmconf \
 	-f $TESTDIR/initramfs.makeroot $KVERSION || return 1
-    rm -rf $TESTDIR/overlay
+    rm -rf -- $TESTDIR/overlay
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     $testdir/run-qemu \
 	-hda $DISKIMAGE \

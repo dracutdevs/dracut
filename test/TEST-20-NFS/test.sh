@@ -187,7 +187,7 @@ test_nfsv4() {
 test_run() {
     if [[ -s server.pid ]]; then
         sudo kill -TERM $(cat $TESTDIR/server.pid)
-        rm -f $TESTDIR/server.pid
+        rm -f -- $TESTDIR/server.pid
     fi
 
     if ! run_server; then
@@ -202,7 +202,7 @@ test_run() {
 
     if [[ -s $TESTDIR/server.pid ]]; then
         sudo kill -TERM $(cat $TESTDIR/server.pid)
-        rm -f $TESTDIR/server.pid
+        rm -f -- $TESTDIR/server.pid
     fi
 
     return $ret
@@ -327,7 +327,7 @@ test_setup() {
     mkdir -p $TESTDIR/mnt/nfs/tftpboot/nfs4-5
 
     sudo umount $TESTDIR/mnt
-    rm -fr $TESTDIR/mnt
+    rm -fr -- $TESTDIR/mnt
 
     # Make an overlay with needed tools for the test harness
     (
@@ -356,7 +356,7 @@ test_setup() {
 test_cleanup() {
     if [[ -s $TESTDIR/server.pid ]]; then
         sudo kill -TERM $(cat $TESTDIR/server.pid)
-        rm -f $TESTDIR/server.pid
+        rm -f -- $TESTDIR/server.pid
     fi
 }
 

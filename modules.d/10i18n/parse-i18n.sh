@@ -36,7 +36,7 @@ if [ -f /etc/locale.conf ]; then
 fi
 
 if [ -n "$DRACUT_SYSTEMD" ]; then
-    rm -f /etc/udev/rules.d/10-console.rules
-    rm -f /lib/udev/rules.d/10-console.rules
-    rm -f /lib/udev/console_init
+    rm -f -- /etc/udev/rules.d/10-console.rules
+    rm -f -- /lib/udev/rules.d/10-console.rules
+    rm -f -- /lib/udev/console_init
 fi

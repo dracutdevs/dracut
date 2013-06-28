@@ -4,7 +4,7 @@
 
 if ! getargbool 1 rd.luks -d -n rd_NO_LUKS; then
     info "rd.luks=0: removing cryptoluks activation"
-    rm -f /etc/udev/rules.d/70-luks.rules
+    rm -f -- /etc/udev/rules.d/70-luks.rules
 else
     {
         echo 'SUBSYSTEM!="block", GOTO="luks_end"'

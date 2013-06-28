@@ -55,7 +55,7 @@ test_run() {
 
 test_setup() {
     # Create the blank file to use as a root filesystem
-    rm -f $TESTDIR/root.ext2
+    rm -f -- $TESTDIR/root.ext2
     dd if=/dev/null of=$TESTDIR/root.ext2 bs=1M seek=80
 
     kernel=$KVERSION
@@ -97,7 +97,7 @@ test_setup() {
 	-m "dash crypt lvm mdraid udev-rules base rootfs-block kernel-modules" \
 	-d "piix ide-gd_mod ata_piix ext2 sd_mod" \
 	-f $TESTDIR/initramfs.makeroot $KVERSION || return 1
-    rm -rf $TESTDIR/overlay
+    rm -rf -- $TESTDIR/overlay
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     $testdir/run-qemu -hda $TESTDIR/root.ext2 -m 256M -smp 2 -nographic -net none \
 	-kernel "/boot/vmlinuz-$kernel" \

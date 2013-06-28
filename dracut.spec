@@ -202,7 +202,7 @@ make %{?_smp_mflags}
 
 %install
 %if 0%{?fedora} || 0%{?rhel}
-rm -rf $RPM_BUILD_ROOT
+rm -rf -- $RPM_BUILD_ROOT
 %endif
 make %{?_smp_mflags} install \
      DESTDIR=$RPM_BUILD_ROOT \
@@ -211,26 +211,26 @@ make %{?_smp_mflags} install \
 echo "DRACUT_VERSION=%{version}-%{release}" > $RPM_BUILD_ROOT/%{dracutlibdir}/dracut-version.sh
 
 %if 0%{?fedora} == 0 && 0%{?rhel} == 0 && 0%{?suse_version} == 0
-rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/01fips
-rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/02fips-aesni
+rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/01fips
+rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/02fips-aesni
 %endif
 
 %if %{defined _unitdir}
 # for systemd, better use systemd-bootchart
-rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00bootchart
+rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00bootchart
 %endif
 
 # we do not support dash in the initramfs
-rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00dash
+rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00dash
 
 # remove gentoo specific modules
-rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/50gensplash
+rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/50gensplash
 
 %if %{defined _unitdir}
 # with systemd IMA and selinux modules do not make sense
-rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/96securityfs
-rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/97masterkey
-rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/98integrity
+rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/96securityfs
+rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/97masterkey
+rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/98integrity
 %endif
 
 mkdir -p $RPM_BUILD_ROOT/boot/dracut
@@ -249,8 +249,8 @@ install -m 0644 dracut.conf.d/suse.conf.example   $RPM_BUILD_ROOT%{dracutlibdir}
 %endif
 
 %if 0%{?fedora} <= 12 && 0%{?rhel} < 6 && 0%{?suse_version} <= 9999
-rm $RPM_BUILD_ROOT%{_bindir}/mkinitrd
-rm $RPM_BUILD_ROOT%{_bindir}/lsinitrd
+rm -f -- $RPM_BUILD_ROOT%{_bindir}/mkinitrd
+rm -f -- $RPM_BUILD_ROOT%{_bindir}/lsinitrd
 %endif
 
 %if 0%{?fedora} || 0%{?rhel} > 6
@@ -270,7 +270,7 @@ mkdir -p $RPM_BUILD_ROOT/sbin
 ln -s /usr/bin/dracut $RPM_BUILD_ROOT/sbin/dracut
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf -- $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,0755)

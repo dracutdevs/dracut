@@ -1,9 +1,9 @@
 #!/bin/sh
 # don't let udev and this script step on eachother's toes
 for x in 61-dmraid-imsm.rules 64-md-raid.rules 65-md-incremental-imsm.rules 65-md-incremental.rules 64-lvm.rules 70-mdadm.rules 99-mount-rules; do
-    rm "/etc/udev/rules.d/$x"
+    rm -f -- "/etc/udev/rules.d/$x"
 done
-rm /etc/lvm/lvm.conf
+rm -f -- /etc/lvm/lvm.conf
 
 udevadm control --reload
 # dmraid does not want symlinks in --disk "..."

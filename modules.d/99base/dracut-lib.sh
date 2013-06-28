@@ -754,7 +754,7 @@ inst_hook() {
 
     if [ -n "$onetime" ]; then
         {
-            echo '[ -e "$_job" ] && rm "$_job"'
+            echo '[ -e "$_job" ] && rm -f -- "$_job"'
             echo "$_exe $@"
         } > "/tmp/$$-${_job}.sh"
     else
@@ -867,12 +867,12 @@ cancel_wait_for_dev()
 {
     local _name
     _name="$(str_replace "$1" '/' '\\x2f')"
-    rm -f "$hookdir/initqueue/finished/devexists-${_name}.sh"
-    rm -f "$hookdir/emergency/80-${_name}.sh"
+    rm -f -- "$hookdir/initqueue/finished/devexists-${_name}.sh"
+    rm -f -- "$hookdir/emergency/80-${_name}.sh"
     if [ -n "$DRACUT_SYSTEMD" ]; then
         _name=$(dev_unit_name "$1")
-        rm -f ${PREFIX}/etc/systemd/system/initrd.target.requires/${_name}.device
-        rm -f ${PREFIX}/etc/systemd/system/${_name}.device.d/timeout.conf
+        rm -f -- ${PREFIX}/etc/systemd/system/initrd.target.requires/${_name}.device
+        rm -f -- ${PREFIX}/etc/systemd/system/${_name}.device.d/timeout.conf
         /sbin/initqueue --onetime --unique --name daemon-reload systemctl daemon-reload
     fi
 }
@@ -921,7 +921,7 @@ wait_for_loginit()
     fi
 
     setdebug
-    rm -f /run/initramfs/loginit.pipe /run/initramfs/loginit.pid
+    rm -f -- /run/initramfs/loginit.pipe /run/initramfs/loginit.pid
 }
 
 _emergency_shell()
@@ -931,8 +931,8 @@ _emergency_shell()
         > /.console_lock
         echo "PS1=\"$_name:\\\${PWD}# \"" >/etc/profile
         systemctl start dracut-emergency.service
-        rm -f /etc/profile
-        rm -f /.console_lock
+        rm -f -- /etc/profile
+        rm -f -- /.console_lock
     else
         debug_off
         echo

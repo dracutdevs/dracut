@@ -26,7 +26,7 @@ case "$1" in
         ret=$?
 	;;
     remove)
-        rm -f "$3"/initrd
+        rm -f -- "$3"/initrd
         ret=$?
 	;;
 esac

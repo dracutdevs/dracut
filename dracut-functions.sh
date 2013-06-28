@@ -1508,7 +1508,7 @@ dracut_kernel_post() {
         exit 1
     fi
 
-    [[ $DRACUT_KERNEL_LAZY_HASHDIR ]] && rm -fr "$DRACUT_KERNEL_LAZY_HASHDIR"
+    [[ $DRACUT_KERNEL_LAZY_HASHDIR ]] && rm -fr -- "$DRACUT_KERNEL_LAZY_HASHDIR"
 }
 
 module_is_host_only() (

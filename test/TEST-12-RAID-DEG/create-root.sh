@@ -6,7 +6,7 @@ trap 'poweroff -f' EXIT
 for x in 64-lvm.rules 70-mdadm.rules 99-mount-rules; do
     > "/etc/udev/rules.d/$x"
 done
-rm /etc/lvm/lvm.conf
+rm -f -- /etc/lvm/lvm.conf
 udevadm control --reload
 # save a partition at the beginning for future flagging purposes
 sfdisk -C 1280 -H 2 -S 32 -L /dev/sda <<EOF

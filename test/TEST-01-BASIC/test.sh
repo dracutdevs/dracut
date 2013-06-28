@@ -20,7 +20,7 @@ test_run() {
 }
 
 test_setup() {
-    rm -f $TESTDIR/root.ext3
+    rm -f -- $TESTDIR/root.ext3
     # Create the blank file to use as a root filesystem
     dd if=/dev/null of=$TESTDIR/root.ext3 bs=1M seek=80
 
@@ -66,7 +66,7 @@ test_setup() {
 	-d "piix ide-gd_mod ata_piix ext3 sd_mod" \
         --nomdadmconf \
 	-f $TESTDIR/initramfs.makeroot $KVERSION || return 1
-    rm -rf $TESTDIR/overlay
+    rm -rf -- $TESTDIR/overlay
     # Invoke KVM and/or QEMU to actually create the target filesystem.
 
     $testdir/run-qemu \

@@ -7,6 +7,6 @@ if [ -e /etc/multipath.conf ]; then
     multipathd -B || multipathd
     need_shutdown
 else
-    rm /etc/udev/rules.d/??-multipath.rules 2>/dev/null
+    rm -- /etc/udev/rules.d/??-multipath.rules 2>/dev/null
 fi
 

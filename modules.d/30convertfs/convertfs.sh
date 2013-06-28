@@ -56,22 +56,22 @@ if ! needconvert; then
 fi
 
 testfile="$ROOT/.usrmovecheck$$"
-rm -f "$testfile"
+rm -f -- "$testfile"
 > "$testfile"
 if [[ ! -e "$testfile" ]]; then
     echo "Cannot write to $ROOT/"
     exit 1
 fi
-rm -f "$testfile"
+rm -f -- "$testfile"
 
 testfile="$ROOT/usr/.usrmovecheck$$"
-rm -f "$testfile"
+rm -f -- "$testfile"
 > "$testfile"
 if [[ ! -e "$testfile" ]]; then
     echo "Cannot write to $ROOT/usr/"
     exit 1
 fi
-rm -f "$testfile"
+rm -f -- "$testfile"
 
 find_mount() {
     local dev mnt etc wanted_dev
@@ -108,11 +108,11 @@ cleanup() {
     for dir in "$ROOT/bin" "$ROOT/sbin" "$ROOT/lib" "$ROOT/lib64" \
 	"$ROOT/usr/bin" "$ROOT/usr/sbin" "$ROOT/usr/lib" \
         "$ROOT/usr/lib64"; do
-        [[ -d "${dir}.usrmove-new" ]] && rm -fr "${dir}.usrmove-new"
+        [[ -d "${dir}.usrmove-new" ]] && rm -fr -- "${dir}.usrmove-new"
         if [[ -d "${dir}.usrmove-old" ]]; then
             mv "$dir" "${dir}.del~"
             mv "${dir}.usrmove-old" "$dir"
-            rm -fr "${dir}.del~"
+            rm -fr -- "${dir}.del~"
         fi
     done
 }
@@ -126,7 +126,7 @@ set -e
 
 # merge / and /usr in new dir in /usr
 for dir in bin sbin lib lib64; do
-    rm -rf "$ROOT/usr/${dir}.usrmove-new"
+    rm -rf -- "$ROOT/usr/${dir}.usrmove-new"
     [[ -L "$ROOT/$dir" ]] && continue
     [[ -d "$ROOT/$dir" ]] || continue
     echo "Make a copy of \`$ROOT/usr/$dir'."
@@ -150,7 +150,7 @@ done
 for dir in bin sbin lib lib64; do
     [[ -d "$ROOT/usr/${dir}.usrmove-new" ]] || continue
     echo "Switch to new \`$ROOT/usr/$dir'."
-    rm -fr "$ROOT/usr/${dir}.usrmove-old"
+    rm -fr -- "$ROOT/usr/${dir}.usrmove-old"
     mv "$ROOT/usr/$dir" "$ROOT/usr/${dir}.usrmove-old"
     mv "$ROOT/usr/${dir}.usrmove-new" "$ROOT/usr/$dir"
 done
@@ -160,7 +160,7 @@ for dir in bin sbin lib lib64; do
     [[ -L "$ROOT/$dir" ]] && continue
     [[ -d "$ROOT/$dir" ]] || continue
     echo "Create \`$ROOT/$dir' symlink."
-    rm -rf "$ROOT/${dir}.usrmove-old" || :
+    rm -fr -- "$ROOT/${dir}.usrmove-old" || :
     mv "$ROOT/$dir" "$ROOT/${dir}.usrmove-old"
     ln -sfn usr/$dir "$ROOT/$dir"
 done
@@ -178,9 +178,9 @@ done
 
 for dir in bin sbin lib lib64; do
     [[ -d "$ROOT/usr/${dir}.usrmove-old~" ]] \
-        && rm -rf "$ROOT/usr/${dir}.usrmove-old~" || :
+        && rm -rf -- "$ROOT/usr/${dir}.usrmove-old~" || :
     [[ -d "$ROOT/${dir}.usrmove-old~" ]] \
-        && rm -rf "$ROOT/${dir}.usrmove-old~" || :
+        && rm -rf -- "$ROOT/${dir}.usrmove-old~" || :
 done
 
 for dir in lib lib64; do

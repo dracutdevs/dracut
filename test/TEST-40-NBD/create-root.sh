@@ -3,7 +3,7 @@
 for x in 64-lvm.rules 70-mdadm.rules 99-mount-rules; do
     > "/etc/udev/rules.d/$x"
 done
-rm /etc/lvm/lvm.conf
+rm -f -- /etc/lvm/lvm.conf
 udevadm control --reload
 echo -n test >keyfile
 cryptsetup -q luksFormat /dev/sdb /keyfile

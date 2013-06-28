@@ -21,6 +21,6 @@ echo options: $options
 mount.cifs //$server/$path $NEWROOT -o $options && { [ -e /dev/root ] || ln -s null /dev/root ; }
 
 # inject new exit_if_exists
-echo 'settle_exit_if_exists="--exit-if-exists=/dev/root"; rm "$job"' > $hookdir/initqueue/cifs.sh
+echo 'settle_exit_if_exists="--exit-if-exists=/dev/root"; rm -f -- "$job"' > $hookdir/initqueue/cifs.sh
 # force udevsettle to break
 > $hookdir/initqueue/work

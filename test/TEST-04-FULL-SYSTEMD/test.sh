@@ -46,8 +46,8 @@ test_run() {
 }
 
 test_setup() {
-    rm -f $TESTDIR/root.btrfs
-    rm -f $TESTDIR/usr.btrfs
+    rm -f -- $TESTDIR/root.btrfs
+    rm -f -- $TESTDIR/usr.btrfs
     # Create the blank file to use as a root filesystem
     dd if=/dev/null of=$TESTDIR/root.btrfs bs=1M seek=320
     dd if=/dev/null of=$TESTDIR/usr.btrfs bs=1M seek=320
@@ -243,7 +243,7 @@ EOF
 #    echo $TESTDIR/overlay
 #    echo $TESTDIR/initramfs.makeroot
 #exit 1
-    rm -rf $TESTDIR/overlay
+    rm -rf -- $TESTDIR/overlay
 
     $testdir/run-qemu \
 	-hda $TESTDIR/root.btrfs \
@@ -268,7 +268,7 @@ EOF
 	-d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \
 	-f $TESTDIR/initramfs.testing $KVERSION || return 1
 
-    rm -rf $TESTDIR/overlay
+    rm -rf -- $TESTDIR/overlay
 
 #	-o "plymouth network md dmraid multipath fips caps crypt btrfs resume dmsquash-live dm"
 }

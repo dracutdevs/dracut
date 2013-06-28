@@ -18,7 +18,7 @@ Environment=NEWROOT=/sysroot
 WorkingDirectory=/
 ExecStartPre=-/bin/plymouth quit
 ExecStart=-/bin/sh -i -l
-ExecStopPost=-/bin/rm -f /.console_lock
+ExecStopPost=-/bin/rm -f -- /.console_lock
 ExecStopPost=-/usr/bin/systemctl --fail --no-block default
 Type=idle
 StandardInput=tty-force

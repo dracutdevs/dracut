@@ -661,7 +661,7 @@ readonly initdir=$(mktemp --tmpdir="$TMPDIR/" -d -t initramfs.XXXXXX)
 }
 
 # clean up after ourselves no matter how we die.
-trap 'ret=$?;[[ $outfile ]] && [[ -f $outfile.$$ ]] && rm -f "$outfile.$$";[[ $keep ]] && echo "Not removing $initdir." >&2 || { [[ $initdir ]] && rm -rf "$initdir";exit $ret; };' EXIT
+trap 'ret=$?;[[ $outfile ]] && [[ -f $outfile.$$ ]] && rm -f -- "$outfile.$$";[[ $keep ]] && echo "Not removing $initdir." >&2 || { [[ $initdir ]] && rm -rf -- "$initdir";exit $ret; };' EXIT
 # clean up after ourselves no matter how we die.
 trap 'exit 1;' SIGINT
 
@@ -682,7 +682,7 @@ if ! $DRACUT_INSTALL ${initdir+-D "$initdir"} -R "$initdir/bin/sh" &>/dev/null; 
     unset DRACUT_RESOLVE_LAZY
     export DRACUT_RESOLVE_DEPS=1
 fi
-rm -fr ${initdir}/*
+rm -fr -- ${initdir}/*
 
 if [[ -f $dracutbasedir/dracut-version.sh ]]; then
     . $dracutbasedir/dracut-version.sh
@@ -1153,8 +1153,8 @@ if [[ $UID = 0 ]] && [[ $PRELINK_BIN ]]; then
         dinfo "*** Pre-linking files ***"
         dracut_install -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf
         chroot "$initdir" $PRELINK_BIN -a
-        rm -f "$initdir"/$PRELINK_BIN
-        rm -fr "$initdir"/etc/prelink.*
+        rm -f -- "$initdir"/$PRELINK_BIN
+        rm -fr -- "$initdir"/etc/prelink.*
         dinfo "*** Pre-linking files done ***"
     fi
 fi
@@ -1205,7 +1205,7 @@ if [[ $do_strip = yes ]] ; then
     dinfo "*** Stripping files done ***"
 fi
 
-rm -f "$outfile"
+rm -f -- "$outfile"
 dinfo "*** Creating image file ***"
 if ! ( umask 077; cd "$initdir"; find . |cpio -R 0:0 -H newc -o --quiet| \
     $compress > "$outfile.$$"; ); then

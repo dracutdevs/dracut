@@ -76,7 +76,7 @@ source_hook netroot $netif
 # Run the handler; don't store the root, it may change from device to device
 # XXX other variables to export?
 if $handler $netif $netroot $NEWROOT; then
-    rm -f $hookdir/initqueue/finished/dhcp.sh
+    rm -f -- $hookdir/initqueue/finished/dhcp.sh
     # Network rootfs mount successful - save interface info for ifcfg etc.
     save_netinfo $netif
 fi

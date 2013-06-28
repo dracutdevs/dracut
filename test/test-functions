@@ -46,8 +46,8 @@ while (($# > 0)); do
         --clean)
 	    echo "TEST CLEANUP: $TEST_DESCRIPTION"
 	    test_cleanup
-	    rm -fr "$TESTDIR"
-	    rm -f .testdir
+	    rm -fr -- "$TESTDIR"
+	    rm -f -- .testdir
 	    exit $?;;
         --all)
             check_root
@@ -63,8 +63,8 @@ while (($# > 0)); do
 		test_setup && test_run
 		ret=$?
 		test_cleanup
-		rm -fr "$TESTDIR"
-		rm -f .testdir
+		rm -fr -- "$TESTDIR"
+		rm -f -- .testdir
 		exit $ret
 	    ) </dev/null >test.log 2>&1
             else
@@ -73,15 +73,15 @@ while (($# > 0)); do
 		test_setup && test_run
 		ret=$?
 		test_cleanup
-		rm -fr "$TESTDIR"
-		rm -f .testdir
+		rm -fr -- "$TESTDIR"
+		rm -f -- .testdir
 		exit $ret
 	    ) </dev/null 2>&1 | tee test.log
             fi
 	    ret=$?
             set +o pipefail
 	    if [ $ret -eq 0 ]; then
-               rm test.log
+               rm -- test.log
                SETCOLOR_SUCCESS
 	       echo "[OK]"
                SETCOLOR_NORMAL

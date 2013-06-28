@@ -66,8 +66,8 @@ mount_root() {
     info "Remounting ${root#virtfs:} with -o ${rflags}"
     mount -t ${rootfs} -o "$rflags" "${root#virtfs:}" "$NEWROOT" 2>&1 | vinfo
 
-    [ -f "$NEWROOT"/forcefsck ] && rm -f "$NEWROOT"/forcefsck 2>/dev/null
-    [ -f "$NEWROOT"/.autofsck ] && rm -f "$NEWROOT"/.autofsck 2>/dev/null
+    [ -f "$NEWROOT"/forcefsck ] && rm -f -- "$NEWROOT"/forcefsck 2>/dev/null
+    [ -f "$NEWROOT"/.autofsck ] && rm -f -- "$NEWROOT"/.autofsck 2>/dev/null
 }
 
 if [ -n "$root" -a -z "${root%%virtfs:*}" ]; then

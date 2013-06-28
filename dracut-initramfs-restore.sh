@@ -17,13 +17,13 @@ cd /run/initramfs
 
 [ -f .need_shutdown -a -f "$IMG" ] || exit 1
 if zcat "$IMG"  | cpio -id --quiet >/dev/null; then
-    rm .need_shutdown
+    rm -f -- .need_shutdown
 elif xzcat "$IMG"  | cpio -id --quiet >/dev/null; then
-    rm .need_shutdown
+    rm -f -- .need_shutdown
 else
     # something failed, so we clean up
     echo "Unpacking of $IMG to /run/initramfs failed" >&2
-    rm -f /run/initramfs/shutdown
+    rm -f -- /run/initramfs/shutdown
     exit 1
 fi
 

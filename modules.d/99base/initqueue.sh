@@ -46,7 +46,7 @@ shift
 [ -x "$exe" ] || exe=$(command -v $exe)
 
 {
-    [ -n "$onetime" ] && echo '[ -e "$job" ] && rm "$job"'
+    [ -n "$onetime" ] && echo '[ -e "$job" ] && rm -f -- "$job"'
     [ -n "$env" ] && echo "$env"
     echo "$exe $@"
 } > "/tmp/$$-${job}.sh"

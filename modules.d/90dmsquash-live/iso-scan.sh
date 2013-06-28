@@ -24,7 +24,7 @@ do_iso_scan() {
         mount -t auto -o ro "$dev" "/run/initramfs/isoscan" || continue
         if [ -f "/run/initramfs/isoscan/$isofile" ]; then
             losetup -f "/run/initramfs/isoscan/$isofile"
-            rm -f "$job"
+            rm -f -- "$job"
             exit 0
         else
             umount "/run/initramfs/isoscan"

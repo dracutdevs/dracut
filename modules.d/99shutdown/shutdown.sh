@@ -86,7 +86,7 @@ _check_shutdown() {
         [ -e "$__f" ] || continue
         ( . "$__f" $1 )
         if [ $? -eq 0 ]; then
-            rm -f $__f
+            rm -f -- $__f
             __s=0
         fi
     done

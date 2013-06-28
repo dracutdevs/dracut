@@ -23,6 +23,6 @@ source_hook cleanup
 getarg rd.break -d rdbreak && emergency_shell -n switch_root "Break before switch_root"
 
 # remove helper symlink
-[ -h /dev/root ] && rm -f /dev/root
+[ -h /dev/root ] && rm -f -- /dev/root
 
 exit 0

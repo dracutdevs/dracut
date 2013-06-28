@@ -125,7 +125,7 @@ if [ -z "$LVS" -o -n "$VGS" ]; then
 fi
 
 if [ "$lvmwritten" ]; then
-    rm -f /etc/lvm/lvm.conf
+    rm -f -- /etc/lvm/lvm.conf
 fi
 unset lvmwritten
 

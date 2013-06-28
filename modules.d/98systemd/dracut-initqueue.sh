@@ -30,7 +30,7 @@ while :; do
     check_finished && break
 
     if [ -f $hookdir/initqueue/work ]; then
-        rm $hookdir/initqueue/work
+        rm -f -- "$hookdir/initqueue/work"
     fi
 
     for job in $hookdir/initqueue/*.sh; do

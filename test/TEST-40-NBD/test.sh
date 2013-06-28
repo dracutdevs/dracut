@@ -181,7 +181,7 @@ client_run() {
 
     if [[ -s server.pid ]]; then
         sudo kill -TERM $(cat $TESTDIR/server.pid)
-        rm -f $TESTDIR/server.pid
+        rm -f -- $TESTDIR/server.pid
     fi
 
 }
@@ -229,7 +229,7 @@ make_encrypted_root() {
         -m "dash crypt lvm mdraid udev-rules base rootfs-block kernel-modules" \
         -d "piix ide-gd_mod ata_piix ext2 ext3 sd_mod" \
         -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
-    rm -rf $TESTDIR/overlay
+    rm -rf -- $TESTDIR/overlay
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     $testdir/run-qemu \
@@ -276,7 +276,7 @@ make_client_root() {
     )
 
     sudo umount $TESTDIR/mnt
-    rm -fr $TESTDIR/mnt
+    rm -fr -- $TESTDIR/mnt
 }
 
 make_server_root() {
@@ -321,7 +321,7 @@ make_server_root() {
     )
 
     sudo umount $TESTDIR/mnt
-    rm -fr $TESTDIR/mnt
+    rm -fr -- $TESTDIR/mnt
 }
 
 test_setup() {
@@ -366,7 +366,7 @@ test_setup() {
 kill_server() {
     if [[ -s $TESTDIR/server.pid ]]; then
         sudo kill -TERM $(cat $TESTDIR/server.pid)
-        rm -f $TESTDIR/server.pid
+        rm -f -- $TESTDIR/server.pid
     fi
 }
 
