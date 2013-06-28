@@ -5,10 +5,10 @@ TEST_DESCRIPTION="Full systemd serialization/deserialization test with /usr moun
 export KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-#DEBUGFAIL="rd.shell rd.break"
+DEBUGFAIL="rd.shell rd.break"
 #DEBUGFAIL="rd.shell"
 #DEBUGOUT="quiet systemd.log_level=debug systemd.log_target=console loglevel=77  rd.info rd.debug"
-DEBUGOUT="loglevel=0 systemd.log_level=debug"
+DEBUGOUT="loglevel=0 "
 client_run() {
     local test_name="$1"; shift
     local client_opts="$*"
@@ -21,7 +21,7 @@ client_run() {
 	-hdb $TESTDIR/usr.btrfs \
 	-hdc $TESTDIR/result \
 	-m 256M -smp 2 -nographic \
-	-net none -kernel /boot/vmlinuz-$KVERSION \
+	-net none \
 	-append "root=LABEL=dracut $client_opts rd.retry=3 console=ttyS0,115200n81 selinux=0 $DEBUGOUT $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
 
@@ -72,7 +72,7 @@ test_setup() {
 
 	dracut_install sh df free ls shutdown poweroff stty cat ps ln ip route \
 	    mount dmesg ifconfig dhclient mkdir cp ping dhclient \
-	    umount strace less setsid tree systemctl
+	    umount strace less setsid tree systemctl reset
 
 	for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
@@ -87,12 +87,17 @@ test_setup() {
         inst /lib/systemd/systemd-remount-fs
         inst /lib/systemd/system/systemd-journal-flush.service
         inst /etc/sysconfig/init
+	inst /lib/systemd/system/slices.target
+	inst /lib/systemd/system/system.slice
+	dracut_install -o /lib/systemd/system/dracut*
 
         # make a journal directory
         mkdir -p $initdir/var/log/journal
 
         # install some basic config files
         dracut_install -o  \
+	    /etc/machine-id \
+	    /etc/adjtime \
             /etc/sysconfig/init \
             /etc/passwd \
             /etc/shadow \
@@ -106,10 +111,6 @@ test_setup() {
 
         # we want an empty environment
         > $initdir/etc/environment
-        > $initdir/etc/machine-id
-
-        # set the hostname
-        echo  systemd-testsuite > $initdir/etc/hostname
 
         # setup the testsuite target
         cat >$initdir/etc/systemd/system/testsuite.target <<EOF
@@ -248,7 +249,6 @@ EOF
 	-hda $TESTDIR/root.btrfs \
 	-hdb $TESTDIR/usr.btrfs \
 	-m 256M -smp 2 -nographic -net none \
-	-kernel "/boot/vmlinuz-$kernel" \
 	-append "root=/dev/fakeroot rw rootfstype=btrfs quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
     grep -F -m 1 -q dracut-root-block-created $TESTDIR/root.btrfs || return 1
@@ -263,6 +263,7 @@ EOF
     )
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-a "debug systemd" \
+	-I "/etc/machine-id /etc/hostname" \
         -o "dash network plymouth lvm mdraid resume crypt i18n caps dm terminfo usrmount" \
 	-d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \
 	-f $TESTDIR/initramfs.testing $KVERSION || return 1
