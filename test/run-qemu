@@ -14,4 +14,15 @@ $(lsmod | grep -q '^kqemu ') && BIN=/usr/bin/qemu && ARGS="-kernel-kqemu "
    echo "Please install kvm or qemu." >&2
    exit 1
 }
-exec sudo $BIN $ARGS "$@"
+
+KVERSION=${KVERSION-$(uname -r)}
+
+[[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
+
+if [[ $MACHINE_ID ]] && ( [[ -d /boot/${MACHINE_ID} ]] || [[ -L /boot/${MACHINE_ID} ]] ); then
+    VMLINUZ="/boot/${MACHINE_ID}/$KVERSION/linux"
+else
+    VMLINUZ="/boot/vmlinuz-${KVERSION}"
+fi
+
+exec sudo $BIN $ARGS -kernel $VMLINUZ "$@"
