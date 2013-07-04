@@ -3,7 +3,7 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 check() {
-    [ "$1" = "-h" ] && {
+    [[ $hostonly ]] && {
         [ -x "/bin/keyctl" ] || return 1
     }
 
