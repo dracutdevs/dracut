@@ -118,11 +118,11 @@ fi
 images+=($@)
 
 dinfo "Using base image $baseimage"
-cat "$baseimage" > "$outfile"
+cat -- "$baseimage" > "$outfile"
 
 for i in "${images[@]}"; do
     dinfo "Appending $i"
-    cat "$i" >> "$outfile"
+    cat -- "$i" >> "$outfile"
 done
 
 dinfo "Created $outfile"

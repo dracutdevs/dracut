@@ -24,7 +24,7 @@ install() {
 #        exit 1
 #    fi
 
-    if strstr "$prefix" "/run/"; then
+    if [[ "$prefix" == /run/* ]]; then
         dfatal "systemd does not work with a prefix, which contains \"/run\"!!"
         exit 1
     fi

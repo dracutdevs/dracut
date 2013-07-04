@@ -54,9 +54,9 @@ killall_proc_mountpoint() {
         case $_pid in
             *[!0-9]*) continue;;
         esac
-        [ -e /proc/$_pid/exe ] || continue
-        [ -e /proc/$_pid/root ] || continue
-        strstr "$(ls -l /proc/$_pid /proc/$_pid/fd 2>/dev/null)" "$1" && kill -9 $_pid
+        [ -e "/proc/$_pid/exe" ] || continue
+        [ -e "/proc/$_pid/root" ] || continue
+        strstr "$(ls -l -- '/proc/$_pid' '/proc/$_pid/fd' 2>/dev/null)" "$1" && kill -9 "$_pid"
     done
 }
 
@@ -107,7 +107,7 @@ _dogetarg() {
                 continue
             fi
 
-            _val=${_o#*=};
+            _val="${_o#*=}"
             _doecho=1
         fi
     done
@@ -145,7 +145,7 @@ getarg() {
                 _deprecated=0
                 shift 2;;
             *)  if [ -z "$_newoption" ]; then
-                    _newoption=$1
+                    _newoption="$1"
                 fi
                 if _dogetarg $1; then
                     if [ "$_deprecated" = "1" ]; then
@@ -173,9 +173,9 @@ getargbool() {
     local _b
     unset _b
     local _default
-    _default=$1; shift
+    _default="$1"; shift
     _b=$(getarg "$@")
-    [ $? -ne 0 -a -z "$_b" ] && _b=$_default
+    [ $? -ne 0 -a -z "$_b" ] && _b="$_default"
     if [ -n "$_b" ]; then
         [ $_b = "0" ] && return 1
         [ $_b = "no" ] && return 1
@@ -201,14 +201,14 @@ getargnum() {
     local _b
     unset _b
     local _default _min _max
-    _default=$1; shift
-    _min=$1; shift
-    _max=$1; shift
+    _default="$1"; shift
+    _min="$1"; shift
+    _max="$1"; shift
     _b=$(getarg "$1")
     [ $? -ne 0 -a -z "$_b" ] && _b=$_default
     if [ -n "$_b" ]; then
         isdigit "$_b" && _b=$(($_b)) && \
-        [ $_b -ge $_min ] && [ $_b -le $_max ] && echo $_b && return
+          [ $_b -ge $_min ] && [ $_b -le $_max ] && echo $_b && return
     fi
     echo $_default
 }
@@ -219,7 +219,7 @@ _dogetargs() {
     unset _o
     unset _found
     _getcmdline
-    _key=$1
+    _key="$1"
     set --
     for _o in $CMDLINE; do
         if [ "$_o" = "$_key" ]; then
@@ -364,7 +364,7 @@ source_hook() {
 
 check_finished() {
     local f
-    for f in $hookdir/initqueue/finished/*.sh; do 
+    for f in $hookdir/initqueue/finished/*.sh; do
         [ "$f" = "$hookdir/initqueue/finished/*.sh" ] && return 0
         { [ -e "$f" ] && ( . "$f" ) ; } || return 1
     done
@@ -387,7 +387,7 @@ die() {
         echo "warn dracut: FATAL: \"$*\"";
         echo "warn dracut: Refusing to continue";
     } >> $hookdir/emergency/01-die.sh
-    [ -d /run/initramfs ] || mkdir -p /run/initramfs
+    [ -d /run/initramfs ] || mkdir -p -- /run/initramfs
     > /run/initramfs/.die
     emergency_shell
     exit 1
@@ -578,7 +578,7 @@ udevmatch() {
     UUID=*)
         printf 'ENV{ID_FS_UUID}=="%s*"' "${1#*=}"
         ;;
-    /dev/?*) printf 'KERNEL=="%s"' "${1#/dev/}" ;;
+    /dev/?*) printf -- 'KERNEL=="%s"' "${1#/dev/}" ;;
     *) return 255 ;;
     esac
 }

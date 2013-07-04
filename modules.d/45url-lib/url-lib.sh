@@ -23,7 +23,7 @@ fetch_url() {
     local handler="$(get_url_handler $url)"
     [ -n "$handler" ] || return 254
     [ -n "$url" ] || return 255
-    $handler "$url" "$outloc"
+    "$handler" "$url" "$outloc"
 }
 
 # get_url_handler URL
@@ -64,7 +64,7 @@ curl_fetch_url() {
     local url="$1" outloc="$2"
     echo "$url" > /proc/self/fd/0
     if [ -n "$outloc" ]; then
-        curl $curl_args --output "$outloc" "$url" || return $?
+        curl $curl_args --output "$outloc" -- "$url" || return $?
     else
         local outdir="$(mkuniqdir /tmp curl_fetch_url)"
         ( cd "$outdir"; curl $curl_args --remote-name "$url" || return $? )
@@ -106,18 +106,18 @@ nfs_fetch_url() {
     local filepath="${path%/*}" filename="${path##*/}" mntdir=""
 
     # skip mount if server:/filepath is already mounted
-    mntdir=$(nfs_already_mounted $server $path)
+    mntdir=$(nfs_already_mounted "$server" "$path")
     if [ -z "$mntdir" ]; then
         local mntdir="$(mkuniqdir /run nfs_mnt)"
-        mount_nfs $nfs:$server:$filepath${options:+:$options} $mntdir
+        mount_nfs "$nfs:$server:$filepath${options:+:$options}" "$mntdir"
         # lazy unmount during pre-pivot hook
-        inst_hook --hook pre-pivot --name 99url-lib-umount-nfs umount -l $mntdir
+        inst_hook --hook pre-pivot --name 99url-lib-umount-nfs umount -l -- "$mntdir"
     fi
 
     if [ -z "$outloc" ]; then
         outloc="$mntdir/$filename"
     else
-        cp -f "$mntdir/$filename" "$outloc" || return $?
+        cp -f -- "$mntdir/$filename" "$outloc" || return $?
     fi
     [ -f "$outloc" ] || return 253
     if [ -z "$2" ]; then echo "$outloc" ; fi

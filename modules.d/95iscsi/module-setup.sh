@@ -10,19 +10,21 @@ check() {
     # If hostonly was requested, fail the check if we are not actually
     # booting from root.
 
-    is_iscsi() (
+    is_iscsi() {
         local _dev=$1
 
-        [[ -L /sys/dev/block/$_dev ]] || return
-        cd "$(readlink -f /sys/dev/block/$_dev)"
+        [[ -L "/sys/dev/block/$_dev" ]] || return
+        cd "$(readlink -f "/sys/dev/block/$_dev")"
         until [[ -d sys || -d iscsi_session ]]; do
             cd ..
         done
         [[ -d iscsi_session ]]
-    )
+    }
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
+        pushd . >/dev/null
         for_each_host_dev_and_slaves is_iscsi || return 1
+        popd >/dev/null
     }
     return 0
 }

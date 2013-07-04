@@ -126,7 +126,7 @@ if (( ${#filenames[@]} > 0 )); then
     for f in ${!filenames[@]}; do
         [[ $nofileinfo ]] || echo "initramfs:/$f"
         [[ $nofileinfo ]] || echo "========================================================================"
-        $CAT $image | cpio --extract --verbose --quiet --to-stdout $f 2>/dev/null
+        $CAT -- $image | cpio --extract --verbose --quiet --to-stdout $f 2>/dev/null
         ((ret+=$?))
         [[ $nofileinfo ]] || echo "========================================================================"
         [[ $nofileinfo ]] || echo
@@ -134,16 +134,16 @@ if (( ${#filenames[@]} > 0 )); then
 else
     echo "Image: $image: $(du -h $image | while read a b; do echo $a;done)"
     echo "========================================================================"
-    version=$($CAT "$image" | cpio --extract --verbose --quiet --to-stdout '*lib/dracut/dracut-*' 2>/dev/null)
+    version=$($CAT -- "$image" | cpio --extract --verbose --quiet --to-stdout -- '*lib/dracut/dracut-*' 2>/dev/null)
     ((ret+=$?))
     echo "$version with dracut modules:"
-    $CAT "$image" | cpio --extract --verbose --quiet --to-stdout 'usr/lib/dracut/modules.txt' 2>/dev/null
+    $CAT -- "$image" | cpio --extract --verbose --quiet --to-stdout -- 'usr/lib/dracut/modules.txt' 2>/dev/null
     ((ret+=$?))
     echo "========================================================================"
     if [ "$sorted" -eq 1 ]; then
-        $CAT "$image" | cpio --extract --verbose --quiet --list | sort -n -k5
+        $CAT -- "$image" | cpio --extract --verbose --quiet --list | sort -n -k5
     else
-        $CAT "$image" | cpio --extract --verbose --quiet --list | sort -k9
+        $CAT -- "$image" | cpio --extract --verbose --quiet --list | sort -k9
     fi
     ((ret+=$?))
     echo "========================================================================"

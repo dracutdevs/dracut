@@ -34,7 +34,7 @@ install() {
         eval $(udevadm info --query=property --name=$1 | egrep '(DM_VG_NAME|DM_LV_NAME|DM_UDEV_DISABLE_DISK_RULES_FLAG)=')
         [[ "$DM_UDEV_DISABLE_DISK_RULES_FLAG" = "1" ]] && return 1
         [[ ${DM_VG_NAME} ]] && [[ ${DM_LV_NAME} ]] || return 1
-        if ! strstr " ${_activated[*]} " " ${DM_VG_NAME}/${DM_LV_NAME} "; then
+        if ! [[ " ${_activated[*]} " == *\ ${DM_VG_NAME}/${DM_LV_NAME}\ * ]]; then
             if ! [[ $kernel_only ]]; then
                 echo " rd.lvm.lv=${DM_VG_NAME}/${DM_LV_NAME} " >> "${initdir}/etc/cmdline.d/90lvm.conf"
             fi

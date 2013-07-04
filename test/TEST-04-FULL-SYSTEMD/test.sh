@@ -5,7 +5,7 @@ TEST_DESCRIPTION="Full systemd serialization/deserialization test with /usr moun
 export KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-DEBUGFAIL="rd.shell rd.break"
+#DEBUGFAIL="rd.shell rd.break"
 #DEBUGFAIL="rd.shell"
 #DEBUGOUT="quiet systemd.log_level=debug systemd.log_target=console loglevel=77  rd.info rd.debug"
 DEBUGOUT="loglevel=0 "

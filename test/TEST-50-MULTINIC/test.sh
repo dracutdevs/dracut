@@ -13,20 +13,20 @@ run_server() {
     # Start server first
     echo "MULTINIC TEST SETUP: Starting DHCP/NFS server"
 
-    fsck -a $TESTDIR/server.ext3 || return 1
+    fsck -a "$TESTDIR"/server.ext3 || return 1
     $testdir/run-qemu \
-        -hda $TESTDIR/server.ext3 \
+        -hda "$TESTDIR"/server.ext3 \
         -m 512M -smp 2 \
         -display none \
         -net socket,listen=127.0.0.1:12350 \
         -net nic,macaddr=52:54:01:12:34:56,model=e1000 \
-        ${SERIAL+-serial $SERIAL} \
+        ${SERIAL+-serial "$SERIAL"} \
         -watchdog i6300esb -watchdog-action poweroff \
-        -kernel /boot/vmlinuz-$KVERSION \
+        -kernel /boot/vmlinuz-"$KVERSION" \
         -append "loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
-        -initrd $TESTDIR/initramfs.server \
-        -pidfile $TESTDIR/server.pid -daemonize || return 1
-    sudo chmod 644 $TESTDIR/server.pid || return 1
+        -initrd "$TESTDIR"/initramfs.server \
+        -pidfile "$TESTDIR"/server.pid -daemonize || return 1
+    sudo chmod 644 -- "$TESTDIR"/server.pid || return 1
 
     # Cleanup the terminal if we have one
     tty -s && stty sane
@@ -46,22 +46,22 @@ client_test() {
     echo "CLIENT TEST START: $test_name"
 
     # Need this so kvm-qemu will boot (needs non-/dev/zero local disk)
-    if ! dd if=/dev/zero of=$TESTDIR/client.img bs=1M count=1; then
+    if ! dd if=/dev/zero of="$TESTDIR"/client.img bs=1M count=1; then
         echo "Unable to make client sda image" 1>&2
         return 1
     fi
 
-    $testdir/run-qemu -hda $TESTDIR/client.img -m 512M -smp 2 -nographic \
+    $testdir/run-qemu -hda "$TESTDIR"/client.img -m 512M -smp 2 -nographic \
         -net socket,connect=127.0.0.1:12350 \
         -net nic,macaddr=52:54:00:12:34:$mac1,model=e1000 \
         -net nic,macaddr=52:54:00:12:34:$mac2,model=e1000 \
         -net nic,macaddr=52:54:00:12:34:$mac3,model=e1000 \
         -watchdog i6300esb -watchdog-action poweroff \
-        -kernel /boot/vmlinuz-$KVERSION \
+        -kernel /boot/vmlinuz-"$KVERSION" \
         -append "$cmdline $DEBUGFAIL rd.retry=5 ro console=ttyS0,115200n81 selinux=0 init=/sbin/init rd.debug systemd.log_target=console loglevel=7" \
-        -initrd $TESTDIR/initramfs.testing
+        -initrd "$TESTDIR"/initramfs.testing
 
-    if [[ $? -ne 0 ]] || ! grep -F -m 1 -q OK $TESTDIR/client.img; then
+    if [[ $? -ne 0 ]] || ! grep -F -m 1 -q OK -- "$TESTDIR"/client.img; then
         echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
         return 1
     fi
@@ -69,7 +69,7 @@ client_test() {
 
     for i in $check ; do
         echo $i
-        if ! grep -F -m 1 -q $i $TESTDIR/client.img; then
+        if ! grep -F -m 1 -q $i -- "$TESTDIR"/client.img; then
             echo "CLIENT TEST END: $test_name [FAILED - BAD IF]"
             return 1
         fi
@@ -129,20 +129,20 @@ test_client() {
 
 test_setup() {
      # Make server root
-    dd if=/dev/null of=$TESTDIR/server.ext3 bs=1M seek=60
-    mke2fs -j -F $TESTDIR/server.ext3
-    mkdir $TESTDIR/mnt
-    sudo mount -o loop $TESTDIR/server.ext3 $TESTDIR/mnt
+    dd if=/dev/null of="$TESTDIR"/server.ext3 bs=1M seek=60
+    mke2fs -j -F -- "$TESTDIR"/server.ext3
+    mkdir -- "$TESTDIR"/mnt
+    sudo mount -o loop -- "$TESTDIR"/server.ext3 "$TESTDIR"/mnt
 
     (
-        export initdir=$TESTDIR/mnt
-        . $basedir/dracut-functions.sh
+        export initdir="$TESTDIR"/mnt
+        . "$basedir"/dracut-functions.sh
 
         (
             cd "$initdir";
-            mkdir -p dev sys proc run etc var/run tmp var/lib/{dhcpd,rpcbind}
-            mkdir -p var/lib/nfs/{v4recovery,rpc_pipefs}
-            chmod 777 var/lib/rpcbind var/lib/nfs
+            mkdir -p -- dev sys proc run etc var/run tmp var/lib/{dhcpd,rpcbind}
+            mkdir -p -- var/lib/nfs/{v4recovery,rpc_pipefs}
+            chmod 777 -- var/lib/rpcbind var/lib/nfs
         )
 
         for _f in modules.builtin.bin modules.builtin; do
@@ -161,9 +161,9 @@ test_setup() {
             modprobe rpc.nfsd rpc.mountd showmount tcpdump \
             /etc/services sleep mount chmod
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
-            [ -f ${_terminfodir}/l/linux ] && break
+            [ -f "${_terminfodir}"/l/linux ] && break
         done
-        dracut_install -o ${_terminfodir}/l/linux
+        dracut_install -o "${_terminfodir}"/l/linux
         type -P portmap >/dev/null && dracut_install portmap
         type -P rpcbind >/dev/null && dracut_install rpcbind
         [ -f /etc/netconfig ] && dracut_install /etc/netconfig
@@ -194,27 +194,27 @@ test_setup() {
         inst /etc/passwd /etc/passwd
         inst /etc/group /etc/group
 
-        cp -a /etc/ld.so.conf* $initdir/etc
-        sudo ldconfig -r "$initdir"
+        cp -a -- /etc/ld.so.conf* "$initdir"/etc
+        sudo ldconfig -r -- "$initdir"
         dracut_kernel_post
     )
 
     # Make client root inside server root
     (
-        export initdir=$TESTDIR/mnt/nfs/client
-        . $basedir/dracut-functions.sh
+        export initdir="$TESTDIR"/mnt/nfs/client
+        . "$basedir"/dracut-functions.sh
         dracut_install sh shutdown poweroff stty cat ps ln ip \
             mount dmesg mkdir cp ping grep ls
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
-            [ -f ${_terminfodir}/l/linux ] && break
+            [[ -f ${_terminfodir}/l/linux ]] && break
         done
-        dracut_install -o ${_terminfodir}/l/linux
+        dracut_install -o "${_terminfodir}"/l/linux
         inst_simple /etc/os-release
         inst ./client-init.sh /sbin/init
         (
             cd "$initdir"
-            mkdir -p dev sys proc etc run
-            mkdir -p var/lib/nfs/rpc_pipefs
+            mkdir -p -- dev sys proc etc run
+            mkdir -p -- var/lib/nfs/rpc_pipefs
         )
         inst /etc/nsswitch.conf /etc/nsswitch.conf
         inst /etc/passwd /etc/passwd
@@ -225,47 +225,47 @@ test_setup() {
         inst_libdir_file 'libnfsidmap/*.so*'
         inst_libdir_file 'libnfsidmap*.so*'
 
-        _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
+        _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' -- /etc/nsswitch.conf \
             |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
         _nsslibs=${_nsslibs#|}
         _nsslibs=${_nsslibs%|}
 
         inst_libdir_file -n "$_nsslibs" 'libnss_*.so*'
 
-        cp -a /etc/ld.so.conf* $initdir/etc
+        cp -a -- /etc/ld.so.conf* "$initdir"/etc
         sudo ldconfig -r "$initdir"
     )
 
-    sudo umount $TESTDIR/mnt
-    rm -fr -- $TESTDIR/mnt
+    sudo umount "$TESTDIR"/mnt
+    rm -fr -- "$TESTDIR"/mnt
 
     # Make an overlay with needed tools for the test harness
     (
-        export initdir=$TESTDIR/overlay
-        . $basedir/dracut-functions.sh
+        export initdir="$TESTDIR"/overlay
+        . "$basedir"/dracut-functions.sh
         dracut_install poweroff shutdown
         inst_hook emergency 000 ./hard-off.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 
     # Make server's dracut image
-    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
         -m "dash udev-rules base rootfs-block debug kernel-modules watchdog" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files nfsd e1000 i6300esb ib700wdt" \
-        -f $TESTDIR/initramfs.server $KVERSION || return 1
+        -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
 
     # Make client's dracut image
-    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
         -o "plymouth" \
         -a "debug" \
         -d "af_packet piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files sunrpc i6300esb ib700wdt" \
-        -f $TESTDIR/initramfs.testing $KVERSION || return 1
+        -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 }
 
 kill_server() {
-    if [[ -s $TESTDIR/server.pid ]]; then
-        sudo kill -TERM $(cat $TESTDIR/server.pid)
-        rm -f -- $TESTDIR/server.pid
+    if [[ -s "$TESTDIR"/server.pid ]]; then
+        sudo kill -TERM -- $(cat "$TESTDIR"/server.pid)
+        rm -f -- "$TESTDIR"/server.pid
     fi
 }
 
@@ -273,4 +273,4 @@ test_cleanup() {
     kill_server
 }
 
-. $testdir/test-functions
+. "$testdir"/test-functions

@@ -1,7 +1,7 @@
 #!/bin/bash
 TEST_DESCRIPTION="root filesystem on a ext3 filesystem"
 
-KVERSION=${KVERSION-$(uname -r)}
+KVERSION="${KVERSION-$(uname -r)}"
 
 # Uncomment this to debug failures
 #DEBUGFAIL="rd.shell"
