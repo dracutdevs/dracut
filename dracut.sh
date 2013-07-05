@@ -500,6 +500,10 @@ for i in /usr/sbin /sbin /usr/bin /bin; do
     fi
 done
 export PATH="${NPATH#:}"
+unset LC_MESSAGES
+unset LC_CTYPE
+export LC_ALL=C
+export LANG=C
 unset NPATH
 unset LD_LIBRARY_PATH
 unset GREP_OPTIONS
