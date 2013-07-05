@@ -12,6 +12,15 @@ depends() {
 }
 
 install() {
+    if dracut_module_included "systemd"; then
+        [[ -f /etc/vconsole.conf ]] || return 0
+        unset FONT
+        unset KEYMAP
+        . /etc/vconsole.conf
+        # if vconsole.conf has no settings, do not include anything
+        [[ $FONT ]] || [[ $KEYMAP ]] || return 0
+    fi
+
     dracut_install -o $systemdutildir/systemd-vconsole-setup
     KBDSUBDIRS=consolefonts,consoletrans,keymaps,unimaps
     DEFAULT_FONT="${i18n_default_font:-LatArCyrHeb-16}"
