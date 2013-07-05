@@ -15,6 +15,12 @@ mount_boot()
         UUID=*)
             boot="/dev/disk/by-uuid/${boot#UUID=}"
             ;;
+        PARTUUID=*)
+            boot="/dev/disk/by-partuuid/${boot#PARTUUID=}"
+            ;;
+        PARTLABEL=*)
+            boot="/dev/disk/by-partlabel/${boot#PARTLABEL=}"
+            ;;
         /dev/*)
             ;;
         *)

@@ -34,6 +34,14 @@ case "$liveroot" in
         root="${root#live:}"
         root="live:/dev/disk/by-uuid/${root#UUID=}"
         rootok=1 ;;
+    live:PARTUUID=*|PARTUUID=*) \
+        root="${root#live:}"
+        root="live:/dev/disk/by-partuuid/${root#PARTUUID=}"
+        rootok=1 ;;
+    live:PARTLABEL=*|PARTLABEL=*) \
+        root="${root#live:}"
+        root="live:/dev/disk/by-partlabel/${root#PARTLABEL=}"
+        rootok=1 ;;
     live:/*.[Ii][Ss][Oo]|/*.[Ii][Ss][Oo])
         root="${root#live:}"
         root="liveiso:${root}"

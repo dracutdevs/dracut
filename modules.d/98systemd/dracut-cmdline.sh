@@ -57,6 +57,10 @@ case "$root" in
         root="${root#block:}"
         root="block:/dev/disk/by-partuuid/${root#PARTUUID=}"
         rootok=1 ;;
+    block:PARTLABEL=*|PARTLABEL=*)
+        root="${root#block:}"
+        root="block:/dev/disk/by-partlabel/${root#PARTLABEL=}"
+        rootok=1 ;;
     /dev/*)
         root="block:${root}"
         rootok=1 ;;
