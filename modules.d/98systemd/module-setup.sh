@@ -148,10 +148,10 @@ install() {
 
         _mods=$(modules_load_get /etc/modules-load.d)
         [[ $_mods ]] && instmods $_mods
-    else
-        if ! [[ -e "$initdir/etc/machine-id" ]]; then
-            > "$initdir/etc/machine-id"
-        fi
+    fi
+
+    if ! [[ -e "$initdir/etc/machine-id" ]]; then
+        > "$initdir/etc/machine-id"
     fi
 
     # install adm user/group for journald
