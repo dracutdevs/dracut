@@ -60,7 +60,11 @@ install() {
     fi
 
     mkdir -p "${initdir}/var"
-    dracut_install -o $systemdutildir/systemd-timestamp
+
+    if ! dracut_module_included "systemd"; then
+        dracut_install -o $systemdutildir/systemd-timestamp
+    fi
+
     if [[ $realinitpath ]]; then
         for i in $realinitpath; do
             echo "rd.distroinit=$i"
