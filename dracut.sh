@@ -91,6 +91,7 @@ Creates initial ramdisk images for preloading modules
                          firmwares, separated by :
   --kernel-only         Only install kernel drivers and firmware files
   --no-kernel           Do not install kernel drivers and firmware files
+  --no-early-microcode  Do not combine early microcode with ramdisk
   --kernel-cmdline [PARAMETERS] Specify default kernel command line parameters
   --strip               Strip binaries in the initramfs
   --nostrip             Do not strip binaries in the initramfs
@@ -378,6 +379,7 @@ while :; do
         -f|--force)    force=yes;;
         --kernel-only) kernel_only="yes"; no_kernel="no";;
         --no-kernel)   kernel_only="no"; no_kernel="yes";;
+        --no-early-microcode) early_microcode="no";;
         --strip)       do_strip_l="yes";;
         --nostrip)     do_strip_l="no";;
         --hardlink)    do_hardlink_l="yes";;
@@ -646,6 +648,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $show_modules_l ]] && show_modules=$show_modules_l
 [[ $nofscks_l ]] && nofscks="yes"
 [[ $ro_mnt_l ]] && ro_mnt="yes"
+[[ ! $early_microcode ]] && early_microcode="yes"
 # eliminate IFS hackery when messing with fw_dir
 fw_dir=${fw_dir//:/ }
 
@@ -671,8 +674,15 @@ readonly initdir="$(mktemp --tmpdir="$TMPDIR/" -d -t initramfs.XXXXXX)"
     exit 1
 }
 
+if [[ $early_microcode = yes ]]; then
+    readonly microcode_dir="$(mktemp --tmpdir="$TMPDIR/" -d -t early_microcode.XXXXXX)"
+    [ -d "$microcode_dir" ] || {
+        printf "%s\n" "dracut: mktemp --tmpdir=\"$TMPDIR/\" -d -t early_microcode.XXXXXX failed." >&2
+        exit 1
+    }
+fi
 # clean up after ourselves no matter how we die.
-trap 'ret=$?;[[ $outfile ]] && [[ -f $outfile.$$ ]] && rm -f -- "$outfile.$$";[[ $keep ]] && printf "%s\n" "Not removing $initdir." >&2 || { [[ $initdir ]] && rm -rf -- "$initdir";exit $ret; };' EXIT
+trap 'ret=$?;[[ $outfile ]] && [[ -f $outfile.$$ ]] && rm -f -- "$outfile.$$";[[ $keep ]] && echo "Not removing $initdir." >&2 || { [[ $initdir ]] && rm -rf -- "$initdir"; [[ $microcode_dir ]] && rm -Rf -- "$microcode_dir"; exit $ret; };' EXIT
 # clean up after ourselves no matter how we die.
 trap 'exit 1;' SIGINT
 
@@ -1219,11 +1229,40 @@ if [[ $do_strip = yes ]] ; then
 
     dinfo "*** Stripping files done ***"
 fi
-
+if [[ $early_microcode = yes ]]; then
+    dinfo "*** Generating early-microcode cpio image ***"
+    ucode_dir=(amd-ucode intel-ucode)
+    ucode_dest=(AuthenticAMD.bin GenuineIntel.bin)
+    _dest_dir="$microcode_dir/d/kernel/x86/microcode"
+    _dest_idx="0 1"
+    mkdir -p $_dest_dir
+    if [[ $hostonly ]]; then
+        [[ $(get_cpu_vendor) == "AMD" ]] && _dest_idx="0"
+        [[ $(get_cpu_vendor) == "Intel" ]] && _dest_idx="1"
+    fi
+    for idx in $_dest_idx; do
+        _fw=${ucode_dir[$idx]}
+        for _fwdir in $fw_dir; do
+            if [[ -d $_fwdir && -d $_fwdir/$_fw ]]; then
+                _src="*"
+                dinfo "*** Constructing ${ucode_dest[$idx]} ****"
+                if [[ $hostonly ]]; then
+                    _src=$(get_ucode_file)
+                fi
+                cat $_fwdir/$_fw/$_src > $_dest_dir/${ucode_dest[$idx]}
+            fi
+        done
+    done
+    (cd "$microcode_dir/d"; find . | cpio -o -H newc --quiet >../ucode.cpio)
+fi
 rm -f -- "$outfile"
 dinfo "*** Creating image file ***"
-if ! ( umask 077; cd "$initdir"; find . | cpio -R 0:0 -H newc -o --quiet | \
-    $compress > "$outfile.$$"; ); then
+if [[ $early_microcode = yes ]]; then
+    # The microcode blob is _before_ the initramfs blob, not after
+    mv $microcode_dir/ucode.cpio $outfile.$$
+fi
+if ! ( umask 077; cd "$initdir"; find . |cpio -R 0:0 -H newc -o --quiet| \
+    $compress >> "$outfile.$$"; ); then
     dfatal "dracut: creation of $outfile.$$ failed"
     exit 1
 fi
