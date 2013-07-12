@@ -12,7 +12,6 @@ Description=dracut cmdline hook
 Documentation=man:dracut-cmdline.service(8)
 DefaultDependencies=no
 Before=dracut-pre-udev.service
-Before=systemd-vconsole-setup.service
 After=systemd-journald.socket
 Wants=systemd-journald.socket
 ConditionPathExists=/etc/initrd-release
