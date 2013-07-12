@@ -247,7 +247,7 @@ dropindirs_sort()
         for d in "$@"; do
             for i in "$d/"*"$suffix"; do
                 if [[ -e "$i" ]]; then
-                    printf "%s" "${i##*/}"
+                    printf "%s\n" "${i##*/}"
                 fi
             done
         done | sort -Vu
@@ -256,7 +256,7 @@ dropindirs_sort()
     for f in "${files[@]}"; do
         for d in "$@"; do
             if [[ -e "$d/$f" ]]; then
-                printf "%s" "$d/$f"
+                printf "%s\n" "$d/$f"
                 continue 2
             fi
         done
