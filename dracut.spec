@@ -76,6 +76,10 @@ Provides: mkinitrd = 2.6.1
 Obsoletes: dracut-kernel < 005
 Provides:  dracut-kernel = %{version}-%{release}
 
+Obsoletes: dracut <= 029
+Obsoletes: dracut-norescue
+Provides:  dracut-horescue
+
 Requires: bash >= 4
 Requires: coreutils
 Requires: cpio
@@ -158,20 +162,23 @@ Requires: libcap
 This package requires everything which is needed to build an
 initramfs with dracut, which drops capabilities.
 
-%package nohostonly
+%package config-generic
 Summary: dracut configuration to turn off hostonly image generation
 Requires: %{name} = %{version}-%{release}
+Obsoletes: dracut-nohostonly
+Provides:  dracut-nohostonly
 
-%description nohostonly
+%description config-generic
 This package provides the configuration to turn off the host specific initramfs
-generation with dracut.
+generation with dracut and generates a generic image by default.
 
-%package norescue
-Summary: dracut configuration to turn off rescue image generation
+%package config-rescue
+Summary: dracut configuration to turn on rescue image generation
 Requires: %{name} = %{version}-%{release}
+Obsoletes: dracut <= 029
 
-%description norescue
-This package provides the configuration to turn off the rescue initramfs
+%description config-rescue
+This package provides the configuration to turn on the rescue initramfs
 generation with dracut.
 
 %package tools
@@ -258,8 +265,8 @@ rm -f -- $RPM_BUILD_ROOT%{_bindir}/lsinitrd
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/kernel/postinst.d
 install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kernel/postinst.d/51-dracut-rescue-postinst.sh
 
-echo 'hostonly="no"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-nohostonly.conf
-echo 'dracut_rescue_image="no"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-norescue.conf
+echo 'hostonly="no"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-generic-image.conf
+echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-rescue.conf
 %endif
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d
@@ -384,8 +391,6 @@ rm -rf -- $RPM_BUILD_ROOT
 %endif
 %if 0%{?fedora} || 0%{?rhel} > 6
 %{_prefix}/lib/kernel/install.d/50-dracut.install
-%{_prefix}/lib/kernel/install.d/51-dracut-rescue.install
-%{_sysconfdir}/kernel/postinst.d/51-dracut-rescue-postinst.sh
 %endif
 
 %files network
@@ -426,12 +431,16 @@ rm -rf -- $RPM_BUILD_ROOT
 %dir /var/lib/dracut
 %dir /var/lib/dracut/overlay
 
-%files nohostonly
+%files config-generic
 %defattr(-,root,root,0755)
-%{dracutlibdir}/dracut.conf.d/02-nohostonly.conf
+%{dracutlibdir}/dracut.conf.d/02-generic-image.conf
 
-%files norescue
+%files config-rescue
 %defattr(-,root,root,0755)
-%{dracutlibdir}/dracut.conf.d/02-norescue.conf
+%{dracutlibdir}/dracut.conf.d/02-rescue.conf
+%if 0%{?fedora} || 0%{?rhel} > 6
+%{_prefix}/lib/kernel/install.d/51-dracut-rescue.install
+%{_sysconfdir}/kernel/postinst.d/51-dracut-rescue-postinst.sh
+%endif
 
 %changelog
