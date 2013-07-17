@@ -115,7 +115,6 @@ mount_root() {
         umount "$NEWROOT"
         fsck_single "${root#block:}" "$rootfs" "$rflags" "$fsckoptions"
         _ret=$?
-        [ $_ret -ne 255 ] && echo $_ret >/run/initramfs/root-fsck
         ran_fsck=1
     fi
 
