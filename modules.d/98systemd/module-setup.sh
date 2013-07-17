@@ -81,6 +81,7 @@ install() {
         $systemdsystemunitdir/systemd-reboot.service \
         $systemdsystemunitdir/systemd-kexec.service \
         $systemdsystemunitdir/systemd-fsck@.service \
+        $systemdsystemunitdir/systemd-fsck-root.service \
         $systemdsystemunitdir/systemd-udevd.service \
         $systemdsystemunitdir/systemd-udev-trigger.service \
         $systemdsystemunitdir/systemd-udev-settle.service \
