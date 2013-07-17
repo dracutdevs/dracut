@@ -1,9 +1,9 @@
 Harald Hoyer <harald@redhat.com>
 Victor Lowther <victor.lowther@gmail.com>
 Amadeusz Żołnowski <aidecoe@aidecoe.name>
+Will Woods <wwoods@redhat.com>
 Philippe Seewer <philippe.seewer@bfh.ch>
 Warren Togami <wtogami@redhat.com>
-Will Woods <wwoods@redhat.com>
 Jeremy Katz <katzj@redhat.com>
 David Dillow <dave@thedillows.org>
 Dave Young <dyoung@redhat.com>
@@ -18,8 +18,11 @@ John Reiser <jreiser@bitwagon.com>
 Luca Berra <bluca@vodka.it>
 Daniel Drake <dsd@laptop.org>
 Dan Horák <dhorak@redhat.com>
+WANG Chao <chaowang@redhat.com>
 Leho Kraav <leho@kraav.com>
+Baoquan He <bhe@redhat.com>
 Brian C. Lane <bcl@redhat.com>
+Kamil Rytarowski <n54@gmx.com>
 Marc Grimme <grimme@atix.de>
 Chao Wang <chaowang@redhat.com>
 Frederic Crozat <fcrozat@suse.com>
@@ -29,6 +32,7 @@ Roberto Sassu <roberto.sassu@polito.it>
 Anton Blanchard <anton@samba.org>
 Bill Nottingham <notting@redhat.com>
 David Cantrell <dcantrell@redhat.com>
+Dennis Gilmore <dennis@ausil.us>
 Jon Ander Hernandez <jonan.h@gmail.com>
 Juan RP <xtraeme@gmail.com>
 Lance Albertson <lance@osuosl.org>
@@ -36,23 +40,22 @@ Marian Ganisin <mganisin@redhat.com>
 Michael Ploujnikov <plouj@somanetworks.com>
 Peter Rajnoha <prajnoha@redhat.com>
 Radek Vykydal <rvykydal@redhat.com>
-WANG Chao <chaowang@redhat.com>
 Wim Muskee <wimmuskee@gmail.com>
 Alan Jenkins <alan-jenkins@tuffmail.co.uk>
 Alan Pevec <apevec@redhat.com>
-Baoquan He <bhe@redhat.com>
 Colin Walters <walters@verbum.org>
-Dennis Gilmore <dennis@ausil.us>
 Frederick Grose <fgrose@sugarlabs.org>
 Ian Dall <ian@beware.dropbear.id.au>
 James Buren <ryuo@frugalware.org>
 Joey Boggs <jboggs@redhat.com>
+Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Mike Snitzer <snitzer@redhat.com>
 Przemysław Rudy <prudy1@o2.pl>
 Stefan Reimer <it@startux.de>
 Thomas Lange <lange@informatik.uni-koeln.de>
 Vivek Goyal <vgoyal@redhat.com>
 Vladislav Bogdanov <bubble@hoster-ok.com>
+Adam Williamson <awilliam@redhat.com>
 Alexander Todorov <atodorov@redhat.com>
 Andy Lutomirski <luto@mit.edu>
 Anssi Hannula <anssi@mageia.org>
@@ -62,6 +65,7 @@ Christian Heinz <christian.ch.heinz@gmail.com>
 Cong Wang <amwang@redhat.com>
 Dave Jones <davej@redhat.com>
 Dave Young <dave@redhat.com>
+Dennis Schridde <devurandom@gmx.net>
 Duane Griffin <duaneg@dghda.com>
 Glen Gray <slaine@slaine.org>
 Hermann Gausterer <git-dracut-2012@mrq1.org>
@@ -70,7 +74,6 @@ Jan Stodola <jstodola@redhat.com>
 Jiri Pirko <jiri@resnulli.us>
 Joe Lawrence <Joe.Lawrence@stratus.com>
 Kevin Yung <Kevin.Yung@myob.com>
-Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Lars R. Damerow <lars@pixar.com>
 Lennert Buytenhek <buytenh@wantstofly.org>
 Lubomir Rintel <lkundrak@v3.sk>
