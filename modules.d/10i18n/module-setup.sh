@@ -221,12 +221,6 @@ install() {
             kbddir=''
         done
 
-        [[ ${kbddir} ]] || {
-            derror "Directories ${KBDSUBDIRS//,/, } not found.  Please" \
-                "inform us about the issue including your OS name and version."
-            return 1
-        }
-
         [[ -f $I18N_CONF && -f $VCONFIG_CONF ]] || \
             [[ ! ${hostonly} || ${i18n_vars} ]] || {
             derror 'i18n_vars not set!  Please set up i18n_vars in ' \
