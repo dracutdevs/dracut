@@ -939,8 +939,8 @@ _emergency_shell()
     else
         debug_off
         echo
-        /sbin/sosreport
-        echo 'You might want to save "/run/initramfs/sosreport.txt" to a USB stick or /boot'
+        /sbin/rdsosreport
+        echo 'You might want to save "/run/initramfs/rdsosreport.txt" to a USB stick or /boot'
         echo 'after mounting them and attach it to a bug report.'
         if ! RD_DEBUG= getargbool 0 rd.debug -d -y rdinitdebug -d -y rdnetdebug; then
             echo

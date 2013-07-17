@@ -1,10 +1,10 @@
 #!/bin/sh
 
-echo 'Generating "/run/initramfs/sosreport.txt"'
+echo 'Generating "/run/initramfs/rdsosreport.txt"'
 
 [ -d /run/initramfs ] || mkdir -p /run/initramfs
 
-exec >/run/initramfs/sosreport.txt 2>&1
+exec >/run/initramfs/rdsosreport.txt 2>&1
 
 set -x
 

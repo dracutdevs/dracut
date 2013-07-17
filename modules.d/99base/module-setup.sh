@@ -43,7 +43,7 @@ install() {
     inst_script "$moddir/init.sh" "/init"
     inst_script "$moddir/initqueue.sh" "/sbin/initqueue"
     inst_script "$moddir/loginit.sh" "/sbin/loginit"
-    inst_script "$moddir/sosreport.sh" "/sbin/sosreport"
+    inst_script "$moddir/rdsosreport.sh" "/sbin/rdsosreport"
 
     [ -e "${initdir}/lib" ] || mkdir -m 0755 -p ${initdir}/lib
     mkdir -m 0755 -p ${initdir}/lib/dracut
