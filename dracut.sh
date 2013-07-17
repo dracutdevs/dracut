@@ -862,7 +862,9 @@ if [[ $hostonly ]]; then
         "/boot";
     do
         mountpoint "$mp" >/dev/null 2>&1 || continue
-        push host_devs "$(readlink -f "/dev/block/$(find_block_device "$mp")")"
+        _dev="$(readlink -f "/dev/block/$(find_block_device "$mp")")"
+        [[ "$_mp" == "/" ]] && root_dev="$_dev"
+        push host_devs "$_dev"
     done
 
     while read dev type rest; do
@@ -945,7 +947,7 @@ fi
 
 export initdir dracutbasedir dracutmodules \
     fw_dir drivers_dir debug no_kernel kernel_only \
-    omit_drivers mdadmconf lvmconf \
+    omit_drivers mdadmconf lvmconf root_dev \
     use_fstab fstab_lines libdirs fscks nofscks ro_mnt \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
     debug host_fs_types host_devs sshkey add_fstab \
