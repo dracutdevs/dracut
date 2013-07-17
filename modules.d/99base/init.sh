@@ -37,13 +37,6 @@ fi
 RD_DEBUG=""
 . /lib/dracut-lib.sh
 
-if [ -x $systemdutildir/systemd-timestamp ]; then
-    RD_TIMESTAMP=$($systemdutildir/systemd-timestamp)
-else
-    read RD_TIMESTAMP _tmp < /proc/uptime
-    unset _tmp
-fi
-
 setdebug
 
 if ! ismounted /dev; then
