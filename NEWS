@@ -1,3 +1,19 @@
+dracut-030
+==========
+- support new persistent network interface names
+- fix findmnt calls, prevents hang on stale NFS mounts
+- add systemd.slice and slice.target units
+- major shell cleanup
+- support root=PARTLABEL= and root=PARTUUID=
+- terminfo: only install l/linux v/vt100 and v/vt220
+- unset all LC_* and LANG, 10% faster
+- fixed dependency loop for dracut-cmdline.service
+- do not wait_for_dev for the root devices
+- do not wait_for_dev for devices, if dracut-initqueue is not needed
+- support early microcode loading with --early-microcode
+- dmraid, let dmraid setup its own partitions
+- sosreport renamed to rdsosreport
+
 dracut-029
 ==========
 - wait for IPv6 autoconfiguration
