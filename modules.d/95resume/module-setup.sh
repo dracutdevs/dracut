@@ -2,6 +2,18 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+check() {
+    # No point trying to support resume, if no swap partition exist
+    [[ $hostonly ]] || [[ $mount_needs ]] && {
+        for fs in "${host_fs_types[@]}"; do
+            [[ $fs = swap ]] && return 0
+        done
+        return 255
+    }
+
+    return 0
+}
+
 install() {
     local _bin
     # Optional uswsusp support
