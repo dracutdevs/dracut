@@ -117,24 +117,34 @@ dlog_init() {
     if [ -z "$fileloglvl" ]; then
         [ -w "$logfile" ] && fileloglvl=4 || fileloglvl=0
     elif (( $fileloglvl > 0 )); then
-        __oldumask=$(umask)
-        umask 0377
-        ! [ -e "$logfile" ] && >"$logfile"
-        umask $__oldumask
-        if [ -w "$logfile" -a -f "$logfile" ]; then
+        if [[ $logfile ]]; then
+            __oldumask=$(umask)
+            umask 0377
+            ! [ -e "$logfile" ] && >"$logfile"
+            umask $__oldumask
+            if [ -w "$logfile" -a -f "$logfile" ]; then
             # Mark new run in the log file
-            echo >>"$logfile"
-            if command -v date >/dev/null; then
-                echo "=== $(date) ===" >>"$logfile"
+                echo >>"$logfile"
+                if command -v date >/dev/null; then
+                    echo "=== $(date) ===" >>"$logfile"
+                else
+                    echo "===============================================" >>"$logfile"
+                fi
+                echo >>"$logfile"
             else
-                echo "===============================================" >>"$logfile"
-            fi
-            echo >>"$logfile"
-        else
             # We cannot log to file, so turn this facility off.
-            fileloglvl=0
-            ret=1
-            errmsg="'$logfile' is not a writable file"
+                fileloglvl=0
+                ret=1
+                errmsg="'$logfile' is not a writable file"
+            fi
+        fi
+        if type -P systemd-cat &>/dev/null && (( $UID  == 0 )) ; then
+            readonly _dlogdir="$(mktemp --tmpdir="$TMPDIR/" -d -t dracut-log.XXXXXX)"
+            readonly _systemdcatfile="$_dlogdir/systemd-cat"
+            mkfifo "$_systemdcatfile"
+            readonly _dlogfd=15
+            systemd-cat -t 'dracut' <"$_systemdcatfile" &
+            exec 15>"$_systemdcatfile"
         fi
     fi
 
@@ -306,15 +316,22 @@ _dlvl2syslvl() {
 _do_dlog() {
     local lvl="$1"; shift
     local lvlc=$(_lvl2char "$lvl") || return 0
-    local msg="$lvlc: $*"
+    local msg="$*"
+    local lmsg="$lvlc: $*"
 
     (( $lvl <= $stdloglvl )) && echo "$msg" >&2
     if (( $lvl <= $sysloglvl )); then
         logger -t "dracut[$$]" -p $(_lvl2syspri $lvl) "$msg"
     fi
+
     if (( $lvl <= $fileloglvl )) && [[ -w "$logfile" ]] && [[ -f "$logfile" ]]; then
-        echo "$msg" >>"$logfile"
+        echo "$lmsg" >>"$logfile"
     fi
+
+    if (( $lvl <= $fileloglvl )) && [[ "$_dlogfd" ]]; then
+        echo "<$(_dlvl2syslvl $lvl)>$msg" >&$_dlogfd
+    fi
+
     (( $lvl <= $kmsgloglvl )) && \
         echo "<$(_dlvl2syslvl $lvl)>dracut[$$] $msg" >/dev/kmsg
 }

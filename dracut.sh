@@ -683,7 +683,15 @@ if [[ $early_microcode = yes ]]; then
     }
 fi
 # clean up after ourselves no matter how we die.
-trap 'ret=$?;[[ $outfile ]] && [[ -f $outfile.$$ ]] && rm -f -- "$outfile.$$";[[ $keep ]] && echo "Not removing $initdir." >&2 || { [[ $initdir ]] && rm -rf -- "$initdir"; [[ $microcode_dir ]] && rm -Rf -- "$microcode_dir"; exit $ret; };' EXIT
+trap '
+    ret=$?;
+    [[ $outfile ]] && [[ -f $outfile.$$ ]] && rm -f -- "$outfile.$$";
+    [[ $keep ]] && echo "Not removing $initdir." >&2 || { [[ $initdir ]] && rm -rf -- "$initdir"; };
+    [[ $keep ]] && echo "Not removing $microcode_dir." >&2 || { [[ $microcode_dir ]] && rm -Rf -- "$microcode_dir"; };
+    [[ $_dlogdir ]] && rm -Rf -- "$_dlogdir";
+    exit $ret;
+    ' EXIT
+
 # clean up after ourselves no matter how we die.
 trap 'exit 1;' SIGINT
 
@@ -761,7 +769,7 @@ for ((i=0; i < ${#dracut_args[@]}; i++)); do
         dracut_args[$i]="\"${dracut_args[$i]}\""
         #" keep vim happy
 done
-ddebug "Executing: $0 ${dracut_args[@]}"
+dinfo "Executing: $0 ${dracut_args[@]}"
 
 [[ $do_list = yes ]] && {
     for mod in $dracutbasedir/modules.d/*; do
@@ -1167,11 +1175,6 @@ if [[ $kernel_only != yes ]]; then
     fi
 fi
 
-if (( maxloglvl >= 5 )); then
-    ddebug "Listing sizes of included files:"
-    du -c "$initdir" | sort -n | ddebug
-fi
-
 PRELINK_BIN="$(command -v prelink)"
 if [[ $UID = 0 ]] && [[ $PRELINK_BIN ]]; then
     if [[ $DRACUT_FIPS_MODE ]]; then
@@ -1258,6 +1261,7 @@ if [[ $early_microcode = yes ]]; then
     done
     (cd "$microcode_dir/d"; find . | cpio -o -H newc --quiet >../ucode.cpio)
 fi
+
 rm -f -- "$outfile"
 dinfo "*** Creating image file ***"
 if [[ $early_microcode = yes ]]; then
@@ -1272,7 +1276,8 @@ fi
 mv -- "$outfile.$$" "$outfile"
 dinfo "*** Creating image file done ***"
 
-dinfo "Wrote $outfile:"
-dinfo "$(ls -l "$outfile")"
+if (( maxloglvl >= 5 )); then
+    lsinitrd "$outfile"| ddebug
+fi
 
 exit 0
