@@ -138,6 +138,9 @@ dlog_init() {
                 errmsg="'$logfile' is not a writable file"
             fi
         fi
+    fi
+
+    if (( $sysloglvl > 0 )); then
         if type -P systemd-cat &>/dev/null && (( $UID  == 0 )) ; then
             readonly _dlogdir="$(mktemp --tmpdir="$TMPDIR/" -d -t dracut-log.XXXXXX)"
             readonly _systemdcatfile="$_dlogdir/systemd-cat"
@@ -145,12 +148,7 @@ dlog_init() {
             readonly _dlogfd=15
             systemd-cat -t 'dracut' <"$_systemdcatfile" &
             exec 15>"$_systemdcatfile"
-        fi
-    fi
-
-    if (( $sysloglvl > 0 )); then
-        if ! [ -S /dev/log -a -w /dev/log ] || ! command -v logger >/dev/null
-        then
+        elif ! [ -S /dev/log -a -w /dev/log ] || ! command -v logger >/dev/null; then
             # We cannot log to syslog, so turn this facility off.
             sysloglvl=0
             ret=1
@@ -320,16 +318,17 @@ _do_dlog() {
     local lmsg="$lvlc: $*"
 
     (( $lvl <= $stdloglvl )) && echo "$msg" >&2
+
     if (( $lvl <= $sysloglvl )); then
-        logger -t "dracut[$$]" -p $(_lvl2syspri $lvl) "$msg"
+        if [[ "$_dlogfd" ]]; then
+            echo "<$(_dlvl2syslvl $lvl)>$msg" >&$_dlogfd
+        else
+            logger -t "dracut[$$]" -p $(_lvl2syspri $lvl) "$msg"
+        fi
     fi
 
     if (( $lvl <= $fileloglvl )) && [[ -w "$logfile" ]] && [[ -f "$logfile" ]]; then
         echo "$lmsg" >>"$logfile"
-    fi
-
-    if (( $lvl <= $fileloglvl )) && [[ "$_dlogfd" ]]; then
-        echo "<$(_dlvl2syslvl $lvl)>$msg" >&$_dlogfd
     fi
 
     (( $lvl <= $kmsgloglvl )) && \
