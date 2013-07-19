@@ -1455,6 +1455,7 @@ for_each_kmod_dep() {
 
 dracut_kernel_post() {
     local _moddirname=${srcmods%%/lib/modules/*}
+    local _pid
 
     if [[ $DRACUT_KERNEL_LAZY_HASHDIR ]] && [[ -f "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist" ]]; then
         xargs -r modprobe -a ${_moddirname+-d ${_moddirname}/} \
@@ -1478,6 +1479,7 @@ dracut_kernel_post() {
                 done < "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist.dep"
             fi
         ) &
+        while read a ; do _pid=$a;done < <(jobs -p)
 
         if [[ $DRACUT_INSTALL ]]; then
             xargs -r modinfo -k $kernel -F firmware < "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist.dep" \
@@ -1497,7 +1499,7 @@ dracut_kernel_post() {
             done
         fi
 
-        wait
+        wait $_pid
     fi
 
     for _f in modules.builtin.bin modules.builtin; do
