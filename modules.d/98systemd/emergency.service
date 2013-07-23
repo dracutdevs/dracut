@@ -12,7 +12,7 @@ Description=Emergency Shell
 DefaultDependencies=no
 After=systemd-vconsole-setup.service
 Wants=systemd-vconsole-setup.service
-ConditionKernelCommandLine=!action_on_fail=continue
+ConditionPathExists=!/lib/dracut/no-emergency-shell
 
 [Service]
 Environment=HOME=/

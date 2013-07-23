@@ -1030,24 +1030,16 @@ emergency_shell()
 
 action_on_fail()
 {
-    local _action=$(getarg rd.action_on_fail= -d action_on_fail=)
-    case "$_action" in
-        continue)
-            [ "$1" = "-n" ] && shift 2
-            [ "$1" = "--shutdown" ] && shift 2
-            warn "$*"
-            warn "Not dropping to emergency shell, because 'action_on_fail=continue' was set on the kernel command line."
-            return 0
-            ;;
-        shell)
-            emergency_shell $@
-            return 1
-            ;;
-        *)
-            emergency_shell $@
-            return 1
-            ;;
-    esac
+    if [ -f "$initdir/lib/dracut/no-emergency-shell" ]; then
+        [ "$1" = "-n" ] && shift 2
+        [ "$1" = "--shutdown" ] && shift 2
+        warn "$*"
+        warn "Not dropping to emergency shell, because $initdir/lib/dracut/no-emergency-shell exists."
+        return 0
+    fi
+
+    emergency_shell $@
+    return 1
 }
 
 # Retain the values of these variables but ensure that they are unexported
