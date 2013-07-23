@@ -31,6 +31,7 @@ depends() {
 
 install() {
     dracut_install umount
+    dracut_install tr
     if ! dracut_module_included "systemd"; then
         inst_hook cmdline 95 "$moddir/parse-block.sh"
         inst_hook pre-udev 30 "$moddir/block-genrules.sh"

@@ -10,11 +10,15 @@ case "$root" in
         rootok=1 ;;
     block:UUID=*|UUID=*)
         root="${root#block:}"
+        root="${root#UUID=}"
+        root="$(echo $root | tr "[:upper:]" "[:lower:]")"
         root="block:/dev/disk/by-uuid/${root#UUID=}"
         rootok=1 ;;
     block:PARTUUID=*|PARTUUID=*)
         root="${root#block:}"
-        root="block:/dev/disk/by-partuuid/${root#PARTUUID=}"
+        root="${root#PARTUUID=}"
+        root="$(echo $root | tr "[:upper:]" "[:lower:]")"
+        root="block:/dev/disk/by-partuuid/${root}"
         rootok=1 ;;
     block:PARTLABEL=*|PARTLABEL=*)
         root="${root#block:}"
