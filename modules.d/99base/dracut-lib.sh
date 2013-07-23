@@ -927,6 +927,31 @@ wait_for_loginit()
     rm -f -- /run/initramfs/loginit.pipe /run/initramfs/loginit.pid
 }
 
+# pidof version for root
+if ! command -v pidof >/dev/null 2>/dev/null; then
+    pidof() {
+        local _cmd
+        local _exe
+        local _rl
+        local i
+        _cmd="$1"
+        [ -z "$_cmd" ] && return 1
+        _exe=$(type -P "$1")
+        for i in /proc/*/exe; do
+            [ -e "$i" ] || return 1
+            if [ -n "$_exe" ]; then
+                [ "$i" -ef "$_cmd" ] || continue
+            else
+                _rl=$(readlink -f "$i");
+                [ "${_rl%/$_cmd}" != "$_rl" ] || continue
+            fi
+            i=${i%/exe}
+            echo ${i##/proc/}
+        done
+        return 0
+    }
+fi
+
 _emergency_shell()
 {
     local _name="$1"
