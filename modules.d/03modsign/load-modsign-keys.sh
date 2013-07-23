@@ -1,0 +1,13 @@
+#!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
+#
+# Licensed under the GPLv2
+#
+# Copyright 2013 Red Hat, Inc.
+# Peter Jones <pjones@redhat.com>
+
+for x in /lib/modules/keys/* ; do
+    [ "${x}" = "/lib/modules/keys/*" ] && break
+    keyctl padd asymmetric "" @s < ${x}
+done

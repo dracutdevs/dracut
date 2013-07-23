@@ -1,0 +1,28 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
+#
+# Licensed under the GPLv2
+#
+# Copyright 2013 Red Hat, Inc.
+# Peter Jones <pjones@redhat.com>
+
+check() {
+    [ -x /usr/bin/keyctl ] || return 1
+    return 0
+}
+
+depends() {
+    return 0
+}
+
+install() {
+    inst_dir /lib/modules/keys
+    inst_binary /usr/bin/keyctl
+
+    inst_hook initqueue/pre-trigger 01 "$moddir/load-modsign-keys.sh"
+    for x in /lib/modules/keys/* ; do
+        [ "${x}" = "/lib/modules/keys/*" ] && break
+        inst_simple ${x}
+    done
+}
