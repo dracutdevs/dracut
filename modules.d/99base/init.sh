@@ -278,8 +278,8 @@ if [ $UDEVVERSION -lt 168 ]; then
     udevadm control --stop-exec-queue
 
     HARD=""
-    while pidof systemd-udevd >/dev/null 2>&1; do
-        for pid in $(pidof systemd-udevd); do
+    while pidof udevd >/dev/null 2>&1; do
+        for pid in $(pidof udevd); do
             kill $HARD $pid >/dev/null 2>&1
         done
         HARD="-9"
