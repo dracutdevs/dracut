@@ -863,13 +863,13 @@ if [[ $hostonly ]]; then
     for mp in \
         "/" \
         "/etc" \
-        "/usr" \
-        "/usr/bin" \
-        "/usr/sbin" \
-        "/usr/lib" \
-        "/usr/lib64" \
+        "/bin" \
+        "/sbin" \
+        "/lib" \
+        "/lib64" \
         "/boot";
     do
+        mp=$(readlink -f "$mp")
         mountpoint "$mp" >/dev/null 2>&1 || continue
         _dev="$(readlink -f "/dev/block/$(find_block_device "$mp")")"
         [[ "$_mp" == "/" ]] && root_dev="$_dev"
