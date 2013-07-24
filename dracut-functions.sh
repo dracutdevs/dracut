@@ -288,7 +288,6 @@ get_fs_env() {
             printf "%s" "$ID_FS_TYPE"
             return 0
         fi
-        return 1
     fi
 
     # Fallback, if we don't have udev information
