@@ -47,7 +47,8 @@ installkernel() {
         if [[ "$(uname -p)" == arm* ]]; then
             # arm specific modules
             hostonly='' instmods sdhci_esdhc_imx mmci sdhci_tegra mvsdio omap omapdrm \
-                omap_hsmmc panel-tfp410 sdhci_dove ahci_platform pata_imx sata_mv
+                omap_hsmmc panel-tfp410 sdhci_dove ahci_platform pata_imx sata_mv \
+                ehci-tegra
         fi
 
         # install virtual machine support
