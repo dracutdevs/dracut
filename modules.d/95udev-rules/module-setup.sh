@@ -36,6 +36,8 @@ install() {
         "$moddir/61-persistent-storage.rules"
 
     prepare_udev_rules 59-persistent-storage.rules 61-persistent-storage.rules
+    # debian udev rules
+    inst_rules 91-permissions.rules
 
     {
         for i in cdrom tape dialout floppy; do
