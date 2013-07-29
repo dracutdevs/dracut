@@ -23,7 +23,7 @@ else
                 {
                     printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", '
                     printf -- 'ENV{ID_FS_UUID}=="*%s*", ' $luksid
-                    printf -- 'RUN+="%s --unique --onetime ' $(command -v initqueue)
+                    printf -- 'RUN+="%s --settled --unique --onetime ' $(command -v initqueue)
                     printf -- '--name cryptroot-ask-%%k %s ' $(command -v cryptroot-ask)
                     printf -- '$env{DEVNAME} luks-$env{ID_FS_UUID} %s"\n' $tout
                 } >> /etc/udev/rules.d/70-luks.rules.new
@@ -31,7 +31,7 @@ else
                 {
                     printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", '
                     printf -- 'ENV{ID_FS_UUID}=="*%s*", ' $luksid
-                    printf -- 'RUN+="%s --unique --onetime ' $(command -v initqueue)
+                    printf -- 'RUN+="%s --settled --unique --onetime ' $(command -v initqueue)
                     printf -- '--name systemd-cryptsetup-%%k %s start ' $(command -v systemctl)
                     printf -- 'systemd-cryptsetup@luks$$(dev_unit_name -$env{ID_FS_UUID}).service"\n'
                 } >> /etc/udev/rules.d/70-luks.rules.new
@@ -51,13 +51,13 @@ else
         if [ -z "$DRACUT_SYSTEMD" ]; then
             {
                 printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="%s ' $(command -v initqueue)
-                printf -- '--unique --onetime --name cryptroot-ask-%%k '
+                printf -- '--unique --settled --onetime --name cryptroot-ask-%%k '
                 printf -- '%s $env{DEVNAME} luks-$env{ID_FS_UUID} %s"\n' $(command -v cryptroot-ask) $tout
             } >> /etc/udev/rules.d/70-luks.rules.new
         else
             {
                 printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="%s ' $(command -v initqueue)
-                printf -- '--unique --onetime --name crypt-run-generator-%%k '
+                printf -- '--unique --settled --onetime --name crypt-run-generator-%%k '
                 printf -- '%s $env{DEVNAME} luks-$env{ID_FS_UUID}"\n' $(command -v crypt-run-generator)
             } >> /etc/udev/rules.d/70-luks.rules.new
         fi
