@@ -287,6 +287,17 @@ for p in $(getargs ip=); do
     # skip ibft
     [ "$autoconf" = "ibft" ] && continue
 
+    case "$dev" in
+        ??:??:??:??:??:??)  # MAC address
+            _dev=$(iface_for_mac $dev)
+            [ -n "$_dev" ] && dev="$_dev"
+            ;;
+        ??-??-??-??-??-??)  # MAC address in BOOTIF form
+            _dev=$(iface_for_mac $(fix_bootif $dev))
+            [ -n "$_dev" ] && dev="$_dev"
+            ;;
+    esac
+
     # If this option isn't directed at our interface, skip it
     [ -n "$dev" ] && [ "$dev" != "$netif" ] && \
     [ "$use_bridge" != 'true' ] && \
