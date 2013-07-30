@@ -77,8 +77,10 @@ _getcmdline() {
                 CMDLINE_ETC_D="$CMDLINE_ETC_D $_line";
             done <"$_i";
         done
-        read -r CMDLINE </proc/cmdline;
-        CMDLINE="$CMDLINE_ETC_D $CMDLINE_ETC $CMDLINE"
+        if [ -e /proc/cmdline ]; then
+            read -r CMDLINE </proc/cmdline;
+            CMDLINE="$CMDLINE_ETC_D $CMDLINE_ETC $CMDLINE"
+        fi
     fi
 }
 
