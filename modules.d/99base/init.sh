@@ -81,6 +81,20 @@ if ! ismounted /run; then
     rm -fr -- /newrun
 fi
 
+if command -v kmod >/dev/null 2>/dev/null; then
+    kmod static-nodes --format=tmpfiles 2>/dev/null | \
+        while read type file mode a a a majmin; do
+        case $type in
+            d)
+                mkdir -m $mode -p $file
+                ;;
+            c)
+                mknod -m $mode $file $type ${majmin%:*} ${majmin#*:}
+                ;;
+        esac
+    done
+fi
+
 trap "action_on_fail Signal caught!" 0
 
 [ -d /run/initramfs ] || mkdir -p -m 0755 /run/initramfs

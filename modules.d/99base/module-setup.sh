@@ -14,11 +14,12 @@ depends() {
 
 install() {
     local _d
+
     dracut_install mount mknod mkdir sleep chroot \
         sed ls flock cp mv dmesg rm ln rmmod mkfifo umount readlink setsid
     inst $(command -v modprobe) /sbin/modprobe
 
-    dracut_install -o findmnt less
+    dracut_install -o findmnt less kmod
 
     if [ ! -e "${initdir}/bin/sh" ]; then
         dracut_install bash
