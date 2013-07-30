@@ -78,7 +78,7 @@ Provides:  dracut-kernel = %{version}-%{release}
 
 Obsoletes: dracut <= 029
 Obsoletes: dracut-norescue
-Provides:  dracut-horescue
+Provides:  dracut-norescue
 
 Requires: bash >= 4
 Requires: coreutils
