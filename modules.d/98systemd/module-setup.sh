@@ -18,12 +18,6 @@ depends() {
 install() {
     local _mods
 
-#    SYSTEMD_VERSION=$($systemdutildir/systemd --version | { read a b a; echo $b; })
-#    if (( $SYSTEMD_VERSION < 198 )); then
-#        dfatal "systemd version $SYSTEMD_VERSION is too low. Need at least version 198."
-#        exit 1
-#    fi
-
     if [[ "$prefix" == /run/* ]]; then
         dfatal "systemd does not work with a prefix, which contains \"/run\"!!"
         exit 1
@@ -113,7 +107,7 @@ install() {
         $systemdsystemunitdir/slices.target \
         $systemdsystemunitdir/system.slice \
         \
-        journalctl systemctl echo swapoff systemd-cgls
+        journalctl systemctl echo swapoff systemd-cgls systemd-tmpfiles
 
     dracut_install -o \
         /usr/lib/modules-load.d/*.conf \
