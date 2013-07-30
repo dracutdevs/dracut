@@ -69,6 +69,8 @@ install() {
         $systemdsystemunitdir/timers.target \
         $systemdsystemunitdir/paths.target \
         $systemdsystemunitdir/umount.target \
+        $systemdsystemunitdir/kmod-static-nodes.service \
+        $systemdsystemunitdir/systemd-tmpfiles-setup-dev.service \
         $systemdsystemunitdir/systemd-ask-password-console.path \
         $systemdsystemunitdir/systemd-udevd-control.socket \
         $systemdsystemunitdir/systemd-udevd-kernel.socket \
@@ -88,6 +90,7 @@ install() {
         $systemdsystemunitdir/systemd-journald.service \
         $systemdsystemunitdir/systemd-vconsole-setup.service \
         $systemdsystemunitdir/systemd-random-seed-load.service \
+        \
         $systemdsystemunitdir/sysinit.target.wants/systemd-modules-load.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-ask-password-console.path \
         $systemdsystemunitdir/sysinit.target.wants/systemd-journald.service \
@@ -96,6 +99,8 @@ install() {
         $systemdsystemunitdir/sockets.target.wants/systemd-journald.socket \
         $systemdsystemunitdir/sysinit.target.wants/systemd-udevd.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-udev-trigger.service \
+        $systemdsystemunitdir/sysinit.target.wants/kmod-static-nodes.service \
+        $systemdsystemunitdir/sysinit.target.wants/systemd-tmpfiles-setup-dev.service \
         \
         $systemdsystemunitdir/ctrl-alt-del.target \
         $systemdsystemunitdir/syslog.socket \
