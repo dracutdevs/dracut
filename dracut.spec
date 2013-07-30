@@ -318,6 +318,7 @@ rm -rf -- $RPM_BUILD_ROOT
 %else
 %{dracutlibdir}/modules.d/00bootchart
 %endif
+%{dracutlibdir}/modules.d/03modsign
 %{dracutlibdir}/modules.d/03rescue
 %{dracutlibdir}/modules.d/04watchdog
 %{dracutlibdir}/modules.d/05busybox
@@ -327,6 +328,7 @@ rm -rf -- $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/50drm
 %{dracutlibdir}/modules.d/50plymouth
 %{dracutlibdir}/modules.d/80cms
+%{dracutlibdir}/modules.d/90bcache
 %{dracutlibdir}/modules.d/90btrfs
 %{dracutlibdir}/modules.d/90crypt
 %{dracutlibdir}/modules.d/90dm
