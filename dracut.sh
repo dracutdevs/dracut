@@ -876,30 +876,35 @@ if [[ $hostonly ]]; then
         push host_devs "$_dev"
     done
 
-    while read dev type rest; do
-        [[ -b $dev ]] || continue
-        [[ "$type" == "partition" ]] || continue
-        while read _d _m _t _o _r; do
-            [[ "$_d" == \#* ]] && continue
-            [[ $_d ]] || continue
-            [[ $_t != "swap" ]] || [[ $_m != "swap" ]] && continue
-            [[ "$_o" == *noauto* ]] && continue
-            [[ "$_d" == UUID\=* ]] && _d="/dev/disk/by-uuid/${_d#UUID=}"
-            [[ "$_d" == LABEL\=* ]] && _d="/dev/disk/by-label/$_d#LABEL=}"
-            [[ "$_d" -ef "$dev" ]] || continue
+    if [[ -f /proc/swaps ]] && [[ -f /etc/fstab ]]; then
+        while read dev type rest; do
+            [[ -b $dev ]] || continue
+            [[ "$type" == "partition" ]] || continue
 
-            while read _mapper _a _p _o; do
-                [[ $_mapper = \#* ]] && continue
-                [[ "$_d" -ef /dev/mapper/"$_mapper" ]] || continue
-                [[ "$_o" ]] || _o="$_p"
+            while read _d _m _t _o _r; do
+                [[ "$_d" == \#* ]] && continue
+                [[ $_d ]] || continue
+                [[ $_t != "swap" ]] || [[ $_m != "swap" ]] && continue
+                [[ "$_o" == *noauto* ]] && continue
+                [[ "$_d" == UUID\=* ]] && _d="/dev/disk/by-uuid/${_d#UUID=}"
+                [[ "$_d" == LABEL\=* ]] && _d="/dev/disk/by-label/$_d#LABEL=}"
+                [[ "$_d" -ef "$dev" ]] || continue
+
+                if [[ -f /etc/crypttab ]]; then
+                    while read _mapper _a _p _o; do
+                        [[ $_mapper = \#* ]] && continue
+                        [[ "$_d" -ef /dev/mapper/"$_mapper" ]] || continue
+                        [[ "$_o" ]] || _o="$_p"
                 # skip mkswap swap
-                [[ $_o == *swap* ]] && continue 2
-            done < /etc/crypttab
+                        [[ $_o == *swap* ]] && continue 2
+                    done < /etc/crypttab
+                fi
 
-            push host_devs "$(readlink -f "$dev")"
-            break
-        done < /etc/fstab
-    done < /proc/swaps
+                push host_devs "$(readlink -f "$dev")"
+                break
+            done < /etc/fstab
+        done < /proc/swaps
+    fi
 fi
 
 _get_fs_type() { (
