@@ -5,7 +5,7 @@ KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
 #DEBUGFAIL="rd.shell rd.udev.log-priority=debug loglevel=70 systemd.log_target=kmsg"
-#DEBUGFAIL="rd.debug rd.break=pre-mount rd.shell"
+#DEBUGFAIL="rd.break rd.shell"
 test_run() {
     DISKIMAGE=$TESTDIR/TEST-10-RAID-root.img
     $testdir/run-qemu \
@@ -21,7 +21,7 @@ test_setup() {
     DISKIMAGE=$TESTDIR/TEST-10-RAID-root.img
     # Create the blank file to use as a root filesystem
     rm -f -- $DISKIMAGE
-    dd if=/dev/null of=$DISKIMAGE bs=1M seek=40
+    dd if=/dev/null of=$DISKIMAGE bs=1M seek=80
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
