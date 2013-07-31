@@ -57,6 +57,11 @@ mount_boot()
 
 do_fips()
 {
+    local _v
+    local _s
+    local _v
+    local _module
+
     KERNEL=$(uname -r)
 
     if ! [ -e "/boot/.vmlinuz-${KERNEL}.hmac" ]; then
@@ -67,11 +72,25 @@ do_fips()
     FIPSMODULES=$(cat /etc/fipsmodules)
 
     info "Loading and integrity checking all crypto modules"
-    for module in $FIPSMODULES; do
-        if [ "$module" != "tcrypt" ]; then
-            modprobe ${module}
+    mv /etc/modprobe.d/fips.conf /etc/modprobe.d/fips.conf.bak
+    for _module in $FIPSMODULES; do
+        if [ "$_module" != "tcrypt" ]; then
+            if ! modprobe "${_module}"; then
+                # check if kernel provides generic algo
+                _found=0
+                while read _k _s _v; do
+                    [ "$_k" != "name" -a "$_k" != "driver" ] && continue
+                    [ "$_k" = "driver" ] && _v=$(str_replace "$_v" "_" "-")
+                    [ "$_v" != "$_module" ] && continue
+                    _found=1
+                    break
+                done </proc/crypto
+                [ "$_found" = "0" ] && return 1
+            fi
         fi
     done
+    mv /etc/modprobe.d/fips.conf.bak /etc/modprobe.d/fips.conf
+
     info "Self testing crypto algorithms"
     modprobe tcrypt || return 1
     rmmod tcrypt
