@@ -1,3 +1,29 @@
+dracut-031
+==========
+- do not include the resume dracut module in hostonly mode,
+  if no swap is present
+- don't warn twice about omitted modules
+- use systemd-cat for logging on systemd systems, if logfile is unset
+- fixed PARTUUID parsing
+- support kernel module signing keys
+- do not install the usrmount dracut module in hostonly mode,
+  if /sbin/init does not live in /usr
+- add debian udev rule files
+- add support for bcache
+- network: handle bootif style interfaces
+  e.g. ip=77-77-6f-6f-64-73:dhcp
+- add support for kmod static devnodes
+- add vlan support for iBFT
+
+Contributions from:
+Harald Hoyer
+Amadeusz Żołnowski
+Brandon Philips
+Colin Walters
+James Lee
+Kyle McMartin
+Peter Jones
+
 dracut-030
 ==========
 - support new persistent network interface names
@@ -13,6 +39,11 @@ dracut-030
 - support early microcode loading with --early-microcode
 - dmraid, let dmraid setup its own partitions
 - sosreport renamed to rdsosreport
+
+Contributions from:
+Harald Hoyer
+Konrad Rzeszutek Wilk
+WANG Chao
 
 dracut-029
 ==========

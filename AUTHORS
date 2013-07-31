@@ -11,9 +11,9 @@ Michal Soltys <soltys@ziu.info>
 Amerigo Wang <amwang@redhat.com>
 Colin Guthrie <colin@mageia.org>
 Andrey Borzenkov <arvidjaar@gmail.com>
+Peter Jones <pjones@redhat.com>
 Andreas Thienemann <andreas@bawue.net>
 Hans de Goede <hdegoede@redhat.com>
-Peter Jones <pjones@redhat.com>
 John Reiser <jreiser@bitwagon.com>
 Luca Berra <bluca@vodka.it>
 Daniel Drake <dsd@laptop.org>
@@ -31,6 +31,7 @@ Milan Broz <mbroz@redhat.com>
 Roberto Sassu <roberto.sassu@polito.it>
 Anton Blanchard <anton@samba.org>
 Bill Nottingham <notting@redhat.com>
+Colin Walters <walters@verbum.org>
 David Cantrell <dcantrell@redhat.com>
 Dennis Gilmore <dennis@ausil.us>
 Jon Ander Hernandez <jonan.h@gmail.com>
@@ -43,7 +44,6 @@ Radek Vykydal <rvykydal@redhat.com>
 Wim Muskee <wimmuskee@gmail.com>
 Alan Jenkins <alan-jenkins@tuffmail.co.uk>
 Alan Pevec <apevec@redhat.com>
-Colin Walters <walters@verbum.org>
 Frederick Grose <fgrose@sugarlabs.org>
 Ian Dall <ian@beware.dropbear.id.au>
 James Buren <ryuo@frugalware.org>
@@ -59,6 +59,7 @@ Adam Williamson <awilliam@redhat.com>
 Alexander Todorov <atodorov@redhat.com>
 Andy Lutomirski <luto@mit.edu>
 Anssi Hannula <anssi@mageia.org>
+Brandon Philips <brandon@ifup.co>
 Canek Peláez Valdés <caneko@gmail.com>
 Chris Leech <cleech@redhat.com>
 Christian Heinz <christian.ch.heinz@gmail.com>
@@ -70,10 +71,12 @@ Duane Griffin <duaneg@dghda.com>
 Glen Gray <slaine@slaine.org>
 Hermann Gausterer <git-dracut-2012@mrq1.org>
 James Laska <jlaska@redhat.com>
+James Lee <jlee@thestaticvoid.com>
 Jan Stodola <jstodola@redhat.com>
 Jiri Pirko <jiri@resnulli.us>
 Joe Lawrence <Joe.Lawrence@stratus.com>
 Kevin Yung <Kevin.Yung@myob.com>
+Kyle McMartin <kyle@redhat.com>
 Lars R. Damerow <lars@pixar.com>
 Lennert Buytenhek <buytenh@wantstofly.org>
 Lubomir Rintel <lkundrak@v3.sk>
