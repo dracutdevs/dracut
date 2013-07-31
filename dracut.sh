@@ -245,24 +245,24 @@ dropindirs_sort()
     local -a files
     local f d
 
-    readarray -t files < <(
-        for d in "$@"; do
-            for i in "$d/"*"$suffix"; do
-                if [[ -e "$i" ]]; then
-                    printf "%s\n" "${i##*/}"
-                fi
-            done
-        done | sort -Vu
-    )
-
-    for f in "${files[@]}"; do
-        for d in "$@"; do
-            if [[ -e "$d/$f" ]]; then
-                printf "%s\n" "$d/$f"
-                continue 2
+    for d in "$@"; do
+        for i in "$d/"*"$suffix"; do
+            if [[ -e "$i" ]]; then
+                printf "%s\n" "${i##*/}"
             fi
         done
-    done
+    done | sort -Vu | {
+        readarray -t files
+
+        for f in "${files[@]}"; do
+            for d in "$@"; do
+                if [[ -e "$d/$f" ]]; then
+                    printf "%s\n" "$d/$f"
+                    continue 2
+                fi
+            done
+        done
+    }
 }
 
 verbosity_mod_l=0
@@ -907,31 +907,26 @@ if [[ $hostonly ]]; then
     fi
 fi
 
-_get_fs_type() { (
+_get_fs_type() {
     [[ $1 ]] || return
     if [[ -b /dev/block/$1 ]] && ID_FS_TYPE=$(get_fs_env "/dev/block/$1"); then
-        printf "%s\n" "$(readlink -f "/dev/block/$1")" "$ID_FS_TYPE"
+        host_fs_types["$(readlink -f "/dev/block/$1")"]="$ID_FS_TYPE"
         return 1
     fi
     if [[ -b $1 ]] && ID_FS_TYPE=$(get_fs_env "$1"); then
-        printf "%s\n" "$(readlink -f "$1")" "$ID_FS_TYPE"
+        host_fs_types["$(readlink -f "$1")"]="$ID_FS_TYPE"
         return 1
     fi
     if fstype=$(find_dev_fstype "$1"); then
-        printf "%s\n" "$1" "$fstype"
+        host_fs_types["$1"]="$fstype"
         return 1
     fi
     return 1
-) }
+}
 
-for dev in "${host_devs[@]}"; do
-    while read key; do
-        read val
-        host_fs_types["$key"]="$val"
-    done < <(
-        _get_fs_type "$dev"
-        check_block_and_slaves_all _get_fs_type "$(get_maj_min "$dev")"
-    )
+for dev in ${host_devs[@]}; do
+    _get_fs_type "$dev"
+    check_block_and_slaves_all _get_fs_type "$(get_maj_min "$dev")"
 done
 
 [[ -d $udevdir ]] \
