@@ -97,31 +97,31 @@ test_client() {
     client_test "MULTINIC root=nfs BOOTIF=" \
         00 01 02 \
         "root=nfs:192.168.50.1:/nfs/client BOOTIF=52-54-00-12-34-00" \
-        "eth0" || return 1
+        "ens3" || return 1
 
     # PXE Style BOOTIF= with dhcp root-path
     client_test "MULTINIC root=dhcp BOOTIF=" \
         00 01 02 \
         "root=dhcp BOOTIF=52-54-00-12-34-02" \
-        "eth2" || return 1
+        "ens5" || return 1
 
     # Multinic case, where only one nic works
     client_test "MULTINIC root=nfs ip=dhcp" \
         FF 00 FE \
         "root=nfs:192.168.50.1:/nfs/client ip=dhcp" \
-        "eth1" || return 1
+        "ens4" || return 1
 
     # Require two interfaces
-    client_test "MULTINIC root=nfs ip=eth1:dhcp ip=eth2:dhcp bootdev=eth1" \
+    client_test "MULTINIC root=nfs ip=ens4:dhcp ip=ens5:dhcp bootdev=ens4" \
         00 01 02 \
-        "root=nfs:192.168.50.1:/nfs/client ip=eth1:dhcp ip=eth2:dhcp bootdev=eth1" \
-        "eth1 eth2" || return 1
+        "root=nfs:192.168.50.1:/nfs/client ip=ens4:dhcp ip=ens5:dhcp bootdev=ens4" \
+        "ens4 ens5" || return 1
 
     # Require three interfaces with dhcp root-path
-    client_test "MULTINIC root=dhcp ip=eth0:dhcp ip=eth1:dhcp ip=eth2:dhcp bootdev=eth2" \
+    client_test "MULTINIC root=dhcp ip=ens3:dhcp ip=ens4:dhcp ip=ens5:dhcp bootdev=ens5" \
         00 01 02 \
-        "root=dhcp ip=eth0:dhcp ip=eth1:dhcp ip=eth2:dhcp bootdev=eth2" \
-        "eth0 eth1 eth2" || return 1
+        "root=dhcp ip=ens3:dhcp ip=ens4:dhcp ip=ens5:dhcp bootdev=ens5" \
+        "ens3 ens4 ens5" || return 1
 
     kill_server
     return 0
