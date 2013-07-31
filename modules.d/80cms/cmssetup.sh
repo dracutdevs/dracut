@@ -182,7 +182,19 @@ function dasd_settle_all() {
 
         unset _do_zfcp
         for i in ${!FCP_*}; do
-	    echo "${!i}" >> /etc/zfcp.conf
+	    echo "${!i}" | while read port rest; do
+                case $port in
+                *.*.*)
+                    ;;
+                *.*)
+                    port="0.$port"
+                    ;;
+                *)
+                    port="0.0.$port"
+                    ;;
+                esac
+                echo $port $rest >> /etc/zfcp.conf
+            done
 	    _do_zfcp=1
         done
         [[ $_do_zfcp ]] && zfcp_cio_free
