@@ -1410,6 +1410,14 @@ install_kmod_with_fw() {
         fi
     fi
 
+    if [[ $silent_omit_drivers ]]; then
+        local _kmod=${1##*/}
+        _kmod=${_kmod%.ko}
+        _kmod=${_kmod/-/_}
+        [[ "$_kmod" =~ $silent_omit_drivers ]] && return 0
+        [[ "${1##*/lib/modules/$kernel/}" =~ $silent_omit_drivers ]] && return 0
+    fi
+
     inst_simple "$1" "/lib/modules/$kernel/${1##*/lib/modules/$kernel/}"
     ret=$?
     [[ $DRACUT_KERNEL_LAZY_HASHDIR ]] && \
