@@ -29,17 +29,6 @@ install() {
     egrep '^root:' "$initdir/etc/passwd" 2>/dev/null || echo  'root:x:0:0::/root:/bin/sh' >> "$initdir/etc/passwd"
     egrep '^nobody:' /etc/passwd >> "$initdir/etc/passwd"
 
-    # install /etc/adjtime and time zone data
-    if [[ $hostonly ]]; then
-        dracut_install -o /etc/adjtime \
-                          /etc/localtime
-
-        # Our init.sh script needs hwclock to set system time
-        if ! dracut_module_included "systemd"; then
-            dracut_install -o hwclock
-        fi
-    fi
-
     # install our scripts and hooks
     inst_script "$moddir/init.sh" "/init"
     inst_script "$moddir/initqueue.sh" "/sbin/initqueue"
