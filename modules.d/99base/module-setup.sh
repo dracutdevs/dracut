@@ -8,7 +8,6 @@ check() {
 
 depends() {
     echo udev-rules
-    systemctl --system --no-pager &>/dev/null && echo systemd
     return 0
 }
 
