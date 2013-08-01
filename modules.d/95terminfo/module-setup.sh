@@ -10,7 +10,7 @@ install() {
     done
 
     if [ -d ${_terminfodir} ]; then
-        for i in "l/linux" "v/vt100" "v/vt220"; do
+        for i in "l/linux" "v/vt100" "v/vt102" "v/vt220"; do
             inst_dir "$_terminfodir/${i%/*}"
             cp --reflink=auto --sparse=auto -prfL -t "${initdir}/${_terminfodir}/${i%/*}" "$_terminfodir/$i"
         done
