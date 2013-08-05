@@ -109,6 +109,7 @@ case $bin in
         CAT="zcat";;
     BZh*)
         CAT="bzcat";;
+    $'\x71\xc7'*)
     070701)
         CAT="cat";;
     *)
