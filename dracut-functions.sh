@@ -55,14 +55,6 @@ if ! [[ $dracutbasedir ]]; then
     dracutbasedir="$(readlink -f $dracutbasedir)"
 fi
 
-if ! [[ $DRACUT_INSTALL ]]; then
-    DRACUT_INSTALL=$(find_binary dracut-install)
-fi
-
-if ! [[ $DRACUT_INSTALL ]] && [[ -x $dracutbasedir/dracut-install ]]; then
-    DRACUT_INSTALL=$dracutbasedir/dracut-install
-fi
-
 # Detect lib paths
 if ! [[ $libdirs ]] ; then
     if [[ "$(ldd /bin/sh)" == */lib64/* ]] &>/dev/null \
@@ -588,268 +580,73 @@ fs_get_option() {
     done
 }
 
-if [[ $DRACUT_INSTALL ]]; then
-    [[ $DRACUT_RESOLVE_LAZY ]] || export DRACUT_RESOLVE_DEPS=1
-    inst_dir() {
-        [[ -e ${initdir}/"$1" ]] && return 0  # already there
-        $DRACUT_INSTALL ${initdir+-D "$initdir"} -d "$@"
-        (($? != 0)) && derror $DRACUT_INSTALL ${initdir+-D "$initdir"} -d "$@" || :
-    }
 
-    inst() {
-        [[ -e ${initdir}/"${2:-$1}" ]] && return 0  # already there
-        #dinfo "$DRACUT_INSTALL -l $@"
-        $DRACUT_INSTALL ${initdir+-D "$initdir"} ${DRACUT_RESOLVE_DEPS+-l} ${DRACUT_FIPS_MODE+-H} "$@"
-        (($? != 0)) && derror $DRACUT_INSTALL ${initdir+-D "$initdir"} ${DRACUT_RESOLVE_DEPS+-l} ${DRACUT_FIPS_MODE+-H} "$@" || :
-    }
-
-    inst_simple() {
-        [[ -e ${initdir}/"${2:-$1}" ]] && return 0  # already there
-        [[ -e $1 ]] || return 1  # no source
-        $DRACUT_INSTALL ${initdir+-D "$initdir"} "$@"
-        (($? != 0)) && derror $DRACUT_INSTALL ${initdir+-D "$initdir"} "$@" || :
-    }
-
-    inst_symlink() {
-        [[ -e ${initdir}/"${2:-$1}" ]] && return 0  # already there
-        [[ -L $1 ]] || return 1
-        $DRACUT_INSTALL ${initdir+-D "$initdir"} ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@"
-        (($? != 0)) && derror $DRACUT_INSTALL ${initdir+-D "$initdir"} ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@" || :
-    }
-
-    dracut_install() {
-        local ret
-        #dinfo "initdir=$initdir $DRACUT_INSTALL -l $@"
-        $DRACUT_INSTALL ${initdir+-D "$initdir"} -a ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@"
-        ret=$?
-        (($ret != 0)) && derror $DRACUT_INSTALL ${initdir+-D "$initdir"} -a ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@" || :
-        return $ret
-    }
-
-    inst_library() {
-        [[ -e ${initdir}/"${2:-$1}" ]] && return 0  # already there
-        [[ -e $1 ]] || return 1  # no source
-        $DRACUT_INSTALL ${initdir+-D "$initdir"} ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@"
-        (($? != 0)) && derror $DRACUT_INSTALL ${initdir+-D "$initdir"} ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@" || :
-    }
-
-    inst_binary() {
-        $DRACUT_INSTALL ${initdir+-D "$initdir"} ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@"
-        (($? != 0)) && derror $DRACUT_INSTALL ${initdir+-D "$initdir"} ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@" || :
-    }
-
-    inst_script() {
-        $DRACUT_INSTALL ${initdir+-D "$initdir"} ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@"
-        (($? != 0)) && derror $DRACUT_INSTALL ${initdir+-D "$initdir"} ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@" || :
-    }
-
-else
-
-    # Install a directory, keeping symlinks as on the original system.
-    # Example: if /lib points to /lib64 on the host, "inst_dir /lib/file"
-    # will create ${initdir}/lib64, ${initdir}/lib64/file,
-    # and a symlink ${initdir}/lib -> lib64.
-    inst_dir() {
-        [[ -e ${initdir}/"$1" ]] && return 0  # already there
-
-        local _dir="$1" _part="${1%/*}" _file
-        while [[ "$_part" != "${_part%/*}" ]] && ! [[ -e "${initdir}/${_part}" ]]; do
-            _dir="$_part $_dir"
-            _part=${_part%/*}
-        done
-
-        # iterate over parent directories
-        for _file in $_dir; do
-            [[ -e "${initdir}/$_file" ]] && continue
-            if [[ -L $_file ]]; then
-                inst_symlink "$_file"
-            else
-            # create directory
-                mkdir -m 0755 -p "${initdir}/$_file" || return 1
-                [[ -e "$_file" ]] && chmod --reference="$_file" "${initdir}/$_file"
-                chmod u+w "${initdir}/$_file"
-            fi
-        done
-    }
-
-    # $1 = file to copy to ramdisk
-    # $2 (optional) Name for the file on the ramdisk
-    # Location of the image dir is assumed to be $initdir
-    # We never overwrite the target if it exists.
-    inst_simple() {
-        [[ -f "$1" ]] || return 1
-        [[ "$1" == */* ]] || return 1
-        local _src=$1 _target="${2:-$1}"
-
-        [[ -L $_src ]] && { inst_symlink $_src $_target; return $?; }
-
-        if ! [[ -d ${initdir}/$_target ]]; then
-            [[ -e ${initdir}/$_target ]] && return 0
-            [[ -L ${initdir}/$_target ]] && return 0
-            [[ -d "${initdir}/${_target%/*}" ]] || inst_dir "${_target%/*}"
-        fi
-        if [[ $DRACUT_FIPS_MODE ]]; then
-            # install checksum files also
-            if [[ -e "${_src%/*}/.${_src##*/}.hmac" ]]; then
-                inst "${_src%/*}/.${_src##*/}.hmac" "${_target%/*}/.${_target##*/}.hmac"
-            fi
-            if [[ -e "/lib/fipscheck/${_src##*/}.hmac" ]]; then
-                inst "/lib/fipscheck/${_src##*/}.hmac" "/lib/fipscheck/${_target##*/}.hmac"
-            fi
-            if [[ -e "/lib64/fipscheck/${_src##*/}.hmac" ]]; then
-                inst "/lib64/fipscheck/${_src##*/}.hmac" "/lib64/fipscheck/${_target##*/}.hmac"
-            fi
-        fi
-        ddebug "Installing $_src"
-        cp --reflink=auto --sparse=auto -pfL "$_src" "${initdir}/$_target"
-    }
-
-    # same as above, but specialized for symlinks
-    inst_symlink() {
-        local _src=$1 _target=${2:-$1} _realsrc
-        [[ "$1" == */* ]] || return 1
-        [[ -L $1 ]] || return 1
-        [[ -L $initdir/$_target ]] && return 0
-        _realsrc=$(readlink -f "$_src")
-        if ! [[ -e $initdir/$_realsrc ]]; then
-            if [[ -d $_realsrc ]]; then
-                inst_dir "$_realsrc"
-            else
-                inst "$_realsrc"
-            fi
-        fi
-        [[ ! -e $initdir/${_target%/*} ]] && inst_dir "${_target%/*}"
-
-        ln_r "${_realsrc}" "${_target}"
-    }
-
-    # Same as above, but specialized to handle dynamic libraries.
-    # It handles making symlinks according to how the original library
-    # is referenced.
-    inst_library() {
-        local _src="$1" _dest=${2:-$1} _lib _reallib _symlink
-        [[ "$1" == */* ]] || return 1
-        [[ -e $initdir/$_dest ]] && return 0
-        if [[ -L $_src ]]; then
-            if [[ $DRACUT_FIPS_MODE ]]; then
-                # install checksum files also
-                if [[ -e "${_src%/*}/.${_src##*/}.hmac" ]]; then
-                    inst "${_src%/*}/.${_src##*/}.hmac" "${_dest%/*}/.${_dest##*/}.hmac"
-                fi
-                if [[ -e "/lib/fipscheck/${_src##*/}.hmac" ]]; then
-                    inst "/lib/fipscheck/${_src##*/}.hmac" "/lib/fipscheck/${_dest##*/}.hmac"
-                fi
-                if [[ -e "/lib64/fipscheck/${_src##*/}.hmac" ]]; then
-                    inst "/lib64/fipscheck/${_src##*/}.hmac" "/lib64/fipscheck/${_dest##*/}.hmac"
-                fi
-            fi
-            _reallib=$(readlink -f "$_src")
-            inst_simple "$_reallib" "$_reallib"
-            inst_dir "${_dest%/*}"
-            ln_r "${_reallib}" "${_dest}"
-        else
-            inst_simple "$_src" "$_dest"
-        fi
-
-        # Create additional symlinks.  See rev_symlinks description.
-        for _symlink in $(rev_lib_symlinks $_src) $(rev_lib_symlinks $_reallib); do
-            [[ ! -e $initdir/$_symlink ]] && {
-                ddebug "Creating extra symlink: $_symlink"
-                inst_symlink $_symlink
-            }
-        done
-    }
-
-    # Same as above, but specialized to install binary executables.
-    # Install binary executable, and all shared library dependencies, if any.
-    inst_binary() {
-        local _bin _target
-        _bin=$(find_binary "$1") || return 1
-        _target=${2:-$_bin}
-        [[ -e $initdir/$_target ]] && return 0
-        local _file _line
-        local _so_regex='([^ ]*/lib[^/]*/[^ ]*\.so[^ ]*)'
-        # I love bash!
-        LC_ALL=C ldd "$_bin" 2>/dev/null | while read _line; do
-            [[ $_line = 'not a dynamic executable' ]] && break
-
-            if [[ $_line =~ $_so_regex ]]; then
-                _file=${BASH_REMATCH[1]}
-                [[ -e ${initdir}/$_file ]] && continue
-                inst_library "$_file"
-                continue
-            fi
-
-            if [[ $_line == *not\ found* ]]; then
-                dfatal "Missing a shared library required by $_bin."
-                dfatal "Run \"ldd $_bin\" to find out what it is."
-                dfatal "$_line"
-                dfatal "dracut cannot create an initrd."
-                exit 1
-            fi
-        done
-        inst_simple "$_bin" "$_target"
-    }
-
-    # same as above, except for shell scripts.
-    # If your shell script does not start with shebang, it is not a shell script.
-    inst_script() {
-        local _bin
-        _bin=$(find_binary "$1") || return 1
-        shift
-        local _line _shebang_regex
-        read -r -n 80 _line <"$_bin"
-        # If debug is set, clean unprintable chars to prevent messing up the term
-        [[ $debug ]] && _line=$(echo -n "$_line" | tr -c -d '[:print:][:space:]')
-        _shebang_regex='(#! *)(/[^ ]+).*'
-        [[ $_line =~ $_shebang_regex ]] || return 1
-        inst "${BASH_REMATCH[2]}" && inst_simple "$_bin" "$@"
-    }
-
-    # general purpose installation function
-    # Same args as above.
-    inst() {
-        local _x
-
-        case $# in
-            1) ;;
-            2) [[ ! $initdir && -d $2 ]] && export initdir=$2
-                [[ $initdir = $2 ]] && set $1;;
-            3) [[ -z $initdir ]] && export initdir=$2
-                set $1 $3;;
-            *) dfatal "inst only takes 1 or 2 or 3 arguments"
-                exit 1;;
-        esac
-        for _x in inst_symlink inst_script inst_binary inst_simple; do
-            $_x "$@" && return 0
-        done
-        return 1
-    }
-
-    # dracut_install [-o ] <file> [<file> ... ]
-    # Install <file> to the initramfs image
-    # -o optionally install the <file> and don't fail, if it is not there
-    dracut_install() {
-        local _optional=no
-        if [[ $1 = '-o' ]]; then
-            _optional=yes
-            shift
-        fi
-        while (($# > 0)); do
-            if ! inst "$1" ; then
-                if [[ $_optional = yes ]]; then
-                    dinfo "Skipping program $1 as it cannot be found and is" \
-                        "flagged to be optional"
-                else
-                    dfatal "Failed to install $1"
-                    exit 1
-                fi
-            fi
-            shift
-        done
-    }
-
+if ! [[ $DRACUT_INSTALL ]]; then
+    DRACUT_INSTALL=$(find_binary dracut-install)
 fi
+
+if ! [[ $DRACUT_INSTALL ]] && [[ -x $dracutbasedir/dracut-install ]]; then
+    DRACUT_INSTALL=$dracutbasedir/dracut-install
+fi
+
+if ! [[ -x $DRACUT_INSTALL ]]; then
+    dfatal "dracut-install not found!"
+    exit 10
+fi
+
+[[ $DRACUT_RESOLVE_LAZY ]] || export DRACUT_RESOLVE_DEPS=1
+inst_dir() {
+    [[ -e ${initdir}/"$1" ]] && return 0  # already there
+    $DRACUT_INSTALL ${initdir+-D "$initdir"} -d "$@"
+    (($? != 0)) && derror $DRACUT_INSTALL ${initdir+-D "$initdir"} -d "$@" || :
+}
+
+inst() {
+    [[ -e ${initdir}/"${2:-$1}" ]] && return 0  # already there
+        #dinfo "$DRACUT_INSTALL -l $@"
+    $DRACUT_INSTALL ${initdir+-D "$initdir"} ${DRACUT_RESOLVE_DEPS+-l} ${DRACUT_FIPS_MODE+-H} "$@"
+    (($? != 0)) && derror $DRACUT_INSTALL ${initdir+-D "$initdir"} ${DRACUT_RESOLVE_DEPS+-l} ${DRACUT_FIPS_MODE+-H} "$@" || :
+}
+
+inst_simple() {
+    [[ -e ${initdir}/"${2:-$1}" ]] && return 0  # already there
+    [[ -e $1 ]] || return 1  # no source
+    $DRACUT_INSTALL ${initdir+-D "$initdir"} "$@"
+    (($? != 0)) && derror $DRACUT_INSTALL ${initdir+-D "$initdir"} "$@" || :
+}
+
+inst_symlink() {
+    [[ -e ${initdir}/"${2:-$1}" ]] && return 0  # already there
+    [[ -L $1 ]] || return 1
+    $DRACUT_INSTALL ${initdir+-D "$initdir"} ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@"
+    (($? != 0)) && derror $DRACUT_INSTALL ${initdir+-D "$initdir"} ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@" || :
+}
+
+dracut_install() {
+    local ret
+        #dinfo "initdir=$initdir $DRACUT_INSTALL -l $@"
+    $DRACUT_INSTALL ${initdir+-D "$initdir"} -a ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@"
+    ret=$?
+    (($ret != 0)) && derror $DRACUT_INSTALL ${initdir+-D "$initdir"} -a ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@" || :
+    return $ret
+}
+
+inst_library() {
+    [[ -e ${initdir}/"${2:-$1}" ]] && return 0  # already there
+    [[ -e $1 ]] || return 1  # no source
+    $DRACUT_INSTALL ${initdir+-D "$initdir"} ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@"
+    (($? != 0)) && derror $DRACUT_INSTALL ${initdir+-D "$initdir"} ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@" || :
+}
+
+inst_binary() {
+    $DRACUT_INSTALL ${initdir+-D "$initdir"} ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@"
+    (($? != 0)) && derror $DRACUT_INSTALL ${initdir+-D "$initdir"} ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@" || :
+}
+
+inst_script() {
+    $DRACUT_INSTALL ${initdir+-D "$initdir"} ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@"
+    (($? != 0)) && derror $DRACUT_INSTALL ${initdir+-D "$initdir"} ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@" || :
+}
 
 # find symlinks linked to given library file
 # $1 = library file
