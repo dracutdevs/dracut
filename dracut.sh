@@ -1259,7 +1259,7 @@ if [[ $early_microcode = yes ]]; then
             fi
         done
     done
-    (cd "$microcode_dir/d"; find . | cpio -o -H newc --quiet >../ucode.cpio)
+    (cd "$microcode_dir/d"; find . -print0 | cpio --null -o -H newc --quiet >../ucode.cpio)
 fi
 
 rm -f -- "$outfile"
@@ -1268,7 +1268,7 @@ if [[ $early_microcode = yes ]]; then
     # The microcode blob is _before_ the initramfs blob, not after
     mv $microcode_dir/ucode.cpio $outfile.$$
 fi
-if ! ( umask 077; cd "$initdir"; find . |cpio -R 0:0 -H newc -o --quiet| \
+if ! ( umask 077; cd "$initdir"; find . -print0 | cpio --null -R 0:0 -H newc -o --quiet| \
     $compress >> "$outfile.$$"; ); then
     dfatal "dracut: creation of $outfile.$$ failed"
     exit 1
