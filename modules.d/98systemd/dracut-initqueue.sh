@@ -62,7 +62,14 @@ while :; do
     fi
 
     main_loop=$(($main_loop+1))
-    [ $main_loop -gt $RDRETRY ] && action_on_fail "Could not boot." && break
+    if [ $main_loop -gt $RDRETRY ];
+        if ! [ -d /sysroot/etc/fstab ] || ! [ -e /sysroot/sbin/init ] ; then
+            action_on_fail "Could not boot." && break
+        fi
+        warn "Not all disks have been found."
+        warn "You might want to regenerate your initramfs."
+        break
+    fi
 done
 
 unset job
