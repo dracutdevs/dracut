@@ -1107,7 +1107,7 @@ if [[ $no_kernel != yes ]]; then
 fi
 
 if [[ $kernel_only != yes ]]; then
-    (( ${#install_items[@]} > 0 )) && dracut_install ${install_items[@]}
+    (( ${#install_items[@]} > 0 )) && inst_multiple ${install_items[@]}
 
     [[ $kernel_cmdline ]] && printf "%s\n" "$kernel_cmdline" >> "${initdir}/etc/cmdline.d/01-default.conf"
 
@@ -1182,10 +1182,10 @@ PRELINK_BIN="$(command -v prelink)"
 if [[ $UID = 0 ]] && [[ $PRELINK_BIN ]]; then
     if [[ $DRACUT_FIPS_MODE ]]; then
         dinfo "*** Installing prelink files ***"
-        dracut_install -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf /etc/prelink.cache
+        inst_multiple -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf /etc/prelink.cache
     else
         dinfo "*** Pre-linking files ***"
-        dracut_install -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf
+        inst_multiple -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf
         chroot "$initdir" "$PRELINK_BIN" -a
         rm -f -- "$initdir/$PRELINK_BIN"
         rm -fr -- "$initdir"/etc/prelink.*

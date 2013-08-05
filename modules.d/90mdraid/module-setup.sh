@@ -27,8 +27,8 @@ installkernel() {
 }
 
 install() {
-    dracut_install cat
-    dracut_install -o mdmon
+    inst_multiple cat
+    inst_multiple -o mdmon
     inst $(command -v partx) /sbin/partx
     inst $(command -v mdadm) /sbin/mdadm
 

@@ -21,7 +21,7 @@ install() {
         [[ $FONT ]] || [[ $KEYMAP ]] || return 0
     fi
 
-    dracut_install -o $systemdutildir/systemd-vconsole-setup
+    inst_multiple -o $systemdutildir/systemd-vconsole-setup
     KBDSUBDIRS=consolefonts,consoletrans,keymaps,unimaps
     DEFAULT_FONT="${i18n_default_font:-LatArCyrHeb-16}"
     I18N_CONF="/etc/locale.conf"
@@ -93,7 +93,7 @@ install() {
     }
 
     install_base() {
-        dracut_install setfont loadkeys kbd_mode stty
+        inst_multiple setfont loadkeys kbd_mode stty
 
         if ! dracut_module_included "systemd"; then
             inst ${moddir}/console_init.sh /lib/udev/console_init
@@ -115,12 +115,12 @@ install() {
         find "${initdir}${kbddir}/" -name README\* -delete
         find "${initdir}${kbddir}/" -name '*.gz' -print -quit \
             | while read line; do
-            dracut_install gzip
+            inst_multiple gzip
             done
 
         find "${initdir}${kbddir}/" -name '*.bz2' -print -quit \
             | while read line; do
-            dracut_install bzip2
+            inst_multiple bzip2
             done
     }
 

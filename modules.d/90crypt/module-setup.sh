@@ -48,7 +48,7 @@ install() {
 
     for_each_host_dev_fs check_crypt
 
-    dracut_install cryptsetup rmdir readlink umount
+    inst_multiple cryptsetup rmdir readlink umount
     inst_script "$moddir"/cryptroot-ask.sh /sbin/cryptroot-ask
     inst_script "$moddir"/probe-keydev.sh /sbin/probe-keydev
     inst_hook cmdline 10 "$moddir/parse-keydev.sh"
@@ -78,7 +78,7 @@ install() {
 
     inst_simple "$moddir/crypt-lib.sh" "/lib/dracut-crypt-lib.sh"
 
-    dracut_install -o \
+    inst_multiple -o \
         $systemdutildir/system-generators/systemd-cryptsetup-generator \
         $systemdutildir/system-generators/systemd-cryptsetup-generator \
         $systemdutildir/systemd-cryptsetup \

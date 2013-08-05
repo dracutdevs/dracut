@@ -80,5 +80,5 @@ install() {
         inst_simple /etc/e2fsck.conf
     fi
 
-    dracut_install -o $_helpers
+    inst_multiple -o $_helpers
 }

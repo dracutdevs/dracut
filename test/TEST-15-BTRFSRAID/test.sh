@@ -27,17 +27,17 @@ test_setup() {
     (
 	export initdir=$TESTDIR/overlay/source
 	. $basedir/dracut-functions.sh
-	dracut_install sh df free ls shutdown poweroff stty cat ps ln ip route \
+	inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip route \
 	    mount dmesg ifconfig dhclient mkdir cp ping dhclient
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
 	    [ -f ${_terminfodir}/l/linux ] && break
 	done
-	dracut_install -o ${_terminfodir}/l/linux
+	inst_multiple -o ${_terminfodir}/l/linux
 	inst "$basedir/modules.d/40network/dhclient-script.sh" "/sbin/dhclient-script"
 	inst "$basedir/modules.d/40network/ifup.sh" "/sbin/ifup"
-	dracut_install grep
+	inst_multiple grep
 	inst ./test-init.sh /sbin/init
-	find_binary plymouth >/dev/null && dracut_install plymouth
+	find_binary plymouth >/dev/null && inst_multiple plymouth
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
 	cp -a /etc/ld.so.conf* $initdir/etc
 	sudo ldconfig -r "$initdir"
@@ -47,7 +47,7 @@ test_setup() {
     (
 	export initdir=$TESTDIR/overlay
 	. $basedir/dracut-functions.sh
-	dracut_install sfdisk mkfs.btrfs poweroff cp umount
+	inst_multiple sfdisk mkfs.btrfs poweroff cp umount
 	inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
@@ -77,7 +77,7 @@ test_setup() {
    (
         export initdir=$TESTDIR/overlay
 	. $basedir/dracut-functions.sh
-	dracut_install poweroff shutdown
+	inst_multiple poweroff shutdown
 	inst_hook emergency 000 ./hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )

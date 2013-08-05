@@ -57,8 +57,8 @@ install() {
 
     for_each_host_dev_fs check_dmraid
 
-    dracut_install dmraid
-    dracut_install -o kpartx
+    inst_multiple dmraid
+    inst_multiple -o kpartx
     inst $(command -v partx) /sbin/partx
 
     inst "$moddir/dmraid.sh" /sbin/dmraid_scan

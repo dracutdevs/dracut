@@ -31,12 +31,12 @@ installkernel() {
 install() {
     local _i
     local _nsslibs
-    dracut_install -o portmap rpcbind rpc.statd mount.nfs \
+    inst_multiple -o portmap rpcbind rpc.statd mount.nfs \
         mount.nfs4 umount rpc.idmapd sed /etc/netconfig
-    dracut_install /etc/services /etc/nsswitch.conf /etc/rpc /etc/protocols /etc/idmapd.conf
+    inst_multiple /etc/services /etc/nsswitch.conf /etc/rpc /etc/protocols /etc/idmapd.conf
 
     if [ -f /lib/modprobe.d/nfs.conf ]; then
-        dracut_install /lib/modprobe.d/nfs.conf
+        inst_multiple /lib/modprobe.d/nfs.conf
     else
         [ -d $initdir/etc/modprobe.d/ ] || mkdir $initdir/etc/modprobe.d
         echo "alias nfs4 nfs" > $initdir/etc/modprobe.d/nfs.conf

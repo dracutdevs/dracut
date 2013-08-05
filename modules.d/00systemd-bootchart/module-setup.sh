@@ -14,5 +14,5 @@ depends() {
 
 install() {
     inst_symlink /init /sbin/init
-    dracut_install $systemdutildir/systemd-bootchart
+    inst_multiple $systemdutildir/systemd-bootchart
 }

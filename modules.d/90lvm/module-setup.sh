@@ -74,7 +74,7 @@ install() {
     inst_libdir_file "libdevmapper-event-lvm*.so"
 
     if [[ $_needthin ]]; then
-        dracut_install -o thin_dump thin_restore thin_check
+        inst_multiple -o thin_dump thin_restore thin_check
     fi
 
 }

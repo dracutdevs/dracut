@@ -20,8 +20,8 @@ install() {
     modinfo -k $kernel dm_mod >/dev/null 2>&1 && \
         inst_hook pre-udev 30 "$moddir/dm-pre-udev.sh"
 
-    dracut_install dmsetup
-    dracut_install -o dmeventd
+    inst_multiple dmsetup
+    inst_multiple -o dmeventd
 
     inst_libdir_file "libdevmapper-event.so*"
 

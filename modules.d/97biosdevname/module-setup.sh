@@ -13,7 +13,7 @@ depends() {
 }
 
 install() {
-    dracut_install biosdevname
+    inst_multiple biosdevname
     inst_rules 71-biosdevname.rules
 }
 

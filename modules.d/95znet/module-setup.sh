@@ -20,6 +20,6 @@ installkernel() {
 install() {
     inst_hook cmdline 30 "$moddir/parse-ccw.sh"
     inst_rules 81-ccw.rules
-    dracut_install znet_cio_free grep sed seq readlink /lib/udev/ccw_init
+    inst_multiple znet_cio_free grep sed seq readlink /lib/udev/ccw_init
 }
 

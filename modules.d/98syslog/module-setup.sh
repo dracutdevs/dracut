@@ -26,7 +26,7 @@ install() {
             "is selected to be installed. Please check."
     fi
     if [ -n "$_installs" ]; then
-        dracut_install cat $_installs
+        inst_multiple cat $_installs
         inst_hook cmdline  90 "$moddir/parse-syslog-opts.sh"
         inst_hook pre-udev 61 "$moddir/syslog-genrules.sh"
         inst_hook cleanup 99 "$moddir/syslog-cleanup.sh"

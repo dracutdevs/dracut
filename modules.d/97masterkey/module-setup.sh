@@ -19,6 +19,6 @@ installkernel() {
 }
 
 install() {
-    dracut_install keyctl uname
+    inst_multiple keyctl uname
     inst_hook pre-pivot 60 "$moddir/masterkey.sh"
 }

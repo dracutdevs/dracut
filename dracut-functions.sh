@@ -622,13 +622,17 @@ inst_symlink() {
     (($? != 0)) && derror $DRACUT_INSTALL ${initdir+-D "$initdir"} ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@" || :
 }
 
-dracut_install() {
+inst_multiple() {
     local ret
         #dinfo "initdir=$initdir $DRACUT_INSTALL -l $@"
     $DRACUT_INSTALL ${initdir+-D "$initdir"} -a ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@"
     ret=$?
     (($ret != 0)) && derror $DRACUT_INSTALL ${initdir+-D "$initdir"} -a ${DRACUT_RESOLVE_DEPS+-l}  ${DRACUT_FIPS_MODE+-H} "$@" || :
     return $ret
+}
+
+dracut_install() {
+    inst_multiple "$@"
 }
 
 inst_library() {
@@ -689,7 +693,7 @@ inst_rule_programs() {
                 }
             fi
 
-            [[ $_bin ]] && dracut_install "$_bin"
+            [[ $_bin ]] && inst_binary "$_bin"
         done
     fi
     if grep -qE 'RUN[+=]=?"[^ "]+' "$1"; then
@@ -704,7 +708,7 @@ inst_rule_programs() {
                 }
             fi
 
-            [[ $_bin ]] && dracut_install "$_bin"
+            [[ $_bin ]] && inst_binary "$_bin"
         done
     fi
     if grep -qE 'IMPORT\{program\}==?"[^ "]+' "$1"; then
@@ -878,7 +882,7 @@ inst_libdir_file() {
             done
         done
     fi
-    [[ $_files ]] && dracut_install $_files
+    [[ $_files ]] && inst_multiple $_files
 }
 
 

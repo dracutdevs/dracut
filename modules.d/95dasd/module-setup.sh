@@ -18,7 +18,7 @@ installkernel() {
 
 install() {
     inst_hook cmdline 30 "$moddir/parse-dasd.sh"
-    dracut_install dasdinfo dasdconf.sh normalize_dasd_arg
+    inst_multiple dasdinfo dasdconf.sh normalize_dasd_arg
     if [[ $hostonly ]]; then
         inst /etc/dasd.conf
     fi

@@ -14,14 +14,14 @@ depends() {
 install() {
     local _d
 
-    dracut_install mount mknod mkdir sleep chroot \
+    inst_multiple mount mknod mkdir sleep chroot \
         sed ls flock cp mv dmesg rm ln rmmod mkfifo umount readlink setsid
     inst $(command -v modprobe) /sbin/modprobe
 
-    dracut_install -o findmnt less kmod
+    inst_multiple -o findmnt less kmod
 
     if [ ! -e "${initdir}/bin/sh" ]; then
-        dracut_install bash
+        inst_multiple bash
         (ln -s bash "${initdir}/bin/sh" || :)
     fi
 
@@ -41,7 +41,7 @@ install() {
 
     mkdir -p ${initdir}/tmp
 
-    dracut_install switch_root || dfatal "Failed to install switch_root"
+    inst_multiple switch_root || dfatal "Failed to install switch_root"
 
     inst_simple "$moddir/dracut-lib.sh" "/lib/dracut-lib.sh"
 
@@ -52,7 +52,7 @@ install() {
     mkdir -p "${initdir}/var"
 
     if ! dracut_module_included "systemd"; then
-        dracut_install -o $systemdutildir/systemd-timestamp
+        inst_multiple -o $systemdutildir/systemd-timestamp
     fi
 
     if [[ $realinitpath ]]; then

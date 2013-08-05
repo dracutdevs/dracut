@@ -28,8 +28,8 @@ installkernel() {
 install() {
     local _i
     local _nsslibs
-    dracut_install -o mount.cifs
-    dracut_install /etc/services /etc/nsswitch.conf /etc/protocols
+    inst_multiple -o mount.cifs
+    inst_multiple /etc/services /etc/nsswitch.conf /etc/protocols
 
     inst_libdir_file 'libcap-ng.so*'
 

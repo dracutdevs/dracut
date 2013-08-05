@@ -69,7 +69,7 @@ installkernel() {
 
 install() {
     local _f
-    dracut_install -o  \
+    inst_multiple -o  \
         dmsetup \
         kpartx \
         mpath_wait \
@@ -87,7 +87,7 @@ install() {
     inst_libdir_file "libmultipath*" "multipath/*"
 
     if dracut_module_included "systemd"; then
-        dracut_install \
+        inst_multiple \
             $systemdsystemunitdir/multipathd.service
         mkdir -p "${initdir}${systemdsystemconfdir}/sysinit.target.wants"
         ln -rfs "${initdir}${systemdsystemunitdir}/multipathd.service" "${initdir}${systemdsystemconfdir}/sysinit.target.wants/multipathd.service"

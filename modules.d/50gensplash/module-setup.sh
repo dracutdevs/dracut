@@ -71,7 +71,7 @@ install() {
     mv dev.old dev
     popd >/dev/null
 
-    dracut_install chvt
+    inst_multiple chvt
     inst /usr/share/splashutils/initrd.splash /lib/gensplash-lib.sh
     inst_hook pre-pivot 90 "${moddir}"/gensplash-newroot.sh
     inst_hook pre-trigger 10 "${moddir}"/gensplash-pretrigger.sh

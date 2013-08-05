@@ -4,7 +4,7 @@
 PLYMOUTH_LOGO_FILE="/usr/share/pixmaps/system-logo-white.png"
 PLYMOUTH_THEME=$(plymouth-set-default-theme)
 
-dracut_install plymouthd plymouth \
+inst_multiple plymouthd plymouth \
     "${PLYMOUTH_LOGO_FILE}" \
     /etc/system-release
 
@@ -13,7 +13,7 @@ mkdir -m 0755 -p "${initdir}/usr/share/plymouth"
 inst_libdir_file "plymouth/text.so" "plymouth/details.so"
 
 if [[ $hostonly ]]; then
-    dracut_install \
+    inst_multiple \
         "/usr/share/plymouth/themes/details/details.plymouth" \
         "/usr/share/plymouth/themes/text/text.plymouth" \
 
@@ -35,7 +35,7 @@ else
         [[ -f "$x" ]] || continue
         THEME_DIR=$(dirname "$x")
         mkdir -m 0755 -p "${initdir}/$THEME_DIR"
-        dracut_install "$x"
+        inst_multiple "$x"
     done
     (
         cd ${initdir}/usr/share/plymouth/themes;

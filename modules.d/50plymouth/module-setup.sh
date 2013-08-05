@@ -22,7 +22,7 @@ install() {
 
     inst_hook emergency 50 "$moddir"/plymouth-emergency.sh
 
-    dracut_install readlink
+    inst_multiple readlink
 
     if ! dracut_module_included "systemd"; then
         inst_hook pre-trigger 10 "$moddir"/plymouth-pretrigger.sh

@@ -14,6 +14,6 @@ depends() {
 }
 
 install() {
-    dracut_install gpg
+    inst_multiple gpg
     inst "$moddir/crypt-gpg-lib.sh" "/lib/dracut-crypt-gpg-lib.sh"
 }

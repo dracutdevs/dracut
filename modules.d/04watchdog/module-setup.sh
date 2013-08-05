@@ -23,6 +23,6 @@ install() {
     inst_hook cleanup   00 "$moddir/watchdog.sh"
     inst_hook cleanup   99 "$moddir/watchdog.sh"
     inst_hook emergency 02 "$moddir/watchdog-stop.sh"
-    dracut_install -o wdctl
+    inst_multiple -o wdctl
 }
 

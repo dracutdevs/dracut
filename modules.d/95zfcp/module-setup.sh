@@ -22,7 +22,7 @@ installkernel() {
 
 install() {
     inst_hook cmdline 30 "$moddir/parse-zfcp.sh"
-    dracut_install zfcp_cio_free grep sed seq
+    inst_multiple zfcp_cio_free grep sed seq
 
     inst_script /sbin/zfcpconf.sh
     inst_rules 56-zfcp.rules

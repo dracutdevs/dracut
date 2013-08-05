@@ -24,7 +24,7 @@ installkernel() {
 }
 
 install() {
-    dracut_install probe-bcache ${udevdir}/bcache-register
+    inst_multiple probe-bcache ${udevdir}/bcache-register
     inst_rules 61-bcache.rules
 }
 

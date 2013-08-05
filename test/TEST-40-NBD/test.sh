@@ -198,15 +198,15 @@ make_encrypted_root() {
         . $basedir/dracut-functions.sh
         mkdir -p "$initdir"
         (cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
-        dracut_install sh df free ls shutdown poweroff stty cat ps ln ip \
+        inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
             mount dmesg mkdir cp ping
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
-        dracut_install -o ${_terminfodir}/l/linux
+        inst_multiple -o ${_terminfodir}/l/linux
         inst ./client-init.sh /sbin/init
         inst_simple /etc/os-release
-        find_binary plymouth >/dev/null && dracut_install plymouth
+        find_binary plymouth >/dev/null && inst_multiple plymouth
         cp -a /etc/ld.so.conf* $initdir/etc
         sudo ldconfig -r "$initdir"
     )
@@ -215,7 +215,7 @@ make_encrypted_root() {
     (
         export initdir=$TESTDIR/overlay
         . $basedir/dracut-functions.sh
-        dracut_install mke2fs poweroff cp umount tune2fs
+        inst_multiple mke2fs poweroff cp umount tune2fs
         inst_hook emergency 000 ./hard-off.sh
         inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
@@ -256,12 +256,12 @@ make_client_root() {
         . $basedir/dracut-functions.sh
         mkdir -p "$initdir"
         (cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
-        dracut_install sh ls shutdown poweroff stty cat ps ln ip \
+        inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
             dmesg mkdir cp ping
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
-        dracut_install -o ${_terminfodir}/l/linux
+        inst_multiple -o ${_terminfodir}/l/linux
         inst ./client-init.sh /sbin/init
         inst_simple /etc/os-release
         inst /etc/nsswitch.conf /etc/nsswitch.conf
@@ -294,15 +294,15 @@ make_server_root() {
             cd "$initdir";
             mkdir -p dev sys proc etc var/run var/lib/dhcpd tmp
         )
-        dracut_install sh ls shutdown poweroff stty cat ps ln ip \
+        inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
             dmesg mkdir cp ping grep \
             sleep nbd-server chmod
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
-        dracut_install -o ${_terminfodir}/l/linux
+        inst_multiple -o ${_terminfodir}/l/linux
         instmods af_packet
-        type -P dhcpd >/dev/null && dracut_install dhcpd
+        type -P dhcpd >/dev/null && inst_multiple dhcpd
         [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
         inst ./server-init.sh /sbin/init
         inst_simple /etc/os-release
@@ -336,7 +336,7 @@ test_setup() {
     (
         export initdir=$TESTDIR/overlay
         . $basedir/dracut-functions.sh
-        dracut_install poweroff shutdown
+        inst_multiple poweroff shutdown
         inst_hook emergency 000 ./hard-off.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
         inst ./cryptroot-ask.sh /sbin/cryptroot-ask

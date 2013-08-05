@@ -19,6 +19,6 @@ installkernel() {
 
 install() {
     inst_hook cmdline 31 "$moddir/parse-dasd-mod.sh"
-    dracut_install dasd_cio_free grep sed seq
+    inst_multiple dasd_cio_free grep sed seq
 }
 

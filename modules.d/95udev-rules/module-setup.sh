@@ -8,7 +8,7 @@ install() {
     # Fixme: would be nice if we didn't have to know which rules to grab....
     # ultimately, /lib/initramfs/rules.d or somesuch which includes links/copies
     # of the rules we want so that we just copy those in would be best
-    dracut_install udevadm cat uname blkid \
+    inst_multiple udevadm cat uname blkid \
         /etc/udev/udev.conf
 
     [ -d ${initdir}/$systemdutildir ] || mkdir -p ${initdir}/$systemdutildir
@@ -54,7 +54,7 @@ install() {
         done
     } >> "$initdir/etc/group"
 
-    dracut_install -o \
+    inst_multiple -o \
         ${udevdir}/ata_id \
         ${udevdir}/cdrom_id \
         ${udevdir}/create_floppy_devices \
@@ -72,7 +72,7 @@ install() {
         ${udevdir}/pcmcia-socket-startup \
         ${udevdir}/pcmcia-check-broken-cis
 
-    dracut_install -o /etc/pcmcia/config.opts
+    inst_multiple -o /etc/pcmcia/config.opts
 
     [ -f /etc/arch-release ] && \
         inst_script "$moddir/load-modules.sh" /lib/udev/load-modules.sh

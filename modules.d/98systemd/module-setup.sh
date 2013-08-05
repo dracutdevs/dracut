@@ -25,7 +25,7 @@ install() {
         exit 1
     fi
 
-    dracut_install -o \
+    inst_multiple -o \
         $systemdutildir/systemd \
         $systemdutildir/systemd-cgroups-agent \
         $systemdutildir/systemd-shutdown \
@@ -111,7 +111,7 @@ install() {
         \
         journalctl systemctl echo swapoff systemd-cgls systemd-tmpfiles
 
-    dracut_install -o \
+    inst_multiple -o \
         /usr/lib/modules-load.d/*.conf \
         /usr/lib/sysctl.d/*.conf
 
@@ -136,7 +136,7 @@ install() {
     [[ $_mods ]] && instmods $_mods
 
     if [[ $hostonly ]]; then
-        dracut_install -o \
+        inst_multiple -o \
             /etc/systemd/journald.conf \
             /etc/systemd/system.conf \
             /etc/hostname \
@@ -156,7 +156,7 @@ install() {
     fi
 
     # install adm user/group for journald
-    dracut_install nologin
+    inst_multiple nologin
     egrep '^systemd-journal:' "$initdir/etc/passwd" 2>/dev/null >> "$initdir/etc/passwd"
     egrep '^systemd-journal:' /etc/group >> "$initdir/etc/group"
 

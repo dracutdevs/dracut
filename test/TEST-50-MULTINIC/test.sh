@@ -156,18 +156,18 @@ test_setup() {
             [[ $srcmods/$_f ]] && inst_simple "$srcmods/$_f" "/lib/modules/$kernel/$_f"
         done
 
-        dracut_install sh ls shutdown poweroff stty cat ps ln ip \
+        inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
             dmesg mkdir cp ping exportfs \
             modprobe rpc.nfsd rpc.mountd showmount tcpdump \
             /etc/services sleep mount chmod
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f "${_terminfodir}"/l/linux ] && break
         done
-        dracut_install -o "${_terminfodir}"/l/linux
-        type -P portmap >/dev/null && dracut_install portmap
-        type -P rpcbind >/dev/null && dracut_install rpcbind
-        [ -f /etc/netconfig ] && dracut_install /etc/netconfig
-        type -P dhcpd >/dev/null && dracut_install dhcpd
+        inst_multiple -o "${_terminfodir}"/l/linux
+        type -P portmap >/dev/null && inst_multiple portmap
+        type -P rpcbind >/dev/null && inst_multiple rpcbind
+        [ -f /etc/netconfig ] && inst_multiple /etc/netconfig
+        type -P dhcpd >/dev/null && inst_multiple dhcpd
         [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
         instmods nfsd sunrpc ipv6 lockd af_packet
         inst_simple /etc/os-release
@@ -175,9 +175,9 @@ test_setup() {
         inst ./hosts /etc/hosts
         inst ./exports /etc/exports
         inst ./dhcpd.conf /etc/dhcpd.conf
-        dracut_install /etc/nsswitch.conf /etc/rpc /etc/protocols
+        inst_multiple /etc/nsswitch.conf /etc/rpc /etc/protocols
 
-        dracut_install rpc.idmapd /etc/idmapd.conf
+        inst_multiple rpc.idmapd /etc/idmapd.conf
 
         inst_libdir_file 'libnfsidmap_nsswitch.so*'
         inst_libdir_file 'libnfsidmap/*.so*'
@@ -203,12 +203,12 @@ test_setup() {
     (
         export initdir="$TESTDIR"/mnt/nfs/client
         . "$basedir"/dracut-functions.sh
-        dracut_install sh shutdown poweroff stty cat ps ln ip \
+        inst_multiple sh shutdown poweroff stty cat ps ln ip \
             mount dmesg mkdir cp ping grep ls
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [[ -f ${_terminfodir}/l/linux ]] && break
         done
-        dracut_install -o "${_terminfodir}"/l/linux
+        inst_multiple -o "${_terminfodir}"/l/linux
         inst_simple /etc/os-release
         inst ./client-init.sh /sbin/init
         (
@@ -220,7 +220,7 @@ test_setup() {
         inst /etc/passwd /etc/passwd
         inst /etc/group /etc/group
 
-        dracut_install rpc.idmapd /etc/idmapd.conf
+        inst_multiple rpc.idmapd /etc/idmapd.conf
         inst_libdir_file 'libnfsidmap_nsswitch.so*'
         inst_libdir_file 'libnfsidmap/*.so*'
         inst_libdir_file 'libnfsidmap*.so*'
@@ -243,7 +243,7 @@ test_setup() {
     (
         export initdir="$TESTDIR"/overlay
         . "$basedir"/dracut-functions.sh
-        dracut_install poweroff shutdown
+        inst_multiple poweroff shutdown
         inst_hook emergency 000 ./hard-off.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )

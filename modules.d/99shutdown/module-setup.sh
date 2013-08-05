@@ -13,8 +13,8 @@ depends() {
 
 install() {
     local _d
-    dracut_install umount poweroff reboot halt losetup
-    dracut_install -o kexec
+    inst_multiple umount poweroff reboot halt losetup
+    inst_multiple -o kexec
     inst "$moddir/shutdown.sh" "$prefix/shutdown"
     [ -e "${initdir}/lib" ] || mkdir -m 0755 -p ${initdir}/lib
     mkdir -m 0755 -p ${initdir}/lib/dracut

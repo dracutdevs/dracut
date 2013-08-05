@@ -16,7 +16,7 @@ install() {
     inst_symlink /init /sbin/init
     inst_dir /lib/bootchart/tmpfs
 
-    dracut_install bootchartd bash \
+    inst_multiple bootchartd bash \
         /lib/bootchart/bootchart-collector /etc/bootchartd.conf \
         accton \
         echo \

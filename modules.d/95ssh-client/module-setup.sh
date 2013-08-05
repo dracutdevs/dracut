@@ -47,7 +47,7 @@ inst_sshenv()
 }
 
 install() {
-    dracut_install ssh scp
+    inst_multiple ssh scp
     inst_sshenv
 }
 

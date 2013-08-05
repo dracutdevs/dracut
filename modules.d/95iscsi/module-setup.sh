@@ -75,8 +75,8 @@ installkernel() {
 }
 
 install() {
-    dracut_install umount iscsistart hostname iscsi-iname
-    dracut_install -o iscsiuio
+    inst_multiple umount iscsistart hostname iscsi-iname
+    inst_multiple -o iscsiuio
     inst_hook cmdline 90 "$moddir/parse-iscsiroot.sh"
     inst_hook cleanup 90 "$moddir/cleanup-iscsi.sh"
     inst "$moddir/iscsiroot.sh" "/sbin/iscsiroot"

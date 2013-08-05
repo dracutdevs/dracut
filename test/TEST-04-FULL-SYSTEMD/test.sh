@@ -70,17 +70,17 @@ test_setup() {
         ln -sfn /run "$initdir/var/run"
         ln -sfn /run/lock "$initdir/var/lock"
 
-	dracut_install sh df free ls shutdown poweroff stty cat ps ln ip route \
+	inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip route \
 	    mount dmesg ifconfig dhclient mkdir cp ping dhclient \
 	    umount strace less setsid tree systemctl reset
 
 	for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
 	done
-	dracut_install -o ${_terminfodir}/l/linux
+	inst_multiple -o ${_terminfodir}/l/linux
 	inst "$basedir/modules.d/40network/dhclient-script.sh" "/sbin/dhclient-script"
 	inst "$basedir/modules.d/40network/ifup.sh" "/sbin/ifup"
-	dracut_install grep
+	inst_multiple grep
         inst_simple ./fstab /etc/fstab
         rpm -ql systemd | xargs -r $DRACUT_INSTALL ${initdir+-D "$initdir"} -o -a -l
         inst /lib/systemd/system/systemd-remount-fs.service
@@ -89,13 +89,13 @@ test_setup() {
         inst /etc/sysconfig/init
 	inst /lib/systemd/system/slices.target
 	inst /lib/systemd/system/system.slice
-	dracut_install -o /lib/systemd/system/dracut*
+	inst_multiple -o /lib/systemd/system/dracut*
 
         # make a journal directory
         mkdir -p $initdir/var/log/journal
 
         # install some basic config files
-        dracut_install -o  \
+        inst_multiple -o  \
 	    /etc/machine-id \
 	    /etc/adjtime \
             /etc/sysconfig/init \
@@ -149,9 +149,9 @@ EOF
 # EOF
 
         # install basic tools needed
-        dracut_install sh bash setsid loadkeys setfont \
+        inst_multiple sh bash setsid loadkeys setfont \
             login sushell sulogin gzip sleep echo mount umount
-        dracut_install modprobe
+        inst_multiple modprobe
 
         # install libnss_files for login
         inst_libdir_file "libnss_files*"
@@ -164,7 +164,7 @@ EOF
             /lib64/security \
             /lib/security -xtype f \
             | while read file; do
-            dracut_install -o $file
+            inst_multiple -o $file
         done
 
         # install dbus socket and service file
@@ -185,7 +185,7 @@ EOF
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
-        dracut_install -o ${_terminfodir}/l/linux
+        inst_multiple -o ${_terminfodir}/l/linux
 
         # softlink mtab
         ln -fs /proc/self/mounts $initdir/etc/mtab
@@ -194,11 +194,11 @@ EOF
         egrep -ho '^Exec[^ ]*=[^ ]+' $initdir/lib/systemd/system/*.service \
             | while read i; do
             i=${i##Exec*=}; i=${i##-}
-            dracut_install -o $i
+            inst_multiple -o $i
         done
 
         # some helper tools for debugging
-        [[ $DEBUGTOOLS ]] && dracut_install $DEBUGTOOLS
+        [[ $DEBUGTOOLS ]] && inst_multiple $DEBUGTOOLS
 
         # install ld.so.conf* and run ldconfig
         cp -a /etc/ld.so.conf* $initdir/etc
@@ -222,7 +222,7 @@ EOF
     (
 	export initdir=$TESTDIR/overlay
 	. $basedir/dracut-functions.sh
-	dracut_install sfdisk mkfs.btrfs btrfs poweroff cp umount sync
+	inst_multiple sfdisk mkfs.btrfs btrfs poweroff cp umount sync
 	inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
@@ -257,7 +257,7 @@ EOF
     (
 	export initdir=$TESTDIR/overlay
 	. $basedir/dracut-functions.sh
-	dracut_install poweroff shutdown
+	inst_multiple poweroff shutdown
 	inst_hook emergency 000 ./hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
