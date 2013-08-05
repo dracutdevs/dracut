@@ -421,7 +421,9 @@ find_mp_fstype() {
 find_dev_fstype() {
     local _find_dev _fs
     _find_dev="$1"
-    [[ "$_find_dev" = /dev* ]] || _find_dev="/dev/block/$_find_dev"
+    if ! [[ "$_find_dev" = /dev* ]]; then
+        [[ -b "/dev/block/$_find_dev" ]] && _find_dev="/dev/block/$_find_dev"
+    fi
 
     if [[ $use_fstab != yes ]]; then
         findmnt -e -v -n -o 'FSTYPE' --source "$_find_dev" | { \

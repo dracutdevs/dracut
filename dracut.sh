@@ -871,7 +871,10 @@ if [[ $hostonly ]]; then
     do
         mp=$(readlink -f "$mp")
         mountpoint "$mp" >/dev/null 2>&1 || continue
-        _dev="$(readlink -f "/dev/block/$(find_block_device "$mp")")"
+        _dev=$(find_block_device "$mp")
+        _bdev=$(readlink -f "/dev/block/$dev")
+        [[ -b $_bdev ]] && _dev=$_bdev
+        push host_devs $_dev
         [[ "$_mp" == "/" ]] && root_dev="$_dev"
         push host_devs "$_dev"
     done
