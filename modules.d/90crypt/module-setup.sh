@@ -57,7 +57,7 @@ install() {
         inst_hook cleanup 30 "$moddir/crypt-cleanup.sh"
     fi
 
-    if [[ $hostonly ]] && [[ -f /etc/cryptab ]]; then
+    if [[ $hostonly ]] && [[ -f /etc/crypttab ]]; then
         # filter /etc/crypttab for the devices we need
         while read _mapper _dev _rest; do
             [[ $_mapper = \#* ]] && continue
