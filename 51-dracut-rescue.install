@@ -6,6 +6,9 @@ export LANG=C
 
 COMMAND="$1"
 KERNEL_VERSION="$2"
+BOOT_DIR_ABS="${3%/*}/0-rescue"
+KERNEL_IMAGE="$4"
+
 
 dropindirs_sort()
 {
@@ -50,7 +53,6 @@ fi
 
 LOADER_ENTRY="/boot/loader/entries/${MACHINE_ID}-0-rescue.conf"
 BOOT_DIR="/${MACHINE_ID}/0-rescue"
-BOOT_DIR_ABS="/boot${BOOT_DIR}"
 
 ret=0
 
