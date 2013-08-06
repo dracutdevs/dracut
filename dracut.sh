@@ -1209,25 +1209,11 @@ if [[ $do_strip = yes ]] ; then
     done
 fi
 
-if [[ $do_strip = yes ]] ; then
+if [[ $do_strip = yes ]] && ! [[ $DRACUT_FIPS_MODE ]]; then
     dinfo "*** Stripping files ***"
-    if [[ $DRACUT_FIPS_MODE ]]; then
-        find "$initdir" -type f \
-            -executable -not -path '*/lib/modules/*.ko' -print0 \
-            | while read -r -d $'\0' f; do
-            if ! [[ -e "${f%/*}/.${f##*/}.hmac" ]] \
-                && ! [[ -e "/lib/hmaccalc/${f##*/}.hmac" ]] \
-                && ! [[ -e "/lib64/hmaccalc/${f##*/}.hmac" ]] \
-                && ! [[ -e "/lib/fipscheck/${f##*/}.hmac" ]] \
-                && ! [[ -e "/lib64/fipscheck/${f##*/}.hmac" ]]; then
-                printf "%s\000" "$f";
-            fi
-        done | xargs -r -0 strip -g 2>/dev/null
-    else
-        find "$initdir" -type f \
-            -executable -not -path '*/lib/modules/*.ko' -print0 \
-            | xargs -r -0 strip -g 2>/dev/null
-    fi
+    find "$initdir" -type f \
+        -executable -not -path '*/lib/modules/*.ko' -print0 \
+        | xargs -r -0 strip -g 2>/dev/null
 
     # strip kernel modules, but do not touch signed modules
     find "$initdir" -type f -path '*/lib/modules/*.ko' -print0 \
