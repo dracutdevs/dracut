@@ -172,13 +172,20 @@ save_netinfo() {
 }
 
 set_ifname() {
-    local name="$1" mac="$2" num=0 n=""
+    local name="$1" mac="$2" num=-1 n=""
     # if it's already set, return the existing name
     for n in $(getargs ifname=); do
         strstr "$n" "$mac" && echo ${n%%:*} && return
     done
     # otherwise, pick a new name and use that
-    while [ -e /sys/class/net/$name$num ]; do num=$(($num+1)); done
+    while :; do
+        num=$(($num+1));
+        [ -e /sys/class/net/$name$num ] && continue
+        for n in $(getargs ifname=); do
+            [ "$name$num" = "${n%%:*}" ] && continue 2
+        done
+        break
+    done
     echo "ifname=$name$num:$mac" >> /etc/cmdline.d/45-ifname.conf
     echo "$name$num"
 }
@@ -205,6 +212,9 @@ ibft_to_cmdline() {
             mac=$(read a < ${iface}/mac; echo $a)
             [ -z "$mac" ] && continue
             dev=$(set_ifname ibft $mac)
+
+            [ -e /tmp/net.${dev}.has_ibft_config ] && continue
+
             [ -e ${iface}/dhcp ] && dhcp=$(read a < ${iface}/dhcp; echo $a)
             if [ -e ${iface}/vlan ]; then
                vlan=$(read a < ${iface}/vlan; echo $a)
@@ -215,6 +225,8 @@ ibft_to_cmdline() {
                 echo "ip=$dev:dhcp"
             elif [ -e ${iface}/ip-addr ]; then
                 [ -e ${iface}/ip-addr ] && ip=$(read a < ${iface}/ip-addr; echo $a)
+                # skip not assigned ip adresses
+                [ "$ip" = "0.0.0.0" ] && continue
                 [ -e ${iface}/gateway ] && gw=$(read a < ${iface}/gateway; echo $a)
                 [ -e ${iface}/subnet-mask ] && mask=$(read a < ${iface}/subnet-mask; echo $a)
                 [ -e ${iface}/hostname ] && hostname=$(read a < ${iface}/hostname; echo $a)
