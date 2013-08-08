@@ -1420,7 +1420,8 @@ instmods() {
                     return $_ret
                 fi
 
-                if [[ $omit_drivers ]] && [[ "$1" =~ $omit_drivers ]]; then
+                _mod=${_mod/-/_}
+                if [[ $omit_drivers ]] && [[ "$_mod" =~ $omit_drivers ]]; then
                     dinfo "Omitting driver ${_mod##$srcmods}"
                     return 0
                 fi
