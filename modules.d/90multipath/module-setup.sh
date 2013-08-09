@@ -95,6 +95,9 @@ install() {
         inst_hook pre-trigger 02 "$moddir/multipathd.sh"
         inst_hook cleanup   02 "$moddir/multipathd-stop.sh"
     fi
+
+    inst_hook cleanup   80 "$moddir/multipathd-needshutdown.sh"
+
     inst_rules 40-multipath.rules 62-multipath.rules 65-multipath.rules 66-kpartx.rules
 }
 
