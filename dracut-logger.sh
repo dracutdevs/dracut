@@ -173,34 +173,34 @@ dlog_init() {
     export maxloglvl
 
 
-    if (($stdloglvl < 6)) && (($kmsgloglvl < 6)) && (($fileloglvl < 6)); then
+    if (($stdloglvl < 6)) && (($kmsgloglvl < 6)) && (($fileloglvl < 6)) && (($sysloglvl < 6)); then
         unset dtrace
         dtrace() { :; };
     fi
 
-    if (($stdloglvl < 5)) && (($kmsgloglvl < 5)) && (($fileloglvl < 5)); then
+    if (($stdloglvl < 5)) && (($kmsgloglvl < 5)) && (($fileloglvl < 5)) && (($sysloglvl < 5)); then
         unset ddebug
         ddebug() { :; };
     fi
 
-    if (($stdloglvl < 4)) && (($kmsgloglvl < 4)) && (($fileloglvl < 4)); then
+    if (($stdloglvl < 4)) && (($kmsgloglvl < 4)) && (($fileloglvl < 4)) && (($sysloglvl < 4)); then
         unset dinfo
         dinfo() { :; };
     fi
 
-    if (($stdloglvl < 3)) && (($kmsgloglvl < 3)) && (($fileloglvl < 3)); then
+    if (($stdloglvl < 3)) && (($kmsgloglvl < 3)) && (($fileloglvl < 3)) && (($sysloglvl < 3)); then
         unset dwarn
         dwarn() { :; };
         unset dwarning
         dwarning() { :; };
     fi
 
-    if (($stdloglvl < 2)) && (($kmsgloglvl < 2)) && (($fileloglvl < 2)); then
+    if (($stdloglvl < 2)) && (($kmsgloglvl < 2)) && (($fileloglvl < 2)) && (($sysloglvl < 2)); then
         unset derror
         derror() { :; };
     fi
 
-    if (($stdloglvl < 1)) && (($kmsgloglvl < 1)) && (($fileloglvl < 1)); then
+    if (($stdloglvl < 1)) && (($kmsgloglvl < 1)) && (($fileloglvl < 1)) && (($sysloglvl < 1)); then
         unset dfatal
         dfatal() { :; };
     fi
