@@ -18,7 +18,7 @@ echo_fs_helper() {
             echo -n " xfs_db xfs_repair xfs_check xfs_metadump "
             ;;
         ext?)
-            echo -n " e2fsck "
+            echo -n " fsck.$fs e2fsck "
             ;;
         jfs)
             echo -n " jfs_fsck "
@@ -80,5 +80,5 @@ install() {
         inst_simple /etc/e2fsck.conf
     fi
 
-    inst_multiple -o $_helpers
+    inst_multiple -o $_helpers fsck
 }
