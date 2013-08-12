@@ -137,7 +137,7 @@ else
     version=$($CAT -- "$image" | cpio --extract --verbose --quiet --to-stdout -- '*lib/dracut/dracut-*' 2>/dev/null)
     ((ret+=$?))
     echo "$version with dracut modules:"
-    $CAT -- "$image" | cpio --extract --verbose --quiet --to-stdout -- 'usr/lib/dracut/modules.txt' 2>/dev/null
+    $CAT -- "$image" | cpio --extract --verbose --quiet --to-stdout -- '*lib/dracut/modules.txt' 2>/dev/null
     ((ret+=$?))
     echo "========================================================================"
     if [ "$sorted" -eq 1 ]; then
