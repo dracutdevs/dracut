@@ -46,7 +46,6 @@ install() {
         return 0
     }
 
-    for_each_host_dev_fs check_crypt
 
     inst_multiple cryptsetup rmdir readlink umount
     inst_script "$moddir"/cryptroot-ask.sh /sbin/cryptroot-ask
@@ -74,12 +73,13 @@ install() {
                 fi
             done
         done < /etc/crypttab > $initdir/etc/crypttab
+    else
+        for_each_host_dev_fs check_crypt
     fi
 
     inst_simple "$moddir/crypt-lib.sh" "/lib/dracut-crypt-lib.sh"
 
     inst_multiple -o \
-        $systemdutildir/system-generators/systemd-cryptsetup-generator \
         $systemdutildir/system-generators/systemd-cryptsetup-generator \
         $systemdutildir/systemd-cryptsetup \
         $systemdsystemunitdir/systemd-ask-password-console.path \
