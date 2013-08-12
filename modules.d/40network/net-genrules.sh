@@ -74,7 +74,13 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
         done
         echo 'LABEL="net_end"'
 
-        for iface in $MASTER_IFACES; do
+        if [ -n "$MASTER_IFACES" ]; then
+            wait_ifaces=$MASTER_IFACES
+        else
+            wait_ifaces=$IFACES
+        fi
+
+        for iface in $wait_ifaces; do
             if [ "$bootdev" = "$iface" ] || [ "$NEEDNET" = "1" ]; then
                 echo "[ -f /tmp/setup_net_${iface}.ok ]" >$hookdir/initqueue/finished/wait-$iface.sh
             fi
