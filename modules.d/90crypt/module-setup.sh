@@ -73,9 +73,9 @@ install() {
                 fi
             done
         done < /etc/crypttab > $initdir/etc/crypttab
-    else
-        for_each_host_dev_fs check_crypt
     fi
+
+    for_each_host_dev_fs check_crypt
 
     inst_simple "$moddir/crypt-lib.sh" "/lib/dracut-crypt-lib.sh"
 

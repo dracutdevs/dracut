@@ -8,8 +8,9 @@ dev=$1
 luks=$2
 
 if [ -f /etc/crypttab ]; then
-    while read l rest; do
+    while read l d rest; do
         strstr "${l##luks-}" "${luks##luks-}" && exit 0
+        strstr "$d" "${luks##luks-}" && exit 0
     done < /etc/crypttab
 fi
 
