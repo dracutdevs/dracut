@@ -872,6 +872,10 @@ if [[ $hostonly ]]; then
         "/sbin" \
         "/lib" \
         "/lib64" \
+        "/usr/bin" \
+        "/usr/sbin" \
+        "/usr/lib" \
+        "/usr/lib64" \
         "/boot";
     do
         mp=$(readlink -f "$mp")
