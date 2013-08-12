@@ -62,7 +62,7 @@ while :; do
     fi
 
     main_loop=$(($main_loop+1))
-    if [ $main_loop -gt $RDRETRY ];
+    if [ $main_loop -gt $RDRETRY ]; then
         if ! [ -d /sysroot/etc/fstab ] || ! [ -e /sysroot/sbin/init ] ; then
             action_on_fail "Could not boot." && break
         fi
