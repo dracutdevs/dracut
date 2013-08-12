@@ -872,6 +872,7 @@ if [[ $hostonly ]]; then
         "/sbin" \
         "/lib" \
         "/lib64" \
+        "/usr" \
         "/usr/bin" \
         "/usr/sbin" \
         "/usr/lib" \
