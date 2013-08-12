@@ -41,11 +41,10 @@ install() {
 
     mkdir -p ${initdir}/tmp
 
-    inst_multiple switch_root || dfatal "Failed to install switch_root"
-
     inst_simple "$moddir/dracut-lib.sh" "/lib/dracut-lib.sh"
 
     if ! dracut_module_included "systemd"; then
+        inst_multiple switch_root || dfatal "Failed to install switch_root"
         inst_hook cmdline 10 "$moddir/parse-root-opts.sh"
     fi
 
