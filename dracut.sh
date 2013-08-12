@@ -1271,7 +1271,11 @@ mv -- "$outfile.$$" "$outfile"
 dinfo "*** Creating image file done ***"
 
 if (( maxloglvl >= 5 )); then
-    lsinitrd "$outfile"| ddebug
+    if [[ $allowlocal ]]; then
+	"$dracutbasedir/lsinitrd.sh" "$outfile"| ddebug
+    else
+        lsinitrd "$outfile"| ddebug
+    fi
 fi
 
 exit 0
