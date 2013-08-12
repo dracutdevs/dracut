@@ -323,7 +323,7 @@ _do_dlog() {
         if [[ "$_dlogfd" ]]; then
             echo "<$(_dlvl2syslvl $lvl)>$msg" >&$_dlogfd
         else
-            logger -t "dracut[$$]" -p $(_lvl2syspri $lvl) "$msg"
+            logger -t "dracut[$$]" -p $(_lvl2syspri $lvl) -- "$msg"
         fi
     fi
 
