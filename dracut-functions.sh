@@ -55,6 +55,21 @@ if ! [[ $dracutbasedir ]]; then
     dracutbasedir="$(readlink -f $dracutbasedir)"
 fi
 
+ldconfig_paths()
+{
+    local a i
+    declare -A a
+    for i in $(
+        ldconfig -pN 2>/dev/null | while read a b c d; do
+            [[ "$c" != "=>" ]] && continue
+            echo ${d%/*};
+        done
+    ); do
+        a["$i"]=1;
+    done;
+    printf "%s\n" ${!a[@]}
+}
+
 # Detect lib paths
 if ! [[ $libdirs ]] ; then
     if [[ "$(ldd /bin/sh)" == */lib64/* ]] &>/dev/null \
@@ -65,6 +80,9 @@ if ! [[ $libdirs ]] ; then
         libdirs+=" /lib"
         [[ -d /usr/lib ]] && libdirs+=" /usr/lib"
     fi
+
+    libdirs+="$(ldconfig_paths)"
+
     export libdirs
 fi
 
