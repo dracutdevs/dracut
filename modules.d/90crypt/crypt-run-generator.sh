@@ -3,16 +3,12 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 . /lib/dracut-lib.sh
+type crypttab_contains >/dev/null 2>&1 || . /lib/dracut-crypt-lib.sh
 
 dev=$1
 luks=$2
 
-if [ -f /etc/crypttab ]; then
-    while read l d rest; do
-        strstr "${l##luks-}" "${luks##luks-}" && exit 0
-        strstr "$d" "${luks##luks-}" && exit 0
-    done < /etc/crypttab
-fi
+crypttab_contains "$luks" && exit 0
 
 allowdiscards="-"
 

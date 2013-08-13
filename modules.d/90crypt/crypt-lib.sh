@@ -4,6 +4,19 @@
 
 command -v getarg >/dev/null || . /lib/dracut-lib.sh
 
+# check if the crypttab contains an entry for a LUKS UUID
+crypttab_contains() {
+    local luks="$1"
+    local l d rest
+    if [ -f /etc/crypttab ]; then
+        while read l d rest; do
+            strstr "${l##luks-}" "${luks##luks-}" && return 0
+            strstr "$d" "${luks##luks-}" && return 0
+        done < /etc/crypttab
+    fi
+    return 1
+}
+
 # ask_for_password
 #
 # Wraps around plymouth ask-for-password and adds fallback to tty password ask

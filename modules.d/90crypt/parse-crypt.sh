@@ -2,6 +2,8 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+type crypttab_contains >/dev/null 2>&1 || . /lib/dracut-crypt-lib.sh
+
 if ! getargbool 1 rd.luks -d -n rd_NO_LUKS; then
     info "rd.luks=0: removing cryptoluks activation"
     rm -f -- /etc/udev/rules.d/70-luks.rules
@@ -28,13 +30,15 @@ else
                     printf -- '$env{DEVNAME} luks-$env{ID_FS_UUID} %s"\n' $tout
                 } >> /etc/udev/rules.d/70-luks.rules.new
             else
-                {
-                    printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", '
-                    printf -- 'ENV{ID_FS_UUID}=="*%s*", ' $luksid
-                    printf -- 'RUN+="%s --settled --unique --onetime ' $(command -v initqueue)
-                    printf -- '--name systemd-cryptsetup-%%k %s start ' $(command -v systemctl)
-                    printf -- 'systemd-cryptsetup@luks$$(dev_unit_name -$env{ID_FS_UUID}).service"\n'
-                } >> /etc/udev/rules.d/70-luks.rules.new
+                if ! crypttab_contains "$luksid"; then
+                    {
+                        printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", '
+                        printf -- 'ENV{ID_FS_UUID}=="*%s*", ' $luksid
+                        printf -- 'RUN+="%s --settled --unique --onetime ' $(command -v initqueue)
+                        printf -- '--name systemd-cryptsetup-%%k %s start ' $(command -v systemctl)
+                        printf -- 'systemd-cryptsetup@luks$$(dev_unit_name -$env{ID_FS_UUID}).service"\n'
+                    } >> /etc/udev/rules.d/70-luks.rules.new
+                fi
             fi
 
             uuid=$luksid
