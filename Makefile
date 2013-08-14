@@ -158,7 +158,7 @@ clean:
 
 dist: dracut-$(VERSION).tar.bz2
 
-dracut-$(VERSION).tar.bz2: doc
+dracut-$(VERSION).tar.bz2: doc syncheck
 	@echo "DRACUT_VERSION=$(VERSION)" > dracut-version.sh
 	git archive --format=tar $(VERSION) --prefix=dracut-$(VERSION)/ > dracut-$(VERSION).tar
 	mkdir -p dracut-$(VERSION)
@@ -168,7 +168,7 @@ dracut-$(VERSION).tar.bz2: doc
 	bzip2 -9 dracut-$(VERSION).tar
 	rm -f -- dracut-$(VERSION).tar
 
-rpm: dracut-$(VERSION).tar.bz2
+rpm: dracut-$(VERSION).tar.bz2 syncheck
 	rpmbuild=$$(mktemp -d -t rpmbuild-dracut.XXXXXX); src=$$(pwd); \
 	cp dracut-$(VERSION).tar.bz2 "$$rpmbuild"; \
 	LC_MESSAGES=C $$src/git2spec.pl $(VERSION) "$$rpmbuild" < dracut.spec > $$rpmbuild/dracut.spec; \
