@@ -68,14 +68,19 @@ if strstr "$(cat /proc/mounts)" "/oldroot"; then
         case $_pid in
             *[!0-9]*) continue;;
         esac
-        [ -e /proc/$_pid/exe ] || continue
-        [ -e /proc/$_pid/root ] || continue
+        [ $_pid -eq $$ ] && continue
+
+        [ -e "/proc/$_pid/exe" ] || continue
+        [ -e "/proc/$_pid/root" ] || continue
+
         if strstr "$(ls -l /proc/$_pid /proc/$_pid/fd 2>/dev/null)" "oldroot"; then
             warn "Blocking umount of /oldroot [$_pid] $(cat /proc/$_pid/cmdline)"
-        elif [ $_pid -ne $$ ]; then
+        else
             warn "Still running [$_pid] $(cat /proc/$_pid/cmdline)"
         fi
-        ls -l /proc/$_pid/fd 2>&1 | vwarn
+
+        ls -l "/proc/$_pid/exe" 2>&1 | vwarn
+        ls -l "/proc/$_pid/fd" 2>&1 | vwarn
     done
 fi
 

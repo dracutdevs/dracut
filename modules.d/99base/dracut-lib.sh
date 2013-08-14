@@ -56,7 +56,7 @@ killall_proc_mountpoint() {
         esac
         [ -e "/proc/$_pid/exe" ] || continue
         [ -e "/proc/$_pid/root" ] || continue
-        strstr "$(ls -l -- '/proc/$_pid' '/proc/$_pid/fd' 2>/dev/null)" "$1" && kill -9 "$_pid"
+        strstr "$(ls -l -- "/proc/$_pid" "/proc/$_pid/fd" 2>/dev/null)" "$1" && kill -9 "$_pid"
     done
 }
 
