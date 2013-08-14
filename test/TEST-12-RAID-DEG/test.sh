@@ -50,6 +50,7 @@ test_run() {
     client_run rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.lvm.vg=dracut || return 1
     client_run rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.lvm.lv=dracut/failme failme && return 1
     client_run rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.lvm.lv=dracut/root || return 1
+
     return 0
 }
 
@@ -126,7 +127,7 @@ test_setup() {
 	inst ./cryptroot-ask.sh /sbin/cryptroot-ask
         mkdir -p $initdir/etc
         echo "ARRAY /dev/md0 level=raid5 num-devices=3 UUID=$MD_UUID" > $initdir/etc/mdadm.conf
-        echo "luks-$ID_FS_UUID /dev/md0 /etc/key" > $initdir/etc/crypttab
+        echo "luks-$ID_FS_UUID UUID=$ID_FS_UUID /etc/key" > $initdir/etc/crypttab
         echo -n test > $initdir/etc/key
     )
 
