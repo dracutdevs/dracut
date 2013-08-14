@@ -91,9 +91,37 @@ if ! [[ $kernel ]]; then
     export kernel
 fi
 
+# Version comparision function.  Assumes Linux style version scheme.
+# $1 = version a
+# $2 = comparision op (gt, ge, eq, le, lt, ne)
+# $3 = version b
+vercmp() {
+    local _n1=(${1//./ }) _op=$2 _n2=(${3//./ }) _i _res
+
+    for ((_i=0; ; _i++))
+    do
+        if [[ ! ${_n1[_i]}${_n2[_i]} ]]; then _res=0
+        elif ((${_n1[_i]:-0} > ${_n2[_i]:-0})); then _res=1
+        elif ((${_n1[_i]:-0} < ${_n2[_i]:-0})); then _res=2
+        else continue
+        fi
+        break
+    done
+
+    case $_op in
+        gt) ((_res == 1));;
+        ge) ((_res != 2));;
+        eq) ((_res == 0));;
+        le) ((_res != 1));;
+        lt) ((_res == 2));;
+        ne) ((_res != 0));;
+    esac
+}
+
 srcmods="/lib/modules/$kernel/"
+
 [[ $drivers_dir ]] && {
-    if vercmp "$(modprobe --version | cut -d' ' -f3)" lt 3.7; then
+    if ! command -v kmod &>/dev/null && vercmp "$(modprobe --version | cut -d' ' -f3)" lt 3.7; then
         dfatal 'To use --kmoddir option module-init-tools >= 3.7 is required.'
         exit 1
     fi
@@ -132,33 +160,6 @@ dracut_module_included() {
 # $1 = path
 mksubdirs() {
     [[ -e ${1%/*} ]] || mkdir -m 0755 -p -- "${1%/*}"
-}
-
-# Version comparision function.  Assumes Linux style version scheme.
-# $1 = version a
-# $2 = comparision op (gt, ge, eq, le, lt, ne)
-# $3 = version b
-vercmp() {
-    local _n1=${1//./ } _op=$2 _n2=${3//./ } _i _res
-
-    for ((_i=0; ; _i++))
-    do
-        if [[ ! ${_n1[_i]}${_n2[_i]} ]]; then _res=0
-        elif ((${_n1[_i]:-0} > ${_n2[_i]:-0})); then _res=1
-        elif ((${_n1[_i]:-0} < ${_n2[_i]:-0})); then _res=2
-        else continue
-        fi
-        break
-    done
-
-    case $_op in
-        gt) ((_res == 1));;
-        ge) ((_res != 2));;
-        eq) ((_res == 0));;
-        le) ((_res != 1));;
-        lt) ((_res == 2));;
-        ne) ((_res != 0));;
-    esac
 }
 
 # is_func <command>
