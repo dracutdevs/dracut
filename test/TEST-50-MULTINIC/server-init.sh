@@ -52,8 +52,9 @@ linkup() {
 >/dev/watchdog
 ip addr add 127.0.0.1/8 dev lo
 linkup lo
-ip addr add 192.168.50.1/24 dev eth0
-linkup eth0
+ip link set dev eth0 name ens3
+ip addr add 192.168.50.1/24 dev ens3
+linkup ens3
 >/dev/watchdog
 modprobe af_packet
 > /dev/watchdog
@@ -86,7 +87,7 @@ chmod 777 /var/lib/dhcpd/dhcpd.leases
 dhcpd -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases
 #echo -n 'V' > /dev/watchdog
 #sh -i
-#tcpdump -i eth0
+#tcpdump -i ens3
 # Wait forever for the VM to die
 echo "Serving NFS mounts"
 while :; do

@@ -8,7 +8,6 @@ KVERSION=${KVERSION-$(uname -r)}
 # Uncomment this to debug failures
 #DEBUGFAIL="rd.shell"
 #SERIAL="tcp:127.0.0.1:9999"
-SERIAL="null"
 
 run_server() {
     # Start server first
@@ -21,7 +20,7 @@ run_server() {
         -display none \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net socket,listen=127.0.0.1:12320 \
-        -serial $SERIAL \
+        -serial ${SERIAL:-null} \
         -watchdog i6300esb -watchdog-action poweroff \
         -kernel /boot/vmlinuz-$KVERSION \
         -append "rd.debug loglevel=77 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
@@ -152,7 +151,7 @@ test_nfsv3() {
         52:54:00:12:34:05 "root=dhcp" 192.168.50.1 wsize=4096 || return 1
 
     client_test "NFSv3 Bridge Customized root=dhcp DHCP path,options" \
-        52:54:00:12:34:05 "root=dhcp bridge=foobr0:eth0" 192.168.50.1 wsize=4096 || return 1
+        52:54:00:12:34:05 "root=dhcp bridge=foobr0:ens3" 192.168.50.1 wsize=4096 || return 1
 
     client_test "NFSv3 root=dhcp DHCP IP:path,options" \
         52:54:00:12:34:06 "root=dhcp" 192.168.50.2 wsize=4096 || return 1

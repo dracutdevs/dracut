@@ -82,7 +82,7 @@ test_setup() {
 	inst_hook emergency 000 ./hard-off.sh
 	inst ./cryptroot-ask.sh /sbin/cryptroot-ask
         mkdir -p $initdir/etc
-        echo "luks-$ID_FS_UUID /dev/md0 /etc/key" > $initdir/etc/crypttab
+        echo "testluks UUID=$ID_FS_UUID /etc/key" > $initdir/etc/crypttab
         #echo "luks-$ID_FS_UUID /dev/md0 none" > $initdir/etc/crypttab
         echo -n "test" > $initdir/etc/key
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules

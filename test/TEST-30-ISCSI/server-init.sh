@@ -9,8 +9,9 @@ echo "made it to the rootfs!"
 echo server > /proc/sys/kernel/hostname
 ip addr add 127.0.0.1/8 dev lo
 ip link set lo up
-ip addr add 192.168.50.1/24 dev eth0
-ip link set eth0 up
+ip link set dev eth0 name ens3
+ip addr add 192.168.50.1/24 dev ens3
+ip link set ens3 up
 >/var/lib/dhcpd/dhcpd.leases
 chmod 777 /var/lib/dhcpd/dhcpd.leases
 dhcpd -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases
