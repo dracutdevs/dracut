@@ -121,6 +121,7 @@ Summary: dracut modules to build a dracut initramfs with network support
 Requires: %{name} = %{version}-%{release}
 Requires: iputils
 Requires: iproute
+Requires: dhclient
 Obsoletes: dracut-generic < 008
 Provides:  dracut-generic = %{version}-%{release}
 
