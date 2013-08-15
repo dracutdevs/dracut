@@ -261,9 +261,9 @@ else
 fi
 
 # get_fs_env <device>
-# Get and set the ID_FS_TYPE variable from udev for a device.
+# Get and the ID_FS_TYPE variable from udev for a device.
 # Example:
-# $ get_fs_env /dev/sda2; echo $ID_FS_TYPE
+# $ get_fs_env /dev/sda2
 # ext4
 get_fs_env() {
     local evalstr
@@ -439,8 +439,29 @@ find_dev_fstype() {
         done; return 1; } && return 0
 
     return 1
-
 }
+
+# find_dev_fsopts <device>
+# Echo the filesystem options for a given device.
+# /proc/self/mountinfo is taken as the primary source of information
+# and /etc/fstab is used as a fallback.
+# Example:
+# $ find_dev_fsopts /dev/sda2
+# rw,relatime,discard,data=ordered
+find_dev_fsopts() {
+    local _find_dev _opts
+    _find_dev="$1"
+    if ! [[ "$_find_dev" = /dev* ]]; then
+        [[ -b "/dev/block/$_find_dev" ]] && _find_dev="/dev/block/$_find_dev"
+    fi
+
+    if [[ $use_fstab != yes ]]; then
+        findmnt -e -v -n -o 'OPTIONS' --source "$_find_dev" 2>/dev/null && return 0
+    fi
+
+    findmnt --fstab -e -v -n -o 'OPTIONS' --source "$_find_dev"
+}
+
 
 # finds the major:minor of the block device backing the root filesystem.
 find_root_block_device() { find_block_device /; }
