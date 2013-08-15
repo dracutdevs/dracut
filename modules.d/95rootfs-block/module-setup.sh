@@ -3,25 +3,6 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 check() {
-        rootopts="defaults"
-        while read dev mp fs opts dump fsck; do
-            # skip comments
-            [ "${dev%%#*}" != "$dev" ] && continue
-
-            if [ "$mp" = "/" ]; then
-                # sanity - determine/fix fstype
-                rootfs=$(find_mp_fstype /)
-                rootfs=${rootfs:-$fs}
-                rootopts=$opts
-                break
-            fi
-        done < /etc/fstab
-
-        [ "$rootfs" = "reiserfs" ] && journaldev=$(fs_get_option $rootopts "jdev")
-        [ "$rootfs" = "xfs" ] && journaldev=$(fs_get_option $rootopts "logdev")
-        if [ -n "$journaldev" ]; then
-            echo "root.journaldev=$journaldev" >> "${initdir}/etc/cmdline.d/95root-jurnaldev.conf"
-        fi
     return 0
 }
 
@@ -30,6 +11,23 @@ depends() {
 }
 
 install() {
+
+    if [[ $hostonly ]]; then
+        for dev in "${!host_fs_types[@]}"; do
+            [[ ${host_fs_types[$dev]} = "reiserfs" ]] || [[ ${host_fs_types[$dev]} = "xfs" ]] || continue
+            rootopts=$(find_dev_fsopts "$dev")
+            if [[ ${host_fs_types[$dev]} = "reiserfs" ]]; then
+                journaldev=$(fs_get_option $rootopts "jdev")
+            elif [[ ${host_fs_types[$dev]} = "xfs" ]]; then
+                journaldev=$(fs_get_option $rootopts "logdev")
+            fi
+
+            if [ -n "$journaldev" ]; then
+                echo "root.journaldev=$journaldev" >> "${initdir}/etc/cmdline.d/95root-journaldev.conf"
+            fi
+        done
+    fi
+
     inst_multiple umount
     inst_multiple tr
     if ! dracut_module_included "systemd"; then
