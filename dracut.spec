@@ -319,6 +319,7 @@ rm -rf -- $RPM_BUILD_ROOT
 %else
 %{dracutlibdir}/modules.d/00bootchart
 %endif
+%{dracutlibdir}/modules.d/00bash
 %{dracutlibdir}/modules.d/03modsign
 %{dracutlibdir}/modules.d/03rescue
 %{dracutlibdir}/modules.d/04watchdog
