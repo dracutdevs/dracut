@@ -29,19 +29,18 @@ installkernel() {
 install() {
 
     check_crypt() {
-        local dev=$1 fs=$2
+        local dev=$1 fs=$2 UUID
 
         [[ $fs = "crypto_LUKS" ]] || return 1
-        ID_FS_UUID=$(udevadm info --query=property --name=$dev \
+        UUID=$(blkid -u crypto -o export $dev \
             | while read line; do
-                [[ ${line#ID_FS_UUID} = $line ]] && continue
-                eval "$line"
-                echo $ID_FS_UUID
+                [[ ${line#UUID} = $line ]] && continue
+                printf "%s" "${line#UUID=}"
                 break
                 done)
-        [[ ${ID_FS_UUID} ]] || return 1
+        [[ ${UUID} ]] || return 1
         if ! [[ $kernel_only ]]; then
-            echo " rd.luks.uuid=luks-${ID_FS_UUID} " >> "${initdir}/etc/cmdline.d/90crypt.conf"
+            echo " rd.luks.uuid=luks-${UUID} " >> "${initdir}/etc/cmdline.d/90crypt.conf"
         fi
         return 0
     }

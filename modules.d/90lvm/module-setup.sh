@@ -29,15 +29,12 @@ install() {
     inst lvm
 
     check_lvm() {
-        local DM_VG_NAME DM_LV_NAME DM_UDEV_DISABLE_DISK_RULES_FLAG
+        local DM_VG_NAME DM_LV_NAME
 
-        eval $(udevadm info --query=property --name=$1 | egrep '(DM_VG_NAME|DM_LV_NAME|DM_UDEV_DISABLE_DISK_RULES_FLAG)=')
-        [[ "$DM_UDEV_DISABLE_DISK_RULES_FLAG" = "1" ]] && return 1
+        eval $(/usr/sbin/dmsetup splitname --nameprefixes --noheadings --rows $1 2>/dev/null)
         [[ ${DM_VG_NAME} ]] && [[ ${DM_LV_NAME} ]] || return 1
         if ! [[ " ${_activated[*]} " == *\ ${DM_VG_NAME}/${DM_LV_NAME}\ * ]]; then
-            if ! [[ $kernel_only ]]; then
-                echo " rd.lvm.lv=${DM_VG_NAME}/${DM_LV_NAME} " >> "${initdir}/etc/cmdline.d/90lvm.conf"
-            fi
+            echo " rd.lvm.lv=${DM_VG_NAME}/${DM_LV_NAME} " >> "${initdir}/etc/cmdline.d/90lvm.conf"
             push _activated "${DM_VG_NAME}/${DM_LV_NAME}"
         fi
         if ! [[ $_needthin ]]; then
@@ -59,6 +56,16 @@ install() {
             sed -i -e 's/\(^[[:space:]]*\)locking_type[[:space:]]*=[[:space:]]*[[:digit:]]/\1locking_type = 4/' ${initdir}/etc/lvm/lvm.conf
             sed -i -e 's/\(^[[:space:]]*\)use_lvmetad[[:space:]]*=[[:space:]]*[[:digit:]]/\1use_lvmetad = 0/' ${initdir}/etc/lvm/lvm.conf
         fi
+    fi
+
+    if ! [[ -e ${initdir}/etc/lvm/lvm.conf ]]; then
+        mkdir -p "${initdir}/etc/lvm"
+        {
+            echo 'global {'
+            echo 'locking_type = 4'
+            echo 'use_lvmetad = 0'
+            echo '}'
+        } > "${initdir}/etc/lvm/lvm.conf"
     fi
 
     inst_rules 11-dm-lvm.rules

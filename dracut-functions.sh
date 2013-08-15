@@ -260,22 +260,6 @@ else
     }
 fi
 
-get_persistent_dev() {
-    local i _tmp _dev
-
-    _dev=$(udevadm info --query=name --name="$1" 2>/dev/null)
-    [ -z "$_dev" ] && return
-
-    for i in /dev/mapper/* /dev/disk/by-uuid/* /dev/disk/by-id/*; do
-        [[ $i == /dev/mapper/mpath* ]] && continue
-        _tmp=$(udevadm info --query=name --name="$i" 2>/dev/null)
-        if [ "$_tmp" = "$_dev" ]; then
-            printf -- "%s" "$i"
-            return
-        fi
-    done
-}
-
 # get_fs_env <device>
 # Get and set the ID_FS_TYPE variable from udev for a device.
 # Example:
@@ -287,33 +271,16 @@ get_fs_env() {
 
     [[ $1 ]] || return
     unset ID_FS_TYPE
-    if ID_FS_TYPE=$(udevadm info --query=env --name="$1" \
-        | { while read line; do
-                    [[ "$line" == DEVPATH\=* ]] && found=1;
-                    if [[ "$line" == ID_FS_TYPE\=* ]]; then
-                        printf "%s" "${line#ID_FS_TYPE=}";
-                        exit 0;
-                    fi
-                done; [[ $found ]] && exit 0; exit 1; }) ; then
-        if [[ $ID_FS_TYPE ]]; then
-            printf "%s" "$ID_FS_TYPE"
-            return 0
-        fi
-    fi
-
-    # Fallback, if we don't have udev information
-    if find_binary blkid >/dev/null; then
-        ID_FS_TYPE=$(blkid -u filesystem -o export -- "$1" \
-            | while read line; do
-                if [[ "$line" == TYPE\=* ]]; then
-                    printf "%s" "${line#TYPE=}";
-                    exit 0;
-                fi
-                done)
-        if [[ $ID_FS_TYPE ]]; then
-            printf "%s" "$ID_FS_TYPE"
-            return 0
-        fi
+    ID_FS_TYPE=$(blkid -u filesystem -o export -- "$1" \
+        | while read line; do
+            if [[ "$line" == TYPE\=* ]]; then
+                printf "%s" "${line#TYPE=}";
+                exit 0;
+            fi
+            done)
+    if [[ $ID_FS_TYPE ]]; then
+        printf "%s" "$ID_FS_TYPE"
+        return 0
     fi
     return 1
 }
@@ -327,6 +294,23 @@ get_maj_min() {
     local _maj _min _majmin
     _majmin="$(stat -L -c '%t:%T' "$1" 2>/dev/null)"
     printf "%s" "$((0x${_majmin%:*})):$((0x${_majmin#*:}))"
+}
+
+# get a persistent path from a device
+get_persistent_dev() {
+    local i _tmp _dev
+
+    _dev=$(get_maj_min "$1")
+    [ -z "$_dev" ] && return
+
+    for i in /dev/mapper/* /dev/disk/by-uuid/* /dev/disk/by-id/*; do
+        [[ $i == /dev/mapper/mpath* ]] && continue
+        _tmp=$(get_maj_min "$i")
+        if [ "$_tmp" = "$_dev" ]; then
+            printf -- "%s" "$i"
+            return
+        fi
+    done
 }
 
 # find_block_device <mountpoint>

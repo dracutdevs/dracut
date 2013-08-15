@@ -27,25 +27,26 @@ install() {
     local _i
 
     check_dmraid() {
-        local dev=$1 fs=$2 holder DEVPATH DM_NAME
+        local dev=$1 fs=$2 holder DEVPATH DM_NAME majmin
         [[ "$fs" != *_raid_member ]] && return 1
 
-        DEVPATH=$(udevadm info --query=property --name=$dev \
-            | while read line; do
-                [[ ${line#DEVPATH} = $line ]] && continue
-                eval "$line"
-                echo $DEVPATH
-                break
-                done)
-        for holder in /sys/$DEVPATH/holders/*; do
-            [[ -e $holder ]] || continue
-            DM_NAME=$(udevadm info --query=property --path=$holder \
-                | while read line; do
-                    [[ ${line#DM_NAME} = $line ]] && continue
-                    eval "$line"
-                    echo $DM_NAME
+
+        majmin=$(get_maj_min $dev)
+        DEVPATH=$(
+            for i in /sys/block/*; do
+                [[ -e "$i/dev" ]] || continue
+                if [[ $a == $(<"$i/dev") ]]; then
+                    printf "%s" "$i"
                     break
-                    done)
+                fi
+            done
+        )
+
+        for holder in "$DEVPATH"/holders/*; do
+            [[ -e "$holder" ]] || continue
+            dev="/dev/${holder##*/}"
+            DM_NAME="$(/usr/sbin/dmsetup info -c --noheadings -o name "$dev" 2>/dev/null)"
+            [[ ${DM_NAME} ]] && break
         done
 
         [[ ${DM_NAME} ]] || return 1
