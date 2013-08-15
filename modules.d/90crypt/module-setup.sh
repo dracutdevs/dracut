@@ -26,25 +26,27 @@ installkernel() {
     instmods dm_crypt =crypto
 }
 
-install() {
+cmdline() {
+    local dev UUID
+    for dev in "${!host_fs_types[@]}"; do
+        [[ "${host_fs_types[$dev]}" != "crypto_LUKS" ]] && continue
 
-    check_crypt() {
-        local dev=$1 fs=$2 UUID
-
-        [[ $fs = "crypto_LUKS" ]] || return 1
-        UUID=$(blkid -u crypto -o export $dev \
-            | while read line; do
+        UUID=$(
+            blkid -u crypto -o export $dev \
+                | while read line; do
                 [[ ${line#UUID} = $line ]] && continue
                 printf "%s" "${line#UUID=}"
                 break
-                done)
-        [[ ${UUID} ]] || return 1
-        if ! [[ $kernel_only ]]; then
-            echo " rd.luks.uuid=luks-${UUID} " >> "${initdir}/etc/cmdline.d/90crypt.conf"
-        fi
-        return 0
-    }
+            done
+        )
+        [[ ${UUID} ]] || continue
+        printf "%s" " rd.luks.uuid=luks-${UUID}"
+    done
+}
 
+install() {
+
+    cmdline >> "${initdir}/etc/cmdline.d/90crypt.conf"
 
     inst_multiple cryptsetup rmdir readlink umount
     inst_script "$moddir"/cryptroot-ask.sh /sbin/cryptroot-ask
@@ -73,8 +75,6 @@ install() {
             done
         done < /etc/crypttab > $initdir/etc/crypttab
     fi
-
-    for_each_host_dev_fs check_crypt
 
     inst_simple "$moddir/crypt-lib.sh" "/lib/dracut-crypt-lib.sh"
 

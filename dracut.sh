@@ -91,6 +91,7 @@ Creates initial ramdisk images for preloading modules
                          firmwares, separated by :
   --kernel-only         Only install kernel drivers and firmware files
   --no-kernel           Do not install kernel drivers and firmware files
+  --print-cmdline       Print the kernel command line for the given disk layout
   --early-microcode     Combine early microcode with ramdisk
   --no-early-microcode  Do not combine early microcode with ramdisk
   --kernel-cmdline [PARAMETERS] Specify default kernel command line parameters
@@ -306,6 +307,7 @@ TEMP=$(unset POSIXLY_CORRECT; getopt \
     --long force \
     --long kernel-only \
     --long no-kernel \
+    --long print-cmdline \
     --long kernel-cmdline: \
     --long strip \
     --long nostrip \
@@ -380,6 +382,7 @@ while :; do
         -f|--force)    force=yes;;
         --kernel-only) kernel_only="yes"; no_kernel="no";;
         --no-kernel)   kernel_only="no"; no_kernel="yes";;
+        --print-cmdline) print_cmdline="yes"; hostonly_l="yes"; kernel_only="yes"; no_kernel="yes";;
         --early-microcode) early_microcode="yes";;
         --no-early-microcode) early_microcode="no";;
         --strip)       do_strip_l="yes";;
@@ -712,12 +715,14 @@ else
     exit 1
 fi
 
-inst /bin/sh
-if ! $DRACUT_INSTALL ${initdir+-D "$initdir"} -R "$initdir/bin/sh" &>/dev/null; then
-    unset DRACUT_RESOLVE_LAZY
-    export DRACUT_RESOLVE_DEPS=1
+if ! [[ $print_cmdline ]]; then
+    inst /bin/sh
+    if ! $DRACUT_INSTALL ${initdir+-D "$initdir"} -R "$initdir/bin/sh" &>/dev/null; then
+        unset DRACUT_RESOLVE_LAZY
+        export DRACUT_RESOLVE_DEPS=1
+    fi
+    rm -fr -- ${initdir}/*
 fi
-rm -fr -- ${initdir}/*
 
 if [[ -f $dracutbasedir/dracut-version.sh ]]; then
     . $dracutbasedir/dracut-version.sh
@@ -799,7 +804,7 @@ if [[ -d $srcmods ]]; then
     }
 fi
 
-if [[ -f $outfile && ! $force ]]; then
+if [[ -f $outfile && ! $force && ! $print_cmdline ]]; then
     dfatal "Will not override existing initramfs ($outfile) without --force"
     exit 1
 fi
@@ -904,7 +909,7 @@ if [[ $hostonly ]]; then
                         [[ $_mapper = \#* ]] && continue
                         [[ "$_d" -ef /dev/mapper/"$_mapper" ]] || continue
                         [[ "$_o" ]] || _o="$_p"
-                # skip mkswap swap
+                        # skip mkswap swap
                         [[ $_o == *swap* ]] && continue 2
                     done < /etc/crypttab
                 fi
@@ -988,6 +993,26 @@ export initdir dracutbasedir dracutmodules \
     DRACUT_VERSION udevdir prefix filesystems drivers \
     systemdutildir systemdsystemunitdir systemdsystemconfdir
 
+mods_to_load=""
+# check all our modules to see if they should be sourced.
+# This builds a list of modules that we will install next.
+for_each_module_dir check_module
+for_each_module_dir check_mount
+
+[[ "$mods_to_load " == *01fips\ * ]] && export DRACUT_FIPS_MODE=1
+
+if [[ $print_cmdline ]]; then
+    modules_loaded=" "
+    # source our modules.
+    for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
+        _d_mod=${moddir##*/}; _d_mod=${_d_mod#[0-9][0-9]}
+        module_cmdline "$_d_mod"
+    done
+    unset moddir
+    printf "\n"
+    exit 0
+fi
+
 # Create some directory structure first
 [[ $prefix ]] && mkdir -m 0755 -p "${initdir}${prefix}"
 
@@ -1044,14 +1069,6 @@ if [[ $kernel_only != yes ]]; then
         [ -c ${initdir}/dev/console ] || mknod ${initdir}/dev/console c 5 1
     fi
 fi
-
-mods_to_load=""
-# check all our modules to see if they should be sourced.
-# This builds a list of modules that we will install next.
-for_each_module_dir check_module
-for_each_module_dir check_mount
-
-[[ "$mods_to_load " == *01fips\ * ]] && export DRACUT_FIPS_MODE=1
 
 _isize=0 #initramfs size
 modules_loaded=" "

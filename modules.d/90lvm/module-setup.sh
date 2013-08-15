@@ -22,29 +22,42 @@ depends() {
     return 0
 }
 
-install() {
-    local _i
-    local _needthin
+get_host_lvs() {
     local _activated
+    declare -A _activated
+
+    for dev in "${!host_fs_types[@]}"; do
+        [ -e /sys/block/${dev#/dev/}/dm/name ] || continue
+        [ -e /sys/block/${dev#/dev/}/dm/uuid ] || continue
+        uuid=$(</sys/block/${dev#/dev/}/dm/uuid)
+        [[ "${uuid#LVM-}" == "$uuid" ]] && continue
+        dev=$(</sys/block/${dev#/dev/}/dm/name)
+        eval $(dmsetup splitname --nameprefixes --noheadings --rows "$dev" 2>/dev/null)
+        [[ ${DM_VG_NAME} ]] && [[ ${DM_LV_NAME} ]] || return 1
+        if ! [[ ${_activated[${DM_VG_NAME}/${DM_LV_NAME}]} ]]; then
+            printf "%s\n" "${DM_VG_NAME}/${DM_LV_NAME} "
+            _activated["${DM_VG_NAME}/${DM_LV_NAME}"]=1
+        fi
+    done
+}
+
+cmdline() {
+    get_host_lvs | while read line; do
+        printf " rd.lvm.lv=$line"
+    done
+}
+
+install() {
+    local _i _needthin
+
     inst lvm
 
-    check_lvm() {
-        local DM_VG_NAME DM_LV_NAME
-
-        eval $(/usr/sbin/dmsetup splitname --nameprefixes --noheadings --rows $1 2>/dev/null)
-        [[ ${DM_VG_NAME} ]] && [[ ${DM_LV_NAME} ]] || return 1
-        if ! [[ " ${_activated[*]} " == *\ ${DM_VG_NAME}/${DM_LV_NAME}\ * ]]; then
-            echo " rd.lvm.lv=${DM_VG_NAME}/${DM_LV_NAME} " >> "${initdir}/etc/cmdline.d/90lvm.conf"
-            push _activated "${DM_VG_NAME}/${DM_LV_NAME}"
-        fi
+    get_host_lvs | while read line; do
+        printf "%s" " rd.lvm.lv=$line"
         if ! [[ $_needthin ]]; then
-            [[ $(lvs --noheadings -o segtype ${DM_VG_NAME} 2>/dev/null) == *thin* ]] && _needthin=1
+            [[ "$(lvs --noheadings -o segtype ${line%%/*} 2>/dev/null)" == *thin* ]] && _needthin=1
         fi
-
-        return 0
-    }
-
-    for_each_host_dev_fs check_lvm
+    done >> "${initdir}/etc/cmdline.d/90lvm.conf"
 
     inst_rules "$moddir/64-lvm.rules"
 
@@ -81,7 +94,7 @@ install() {
     inst_libdir_file "libdevmapper-event-lvm*.so"
 
     if [[ $_needthin ]]; then
-        inst_multiple -o thin_dump thin_restore thin_check
+        inst_multiple -o thin_dump thin_restore thin_check thin_repair
     fi
 
 }

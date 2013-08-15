@@ -26,32 +26,36 @@ installkernel() {
     instmods =drivers/md
 }
 
+cmdline() {
+    local _activated dev line UUID
+    declare -A _activated
+
+    for dev in "${!host_fs_types[@]}"; do
+        [[ "${host_fs_types[$dev]}" != *_raid_member ]] && continue
+
+        UUID=$(
+            /sbin/mdadm --examine --export $dev \
+                | while read line; do
+                [[ ${line#MD_UUID=} = $line ]] && continue
+                printf "%s" "${line#MD_UUID=} "
+            done
+        )
+
+        if ! [[ ${_activated[${UUID}]} ]]; then
+            printf "%s" " rd.md.uuid=${UUID}"
+            _activated["${UUID}"]=1
+        fi
+
+    done
+}
+
 install() {
     inst_multiple cat
     inst_multiple -o mdmon
     inst $(command -v partx) /sbin/partx
     inst $(command -v mdadm) /sbin/mdadm
 
-    check_mdraid() {
-        local dev=$1 fs=$2 holder DEVPATH MD_UUID
-        [[ "$fs" != *_raid_member ]] && return 1
-
-        MD_UUID=$(/sbin/mdadm --examine --export $dev \
-            | while read line; do
-                [[ ${line#MD_UUID} = $line ]] && continue
-                eval "$line"
-                echo $MD_UUID
-                break
-                done)
-
-        [[ ${MD_UUID} ]] || return 1
-        if ! [[ $kernel_only ]]; then
-            echo " rd.md.uuid=${MD_UUID} " >> "${initdir}/etc/cmdline.d/90mdraid.conf"
-        fi
-        return 0
-    }
-
-    for_each_host_dev_fs check_mdraid
+    cmdline  >> "${initdir}/etc/cmdline.d/90mdraid.conf"
 
     inst_rules 64-md-raid.rules
     # remove incremental assembly from stock rules, so they don't shadow

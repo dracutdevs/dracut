@@ -23,13 +23,13 @@ depends() {
     return 0
 }
 
-install() {
-    local _i
+cmdline() {
+    local _activated
+    declare -A _activated
 
-    check_dmraid() {
-        local dev=$1 fs=$2 holder DEVPATH DM_NAME majmin
-        [[ "$fs" != *_raid_member ]] && return 1
-
+    for dev in "${!host_fs_types[@]}"; do
+        local holder DEVPATH DM_NAME majmin
+        [[ "${host_fs_types[$dev]}" != *_raid_member ]] && continue
 
         majmin=$(get_maj_min $dev)
         DEVPATH=$(
@@ -45,18 +45,23 @@ install() {
         for holder in "$DEVPATH"/holders/*; do
             [[ -e "$holder" ]] || continue
             dev="/dev/${holder##*/}"
-            DM_NAME="$(/usr/sbin/dmsetup info -c --noheadings -o name "$dev" 2>/dev/null)"
+            DM_NAME="$(dmsetup info -c --noheadings -o name "$dev" 2>/dev/null)"
             [[ ${DM_NAME} ]] && break
         done
 
-        [[ ${DM_NAME} ]] || return 1
-        if ! [[ $kernel_only ]]; then
-            echo " rd.dm.uuid=${DM_NAME} " >> "${initdir}/etc/cmdline.d/90dmraid.conf"
-        fi
-        return 0
-    }
+        [[ ${DM_NAME} ]] || continue
 
-    for_each_host_dev_fs check_dmraid
+        if ! [[ ${_activated[${DM_NAME}]} ]]; then
+            printf "%s" " rd.dm.uuid=${DM_NAME}"
+            _activated["${DM_NAME}"]=1
+        fi
+    done
+}
+
+install() {
+    local _i
+
+    cmdline >> "${initdir}/etc/cmdline.d/90dmraid.conf"
 
     inst_multiple dmraid
     inst_multiple -o kpartx

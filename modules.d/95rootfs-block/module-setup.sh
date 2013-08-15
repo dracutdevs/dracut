@@ -10,6 +10,15 @@ depends() {
     echo fs-lib
 }
 
+cmdline() {
+    local dev=/dev/block/$(find_root_block_device)
+    if [ -e $dev ]; then
+        printf " root=%s" $(get_persistent_dev "$dev")
+        printf " rootflags=%s" $(find_mp_fsopts /)
+        printf " rootfstype=%s" $(find_mp_fstype /)
+    fi
+}
+
 install() {
 
     if [[ $hostonly ]]; then

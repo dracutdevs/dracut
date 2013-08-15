@@ -304,6 +304,7 @@ get_persistent_dev() {
     [ -z "$_dev" ] && return
 
     for i in /dev/mapper/* /dev/disk/by-uuid/* /dev/disk/by-id/*; do
+        [[ $i == /dev/mapper/control ]] && continue
         [[ $i == /dev/mapper/mpath* ]] && continue
         _tmp=$(get_maj_min "$i")
         if [ "$_tmp" = "$_dev" ]; then
@@ -584,6 +585,7 @@ for_each_host_dev_and_slaves()
 check_vol_slaves() {
     local _lv _vg _pv
     for i in /dev/mapper/*; do
+        [[ $i == /dev/mapper/control ]] && continue
         _lv=$(get_maj_min $i)
         if [[ $_lv = $2 ]]; then
             _vg=$(lvm lvs --noheadings -o vg_name $i 2>/dev/null)
@@ -978,14 +980,14 @@ module_check() {
         $_moddir/check $hostonly
         _ret=$?
     else
-        unset check depends install installkernel
+        unset check depends cmdline install installkernel
         check() { true; }
         . $_moddir/module-setup.sh
         is_func check || return 0
         [ $_forced -ne 0 ] && unset hostonly
         check $hostonly
         _ret=$?
-        unset check depends install installkernel
+        unset check depends cmdline install installkernel
     fi
     hostonly=$_hostonly
     return $_ret
@@ -1006,12 +1008,12 @@ module_check_mount() {
         mount_needs=1 $_moddir/check 0
         _ret=$?
     else
-        unset check depends install installkernel
+        unset check depends cmdline install installkernel
         check() { false; }
         . $_moddir/module-setup.sh
         check 0
         _ret=$?
-        unset check depends install installkernel
+        unset check depends cmdline install installkernel
     fi
     unset mount_needs
     return $_ret
@@ -1030,12 +1032,33 @@ module_depends() {
         $_moddir/check -d
         return $?
     else
-        unset check depends install installkernel
+        unset check depends cmdline install installkernel
         depends() { true; }
         . $_moddir/module-setup.sh
         depends
         _ret=$?
-        unset check depends install installkernel
+        unset check depends cmdline install installkernel
+        return $_ret
+    fi
+}
+
+# module_cmdline <dracut module>
+# execute the cmdline() function of module-setup.sh of <dracut module>
+# or the "cmdline" script, if module-setup.sh is not found
+module_cmdline() {
+    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
+    local _ret
+    [[ -d $_moddir ]] || return 1
+    if [[ ! -f $_moddir/module-setup.sh ]]; then
+        [[ -x $_moddir/cmdline ]] && . "$_moddir/cmdline"
+        return $?
+    else
+        unset check depends cmdline install installkernel
+        cmdline() { true; }
+        . $_moddir/module-setup.sh
+        cmdline
+        _ret=$?
+        unset check depends cmdline install installkernel
         return $_ret
     fi
 }
@@ -1051,12 +1074,12 @@ module_install() {
         [[ -x $_moddir/install ]] && . "$_moddir/install"
         return $?
     else
-        unset check depends install installkernel
+        unset check depends cmdline install installkernel
         install() { true; }
         . $_moddir/module-setup.sh
         install
         _ret=$?
-        unset check depends install installkernel
+        unset check depends cmdline install installkernel
         return $_ret
     fi
 }
@@ -1072,12 +1095,12 @@ module_installkernel() {
         [[ -x $_moddir/installkernel ]] && . "$_moddir/installkernel"
         return $?
     else
-        unset check depends install installkernel
+        unset check depends cmdline install installkernel
         installkernel() { true; }
         . $_moddir/module-setup.sh
         installkernel
         _ret=$?
-        unset check depends install installkernel
+        unset check depends cmdline install installkernel
         return $_ret
     fi
 }
