@@ -62,7 +62,7 @@ ldconfig_paths()
     for i in $(
         ldconfig -pN 2>/dev/null | while read a b c d; do
             [[ "$c" != "=>" ]] && continue
-            echo ${d%/*};
+            printf "%s\n" ${d%/*};
         done
     ); do
         a["$i"]=1;
@@ -190,7 +190,7 @@ normalize_path() {
     shopt -q -s extglob
     set -- "${1//+(\/)//}"
     shopt -q -u extglob
-    echo "${1%/}"
+    printf "%s\n" "${1%/}"
 }
 
 # convert_abs_rel <from> <to>
@@ -206,10 +206,10 @@ convert_abs_rel() {
     set -- "$(normalize_path "$1")" "$(normalize_path "$2")"
 
     # corner case #1 - self looping link
-    [[ "$1" == "$2" ]] && { echo "${1##*/}"; return; }
+    [[ "$1" == "$2" ]] && { printf "%s\n" "${1##*/}"; return; }
 
     # corner case #2 - own dir link
-    [[ "${1%/*}" == "$2" ]] && { echo "."; return; }
+    [[ "${1%/*}" == "$2" ]] && { printf ".\n"; return; }
 
     IFS="/" __current=($1)
     IFS="/" __absolute=($2)
@@ -244,7 +244,7 @@ convert_abs_rel() {
         __newpath=$__newpath${__absolute[__i]}
     done
 
-    echo "$__newpath"
+    printf "%s\n" "$__newpath"
 }
 
 if [[ "$(ln --help)" == *--relative* ]]; then
@@ -335,14 +335,14 @@ find_block_device() {
                         _majmin=$(get_maj_min $_dev)
                     fi
                     if [[ $_majmin ]]; then
-                        echo $_majmin
+                        printf "%s\n" "$_majmin"
                     else
-                        echo $_dev
+                        printf "%s\n" "$_dev"
                     fi
                     return 0
                 fi
                 if [[ $_dev = *:* ]]; then
-                    echo $_dev
+                    printf "%s\n" "$_dev"
                     return 0
                 fi
             done; return 1; } && return 0
@@ -358,14 +358,14 @@ find_block_device() {
             if [[ -b $_dev ]]; then
                 [[ $_majmin ]] || _majmin=$(get_maj_min $_dev)
                 if [[ $_majmin ]]; then
-                    echo $_majmin
+                    printf "%s\n" "$_majmin"
                 else
-                    echo $_dev
+                    printf "%s\n" "$_dev"
                 fi
                 return 0
             fi
             if [[ $_dev = *:* ]]; then
-                echo $_dev
+                printf "%s\n" "$_dev"
                 return 0
             fi
         done; return 1; } && return 0
@@ -389,7 +389,7 @@ find_mp_fstype() {
             while read _fs; do
                 [[ $_fs ]] || continue
                 [[ $_fs = "autofs" ]] && continue
-                echo -n $_fs
+                printf "%s" "$_fs"
                 return 0
             done; return 1; } && return 0
     fi
@@ -398,7 +398,7 @@ find_mp_fstype() {
         while read _fs; do
             [[ $_fs ]] || continue
             [[ $_fs = "autofs" ]] && continue
-            echo -n $_fs
+            printf "%s" "$_fs"
             return 0
         done; return 1; } && return 0
 
@@ -425,7 +425,7 @@ find_dev_fstype() {
             while read _fs; do
                 [[ $_fs ]] || continue
                 [[ $_fs = "autofs" ]] && continue
-                echo -n $_fs
+                printf "%s" "$_fs"
                 return 0
             done; return 1; } && return 0
     fi
@@ -434,7 +434,7 @@ find_dev_fstype() {
         while read _fs; do
             [[ $_fs ]] || continue
             [[ $_fs = "autofs" ]] && continue
-            echo -n $_fs
+            printf "%s" "$_fs"
             return 0
         done; return 1; } && return 0
 
@@ -485,7 +485,7 @@ for_each_host_dev_fs()
 
 host_fs_all()
 {
-    echo "${host_fs_types[@]}"
+    printf "%s\n" "${host_fs_types[@]}"
 }
 
 # Walk all the slave relationships for a given block device.
@@ -572,7 +572,7 @@ check_vol_slaves() {
         if [[ $_lv = $2 ]]; then
             _vg=$(lvm lvs --noheadings -o vg_name $i 2>/dev/null)
             # strip space
-            _vg=$(echo $_vg)
+            _vg=$(printf "%s\n" "$_vg")
             if [[ $_vg ]]; then
                 for _pv in $(lvm vgs --noheadings -o pv_name "$_vg" 2>/dev/null)
                 do
