@@ -441,6 +441,22 @@ find_dev_fstype() {
     return 1
 }
 
+# find_mp_fsopts <mountpoint>
+# Echo the filesystem options for a given mountpoint.
+# /proc/self/mountinfo is taken as the primary source of information
+# and /etc/fstab is used as a fallback.
+# No newline is appended!
+# Example:
+# $ find_mp_fsopts /;echo
+# rw,relatime,discard,data=ordered
+find_mp_fsopts() {
+    if [[ $use_fstab != yes ]]; then
+        findmnt -e -v -n -o 'OPTIONS' --target "$1" 2>/dev/null && return 0
+    fi
+
+    findmnt --fstab -e -v -n -o 'OPTIONS' --target "$1"
+}
+
 # find_dev_fsopts <device>
 # Echo the filesystem options for a given device.
 # /proc/self/mountinfo is taken as the primary source of information
