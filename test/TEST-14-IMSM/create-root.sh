@@ -62,6 +62,10 @@ mount /dev/dracut/root /sysroot && \
 cp -a -t /sysroot /source/* && \
 umount /sysroot && \
 lvm lvchange -a n /dev/dracut/root && \
-echo "dracut-root-block-created" >/dev/sda
+udevadm settle
+mdadm --detail --export /dev/md0 |grep -F MD_UUID > /tmp/mduuid
+. /tmp/mduuid
+echo "MD_UUID=$MD_UUID"
+{ echo "dracut-root-block-created"; echo MD_UUID=$MD_UUID;} > /dev/sda
 mdadm --wait-clean /dev/md0
 poweroff -f

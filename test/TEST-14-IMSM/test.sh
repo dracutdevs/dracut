@@ -4,7 +4,7 @@ TEST_DESCRIPTION="root filesystem on LVM PV on a isw dmraid"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-#DEBUGFAIL="rd.shell rd.break"
+#DEBUGFAIL="rd.shell"
 #DEBUGFAIL="$DEBUGFAIL udev.log-priority=debug"
 
 client_run() {
@@ -15,7 +15,7 @@ client_run() {
 	-hdc $TESTDIR/disk2 \
 	-m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "$@ root=LABEL=root rw quiet rd.retry=5 rd.debug console=ttyS0,115200n81 selinux=0 rd.info $DEBUGFAIL" \
+	-append "$* root=LABEL=root rw debug rd.retry=5 rd.debug console=ttyS0,115200n81 selinux=0 rd.info $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     if ! grep -F -m 1 -q dracut-root-block-success $TESTDIR/root.ext2; then
 	echo "CLIENT TEST END: $@ [FAIL]"
@@ -28,23 +28,19 @@ client_run() {
 }
 
 test_run() {
-    client_run rd.md.imsm=0 || return 1
-    echo "IMSM test does not work anymore"
-    return 0
-    client_run || return 1
-    client_run rd.dm=0 || return 1
+    read MD_UUID < $TESTDIR/mduuid
+    client_run rd.auto rd.md.imsm=0 || return 1
+    client_run rd.auto rd.md.uuid=$MD_UUID rd.dm=0 || return 1
     # This test succeeds, because the mirror parts are found without
     # assembling the mirror itsself, which is what we want
-    client_run rd.md=0 rd.md.imsm failme && return 1
-    client_run rd.md=0 failme && return 1
+    client_run rd.auto rd.md.uuid=$MD_UUID rd.md=0 rd.md.imsm failme && return 1
+    client_run rd.auto rd.md.uuid=$MD_UUID rd.md=0 failme && return 1
     # the following test hangs on newer md
-    #client_run rd.dm=0 rd.md.imsm rd.md.conf=0 || return 1
+    client_run rd.auto rd.md.uuid=$MD_UUID rd.dm=0 rd.md.imsm rd.md.conf=0 || return 1
    return 0
 }
 
 test_setup() {
-#   echo "IMSM test does not work anymore"
-#   return 1
 
     # Create the blank file to use as a root filesystem
     rm -f -- $TESTDIR/root.ext2
@@ -65,6 +61,7 @@ test_setup() {
 	    [ -f ${_terminfodir}/l/linux ] && break
 	done
 	inst_multiple -o ${_terminfodir}/l/linux
+	inst_simple /etc/os-release
 	inst "$basedir/modules.d/40network/dhclient-script.sh" "/sbin/dhclient-script"
 	inst "$basedir/modules.d/40network/ifup.sh" "/sbin/ifup"
 	inst_multiple grep
@@ -80,7 +77,7 @@ test_setup() {
     (
 	export initdir=$TESTDIR/overlay
 	. $basedir/dracut-functions.sh
-	inst_multiple sfdisk mke2fs poweroff cp umount
+	inst_multiple sfdisk mke2fs poweroff cp umount grep
 	inst_hook initqueue 01 ./create-root.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
@@ -103,6 +100,8 @@ test_setup() {
 	-append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
     grep -F -m 1 -q dracut-root-block-created $TESTDIR/root.ext2 || return 1
+    eval $(grep -F --binary-files=text -m 1 MD_UUID $TESTDIR/root.ext2)
+    echo $MD_UUID > $TESTDIR/mduuid
     (
 	export initdir=$TESTDIR/overlay
 	. $basedir/dracut-functions.sh
