@@ -346,6 +346,8 @@ TEMP=$(unset POSIXLY_CORRECT; getopt \
     --long printsize \
     --long regenerate-all \
     --long noimageifnotneeded \
+    --long early-microcode \
+    --long no-early-microcode \
     -- "$@")
 
 if (( $? != 0 )); then
@@ -388,8 +390,8 @@ while :; do
         --kernel-only) kernel_only="yes"; no_kernel="no";;
         --no-kernel)   kernel_only="no"; no_kernel="yes";;
         --print-cmdline) print_cmdline="yes"; hostonly_l="yes"; kernel_only="yes"; no_kernel="yes";;
-        --early-microcode) early_microcode="yes";;
-        --no-early-microcode) early_microcode="no";;
+        --early-microcode) early_microcode_l="yes";;
+        --no-early-microcode) early_microcode_l="no";;
         --strip)       do_strip_l="yes";;
         --nostrip)     do_strip_l="no";;
         --hardlink)    do_hardlink_l="yes";;
@@ -665,6 +667,8 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $show_modules_l ]] && show_modules=$show_modules_l
 [[ $nofscks_l ]] && nofscks="yes"
 [[ $ro_mnt_l ]] && ro_mnt="yes"
+[[ $early_microcode_l ]] && early_microcode=$early_microcode_l
+[[ $early_microcode ]] || early_microcode=no
 # eliminate IFS hackery when messing with fw_dir
 fw_dir=${fw_dir//:/ }
 
