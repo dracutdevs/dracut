@@ -28,6 +28,45 @@ str_ends() {
     [ "${1%*$2}" != "$1" ]
 }
 
+if [ -z "$DRACUT_SYSTEMD" ]; then
+
+    warn() {
+        check_quiet
+        echo "<28>dracut Warning: $*" > /dev/kmsg
+        echo "dracut Warning: $*" >&2
+    }
+
+    info() {
+        check_quiet
+        echo "<30>dracut: $*" > /dev/kmsg
+        [ "$DRACUT_QUIET" != "yes" ] && \
+            echo "dracut: $*"
+    }
+
+else
+
+    warn() {
+        echo "Warning: $*" >&2
+    }
+
+    info() {
+        echo "$*"
+    }
+
+fi
+
+vwarn() {
+    while read line; do
+        warn $line;
+    done
+}
+
+vinfo() {
+    while read line; do
+        info $line;
+    done
+}
+
 # replaces all occurrences of 'search' in 'str' with 'replacement'
 #
 # str_replace str search replacement
@@ -407,44 +446,6 @@ check_quiet() {
     fi
 }
 
-if [ -z "$DRACUT_SYSTEMD" ]; then
-
-    warn() {
-        check_quiet
-        echo "<28>dracut Warning: $*" > /dev/kmsg
-        echo "dracut Warning: $*" >&2
-    }
-
-    info() {
-        check_quiet
-        echo "<30>dracut: $*" > /dev/kmsg
-        [ "$DRACUT_QUIET" != "yes" ] && \
-            echo "dracut: $*"
-    }
-
-else
-
-    warn() {
-        echo "Warning: $*" >&2
-    }
-
-    info() {
-        echo "$*"
-    }
-
-fi
-
-vwarn() {
-    while read line; do
-        warn $line;
-    done
-}
-
-vinfo() {
-    while read line; do
-        info $line;
-    done
-}
 
 check_occurances() {
     # Count the number of times the character $ch occurs in $str
