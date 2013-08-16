@@ -21,8 +21,8 @@ Group: System/Base
 %endif
 
 # The entire source code is GPLv2+
-# except install/* which is LGPLv2.1+
-License: GPLv2+ and LGPLv2.1+
+# except install/* which is LGPLv2+
+License: GPLv2+ and LGPLv2+
 
 URL: https://dracut.wiki.kernel.org/
 
