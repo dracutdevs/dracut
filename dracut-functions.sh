@@ -303,7 +303,16 @@ get_persistent_dev() {
     _dev=$(get_maj_min "$1")
     [ -z "$_dev" ] && return
 
-    for i in /dev/mapper/* /dev/disk/by-uuid/* /dev/disk/by-id/*; do
+    for i in \
+        /dev/mapper/* \
+        /dev/disk/$persistent_policy/* \
+        /dev/disk/by-uuid/* \
+        /dev/disk/by-label/* \
+        /dev/disk/by-partuuid/* \
+        /dev/disk/by-partlabel/* \
+        /dev/disk/by-id/* \
+        /dev/disk/by-path/* \
+        ; do
         [[ $i == /dev/mapper/control ]] && continue
         [[ $i == /dev/mapper/mpath* ]] && continue
         _tmp=$(get_maj_min "$i")
@@ -312,6 +321,22 @@ get_persistent_dev() {
             return
         fi
     done
+}
+
+shorten_persistent_dev() {
+    local dev="$1"
+    case "$dev" in
+        /dev/disk/by-uuid/*)
+            printf "%s" "UUID=${dev##*/}";;
+        /dev/disk/by-label/*)
+            printf "%s" "LABEL=${dev##*/}";;
+        /dev/disk/by-partuuid/*)
+            printf "%s" "PARTUUID=${dev##*/}";;
+        /dev/disk/by-partlabel/*)
+            printf "%s" "PARTLABEL=${dev##*/}";;
+        *)
+            printf "%s" "$dev";;
+    esac
 }
 
 # find_block_device <mountpoint>

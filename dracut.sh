@@ -132,8 +132,12 @@ Creates initial ramdisk images for preloading modules
                          /usr/lib/dracut/modules.d.
                          Useful when running dracut from a git checkout.
   -H, --hostonly        Host-Only mode: Install only what is needed for
-                         booting the local host instead of a generic host.
+                        booting the local host instead of a generic host.
   -N, --no-hostonly     Disables Host-Only mode
+  --persistent-policy [POLICY]
+                        Use [POLICY] to address disks and partitions.
+                        POLICY can be any directory name found in /dev/disk.
+                        E.g. "by-uuid", "by-label"
   --fstab               Use /etc/fstab to determine the root device.
   --add-fstab [FILE]    Add file to the initramfs fstab
   --mount "[DEV] [MP] [FSTYPE] [FSOPTS]"
@@ -328,6 +332,7 @@ TEMP=$(unset POSIXLY_CORRECT; getopt \
     --long host-only \
     --long no-hostonly \
     --long no-host-only \
+    --long persistent-policy: \
     --long fstab \
     --long help \
     --long bzip2 \
@@ -408,6 +413,8 @@ while :; do
                        hostonly_l="yes" ;;
         -N|--no-hostonly|--no-host-only)
                        hostonly_l="no" ;;
+        --persistent-policy)
+                       persistent_policy="$2"; shift;;
         --fstab)       use_fstab_l="yes" ;;
         -h|--help)     long_usage; exit 1 ;;
         -i|--include)  push include_src "$2"
