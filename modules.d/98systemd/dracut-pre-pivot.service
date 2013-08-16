@@ -10,7 +10,7 @@
 [Unit]
 Description=dracut pre-pivot and cleanup hook
 Documentation=man:dracut-pre-pivot.service(8)
-After=initrd.target initrd-parse-etc.service
+After=initrd.target initrd-parse-etc.service sysroot.mount
 After=dracut-initqueue.service dracut-pre-mount.service dracut-mount.service
 Before=initrd-cleanup.service
 ConditionPathExists=/etc/initrd-release
