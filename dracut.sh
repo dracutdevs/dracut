@@ -1010,7 +1010,7 @@ mods_to_load=""
 for_each_module_dir check_module
 for_each_module_dir check_mount
 
-[[ "$mods_to_load " == *01fips\ * ]] && export DRACUT_FIPS_MODE=1
+dracut_module_included "fips" && export DRACUT_FIPS_MODE=1
 
 if [[ $print_cmdline ]]; then
     modules_loaded=" "
