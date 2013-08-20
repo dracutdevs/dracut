@@ -913,8 +913,7 @@ if [[ $hostonly ]]; then
                 [[ $_t != "swap" ]] && continue
                 [[ $_m != "swap" ]] && [[ $_m != "none" ]] && continue
                 [[ "$_o" == *noauto* ]] && continue
-                [[ "$_d" == UUID\=* ]] && _d="/dev/disk/by-uuid/${_d#UUID=}"
-                [[ "$_d" == LABEL\=* ]] && _d="/dev/disk/by-label/$_d#LABEL=}"
+                _d=$(expand_persistent_dev "$_d")
                 [[ "$_d" -ef "$dev" ]] || continue
 
                 if [[ -f /etc/crypttab ]]; then

@@ -323,19 +323,43 @@ get_persistent_dev() {
     done
 }
 
+expand_persistent_dev() {
+    local _dev=$1
+
+    case "$_dev" in
+        LABEL=*)
+            _dev="/dev/disk/by-label/${_dev#LABEL=}"
+            ;;
+        UUID=*)
+            _dev="${_dev#UUID=}"
+            _dev="$(tr "[:upper:]" "[:lower:]" <<< "$_dev" )"
+            _dev="/dev/disk/by-uuid/${_dev}"
+            ;;
+        PARTUUID=*)
+            _dev="${_dev#PARTUUID=}"
+            _dev="$(tr "[:upper:]" "[:lower:]"  <<< "$_dev" )"
+            _dev="/dev/disk/by-partuuid/${_dev}"
+            ;;
+        PARTLABEL=*)
+            _dev="/dev/disk/by-partlabel/${_dev#PARTLABEL=}"
+            ;;
+    esac
+    printf "%s" "$_dev"
+}
+
 shorten_persistent_dev() {
-    local dev="$1"
-    case "$dev" in
+    local _dev="$1"
+    case "$_dev" in
         /dev/disk/by-uuid/*)
-            printf "%s" "UUID=${dev##*/}";;
+            printf "%s" "UUID=${_dev##*/}";;
         /dev/disk/by-label/*)
-            printf "%s" "LABEL=${dev##*/}";;
+            printf "%s" "LABEL=${_dev##*/}";;
         /dev/disk/by-partuuid/*)
-            printf "%s" "PARTUUID=${dev##*/}";;
+            printf "%s" "PARTUUID=${_dev##*/}";;
         /dev/disk/by-partlabel/*)
-            printf "%s" "PARTLABEL=${dev##*/}";;
+            printf "%s" "PARTLABEL=${_dev##*/}";;
         *)
-            printf "%s" "$dev";;
+            printf "%s" "$_dev";;
     esac
 }
 
