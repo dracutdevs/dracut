@@ -5,8 +5,8 @@ Will Woods <wwoods@redhat.com>
 Philippe Seewer <philippe.seewer@bfh.ch>
 Warren Togami <wtogami@redhat.com>
 Jeremy Katz <katzj@redhat.com>
-David Dillow <dave@thedillows.org>
 Dave Young <dyoung@redhat.com>
+David Dillow <dave@thedillows.org>
 Michal Soltys <soltys@ziu.info>
 Amerigo Wang <amwang@redhat.com>
 Colin Guthrie <colin@mageia.org>
@@ -16,11 +16,11 @@ Andreas Thienemann <andreas@bawue.net>
 Hans de Goede <hdegoede@redhat.com>
 John Reiser <jreiser@bitwagon.com>
 Luca Berra <bluca@vodka.it>
+WANG Chao <chaowang@redhat.com>
 Daniel Drake <dsd@laptop.org>
 Dan Horák <dhorak@redhat.com>
-WANG Chao <chaowang@redhat.com>
-Leho Kraav <leho@kraav.com>
 Baoquan He <bhe@redhat.com>
+Leho Kraav <leho@kraav.com>
 Brian C. Lane <bcl@redhat.com>
 Kamil Rytarowski <n54@gmx.com>
 Marc Grimme <grimme@atix.de>
@@ -28,6 +28,7 @@ Chao Wang <chaowang@redhat.com>
 Frederic Crozat <fcrozat@suse.com>
 Jesse Keating <jkeating@redhat.com>
 Milan Broz <mbroz@redhat.com>
+Radek Vykydal <rvykydal@redhat.com>
 Roberto Sassu <roberto.sassu@polito.it>
 Anton Blanchard <anton@samba.org>
 Bill Nottingham <notting@redhat.com>
@@ -40,13 +41,13 @@ Lance Albertson <lance@osuosl.org>
 Marian Ganisin <mganisin@redhat.com>
 Michael Ploujnikov <plouj@somanetworks.com>
 Peter Rajnoha <prajnoha@redhat.com>
-Radek Vykydal <rvykydal@redhat.com>
 Wim Muskee <wimmuskee@gmail.com>
 Alan Jenkins <alan-jenkins@tuffmail.co.uk>
 Alan Pevec <apevec@redhat.com>
 Frederick Grose <fgrose@sugarlabs.org>
 Ian Dall <ian@beware.dropbear.id.au>
 James Buren <ryuo@frugalware.org>
+James Lee <jlee@thestaticvoid.com>
 Joey Boggs <jboggs@redhat.com>
 Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Mike Snitzer <snitzer@redhat.com>
@@ -64,6 +65,7 @@ Canek Peláez Valdés <caneko@gmail.com>
 Chris Leech <cleech@redhat.com>
 Christian Heinz <christian.ch.heinz@gmail.com>
 Cong Wang <amwang@redhat.com>
+Daniel Schaal <farbing@web.de>
 Dave Jones <davej@redhat.com>
 Dave Young <dave@redhat.com>
 Dennis Schridde <devurandom@gmx.net>
@@ -71,7 +73,6 @@ Duane Griffin <duaneg@dghda.com>
 Glen Gray <slaine@slaine.org>
 Hermann Gausterer <git-dracut-2012@mrq1.org>
 James Laska <jlaska@redhat.com>
-James Lee <jlee@thestaticvoid.com>
 Jan Stodola <jstodola@redhat.com>
 Jiri Pirko <jiri@resnulli.us>
 Joe Lawrence <Joe.Lawrence@stratus.com>

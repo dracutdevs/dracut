@@ -1,3 +1,50 @@
+dracut-032
+==========
+- add parameter --print-cmdline
+    This prints the kernel command line parameters for the current disk
+    layout.
+    $ dracut --print-cmdline
+    rd.luks.uuid=luks-e68c8906-6542-4a26-83c4-91b4dd9f0471
+    rd.lvm.lv=debian/root rd.lvm.lv=debian/usr root=/dev/mapper/debian-root
+    rootflags=rw,relatime,errors=remount-ro,user_xattr,barrier=1,data=ordered
+    rootfstype=ext4
+- dracut.sh: add --persistent-policy option and persistent_policy conf option
+    --persistent-policy <policy>:
+        Use <policy> to address disks and partitions.
+        <policy> can be any directory name found in /dev/disk.
+        E.g. "by-uuid", "by-label"
+- dracut now creates the initramfs without udevadm
+  that means the udev database does not have to populated
+  and the initramfs can be built in a chroot with
+  /sys /dev /proc mounted
+- renamed dracut_install() to inst_multiple() for consistent naming
+- if $libdirs is unset, fall back to ld.so.cache paths
+- always assemble /usr device in initramfs
+- bash module added (disable it, if you really want dash)
+- continue to boot, if the main loop times out, in systemd mode
+- removed inst*() shell pure versions, dracut-install binary is in charge now
+- fixed ifcfg file generation for vlan
+- do not include adjtime and localtime anymore
+- fixed generation of zfcp.conf of CMS setups
+- install vt102 terminfo
+  dracut_install() is still there for backwards compat
+- do not strip files in FIPS mode
+- fixed iBFT interface configuration
+- fs-lib: install fsck and fsck.ext*
+- shutdown: fixed killall_proc_mountpoint()
+- network: also wait for ethernet interfaces to setup
+- fixed checking for FIPS mode
+
+Contributions from:
+Harald Hoyer
+WANG Chao
+Baoquan He
+Daniel Schaal
+Dave Young
+James Lee
+Radek Vykydal
+
+
 dracut-031
 ==========
 - do not include the resume dracut module in hostonly mode,
