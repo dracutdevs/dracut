@@ -62,6 +62,7 @@ install() {
     local _i
 
     cmdline >> "${initdir}/etc/cmdline.d/90dmraid.conf"
+    echo >> "${initdir}/etc/cmdline.d/90dmraid.conf"
 
     inst_multiple dmraid
     inst_multiple -o kpartx

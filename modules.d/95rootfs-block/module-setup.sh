@@ -32,7 +32,7 @@ install() {
             fi
 
             if [ -n "$journaldev" ]; then
-                echo "root.journaldev=$journaldev" >> "${initdir}/etc/cmdline.d/95root-journaldev.conf"
+                printf "%s\n" "root.journaldev=$journaldev" >> "${initdir}/etc/cmdline.d/95root-journaldev.conf"
             fi
         done
     fi

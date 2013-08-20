@@ -56,6 +56,7 @@ install() {
     inst $(command -v mdadm) /sbin/mdadm
 
     cmdline  >> "${initdir}/etc/cmdline.d/90mdraid.conf"
+    echo  >> "${initdir}/etc/cmdline.d/90mdraid.conf"
 
     inst_rules 64-md-raid.rules
     # remove incremental assembly from stock rules, so they don't shadow

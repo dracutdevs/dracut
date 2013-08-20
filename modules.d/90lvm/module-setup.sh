@@ -58,6 +58,7 @@ install() {
             [[ "$(lvs --noheadings -o segtype ${line%%/*} 2>/dev/null)" == *thin* ]] && _needthin=1
         fi
     done >> "${initdir}/etc/cmdline.d/90lvm.conf"
+    echo >> "${initdir}/etc/cmdline.d/90lvm.conf"
 
     inst_rules "$moddir/64-lvm.rules"
 

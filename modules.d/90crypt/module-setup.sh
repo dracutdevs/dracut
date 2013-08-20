@@ -47,6 +47,7 @@ cmdline() {
 install() {
 
     cmdline >> "${initdir}/etc/cmdline.d/90crypt.conf"
+    echo >> "${initdir}/etc/cmdline.d/90crypt.conf"
 
     inst_multiple cryptsetup rmdir readlink umount
     inst_script "$moddir"/cryptroot-ask.sh /sbin/cryptroot-ask
