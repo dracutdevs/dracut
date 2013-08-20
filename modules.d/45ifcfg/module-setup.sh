@@ -3,6 +3,7 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 check() {
+    [[ -d /etc/sysconfig/network-scripts ]] && return 0
     return 255
 }
 

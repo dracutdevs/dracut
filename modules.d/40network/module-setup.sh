@@ -16,7 +16,6 @@ check() {
 }
 
 depends() {
-    [ -d /etc/sysconfig/network-scripts/ ] && echo ifcfg
     return 0
 }
 
