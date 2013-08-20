@@ -153,7 +153,7 @@ dracut_need_initqueue() {
 }
 
 dracut_module_included() {
-    [[ "$mods_to_load $modules_loaded" == *$@* ]]
+    [[ " $mods_to_load $modules_loaded " == *\ $*\ * ]]
 }
 
 # Create all subdirectories for given path without creating the last element.
