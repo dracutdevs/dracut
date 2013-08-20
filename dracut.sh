@@ -910,7 +910,8 @@ if [[ $hostonly ]]; then
             while read _d _m _t _o _r; do
                 [[ "$_d" == \#* ]] && continue
                 [[ $_d ]] || continue
-                [[ $_t != "swap" ]] || [[ $_m != "swap" ]] && continue
+                [[ $_t != "swap" ]] && continue
+                [[ $_m != "swap" ]] && [[ $_m != "none" ]] && continue
                 [[ "$_o" == *noauto* ]] && continue
                 [[ "$_d" == UUID\=* ]] && _d="/dev/disk/by-uuid/${_d#UUID=}"
                 [[ "$_d" == LABEL\=* ]] && _d="/dev/disk/by-label/$_d#LABEL=}"
