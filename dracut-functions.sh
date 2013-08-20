@@ -305,7 +305,7 @@ get_persistent_dev() {
 
     for i in \
         /dev/mapper/* \
-        /dev/disk/$persistent_policy/* \
+        /dev/disk/${persistent_policy:-by-uuid}/* \
         /dev/disk/by-uuid/* \
         /dev/disk/by-label/* \
         /dev/disk/by-partuuid/* \

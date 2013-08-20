@@ -416,7 +416,7 @@ while :; do
         -N|--no-hostonly|--no-host-only)
                        hostonly_l="no" ;;
         --persistent-policy)
-                       persistent_policy="$2"; shift;;
+                       persistent_policy_l="$2"; shift;;
         --fstab)       use_fstab_l="yes" ;;
         -h|--help)     long_usage; exit 1 ;;
         -i|--include)  push include_src "$2"
@@ -656,6 +656,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $prefix_l ]] && prefix=$prefix_l
 [[ $prefix = "/" ]] && unset prefix
 [[ $hostonly_l ]] && hostonly=$hostonly_l
+[[ $persistent_policy_l ]] && persistent_policy=$persistent_policy_l
 [[ $use_fstab_l ]] && use_fstab=$use_fstab_l
 [[ $mdadmconf_l ]] && mdadmconf=$mdadmconf_l
 [[ $lvmconf_l ]] && lvmconf=$lvmconf_l
