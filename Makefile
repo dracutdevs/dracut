@@ -76,11 +76,11 @@ endif
 %.xml: %.asc
 	asciidoc -d manpage -b docbook -o $@ $<
 
-dracut.html: dracut.asc $(manpages)
+dracut.html: dracut.asc $(manpages) dracut.css
 	asciidoc -a numbered -d book -b docbook -o dracut.xml dracut.asc
 	xsltproc -o dracut.html --xinclude -nonet \
-		--stringparam html.stylesheet \
-		http://docs.fedoraproject.org/en-US/Common_Content/css/default.css \
+		--stringparam custom.css.source dracut.css \
+		--stringparam generate.css.header 1 \
 		http://docbook.sourceforge.net/release/xsl/current/xhtml/docbook.xsl dracut.xml
 	rm -f -- dracut.xml
 
