@@ -332,12 +332,12 @@ expand_persistent_dev() {
             ;;
         UUID=*)
             _dev="${_dev#UUID=}"
-            _dev="$(tr "[:upper:]" "[:lower:]" <<< "$_dev" )"
+            _dev="${_dev,,}"
             _dev="/dev/disk/by-uuid/${_dev}"
             ;;
         PARTUUID=*)
             _dev="${_dev#PARTUUID=}"
-            _dev="$(tr "[:upper:]" "[:lower:]"  <<< "$_dev" )"
+            _dev="${_dev,,}"
             _dev="/dev/disk/by-partuuid/${_dev}"
             ;;
         PARTLABEL=*)
