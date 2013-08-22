@@ -850,12 +850,14 @@ inst_rule_initqueue() {
 inst_rules() {
     local _target=/etc/udev/rules.d _rule _found
 
+    [[ $hostonly ]] || unset hostonly
+
     inst_dir "${udevdir}/rules.d"
     inst_dir "$_target"
     for _rule in "$@"; do
         if [ "${_rule#/}" = "$_rule" ]; then
-            for r in ${udevdir}/rules.d /etc/udev/rules.d; do
-                if [[ -f $r/$_rule ]]; then
+            for r in ${udevdir}/rules.d ${hostonly+/etc/udev/rules.d}; do
+                if [[ -e $r/$_rule ]]; then
                     _found="$r/$_rule"
                     inst_rule_programs "$_found"
                     inst_rule_group_owner "$_found"
