@@ -96,7 +96,7 @@ handle_netroot()
 # XXX is this needed?
     getarg ro && iscsirw=ro
     getarg rw && iscsirw=rw
-    fsopts=${fsopts+$fsopts,}${iscsirw}
+    fsopts=${fsopts:+$fsopts,}${iscsirw}
 
     if [ -z $iscsi_initiator ]; then
     # XXX Where are these from?
@@ -155,12 +155,12 @@ handle_netroot()
     iscsistart -i $iscsi_initiator -t $iscsi_target_name        \
         -g $iscsi_target_group -a $iscsi_target_ip      \
         -p $iscsi_target_port \
-        ${iscsi_username+-u $iscsi_username} \
-        ${iscsi_password+-w $iscsi_password} \
-        ${iscsi_in_username+-U $iscsi_in_username} \
-        ${iscsi_in_password+-W $iscsi_in_password} \
-	${iscsi_iface_name+--param iface.iscsi_ifacename=$iscsi_iface_name} \
-	${iscsi_netdev_name+--param iface.net_ifacename=$iscsi_netdev_name} \
+        ${iscsi_username:+-u $iscsi_username} \
+        ${iscsi_password:+-w $iscsi_password} \
+        ${iscsi_in_username:+-U $iscsi_in_username} \
+        ${iscsi_in_password:+-W $iscsi_in_password} \
+	${iscsi_iface_name:+--param iface.iscsi_ifacename=$iscsi_iface_name} \
+	${iscsi_netdev_name:+--param iface.net_ifacename=$iscsi_netdev_name} \
         ${iscsi_param} \
 	|| :
 

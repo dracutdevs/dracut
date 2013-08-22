@@ -22,7 +22,7 @@ done
 ret=0
 case "$1" in
     add)
-	dracut ${noimageifnotneeded+--noimageifnotneeded} "$3"/initrd "$2"
+	dracut ${noimageifnotneeded:+--noimageifnotneeded} "$3"/initrd "$2"
         ret=$?
 	;;
     remove)

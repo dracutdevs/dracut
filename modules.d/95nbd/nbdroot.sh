@@ -76,12 +76,12 @@ while [ -n "$nbdflags" ]; do
         nbdrw=$f
         continue
     fi
-    fsopts=${fsopts+$fsopts,}$f
+    fsopts=${fsopts:+$fsopts,}$f
 done
 
 getarg ro && nbdrw=ro
 getarg rw && nbdrw=rw
-fsopts=${fsopts+$fsopts,}${nbdrw}
+fsopts=${fsopts:+$fsopts,}${nbdrw}
 
 # XXX better way to wait for the device to be made?
 i=0

@@ -128,7 +128,7 @@ mount_nfs() {
     nfs_to_var $nfsroot $netif
     munge_nfs_options
     if [ "$nfs" = "nfs4" ]; then
-        options=$options${nfslock+,$nfslock}
+        options=$options${nfslock:+,$nfslock}
     else
         # NFSv{2,3} doesn't support using locks as it requires a helper to
         # transfer the rpcbind state to the new root

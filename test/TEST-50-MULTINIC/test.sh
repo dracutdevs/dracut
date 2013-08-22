@@ -20,7 +20,7 @@ run_server() {
         -display none \
         -net socket,listen=127.0.0.1:12350 \
         -net nic,macaddr=52:54:01:12:34:56,model=e1000 \
-        ${SERIAL+-serial "$SERIAL"} \
+        ${SERIAL:+-serial "$SERIAL"} \
         -watchdog i6300esb -watchdog-action poweroff \
         -kernel /boot/vmlinuz-"$KVERSION" \
         -append "loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \

@@ -42,7 +42,7 @@ setup_interface() {
 
     # Note: hostname can be fqdn OR short hostname, so chop off any
     # trailing domain name and explicity add any domain if set.
-    [ -n "$hostname" ] && echo "echo ${hostname%.$domain}${domain+.$domain} > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
+    [ -n "$hostname" ] && echo "echo ${hostname%.$domain}${domain:+.$domain} > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
 }
 
 PATH=/usr/sbin:/usr/bin:/sbin:/bin

@@ -729,7 +729,7 @@ fi
 
 if ! [[ $print_cmdline ]]; then
     inst /bin/sh
-    if ! $DRACUT_INSTALL ${initdir+-D "$initdir"} -R "$initdir/bin/sh" &>/dev/null; then
+    if ! $DRACUT_INSTALL ${initdir:+-D "$initdir"} -R "$initdir/bin/sh" &>/dev/null; then
         unset DRACUT_RESOLVE_LAZY
         export DRACUT_RESOLVE_DEPS=1
     fi
@@ -1184,7 +1184,7 @@ if [[ $kernel_only != yes ]]; then
         find "$initdir" -type f \
             '(' -perm -0100 -or -perm -0010 -or -perm -0001 ')' \
             -not -path '*.ko' -print0 \
-        | xargs -r -0 $DRACUT_INSTALL ${initdir+-D "$initdir"} -R ${DRACUT_FIPS_MODE+-H} --
+        | xargs -r -0 $DRACUT_INSTALL ${initdir:+-D "$initdir"} -R ${DRACUT_FIPS_MODE:+-H} --
         dinfo "*** Resolving executable dependencies done***"
     fi
 fi
