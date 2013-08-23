@@ -313,6 +313,7 @@ get_persistent_dev() {
         /dev/disk/by-id/* \
         /dev/disk/by-path/* \
         ; do
+        [[ -e "$i" ]] || continue
         [[ $i == /dev/mapper/control ]] && continue
         [[ $i == /dev/mapper/mpath* ]] && continue
         _tmp=$(get_maj_min "$i")
