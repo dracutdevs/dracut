@@ -296,6 +296,23 @@ get_maj_min() {
     printf "%s" "$((0x${_majmin%:*})):$((0x${_majmin#*:}))"
 }
 
+
+# get_devpath_block <device>
+# get the DEVPATH in /sys of a block device
+get_devpath_block() {
+    local majmin i
+    _majmin=$(get_maj_min "$1")
+
+    for _i in /sys/block/*/dev /sys/block/*/*/dev; do
+        [[ -e "$_i" ]] || continue
+        if [[ "$_majmin" == "$(<"$_i")" ]]; then
+            printf "%s" "${_i%/dev}"
+            return 0
+        fi
+    done
+    return 1
+}
+
 # get a persistent path from a device
 get_persistent_dev() {
     local i _tmp _dev

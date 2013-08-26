@@ -9,8 +9,17 @@ check() {
     type -P dmraid >/dev/null || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        for fs in "${host_fs_types[@]}"; do
-            [[ $fs = *_raid_member ]] && return 0
+        for dev in "${!host_fs_types[@]}"; do
+            [[ "${host_fs_types[$dev]}" != *_raid_member ]] && continue
+
+            DEVPATH=$(get_devpath_block "$dev")
+
+            for holder in "$DEVPATH"/holders/*; do
+                [[ -e "$holder" ]] || continue
+                [[ -e "$holder/dm" ]] && return 0
+                break
+            done
+
         done
         return 255
     }
@@ -31,16 +40,7 @@ cmdline() {
         local holder DEVPATH DM_NAME majmin
         [[ "${host_fs_types[$dev]}" != *_raid_member ]] && continue
 
-        majmin=$(get_maj_min $dev)
-        DEVPATH=$(
-            for i in /sys/block/*; do
-                [[ -e "$i/dev" ]] || continue
-                if [[ $a == $(<"$i/dev") ]]; then
-                    printf "%s" "$i"
-                    break
-                fi
-            done
-        )
+        DEVPATH=$(get_devpath_block "$dev")
 
         for holder in "$DEVPATH"/holders/*; do
             [[ -e "$holder" ]] || continue

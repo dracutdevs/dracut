@@ -8,8 +8,17 @@ check() {
     type -P mdadm >/dev/null || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        for fs in "${host_fs_types[@]}"; do
-            [[ "$fs" == *_raid_member ]] && return 0
+        for dev in "${!host_fs_types[@]}"; do
+            [[ "${host_fs_types[$dev]}" != *_raid_member ]] && continue
+
+            DEVPATH=$(get_devpath_block "$dev")
+
+            for holder in "$DEVPATH"/holders/*; do
+                [[ -e "$holder" ]] || continue
+                [[ -e "$holder/md" ]] && return 0
+                break
+            done
+
         done
         return 255
     }
