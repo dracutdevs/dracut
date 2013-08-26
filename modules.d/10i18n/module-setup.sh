@@ -4,6 +4,11 @@
 
 check() {
     [[ "$mount_needs" ]] && return 1
+
+    for i in setfont loadkeys kbd_mode; do
+        type -P "$i" >/dev/null || return 1
+    done
+
     return 0
 }
 
