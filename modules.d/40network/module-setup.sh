@@ -82,6 +82,7 @@ install() {
     inst_hook pre-udev 50 "$moddir/ifname-genrules.sh"
     inst_hook pre-udev 60 "$moddir/net-genrules.sh"
     inst_hook cmdline 91 "$moddir/dhcp-root.sh"
+    inst_hook cmdline 92 "$moddir/parse-ibft.sh"
     inst_hook cmdline 95 "$moddir/parse-vlan.sh"
     inst_hook cmdline 96 "$moddir/parse-bond.sh"
     inst_hook cmdline 96 "$moddir/parse-team.sh"

@@ -15,7 +15,6 @@
 #
 
 command -v getarg >/dev/null          || . /lib/dracut-lib.sh
-command -v ibft_to_cmdline >/dev/null || . /lib/net-lib.sh
 
 if [ -n "$netroot" ] && [ -z "$(getarg ip=)" ] && [ -z "$(getarg BOOTIF=)" ]; then
     # No ip= argument(s) for netroot provided, defaulting to DHCP
@@ -38,9 +37,6 @@ BOOTDEV=$(getarg bootdev=)
 if [ -n "$NEEDBOOTDEV" ] ; then
     [ -z "$BOOTDEV" ] && warn "Please supply bootdev argument for multiple ip= lines"
 fi
-
-# If ibft is requested, read ibft vals and write ip=XXX cmdline args
-[ "ibft" = "$(getarg ip=)" ] && ibft_to_cmdline
 
 # Check ip= lines
 # XXX Would be nice if we could errorcheck ip addresses here as well
