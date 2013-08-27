@@ -300,7 +300,7 @@ get_maj_min() {
 # get_devpath_block <device>
 # get the DEVPATH in /sys of a block device
 get_devpath_block() {
-    local majmin i
+    local _majmin _i
     _majmin=$(get_maj_min "$1")
 
     for _i in /sys/block/*/dev /sys/block/*/*/dev; do
