@@ -17,7 +17,7 @@ check() {
 install() {
     local _bin
     # Optional uswsusp support
-    for _bin in /usr/sbin/resume /usr/lib/suspend/resume
+    for _bin in /usr/sbin/resume /usr/lib/suspend/resume /usr/lib/uswsusp/resume
     do
         [[ -x "${_bin}" ]] && {
             inst "${_bin}" /usr/sbin/resume
