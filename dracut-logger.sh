@@ -141,7 +141,10 @@ dlog_init() {
     fi
 
     if (( $sysloglvl > 0 )); then
-        if [[ -d /run/systemd/journal ]] && type -P systemd-cat &>/dev/null && (( $UID  == 0 )) ; then
+        if [[ -d /run/systemd/journal ]] \
+            && type -P systemd-cat &>/dev/null \
+            && (( $UID  == 0 )) \
+            && systemctl is-active systemd-journald.socket  &>/dev/null; then
             readonly _dlogdir="$(mktemp --tmpdir="$TMPDIR/" -d -t dracut-log.XXXXXX)"
             readonly _systemdcatfile="$_dlogdir/systemd-cat"
             mkfifo "$_systemdcatfile"
