@@ -1302,6 +1302,9 @@ for_each_module_dir() {
     local _func
     _func=$1
     for _moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
+        [[ -d $_moddir ]] || continue;
+        [[ -e $_moddir/install || -e $_moddir/installkernel || \
+            -e $_moddir/module-setup.sh ]] || continue
         _mod=${_moddir##*/}; _mod=${_mod#[0-9][0-9]}
         $_func $_mod 1
     done
