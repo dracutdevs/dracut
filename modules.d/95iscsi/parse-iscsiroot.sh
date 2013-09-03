@@ -13,9 +13,6 @@
 # root= takes precedence over netroot= if root=iscsi[...]
 #
 
-# Don't continue if root is ok
-[ -n "$rootok" ] && return
-
 # This script is sourced, so root should be set. But let's be paranoid
 [ -z "$root" ] && root=$(getarg root=)
 [ -z "$netroot" ] && netroot=$(getarg netroot=)
