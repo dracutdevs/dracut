@@ -203,11 +203,13 @@ fix_bootif() {
 }
 
 ibft_to_cmdline() {
-    local iface="" mac="" dev=""
-    local dhcp="" ip="" gw="" mask="" hostname=""
+    local iface=""
     modprobe -q iscsi_ibft
     (
         for iface in /sys/firmware/ibft/ethernet*; do
+            local mac="" dev=""
+            local dhcp="" ip="" gw="" mask="" hostname=""
+
             [ -e ${iface}/mac ] || continue
             mac=$(read a < ${iface}/mac; echo $a)
             [ -z "$mac" ] && continue
@@ -216,10 +218,6 @@ ibft_to_cmdline() {
             [ -e /tmp/net.${dev}.has_ibft_config ] && continue
 
             [ -e ${iface}/dhcp ] && dhcp=$(read a < ${iface}/dhcp; echo $a)
-            if [ -e ${iface}/vlan ]; then
-               vlan=$(read a < ${iface}/vlan; echo $a)
-                echo "vlan=$vlan:$dev"
-            fi
 
             if [ -n "$dhcp" ]; then
                 echo "ip=$dev:dhcp"
@@ -242,6 +240,11 @@ ibft_to_cmdline() {
             else
                 info "${iface} does not contain a valid iBFT configuration"
                 ls -l ${iface} | vinfo
+            fi
+
+            if [ -e ${iface}/vlan ]; then
+               vlan=$(read a < ${iface}/vlan; echo $a)
+               [ "$vlan" -ne "0" ] && echo "vlan=$vlan:$dev"
             fi
 
             echo $mac > /tmp/net.${dev}.has_ibft_config
