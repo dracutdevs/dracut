@@ -103,23 +103,22 @@ _getcmdline() {
     local _line
     local _i
     unset _line
-    if [ -z "$CMDLINE" ]; then
-        unset CMDLINE_ETC CMDLINE_ETC_D
-        if [ -e /etc/cmdline ]; then
-            while read -r _line; do
-                CMDLINE_ETC="$CMDLINE_ETC $_line";
-            done </etc/cmdline;
-        fi
-        for _i in /etc/cmdline.d/*.conf; do
-            [ -e "$_i" ] || continue
-            while read -r _line; do
-                CMDLINE_ETC_D="$CMDLINE_ETC_D $_line";
-            done <"$_i";
-        done
-        if [ -e /proc/cmdline ]; then
-            read -r CMDLINE </proc/cmdline;
-            CMDLINE="$CMDLINE_ETC_D $CMDLINE_ETC $CMDLINE"
-        fi
+    unset CMDLINE_ETC CMDLINE_ETC_D
+
+    if [ -e /etc/cmdline ]; then
+        while read -r _line; do
+            CMDLINE_ETC="$CMDLINE_ETC $_line";
+        done </etc/cmdline;
+    fi
+    for _i in /etc/cmdline.d/*.conf; do
+        [ -e "$_i" ] || continue
+        while read -r _line; do
+            CMDLINE_ETC_D="$CMDLINE_ETC_D $_line";
+        done <"$_i";
+    done
+    if [ -e /proc/cmdline ]; then
+        read -r CMDLINE </proc/cmdline;
+        CMDLINE="$CMDLINE_ETC_D $CMDLINE_ETC $CMDLINE"
     fi
 }
 
