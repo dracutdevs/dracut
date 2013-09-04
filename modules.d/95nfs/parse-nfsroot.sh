@@ -27,18 +27,19 @@
 
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
-#Don't continue if root is ok
-[ -n "$rootok" ] && return
-
 # This script is sourced, so root should be set. But let's be paranoid
 [ -z "$root" ] && root=$(getarg root=)
-[ -z "$netroot" ] && netroot=$(getarg netroot=)
 [ -z "$nfsroot" ] && nfsroot=$(getarg nfsroot=)
+
+[ -n "$netroot" ] && oldnetroot="$netroot"
 
 # netroot= cmdline argument must be ignored, but must be used if
 # we're inside netroot to parse dhcp root-path
 if [ -n "$netroot" ] ; then
-    if [ "$netroot" = "$(getarg netroot=)" ] ; then
+    for n in $(getargs netroot=); do
+        [ "$n" = "$netroot" ] && break
+    done
+    if [ "$n" = "$netroot" ]; then
         warn "Ignoring netroot argument for NFS"
         netroot=$root
     fi
@@ -67,7 +68,14 @@ esac
 # Continue if nfs
 case "${netroot%%:*}" in
     nfs|nfs4|/dev/nfs);;
-    *) unset netroot; return;;
+    *)
+        if [ -n "$oldnetroot" ]; then
+            netroot="$oldnetroot"
+        else
+            unset netroot
+        fi
+        return
+        ;;
 esac
 
 # Check required arguments

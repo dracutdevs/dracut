@@ -26,14 +26,16 @@ netroot_to_var() {
 
 # This script is sourced, so root should be set. But let's be paranoid
 [ -z "$root" ] && root=$(getarg root=)
-[ -z "$netroot" ] && netroot=$(getarg netroot=)
+
+if [ -z "$netroot" ]; then
+    for netroot in $(getargs netroot=); do
+        [ "${netroot%%:*}" = "nbd" ] && break
+    done
+    [ "${netroot%%:*}" = "nbd" ] || unset netroot
+fi
 
 # Root takes precedence over netroot
 if [ "${root%%:*}" = "nbd" ] ; then
-
-    # Don't continue if root is ok
-    [ -n "$rootok" ] && return
-
     if [ -n "$netroot" ] ; then
         warn "root takes precedence over netroot. Ignoring netroot"
 

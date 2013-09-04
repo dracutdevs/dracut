@@ -51,6 +51,7 @@ if [ -z "$2" ]; then
         netroot=$new_root_path
 
         # FIXME!
+        unset rootok
         for f in $hookdir/cmdline/90*.sh; do
             [ -f "$f" ] && . "$f";
         done
