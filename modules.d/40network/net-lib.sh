@@ -250,8 +250,6 @@ ibft_to_cmdline() {
             echo $mac > /tmp/net.${dev}.has_ibft_config
         done
     ) >> /etc/cmdline.d/40-ibft.conf
-    # reread cmdline
-    unset CMDLINE
 }
 
 parse_iscsi_root()

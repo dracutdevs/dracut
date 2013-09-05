@@ -226,6 +226,8 @@ write_fs_tab() {
     fi
 
     _rw=0
+
+    CMDLINE=$(getcmdline)
     for _o in $CMDLINE; do
         case $_o in
             rw)
