@@ -10,7 +10,7 @@ isofile=$1
 
 [ -z "$isofile" ] && exit 1
 
-ismounted "/run/initramfs/isoscan" && exit 1
+ismounted "/run/initramfs/isoscan" && exit 0
 
 mkdir -p "/run/initramfs/isoscan"
 
