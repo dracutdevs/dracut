@@ -3,7 +3,10 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 check() {
-    type -P probe-bcache >/dev/null || return 1
+    if ! blkid -k | { while read line; do [[ $line == bcache ]] && exit 0; done; exit 1; } \
+        && ! type -P probe-bcache >/dev/null; then
+        return 1
+    fi
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for fs in "${host_fs_types[@]}"; do
@@ -24,7 +27,7 @@ installkernel() {
 }
 
 install() {
-    inst_multiple probe-bcache ${udevdir}/bcache-register
+    blkid -k | { while read line; do [[ $line == bcache ]] && exit 0; done; exit 1; } || inst_multiple probe-bcache
+    inst_multiple ${udevdir}/bcache-register
     inst_rules 61-bcache.rules
 }
-
