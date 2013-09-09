@@ -821,20 +821,6 @@ if [[ -f $outfile && ! $force && ! $print_cmdline ]]; then
     exit 1
 fi
 
-outdir=${outfile%/*}
-[[ $outdir ]] || outdir="/"
-
-if [[ ! -d "$outdir" ]]; then
-    dfatal "Can't write to $outdir: Directory $outdir does not exist or is not accessible."
-    exit 1
-elif [[ ! -w "$outdir" ]]; then
-    dfatal "No permission to write to $outdir."
-    exit 1
-elif [[ -f "$outfile" && ! -w "$outfile" ]]; then
-    dfatal "No permission to write $outfile."
-    exit 1
-fi
-
 # Need to be able to have non-root users read stuff (rpcbind etc)
 chmod 755 "$initdir"
 
@@ -1023,6 +1009,20 @@ if [[ $print_cmdline ]]; then
     unset moddir
     printf "\n"
     exit 0
+fi
+
+outdir=${outfile%/*}
+[[ $outdir ]] || outdir="/"
+
+if [[ ! -d "$outdir" ]]; then
+    dfatal "Can't write to $outdir: Directory $outdir does not exist or is not accessible."
+    exit 1
+elif [[ ! -w "$outdir" ]]; then
+    dfatal "No permission to write to $outdir."
+    exit 1
+elif [[ -f "$outfile" && ! -w "$outfile" ]]; then
+    dfatal "No permission to write $outfile."
+    exit 1
 fi
 
 # Create some directory structure first
