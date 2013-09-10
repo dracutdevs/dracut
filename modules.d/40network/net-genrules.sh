@@ -54,23 +54,30 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
     ifup='/sbin/ifup $env{INTERFACE}'
     [ -z "$netroot" ] && ifup="$ifup -m"
 
-    runcmd="RUN+=\"/sbin/initqueue --onetime $ifup\""
+    runcmd="RUN+=\"/sbin/initqueue --name ifup-\$env{INTERFACE} --unique --onetime $ifup\""
 
     # We have some specific interfaces to handle
     if [ -n "$IFACES" ]; then
         echo 'SUBSYSTEM!="net", GOTO="net_end"'
-        echo 'ACTION=="remove", GOTO="net_end"'
+        echo 'ACTION!="add|change|move", GOTO="net_end"'
         for iface in $IFACES; do
             case "$iface" in
                 ??:??:??:??:??:??)  # MAC address
-                    cond="ATTR{address}==\"$iface\"" ;;
+                    cond="ATTR{address}==\"$iface\""
+                    echo "$cond, $runcmd, GOTO=\"net_end\""
+                    ;;
                 ??-??-??-??-??-??)  # MAC address in BOOTIF form
-                    cond="ATTR{address}==\"$(fix_bootif $iface)\"" ;;
+                    cond="ATTR{address}==\"$(fix_bootif $iface)\""
+                    echo "$cond, $runcmd, GOTO=\"net_end\""
+                    ;;
                 *)                  # an interface name
-                    cond="ENV{INTERFACE}==\"$iface\"" ;;
+                    cond="ENV{INTERFACE}==\"$iface\""
+                    echo "$cond, $runcmd, GOTO=\"net_end\""
+                    cond="NAME==\"$iface\""
+                    echo "$cond, $runcmd, GOTO=\"net_end\""
+                    ;;
             esac
             # The GOTO prevents us from trying to ifup the same device twice
-            echo "$cond, $runcmd, GOTO=\"net_end\""
         done
         echo 'LABEL="net_end"'
 
