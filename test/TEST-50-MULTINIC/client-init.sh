@@ -12,7 +12,10 @@ for i in /run/initramfs/net.*.did-setup; do
 	i=${i%.did-setup}
 	IFACES+="${i##*/net.} "
 done
-echo "OK $IFACES" > /dev/sda
+{
+    echo "OK"
+    echo "$IFACES"
+} > /dev/sda
 
 strstr "$CMDLINE" "rd.shell" && sh -i
 poweroff -f

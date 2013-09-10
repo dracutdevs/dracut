@@ -61,15 +61,24 @@ client_test() {
         -append "$cmdline $DEBUGFAIL rd.retry=5 ro console=ttyS0,115200n81 selinux=0 init=/sbin/init rd.debug systemd.log_target=console loglevel=7" \
         -initrd "$TESTDIR"/initramfs.testing
 
-    if [[ $? -ne 0 ]] || ! grep -F -m 1 -q OK -- "$TESTDIR"/client.img; then
+    { read OK; read IFACES; } < "$TESTDIR"/client.img
+
+    if [[ "$OK" != "OK" ]]; then
         echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
         return 1
     fi
 
+    for i in $check; do
+        if [[ " $IFACES " != *\ $i\ * ]]; then
+            echo "$i not in '$IFACES'"
+            echo "CLIENT TEST END: $test_name [FAILED - BAD IF]"
+            return 1
+        fi
+    done
 
-    for i in $check ; do
-        echo $i
-        if ! grep -F -m 1 -q $i -- "$TESTDIR"/client.img; then
+    for i in $IFACES; do
+        if [[ " $check " != *\ $i\ * ]]; then
+            echo "$i in '$IFACES', but should not be"
             echo "CLIENT TEST END: $test_name [FAILED - BAD IF]"
             return 1
         fi
@@ -98,6 +107,11 @@ test_client() {
         00 01 02 \
         "root=nfs:192.168.50.1:/nfs/client BOOTIF=52-54-00-12-34-00" \
         "ens3" || return 1
+
+    client_test "MULTINIC root=nfs BOOTIF= ip=ens4:dhcp" \
+        00 01 02 \
+        "root=nfs:192.168.50.1:/nfs/client BOOTIF=52-54-00-12-34-00 ip=ens4:dhcp" \
+        "ens3 ens4" || return 1
 
     # PXE Style BOOTIF= with dhcp root-path
     client_test "MULTINIC root=dhcp BOOTIF=" \
