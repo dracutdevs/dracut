@@ -333,6 +333,12 @@ for p in $(getargs ip=); do
             ;;
     esac
 
-    break
+    exit 0
 done
+
+# no ip option directed at our interface?
+if [ ! -e /tmp/setup_net_${netif}.ok ]; then
+    do_dhcp -4
+fi
+
 exit 0
