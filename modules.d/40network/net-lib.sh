@@ -244,7 +244,16 @@ ibft_to_cmdline() {
 
             if [ -e ${iface}/vlan ]; then
                vlan=$(read a < ${iface}/vlan; echo $a)
-               [ "$vlan" -ne "0" ] && echo "vlan=$vlan:$dev"
+               if [ "$vlan" -ne "0" ]; then
+                   case "$vlan" in
+                       [0-9]*)
+                           echo "vlan=$dev.$vlan:$dev"
+                           ;;
+                       *)
+                           echo "vlan=$vlan:$dev"
+                           ;;
+                   esac
+               fi
             fi
 
             echo $mac > /tmp/net.${dev}.has_ibft_config
