@@ -917,21 +917,20 @@ if [[ $hostonly ]]; then
             done < /etc/fstab
         done < /proc/swaps
     fi
+    # record all host modaliases
+    declare -A host_modalias
+    find  /sys/devices/ -name modalias -print > "$initdir/.modalias"
+    while read m; do
+        host_modalias["$(<"$m")"]=1
+    done < "$initdir/.modalias"
+    rm -f -- "$initdir/.modalias"
+
+    # check /proc/modules
+    declare -A host_modules
+    while read m rest; do
+        host_modules["$m"]=1
+    done </proc/modules
 fi
-
-# record all host modaliases
-declare -A host_modalias
-find  /sys/devices/ -name modalias -print > "$initdir/.modalias"
- while read m; do
-    host_modalias["$(<"$m")"]=1
-done < "$initdir/.modalias"
-rm -f -- "$initdir/.modalias"
-
-# check /proc/modules
-declare -A host_modules
-while read m rest; do
-    host_modules["$m"]=1
-done </proc/modules
 
 unset m
 unset rest
