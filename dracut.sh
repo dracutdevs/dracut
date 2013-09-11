@@ -919,6 +919,23 @@ if [[ $hostonly ]]; then
     fi
 fi
 
+# record all host modaliases
+declare -A host_modalias
+find  /sys/devices/ -name modalias -print > "$initdir/.modalias"
+ while read m; do
+    host_modalias["$(<"$m")"]=1
+done < "$initdir/.modalias"
+rm -f -- "$initdir/.modalias"
+
+# check /proc/modules
+declare -A host_modules
+while read m rest; do
+    host_modules["$m"]=1
+done </proc/modules
+
+unset m
+unset rest
+
 _get_fs_type() {
     [[ $1 ]] || return
     if [[ -b /dev/block/$1 ]] && ID_FS_TYPE=$(get_fs_env "/dev/block/$1"); then
@@ -989,7 +1006,8 @@ export initdir dracutbasedir dracutmodules \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
     debug host_fs_types host_devs sshkey add_fstab \
     DRACUT_VERSION udevdir prefix filesystems drivers \
-    systemdutildir systemdsystemunitdir systemdsystemconfdir
+    systemdutildir systemdsystemunitdir systemdsystemconfdir \
+    host_modalias host_modules
 
 mods_to_load=""
 # check all our modules to see if they should be sourced.

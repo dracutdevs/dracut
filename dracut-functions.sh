@@ -1473,23 +1473,41 @@ dracut_kernel_post() {
     [[ $DRACUT_KERNEL_LAZY_HASHDIR ]] && rm -fr -- "$DRACUT_KERNEL_LAZY_HASHDIR"
 }
 
+[[ "$kernel_current" ]] || export kernel_current=$(uname -r)
+
 module_is_host_only() {
     local _mod=$1
+    local _modenc a i
     _mod=${_mod##*/}
     _mod=${_mod%.ko}
+    _modenc=${_mod//-/_}
 
     [[ " $add_drivers " == *\ ${_mod}\ * ]] && return 0
 
     # check if module is loaded
-    for i in /sys/module/${_mod//-/_}; do
-        [[ -d $i ]] && return 0
-    done
+    [[ ${host_modules["$_modenc"]} ]] && return 0
 
-    # check if module is loadable on the current kernel
-    # this covers the case, where a new module is introduced
-    # or a module was renamed
-    # or a module changed from builtin to a module
-    modinfo -F filename "$_mod" &>/dev/null || return 0
+    [[ "$kernel_current" ]] || export kernel_current=$(uname -r)
+
+    if [[ "$kernel_current" != "$kernel" ]]; then
+        # check if module is loadable on the current kernel
+        # this covers the case, where a new module is introduced
+        # or a module was renamed
+        # or a module changed from builtin to a module
+        if [[ -d /lib/modules/$kernel_current ]]; then
+            # if the modinfo can be parsed, but the module
+            # is not loaded, then we can safely return 1
+            modinfo -F filename "$_mod" &>/dev/null && return 1
+        fi
+
+        # Finally check all modalias, if we install for a kernel
+        # different from the current one
+        for a in $(modinfo -k $kernel -F alias $_mod 2>/dev/null); do
+            for i in "${!host_modalias[@]}"; do
+                [[ $i == $a ]]  && return 0
+            done
+        done
+    fi
 
     return 1
 }
