@@ -204,7 +204,7 @@ testimages: all
 	@echo wrote  test-dracut.img
 
 hostimage: all
-	./dracut.sh -H -l -a debug -f test-$(shell uname -r).img $(shell uname -r)
+	./dracut.sh -H -l -f test-$(shell uname -r).img $(shell uname -r)
 	@echo wrote  test-$(shell uname -r).img
 
 AUTHORS:
