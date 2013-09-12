@@ -1,3 +1,21 @@
+dracut-033
+==========
+- improved hostonly device recognition
+- improved hostonly module recognition
+- add dracut.css for dracut.html
+- do not install udev rules from /etc in generic mode
+- fixed LABEL= parsing for swap devices
+- fixed iBFT network setup
+- url-lib.sh: handle 0-size files with curl
+- dracut.asc: document debugging dracut on shutdown
+- if rd.md=0, use dmraid for imsm and ddf
+- skip empty dracut modules
+- removed caching of kernel cmdline
+- fixed iso-scan, if the loop device driver is a kernel module
+- bcache: support new blkid
+- fixed ifup udev rules
+- ifup with dhcp, if no "ip=" specified for the interface
+
 dracut-032
 ==========
 - add parameter --print-cmdline
