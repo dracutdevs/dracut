@@ -921,7 +921,7 @@ if [[ $hostonly ]]; then
     declare -A host_modalias
     find  /sys/devices/ -name modalias -print > "$initdir/.modalias"
     while read m; do
-        host_modalias["$(<"$m")"]=1
+        modalias="$(<"$m")" && [[ $modalias ]] && host_modalias["$modalias"]=1
     done < "$initdir/.modalias"
     rm -f -- "$initdir/.modalias"
 
