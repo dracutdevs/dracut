@@ -919,15 +919,12 @@ if [[ $hostonly ]]; then
     fi
     # record all host modaliases
     declare -A host_modalias
-    find  /sys/devices/ -name modalias -print > "$initdir/.modalias"
-    while read m; do
-        modalias="$(<"$m")" && [[ $modalias ]] && host_modalias["$modalias"]=1
-    done < "$initdir/.modalias"
     find  /sys/devices/ -name uevent -print > "$initdir/.modalias"
     while read m; do
         while read line; do
             [[ "$line" != MODALIAS\=* ]] && continue
             modalias="${line##MODALIAS=}" && [[ $modalias ]] && host_modalias["$modalias"]=1
+            break
         done < "$m"
     done < "$initdir/.modalias"
 
