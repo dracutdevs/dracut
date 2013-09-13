@@ -336,6 +336,13 @@ for p in $(getargs ip=); do
     exit 0
 done
 
+# netif isn't the top stack? Then we should exit here.
+# eg. netif is bond0. br0 is on top of it. dhcp br0 is correct but dhcp
+#     bond0 doesn't make sense.
+if [ -n "$DO_BOND_SETUP" -o -n "$DO_TEAM_SETUP" -o -n "$DO_VLAN_SETUP" ]; then
+    exit 0
+fi
+
 # no ip option directed at our interface?
 if [ ! -e /tmp/setup_net_${netif}.ok ]; then
     do_dhcp -4
