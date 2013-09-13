@@ -923,6 +923,14 @@ if [[ $hostonly ]]; then
     while read m; do
         modalias="$(<"$m")" && [[ $modalias ]] && host_modalias["$modalias"]=1
     done < "$initdir/.modalias"
+    find  /sys/devices/ -name uevent -print > "$initdir/.modalias"
+    while read m; do
+        while read line; do
+            [[ "$line" != MODALIAS\=* ]] && continue
+            modalias="${line##MODALIAS=}" && [[ $modalias ]] && host_modalias["$modalias"]=1
+        done < "$m"
+    done < "$initdir/.modalias"
+
     rm -f -- "$initdir/.modalias"
 
     # check /proc/modules
