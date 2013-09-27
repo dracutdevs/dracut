@@ -1,6 +1,8 @@
 #!/bin/bash --norc
 kver=$(uname -r)
 
+boot_dir="/boot"
+
 error() { echo "$@" >&2; }
 
 usage () {
@@ -80,10 +82,27 @@ while (($# > 0)); do
         --looppath*) ;;
         --dsdt*) ;;
         --bootchart) ;;
-        *) if [[ ! $target ]]; then
-            target=$1
-            elif [[ ! $kernel ]]; then
-            kernel=$1
+	-b) read_arg boot_dir "$@" || shift
+	    if [ ! -d $boot_dir ];then
+		error "Boot directory $boot_dir does not exist"
+		exit 1
+	    fi
+	    ;;
+	-k) # Would be nice to get a list of images here
+	    read_arg kernel_images "$@" || shift
+	    for kernel_image in $kernel_images;do
+		kernels="$kernels ${kernel_image#*-}"
+	    done
+	    ;;
+	-i) read_arg initrd_images "$@" || shift
+	    for initrd_image in $initrd_images;do
+		targets="$targets $boot_dir/$initrd_images"
+	    done
+	    ;;
+        *) if [[ ! $targets ]]; then
+            targets=$1
+            elif [[ ! $kernels ]]; then
+            kernels=$1
             else
             usage
             fi;;
@@ -91,11 +110,24 @@ while (($# > 0)); do
     shift
 done
 
-[[ $target && $kernel ]] || usage
-[[ $img_vers ]] && target="$target-$kernel"
+[[ $targets && $kernels ]] || usage
 
-if [[ $basicmodules ]]; then
+# We can have several targets/kernels, transform the list to an array
+targets=( $targets )
+[[ $kernels ]] && kernels=( $kernels )
+
+for ((i=0 ; $i<${#targets[@]} ; i++)); do
+
+    if [[ $img_vers ]];then
+	target="${targets[$i]}-${kernels[$i]}"
+    else
+	target="${targets[$i]}"
+    fi
+    kernel="${kernels[$i]}"
+
+    if [[ $basicmodules ]]; then
         dracut $dracut_args --add-drivers "$basicmodules" "$target" "$kernel"
-else
+    else
         dracut $dracut_args "$target" "$kernel"
-fi
+    fi
+done
