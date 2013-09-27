@@ -1337,6 +1337,17 @@ if [[ $early_microcode = yes ]]; then
     done
 fi
 
+if [[ $acpi_override = yes ]] && [[ -d $acpi_table_dir ]]; then
+    dinfo "*** Packaging ACPI tables to override BIOS provided ones ***"
+    _dest_dir="$early_cpio_dir/d/kernel/firmware/acpi"
+    mkdir -p $_dest_dir
+    for table in $acpi_table_dir/*.aml; do
+        dinfo "   Adding ACPI table: $table"
+        cp $table $_dest_dir
+        create_early_cpio="yes"
+    done
+fi
+
 rm -f -- "$outfile"
 dinfo "*** Creating image file ***"
 if [[ $create_early_cpio = yes ]]; then
