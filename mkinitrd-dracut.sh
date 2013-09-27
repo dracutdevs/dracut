@@ -2,6 +2,7 @@
 kver=$(uname -r)
 
 boot_dir="/boot"
+quiet=0
 
 error() { echo "$@" >&2; }
 
@@ -89,6 +90,7 @@ while (($# > 0)); do
         --looppath*) ;;
         --dsdt*) ;;
         --bootchart) ;;
+	--quiet|-q) quiet=1;;
 	-b) read_arg boot_dir "$@" || shift $?
 	    if [ ! -d $boot_dir ];then
 		error "Boot directory $boot_dir does not exist"
@@ -123,6 +125,7 @@ done
 targets=( $targets )
 [[ $kernels ]] && kernels=( $kernels )
 
+echo "Creating: target|kernel|dracut args|basicmodules "
 for ((i=0 ; $i<${#targets[@]} ; i++)); do
 
     if [[ $img_vers ]];then
@@ -132,9 +135,21 @@ for ((i=0 ; $i<${#targets[@]} ; i++)); do
     fi
     kernel="${kernels[$i]}"
 
-    if [[ $basicmodules ]]; then
-        dracut $dracut_args --add-drivers "$basicmodules" "$target" "$kernel"
+    # Duplicate code: No way found how to redirect output based on $quiet
+    if [[ $quiet == 1 ]];then
+	echo "$target|$kernel|$dracut_args|$basicmodules"
+	if [[ $basicmodules ]]; then
+            dracut $dracut_args --add-drivers "$basicmodules" "$target" \
+		"$kernel" &>/dev/null
+	else
+            dracut $dracut_args "$target" "$kernel" &>/dev/null
+	fi
     else
-        dracut $dracut_args "$target" "$kernel"
+	if [[ $basicmodules ]]; then
+            dracut $dracut_args --add-drivers "$basicmodules" "$target" \
+		"$kernel"
+	else
+            dracut $dracut_args "$target" "$kernel"
+	fi
     fi
 done
