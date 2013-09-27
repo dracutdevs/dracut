@@ -46,6 +46,67 @@ read_arg() {
     fi
 }
 
+# Taken over from SUSE mkinitrd
+default_kernel_images() {
+    local regex kernel_image kernel_version version_version initrd_image
+    local qf='%{NAME}-%{VERSION}-%{RELEASE}\n'
+
+    case "$(uname -m)" in
+        s390|s390x)
+            regex='image'
+            ;;
+        ppc|ppc64)
+            regex='vmlinux'
+            ;;
+        i386|x86_64)
+            regex='vmlinuz'
+            ;;
+        arm*)
+            regex='[uz]Image'
+            ;;
+        aarch64)
+            regex='Image'
+            ;;
+        *)  regex='vmlinu.'
+            ;;
+    esac
+
+    # user mode linux                                                              
+    if grep -q UML /proc/cpuinfo; then
+            regex='linux'
+    fi
+
+    kernel_images=""
+    initrd_images=""
+    for kernel_image in $(ls $boot_dir \
+            | sed -ne "\|^$regex\(-[0-9.]\+-[0-9]\+-[a-z0-9]\+$\)\?|p" \
+            | grep -v kdump$ ) ; do
+
+        # Note that we cannot check the RPM database here -- this
+        # script is itself called from within the binary kernel
+        # packages, and rpm does not allow recursive calls.
+
+        [ -L "$boot_dir/$kernel_image" ] && continue
+        [ "${kernel_image%%.gz}" != "$kernel_image" ] && continue
+        kernel_version=$(/usr/bin/get_kernel_version \
+                         $boot_dir/$kernel_image 2> /dev/null)
+        initrd_image=$(echo $kernel_image | sed -e "s|${regex}|initrd|")
+        if [ "$kernel_image" != "$initrd_image" -a \
+             -n "$kernel_version" -a \
+             -d "/lib/modules/$kernel_version" ]; then
+                kernel_images="$kernel_images $boot_dir/$kernel_image"
+                initrd_images="$initrd_images $boot_dir/$initrd_image"
+        fi
+    done
+    for kernel_image in $kernel_images;do
+	kernels="$kernels ${kernel_image#*-}"
+    done
+    for initrd_image in $initrd_images;do
+	targets="$targets $initrd_image"
+    done
+
+}
+
 while (($# > 0)); do
     case ${1%%=*} in
         --with-usb) read_arg usbmodule "$@" || shift $?
@@ -119,7 +180,8 @@ while (($# > 0)); do
     shift
 done
 
-[[ $targets && $kernels ]] || usage
+[[ $targets && $kernels ]] || default_kernel_images
+[[ $targets && $kernels ]] || (error "No kernel found in $boot_dir" && usage)
 
 # We can have several targets/kernels, transform the list to an array
 targets=( $targets )
