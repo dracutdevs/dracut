@@ -3,6 +3,8 @@ kver=$(uname -r)
 
 boot_dir="/boot"
 quiet=0
+host_only=0
+force=0
 
 error() { echo "$@" >&2; }
 
@@ -104,7 +106,8 @@ default_kernel_images() {
     for initrd_image in $initrd_images;do
 	targets="$targets $initrd_image"
     done
-
+    host_only=1
+    force=1
 }
 
 while (($# > 0)); do
@@ -119,8 +122,8 @@ while (($# > 0)); do
         --version)
             echo "mkinitrd: dracut compatibility wrapper"
             exit 0;;
-        -v|--verbose) dracut_args="${dracut_args} -v";;
-        -f|--force) dracut_args="${dracut_args} -f";;
+        -v|--verbose) dracut_args="${dracut_args} -v --keep";;
+        -f|--force) force=1;;
         --preload) read_arg modname "$@" || shift $?
             basicmodules="$basicmodules $modname";;
         --image-version) img_vers=yes;;
@@ -164,6 +167,8 @@ while (($# > 0)); do
 	    for kernel_image in $kernel_images;do
 		kernels="$kernels ${kernel_image#*-}"
 	    done
+	    host_only=1
+	    force=1
 	    ;;
 	-i) read_arg initrd_images "$@" || shift $?
 	    for initrd_image in $initrd_images;do
@@ -187,6 +192,9 @@ done
 # We can have several targets/kernels, transform the list to an array
 targets=( $targets )
 [[ $kernels ]] && kernels=( $kernels )
+
+[[ $host_only == 1 ]] && dracut_args="${dracut_args} -H"
+[[ $force == 1 ]]     && dracut_args="${dracut_args} -f"
 
 echo "Creating: target|kernel|dracut args|basicmodules "
 for ((i=0 ; $i<${#targets[@]} ; i++)); do
