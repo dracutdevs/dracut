@@ -124,7 +124,7 @@ while (($# > 0)); do
         --preload) read_arg modname "$@" || shift $?
             basicmodules="$basicmodules $modname";;
         --image-version) img_vers=yes;;
-        --rootfs) read_arg rootfs "$@" || shift $?
+        --rootfs|-d) read_arg rootfs "$@" || shift $?
             dracut_args="${dracut_args} --filesystems $rootfs";;
         --nocompress) dracut_args="$dracut_args --no-compress";;
         --help) usage -n;;
@@ -151,6 +151,7 @@ while (($# > 0)); do
         --looppath*) ;;
         --dsdt*) ;;
         --bootchart) ;;
+	-s) ;;
 	--quiet|-q) quiet=1;;
 	-b) read_arg boot_dir "$@" || shift $?
 	    if [ ! -d $boot_dir ];then
