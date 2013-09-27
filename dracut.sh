@@ -1326,12 +1326,15 @@ if [[ $early_microcode = yes ]]; then
                 dinfo "*** Constructing ${ucode_dest[$idx]} ****"
                 if [[ $hostonly ]]; then
                     _src=$(get_ucode_file)
+                    if ! [[ -r $_fwdir/$_fw/$_src ]];then
+                        break;
+                    fi
                 fi
                 cat $_fwdir/$_fw/$_src > $_dest_dir/${ucode_dest[$idx]}
+                create_early_cpio="yes"
             fi
         done
     done
-    create_early_cpio="yes"
 fi
 
 rm -f -- "$outfile"
