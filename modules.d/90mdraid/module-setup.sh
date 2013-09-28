@@ -59,6 +59,7 @@ cmdline() {
 }
 
 install() {
+    local rule rule_path
     inst_multiple cat
     inst_multiple -o mdmon
     inst $(command -v partx) /sbin/partx
@@ -67,12 +68,20 @@ install() {
     cmdline  >> "${initdir}/etc/cmdline.d/90mdraid.conf"
     echo  >> "${initdir}/etc/cmdline.d/90mdraid.conf"
 
+    # <mdadm-3.3 udev rule
     inst_rules 64-md-raid.rules
+    # >=mdadm-3.3 udev rules
+    inst_rules 63-md-raid-arrays.rules 64-md-raid-assembly.rules
     # remove incremental assembly from stock rules, so they don't shadow
     # 65-md-inc*.rules and its fine-grained controls, or cause other problems
     # when we explicitly don't want certain components to be incrementally
     # assembled
-    sed -i -r -e '/RUN\+?="[[:alpha:]/]*mdadm[[:blank:]]+(--incremental|-I)[[:blank:]]+(\$env\{DEVNAME\}|\$tempnode)"/d' "${initdir}${udevdir}/rules.d/64-md-raid.rules"
+    for rule in 64-md-raid.rules 64-md-raid-assembly.rules; do
+        rule_path="${initdir}${udevdir}/rules.d/${rule}"
+        [ -f "${rule_path}" ] && sed -i -r \
+            -e '/RUN\+?="[[:alpha:]/]*mdadm[[:blank:]]+(--incremental|-I)[[:blank:]]+(\$env\{DEVNAME\}|\$tempnode|\$devnode)/d' \
+            "${rule_path}"
+    done
 
     inst_rules "$moddir/65-md-incremental-imsm.rules"
 
