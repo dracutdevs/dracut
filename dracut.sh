@@ -824,9 +824,25 @@ if [[ -d $srcmods ]]; then
     }
 fi
 
-if [[ -f $outfile && ! $force && ! $print_cmdline ]]; then
-    dfatal "Will not override existing initramfs ($outfile) without --force"
-    exit 1
+if [[ ! $print_cmdline ]]; then
+    if [[ -f $outfile && ! $force ]]; then
+        dfatal "Will not override existing initramfs ($outfile) without --force"
+        exit 1
+    fi
+
+    outdir=${outfile%/*}
+    [[ $outdir ]] || outdir="/"
+
+    if [[ ! -d "$outdir" ]]; then
+        dfatal "Can't write to $outdir: Directory $outdir does not exist or is not accessible."
+        exit 1
+    elif [[ ! -w "$outdir" ]]; then
+        dfatal "No permission to write to $outdir."
+        exit 1
+    elif [[ -f "$outfile" && ! -w "$outfile" ]]; then
+        dfatal "No permission to write $outfile."
+        exit 1
+    fi
 fi
 
 # Need to be able to have non-root users read stuff (rpcbind etc)
@@ -1039,20 +1055,6 @@ if [[ $print_cmdline ]]; then
     unset moddir
     printf "\n"
     exit 0
-fi
-
-outdir=${outfile%/*}
-[[ $outdir ]] || outdir="/"
-
-if [[ ! -d "$outdir" ]]; then
-    dfatal "Can't write to $outdir: Directory $outdir does not exist or is not accessible."
-    exit 1
-elif [[ ! -w "$outdir" ]]; then
-    dfatal "No permission to write to $outdir."
-    exit 1
-elif [[ -f "$outfile" && ! -w "$outfile" ]]; then
-    dfatal "No permission to write $outfile."
-    exit 1
 fi
 
 # Create some directory structure first
