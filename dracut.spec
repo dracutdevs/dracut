@@ -271,6 +271,10 @@ echo 'hostonly="no"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-generic-i
 echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-rescue.conf
 %endif
 
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
+> $RPM_BUILD_ROOT/etc/system-fips
+%endif
+
 # create compat symlink
 mkdir -p $RPM_BUILD_ROOT/sbin
 ln -s /usr/bin/dracut $RPM_BUILD_ROOT/sbin/dracut
@@ -413,6 +417,7 @@ rm -rf -- $RPM_BUILD_ROOT
 %defattr(-,root,root,0755)
 %{dracutlibdir}/modules.d/01fips
 %{dracutlibdir}/dracut.conf.d/40-fips.conf
+%config(missingok) /etc/system-fips
 %endif
 
 %files fips-aesni
