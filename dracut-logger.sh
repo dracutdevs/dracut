@@ -140,11 +140,16 @@ dlog_init() {
         fi
     fi
 
+    if (( $UID  != 0 )); then
+        kmsgloglvl=0
+        sysloglvl=0
+    fi
+
     if (( $sysloglvl > 0 )); then
         if [[ -d /run/systemd/journal ]] \
             && type -P systemd-cat &>/dev/null \
-            && (( $UID  == 0 )) \
-            && systemctl is-active systemd-journald.socket  &>/dev/null; then
+            && systemctl --quiet is-active systemd-journald.socket &>/dev/null \
+            && { echo "dracut-$DRACUT_VERSION" | systemd-cat -t 'dracut' &>/dev/null; } ; then
             readonly _dlogdir="$(mktemp --tmpdir="$TMPDIR/" -d -t dracut-log.XXXXXX)"
             readonly _systemdcatfile="$_dlogdir/systemd-cat"
             mkfifo "$_systemdcatfile"
@@ -153,6 +158,7 @@ dlog_init() {
             exec 15>"$_systemdcatfile"
         elif ! [ -S /dev/log -a -w /dev/log ] || ! command -v logger >/dev/null; then
             # We cannot log to syslog, so turn this facility off.
+            kmsgloglvl=$sysloglvl
             sysloglvl=0
             ret=1
             errmsg="No '/dev/log' or 'logger' included for syslog logging"
