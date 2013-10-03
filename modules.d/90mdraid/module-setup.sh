@@ -93,6 +93,14 @@ install() {
         else
             [ -f /etc/mdadm/mdadm.conf ] && inst /etc/mdadm/mdadm.conf /etc/mdadm.conf
         fi
+        if [ -d /etc/mdadm.conf.d ]; then
+            local f
+            inst_dir /etc/mdadm.conf.d
+            for f in /etc/mdadm.conf.d/*.conf; do
+                [ -f "$f" ] || continue
+                inst "$f"
+            done
+        fi
     fi
 
     inst_hook pre-udev 30 "$moddir/mdmon-pre-udev.sh"
