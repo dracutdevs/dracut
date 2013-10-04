@@ -882,7 +882,10 @@ inst_rules() {
                 fi
             done
         fi
-        for r in '' ./ $dracutbasedir/rules.d/; do
+        for r in '' $dracutbasedir/rules.d/; do
+            # skip rules without an absolute path
+            [[ "${r}$_rule" != /* ]] && continue
+
             if [[ -f ${r}$_rule ]]; then
                 _found="${r}$_rule"
                 inst_rule_programs "$_found"
