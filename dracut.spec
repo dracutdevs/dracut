@@ -97,14 +97,12 @@ Requires: util-linux >= 2.21
 Requires: systemd >= 199
 Requires: procps-ng
 Conflicts: grubby < 8.23
+Conflicts: initscripts < 8.63-1
+Conflicts: plymouth < 0.8.0-0.2009.29.09.19.1
+Conflicts: bcache-tools < 0-0.14.20130909git
 %else
 Requires: udev > 166
 Requires: util-linux-ng >= 2.21
-%endif
-
-%if 0%{?fedora} || 0%{?rhel} > 6
-Conflicts: initscripts < 8.63-1
-Conflicts: plymouth < 0.8.0-0.2009.29.09.19.1
 %endif
 
 Conflicts: mdadm < 3.2.6-14
