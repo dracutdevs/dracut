@@ -82,7 +82,7 @@ install() {
         } > "${initdir}/etc/lvm/lvm.conf"
     fi
 
-    inst_rules 11-dm-lvm.rules
+    inst_rules 11-dm-lvm.rules 69-dm-lvm-metad.rules
     # Gentoo ebuild for LVM2 prior to 2.02.63-r1 doesn't install above rules
     # files, but provides the one below:
     inst_rules 64-device-mapper.rules

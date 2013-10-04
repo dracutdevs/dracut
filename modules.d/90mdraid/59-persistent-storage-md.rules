@@ -20,4 +20,5 @@ IMPORT{program}="/sbin/mdadm --detail --export $tempnode"
 IMPORT BLKID
 OPTIONS+="link_priority=100"
 OPTIONS+="watch"
+OPTIONS+="db_persist"
 LABEL="md_end"
