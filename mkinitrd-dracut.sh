@@ -122,7 +122,7 @@ while (($# > 0)); do
         --version)
             echo "mkinitrd: dracut compatibility wrapper"
             exit 0;;
-        -v|--verbose) dracut_args="${dracut_args} -v --keep";;
+        -v|--verbose) dracut_args="${dracut_args} -v";;
         -f|--force) force=1;;
         --preload) read_arg modname "$@" || shift $?
             basicmodules="$basicmodules $modname";;
