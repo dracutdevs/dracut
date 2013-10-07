@@ -73,7 +73,7 @@ default_kernel_images() {
             ;;
     esac
 
-    # user mode linux                                                              
+    # user mode linux
     if grep -q UML /proc/cpuinfo; then
             regex='linux'
     fi
