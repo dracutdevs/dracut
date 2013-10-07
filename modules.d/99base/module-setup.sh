@@ -42,6 +42,7 @@ install() {
     mkdir -p ${initdir}/tmp
 
     inst_simple "$moddir/dracut-lib.sh" "/lib/dracut-lib.sh"
+    inst_simple "$moddir/uefi-lib.sh" "/lib/uefi-lib.sh"
 
     if ! dracut_module_included "systemd"; then
         inst_multiple switch_root || dfatal "Failed to install switch_root"
