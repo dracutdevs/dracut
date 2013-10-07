@@ -39,8 +39,7 @@ install() {
     fi
 
     if ! dracut_module_included "systemd"; then
-        inst_script "$moddir/btrfs_timeout.sh" \
-            /usr/lib/dracut/hooks/initqueue/timeout/btrfs_timeout.sh
+        inst_hook initqueue/timeout 10 "$moddir/btrfs_timeout.sh"
     fi
 
     inst_multiple -o btrfsck btrfs-zero-log
