@@ -1,3 +1,27 @@
+dracut-034
+==========
+- do not run dhcp on parts of assembled network interfaces (bond, bridge)
+- add option to turn on/off prelinking
+    --prelink, --noprelink
+    do_prelink=[yes|no]
+- add ACPI table overriding
+- do not log to syslog/kmsg/journal for UID != 0
+- lvm/mdraid: Fix LVM on MD activation
+- bcache module removed (now in bcache-tools upstream)
+- mdadm: also install configs from /etc/mdadm.conf.d
+- fixes for mdadm-3.2.6+
+- mkinitrd: better compat support for SUSE
+- fcoe: add FCoE UEFI boot device support
+- rootfs-block: add support for the rootfallback= kernel cmdline option
+
+Contributions from:
+Thomas Renninger
+Alexander Tsoy
+Peter Rajnoha
+WANG Chao
+Harald Hoyer
+
+
 dracut-033
 ==========
 - improved hostonly device recognition
@@ -15,6 +39,12 @@ dracut-033
 - bcache: support new blkid
 - fixed ifup udev rules
 - ifup with dhcp, if no "ip=" specified for the interface
+
+Contributions from:
+WANG Chao
+Colin Walters
+Harald Hoyer
+
 
 dracut-032
 ==========
