@@ -2,6 +2,7 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+# called by dracut
 check() {
     local _rootdev
     # If our prerequisites are not met, fail.
@@ -20,15 +21,18 @@ check() {
     return 0
 }
 
+# called by dracut
 depends() {
     # We depend on network modules being loaded
     echo network rootfs-block
 }
 
+# called by dracut
 installkernel() {
     instmods nbd
 }
 
+# called by dracut
 install() {
     inst nbd-client
     inst_hook cmdline 90 "$moddir/parse-nbdroot.sh"

@@ -2,6 +2,7 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+# called by dracut
 check() {
     local _rootdev
     # No mdadm?  No mdraid support.
@@ -26,15 +27,18 @@ check() {
     return 0
 }
 
+# called by dracut
 depends() {
     echo rootfs-block
     return 0
 }
 
+# called by dracut
 installkernel() {
     instmods =drivers/md
 }
 
+# called by dracut
 cmdline() {
     local _activated dev line UUID
     declare -A _activated
@@ -58,6 +62,7 @@ cmdline() {
     done
 }
 
+# called by dracut
 install() {
     local rule rule_path
     inst_multiple cat

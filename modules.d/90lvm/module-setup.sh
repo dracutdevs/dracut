@@ -2,6 +2,7 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+# called by dracut
 check() {
     # No point trying to support lvm if the binaries are missing
     type -P lvm >/dev/null || return 1
@@ -16,6 +17,7 @@ check() {
     return 0
 }
 
+# called by dracut
 depends() {
     # We depend on dm_mod being loaded
     echo rootfs-block dm
@@ -41,12 +43,14 @@ get_host_lvs() {
     done
 }
 
+# called by dracut
 cmdline() {
     get_host_lvs | while read line; do
         printf " rd.lvm.lv=$line"
     done
 }
 
+# called by dracut
 install() {
     local _i _needthin
 

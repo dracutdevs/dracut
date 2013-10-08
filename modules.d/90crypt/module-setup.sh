@@ -2,6 +2,7 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+# called by dracut
 check() {
     local _rootdev
     # if cryptsetup is not installed, then we cannot support encrypted devices.
@@ -17,15 +18,18 @@ check() {
     return 0
 }
 
+# called by dracut
 depends() {
     echo dm rootfs-block
     return 0
 }
 
+# called by dracut
 installkernel() {
     instmods dm_crypt =crypto
 }
 
+# called by dracut
 cmdline() {
     local dev UUID
     for dev in "${!host_fs_types[@]}"; do
@@ -44,6 +48,7 @@ cmdline() {
     done
 }
 
+# called by dracut
 install() {
 
     cmdline >> "${initdir}/etc/cmdline.d/90crypt.conf"

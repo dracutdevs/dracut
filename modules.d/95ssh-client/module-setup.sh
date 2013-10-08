@@ -4,6 +4,7 @@
 
 # fixme: assume user is root
 
+# called by dracut
 check() {
     # If our prerequisites are not met, fail.
     type -P ssh >/dev/null || return 1
@@ -20,6 +21,7 @@ check() {
     return 255
 }
 
+# called by dracut
 depends() {
     # We depend on network modules being loaded
     echo network
@@ -46,6 +48,7 @@ inst_sshenv()
     return 0
 }
 
+# called by dracut
 install() {
     inst_multiple ssh scp
     inst_sshenv

@@ -2,6 +2,7 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+# called by dracut
 check() {
     local _rootdev
     # If our prerequisites are not met, fail anyways.
@@ -29,10 +30,12 @@ check() {
     return 0
 }
 
+# called by dracut
 depends() {
     echo network rootfs-block
 }
 
+# called by dracut
 installkernel() {
     local _arch=$(uname -m)
 
@@ -75,6 +78,7 @@ installkernel() {
     | iscsi_module_filter  |  instmods
 }
 
+# called by dracut
 install() {
     inst_multiple umount iscsistart hostname iscsi-iname
     inst_multiple -o iscsiuio

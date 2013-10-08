@@ -2,20 +2,24 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+# called by dracut
 check() {
     type -P dmsetup >/dev/null || return 1
     return 255
 }
 
+# called by dracut
 depends() {
     return 0
 }
 
+# called by dracut
 installkernel() {
     instmods =drivers/md
     instmods dm_mod
 }
 
+# called by dracut
 install() {
     modinfo -k $kernel dm_mod >/dev/null 2>&1 && \
         inst_hook pre-udev 30 "$moddir/dm-pre-udev.sh"

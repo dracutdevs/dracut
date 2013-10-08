@@ -2,6 +2,7 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+# called by dracut
 installkernel() {
     if [[ -z $drivers ]]; then
         block_module_filter() {
@@ -73,6 +74,7 @@ installkernel() {
     :
 }
 
+# called by dracut
 install() {
     inst_multiple -o /lib/modprobe.d/*.conf
     [[ $hostonly ]] && inst_multiple -o /etc/modprobe.d/*.conf /etc/modprobe.conf

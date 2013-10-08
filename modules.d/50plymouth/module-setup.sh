@@ -2,15 +2,18 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+# called by dracut
 check() {
     [[ "$mount_needs" ]] && return 1
     type -P plymouthd >/dev/null && type -P plymouth >/dev/null
 }
 
+# called by dracut
 depends() {
     echo drm
 }
 
+# called by dracut
 install() {
     if grep -q nash /usr/libexec/plymouth/plymouth-populate-initrd \
         || [ ! -x /usr/libexec/plymouth/plymouth-populate-initrd ]; then

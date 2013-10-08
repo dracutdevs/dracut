@@ -2,6 +2,7 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+# called by dracut
 check() {
     local _rootdev
     # if there's no multipath binary, no go.
@@ -21,12 +22,14 @@ check() {
     return 0
 }
 
+# called by dracut
 depends() {
     echo rootfs-block
     echo dm
     return 0
 }
 
+# called by dracut
 installkernel() {
     local _ret
     local _arch=$(uname -m)
@@ -67,6 +70,7 @@ installkernel() {
       find_kernel_modules_by_path drivers/md )  |  mp_mod_filter  |  instmods
 }
 
+# called by dracut
 install() {
     local _f
     inst_multiple -o  \

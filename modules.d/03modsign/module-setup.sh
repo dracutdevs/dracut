@@ -7,6 +7,7 @@
 # Copyright 2013 Red Hat, Inc.
 # Peter Jones <pjones@redhat.com>
 
+# called by dracut
 check() {
     [[ -x /usr/bin/keyctl ]] || return 1
 
@@ -20,10 +21,12 @@ check() {
     return 0
 }
 
+# called by dracut
 depends() {
     return 0
 }
 
+# called by dracut
 install() {
     inst_dir /lib/modules/keys
     inst_binary /usr/bin/keyctl

@@ -2,14 +2,17 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+# called by dracut
 check() {
     return 255
 }
 
+# called by dracut
 depends() {
     return 0
 }
 
+# called by dracut
 installkernel() {
     local _fipsmodules _mod
     _fipsmodules="aead aes_generic aes-x86_64 ansi_cprng arc4 blowfish camellia cast6 cbc ccm "
@@ -28,6 +31,7 @@ installkernel() {
     done
 }
 
+# called by dracut
 install() {
     local _dir
     inst_hook pre-trigger 01 "$moddir/fips-boot.sh"

@@ -2,6 +2,7 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+# called by dracut
 check() {
     # FIXME
     # If hostonly was requested, fail the check until we have some way of
@@ -15,15 +16,18 @@ check() {
     return 0
 }
 
+# called by dracut
 depends() {
     echo network rootfs-block
     return 0
 }
 
+# called by dracut
 installkernel() {
     instmods fcoe 8021q edd
 }
 
+# called by dracut
 install() {
     inst_multiple ip dcbtool fipvlan lldpad readlink
 
