@@ -496,15 +496,16 @@ if [[ $regenerate_all == "yes" ]]; then
         ((ret+=$?))
     done
     exit $ret
-elif [[ $kernel ]]; then
-    if ! [[ -d /lib/modules/$kernel ]] && [[ $no_kernel != yes ]]; then
-        printf -- "Kernel version $kernel has no modules in /lib/modules/$kernel\n" >&2
-        exit 1
-    fi
 fi
 
 if ! [[ $kernel ]]; then
     kernel=$(uname -r)
+fi
+
+if [[ $kernel ]]; then
+    if ! [[ -d /lib/modules/$kernel ]] && [[ $no_kernel != yes ]]; then
+        printf -- "Kernel version $kernel has no module directory /lib/modules/$kernel\n" >&2
+    fi
 fi
 
 if ! [[ $outfile ]]; then
