@@ -144,6 +144,9 @@ do_live_overlay() {
         over=$OVERLAY_LOOPDEV
     fi
     echo 0 $sz snapshot $base $over p 8 | dmsetup create live-rw
+
+    # Create a device that always points to a ro base image
+    echo 0 $sz linear $base 0 | dmsetup create --readonly live-base
 }
 
 # live cd helper function
@@ -225,9 +228,6 @@ if [ -n "$ROOTFLAGS" ]; then
     ROOTFLAGS="-o $ROOTFLAGS"
 fi
 
-if [ -b "$BASE_LOOPDEV" ]; then
-    ln -s $BASE_LOOPDEV /run/initramfs/live-baseloop
-fi
 ln -s /dev/mapper/live-rw /dev/root
 printf 'mount %s /dev/mapper/live-rw %s\n' "$ROOTFLAGS" "$NEWROOT" > $hookdir/mount/01-$$-live.sh
 
