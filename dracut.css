@@ -14,45 +14,6 @@ body {
 	color:black;
 }
 
-body.toc_embeded {
-	/*for web hosting system only*/
-	margin-left: 300px;
-}
-
-object.toc, iframe.toc {
-	/*for web hosting system only*/
-	border-style:none;
-	position:fixed;
-	width:290px;
-	height:99.99%;
-	top:0;
-	left:0;
-	z-index: 100;
-	border-style:none;
-	border-right:1px solid #999;
-}
-
-/* Hide web menu */
-
-body.notoc {
-	margin-left: 3em;
-}
-
-iframe.notoc {
-	border-style:none;
-	border: none;
-	padding: 0em;
-	position:fixed;
-	width: 21px;
-	height: 29px;
-	top: 0px;
-	left:0;
-	overflow: hidden;
-	margin: 0em;
-	margin-left: -3px;
-}
-/* End hide web menu */
-
 /* desktop styles */
 body.desktop {
 	margin-left: 26em;
@@ -166,7 +127,6 @@ h1 {
 	margin-bottom: 0em;
 	font-size: 3.0em;
 	font-weight: bold;
-	background: #003d6e url(../images/h1-bg.png) top left repeat-x;
 	color: white;
 	text-align: center;
 	padding: 0.7em;
@@ -480,106 +440,14 @@ h3.author {
 	font-weight:bold;
 }
 
-/* inline syntax highlighting */
-.perl_Alert {
-	color: #0000ff;
-}
-
-.perl_BaseN {
-	color: #007f00;
-}
-
-.perl_BString {
-	color: #5C3566;
-}
-
-.perl_Char {
-	color: #ff00ff;
-}
-
-.perl_Comment {
-	color: #FF00FF;
-}
-
-
-.perl_DataType {
-	color: #0000ff;
-}
-
-
-.perl_DecVal {
-	color: #00007f;
-}
-
-
-.perl_Error {
-	color: #ff0000;
-}
-
-
-.perl_Float {
-	color: #00007f;
-}
-
-
-.perl_Function {
-	color: #007f00;
-}
-
-
-.perl_IString {
-	color: #5C3566;
-}
-
-
-.perl_Keyword {
-	color: #002F5D;
-}
-
-
-.perl_Operator {
-	color: #ffa500;
-}
-
-
-.perl_Others {
-	color: #b03060;
-}
-
-
-.perl_RegionMarker {
-	color: #96b9ff;
-}
-
-
-.perl_Reserved {
-	color: #9b30ff;
-}
-
-
-.perl_String {
-	color: #5C3566;
-}
-
-
-.perl_Variable {
-	color: #0000ff;
-}
-
-
-.perl_Warning {
-	color: #0000ff;
-}
 
 /*Lists*/
 ul {
 	padding-left:1.6em;
-	list-style-image:url(../images/dot.png);
 	list-style-type: circle;
 }
 
 ul ul {
-	list-style-image:url(../images/dot2.png);
 	list-style-type: circle;
 }
 
@@ -769,21 +637,6 @@ code {
 	word-wrap: break-word; /* Internet Explorer 5.5+ */
 }
 
-/*Notifications*/
-div.warning:before {
-	content:url(../images/warning.png);
-	padding-left: 5px;
-}
-
-div.note:before {
-	content:url(../images/note.png);
-	padding-left: 5px;
-}
-
-div.important:before {
-	content:url(../images/important.png);
-	padding-left: 5px;
-}
 
 div.warning, div.note, div.important {
 	color: black;
@@ -792,7 +645,8 @@ div.warning, div.note, div.important {
 	background: none;
 	background-color: white;
 	margin-bottom: 1em;
-	border-bottom: 1px solid #aaaaaa;
+	padding-left: 1em;
+	border-left: 2px solid #aaaaaa;
 }
 
 div.warning h2, div.note h2,div.important h2 {
@@ -817,20 +671,6 @@ div.admonition_header {
 	font-size: 1.0em;
 }
 
-div.warning div.admonition_header {
-	background: url(../images/red.png) top left repeat-x;
-	background-color: #590000;
-}
-
-div.note div.admonition_header {
-	background: url(../images/green.png) top right repeat-x;
-	background-color: #597800;
-}
-
-div.important div.admonition_header {
-	background: url(../images/yellow.png) top right repeat-x;
-	background-color: #a6710f;
-}
 
 div.warning p, div.warning div.para,
 div.note p, div.note div.para,
@@ -1131,266 +971,6 @@ ul li p:last-child, ul li div.para:last-child {
 	padding-bottom:0em;
 }
 
-/*document navigation*/
-.docnav a, .docnav strong {
-	border:none;
-	text-decoration:none;
-	font-weight:normal;
-}
-
-.docnav {
-	list-style:none;
-	margin:0em;
-	padding:0em;
-	position:relative;
-	width:100%;
-	padding-bottom:2em;
-	padding-top:1em;
-	border-top:1px dotted #ccc;
-}
-
-.docnav li {
-	list-style:none;
-	margin:0em;
-	padding:0em;
-	display:inline;
-	font-size:.8em;
-}
-
-.docnav li:before {
-	content:" ";
-}
-
-.docnav li.previous, .docnav li.next {
-	position:absolute;
-	top:1em;
-}
-
-.docnav li.up, .docnav li.home {
-	margin:0em 1.5em;
-}
-
-.docnav li.previous {
-	left:0px;
-	text-align:left;
-}
-
-.docnav li.next {
-	right:0px;
-	text-align:right;
-}
-
-.docnav li.previous strong, .docnav li.next strong {
-	height:22px;
-	display:block;
-}
-
-.docnav {
-	margin:0 auto;
-	text-align:center;
-}
-
-.docnav li.next a strong {
-	background:  url(../images/stock-go-forward.png) top right no-repeat;
-	padding-top:3px;
-	padding-bottom:4px;
-	padding-right:28px;
-	font-size:1.2em;
-}
-
-.docnav li.previous a strong {
-	background: url(../images/stock-go-back.png) top left no-repeat;
-	padding-top:3px;
-	padding-bottom:4px;
-	padding-left:28px;
-	padding-right:0.5em;
-	font-size:1.2em;
-}
-
-.docnav li.home a strong {
-	background: url(../images/stock-home.png) top left no-repeat;
-	padding:5px;
-	padding-left:28px;
-	font-size:1.2em;
-}
-
-.docnav li.up a strong {
-	background: url(../images/stock-go-up.png) top left no-repeat;
-	padding:5px;
-	padding-left:28px;
-	font-size:1.2em;
-}
-
-.docnav a:link, .docnav a:visited {
-	color:#666;
-}
-
-.docnav a:hover, .docnav a:focus, .docnav a:active {
-	color:black;
-}
-
-.docnav a {
-	max-width: 10em;
-	overflow:hidden;
-}
-
-.docnav a:link strong {
-	text-decoration:none;
-}
-
-.docnav {
-	margin:0 auto;
-	text-align:center;
-}
-
-ul.docnav {
-	margin-bottom: 1em;
-}
-/* Reports */
-.reports ul {
-	list-style:none;
-	margin:0em;
-	padding:0em;
-}
-
-.reports li{
-	margin:0em;
-	padding:0em;
-}
-
-.reports li.odd {
-	background-color: #eeeeee;
-	margin:0em;
-	padding:0em;
-}
-
-.reports dl {
-	display:inline;
-	margin:0em;
-	padding:0em;
-	float:right;
-	margin-right: 17em;
-	margin-top:-1.3em;
-}
-
-.reports dt {
-	display:inline;
-	margin:0em;
-	padding:0em;
-}
-
-.reports dd {
-	display:inline;
-	margin:0em;
-	padding:0em;
-	padding-right:.5em;
-}
-
-.reports h2, .reports h3{
-	display:inline;
-	padding-right:.5em;
-	font-size:10pt;
-	font-weight:normal;
-}
-
-.reports div.progress {
-	display:inline;
-	float:right;
-	width:16em;
-	background:#c00 url(../images/shine.png) top left repeat-x;
-	margin:0em;
-	margin-top:-1.3em;
-	padding:0em;
-	border:none;
-}
-
-/*uniform*/
-body.results, body.reports {
-	max-width:57em ;
-	padding:0em;
-}
-
-/*Progress Bar*/
-div.progress {
-	display:block;
-	float:left;
-	width:16em;
-	background:#c00 url(../images/shine.png) top left repeat-x;
-	height:1em;
-}
-
-div.progress span {
-	height:1em;
-	float:left;
-}
-
-div.progress span.translated {
-	background:#6c3 url(../images/shine.png) top left repeat-x;
-}
-
-div.progress span.fuzzy {
-	background:#ff9f00 url(../images/shine.png) top left repeat-x;
-}
-
-
-/*Results*/
-
-.results ul {
-	list-style:none;
-	margin:0em;
-	padding:0em;
-}
-
-.results li{
-	margin:0em;
-	padding:0em;
-}
-
-.results li.odd {
-	background-color: #eeeeee;
-	margin:0em;
-	padding:0em;
-}
-
-.results dl {
-	display:inline;
-	margin:0em;
-	padding:0em;
-	float:right;
-	margin-right: 17em;
-	margin-top:-1.3em;
-}
-
-.results dt {
-	display:inline;
-	margin:0em;
-	padding:0em;
-}
-
-.results dd {
-	display:inline;
-	margin:0em;
-	padding:0em;
-	padding-right:.5em;
-}
-
-.results h2, .results h3 {
-	display:inline;
-	padding-right:.5em;
-	font-size:10pt;
-	font-weight:normal;
-}
-
-.results div.progress {
-	display:inline;
-	float:right;
-	width:16em;
-	background:#c00 url(../images/shine.png) top left repeat-x;
-	margin:0em;
-	margin-top:-1.3em;
-	padding:0em;
-	border:none;
-}
 
 /* Dirty EVIL Mozilla hack for round corners */
 pre {
@@ -1421,12 +1001,6 @@ pre {
 
 span.remark {
 	background-color: #ff00ff;
-}
-
-.draft {
-	background-image: url(../images/watermark-draft.png);
-	background-repeat: repeat-y;
-        background-position: center;
 }
 
 .foreignphrase {
@@ -1511,10 +1085,6 @@ a:visited {
 
 h1 {
 	color:#3c6eb4
-}
-
-.producttitle {
-	background: #3c6eb4 url(../images/h1-bg.png) top left repeat;
 }
 
 .section h1.title {

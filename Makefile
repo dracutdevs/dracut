@@ -21,7 +21,8 @@ man1pages = lsinitrd.1
 man5pages = dracut.conf.5
 
 man7pages = dracut.cmdline.7 \
-            dracut.bootup.7
+            dracut.bootup.7 \
+            dracut.modules.7
 
 man8pages = dracut.8 \
             dracut-catimages.8 \
@@ -36,7 +37,6 @@ man8pages = dracut.8 \
             modules.d/98systemd/dracut-pre-udev.service.8
 
 manpages = $(man1pages) $(man5pages) $(man7pages) $(man8pages)
-
 
 .PHONY: install clean archive rpm testimage test all check AUTHORS doc dracut-version.sh
 
@@ -76,7 +76,9 @@ endif
 %.xml: %.asc
 	asciidoc -d manpage -b docbook -o $@ $<
 
-dracut.html: dracut.asc $(manpages) dracut.css
+dracut.8: dracut.usage.asc dracut.8.asc
+
+dracut.html: dracut.asc $(manpages) dracut.css dracut.usage.asc
 	asciidoc -a numbered -d book -b docbook -o dracut.xml dracut.asc
 	xsltproc -o dracut.html --xinclude -nonet \
 		--stringparam custom.css.source dracut.css \

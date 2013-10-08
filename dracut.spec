@@ -314,6 +314,7 @@ rm -rf -- $RPM_BUILD_ROOT
 %endif
 %{_mandir}/man7/dracut.kernel.7*
 %{_mandir}/man7/dracut.cmdline.7*
+%{_mandir}/man7/dracut.modules.7*
 %{_mandir}/man7/dracut.bootup.7*
 %{_mandir}/man5/dracut.conf.5*
 %if %{defined _unitdir}
