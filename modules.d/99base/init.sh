@@ -90,6 +90,7 @@ trap "action_on_fail Signal caught!" 0
 
 [ -d /run/initramfs ] || mkdir -p -m 0755 /run/initramfs
 [ -d /run/log ] || mkdir -p -m 0755 /run/log
+[ -d /run/lock ] || mkdir -p -m 0755 /run/lock
 
 export UDEVVERSION=$(udevadm --version)
 if [ $UDEVVERSION -gt 166 ]; then
