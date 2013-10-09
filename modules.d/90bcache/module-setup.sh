@@ -27,7 +27,7 @@ installkernel() {
 }
 
 install() {
-    blkid -k | { while read line; do [[ $line == bcache ]] && exit 0; done; exit 1; } || inst_multiple probe-bcache
-    inst_multiple ${udevdir}/bcache-register
-    inst_rules 61-bcache.rules
+    blkid -k | { while read line; do [[ $line == bcache ]] && exit 0; done; exit 1; } || inst_multiple -o probe-bcache
+    inst_multiple -o ${udevdir}/bcache-register
+    inst_rules 61-bcache.rules 69-bcache.rules
 }
