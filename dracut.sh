@@ -165,6 +165,12 @@ Creates initial ramdisk images for preloading modules
   --xz                  Compress the generated initramfs using xz.
                          Make sure that your kernel has xz support compiled
                          in, otherwise you will not be able to boot.
+  --lzo                  Compress the generated initramfs using lzop.
+                         Make sure that your kernel has lzo support compiled
+                         in, otherwise you will not be able to boot.
+  --lz4                  Compress the generated initramfs using lz4.
+                         Make sure that your kernel has lz4 support compiled
+                         in, otherwise you will not be able to boot.
   --compress [COMPRESSION] Compress the generated initramfs with the
                          passed compression program.  Make sure your kernel
                          knows how to decompress the generated initramfs,
@@ -342,6 +348,8 @@ TEMP=$(unset POSIXLY_CORRECT; getopt \
     --long bzip2 \
     --long lzma \
     --long xz \
+    --long lzo \
+    --long lz4 \
     --long no-compress \
     --long gzip \
     --long list-modules \
@@ -430,6 +438,8 @@ while :; do
         --bzip2)       compress_l="bzip2";;
         --lzma)        compress_l="lzma";;
         --xz)          compress_l="xz";;
+        --lzo)         compress_l="lzo";;
+        --lz4)         compress_l="lz4";;
         --no-compress) _no_compress_l="cat";;
         --gzip)        compress_l="gzip";;
         --list-modules) do_list="yes";;
@@ -673,6 +683,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $fw_dir ]] || fw_dir="/lib/firmware/updates /lib/firmware"
 [[ $tmpdir_l ]] && tmpdir="$tmpdir_l"
 [[ $tmpdir ]] || tmpdir=/var/tmp
+[[ $INITRD_COMPRESS ]] && compress=$INITRD_COMPRESS
 [[ $compress_l ]] && compress=$compress_l
 [[ $show_modules_l ]] && show_modules=$show_modules_l
 [[ $nofscks_l ]] && nofscks="yes"
@@ -689,6 +700,8 @@ case $compress in
     lzma)  compress="lzma -9";;
     xz)    compress="xz --check=crc32 --lzma2=dict=1MiB";;
     gzip)  compress="gzip -9"; command -v pigz > /dev/null 2>&1 && compress="pigz -9";;
+    lzo)   compress="lzop -9";;
+    lz4)   compress="lz4 -9";;
 esac
 if [[ $_no_compress_l = "cat" ]]; then
     compress="cat"
