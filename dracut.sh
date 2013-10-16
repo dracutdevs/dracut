@@ -1094,7 +1094,7 @@ if [[ $kernel_only != yes ]]; then
         fi
     done
 
-    for d in dev proc sys sysroot root run run/lock run/initramfs; do
+    for d in dev proc sys sysroot root run run/log run/lock run/initramfs; do
         if [ -L "/$d" ]; then
             inst_symlink "/$d"
         else
