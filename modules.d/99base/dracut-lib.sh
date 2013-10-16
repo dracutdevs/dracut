@@ -4,6 +4,13 @@
 
 export DRACUT_SYSTEMD
 export NEWROOT
+if [ -n "$NEWROOT" ]; then
+    [ -d $NEWROOT ] || mkdir -p -m 0755 $NEWROOT
+fi
+
+[ -d /run/initramfs ] || mkdir -p -m 0755 /run/initramfs
+[ -d /run/lock ] || mkdir -p -m 0755 /run/lock
+[ -d /run/log ] || mkdir -p -m 0755 /run/log
 
 debug_off() {
     set +x

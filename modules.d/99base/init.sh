@@ -56,17 +56,17 @@ fi
 
 if ! ismounted /dev/pts; then
     mkdir -m 0755 /dev/pts
-    mount -t devpts -o gid=5,mode=620,noexec,nosuid devpts /dev/pts >/dev/null 
+    mount -t devpts -o gid=5,mode=620,noexec,nosuid devpts /dev/pts >/dev/null
 fi
 
 if ! ismounted /dev/shm; then
     mkdir -m 0755 /dev/shm
-    mount -t tmpfs -o mode=1777,nosuid,nodev,strictatime tmpfs /dev/shm >/dev/null 
+    mount -t tmpfs -o mode=1777,nosuid,nodev,strictatime tmpfs /dev/shm >/dev/null
 fi
 
 if ! ismounted /run; then
     mkdir -m 0755 /newrun
-    mount -t tmpfs -o mode=0755,nosuid,nodev,strictatime tmpfs /newrun >/dev/null 
+    mount -t tmpfs -o mode=0755,nosuid,nodev,strictatime tmpfs /newrun >/dev/null
     cp -a /run/* /newrun >/dev/null 2>&1
     mount --move /newrun /run
     rm -fr -- /newrun
@@ -87,10 +87,6 @@ if command -v kmod >/dev/null 2>/dev/null; then
 fi
 
 trap "action_on_fail Signal caught!" 0
-
-[ -d /run/initramfs ] || mkdir -p -m 0755 /run/initramfs
-[ -d /run/log ] || mkdir -p -m 0755 /run/log
-[ -d /run/lock ] || mkdir -p -m 0755 /run/lock
 
 export UDEVVERSION=$(udevadm --version)
 if [ $UDEVVERSION -gt 166 ]; then

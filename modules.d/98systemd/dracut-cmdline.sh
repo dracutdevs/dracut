@@ -2,11 +2,6 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
-[ -d $NEWROOT ] || mkdir -p -m 0755 $NEWROOT
-[ -d /run/initramfs ] || mkdir -p -m 0755 /run/initramfs
-[ -d /run/lock ] || mkdir -p -m 0755 /run/lock
-[ -d /run/log ] || mkdir -p -m 0755 /run/log
-
 if [ -f /dracut-state.sh ]; then
     . /dracut-state.sh 2>/dev/null
 fi
