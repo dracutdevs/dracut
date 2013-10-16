@@ -57,12 +57,13 @@ install() {
     inst lvm
 
     if [[ $hostonly ]]; then
-        get_host_lvs | while read line; do
+        while read line; do
+            [[ -n "$line" ]] || continue
             printf "%s" " rd.lvm.lv=$line"
             if ! [[ $_needthin ]]; then
                 [[ "$(lvs --noheadings -o segtype ${line%%/*} 2>/dev/null)" == *thin* ]] && _needthin=1
             fi
-        done >> "${initdir}/etc/cmdline.d/90lvm.conf"
+        done <<<$(get_host_lvs) >> "${initdir}/etc/cmdline.d/90lvm.conf"
         echo >> "${initdir}/etc/cmdline.d/90lvm.conf"
     else
         _needthin=1
