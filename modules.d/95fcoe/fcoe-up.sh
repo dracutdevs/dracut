@@ -14,7 +14,7 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
 [ -z "$1" -o -z "$2" ] && exit 1
 
 export PS4="fcoe-up.$1.$$ + "
-exec >>/run/initramfs/loginit.pipe 2>>/run/initramfs/loginit.pipe
+[ -e /run/initramfs/loginit.pipe ] && exec >>/run/initramfs/loginit.pipe 2>>/run/initramfs/loginit.pipe
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 type ip_to_var >/dev/null 2>&1 || . /lib/net-lib.sh
 
