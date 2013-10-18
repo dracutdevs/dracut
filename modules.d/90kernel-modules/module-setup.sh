@@ -49,7 +49,7 @@ installkernel() {
             # arm specific modules
             hostonly='' instmods sdhci_esdhc_imx mmci sdhci_tegra mvsdio omap omapdrm \
                 omap_hsmmc panel-tfp410 sdhci_dove ahci_platform pata_imx sata_mv \
-                ehci-tegra
+                ehci-tegra mmc_block usb_storage
         fi
 
         # install virtual machine support
