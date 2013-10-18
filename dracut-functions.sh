@@ -579,7 +579,7 @@ host_fs_all()
 check_block_and_slaves() {
     local _x
     [[ -b /dev/block/$2 ]] || return 1 # Not a block device? So sorry.
-    "$1" $2 && return
+    if ! lvm_internal_dev $2; then "$1" $2 && return; fi
     check_vol_slaves "$@" && return 0
     if [[ -f /sys/dev/block/$2/../dev ]]; then
         check_block_and_slaves $1 $(<"/sys/dev/block/$2/../dev") && return 0
@@ -595,7 +595,7 @@ check_block_and_slaves() {
 check_block_and_slaves_all() {
     local _x _ret=1
     [[ -b /dev/block/$2 ]] || return 1 # Not a block device? So sorry.
-    if "$1" $2; then
+    if ! lvm_internal_dev $2 && "$1" $2; then
         _ret=0
     fi
     check_vol_slaves "$@" && return 0
@@ -1672,3 +1672,15 @@ get_ucode_file ()
         printf "%02x-%02x-%02x" ${family} ${model} ${stepping}
     fi
 }
+
+# Not every device in /dev/mapper should be examined.
+# If it is an LVM device, touch only devices which have /dev/VG/LV symlink.
+lvm_internal_dev() {
+    local dev_dm_dir=/sys/dev/block/$1/dm
+    [[ ! -f $dev_dm_dir/uuid || $(<$dev_dm_dir/uuid) != LVM-* ]] && return 1 # Not an LVM device
+    local DM_VG_NAME DM_LV_NAME DM_LV_LAYER
+    eval $(dmsetup splitname --nameprefixes --noheadings --rows "$(<$dev_dm_dir/name)" 2>/dev/null)
+    [[ ${DM_VG_NAME} ]] && [[ ${DM_LV_NAME} ]] || return 0 # Better skip this!
+    [[ ${DM_LV_LAYER} ]] || [[ ! -L /dev/${DM_VG_NAME}/${DM_LV_NAME} ]]
+}
+
