@@ -20,8 +20,7 @@ chomp($tag);
 my @patches=&create_patches($tag, $pdir);
 my $num=$#patches + 2;
 $tag=~s/[^0-9]+?([0-9]+)/$1/;
-my $release="$num.git$datestr";
-$release="1" if $num == 1;
+my $release="$num";
 
 while(<>) {
     if (/^Version:/) {
