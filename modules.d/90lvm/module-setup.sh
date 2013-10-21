@@ -24,7 +24,8 @@ depends() {
     return 0
 }
 
-get_host_lvs() {
+# called by dracut
+cmdline() {
     local _activated
     declare -A _activated
 
@@ -37,37 +38,20 @@ get_host_lvs() {
         eval $(dmsetup splitname --nameprefixes --noheadings --rows "$dev" 2>/dev/null)
         [[ ${DM_VG_NAME} ]] && [[ ${DM_LV_NAME} ]] || return 1
         if ! [[ ${_activated[${DM_VG_NAME}/${DM_LV_NAME}]} ]]; then
-            printf "%s\n" "${DM_VG_NAME}/${DM_LV_NAME} "
+            printf " rd.lvm.lv=%s\n" "${DM_VG_NAME}/${DM_LV_NAME} "
             _activated["${DM_VG_NAME}/${DM_LV_NAME}"]=1
         fi
     done
 }
 
 # called by dracut
-cmdline() {
-    get_host_lvs | while read line; do
-        printf " rd.lvm.lv=$line"
-    done
-}
-
-# called by dracut
 install() {
-    local _i _needthin
+    local _i
 
     inst lvm
 
-    if [[ $hostonly ]]; then
-        while read line; do
-            [[ -n "$line" ]] || continue
-            printf "%s" " rd.lvm.lv=$line"
-            if ! [[ $_needthin ]]; then
-                [[ "$(lvs --noheadings -o segtype ${line%%/*} 2>/dev/null)" == *thin* ]] && _needthin=1
-            fi
-        done <<<$(get_host_lvs) >> "${initdir}/etc/cmdline.d/90lvm.conf"
-        echo >> "${initdir}/etc/cmdline.d/90lvm.conf"
-    else
-        _needthin=1
-    fi
+    cmdline >> "${initdir}/etc/cmdline.d/90lvm.conf"
+    echo >> "${initdir}/etc/cmdline.d/90lvm.conf"
 
     inst_rules "$moddir/64-lvm.rules"
 
@@ -103,9 +87,6 @@ install() {
 
     inst_libdir_file "libdevmapper-event-lvm*.so"
 
-    if [[ $_needthin ]]; then
-        inst_multiple -o thin_dump thin_restore thin_check thin_repair
-    fi
-
+    inst_multiple -o thin_dump thin_restore thin_check thin_repair
 }
 
