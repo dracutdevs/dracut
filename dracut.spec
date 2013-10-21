@@ -274,8 +274,8 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %endif
 
 # create compat symlink
-mkdir -p $RPM_BUILD_ROOT/sbin
-ln -s /usr/bin/dracut $RPM_BUILD_ROOT/sbin/dracut
+mkdir -p $RPM_BUILD_ROOT%{_sbindir}
+ln -sr $RPM_BUILD_ROOT%{_bindir}/dracut $RPM_BUILD_ROOT%{_sbindir}/dracut
 
 %clean
 rm -rf -- $RPM_BUILD_ROOT
@@ -285,7 +285,7 @@ rm -rf -- $RPM_BUILD_ROOT
 %doc README HACKING TODO COPYING AUTHORS NEWS dracut.html dracut.png dracut.svg
 %{_bindir}/dracut
 # compat symlink
-/sbin/dracut
+%{_sbindir}/dracut
 %{_datadir}/bash-completion/completions/dracut
 %{_datadir}/bash-completion/completions/lsinitrd
 %if 0%{?fedora} > 12 || 0%{?rhel} >= 6 || 0%{?suse_version} > 9999
