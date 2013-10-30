@@ -968,6 +968,11 @@ if [[ $hostonly ]]; then
 
     rm -f -- "$initdir/.modalias"
 
+    while read _k _s _v; do
+        [ "$_k" != "name" -a "$_k" != "driver" ] && continue
+        host_modalias["$_v"]=1
+    done </proc/crypto
+
     # check /proc/modules
     declare -A host_modules
     while read m rest; do
