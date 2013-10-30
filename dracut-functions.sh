@@ -1480,7 +1480,7 @@ dracut_kernel_post() {
 
 module_is_host_only() {
     local _mod=$1
-    local _modenc a i
+    local _modenc a i _k _s _v _aliases
     _mod=${_mod##*/}
     _mod=${_mod%.ko}
     _modenc=${_mod//-/_}
@@ -1497,19 +1497,25 @@ module_is_host_only() {
         # this covers the case, where a new module is introduced
         # or a module was renamed
         # or a module changed from builtin to a module
+
         if [[ -d /lib/modules/$kernel_current ]]; then
             # if the modinfo can be parsed, but the module
             # is not loaded, then we can safely return 1
             modinfo -F filename "$_mod" &>/dev/null && return 1
         fi
 
-        # Finally check all modalias, if we install for a kernel
-        # different from the current one
-        for a in $(modinfo -k $kernel -F alias $_mod 2>/dev/null); do
+        _aliases=$(modinfo -k $kernel -F alias $_mod 2>/dev/null)
+
+        # if the module has no aliases, install it
+        [[ $_aliases ]] || return 0
+
+        # finally check all modalias
+        for a in $_aliases; do
             for i in "${!host_modalias[@]}"; do
                 [[ $i == $a ]]  && return 0
             done
         done
+
     fi
 
     return 1

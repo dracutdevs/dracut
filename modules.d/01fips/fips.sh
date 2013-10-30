@@ -96,7 +96,6 @@ do_fips()
                 _found=0
                 while read _k _s _v; do
                     [ "$_k" != "name" -a "$_k" != "driver" ] && continue
-                    [ "$_k" = "driver" ] && _v=$(str_replace "$_v" "_" "-")
                     [ "$_v" != "$_module" ] && continue
                     _found=1
                     break
