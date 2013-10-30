@@ -40,14 +40,6 @@ modprobe crc32c 2>/dev/null
 [ -e /sys/module/bnx2i ] && iscsiuio
 
 if getargbool 0 rd.iscsi.firmware -d -y iscsi_firmware ; then
-    if [ -z "$root" -o -n "${root%%block:*}" ]; then
-        # if root is not specified try to mount the whole iSCSI LUN
-        printf 'ENV{DEVTYPE}!="partition", SYMLINK=="disk/by-path/*-iscsi-*-*", SYMLINK+="root"\n' >> /etc/udev/rules.d/99-iscsi-root.rules
-        udevadm control --reload
-        write_fs_tab /dev/root
-        wait_for_dev /dev/root
-    fi
-
     for p in $(getargs rd.iscsi.param -d iscsi_param); do
 	iscsi_param="$iscsi_param --param $p"
     done
@@ -55,6 +47,7 @@ if getargbool 0 rd.iscsi.firmware -d -y iscsi_firmware ; then
     iscsistart -b $iscsi_param
     echo 'started' > "/tmp/iscsistarted-iscsi"
     echo 'started' > "/tmp/iscsistarted-firmware"
+    need_shutdown
     exit 0
 fi
 
@@ -137,7 +130,7 @@ handle_netroot()
 
 # FIXME $iscsi_protocol??
 
-    if [ -z "$root" -o -n "${root%%block:*}" ]; then
+    if [ "$root" = "dhcp" ]; then
         # if root is not specified try to mount the whole iSCSI LUN
         printf 'SYMLINK=="disk/by-path/*-iscsi-*-%s", SYMLINK+="root"\n' $iscsi_lun >> /etc/udev/rules.d/99-iscsi-root.rules
         udevadm control --reload

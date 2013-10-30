@@ -97,7 +97,7 @@ done
 
 # If we didn't get a root= on the command line, then we need to
 # add the udev rules for mounting the nbd0 device
-if [ -z "$root" -o -n "${root%%block:*}" -o "$root" = "block:/dev/root" ]; then
+if [ "$root" = "block:/dev/root" -o "$root" = "dhcp" ]; then
     printf 'KERNEL=="nbd0", ENV{DEVTYPE}!="partition", ENV{ID_FS_TYPE}=="?*", SYMLINK+="root"\n' >> /etc/udev/rules.d/99-nbd-root.rules
     udevadm control --reload
     type write_fs_tab >/dev/null 2>&1 || . /lib/fs-lib.sh
