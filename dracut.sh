@@ -533,7 +533,7 @@ for i in /usr/sbin /sbin /usr/bin /bin; do
     if [ -L "$i" ]; then
         rl=$(readlink -f $i)
     fi
-    if [[ "$NPATH" != "*:$rl*" ]] ; then
+    if [[ "$NPATH" != *:$rl* ]] ; then
         NPATH+=":$rl"
     fi
 done
