@@ -65,6 +65,7 @@ ldconfig_paths()
             printf "%s\n" ${d%/*};
         done
     ); do
+        [[ "$i" = "/lib" || "$i" = "/usr/lib" || "$i" = "/lib64" || "$i" = "/usr/lib64" ]] && continue
         a["$i"]=1;
     done;
     printf "%s\n" ${!a[@]}
@@ -81,7 +82,7 @@ if ! [[ $libdirs ]] ; then
         [[ -d /usr/lib ]] && libdirs+=" /usr/lib"
     fi
 
-    libdirs+="$(ldconfig_paths)"
+    libdirs+=" $(ldconfig_paths)"
 
     export libdirs
 fi
