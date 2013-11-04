@@ -45,5 +45,6 @@ install() {
         libssl.so 'hmaccalc/sha512hmac.hmac' libssl.so.10
 
     inst_multiple -o prelink
+    inst_simple /etc/system-fips
 }
 
