@@ -15,7 +15,7 @@ check() {
 
         _rootdev=$(find_root_block_device)
         [[ -b /dev/block/$_rootdev ]] || return 1
-        check_block_and_slaves is_nbd "$_rootdev" || return 1
+        check_block_and_slaves is_nbd "$_rootdev" || return 255
     }
 
     return 0

@@ -24,7 +24,7 @@ check() {
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         pushd . >/dev/null
-        for_each_host_dev_and_slaves is_iscsi || return 1
+        for_each_host_dev_and_slaves is_iscsi || return 255
         popd >/dev/null
     }
     return 0
