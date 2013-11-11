@@ -52,6 +52,10 @@ while :; do
     # no more udev jobs and queues empty.
     sleep 0.5
 
+    for i in /run/systemd/ask-password/ask.*; do
+        [ -e "$i" ] && continue
+    done
+
     if [ $main_loop -gt $((2*$RDRETRY/3)) ]; then
         for job in $hookdir/initqueue/timeout/*.sh; do
             [ -e "$job" ] || break
