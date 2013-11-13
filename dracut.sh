@@ -693,12 +693,14 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 # eliminate IFS hackery when messing with fw_dir
 fw_dir=${fw_dir//:/ }
 
+cpu_count=$(getconf _NPROCESSORS_ONLN)
+
 # handle compression options.
 [[ $compress ]] || compress="gzip"
 case $compress in
     bzip2) compress="bzip2 -9";;
-    lzma)  compress="lzma -9";;
-    xz)    compress="xz --check=crc32 --lzma2=dict=1MiB";;
+    lzma)  compress="lzma -9 ${cpu_count:+-T$cpu_count}";;
+    xz)    compress="xz --check=crc32 --lzma2=dict=1MiB ${cpu_count:+-T$cpu_count}";;
     gzip)  compress="gzip -9"; command -v pigz > /dev/null 2>&1 && compress="pigz -9";;
     lzo)   compress="lzop -9";;
     lz4)   compress="lz4 -9";;
