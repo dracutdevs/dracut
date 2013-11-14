@@ -36,9 +36,12 @@ installkernel() {
             return 0
         }
 
-        hostonly='' instmods sr_mod sd_mod scsi_dh ata_piix \
-            ehci-hcd ehci-pci ehci-platform ohci-hcd uhci-hcd xhci-hcd hid_generic \
-            unix
+        hostonly='' instmods \
+            sr_mod sd_mod scsi_dh ata_piix hid_generic unix \
+            ehci-hcd ehci-pci ehci-platform \
+            ohci-hcd ohci-pci \
+            uhci-hcd \
+            xhci-hcd
 
         instmods yenta_socket scsi_dh_rdac scsi_dh_emc \
             atkbd i8042 usbhid hid-apple hid-sunplus hid-cherry hid-logitech \
