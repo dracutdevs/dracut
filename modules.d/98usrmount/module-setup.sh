@@ -4,10 +4,7 @@
 
 # called by dracut
 check() {
-    local _init
     [[ $mount_needs ]] && return 1
-    _init=$(readlink -f /sbin/init)
-    [[ "$_init" == "${_init##/usr}" ]] && return 255
     return 0
 }
 
