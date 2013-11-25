@@ -76,6 +76,16 @@ install() {
     fi
 
     inst_rules 11-dm-lvm.rules 69-dm-lvm-metad.rules
+
+    # Do not run lvmetad update via pvscan in udev rule  - lvmetad is not running yet in dracut!
+    if grep -q SYSTEMD_WANTS ${initdir}/lib/udev/rules.d/69-dm-lvm-metad.rules; then
+        sed -i -e 's/^ENV{SYSTEMD_ALIAS}=.*/# No LVM pvscan in dracut - lvmetad is not running yet/' ${initdir}/lib/udev/rules.d/69-dm-lvm-metad.rules
+        sed -i -e 's/^ENV{ID_MODEL}=.*//' ${initdir}/lib/udev/rules.d/69-dm-lvm-metad.rules
+        sed -i -e 's/^ENV{SYSTEMD_WANTS}=.*//' ${initdir}/lib/udev/rules.d/69-dm-lvm-metad.rules
+    else
+        sed -i -e 's/.*lvm pvscan.*/# No LVM pvscan for in dracut - lvmetad is not running yet/' ${initdir}/lib/udev/rules.d/69-dm-lvm-metad.rules
+    fi
+
     # Gentoo ebuild for LVM2 prior to 2.02.63-r1 doesn't install above rules
     # files, but provides the one below:
     inst_rules 64-device-mapper.rules
