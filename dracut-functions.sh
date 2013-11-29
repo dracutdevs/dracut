@@ -899,6 +899,34 @@ inst_rules() {
     done
 }
 
+inst_rules_wildcard() {
+    local _target=/etc/udev/rules.d _rule _found
+
+    inst_dir "${udevdir}/rules.d"
+    inst_dir "$_target"
+    for _rule in ${udevdir}/rules.d/$1 ${dracutbasedir}/rules.d/$1 ; do
+        if [[ -e $_rule ]]; then
+            inst_rule_programs "$_rule"
+            inst_rule_group_owner "$_rule"
+            inst_rule_initqueue "$_rule"
+            inst_simple "$_rule"
+            _found=$_rule
+        fi
+    done
+    if [ -n ${hostonly} ] ; then
+        for _rule in ${_target}/$1 ; do
+            if [[ -f $_rule ]]; then
+                inst_rule_programs "$_rule"
+                inst_rule_group_owner "$_rule"
+                inst_rule_initqueue "$_rule"
+                inst_simple "$_rule"
+                _found=$_rule
+            fi
+        done
+    fi
+    [[ $_found ]] || dinfo "Skipping udev rule: $_rule"
+}
+
 prepare_udev_rules() {
     [ -z "$UDEVVERSION" ] && export UDEVVERSION=$(udevadm --version)
 
