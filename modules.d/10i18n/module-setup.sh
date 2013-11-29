@@ -161,6 +161,9 @@ install() {
         # Gentoo user may have KEYMAP set to something like "-u pl2",
         KEYMAP=${KEYMAP#-* }
 
+        # openSUSE user may have KEYMAP set to something like ".gz"
+        KEYMAP=${KEYMAP/.gz/}
+
         # KEYTABLE is a bit special - it defines base keymap name and UNICODE
         # determines whether non-UNICODE or UNICODE version is used
 
