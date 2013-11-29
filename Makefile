@@ -27,6 +27,7 @@ man7pages = dracut.cmdline.7 \
 man8pages = dracut.8 \
             dracut-catimages.8 \
             mkinitrd.8 \
+            mkinitrd-suse.8 \
             modules.d/98systemd/dracut-cmdline.service.8 \
             modules.d/98systemd/dracut-initqueue.service.8 \
             modules.d/98systemd/dracut-mount.service.8 \
