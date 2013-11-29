@@ -5,6 +5,7 @@
 # called by dracut
 check() {
     local _arch=$(uname -m)
+    [ -x /sbin/normalize_dasd_arg ] || return 1
     [ "$_arch" = "s390" -o "$_arch" = "s390x" ] || return 1
     return 0
 }
