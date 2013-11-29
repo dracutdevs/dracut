@@ -11,12 +11,8 @@ check() {
 
 # called by dracut
 depends() {
+    echo "dasd_mod"
     return 0
-}
-
-# called by dracut
-installkernel() {
-    instmods dasd_mod dasd_eckd_mod dasd_fba_mod dasd_diag_mod
 }
 
 # called by dracut
