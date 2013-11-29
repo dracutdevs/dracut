@@ -187,6 +187,7 @@ Creates initial ramdisk images for preloading modules
   --keep                Keep the temporary initramfs for debugging purposes
   --printsize           Print out the module install size
   --sshkey [SSHKEY]     Add ssh key to initramfs (use with ssh-client module)
+  --logfile [FILE]      Logfile to use (overrides configuration setting)
 
 If [LIST] has multiple arguments, then you have to put these in quotes.
 
@@ -340,6 +341,7 @@ TEMP=$(unset POSIXLY_CORRECT; getopt \
     --long debug \
     --long profile \
     --long sshkey: \
+    --long logfile: \
     --long verbose \
     --long quiet \
     --long local \
@@ -430,6 +432,7 @@ while :; do
         --debug)       debug="yes";;
         --profile)     profile="yes";;
         --sshkey)      sshkey="$2"; shift;;
+        --logfile)     logfile_l="$2"; shift;;
         -v|--verbose)  ((verbosity_mod_l++));;
         -q|--quiet)    ((verbosity_mod_l--));;
         -l|--local)
@@ -709,6 +712,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $ro_mnt_l ]] && ro_mnt="yes"
 [[ $early_microcode_l ]] && early_microcode=$early_microcode_l
 [[ $early_microcode ]] || early_microcode=no
+[[ $logfile_l ]] && logfile="$logfile_l"
 # eliminate IFS hackery when messing with fw_dir
 fw_dir=${fw_dir//:/ }
 
