@@ -28,30 +28,6 @@ iface_for_mac() {
     done
 }
 
-iface_has_link() {
-    local interface="$1" flags=""
-    [ -n "$interface" ] || return 2
-    interface="/sys/class/net/$interface"
-    [ -d "$interface" ] || return 2
-    flags=$(cat $interface/flags)
-    echo $(($flags|0x41)) > $interface/flags # 0x41: IFF_UP|IFF_RUNNING
-    [ "$(cat $interface/carrier)" = 1 ] || return 1
-    # XXX Do we need to reset the flags here? anaconda never bothered..
-}
-
-find_iface_with_link() {
-    local iface_path="" iface=""
-    for iface_path in /sys/class/net/*; do
-        iface=${iface_path##*/}
-        str_starts "$iface" "lo" && continue
-        if iface_has_link $iface; then
-            echo "$iface"
-            return 0
-        fi
-    done
-    return 1
-}
-
 # get the iface name for the given identifier - either a MAC, IP, or iface name
 iface_name() {
     case $1 in
@@ -482,4 +458,27 @@ linkup() {
 type hostname >/dev/null 2>&1 || \
 hostname() {
 	cat /proc/sys/kernel/hostname
+}
+
+iface_has_link() {
+    local interface="$1" flags=""
+    [ -n "$interface" ] || return 2
+    interface="/sys/class/net/$interface"
+    [ -d "$interface" ] || return 2
+    linkup "$1"
+    [ "$(cat $interface/carrier)" = 1 ] || return 1
+    # XXX Do we need to reset the flags here? anaconda never bothered..
+}
+
+find_iface_with_link() {
+    local iface_path="" iface=""
+    for iface_path in /sys/class/net/*; do
+        iface=${iface_path##*/}
+        str_starts "$iface" "lo" && continue
+        if iface_has_link $iface; then
+            echo "$iface"
+            return 0
+        fi
+    done
+    return 1
 }
