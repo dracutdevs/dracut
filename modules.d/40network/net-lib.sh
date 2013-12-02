@@ -443,7 +443,7 @@ wait_for_if_up() {
     local li
     while [ $cnt -lt 200 ]; do
         li=$(ip -o link show up dev $1)
-        [ -n "$li" ] && return 0
+        [ -n "$li" ] && [ -z "${li##*state UP*}" ] && return 0
         sleep 0.1
         cnt=$(($cnt+1))
     done
