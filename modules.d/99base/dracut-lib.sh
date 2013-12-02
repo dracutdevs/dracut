@@ -863,9 +863,9 @@ wait_for_dev()
 
     if [ -n "$DRACUT_SYSTEMD" ]; then
         _name=$(dev_unit_name "$1")
-        if ! [ -L ${PREFIX}/etc/systemd/system/initrd.target.requires/${_name}.device ]; then
-            [ -d ${PREFIX}/etc/systemd/system/initrd.target.requires ] || mkdir -p ${PREFIX}/etc/systemd/system/initrd.target.requires
-            ln -s ../${_name}.device ${PREFIX}/etc/systemd/system/initrd.target.requires/${_name}.device
+        if ! [ -L ${PREFIX}/etc/systemd/system/initrd.target.wants/${_name}.device ]; then
+            [ -d ${PREFIX}/etc/systemd/system/initrd.target.wants ] || mkdir -p ${PREFIX}/etc/systemd/system/initrd.target.wants
+            ln -s ../${_name}.device ${PREFIX}/etc/systemd/system/initrd.target.wants/${_name}.device
         fi
 
         mkdir -p ${PREFIX}/etc/systemd/system/${_name}.device.d
@@ -885,7 +885,7 @@ cancel_wait_for_dev()
     rm -f -- "$hookdir/emergency/80-${_name}.sh"
     if [ -n "$DRACUT_SYSTEMD" ]; then
         _name=$(dev_unit_name "$1")
-        rm -f -- ${PREFIX}/etc/systemd/system/initrd.target.requires/${_name}.device
+        rm -f -- ${PREFIX}/etc/systemd/system/initrd.target.wants/${_name}.device
         rm -f -- ${PREFIX}/etc/systemd/system/${_name}.device.d/timeout.conf
         /sbin/initqueue --onetime --unique --name daemon-reload systemctl daemon-reload
     fi
