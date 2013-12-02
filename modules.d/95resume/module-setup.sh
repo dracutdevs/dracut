@@ -16,8 +16,23 @@ check() {
 }
 
 # called by dracut
+cmdline() {
+    local _activated
+    declare -A _activated
+
+    for dev in "${!host_fs_types[@]}"; do
+        [[ ${host_fs_types[$dev]} =~ ^(swap|swsuspend|swsupend)$ ]] || continue
+        printf "resume=%s " "$(shorten_persistent_dev "$(get_persistent_dev "$dev")")"
+    done
+}
+
+# called by dracut
 install() {
     local _bin
+
+    cmdline  >> "${initdir}/etc/cmdline.d/95resume.conf"
+    echo  >> "${initdir}/etc/cmdline.d/95resume.conf"
+
     # Optional uswsusp support
     for _bin in /usr/sbin/resume /usr/lib/suspend/resume /usr/lib/uswsusp/resume
     do
