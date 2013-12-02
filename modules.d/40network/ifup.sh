@@ -87,6 +87,10 @@ do_dhcp() {
     # dhclient-script will mark the netif up and generate the online
     # event for nfsroot
     # XXX add -V vendor class and option parsing per kernel
+    if ! iface_has_link $netif; then
+        echo "No carrier detected"
+        return 1
+    fi
     echo "Starting dhcp for interface $netif"
     dhclient "$@" -1 -q -cf /etc/dhclient.conf -pf /tmp/dhclient.$netif.pid -lf /tmp/dhclient.$netif.lease $netif \
         || echo "dhcp failed"
