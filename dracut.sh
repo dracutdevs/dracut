@@ -947,6 +947,8 @@ if [[ $hostonly ]]; then
                         [[ $_mapper = \#* ]] && continue
                         [[ "$_d" -ef /dev/mapper/"$_mapper" ]] || continue
                         [[ "$_o" ]] || _o="$_p"
+                        # skip entries with password files
+                        [[ "$_p" == /* ]] && [[ -f $_p ]] && continue 2
                         # skip mkswap swap
                         [[ $_o == *swap* ]] && continue 2
                     done < /etc/crypttab
