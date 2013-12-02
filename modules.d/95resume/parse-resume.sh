@@ -36,41 +36,51 @@ case "$splash" in
     ;;
 esac
 
-if [ -n "$resume" ]; then
-    {
-        printf "KERNEL==\"%s\", ACTION==\"add|change\", SYMLINK+=\"/dev/resume\"\n" \
-            ${resume#/dev/};
-        printf "SYMLINK==\"%s\", ACTION==\"add|change\", SYMLINK+=\"/dev/resume\"\n" \
-            ${resume#/dev/};
-    } >> /etc/udev/rules.d/99-resume-link.rules
 
-    {
-        if [ -x /usr/sbin/resume ]; then
-            printf "KERNEL==\"%s\", ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\", RUN+=\"/sbin/initqueue --finished --unique --name 00resume /usr/sbin/resume %s \'%s\'\"\n" \
-                ${resume#/dev/} "$a_splash" "$resume";
-            printf "SYMLINK==\"%s\", ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\", RUN+=\"/sbin/initqueue --finished --unique --name 00resume /usr/sbin/resume %s \'%s\'\"\n" \
-                ${resume#/dev/} "$a_splash" "$resume";
-        fi
-        printf "KERNEL==\"%s\", ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\", RUN+=\"/sbin/initqueue --finished --unique --name 00resume echo %%M:%%m > /sys/power/resume\"\n" \
-            ${resume#/dev/};
-        printf "SYMLINK==\"%s\", ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\", RUN+=\"/sbin/initqueue --finished --unique --name 00resume echo %%M:%%m  > /sys/power/resume\"\n" \
-            ${resume#/dev/};
-    } >> /etc/udev/rules.d/99-resume.rules
+if ! getarg noresume; then
+    if [ -n "$resume" ]; then
+        {
+            printf "KERNEL==\"%s\", ACTION==\"add|change\", SYMLINK+=\"/dev/resume\"\n" \
+                ${resume#/dev/};
+            printf "SYMLINK==\"%s\", ACTION==\"add|change\", SYMLINK+=\"/dev/resume\"\n" \
+                ${resume#/dev/};
+        } >> /etc/udev/rules.d/99-resume-link.rules
 
-    printf '[ -e "%s" ] && { ln -s "%s" /dev/resume; rm -f -- "$job" "%s/initqueue/timeout/resume.sh"; }\n' \
-        "$resume" "$resume" "$hookdir" >> $hookdir/initqueue/settled/resume.sh
+        {
+            if [ -x /usr/sbin/resume ]; then
+                printf -- "KERNEL==\"%s\", " "${resume#/dev/}"
+                printf -- "ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\","
+                printf -- " RUN+=\"/sbin/initqueue --finished --unique --name 00resume /usr/sbin/resume %s \'%s\'\"\n" \
+                     "$a_splash" "$resume";
+                printf -- "SYMLINK==\"%s\", " "${resume#/dev/}"
+                printf -- "ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\","
+                printf -- " RUN+=\"/sbin/initqueue --finished --unique --name 00resume /usr/sbin/resume %s \'%s\'\"\n" \
+                    "$a_splash" "$resume";
+            fi
+            printf -- "KERNEL==\"%s\", " ${resume#/dev/};
+            printf -- "ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\","
+            printf -- "%s" " RUN+=\"/sbin/initqueue --finished --unique --name 00resume echo %%M:%%m > /sys/power/resume\"\n"
+            printf -- "SYMLINK==\"%s\", " ${resume#/dev/};
+            printf -- "%s" "ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\","
+            printf -- "%s" " RUN+=\"/sbin/initqueue --finished --unique --name 00resume echo %%M:%%m  > /sys/power/resume\"\n"
+        } >> /etc/udev/rules.d/99-resume.rules
 
-    printf 'warn "Cancelling resume operation. Device not found."; cancel_wait_for_dev /dev/resume; rm -f -- "$job" "%s/initqueue/settled/resume.sh";' \
-        "$hookdir" >> $hookdir/initqueue/timeout/resume.sh
+        printf '[ -e "%s" ] && { ln -s "%s" /dev/resume; rm -f -- "$job" "%s/initqueue/timeout/resume.sh"; }\n' \
+            "$resume" "$resume" "$hookdir" >> $hookdir/initqueue/settled/resume.sh
 
-    wait_for_dev "/dev/resume"
-    mv /lib/dracut/resume.sh /lib/dracut/hooks/pre-mount/10-resume.sh
-elif ! getarg noresume; then
-    {
-        if [ -x /usr/sbin/resume ]; then
-            printf "SUBSYSTEM==\"block\", ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\", RUN+=\"/sbin/initqueue --finished --unique --name 00resume /usr/sbin/resume %s \$tempnode\"\n" "$a_splash"
-        fi
-        echo "SUBSYSTEM==\"block\", ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\"," \
-            " RUN+=\"/sbin/initqueue --finished --unique --name 00resume echo %M:%m > /sys/power/resume\"";
-    } >> /etc/udev/rules.d/99-resume.rules
+        printf -- "%s" 'warn "Cancelling resume operation. Device not found.";'
+        printf -- ' cancel_wait_for_dev /dev/resume; rm -f -- "$job" "%s/initqueue/settled/resume.sh";' \
+            "$hookdir" >> $hookdir/initqueue/timeout/resume.sh
+
+        mv /lib/dracut/resume.sh /lib/dracut/hooks/pre-mount/10-resume.sh
+    else
+        {
+            if [ -x /usr/sbin/resume ]; then
+                printf "SUBSYSTEM==\"block\", ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\","
+                printf -- " RUN+=\"/sbin/initqueue --finished --unique --name 00resume /usr/sbin/resume %s \$tempnode\"\n" "$a_splash"
+            fi
+            printf -- "%s" "SUBSYSTEM==\"block\", ACTION==\"add|change\", ENV{ID_FS_TYPE}==\"suspend|swsuspend|swsupend\","
+            printf -- "%s" " RUN+=\"/sbin/initqueue --finished --unique --name 00resume echo %M:%m > /sys/power/resume\"";
+        } >> /etc/udev/rules.d/99-resume.rules
+    fi
 fi
