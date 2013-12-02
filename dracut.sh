@@ -987,12 +987,12 @@ unset rest
 
 _get_fs_type() {
     [[ $1 ]] || return
-    if [[ -b /dev/block/$1 ]] && ID_FS_TYPE=$(get_fs_env "/dev/block/$1"); then
-        host_fs_types["$(readlink -f "/dev/block/$1")"]="$ID_FS_TYPE"
+    if [[ -b /dev/block/$1 ]]; then
+        ID_FS_TYPE=$(get_fs_env "/dev/block/$1") && host_fs_types["$(readlink -f "/dev/block/$1")"]="$ID_FS_TYPE"
         return 1
     fi
-    if [[ -b $1 ]] && ID_FS_TYPE=$(get_fs_env "$1"); then
-        host_fs_types["$(readlink -f "$1")"]="$ID_FS_TYPE"
+    if [[ -b $1 ]]; then
+        ID_FS_TYPE=$(get_fs_env "$1") && host_fs_types["$(readlink -f "$1")"]="$ID_FS_TYPE"
         return 1
     fi
     if fstype=$(find_dev_fstype "$1"); then
