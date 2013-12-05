@@ -350,8 +350,10 @@ rm -rf -- $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/95rootfs-block
 %{dracutlibdir}/modules.d/95dasd
 %{dracutlibdir}/modules.d/95dasd_mod
+%{dracutlibdir}/modules.d/95dasd_rules
 %{dracutlibdir}/modules.d/95fstab-sys
 %{dracutlibdir}/modules.d/95zfcp
+%{dracutlibdir}/modules.d/95zfcp_rules
 %{dracutlibdir}/modules.d/95terminfo
 %{dracutlibdir}/modules.d/95udev-rules
 %{dracutlibdir}/modules.d/95virtfs
