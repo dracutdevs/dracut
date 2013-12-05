@@ -1455,13 +1455,6 @@ dracut_kernel_post() {
         wait $_pid
     fi
 
-    for _f in modules.builtin.bin modules.builtin; do
-        [[ $srcmods/$_f ]] && break
-    done || {
-        dfatal "No modules.builtin.bin and modules.builtin found!"
-        return 1
-    }
-
     for _f in modules.builtin.bin modules.builtin modules.order; do
         [[ $srcmods/$_f ]] && inst_simple "$srcmods/$_f" "/lib/modules/$kernel/$_f"
     done
