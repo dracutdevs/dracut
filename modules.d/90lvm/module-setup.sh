@@ -97,6 +97,11 @@ install() {
 
     inst_libdir_file "libdevmapper-event-lvm*.so"
 
-    inst_multiple -o thin_dump thin_restore thin_check thin_repair
+    if [[ $hostonly ]] && type -P lvs &>/dev/null; then
+        for dev in "${!host_fs_types[@]}"; do
+            if [[ "$(lvs --noheadings -o segtype "$dev" 2>/dev/null)" == *thin* ]] ; then
+                inst_multiple -o thin_dump thin_restore thin_check thin_repair
+            fi
+        done
+    fi
 }
-
