@@ -53,7 +53,7 @@ while :; do
     sleep 0.5
 
     for i in /run/systemd/ask-password/ask.*; do
-        [ -e "$i" ] && continue
+        [ -e "$i" ] && continue 2
     done
 
     if [ $main_loop -gt $((2*$RDRETRY/3)) ]; then
