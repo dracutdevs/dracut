@@ -501,7 +501,7 @@ if [[ $regenerate_all == "yes" ]]; then
 
     cd /lib/modules
     for i in *; do
-        [[ -f $i/modules.builtin ]] || continue
+        [[ -f $i/modules.dep ]] || [[ -f $i/modules.dep.bin ]] || continue
         dracut --kver="$i" "${dracut_args[@]}"
         ((ret+=$?))
     done
