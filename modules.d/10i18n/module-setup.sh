@@ -21,15 +21,11 @@ depends() {
 # called by dracut
 install() {
     if dracut_module_included "systemd"; then
-        [[ -f /etc/vconsole.conf ]] || return 0
         unset FONT
         unset KEYMAP
-        . /etc/vconsole.conf
-        # if vconsole.conf has no settings, do not include anything
-        [[ $FONT ]] || [[ $KEYMAP ]] || return 0
+        [[ -f /etc/vconsole.conf ]] && . /etc/vconsole.conf
     fi
 
-    inst_multiple -o $systemdutildir/systemd-vconsole-setup
     KBDSUBDIRS=consolefonts,consoletrans,keymaps,unimaps
     DEFAULT_FONT="${i18n_default_font:-LatArCyrHeb-16}"
     I18N_CONF="/etc/locale.conf"
@@ -213,10 +209,20 @@ install() {
             inst_simple ${kbddir}/unimaps/${FONT_UNIMAP}.uni
         fi
 
-        mksubdirs ${initdir}${I18N_CONF}
-        mksubdirs ${initdir}${VCONFIG_CONF}
-        print_vars LC_ALL LANG >> ${initdir}${I18N_CONF}
-        print_vars KEYMAP EXT_KEYMAPS UNICODE FONT FONT_MAP FONT_UNIMAP >> ${initdir}${VCONFIG_CONF}
+        if dracut_module_included "systemd" && [[ -f ${I18N_CONF} ]]; then
+            inst_simple ${I18N_CONF}
+        else
+            mksubdirs ${initdir}${I18N_CONF}
+            print_vars LC_ALL LANG >> ${initdir}${I18N_CONF}
+        fi
+
+        if dracut_module_included "systemd" && [[ -f ${VCONFIG_CONF} ]]; then
+            inst_simple ${VCONFIG_CONF}
+        else
+            mksubdirs ${initdir}${VCONFIG_CONF}
+            print_vars KEYMAP EXT_KEYMAPS UNICODE FONT FONT_MAP FONT_UNIMAP >> ${initdir}${VCONFIG_CONF}
+        fi
+
         return 0
     }
 
@@ -240,16 +246,13 @@ install() {
         return 0
     }
 
-    if checks
-    then
+    if checks; then
         install_base
 
-        if [[ ${hostonly} ]]
-        then
+        if [[ ${hostonly} ]] && ! [[ ${i18n_install_all} ]]; then
             install_local_i18n || install_all_kbd
         else
             install_all_kbd
         fi
     fi
 }
-
