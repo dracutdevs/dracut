@@ -8,19 +8,21 @@ NEWROOT=${NEWROOT:-"/sysroot"}
 # do not ask, if we already have root
 [ -f $NEWROOT/proc ] && exit 0
 
+# default luksname - luks-UUID
+luksname=$2
+
 # check if destination already exists
-[ -b /dev/mapper/$2 ] && exit 0
+[ -b /dev/mapper/luksname ] && exit 0
 
 # we already asked for this device
-[ -f /tmp/cryptroot-asked-$2 ] && exit 0
+asked_file=/tmp/cryptroot-asked-$luksname
+[ -f $asked_file ] && exit 0
 
 # load dm_crypt if it is not already loaded
 [ -d /sys/module/dm_crypt ] || modprobe dm_crypt
 
 . /lib/dracut-crypt-lib.sh
 
-# default luksname - luks-UUID
-luksname=$2
 
 # fallback to passphrase
 ask_passphrase=1
@@ -45,7 +47,7 @@ if [ -f /etc/crypttab ] && getargbool 1 rd.luks.crypttab -d -n rd_NO_CRYPTTAB; t
 
         # UUID used in crypttab
         if [ "${dev%%=*}" = "UUID" ]; then
-            if [ "luks-${dev##UUID=}" = "$2" ]; then
+            if [ "luks-${dev##UUID=}" = "$luksname" ]; then
                 luksname="$name"
                 break
             fi
@@ -157,7 +159,7 @@ fi
 unset device luksname luksfile
 
 # mark device as asked
->> /tmp/cryptroot-asked-$2
+>> $asked_file
 
 need_shutdown
 udevsettle
