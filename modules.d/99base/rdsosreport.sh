@@ -42,6 +42,8 @@ command -v dmsetup >/dev/null 2>/dev/null && dmsetup ls --tree
 
 cat /proc/mdstat
 
+command -v ip >/dev/null 2>/dev/null && ip addr
+
 if command -v journalctl >/dev/null 2>/dev/null; then
     journalctl -ab --no-pager -o short-monotonic
 else
