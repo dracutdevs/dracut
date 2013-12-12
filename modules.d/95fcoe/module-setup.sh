@@ -3,11 +3,6 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 check() {
-    # FIXME
-    # If hostonly was requested, fail the check until we have some way of
-    # knowing we are booting from FCoE
-    [[ $hostonly ]] || [[ $mount_needs ]] && return 1
-
     for i in dcbtool fipvlan lldpad ip readlink; do
         type -P $i >/dev/null || return 1
     done
