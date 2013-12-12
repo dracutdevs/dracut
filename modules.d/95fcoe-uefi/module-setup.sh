@@ -4,14 +4,12 @@
 
 # called by dracut
 check() {
-    [[ $hostonly ]] || [[ $mount_needs ]] && return 1
-
     return 0
 }
 
 # called by dracut
 depends() {
-    echo fcoe bash
+    echo fcoe uefi-lib
     return 0
 }
 
