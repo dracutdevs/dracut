@@ -99,9 +99,16 @@ install() {
 
     if [[ $hostonly ]] && type -P lvs &>/dev/null; then
         for dev in "${!host_fs_types[@]}"; do
-            if [[ "$(lvs --noheadings -o segtype "$dev" 2>/dev/null)" == *thin* ]] ; then
+            [ -e /sys/block/${dev#/dev/}/dm/name ] || continue
+            dev=$(</sys/block/${dev#/dev/}/dm/name)
+            eval $(dmsetup splitname --nameprefixes --noheadings --rows "$dev" 2>/dev/null)
+            [[ ${DM_VG_NAME} ]] && [[ ${DM_LV_NAME} ]] || continue
+            if [[ "$(lvs --noheadings -o segtype ${DM_VG_NAME} 2>/dev/null)" == *thin* ]] ; then
                 inst_multiple -o thin_dump thin_restore thin_check thin_repair
+                break
             fi
         done
+    else
+        inst_multiple -o thin_dump thin_restore thin_check thin_repair
     fi
 }
