@@ -19,6 +19,10 @@ depends() {
     return 0
 }
 
+installkernel() {
+    instmods autofs4 ipv6
+}
+
 # called by dracut
 install() {
     local _mods
