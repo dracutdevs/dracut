@@ -76,7 +76,7 @@ curl_fetch_url() {
     fi
     if [ -z "$2" ]; then echo "$outloc" ; fi
 }
-add_url_handler curl_fetch_url http https ftp
+add_url_handler curl_fetch_url http https ftp tftp
 
 set_http_header() {
     echo "header = \"$1: $2\"" >> $CURL_HOME/.curlrc
