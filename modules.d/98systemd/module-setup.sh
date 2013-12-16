@@ -17,6 +17,10 @@ depends() {
     return 0
 }
 
+installkernel() {
+    instmods autofs4 ipv6
+}
+
 install() {
     local _mods
 
