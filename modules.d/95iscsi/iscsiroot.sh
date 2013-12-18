@@ -44,12 +44,14 @@ if getargbool 0 rd.iscsi.firmware -d -y iscsi_firmware ; then
 	iscsi_param="$iscsi_param --param $p"
     done
 
-    iscsistart -b $iscsi_param
-    echo 'started' > "/tmp/iscsistarted-iscsi"
-    echo 'started' > "/tmp/iscsistarted-firmware"
-    need_shutdown
-    exit 0
+    if ! [ -e /tmp/iscsistarted-firmware ] && iscsistart -b $iscsi_param; then
+        echo 'started' > "/tmp/iscsistarted-iscsi"
+        echo 'started' > "/tmp/iscsistarted-firmware"
+        need_shutdown
+    fi
+    [ "$netif" = dummy ] && exit 0
 fi
+
 
 handle_netroot()
 {
