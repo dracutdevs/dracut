@@ -61,8 +61,6 @@ case "$root" in
         rootok=1 ;;
 esac
 
-[ "${root%%:*}" = "block" ] && wait_for_dev "${root#block:}"
-
 [ -z "$root" ] && die "No or empty root= argument"
 [ -z "$rootok" ] && die "Don't know how to handle 'root=$root'"
 

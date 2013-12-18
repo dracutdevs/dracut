@@ -1,0 +1,30 @@
+#!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
+
+type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+root=$(getarg root=)
+case "$root" in
+    block:LABEL=*|LABEL=*)
+        root="${root#block:}"
+        root="$(echo $root | sed 's,/,\\x2f,g')"
+        root="block:/dev/disk/by-label/${root#LABEL=}"
+        rootok=1 ;;
+    block:UUID=*|UUID=*)
+        root="${root#block:}"
+        root="block:/dev/disk/by-uuid/${root#UUID=}"
+        rootok=1 ;;
+    block:PARTUUID=*|PARTUUID=*)
+        root="${root#block:}"
+        root="block:/dev/disk/by-partuuid/${root#PARTUUID=}"
+        rootok=1 ;;
+    block:PARTLABEL=*|PARTLABEL=*)
+        root="${root#block:}"
+        root="block:/dev/disk/by-partlabel/${root#PARTLABEL=}"
+        rootok=1 ;;
+    /dev/*)
+        root="block:${root}"
+        rootok=1 ;;
+esac
+
+[ "${root%%:*}" = "block" ] && wait_for_dev -n "${root#block:}"

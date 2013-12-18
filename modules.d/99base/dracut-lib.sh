@@ -853,7 +853,18 @@ dev_unit_name()
 wait_for_dev()
 {
     local _name
+    local _needreload
+    local _noreload
+
+    if [ "$1" = "-n" ]; then
+        _noreload=1
+        shift
+    fi
+
     _name="$(str_replace "$1" '/' '\x2f')"
+
+    [ -e "${PREFIX}$hookdir/initqueue/finished/devexists-${_name}.sh" ] && return 0
+
     printf '[ -e "%s" ]\n' $1 \
         >> "${PREFIX}$hookdir/initqueue/finished/devexists-${_name}.sh"
     {
@@ -866,14 +877,21 @@ wait_for_dev()
         if ! [ -L ${PREFIX}/etc/systemd/system/initrd.target.wants/${_name}.device ]; then
             [ -d ${PREFIX}/etc/systemd/system/initrd.target.wants ] || mkdir -p ${PREFIX}/etc/systemd/system/initrd.target.wants
             ln -s ../${_name}.device ${PREFIX}/etc/systemd/system/initrd.target.wants/${_name}.device
+            _needreload=1
         fi
 
-        mkdir -p ${PREFIX}/etc/systemd/system/${_name}.device.d
-        {
-            echo "[Unit]"
-            echo "JobTimeoutSec=3600"
-        } > ${PREFIX}/etc/systemd/system/${_name}.device.d/timeout.conf
-        [ -z "$PREFIX" ] && /sbin/initqueue --onetime --unique --name daemon-reload systemctl daemon-reload
+        if ! [ -f ${PREFIX}/etc/systemd/system/${_name}.device.d/timeout.conf ]; then
+            mkdir -p ${PREFIX}/etc/systemd/system/${_name}.device.d
+            {
+                echo "[Unit]"
+                echo "JobTimeoutSec=3600"
+            } > ${PREFIX}/etc/systemd/system/${_name}.device.d/timeout.conf
+            _needreload=1
+        fi
+
+        if [ -z "$PREFIX" ] && [ "$_needreload" = 1 ] && [ -z "$_noreload" ]; then
+            /sbin/initqueue --onetime --unique --name daemon-reload systemctl daemon-reload
+        fi
     fi
 }
 
