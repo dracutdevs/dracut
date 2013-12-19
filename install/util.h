@@ -134,8 +134,16 @@ static inline bool isempty(const char *p) {
         return !p || !p[0];
 }
 
+
+static inline const char *startswith(const char *s, const char *prefix) {
+        if (strncmp(s, prefix, strlen(prefix)) == 0)
+                return s + strlen(prefix);
+        return NULL;
+}
+
 bool endswith(const char *s, const char *postfix);
-bool startswith(const char *s, const char *prefix);
+
+
 bool startswith_no_case(const char *s, const char *prefix);
 
 bool first_word(const char *s, const char *word);
@@ -561,5 +569,17 @@ bool in_initrd(void);
 void warn_melody(void);
 
 char *strjoin(const char *x, ...) _sentinel_;
+
+#define DEFINE_TRIVIAL_CLEANUP_FUNC(type, func)                 \
+        static inline void func##p(type *p) {                   \
+                if (*p)                                         \
+                        func(*p);                               \
+        }                                                       \
+        struct __useless_struct_to_allow_trailing_semicolon__
+
+char *split_quoted(const char *c, size_t *l, char **state);
+char *cunescape_length(const char *s, size_t length);
+int unhexchar(char c) _const_;
+int unoctchar(char c) _const_;
 
 #endif

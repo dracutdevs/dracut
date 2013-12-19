@@ -47,6 +47,7 @@ DRACUT_INSTALL_OBJECTS = \
         install/dracut-install.o \
         install/hashmap.o\
         install/log.o \
+        install/strv.o \
         install/util.o
 
 # deps generated with gcc -MM
@@ -56,6 +57,7 @@ install/hashmap.o: install/hashmap.c install/util.h install/macro.h install/log.
 	install/hashmap.h
 install/log.o: install/log.c install/log.h install/macro.h install/util.h
 install/util.o: install/util.c install/util.h install/macro.h install/log.h
+install/strv.o: install/strv.c install/strv.h install/util.h install/macro.h install/log.h
 
 install/dracut-install: $(DRACUT_INSTALL_OBJECTS)
 

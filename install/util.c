@@ -277,3 +277,238 @@ char *strjoin(const char *x, ...) {
 
         return r;
 }
+
+char *cunescape_length_with_prefix(const char *s, size_t length, const char *prefix) {
+        char *r, *t;
+        const char *f;
+        size_t pl;
+
+        assert(s);
+
+        /* Undoes C style string escaping, and optionally prefixes it. */
+
+        pl = prefix ? strlen(prefix) : 0;
+
+        r = new(char, pl+length+1);
+        if (!r)
+                return r;
+
+        if (prefix)
+                memcpy(r, prefix, pl);
+
+        for (f = s, t = r + pl; f < s + length; f++) {
+
+                if (*f != '\\') {
+                        *(t++) = *f;
+                        continue;
+                }
+
+                f++;
+
+                switch (*f) {
+
+                case 'a':
+                        *(t++) = '\a';
+                        break;
+                case 'b':
+                        *(t++) = '\b';
+                        break;
+                case 'f':
+                        *(t++) = '\f';
+                        break;
+                case 'n':
+                        *(t++) = '\n';
+                        break;
+                case 'r':
+                        *(t++) = '\r';
+                        break;
+                case 't':
+                        *(t++) = '\t';
+                        break;
+                case 'v':
+                        *(t++) = '\v';
+                        break;
+                case '\\':
+                        *(t++) = '\\';
+                        break;
+                case '"':
+                        *(t++) = '"';
+                        break;
+                case '\'':
+                        *(t++) = '\'';
+                        break;
+
+                case 's':
+                        /* This is an extension of the XDG syntax files */
+                        *(t++) = ' ';
+                        break;
+
+                case 'x': {
+                        /* hexadecimal encoding */
+                        int a, b;
+
+                        a = unhexchar(f[1]);
+                        b = unhexchar(f[2]);
+
+                        if (a < 0 || b < 0) {
+                                /* Invalid escape code, let's take it literal then */
+                                *(t++) = '\\';
+                                *(t++) = 'x';
+                        } else {
+                                *(t++) = (char) ((a << 4) | b);
+                                f += 2;
+                        }
+
+                        break;
+                }
+
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7': {
+                        /* octal encoding */
+                        int a, b, c;
+
+                        a = unoctchar(f[0]);
+                        b = unoctchar(f[1]);
+                        c = unoctchar(f[2]);
+
+                        if (a < 0 || b < 0 || c < 0) {
+                                /* Invalid escape code, let's take it literal then */
+                                *(t++) = '\\';
+                                *(t++) = f[0];
+                        } else {
+                                *(t++) = (char) ((a << 6) | (b << 3) | c);
+                                f += 2;
+                        }
+
+                        break;
+                }
+
+                case 0:
+                        /* premature end of string.*/
+                        *(t++) = '\\';
+                        goto finish;
+
+                default:
+                        /* Invalid escape code, let's take it literal then */
+                        *(t++) = '\\';
+                        *(t++) = *f;
+                        break;
+                }
+        }
+
+finish:
+        *t = 0;
+        return r;
+}
+
+char *cunescape_length(const char *s, size_t length) {
+        return cunescape_length_with_prefix(s, length, NULL);
+}
+
+
+/* Split a string into words, but consider strings enclosed in '' and
+ * "" as words even if they include spaces. */
+char *split_quoted(const char *c, size_t *l, char **state) {
+        const char *current, *e;
+        bool escaped = false;
+
+        assert(c);
+        assert(l);
+        assert(state);
+
+        current = *state ? *state : c;
+
+        current += strspn(current, WHITESPACE);
+
+        if (*current == 0)
+                return NULL;
+
+        else if (*current == '\'') {
+                current ++;
+
+                for (e = current; *e; e++) {
+                        if (escaped)
+                                escaped = false;
+                        else if (*e == '\\')
+                                escaped = true;
+                        else if (*e == '\'')
+                                break;
+                }
+
+                *l = e-current;
+                *state = (char*) (*e == 0 ? e : e+1);
+
+        } else if (*current == '\"') {
+                current ++;
+
+                for (e = current; *e; e++) {
+                        if (escaped)
+                                escaped = false;
+                        else if (*e == '\\')
+                                escaped = true;
+                        else if (*e == '\"')
+                                break;
+                }
+
+                *l = e-current;
+                *state = (char*) (*e == 0 ? e : e+1);
+
+        } else {
+                for (e = current; *e; e++) {
+                        if (escaped)
+                                escaped = false;
+                        else if (*e == '\\')
+                                escaped = true;
+                        else if (strchr(WHITESPACE, *e))
+                                break;
+                }
+                *l = e-current;
+                *state = (char*) e;
+        }
+
+        return (char*) current;
+}
+
+/* Split a string into words. */
+char *split(const char *c, size_t *l, const char *separator, char **state) {
+        char *current;
+
+        current = *state ? *state : (char*) c;
+
+        if (!*current || *c == 0)
+                return NULL;
+
+        current += strspn(current, separator);
+        *l = strcspn(current, separator);
+        *state = current+*l;
+
+        return (char*) current;
+}
+
+int unhexchar(char c) {
+
+        if (c >= '0' && c <= '9')
+                return c - '0';
+
+        if (c >= 'a' && c <= 'f')
+                return c - 'a' + 10;
+
+        if (c >= 'A' && c <= 'F')
+                return c - 'A' + 10;
+
+        return -1;
+}
+
+int unoctchar(char c) {
+
+        if (c >= '0' && c <= '7')
+                return c - '0';
+
+        return -1;
+}

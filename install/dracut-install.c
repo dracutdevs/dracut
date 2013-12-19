@@ -44,6 +44,7 @@
 #include "log.h"
 #include "hashmap.h"
 #include "util.h"
+#include "strv.h"
 
 static bool arg_hmac = false;
 static bool arg_createdir = false;
@@ -784,13 +785,13 @@ static int resolve_lazy(int argc, char **argv)
         return ret;
 }
 
-static char *find_binary(const char *src)
+static char **find_binary(const char *src)
 {
-        _cleanup_free_ char *path = NULL;
-        char *p, *q;
-        bool end = false;
+        char *path = NULL;
+        _cleanup_strv_free_ char **p = NULL;
+        char **ret = NULL;
+        char **q;
         char *newsrc = NULL;
-        int ret;
 
         path = getenv("PATH");
 
@@ -798,33 +799,20 @@ static char *find_binary(const char *src)
                 log_error("PATH is not set");
                 exit(EXIT_FAILURE);
         }
-        path = strdup(path);
-        p = path;
-
-        if (path == NULL) {
-                log_error("Out of memory!");
-                exit(EXIT_FAILURE);
-        }
 
         log_debug("PATH=%s", path);
 
-        do {
+        p = strv_split(path, ":");
+
+        STRV_FOREACH(q, p) {
                 struct stat sb;
+                int r;
 
-                for (q = p; *q && *q != ':'; q++) ;
-
-                if (*q == '\0')
-                        end = true;
-                else
-                        *q = '\0';
-
-                ret = asprintf(&newsrc, "%s/%s", p, src);
-                if (ret < 0) {
+                r = asprintf(&newsrc, "%s/%s", *q, src);
+                if (r < 0) {
                         log_error("Out of memory!");
                         exit(EXIT_FAILURE);
                 }
-
-                p = q + 1;
 
                 if (stat(newsrc, &sb) != 0) {
                         log_debug("stat(%s) != 0", newsrc);
@@ -833,30 +821,37 @@ static char *find_binary(const char *src)
                         continue;
                 }
 
-                end = true;
+                strv_push(&ret, newsrc);
 
-        } while (!end);
+        };
 
-        if (newsrc)
-                log_debug("find_binary(%s) == %s", src, newsrc);
+        if (ret) {
+                STRV_FOREACH(q, ret) {
+                        log_debug("find_binary(%s) == %s", src, *q);
+                }
+        }
 
-        return newsrc;
+        return ret;
 }
 
 static int install_one(const char *src, const char *dst)
 {
         int r = EXIT_SUCCESS;
-        int ret;
+        int ret = 0;
 
         if (strchr(src, '/') == NULL) {
-                char *newsrc = find_binary(src);
-                if (newsrc) {
-                        log_debug("dracut_install '%s' '%s'", newsrc, dst);
-                        ret = dracut_install(newsrc, dst, arg_createdir, arg_resolvedeps, true);
-                        if (ret == 0) {
-                                log_debug("dracut_install '%s' '%s' OK", newsrc, dst);
+                char **q = NULL;
+                char **p = find_binary(src);
+                if (p) {
+                        STRV_FOREACH(q, p) {
+                                char *newsrc = *q;
+                                log_debug("dracut_install '%s' '%s'", newsrc, dst);
+                                ret = dracut_install(newsrc, dst, arg_createdir, arg_resolvedeps, true);
+                                if (ret == 0) {
+                                        log_debug("dracut_install '%s' '%s' OK", newsrc, dst);
+                                }
                         }
-                        free(newsrc);
+                        strv_free(p);
                 } else {
                         ret = -1;
                 }
@@ -877,17 +872,22 @@ static int install_all(int argc, char **argv)
         int r = EXIT_SUCCESS;
         int i;
         for (i = 0; i < argc; i++) {
-                int ret;
+                int ret = 0;
                 log_debug("Handle '%s'", argv[i]);
 
                 if (strchr(argv[i], '/') == NULL) {
-                        _cleanup_free_ char *newsrc = find_binary(argv[i]);
-                        if (newsrc) {
-                                log_debug("dracut_install '%s'", newsrc);
-                                ret = dracut_install(newsrc, newsrc, arg_createdir, arg_resolvedeps, true);
-                                if (ret == 0) {
-                                        log_debug("dracut_install '%s' OK", newsrc);
+                        char **q = NULL;
+                        char **p = find_binary(argv[i]);
+                        if (p) {
+                                STRV_FOREACH(q, p) {
+                                        char *newsrc = *q;
+                                        log_debug("dracut_install '%s'", newsrc);
+                                        ret = dracut_install(newsrc, newsrc, arg_createdir, arg_resolvedeps, true);
+                                        if (ret == 0) {
+                                                log_debug("dracut_install '%s' OK", newsrc);
+                                        }
                                 }
+                                strv_free(p);
                         } else {
                                 ret = -1;
                         }
