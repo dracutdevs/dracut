@@ -26,7 +26,7 @@ installkernel() {
     # Include wired net drivers, excluding wireless
 
     net_module_filter() {
-        local _net_drivers='eth_type_trans|register_virtio_device'
+        local _net_drivers='eth_type_trans|register_virtio_device|usbnet_open'
         local _unwanted_drivers='/(wireless|isdn|uwb)/'
         local _ret
         # subfunctions inherit following FDs
