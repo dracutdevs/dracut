@@ -40,9 +40,9 @@ esac
 if ! getarg noresume; then
     if [ -n "$resume" ]; then
         {
-            printf "KERNEL==\"%s\", ACTION==\"add|change\", SYMLINK+=\"/dev/resume\"\n" \
+            printf "KERNEL==\"%s\", ACTION==\"add|change\", SYMLINK+=\"resume\"\n" \
                 ${resume#/dev/};
-            printf "SYMLINK==\"%s\", ACTION==\"add|change\", SYMLINK+=\"/dev/resume\"\n" \
+            printf "SYMLINK==\"%s\", ACTION==\"add|change\", SYMLINK+=\"resume\"\n" \
                 ${resume#/dev/};
         } >> /etc/udev/rules.d/99-resume-link.rules
 
