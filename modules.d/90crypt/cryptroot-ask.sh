@@ -8,22 +8,7 @@ NEWROOT=${NEWROOT:-"/sysroot"}
 # do not ask, if we already have root
 [ -f $NEWROOT/proc ] && exit 0
 
-# check if destination already exists
-[ -b /dev/mapper/$2 ] && exit 0
-
-# we already asked for this device
-[ -f /tmp/cryptroot-asked-$2 ] && exit 0
-
-# load dm_crypt if it is not already loaded
-[ -d /sys/module/dm_crypt ] || modprobe dm_crypt
-
-. /lib/dracut-crypt-lib.sh
-
-# default luksname - luks-UUID
-luksname=$2
-
-# fallback to passphrase
-ask_passphrase=1
+. /lib/dracut-lib.sh
 
 # if device name is /dev/dm-X, convert to /dev/mapper/name
 if [ "${1##/dev/dm-}" != "$1" ]; then
@@ -31,6 +16,9 @@ if [ "${1##/dev/dm-}" != "$1" ]; then
 else
     device="$1"
 fi
+
+# default luksname - luks-UUID
+luksname=$2
 
 # number of tries
 numtries=${3:-10}
@@ -62,6 +50,17 @@ if [ -f /etc/crypttab ] && getargbool 1 rd.luks.crypttab -d -n rd_NO_CRYPTTAB; t
     done < /etc/crypttab
     unset name dev
 fi
+
+# check if destination already exists
+[ -b /dev/mapper/$luksname ] && exit 0
+
+# we already asked for this device
+[ -f /tmp/cryptroot-asked-$luksname ] && exit 0
+
+# load dm_crypt if it is not already loaded
+[ -d /sys/module/dm_crypt ] || modprobe dm_crypt
+
+. /lib/dracut-crypt-lib.sh
 
 #
 # Open LUKS device
@@ -112,6 +111,9 @@ fi
 
 unset allowdiscards
 
+# fallback to passphrase
+ask_passphrase=1
+
 if [ -n "$luksfile" -a "$luksfile" != "none" -a -e "$luksfile" ]; then
     if cryptsetup --key-file "$luksfile" $cryptsetupopts luksOpen "$device" "$luksname"; then
         ask_passphrase=0
@@ -157,7 +159,7 @@ fi
 unset device luksname luksfile
 
 # mark device as asked
->> /tmp/cryptroot-asked-$2
+>> /tmp/cryptroot-asked-$luksname
 
 need_shutdown
 udevsettle
