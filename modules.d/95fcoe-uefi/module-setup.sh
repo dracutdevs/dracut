@@ -4,6 +4,9 @@
 
 # called by dracut
 check() {
+    for i in dcbtool fipvlan lldpad ip readlink; do
+        type -P $i >/dev/null || return 1
+    done
     return 0
 }
 
@@ -17,4 +20,3 @@ depends() {
 install() {
     inst_hook cmdline 20 "$moddir/parse-uefifcoe.sh"
 }
-
