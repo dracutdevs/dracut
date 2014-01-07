@@ -155,27 +155,27 @@ clean:
 	$(RM) */*/*~
 	$(RM) $(manpages:%=%.xml) dracut.xml
 	$(RM) test-*.img
-	$(RM) dracut-*.rpm dracut-*.tar.bz2
+	$(RM) dracut-*.rpm dracut-*.tar.bz2 dracut-*.tar.xz
 	$(RM) dracut-version.sh
 	$(RM) dracut-install install/dracut-install $(DRACUT_INSTALL_OBJECTS)
 	$(RM) $(manpages) dracut.html
 	$(MAKE) -C test clean
 
-dist: dracut-$(VERSION).tar.bz2
+dist: dracut-$(VERSION).tar.xz
 
-dracut-$(VERSION).tar.bz2: doc syncheck
+dracut-$(VERSION).tar.xz: doc syncheck
 	@echo "DRACUT_VERSION=$(VERSION)" > dracut-version.sh
 	git archive --format=tar $(VERSION) --prefix=dracut-$(VERSION)/ > dracut-$(VERSION).tar
 	mkdir -p dracut-$(VERSION)
 	for i in $(manpages) dracut.html dracut-version.sh; do [ "$${i%/*}" != "$$i" ] && mkdir -p "dracut-$(VERSION)/$${i%/*}"; cp "$$i" "dracut-$(VERSION)/$$i"; done
 	tar --owner=root --group=root -rf dracut-$(VERSION).tar $$(find dracut-$(VERSION) -type f)
-	rm -fr -- dracut-$(VERSION).tar.bz2 dracut-$(VERSION)
-	bzip2 -9 dracut-$(VERSION).tar
+	rm -fr -- dracut-$(VERSION).tar.xz dracut-$(VERSION)
+	xz -9 dracut-$(VERSION).tar
 	rm -f -- dracut-$(VERSION).tar
 
-rpm: dracut-$(VERSION).tar.bz2 syncheck
+rpm: dracut-$(VERSION).tar.xz syncheck
 	rpmbuild=$$(mktemp -d -t rpmbuild-dracut.XXXXXX); src=$$(pwd); \
-	cp dracut-$(VERSION).tar.bz2 "$$rpmbuild"; \
+	cp dracut-$(VERSION).tar.xz "$$rpmbuild"; \
 	LC_MESSAGES=C $$src/git2spec.pl $(VERSION) "$$rpmbuild" < dracut.spec > $$rpmbuild/dracut.spec; \
 	(cd "$$rpmbuild"; rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" \
 	        --define "_specdir $$PWD" --define "_srcrpmdir $$PWD" \
@@ -215,9 +215,9 @@ hostimage: all
 AUTHORS:
 	git shortlog  --numbered --summary -e |while read a rest; do echo $$rest;done > AUTHORS
 
-dracut.html.sign: dracut-$(VERSION).tar.bz2
-	gpg-sign-all dracut-$(VERSION).tar.bz2 dracut.html
+dracut.html.sign: dracut-$(VERSION).tar.xz
+	gpg-sign-all dracut-$(VERSION).tar.xz dracut.html
 
 upload: dracut.html.sign
-	kup put dracut-$(VERSION).tar.bz2 dracut-$(VERSION).tar.sign /pub/linux/utils/boot/dracut/
+	kup put dracut-$(VERSION).tar.xz dracut-$(VERSION).tar.sign /pub/linux/utils/boot/dracut/
 	kup put dracut.html dracut.html.sign /pub/linux/utils/boot/dracut/
