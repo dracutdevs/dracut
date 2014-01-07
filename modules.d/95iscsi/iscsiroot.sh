@@ -44,7 +44,8 @@ if getargbool 0 rd.iscsi.firmware -d -y iscsi_firmware ; then
 	iscsi_param="$iscsi_param --param $p"
     done
 
-    if ! [ -e /tmp/iscsistarted-firmware ] && iscsistart -b $iscsi_param; then
+    if ! [ -e /tmp/iscsistarted-firmware ]; then
+        iscsistart -b $iscsi_param
         echo 'started' > "/tmp/iscsistarted-iscsi"
         echo 'started' > "/tmp/iscsistarted-firmware"
         need_shutdown
