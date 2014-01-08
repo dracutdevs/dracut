@@ -308,6 +308,7 @@ TEMP=$(unset POSIXLY_CORRECT; getopt \
     --long add-fstab: \
     --long mount: \
     --long device: \
+    --long add-device: \
     --long nofscks: \
     --long ro-mnt \
     --long kmoddir: \
