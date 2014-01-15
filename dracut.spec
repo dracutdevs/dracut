@@ -1,4 +1,5 @@
 %define dracutlibdir %{_prefix}/lib/dracut
+%bcond_without doc
 
 # Variables must be defined
 %define with_nbd                1
@@ -45,6 +46,7 @@ BuildRequires: pkgconfig
 BuildRoot: %{_tmppath}/%{name}-%{version}-build
 %endif
 
+%if %{with doc}
 %if 0%{?fedora} || 0%{?rhel}
 BuildRequires: docbook-style-xsl docbook-dtds libxslt
 %endif
@@ -54,6 +56,8 @@ BuildRequires: docbook-style-xsl docbook-dtds libxslt
 %endif
 
 BuildRequires: asciidoc
+%endif
+
 
 %if 0%{?fedora} > 12 || 0%{?rhel}
 # no "provides", because dracut does not offer
@@ -203,7 +207,10 @@ git am -p1 %{patches}
 %endif
 
 %build
-%configure --systemdsystemunitdir=%{_unitdir} --bashcompletiondir=$(pkg-config --variable=completionsdir bash-completion) --libdir=%{_prefix}/lib
+%configure --systemdsystemunitdir=%{_unitdir} --bashcompletiondir=$(pkg-config --variable=completionsdir bash-completion) --libdir=%{_prefix}/lib \
+%if %{without doc}
+     --disable-documentation
+%endif
 
 make %{?_smp_mflags}
 
@@ -285,7 +292,9 @@ rm -rf -- $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,0755)
+%if %{with doc}
 %doc README HACKING TODO COPYING AUTHORS NEWS dracut.html dracut.png dracut.svg
+%endif
 %{_bindir}/dracut
 # compat symlink
 %{_sbindir}/dracut
@@ -309,6 +318,8 @@ rm -rf -- $RPM_BUILD_ROOT
 %endif
 %dir %{_sysconfdir}/dracut.conf.d
 %dir %{dracutlibdir}/dracut.conf.d
+
+%if %{with doc}
 %{_mandir}/man8/dracut.8*
 %{_mandir}/man8/*service.8*
 %if 0%{?fedora} > 12 || 0%{?rhel} >= 6 || 0%{?suse_version} > 9999
@@ -320,6 +331,8 @@ rm -rf -- $RPM_BUILD_ROOT
 %{_mandir}/man7/dracut.modules.7*
 %{_mandir}/man7/dracut.bootup.7*
 %{_mandir}/man5/dracut.conf.5*
+%endif
+
 %if %{defined _unitdir}
 %{dracutlibdir}/modules.d/00systemd-bootchart
 %else
@@ -427,7 +440,11 @@ rm -rf -- $RPM_BUILD_ROOT
 
 %files fips-aesni
 %defattr(-,root,root,0755)
+
+%if %{with doc}
 %doc COPYING
+%endif
+
 %{dracutlibdir}/modules.d/02fips-aesni
 
 %files caps
@@ -436,7 +453,11 @@ rm -rf -- $RPM_BUILD_ROOT
 
 %files tools
 %defattr(-,root,root,0755)
-%{_mandir}/man8/dracut-catimages.8*
+
+%if %{with doc}
+%doc %{_mandir}/man8/dracut-catimages.8*
+%endif
+
 %{_bindir}/dracut-catimages
 %dir /boot/dracut
 %dir /var/lib/dracut
