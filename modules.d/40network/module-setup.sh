@@ -27,7 +27,7 @@ installkernel() {
 
     net_module_filter() {
         local _net_drivers='eth_type_trans|register_virtio_device|usbnet_open'
-        local _unwanted_drivers='/(wireless|isdn|uwb)/'
+        local _unwanted_drivers='/(wireless|isdn|uwb|net/ethernet|net/phy|net/team)/'
         local _ret
         # subfunctions inherit following FDs
         local _merge=8 _side2=9
@@ -67,7 +67,11 @@ installkernel() {
         | net_module_filter | instmods
 
     #instmods() will take care of hostonly
-    instmods =drivers/net/phy ecb arc4 bridge stp llc ipv6 bonding 8021q af_packet virtio_net =drivers/net/team
+    instmods \
+        =drivers/net/phy \
+        =drivers/net/team \
+        =drivers/net/ethernet \
+        ecb arc4 bridge stp llc ipv6 bonding 8021q af_packet virtio_net
 }
 
 # called by dracut
