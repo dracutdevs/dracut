@@ -70,6 +70,7 @@ Creates initial ramdisk images for preloading modules
   --kver [VERSION]      Set kernel version to [VERSION].
   -f, --force           Overwrite existing initramfs file.
   -a, --add [LIST]      Add a space-separated list of dracut modules.
+  --rebuild         Append arguments to those of existing image and rebuild
   -m, --modules [LIST]  Specify a space-separated list of dracut modules to
                          call when building the initramfs. Modules are located
                          in /usr/lib/dracut/modules.d.
@@ -279,128 +280,211 @@ dropindirs_sort()
     }
 }
 
+rearrange_params()
+{
+    # Workaround -i, --include taking 2 arguments
+    set -- "${@/--include/++include}"
+
+    # This prevents any long argument ending with "-i"
+    # -i, like --opt-i but I think we can just prevent that
+    set -- "${@/%-i/++include}"
+
+    TEMP=$(unset POSIXLY_CORRECT; getopt \
+        -o "a:m:o:d:I:k:c:L:fvqlHhMN" \
+        --long kver: \
+        --long add: \
+        --long force-add: \
+        --long add-drivers: \
+        --long omit-drivers: \
+        --long modules: \
+        --long omit: \
+        --long drivers: \
+        --long filesystems: \
+        --long install: \
+        --long fwdir: \
+        --long libdirs: \
+        --long fscks: \
+        --long add-fstab: \
+        --long mount: \
+        --long device: \
+        --long add-device: \
+        --long nofscks: \
+        --long ro-mnt \
+        --long kmoddir: \
+        --long conf: \
+        --long confdir: \
+        --long tmpdir: \
+        --long stdlog: \
+        --long compress: \
+        --long prefix: \
+        --long rebuild: \
+        --long force \
+        --long kernel-only \
+        --long no-kernel \
+        --long print-cmdline \
+        --long kernel-cmdline: \
+        --long strip \
+        --long nostrip \
+        --long prelink \
+        --long noprelink \
+        --long hardlink \
+        --long nohardlink \
+        --long noprefix \
+        --long mdadmconf \
+        --long nomdadmconf \
+        --long lvmconf \
+        --long nolvmconf \
+        --long debug \
+        --long profile \
+        --long sshkey: \
+        --long logfile: \
+        --long verbose \
+        --long quiet \
+        --long local \
+        --long hostonly \
+        --long host-only \
+        --long no-hostonly \
+        --long no-host-only \
+        --long persistent-policy: \
+        --long fstab \
+        --long help \
+        --long bzip2 \
+        --long lzma \
+        --long xz \
+        --long lzo \
+        --long lz4 \
+        --long no-compress \
+        --long gzip \
+        --long list-modules \
+        --long show-modules \
+        --long keep \
+        --long printsize \
+        --long regenerate-all \
+        --long noimageifnotneeded \
+        --long early-microcode \
+        --long no-early-microcode \
+        -- "$@")
+
+    if (( $? != 0 )); then
+        usage
+        exit 1
+    fi
+}
+
 verbosity_mod_l=0
 unset kernel
 unset outfile
 
-# Workaround -i, --include taking 2 arguments
-set -- "${@/--include/++include}"
+rearrange_params "$@"
+eval set -- "$TEMP"
 
-# This prevents any long argument ending with "-i"
-# -i, like --opt-i but I think we can just prevent that
-set -- "${@/%-i/++include}"
+# parse command line args to check if '--rebuild' option is present
+unset append_args_l
+unset rebuild_file
+while :
+do
+	if [ "$1" == "--" ]; then
+	    shift; break
+	fi
+	if [ "$1" == "--rebuild" ]; then
+	    append_args_l="yes"
+            rebuild_file=$2
+            if [ ! -e $rebuild_file ]; then
+                echo "Image file '$rebuild_file', for rebuild, does not exist!"
+                exit 1
+            fi
+            abs_rebuild_file=$(readlink -f "$rebuild_file") && rebuild_file="$abs_rebuild_file"
+	    shift; continue
+	fi
+	shift
+done
 
-TEMP=$(unset POSIXLY_CORRECT; getopt \
-    -o "a:m:o:d:I:k:c:L:fvqlHhMN" \
-    --long kver: \
-    --long add: \
-    --long force-add: \
-    --long add-drivers: \
-    --long omit-drivers: \
-    --long modules: \
-    --long omit: \
-    --long drivers: \
-    --long filesystems: \
-    --long install: \
-    --long fwdir: \
-    --long libdirs: \
-    --long fscks: \
-    --long add-fstab: \
-    --long mount: \
-    --long device: \
-    --long add-device: \
-    --long nofscks: \
-    --long ro-mnt \
-    --long kmoddir: \
-    --long conf: \
-    --long confdir: \
-    --long tmpdir: \
-    --long stdlog: \
-    --long compress: \
-    --long prefix: \
-    --long force \
-    --long kernel-only \
-    --long no-kernel \
-    --long print-cmdline \
-    --long kernel-cmdline: \
-    --long strip \
-    --long nostrip \
-    --long prelink \
-    --long noprelink \
-    --long hardlink \
-    --long nohardlink \
-    --long noprefix \
-    --long mdadmconf \
-    --long nomdadmconf \
-    --long lvmconf \
-    --long nolvmconf \
-    --long debug \
-    --long profile \
-    --long sshkey: \
-    --long logfile: \
-    --long verbose \
-    --long quiet \
-    --long local \
-    --long hostonly \
-    --long host-only \
-    --long no-hostonly \
-    --long no-host-only \
-    --long persistent-policy: \
-    --long fstab \
-    --long help \
-    --long bzip2 \
-    --long lzma \
-    --long xz \
-    --long lzo \
-    --long lz4 \
-    --long no-compress \
-    --long gzip \
-    --long list-modules \
-    --long show-modules \
-    --long keep \
-    --long printsize \
-    --long regenerate-all \
-    --long noimageifnotneeded \
-    --long early-microcode \
-    --long no-early-microcode \
-    -- "$@")
+# get output file name and kernel version from command line arguments
+while (($# > 0)); do
+    case ${1%%=*} in
+        ++include)
+            shift 2;;
+        *)
+            if ! [[ ${outfile+x} ]]; then
+                outfile=$1
+            elif ! [[ ${kernel+x} ]]; then
+                kernel=$1
+            else
+                printf "\nUnknown arguments: %s\n\n" "$*" >&2
+                usage; exit 1;
+            fi
+            ;;
+    esac
+    shift
+done
 
-if (( $? != 0 )); then
-    usage
-    exit 1
+# extract input image file provided with rebuild option to get previous parameters, if any
+if [[ $append_args_l == "yes" ]]; then
+    unset rebuild_param
+
+    # determine resultant file
+    if ! [[ $outfile ]]; then
+        outfile=$rebuild_file
+    fi
+
+    if ! rebuild_param=$(lsinitrd $rebuild_file '*lib/dracut/build-parameter.txt'); then
+        echo "Image '$rebuild_file' has no rebuild information stored"
+        exit 1
+    fi
+
+    # prepend previous parameters to current command line args
+    if [[ $rebuild_param ]]; then
+        TEMP="$rebuild_param $TEMP"
+        eval set -- "$TEMP"
+        rearrange_params "$@"
+    fi
+
+    # clean the temporarily used scratch-pad directory
+    rm -rf $scratch_dir
 fi
+
+unset PARMS_TO_STORE
+PARMS_TO_STORE=""
 
 eval set -- "$TEMP"
 
 while :; do
+    if [ $1 != "--" ] && [ $1 != "--rebuild" ]; then
+        PARMS_TO_STORE+=" $1";
+    fi
     case $1 in
-        --kver)        kernel="$2"; shift;;
-        -a|--add)      push add_dracutmodules_l  "$2"; shift;;
-        --force-add)   push force_add_dracutmodules_l  "$2"; shift;;
-        --add-drivers) push add_drivers_l        "$2"; shift;;
-        --omit-drivers) push omit_drivers_l      "$2"; shift;;
-        -m|--modules)  push dracutmodules_l      "$2"; shift;;
-        -o|--omit)     push omit_dracutmodules_l "$2"; shift;;
-        -d|--drivers)  push drivers_l            "$2"; shift;;
-        --filesystems) push filesystems_l        "$2"; shift;;
-        -I|--install)  push install_items_l      "$2"; shift;;
-        --fwdir)       push fw_dir_l             "$2"; shift;;
-        --libdirs)     push libdirs_l            "$2"; shift;;
-        --fscks)       push fscks_l              "$2"; shift;;
-        --add-fstab)   push add_fstab_l          "$2"; shift;;
-        --mount)       push fstab_lines          "$2"; shift;;
+        --kver)        kernel="$2";                    PARMS_TO_STORE+=" '$2'"; shift;;
+        -a|--add)      push add_dracutmodules_l  "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
+        --force-add)   push force_add_dracutmodules_l  "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
+        --add-drivers) push add_drivers_l        "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
+        --omit-drivers) push omit_drivers_l      "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
+        -m|--modules)  push dracutmodules_l      "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
+        -o|--omit)     push omit_dracutmodules_l "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
+        -d|--drivers)  push drivers_l            "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
+        --filesystems) push filesystems_l        "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
+        -I|--install)  push install_items_l      "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
+        --fwdir)       push fw_dir_l             "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
+        --libdirs)     push libdirs_l            "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
+        --fscks)       push fscks_l              "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
+        --add-fstab)   push add_fstab_l          "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
+        --mount)       push fstab_lines          "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
         --add-device|--device)
-                       push add_device_l         "$2"; shift;;
-        --kernel-cmdline) push kernel_cmdline_l  "$2"; shift;;
+                       push add_device_l         "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
+        --kernel-cmdline) push kernel_cmdline_l  "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
         --nofscks)     nofscks_l="yes";;
         --ro-mnt)      ro_mnt_l="yes";;
-        -k|--kmoddir)  drivers_dir_l="$2"; shift;;
-        -c|--conf)     conffile="$2"; shift;;
-        --confdir)     confdir="$2"; shift;;
-        --tmpdir)      tmpdir_l="$2"; shift;;
-        -L|--stdlog)   stdloglvl_l="$2"; shift;;
-        --compress)    compress_l="$2"; shift;;
-        --prefix)      prefix_l="$2"; shift;;
+        -k|--kmoddir)  drivers_dir_l="$2";             PARMS_TO_STORE+=" '$2'"; shift;;
+        -c|--conf)     conffile="$2";                  PARMS_TO_STORE+=" '$2'"; shift;;
+        --confdir)     confdir="$2";                   PARMS_TO_STORE+=" '$2'"; shift;;
+        --tmpdir)      tmpdir_l="$2";                  PARMS_TO_STORE+=" '$2'"; shift;;
+        -L|--stdlog)   stdloglvl_l="$2";               PARMS_TO_STORE+=" '$2'"; shift;;
+        --compress)    compress_l="$2";                PARMS_TO_STORE+=" '$2'"; shift;;
+        --prefix)      prefix_l="$2";                  PARMS_TO_STORE+=" '$2'"; shift;;
+        --rebuild)     if [ $rebuild_file == $outfile ]; then
+                           force=yes
+                       fi
+                       shift
+                       ;;
         -f|--force)    force=yes;;
         --kernel-only) kernel_only="yes"; no_kernel="no";;
         --no-kernel)   kernel_only="no"; no_kernel="yes";;
@@ -420,7 +504,7 @@ while :; do
         --nolvmconf)   lvmconf_l="no";;
         --debug)       debug="yes";;
         --profile)     profile="yes";;
-        --sshkey)      sshkey="$2"; shift;;
+        --sshkey)      sshkey="$2";                    PARMS_TO_STORE+=" '$2'"; shift;;
         --logfile)     logfile_l="$2"; shift;;
         -v|--verbose)  ((verbosity_mod_l++));;
         -q|--quiet)    ((verbosity_mod_l--));;
@@ -434,10 +518,10 @@ while :; do
         -N|--no-hostonly|--no-host-only)
                        hostonly_l="no" ;;
         --persistent-policy)
-                       persistent_policy_l="$2"; shift;;
+                       persistent_policy_l="$2";       PARMS_TO_STORE+=" '$2'"; shift;;
         --fstab)       use_fstab_l="yes" ;;
         -h|--help)     long_usage; exit 1 ;;
-        -i|--include)  push include_src "$2"
+        -i|--include)  push include_src "$2";          PARMS_TO_STORE+=" '$2'";
                        shift;;
         --bzip2)       compress_l="bzip2";;
         --lzma)        compress_l="lzma";;
@@ -467,21 +551,12 @@ done
 # the old fashioned way
 
 while (($# > 0)); do
-    case ${1%%=*} in
-        ++include) push include_src "$2"
-                       push include_target "$3"
-                       shift 2;;
-        *)
-            if ! [[ ${outfile+x} ]]; then
-                outfile=$1
-            elif ! [[ ${kernel+x} ]]; then
-                kernel=$1
-            else
-                printf "\nUnknown arguments: %s\n\n" "$*" >&2
-                usage; exit 1;
-            fi
-            ;;
-    esac
+    if [ ${1%%=*} == "++include" ]; then
+        push include_src "$2"
+        push include_target "$3"
+        PARMS_TO_STORE+=" --include '$2' '$3'"
+        shift 2
+    fi
     shift
 done
 
@@ -1377,6 +1452,12 @@ if [[ $acpi_override = yes ]] && [[ -d $acpi_table_dir ]]; then
         cp $table $_dest_dir
         create_early_cpio="yes"
     done
+fi
+
+dinfo "*** Store current command line parameters ***"
+if ! ( echo $PARMS_TO_STORE > $initdir/lib/dracut/build-parameter.txt ); then
+    dfatal "Could not store the current command line parameters"
+    exit 1
 fi
 
 rm -f -- "$outfile"
