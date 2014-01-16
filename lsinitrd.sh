@@ -106,15 +106,17 @@ fi
 read -N 6 bin < "$image"
 case $bin in
     $'\x1f\x8b'*)
-        CAT="zcat";;
+        CAT="zcat --";;
     BZh*)
-        CAT="bzcat";;
+        CAT="bzcat --";;
     $'\x71\xc7'*|070701)
-        CAT="cat";;
+        CAT="cat --";;
+    $'\x04\x22'*)
+        CAT="lz4 -d -c";;
     *)
-        CAT="xzcat";
+        CAT="xzcat --";
         if echo "test"|xz|xzcat --single-stream >/dev/null 2>&1; then
-            CAT="xzcat --single-stream"
+            CAT="xzcat --single-stream --"
         fi
         ;;
 esac
@@ -126,7 +128,7 @@ if (( ${#filenames[@]} > 0 )); then
     for f in ${!filenames[@]}; do
         [[ $nofileinfo ]] || echo "initramfs:/$f"
         [[ $nofileinfo ]] || echo "========================================================================"
-        $CAT -- $image | cpio --extract --verbose --quiet --to-stdout $f 2>/dev/null
+        $CAT $image | cpio --extract --verbose --quiet --to-stdout $f 2>/dev/null
         ((ret+=$?))
         [[ $nofileinfo ]] || echo "========================================================================"
         [[ $nofileinfo ]] || echo
@@ -134,16 +136,16 @@ if (( ${#filenames[@]} > 0 )); then
 else
     echo "Image: $image: $(du -h $image | while read a b; do echo $a;done)"
     echo "========================================================================"
-    version=$($CAT -- "$image" | cpio --extract --verbose --quiet --to-stdout -- '*lib/dracut/dracut-*' 2>/dev/null)
+    version=$($CAT "$image" | cpio --extract --verbose --quiet --to-stdout -- '*lib/dracut/dracut-*' 2>/dev/null)
     ((ret+=$?))
     echo "$version with dracut modules:"
-    $CAT -- "$image" | cpio --extract --verbose --quiet --to-stdout -- '*lib/dracut/modules.txt' 2>/dev/null
+    $CAT "$image" | cpio --extract --verbose --quiet --to-stdout -- '*lib/dracut/modules.txt' 2>/dev/null
     ((ret+=$?))
     echo "========================================================================"
     if [ "$sorted" -eq 1 ]; then
-        $CAT -- "$image" | cpio --extract --verbose --quiet --list | sort -n -k5
+        $CAT "$image" | cpio --extract --verbose --quiet --list | sort -n -k5
     else
-        $CAT -- "$image" | cpio --extract --verbose --quiet --list | sort -k9
+        $CAT "$image" | cpio --extract --verbose --quiet --list | sort -k9
     fi
     ((ret+=$?))
     echo "========================================================================"
