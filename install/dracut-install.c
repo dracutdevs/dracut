@@ -392,7 +392,11 @@ static int resolve_deps(const char *src)
                 if (strstr(buf, destrootdir))
                         break;
 
-                p = strchr(buf, '/');
+                p = strstr(buf, "=>");
+                if (!p)
+                        p = buf;
+
+                p = strchr(p, '/');
                 if (p) {
                         for (q = p; *q && *q != ' ' && *q != '\n'; q++) ;
                         *q = '\0';
