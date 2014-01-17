@@ -28,3 +28,5 @@ case "$root" in
 esac
 
 [ "${root%%:*}" = "block" ] && wait_for_dev -n "${root#block:}"
+
+exit 0
