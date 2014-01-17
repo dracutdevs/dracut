@@ -22,6 +22,8 @@ case "$root" in
         root="${root#block:}"
         root="block:/dev/disk/by-partlabel/${root#PARTLABEL=}"
         rootok=1 ;;
+    /dev/nfs) # ignore legacy /dev/nfs
+        ;;
     /dev/*)
         root="block:${root}"
         rootok=1 ;;
