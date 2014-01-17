@@ -183,7 +183,7 @@ install() {
 
     inst_script "$moddir/rootfs-generator.sh" /lib/systemd/system-generators/dracut-rootfs-generator
 
-    inst_rules 99-systemd.rules
+    inst_rules 71-seat.rules 73-seat-late.rules 99-systemd.rules
 
     for i in \
         emergency.target \
