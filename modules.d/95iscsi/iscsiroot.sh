@@ -45,11 +45,20 @@ if getargbool 0 rd.iscsi.firmware -d -y iscsi_firmware ; then
     done
 
     if ! [ -e /tmp/iscsistarted-firmware ]; then
-        iscsistart -b $iscsi_param
+        if ! iscsistart -f | vinfo; then
+            warn "iscistart: Could not get list of targets from firmware."
+            exit 1
+        fi
+
+        if ! iscsistart -b $iscsi_param 2>&1 | vinfo; then
+            warn "\`iscsistart -b $iscsi_param\´ failed"
+            exit 1
+        fi
         echo 'started' > "/tmp/iscsistarted-iscsi"
         echo 'started' > "/tmp/iscsistarted-firmware"
         need_shutdown
     fi
+
     [ "$netif" = dummy ] && exit 0
 fi
 
