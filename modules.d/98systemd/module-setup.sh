@@ -163,15 +163,15 @@ install() {
     egrep '^systemd-journal:' "$initdir/etc/passwd" 2>/dev/null >> "$initdir/etc/passwd"
     egrep '^systemd-journal:' /etc/group >> "$initdir/etc/group"
 
-    ln -fs $systemdutildir/systemd "$initdir/init"
-    ln -fs $systemdutildir/systemd "$initdir/sbin/init"
+    ln_r $systemdutildir/systemd "/init"
+    ln_r $systemdutildir/systemd "/sbin/init"
 
     inst_script "$moddir/dracut-emergency.sh" /bin/dracut-emergency
     inst_simple "$moddir/emergency.service" ${systemdsystemunitdir}/emergency.service
     inst_simple "$moddir/dracut-emergency.service" ${systemdsystemunitdir}/dracut-emergency.service
     inst_simple "$moddir/emergency.service" ${systemdsystemunitdir}/rescue.service
 
-    ln -fs initrd.target "${initdir}${systemdsystemunitdir}/default.target"
+    ln_r "${systemdsystemunitdir}/initrd.target" "${systemdsystemunitdir}/default.target"
 
     inst_script "$moddir/dracut-cmdline.sh" /bin/dracut-cmdline
     inst_script "$moddir/dracut-pre-udev.sh" /bin/dracut-pre-udev
