@@ -1,4 +1,4 @@
-#!/bin/sh
+!/bin/sh
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
@@ -430,8 +430,15 @@ die() {
         echo "warn dracut: Refusing to continue";
     } >> $hookdir/emergency/01-die.sh
     [ -d /run/initramfs ] || mkdir -p -- /run/initramfs
+
     > /run/initramfs/.die
-    emergency_shell
+
+    getargbool 0 "rd.debug=" && emergency_shell
+
+    if [ -n "$DRACUT_SYSTEMD" ]; then
+        systemctl --no-block --force halt
+    fi
+
     exit 1
 }
 
@@ -1045,7 +1052,13 @@ emergency_shell()
         # cause a kernel panic
         exit 1
     fi
-    [ -e /run/initramfs/.die ] && exit 1
+
+    if [ -e /run/initramfs/.die ]; then
+        if [ -n "$DRACUT_SYSTEMD" ]; then
+            systemctl --no-block --force halt
+        fi
+        exit 1
+    fi
 }
 
 action_on_fail()
