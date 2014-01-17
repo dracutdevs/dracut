@@ -108,7 +108,7 @@ for p in $(getargs ip=); do
 done
 
 # put BOOTIF in IFACES to make sure it comes up
-if BOOTIF="$(getarg BOOTIF=)"; then
+if getargbool 1 "rd.bootif" && BOOTIF="$(getarg BOOTIF=)"; then
     BOOTDEV=$(fix_bootif $BOOTIF)
     IFACES="$BOOTDEV $IFACES"
 fi
