@@ -56,5 +56,6 @@ install() {
     fi
     if [[ $hostonly ]] ; then
         inst_rules_wildcard 51-zfcp-*.rules
+        inst_rules_wildcard 41-s390x-zfcp-*.rules
     fi
 }
