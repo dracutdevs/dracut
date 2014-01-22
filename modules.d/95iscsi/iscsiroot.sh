@@ -31,36 +31,45 @@ iroot="$2"
 # If it's not iscsi we don't continue
 [ "${iroot%%:*}" = "iscsi" ] || exit 1
 
-iroot=${iroot#iscsi:}
+iroot=${iroot#iscsi}
+iroot=${iroot#:}
 
 # XXX modprobe crc32c should go in the cmdline parser, but I haven't yet
 # figured out a way how to check whether this is built-in or not
 modprobe crc32c 2>/dev/null
 
-[ -e /sys/module/bnx2i ] && iscsiuio
+if [ -e /sys/module/bnx2i ] && ! [ -e /tmp/iscsiuio-started ]; then
+        iscsiuio
+        > /tmp/iscsiuio-started
+fi
 
-if getargbool 0 rd.iscsi.firmware -d -y iscsi_firmware ; then
-    for p in $(getargs rd.iscsi.param -d iscsi_param); do
-	iscsi_param="$iscsi_param --param $p"
-    done
-
+handle_firmware()
+{
     if ! [ -e /tmp/iscsistarted-firmware ]; then
-        if ! iscsistart -f | vinfo; then
+        if ! iscsistart -f; then
             warn "iscistart: Could not get list of targets from firmware."
-            exit 1
+            return 1
         fi
 
-        if ! iscsistart -b $iscsi_param 2>&1 | vinfo; then
+        for p in $(getargs rd.iscsi.param -d iscsi_param); do
+	    iscsi_param="$iscsi_param --param $p"
+        done
+
+        if ! iscsistart -b $iscsi_param; then
             warn "\`iscsistart -b $iscsi_param\´ failed"
-            exit 1
         fi
-        echo 'started' > "/tmp/iscsistarted-iscsi"
-        echo 'started' > "/tmp/iscsistarted-firmware"
+
+        if [ -d /sys/class/iscsi_session ]; then
+            echo 'started' > "/tmp/iscsistarted-iscsi"
+            echo 'started' > "/tmp/iscsistarted-firmware"
+        else
+            return 1
+        fi
+
         need_shutdown
     fi
-
-    [ "$netif" = dummy ] && exit 0
-fi
+    return 0
+}
 
 
 handle_netroot()
@@ -171,21 +180,38 @@ handle_netroot()
 
     netroot_enc=$(str_replace "$1" '/' '\2f')
     echo 'started' > "/tmp/iscsistarted-iscsi:${netroot_enc}"
-
 }
+
+ret=0
 
 # loop over all netroot parameter
 if getarg netroot; then
     for nroot in $(getargs netroot); do
-        [ "${netroot%%:*}" = "iscsi" ] || continue
-        handle_netroot ${nroot##iscsi:}
+        [ "${nroot%%:*}" = "iscsi" ] || continue
+        nroot="${nroot##iscsi:}"
+        if [ -n "$nroot" ]; then
+            handle_netroot "$nroot"
+            ret=$(($ret + $?))
+        fi
     done
+    if getargbool 0 rd.iscsi.firmware -d -y iscsi_firmware ; then
+        handle_firmware
+        ret=$(($ret + $?))
+    fi
 else
-    handle_netroot $iroot
+    if [ -n "$iroot" ]; then
+        handle_netroot "$iroot"
+        ret=$?
+    else
+        if getargbool 0 rd.iscsi.firmware -d -y iscsi_firmware ; then
+            handle_firmware
+            ret=$?
+        fi
+    fi
 fi
 
 need_shutdown
 
 # now we have a root filesystem somewhere in /dev/sda*
 # let the normal block handler handle root=
-exit 0
+exit $ret
