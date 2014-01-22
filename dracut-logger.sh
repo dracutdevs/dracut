@@ -154,7 +154,7 @@ dlog_init() {
             readonly _systemdcatfile="$_dlogdir/systemd-cat"
             mkfifo "$_systemdcatfile"
             readonly _dlogfd=15
-            systemd-cat -t 'dracut' <"$_systemdcatfile" &
+            systemd-cat -t 'dracut' --level-prefix=true <"$_systemdcatfile" &
             exec 15>"$_systemdcatfile"
         elif ! [ -S /dev/log -a -w /dev/log ] || ! command -v logger >/dev/null; then
             # We cannot log to syslog, so turn this facility off.
@@ -330,7 +330,7 @@ _do_dlog() {
 
     if (( $lvl <= $sysloglvl )); then
         if [[ "$_dlogfd" ]]; then
-            echo "<$(_dlvl2syslvl $lvl)>$msg" >&$_dlogfd
+            printf -- "<%s>%s\n" "$(($(_dlvl2syslvl $lvl) & 7))" "$msg" >&$_dlogfd
         else
             logger -t "dracut[$$]" -p $(_lvl2syspri $lvl) -- "$msg"
         fi
