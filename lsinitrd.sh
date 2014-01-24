@@ -138,7 +138,11 @@ else
     echo "========================================================================"
     version=$($CAT "$image" | cpio --extract --verbose --quiet --to-stdout -- '*lib/dracut/dracut-*' 2>/dev/null)
     ((ret+=$?))
-    echo "$version with dracut modules:"
+    echo "Version: $version"
+    echo -n "Arguments: "
+    $CAT "$image" | cpio --extract --verbose --quiet --to-stdout -- '*lib/dracut/build-parameter.txt' 2>/dev/null
+    echo
+    echo "dracut modules:"
     $CAT "$image" | cpio --extract --verbose --quiet --to-stdout -- '*lib/dracut/modules.txt' 2>/dev/null
     ((ret+=$?))
     echo "========================================================================"
