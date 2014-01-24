@@ -27,7 +27,8 @@ if [ -n "$DM_RAIDS" ] || getargbool 0 rd.auto; then
             for s in $SETS; do
                 if [ "${s##$r}" != "$s" ]; then
                     info "Activating $s"
-                    dmraid -ay -i --rm_partitions "$s" 2>&1 | vinfo
+                    dmraid -ay -i -p --rm_partitions "$s" 2>&1 | vinfo
+                    [ -e "/dev/mapper/$s" ] && kpartx -a "/dev/mapper/$s" 2>&1 | vinfo
                     udevsettle
                 fi
             done
@@ -36,7 +37,8 @@ if [ -n "$DM_RAIDS" ] || getargbool 0 rd.auto; then
     # scan and activate all DM RAIDS
         for s in $SETS; do
             info "Activating $s"
-            dmraid -ay -i --rm_partitions "$s" 2>&1 | vinfo
+            dmraid -ay -i -p --rm_partitions "$s" 2>&1 | vinfo
+            [ -e "/dev/mapper/$s" ] && kpartx -a "/dev/mapper/$s" 2>&1 | vinfo
         done
     fi
 
