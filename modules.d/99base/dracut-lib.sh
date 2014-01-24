@@ -976,7 +976,7 @@ if ! command -v pidof >/dev/null 2>/dev/null; then
         for i in /proc/*/exe; do
             [ -e "$i" ] || return 1
             if [ -n "$_exe" ]; then
-                [ "$i" -ef "$_cmd" ] || continue
+                [ "$i" -ef "$_exe" ] || continue
             else
                 _rl=$(readlink -f "$i");
                 [ "${_rl%/$_cmd}" != "$_rl" ] || continue
