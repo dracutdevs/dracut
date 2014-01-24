@@ -33,6 +33,9 @@ usage()
     } >&2
 }
 
+
+[[ $dracutbasedir ]] || dracutbasedir=/usr/lib/dracut
+
 sorted=0
 declare -A filenames
 
@@ -103,14 +106,72 @@ if ! [[ -f "$image" ]]; then
     exit 1
 fi
 
+extract_files()
+{
+    (( ${#filenames[@]} == 1 )) && nofileinfo=1
+    for f in ${!filenames[@]}; do
+        [[ $nofileinfo ]] || echo "initramfs:/$f"
+        [[ $nofileinfo ]] || echo "========================================================================"
+        $CAT $image | cpio --extract --verbose --quiet --to-stdout $f 2>/dev/null
+        ((ret+=$?))
+        [[ $nofileinfo ]] || echo "========================================================================"
+        [[ $nofileinfo ]] || echo
+    done
+}
+
+list_files()
+{
+    echo "========================================================================"
+    if [ "$sorted" -eq 1 ]; then
+        $CAT "$image" | cpio --extract --verbose --quiet --list | sort -n -k5
+    else
+        $CAT "$image" | cpio --extract --verbose --quiet --list | sort -k9
+    fi
+    ((ret+=$?))
+    echo "========================================================================"
+}
+
+
+if (( ${#filenames[@]} <= 0 )); then
+    echo "Image: $image: $(du -h $image | while read a b; do echo $a;done)"
+    echo "========================================================================"
+fi
+
 read -N 6 bin < "$image"
+case $bin in
+    $'\x71\xc7'*|070701)
+        CAT="cat --"
+        is_early=$(cpio --extract --verbose --quiet --to-stdout -- 'early_cpio' < "$image" 2>/dev/null)
+        if [[ "$is_early" ]]; then
+            if (( ${#filenames[@]} > 0 )); then
+                extract_files
+            else
+                echo "Early CPIO image"
+                list_files
+            fi
+            SKIP="$dracutbasedir/skipcpio"
+            if ! [[ -x $SKIP ]]; then
+                echo
+                echo "'$SKIP' not found, cannot display remaining contents!" >&2
+                echo
+                exit 0
+            fi
+        fi
+        ;;
+esac
+
+if [[ $SKIP ]]; then
+    read -N 6 bin < <($SKIP "$image")
+fi
+
 case $bin in
     $'\x1f\x8b'*)
         CAT="zcat --";;
     BZh*)
         CAT="bzcat --";;
     $'\x71\xc7'*|070701)
-        CAT="cat --";;
+        CAT="cat --"
+        ;;
     $'\x04\x22'*)
         CAT="lz4 -d -c";;
     *)
@@ -121,38 +182,32 @@ case $bin in
         ;;
 esac
 
+skipcpio()
+{
+    $SKIP "$@" | $ORIG_CAT
+}
+
+if [[ $SKIP ]]; then
+    ORIG_CAT="$CAT"
+    CAT=skipcpio
+fi
+
 ret=0
 
 if (( ${#filenames[@]} > 0 )); then
-    (( ${#filenames[@]} == 1 )) && nofileinfo=1
-    for f in ${!filenames[@]}; do
-        [[ $nofileinfo ]] || echo "initramfs:/$f"
-        [[ $nofileinfo ]] || echo "========================================================================"
-        $CAT $image | cpio --extract --verbose --quiet --to-stdout $f 2>/dev/null
-        ((ret+=$?))
-        [[ $nofileinfo ]] || echo "========================================================================"
-        [[ $nofileinfo ]] || echo
-    done
+    extract_files
 else
-    echo "Image: $image: $(du -h $image | while read a b; do echo $a;done)"
-    echo "========================================================================"
-    version=$($CAT "$image" | cpio --extract --verbose --quiet --to-stdout -- '*lib/dracut/dracut-*' 2>/dev/null)
+    version=$($CAT "$image" | cpio --extract --verbose --quiet --to-stdout -- 'lib/dracut/dracut-*' 'usr/lib/dracut/dracut-*' 2>/dev/null)
     ((ret+=$?))
     echo "Version: $version"
+    echo
     echo -n "Arguments: "
-    $CAT "$image" | cpio --extract --verbose --quiet --to-stdout -- '*lib/dracut/build-parameter.txt' 2>/dev/null
+    $CAT "$image" | cpio --extract --verbose --quiet --to-stdout -- 'lib/dracut/build-parameter.txt' 'usr/lib/dracut/build-parameter.txt' 2>/dev/null
     echo
     echo "dracut modules:"
-    $CAT "$image" | cpio --extract --verbose --quiet --to-stdout -- '*lib/dracut/modules.txt' 2>/dev/null
+    $CAT "$image" | cpio --extract --verbose --quiet --to-stdout -- 'lib/dracut/modules.txt' 'usr/lib/dracut/modules.txt' 2>/dev/null
     ((ret+=$?))
-    echo "========================================================================"
-    if [ "$sorted" -eq 1 ]; then
-        $CAT "$image" | cpio --extract --verbose --quiet --list | sort -n -k5
-    else
-        $CAT "$image" | cpio --extract --verbose --quiet --list | sort -k9
-    fi
-    ((ret+=$?))
-    echo "========================================================================"
+    list_files
 fi
 
 exit $ret
