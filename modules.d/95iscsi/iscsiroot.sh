@@ -60,7 +60,7 @@ handle_firmware()
         fi
 
         if [ -d /sys/class/iscsi_session ]; then
-            echo 'started' > "/tmp/iscsistarted-iscsi"
+            echo 'started' > "/tmp/iscsistarted-iscsi:"
             echo 'started' > "/tmp/iscsistarted-firmware"
         else
             return 1
