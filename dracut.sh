@@ -1464,10 +1464,10 @@ rm -f -- "$outfile"
 dinfo "*** Creating image file ***"
 if [[ $create_early_cpio = yes ]]; then
     # The microcode blob is _before_ the initramfs blob, not after
-    (cd "$early_cpio_dir/d"; find . -print0 | cpio --null -o -H newc --quiet >../early.cpio)
+    (cd "$early_cpio_dir/d";     find . -print0 | cpio --null -R 0:0 -H newc -o --quiet >../early.cpio)
     mv $early_cpio_dir/early.cpio $outfile.$$
 fi
-if ! ( umask 077; cd "$initdir"; find . -print0 | cpio --null -R 0:0 -H newc -o --quiet| \
+if ! ( umask 077; cd "$initdir"; find . -print0 | cpio --null -R 0:0 -H newc -o --quiet | \
     $compress >> "$outfile.$$"; ); then
     dfatal "dracut: creation of $outfile.$$ failed"
     exit 1
