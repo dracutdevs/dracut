@@ -107,11 +107,13 @@ fi
 if [ -n "$LVS" ] ; then
     info "Scanning devices $lvmdevs for LVM logical volumes $LVS"
     lvm lvscan --ignorelockingfailure 2>&1 | vinfo
-    if [ -z "$sysinit" ]; then
-        lvm lvchange --yes -ay --ignorelockingfailure $nopoll --ignoremonitoring $LVS 2>&1 | vinfo
-    else
-        lvm lvchange --yes -ay $sysinit $LVS 2>&1 | vinfo
-    fi
+    for LV in $LVS; do
+        if [ -z "$sysinit" ]; then
+            lvm lvchange --yes -ay --ignorelockingfailure $nopoll --ignoremonitoring $LV 2>&1 | vinfo
+        else
+            lvm lvchange --yes -ay $sysinit $LV 2>&1 | vinfo
+        fi
+    done
 fi
 
 if [ -z "$LVS" -o -n "$VGS" ]; then
