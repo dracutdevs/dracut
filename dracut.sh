@@ -794,14 +794,14 @@ fi
 readonly TMPDIR="$tmpdir"
 readonly initdir="$(mktemp --tmpdir="$TMPDIR/" -d -t initramfs.XXXXXX)"
 [ -d "$initdir" ] || {
-    printf "%s\n" "dracut: mktemp --tmpdir=\"$TMPDIR/\" -d -t initramfs.XXXXXX failed." >&2
+    printf "%s\n" "dracut: mktemp --tmpdir='$TMPDIR/' -d -t initramfs.XXXXXX failed." >&2
     exit 1
 }
 
 if [[ $early_microcode = yes ]]; then
     readonly early_cpio_dir="$(mktemp --tmpdir="$TMPDIR/" -d -t early_cpio.XXXXXX)"
     [ -d "$early_cpio_dir" ] || {
-        printf "%s\n" "dracut: mktemp --tmpdir=\"$TMPDIR/\" -d -t early_cpio.XXXXXX failed." >&2
+        printf "%s\n" "dracut: mktemp --tmpdir='$TMPDIR/' -d -t early_cpio.XXXXXX failed." >&2
         exit 1
     }
 fi
