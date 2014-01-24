@@ -1463,6 +1463,7 @@ fi
 rm -f -- "$outfile"
 dinfo "*** Creating image file ***"
 if [[ $create_early_cpio = yes ]]; then
+    echo 1 > "$early_cpio_dir/d/early_cpio"
     # The microcode blob is _before_ the initramfs blob, not after
     (cd "$early_cpio_dir/d";     find . -print0 | cpio --null -R 0:0 -H newc -o --quiet >../early.cpio)
     mv $early_cpio_dir/early.cpio $outfile.$$
