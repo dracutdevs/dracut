@@ -974,7 +974,7 @@ if ! command -v pidof >/dev/null 2>/dev/null; then
         [ -z "$_cmd" ] && return 1
         _exe=$(type -P "$1")
         for i in /proc/*/exe; do
-            [ -e "$i" ] || return 1
+            [ -e "$i" ] || continue
             if [ -n "$_exe" ]; then
                 [ "$i" -ef "$_exe" ] || continue
             else
