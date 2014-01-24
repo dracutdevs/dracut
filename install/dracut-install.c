@@ -64,12 +64,12 @@ static size_t dir_len(char const *file)
 {
         size_t length;
 
-        if(!file)
+        if (!file)
                 return 0;
 
         /* Strip the basename and any redundant slashes before it.  */
-        for (length = strlen(file)-1; 0 < length; length--)
-                if (file[length] == '/' && file[length-1] != '/')
+        for (length = strlen(file) - 1; 0 < length; length--)
+                if (file[length] == '/' && file[length - 1] != '/')
                         break;
         return length;
 }
@@ -102,9 +102,9 @@ static char *convert_abs_rel(const char *from, const char *target)
         /* dir_len() skips double /'s e.g. //lib64, so we can't skip just one
          * character - need to skip all leading /'s */
         rl = strlen(target);
-        for (i = dirlen+1; i < rl; ++i)
-            if (target_dir_p[i] != '/')
-                break;
+        for (i = dirlen + 1; i < rl; ++i)
+                if (target_dir_p[i] != '/')
+                        break;
         ret = asprintf(&realtarget, "%s/%s", realpath_p, &target_dir_p[i]);
         if (ret < 0) {
                 log_error("Out of memory!");
@@ -221,7 +221,7 @@ static int cp(const char *src, const char *dst)
                 if (ret == 0) {
                         struct timeval tv[2];
                         if (fchown(dest_desc, sb.st_uid, sb.st_gid) != 0)
-                                fchown(dest_desc, (__uid_t)-1, sb.st_gid);
+                                fchown(dest_desc, (__uid_t) - 1, sb.st_gid);
                         tv[0].tv_sec = sb.st_atime;
                         tv[0].tv_usec = 0;
                         tv[1].tv_sec = sb.st_mtime;
@@ -240,14 +240,16 @@ static int cp(const char *src, const char *dst)
  normal_copy:
         pid = fork();
         if (pid == 0) {
-                execlp("cp", "cp", "--reflink=auto", "--sparse=auto", "--preserve=mode,timestamps", "-fL", src, dst, NULL);
+                execlp("cp", "cp", "--reflink=auto", "--sparse=auto", "--preserve=mode,timestamps", "-fL", src, dst,
+                       NULL);
                 _exit(EXIT_FAILURE);
         }
 
         while (waitpid(pid, &ret, 0) < 0) {
                 if (errno != EINTR) {
                         ret = -1;
-                        log_error("Failed: cp --reflink=auto --sparse=auto --preserve=mode,timestamps -fL %s %s", src, dst);
+                        log_error("Failed: cp --reflink=auto --sparse=auto --preserve=mode,timestamps -fL %s %s", src,
+                                  dst);
                         break;
                 }
         }
@@ -287,7 +289,7 @@ static int library_install(const char *src, const char *lib)
            libc.so.6 (libc6,64bit, hwcap: 0x0000001000000000, OS ABI: Linux 2.6.32) => /lib64/power6/libc.so.6
            libc.so.6 (libc6,64bit, hwcap: 0x0000000000000200, OS ABI: Linux 2.6.32) => /lib64/power6x/libc.so.6
            libc.so.6 (libc6,64bit, OS ABI: Linux 2.6.32) => /lib64/libc.so.6
-        */
+         */
 
         free(p);
         p = strdup(lib);
@@ -373,7 +375,7 @@ static int resolve_deps(const char *src)
 
                 if (strstr(buf, "you do not have execution permission")) {
                         log_error("%s", buf);
-                        ret+=1;
+                        ret += 1;
                         break;
                 }
 
@@ -426,7 +428,7 @@ static int hmac_install(const char *src, const char *dst, const char *hmacpath)
         if (endswith(src, ".hmac"))
                 return 0;
 
-	if (!hmacpath) {
+        if (!hmacpath) {
                 hmac_install(src, dst, "/lib/fipscheck");
                 hmac_install(src, dst, "/lib64/fipscheck");
                 hmac_install(src, dst, "/lib/hmaccalc");
@@ -640,8 +642,8 @@ static void item_free(char *i)
 }
 
 static void usage(int status)
-{        
-             /*                                                                     */
+{
+        /*                                                                     */
         printf("Usage: %s -D DESTROOTDIR [OPTION]... -a SOURCE...\n"
                "or: %s -D DESTROOTDIR [OPTION]... SOURCE DEST\n"
                "\n"
@@ -681,8 +683,8 @@ static void usage(int status)
                "        |-- libdl.so -> libdl-2.15.90.so\n"
                "        |-- libdl.so.2 -> libdl-2.15.90.so\n"
                "        |-- libtinfo.so.5 -> libtinfo.so.5.9\n"
-               "        `-- libtinfo.so.5.9\n"
-               , program_invocation_short_name, program_invocation_short_name, program_invocation_short_name);
+               "        `-- libtinfo.so.5.9\n", program_invocation_short_name, program_invocation_short_name,
+               program_invocation_short_name);
         exit(status);
 }
 
