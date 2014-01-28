@@ -120,4 +120,6 @@ int main(int argc, char **argv)
                         break;
         }
         fclose(f);
+
+        return EXIT_SUCCESS;
 }
