@@ -56,7 +56,7 @@ handle_firmware()
         done
 
         if ! iscsistart -b $iscsi_param; then
-            warn "\`iscsistart -b $iscsi_param\´ failed"
+            warn "'iscsistart -b $iscsi_param' failed"
         fi
 
         if [ -d /sys/class/iscsi_session ]; then
