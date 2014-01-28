@@ -226,7 +226,7 @@ hostimage: all
 AUTHORS:
 	git shortlog  --numbered --summary -e |while read a rest; do echo $$rest;done > AUTHORS
 
-dracut.html.sign: dracut-$(VERSION).tar.xz
+dracut.html.sign: dracut-$(VERSION).tar.xz dracut.html
 	gpg-sign-all dracut-$(VERSION).tar.xz dracut.html
 
 upload: dracut.html.sign
