@@ -1,3 +1,31 @@
+dracut-035
+==========
+- changed dracut tarball compression to xz
+- new argument "--rebuild"
+- add lzo, lz4 compression
+- install: install all binaries with <name> found in PATH
+- lsinitrd can now handle initramfs images with an early cpio prepended
+  (microcode, ACPI tables)
+- mkinitrd-suse added as a compat stub for dracut
+- lvm: install thin utils for non-hostonly
+- resume: fix swap detection in hostonly
+- avoid loading unnecessary 32-bit libraries for 64-bit initrds
+- crypt: wait for systemd password agents
+- crypt: skip crypt swaps with password files
+- network: before doing dhcp, dracut now checks, if the link has a carrier
+- network: dhclient-script.sh now sets the lease time
+- network: include usbnet drivers
+- network: include all ethernet drivers
+- network: add rd.bootif=0 to ignore BOOTIF
+- i18n: introduce i18n_install_all, to install everything i18n related
+- support SuSE DASD configurations
+- support SuSE zfcp configurations
+- support SuSE compressed KEYMAP= setting
+- usrmount: always install the module,
+  so always mount /usr from within the initramfs
+- test/TEST-17-LVM-THIN: new test case for lvm thin pools
+- "halt" the machine in systemd mode for die()
+
 dracut-034
 ==========
 - do not run dhcp on parts of assembled network interfaces (bond, bridge)
