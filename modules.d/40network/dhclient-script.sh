@@ -12,6 +12,7 @@ setup_interface() {
     search=$(printf -- "$new_domain_search")
     namesrv=$new_domain_name_servers
     hostname=$new_host_name
+    lease_time=$new_dhcp_lease_time
 
     [ -f /tmp/net.$netif.override ] && . /tmp/net.$netif.override
 
@@ -29,7 +30,9 @@ setup_interface() {
         fi
     fi
 
-    ip addr add $ip${mask:+/$mask} ${bcast:+broadcast $bcast} dev $netif
+    ip addr add $ip${mask:+/$mask} ${bcast:+broadcast $bcast} \
+        valid_lft ${lease_time} preferred_lft ${lease_time} \
+        dev $netif
 
     [ -n "$gw" ] && echo ip route add default via $gw dev $netif > /tmp/net.$netif.gw
 
