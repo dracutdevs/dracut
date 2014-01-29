@@ -64,7 +64,7 @@ int main(int argc, char **argv)
 
         /* check, if this is a cpio archive */
         if ((buf[0] == 0x71 && buf[1] == 0xc7)
-            || (buf[0] == '0' && buf[1] == '7' && buf[0] == '0' && buf[1] == '7' && buf[0] == '0' && buf[1] == '1')) {
+            || (buf[0] == '0' && buf[1] == '7' && buf[2] == '0' && buf[3] == '7' && buf[4] == '0' && buf[5] == '1')) {
 
                 /* Search for CPIO_END */
                 do {
