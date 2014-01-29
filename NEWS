@@ -1,3 +1,7 @@
+dracut-036
+==========
+- fixed skipcpio signature checking
+
 dracut-035
 ==========
 - changed dracut tarball compression to xz
