@@ -264,18 +264,15 @@ if [ "$netif" = "$vlanname" ] && [ ! -e /tmp/net.$vlanname.up ]; then
     ip link set "$vlanname" up
 fi
 
-# setup nameserver
-namesrv=$(getargs nameserver)
-if  [ -n "$namesrv" ] ; then
-    for s in $namesrv; do
-        echo nameserver $s
-    done
-fi >> /tmp/net.$netif.resolv.conf
-
 # No ip lines default to dhcp
 ip=$(getarg ip)
 
 if [ -z "$ip" ]; then
+    namesrv=$(getargs nameserver)
+    for s in $namesrv; do
+        echo nameserver $s >> /tmp/net.$netif.resolv.conf
+    done
+
     if [ "$netroot" = "dhcp6" ]; then
         do_dhcp -6
     else
@@ -307,8 +304,14 @@ for p in $(getargs ip=); do
     [ "$use_bridge" != 'true' ] && \
     [ "$use_vlan" != 'true' ] && continue
 
+    # setup nameserver
+    namesrv="$dns1 $dns2 $(getargs nameserver)"
+    for s in $namesrv; do
+        echo nameserver $s >> /tmp/net.$netif.resolv.conf
+    done
+
     # Store config for later use
-    for i in ip srv gw mask hostname macaddr; do
+    for i in ip srv gw mask hostname macaddr dns1 dns2; do
         eval '[ "$'$i'" ] && echo '$i'="$'$i'"'
     done > /tmp/net.$netif.override
 
