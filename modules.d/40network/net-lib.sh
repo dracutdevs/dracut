@@ -185,6 +185,7 @@ ibft_to_cmdline() {
         for iface in /sys/firmware/ibft/ethernet*; do
             local mac="" dev=""
             local dhcp="" ip="" gw="" mask="" hostname=""
+            local dns1 dns2
 
             [ -e ${iface}/mac ] || continue
             mac=$(read a < ${iface}/mac; echo $a)
@@ -203,9 +204,11 @@ ibft_to_cmdline() {
                 [ "$ip" = "0.0.0.0" ] && continue
                 [ -e ${iface}/gateway ] && gw=$(read a < ${iface}/gateway; echo $a)
                 [ -e ${iface}/subnet-mask ] && mask=$(read a < ${iface}/subnet-mask; echo $a)
+                [ -e ${iface}/primary-dns ] && dns1=$(read a < ${iface}/primary-dns; echo $a)
+                [ -e ${iface}/secondary-dns ] && dns2=$(read a < ${iface}/secondary-dns; echo $a)
                 [ -e ${iface}/hostname ] && hostname=$(read a < ${iface}/hostname; echo $a)
                 if [ -n "$ip" ] && [ -n "$mask" ]; then
-                    echo "ip=$ip::$gw:$mask:$hostname:$dev:none"
+                    echo "ip=$ip::$gw:$mask:$hostname:$dev:none${dns1:+:$dns1}${dns2:+:$dns2}"
                 else
                     warn "${iface} does not contain a valid iBFT configuration"
                     warn "ip-addr=$ip"
