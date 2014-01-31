@@ -8,13 +8,7 @@ exec >/run/initramfs/rdsosreport.txt 2>&1
 
 set -x
 
-cat /proc/self/mountinfo
-cat /proc/mounts
-
-blkid
-blkid -o udev
-
-ls -l /dev/disk/by*
+cat /lib/dracut/dracut-*
 
 cat /proc/cmdline
 
@@ -25,6 +19,14 @@ for _i in /etc/cmdline.d/*.conf; do
     echo $_i
     cat $_i
 done
+
+cat /proc/self/mountinfo
+cat /proc/mounts
+
+blkid
+blkid -o udev
+
+ls -l /dev/disk/by*
 
 for _i in /etc/conf.d/*.conf; do
     [ -f "$_i" ] || break
