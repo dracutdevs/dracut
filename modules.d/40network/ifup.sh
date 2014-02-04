@@ -91,6 +91,9 @@ do_dhcp() {
     # dhclient-script will mark the netif up and generate the online
     # event for nfsroot
     # XXX add -V vendor class and option parsing per kernel
+
+    [ -e /tmp/dhclient.$netif.pid ] && return 0
+
     if ! iface_has_link $netif; then
         echo "No carrier detected"
         return 1
