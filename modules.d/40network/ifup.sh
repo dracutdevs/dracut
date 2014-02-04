@@ -80,7 +80,11 @@ fi
 # in netroot case we prefer netroot to bringup $netif automaticlly
 [ -n "$2" -a "$2" = "-m" ] && [ -z "$netroot" ] && manualup="$2"
 [ -z "$netroot" ] && [ -z "$manualup" ] && exit 0
-[ -n "$manualup" ] && >/tmp/net.$netif.manualup
+if [ -n "$manualup" ]; then
+    >/tmp/net.$netif.manualup
+else
+    [ -f /tmp/net.${iface}.did-setup ] && exit 0
+fi
 
 # Run dhclient
 do_dhcp() {
