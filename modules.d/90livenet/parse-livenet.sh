@@ -27,7 +27,7 @@ if get_url_handler "$liveurl" >/dev/null; then
     netroot="livenet:$liveurl"
     root="livenet" # quiet complaints from init
     rootok=1
-    wait_for_dev /dev/root
+    wait_for_dev -n /dev/root
 else
     info "livenet: no url handler for $liveurl"
 fi
