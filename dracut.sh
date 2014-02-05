@@ -1005,7 +1005,7 @@ if [[ $hostonly ]]; then
         _bdev=$(readlink -f "/dev/block/$_dev")
         [[ -b $_bdev ]] && _dev=$_bdev
         push host_devs $_dev
-        [[ "$_mp" == "/" ]] && root_dev="$_dev"
+        [[ "$mp" == "/" ]] && root_dev="$_dev"
         push host_devs "$_dev"
     done
 
