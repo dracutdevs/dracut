@@ -24,5 +24,6 @@ getarg rd.break -d rdbreak && emergency_shell -n switch_root "Break before switc
 
 # remove helper symlink
 [ -h /dev/root ] && rm -f -- /dev/root
+[ -h /dev/nfs ] && rm -f -- /dev/nfs
 
 exit 0
