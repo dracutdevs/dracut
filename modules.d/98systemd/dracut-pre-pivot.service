@@ -19,6 +19,8 @@ ConditionDirectoryNotEmpty=|/lib/dracut/hooks/cleanup
 ConditionKernelCommandLine=|rd.break=pre-pivot
 ConditionKernelCommandLine=|rd.break=cleanup
 ConditionKernelCommandLine=|rd.break
+ConditionPathExists=|/dev/root
+ConditionPathExists=|/dev/nfs
 
 [Service]
 Environment=DRACUT_SYSTEMD=1
