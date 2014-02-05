@@ -16,7 +16,7 @@ NEWROOT="$3"
 nfs_to_var $root $netif
 [ -z "$server" ] && die "Required parameter 'server' is missing"
 
-mount_nfs $root $NEWROOT $netif && { [ -e /dev/root ] || ln -s null /dev/root ; }
+mount_nfs $root $NEWROOT $netif && { [ -e /dev/root ] || ln -s null /dev/root ; [ -e /dev/nfs ] || ln -s null /dev/nfs; }
 
 [ -f $NEWROOT/etc/fstab ] && cat $NEWROOT/etc/fstab > /dev/null
 
