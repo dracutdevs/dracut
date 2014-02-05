@@ -44,6 +44,7 @@ install() {
         $systemdutildir/systemd-modules-load \
         $systemdutildir/systemd-vconsole-setup \
         $systemdutildir/system-generators/systemd-fstab-generator \
+        \
         $systemdsystemunitdir/cryptsetup.target \
         $systemdsystemunitdir/emergency.target \
         $systemdsystemunitdir/sysinit.target \
@@ -72,6 +73,9 @@ install() {
         $systemdsystemunitdir/timers.target \
         $systemdsystemunitdir/paths.target \
         $systemdsystemunitdir/umount.target \
+        \
+        $systemdsystemunitdir/sys-kernel-config.mount \
+        \
         $systemdsystemunitdir/kmod-static-nodes.service \
         $systemdsystemunitdir/systemd-tmpfiles-setup-dev.service \
         $systemdsystemunitdir/systemd-ask-password-console.path \
