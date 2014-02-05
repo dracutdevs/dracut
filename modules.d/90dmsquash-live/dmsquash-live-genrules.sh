@@ -9,7 +9,7 @@ case "$root" in
         printf 'SYMLINK=="%s", RUN+="/sbin/initqueue --settled --onetime --unique /sbin/dmsquash-live-root $env{DEVNAME}"\n' \
             ${root#live:/dev/}
     } >> /etc/udev/rules.d/99-live-squash.rules
-    wait_for_dev "${root#live:}"
+    wait_for_dev -n "${root#live:}"
   ;;
   live:*)
     if [ -f "${root#live:}" ]; then

@@ -13,7 +13,7 @@ if ! getargbool 1 rd.lvm -d -n rd_NO_LVM \
     rm -f -- /etc/udev/rules.d/64-lvm*.rules
 else
     for dev in $LV_DEVS; do
-        wait_for_dev "/dev/$dev"
+        wait_for_dev -n "/dev/$dev"
     done
 fi
 

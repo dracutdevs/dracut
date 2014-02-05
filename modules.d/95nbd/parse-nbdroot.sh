@@ -61,6 +61,6 @@ rootok=1
 # Shut up init error check
 if [ -z "$root" ]; then
     root=block:/dev/root
-    wait_for_dev /dev/root
+    wait_for_dev -n /dev/root
 fi
 

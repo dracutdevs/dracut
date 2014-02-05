@@ -102,7 +102,7 @@ if [ "$root" = "block:/dev/root" -o "$root" = "dhcp" ]; then
     udevadm control --reload
     type write_fs_tab >/dev/null 2>&1 || . /lib/fs-lib.sh
     write_fs_tab /dev/root "$nbdfstype" "$fsopts"
-    wait_for_dev /dev/root
+    wait_for_dev -n /dev/root
 
     if [ -z "$DRACUT_SYSTEMD" ]; then
         printf '/bin/mount %s\n' \
