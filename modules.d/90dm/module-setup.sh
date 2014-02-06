@@ -4,7 +4,7 @@
 
 # called by dracut
 check() {
-    type -P dmsetup >/dev/null || return 1
+    require_binaries dmsetup || return 1
     return 255
 }
 

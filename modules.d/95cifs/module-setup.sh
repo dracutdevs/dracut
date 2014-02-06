@@ -5,7 +5,7 @@
 # called by dracut
 check() {
     # If our prerequisites are not met, fail anyways.
-    type -P mount.cifs >/dev/null || return 1
+    require_binaries mount.cifs || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for fs in ${host_fs_types[@]}; do

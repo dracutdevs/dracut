@@ -6,6 +6,7 @@
 check() {
     local _arch=$(uname -m)
     [ "$_arch" = "s390" -o "$_arch" = "s390x" ] || return 1
+    require_binaries grep sed seq
 
     return 0
 }

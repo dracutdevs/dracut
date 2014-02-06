@@ -3,9 +3,7 @@
 
 # called by dracut
 check() {
-    for cmd in tar gzip dd; do
-        command -v $cmd >/dev/null || return 1
-    done
+    require_binaries tar gzip dd bash || return 1
     return 255
 }
 

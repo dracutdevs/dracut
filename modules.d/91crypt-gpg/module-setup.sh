@@ -5,7 +5,7 @@
 # GPG support is optional
 # called by dracut
 check() {
-    type -P gpg >/dev/null || return 1
+    require_binaries gpg || return 1
 
     return 255
 }

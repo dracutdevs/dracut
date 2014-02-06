@@ -5,7 +5,7 @@
 # called by dracut
 check() {
     [[ "$mount_needs" ]] && return 1
-    type -P plymouthd >/dev/null && type -P plymouth >/dev/null
+    require_binaries plymouthd plymouth
 }
 
 # called by dracut

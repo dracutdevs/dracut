@@ -5,8 +5,9 @@
 # called by dracut
 check() {
     arch=$(uname -m)
-    [ -z /sbin/znet_cio_free ] || return 1
     [ "$arch" = "s390" -o "$arch" = "s390x" ] || return 1
+
+    require_binaries znet_cio_free grep sed seq readlink || return 1
 
     return 0
 }

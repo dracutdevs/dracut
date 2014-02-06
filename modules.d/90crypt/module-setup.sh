@@ -6,7 +6,7 @@
 check() {
     local _rootdev
     # if cryptsetup is not installed, then we cannot support encrypted devices.
-    type -P cryptsetup >/dev/null || return 1
+    require_binaries cryptsetup || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for fs in "${host_fs_types[@]}"; do

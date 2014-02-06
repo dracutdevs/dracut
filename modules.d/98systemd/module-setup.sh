@@ -5,7 +5,7 @@
 # called by dracut
 check() {
     [[ $mount_needs ]] && return 1
-    if [[ -x $systemdutildir/systemd ]]; then
+    if require_binaries $systemdutildir/systemd; then
         SYSTEMD_VERSION=$($systemdutildir/systemd --version | { read a b a; echo $b; })
         (( $SYSTEMD_VERSION >= 198 )) && return 0
        return 255

@@ -6,7 +6,7 @@
 check() {
     local _rootdev
     # If our prerequisites are not met, fail.
-    type -P nbd-client >/dev/null || return 1
+    require_binaries nbd-client || return 1
 
     # if an nbd device is not somewhere in the chain of devices root is
     # mounted on, fail the hostonly check.

@@ -6,12 +6,7 @@
 check() {
     local _program
 
-    for _program in ip arping dhclient ; do
-        if ! type -P $_program >/dev/null; then
-            derror "Could not find program \"$_program\" required by network."
-            return 1
-        fi
-    done
+    require_binaries ip arping dhclient || return 1
 
     return 255
 }

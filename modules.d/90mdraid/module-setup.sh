@@ -6,7 +6,7 @@
 check() {
     local _rootdev
     # No mdadm?  No mdraid support.
-    type -P mdadm >/dev/null || return 1
+    require_binaries mdadm || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for dev in "${!host_fs_types[@]}"; do

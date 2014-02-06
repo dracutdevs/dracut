@@ -5,7 +5,7 @@
 # called by dracut
 check() {
     [[ "$mount_needs" ]] && return 1
-    type -P biosdevname >/dev/null || return 1
+    require_binaries biosdevname || return 1
     return 0
 }
 

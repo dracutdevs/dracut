@@ -4,7 +4,7 @@
 
 # called by dracut
 check() {
-    type -P busybox >/dev/null || return 1
+    require_binaries busybox || return 1
 
     return 255
 }

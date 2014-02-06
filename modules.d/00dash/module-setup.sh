@@ -4,7 +4,7 @@
 
 # called by dracut
 check() {
-    [ -x /bin/dash ]
+    require_binaries /bin/dash
 }
 
 # called by dracut

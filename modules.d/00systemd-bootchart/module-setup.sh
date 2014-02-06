@@ -5,7 +5,7 @@
 # called by dracut
 check() {
     [[ "$mount_needs" ]] && return 1
-    [ -x $systemdutildir/systemd-bootchart ] || return 1
+    require_binaries $systemdutildir/systemd-bootchart || return 1
     return 255
 }
 

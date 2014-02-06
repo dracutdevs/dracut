@@ -5,7 +5,7 @@
 # called by dracut
 check() {
     [[ "$mount_needs" ]] && return 1
-    [ -x /sbin/bootchartd ] || return 1
+    require_binaries /sbin/bootchartd || return 1
     return 255
 }
 

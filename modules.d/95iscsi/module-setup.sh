@@ -6,7 +6,7 @@
 check() {
     local _rootdev
     # If our prerequisites are not met, fail anyways.
-    type -P iscsistart hostname iscsi-iname >/dev/null || return 1
+    require_binaries iscsistart hostname iscsi-iname || return 1
 
     # If hostonly was requested, fail the check if we are not actually
     # booting from root.

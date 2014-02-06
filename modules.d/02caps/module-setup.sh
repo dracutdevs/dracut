@@ -4,7 +4,7 @@
 
 # called by dracut
 check() {
-    type -P capsh >/dev/null 2>&1
+    require_binaries capsh
 }
 
 # called by dracut
@@ -14,9 +14,13 @@ depends() {
 
 # called by dracut
 install() {
-    inst_hook pre-pivot 00 "$moddir/caps.sh"
-    inst $(type -P capsh 2>/dev/null) /usr/sbin/capsh
-    # capsh wants bash and we need bash also
-    inst /bin/bash
+    if ! dracut_module_included "systemd"; then
+        inst_hook pre-pivot 00 "$moddir/caps.sh"
+        inst $(type -P capsh 2>/dev/null) /usr/sbin/capsh
+        # capsh wants bash and we need bash also
+        inst /bin/bash
+    else
+        dwarning "caps: does not work with systemd in the initramfs"
+    fi
 }
 

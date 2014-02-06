@@ -5,7 +5,7 @@
 # called by dracut
 check() {
     # No point trying to support lvm if the binaries are missing
-    type -P lvm >/dev/null || return 1
+    require_binaries lvm || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for fs in "${host_fs_types[@]}"; do

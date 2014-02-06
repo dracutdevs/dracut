@@ -7,7 +7,7 @@ check() {
     local _rootdev
     # if we don't have dmraid installed on the host system, no point
     # in trying to support it in the initramfs.
-    type -P dmraid >/dev/null || return 1
+    require_binaries dmraid || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for dev in "${!host_fs_types[@]}"; do

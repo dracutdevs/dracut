@@ -6,7 +6,7 @@
 install() {
     local _i
 
-    # Fixme: would be nice if we didn't have to know which rules to grab....
+    # Fixme: would be nice if we didn't have to guess, which rules to grab....
     # ultimately, /lib/initramfs/rules.d or somesuch which includes links/copies
     # of the rules we want so that we just copy those in would be best
     inst_multiple udevadm cat uname blkid \

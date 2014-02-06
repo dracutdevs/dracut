@@ -5,8 +5,8 @@
 # called by dracut
 check() {
     # If our prerequisites are not met, fail anyways.
-    type -P rpcbind >/dev/null || type -P portmap >/dev/null || return 1
-    type -P rpc.statd mount.nfs mount.nfs4 umount >/dev/null || return 1
+    require_any_binary rpcbind portmap || return 1
+    require_binaries rpc.statd mount.nfs mount.nfs4 umount || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for fs in ${host_fs_types[@]}; do

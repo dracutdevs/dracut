@@ -4,7 +4,7 @@
 
 # called by dracut
 check() {
-    [ -x /bin/bash ]
+    require_binaries /bin/bash
 }
 
 # called by dracut

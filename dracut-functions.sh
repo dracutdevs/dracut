@@ -35,6 +35,51 @@ fi
 # Generic substring function.  If $2 is in $1, return 0.
 strstr() { [[ $1 = *$2* ]]; }
 
+# helper function for check() in module-setup.sh
+# to check for required installed binaries
+# issues a standardized warning message
+require_binaries() {
+    local _module_name="${moddir##*/}"
+    local _ret=0
+
+    if [[ "$1" = "-m" ]]; then
+        _module_name="$2"
+        shift 2
+    fi
+
+    for cmd in "$@"; do
+        if ! find_binary "$cmd" &>/dev/null; then
+            dwarning "$_module_name: Could not find command '$cmd'!"
+            ((_ret++))
+        fi
+    done
+    return $_ret
+}
+
+require_any_binary() {
+    local _module_name="${moddir##*/}"
+    local _ret=1
+
+    if [[ "$1" = "-m" ]]; then
+        _module_name="$2"
+        shift 2
+    fi
+
+    for cmd in "$@"; do
+        if find_binary "$cmd" &>/dev/null; then
+            _ret=0
+            break
+        fi
+    done
+
+    if (( $_ret != 0 )); then
+        dwarning "$_module_name: Could not find any command of '$@'!"
+        return 1
+    fi
+
+    return 0
+}
+
 # find a binary.  If we were not passed the full path directly,
 # search in the usual places to find the binary.
 find_binary() {
@@ -1084,7 +1129,7 @@ module_check() {
         . $_moddir/module-setup.sh
         is_func check || return 0
         [ $_forced -ne 0 ] && unset hostonly
-        check $hostonly
+        moddir=$_moddir check $hostonly
         _ret=$?
         unset check depends cmdline install installkernel
     fi
@@ -1110,7 +1155,7 @@ module_check_mount() {
         unset check depends cmdline install installkernel
         check() { false; }
         . $_moddir/module-setup.sh
-        check 0
+        moddir=$_moddir check 0
         _ret=$?
         unset check depends cmdline install installkernel
     fi
@@ -1134,7 +1179,7 @@ module_depends() {
         unset check depends cmdline install installkernel
         depends() { true; }
         . $_moddir/module-setup.sh
-        depends
+        moddir=$_moddir depends
         _ret=$?
         unset check depends cmdline install installkernel
         return $_ret
@@ -1155,7 +1200,7 @@ module_cmdline() {
         unset check depends cmdline install installkernel
         cmdline() { true; }
         . $_moddir/module-setup.sh
-        cmdline
+        moddir=$_moddir cmdline
         _ret=$?
         unset check depends cmdline install installkernel
         return $_ret
@@ -1176,7 +1221,7 @@ module_install() {
         unset check depends cmdline install installkernel
         install() { true; }
         . $_moddir/module-setup.sh
-        install
+        moddir=$_moddir install
         _ret=$?
         unset check depends cmdline install installkernel
         return $_ret
@@ -1197,7 +1242,7 @@ module_installkernel() {
         unset check depends cmdline install installkernel
         installkernel() { true; }
         . $_moddir/module-setup.sh
-        installkernel
+        moddir=$_moddir installkernel
         _ret=$?
         unset check depends cmdline install installkernel
         return $_ret

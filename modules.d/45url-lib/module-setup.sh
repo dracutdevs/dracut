@@ -3,7 +3,7 @@
 
 # called by dracut
 check() {
-    command -v curl >/dev/null || return 1
+    require_binaries curl || return 1
     return 255
 }
 

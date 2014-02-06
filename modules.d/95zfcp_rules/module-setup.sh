@@ -5,8 +5,8 @@
 # called by dracut
 check() {
     local _arch=$(uname -m)
-    [ -x /sbin/zfcp_disk_configure ] || return 1
     [ "$_arch" = "s390" -o "$_arch" = "s390x" ] || return 1
+    require_binaries zfcp_disk_configure /usr/lib/udev/collect || return 1
     return 0
 }
 

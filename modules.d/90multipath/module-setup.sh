@@ -6,7 +6,7 @@
 check() {
     local _rootdev
     # if there's no multipath binary, no go.
-    type -P multipath >/dev/null || return 1
+    require_binaries multipath || return 1
 
     is_mpath() {
         local _dev=$1

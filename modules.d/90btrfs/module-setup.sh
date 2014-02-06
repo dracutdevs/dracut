@@ -7,7 +7,7 @@ check() {
     local _rootdev
     # if we don't have btrfs installed on the host system,
     # no point in trying to support it in the initramfs.
-    type -P btrfs >/dev/null || return 1
+    require_binaries btrfs || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for fs in ${host_fs_types[@]}; do
