@@ -2,7 +2,7 @@
 # module-setup for url-lib
 
 check() {
-    command -v curl >/dev/null || return 1
+    require_binaries curl || return 1
     return 255
 }
 

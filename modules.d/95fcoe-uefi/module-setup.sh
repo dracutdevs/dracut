@@ -4,9 +4,7 @@
 
 # called by dracut
 check() {
-    for i in dcbtool fipvlan lldpad ip readlink; do
-        type -P $i >/dev/null || return 1
-    done
+    require_binaries dcbtool fipvlan lldpad ip readlink || return 1
     return 0
 }
 

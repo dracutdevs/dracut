@@ -8,7 +8,7 @@
 # Peter Jones <pjones@redhat.com>
 
 check() {
-    [[ -x /usr/bin/keyctl ]] || return 1
+    require_binaries keyctl || return 1
 
     # do not include module in hostonly mode,
     # if no keys are present

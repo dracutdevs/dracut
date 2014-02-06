@@ -3,7 +3,7 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 check() {
-    type -P dmsetup >/dev/null || return 1
+    require_binaries dmsetup || return 1
     return 255
 }
 

@@ -5,6 +5,7 @@
 check() {
     local _arch=$(uname -m)
     [ "$_arch" = "s390" -o "$_arch" = "s390x" ] || return 1
+    require_binaries normalize_dasd_arg || return 1
     return 0
 }
 

@@ -4,7 +4,7 @@
 
 check() {
     [[ $hostonly ]] && {
-        [ -x "/bin/keyctl" ] || return 1
+        require_binaries keyctl uname || return 1
     }
 
     return 255

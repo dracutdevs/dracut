@@ -3,10 +3,7 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 check() {
-    for i in dcbtool fipvlan lldpad ip readlink; do
-        type -P $i >/dev/null || return 1
-    done
-
+    require_binaries dcbtool fipvlan lldpad ip readlink || return 1
     return 0
 }
 
