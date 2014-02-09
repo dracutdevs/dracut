@@ -10,24 +10,6 @@ NEWROOT=${NEWROOT:-"/sysroot"}
 
 . /lib/dracut-lib.sh
 
-# default luksname - luks-UUID
-luksname=$2
-
-# check if destination already exists
-[ -b /dev/mapper/luksname ] && exit 0
-
-# we already asked for this device
-asked_file=/tmp/cryptroot-asked-$luksname
-[ -f $asked_file ] && exit 0
-
-# load dm_crypt if it is not already loaded
-[ -d /sys/module/dm_crypt ] || modprobe dm_crypt
-
-. /lib/dracut-crypt-lib.sh
-
-# fallback to passphrase
-ask_passphrase=1
-
 # if device name is /dev/dm-X, convert to /dev/mapper/name
 if [ "${1##/dev/dm-}" != "$1" ]; then
     device="/dev/mapper/$(dmsetup info -c --noheadings -o name "$1")"
@@ -73,7 +55,8 @@ fi
 [ -b /dev/mapper/$luksname ] && exit 0
 
 # we already asked for this device
-[ -f /tmp/cryptroot-asked-$luksname ] && exit 0
+asked_file=/tmp/cryptroot-asked-$luksname
+[ -f $asked_file ] && exit 0
 
 # load dm_crypt if it is not already loaded
 [ -d /sys/module/dm_crypt ] || modprobe dm_crypt
