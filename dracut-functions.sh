@@ -1596,7 +1596,7 @@ find_kernel_modules_by_path () {
     _OLDIFS=$IFS
     IFS=:
     while read a rest; do
-        [[ $a = */$1/* ]] || [[ $a = */updates/* ]] || continue
+        [[ $a = */$1/* ]] || [[ $a = updates/* ]] || continue
         printf "%s\n" "$srcmods/$a"
     done < "$srcmods/modules.dep"
     IFS=$_OLDIFS
