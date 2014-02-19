@@ -125,7 +125,7 @@ handle_netroot()
 
     if [ -z $iscsi_initiator ]; then
        if [ -f /sys/firmware/ibft/initiator/initiator-name ]; then
-           iscsi_initiator=$(while read line; do echo $line;done < /sys/firmware/ibft/initiator-name)
+           iscsi_initiator=$(while read line; do echo $line;done < /sys/firmware/ibft/initiator/initiator-name)
        fi
     fi
 
