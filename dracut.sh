@@ -808,7 +808,6 @@ fi
 # clean up after ourselves no matter how we die.
 trap '
     ret=$?;
-    [[ $outfile ]] && [[ -f $outfile.$$ ]] && rm -f -- "$outfile.$$";
     [[ $keep ]] && echo "Not removing $initdir." >&2 || { [[ $initdir ]] && rm -rf -- "$initdir"; };
     [[ $keep ]] && echo "Not removing $early_cpio_dir." >&2 || { [[ $early_cpio_dir ]] && rm -Rf -- "$early_cpio_dir"; };
     [[ $_dlogdir ]] && rm -Rf -- "$_dlogdir";
@@ -1468,15 +1467,13 @@ dinfo "*** Creating image file ***"
 if [[ $create_early_cpio = yes ]]; then
     echo 1 > "$early_cpio_dir/d/early_cpio"
     # The microcode blob is _before_ the initramfs blob, not after
-    (cd "$early_cpio_dir/d";     find . -print0 | cpio --null $cpio_owner_root -H newc -o --quiet >../early.cpio)
-    mv $early_cpio_dir/early.cpio $outfile.$$
+    (cd "$early_cpio_dir/d";     find . -print0 | cpio --null $cpio_owner_root -H newc -o --quiet > $outfile)
 fi
 if ! ( umask 077; cd "$initdir"; find . -print0 | cpio --null $cpio_owner_root -H newc -o --quiet | \
-    $compress >> "$outfile.$$"; ); then
-    dfatal "dracut: creation of $outfile.$$ failed"
+    $compress >> "$outfile"; ); then
+    dfatal "dracut: creation of $outfile failed"
     exit 1
 fi
-mv -- "$outfile.$$" "$outfile"
 dinfo "*** Creating image file done ***"
 
 if (( maxloglvl >= 5 )); then
