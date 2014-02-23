@@ -551,7 +551,7 @@ done
 # the old fashioned way
 
 while (($# > 0)); do
-    if [ ${1%%=*} == "++include" ]; then
+    if [ "${1%%=*}" == "++include" ]; then
         push include_src "$2"
         push include_target "$3"
         PARMS_TO_STORE+=" --include '$2' '$3'"
