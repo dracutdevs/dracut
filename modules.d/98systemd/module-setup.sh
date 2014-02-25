@@ -194,7 +194,7 @@ install() {
     inst_binary true
     ln_r $(type -P true) "/usr/bin/loginctl"
     ln_r $(type -P true) "/bin/loginctl"
-    inst_rules 71-seat.rules 73-seat-late.rules 99-systemd.rules
+    inst_rules 70-uaccess.rules 71-seat.rules 73-seat-late.rules 99-systemd.rules
 
     for i in \
         emergency.target \
