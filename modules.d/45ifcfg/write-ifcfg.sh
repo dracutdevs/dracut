@@ -55,9 +55,9 @@ print_s390() {
 
     SUBCHANNELS=${SUBCHANNELS%,}
     echo "SUBCHANNELS=\"${SUBCHANNELS}\""
-    CONFIG_LINE=$(get_config_line_by_subchannel $SUBCHANNELS)
 
-    [ $? -ne 0 -o -z "$CONFIG_LINE" ] && return
+    CONFIG_LINE=$(get_config_line_by_subchannel $SUBCHANNELS)
+    [ $? -ne 0 -o -z "$CONFIG_LINE" ] && return 0
 
     OLD_IFS=$IFS
     IFS=","
@@ -77,6 +77,7 @@ print_s390() {
     OPTIONS=${OPTIONS## }
     echo "NETTYPE=\"${NETTYPE}\""
     echo "OPTIONS=\"${OPTIONS}\""
+    return 0
 }
 
 for netup in /tmp/net.*.did-setup ; do
@@ -159,12 +160,10 @@ for netup in /tmp/net.*.did-setup ; do
     if [ -z "$bridge" ] && [ -z "$bond" ] && [ -z "$vlan" ]; then
         # standard interface
         {
-            if [ -n "$macaddr" ]; then
-                echo "MACADDR=\"$macaddr\""
-            else
-                echo "HWADDR=\"$(cat /sys/class/net/$netif/address)\""
+            [ -n "$macaddr" ] && echo "MACADDR=\"$macaddr\""
+            if ! print_s390 $netif; then
+                [ -n "$macaddr" ] || echo "HWADDR=\"$(cat /sys/class/net/$netif/address)\""
             fi
-            print_s390 $netif
             echo "TYPE=Ethernet"
             echo "NAME=\"$netif\""
             [ -n "$mtu" ] && echo "MTU=\"$mtu\""
