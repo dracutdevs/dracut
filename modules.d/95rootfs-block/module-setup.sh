@@ -10,17 +10,8 @@ depends() {
     echo fs-lib
 }
 
-cmdline() {
-    local dev=/dev/block/$(find_root_block_device)
-    if [ -e $dev ]; then
-        printf " root=%s" "$(shorten_persistent_dev "$(get_persistent_dev "$dev")")"
-        printf " rootflags=%s" "$(find_mp_fsopts /)"
-        printf " rootfstype=%s" "$(find_mp_fstype /)"
-    fi
-}
 
-install() {
-
+cmdline_journal() {
     if [[ $hostonly ]]; then
         for dev in "${!host_fs_types[@]}"; do
             [[ ${host_fs_types[$dev]} = "reiserfs" ]] || [[ ${host_fs_types[$dev]} = "xfs" ]] || continue
@@ -32,9 +23,27 @@ install() {
             fi
 
             if [ -n "$journaldev" ]; then
-                printf "%s\n" "root.journaldev=$journaldev" >> "${initdir}/etc/cmdline.d/95root-journaldev.conf"
+                printf " root.journaldev=%s" "$journaldev"
             fi
         done
+    fi
+    return 0
+}
+
+cmdline() {
+    local dev=/dev/block/$(find_root_block_device)
+    if [ -e $dev ]; then
+        printf " root=%s" "$(shorten_persistent_dev "$(get_persistent_dev "$dev")")"
+        printf " rootflags=%s" "$(find_mp_fsopts /)"
+        printf " rootfstype=%s" "$(find_mp_fstype /)"
+    fi
+    cmdline_journal
+}
+
+install() {
+    if [[ $hostonly_cmdline == "yes" ]]; then
+        journaldev=$(cmdline_journal)
+        [[ $journaldev ]] && printf "%s\n" "$journaldev" >> "${initdir}/etc/cmdline.d/95root-journaldev.conf"
     fi
 
     inst_multiple umount
