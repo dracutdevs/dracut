@@ -137,6 +137,10 @@ Creates initial ramdisk images for preloading modules
   -H, --hostonly        Host-Only mode: Install only what is needed for
                         booting the local host instead of a generic host.
   -N, --no-hostonly     Disables Host-Only mode
+  --hostonly-cmdline    Store kernel command line arguments needed
+                        in the initramfs
+  --no-hostonly-cmdline Do not store kernel command line arguments needed
+                        in the initramfs
   --persistent-policy [POLICY]
                         Use [POLICY] to address disks and partitions.
                         POLICY can be any directory name found in /dev/disk.
@@ -488,9 +492,12 @@ while :; do
         -f|--force)    force=yes;;
         --kernel-only) kernel_only="yes"; no_kernel="no";;
         --no-kernel)   kernel_only="no"; no_kernel="yes";;
-        --print-cmdline) print_cmdline="yes"; hostonly_l="yes"; kernel_only="yes"; no_kernel="yes";;
-        --early-microcode) early_microcode_l="yes";;
-        --no-early-microcode) early_microcode_l="no";;
+        --print-cmdline)
+                       print_cmdline="yes"; hostonly_l="yes"; kernel_only="yes"; no_kernel="yes";;
+        --early-microcode)
+                       early_microcode_l="yes";;
+        --no-early-microcode)
+                       early_microcode_l="no";;
         --strip)       do_strip_l="yes";;
         --nostrip)     do_strip_l="no";;
         --prelink)     do_prelink_l="yes";;
@@ -517,6 +524,10 @@ while :; do
                        hostonly_l="yes" ;;
         -N|--no-hostonly|--no-host-only)
                        hostonly_l="no" ;;
+        --hostonly-cmdline)
+                       hostonly_cmdline_l="yes" ;;
+        --no-hostonly-cmdline)
+                       hostonly_cmdline_l="no" ;;
         --persistent-policy)
                        persistent_policy_l="$2";       PARMS_TO_STORE+=" '$2'"; shift;;
         --fstab)       use_fstab_l="yes" ;;
@@ -755,6 +766,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $prefix_l ]] && prefix=$prefix_l
 [[ $prefix = "/" ]] && unset prefix
 [[ $hostonly_l ]] && hostonly=$hostonly_l
+[[ $hostonly_cmdline_l ]] && hostonly_cmdline=$hostonly_cmdline_l
 [[ $persistent_policy_l ]] && persistent_policy=$persistent_policy_l
 [[ $use_fstab_l ]] && use_fstab=$use_fstab_l
 [[ $mdadmconf_l ]] && mdadmconf=$mdadmconf_l

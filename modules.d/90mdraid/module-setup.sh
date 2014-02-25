@@ -70,8 +70,10 @@ install() {
     inst $(command -v partx) /sbin/partx
     inst $(command -v mdadm) /sbin/mdadm
 
-    cmdline  >> "${initdir}/etc/cmdline.d/90mdraid.conf"
-    echo  >> "${initdir}/etc/cmdline.d/90mdraid.conf"
+    if [[ $hostonly_cmdline == "yes" ]]; then
+        cmdline  >> "${initdir}/etc/cmdline.d/90mdraid.conf"
+        echo  >> "${initdir}/etc/cmdline.d/90mdraid.conf"
+    fi
 
     # <mdadm-3.3 udev rule
     inst_rules 64-md-raid.rules

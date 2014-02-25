@@ -50,8 +50,10 @@ install() {
 
     inst lvm
 
-    cmdline >> "${initdir}/etc/cmdline.d/90lvm.conf"
-    echo >> "${initdir}/etc/cmdline.d/90lvm.conf"
+    if [[ $hostonly_cmdline == "yes" ]]; then
+        cmdline >> "${initdir}/etc/cmdline.d/90lvm.conf"
+        echo >> "${initdir}/etc/cmdline.d/90lvm.conf"
+    fi
 
     inst_rules "$moddir/64-lvm.rules"
 
