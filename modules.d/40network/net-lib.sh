@@ -456,7 +456,9 @@ wait_for_ipv6_auto() {
     local li
     while [ $cnt -lt 400 ]; do
         li=$(ip -6 addr show dev $1)
-        strstr "$li" "dynamic" && return 0
+        if ! strstr "$li" "tentative"; then
+            strstr "$li" "dynamic" && return 0
+        fi
         sleep 0.1
         cnt=$(($cnt+1))
     done
