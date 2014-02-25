@@ -48,6 +48,31 @@ setup_interface() {
     [ -n "$hostname" ] && echo "echo ${hostname%.$domain}${domain:+.$domain} > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
 }
 
+setup_interface6() {
+    domain=$new_domain_name
+    search=$(printf -- "$new_domain_search")
+    namesrv=$new_domain_name_servers
+    hostname=$new_host_name
+    lease_time=$new_dhcp_lease_time
+
+    [ -f /tmp/net.$netif.override ] && . /tmp/net.$netif.override
+
+    ip -6 addr add ${new_ip6_address}/${new_ip6_prefixlen} \
+        dev ${netif} scope global valid_lft ${lease_time} \
+        preferred_lft ${lease_time}
+
+    [ -n "${search}${domain}" ] && echo "search $search $domain" > /tmp/net.$netif.resolv.conf
+    if  [ -n "$namesrv" ] ; then
+        for s in $namesrv; do
+            echo nameserver $s
+        done
+    fi >> /tmp/net.$netif.resolv.conf
+
+    # Note: hostname can be fqdn OR short hostname, so chop off any
+    # trailing domain name and explicity add any domain if set.
+    [ -n "$hostname" ] && echo "echo ${hostname%.$domain}${domain:+.$domain} > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
+}
+
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 export PS4="dhclient.$interface.$$ + "
@@ -66,6 +91,7 @@ case $reason in
         echo "dhcp: PREINIT $netif up"
         linkup $netif
         ;;
+
     BOUND)
         echo "dhcp: BOND setting $netif"
         unset layer2
@@ -80,6 +106,29 @@ case $reason in
         fi
         unset layer2
         setup_interface
+        set | while read line; do
+            [ "${line#new_}" = "$line" ] && continue
+            echo "$line"
+        done >/tmp/dhclient.$netif.dhcpopts
+
+        {
+            echo '. /lib/net-lib.sh'
+            echo "setup_net $netif"
+            echo "source_hook initqueue/online $netif"
+            [ -e /tmp/net.$netif.manualup ] || echo "/sbin/netroot $netif"
+            echo "> /tmp/setup_net_$netif.ok"
+            echo "> /tmp/setup_net_\$(cat /sys/class/net/$netif/address).ok"
+            echo "rm -f -- $hookdir/initqueue/setup_net_$netif.sh"
+        } > $hookdir/initqueue/setup_net_$netif.sh
+
+        echo "[ -f /tmp/setup_net_$netif.ok ]" > $hookdir/initqueue/finished/dhclient-$netif.sh
+        >/tmp/net.$netif.up
+        ;;
+
+    BOUND6)
+        echo "dhcp: BOND6 setting $netif"
+        setup_interface6
+
         set | while read line; do
             [ "${line#new_}" = "$line" ] && continue
             echo "$line"
