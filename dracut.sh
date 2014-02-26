@@ -782,7 +782,7 @@ case $compress in
     xz)    compress="xz --check=crc32 --lzma2=dict=1MiB -T0";;
     gzip)  compress="gzip -9"; command -v pigz > /dev/null 2>&1 && compress="pigz -9";;
     lzo)   compress="lzop -9";;
-    lz4)   compress="lz4 -9";;
+    lz4)   compress="lz4 -l -9";;
 esac
 if [[ $_no_compress_l = "cat" ]]; then
     compress="cat"

@@ -172,7 +172,7 @@ case $bin in
     $'\x71\xc7'*|070701)
         CAT="cat --"
         ;;
-    $'\x04\x22'*)
+    $'\x02\x21'*)
         CAT="lz4 -d -c";;
     *)
         CAT="xzcat --";
