@@ -123,8 +123,8 @@ setup_net() {
         read layer2 < /sys/class/net/$netif/device/layer2
     fi
 
-    if [ "$layer2" != "0" ] && [ -n "$dest" ] && ! arping -q -f -w 60 -I $netif $dest ; then
-        info "Resolving $dest via ARP on $netif failed"
+    if [ "$layer2" != "0" ] && [ -n "$dest" ] && ! strstr "$dest" ":"; then
+        arping -q -f -w 60 -I $netif $dest || info "Resolving $dest via ARP on $netif failed"
     fi
     unset layer2
 
@@ -445,6 +445,18 @@ wait_for_route_ok() {
     while [ $cnt -lt 200 ]; do
         li=$(ip route show)
         [ -n "$li" ] && [ -z "${li##*$1*}" ] && return 0
+        sleep 0.1
+        cnt=$(($cnt+1))
+    done
+    return 1
+}
+
+wait_for_ipv6_dad() {
+    local cnt=0
+    local li
+    while [ $cnt -lt 500 ]; do
+        li=$(ip -6 addr show dev $1)
+        strstr "$li" "tentative" || return 0
         sleep 0.1
         cnt=$(($cnt+1))
     done
