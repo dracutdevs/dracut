@@ -136,6 +136,7 @@ do_static() {
     if strstr $ip '*:*:*'; then
         # note no ip addr flush for ipv6
         ip addr add $ip/$mask ${srv:+peer $srv} dev $netif
+        wait_for_ipv6_dad $netif
     else
         ip addr flush dev $netif
         ip addr add $ip/$mask ${srv:+peer $srv} brd + dev $netif
