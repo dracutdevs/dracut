@@ -1310,7 +1310,11 @@ if [[ $kernel_only != yes ]]; then
     [[ $kernel_cmdline ]] && printf "%s\n" "$kernel_cmdline" >> "${initdir}/etc/cmdline.d/01-default.conf"
 
     while pop fstab_lines line; do
-        printf "%s\n" "$line 0 0" >> "${initdir}/etc/fstab"
+        line=($line)
+        [ -z "${line[3]}" ] && line[3]="defaults"
+        [ -z "${line[4]}" ] && line[4]="0"
+        [ -z "${line[5]}" ] && line[5]="2"
+        echo "${line[@]}" >> "${initdir}/etc/fstab"
     done
 
     for f in $add_fstab; do
