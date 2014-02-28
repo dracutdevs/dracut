@@ -82,12 +82,16 @@ ifdown() {
     ip addr flush dev $netif
     echo "#empty" > /etc/resolv.conf
     rm -f -- /tmp/net.$netif.did-setup
+    [ -e /sys/class/net/$netif/address ] && \
+        rm -f -- /tmp/net.$(cat /sys/class/net/$netif/address).did-setup
     # TODO: send "offline" uevent?
 }
 
 setup_net() {
     local netif="$1" f="" gw_ip="" netroot_ip="" iface="" IFACES=""
     [ -e /tmp/net.$netif.did-setup ] && return
+    [ -e /sys/class/net/$netif/address ] && \
+        [ -e /tmp/net.$(cat /sys/class/net/$netif/address).did-setup ] && return
     [ -e "/tmp/net.ifaces" ] && read IFACES < /tmp/net.ifaces
     [ -z "$IFACES" ] && IFACES="$netif"
     # run the scripts written by ifup
@@ -129,6 +133,8 @@ setup_net() {
     unset layer2
 
     > /tmp/net.$netif.did-setup
+    [ -e /sys/class/net/$netif/address ] && \
+        > /tmp/net.$(cat /sys/class/net/$netif/address).did-setup
 }
 
 save_netinfo() {

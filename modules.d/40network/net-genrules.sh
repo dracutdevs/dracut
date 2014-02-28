@@ -89,7 +89,7 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
 
         for iface in $wait_ifaces; do
             if [ "$bootdev" = "$iface" ] || [ "$NEEDNET" = "1" ]; then
-                echo "[ -f /tmp/setup_net_${iface}.ok ]" >$hookdir/initqueue/finished/wait-$iface.sh
+                echo "[ -f /tmp/net.${iface}.did-setup ]" >$hookdir/initqueue/finished/wait-$iface.sh
             fi
         done
     # Default: We don't know the interface to use, handle all

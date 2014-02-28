@@ -83,7 +83,9 @@ fi
 if [ -n "$manualup" ]; then
     >/tmp/net.$netif.manualup
 else
-    [ -f /tmp/net.${iface}.did-setup ] && exit 0
+    [ -e /tmp/net.${netif}.did-setup ] && exit 0
+    [ -e /sys/class/net/$netif/address ] && \
+        [ -e /tmp/net.$(cat /sys/class/net/$netif/address).did-setup ] && exit 0
 fi
 
 # Run dhclient
@@ -145,7 +147,6 @@ do_static() {
     [ -n "$gw" ] && echo ip route add default via $gw dev $netif > /tmp/net.$netif.gw
     [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
 
-    > /tmp/setup_net_${netif}.ok
     return 0
 }
 
@@ -334,6 +335,8 @@ for p in $(getargs ip=); do
             do_static ;;
     esac
 
+    > /tmp/net.${netif}.up
+
     case $autoconf in
         dhcp|on|any|dhcp6)
             ;;
@@ -359,7 +362,7 @@ if [ -n "$DO_BOND_SETUP" -o -n "$DO_TEAM_SETUP" -o -n "$DO_VLAN_SETUP" ]; then
 fi
 
 # no ip option directed at our interface?
-if [ ! -e /tmp/setup_net_${netif}.ok ]; then
+if [ ! -e /tmp/net.${netif}.up ]; then
     do_dhcp -4
 fi
 
