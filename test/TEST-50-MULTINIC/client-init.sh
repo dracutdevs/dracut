@@ -9,6 +9,7 @@ export PS1='initramfs-test:\w\$ '
 stty sane
 echo "made it to the rootfs! Powering down."
 for i in /run/initramfs/net.*.did-setup; do
+	strstr "$i" ":*:*:*:*:" && continue
 	i=${i%.did-setup}
 	IFACES+="${i##*/net.} "
 done
