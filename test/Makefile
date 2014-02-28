@@ -6,6 +6,7 @@ check:
 		[ -d $$i ] || continue ; \
 		[ -f $$i/Makefile ] || continue ; \
 		if [ -n "$$TESTS" ]; then t=$${i##TEST-}; t=$${t%%-*}; [ "$${TESTS#*$$t*}" != "$$TESTS" ] || continue; fi; \
+		if [ -n "$$SKIP" ]; then t=$${i##TEST-}; t=$${t%%-*}; [ "$${SKIP#*$$t*}" != "$$SKIP" ] && continue; fi; \
 		$(MAKE) -C $$i all ; \
 	done
 
