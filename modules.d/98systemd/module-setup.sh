@@ -94,6 +94,7 @@ install() {
         $systemdsystemunitdir/systemd-journald.service \
         $systemdsystemunitdir/systemd-vconsole-setup.service \
         $systemdsystemunitdir/systemd-random-seed-load.service \
+        $systemdsystemunitdir/systemd-sysctl.service \
         \
         $systemdsystemunitdir/sysinit.target.wants/systemd-modules-load.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-ask-password-console.path \
@@ -105,6 +106,7 @@ install() {
         $systemdsystemunitdir/sysinit.target.wants/systemd-udev-trigger.service \
         $systemdsystemunitdir/sysinit.target.wants/kmod-static-nodes.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-tmpfiles-setup-dev.service \
+        $systemdsystemunitdir/sysinit.target.wants/systemd-sysctl.service \
         \
         $systemdsystemunitdir/ctrl-alt-del.target \
         $systemdsystemunitdir/syslog.socket \
