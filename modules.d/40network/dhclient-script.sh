@@ -116,12 +116,10 @@ case $reason in
             echo "setup_net $netif"
             echo "source_hook initqueue/online $netif"
             [ -e /tmp/net.$netif.manualup ] || echo "/sbin/netroot $netif"
-            echo "> /tmp/setup_net_$netif.ok"
-            echo "> /tmp/setup_net_\$(cat /sys/class/net/$netif/address).ok"
             echo "rm -f -- $hookdir/initqueue/setup_net_$netif.sh"
         } > $hookdir/initqueue/setup_net_$netif.sh
 
-        echo "[ -f /tmp/setup_net_$netif.ok ]" > $hookdir/initqueue/finished/dhclient-$netif.sh
+        echo "[ -f /tmp/net.$netif.did-setup ]" > $hookdir/initqueue/finished/dhclient-$netif.sh
         >/tmp/net.$netif.up
         ;;
 
@@ -139,12 +137,10 @@ case $reason in
             echo "setup_net $netif"
             echo "source_hook initqueue/online $netif"
             [ -e /tmp/net.$netif.manualup ] || echo "/sbin/netroot $netif"
-            echo "> /tmp/setup_net_$netif.ok"
-            echo "> /tmp/setup_net_\$(cat /sys/class/net/$netif/address).ok"
             echo "rm -f -- $hookdir/initqueue/setup_net_$netif.sh"
         } > $hookdir/initqueue/setup_net_$netif.sh
 
-        echo "[ -f /tmp/setup_net_$netif.ok ]" > $hookdir/initqueue/finished/dhclient-$netif.sh
+        echo "[ -f /tmp/net.$netif.did-setup ]" > $hookdir/initqueue/finished/dhclient-$netif.sh
         >/tmp/net.$netif.up
         ;;
     *) echo "dhcp: $reason";;
