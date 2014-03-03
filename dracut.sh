@@ -349,6 +349,8 @@ rearrange_params()
         --long host-only \
         --long no-hostonly \
         --long no-host-only \
+        --long hostonly-cmdline \
+        --long no-hostonly-cmdline \
         --long persistent-policy: \
         --long fstab \
         --long help \
