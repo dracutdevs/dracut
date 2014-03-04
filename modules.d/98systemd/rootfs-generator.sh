@@ -29,7 +29,7 @@ generator_wait_for_dev()
         mkdir -p /run/systemd/generator/${_name}.device.d
         {
             echo "[Unit]"
-            echo "JobTimeoutSec=3600"
+            echo "JobTimeoutSec=0"
         } > /run/systemd/generator/${_name}.device.d/timeout.conf
     fi
 }
