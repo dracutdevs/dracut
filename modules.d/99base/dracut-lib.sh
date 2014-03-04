@@ -891,7 +891,7 @@ wait_for_dev()
             mkdir -p ${PREFIX}/etc/systemd/system/${_name}.device.d
             {
                 echo "[Unit]"
-                echo "JobTimeoutSec=3600"
+                echo "JobTimeoutSec=0"
             } > ${PREFIX}/etc/systemd/system/${_name}.device.d/timeout.conf
             _needreload=1
         fi
