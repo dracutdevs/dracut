@@ -1,3 +1,39 @@
+dracut-037
+==========
+- dracut: hostonly_cmdline variable and command line switch
+    Toggle hostonly cmdline storing in the initramfs
+    --hostonly-cmdline:
+        Store kernel command line arguments needed in the initramfs
+    --no-hostonly-cmdline:
+        Do not store kernel command line arguments needed in the initramfs
+- dracut: --mount now understands full fstab lines
+- dracut now also includes drivers from the /lib/modules/<version>/updates directory
+- dracut: only set the owner of files to 0:0, if generated as non-root
+- dracut now directly writes to the initramfs file
+- dracut: call lz4 with the legacy flag (linux kernel does not support the new format)
+- systemd: rootfs-generator generates JobTimeout=0 units for the root device
+- systemd: added the systemd-sysctl service
+- systemd: add 80-net-setup-link.rules and .link files for persistent interface renaming
+- network: various IPv6 fixes
+- network: DCHCP for IPv6
+- network: understand ip=.....:<dns1>:<dns2>
+- network: parse ibft nameserver settings
+- module-setup.sh:
+    New functions require_binaries() and require_any_binary() to be used
+    in the check() section of module-setup.sh.
+- a lot of small bugfixes
+
+Contributions from:
+Harald Hoyer
+Alexander Tsoy
+Till Maas
+Amadeusz Żołnowski
+Brian C. Lane
+Colin Guthrie
+Dave Young
+WANG Chao
+Shawn W Dunn
+
 dracut-036
 ==========
 - fixed skipcpio signature checking
