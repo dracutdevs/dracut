@@ -44,7 +44,7 @@ require_binaries() {
 
     for cmd in "$@"; do
         if ! find_binary "$cmd" &>/dev/null; then
-            dwarning "$_module_name: Could not find command '$cmd'!"
+            dinfo "$_module_name: Could not find command '$cmd'!"
             ((_ret++))
         fi
     done
@@ -68,7 +68,7 @@ require_any_binary() {
     done
 
     if (( $_ret != 0 )); then
-        dwarning "$_module_name: Could not find any command of '$@'!"
+        dinfo "$_module_name: Could not find any command of '$@'!"
         return 1
     fi
 
