@@ -9,14 +9,11 @@
 # future use.
 
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
+type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type ip_to_var >/dev/null 2>&1 || . /lib/net-lib.sh
 
 # Huh? Missing arguments ??
 [ -z "$1" -o -z "$2" ] && exit 1
-
-export PS4="fcoe-up.$1.$$ + "
-[ -e /run/initramfs/loginit.pipe ] && exec >>/run/initramfs/loginit.pipe 2>>/run/initramfs/loginit.pipe
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
-type ip_to_var >/dev/null 2>&1 || . /lib/net-lib.sh
 
 netif=$1
 dcb=$2
