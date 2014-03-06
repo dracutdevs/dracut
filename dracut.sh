@@ -1152,7 +1152,7 @@ export initdir dracutbasedir dracutmodules \
     debug host_fs_types host_devs sshkey add_fstab \
     DRACUT_VERSION udevdir prefix filesystems drivers \
     systemdutildir systemdsystemunitdir systemdsystemconfdir \
-    host_modalias host_modules
+    host_modalias host_modules hostonly_cmdline
 
 mods_to_load=""
 # check all our modules to see if they should be sourced.
