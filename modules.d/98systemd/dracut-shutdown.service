@@ -15,6 +15,6 @@ ConditionPathExists=/run/initramfs/.need_shutdown
 ConditionPathExists=!/run/initramfs/bin/sh
 
 [Service]
-ExecStart=/usr/lib/dracut/dracut-initramfs-restore
+ExecStart=-/usr/lib/dracut/dracut-initramfs-restore
 Type=oneshot
 RemainAfterExit=yes
