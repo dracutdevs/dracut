@@ -2,6 +2,17 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
+
+type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type ip_to_var >/dev/null 2>&1 || . /lib/net-lib.sh
+
+# We already need a set netif here
+netif=$interface
+
+# Huh? Interface configured?
+[ -f "/tmp/net.$netif.up" ] && exit 0
+
 setup_interface() {
     ip=$new_ip_address
     mtu=$new_interface_mtu
@@ -73,21 +84,13 @@ setup_interface6() {
     [ -n "$hostname" ] && echo "echo ${hostname%.$domain}${domain:+.$domain} > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
 }
 
-PATH=/usr/sbin:/usr/bin:/sbin:/bin
-
-export PS4="dhclient.$interface.$$ + "
-[ -e /run/initramfs/loginit.pipe ] && exec >>/run/initramfs/loginit.pipe 2>>/run/initramfs/loginit.pipe
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
-type ip_to_var >/dev/null 2>&1 || . /lib/net-lib.sh
-
-# We already need a set netif here
-netif=$interface
-
-# Huh? Interface configured?
-[ -f "/tmp/net.$netif.up" ] && exit 0
-
 case $reason in
     PREINIT)
+        echo "dhcp: PREINIT $netif up"
+        linkup $netif
+        ;;
+
+    PREINIT6)
         echo "dhcp: PREINIT $netif up"
         linkup $netif
         ;;
