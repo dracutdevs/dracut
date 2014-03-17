@@ -328,6 +328,7 @@ for p in $(getargs ip=); do
         dhcp|on|any)
             do_dhcp -4 ;;
         dhcp6)
+            load_ipv6
             do_dhcp -6 ;;
         auto6)
             do_ipv6auto ;;
