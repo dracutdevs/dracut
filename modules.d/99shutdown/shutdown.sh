@@ -113,6 +113,7 @@ case "$ACTION" in
     kexec)
         kexec -e
         warn "$ACTION failed!"
+        reboot -f -d -n
         ;;
     *)
         warn "Shutdown called with argument '$ACTION'. Rebooting!"
