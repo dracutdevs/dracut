@@ -14,10 +14,13 @@ dracut-037
 - systemd: rootfs-generator generates JobTimeout=0 units for the root device
 - systemd: added the systemd-sysctl service
 - systemd: add 80-net-setup-link.rules and .link files for persistent interface renaming
+- systemd: make dracut-shutdown.service failure non-fatal
 - network: various IPv6 fixes
 - network: DCHCP for IPv6
 - network: understand ip=.....:<dns1>:<dns2>
 - network: parse ibft nameserver settings
+- shutdown: if kexec fails, just reboot
+- lvm: handle one LV at a time with lvchange
 - module-setup.sh:
     New functions require_binaries() and require_any_binary() to be used
     in the check() section of module-setup.sh.
