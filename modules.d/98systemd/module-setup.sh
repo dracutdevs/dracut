@@ -44,6 +44,7 @@ install() {
         $systemdutildir/systemd-modules-load \
         $systemdutildir/systemd-vconsole-setup \
         $systemdutildir/system-generators/systemd-fstab-generator \
+        $systemdutildir/system-generators/systemd-gpt-auto-generator \
         \
         $systemdsystemunitdir/cryptsetup.target \
         $systemdsystemunitdir/emergency.target \
