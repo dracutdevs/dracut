@@ -21,7 +21,7 @@ installkernel() {
 
 # called by dracut
 install() {
-    inst_multiple ip dcbtool fipvlan lldpad readlink
+    inst_multiple ip dcbtool fipvlan lldpad readlink lldptool
 
     mkdir -m 0755 -p "$initdir/var/lib/lldpad"
 

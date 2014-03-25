@@ -28,8 +28,14 @@ if [ "$dcb" = "dcb" ]; then
     # are to kill it and start a new lldpad to take over. Data is transfered
     # between the 2 using a shm segment
     lldpad -d
-    # stupid tools, need sleep
-    sleep 1
+    # wait for lldpad to be ready
+    i=0
+    while [ $i -lt 60 ]; do
+        lldptool -p && break
+        info "Waiting for lldpad to be ready"
+        sleep 1
+        i=$(($i+1))
+    done
     dcbtool sc "$netif" dcb on
     sleep 1
     dcbtool sc "$netif" app:fcoe e:1 a:1 w:1
