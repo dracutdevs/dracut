@@ -64,13 +64,17 @@ setup_interface6() {
     search=$(printf -- "$new_domain_search")
     namesrv=$new_domain_name_servers
     hostname=$new_host_name
-    lease_time=$new_dhcp_lease_time
+    [ -n "$new_dhcp_lease_time" ] && lease_time=$new_dhcp_lease_time
+    [ -n "$new_max_life" ] && lease_time=$new_max_life
+    preferred_lft=$lease_time
+    [ -n "$new_preferred_life" ] && preferred_lft=$new_preferred_life
 
     [ -f /tmp/net.$netif.override ] && . /tmp/net.$netif.override
 
     ip -6 addr add ${new_ip6_address}/${new_ip6_prefixlen} \
-        dev ${netif} scope global valid_lft ${lease_time} \
-        preferred_lft ${lease_time}
+        dev ${netif} scope global \
+        ${lease_time:+valid_lft $lease_time} \
+        ${preferred_lft:+preferred_lft ${preferred_lft}}
 
     [ -n "${search}${domain}" ] && echo "search $search $domain" > /tmp/net.$netif.resolv.conf
     if  [ -n "$namesrv" ] ; then
