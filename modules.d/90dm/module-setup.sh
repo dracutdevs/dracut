@@ -13,7 +13,7 @@ depends() {
 
 installkernel() {
     instmods =drivers/md
-    instmods dm_mod
+    instmods dm_mod dm-cache dm-cache-mq dm-cache-cleaner
 }
 
 install() {
