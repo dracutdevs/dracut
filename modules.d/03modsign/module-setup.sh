@@ -29,7 +29,7 @@ depends() {
 # called by dracut
 install() {
     inst_dir /lib/modules/keys
-    inst_binary /usr/bin/keyctl
+    inst_binary keyctl
 
     inst_hook pre-trigger 01 "$moddir/load-modsign-keys.sh"
 
