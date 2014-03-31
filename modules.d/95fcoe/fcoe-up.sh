@@ -36,10 +36,27 @@ if [ "$dcb" = "dcb" ]; then
         sleep 1
         i=$(($i+1))
     done
-    dcbtool sc "$netif" dcb on
+
+    # on some systems lldpad needs some time
+    # sleep until we find a better solution
+    sleep 30
+
+    while [ $i -lt 60 ]; do
+        dcbtool sc "$netif" dcb on && break
+        info "Retrying to turn dcb on"
+        sleep 1
+        i=$(($i+1))
+    done
+
+    while [ $i -lt 60 ]; do
+        dcbtool sc "$netif" app:fcoe e:1 a:1 w:1 && break
+        info "Retrying to turn fcoe on"
+        sleep 1
+        i=$(($i+1))
+    done
+
     sleep 1
-    dcbtool sc "$netif" app:fcoe e:1 a:1 w:1
-    sleep 1
+
     fipvlan "$netif" -c -s
 elif [ "$netdriver" = "bnx2x" ]; then
     # If driver is bnx2x, do not use /sys/module/fcoe/parameters/create but fipvlan

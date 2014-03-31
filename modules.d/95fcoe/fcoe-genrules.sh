@@ -13,4 +13,4 @@
     else
         printf 'ACTION=="add", SUBSYSTEM=="net", NAME=="%s", RUN+="/sbin/initqueue --onetime --unique --name fcoe-up-$env{INTERFACE} /sbin/fcoe-up $env{INTERFACE} %s"\n' "$fcoe_interface" "$fcoe_dcb"
     fi
-} > /etc/udev/rules.d/92-fcoe.rules
+} >> /etc/udev/rules.d/92-fcoe.rules
