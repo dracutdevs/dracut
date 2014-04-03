@@ -11,6 +11,8 @@
 Description=dracut initqueue hook
 Documentation=man:dracut-initqueue.service(8)
 DefaultDependencies=no
+Before=remote-fs-pre.target
+Wants=remote-fs-pre.target
 After=systemd-udev-trigger.service
 Wants=systemd-udev-trigger.service
 ConditionPathExists=/etc/initrd-release
