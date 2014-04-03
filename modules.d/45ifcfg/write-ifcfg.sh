@@ -122,7 +122,7 @@ for netup in /tmp/net.*.did-setup ; do
         echo "UUID=\"$uuid\""
         if [ -f /tmp/dhclient.$netif.lease ]; then
             [ -f /tmp/dhclient.$netif.dhcpopts ] && . /tmp/dhclient.$netif.dhcpopts
-            strstr "$ip" '*:*:*' && echo "IPV6INIT=yes"
+            strstr "$(ip -6 addr show dev $netif)" 'inet6' && echo "IPV6INIT=yes"
             if [ -f /tmp/net.$netif.has_ibft_config ]; then
                 echo "BOOTPROTO=ibft"
             else
