@@ -16,7 +16,7 @@ depends() {
 # called by dracut
 installkernel() {
     instmods =drivers/md
-    instmods dm_mod
+    instmods dm_mod dm-cache dm-cache-mq dm-cache-cleaner
 }
 
 # called by dracut

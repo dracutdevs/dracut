@@ -364,7 +364,12 @@ fi
 
 # no ip option directed at our interface?
 if [ ! -e /tmp/net.${netif}.up ]; then
-    do_dhcp -4
+    if getargs 'ip=dhcp6'; then
+        load_ipv6
+        do_dhcp -6
+    else
+        do_dhcp -4
+    fi
 fi
 
 exit 0

@@ -27,7 +27,11 @@ fstab_mount() {
     return 0
 }
 
-[ -f /etc/fstab ] && fstab_mount /etc/fstab
+# systemd will mount and run fsck from /etc/fstab and we don't want to
+# run into a race condition.
+if [ -z "$DRACUT_SYSTEMD" ]; then
+    [ -f /etc/fstab ] && fstab_mount /etc/fstab
+fi
 
 # prefer $NEWROOT/etc/fstab.sys over local /etc/fstab.sys
 if [ -f $NEWROOT/etc/fstab.sys ]; then
