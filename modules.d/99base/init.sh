@@ -353,7 +353,9 @@ wait_for_loginit
 # remove helper symlink
 [ -h /dev/root ] && rm -f -- /dev/root
 
-getarg rd.break -d rdbreak && emergency_shell -n switch_root "Break before switch_root"
+bv=$(getarg rd.break -d rdbreak) && [ -z "$bv" ] &&
+    emergency_shell -n switch_root "Break before switch_root"
+unset bv
 info "Switching root"
 
 
