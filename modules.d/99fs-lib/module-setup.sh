@@ -17,10 +17,10 @@ echo_fs_helper() {
     local dev=$1 fs=$2
     case "$fs" in
         xfs)
-            echo -n " xfs_db xfs_repair xfs_check xfs_metadump "
+            echo -n " xfs_db xfs_repair xfs_check xfs_metadump"
             ;;
         ext?)
-            echo -n " fsck.$fs e2fsck "
+            echo -n " e2fsck "
             ;;
         jfs)
             echo -n " jfs_fsck "
@@ -31,10 +31,10 @@ echo_fs_helper() {
         btrfs)
             echo -n " btrfsck "
             ;;
-        *)
-            [[ -x fsck.$fs ]] && echo -n " fsck.$fs "
-            ;;
     esac
+
+    echo -n " fsck.$fs "
+    return 0
 }
 
 include_fs_helper_modules() {
