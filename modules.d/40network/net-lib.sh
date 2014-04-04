@@ -518,9 +518,6 @@ find_iface_with_link() {
 }
 
 is_persistent_ethernet_name() {
-    [ -f /sys/class/net/$netif/addr_assign_type ] || return 1
-    [ "$(cat /sys/class/net/$netif/addr_assign_type)" = "0" ] || return 1
-
     case "$1" in
         # udev persistent interface names
         eth[0-9]|eth[0-9][0-9]|eth[0-9][0-9][0-9]*)
