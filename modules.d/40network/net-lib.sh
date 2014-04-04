@@ -516,3 +516,30 @@ find_iface_with_link() {
     done
     return 1
 }
+
+is_persistent_ethernet_name() {
+    [ -f /sys/class/net/$netif/addr_assign_type ] || return 1
+    [ "$(cat /sys/class/net/$netif/addr_assign_type)" = "0" ] || return 1
+
+    case "$1" in
+        # udev persistent interface names
+        eth[0-9]|eth[0-9][0-9]|eth[0-9][0-9][0-9]*)
+            ;;
+        eno[0-9]|eno[0-9][0-9]|eno[0-9][0-9][0-9]*)
+            ;;
+        ens[0-9]|ens[0-9][0-9]|ens[0-9][0-9][0-9]*)
+            ;;
+        enp[0-9]s[0-9]*|enp[0-9][0-9]s[0-9]*|enp[0-9][0-9][0-9]*s[0-9]*)
+            ;;
+        enP*p[0-9]s[0-9]*|enP*p[0-9][0-9]s[0-9]*|enP*p[0-9][0-9][0-9]*s[0-9]*)
+            ;;
+        # biosdevname
+        em[0-9]|em[0-9][0-9]|em[0-9][0-9][0-9]*)
+            ;;
+        p[0-9]p[0-9]*|p[0-9][0-9]p[0-9]*|p[0-9][0-9][0-9]*p[0-9]*)
+            ;;
+        *)
+            return 1
+    esac
+    return 0
+}
