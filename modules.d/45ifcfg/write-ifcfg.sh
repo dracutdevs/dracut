@@ -166,6 +166,8 @@ for netup in /tmp/net.*.did-setup ; do
             if ! print_s390 $netif; then
                 if [ -z "$macaddr" ] && \
                     ! is_persistent_ethernet_name "$netif" && \
+                    [ -f /sys/class/net/$netif/addr_assign_type ] && \
+                    [ "$(cat /sys/class/net/$netif/addr_assign_type)" = "0" ] && \
                     [ -f /sys/class/net/$netif/address ]; then
                     echo "HWADDR=\"$(cat /sys/class/net/$netif/address)\""
                 fi
