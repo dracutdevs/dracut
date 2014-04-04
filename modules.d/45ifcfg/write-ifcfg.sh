@@ -164,7 +164,11 @@ for netup in /tmp/net.*.did-setup ; do
         {
             [ -n "$macaddr" ] && echo "MACADDR=\"$macaddr\""
             if ! print_s390 $netif; then
-                [ -n "$macaddr" ] || echo "HWADDR=\"$(cat /sys/class/net/$netif/address)\""
+                if [ -z "$macaddr" ] && \
+                    ! is_persistent_ethernet_name "$netif" && \
+                    [ -f /sys/class/net/$netif/address ]; then
+                    echo "HWADDR=\"$(cat /sys/class/net/$netif/address)\""
+                fi
             fi
             echo "TYPE=Ethernet"
             echo "NAME=\"$netif\""
