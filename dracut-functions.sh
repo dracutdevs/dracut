@@ -33,7 +33,11 @@ if [[ $initdir ]] && ! [[ -d $initdir ]]; then
 fi
 
 # Generic substring function.  If $2 is in $1, return 0.
-strstr() { [[ $1 = *$2* ]]; }
+strstr() { [[ $1 = *"$2"* ]]; }
+# Generic glob matching function. If glob pattern $2 matches anywhere in $1, OK
+strglobin() { [[ $1 = *$2* ]]; }
+# Generic glob matching function. If glob pattern $2 matches all of $1, OK
+strglob() { [[ $1 = $2 ]]; }
 
 # helper function for check() in module-setup.sh
 # to check for required installed binaries
