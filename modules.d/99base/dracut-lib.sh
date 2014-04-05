@@ -20,19 +20,33 @@ debug_on() {
     [ "$RD_DEBUG" = "yes" ] && set -x
 }
 
-# returns OK if $1 contains $2
+# returns OK if $1 contains literal string $2 (and isn't empty)
 strstr() {
-    [ "${1#*$2*}" != "$1" ]
+    [ "${1##*"$2"*}" != "$1" ]
 }
 
-# returns OK if $1 contains $2 at the beginning
+# returns OK if $1 matches (completely) glob pattern $2
+# An empty $1 will not be considered matched, even if $2 is * which technically
+# matches; as it would match anything, it's not an interesting case.
+strglob() {
+    [ -n "$1" -a -z "${1##$2}" ]
+}
+
+# returns OK if $1 contains (anywhere) a match of glob pattern $2
+# An empty $1 will not be considered matched, even if $2 is * which technically
+# matches; as it would match anything, it's not an interesting case.
+strglobin() {
+    [ -n "$1" -a -z "${1##*$2*}" ]
+}
+
+# returns OK if $1 contains literal string $2 at the beginning, and isn't empty
 str_starts() {
-    [ "${1#$2*}" != "$1" ]
+    [ "${1#"$2"*}" != "$1" ]
 }
 
-# returns OK if $1 contains $2 at the end
+# returns OK if $1 contains literal string $2 at the end, and isn't empty
 str_ends() {
-    [ "${1%*$2}" != "$1" ]
+    [ "${1%*"$2"}" != "$1" ]
 }
 
 if [ -z "$DRACUT_SYSTEMD" ]; then
@@ -85,9 +99,9 @@ str_replace() {
     local out=''
 
     while strstr "${in}" "$s"; do
-        chop="${in%%$s*}"
+        chop="${in%%"$s"*}"
         out="${out}${chop}$r"
-        in="${in#*$s}"
+        in="${in#*"$s"}"
     done
     echo "${out}${in}"
 }
@@ -555,7 +569,7 @@ nfsroot_to_var() {
     arg="${arg##$nfs:}"
 
     # check if we have a server
-    if strstr "$arg" ':/*' ; then
+    if strstr "$arg" ':/' ; then
         server="${arg%%:/*}"
         arg="/${arg##*:/}"
     fi

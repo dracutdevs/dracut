@@ -26,7 +26,7 @@ function cms_write_config()
 
     IFCFGFILE=/run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-$DEVICE
 
-    strstr "$IPADDR" '*:*:*' && ipv6=1
+    strglobin "$IPADDR" '*:*:*' && ipv6=1
 
 # to please NetworkManager on startup in loader before loader reconfigures net
     cat > /etc/sysconfig/network << EOF
