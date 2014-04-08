@@ -105,6 +105,9 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
         cond='ACTION=="add", SUBSYSTEM=="net", ENV{DEVTYPE}!="wlan|wwan"'
         # if you change the name of "91-default-net.rules", also change modules.d/80cms/cmssetup.sh
         echo "$cond, $runcmd" > /etc/udev/rules.d/91-default-net.rules
+        if [ "$NEEDNET" = "1" ]; then
+            echo 'for i in /tmp/net.*.did-setup; do [ -f "$i" ]  && exit 0; done; exit 1' >$hookdir/initqueue/finished/wait-network.sh
+        fi
     fi
 
 # if you change the name of "90-net.rules", also change modules.d/80cms/cmssetup.sh
