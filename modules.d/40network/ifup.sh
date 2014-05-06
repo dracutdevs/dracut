@@ -188,6 +188,7 @@ if [ -e /tmp/bond.${netif}.info ]; then
 
         for slave in $bondslaves ; do
             ip link set $slave down
+            cat /sys/class/net/$slave/address > /tmp/net.${netif}.${slave}.hwaddr
             echo "+$slave" > /sys/class/net/$bondname/bonding/slaves
             linkup $slave
         done
