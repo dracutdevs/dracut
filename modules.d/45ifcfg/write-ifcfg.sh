@@ -206,7 +206,11 @@ for netup in /tmp/net.*.did-setup ; do
                 echo "TYPE=Ethernet"
                 echo "ONBOOT=yes"
                 echo "NETBOOT=yes"
-                echo "HWADDR=\"$(cat /sys/class/net/$slave/address)\""
+                if [ -e /tmp/net.${netif}.${slave}.hwaddr ]; then
+                   echo "HWADDR=\"$(cat /tmp/net.${netif}.${slave}.hwaddr)\""
+                else
+                   echo "HWADDR=\"$(cat /sys/class/net/$slave/address)\""
+                fi
                 echo "SLAVE=yes"
                 echo "MASTER=\"$netif\""
                 echo "NAME=\"$slave\""
