@@ -962,6 +962,7 @@ if ! command -v pidof >/dev/null 2>/dev/null; then
         local _cmd
         local _exe
         local _rl
+        local _ret=1
         local i
         _cmd="$1"
         [ -z "$_cmd" ] && return 1
@@ -976,8 +977,9 @@ if ! command -v pidof >/dev/null 2>/dev/null; then
             fi
             i=${i%/exe}
             echo ${i##/proc/}
+            _ret=0
         done
-        return 0
+        return $_ret
     }
 fi
 
