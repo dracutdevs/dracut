@@ -70,9 +70,10 @@ if ! getarg noresume; then
         printf '[ -e "%s" ] && { ln -s "%s" /dev/resume; rm -f -- "$job" "%s/initqueue/timeout/resume.sh"; }\n' \
             "$resume" "$resume" "$hookdir" >> $hookdir/initqueue/settled/resume.sh
 
-        printf -- "%s" 'warn "Cancelling resume operation. Device not found.";'
-        printf -- ' cancel_wait_for_dev /dev/resume; rm -f -- "$job" "%s/initqueue/settled/resume.sh";\n' \
-            "$hookdir" >> $hookdir/initqueue/timeout/resume.sh
+        {
+            printf -- "%s" 'warn "Cancelling resume operation. Device not found.";'
+            printf -- ' cancel_wait_for_dev /dev/resume; rm -f -- "$job" "%s/initqueue/settled/resume.sh";\n' "$hookdir"
+        } >> $hookdir/initqueue/timeout/resume.sh
 
         mv /lib/dracut/resume.sh /lib/dracut/hooks/pre-mount/10-resume.sh
     else
