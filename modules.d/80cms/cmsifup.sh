@@ -8,7 +8,7 @@ DEVICE=$1
 
 . /tmp/cms.conf
 
-strstr "$IPADDR" '*:*:*' && ipv6=1
+strglobin "$IPADDR" '*:*:*' && ipv6=1
 
 if [ "$ipv6" ] && ! str_starts "$IPADDR" "["; then
     IPADDR="[$IPADDR]"

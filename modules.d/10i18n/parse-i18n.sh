@@ -12,7 +12,7 @@ inst_key_val() {
     _value="$(getarg $@)"
     [ -z "${_value}" ] && _value=$_default
     if [ -n "${_value}" ]; then
-        printf '%s="%s"\n' $key ${_value} >> $_file
+        printf '%s="%s"\n' ${_key} ${_value} >> $_file
     fi
     unset _file
     unset _value

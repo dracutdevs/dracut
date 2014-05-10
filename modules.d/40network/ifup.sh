@@ -130,12 +130,12 @@ do_ipv6auto() {
 
 # Handle static ip configuration
 do_static() {
-    strstr $ip '*:*:*' && load_ipv6
+    strglobin $ip '*:*:*' && load_ipv6
 
     linkup $netif
     [ -n "$macaddr" ] && ip link set address $macaddr dev $netif
     [ -n "$mtu" ] && ip link set mtu $mtu dev $netif
-    if strstr $ip '*:*:*'; then
+    if strglobin $ip '*:*:*'; then
         # note no ip addr flush for ipv6
         ip addr add $ip/$mask ${srv:+peer $srv} dev $netif
         wait_for_ipv6_dad $netif

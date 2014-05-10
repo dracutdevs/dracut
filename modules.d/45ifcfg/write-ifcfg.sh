@@ -85,7 +85,7 @@ for netup in /tmp/net.*.did-setup ; do
 
     netif=${netup%%.did-setup}
     netif=${netif##*/net.}
-    strstr "$netif" ":*:*:*:*:" && continue
+    strglobin "$netif" ":*:*:*:*:" && continue
     [ -e /tmp/ifcfg/ifcfg-$netif ] && continue
     unset bridge
     unset bond
@@ -132,7 +132,7 @@ for netup in /tmp/net.*.did-setup ; do
         else
             # If we've booted with static ip= lines, the override file is there
             [ -e /tmp/net.$netif.override ] && . /tmp/net.$netif.override
-            if strstr "$ip" '*:*:*'; then
+            if strglobin "$ip" '*:*:*'; then
                 echo "IPV6INIT=yes"
                 echo "IPV6_AUTOCONF=no"
                 echo "IPV6ADDR=\"$ip/$mask\""
@@ -149,7 +149,7 @@ for netup in /tmp/net.*.did-setup ; do
                     fi
                 fi
             fi
-            if strstr "$gw" '*:*:*'; then
+            if strglobin "$gw" '*:*:*'; then
                 echo "IPV6_DEFAULTGW=\"$gw\""
             elif [ -n "$gw" ]; then
                 echo "GATEWAY=\"$gw\""

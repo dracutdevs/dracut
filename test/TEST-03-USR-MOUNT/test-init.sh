@@ -1,7 +1,7 @@
 #!/bin/sh
 >/dev/watchdog
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
-strstr() { [ "${1#*$2*}" != "$1" ]; }
+strstr() { [ "${1##*"$2"*}" != "$1" ]; }
 CMDLINE=$(while read line; do echo $line;done < /proc/cmdline)
 plymouth --quit
 exec </dev/console >/dev/console 2>&1

@@ -834,6 +834,13 @@ trap 'exit 1;' SIGINT
 export DRACUT_KERNEL_LAZY="1"
 export DRACUT_RESOLVE_LAZY="1"
 
+if [[ $print_cmdline ]]; then
+    stdloglvl=0
+    sysloglvl=0
+    fileloglvl=0
+    kmsgloglvl=0
+fi
+
 if [[ -f $dracutbasedir/dracut-functions.sh ]]; then
     . $dracutbasedir/dracut-functions.sh
 else
@@ -907,6 +914,7 @@ for ((i=0; i < ${#dracut_args[@]}; i++)); do
         dracut_args[$i]="\"${dracut_args[$i]}\""
         #" keep vim happy
 done
+
 dinfo "Executing: $0 ${dracut_args[@]}"
 
 [[ $do_list = yes ]] && {

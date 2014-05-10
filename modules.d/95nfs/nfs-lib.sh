@@ -40,7 +40,7 @@ nfsroot_to_var() {
     arg="${arg##$nfs:}"
 
     # check if we have a server
-    if strstr "$arg" ':/*' ; then
+    if strstr "$arg" ':/' ; then
         server="${arg%%:/*}"
         arg="/${arg##*:/}"
     fi
