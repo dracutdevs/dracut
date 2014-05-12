@@ -144,6 +144,7 @@ function dasd_settle_all() {
     processcmsfile()
     {
         source /tmp/cms.conf
+        SUBCHANNELS="$(echo $SUBCHANNELS | sed 'y/ABCDEF/abcdef/')"
 
         if [[ $NETTYPE ]]; then
 	    (
