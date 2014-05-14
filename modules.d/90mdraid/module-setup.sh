@@ -50,6 +50,8 @@ cmdline() {
             done
         )
 
+        [[ -z "$UUID" ]] && continue
+
         if ! [[ ${_activated[${UUID}]} ]]; then
             printf "%s" " rd.md.uuid=${UUID}"
             _activated["${UUID}"]=1
