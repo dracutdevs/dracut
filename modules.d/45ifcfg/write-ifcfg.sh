@@ -3,6 +3,8 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 # NFS root might have reached here before /tmp/net.ifaces was written
+type is_persistent_ethernet_name >/dev/null 2>&1 || . /lib/net-lib.sh
+
 udevadm settle --timeout=30
 
 if [ -e /tmp/bridge.info ]; then
