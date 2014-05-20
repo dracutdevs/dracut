@@ -26,7 +26,7 @@ print_fcoe_uefi_conf()
         esac
     fi
     # fcoe=eth0:nodcb
-    printf "%s\n" "$dev:nodcb"
+    printf "fcoe=%s\n" "$dev:nodcb"
     return 0
 }
 
