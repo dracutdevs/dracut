@@ -225,7 +225,7 @@ print_vars() {
 
     for _var in "$@"
     do
-        eval printf -v _value "%s" "\$$_var"
+        eval printf -v _value "%s" \""\$$_var"\"
         [[ ${_value} ]] && printf '%s="%s"\n' "$_var" "$_value"
     done
 }
