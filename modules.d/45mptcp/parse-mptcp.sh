@@ -1,11 +1,14 @@
 #!/bin/sh
 #
 # Format:
-#       mptcp=<ifaces>:[options]
+#       mptcp=<mptcpifaces>:[mptcpoptions]
 #
-#       ifaces is a comma-separated list of interfaces
-#       options is a comma-separated list on mptcp options
+#       mptcpifaces is a comma-separated list of interfaces
+#       mptcpoptions is a comma-separated list on mptcp options
 #
+
+# return if team already parsed
+[ -n "$mptcpifaces" ] && return
 
 # Check if mptcp parameter is valid
 if getarg mptcp= >/dev/null ; then
