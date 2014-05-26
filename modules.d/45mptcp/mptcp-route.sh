@@ -17,6 +17,7 @@ else
     return
 fi
 
+set -e
 
 prepare_rt_table() {
     local rttables=/etc/iproute2/rt_tables
