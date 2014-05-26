@@ -37,7 +37,7 @@ transfer_routes_ipv4() {
     local iface=$1
     local tableid=$(get_table_id $iface)
     ip -4 route flush table ${tableid}
-    cat /etc/iproute2/rt_tables
+    cat /etc/iproute2/rt_tables | vwarn
     $(ip -4 rou show table main | grep "dev ${iface}" | sed -r 's_expires [^ ]*__' | sed -r 's_proto [^ ]*__' ) | while read line; do
         [[ -z "$line" ]] && continue
         ip -4 route add ${line} table ${tableid} dev ${iface}
@@ -84,7 +84,7 @@ replace_rules_ipv6() {
 }
 
 for iface in $mptcpifaces; do
-    linkup ${iface}
+    [ -e /tmp/net.$iface.up ] || linkup ${iface}
     prepare_rt_table ${iface}
     transfer_routes_ipv4 ${iface}
     replace_rules_ipv4 ${iface}
