@@ -8,7 +8,7 @@
 #
 
 # return if team already parsed
-[ -n "$mptcpifaces" ] && return
+#[ -n "$mptcpifaces" ] && return
 
 # Check if mptcp parameter is valid
 if getarg mptcp= >/dev/null ; then
@@ -45,5 +45,9 @@ if getarg mptcp >/dev/null; then
     mptcpoptions=$(str_replace "$mptcpoptions" ";" ",")
     echo "mptcpifaces=\"$mptcpifaces\"" >> /tmp/mptcp.info
     echo "mptcpoptions=\"$mptcpoptions\"" >> /tmp/mptcp.info
+    _do_mptcp=1
     return
 fi
+
+[ -n "$_do_mptcp" ] && /sbin/initqueue --settled --unique --onetime /sbin/mptcp-route
+unset _do_mptcp
