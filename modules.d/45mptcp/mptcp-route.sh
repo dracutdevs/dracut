@@ -52,7 +52,7 @@ transfer_routes_ipv6() {
     ip -6 route flush table ${iface}
     $(ip -6 route show table main | grep "dev ${iface}" | sed -r 's_expires [^ ]*__' | sed -r 's_proto [^ ]*__' ) | while read line; do
         [[ -z "$line" ]] && continue
-        ip -6 route add ${line} table ${iface} dev ${iface}
+        ip -6 route add ${line} dev ${iface} table ${iface}
     done
 }
 
@@ -66,10 +66,10 @@ replace_rules_ipv4() {
     local iface=$1
     local tableid=$(get_table_id $iface)
     while ip -4 rule show | egrep -q ^${tableid}; do
-        ip -4 rule del prio ${tableid}
+        ip -4 rule del table ${tableid}
     done
     for ipaddr in $(get_ipv4_addressses ${iface}); do
-        ip -4 rule add prio ${tableid} from ${ipaddr} table ${tableid} dev ${iface}
+        ip -4 rule add from ${ipaddr} table ${iface}
     done
 }
 
@@ -77,20 +77,22 @@ replace_rules_ipv6() {
     local iface=$1
     local tableid=$(get_table_id $iface)
     while ip -6 rule show | egrep -q ^${tableid}; do
-        ip -6 rule del prio ${tableid}
+        ip -6 rule flush table ${tableid}
     done
     for ipaddr in $(get_ipv6_addressses ${iface}); do
         echo $ipaddr | egrep -q '^fe80:' && continue
-        ip -6 rule add prio ${tableid} from ${ipaddr} table ${iface} dev ${iface}
+        ip -6 rule add from ${ipaddr} table ${iface} dev ${iface}
     done
 }
 
 for iface in $mptcpifaces; do
-    [ -e /tmp/net.$iface.up ] || linkup ${iface}
+    if [ ! -e /tmp/net.$iface.up ]; then
+        linkup ${iface}
+    fi
     prepare_rt_table ${iface}
     transfer_routes_ipv4 ${iface}
     replace_rules_ipv4 ${iface}
-    transfer_routes_ipv6 ${iface}
+    wait_for_ipv6_auto ${iface} && transfer_routes_ipv6 ${iface}
     replace_rules_ipv6 ${iface}
 done
 
