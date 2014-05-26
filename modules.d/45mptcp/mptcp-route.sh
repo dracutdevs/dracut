@@ -24,7 +24,7 @@ prepare_rt_table() {
     local iface=$1
     if ! egrep -q "\s${iface}\s*"\$ $rttables; then
         idx=$(wc -l <$rttables)
-        echo -e "$(( 300 + ${idx} ))\t${iface}" >> $rttables
+        echo -e "$(( 100 + ${idx} ))\t${iface}" >> $rttables
     fi
 }
 

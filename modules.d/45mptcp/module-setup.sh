@@ -21,7 +21,6 @@ install() {
     done
     inst_multiple ip egrep wc sed grep
     inst_hook cmdline 95 "$moddir/parse-mptcp.sh"
-    inst_script "$moddir/mptcp-route.sh" "/sbin/mptcp-route"
-    inst_hook initqueue/online 95 "/sbin/mptcp-route"
+    inst_hook initqueue/online 95 "$moddir/mptcp-route.sh"
     dracut_need_initqueue
 }
