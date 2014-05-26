@@ -36,7 +36,7 @@ if getarg mptcp >/dev/null; then
     # Read mptcp= parameters if they exist
     mptcp="$(getarg mptcp=)"
     if [ ! "$mptcp" = "mptcp" ]; then
-        parsebond "$(getarg bond=)"
+        parsemptcp "$(getarg mptcp=)"
     fi
     # Make it suitable for initscripts export
     mptcpoptions=$(str_replace "$mptcpoptions" ";" ",")
