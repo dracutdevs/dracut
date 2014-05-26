@@ -1,8 +1,12 @@
 #!/bin/sh
 
-#if [ -e /tmp/mptcp.info ]; then
-#    . /tmp/mptcp.info
-#fi
+type getargbool >/dev/null 2>&1 || . /lib/dracut-lib.sh
+. /lib/net-lib.sh
+
+
+if [ -e /tmp/mptcp.info ]; then
+    . /tmp/mptcp.info
+fi
 
 if getargbool 0 rd.live.debug -n -y rdlivedebug; then
     exec > /tmp/liveroot.$$.out
@@ -80,6 +84,7 @@ replace_rules_ipv6() {
 }
 
 for iface in $mptcpifaces; do
+    linkup ${iface}
     prepare_rt_table ${iface}
     transfer_routes_ipv4 ${iface}
     replace_rules_ipv4 ${iface}
