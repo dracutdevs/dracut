@@ -24,7 +24,7 @@ parsemptcp() {
     unset mptcpifaces mptcpoptions
     case $# in
     1)  mptcpifaces=$(str_replace "$1" "," " ") ;;
-    2)  mptcpifaces=$(str_replace "$1" "," " ") ;; mptcpoptions=$(str_replace "$2" "," " ") ;;
+    2)  mptcpifaces=$(str_replace "$1" "," " ") ; mptcpoptions=$(str_replace "$2" "," " ") ;;
     *)  die "mptcp= requires one to two parameters" ;;
     esac
 }
