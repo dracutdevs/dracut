@@ -16,7 +16,9 @@ depends() {
 
 # called by dracut
 install() {
-    inst_multiple /etc/iproute2/*
+    for f in /etc/iproute2/*; do
+        inst_multiple $f
+    done
     inst_multiple ip egrep wc sed grep
     inst_hook cmdline 95 "$moddir/parse-mptcp.sh"
     inst_hook initqueue/online 95 "$moddir/mptcp-route.sh"
