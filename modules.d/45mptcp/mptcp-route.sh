@@ -7,7 +7,6 @@ fi
 prepare_rt_table() {
     local rttables=/etc/iproute2/rt_tables
     local iface=$1
-    [[ "${iface}" = 'lo' ]] && return
     if ! egrep -q "\s${iface}\s*"\$ $rttables; then
         idx=$(wc -l <$rttables)
         echo -e "$(( 300 + ${idx} ))\t${iface}" >> $rttables
@@ -26,10 +25,11 @@ get_ipv6_addressses() {
 
 transfer_routes_ipv4() {
     local iface=$1
+    local tableid=$(get_table_id $iface)
     ip -4 route flush table ${iface}
     $(ip -4 rou show table main | grep "dev ${iface}" | sed -r 's_expires [^ ]*__' | sed -r 's_proto [^ ]*__' ) | while read line; do
         [[ -z "$line" ]] && continue
-        ip -4 route add ${line} table ${iface}
+        ip -4 route add ${line} table ${tableid} dev ${iface}
     done
 }
 
@@ -38,7 +38,7 @@ transfer_routes_ipv6() {
     ip -6 route flush table ${iface}
     $(ip -6 route show table main | grep "dev ${iface}" | sed -r 's_expires [^ ]*__' | sed -r 's_proto [^ ]*__' ) | while read line; do
         [[ -z "$line" ]] && continue
-        ip -6 route add ${line} table ${iface}
+        ip -6 route add ${line} table ${tableid} dev ${iface}
     done
 }
 
@@ -55,7 +55,7 @@ replace_rules_ipv4() {
         ip -4 rule del prio ${tableid}
     done
     for ipaddr in $(get_ipv4_addressses ${iface}); do
-        ip -4 rule add prio ${tableid} from ${ipaddr} table ${iface}
+        ip -4 rule add prio ${tableid} from ${ipaddr} table ${tableid} dev ${iface}
     done
 }
 
@@ -67,7 +67,7 @@ replace_rules_ipv6() {
     done
     for ipaddr in $(get_ipv6_addressses ${iface}); do
         echo $ipaddr | egrep -q '^fe80:' && continue
-        ip -6 rule add prio ${tableid} from ${ipaddr} table ${iface}
+        ip -6 rule add prio ${tableid} from ${ipaddr} table ${tableid} dev ${iface}
     done
 }
 
