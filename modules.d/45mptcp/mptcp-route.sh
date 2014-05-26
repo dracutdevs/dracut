@@ -1,7 +1,13 @@
 #!/bin/sh
 
-if [ -e /tmp/mptcp.info ]; then
-    . /tmp/mptcp.info
+#if [ -e /tmp/mptcp.info ]; then
+#    . /tmp/mptcp.info
+#fi
+
+if getargbool 0 rd.live.debug -n -y rdlivedebug; then
+    exec > /tmp/liveroot.$$.out
+    exec 2>> /tmp/liveroot.$$.out
+    set -x
 fi
 
 prepare_rt_table() {
