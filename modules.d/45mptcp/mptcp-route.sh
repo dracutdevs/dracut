@@ -79,7 +79,7 @@ replace_rules_ipv6() {
         done
 }
 
-for iface in "$mptcpifaces"; do
+for iface in $mptcpifaces; do
         prepare_rt_table ${iface}
         transfer_routes_ipv4 ${iface}
         replace_rules_ipv4 ${iface}
