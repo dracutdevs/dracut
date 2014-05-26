@@ -5,7 +5,7 @@
 # called by dracut
 check() {
     require_binaries ip || return 1
-    return 255
+    return 0
 }
 
 # called by dracut
@@ -16,6 +16,7 @@ depends() {
 
 # called by dracut
 install() {
+    inst_multiple /etc/iproute2/*
     inst_multiple ip
     inst_hook cmdline 95 "$moddir/parse-mptcp.sh"
     inst_hook initqueue/online 95 "$moddir/mptcp-route.sh"

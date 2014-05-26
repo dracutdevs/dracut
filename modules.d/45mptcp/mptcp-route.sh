@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 IP="/bin/ip"
 
@@ -6,7 +6,7 @@ if [ -e /tmp/mptcp.info ]; then
     . /tmp/mptcp.info
 fi
 
-function prepare_rt_table() {
+prepare_rt_table() {
         local rttables=/etc/iproute2/rt_tables
         local iface=$1
         [[ "${iface}" = 'lo' ]] && return
@@ -16,17 +16,17 @@ function prepare_rt_table() {
         fi
 }
 
-function get_ipv4_addressses() {
+get_ipv4_addressses() {
         local iface=$1
         $IP -4 addr show dev ${iface} | sed -rn '/inet / s_^.*inet ([0-9.]*)/.*$_\1_p'
 }
 
-function get_ipv6_addressses() {
+get_ipv6_addressses() {
         local iface=$1
         $IP -6 addr show dev ${iface} | sed -rn '/inet6 / s_^.*inet6 ([0-9a-f:]*)/.*$_\1_p'
 }
 
-function transfer_routes_ipv4() {
+transfer_routes_ipv4() {
         local iface=$1
         $IP -4 route flush table ${iface}
         while read line; do
@@ -37,7 +37,8 @@ function transfer_routes_ipv4() {
                 sed -r 's_expires [^ ]*__' | sed -r 's_proto [^ ]*__' )
         EOF
 }
-function transfer_routes_ipv6() {
+
+transfer_routes_ipv6() {
         local iface=$1
         $IP -6 route flush table ${iface}
         while read line; do
@@ -49,13 +50,13 @@ function transfer_routes_ipv6() {
         EOF
 }
 
-function get_table_id() {
+get_table_id() {
         local rttables=/etc/iproute2/rt_tables
         local table=$1
         sed -rn "/^\s*[0-9]*\s*${table}/ s_^\s*([0-9]+)\s.*_\1_p" $rttables
 }
 
-function replace_rules_ipv4 {
+replace_rules_ipv4() {
         local iface=$1
         local tableid=$(get_table_id $iface)
         while $IP -4 rule show | egrep -q ^${tableid}; do
@@ -66,7 +67,7 @@ function replace_rules_ipv4 {
         done
 }
 
-function replace_rules_ipv6 {
+replace_rules_ipv6() {
         local iface=$1
         local tableid=$(get_table_id $iface)
         while $IP -6 rule show | egrep -q ^${tableid}; do
