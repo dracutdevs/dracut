@@ -3,16 +3,20 @@
 type getargbool >/dev/null 2>&1 || . /lib/dracut-lib.sh
 . /lib/net-lib.sh
 
-
-if [ -e /tmp/mptcp.info ]; then
-    . /tmp/mptcp.info
-fi
-
 if getargbool 0 rd.live.debug -n -y rdlivedebug; then
     exec > /tmp/liveroot.$$.out
     exec 2>> /tmp/liveroot.$$.out
     set -x
 fi
+
+if [ -e /tmp/mptcp.info ]; then
+    . /tmp/mptcp.info
+elif [ -e /tmp/mptcp.info.up ]; then
+    return
+else
+    return
+fi
+
 
 prepare_rt_table() {
     local rttables=/etc/iproute2/rt_tables
@@ -91,3 +95,5 @@ for iface in $mptcpifaces; do
     transfer_routes_ipv6 ${iface}
     replace_rules_ipv6 ${iface}
 done
+
+touch /tmp/mptcp.info.up
