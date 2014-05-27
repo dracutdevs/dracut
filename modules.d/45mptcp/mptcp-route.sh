@@ -43,7 +43,7 @@ transfer_routes_ipv4() {
     ip -4 route flush table ${iface}
     $(ip -4 rou show table main | grep "dev ${iface}" | sed -r 's_expires [^ ]*__' | sed -r 's_proto [^ ]*__' ) | while read line; do
         [[ -z "$line" ]] && continue
-        ip -4 route add ${line} table ${iface} dev ${iface}
+        ip -4 route add ${line} table ${iface}
     done
 }
 
@@ -52,7 +52,7 @@ transfer_routes_ipv6() {
     ip -6 route flush table ${iface}
     $(ip -6 route show table main | grep "dev ${iface}" | sed -r 's_expires [^ ]*__' | sed -r 's_proto [^ ]*__' ) | while read line; do
         [[ -z "$line" ]] && continue
-        ip -6 route add ${line} dev ${iface} table ${iface}
+        ip -6 route add ${line} table ${iface}
     done
 }
 
@@ -81,7 +81,7 @@ replace_rules_ipv6() {
     done
     for ipaddr in $(get_ipv6_addressses ${iface}); do
         echo $ipaddr | egrep -q '^fe80:' && continue
-        ip -6 rule add from ${ipaddr} table ${iface} dev ${iface}
+        ip -6 rule add from ${ipaddr} table ${iface}
     done
 }
 
