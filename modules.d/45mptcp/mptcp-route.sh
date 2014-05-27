@@ -41,7 +41,7 @@ get_ipv6_addressses() {
 transfer_routes_ipv4() {
     local iface=$1
     ip -4 route flush table ${iface}
-    $(ip -4 rou show table main | grep "dev ${iface}" | sed -r 's_expires [^ ]*__' | sed -r 's_proto [^ ]*__' ) | while read line; do
+    ip -4 rou show table main | grep "dev ${iface}" | sed -r 's_expires [^ ]*__' | sed -r 's_proto [^ ]*__' | while read line; do
         [[ -z "$line" ]] && continue
         ip -4 route add ${line} table ${iface}
     done
@@ -50,7 +50,7 @@ transfer_routes_ipv4() {
 transfer_routes_ipv6() {
     local iface=$1
     ip -6 route flush table ${iface}
-    $(ip -6 route show table main | grep "dev ${iface}" | sed -r 's_expires [^ ]*__' | sed -r 's_proto [^ ]*__' ) | while read line; do
+    ip -6 route show table main | grep "dev ${iface}" | sed -r 's_expires [^ ]*__' | sed -r 's_proto [^ ]*__' | while read line; do
         [[ -z "$line" ]] && continue
         ip -6 route add ${line} table ${iface}
     done
