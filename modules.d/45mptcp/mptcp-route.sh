@@ -87,7 +87,7 @@ replace_rules_ipv6() {
 
 for iface in $mptcpifaces; do
     if [ ! -e /tmp/net.$iface.up ]; then
-        linkup ${iface}
+        ip link set up dev ${iface} && touch /tmp/net.$iface.up
     fi
     prepare_rt_table ${iface}
     transfer_routes_ipv4 ${iface}
