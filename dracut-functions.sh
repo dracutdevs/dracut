@@ -53,7 +53,7 @@ require_binaries() {
 
     for cmd in "$@"; do
         if ! find_binary "$cmd" &>/dev/null; then
-            dinfo "$_module_name: Could not find command '$cmd'!"
+            dinfo "dracut module '${_module_name#[0-9][0-9]}' will not be installed, because command '$cmd' could not be found!"
             ((_ret++))
         fi
     done
@@ -225,7 +225,7 @@ print_vars() {
 
     for _var in "$@"
     do
-        eval printf -v _value "%s" "\$$_var"
+        eval printf -v _value "%s" \""\$$_var"\"
         [[ ${_value} ]] && printf '%s="%s"\n' "$_var" "$_value"
     done
 }

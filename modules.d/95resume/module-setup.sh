@@ -17,12 +17,12 @@ check() {
 
 # called by dracut
 cmdline() {
-    local _activated
-    declare -A _activated
+    local _resume
 
     for dev in "${!host_fs_types[@]}"; do
         [[ ${host_fs_types[$dev]} =~ ^(swap|swsuspend|swsupend)$ ]] || continue
-        printf "resume=%s " "$(shorten_persistent_dev "$(get_persistent_dev "$dev")")"
+        _resume=$(shorten_persistent_dev "$(get_persistent_dev "$dev")")
+        [[ -n ${_resume} ]] && printf " resume=%s" "${_resume}"
     done
 }
 

@@ -3,6 +3,8 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 # NFS root might have reached here before /tmp/net.ifaces was written
+type is_persistent_ethernet_name >/dev/null 2>&1 || . /lib/net-lib.sh
+
 udevadm settle --timeout=30
 
 if [ -e /tmp/bridge.info ]; then
@@ -120,9 +122,9 @@ for netup in /tmp/net.*.did-setup ; do
         echo "ONBOOT=yes"
         echo "NETBOOT=yes"
         echo "UUID=\"$uuid\""
+        strstr "$(ip -6 addr show dev $netif)" 'inet6' && echo "IPV6INIT=yes"
         if [ -f /tmp/dhclient.$netif.lease ]; then
             [ -f /tmp/dhclient.$netif.dhcpopts ] && . /tmp/dhclient.$netif.dhcpopts
-            strstr "$(ip -6 addr show dev $netif)" 'inet6' && echo "IPV6INIT=yes"
             if [ -f /tmp/net.$netif.has_ibft_config ]; then
                 echo "BOOTPROTO=ibft"
             else

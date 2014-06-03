@@ -111,6 +111,10 @@ if [ "$root" = "block:/dev/root" -o "$root" = "dhcp" ]; then
     fi
 fi
 
+if strstr "$(nbd-client --help 2>&1)" "systemd-mark"; then
+    preopts="--systemd-mark $preopts"
+fi
+
 nbd-client $preopts "$nbdserver" $nbdport /dev/nbd0 $opts || exit 1
 
 # NBD doesn't emit uevents when it gets connected, so kick it
