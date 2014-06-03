@@ -180,6 +180,9 @@ CAT=$({
             $'\x02\x21'*)
                 echo "lz4 -d -c"
                 ;;
+            $'\x89'LZO$'\0'*)
+                echo "lzop -d -c"
+                ;;
             *)
                 if echo "test"|xz|xzcat --single-stream >/dev/null 2>&1; then
                     echo "xzcat --single-stream --"
