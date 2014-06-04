@@ -395,20 +395,11 @@ for p in $(getargs ip=); do
             > /tmp/net.$(cat /sys/class/net/${netif}/address).up
         fi
 
-        case $autoconf in
-            dhcp|on|any|dhcp6)
-            ;;
-            *)
-                if [ $ret -eq 0 ]; then
-                    setup_net $netif
-                    source_hook initqueue/online $netif
-                    if [ -z "$manualup" ]; then
-                        /sbin/netroot $netif
-                    fi
-                fi
-                ;;
-        esac
-        exit $ret
+        setup_net $netif
+        source_hook initqueue/online $netif
+        if [ -z "$manualup" ]; then
+            /sbin/netroot $netif
+        fi
     fi
 done
 
