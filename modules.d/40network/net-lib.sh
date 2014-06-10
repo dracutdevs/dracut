@@ -233,15 +233,20 @@ ibft_to_cmdline() {
                    case "$vlan" in
                        [0-9]*)
                            echo "vlan=$dev.$vlan:$dev"
+                           echo $mac > /tmp/net.${dev}.${vlan}.has_ibft_config
                            ;;
                        *)
                            echo "vlan=$vlan:$dev"
+                           echo $mac > /tmp/net.${vlan}.has_ibft_config
                            ;;
                    esac
+               else
+                   echo $mac > /tmp/net.${dev}.has_ibft_config
                fi
+            else
+                echo $mac > /tmp/net.${dev}.has_ibft_config
             fi
 
-            echo $mac > /tmp/net.${dev}.has_ibft_config
         done
     ) >> /etc/cmdline.d/40-ibft.conf
 }
