@@ -88,7 +88,7 @@ fi
 
 if [ -n "$netroot" ] && [ "$root" != "/dev/root" ] && [ "$root" != "dhcp" ]; then
     if ! getargbool 1 rd.neednet >/dev/null || ! getarg "ip="; then
-        initqueue --onetime --settled "/sbin/iscsiroot dummy '$netroot' '$NEWROOT'"
+        initqueue --onetime --settled /sbin/iscsiroot dummy "'$netroot'" "'$NEWROOT'"
     fi
 fi
 
