@@ -21,6 +21,7 @@ depends() {
 
 installkernel() {
     instmods autofs4 ipv6
+    instmods -s efivarfs
 }
 
 # called by dracut
