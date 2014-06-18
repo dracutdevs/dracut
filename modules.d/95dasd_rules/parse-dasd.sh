@@ -36,6 +36,9 @@ ACTION=="add", SUBSYSTEM=="ccw", KERNEL=="$ccw", IMPORT{program}="collect $ccw %
 ACTION=="add", SUBSYSTEM=="drivers", KERNEL=="$_drv", IMPORT{program}="collect $ccw %k ${ccw} $_drv"
 ACTION=="add", ENV{COLLECT_$ccw}=="0", ATTR{[ccw/$ccw]online}="1"
 EOF
+    if [ -x /sbin/cio_ignore ] && ! cio_ignore -i $ccw > /dev/null ; then
+        cio_ignore -r $ccw
+    fi
 }
 
 for dasd_arg in $(getargs root=) $(getargs resume=); do
