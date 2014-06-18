@@ -55,3 +55,40 @@ for dasd_arg in $(getargs root=) $(getargs resume=); do
         fi
     )
 done
+
+for dasd_arg in $(getargs rd.dasd=); do
+    (
+        IFS=","
+        set -- $dasd_arg
+        unset IFS
+        while (($# > 0)); do
+            case $1 in
+                autodetect|probeonly)
+                    shift
+                    ;;
+                *-*)
+                    range=$1
+                    IFS="-"
+                    set -- $range
+                    start=${1#0.0.}
+                    shift
+                    end=${1#0.0.}
+                    shift
+                    unset IFS
+                    for dev in $(seq $(( 10#$start )) $(( 10#$end )) ) ; do
+                        create_udev_rule $(printf "0.0.%04d" "$dev")
+                    done
+                    ;;
+                *)
+                    dev=${1%(ro)}
+                    if [ "$dev" != "$1" ] ; then
+                        ro=1
+                    fi
+                    dev=${dev#0.0.}
+                    create_udev_rule $(printf "0.0.%04d" $(( 10#$dev )) )
+                    shift
+                    ;;
+            esac
+        done
+    )
+done
