@@ -37,6 +37,9 @@ EOF
 ACTION=="add", KERNEL=="rport-*", ATTR{port_name}=="$wwpn", SUBSYSTEMS=="ccw", KERNELS=="$ccw", ATTR{[ccw/$ccw]$wwpn/unit_add}="$lun"
 EOF
     fi
+    if [ -x /sbin/cio_ignore ] && ! cio_ignore -i $ccw > /dev/null ; then
+        cio_ignore -r $ccw
+    fi
 }
 
 if [[ -f /sys/firmware/ipl/ipl_type &&
