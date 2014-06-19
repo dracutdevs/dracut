@@ -107,6 +107,7 @@ install() {
         $systemdsystemunitdir/sockets.target.wants/systemd-udevd-control.socket \
         $systemdsystemunitdir/sockets.target.wants/systemd-udevd-kernel.socket \
         $systemdsystemunitdir/sockets.target.wants/systemd-journald.socket \
+        $systemdsystemunitdir/sockets.target.wants/systemd-journald-dev-log.socket \
         $systemdsystemunitdir/sysinit.target.wants/systemd-udevd.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-udev-trigger.service \
         $systemdsystemunitdir/sysinit.target.wants/kmod-static-nodes.service \
