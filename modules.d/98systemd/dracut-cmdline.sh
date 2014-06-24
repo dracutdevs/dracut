@@ -15,6 +15,9 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 [ -f /etc/initrd-release ] && . /etc/initrd-release
 [ -n "$VERSION" ] && info "dracut-$VERSION"
 
+info "Using kernel command line parameters:"
+getcmdline | vinfo
+
 getargbool 0 rd.udev.log-priority=info -d rd.udev.info -d -n -y rdudevinfo && echo 'udev_log="info"' >> /etc/udev/udev.conf
 getargbool 0 rd.udev.log-priority=debug -d rd.udev.debug -d -n -y rdudevdebug && echo 'udev_log="debug"' >> /etc/udev/udev.conf
 
