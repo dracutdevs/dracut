@@ -884,6 +884,8 @@ wait_for_dev()
 
     _name="$(str_replace "$1" '/' '\x2f')"
 
+    type mark_hostonly >/dev/null 2>&1 && mark_hostonly "$hookdir/initqueue/finished/devexists-${_name}.sh"
+
     [ -e "${PREFIX}$hookdir/initqueue/finished/devexists-${_name}.sh" ] && return 0
 
     printf '[ -e "%s" ]\n' $1 \
@@ -898,6 +900,7 @@ wait_for_dev()
         if ! [ -L ${PREFIX}/etc/systemd/system/initrd.target.wants/${_name}.device ]; then
             [ -d ${PREFIX}/etc/systemd/system/initrd.target.wants ] || mkdir -p ${PREFIX}/etc/systemd/system/initrd.target.wants
             ln -s ../${_name}.device ${PREFIX}/etc/systemd/system/initrd.target.wants/${_name}.device
+            type mark_hostonly >/dev/null 2>&1 && mark_hostonly /etc/systemd/system/initrd.target.wants/${_name}.device
             _needreload=1
         fi
 
@@ -907,6 +910,7 @@ wait_for_dev()
                 echo "[Unit]"
                 echo "JobTimeoutSec=0"
             } > ${PREFIX}/etc/systemd/system/${_name}.device.d/timeout.conf
+            type mark_hostonly >/dev/null 2>&1 && mark_hostonly /etc/systemd/system/${_name}.device.d/timeout.conf
             _needreload=1
         fi
 
@@ -1242,4 +1246,14 @@ show_memstats()
             cat /proc/iomem
             ;;
     esac
+}
+
+remove_hostonly_files() {
+    rm -fr /etc/cmdline /etc/cmdline.d/*.conf
+    if [ -f /lib/dracut/hostonly-files ]; then
+        while read line; do
+            [ -e "$line" ] || continue
+            rm -f "$line"
+        done < /lib/dracut/hostonly-files
+    fi
 }

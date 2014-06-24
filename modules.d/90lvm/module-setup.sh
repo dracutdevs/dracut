@@ -59,7 +59,7 @@ install() {
 
     if [[ $hostonly ]] || [[ $lvmconf = "yes" ]]; then
         if [ -f /etc/lvm/lvm.conf ]; then
-            inst_simple /etc/lvm/lvm.conf
+            inst_simple -H /etc/lvm/lvm.conf
             # FIXME: near-term hack to establish read-only locking;
             # use command-line lvm.conf editor once it is available
             sed -i -e 's/\(^[[:space:]]*\)locking_type[[:space:]]*=[[:space:]]*[[:digit:]]/\1locking_type = 4/' ${initdir}/etc/lvm/lvm.conf

@@ -107,16 +107,16 @@ install() {
 
     if [[ $hostonly ]] || [[ $mdadmconf = "yes" ]]; then
         if [ -f /etc/mdadm.conf ]; then
-            inst /etc/mdadm.conf
+            inst -H /etc/mdadm.conf
         else
-            [ -f /etc/mdadm/mdadm.conf ] && inst /etc/mdadm/mdadm.conf /etc/mdadm.conf
+            [ -f /etc/mdadm/mdadm.conf ] && inst -H /etc/mdadm/mdadm.conf /etc/mdadm.conf
         fi
         if [ -d /etc/mdadm.conf.d ]; then
             local f
             inst_dir /etc/mdadm.conf.d
             for f in /etc/mdadm.conf.d/*.conf; do
                 [ -f "$f" ] || continue
-                inst "$f"
+                inst -H "$f"
             done
         fi
     fi

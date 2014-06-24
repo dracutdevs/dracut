@@ -152,7 +152,7 @@ install() {
     [[ $_mods ]] && instmods $_mods
 
     if [[ $hostonly ]]; then
-        inst_multiple -o \
+        inst_multiple -H -o \
             /etc/systemd/journald.conf \
             /etc/systemd/system.conf \
             /etc/hostname \

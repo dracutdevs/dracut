@@ -45,12 +45,8 @@ install() {
     # eudev rules
     inst_rules 80-drivers-modprobe.rules
 
-    for _i in \
-        ${systemdutildir}/network/*.link \
-        ${hostonly:+/etc/systemd/network/*.link} \
-        ; do
-        [[ -e "$_i" ]] && inst "$_i"
-    done
+    inst_multiple -o ${systemdutildir}/network/*.link
+    [[ $hostonly ]] && inst_multiple -H -o /etc/systemd/network/*.link
 
     {
         for i in cdrom tape dialout floppy; do
