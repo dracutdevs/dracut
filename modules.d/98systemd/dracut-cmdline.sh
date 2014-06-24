@@ -14,6 +14,9 @@ if ! getargbool 1 'rd.hostonly'; then
     remove_hostonly_files
 fi
 
+info "Using kernel command line parameters:"
+getcmdline | vinfo
+
 getargbool 0 rd.udev.log-priority=info -d rd.udev.info -d -n -y rdudevinfo && echo 'udev_log="info"' >> /etc/udev/udev.conf
 getargbool 0 rd.udev.log-priority=debug -d rd.udev.debug -d -n -y rdudevdebug && echo 'udev_log="debug"' >> /etc/udev/udev.conf
 
