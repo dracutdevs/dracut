@@ -1,3 +1,30 @@
+dracut-038
+==========
+- "rd.cmdline=ask" will ask the user on the console to enter additional
+  kernel command line parameters
+- "rd.hostonly=0" removes all "hostonly" added custom files,
+  which is useful in combination with "rd.auto" or other specific parameters,
+  if you want to boot on the same hardware, but the compiled in configuration
+  does not match your setup anymore
+- inst* functions and dracut-install now accept the "-H" flag, which logs all
+  installed files to /lib/dracut/hostonly-files. This is used to remove those
+  files, if rd.hostonly is given on the kernel command line
+- strstr now only does literal string match,
+  please use strglob and strglobin for globs
+- fixed unpacking of the microcode image on shutdown
+- added systemd-gpt-auto-generator
+- fcoe: wait for lldpad to be ready
+- network: handle "ip=dhcp6"
+- network: DCHPv6: set valid_lft and preferred_lft
+- dm: support dm-cache
+- fstab: do not mount and fsck from fstab if using systemd
+- break at switch_root only for bare rd.break and not for any rd.break=...
+- nbd: make use of "--systemd-mark", otherwise it gets killed on switch_root
+- fcoe-uefi: fixed cmdline parameter generation
+- iscsi: deprecate "ip=ibft", use "rd.iscsi.ibft[=1]" from now on
+- "lsinitrd -m" now only lists the dracut modules of the image
+- a lot of small bugfixes
+
 dracut-037
 ==========
 - dracut: hostonly_cmdline variable and command line switch
