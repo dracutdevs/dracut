@@ -751,11 +751,18 @@ $(readlink -e -q "$d")" || return 255
 
 
 usable_root() {
-    local _d
-    [ -d $1 ] || return 1
-    for _d in proc sys dev; do
-        [ -e "$1"/$_d ] || return 1
+    local _i
+
+    [ -d "$1" ] || return 1
+
+    for _i in "$1"/usr/lib*/ld-*.so "$1"/lib*/ld-*.so; do
+        [ -e "$_i" ] && return 0
     done
+
+    for _i in proc sys dev; do
+        [ -e "$1"/$_i ] || return 1
+    done
+
     return 0
 }
 
