@@ -769,6 +769,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $prefix = "/" ]] && unset prefix
 [[ $hostonly_l ]] && hostonly=$hostonly_l
 [[ $hostonly_cmdline_l ]] && hostonly_cmdline=$hostonly_cmdline_l
+[[ "$hostonly" == "yes" ]] && ! [[ $hostonly_cmdline ]] && hostonly_cmdline="yes"
 [[ $persistent_policy_l ]] && persistent_policy=$persistent_policy_l
 [[ $use_fstab_l ]] && use_fstab=$use_fstab_l
 [[ $mdadmconf_l ]] && mdadmconf=$mdadmconf_l
