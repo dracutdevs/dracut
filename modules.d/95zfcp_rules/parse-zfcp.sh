@@ -5,9 +5,7 @@ create_udev_rule() {
     local wwpn=$2
     local lun=$3
     local _rule=/etc/udev/rules.d/51-zfcp-${ccw}.rules
-
     local _cu_type _dev_type
-    local _rule=/etc/udev/rules.d/51-zfcp-${ccw}.rules
 
     if [ -e /sys/bus/ccw/devices/${ccw} ] ; then
         read _cu_type < /sys/bus/ccw/devices/${ccw}/cutype
@@ -18,6 +16,10 @@ create_udev_rule() {
     fi
     if [ "$_dev_type" != "1732/03" ] && [ "$_dev_type" != "1732/04" ] ; then
         return 0;
+    fi
+
+    if [ -x /sbin/cio_ignore ] && cio_ignore -i $ccw > /dev/null ; then
+        cio_ignore -r $ccw
     fi
 
     [ -e ${_rule} ] && return 0
@@ -35,9 +37,6 @@ EOF
 ACTION=="add", KERNEL=="rport-*", ATTR{port_name}=="$wwpn", SUBSYSTEMS=="ccw", KERNELS=="$ccw", ATTR{[ccw/$ccw]$wwpn/unit_add}="$lun"
 EOF
     fi
-    if [ -x /sbin/cio_ignore ] && ! cio_ignore -i $ccw > /dev/null ; then
-        cio_ignore -r $ccw
-    fi
 }
 
 for zfcp_arg in $(getargs rd.zfcp); do
@@ -53,7 +52,7 @@ for zfcp_arg in $(getargs root=) $(getargs resume=); do
         case $zfcp_arg in
             /dev/disk/by-path/ccw-*)
                 ccw_arg=${zfcp_arg##*/}
-                break;
+                ;;
         esac
         if [ -n "$ccw_arg" ] ; then
             IFS="-"
