@@ -42,6 +42,15 @@ ACTION=="add", ENV{COLLECT_$ccw}=="0", ATTR{[ccw/$ccw]online}="1"
 EOF
 }
 
+if [[ -f /sys/firmware/ipl/ipl_type &&
+            $(</sys/firmare/ipl/ipl_type) = "ccw" ]] ; then
+    (
+        local _ccw=$(cat /sys/firmware/ipl/device)
+
+        create_udev_rule $_ccw
+    )
+fi
+
 for dasd_arg in $(getargs root=) $(getargs resume=); do
     (
         case $dasd_arg in
