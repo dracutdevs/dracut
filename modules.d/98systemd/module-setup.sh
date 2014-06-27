@@ -187,6 +187,7 @@ install() {
     ln_r "${systemdsystemunitdir}/initrd.target" "${systemdsystemunitdir}/default.target"
 
     inst_script "$moddir/dracut-cmdline.sh" /bin/dracut-cmdline
+    inst_script "$moddir/dracut-cmdline-ask.sh" /bin/dracut-cmdline-ask
     inst_script "$moddir/dracut-pre-udev.sh" /bin/dracut-pre-udev
     inst_script "$moddir/dracut-pre-trigger.sh" /bin/dracut-pre-trigger
     inst_script "$moddir/dracut-initqueue.sh" /bin/dracut-initqueue
@@ -216,6 +217,7 @@ install() {
     mkdir -p "${initdir}/$systemdsystemunitdir/initrd.target.wants"
     for i in \
         dracut-cmdline.service \
+        dracut-cmdline-ask.service \
         dracut-initqueue.service \
         dracut-mount.service \
         dracut-pre-mount.service \

@@ -112,6 +112,14 @@ fi
 
 source_conf /etc/conf.d
 
+if getarg "rd.cmdline=ask"; then
+    echo "Enter additional kernel command line parameter (end with ctrl-d or .)"
+    while read -p "> " line; do
+        [ "$line" = "." ] && break
+        echo "$line" >> /etc/cmdline.d/99-cmdline-ask.conf
+    done
+fi
+
 if ! getargbool 1 'rd.hostonly'; then
     remove_hostonly_files
 fi

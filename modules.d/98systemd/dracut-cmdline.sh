@@ -11,7 +11,9 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 [ -n "$VERSION" ] && info "dracut-$VERSION"
 
 if ! getargbool 1 'rd.hostonly'; then
+    [ -f /etc/cmdline.d/99-cmdline-ask.conf ] && mv /etc/cmdline.d/99-cmdline-ask.conf /tmp/99-cmdline-ask.conf
     remove_hostonly_files
+    [ -f /tmp/99-cmdline-ask.conf ] && mv /tmp/99-cmdline-ask.conf /etc/cmdline.d/99-cmdline-ask.conf
 fi
 
 info "Using kernel command line parameters:"
