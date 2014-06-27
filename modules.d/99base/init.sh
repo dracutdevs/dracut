@@ -115,6 +115,14 @@ fi
 
 source_conf /etc/conf.d
 
+if getarg "rd.cmdline=ask"; then
+    echo "Enter additional kernel command line parameter (end with ctrl-d or .)"
+    while read -p "> " line; do
+        [ "$line" = "." ] && break
+        echo "$line" >> /etc/cmdline.d/99-cmdline-ask.conf
+    done
+fi
+
 # run scriptlets to parse the command line
 make_trace_mem "hook cmdline" '1+:mem' '1+:iomem' '3+:slab'
 getarg 'rd.break=cmdline' -d 'rdbreak=cmdline' && emergency_shell -n cmdline "Break before cmdline"
