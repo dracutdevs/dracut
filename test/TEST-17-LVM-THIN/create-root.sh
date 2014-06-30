@@ -12,6 +12,7 @@ sfdisk -C 2560 -H 2 -S 32 -L /dev/sda <<EOF
 ,800
 ,800
 EOF
+udevadm settle
 for i in sda2 sda3 sda4; do
 lvm pvcreate -ff  -y /dev/$i ;
 done && \

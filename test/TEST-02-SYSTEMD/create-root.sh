@@ -12,6 +12,7 @@ sfdisk -C 2560 -H 2 -S 32 -L /dev/sda <<EOF
 ,
 EOF
 
+udevadm settle
 mkfs.ext3 -L dracut /dev/sda2
 mkdir -p /root
 mount /dev/sda2 /root
