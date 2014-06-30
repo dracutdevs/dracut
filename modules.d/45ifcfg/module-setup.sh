@@ -8,6 +8,7 @@ check() {
 }
 
 depends() {
+    echo "network"
     return 0
 }
 
