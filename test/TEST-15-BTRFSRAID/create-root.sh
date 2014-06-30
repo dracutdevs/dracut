@@ -15,14 +15,15 @@ sfdisk  -C 327800 -H 2 -S 32 -L /dev/sda <<EOF
 ,5120
 ,5120
 EOF
+udevadm settle
 mkfs.btrfs -draid10 -mraid10 -L root /dev/sda5 /dev/sda6 /dev/sda7 /dev/sda8
 udevadm settle
 btrfs device scan
 udevadm settle
 set -e
-mkdir -p /sysroot 
-mount -t btrfs /dev/sda8 /sysroot 
-cp -a -t /sysroot /source/* 
-umount /sysroot 
+mkdir -p /sysroot
+mount -t btrfs /dev/sda8 /sysroot
+cp -a -t /sysroot /source/*
+umount /sysroot
 echo "dracut-root-block-created" >/dev/sda1
 poweroff -f

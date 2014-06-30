@@ -12,6 +12,7 @@ sfdisk -C 2560 -H 2 -S 32 -L /dev/sda <<EOF
 ,800
 ,800
 EOF
+udevadm settle
 mdadm --create /dev/md0 --run --auto=yes --level=5 --raid-devices=3 /dev/sda2 /dev/sda3 /dev/sda4
 # wait for the array to finish initailizing, otherwise this sometimes fails
 # randomly.
