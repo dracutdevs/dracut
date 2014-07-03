@@ -191,6 +191,7 @@ Creates initial ramdisk images for preloading modules
   --printsize           Print out the module install size
   --sshkey [SSHKEY]     Add ssh key to initramfs (use with ssh-client module)
   --logfile [FILE]      Logfile to use (overrides configuration setting)
+  --reproducible        Create reproducible images
 
 If [LIST] has multiple arguments, then you have to put these in quotes.
 
@@ -372,6 +373,7 @@ rearrange_params()
         --long noimageifnotneeded \
         --long early-microcode \
         --long no-early-microcode \
+        --long reproducible \
         -- "$@")
 
     if (( $? != 0 )); then
@@ -557,7 +559,7 @@ while :; do
         --printsize)   printsize="yes";;
         --regenerate-all) regenerate_all="yes";;
         --noimageifnotneeded) noimageifnotneeded="yes";;
-
+        --reproducible) reproducible_l="yes";;
         --) shift; break;;
 
         *)  # should not even reach this point
@@ -801,6 +803,8 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $early_microcode_l ]] && early_microcode=$early_microcode_l
 [[ $early_microcode ]] || early_microcode=no
 [[ $logfile_l ]] && logfile="$logfile_l"
+[[ $reproducible_l ]] && reproducible="$reproducible_l"
+
 # eliminate IFS hackery when messing with fw_dir
 fw_dir=${fw_dir//:/ }
 
@@ -810,7 +814,7 @@ case $compress in
     bzip2) compress="bzip2 -9";;
     lzma)  compress="lzma -9 -T0";;
     xz)    compress="xz --check=crc32 --lzma2=dict=1MiB -T0";;
-    gzip)  compress="gzip -9"; command -v pigz > /dev/null 2>&1 && compress="pigz -9";;
+    gzip)  compress="gzip -n -9 --rsyncable"; command -v pigz > /dev/null 2>&1 && compress="pigz -9 -n -T -R";;
     lzo)   compress="lzop -9";;
     lz4)   compress="lz4 -l -9";;
 esac
@@ -820,6 +824,8 @@ fi
 
 [[ $hostonly = yes ]] && hostonly="-h"
 [[ $hostonly != "-h" ]] && unset hostonly
+
+[[ $reproducible == yes ]] && DRACUT_REPRODUCIBLE=1
 
 readonly TMPDIR="$tmpdir"
 readonly initdir="$(mktemp --tmpdir="$TMPDIR/" -d -t initramfs.XXXXXX)"
@@ -1498,7 +1504,7 @@ if [[ $acpi_override = yes ]] && [[ -d $acpi_table_dir ]]; then
     mkdir -p $_dest_dir
     for table in $acpi_table_dir/*.aml; do
         dinfo "   Adding ACPI table: $table"
-        cp $table $_dest_dir
+        cp -a $table $_dest_dir
         create_early_cpio="yes"
     done
 fi
@@ -1512,15 +1518,37 @@ fi
 rm -f -- "$outfile"
 dinfo "*** Creating image file ***"
 
+if [[ $DRACUT_REPRODUCIBLE ]]; then
+    find "$initdir" -newer "$dracutbasedir/dracut-functions.sh" -print0 \
+        | xargs -r -0 touch -h -m -c -r "$dracutbasedir/dracut-functions.sh"
+
+    [[ "$(cpio --help)" == *--reproducible* ]] && CPIO_REPRODUCIBLE=1
+fi
+
 [[ "$UID" != 0 ]] && cpio_owner_root="-R 0:0"
 
 if [[ $create_early_cpio = yes ]]; then
     echo 1 > "$early_cpio_dir/d/early_cpio"
+
+    if [[ $DRACUT_REPRODUCIBLE ]]; then
+        find "$early_cpio_dir/d" -newer "$dracutbasedir/dracut-functions.sh" -print0 \
+            | xargs -r -0 touch -h -m -c -r "$dracutbasedir/dracut-functions.sh"
+    fi
+
     # The microcode blob is _before_ the initramfs blob, not after
-    (cd "$early_cpio_dir/d";     find . -print0 | cpio --null $cpio_owner_root -H newc -o --quiet > $outfile)
+    (
+        cd "$early_cpio_dir/d"
+        find . -print0 | sort -z \
+            | cpio ${CPIO_REPRODUCIBLE:+--reproducible} --null $cpio_owner_root -H newc -o --quiet > $outfile
+    )
 fi
-if ! ( umask 077; cd "$initdir"; find . -print0 | cpio --null $cpio_owner_root -H newc -o --quiet | \
-    $compress >> "$outfile"; ); then
+
+if ! (
+        umask 077; cd "$initdir"
+        find . -print0 | sort -z \
+            | cpio ${CPIO_REPRODUCIBLE:+--reproducible} --null $cpio_owner_root -H newc -o --quiet \
+            | $compress >> "$outfile"
+    ); then
     dfatal "dracut: creation of $outfile failed"
     exit 1
 fi
