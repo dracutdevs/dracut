@@ -4,6 +4,7 @@
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 . /lib/url-lib.sh
+. /lib/img-lib.sh
 
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
@@ -12,6 +13,12 @@ netroot="$2"
 liveurl="${netroot#livenet:}"
 info "fetching $liveurl"
 imgfile=$(fetch_url "$liveurl")
+if [ "$(det_archive $imgfile)" = gzip ]; then
+    echo gzip -dcv $imgfile $imgfile.decompress
+    gzip -dcv $imgfile > $imgfile.decompress 
+    mv -v $imgfile.decompress  $imgfile
+fi
+
 [ $? = 0 ] || die "failed to download live image: error $?"
 
 # TODO: couldn't dmsquash-live-root handle this?
