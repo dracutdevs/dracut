@@ -13,13 +13,13 @@ netroot="$2"
 liveurl="${netroot#livenet:}"
 info "fetching $liveurl"
 imgfile=$(fetch_url "$liveurl")
-if [ "$(det_archive $imgfile)" = gzip ]; then
-    echo gzip -dcv $imgfile $imgfile.decompress
-    gzip -dcv $imgfile > $imgfile.decompress 
-    mv -v $imgfile.decompress  $imgfile
-fi
 
 [ $? = 0 ] || die "failed to download live image: error $?"
+
+unpack_archive $imgfile $imgfile.new
+
+mv  $imgfile.new $imgfile
+
 
 # TODO: couldn't dmsquash-live-root handle this?
 if [ ${imgfile##*.} = "iso" ]; then

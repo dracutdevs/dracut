@@ -30,8 +30,9 @@ det_fs_img() {
 # unpack_archive ARCHIVE OUTDIR
 # unpack a (possibly compressed) cpio/tar archive
 unpack_archive() {
-    local img="$1" outdir="$2" archiver="" decompr=""
+    local img="$1" out="$2" archiver="" decompr=""
     local ft="$(det_archive $img)"
+    info  "archive file type is $ft"
     case "$ft" in
         xz|gzip|bzip2) decompr="$ft -dc" ;;
         cpio|tar) decompr="cat";;
@@ -39,12 +40,18 @@ unpack_archive() {
     esac
     ft="$($decompr $img | det_archive)"
     case "$ft" in
-        cpio) archiver="cpio -iumd" ;;
-        tar) archiver="tar -xf -" ;;
-        *) return 2 ;;
+        cpio) archiver="cpio -iumd" ;outdir=$out;;
+        tar) archiver="tar -xf -" ;outdir=$out;;
+        *) archiver="cat" ;outfile=$out;;
     esac
-    mkdir -p $outdir
-    ( cd $outdir; $decompr | $archiver 2>/dev/null ) < $img
+    if [ -n "$outdir" ]; then
+        mkdir -p $outdir
+        ( cd $outdir; $decompr | $archiver 2>/dev/null ) < $img
+    fi
+
+    if [ -n "$outfile" ]; then
+        $decompr $img > $outfile 
+    fi
 }
 
 # unpack_fs FSIMAGE OUTDIR
