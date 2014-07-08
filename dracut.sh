@@ -1400,20 +1400,18 @@ if [[ $kernel_only != yes ]]; then
     fi
 fi
 
-if [[ $do_prelink == yes ]]; then
-    PRELINK_BIN="$(command -v prelink)"
-    if [[ $UID = 0 ]] && [[ $PRELINK_BIN ]]; then
-        if [[ $DRACUT_FIPS_MODE ]]; then
-            dinfo "*** Installing prelink files ***"
-            inst_multiple -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf /etc/prelink.cache
-        else
-            dinfo "*** Pre-linking files ***"
-            inst_multiple -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf
-            chroot "$initdir" "$PRELINK_BIN" -a
-            rm -f -- "$initdir/$PRELINK_BIN"
-            rm -fr -- "$initdir"/etc/prelink.*
-            dinfo "*** Pre-linking files done ***"
-        fi
+PRELINK_BIN="$(command -v prelink)"
+if [[ $UID = 0 ]] && [[ $PRELINK_BIN ]]; then
+    if [[ $DRACUT_FIPS_MODE ]]; then
+        dinfo "*** Installing prelink files ***"
+        inst_multiple -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf /etc/prelink.cache
+    elif [[ $do_prelink == yes ]]; then
+        dinfo "*** Pre-linking files ***"
+        inst_multiple -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf
+        chroot "$initdir" "$PRELINK_BIN" -a
+        rm -f -- "$initdir/$PRELINK_BIN"
+        rm -fr -- "$initdir"/etc/prelink.*
+        dinfo "*** Pre-linking files done ***"
     fi
 fi
 
