@@ -109,12 +109,11 @@ ldconfig_paths()
     local a i
     declare -A a
     for i in $(
-        ldconfig -pN 2>/dev/null | while read a b c d; do
-            [[ "$c" != "=>" ]] && continue
-            printf "%s\n" ${d%/*};
+        ldconfig -pN 2>/dev/null | grep -F '=>' | grep -E -v '/(lib|lib64|usr/lib|usr/lib64)/[^/]*$' | while read a b c d; do
+            d=${d%/*}
+            printf "%s\n" "$d";
         done
     ); do
-        [[ "$i" = "/lib" || "$i" = "/usr/lib" || "$i" = "/lib64" || "$i" = "/usr/lib64" ]] && continue
         a["$i"]=1;
     done;
     printf "%s\n" ${!a[@]}
