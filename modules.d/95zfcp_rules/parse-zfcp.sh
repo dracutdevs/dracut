@@ -43,7 +43,7 @@ EOF
 }
 
 if [[ -f /sys/firmware/ipl/ipl_type &&
-            $(</sys/firmare/ipl/ipl_type) = "fcp" ]] ; then
+            $(</sys/firmware/ipl/ipl_type) = "fcp" ]] ; then
     (
         local _wwpn=$(cat /sys/firmware/ipl/wwpn)
         local _lun=$(cat /sys/firmware/ipl/lun)
