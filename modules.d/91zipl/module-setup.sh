@@ -42,7 +42,7 @@ install() {
     if [[ $hostonly_cmdline == "yes" ]] ; then
         local _zipl=$(cmdline)
 
-        [[ $_zipl ]] && printf "%s\n" "$_zipl"
+        [[ $_zipl ]] && printf "%s\n" "$_zipl" > "${initdir}/etc/cmdline.d/91zipl.conf"
     fi
     dracut_need_initqueue
 }
