@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DEV=$1
+DEV="$1"
 MNT=/boot/zipl
 
 if [ -z "$DEV" ] ; then
