@@ -12,8 +12,8 @@ cmdline() {
         return 0
     }
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        for_each_host_dev_and_slaves is_dasd || return 255
-    }
+        for_each_host_dev_and_slaves_all is_dasd || return 255
+    } | sort | uniq
 }
 
 # called by dracut
