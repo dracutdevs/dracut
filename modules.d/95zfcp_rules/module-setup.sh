@@ -14,11 +14,11 @@ cmdline() {
         _wwpn=$(cat ${_sdev}/wwpn)
         _ccw=$(cat ${_sdev}/hba_id)
         echo "rd.zfcp=${_ccw},${_wwpn},${_lun}"
-        return 1
+        return 0
     }
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        for_each_host_dev_and_slaves is_zfcp
-    }
+        for_each_host_dev_and_slaves_all is_zfcp
+    } | sort | uniq
 }
 
 # called by dracut
@@ -29,6 +29,7 @@ check() {
     require_binaries /usr/lib/udev/collect || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
+        found=0
         for _ccw in /sys/bus/ccw/devices/*/host* ; do
             [ -d "$_ccw" ] || continue
             found=$(($found+1));
