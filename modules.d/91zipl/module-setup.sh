@@ -20,7 +20,20 @@ depends() {
 
 # called by dracut
 installkernel() {
-    instmods ext2
+    local _boot_zipl
+
+    _boot_zipl=$(sed -n 's/\(.*\)\w*\/boot\/zipl.*/\1/p' /etc/fstab)
+    if [ -n "$_boot_zipl" ] ; then
+        eval $(blkid -s TYPE -o udev ${_boot_zipl})
+        if [ -n "$ID_FS_TYPE" ] ; then
+            case "$ID_FS_TYPE" in
+                ext?)
+                    ID_FS_TYPE=ext4
+                    ;;
+            esac
+            instmods ${ID_FS_TYPE}
+        fi
+    fi
 }
 
 # called by dracut
