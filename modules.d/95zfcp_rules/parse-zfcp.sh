@@ -55,8 +55,10 @@ fi
 
 for zfcp_arg in $(getargs rd.zfcp); do
     (
+        OLDIFS="$IFS"
         IFS=","
         set $zfcp_arg
+        IFS="$OLDIFS"
         create_udev_rule $1 $2 $3
     )
 done
@@ -72,8 +74,10 @@ for zfcp_arg in $(getargs root=) $(getargs resume=); do
                 ;;
         esac
         if [ -n "$ccw_arg" ] ; then
+            OLDIFS="$IFS"
             IFS="-"
             set -- $ccw_arg
+            IFS="$OLDIFS"
             _wwpn=${4%:*}
             _lun=${4#*:}
             create_udev_rule $2 $wwpn $lun
