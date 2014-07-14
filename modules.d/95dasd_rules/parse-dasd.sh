@@ -5,6 +5,10 @@ create_udev_rule() {
     local _drv _cu_type _dev_type
     local _rule=/etc/udev/rules.d/51-dasd-${ccw}.rules
 
+    if [ -x /sbin/cio_ignore ] && cio_ignore -i $ccw > /dev/null ; then
+        cio_ignore -r $ccw
+    fi
+
     if [ -e /sys/bus/ccw/devices/${ccw} ] ; then
         read _cu_type < /sys/bus/ccw/devices/${ccw}/cutype
         read _dev_type < /sys/bus/ccw/devices/${ccw}/devtype
@@ -28,10 +32,6 @@ create_udev_rule() {
         ;;
     esac
     [ -z "${_drv}" ] && return 0
-
-    if [ -x /sbin/cio_ignore ] && cio_ignore -i $ccw > /dev/null ; then
-        cio_ignore -r $ccw
-    fi
 
     [ -e ${_rule} ] && return 0
 
