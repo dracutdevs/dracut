@@ -82,6 +82,7 @@ install() {
                 fi
             done
         done < /etc/crypttab > $initdir/etc/crypttab
+        mark_hostonly /etc/crypttab
     fi
 
     inst_simple "$moddir/crypt-lib.sh" "/lib/dracut-crypt-lib.sh"

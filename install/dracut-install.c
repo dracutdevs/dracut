@@ -53,6 +53,7 @@ static bool arg_optional = false;
 static bool arg_all = false;
 static bool arg_resolvelazy = false;
 static bool arg_resolvedeps = false;
+static bool arg_hostonly = false;
 static char *destrootdir = NULL;
 
 static Hashmap *items = NULL;
@@ -467,6 +468,29 @@ static int hmac_install(const char *src, const char *dst, const char *hmacpath)
         return 0;
 }
 
+void mark_hostonly(const char *path)
+{
+        _cleanup_free_ char *fulldstpath = NULL;
+        _cleanup_fclose_ FILE *f = NULL;
+        int ret;
+
+        ret = asprintf(&fulldstpath, "%s/lib/dracut/hostonly-files", destrootdir);
+        if (ret < 0) {
+                log_error("Out of memory!");
+                exit(EXIT_FAILURE);
+        }
+
+        f = fopen(fulldstpath, "a");
+
+        if (f == NULL) {
+                log_error("Could not open '%s' for writing.", fulldstpath);
+                return;
+        }
+
+        fprintf(f, "%s\n", path);
+
+}
+
 static int dracut_install(const char *src, const char *dst, bool isdir, bool resolvedeps, bool hashdst)
 {
         struct stat sb, db;
@@ -628,6 +652,10 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
 
         log_debug("dracut_install ret = %d", ret);
         log_info("cp '%s' '%s'", src, fulldstpath);
+
+        if (arg_hostonly)
+                mark_hostonly(dst);
+
         ret += cp(src, fulldstpath);
 
         log_debug("dracut_install ret = %d", ret);
@@ -706,13 +734,14 @@ static int parse_argv(int argc, char *argv[])
                 {"ldd", no_argument, NULL, 'l'},
                 {"resolvelazy", no_argument, NULL, 'R'},
                 {"optional", no_argument, NULL, 'o'},
+                {"hostonly", no_argument, NULL, 'H'},
                 {"all", no_argument, NULL, 'a'},
-                {"fips", no_argument, NULL, 'H'},
+                {"fips", no_argument, NULL, 'f'},
                 {"destrootdir", required_argument, NULL, 'D'},
                 {NULL, 0, NULL, 0}
         };
 
-        while ((c = getopt_long(argc, argv, "adhloD:HR", options, NULL)) != -1) {
+        while ((c = getopt_long(argc, argv, "adfhloD:HR", options, NULL)) != -1) {
                 switch (c) {
                 case ARG_VERSION:
                         puts(PROGRAM_VERSION_STRING);
@@ -741,8 +770,11 @@ static int parse_argv(int argc, char *argv[])
                 case 'D':
                         destrootdir = strdup(optarg);
                         break;
-                case 'H':
+                case 'f':
                         arg_hmac = true;
+                        break;
+                case 'H':
+                        arg_hostonly = true;
                         break;
                 case 'h':
                         usage(EXIT_SUCCESS);

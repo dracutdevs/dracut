@@ -30,15 +30,17 @@ cmdline() {
 install() {
     local _bin
 
-    cmdline  >> "${initdir}/etc/cmdline.d/95resume.conf"
-    echo  >> "${initdir}/etc/cmdline.d/95resume.conf"
+    if [[ $hostonly_cmdline == "yes" ]]; then
+        cmdline  >> "${initdir}/etc/cmdline.d/95resume.conf"
+        echo  >> "${initdir}/etc/cmdline.d/95resume.conf"
+    fi
 
     # Optional uswsusp support
     for _bin in /usr/sbin/resume /usr/lib/suspend/resume /usr/lib/uswsusp/resume
     do
         [[ -x "${_bin}" ]] && {
             inst "${_bin}" /usr/sbin/resume
-            [[ -f /etc/suspend.conf ]] && inst /etc/suspend.conf
+            [[ $hostonly ]] && [[ -f /etc/suspend.conf ]] && inst -H /etc/suspend.conf
             break
         }
     done

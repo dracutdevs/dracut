@@ -17,6 +17,7 @@ sfdisk -C 10240 -H 2 -S 32 -L /dev/sdb <<EOF
 ,
 EOF
 
+udevadm settle
 
 mkfs.btrfs -L dracut /dev/sda2
 mkfs.btrfs -L dracutusr /dev/sdb2

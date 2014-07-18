@@ -31,6 +31,6 @@ install() {
     inst_rules 56-zfcp.rules
 
     if [[ $hostonly ]]; then
-        inst_simple /etc/zfcp.conf
+        inst_simple -H /etc/zfcp.conf
     fi
 }

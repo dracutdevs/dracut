@@ -769,6 +769,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $prefix = "/" ]] && unset prefix
 [[ $hostonly_l ]] && hostonly=$hostonly_l
 [[ $hostonly_cmdline_l ]] && hostonly_cmdline=$hostonly_cmdline_l
+[[ "$hostonly" == "yes" ]] && ! [[ $hostonly_cmdline ]] && hostonly_cmdline="yes"
 [[ $persistent_policy_l ]] && persistent_policy=$persistent_policy_l
 [[ $use_fstab_l ]] && use_fstab=$use_fstab_l
 [[ $mdadmconf_l ]] && mdadmconf=$mdadmconf_l
@@ -1348,6 +1349,15 @@ if [[ $kernel_only != yes ]]; then
         | xargs -r -0 $DRACUT_INSTALL ${initdir:+-D "$initdir"} -R ${DRACUT_FIPS_MODE:+-H} --
         dinfo "*** Resolving executable dependencies done***"
     fi
+
+    # libpthread workaround: pthread_cancel wants to dlopen libgcc_s.so
+    for _dir in $libdirs; do
+        for _f in "$_dir/libpthread.so"*; do
+            [[ -e "$_f" ]] || continue
+            inst_libdir_file "libgcc_s.so*"
+            break 2
+        done
+    done
 fi
 
 while pop include_src src && pop include_target tgt; do
@@ -1390,20 +1400,18 @@ if [[ $kernel_only != yes ]]; then
     fi
 fi
 
-if [[ $do_prelink == yes ]]; then
-    PRELINK_BIN="$(command -v prelink)"
-    if [[ $UID = 0 ]] && [[ $PRELINK_BIN ]]; then
-        if [[ $DRACUT_FIPS_MODE ]]; then
-            dinfo "*** Installing prelink files ***"
-            inst_multiple -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf /etc/prelink.cache
-        else
-            dinfo "*** Pre-linking files ***"
-            inst_multiple -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf
-            chroot "$initdir" "$PRELINK_BIN" -a
-            rm -f -- "$initdir/$PRELINK_BIN"
-            rm -fr -- "$initdir"/etc/prelink.*
-            dinfo "*** Pre-linking files done ***"
-        fi
+PRELINK_BIN="$(command -v prelink)"
+if [[ $UID = 0 ]] && [[ $PRELINK_BIN ]]; then
+    if [[ $DRACUT_FIPS_MODE ]]; then
+        dinfo "*** Installing prelink files ***"
+        inst_multiple -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf /etc/prelink.cache
+    elif [[ $do_prelink == yes ]]; then
+        dinfo "*** Pre-linking files ***"
+        inst_multiple -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf
+        chroot "$initdir" "$PRELINK_BIN" -a
+        rm -f -- "$initdir/$PRELINK_BIN"
+        rm -fr -- "$initdir"/etc/prelink.*
+        dinfo "*** Pre-linking files done ***"
     fi
 fi
 

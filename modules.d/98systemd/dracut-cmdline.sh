@@ -10,6 +10,15 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 [ -f /etc/initrd-release ] && . /etc/initrd-release
 [ -n "$VERSION" ] && info "dracut-$VERSION"
 
+if ! getargbool 1 'rd.hostonly'; then
+    [ -f /etc/cmdline.d/99-cmdline-ask.conf ] && mv /etc/cmdline.d/99-cmdline-ask.conf /tmp/99-cmdline-ask.conf
+    remove_hostonly_files
+    [ -f /tmp/99-cmdline-ask.conf ] && mv /tmp/99-cmdline-ask.conf /etc/cmdline.d/99-cmdline-ask.conf
+fi
+
+info "Using kernel command line parameters:"
+getcmdline | vinfo
+
 getargbool 0 rd.udev.log-priority=info -d rd.udev.info -d -n -y rdudevinfo && echo 'udev_log="info"' >> /etc/udev/udev.conf
 getargbool 0 rd.udev.log-priority=debug -d rd.udev.debug -d -n -y rdudevdebug && echo 'udev_log="debug"' >> /etc/udev/udev.conf
 

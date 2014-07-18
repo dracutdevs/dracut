@@ -213,11 +213,19 @@ testimage: all
 	./dracut.sh -l -a debug -f test-$(shell uname -r).img $(shell uname -r)
 	@echo wrote  test-$(shell uname -r).img
 
+debugtestimage: all
+	./dracut.sh --debug -l -a debug -f test-$(shell uname -r).img $(shell uname -r)
+	@echo wrote  test-$(shell uname -r).img
+
 testimages: all
 	./dracut.sh -l -a debug --kernel-only -f test-kernel-$(shell uname -r).img $(shell uname -r)
 	@echo wrote  test-$(shell uname -r).img
 	./dracut.sh -l -a debug --no-kernel -f test-dracut.img $(shell uname -r)
 	@echo wrote  test-dracut.img
+
+debughostimage: all
+	./dracut.sh --debug -H -l -f test-$(shell uname -r).img $(shell uname -r)
+	@echo wrote  test-$(shell uname -r).img
 
 hostimage: all
 	./dracut.sh -H -l -f test-$(shell uname -r).img $(shell uname -r)

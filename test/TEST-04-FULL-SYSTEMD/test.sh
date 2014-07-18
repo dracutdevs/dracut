@@ -217,7 +217,7 @@ EOF
         fi
 
     )
-#exit 1
+
     # second, install the files needed to make the root filesystem
     (
 	export initdir=$TESTDIR/overlay
@@ -239,10 +239,6 @@ EOF
 	-f $TESTDIR/initramfs.makeroot $KVERSION || return 1
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
-
-#    echo $TESTDIR/overlay
-#    echo $TESTDIR/initramfs.makeroot
-#exit 1
     rm -rf -- $TESTDIR/overlay
 
     $testdir/run-qemu \
@@ -269,8 +265,6 @@ EOF
 	-f $TESTDIR/initramfs.testing $KVERSION || return 1
 
     rm -rf -- $TESTDIR/overlay
-
-#	-o "plymouth network md dmraid multipath fips caps crypt btrfs resume dmsquash-live dm"
 }
 
 test_cleanup() {

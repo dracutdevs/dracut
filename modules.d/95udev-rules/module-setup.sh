@@ -33,6 +33,7 @@ install() {
         50-udev.rules 95-late.rules \
         50-firmware.rules \
         59-scsi-sg3_utils.rules \
+        70-uaccess.rules 71-seat.rules 73-seat-late.rules \
         75-net-description.rules \
         80-net-name-slot.rules 80-net-setup-link.rules \
         "$moddir/59-persistent-storage.rules" \
@@ -44,12 +45,8 @@ install() {
     # eudev rules
     inst_rules 80-drivers-modprobe.rules
 
-    for _i in \
-        ${systemdutildir}/network/*.link \
-        ${hostonly:+/etc/systemd/network/*.link} \
-        ; do
-        [[ -e "$_i" ]] && inst "$_i"
-    done
+    inst_multiple -o ${systemdutildir}/network/*.link
+    [[ $hostonly ]] && inst_multiple -H -o /etc/systemd/network/*.link
 
     {
         for i in cdrom tape dialout floppy; do

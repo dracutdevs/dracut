@@ -25,6 +25,10 @@ fi
 if [ -z "$NEEDBOOTDEV" ] ; then
     count=0
     for p in $(getargs ip=); do
+        case "$p" in
+            ibft)
+                continue;;
+        esac
         count=$(( $count + 1 ))
     done
     [ $count -gt 1 ] && NEEDBOOTDEV=1
