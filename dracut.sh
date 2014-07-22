@@ -626,21 +626,10 @@ if ! [[ $outfile ]]; then
     fi
 fi
 
-for i in /usr/sbin /sbin /usr/bin /bin; do
-    rl=$i
-    if [ -L "$i" ]; then
-        rl=$(readlink -f $i)
-    fi
-    if [[ "$NPATH" != *:$rl* ]] ; then
-        NPATH+=":$rl"
-    fi
-done
-export PATH="${NPATH#:}"
 unset LC_MESSAGES
 unset LC_CTYPE
 export LC_ALL=C
 export LANG=C
-unset NPATH
 unset LD_LIBRARY_PATH
 unset LD_PRELOAD
 unset GREP_OPTIONS
@@ -684,6 +673,20 @@ fi
 for f in $(dropindirs_sort ".conf" "$confdir" "$dracutbasedir/dracut.conf.d"); do
     [[ -e $f ]] && . "$f"
 done
+
+DRACUT_PATH=${DRACUT_PATH:-/usr/sbin /sbin /usr/bin /bin}
+
+for i in $DRACUT_PATH; do
+    rl=$i
+    if [ -L "$i" ]; then
+        rl=$(readlink -f $i)
+    fi
+    if [[ "$NPATH" != *:$rl* ]] ; then
+        NPATH+=":$rl"
+    fi
+done
+export PATH="${NPATH#:}"
+unset NPATH
 
 # these optins add to the stuff in the config file
 if (( ${#add_dracutmodules_l[@]} )); then
