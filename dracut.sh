@@ -158,6 +158,8 @@ Creates initial ramdisk images for preloading modules
                          in the final initramfs.
   -I, --install [LIST]  Install the space separated list of files into the
                          initramfs.
+  --install-optional [LIST]  Install the space separated list of files into the
+                         initramfs, if they exist.
   --gzip                Compress the generated initramfs using gzip.
                          This will be done by default, unless another
                          compression option or --no-compress is passed.
@@ -305,6 +307,7 @@ rearrange_params()
         --long drivers: \
         --long filesystems: \
         --long install: \
+        --long install-optional: \
         --long fwdir: \
         --long libdirs: \
         --long fscks: \
@@ -469,6 +472,9 @@ while :; do
         -d|--drivers)  push drivers_l            "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
         --filesystems) push filesystems_l        "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
         -I|--install)  push install_items_l      "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
+        --install-optional)
+                       push install_optional_items_l \
+                                                 "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
         --fwdir)       push fw_dir_l             "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
         --libdirs)     push libdirs_l            "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
         --fscks)       push fscks_l              "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
@@ -713,6 +719,12 @@ fi
 if (( ${#install_items_l[@]} )); then
     while pop install_items_l val; do
         install_items+=" $val "
+    done
+fi
+
+if (( ${#install_optional_items_l[@]} )); then
+    while pop install_optional_items_l val; do
+        install_optional_items+=" $val "
     done
 fi
 
@@ -1317,6 +1329,7 @@ fi
 
 if [[ $kernel_only != yes ]]; then
     (( ${#install_items[@]} > 0 )) && inst_multiple ${install_items[@]}
+    (( ${#install_optional_items[@]} > 0 )) && inst_multiple -o ${install_optional_items[@]}
 
     [[ $kernel_cmdline ]] && printf "%s\n" "$kernel_cmdline" >> "${initdir}/etc/cmdline.d/01-default.conf"
 
