@@ -966,13 +966,17 @@ wait_for_loginit()
 # pidof version for root
 if ! command -v pidof >/dev/null 2>/dev/null; then
     pidof() {
+        debug_off
         local _cmd
         local _exe
         local _rl
         local _ret=1
         local i
         _cmd="$1"
-        [ -z "$_cmd" ] && return 1
+        if [ -z "$_cmd" ]; then
+            debug_on
+            return 1
+        fi
         _exe=$(type -P "$1")
         for i in /proc/*/exe; do
             [ -e "$i" ] || continue
@@ -986,6 +990,7 @@ if ! command -v pidof >/dev/null 2>/dev/null; then
             echo ${i##/proc/}
             _ret=0
         done
+        debug_on
         return $_ret
     }
 fi
