@@ -89,6 +89,7 @@ ifdown() {
 
 setup_net() {
     local netif="$1" f="" gw_ip="" netroot_ip="" iface="" IFACES=""
+    local _p
     [ -e /tmp/net.$netif.did-setup ] && return
     [ -e /sys/class/net/$netif/address ] && \
         [ -e /tmp/net.$(cat /sys/class/net/$netif/address).did-setup ] && return
@@ -102,6 +103,20 @@ setup_net() {
     # set up resolv.conf
     [ -e /tmp/net.$netif.resolv.conf ] && \
         cp -f /tmp/net.$netif.resolv.conf /etc/resolv.conf
+
+    # add static route
+    for _p in $(getargs rd.route); do
+        route_to_var "$_p" || continue
+        [ -n "$route_dev" ] && [ "$route_dev" != "$netif"] && continue
+        ip route add "$route_mask" ${route_gw:+via "$route_gw"} ${route_dev:+dev "$route_dev"}
+        if strstr ":" "$route_mask"; then
+            printf -- "%s\n" "$route_mask ${route_gw:+via $route_gw} ${route_dev:+dev $route_dev}" \
+                > /tmp/net.route6."$netif"
+        else
+            printf -- "%s\n" "$route_mask ${route_gw:+via $route_gw} ${route_dev:+dev $route_dev}" \
+                > /tmp/net.route."$netif"
+        fi
+    done
 
     # Handle STP Timeout: arping the default gateway.
     # (or the root server, if a) it's local or b) there's no gateway.)
@@ -398,6 +413,33 @@ ip_to_var() {
             ibft) dev="" ;; # ignore - ibft is handled elsewhere
         esac
     fi
+}
+
+route_to_var() {
+    local v=${1}:
+    local i
+    set --
+    while [ -n "$v" ]; do
+        if [ "${v#\[*:*:*\]:}" != "$v" ]; then
+            # handle IPv6 address
+            i="${v%%\]:*}"
+            i="${i##\[}"
+            set -- "$@" "$i"
+            v=${v#\[$i\]:}
+        else
+            set -- "$@" "${v%%:*}"
+            v=${v#*:}
+        fi
+    done
+
+    unset route_mask route_gw route_dev
+    case $# in
+        2)  [ -n "$1" ] && route_mask="$1"; [ -n "$2" ] && route_gw="$2"
+            return 0;;
+        3)  [ -n "$1" ] && route_mask="$1"; [ -n "$2" ] && route_gw="$2"; [ -n "$3" ] && route_dev="$3"
+            return 0;;
+        *)  return 1;;
+    esac
 }
 
 parse_ifname_opts() {
