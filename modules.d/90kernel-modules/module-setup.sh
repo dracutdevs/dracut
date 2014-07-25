@@ -51,9 +51,10 @@ installkernel() {
 
         if [[ "$(uname -p)" == arm* ]]; then
             # arm specific modules
-            hostonly='' instmods omapdrm panel-tfp410
-            instmods i2c-tegra gpio-regulator as3722-regulator \
-                    phy-tegra-usb ehci-tegra sdhci-tegra
+            hostonly='' instmods \
+	        connector-hdmi connector-dvi encoder-tfp410 \
+	        encoder-tpd12s015 i2c-tegra gpio-regulator \
+		as3722-regulator orion-ehci ehci-tegra 
         fi
 
         # install virtual machine support

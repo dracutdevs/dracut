@@ -15,12 +15,18 @@ depends() {
 
 # called by dracut
 install() {
-    if grep -q nash /usr/libexec/plymouth/plymouth-populate-initrd \
-        || [ ! -x /usr/libexec/plymouth/plymouth-populate-initrd ]; then
+    PKGLIBDIR="/usr/lib/plymouth"
+    if type -P dpkg-architecture &>/dev/null; then
+        PKGLIBDIR="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/plymouth"
+    fi
+    [ -x /usr/libexec/plymouth/plymouth-populate-initrd ] && PKGLIBDIR="/usr/libexec/plymouth"
+
+    if grep -q nash ${PKGLIBDIR}/plymouth-populate-initrd \
+        || [ ! -x ${PKGLIBDIR}/plymouth-populate-initrd ]; then
         . "$moddir"/plymouth-populate-initrd.sh
     else
         PLYMOUTH_POPULATE_SOURCE_FUNCTIONS="$dracutfunctions" \
-            /usr/libexec/plymouth/plymouth-populate-initrd -t "$initdir"
+            ${PKGLIBDIR}/plymouth-populate-initrd -t "$initdir"
     fi
 
     inst_hook emergency 50 "$moddir"/plymouth-emergency.sh

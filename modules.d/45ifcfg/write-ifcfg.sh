@@ -268,6 +268,9 @@ for netup in /tmp/net.*.did-setup ; do
         echo "DNS${i}=\"${ns}\"" >> /tmp/ifcfg/ifcfg-$netif
         i=$((i+1))
     done
+
+    [ -f /tmp/net.route6."$netif" ] && cp /tmp/net.route6."$netif" /tmp/ifcfg/route6-"$netif"
+    [ -f /tmp/net.route."$netif" ] && cp /tmp/net.route."$netif" /tmp/ifcfg/route-"$netif"
 done
 
 # Pass network opts
