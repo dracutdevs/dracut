@@ -40,7 +40,7 @@ _dracut() {
                               --omit-drivers --modules --omit --drivers --filesystems --install
                               --fwdir --libdirs --fscks --add-fstab --mount --device --nofscks
                               --kmoddir --conf --confdir --tmpdir --stdlog --compress --prefix
-                              --kernel-cmdline --sshkey --persistent-policy'
+                              --kernel-cmdline --sshkey --persistent-policy --install-optional'
         )
 
         if __contains_word "$prev" ${OPTS[ARG]}; then
@@ -49,7 +49,7 @@ _dracut() {
                                 comps=$(compgen -d -- "$cur")
                                 compopt -o filenames
                         ;;
-                        -c|--conf|--sshkey|--add-fstab|--add-device|-I|--install)
+                        -c|--conf|--sshkey|--add-fstab|--add-device|-I|--install|--install-optional)
                                 comps=$(compgen -f -- "$cur")
                                 compopt -o filenames
                         ;;
