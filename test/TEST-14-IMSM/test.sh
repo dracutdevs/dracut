@@ -15,7 +15,7 @@ client_run() {
 	-hdc $TESTDIR/disk2 \
 	-m 256M -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "$* root=LABEL=root rw debug rd.retry=5 rd.debug console=ttyS0,115200n81 selinux=0 rd.info $DEBUGFAIL" \
+	-append "$* root=LABEL=root rw debug rd.retry=20 rd.debug console=ttyS0,115200n81 selinux=0 rd.info $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     if ! grep -F -m 1 -q dracut-root-block-success $TESTDIR/root.ext2; then
 	echo "CLIENT TEST END: $@ [FAIL]"

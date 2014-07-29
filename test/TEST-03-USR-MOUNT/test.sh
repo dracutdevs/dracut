@@ -5,7 +5,7 @@ TEST_DESCRIPTION="root filesystem on a btrfs filesystem with /usr subvolume"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-#DEBUGFAIL="rd.shell rd.break"
+#DEBUGFAIL="rd.shell rd.break=cmdline"
 
 client_run() {
     local test_name="$1"; shift
@@ -20,8 +20,7 @@ client_run() {
 	-hdc $TESTDIR/result \
 	-m 256M -smp 2 -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-watchdog i6300esb -watchdog-action poweroff \
-	-append "root=LABEL=dracut $client_opts quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug $DEBUGFAIL" \
+	-append "root=LABEL=dracut $client_opts rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
 
     if (($? != 0)); then
@@ -121,8 +120,8 @@ test_setup() {
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-	-a "debug watchdog" \
-        -o "network" \
+	-a "debug" \
+        -o "network plymouth" \
 	-d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \
 	-f $TESTDIR/initramfs.testing $KVERSION || return 1
 
