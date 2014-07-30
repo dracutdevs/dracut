@@ -106,7 +106,13 @@ do_static() {
     [ -n "$macaddr" ] && ip link set address $macaddr dev $netif
     [ -n "$mtu" ] && ip link set mtu $mtu dev $netif
     [ -n "$mask" -a -z "$prefix" ] && prefix=$(mask_to_prefix $mask)
+    if [ "${ip##*/}" != "${ip}" ] ; then
+        prefix="${ip##*/}"
+        ip="${ip%/*}"
+    fi
     if strglobin $ip '*:*:*'; then
+        # Always assume /64 prefix for IPv6
+        [ -z "$prefix" ] && prefix=64
         # note no ip addr flush for ipv6
         ip addr add $ip/$prefix ${srv:+peer $srv} dev $netif
         wait_for_ipv6_dad $netif
@@ -122,6 +128,8 @@ do_static() {
                 return 1
             fi
         fi
+        # Assume /24 prefix for IPv4
+        [ -z "$prefix" ] && prefix=24
         ip addr flush dev $netif
         ip addr add $ip/$prefix ${srv:+peer $srv} brd + dev $netif
     fi
