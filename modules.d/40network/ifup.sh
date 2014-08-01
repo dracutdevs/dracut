@@ -60,7 +60,7 @@ fi
 # bridge this interface?
 if [ -e /tmp/bridge.info ]; then
     . /tmp/bridge.info
-    for ethname in $ethnames ; do
+    for ethname in $bridgeslaves ; do
         if [ "$netif" = "$ethname" ]; then
             if [ "$netif" = "$bondname" ] && [ -n "$DO_BOND_SETUP" ] ; then
                 : # We need to really setup bond (recursive call)
@@ -236,7 +236,7 @@ if [ -e /tmp/bridge.info ]; then
     if [ "$netif" = "$bridgename" ] && [ ! -e /tmp/net.$bridgename.up ]; then
         brctl addbr $bridgename
         brctl setfd $bridgename 0
-        for ethname in $ethnames ; do
+        for ethname in $bridgeslaves ; do
             if [ "$ethname" = "$bondname" ] ; then
                 DO_BOND_SETUP=yes ifup $bondname -m
             elif [ "$ethname" = "$teammaster" ] ; then
