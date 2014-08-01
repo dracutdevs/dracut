@@ -7,14 +7,18 @@ CMDLINE=$(while read line; do echo $line;done < /proc/cmdline)
 strstr() { [ "${1##*"$2"*}" != "$1" ]; }
 
 stty sane
-strstr "$CMDLINE" "rd.shell" && sh -i
+if strstr "$CMDLINE" "rd.shell"; then
+    [ -c /dev/watchdog ] && echo -n 'V' > /dev/watchdog
+	strstr "$(setsid --help)" "control" && CTTY="-c"
+	setsid $CTTY sh -i
+fi
+
 echo "made it to the rootfs! Powering down."
+
 while read dev fs fstype opts rest; do
     [ "$fstype" != "nfs" -a "$fstype" != "nfs4" ] && continue
     echo "nfs-OK $dev $fstype $opts" > /dev/sda
     break
 done < /proc/mounts
-#echo 'V' > /dev/watchdog
-#sh -i
 >/dev/watchdog
 poweroff -f
