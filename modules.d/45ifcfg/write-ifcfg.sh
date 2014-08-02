@@ -215,7 +215,7 @@ for netup in /tmp/net.*.did-setup ; do
                 echo "MASTER=\"$netif\""
                 echo "NAME=\"$slave\""
                 echo "UUID=\"$(cat /proc/sys/kernel/random/uuid)\""
-            } >> /tmp/ifcfg/ifcfg-$slave
+            } > /tmp/ifcfg/ifcfg-$slave
         done
     fi
 
@@ -237,7 +237,7 @@ for netup in /tmp/net.*.did-setup ; do
                 echo "BRIDGE=\"$bridgename\""
                 echo "NAME=\"$slave\""
                 echo "UUID=\"$(cat /proc/sys/kernel/random/uuid)\""
-            } >> /tmp/ifcfg/ifcfg-$slave
+            } > /tmp/ifcfg/ifcfg-$slave
         done
     fi
     i=1
