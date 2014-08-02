@@ -290,7 +290,7 @@ test_setup() {
         . $basedir/dracut-functions.sh
 
         inst_multiple sh shutdown poweroff stty cat ps ln ip \
-            mount dmesg mkdir cp ping grep
+            mount dmesg mkdir cp ping grep setsid ls vi /etc/virc less cat
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
@@ -301,6 +301,10 @@ test_setup() {
             cd "$initdir"
             mkdir -p dev sys proc etc run
             mkdir -p var/lib/nfs/rpc_pipefs
+            mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
+            for i in bin sbin lib lib64; do
+                ln -sfnr usr/$i $i
+            done
         )
         inst /etc/nsswitch.conf /etc/nsswitch.conf
         inst /etc/passwd /etc/passwd

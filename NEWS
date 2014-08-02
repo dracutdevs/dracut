@@ -1,3 +1,18 @@
+dracut-039
+==========
+- DRACUT_PATH can now be used to specify the PATH used by dracut
+  to search for binaries instead of the default
+  /usr/sbin:/sbin:/usr/bin:/bin
+  This should be set in the distribution config file
+  /usr/lib/dracut/dracut.conf.d/01-dist.conf
+- "rd.route" kernel command line parameter added
+- "--install-optional" and install_optional_items added
+- find plymouth pkglibdir on debian
+- speed up ldconfig_paths()
+- more ARM modules
+- fixed inst*() functions and "-H" handling
+- various bugfixes
+
 dracut-038
 ==========
 - "rd.cmdline=ask" will ask the user on the console to enter additional
