@@ -234,8 +234,7 @@ for netup in /tmp/net.*.did-setup ; do
                 echo "ONBOOT=yes"
                 echo "NETBOOT=yes"
                 echo "HWADDR=\"$(cat /sys/class/net/$slave/address)\""
-                echo "SLAVE=yes"
-                echo "MASTER=\"$bridgename\""
+                echo "BRIDGE=\"$bridgename\""
                 echo "NAME=\"$slave\""
                 echo "UUID=\"$(cat /proc/sys/kernel/random/uuid)\""
             } >> /tmp/ifcfg/ifcfg-$slave
