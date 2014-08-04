@@ -51,10 +51,13 @@ installkernel() {
 
         if [[ "$(uname -p)" == arm* ]]; then
             # arm specific modules
-            hostonly='' instmods \
-	        connector-hdmi connector-dvi encoder-tfp410 \
-	        encoder-tpd12s015 i2c-tegra gpio-regulator \
-		as3722-regulator orion-ehci ehci-tegra 
+            instmods \
+                "=drivers/i2c/busses" \
+                "=drivers/regulator" \
+                "=drivers/rtc" \
+                "=drivers/usb/host" \
+                "=drivers/usb/phy" \
+                ${NULL}
         fi
 
         # install virtual machine support
