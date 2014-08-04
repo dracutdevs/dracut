@@ -13,7 +13,7 @@ check() {
 depends() {
     # if dmsetup is not installed, then we cannot support fedora/red hat
     # style live images
-    echo dm rootfs-block
+    echo dm rootfs-block img-lib
     return 0
 }
 

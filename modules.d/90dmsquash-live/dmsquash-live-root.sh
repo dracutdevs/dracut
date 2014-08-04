@@ -4,6 +4,8 @@
 
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
+command -v unpack_archive >/dev/null || . /lib/img-lib.sh
+
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 if getargbool 0 rd.live.debug -n -y rdlivedebug; then
@@ -26,6 +28,7 @@ getargbool 0 rd.live.ram -d -y live_ram && live_ram="yes"
 getargbool 0 rd.live.overlay.reset -d -y reset_overlay && reset_overlay="yes"
 getargbool 0 rd.live.overlay.readonly -d -y readonly_overlay && readonly_overlay="--readonly" || readonly_overlay=""
 overlay=$(getarg rd.live.overlay -d overlay)
+getargbool 0 rd.writable.fsimg -d -y writable_fsimg && writable_fsimg="yes"
 
 # CD/DVD media check
 [ -b $livedev ] && fs=$(blkid -s TYPE -o value $livedev)
@@ -180,9 +183,18 @@ fi
 
 if [ -n "$FSIMG" ] ; then
     BASE_LOOPDEV=$( losetup -f )
-    losetup -r $BASE_LOOPDEV $FSIMG
 
-    do_live_from_base_loop
+    if [ -n "$writable_fsimg" ] ; then
+        # mount the provided fileysstem read/write
+        echo "Unpacking live filesystem (may take some time)"
+        unpack_archive $FSIMG /tmp/fsimg/
+        losetup $BASE_LOOPDEV /tmp/fsimg/rootfs.img
+        echo "0 $( blockdev --getsize $BASE_LOOPDEV ) linear $BASE_LOOPDEV 0" | dmsetup create live-rw
+    else
+        # mount the filesystem read-only and add a dm snapshot for writes
+        losetup -r $BASE_LOOPDEV $FSIMG
+        do_live_from_base_loop
+    fi
 fi
 
 # we might have an embedded fs image on squashfs (compressed live)
