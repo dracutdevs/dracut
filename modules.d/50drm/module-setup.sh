@@ -57,7 +57,7 @@ installkernel() {
         # as we could e.g. be in the installer; nokmsboot boot parameter will disable
         # loading of the driver if needed
         if [[ $hostonly ]] && modinfo -F alias $_modname | sed -e 's,\?,\.,g' -e 's,\*,\.\*,g' \
-            | grep -qxf - /sys/bus/pci/devices/*/modalias 2>/dev/null; then
+            | grep -qxf - /sys/bus/{pci/devices,soc/devices/soc?}/*/modalias 2>/dev/null; then
             hostonly='' instmods $_modname
             continue
         fi
