@@ -51,6 +51,17 @@ installkernel() {
         return 0
     }
 
+    if [[ "$(uname -p)" == arm* ]]; then
+        # arm specific modules needed by drm
+        instmods \
+            "=drivers/gpu/drm/i2c" \
+            "=drivers/gpu/drm/panel" \
+            "=drivers/pwm" \
+            "=drivers/video/backlight" \
+            "=drivers/video/fbdev/omap2/displays-new" \
+            ${NULL}
+    fi
+
     for _modname in $(find_kernel_modules_by_path drivers/gpu/drm \
         | drm_module_filter) ; do
         # if the hardware is present, include module even if it is not currently loaded,
