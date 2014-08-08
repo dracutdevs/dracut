@@ -6,7 +6,7 @@ TEST_DESCRIPTION="root filesystem on NFS with multiple nics"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-#DEBUGFAIL="rd.shell"
+#DEBUGFAIL="rd.shell rd.break"
 #SERIAL="tcp:127.0.0.1:9999"
 
 run_server() {
@@ -154,7 +154,7 @@ test_setup() {
 
         (
             cd "$initdir";
-            mkdir -p -- dev sys proc run etc var/run tmp var/lib/{dhcpd,rpcbind}
+            mkdir -p -- dev sys proc run var/run etc tmp var/lib/{dhcpd,rpcbind}
             mkdir -p -- var/lib/nfs/{v4recovery,rpc_pipefs}
             chmod 777 -- var/lib/rpcbind var/lib/nfs
         )
@@ -217,6 +217,15 @@ test_setup() {
     (
         export initdir="$TESTDIR"/mnt/nfs/client
         . "$basedir"/dracut-functions.sh
+        (
+            cd "$initdir"
+            mkdir -p dev sys proc etc run
+            mkdir -p var/lib/nfs/rpc_pipefs
+            mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
+            for i in bin sbin lib lib64; do
+                ln -sfnr usr/$i $i
+            done
+        )
         inst_multiple sh shutdown poweroff stty cat ps ln ip \
             mount dmesg mkdir cp ping grep ls
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
@@ -225,11 +234,6 @@ test_setup() {
         inst_multiple -o "${_terminfodir}"/l/linux
         inst_simple /etc/os-release
         inst ./client-init.sh /sbin/init
-        (
-            cd "$initdir"
-            mkdir -p -- dev sys proc etc run
-            mkdir -p -- var/lib/nfs/rpc_pipefs
-        )
         inst /etc/nsswitch.conf /etc/nsswitch.conf
         inst /etc/passwd /etc/passwd
         inst /etc/group /etc/group

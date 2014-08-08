@@ -27,8 +27,15 @@ test_setup() {
     # Create what will eventually be our root filesystem onto an overlay
     (
 	export initdir=$TESTDIR/overlay/source
-	(mkdir -p "$initdir"; cd "$initdir"; mkdir -p dev sys proc etc var/run tmp run)
 	. $basedir/dracut-functions.sh
+	(
+            cd "$initdir"
+            mkdir -p -- dev sys proc etc var/run tmp
+            mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
+            for i in bin sbin lib lib64; do
+                ln -sfnr usr/$i $i
+            done
+        )
 	inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip route \
 	    mount dmesg ifconfig dhclient mkdir cp ping dhclient
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do

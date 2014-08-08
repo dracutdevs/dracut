@@ -6,7 +6,7 @@ TEST_DESCRIPTION="root filesystem on NBD"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-#DEBUGFAIL="rd.shell rd.retry=10 rd.break"
+#DEBUGFAIL="rd.shell rd.break"
 #SERIAL="udp:127.0.0.1:9999"
 SERIAL="null"
 
@@ -197,7 +197,13 @@ make_encrypted_root() {
         export initdir=$TESTDIR/overlay/source
         . $basedir/dracut-functions.sh
         mkdir -p "$initdir"
-        (cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
+        (
+            cd "$initdir"; mkdir -p dev sys proc etc var/run tmp
+            mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
+            for i in bin sbin lib lib64; do
+                ln -sfnr usr/$i $i
+            done
+        )
         inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
             mount dmesg mkdir cp ping
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
@@ -215,6 +221,13 @@ make_encrypted_root() {
     (
         export initdir=$TESTDIR/overlay
         . $basedir/dracut-functions.sh
+        (
+            cd "$initdir"; mkdir -p dev sys proc etc var/run tmp
+            mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
+            for i in bin sbin lib lib64; do
+                ln -sfnr usr/$i $i
+            done
+        )
         inst_multiple mke2fs poweroff cp umount tune2fs
         inst_hook emergency 000 ./hard-off.sh
         inst_hook initqueue 01 ./create-root.sh
@@ -255,7 +268,13 @@ make_client_root() {
         export initdir=$TESTDIR/mnt
         . $basedir/dracut-functions.sh
         mkdir -p "$initdir"
-        (cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
+        (
+            cd "$initdir"; mkdir -p dev sys proc etc var/run tmp
+            mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
+            for i in bin sbin lib lib64; do
+                ln -sfnr usr/$i $i
+            done
+        )
         inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
             dmesg mkdir cp ping
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do

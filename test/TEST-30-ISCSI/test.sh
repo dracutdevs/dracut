@@ -105,6 +105,15 @@ test_setup() {
     (
         export initdir=$TESTDIR/overlay/source
         . $basedir/dracut-functions.sh
+        (
+            cd "$initdir"
+            mkdir -p -- dev sys proc etc var/run tmp
+            mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
+            for i in bin sbin lib lib64; do
+                ln -sfnr usr/$i $i
+            done
+            mkdir -p -- var/lib/nfs/rpc_pipefs
+        )
         inst_multiple sh shutdown poweroff stty cat ps ln ip \
             mount dmesg mkdir cp ping grep
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
@@ -113,7 +122,6 @@ test_setup() {
         inst_multiple -o ${_terminfodir}/l/linux
         inst_simple /etc/os-release
         inst ./client-init.sh /sbin/init
-        (cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
         cp -a /etc/ld.so.conf* $initdir/etc
         sudo ldconfig -r "$initdir"
     )
