@@ -247,7 +247,7 @@ install() {
     if checks; then
         install_base
 
-        if [[ ${hostonly} ]] && ! [[ ${i18n_install_all} ]]; then
+        if [[ ${hostonly} ]] && ! [[ ${i18n_install_all} == "yes" ]]; then
             install_local_i18n || install_all_kbd
         else
             install_all_kbd
