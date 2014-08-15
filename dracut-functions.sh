@@ -388,7 +388,7 @@ get_persistent_dev() {
             return
         fi
     done
-    echo $1
+    printf -- "%s" "$1"
 }
 
 expand_persistent_dev() {
