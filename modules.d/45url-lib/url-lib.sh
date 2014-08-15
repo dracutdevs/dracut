@@ -110,7 +110,9 @@ ctorrent_fetch_url() {
     fi
     if [ -z "$2" ]; then echo "$outloc" ; fi
 }
-add_url_handler ctorrent_fetch_url torrent
+
+command -v ctorrent >/dev/null \
+    && add_url_handler ctorrent_fetch_url torrent
 
 ### NFS ##############################################################
 
