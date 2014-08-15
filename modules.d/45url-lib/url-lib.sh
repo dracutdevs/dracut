@@ -82,6 +82,36 @@ set_http_header() {
     echo "header = \"$1: $2\"" >> $CURL_HOME/.curlrc
 }
 
+### TORRENT ##########################################################
+
+ctorrent_args="-E 0 -e 0"
+
+ctorrent_fetch_url() {
+    local url="$1" outloc="$2"
+    url=${url#*//}
+    torrent_outloc="$outloc.torrent"
+    echo "$url" > /proc/self/fd/0
+    if [ -n "$outloc" ]; then
+        curl $curl_args --output - -- "$url" > "$torrent_outloc" || return $?
+    else
+        local outdir="$(mkuniqdir /tmp torrent_fetch_url)"
+        ( cd "$outdir"; curl $curl_args --remote-name "$url" || return $? )
+        torrent_outloc="$outdir/$(ls -A $outdir)"
+        outloc=${torrent_outloc%.*}
+    fi
+    if ! [ -f "$torrent_outloc" ]; then
+        warn "Downloading '$url' failed!"
+        return 253
+    fi
+    ctorrent $ctorrent_args -s $outloc $torrent_outloc >&2
+    if ! [ -f "$outloc" ]; then
+        warn "Torrent download of '$url' failed!"
+        return 253
+    fi
+    if [ -z "$2" ]; then echo "$outloc" ; fi
+}
+add_url_handler ctorrent_fetch_url torrent
+
 ### NFS ##############################################################
 
 [ -e /lib/nfs-lib.sh ] && . /lib/nfs-lib.sh
