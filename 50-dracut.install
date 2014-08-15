@@ -10,6 +10,16 @@ KERNEL_IMAGE="$4"
 ret=0
 case "$COMMAND" in
     add)
+        INITRD_IMAGE_PREGENERATED=${KERNEL_IMAGE%/*}/initrd
+        if [[ -f ${INITRD_IMAGE_PREGENERATED} ]]; then
+            # we found an initrd at the same place as the kernel
+            # use this and don't generate a new one
+            cp "$INITRD_IMAGE_PREGENERATED" "$BOOT_DIR_ABS/initrd" \
+                && chown root:root "$BOOT_DIR_ABS/initrd" \
+                && chmod 0600 "$BOOT_DIR_ABS/initrd" \
+                && exit 0
+        fi
+
         if [[ -f /etc/kernel/cmdline ]]; then
             readarray -t BOOT_OPTIONS < /etc/kernel/cmdline
         fi
