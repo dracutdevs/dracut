@@ -45,7 +45,7 @@ if [[ -f /etc/kernel/cmdline ]]; then
     readarray -t BOOT_OPTIONS < /etc/kernel/cmdline
 fi
 if ! [[ "${BOOT_OPTIONS[@]}" ]]; then
-    readarray -t BOOT_OPTIONS < /proc/cmdline
+    read -ar BOOT_OPTIONS < /proc/cmdline
 fi
 if ! [[ $BOOT_OPTIONS ]]; then
     exit 1
@@ -75,7 +75,7 @@ case "$COMMAND" in
             echo "Can't copy '$KERNEL_IMAGE to '$BOOT_DIR_ABS/linux'!" >&2
         fi
 
-        dracut --no-hostonly  -a "rescue" "$BOOT_DIR_ABS"/initrd "$2"
+        dracut --no-hostonly -a "rescue" "$BOOT_DIR_ABS"/initrd "$KERNEL_VERSION"
         ((ret+=$?))
 
         {
