@@ -17,9 +17,11 @@ depends() {
 # called by dracut
 install() {
     local _i _progs _path _busybox
+    local NOT_FROM_BUSYBOX="${NOT_FROM_BUSYBOX} busybox losetup switch_root ,"
+    NOT_FROM_BUSYBOX="$(for _i in ${NOT_FROM_BUSYBOX}; do _i=${_i##*/}; [[ -n "$_i" ]] && echo -n " s/$_i//g;"; done)"
     _busybox=$(type -P busybox)
     inst $_busybox /usr/bin/busybox
-    for _i in $($_busybox | sed -ne '1,/Currently/!{s/,//g; s/busybox//g; p}')
+    for _i in $($_busybox | sed -ne '1,/Currently/!{'"${NOT_FROM_BUSYBOX}"' p}')
     do
         _progs="$_progs $_i"
     done
@@ -29,7 +31,4 @@ install() {
         [ -z "$_path" ] && continue
         ln_r /usr/bin/busybox $_path
     done
-
-    # FIXED: switch_root should be in the above list, but busybox version hangs
-    inst_hook pre-pivot 30 "$moddir/move_mpoints_to_newroot.sh"
 }
