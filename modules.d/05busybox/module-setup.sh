@@ -17,7 +17,7 @@ depends() {
 # called by dracut
 install() {
     local _i _progs _path _busybox
-    local NOT_FROM_BUSYBOX="${NOT_FROM_BUSYBOX} busybox losetup switch_root ,"
+    local NOT_FROM_BUSYBOX="${NOT_FROM_BUSYBOX} busybox losetup switch_root sh ,"
     NOT_FROM_BUSYBOX="$(for _i in ${NOT_FROM_BUSYBOX}; do _i=${_i##*/}; [[ -n "$_i" ]] && echo -n " s/$_i//g;"; done)"
     _busybox=$(type -P busybox)
     inst $_busybox /usr/bin/busybox
