@@ -739,7 +739,6 @@ fs_get_option() {
     done
 }
 
-
 if ! [[ $DRACUT_INSTALL ]]; then
     DRACUT_INSTALL=$(find_binary dracut-install)
 fi
@@ -1740,6 +1739,24 @@ instmods() {
     _ret=$?
     return $_ret
 }
+
+check_kernel_config()
+{
+    local _config_opt="$1"
+    local _config_file
+    [[ -f /boot/config-$kernel ]] \
+        && _config_file="/boot/config-$kernel"
+    [[ -f /lib/modules/$kernel/config ]] \
+        && _config_file="/lib/modules/$kernel/config"
+
+    # no kernel config file, so return true
+    [[ $_config_file ]] || return 0
+
+    grep -q -F "${_config_opt}=" "$_config_file" && return 0
+    return 1
+}
+
+
 # get_cpu_vendor
 # Only two values are returned: AMD or Intel
 get_cpu_vendor ()
