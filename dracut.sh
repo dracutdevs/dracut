@@ -863,6 +863,10 @@ if [[ $print_cmdline ]]; then
     kmsgloglvl=0
 fi
 
+if [[ -f $dracutbasedir/dracut-version.sh ]]; then
+    . $dracutbasedir/dracut-version.sh
+fi
+
 if [[ -f $dracutbasedir/dracut-functions.sh ]]; then
     . $dracutbasedir/dracut-functions.sh
 else
@@ -879,10 +883,6 @@ if ! [[ $print_cmdline ]]; then
         export DRACUT_RESOLVE_DEPS=1
     fi
     rm -fr -- ${initdir}/*
-fi
-
-if [[ -f $dracutbasedir/dracut-version.sh ]]; then
-    . $dracutbasedir/dracut-version.sh
 fi
 
 # Verify bash version, current minimum is 3.1
