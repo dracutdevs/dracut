@@ -123,7 +123,7 @@ munge_nfs_options() {
 mount_nfs() {
     local nfsroot="$1" mntdir="$2" netif="$3"
     local nfs="" server="" path="" options=""
-    nfs_to_var $nfsroot $netif
+    nfs_to_var "$nfsroot" $netif
     munge_nfs_options
     if [ "$nfs" = "nfs4" ]; then
         options=$options${nfslock:+,$nfslock}
@@ -134,5 +134,5 @@ mount_nfs() {
             && warn "Locks unsupported on NFSv{2,3}, using nolock" 1>&2
         options=$options,nolock
     fi
-    mount -t $nfs -o$options $server:$path $mntdir
+    mount -t $nfs -o$options "$server:$path" "$mntdir"
 }
