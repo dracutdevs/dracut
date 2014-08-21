@@ -930,7 +930,7 @@ wait_for_dev()
 cancel_wait_for_dev()
 {
     local _name
-    _name="$(str_replace "$1" '/' '\\x2f')"
+    _name="$(str_replace "$1" '/' '\x2f')"
     rm -f -- "$hookdir/initqueue/finished/devexists-${_name}.sh"
     rm -f -- "$hookdir/emergency/80-${_name}.sh"
     if [ -n "$DRACUT_SYSTEMD" ]; then
