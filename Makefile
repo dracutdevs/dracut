@@ -125,9 +125,9 @@ endif
 	if [ -n "$(systemdsystemunitdir)" ]; then \
 		mkdir -p $(DESTDIR)$(systemdsystemunitdir); \
 		ln -srf $(DESTDIR)$(pkglibdir)/modules.d/98systemd/dracut-shutdown.service $(DESTDIR)$(systemdsystemunitdir)/dracut-shutdown.service; \
-		mkdir -p $(DESTDIR)$(systemdsystemunitdir)/shutdown.target.wants; \
+		mkdir -p $(DESTDIR)$(systemdsystemunitdir)/sysinit.target.wants; \
 		ln -s ../dracut-shutdown.service \
-		$(DESTDIR)$(systemdsystemunitdir)/shutdown.target.wants/dracut-shutdown.service; \
+		$(DESTDIR)$(systemdsystemunitdir)/sysinit.target.wants/dracut-shutdown.service; \
 		mkdir -p $(DESTDIR)$(systemdsystemunitdir)/initrd.target.wants; \
 		for i in \
 		    dracut-cmdline.service \

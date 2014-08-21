@@ -6,15 +6,15 @@
 #  (at your option) any later version.
 
 [Unit]
-Description=Restore /run/initramfs
+Description=Restore /run/initramfs on shutdown
 Documentation=man:dracut-shutdown.service(8)
-After=getty@tty1.service display-manager.service
+After=local-fs.target
+Wants=local-fs.target
 Before=systemd-reboot.service shutdown.target
 DefaultDependencies=no
 ConditionPathExists=/run/initramfs/.need_shutdown
 ConditionPathExists=!/run/initramfs/bin/sh
 
 [Service]
-ExecStart=-/usr/lib/dracut/dracut-initramfs-restore
-Type=oneshot
-RemainAfterExit=yes
+ExecStart=/bin/true
+ExecStop=/usr/lib/dracut/dracut-initramfs-restore

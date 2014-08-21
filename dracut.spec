@@ -399,7 +399,7 @@ rm -rf -- $RPM_BUILD_ROOT
 %dir %{_sharedstatedir}/initramfs
 %if %{defined _unitdir}
 %{_unitdir}/dracut-shutdown.service
-%{_unitdir}/shutdown.target.wants/dracut-shutdown.service
+%{_unitdir}/sysinit.target.wants/dracut-shutdown.service
 %{_unitdir}/dracut-cmdline.service
 %{_unitdir}/dracut-initqueue.service
 %{_unitdir}/dracut-mount.service
