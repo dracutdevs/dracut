@@ -866,6 +866,11 @@ wait_for_mount()
 
 dev_unit_name()
 {
+    if command -v systemd-escape >/dev/null; then
+        systemd-escape -p  "$1"
+        return
+    fi
+
     _name="${1%%/}"
     _name="${_name##/}"
     _name="$(str_replace "$_name" '-' '\x2d')"
