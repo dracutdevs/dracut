@@ -43,7 +43,7 @@ setup_interface() {
         valid_lft ${lease_time} preferred_lft ${lease_time} \
         dev $netif
 
-    [ -n "$gw" ] && echo ip route add default via $gw dev $netif > /tmp/net.$netif.gw
+    [ -n "$gw" ] && echo ip route replace default via $gw dev $netif > /tmp/net.$netif.gw
 
     [ -n "${search}${domain}" ] && echo "search $search $domain" > /tmp/net.$netif.resolv.conf
     if  [ -n "$namesrv" ] ; then
