@@ -222,7 +222,8 @@ static int cp(const char *src, const char *dst)
                 if (ret == 0) {
                         struct timeval tv[2];
                         if (fchown(dest_desc, sb.st_uid, sb.st_gid) != 0)
-                                fchown(dest_desc, (__uid_t) - 1, sb.st_gid);
+                                if(fchown(dest_desc, (__uid_t) - 1, sb.st_gid) != 0)
+                                    log_error("Failed to chown %s: %m", dst);
                         tv[0].tv_sec = sb.st_atime;
                         tv[0].tv_usec = 0;
                         tv[1].tv_sec = sb.st_mtime;
@@ -328,10 +329,14 @@ static int resolve_deps(const char *src)
 {
         int ret = 0;
 
-        _cleanup_free_ char *buf = malloc(LINE_MAX);
+        _cleanup_free_ char *buf = NULL;
         size_t linesize = LINE_MAX;
         _cleanup_pclose_ FILE *fptr = NULL;
         _cleanup_free_ char *cmd = NULL;
+
+	buf = malloc(LINE_MAX);
+	if (buf == NULL)
+		return -errno;
 
         if (strstr(src, ".so") == 0) {
                 _cleanup_close_ int fd = -1;
@@ -339,7 +344,10 @@ static int resolve_deps(const char *src)
                 if (fd < 0)
                         return -errno;
 
-                read(fd, buf, LINE_MAX);
+                ret = read(fd, buf, LINE_MAX);
+                if (ret == -1)
+                        return -errno;
+
                 buf[LINE_MAX - 1] = '\0';
                 if (buf[0] == '#' && buf[1] == '!') {
                         /* we have a shebang */
@@ -367,7 +375,7 @@ static int resolve_deps(const char *src)
         fptr = popen(cmd, "r");
 
         while (!feof(fptr)) {
-                char *p, *q;
+                char *p;
 
                 if (getline(&buf, &linesize, fptr) <= 0)
                         continue;
@@ -401,6 +409,8 @@ static int resolve_deps(const char *src)
 
                 p = strchr(p, '/');
                 if (p) {
+                        char *q;
+
                         for (q = p; *q && *q != ' ' && *q != '\n'; q++) ;
                         *q = '\0';
 
@@ -488,7 +498,6 @@ void mark_hostonly(const char *path)
         }
 
         fprintf(f, "%s\n", path);
-
 }
 
 static int dracut_install(const char *src, const char *dst, bool isdir, bool resolvedeps, bool hashdst)
@@ -878,9 +887,9 @@ static int install_one(const char *src, const char *dst)
         int ret = 0;
 
         if (strchr(src, '/') == NULL) {
-                char **q = NULL;
                 char **p = find_binary(src);
                 if (p) {
+			char **q = NULL;
                         STRV_FOREACH(q, p) {
                                 char *newsrc = *q;
                                 log_debug("dracut_install '%s' '%s'", newsrc, dst);
@@ -914,9 +923,9 @@ static int install_all(int argc, char **argv)
                 log_debug("Handle '%s'", argv[i]);
 
                 if (strchr(argv[i], '/') == NULL) {
-                        char **q = NULL;
                         char **p = find_binary(argv[i]);
                         if (p) {
+				char **q = NULL;
                                 STRV_FOREACH(q, p) {
                                         char *newsrc = *q;
                                         log_debug("dracut_install '%s'", newsrc);
