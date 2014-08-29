@@ -1,6 +1,4 @@
 #!/bin/sh
-# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
-# ex: ts=4 sw=4 sts=0 et filetype=sh
 
 command -v ask_for_password >/dev/null || . /lib/dracut-crypt-lib.sh
 

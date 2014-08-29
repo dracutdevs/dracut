@@ -1,6 +1,4 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
-# ex: ts=8 sw=4 sts=4 et filetype=sh
 #
 # Generator script for a dracut initramfs
 # Tries to retain some degree of compatibility with the command line

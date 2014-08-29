@@ -1,5 +1,3 @@
-/*-*- Mode: C; c-basic-offset: 8; indent-tabs-mode: nil -*-*/
-
 /* dracut-install.c  -- install files and executables
 
    Copyright (C) 2012 Harald Hoyer

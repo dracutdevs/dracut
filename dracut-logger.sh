@@ -1,6 +1,4 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
-# ex: ts=8 sw=4 et filetype=sh
 #
 # logging faciality module for dracut both at build- and boot-time
 #

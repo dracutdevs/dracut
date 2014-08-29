@@ -1,6 +1,4 @@
 #!/bin/sh
-# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
-# ex: ts=8 sw=4 sts=4 et filetype=sh
 
 # Creates the syslog udev rules to be triggered when interface becomes online.
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh

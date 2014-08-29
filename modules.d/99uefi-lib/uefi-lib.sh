@@ -1,6 +1,4 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
-# ex: ts=8 sw=4 sts=4 et filetype=sh
 #
 # Copyright 2013 Red Hat, Inc.  All rights reserved.
 # Copyright 2013 Harald Hoyer <harald@redhat.com>

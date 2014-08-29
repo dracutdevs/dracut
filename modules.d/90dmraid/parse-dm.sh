@@ -1,6 +1,5 @@
 #!/bin/sh
-# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
-# ex: ts=8 sw=4 sts=4 et filetype=sh
+
 # nodmraid for anaconda / rc.sysinit compatibility
 if ! getargbool 1 rd.dm -d -n rd_NO_DM || getarg "rd.dm=0" -d nodmraid; then
     info "rd.dm=0: removing DM RAID activation"

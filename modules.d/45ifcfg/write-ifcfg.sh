@@ -1,6 +1,4 @@
 #!/bin/sh
-# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
-# ex: ts=8 sw=4 sts=4 et filetype=sh
 
 # NFS root might have reached here before /tmp/net.ifaces was written
 type is_persistent_ethernet_name >/dev/null 2>&1 || . /lib/net-lib.sh

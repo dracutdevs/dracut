@@ -1,6 +1,4 @@
 #!/bin/sh
-# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
-# ex: ts=8 sw=4 sts=4 et filetype=sh
 
 # We use (fcoe_interface or fcoe_mac) and fcoe_dcb as set by parse-fcoe.sh
 # If neither mac nor interface are set we don't continue

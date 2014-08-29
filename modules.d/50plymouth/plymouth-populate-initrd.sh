@@ -1,6 +1,5 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
-# ex: ts=8 sw=4 sts=4 et filetype=sh
+
 PLYMOUTH_LOGO_FILE="/usr/share/pixmaps/system-logo-white.png"
 PLYMOUTH_THEME=$(plymouth-set-default-theme)
 

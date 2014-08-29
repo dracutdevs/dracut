@@ -1,6 +1,5 @@
 #!/bin/sh
-# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
-# ex: ts=8 sw=4 sts=4 et filetype=sh
+
 # close everything which is not busy
 rm -f -- /etc/udev/rules.d/70-luks.rules >/dev/null 2>&1
 
