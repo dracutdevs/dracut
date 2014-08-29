@@ -41,7 +41,15 @@ inst_sshenv()
 
     # Copy over root and system-wide ssh configs.
     [[ -f /root/.ssh/config ]] && inst_simple /root/.ssh/config
-    [[ -f /etc/ssh/ssh_config ]] && inst_simple /etc/ssh/ssh_config
+    if [[ -f /etc/ssh/ssh_config ]]; then
+        inst_simple /etc/ssh/ssh_config
+        sed -i -e 's/\(^[[:space:]]*\)ProxyCommand/\1# ProxyCommand/' ${initdir}/etc/ssh/ssh_config
+        while read key val; do
+            [[ key != "GlobalKnownHostsFile" ]] && continue
+            inst_simple "$val"
+            break
+        done < /etc/ssh/ssh_config
+    fi
 
     return 0
 }
