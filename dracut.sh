@@ -674,7 +674,7 @@ for f in $(dropindirs_sort ".conf" "$confdir" "$dracutbasedir/dracut.conf.d"); d
     [[ -e $f ]] && . "$f"
 done
 
-DRACUT_PATH=${DRACUT_PATH:-/usr/sbin /sbin /usr/bin /bin}
+DRACUT_PATH=${DRACUT_PATH:-/sbin /bin /usr/sbin /usr/bin}
 
 for i in $DRACUT_PATH; do
     rl=$i
