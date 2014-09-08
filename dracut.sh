@@ -79,6 +79,10 @@ Creates initial ramdisk images for preloading modules
                          exclusively include in the initramfs.
   --add-drivers [LIST]  Specify a space-separated list of kernel
                          modules to add to the initramfs.
+  --force-drivers [LIST] Specify a space-separated list of kernel
+                         modules to add to the initramfs and make sure they
+                         are tried to be loaded via modprobe same as passing
+                         rd.driver.pre=DRIVER kernel parameter.
   --omit-drivers [LIST] Specify a space-separated list of kernel
                          modules not to add to the initramfs.
   --filesystems [LIST]  Specify a space-separated list of kernel filesystem
@@ -300,6 +304,7 @@ rearrange_params()
         --long add: \
         --long force-add: \
         --long add-drivers: \
+        --long force-drivers: \
         --long omit-drivers: \
         --long modules: \
         --long omit: \
@@ -466,6 +471,7 @@ while :; do
         -a|--add)      push add_dracutmodules_l  "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
         --force-add)   push force_add_dracutmodules_l  "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
         --add-drivers) push add_drivers_l        "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
+        --force-drivers) push force_drivers_l    "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
         --omit-drivers) push omit_drivers_l      "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
         -m|--modules)  push dracutmodules_l      "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
         -o|--omit)     push omit_dracutmodules_l "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
@@ -907,6 +913,13 @@ if (( ${#add_drivers_l[@]} )); then
 fi
 add_drivers=${add_drivers/-/_}
 
+if (( ${#force_drivers_l[@]} )); then
+    while pop force_drivers_l val; do
+        force_drivers+=" $val "
+    done
+fi
+force_drivers=${force_drivers/-/_}
+
 if (( ${#omit_drivers_l[@]} )); then
     while pop omit_drivers_l val; do
         omit_drivers+=" $val "
@@ -923,6 +936,7 @@ fi
 omit_drivers_corrected=""
 for d in $omit_drivers; do
     [[ " $drivers $add_drivers " == *\ $d\ * ]] && continue
+    [[ " $drivers $force_drivers " == *\ $d\ * ]] && continue
     omit_drivers_corrected+="$d|"
 done
 omit_drivers="${omit_drivers_corrected%|}"
@@ -1336,6 +1350,13 @@ if [[ $no_kernel != yes ]]; then
 
     if [[ $add_drivers ]]; then
         hostonly='' instmods -c $add_drivers
+    fi
+    if [[ $force_drivers ]]; then
+        hostonly='' instmods -c $force_drivers
+        rm -f $initdir/etc/cmdline.d/20-force_driver.conf
+        for mod in $force_drivers; do
+            echo "rd.driver.pre=$mod" >>$initdir/etc/cmdline.d/20-force_drivers.conf
+        done
     fi
     if [[ $filesystems ]]; then
         hostonly='' instmods -c $filesystems
