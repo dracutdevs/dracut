@@ -241,21 +241,21 @@ ibft_to_cmdline() {
             fi
 
             if [ -e ${iface}/vlan ]; then
-               vlan=$(read a < ${iface}/vlan; echo $a)
-               if [ "$vlan" -ne "0" ]; then
-                   case "$vlan" in
-                       [0-9]*)
-                           echo "vlan=$dev.$vlan:$dev"
-                           echo $mac > /tmp/net.${dev}.${vlan}.has_ibft_config
-                           ;;
-                       *)
-                           echo "vlan=$vlan:$dev"
-                           echo $mac > /tmp/net.${vlan}.has_ibft_config
-                           ;;
-                   esac
-               else
-                   echo $mac > /tmp/net.${dev}.has_ibft_config
-               fi
+                vlan=$(read a < ${iface}/vlan; echo $a)
+                if [ "$vlan" -ne "0" ]; then
+                    case "$vlan" in
+                        [0-9]*)
+                            echo "vlan=$dev.$vlan:$dev"
+                            echo $mac > /tmp/net.${dev}.${vlan}.has_ibft_config
+                            ;;
+                        *)
+                            echo "vlan=$vlan:$dev"
+                            echo $mac > /tmp/net.${vlan}.has_ibft_config
+                            ;;
+                    esac
+                else
+                    echo $mac > /tmp/net.${dev}.has_ibft_config
+                fi
             else
                 echo $mac > /tmp/net.${dev}.has_ibft_config
             fi
@@ -269,66 +269,46 @@ parse_iscsi_root()
     local v
     v=${1#iscsi:}
 
-# extract authentication info
+    # extract authentication info
     case "$v" in
-	*@*:*:*:*:*)
-	    authinfo=${v%%@*}
-	    v=${v#*@}
-    # allow empty authinfo to allow having an @ in iscsi_target_name like this:
-    # netroot=iscsi:@192.168.1.100::3260::iqn.2009-01.com.example:testdi@sk
-	    if [ -n "$authinfo" ]; then
-		OLDIFS="$IFS"
-		IFS=:
-		set $authinfo
-		IFS="$OLDIFS"
-		if [ $# -gt 4 ]; then
-		    warn "Wrong authentication info in iscsi: parameter!"
-		    return 1
-		fi
-		iscsi_username=$1
-		iscsi_password=$2
-		if [ $# -gt 2 ]; then
-		    iscsi_in_username=$3
-		    iscsi_in_password=$4
-		fi
-	    fi
-	    ;;
+        *@*:*:*:*:*)
+            authinfo=${v%%@*}
+            v=${v#*@}
+            # allow empty authinfo to allow having an @ in iscsi_target_name like this:
+            # netroot=iscsi:@192.168.1.100::3260::iqn.2009-01.com.example:testdi@sk
+            if [ -n "$authinfo" ]; then
+                OLDIFS="$IFS"
+                IFS=:
+                set $authinfo
+                IFS="$OLDIFS"
+                if [ $# -gt 4 ]; then
+                    warn "Wrong authentication info in iscsi: parameter!"
+                    return 1
+                fi
+                iscsi_username=$1
+                iscsi_password=$2
+                if [ $# -gt 2 ]; then
+                    iscsi_in_username=$3
+                    iscsi_in_password=$4
+                fi
+            fi
+            ;;
     esac
 
-# extract target ip
+    # extract target ip
     case "$v" in
-	[[]*[]]:*)
-	    iscsi_target_ip=${v#[[]}
-		iscsi_target_ip=${iscsi_target_ip%%[]]*}
-	    v=${v#[[]$iscsi_target_ip[]]:}
-	    ;;
-	*)
-	    iscsi_target_ip=${v%%[:]*}
-	    v=${v#$iscsi_target_ip:}
-	    ;;
+        [[]*[]]:*)
+            iscsi_target_ip=${v#[[]}
+                iscsi_target_ip=${iscsi_target_ip%%[]]*}
+            v=${v#[[]$iscsi_target_ip[]]:}
+            ;;
+        *)
+            iscsi_target_ip=${v%%[:]*}
+            v=${v#$iscsi_target_ip:}
+            ;;
     esac
 
-# extract target name
-    case "$v" in
-	*:iqn.*)
-	    iscsi_target_name=iqn.${v##*:iqn.}
-	    v=${v%:iqn.*}:
-	    ;;
-	*:eui.*)
-	    iscsi_target_name=iqn.${v##*:eui.}
-	    v=${v%:iqn.*}:
-	    ;;
-	*:naa.*)
-	    iscsi_target_name=iqn.${v##*:naa.}
-	    v=${v%:iqn.*}:
-	    ;;
-	*)
-	    warn "Invalid iscii target name, should begin with 'iqn.' or 'eui.' or 'naa.'"
-	    return 1
-	    ;;
-    esac
-
-# parse the rest
+    # parse the rest
     OLDIFS="$IFS"
     IFS=:
     set $v
@@ -336,17 +316,25 @@ parse_iscsi_root()
 
     iscsi_protocol=$1; shift # ignored
     iscsi_target_port=$1; shift
-    if [ $# -eq 3 ]; then
-	iscsi_iface_name=$1; shift
+
+    if [ $# -gt 3 ] && [ -n "$1$2" ]; then
+        iscsi_iface_name=$1; shift
+        iscsi_netdev_name=$1; shift
     fi
-    if [ $# -eq 2 ]; then
-	iscsi_netdev_name=$1; shift
-    fi
+
     iscsi_lun=$1; shift
-    if [ $# -ne 0 ]; then
-	warn "Invalid parameter in iscsi: parameter!"
-	return 1
+
+    if [ $# -gt 2 ]; then
+        warn "Invalid parameter in iscsi: parameter!"
+        return 1
     fi
+
+    if [ $# -eq 2 ]; then
+        iscsi_target_name="$1:$2"
+    else
+        iscsi_target_name="$1"
+    fi
+
 }
 
 ip_to_var() {
@@ -387,7 +375,7 @@ ip_to_var() {
                     if [ -n "${9}" -a -n "${10}" -a -n "${11}" -a -n "${12}" -a -n "${13}" -a -n "${14}" ]; then
                         macaddr="${9}:${10}:${11}:${12}:${13}:${14}"
                     fi
-	            ;;
+                    ;;
             esac
             ;;
     esac
@@ -535,8 +523,8 @@ linkup() {
 }
 
 type hostname >/dev/null 2>&1 || \
-hostname() {
-	cat /proc/sys/kernel/hostname
+    hostname() {
+    cat /proc/sys/kernel/hostname
 }
 
 iface_has_link() {
