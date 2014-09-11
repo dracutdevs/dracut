@@ -4,6 +4,7 @@
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 . /lib/url-lib.sh
+. /lib/img-lib.sh
 
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
@@ -12,7 +13,13 @@ netroot="$2"
 liveurl="${netroot#livenet:}"
 info "fetching $liveurl"
 imgfile=$(fetch_url "$liveurl")
+
 [ $? = 0 ] || die "failed to download live image: error $?"
+
+unpack_archive $imgfile $imgfile.new
+
+mv  $imgfile.new $imgfile
+
 
 # TODO: couldn't dmsquash-live-root handle this?
 if [ ${imgfile##*.} = "iso" ]; then
