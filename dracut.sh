@@ -174,10 +174,10 @@ Creates initial ramdisk images for preloading modules
   --xz                  Compress the generated initramfs using xz.
                          Make sure that your kernel has xz support compiled
                          in, otherwise you will not be able to boot.
-  --lzo                  Compress the generated initramfs using lzop.
+  --lzo                 Compress the generated initramfs using lzop.
                          Make sure that your kernel has lzo support compiled
                          in, otherwise you will not be able to boot.
-  --lz4                  Compress the generated initramfs using lz4.
+  --lz4                 Compress the generated initramfs using lz4.
                          Make sure that your kernel has lz4 support compiled
                          in, otherwise you will not be able to boot.
   --compress [COMPRESSION] Compress the generated initramfs with the
@@ -194,6 +194,7 @@ Creates initial ramdisk images for preloading modules
   --sshkey [SSHKEY]     Add ssh key to initramfs (use with ssh-client module)
   --logfile [FILE]      Logfile to use (overrides configuration setting)
   --reproducible        Create reproducible images
+  --loginstall [DIR]    Log all files installed from the host to [DIR]
 
 If [LIST] has multiple arguments, then you have to put these in quotes.
 
@@ -377,6 +378,7 @@ rearrange_params()
         --long early-microcode \
         --long no-early-microcode \
         --long reproducible \
+        --long loginstall: \
         -- "$@")
 
     if (( $? != 0 )); then
@@ -498,6 +500,7 @@ while :; do
         -L|--stdlog)   stdloglvl_l="$2";               PARMS_TO_STORE+=" '$2'"; shift;;
         --compress)    compress_l="$2";                PARMS_TO_STORE+=" '$2'"; shift;;
         --prefix)      prefix_l="$2";                  PARMS_TO_STORE+=" '$2'"; shift;;
+        --loginstall)  loginstall_l="$2";              PARMS_TO_STORE+=" '$2'"; shift;;
         --rebuild)     if [ $rebuild_file == $outfile ]; then
                            force=yes
                        fi
@@ -808,6 +811,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $early_microcode ]] || early_microcode=no
 [[ $logfile_l ]] && logfile="$logfile_l"
 [[ $reproducible_l ]] && reproducible="$reproducible_l"
+[[ $loginstall_l ]] && loginstall="$loginstall_l"
 
 # eliminate IFS hackery when messing with fw_dir
 fw_dir=${fw_dir//:/ }
@@ -992,6 +996,14 @@ if [[ ! $print_cmdline ]]; then
     elif [[ -f "$outfile" && ! -w "$outfile" ]]; then
         dfatal "No permission to write $outfile."
         exit 1
+    fi
+
+    if [[ $loginstall ]]; then
+        if ! mkdir -p "$loginstall"; then
+            dfatal "Could not create directory to log installed files to '$loginstall'."
+            exit 1
+        fi
+        loginstall=$(readlink -f "$loginstall")
     fi
 fi
 
@@ -1216,7 +1228,7 @@ export initdir dracutbasedir dracutmodules \
     debug host_fs_types host_devs sshkey add_fstab \
     DRACUT_VERSION udevdir prefix filesystems drivers \
     systemdutildir systemdsystemunitdir systemdsystemconfdir \
-    host_modalias host_modules hostonly_cmdline
+    host_modalias host_modules hostonly_cmdline loginstall
 
 mods_to_load=""
 # check all our modules to see if they should be sourced.

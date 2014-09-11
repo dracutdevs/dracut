@@ -31,13 +31,16 @@ _dracut() {
                               --local --hostonly --no-hostonly --fstab --help --bzip2 --lzma
                               --xz --no-compress --gzip --list-modules --show-modules --keep
                               --printsize --regenerate-all --noimageifnotneeded --early-microcode
-                              --no-early-microcode --print-cmdline --prelink --noprelink'
+                              --no-early-microcode --print-cmdline --prelink --noprelink --reproducible
+                              '
 
                        [ARG]='-a -m -o -d -I -k -c -L --kver --add --force-add --add-drivers
                               --omit-drivers --modules --omit --drivers --filesystems --install
                               --fwdir --libdirs --fscks --add-fstab --mount --device --nofscks
                               --kmoddir --conf --confdir --tmpdir --stdlog --compress --prefix
-                              --kernel-cmdline --sshkey --persistent-policy --install-optional'
+                              --kernel-cmdline --sshkey --persistent-policy --install-optional
+                              --loginstall
+                              '
         )
 
         if __contains_word "$prev" ${OPTS[ARG]}; then

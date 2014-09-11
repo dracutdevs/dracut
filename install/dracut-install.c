@@ -53,7 +53,9 @@ static bool arg_resolvelazy = false;
 static bool arg_resolvedeps = false;
 static bool arg_hostonly = false;
 static char *destrootdir = NULL;
-
+static char *logdir = NULL;
+static char *logfile = NULL;
+FILE *logfile_f = NULL;
 static Hashmap *items = NULL;
 static Hashmap *items_failed = NULL;
 
@@ -498,6 +500,14 @@ void mark_hostonly(const char *path)
         fprintf(f, "%s\n", path);
 }
 
+void dracut_log_cp(const char *path)
+{
+        int ret;
+        ret = fprintf(logfile_f, "%s\n", path);
+        if (ret < 0)
+                log_error("Could not append '%s' to logfile '%s': %m", path, logfile);
+}
+
 static int dracut_install(const char *src, const char *dst, bool isdir, bool resolvedeps, bool hashdst)
 {
         struct stat sb, db;
@@ -664,6 +674,8 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
                 mark_hostonly(dst);
 
         ret += cp(src, fulldstpath);
+        if (ret == 0 && logfile_f)
+                dracut_log_cp(src);
 
         log_debug("dracut_install ret = %d", ret);
 
@@ -689,6 +701,7 @@ static void usage(int status)
                "  -o --optional       If SOURCE does not exist, do not fail\n"
                "  -d --dir            SOURCE is a directory\n"
                "  -l --ldd            Also install shebang executables and libraries\n"
+               "  -L --logdir <DIR>   Log files, which were installed from the host to <DIR>\n"
                "  -R --resolvelazy    Only install shebang executables and libraries\n"
                "                      for all SOURCE files\n"
                "  -H --fips           Also install all '.SOURCE.hmac' files\n"
@@ -745,10 +758,11 @@ static int parse_argv(int argc, char *argv[])
                 {"all", no_argument, NULL, 'a'},
                 {"fips", no_argument, NULL, 'f'},
                 {"destrootdir", required_argument, NULL, 'D'},
+                {"logdir", required_argument, NULL, 'L'},
                 {NULL, 0, NULL, 0}
         };
 
-        while ((c = getopt_long(argc, argv, "adfhloD:HR", options, NULL)) != -1) {
+        while ((c = getopt_long(argc, argv, "adfhlL:oD:HR", options, NULL)) != -1) {
                 switch (c) {
                 case ARG_VERSION:
                         puts(PROGRAM_VERSION_STRING);
@@ -776,6 +790,9 @@ static int parse_argv(int argc, char *argv[])
                         break;
                 case 'D':
                         destrootdir = strdup(optarg);
+                        break;
+                case 'L':
+                        logdir = strdup(optarg);
                         break;
                 case 'f':
                         arg_hmac = true;
@@ -1001,6 +1018,23 @@ int main(int argc, char **argv)
                 goto finish;
         }
 
+        if (logdir) {
+                int ret;
+
+                ret = asprintf(&logfile, "%s/%d.log", logdir, getpid());
+                if (ret < 0) {
+                        log_error("Out of memory!");
+                        exit(EXIT_FAILURE);
+                }
+
+                logfile_f = fopen(logfile, "a");
+                if (logfile_f == NULL) {
+                        log_error("Could not open %s for logging: %m", logfile);
+                        r = EXIT_FAILURE;
+                        goto finish;
+                }
+        }
+
         r = EXIT_SUCCESS;
 
         if (((optind + 1) < argc) && (strcmp(argv[optind + 1], destrootdir) == 0)) {
@@ -1029,6 +1063,8 @@ int main(int argc, char **argv)
                 r = EXIT_SUCCESS;
 
  finish:
+        if (logfile_f)
+                fclose(logfile_f);
 
         while ((i = hashmap_steal_first(items)))
                 item_free(i);
