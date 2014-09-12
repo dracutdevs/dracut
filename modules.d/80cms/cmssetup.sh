@@ -173,7 +173,7 @@ processcmsfile()
         znet_cio_free
     fi
 
-    if [[ $DASD ]]; then
+    if [[ $DASD ]] && [[ $DASD != "none" ]]; then
         echo $DASD | normalize_dasd_arg > /etc/dasd.conf
         echo "options dasd_mod dasd=$DASD" > /etc/modprobe.d/dasd_mod.conf
         dasd_cio_free
