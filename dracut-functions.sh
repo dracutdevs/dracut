@@ -1413,11 +1413,17 @@ for_each_module_dir() {
 
     # Report any missing dracut modules, the user has specified
     _modcheck="$add_dracutmodules $force_add_dracutmodules"
-    [[ $dracutmodules != all ]] && _modcheck="$m $dracutmodules"
+    [[ $dracutmodules != all ]] && _modcheck="$_modcheck $dracutmodules"
     for _mod in $_modcheck; do
         [[ " $mods_to_load " == *\ $_mod\ * ]] && continue
-        [[ " $omit_dracutmodules " == *\ $_mod\ * ]] && continue
+
+        [[ " $force_add_dracutmodules " != *\ $_mod\ * ]] \
+            && [[ " $omit_dracutmodules " == *\ $_mod\ * ]] \
+            && continue
+
         derror "dracut module '$_mod' cannot be found or installed."
+        [[ " $force_add_dracutmodules " == *\ $_mod\ * ]] && exit 1
+        [[ " $add_dracutmodules " == *\ $_mod\ * ]] && exit 1
     done
 }
 
