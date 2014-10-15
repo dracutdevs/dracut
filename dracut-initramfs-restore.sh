@@ -19,7 +19,7 @@ mount -o ro /boot &>/dev/null || true
 if [[ $MACHINE_ID ]] && [[ -d /boot/${MACHINE_ID} || -L /boot/${MACHINE_ID} ]] ; then
     IMG="/boot/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
 fi
-[[ -f $IMG ]] || IMG="/boot/initramfs-${KERNEL_VERSION}.img"
+[[ -f $IMG ]] || IMG="/boot/initrd-${KERNEL_VERSION}"
 
 cd /run/initramfs
 
