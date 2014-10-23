@@ -553,8 +553,6 @@ find_iface_with_link() {
 is_persistent_ethernet_name() {
     case "$1" in
         # udev persistent interface names
-        eth[0-9]|eth[0-9][0-9]|eth[0-9][0-9][0-9]*)
-            ;;
         eno[0-9]|eno[0-9][0-9]|eno[0-9][0-9][0-9]*)
             ;;
         ens[0-9]|ens[0-9][0-9]|ens[0-9][0-9][0-9]*)
