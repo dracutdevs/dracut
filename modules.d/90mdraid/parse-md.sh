@@ -15,6 +15,7 @@ else
                     printf 'IMPORT{program}="/sbin/mdadm --examine --export $tempnode"\n'
                     for uuid in $MD_UUID; do
                         printf 'ENV{MD_UUID}=="%s", GOTO="md_uuid_ok"\n' $uuid
+                        printf 'ENV{ID_FS_UUID}=="%s", GOTO="md_uuid_ok"\n' $uuid
                     done;
                     printf 'GOTO="md_end"\n'
                     printf 'LABEL="md_uuid_ok"\n'
