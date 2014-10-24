@@ -50,6 +50,8 @@ find / -xdev -type f -not -path '/var/*' \
   -not -path '/etc/nsswitch.conf.bak' \
   -not -path '/etc/iscsi/initiatorname.iscsi' \
   -not -path '/boot/*0-rescue*' \
+  -not -patch '/usr/share/mime/*' \
+  -not -patch '/etc/crypto-policies/*' \
   -not -path '/dev/null' \
   -not -path "/boot/loader/entries/\$(cat /etc/machine-id)-*" \
   -not -path "/boot/\$(cat /etc/machine-id)/*" \
