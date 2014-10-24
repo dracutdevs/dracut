@@ -1314,13 +1314,17 @@ check_mount() {
         fi
     fi
 
-
     for _moddep in $(module_depends $_mod); do
         # handle deps as if they were manually added
-        [[ " $add_dracutmodules " == *\ $_moddep\ * ]] || \
-            add_dracutmodules+=" $_moddep "
-        [[ " $force_add_dracutmodules " == *\ $_moddep\ * ]] || \
-            force_add_dracutmodules+=" $_moddep "
+        [[ " $dracutmodules " == *\ $_mod\ * ]] \
+            && [[ " $dracutmodules " != *\ $_moddep\ * ]] \
+            && dracutmodules+=" $_moddep "
+        [[ " $add_dracutmodules " == *\ $_mod\ * ]] \
+            && [[ " $add_dracutmodules " != *\ $_moddep\ * ]] \
+            && add_dracutmodules+=" $_moddep "
+        [[ " $force_add_dracutmodules " == *\ $_mod\ * ]] \
+            && [[ " $force_add_dracutmodules " != *\ $_moddep\ * ]] \
+            && force_add_dracutmodules+=" $_moddep "
         # if a module we depend on fail, fail also
         if ! check_module $_moddep; then
             derror "dracut module '$_mod' depends on '$_moddep', which can't be installed"
@@ -1358,7 +1362,7 @@ check_module() {
     fi
 
     if [[ " $dracutmodules $add_dracutmodules $force_add_dracutmodules" == *\ $_mod\ * ]]; then
-        if [[ " $force_add_dracutmodules " == *\ $_mod\ * ]]; then
+        if [[ " $dracutmodules $force_add_dracutmodules " == *\ $_mod\ * ]]; then
             module_check $_mod 1; ret=$?
         else
             module_check $_mod 0; ret=$?
@@ -1369,7 +1373,11 @@ check_module() {
         # module not in our list
         if [[ $dracutmodules = all ]]; then
             # check, if we can and should install this module
-            module_check $_mod || return 1
+            module_check $_mod; ret=$?
+            if [[ $ret != 0 ]]; then
+                [[ $2 ]] && return 1
+                [[ $ret != 255 ]] && return 1
+            fi
         else
             # skip this module
             return 1
@@ -1378,10 +1386,15 @@ check_module() {
 
     for _moddep in $(module_depends $_mod); do
         # handle deps as if they were manually added
-        [[ " $add_dracutmodules " == *\ $_moddep\ * ]] || \
-            add_dracutmodules+=" $_moddep "
-        [[ " $force_add_dracutmodules " == *\ $_moddep\ * ]] || \
-            force_add_dracutmodules+=" $_moddep "
+        [[ " $dracutmodules " == *\ $_mod\ * ]] \
+            && [[ " $dracutmodules " != *\ $_moddep\ * ]] \
+            && dracutmodules+=" $_moddep "
+        [[ " $add_dracutmodules " == *\ $_mod\ * ]] \
+            && [[ " $add_dracutmodules " != *\ $_moddep\ * ]] \
+            && add_dracutmodules+=" $_moddep "
+        [[ " $force_add_dracutmodules " == *\ $_mod\ * ]] \
+            && [[ " $force_add_dracutmodules " != *\ $_moddep\ * ]] \
+            && force_add_dracutmodules+=" $_moddep "
         # if a module we depend on fail, fail also
         if ! check_module $_moddep; then
             derror "dracut module '$_mod' depends on '$_moddep', which can't be installed"
@@ -1418,11 +1431,13 @@ for_each_module_dir() {
         [[ " $mods_to_load " == *\ $_mod\ * ]] && continue
 
         [[ " $force_add_dracutmodules " != *\ $_mod\ * ]] \
+            && [[ " $dracutmodules " != *\ $_mod\ * ]] \
             && [[ " $omit_dracutmodules " == *\ $_mod\ * ]] \
             && continue
 
         derror "dracut module '$_mod' cannot be found or installed."
         [[ " $force_add_dracutmodules " == *\ $_mod\ * ]] && exit 1
+        [[ " $dracutmodules " == *\ $_mod\ * ]] && exit 1
         [[ " $add_dracutmodules " == *\ $_mod\ * ]] && exit 1
     done
 }

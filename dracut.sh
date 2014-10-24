@@ -1220,7 +1220,9 @@ fi
 
 [[ -d "$systemdsystemconfdir" ]] || systemdsystemconfdir=/etc/systemd/system
 
-export initdir dracutbasedir dracutmodules \
+export initdir dracutbasedir \
+    dracutmodules force_add_dracutmodules add_dracutmodules omit_dracutmodules \
+    mods_to_load \
     fw_dir drivers_dir debug no_kernel kernel_only \
     omit_drivers mdadmconf lvmconf root_dev \
     use_fstab fstab_lines libdirs fscks nofscks ro_mnt \
