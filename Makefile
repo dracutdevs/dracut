@@ -13,7 +13,7 @@ sysconfdir ?= ${prefix}/etc
 bindir ?= ${prefix}/bin
 mandir ?= ${prefix}/share/man
 CFLAGS ?= -O2 -g -Wall
-CFLAGS += -std=gnu99  -D_FILE_OFFSET_BITS=64 -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 
+CFLAGS += -std=gnu99  -D_FILE_OFFSET_BITS=64 -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2
 bashcompletiondir ?= ${datadir}/bash-completion/completions
 
 man1pages = lsinitrd.1
