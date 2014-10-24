@@ -5,7 +5,7 @@ KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
 #DEBUGFAIL="rd.shell rd.udev.log-priority=debug loglevel=70 systemd.log_target=kmsg"
-#DEBUGFAIL="rd.break rd.shell"
+#DEBUGFAIL="rd.break rd.shell rd.debug debug"
 test_run() {
     DISKIMAGE=$TESTDIR/TEST-10-RAID-root.img
     $testdir/run-qemu \
@@ -67,7 +67,7 @@ test_setup() {
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-	-m "dash crypt lvm mdraid udev-rules base rootfs-block kernel-modules" \
+	-m "dash crypt lvm mdraid udev-rules base rootfs-block fs-lib kernel-modules" \
 	-d "piix ide-gd_mod ata_piix ext2 sd_mod" \
         --nomdadmconf \
 	-f $TESTDIR/initramfs.makeroot $KVERSION || return 1

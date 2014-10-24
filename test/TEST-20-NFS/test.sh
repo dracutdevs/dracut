@@ -342,7 +342,7 @@ test_setup() {
 
     # Make server's dracut image
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-        -m "dash udev-rules base rootfs-block debug kernel-modules watchdog" \
+        -m "dash udev-rules base rootfs-block fs-lib debug kernel-modules watchdog" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 i6300esb" \
         -f $TESTDIR/initramfs.server $KVERSION || return 1
 
