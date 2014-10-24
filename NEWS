@@ -5,12 +5,23 @@ dracut-039
   /usr/sbin:/sbin:/usr/bin:/bin
   This should be set in the distribution config file
   /usr/lib/dracut/dracut.conf.d/01-dist.conf
+- add "--loginstall <DIR>" and loginstall="<DIR>" options
+  to record all files, which are installed from the host fs
+- "rd.writable.fsimg" - support for read/write filesystem images
 - "rd.route" kernel command line parameter added
 - "--install-optional" and install_optional_items added
 - find plymouth pkglibdir on debian
+- torrent support for live images
+  root=live:torrent://example.com/liveboot.img.torrent
+  and generally added as a download handler
+- disable microcode, if the kernel does not support it
 - speed up ldconfig_paths()
 - more ARM modules
 - fixed inst*() functions and "-H" handling
+- fixed bridge setup
+- added --force-drivers parameter and force_drivers=+ config option
+  to enforce driver loading at early boot time
+- documented "iso-scan/filename" usage in grub
 - various bugfixes
 
 dracut-038
