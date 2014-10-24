@@ -59,16 +59,17 @@ run_client() {
 
 do_test_run() {
 
-    run_client "root=dhcp" \
-        "root=dhcp" \
-	|| return 1
+#
+#    run_client "root=dhcp" \
+#        "root=dhcp" \
+#	|| return 1
 
-    run_client "root=iscsi" \
-	"root=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0" \
+    run_client "netroot=iscsi  target0"\
+	"root=LABEL=singleroot netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0" \
 	"ip=192.168.50.101::192.168.50.1:255.255.255.0:iscsi-1:ens3:off" \
 	|| return 1
 
-    run_client "netroot=iscsi" \
+    run_client "netroot=iscsi target1 target2" \
 	"iscsi_firmware root=LABEL=sysroot ip=192.168.50.101::192.168.50.1:255.255.255.0:iscsi-1:ens3:off" \
 	"netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target1 netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2" \
 	|| return 1
@@ -115,7 +116,7 @@ test_setup() {
             mkdir -p -- var/lib/nfs/rpc_pipefs
         )
         inst_multiple sh shutdown poweroff stty cat ps ln ip \
-            mount dmesg mkdir cp ping grep
+            mount dmesg mkdir cp ping grep setsid
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
@@ -130,7 +131,7 @@ test_setup() {
     (
         export initdir=$TESTDIR/overlay
         . $basedir/dracut-functions.sh
-        inst_multiple sfdisk mkfs.ext3 poweroff cp umount
+        inst_multiple sfdisk mkfs.ext3 poweroff cp umount setsid
         inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
@@ -140,7 +141,7 @@ test_setup() {
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-        -m "dash crypt lvm mdraid udev-rules base rootfs-block kernel-modules" \
+        -m "dash crypt lvm mdraid udev-rules base rootfs-block fs-lib kernel-modules" \
         -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
         -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
     rm -rf -- $TESTDIR/overlay
@@ -193,7 +194,7 @@ test_setup() {
         inst /etc/passwd /etc/passwd
         inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
             dmesg mkdir cp ping \
-            modprobe tcpdump \
+            modprobe tcpdump setsid \
             /etc/services sleep mount chmod
         inst_multiple /usr/sbin/iscsi-target
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
@@ -222,7 +223,7 @@ test_setup() {
 
     # Make server's dracut image
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-        -m "dash udev-rules base rootfs-block debug kernel-modules" \
+        -m "dash udev-rules base rootfs-block fs-lib debug kernel-modules" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000" \
         -f $TESTDIR/initramfs.server $KVERSION || return 1
 
