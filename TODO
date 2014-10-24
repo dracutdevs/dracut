@@ -47,3 +47,6 @@ Future Enhancement Requests
 - run ssh server to enter crypto password or perform debugging (supported by debian)
 - https://bugzilla.redhat.com/show_bug.cgi?id=524727 - dracut + encrypted root + networking
 
+- lsinitrd --print-cmdline
+- dracut --print-cmdline error if additional arguments
+- library for cmdline
