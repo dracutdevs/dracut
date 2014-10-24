@@ -1,3 +1,8 @@
+dracut-040
+==========
+- fixed dracut module dependency checks
+- fixed test suite
+
 dracut-039
 ==========
 - DRACUT_PATH can now be used to specify the PATH used by dracut
