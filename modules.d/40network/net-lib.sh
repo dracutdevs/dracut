@@ -551,7 +551,19 @@ find_iface_with_link() {
 }
 
 is_persistent_ethernet_name() {
-    case "$1" in
+    local _netif="$1"
+    local _name_assign_type="0"
+
+    [ -f "/sys/class/net/$_netif/name_assign_type" ] \
+        && _name_assign_type=$(cat "/sys/class/net/$_netif/name_assign_type")
+
+    # NET_NAME_ENUM 1
+    [ "$_name_assign_type" = "1" ] && return 1
+
+    # NET_NAME_PREDICTABLE 2
+    [ "$_name_assign_type" = "2" ] && return 0
+
+    case "$_netif" in
         # udev persistent interface names
         eno[0-9]|eno[0-9][0-9]|eno[0-9][0-9][0-9]*)
             ;;
@@ -570,4 +582,36 @@ is_persistent_ethernet_name() {
             return 1
     esac
     return 0
+}
+
+is_kernel_ethernet_name() {
+    local _netif="$1"
+    local _name_assign_type="1"
+
+    if [ -e "/sys/class/net/$_netif/name_assign_type" ]; then
+        _name_assign_type=$(cat "/sys/class/net/$_netif/name_assign_type")
+
+        case "$_name_assign_type" in
+            2|3|4)
+                # NET_NAME_PREDICTABLE 2
+                # NET_NAME_USER 3
+                # NET_NAME_RENAMED 4
+                return 1
+                ;;
+            1|*)
+                # NET_NAME_ENUM 1
+                return 0
+                ;;
+        esac
+    fi
+
+    # fallback to error prone manual name check
+    case "$_netif" in
+        eth[0-9]|eth[0-9][0-9]|eth[0-9][0-9][0-9]*)
+            return 0
+            ;;
+        *)
+            return 1
+    esac
+
 }
