@@ -44,8 +44,7 @@ installkernel() {
         instmods yenta_socket scsi_dh_rdac scsi_dh_emc \
             atkbd i8042 usbhid hid-apple hid-sunplus hid-cherry hid-logitech \
             hid-logitech-dj hid-microsoft hid-lcpower firewire-ohci \
-            pcmcia usb_storage nvme hid-hyperv hv-vmbus \
-            sdhci_acpi hyperv-keyboard
+            pcmcia hid-hyperv hv-vmbus hyperv-keyboard
 
         if [[ "$(uname -p)" == arm* ]]; then
             # arm specific modules
