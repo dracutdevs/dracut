@@ -90,16 +90,19 @@ _check_shutdown() {
         ( . "$__f" $1 )
         if [ $? -eq 0 ]; then
             rm -f -- $__f
+        else
             __s=0
         fi
     done
     return $__s
 }
 
-while _check_shutdown; do
-:
+_cnt=0
+while [ $_cnt -le 40 ]; do
+    _check_shutdown || break
+    _cnt=$(($_cnt+1))
 done
-_check_shutdown final
+[ $_cnt -ge 40 ] && _check_shutdown final
 
 getarg 'rd.break=shutdown' && emergency_shell --shutdown shutdown "Break before shutdown"
 
