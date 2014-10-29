@@ -822,7 +822,7 @@ case $compress in
     bzip2) compress="bzip2 -9";;
     lzma)  compress="lzma -9 -T0";;
     xz)    compress="xz --check=crc32 --lzma2=dict=1MiB -T0";;
-    gzip)  compress="gzip -n -9 --rsyncable"; command -v pigz > /dev/null 2>&1 && compress="pigz -9 -n -T -R";;
+    gzip)  compress="gzip -n -9"; command -v gzip --help 2>&1 | grep -q rsyncable && compress="gzip -n -9 --rsyncable"; command -v pigz > /dev/null 2>&1 && compress="pigz -9 -n -T -R";;
     lzo)   compress="lzop -9";;
     lz4)   compress="lz4 -l -9";;
 esac
