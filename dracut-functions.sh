@@ -741,8 +741,8 @@ if ! [[ $DRACUT_INSTALL ]]; then
     DRACUT_INSTALL=$(find_binary dracut-install)
 fi
 
-if ! [[ $DRACUT_INSTALL ]] && [[ -x $dracutbasedir/dracut-install ]]; then
-    DRACUT_INSTALL=$dracutbasedir/dracut-install
+if ! [[ $DRACUT_INSTALL ]] && [[ -x $dracutbasedir/install/dracut-install ]]; then
+    DRACUT_INSTALL=$dracutbasedir/install/dracut-install
 fi
 
 if ! [[ -x $DRACUT_INSTALL ]]; then
