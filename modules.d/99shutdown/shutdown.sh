@@ -84,14 +84,14 @@ fi
 
 _check_shutdown() {
     local __f
-    local __s=1
+    local __s=0
     for __f in $hookdir/shutdown/*.sh; do
         [ -e "$__f" ] || continue
         ( . "$__f" $1 )
         if [ $? -eq 0 ]; then
             rm -f -- $__f
         else
-            __s=0
+            __s=1
         fi
     done
     return $__s
@@ -99,7 +99,7 @@ _check_shutdown() {
 
 _cnt=0
 while [ $_cnt -le 40 ]; do
-    _check_shutdown || break
+    _check_shutdown && break
     _cnt=$(($_cnt+1))
 done
 [ $_cnt -ge 40 ] && _check_shutdown final
