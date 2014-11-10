@@ -137,19 +137,19 @@ make_trace_mem "hook pre-udev" '1:shortmem' '2+:mem' '3+:slab'
 getarg 'rd.break=pre-udev' -d 'rdbreak=pre-udev' && emergency_shell -n pre-udev "Break before pre-udev"
 source_hook pre-udev
 
-# start up udev and trigger cold plugs
-$systemdutildir/systemd-udevd --daemon --resolve-names=never
+UDEV_LOG=err
+getargbool 0 rd.udev.info -d -y rdudevinfo && UDEV_LOG=info
+getargbool 0 rd.udev.debug -d -y rdudevdebug && UDEV_LOG=debug
 
-UDEV_LOG_PRIO_ARG=--log-priority
+# start up udev and trigger cold plugs
+UDEV_LOG=$UDEV_LOG $systemdutildir/systemd-udevd --daemon --resolve-names=never
+
 UDEV_QUEUE_EMPTY="udevadm settle --timeout=0"
 
 if [ $UDEVVERSION -lt 140 ]; then
-    UDEV_LOG_PRIO_ARG=--log_priority
     UDEV_QUEUE_EMPTY="udevadm settle --timeout=1"
 fi
 
-getargbool 0 rd.udev.info -d -y rdudevinfo && udevadm control "$UDEV_LOG_PRIO_ARG=info"
-getargbool 0 rd.udev.debug -d -y rdudevdebug && udevadm control "$UDEV_LOG_PRIO_ARG=debug"
 udevproperty "hookdir=$hookdir"
 
 make_trace_mem "hook pre-trigger" '1:shortmem' '2+:mem' '3+:slab'
