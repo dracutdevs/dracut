@@ -87,6 +87,7 @@ install() {
     inst $(command -v partx) /sbin/partx
 
     inst_libdir_file "libmultipath*" "multipath/*"
+    inst_libdir_file 'libgcc_s.so*'
 
     if dracut_module_included "systemd"; then
         inst_multiple \
