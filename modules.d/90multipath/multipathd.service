@@ -1,0 +1,15 @@
+[Unit]
+Description=Device-Mapper Multipath Device Controller
+Before=iscsi.service iscsid.service lvm2-activation-early.service
+DefaultDependencies=no
+Conflicts=shutdown.target
+
+[Service]
+Type=simple
+ExecStartPre=/sbin/modprobe dm-multipath
+ExecStart=/sbin/multipathd -s -d
+ExecReload=/sbin/multipathd reconfigure
+ExecStop=/sbin/multipathd shutdown
+
+[Install]
+WantedBy=sysinit.target

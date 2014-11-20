@@ -104,10 +104,9 @@ install() {
     fi
 
     if dracut_module_included "systemd"; then
-        inst_multiple \
-            $systemdsystemunitdir/multipathd.service
-        mkdir -p "${initdir}${systemdsystemconfdir}/sysinit.target.wants"
-        ln -rfs "${initdir}${systemdsystemunitdir}/multipathd.service" "${initdir}${systemdsystemconfdir}/sysinit.target.wants/multipathd.service"
+        inst_simple "${moddir}/multipathd.service" "${systemdsystemunitdir}/multipathd.service"
+        mkdir -p "${initdir}${systemdsystemunitdir}/sysinit.target.wants"
+        ln -rfs "${initdir}${systemdsystemunitdir}/multipathd.service" "${initdir}${systemdsystemunitdir}/sysinit.target.wants/multipathd.service"
     else
         inst_hook pre-trigger 02 "$moddir/multipathd.sh"
         inst_hook cleanup   02 "$moddir/multipathd-stop.sh"
