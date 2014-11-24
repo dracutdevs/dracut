@@ -169,7 +169,13 @@ srcmods="/lib/modules/$kernel/"
 }
 export srcmods
 
-if ! type dinfo >/dev/null 2>&1; then
+# is_func <command>
+# Check whether $1 is a function.
+is_func() {
+    [[ "$(type -t "$1")" = "function" ]]
+}
+
+if ! is_func dinfo >/dev/null 2>&1; then
     . "$dracutbasedir/dracut-logger.sh"
     dlog_init
 fi
@@ -200,12 +206,6 @@ dracut_module_included() {
 # $1 = path
 mksubdirs() {
     [[ -e ${1%/*} ]] || mkdir -m 0755 -p -- "${1%/*}"
-}
-
-# is_func <command>
-# Check whether $1 is a function.
-is_func() {
-    [[ "$(type -t "$1")" = "function" ]]
 }
 
 # Function prints global variables in format name=value line by line.
