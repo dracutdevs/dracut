@@ -3,6 +3,10 @@ Description=Device-Mapper Multipath Device Controller
 Before=iscsi.service iscsid.service lvm2-activation-early.service
 DefaultDependencies=no
 Conflicts=shutdown.target
+ConditionKernelCommandLine=!nompath
+ConditionKernelCommandLine=!rd.multipath=0
+ConditionKernelCommandLine=!rd_NO_MULTIPATH
+ConditionPathExists=/etc/multipath.conf
 
 [Service]
 Type=simple
