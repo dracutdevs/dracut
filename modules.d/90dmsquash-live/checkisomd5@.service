@@ -11,3 +11,4 @@ StandardInput=tty-force
 StandardOutput=inherit
 StandardError=inherit
 TimeoutSec=0
+SuccessExitStatus=2
