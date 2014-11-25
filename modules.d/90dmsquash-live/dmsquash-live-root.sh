@@ -46,7 +46,7 @@ if [ -n "$check" ]; then
     else
         checkisomd5 --verbose $livedev
     fi
-    if [ $? -ne 0 ]; then
+    if [ $? -eq 1 ]; then
         die "CD check failed!"
         exit 1
     fi
