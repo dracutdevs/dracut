@@ -14,7 +14,7 @@ DefaultDependencies=no
 Before=dracut-pre-udev.service
 After=systemd-journald.socket
 Wants=systemd-journald.socket
-ConditionPathExists=/etc/initrd-release
+ConditionPathExists=/usr/lib/initrd-release
 ConditionPathExistsGlob=|/etc/cmdline.d/*.conf
 ConditionDirectoryNotEmpty=|/lib/dracut/hooks/cmdline
 ConditionKernelCommandLine=|rd.break=cmdline

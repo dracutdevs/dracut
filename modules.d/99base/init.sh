@@ -106,7 +106,7 @@ else
     exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
 fi
 
-[ -f /etc/initrd-release ] && . /etc/initrd-release
+[ -f /usr/lib/initrd-release ] && . /usr/lib/initrd-release
 [ -n "$VERSION_ID" ] && info "$NAME-$VERSION_ID"
 
 source_conf /etc/conf.d

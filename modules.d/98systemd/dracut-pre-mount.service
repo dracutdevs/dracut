@@ -14,7 +14,7 @@ DefaultDependencies=no
 Before=initrd-root-fs.target sysroot.mount
 After=dracut-initqueue.service
 After=cryptsetup.target
-ConditionPathExists=/etc/initrd-release
+ConditionPathExists=/usr/lib/initrd-release
 ConditionDirectoryNotEmpty=|/lib/dracut/hooks/pre-mount
 ConditionKernelCommandLine=|rd.break=pre-mount
 

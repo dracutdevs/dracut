@@ -5,7 +5,7 @@ if [ -f /dracut-state.sh ]; then
 fi
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
-[ -f /etc/initrd-release ] && . /etc/initrd-release
+[ -f /usr/lib/initrd-release ] && . /usr/lib/initrd-release
 [ -n "$VERSION" ] && info "dracut-$VERSION"
 
 if ! getargbool 1 'rd.hostonly'; then

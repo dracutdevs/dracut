@@ -6,4 +6,4 @@ After=basic.target rescue.service rescue.target
 AllowIsolate=yes
 OnFailure=emergency.target
 OnFailureIsolate=yes
-ConditionPathExists=/etc/initrd-release
+ConditionPathExists=/usr/lib/initrd-release
