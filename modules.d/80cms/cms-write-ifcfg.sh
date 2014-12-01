@@ -7,6 +7,7 @@ mkdir -m 0755 -p /run/initramfs/state/etc/sysconfig/network-scripts
 function cms_write_config()
 {
     . /tmp/cms.conf
+    SUBCHANNELS="$(echo $SUBCHANNELS | sed 'y/ABCDEF/abcdef/')"
     OLDIFS=$IFS
     IFS=,
     read -a subch_array <<< "indexzero,$SUBCHANNELS"
