@@ -123,6 +123,8 @@ install() {
         $systemdsystemunitdir/slices.target \
         $systemdsystemunitdir/system.slice \
         \
+        $tmpfilesdir/systemd.conf \
+        \
         journalctl systemctl echo swapoff systemd-cgls systemd-tmpfiles
 
     inst_multiple -o \
@@ -231,6 +233,9 @@ install() {
         inst_simple "$moddir/${i}" "$systemdsystemunitdir/${i}"
         ln_r "$systemdsystemunitdir/${i}" "$systemdsystemunitdir/initrd.target.wants/${i}"
     done
+
+    inst_simple "$moddir/dracut-tmpfiles.conf" "$tmpfilesdir/dracut-tmpfiles.conf"
+
 
     mkdir -p "$initdir/etc/systemd"
     # turn off RateLimit for journal

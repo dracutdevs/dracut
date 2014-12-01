@@ -1300,7 +1300,6 @@ if [[ $kernel_only != yes ]]; then
 
     ln -sfn ../run "$initdir/var/run"
     ln -sfn ../run/lock "$initdir/var/lock"
-    ln -sfn ../run/log "$initdir/var/log"
 else
     for d in lib "$libdir"; do
         [[ -e "${initdir}${prefix}/$d" ]] && continue
