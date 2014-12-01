@@ -1226,6 +1226,14 @@ fi
 
 [[ -d "$systemdsystemconfdir" ]] || systemdsystemconfdir=/etc/systemd/system
 
+[[ -d $tmpfilesdir ]] \
+    || tmpfilesdir=$(pkg-config systemd --variable=tmpfilesdir 2>/dev/null)
+
+if ! [[ -d "$tmpfilesdir" ]]; then
+    [[ -f /lib/tmpfiles.d ]] && tmpfilesdir=/lib/tmpfiles.d
+    [[ -f /usr/lib/tmpfiles.d ]] && tmpfilesdir=/usr/lib/tmpfiles.d
+fi
+
 export initdir dracutbasedir \
     dracutmodules force_add_dracutmodules add_dracutmodules omit_dracutmodules \
     mods_to_load \
@@ -1236,7 +1244,8 @@ export initdir dracutbasedir \
     debug host_fs_types host_devs sshkey add_fstab \
     DRACUT_VERSION udevdir prefix filesystems drivers \
     systemdutildir systemdsystemunitdir systemdsystemconfdir \
-    host_modalias host_modules hostonly_cmdline loginstall
+    host_modalias host_modules hostonly_cmdline loginstall \
+    tmpfilesdir
 
 mods_to_load=""
 # check all our modules to see if they should be sourced.
