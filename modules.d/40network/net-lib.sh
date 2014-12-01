@@ -105,7 +105,7 @@ setup_net() {
     # add static route
     for _p in $(getargs rd.route); do
         route_to_var "$_p" || continue
-        [ -n "$route_dev" ] && [ "$route_dev" != "$netif"] && continue
+        [ -n "$route_dev" ] && [ "$route_dev" != "$netif" ] && continue
         ip route add "$route_mask" ${route_gw:+via "$route_gw"} ${route_dev:+dev "$route_dev"}
         if strstr ":" "$route_mask"; then
             printf -- "%s\n" "$route_mask ${route_gw:+via $route_gw} ${route_dev:+dev $route_dev}" \
