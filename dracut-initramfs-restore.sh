@@ -2,6 +2,10 @@
 
 set -e
 
+# do some sanity checks first
+[ -e /run/initramfs/bin/sh ] && exit 0
+[ -e /run/initramfs/.need_shutdown ] || exit 0
+
 KERNEL_VERSION="$(uname -r)"
 
 [[ $dracutbasedir ]] || dracutbasedir=/usr/lib/dracut

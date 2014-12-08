@@ -8,13 +8,14 @@
 [Unit]
 Description=Restore /run/initramfs on shutdown
 Documentation=man:dracut-shutdown.service(8)
-After=local-fs.target
+After=local-fs.target boot.mount boot.automount
 Wants=local-fs.target
-Before=systemd-reboot.service shutdown.target
+Conflicts=shutdown.target umount.target
 DefaultDependencies=no
-ConditionPathExists=/run/initramfs/.need_shutdown
 ConditionPathExists=!/run/initramfs/bin/sh
 
 [Service]
+RemainAfterExit=yes
+Type=oneshot
 ExecStart=/bin/true
 ExecStop=/usr/lib/dracut/dracut-initramfs-restore
