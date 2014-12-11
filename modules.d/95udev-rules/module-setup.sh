@@ -31,6 +31,7 @@ install() {
         50-udev.rules 95-late.rules \
         50-firmware.rules \
         59-scsi-sg3_utils.rules \
+        55-scsi-sg3_id.rules 58-scsi-sg3_symlink.rules \
         70-uaccess.rules 71-seat.rules 73-seat-late.rules \
         75-net-description.rules \
         80-net-name-slot.rules 80-net-setup-link.rules \
