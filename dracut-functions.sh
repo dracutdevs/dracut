@@ -698,10 +698,12 @@ for_each_host_dev_and_slaves()
 # but you cannot create the logical volume without the volume group.
 # And the volume group might be bigger than the devices the LV needs.
 check_vol_slaves() {
-    local _lv _vg _pv
+    local _lv _vg _pv _dm
     for i in /dev/mapper/*; do
         [[ $i == /dev/mapper/control ]] && continue
         _lv=$(get_maj_min $i)
+        _dm=/sys/dev/block/$_lv/dm
+        [[ -f $_dm/uuid  && $(<$_dm/uuid) =~ LVM-* ]] || continue
         if [[ $_lv = $2 ]]; then
             _vg=$(lvm lvs --noheadings -o vg_name $i 2>/dev/null)
             # strip space
