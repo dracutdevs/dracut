@@ -43,9 +43,8 @@ cmdline() {
 # called by dracut
 install() {
     if [[ $hostonly_cmdline == "yes" ]]; then
-        cmdline_journal | while read journaldev; do
-            [[ $journaldev ]] && printf "%s\n" "$journaldev" >> "${initdir}/etc/cmdline.d/95root-journaldev.conf"
-        done
+        local _journaldev=$(cmdline_journal)
+        [[ $_journaldev ]] && printf "%s\n" "$_journaldev" >> "${initdir}/etc/cmdline.d/95root-journaldev.conf"
     fi
 
     inst_multiple umount
