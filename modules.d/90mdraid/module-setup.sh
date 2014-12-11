@@ -86,7 +86,7 @@ install() {
     for rule in 64-md-raid.rules 64-md-raid-assembly.rules; do
         rule_path="${initdir}${udevdir}/rules.d/${rule}"
         [ -f "${rule_path}" ] && sed -i -r \
-            -e '/RUN\+?="[[:alpha:]/]*mdadm[[:blank:]]+(--incremental|-I)[[:blank:]]+(\$env\{DEVNAME\}|\$tempnode|\$devnode)/d' \
+            -e '/(RUN|IMPORT\{program\})\+?="[[:alpha:]/]*mdadm[[:blank:]]+(--incremental|-I)[[:blank:]]+(--export )?(\$env\{DEVNAME\}|\$tempnode|\$devnode)/d' \
             "${rule_path}"
     done
 
