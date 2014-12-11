@@ -50,8 +50,8 @@ cmdline() {
 install() {
 
     if [[ $hostonly_cmdline == "yes" ]]; then
-        cmdline >> "${initdir}/etc/cmdline.d/90crypt.conf"
-        echo >> "${initdir}/etc/cmdline.d/90crypt.conf"
+        local _cryptconf=$(cmdline)
+        [[ $_cryptconf ]] && printf "%s\n" "$_cryptconf" >> "${initdir}/etc/cmdline.d/90crypt.conf"
     fi
 
     inst_multiple cryptsetup rmdir readlink umount

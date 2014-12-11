@@ -71,8 +71,8 @@ install() {
     inst $(command -v mdadm) /sbin/mdadm
 
     if [[ $hostonly_cmdline == "yes" ]]; then
-        cmdline  >> "${initdir}/etc/cmdline.d/90mdraid.conf"
-        echo  >> "${initdir}/etc/cmdline.d/90mdraid.conf"
+        local _raidconf=$(cmdline)
+        [[ $_raidconf ]] && printf "%s\n" "$_raidconf" >> "${initdir}/etc/cmdline.d/90mdraid.conf"
     fi
 
     # <mdadm-3.3 udev rule

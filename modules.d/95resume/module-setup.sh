@@ -29,8 +29,8 @@ install() {
     local _bin
 
     if [[ $hostonly_cmdline == "yes" ]]; then
-        cmdline  >> "${initdir}/etc/cmdline.d/95resume.conf"
-        echo  >> "${initdir}/etc/cmdline.d/95resume.conf"
+	local _resumeconf=$(cmdline)
+	[[ $_resumeconf ]] && printf "%s\n" "$_resumeconf" >> "${initdir}/etc/cmdline.d/95resume.conf"
     fi
 
     # Optional uswsusp support
