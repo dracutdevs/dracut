@@ -5,8 +5,11 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 generator_wait_for_dev()
 {
     local _name
+    local _timeout
 
     _name="$(str_replace "$1" '/' '\x2f')"
+    _timeout=$(getarg rd.timeout)
+    _timeout=${_timeout:-0}
 
     [ -e "$hookdir/initqueue/finished/devexists-${_name}.sh" ] && return 0
 
@@ -27,7 +30,7 @@ generator_wait_for_dev()
         mkdir -p /run/systemd/generator/${_name}.device.d
         {
             echo "[Unit]"
-            echo "JobTimeoutSec=0"
+            echo "JobTimeoutSec=$_timeout"
         } > /run/systemd/generator/${_name}.device.d/timeout.conf
     fi
 }
@@ -58,6 +61,6 @@ case "$root" in
         rootok=1 ;;
 esac
 
-[ "${root%%:*}" = "block" ] && generator_wait_for_dev "${root#block:}"
+[ "${root%%:*}" = "block" ] && generator_wait_for_dev "${root#block:}" "$RDRETRY"
 
 exit 0
