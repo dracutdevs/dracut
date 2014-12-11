@@ -1742,18 +1742,16 @@ instmods() {
         if (($# == 0)); then  # filenames from stdin
             while read _mod; do
                 inst1mod "${_mod%.ko*}" || {
-                    if [[ "$_check" == "yes" ]]; then
-                        [[ "$_silent" == "no" ]] && dfatal "Failed to install module $_mod"
-                        return 1
+                    if [[ "$_check" == "yes" ]] && [[ "$_silent" == "no" ]]; then
+                        dfatal "Failed to install module $_mod"
                     fi
                 }
             done
         fi
         while (($# > 0)); do  # filenames as arguments
             inst1mod ${1%.ko*} || {
-                if [[ "$_check" == "yes" ]]; then
-                    [[ "$_silent" == "no" ]] && dfatal "Failed to install module $1"
-                    return 1
+                if [[ "$_check" == "yes" ]] && [[ "$_silent" == "no" ]]; then
+                    dfatal "Failed to install module $1"
                 fi
             }
             shift
