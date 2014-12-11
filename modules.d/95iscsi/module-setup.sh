@@ -76,12 +76,6 @@ depends() {
 installkernel() {
     local _arch=$(uname -m)
 
-    # Detect iBFT and perform mandatory steps
-    if [[ $hostonly_cmdline == "yes" ]] ; then
-        install_ibft > "${initdir}/etc/cmdline.d/95iscsi.conf"
-        echo >> "${initdir}/etc/cmdline.d/95iscsi.conf"
-    fi
-
     instmods bnx2i qla4xxx cxgb3i cxgb4i be2iscsi
     hostonly="" instmods iscsi_tcp iscsi_ibft crc32c iscsi_boot_sysfs
     iscsi_module_filter() {
@@ -131,6 +125,13 @@ install() {
     inst_multiple umount iscsistart hostname iscsi-iname
     inst_multiple -o iscsiuio
     inst_libdir_file 'libgcc_s.so*'
+
+    # Detect iBFT and perform mandatory steps
+    if [[ $hostonly_cmdline == "yes" ]] ; then
+        local _ibftconf=$(install_ibft)
+        [[ $_ibftconf ]] && printf "%s\n" "$_ibftconf" >> "${initdir}/etc/cmdline.d/95iscsi.conf"
+    fi
+
     inst_hook cmdline 90 "$moddir/parse-iscsiroot.sh"
     inst_hook cleanup 90 "$moddir/cleanup-iscsi.sh"
     inst "$moddir/iscsiroot.sh" "/sbin/iscsiroot"
