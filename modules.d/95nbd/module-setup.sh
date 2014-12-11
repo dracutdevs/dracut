@@ -4,8 +4,6 @@
 
 check() {
     local _rootdev
-    # If our prerequisites are not met, fail.
-    require_binaries nbd-client || return 1
 
     # if an nbd device is not somewhere in the chain of devices root is
     # mounted on, fail the hostonly check.
@@ -16,6 +14,7 @@ check() {
         [[ -b /dev/block/$_rootdev ]] || return 1
         check_block_and_slaves is_nbd "$_rootdev" || return 255
     }
+    require_binaries nbd-client || return 1
 
     return 0
 }
