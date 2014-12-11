@@ -14,7 +14,6 @@ check() {
         done
         return 255
     }
-
     return 0
 }
 
@@ -29,6 +28,43 @@ installkernel() {
     instmods nfs sunrpc ipv6 nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files
 }
 
+cmdline() {
+    local nfs_device
+    local nfs_options
+    local nfs_root
+    local nfs_address
+    local lookup
+    local ifname
+
+    ### nfsroot= ###
+    nfs_device=$(findmnt -t nfs4 -n -o SOURCE /)
+    if [ -n "$nfs_device" ];then
+        nfs_root="root=nfs4:$nfs_device"
+    else
+        nfs_device=$(findmnt -t nfs -n -o SOURCE /)
+        [ -z "$nfs_device" ] && return
+        nfs_root="root=nfs:$nfs_device"
+    fi
+    nfs_options=$(findmnt -t nfs4,nfs -n -o OPTIONS /)
+    [ -n "$nfs_options" ] && nfs_root="$nfs_root:$nfs_options"
+    echo "$nfs_root"
+
+    ### ip= ###
+    if [[ $nfs_device = [0-9]*\.[0-9]*\.[0-9]*.[0-9]* ]] || [[ $nfs_device = \[.*\] ]]; then
+        nfs_address="$nfs_device"
+    else
+        lookup=$(host $(echo ${nfs_device%%:*})| head -n1)
+        nfs_address=${lookup##* }
+    fi
+    ifname=$(ip -o route get to $nfs_address | sed -n 's/.*dev \([^ ]*\).*/\1/p')
+    if [ -e /sys/class/net/$ifname/address ] ; then
+        ifmac=$(cat /sys/class/net/$ifname/address)
+        printf 'ifname=%s:%s ' ${ifname} ${ifmac}
+    fi
+
+    printf 'ip=%s:static\n' ${ifname}
+}
+
 # called by dracut
 install() {
     local _i
@@ -36,6 +72,11 @@ install() {
     inst_multiple -o portmap rpcbind rpc.statd mount.nfs \
         mount.nfs4 umount rpc.idmapd sed /etc/netconfig
     inst_multiple /etc/services /etc/nsswitch.conf /etc/rpc /etc/protocols /etc/idmapd.conf
+
+    if [[ $hostonly_cmdline == "yes" ]]; then
+        local _netconf="$(cmdline)"
+        [[ $_netconf ]] && printf "%s\n" "$_netconf" >> "${initdir}/etc/cmdline.d/95nfs.conf"
+    fi
 
     if [ -f /lib/modprobe.d/nfs.conf ]; then
         inst_multiple /lib/modprobe.d/nfs.conf
@@ -75,4 +116,3 @@ install() {
         && chown rpc.rpc "$initdir/var/lib/rpcbind"
     dracut_need_initqueue
 }
-
