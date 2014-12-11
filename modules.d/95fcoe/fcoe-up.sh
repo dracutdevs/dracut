@@ -22,6 +22,14 @@ netif=$1
 dcb=$2
 vlan="yes"
 
+iflink=$(cat /sys/class/net/$netif/iflink)
+ifindex=$(cat /sys/class/net/$netif/ifindex)
+if [ "$iflink" != "$ifindex" ] ; then
+    # Skip VLAN devices
+    exit 0
+fi
+
+ip link set dev $netif up
 linkup "$netif"
 
 netdriver=$(readlink -f /sys/class/net/$netif/device/driver)
