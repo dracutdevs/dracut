@@ -26,9 +26,6 @@
 
 initqueue --onetime modprobe -b -q bnx2fc
 
-# FCoE actually supported?
-[ -e /sys/bus/fcoe/ctlr_create ] || modprobe fcoe || die "FCoE requested but kernel/initrd does not support FCoE"
-
 parse_fcoe_opts() {
     local OLDIFS="$IFS"
     local IFS=:
