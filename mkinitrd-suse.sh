@@ -20,8 +20,6 @@
 
 boot_dir="/boot"
 quiet=0
-host_only=1
-force=0
 logfile=/var/log/YaST2/mkinitrd.log
 dracut_cmd=dracut
 
@@ -68,10 +66,7 @@ usage () {
     $cmd "	-j device		Journal device"
     $cmd "	-D interface		Run dhcp on the specified interface."
     $cmd "	-I interface		Configure the specified interface statically."
-    $cmd "	-a acpi_dsdt		Attach compiled ACPI DSDT (Differentiated"
-    $cmd "				System Description Table) to initrd. This"
-    $cmd "				replaces the DSDT of the BIOS. Defaults to"
-    $cmd "				the ACPI_DSDT variable in /etc/sysconfig/kernel."
+    $cmd "	-a acpi_dsdt		Obsolete, do not use."
     $cmd "	-s size			Add splash animation and bootscreen to initrd."
 
     [[ $1 = '-n' ]] && exit 0
@@ -204,8 +199,6 @@ default_kernel_images() {
     for initrd_image in $initrd_images;do
 	targets="$targets $initrd_image"
     done
-    host_only=1
-    force=1
 }
 
 while (($# > 0)); do
@@ -218,8 +211,6 @@ while (($# > 0)); do
 	    for kernel_image in $kernel_images;do
 		kernels="$kernels ${kernel_image#*-}"
 	    done
-	    host_only=1
-	    force=1
 	    ;;
 	-i) read_arg initrd_images "$@" || shift $?
 	    for initrd_image in $initrd_images;do
@@ -261,7 +252,7 @@ while (($# > 0)); do
 	    dracut_cmdline="${dracut_cmdline} ip=$(ipconfig $static_if)":
 	    ;;
 	-a) read_arg acpi_dsdt "$@" || shift $?
-	    echo "mkinitrd: custom DSDT not yet supported"
+	    echo "Obsolete -a param, use acpi_table_dir= and acpi_override= variables in /etc/dracut.conf.d/"
 	    exit 1
 	    ;;
 	-s) read_arg boot_splash "$@" || shift $?
@@ -275,7 +266,6 @@ while (($# > 0)); do
         --version|-R)
             echo "mkinitrd: dracut compatibility wrapper"
             exit 0;;
-        --force) force=1;;
 	--quiet|-q) quiet=1;;
         *)  if [[ ! $targets ]]; then
             targets=$1
@@ -289,15 +279,17 @@ while (($# > 0)); do
 done
 
 [[ $targets && $kernels ]] || default_kernel_images
-[[ $targets && $kernels ]] || (error "No kernel found in $boot_dir" && usage)
+if [[ ! $targets || ! $kernels ]];then
+    error "No kernel found in $boot_dir"
+fi
 
 # We can have several targets/kernels, transform the list to an array
 targets=( $targets )
 [[ $kernels ]] && kernels=( $kernels )
 
 [[ $logfile ]]        && dracut_args="${dracut_args} --logfile $logfile"
-[[ $host_only == 1 ]] && dracut_args="${dracut_args} --hostonly"
-[[ $force == 1 ]]     && dracut_args="${dracut_args} --force"
+dracut_args="${dracut_args} --force"
+
 [[ $dracut_cmdline ]] && dracut_args="${dracut_args} --kernel-cmdline ${dracut_cmdline}"
 [ -z "$(type -p update-bootloader)" ] && skip_update_bootloader=1
 
@@ -306,11 +298,9 @@ if [ -f /etc/sysconfig/kernel ] ; then
     . /etc/sysconfig/kernel
 fi
 [[ $module_list ]] || module_list="${INITRD_MODULES}"
-basicmodules="$basicmodules ${module_list}"
 [[ $domu_module_list ]] || domu_module_list="${DOMU_INITRD_MODULES}"
-[[ $acpi_dsdt ]] || acpi_dsdt="${ACPI_DSDT}"
+shopt -s extglob
 
-echo "Creating: target|kernel|dracut args|basicmodules "
 for ((i=0 ; $i<${#targets[@]} ; i++)); do
 
     if [[ $img_vers ]];then
@@ -320,28 +310,34 @@ for ((i=0 ; $i<${#targets[@]} ; i++)); do
     fi
     kernel="${kernels[$i]}"
 
+    if is_xen_kernel $kernel $rootfs ; then
+	modules_all="${module_list} ${domu_module_list}"
+    else
+        modules_all="${module_list}"
+    fi
+
+    # Remove leading and trailing spaces needs (set above): shopt -s extglob
+    modules_all=${modules_all%%+([[:space:]])}
+    modules_all=${modules_all##+([[:space:]])}
+
+    echo "Creating initrd: $target"
+
     # Duplicate code: No way found how to redirect output based on $quiet
     if [[ $quiet == 1 ]];then
-	echo "$target|$kernel|$dracut_args|$basicmodules"
-	if is_xen_kernel $kernel $rootfs ; then
-	    basicmodules="$basicmodules ${domu_module_list}"
-	fi
-	if [[ $basicmodules ]]; then
-            $dracut_cmd $dracut_args --add-drivers "$basicmodules" "$target" \
-		"$kernel" &>/dev/null
-	else
+        # Duplicate code: --force-drivers must not be called with empty string
+        # -> dracut bug workarounded ugly, because of complex whitespace
+        # expansion magics
+        if [ -n "${modules_all}" ];then
+            $dracut_cmd $dracut_args --force-drivers "${modules_all}" "$target" "$kernel" &>/dev/null
+        else
             $dracut_cmd $dracut_args "$target" "$kernel" &>/dev/null
-	fi
+        fi
     else
-	if is_xen_kernel $kernel $rootfs ; then
-	    basicmodules="$basicmodules ${domu_module_list}"
-	fi
-	if [[ $basicmodules ]]; then
-            $dracut_cmd $dracut_args --add-drivers "$basicmodules" "$target" \
-		"$kernel"
-	else
+        if [ -n "${modules_all}" ];then
+            $dracut_cmd $dracut_args --force-drivers "${modules_all}" "$target" "$kernel"
+        else
             $dracut_cmd $dracut_args "$target" "$kernel"
-	fi
+        fi
     fi
 done
 
