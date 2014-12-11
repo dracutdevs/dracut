@@ -90,8 +90,12 @@ if [ -n "$netroot" ] && [ "$root" != "/dev/root" ] && [ "$root" != "dhcp" ]; the
     fi
 fi
 
-netroot_enc=$(str_replace "$netroot" '/' '\2f')
-echo "[ -f '/tmp/iscsistarted-$netroot_enc' ]" > $hookdir/initqueue/finished/iscsi_started.sh
+if [ -n "$iscsi_firmware" ] ; then
+    echo "[ -f '/tmp/iscsistarted-firmware' ]" > $hookdir/initqueue/finished/iscsi_started.sh
+else
+    netroot_enc=$(str_replace "$netroot" '/' '\2f')
+    echo "[ -f '/tmp/iscsistarted-$netroot_enc' ]" > $hookdir/initqueue/finished/iscsi_started.sh
+fi
 
 # Done, all good!
 rootok=1
