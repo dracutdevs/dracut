@@ -35,6 +35,35 @@ generator_wait_for_dev()
     fi
 }
 
+generator_mount_rootfs()
+{
+    local _type=$2
+    local _flags=$3
+    local _name
+
+    [ -z "$1" ] && return 0
+
+    _name=$(dev_unit_name "$1")
+    [ -d /run/systemd/generator ] || mkdir -p /run/systemd/generator
+    if ! [ -f /run/systemd/generator/sysroot.mount ]; then
+        {
+            echo "[Unit]"
+            echo "Before=initrd-root-fs.target"
+            echo "RequiresOverridable=systemd-fsck@${_name}.service"
+            echo "After=systemd-fsck@${_name}.service"
+            echo "[Mount]"
+            echo "Where=/sysroot"
+            echo "What=$1"
+            echo "Options=${_flags}"
+            echo "Type=${_type}"
+        } > /run/systemd/generator/sysroot.mount
+    fi
+    if ! [ -L /run/systemd/generator/initrd-root-fs.target.requires/sysroot.mount ]; then
+        [ -d /run/systemd/generator/initrd-root-fs.target.requires ] || mkdir -p /run/systemd/generator/initrd-root-fs.target.requires
+        ln -s ../sysroot.mount /run/systemd/generator/initrd-root-fs.target.requires/sysroot.mount
+    fi
+}
+
 root=$(getarg root=)
 case "$root" in
     block:LABEL=*|LABEL=*)
@@ -61,6 +90,9 @@ case "$root" in
         rootok=1 ;;
 esac
 
-[ "${root%%:*}" = "block" ] && generator_wait_for_dev "${root#block:}" "$RDRETRY"
+if [ "${root%%:*}" = "block" ]; then
+   generator_wait_for_dev "${root#block:}" "$RDRETRY"
+   grep -q 'root=' /proc/cmdline || generator_mount_rootfs "${root#block:}" "$(getarg rootfstype=)" "$(getarg rootflags=)"
+fi
 
 exit 0
