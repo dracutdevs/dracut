@@ -15,7 +15,7 @@ depends() {
 install() {
     local _d
 
-    inst_multiple mount mknod mkdir sleep chroot \
+    inst_multiple mount mknod mkdir sleep chroot chown \
         sed ls flock cp mv dmesg rm ln rmmod mkfifo umount readlink setsid
     inst $(command -v modprobe) /sbin/modprobe
 
