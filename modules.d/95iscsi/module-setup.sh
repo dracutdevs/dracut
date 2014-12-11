@@ -123,7 +123,10 @@ install_iscsiroot() {
                 iscsi_address="[$iscsi_address]"
                 ;;
         esac
-        echo "rd.iscsi.initiator=${iscsi_initiator} netroot=iscsi:${iscsi_address}::${iscsi_port}:${iscsi_lun}:${iscsi_targetname}"
+        # Must be two separate lines, so that "sort | uniq" commands later
+        # can sort out rd.iscsi.initiator= duplicates
+        echo "rd.iscsi.initiator=${iscsi_initiator}"
+        echo "netroot=iscsi:${iscsi_address}::${iscsi_port}:${iscsi_lun}:${iscsi_targetname}"
     fi
     return 0
 }

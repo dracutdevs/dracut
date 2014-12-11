@@ -81,23 +81,23 @@ handle_netroot()
     local p
 
     # override conf settings by command line options
-    arg=$(getargs rd.iscsi.initiator -d iscsi_initiator=)
+    arg=$(getarg rd.iscsi.initiator -d iscsi_initiator=)
     [ -n "$arg" ] && iscsi_initiator=$arg
-    arg=$(getargs rd.iscsi.target.name -d iscsi_target_name=)
+    arg=$(getarg rd.iscsi.target.name -d iscsi_target_name=)
     [ -n "$arg" ] && iscsi_target_name=$arg
-    arg=$(getargs rd.iscsi.target.ip -d iscsi_target_ip)
+    arg=$(getarg rd.iscsi.target.ip -d iscsi_target_ip)
     [ -n "$arg" ] && iscsi_target_ip=$arg
-    arg=$(getargs rd.iscsi.target.port -d iscsi_target_port=)
+    arg=$(getarg rd.iscsi.target.port -d iscsi_target_port=)
     [ -n "$arg" ] && iscsi_target_port=$arg
-    arg=$(getargs rd.iscsi.target.group -d iscsi_target_group=)
+    arg=$(getarg rd.iscsi.target.group -d iscsi_target_group=)
     [ -n "$arg" ] && iscsi_target_group=$arg
-    arg=$(getargs rd.iscsi.username -d iscsi_username=)
+    arg=$(getarg rd.iscsi.username -d iscsi_username=)
     [ -n "$arg" ] && iscsi_username=$arg
-    arg=$(getargs rd.iscsi.password -d iscsi_password)
+    arg=$(getarg rd.iscsi.password -d iscsi_password)
     [ -n "$arg" ] && iscsi_password=$arg
-    arg=$(getargs rd.iscsi.in.username -d iscsi_in_username=)
+    arg=$(getarg rd.iscsi.in.username -d iscsi_in_username=)
     [ -n "$arg" ] && iscsi_in_username=$arg
-    arg=$(getargs rd.iscsi.in.password -d iscsi_in_password=)
+    arg=$(getarg rd.iscsi.in.password -d iscsi_in_password=)
     [ -n "$arg" ] && iscsi_in_password=$arg
     for p in $(getargs rd.iscsi.param -d iscsi_param); do
 	iscsi_param="$iscsi_param --param $p"
