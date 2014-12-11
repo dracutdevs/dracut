@@ -1071,9 +1071,25 @@ declare -A host_fs_types
 
 for line in "${fstab_lines[@]}"; do
     set -- $line
+    dev="$1"
     #dev mp fs fsopts
-    push_host_devs "$1"
-    host_fs_types["$1"]="$3"
+    case "$dev" in
+        UUID=*)
+            dev=$(blkid -l -t UUID=${dev#UUID=} -o device)
+            ;;
+        LABEL=*)
+            dev=$(blkid -l -t LABEL=${dev#LABEL=} -o device)
+            ;;
+        PARTUUID=*)
+            dev=$(blkid -l -t PARTUUID=${dev#PARTUUID=} -o device)
+            ;;
+        PARTLABEL=*)
+            dev=$(blkid -l -t PARTLABEL=${dev#PARTLABEL=} -o device)
+            ;;
+    esac
+    [ -z "$dev" ] && dwarn "Bad fstab entry $@" && continue
+    push_host_devs "$dev"
+    host_fs_types["$dev"]="$3"
 done
 
 for f in $add_fstab; do
