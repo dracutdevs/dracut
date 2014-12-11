@@ -106,6 +106,7 @@ cmdline() {
 install() {
     inst_multiple umount iscsistart hostname iscsi-iname
     inst_multiple -o iscsiuio
+    inst_libdir_file 'libgcc_s.so*'
     inst_hook cmdline 90 "$moddir/parse-iscsiroot.sh"
     inst_hook cleanup 90 "$moddir/cleanup-iscsi.sh"
     inst "$moddir/iscsiroot.sh" "/sbin/iscsiroot"
