@@ -16,6 +16,14 @@ type ip_to_var >/dev/null 2>&1 || . /lib/net-lib.sh
 netif=$1
 dcb=$2
 
+iflink=$(cat /sys/class/net/$netif/iflink)
+ifindex=$(cat /sys/class/net/$netif/ifindex)
+if [ "$iflink" != "$ifindex" ] ; then
+    # Skip VLAN devices
+    exit 0
+fi
+
+ip link set dev $netif up
 linkup "$netif"
 
 netdriver=$(readlink -f /sys/class/net/$netif/device/driver)
