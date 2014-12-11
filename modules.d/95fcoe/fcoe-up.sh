@@ -30,10 +30,6 @@ netdriver=$(readlink -f /sys/class/net/$netif/device/driver)
 netdriver=${netdriver##*/}
 
 if [ "$dcb" = "dcb" ]; then
-    # Note lldpad will stay running after switchroot, the system initscripts
-    # are to kill it and start a new lldpad to take over. Data is transfered
-    # between the 2 using a shm segment
-    lldpad -d
     # wait for lldpad to be ready
     i=0
     while [ $i -lt 60 ]; do
@@ -42,10 +38,6 @@ if [ "$dcb" = "dcb" ]; then
         sleep 1
         i=$(($i+1))
     done
-
-    # on some systems lldpad needs some time
-    # sleep until we find a better solution
-    sleep 30
 
     while [ $i -lt 60 ]; do
         dcbtool sc "$netif" dcb on && break
