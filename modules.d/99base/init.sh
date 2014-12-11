@@ -166,7 +166,7 @@ make_trace_mem "hook initqueue" '1:shortmem' '2+:mem' '3+:slab'
 getarg 'rd.break=initqueue' -d 'rdbreak=initqueue' && emergency_shell -n initqueue "Break before initqueue"
 
 RDRETRY=$(getarg rd.retry -d 'rd_retry=')
-RDRETRY=${RDRETRY:-30}
+RDRETRY=${RDRETRY:-180}
 RDRETRY=$(($RDRETRY*2))
 export RDRETRY
 main_loop=0
