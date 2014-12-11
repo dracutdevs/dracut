@@ -28,14 +28,38 @@ check() {
     return 0
 }
 
+get_ibft_mod() {
+    local ibft_mac=$1
+    # Return the iSCSI offload module for a given MAC address
+    iscsiadm -m iface | while read iface_name iface_desc ; do
+        IFS=$','
+        set -- $iface_desc
+        if [ "$ibft_mac" = "$2" ] ; then
+            echo $1
+            return 0
+        fi
+        unset IFS
+    done
+}
+
 install_ibft() {
     # When iBFT / iscsi_boot is detected:
     # - Use 'ip=ibft' to set up iBFT network interface
+    #   Note: bnx2i is using a different MAC address of iSCSI offloading
+    #         so the 'ip=ibft' parameter must not be set
     # - specify firmware booting cmdline parameter
 
     for d in /sys/firmware/* ; do
+        if [ -d ${d}/ethernet0 ] ; then
+            read ibft_mac < ${d}/ethernet0/mac
+            ibft_mod=$(get_ibft_mod $ibft_mac)
+        fi
+        if [ -z "$ibft_mod" ] && [ -d ${d}/ethernet1 ] ; then
+            read ibft_mac < ${d}/ethernet1/mac
+            ibft_mod=$(get_ibft_mod $ibft_mac)
+        fi
         if [ -d ${d}/initiator ] ; then
-            if [ ${d##*/} = "ibft" ] ; then
+            if [ ${d##*/} = "ibft" ] && [ "$ibft_mod" != "bnx2i" ] ; then
                 echo -n "ip=ibft "
             fi
             echo -n "rd.iscsi.firmware=1"
