@@ -162,9 +162,9 @@ fi
 
 if [ -n "$OSMINSQFS" ]; then
     # decompress the delta data
-    dd if=$OSMINSQFS of=/osmin.img 2> /dev/null
+    dd if=$OSMINSQFS of=/run/initramfs/osmin.img 2> /dev/null
     OSMIN_SQUASHED_LOOPDEV=$( losetup -f )
-    losetup -r $OSMIN_SQUASHED_LOOPDEV /osmin.img
+    losetup -r $OSMIN_SQUASHED_LOOPDEV /run/initramfs/osmin.img
     mkdir -m 0755 -p /run/initramfs/squashfs.osmin
     mount -n -t squashfs -o ro $OSMIN_SQUASHED_LOOPDEV /run/initramfs/squashfs.osmin
     OSMIN_LOOPDEV=$( losetup -f )
@@ -185,8 +185,8 @@ if [ -n "$FSIMG" ] ; then
     if [ -n "$writable_fsimg" ] ; then
         # mount the provided fileysstem read/write
         echo "Unpacking live filesystem (may take some time)"
-        unpack_archive $FSIMG /tmp/fsimg/
-        losetup $BASE_LOOPDEV /tmp/fsimg/rootfs.img
+        unpack_archive $FSIMG /run/initramfs/fsimg/
+        losetup $BASE_LOOPDEV /run/initramfs/fsimg/rootfs.img
         echo "0 $( blockdev --getsize $BASE_LOOPDEV ) linear $BASE_LOOPDEV 0" | dmsetup create live-rw
     else
         # mount the filesystem read-only and add a dm snapshot for writes
@@ -204,10 +204,10 @@ if [ -e "$SQUASHED" ] ; then
     if [ -n "$live_ram" ] ; then
         echo "Copying live image to RAM..."
         echo "(this may take a few minutes)"
-        dd if=$SQUASHED of=/squashed.img bs=512 2> /dev/null
+        dd if=$SQUASHED of=/run/initramfs/squashed.img bs=512 2> /dev/null
         umount -n /run/initramfs/live
         echo "Done copying live image to RAM."
-        SQUASHED="/squashed.img"
+        SQUASHED="/run/initramfs/squashed.img"
     fi
 
     SQUASHED_LOOPDEV=$( losetup -f )
