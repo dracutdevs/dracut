@@ -33,6 +33,15 @@ install() {
 	[[ $_resumeconf ]] && printf "%s\n" "$_resumeconf" >> "${initdir}/etc/cmdline.d/95resume.conf"
     fi
 
+    # if systemd is included and has the hibernate-resume tool, use it and nothing else
+    if dracut_module_included "systemd" && [[ -x $systemdutildir/systemd-hibernate-resume ]]; then
+        inst_multiple -o \
+                      $systemdutildir/system-generators/systemd-hibernate-resume-generator \
+                      $systemdsystemunitdir/systemd-hibernate-resume@.service \
+                      $systemdutildir/systemd-hibernate-resume
+        return 0
+    fi
+
     # Optional uswsusp support
     for _bin in /usr/sbin/resume /usr/lib/suspend/resume /usr/lib/uswsusp/resume
     do
