@@ -1493,12 +1493,13 @@ while pop include_src src && pop include_target tgt; do
             inst $src $tgt
         else
             ddebug "Including directory: $src"
-            mkdir -p "${initdir}/${tgt}"
+            destdir="${initdir}/${tgt}"
+            mkdir -p "$destdir"
             # check for preexisting symlinks, so we can cope with the
             # symlinks to $prefix
             for i in "$src"/*; do
                 [[ -e "$i" || -h "$i" ]] || continue
-                s=${initdir}/${tgt}/${i#$src/}
+                s=${destdir}/${i#$src/}
                 if [[ -d "$i" ]]; then
                     if ! [[ -e "$s" ]]; then
                         mkdir -m 0755 -p "$s"
@@ -1506,7 +1507,7 @@ while pop include_src src && pop include_target tgt; do
                     fi
                     cp --reflink=auto --sparse=auto -fa -t "$s" "$i"/*
                 else
-                    cp --reflink=auto --sparse=auto -fa -t "$s" "$i"
+                    cp --reflink=auto --sparse=auto -fa -t "$destdir" "$i"
                 fi
             done
         fi
