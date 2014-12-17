@@ -1461,7 +1461,7 @@ install_kmod_with_fw() {
 
     if [[ $omit_drivers ]]; then
         local _kmod=${1##*/}
-        _kmod=${_kmod%.ko}
+        _kmod=${_kmod%.ko*}
         _kmod=${_kmod/-/_}
         if [[ "$_kmod" =~ $omit_drivers ]]; then
             dinfo "Omitting driver $_kmod"
@@ -1475,7 +1475,7 @@ install_kmod_with_fw() {
 
     if [[ $silent_omit_drivers ]]; then
         local _kmod=${1##*/}
-        _kmod=${_kmod%.ko}
+        _kmod=${_kmod%.ko*}
         _kmod=${_kmod/-/_}
         [[ "$_kmod" =~ $silent_omit_drivers ]] && return 0
         [[ "${1##*/lib/modules/$kernel/}" =~ $silent_omit_drivers ]] && return 0
@@ -1599,7 +1599,7 @@ module_is_host_only() {
     local _mod=$1
     local _modenc a i _k _s _v _aliases
     _mod=${_mod##*/}
-    _mod=${_mod%.ko}
+    _mod=${_mod%.ko*}
     _modenc=${_mod//-/_}
 
     [[ " $add_drivers " == *\ ${_mod}\ * ]] && return 0
@@ -1691,16 +1691,16 @@ instmods() {
                 _mod=${_mod##*/}
                 # Check for aliased modules
                 _modalias=$(modinfo -k $kernel -F filename $_mod 2> /dev/null)
-                _modalias=${_modalias%.ko}
-                if [ "${_modalias##*/}" != "$_mod" ] ; then
+                _modalias=${_modalias%.ko*}
+                if [[ $_modalias ]] && [ "${_modalias##*/}" != "${_mod%.ko*}" ] ; then
                     _mod=${_modalias##*/}
                 fi
 
                 # if we are already installed, skip this module and go on
                 # to the next one.
                 if [[ $DRACUT_KERNEL_LAZY_HASHDIR ]] && \
-                    [[ -f "$DRACUT_KERNEL_LAZY_HASHDIR/${_mod%.ko}.ko" ]]; then
-                    read _ret <"$DRACUT_KERNEL_LAZY_HASHDIR/${_mod%.ko}.ko"
+                    [[ -f "$DRACUT_KERNEL_LAZY_HASHDIR/${_mod%.ko*}" ]]; then
+                    read _ret <"$DRACUT_KERNEL_LAZY_HASHDIR/${_mod%.ko*}"
                     return $_ret
                 fi
 
@@ -1730,7 +1730,7 @@ instmods() {
                     ((_ret+=$?))
                 else
                     [[ $DRACUT_KERNEL_LAZY_HASHDIR ]] && \
-                        echo $_mod >> "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist"
+                        echo ${_mod%.ko*} >> "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist"
                 fi
                 ;;
         esac
