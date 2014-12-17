@@ -22,7 +22,7 @@ cmdline_journal() {
             fi
 
             if [ -n "$journaldev" ]; then
-                echo "root.journaldev=${journaldev}"
+                printf " root.journaldev=%s" "$journaldev"
             fi
         done
     fi
@@ -32,9 +32,9 @@ cmdline_journal() {
 cmdline_rootfs() {
     local dev=/dev/block/$(find_root_block_device)
     if [ -e $dev ]; then
-        printf "root=%s" "$(shorten_persistent_dev "$(get_persistent_dev "$dev")")"
-        printf "rootflags=%s" "$(find_mp_fsopts /)"
-        printf "rootfstype=%s\n" "$(find_mp_fstype /)"
+        printf " root=%s" "$(shorten_persistent_dev "$(get_persistent_dev "$dev")")"
+        printf " rootflags=%s" "$(find_mp_fsopts /)"
+        printf " rootfstype=%s" "$(find_mp_fstype /)"
     fi
 }
 

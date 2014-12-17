@@ -1299,6 +1299,7 @@ if [[ $print_cmdline ]]; then
         module_cmdline "$_d_mod"
     done
     unset moddir
+    printf "\n"
     exit 0
 fi
 
