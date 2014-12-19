@@ -83,6 +83,7 @@ install() {
         $systemdsystemunitdir/systemd-udevd-kernel.socket \
         $systemdsystemunitdir/systemd-ask-password-plymouth.path \
         $systemdsystemunitdir/systemd-journald.socket \
+        $systemdsystemunitdir/systemd-journald-audit.socket \
         $systemdsystemunitdir/systemd-ask-password-console.service \
         $systemdsystemunitdir/systemd-modules-load.service \
         $systemdsystemunitdir/systemd-halt.service \
@@ -105,6 +106,7 @@ install() {
         $systemdsystemunitdir/sockets.target.wants/systemd-udevd-control.socket \
         $systemdsystemunitdir/sockets.target.wants/systemd-udevd-kernel.socket \
         $systemdsystemunitdir/sockets.target.wants/systemd-journald.socket \
+        $systemdsystemunitdir/sockets.target.wants/systemd-journald-audit.socket \
         $systemdsystemunitdir/sockets.target.wants/systemd-journald-dev-log.socket \
         $systemdsystemunitdir/sysinit.target.wants/systemd-udevd.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-udev-trigger.service \
