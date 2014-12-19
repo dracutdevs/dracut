@@ -1487,27 +1487,29 @@ if [[ $kernel_only != yes ]]; then
     done
 fi
 
-while pop include_src src && pop include_target tgt; do
-    if [[ $src && $tgt ]]; then
+while pop include_src src && pop include_target target; do
+    if [[ $src && $target ]]; then
         if [[ -f $src ]]; then
-            inst $src $tgt
+            inst $src $target
         else
             ddebug "Including directory: $src"
-            destdir="${initdir}/${tgt}"
+            destdir="${initdir}/${target}"
             mkdir -p "$destdir"
             # check for preexisting symlinks, so we can cope with the
             # symlinks to $prefix
-            for i in "$src"/*; do
-                [[ -e "$i" || -h "$i" ]] || continue
-                s=${destdir}/${i#$src/}
-                if [[ -d "$i" ]]; then
-                    if ! [[ -e "$s" ]]; then
-                        mkdir -m 0755 -p "$s"
-                        chmod --reference="$i" "$s"
+            # Objectname is a file or a directory
+            for objectname in "$src"/*; do
+                [[ -e "$objectname" || -h "$objectname" ]] || continue
+                if [[ -d "$objectname" ]]; then
+                    # objectname is a directory, let's compute the final directory name
+                    object_destdir=${destdir}/${objectname#$src/}
+                    if ! [[ -e "$object_destdir" ]]; then
+                        mkdir -m 0755 -p "$object_destdir"
+                        chmod --reference="$objectname" "$object_destdir"
                     fi
-                    cp --reflink=auto --sparse=auto -fa -t "$s" "$i"/*
+                    cp --reflink=auto --sparse=auto -fa -t "$object_destdir" "$objectname"/*
                 else
-                    cp --reflink=auto --sparse=auto -fa -t "$destdir" "$i"
+                    cp --reflink=auto --sparse=auto -fa -t "$destdir" "$objectname"
                 fi
             done
         fi
