@@ -39,7 +39,7 @@ installkernel() {
             ehci-hcd ehci-pci ehci-platform \
             ohci-hcd ohci-pci \
             uhci-hcd \
-            xhci-hcd
+            xhci-hcd xhci-pci xhci-plat-hcd
 
         instmods yenta_socket scsi_dh_rdac scsi_dh_emc scsi_dh_alua \
             atkbd i8042 usbhid hid-apple hid-sunplus hid-cherry hid-logitech \
