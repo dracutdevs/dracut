@@ -104,17 +104,7 @@ fi
 
 ldconfig_paths()
 {
-    local a i
-    declare -A a
-    for i in $(
-        ldconfig -pN 2>/dev/null | grep -F '=>' | grep -E -v '/(lib|lib64|usr/lib|usr/lib64)/[^/]*$' | while read a b c d; do
-            d=${d%/*}
-            printf "%s\n" "$d";
-        done
-    ); do
-        a["$i"]=1;
-    done;
-    printf "%s\n" ${!a[@]}
+    ldconfig -pN 2>/dev/null | grep -E -v '/(lib|lib64|usr/lib|usr/lib64)/[^/]*$' | sed -n 's,.* => \(.*\)/.*,\1,p' | sort | uniq
 }
 
 # Detect lib paths
