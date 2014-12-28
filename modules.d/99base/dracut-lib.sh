@@ -1286,8 +1286,8 @@ show_memstats()
 remove_hostonly_files() {
     rm -fr /etc/cmdline /etc/cmdline.d/*.conf
     if [ -f /lib/dracut/hostonly-files ]; then
-        while read line; do
-            [ -e "$line" ] || continue
+        while read -r line; do
+            [ -e "$line" ] || [ -h "$line" ] || continue
             rm -f "$line"
         done < /lib/dracut/hostonly-files
     fi
