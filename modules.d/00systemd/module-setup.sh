@@ -138,7 +138,7 @@ install() {
         local _line i
         for i in "$1"/*.conf; do
             [[ -f $i ]] || continue
-            while read _line; do
+            while read _line || [ -n "$_line" ]; do
                 case $_line in
                     \#*)
                         ;;

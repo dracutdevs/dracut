@@ -2,7 +2,7 @@
 >/dev/watchdog
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 exec >/dev/console 2>&1
-while read dev fs fstype opts rest; do
+while read dev fs fstype opts rest || [ -n "$dev" ]; do
     [ "$dev" = "rootfs" ] && continue
     [ "$fs" != "/" ] && continue
     echo "nbd-OK $fstype $opts" >/dev/sda

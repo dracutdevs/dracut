@@ -163,7 +163,7 @@ EOF
             /etc/security \
             /lib64/security \
             /lib/security -xtype f \
-            | while read file; do
+            | while read file || [ -n "$file" ]; do
             inst_multiple -o $file
         done
 
@@ -193,7 +193,7 @@ EOF
 
         # install any Execs from the service files
         egrep -ho '^Exec[^ ]*=[^ ]+' $initdir/lib/systemd/system/*.service \
-            | while read i; do
+            | while read i || [ -n "$i" ]; do
             i=${i##Exec*=}; i=${i##-}
             inst_multiple -o $i
         done

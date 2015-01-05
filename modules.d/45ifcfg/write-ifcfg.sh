@@ -22,7 +22,7 @@ get_config_line_by_subchannel()
     local line
 
     CHANNELS="$1"
-    while read line; do
+    while read line || [ -n "$line" ]; do
         if strstr "$line" "$CHANNELS"; then
             echo $line
             return 0

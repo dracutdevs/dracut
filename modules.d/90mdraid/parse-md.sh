@@ -10,7 +10,7 @@ else
     if [ -n "$MD_UUID" ]; then
         for f in /etc/udev/rules.d/65-md-incremental*.rules; do
             [ -e "$f" ] || continue
-            while read line; do
+            while read line || [ -n "$line" ]; do
                 if [ "${line%%UUID CHECK}" != "$line" ]; then
                     printf 'IMPORT{program}="/sbin/mdadm --examine --export $tempnode"\n'
                     for uuid in $MD_UUID; do

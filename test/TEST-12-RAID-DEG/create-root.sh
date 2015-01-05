@@ -42,5 +42,5 @@ udevadm settle
 mdadm -W /dev/md0 || :
 mdadm --detail --export /dev/md0 |grep -F MD_UUID > /tmp/mduuid
 . /tmp/mduuid
-eval $(udevadm info --query=env --name=/dev/md0|while read line; do [ "$line" != "${line#*ID_FS_UUID*}" ] && echo $line; done;)
+eval $(udevadm info --query=env --name=/dev/md0|while read line || [ -n "$line" ]; do [ "$line" != "${line#*ID_FS_UUID*}" ] && echo $line; done;)
 { echo "dracut-root-block-created"; echo MD_UUID=$MD_UUID;  echo "ID_FS_UUID=$ID_FS_UUID";} > /dev/sda1

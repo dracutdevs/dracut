@@ -111,7 +111,7 @@ case $reason in
         fi
         unset layer2
         setup_interface
-        set | while read line; do
+        set | while read line || [ -n "$line" ]; do
             [ "${line#new_}" = "$line" ] && continue
             echo "$line"
         done >/tmp/dhclient.$netif.dhcpopts
@@ -132,7 +132,7 @@ case $reason in
         echo "dhcp: BOND6 setting $netif"
         setup_interface6
 
-        set | while read line; do
+        set | while read line || [ -n "$line" ]; do
             [ "${line#new_}" = "$line" ] && continue
             echo "$line"
         done >/tmp/dhclient.$netif.dhcpopts

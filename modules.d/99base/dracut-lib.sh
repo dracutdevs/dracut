@@ -79,13 +79,13 @@ else
 fi
 
 vwarn() {
-    while read line; do
+    while read line || [ -n "$line" ]; do
         warn $line;
     done
 }
 
 vinfo() {
-    while read line; do
+    while read line || [ -n "$line" ]; do
         info $line;
     done
 }
@@ -131,7 +131,7 @@ getcmdline() {
     unset _line
 
     if [ -e /etc/cmdline ]; then
-        while read -r _line; do
+        while read -r _line || [ -n "$_line" ]; do
             CMDLINE_ETC="$CMDLINE_ETC $_line";
         done </etc/cmdline;
     fi
@@ -506,7 +506,7 @@ incol2() {
     [ -z "$file" ] && return 1;
     [ -z "$str"  ] && return 1;
 
-    while read dummy check restofline; do
+    while read dummy check restofline || [ -n "$check" ]; do
         if [ "$check" = "$str" ]; then
             debug_on
             return 0
@@ -539,7 +539,7 @@ udevproperty() {
 find_mount() {
     local dev mnt etc wanted_dev
     wanted_dev="$(readlink -e -q $1)"
-    while read dev mnt etc; do
+    while read dev mnt etc || [ -n "$dev" ]; do
         [ "$dev" = "$wanted_dev" ] && echo "$dev" && return 0
     done < /proc/mounts
     return 1
@@ -558,7 +558,7 @@ else
             return 1
         fi
 
-        while read a m a; do
+        while read a m a || [ -n "$m" ]; do
             [ "$m" = "$1" ] && return 0
         done < /proc/mounts
         return 1
@@ -1007,7 +1007,7 @@ wait_for_loginit()
 
     if [ $i -eq 10 ]; then
         kill %1 >/dev/null 2>&1
-        kill $(while read line;do echo $line;done</run/initramfs/loginit.pid)
+        kill $(while read line || [ -n "$line" ];do echo $line;done</run/initramfs/loginit.pid)
     fi
 
     setdebug
@@ -1289,7 +1289,7 @@ show_memstats()
 remove_hostonly_files() {
     rm -fr /etc/cmdline /etc/cmdline.d/*.conf
     if [ -f /lib/dracut/hostonly-files ]; then
-        while read -r line; do
+        while read line || [ -n "$line" ]; do
             [ -e "$line" ] || [ -h "$line" ] || continue
             rm -f "$line"
         done < /lib/dracut/hostonly-files

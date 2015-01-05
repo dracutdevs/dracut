@@ -120,7 +120,7 @@ command -v ctorrent >/dev/null \
 
 nfs_already_mounted() {
     local server="$1" path="$2" localdir="" s="" p=""
-    cat /proc/mounts | while read src mnt rest; do
+    cat /proc/mounts | while read src mnt rest || [ -n "$src" ]; do
         splitsep ":" "$src" s p
         if [ "$server" = "$s" ]; then
             if [ "$path" = "$p" ]; then

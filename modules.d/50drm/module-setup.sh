@@ -22,7 +22,7 @@ installkernel() {
         local _merge=8 _side2=9
         function nmf1() {
             local _fname _fcont
-            while read _fname; do
+            while read _fname || [ -n "$_fname" ]; do
                 case "$_fname" in
                     *.ko)    _fcont="$(<        $_fname)" ;;
                     *.ko.gz) _fcont="$(gzip -dc $_fname)" ;;
@@ -35,7 +35,7 @@ installkernel() {
         }
         function rotor() {
             local _f1 _f2
-            while read _f1; do
+            while read _f1 || [ -n "$_f1" ]; do
                 echo "$_f1"
                 if read _f2; then
                     echo "$_f2" 1>&${_side2}

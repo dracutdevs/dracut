@@ -42,7 +42,7 @@ function dasd_settle() {
 }
 
 function dasd_settle_all() {
-    for dasdccw in $(while read line; do echo "${line%%(*}"; done < /proc/dasd/devices) ; do
+    for dasdccw in $(while read line || [ -n "$line" ]; do echo "${line%%(*}"; done < /proc/dasd/devices) ; do
         if ! dasd_settle $dasdccw ; then
             echo $"Could not access DASD $dasdccw in time"
             return 1
@@ -84,7 +84,7 @@ function readcmsfile() # $1=dasdport $2=filename
     #               dasd_mod must be loaded without setting any DASD online
     dev=$(canonicalize_devno $1)
     numcpus=$(
-        while read line; do
+        while read line || [ -n "$line" ]; do
             if strstr "$line" "# processors"; then
                 echo ${line##*:};
                 break;
@@ -181,7 +181,7 @@ processcmsfile()
 
     unset _do_zfcp
     for i in ${!FCP_*}; do
-        echo "${!i}" | while read port rest; do
+        echo "${!i}" | while read port rest || [ -n "$port" ]; do
             case $port in
                 *.*.*)
                     ;;

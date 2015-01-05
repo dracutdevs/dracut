@@ -46,7 +46,7 @@ cmdline() {
 
         UUID=$(
             /sbin/mdadm --examine --export $dev \
-                | while read line; do
+                | while read line || [ -n "$line" ]; do
                 [[ ${line#MD_UUID=} = $line ]] && continue
                 printf "%s" "${line#MD_UUID=} "
             done

@@ -9,7 +9,7 @@ installkernel() {
             local _merge=8 _side2=9
             function bmf1() {
                 local _f
-                while read _f; do case "$_f" in
+                while read _f || [ -n "$_f" ]; do case "$_f" in
                     *.ko)    [[ $(<         $_f) =~ $_blockfuncs ]] && echo "$_f" ;;
                     *.ko.gz) [[ $(gzip -dc <$_f) =~ $_blockfuncs ]] && echo "$_f" ;;
                     *.ko.xz) [[ $(xz -dc   <$_f) =~ $_blockfuncs ]] && echo "$_f" ;;
@@ -19,7 +19,7 @@ installkernel() {
             }
             function rotor() {
                 local _f1 _f2
-                while read _f1; do
+                while read _f1 || [ -n "$_f1" ]; do
                     echo "$_f1"
                     if read _f2; then
                         echo "$_f2" 1>&${_side2}

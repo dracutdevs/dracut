@@ -40,7 +40,7 @@ install() {
             *) cmd=grep ;;
         esac
 
-        for INCL in $($cmd "^include " $MAP | while read a a b; do echo ${a//\"/}; done); do
+        for INCL in $($cmd "^include " $MAP | while read a a b || [ -n "$a" ]; do echo ${a//\"/}; done); do
             for FN in $(find ${kbddir}/keymaps -type f -name $INCL\*); do
                 findkeymap $FN
             done
@@ -114,12 +114,12 @@ install() {
         rm -f -- "${initdir}${kbddir}/consoletrans/utflist"
         find "${initdir}${kbddir}/" -name README\* -delete
         find "${initdir}${kbddir}/" -name '*.gz' -print -quit \
-            | while read line; do
+            | while read line || [ -n "$line" ]; do
             inst_multiple gzip
             done
 
         find "${initdir}${kbddir}/" -name '*.bz2' -print -quit \
-            | while read line; do
+            | while read line || [ -n "$line" ]; do
             inst_multiple bzip2
             done
     }

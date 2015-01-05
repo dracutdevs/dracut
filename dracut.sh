@@ -1151,7 +1151,7 @@ done
 
 for f in $add_fstab; do
     [[ -e $f ]] || continue
-    while read dev rest; do
+    while read dev rest || [ -n "$dev" ]; do
         push_host_devs "$dev"
     done < "$f"
 done
@@ -1198,11 +1198,11 @@ if [[ $hostonly ]]; then
     done
 
     if [[ -f /proc/swaps ]] && [[ -f /etc/fstab ]]; then
-        while read dev type rest; do
+        while read dev type rest || [ -n "$dev" ]; do
             [[ -b $dev ]] || continue
             [[ "$type" == "partition" ]] || continue
 
-            while read _d _m _t _o _r; do
+            while read _d _m _t _o _r || [ -n "$_d" ]; do
                 [[ "$_d" == \#* ]] && continue
                 [[ $_d ]] || continue
                 [[ $_t != "swap" ]] && continue
@@ -1212,7 +1212,7 @@ if [[ $hostonly ]]; then
                 [[ "$_d" -ef "$dev" ]] || continue
 
                 if [[ -f /etc/crypttab ]]; then
-                    while read _mapper _a _p _o; do
+                    while read _mapper _a _p _o || [ -n "$_mapper" ]; do
                         [[ $_mapper = \#* ]] && continue
                         [[ "$_d" -ef /dev/mapper/"$_mapper" ]] || continue
                         [[ "$_o" ]] || _o="$_p"
@@ -1231,8 +1231,8 @@ if [[ $hostonly ]]; then
     # record all host modaliases
     declare -A host_modalias
     find  /sys/devices/ -name uevent -print > "$initdir/.modalias"
-    while read m; do
-        while read line; do
+    while read m || [ -n "$m" ]; do
+        while read line || [ -n "$line" ]; do
             [[ "$line" != MODALIAS\=* ]] && continue
             modalias="${line##MODALIAS=}" && [[ $modalias ]] && host_modalias["$modalias"]=1
             break
@@ -1241,14 +1241,14 @@ if [[ $hostonly ]]; then
 
     rm -f -- "$initdir/.modalias"
 
-    while read _k _s _v; do
+    while read _k _s _v || [ -n "$_k" ]; do
         [ "$_k" != "name" -a "$_k" != "driver" ] && continue
         host_modalias["$_v"]=1
     done </proc/crypto
 
     # check /proc/modules
     declare -A host_modules
-    while read m rest; do
+    while read m rest || [ -n "$m" ]; do
         host_modules["$m"]=1
     done </proc/modules
 fi
@@ -1633,7 +1633,7 @@ if [[ $do_strip = yes ]] && ! [[ $DRACUT_FIPS_MODE ]]; then
 
     # strip kernel modules, but do not touch signed modules
     find "$initdir" -type f -path '*/lib/modules/*.ko' -print0 \
-        | while read -r -d $'\0' f; do
+        | while read -r -d $'\0' f || [ -n "$f" ]; do
         SIG=$(tail -c 28 "$f")
         [[ $SIG == '~Module signature appended~' ]] || { printf "%s\000" "$f"; }
     done | xargs -r -0 strip -g

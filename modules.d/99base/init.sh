@@ -72,7 +72,7 @@ fi
 
 if command -v kmod >/dev/null 2>/dev/null; then
     kmod static-nodes --format=tmpfiles 2>/dev/null | \
-        while read type file mode a a a majmin; do
+        while read type file mode a a a majmin || [ -n "$type" ]; do
             type=${type%\!}
             case $type in
                 d)
@@ -113,7 +113,7 @@ source_conf /etc/conf.d
 
 if getarg "rd.cmdline=ask"; then
     echo "Enter additional kernel command line parameter (end with ctrl-d or .)"
-    while read -p "> " line; do
+    while read -p "> " line || [ -n "$line" ]; do
         [ "$line" = "." ] && break
         echo "$line" >> /etc/cmdline.d/99-cmdline-ask.conf
     done
@@ -254,7 +254,7 @@ done
 
 {
     echo -n "Mounted root filesystem "
-    while read dev mp rest; do [ "$mp" = "$NEWROOT" ] && echo $dev; done < /proc/mounts
+    while read dev mp rest || [ -n "$dev" ]; do [ "$mp" = "$NEWROOT" ] && echo $dev; done < /proc/mounts
 } | vinfo
 
 # pre pivot scripts are sourced just before we doing cleanup and switch over

@@ -7,7 +7,7 @@ crypttab_contains() {
     local luks="$1"
     local l d rest
     if [ -f /etc/crypttab ]; then
-        while read l d rest; do
+        while read l d rest || [ -n "$l" ]; do
             strstr "${l##luks-}" "${luks##luks-}" && return 0
             strstr "$d" "${luks##luks-}" && return 0
         done < /etc/crypttab
@@ -155,7 +155,7 @@ getkey() {
     [ -f "$keys_file" ] || return 1
 
     local IFS=:
-    while read luks_dev key_dev key_path; do
+    while read luks_dev key_dev key_path || [ -n "$luks_dev" ]; do
         if match_dev "$luks_dev" "$for_dev"; then
             echo "${key_dev}:${key_path}"
             return 0

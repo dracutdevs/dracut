@@ -365,7 +365,7 @@ dlog() {
     if (( $# > 1 )); then
         _do_dlog "$@"
     else
-        while read line; do
+        while read line || [ -n "$line" ]; do
             _do_dlog "$1" "$line"
         done
     fi

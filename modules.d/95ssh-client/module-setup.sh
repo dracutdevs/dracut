@@ -44,7 +44,7 @@ inst_sshenv()
     if [[ -f /etc/ssh/ssh_config ]]; then
         inst_simple /etc/ssh/ssh_config
         sed -i -e 's/\(^[[:space:]]*\)ProxyCommand/\1# ProxyCommand/' ${initdir}/etc/ssh/ssh_config
-        while read key val; do
+        while read key val || [ -n "$key" ]; do
             [[ $key != "GlobalKnownHostsFile" ]] && continue
             inst_simple "$val"
             break

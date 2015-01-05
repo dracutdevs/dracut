@@ -23,7 +23,7 @@ numtries=${3:-10}
 
 # TODO: improve to support what cmdline does
 if [ -f /etc/crypttab ] && getargbool 1 rd.luks.crypttab -d -n rd_NO_CRYPTTAB; then
-    while read name dev luksfile luksoptions; do
+    while read name dev luksfile luksoptions || [ -n "$name" ]; do
         # ignore blank lines and comments
         if [ -z "$name" -o "${name#\#}" != "$name" ]; then
             continue

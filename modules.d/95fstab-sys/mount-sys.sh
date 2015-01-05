@@ -7,7 +7,7 @@ fstab_mount() {
     local _dev _mp _fs _opts _dump _pass _rest
     test -e "$1" || return 1
     info "Mounting from $1"
-    while read _dev _mp _fs _opts _dump _pass _rest; do
+    while read _dev _mp _fs _opts _dump _pass _rest || [ -n "$_dev" ]; do
         [ -z "${_dev%%#*}" ] && continue # Skip comment lines
         ismounted $_mp && continue # Skip mounted filesystem
         if [ "$_pass" -gt 0 ] && ! strstr "$_opts" _netdev; then

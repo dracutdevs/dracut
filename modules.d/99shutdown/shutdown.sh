@@ -38,7 +38,7 @@ killall_proc_mountpoint /oldroot
 
 umount_a() {
     local _did_umount="n"
-    while read a mp a; do
+    while read a mp a || [ -n "$mp" ]; do
         if strstr "$mp" oldroot; then
             if umount "$mp"; then
                 _did_umount="y"

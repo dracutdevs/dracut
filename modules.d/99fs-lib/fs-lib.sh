@@ -141,7 +141,7 @@ fsck_single() {
 
     [ $# -lt 2 ] && return 255
     # if UUID= marks more than one device, take only the first one
-    [ -e "$_dev" ] || _dev=$(devnames "$_dev"| while read line; do if [ -n "$line" ]; then echo $line; break;fi;done)
+    [ -e "$_dev" ] || _dev=$(devnames "$_dev"| while read line || [ -n "$line" ]; do if [ -n "$line" ]; then echo $line; break;fi;done)
     [ -e "$_dev" ] || return 255
     _fs=$(det_fs "$_dev" "$_fs")
     fsck_able "$_fs" || return 255
@@ -186,7 +186,7 @@ det_fs() {
     local _fs
 
     _fs=$(udevadm info --query=env --name="$_dev" | \
-    while read line; do
+    while read line || [ -n "$line" ]; do
         if str_starts $line "ID_FS_TYPE="; then
             echo ${line#ID_FS_TYPE=}
             break

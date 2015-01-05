@@ -149,7 +149,7 @@ list_files()
 
 
 if (( ${#filenames[@]} <= 0 )); then
-    echo "Image: $image: $(du -h $image | while read a b; do echo $a;done)"
+    echo "Image: $image: $(du -h $image | while read a b || [ -n "$a" ]; do echo $a;done)"
     echo "========================================================================"
 fi
 

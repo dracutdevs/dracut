@@ -10,7 +10,7 @@ printf -- "$$" > /run/initramfs/loginit.pid
 [ -e /dev/kmsg ] && exec 5>/dev/kmsg || exec 5>/dev/null
 exec 6>/run/initramfs/init.log
 
-while read line; do
+while read line || [ -n "$line" ]; do
     if [ "$line" = "DRACUT_LOG_END" ]; then
         rm -f -- /run/initramfs/loginit.pipe
         exit 0

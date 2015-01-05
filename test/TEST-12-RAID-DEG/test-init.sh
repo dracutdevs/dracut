@@ -1,7 +1,7 @@
 #!/bin/sh
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 strstr() { [ "${1##*"$2"*}" != "$1" ]; }
-CMDLINE=$(while read line; do echo $line;done < /proc/cmdline)
+CMDLINE=$(while read line || [ -n "$line" ]; do echo $line;done < /proc/cmdline)
 command -v plymouth >/dev/null && plymouth --quit
 exec >/dev/console 2>&1
 echo "dracut-root-block-success" >/dev/sda1
