@@ -41,7 +41,7 @@ install() {
     inst_libdir_file libsoftokn3.so libsoftokn3.so \
         libsoftokn3.chk libfreebl3.so libfreebl3.chk \
         libssl.so 'hmaccalc/sha512hmac.hmac' libssl.so.10 \
-        libfreeblpriv3.so and libfreeblpriv3.chk
+        libfreeblpriv3.so libfreeblpriv3.chk
 
     inst_multiple -o prelink
     inst_simple /etc/system-fips
