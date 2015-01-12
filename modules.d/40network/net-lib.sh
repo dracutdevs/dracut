@@ -308,6 +308,23 @@ parse_iscsi_root()
             ;;
     esac
 
+    unset iscsi_target_name
+    # extract target name
+    case "$v" in
+        *:iqn.*)
+            iscsi_target_name=iqn.${v##*:iqn.}
+            v=${v%:iqn.*}:
+            ;;
+        *:eui.*)
+            iscsi_target_name=iqn.${v##*:eui.}
+            v=${v%:iqn.*}:
+            ;;
+        *:naa.*)
+            iscsi_target_name=iqn.${v##*:naa.}
+            v=${v%:iqn.*}:
+            ;;
+    esac
+
     # parse the rest
     OLDIFS="$IFS"
     IFS=:
@@ -317,24 +334,33 @@ parse_iscsi_root()
     iscsi_protocol=$1; shift # ignored
     iscsi_target_port=$1; shift
 
+    if [ -n "$iscsi_target_name" ]; then
+        if [ $# -eq 3 ]; then
+            iscsi_iface_name=$1; shift
+        fi
+        if [ $# -eq 2 ]; then
+            iscsi_netdev_name=$1; shift
+        fi
+        iscsi_lun=$1; shift
+        if [ $# -ne 0 ]; then
+            warn "Invalid parameter in iscsi: parameter!"
+            return 1
+        fi
+        return 0
+    fi
+
+
     if [ $# -gt 3 ] && [ -n "$1$2" ]; then
-        iscsi_iface_name=$1; shift
-        iscsi_netdev_name=$1; shift
+        if [ -z "$3" ] || [ "$3" -ge 0 ]  2>/dev/null ; then
+            iscsi_iface_name=$1; shift
+            iscsi_netdev_name=$1; shift
+        fi
     fi
 
     iscsi_lun=$1; shift
 
-    if [ $# -gt 2 ]; then
-        warn "Invalid parameter in iscsi: parameter!"
-        return 1
-    fi
-
-    if [ $# -eq 2 ]; then
-        iscsi_target_name="$1:$2"
-    else
-        iscsi_target_name="$1"
-    fi
-
+    iscsi_target_name=$(printf "%s:" "$@")
+    iscsi_target_name=${iscsi_target_name%:}
 }
 
 ip_to_var() {
