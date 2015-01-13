@@ -31,11 +31,14 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
         MASTER_IFACES="$MASTER_IFACES ${bondname}"
     done
 
-    if [ -e /tmp/team.info ]; then
-        . /tmp/team.info
+    for i in /tmp/team.*.info; do
+        [ -e "$i" ] || continue
+        unset teamslaves
+        unset teammaster
+        . "$i"
         IFACES="$IFACES ${teamslaves}"
         MASTER_IFACES="$MASTER_IFACES ${teammaster}"
-    fi
+    done
 
     if [ -e /tmp/vlan.info ]; then
         . /tmp/vlan.info
