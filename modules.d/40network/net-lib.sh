@@ -817,3 +817,21 @@ is_kernel_ethernet_name() {
     esac
 
 }
+
+iface_get_subchannels() {
+    local _netif
+    local _subchannels
+
+    _netif="$1"
+
+    _subchannels=$({
+                      for i in /sys/class/net/$_netif/device/cdev[0-9]*; do
+                          [ -e $i ] || continue
+                          channel=$(readlink -f $i)
+                          printf -- "%s" "${channel##*/},"
+                      done
+                  })
+    [ -n "$_subchannels" ] || return 1
+
+    printf -- "%s" ${_subchannels%,}
+}

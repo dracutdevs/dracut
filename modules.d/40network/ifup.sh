@@ -298,20 +298,38 @@ if [ -z "$NO_TEAM_MASTER" ]; then
                 # in case of some slave is gone in active-backup mode
                 working_slaves=""
                 for slave in $teamslaves ; do
-                    ip link set $slave up 2>/dev/null
+                    teamdctl ${teammaster} port present ${slave} 2>/dev/null \
+                        && continue
+                    ip link set dev $slave up 2>/dev/null
                     if wait_for_if_up $slave; then
                         working_slaves="$working_slaves$slave "
                     fi
                 done
                 # Do not add slaves now
-                teamd -d -U -n -N -t $teammaster -f /etc/teamd/$teammaster.conf
+                teamd -d -U -n -N -t $teammaster -f /etc/teamd/${teammaster}.conf
                 for slave in $working_slaves; do
                     # team requires the slaves to be down before joining team
-                    ip link set $slave down
+                    ip link set dev $slave down
+                    (
+                        unset TEAM_PORT_CONFIG
+                        _hwaddr=$(cat /sys/class/net/$slave/address)
+                        _subchannels=$(iface_get_subchannels "$slave")
+                        if [ -n "$_hwaddr" ] && [ -e "/etc/sysconfig/network-scripts/mac-${_hwaddr}.conf" ]; then
+                            . "/etc/sysconfig/network-scripts/mac-${_hwaddr}.conf"
+                        elif [ -n "$_subchannels" ] && [ -e "/etc/sysconfig/network-scripts/ccw-${_subchannels}.conf" ]; then
+                            . "/etc/sysconfig/network-scripts/ccw-${_subchannels}.conf"
+                        elif [ -e "/etc/sysconfig/network-scripts/ifcfg-${slave}" ]; then
+                            . "/etc/sysconfig/network-scripts/ifcfg-${slave}"
+                        fi
+
+                        if [ -n "${TEAM_PORT_CONFIG}" ]; then
+                            /usr/bin/teamdctl ${teammaster} port config update ${slave} "${TEAM_PORT_CONFIG}"
+                        fi
+                    )
                     teamdctl $teammaster port add $slave
                 done
 
-                ip link set $teammaster up
+                ip link set dev $teammaster up
 
                 > /tmp/team.$teammaster.up
                 NO_TEAM_MASTER=yes ifup $teammaster
