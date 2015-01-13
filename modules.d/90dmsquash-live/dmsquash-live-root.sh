@@ -27,6 +27,8 @@ getargbool 0 rd.live.overlay.reset -d -y reset_overlay && reset_overlay="yes"
 getargbool 0 rd.live.overlay.readonly -d -y readonly_overlay && readonly_overlay="--readonly" || readonly_overlay=""
 overlay=$(getarg rd.live.overlay -d overlay)
 getargbool 0 rd.writable.fsimg -d -y writable_fsimg && writable_fsimg="yes"
+overlay_size=$(getarg rd.live.overlay.size=)
+[ -z "$overlay_size" ] && overlay_size=512
 
 # CD/DVD media check
 [ -b $livedev ] && fs=$(blkid -s TYPE -o value $livedev)
@@ -125,7 +127,7 @@ do_live_overlay() {
             sleep 5
         fi
 
-        dd if=/dev/null of=/overlay bs=1024 count=1 seek=$((512*1024)) 2> /dev/null
+        dd if=/dev/null of=/overlay bs=1024 count=1 seek=$((overlay_size*1024)) 2> /dev/null
         if [ -n "$setup" -a -n "$readonly_overlay" ]; then
             RO_OVERLAY_LOOPDEV=$( losetup -f )
             losetup $RO_OVERLAY_LOOPDEV /overlay
