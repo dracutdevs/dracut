@@ -324,17 +324,19 @@ for p in $(getargs ip=); do
         eval '[ "$'$i'" ] && echo '$i'="$'$i'"'
     done > /tmp/net.$netif.override
 
-    case $autoconf in
-        dhcp|on|any)
-            do_dhcp -4 ;;
-        dhcp6)
-            load_ipv6
-            do_dhcp -6 ;;
-        auto6)
-            do_ipv6auto ;;
-        *)
-            do_static ;;
-    esac
+    for autoopt in $(str_replace "$autoconf" "," " "); do
+        case $autoopt in
+            dhcp|on|any)
+                do_dhcp -4 ;;
+            dhcp6)
+                load_ipv6
+                do_dhcp -6 ;;
+            auto6)
+                do_ipv6auto ;;
+            *)
+                do_static ;;
+        esac
+    done
 
     > /tmp/net.${netif}.up
 

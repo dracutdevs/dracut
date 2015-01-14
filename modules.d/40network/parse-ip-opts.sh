@@ -64,24 +64,26 @@ for p in $(getargs ip=); do
     fi
 
     # Error checking for autoconf in combination with other values
-    case $autoconf in
-        error) die "Error parsing option 'ip=$p'";;
-        bootp|rarp|both) die "Sorry, ip=$autoconf is currenty unsupported";;
-        none|off)
-            [ -z "$ip" ] && \
-            die "For argument 'ip=$p'\nValue '$autoconf' without static configuration does not make sense"
-            [ -z "$mask" ] && \
-                die "Sorry, automatic calculation of netmask is not yet supported"
-            ;;
-        auto6);;
-        dhcp|dhcp6|on|any) \
-            [ -n "$NEEDBOOTDEV" ] && [ -z "$dev" ] && \
-            die "Sorry, 'ip=$p' does not make sense for multiple interface configurations"
-            [ -n "$ip" ] && \
-                die "For argument 'ip=$p'\nSorry, setting client-ip does not make sense for '$autoconf'"
-            ;;
-        *) die "For argument 'ip=$p'\nSorry, unknown value '$autoconf'";;
-    esac
+    for autoopt in $(str_replace "$autoconf" "," " "); do
+        case $autoopt in
+            error) die "Error parsing option 'ip=$p'";;
+            bootp|rarp|both) die "Sorry, ip=$autoopt is currenty unsupported";;
+            none|off)
+                [ -z "$ip" ] && \
+                    die "For argument 'ip=$p'\nValue '$autoopt' without static configuration does not make sense"
+                [ -z "$mask" ] && \
+                    die "Sorry, automatic calculation of netmask is not yet supported"
+                ;;
+            auto6);;
+            dhcp|dhcp6|on|any) \
+                [ -n "$NEEDBOOTDEV" ] && [ -z "$dev" ] && \
+                    die "Sorry, 'ip=$p' does not make sense for multiple interface configurations"
+                [ -n "$ip" ] && \
+                    die "For argument 'ip=$p'\nSorry, setting client-ip does not make sense for '$autoopt'"
+                ;;
+            *) die "For argument 'ip=$p'\nSorry, unknown value '$autoopt'";;
+        esac
+    done
 
     if [ -n "$dev" ] ; then
         # We don't like duplicate device configs
