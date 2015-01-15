@@ -173,6 +173,7 @@ EOF
 
         # install basic keyboard maps and fonts
         for i in \
+            /usr/lib/kbd/consolefonts/eurlatgr* \
             /usr/lib/kbd/consolefonts/latarcyrheb-sun16* \
             /usr/lib/kbd/keymaps/include/* \
             /usr/lib/kbd/keymaps/i386/include/* \

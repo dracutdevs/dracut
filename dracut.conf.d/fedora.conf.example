@@ -2,7 +2,7 @@
 
 # i18n
 i18n_vars="/etc/sysconfig/keyboard:KEYTABLE-KEYMAP /etc/sysconfig/i18n:SYSFONT-FONT,FONTACM-FONT_MAP,FONT_UNIMAP"
-i18n_default_font="latarcyrheb-sun16"
+i18n_default_font="eurlatgr"
 i18n_install_all="yes"
 
 
