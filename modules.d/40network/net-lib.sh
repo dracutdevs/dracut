@@ -316,12 +316,12 @@ parse_iscsi_root()
             v=${v%:iqn.*}:
             ;;
         *:eui.*)
-            iscsi_target_name=iqn.${v##*:eui.}
-            v=${v%:iqn.*}:
+            iscsi_target_name=eui.${v##*:eui.}
+            v=${v%:eui.*}:
             ;;
         *:naa.*)
-            iscsi_target_name=iqn.${v##*:naa.}
-            v=${v%:iqn.*}:
+            iscsi_target_name=naa.${v##*:naa.}
+            v=${v%:naa.*}:
             ;;
     esac
 
