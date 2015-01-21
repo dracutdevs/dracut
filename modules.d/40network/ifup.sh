@@ -38,6 +38,7 @@ for i in /tmp/team.*.info; do
     [ -e "$i" ] || continue
     unset teamslaves
     unset teammaster
+    . "$i"
     for slave in $teamslaves ; do
         if [ "$netif" = "$slave" ] ; then
             netif=$teammaster
