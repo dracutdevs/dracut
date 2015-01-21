@@ -1622,12 +1622,16 @@ if ! ( echo $PARMS_TO_STORE > $initdir/lib/dracut/build-parameter.txt ); then
 fi
 
 if [[ $hostonly_cmdline ]] ; then
+    unset _stored_cmdline
     if [ -d $initdir/etc/cmdline.d ];then
         dinfo "Stored kernel commandline:"
         for conf in $initdir/etc/cmdline.d/*.conf ; do
+            [ -e "$conf" ] || continue
             dinfo "$(< $conf)"
+            _stored_cmdline=1
         done
-    else
+    fi
+    if ! [[ $_stored_cmdline ]]; then
         dinfo "No dracut internal kernel commandline stored in initrd"
     fi
 fi
