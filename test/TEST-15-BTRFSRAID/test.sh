@@ -69,6 +69,7 @@ test_setup() {
 	-m "dash btrfs udev-rules base rootfs-block fs-lib kernel-modules" \
 	-d "piix ide-gd_mod ata_piix btrfs sd_mod" \
         --nomdadmconf \
+        --no-hostonly-cmdline -N \
 	-f $TESTDIR/initramfs.makeroot $KVERSION || return 1
 
     rm -rf -- $TESTDIR/overlay
@@ -94,6 +95,7 @@ test_setup() {
 	-o "plymouth network" \
 	-a "debug" \
 	-d "piix ide-gd_mod ata_piix btrfs sd_mod" \
+        --no-hostonly-cmdline -N \
 	-f $TESTDIR/initramfs.testing $KVERSION || return 1
 }
 

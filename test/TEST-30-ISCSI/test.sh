@@ -143,6 +143,7 @@ test_setup() {
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
         -m "dash crypt lvm mdraid udev-rules base rootfs-block fs-lib kernel-modules" \
         -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
+        --no-hostonly-cmdline -N \
         -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
     rm -rf -- $TESTDIR/overlay
 
@@ -175,6 +176,7 @@ test_setup() {
         -o "dash plymouth dmraid" \
         -a "debug" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod" \
+        --no-hostonly-cmdline -N \
         -f $TESTDIR/initramfs.testing $KVERSION || return 1
 
     # Make server root
@@ -225,6 +227,7 @@ test_setup() {
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
         -m "dash udev-rules base rootfs-block fs-lib debug kernel-modules" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000" \
+        --no-hostonly-cmdline -N \
         -f $TESTDIR/initramfs.server $KVERSION || return 1
 
 }

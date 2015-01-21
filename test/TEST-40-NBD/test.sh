@@ -240,6 +240,7 @@ make_encrypted_root() {
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
         -m "dash crypt lvm mdraid udev-rules base rootfs-block fs-lib kernel-modules" \
         -d "piix ide-gd_mod ata_piix ext2 ext3 sd_mod" \
+        --no-hostonly-cmdline -N \
         -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
     rm -rf -- $TESTDIR/overlay
 
@@ -372,12 +373,14 @@ test_setup() {
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
         -m "dash udev-rules rootfs-block fs-lib base debug kernel-modules" \
         -d "af_packet piix ide-gd_mod ata_piix ext2 ext3 sd_mod e1000" \
+        --no-hostonly-cmdline -N \
         -f $TESTDIR/initramfs.server $KVERSION || return 1
 
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
         -o "plymouth" \
         -a "debug watchdog" \
         -d "af_packet piix ide-gd_mod ata_piix ext2 ext3 sd_mod e1000 i6300esb ib700wdt" \
+        --no-hostonly-cmdline -N \
         -f $TESTDIR/initramfs.testing $KVERSION || return 1
 }
 

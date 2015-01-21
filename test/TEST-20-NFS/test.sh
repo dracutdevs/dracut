@@ -344,6 +344,7 @@ test_setup() {
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
         -m "dash udev-rules base rootfs-block fs-lib debug kernel-modules watchdog" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 i6300esb" \
+        --no-hostonly-cmdline -N \
         -f $TESTDIR/initramfs.server $KVERSION || return 1
 
     # Make client's dracut image
@@ -351,6 +352,7 @@ test_setup() {
         -o "plymouth dash" \
         -a "debug watchdog" \
         -d "af_packet piix ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc i6300esb" \
+        --no-hostonly-cmdline -N \
         -f $TESTDIR/initramfs.testing $KVERSION || return 1
 }
 

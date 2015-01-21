@@ -41,6 +41,7 @@ test_setup() {
     sudo $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
 	-a "debug dmsquash-live" \
 	-d "piix ide-gd_mod ata_piix ext3 sd_mod" \
+        --no-hostonly-cmdline -N \
 	-f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 
     mkdir -p -- "$TESTDIR"/root-source
