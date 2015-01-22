@@ -22,13 +22,16 @@ for s in $SETS; do
 done
 
 udevadm settle
+sleep 1
+udevadm settle
+
 sfdisk -g /dev/mapper/isw*Test0
 # save a partition at the beginning for future flagging purposes
-sfdisk -C 2560 -H 2 -S 32 -L /dev/mapper/isw*Test0 <<EOF
-,1
-,600
-,600
-,600
+sfdisk --no-reread /dev/mapper/isw*Test0 <<EOF
+,4M
+,20M
+,20M
+,20M
 EOF
 
 udevadm settle

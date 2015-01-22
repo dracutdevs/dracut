@@ -6,11 +6,11 @@ done
 rm -f -- /etc/lvm/lvm.conf
 udevadm control --reload
 # save a partition at the beginning for future flagging purposes
-sfdisk -C 2560 -H 2 -S 32 -L /dev/sda <<EOF
-,1
-,800
-,800
-,800
+sfdisk /dev/sda <<EOF
+,4M
+,25M
+,25M
+,25M
 EOF
 udevadm settle
 for i in sda2 sda3 sda4; do

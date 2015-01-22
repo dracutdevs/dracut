@@ -9,11 +9,11 @@ done
 rm -f -- /etc/lvm/lvm.conf
 udevadm control --reload
 # save a partition at the beginning for future flagging purposes
-sfdisk -C 1280 -H 2 -S 32 -L /dev/sda <<EOF
-,16
-,400
-,400
-,400
+sfdisk /dev/sda <<EOF
+,5M
+,10M
+,10M
+,10M
 EOF
 udevadm settle
 mdadm --create /dev/md0 --run --auto=yes --level=5 --raid-devices=3 /dev/sdb /dev/sdc /dev/sdd

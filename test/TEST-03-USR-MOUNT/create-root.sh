@@ -7,13 +7,13 @@ rm -f -- /etc/lvm/lvm.conf
 udevadm control --reload
 set -e
 # save a partition at the beginning for future flagging purposes
-sfdisk -C 5120 -H 2 -S 32 -L /dev/sda <<EOF
-,16
+sfdisk /dev/sda <<EOF
+,1M
 ,
 EOF
 
-sfdisk -C 5120 -H 2 -S 32 -L /dev/sdb <<EOF
-,16
+sfdisk /dev/sdb <<EOF
+,1M
 ,
 EOF
 
