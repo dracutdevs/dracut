@@ -74,8 +74,6 @@ install() {
 
     inst "$moddir/dmraid.sh" /sbin/dmraid_scan
 
-    inst_rules 64-md-raid.rules
-
     inst_libdir_file "libdmraid-events*.so*"
 
     inst_rules "$moddir/61-dmraid-imsm.rules"
