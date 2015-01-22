@@ -191,7 +191,7 @@ EOF
         # softlink mtab
         ln -fs /proc/self/mounts $initdir/etc/mtab
 
-        # install any Exec's from the service files
+        # install any Execs from the service files
         egrep -ho '^Exec[^ ]*=[^ ]+' $initdir/lib/systemd/system/*.service \
             | while read i; do
             i=${i##Exec*=}; i=${i##-}
@@ -205,7 +205,7 @@ EOF
         cp -a /etc/ld.so.conf* $initdir/etc
         ldconfig -r "$initdir"
         ddebug "Strip binaeries"
-        find "$initdir" -perm +111 -type f | xargs -r strip --strip-unneeded | ddebug
+        find "$initdir" -perm /0111 -type f | xargs -r strip --strip-unneeded | ddebug
 
         # copy depmod files
         inst /lib/modules/$kernel/modules.order
