@@ -111,12 +111,19 @@ install() {
             dev=$(</sys/block/${dev#/dev/}/dm/name)
             eval $(dmsetup splitname --nameprefixes --noheadings --rows "$dev" 2>/dev/null)
             [[ ${DM_VG_NAME} ]] && [[ ${DM_LV_NAME} ]] || continue
-            if [[ "$(lvs --noheadings -o segtype ${DM_VG_NAME} 2>/dev/null)" == *thin* ]] ; then
-                inst_multiple -o thin_dump thin_restore thin_check thin_repair
-                break
-            fi
+            case "$(lvs --noheadings -o segtype ${DM_VG_NAME} 2>/dev/null)" in
+                *thin*|*cache*|*era*)
+                    inst_multiple -o thin_dump thin_restore thin_check thin_repair \
+                                  cache_dump cache_restore cache_check cache_repair \
+                                  era_check era_dump era_invalidate era_restore
+                    break;;
+            esac
         done
-    else
-        inst_multiple -o thin_dump thin_restore thin_check thin_repair
+    fi
+
+    if ! [[ $hostonly ]]; then
+        inst_multiple -o thin_dump thin_restore thin_check thin_repair \
+                      cache_dump cache_restore cache_check cache_repair \
+                      era_check era_dump era_invalidate era_restore
     fi
 }
