@@ -1,3 +1,28 @@
+dracut-041
+==========
+- fixed the shutdown loop
+- fixed gzip compression for versions, which do not have --rsyncable
+- fixed ifcfg generation for persistent interface names
+- multipath:
+  * new option to turn off multipath "rd.multipath=0" completly
+  * preload scsi dh modules
+  * start multipathd via systemd service
+- do not fail, if user pressed ESC during media check
+- fixed systemd-journal by symlinking /var/log to /run/initramfs/log
+- initrd-release moved to /usr/lib
+- lots of iSCSI fixes
+- new "rd.timeout" to specify the systemd JobTimeoutSec for devices
+- if $initrd/etc/cmdline.d/* has a "root=" and the kernel cmdline does not,
+  generate a mount unit for it
+- increased the initqueue timeout for non systemd initramfs to 180s
+- $initrd/etc/cmdline.d/ hostonly files are now generated for NFS
+- make use of systemd-hibernate-resume, if available
+- fixed ldconfig parsing for hwcap output
+- network: add support for comma separated autoconf options like ip=eth0:auto6,dhcp
+- new parameter "rd.live.overlay.size" to specify the overlay for live images
+- changed the test suite for the new sfdisk syntax
+- added cache tools for dm-cache setups
+
 dracut-040
 ==========
 - fixed dracut module dependency checks

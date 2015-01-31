@@ -28,6 +28,7 @@ Leho Kraav <leho@kraav.com>
 Kamil Rytarowski <n54@gmx.com>
 Marc Grimme <grimme@atix.de>
 Peter Rajnoha <prajnoha@redhat.com>
+Radek Vykydal <rvykydal@redhat.com>
 Thorsten Behrens <tbehrens@suse.com>
 Chao Wang <chaowang@redhat.com>
 Colin Walters <walters@verbum.org>
@@ -35,7 +36,6 @@ Frederic Crozat <fcrozat@suse.com>
 Jesse Keating <jkeating@redhat.com>
 Milan Broz <mbroz@redhat.com>
 Nicolas Chauvet <kwizart@gmail.com>
-Radek Vykydal <rvykydal@redhat.com>
 Roberto Sassu <roberto.sassu@polito.it>
 Anton Blanchard <anton@samba.org>
 Bill Nottingham <notting@redhat.com>
@@ -66,9 +66,11 @@ Joey Boggs <jboggs@redhat.com>
 Koen Kooi <koen@dominion.thruhere.net>
 Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Kyle McMartin <kmcmarti@redhat.com>
+Lubomir Rintel <lkundrak@v3.sk>
 Mike Snitzer <snitzer@redhat.com>
 Minfei Huang <mhuang@redhat.com>
 Przemysław Rudy <prudy1@o2.pl>
+Thomas Backlund <tmb@mageia.org>
 Thomas Lange <lange@informatik.uni-koeln.de>
 Till Maas <opensource@till.name>
 Vivek Goyal <vgoyal@redhat.com>
@@ -83,6 +85,7 @@ Canek Peláez Valdés <caneko@gmail.com>
 Chris Leech <cleech@redhat.com>
 Christian Heinz <christian.ch.heinz@gmail.com>
 Cong Wang <amwang@redhat.com>
+Daniel Drake <drake@endlessm.com>
 Dave Jones <davej@redhat.com>
 Dennis Schridde <devurandom@gmx.net>
 Duane Griffin <duaneg@dghda.com>
@@ -97,10 +100,10 @@ Julian Wolf <juwolf@suse.com>
 Kevin Yung <Kevin.Yung@myob.com>
 Lars R. Damerow <lars@pixar.com>
 Lennert Buytenhek <buytenh@wantstofly.org>
-Lubomir Rintel <lkundrak@v3.sk>
 Lukas Wunner <lukas@wunner.de>
 Major Hayden <major@mhtx.net>
 Marian Csontos <mcsontos@redhat.com>
+Marko Myllynen <myllynen@redhat.com>
 Matt <smoothsailing72@hotmail.com>
 Matt Smith <shadowfax@gmx.com>
 Michal Schmidt <mschmidt@redhat.com>
@@ -120,7 +123,6 @@ Sergey Fionov <fionov@gmail.com>
 Shawn W Dunn <sfalken@opensuse.org>
 Srinivasa T N <seenutn@linux.vnet.ibm.com>
 Thilo Bangert <thilo.bangert@gmx.net>
-Thomas Backlund <tmb@mageia.org>
 Tobias Geerinckx <tobias.geerinckx@gmail.com>
 Tom Gundersen <teg@jklm.no>
 Tomasz Torcz <tomek@pipebreaker.pl>
