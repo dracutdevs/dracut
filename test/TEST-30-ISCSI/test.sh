@@ -70,7 +70,7 @@ do_test_run() {
 	|| return 1
 
     run_client "netroot=iscsi target1 target2" \
-	"iscsi_firmware root=LABEL=sysroot ip=192.168.50.101::192.168.50.1:255.255.255.0:iscsi-1:ens3:off" \
+	"root=LABEL=sysroot ip=192.168.50.101::192.168.50.1:255.255.255.0:iscsi-1:ens3:off" \
 	"netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target1 netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2" \
 	|| return 1
     return 0
