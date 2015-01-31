@@ -84,7 +84,7 @@ exportfs -r
 >/dev/watchdog
 chmod 777 /var/lib/dhcpd/dhcpd.leases
 >/dev/watchdog
-dhcpd -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases
+dhcpd -d -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases
 #echo -n 'V' > /dev/watchdog
 #sh -i
 #tcpdump -i ens3

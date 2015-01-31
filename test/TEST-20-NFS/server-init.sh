@@ -50,7 +50,7 @@ echo > /dev/watchdog
 echo > /dev/watchdog
 chmod 777 /var/lib/dhcpd/dhcpd.leases
 echo > /dev/watchdog
-dhcpd -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases
+dhcpd -d -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases
 echo -n "V" > /dev/watchdog
 echo "Serving NFS mounts"
 while :; do sleep 30; done
