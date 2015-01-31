@@ -1,14 +1,16 @@
 For the testsuite to work, you will have to install at least the following software packages:
-dash
-asciidoc
-mdadm
-lvm2
-cryptsetup
-nfs-utils
-netbsd-iscsi
-nbd
-dhcp (dhcp-server on openSUSE)
+dash \
+asciidoc \
+mdadm \
+lvm2 \
+cryptsetup \
+nfs-utils \
+netbsd-iscsi \
+nbd \
+dhcp-server \
 iscsi-initiator-utils
+
+
 TEST-04-FULL-SYSTEMD: systemd >= 187
 
 How to run the testsuite:
