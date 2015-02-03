@@ -1,11 +1,12 @@
 #!/bin/sh
 
 _do_dm_shutdown() {
-    local ret
+    local ret=0
     local final=$1
     info "Disassembling device-mapper devices"
-    dmsetup -v remove_all
-    ret=$?
+    for dev in $(dmsetup info -c --noheadings -o name) ; do
+        dmsetup -v --noudevsync remove "$dev" || ret=$?
+    done
     if [ "x$final" != "x" ]; then
         info "dmsetup ls --tree"
         dmsetup ls --tree 2>&1 | vinfo
