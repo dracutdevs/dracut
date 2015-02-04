@@ -1,0 +1,12 @@
+luks-b88c3187-3abd-4eb6-810e-3679c912902e UUID=b88c3187-3abd-4eb6-810e-3679c912902e none 
+luks-e3967355-5de9-4150-bf47-5c5d88c660d2 UUID=e3967355-5de9-4150-bf47-5c5d88c660d2
+# Comment
+# More comments
+	# Malformed
+		# Comments
+			# That break the spec
+# Empty line follows
+
+luks-970223b4-62b6-400a-b0ac-74405ca9668d /dev/mapper/raid-array-1	/etc/mykey	options
+moo						bar	baz		fooo	double
+
