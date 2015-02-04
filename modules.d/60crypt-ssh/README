@@ -1,0 +1,149 @@
+dracut crypt-sshd module
+------------------------
+
+INDEX
+
+0. Introduction
+1. Installation
+   1.1. Installation from packages
+   1.2. Installation from sources
+2. Usage
+   2.1. Building the initramfs
+   2.2. Unlocking the volumes interactively
+   2.3. Unlocking using the unlock command
+3. Configuration
+4. History
+
+~
+
+0. Introduction
+
+The crypt-sshd module is intended to allow remote unlocking of full-encrypted systems with luks via ssh.
+
+There are a number of reasons why you would want to do this:
+ 1. It provides a way of entering the encryption keys for a number of servers without console switching
+ 2. It allows remote booting of (externally-hosted) encrypted servers
+
+Users are strictly authenticated by provided SSH public keys. These can be either:
+root's ~/.ssh/authorized_keys or a custom file ("dropbear_acl" option).  Depending
+on your environment, it may make sense to make the preboot authorized_keys file
+quite different to the normal one.
+
+Plain text password authentication and port forwarding are not allowed and are disabled.
+
+1. Installation
+
+1.1. Installation from packages
+
+Crypt-ssh is packaged together with dracut to the package 'dracut-crypt-ssh'. It should be enough just to install it. You might need the EPEL repository on RHEL to get dropbear.
+
+1.2. Installation from sources
+
+Following procedure applies to the RHEL/CentOS 7, it should be similar on the other distributions.
+
+  #Enable EPEL repository (required for dropbear)
+  yum -y install epel-release
+  #Install run-time dependencies
+  yum -y install dropbear dracut dracut-network openssh
+  #Install build-time dependencies
+  yum -y install libblkid-devel gcc
+  
+  #copy this folder (60crypt-ssh) to /usr/dracut/modules.d/
+  cp -Rp . /usr/lib/dracut/modules.d/
+  #build the binaries
+  cd /usr/lib/dracut/modules.d/60crypt-ssh/helpers
+  make
+  
+  #create a new initramfs
+  dracut --force
+
+2. Usage
+
+2.1. Building the initramfs
+
+After configuration updates or installation of crypt-ssh its required to rebuild initramfs. Its done on the usual dracut way with 'dracut --force'
+
+You might need to reconfigure grub to provide additional parameters for network initialization, e.g.
+
+/etc/default/grub:
+  ...
+  GRUB_CMDLINE_LINUX="... rd.neednet=1 ip=192.168.0.100::192.168.0.1:255.255.255.0:centos:enp0s8:off ..."
+  ...
+
+After this its necessary to regenerate the grub configuration by invoking 'grub2-mkconfig > /etc/grub2.cfg'
+
+See the documentation on the network module for further details
+
+2.2. Unlocking the volumes interactively
+
+After rebuilding initramfs, rebooting the system you should be able to login into initramfs via ssh and unlock the volumes:
+
+  % ssh -p 222 root@192.168.0.100
+  % console_peek # to see what's on the console
+  % console_auth # queries the passphrase and sends it to console
+  Passphrase:
+  % # if everything is right, you will get disconnected after a short amount of time
+
+You might want to limit access only to the unlock binary, just add command="console_peek; console_auth" to your authorized_keys before the key, e.g.
+
+  command="console_peek; console_auth" ssh-rsa .....
+
+2.3. Unlocking using the unlock command
+
+The 'unlock' binary takes a passphrase in stdin, reads '/etc/crypttab' and attempts to call 'cryptsetup luksOpen' on all luks-encrypted drives that don't have a keyfile, passing the passphrase that unlock got in stdin to luksOpen.
+
+What this means in practice is you can do:
+
+  % ssh root@remote.server -p 222 unlock < passwordFile
+
+or:
+
+  % gpg -d password.gpg | ssh root@remote.server -p 222 unlock
+
+
+If you want to only unlock specific drives / LUKS volumes, you can provide wildcards on the command line, e.g.
+
+  % ssh root@remote.server -p 222 unlock luks-3467c luks-34c13
+
+'unlock' will search the crypttab for mapper names (first column in /etc/crypttab) that start with the listed names.  Volumes that match via this method may have a keyfile listed in /etc/crypttab, it will be assumed that you want to unlock the volume/s with an alternative key.
+Note that the names provided are really wildcards, and by convention/default all mappers start with luks-,
+so you can force `unlock` to try all drives simply by doing something like 'unlock luks-'.
+
+In all cases, 'unlock' will only consider the process a success only if all eligible volumes are unlocked successfully.  This means:
+
+  1. All the associated devices must be available at boot / unlock time
+  2. The passphrase must be accepted for all eligible volumes
+  3. cryptsetup luksOpen should not exit for any other reason.
+
+In short, if you have more than one volume in /etc/crypttab, you will need to be careful about how use this tool.
+
+If the process is successful, 'unlock' will launch the script '/sbin/unlock-reap-success'. This can be found in the modules.d/60crypt-ssh/helper folder.  This will attempt to kill systemd-cryptsetup, and failing that, attempt to kill cryptroot-ask. On RHEL6 & 7, this aborts the builtin decrypt password request processes and allows the boot process to proceed.
+Note that the plymouth splash screen on RHEL6 (if you happen to be watching the console...) will still appear to ask for your password, but this is an artifact.  Disable plymouth (rhgb command line) if this annoys you.
+
+You might want to limit access only to the unlock binary, just add command="unlock" to your authorized_keys before the key, e.g.
+
+  command="unlock" ssh-rsa .....
+
+3. Configuration
+
+The configuration is stored in the crypt-ssh.conf, usually located in /etc/dracut.conf.d/
+
+Following options are possible (see the config file for detailed description):
+ - dropbear_port (default: 222) - port ssh daemon should listen on
+ - dropbear_rsa_key, dropbear_ecdsa_key (default: GENERATE) - Source of the keys, possible options:
+   - SYSTEM - use the keys from the system
+   - GENERATE - generate a new keys (during the creation of initramfs)
+   - path - key file in openssh format to use (a public file with '.pub' ending should be present too)
+ - dropbear_acl (default: /root/.ssh/authorized_keys) - Keys which allowed to login into initramfs
+
+After any configuration change you have to rebuild the initramfs as the configuration takes effect during the building the initramfs.
+
+4. History
+
+This module is mainly based on the work of following people:
+
+ - Maciej Żenczykowski https://bugzilla.redhat.com/show_bug.cgi?id=524727#c7
+ - Mike Kazantsev https://github.com/mk-fg/dracut-crypt-sshd
+ - Michael Curtis https://github.com/mdcurtis/dracut-earlyssh
+
+My changes were to cleanup the code and to bring it upstream to dracut.
