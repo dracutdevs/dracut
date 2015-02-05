@@ -13,7 +13,7 @@
 #  SYSTEM:   use (convert) the host key from the host system's SSH daemon. This will make the initrd ssh indistinguishable
 #            from the running system - this may be a security risk, depending on your threat model, but simplifies
 #            your client-side ssh configuration
-#  /path/to/dropbear_key:   an absolute path to a host key, in dropbear format.
+#  /path/to/openssh_key:   an absolute path to a host key, in openssh format. A public key with '.pub' ending should be present too
 # 
 # It is recommend that you use the system one, or supply your own.  If using the system key, be aware that an attacker
 # that can access your initrd could use the host key to impersonate the running system.  This could allow them to attempt
