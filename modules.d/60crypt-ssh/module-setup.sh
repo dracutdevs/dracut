@@ -103,10 +103,10 @@ install() {
   #cleanup
   rm -rf $tmpDir
   
-  #install the requiered binaries
+  #install the required binaries
   dracut_install pkill setterm /lib64/libnss_files.so.2
   inst $(which dropbear) /sbin/dropbear
-  #install the requiered helpers
+  #install the required helpers
   inst "$moddir"/helper/console_auth /bin/console_auth
   inst "$moddir"/helper/console_peek.sh /bin/console_peek
   inst "$moddir"/helper/unlock /bin/unlock

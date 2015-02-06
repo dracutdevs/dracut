@@ -9,7 +9,7 @@ INDEX
    1.2. Installation from sources
 2. Usage
    2.1. Building the initramfs
-   2.2. Unlocking the volumes interactivelly
+   2.2. Unlocking the volumes interactively
    2.3. Unlocking using the unlock command
 3. Configuration
 4. History
@@ -29,7 +29,7 @@ root's ~/.ssh/authorized_keys or a custom file ("dropbear_acl" option).  Dependi
 on your environment, it may make sense to make the preboot authorized_keys file
 quite different to the normal one.
 
-Plaintext password authentification and port forwarding are not allowed and are disabled.
+Plain text password authentication and port forwarding are not allowed and are disabled.
 
 1. Installation
 
@@ -70,11 +70,11 @@ You might need to reconfigure grub to provide additional parameters for network 
   GRUB_CMDLINE_LINUX="... rd.neednet=1 ip=192.168.0.100::192.168.0.1:255.255.255.0:centos:enp0s8:off ..."
   ...
 
-After this its nessary to regenerate the grub configuration by invoking 'grub2-mkconfig > /etc/grub2.cfg'
+After this its necessary to regenerate the grub configuration by invoking 'grub2-mkconfig > /etc/grub2.cfg'
 
-See the documentation on the network module for futher details
+See the documentation on the network module for further details
 
-2.2. Unlocking the volumes interactivelly
+2.2. Unlocking the volumes interactively
 
 After rebuilding initramfs, rebooting the system you should be able to login into initramfs via ssh and unlock the volumes:
 
@@ -118,7 +118,7 @@ In all cases, 'unlock' will only consider the process a success only if all elig
 In short, if you have more than one volume in /etc/crypttab, you will need to be careful about how use this tool.
 
 If the process is successful, 'unlock' will launch the script '/sbin/unlock-reap-success'. This can be found in the modules.d/60crypt-ssh/helper folder.  This will attempt to kill systemd-cryptsetup, and failing that, attempt to kill cryptroot-ask. On RHEL6 & 7, this aborts the builtin decrypt password request processes and allows the boot process to proceed.
-Note that the plymouth splash screen on RHEL6 (if you happen to be watching the console...) will still appear to ask for your password, but this is an artificat.  Disable plymouth (rhgb command line) if this annoys you.
+Note that the plymouth splash screen on RHEL6 (if you happen to be watching the console...) will still appear to ask for your password, but this is an artifact.  Disable plymouth (rhgb command line) if this annoys you.
 
 You might want to limit access only to the unlock binary, just add command="unlock" to your authorized_keys before the key, e.g.
 
