@@ -35,7 +35,7 @@ Plain text password authentication and port forwarding are not allowed and are d
 
 1.1. Installation from packages
 
-Crypt-ssh is packaged together with dracut to the package 'dracut-crypt-ssh'. It should be enough just to install it.
+Crypt-ssh is packaged together with dracut to the package 'dracut-crypt-ssh'. It should be enough just to install it. You might need the EPEL repository on RHEL to get dropbear.
 
 1.2. Installation from sources
 
