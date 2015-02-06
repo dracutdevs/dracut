@@ -15,7 +15,7 @@ depends() {
 
 install() {
   #some initialization
-  [[ -z "${dropbear_port}" ]] && dropbear_port=2222
+  [[ -z "${dropbear_port}" ]] && dropbear_port=222
   [[ -z "${dropbear_acl}" ]] && dropbear_acl=/root/.ssh/authorized_keys
   local tmpDir=$(mktemp -d --tmpdir dracut-crypt-ssh.XXXX)
   local keyTypes="rsa ecdsa"

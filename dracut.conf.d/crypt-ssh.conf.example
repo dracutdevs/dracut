@@ -4,8 +4,8 @@
 #
 
 # The port to run the ssh daemon on
-# Default: 2222
-# dropbear_port="2222"
+# Default: 222
+# dropbear_port="222"
 
 # Where to get the RSA and/or ECDSA keys for dropbear, options are:
 #  GENERATE: generate a new one for each initrd run, the public key will be printed during the dracut build process

@@ -78,7 +78,7 @@ See the documentation on the network module for further details
 
 After rebuilding initramfs, rebooting the system you should be able to login into initramfs via ssh and unlock the volumes:
 
-  % ssh -p 2222 root@192.168.0.100
+  % ssh -p 222 root@192.168.0.100
   % console_peek # to see what's on the console
   % console_auth # queries the passphrase and sends it to console
   Passphrase:
@@ -94,16 +94,16 @@ The 'unlock' binary takes a passphrase in stdin, reads '/etc/crypttab' and attem
 
 What this means in practice is you can do:
 
-  % ssh root@remote.server -p 2222 unlock < passwordFile
+  % ssh root@remote.server -p 222 unlock < passwordFile
 
 or:
 
-  % gpg -d password.gpg | ssh root@remote.server -p 2222 unlock
+  % gpg -d password.gpg | ssh root@remote.server -p 222 unlock
 
 
 If you want to only unlock specific drives / LUKS volumes, you can provide wildcards on the command line, e.g.
 
-  % ssh root@remote.server -p 2222 unlock luks-3467c luks-34c13
+  % ssh root@remote.server -p 222 unlock luks-3467c luks-34c13
 
 'unlock' will search the crypttab for mapper names (first column in /etc/crypttab) that start with the listed names.  Volumes that match via this method may have a keyfile listed in /etc/crypttab, it will be assumed that you want to unlock the volume/s with an alternative key.
 Note that the names provided are really wildcards, and by convention/default all mappers start with luks-,
@@ -129,7 +129,7 @@ You might want to limit access only to the unlock binary, just add command="unlo
 The configuration is stored in the crypt-ssh.conf, usually located in /etc/dracut.conf.d/
 
 Following options are possible (see the config file for detailed description):
- - dropbear_port (default: 2222) - port ssh daemon should listen on
+ - dropbear_port (default: 222) - port ssh daemon should listen on
  - dropbear_rsa_key, dropbear_ecdsa_key (default: GENERATE) - Source of the keys, possible options:
    - SYSTEM - use the keys from the system
    - GENERATE - generate a new keys (during the creation of initramfs)
