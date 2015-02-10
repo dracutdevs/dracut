@@ -98,6 +98,7 @@ install() {
         $systemdsystemunitdir/systemd-journald.service \
         $systemdsystemunitdir/systemd-vconsole-setup.service \
         $systemdsystemunitdir/systemd-random-seed-load.service \
+        $systemdsystemunitdir/systemd-random-seed.service \
         $systemdsystemunitdir/systemd-sysctl.service \
         \
         $systemdsystemunitdir/sysinit.target.wants/systemd-modules-load.service \
