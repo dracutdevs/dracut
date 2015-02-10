@@ -8,12 +8,12 @@
 
 #include <blkid/blkid.h>
 
-char * crypttab_skipwhitespace( char *line );
-char * crypttab_parsefield( char *line, char *dest );
+char *crypttab_skipwhitespace( char *line );
+char *crypttab_parsefield( char *line, char *dest );
 struct crypttab_entry *crypttab_parseline( char *line );
 int crypttab_resize( struct crypttab *list, int newsize );
 
-char * crypttab_skipwhitespace( char *line )
+char *crypttab_skipwhitespace( char *line )
 {
 	if( line == NULL ) return NULL;
 
@@ -24,7 +24,7 @@ char * crypttab_skipwhitespace( char *line )
 	return line;
 }
 
-char * crypttab_parsefield( char *line, char *dest )
+char *crypttab_parsefield( char *line, char *dest )
 {
 	int chr = 0;
 
