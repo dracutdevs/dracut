@@ -15,4 +15,5 @@ systemdsystemunitdir=/usr/lib/systemd/system
 systemdsystemconfdir=/etc/systemd/system
 udevdir=/usr/lib/udev
 hostonly="yes"
+hostonly_cmdline="no"
 early_microcode="yes"
