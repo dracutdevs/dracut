@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 [ -f /tmp/dropbear.pid ] || exit 0
 read main_pid < /tmp/dropbear.pid

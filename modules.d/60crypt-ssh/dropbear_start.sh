@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 
-source /etc/crypt-ssh.conf
+. /etc/crypt-ssh.conf
 
 [ -f /tmp/dropbear.pid ] && kill -0 $(cat /tmp/dropbear.pid) 2>/dev/null || {
   info "sshd port: ${dropbear_port}"
