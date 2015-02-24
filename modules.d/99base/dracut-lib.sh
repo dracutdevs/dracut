@@ -889,7 +889,9 @@ dev_unit_name()
     dev="${dev##/}"
     dev="$(str_replace "$dev" '\' '\x5c')"
     dev="$(str_replace "$dev" '-' '\x2d')"
-    dev=${dev/#\./\\x2e}
+    if [ "${dev##.}" != "$dev" ]; then
+        dev="\x2e${dev##.}"
+    fi
     dev="$(str_replace "$dev" '/' '-')"
 
     printf -- "%s" "$dev"
