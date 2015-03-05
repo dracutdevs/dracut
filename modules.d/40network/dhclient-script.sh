@@ -43,7 +43,13 @@ setup_interface() {
         valid_lft ${lease_time} preferred_lft ${lease_time} \
         dev $netif
 
-    [ -n "$gw" ] && echo ip route replace default via $gw dev $netif > /tmp/net.$netif.gw
+    if [ -n "$gw" ] ; then
+        if [ "$mask" == "255.255.255.255" ] ; then
+            # point-to-point connection => set explicit route to gateway
+            echo ip route add $gw dev $netif > /tmp/net.$netif.gw
+        fi
+        echo ip route replace default via $gw dev $netif >> /tmp/net.$netif.gw
+    fi
 
     [ -n "${search}${domain}" ] && echo "search $search $domain" > /tmp/net.$netif.resolv.conf
     if  [ -n "$namesrv" ] ; then
