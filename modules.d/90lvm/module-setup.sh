@@ -67,6 +67,20 @@ install() {
             sed -i -e 's/\(^[[:space:]]*\)locking_type[[:space:]]*=[[:space:]]*[[:digit:]]/\1locking_type = 4/' ${initdir}/etc/lvm/lvm.conf
             sed -i -e 's/\(^[[:space:]]*\)use_lvmetad[[:space:]]*=[[:space:]]*[[:digit:]]/\1use_lvmetad = 0/' ${initdir}/etc/lvm/lvm.conf
         fi
+
+        export LVM_SUPPRESS_FD_WARNINGS=1
+        # Also install any files needed for LVM system id support.
+        if [ -f /etc/lvm/lvmlocal.conf ]; then
+            inst_simple -H /etc/lvm/lvmlocal.conf
+        fi
+        eval $(lvm dumpconfig global/system_id_source)
+        if [ "$system_id_source" == "file" ]; then
+            eval $(lvm dumpconfig global/system_id_file)
+            if [ -f "$system_id_file" ]; then
+                inst_simple -H $system_id_file
+            fi
+        fi
+        unset LVM_SUPPRESS_FD_WARNINGS
     fi
 
     if ! [[ -e ${initdir}/etc/lvm/lvm.conf ]]; then
