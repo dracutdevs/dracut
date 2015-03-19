@@ -1369,36 +1369,35 @@ modules_loaded=" "
 # source our modules.
 for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
     _d_mod=${moddir##*/}; _d_mod=${_d_mod#[0-9][0-9]}
-    if [[ "$mods_to_load" == *\ $_d_mod\ * ]]; then
-        if [[ $show_modules = yes ]]; then
-            printf "%s\n" "$_d_mod"
-        else
-            dinfo "*** Including module: $_d_mod ***"
-        fi
-        if [[ $kernel_only == yes ]]; then
+    [[ "$mods_to_load" == *\ $_d_mod\ * ]] || continue
+    if [[ $show_modules = yes ]]; then
+        printf "%s\n" "$_d_mod"
+    else
+        dinfo "*** Including module: $_d_mod ***"
+    fi
+    if [[ $kernel_only == yes ]]; then
+        module_installkernel "$_d_mod" || {
+            dfatal "installkernel failed in module $_d_mod"
+            exit 1
+        }
+    else
+        module_install "$_d_mod"
+        if [[ $no_kernel != yes ]]; then
             module_installkernel "$_d_mod" || {
                 dfatal "installkernel failed in module $_d_mod"
                 exit 1
             }
-        else
-            module_install "$_d_mod"
-            if [[ $no_kernel != yes ]]; then
-                module_installkernel "$_d_mod" || {
-                    dfatal "installkernel failed in module $_d_mod"
-                    exit 1
-                }
-            fi
         fi
-        mods_to_load=${mods_to_load// $_d_mod /}
-        modules_loaded+="$_d_mod "
+    fi
+    mods_to_load=${mods_to_load// $_d_mod /}
+    modules_loaded+="$_d_mod "
 
-        #print the module install size
-        if [ -n "$printsize" ]; then
-            _isize_new=$(du -sk ${initdir}|cut -f1)
-            _isize_delta=$((_isize_new - _isize))
-            printf "%s\n" "$_d_mod install size: ${_isize_delta}k"
-            _isize=$_isize_new
-        fi
+    #print the module install size
+    if [ -n "$printsize" ]; then
+        _isize_new=$(du -sk ${initdir}|cut -f1)
+        _isize_delta=$((_isize_new - _isize))
+        printf "%s\n" "$_d_mod install size: ${_isize_delta}k"
+        _isize=$_isize_new
     fi
 done
 unset moddir
