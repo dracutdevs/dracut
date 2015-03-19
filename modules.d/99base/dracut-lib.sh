@@ -115,6 +115,7 @@ getcmdline() {
     local _i
     local CMDLINE_ETC_D
     local CMDLINE_ETC
+    local CMDLINE_PROC
     unset _line
 
     if [ -e /etc/cmdline ]; then
@@ -124,13 +125,15 @@ getcmdline() {
     fi
     for _i in /etc/cmdline.d/*.conf; do
         [ -e "$_i" ] || continue
-        while read -r _line; do
+        while read -r _line || [ -n "$_line" ]; do
             CMDLINE_ETC_D="$CMDLINE_ETC_D $_line";
         done <"$_i";
     done
     if [ -e /proc/cmdline ]; then
-        read -r CMDLINE </proc/cmdline;
-        CMDLINE="$CMDLINE_ETC_D $CMDLINE_ETC $CMDLINE"
+        while read -r _line || [ -n "$_line" ]; do
+            CMDLINE_PROC="$CMDLINE_PROC $_line"
+        done </proc/cmdline;
+        CMDLINE="$CMDLINE_ETC_D $CMDLINE_ETC $CMDLINE_PROC"
     fi
     printf "%s" "$CMDLINE"
 }
