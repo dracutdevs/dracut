@@ -32,6 +32,7 @@ _dracut() {
                               --xz --no-compress --gzip --list-modules --show-modules --keep
                               --printsize --regenerate-all --noimageifnotneeded --early-microcode
                               --no-early-microcode --print-cmdline --prelink --noprelink --reproducible
+                              --uefi
                               '
 
                        [ARG]='-a -m -o -d -I -k -c -L --kver --add --force-add --add-drivers
@@ -39,7 +40,7 @@ _dracut() {
                               --fwdir --libdirs --fscks --add-fstab --mount --device --nofscks
                               --kmoddir --conf --confdir --tmpdir --stdlog --compress --prefix
                               --kernel-cmdline --sshkey --persistent-policy --install-optional
-                              --loginstall
+                              --loginstall --uefi-stub --kernel-image
                               '
         )
 

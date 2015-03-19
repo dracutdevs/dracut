@@ -195,6 +195,10 @@ Creates initial ramdisk images for preloading modules
   --logfile [FILE]      Logfile to use (overrides configuration setting)
   --reproducible        Create reproducible images
   --loginstall [DIR]    Log all files installed from the host to [DIR]
+  --uefi                Create an UEFI executable with the kernel cmdline and
+                        kernel combined
+  --uefi-stub [FILE]    Use the UEFI stub [FILE] to create an UEFI executable
+  --kernel-image [FILE] location of the kernel image
 
 If [LIST] has multiple arguments, then you have to put these in quotes.
 
@@ -389,6 +393,9 @@ rearrange_params()
         --long no-early-microcode \
         --long reproducible \
         --long loginstall: \
+        --long uefi \
+        --long uefi-stub: \
+        --long kernel-image: \
         -- "$@")
 
     if (( $? != 0 )); then
@@ -577,6 +584,11 @@ while :; do
         --regenerate-all) regenerate_all="yes";;
         --noimageifnotneeded) noimageifnotneeded="yes";;
         --reproducible) reproducible_l="yes";;
+        --uefi)        uefi="yes";;
+        --uefi-stub)
+                       uefi_stub_l="$2";               PARMS_TO_STORE+=" '$2'"; shift;;
+        --kernel-image)
+                       kernel_image_l="$2";            PARMS_TO_STORE+=" '$2'"; shift;;
         --) shift; break;;
 
         *)  # should not even reach this point
@@ -822,6 +834,8 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $logfile_l ]] && logfile="$logfile_l"
 [[ $reproducible_l ]] && reproducible="$reproducible_l"
 [[ $loginstall_l ]] && loginstall="$loginstall_l"
+[[ $uefi_stub_l ]] && uefi_stub="$uefi_stub_l"
+[[ $kernel_image_l ]] && kernel_image="$kernel_image_l"
 
 # eliminate IFS hackery when messing with fw_dir
 fw_dir=${fw_dir//:/ }
@@ -880,6 +894,7 @@ trap '
     ret=$?;
     [[ $keep ]] && echo "Not removing $initdir." >&2 || { [[ $initdir ]] && rm -rf -- "$initdir"; };
     [[ $keep ]] && echo "Not removing $early_cpio_dir." >&2 || { [[ $early_cpio_dir ]] && rm -Rf -- "$early_cpio_dir"; };
+    [[ $keep ]] && echo "Not removing $uefi_outdir." >&2 || { [[ $uefi_outdir ]] && rm -Rf -- "$uefi_outdir"; };
     [[ $_dlogdir ]] && rm -Rf -- "$_dlogdir";
     exit $ret;
     ' EXIT
@@ -1030,6 +1045,48 @@ if [[ ! $print_cmdline ]]; then
             exit 1
         fi
         loginstall=$(readlink -f "$loginstall")
+    fi
+
+    if [[ $uefi = yes ]]; then
+        if ! command -v objcopy &>/dev/null; then
+            dfatal "Need 'objcopy' to create a UEFI executable"
+            exit 1
+        fi
+        unset EFI_MACHINE_TYPE_NAME
+        case $(arch) in
+            x86_64)
+                EFI_MACHINE_TYPE_NAME=x64;;
+            ia32)
+                EFI_MACHINE_TYPE_NAME=ia32;;
+            *)
+                dfatal "Architecture '$(arch)' not supported to create a UEFI executable"
+                exit 1
+                ;;
+        esac
+
+        if ! [[ -s $uefi_stub ]]; then
+            for uefi_stub in \
+                "/lib/systemd/boot/efi/linux${EFI_MACHINE_TYPE_NAME}.efi.stub" \
+                    "/usr/lib/gummiboot/linux${EFI_MACHINE_TYPE_NAME}.efi.stub"; do
+                [[ -s $uefi_stub ]] || continue
+                break
+            done
+        fi
+        if ! [[ -s $uefi_stub ]]; then
+            dfatal "Can't find a uefi stub '$uefi_stub' to create a UEFI executable"
+            exit 1
+        fi
+
+        if ! [[ $kernel_image ]]; then
+            for kernel_image in "/lib/modules/$kernel/vmlinuz" "/boot/vmlinuz-$kernel"; do
+                [[ -s "$kernel_image" ]] || continue
+                break
+            done
+        fi
+        if ! [[ -s $kernel_image ]]; then
+            dfatal "Can't find a kernel image '$kernel_image' to create a UEFI executable"
+            exit 1
+        fi
     fi
 fi
 
@@ -1643,7 +1700,14 @@ if [[ $hostonly_cmdline ]] ; then
     fi
 fi
 rm -f -- "$outfile"
-dinfo "*** Creating image file ***"
+dinfo "*** Creating image file '$outfile' ***"
+
+if [[ $uefi = yes ]]; then
+    uefi_outfile="$outfile"
+    readonly uefi_outdir="$(mktemp --tmpdir="$TMPDIR/" -d -t initrd.XXXXXX)"
+    # redirect initrd output
+    outfile="$uefi_outdir/initrd"
+fi
 
 if [[ $DRACUT_REPRODUCIBLE ]]; then
     find "$initdir" -newer "$dracutbasedir/dracut-functions.sh" -print0 \
@@ -1679,7 +1743,7 @@ if ! (
     dfatal "dracut: creation of $outfile failed"
     exit 1
 fi
-dinfo "*** Creating image file done ***"
+dinfo "*** Creating initrd image file '$outfile' done ***"
 
 if (( maxloglvl >= 5 )); then
     if [[ $allowlocal ]]; then
@@ -1687,6 +1751,33 @@ if (( maxloglvl >= 5 )); then
     else
         lsinitrd "$outfile"| ddebug
     fi
+fi
+
+if [[ $uefi = yes ]]; then
+    if [[ $kernel_cmdline ]]; then
+        echo -n "$kernel_cmdline" > "$uefi_outdir/cmdline.txt"
+    elif [[ $hostonly_cmdline = yes ]] && [ -d $initdir/etc/cmdline.d ];then
+        for conf in $initdir/etc/cmdline.d/*.conf ; do
+            [ -e "$conf" ] || continue
+            printf "%s " "$(< $conf)" >> "$uefi_outdir/cmdline.txt"
+        done
+    else
+        do_print_cmdline > "$uefi_outdir/cmdline.txt"
+    fi
+    echo -ne "\x00" >> "$uefi_outdir/cmdline.txt"
+
+    dinfo "Using UEFI kernel cmdline:"
+    dinfo $(< "$uefi_outdir/cmdline.txt")
+
+    [[ -s /etc/os-release ]] && uefi_osrelease="/etc/os-release"
+
+    objcopy \
+        ${uefi_osrelease:+--add-section .osrel=$uefi_osrelease --change-section-vma .osrel=0x20000} \
+        --add-section .cmdline="$uefi_outdir/cmdline.txt" --change-section-vma .cmdline=0x30000 \
+        --add-section .linux="$kernel_image" --change-section-vma .linux=0x40000 \
+        --add-section .initrd="$outfile" --change-section-vma .initrd=0x3000000 \
+        "$uefi_stub" "$uefi_outfile"
+    dinfo "*** Creating UEFI image file '$uefi_outfile' done ***"
 fi
 
 exit 0
