@@ -1293,10 +1293,15 @@ dracut_module_included "fips" && export DRACUT_FIPS_MODE=1
 
 do_print_cmdline()
 {
-    modules_loaded=" "
+    local -A _mods_to_print
+    for i in $modules_loaded $mods_to_load; do
+        _mods_to_print[$i]=1
+    done
+
     # source our modules.
     for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
         _d_mod=${moddir##*/}; _d_mod=${_d_mod#[0-9][0-9]}
+        [[ ${_mods_to_print[$_d_mod]} ]] || continue
         module_cmdline "$_d_mod"
     done
     unset moddir
