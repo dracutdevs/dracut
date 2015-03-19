@@ -14,8 +14,13 @@ ip addr add 192.168.50.1/24 dev ens3
 ip link set ens3 up
 >/var/lib/dhcpd/dhcpd.leases
 chmod 777 /var/lib/dhcpd/dhcpd.leases
-dhcpd -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases
+dhcpd -d -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases &
+/usr/sbin/iscsi-target -D -t iqn.2009-06.dracut &
 # Wait forever for the VM to die
-/usr/sbin/iscsi-target -D -t iqn.2009-06.dracut
+echo "Serving iSCSI"
+while :; do
+	[ -n "$(jobs -rp)" ] && echo > /dev/watchdog
+	sleep 10
+done
 mount -n -o remount,ro /
 poweroff -f

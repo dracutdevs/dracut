@@ -84,15 +84,11 @@ exportfs -r
 >/dev/watchdog
 chmod 777 /var/lib/dhcpd/dhcpd.leases
 >/dev/watchdog
-dhcpd -d -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases
-#echo -n 'V' > /dev/watchdog
-#sh -i
-#tcpdump -i ens3
-# Wait forever for the VM to die
+dhcpd -d -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases &
 echo "Serving NFS mounts"
 while :; do
+	[ -n "$(jobs -rp)" ] && echo > /dev/watchdog
 	sleep 10
-	>/dev/watchdog
 done
 mount -n -o remount,ro /
 poweroff -f

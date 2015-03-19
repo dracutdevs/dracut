@@ -17,9 +17,11 @@ nbd-server 2000 /dev/sdb -C /dev/null
 nbd-server 2001 /dev/sdc -C /dev/null
 >/var/lib/dhcpd/dhcpd.leases
 chmod 777 /var/lib/dhcpd/dhcpd.leases
-dhcpd -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases
-#sh -i
-# Wait forever for the VM to die
-while sleep 60; do sleep 60; done
+dhcpd -d -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases &
+echo "Serving NBD disks"
+while :; do
+	[ -n "$(jobs -rp)" ] && echo > /dev/watchdog
+	sleep 10
+done
 mount -n -o remount,ro /
 poweroff -f
