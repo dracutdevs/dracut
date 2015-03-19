@@ -51,9 +51,6 @@ install() {
         $systemdsystemunitdir/basic.target \
         $systemdsystemunitdir/halt.target \
         $systemdsystemunitdir/kexec.target \
-        $systemdsystemunitdir/initrd.target \
-        $systemdsystemunitdir/initrd-fs.target \
-        $systemdsystemunitdir/initrd-root-fs.target \
         $systemdsystemunitdir/local-fs.target \
         $systemdsystemunitdir/local-fs-pre.target \
         $systemdsystemunitdir/remote-fs.target \
@@ -115,12 +112,9 @@ install() {
         $systemdsystemunitdir/sysinit.target.wants/systemd-sysctl.service \
         \
         $systemdsystemunitdir/ctrl-alt-del.target \
+        $systemdsystemunitdir/reboot.target \
+        $systemdsystemunitdir/systemd-reboot.service \
         $systemdsystemunitdir/syslog.socket \
-        $systemdsystemunitdir/initrd-switch-root.target \
-        $systemdsystemunitdir/initrd-switch-root.service \
-        $systemdsystemunitdir/initrd-cleanup.service \
-        $systemdsystemunitdir/initrd-udevadm-cleanup-db.service \
-        $systemdsystemunitdir/initrd-parse-etc.service \
         \
         $systemdsystemunitdir/slices.target \
         $systemdsystemunitdir/system.slice \
@@ -185,24 +179,6 @@ install() {
     ln_r $systemdutildir/systemd "/init"
     ln_r $systemdutildir/systemd "/sbin/init"
 
-    inst_script "$moddir/dracut-emergency.sh" /bin/dracut-emergency
-    inst_simple "$moddir/emergency.service" ${systemdsystemunitdir}/emergency.service
-    inst_simple "$moddir/dracut-emergency.service" ${systemdsystemunitdir}/dracut-emergency.service
-    inst_simple "$moddir/emergency.service" ${systemdsystemunitdir}/rescue.service
-
-    ln_r "${systemdsystemunitdir}/initrd.target" "${systemdsystemunitdir}/default.target"
-
-    inst_script "$moddir/dracut-cmdline.sh" /bin/dracut-cmdline
-    inst_script "$moddir/dracut-cmdline-ask.sh" /bin/dracut-cmdline-ask
-    inst_script "$moddir/dracut-pre-udev.sh" /bin/dracut-pre-udev
-    inst_script "$moddir/dracut-pre-trigger.sh" /bin/dracut-pre-trigger
-    inst_script "$moddir/dracut-initqueue.sh" /bin/dracut-initqueue
-    inst_script "$moddir/dracut-pre-mount.sh" /bin/dracut-pre-mount
-    inst_script "$moddir/dracut-mount.sh" /bin/dracut-mount
-    inst_script "$moddir/dracut-pre-pivot.sh" /bin/dracut-pre-pivot
-
-    inst_script "$moddir/rootfs-generator.sh" $systemdutildir/system-generators/dracut-rootfs-generator
-
     inst_binary true
     ln_r $(type -P true) "/usr/bin/loginctl"
     ln_r $(type -P true) "/bin/loginctl"
@@ -215,8 +191,7 @@ install() {
 
     for i in \
         emergency.target \
-        dracut-emergency.service \
-        rescue.service \
+        rescue.target \
         systemd-ask-password-console.service \
         systemd-ask-password-plymouth.service \
         ; do
@@ -224,24 +199,6 @@ install() {
         ln_r "${systemdsystemunitdir}/systemd-vconsole-setup.service" \
             "${systemdsystemunitdir}/${i}.wants/systemd-vconsole-setup.service"
     done
-
-    mkdir -p "${initdir}/$systemdsystemunitdir/initrd.target.wants"
-    for i in \
-        dracut-cmdline.service \
-        dracut-cmdline-ask.service \
-        dracut-initqueue.service \
-        dracut-mount.service \
-        dracut-pre-mount.service \
-        dracut-pre-pivot.service \
-        dracut-pre-trigger.service \
-        dracut-pre-udev.service \
-        ; do
-        inst_simple "$moddir/${i}" "$systemdsystemunitdir/${i}"
-        ln_r "$systemdsystemunitdir/${i}" "$systemdsystemunitdir/initrd.target.wants/${i}"
-    done
-
-    inst_simple "$moddir/dracut-tmpfiles.conf" "$tmpfilesdir/dracut-tmpfiles.conf"
-
 
     mkdir -p "$initdir/etc/systemd"
     # turn off RateLimit for journal
