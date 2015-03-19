@@ -1291,7 +1291,8 @@ for_each_module_dir check_mount
 
 dracut_module_included "fips" && export DRACUT_FIPS_MODE=1
 
-if [[ $print_cmdline ]]; then
+do_print_cmdline()
+{
     modules_loaded=" "
     # source our modules.
     for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
@@ -1299,6 +1300,10 @@ if [[ $print_cmdline ]]; then
         module_cmdline "$_d_mod"
     done
     unset moddir
+}
+
+if [[ $print_cmdline ]]; then
+    do_print_cmdline
     printf "\n"
     exit 0
 fi
