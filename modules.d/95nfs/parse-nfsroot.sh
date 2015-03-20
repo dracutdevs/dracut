@@ -57,7 +57,14 @@ fi
 
 case "$netroot" in
     /dev/nfs) netroot=nfs;;
-    /dev/*) unset netroot; return;;
+    /dev/*)
+        if [ -n "$oldnetroot" ]; then
+            netroot="$oldnetroot"
+        else
+            unset netroot
+        fi
+	return
+	;;
     # LEGACY: root=<server-ip>:/<path
     [0-9]*:/*|[0-9]*\.[0-9]*\.[0-9]*[!:]|/*)
         netroot=nfs:$netroot;;
