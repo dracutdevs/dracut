@@ -286,10 +286,6 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 > $RPM_BUILD_ROOT/etc/system-fips
 %endif
 
-# create compat symlink
-mkdir -p $RPM_BUILD_ROOT%{_sbindir}
-ln -sr $RPM_BUILD_ROOT%{_bindir}/dracut $RPM_BUILD_ROOT%{_sbindir}/dracut
-
 %clean
 rm -rf -- $RPM_BUILD_ROOT
 
@@ -301,8 +297,6 @@ rm -rf -- $RPM_BUILD_ROOT
 %{!?_licensedir:%global license %%doc}
 %license COPYING lgpl-2.1.txt
 %{_bindir}/dracut
-# compat symlink
-%{_sbindir}/dracut
 %{_datadir}/bash-completion/completions/dracut
 %{_datadir}/bash-completion/completions/lsinitrd
 %if 0%{?fedora} > 12 || 0%{?rhel} >= 6 || 0%{?suse_version} > 9999
