@@ -108,6 +108,12 @@ if ! [[ -f "$image" ]]; then
     exit 1
 fi
 
+dracutlibdirs() {
+    for d in lib64/dracut lib/dracut usr/lib64/dracut usr/lib/dracut; do
+        echo "$d/$1"
+    done
+}
+
 extract_files()
 {
     (( ${#filenames[@]} == 1 )) && nofileinfo=1
@@ -124,7 +130,8 @@ extract_files()
 list_modules()
 {
     echo "dracut modules:"
-    $CAT "$image" | cpio --extract --verbose --quiet --to-stdout -- 'lib/dracut/modules.txt' 'usr/lib/dracut/modules.txt' 2>/dev/null
+    $CAT "$image" | cpio --extract --verbose --quiet --to-stdout -- \
+        $(dracutlibdirs modules.txt) 2>/dev/null
     ((ret+=$?))
 }
 
@@ -217,7 +224,8 @@ ret=0
 if (( ${#filenames[@]} > 0 )); then
     extract_files
 else
-    version=$($CAT "$image" | cpio --extract --verbose --quiet --to-stdout -- 'lib/dracut/dracut-*' 'usr/lib/dracut/dracut-*' 2>/dev/null)
+    version=$($CAT "$image" | cpio --extract --verbose --quiet --to-stdout -- \
+        $(dracutlibdirs 'dracut-*') 2>/dev/null)
     ((ret+=$?))
     echo "Version: $version"
     echo
@@ -226,7 +234,8 @@ else
         echo "========================================================================"
     else
         echo -n "Arguments: "
-        $CAT "$image" | cpio --extract --verbose --quiet --to-stdout -- 'lib/dracut/build-parameter.txt' 'usr/lib/dracut/build-parameter.txt' 2>/dev/null
+        $CAT "$image" | cpio --extract --verbose --quiet --to-stdout -- \
+            $(dracutlibdirs build-parameter.txt) 2>/dev/null
         echo
         list_modules
         list_files
