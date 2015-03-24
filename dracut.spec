@@ -339,6 +339,8 @@ rm -rf -- $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/00bootchart
 %endif
 %{dracutlibdir}/modules.d/00bash
+%{dracutlibdir}/modules.d/00systemd
+%{dracutlibdir}/modules.d/01systemd-initrd
 %{dracutlibdir}/modules.d/03modsign
 %{dracutlibdir}/modules.d/03rescue
 %{dracutlibdir}/modules.d/04watchdog
@@ -383,7 +385,7 @@ rm -rf -- $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/98pollcdrom
 %{dracutlibdir}/modules.d/98selinux
 %{dracutlibdir}/modules.d/98syslog
-%{dracutlibdir}/modules.d/98systemd
+%{dracutlibdir}/modules.d/98dracut-systemd
 %{dracutlibdir}/modules.d/98usrmount
 %{dracutlibdir}/modules.d/99base
 %{dracutlibdir}/modules.d/99fs-lib
@@ -416,7 +418,9 @@ rm -rf -- $RPM_BUILD_ROOT
 
 %files network
 %defattr(-,root,root,0755)
+%{dracutlibdir}/modules.d/02systemd-networkd
 %{dracutlibdir}/modules.d/40network
+%{dracutlibdir}/modules.d/90kernel-network-modules
 %{dracutlibdir}/modules.d/95fcoe
 %{dracutlibdir}/modules.d/95iscsi
 %{dracutlibdir}/modules.d/90livenet
