@@ -55,7 +55,10 @@ install() {
         $systemdsystemunitdir/local-fs-pre.target \
         $systemdsystemunitdir/remote-fs.target \
         $systemdsystemunitdir/remote-fs-pre.target \
+        $systemdsystemunitdir/multi-user.target \
         $systemdsystemunitdir/network.target \
+        $systemdsystemunitdir/network-pre.target \
+        $systemdsystemunitdir/network-online.target \
         $systemdsystemunitdir/nss-lookup.target \
         $systemdsystemunitdir/nss-user-lookup.target \
         $systemdsystemunitdir/poweroff.target \
@@ -121,7 +124,11 @@ install() {
         \
         $tmpfilesdir/systemd.conf \
         \
-        journalctl systemctl echo swapoff systemd-cgls systemd-tmpfiles
+        journalctl systemctl \
+        echo swapoff \
+        kmod insmod rmmod modprobe modinfo depmod lsmod \
+        mount umount reboot poweroff \
+        systemd-cgls systemd-tmpfiles
 
     inst_multiple -o \
         /usr/lib/modules-load.d/*.conf \
@@ -169,9 +176,8 @@ install() {
 
     # install adm user/group for journald
     inst_multiple nologin
-    egrep '^systemd-journal:' "$initdir/etc/passwd" 2>/dev/null >> "$initdir/etc/passwd"
-    egrep '^wheel:' "$initdir/etc/passwd" 2>/dev/null >> "$initdir/etc/passwd"
-    egrep '^adm:' "$initdir/etc/passwd" 2>/dev/null >> "$initdir/etc/passwd"
+    egrep '^systemd-journal:' /etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
+    egrep '^adm:' /etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
     egrep '^systemd-journal:' /etc/group >> "$initdir/etc/group"
     egrep '^wheel:' /etc/group >> "$initdir/etc/group"
     egrep '^adm:' /etc/group >> "$initdir/etc/group"
@@ -208,5 +214,6 @@ install() {
         echo "RateLimitBurst=0"
     } >> "$initdir/etc/systemd/journald.conf"
 
+    ln_r "${systemdsystemunitdir}/multi-user.target" "${systemdsystemunitdir}/default.target"
 }
 
