@@ -340,19 +340,13 @@ for p in $(getargs ip=); do
 
     > /tmp/net.${netif}.up
 
-    case $autoconf in
-        dhcp|on|any|dhcp6)
-            ;;
-        *)
-            if [ $? -eq 0 ]; then
-                setup_net $netif
-                source_hook initqueue/online $netif
-                if [ -z "$manualup" ]; then
-                    /sbin/netroot $netif
-                fi
-            fi
-            ;;
-    esac
+    if [ $? -eq 0 ]; then
+        setup_net $netif
+        source_hook initqueue/online $netif
+        if [ -z "$manualup" ]; then
+            /sbin/netroot $netif
+        fi
+    fi
 
     exit 0
 done
