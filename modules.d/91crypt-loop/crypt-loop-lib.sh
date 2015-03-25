@@ -19,8 +19,6 @@ loop_decrypt() {
     local key="/dev/mapper/${mntp##*/}"
 
     if [ ! -b $key ]; then
-        info "Keyfile has .img suffix, treating it as LUKS-encrypted loop keyfile container to unlock $device"
-
         local loopdev=$(losetup -f "${mntp}/${keypath}" --show)
         local opts="-d - luksOpen $loopdev ${key##*/}"
 
@@ -29,14 +27,12 @@ loop_decrypt() {
             --prompt "Password ($keypath on $keydev for $device)" \
             --tty-echo-off
 
-        [ -b $key ] || die "Tried setting it up, but keyfile block device was still not found!" 
+        [ -b $key ] || die "Failed to unlock $keypath on $keydev for $device."
 
         initqueue --onetime --finished --unique --name "crypt-loop-cleanup-10-${key##*/}" \
             $(command -v cryptsetup) "luksClose $key"
         initqueue --onetime --finished --unique --name "crypt-loop-cleanup-20-${loopdev##*/}" \
             $(command -v losetup) "-d $loopdev"
-    else
-        info "Existing keyfile found, re-using it for $device"
     fi
 
     cat $key
