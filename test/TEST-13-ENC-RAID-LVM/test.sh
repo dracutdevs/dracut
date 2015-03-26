@@ -137,7 +137,7 @@ test_setup() {
         echo -n test > $initdir/etc/key
     )
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-	-o "plymouth network" \
+	-o "plymouth network kernel-network-modules" \
 	-a "debug" \
 	-d "piix ide-gd_mod ata_piix ext2 sd_mod" \
         --no-hostonly-cmdline -N \

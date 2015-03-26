@@ -262,7 +262,7 @@ EOF
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-a "debug systemd" \
 	-I "/etc/machine-id /etc/hostname" \
-        -o "dash network plymouth lvm mdraid resume crypt i18n caps dm terminfo usrmount" \
+        -o "dash network plymouth lvm mdraid resume crypt i18n caps dm terminfo usrmount kernel-network-modules" \
 	-d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \
         --no-hostonly-cmdline -N \
 	-f $TESTDIR/initramfs.testing $KVERSION || return 1
