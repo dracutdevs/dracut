@@ -29,6 +29,7 @@ _md_force_run() {
 
         _path_d="${_path_s%/*}/degraded"
         [ ! -r "$_path_d" ] && continue
+        > $hookdir/initqueue/work
     done
 }
 
