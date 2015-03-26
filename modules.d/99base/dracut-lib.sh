@@ -895,12 +895,10 @@ dev_unit_name()
     printf -- "%s" "$dev"
 }
 
-# wait_for_dev <dev>
-#
-# Installs a initqueue-finished script,
-# which will cause the main loop only to exit,
-# if the device <dev> is recognized by the system.
-wait_for_dev()
+# set_systemd_timeout_for_dev <dev>
+# Set 'rd.timeout' as the systemd timeout for <dev>
+
+set_systemd_timeout_for_dev()
 {
     local _name
     local _needreload
@@ -914,19 +912,6 @@ wait_for_dev()
 
     _timeout=$(getarg rd.timeout)
     _timeout=${_timeout:-0}
-
-    _name="$(str_replace "$1" '/' '\x2f')"
-
-    type mark_hostonly >/dev/null 2>&1 && mark_hostonly "$hookdir/initqueue/finished/devexists-${_name}.sh"
-
-    [ -e "${PREFIX}$hookdir/initqueue/finished/devexists-${_name}.sh" ] && return 0
-
-    printf '[ -e "%s" ]\n' $1 \
-        >> "${PREFIX}$hookdir/initqueue/finished/devexists-${_name}.sh"
-    {
-        printf '[ -e "%s" ] || ' $1
-        printf 'warn "\"%s\" does not exist"\n' $1
-    } >> "${PREFIX}$hookdir/emergency/80-${_name}.sh"
 
     if [ -n "$DRACUT_SYSTEMD" ]; then
         _name=$(dev_unit_name "$1")
@@ -951,6 +936,36 @@ wait_for_dev()
             /sbin/initqueue --onetime --unique --name daemon-reload systemctl daemon-reload
         fi
     fi
+}
+# wait_for_dev <dev>
+#
+# Installs a initqueue-finished script,
+# which will cause the main loop only to exit,
+# if the device <dev> is recognized by the system.
+wait_for_dev()
+{
+    local _name
+    local _noreload
+
+    if [ "$1" = "-n" ]; then
+        _noreload=-n
+        shift
+    fi
+
+    _name="$(str_replace "$1" '/' '\x2f')"
+
+    type mark_hostonly >/dev/null 2>&1 && mark_hostonly "$hookdir/initqueue/finished/devexists-${_name}.sh"
+
+    [ -e "${PREFIX}$hookdir/initqueue/finished/devexists-${_name}.sh" ] && return 0
+
+    printf '[ -e "%s" ]\n' $1 \
+        >> "${PREFIX}$hookdir/initqueue/finished/devexists-${_name}.sh"
+    {
+        printf '[ -e "%s" ] || ' $1
+        printf 'warn "\"%s\" does not exist"\n' $1
+    } >> "${PREFIX}$hookdir/emergency/80-${_name}.sh"
+
+    set_systemd_timeout_for_dev $_noreload $1
 }
 
 cancel_wait_for_dev()

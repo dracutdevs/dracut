@@ -14,6 +14,10 @@ else
     LUKS=$(getargs rd.luks.uuid -d rd_LUKS_UUID)
     tout=$(getarg rd.luks.key.tout)
 
+    while read _dev _uuid ; do
+        set_systemd_timeout_for_dev $_dev
+    done
+
     if [ -n "$LUKS" ]; then
         for luksid in $LUKS; do
 
