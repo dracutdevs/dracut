@@ -140,6 +140,8 @@ for netup in /tmp/net.*.did-setup ; do
     unset macaddr
     unset slave
     unset ethname
+    unset vlan
+
     [ -e /tmp/bond.${netif}.info ] && . /tmp/bond.${netif}.info
     [ -e /tmp/team.${netif}.info ] && . /tmp/team.${netif}.info
 
