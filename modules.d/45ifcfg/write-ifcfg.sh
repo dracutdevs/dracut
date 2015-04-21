@@ -137,6 +137,8 @@ for netup in /tmp/net.*.did-setup ; do
     unset macaddr
     unset slave
     unset ethname
+    unset vlan
+
     [ -e /tmp/bond.${netif}.info ] && . /tmp/bond.${netif}.info
 
     uuid=$(cat /proc/sys/kernel/random/uuid)
