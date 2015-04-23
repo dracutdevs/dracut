@@ -212,7 +212,7 @@ check: all syncheck rpm
 	@$(MAKE) -C test check
 
 testimage: all
-	./dracut.sh -l -a debug -f test-$(shell uname -r).img $(shell uname -r)
+	./dracut.sh -N -l -a debug -f test-$(shell uname -r).img $(shell uname -r)
 	@echo wrote  test-$(shell uname -r).img
 
 debugtestimage: all
