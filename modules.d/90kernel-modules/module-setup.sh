@@ -41,10 +41,13 @@ installkernel() {
             uhci-hcd \
             xhci-hcd xhci-pci xhci-plat-hcd
 
+        instmods \
+            "=drivers/hid" \
+            "=drivers/input/serio" \
+            "=drivers/input/keyboard"
+
         instmods yenta_socket scsi_dh_rdac scsi_dh_emc scsi_dh_alua \
-            atkbd i8042 usbhid hid-apple hid-sunplus hid-cherry hid-logitech \
-            hid-logitech-dj hid-microsoft hid-lcpower firewire-ohci \
-            pcmcia hid-hyperv hv-vmbus hyperv-keyboard
+                 atkbd i8042 usbhid firewire-ohci pcmcia hv-vmbus
 
         if [[ "$(uname -p)" == arm* ]]; then
             # arm specific modules
