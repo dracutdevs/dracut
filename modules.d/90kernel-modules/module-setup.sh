@@ -40,20 +40,31 @@ installkernel() {
             ehci-hcd ehci-pci ehci-platform \
             ohci-hcd ohci-pci \
             uhci-hcd \
-            xhci-hcd
+            xhci-hcd xhci-pci xhci-plat-hcd
 
-        instmods yenta_socket scsi_dh_rdac scsi_dh_emc \
-            atkbd i8042 usbhid hid-apple hid-sunplus hid-cherry hid-logitech \
-            hid-logitech-dj hid-microsoft firewire-ohci \
-            pcmcia usb_storage nvme hid-hyperv hv-vmbus \
-            sdhci_acpi
+        instmods yenta_socket scsi_dh_rdac scsi_dh_emc scsi_dh_alua \
+                 atkbd i8042 usbhid firewire-ohci pcmcia hv-vmbus \
+                 atkbd i8042 usbhid firewire-ohci pcmcia usb_storage \
+                 nvme hv-vmbus sdhci_acpi
+
+        instmods \
+            "=drivers/hid" \
+            "=drivers/input/serio" \
+            "=drivers/input/keyboard"
 
         if [[ "$(uname -p)" == arm* ]]; then
             # arm specific modules
             hostonly='' instmods \
 	        connector-hdmi connector-dvi encoder-tfp410 \
 	        encoder-tpd12s015 i2c-tegra gpio-regulator \
-		as3722-regulator orion-ehci ehci-tegra 
+		as3722-regulator orion-ehci ehci-tegra
+            instmods \
+                "=drivers/i2c/busses" \
+                "=drivers/regulator" \
+                "=drivers/rtc" \
+                "=drivers/usb/host" \
+                "=drivers/usb/phy" \
+                ${NULL}
         fi
 
         # install virtual machine support
