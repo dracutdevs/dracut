@@ -60,6 +60,8 @@ installkernel() {
             ${NULL}
     fi
 
+    instmods amdkfd
+
     for _modname in $(find_kernel_modules_by_path drivers/gpu/drm \
         | drm_module_filter) ; do
         # if the hardware is present, include module even if it is not currently loaded,
@@ -68,6 +70,10 @@ installkernel() {
         if [[ $hostonly ]] && modinfo -F alias $_modname | sed -e 's,\?,\.,g' -e 's,\*,\.\*,g' \
             | grep -qxf - /sys/bus/{pci/devices,soc/devices/soc?}/*/modalias 2>/dev/null; then
             hostonly='' instmods $_modname
+            # if radeon.ko is installed, we want amdkfd also
+            if strstr "$_modname" radeon.ko; then
+                hostonly='' instmods amdkfd
+            fi
             continue
         fi
         instmods $_modname
