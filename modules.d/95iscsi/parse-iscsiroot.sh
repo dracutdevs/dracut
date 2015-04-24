@@ -89,16 +89,11 @@ if [ -z "$netroot" ] || ! [ "${netroot%%:*}" = "iscsi" ]; then
 fi
 
 initqueue --unique --onetime --timeout /sbin/iscsiroot timeout "$netroot" "$NEWROOT"
-
-modprobe -b -q qla4xxx
-modprobe -b -q cxgb3i
-modprobe -b -q cxgb4i
-modprobe -b -q bnx2i
-modprobe -b -q be2iscsi
+initqueue --onetime modprobe --all -b -q qla4xxx cxgb3i cxgb4i bnx2i be2iscsi
 
 # ISCSI actually supported?
 if ! [ -e /sys/module/iscsi_tcp ]; then
-    modprobe -q iscsi_tcp || die "iscsiroot requested but kernel/initrd does not support iscsi"
+    modprobe -b -q iscsi_tcp || die "iscsiroot requested but kernel/initrd does not support iscsi"
 fi
 
 if [ -n "$netroot" ] && [ "$root" != "/dev/root" ] && [ "$root" != "dhcp" ]; then
