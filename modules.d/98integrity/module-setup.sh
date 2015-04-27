@@ -7,7 +7,7 @@ check() {
 
 # called by dracut
 depends() {
-    echo masterkey securityfs selinux
+    echo masterkey securityfs
     return 0
 }
 
