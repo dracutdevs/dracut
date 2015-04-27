@@ -48,6 +48,45 @@ load_evm_key()
         info "integrity: failed to load the EVM encrypted key: ${EVMKEYDESC}";
         return 1;
     }
+    return 0
+}
+
+load_evm_x509()
+{
+    info "Load EVM IMA X509"
+
+    # override the EVM key path name from the 'evmx509=' parameter in
+    # the kernel command line
+    EVMX509ARG=$(getarg evmx509=)
+    [ $? -eq 0 ] && \
+        EVMX509=${EVMX509ARG}
+
+    # set the default value
+    [ -z "${EVMX509}" ] && \
+        EVMX509="/etc/keys/x509_evm.der";
+
+    # set the EVM public key path name
+    EVMX509PATH="${NEWROOT}${EVMX509}"
+
+    # check for EVM public key's existence
+    if [ ! -f "${EVMX509PATH}" ]; then
+        if [ "${RD_DEBUG}" = "yes" ]; then
+            info "integrity: EVM x509 cert file not found: ${EVMX509PATH}"
+	fi
+        return 1
+    fi
+
+    # load the EVM public key onto the EVM keyring
+    evm_pubid=`keyctl newring _evm @u`
+    EVMX509ID=$(evmctl import ${EVMX509PATH} ${evm_pubid})
+    [ $? -eq 0 ] || {
+	info "integrity: failed to load the EVM X509 cert ${EVMX509PATH}";
+	return 1;
+    }
+
+    if [ "${RD_DEBUG}" = "yes" ]; then
+        keyctl show @u
+    fi
 
     return 0
 }
@@ -75,6 +114,9 @@ enable_evm()
 
     # load the EVM encrypted key
     load_evm_key || return 1
+
+    # load the EVM public key, if it exists
+    load_evm_x509
 
     # initialize EVM
     info "Enabling EVM"
