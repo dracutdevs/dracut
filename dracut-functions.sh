@@ -977,7 +977,7 @@ inst_rules_wildcard() {
             _found=$_rule
         fi
     done
-    if [ -n ${hostonly} ] ; then
+    if [[ -n ${hostonly} ]] ; then
         for _rule in ${_target}/$1 ; do
             if [[ -f $_rule ]]; then
                 inst_rule_programs "$_rule"
