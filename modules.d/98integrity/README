@@ -38,3 +38,31 @@ line.
 ------------- '/etc/sysconfig/ima' (with the default value) -------------
 IMAPOLICY="/etc/sysconfig/ima-policy"
 -------------------------------------------------------------------------
+
+
+# Information on loading distro, third party or local keys on the trusted IMA keyring
+
+# Loading distro, third party or local keys on the trusted IMA keyring requires
+# creating a local certificate authority(local-CA), installing the local-CA's
+# public key on the system-keyring and signing the certificates with the local-CA
+# key.
+#
+# Many directions for creating a mini certificate authority exist on the web
+# (eg. openssl, yubikey). (Reminder: safely storing the private key offline is
+# really important, especially in the case of the local-CA's private key.) The
+# local-CA's public key can be loaded onto the system keyring either by building
+# the key into the kernel or, on Fedora, storing it in the UEFI/Mok keyring. (As
+# of writing, the patches for loading the UEFI/Mok keys on the system-keyring
+# have not been upstreamed.)
+#
+# To view the system keyring: keyctl show %keyring:.system_keyring
+#
+# Most on-line directions for signing certificates requires creating a Certificate
+# Signing Request (CSR).  Creating such a request requires access to the private
+# key, which would not be available when signing distro or 3rd party certificates.
+# Openssl provides the "-ss_cert" option for directly signing certificates.
+
+# 98integrity/ima-keys-load.sh script loads the signed certificates stored 
+# in the $IMAKEYSDIR onto the trusted IMA keyring.  The default $IMAKEYSDIR
+# directory is /etc/keys/ima, but can be specified in the /etc/sysconfig/ima
+# policy.
