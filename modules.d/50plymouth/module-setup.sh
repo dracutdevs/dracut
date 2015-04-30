@@ -3,7 +3,7 @@
 # called by dracut
 check() {
     [[ "$mount_needs" ]] && return 1
-    require_binaries plymouthd plymouth
+    require_binaries plymouthd plymouth plymouth-set-default-theme
 }
 
 # called by dracut
