@@ -42,10 +42,10 @@ ask_for_password() {
 
     while [ $# -gt 0 ]; do
         case "$1" in
-            --cmd) ply_cmd="$2"; tty_cmd="$2" shift;;
+            --cmd) ply_cmd="$2"; tty_cmd="$2"; shift;;
             --ply-cmd) ply_cmd="$2"; shift;;
             --tty-cmd) tty_cmd="$2"; shift;;
-            --prompt) ply_prompt="$2"; tty_prompt="$2" shift;;
+            --prompt) ply_prompt="$2"; tty_prompt="$2"; shift;;
             --ply-prompt) ply_prompt="$2"; shift;;
             --tty-prompt) tty_prompt="$2"; shift;;
             --tries) ply_tries="$2"; tty_tries="$2"; shift;;
