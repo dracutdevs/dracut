@@ -520,7 +520,7 @@ wait_for_ipv6_dad() {
     local cnt=0
     local li
     while [ $cnt -lt 500 ]; do
-        li=$(ip -6 addr show dev $1)
+        li=$(ip -6 addr show dev $1 scope link)
         strstr "$li" "tentative" || return 0
         sleep 0.1
         cnt=$(($cnt+1))
