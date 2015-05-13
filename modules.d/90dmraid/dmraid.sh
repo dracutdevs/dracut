@@ -37,6 +37,7 @@ if [ -n "$DM_RAIDS" ] || getargbool 0 rd.auto; then
             info "Activating $s"
             dmraid -ay -i -p --rm_partitions "$s" 2>&1 | vinfo
             [ -e "/dev/mapper/$s" ] && kpartx -a "/dev/mapper/$s" 2>&1 | vinfo
+            udevsettle
         done
     fi
 
