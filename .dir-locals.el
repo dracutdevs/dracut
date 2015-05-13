@@ -1,2 +1,3 @@
-(setq sh-basic-offset: 4)
-(setq indent-tabs-mode nil)
+((nil . ((setq sh-basic-offset: 4)
+         (setq indent-tabs-mode nil)
+         )))
