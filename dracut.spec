@@ -312,6 +312,7 @@ rm -rf -- $RPM_BUILD_ROOT
 %endif
 %dir %{_sysconfdir}/dracut.conf.d
 %dir %{dracutlibdir}/dracut.conf.d
+%{_datadir}/pkgconfig/dracut.pc
 %{_mandir}/man8/dracut.8*
 %{_mandir}/man8/*service.8*
 %if 0%{?fedora} > 12 || 0%{?rhel} >= 6 || 0%{?suse_version} > 9999
