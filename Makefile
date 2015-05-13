@@ -15,6 +15,7 @@ mandir ?= ${prefix}/share/man
 CFLAGS ?= -O2 -g -Wall
 CFLAGS += -std=gnu99 -D_FILE_OFFSET_BITS=64 -Wformat -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2
 bashcompletiondir ?= ${datadir}/bash-completion/completions
+pkgconfigdatadir ?= $(datadir)/pkgconfig
 
 man1pages = lsinitrd.1
 
@@ -41,7 +42,7 @@ manpages = $(man1pages) $(man5pages) $(man7pages) $(man8pages)
 
 .PHONY: install clean archive rpm testimage test all check AUTHORS doc dracut-version.sh
 
-all: dracut-version.sh dracut-install skipcpio/skipcpio
+all: dracut-version.sh dracut.pc dracut-install skipcpio/skipcpio
 
 DRACUT_INSTALL_OBJECTS = \
         install/dracut-install.o \
@@ -96,7 +97,15 @@ dracut.html: dracut.asc $(manpages) dracut.css dracut.usage.asc
 		http://docbook.sourceforge.net/release/xsl/current/xhtml/docbook.xsl dracut.xml
 	rm -f -- dracut.xml
 
-install: dracut-version.sh
+dracut.pc: Makefile.inc Makefile
+	@echo "Name: dracut" > dracut.pc
+	@echo "Description: dracut" >> dracut.pc
+	@echo "Version: $(VERSION)$(GITVERSION)" >> dracut.pc
+	@echo "dracutdir=$(pkglibdir)" >> dracut.pc
+	@echo "dracutmodulesdir=$(pkglibdir)/modules.d" >> dracut.pc
+	@echo "dracutconfdir=$(pkglibdir)/dracut.conf.d" >> dracut.pc
+
+install: all
 	mkdir -p $(DESTDIR)$(pkglibdir)
 	mkdir -p $(DESTDIR)$(bindir)
 	mkdir -p $(DESTDIR)$(sysconfdir)
@@ -155,6 +164,8 @@ endif
 	mkdir -p $(DESTDIR)${bashcompletiondir}
 	install -m 0644 dracut-bash-completion.sh $(DESTDIR)${bashcompletiondir}/dracut
 	install -m 0644 lsinitrd-bash-completion.sh $(DESTDIR)${bashcompletiondir}/lsinitrd
+	mkdir -p $(DESTDIR)${pkgconfigdatadir}
+	install -m 0644 dracut.pc $(DESTDIR)${pkgconfigdatadir}/dracut.pc
 
 dracut-version.sh:
 	@echo "DRACUT_VERSION=$(VERSION)$(GITVERSION)" > dracut-version.sh

@@ -318,6 +318,7 @@ rm -rf -- $RPM_BUILD_ROOT
 %endif
 %dir %{_sysconfdir}/dracut.conf.d
 %dir %{dracutlibdir}/dracut.conf.d
+%{_datadir}/pkgconfig/dracut.pc
 
 %if %{with doc}
 %{_mandir}/man8/dracut.8*
