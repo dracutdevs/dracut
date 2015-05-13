@@ -71,7 +71,7 @@ case "$COMMAND" in
 
         [[ -d "$BOOT_DIR_ABS" ]] || mkdir -p "$BOOT_DIR_ABS"
 
-        if ! cp "$KERNEL_IMAGE" "$BOOT_DIR_ABS"/linux; then
+        if ! cp --reflink=auto "$KERNEL_IMAGE" "$BOOT_DIR_ABS"/linux; then
             echo "Can't copy '$KERNEL_IMAGE to '$BOOT_DIR_ABS/linux'!" >&2
         fi
 

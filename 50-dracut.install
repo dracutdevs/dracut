@@ -12,7 +12,7 @@ case "$COMMAND" in
         if [[ -f ${INITRD_IMAGE_PREGENERATED} ]]; then
             # we found an initrd at the same place as the kernel
             # use this and don't generate a new one
-            cp "$INITRD_IMAGE_PREGENERATED" "$BOOT_DIR_ABS/initrd" \
+            cp --reflink=auto "$INITRD_IMAGE_PREGENERATED" "$BOOT_DIR_ABS/initrd" \
                 && chown root:root "$BOOT_DIR_ABS/initrd" \
                 && chmod 0600 "$BOOT_DIR_ABS/initrd" \
                 && exit 0

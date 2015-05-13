@@ -57,7 +57,7 @@ if [[ ! -f $INITRDFILE ]]; then
 fi
 
 if [[ ! -f $NEW_KERNEL_IMAGE ]]; then
-    cp "$KERNEL_IMAGE" "$NEW_KERNEL_IMAGE"
+    cp --reflink=auto "$KERNEL_IMAGE" "$NEW_KERNEL_IMAGE"
     ((ret+=$?))
 fi
 
