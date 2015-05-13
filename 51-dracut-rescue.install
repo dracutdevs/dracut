@@ -40,12 +40,12 @@ fi
 [[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
 
 if [[ -f /etc/kernel/cmdline ]]; then
-    readarray -t BOOT_OPTIONS < /etc/kernel/cmdline
+    read -r -d '' -a BOOT_OPTIONS < /etc/kernel/cmdline
 elif [[ -f /usr/lib/kernel/cmdline ]]; then
-    readarray -t BOOT_OPTIONS < /usr/lib/kernel/cmdline
+    read -r -d '' -a BOOT_OPTIONS < /usr/lib/kernel/cmdline
 fi
 if ! [[ "${BOOT_OPTIONS[@]}" ]]; then
-    read -ar BOOT_OPTIONS < /proc/cmdline
+    read -r -d '' -a BOOT_OPTIONS < /proc/cmdline
 fi
 if ! [[ $BOOT_OPTIONS ]]; then
     exit 1
