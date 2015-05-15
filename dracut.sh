@@ -1223,7 +1223,9 @@ if [[ $hostonly ]]; then
                     done < /etc/crypttab
                 fi
 
-                push_host_devs "$(readlink -f "$dev")"
+                _dev="$(readlink -f "$dev")"
+                push_host_devs "$_dev"
+                push swap_devs "$_dev"
                 break
             done < /etc/fstab
         done < /proc/swaps
@@ -1334,7 +1336,7 @@ export initdir dracutbasedir \
     omit_drivers mdadmconf lvmconf root_dev \
     use_fstab fstab_lines libdirs fscks nofscks ro_mnt \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
-    debug host_fs_types host_devs sshkey add_fstab \
+    debug host_fs_types host_devs swap_devs sshkey add_fstab \
     DRACUT_VERSION udevdir prefix filesystems drivers \
     systemdutildir systemdsystemunitdir systemdsystemconfdir \
     host_modalias host_modules hostonly_cmdline loginstall \
