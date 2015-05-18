@@ -48,6 +48,8 @@ installkernel() {
         return 0
     }
 
+    instmods amdkfd hyperv_fb
+
     for _modname in $(find_kernel_modules_by_path drivers/gpu/drm \
         | drm_module_filter) ; do
         # if the hardware is present, include module even if it is not currently loaded,
