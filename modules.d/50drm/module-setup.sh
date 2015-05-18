@@ -60,7 +60,7 @@ installkernel() {
             ${NULL}
     fi
 
-    instmods amdkfd
+    instmods amdkfd hyperv_fb
 
     for _modname in $(find_kernel_modules_by_path drivers/gpu/drm \
         | drm_module_filter) ; do
