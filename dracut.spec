@@ -195,19 +195,8 @@ Requires: %{name} = %{version}-%{release}
 This package contains tools to assemble the local initrd and host configuration.
 
 %prep
-%setup -q -n %{name}-%{version}
+%autosetup -n %{name}-%{version} -S git_am
 cp %{SOURCE1} .
-
-%if %{defined PATCH1}
-git init
-git config user.email "dracut-maint@redhat.com"
-git config user.name "Fedora dracut team"
-git add .
-git commit -a -q -m "%{version} baseline."
-
-# Apply all the patches.
-git am -p1 %{patches}
-%endif
 
 %build
 %configure --systemdsystemunitdir=%{_unitdir} --bashcompletiondir=$(pkg-config --variable=completionsdir bash-completion) --libdir=%{_prefix}/lib \
