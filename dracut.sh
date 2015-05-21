@@ -1771,6 +1771,7 @@ if [[ $uefi = yes ]]; then
     dinfo "Using UEFI kernel cmdline:"
     dinfo $(< "$uefi_outdir/cmdline.txt")
 
+    [[ -s /usr/lib/os-release ]] && uefi_osrelease="/usr/lib/os-release"
     [[ -s /etc/os-release ]] && uefi_osrelease="/etc/os-release"
 
     objcopy \
