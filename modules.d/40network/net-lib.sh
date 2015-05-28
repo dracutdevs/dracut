@@ -94,13 +94,13 @@ setup_net() {
     [ -e "/tmp/net.ifaces" ] && read IFACES < /tmp/net.ifaces
     [ -z "$IFACES" ] && IFACES="$netif"
     # run the scripts written by ifup
-    [ -e /tmp/net.$netif.gw ]            && . /tmp/net.$netif.gw
     [ -e /tmp/net.$netif.hostname ]      && . /tmp/net.$netif.hostname
     [ -e /tmp/net.$netif.override ]      && . /tmp/net.$netif.override
     [ -e /tmp/dhclient.$netif.dhcpopts ] && . /tmp/dhclient.$netif.dhcpopts
     # set up resolv.conf
     [ -e /tmp/net.$netif.resolv.conf ] && \
         cp -f /tmp/net.$netif.resolv.conf /etc/resolv.conf
+    [ -e /tmp/net.$netif.gw ]            && . /tmp/net.$netif.gw
 
     # add static route
     for _p in $(getargs rd.route); do
