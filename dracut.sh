@@ -853,7 +853,8 @@ fi
 # handle compression options.
 [[ $compress ]] || compress="gzip"
 case $compress in
-    bzip2) compress="bzip2 -9";;
+    bzip2) compress="bzip2 -9";
+        command -v lbzip2 > /dev/null 2>&1 && compress="lbzip2 -9";;
     lzma)  compress="lzma -9 -T0";;
     xz)    compress="xz --check=crc32 --lzma2=dict=1MiB -T0";;
     gzip)  compress="gzip -n -9";
