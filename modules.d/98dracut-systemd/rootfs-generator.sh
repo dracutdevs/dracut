@@ -11,14 +11,15 @@ generator_wait_for_dev()
     _timeout=$(getarg rd.timeout)
     _timeout=${_timeout:-0}
 
-    [ -e "$hookdir/initqueue/finished/devexists-${_name}.sh" ] && return 0
+    if ! [ -e "$hookdir/initqueue/finished/devexists-${_name}.sh" ]; then
 
-    printf '[ -e "%s" ]\n' $1 \
-        >> "$hookdir/initqueue/finished/devexists-${_name}.sh"
-    {
-        printf '[ -e "%s" ] || ' $1
-        printf 'warn "\"%s\" does not exist"\n' $1
-    } >> "$hookdir/emergency/80-${_name}.sh"
+        printf '[ -e "%s" ]\n' $1 \
+            >> "$hookdir/initqueue/finished/devexists-${_name}.sh"
+        {
+            printf '[ -e "%s" ] || ' $1
+            printf 'warn "\"%s\" does not exist"\n' $1
+        } >> "$hookdir/emergency/80-${_name}.sh"
+    fi
 
     _name=$(dev_unit_name "$1")
     if ! [ -L /run/systemd/generator/initrd.target.wants/${_name}.device ]; then

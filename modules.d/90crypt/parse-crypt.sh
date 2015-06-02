@@ -14,6 +14,10 @@ else
     LUKS=$(getargs rd.luks.uuid -d rd_LUKS_UUID)
     tout=$(getarg rd.luks.key.tout)
 
+    while read _mapper _dev _rest ; do
+        set_systemd_timeout_for_dev $_dev
+    done < /etc/crypttab
+
     if [ -n "$LUKS" ]; then
         for luksid in $LUKS; do
 
