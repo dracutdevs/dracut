@@ -935,7 +935,7 @@ if ! [[ $print_cmdline ]]; then
     rm -fr -- ${initdir}/*
 fi
 
-# Verify bash version, current minimum is 3.1
+# Verify bash version, current minimum is 4
 if (( BASH_VERSINFO[0] < 4 )); then
     dfatal 'You need at least Bash 4 to use dracut, sorry.'
     exit 1
