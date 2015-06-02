@@ -20,6 +20,8 @@
   along with systemd; If not, see <http://www.gnu.org/licenses/>.
 ***/
 
+#define _GNU_SOURCE
+
 #include <inttypes.h>
 #include <time.h>
 #include <sys/time.h>
@@ -27,6 +29,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <signal.h>
 #include <sched.h>
 #include <limits.h>

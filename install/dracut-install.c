@@ -222,7 +222,7 @@ static int cp(const char *src, const char *dst)
                 if (ret == 0) {
                         struct timeval tv[2];
                         if (fchown(dest_desc, sb.st_uid, sb.st_gid) != 0)
-                                if(fchown(dest_desc, (__uid_t) - 1, sb.st_gid) != 0)
+                                if(fchown(dest_desc, (uid_t) - 1, sb.st_gid) != 0)
                                     log_error("Failed to chown %s: %m", dst);
                         tv[0].tv_sec = sb.st_atime;
                         tv[0].tv_usec = 0;
@@ -388,6 +388,11 @@ static int resolve_deps(const char *src)
                         break;
                 }
 
+		/* musl ldd */
+		if (strstr(buf, "Not a valid dynamic program"))
+			break;
+
+		/* glibc */
                 if (strstr(buf, "not a dynamic executable"))
                         break;
 
