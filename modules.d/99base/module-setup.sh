@@ -103,6 +103,14 @@ install() {
 
                 for _dev in ${host_devs[@]}; do
                     [[ "$_dev" == "$root_dev" ]] && continue
+
+                    # We only actually wait for real devs - swap is only needed
+                    # for resume and udev rules generated when parsing resume=
+                    # argument take care of the waiting for us
+                    for _dev2 in ${swap_devs[@]}; do
+                      [[ "$_dev" == "$_dev2" ]] && continue 2
+                    done
+
                     _pdev=$(get_persistent_dev $_dev)
 
                     case "$_pdev" in

@@ -37,6 +37,8 @@ esac
 
 if ! getarg noresume; then
     if [ -n "$resume" ]; then
+        wait_for_dev /dev/resume
+
         {
             printf "KERNEL==\"%s\", ACTION==\"add|change\", SYMLINK+=\"resume\"\n" \
                 ${resume#/dev/};
@@ -65,7 +67,7 @@ if ! getarg noresume; then
             printf -- '%s\n' ' RUN+="/sbin/initqueue --finished --unique --name 00resume echo %M:%m  > /sys/power/resume"'
         } >> /etc/udev/rules.d/99-resume.rules
 
-        printf '[ -e "%s" ] && { ln -s "%s" /dev/resume; rm -f -- "$job" "%s/initqueue/timeout/resume.sh"; }\n' \
+        printf '[ -e "%s" ] && { ln -s "%s" /dev/resume 2> /dev/null; rm -f -- "$job" "%s/initqueue/timeout/resume.sh"; }\n' \
             "$resume" "$resume" "$hookdir" >> $hookdir/initqueue/settled/resume.sh
 
         {
