@@ -1130,7 +1130,7 @@ inst_opt_decompress() {
 # or the "check" script, if module-setup.sh is not found
 # "check $hostonly" is called
 module_check() {
-    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
+    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1} | { read a b; echo "$a"; })
     local _ret
     local _forced=0
     local _hostonly=$hostonly
@@ -1161,7 +1161,7 @@ module_check() {
 # or the "check" script, if module-setup.sh is not found
 # "mount_needs=1 check 0" is called
 module_check_mount() {
-    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
+    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1} | { read a b; echo "$a"; })
     local _ret
     mount_needs=1
     [[ -d $_moddir ]] || return 1
@@ -1186,7 +1186,7 @@ module_check_mount() {
 # execute the depends() function of module-setup.sh of <dracut module>
 # or the "depends" script, if module-setup.sh is not found
 module_depends() {
-    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
+    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1} | { read a b; echo "$a"; })
     local _ret
     [[ -d $_moddir ]] || return 1
     if [[ ! -f $_moddir/module-setup.sh ]]; then
@@ -1209,7 +1209,7 @@ module_depends() {
 # execute the cmdline() function of module-setup.sh of <dracut module>
 # or the "cmdline" script, if module-setup.sh is not found
 module_cmdline() {
-    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
+    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1} | { read a b; echo "$a"; })
     local _ret
     [[ -d $_moddir ]] || return 1
     if [[ ! -f $_moddir/module-setup.sh ]]; then
@@ -1230,7 +1230,7 @@ module_cmdline() {
 # execute the install() function of module-setup.sh of <dracut module>
 # or the "install" script, if module-setup.sh is not found
 module_install() {
-    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
+    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1} | { read a b; echo "$a"; })
     local _ret
     [[ -d $_moddir ]] || return 1
     if [[ ! -f $_moddir/module-setup.sh ]]; then
@@ -1251,7 +1251,7 @@ module_install() {
 # execute the installkernel() function of module-setup.sh of <dracut module>
 # or the "installkernel" script, if module-setup.sh is not found
 module_installkernel() {
-    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
+    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1} | { read a b; echo "$a"; })
     local _ret
     [[ -d $_moddir ]] || return 1
     if [[ ! -f $_moddir/module-setup.sh ]]; then
@@ -1273,7 +1273,7 @@ module_installkernel() {
 # device and filesystem types in "${host_fs_types[@]}"
 check_mount() {
     local _mod=$1
-    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
+    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1} | { read a b; echo "$a"; })
     local _ret
     local _moddep
 
@@ -1338,7 +1338,7 @@ check_mount() {
 # that the modules were checked for the dependency tracking process
 check_module() {
     local _mod=$1
-    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1})
+    local _moddir=$(echo ${dracutbasedir}/modules.d/??${1} | { read a b; echo "$a"; })
     local _ret
     local _moddep
     # If we are already scheduled to be loaded, no need to check again.
