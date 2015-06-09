@@ -14,15 +14,14 @@ run_server() {
     echo "NBD TEST SETUP: Starting DHCP/NBD server"
 
     $testdir/run-qemu \
-        -hda $TESTDIR/server.ext2 \
-        -hdb $TESTDIR/nbd.ext2 \
-        -hdc $TESTDIR/encrypted.ext2 \
+        -drive format=raw,index=0,media=disk,file=$TESTDIR/server.ext2 \
+        -drive format=raw,index=1,media=disk,file=$TESTDIR/nbd.ext2 \
+        -drive format=raw,index=2,media=disk,file=$TESTDIR/encrypted.ext2 \
         -m 256M -smp 2 \
         -display none \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net socket,listen=127.0.0.1:12340 \
         -serial $SERIAL \
-        -kernel /boot/vmlinuz-$KVERSION \
         -append "root=/dev/sda rootfstype=ext2 rw quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.server -pidfile $TESTDIR/server.pid -daemonize || return 1
     sudo chmod 644 $TESTDIR/server.pid || return 1
@@ -54,12 +53,11 @@ client_test() {
     fi
 
     $testdir/run-qemu \
-        -hda $TESTDIR/flag.img \
+        -drive format=raw,index=0,media=disk,file=$TESTDIR/flag.img \
         -m 512M -smp 2 \
         -nographic \
         -net nic,macaddr=$mac,model=e1000 \
         -net socket,connect=127.0.0.1:12340 \
-        -kernel /boot/vmlinuz-$KVERSION \
         -append "$cmdline $DEBUGFAIL rd.auto rd.info rd.retry=10 ro console=ttyS0,115200n81  selinux=0  " \
         -initrd $TESTDIR/initramfs.testing
 
@@ -246,11 +244,10 @@ make_encrypted_root() {
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     $testdir/run-qemu \
-        -hda $TESTDIR/flag.img \
-        -hdb $TESTDIR/encrypted.ext2 \
+        -drive format=raw,index=0,media=disk,file=$TESTDIR/flag.img \
+        -drive format=raw,index=1,media=disk,file=$TESTDIR/encrypted.ext2 \
         -m 256M -smp 2\
         -nographic -net none \
-        -kernel "/boot/vmlinuz-$kernel" \
         -append "root=/dev/fakeroot rw quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
     grep -F -m 1 -q dracut-root-block-created $TESTDIR/flag.img || return 1

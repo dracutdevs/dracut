@@ -17,9 +17,9 @@ client_run() {
 
     dd if=/dev/zero of=$TESTDIR/result bs=1M count=1
     $testdir/run-qemu \
-	-hda $TESTDIR/root.btrfs \
-	-hdb $TESTDIR/usr.btrfs \
-	-hdc $TESTDIR/result \
+	-drive format=raw,index=0,media=disk,file=$TESTDIR/root.btrfs \
+	-drive format=raw,index=1,media=disk,file=$TESTDIR/usr.btrfs \
+	-drive format=raw,index=2,media=disk,file=$TESTDIR/result \
 	-m 256M -smp 2 -nographic \
 	-net none \
 	-append "root=LABEL=dracut $client_opts rd.retry=3 console=ttyS0,115200n81 selinux=0 $DEBUGOUT $DEBUGFAIL" \
@@ -244,8 +244,8 @@ EOF
     rm -rf -- $TESTDIR/overlay
 
     $testdir/run-qemu \
-	-hda $TESTDIR/root.btrfs \
-	-hdb $TESTDIR/usr.btrfs \
+	-drive format=raw,index=0,media=disk,file=$TESTDIR/root.btrfs \
+	-drive format=raw,index=1,media=disk,file=$TESTDIR/usr.btrfs \
 	-m 256M -smp 2 -nographic -net none \
 	-append "root=/dev/fakeroot rw rootfstype=btrfs quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1

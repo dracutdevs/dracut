@@ -13,14 +13,13 @@ run_server() {
 
     fsck -a $TESTDIR/server.ext3 || return 1
     $testdir/run-qemu \
-        -hda $TESTDIR/server.ext3 \
+        -drive format=raw,index=0,media=disk,file=$TESTDIR/server.ext3 \
         -m 256M -smp 2 \
         -display none \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net socket,listen=127.0.0.1:12320 \
         -serial ${SERIAL:-null} \
         -watchdog i6300esb -watchdog-action poweroff \
-        -kernel /boot/vmlinuz-$KVERSION \
         -append "rd.debug loglevel=77 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.server \
         -pidfile $TESTDIR/server.pid -daemonize || return 1
@@ -50,11 +49,10 @@ client_test() {
     fi
 
     $testdir/run-qemu \
-        -hda $TESTDIR/client.img \
+        -drive format=raw,index=0,media=disk,file=$TESTDIR/client.img \
         -m 256M -smp 2 -nographic \
         -net nic,macaddr=$mac,model=e1000 \
         -net socket,connect=127.0.0.1:12320 \
-        -kernel /boot/vmlinuz-$KVERSION \
         -watchdog i6300esb -watchdog-action poweroff \
         -append "$cmdline $DEBUGFAIL rd.debug rd.retry=10 rd.info quiet  ro console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.testing

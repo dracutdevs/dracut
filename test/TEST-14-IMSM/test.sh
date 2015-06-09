@@ -10,11 +10,11 @@ KVERSION=${KVERSION-$(uname -r)}
 client_run() {
     echo "CLIENT TEST START: $@"
     $testdir/run-qemu \
-	-hda $TESTDIR/root.ext2 \
-	-hdb $TESTDIR/disk1 \
-	-hdc $TESTDIR/disk2 \
+	-drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext2 \
+	-drive format=raw,index=1,media=disk,file=$TESTDIR/disk1 \
+	-drive format=raw,index=2,media=disk,file=$TESTDIR/disk2 \
 	-m 256M -nographic \
-	-net none -kernel /boot/vmlinuz-$KVERSION \
+	-net none \
 	-append "$* root=LABEL=root rw debug rd.retry=5 rd.debug console=ttyS0,115200n81 selinux=0 rd.info $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     if ! grep -F -m 1 -q dracut-root-block-success $TESTDIR/root.ext2; then
@@ -100,11 +100,10 @@ test_setup() {
     rm -rf -- $TESTDIR/overlay
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     $testdir/run-qemu \
-	-hda $TESTDIR/root.ext2 \
-	-hdb $TESTDIR/disk1 \
-	-hdc $TESTDIR/disk2 \
+	-drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext2 \
+	-drive format=raw,index=1,media=disk,file=$TESTDIR/disk1 \
+	-drive format=raw,index=2,media=disk,file=$TESTDIR/disk2 \
 	-m 256M -nographic -net none \
-	-kernel "/boot/vmlinuz-$kernel" \
 	-append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
     grep -F -m 1 -q dracut-root-block-created $TESTDIR/root.ext2 || return 1

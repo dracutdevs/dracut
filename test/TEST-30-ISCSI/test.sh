@@ -12,16 +12,15 @@ run_server() {
     echo "iSCSI TEST SETUP: Starting DHCP/iSCSI server"
 
     $testdir/run-qemu \
-        -hda $TESTDIR/server.ext3 \
-        -hdb $TESTDIR/root.ext3 \
-        -hdc $TESTDIR/iscsidisk2.img \
-        -hdd $TESTDIR/iscsidisk3.img \
+        -drive format=raw,index=0,media=disk,file=$TESTDIR/server.ext3 \
+        -drive format=raw,index=1,media=disk,file=$TESTDIR/root.ext3 \
+        -drive format=raw,index=2,media=disk,file=$TESTDIR/iscsidisk2.img \
+        -drive format=raw,index=3,media=disk,file=$TESTDIR/iscsidisk3.img \
         -m 256M  -smp 2 \
         -display none \
         -serial $SERIAL \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net socket,listen=127.0.0.1:12330 \
-        -kernel /boot/vmlinuz-$KVERSION \
         -append "root=/dev/sda rootfstype=ext3 rw rd.debug loglevel=77 console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.server \
         -pidfile $TESTDIR/server.pid -daemonize || return 1
@@ -41,11 +40,10 @@ run_client() {
     dd if=/dev/zero of=$TESTDIR/client.img bs=1M count=1
 
     $testdir/run-qemu \
-        -hda $TESTDIR/client.img \
+        -drive format=raw,index=0,media=disk,file=$TESTDIR/client.img \
         -m 256M -smp 2 -nographic \
         -net nic,macaddr=52:54:00:12:34:00,model=e1000 \
         -net socket,connect=127.0.0.1:12330 \
-        -kernel /boot/vmlinuz-$KVERSION \
         -append "$* rw quiet rd.auto rd.retry=5 rd.debug rd.info  console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
         -initrd $TESTDIR/initramfs.testing
     if ! grep -F -m 1 -q iscsi-OK $TESTDIR/client.img; then
@@ -155,12 +153,11 @@ test_setup() {
     fi
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     $testdir/run-qemu \
-        -hda $TESTDIR/root.ext3 \
-        -hdb $TESTDIR/client.img \
-        -hdc $TESTDIR/iscsidisk2.img \
-        -hdd $TESTDIR/iscsidisk3.img \
+        -drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext3 \
+        -drive format=raw,index=1,media=disk,file=$TESTDIR/client.img \
+        -drive format=raw,index=2,media=disk,file=$TESTDIR/iscsidisk2.img \
+        -drive format=raw,index=3,media=disk,file=$TESTDIR/iscsidisk3.img \
         -smp 2 -m 256M -nographic -net none \
-        -kernel "/boot/vmlinuz-$kernel" \
         -append "root=/dev/fakeroot rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
     grep -F -m 1 -q dracut-root-block-created $TESTDIR/client.img || return 1

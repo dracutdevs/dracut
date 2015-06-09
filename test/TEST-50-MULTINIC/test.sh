@@ -13,14 +13,13 @@ run_server() {
 
     fsck -a "$TESTDIR"/server.ext3 || return 1
     $testdir/run-qemu \
-        -hda "$TESTDIR"/server.ext3 \
+        -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
         -m 512M -smp 2 \
         -display none \
         -net socket,listen=127.0.0.1:12350 \
         -net nic,macaddr=52:54:01:12:34:56,model=e1000 \
         ${SERIAL:+-serial "$SERIAL"} \
         -watchdog i6300esb -watchdog-action poweroff \
-        -kernel /boot/vmlinuz-"$KVERSION" \
         -append "loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.server \
         -pidfile "$TESTDIR"/server.pid -daemonize || return 1
@@ -49,13 +48,12 @@ client_test() {
         return 1
     fi
 
-    $testdir/run-qemu -hda "$TESTDIR"/client.img -m 512M -smp 2 -nographic \
+    $testdir/run-qemu -drive format=raw,index=0,media=disk,file="$TESTDIR"/client.img -m 512M -smp 2 -nographic \
         -net socket,connect=127.0.0.1:12350 \
         -net nic,macaddr=52:54:00:12:34:$mac1,model=e1000 \
         -net nic,macaddr=52:54:00:12:34:$mac2,model=e1000 \
         -net nic,macaddr=52:54:00:12:34:$mac3,model=e1000 \
         -watchdog i6300esb -watchdog-action poweroff \
-        -kernel /boot/vmlinuz-"$KVERSION" \
         -append "$cmdline $DEBUGFAIL rd.retry=5 ro console=ttyS0,115200n81 selinux=0 init=/sbin/init rd.debug systemd.log_target=console loglevel=7" \
         -initrd "$TESTDIR"/initramfs.testing
 

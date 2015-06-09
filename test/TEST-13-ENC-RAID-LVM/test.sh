@@ -15,10 +15,10 @@ test_run() {
 
     echo "CLIENT TEST START: $LUKSARGS"
     $testdir/run-qemu \
-	-hda $TESTDIR/root.ext2 \
-	-hdb $TESTDIR/check-success.img \
+	-drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext2 \
+	-drive format=raw,index=1,media=disk,file=$TESTDIR/check-success.img \
 	-m 256M -smp 2 -nographic \
-	-net none -kernel /boot/vmlinuz-$KVERSION \
+	-net none \
 	-append "root=/dev/dracut/root rw rd.auto rd.retry=20 console=ttyS0,115200n81 selinux=0 rd.debug rootwait $LUKSARGS $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     grep -F -m 1 -q dracut-root-block-success $TESTDIR/check-success.img || return 1
@@ -28,10 +28,10 @@ test_run() {
 
     echo "CLIENT TEST START: Any LUKS"
     $testdir/run-qemu \
-	-hda $TESTDIR/root.ext2 \
-	-hdb $TESTDIR/check-success.img \
+	-drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext2 \
+	-drive format=raw,index=1,media=disk,file=$TESTDIR/check-success.img \
 	-m 256M -smp 2 -nographic \
-	-net none -kernel /boot/vmlinuz-$KVERSION \
+	-net none \
 	-append "root=/dev/dracut/root rw quiet rd.auto rd.retry=20 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     grep -F -m 1 -q dracut-root-block-success $TESTDIR/check-success.img || return 1
@@ -41,10 +41,10 @@ test_run() {
 
     echo "CLIENT TEST START: Wrong LUKS UUID"
     $testdir/run-qemu \
-	-hda $TESTDIR/root.ext2 \
-	-hdb $TESTDIR/check-success.img \
+	-drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext2 \
+	-drive format=raw,index=1,media=disk,file=$TESTDIR/check-success.img \
 	-m 256M -smp 2 -nographic \
-	-net none -kernel /boot/vmlinuz-$KVERSION \
+	-net none \
 	-append "root=/dev/dracut/root rw quiet rd.auto rd.retry=10 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL rd.luks.uuid=failme" \
 	-initrd $TESTDIR/initramfs.testing
     grep -F -m 1 -q dracut-root-block-success $TESTDIR/check-success.img && return 1
@@ -108,8 +108,7 @@ test_setup() {
 	-f $TESTDIR/initramfs.makeroot $KVERSION || return 1
     rm -rf -- $TESTDIR/overlay
     # Invoke KVM and/or QEMU to actually create the target filesystem.
-    $testdir/run-qemu -hda $TESTDIR/root.ext2 -m 256M -smp 2 -nographic -net none \
-	-kernel "/boot/vmlinuz-$kernel" \
+    $testdir/run-qemu -drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext2 -m 256M -smp 2 -nographic -net none \
 	-append "root=/dev/fakeroot rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
     grep -F -m 1 -q dracut-root-block-created $TESTDIR/root.ext2 || return 1

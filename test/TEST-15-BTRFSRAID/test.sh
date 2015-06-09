@@ -8,9 +8,9 @@ KVERSION=${KVERSION-$(uname -r)}
 test_run() {
     DISKIMAGE=$TESTDIR/TEST-15-BTRFSRAID-root.img
     $testdir/run-qemu \
-	-hda $DISKIMAGE \
+	-drive format=raw,index=0,media=disk,file=$DISKIMAGE \
 	-m 256M  -smp 2 -nographic \
-	-net none -kernel /boot/vmlinuz-$KVERSION \
+	-net none \
 	-append "root=LABEL=root rw rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     dd if=$DISKIMAGE bs=512 count=4 skip=2048 | grep -F -m 1 -q dracut-root-block-success $DISKIMAGE || return 1
@@ -76,9 +76,8 @@ test_setup() {
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     $testdir/run-qemu \
-	-hda $DISKIMAGE \
+	-drive format=raw,index=0,media=disk,file=$DISKIMAGE \
 	-m 256M  -smp 2 -nographic -net none \
-	-kernel "/boot/vmlinuz-$kernel" \
 	-append "root=/dev/fakeroot rw quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
 

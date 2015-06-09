@@ -18,9 +18,9 @@ test_run() {
     "$testdir"/run-qemu \
 	-boot order=d \
 	-cdrom "$TESTDIR"/livecd.iso \
-	-hda "$TESTDIR"/root.img \
+	-drive format=raw,index=0,media=disk,file="$TESTDIR"/root.img \
 	-m 256M -smp 2 -nographic \
-	-net none -kernel /boot/vmlinuz-"$KVERSION" \
+	-net none \
 	-append "root=live:CDLABEL=LiveCD live rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug $DEBUGFAIL" \
 	-initrd "$TESTDIR"/initramfs.testing
     grep -F -m 1 -q dracut-root-block-success -- "$TESTDIR"/root.img || return 1
