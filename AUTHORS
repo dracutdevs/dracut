@@ -9,8 +9,8 @@ Dave Young <dyoung@redhat.com>
 David Dillow <dave@thedillows.org>
 Hannes Reinecke <hare@suse.de>
 Michal Soltys <soltys@ziu.info>
-Amerigo Wang <amwang@redhat.com>
 Colin Guthrie <colin@mageia.org>
+Amerigo Wang <amwang@redhat.com>
 Thomas Renninger <trenn@suse.de>
 WANG Chao <chaowang@redhat.com>
 Andrey Borzenkov <arvidjaar@gmail.com>
@@ -27,12 +27,16 @@ Baoquan He <bhe@redhat.com>
 Leho Kraav <leho@kraav.com>
 Kamil Rytarowski <n54@gmx.com>
 Marc Grimme <grimme@atix.de>
+NeilBrown <neilb@suse.de>
 Peter Rajnoha <prajnoha@redhat.com>
 Radek Vykydal <rvykydal@redhat.com>
 Thorsten Behrens <tbehrens@suse.com>
 Chao Wang <chaowang@redhat.com>
 Colin Walters <walters@verbum.org>
+Cristian Rodríguez <crrodriguez@opensuse.org>
+Fabian Deutsch <fabiand@fedoraproject.org>
 Frederic Crozat <fcrozat@suse.com>
+James Lee <jlee@thestaticvoid.com>
 Jesse Keating <jkeating@redhat.com>
 Milan Broz <mbroz@redhat.com>
 Nicolas Chauvet <kwizart@gmail.com>
@@ -40,7 +44,6 @@ Roberto Sassu <roberto.sassu@polito.it>
 Anton Blanchard <anton@samba.org>
 Bill Nottingham <notting@redhat.com>
 Chapman Flack <g2@anastigmatix.net>
-Cristian Rodríguez <crrodriguez@opensuse.org>
 David Cantrell <dcantrell@redhat.com>
 Dennis Gilmore <dennis@ausil.us>
 Jon Ander Hernandez <jonan.h@gmail.com>
@@ -52,21 +55,24 @@ Peter Robinson <pbrobinson@gmail.com>
 Stefan Reimer <it@startux.de>
 Stig Telfer <stelfer@cray.com>
 Vasiliy Tolstov <v.tolstov@selfip.ru>
+Ville Skyttä <ville.skytta@iki.fi>
 Wim Muskee <wimmuskee@gmail.com>
 Alan Jenkins <alan-jenkins@tuffmail.co.uk>
 Alan Pevec <apevec@redhat.com>
 Alex Harpin <development@landsofshadow.co.uk>
 Daniel Schaal <farbing@web.de>
+Erwan Velu <erwan.velu@enovance.com>
 Frederick Grose <fgrose@sugarlabs.org>
 Hari Bathini <hbathini@linux.vnet.ibm.com>
 Ian Dall <ian@beware.dropbear.id.au>
 James Buren <ryuo@frugalware.org>
-James Lee <jlee@thestaticvoid.com>
+Jan Synacek <jsynacek@redhat.com>
 Joey Boggs <jboggs@redhat.com>
 Koen Kooi <koen@dominion.thruhere.net>
 Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Kyle McMartin <kmcmarti@redhat.com>
 Lubomir Rintel <lkundrak@v3.sk>
+Lukas Wunner <lukas@wunner.de>
 Mike Snitzer <snitzer@redhat.com>
 Minfei Huang <mhuang@redhat.com>
 Przemysław Rudy <prudy1@o2.pl>
@@ -82,25 +88,29 @@ Anssi Hannula <anssi@mageia.org>
 Antony Messerli <amesserl@rackspace.com>
 Brandon Philips <brandon@ifup.co>
 Canek Peláez Valdés <caneko@gmail.com>
+Chao Fan <cfan@redhat.com>
 Chris Leech <cleech@redhat.com>
 Christian Heinz <christian.ch.heinz@gmail.com>
+Christian Rodrigues <crrodriguez@opensuse.org>
 Cong Wang <amwang@redhat.com>
 Daniel Drake <drake@endlessm.com>
 Dave Jones <davej@redhat.com>
 Dennis Schridde <devurandom@gmx.net>
+Dimitri John Ledkov <dimitri.j.ledkov@intel.com>
 Duane Griffin <duaneg@dghda.com>
-Erwan Velu <erwan.velu@enovance.com>
+Gerd von Egidy <gerd.von.egidy@intra2net.com>
 Glen Gray <slaine@slaine.org>
 Hermann Gausterer <git-dracut-2012@mrq1.org>
 James Laska <jlaska@redhat.com>
 Jan Stodola <jstodola@redhat.com>
 Jiri Pirko <jiri@resnulli.us>
 Joe Lawrence <Joe.Lawrence@stratus.com>
+Jonas Jonsson <jonas@websystem.se>
 Julian Wolf <juwolf@suse.com>
 Kevin Yung <Kevin.Yung@myob.com>
 Lars R. Damerow <lars@pixar.com>
 Lennert Buytenhek <buytenh@wantstofly.org>
-Lukas Wunner <lukas@wunner.de>
+Lukas Nykryn <lnykryn@redhat.com>
 Major Hayden <major@mhtx.net>
 Marian Csontos <mcsontos@redhat.com>
 Marko Myllynen <myllynen@redhat.com>
@@ -108,8 +118,9 @@ Matt <smoothsailing72@hotmail.com>
 Matt Smith <shadowfax@gmx.com>
 Michal Schmidt <mschmidt@redhat.com>
 Mike Gorse <mgorse@suse.com>
+Moritz 'Morty' Strübe <morty@gmx.net>
 Munehiro Matsuda <haro@kgt.co.jp>
-NeilBrown <neilb@suse.de>
+Nikoli <nikoli@gmx.us>
 Nikoli <nikoli@lavabit.com>
 Olivier Blin <dev@blino.org>
 P J P <ppandit@redhat.com>
@@ -119,6 +130,7 @@ Praveen_Paladugu@Dell.com <Praveen_Paladugu@Dell.com>
 Pádraig Brady <P@draigBrady.com>
 Quentin Armitage <quentin@armitage.org.uk>
 Robert Buchholz <rbu@goodpoint.de>
+Rusty Bird <rustybird@openmailbox.org>
 Sergey Fionov <fionov@gmail.com>
 Shawn W Dunn <sfalken@opensuse.org>
 Srinivasa T N <seenutn@linux.vnet.ibm.com>
@@ -128,8 +140,8 @@ Tom Gundersen <teg@jklm.no>
 Tomasz Torcz <tomek@pipebreaker.pl>
 Vadim Kuznetsov <vadimk@gentoo.org>
 Vaughan Cao <vaughan.cao@oracle.com>
-Ville Skyttä <ville.skytta@iki.fi>
 Vratislav Podzimek <vpodzime@redhat.com>
 Yanko Kaneti <yaneti@declera.com>
 jloeser <jloeser@suse.de>
 maximilian attems <max@stro.at>
+xtraeme <xtraeme@voidlinux.eu>
