@@ -26,16 +26,25 @@ install() {
         exit 1
     fi
 
-    inst_rules 50-udev-default.rules 60-persistent-storage.rules \
-        61-persistent-storage-edd.rules 80-drivers.rules 95-udev-late.rules \
-        60-pcmcia.rules \
-        50-udev.rules 95-late.rules \
+    inst_rules \
         50-firmware.rules \
+        50-udev.rules \
+        50-udev-default.rules \
+        55-scsi-sg3_id.rules \
+        58-scsi-sg3_symlink.rules \
         59-scsi-sg3_utils.rules \
-        55-scsi-sg3_id.rules 58-scsi-sg3_symlink.rules \
-        70-uaccess.rules 71-seat.rules 73-seat-late.rules \
+        60-block.rules \
+        60-pcmcia.rules \
+        60-persistent-storage.rules \
+        61-persistent-storage-edd.rules \
+        70-uaccess.rules \
+        71-seat.rules \
+        73-seat-late.rules \
         75-net-description.rules \
-        80-net-name-slot.rules 80-net-setup-link.rules \
+        80-drivers.rules 95-udev-late.rules \
+        80-net-name-slot.rules\
+        80-net-setup-link.rules \
+        95-late.rules \
         "$moddir/59-persistent-storage.rules" \
         "$moddir/61-persistent-storage.rules"
 
