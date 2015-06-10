@@ -17,12 +17,16 @@ $(lsmod | grep -q '^kqemu ') && BIN=/usr/bin/qemu && ARGS="-kernel-kqemu "
 
 KVERSION=${KVERSION-$(uname -r)}
 
-[[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
+VMLINUZ="/lib/modules/${KVERSION}/vmlinuz"
 
-if [[ $MACHINE_ID ]] && ( [[ -d /boot/${MACHINE_ID} ]] || [[ -L /boot/${MACHINE_ID} ]] ); then
-    VMLINUZ="/boot/${MACHINE_ID}/$KVERSION/linux"
-else
-    VMLINUZ="/boot/vmlinuz-${KVERSION}"
+if ! [ -f "$VMLINUZ" ]; then
+    [[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
+
+    if [[ $MACHINE_ID ]] && ( [[ -d /boot/${MACHINE_ID} ]] || [[ -L /boot/${MACHINE_ID} ]] ); then
+        VMLINUZ="/boot/${MACHINE_ID}/$KVERSION/linux"
+    else
+        VMLINUZ="/boot/vmlinuz-${KVERSION}"
+    fi
 fi
 
 exec sudo $BIN $ARGS -kernel $VMLINUZ "$@"

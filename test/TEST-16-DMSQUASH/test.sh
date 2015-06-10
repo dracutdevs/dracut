@@ -74,7 +74,17 @@ test_setup() {
         inst_simple /etc/os-release
 	inst ./test-init.sh /sbin/init
 	inst "$TESTDIR"/initramfs.testing "/boot/initramfs-$KVERSION.img"
-	inst /boot/vmlinuz-"$KVERSION"
+        [[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
+
+	VMLINUZ="/lib/modules/${KVERSION}/vmlinuz"
+        if ! [[ -e $VMLINUZ ]]; then
+            if [[ $MACHINE_ID ]] && ( [[ -d /boot/${MACHINE_ID} ]] || [[ -L /boot/${MACHINE_ID} ]] ); then
+                VMLINUZ="/boot/${MACHINE_ID}/$KVERSION/linux"
+            fi
+        fi
+        [[ -e $VMLINUZ ]] || VMLINUZ="/boot/vmlinuz-${KVERSION}"
+
+	inst "$VMLINUZ" "/boot/vmlinuz-${KVERSION}"
 	find_binary plymouth >/dev/null && inst_multiple plymouth
 	cp -a -- /etc/ld.so.conf* "$initdir"/etc
 	sudo ldconfig -r -- "$initdir"
