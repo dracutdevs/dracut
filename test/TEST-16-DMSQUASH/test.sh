@@ -21,7 +21,7 @@ test_run() {
 	-drive format=raw,index=0,media=disk,file="$TESTDIR"/root.img \
 	-m 256M -smp 2 -nographic \
 	-net none \
-	-append "root=live:CDLABEL=LiveCD live rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug $DEBUGFAIL" \
+	-append "root=live:CDLABEL=LiveCD live rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug systemd.log_level=debug systemd.log_target=console $DEBUGFAIL" \
 	-initrd "$TESTDIR"/initramfs.testing
     grep -F -m 1 -q dracut-root-block-success -- "$TESTDIR"/root.img || return 1
 }
