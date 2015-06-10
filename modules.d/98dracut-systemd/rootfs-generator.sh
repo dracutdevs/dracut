@@ -22,17 +22,17 @@ generator_wait_for_dev()
     fi
 
     _name=$(dev_unit_name "$1")
-    if ! [ -L /run/systemd/generator/initrd.target.wants/${_name}.device ]; then
-        [ -d /run/systemd/generator/initrd.target.wants ] || mkdir -p /run/systemd/generator/initrd.target.wants
-        ln -s ../${_name}.device /run/systemd/generator/initrd.target.wants/${_name}.device
+    if ! [ -L "$GENERATOR_DIR"/initrd.target.wants/${_name}.device ]; then
+        [ -d "$GENERATOR_DIR"/initrd.target.wants ] || mkdir -p "$GENERATOR_DIR"/initrd.target.wants
+        ln -s ../${_name}.device "$GENERATOR_DIR"/initrd.target.wants/${_name}.device
     fi
 
-    if ! [ -f /run/systemd/generator/${_name}.device.d/timeout.conf ]; then
-        mkdir -p /run/systemd/generator/${_name}.device.d
+    if ! [ -f "$GENERATOR_DIR"/${_name}.device.d/timeout.conf ]; then
+        mkdir -p "$GENERATOR_DIR"/${_name}.device.d
         {
             echo "[Unit]"
             echo "JobTimeoutSec=$_timeout"
-        } > /run/systemd/generator/${_name}.device.d/timeout.conf
+        } > "$GENERATOR_DIR"/${_name}.device.d/timeout.conf
     fi
 }
 
@@ -45,8 +45,8 @@ generator_mount_rootfs()
     [ -z "$1" ] && return 0
 
     _name=$(dev_unit_name "$1")
-    [ -d /run/systemd/generator ] || mkdir -p /run/systemd/generator
-    if ! [ -f /run/systemd/generator/sysroot.mount ]; then
+    [ -d "$GENERATOR_DIR" ] || mkdir -p "$GENERATOR_DIR"
+    if ! [ -f "$GENERATOR_DIR"/sysroot.mount ]; then
         {
             echo "[Unit]"
             echo "Before=initrd-root-fs.target"
@@ -57,11 +57,11 @@ generator_mount_rootfs()
             echo "What=$1"
             echo "Options=${_flags}"
             echo "Type=${_type}"
-        } > /run/systemd/generator/sysroot.mount
+        } > "$GENERATOR_DIR"/sysroot.mount
     fi
-    if ! [ -L /run/systemd/generator/initrd-root-fs.target.requires/sysroot.mount ]; then
-        [ -d /run/systemd/generator/initrd-root-fs.target.requires ] || mkdir -p /run/systemd/generator/initrd-root-fs.target.requires
-        ln -s ../sysroot.mount /run/systemd/generator/initrd-root-fs.target.requires/sysroot.mount
+    if ! [ -L "$GENERATOR_DIR"/initrd-root-fs.target.requires/sysroot.mount ]; then
+        [ -d "$GENERATOR_DIR"/initrd-root-fs.target.requires ] || mkdir -p "$GENERATOR_DIR"/initrd-root-fs.target.requires
+        ln -s ../sysroot.mount "$GENERATOR_DIR"/initrd-root-fs.target.requires/sysroot.mount
     fi
 }
 
@@ -90,6 +90,8 @@ case "$root" in
         root="block:${root}"
         rootok=1 ;;
 esac
+
+GENERATOR_DIR="$1"
 
 if [ "${root%%:*}" = "block" ]; then
    generator_wait_for_dev "${root#block:}" "$RDRETRY"

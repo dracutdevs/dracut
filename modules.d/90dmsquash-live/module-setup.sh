@@ -31,6 +31,7 @@ install() {
     inst_hook pre-pivot 20 "$moddir/apply-live-updates.sh"
     inst_script "$moddir/dmsquash-live-root.sh" "/sbin/dmsquash-live-root"
     inst_script "$moddir/iso-scan.sh" "/sbin/iso-scan"
+    inst_script "$moddir/dmsquash-generator.sh" $systemdutildir/system-generators/dracut-dmsquash-generator
     # should probably just be generally included
     inst_rules 60-cdrom_id.rules
     inst_simple "$moddir/checkisomd5@.service" "/etc/systemd/system/checkisomd5@.service"
