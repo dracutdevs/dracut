@@ -93,7 +93,7 @@ esac
 
 GENERATOR_DIR="$1"
 
-if [ "${root%%:*}" = "block" ]; then
+if [ "$rootok" = "1"  ]; then
    generator_wait_for_dev "${root#block:}" "$RDRETRY"
    strstr "$(cat /proc/cmdline)" 'root=' || generator_mount_rootfs "${root#block:}" "$(getarg rootfstype=)" "$(getarg rootflags=)"
 fi
