@@ -1,3 +1,7 @@
+dracut-043
+==========
+- add missing dmsquash-generator
+
 dracut-042
 ==========
 - fixed dmsetup shutdown
