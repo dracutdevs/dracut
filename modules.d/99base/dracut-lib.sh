@@ -313,7 +313,7 @@ getargs() {
     _args="$@"
     set --
     for _i in $_args; do
-        if [ "$i" = "-d" ]; then
+        if [ "$_i" = "-d" ]; then
             _deprecated=1
             continue
         fi
