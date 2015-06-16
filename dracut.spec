@@ -168,6 +168,16 @@ Requires: libcap
 This package requires everything which is needed to build an
 initramfs with dracut, which drops capabilities.
 
+%package live
+Summary: dracut modules to build a dracut initramfs with live image capabilities
+Requires: %{name} = %{version}-%{release}
+Requires: %{name}-network = %{version}-%{release}
+Requires: tar gzip coreutils bash device-mapper curl
+
+%description live
+This package requires everything which is needed to build an
+initramfs with dracut, with live image capabilities, like Live CDs.
+
 %package config-generic
 Summary: dracut configuration to turn off hostonly image generation
 Requires: %{name} = %{version}-%{release}
@@ -345,7 +355,6 @@ rm -rf -- $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/90crypt
 %{dracutlibdir}/modules.d/90dm
 %{dracutlibdir}/modules.d/90dmraid
-%{dracutlibdir}/modules.d/90dmsquash-live
 %{dracutlibdir}/modules.d/90kernel-modules
 %{dracutlibdir}/modules.d/90lvm
 %{dracutlibdir}/modules.d/90mdraid
@@ -379,7 +388,6 @@ rm -rf -- $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/98usrmount
 %{dracutlibdir}/modules.d/99base
 %{dracutlibdir}/modules.d/99fs-lib
-%{dracutlibdir}/modules.d/99img-lib
 %{dracutlibdir}/modules.d/99shutdown
 %attr(0644,root,root) %ghost %config(missingok,noreplace) %{_localstatedir}/log/dracut.log
 %dir %{_sharedstatedir}/initramfs
@@ -413,7 +421,6 @@ rm -rf -- $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/90kernel-network-modules
 %{dracutlibdir}/modules.d/95fcoe
 %{dracutlibdir}/modules.d/95iscsi
-%{dracutlibdir}/modules.d/90livenet
 %{dracutlibdir}/modules.d/90qemu-net
 %{dracutlibdir}/modules.d/95cifs
 %{dracutlibdir}/modules.d/95nbd
@@ -439,6 +446,12 @@ rm -rf -- $RPM_BUILD_ROOT
 %files caps
 %defattr(-,root,root,0755)
 %{dracutlibdir}/modules.d/02caps
+
+%files live
+%defattr(-,root,root,0755)
+%{dracutlibdir}/modules.d/99img-lib
+%{dracutlibdir}/modules.d/90dmsquash-live
+%{dracutlibdir}/modules.d/90livenet
 
 %files tools
 %defattr(-,root,root,0755)
