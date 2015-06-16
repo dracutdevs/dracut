@@ -26,4 +26,16 @@ getarg rd.break -d rdbreak && emergency_shell -n switch_root "Break before switc
 [ -h /dev/root ] && rm -f -- /dev/root
 [ -h /dev/nfs ] && rm -f -- /dev/nfs
 
+udevadm settle
+
+cnt=0
+while ! udevadm settle --timeout=0; do
+    info "udev still not settled. Waiting."
+    udevadm settle
+    cnt=$(($cnt+1))
+    [ $cnt -gt 10 ] && break
+done
+
+udevadm control --exit
+
 exit 0
