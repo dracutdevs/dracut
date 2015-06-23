@@ -92,11 +92,21 @@ Requires: cpio
 Requires: filesystem >= 2.1.0
 Requires: findutils
 Requires: grep
-Requires: hardlink
-Requires: gzip xz
 Requires: kmod
 Requires: sed
+
+%if 0%{?fedora} > 22
+Recommends: grubby
+Recommends: hardlink
+Recommends: gzip
+Recommends: xz
+Recommends: kpartx
+%else
+Requires: hardlink
+Requires: gzip
+Requires: xz
 Requires: kpartx
+%endif
 
 %if 0%{?fedora} || 0%{?rhel} > 6
 Requires: util-linux >= 2.21
@@ -112,10 +122,6 @@ Requires: util-linux-ng >= 2.21
 %endif
 
 Conflicts: mdadm < 3.2.6-14
-
-%if 0%{?fedora} > 22
-Recommends: grubby
-%endif
 
 %description
 dracut contains tools to create a bootable initramfs for 2.6 Linux kernels.
