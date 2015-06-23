@@ -113,6 +113,10 @@ Requires: util-linux-ng >= 2.21
 
 Conflicts: mdadm < 3.2.6-14
 
+%if 0%{?fedora} > 22
+Recommends: grubby
+%endif
+
 %description
 dracut contains tools to create a bootable initramfs for 2.6 Linux kernels.
 Unlike existing implementations, dracut does hard-code as little as possible
