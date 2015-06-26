@@ -26,8 +26,10 @@ initqueue --onetime modprobe -b -q bnx2fc
 udevadm settle --timeout=30
 
 parse_fcoe_opts() {
+    local OLDIFS="$IFS"
     local IFS=:
     set $fcoe
+    IFS="$OLDIFS"
 
     case $# in
         2)
