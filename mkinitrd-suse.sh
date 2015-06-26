@@ -145,6 +145,33 @@ is_xen_kernel() {
     return
 }
 
+# kernel_image_gz_from_image() and kernel_version_from_image() are helpers
+# for arm* kernels which produce zImage files which cannot be read from
+# get_kernel_version -> get rid of this workaround if possible
+kernel_image_gz_from_image() {
+    local arch=$(uname -i)
+    local r=${1}.gz
+
+    # uImage kernels can't be extracted directly. Use the vmlinux.gz instead
+    r=${r//uImage/vmlinux}
+
+    # on ARM a zImage can't be extracted directly. Other platforms define it
+    # as a gzipped vmlinux file, but not ARM. So only on ARM, use vmlinux.gz.
+    if [[ $arch =~ arm ]] || [[ $arch =~ aarch ]]; then
+        r=${r//zImage/vmlinux}
+    fi
+
+    echo $r
+}
+
+kernel_version_from_image() {
+    local kernel_image="$1" kernel_image_gz=$(kernel_image_gz_from_image "$1")
+
+    if get_kernel_version "$kernel_image" 2>/dev/null; then
+        return
+    fi
+    get_kernel_version "$kernel_image_gz" 2>/dev/null
+}
 
 # Taken over from SUSE mkinitrd
 default_kernel_images() {
@@ -183,7 +210,8 @@ default_kernel_images() {
 
         [ -L "$boot_dir/$kernel_image" ] && continue
         [ "${kernel_image%%.gz}" != "$kernel_image" ] && continue
-        kernel_version=$(/usr/bin/get_kernel_version \
+
+        kernel_version=$(kernel_version_from_image \
                          $boot_dir/$kernel_image 2> /dev/null)
         initrd_image=$(echo $kernel_image | sed -e "s|${regex}|initrd|")
         if [ "$kernel_image" != "$initrd_image" -a \
