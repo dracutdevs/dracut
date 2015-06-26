@@ -31,8 +31,10 @@ udevadm settle --timeout=30
 [ -e /sys/bus/fcoe/ctlr_create ] || modprobe fcoe || die "FCoE requested but kernel/initrd does not support FCoE"
 
 parse_fcoe_opts() {
+    local OLDIFS="$IFS"
     local IFS=:
     set $fcoe
+    IFS="$OLDIFS"
 
     case $# in
         2)
