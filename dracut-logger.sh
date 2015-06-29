@@ -264,9 +264,9 @@ _lvl2syspri() {
 # Conversion is done as follows:
 #
 # <tt>
-#   FATAL(1) -> LOG_EMERG (0)
+#   none     -> LOG_EMERG (0)
 #   none     -> LOG_ALERT (1)
-#   none     -> LOG_CRIT (2)
+#   FATAL(1) -> LOG_CRIT (2)
 #   ERROR(2) -> LOG_ERR (3)
 #   WARN(3)  -> LOG_WARNING (4)
 #   none     -> LOG_NOTICE (5)
@@ -280,7 +280,7 @@ _dlvl2syslvl() {
     local lvl
 
     case "$1" in
-        1) lvl=0;;
+        1) lvl=2;;
         2) lvl=3;;
         3) lvl=4;;
         4) lvl=6;;
