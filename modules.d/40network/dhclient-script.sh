@@ -135,6 +135,17 @@ case $reason in
         >/tmp/net.$netif.up
         ;;
 
+    RENEW|REBIND)
+        unset lease_time
+        [ -n "$new_dhcp_lease_time" ] && lease_time=$new_dhcp_lease_time
+        [ -n "$new_max_life" ] && lease_time=$new_max_life
+        preferred_lft=$lease_time
+        [ -n "$new_preferred_life" ] && preferred_lft=$new_preferred_life
+        ip -4 addr change ${new_ip_address}/${new_prefix} broadcast ${new_broadcast_address} dev ${interface} \
+           ${lease_time:+valid_lft $lease_time} ${preferred_lft:+preferred_lft ${preferred_lft}} \
+           >/dev/null 2>&1
+        ;;
+
     BOUND6)
         echo "dhcp: BOND6 setting $netif"
         setup_interface6
@@ -155,6 +166,18 @@ case $reason in
         echo "[ -f /tmp/net.$netif.did-setup ]" > $hookdir/initqueue/finished/dhclient-$netif.sh
         >/tmp/net.$netif.up
         ;;
+
+    RENEW6|REBIND6)
+        unset lease_time
+        [ -n "$new_dhcp_lease_time" ] && lease_time=$new_dhcp_lease_time
+        [ -n "$new_max_life" ] && lease_time=$new_max_life
+        preferred_lft=$lease_time
+        [ -n "$new_preferred_life" ] && preferred_lft=$new_preferred_life
+        ip -6 addr change ${new_ip6_address}/${new_ip6_prefixlen} dev ${interface} scope global \
+           ${lease_time:+valid_lft $lease_time} ${preferred_lft:+preferred_lft ${preferred_lft}} \
+           >/dev/null 2>&1
+        ;;
+
     *) echo "dhcp: $reason";;
 esac
 
