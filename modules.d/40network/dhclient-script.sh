@@ -39,9 +39,9 @@ setup_interface() {
         fi
     fi
 
-    ip addr add $ip${mask:+/$mask} ${bcast:+broadcast $bcast} \
-        valid_lft ${lease_time} preferred_lft ${lease_time} \
-        dev $netif
+    ip addr add $ip${mask:+/$mask} ${bcast:+broadcast $bcast} dev $netif \
+        ${lease_time:+valid_lft $lease_time} \
+        ${preferred_lft:+preferred_lft ${preferred_lft}}
 
     if [ -n "$gw" ] ; then
         if [ "$mask" == "255.255.255.255" ] ; then
