@@ -21,7 +21,10 @@ setup_interface() {
     search=$(printf -- "$new_domain_search")
     namesrv=$new_domain_name_servers
     hostname=$new_host_name
-    lease_time=$new_dhcp_lease_time
+    [ -n "$new_dhcp_lease_time" ] && lease_time=$new_dhcp_lease_time
+    [ -n "$new_max_life" ] && lease_time=$new_max_life
+    preferred_lft=$lease_time
+    [ -n "$new_preferred_life" ] && preferred_lft=$new_preferred_life
 
     [ -f /tmp/net.$netif.override ] && . /tmp/net.$netif.override
 
