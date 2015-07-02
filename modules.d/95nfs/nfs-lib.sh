@@ -15,6 +15,7 @@ nfs_to_var() {
     # FIXME: local netif=${2:-$netif}?
     case "$1" in
         nfs://*) rfc2224_nfs_to_var "$1" ;;
+        nfs:*[*) anaconda_nfsv6_to_var "$1" ;;
         nfs:*:*:/*) anaconda_nfs_to_var "$1" ;;
         *) nfsroot_to_var "$1" ;;
     esac
@@ -82,6 +83,23 @@ anaconda_nfs_to_var() {
     server="${server%:/*}"
     options="${options%%:*}"
     path="/${1##*:/}"
+}
+
+# IPv6 nfs path will be treated separately
+anaconda_nfsv6_to_var() {
+    nfs="nfs"
+    path="$1:"
+    options="${path#*:/}"
+    path="/${options%%:*}"
+    server="${1#*nfs:}"
+    if str_starts $server '['; then
+        server="${server%:/*}"
+        options="${options#*:*}"
+    else
+        server="${server%:/*}"
+        options="${server%%:*}"
+        server="${server#*:}"
+    fi
 }
 
 # nfsroot_from_dhcp NETIF
