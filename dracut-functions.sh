@@ -20,14 +20,9 @@
 export LC_MESSAGES=C
 
 if [[ $DRACUT_KERNEL_LAZY ]] && ! [[ $DRACUT_KERNEL_LAZY_HASHDIR ]]; then
-    if ! [[ -d "$initdir/.kernelmodseen" ]]; then
-        mkdir -p "$initdir/.kernelmodseen"
+    if [[ -d "$initdir/.kernelmodseen" ]]; then
+        DRACUT_KERNEL_LAZY_HASHDIR="$initdir/.kernelmodseen"
     fi
-    DRACUT_KERNEL_LAZY_HASHDIR="$initdir/.kernelmodseen"
-fi
-
-if [[ $initdir ]] && ! [[ -d $initdir ]]; then
-    mkdir -p "$initdir"
 fi
 
 # Generic substring function.  If $2 is in $1, return 0.

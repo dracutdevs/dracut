@@ -57,7 +57,7 @@ test_setup() {
     (
 	export initdir=$TESTDIR/overlay/source
 	mkdir -p $initdir
-	. $basedir/dracut-functions.sh
+	. $basedir/dracut-init.sh
 
         for d in usr/bin usr/sbin bin etc lib "$libdir" sbin tmp usr var var/log dev proc sys sysroot root run; do
             if [ -L "/$d" ]; then
@@ -222,7 +222,7 @@ EOF
     # second, install the files needed to make the root filesystem
     (
 	export initdir=$TESTDIR/overlay
-	. $basedir/dracut-functions.sh
+	. $basedir/dracut-init.sh
 	inst_multiple sfdisk mkfs.btrfs btrfs poweroff cp umount sync
 	inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
@@ -254,7 +254,7 @@ EOF
 
     (
 	export initdir=$TESTDIR/overlay
-	. $basedir/dracut-functions.sh
+	. $basedir/dracut-init.sh
 	inst_multiple poweroff shutdown
 	inst_hook emergency 000 ./hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules

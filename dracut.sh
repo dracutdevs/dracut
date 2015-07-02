@@ -551,7 +551,7 @@ while :; do
         -q|--quiet)    ((verbosity_mod_l--));;
         -l|--local)
                        allowlocal="yes"
-                       [[ -f "$(readlink -f "${0%/*}")/dracut-functions.sh" ]] \
+                       [[ -f "$(readlink -f "${0%/*}")/dracut-init.sh" ]] \
                            && dracutbasedir="$(readlink -f "${0%/*}")"
                        ;;
         -H|--hostonly|--host-only)
@@ -917,10 +917,10 @@ if [[ -f $dracutbasedir/dracut-version.sh ]]; then
     . $dracutbasedir/dracut-version.sh
 fi
 
-if [[ -f $dracutbasedir/dracut-functions.sh ]]; then
-    . $dracutbasedir/dracut-functions.sh
+if [[ -f $dracutbasedir/dracut-init.sh ]]; then
+    . $dracutbasedir/dracut-init.sh
 else
-    printf "%s\n" "dracut: Cannot find $dracutbasedir/dracut-functions.sh." >&2
+    printf "%s\n" "dracut: Cannot find $dracutbasedir/dracut-init.sh." >&2
     printf "%s\n" "dracut: Are you running from a git checkout?" >&2
     printf "%s\n" "dracut: Try passing -l as an argument to $0" >&2
     exit 1

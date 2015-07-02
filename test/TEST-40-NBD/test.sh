@@ -192,7 +192,7 @@ make_encrypted_root() {
     # Create what will eventually be our root filesystem onto an overlay
     (
         export initdir=$TESTDIR/overlay/source
-        . $basedir/dracut-functions.sh
+        . $basedir/dracut-init.sh
         mkdir -p "$initdir"
         (
             cd "$initdir"; mkdir -p dev sys proc etc var/run tmp
@@ -217,7 +217,7 @@ make_encrypted_root() {
     # second, install the files needed to make the root filesystem
     (
         export initdir=$TESTDIR/overlay
-        . $basedir/dracut-functions.sh
+        . $basedir/dracut-init.sh
         (
             cd "$initdir"; mkdir -p dev sys proc etc var/run tmp
             mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
@@ -263,7 +263,7 @@ make_client_root() {
     kernel=$KVERSION
     (
         export initdir=$TESTDIR/mnt
-        . $basedir/dracut-functions.sh
+        . $basedir/dracut-init.sh
         mkdir -p "$initdir"
         (
             cd "$initdir"; mkdir -p dev sys proc etc var/run tmp
@@ -304,7 +304,7 @@ make_server_root() {
     kernel=$KVERSION
     (
         export initdir=$TESTDIR/mnt
-        . $basedir/dracut-functions.sh
+        . $basedir/dracut-init.sh
         mkdir -p "$initdir"
         (
             cd "$initdir";
@@ -351,7 +351,7 @@ test_setup() {
     # Make the test image
     (
         export initdir=$TESTDIR/overlay
-        . $basedir/dracut-functions.sh
+        . $basedir/dracut-init.sh
         inst_multiple poweroff shutdown
         inst_hook emergency 000 ./hard-off.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
