@@ -77,9 +77,10 @@ fi
 # disable manual ifup while netroot is set for simplifying our logic
 # in netroot case we prefer netroot to bringup $netif automaticlly
 [ -n "$2" -a "$2" = "-m" ] && [ -z "$netroot" ] && manualup="$2"
-[ -z "$netroot" ] && [ -z "$manualup" ] && exit 0
+
 if [ -n "$manualup" ]; then
     >/tmp/net.$netif.manualup
+    rm -f /tmp/net.${netif}.did-setup
 else
     [ -e /tmp/net.${netif}.did-setup ] && exit 0
     [ -e /sys/class/net/$netif/address ] && \

@@ -50,7 +50,6 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
     fi
 
     ifup='/sbin/ifup $env{INTERFACE}'
-    [ -z "$netroot" ] && ifup="$ifup -m"
 
     runcmd="RUN+=\"/sbin/initqueue --name ifup-\$env{INTERFACE} --unique --onetime $ifup\""
 
