@@ -1231,6 +1231,20 @@ if [[ $hostonly ]]; then
             done < /etc/fstab
         done < /proc/swaps
     fi
+
+    # collect all "x-initrd.mount" entries from /etc/fstab
+    if [[ -f /etc/fstab ]]; then
+        while read _d _m _t _o _r || [ -n "$_d" ]; do
+            [[ "$_d" == \#* ]] && continue
+            [[ $_d ]] || continue
+            [[ "$_o" != *x-initrd.mount* ]] && continue
+            _dev=$(expand_persistent_dev "$_d")
+            _dev="$(readlink -f "$_dev")"
+            [[ -b $_dev ]] && push_host_devs "$_dev"
+        done < /etc/fstab
+    fi
+
+
     # record all host modaliases
     declare -A host_modalias
     find  /sys/devices/ -name uevent -print > "$initdir/.modalias"
