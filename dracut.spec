@@ -296,6 +296,7 @@ rm -rf -- $RPM_BUILD_ROOT
 %endif
 %dir %{dracutlibdir}
 %dir %{dracutlibdir}/modules.d
+%{dracutlibdir}/dracut-init.sh
 %{dracutlibdir}/dracut-functions.sh
 %{dracutlibdir}/dracut-functions
 %{dracutlibdir}/dracut-version.sh

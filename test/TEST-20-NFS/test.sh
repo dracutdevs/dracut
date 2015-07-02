@@ -221,7 +221,7 @@ test_setup() {
 
     (
         export initdir=$TESTDIR/mnt
-        . $basedir/dracut-functions.sh
+        . $basedir/dracut-init.sh
 
         for _f in modules.builtin.bin modules.builtin; do
             [[ $srcmods/$_f ]] && break
@@ -287,7 +287,7 @@ test_setup() {
     # Make client root inside server root
     (
         export initdir=$TESTDIR/mnt/nfs/client
-        . $basedir/dracut-functions.sh
+        . $basedir/dracut-init.sh
 
         inst_multiple sh shutdown poweroff stty cat ps ln ip \
             mount dmesg mkdir cp ping grep
@@ -331,7 +331,7 @@ test_setup() {
     # Make an overlay with needed tools for the test harness
     (
         export initdir=$TESTDIR/overlay
-        . $basedir/dracut-functions.sh
+        . $basedir/dracut-init.sh
         mkdir $TESTDIR/overlay
         inst_multiple poweroff shutdown
         inst_hook emergency 000 ./hard-off.sh

@@ -30,7 +30,7 @@ test_setup() {
     mkdir -p -- "$TESTDIR"/overlay
     (
 	export initdir="$TESTDIR"/overlay
-	. "$basedir"/dracut-functions.sh
+	. "$basedir"/dracut-init.sh
 	inst_multiple poweroff shutdown
 	inst_hook emergency 000 ./hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
@@ -48,7 +48,7 @@ test_setup() {
     # Create what will eventually be our root filesystem onto an overlay
     (
 	export initdir="$TESTDIR"/root-source
-	. "$basedir"/dracut-functions.sh
+	. "$basedir"/dracut-init.sh
 	inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip route \
 	    mount dmesg ifconfig dhclient mkdir cp ping dhclient \
 	    umount strace less

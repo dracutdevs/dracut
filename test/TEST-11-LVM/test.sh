@@ -24,7 +24,7 @@ test_setup() {
     # Create what will eventually be our root filesystem onto an overlay
     (
 	export initdir=$TESTDIR/overlay/source
-	. $basedir/dracut-functions.sh
+	. $basedir/dracut-init.sh
 	inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip route \
 	    mount dmesg ifconfig dhclient mkdir cp ping dhclient
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
@@ -46,7 +46,7 @@ test_setup() {
     # second, install the files needed to make the root filesystem
     (
 	export initdir=$TESTDIR/overlay
-	. $basedir/dracut-functions.sh
+	. $basedir/dracut-init.sh
 	inst_multiple sfdisk mke2fs poweroff cp umount
 	inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
@@ -69,7 +69,7 @@ test_setup() {
     grep -F -m 1 -q dracut-root-block-created $TESTDIR/root.ext2 || return 1
     (
 	export initdir=$TESTDIR/overlay
-	. $basedir/dracut-functions.sh
+	. $basedir/dracut-init.sh
 	inst_multiple poweroff shutdown
 	inst_hook emergency 000 ./hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
