@@ -93,15 +93,33 @@ do_dhcp() {
     # event for nfsroot
     # XXX add -V vendor class and option parsing per kernel
 
+    local _COUNT=0
+    local _timeout=$(getargs rd.net.timeout.dhcp=)
+    local _DHCPRETRY=$(getargs rd.net.dhcp.retry=)
+    _DHCPRETRY=${_DHCPRETRY:-1}
+
     [ -e /tmp/dhclient.$netif.pid ] && return 0
 
     if ! iface_has_link $netif; then
-        echo "No carrier detected"
+        warn "No carrier detected on interface $netif"
         return 1
     fi
-    echo "Starting dhcp for interface $netif"
-    dhclient "$@" -1 -q -cf /etc/dhclient.conf -pf /tmp/dhclient.$netif.pid -lf /tmp/dhclient.$netif.lease $netif \
-        || echo "dhcp failed"
+
+    while [ $_COUNT -lt $_DHCPRETRY ]; do
+        info "Starting dhcp for interface $netif"
+        dhclient "$@" \
+                 ${_timeout:+-timeout $_timeout} \
+                 -1 -q \
+                 -cf /etc/dhclient.conf \
+                 -pf /tmp/dhclient.$netif.pid \
+                 -lf /tmp/dhclient.$netif.lease \
+                 $netif \
+            && return 0
+        _COUNT=$(($_COUNT+1))
+        [ $_COUNT -lt $_DHCPRETRY ] && sleep 1
+    done
+    warn "dhcp for interface $netif failed"
+    return 1
 }
 
 load_ipv6() {

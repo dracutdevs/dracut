@@ -504,7 +504,11 @@ parse_ifname_opts() {
 wait_for_if_link() {
     local cnt=0
     local li
-    while [ $cnt -lt 600 ]; do
+    local timeout="$(getargs rd.net.timeout.iflink=)"
+    timeout=${timeout:-60}
+    timeout=$(($timeout*10))
+
+    while [ $cnt -lt $timeout ]; do
         li=$(ip -o link show dev $1 2>/dev/null)
         [ -n "$li" ] && return 0
         sleep 0.1
@@ -516,7 +520,11 @@ wait_for_if_link() {
 wait_for_if_up() {
     local cnt=0
     local li
-    while [ $cnt -lt 200 ]; do
+    local timeout="$(getargs rd.net.timeout.ifup=)"
+    timeout=${timeout:-20}
+    timeout=$(($timeout*10))
+
+    while [ $cnt -lt $timeout ]; do
         li=$(ip -o link show up dev $1)
         [ -n "$li" ] && [ -z "${li##*state UP*}" ] && return 0
         sleep 0.1
@@ -527,7 +535,11 @@ wait_for_if_up() {
 
 wait_for_route_ok() {
     local cnt=0
-    while [ $cnt -lt 200 ]; do
+    local timeout="$(getargs rd.net.timeout.route=)"
+    timeout=${timeout:-20}
+    timeout=$(($timeout*10))
+
+    while [ $cnt -lt $timeout ]; do
         li=$(ip route show)
         [ -n "$li" ] && [ -z "${li##*$1*}" ] && return 0
         sleep 0.1
@@ -539,7 +551,11 @@ wait_for_route_ok() {
 wait_for_ipv6_dad() {
     local cnt=0
     local li
-    while [ $cnt -lt 500 ]; do
+    local timeout="$(getargs rd.net.timeout.ipv6dad=)"
+    timeout=${timeout:-50}
+    timeout=$(($timeout*10))
+
+    while [ $cnt -lt $timeout ]; do
         li=$(ip -6 addr show dev $1 scope link)
         strstr "$li" "tentative" || return 0
         sleep 0.1
@@ -551,7 +567,11 @@ wait_for_ipv6_dad() {
 wait_for_ipv6_auto() {
     local cnt=0
     local li
-    while [ $cnt -lt 400 ]; do
+    local timeout="$(getargs rd.net.timeout.ipv6auto=)"
+    timeout=${timeout:-40}
+    timeout=$(($timeout*10))
+
+    while [ $cnt -lt $timeout ]; do
         li=$(ip -6 addr show dev $1)
         if ! strstr "$li" "tentative"; then
             strstr "$li" "dynamic" && return 0
@@ -579,8 +599,12 @@ iface_has_link() {
     [ -n "$interface" ] || return 2
     interface="/sys/class/net/$interface"
     [ -d "$interface" ] || return 2
+    local timeout="$(getargs rd.net.timeout.carrier=)"
+    timeout=${timeout:-5}
+    timeout=$(($timeout*10))
+
     linkup "$1"
-    while [ $cnt -lt 50 ]; do
+    while [ $cnt -lt $timeout ]; do
         [ "$(cat $interface/carrier)" = 1 ] && return 0
         sleep 0.1
         cnt=$(($cnt+1))
