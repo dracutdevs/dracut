@@ -20,11 +20,27 @@ type ip_to_var >/dev/null 2>&1 || . /lib/net-lib.sh
 
 netif=$1
 dcb=$2
+vlan="yes"
 
 linkup "$netif"
 
 netdriver=$(readlink -f /sys/class/net/$netif/device/driver)
 netdriver=${netdriver##*/}
+
+write_fcoemon_cfg() {
+    echo FCOE_ENABLE=\"yes\" > /etc/fcoe/cfg-$netif
+    if [ "$dcb" = "dcb" ]; then
+        echo DCB_REQUIRED=\"yes\" >> /etc/fcoe/cfg-$netif
+    else
+        echo DCB_REQUIRED=\"no\" >> /etc/fcoe/cfg-$netif
+    fi
+    if [ "$vlan" = "yes" ]; then
+	    echo AUTO_VLAN=\"yes\" >> /etc/fcoe/cfg-$netif
+    else
+	    echo AUTO_VLAN=\"no\" >> /etc/fcoe/cfg-$netif
+    fi
+    echo MODE=\"fabric\" >> /etc/fcoe/cfg-$netif
+}
 
 if [ "$dcb" = "dcb" ]; then
     # Note lldpad will stay running after switchroot, the system initscripts
@@ -52,6 +68,13 @@ if [ "$dcb" = "dcb" ]; then
     done
 
     while [ $i -lt 60 ]; do
+        dcbtool sc "$netif" pfc e:1 a:1 w:1 && break
+        info "Retrying to turn dcb on"
+        sleep 1
+        i=$(($i+1))
+    done
+
+    while [ $i -lt 60 ]; do
         dcbtool sc "$netif" app:fcoe e:1 a:1 w:1 && break
         info "Retrying to turn fcoe on"
         sleep 1
@@ -60,7 +83,8 @@ if [ "$dcb" = "dcb" ]; then
 
     sleep 1
 
-    fipvlan "$netif" -c -s
+    write_fcoemon_cfg
+    fcoemon --syslog
 elif [ "$netdriver" = "bnx2x" ]; then
     # If driver is bnx2x, do not use /sys/module/fcoe/parameters/create but fipvlan
     modprobe 8021q
@@ -69,7 +93,9 @@ elif [ "$netdriver" = "bnx2x" ]; then
     sleep 3
     fipvlan "$netif" -c -s
 else
-    echo -n "$netif" > /sys/module/fcoe/parameters/create
+    vlan="no"
+    write_fcoemon_cfg
+    fcoemon --syslog
 fi
 
 need_shutdown
