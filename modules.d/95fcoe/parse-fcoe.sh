@@ -18,12 +18,9 @@
 # If it's not set we don't continue
 [ -z "$fcoe" ] && return
 
-
-# BRCM: Later, should check whether bnx2x is loaded first before loading bnx2fc so do not load bnx2fc when there are no Broadcom adapters
-[ -d /sys/module/fcoe ] || modprobe -b -a fcoe || die "FCoE requested but kernel/initrd does not support FCoE"
+[ -e /sys/bus/fcoe/ctlr_create ] || modprobe -b -a fcoe || die "FCoE requested but kernel/initrd does not support FCoE"
 
 initqueue --onetime modprobe -b -q bnx2fc
-udevadm settle --timeout=30
 
 parse_fcoe_opts() {
     local OLDIFS="$IFS"

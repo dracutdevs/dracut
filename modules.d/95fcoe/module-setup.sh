@@ -10,8 +10,7 @@ check() {
         [ -z "$fcoe_ctlr" ] && return 255
     }
 
-    require_binaries dcbtool fipvlan lldpad ip readlink || return 1
-
+    require_binaries dcbtool fipvlan lldpad ip readlink fcoemon fcoeadm || return 1
     return 0
 }
 
@@ -67,9 +66,12 @@ cmdline() {
 
 # called by dracut
 install() {
-    inst_multiple ip dcbtool fipvlan lldpad readlink lldptool
+    inst_multiple ip dcbtool fipvlan lldpad readlink lldptool fcoemon fcoeadm
+    inst_libdir_file 'libhbalinux.so*'
+    inst "/etc/hba.conf" "/etc/hba.conf"
 
     mkdir -m 0755 -p "$initdir/var/lib/lldpad"
+    mkdir -m 0755 -p "$initdir/etc/fcoe"
 
     if [[ $hostonly_cmdline == "yes" ]] ; then
         local _fcoeconf=$(cmdline)
