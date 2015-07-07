@@ -171,13 +171,18 @@ EOF
         inst /usr/lib/systemd/system/dbus.socket
         inst /usr/lib/systemd/system/dbus.service
 
+        (
+            echo "FONT=latarcyrheb-sun16"
+            echo "KEYMAP=us"
+        ) >$initrd/etc/vconsole.conf
+
         # install basic keyboard maps and fonts
         for i in \
             /usr/lib/kbd/consolefonts/eurlatgr* \
             /usr/lib/kbd/consolefonts/latarcyrheb-sun16* \
-            /usr/lib/kbd/keymaps/include/* \
-            /usr/lib/kbd/keymaps/i386/include/* \
-            /usr/lib/kbd/keymaps/i386/qwerty/us.*; do
+            /usr/lib/kbd/keymaps/{legacy/,/}include/* \
+            /usr/lib/kbd/keymaps/{legacy/,/}i386/include/* \
+            /usr/lib/kbd/keymaps/{legacy/,/}i386/qwerty/us.*; do
                 [[ -f $i ]] || continue
                 inst $i
         done
@@ -260,9 +265,9 @@ EOF
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-	-a "debug systemd" \
+	-a "debug systemd i18n" \
 	-I "/etc/machine-id /etc/hostname" \
-        -o "dash network plymouth lvm mdraid resume crypt i18n caps dm terminfo usrmount kernel-network-modules" \
+        -o "dash network plymouth lvm mdraid resume crypt caps dm terminfo usrmount kernel-network-modules" \
 	-d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \
         --no-hostonly-cmdline -N \
 	-f $TESTDIR/initramfs.testing $KVERSION || return 1
