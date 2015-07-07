@@ -19,7 +19,7 @@ depends() {
 
 installkernel() {
     hostonly='' instmods autofs4 ipv6
-    instmods -s efivarfs
+    instmods -s efivarfs kdbus
 }
 
 # called by dracut
