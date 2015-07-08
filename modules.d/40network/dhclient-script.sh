@@ -47,7 +47,7 @@ setup_interface() {
         ${preferred_lft:+preferred_lft ${preferred_lft}}
 
     if [ -n "$gw" ] ; then
-        if [ "$mask" == "255.255.255.255" ] ; then
+        if [ "$mask" = "255.255.255.255" ] ; then
             # point-to-point connection => set explicit route to gateway
             echo ip route add $gw dev $netif > /tmp/net.$netif.gw
         fi
