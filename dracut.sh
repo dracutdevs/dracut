@@ -22,6 +22,13 @@
 #
 
 # store for logging
+
+# Verify bash version, current minimum is 4
+if (( BASH_VERSINFO[0] < 4 )); then
+    printf -- 'You need at least Bash 4 to use dracut, sorry.' >&2
+    exit 1
+fi
+
 dracut_args=( "$@" )
 readonly dracut_cmd="$(readlink -f $0)"
 
@@ -826,12 +833,6 @@ if ! [[ $print_cmdline ]]; then
         export DRACUT_RESOLVE_DEPS=1
     fi
     rm -fr -- ${initdir}/*
-fi
-
-# Verify bash version, current minimum is 4
-if (( BASH_VERSINFO[0] < 4 )); then
-    dfatal 'You need at least Bash 4 to use dracut, sorry.'
-    exit 1
 fi
 
 dracutfunctions=$dracutbasedir/dracut-functions.sh
