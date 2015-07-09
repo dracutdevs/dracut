@@ -937,26 +937,23 @@ inst_rules() {
     for _rule in "$@"; do
         if [ "${_rule#/}" = "$_rule" ]; then
             for r in ${udevdir}/rules.d ${hostonly:+/etc/udev/rules.d}; do
-                if [[ -e $r/$_rule ]]; then
-                    _found="$r/$_rule"
-                    inst_rule_programs "$_found"
-                    inst_rule_group_owner "$_found"
-                    inst_rule_initqueue "$_found"
-                    inst_simple "$_found"
-                fi
+                [[ -e $r/$_rule ]] || continue
+                _found="$r/$_rule"
+                inst_rule_programs "$_found"
+                inst_rule_group_owner "$_found"
+                inst_rule_initqueue "$_found"
+                inst_simple "$_found"
             done
         fi
         for r in '' $dracutbasedir/rules.d/; do
             # skip rules without an absolute path
             [[ "${r}$_rule" != /* ]] && continue
-
-            if [[ -f ${r}$_rule ]]; then
-                _found="${r}$_rule"
-                inst_rule_programs "$_found"
-                inst_rule_group_owner "$_found"
-                inst_rule_initqueue "$_found"
-                inst_simple "$_found" "$_target/${_found##*/}"
-            fi
+            [[ -f ${r}$_rule ]] || continue
+            _found="${r}$_rule"
+            inst_rule_programs "$_found"
+            inst_rule_group_owner "$_found"
+            inst_rule_initqueue "$_found"
+            inst_simple "$_found" "$_target/${_found##*/}"
         done
         [[ $_found ]] || dinfo "Skipping udev rule: $_rule"
     done
@@ -968,23 +965,21 @@ inst_rules_wildcard() {
     inst_dir "${udevdir}/rules.d"
     inst_dir "$_target"
     for _rule in ${udevdir}/rules.d/$1 ${dracutbasedir}/rules.d/$1 ; do
-        if [[ -e $_rule ]]; then
+        [[ -e $_rule ]] || continue
+        inst_rule_programs "$_rule"
+        inst_rule_group_owner "$_rule"
+        inst_rule_initqueue "$_rule"
+        inst_simple "$_rule"
+        _found=$_rule
+    done
+    if [[ -n ${hostonly} ]] ; then
+        for _rule in ${_target}/$1 ; do
+            [[ -f $_rule ]] || continue
             inst_rule_programs "$_rule"
             inst_rule_group_owner "$_rule"
             inst_rule_initqueue "$_rule"
             inst_simple "$_rule"
             _found=$_rule
-        fi
-    done
-    if [[ -n ${hostonly} ]] ; then
-        for _rule in ${_target}/$1 ; do
-            if [[ -f $_rule ]]; then
-                inst_rule_programs "$_rule"
-                inst_rule_group_owner "$_rule"
-                inst_rule_initqueue "$_rule"
-                inst_simple "$_rule"
-                _found=$_rule
-            fi
         done
     fi
     [[ $_found ]] || dinfo "Skipping udev rule: $_rule"
@@ -1051,10 +1046,9 @@ inst_any() {
     [[ $1 = '-d' ]] && to="$2" && shift 2
 
     for f in "$@"; do
-        if [[ -e $f ]]; then
-            [[ $to ]] && inst "$f" "$to" && return 0
-            inst "$f" && return 0
-        fi
+        [[ -e $f ]] || continue
+        [[ $to ]] && inst "$f" "$to" && return 0
+        inst "$f" && return 0
     done
 
     return 1
@@ -1118,8 +1112,7 @@ inst_decompress() {
 inst_opt_decompress() {
     local _src
 
-    for _src in $@
-    do
+    for _src in $@; do
         inst_decompress "${_src}" || inst "${_src}"
     done
 }
@@ -1482,10 +1475,9 @@ install_kmod_with_fw() {
     for _fw in $(modinfo -k $kernel -F firmware $1 2>/dev/null); do
         _found=''
         for _fwdir in $fw_dir; do
-            if [[ -d $_fwdir && -f $_fwdir/$_fw ]]; then
-                inst_simple "$_fwdir/$_fw" "/lib/firmware/$_fw"
-                _found=yes
-            fi
+            [[ -d $_fwdir && -f $_fwdir/$_fw ]] || continue
+            inst_simple "$_fwdir/$_fw" "/lib/firmware/$_fw"
+            _found=yes
         done
         if [[ $_found != yes ]]; then
             if ! [[ -d $(echo /sys/module/${_modname//-/_}|{ read a b; echo $a; }) ]]; then
@@ -1557,10 +1549,9 @@ dracut_kernel_post() {
         else
             for _fw in $(xargs -r modinfo -k $kernel -F firmware < "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist.dep"); do
                 for _fwdir in $fw_dir; do
-                    if [[ -d $_fwdir && -f $_fwdir/$_fw ]]; then
-                        inst_simple "$_fwdir/$_fw" "/lib/firmware/$_fw"
-                        break
-                    fi
+                    [[ -d $_fwdir && -f $_fwdir/$_fw ]] || continue
+                    inst_simple "$_fwdir/$_fw" "/lib/firmware/$_fw"
+                    break
                 done
             done
         fi
