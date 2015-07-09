@@ -209,29 +209,12 @@ For example:
 EOF
 }
 
-# function push()
-# push values to a stack
-# $1 = stack variable
-# $2.. values
-# example:
-# push stack 1 2 "3 4"
-push() {
-    local _i
-    local __stack=$1; shift
-    for _i in "$@"; do
-        eval ${__stack}'[${#'${__stack}'[@]}]="$_i"'
-    done
-}
-
 # Fills up host_devs stack variable and makes sure there are no duplicates
 push_host_devs() {
     local _dev
-    for _dev in ${host_devs[@]}; do
-        [ "$_dev" = "$1" ] && return
-    done
-    push host_devs "$1"
+    [[ " ${host_devs[@]} " == *" $1 "* ]] && return
+    host_devs+=( "$1" )
 }
-
 
 # function pop()
 # pops the last value from a stack
@@ -486,28 +469,25 @@ while :; do
         PARMS_TO_STORE+=" $1";
     fi
     case $1 in
-        --kver)        kernel="$2";                    PARMS_TO_STORE+=" '$2'"; shift;;
-        -a|--add)      push add_dracutmodules_l  "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
-        --force-add)   push force_add_dracutmodules_l  "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
-        --add-drivers) push add_drivers_l        "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
-        --force-drivers) push force_drivers_l    "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
-        --omit-drivers) push omit_drivers_l      "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
-        -m|--modules)  push dracutmodules_l      "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
-        -o|--omit)     push omit_dracutmodules_l "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
-        -d|--drivers)  push drivers_l            "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
-        --filesystems) push filesystems_l        "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
-        -I|--install)  push install_items_l      "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
-        --install-optional)
-                       push install_optional_items_l \
-                                                 "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
-        --fwdir)       push fw_dir_l             "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
-        --libdirs)     push libdirs_l            "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
-        --fscks)       push fscks_l              "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
-        --add-fstab)   push add_fstab_l          "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
-        --mount)       push fstab_lines          "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
-        --add-device|--device)
-                       push add_device_l         "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
-        --kernel-cmdline) push kernel_cmdline_l  "$2"; PARMS_TO_STORE+=" '$2'"; shift;;
+        --kver)        kernel="$2";                           PARMS_TO_STORE+=" '$2'"; shift;;
+        -a|--add)      add_dracutmodules_l+=("$2");           PARMS_TO_STORE+=" '$2'"; shift;;
+        --force-add)   force_add_dracutmodules_l+=("$2");     PARMS_TO_STORE+=" '$2'"; shift;;
+        --add-drivers) add_drivers_l+=("$2");                 PARMS_TO_STORE+=" '$2'"; shift;;
+        --force-drivers) force_drivers_l+=("$2");             PARMS_TO_STORE+=" '$2'"; shift;;
+        --omit-drivers) omit_drivers_l+=("$2");               PARMS_TO_STORE+=" '$2'"; shift;;
+        -m|--modules)  dracutmodules_l+=("$2");               PARMS_TO_STORE+=" '$2'"; shift;;
+        -o|--omit)     omit_dracutmodules_l+=("$2");          PARMS_TO_STORE+=" '$2'"; shift;;
+        -d|--drivers)  drivers_l+=("$2");                     PARMS_TO_STORE+=" '$2'"; shift;;
+        --filesystems) filesystems_l+=("$2");                 PARMS_TO_STORE+=" '$2'"; shift;;
+        -I|--install)  install_items_l+=("$2");               PARMS_TO_STORE+=" '$2'"; shift;;
+        --install-optional) install_optional_items_l+=("$2"); PARMS_TO_STORE+=" '$2'"; shift;;
+        --fwdir)       fw_dir_l+=("$2");                      PARMS_TO_STORE+=" '$2'"; shift;;
+        --libdirs)     libdirs_l+=("$2");                     PARMS_TO_STORE+=" '$2'"; shift;;
+        --fscks)       fscks_l+=("$2");                       PARMS_TO_STORE+=" '$2'"; shift;;
+        --add-fstab)   add_fstab_l+=("$2");                   PARMS_TO_STORE+=" '$2'"; shift;;
+        --mount)       fstab_lines+=("$2");                   PARMS_TO_STORE+=" '$2'"; shift;;
+        --add-device|--device) add_device_l+=("$2");          PARMS_TO_STORE+=" '$2'"; shift;;
+        --kernel-cmdline) kernel_cmdline_l+=("$2");           PARMS_TO_STORE+=" '$2'"; shift;;
         --nofscks)     nofscks_l="yes";;
         --ro-mnt)      ro_mnt_l="yes";;
         -k|--kmoddir)  drivers_dir_l="$2";             PARMS_TO_STORE+=" '$2'"; shift;;
@@ -566,7 +546,7 @@ while :; do
                        persistent_policy_l="$2";       PARMS_TO_STORE+=" '$2'"; shift;;
         --fstab)       use_fstab_l="yes" ;;
         -h|--help)     long_usage; exit 1 ;;
-        -i|--include)  push include_src "$2";          PARMS_TO_STORE+=" '$2'";
+        -i|--include)  include_src+=("$2");          PARMS_TO_STORE+=" '$2'";
                        shift;;
         --bzip2)       compress_l="bzip2";;
         --lzma)        compress_l="lzma";;
@@ -602,8 +582,8 @@ done
 
 while (($# > 0)); do
     if [ "${1%%=*}" == "++include" ]; then
-        push include_src "$2"
-        push include_target "$3"
+        include_src+=("$2")
+        include_target+=("$3")
         PARMS_TO_STORE+=" --include '$2' '$3'"
         shift 2
     fi
@@ -746,7 +726,7 @@ fi
 
 if (( ${#fstab_lines_l[@]} )); then
     while pop fstab_lines_l val; do
-        push fstab_lines $val
+        fstab_lines+=($val)
     done
 fi
 
@@ -1199,11 +1179,11 @@ if [[ $hostonly ]]; then
         _bdev=$(readlink -f "/dev/block/$_dev")
         [[ -b $_bdev ]] && _dev=$_bdev
         push_host_devs $_dev
-        [[ "$mp" == "/" ]] && push root_devs "$_dev"
+        [[ "$mp" == "/" ]] && root_devs+=("$_dev")
         push_host_devs "$_dev"
         if [[ $(find_mp_fstype "$mp") == btrfs ]]; then
             for i in $(btrfs_devs "$mp"); do
-                [[ "$mp" == "/" ]] && push root_devs "$i"
+                [[ "$mp" == "/" ]] && root_devs+=("$i")
                 push_host_devs "$i"
             done
         fi
@@ -1237,7 +1217,7 @@ if [[ $hostonly ]]; then
 
                 _dev="$(readlink -f "$dev")"
                 push_host_devs "$_dev"
-                push swap_devs "$_dev"
+                swap_devs+=("$_dev")
                 break
             done < /etc/fstab
         done < /proc/swaps
@@ -1261,7 +1241,6 @@ if [[ $hostonly ]]; then
             fi
         done < /etc/fstab
     fi
-
 
     # record all host modaliases
     declare -A host_modalias
