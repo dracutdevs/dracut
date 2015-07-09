@@ -25,6 +25,7 @@ depends() {
 # called by dracut
 installkernel() {
     instmods dm_crypt =crypto
+    hostonly="" instmods drbg
 }
 
 # called by dracut
