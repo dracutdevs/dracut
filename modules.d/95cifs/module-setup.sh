@@ -6,7 +6,7 @@ check() {
     require_binaries mount.cifs || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        for fs in ${host_fs_types[@]}; do
+        for fs in "${host_fs_types[@]}"; do
             [[ "$fs" == "cifs" ]] && return 0
         done
         return 255

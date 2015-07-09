@@ -74,7 +74,7 @@ installkernel() {
                     instmods '=fs'
             fi
         else
-            for i in $(host_fs_all); do
+            for i in "${host_fs_types[@]}"; do
                 hostonly='' instmods $i
             done
         fi

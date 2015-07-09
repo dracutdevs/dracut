@@ -8,7 +8,7 @@ check() {
     require_binaries btrfs || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        for fs in ${host_fs_types[@]}; do
+        for fs in "${host_fs_types[@]}"; do
             [[ "$fs" == "btrfs" ]] && return 0
         done
         return 255

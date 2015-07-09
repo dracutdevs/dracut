@@ -7,7 +7,7 @@ check() {
     require_binaries rpc.statd mount.nfs mount.nfs4 umount || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        for fs in ${host_fs_types[@]}; do
+        for fs in "${host_fs_types[@]}"; do
             [[ "$fs" == "nfs" ]] && return 0
             [[ "$fs" == "nfs3" ]] && return 0
             [[ "$fs" == "nfs4" ]] && return 0
