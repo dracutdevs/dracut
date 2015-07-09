@@ -23,6 +23,7 @@
 
 # store for logging
 dracut_args=( "$@" )
+readonly dracut_cmd="$(readlink -f $0)"
 
 set -o pipefail
 
@@ -34,7 +35,7 @@ usage() {
 
 #                                                       80x25 linebreak here ^
     cat << EOF
-Usage: $0 [OPTION]... [<initramfs> [<kernel-version>]]
+Usage: $dracut_cmd [OPTION]... [<initramfs> [<kernel-version>]]
 
 Version: $DRACUT_VERSION
 
@@ -59,7 +60,7 @@ long_usage() {
 
 #                                                       80x25 linebreak here ^
     cat << EOF
-Usage: $0 [OPTION]... [<initramfs> [<kernel-version>]]
+Usage: $dracut_cmd [OPTION]... [<initramfs> [<kernel-version>]]
 
 Version: $DRACUT_VERSION
 
@@ -586,7 +587,7 @@ if [[ $regenerate_all == "yes" ]]; then
     cd /lib/modules
     for i in *; do
         [[ -f $i/modules.dep ]] || [[ -f $i/modules.dep.bin ]] || continue
-        dracut --kver="$i" "${dracut_args[@]}"
+        "$dracut_cmd" --kver="$i" "${dracut_args[@]}"
         ((ret+=$?))
     done
     exit $ret
@@ -814,7 +815,7 @@ if [[ -f $dracutbasedir/dracut-init.sh ]]; then
 else
     printf "%s\n" "dracut: Cannot find $dracutbasedir/dracut-init.sh." >&2
     printf "%s\n" "dracut: Are you running from a git checkout?" >&2
-    printf "%s\n" "dracut: Try passing -l as an argument to $0" >&2
+    printf "%s\n" "dracut: Try passing -l as an argument to $dracut_cmd" >&2
     exit 1
 fi
 
@@ -866,7 +867,7 @@ for ((i=0; i < ${#dracut_args[@]}; i++)); do
         #" keep vim happy
 done
 
-dinfo "Executing: $0 ${dracut_args[@]}"
+dinfo "Executing: $dracut_cmd ${dracut_args[@]}"
 
 [[ $do_list = yes ]] && {
     for mod in $dracutbasedir/modules.d/*; do
