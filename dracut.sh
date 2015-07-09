@@ -212,35 +212,10 @@ EOF
 # Fills up host_devs stack variable and makes sure there are no duplicates
 push_host_devs() {
     local _dev
-    [[ " ${host_devs[@]} " == *" $1 "* ]] && return
-    host_devs+=( "$1" )
-}
-
-# function pop()
-# pops the last value from a stack
-# assigns value to second argument variable
-# or echo to stdout, if no second argument
-# $1 = stack variable
-# $2 = optional variable to store the value
-# example:
-# pop stack val
-# val=$(pop stack)
-pop() {
-    local __stack=$1; shift
-    local __resultvar=$1
-    local _value;
-    # check for empty stack
-    eval '[[ ${#'${__stack}'[@]} -eq 0 ]] && return 1'
-
-    eval _value='${'${__stack}'[${#'${__stack}'[@]}-1]}'
-
-    if [[ "$__resultvar" ]]; then
-        eval $__resultvar="'$_value'"
-    else
-        printf "%s" "$_value"
-    fi
-    eval unset ${__stack}'[${#'${__stack}'[@]}-1]'
-    return 0
+    for _dev in "$@"; do
+        [[ " ${host_devs[@]} " == *" $_dev "* ]] && return
+        host_devs+=( "$_dev" )
+    done
 }
 
 # Little helper function for reading args from the commandline.
@@ -701,81 +676,52 @@ unset NPATH
 
 # these optins add to the stuff in the config file
 if (( ${#add_dracutmodules_l[@]} )); then
-    while pop add_dracutmodules_l val; do
-        add_dracutmodules+=" $val "
-    done
+    add_dracutmodules+=" ${add_dracutmodules_l[@]} "
 fi
 
 if (( ${#force_add_dracutmodules_l[@]} )); then
-    while pop force_add_dracutmodules_l val; do
-        force_add_dracutmodules+=" $val "
-    done
+    force_add_dracutmodules+=" ${force_add_dracutmodules_l[@]} "
 fi
 
 if (( ${#fscks_l[@]} )); then
-    while pop fscks_l val; do
-        fscks+=" $val "
-    done
+    fscks+=" ${fscks_l[@]} "
 fi
 
 if (( ${#add_fstab_l[@]} )); then
-    while pop add_fstab_l val; do
-        add_fstab+=" $val "
-    done
+    add_fstab+=" ${add_fstab_l[@]} "
 fi
 
 if (( ${#fstab_lines_l[@]} )); then
-    while pop fstab_lines_l val; do
-        fstab_lines+=($val)
-    done
+    fstab_lines+=( "${fstab_lines_l[@]}" )
 fi
 
 if (( ${#install_items_l[@]} )); then
-    while pop install_items_l val; do
-        install_items+=" $val "
-    done
+    install_items+=" ${install_items_l[@]} "
 fi
 
 if (( ${#install_optional_items_l[@]} )); then
-    while pop install_optional_items_l val; do
-        install_optional_items+=" $val "
-    done
+    install_optional_items+=" ${install_optional_items_l[@]} "
 fi
 
 # these options override the stuff in the config file
 if (( ${#dracutmodules_l[@]} )); then
-    dracutmodules=''
-    while pop dracutmodules_l val; do
-        dracutmodules+="$val "
-    done
+    dracutmodules="${dracutmodules_l[@]}"
 fi
 
 if (( ${#omit_dracutmodules_l[@]} )); then
-    omit_dracutmodules=''
-    while pop omit_dracutmodules_l val; do
-        omit_dracutmodules+="$val "
-    done
+    omit_dracutmodules="${omit_dracutmodules_l[@]}"
 fi
 
 if (( ${#filesystems_l[@]} )); then
-    filesystems=''
-    while pop filesystems_l val; do
-        filesystems+="$val "
-    done
+    filesystems="${filesystems_l[@]}"
 fi
 
 if (( ${#fw_dir_l[@]} )); then
-    fw_dir=''
-    while pop fw_dir_l val; do
-        fw_dir+="$val "
-    done
+    fw_dir="${fw_dir_l[@]}"
 fi
 
 if (( ${#libdirs_l[@]} )); then
-    libdirs=''
-    while pop libdirs_l val; do
-        libdirs+="$val "
-    done
+    libdirs="${libdirs_l[@]}"
 fi
 
 [[ $stdloglvl_l ]] && stdloglvl=$stdloglvl_l
@@ -925,38 +871,27 @@ dracutfunctions=$dracutbasedir/dracut-functions.sh
 export dracutfunctions
 
 if (( ${#drivers_l[@]} )); then
-    drivers=''
-    while pop drivers_l val; do
-        drivers+="$val "
-    done
+    drivers="${drivers_l[@]}"
 fi
 drivers=${drivers/-/_}
 
 if (( ${#add_drivers_l[@]} )); then
-    while pop add_drivers_l val; do
-        add_drivers+=" $val "
-    done
+    add_drivers+=" ${add_drivers_l[@]} "
 fi
 add_drivers=${add_drivers/-/_}
 
 if (( ${#force_drivers_l[@]} )); then
-    while pop force_drivers_l val; do
-        force_drivers+=" $val "
-    done
+    force_drivers+=" ${force_drivers_l[@]} "
 fi
 force_drivers=${force_drivers/-/_}
 
 if (( ${#omit_drivers_l[@]} )); then
-    while pop omit_drivers_l val; do
-        omit_drivers+=" $val "
-    done
+    omit_drivers+=" ${omit_drivers_l[@]} "
 fi
 omit_drivers=${omit_drivers/-/_}
 
 if (( ${#kernel_cmdline_l[@]} )); then
-    while pop kernel_cmdline_l val; do
-        kernel_cmdline+=" $val "
-    done
+    kernel_cmdline+=" ${kernel_cmdline_l[@]} "
 fi
 
 omit_drivers_corrected=""
@@ -1147,10 +1082,8 @@ for dev in $add_device; do
 done
 
 if (( ${#add_device_l[@]} )); then
-    while pop add_device_l val; do
-        add_device+=" $val "
-        push_host_devs "$val"
-    done
+    add_device+=" ${add_device_l[@]} "
+    push_host_devs "${add_device_l[@]}"
 fi
 
 if [[ $hostonly ]]; then
@@ -1527,7 +1460,7 @@ if [[ $kernel_only != yes ]]; then
 
     [[ $kernel_cmdline ]] && printf "%s\n" "$kernel_cmdline" >> "${initdir}/etc/cmdline.d/01-default.conf"
 
-    while pop fstab_lines line; do
+    for line in "${fstab_lines[@]}"; do
         line=($line)
         [ -z "${line[3]}" ] && line[3]="defaults"
         [ -z "${line[4]}" ] && line[4]="0"
@@ -1566,7 +1499,9 @@ if [[ $kernel_only != yes ]]; then
     done
 fi
 
-while pop include_src src && pop include_target target; do
+for ((i=0; i < ${#include_src[@]}; i++)); do
+    src="${include_src[$i]}"
+    target="${include_target[$i]}"
     if [[ $src && $target ]]; then
         if [[ -f $src ]]; then
             inst $src $target
