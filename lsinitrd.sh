@@ -113,7 +113,7 @@ fi
 extract_files()
 {
     (( ${#filenames[@]} == 1 )) && nofileinfo=1
-    for f in ${!filenames[@]}; do
+    for f in "${!filenames[@]}"; do
         [[ $nofileinfo ]] || echo "initramfs:/$f"
         [[ $nofileinfo ]] || echo "========================================================================"
         $CAT $image 2>/dev/null | cpio --extract --verbose --quiet --to-stdout $f 2>/dev/null

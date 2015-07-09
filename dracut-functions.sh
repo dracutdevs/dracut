@@ -593,7 +593,7 @@ for_each_host_dev_fs()
     local _dev
     local _ret=1
 
-    [[ "${!host_fs_types[@]}" ]] || return 0
+    [[ "${#host_fs_types[@]}" ]] || return 0
 
     for _dev in "${!host_fs_types[@]}"; do
         $_func "$_dev" "${host_fs_types[$_dev]}" && _ret=0
@@ -654,7 +654,7 @@ for_each_host_dev_and_slaves_all()
 
     [[ "${host_devs[@]}" ]] || return 0
 
-    for _dev in ${host_devs[@]}; do
+    for _dev in "${host_devs[@]}"; do
         [[ -b "$_dev" ]] || continue
         if check_block_and_slaves_all $_func $(get_maj_min $_dev); then
             _ret=0
@@ -670,7 +670,7 @@ for_each_host_dev_and_slaves()
 
     [[ "${host_devs[@]}" ]] || return 0
 
-    for _dev in ${host_devs[@]}; do
+    for _dev in "${host_devs[@]}"; do
         [[ -b "$_dev" ]] || continue
         check_block_and_slaves $_func $(get_maj_min $_dev) && return 0
     done
@@ -1241,7 +1241,7 @@ check_mount() {
     local _ret
     local _moddep
 
-    [ "${#host_fs_types[*]}" -le 0 ] && return 1
+    [ "${#host_fs_types[@]}" -le 0 ] && return 1
 
     # If we are already scheduled to be loaded, no need to check again.
     [[ " $mods_to_load " == *\ $_mod\ * ]] && return 0
