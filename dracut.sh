@@ -1146,6 +1146,11 @@ for line in "${fstab_lines[@]}"; do
             ;;
     esac
     [ -z "$dev" ] && dwarn "Bad fstab entry $@" && continue
+    if [[ "$3" == btrfs ]]; then
+        for i in $(btrfs_devs "$2"); do
+            push_host_devs "$i"
+        done
+    fi
     push_host_devs "$dev"
     host_fs_types["$dev"]="$3"
 done
@@ -1194,8 +1199,14 @@ if [[ $hostonly ]]; then
         _bdev=$(readlink -f "/dev/block/$_dev")
         [[ -b $_bdev ]] && _dev=$_bdev
         push_host_devs $_dev
-        [[ "$mp" == "/" ]] && root_dev="$_dev"
+        [[ "$mp" == "/" ]] && push root_devs "$_dev"
         push_host_devs "$_dev"
+        if [[ $(find_mp_fstype "$mp") == btrfs ]]; then
+            for i in $(btrfs_devs "$mp"); do
+                [[ "$mp" == "/" ]] && push root_devs "$i"
+                push_host_devs "$i"
+            done
+        fi
     done
 
     if [[ -f /proc/swaps ]] && [[ -f /etc/fstab ]]; then
@@ -1240,7 +1251,14 @@ if [[ $hostonly ]]; then
             [[ "$_o" != *x-initrd.mount* ]] && continue
             _dev=$(expand_persistent_dev "$_d")
             _dev="$(readlink -f "$_dev")"
-            [[ -b $_dev ]] && push_host_devs "$_dev"
+            [[ -b $_dev ]] || continue
+
+            push_host_devs "$_dev"
+            if [[ "$_t" == btrfs ]]; then
+                for i in $(find_btrfs_devs "$_m"); do
+                    push_host_devs "$i"
+                done
+            fi
         done < /etc/fstab
     fi
 

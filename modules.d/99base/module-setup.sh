@@ -102,7 +102,9 @@ install() {
                 . "$moddir/dracut-lib.sh"
 
                 for _dev in ${host_devs[@]}; do
-                    [[ "$_dev" == "$root_dev" ]] && continue
+                    for _dev2 in ${root_devs[@]}; do
+                        [[ "$_dev" == "$_dev2" ]] && continue 2
+                    done
 
                     # We only actually wait for real devs - swap is only needed
                     # for resume and udev rules generated when parsing resume=

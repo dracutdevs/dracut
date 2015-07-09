@@ -31,6 +31,10 @@ strstr() { [[ $1 = *"$2"* ]]; }
 strglobin() { [[ $1 = *$2* ]]; }
 # Generic glob matching function. If glob pattern $2 matches all of $1, OK
 strglob() { [[ $1 = $2 ]]; }
+# returns OK if $1 contains literal string $2 at the beginning, and isn't empty
+str_starts() { [ "${1#"$2"*}" != "$1" ]; }
+# returns OK if $1 contains literal string $2 at the end, and isn't empty
+str_ends() { [ "${1%*"$2"}" != "$1" ]; }
 
 # helper function for check() in module-setup.sh
 # to check for required installed binaries
@@ -1815,3 +1819,12 @@ lvm_internal_dev() {
     [[ ${DM_LV_LAYER} ]] || [[ ! -L /dev/${DM_VG_NAME}/${DM_LV_NAME} ]]
 }
 
+btrfs_devs() {
+    local _mp="$1"
+    btrfs device usage "$_mp" \
+        | while read _dev _rest; do
+        str_starts "$_dev" "/" || continue
+        _dev=${_dev%,}
+        printf -- "%s\n" "$_dev"
+        done
+}
