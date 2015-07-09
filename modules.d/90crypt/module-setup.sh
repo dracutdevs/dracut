@@ -23,7 +23,8 @@ depends() {
 }
 
 installkernel() {
-    instmods dm_crypt =crypto drbg
+    instmods dm_crypt =crypto
+    hostonly="" instmods drbg
 }
 
 cmdline() {
