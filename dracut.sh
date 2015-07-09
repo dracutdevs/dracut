@@ -674,55 +674,21 @@ done
 export PATH="${NPATH#:}"
 unset NPATH
 
-# these optins add to the stuff in the config file
-if (( ${#add_dracutmodules_l[@]} )); then
-    add_dracutmodules+=" ${add_dracutmodules_l[@]} "
-fi
-
-if (( ${#force_add_dracutmodules_l[@]} )); then
-    force_add_dracutmodules+=" ${force_add_dracutmodules_l[@]} "
-fi
-
-if (( ${#fscks_l[@]} )); then
-    fscks+=" ${fscks_l[@]} "
-fi
-
-if (( ${#add_fstab_l[@]} )); then
-    add_fstab+=" ${add_fstab_l[@]} "
-fi
-
-if (( ${#fstab_lines_l[@]} )); then
-    fstab_lines+=( "${fstab_lines_l[@]}" )
-fi
-
-if (( ${#install_items_l[@]} )); then
-    install_items+=" ${install_items_l[@]} "
-fi
-
-if (( ${#install_optional_items_l[@]} )); then
-    install_optional_items+=" ${install_optional_items_l[@]} "
-fi
+# these options add to the stuff in the config file
+(( ${#add_dracutmodules_l[@]} )) && add_dracutmodules+=" ${add_dracutmodules_l[@]} "
+(( ${#force_add_dracutmodules_l[@]} )) && force_add_dracutmodules+=" ${force_add_dracutmodules_l[@]} "
+(( ${#fscks_l[@]} )) && fscks+=" ${fscks_l[@]} "
+(( ${#add_fstab_l[@]} )) && add_fstab+=" ${add_fstab_l[@]} "
+(( ${#fstab_lines_l[@]} )) && fstab_lines+=( "${fstab_lines_l[@]}" )
+(( ${#install_items_l[@]} )) && install_items+=" ${install_items_l[@]} "
+(( ${#install_optional_items_l[@]} )) && install_optional_items+=" ${install_optional_items_l[@]} "
 
 # these options override the stuff in the config file
-if (( ${#dracutmodules_l[@]} )); then
-    dracutmodules="${dracutmodules_l[@]}"
-fi
-
-if (( ${#omit_dracutmodules_l[@]} )); then
-    omit_dracutmodules="${omit_dracutmodules_l[@]}"
-fi
-
-if (( ${#filesystems_l[@]} )); then
-    filesystems="${filesystems_l[@]}"
-fi
-
-if (( ${#fw_dir_l[@]} )); then
-    fw_dir="${fw_dir_l[@]}"
-fi
-
-if (( ${#libdirs_l[@]} )); then
-    libdirs="${libdirs_l[@]}"
-fi
+(( ${#dracutmodules_l[@]} )) && dracutmodules="${dracutmodules_l[@]}"
+(( ${#omit_dracutmodules_l[@]} )) && omit_dracutmodules="${omit_dracutmodules_l[@]}"
+(( ${#filesystems_l[@]} )) && filesystems="${filesystems_l[@]}"
+(( ${#fw_dir_l[@]} )) && fw_dir="${fw_dir_l[@]}"
+(( ${#libdirs_l[@]} ))&& libdirs="${libdirs_l[@]}"
 
 [[ $stdloglvl_l ]] && stdloglvl=$stdloglvl_l
 [[ ! $stdloglvl ]] && stdloglvl=4
@@ -870,29 +836,19 @@ fi
 dracutfunctions=$dracutbasedir/dracut-functions.sh
 export dracutfunctions
 
-if (( ${#drivers_l[@]} )); then
-    drivers="${drivers_l[@]}"
-fi
+(( ${#drivers_l[@]} )) && drivers="${drivers_l[@]}"
 drivers=${drivers/-/_}
 
-if (( ${#add_drivers_l[@]} )); then
-    add_drivers+=" ${add_drivers_l[@]} "
-fi
+(( ${#add_drivers_l[@]} )) && add_drivers+=" ${add_drivers_l[@]} "
 add_drivers=${add_drivers/-/_}
 
-if (( ${#force_drivers_l[@]} )); then
-    force_drivers+=" ${force_drivers_l[@]} "
-fi
+(( ${#force_drivers_l[@]} )) && force_drivers+=" ${force_drivers_l[@]} "
 force_drivers=${force_drivers/-/_}
 
-if (( ${#omit_drivers_l[@]} )); then
-    omit_drivers+=" ${omit_drivers_l[@]} "
-fi
+(( ${#omit_drivers_l[@]} )) && omit_drivers+=" ${omit_drivers_l[@]} "
 omit_drivers=${omit_drivers/-/_}
 
-if (( ${#kernel_cmdline_l[@]} )); then
-    kernel_cmdline+=" ${kernel_cmdline_l[@]} "
-fi
+(( ${#kernel_cmdline_l[@]} )) && kernel_cmdline+=" ${kernel_cmdline_l[@]} "
 
 omit_drivers_corrected=""
 for d in $omit_drivers; do
