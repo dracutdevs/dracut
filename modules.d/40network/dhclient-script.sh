@@ -54,13 +54,14 @@ setup_interface() {
         echo ip route replace default via $gw dev $netif >> /tmp/net.$netif.gw
     fi
 
-    [ -n "${search}${domain}" ] && echo "search $search $domain" > /tmp/net.$netif.resolv.conf
-    if  [ -n "$namesrv" ] ; then
-        for s in $namesrv; do
-            echo nameserver $s
-        done
-    fi >> /tmp/net.$netif.resolv.conf
-
+    if getargbool 1 rd.peerdns; then
+        [ -n "${search}${domain}" ] && echo "search $search $domain" > /tmp/net.$netif.resolv.conf
+        if  [ -n "$namesrv" ] ; then
+            for s in $namesrv; do
+                echo nameserver $s
+            done
+        fi >> /tmp/net.$netif.resolv.conf
+    fi
     # Note: hostname can be fqdn OR short hostname, so chop off any
     # trailing domain name and explicity add any domain if set.
     [ -n "$hostname" ] && echo "echo ${hostname%.$domain}${domain:+.$domain} > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
@@ -83,12 +84,14 @@ setup_interface6() {
         ${lease_time:+valid_lft $lease_time} \
         ${preferred_lft:+preferred_lft ${preferred_lft}}
 
-    [ -n "${search}${domain}" ] && echo "search $search $domain" > /tmp/net.$netif.resolv.conf
-    if  [ -n "$namesrv" ] ; then
-        for s in $namesrv; do
-            echo nameserver $s
-        done
-    fi >> /tmp/net.$netif.resolv.conf
+    if getargbool 1 rd.peerdns; then
+        [ -n "${search}${domain}" ] && echo "search $search $domain" > /tmp/net.$netif.resolv.conf
+        if  [ -n "$namesrv" ] ; then
+            for s in $namesrv; do
+                echo nameserver $s
+            done
+        fi >> /tmp/net.$netif.resolv.conf
+    fi
 
     # Note: hostname can be fqdn OR short hostname, so chop off any
     # trailing domain name and explicity add any domain if set.
