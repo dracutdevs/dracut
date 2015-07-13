@@ -6,7 +6,7 @@ type crypttab_contains >/dev/null 2>&1 || . /lib/dracut-crypt-lib.sh
 dev=$1
 luks=$2
 
-crypttab_contains "$luks" && exit 0
+crypttab_contains "$luks" "$dev" && exit 0
 
 allowdiscards="-"
 

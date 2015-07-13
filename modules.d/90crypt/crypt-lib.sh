@@ -5,11 +5,17 @@ command -v getarg >/dev/null || . /lib/dracut-lib.sh
 # check if the crypttab contains an entry for a LUKS UUID
 crypttab_contains() {
     local luks="$1"
+    local dev="$2"
     local l d rest
     if [ -f /etc/crypttab ]; then
         while read l d rest || [ -n "$l" ]; do
             strstr "${l##luks-}" "${luks##luks-}" && return 0
             strstr "$d" "${luks##luks-}" && return 0
+            if [ -n "$dev" ]; then
+                for _dev in "$(devnames $d)"; do
+                    [ "$dev" -ef "$_dev" ] && return 0
+                done
+            fi
         done < /etc/crypttab
     fi
     return 1
