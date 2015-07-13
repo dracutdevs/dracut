@@ -17,11 +17,6 @@ After=systemd-udev-trigger.service
 Wants=systemd-udev-trigger.service
 ConditionPathExists=/usr/lib/initrd-release
 ConditionPathExists=|/lib/dracut/need-initqueue
-ConditionPathExistsGlob=|/lib/dracut/hooks/initqueue/*.sh
-ConditionPathExistsGlob=|/lib/dracut/hooks/initqueue/settled/*.sh
-ConditionPathExistsGlob=|/lib/dracut/hooks/initqueue/finished/*.sh
-ConditionPathExistsGlob=|/lib/dracut/hooks/initqueue/online/*.sh
-ConditionPathExistsGlob=|/lib/dracut/hooks/initqueue/timeout/*.sh
 ConditionKernelCommandLine=|rd.break=initqueue
 
 [Service]
