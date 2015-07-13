@@ -7,7 +7,6 @@ Items are ordered in priority.
 INITRAMFS TODO
 
 - search domain string
-- peerdns=no
 - allow dual stack configuration (IPv4, IPv6) for the same interface
 - "bind-mount" kernel drivers in real root for the rescue image,
   if the real root does not have any kernel modules for this kernel
