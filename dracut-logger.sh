@@ -148,7 +148,7 @@ dlog_init() {
             && type -P systemd-cat &>/dev/null \
             && systemctl --quiet is-active systemd-journald.socket &>/dev/null \
             && { echo "dracut-$DRACUT_VERSION" | systemd-cat -t 'dracut' &>/dev/null; } ; then
-            readonly _dlogdir="$(mktemp --tmpdir="$TMPDIR/" -d -t dracut-log.XXXXXX)"
+            readonly _dlogdir="$(mktemp -p "$TMPDIR/" -d -t dracut-log.XXXXXX)"
             readonly _systemdcatfile="$_dlogdir/systemd-cat"
             mkfifo "$_systemdcatfile"
             readonly _dlogfd=15

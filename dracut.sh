@@ -777,16 +777,16 @@ fi
 [[ $reproducible == yes ]] && DRACUT_REPRODUCIBLE=1
 
 readonly TMPDIR="$tmpdir"
-readonly initdir="$(mktemp --tmpdir="$TMPDIR/" -d -t initramfs.XXXXXX)"
+readonly initdir="$(mktemp -p "$TMPDIR/" -d -t initramfs.XXXXXX)"
 [ -d "$initdir" ] || {
-    printf "%s\n" "dracut: mktemp --tmpdir='$TMPDIR/' -d -t initramfs.XXXXXX failed." >&2
+    printf "%s\n" "dracut: mktemp -p '$TMPDIR/' -d -t initramfs.XXXXXX failed." >&2
     exit 1
 }
 
 if [[ $early_microcode = yes ]] || ( [[ $acpi_override = yes ]] && [[ -d $acpi_table_dir ]] ); then
-    readonly early_cpio_dir="$(mktemp --tmpdir="$TMPDIR/" -d -t early_cpio.XXXXXX)"
+    readonly early_cpio_dir="$(mktemp -p "$TMPDIR/" -d -t early_cpio.XXXXXX)"
     [ -d "$early_cpio_dir" ] || {
-        printf "%s\n" "dracut: mktemp --tmpdir='$TMPDIR/' -d -t early_cpio.XXXXXX failed." >&2
+        printf "%s\n" "dracut: mktemp -p '$TMPDIR/' -d -t early_cpio.XXXXXX failed." >&2
         exit 1
     }
 fi
@@ -1614,7 +1614,7 @@ dinfo "*** Creating image file '$outfile' ***"
 
 if [[ $uefi = yes ]]; then
     uefi_outfile="$outfile"
-    readonly uefi_outdir="$(mktemp --tmpdir="$TMPDIR/" -d -t initrd.XXXXXX)"
+    readonly uefi_outdir="$(mktemp -p "$TMPDIR/" -d -t initrd.XXXXXX)"
     # redirect initrd output
     outfile="$uefi_outdir/initrd"
 fi
