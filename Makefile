@@ -212,7 +212,8 @@ syncheck:
                 [ "$${i##*/}" = "module-setup.sh" ] && continue; \
                 read line < "$$i"; [ "$${line#*bash*}" != "$$line" ] && continue; \
 		[ $$V ] && echo "posix syntax check: $$i"; bash --posix -n "$$i" ; ret=$$(($$ret+$$?)); \
-		[ $$V ] && echo "checking for [[: $$i"; if grep -Fq '[[ ' "$$i" ; then ret=$$(($$ret+1)); echo "$$i contains [["; fi \
+		[ $$V ] && echo "checking for [[: $$i"; if grep -Fq '[[ ' "$$i" ; then ret=$$(($$ret+1)); echo "$$i contains [["; fi; \
+		[ $$V ] && echo "checking for echo -n: $$i"; if grep -Fq 'echo -n ' "$$i" ; then ret=$$(($$ret+1)); echo "$$i contains echo -n"; fi \
 	done;exit $$ret
 	@ret=0;for i in *.sh mkinitrd-dracut.sh modules.d/*/*.sh \
 	                modules.d/*/module-setup.sh; do \
