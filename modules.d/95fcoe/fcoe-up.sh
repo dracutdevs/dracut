@@ -64,7 +64,7 @@ elif [ "$netdriver" = "bnx2x" ]; then
     sleep 3
     fipvlan "$netif" -c -s
 else
-    echo -n "$netif" > /sys/module/fcoe/parameters/create
+    printf '%s' "$netif" > /sys/module/fcoe/parameters/create
 fi
 
 need_shutdown

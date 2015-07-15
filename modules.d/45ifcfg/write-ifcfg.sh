@@ -48,7 +48,7 @@ print_s390() {
         for i in /sys/class/net/$_netif/device/cdev[0-9]*; do
             [ -e $i ] || continue
             channel=$(readlink -f $i)
-            echo -n "${channel##*/},"
+            printf '%s' "${channel##*/},"
         done
     })
     [ -n "$SUBCHANNELS" ] || return 1

@@ -15,14 +15,14 @@ SNAPSIZE=$(getargs rd.lvm.snapsize -d rd_LVM_SNAPSIZE=)
 lvmdevs=$(
     for f in /tmp/.lvm_scan-*; do
         [ -e "$f" ] || continue
-        echo -n "${f##/tmp/.lvm_scan-} "
+        printf '%s' "${f##/tmp/.lvm_scan-} "
     done
 )
 
 if [ ! -e /etc/lvm/lvm.conf ]; then
     {
         echo 'devices {';
-        echo -n '    filter = [ '
+        printf '    filter = [ '
         for dev in $lvmdevs; do
             printf '"a|^/dev/%s$|", ' $dev;
         done;

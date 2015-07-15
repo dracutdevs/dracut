@@ -1,2 +1,2 @@
 #!/bin/sh
-[ -c /dev/watchdog ] && echo -n 'V' > /dev/watchdog
+[ -c /dev/watchdog ] && printf 'V' > /dev/watchdog
