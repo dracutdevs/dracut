@@ -14,7 +14,7 @@ sfdisk -C 2560 -H 2 -S 32 -L /dev/sda <<EOF
 ,800
 EOF
 udevadm settle
-echo -n test >keyfile
+printf test >keyfile
 cryptsetup -q luksFormat /dev/sda2 /keyfile
 cryptsetup -q luksFormat /dev/sda3 /keyfile
 cryptsetup -q luksFormat /dev/sda4 /keyfile

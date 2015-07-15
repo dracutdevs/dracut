@@ -5,7 +5,7 @@ for x in 64-lvm.rules 70-mdadm.rules 99-mount-rules; do
 done
 rm -f -- /etc/lvm/lvm.conf
 udevadm control --reload
-echo -n test >keyfile
+printf test >keyfile
 cryptsetup -q luksFormat /dev/sdb /keyfile
 echo "The passphrase is test"
 cryptsetup luksOpen /dev/sdb dracut_crypt_test </keyfile && \

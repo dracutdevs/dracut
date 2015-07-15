@@ -18,7 +18,7 @@ mdadm --create /dev/md0 --run --auto=yes --level=5 --raid-devices=3 /dev/sda2 /d
 # randomly.
 mdadm -W /dev/md0
 set -e
-echo -n test >keyfile
+printf test >keyfile
 cryptsetup -q luksFormat /dev/md0 /keyfile
 echo "The passphrase is test"
 cryptsetup luksOpen /dev/md0 dracut_crypt_test </keyfile

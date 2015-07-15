@@ -295,7 +295,7 @@ _dogetargs() {
         fi
     done
     if [ -n "$_found" ]; then
-        [ $# -gt 0 ] && echo -n "$@"
+        [ $# -gt 0 ] && printf '%s' "$*"
         return 0
     fi
     return 1;
@@ -326,7 +326,9 @@ getargs() {
     done
     if [ -n "$_gfound" ]; then
         if [ $# -gt 0 ]; then
-            echo -n "$@"
+            printf '%s' "$*"
+        else
+            printf 1
         fi
         debug_on
         return 0

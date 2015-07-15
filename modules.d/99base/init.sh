@@ -253,8 +253,8 @@ while :; do
 done
 
 {
-    echo -n "Mounted root filesystem "
-    while read dev mp rest; do [ "$mp" = "$NEWROOT" ] && echo $dev; done < /proc/mounts
+    printf "Mounted root filesystem "
+    while read dev mp rest || [ -n "$dev" ]; do [ "$mp" = "$NEWROOT" ] && echo $dev; done < /proc/mounts
 } | vinfo
 
 # pre pivot scripts are sourced just before we doing cleanup and switch over
