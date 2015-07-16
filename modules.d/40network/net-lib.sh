@@ -189,7 +189,7 @@ set_ifname() {
 fix_bootif() {
     local macaddr=${1}
     local IFS='-'
-    macaddr=$(for i in ${macaddr} ; do echo -n $i:; done)
+    macaddr=$(printf '%s:' ${macaddr})
     macaddr=${macaddr%:}
     # strip hardware type field from pxelinux
     [ -n "${macaddr%??:??:??:??:??:??}" ] && macaddr=${macaddr#??:}

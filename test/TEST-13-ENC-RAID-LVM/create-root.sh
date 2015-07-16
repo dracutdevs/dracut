@@ -14,7 +14,7 @@ sfdisk /dev/sda <<EOF
 ,25M
 EOF
 udevadm settle
-echo -n test >keyfile
+printf test >keyfile
 cryptsetup -q luksFormat /dev/sda2 /keyfile
 cryptsetup -q luksFormat /dev/sda3 /keyfile
 cryptsetup -q luksFormat /dev/sda4 /keyfile

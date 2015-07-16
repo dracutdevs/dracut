@@ -8,7 +8,7 @@ strstr() { [ "${1##*"$2"*}" != "$1" ]; }
 
 stty sane
 if strstr "$CMDLINE" "rd.shell"; then
-    [ -c /dev/watchdog ] && echo -n 'V' > /dev/watchdog
+    [ -c /dev/watchdog ] && printf 'V' > /dev/watchdog
 	strstr "$(setsid --help)" "control" && CTTY="-c"
 	setsid $CTTY sh -i
 fi

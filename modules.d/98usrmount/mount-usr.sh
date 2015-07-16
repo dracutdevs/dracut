@@ -12,7 +12,7 @@ filtersubvol() {
     while [ $# -gt 0 ]; do
         case $1 in
             subvol\=*) :;;
-            *) echo -n "${1}," ;;
+            *) printf '%s' "${1}," ;;
         esac
         shift
     done
