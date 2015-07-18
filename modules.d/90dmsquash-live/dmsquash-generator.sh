@@ -64,3 +64,9 @@ ROOTFLAGS="$(getarg rootflags)"
     echo "What=/dev/mapper/live-rw"
     [ -n "$ROOTFLAGS" ] && echo "Options=${ROOTFLAGS}"
 } > "$GENERATOR_DIR"/sysroot.mount
+
+mkdir -p "$GENERATOR_DIR/dev-mapper-live\x2drw.device.d"
+{
+    echo "[Unit]"
+    echo "JobTimeoutSec=3000"
+} > "$GENERATOR_DIR/dev-mapper-live\x2drw.device.d/timeout.conf"
