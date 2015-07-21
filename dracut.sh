@@ -1651,6 +1651,7 @@ if ! (
             | $compress >> "$outfile"
     ); then
     dfatal "dracut: creation of $outfile failed"
+	rm -f $outfile
     exit 1
 fi
 dinfo "*** Creating initrd image file '$outfile' done ***"
