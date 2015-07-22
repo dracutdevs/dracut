@@ -60,7 +60,6 @@ BuildRequires: docbook-style-xsl docbook-dtds libxslt
 BuildRequires: asciidoc
 %endif
 
-
 %if 0%{?fedora} > 12 || 0%{?rhel}
 # no "provides", because dracut does not offer
 # all functionality of the obsoleted packages
@@ -94,17 +93,17 @@ Requires: findutils
 Requires: grep
 Requires: kmod
 Requires: sed
+Requires: xz
+Requires: gzip
 
 %if 0%{?fedora} > 22
 Recommends: grubby
 Recommends: hardlink
-Recommends: gzip
-Recommends: xz
+Recommends: pigz
 Recommends: kpartx
 %else
 Requires: hardlink
 Requires: gzip
-Requires: xz
 Requires: kpartx
 %endif
 

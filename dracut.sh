@@ -751,25 +751,53 @@ if [[ -n "$logfile" ]];then
 fi
 
 # handle compression options.
-[[ $compress ]] || compress="gzip"
-case $compress in
-    bzip2) compress="bzip2 -9";
-        command -v lbzip2 > /dev/null 2>&1 && compress="lbzip2 -9";;
-    lzma)  compress="lzma -9 -T0";;
-    xz)    compress="xz --check=crc32 --lzma2=dict=1MiB -T0";;
-    gzip)  compress="gzip -n -9";
-        if command -v pigz > /dev/null 2>&1; then
-            compress="pigz -9 -n -T -R"
-        elif command -v gzip --help 2>&1 | grep -q rsyncable; then
-            compress="gzip -n -9 --rsyncable"
-        fi
-        ;;
-    lzo)   compress="lzop -9";;
-    lz4)   compress="lz4 -l -9";;
-esac
 if [[ $_no_compress_l = "cat" ]]; then
     compress="cat"
 fi
+
+if ! [[ $compress ]]; then
+    # check all known compressors, if none specified
+    for i in pigz gzip lz4 lzop lzma xz lbzip2 bzip2 cat; do
+        command -v "$i" &>/dev/null || continue
+        compress="$i"
+        break
+    done
+    if [[ $compress = cat ]]; then
+            printf "%s\n" "dracut: no compression tool available. Initramfs image is going to be big." >&2
+    fi
+fi
+
+# choose the right arguments for the compressor
+case $compress in
+    bzip2|lbzip2)
+        if [[ "$compress" =  lbzip2 ]] || command -v lbzip2 &>/dev/null; then
+            compress="lbzip2 -9"
+        else
+            compress="bzip2 -9"
+        fi
+        ;;
+    lzma)
+        compress="lzma -9 -T0"
+        ;;
+    xz)
+        compress="xz --check=crc32 --lzma2=dict=1MiB -T0"
+        ;;
+    gzip|pigz)
+        if [[ "$compress" = pigz ]] || command -v pigz &>/dev/null; then
+            compress="pigz -9 -n -T -R"
+        elif command -v gzip &>/dev/null && gzip --help 2>&1 | grep -q rsyncable; then
+            compress="gzip -n -9 --rsyncable"
+        else
+            compress="gzip -n -9"
+        fi
+        ;;
+    lzo|lzop)
+        compress="lzop -9"
+        ;;
+    lz4)
+        compress="lz4 -l -9"
+        ;;
+esac
 
 [[ $hostonly = yes ]] && hostonly="-h"
 [[ $hostonly != "-h" ]] && unset hostonly
@@ -887,10 +915,26 @@ esac
 
 abs_outfile=$(readlink -f "$outfile") && outfile="$abs_outfile"
 
-if [[ -d $srcmods ]]; then
-    [[ -f $srcmods/modules.dep ]] || {
-      dwarn "$srcmods/modules.dep is missing. Did you run depmod?"
-    }
+if [[ $no_kernel != yes ]] && [[ -d $srcmods ]]; then
+    if ! [[ -f $srcmods/modules.dep ]]; then
+        dwarn "$srcmods/modules.dep is missing. Did you run depmod?"
+    elif ! ( command -v gzip &>/dev/null && command -v xz &>/dev/null); then
+        read _mod < $srcmods/modules.dep
+        _mod=${_mod%%:*}
+        if [[ -f $srcmods/"$_mod" ]]; then
+            # Check, if kernel modules are compressed, and if we can uncompress them
+            case "$_mod" in
+                *.ko.gz) kcompress=gzip;;
+                *.ko.xz) kcompress=xz;;
+            esac
+            if [[ $kcompress ]]; then
+                if ! command -v "$kcompress" &>/dev/null; then
+                    dfatal "Kernel modules are compressed with $kcompress, but $kcompress is not available."
+                    exit 1
+                fi
+            fi
+        fi
+    fi
 fi
 
 if [[ ! $print_cmdline ]]; then
