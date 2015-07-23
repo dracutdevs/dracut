@@ -61,6 +61,7 @@ install/util.o: install/util.c install/util.h install/macro.h install/log.h
 install/strv.o: install/strv.c install/strv.h install/util.h install/macro.h install/log.h
 
 install/dracut-install: $(DRACUT_INSTALL_OBJECTS)
+	$(CC) $(LDFLAGS) -o $@ $(DRACUT_INSTALL_OBJECTS) $(LDLIBS) -lkmod
 
 dracut-install: install/dracut-install
 	ln -fs $< $@

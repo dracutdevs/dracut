@@ -733,7 +733,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $mdadmconf_l ]] && mdadmconf=$mdadmconf_l
 [[ $lvmconf_l ]] && lvmconf=$lvmconf_l
 [[ $dracutbasedir ]] || dracutbasedir=/usr/lib/dracut
-[[ $fw_dir ]] || fw_dir="/lib/firmware/updates /lib/firmware /lib/firmware/$kernel"
+[[ $fw_dir ]] || fw_dir="/lib/firmware/updates:/lib/firmware:/lib/firmware/$kernel"
 [[ $tmpdir_l ]] && tmpdir="$tmpdir_l"
 [[ $tmpdir ]] || tmpdir=/var/tmp
 [[ $INITRD_COMPRESS ]] && compress=$INITRD_COMPRESS
@@ -750,6 +750,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $kernel_image_l ]] && kernel_image="$kernel_image_l"
 
 # eliminate IFS hackery when messing with fw_dir
+export DRACUT_FIRMWARE_PATH=${fw_dir// /:}
 fw_dir=${fw_dir//:/ }
 
 # check for logfile and try to create one if it doesn't exist
@@ -839,7 +840,6 @@ trap '
 # clean up after ourselves no matter how we die.
 trap 'exit 1;' SIGINT
 
-export DRACUT_KERNEL_LAZY="1"
 export DRACUT_RESOLVE_LAZY="1"
 
 if [[ $print_cmdline ]]; then
@@ -1436,9 +1436,9 @@ if [[ $no_kernel != yes ]]; then
         hostonly='' instmods -c $filesystems
     fi
 
-    dinfo "*** Installing kernel module dependencies and firmware ***"
+    dinfo "*** Installing kernel module dependencies ***"
     dracut_kernel_post
-    dinfo "*** Installing kernel module dependencies and firmware done ***"
+    dinfo "*** Installing kernel module dependencies done ***"
 
     if [[ $noimageifnotneeded == yes ]] && [[ $hostonly ]]; then
         if [[ ! -f "$initdir/lib/dracut/need-initqueue" ]] && \

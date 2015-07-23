@@ -51,41 +51,14 @@ cmdline() {
 installkernel() {
     local _ret
     local _arch=$(uname -m)
-    mp_mod_filter() {
-        local _funcs='scsi_register_device_handler|dm_dirty_log_type_register|dm_register_path_selector|dm_register_target'
-        # subfunctions inherit following FDs
-        local _merge=8 _side2=9
-        function bmf1() {
-            local _f
-            while read _f || [ -n "$_f" ]; do
-                case "$_f" in
-                    *.ko)    [[ $(<         $_f) =~ $_funcs ]] && echo "$_f" ;;
-                    *.ko.gz) [[ $(gzip -dc <$_f) =~ $_funcs ]] && echo "$_f" ;;
-                    *.ko.xz) [[ $(xz -dc   <$_f) =~ $_funcs ]] && echo "$_f" ;;
-                esac
-            done
-            return 0
-        }
+    local _funcs='scsi_register_device_handler|dm_dirty_log_type_register|dm_register_path_selector|dm_register_target'
+    local _s390
 
-        function rotor() {
-            local _f1 _f2
-            while read _f1 || [ -n "$_f1" ]; do
-                echo "$_f1"
-                if read _f2; then
-                    echo "$_f2" 1>&${_side2}
-                fi
-            done | bmf1 1>&${_merge}
-            return 0
-        }
-        # Use two parallel streams to filter alternating modules.
-        set +x
-        eval "( ( rotor ) ${_side2}>&1 | bmf1 ) ${_merge}>&1"
-        [[ $debug ]] && set -x
-        return 0
-    }
+    if [ "$_arch" = "s390" -o "$_arch" = "s390x" ]; then
+        _s390drivers="=drivers/s390/scsi"
+    fi
 
-    ( find_kernel_modules_by_path drivers/scsi; if [ "$_arch" = "s390" -o "$_arch" = "s390x" ]; then find_kernel_modules_by_path drivers/s390/scsi; fi;
-      find_kernel_modules_by_path drivers/md )  |  mp_mod_filter  |  hostonly='' instmods
+    hostonly='' dracut_instmods -s "$_funcs" "=drivers/scsi" "=drivers/md" ${_s390drivers:+"$_s390drivers"}
 }
 
 # called by dracut

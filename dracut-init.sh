@@ -218,6 +218,13 @@ dracut_install() {
     inst_multiple "$@"
 }
 
+dracut_instmods() {
+    [[ $no_kernel = yes ]] && return
+    $DRACUT_INSTALL \
+        ${initdir:+-D "$initdir"} ${loginstall:+-L "$loginstall"} ${hostonly:+-H} ${omit_drivers:+-N "$omit_drivers"} ${srcmods:+--kerneldir "$srcmods"} -m "$@"
+    (($? != 0)) && derror FAILED: $DRACUT_INSTALL ${initdir:+-D "$initdir"} ${loginstall:+-L "$loginstall"} ${hostonly:+-H} ${omit_drivers:+-N "$omit_drivers"} ${srcmods:+--kerneldir "$srcmods"} -m "$@" || :
+}
+
 inst_library() {
     local _hostonly_install
     if [[ "$1" == "-H" ]]; then
@@ -847,11 +854,6 @@ install_kmod_with_fw() {
     [[ -e "${initdir}/lib/modules/$kernel/${1##*/lib/modules/$kernel/}" ]] \
         && return 0
 
-    if [[ $DRACUT_KERNEL_LAZY_HASHDIR ]] && [[ -e "$DRACUT_KERNEL_LAZY_HASHDIR/${1##*/}" ]]; then
-        read ret < "$DRACUT_KERNEL_LAZY_HASHDIR/${1##*/}"
-        return $ret
-    fi
-
     if [[ $omit_drivers ]]; then
         local _kmod=${1##*/}
         _kmod=${_kmod%.ko*}
@@ -876,9 +878,6 @@ install_kmod_with_fw() {
 
     inst_simple "$1" "/lib/modules/$kernel/${1##*/lib/modules/$kernel/}"
     ret=$?
-    [[ $DRACUT_KERNEL_LAZY_HASHDIR ]] && \
-        [[ -d "$DRACUT_KERNEL_LAZY_HASHDIR" ]] && \
-        echo $ret > "$DRACUT_KERNEL_LAZY_HASHDIR/${1##*/}"
     (($ret != 0)) && return $ret
 
     local _modname=${1##*/} _fwdir _found _fw
@@ -925,51 +924,6 @@ dracut_kernel_post() {
     local _moddirname=${srcmods%%/lib/modules/*}
     local _pid
 
-    if [[ $DRACUT_KERNEL_LAZY_HASHDIR ]] && [[ -f "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist" ]]; then
-        xargs -r modprobe -a ${_moddirname:+-d ${_moddirname}/} \
-            --ignore-install --show-depends --set-version $kernel \
-            < "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist" 2>/dev/null \
-            | sort -u \
-            | while read _cmd _modpath _options || [ -n "$_cmd" ]; do
-            [[ $_cmd = insmod ]] || continue
-            echo "$_modpath"
-        done > "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist.dep"
-
-        (
-            if [[ $DRACUT_INSTALL ]] && [[ -z $_moddirname ]]; then
-                xargs -r $DRACUT_INSTALL ${initdir:+-D "$initdir"} ${loginstall:+-L "$loginstall"} -a < "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist.dep"
-            else
-                while read _modpath || [ -n "$_modpath" ]; do
-                    local _destpath=$_modpath
-                    [[ $_moddirname ]] && _destpath=${_destpath##$_moddirname/}
-                    _destpath=${_destpath##*/lib/modules/$kernel/}
-                    inst_simple "$_modpath" "/lib/modules/$kernel/${_destpath}" || exit $?
-                done < "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist.dep"
-            fi
-        ) &
-        _pid=$(jobs -p | while read a  || [ -n "$a" ]; do printf ":$a";done)
-        _pid=${_pid##*:}
-
-        if [[ $DRACUT_INSTALL ]]; then
-            xargs -r modinfo -k $kernel -F firmware < "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist.dep" \
-                | while read line || [ -n "$line" ]; do
-                for _fwdir in $fw_dir; do
-                    echo $_fwdir/$line;
-                done;
-            done | xargs -r $DRACUT_INSTALL ${initdir:+-D "$initdir"} ${loginstall:+-L "$loginstall"} -a -o
-        else
-            for _fw in $(xargs -r modinfo -k $kernel -F firmware < "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist.dep"); do
-                for _fwdir in $fw_dir; do
-                    [[ -d $_fwdir && -f $_fwdir/$_fw ]] || continue
-                    inst_simple "$_fwdir/$_fw" "/lib/firmware/$_fw"
-                    break
-                done
-            done
-        fi
-
-        wait $_pid
-    fi
-
     for _f in modules.builtin.bin modules.builtin modules.order; do
         [[ $srcmods/$_f ]] && inst_simple "$srcmods/$_f" "/lib/modules/$kernel/$_f"
     done
@@ -981,7 +935,6 @@ dracut_kernel_post() {
         exit 1
     fi
 
-    [[ $DRACUT_KERNEL_LAZY_HASHDIR ]] && rm -fr -- "$DRACUT_KERNEL_LAZY_HASHDIR"
 }
 
 [[ "$kernel_current" ]] || export kernel_current=$(uname -r)
@@ -1038,113 +991,32 @@ find_kernel_modules () {
     find_kernel_modules_by_path  drivers
 }
 
-# instmods [-c [-s]] <kernel module> [<kernel module> ... ]
-# instmods [-c [-s]] <kernel subsystem>
-# install kernel modules along with all their dependencies.
-# <kernel subsystem> can be e.g. "=block" or "=drivers/usb/storage"
 instmods() {
+    # instmods [-c [-s]] <kernel module> [<kernel module> ... ]
+    # instmods [-c [-s]] <kernel subsystem>
+    # install kernel modules along with all their dependencies.
+    # <kernel subsystem> can be e.g. "=block" or "=drivers/usb/storage"
+    # -c check
+    # -s silent
+    local _optional="-o"
+    local _silent
+    local _ret
     [[ $no_kernel = yes ]] && return
-    # called [sub]functions inherit _fderr
-    local _fderr=9
-    local _check=no
-    local _silent=no
     if [[ $1 = '-c' ]]; then
-        _check=yes
+        _optional=""
         shift
     fi
-
     if [[ $1 = '-s' ]]; then
-        _silent=yes
+        _silent=1
         shift
     fi
-
-    function inst1mod() {
-        local _ret=0 _mod="$1"
-        case $_mod in
-            =*)
-                ( [[ "$_mpargs" ]] && echo $_mpargs
-                    find_kernel_modules_by_path "${_mod#=}" ) \
-                        | instmods
-                ((_ret+=$?))
-                ;;
-            --*) _mpargs+=" $_mod" ;;
-            *)
-                _mod=${_mod##*/}
-                # Check for aliased modules
-                _modalias=$(modinfo -k $kernel -F filename $_mod 2> /dev/null)
-                _modalias=${_modalias%.ko*}
-                if [[ $_modalias ]] && [ "${_modalias##*/}" != "${_mod%.ko*}" ] ; then
-                    _mod=${_modalias##*/}
-                fi
-
-                # if we are already installed, skip this module and go on
-                # to the next one.
-                if [[ $DRACUT_KERNEL_LAZY_HASHDIR ]] && \
-                    [[ -f "$DRACUT_KERNEL_LAZY_HASHDIR/${_mod%.ko*}" ]]; then
-                    read _ret <"$DRACUT_KERNEL_LAZY_HASHDIR/${_mod%.ko*}"
-                    return $_ret
-                fi
-
-                _mod=${_mod/-/_}
-                if [[ $omit_drivers ]] && [[ "$_mod" =~ $omit_drivers ]]; then
-                    dinfo "Omitting driver ${_mod##$srcmods}"
-                    return 0
-                fi
-
-                # If we are building a host-specific initramfs and this
-                # module is not already loaded, move on to the next one.
-                [[ $hostonly ]] \
-                    && ! module_is_host_only "$_mod" \
-                    && return 0
-
-                if [[ "$_check" = "yes" ]] || ! [[ $DRACUT_KERNEL_LAZY_HASHDIR ]]; then
-                    # We use '-d' option in modprobe only if modules prefix path
-                    # differs from default '/'.  This allows us to use dracut with
-                    # old version of modprobe which doesn't have '-d' option.
-                    local _moddirname=${srcmods%%/lib/modules/*}
-                    [[ -n ${_moddirname} ]] && _moddirname="-d ${_moddirname}/"
-
-                    # ok, load the module, all its dependencies, and any firmware
-                    # it may require
-                    for_each_kmod_dep install_kmod_with_fw $_mod \
-                        --set-version $kernel ${_moddirname} $_mpargs
-                    ((_ret+=$?))
-                else
-                    [[ $DRACUT_KERNEL_LAZY_HASHDIR ]] && \
-                        echo ${_mod%.ko*} >> "$DRACUT_KERNEL_LAZY_HASHDIR/lazylist"
-                fi
-                ;;
-        esac
-        return $_ret
-    }
-
-    function instmods_1() {
-        local _mod _mpargs
-        if (($# == 0)); then  # filenames from stdin
-            while read _mod || [ -n "$_mod" ]; do
-                inst1mod "${_mod%.ko*}" || {
-                    if [[ "$_check" == "yes" ]] && [[ "$_silent" == "no" ]]; then
-                        dfatal "Failed to install module $_mod"
-                    fi
-                }
-            done
-        fi
-        while (($# > 0)); do  # filenames as arguments
-            inst1mod ${1%.ko*} || {
-                if [[ "$_check" == "yes" ]] && [[ "$_silent" == "no" ]]; then
-                    dfatal "Failed to install module $1"
-                fi
-            }
-            shift
-        done
-        return 0
-    }
-
-    local _ret _filter_not_found='FATAL: Module .* not found.'
-    # Capture all stderr from modprobe to _fderr. We could use {var}>...
-    # redirections, but that would make dracut require bash4 at least.
-    eval "( instmods_1 \"\$@\" ) ${_fderr}>&1" \
-        | while read line || [ -n "$line" ]; do [[ "$line" =~ $_filter_not_found ]] || echo $line;done | derror
+    if (($# == 0)); then
+        read -r -d '' -a args
+        set -- "${args[@]}"
+    fi
+    $DRACUT_INSTALL ${initdir:+-D "$initdir"} ${loginstall:+-L "$loginstall"}  ${hostonly:+-H} ${omit_drivers:+-N "$omit_drivers"} ${_optional:+-o} ${_silent:+--silent} ${srcmods:+--kerneldir "$srcmods"} -m "$@"
     _ret=$?
+    (($_ret != 0)) && [[ -z "$_silent" ]] && derror FAILED: $DRACUT_INSTALL ${initdir:+-D "$initdir"} ${loginstall:+-L "$loginstall"} ${hostonly:+-H} ${omit_drivers:+-N "$omit_drivers"} ${_optional:+-o} ${_silent:+--silent} ${srcmods:+--kerneldir "$srcmods"} -m "$@" || :
+    [[ "$optional" ]] && return 0
     return $_ret
 }

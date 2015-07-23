@@ -157,44 +157,17 @@ depends() {
 # called by dracut
 installkernel() {
     local _arch=$(uname -m)
+    local _funcs='iscsi_register_transport'
 
     instmods bnx2i qla4xxx cxgb3i cxgb4i be2iscsi
     hostonly="" instmods iscsi_tcp iscsi_ibft crc32c iscsi_boot_sysfs
-    iscsi_module_filter() {
-        local _funcs='iscsi_register_transport'
-        # subfunctions inherit following FDs
-        local _merge=8 _side2=9
-        function bmf1() {
-            local _f
-            while read _f || [ -n "$_f" ]; do
-                case "$_f" in
-                    *.ko)    [[ $(<         $_f) =~ $_funcs ]] && echo "$_f" ;;
-                    *.ko.gz) [[ $(gzip -dc <$_f) =~ $_funcs ]] && echo "$_f" ;;
-                    *.ko.xz) [[ $(xz -dc   <$_f) =~ $_funcs ]] && echo "$_f" ;;
-                esac
-            done
-            return 0
-        }
 
-        function rotor() {
-            local _f1 _f2
-            while read _f1 || [ -n "$_f1" ]; do
-                echo "$_f1"
-                if read _f2; then
-                    echo "$_f2" 1>&${_side2}
-                fi
-            done | bmf1 1>&${_merge}
-            return 0
-        }
-        # Use two parallel streams to filter alternating modules.
-        set +x
-        eval "( ( rotor ) ${_side2}>&1 | bmf1 ) ${_merge}>&1"
-        [[ $debug ]] && set -x
-        return 0
-    }
+    if [ "$_arch" = "s390" -o "$_arch" = "s390x" ]; then
+        _s390drivers="=drivers/s390/scsi"
+    fi
 
-    { find_kernel_modules_by_path drivers/scsi; if [ "$_arch" = "s390" -o "$_arch" = "s390x" ]; then find_kernel_modules_by_path drivers/s390/scsi; fi;} \
-    | iscsi_module_filter  |  instmods
+    dracut_instmods -s "$_funcs" "=drivers/scsi" ${_s390drivers:+"$_s390drivers"}
+
 }
 
 # called by dracut
