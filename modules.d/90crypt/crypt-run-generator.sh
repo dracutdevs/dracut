@@ -15,10 +15,10 @@ if strstr "$(cryptsetup --help)" "allow-discards"; then
     if discarduuids=$(getargs "rd.luks.allow-discards"); then
         discarduuids=$(str_replace "$discarduuids" 'luks-' '')
         if strstr " $discarduuids " " ${luks##luks-}"; then
-            allowdiscards="allow-discards"
+            allowdiscards="discard"
         fi
     elif getargbool 0 rd.luks.allow-discards; then
-        allowdiscards="allow-discards"
+        allowdiscards="discard"
     fi
 fi
 
