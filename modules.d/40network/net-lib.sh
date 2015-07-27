@@ -5,6 +5,7 @@ get_ip() {
     ip=$(ip -o -f inet addr show $iface)
     ip=${ip%%/*}
     ip=${ip##* }
+    echo $ip
 }
 
 iface_for_remote_addr() {
