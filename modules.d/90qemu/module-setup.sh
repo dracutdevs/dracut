@@ -3,7 +3,7 @@
 # called by dracut
 check() {
     if type -P systemd-detect-virt >/dev/null 2>&1; then
-        vm=$(systemd-detect-virt --vm >/dev/null 2>&1)
+        vm=$(systemd-detect-virt --vm 2>/dev/null)
         (($? != 0)) && return 255
         [[ $vm = "qemu" ]] && return 0
         [[ $vm = "kvm" ]] && return 0
@@ -13,8 +13,9 @@ check() {
     for i in /sys/class/dmi/id/*_vendor; do
         [[ -f $i ]] || continue
         read vendor < $i
-        [[  "$vendor" == "QEMU" ]] && return 0
-        [[  "$vendor" == "Bochs" ]] && return 0
+        [[ "$vendor" == "QEMU" ]] && return 0
+        [[ "$vendor" == "Red Hat" ]] && return 0
+        [[ "$vendor" == "Bochs" ]] && return 0
     done
     return 255
 }
