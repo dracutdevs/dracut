@@ -45,6 +45,7 @@ depends() {
 
 # called by dracut
 install() {
+    inst_multiple /usr/lib/udev/collect
     inst_hook cmdline 30 "$moddir/parse-dasd.sh"
     if [[ $hostonly_cmdline == "yes" ]] ; then
         local _dasd=$(cmdline)
