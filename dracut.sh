@@ -1453,8 +1453,8 @@ if [[ $no_kernel != yes ]]; then
 fi
 
 if [[ $kernel_only != yes ]]; then
-    (( ${#install_items[@]} > 0 )) && inst_multiple "${install_items[@]}"
-    (( ${#install_optional_items[@]} > 0 )) && inst_multiple -o "${install_optional_items[@]}"
+    (( ${#install_items[@]} > 0 )) && inst_multiple ${install_items[@]}
+    (( ${#install_optional_items[@]} > 0 )) && inst_multiple -o ${install_optional_items[@]}
 
     [[ $kernel_cmdline ]] && printf "%s\n" "$kernel_cmdline" >> "${initdir}/etc/cmdline.d/01-default.conf"
 
