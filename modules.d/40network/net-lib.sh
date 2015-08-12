@@ -2,6 +2,18 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+is_ip() {
+    echo "$1" | {
+        IFS=. read a b c d
+        test "$a" -ge 0 -a "$a" -le 255 \
+             -a "$b" -ge 0 -a "$b" -le 255 \
+             -a "$c" -ge 0 -a "$c" -le 255 \
+             -a "$d" -ge 0 -a "$d" -le 255 \
+             2> /dev/null
+    } && return 0
+    return 1
+}
+
 get_ip() {
     local iface="$1" ip=""
     ip=$(ip -o -f inet addr show $iface)
