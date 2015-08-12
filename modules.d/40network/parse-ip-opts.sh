@@ -36,8 +36,10 @@ unset count
 # If needed, check if bootdev= contains anything usable
 BOOTDEV=$(getarg bootdev=)
 
-if [ -n "$NEEDBOOTDEV" ] ; then
-    [ -z "$BOOTDEV" ] && warn "Please supply bootdev argument for multiple ip= lines"
+if [ -n "$NEEDBOOTDEV" ] && getargbool 1 rd.neednet; then
+    #[ -z "$BOOTDEV" ] && warn "Please supply bootdev argument for multiple ip= lines"
+    echo "rd.neednet=1" > /etc/cmdline.d/dracut-neednet.conf
+    info "Multiple ip= arguments: assuming rd.neednet=1"
 fi
 
 # Check ip= lines
@@ -48,7 +50,7 @@ for p in $(getargs ip=); do
     # make first device specified the BOOTDEV
     if [ -z "$BOOTDEV" ] && [ -n "$dev" ]; then
         BOOTDEV="$dev"
-        [ -n "$NEEDBOOTDEV" ] && warn "Setting bootdev to '$BOOTDEV'"
+        [ -n "$NEEDBOOTDEV" ] && info "Setting bootdev to '$BOOTDEV'"
     fi
 
     # skip ibft since we did it above
