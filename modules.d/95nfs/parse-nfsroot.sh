@@ -38,7 +38,7 @@ if [ -n "$netroot" ] ; then
         [ "$n" = "$netroot" ] && break
     done
     if [ "$n" = "$netroot" ]; then
-        warn "Ignoring netroot argument for NFS"
+        #warn "Ignoring netroot argument for NFS"
         netroot=$root
     fi
 else
