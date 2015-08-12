@@ -129,6 +129,7 @@ install() {
         echo swapoff \
         kmod insmod rmmod modprobe modinfo depmod lsmod \
         mount umount reboot poweroff \
+        systemd-run systemd-escape \
         systemd-cgls systemd-tmpfiles
 
     inst_multiple -o \
