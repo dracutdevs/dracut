@@ -51,45 +51,29 @@ str_ends() {
     [ "${1%*"$2"}" != "$1" ]
 }
 
-# Dup stdout and stderr, so that subshell redirection does not affect logging.
-if [ -z "$DRACUT_STDOUT" ]; then
-    if [ -n "$BASH" ]; then
-        readonly DRACUT_STDOUT=98
-        readonly DRACUT_STDERR=98
-        exec 98>&1
-        exec 99>&2
-    else
-        readonly DRACUT_STDOUT=8
-        readonly DRACUT_STDERR=9
-        exec 8>&1
-        exec 9>&2
-    fi
-fi
-
-
 if [ -z "$DRACUT_SYSTEMD" ]; then
 
     warn() {
         check_quiet
         echo "<28>dracut Warning: $*" > /dev/kmsg
-        echo "dracut Warning: $*" >&$DRACUT_STDERR
+        echo "dracut Warning: $*" >&2
     }
 
     info() {
         check_quiet
         echo "<30>dracut: $*" > /dev/kmsg
         [ "$DRACUT_QUIET" != "yes" ] && \
-            echo "dracut: $*" >&$DRACUT_STDERR
+            echo "dracut: $*" >&2
     }
 
 else
 
     warn() {
-        echo "Warning: $*" >&$DRACUT_STDERR
+        echo "Warning: $*" >&2
     }
 
     info() {
-        echo "$*" >&$DRACUT_STDOUT
+        echo "$*"
     }
 
 fi
