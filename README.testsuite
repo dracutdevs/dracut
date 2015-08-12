@@ -6,9 +6,9 @@ mdadm \
 lvm2 \
 cryptsetup \
 nfs-utils \
-netbsd-iscsi \
 nbd \
 dhcp-server \
+scsi-target-utils \
 iscsi-initiator-utils
 
 
