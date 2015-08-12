@@ -226,6 +226,37 @@ install() {
     inst "$moddir/iscsiroot.sh" "/sbin/iscsiroot"
     if ! dracut_module_included "systemd"; then
         inst "$moddir/mount-lun.sh" "/bin/mount-lun.sh"
+    else
+        inst_multiple -o \
+                      $systemdsystemunitdir/iscsi.service \
+                      $systemdsystemunitdir/iscsid.service \
+                      $systemdsystemunitdir/iscsid.socket \
+                      $systemdsystemunitdir/iscsiuio.service \
+                      $systemdsystemunitdir/iscsiuio.socket \
+                      iscsiadm iscsid
+
+        mkdir -p "${initdir}/$systemdsystemunitdir/sockets.target.wants"
+        for i in \
+                iscsiuio.socket \
+            ; do
+            ln_r "$systemdsystemunitdir/${i}" "$systemdsystemunitdir/sockets.target.wants/${i}"
+        done
+
+        mkdir -p "${initdir}/$systemdsystemunitdir/basic.target.wants"
+        for i in \
+                iscsid.service \
+            ; do
+            ln_r "$systemdsystemunitdir/${i}" "$systemdsystemunitdir/basic.target.wants/${i}"
+        done
+
+        # Make sure iscsid is started after dracut-cmdline and ready for the initqueue
+        mkdir -p "${initdir}/$systemdsystemunitdir/iscsid.service.d"
+        (
+            echo "[Unit]"
+            echo "After=dracut-cmdline.service"
+            echo "Before=dracut-initqueue.service"
+        ) > "${initdir}/$systemdsystemunitdir/iscsid.service.d/dracut.conf"
     fi
+
     dracut_need_initqueue
 }

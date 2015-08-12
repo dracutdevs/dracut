@@ -62,8 +62,9 @@ if [ -n "$iscsi_firmware" ] ; then
     [ -z "$netroot" ] && netroot=iscsi:
     modprobe -b -q iscsi_boot_sysfs 2>/dev/null
     modprobe -b -q iscsi_ibft
-    initqueue --onetime --timeout /sbin/iscsiroot dummy "$netroot" "$NEWROOT"
 fi
+
+initqueue --onetime --timeout /sbin/iscsiroot dummy "$netroot" "$NEWROOT"
 
 # If it's not iscsi we don't continue
 [ "${netroot%%:*}" = "iscsi" ] || return
@@ -83,6 +84,16 @@ fi
 if [ -n "$netroot" ] && [ "$root" != "/dev/root" ] && [ "$root" != "dhcp" ]; then
     if ! getargbool 1 rd.neednet >/dev/null || ! getarg "ip="; then
         initqueue --onetime --settled /sbin/iscsiroot dummy "$netroot" "$NEWROOT"
+    fi
+fi
+
+if arg=$(getarg rd.iscsi.initiator -d iscsi_initiator=) && [ -n "$arg" ]; then
+    iscsi_initiator=$arg
+    echo "InitiatorName=$iscsi_initiator" > /run/initiatorname.iscsi
+    ln -fs /run/initiatorname.iscsi /dev/.initiatorname.iscsi
+    if ! [ -e /etc/iscsi/initiatorname.iscsi ]; then
+        mkdir -p /etc/iscsi
+        ln -fs /run/initiatorname.iscsi /etc/iscsi/initiatorname.iscsi
     fi
 fi
 
