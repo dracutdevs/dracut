@@ -58,7 +58,7 @@ if [ -n "$iscsiroot" ] ; then
 fi
 
 # iscsi_firmware does not need argument checking
-if [ -n "$iscsi_firmware" ] ; then
+if [ -n "$iscsi_firmware" ] || getargbool 0 rd.iscsi.ibft -d "ip=ibft"; then
     [ -z "$netroot" ] && netroot=iscsi:
     modprobe -b -q iscsi_boot_sysfs 2>/dev/null
     modprobe -b -q iscsi_ibft
@@ -95,6 +95,18 @@ if arg=$(getarg rd.iscsi.initiator -d iscsi_initiator=) && [ -n "$arg" ]; then
         mkdir -p /etc/iscsi
         ln -fs /run/initiatorname.iscsi /etc/iscsi/initiatorname.iscsi
     fi
+fi
+
+# If not given on the cmdline and initiator-name available via iBFT
+if [ -z $iscsi_initiator ] && [ -f /sys/firmware/ibft/initiator/initiator-name ] && ! [ -f /tmp/iscsi_set_initiator ]; then
+    iscsi_initiator=$(while read line || [ -n "$line" ]; do echo $line;done < /sys/firmware/ibft/initiator/initiator-name)
+    echo "InitiatorName=$iscsi_initiator" > /run/initiatorname.iscsi
+    rm -f /etc/iscsi/initiatorname.iscsi
+    mkdir -p /etc/iscsi
+    ln -fs /run/initiatorname.iscsi /etc/iscsi/initiatorname.iscsi
+    systemctl restart iscsid
+    sleep 1
+    > /tmp/iscsi_set_initiator
 fi
 
 if [ -n "$iscsi_firmware" ] ; then
