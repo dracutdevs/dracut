@@ -55,6 +55,7 @@ while :; do
     done
 
     if [ $main_loop -gt $((2*$RDRETRY/3)) ]; then
+        warn "dracut-initqueue timeout - starting timeout scripts"
         for job in $hookdir/initqueue/timeout/*.sh; do
             [ -e "$job" ] || break
             job=$job . $job
