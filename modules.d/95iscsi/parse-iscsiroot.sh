@@ -61,11 +61,12 @@ fi
 
 # iscsi_firmware does not need argument checking
 if [ -n "$iscsi_firmware" ] ; then
-    netroot=${netroot:-iscsi:}
-    modprobe -q iscsi_boot_sysfs 2>/dev/null
-    modprobe -q iscsi_ibft
-    initqueue --onetime --timeout /sbin/iscsiroot dummy "'$netroot'" "'$NEWROOT'"
+    [ -z "$netroot" ] && netroot=iscsi:
+    modprobe -b -q iscsi_boot_sysfs 2>/dev/null
+    modprobe -b -q iscsi_ibft
 fi
+
+initqueue --onetime --timeout /sbin/iscsiroot dummy "$netroot" "$NEWROOT"
 
 # If it's not iscsi we don't continue
 [ "${netroot%%:*}" = "iscsi" ] || return
@@ -92,8 +93,22 @@ if [ -n "$netroot" ] && [ "$root" != "/dev/root" ] && [ "$root" != "dhcp" ]; the
     fi
 fi
 
-netroot_enc=$(str_replace "$netroot" '/' '\2f')
-echo "[ -f '/tmp/iscsistarted-$netroot_enc' ]" > $hookdir/initqueue/finished/iscsi_started.sh
+if arg=$(getarg rd.iscsi.initiator -d iscsi_initiator=) && [ -n "$arg" ]; then
+    iscsi_initiator=$arg
+    echo "InitiatorName=$iscsi_initiator" > /run/initiatorname.iscsi
+    ln -fs /run/initiatorname.iscsi /dev/.initiatorname.iscsi
+    if ! [ -e /etc/iscsi/initiatorname.iscsi ]; then
+        mkdir -p /etc/iscsi
+        ln -fs /run/initiatorname.iscsi /etc/iscsi/initiatorname.iscsi
+    fi
+fi
+
+if [ -n "$iscsi_firmware" ] ; then
+    echo "[ -f '/tmp/iscsistarted-firmware' ]" > $hookdir/initqueue/finished/iscsi_started.sh
+else
+    netroot_enc=$(str_replace "$netroot" '/' '\2f')
+    echo "[ -f '/tmp/iscsistarted-$netroot_enc' ]" > $hookdir/initqueue/finished/iscsi_started.sh
+fi
 
 # Done, all good!
 rootok=1
