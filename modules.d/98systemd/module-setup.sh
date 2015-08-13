@@ -123,6 +123,7 @@ install() {
         \
         $tmpfilesdir/systemd.conf \
         \
+        systemd-run systemd-escape \
         journalctl systemctl echo swapoff systemd-cgls systemd-tmpfiles
 
     inst_multiple -o \
