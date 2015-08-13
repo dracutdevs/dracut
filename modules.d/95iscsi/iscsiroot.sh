@@ -197,13 +197,14 @@ handle_netroot()
                             ${iscsi_in_password:+-W $iscsi_in_password} \
 	                    ${iscsi_iface_name:+--param iface.iscsi_ifacename=$iscsi_iface_name} \
 	                    ${iscsi_netdev_name:+--param iface.net_ifacename=$iscsi_netdev_name} \
-                            ${iscsi_param} >/dev/null 2>&1
+                            ${iscsi_param} >/dev/null 2>&1 \
+	            && { > $hookdir/initqueue/work ; }
             else
-                systemctl --no-block restart "$netroot_enc" >/dev/null 2>&1
+                systemctl --no-block restart "$netroot_enc" >/dev/null 2>&1 \
+	            && { > $hookdir/initqueue/work ; }
             fi
         fi
     else
-        > $hookdir/initqueue/work
         iscsistart -i $iscsi_initiator -t $iscsi_target_name        \
                    -g $iscsi_target_group -a $iscsi_target_ip      \
                    -p $iscsi_target_port \
@@ -214,7 +215,7 @@ handle_netroot()
 	           ${iscsi_iface_name:+--param iface.iscsi_ifacename=$iscsi_iface_name} \
 	           ${iscsi_netdev_name:+--param iface.net_ifacename=$iscsi_netdev_name} \
                    ${iscsi_param} \
-	    || :
+	    && { > $hookdir/initqueue/work ; }
     fi
     netroot_enc=$(str_replace "$1" '/' '\2f')
     echo 'started' > "/tmp/iscsistarted-iscsi:${netroot_enc}"
@@ -225,6 +226,14 @@ ret=0
 
 if [ "$netif" != "dummy" ] && getargbool 1 rd.iscsi.waitnet; then
     all_ifaces_up || exit 0
+fi
+
+if [ "$netif" = "dummy" ] && all_ifaces_up; then
+    # s.th. went wrong and the timeout script hits
+    # restart
+    systemctl restart iscsid
+    # damn iscsid is not ready after unit says it's ready
+    sleep 2
 fi
 
 # loop over all netroot parameter
