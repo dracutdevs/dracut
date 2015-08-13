@@ -48,7 +48,7 @@ run_client() {
         -net nic,macaddr=52:54:00:12:34:00,model=e1000 \
         -net nic,macaddr=52:54:00:12:34:01,model=e1000 \
         -net socket,connect=127.0.0.1:12330 \
-        -append "$* rw rd.auto rd.retry=20 console=ttyS0,115200n81 selinux=0 rd.debug=0 $DEBUGFAIL" \
+        -append "rw rd.auto rd.retry=20 console=ttyS0,115200n81 selinux=0 rd.debug=0 $DEBUGFAIL $*" \
         -initrd $TESTDIR/initramfs.testing
     if ! grep -F -m 1 -q iscsi-OK $TESTDIR/client.img; then
 	echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
@@ -60,22 +60,27 @@ run_client() {
 }
 
 do_test_run() {
+    initiator=$(iscsi-iname)
+
     run_client "root=dhcp" \
-        "root=/dev/root netroot=dhcp ip=ens3:dhcp" \
+               "root=/dev/root netroot=dhcp ip=ens3:dhcp" \
+               "rd.iscsi.initiator=$initiator" \
         || return 1
 
     run_client "netroot=iscsi target0"\
-        "root=LABEL=singleroot netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0" \
-        "ip=192.168.50.101::192.168.50.1:255.255.255.0:iscsi-1:ens3:off" \
+               "root=LABEL=singleroot netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0" \
+               "ip=192.168.50.101::192.168.50.1:255.255.255.0:iscsi-1:ens3:off" \
+               "rd.iscsi.initiator=$initiator" \
         || return 1
 
     run_client "netroot=iscsi target1 target2" \
-                "root=LABEL=sysroot" \
-                "ip=192.168.50.101:::255.255.255.0::ens3:off" \
-                "ip=192.168.51.101:::255.255.255.0::ens4:off" \
-                "netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target1" \
-                "netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2" \
-         || return 1
+               "root=LABEL=sysroot" \
+               "ip=192.168.50.101:::255.255.255.0::ens3:off" \
+               "ip=192.168.51.101:::255.255.255.0::ens4:off" \
+               "netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target1" \
+               "netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2" \
+               "rd.iscsi.initiator=$initiator" \
+        || return 1
 
     run_client "netroot=iscsi target1 target2 rd.iscsi.waitnet=0" \
 	       "root=LABEL=sysroot" \
@@ -83,7 +88,8 @@ do_test_run() {
                "ip=192.168.51.101:::255.255.255.0::ens4:off" \
 	       "netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target1" \
                "netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2" \
-               "rd.waitnet=0" \
+               "rd.iscsi.initiator=$initiator" \
+               "rd.waitnet=0 rd.retry=30" \
 	|| return 1
 
     run_client "netroot=iscsi target1 target2 rd.iscsi.waitnet=0 rd.iscsi.testroute=0" \
@@ -92,8 +98,20 @@ do_test_run() {
                "ip=192.168.51.101:::255.255.255.0::ens4:off" \
 	       "netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target1" \
                "netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2" \
-               "rd.waitnet=0 rd.iscsi.testroute=0" \
+               "rd.iscsi.initiator=$initiator" \
+               "rd.waitnet=0 rd.iscsi.testroute=0 rd.retry=30" \
 	|| return 1
+
+    run_client "netroot=iscsi target1 target2 rd.iscsi.waitnet=0 rd.iscsi.testroute=0 default GW" \
+	       "root=LABEL=sysroot" \
+               "ip=192.168.50.101::192.168.50.1:255.255.255.0::ens3:off" \
+               "ip=192.168.51.101::192.168.51.1:255.255.255.0::ens4:off" \
+	       "netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target1" \
+               "netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2" \
+               "rd.iscsi.initiator=$initiator" \
+               "rd.waitnet=0 rd.iscsi.testroute=0 rd.retry=30" \
+	|| return 1
+
     return 0
 }
 
