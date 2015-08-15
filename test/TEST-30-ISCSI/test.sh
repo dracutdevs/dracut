@@ -3,7 +3,7 @@ TEST_DESCRIPTION="root filesystem over iSCSI"
 
 KVERSION=${KVERSION-$(uname -r)}
 
-#DEBUGFAIL="rd.shell rd.break rd.debug loglevel=7 "
+DEBUGFAIL="rd.shell rd.break rd.debug loglevel=7 "
 DEBUGFAIL="loglevel=1"
 #SERVER_DEBUG="rd.debug loglevel=7"
 SERIAL="tcp:127.0.0.1:9999"
@@ -48,7 +48,7 @@ run_client() {
         -net nic,macaddr=52:54:00:12:34:00,model=e1000 \
         -net nic,macaddr=52:54:00:12:34:01,model=e1000 \
         -net socket,connect=127.0.0.1:12330 \
-        -append "rw rd.auto rd.retry=20 console=ttyS0,115200n81 selinux=0 rd.debug=0 $DEBUGFAIL $*" \
+        -append "rw rd.auto rd.retry=50 console=ttyS0,115200n81 selinux=0 rd.debug=0 $DEBUGFAIL $*" \
         -initrd $TESTDIR/initramfs.testing
     if ! grep -F -m 1 -q iscsi-OK $TESTDIR/client.img; then
 	echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
@@ -89,7 +89,7 @@ do_test_run() {
 	       "netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target1" \
                "netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2" \
                "rd.iscsi.initiator=$initiator" \
-               "rd.waitnet=0 rd.retry=30" \
+               "rd.iscsi.waitnet=0" \
 	|| return 1
 
     run_client "netroot=iscsi target1 target2 rd.iscsi.waitnet=0 rd.iscsi.testroute=0" \
@@ -99,7 +99,7 @@ do_test_run() {
 	       "netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target1" \
                "netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2" \
                "rd.iscsi.initiator=$initiator" \
-               "rd.waitnet=0 rd.iscsi.testroute=0 rd.retry=30" \
+               "rd.iscsi.waitnet=0 rd.iscsi.testroute=0" \
 	|| return 1
 
     run_client "netroot=iscsi target1 target2 rd.iscsi.waitnet=0 rd.iscsi.testroute=0 default GW" \
@@ -109,7 +109,7 @@ do_test_run() {
 	       "netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target1" \
                "netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2" \
                "rd.iscsi.initiator=$initiator" \
-               "rd.waitnet=0 rd.iscsi.testroute=0 rd.retry=30" \
+               "rd.iscsi.waitnet=0 rd.iscsi.testroute=0" \
 	|| return 1
 
     return 0
