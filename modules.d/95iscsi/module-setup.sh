@@ -257,6 +257,6 @@ install() {
             echo "Before=dracut-initqueue.service"
         ) > "${initdir}/$systemdsystemunitdir/iscsid.service.d/dracut.conf"
     fi
-
+    inst_dir /var/lib/iscsi
     dracut_need_initqueue
 }
