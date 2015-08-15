@@ -186,7 +186,7 @@ handle_netroot()
         is_active=$?
         if [ $is_active -ne 0 ]; then
             if [ "$status" != "activating" ] && ! systemctl is-failed "$netroot_enc" >/dev/null 2>&1; then
-                systemd-run --no-block --service-type=oneshot --remain-after-exit --quiet \
+                systemd-run --service-type=oneshot --remain-after-exit --quiet \
                             --description="Login iSCSI Target $iscsi_target_name" \
                             --unit="$netroot_enc" -- \
                             $(command -v iscsistart) \
