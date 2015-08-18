@@ -67,13 +67,13 @@ else
 fi
 
 vwarn() {
-    while read line; do
+    while read line || [ -n "$line" ]; do
         warn $line;
     done
 }
 
 vinfo() {
-    while read line; do
+    while read line || [ -n "$line" ]; do
         info $line;
     done
 }
