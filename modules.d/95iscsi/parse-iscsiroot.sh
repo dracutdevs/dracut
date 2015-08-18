@@ -47,7 +47,11 @@ if [ "${root%%:*}" = "iscsi" ] ; then
 fi
 
 # If it's not empty or iscsi we don't continue
-[ -z "$netroot" ] || [ "${netroot%%:*}" = "iscsi" ] || return
+for nroot in $(getargs netroot); do
+    [ "${nroot%%:*}" = "iscsi" ] || continue
+    netroot="$nroot"
+    break
+done
 
 if [ -n "$iscsiroot" ] ; then
     [ -z "$netroot" ]  && netroot=$root
@@ -71,19 +75,18 @@ if [ -n "$iscsi_firmware" ] || getargbool 0 rd.iscsi.ibft -d "ip=ibft"; then
     fi
     modprobe -b -q iscsi_boot_sysfs 2>/dev/null
     modprobe -b -q iscsi_ibft
+    # if no ip= is given, but firmware
+    echo "[ -f '/tmp/iscsistarted-firmware' ]" > $hookdir/initqueue/finished/iscsi_started.sh
+    initqueue --unique --onetime --timeout /sbin/iscsiroot timeout "$netroot" "$NEWROOT"
+    initqueue --unique --onetime --settled /sbin/iscsiroot dummy "'$netroot'" "'$NEWROOT'"
 fi
 
-initqueue --onetime --timeout /sbin/iscsiroot dummy "$netroot" "$NEWROOT"
 
-# If it's not iscsi we don't continue
-[ "${netroot%%:*}" = "iscsi" ] || return
+[ -z "$netroot" ] || [ "${netroot%%:*}" = "iscsi" ] || return 1
+
+initqueue --unique --onetime --timeout /sbin/iscsiroot timeout "$netroot" "$NEWROOT"
 
 initqueue --onetime modprobe --all -b -q qla4xxx cxgb3i cxgb4i bnx2i be2iscsi
-
-if [ -z "$iscsi_firmware" ] ; then
-    type parse_iscsi_root >/dev/null 2>&1 || . /lib/net-lib.sh
-    parse_iscsi_root "$netroot" || return
-fi
 
 # ISCSI actually supported?
 if ! [ -e /sys/module/iscsi_tcp ]; then
@@ -92,7 +95,7 @@ fi
 
 if [ -n "$netroot" ] && [ "$root" != "/dev/root" ] && [ "$root" != "dhcp" ]; then
     if ! getargbool 1 rd.neednet >/dev/null || ! getarg "ip="; then
-        initqueue --onetime --settled /sbin/iscsiroot dummy "$netroot" "$NEWROOT"
+        initqueue --unique --onetime --settled /sbin/iscsiroot dummy "'$netroot'" "'$NEWROOT'"
     fi
 fi
 
@@ -113,17 +116,21 @@ if [ -z $iscsi_initiator ] && [ -f /sys/firmware/ibft/initiator/initiator-name ]
     rm -f /etc/iscsi/initiatorname.iscsi
     mkdir -p /etc/iscsi
     ln -fs /run/initiatorname.iscsi /etc/iscsi/initiatorname.iscsi
-    systemctl restart iscsid
-    sleep 1
     > /tmp/iscsi_set_initiator
+    if systemctl --quiet is-active iscsid.service; then
+        systemctl restart iscsid
+        sleep 1
+    fi
 fi
 
-if [ -n "$iscsi_firmware" ] ; then
-    echo "[ -f '/tmp/iscsistarted-firmware' ]" > $hookdir/initqueue/finished/iscsi_started.sh
-else
-    netroot_enc=$(str_replace "$netroot" '/' '\2f')
+
+for nroot in $(getargs netroot); do
+    [ "${nroot%%:*}" = "iscsi" ] || continue
+    type parse_iscsi_root >/dev/null 2>&1 || . /lib/net-lib.sh
+    parse_iscsi_root "$nroot" || return 1
+    netroot_enc=$(str_replace "$nroot" '/' '\2f')
     echo "[ -f '/tmp/iscsistarted-$netroot_enc' ]" > $hookdir/initqueue/finished/iscsi_started.sh
-fi
+done
 
 # Done, all good!
 rootok=1
