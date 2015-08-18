@@ -242,9 +242,12 @@ ibft_to_cmdline() {
                 # skip not assigned ip adresses
                 [ "$ip" = "0.0.0.0" ] && continue
                 [ -e ${iface}/gateway ] && gw=$(read a < ${iface}/gateway; echo $a)
+                [ "$gateway" = "0.0.0.0" ] && unset $gateway
                 [ -e ${iface}/subnet-mask ] && mask=$(read a < ${iface}/subnet-mask; echo $a)
                 [ -e ${iface}/primary-dns ] && dns1=$(read a < ${iface}/primary-dns; echo $a)
+                [ "$dns1" = "0.0.0.0" ] && unset $dns1
                 [ -e ${iface}/secondary-dns ] && dns2=$(read a < ${iface}/secondary-dns; echo $a)
+                [ "$dns2" = "0.0.0.0" ] && unset $dns2
                 [ -e ${iface}/hostname ] && hostname=$(read a < ${iface}/hostname; echo $a)
                 if [ -n "$ip" ] && [ -n "$mask" ]; then
                     echo "ip=$ip::$gw:$mask:$hostname:$dev:none${dns1:+:$dns1}${dns2:+:$dns2}"
