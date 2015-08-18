@@ -109,7 +109,7 @@ do_dhcp() {
         info "Starting dhcp for interface $netif"
         dhclient "$@" \
                  ${_timeout:+-timeout $_timeout} \
-                 -1 -q \
+                 -q \
                  -cf /etc/dhclient.conf \
                  -pf /tmp/dhclient.$netif.pid \
                  -lf /tmp/dhclient.$netif.lease \
