@@ -27,6 +27,7 @@ install() {
     fi
 
     inst_rules \
+        40-redhat.rules \
         50-firmware.rules \
         50-udev.rules \
         50-udev-default.rules \
@@ -46,7 +47,8 @@ install() {
         80-net-setup-link.rules \
         95-late.rules \
         "$moddir/59-persistent-storage.rules" \
-        "$moddir/61-persistent-storage.rules"
+        "$moddir/61-persistent-storage.rules" \
+        ${NULL}
 
     prepare_udev_rules 59-persistent-storage.rules 61-persistent-storage.rules
     # debian udev rules
