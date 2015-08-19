@@ -155,7 +155,11 @@ do_ipv6auto() {
 do_static() {
     strstr $ip '*:*:*' && load_ipv6
 
-    linkup $netif
+    if ! linkup $netif; then
+        warn "Could bring interface $netif up!"
+        return 1
+    fi
+
     [ -n "$macaddr" ] && ip link set address $macaddr dev $netif
     [ -n "$mtu" ] && ip link set mtu $mtu dev $netif
     if strstr $ip '*:*:*'; then
