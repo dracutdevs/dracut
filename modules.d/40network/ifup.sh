@@ -155,6 +155,15 @@ do_static() {
         return 1
     fi
 
+    ip route get "$ip" | {
+        read a rest
+        if [ "$a" = "local" ]; then
+            warn "Not assigning $ip to interface $netif, cause it is already assigned!"
+            return 1
+        fi
+        return 0
+    } || return 1
+
     [ -n "$macaddr" ] && ip link set address $macaddr dev $netif
     [ -n "$mtu" ] && ip link set mtu $mtu dev $netif
     if strglobin $ip '*:*:*'; then
