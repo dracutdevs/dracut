@@ -63,7 +63,7 @@ install() {
 
     if [[ $hostonly ]] && [[ -f /etc/crypttab ]]; then
         # filter /etc/crypttab for the devices we need
-        while read _mapper _dev _rest; do
+        while read _mapper _dev _rest || [ -n "$_mapper" ]; do
             [[ $_mapper = \#* ]] && continue
             [[ $_dev ]] || continue
 

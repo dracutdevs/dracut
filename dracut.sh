@@ -1045,7 +1045,7 @@ if [[ $hostonly ]]; then
                 [[ "$_d" -ef "$dev" ]] || continue
 
                 if [[ -f /etc/crypttab ]]; then
-                    while read _mapper _a _p _o; do
+                    while read _mapper _a _p _o || [ -n "$_mapper" ]; do
                         [[ $_mapper = \#* ]] && continue
                         [[ "$_d" -ef /dev/mapper/"$_mapper" ]] || continue
                         [[ "$_o" ]] || _o="$_p"
