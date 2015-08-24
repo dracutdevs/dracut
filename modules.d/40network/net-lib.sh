@@ -129,6 +129,13 @@ setup_net() {
         fi
     done
 
+    # If a static route was necessary to reach the gateway, the
+    # first gateway setup call will have failed with
+    #     RTNETLINK answers: Network is unreachable
+    # Replace the default route again after static routes to cover
+    # this scenario.
+    [ -e /tmp/net.$netif.gw ]            && . /tmp/net.$netif.gw
+
     # Handle STP Timeout: arping the default gateway.
     # (or the root server, if a) it's local or b) there's no gateway.)
     # Note: This assumes that if no router is present the
