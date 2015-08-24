@@ -1113,7 +1113,6 @@ if [[ $hostonly ]]; then
         _dev=$(find_block_device "$mp")
         _bdev=$(readlink -f "/dev/block/$_dev")
         [[ -b $_bdev ]] && _dev=$_bdev
-        push_host_devs $_dev
         [[ "$mp" == "/" ]] && root_devs+=("$_dev")
         push_host_devs "$_dev"
         if [[ $(find_mp_fstype "$mp") == btrfs ]]; then
