@@ -99,7 +99,7 @@ if [ -n "$netroot" ] && [ "$root" != "/dev/root" ] && [ "$root" != "dhcp" ]; the
     fi
 fi
 
-if arg=$(getarg rd.iscsi.initiator -d iscsi_initiator=) && [ -n "$arg" ]; then
+if arg=$(getarg rd.iscsi.initiator -d iscsi_initiator=) && [ -n "$arg" ] && ! [ -f /run/initiatorname.iscsi ] ; then
     iscsi_initiator=$arg
     echo "InitiatorName=$iscsi_initiator" > /run/initiatorname.iscsi
     ln -fs /run/initiatorname.iscsi /dev/.initiatorname.iscsi
@@ -117,10 +117,7 @@ if [ -z $iscsi_initiator ] && [ -f /sys/firmware/ibft/initiator/initiator-name ]
     mkdir -p /etc/iscsi
     ln -fs /run/initiatorname.iscsi /etc/iscsi/initiatorname.iscsi
     > /tmp/iscsi_set_initiator
-    if systemctl --quiet is-active iscsid.service; then
-        systemctl restart iscsid
-        sleep 1
-    fi
+    systemctl try-restart iscsid && sleep 1
 fi
 
 
