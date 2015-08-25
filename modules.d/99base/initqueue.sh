@@ -13,6 +13,8 @@ while [ $# -gt 0 ]; do
     case "$1" in
         --onetime)
             onetime="yes";;
+        --online)
+            qname="/online";;
         --settled)
             qname="/settled";;
         --finished)
@@ -50,7 +52,7 @@ fi
 {
     [ -n "$onetime" ] && echo '[ -e "$job" ] && rm -f -- "$job"'
     [ -n "$env" ] && echo "$env"
-    echo "$exe $@"
+    echo "$exe" "$@"
 } > "/tmp/$$-${job}.sh"
 
 mv -f "/tmp/$$-${job}.sh" "$hookdir/initqueue${qname}/${job}.sh"
