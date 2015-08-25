@@ -3,8 +3,9 @@ TEST_DESCRIPTION="root filesystem over iSCSI"
 
 KVERSION=${KVERSION-$(uname -r)}
 
-#DEBUGFAIL="rd.shell rd.break rd.debug loglevel=7 "
 DEBUGFAIL="loglevel=1"
+#DEBUGFAIL="rd.shell rd.break rd.debug loglevel=7 "
+#DEBUGFAIL="rd.debug loglevel=7 "
 #SERVER_DEBUG="rd.debug loglevel=7"
 SERIAL="tcp:127.0.0.1:9999"
 SERIAL="null"
@@ -70,6 +71,7 @@ do_test_run() {
     run_client "netroot=iscsi target0"\
                "root=LABEL=singleroot netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0" \
                "ip=192.168.50.101::192.168.50.1:255.255.255.0:iscsi-1:ens3:off" \
+               "rd.iscsi.firmware" \
                "rd.iscsi.initiator=$initiator" \
         || return 1
 
@@ -79,6 +81,7 @@ do_test_run() {
                "ip=192.168.51.101:::255.255.255.0::ens4:off" \
                "netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target1" \
                "netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2" \
+               "rd.iscsi.firmware" \
                "rd.iscsi.initiator=$initiator" \
         || return 1
 
@@ -88,6 +91,7 @@ do_test_run() {
                "ip=192.168.51.101:::255.255.255.0::ens4:off" \
 	       "netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target1" \
                "netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2" \
+               "rd.iscsi.firmware" \
                "rd.iscsi.initiator=$initiator" \
                "rd.waitnet=0 rd.retry=30" \
 	|| return 1
@@ -98,6 +102,7 @@ do_test_run() {
                "ip=192.168.51.101:::255.255.255.0::ens4:off" \
 	       "netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target1" \
                "netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2" \
+               "rd.iscsi.firmware" \
                "rd.iscsi.initiator=$initiator" \
                "rd.waitnet=0 rd.iscsi.testroute=0 rd.retry=30" \
 	|| return 1
@@ -108,6 +113,7 @@ do_test_run() {
                "ip=192.168.51.101::192.168.51.1:255.255.255.0::ens4:off" \
 	       "netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target1" \
                "netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2" \
+               "rd.iscsi.firmware" \
                "rd.iscsi.initiator=$initiator" \
                "rd.waitnet=0 rd.iscsi.testroute=0 rd.retry=30" \
 	|| return 1
