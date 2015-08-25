@@ -377,6 +377,10 @@ for p in $(getargs ip=); do
 
     > /tmp/net.${netif}.up
 
+    if [ -e /sys/class/net/${netif}/address ]; then
+        > /tmp/net.$(cat /sys/class/net/${netif}/address).up
+    fi
+
     case $autoconf in
         dhcp|on|any|dhcp6)
             ;;
