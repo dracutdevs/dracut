@@ -396,6 +396,7 @@ for p in $(getargs ip=); do
                 do_static ;;
         esac
     done
+    ret=$?
 
     > /tmp/net.${netif}.up
 
@@ -403,7 +404,7 @@ for p in $(getargs ip=); do
         dhcp|on|any|dhcp6)
             ;;
         *)
-            if [ $? -eq 0 ]; then
+            if [ $ret -eq 0 ]; then
                 setup_net $netif
                 source_hook initqueue/online $netif
                 if [ -z "$manualup" ]; then
