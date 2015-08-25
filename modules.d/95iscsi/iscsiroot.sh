@@ -236,28 +236,26 @@ if [ "$netif" = "dummy" ] && all_ifaces_up; then
     sleep 2
 fi
 
-# loop over all netroot parameter
-netroot=$(getarg netroot)
-if [ $? -eq 0 ] && [ "$netroot" != "dhcp" ]; then
-    for nroot in $(getargs netroot); do
-        [ "${nroot%%:*}" = "iscsi" ] || continue
-        nroot="${nroot##iscsi:}"
-        if [ -n "$nroot" ]; then
-            handle_netroot "$nroot"
-            ret=$(($ret + $?))
-        fi
-    done
+if [ "$netif" = "online" ]; then
     if getargbool 0 rd.iscsi.firmware -d -y iscsi_firmware ; then
         handle_firmware
-        ret=$(($ret + $?))
+        ret=$?
     fi
 else
-    if [ -n "$iroot" ]; then
-        handle_netroot "$iroot"
-        ret=$?
+    # loop over all netroot parameter
+    nroot=$(getarg netroot)
+    if [ $? -eq 0 ] && [ "$nroot" != "dhcp" ]; then
+        for nroot in $(getargs netroot); do
+            [ "${nroot%%:*}" = "iscsi" ] || continue
+            nroot="${nroot##iscsi:}"
+            if [ -n "$nroot" ]; then
+                handle_netroot "$nroot"
+                ret=$(($ret + $?))
+            fi
+        done
     else
-        if getargbool 0 rd.iscsi.firmware -d -y iscsi_firmware ; then
-            handle_firmware
+        if [ -n "$iroot" ]; then
+            handle_netroot "$iroot"
             ret=$?
         fi
     fi
