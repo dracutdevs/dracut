@@ -14,10 +14,17 @@
 # This script is sourced, so root should be set. But let's be paranoid
 [ -z "$root" ] && root=$(getarg root=)
 if [ -z "$netroot" ]; then
-    for netroot in $(getargs netroot=); do
-        [ "${netroot%%:*}" = "iscsi" ] && break
+    for nroot in $(getargs netroot=); do
+        [ "${nroot%%:*}" = "iscsi" ] && break
     done
-    [ "${netroot%%:*}" = "iscsi" ] || unset netroot
+    if [ "${nroot%%:*}" = "iscsi" ]; then
+        netroot="$nroot"
+    else
+        for nroot in $(getargs netroot=); do
+            [ "${nroot%%:*}" = "dhcp" ] && break
+        done
+        netroot="$nroot"
+    fi
 fi
 [ -z "$iscsiroot" ] && iscsiroot=$(getarg iscsiroot=)
 [ -z "$iscsi_firmware" ] && getargbool 0 rd.iscsi.firmware -y iscsi_firmware && iscsi_firmware="1"
@@ -59,7 +66,9 @@ fi
 
 # iscsi_firmware does not need argument checking
 if [ -n "$iscsi_firmware" ] || getargbool 0 rd.iscsi.ibft -d "ip=ibft"; then
-    [ -z "$netroot" ] && netroot=iscsi:
+    if [ "$root" != "dhcp" ] && [ "$netroot" != "dhcp" ]; then
+        [ -z "$netroot" ] && netroot=iscsi:
+    fi
     modprobe -b -q iscsi_boot_sysfs 2>/dev/null
     modprobe -b -q iscsi_ibft
 fi
