@@ -2,17 +2,28 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+is_mpath() {
+    local _dev=$1
+    [ -e /sys/dev/block/$_dev/dm/uuid ] || return 1
+    [[ $(cat /sys/dev/block/$_dev/dm/uuid) =~ mpath- ]] && return 0
+    return 1
+}
+
+majmin_to_mpath_dev() {
+    local _dev
+    for i in `ls -1 /dev/mapper/mpath*`; do
+        dev=$(get_maj_min $i)
+        if [ "$dev" = "$1" ]; then
+            echo $i
+            return
+        fi
+    done
+}
+
 check() {
     local _rootdev
     # if there's no multipath binary, no go.
     require_binaries multipath || return 1
-
-    is_mpath() {
-        local _dev=$1
-        [ -e /sys/dev/block/$_dev/dm/uuid ] || return 1
-        [[ $(cat /sys/dev/block/$_dev/dm/uuid) =~ mpath- ]] && return 0
-        return 1
-    }
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for_each_host_dev_and_slaves is_mpath || return 255
@@ -68,7 +79,18 @@ installkernel() {
 }
 
 install() {
-    local _f
+    local _f _allow
+    add_hostonly_mpath_conf() {
+        is_mpath $1 && {
+            local _dev
+
+            _dev=$(majmin_to_mpath_dev $1)
+            [ -z "$_dev" ] && return
+            strstr "$_allow" "$_dev" && return
+            _allow="$_allow --allow $_dev"
+        }
+    }
+
     inst_multiple -o  \
         dmsetup \
         kpartx \
@@ -81,6 +103,11 @@ install() {
         /etc/xdrdevices.conf \
         /etc/multipath.conf \
         /etc/multipath/*
+
+    [[ $hostonly ]] && {
+        for_each_host_dev_and_slaves_all add_hostonly_mpath_conf
+        [ -n "$_allow" ] && mpathconf $_allow --outfile ${initdir}/etc/multipath.conf
+    }
 
     inst $(command -v partx) /sbin/partx
 
