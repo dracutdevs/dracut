@@ -139,6 +139,10 @@ case $reason in
 
         echo "[ -f /tmp/net.$netif.did-setup ]" > $hookdir/initqueue/finished/dhclient-$netif.sh
         >/tmp/net.$netif.up
+        if [ -e /sys/class/net/${netif}/address ]; then
+            > /tmp/net.$(cat /sys/class/net/${netif}/address).up
+        fi
+
         ;;
 
     RENEW|REBIND)
@@ -171,6 +175,9 @@ case $reason in
 
         echo "[ -f /tmp/net.$netif.did-setup ]" > $hookdir/initqueue/finished/dhclient-$netif.sh
         >/tmp/net.$netif.up
+        if [ -e /sys/class/net/${netif}/address ]; then
+            > /tmp/net.$(cat /sys/class/net/${netif}/address).up
+        fi
         ;;
 
     RENEW6|REBIND6)
