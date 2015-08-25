@@ -410,7 +410,7 @@ if [ ! -e /tmp/net.${netif}.up ]; then
     if getargs 'ip=dhcp6'; then
         load_ipv6
         do_dhcp -6
-    else
+    elif getargs 'ip=dhcp'; then
         do_dhcp -4
     fi
 fi
