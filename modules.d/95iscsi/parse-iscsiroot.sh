@@ -77,10 +77,10 @@ if [ -n "$iscsi_firmware" ] || getargbool 0 rd.iscsi.ibft -d "ip=ibft"; then
     modprobe -b -q iscsi_ibft
     # if no ip= is given, but firmware
     echo "[ -f '/tmp/iscsistarted-firmware' ]" > $hookdir/initqueue/finished/iscsi_started.sh
-    initqueue --unique --onetime --timeout /sbin/iscsiroot timeout "$netroot" "$NEWROOT"
-    initqueue --unique --onetime --settled /sbin/iscsiroot dummy "'$netroot'" "'$NEWROOT'"
+    initqueue --unique --online /sbin/iscsiroot online "iscsi:" "$NEWROOT"
+    initqueue --unique --onetime --timeout /sbin/iscsiroot timeout "iscsi:" "$NEWROOT"
+    initqueue --unique --onetime --settled /sbin/iscsiroot online "iscsi:" "'$NEWROOT'"
 fi
-
 
 [ -z "$netroot" ] || [ "${netroot%%:*}" = "iscsi" ] || return 1
 
