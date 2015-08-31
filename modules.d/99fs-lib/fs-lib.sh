@@ -5,14 +5,14 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 fsck_ask_reboot() {
     info "note - fsck suggests reboot, if you"
     info "leave shell, booting will continue normally"
-    action_on_fail -n "(reboot ?)"
+    emergency_shell -n "(reboot ?)"
 }
 
 fsck_ask_err() {
     warn "*** An error occurred during the file system check."
     warn "*** Dropping you to a shell; the system will try"
     warn "*** to mount the filesystem(s), when you leave the shell."
-    action_on_fail -n "(Repair filesystem)"
+    emergency_shell -n "(Repair filesystem)"
 }
 
 # inherits: _ret _drv _out
