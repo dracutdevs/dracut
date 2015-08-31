@@ -85,7 +85,7 @@ if command -v kmod >/dev/null 2>/dev/null; then
         done
 fi
 
-trap "action_on_fail Signal caught!" 0
+trap "emergency_shell Signal caught!" 0
 
 export UDEVVERSION=$(udevadm --version)
 if [ $UDEVVERSION -gt 166 ]; then
@@ -214,7 +214,7 @@ while :; do
 
     main_loop=$(($main_loop+1))
     [ $main_loop -gt $RDRETRY ] \
-        && { flock -s 9 ; action_on_fail "Could not boot." && break; } 9>/.console_lock
+        && { flock -s 9 ; emergency_shell "Could not boot."; } 9>/.console_lock
 done
 unset job
 unset queuetriggered
@@ -249,7 +249,7 @@ while :; do
 
     _i_mount=$(($_i_mount+1))
     [ $_i_mount -gt 20 ] \
-        && { flock -s 9 ; action_on_fail "Can't mount root filesystem" && break; } 9>/.console_lock
+        && { flock -s 9 ; emergency_shell "Can't mount root filesystem"; } 9>/.console_lock
 done
 
 {
@@ -283,7 +283,7 @@ done
 [ "$INIT" ] || {
     echo "Cannot find init!"
     echo "Please check to make sure you passed a valid root filesystem!"
-    action_on_fail
+    emergency_shell
 }
 
 if [ $UDEVVERSION -lt 168 ]; then
@@ -387,13 +387,13 @@ if [ -f /etc/capsdrop ]; then
 	warn "Command:"
 	warn capsh --drop=$CAPS_INIT_DROP -- -c exec switch_root "$NEWROOT" "$INIT" $initargs
 	warn "failed."
-	action_on_fail
+	emergency_shell
     }
 else
     unset RD_DEBUG
     exec $SWITCH_ROOT "$NEWROOT" "$INIT" $initargs || {
 	warn "Something went very badly wrong in the initramfs.  Please "
 	warn "file a bug against dracut."
-	action_on_fail
+	emergency_shell
     }
 fi

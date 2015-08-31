@@ -29,7 +29,7 @@ while :; do
     done
 
     i=$(($i+1))
-    [ $i -gt 20 ] && action_on_fail "Can't mount root filesystem" && break
+    [ $i -gt 20 ] && emergency_shell "Can't mount root filesystem"
 done
 
 export -p > /dracut-state.sh
