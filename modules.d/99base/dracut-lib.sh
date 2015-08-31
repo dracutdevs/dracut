@@ -1143,7 +1143,7 @@ emergency_shell()
 
 action_on_fail()
 {
-    local _action=$(getarg rd.action_on_fail= -d action_on_fail=)
+    local _action=$(getarg action_on_fail=)
     case "$_action" in
         continue)
             [ "$1" = "-n" ] && shift 2
