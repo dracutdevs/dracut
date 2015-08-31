@@ -13,7 +13,6 @@ DefaultDependencies=no
 After=systemd-vconsole-setup.service
 Wants=systemd-vconsole-setup.service
 Conflicts=emergency.service emergency.target
-ConditionKernelCommandLine=!action_on_fail=continue
 
 [Service]
 Environment=HOME=/
