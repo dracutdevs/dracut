@@ -37,4 +37,4 @@ fi
 IFACES="$IFACES $DEVICE"
 echo "$IFACES" >> /tmp/net.ifaces
 
-ifup $DEVICE -m
+exec ifup "$DEVICE"
