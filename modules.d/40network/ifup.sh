@@ -407,11 +407,20 @@ fi
 
 # no ip option directed at our interface?
 if [ ! -e /tmp/net.${netif}.up ]; then
-    if getargs 'ip=dhcp6'; then
-        load_ipv6
-        do_dhcp -6
-    elif getargs 'ip=dhcp'; then
-        do_dhcp -4
+    if [ -e /tmp/net.bootdev ]; then
+        BOOTDEV=$(cat /tmp/net.bootdev)
+        if [ "$netif" = "$BOOTDEV" ] || [ "$BOOTDEV" = "$(cat /sys/class/net/${netif}/address)" ]; then
+            load_ipv6
+            do_dhcp
+        fi
+    else
+        if getargs 'ip=dhcp6'; then
+            load_ipv6
+            do_dhcp -6
+        fi
+        if getargs 'ip=dhcp'; then
+            do_dhcp -4
+        fi
     fi
 fi
 
