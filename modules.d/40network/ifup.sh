@@ -151,7 +151,7 @@ do_static() {
     strglobin $ip '*:*:*' && load_ipv6
 
     if ! linkup $netif; then
-        warn "Could bring interface $netif up!"
+        warn "Could not bring interface $netif up!"
         return 1
     fi
 
