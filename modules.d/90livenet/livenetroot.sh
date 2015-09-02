@@ -15,7 +15,7 @@ liveurl="${netroot#livenet:}"
 info "fetching $liveurl"
 imgfile=$(fetch_url "$liveurl")
 
-if [ $? = 0 ]; then
+if [ $? != 0 ]; then
 	warn "failed to download live image: error $?"
 	exit 1
 fi
