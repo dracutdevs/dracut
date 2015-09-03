@@ -96,7 +96,7 @@ find_binary() {
 
 if ! [[ $dracutbasedir ]]; then
     dracutbasedir=${BASH_SOURCE[0]%/*}
-    [[ $dracutbasedir = "dracut-functions" ]] && dracutbasedir="."
+    [[ $dracutbasedir = dracut-functions* ]] && dracutbasedir="."
     [[ $dracutbasedir ]] || dracutbasedir="."
     dracutbasedir="$(readlink -f $dracutbasedir)"
 fi
