@@ -112,12 +112,14 @@ fi
 # If not given on the cmdline and initiator-name available via iBFT
 if [ -z $iscsi_initiator ] && [ -f /sys/firmware/ibft/initiator/initiator-name ] && ! [ -f /tmp/iscsi_set_initiator ]; then
     iscsi_initiator=$(while read line || [ -n "$line" ]; do echo $line;done < /sys/firmware/ibft/initiator/initiator-name)
-    echo "InitiatorName=$iscsi_initiator" > /run/initiatorname.iscsi
-    rm -f /etc/iscsi/initiatorname.iscsi
-    mkdir -p /etc/iscsi
-    ln -fs /run/initiatorname.iscsi /etc/iscsi/initiatorname.iscsi
-    > /tmp/iscsi_set_initiator
-    systemctl try-restart iscsid && sleep 1
+    if [ -n "$iscsi_initiator" ]; then
+        echo "InitiatorName=$iscsi_initiator" > /run/initiatorname.iscsi
+        rm -f /etc/iscsi/initiatorname.iscsi
+        mkdir -p /etc/iscsi
+        ln -fs /run/initiatorname.iscsi /etc/iscsi/initiatorname.iscsi
+        > /tmp/iscsi_set_initiator
+        systemctl try-restart iscsid && sleep 1
+    fi
 fi
 
 
