@@ -69,7 +69,7 @@ if [ -n "$iscsiroot" ] ; then
 fi
 
 # iscsi_firmware does not need argument checking
-if [ -n "$iscsi_firmware" ] || getargbool 0 rd.iscsi.ibft -d "ip=ibft"; then
+if [ -n "$iscsi_firmware" ]; then
     if [ "$root" != "dhcp" ] && [ "$netroot" != "dhcp" ]; then
         [ -z "$netroot" ] && netroot=iscsi:
     fi
