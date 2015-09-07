@@ -5,7 +5,7 @@ check() {
     [[ $mount_needs ]] && return 1
 
     if ! dracut_module_included "systemd"; then
-        derror "dracut-systemd needs systemd in the initramfs"
+        derror "systemd-initrd needs systemd in the initramfs"
         return 1
     fi
 
