@@ -14,7 +14,7 @@ SKIP="$dracutbasedir/skipcpio"
 
 [[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
 
-mount -o ro /boot &>/dev/null
+mount -o ro /boot &>/dev/null || true
 
 if [[ $MACHINE_ID ]] && [[ -d /boot/${MACHINE_ID} || -L /boot/${MACHINE_ID} ]] ; then
     IMG="/boot/${MACHINE_ID}/${KERNEL_VERSION}/initrd"

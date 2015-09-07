@@ -429,7 +429,7 @@ shorten_persistent_dev() {
 # $ find_block_device /usr
 # 8:4
 find_block_device() {
-    local _majmin _dev _majmin _find_mpt
+    local _dev _majmin _find_mpt
     _find_mpt="$1"
     if [[ $use_fstab != yes ]]; then
         [[ -d $_find_mpt/. ]]
