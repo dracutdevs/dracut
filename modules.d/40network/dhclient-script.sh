@@ -8,9 +8,6 @@ type ip_to_var >/dev/null 2>&1 || . /lib/net-lib.sh
 # We already need a set netif here
 netif=$interface
 
-# Huh? Interface configured?
-[ -f "/tmp/net.$netif.up" ] && exit 0
-
 setup_interface() {
     ip=$new_ip_address
     mtu=$new_interface_mtu
@@ -151,7 +148,7 @@ case $reason in
         [ -n "$new_max_life" ] && lease_time=$new_max_life
         preferred_lft=$lease_time
         [ -n "$new_preferred_life" ] && preferred_lft=$new_preferred_life
-        ip -4 addr change ${new_ip_address}/${new_prefix} broadcast ${new_broadcast_address} dev ${interface} \
+        ip -4 addr change ${new_ip_address}/${new_subnet_mask} broadcast ${new_broadcast_address} dev ${interface} \
            ${lease_time:+valid_lft $lease_time} ${preferred_lft:+preferred_lft ${preferred_lft}} \
            >/dev/null 2>&1
         ;;
