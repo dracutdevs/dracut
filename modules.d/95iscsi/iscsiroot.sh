@@ -106,7 +106,7 @@ handle_netroot()
     parse_iscsi_root "$1" || return 1
 
     # Bail out early, if there is no route to the destination
-    if is_ip "$iscsi_target_ip" && [ "$netif" != "timeout" ] && ! all_ifaces_up && getargbool 1 rd.iscsi.testroute; then
+    if is_ip "$iscsi_target_ip" && [ "$netif" != "timeout" ] && ! all_ifaces_setup && getargbool 1 rd.iscsi.testroute; then
         ip route get "$iscsi_target_ip" >/dev/null 2>&1 || return 0
     fi
 
@@ -225,10 +225,10 @@ handle_netroot()
 ret=0
 
 if [ "$netif" != "timeout" ] && getargbool 1 rd.iscsi.waitnet; then
-    all_ifaces_up || exit 0
+    all_ifaces_setup || exit 0
 fi
 
-if [ "$netif" = "timeout" ] && all_ifaces_up; then
+if [ "$netif" = "timeout" ] && all_ifaces_setup; then
     # s.th. went wrong and the timeout script hits
     # restart
     systemctl restart iscsid
