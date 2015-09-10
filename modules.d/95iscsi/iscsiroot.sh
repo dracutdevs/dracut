@@ -43,29 +43,23 @@ fi
 
 handle_firmware()
 {
-    if ! [ -e /tmp/iscsistarted-firmware ]; then
-        if ! iscsistart -f; then
-            warn "iscistart: Could not get list of targets from firmware."
-            return 1
-        fi
-
-        for p in $(getargs rd.iscsi.param -d iscsi_param); do
-	    iscsi_param="$iscsi_param --param $p"
-        done
-
-        if ! iscsistart -b $iscsi_param; then
-            warn "'iscsistart -b $iscsi_param' failed"
-        fi
-
-        if [ -d /sys/class/iscsi_session ]; then
-            echo 'started' > "/tmp/iscsistarted-iscsi:"
-            echo 'started' > "/tmp/iscsistarted-firmware"
-        else
-            return 1
-        fi
-
-        need_shutdown
+    if ! iscsistart -f; then
+        warn "iscistart: Could not get list of targets from firmware."
+        return 1
     fi
+
+    for p in $(getargs rd.iscsi.param -d iscsi_param); do
+	iscsi_param="$iscsi_param --param $p"
+    done
+
+    if ! iscsistart -b $iscsi_param; then
+        warn "'iscsistart -b $iscsi_param' failed with return code $?"
+    fi
+
+    echo 'started' > "/tmp/iscsistarted-iscsi:"
+    echo 'started' > "/tmp/iscsistarted-firmware"
+
+    need_shutdown
     return 0
 }
 
@@ -236,15 +230,16 @@ if [ "$netif" = "timeout" ] && all_ifaces_setup; then
     sleep 2
 fi
 
-if [ "$netif" = "online" ]; then
-    if getargbool 0 rd.iscsi.firmware -d -y iscsi_firmware ; then
+if getargbool 0 rd.iscsi.firmware -d -y iscsi_firmware ; then
+    if [ "$netif" = "timeout" ] || [ "$netif" = "online" ]; then
         handle_firmware
         ret=$?
     fi
-else
+fi
+
+if ! [ "$netif" = "online" ]; then
     # loop over all netroot parameter
-    nroot=$(getarg netroot)
-    if [ $? -eq 0 ] && [ "$nroot" != "dhcp" ]; then
+    if nroot=$(getarg netroot) && [ "$nroot" != "dhcp" ]; then
         for nroot in $(getargs netroot); do
             [ "${nroot%%:*}" = "iscsi" ] || continue
             nroot="${nroot##iscsi:}"
