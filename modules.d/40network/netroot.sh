@@ -12,6 +12,11 @@ command -v setup_net >/dev/null || . /lib/net-lib.sh
 # no sense in doing something if no (net)root info is available
 # or root is already there
 [ -d $NEWROOT/proc ] && exit 0
+
+if [ -z "$netroot" ]; then
+    netroot=$(getarg netroot=)
+fi
+
 [ -z "$netroot" ] && exit 1
 
 # Set or override primary interface
@@ -33,7 +38,7 @@ esac
 # Figure out the handler for root=dhcp by recalling all netroot cmdline
 # handlers when this is not called from manually network bringing up.
 if [ -z "$2" ]; then
-    if [ "$netroot" = "dhcp" ] || [ "$netroot" = "dhcp6" ] ; then
+    if getarg "root=dhcp" || getarg "netroot=dhcp" || getarg "root=dhcp6" || getarg "netroot=dhcp6"; then
         # Load dhcp options
         [ -e /tmp/dhclient.$netif.dhcpopts ] && . /tmp/dhclient.$netif.dhcpopts
 
@@ -44,6 +49,8 @@ if [ -z "$2" ]; then
             warn "No dhcp root-path received for '$BOOTDEV' trying other interfaces if available"
             exit 1
         fi
+
+        rm -f -- $hookdir/initqueue/finished/dhcp.sh
 
         # Set netroot to new_root_path, so cmdline parsers don't call
         netroot=$new_root_path
@@ -74,9 +81,7 @@ source_hook netroot $netif
 
 # Run the handler; don't store the root, it may change from device to device
 # XXX other variables to export?
-if $handler $netif $netroot $NEWROOT; then
-    rm -f -- $hookdir/initqueue/finished/dhcp.sh
-    # Network rootfs mount successful - save interface info for ifcfg etc.
-    save_netinfo $netif
-fi
+[ -n "$handler" ] && "$handler" "$netif" "$netroot" "$NEWROOT"
+save_netinfo $netif
+
 exit 0
