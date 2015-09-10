@@ -73,6 +73,14 @@ all_ifaces_up() {
     done
 }
 
+all_ifaces_setup() {
+    local iface="" IFACES=""
+    [ -e "/tmp/net.ifaces" ] && read IFACES < /tmp/net.ifaces
+    for iface in $IFACES; do
+        [ -e /tmp/net.$iface.did-setup ] || return 1
+    done
+}
+
 get_netroot_ip() {
     local prefix="" server="" rest=""
     splitsep "$1" ":" prefix server rest
