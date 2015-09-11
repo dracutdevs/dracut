@@ -160,6 +160,8 @@ Creates initial ramdisk images for preloading modules
   --mount "[DEV] [MP] [FSTYPE] [FSOPTS]"
                         Mount device [DEV] on mountpoint [MP] with filesystem
                         [FSTYPE] and options [FSOPTS] in the initramfs
+  --mount "[MP]"	Same as above, but [DEV], [FSTYPE] and [FSOPTS] are
+			determined by looking at the current mounts.
   --add-device "[DEV]"  Bring up [DEV] in initramfs
   -i, --include [SOURCE] [TARGET]
                         Include the files in the SOURCE directory into the
@@ -1469,9 +1471,21 @@ if [[ $kernel_only != yes ]]; then
 
     for line in "${fstab_lines[@]}"; do
         line=($line)
-        [ -z "${line[3]}" ] && line[3]="defaults"
+
+        if [ -z "${line[1]}" ]; then
+            # Determine device and mount options from current system
+            mountpoint -q "${line[0]}" || derror "${line[0]} is not a mount point!"
+            line=($(findmnt --raw -n --target "${line[0]}" --output=source,target,fstype,options))
+            dinfo "Line for ${line[1]}: ${line[@]}"
+        else
+            # Use default options
+            [ -z "${line[3]}" ] && line[3]="defaults"
+        fi
+
+        # Default options for freq and passno
         [ -z "${line[4]}" ] && line[4]="0"
         [ -z "${line[5]}" ] && line[5]="2"
+
         strstr "${line[2]}" "nfs" && line[5]="0"
         echo "${line[@]}" >> "${initdir}/etc/fstab"
     done
