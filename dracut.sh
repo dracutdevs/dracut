@@ -362,6 +362,8 @@ rearrange_params()
         --long uefi \
         --long uefi-stub: \
         --long kernel-image: \
+        --long no-hostonly-i18n \
+        --long hostonly-i18n \
         -- "$@")
 
     if (( $? != 0 )); then
@@ -523,6 +525,10 @@ while :; do
                        hostonly_l="no" ;;
         --hostonly-cmdline)
                        hostonly_cmdline_l="yes" ;;
+        --hostonly-i18n)
+                       i18n_install_all_l="no" ;;
+        --no-hostonly-i18n)
+                       i18n_install_all_l="yes" ;;
         --no-hostonly-cmdline)
                        hostonly_cmdline_l="no" ;;
         --persistent-policy)
@@ -716,6 +722,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $hostonly_l ]] && hostonly=$hostonly_l
 [[ $hostonly_cmdline_l ]] && hostonly_cmdline=$hostonly_cmdline_l
 [[ "$hostonly" == "yes" ]] && ! [[ $hostonly_cmdline ]] && hostonly_cmdline="yes"
+[[ $i18n_install_all_l ]] && i18n_install_all=$i18n_install_all_l
 [[ $persistent_policy_l ]] && persistent_policy=$persistent_policy_l
 [[ $use_fstab_l ]] && use_fstab=$use_fstab_l
 [[ $mdadmconf_l ]] && mdadmconf=$mdadmconf_l
