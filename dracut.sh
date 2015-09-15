@@ -1617,6 +1617,10 @@ if [[ $early_microcode = yes ]]; then
                         break;
                     fi
                 fi
+                for i in $_fwdir/$_fw/$_src; do
+                    [ -e $i ] && break
+                    break 2
+                done
                 cat $_fwdir/$_fw/$_src > $_dest_dir/${ucode_dest[$idx]}
                 create_early_cpio="yes"
             fi
