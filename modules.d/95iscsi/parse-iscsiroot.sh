@@ -82,7 +82,9 @@ if [ -n "$iscsi_firmware" ]; then
     initqueue --unique --onetime --settled /sbin/iscsiroot online "iscsi:" "'$NEWROOT'"
 fi
 
-[ -z "$netroot" ] || [ "${netroot%%:*}" = "iscsi" ] || return 1
+if [ -z "$netroot" ] || ! [ "${netroot%%:*}" = "iscsi" ]; then
+    return 1
+fi
 
 initqueue --unique --onetime --timeout /sbin/iscsiroot timeout "$netroot" "$NEWROOT"
 
