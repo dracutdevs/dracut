@@ -1613,12 +1613,12 @@ if [[ $early_microcode = yes ]]; then
                 dinfo "*** Constructing ${ucode_dest[$idx]} ****"
                 if [[ $hostonly ]]; then
                     _src=$(get_ucode_file)
-                    if ! [[ -r $_fwdir/$_fw/$_src ]];then
-                        break;
-                    fi
+                    [[ $src ]] || break
+                    [[ -r $_fwdir/$_fw/$_src ]] || break
                 fi
+
                 for i in $_fwdir/$_fw/$_src; do
-                    [ -e $i ] && break
+                    [ -e "$i" ] && break
                     break 2
                 done
                 cat $_fwdir/$_fw/$_src > $_dest_dir/${ucode_dest[$idx]}
