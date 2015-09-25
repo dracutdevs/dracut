@@ -537,20 +537,22 @@ wait_for_if_up() {
 
     while [ $cnt -lt $timeout ]; do
         li=$(ip -o link show up dev $1)
-        if [ -n "$li" ]; then
-            case "$li" in
-                *\<UP*)
-                    return 0;;
-                *\<*,UP\>*)
-                    return 0;;
-                *\<*,UP,*\>*)
-                    return 0;;
-            esac
-        fi
-        if strstr "$li" "LOWER_UP" \
-                && strstr "$li" "state UNKNOWN" \
-                && ! strstr "$li" "DORMANT"; then
-            return 0
+        if ! strstr "$li" "NO-CARRIER"; then
+            if [ -n "$li" ]; then
+                case "$li" in
+                    *\<UP*)
+                        return 0;;
+                    *\<*,UP\>*)
+                        return 0;;
+                    *\<*,UP,*\>*)
+                        return 0;;
+                esac
+            fi
+            if strstr "$li" "LOWER_UP" \
+                    && strstr "$li" "state UNKNOWN" \
+                    && ! strstr "$li" "DORMANT"; then
+                return 0
+            fi
         fi
         sleep 0.1
         cnt=$(($cnt+1))
