@@ -1489,7 +1489,7 @@ if [[ $early_microcode = yes ]]; then
                 dinfo "*** Constructing ${ucode_dest[$idx]} ****"
                 if [[ $hostonly ]]; then
                     _src=$(get_ucode_file)
-                    [[ $src ]] || break
+                    [[ $_src ]] || break
                     [[ -r $_fwdir/$_fw/$_src ]] || break
                 fi
 
