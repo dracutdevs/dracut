@@ -61,7 +61,9 @@ else
     }
 
     info() {
-        echo "$*" >&2
+        check_quiet
+        [ "$DRACUT_QUIET" != "yes" ] && \
+            echo "$*" >&2
     }
 
 fi
@@ -461,9 +463,11 @@ check_quiet() {
         DRACUT_QUIET="yes"
         getargbool 0 rd.info -d -y rdinfo && DRACUT_QUIET="no"
         getargbool 0 rd.debug -d -y rdinitdebug && DRACUT_QUIET="no"
-        getarg quiet || DRACUT_QUIET="yes"
-        a=$(getarg loglevel=)
-        [ -n "$a" ] && [ $a -ge 28 ] && DRACUT_QUIET="yes"
+        if [ -z "$DRACUT_SYSTEMD" ]; then
+            getarg quiet || DRACUT_QUIET="yes"
+            a=$(getarg loglevel=)
+            [ -n "$a" ] && [ $a -ge 28 ] && DRACUT_QUIET="yes"
+        fi
         export DRACUT_QUIET
     fi
 }
