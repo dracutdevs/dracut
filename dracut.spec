@@ -1,6 +1,11 @@
 %define dracutlibdir %{_prefix}/lib/dracut
 %bcond_without doc
 
+# We ship a .pc file but don't want to have a dep on pkg-config. We
+# strip the automatically generated dep here and instead co-own the
+# directory.
+%global __requires_exclude pkg-config
+
 # Variables must be defined
 %define with_nbd                1
 
@@ -327,6 +332,7 @@ rm -rf -- $RPM_BUILD_ROOT
 %endif
 %dir %{_sysconfdir}/dracut.conf.d
 %dir %{dracutlibdir}/dracut.conf.d
+%dir %{_datadir}/pkgconfig
 %{_datadir}/pkgconfig/dracut.pc
 
 %if %{with doc}
