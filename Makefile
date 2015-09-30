@@ -1,7 +1,7 @@
 -include dracut-version.sh
 
-VERSION = $(shell [ -d .git ] && git describe --abbrev=0 --tags 2>/dev/null || echo $(DRACUT_VERSION))
-GITVERSION = $(shell [ -d .git ] && { v=$$(git describe --tags 2>/dev/null); [ $${v\#*-} != $$v ] && echo -$${v\#*-}; } )
+VERSION ?= $(shell [ -d .git ] && git describe --abbrev=0 --tags 2>/dev/null || echo $(DRACUT_VERSION))
+GITVERSION ?= $(shell [ -d .git ] && { v=$$(git describe --tags 2>/dev/null); [ -n "$$v" ] && [ $${v\#*-} != $$v ] && echo -$${v\#*-}; } )
 
 -include Makefile.inc
 
