@@ -320,8 +320,6 @@ getargs() {
     if [ -n "$_gfound" ]; then
         if [ $# -gt 0 ]; then
             echo -n "$@"
-        else
-            echo -n 1
         fi
         debug_on
         return 0
