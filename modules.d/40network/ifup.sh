@@ -313,8 +313,8 @@ fi
 ip=$(getarg ip)
 
 if [ -z "$ip" ]; then
-    namesrv=$(getargs nameserver)
-    for s in $namesrv; do
+    for s in $(getargs nameserver); do
+        [ -n "$s" ] || continue
         echo nameserver $s >> /tmp/net.$netif.resolv.conf
     done
 
@@ -350,8 +350,8 @@ for p in $(getargs ip=); do
     [ "$use_vlan" != 'true' ] && continue
 
     # setup nameserver
-    namesrv="$dns1 $dns2 $(getargs nameserver)"
-    for s in $namesrv; do
+    for s in "$dns1" "$dns2" $(getargs nameserver); do
+        [ -n "$s" ] || continue
         echo nameserver $s >> /tmp/net.$netif.resolv.conf
     done
 
