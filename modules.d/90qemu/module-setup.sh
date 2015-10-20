@@ -26,5 +26,5 @@ installkernel() {
         hostonly='' instmods \
             ata_piix ata_generic pata_acpi cdrom sr_mod ahci \
             virtio_blk virtio virtio_ring virtio_pci \
-            virtio_scsi virtio_console spapr-vscsi
+            virtio_scsi virtio_console spapr-vscsi ibmvscsi
 }
