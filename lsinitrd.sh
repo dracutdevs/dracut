@@ -176,38 +176,35 @@ case $bin in
         ;;
 esac
 
-CAT=$({
-        if [[ $SKIP ]]; then
-            $SKIP "$image"
+if [[ $SKIP ]] ; then
+    bin="$($SKIP "$image" | { read -N 6 bin && echo "$bin" ; })"
+else
+    read -N 6 bin < "$image"
+fi
+case $bin in
+    $'\x1f\x8b'*)
+        CAT="zcat --"
+        ;;
+    BZh*)
+        CAT="bzcat --"
+        ;;
+    $'\x71\xc7'*|070701)
+        CAT="cat --"
+        ;;
+    $'\x02\x21'*)
+        CAT="lz4 -d -c"
+        ;;
+    $'\x89'LZO$'\0'*)
+        CAT="lzop -d -c"
+        ;;
+    *)
+        if echo "test"|xz|xzcat --single-stream >/dev/null 2>&1; then
+            CAT="xzcat --single-stream --"
         else
-            cat "$image"
-        fi } | {
-        read -N 6 bin
-        case $bin in
-            $'\x1f\x8b'*)
-                echo "zcat --"
-                ;;
-            BZh*)
-                echo "bzcat --"
-                ;;
-            $'\x71\xc7'*|070701)
-                echo "cat --"
-                ;;
-            $'\x02\x21'*)
-                echo "lz4 -d -c"
-                ;;
-            $'\x89'LZO$'\0'*)
-                echo "lzop -d -c"
-                ;;
-            *)
-                if echo "test"|xz|xzcat --single-stream >/dev/null 2>&1; then
-                    echo "xzcat --single-stream --"
-                else
-                    echo "xzcat --"
-                fi
-                ;;
-        esac
-    })
+            CAT="xzcat --"
+        fi
+        ;;
+esac
 
 skipcpio()
 {
