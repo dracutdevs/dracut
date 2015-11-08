@@ -1,6 +1,6 @@
 pkgname=dracut-git
-pkgver=$(date +%s)
-pkgrel=$(git log --pretty=format:%h |head -n 1)
+pkgver=1
+pkgrel=1
 pkgdesc="Initramfs generation utility"
 arch=('i686' 'x86_64')
 url="https://dracut.wiki.kernel.org/"
@@ -13,6 +13,12 @@ makedepends=('libxslt')
 backup=(etc/dracut.conf)
 source=()
 md5sums=()
+
+pkgver() {
+  cd ..
+  desc="$(git describe)"
+  printf "%s.%s.%s" ${desc//-/ }
+}
 
 build() {
   cd ..
