@@ -17,5 +17,9 @@ md5sums=()
 build() {
   cd ..
   make sysconfdir=/etc || return 1
+}
+
+package() {
+  cd ..
   make DESTDIR="${pkgdir}" sysconfdir=/etc install || return 1
 }
