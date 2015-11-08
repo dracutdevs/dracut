@@ -14,6 +14,13 @@ backup=(etc/dracut.conf)
 source=()
 md5sums=()
 
+# out of tree builds disallowed for this PKGFILE
+BUILDDIR="${PWD}"
+PKGDEST="${PWD}"
+SRCDEST=""
+SRCPKGDEST=""
+LOGDEST=""
+
 pkgver() {
   cd ..
   desc="$(git describe)"
