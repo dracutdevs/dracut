@@ -27,7 +27,7 @@ install() {
     inst_script "$moddir/cmsifup.sh" /sbin/cmsifup
     inst_multiple /etc/cmsfs-fuse/filetypes.conf /etc/udev/rules.d/99-fuse.rules /etc/fuse.conf \
         cmsfs-fuse fusermount ulockmgr_server bash insmod rmmod cat normalize_dasd_arg sed \
-        $(rpm -ql s390utils-base)
+        $(rpm -ql s390utils-base) awk getopt
 
     inst_libdir_file "gconv/*"
     #inst /usr/lib/locale/locale-archive
