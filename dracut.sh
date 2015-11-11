@@ -1016,18 +1016,18 @@ fi
 if [[ $early_microcode = yes ]]; then
     if [[ $hostonly ]]; then
         [[ $(get_cpu_vendor) == "AMD" ]] \
-            && ! check_kernel_config CONFIG_MICROCODE_AMD_EARLY \
+            && ! check_kernel_config CONFIG_MICROCODE_AMD \
             && unset early_microcode
         [[ $(get_cpu_vendor) == "Intel" ]] \
-            && ! check_kernel_config CONFIG_MICROCODE_INTEL_EARLY \
+            && ! check_kernel_config CONFIG_MICROCODE_INTEL \
             && unset early_microcode
     else
-        ! check_kernel_config CONFIG_MICROCODE_AMD_EARLY \
-            && ! check_kernel_config CONFIG_MICROCODE_INTEL_EARLY \
+        ! check_kernel_config CONFIG_MICROCODE_AMD \
+            && ! check_kernel_config CONFIG_MICROCODE_INTEL \
             && unset early_microcode
     fi
     [[ $early_microcode != yes ]] \
-        && dwarn "Disabling early microcode, because kernel does not support it. CONFIG_MICROCODE_[AMD|INTEL]_EARLY!=y"
+        && dwarn "Disabling early microcode, because kernel does not support it. CONFIG_MICROCODE_[AMD|INTEL]!=y"
 fi
 
 # Need to be able to have non-root users read stuff (rpcbind etc)
