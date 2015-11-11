@@ -171,7 +171,7 @@ do_live_overlay() {
         # Create a snapshot of the base image
         echo 0 $sz thin /dev/mapper/live-overlay-pool 0 $base | dmsetup create live-rw
     else
-        echo 0 $sz snapshot $base $over p 8 | dmsetup create live-rw
+        echo 0 $sz snapshot $base $over PO 8 | dmsetup create live-rw
     fi
 
     # Create a device that always points to a ro base image
