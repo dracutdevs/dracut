@@ -43,6 +43,11 @@ fi
 
 handle_firmware()
 {
+    # iscsistart -b may use multiple interfaces so only run when
+    # all are ready.
+    type all_ifaces_up >/dev/null 2>&1 || . /lib/net-lib.sh
+    all_ifaces_up || return 1
+
     if ! [ -e /tmp/iscsistarted-firmware ]; then
         if ! iscsistart -f; then
             warn "iscistart: Could not get list of targets from firmware."
