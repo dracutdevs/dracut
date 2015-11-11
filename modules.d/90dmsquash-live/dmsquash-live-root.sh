@@ -141,7 +141,7 @@ do_live_overlay() {
     # set up the snapshot
     sz=$(blockdev --getsz $BASE_LOOPDEV)
     if [ -n "$readonly_overlay" ]; then
-        echo 0 $sz snapshot $BASE_LOOPDEV $OVERLAY_LOOPDEV p 8 | dmsetup create $readonly_overlay live-ro
+        echo 0 $sz snapshot $BASE_LOOPDEV $OVERLAY_LOOPDEV N 8 | dmsetup create --readonly live-ro
         base="/dev/mapper/live-ro"
         over=$RO_OVERLAY_LOOPDEV
     else
@@ -175,7 +175,7 @@ do_live_overlay() {
     fi
 
     # Create a device that always points to a ro base image
-    echo 0 $sz linear $base 0 | dmsetup create --readonly live-base
+    echo 0 $sz linear $BASE_LOOPDEV 0 | dmsetup create --readonly live-base
 }
 
 # live cd helper function
@@ -259,7 +259,7 @@ fi
 if [ -b "$OSMIN_LOOPDEV" ]; then
     # set up the devicemapper snapshot device, which will merge
     # the normal live fs image, and the delta, into a minimzied fs image
-    echo "0 $( blockdev --getsz $BASE_LOOPDEV ) snapshot $BASE_LOOPDEV $OSMIN_LOOPDEV p 8" | dmsetup create --readonly live-osimg-min
+    echo "0 $( blockdev --getsz $BASE_LOOPDEV ) snapshot $BASE_LOOPDEV $OSMIN_LOOPDEV N 8" | dmsetup create --readonly live-osimg-min
 fi
 
 ROOTFLAGS="$(getarg rootflags)"
