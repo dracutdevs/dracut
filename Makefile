@@ -82,20 +82,24 @@ all: doc
 endif
 
 %: %.xml
-	xsltproc -o $@ -nonet http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
+	@rm -f -- "$@"
+	xsltproc -o "$@" -nonet http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
 
 %.xml: %.asc
-	asciidoc -d manpage -b docbook -o $@ $<
+	@rm -f -- "$@"
+	asciidoc -d manpage -b docbook -o "$@" $<
 
 dracut.8: dracut.usage.asc dracut.8.asc
 
 dracut.html: dracut.asc $(manpages) dracut.css dracut.usage.asc
+	@rm -f -- dracut.xml
 	asciidoc -a numbered -d book -b docbook -o dracut.xml dracut.asc
+	@rm -f -- dracut.html
 	xsltproc -o dracut.html --xinclude -nonet \
 		--stringparam custom.css.source dracut.css \
 		--stringparam generate.css.header 1 \
 		http://docbook.sourceforge.net/release/xsl/current/xhtml/docbook.xsl dracut.xml
-	rm -f -- dracut.xml
+	@rm -f -- dracut.xml
 
 dracut.pc: Makefile.inc Makefile
 	@echo "Name: dracut" > dracut.pc
@@ -169,6 +173,7 @@ endif
 	install -m 0644 dracut.pc $(DESTDIR)${pkgconfigdatadir}/dracut.pc
 
 dracut-version.sh:
+	@rm -f dracut-version.sh
 	@echo "DRACUT_VERSION=$(VERSION)$(GITVERSION)" > dracut-version.sh
 
 clean:
