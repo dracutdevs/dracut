@@ -43,17 +43,6 @@ install() {
 
     inst_script "$moddir/rootfs-generator.sh" $systemdutildir/system-generators/dracut-rootfs-generator
 
-    for i in \
-        emergency.target \
-        rescue.service \
-        systemd-ask-password-console.service \
-        systemd-ask-password-plymouth.service \
-        ; do
-        mkdir -p "${initdir}${systemdsystemunitdir}/${i}.wants"
-        ln_r "${systemdsystemunitdir}/systemd-vconsole-setup.service" \
-            "${systemdsystemunitdir}/${i}.wants/systemd-vconsole-setup.service"
-    done
-
     mkdir -p "${initdir}/$systemdsystemunitdir/initrd.target.wants"
     for i in \
         dracut-cmdline.service \
