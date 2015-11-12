@@ -78,23 +78,23 @@ handle_netroot()
 
     # override conf settings by command line options
     arg=$(getargs rd.iscsi.initiator -d iscsi_initiator=)
-    [ -n "$arg" ] && iscsi_initiator=$arg
+    [ -n "$arg" ] && iscsi_initiator="$arg"
     arg=$(getargs rd.iscsi.target.name -d iscsi_target_name=)
-    [ -n "$arg" ] && iscsi_target_name=$arg
+    [ -n "$arg" ] && iscsi_target_name="$arg"
     arg=$(getargs rd.iscsi.target.ip -d iscsi_target_ip)
-    [ -n "$arg" ] && iscsi_target_ip=$arg
+    [ -n "$arg" ] && iscsi_target_ip="$arg"
     arg=$(getargs rd.iscsi.target.port -d iscsi_target_port=)
-    [ -n "$arg" ] && iscsi_target_port=$arg
+    [ -n "$arg" ] && iscsi_target_port="$arg"
     arg=$(getargs rd.iscsi.target.group -d iscsi_target_group=)
-    [ -n "$arg" ] && iscsi_target_group=$arg
+    [ -n "$arg" ] && iscsi_target_group="$arg"
     arg=$(getargs rd.iscsi.username -d iscsi_username=)
-    [ -n "$arg" ] && iscsi_username=$arg
+    [ -n "$arg" ] && iscsi_username="$arg"
     arg=$(getargs rd.iscsi.password -d iscsi_password)
-    [ -n "$arg" ] && iscsi_password=$arg
+    [ -n "$arg" ] && iscsi_password="$arg"
     arg=$(getargs rd.iscsi.in.username -d iscsi_in_username=)
-    [ -n "$arg" ] && iscsi_in_username=$arg
+    [ -n "$arg" ] && iscsi_in_username="$arg"
     arg=$(getargs rd.iscsi.in.password -d iscsi_in_password=)
-    [ -n "$arg" ] && iscsi_in_password=$arg
+    [ -n "$arg" ] && iscsi_in_password="$arg"
     for p in $(getargs rd.iscsi.param -d iscsi_param); do
 	iscsi_param="$iscsi_param --param $p"
     done
@@ -109,9 +109,9 @@ handle_netroot()
 # XXX is this needed?
     getarg ro && iscsirw=ro
     getarg rw && iscsirw=rw
-    fsopts=${fsopts:+$fsopts,}${iscsirw}
+    fsopts="${fsopts:+$fsopts,}${iscsirw}"
 
-    if [ -z $iscsi_initiator ] && [ -f /sys/firmware/ibft/initiator/initiator-name ] && ! [ -f /tmp/iscsi_set_initiator ]; then
+    if [ -z "$iscsi_initiator" ] && [ -f /sys/firmware/ibft/initiator/initiator-name ] && ! [ -f /tmp/iscsi_set_initiator ]; then
            iscsi_initiator=$(while read line || [ -n "$line" ]; do echo $line;done < /sys/firmware/ibft/initiator/initiator-name)
            echo "InitiatorName=$iscsi_initiator" > /run/initiatorname.iscsi
            rm -f /etc/iscsi/initiatorname.iscsi
@@ -122,14 +122,14 @@ handle_netroot()
            > /tmp/iscsi_set_initiator
     fi
 
-    if [ -z $iscsi_initiator ]; then
+    if [ -z "$iscsi_initiator" ]; then
         [ -f /run/initiatorname.iscsi ] && . /run/initiatorname.iscsi
         [ -f /etc/initiatorname.iscsi ] && . /etc/initiatorname.iscsi
         [ -f /etc/iscsi/initiatorname.iscsi ] && . /etc/iscsi/initiatorname.iscsi
         iscsi_initiator=$InitiatorName
     fi
 
-    if [ -z $iscsi_initiator ]; then
+    if [ -z "$iscsi_initiator" ]; then
         iscsi_initiator=$(iscsi-iname)
         echo "InitiatorName=$iscsi_initiator" > /run/initiatorname.iscsi
         rm -f /etc/iscsi/initiatorname.iscsi
@@ -184,15 +184,15 @@ handle_netroot()
                             --description="Login iSCSI Target $iscsi_target_name" \
                             --unit="$netroot_enc" -- \
                             $(command -v iscsistart) \
-                            -i $iscsi_initiator -t $iscsi_target_name        \
-                            -g $iscsi_target_group -a $iscsi_target_ip      \
-                            -p $iscsi_target_port \
-                            ${iscsi_username:+-u $iscsi_username} \
-                            ${iscsi_password:+-w $iscsi_password} \
-                            ${iscsi_in_username:+-U $iscsi_in_username} \
-                            ${iscsi_in_password:+-W $iscsi_in_password} \
-	                    ${iscsi_iface_name:+--param iface.iscsi_ifacename=$iscsi_iface_name} \
-	                    ${iscsi_netdev_name:+--param iface.net_ifacename=$iscsi_netdev_name} \
+                            -i "$iscsi_initiator" -t "$iscsi_target_name"        \
+                            -g "$iscsi_target_group" -a "$iscsi_target_ip"      \
+                            -p "$iscsi_target_port" \
+                            ${iscsi_username:+-u "$iscsi_username"} \
+                            ${iscsi_password:+-w "$iscsi_password"} \
+                            ${iscsi_in_username:+-U "$iscsi_in_username"} \
+                            ${iscsi_in_password:+-W "$iscsi_in_password"} \
+	                    ${iscsi_iface_name:+--param "iface.iscsi_ifacename=$iscsi_iface_name"} \
+	                    ${iscsi_netdev_name:+--param "iface.net_ifacename=$iscsi_netdev_name"} \
                             ${iscsi_param} >/dev/null 2>&1 \
 	            && { > $hookdir/initqueue/work ; }
             else
@@ -201,15 +201,15 @@ handle_netroot()
             fi
         fi
     else
-        iscsistart -i $iscsi_initiator -t $iscsi_target_name        \
-                   -g $iscsi_target_group -a $iscsi_target_ip      \
-                   -p $iscsi_target_port \
-                   ${iscsi_username:+-u $iscsi_username} \
-                   ${iscsi_password:+-w $iscsi_password} \
-                   ${iscsi_in_username:+-U $iscsi_in_username} \
-                   ${iscsi_in_password:+-W $iscsi_in_password} \
-	           ${iscsi_iface_name:+--param iface.iscsi_ifacename=$iscsi_iface_name} \
-	           ${iscsi_netdev_name:+--param iface.net_ifacename=$iscsi_netdev_name} \
+        iscsistart -i "$iscsi_initiator" -t "$iscsi_target_name"        \
+                   -g "$iscsi_target_group" -a "$iscsi_target_ip"      \
+                   -p "$iscsi_target_port" \
+                   ${iscsi_username:+-u "$iscsi_username"} \
+                   ${iscsi_password:+-w "$iscsi_password"} \
+                   ${iscsi_in_username:+-U "$iscsi_in_username"} \
+                   ${iscsi_in_password:+-W "$iscsi_in_password"} \
+	           ${iscsi_iface_name:+--param "iface.iscsi_ifacename=$iscsi_iface_name"} \
+	           ${iscsi_netdev_name:+--param "iface.net_ifacename=$iscsi_netdev_name"} \
                    ${iscsi_param} \
 	    && { > $hookdir/initqueue/work ; }
     fi
