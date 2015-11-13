@@ -78,6 +78,8 @@ export srcmods
     export hookdirs
 }
 
+. $dracutbasedir/dracut-functions.sh
+
 # Detect lib paths
 if ! [[ $libdirs ]] ; then
     if [[ "$(ldd /bin/sh)" == */lib64/* ]] &>/dev/null \
@@ -93,8 +95,6 @@ if ! [[ $libdirs ]] ; then
 
     export libdirs
 fi
-
-. $dracutbasedir/dracut-functions.sh
 
 # helper function for check() in module-setup.sh
 # to check for required installed binaries
