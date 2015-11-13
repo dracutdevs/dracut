@@ -115,9 +115,12 @@ handle_netroot()
            rm -f /etc/iscsi/initiatorname.iscsi
            mkdir -p /etc/iscsi
            ln -fs /run/initiatorname.iscsi /etc/iscsi/initiatorname.iscsi
-           systemctl restart iscsid
-           sleep 1
            > /tmp/iscsi_set_initiator
+           if [ -n "$DRACUT_SYSTEMD" ]; then
+               systemctl try-restart iscsid
+               # FIXME: iscsid is not yet ready, when the service is :-/
+               sleep 1
+           fi
     fi
 
     if [ -z "$iscsi_initiator" ]; then
@@ -133,10 +136,12 @@ handle_netroot()
         rm -f /etc/iscsi/initiatorname.iscsi
         mkdir -p /etc/iscsi
         ln -fs /run/initiatorname.iscsi /etc/iscsi/initiatorname.iscsi
-        systemctl restart iscsid
         > /tmp/iscsi_set_initiator
-        # FIXME: iscsid is not yet ready, when the service is :-/
-        sleep 1
+        if [ -n "$DRACUT_SYSTEMD" ]; then
+            systemctl try-restart iscsid
+            # FIXME: iscsid is not yet ready, when the service is :-/
+            sleep 1
+        fi
     fi
 
 
@@ -157,6 +162,11 @@ handle_netroot()
     if ! [ -e /etc/iscsi/initiatorname.iscsi ]; then
         mkdir -p /etc/iscsi
         ln -fs /run/initiatorname.iscsi /etc/iscsi/initiatorname.iscsi
+        if [ -n "$DRACUT_SYSTEMD" ]; then
+            systemctl try-restart iscsid
+            # FIXME: iscsid is not yet ready, when the service is :-/
+            sleep 1
+        fi
     fi
 # FIXME $iscsi_protocol??
 
