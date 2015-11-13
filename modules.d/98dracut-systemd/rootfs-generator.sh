@@ -50,7 +50,7 @@ generator_mount_rootfs()
         {
             echo "[Unit]"
             echo "Before=initrd-root-fs.target"
-            echo "RequiresOverridable=systemd-fsck@${_name}.service"
+            echo "Requires=systemd-fsck@${_name}.service"
             echo "After=systemd-fsck@${_name}.service"
             echo "[Mount]"
             echo "Where=/sysroot"
