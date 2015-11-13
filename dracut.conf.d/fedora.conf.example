@@ -17,3 +17,4 @@ udevdir=/usr/lib/udev
 hostonly="yes"
 hostonly_cmdline="no"
 early_microcode="yes"
+reproducible="yes"

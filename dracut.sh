@@ -202,6 +202,7 @@ Creates initial ramdisk images for preloading modules
   --sshkey [SSHKEY]     Add ssh key to initramfs (use with ssh-client module)
   --logfile [FILE]      Logfile to use (overrides configuration setting)
   --reproducible        Create reproducible images
+  --no-reproducible     Do not create reproducible images
   --loginstall [DIR]    Log all files installed from the host to [DIR]
   --uefi                Create an UEFI executable with the kernel cmdline and
                         kernel combined
@@ -358,6 +359,7 @@ rearrange_params()
         --long early-microcode \
         --long no-early-microcode \
         --long reproducible \
+        --long no-reproducible \
         --long loginstall: \
         --long uefi \
         --long uefi-stub: \
@@ -553,6 +555,7 @@ while :; do
         --regenerate-all) regenerate_all="yes";;
         --noimageifnotneeded) noimageifnotneeded="yes";;
         --reproducible) reproducible_l="yes";;
+        --no-reproducible) reproducible_l="no";;
         --uefi)        uefi="yes";;
         --uefi-stub)
                        uefi_stub_l="$2";               PARMS_TO_STORE+=" '$2'"; shift;;
@@ -1673,7 +1676,11 @@ if [[ $DRACUT_REPRODUCIBLE ]]; then
     find "$initdir" -newer "$dracutbasedir/dracut-functions.sh" -print0 \
         | xargs -r -0 touch -h -m -c -r "$dracutbasedir/dracut-functions.sh"
 
-    [[ "$(cpio --help)" == *--reproducible* ]] && CPIO_REPRODUCIBLE=1
+    if [[ "$(cpio --help)" == *--reproducible* ]]; then
+        CPIO_REPRODUCIBLE=1
+    else
+        dinfo "cpio does not support '--reproducible'. Resulting image will not be reproducible."
+    fi
 fi
 
 [[ "$UID" != 0 ]] && cpio_owner_root="-R 0:0"
