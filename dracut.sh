@@ -1187,26 +1187,6 @@ if [[ $hostonly ]]; then
             fi
         done < /etc/fstab
     fi
-
-    # record all host modaliases
-    declare -A host_modalias
-    find /sys/devices -name modalias -exec cat '{}' \; > "$initdir/.modalias"
-    while read -r modalias || [ -n "$modalias" ]; do
-        [[ $modalias ]] && host_modalias["$modalias"]=1
-    done < "$initdir/.modalias"
-
-    rm -f -- "$initdir/.modalias"
-
-    while read _k _s _v || [ -n "$_k" ]; do
-        [ "$_k" != "name" -a "$_k" != "driver" ] && continue
-        host_modalias["$_v"]=1
-    done </proc/crypto
-
-    # check /proc/modules
-    declare -A host_modules
-    while read m rest || [ -n "$m" ]; do
-        host_modules["$m"]=1
-    done </proc/modules
 fi
 
 unset m
@@ -1293,7 +1273,7 @@ export initdir dracutbasedir \
     debug host_fs_types host_devs swap_devs sshkey add_fstab \
     DRACUT_VERSION udevdir prefix filesystems drivers \
     systemdutildir systemdsystemunitdir systemdsystemconfdir \
-    host_modalias host_modules hostonly_cmdline loginstall \
+    host_modules hostonly_cmdline loginstall \
     tmpfilesdir
 
 mods_to_load=""

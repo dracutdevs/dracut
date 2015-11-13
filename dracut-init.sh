@@ -1022,18 +1022,8 @@ module_is_host_only() {
             modinfo -F filename "$_mod" &>/dev/null && return 1
         fi
 
-        _aliases=$(modinfo -k $kernel -F alias $_mod 2>/dev/null)
-
-        # if the module has no aliases, install it
-        [[ $_aliases ]] || return 0
-
-        # finally check all modalias
-        for a in $_aliases; do
-            for i in "${!host_modalias[@]}"; do
-                [[ $i == $a ]]  && return 0
-            done
-        done
-
+        # just install the module, better safe than sorry
+        return 0
     fi
 
     return 1
