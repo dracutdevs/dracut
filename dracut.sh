@@ -1100,6 +1100,8 @@ if (( ${#add_device_l[@]} )); then
     push_host_devs "${add_device_l[@]}"
 fi
 
+declare -A host_modules
+
 if [[ $hostonly ]]; then
     # in hostonly mode, determine all devices, which have to be accessed
     # and examine them for filesystem types
@@ -1187,6 +1189,11 @@ if [[ $hostonly ]]; then
             fi
         done < /etc/fstab
     fi
+
+    # check /proc/modules
+    while read m rest || [ -n "$m" ]; do
+        host_modules["$m"]=1
+    done </proc/modules
 fi
 
 unset m
