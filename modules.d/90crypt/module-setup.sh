@@ -86,14 +86,17 @@ install() {
 
     inst_simple "$moddir/crypt-lib.sh" "/lib/dracut-crypt-lib.sh"
 
-    inst_multiple -o \
-        $systemdutildir/system-generators/systemd-cryptsetup-generator \
-        $systemdutildir/systemd-cryptsetup \
-        $systemdsystemunitdir/systemd-ask-password-console.path \
-        $systemdsystemunitdir/systemd-ask-password-console.service \
-        $systemdsystemunitdir/cryptsetup.target \
-        $systemdsystemunitdir/sysinit.target.wants/cryptsetup.target \
-        systemd-ask-password systemd-tty-ask-password-agent
-    inst_script "$moddir"/crypt-run-generator.sh /sbin/crypt-run-generator
+    if dracut_module_included "systemd"; then
+        inst_multiple -o \
+                      $systemdutildir/system-generators/systemd-cryptsetup-generator \
+                      $systemdutildir/systemd-cryptsetup \
+                      $systemdsystemunitdir/systemd-ask-password-console.path \
+                      $systemdsystemunitdir/systemd-ask-password-console.service \
+                      $systemdsystemunitdir/cryptsetup.target \
+                      $systemdsystemunitdir/sysinit.target.wants/cryptsetup.target \
+                      systemd-ask-password systemd-tty-ask-password-agent
+        inst_script "$moddir"/crypt-run-generator.sh /sbin/crypt-run-generator
+    fi
+
     dracut_need_initqueue
 }

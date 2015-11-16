@@ -56,8 +56,10 @@ install() {
     # eudev rules
     inst_rules 80-drivers-modprobe.rules
 
-    inst_multiple -o ${systemdutildir}/network/*.link
-    [[ $hostonly ]] && inst_multiple -H -o /etc/systemd/network/*.link
+    if dracut_module_included "systemd"; then
+        inst_multiple -o ${systemdutildir}/network/*.link
+        [[ $hostonly ]] && inst_multiple -H -o /etc/systemd/network/*.link
+    fi
 
     {
         for i in cdrom tape dialout floppy; do

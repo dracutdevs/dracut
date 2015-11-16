@@ -1481,13 +1481,15 @@ if [[ $kernel_only != yes ]]; then
         cat "$f" >> "${initdir}/etc/fstab"
     done
 
-    if [ -d ${initdir}/$systemdutildir ]; then
-        mkdir -p ${initdir}/etc/conf.d
-        {
-            printf "%s\n" "systemdutildir=\"$systemdutildir\""
-            printf "%s\n" "systemdsystemunitdir=\"$systemdsystemunitdir\""
-            printf "%s\n" "systemdsystemconfdir=\"$systemdsystemconfdir\""
-        } > ${initdir}/etc/conf.d/systemd.conf
+    if dracut_module_included "systemd"; then
+        if [ -d ${initdir}/$systemdutildir ]; then
+            mkdir -p ${initdir}/etc/conf.d
+            {
+                printf "%s\n" "systemdutildir=\"$systemdutildir\""
+                printf "%s\n" "systemdsystemunitdir=\"$systemdsystemunitdir\""
+                printf "%s\n" "systemdsystemconfdir=\"$systemdsystemconfdir\""
+            } > ${initdir}/etc/conf.d/systemd.conf
+        fi
     fi
 
     if [[ $DRACUT_RESOLVE_LAZY ]] && [[ $DRACUT_INSTALL ]]; then
