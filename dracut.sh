@@ -1481,7 +1481,7 @@ if [[ $kernel_only != yes ]]; then
         cat "$f" >> "${initdir}/etc/fstab"
     done
 
-    if dracut_module_included "systemd"; then
+    if [[ $systemdutildir ]]; then
         if [ -d ${initdir}/$systemdutildir ]; then
             mkdir -p ${initdir}/etc/conf.d
             {
