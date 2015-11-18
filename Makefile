@@ -251,6 +251,10 @@ hostimage: all
 	./dracut.sh -H -l -f test-$(shell uname -r).img $(shell uname -r)
 	@echo wrote  test-$(shell uname -r).img
 
+efi: all
+	./dracut.sh --uefi -H -l -f linux-$(shell uname -r).efi $(shell uname -r)
+	@echo wrote linux-$(shell uname -r).efi
+
 AUTHORS:
 	git shortlog  --numbered --summary -e |while read a rest || [ -n "$$rest" ]; do echo $$rest;done > AUTHORS
 
