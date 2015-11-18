@@ -1627,7 +1627,12 @@ if [[ $early_microcode = yes ]]; then
                     [ -e "$i" ] && break
                     break 2
                 done
-                cat $_fwdir/$_fw/$_src > $_dest_dir/${ucode_dest[$idx]}
+                for i in $_fwdir/$_fw/$_src; do
+                    [[ -e "$i" ]] || continue
+                    # skip gpg files
+                    str_ends "$i" ".asc" && continue
+                    cat "$i" >> $_dest_dir/${ucode_dest[$idx]}
+                done
                 create_early_cpio="yes"
             fi
         done
