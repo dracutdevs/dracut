@@ -4,7 +4,7 @@ TEST_DESCRIPTION="root filesystem on a LiveCD dmsquash filesystem"
 KVERSION="${KVERSION-$(uname -r)}"
 
 # Uncomment this to debug failures
-#DEBUGFAIL="rd.shell rd.break"
+#DEBUGFAIL="rd.shell rd.break rd.debug systemd.log_level=debug systemd.log_target=console"
 
 test_check() {
     if ! [ -d "/usr/lib/python2.7/site-packages/imgcreate" ]; then
@@ -16,13 +16,24 @@ test_check() {
 
 test_run() {
     "$testdir"/run-qemu \
-	-boot order=d \
-	-cdrom "$TESTDIR"/livecd.iso \
-	-drive format=raw,index=0,media=disk,file="$TESTDIR"/root.img \
-	-m 256M -smp 2 -nographic \
-	-net none \
-	-append "root=live:CDLABEL=LiveCD live rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug systemd.log_level=debug systemd.log_target=console $DEBUGFAIL" \
-	-initrd "$TESTDIR"/initramfs.testing
+        -boot order=d \
+        -drive format=raw,bps=1000000,index=0,media=disk,file="$TESTDIR"/livecd.iso \
+        -drive format=raw,index=1,media=disk,file="$TESTDIR"/root.img \
+        -m 256M -smp 2 \
+        -nographic \
+        -net none \
+        -append "root=live:CDLABEL=LiveCD live rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
+        -initrd "$TESTDIR"/initramfs.testing
+
+    # mediacheck test with qemu GUI
+    # "$testdir"/run-qemu \
+    #     -drive format=raw,bps=1000000,index=0,media=disk,file="$TESTDIR"/livecd.iso \
+    #     -drive format=raw,index=1,media=disk,file="$TESTDIR"/root.img \
+    #     -m 256M -smp 2 \
+    #     -net none \
+    #     -append "root=live:CDLABEL=LiveCD live quiet rhgb selinux=0 rd.live.check" \
+    #     -initrd "$TESTDIR"/initramfs.testing
+
     grep -F -m 1 -q dracut-root-block-success -- "$TESTDIR"/root.img || return 1
 }
 
