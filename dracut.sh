@@ -817,26 +817,22 @@ esac
 [[ $reproducible == yes ]] && DRACUT_REPRODUCIBLE=1
 
 readonly TMPDIR="$tmpdir"
-readonly initdir="$(mktemp -p "$TMPDIR/" -d -t initramfs.XXXXXX)"
-[ -d "$initdir" ] || {
-    printf "%s\n" "dracut: mktemp -p '$TMPDIR/' -d -t initramfs.XXXXXX failed." >&2
+readonly DRACUT_TMPDIR="$(mktemp -p "$TMPDIR/" -d -t dracut.XXXXXX)"
+[ -d "$DRACUT_TMPDIR" ] || {
+    printf "%s\n" "dracut: mktemp -p '$TMPDIR/' -d -t dracut.XXXXXX failed." >&2
     exit 1
 }
+readonly initdir="${DRACUT_TMPDIR}/initramfs"
+mkdir "$initdir"
 
 if [[ $early_microcode = yes ]] || ( [[ $acpi_override = yes ]] && [[ -d $acpi_table_dir ]] ); then
-    readonly early_cpio_dir="$(mktemp -p "$TMPDIR/" -d -t early_cpio.XXXXXX)"
-    [ -d "$early_cpio_dir" ] || {
-        printf "%s\n" "dracut: mktemp -p '$TMPDIR/' -d -t early_cpio.XXXXXX failed." >&2
-        exit 1
-    }
+    readonly early_cpio_dir="${DRACUT_TMPDIR}/earlycpio"
+    mkdir "$early_cpio_dir"
 fi
 # clean up after ourselves no matter how we die.
 trap '
     ret=$?;
-    [[ $keep ]] && echo "Not removing $initdir." >&2 || { [[ $initdir ]] && rm -rf -- "$initdir"; };
-    [[ $keep ]] && echo "Not removing $early_cpio_dir." >&2 || { [[ $early_cpio_dir ]] && rm -Rf -- "$early_cpio_dir"; };
-    [[ $keep ]] && echo "Not removing $uefi_outdir." >&2 || { [[ $uefi_outdir ]] && rm -Rf -- "$uefi_outdir"; };
-    [[ $_dlogdir ]] && rm -Rf -- "$_dlogdir";
+    [[ $keep ]] && echo "Not removing $DRACUT_TMPDIR." >&2 || { [[ $DRACUT_TMPDIR ]] && rm -rf -- "$DRACUT_TMPDIR"; };
     exit $ret;
     ' EXIT
 
@@ -1667,17 +1663,15 @@ if [[ $hostonly_cmdline ]] ; then
         done
     fi
     if ! [[ $_stored_cmdline ]]; then
-        dinfo "No dracut internal kernel commandline stored in initrd"
+        dinfo "No dracut internal kernel commandline stored in the initramfs"
     fi
 fi
-rm -f -- "$outfile"
+
 dinfo "*** Creating image file '$outfile' ***"
 
 if [[ $uefi = yes ]]; then
-    uefi_outfile="$outfile"
-    readonly uefi_outdir="$(mktemp -p "$TMPDIR/" -d -t initrd.XXXXXX)"
-    # redirect initrd output
-    outfile="$uefi_outdir/initrd"
+    readonly uefi_outdir="$DRACUT_TMPDIR/uefi"
+    mkdir "$uefi_outdir"
 fi
 
 if [[ $DRACUT_REPRODUCIBLE ]]; then
@@ -1702,31 +1696,31 @@ if [[ $create_early_cpio = yes ]]; then
     fi
 
     # The microcode blob is _before_ the initramfs blob, not after
-    (
-        cd "$early_cpio_dir/d"
-        find . -print0 | sort -z \
-            | cpio ${CPIO_REPRODUCIBLE:+--reproducible} --null $cpio_owner_root -H newc -o --quiet > $outfile
-    )
+    if ! (
+            cd "$early_cpio_dir/d"
+            find . -print0 | sort -z \
+                | cpio ${CPIO_REPRODUCIBLE:+--reproducible} --null $cpio_owner_root -H newc -o --quiet > "${DRACUT_TMPDIR}/initramfs.img"
+        ); then
+        dfatal "dracut: creation of $outfile failed"
+        exit 1
+    fi
 fi
 
 if ! (
         umask 077; cd "$initdir"
         find . -print0 | sort -z \
             | cpio ${CPIO_REPRODUCIBLE:+--reproducible} --null $cpio_owner_root -H newc -o --quiet \
-            | $compress >> "$outfile"
+            | $compress >> "${DRACUT_TMPDIR}/initramfs.img"
     ); then
     dfatal "dracut: creation of $outfile failed"
-    rm -f "$outfile"
     exit 1
 fi
 
-dinfo "*** Creating initrd image file '$outfile' done ***"
-
 if (( maxloglvl >= 5 )); then
     if [[ $allowlocal ]]; then
-	"$dracutbasedir/lsinitrd.sh" "$outfile"| ddebug
+	"$dracutbasedir/lsinitrd.sh" "${DRACUT_TMPDIR}/initramfs.img"| ddebug
     else
-        lsinitrd "$outfile"| ddebug
+        lsinitrd "${DRACUT_TMPDIR}/initramfs.img"| ddebug
     fi
 fi
 
@@ -1749,13 +1743,28 @@ if [[ $uefi = yes ]]; then
     [[ -s /usr/lib/os-release ]] && uefi_osrelease="/usr/lib/os-release"
     [[ -s /etc/os-release ]] && uefi_osrelease="/etc/os-release"
 
-    objcopy \
-        ${uefi_osrelease:+--add-section .osrel=$uefi_osrelease --change-section-vma .osrel=0x20000} \
-        --add-section .cmdline="$uefi_outdir/cmdline.txt" --change-section-vma .cmdline=0x30000 \
-        --add-section .linux="$kernel_image" --change-section-vma .linux=0x40000 \
-        --add-section .initrd="$outfile" --change-section-vma .initrd=0x3000000 \
-        "$uefi_stub" "$uefi_outfile"
-    dinfo "*** Creating UEFI image file '$uefi_outfile' done ***"
+    if objcopy \
+           ${uefi_osrelease:+--add-section .osrel=$uefi_osrelease --change-section-vma .osrel=0x20000} \
+           --add-section .cmdline="${uefi_outdir}/cmdline.txt" --change-section-vma .cmdline=0x30000 \
+           --add-section .linux="$kernel_image" --change-section-vma .linux=0x40000 \
+           --add-section .initrd="${DRACUT_TMPDIR}/initramfs.img" --change-section-vma .initrd=0x3000000 \
+           "$uefi_stub" "${uefi_outdir}/linux.efi" \
+            && mv "${uefi_outdir}/linux.efi" "$outfile"; then
+        dinfo "*** Creating UEFI image file '$outfile' done ***"
+    else
+        rm -f -- "$outfile"
+        dfatal "*** Creating UEFI image file '$outfile' failed ***"
+        exit 1
+    fi
+else
+    if mv "${DRACUT_TMPDIR}/initramfs.img" "$outfile"; then
+        dinfo "*** Creating initramfs image file '$outfile' done ***"
+    else
+        rm -f -- "$outfile"
+        dfatal "dracut: creation of $outfile failed"
+        exit 1
+    fi
 fi
+
 
 exit 0
