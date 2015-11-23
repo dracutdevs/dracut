@@ -203,14 +203,10 @@ fi
 # we might have an embedded fs image on squashfs (compressed live)
 if [ -e /run/initramfs/live/${live_dir}/${squash_image} ]; then
     SQUASHED="/run/initramfs/live/${live_dir}/${squash_image}"
-fi
-
-if [ -e "$SQUASHED" ] ; then
-    if [ -n "$live_ram" ] ; then
+    if [ -n "$live_ram" ]; then
         echo "Copying live image to RAM..."
         echo "(this may take a few minutes)"
         dd if=$SQUASHED of=/run/initramfs/squashed.img bs=512 2> /dev/null
-        umount -n /run/initramfs/live
         echo "Done copying live image to RAM."
         SQUASHED="/run/initramfs/squashed.img"
     fi
@@ -220,24 +216,32 @@ if [ -e "$SQUASHED" ] ; then
     mkdir -m 0755 -p /run/initramfs/squashfs
     mount -n -t squashfs -o ro $SQUASHED_LOOPDEV /run/initramfs/squashfs
 
-fi
-
-# we might have an embedded fs image to use as rootfs (uncompressed live)
-if [ -e /run/initramfs/live/${live_dir}/ext3fs.img ]; then
-    FSIMG="/run/initramfs/live/${live_dir}/ext3fs.img"
-elif [ -e /run/initramfs/live/${live_dir}/rootfs.img ]; then
-    FSIMG="/run/initramfs/live/${live_dir}/rootfs.img"
-elif [ -f /run/initramfs/squashfs/LiveOS/ext3fs.img ]; then
-    FSIMG="/run/initramfs/squashfs/LiveOS/ext3fs.img"
-elif [ -f /run/initramfs/squashfs/LiveOS/rootfs.img ]; then
-    FSIMG="/run/initramfs/squashfs/LiveOS/rootfs.img"
+    if [ -f /run/initramfs/squashfs/LiveOS/ext3fs.img ]; then
+        FSIMG="/run/initramfs/squashfs/LiveOS/ext3fs.img"
+    elif [ -f /run/initramfs/squashfs/LiveOS/rootfs.img ]; then
+        FSIMG="/run/initramfs/squashfs/LiveOS/rootfs.img"
+    fi
+else
+    # we might have an embedded fs image to use as rootfs (uncompressed live)
+    if [ -e /run/initramfs/live/${live_dir}/ext3fs.img ]; then
+        FSIMG="/run/initramfs/live/${live_dir}/ext3fs.img"
+    elif [ -e /run/initramfs/live/${live_dir}/rootfs.img ]; then
+        FSIMG="/run/initramfs/live/${live_dir}/rootfs.img"
+    fi
+    if [ -n "$live_ram" ]; then
+        echo 'Copying live image to RAM...'
+        echo '(this may take a few minutes)'
+        dd if=$FSIMG of=/run/initramfs/rootfs.img bs=512 2> /dev/null
+        echo 'Done copying live image to RAM.'
+        FSIMG='/run/initramfs/rootfs.img'
+    fi
 fi
 
 if [ -n "$FSIMG" ] ; then
     BASE_LOOPDEV=$( losetup -f )
 
     if [ -n "$writable_fsimg" ] ; then
-        # mount the provided fileysstem read/write
+        # mount the provided filesystem read/write
         echo "Unpacking live filesystem (may take some time)"
         mkdir /run/initramfs/fsimg/
         if [ -n "$SQUASHED" ]; then
@@ -245,8 +249,13 @@ if [ -n "$FSIMG" ] ; then
         else
             unpack_archive $FSIMG /run/initramfs/fsimg/
         fi
-        losetup $BASE_LOOPDEV /run/initramfs/fsimg/rootfs.img
-        echo "0 $( blockdev --getsize $BASE_LOOPDEV ) linear $BASE_LOOPDEV 0" | dmsetup create live-rw
+        FSIMG = /run/initramfs/fsimg/rootfs.img
+    fi
+    if [ -n "$writable_fsimg" ] || [ -z "$SQUASHED" -a -n "$live_ram" ] ||
+       [ "$overlay" = none -o "$overlay" = None -o "$overlay" = NONE ]; then
+        losetup $BASE_LOOPDEV $FSIMG
+        sz=$(blockdev --getsz $BASE_LOOPDEV)
+        echo 0 $sz linear $BASE_LOOPDEV 0 | dmsetup create live-rw
     else
         # mount the filesystem read-only and add a dm snapshot for writes
         losetup -r $BASE_LOOPDEV $FSIMG
