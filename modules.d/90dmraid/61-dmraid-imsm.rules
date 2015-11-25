@@ -9,7 +9,7 @@ ENV{DM_MULTIPATH_DEVICE_PATH}=="?*", GOTO="dm_end"
 
 ENV{ID_FS_TYPE}=="linux_raid_member", GOTO="dm_end"
 
-ENV{ID_FS_TYPE}!="*_raid_member", , GOTO="dm_end"
+ENV{ID_FS_TYPE}!="*_raid_member", GOTO="dm_end"
 
 ENV{ID_FS_TYPE}=="isw_raid_member", ENV{rd_NO_MDIMSM}!="?*", GOTO="dm_end"
 ENV{ID_FS_TYPE}=="ddf_raid_member", ENV{rd_NO_MDDDF}!="?*", GOTO="dm_end"
