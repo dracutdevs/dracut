@@ -249,7 +249,7 @@ if [ -n "$FSIMG" ] ; then
         else
             unpack_archive $FSIMG /run/initramfs/fsimg/
         fi
-        FSIMG = /run/initramfs/fsimg/rootfs.img
+        FSIMG=/run/initramfs/fsimg/rootfs.img
     fi
     if [ -n "$writable_fsimg" ] || [ -z "$SQUASHED" -a -n "$live_ram" ] ||
        [ "$overlay" = none -o "$overlay" = None -o "$overlay" = NONE ]; then
