@@ -13,7 +13,7 @@ depends() {
 
 install() {
     local _d
-    inst_multiple umount poweroff reboot halt losetup
+    inst_multiple umount poweroff reboot halt losetup stat
     inst_multiple -o kexec
     inst "$moddir/shutdown.sh" "$prefix/shutdown"
     [ -e "${initdir}/lib" ] || mkdir -m 0755 -p ${initdir}/lib
