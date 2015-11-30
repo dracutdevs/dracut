@@ -12,6 +12,10 @@ export TERM=linux
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 . /lib/dracut-lib.sh
 
+if [ "$(stat -c '%T' -f /)" = "tmpfs" ]; then
+    mount -o remount,rw /
+fi
+
 mkdir /oldsys
 for i in sys proc run dev; do
     mkdir /oldsys/$i
