@@ -203,6 +203,9 @@ fi
 # we might have an embedded fs image on squashfs (compressed live)
 if [ -e /run/initramfs/live/${live_dir}/${squash_image} ]; then
     SQUASHED="/run/initramfs/live/${live_dir}/${squash_image}"
+fi
+
+if [ -e "$SQUASHED" ] ; then
     if [ -n "$live_ram" ]; then
         echo "Copying live image to RAM..."
         echo "(this may take a few minutes)"
