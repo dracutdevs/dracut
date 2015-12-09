@@ -41,7 +41,7 @@ installkernel() {
             uhci-hcd \
             xhci-hcd xhci-pci xhci-plat-hcd
 
-        instmods \
+        hostonly='' instmods \
             "=drivers/hid" \
             "=drivers/input/serio" \
             "=drivers/input/keyboard"
