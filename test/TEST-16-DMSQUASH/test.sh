@@ -98,7 +98,7 @@ test_setup() {
 	inst "$VMLINUZ" "/boot/vmlinuz-${KVERSION}"
 	find_binary plymouth >/dev/null && inst_multiple plymouth
 	cp -a -- /etc/ld.so.conf* "$initdir"/etc
-	sudo ldconfig -r -- "$initdir"
+	sudo ldconfig -r "$initdir"
     )
     python create.py -d -c livecd-fedora-minimal.ks
     return 0
