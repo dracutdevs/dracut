@@ -531,22 +531,20 @@ wait_for_if_up() {
 
     while [ $cnt -lt $timeout ]; do
         li=$(ip -o link show up dev $1)
-        if ! strstr "$li" "NO-CARRIER"; then
-            if [ -n "$li" ]; then
-                case "$li" in
-                    *\<UP*)
-                        return 0;;
-                    *\<*,UP\>*)
-                        return 0;;
-                    *\<*,UP,*\>*)
-                        return 0;;
-                esac
-            fi
-            if strstr "$li" "LOWER_UP" \
-                    && strstr "$li" "state UNKNOWN" \
-                    && ! strstr "$li" "DORMANT"; then
-                return 0
-            fi
+        if [ -n "$li" ]; then
+            case "$li" in
+                *\<UP*)
+                    return 0;;
+                *\<*,UP\>*)
+                    return 0;;
+                *\<*,UP,*\>*)
+                    return 0;;
+            esac
+        fi
+        if strstr "$li" "LOWER_UP" \
+                && strstr "$li" "state UNKNOWN" \
+                && ! strstr "$li" "DORMANT"; then
+            return 0
         fi
         sleep 0.1
         cnt=$(($cnt+1))
@@ -614,7 +612,7 @@ hostname() {
 	cat /proc/sys/kernel/hostname
 }
 
-iface_has_link() {
+iface_has_carrier() {
     local cnt=0
     local interface="$1" flags=""
     [ -n "$interface" ] || return 2
@@ -625,12 +623,25 @@ iface_has_link() {
     timeout=$(($timeout*10))
 
     linkup "$1"
+
+    li=$(ip -o link show up dev $1)
+    strstr "$li" "NO-CARRIER" && _no_carrier_flag=1
+
     while [ $cnt -lt $timeout ]; do
-        [ "$(cat $interface/carrier)" = 1 ] && return 0
+        if [ -n "$_no_carrier_flag" ]; then
+            # NO-CARRIER flag was cleared
+            strstr "$li" "NO-CARRIER" || return 0
+        fi
+        # double check the syscfs carrier flag
+        [ -e "$interface/carrier" ] && [ "$(cat $interface/carrier)" = 1 ] && return 0
         sleep 0.1
         cnt=$(($cnt+1))
     done
     return 1
+}
+
+iface_has_link() {
+    iface_has_carrier "$@"
 }
 
 find_iface_with_link() {
