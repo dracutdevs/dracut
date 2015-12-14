@@ -264,9 +264,13 @@ EOF
 	inst_hook emergency 000 ./hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
+
+    [ -e /etc/machine-id ] && EXTRA_MACHINE="/etc/machine-id"
+    [ -e /etc/machine-info ] && EXTRA_MACHINE+=" /etc/machine-info"
+
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-a "debug systemd i18n" \
-	-I "/etc/machine-id /etc/hostname" \
+	${EXTRA_MACHINE:+-I "$EXTRA_MACHINE"} \
         -o "dash network plymouth lvm mdraid resume crypt caps dm terminfo usrmount kernel-network-modules" \
 	-d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \
         --no-hostonly-cmdline -N \
