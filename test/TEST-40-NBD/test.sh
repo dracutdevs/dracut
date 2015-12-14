@@ -5,8 +5,8 @@ TEST_DESCRIPTION="root filesystem on NBD"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-#DEBUGFAIL="rd.shell rd.break"
-#SERIAL="udp:127.0.0.1:9999"
+#DEBUGFAIL="rd.shell rd.break rd.debug"
+SERIAL="tcp:127.0.0.1:9999"
 SERIAL="null"
 
 run_server() {
@@ -104,36 +104,36 @@ test_run() {
 client_run() {
     # The default is ext3,errors=continue so use that to determine
     # if our options were parsed and used
+    client_test "NBD root=nbd:IP:port" 52:54:00:12:34:00 \
+        "root=nbd:192.168.50.1:raw rd.luks=0" || return 1
+
     client_test "NBD root=nbd:IP:port::fsopts" 52:54:00:12:34:00 \
-        "root=nbd:192.168.50.1:2000::errors=panic rd.luks=0" \
+        "root=nbd:192.168.50.1:raw::errors=panic rd.luks=0" \
         ext3 errors=panic || return 1
 
-    client_test "NBD root=nbd:IP:port" 52:54:00:12:34:00 \
-        "root=nbd:192.168.50.1:2000 rd.luks=0" || return 1
-
     client_test "NBD root=nbd:IP:port:fstype" 52:54:00:12:34:00 \
-        "root=nbd:192.168.50.1:2000:ext2 rd.luks=0" ext2 || return 1
+        "root=nbd:192.168.50.1:raw:ext2 rd.luks=0" ext2 || return 1
 
     client_test "NBD root=nbd:IP:port:fstype:fsopts" 52:54:00:12:34:00 \
-        "root=nbd:192.168.50.1:2000:ext2:errors=panic rd.luks=0" \
+        "root=nbd:192.168.50.1:raw:ext2:errors=panic rd.luks=0" \
         ext2 errors=panic || return 1
 
     client_test "NBD Bridge root=nbd:IP:port:fstype:fsopts" 52:54:00:12:34:00 \
-        "root=nbd:192.168.50.1:2000:ext2:errors=panic bridge rd.luks=0" \
+        "root=nbd:192.168.50.1:raw:ext2:errors=panic bridge rd.luks=0" \
         ext2 errors=panic || return 1
 
      # There doesn't seem to be a good way to validate the NBD options, so
      # just check that we don't screw up the other options
 
     client_test "NBD root=nbd:IP:port:::NBD opts" 52:54:00:12:34:00 \
-        "root=nbd:192.168.50.1:2000:::bs=2048 rd.luks=0" || return 1
+        "root=nbd:192.168.50.1:raw:::bs=2048 rd.luks=0" || return 1
 
     client_test "NBD root=nbd:IP:port:fstype::NBD opts" 52:54:00:12:34:00 \
-        "root=nbd:192.168.50.1:2000:ext2::bs=2048 rd.luks=0" ext2 || return 1
+        "root=nbd:192.168.50.1:raw:ext2::bs=2048 rd.luks=0" ext2 || return 1
 
     client_test "NBD root=nbd:IP:port:fstype:fsopts:NBD opts" \
         52:54:00:12:34:00 \
-        "root=nbd:192.168.50.1:2000:ext2:errors=panic:bs=2048 rd.luks=0" \
+        "root=nbd:192.168.50.1:raw:ext2:errors=panic:bs=2048 rd.luks=0" \
         ext2 errors=panic || return 1
 
     # DHCP root-path parsing
@@ -156,7 +156,7 @@ client_run() {
     # netroot handling
 
     client_test "NBD netroot=nbd:IP:port" 52:54:00:12:34:00 \
-        "netroot=nbd:192.168.50.1:2000 rd.luks=0" || return 1
+        "netroot=nbd:192.168.50.1:raw rd.luks=0" || return 1
 
     client_test "NBD netroot=dhcp DHCP root-path nbd:srv:port:fstype:fsopts" \
         52:54:00:12:34:04 "netroot=dhcp rd.luks=0" ext2 errors=panic || return 1
@@ -167,7 +167,7 @@ client_run() {
 
     client_test "NBD root=LABEL=dracut netroot=nbd:IP:port" \
         52:54:00:12:34:00 \
-        "root=LABEL=dracut rd.luks.uuid=$ID_FS_UUID rd.lv.vg=dracut netroot=nbd:192.168.50.1:2001" || return 1
+        "root=LABEL=dracut rd.luks.uuid=$ID_FS_UUID rd.lv.vg=dracut netroot=nbd:192.168.50.1:encrypted" || return 1
 
     # XXX This should be ext2,errors=panic but that doesn't currently
     # XXX work when you have a real root= line in addition to netroot=
@@ -308,11 +308,20 @@ make_server_root() {
         mkdir -p "$initdir"
         (
             cd "$initdir";
-            mkdir -p dev sys proc etc var/run var/lib/dhcpd tmp
+            mkdir -p dev sys proc etc var/run var/lib/dhcpd tmp etc/nbd-server
         )
+        cat > "$initdir/etc/nbd-server/config" <<EOF
+[generic]
+[raw]
+exportname = /dev/sdb
+port = 2000
+[encrypted]
+exportname = /dev/sdc
+port = 2001
+EOF
         inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
             dmesg mkdir cp ping grep \
-            sleep nbd-server chmod
+            sleep nbd-server chmod modprobe vi
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done

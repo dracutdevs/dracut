@@ -1,8 +1,8 @@
 #!/bin/sh
 #
 # Preferred format:
-#       root=nbd:srv:port[:fstype[:rootflags[:nbdopts]]]
-#       [root=*] netroot=nbd:srv:port[:fstype[:rootflags[:nbdopts]]]
+#       root=nbd:srv:port/exportname[:fstype[:rootflags[:nbdopts]]]
+#       [root=*] netroot=nbd:srv:port/exportname[:fstype[:rootflags[:nbdopts]]]
 #
 # nbdopts is a comma separated list of options to give to nbd-client
 #
@@ -44,6 +44,12 @@ fi
 
 # If it's not nbd we don't continue
 [ "${netroot%%:*}" = "nbd" ] || return
+
+
+if [ -n "${DRACUT_SYSTEMD}" ] && [ "$root" = "dhcp" ]; then
+    echo "root=$netroot" > /etc/cmdline.d/root.conf
+    systemctl --no-block daemon-reload
+fi
 
 # Check required arguments
 netroot_to_var $netroot

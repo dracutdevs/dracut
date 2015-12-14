@@ -13,8 +13,7 @@ ip link set dev eth0 name ens3
 ip addr add 192.168.50.1/24 dev ens3
 ip link set ens3 up
 modprobe af_packet
-nbd-server 2000 /dev/sdb -C /dev/null
-nbd-server 2001 /dev/sdc -C /dev/null
+nbd-server
 >/var/lib/dhcpd/dhcpd.leases
 chmod 777 /var/lib/dhcpd/dhcpd.leases
 dhcpd -d -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases &

@@ -28,11 +28,6 @@ nbdfstype=${nroot%%:*}; nroot=${nroot#*:}
 nbdflags=${nroot%%:*}
 nbdopts=${nroot#*:}
 
-# If nbdport not an integer, then assume name based import
-if [ ! -z $(echo "$nbdport" | sed 's/[0-9]//g') ]; then
-    nbdport="-N $nbdport"
-fi
-
 if [ "$nbdopts" = "$nbdflags" ]; then
     unset nbdopts
 fi
@@ -113,7 +108,11 @@ if strstr "$(nbd-client --help 2>&1)" "systemd-mark"; then
     preopts="--systemd-mark $preopts"
 fi
 
-nbd-client $preopts "$nbdserver" $nbdport /dev/nbd0 $opts || exit 1
+if [ "$nbdport" -gt 0 ] 2>/dev/null; then
+    nbd-client "$nbdserver" $nbdport /dev/nbd0 $preopts $opts || exit 1
+else
+    nbd-client -name "$nbdport" "$nbdserver" /dev/nbd0 $preopts $opts || exit 1
+fi
 
 # NBD doesn't emit uevents when it gets connected, so kick it
 echo change > /sys/block/nbd0/uevent
