@@ -17,6 +17,8 @@ install() {
     inst_hook cmdline 29 "$moddir/parse-livenet.sh"
     inst_hook initqueue/online 95 "$moddir/fetch-liveupdate.sh"
     inst_script "$moddir/livenetroot.sh" "/sbin/livenetroot"
-    inst_script "$moddir/livenet-generator.sh" $systemdutildir/system-generators/dracut-livenet-generator
+    if dracut_module_included "systemd-initrd"; then
+        inst_script "$moddir/livenet-generator.sh" $systemdutildir/system-generators/dracut-livenet-generator
+    fi
     dracut_need_initqueue
 }
