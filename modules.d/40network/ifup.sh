@@ -100,7 +100,7 @@ do_dhcp() {
 
     [ -e /tmp/dhclient.$netif.pid ] && return 0
 
-    if ! iface_has_link $netif; then
+    if ! iface_has_carrier $netif; then
         warn "No carrier detected on interface $netif"
         return 1
     fi
@@ -150,7 +150,10 @@ do_ipv6auto() {
 do_static() {
     strglobin $ip '*:*:*' && load_ipv6
 
-    if ! linkup $netif; then
+    if [ -z "$dev" ] && ! iface_has_carrier "$netif"; then
+        warn "No carrier detected on interface $netif"
+        return 1
+    elif ! linkup "$netif"; then
         warn "Could not bring interface $netif up!"
         return 1
     fi
@@ -375,27 +378,28 @@ for p in $(getargs ip=); do
     done
     ret=$?
 
-    > /tmp/net.${netif}.up
+    if [ $ret -eq 0 ]; then
+        > /tmp/net.${netif}.up
 
-    if [ -e /sys/class/net/${netif}/address ]; then
-        > /tmp/net.$(cat /sys/class/net/${netif}/address).up
-    fi
+        if [ -e /sys/class/net/${netif}/address ]; then
+            > /tmp/net.$(cat /sys/class/net/${netif}/address).up
+        fi
 
-    case $autoconf in
-        dhcp|on|any|dhcp6)
+        case $autoconf in
+            dhcp|on|any|dhcp6)
             ;;
-        *)
-            if [ $ret -eq 0 ]; then
-                setup_net $netif
-                source_hook initqueue/online $netif
-                if [ -z "$manualup" ]; then
-                    /sbin/netroot $netif
+            *)
+                if [ $ret -eq 0 ]; then
+                    setup_net $netif
+                    source_hook initqueue/online $netif
+                    if [ -z "$manualup" ]; then
+                        /sbin/netroot $netif
+                    fi
                 fi
-            fi
-            ;;
-    esac
-
-    exit 0
+                ;;
+        esac
+        exit $ret
+    fi
 done
 
 # netif isn't the top stack? Then we should exit here.
