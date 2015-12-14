@@ -162,6 +162,7 @@ install() {
             /etc/systemd/system.conf \
             /etc/hostname \
             /etc/machine-id \
+            /etc/machine-info \
             /etc/vconsole.conf \
             /etc/locale.conf \
             /etc/modules-load.d/*.conf \
