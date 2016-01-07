@@ -874,7 +874,7 @@ dev_unit_name()
     local dev="$1"
 
     if command -v systemd-escape >/dev/null; then
-        systemd-escape -p  "$dev"
+        systemd-escape -p -- "$dev"
         return
     fi
 
