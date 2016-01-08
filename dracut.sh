@@ -1724,6 +1724,8 @@ if (( maxloglvl >= 5 )); then
     fi
 fi
 
+umask 077
+
 if [[ $uefi = yes ]]; then
     if [[ $kernel_cmdline ]]; then
         echo -n "$kernel_cmdline" > "$uefi_outdir/cmdline.txt"
@@ -1749,7 +1751,7 @@ if [[ $uefi = yes ]]; then
            --add-section .linux="$kernel_image" --change-section-vma .linux=0x40000 \
            --add-section .initrd="${DRACUT_TMPDIR}/initramfs.img" --change-section-vma .initrd=0x3000000 \
            "$uefi_stub" "${uefi_outdir}/linux.efi" \
-            && mv "${uefi_outdir}/linux.efi" "$outfile"; then
+            && cp --reflink=auto "${uefi_outdir}/linux.efi" "$outfile"; then
         dinfo "*** Creating UEFI image file '$outfile' done ***"
     else
         rm -f -- "$outfile"
@@ -1757,7 +1759,7 @@ if [[ $uefi = yes ]]; then
         exit 1
     fi
 else
-    if mv "${DRACUT_TMPDIR}/initramfs.img" "$outfile"; then
+    if cp --reflink=auto "${DRACUT_TMPDIR}/initramfs.img" "$outfile"; then
         dinfo "*** Creating initramfs image file '$outfile' done ***"
     else
         rm -f -- "$outfile"
@@ -1766,5 +1768,6 @@ else
     fi
 fi
 
+command -v restorecon &>/dev/null && restorecon -- "$outfile"
 
 exit 0
