@@ -969,9 +969,14 @@ esac
 abs_outfile=$(readlink -f "$outfile") && outfile="$abs_outfile"
 
 if [[ -d $srcmods ]]; then
-    [[ -f $srcmods/modules.dep ]] || {
-      dwarn "$srcmods/modules.dep is missing. Did you run depmod?"
-    }
+    if ! [[ -f $srcmods/modules.dep ]]; then
+        if [[ -n "$(find "$srcmods" -name '*.ko*')" ]]; then
+            dfatal "$srcmods/modules.dep is missing. Did you run depmod?"
+            exit 1
+        else
+            dwarn "$srcmods/modules.dep is missing. Did you run depmod?"
+        fi
+    fi
 fi
 
 if [[ ! $print_cmdline ]]; then
