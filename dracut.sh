@@ -925,7 +925,12 @@ abs_outfile=$(readlink -f "$outfile") && outfile="$abs_outfile"
 
 if [[ $no_kernel != yes ]] && [[ -d $srcmods ]]; then
     if ! [[ -f $srcmods/modules.dep ]]; then
-        dwarn "$srcmods/modules.dep is missing. Did you run depmod?"
+        if [[ -n "$(find "$srcmods" -name '*.ko*')" ]]; then
+            dfatal "$srcmods/modules.dep is missing. Did you run depmod?"
+            exit 1
+        else
+            dwarn "$srcmods/modules.dep is missing. Did you run depmod?"
+        fi
     elif ! ( command -v gzip &>/dev/null && command -v xz &>/dev/null); then
         read _mod < $srcmods/modules.dep
         _mod=${_mod%%:*}
