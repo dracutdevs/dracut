@@ -580,7 +580,7 @@ check_vol_slaves() {
         if [[ $_lv = $2 ]]; then
             _vg=$(lvm lvs --noheadings -o vg_name $i 2>/dev/null)
             # strip space
-            _vg=$(printf "%s\n" "$_vg")
+            _vg="${_vg//[[:space:]]/}"
             if [[ $_vg ]]; then
                 for _pv in $(lvm vgs --noheadings -o pv_name "$_vg" 2>/dev/null)
                 do
