@@ -362,7 +362,7 @@ for p in $(getargs ip=); do
     done
 
     # Store config for later use
-    for i in ip srv gw mask hostname macaddr dns1 dns2; do
+    for i in ip srv gw mask hostname macaddr mtu dns1 dns2; do
         eval '[ "$'$i'" ] && echo '$i'="$'$i'"'
     done > /tmp/net.$netif.override
 
