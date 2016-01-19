@@ -9,9 +9,10 @@ is_mpath() {
 
 majmin_to_mpath_dev() {
     local _dev
-    for i in `ls -1 /dev/mapper/mpath*`; do
-        dev=$(get_maj_min $i)
-        if [ "$dev" = "$1" ]; then
+    for i in /dev/mapper/*; do
+        [[ $i == /dev/mapper/control ]] && continue
+        _dev=$(get_maj_min $i)
+        if [ "$_dev" = "$1" ]; then
             echo $i
             return
         fi
