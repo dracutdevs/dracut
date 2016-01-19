@@ -18,7 +18,7 @@ run_server() {
         -display none \
         -net socket,listen=127.0.0.1:12350 \
         -net nic,macaddr=52:54:01:12:34:56,model=e1000 \
-        ${SERIAL:+-serial "$SERIAL"} \
+        -serial ${SERIAL:-null} \
         -watchdog i6300esb -watchdog-action poweroff \
         -append "loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.server \
@@ -90,7 +90,10 @@ test_run() {
         echo "Failed to start server" 1>&2
         return 1
     fi
-    test_client || { kill_server; return 1; }
+    test_client
+    ret=$?
+    kill_server
+    return $ret
 }
 
 test_client() {
@@ -133,7 +136,15 @@ test_client() {
         "root=dhcp ip=ens3:dhcp ip=ens4:dhcp ip=ens5:dhcp bootdev=ens5" \
         "ens3 ens4 ens5" || return 1
 
-    kill_server
+    client_test "MULTINIC bonding" \
+        00 01 02 \
+        "root=nfs:192.168.50.1:/nfs/client ip=bond0:dhcp  bond=bond0:ens3,ens4,ens5:mode=balance-rr" \
+        "bond0" || return 1
+
+    client_test "MULTINIC bridging" \
+        00 01 02 \
+        "root=nfs:192.168.50.1:/nfs/client ip=bridge0:dhcp  bridge=bridge0:ens3,ens4,ens5" \
+        "bridge0" || return 1
     return 0
 }
 

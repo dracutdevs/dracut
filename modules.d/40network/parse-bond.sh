@@ -10,14 +10,6 @@
 #       bond without parameters assumes bond=bond0:eth0,eth1:mode=balance-rr
 #
 
-# return if bond already parsed
-[ -n "$bondname" ] && return
-
-# Check if bond parameter is valid
-if getarg bond= >/dev/null ; then
-    :
-fi
-
 # We translate list of slaves to space-separated here to mwke it easier to loop over them in ifup
 # Ditto for bonding options
 parsebond() {
@@ -28,7 +20,6 @@ parsebond() {
         v=${v#*:}
     done
 
-    unset bondname bondslaves bondoptions
     case $# in
     0)  bondname=bond0; bondslaves="eth0 eth1" ;;
     1)  bondname=$1; bondslaves="eth0 eth1" ;;
@@ -38,14 +29,13 @@ parsebond() {
     esac
 }
 
-unset bondname bondslaves bondoptions
-
 # Parse bond for bondname, bondslaves, bondmode and bondoptions
-if getarg bond >/dev/null; then
-    # Read bond= parameters if they exist
-    bond="$(getarg bond=)"
-    if [ ! "$bond" = "bond" ]; then
-        parsebond "$(getarg bond=)"
+for bond in $(getargs bond=); do
+    unset bondname
+    unset bondslaves
+    unset bondoptions
+    if [ "$bond" != "bond" ]; then
+        parsebond "$bond"
     fi
     # Simple default bond
     if [ -z "$bondname" ]; then
@@ -57,5 +47,4 @@ if getarg bond >/dev/null; then
     echo "bondname=$bondname" > /tmp/bond.${bondname}.info
     echo "bondslaves=\"$bondslaves\"" >> /tmp/bond.${bondname}.info
     echo "bondoptions=\"$bondoptions\"" >> /tmp/bond.${bondname}.info
-    return
-fi
+done

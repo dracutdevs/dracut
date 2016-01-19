@@ -12,11 +12,14 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
 # Write udev rules
 {
     # bridge: attempt only the defined interface
-    if [ -e /tmp/bridge.info ]; then
-        . /tmp/bridge.info
+    for i in /tmp/bridge.*.info; do
+        [ -e "$i" ] || continue
+        unset bridgeslaves
+        unset bridgename
+        . "$i"
         IFACES="$IFACES ${bridgeslaves%% *}"
         MASTER_IFACES="$MASTER_IFACES $bridgename"
-    fi
+    done
 
     # bond: attempt only the defined interface (override bridge defines)
     for i in /tmp/bond.*.info; do
@@ -35,11 +38,18 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
         MASTER_IFACES="$MASTER_IFACES ${teammaster}"
     fi
 
-    if [ -e /tmp/vlan.info ]; then
-        . /tmp/vlan.info
-        IFACES="$IFACES $phydevice"
-        MASTER_IFACES="$MASTER_IFACES ${vlanname}"
-    fi
+    for j in /tmp/vlan.*.phy; do
+        [ -e "$j" ] || continue
+        unset phydevice
+        . "$j"
+        for i in /tmp/vlan.*.${phydevice}; do
+            [ -e "$i" ] || continue
+            unset vlanname
+            . "$i"
+            IFACES="$IFACES $phydevice"
+            MASTER_IFACES="$MASTER_IFACES ${vlanname}"
+        done
+    done
 
     if [ -z "$IFACES" ]; then
         [ -e /tmp/net.ifaces ] && read IFACES < /tmp/net.ifaces

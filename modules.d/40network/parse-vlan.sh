@@ -36,7 +36,7 @@ if getarg vlan >/dev/null; then
         parsevlan "$(getarg vlan=)"
     fi
 
-    echo "vlanname=\"$vlanname\"" > /tmp/vlan.info
-    echo "phydevice=\"$phydevice\"" >> /tmp/vlan.info
+    echo "$phydevice" > /tmp/vlan.${phydevice}.phy
+    echo "$vlanname" > /tmp/vlan.${vlanname}.${phydevice}
     return
 fi

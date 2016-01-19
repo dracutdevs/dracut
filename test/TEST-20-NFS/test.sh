@@ -16,8 +16,8 @@ run_server() {
         -drive format=raw,index=0,media=disk,file=$TESTDIR/server.ext3 \
         -m 256M -smp 2 \
         -display none \
-        -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net socket,listen=127.0.0.1:12320 \
+        -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -serial ${SERIAL:-null} \
         -watchdog i6300esb -watchdog-action poweroff \
         -append "rd.debug loglevel=77 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
@@ -134,7 +134,7 @@ test_nfsv3() {
         "root=nfs:192.168.50.1:/nfs/client" 192.168.50.1 -wsize=4096 || return 1
 
     client_test "NFSv3 Bridge root=nfs:..." 52:54:00:12:34:04 \
-        "root=nfs:192.168.50.1:/nfs/client bridge" 192.168.50.1 -wsize=4096 || return 1
+        "root=nfs:192.168.50.1:/nfs/client bridge net.ifnames=0" 192.168.50.1 -wsize=4096 || return 1
 
     client_test "NFSv3 Legacy root=IP:path" 52:54:00:12:34:04 \
         "root=192.168.50.1:/nfs/client" 192.168.50.1 -wsize=4096 || return 1
