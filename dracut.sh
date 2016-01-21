@@ -1195,6 +1195,27 @@ if [[ $hostonly ]]; then
     while read m rest || [ -n "$m" ]; do
         host_modules["$m"]=1
     done </proc/modules
+
+    # Explanation of the following section:
+    # Since kernel 4.4, mpt3sas is a complete replacement for mpt2sas.
+    # mpt3sas has an alias to mpt2sas now, but since mpt3sas isn't loaded
+    # when generating the initrd from kernel < 4.4, it's not included.
+    # The other direction has the same issue:
+    # When generating the initrd from kernel >= 4.4, mpt2sas isn't loaded,
+    # so it's not included.
+    # Both ways result in an unbootable initrd.
+
+    # also add aliases of loaded modules
+    for mod in "${!host_modules[@]}"; do
+        aliases=$(modinfo -F alias "$mod" 2>&1)
+        for alias in $aliases; do
+            host_modules["$alias"]=1
+        done
+        # mod might be an alias in the target kernel, find the real module
+        mod_filename=$(modinfo -k "$kernel" "$mod" -F filename)
+        [ $? -ne 0 ] && continue
+        host_modules["$(basename -s .ko "$mod_filename")"]=1
+    done
 fi
 
 unset m
