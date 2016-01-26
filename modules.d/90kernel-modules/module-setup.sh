@@ -39,16 +39,17 @@ installkernel() {
             ehci-hcd ehci-pci ehci-platform \
             ohci-hcd ohci-pci \
             uhci-hcd \
-            xhci-hcd xhci-pci xhci-plat-hcd
-
-        hostonly='' instmods \
+            xhci-hcd xhci-pci xhci-plat-hcd \
             "=drivers/hid" \
             "=drivers/input/serio" \
-            "=drivers/input/keyboard"
+            "=drivers/input/keyboard" \
+            "=drivers/usb/storage"
 
-        instmods yenta_socket scsi_dh_rdac scsi_dh_emc scsi_dh_alua \
-                 atkbd i8042 usbhid firewire-ohci pcmcia hv-vmbus \
-                 usb-storage
+        instmods \
+            yenta_socket scsi_dh_rdac scsi_dh_emc scsi_dh_alua \
+            atkbd i8042 usbhid firewire-ohci pcmcia hv-vmbus \
+            virtio virtio_blk virtio_ring virtio_pci virtio_scsi \
+            "=drivers/pcmcia" =ide
 
         if [[ "$(uname -p)" == arm* ]]; then
             # arm specific modules
@@ -61,9 +62,6 @@ installkernel() {
                 ${NULL}
         fi
 
-        # install virtual machine support
-        instmods virtio virtio_blk virtio_ring virtio_pci virtio_scsi \
-            "=drivers/pcmcia" =ide "=drivers/usb/storage"
 
         find_kernel_modules  |  block_module_filter  |  instmods
 
