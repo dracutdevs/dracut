@@ -47,7 +47,8 @@ installkernel() {
             "=drivers/input/keyboard"
 
         instmods yenta_socket scsi_dh_rdac scsi_dh_emc scsi_dh_alua \
-                 atkbd i8042 usbhid firewire-ohci pcmcia hv-vmbus
+                 atkbd i8042 usbhid firewire-ohci pcmcia hv-vmbus \
+                 usb-storage
 
         if [[ "$(uname -p)" == arm* ]]; then
             # arm specific modules
