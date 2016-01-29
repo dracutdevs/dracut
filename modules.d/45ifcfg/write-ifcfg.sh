@@ -221,6 +221,7 @@ for netup in /tmp/net.*.did-setup ; do
             echo "BONDING_OPTS=\"$bondoptions\""
             echo "NAME=\"$netif\""
             echo "TYPE=Bond"
+            echo "NM_CONTROLLED=no"
         } >> /tmp/ifcfg/ifcfg-$netif
 
         for slave in $bondslaves ; do
@@ -234,6 +235,7 @@ for netup in /tmp/net.*.did-setup ; do
                 echo "SLAVE=yes"
                 echo "MASTER=\"$netif\""
                 echo "UUID=\"$(cat /proc/sys/kernel/random/uuid)\""
+                echo "NM_CONTROLLED=no"
                 unset macaddr
                 [ -e /tmp/net.$slave.override ] && . /tmp/net.$slave.override
                 interface_bind "$slave" "$macaddr"
