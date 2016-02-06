@@ -9,7 +9,7 @@ generator_wait_for_dev()
 
     _name="$(str_replace "$1" '/' '\x2f')"
     _timeout=$(getarg rd.timeout)
-    _timeout=${_timeout:-0}
+    _timeout=${_timeout:-infinity}
 
     if ! [ -e "$hookdir/initqueue/finished/devexists-${_name}.sh" ]; then
 
