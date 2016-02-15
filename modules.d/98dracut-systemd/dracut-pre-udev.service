@@ -20,6 +20,7 @@ ConditionKernelCommandLine=|rd.break=pre-udev
 ConditionKernelCommandLine=|rd.driver.blacklist
 ConditionKernelCommandLine=|rd.driver.pre
 ConditionKernelCommandLine=|rd.driver.post
+ConditionPathExistsGlob=|/etc/cmdline.d/*.conf
 
 [Service]
 Environment=DRACUT_SYSTEMD=1
