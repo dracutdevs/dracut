@@ -1,5 +1,9 @@
 #!/bin/bash
 
+type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+
+getarg "rd.cmdline=ask" || exit 0
+
 sleep 0.5
 echo
 sleep 0.5
