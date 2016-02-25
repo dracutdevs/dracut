@@ -29,12 +29,33 @@ check() {
     return 0
 }
 
+install_ibft() {
+    # When iBFT / iscsi_boot is detected:
+    # - Use 'ip=ibft' to set up iBFT network interface
+    # - specify firmware booting cmdline parameter
+
+    for d in /sys/firmware/* ; do
+        if [ -d ${d}/initiator ] ; then
+            if [ ${d##*/} = "ibft" ] ; then
+                echo -n "ip=ibft "
+            fi
+            echo -n "rd.iscsi.firmware=1"
+        fi
+    done
+}
+
 depends() {
     echo network rootfs-block
 }
 
 installkernel() {
     local _arch=$(uname -m)
+
+    # Detect iBFT and perform mandatory steps
+    if [[ $hostonly_cmdline == "yes" ]] ; then
+        install_ibft > "${initdir}/etc/cmdline.d/95iscsi.conf"
+        echo >> "${initdir}/etc/cmdline.d/95iscsi.conf"
+    fi
 
     instmods bnx2i qla4xxx cxgb3i cxgb4i be2iscsi
     hostonly="" instmods iscsi_tcp iscsi_ibft crc32c iscsi_boot_sysfs
@@ -75,6 +96,11 @@ installkernel() {
     | iscsi_module_filter  |  instmods
 }
 
+cmdline() {
+    install_ibft
+}
+
+# called by dracut
 install() {
     inst_multiple umount iscsistart hostname iscsi-iname
     inst_multiple -o iscsiuio
