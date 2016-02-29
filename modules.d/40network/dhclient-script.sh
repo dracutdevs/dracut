@@ -95,6 +95,51 @@ setup_interface6() {
     [ -n "$hostname" ] && echo "echo ${hostname%.$domain}${domain:+.$domain} > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
 }
 
+function parse_option_121() {
+    while [ $# -ne 0 ]; do
+        mask="$1"
+        shift
+
+        # Is the destination a multicast group?
+        if [ $1 -ge 224 -a $1 -lt 240 ]; then
+            multicast=1
+        else
+            multicast=0
+        fi
+
+        # Parse the arguments into a CIDR net/mask string
+        if [ $mask -gt 24 ]; then
+            destination="$1.$2.$3.$4/$mask"
+            shift; shift; shift; shift
+        elif [ $mask -gt 16 ]; then
+            destination="$1.$2.$3.0/$mask"
+            shift; shift; shift
+        elif [ $mask -gt 8 ]; then
+            destination="$1.$2.0.0/$mask"
+            shift; shift
+        else
+            destination="$1.0.0.0/$mask"
+            shift
+        fi
+
+        # Read the gateway
+        gateway="$1.$2.$3.$4"
+        shift; shift; shift; shift
+
+        # Multicast routing on Linux
+        #  - If you set a next-hop address for a multicast group, this breaks with Cisco switches
+        #  - If you simply leave it link-local and attach it to an interface, it works fine.
+        if [ $multicast -eq 1 ]; then
+            temp_result="$destination dev $interface"
+        else
+            temp_result="$destination via $gateway dev $interface"
+        fi
+
+        echo "/sbin/ip route add $temp_result"
+    done
+}
+
+
 case $reason in
     PREINIT)
         echo "dhcp: PREINIT $netif up"
@@ -129,6 +174,9 @@ case $reason in
         {
             echo '. /lib/net-lib.sh'
             echo "setup_net $netif"
+            if [ -n "$new_classless_static_routes" ]; then
+                modify_routes add "$(parse_option_121 $new_classless_static_routes)"
+            fi
             echo "source_hook initqueue/online $netif"
             [ -e /tmp/net.$netif.manualup ] || echo "/sbin/netroot $netif"
             echo "rm -f -- $hookdir/initqueue/setup_net_$netif.sh"
