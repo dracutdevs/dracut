@@ -22,6 +22,17 @@ installkernel() {
     instmods -s efivarfs
 }
 
+
+ug_check_and_add() {
+    local name="$1"
+    local file="$2"
+
+    if egrep -q "^$name:" "$file" 2>/dev/null \
+            && ! egrep -q "^$name:" "$initdir$file" 2>/dev/null; then
+        egrep "^$name:" "$file" 2>/dev/null >> "$initdir$file"
+    fi
+}
+
 install() {
     local _mods
 
@@ -29,6 +40,12 @@ install() {
         dfatal "systemd does not work with a prefix, which contains \"/run\"!!"
         exit 1
     fi
+
+    ug_check_and_add "wheel" "/etc/passwd"
+    ug_check_and_add "wheel" "/etc/group"
+
+    ug_check_and_add "adm" "/etc/passwd"
+    ug_check_and_add "adm" "/etc/group"
 
     inst_multiple -o \
         $systemdutildir/systemd \
