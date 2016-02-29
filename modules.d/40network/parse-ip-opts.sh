@@ -40,6 +40,8 @@ if [ -n "$NEEDBOOTDEV" ] && getargbool 1 rd.neednet; then
     #[ -z "$BOOTDEV" ] && warn "Please supply bootdev argument for multiple ip= lines"
     echo "rd.neednet=1" > /etc/cmdline.d/dracut-neednet.conf
     info "Multiple ip= arguments: assuming rd.neednet=1"
+else
+    unset NEEDBOOTDEV
 fi
 
 # Check ip= lines
@@ -48,16 +50,13 @@ for p in $(getargs ip=); do
     ip_to_var $p
 
     # make first device specified the BOOTDEV
-    if [ -z "$BOOTDEV" ] && [ -n "$dev" ]; then
+    if [ -n "$NEEDBOOTDEV" ] && [ -z "$BOOTDEV" ] && [ -n "$dev" ]; then
         BOOTDEV="$dev"
-        [ -n "$NEEDBOOTDEV" ] && info "Setting bootdev to '$BOOTDEV'"
+        info "Setting bootdev to '$BOOTDEV'"
     fi
 
     # skip ibft since we did it above
     [ "$autoconf" = "ibft" ] && continue
-
-    # We need to have an ip= line for the specified bootdev
-    [ -n "$NEEDBOOTDEV" ] && [ "$dev" = "$BOOTDEV" ] && BOOTDEVOK=1
 
     # Empty autoconf defaults to 'dhcp'
     if [ -z "$autoconf" ] ; then
