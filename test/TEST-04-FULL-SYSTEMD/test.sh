@@ -232,7 +232,7 @@ EOF
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-	-m "dash udev-rules btrfs base rootfs-block fs-lib kernel-modules" \
+	-m "udev-rules btrfs base rootfs-block fs-lib kernel-modules" \
 	-d "piix ide-gd_mod ata_piix btrfs sd_mod" \
         --nomdadmconf \
         --nohardlink \
@@ -264,7 +264,7 @@ EOF
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-a "debug systemd" \
 	-I "/etc/machine-id /etc/hostname" \
-        -o "dash network plymouth lvm mdraid resume crypt i18n caps dm terminfo usrmount" \
+        -o "network plymouth lvm mdraid resume crypt i18n caps dm terminfo usrmount" \
 	-d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \
 	-f $TESTDIR/initramfs.testing $KVERSION || return 1
 

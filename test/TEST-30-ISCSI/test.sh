@@ -217,7 +217,7 @@ test_setup() {
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-        -o "dash plymouth dmraid nfs" \
+        -o "plymouth dmraid nfs" \
         -a "debug" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod" \
         --no-hostonly-cmdline -N \
@@ -268,7 +268,7 @@ test_setup() {
 
     # Make server's dracut image
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-        -a "dash udev-rules base rootfs-block fs-lib debug kernel-modules" \
+        -a "udev-rules base rootfs-block fs-lib debug kernel-modules" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 drbg" \
         --no-hostonly-cmdline -N \
         -f $TESTDIR/initramfs.server $KVERSION || return 1
