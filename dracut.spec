@@ -203,6 +203,7 @@ git commit -a -q -m "%{version} baseline."
 
 # Apply all the patches.
 git am -p1 %{patches}
+git tag %{version}
 %endif
 
 %build
