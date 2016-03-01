@@ -95,7 +95,6 @@ client_test() {
 }
 
 test_run() {
-    modinfo nbd &>/dev/null || { echo "Kernel does not support nbd"; exit 1; }
     if ! run_server; then
         echo "Failed to start server" 1>&2
         return 1
@@ -325,9 +324,6 @@ make_server_root() {
 }
 
 test_setup() {
-
-    modinfo nbd &>/dev/null || { echo "Kernel does not support nbd"; exit 1; }
-
     make_encrypted_root || return 1
     make_client_root || return 1
     make_server_root || return 1
@@ -368,6 +364,12 @@ kill_server() {
         sudo kill -TERM $(cat $TESTDIR/server.pid)
         rm -f -- $TESTDIR/server.pid
     fi
+}
+
+test_check() {
+    modinfo nbd &>/dev/null || { echo "Kernel does not support nbd"; return 1; }
+    command -v nbd-client &>/dev/null || { echo "No nbd-client available"; return 1; }
+    command -v nbd-server &>/dev/null || { echo "No nbd-server available"; return 1; }
 }
 
 test_cleanup() {
