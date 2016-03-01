@@ -24,9 +24,9 @@ installkernel() {
             local _fname _fcont
             while read _fname || [ -n "$_fname" ]; do
                 case "$_fname" in
-                    *.ko)    _fcont="$(<        $_fname)" ;;
-                    *.ko.gz) _fcont="$(gzip -dc $_fname)" ;;
-                    *.ko.xz) _fcont="$(xz -dc   $_fname)" ;;
+                    *.ko)    _fcont="$(<        "$_fname" | tr -d '\000')" ;;
+                    *.ko.gz) _fcont="$(gzip -dc "$_fname" | tr -d '\000')" ;;
+                    *.ko.xz) _fcont="$(xz -dc   "$_fname" | tr -d '\000')" ;;
                 esac
                 [[   $_fcont =~ $_drm_drivers
                 && ! $_fcont =~ iw_handler_get_spy ]] \

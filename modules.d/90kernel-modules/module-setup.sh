@@ -10,9 +10,9 @@ installkernel() {
             function bmf1() {
                 local _f
                 while read _f || [ -n "$_f" ]; do case "$_f" in
-                    *.ko)    [[ $(<         $_f) =~ $_blockfuncs ]] && echo "$_f" ;;
-                    *.ko.gz) [[ $(gzip -dc <$_f) =~ $_blockfuncs ]] && echo "$_f" ;;
-                    *.ko.xz) [[ $(xz -dc   <$_f) =~ $_blockfuncs ]] && echo "$_f" ;;
+                    *.ko)    [[ $(<         "$_f" | tr -d '\000') =~ $_blockfuncs ]] && echo "$_f" ;;
+                    *.ko.gz) [[ $(gzip -dc <"$_f" | tr -d '\000') =~ $_blockfuncs ]] && echo "$_f" ;;
+                    *.ko.xz) [[ $(xz -dc   <"$_f" | tr -d '\000') =~ $_blockfuncs ]] && echo "$_f" ;;
                     esac
                 done
                 return 0
