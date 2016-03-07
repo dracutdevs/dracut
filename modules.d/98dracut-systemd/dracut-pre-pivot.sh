@@ -18,7 +18,9 @@ source_hook pre-pivot
 getarg 'rd.break=cleanup' 'rdbreak=cleanup' && emergency_shell -n cleanup "Break cleanup"
 source_hook cleanup
 
-getarg rd.break -d rdbreak && emergency_shell -n switch_root "Break before switch_root"
+_bv=$(getarg rd.break -d rdbreak) && [ -z "$_bv" ] &&
+    emergency_shell -n switch_root "Break before switch_root"
+unset _bv
 
 # remove helper symlink
 [ -h /dev/root ] && rm -f -- /dev/root
