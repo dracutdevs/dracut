@@ -31,6 +31,7 @@ ACTION=="add", SUBSYSTEM=="drivers", KERNEL=="zfcp", IMPORT{program}="collect $c
 ACTION=="add", ENV{COLLECT_$ccw}=="0", ATTR{[ccw/$ccw]online}="1"
 EOF
     fi
+    [ -z "$wwpn" -o -z "$lun" ] && return
     m=$(sed -n "/.*${wwpn}.*${lun}.*/p" $_rule)
     if [ -z "$m" ] ; then
         cat >> $_rule <<EOF
