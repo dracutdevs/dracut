@@ -106,7 +106,7 @@ nfs_fetch_url() {
     local filepath="${path%/*}" filename="${path##*/}" mntdir=""
 
     # skip mount if server:/filepath is already mounted
-    mntdir=$(nfs_already_mounted "$server" "$path")
+    mntdir=$(nfs_already_mounted "$server" "$filepath")
     if [ -z "$mntdir" ]; then
         local mntdir="$(mkuniqdir /run nfs_mnt)"
         mount_nfs "$nfs:$server:$filepath${options:+:$options}" "$mntdir"
