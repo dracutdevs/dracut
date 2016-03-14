@@ -393,6 +393,9 @@ static int resolve_deps(const char *src)
 			break;
 
 		/* glibc */
+                if (strstr(buf, "cannot execute binary file"))
+                        break;
+
                 if (strstr(buf, "not a dynamic executable"))
                         break;
 
