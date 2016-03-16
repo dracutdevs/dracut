@@ -33,6 +33,7 @@ install() {
 
 installkernel() {
     [[ -d /sys/class/watchdog/ ]] || return
+    wdtcmdline=""
     for dir in /sys/class/watchdog/*; do
 	    [[ -d "$dir" ]] || continue
 	    [[ -f "$dir/state" ]] || continue
@@ -46,6 +47,7 @@ installkernel() {
 	    # represented by modalias
 	    wdtdrv=$(modprobe -R $wdtdrv)
 	    instmods $wdtdrv
+	    wdtcmdline="$wdtcmdline$(echo $wdtdrv | tr " " ","),"
 	    # however in some cases, we also need to check that if there is
 	    # a specific driver for the parent bus/device.  In such cases
 	    # we also need to enable driver for parent bus/device.
@@ -55,7 +57,10 @@ installkernel() {
 		    wdtpdrv=$(< "$wdtppath/modalias")
 		    wdtpdrv=$(modprobe -R $wdtpdrv)
 		    instmods $wdtpdrv
+		    wdtcmdline="$wdtcmdline$(echo $wdtpdrv | tr " " ","),"
 		    wdtppath=$(readlink -f "$wdtppath/..")
 	    done
     done
+    # ensure that watchdog module is loaded as early as possible
+    [[ $wdtcmdline = "" ]] || echo "rd.driver.pre=$wdtcmdline" > ${initdir}/etc/cmdline.d/00-watchdog.conf
 }
