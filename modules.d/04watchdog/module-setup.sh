@@ -12,6 +12,11 @@ depends() {
 
 # called by dracut
 install() {
+    # Do not add watchdog hooks if systemd module is included
+    # In that case, systemd will manage watchdog kick
+    if dracut_module_included "systemd"; then
+	    return
+    fi
     inst_hook cmdline   00 "$moddir/watchdog.sh"
     inst_hook cmdline   50 "$moddir/watchdog.sh"
     inst_hook pre-trigger 00 "$moddir/watchdog.sh"
