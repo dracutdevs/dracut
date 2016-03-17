@@ -27,6 +27,9 @@ usage()
         echo "-s, --size                  sort the contents of the initramfs by size."
         echo "-m, --mod                   list modules."
         echo "-f, --file <filename>       print the contents of <filename>."
+        echo "--unpack                    unpack the initramfs, instead of displaying the contents."
+        echo "--unpackearly               unpack the early microcode part of the initramfs."
+        echo "-v, --verbose               unpack verbosely."
         echo "-k, --kver <kernel version> inspect the initramfs of <kernel version>."
         echo
     } >&2
@@ -37,16 +40,21 @@ usage()
 
 sorted=0
 modules=0
+unpack=0
+unset verbose
 declare -A filenames
 
 unset POSIXLY_CORRECT
 TEMP=$(getopt \
-    -o "shmf:k:" \
+    -o "vshmf:k:" \
     --long kver: \
     --long file: \
     --long mod \
     --long help \
     --long size \
+    --long unpack \
+    --long unpackearly \
+    --long verbose \
     -- "$@")
 
 if (( $? != 0 )); then
@@ -58,13 +66,16 @@ eval set -- "$TEMP"
 
 while (($# > 0)); do
     case $1 in
-        -k|--kver)  KERNEL_VERSION="$2"; shift;;
-        -f|--file)  filenames[${2#/}]=1; shift;;
-        -s|--size)  sorted=1;;
-        -h|--help)  usage; exit 0;;
-        -m|--mod)   modules=1;;
-        --)         shift;break;;
-        *)          usage; exit 1;;
+        -k|--kver)     KERNEL_VERSION="$2"; shift;;
+        -f|--file)     filenames[${2#/}]=1; shift;;
+        -s|--size)     sorted=1;;
+        -h|--help)     usage; exit 0;;
+        -m|--mod)      modules=1;;
+        -v|--verbose)  verbose="--verbose";;
+        --unpack)      unpack=1;;
+        --unpackearly) unpackearly=1;;
+        --)            shift;break;;
+        *)             usage; exit 1;;
     esac
     shift
 done
@@ -147,8 +158,14 @@ list_files()
     echo "========================================================================"
 }
 
+unpack_files()
+{
+    $CAT "$image" | cpio -id --quiet $verbose
+    ((ret+=$?))
+}
 
-if (( ${#filenames[@]} <= 0 )); then
+
+if (( ${#filenames[@]} <= 0 )) && [[ -z "$unpack" ]] && [[ -z "$unpackearly" ]]; then
     echo "Image: $image: $(du -h $image | while read a b || [ -n "$a" ]; do echo $a;done)"
     echo "========================================================================"
 fi
@@ -159,7 +176,9 @@ case $bin in
         CAT="cat --"
         is_early=$(cpio --extract --verbose --quiet --to-stdout -- 'early_cpio' < "$image" 2>/dev/null)
         if [[ "$is_early" ]]; then
-            if (( ${#filenames[@]} > 0 )); then
+            if [[ -n "$unpackearly" ]]; then
+                unpack_files
+            elif (( ${#filenames[@]} > 0 )); then
                 extract_files
             else
                 echo "Early CPIO image"
@@ -218,7 +237,9 @@ fi
 
 ret=0
 
-if (( ${#filenames[@]} > 0 )); then
+if [[ -n "$unpack" ]]; then
+    unpack_files
+elif (( ${#filenames[@]} > 0 )); then
     extract_files
 else
     version=$($CAT "$image" | cpio --extract --verbose --quiet --to-stdout -- \
