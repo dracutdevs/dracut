@@ -29,7 +29,7 @@ for disk in /sys/firmware/edd/int13_*; do
 	    driver=${driver##*/}
     fi
     # i40e uses dev_port 1 for a virtual fcoe function
-    if [ "${driver}" == "i40e" ]; then
+    if [ "${driver}" = "i40e" ]; then
 	    dev_port=1
     fi
     for nic in "${disk}"/pci_dev/net/*; do

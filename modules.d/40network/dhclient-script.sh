@@ -95,7 +95,7 @@ setup_interface6() {
     [ -n "$hostname" ] && echo "echo ${hostname%.$domain}${domain:+.$domain} > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
 }
 
-function parse_option_121() {
+parse_option_121() {
     while [ $# -ne 0 ]; do
         mask="$1"
         shift
