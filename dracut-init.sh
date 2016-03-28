@@ -275,71 +275,61 @@ rev_lib_symlinks() {
 inst_rule_programs() {
     local _prog _bin
 
-    if grep -qE 'PROGRAM==?"[^ "]+' "$1"; then
-        for _prog in $(grep -E 'PROGRAM==?"[^ "]+' "$1" | sed -r 's/.*PROGRAM==?"([^ "]+).*/\1/'); do
-            _bin=""
-            if [ -x ${udevdir}/$_prog ]; then
-                _bin=${udevdir}/$_prog
-            elif [[ "${_prog/\$env\{/}" == "$_prog" ]]; then
-                _bin=$(find_binary "$_prog") || {
-                    dinfo "Skipping program $_prog using in udev rule ${1##*/} as it cannot be found"
-                    continue;
-                }
-            fi
+    for _prog in $(sed -nr 's/.*PROGRAM==?"([^ "]+).*/\1/p'); do
+        _bin=""
+        if [ -x ${udevdir}/$_prog ]; then
+            _bin=${udevdir}/$_prog
+        elif [[ "${_prog/\$env\{/}" == "$_prog" ]]; then
+            _bin=$(find_binary "$_prog") || {
+                dinfo "Skipping program $_prog using in udev rule ${1##*/} as it cannot be found"
+                continue;
+            }
+        fi
 
-            [[ $_bin ]] && inst_binary "$_bin"
-        done
-    fi
-    if grep -qE 'RUN[+=]=?"[^ "]+' "$1"; then
-        for _prog in $(grep -E 'RUN[+=]=?"[^ "]+' "$1" | sed -r 's/.*RUN[+=]=?"([^ "]+).*/\1/'); do
-            _bin=""
-            if [ -x ${udevdir}/$_prog ]; then
-                _bin=${udevdir}/$_prog
-            elif [[ "${_prog/\$env\{/}" == "$_prog" ]] && [[ "${_prog}" != "/sbin/initqueue" ]]; then
-                _bin=$(find_binary "$_prog") || {
-                    dinfo "Skipping program $_prog using in udev rule ${1##*/} as it cannot be found"
-                    continue;
-                }
-            fi
+        [[ $_bin ]] && inst_binary "$_bin"
+    done
+    for _prog in $(sed -nr 's/.*RUN[+=]=?"([^ "]+).*/\1/p'); do
+        _bin=""
+        if [ -x ${udevdir}/$_prog ]; then
+            _bin=${udevdir}/$_prog
+        elif [[ "${_prog/\$env\{/}" == "$_prog" ]] && [[ "${_prog}" != "/sbin/initqueue" ]]; then
+            _bin=$(find_binary "$_prog") || {
+                dinfo "Skipping program $_prog using in udev rule ${1##*/} as it cannot be found"
+                continue;
+            }
+        fi
 
-            [[ $_bin ]] && inst_binary "$_bin"
-        done
-    fi
-    if grep -qE 'IMPORT\{program\}==?"[^ "]+' "$1"; then
-        for _prog in $(grep -E 'IMPORT\{program\}==?"[^ "]+' "$1" | sed -r 's/.*IMPORT\{program\}==?"([^ "]+).*/\1/'); do
-            _bin=""
-            if [ -x ${udevdir}/$_prog ]; then
-                _bin=${udevdir}/$_prog
-            elif [[ "${_prog/\$env\{/}" == "$_prog" ]]; then
-                _bin=$(find_binary "$_prog") || {
-                    dinfo "Skipping program $_prog using in udev rule ${1##*/} as it cannot be found"
-                    continue;
-                }
-            fi
+        [[ $_bin ]] && inst_binary "$_bin"
+    done
+    for _prog in $(sed -nr 's/.*IMPORT\{program\}==?"([^ "]+).*/\1/p'); do
+        _bin=""
+        if [ -x ${udevdir}/$_prog ]; then
+            _bin=${udevdir}/$_prog
+        elif [[ "${_prog/\$env\{/}" == "$_prog" ]]; then
+            _bin=$(find_binary "$_prog") || {
+                dinfo "Skipping program $_prog using in udev rule ${1##*/} as it cannot be found"
+                continue;
+            }
+        fi
 
-            [[ $_bin ]] && dracut_install "$_bin"
-        done
-    fi
+        [[ $_bin ]] && dracut_install "$_bin"
+    done
 }
 
 # attempt to install any programs specified in a udev rule
 inst_rule_group_owner() {
     local i
 
-    if grep -qE 'OWNER=?"[^ "]+' "$1"; then
-        for i in $(grep -E 'OWNER=?"[^ "]+' "$1" | sed -r 's/.*OWNER=?"([^ "]+).*/\1/'); do
-            if ! grep -Eq "^$i:" "$initdir/etc/passwd" 2>/dev/null; then
-                grep -E "^$i:" /etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
-            fi
-        done
-    fi
-    if grep -qE 'GROUP=?"[^ "]+' "$1"; then
-        for i in $(grep -E 'GROUP=?"[^ "]+' "$1" | sed -r 's/.*GROUP=?"([^ "]+).*/\1/'); do
-            if ! grep -Eq "^$i:" "$initdir/etc/group" 2>/dev/null; then
-                grep -E "^$i:" /etc/group 2>/dev/null >> "$initdir/etc/group"
-            fi
-        done
-    fi
+    for i in $(sed -nr 's/.*OWNER=?"([^ "]+).*/\1/p'); do
+        if ! grep -Eq "^$i:" "$initdir/etc/passwd" 2>/dev/null; then
+            grep -E "^$i:" /etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
+        fi
+    done
+    for i in $(sed -nr 's/.*GROUP=?"([^ "]+).*/\1/p' "$1"); do
+        if ! grep -Eq "^$i:" "$initdir/etc/group" 2>/dev/null; then
+            grep -E "^$i:" /etc/group 2>/dev/null >> "$initdir/etc/group"
+        fi
+    done
 }
 
 inst_rule_initqueue() {
