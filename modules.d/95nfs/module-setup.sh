@@ -113,6 +113,6 @@ install() {
     chmod 770 "$initdir/var/lib/rpcbind"
     grep -q '^rpc:' /etc/passwd \
         && grep -q '^rpc:' /etc/group \
-        && chown rpc.rpc "$initdir/var/lib/rpcbind"
+        && chown rpc:rpc "$initdir/var/lib/rpcbind"
     dracut_need_initqueue
 }
