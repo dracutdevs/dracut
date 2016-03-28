@@ -179,11 +179,11 @@ install() {
 
     # install adm user/group for journald
     inst_multiple nologin
-    egrep '^systemd-journal:' /etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
-    egrep '^adm:' /etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
-    egrep '^systemd-journal:' /etc/group >> "$initdir/etc/group"
-    egrep '^wheel:' /etc/group >> "$initdir/etc/group"
-    egrep '^adm:' /etc/group >> "$initdir/etc/group"
+    grep '^systemd-journal:' /etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
+    grep '^adm:' /etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
+    grep '^systemd-journal:' /etc/group >> "$initdir/etc/group"
+    grep '^wheel:' /etc/group >> "$initdir/etc/group"
+    grep '^adm:' /etc/group >> "$initdir/etc/group"
 
     ln_r $systemdutildir/systemd "/init"
     ln_r $systemdutildir/systemd "/sbin/init"

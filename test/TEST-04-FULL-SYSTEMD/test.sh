@@ -197,7 +197,7 @@ EOF
         ln -fs /proc/self/mounts $initdir/etc/mtab
 
         # install any Execs from the service files
-        egrep -ho '^Exec[^ ]*=[^ ]+' $initdir/lib/systemd/system/*.service \
+        grep -Eho '^Exec[^ ]*=[^ ]+' $initdir/lib/systemd/system/*.service \
             | while read i || [ -n "$i" ]; do
             i=${i##Exec*=}; i=${i##-}
             inst_multiple -o $i

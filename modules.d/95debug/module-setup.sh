@@ -18,6 +18,6 @@ install() {
                   tcpdump cp less hostname mkdir \
                   fsck fsck.ext2 fsck.ext4 fsck.ext3 fsck.ext4dev fsck.vfat e2fsck
 
-    egrep '^tcpdump:' /etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
+    grep '^tcpdump:' /etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
 }
 

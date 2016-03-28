@@ -328,15 +328,15 @@ inst_rule_group_owner() {
 
     if grep -qE 'OWNER=?"[^ "]+' "$1"; then
         for i in $(grep -E 'OWNER=?"[^ "]+' "$1" | sed -r 's/.*OWNER=?"([^ "]+).*/\1/'); do
-            if ! egrep -q "^$i:" "$initdir/etc/passwd" 2>/dev/null; then
-                egrep "^$i:" /etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
+            if ! grep -Eq "^$i:" "$initdir/etc/passwd" 2>/dev/null; then
+                grep -E "^$i:" /etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
             fi
         done
     fi
     if grep -qE 'GROUP=?"[^ "]+' "$1"; then
         for i in $(grep -E 'GROUP=?"[^ "]+' "$1" | sed -r 's/.*GROUP=?"([^ "]+).*/\1/'); do
-            if ! egrep -q "^$i:" "$initdir/etc/group" 2>/dev/null; then
-                egrep "^$i:" /etc/group 2>/dev/null >> "$initdir/etc/group"
+            if ! grep -Eq "^$i:" "$initdir/etc/group" 2>/dev/null; then
+                grep -E "^$i:" /etc/group 2>/dev/null >> "$initdir/etc/group"
             fi
         done
     fi

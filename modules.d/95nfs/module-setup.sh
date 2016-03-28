@@ -105,14 +105,14 @@ install() {
 
     # Rather than copy the passwd file in, just set a user for rpcbind
     # We'll save the state and restart the daemon from the root anyway
-    egrep '^nfsnobody:|^rpc:|^rpcuser:' /etc/passwd >> "$initdir/etc/passwd"
-    egrep '^nogroup:|^rpc:|^nobody:' /etc/group >> "$initdir/etc/group"
+    grep -E '^nfsnobody:|^rpc:|^rpcuser:' /etc/passwd >> "$initdir/etc/passwd"
+    grep -E '^nogroup:|^rpc:|^nobody:' /etc/group >> "$initdir/etc/group"
 
     # rpc user needs to be able to write to this directory to save the warmstart
     # file
     chmod 770 "$initdir/var/lib/rpcbind"
-    egrep -q '^rpc:' /etc/passwd \
-        && egrep -q '^rpc:' /etc/group \
+    grep -q '^rpc:' /etc/passwd \
+        && grep -q '^rpc:' /etc/group \
         && chown rpc.rpc "$initdir/var/lib/rpcbind"
     dracut_need_initqueue
 }
