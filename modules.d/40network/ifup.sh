@@ -277,7 +277,7 @@ if [ -z "$NO_TEAM_MASTER" ]; then
                 for slave in $teamslaves ; do
                     ip link set $slave up 2>/dev/null
                     if wait_for_if_up $slave; then
-                        working_slaves+="$slave "
+                        working_slaves="$working_slaves$slave "
                     fi
                 done
                 # Do not add slaves now

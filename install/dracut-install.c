@@ -287,7 +287,7 @@ static int library_install(const char *src, const char *lib)
 
         /* Also try to install the same library from one directory above.
            This fixes the case, where only the HWCAP lib would be installed
-           # ldconfig -p|fgrep libc.so
+           # ldconfig -p|grep -F libc.so
            libc.so.6 (libc6,64bit, hwcap: 0x0000001000000000, OS ABI: Linux 2.6.32) => /lib64/power6/libc.so.6
            libc.so.6 (libc6,64bit, hwcap: 0x0000000000000200, OS ABI: Linux 2.6.32) => /lib64/power6x/libc.so.6
            libc.so.6 (libc6,64bit, OS ABI: Linux 2.6.32) => /lib64/libc.so.6

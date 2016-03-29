@@ -63,8 +63,8 @@ install() {
 
     {
         for i in cdrom tape dialout floppy; do
-            if ! egrep -q "^$i:" "$initdir/etc/group" 2>/dev/null; then
-                if ! egrep "^$i:" /etc/group 2>/dev/null; then
+            if ! grep -q "^$i:" "$initdir/etc/group" 2>/dev/null; then
+                if ! grep "^$i:" /etc/group 2>/dev/null; then
                         case $i in
                             cdrom)   echo "$i:x:11:";;
                             dialout) echo "$i:x:18:";;
