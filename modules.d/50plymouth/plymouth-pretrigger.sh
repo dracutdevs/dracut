@@ -5,9 +5,14 @@ if type plymouthd >/dev/null 2>&1 && [ -z "$DRACUT_SYSTEMD" ]; then
         # first trigger graphics subsystem
         udevadm trigger --action=add --attr-match=class=0x030000 >/dev/null 2>&1
         # first trigger graphics and tty subsystem
-        udevadm trigger --action=add --subsystem-match=graphics --subsystem-match=drm --subsystem-match=tty >/dev/null 2>&1
+        udevadm trigger --action=add \
+            --subsystem-match=graphics \
+            --subsystem-match=drm \
+            --subsystem-match=tty \
+            --subsystem-match=acpi \
+            >/dev/null 2>&1
 
-        udevadm settle --timeout=30 2>&1 | vinfo
+        udevadm settle --timeout=180 2>&1 | vinfo
 
         info "Starting plymouth daemon"
         mkdir -m 0755 /run/plymouth
