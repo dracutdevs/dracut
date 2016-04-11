@@ -275,7 +275,7 @@ rev_lib_symlinks() {
 inst_rule_programs() {
     local _prog _bin
 
-    for _prog in $(sed -nr 's/.*PROGRAM==?"([^ "]+).*/\1/p'); do
+    for _prog in $(sed -nr 's/.*PROGRAM==?"([^ "]+).*/\1/p' "$1"); do
         _bin=""
         if [ -x ${udevdir}/$_prog ]; then
             _bin=${udevdir}/$_prog
@@ -288,7 +288,7 @@ inst_rule_programs() {
 
         [[ $_bin ]] && inst_binary "$_bin"
     done
-    for _prog in $(sed -nr 's/.*RUN[+=]=?"([^ "]+).*/\1/p'); do
+    for _prog in $(sed -nr 's/.*RUN[+=]=?"([^ "]+).*/\1/p' "$1"); do
         _bin=""
         if [ -x ${udevdir}/$_prog ]; then
             _bin=${udevdir}/$_prog
@@ -301,7 +301,7 @@ inst_rule_programs() {
 
         [[ $_bin ]] && inst_binary "$_bin"
     done
-    for _prog in $(sed -nr 's/.*IMPORT\{program\}==?"([^ "]+).*/\1/p'); do
+    for _prog in $(sed -nr 's/.*IMPORT\{program\}==?"([^ "]+).*/\1/p' "$1"); do
         _bin=""
         if [ -x ${udevdir}/$_prog ]; then
             _bin=${udevdir}/$_prog
@@ -320,7 +320,7 @@ inst_rule_programs() {
 inst_rule_group_owner() {
     local i
 
-    for i in $(sed -nr 's/.*OWNER=?"([^ "]+).*/\1/p'); do
+    for i in $(sed -nr 's/.*OWNER=?"([^ "]+).*/\1/p' "$1"); do
         if ! grep -Eq "^$i:" "$initdir/etc/passwd" 2>/dev/null; then
             grep -E "^$i:" /etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
         fi
