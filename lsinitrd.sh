@@ -40,7 +40,6 @@ usage()
 
 sorted=0
 modules=0
-unpack=0
 unset verbose
 declare -A filenames
 
@@ -184,7 +183,11 @@ case $bin in
                 echo "Early CPIO image"
                 list_files
             fi
-            SKIP="$dracutbasedir/skipcpio"
+            if [[ -d "$dracutbasedir/skipcpio" ]]; then
+                SKIP="$dracutbasedir/skipcpio/skipcpio"
+            else
+                SKIP="$dracutbasedir/skipcpio"
+            fi
             if ! [[ -x $SKIP ]]; then
                 echo
                 echo "'$SKIP' not found, cannot display remaining contents!" >&2
