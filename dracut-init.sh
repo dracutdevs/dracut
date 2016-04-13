@@ -1001,22 +1001,47 @@ instmods() {
     local _optional="-o"
     local _silent
     local _ret
+
     [[ $no_kernel = yes ]] && return
+
     if [[ $1 = '-c' ]]; then
-        _optional=""
+        unset _optional
         shift
     fi
     if [[ $1 = '-s' ]]; then
         _silent=1
         shift
     fi
+
     if (($# == 0)); then
         read -r -d '' -a args
         set -- "${args[@]}"
     fi
-    $DRACUT_INSTALL ${initdir:+-D "$initdir"} ${loginstall:+-L "$loginstall"}  ${hostonly:+-H} ${omit_drivers:+-N "$omit_drivers"} ${_optional:+-o} ${_silent:+--silent} ${srcmods:+--kerneldir "$srcmods"} -m "$@"
+
+    $DRACUT_INSTALL \
+        ${initdir:+-D "$initdir"} \
+        ${loginstall:+-L "$loginstall"} \
+        ${hostonly:+-H} \
+        ${omit_drivers:+-N "$omit_drivers"} \
+        ${srcmods:+--kerneldir "$srcmods"} \
+        ${_optional:+-o} \
+        ${_silent:+--silent} \
+        -m "$@"
     _ret=$?
-    (($_ret != 0)) && [[ -z "$_silent" ]] && derror FAILED: $DRACUT_INSTALL ${initdir:+-D "$initdir"} ${loginstall:+-L "$loginstall"} ${hostonly:+-H} ${omit_drivers:+-N "$omit_drivers"} ${_optional:+-o} ${_silent:+--silent} ${srcmods:+--kerneldir "$srcmods"} -m "$@" || :
+
+    if (($_ret != 0)) && [[ -z "$_silent" ]]; then
+        derror "FAILED: " \
+            $DRACUT_INSTALL \
+                ${initdir:+-D "$initdir"} \
+                ${loginstall:+-L "$loginstall"} \
+                ${hostonly:+-H} \
+                ${omit_drivers:+-N "$omit_drivers"} \
+                ${srcmods:+--kerneldir "$srcmods"} \
+                ${_optional:+-o} \
+                ${_silent:+--silent} \
+                -m "$@"
+    fi
+
     [[ "$optional" ]] && return 0
     return $_ret
 }
