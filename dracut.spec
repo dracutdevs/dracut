@@ -39,6 +39,7 @@ Source1: https://www.gnu.org/licenses/lgpl-2.1.txt
 
 
 BuildRequires: bash git
+BuildRequires: kmod-devel >= 15
 
 %if 0%{?fedora} || 0%{?rhel}
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -46,7 +47,6 @@ BuildRequires: pkgconfig
 %endif
 %if 0%{?fedora}
 BuildRequires: bash-completion
-BuildRequires: pkgconfig
 %endif
 
 %if 0%{?suse_version}
@@ -223,10 +223,13 @@ This package contains tools to assemble the local initrd and host configuration.
 cp %{SOURCE1} .
 
 %build
-%configure --systemdsystemunitdir=%{_unitdir} --bashcompletiondir=$(pkg-config --variable=completionsdir bash-completion) --libdir=%{_prefix}/lib \
+%configure  --systemdsystemunitdir=%{_unitdir} \
+            --bashcompletiondir=$(pkg-config --variable=completionsdir bash-completion) \
+            --libdir=%{_prefix}/lib \
 %if %{without doc}
-     --disable-documentation
+            --disable-documentation \
 %endif
+            ${NULL}
 
 make %{?_smp_mflags}
 

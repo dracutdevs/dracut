@@ -50,6 +50,11 @@ while (($# > 0)); do
     shift
 done
 
+if ! pkg-config --exists --print-errors " libkmod >= 15 "; then
+    echo "dracut needs pkg-config and libkmod >= 15." >&2
+    exit 1
+fi
+
 cat > Makefile.inc.$$ <<EOF
 prefix ?= ${prefix}
 libdir ?= ${libdir:-${prefix}/lib}
@@ -59,6 +64,8 @@ sbindir ?= ${sbindir:-${prefix}/sbin}
 mandir ?= ${mandir:-${prefix}/share/man}
 enable_documentation ?= ${enable_documentation:-yes}
 bindir ?= ${bindir:-${prefix}/bin}
+KMOD_CFLAGS ?= $(pkg-config --cflags " libkmod >= 15 ")
+KMOD_LIBS ?= $(pkg-config --libs " libkmod >= 15 ")
 EOF
 
 {
