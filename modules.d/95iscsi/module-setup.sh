@@ -166,7 +166,7 @@ installkernel() {
         _s390drivers="=drivers/s390/scsi"
     fi
 
-    dracut_instmods -s "$_funcs" "=drivers/scsi" ${_s390drivers:+"$_s390drivers"}
+    dracut_instmods -o -s "$_funcs" "=drivers/scsi" ${_s390drivers:+"$_s390drivers"}
 
 }
 

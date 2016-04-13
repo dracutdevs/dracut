@@ -1202,6 +1202,7 @@ static int install_module(struct kmod_module *mod)
         if (!check_module_path(path) || !check_module_symbols(mod)) {
                 log_debug("No symbol or patch match for '%s'", path);
                 return 0;
+                //return -ENOENT;
         }
 
         log_debug("dracut_install '%s'", path);
@@ -1295,7 +1296,7 @@ static int install_modules(int argc, char **argv)
                         }
                         kmod_list_foreach(itr, modlist) {
                                 mod = kmod_module_get_module(itr);
-                                ret = install_module(mod);
+                                ret += install_module(mod);
                         }
                         kmod_module_unref_list(modlist);
                         modlist = 0;
@@ -1364,13 +1365,13 @@ static int install_modules(int argc, char **argv)
                                 }
                                 kmod_list_foreach(itr, modlist) {
                                         mod = kmod_module_get_module(itr);
-                                        ret = install_module(mod);
+                                        ret += install_module(mod);
                                         kmod_module_unref(mod);
                                 }
                                 kmod_module_unref_list(modlist);
                                 modlist = 0;
 #else
-                                ret = install_module(mod_o);
+                                ret += install_module(mod_o);
                                 kmod_module_unref(mod_o);
 #endif
 
@@ -1413,7 +1414,7 @@ static int install_modules(int argc, char **argv)
                         }
                         kmod_list_foreach(itr, modlist) {
                                 mod = kmod_module_get_module(itr);
-                                ret = install_module(mod);
+                                ret += install_module(mod);
                                 kmod_module_unref(mod);
                         }
                         kmod_module_unref_list(modlist);

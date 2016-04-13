@@ -21,7 +21,7 @@ installkernel() {
         _s390drivers="=drivers/s390/net"
     fi
 
-    dracut_instmods -P ".*${_unwanted_drivers}.*" -s "$_net_drivers" "=drivers/net" ${_s390drivers:+"$_s390drivers"}
+    dracut_instmods -o -P ".*${_unwanted_drivers}.*" -s "$_net_drivers" "=drivers/net" ${_s390drivers:+"$_s390drivers"}
 
     #instmods() will take care of hostonly
     instmods \
