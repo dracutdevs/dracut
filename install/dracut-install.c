@@ -1181,8 +1181,10 @@ static int install_module(struct kmod_module *mod)
         state = kmod_module_get_initstate(mod);
 
         name = kmod_module_get_name(mod);
-        if (arg_mod_filter_noname && (regexec(&mod_filter_noname, name, 0, NULL, 0) == 0))
+        if (arg_mod_filter_noname && (regexec(&mod_filter_noname, name, 0, NULL, 0) == 0)) {
+                log_debug("dracut_install '%s' is excluded", name);
                 return 0;
+        }
 
         if (arg_hostonly && (state != KMOD_MODULE_BUILTIN) && (state != KMOD_MODULE_LIVE)) {
                 log_debug("dracut_install '%s' not hostonly", name);
@@ -1194,15 +1196,14 @@ static int install_module(struct kmod_module *mod)
                 return -ENOENT;
 
         if (check_hashmap(items_failed, path))
-                return 1;
+                return -1;
 
         if (check_hashmap(items, path))
                 return 0;
 
         if (!check_module_path(path) || !check_module_symbols(mod)) {
                 log_debug("No symbol or patch match for '%s'", path);
-                return 0;
-                //return -ENOENT;
+                return 1;
         }
 
         log_debug("dracut_install '%s'", path);
@@ -1252,7 +1253,7 @@ static int install_modules(int argc, char **argv)
 
         for (i = 0; i < argc; i++) {
                 int r = 0;
-                int ret = 0;
+                int ret = -1;
                 log_debug("Handle module '%s'", argv[i]);
 
                 if (argv[i][0] == '/') {
@@ -1296,7 +1297,14 @@ static int install_modules(int argc, char **argv)
                         }
                         kmod_list_foreach(itr, modlist) {
                                 mod = kmod_module_get_module(itr);
-                                ret += install_module(mod);
+                                r = install_module(mod);
+                                kmod_module_unref(mod);
+                                if ((r < 0) && !arg_optional) {
+                                        if (!arg_silent)
+                                                log_error("ERROR: installing module '%s'", modname);
+                                        return -ENOENT;
+                                };
+                                ret = ( ret == 0 ? 0 : r );
                         }
                         kmod_module_unref_list(modlist);
                         modlist = 0;
@@ -1341,40 +1349,55 @@ static int install_modules(int argc, char **argv)
                                 log_debug("Handling %s", ftsent->fts_accpath);
                                 r = kmod_module_new_from_path(ctx, ftsent->fts_accpath, &mod_o);
                                 if (r < 0) {
-                                        log_debug("Failed to lookup modules path '%s': %m", ftsent->fts_accpath);
+                                        log_debug("Failed to lookup modules path '%s': %m",
+                                                  ftsent->fts_accpath);
+                                        if (!arg_optional) {
+                                                return -ENOENT;
+                                        }
                                         continue;
                                 }
-#if 1
+
                                 /* Check, if we have to load another module with that name instead */
                                 modname = kmod_module_get_name(mod_o);
                                 if (!modname) {
                                         log_error("Failed to get name for module '%s'", ftsent->fts_accpath);
+                                        if (!arg_optional) {
+                                                return -ENOENT;
+                                        }
                                         continue;
                                 }
                                 r = kmod_module_new_from_lookup(ctx, modname, &modlist);
                                 kmod_module_unref(mod_o);
                                 if (r < 0) {
-                                        log_error("2 Failed to lookup alias '%s': %m", modname);
+                                        log_error("Failed to lookup alias '%s': %m", modname);
                                         kmod_module_unref_list(modlist);
+                                        if (!arg_optional) {
+                                                return -ENOENT;
+                                        }
                                         continue;
                                 }
                                 if (!modlist) {
-                                        log_error("Failed to find module '%s' %s", modname, ftsent->fts_accpath);
+                                        log_error("Failed to find module '%s' %s", modname,
+                                                  ftsent->fts_accpath);
                                         kmod_module_unref_list(modlist);
+                                        if (!arg_optional) {
+                                                return -ENOENT;
+                                        }
                                         continue;
                                 }
                                 kmod_list_foreach(itr, modlist) {
                                         mod = kmod_module_get_module(itr);
-                                        ret += install_module(mod);
+                                        r = install_module(mod);
                                         kmod_module_unref(mod);
+                                        if ((r < 0) && !arg_optional) {
+                                                if (!arg_silent)
+                                                        log_error("ERROR: installing module '%s'", modname);
+                                                return -ENOENT;
+                                        };
+                                        ret = ( ret == 0 ? 0 : r );
                                 }
                                 kmod_module_unref_list(modlist);
                                 modlist = 0;
-#else
-                                ret += install_module(mod_o);
-                                kmod_module_unref(mod_o);
-#endif
-
                         }
                         if (errno) {
                                 log_error("FTS ERROR: %m");
@@ -1414,8 +1437,14 @@ static int install_modules(int argc, char **argv)
                         }
                         kmod_list_foreach(itr, modlist) {
                                 mod = kmod_module_get_module(itr);
-                                ret += install_module(mod);
+                                r = install_module(mod);
                                 kmod_module_unref(mod);
+                                if ((r < 0) && !arg_optional) {
+                                        if (!arg_silent)
+                                                log_error("ERROR: installing '%s'", argv[i]);
+                                        return -ENOENT;
+                                };
+                                ret = ( ret == 0 ? 0 : r );
                         }
                         kmod_module_unref_list(modlist);
                         modlist = 0;
@@ -1427,6 +1456,7 @@ static int install_modules(int argc, char **argv)
                         return EXIT_FAILURE;
                 }
         }
+
         return EXIT_SUCCESS;
 }
 
