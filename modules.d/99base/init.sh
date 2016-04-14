@@ -64,7 +64,12 @@ fi
 
 if ! ismounted /run; then
     mkdir -m 0755 /newrun
-    mount -t tmpfs -o mode=0755,noexec,nosuid,nodev,strictatime tmpfs /newrun >/dev/null
+    if ! str_starts "$(readlink -f /bin/sh)" "/run/"; then
+        mount -t tmpfs -o mode=0755,noexec,nosuid,nodev,strictatime tmpfs /newrun >/dev/null
+    else
+        # the initramfs binaries are located in /run, so don't mount it with noexec
+        mount -t tmpfs -o mode=0755,nosuid,nodev,strictatime tmpfs /newrun >/dev/null
+    fi
     cp -a /run/* /newrun >/dev/null 2>&1
     mount --move /newrun /run
     rm -fr -- /newrun
