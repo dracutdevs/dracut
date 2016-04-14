@@ -17,7 +17,7 @@
    along with this program; If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define PROGRAM_VERSION_STRING "1"
+#define PROGRAM_VERSION_STRING "2"
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -719,49 +719,46 @@ static void item_free(char *i)
 
 static void usage(int status)
 {
-        /*                                                                     */
+              /*                                                                                */
         printf("Usage: %s -D DESTROOTDIR [OPTION]... -a SOURCE...\n"
                "or: %s -D DESTROOTDIR [OPTION]... SOURCE DEST\n"
+               "or: %s -D DESTROOTDIR [OPTION]... -m KERNELMODULE [KERNELMODULE …]\n"
                "\n"
                "Install SOURCE to DEST in DESTROOTDIR with all needed dependencies.\n"
                "\n"
-               "  -D --destrootdir    Install all files to DESTROOTDIR as the root\n"
-               "  -a --all            Install all SOURCE arguments to DESTROOTDIR\n"
-               "  -o --optional       If SOURCE does not exist, do not fail\n"
-               "  -d --dir            SOURCE is a directory\n"
-               "  -l --ldd            Also install shebang executables and libraries\n"
-               "  -L --logdir <DIR>   Log files, which were installed from the host to <DIR>\n"
-               "  -R --resolvelazy    Only install shebang executables and libraries\n"
-               "                      for all SOURCE files\n"
-               "  -H --hostonly       Mark all SOURCE files as hostonly\n\n"
-               "  -f --fips           Also install all '.SOURCE.hmac' files\n"
-               "  -v --verbose        Show more output\n"
-               "     --debug          Show debug output\n"
-               "     --version        Show package version\n"
-               "  -h --help           Show this help\n"
+               "  KERNELMODULE can have the format:\n"
+               "     <absolute path> with a leading /\n"
+               "     =<kernel subdir>[/<kernel subdir>…] like '=drivers/hid'\n"
+               "     <module name>\n"
                "\n"
-               "Example:\n"
-               "# mkdir -p /var/tmp/test-root\n"
-               "# %s -D /var/tmp/test-root --ldd -a sh tr\n"
-               "# tree /var/tmp/test-root\n"
-               "/var/tmp/test-root\n"
-               "|-- lib64 -> usr/lib64\n"
-               "`-- usr\n"
-               "    |-- bin\n"
-               "    |   |-- bash\n"
-               "    |   |-- sh -> bash\n"
-               "    |   `-- tr\n"
-               "    `-- lib64\n"
-               "        |-- ld-2.15.90.so\n"
-               "        |-- ld-linux-x86-64.so.2 -> ld-2.15.90.so\n"
-               "        |-- libc-2.15.90.so\n"
-               "        |-- libc.so\n"
-               "        |-- libc.so.6 -> libc-2.15.90.so\n"
-               "        |-- libdl-2.15.90.so\n"
-               "        |-- libdl.so -> libdl-2.15.90.so\n"
-               "        |-- libdl.so.2 -> libdl-2.15.90.so\n"
-               "        |-- libtinfo.so.5 -> libtinfo.so.5.9\n"
-               "        `-- libtinfo.so.5.9\n", program_invocation_short_name, program_invocation_short_name,
+               "  -D --destrootdir  Install all files to DESTROOTDIR as the root\n"
+               "  -a --all          Install all SOURCE arguments to DESTROOTDIR\n"
+               "  -o --optional     If SOURCE does not exist, do not fail\n"
+               "  -d --dir          SOURCE is a directory\n"
+               "  -l --ldd          Also install shebang executables and libraries\n"
+               "  -L --logdir <DIR> Log files, which were installed from the host to <DIR>\n"
+               "  -R --resolvelazy  Only install shebang executables and libraries\n"
+               "                     for all SOURCE files\n"
+               "  -H --hostonly     Mark all SOURCE files as hostonly\n\n"
+               "  -f --fips         Also install all '.SOURCE.hmac' files\n"
+               "\n"
+               "  --module,-m       Install kernel modules, instead of files\n"
+               "  --kerneldir       Specify the kernel module directory\n"
+               "  --firmwaredirs    Specify the firmware directory search path with : separation\n"
+               "  --silent          Don't display error messages for kernel module install\n"
+               "  -o --optional     If kernel module does not exist, do not fail\n"
+               "  -p --mod-filter-path      Filter kernel modules by path regexp\n"
+               "  -P --mod-filter-nopath    Exclude kernel modules by path regexp\n"
+               "  -s --mod-filter-symbol    Filter kernel modules by symbol regexp\n"
+               "  -S --mod-filter-nosymbol  Exclude kernel modules by symbol regexp\n"
+               "  -N --mod-filter-noname    Exclude kernel modules by name regexp\n"
+               "\n"
+               "  -v --verbose      Show more output\n"
+               "     --debug        Show debug output\n"
+               "     --version      Show package version\n"
+               "  -h --help         Show this help\n"
+               "\n",
+               program_invocation_short_name, program_invocation_short_name,
                program_invocation_short_name);
         exit(status);
 }
