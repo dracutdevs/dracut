@@ -1,3 +1,87 @@
+dracut-045
+==========
+
+dracut now requires libkmod for the dracut-install binary helper.
+
+dracut.sh:
+- restorecon final image file
+- fail hard, if we find modules and modules.dep is missing
+
+dracut-functions.sh:
+- fix check_vol_slaves() volume group name stripping
+
+dracut-install:
+- catch ldd message "cannot execute binary file"
+- added kernel module handling with libkmod
+  Added parameters:
+    --module,-m
+    --mod-filter-path, -p
+    --mod-filter-nopath, -P
+    --mod-filter-symbol, -s
+    --mod-filter-nosymbol, -S
+    --mod-filter-noname, -N
+    --silent
+    --kerneldir
+    --firmwaredirs
+    
+lsinitrd:
+- new option "--unpack"
+- new option "--unpackearly"
+- and "--verbose"
+
+general initramfs fixes:
+- don't remove 99-cmdline-ask on 'hostonly' cleanup
+- call dracut-cmdline-ask.service, if /etc/cmdline.d/*.conf exists
+- break at switch_root only for bare rd.break
+
+dmsquash-live:
+- fixed livenet-generator execution flag
+  and include only, if systemd is used
+- fixed dmsquash-live-root.sh for cases where the fstype of the liveimage is squashfs
+- fixed typo for rootfs.img
+
+dmraid:
+- added "nowatch" option in udev rule, otherwise udev would reread partitions for raid members
+
+shutdown:
+- handle readonly /run on shutdown
+
+kernel-modules:
+- add all HID drivers, regardless of hostonly mode
+  people swap keyboards sometimes and should be able to enter their disk password
+- add usb-storage
+  To save the rdsosreport.txt to a USB stick, the usb-storage module is needed.
+
+systemd:
+- add /etc/machine-info
+- fixed systemd-escape call for names beginning with "-"
+
+network:
+- fix carrier detection
+- correctly set mac address for ip=...:<mtu>:<mac>
+- fixed vlan, bonding, bridging, team logic
+  call ifup for the slaves and assemble afterwards
+- add mtu to list of variables to store in override
+- for rd.neednet=0 a bootdev is not needed anymore
+- dhclient-script.sh: add classless-static-routes support
+
+nbd:
+- add systemd generator
+- use export names instead of port numbers, because port number based
+  exports are deprecated and were removed.
+
+fcoe:
+- no more /dev/shm state copying
+
+multipath:
+- check all /dev/mapper devices if they are multipath devices, not only mpath*
+
+fips:
+- fixed .hmac installation in FIPS mode
+
+plymouth:
+- also trigger the acpi subsystem
+
 dracut-044
 ==========
 creation:
