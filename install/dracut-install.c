@@ -66,6 +66,7 @@ static char *logfile = NULL;
 FILE *logfile_f = NULL;
 static Hashmap *items = NULL;
 static Hashmap *items_failed = NULL;
+static Hashmap *modules_loaded = NULL;
 static regex_t mod_filter_path;
 static regex_t mod_filter_nopath;
 static regex_t mod_filter_symbol;
@@ -78,6 +79,39 @@ static bool arg_mod_filter_nosymbol = false;
 static bool arg_mod_filter_noname = false;
 
 static int dracut_install(const char *src, const char *dst, bool isdir, bool resolvedeps, bool hashdst);
+
+
+
+static inline void kmod_module_unref_listp(struct kmod_list **p) {
+        if (*p)
+                kmod_module_unref_list(*p);
+}
+#define _cleanup_kmod_module_unref_list_ _cleanup_(kmod_module_unref_listp)
+
+static inline void kmod_module_info_free_listp(struct kmod_list **p) {
+        if (*p)
+                kmod_module_info_free_list(*p);
+}
+#define _cleanup_kmod_module_info_free_list_ _cleanup_(kmod_module_info_free_listp)
+
+static inline void kmod_unrefp(struct kmod_ctx **p) {
+        kmod_unref(*p);
+}
+#define _cleanup_kmod_unref_ _cleanup_(kmod_unrefp)
+
+static inline void kmod_module_dependency_symbols_free_listp(struct kmod_list **p) {
+        if (*p)
+                kmod_module_dependency_symbols_free_list(*p);
+}
+#define _cleanup_kmod_module_dependency_symbols_free_list_ _cleanup_(kmod_module_dependency_symbols_free_listp)
+
+static inline void fts_closep(FTS **p) {
+        if (*p)
+                fts_close(*p);
+}
+#define _cleanup_fts_close_ _cleanup_(fts_closep)
+
+
 
 static size_t dir_len(char const *file)
 {
@@ -1058,7 +1092,8 @@ static int install_all(int argc, char **argv)
 
 static int install_firmware(struct kmod_module *mod)
 {
-        struct kmod_list *l, *list = NULL;
+        struct kmod_list *l;
+        _cleanup_kmod_module_info_free_list_ struct kmod_list *list = NULL;
         int ret;
 
         char **q;
@@ -1072,7 +1107,6 @@ static int install_firmware(struct kmod_module *mod)
         kmod_list_foreach(l, list) {
                 const char *key = kmod_module_info_get_key(l);
                 const char *value = NULL;
-                char *fwpath = NULL;
 
                 if (!streq("firmware", key))
                         continue;
@@ -1081,6 +1115,7 @@ static int install_firmware(struct kmod_module *mod)
                 log_debug("Firmware %s", value);
                 ret = -1;
                 STRV_FOREACH(q, firmwaredirs) {
+                        _cleanup_free_ char *fwpath = NULL;
                         struct stat sb;
                         int r;
 
@@ -1092,8 +1127,6 @@ static int install_firmware(struct kmod_module *mod)
 
                         if (stat(fwpath, &sb) != 0) {
                                 log_debug("stat(%s) != 0", fwpath);
-                                free(fwpath);
-                                fwpath = NULL;
                                 continue;
                         }
 
@@ -1111,7 +1144,8 @@ static int install_firmware(struct kmod_module *mod)
 
 static bool check_module_symbols(struct kmod_module *mod)
 {
-        struct kmod_list *itr, *deplist = NULL;
+        struct kmod_list *itr;
+        _cleanup_kmod_module_dependency_symbols_free_list_ struct kmod_list *deplist = NULL;
 
         if (!arg_mod_filter_symbol && !arg_mod_filter_nosymbol)
                 return true;
@@ -1128,7 +1162,6 @@ static bool check_module_symbols(struct kmod_module *mod)
                         const char *symbol = kmod_module_symbol_get_symbol(itr);
                         // log_debug("Checking symbol %s", symbol);
                         if (regexec(&mod_filter_nosymbol, symbol, 0, NULL, 0) == 0) {
-                                kmod_module_dependency_symbols_free_list(deplist);
                                 log_debug("Module %s: symbol %s matched exclusion filter", kmod_module_get_name(mod), symbol);
                                 return false;
                         }
@@ -1140,19 +1173,15 @@ static bool check_module_symbols(struct kmod_module *mod)
                         const char *symbol = kmod_module_dependency_symbol_get_symbol(itr);
                         // log_debug("Checking symbol %s", symbol);
                         if (regexec(&mod_filter_symbol, symbol, 0, NULL, 0) == 0) {
-                                kmod_module_dependency_symbols_free_list(deplist);
                                 log_debug("Module %s: symbol %s matched inclusion filter", kmod_module_get_name(mod), symbol);
                                 return true;
                         }
                 }
-                kmod_module_dependency_symbols_free_list(deplist);
                 return false;
         }
 
-        kmod_module_dependency_symbols_free_list(deplist);
         return true;
 }
-
 
 static bool check_module_path(const char *path)
 {
@@ -1168,14 +1197,23 @@ static bool check_module_path(const char *path)
         return true;
 }
 
+static bool check_module_hostonly(struct kmod_module *mod)
+{
+        const char *name = kmod_module_get_name(mod);
+
+        if (check_hashmap(modules_loaded, name))
+                return true;
+
+        return false;
+}
+
 static int install_module(struct kmod_module *mod)
 {
         int ret = 0;
-        int state;
-        struct kmod_list *itr, *modlist = NULL;
+        struct kmod_list *itr;
+        _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
         const char *path = NULL;
         const char *name = NULL;
-        state = kmod_module_get_initstate(mod);
 
         name = kmod_module_get_name(mod);
         if (arg_mod_filter_noname && (regexec(&mod_filter_noname, name, 0, NULL, 0) == 0)) {
@@ -1183,7 +1221,7 @@ static int install_module(struct kmod_module *mod)
                 return 0;
         }
 
-        if (arg_hostonly && (state != KMOD_MODULE_BUILTIN) && (state != KMOD_MODULE_LIVE)) {
+        if (arg_hostonly && ! check_module_hostonly(mod)) {
                 log_debug("dracut_install '%s' not hostonly", name);
                 return 0;
         }
@@ -1232,15 +1270,17 @@ static int install_module(struct kmod_module *mod)
                 }
                 kmod_module_unref(mod);
         }
-        kmod_module_unref_list(modlist);
 
         return ret;
 }
 
 static int install_modules(int argc, char **argv)
 {
-        struct kmod_ctx *ctx = NULL;
-        struct kmod_list *itr, *modlist = NULL;
+        _cleanup_kmod_unref_ struct kmod_ctx *ctx = NULL;
+        struct kmod_list *loaded_list = NULL;
+        struct kmod_list *itr, *l;
+        int err;
+
         struct kmod_module *mod = NULL, *mod_o = NULL;
 
         const char *modname = NULL;
@@ -1248,12 +1288,48 @@ static int install_modules(int argc, char **argv)
 
         ctx = kmod_new(kerneldir, NULL);
 
+        err = kmod_module_new_from_loaded(ctx, &loaded_list);
+        if (err < 0) {
+                errno = err;
+                log_error("Could not get list of loaded modules: %m");
+                return err;
+        }
+
+        kmod_list_foreach(itr, loaded_list) {
+                _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
+
+                struct kmod_module *mod = kmod_module_get_module(itr);
+                char *name = strdup(kmod_module_get_name(mod));
+                hashmap_put(modules_loaded, name, name);
+                kmod_module_unref(mod);
+
+                /* also put the modules from the new kernel in the hashmap,
+                 * which resolve the name as an alias, in case a kernel module is
+                 * renamed.
+                 */
+                err = kmod_module_new_from_lookup(ctx, name, &modlist);
+                if (err < 0)
+                        continue;
+                if (!modlist)
+                        continue;
+                kmod_list_foreach(l, modlist) {
+                        mod = kmod_module_get_module(l);
+                        char *name = strdup(kmod_module_get_name(mod));
+                        hashmap_put(modules_loaded, name, name);
+                        kmod_module_unref(mod);
+                }
+        }
+        kmod_module_unref_list(loaded_list);
+
         for (i = 0; i < argc; i++) {
                 int r = 0;
                 int ret = -1;
+
                 log_debug("Handle module '%s'", argv[i]);
 
                 if (argv[i][0] == '/') {
+                        _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
+
                         r = kmod_module_new_from_path(ctx, argv[i], &mod_o);
                         if (r < 0) {
                                 log_debug("Failed to lookup modules path '%s': %m", argv[i]);
@@ -1263,6 +1339,7 @@ static int install_modules(int argc, char **argv)
                         }
                         /* Check, if we have to load another module with that name instead */
                         modname = kmod_module_get_name(mod_o);
+
                         if (!modname) {
                                 if (!arg_optional) {
                                         if (!arg_silent)
@@ -1272,8 +1349,11 @@ static int install_modules(int argc, char **argv)
                                 log_info("Failed to get name for module '%s'", argv[i]);
                                 continue;
                         }
+
                         r = kmod_module_new_from_lookup(ctx, modname, &modlist);
                         kmod_module_unref(mod_o);
+                        mod_o = NULL;
+
                         if (r < 0) {
                                 if (!arg_optional) {
                                         if (!arg_silent)
@@ -1303,37 +1383,38 @@ static int install_modules(int argc, char **argv)
                                 };
                                 ret = ( ret == 0 ? 0 : r );
                         }
-                        kmod_module_unref_list(modlist);
-                        modlist = 0;
                 } else if (argv[i][0] == '=') {
-                        char *path1, *path2, *path3;
-                        FTS *fts;
+                        _cleanup_free_ char *path1 = NULL, *path2 = NULL, *path3 = NULL;
+                        _cleanup_fts_close_ FTS *fts = NULL;
+
                         log_debug("Handling =%s", &argv[i][1]);
                         /* FIXME and add more paths*/
+                        r = asprintf(&path2, "%s/kernel/%s", kerneldir, &argv[i][1]);
+                        if (r < 0) {
+                                log_error("Out of memory!");
+                                exit(EXIT_FAILURE);
+                        }
+
+                        r = asprintf(&path1, "%s/extra/%s", kerneldir, &argv[i][1]);
+                        if (r < 0) {
+                                log_error("Out of memory!");
+                                exit(EXIT_FAILURE);
+                        }
+
+                        r = asprintf(&path3, "%s/updates/%s", kerneldir, &argv[i][1]);
+                        if (r < 0) {
+                                log_error("Out of memory!");
+                                exit(EXIT_FAILURE);
+                        }
+
                         {
-                                int r;
-                                r = asprintf(&path2, "%s/kernel/%s", kerneldir, &argv[i][1]);
-                                if (r < 0) {
-                                        log_error("Out of memory!");
-                                        exit(EXIT_FAILURE);
-                                }
-
-                                r = asprintf(&path1, "%s/extra/%s", kerneldir, &argv[i][1]);
-                                if (r < 0) {
-                                        log_error("Out of memory!");
-                                        exit(EXIT_FAILURE);
-                                }
-
-                                r = asprintf(&path3, "%s/updates/%s", kerneldir, &argv[i][1]);
-                                if (r < 0) {
-                                        log_error("Out of memory!");
-                                        exit(EXIT_FAILURE);
-                                }
-
                                 char *paths[] = { path1, path2, path3, NULL };
                                 fts = fts_open(paths, FTS_COMFOLLOW|FTS_NOCHDIR|FTS_NOSTAT|FTS_LOGICAL, NULL);
                         }
+
                         for (FTSENT *ftsent = fts_read(fts); ftsent != NULL; ftsent = fts_read(fts)) {
+                                _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
+
                                 if((ftsent->fts_info == FTS_D) && !check_module_path(ftsent->fts_accpath)) {
                                         fts_set(fts, ftsent, FTS_SKIP);
                                         log_debug("Skipping %s", ftsent->fts_accpath);
@@ -1356,6 +1437,7 @@ static int install_modules(int argc, char **argv)
 
                                 /* Check, if we have to load another module with that name instead */
                                 modname = kmod_module_get_name(mod_o);
+
                                 if (!modname) {
                                         log_error("Failed to get name for module '%s'", ftsent->fts_accpath);
                                         if (!arg_optional) {
@@ -1365,18 +1447,19 @@ static int install_modules(int argc, char **argv)
                                 }
                                 r = kmod_module_new_from_lookup(ctx, modname, &modlist);
                                 kmod_module_unref(mod_o);
+                                mod_o = NULL;
+
                                 if (r < 0) {
                                         log_error("Failed to lookup alias '%s': %m", modname);
-                                        kmod_module_unref_list(modlist);
                                         if (!arg_optional) {
                                                 return -ENOENT;
                                         }
                                         continue;
                                 }
+
                                 if (!modlist) {
                                         log_error("Failed to find module '%s' %s", modname,
                                                   ftsent->fts_accpath);
-                                        kmod_module_unref_list(modlist);
                                         if (!arg_optional) {
                                                 return -ENOENT;
                                         }
@@ -1393,18 +1476,14 @@ static int install_modules(int argc, char **argv)
                                         };
                                         ret = ( ret == 0 ? 0 : r );
                                 }
-                                kmod_module_unref_list(modlist);
-                                modlist = 0;
                         }
                         if (errno) {
                                 log_error("FTS ERROR: %m");
                         }
-                        fts_close(fts);
-                        free(path1); path1 = NULL;
-                        free(path2); path2 = NULL;
-                        free(path3); path3 = NULL;
                 } else {
+                        _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
                         char *modname = argv[i];
+
                         if (endswith(modname, ".ko")) {
                                 int len = strlen(modname);
                                 modname[len-3]=0;
@@ -1443,8 +1522,6 @@ static int install_modules(int argc, char **argv)
                                 };
                                 ret = ( ret == 0 ? 0 : r );
                         }
-                        kmod_module_unref_list(modlist);
-                        modlist = 0;
                 }
 
                 if ((ret != 0) && (!arg_optional)) {
@@ -1513,8 +1590,9 @@ int main(int argc, char **argv)
 
         items = hashmap_new(string_hash_func, string_compare_func);
         items_failed = hashmap_new(string_hash_func, string_compare_func);
+        modules_loaded = hashmap_new(string_hash_func, string_compare_func);
 
-        if (!items || !items_failed) {
+        if (!items || !items_failed || !modules_loaded) {
                 log_error("Out of memory");
                 r = EXIT_FAILURE;
                 goto finish;
@@ -1570,6 +1648,9 @@ int main(int argc, char **argv)
         if (logfile_f)
                 fclose(logfile_f);
 
+        while ((i = hashmap_steal_first(modules_loaded)))
+                item_free(i);
+
         while ((i = hashmap_steal_first(items)))
                 item_free(i);
 
@@ -1578,6 +1659,7 @@ int main(int argc, char **argv)
 
         hashmap_free(items);
         hashmap_free(items_failed);
+        hashmap_free(modules_loaded);
 
         free(destrootdir);
         strv_free(firmwaredirs);
