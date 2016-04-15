@@ -100,6 +100,13 @@ install() {
             inst_rules ${moddir}/10-console.rules
             inst_hook cmdline 20 "${moddir}/parse-i18n.sh"
         fi
+
+        if [[ ${kbddir} != "/usr/share" ]]; then
+            inst_dir /usr/share
+            for _src in $(eval echo {${KBDSUBDIRS}}); do
+                [ ! -e "${initdir}/usr/share/${_src}" ] && ln -s "${kbddir}/${_src}" "${initdir}/usr/share/${_src}"
+            done
+        fi
     }
 
     install_all_kbd() {
