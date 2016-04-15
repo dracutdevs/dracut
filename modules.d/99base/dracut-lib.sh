@@ -457,7 +457,7 @@ die() {
 
     > /run/initramfs/.die
 
-    getargbool 0 "rd.debug=" && emergency_shell
+    getargbool 0 "rd.shell=" && emergency_shell
 
     if [ -n "$DRACUT_SYSTEMD" ]; then
         systemctl --no-block --force halt
