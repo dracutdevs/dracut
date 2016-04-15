@@ -943,60 +943,6 @@ dracut_kernel_post() {
 
 }
 
-[[ "$kernel_current" ]] || export kernel_current=$(uname -r)
-
-module_is_host_only() {
-    local _mod=$1
-    local _modenc a i _k _s _v _aliases
-    _mod=${_mod##*/}
-    _mod=${_mod%.ko*}
-    _modenc=${_mod//-/_}
-
-    [[ " $add_drivers " == *\ ${_mod}\ * ]] && return 0
-
-    # check if module is loaded
-    [[ ${host_modules["$_modenc"]} ]] && return 0
-
-    [[ "$kernel_current" ]] || export kernel_current=$(uname -r)
-
-    if [[ "$kernel_current" != "$kernel" ]]; then
-        # check if module is loadable on the current kernel
-        # this covers the case, where a new module is introduced
-        # or a module was renamed
-        # or a module changed from builtin to a module
-
-        if [[ -d /lib/modules/$kernel_current ]]; then
-            # if the modinfo can be parsed, but the module
-            # is not loaded, then we can safely return 1
-            modinfo -F filename "$_mod" &>/dev/null && return 1
-        fi
-
-        # just install the module, better safe than sorry
-        return 0
-    fi
-
-    return 1
-}
-
-find_kernel_modules_by_path () {
-    local _OLDIFS
-
-    [[ -f "$srcmods/modules.dep" ]] || return 0
-
-    _OLDIFS=$IFS
-    IFS=:
-    while read a rest || [ -n "$a" ]; do
-        [[ $a = */$1/* ]] || [[ $a = updates/* ]] || continue
-        printf "%s\n" "$srcmods/$a"
-    done < "$srcmods/modules.dep"
-    IFS=$_OLDIFS
-    return 0
-}
-
-find_kernel_modules () {
-    find_kernel_modules_by_path  drivers
-}
-
 instmods() {
     # instmods [-c [-s]] <kernel module> [<kernel module> ... ]
     # instmods [-c [-s]] <kernel subsystem>

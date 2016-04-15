@@ -1101,8 +1101,6 @@ if (( ${#add_device_l[@]} )); then
     push_host_devs "${add_device_l[@]}"
 fi
 
-declare -A host_modules
-
 if [[ $hostonly ]]; then
     # in hostonly mode, determine all devices, which have to be accessed
     # and examine them for filesystem types
@@ -1190,32 +1188,6 @@ if [[ $hostonly ]]; then
             fi
         done < /etc/fstab
     fi
-
-    # check /proc/modules
-    while read m rest || [ -n "$m" ]; do
-        host_modules["$m"]=1
-    done </proc/modules
-
-    # Explanation of the following section:
-    # Since kernel 4.4, mpt3sas is a complete replacement for mpt2sas.
-    # mpt3sas has an alias to mpt2sas now, but since mpt3sas isn't loaded
-    # when generating the initrd from kernel < 4.4, it's not included.
-    # The other direction has the same issue:
-    # When generating the initrd from kernel >= 4.4, mpt2sas isn't loaded,
-    # so it's not included.
-    # Both ways result in an unbootable initrd.
-
-    # also add aliases of loaded modules
-    for mod in "${!host_modules[@]}"; do
-        aliases=$(modinfo -F alias "$mod" 2>&1)
-        for alias in $aliases; do
-            host_modules["$alias"]=1
-        done
-        # mod might be an alias in the target kernel, find the real module
-        mod_filename=$(modinfo -k "$kernel" "$mod" -F filename)
-        [ $? -ne 0 ] && continue
-        host_modules["$(basename -s .ko "$mod_filename")"]=1
-    done
 fi
 
 unset m
@@ -1302,7 +1274,7 @@ export initdir dracutbasedir \
     debug host_fs_types host_devs swap_devs sshkey add_fstab \
     DRACUT_VERSION udevdir prefix filesystems drivers \
     systemdutildir systemdsystemunitdir systemdsystemconfdir \
-    host_modules hostonly_cmdline loginstall \
+    hostonly_cmdline loginstall \
     tmpfilesdir
 
 mods_to_load=""
