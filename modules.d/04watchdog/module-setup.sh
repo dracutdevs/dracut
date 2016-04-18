@@ -74,4 +74,6 @@ installkernel() {
     # ensure that watchdog module is loaded as early as possible
     _alldrivers="${!_drivers[*]}"
     [[ $_alldrivers ]] && echo "rd.driver.pre=${_alldrivers// /,}" > ${initdir}/etc/cmdline.d/00-watchdog.conf
+
+    return 0
 }
