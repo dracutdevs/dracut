@@ -56,7 +56,7 @@ installkernel() {
         # however in some cases, we also need to check that if there is
         # a specific driver for the parent bus/device.  In such cases
         # we also need to enable driver for parent bus/device.
-        _wdtppath=$(readlink -f "$_dir/device/..")
+        _wdtppath=$(readlink -f "$_dir/device")
         while [[ -d "$_wdtppath" ]] && [[ "$_wdtppath" != "/sys" ]]; do
             _wdtppath=$(readlink -f "$_wdtppath/..")
             [[ -f "$_wdtppath/modalias" ]] || continue
