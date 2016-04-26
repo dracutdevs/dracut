@@ -120,7 +120,7 @@ setup_net() {
     [ -e /tmp/dhclient.$netif.dhcpopts ] && . /tmp/dhclient.$netif.dhcpopts
     # set up resolv.conf
     [ -e /tmp/net.$netif.resolv.conf ] && \
-        cp -f /tmp/net.$netif.resolv.conf /etc/resolv.conf
+        awk '!array[$0]++' /tmp/net.$netif.resolv.conf > /etc/resolv.conf
     [ -e /tmp/net.$netif.gw ]            && . /tmp/net.$netif.gw
 
     # add static route
