@@ -69,7 +69,7 @@ installkernel() {
 
 install() {
     local _arch _i _dir
-    inst_multiple ip arping dhclient sed
+    inst_multiple ip arping dhclient sed awk
     inst_multiple -o ping ping6
     inst_multiple -o brctl
     inst_multiple -o teamd teamdctl teamnl
