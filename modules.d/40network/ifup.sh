@@ -321,16 +321,16 @@ fi
 ip=$(getarg ip)
 
 if [ -z "$NO_AUTO_DHCP" ] && [ -z "$ip" ]; then
-    for s in $(getargs nameserver); do
-        [ -n "$s" ] || continue
-        echo nameserver $s >> /tmp/net.$netif.resolv.conf
-    done
-
     if [ "$netroot" = "dhcp6" ]; then
         do_dhcp -6
     else
         do_dhcp -4
     fi
+
+    for s in $(getargs nameserver); do
+        [ -n "$s" ] || continue
+        echo nameserver $s >> /tmp/net.$netif.resolv.conf
+    done
 fi
 
 
@@ -355,17 +355,6 @@ for p in $(getargs ip=); do
     # If this option isn't directed at our interface, skip it
     [ -n "$dev" ] && [ "$dev" != "$netif" ] && continue
 
-    # setup nameserver
-    for s in "$dns1" "$dns2" $(getargs nameserver); do
-        [ -n "$s" ] || continue
-        echo nameserver $s >> /tmp/net.$netif.resolv.conf
-    done
-
-    # Store config for later use
-    for i in ip srv gw mask hostname macaddr mtu dns1 dns2; do
-        eval '[ "$'$i'" ] && echo '$i'="$'$i'"'
-    done > /tmp/net.$netif.override
-
     for autoopt in $(str_replace "$autoconf" "," " "); do
         case $autoopt in
             dhcp|on|any)
@@ -380,6 +369,17 @@ for p in $(getargs ip=); do
         esac
     done
     ret=$?
+
+    # setup nameserver
+    for s in "$dns1" "$dns2" $(getargs nameserver); do
+        [ -n "$s" ] || continue
+        echo nameserver $s >> /tmp/net.$netif.resolv.conf
+    done
+
+    # Store config for later use
+    for i in ip srv gw mask hostname macaddr mtu dns1 dns2; do
+        eval '[ "$'$i'" ] && echo '$i'="$'$i'"'
+    done > /tmp/net.$netif.override
 
     if [ $ret -eq 0 ]; then
         > /tmp/net.${netif}.up
