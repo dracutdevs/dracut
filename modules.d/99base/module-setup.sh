@@ -77,6 +77,7 @@ install() {
     VERSION_ID=$DRACUT_VERSION
     ANSI_COLOR="0;34"
 
+    [ -e "${initdir}/usr/lib" ] || mkdir -m 0755 -p ${initdir}/usr/lib
     {
         echo NAME=\"$NAME\"
         echo VERSION=\"$VERSION\"
