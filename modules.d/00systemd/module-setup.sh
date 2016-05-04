@@ -210,9 +210,10 @@ install() {
     done
 
     mkdir -p "$initdir/etc/systemd"
-    # turn off RateLimit for journal
+    # We must use a volatile journal, and we don't want rate-limiting
     {
         echo "[Journal]"
+        echo "Storage=volatile"
         echo "RateLimitInterval=0"
         echo "RateLimitBurst=0"
     } >> "$initdir/etc/systemd/journald.conf"
