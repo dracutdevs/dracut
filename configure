@@ -7,6 +7,8 @@ prefix=/usr
 
 enable_documentation=yes
 
+PKG_CONFIG="${PKG_CONFIG:-pkg-config}"
+
 # Little helper function for reading args from the commandline.
 # it automatically handles -a b and -a=b variants, and returns 1 if
 # we need to shift $3.
@@ -50,7 +52,7 @@ while (($# > 0)); do
     shift
 done
 
-if ! pkg-config --exists --print-errors " libkmod >= 15 "; then
+if ! ${PKG_CONFIG} --exists --print-errors " libkmod >= 15 "; then
     echo "dracut needs pkg-config and libkmod >= 15." >&2
     exit 1
 fi
@@ -64,8 +66,8 @@ sbindir ?= ${sbindir:-${prefix}/sbin}
 mandir ?= ${mandir:-${prefix}/share/man}
 enable_documentation ?= ${enable_documentation:-yes}
 bindir ?= ${bindir:-${prefix}/bin}
-KMOD_CFLAGS ?= $(pkg-config --cflags " libkmod >= 15 ")
-KMOD_LIBS ?= $(pkg-config --libs " libkmod >= 15 ")
+KMOD_CFLAGS ?= $(${PKG_CONFIG} --cflags " libkmod >= 15 ")
+KMOD_LIBS ?= $(${PKG_CONFIG} --libs " libkmod >= 15 ")
 EOF
 
 {
