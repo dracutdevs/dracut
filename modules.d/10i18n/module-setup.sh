@@ -209,7 +209,11 @@ install() {
         if [[ ${FONT_MAP} ]]
         then
             FONT_MAP=${FONT_MAP%.trans}
-            inst_simple ${kbddir}/consoletrans/${FONT_MAP}.trans
+            # There are three different formats that setfont supports
+            inst_simple ${kbddir}/consoletrans/${FONT_MAP} \
+            || inst_simple ${kbddir}/consoletrans/${FONT_MAP}.trans \
+            || inst_simple ${kbddir}/consoletrans/${FONT_MAP}_to_uni.trans \
+            || dwarn "Could not find FONT_MAP ${FONT_MAP}!"
         fi
 
         if [[ ${FONT_UNIMAP} ]]
