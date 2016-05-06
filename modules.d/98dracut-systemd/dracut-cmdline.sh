@@ -21,7 +21,12 @@ getargbool 0 rd.udev.log-priority=debug -d rd.udev.debug -d -n -y rdudevdebug &&
 
 source_conf /etc/conf.d
 
-root=$(getarg root=)
+# Get the "root=" parameter from the kernel command line, but differentiate
+# between the case where it was set to the empty string and the case where it
+# wasn't specified at all.
+if ! root="$(getarg root=)"; then
+    root='UNSET'
+fi
 
 rflags="$(getarg rootflags=)"
 getargbool 0 ro && rflags="${rflags},ro"
@@ -65,9 +70,12 @@ case "$root" in
     /dev/*)
         root="block:${root}"
         rootok=1 ;;
+    UNSET|gpt-auto)
+        # systemd's gpt-auto-generator handles this case.
+        rootok=1 ;;
 esac
 
-[ -z "$root" ] && die "No or empty root= argument"
+[ -z "$root" ] && die "Empty root= argument"
 [ -z "$rootok" ] && die "Don't know how to handle 'root=$root'"
 
 export root rflags fstype netroot NEWROOT
