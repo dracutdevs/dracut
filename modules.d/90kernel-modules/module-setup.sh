@@ -26,6 +26,7 @@ installkernel() {
         if [[ "$(uname -p)" == arm* ]]; then
             # arm specific modules
             instmods \
+                "=drivers/clk" \
                 "=drivers/i2c/busses" \
                 "=drivers/regulator" \
                 "=drivers/rtc" \
