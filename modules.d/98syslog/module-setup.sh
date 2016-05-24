@@ -34,7 +34,7 @@ install() {
         inst_simple "$moddir/rsyslogd-start.sh" /sbin/rsyslogd-start
         inst_simple "$moddir/rsyslogd-stop.sh" /sbin/rsyslogd-stop
         mkdir -m 0755 -p ${initdir}/etc/templates
-        inst_simple "${moddir}/rsyslog.conf" /etc/templates
+        inst_simple "${moddir}/rsyslog.conf" /etc/templates/rsyslog.conf
     fi
     dracut_need_initqueue
 }
