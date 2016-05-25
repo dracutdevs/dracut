@@ -28,6 +28,7 @@ install() {
     inst_multiple -o \
         $systemdsystemunitdir/initrd.target \
         $systemdsystemunitdir/initrd-fs.target \
+        $systemdsystemunitdir/initrd-root-device.target \
         $systemdsystemunitdir/initrd-root-fs.target \
         $systemdsystemunitdir/initrd-switch-root.target \
         $systemdsystemunitdir/initrd-switch-root.service \
