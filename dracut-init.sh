@@ -69,6 +69,8 @@ srcmods="/lib/modules/$kernel/"
 }
 export srcmods
 
+[[ $DRACUT_FIRMWARE_PATH ]] || export DRACUT_FIRMWARE_PATH="/lib/firmware/updates:/lib/firmware:/lib/firmware/$kernel"
+
 # export standard hookdirs
 [[ $hookdirs ]] || {
     hookdirs="cmdline pre-udev pre-trigger netroot "
