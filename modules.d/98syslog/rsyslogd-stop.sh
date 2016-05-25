@@ -1,5 +1,7 @@
 #!/bin/sh
 
+type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+
 # Kills rsyslogd
 
 if [ -f /var/run/syslogd.pid ]; then
