@@ -29,6 +29,10 @@ fi
 
 # Generic substring function.  If $2 is in $1, return 0.
 strstr() { [[ $1 = *$2* ]]; }
+# returns OK if $1 contains literal string $2 at the beginning, and isn't empty
+str_starts() { [ "${1#"$2"*}" != "$1" ]; }
+# returns OK if $1 contains literal string $2 at the end, and isn't empty
+str_ends() { [ "${1%*"$2"}" != "$1" ]; }
 
 # helper function for check() in module-setup.sh
 # to check for required installed binaries
