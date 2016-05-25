@@ -20,9 +20,14 @@ rsyslog_config() {
 
     cat $syslog_template
 
-    for filter in $filters; do
-        echo "${filter} @${server}"
-    done
+    (
+        # disable shell expansion / globbing
+        # since filters contain such characters
+        set -f
+        for filter in $filters; do
+            echo "${filter} @${server}"
+        done
+    )
     #echo "*.* /tmp/syslog"
 }
 
