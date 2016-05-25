@@ -26,11 +26,11 @@ rsyslog_config() {
     #echo "*.* /tmp/syslog"
 }
 
-read type < /tmp/syslog.type
-read server < /tmp/syslog.server
-read filters < /tmp/syslog.filters
+[ -f /tmp/syslog.type ] && read type < /tmp/syslog.type
+[ -f /tmp/syslog.server ] && read server < /tmp/syslog.server
+[ -f /tmp/syslog.filters ] && read filters < /tmp/syslog.filters
 [ -z "$filters" ] && filters="kern.*"
-read conf < /tmp/syslog.conf
+[ -f /tmp/syslog.conf ] && read conf < /tmp/syslog.conf
 [ -z "$conf" ] && conf="/etc/rsyslog.conf" && echo "$conf" > /tmp/syslog.conf
 
 if [ $type == "rsyslogd" ]; then
