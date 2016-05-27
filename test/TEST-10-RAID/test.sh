@@ -86,7 +86,7 @@ test_setup() {
 	export initdir=$TESTDIR/overlay
 	. $basedir/dracut-init.sh
 	inst_multiple poweroff shutdown
-	inst_hook emergency 000 ./hard-off.sh
+	inst_hook shutdown-emergency 000 ./hard-off.sh
 	inst ./cryptroot-ask.sh /sbin/cryptroot-ask
         mkdir -p $initdir/etc
         echo "testluks UUID=$ID_FS_UUID /etc/key" > $initdir/etc/crypttab

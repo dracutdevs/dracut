@@ -261,7 +261,7 @@ EOF
 	export initdir=$TESTDIR/overlay
 	. $basedir/dracut-init.sh
 	inst_multiple poweroff shutdown
-	inst_hook emergency 000 ./hard-off.sh
+	inst_hook shutdown-emergency 000 ./hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 

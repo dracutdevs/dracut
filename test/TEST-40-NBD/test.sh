@@ -226,7 +226,7 @@ make_encrypted_root() {
             done
         )
         inst_multiple mke2fs poweroff cp umount tune2fs
-        inst_hook emergency 000 ./hard-off.sh
+        inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
@@ -362,7 +362,7 @@ test_setup() {
         export initdir=$TESTDIR/overlay
         . $basedir/dracut-init.sh
         inst_multiple poweroff shutdown
-        inst_hook emergency 000 ./hard-off.sh
+        inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
         inst ./cryptroot-ask.sh /sbin/cryptroot-ask
 
