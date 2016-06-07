@@ -12,10 +12,9 @@ type plymouth >/dev/null 2>&1 && plymouth quit
 
 export _rdshell_name="dracut" action="Boot" hook="emergency"
 
-source_hook "$hook"
-
 
 if getargbool 1 rd.shell -d -y rdshell || getarg rd.break -d rdbreak; then
+    source_hook "$hook"
     echo
     rdsosreport
     echo
@@ -30,7 +29,9 @@ if getargbool 1 rd.shell -d -y rdshell || getarg rd.break -d rdbreak; then
     [ -z "$PS1" ] && export PS1="$_name:\${PWD}# "
     exec sh -i -l
 else
+    export hook="shutdown-emergency"
     warn "$action has failed. To debug this issue add \"rd.shell rd.debug\" to the kernel command line."
+    source_hook "$hook"
     exit 1
 fi
 
