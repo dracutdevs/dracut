@@ -37,16 +37,6 @@ str_starts() { [ "${1#"$2"*}" != "$1" ]; }
 # returns OK if $1 contains literal string $2 at the end, and isn't empty
 str_ends() { [ "${1%*"$2"}" != "$1" ]; }
 
-uniq_lines() {
-    local -A lines
-    while read -r line; do
-        if ! [[ ${lines[$line]} ]]; then
-            echo "$line"
-            lines[$line]=1
-        fi
-    done
-}
-
 # find a binary.  If we were not passed the full path directly,
 # search in the usual places to find the binary.
 find_binary() {
