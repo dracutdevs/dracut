@@ -1260,8 +1260,8 @@ fi
     || tmpfilesdir=$(pkg-config systemd --variable=tmpfilesdir 2>/dev/null)
 
 if ! [[ -d "$tmpfilesdir" ]]; then
-    [[ -f /lib/tmpfiles.d ]] && tmpfilesdir=/lib/tmpfiles.d
-    [[ -f /usr/lib/tmpfiles.d ]] && tmpfilesdir=/usr/lib/tmpfiles.d
+    [[ -d /lib/tmpfiles.d ]] && tmpfilesdir=/lib/tmpfiles.d
+    [[ -d /usr/lib/tmpfiles.d ]] && tmpfilesdir=/usr/lib/tmpfiles.d
 fi
 
 export initdir dracutbasedir \
