@@ -184,6 +184,8 @@ install() {
     grep '^systemd-journal:' /etc/group >> "$initdir/etc/group"
     grep '^wheel:' /etc/group >> "$initdir/etc/group"
     grep '^adm:' /etc/group >> "$initdir/etc/group"
+    grep '^utmp:' /etc/group >> "$initdir/etc/group"
+    grep '^root:' /etc/group >> "$initdir/etc/group"
 
     ln_r $systemdutildir/systemd "/init"
     ln_r $systemdutildir/systemd "/sbin/init"
