@@ -130,7 +130,9 @@ install() {
         kmod insmod rmmod modprobe modinfo depmod lsmod \
         mount umount reboot poweroff \
         systemd-run systemd-escape \
-        systemd-cgls systemd-tmpfiles
+        systemd-cgls systemd-tmpfiles \
+        /etc/udev/udev.hwdb \
+        ${NULL}
 
     inst_multiple -o \
         /usr/lib/modules-load.d/*.conf \
@@ -167,7 +169,9 @@ install() {
             /etc/locale.conf \
             /etc/modules-load.d/*.conf \
             /etc/sysctl.d/*.conf \
-            /etc/sysctl.conf
+            /etc/sysctl.conf \
+            /etc/udev/udev.conf \
+            ${NULL}
 
         _mods=$(modules_load_get /etc/modules-load.d)
         [[ $_mods ]] && instmods $_mods
@@ -196,7 +200,8 @@ install() {
         71-seat.rules \
         73-seat-late.rules \
         90-vconsole.rules \
-        99-systemd.rules
+        99-systemd.rules \
+        ${NULL}
 
     for i in \
         emergency.target \
