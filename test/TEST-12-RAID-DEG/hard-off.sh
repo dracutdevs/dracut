@@ -1,3 +1,3 @@
 #!/bin/sh
-getarg rd.shell || poweroff -f
-! getarg rd.break && getarg failme && poweroff -f
+getargbool 0 rd.shell || poweroff -f
+! getargbool 0 rd.break && getargbool 0 failme && poweroff -f

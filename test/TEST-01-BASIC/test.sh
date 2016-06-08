@@ -14,7 +14,7 @@ test_run() {
 	-m 256M -smp 2 -nographic \
 	-net none \
 	-watchdog i6300esb -watchdog-action poweroff \
-	-append "root=LABEL=dracut rw systemd.log_level=debug systemd.log_target=console rd.retry=3 rd.debug console=ttyS0,115200n81 $DEBUGFAIL" \
+	-append "root=LABEL=dracut rw systemd.log_level=debug systemd.log_target=console rd.retry=3 rd.debug console=ttyS0,115200n81 rd.shell=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing || return 1
     grep -F -m 1 -q dracut-root-block-success $TESTDIR/result || return 1
 }
@@ -90,6 +90,7 @@ test_setup() {
 	. $basedir/dracut-init.sh
 	inst_multiple poweroff shutdown
 	inst_hook shutdown-emergency 000 ./hard-off.sh
+        inst_hook emergency 000 ./hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \

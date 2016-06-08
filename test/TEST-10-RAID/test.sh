@@ -12,7 +12,7 @@ test_run() {
 	-drive format=raw,index=0,media=disk,file=$DISKIMAGE \
 	-m 256M -smp 2 -nographic \
 	-net none \
-	-append "root=/dev/dracut/root rd.auto rw rd.retry=10 console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
+	-append "root=/dev/dracut/root rd.auto rw rd.retry=10 console=ttyS0,115200n81 selinux=0 rd.shell=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     grep -F -m 1 -q dracut-root-block-success $DISKIMAGE || return 1
 }
@@ -87,6 +87,7 @@ test_setup() {
 	. $basedir/dracut-init.sh
 	inst_multiple poweroff shutdown
 	inst_hook shutdown-emergency 000 ./hard-off.sh
+        inst_hook emergency 000 ./hard-off.sh
 	inst ./cryptroot-ask.sh /sbin/cryptroot-ask
         mkdir -p $initdir/etc
         echo "testluks UUID=$ID_FS_UUID /etc/key" > $initdir/etc/crypttab

@@ -49,7 +49,7 @@ run_client() {
         -net nic,macaddr=52:54:00:12:34:00,model=e1000 \
         -net nic,macaddr=52:54:00:12:34:01,model=e1000 \
         -net socket,connect=127.0.0.1:12330 \
-        -append "rw rd.auto rd.retry=50 console=ttyS0,115200n81 selinux=0 rd.debug=0 $DEBUGFAIL $*" \
+        -append "rw rd.auto rd.retry=50 console=ttyS0,115200n81 selinux=0 rd.debug=0 rd.shell=0 $DEBUGFAIL $*" \
         -initrd $TESTDIR/initramfs.testing
     if ! grep -F -m 1 -q iscsi-OK $TESTDIR/client.img; then
 	echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
@@ -214,6 +214,7 @@ test_setup() {
         . $basedir/dracut-init.sh
         inst_multiple poweroff shutdown
         inst_hook shutdown-emergency 000 ./hard-off.sh
+        inst_hook emergency 000 ./hard-off.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \

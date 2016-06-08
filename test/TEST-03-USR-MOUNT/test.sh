@@ -21,7 +21,7 @@ client_run() {
 	-m 256M -smp 2 -nographic \
 	-net none \
 	-watchdog i6300esb -watchdog-action poweroff \
-	-append "root=LABEL=dracut $client_opts quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug $DEBUGFAIL" \
+	-append "root=LABEL=dracut $client_opts quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug rd.shell=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
 
     if (($? != 0)); then
@@ -125,6 +125,7 @@ test_setup() {
 	. $basedir/dracut-init.sh
 	inst_multiple poweroff shutdown
 	inst_hook shutdown-emergency 000 ./hard-off.sh
+        inst_hook emergency 000 ./hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \

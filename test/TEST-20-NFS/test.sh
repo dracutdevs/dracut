@@ -54,7 +54,7 @@ client_test() {
         -net nic,macaddr=$mac,model=e1000 \
         -net socket,connect=127.0.0.1:12320 \
         -watchdog i6300esb -watchdog-action poweroff \
-        -append "$cmdline $DEBUGFAIL rd.debug rd.retry=10 rd.info quiet  ro console=ttyS0,115200n81 selinux=0" \
+        -append "rd.shell=0 $cmdline $DEBUGFAIL rd.debug rd.retry=10 rd.info quiet  ro console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.testing
 
     if [[ $? -ne 0 ]] || ! grep -F -m 1 -q nfs-OK $TESTDIR/client.img; then
@@ -335,6 +335,7 @@ test_setup() {
         mkdir $TESTDIR/overlay
         inst_multiple poweroff shutdown
         inst_hook shutdown-emergency 000 ./hard-off.sh
+        inst_hook emergency 000 ./hard-off.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 

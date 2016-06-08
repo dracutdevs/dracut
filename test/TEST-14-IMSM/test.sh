@@ -15,7 +15,7 @@ client_run() {
 	-drive format=raw,index=2,media=disk,file=$TESTDIR/disk2 \
 	-m 256M -nographic \
 	-net none \
-	-append "$* root=LABEL=root rw debug rd.retry=5 rd.debug console=ttyS0,115200n81 selinux=0 rd.info $DEBUGFAIL" \
+	-append "$* root=LABEL=root rw debug rd.retry=5 rd.debug console=ttyS0,115200n81 selinux=0 rd.info rd.shell=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     if ! grep -F -m 1 -q dracut-root-block-success $TESTDIR/root.ext2; then
 	echo "CLIENT TEST END: $@ [FAIL]"
@@ -114,6 +114,7 @@ test_setup() {
 	. $basedir/dracut-init.sh
 	inst_multiple poweroff shutdown
 	inst_hook shutdown-emergency 000 ./hard-off.sh
+        inst_hook emergency 000 ./hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \

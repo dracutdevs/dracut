@@ -58,7 +58,7 @@ client_test() {
         -nographic \
         -net nic,macaddr=$mac,model=e1000 \
         -net socket,connect=127.0.0.1:12340 \
-        -append "$cmdline $DEBUGFAIL rd.auto rd.info rd.retry=10 ro console=ttyS0,115200n81  selinux=0  " \
+        -append "rd.shell=0 $cmdline $DEBUGFAIL rd.auto rd.info rd.retry=10 ro console=ttyS0,115200n81  selinux=0  " \
         -initrd $TESTDIR/initramfs.testing
 
     if [[ $? -ne 0 ]] || ! grep -F -m 1 -q nbd-OK $TESTDIR/flag.img; then
@@ -227,6 +227,7 @@ make_encrypted_root() {
         )
         inst_multiple mke2fs poweroff cp umount tune2fs
         inst_hook shutdown-emergency 000 ./hard-off.sh
+        inst_hook emergency 000 ./hard-off.sh
         inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules

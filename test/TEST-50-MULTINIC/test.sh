@@ -54,7 +54,7 @@ client_test() {
         -net nic,macaddr=52:54:00:12:34:$mac2,model=e1000 \
         -net nic,macaddr=52:54:00:12:34:$mac3,model=e1000 \
         -watchdog i6300esb -watchdog-action poweroff \
-        -append "$cmdline $DEBUGFAIL rd.retry=5 ro console=ttyS0,115200n81 selinux=0 init=/sbin/init rd.debug systemd.log_target=console loglevel=7" \
+        -append "rd.shell=0 $cmdline $DEBUGFAIL rd.retry=5 ro console=ttyS0,115200n81 selinux=0 init=/sbin/init rd.debug systemd.log_target=console loglevel=7" \
         -initrd "$TESTDIR"/initramfs.testing
 
     { read OK; read IFACES; } < "$TESTDIR"/client.img
@@ -270,6 +270,7 @@ test_setup() {
         . "$basedir"/dracut-init.sh
         inst_multiple poweroff shutdown
         inst_hook shutdown-emergency 000 ./hard-off.sh
+        inst_hook emergency 000 ./hard-off.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 
