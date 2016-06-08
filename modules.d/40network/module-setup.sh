@@ -91,6 +91,9 @@ install() {
     inst_hook cmdline 99 "$moddir/parse-ifname.sh"
     inst_hook cleanup 10 "$moddir/kill-dhclient.sh"
 
+    # Special network nameing for idrac USB devs
+    inst_rules 73-idrac.rules
+
     # install all config files for teaming
     unset TEAM_MASTER
     unset TEAM_CONFIG
