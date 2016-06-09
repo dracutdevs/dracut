@@ -5,6 +5,7 @@ $TESTDIR
 
 test_run() {
     set -x
+    set -e
     export rootdir=$TESTDIR/root
 
     mkdir -p $rootdir
@@ -13,15 +14,17 @@ test_run() {
     mkdir -p "$rootdir/sys"
     mkdir -p "$rootdir/dev"
 
-trap 'ret=$?; [[ -d $rootdir ]] && { umount "$rootdir/proc"; umount "$rootdir/sys"; umount "$rootdir/dev"; rm -rf -- "$rootdir"; }; exit $ret;' EXIT
-trap '[[ -d $rootdir ]] && { umount "$rootdir/proc"; umount "$rootdir/sys"; umount "$rootdir/dev"; rm -rf -- "$rootdir"; }; exit 1;' SIGINT
+trap 'ret=$?; [[ -d $rootdir ]] && { umount "$rootdir/proc"; umount "$rootdir/sys"; umount "$rootdir/dev"; rm -rf -- "$rootdir"; } || :; exit $ret;' EXIT
+trap '[[ -d $rootdir ]] && { umount "$rootdir/proc"; umount "$rootdir/sys"; umount "$rootdir/dev"; rm -rf -- "$rootdir"; } || :; exit 1;' SIGINT
 
     mount --bind /proc "$rootdir/proc"
     mount --bind /sys "$rootdir/sys"
     mount -t devtmpfs devtmpfs "$rootdir/dev"
 
-    yum --nogpgcheck --releasever=/ --installroot "$rootdir"/ install -y \
-	yum \
+    dnf_or_yum=yum
+    command -v dnf >/dev/null && dnf_or_yum=dnf
+    $dnf_or_yum --nogpgcheck --installroot "$rootdir"/ install --allowerasing -y \
+	$dnf_or_yum \
 	passwd \
 	rootfiles \
 	systemd \
@@ -37,9 +40,9 @@ trap '[[ -d $rootdir ]] && { umount "$rootdir/proc"; umount "$rootdir/sys"; umou
 
     cat >"$rootdir"/test.sh <<EOF
 #!/bin/bash
-set -x
+set -xe
 export LC_MESSAGES=C
-rpm -Va &> /test.output
+rpm -Va |& grep -F -v '85-display-manager.preset' &> /test.output
 find / -xdev -type f -not -path '/var/*' \
   -not -path '/usr/lib/modules/*/modules.*' \
   -not -path '/etc/*-' \
@@ -50,19 +53,19 @@ find / -xdev -type f -not -path '/var/*' \
   -not -path '/etc/nsswitch.conf.bak' \
   -not -path '/etc/iscsi/initiatorname.iscsi' \
   -not -path '/boot/*0-rescue*' \
-  -not -patch '/usr/share/mime/*' \
-  -not -patch '/etc/crypto-policies/*' \
+  -not -path '/usr/share/mime/*' \
+  -not -path '/etc/crypto-policies/*' \
   -not -path '/dev/null' \
   -not -path "/boot/loader/entries/\$(cat /etc/machine-id)-*" \
   -not -path "/boot/\$(cat /etc/machine-id)/*" \
   -exec rpm -qf '{}' ';' | \
-  grep -F 'not owned' &> /test.output
-exit
+  grep -F 'not owned' &>> /test.output || :
+exit 0
 EOF
 
     chmod 0755 "$rootdir/test.sh"
 
-    chroot "$rootdir" /test.sh
+    chroot "$rootdir" /test.sh || :
 
     if [[ -s "$rootdir"/test.output ]]; then
 	failed=1
