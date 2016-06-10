@@ -17,7 +17,7 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
         unset bridgeslaves
         unset bridgename
         . "$i"
-        IFACES="$IFACES ${bridgeslaves%% *}"
+        RAW_IFACES="$RAW_IFACES $bridgeslaves"
         MASTER_IFACES="$MASTER_IFACES $bridgename"
     done
 
@@ -28,15 +28,18 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
         unset bondname
         . "$i"
         # It is enough to fire up only one
-        IFACES="$IFACES ${bondslaves%% *}"
+        RAW_IFACES="$RAW_IFACES $bondslaves"
         MASTER_IFACES="$MASTER_IFACES ${bondname}"
     done
 
-    if [ -e /tmp/team.info ]; then
-        . /tmp/team.info
-        IFACES="$IFACES ${teamslaves}"
+    for i in /tmp/team.*.info; do
+        [ -e "$i" ] || continue
+        unset teamslaves
+        unset teammaster
+        . "$i"
+        RAW_IFACES="$RAW_IFACES ${teamslaves}"
         MASTER_IFACES="$MASTER_IFACES ${teammaster}"
-    fi
+    done
 
     for j in /tmp/vlan.*.phy; do
         [ -e "$j" ] || continue
@@ -46,10 +49,13 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
             [ -e "$i" ] || continue
             unset vlanname
             . "$i"
-            IFACES="$IFACES $phydevice"
+            RAW_IFACES="$RAW_IFACES $phydevice"
             MASTER_IFACES="$MASTER_IFACES ${vlanname}"
         done
     done
+
+    MASTER_IFACES="$(trim "$MASTER_IFACES")"
+    RAW_IFACES="$(trim "$RAW_IFACES")"
 
     if [ -z "$IFACES" ]; then
         [ -e /tmp/net.ifaces ] && read IFACES < /tmp/net.ifaces
@@ -64,10 +70,10 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
     runcmd="RUN+=\"/sbin/initqueue --name ifup-\$env{INTERFACE} --unique --onetime $ifup\""
 
     # We have some specific interfaces to handle
-    if [ -n "$IFACES" ]; then
+    if [ -n "${RAW_IFACES}${IFACES}" ]; then
         echo 'SUBSYSTEM!="net", GOTO="net_end"'
         echo 'ACTION!="add|change|move", GOTO="net_end"'
-        for iface in $IFACES; do
+        for iface in $IFACES $RAW_IFACES; do
             case "$iface" in
                 ??:??:??:??:??:??)  # MAC address
                     cond="ATTR{address}==\"$iface\""
@@ -88,13 +94,7 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
         done
         echo 'LABEL="net_end"'
 
-        if [ -n "$MASTER_IFACES" ]; then
-            wait_ifaces=$MASTER_IFACES
-        else
-            wait_ifaces=$IFACES
-        fi
-
-        for iface in $wait_ifaces; do
+        for iface in $IFACES; do
             if [ "$bootdev" = "$iface" ] || [ "$NEEDNET" = "1" ]; then
                 echo "[ -f /tmp/net.${iface}.did-setup ]" >$hookdir/initqueue/finished/wait-$iface.sh
             fi
