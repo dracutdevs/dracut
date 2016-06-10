@@ -204,9 +204,12 @@ fi
 if [ -e /tmp/bond.${netif}.info ]; then
     . /tmp/bond.${netif}.info
 
-    if [ "$netif" = "$bondname" ] && [ ! -e /tmp/net.$bondname.up ] ; then # We are master bond device
+    if [ "$netif" = "$bondname" ] && [ ! -e /tmp/net.$bondname.setup ] ; then # We are master bond device
         modprobe bonding
-        echo "+$netif" >  /sys/class/net/bonding_masters
+        udevadm settle
+        if ! [ -e /sys/class/net/${netif} ]; then
+            echo "+$netif" >  /sys/class/net/bonding_masters
+        fi
         ip link set $netif down
 
         # Stolen from ifup-eth
@@ -244,12 +247,13 @@ if [ -e /tmp/bond.${netif}.info ]; then
                 echo $value > /sys/class/net/${netif}/bonding/$key
             fi
         done
+        > /tmp/net.$bondname.setup
     fi
 fi
 
 if [ -e /tmp/team.${netif}.info ]; then
     . /tmp/team.${netif}.info
-    if [ "$netif" = "$teammaster" ] && [ ! -e /tmp/net.$teammaster.up ] ; then
+    if [ "$netif" = "$teammaster" ] && [ ! -e /tmp/net.$teammaster.setup ] ; then
         # We shall only bring up those _can_ come up
         # in case of some slave is gone in active-backup mode
         working_slaves=""
@@ -285,6 +289,7 @@ if [ -e /tmp/team.${netif}.info ]; then
             teamdctl $teammaster port add $slave
         done
         ip link set dev $teammaster up
+        > /tmp/net.$teammaster.setup
     fi
 fi
 
@@ -293,7 +298,7 @@ fi
 if [ -e /tmp/bridge.info ]; then
     . /tmp/bridge.info
 # start bridge if necessary
-    if [ "$netif" = "$bridgename" ] && [ ! -e /tmp/net.$bridgename.up ]; then
+    if [ "$netif" = "$bridgename" ] && [ ! -e /tmp/net.$bridgename.setup ]; then
         brctl addbr $bridgename
         brctl setfd $bridgename 0
         for ethname in $bridgeslaves ; do
@@ -308,6 +313,7 @@ if [ -e /tmp/bridge.info ]; then
             fi
             brctl addif $bridgename $ethname
         done
+        > /tmp/net.$bridgename.setup
     fi
 fi
 
