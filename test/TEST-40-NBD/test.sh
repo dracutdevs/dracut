@@ -22,7 +22,8 @@ run_server() {
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net socket,listen=127.0.0.1:12340 \
         -serial $SERIAL \
-        -append "root=/dev/sda rootfstype=ext2 rw quiet console=ttyS0,115200n81 selinux=0" \
+        -no-reboot \
+        -append "panic=1 root=/dev/sda rootfstype=ext2 rw quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.server -pidfile $TESTDIR/server.pid -daemonize || return 1
     sudo chmod 644 $TESTDIR/server.pid || return 1
 
@@ -58,7 +59,8 @@ client_test() {
         -nographic \
         -net nic,macaddr=$mac,model=e1000 \
         -net socket,connect=127.0.0.1:12340 \
-        -append "rd.shell=0 $cmdline $DEBUGFAIL rd.auto rd.info rd.retry=10 ro console=ttyS0,115200n81  selinux=0  " \
+        -no-reboot \
+        -append "panic=1 rd.shell=0 $cmdline $DEBUGFAIL rd.auto rd.info rd.retry=10 ro console=ttyS0,115200n81  selinux=0  " \
         -initrd $TESTDIR/initramfs.testing
 
     if [[ $? -ne 0 ]] || ! grep -F -m 1 -q nbd-OK $TESTDIR/flag.img; then

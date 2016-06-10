@@ -22,7 +22,8 @@ client_run() {
 	-drive format=raw,index=2,media=disk,file=$TESTDIR/result \
 	-m 256M -smp 2 -nographic \
 	-net none \
-	-append "root=LABEL=dracut $client_opts rd.retry=3 console=ttyS0,115200n81 selinux=0 $DEBUGOUT rd.shell=0 $DEBUGFAIL" \
+        -no-reboot \
+	-append "panic=1 root=LABEL=dracut $client_opts rd.retry=3 console=ttyS0,115200n81 selinux=0 $DEBUGOUT rd.shell=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
 
     if (($? != 0)); then

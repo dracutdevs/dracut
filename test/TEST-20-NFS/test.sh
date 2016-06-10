@@ -20,7 +20,8 @@ run_server() {
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -serial ${SERIAL:-null} \
         -watchdog i6300esb -watchdog-action poweroff \
-        -append "rd.debug loglevel=77 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
+        -no-reboot \
+        -append "panic=1 rd.debug loglevel=77 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.server \
         -pidfile $TESTDIR/server.pid -daemonize || return 1
     sudo chmod 644 $TESTDIR/server.pid || return 1
@@ -54,7 +55,8 @@ client_test() {
         -net nic,macaddr=$mac,model=e1000 \
         -net socket,connect=127.0.0.1:12320 \
         -watchdog i6300esb -watchdog-action poweroff \
-        -append "rd.shell=0 $cmdline $DEBUGFAIL rd.debug rd.retry=10 rd.info quiet  ro console=ttyS0,115200n81 selinux=0" \
+        -no-reboot \
+        -append "panic=1 rd.shell=0 $cmdline $DEBUGFAIL rd.debug rd.retry=10 rd.info quiet  ro console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.testing
 
     if [[ $? -ne 0 ]] || ! grep -F -m 1 -q nfs-OK $TESTDIR/client.img; then

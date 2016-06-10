@@ -21,7 +21,8 @@ client_run() {
 	-m 256M -smp 2 -nographic \
 	-net none \
 	-watchdog i6300esb -watchdog-action poweroff \
-	-append "root=LABEL=dracut $client_opts quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug rd.shell=0 $DEBUGFAIL" \
+        -no-reboot \
+	-append "panic=1 root=LABEL=dracut $client_opts quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug rd.shell=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
 
     if (($? != 0)); then

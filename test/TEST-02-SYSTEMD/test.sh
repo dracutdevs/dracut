@@ -10,7 +10,8 @@ test_run() {
 	-drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext3 \
 	-m 256M -smp 2 -nographic \
 	-net none \
-	-append "root=LABEL=dracut rw loglevel=77 systemd.log_level=debug systemd.log_target=console rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug init=/sbin/init rd.shell=0 $DEBUGFAIL" \
+        -no-reboot \
+	-append "panic=1 root=LABEL=dracut rw loglevel=77 systemd.log_level=debug systemd.log_target=console rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug init=/sbin/init rd.shell=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     grep -F -m 1 -q dracut-root-block-success $TESTDIR/root.ext3 || return 1
 }

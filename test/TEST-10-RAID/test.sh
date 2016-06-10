@@ -12,7 +12,8 @@ test_run() {
 	-drive format=raw,index=0,media=disk,file=$DISKIMAGE \
 	-m 256M -smp 2 -nographic \
 	-net none \
-	-append "root=/dev/dracut/root rd.auto rw rd.retry=10 console=ttyS0,115200n81 selinux=0 rd.shell=0 $DEBUGFAIL" \
+        -no-reboot \
+	-append "panic=1 root=/dev/dracut/root rd.auto rw rd.retry=10 console=ttyS0,115200n81 selinux=0 rd.shell=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     grep -F -m 1 -q dracut-root-block-success $DISKIMAGE || return 1
 }

@@ -19,7 +19,8 @@ test_run() {
 	-drive format=raw,index=1,media=disk,file=$TESTDIR/check-success.img \
 	-m 256M -smp 2 -nographic \
 	-net none \
-	-append "root=/dev/dracut/root rw rd.auto rd.retry=20 console=ttyS0,115200n81 selinux=0 rd.debug rootwait $LUKSARGS rd.shell=0 $DEBUGFAIL" \
+        -no-reboot \
+	-append "panic=1 root=/dev/dracut/root rw rd.auto rd.retry=20 console=ttyS0,115200n81 selinux=0 rd.debug rootwait $LUKSARGS rd.shell=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     grep -F -m 1 -q dracut-root-block-success $TESTDIR/check-success.img || return 1
     echo "CLIENT TEST END: [OK]"
@@ -32,7 +33,8 @@ test_run() {
 	-drive format=raw,index=1,media=disk,file=$TESTDIR/check-success.img \
 	-m 256M -smp 2 -nographic \
 	-net none \
-	-append "root=/dev/dracut/root rw quiet rd.auto rd.retry=20 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL" \
+        -no-reboot \
+	-append "panic=1 root=/dev/dracut/root rw quiet rd.auto rd.retry=20 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     grep -F -m 1 -q dracut-root-block-success $TESTDIR/check-success.img || return 1
     echo "CLIENT TEST END: [OK]"
@@ -45,7 +47,8 @@ test_run() {
 	-drive format=raw,index=1,media=disk,file=$TESTDIR/check-success.img \
 	-m 256M -smp 2 -nographic \
 	-net none \
-	-append "root=/dev/dracut/root rw quiet rd.auto rd.retry=10 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL rd.luks.uuid=failme" \
+        -no-reboot \
+	-append "panic=1 root=/dev/dracut/root rw quiet rd.auto rd.retry=10 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL rd.luks.uuid=failme" \
 	-initrd $TESTDIR/initramfs.testing
     grep -F -m 1 -q dracut-root-block-success $TESTDIR/check-success.img && return 1
     echo "CLIENT TEST END: [OK]"
