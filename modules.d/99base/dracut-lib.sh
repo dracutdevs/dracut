@@ -39,6 +39,13 @@ str_ends() {
     [ "${1%*$2}" != "$1" ]
 }
 
+trim() {
+    local var="$*"
+    var="${var#"${var%%[![:space:]]*}"}"   # remove leading whitespace characters
+    var="${var%"${var##*[![:space:]]}"}"   # remove trailing whitespace characters
+    echo -n "$var"
+}
+
 if [ -z "$DRACUT_SYSTEMD" ]; then
 
     warn() {
