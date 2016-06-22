@@ -58,7 +58,7 @@ client_test() {
         -net nic,macaddr=52:54:00:12:34:$mac3,model=e1000 \
         -watchdog i6300esb -watchdog-action poweroff \
         -kernel /boot/vmlinuz-"$KVERSION" \
-        -append "$cmdline $DEBUGFAIL rd.retry=5 ro console=ttyS0,115200n81 selinux=0 init=/sbin/init rd.debug systemd.log_target=console loglevel=7" \
+        -append "$cmdline $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init rd.debug systemd.log_target=console loglevel=7" \
         -initrd "$TESTDIR"/initramfs.testing
 
     { read OK; read IFACES; } < "$TESTDIR"/client.img
@@ -102,6 +102,7 @@ test_client() {
     # ...:00-02 receive IP adresses all others don't
     # ...:02 receives a dhcp root-path
 
+    # Require three interfaces with dhcp root-path
     # PXE Style BOOTIF=
     client_test "MULTINIC root=nfs BOOTIF=" \
         00 01 02 \
@@ -136,6 +137,18 @@ test_client() {
         00 01 02 \
         "root=dhcp ip=ens3:dhcp ip=ens4:dhcp ip=ens5:dhcp bootdev=ens5" \
         "ens3 ens4 ens5" || return 1
+
+    # bonding test
+    client_test "MULTINIC root=dhcp rd.neednet=1 bond=bond0:ens3,ens4 ip=bond0:dhcp ip=ens5:dhcp bootdev=ens5" \
+        00 01 02 \
+        "root=dhcp rd.neednet=1 bond=bond0:ens3,ens4 ip=bond0:dhcp ip=ens5:dhcp bootdev=ens5" \
+        "bond0 ens5" || return 1
+
+    # multiple bonding test
+    client_test "MULTINIC root=dhcp rd.neednet=1 bond=bond0:ens3 bond=bond1:ens4 ip=bond0:dhcp ip=ens5:dhcp bootdev=ens5" \
+        00 01 02 \
+        "root=dhcp rd.neednet=1 bond=bond0:ens3 bond=bond1:ens4 ip=bond0:dhcp ip=bond1:dhcp ip=ens5:dhcp bootdev=ens5" \
+        "bond0 bond1 ens5" || return 1
 
     kill_server
     return 0
