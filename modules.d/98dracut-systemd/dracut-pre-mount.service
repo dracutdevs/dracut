@@ -17,6 +17,8 @@ After=cryptsetup.target
 ConditionPathExists=/usr/lib/initrd-release
 ConditionDirectoryNotEmpty=|/lib/dracut/hooks/pre-mount
 ConditionKernelCommandLine=|rd.break=pre-mount
+Conflicts=shutdown.target emergency.target
+Before=shutdown.target emergency.target
 
 [Service]
 Environment=DRACUT_SYSTEMD=1

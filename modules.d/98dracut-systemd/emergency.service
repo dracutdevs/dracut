@@ -12,6 +12,8 @@ Description=Emergency Shell
 DefaultDependencies=no
 After=systemd-vconsole-setup.service
 Wants=systemd-vconsole-setup.service
+Conflicts=shutdown.target
+Before=shutdown.target
 
 [Service]
 Environment=HOME=/

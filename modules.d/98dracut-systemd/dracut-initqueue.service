@@ -18,6 +18,8 @@ Wants=systemd-udev-trigger.service
 ConditionPathExists=/usr/lib/initrd-release
 ConditionPathExists=|/lib/dracut/need-initqueue
 ConditionKernelCommandLine=|rd.break=initqueue
+Conflicts=shutdown.target emergency.target
+Before=shutdown.target emergency.target
 
 [Service]
 Environment=DRACUT_SYSTEMD=1
