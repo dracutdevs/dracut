@@ -4,7 +4,7 @@
 
 if [ -e /var/run/lldpad.pid ]; then
     lldpad -k
-    mkdir -m 0755 -p /run/initramfs/state/dev/shm
+    mkdir -m 0777 -p /run/initramfs/state/dev/shm
     cp /dev/shm/lldpad.state /run/initramfs/state/dev/shm/ > /dev/null 2>&1
     echo "files /dev/shm/lldpad.state" >> /run/initramfs/rwtab
 fi
