@@ -14,6 +14,7 @@ export _rdshell_name="dracut" action="Boot" hook="emergency"
 _emergency_action=$(getarg rd.emergency)
 
 if getargbool 1 rd.shell -d -y rdshell || getarg rd.break -d rdbreak; then
+    FSTXT="/run/dracut/fsck/fsck_help_$fstype.txt"
     source_hook "$hook"
     echo
     rdsosreport
@@ -25,6 +26,7 @@ if getargbool 1 rd.shell -d -y rdshell || getarg rd.break -d rdbreak; then
     echo 'after mounting them and attach it to a bug report.'
     echo
     echo
+    [ -f "$FSTXT" ] && cat "$FSTXT"
     [ -f /etc/profile ] && . /etc/profile
     [ -z "$PS1" ] && export PS1="$_name:\${PWD}# "
     exec sh -i -l

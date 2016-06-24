@@ -261,6 +261,12 @@ inst_script() {
     (($? != 0)) && derror FAILED: $DRACUT_INSTALL ${initdir:+-D "$initdir"} ${loginstall:+-L "$loginstall"} ${DRACUT_RESOLVE_DEPS:+-l}  ${DRACUT_FIPS_MODE:+-f} "$@" || :
 }
 
+inst_fsck_help() {
+    local _helper="/run/dracut/fsck/fsck_help_$1.txt"
+    $DRACUT_INSTALL ${initdir:+-D "$initdir"} ${loginstall:+-L "$loginstall"} ${DRACUT_RESOLVE_DEPS:+-l} ${DRACUT_FIPS_MODE:+-f} "$2" $_helper
+    (($? != 0)) && derror $DRACUT_INSTALL ${initdir:+-D "$initdir"} ${loginstall:+-L "$loginstall"} ${DRACUT_RESOLVE_DEPS:+-l}  ${DRACUT_FIPS_MODE:+-f} "$2" $_helper || :
+}
+
 mark_hostonly() {
     for i in "$@"; do
         echo "$i" >> "$initdir/lib/dracut/hostonly-files"
