@@ -1,0 +1,14 @@
+dracut rootfs overlayfs module
+
+Make any rootfs ro, but writable via overlayfs.
+This is convenient, if for example using an ro-nfs-mount.
+
+Add the parameter "rd.root.overlay" to the kernel to activate this feature.
+
+This happens pre-pivot. Therefore the final root file system is already
+mounted. It will be set ro, and turned into an overlayfs mount with an
+underlying tmpfs.
+
+The original root and the tmpfs will be mounted at /live/image and
+/live/sysroot-overlay in the final rootfs.
+
