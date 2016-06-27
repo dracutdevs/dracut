@@ -20,6 +20,8 @@ ConditionDirectoryNotEmpty=|/lib/dracut/hooks/cmdline
 ConditionKernelCommandLine=|rd.break=cmdline
 ConditionKernelCommandLine=|resume
 ConditionKernelCommandLine=|noresume
+Conflicts=shutdown.target emergency.target
+Before=shutdown.target emergency.target
 
 [Service]
 Environment=DRACUT_SYSTEMD=1

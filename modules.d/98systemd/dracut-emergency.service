@@ -14,6 +14,8 @@ After=systemd-vconsole-setup.service
 Wants=systemd-vconsole-setup.service
 Conflicts=emergency.service emergency.target
 ConditionPathExists=!/lib/dracut/no-emergency-shell
+Conflicts=shutdown.target emergency.target
+Before=shutdown.target emergency.target
 
 [Service]
 Environment=HOME=/

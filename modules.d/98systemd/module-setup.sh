@@ -137,6 +137,7 @@ install() {
         \
         $systemdsystemunitdir/slices.target \
         $systemdsystemunitdir/system.slice \
+        $systemdsystemunitdir/-.slice \
         \
         $tmpfilesdir/systemd.conf \
         \

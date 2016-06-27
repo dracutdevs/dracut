@@ -16,6 +16,8 @@ Before=initrd-cleanup.service
 Wants=remote-fs.target
 After=remote-fs.target
 ConditionPathExists=/etc/initrd-release
+Conflicts=shutdown.target emergency.target
+Before=shutdown.target emergency.target
 
 [Service]
 Environment=DRACUT_SYSTEMD=1

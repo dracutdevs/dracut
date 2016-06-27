@@ -13,6 +13,8 @@ DefaultDependencies=no
 After=systemd-vconsole-setup.service
 Wants=systemd-vconsole-setup.service
 ConditionPathExists=!/lib/dracut/no-emergency-shell
+Conflicts=shutdown.target
+Before=shutdown.target
 
 [Service]
 Environment=HOME=/
