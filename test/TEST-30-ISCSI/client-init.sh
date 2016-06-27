@@ -1,7 +1,7 @@
 #!/bin/sh
 getcmdline() {
     while read -r _line || [ -n "$_line" ]; do
-        printf "%s" "$line"
+        printf "%s" "$_line"
     done </proc/cmdline;
 }
 

@@ -2,7 +2,7 @@
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 getcmdline() {
     while read -r _line || [ -n "$_line" ]; do
-        printf "%s" "$line"
+        printf "%s" "$_line"
     done </proc/cmdline;
 }
 
