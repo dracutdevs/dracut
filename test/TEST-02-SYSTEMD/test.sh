@@ -4,19 +4,23 @@ TEST_DESCRIPTION="root filesystem on a ext3 filesystem"
 KVERSION="${KVERSION-$(uname -r)}"
 
 # Uncomment this to debug failures
-#DEBUGFAIL="rd.shell"
+#DEBUGFAIL="rd.shell loglevel=77 systemd.log_level=debug systemd.log_target=console"
+#DEBUGFAIL="rd.shell rd.break=initqueue"
 test_run() {
+    dd if=/dev/zero of=$TESTDIR/marker.disk bs=1M count=80
     $testdir/run-qemu \
 	-hda $TESTDIR/root.ext3 \
+	-hdb $TESTDIR/marker.disk \
 	-m 256M -smp 2 -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "root=LABEL=dracut rw loglevel=77 systemd.log_level=debug systemd.log_target=console rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug init=/sbin/init $DEBUGFAIL" \
+	-append "root=LABEL=dracut rw loglevel=77 rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 init=/sbin/init $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
-    grep -F -m 1 -q dracut-root-block-success $TESTDIR/root.ext3 || return 1
+    grep -F -m 1 -q dracut-root-block-success $TESTDIR/marker.disk || return 1
 }
 
 test_setup() {
     rm -f -- $TESTDIR/root.ext3
+    rm -f -- $TESTDIR/marker.disk
     # Create the blank file to use as a root filesystem
     dd if=/dev/null of=$TESTDIR/root.ext3 bs=1M seek=80
 
