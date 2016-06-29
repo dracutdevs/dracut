@@ -144,6 +144,7 @@ for netup in /tmp/net.*.did-setup ; do
 
     [ -e /tmp/bond.${netif}.info ] && . /tmp/bond.${netif}.info
     [ -e /tmp/team.${netif}.info ] && . /tmp/team.${netif}.info
+    [ -e /tmp/net.${netif}.override ] && . /tmp/net.${netif}.override
 
     uuid=$(cat /proc/sys/kernel/random/uuid)
     if [ "$netif" = "$bridgename" ]; then
@@ -178,8 +179,6 @@ for netup in /tmp/net.*.did-setup ; do
             fi
             cp /tmp/dhclient.$netif.lease /tmp/ifcfg-leases/dhclient-$uuid-$netif.lease
         else
-            # If we've booted with static ip= lines, the override file is there
-            [ -e /tmp/net.$netif.override ] && . /tmp/net.$netif.override
             if strstr "$ip" '*:*:*'; then
                 echo "IPV6INIT=yes"
                 echo "IPV6_AUTOCONF=no"
@@ -245,7 +244,7 @@ for netup in /tmp/net.*.did-setup ; do
                 echo "MASTER=\"$netif\""
                 echo "UUID=\"$(cat /proc/sys/kernel/random/uuid)\""
                 unset macaddr
-                [ -e /tmp/net.$slave.override ] && . /tmp/net.$slave.override
+                [ -e /tmp/net.${slave}.override ] && . /tmp/net.${slave}.override
                 interface_bind "$slave" "$macaddr"
             ) >> /tmp/ifcfg/ifcfg-$slave
         done
@@ -268,7 +267,7 @@ for netup in /tmp/net.*.did-setup ; do
                 echo "BRIDGE=\"$bridgename\""
                 echo "UUID=\"$(cat /proc/sys/kernel/random/uuid)\""
                 unset macaddr
-                [ -e /tmp/net.$slave.override ] && . /tmp/net.$slave.override
+                [ -e /tmp/net.${slave}.override ] && . /tmp/net.${slave}.override
                 interface_bind "$slave" "$macaddr"
             ) >> /tmp/ifcfg/ifcfg-$slave
         done

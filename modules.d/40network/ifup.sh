@@ -110,6 +110,9 @@ do_dhcp() {
         return 1
     fi
 
+    [ -n "$macaddr" ] && ip link set address $macaddr dev $netif
+    [ -n "$mtu" ] && ip link set mtu $mtu dev $netif
+
     while [ $_COUNT -lt $_DHCPRETRY ]; do
         info "Starting dhcp for interface $netif"
         dhclient "$@" \
@@ -144,6 +147,8 @@ do_ipv6auto() {
     echo 1 > /proc/sys/net/ipv6/conf/$netif/accept_ra
     echo 1 > /proc/sys/net/ipv6/conf/$netif/accept_redirects
     linkup $netif
+    [ -n "$macaddr" ] && ip link set address $macaddr dev $netif
+    [ -n "$mtu" ] && ip link set mtu $mtu dev $netif
     wait_for_ipv6_auto $netif
 
     [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
@@ -388,7 +393,7 @@ for p in $(getargs ip=); do
     done
 
     # Store config for later use
-    for i in ip srv gw mask hostname macaddr dns1 dns2; do
+    for i in ip srv gw mask hostname macaddr dns1 dns2 mtu; do
         eval '[ "$'$i'" ] && echo '$i'="$'$i'"'
     done > /tmp/net.$netif.override
 
