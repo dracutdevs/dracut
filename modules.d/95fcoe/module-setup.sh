@@ -2,12 +2,13 @@
 
 # called by dracut
 check() {
+    local _fcoe_ctlr
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for c in /sys/bus/fcoe/devices/ctlr_* ; do
             [ -L $c ] || continue
-            fcoe_ctlr=$c
+            _fcoe_ctlr=$c
         done
-        [ -z "$fcoe_ctlr" ] && return 255
+        [ -z "$_fcoe_ctlr" ] && return 255
     }
 
     require_binaries dcbtool fipvlan lldpad ip readlink fcoemon fcoeadm || return 1

@@ -2,6 +2,14 @@
 
 # called by dracut
 check() {
+    local _fcoe_ctlr
+    [[ $hostonly ]] || [[ $mount_needs ]] && {
+        for c in /sys/bus/fcoe/devices/ctlr_* ; do
+            [ -L $c ] || continue
+            _fcoe_ctlr=$c
+        done
+        [ -z "$_fcoe_ctlr" ] && return 255
+    }
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         [ -d /sys/firmware/efi ] || return 255
     }
