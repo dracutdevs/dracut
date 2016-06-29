@@ -813,23 +813,24 @@ fi
 [[ $hostonly != "-h" ]] && unset hostonly
 
 readonly TMPDIR="$tmpdir"
-readonly initdir="$(mktemp --tmpdir="$TMPDIR/" -d -t initramfs.XXXXXX)"
-[ -d "$initdir" ] || {
-    printf "%s\n" "dracut: mktemp --tmpdir=\"$TMPDIR/\" -d -t initramfs.XXXXXX failed." >&2
+readonly DRACUT_TMPDIR="$(mktemp -p "$TMPDIR/" -d -t dracut.XXXXXX)"
+[ -d "$DRACUT_TMPDIR" ] || {
+    printf "%s\n" "dracut: mktemp -p '$TMPDIR/' -d -t dracut.XXXXXX failed." >&2
     exit 1
 }
 
 # clean up after ourselves no matter how we die.
 trap '
     ret=$?;
-    [[ $keep ]] && echo "Not removing $initdir." >&2 || { [[ $initdir ]] && rm -rf -- "$initdir"; };
-    [[ $keep ]] && echo "Not removing $early_cpio_dir." >&2 || { [[ $early_cpio_dir ]] && rm -Rf -- "$early_cpio_dir"; };
-    [[ $_dlogdir ]] && rm -Rf -- "$_dlogdir";
+    [[ $keep ]] && echo "Not removing $DRACUT_TMPDIR." >&2 || { [[ $DRACUT_TMPDIR ]] && rm -rf -- "$DRACUT_TMPDIR"; };
     exit $ret;
     ' EXIT
 
 # clean up after ourselves no matter how we die.
 trap 'exit 1;' SIGINT
+
+readonly initdir="${DRACUT_TMPDIR}/initramfs"
+mkdir "$initdir"
 
 export DRACUT_KERNEL_LAZY="1"
 export DRACUT_RESOLVE_LAZY="1"
@@ -878,19 +879,17 @@ case "$(arch)" in
     i686|x86_64)
         ;;
     *)
-        early_microcode=no
-        dinfo "Disabling early microcode for $(arch)"
+        if [[ $early_microcode = yes ]]; then
+            early_microcode=no
+            dinfo "Disabling early microcode for $(arch)"
+        fi
         ;;
 esac
 
 if [[ $early_microcode = yes ]] || ( [[ $acpi_override = yes ]] && [[ -d $acpi_table_dir ]] ); then
-    readonly early_cpio_dir="$(mktemp --tmpdir="$TMPDIR/" -d -t early_cpio.XXXXXX)"
-    [ -d "$early_cpio_dir" ] || {
-        printf "%s\n" "dracut: mktemp --tmpdir=\"$TMPDIR/\" -d -t early_cpio.XXXXXX failed." >&2
-        exit 1
-    }
+    readonly early_cpio_dir="${DRACUT_TMPDIR}/earlycpio"
+    mkdir "$early_cpio_dir"
 fi
-
 
 if (( ${#drivers_l[@]} )); then
     drivers=''
@@ -1485,7 +1484,7 @@ if [[ $do_strip = yes ]] && ! [[ $DRACUT_FIPS_MODE ]]; then
 fi
 
 if [[ $early_microcode = yes ]]; then
-    dinfo "*** Generating early-microcode cpio image ***"
+    dinfo "*** Generating early-microcode cpio image contents ***"
     ucode_dir=(amd-ucode intel-ucode)
     ucode_dest=(AuthenticAMD.bin GenuineIntel.bin)
     _dest_dir="$early_cpio_dir/d/kernel/x86/microcode"
@@ -1521,6 +1520,9 @@ if [[ $early_microcode = yes ]]; then
             fi
         done
     done
+    if ! [[ $create_early_cpio = yes ]]; then
+        dinfo "*** No early-microcode cpio image needed ***"
+    fi
 fi
 
 if [[ $acpi_override = yes ]] && [[ -d $acpi_table_dir ]]; then
@@ -1546,23 +1548,47 @@ dinfo "*** Creating image file ***"
 [[ "$UID" != 0 ]] && cpio_owner_root="-R 0:0"
 
 if [[ $create_early_cpio = yes ]]; then
+    dinfo "*** Creating microcode section ***"
     echo 1 > "$early_cpio_dir/d/early_cpio"
     # The microcode blob is _before_ the initramfs blob, not after
-    (cd "$early_cpio_dir/d";     find . -print0 | cpio --null $cpio_owner_root -H newc -o --quiet > $outfile)
+    if ! (
+            umask 077
+            cd "$early_cpio_dir/d"
+            find . -print0 | cpio --null $cpio_owner_root -H newc -o --quiet > "${DRACUT_TMPDIR}/initramfs.img"
+        ); then
+        dfatal "dracut: creation of $outfile failed"
+        exit 1
+    else
+        dinfo "*** Created microcode section ***"
+    fi
 fi
-if ! ( umask 077; cd "$initdir"; find . -print0 | cpio --null $cpio_owner_root -H newc -o --quiet | \
-    $compress >> "$outfile"; ); then
+
+if ! (
+        umask 077
+        cd "$initdir"
+        find . -print0 | cpio --null $cpio_owner_root -H newc -o --quiet | \
+            $compress >> "${DRACUT_TMPDIR}/initramfs.img";
+    ); then
     dfatal "dracut: creation of $outfile failed"
     exit 1
 fi
+
 dinfo "*** Creating image file done ***"
 
 if (( maxloglvl >= 5 )); then
     if [[ $allowlocal ]]; then
-	"$dracutbasedir/lsinitrd.sh" "$outfile"| ddebug
+	"$dracutbasedir/lsinitrd.sh" "${DRACUT_TMPDIR}/initramfs.img" | ddebug
     else
-        lsinitrd "$outfile"| ddebug
+        lsinitrd "${DRACUT_TMPDIR}/initramfs.img" | ddebug
     fi
+fi
+
+if cp --reflink=auto "${DRACUT_TMPDIR}/initramfs.img" "$outfile" |& derror ; then
+    dinfo "*** Creating initramfs image file '$outfile' done ***"
+else
+    rm -f -- "$outfile"
+    dfatal "dracut: creation of $outfile failed"
+    exit 1
 fi
 
 exit 0
