@@ -624,16 +624,12 @@ wait_for_ipv6_dad() {
 
 wait_for_ipv6_auto() {
     local cnt=0
-    local li
     local timeout="$(getargs rd.net.timeout.ipv6auto=)"
     timeout=${timeout:-40}
     timeout=$(($timeout*10))
 
     while [ $cnt -lt $timeout ]; do
-        li=$(ip -6 addr show dev $1)
-        if ! strstr "$li" "tentative"; then
-            strstr "$li" "dynamic" && return 0
-        fi
+        [ -z "$(ip -6 addr show dev $1 scope global tentative)" ] && return 0
         sleep 0.1
         cnt=$(($cnt+1))
     done
