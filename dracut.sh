@@ -819,13 +819,6 @@ readonly initdir="$(mktemp --tmpdir="$TMPDIR/" -d -t initramfs.XXXXXX)"
     exit 1
 }
 
-if [[ $early_microcode = yes ]] || ( [[ $acpi_override = yes ]] && [[ -d $acpi_table_dir ]] ); then
-    readonly early_cpio_dir="$(mktemp --tmpdir="$TMPDIR/" -d -t early_cpio.XXXXXX)"
-    [ -d "$early_cpio_dir" ] || {
-        printf "%s\n" "dracut: mktemp --tmpdir=\"$TMPDIR/\" -d -t early_cpio.XXXXXX failed." >&2
-        exit 1
-    }
-fi
 # clean up after ourselves no matter how we die.
 trap '
     ret=$?;
@@ -878,6 +871,26 @@ fi
 
 dracutfunctions=$dracutbasedir/dracut-functions.sh
 export dracutfunctions
+
+
+
+case "$(arch)" in
+    i686|x86_64)
+        ;;
+    *)
+        early_microcode=no
+        dinfo "Disabling early microcode for $(arch)"
+        ;;
+esac
+
+if [[ $early_microcode = yes ]] || ( [[ $acpi_override = yes ]] && [[ -d $acpi_table_dir ]] ); then
+    readonly early_cpio_dir="$(mktemp --tmpdir="$TMPDIR/" -d -t early_cpio.XXXXXX)"
+    [ -d "$early_cpio_dir" ] || {
+        printf "%s\n" "dracut: mktemp --tmpdir=\"$TMPDIR/\" -d -t early_cpio.XXXXXX failed." >&2
+        exit 1
+    }
+fi
+
 
 if (( ${#drivers_l[@]} )); then
     drivers=''
@@ -1470,6 +1483,7 @@ if [[ $do_strip = yes ]] && ! [[ $DRACUT_FIPS_MODE ]]; then
 
     dinfo "*** Stripping files done ***"
 fi
+
 if [[ $early_microcode = yes ]]; then
     dinfo "*** Generating early-microcode cpio image ***"
     ucode_dir=(amd-ucode intel-ucode)
