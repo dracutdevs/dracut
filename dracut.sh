@@ -823,13 +823,7 @@ readonly DRACUT_TMPDIR="$(mktemp -p "$TMPDIR/" -d -t dracut.XXXXXX)"
     printf "%s\n" "dracut: mktemp -p '$TMPDIR/' -d -t dracut.XXXXXX failed." >&2
     exit 1
 }
-readonly initdir="${DRACUT_TMPDIR}/initramfs"
-mkdir "$initdir"
 
-if [[ $early_microcode = yes ]] || ( [[ $acpi_override = yes ]] && [[ -d $acpi_table_dir ]] ); then
-    readonly early_cpio_dir="${DRACUT_TMPDIR}/earlycpio"
-    mkdir "$early_cpio_dir"
-fi
 # clean up after ourselves no matter how we die.
 trap '
     ret=$?;
@@ -839,6 +833,14 @@ trap '
 
 # clean up after ourselves no matter how we die.
 trap 'exit 1;' SIGINT
+
+readonly initdir="${DRACUT_TMPDIR}/initramfs"
+mkdir "$initdir"
+
+if [[ $early_microcode = yes ]] || ( [[ $acpi_override = yes ]] && [[ -d $acpi_table_dir ]] ); then
+    readonly early_cpio_dir="${DRACUT_TMPDIR}/earlycpio"
+    mkdir "$early_cpio_dir"
+fi
 
 export DRACUT_RESOLVE_LAZY="1"
 
