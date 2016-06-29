@@ -350,16 +350,15 @@ fi
 ip=$(getarg ip)
 
 if [ -z "$ip" ]; then
-    for s in $(getargs nameserver); do
-        [ -n "$s" ] || continue
-        echo nameserver $s >> /tmp/net.$netif.resolv.conf
-    done
-
     if [ "$netroot" = "dhcp6" ]; then
         do_dhcp -6
     else
         do_dhcp -4
     fi
+    for s in $(getargs nameserver); do
+        [ -n "$s" ] || continue
+        echo nameserver $s >> /tmp/net.$netif.resolv.conf
+    done
 fi
 
 
@@ -386,17 +385,6 @@ for p in $(getargs ip=); do
     [ "$use_bridge" != 'true' ] && \
     [ "$use_vlan" != 'true' ] && continue
 
-    # setup nameserver
-    for s in "$dns1" "$dns2" $(getargs nameserver); do
-        [ -n "$s" ] || continue
-        echo nameserver $s >> /tmp/net.$netif.resolv.conf
-    done
-
-    # Store config for later use
-    for i in ip srv gw mask hostname macaddr dns1 dns2 mtu; do
-        eval '[ "$'$i'" ] && echo '$i'="$'$i'"'
-    done > /tmp/net.$netif.override
-
     for autoopt in $(str_replace "$autoconf" "," " "); do
         case $autoopt in
             dhcp|on|any)
@@ -411,6 +399,17 @@ for p in $(getargs ip=); do
         esac
     done
     ret=$?
+
+    # setup nameserver
+    for s in "$dns1" "$dns2" $(getargs nameserver); do
+        [ -n "$s" ] || continue
+        echo nameserver $s >> /tmp/net.$netif.resolv.conf
+    done
+
+    # Store config for later use
+    for i in ip srv gw mask hostname macaddr dns1 dns2 mtu; do
+        eval '[ "$'$i'" ] && echo '$i'="$'$i'"'
+    done > /tmp/net.$netif.override
 
     if [ $ret -eq 0 ]; then
         > /tmp/net.${netif}.up
