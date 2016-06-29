@@ -447,60 +447,84 @@ ip_to_var() {
     done
 
     unset ip srv gw mask hostname dev autoconf macaddr mtu dns1 dns2
-    case $# in
-        0)  autoconf="error" ;;
-        1)  autoconf=$1 ;;
-        2)  [ -n "$1" ] && dev=$1; [ -n "$2" ] && autoconf=$2 ;;
-        3)  [ -n "$1" ] && dev=$1; [ -n "$2" ] && autoconf=$2; [ -n "$3" ] && mtu=$3 ;;
-        4)  [ -n "$1" ] && dev=$1; [ -n "$2" ] && autoconf=$2; [ -n "$3" ] && mtu=$3; [ -n "$4" ] && macaddr=$4 ;;
-        *)  [ -n "$1" ] && ip=$1; [ -n "$2" ] && srv=$2; [ -n "$3" ] && gw=$3; [ -n "$4" ] && mask=$4;
-            [ -n "$5" ] && hostname=$5; [ -n "$6" ] && dev=$6; [ -n "$7" ] && autoconf=$7;
-            case "$8" in
-                [0-9]*:*|[0-9]*.[0-9]*.[0-9]*.[0-9]*)
-                    dns1="$8"
-                    [ -n "$9" ] && dns2="$9"
-                    ;;
-                [0-9]*)
-                    mtu="$8"
-                    if [ -n "${9}" -a -n "${10}" -a -n "${11}" -a -n "${12}" -a -n "${13}" -a -n "${14}" ]; then
-                        macaddr="${9}:${10}:${11}:${12}:${13}:${14}"
-                    fi
-                    ;;
-                *)
-                    if [ -n "${9}" -a -n "${10}" -a -n "${11}" -a -n "${12}" -a -n "${13}" -a -n "${14}" ]; then
-                        macaddr="${9}:${10}:${11}:${12}:${13}:${14}"
-                    fi
-                    ;;
-            esac
-            ;;
-    esac
-    # Extract prefix length from CIDR notation
-    case $ip in
-        */*)
-            mask=${ip##*/}
-            ip=${ip%/*}
-            ;;
-    esac
 
-    # ip=<ipv4-address> means anaconda-style static config argument cluster:
-    # ip=<ip> gateway=<gw> netmask=<nm> hostname=<host> mtu=<mtu>
-    # ksdevice={link|bootif|ibft|<MAC>|<ifname>}
-    if strglob "$autoconf" "*.*.*.*"; then
-        ip="$autoconf"
-        gw=$(getarg gateway=)
-        mask=$(getarg netmask=)
-        hostname=$(getarg hostname=)
-        dev=$(getarg ksdevice=)
-        autoconf="none"
-        mtu=$(getarg mtu=)
-
-        # handle special values for ksdevice
-        case "$dev" in
-            bootif|BOOTIF) dev=$(fix_bootif $(getarg BOOTIF=)) ;;
-            link) dev="" ;; # FIXME: do something useful with this
-            ibft) dev="" ;; # ignore - ibft is handled elsewhere
-        esac
+    if [ $# -eq 0 ]; then
+        autoconf="error"
+        return 0
     fi
+
+    if [ $# -eq 1 ]; then
+        # format: ip={dhcp|on|any|dhcp6|auto6}
+        # or
+        #         ip=<ipv4-address> means anaconda-style static config argument cluster
+        autoconf="$1"
+
+        if strstr "$autoconf" "*.*.*.*"; then
+            # ip=<ipv4-address> means anaconda-style static config argument cluster:
+            # ip=<ip> gateway=<gw> netmask=<nm> hostname=<host> mtu=<mtu>
+            # ksdevice={link|bootif|ibft|<MAC>|<ifname>}
+            ip="$autoconf"
+            gw=$(getarg gateway=)
+            mask=$(getarg netmask=)
+            hostname=$(getarg hostname=)
+            dev=$(getarg ksdevice=)
+            autoconf="none"
+            mtu=$(getarg mtu=)
+
+            # handle special values for ksdevice
+            case "$dev" in
+                bootif|BOOTIF) dev=$(fix_bootif $(getarg BOOTIF=)) ;;
+                link) dev="" ;; # FIXME: do something useful with this
+                ibft) dev="" ;; # ignore - ibft is handled elsewhere
+            esac
+        fi
+        return 0
+    fi
+
+    if [ "$2" = "dhcp" -o "$2" = "on" -o "$2" = "any" -o "$2" = "dhcp6" -o "$2" = "auto6" ]; then
+        # format: ip=<interface>:{dhcp|on|any|dhcp6|auto6}[:[<mtu>][:<macaddr>]]
+        [ -n "$1" ] && dev="$1"
+        [ -n "$2" ] && autoconf="$2"
+        [ -n "$3" ] && mtu=$3
+        if [ -z "$5" ]; then
+            macaddr="$4"
+        else
+            macaddr="${4}:${5}:${6}:${7}:${8}:${9}"
+        fi
+        return 0
+    fi
+
+    # format: ip=<client-IP>:[<peer>]:<gateway-IP>:<netmask>:<client_hostname>:<interface>:{none|off|dhcp|on|any|dhcp6|auto6|ibft}:[:[<mtu>][:<macaddr>]]
+
+    [ -n "$1" ] && ip=$1
+    [ -n "$2" ] && srv=$2
+    [ -n "$3" ] && gw=$3
+    [ -n "$4" ] && mask=$4
+    [ -n "$5" ] && hostname=$5
+    [ -n "$6" ] && dev=$6
+    [ -n "$7" ] && autoconf=$7
+    case "$8" in
+        [0-9]*:*|[0-9]*.[0-9]*.[0-9]*.[0-9]*)
+            dns1="$8"
+            [ -n "$9" ] && dns2="$9"
+            ;;
+        [0-9]*)
+            mtu="$8"
+            if [ -n "${9}" -a -z "${10}" ]; then
+                macaddr="${9}"
+            elif [ -n "${9}" -a -n "${10}" -a -n "${11}" -a -n "${12}" -a -n "${13}" -a -n "${14}" ]; then
+                macaddr="${9}:${10}:${11}:${12}:${13}:${14}"
+            fi
+            ;;
+        *)
+            if [ -n "${9}" -a -z "${10}" ]; then
+                macaddr="${9}"
+            elif [ -n "${9}" -a -n "${10}" -a -n "${11}" -a -n "${12}" -a -n "${13}" -a -n "${14}" ]; then
+                macaddr="${9}:${10}:${11}:${12}:${13}:${14}"
+            fi
+	    ;;
+    esac
+    return 0
 }
 
 route_to_var() {
