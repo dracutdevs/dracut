@@ -523,8 +523,13 @@ parse_ifname_opts() {
             # udev requires MAC addresses to be lower case
             ifname_mac=$(echo $2:$3:$4:$5:$6:$7 | sed 'y/ABCDEF/abcdef/')
             ;;
+        21)
+            # infiniband MAC addrs are 20 bytes long not 6
+            ifname_if=$1
+            ifname_mac=$(echo $2:$3:$4:$5:$6:$7:$8:$9:$10:$11:$12:13:$14:$15$16:$17:$18:$19:$20:$21 | sed 'y/ABCDEF/abcdef/')
+            ;;
         *)
-            die "Invalid arguments for ifname="
+            die "Invalid arguments for ifname=$1"
             ;;
     esac
 
@@ -533,7 +538,7 @@ parse_ifname_opts() {
             warn "ifname=$ifname_if uses the kernel name space for interfaces"
             warn "This can fail for multiple network interfaces and is discouraged!"
             warn "Please use a custom name like \"netboot\" or \"bluesocket\""
-            warn "or use biosdevname and no ifname= at all."
+            warn "or use the persistent interface names from udev or biosdevname and no ifname= at all."
             ;;
     esac
 
