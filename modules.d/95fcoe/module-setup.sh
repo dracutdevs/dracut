@@ -3,6 +3,15 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 check() {
+    local _fcoe_ctlr
+    [[ $hostonly ]] || [[ $mount_needs ]] && {
+        for c in /sys/bus/fcoe/devices/ctlr_* ; do
+            [ -L $c ] || continue
+            _fcoe_ctlr=$c
+        done
+        [ -z "$_fcoe_ctlr" ] && return 255
+    }
+
     require_binaries dcbtool fipvlan lldpad ip readlink fcoemon fcoeadm || return 1
     return 0
 }
