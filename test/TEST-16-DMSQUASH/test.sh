@@ -69,7 +69,7 @@ test_setup() {
 	find_binary plymouth >/dev/null && inst_multiple plymouth
 	(cd "$initdir"; mkdir -p -- dev sys proc etc var/run tmp )
 	cp -a -- /etc/ld.so.conf* "$initdir"/etc
-	sudo ldconfig -r -- "$initdir"
+	sudo ldconfig -r "$initdir"
     )
     python create.py -d -c livecd-fedora-minimal.ks
     return 0

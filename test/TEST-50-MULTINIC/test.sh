@@ -222,7 +222,7 @@ test_setup() {
         inst /etc/group /etc/group
 
         cp -a -- /etc/ld.so.conf* "$initdir"/etc
-        sudo ldconfig -r -- "$initdir"
+        sudo ldconfig -r "$initdir"
         dracut_kernel_post
     )
 
