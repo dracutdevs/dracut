@@ -7,6 +7,7 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 generator_wait_for_dev()
 {
     local _name
+    local _timeout
 
     _name="$(str_replace "$1" '/' '\x2f')"
 
@@ -26,10 +27,11 @@ generator_wait_for_dev()
     fi
 
     if ! [ -f /run/systemd/generator/${_name}.device.d/timeout.conf ]; then
+        _timeout=$(getarg rd.device.timeout || printf "0")
         mkdir -p /run/systemd/generator/${_name}.device.d
         {
             echo "[Unit]"
-            echo "JobTimeoutSec=0"
+            echo "JobTimeoutSec=$_timeout"
         } > /run/systemd/generator/${_name}.device.d/timeout.conf
     fi
 }
