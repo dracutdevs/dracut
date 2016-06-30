@@ -47,6 +47,11 @@ fsck_able() {
             _drv="_drv=e2fsck fsck_drv_com" &&
             return 0
             ;;
+        f2fs)
+	    type fsck.f2fs >/dev/null 2>&1 &&
+	    _drv="_drv=fsck.f2fs fsck_drv_com" &&
+	    return 0
+	    ;;
         jfs)
             type jfs_fsck >/dev/null 2>&1 &&
             _drv="_drv=jfs_fsck fsck_drv_com" &&
