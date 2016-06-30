@@ -112,6 +112,7 @@ do_dhcp() {
 
     [ -n "$macaddr" ] && ip link set address $macaddr dev $netif
     [ -n "$mtu" ] && ip link set mtu $mtu dev $netif
+    ip -4 addr flush dev $netif
 
     while [ $_COUNT -lt $_DHCPRETRY ]; do
         info "Starting dhcp for interface $netif"
@@ -188,7 +189,7 @@ do_static() {
             warn "Duplicate address detected for $ip for interface $netif."
             return 1
         fi
-        ip addr flush dev $netif
+        ip -4 addr flush dev $netif
         ip addr add $ip/$mask ${srv:+peer $srv} brd + dev $netif
     fi
 
