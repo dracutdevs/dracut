@@ -37,5 +37,10 @@ installkernel() {
 
 install() {
     inst_hook cmdline 95 "$moddir/parse-virtfs.sh"
-    inst_hook mount 99 "$moddir/mount-virtfs.sh"
+
+    if ! dracut_module_included "systemd"; then
+        inst_hook mount 99 "$moddir/mount-virtfs.sh"
+    else
+        inst_script "$moddir/virtfs-generator.sh" $systemdutildir/system-generators/dracut-virtfs-generator
+    fi
 }
