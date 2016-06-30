@@ -36,19 +36,19 @@ test_run() {
     echo "MD_UUID=$MD_UUID"
     read LUKS_UUID < $TESTDIR/luksuuid
 
-    client_run failme && return 1
-    client_run rd.auto || return 1
+    client_run rd.device.timeout=60 failme && return 1
+    client_run rd.device.timeout=60 rd.auto || return 1
 
 
-    client_run rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.md.conf=0 rd.lvm.vg=dracut || return 1
+    client_run rd.device.timeout=60 rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.md.conf=0 rd.lvm.vg=dracut || return 1
 
-    client_run rd.luks.uuid=$LUKS_UUID rd.md.uuid=failme rd.md.conf=0 rd.lvm.vg=dracut failme && return 1
+    client_run rd.device.timeout=60 rd.luks.uuid=$LUKS_UUID rd.md.uuid=failme rd.md.conf=0 rd.lvm.vg=dracut failme && return 1
 
-    client_run rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.lvm=0 failme && return 1
-    client_run rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.lvm=0 rd.auto=1 failme && return 1
-    client_run rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.lvm.vg=failme failme && return 1
+    client_run rd.device.timeout=60 rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.lvm=0 failme && return 1
+    client_run rd.device.timeout=60 rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.lvm=0 rd.auto=1 failme && return 1
+    client_run rd.device.timeout=60 rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.lvm.vg=failme failme && return 1
     client_run rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.lvm.vg=dracut || return 1
-    client_run rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.lvm.lv=dracut/failme failme && return 1
+    client_run rd.device.timeout=60 rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.lvm.lv=dracut/failme failme && return 1
     client_run rd.luks.uuid=$LUKS_UUID rd.md.uuid=$MD_UUID rd.lvm.lv=dracut/root || return 1
 
     return 0
