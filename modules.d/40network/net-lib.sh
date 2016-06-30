@@ -646,16 +646,34 @@ wait_for_route_ok() {
     return 1
 }
 
-wait_for_ipv6_dad() {
+wait_for_ipv6_dad_link() {
     local cnt=0
-    local li
     local timeout="$(getargs rd.net.timeout.ipv6dad=)"
     timeout=${timeout:-50}
     timeout=$(($timeout*10))
 
     while [ $cnt -lt $timeout ]; do
-        li=$(ip -6 addr show dev $1 scope link)
-        strstr "$li" "tentative" || return 0
+        [ -z "$(ip -6 addr show dev "$1" scope link tentative)" ] \
+            && return 0
+        [ -n "$(ip -6 addr show dev "$1" scope link dadfailed)" ] \
+            && return 1
+        sleep 0.1
+        cnt=$(($cnt+1))
+    done
+    return 1
+}
+
+wait_for_ipv6_dad() {
+    local cnt=0
+    local timeout="$(getargs rd.net.timeout.ipv6dad=)"
+    timeout=${timeout:-50}
+    timeout=$(($timeout*10))
+
+    while [ $cnt -lt $timeout ]; do
+        [ -z "$(ip -6 addr show dev "$1" tentative)" ] \
+            && return 0
+        [ -n "$(ip -6 addr show dev "$1" dadfailed)" ] \
+            && return 1
         sleep 0.1
         cnt=$(($cnt+1))
     done
