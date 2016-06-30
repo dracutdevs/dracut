@@ -214,7 +214,8 @@ while :; do
 
     main_loop=$(($main_loop+1))
     [ $main_loop -gt $RDRETRY ] \
-        && { flock -s 9 ; action_on_fail "Could not boot." && break; } 9>/.console_lock
+        && { flock -s 9 ; action_on_fail "Could not boot."; } 9>/.console_lock \
+        && break
 done
 unset job
 unset queuetriggered
