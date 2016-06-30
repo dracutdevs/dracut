@@ -22,7 +22,7 @@ client_run() {
 	-hdc $TESTDIR/result \
 	-m 256M -smp 2 -nographic \
 	-net none \
-	-append "root=LABEL=dracut $client_opts rd.retry=3 console=ttyS0,115200n81 selinux=0 $DEBUGOUT $DEBUGFAIL" \
+	-append "$client_opts rd.device.timeout=20 rd.retry=3 console=ttyS0,115200n81 selinux=0 $DEBUGOUT $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
 
     if (($? != 0)); then
@@ -39,9 +39,11 @@ client_run() {
 }
 
 test_run() {
-    client_run "no option specified" || return 1
-    client_run "readonly root" "ro" || return 1
-    client_run "writeable root" "rw" || return 1
+    client_run "no root specified (failme)" "failme" && return 1
+    client_run "wrong root specified (failme)" "root=LABEL=dracut1" "failme" && return 1
+    client_run "no option specified" "root=LABEL=dracut" || return 1
+    client_run "readonly root" "root=LABEL=dracut" "ro" || return 1
+    client_run "writeable root" "root=LABEL=dracut" "rw" || return 1
     return 0
 }
 
@@ -70,7 +72,7 @@ test_setup() {
         ln -sfn /run "$initdir/var/run"
         ln -sfn /run/lock "$initdir/var/lock"
 
-	inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip route \
+	inst_multiple -o sh df free ls shutdown poweroff stty cat ps ln ip route \
 	    mount dmesg ifconfig dhclient mkdir cp ping dhclient \
 	    umount strace less setsid tree systemctl reset
 
@@ -163,7 +165,7 @@ EOF
             /etc/security \
             /lib64/security \
             /lib/security -xtype f \
-            | while read file; do
+            2>/dev/null | while read file; do
             inst_multiple -o $file
         done
 
@@ -204,7 +206,7 @@ EOF
         cp -a /etc/ld.so.conf* $initdir/etc
         ldconfig -r "$initdir"
         ddebug "Strip binaeries"
-        find "$initdir" -perm +111 -type f | xargs -r strip --strip-unneeded | ddebug
+        find "$initdir" -perm /111 -type f | xargs -r strip --strip-unneeded | ddebug
 
         # copy depmod files
         inst /lib/modules/$kernel/modules.order

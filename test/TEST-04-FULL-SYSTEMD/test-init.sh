@@ -19,7 +19,7 @@ if ismounted /usr && [ ! -s /failed ]; then
     echo "dracut-root-block-success" >/dev/sdc
 fi
 
-journalctl --full --no-pager -o short-monotonic
+#journalctl --full --no-pager -o short-monotonic
 
 if [ -s /failed ]; then
     echo "**************************FAILED**************************"
