@@ -149,7 +149,7 @@ case $reason in
     PREINIT6)
         echo "dhcp: PREINIT6 $netif up"
         linkup $netif
-        wait_for_ipv6_dad $netif
+        wait_for_ipv6_dad_link $netif
         ;;
 
     BOUND)
