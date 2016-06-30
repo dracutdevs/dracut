@@ -669,7 +669,7 @@ wait_for_ipv6_auto() {
     timeout=$(($timeout*10))
 
     while [ $cnt -lt $timeout ]; do
-        [ -z "$(ip -6 addr show dev "$1" scope global tentative)" ] \
+        [ -z "$(ip -6 addr show dev "$1" tentative)" ] \
             && [ -n "$(ip -6 route list proto ra dev "$1")" ] \
             && return 0
         sleep 0.1
