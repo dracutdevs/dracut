@@ -24,7 +24,6 @@ ConditionPathExistsGlob=|/lib/dracut/hooks/initqueue/online/*.sh
 ConditionPathExistsGlob=|/lib/dracut/hooks/initqueue/timeout/*.sh
 ConditionKernelCommandLine=|rd.break=initqueue
 Conflicts=shutdown.target emergency.target
-Before=shutdown.target emergency.target
 
 [Service]
 Environment=DRACUT_SYSTEMD=1

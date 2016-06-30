@@ -16,7 +16,6 @@ Wants=systemd-journald.socket
 ConditionPathExists=/etc/initrd-release
 ConditionKernelCommandLine=rd.cmdline=ask
 Conflicts=shutdown.target emergency.target
-Before=shutdown.target emergency.target
 
 [Service]
 Environment=DRACUT_SYSTEMD=1
