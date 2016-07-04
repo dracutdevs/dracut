@@ -1,6 +1,4 @@
 #!/bin/sh
-# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
-# ex: ts=8 sw=4 sts=4 et filetype=sh
 #
 # Format:
 #       bridge=<bridgename>:<bridgeslaves>
@@ -9,14 +7,6 @@
 #       bridge without parameters assumes bridge=br0:eth0
 #
 
-# return if bridge already parsed
-[ -n "$bridgename" ] && return
-
-# Check if bridge parameter is valid
-if getarg bridge= >/dev/null ; then
-    command -v brctl >/dev/null 2>&1 || die "No 'brctl' installed" 
-fi
-
 parsebridge() {
     local v=${1}:
     set --
@@ -24,8 +14,6 @@ parsebridge() {
         set -- "$@" "${v%%:*}"
         v=${v#*:}
     done
-
-    unset bridgename bridgeslaves
     case $# in
         0)  bridgename=br0; bridgeslaves=$iface ;;
         1)  die "bridge= requires two parameters" ;;
@@ -34,14 +22,13 @@ parsebridge() {
     esac
 }
 
-unset bridgename bridgeslaves
-
-iface=eth0
-
 # Parse bridge for bridgename and bridgeslaves
-if bridge="$(getarg bridge)"; then
+for bridge in $(getargs bridge=); do
+    unset bridgename
+    unset bridgeslaves
+    iface=eth0
     # Read bridge= parameters if they exist
-    if [ -n "$bridge" ]; then
+    if [ "$bridge" != "bridge" ]; then
         parsebridge $bridge
     fi
     # Simple default bridge
@@ -49,7 +36,6 @@ if bridge="$(getarg bridge)"; then
         bridgename=br0
         bridgeslaves=$iface
     fi
-    echo "bridgename=$bridgename" > /tmp/bridge.info
-    echo "bridgeslaves=\"$bridgeslaves\"" >> /tmp/bridge.info
-    return
-fi
+    echo "bridgename=$bridgename" > /tmp/bridge.${bridgename}.info
+    echo "bridgeslaves=\"$bridgeslaves\"" >> /tmp/bridge.${bridgename}.info
+done

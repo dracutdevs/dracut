@@ -1,6 +1,4 @@
 #!/bin/sh
-# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
-# ex: ts=8 sw=4 sts=4 et filetype=sh
 
 getargbool 0 rd.neednet && NEEDNET=1
 
@@ -14,11 +12,14 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
 # Write udev rules
 {
     # bridge: attempt only the defined interface
-    if [ -e /tmp/bridge.info ]; then
-        . /tmp/bridge.info
+    for i in /tmp/bridge.*.info; do
+        [ -e "$i" ] || continue
+        unset bridgeslaves
+        unset bridgename
+        . "$i"
         RAW_IFACES="$RAW_IFACES $bridgeslaves"
         MASTER_IFACES="$MASTER_IFACES $bridgename"
-    fi
+    done
 
     # bond: attempt only the defined interface (override bridge defines)
     for i in /tmp/bond.*.info; do
@@ -40,11 +41,19 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
         MASTER_IFACES="$MASTER_IFACES ${teammaster}"
     done
 
-    if [ -e /tmp/vlan.info ]; then
-        . /tmp/vlan.info
+    for j in /tmp/vlan.*.phy; do
+        [ -e "$j" ] || continue
+        unset phydevice
+	read phydevice < "$j"
         RAW_IFACES="$RAW_IFACES $phydevice"
-        MASTER_IFACES="$MASTER_IFACES ${vlanname}"
-    fi
+        for i in /tmp/vlan.*.${phydevice}; do
+            [ -e "$i" ] || continue
+            unset vlanname
+	    read vlanname < "$i"
+            MASTER_IFACES="$MASTER_IFACES ${vlanname}"
+        done
+    done
+
     MASTER_IFACES="$(trim "$MASTER_IFACES")"
     RAW_IFACES="$(trim "$RAW_IFACES")"
 

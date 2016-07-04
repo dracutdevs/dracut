@@ -7,14 +7,6 @@ type is_persistent_ethernet_name >/dev/null 2>&1 || . /lib/net-lib.sh
 
 udevadm settle --timeout=30
 
-if [ -e /tmp/bridge.info ]; then
-    . /tmp/bridge.info
-fi
-
-if [ -e /tmp/vlan.info ]; then
-    . /tmp/vlan.info
-fi
-
 mkdir -m 0755 -p /tmp/ifcfg/
 mkdir -m 0755 -p /tmp/ifcfg-leases/
 
@@ -24,7 +16,7 @@ get_config_line_by_subchannel()
     local line
 
     CHANNELS="$1"
-    while read line; do
+    while read line || [ -n "$line" ]; do
         if strstr "$line" "$CHANNELS"; then
             echo $line
             return 0
@@ -132,6 +124,8 @@ for netup in /tmp/net.*.did-setup ; do
     unset bondslaves
     unset bondname
     unset bondoptions
+    unset bridgename
+    unset bridgeslaves
     unset uuid
     unset ip
     unset gw
@@ -141,8 +135,10 @@ for netup in /tmp/net.*.did-setup ; do
     unset slave
     unset ethname
     unset vlan
+    unset phydevice
 
     [ -e /tmp/bond.${netif}.info ] && . /tmp/bond.${netif}.info
+    [ -e /tmp/bridge.${netif}.info ] && . /tmp/bridge.${netif}.info
     [ -e /tmp/team.${netif}.info ] && . /tmp/team.${netif}.info
     [ -e /tmp/net.${netif}.override ] && . /tmp/net.${netif}.override
 
@@ -152,11 +148,17 @@ for netup in /tmp/net.*.did-setup ; do
     elif [ "$netif" = "$teammaster" ]; then
         team=yes
     elif [ "$netif" = "$bondname" ]; then
-    # $netif can't be bridge and bond at the same time
+        # $netif can't be bridge and bond at the same time
         bond=yes
     fi
-    if [ "$netif" = "$vlanname" ]; then
-        vlan=yes
+
+    if ! [ -e /tmp/vlan.${netif}.phy ]; then
+        for i in /tmp/vlan.${netif}.*; do
+            [ ! -e "$i" ] && continue
+            phydevice=${i##/tmp/vlan.${netif}.}
+            vlan=yes
+            break
+        done
     fi
 
     # skip team interfaces for now, the host config must be in sync
