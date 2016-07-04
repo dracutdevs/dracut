@@ -28,6 +28,8 @@ installkernel() {
             instmods \
                 "=drivers/clk" \
                 "=drivers/i2c/busses" \
+                "=drivers/phy" \
+                "=drivers/power" \
                 "=drivers/regulator" \
                 "=drivers/rtc" \
                 "=drivers/usb/host" \
