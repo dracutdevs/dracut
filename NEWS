@@ -56,6 +56,9 @@ systemd:
 - add /etc/machine-info
 - fixed systemd-escape call for names beginning with "-"
 
+filesystems:
+- add support to F2FS filesystem (fsck)
+
 network:
 - fix carrier detection
 - correctly set mac address for ip=...:<mtu>:<mac>
