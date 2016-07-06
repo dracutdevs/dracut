@@ -162,7 +162,9 @@ install() {
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
             /etc/systemd/journald.conf \
+            /etc/systemd/journald.conf.d/*.conf \
             /etc/systemd/system.conf \
+            /etc/systemd/system.conf.d/*.conf \
             /etc/hostname \
             /etc/machine-id \
             /etc/machine-info \
