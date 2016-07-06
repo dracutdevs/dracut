@@ -91,7 +91,7 @@ Requires: gzip xz
 Requires: kmod
 Requires: sed
 Requires: kpartx
-Requires: tar 
+Requires: tar
 
 %if 0%{?fedora} || 0%{?rhel} > 6
 Requires: util-linux >= 2.21
