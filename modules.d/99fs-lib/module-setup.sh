@@ -20,9 +20,9 @@ echo_fs_helper() {
         ext?)
             echo -n " e2fsck "
             ;;
-	f2fs)
-	    echo -n " fsck.f2fs "
-	    ;;
+        f2fs)
+            echo -n " fsck.f2fs "
+            ;;
         jfs)
             echo -n " jfs_fsck "
             ;;
@@ -41,7 +41,7 @@ echo_fs_helper() {
 include_fs_helper_modules() {
     local dev=$1 fs=$2
     case "$fs" in
-        xfs|btrfs)
+        xfs|btrfs|f2fs)
             instmods crc32c
             ;;
     esac
