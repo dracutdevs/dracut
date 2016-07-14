@@ -4,7 +4,8 @@
 check() {
     local _program
 
-    require_binaries ip arping dhclient || return 1
+    require_binaries ip dhclient || return 1
+    require_any_binaries arping arping2 || return 1
 
     return 255
 }
@@ -23,7 +24,7 @@ installkernel() {
 # called by dracut
 install() {
     local _arch _i _dir
-    inst_multiple ip arping dhclient sed awk
+    inst_multiple ip arping arping2 dhclient sed awk
     inst_multiple -o ping ping6
     inst_multiple -o brctl
     inst_multiple -o teamd teamdctl teamnl

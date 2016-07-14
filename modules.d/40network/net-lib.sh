@@ -169,7 +169,11 @@ setup_net() {
     fi
 
     if [ "$layer2" != "0" ] && [ -n "$dest" ] && ! strstr "$dest" ":"; then
-        arping -q -f -w 60 -I $netif $dest || info "Resolving $dest via ARP on $netif failed"
+        if command -v arping2 >/dev/null; then
+            arping2 -q -C 1 -c 60 -I $netif $dest || info "Resolving $dest via ARP on $netif failed"
+        else
+            arping -q -f -w 60 -I $netif $dest || info "Resolving $dest via ARP on $netif failed"
+        fi
     fi
     unset layer2
 
