@@ -1174,6 +1174,12 @@ for dev in "${!host_fs_types[@]}"; do
     fi
 done
 
+# also put the additional filesystems in host_fs_types
+# so that the according modules are installed.
+for fs in $filesystems; do
+    host_fs_types[$fs]="$fs"
+done
+
 [[ -d $udevdir ]] \
     || udevdir="$(pkg-config udev --variable=udevdir 2>/dev/null)"
 if ! [[ -d "$udevdir" ]]; then
