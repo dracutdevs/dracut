@@ -60,13 +60,16 @@ install() {
     inst_rules "$moddir/64-lvm.rules"
 
     if [[ $hostonly ]] || [[ $lvmconf = "yes" ]]; then
-        if [ -f /etc/lvm/lvm.conf ]; then
-            inst_simple /etc/lvm/lvm.conf
-            # FIXME: near-term hack to establish read-only locking;
-            # use command-line lvm.conf editor once it is available
-            sed -i -e 's/\(^[[:space:]]*\)locking_type[[:space:]]*=[[:space:]]*[[:digit:]]/\1locking_type = 4/' ${initdir}/etc/lvm/lvm.conf
-            sed -i -e 's/\(^[[:space:]]*\)use_lvmetad[[:space:]]*=[[:space:]]*[[:digit:]]/\1use_lvmetad = 0/' ${initdir}/etc/lvm/lvm.conf
-        fi
+        for f in /etc/lvm/lvm.conf /etc/lvm/lvm_*.conf; do
+            [ -e "$f" ] || continue
+            inst_simple "$f"
+            if [ -f "${initdir}/$f" ]; then
+                # FIXME: near-term hack to establish read-only locking;
+                # use command-line lvm.conf editor once it is available
+                sed -i -e 's/\(^[[:space:]]*\)locking_type[[:space:]]*=[[:space:]]*[[:digit:]]/\1locking_type = 4/' "${initdir}/$f"
+                sed -i -e 's/\(^[[:space:]]*\)use_lvmetad[[:space:]]*=[[:space:]]*[[:digit:]]/\1use_lvmetad = 0/' "${initdir}/$f"
+            fi
+        done
     fi
 
     if ! [[ -e ${initdir}/etc/lvm/lvm.conf ]]; then
