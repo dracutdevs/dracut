@@ -1111,6 +1111,8 @@ emergency_shell()
     local _ctty
     set +e
     local _rdshell_name="dracut" action="Boot" hook="emergency"
+    local _emergency_action
+
     if [ "$1" = "-n" ]; then
         _rdshell_name=$2
         shift 2
@@ -1129,20 +1131,26 @@ emergency_shell()
     source_hook "$hook"
     echo
 
+    _emergency_action=$(getarg rd.emergency)
+    [ -z "$_emergency_action" ] \
+        && [ -e /run/initramfs/.die ] \
+        && _emergency_action=halt
+
     if getargbool 1 rd.shell -d -y rdshell || getarg rd.break -d rdbreak; then
         _emergency_shell $_rdshell_name
     else
         warn "$action has failed. To debug this issue add \"rd.shell rd.debug\" to the kernel command line."
-        # cause a kernel panic
-        exit 1
+        [ -z "$_emergency_action" ] && _emergency_action=halt
     fi
 
-    if [ -e /run/initramfs/.die ]; then
-        if [ -n "$DRACUT_SYSTEMD" ]; then
-            systemctl --no-block --force halt
-        fi
-        exit 1
-    fi
+    case "$_emergency_action" in
+        reboot)
+            reboot || exit 1;;
+        poweroff)
+            poweroff || exit 1;;
+        halt)
+            halt || exit 1;;
+    esac
 }
 
 # Retain the values of these variables but ensure that they are unexported

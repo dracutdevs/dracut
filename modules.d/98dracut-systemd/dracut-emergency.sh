@@ -11,7 +11,7 @@ source_conf /etc/conf.d
 type plymouth >/dev/null 2>&1 && plymouth quit
 
 export _rdshell_name="dracut" action="Boot" hook="emergency"
-
+_emergency_action=$(getarg rd.emergency)
 
 if getargbool 1 rd.shell -d -y rdshell || getarg rd.break -d rdbreak; then
     source_hook "$hook"
@@ -32,9 +32,18 @@ else
     export hook="shutdown-emergency"
     warn "$action has failed. To debug this issue add \"rd.shell rd.debug\" to the kernel command line."
     source_hook "$hook"
-    exit 1
+    [ -z "$_emergency_action" ] && _emergency_action=halt
 fi
 
 /bin/rm -f -- /.console_lock
+
+case "$_emergency_action" in
+    reboot)
+        reboot || exit 1;;
+    poweroff)
+        poweroff || exit 1;;
+    halt)
+        halt || exit 1;;
+esac
 
 exit 0
