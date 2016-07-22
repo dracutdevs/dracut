@@ -16,6 +16,7 @@ export _rdshell_name="dracut" action="Boot" hook="emergency"
 
 source_hook "$hook"
 
+_emergency_action=$(getarg rd.emergency)
 
 if getargbool 1 rd.shell -d -y rdshell || getarg rd.break -d rdbreak; then
     echo
@@ -33,9 +34,18 @@ if getargbool 1 rd.shell -d -y rdshell || getarg rd.break -d rdbreak; then
     exec sh -i -l
 else
     warn "$action has failed. To debug this issue add \"rd.shell rd.debug\" to the kernel command line."
-    exit 1
+    [ -z "$_emergency_action" ] && _emergency_action=halt
 fi
 
 /bin/rm -f -- /.console_lock
+
+case "$_emergency_action" in
+    reboot)
+        reboot || exit 1;;
+    poweroff)
+        poweroff || exit 1;;
+    halt)
+        halt || exit 1;;
+esac
 
 exit 0
