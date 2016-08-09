@@ -507,7 +507,7 @@ check_block_and_slaves_all() {
     if ! lvm_internal_dev $2 && "$1" $2; then
         _ret=0
     fi
-    check_vol_slaves "$@" && return 0
+    check_vol_slaves_all "$@" && return 0
     if [[ -f /sys/dev/block/$2/../dev ]]; then
         check_block_and_slaves_all $1 $(<"/sys/dev/block/$2/../dev") && _ret=0
     fi
@@ -579,6 +579,29 @@ check_vol_slaves() {
     done
     return 1
 }
+
+check_vol_slaves_all() {
+    local _lv _vg _pv
+    for i in /dev/mapper/*; do
+        [[ $i == /dev/mapper/control ]] && continue
+        _lv=$(get_maj_min $i)
+        if [[ $_lv = $2 ]]; then
+            _vg=$(lvm lvs --noheadings -o vg_name $i 2>/dev/null)
+            # strip space
+            _vg="${_vg//[[:space:]]/}"
+            if [[ $_vg ]]; then
+                for _pv in $(lvm vgs --noheadings -o pv_name "$_vg" 2>/dev/null)
+                do
+                    check_block_and_slaves_all $1 $(get_maj_min $_pv)
+                done
+                return 0
+            fi
+        fi
+    done
+    return 1
+}
+
+
 
 # fs_get_option <filesystem options> <search for option>
 # search for a specific option in a bunch of filesystem options
