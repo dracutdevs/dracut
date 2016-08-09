@@ -22,7 +22,6 @@ installkernel() {
         _fipsmodules+="rmd160 rmd256 rmd320 rot13 salsa20 seed seqiv serpent sha1 sha224 sha256 sha256_generic "
         _fipsmodules+="aes_s390 des_s390 prng sha256_s390 sha_common des_check_key sha1_s390 sha512_s390 "
         _fipsmodules+="sha384 sha512 sha512_generic tcrypt tea tnepres twofish wp256 wp384 wp512 xeta xtea xts zlib "
-        _fipsmodules+="sha1-mb"
     fi
 
     mkdir -m 0755 -p "${initdir}/etc/modprobe.d"
