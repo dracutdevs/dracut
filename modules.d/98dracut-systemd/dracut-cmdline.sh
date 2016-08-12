@@ -25,7 +25,7 @@ source_conf /etc/conf.d
 # between the case where it was set to the empty string and the case where it
 # wasn't specified at all.
 if ! root="$(getarg root=)"; then
-    root='UNSET'
+    root_unset='UNSET'
 fi
 
 rflags="$(getarg rootflags=)"
@@ -49,7 +49,7 @@ source_hook cmdline
 
 [ -f /lib/dracut/parse-resume.sh ] && . /lib/dracut/parse-resume.sh
 
-case "$root" in
+case "${root}${root_unset}" in
     block:LABEL=*|LABEL=*)
         root="${root#block:}"
         root="$(echo $root | sed 's,/,\\x2f,g')"
@@ -75,7 +75,7 @@ case "$root" in
         rootok=1 ;;
 esac
 
-[ -z "$root" ] && die "Empty root= argument"
+[ -z "${root}${root_unset}" ] && die "Empty root= argument"
 [ -z "$rootok" ] && die "Don't know how to handle 'root=$root'"
 
 export root rflags fstype netroot NEWROOT
