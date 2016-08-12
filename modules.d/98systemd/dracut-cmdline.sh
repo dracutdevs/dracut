@@ -79,6 +79,8 @@ esac
 [ -z "${root}${root_unset}" ] && die "Empty root= argument"
 [ -z "$rootok" ] && die "Don't know how to handle 'root=$root'"
 
+[ "$root" = "UNSET" ] && unset root
+
 export root rflags fstype netroot NEWROOT
 
 export -p > /dracut-state.sh
