@@ -38,6 +38,7 @@ netdriver=$(readlink -f /sys/class/net/$netif/device/driver)
 netdriver=${netdriver##*/}
 
 write_fcoemon_cfg() {
+    [ -f /etc/fcoe/cfg-$netif ] && return
     echo FCOE_ENABLE=\"yes\" > /etc/fcoe/cfg-$netif
     if [ "$dcb" = "dcb" ]; then
         echo DCB_REQUIRED=\"yes\" >> /etc/fcoe/cfg-$netif

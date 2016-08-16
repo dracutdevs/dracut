@@ -94,6 +94,8 @@ install() {
         local _fcoeconf=$(cmdline)
         [[ $_fcoeconf ]] && printf "%s\n" "$_fcoeconf" >> "${initdir}/etc/cmdline.d/95fcoe.conf"
     fi
+    inst_multiple /etc/fcoe/cfg-*
+
     inst "$moddir/fcoe-up.sh" "/sbin/fcoe-up"
     inst "$moddir/fcoe-edd.sh" "/sbin/fcoe-edd"
     inst "$moddir/fcoe-genrules.sh" "/sbin/fcoe-genrules.sh"
