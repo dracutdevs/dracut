@@ -284,6 +284,7 @@ ibft_to_cmdline() {
                 [ -e ${iface}/hostname ] && hostname=$(read a < ${iface}/hostname; echo $a)
                 if [ "$family" = "ipv6" ] ; then
                     if [ -n "$ip" ] ; then
+                        ip="[$ip]"
                         [ -n "$prefix" ] || prefix=64
                         ip="[${ip}/${prefix}]"
                         mask=
