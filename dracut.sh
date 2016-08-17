@@ -151,6 +151,9 @@ Creates initial ramdisk images for preloading modules
                         in the initramfs
   --no-hostonly-cmdline Do not store kernel command line arguments needed
                         in the initramfs
+  --hostonly-i18n       Install only needed keyboard and font files according
+                        to the host configuration (default).
+  --no-hostonly-i18n    Install all keyboard and font files available.
   --persistent-policy [POLICY]
                         Use [POLICY] to address disks and partitions.
                         POLICY can be any directory name found in /dev/disk.
