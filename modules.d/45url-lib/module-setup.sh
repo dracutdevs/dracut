@@ -32,7 +32,7 @@ install() {
             _crt=$(grep -F --binary-files=text -z .crt $_lib)
             [[ $_crt ]] || continue
             [[ $_crt == /*/* ]] || continue
-            if ! inst_simple "$_crt"; then
+            if ! inst "$_crt"; then
                 dwarn "Couldn't install '$_crt' SSL CA cert bundle; HTTPS might not work."
                 continue
             fi
