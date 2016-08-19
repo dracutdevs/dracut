@@ -46,10 +46,12 @@ rpc.idmapd
 echo > /dev/watchdog
 exportfs -r
 echo > /dev/watchdog
+mkdir -p /var/lib/dhcpd
 >/var/lib/dhcpd/dhcpd.leases
 echo > /dev/watchdog
 chmod 777 /var/lib/dhcpd/dhcpd.leases
 echo > /dev/watchdog
+rm -f /var/run/dhcpd.pid
 dhcpd -d -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases &
 echo "Serving NFS mounts"
 while :; do
