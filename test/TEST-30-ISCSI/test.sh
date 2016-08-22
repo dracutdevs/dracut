@@ -138,8 +138,8 @@ test_run() {
 }
 
 test_setup() {
-    if [ ! -x /usr/sbin/iscsi-target ]; then
-        echo "Need iscsi-target from netbsd-iscsi"
+    if ! command -v tgtd &>/dev/null || ! command -v tgtadm &>/dev/null; then
+        echo "Need tgtd and tgtadm from scsi-target-utils"
         return 1
     fi
 
