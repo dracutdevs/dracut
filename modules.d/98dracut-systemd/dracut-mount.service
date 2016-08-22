@@ -15,6 +15,7 @@ After=dracut-initqueue.service dracut-pre-mount.service
 ConditionPathExists=/usr/lib/initrd-release
 ConditionDirectoryNotEmpty=|/lib/dracut/hooks/mount
 ConditionKernelCommandLine=|rd.break=mount
+DefaultDependencies=no
 Conflicts=shutdown.target emergency.target
 Before=shutdown.target emergency.target
 
