@@ -160,7 +160,7 @@ case $reason in
         fi
         if [ "$layer2" != "0" ]; then
             if command -v arping2 >/dev/null; then
-                if arping2 -q -C 1 -c 2 -I $netif $new_ip_address ; then
+                if arping2 -q -C 1 -c 2 -I $netif -0 $new_ip_address ; then
                     warn "Duplicate address detected for $new_ip_address while doing dhcp. retrying"
                     exit 1
                 fi

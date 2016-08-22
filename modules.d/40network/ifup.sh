@@ -111,7 +111,7 @@ do_static() {
         wait_for_ipv6_dad $netif
     else
         if command -v arping2 >/dev/null; then
-            if arping2 -q -C 1 -c 2 -I $netif $ip ; then
+            if arping2 -q -C 1 -c 2 -I $netif -0 $ip ; then
                 warn "Duplicate address detected for $ip for interface $netif."
                 return 1
             fi
