@@ -84,13 +84,14 @@ for dasd_arg in $(getargs rd.dasd=); do
                     OLDIFS="$IFS"
                     IFS="-"
                     set -- $range
-                    start=${1#0.0.}
+                    prefix=${1%.*}
+                    start=${1##*.}
                     shift
-                    end=${1#0.0.}
+                    end=${1##.}
                     shift
                     IFS="$OLDIFS"
                     for dev in $(seq $(( 16#$start )) $(( 16#$end )) ) ; do
-                        create_udev_rule $(printf "0.0.%04x" "$dev")
+                        create_udev_rule $(printf "%s.%04x" "$prefix" "$dev")
                     done
                     ;;
                 *)
@@ -98,8 +99,16 @@ for dasd_arg in $(getargs rd.dasd=); do
                     if [ "$dev" != "$1" ] ; then
                         ro=1
                     fi
-                    dev=${dev#0.0.}
-                    create_udev_rule $(printf "0.0.%04x" $(( 16#$dev )) )
+                    OLDIFS="$IFS"
+                    IFS="."
+                    set -- $dev
+                    sid=$1
+                    shift
+                    ssid=$1
+                    shift
+                    chan=$1
+                    IFS="$OLDIFS"
+                    create_udev_rule $(printf "%01x.%01x.%04x" $(( 16#$sid )) $(( 16#$ssid )) $(( 16#$chan )) )
                     shift
                     ;;
             esac
