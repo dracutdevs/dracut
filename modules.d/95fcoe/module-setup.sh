@@ -68,8 +68,10 @@ cmdline() {
 # called by dracut
 install() {
     inst_multiple ip dcbtool fipvlan lldpad readlink lldptool fcoemon fcoeadm
-    inst_libdir_file 'libhbalinux.so*'
-    inst "/etc/hba.conf" "/etc/hba.conf"
+    if [ -f "/etc/hba.conf" ] ; then
+        inst_libdir_file 'libhbalinux.so*'
+        inst "/etc/hba.conf" "/etc/hba.conf"
+    fi
 
     mkdir -m 0755 -p "$initdir/var/lib/lldpad"
     mkdir -m 0755 -p "$initdir/etc/fcoe"
