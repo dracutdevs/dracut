@@ -49,11 +49,11 @@ cmdline() {
         d=$(cd -P $c; echo $PWD)
         i=${d%/*}
         read mac < ${i}/address
-        s=$(dcbtool gc ${i##*/} dcb | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
+        s=$(dcbtool gc ${i##*/} dcb 2>/dev/null | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
         if [ -z "$s" ] ; then
 	    p=$(get_vlan_parent ${i})
 	    if [ "$p" ] ; then
-	        s=$(dcbtool gc ${p} dcb | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
+	        s=$(dcbtool gc ${p} dcb 2>/dev/null | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
 	    fi
         fi
         if [ "$s" = "on" ] ; then
