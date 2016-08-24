@@ -45,7 +45,13 @@ cmdline() {
     for c in /sys/bus/fcoe/devices/ctlr_* ; do
         [ -L $c ] || continue
         read enabled < $c/enabled
+        read mode < $c/mode
         [ $enabled -eq 0 ] && continue
+        if [ $mode = "VN2VN" ] ; then
+            mode="vn2vn"
+        else
+            mode="fabric"
+        fi
         d=$(cd -P $c; echo $PWD)
         i=${d%/*}
         read mac < ${i}/address
@@ -61,7 +67,7 @@ cmdline() {
         else
 	    dcb="nodcb"
         fi
-        echo "fcoe=${mac}:${dcb}"
+        echo "fcoe=${mac}:${dcb}:${mode}"
     done
 }
 
