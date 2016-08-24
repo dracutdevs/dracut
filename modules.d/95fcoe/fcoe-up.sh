@@ -91,13 +91,8 @@ elif [ "$dcb" = "dcb" ]; then
     done
 
     sleep 1
-
-    write_fcoemon_cfg
-    fcoemon --syslog=yes
-else
-    vlan="no"
-    write_fcoemon_cfg
-    fcoemon --syslog=yes
 fi
+write_fcoemon_cfg
+fcoemon --syslog=yes
 
 need_shutdown
