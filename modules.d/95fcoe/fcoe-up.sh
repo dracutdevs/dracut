@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # We get called like this:
-# fcoe-up <network-device> <dcb|nodcb>
+# fcoe-up <network-device> <dcb|nodcb> <fabric|vn2vn>
 #
 # Note currently only nodcb is supported, the dcb option is reserved for
 # future use.
@@ -15,6 +15,7 @@ type ip_to_var >/dev/null 2>&1 || . /lib/net-lib.sh
 
 netif=$1
 dcb=$2
+mode=$3
 vlan="yes"
 
 iflink=$(cat /sys/class/net/$netif/iflink)
@@ -50,7 +51,11 @@ write_fcoemon_cfg() {
     else
 	    echo AUTO_VLAN=\"no\" >> /etc/fcoe/cfg-$netif
     fi
-    echo MODE=\"fabric\" >> /etc/fcoe/cfg-$netif
+    if [ "$mode" = "vn2vn" ] ; then
+        echo MODE=\"vn2vn\" >> /etc/fcoe/cfg-$netif
+    else
+        echo MODE=\"fabric\" >> /etc/fcoe/cfg-$netif
+    fi
 }
 
 if [ "$netdriver" = "bnx2x" ]; then
