@@ -41,48 +41,52 @@ get_vlan_parent() {
 
 # called by dracut
 cmdline() {
-
-    for c in /sys/bus/fcoe/devices/ctlr_* ; do
-        [ -L $c ] || continue
-        read enabled < $c/enabled
-        read mode < $c/mode
-        [ $enabled -eq 0 ] && continue
-        if [ $mode = "VN2VN" ] ; then
-            mode="vn2vn"
-        else
-            mode="fabric"
-        fi
-        d=$(cd -P $c; echo $PWD)
-        i=${d%/*}
-        read mac < ${i}/address
-        s=$(dcbtool gc ${i##*/} dcb 2>/dev/null | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
-        if [ -z "$s" ] ; then
-            p=$(get_vlan_parent ${i})
-            if [ "$p" ] ; then
-                s=$(dcbtool gc ${p} dcb 2>/dev/null | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
+    {
+        for c in /sys/bus/fcoe/devices/ctlr_* ; do
+            [ -L $c ] || continue
+            read enabled < $c/enabled
+            read mode < $c/mode
+            [ $enabled -eq 0 ] && continue
+            if [ $mode = "VN2VN" ] ; then
+                mode="vn2vn"
+            else
+                mode="fabric"
             fi
-        fi
-        if [ "$s" = "on" ] ; then
-            dcb="dcb"
-        else
-            dcb="nodcb"
-        fi
+            d=$(cd -P $c; echo $PWD)
+            i=${d%/*}
+            ifname=${i##*/}
+            read mac < ${i}/address
+            s=$(dcbtool gc ${i##*/} dcb 2>/dev/null | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
+            if [ -z "$s" ] ; then
+	        p=$(get_vlan_parent ${i})
+	        if [ "$p" ] ; then
+	            s=$(dcbtool gc ${p} dcb 2>/dev/null | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
+                    ifname=${p##*/}
+	        fi
+            fi
+            if [ "$s" = "on" ] ; then
+	        dcb="dcb"
+            else
+	        dcb="nodcb"
+            fi
 
-        # Some Combined Network Adapters(CNAs) implement DCB in firmware.
-        # Do not run software-based DCB or LLDP on CNAs that implement DCB.
-        # If the network interface provides hardware DCB/DCBX capabilities,
-        # DCB_REQUIRED in "/etc/fcoe/cfg-xxx" is expected to set to "no".
-        #
-        # Force "nodcb" if there's any DCB_REQUIRED="no"(child or vlan parent).
-        grep -q "^[[:blank:]]*DCB_REQUIRED=\"no\"" /etc/fcoe/cfg-${i##*/} &>/dev/null
-        [ $? -eq 0 ] && dcb="nodcb"
-        if [ "$p" ] ; then
-            grep -q "^[[:blank:]]*DCB_REQUIRED=\"no\"" /etc/fcoe/cfg-${p} &>/dev/null
+            # Some Combined Network Adapters(CNAs) implement DCB in firmware.
+            # Do not run software-based DCB or LLDP on CNAs that implement DCB.
+            # If the network interface provides hardware DCB/DCBX capabilities,
+            # DCB_REQUIRED in "/etc/fcoe/cfg-xxx" is expected to set to "no".
+            #
+            # Force "nodcb" if there's any DCB_REQUIRED="no"(child or vlan parent).
+            grep -q "^[[:blank:]]*DCB_REQUIRED=\"no\"" /etc/fcoe/cfg-${i##*/} &>/dev/null
             [ $? -eq 0 ] && dcb="nodcb"
-        fi
+            if [ "$p" ] ; then
+                grep -q "^[[:blank:]]*DCB_REQUIRED=\"no\"" /etc/fcoe/cfg-${p} &>/dev/null
+                [ $? -eq 0 ] && dcb="nodcb"
+            fi
 
-        echo "fcoe=${mac}:${dcb}:${mode}"
-    done
+            echo "ifname=${ifname}:${mac}"
+            echo "fcoe=${ifname}:${dcb}:${mode}"
+        done
+    } | sort | uniq
 }
 
 # called by dracut
