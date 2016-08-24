@@ -41,34 +41,38 @@ get_vlan_parent() {
 
 # called by dracut
 cmdline() {
-
-    for c in /sys/bus/fcoe/devices/ctlr_* ; do
-        [ -L $c ] || continue
-        read enabled < $c/enabled
-        read mode < $c/mode
-        [ $enabled -eq 0 ] && continue
-        if [ $mode = "VN2VN" ] ; then
-            mode="vn2vn"
-        else
-            mode="fabric"
-        fi
-        d=$(cd -P $c; echo $PWD)
-        i=${d%/*}
-        read mac < ${i}/address
-        s=$(dcbtool gc ${i##*/} dcb 2>/dev/null | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
-        if [ -z "$s" ] ; then
-	    p=$(get_vlan_parent ${i})
-	    if [ "$p" ] ; then
-	        s=$(dcbtool gc ${p} dcb 2>/dev/null | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
-	    fi
-        fi
-        if [ "$s" = "on" ] ; then
-	    dcb="dcb"
-        else
-	    dcb="nodcb"
-        fi
-        echo "fcoe=${mac}:${dcb}:${mode}"
-    done
+    {
+        for c in /sys/bus/fcoe/devices/ctlr_* ; do
+            [ -L $c ] || continue
+            read enabled < $c/enabled
+            read mode < $c/mode
+            [ $enabled -eq 0 ] && continue
+            if [ $mode = "VN2VN" ] ; then
+                mode="vn2vn"
+            else
+                mode="fabric"
+            fi
+            d=$(cd -P $c; echo $PWD)
+            i=${d%/*}
+            ifname=${i##*/}
+            read mac < ${i}/address
+            s=$(dcbtool gc ${i##*/} dcb 2>/dev/null | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
+            if [ -z "$s" ] ; then
+	        p=$(get_vlan_parent ${i})
+	        if [ "$p" ] ; then
+	            s=$(dcbtool gc ${p} dcb 2>/dev/null | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
+                    ifname=${p##*/}
+	        fi
+            fi
+            if [ "$s" = "on" ] ; then
+	        dcb="dcb"
+            else
+	        dcb="nodcb"
+            fi
+            echo "ifname=${ifname}:${mac}"
+            echo "fcoe=${ifname}:${dcb}:${mode}"
+        done
+    } | sort | uniq
 }
 
 # called by dracut
