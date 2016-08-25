@@ -9,8 +9,18 @@ _remove_dm() {
         [ -e ${s} ] || continue
         _remove_dm ${s##*/}
     done
-    devname=$(cat /sys/block/${dev}/dm/name)
-    dmsetup -v --noudevsync remove "$devname" || return $?
+    # multipath devices might have MD devices on top,
+    # which are removed after this script. So do not
+    # remove those to avoid spurious errors
+    case $(cat /sys/block/${dev}/dm/uuid) in
+        mpath-*)
+            return 0
+            ;;
+        *)
+            devname=$(cat /sys/block/${dev}/dm/name)
+            dmsetup -v --noudevsync remove "$devname" || return $?
+            ;;
+    esac
     return 0
 }
 
