@@ -16,6 +16,9 @@ fi
 [ "${liveroot%%:*}" = "live" ] || exit 0
 
 case "$liveroot" in
+    live:nfs://*|nfs://*) \
+        root="${root#live:}"
+        rootok=1 ;;
     live:http://*|http://*) \
         root="${root#live:}"
         rootok=1 ;;
