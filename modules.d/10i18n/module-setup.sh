@@ -30,8 +30,9 @@ install() {
     # This is from 10redhat-i18n.
     findkeymap () {
         local MAP=$1
+        local MAPNAME=${1%.map*}
         [[ ! -f $MAP ]] && \
-            MAP=$(find ${kbddir}/keymaps -type f -name $MAP -o -name $MAP.\* | head -n1)
+            MAP=$(find ${kbddir}/keymaps -type f -name ${MAPNAME} -o -name ${MAPNAME}.map -o -name ${MAPNAME}.map.\* | head -n1)
         [[ " $KEYMAPS " = *" $MAP "* ]] && return
         KEYMAPS="$KEYMAPS $MAP"
         case $MAP in
