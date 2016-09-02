@@ -88,7 +88,7 @@ anaconda_nfs_to_var() {
 # IPv6 nfs path will be treated separately
 anaconda_nfsv6_to_var() {
     nfs="nfs"
-    path="$1:"
+    path="$1"
     options="${path#*:/}"
     path="/${options%%:*}"
     server="${1#*nfs:}"
