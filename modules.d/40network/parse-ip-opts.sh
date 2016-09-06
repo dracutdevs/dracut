@@ -38,7 +38,7 @@ unset count
 # If needed, check if bootdev= contains anything usable
 BOOTDEV=$(getarg bootdev=)
 
-if [ -n "$NEEDBOOTDEV" ] && getargbool 1 rd.neednet; then
+if [ -n "$NEEDBOOTDEV" ] && ! getargbool 0 rd.neednet; then
     #[ -z "$BOOTDEV" ] && warn "Please supply bootdev argument for multiple ip= lines"
     echo "rd.neednet=1" > /etc/cmdline.d/dracut-neednet.conf
     info "Multiple ip= arguments: assuming rd.neednet=1"
@@ -79,8 +79,8 @@ for p in $(getargs ip=); do
                 ;;
             auto6);;
             dhcp|dhcp6|on|any) \
-                [ -n "$NEEDBOOTDEV" ] && [ -z "$dev" ] && \
-                    die "Sorry, 'ip=$p' does not make sense for multiple interface configurations"
+                #[ -n "$NEEDBOOTDEV" ] && [ -z "$dev" ] && \
+                #    die "Sorry, 'ip=$p' does not make sense for multiple interface configurations"
                 [ -n "$ip" ] && \
                     die "For argument 'ip=$p'\nSorry, setting client-ip does not make sense for '$autoopt'"
                 ;;
