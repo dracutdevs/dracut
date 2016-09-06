@@ -69,7 +69,7 @@ cmdline() {
 install() {
     inst_multiple ip dcbtool fipvlan lldpad readlink lldptool fcoemon fcoeadm
     inst_libdir_file 'libhbalinux.so*'
-    inst "/etc/hba.conf" "/etc/hba.conf"
+    [[ -e /etc/hba.conf ]] && inst "/etc/hba.conf" "/etc/hba.conf"
 
     mkdir -m 0755 -p "$initdir/var/lib/lldpad"
     mkdir -m 0755 -p "$initdir/etc/fcoe"
