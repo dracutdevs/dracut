@@ -191,7 +191,7 @@ case $reason in
             echo '. /lib/net-lib.sh'
             echo "setup_net $netif"
             if [ -n "$new_classless_static_routes" ]; then
-                modify_routes add "$(parse_option_121 $new_classless_static_routes)"
+                parse_option_121 $new_classless_static_routes
             fi
             echo "source_hook initqueue/online $netif"
             [ -e /tmp/net.$netif.manualup ] || echo "/sbin/netroot $netif"
