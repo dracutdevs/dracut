@@ -1288,38 +1288,40 @@ static int install_modules(int argc, char **argv)
 
         ctx = kmod_new(kerneldir, NULL);
 
-        err = kmod_module_new_from_loaded(ctx, &loaded_list);
-        if (err < 0) {
-                errno = err;
-                log_error("Could not get list of loaded modules: %m");
-                return err;
-        }
+        if (arg_hostonly) {
+                err = kmod_module_new_from_loaded(ctx, &loaded_list);
+                if (err < 0) {
+                        errno = err;
+                        log_error("Could not get list of loaded modules: %m. Switching to non-hostonly mode.");
+                        arg_hostonly = false;
+                } else {
+                        kmod_list_foreach(itr, loaded_list) {
+                                _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
 
-        kmod_list_foreach(itr, loaded_list) {
-                _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
+                                struct kmod_module *mod = kmod_module_get_module(itr);
+                                char *name = strdup(kmod_module_get_name(mod));
+                                hashmap_put(modules_loaded, name, name);
+                                kmod_module_unref(mod);
 
-                struct kmod_module *mod = kmod_module_get_module(itr);
-                char *name = strdup(kmod_module_get_name(mod));
-                hashmap_put(modules_loaded, name, name);
-                kmod_module_unref(mod);
-
-                /* also put the modules from the new kernel in the hashmap,
-                 * which resolve the name as an alias, in case a kernel module is
-                 * renamed.
-                 */
-                err = kmod_module_new_from_lookup(ctx, name, &modlist);
-                if (err < 0)
-                        continue;
-                if (!modlist)
-                        continue;
-                kmod_list_foreach(l, modlist) {
-                        mod = kmod_module_get_module(l);
-                        char *name = strdup(kmod_module_get_name(mod));
-                        hashmap_put(modules_loaded, name, name);
-                        kmod_module_unref(mod);
+                                /* also put the modules from the new kernel in the hashmap,
+                                 * which resolve the name as an alias, in case a kernel module is
+                                 * renamed.
+                                 */
+                                err = kmod_module_new_from_lookup(ctx, name, &modlist);
+                                if (err < 0)
+                                        continue;
+                                if (!modlist)
+                                        continue;
+                                kmod_list_foreach(l, modlist) {
+                                        mod = kmod_module_get_module(l);
+                                        char *name = strdup(kmod_module_get_name(mod));
+                                        hashmap_put(modules_loaded, name, name);
+                                        kmod_module_unref(mod);
+                                }
+                        }
+                        kmod_module_unref_list(loaded_list);
                 }
         }
-        kmod_module_unref_list(loaded_list);
 
         for (i = 0; i < argc; i++) {
                 int r = 0;
