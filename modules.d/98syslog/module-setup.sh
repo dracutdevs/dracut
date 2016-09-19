@@ -17,7 +17,7 @@ install() {
     local _installs
     if type -P rsyslogd >/dev/null; then
         _installs="rsyslogd"
-        inst_libdir_file rsyslog/lmnet.so rsyslog/imklog.so rsyslog/imuxsock.so
+        inst_libdir_file rsyslog/lmnet.so rsyslog/imklog.so rsyslog/imuxsock.so rsyslog/imjournal.so
     elif type -P syslogd >/dev/null; then
         _installs="syslogd"
     elif type -P syslog-ng >/dev/null; then
