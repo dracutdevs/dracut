@@ -6,7 +6,6 @@ Conflicts=shutdown.target
 ConditionKernelCommandLine=!nompath
 ConditionKernelCommandLine=!rd.multipath=0
 ConditionKernelCommandLine=!rd_NO_MULTIPATH
-ConditionPathExists=/etc/multipath.conf
 
 [Service]
 Type=simple
