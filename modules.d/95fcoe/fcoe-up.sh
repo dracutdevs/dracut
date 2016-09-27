@@ -56,9 +56,6 @@ if [ "$netdriver" = "bnx2x" ]; then
     udevadm settle --timeout=30
     # Sleep for 3 s to allow dcb negotiation
     sleep 3
-    write_fcoemon_cfg
-    fcoemon --syslog=yes
-    fipvlan -c -s "$netif"
 elif [ "$dcb" = "dcb" ]; then
     # wait for lldpad to be ready
     i=0
