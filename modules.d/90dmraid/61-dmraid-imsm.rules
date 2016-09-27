@@ -23,9 +23,6 @@ ENV{DM_UDEV_DISABLE_OTHER_RULES_FLAG}=="1", GOTO="dm_end"
 PROGRAM=="/bin/sh -c 'for i in $sys/$devpath/holders/dm-[0-9]*; do [ -e $$i ] && exit 0; done; exit 1;' ", \
     GOTO="dm_end"
 
-ENV{DEVTYPE}!="partition", \
-    RUN+="/sbin/partx -d --nr 1-1024 $env{DEVNAME}"
-
 RUN+="/sbin/initqueue --onetime --unique --settled /sbin/dmraid_scan $env{DEVNAME}"
 
 LABEL="dm_end"
