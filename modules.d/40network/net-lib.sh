@@ -241,8 +241,6 @@ ibft_to_cmdline() {
             [ -e ${iface}/flags ] && flags=$(read a < ${iface}/flags; echo $a)
             # Skip invalid interfaces
             (( $flags & 1 )) || continue
-            # Skip interfaces not used for booting
-            (( $flags & 2 )) || continue
             [ -e ${iface}/dhcp ] && dhcp=$(read a < ${iface}/dhcp; echo $a)
             [ -e ${iface}/origin ] && origin=$(read a < ${iface}/origin; echo $a)
             [ -e ${iface}/ip-addr ] && ip=$(read a < ${iface}/ip-addr; echo $a)
