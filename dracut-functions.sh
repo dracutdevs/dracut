@@ -223,14 +223,20 @@ get_devpath_block() {
 
 # get a persistent path from a device
 get_persistent_dev() {
-    local i _tmp _dev
+    local i _tmp _dev _pol
 
     _dev=$(get_maj_min "$1")
     [ -z "$_dev" ] && return
 
+    if [[ -n "$persistent_policy" ]]; then
+	_pol="/dev/disk/${persistent_policy}/*"
+    else
+	_pol=
+    fi
+
     for i in \
+        $_pol \
         /dev/mapper/* \
-        /dev/disk/${persistent_policy:-by-uuid}/* \
         /dev/disk/by-uuid/* \
         /dev/disk/by-label/* \
         /dev/disk/by-partuuid/* \
