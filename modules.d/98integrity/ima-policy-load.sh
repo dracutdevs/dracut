@@ -30,7 +30,8 @@ load_ima_policy()
     # check the existence of the IMA policy file
     [ -f "${IMAPOLICYPATH}" ] && {
         info "Loading the provided IMA custom policy";
-        cat ${IMAPOLICYPATH} > ${IMASECDIR}/policy;
+        echo -n "${IMAPOLICYPATH}" > ${IMASECDIR}/policy || \
+            cat "${IMAPOLICYPATH}" > ${IMASECDIR}/policy
     }
 
     return 0
