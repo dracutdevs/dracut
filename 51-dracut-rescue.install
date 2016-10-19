@@ -59,16 +59,15 @@ if ! [[ ${BOOT_OPTIONS[*]} ]]; then
     exit 1
 fi
 
-LOADER_ENTRY="/boot/loader/entries/${MACHINE_ID}-0-rescue.conf"
 BOOT_DIR="/${MACHINE_ID}/0-rescue"
+BOOT_ROOT=${BOOT_DIR_ABS%$BOOT_DIR}
+LOADER_ENTRY="$BOOT_ROOT/loader/entries/${MACHINE_ID}-0-rescue.conf"
 
 ret=0
 
 case "$COMMAND" in
     add)
-        for i in "/boot/loader/entries/${MACHINE_ID}-0-rescue.conf"; do
-            [[ -f $i ]] && exit 0
-        done
+        [[ -f "$LOADER_ENTRY" ]] && exit 0
 
         # source our config dir
         for f in $(dropindirs_sort ".conf" "/etc/dracut.conf.d" "/usr/lib/dracut/dracut.conf.d"); do
