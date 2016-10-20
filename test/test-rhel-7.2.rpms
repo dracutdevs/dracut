@@ -1,0 +1,12 @@
+dash
+bridge-utils
+asciidoc
+mdadm
+lvm2
+cryptsetup
+nfs-utils
+nbd
+dhcp-server
+scsi-target-utils
+iscsi-initiator-utils
+
