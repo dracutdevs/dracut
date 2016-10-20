@@ -1,4 +1,4 @@
-# dracut
+# dracut RHEL-7 branch
 
 dracut is an initramfs infrastructure.
 
