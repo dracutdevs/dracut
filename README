@@ -1,9 +1,10 @@
 dracut
 ------
-dracut is a new initramfs infrastructure.
+dracut is an event driven initramfs infrastructure.
 
-Information about the initial goals and aims can be found at
-https://fedoraproject.org/wiki/Initrdrewrite
+dracut (the tool) is used to create an initramfs image by copying tools
+and files from an installed system and combining it with the
+dracut framework, usually found in /usr/lib/dracut/modules.d.
 
 Unlike existing initramfs's, this is an attempt at having as little as
 possible hard-coded into the initramfs as possible.  The initramfs has
@@ -51,7 +52,7 @@ possible.  Every distribution has their own tool here and it's not
 something which is really interesting to have separate across them.
 So contributions to help decrease the distro-dependencies are welcome.
 
-Currently dracut lives on kernel.org.
+Currently dracut lives on github.com and kernel.org.
 
 The tarballs can be found here:
 	http://www.kernel.org/pub/linux/utils/boot/dracut/
@@ -64,19 +65,12 @@ Git:
 
 	git@github.com:dracutdevs/dracut.git
 
-	git://dracut.git.sourceforge.net/gitroot/dracut/dracut
-
 Git Web:
-	http://git.kernel.org/?p=boot/dracut/dracut.git
-
 	https://github.com/dracutdevs/dracut.git
 
-	http://dracut.git.sourceforge.net/git/gitweb.cgi?p=dracut/dracut
+        http://git.kernel.org/?p=boot/dracut/dracut.git
 
-Git Web RSS Feed:
-	http://git.kernel.org/?p=boot/dracut/dracut.git;a=rss
-
-Project Page:
+Project Documentation:
 	http://www.kernel.org/pub/linux/utils/boot/dracut/dracut.html
 
 Project Wiki:
