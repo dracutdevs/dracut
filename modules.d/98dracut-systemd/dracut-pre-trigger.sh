@@ -8,7 +8,7 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 source_conf /etc/conf.d
 
-make_trace_mem "hook pre-trigger" "1:shortmem" "2+:mem" "3+:slab"
+make_trace_mem "hook pre-trigger" '1:shortmem' '2+:mem' '3+:slab' '4+:komem'
 
 source_hook pre-trigger
 
