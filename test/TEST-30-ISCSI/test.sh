@@ -34,8 +34,8 @@ run_server() {
     # Cleanup the terminal if we have one
     tty -s && stty sane
 
-    echo Sleeping 10 seconds to give the server a head start
-    sleep 10
+    echo Sleeping 20 seconds to give the server a head start
+    sleep 20
 }
 
 run_client() {
