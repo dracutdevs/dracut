@@ -211,7 +211,7 @@ rpm: dracut-$(VERSION).tar.xz syncheck
 	rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" \
 	        --define "_specdir $$PWD" --define "_srcrpmdir $$PWD" \
 		--define "_rpmdir $$PWD" -ba dracut.spec; ) && \
-	( mv "$$rpmbuild"/$$(arch)/*.rpm .; mv "$$rpmbuild"/*.src.rpm .;rm -fr -- "$$rpmbuild"; ls *.rpm )
+	( mv "$$rpmbuild"/$$(arch)/*.rpm $(DESTDIR)/.; mv "$$rpmbuild"/*.src.rpm $(DESTDIR)/.;rm -fr -- "$$rpmbuild"; ls $(DESTDIR)/*.rpm )
 
 syncheck:
 	@ret=0;for i in dracut-initramfs-restore.sh modules.d/*/*.sh; do \
