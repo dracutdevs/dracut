@@ -38,8 +38,8 @@ trap '[[ -d $rootdir ]] && { umount "$rootdir/proc"; umount "$rootdir/sys"; umou
 	mdadm \
         bash \
         iscsi-initiator-utils \
-        $basedir/dracut-[0-9]*.$(arch).rpm \
-        $basedir/dracut-network-[0-9]*.$(arch).rpm
+        "$TESTDIR"/dracut-[0-9]*.$(arch).rpm \
+        "$TESTDIR"/dracut-network-[0-9]*.$(arch).rpm
 
     cat >"$rootdir"/test.sh <<EOF
 #!/bin/bash
