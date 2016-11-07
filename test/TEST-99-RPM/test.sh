@@ -83,10 +83,12 @@ EOF
 }
 
 test_setup() {
+    make -C "$basedir" DESTDIR="$TESTDIR" rpm
     return 0
 }
 
 test_cleanup() {
+    rm -fr -- "$TESTDIR"/*.rpm
     return 0
 }
 
