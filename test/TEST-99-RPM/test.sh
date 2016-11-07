@@ -1,7 +1,10 @@
 #!/bin/bash
 
 TEST_DESCRIPTION="rpm integrity after dracut and kernel install"
-$TESTDIR
+
+test_check() {
+    command -v rpm &>/dev/null && ( command -v yum || command -v dnf ) &>/dev/null
+}
 
 test_run() {
     set -x
