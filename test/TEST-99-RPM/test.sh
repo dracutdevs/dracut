@@ -86,7 +86,7 @@ EOF
 }
 
 test_setup() {
-    make -C "$basedir" DESTDIR="$TESTDIR" rpm
+    make -C "$basedir" DESTDIR="$TESTDIR/" rpm
     return 0
 }
 
