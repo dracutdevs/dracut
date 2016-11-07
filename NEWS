@@ -23,7 +23,7 @@ dracut-install:
     --silent
     --kerneldir
     --firmwaredirs
-    
+
 lsinitrd:
 - new option "--unpack"
 - new option "--unpackearly"
@@ -33,6 +33,8 @@ general initramfs fixes:
 - don't remove 99-cmdline-ask on 'hostonly' cleanup
 - call dracut-cmdline-ask.service, if /etc/cmdline.d/*.conf exists
 - break at switch_root only for bare rd.break
+- add rd.emergency=[reboot|poweroff|halt]
+  specifies what action to execute in case of a critical failure
 
 dmsquash-live:
 - fixed livenet-generator execution flag
@@ -55,9 +57,11 @@ kernel-modules:
 systemd:
 - add /etc/machine-info
 - fixed systemd-escape call for names beginning with "-"
+- install missing drop-in configuration files for
+    /etc/systemd/{journal.conf,system.conf}
 
 filesystems:
-- add support to F2FS filesystem (fsck)
+- add support to F2FS filesystem (fsck and modules)
 
 network:
 - fix carrier detection
@@ -67,6 +71,9 @@ network:
 - add mtu to list of variables to store in override
 - for rd.neednet=0 a bootdev is not needed anymore
 - dhclient-script.sh: add classless-static-routes support
+- support for iBFT IPv6
+- support macaddr in brackets [] (commit 740c46c0224a187d6b5a42b4aa56e173238884cc)
+- use arping2, if available
 
 nbd:
 - add systemd generator
