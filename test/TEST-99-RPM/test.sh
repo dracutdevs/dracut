@@ -26,7 +26,7 @@ trap '[[ -d $rootdir ]] && { umount "$rootdir/proc"; umount "$rootdir/sys"; umou
 
     dnf_or_yum=yum
     command -v dnf >/dev/null && dnf_or_yum=dnf
-    $dnf_or_yum --nogpgcheck --installroot "$rootdir"/ install --allowerasing -y \
+    $dnf_or_yum --nogpgcheck --installroot "$rootdir"/ --releasever 25 --disablerepo=updates-testing install --allowerasing -y \
 	$dnf_or_yum \
 	passwd \
 	rootfiles \
