@@ -1700,7 +1700,7 @@ if [[ $create_early_cpio = yes ]]; then
 
     # The microcode blob is _before_ the initramfs blob, not after
     if ! (
-            cd "$early_cpio_dir/d"
+            umask 077; cd "$early_cpio_dir/d"
             find . -print0 | sort -z \
                 | cpio ${CPIO_REPRODUCIBLE:+--reproducible} --null $cpio_owner_root -H newc -o --quiet > "${DRACUT_TMPDIR}/initramfs.img"
         ); then
