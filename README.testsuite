@@ -9,8 +9,23 @@ nfs-utils \
 nbd \
 dhcp-server \
 scsi-target-utils \
-iscsi-initiator-utils
-
+iscsi-initiator-utils \
+net-tools \
+strace \
+syslinux \
+python-imgcreate \
+genisoimage \
+btrfs-progs \
+bridge-utils \
+kmod-devel \
+gcc \
+bzip2 \
+xz \
+tar \
+wget \
+rpm-build \
+dash \
+${NULL}
 
 TEST-04-FULL-SYSTEMD: systemd >= 187
 
