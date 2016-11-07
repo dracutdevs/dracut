@@ -157,7 +157,7 @@ install() {
     }
 
     _mods=$(modules_load_get /usr/lib/modules-load.d)
-    [[ $_mods ]] && instmods $_mods
+    [[ $_mods ]] && hostonly='' instmods $_mods
 
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
@@ -177,7 +177,7 @@ install() {
             ${NULL}
 
         _mods=$(modules_load_get /etc/modules-load.d)
-        [[ $_mods ]] && instmods $_mods
+        [[ $_mods ]] && hostonly='' instmods $_mods
     fi
 
     if ! [[ -e "$initdir/etc/machine-id" ]]; then
