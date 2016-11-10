@@ -28,7 +28,7 @@ run_server() {
         -append "root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 $SERVER_DEBUG" \
         -initrd $TESTDIR/initramfs.server \
         -pidfile $TESTDIR/server.pid -daemonize || return 1
-    sudo chmod 644 $TESTDIR/server.pid || return 1
+    chmod 644 $TESTDIR/server.pid || return 1
 
     # Cleanup the terminal if we have one
     tty -s && stty sane
@@ -129,7 +129,7 @@ test_run() {
     do_test_run
     ret=$?
     if [[ -s $TESTDIR/server.pid ]]; then
-        sudo kill -TERM $(cat $TESTDIR/server.pid)
+        kill -TERM $(cat $TESTDIR/server.pid)
         rm -f -- $TESTDIR/server.pid
     fi
     return $ret
@@ -169,7 +169,7 @@ test_setup() {
         inst_simple /etc/os-release
         inst ./client-init.sh /sbin/init
         cp -a /etc/ld.so.conf* $initdir/etc
-        sudo ldconfig -r "$initdir"
+        ldconfig -r "$initdir"
     )
 
     # second, install the files needed to make the root filesystem
@@ -216,7 +216,7 @@ test_setup() {
         inst_hook emergency 000 ./hard-off.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
-    sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
         -o "plymouth dmraid nfs" \
         -a "debug" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod" \
@@ -227,7 +227,7 @@ test_setup() {
     dd if=/dev/null of=$TESTDIR/server.ext3 bs=1M seek=60
     mkfs.ext3 -j -F $TESTDIR/server.ext3
     mkdir $TESTDIR/mnt
-    sudo mount -o loop $TESTDIR/server.ext3 $TESTDIR/mnt
+    mount -o loop $TESTDIR/server.ext3 $TESTDIR/mnt
 
     kernel=$KVERSION
     (
@@ -259,11 +259,11 @@ test_setup() {
         inst /etc/group /etc/group
 
         cp -a /etc/ld.so.conf* $initdir/etc
-        sudo ldconfig -r "$initdir"
+        ldconfig -r "$initdir"
         dracut_kernel_post
     )
 
-    sudo umount $TESTDIR/mnt
+    umount $TESTDIR/mnt
     rm -fr -- $TESTDIR/mnt
 
     # Make server's dracut image
@@ -277,7 +277,7 @@ test_setup() {
 
 test_cleanup() {
     if [[ -s $TESTDIR/server.pid ]]; then
-        sudo kill -TERM $(cat $TESTDIR/server.pid)
+        kill -TERM $(cat $TESTDIR/server.pid)
         rm -f -- $TESTDIR/server.pid
     fi
 }

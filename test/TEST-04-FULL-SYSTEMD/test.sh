@@ -263,7 +263,7 @@ EOF
 	inst_hook emergency 000 ./hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
-    sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-a "debug systemd" \
 	-I "/etc/machine-id /etc/hostname" \
         -o "network plymouth lvm mdraid resume crypt i18n caps dm terminfo usrmount" \

@@ -38,7 +38,7 @@ test_setup() {
 
     dd if=/dev/zero of="$TESTDIR"/root.img count=100
 
-    sudo $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
+    $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
 	-a "debug dmsquash-live" \
 	-d "piix ide-gd_mod ata_piix ext3 sd_mod sr_mod" \
 	-f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
@@ -69,7 +69,7 @@ test_setup() {
 	find_binary plymouth >/dev/null && inst_multiple plymouth
 	(cd "$initdir"; mkdir -p -- dev sys proc etc var/run tmp )
 	cp -a -- /etc/ld.so.conf* "$initdir"/etc
-	sudo ldconfig -r "$initdir"
+	ldconfig -r "$initdir"
     )
     python create.py -d -c livecd-fedora-minimal.ks
     return 0

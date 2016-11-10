@@ -26,7 +26,7 @@ run_server() {
         -append "loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.server \
         -pidfile "$TESTDIR"/server.pid -daemonize || return 1
-    sudo chmod 644 -- "$TESTDIR"/server.pid || return 1
+    chmod 644 -- "$TESTDIR"/server.pid || return 1
 
     # Cleanup the terminal if we have one
     tty -s && stty sane
@@ -159,7 +159,7 @@ test_setup() {
     dd if=/dev/null of="$TESTDIR"/server.ext3 bs=1M seek=60
     mke2fs -j -F -- "$TESTDIR"/server.ext3
     mkdir -- "$TESTDIR"/mnt
-    sudo mount -o loop -- "$TESTDIR"/server.ext3 "$TESTDIR"/mnt
+    mount -o loop -- "$TESTDIR"/server.ext3 "$TESTDIR"/mnt
 
     (
         export initdir="$TESTDIR"/mnt
@@ -222,7 +222,7 @@ test_setup() {
         inst /etc/group /etc/group
 
         cp -a -- /etc/ld.so.conf* "$initdir"/etc
-        sudo ldconfig -r "$initdir"
+        ldconfig -r "$initdir"
         dracut_kernel_post
     )
 
@@ -260,10 +260,10 @@ test_setup() {
         inst_libdir_file -n "$_nsslibs" 'libnss_*.so*'
 
         cp -a -- /etc/ld.so.conf* "$initdir"/etc
-        sudo ldconfig -r "$initdir"
+        ldconfig -r "$initdir"
     )
 
-    sudo umount "$TESTDIR"/mnt
+    umount "$TESTDIR"/mnt
     rm -fr -- "$TESTDIR"/mnt
 
     # Make an overlay with needed tools for the test harness
@@ -291,7 +291,7 @@ test_setup() {
 
 kill_server() {
     if [[ -s "$TESTDIR"/server.pid ]]; then
-        sudo kill -TERM -- $(cat "$TESTDIR"/server.pid)
+        kill -TERM -- $(cat "$TESTDIR"/server.pid)
         rm -f -- "$TESTDIR"/server.pid
     fi
 }

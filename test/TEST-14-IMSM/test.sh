@@ -70,7 +70,7 @@ test_setup() {
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
 	cp -a /etc/ld.so.conf* $initdir/etc
 	mkdir $initdir/run
-	sudo ldconfig -r "$initdir"
+	ldconfig -r "$initdir"
     )
 
     # second, install the files needed to make the root filesystem
@@ -109,7 +109,7 @@ test_setup() {
 	inst_hook emergency 000 ./hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
-    sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-o "plymouth network" \
 	-a "debug" \
 	-d "piix ide-gd_mod ata_piix ext2 sd_mod" \
