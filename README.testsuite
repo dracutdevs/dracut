@@ -4,6 +4,7 @@ bridge-utils \
 asciidoc \
 mdadm \
 lvm2 \
+dmraid \
 cryptsetup \
 nfs-utils \
 nbd \
@@ -24,7 +25,6 @@ xz \
 tar \
 wget \
 rpm-build \
-dash \
 ${NULL}
 
 TEST-04-FULL-SYSTEMD: systemd >= 187
