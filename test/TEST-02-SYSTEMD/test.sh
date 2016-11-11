@@ -13,7 +13,8 @@ test_run() {
 	-hdb $TESTDIR/marker.disk \
 	-m 256M -smp 2 -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "root=LABEL=dracut rw loglevel=77 rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 init=/sbin/init $DEBUGFAIL" \
+        -no-reboot \
+	-append "panic=1 root=LABEL=dracut rw loglevel=77 rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 init=/sbin/init $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     grep -F -m 1 -q dracut-root-block-success $TESTDIR/marker.disk || return 1
 }

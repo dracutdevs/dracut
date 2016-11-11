@@ -23,7 +23,8 @@ run_server() {
         ${SERIAL:+-serial "$SERIAL"} \
         -watchdog i6300esb -watchdog-action poweroff \
         -kernel /boot/vmlinuz-"$KVERSION" \
-        -append "loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
+        -no-reboot \
+        -append "panic=1 loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.server \
         -pidfile "$TESTDIR"/server.pid -daemonize || return 1
     chmod 644 -- "$TESTDIR"/server.pid || return 1
@@ -58,7 +59,8 @@ client_test() {
         -net nic,macaddr=52:54:00:12:34:$mac3,model=e1000 \
         -watchdog i6300esb -watchdog-action poweroff \
         -kernel /boot/vmlinuz-"$KVERSION" \
-        -append "$cmdline $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init rd.debug systemd.log_target=console loglevel=7" \
+        -no-reboot \
+        -append "panic=1 $cmdline $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init rd.debug systemd.log_target=console loglevel=7" \
         -initrd "$TESTDIR"/initramfs.testing
 
     { read OK; read IFACES; } < "$TESTDIR"/client.img

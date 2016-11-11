@@ -11,7 +11,8 @@ test_run() {
 	-hda $DISKIMAGE \
 	-m 256M  -smp 2 -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "root=LABEL=root rw rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
+        -no-reboot \
+	-append "panic=1 root=LABEL=root rw rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     dd if=$DISKIMAGE bs=512 count=2 | grep -F -m 1 -q dracut-root-block-success $DISKIMAGE || return 1
 }
