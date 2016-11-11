@@ -35,7 +35,7 @@ trap '[[ -d $rootdir ]] && { umount "$rootdir/proc"; umount "$rootdir/sys"; umou
     dnf_or_yum_cmd=yum
     command -v dnf >/dev/null && { dnf_or_yum="dnf"; dnf_or_yum_cmd="dnf --allowerasing"; }
     $dnf_or_yum_cmd -v --nogpgcheck --installroot "$rootdir"/ --releasever 25 --disablerepo='*' \
-                --enablerepo=fedora \
+                --enablerepo=fedora --enablerepo=updates \
                 install -y \
 	$dnf_or_yum \
 	passwd \
@@ -51,8 +51,10 @@ trap '[[ -d $rootdir ]] && { umount "$rootdir/proc"; umount "$rootdir/sys"; umou
     bash \
     iscsi-initiator-utils \
     "$TESTDIR"/dracut-[0-9]*.$(arch).rpm \
-    "$TESTDIR"/dracut-network-[0-9]*.$(arch).rpm \
     ${NULL}
+    #"$TESTDIR"/dracut-config-rescue-[0-9]*.$(arch).rpm \
+    #"$TESTDIR"/dracut-network-[0-9]*.$(arch).rpm \
+#    ${NULL}
 
     cat >"$rootdir"/test.sh <<EOF
 #!/bin/bash
