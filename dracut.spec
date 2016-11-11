@@ -115,6 +115,7 @@ Requires: kpartx
 %if 0%{?fedora} || 0%{?rhel} > 6
 Requires: util-linux >= 2.21
 Requires: systemd >= 219
+Requires: systemd-udev >= 219
 Requires: procps-ng
 Conflicts: grubby < 8.23
 Conflicts: initscripts < 8.63-1
