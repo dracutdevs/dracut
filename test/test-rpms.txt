@@ -8,6 +8,7 @@ cryptsetup
 nfs-utils
 nbd
 dhcp-server
+dhcp
 scsi-target-utils
 iscsi-initiator-utils
 net-tools
