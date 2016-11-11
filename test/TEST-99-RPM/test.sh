@@ -16,6 +16,7 @@ test_run() {
     mkdir -p "$rootdir/proc"
     mkdir -p "$rootdir/sys"
     mkdir -p "$rootdir/dev"
+    mkdir -p "$rootdir/boot"
 
 trap 'ret=$?; [[ -d $rootdir ]] && { umount "$rootdir/proc"; umount "$rootdir/sys"; umount "$rootdir/dev"; rm -rf -- "$rootdir"; } || :; exit $ret;' EXIT
 trap '[[ -d $rootdir ]] && { umount "$rootdir/proc"; umount "$rootdir/sys"; umount "$rootdir/dev"; rm -rf -- "$rootdir"; } || :; exit 1;' SIGINT
@@ -24,26 +25,38 @@ trap '[[ -d $rootdir ]] && { umount "$rootdir/proc"; umount "$rootdir/sys"; umou
     mount --bind /sys "$rootdir/sys"
     mount -t devtmpfs devtmpfs "$rootdir/dev"
 
+    mkdir -p "$rootdir/$TESTDIR"
+    cp --reflink=auto -a \
+       "$TESTDIR"/dracut-[0-9]*.$(arch).rpm \
+       "$TESTDIR"/dracut-network-[0-9]*.$(arch).rpm \
+       "$rootdir/$TESTDIR/"
+
     dnf_or_yum=yum
-    command -v dnf >/dev/null && dnf_or_yum=dnf
-    $dnf_or_yum --nogpgcheck --installroot "$rootdir"/ --releasever 25 --disablerepo=updates-testing install --allowerasing -y \
+    dnf_or_yum_cmd=yum
+    command -v dnf >/dev/null && { dnf_or_yum="dnf"; dnf_or_yum_cmd="dnf --allowerasing"; }
+    $dnf_or_yum_cmd -v --nogpgcheck --installroot "$rootdir"/ --releasever 25 --disablerepo='*' \
+                --enablerepo=fedora \
+                install -y \
 	$dnf_or_yum \
 	passwd \
 	rootfiles \
 	systemd \
+    systemd-udev \
 	kernel \
-	fedora-release \
+	kernel-core \
+	redhat-release \
 	device-mapper-multipath \
 	lvm2 \
 	mdadm \
-        bash \
-        iscsi-initiator-utils \
-        "$TESTDIR"/dracut-[0-9]*.$(arch).rpm \
-        "$TESTDIR"/dracut-network-[0-9]*.$(arch).rpm
+    bash \
+    iscsi-initiator-utils \
+    "$TESTDIR"/dracut-[0-9]*.$(arch).rpm \
+    "$TESTDIR"/dracut-network-[0-9]*.$(arch).rpm \
+    ${NULL}
 
     cat >"$rootdir"/test.sh <<EOF
 #!/bin/bash
-set -xe
+set -x
 export LC_MESSAGES=C
 rpm -Va |& grep -F -v '85-display-manager.preset' &> /test.output
 find / -xdev -type f -not -path '/var/*' \
@@ -61,7 +74,8 @@ find / -xdev -type f -not -path '/var/*' \
   -not -path '/dev/null' \
   -not -path "/boot/loader/entries/\$(cat /etc/machine-id)-*" \
   -not -path "/boot/\$(cat /etc/machine-id)/*" \
-  -exec rpm -qf '{}' ';' | \
+  -not -path '/etc/openldap/certs/*' \
+  -print0 | xargs -0 rpm -qf | \
   grep -F 'not owned' &>> /test.output || :
 exit 0
 EOF
