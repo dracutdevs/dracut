@@ -19,7 +19,8 @@ client_run() {
 	-hdc $TESTDIR/disk2.img.new \
 	-hdd $TESTDIR/disk3.img.new \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "$* root=LABEL=root rw rd.retry=20 rd.info console=ttyS0,115200n81 selinux=0 rd.debug $DEBUGFAIL " \
+        -no-reboot \
+	-append "panic=1 $* root=LABEL=root rw rd.retry=20 rd.info console=ttyS0,115200n81 selinux=0 rd.debug $DEBUGFAIL " \
 	-initrd $TESTDIR/initramfs.testing
     if ! grep -F -m 1 -q dracut-root-block-success $TESTDIR/root.ext2; then
 	echo "CLIENT TEST END: $@ [FAIL]"
@@ -81,7 +82,7 @@ test_setup() {
 	find_binary plymouth >/dev/null && inst_multiple plymouth
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
 	cp -a /etc/ld.so.conf* $initdir/etc
-	sudo ldconfig -r "$initdir"
+	ldconfig -r "$initdir"
     )
 
     # second, install the files needed to make the root filesystem
@@ -131,7 +132,7 @@ test_setup() {
         echo -n test > $initdir/etc/key
     )
 
-    sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-o "plymouth network" \
 	-a "debug" \
 	-d "piix ide-gd_mod ata_piix ext2 sd_mod" \

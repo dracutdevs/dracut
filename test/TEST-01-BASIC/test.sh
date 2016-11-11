@@ -14,7 +14,8 @@ test_run() {
 	-m 256M -smp 2 -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
 	-watchdog i6300esb -watchdog-action poweroff \
-	-append "root=LABEL=dracut rw systemd.log_level=debug systemd.log_target=console rd.retry=3 rd.debug console=ttyS0,115200n81 $DEBUGFAIL" \
+        -no-reboot \
+	-append "panic=1 root=LABEL=dracut rw systemd.log_level=debug systemd.log_target=console rd.retry=3 rd.debug console=ttyS0,115200n81 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing || return 1
     grep -F -m 1 -q dracut-root-block-success $TESTDIR/result || return 1
 }
@@ -45,7 +46,7 @@ test_setup() {
 	find_binary plymouth >/dev/null && inst_multiple plymouth
 	(cd "$initdir"; mkdir -p dev sys proc etc var/run tmp )
 	cp -a /etc/ld.so.conf* $initdir/etc
-	sudo ldconfig -r "$initdir"
+	ldconfig -r "$initdir"
     )
 
     # second, install the files needed to make the root filesystem
@@ -85,7 +86,7 @@ test_setup() {
 	inst_hook emergency 000 ./hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
-    sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-a "debug watchdog" \
         -o "plymouth" \
 	-d "piix ide-gd_mod ata_piix ext3 sd_mod i6300esb ib700wdt" \

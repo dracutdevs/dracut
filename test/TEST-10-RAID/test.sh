@@ -12,7 +12,8 @@ test_run() {
 	-hda $DISKIMAGE \
 	-m 256M -smp 2 -nographic \
 	-net none -kernel /boot/vmlinuz-$KVERSION \
-	-append "root=/dev/dracut/root rd.auto rw rd.retry=10 console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
+        -no-reboot \
+	-append "panic=1 root=/dev/dracut/root rd.auto rw rd.retry=10 console=ttyS0,115200n81 selinux=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     grep -F -m 1 -q dracut-root-block-success $DISKIMAGE || return 1
 }
@@ -43,7 +44,7 @@ test_setup() {
 	inst_multiple -o /lib/systemd/systemd-shutdown
 	find_binary plymouth >/dev/null && inst_multiple plymouth
 	cp -a /etc/ld.so.conf* $initdir/etc
-	sudo ldconfig -r "$initdir"
+	ldconfig -r "$initdir"
     )
 
     # second, install the files needed to make the root filesystem
@@ -88,7 +89,7 @@ test_setup() {
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 
-    sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-o "plymouth network" \
 	-a "debug" \
 	-d "piix ide-gd_mod ata_piix ext2 sd_mod" \

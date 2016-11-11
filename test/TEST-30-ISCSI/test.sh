@@ -25,10 +25,11 @@ run_server() {
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net nic,macaddr=52:54:00:12:34:57,model=e1000 \
         -net socket,listen=127.0.0.1:12330 \
-        -append "root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 $SERVER_DEBUG" \
+        -no-reboot \
+        -append "panic=1 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 $SERVER_DEBUG" \
         -initrd $TESTDIR/initramfs.server \
         -pidfile $TESTDIR/server.pid -daemonize || return 1
-    sudo chmod 644 $TESTDIR/server.pid || return 1
+    chmod 644 $TESTDIR/server.pid || return 1
 
     # Cleanup the terminal if we have one
     tty -s && stty sane
@@ -49,7 +50,8 @@ run_client() {
         -net nic,macaddr=52:54:00:12:34:00,model=e1000 \
         -net nic,macaddr=52:54:00:12:34:01,model=e1000 \
         -net socket,connect=127.0.0.1:12330 \
-        -append "rw rd.auto rd.retry=50 console=ttyS0,115200n81 selinux=0 rd.debug=0 $DEBUGFAIL $*" \
+        -no-reboot \
+        -append "panic=1 rw rd.auto rd.device.timeout=300 rd.retry=50 console=ttyS0,115200n81 selinux=0 rd.debug=0 $DEBUGFAIL $*" \
         -initrd $TESTDIR/initramfs.testing
     if ! grep -F -m 1 -q iscsi-OK $TESTDIR/client.img; then
 	echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
@@ -129,15 +131,15 @@ test_run() {
     do_test_run
     ret=$?
     if [[ -s $TESTDIR/server.pid ]]; then
-        sudo kill -TERM $(cat $TESTDIR/server.pid)
+        kill -TERM $(cat $TESTDIR/server.pid)
         rm -f -- $TESTDIR/server.pid
     fi
     return $ret
 }
 
 test_setup() {
-    if [ ! -x /usr/sbin/iscsi-target ]; then
-        echo "Need iscsi-target from netbsd-iscsi"
+    if ! command -v tgtd &>/dev/null || ! command -v tgtadm &>/dev/null; then
+        echo "Need tgtd and tgtadm from scsi-target-utils"
         return 1
     fi
 
@@ -169,7 +171,7 @@ test_setup() {
         inst_simple /etc/os-release
         inst ./client-init.sh /sbin/init
         cp -a /etc/ld.so.conf* $initdir/etc
-        sudo ldconfig -r "$initdir"
+        ldconfig -r "$initdir"
     )
 
     # second, install the files needed to make the root filesystem
@@ -216,7 +218,7 @@ test_setup() {
         inst_hook emergency 000 ./hard-off.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
-    sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
         -o "plymouth dmraid nfs" \
         -a "debug" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod" \
@@ -227,7 +229,7 @@ test_setup() {
     dd if=/dev/null of=$TESTDIR/server.ext3 bs=1M seek=60
     mkfs.ext3 -j -F $TESTDIR/server.ext3
     mkdir $TESTDIR/mnt
-    sudo mount -o loop $TESTDIR/server.ext3 $TESTDIR/mnt
+    mount -o loop $TESTDIR/server.ext3 $TESTDIR/mnt
 
     kernel=$KVERSION
     (
@@ -259,11 +261,11 @@ test_setup() {
         inst /etc/group /etc/group
 
         cp -a /etc/ld.so.conf* $initdir/etc
-        sudo ldconfig -r "$initdir"
+        ldconfig -r "$initdir"
         dracut_kernel_post
     )
 
-    sudo umount $TESTDIR/mnt
+    umount $TESTDIR/mnt
     rm -fr -- $TESTDIR/mnt
 
     # Make server's dracut image
@@ -277,7 +279,7 @@ test_setup() {
 
 test_cleanup() {
     if [[ -s $TESTDIR/server.pid ]]; then
-        sudo kill -TERM $(cat $TESTDIR/server.pid)
+        kill -TERM $(cat $TESTDIR/server.pid)
         rm -f -- $TESTDIR/server.pid
     fi
 }

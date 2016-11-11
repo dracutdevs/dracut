@@ -25,4 +25,4 @@ else
     VMLINUZ="/boot/vmlinuz-${KVERSION}"
 fi
 
-exec sudo $BIN $ARGS -kernel $VMLINUZ "$@"
+exec $BIN $ARGS -kernel $VMLINUZ "$@"

@@ -58,7 +58,6 @@ ip addr add 192.168.50.1/24 dev ens3
 linkup ens3
 >/dev/watchdog
 ip link set dev eth1 name ens4
-linkup ens4
 ip link add dev ens4.1 link ens4 type vlan id 1
 ip link add dev ens4.2 link ens4 type vlan id 2
 ip link add dev ens4.3 link ens4 type vlan id 3
@@ -67,13 +66,12 @@ ip addr add 192.168.54.1/24 dev ens4.1
 ip addr add 192.168.55.1/24 dev ens4.2
 ip addr add 192.168.56.1/24 dev ens4.3
 ip addr add 192.168.57.1/24 dev ens4.4
+linkup ens4
 ip link set dev eth2 name ens5
-ip link set dev eth3 name ens6
-linkup ens4
-linkup ens5
-linkup ens6
 ip addr add 192.168.51.1/24 dev ens5
-linkup ens4
+linkup ens5
+ip link set dev eth3 name ens6
+linkup ens6
 >/dev/watchdog
 modprobe af_packet
 > /dev/watchdog

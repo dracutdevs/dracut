@@ -22,7 +22,8 @@ client_run() {
 	-hdc $TESTDIR/result \
 	-m 256M -smp 2 -nographic \
 	-net none \
-	-append "$client_opts rd.device.timeout=20 rd.retry=3 console=ttyS0,115200n81 selinux=0 $DEBUGOUT $DEBUGFAIL" \
+        -no-reboot \
+	-append "panic=1 $client_opts rd.device.timeout=20 rd.retry=3 console=ttyS0,115200n81 selinux=0 $DEBUGOUT $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
 
     if (($? != 0)); then
@@ -263,7 +264,7 @@ EOF
 	inst_hook emergency 000 ./hard-off.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
-    sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
 	-a "debug systemd" \
 	-I "/etc/machine-id /etc/hostname" \
         -o "network plymouth lvm mdraid resume crypt i18n caps dm terminfo usrmount" \
