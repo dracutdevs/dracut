@@ -2,5 +2,5 @@
 
 dracut is an initramfs infrastructure.
 
-CentOS CI: [![Build Status](https://ci.centos.org/job/dracut-matrix-master/badge/icon)](https://ci.centos.org/job/dracut-matrix-master/)
+CentOS CI: [![Build Status](https://ci.centos.org/job/dracut-push-master/badge/icon)](https://ci.centos.org/job/dracut-push-master/)
 
