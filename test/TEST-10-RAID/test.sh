@@ -10,7 +10,7 @@ test_run() {
     DISKIMAGE=$TESTDIR/TEST-10-RAID-root.img
     $testdir/run-qemu \
 	-drive format=raw,index=0,media=disk,file=$DISKIMAGE \
-	-m 256M -smp 2 -nographic \
+	-m 256M -cpu host -smp 2 -nographic \
 	-net none \
         -no-reboot \
 	-append "panic=1 root=/dev/dracut/root rd.auto rw rd.retry=10 console=ttyS0,115200n81 selinux=0 rd.shell=0 $DEBUGFAIL" \
@@ -77,7 +77,7 @@ test_setup() {
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     $testdir/run-qemu \
 	-drive format=raw,index=0,media=disk,file=$DISKIMAGE \
-	-m 256M -smp 2 -nographic -net none \
+	-m 256M -cpu host -smp 2 -nographic -net none \
 	-append "root=/dev/cannotreach rw rootfstype=ext2 console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
     grep -F -m 1 -q dracut-root-block-created $DISKIMAGE || return 1

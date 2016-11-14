@@ -19,7 +19,7 @@ run_server() {
         -drive format=raw,index=1,media=disk,file=$TESTDIR/root.ext3 \
         -drive format=raw,index=2,media=disk,file=$TESTDIR/iscsidisk2.img \
         -drive format=raw,index=3,media=disk,file=$TESTDIR/iscsidisk3.img \
-        -m 512M  -smp 2 \
+        -m 512M  -cpu host -smp 2 \
         -display none \
         -serial $SERIAL \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
@@ -46,7 +46,7 @@ run_client() {
 
     $testdir/run-qemu \
         -drive format=raw,index=0,media=disk,file=$TESTDIR/client.img \
-        -m 512M -smp 2 -nographic \
+        -m 512M -cpu host -smp 2 -nographic \
         -net nic,macaddr=52:54:00:12:34:00,model=e1000 \
         -net nic,macaddr=52:54:00:12:34:01,model=e1000 \
         -net socket,connect=127.0.0.1:12330 \
@@ -207,7 +207,7 @@ test_setup() {
         -drive format=raw,index=1,media=disk,file=$TESTDIR/client.img \
         -drive format=raw,index=2,media=disk,file=$TESTDIR/iscsidisk2.img \
         -drive format=raw,index=3,media=disk,file=$TESTDIR/iscsidisk3.img \
-        -smp 2 -m 256M -nographic -net none \
+        -cpu host -smp 2 -m 256M -nographic -net none \
         -append "root=/dev/fakeroot rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
     grep -F -m 1 -q dracut-root-block-created $TESTDIR/client.img || return 1
