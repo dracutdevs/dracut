@@ -8,7 +8,7 @@ KVERSION="${KVERSION-$(uname -r)}"
 test_run() {
     $testdir/run-qemu \
 	-drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext3 \
-	-m 256M -smp 2 -nographic \
+	-m 256M -cpu host -smp 2 -nographic \
 	-net none \
         -no-reboot \
 	-append "panic=1 root=LABEL=dracut rw loglevel=77 systemd.log_level=debug systemd.log_target=console rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug init=/sbin/init rd.shell=0 $DEBUGFAIL" \
@@ -77,7 +77,7 @@ test_setup() {
 
     $testdir/run-qemu \
 	-drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext3 \
-	-m 256M -smp 2 -nographic -net none \
+	-m 256M -cpu host -smp 2 -nographic -net none \
 	-append "root=/dev/fakeroot rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
     grep -F -m 1 -q dracut-root-block-created $TESTDIR/root.ext3 || return 1
