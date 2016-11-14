@@ -17,7 +17,7 @@ run_server() {
         -drive format=raw,index=0,media=disk,file=$TESTDIR/server.ext2 \
         -drive format=raw,index=1,media=disk,file=$TESTDIR/nbd.ext2 \
         -drive format=raw,index=2,media=disk,file=$TESTDIR/encrypted.ext2 \
-        -m 256M -smp 2 \
+        -m 256M -cpu host -smp 2 \
         -display none \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net socket,listen=127.0.0.1:12340 \
@@ -55,7 +55,7 @@ client_test() {
 
     $testdir/run-qemu \
         -drive format=raw,index=0,media=disk,file=$TESTDIR/flag.img \
-        -m 512M -smp 2 \
+        -m 512M -cpu host -smp 2 \
         -nographic \
         -net nic,macaddr=$mac,model=e1000 \
         -net socket,connect=127.0.0.1:12340 \
@@ -249,7 +249,7 @@ make_encrypted_root() {
     $testdir/run-qemu \
         -drive format=raw,index=0,media=disk,file=$TESTDIR/flag.img \
         -drive format=raw,index=1,media=disk,file=$TESTDIR/encrypted.ext2 \
-        -m 256M -smp 2\
+        -m 256M -cpu host -smp 2\
         -nographic -net none \
         -append "root=/dev/fakeroot rw quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1

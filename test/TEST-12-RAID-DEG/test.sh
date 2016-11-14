@@ -15,7 +15,7 @@ client_run() {
     cp --sparse=always --reflink=auto $TESTDIR/disk3.img $TESTDIR/disk3.img.new
 
     $testdir/run-qemu \
-	-drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext2 -m 256M -nographic  -smp 2 \
+	-drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext2 -m 256M -nographic  -cpu host -smp 2 \
 	-drive format=raw,index=2,media=disk,file=$TESTDIR/disk2.img.new \
 	-drive format=raw,index=3,media=disk,file=$TESTDIR/disk3.img.new \
 	-net none \
@@ -117,7 +117,7 @@ test_setup() {
 	-drive format=raw,index=1,media=disk,file=$TESTDIR/disk1.img \
 	-drive format=raw,index=2,media=disk,file=$TESTDIR/disk2.img \
 	-drive format=raw,index=3,media=disk,file=$TESTDIR/disk3.img \
-	-m 256M -smp 2 -nographic -net none \
+	-m 256M -cpu host -smp 2 -nographic -net none \
 	-append "root=/dev/fakeroot rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
 

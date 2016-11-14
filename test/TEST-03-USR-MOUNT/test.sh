@@ -18,7 +18,7 @@ client_run() {
 	-drive format=raw,index=0,media=disk,file=$TESTDIR/root.btrfs \
 	-drive format=raw,index=1,media=disk,file=$TESTDIR/usr.btrfs \
 	-drive format=raw,index=2,media=disk,file=$TESTDIR/result \
-	-m 256M -smp 2 -nographic \
+	-m 256M -cpu host -smp 2 -nographic \
 	-net none \
 	-watchdog i6300esb -watchdog-action poweroff \
         -no-reboot \
@@ -115,7 +115,7 @@ test_setup() {
     $testdir/run-qemu \
 	-drive format=raw,index=0,media=disk,file=$TESTDIR/root.btrfs \
 	-drive format=raw,index=1,media=disk,file=$TESTDIR/usr.btrfs \
-	-m 256M -smp 2 -nographic -net none \
+	-m 256M -cpu host -smp 2 -nographic -net none \
 	-append "root=/dev/dracut/root rw rootfstype=btrfs quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
     grep -F -m 1 -q dracut-root-block-created $TESTDIR/root.btrfs || return 1
