@@ -11,6 +11,7 @@ installkernel() {
             ohci-hcd ohci-pci \
             uhci-hcd \
             xhci-hcd xhci-pci xhci-plat-hcd \
+            pinctrl-cherryview \
             "=drivers/hid" \
             "=drivers/input/serio" \
             "=drivers/input/keyboard" \
