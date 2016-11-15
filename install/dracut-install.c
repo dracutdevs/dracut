@@ -294,7 +294,7 @@ static int cp(const char *src, const char *dst)
  normal_copy:
         pid = fork();
         if (pid == 0) {
-                execlp("cp", "cp", "--reflink=auto", "--sparse=auto", "--preserve=mode,timestamps", "-fL", src, dst,
+                execlp("cp", "cp", "--reflink=auto", "--sparse=auto", "--preserve=mode,timestamps,xattr", "-fL", src, dst,
                        NULL);
                 _exit(EXIT_FAILURE);
         }
@@ -302,7 +302,7 @@ static int cp(const char *src, const char *dst)
         while (waitpid(pid, &ret, 0) < 0) {
                 if (errno != EINTR) {
                         ret = -1;
-                        log_error("Failed: cp --reflink=auto --sparse=auto --preserve=mode,timestamps -fL %s %s", src,
+                        log_error("Failed: cp --reflink=auto --sparse=auto --preserve=mode,timestamps,xattr -fL %s %s", src,
                                   dst);
                         break;
                 }
