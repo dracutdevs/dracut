@@ -237,11 +237,13 @@ while (($# > 0)); do
 	-k) # Would be nice to get a list of images here
 	    read_arg kernel_images "$@" || shift $?
 	    for kernel_image in $kernel_images;do
+		[ -L "/boot/$kernel_image" ] && kernel_image="$(readlink "/boot/$kernel_image")"
 		kernels="$kernels ${kernel_image#*-}"
 	    done
 	    ;;
 	-i) read_arg initrd_images "$@" || shift $?
 	    for initrd_image in $initrd_images;do
+		[ -L "/boot/$initrd_image" ] && initrd_image="$(readlink "/boot/$initrd_image")"
 		# Check if the initrd_image contains a path.
 		# if not, then add the default boot_dir
 		dname=`dirname $initrd_image`
