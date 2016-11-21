@@ -8,6 +8,7 @@ $(lsmod | grep -q '^kqemu ') && BIN=/usr/bin/qemu && ARGS="-kernel-kqemu "
 [[ -c /dev/kvm && -x /usr/bin/kvm ]] && BIN=/usr/bin/kvm && ARGS=""
 [[ -c /dev/kvm && -x /usr/bin/qemu-kvm ]] && BIN=/usr/bin/qemu-kvm && ARGS=""
 [[ -c /dev/kvm && -x /usr/libexec/qemu-kvm ]] && BIN=/usr/libexec/qemu-kvm && ARGS=""
+[[ -c /dev/kvm && -x /usr/bin/qemu-system-$(uname -i) ]] && BIN=/usr/bin/qemu-system-$(uname -i) && ARGS="-enable-kvm"
 
 [[ $BIN ]] || {
    echo "Could not find a working KVM or QEMU to test with!" >&2
