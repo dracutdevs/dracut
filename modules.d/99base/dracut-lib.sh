@@ -1206,11 +1206,19 @@ are_lists_eq() {
 
 setmemdebug() {
     if [ -z "$DEBUG_MEM_LEVEL" ]; then
-        export DEBUG_MEM_LEVEL=$(getargnum 0 0 3 rd.memdebug)
+        export DEBUG_MEM_LEVEL=$(getargnum 0 0 4 rd.memdebug)
     fi
 }
 
 setmemdebug
+
+cleanup_trace_mem()
+{
+    # tracekomem based on kernel trace needs cleanup after use.
+    if [ "$DEBUG_MEM_LEVEL" -eq 4 ]; then
+        tracekomem --cleanup
+    fi
+}
 
 # parameters: msg [trace_level:trace]...
 make_trace_mem()
@@ -1295,6 +1303,9 @@ show_memstats()
             ;;
         iomem)
             cat /proc/iomem
+            ;;
+        komem)
+            tracekomem
             ;;
     esac
 }
