@@ -11,7 +11,7 @@ depends() {
 }
 
 installkernel() {
-    local _fipsmodules _mod
+    local _fipsmodules _mod i
 
     if [[ -f "${srcmods}/modules.fips" ]]; then
         _fipsmodules="$(cat "${srcmods}/modules.fips")"
@@ -30,6 +30,10 @@ installkernel() {
         if hostonly='' instmods -c -s $_mod; then
             echo $_mod >> "${initdir}/etc/fipsmodules"
             echo "blacklist $_mod" >> "${initdir}/etc/modprobe.d/fips.conf"
+            for i in $(modprobe --resolve-alias $_mod 2>/dev/null); do
+                [[ $i == $_mod ]] && continue
+                echo "blacklist $i" >> "${initdir}/etc/modprobe.d/fips.conf"
+            done
         fi
     done
 }
