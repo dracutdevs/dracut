@@ -44,10 +44,17 @@ inst_sshenv()
     if [[ -f /etc/ssh/ssh_config ]]; then
         inst_simple /etc/ssh/ssh_config
         sed -i -e 's/\(^[[:space:]]*\)ProxyCommand/\1# ProxyCommand/' ${initdir}/etc/ssh/ssh_config
-        while read key val; do
-            [[ $key != "GlobalKnownHostsFile" ]] && continue
-            inst_simple "$val"
-            break
+        while read key val || [ -n "$key" ]; do
+            if [[ $key == "GlobalKnownHostsFile" ]]; then
+                inst_simple "$val"
+            # Copy customized UserKnowHostsFile
+            elif [[ $key == "UserKnownHostsFile" ]]; then
+                # Make sure that ~/foo will be copied as /root/foo in kdump's initramfs
+                if str_starts "$val" "~/"; then
+                    val="/root/${val#"~/"}"
+                fi
+                inst_simple "$val"
+            fi
         done < /etc/ssh/ssh_config
     fi
 
