@@ -371,6 +371,7 @@ rearrange_params()
         --long kernel-image: \
         --long no-hostonly-i18n \
         --long hostonly-i18n \
+        --long no-machineid \
         -- "$@")
 
     if (( $? != 0 )); then
@@ -566,6 +567,8 @@ while :; do
                        uefi_stub_l="$2";               PARMS_TO_STORE+=" '$2'"; shift;;
         --kernel-image)
                        kernel_image_l="$2";            PARMS_TO_STORE+=" '$2'"; shift;;
+        --no-machineid)
+                       machine_id_l="no";;
         --) shift; break;;
 
         *)  # should not even reach this point
@@ -621,16 +624,6 @@ fi
 if [[ $kernel ]]; then
     if ! [[ -d /lib/modules/$kernel ]] && [[ $no_kernel != yes ]]; then
         printf -- "Kernel version $kernel has no module directory /lib/modules/$kernel\n" >&2
-    fi
-fi
-
-if ! [[ $outfile ]]; then
-    [[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
-
-    if [[ $MACHINE_ID ]] && ( [[ -d /boot/${MACHINE_ID} ]] || [[ -L /boot/${MACHINE_ID} ]] ); then
-        outfile="/boot/${MACHINE_ID}/$kernel/initrd"
-    else
-        outfile="/boot/initramfs-$kernel.img"
     fi
 fi
 
@@ -751,6 +744,36 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $loginstall_l ]] && loginstall="$loginstall_l"
 [[ $uefi_stub_l ]] && uefi_stub="$uefi_stub_l"
 [[ $kernel_image_l ]] && kernel_image="$kernel_image_l"
+[[ $machine_id_l ]] && machine_id="$machine_id_l"
+
+if ! [[ $outfile ]]; then
+    if [[ $machine_id != "no" ]]; then
+        [[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
+    fi
+
+    if [[ $uefi == "yes" ]]; then
+        BUILD_ID=$(cat /etc/os-release /usr/lib/os-release \
+                       | while read -r line || [[ $line ]]; do \
+                       [[ $line =~ BUILD_ID\=* ]] && eval "$line" && echo "$BUILD_ID" && break; \
+                   done)
+        if [[ -d /efi ]] && mountpoint -q /efi; then
+            efidir=/efi
+        else
+            efidir=/boot/EFI
+            if [[ -d /boot/efi/EFI ]] && mountpoint -q /boot/efi; then
+                efidir=/boot/efi/EFI
+            fi
+        fi
+        mkdir -p "$efidir/Linux"
+        outfile="$efidir/Linux/linux-$kernel${MACHINE_ID:+-${MACHINE_ID}}${BUILD_ID:+-${BUILD_ID}}.efi"
+    else
+        if [[ $MACHINE_ID ]] && ( [[ -d /boot/${MACHINE_ID} ]] || [[ -L /boot/${MACHINE_ID} ]] ); then
+            outfile="/boot/${MACHINE_ID}/$kernel/initrd"
+        else
+            outfile="/boot/initramfs-$kernel.img"
+        fi
+    fi
+fi
 
 # eliminate IFS hackery when messing with fw_dir
 export DRACUT_FIRMWARE_PATH=${fw_dir// /:}
