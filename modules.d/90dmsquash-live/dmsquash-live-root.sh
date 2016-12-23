@@ -28,7 +28,7 @@ getargbool 0 rd.live.overlay.readonly -d -y readonly_overlay && readonly_overlay
 overlay=$(getarg rd.live.overlay -d overlay)
 getargbool 0 rd.writable.fsimg -d -y writable_fsimg && writable_fsimg="yes"
 overlay_size=$(getarg rd.live.overlay.size=)
-[ -z "$overlay_size" ] && overlay_size=512
+[ -z "$overlay_size" ] && overlay_size=32768
 
 getargbool 0 rd.live.overlay.thin && thin_snapshot="yes"
 
