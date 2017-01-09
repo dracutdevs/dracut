@@ -820,7 +820,11 @@ esac
 
 [[ $reproducible == yes ]] && DRACUT_REPRODUCIBLE=1
 
-readonly TMPDIR="$tmpdir"
+readonly TMPDIR="$(realpath -e "$tmpdir")"
+[ -d "$TMPDIR" ] || {
+    printf "%s\n" "dracut: Invalid tmpdir '$tmpdir'." >&2
+    exit 1
+}
 readonly DRACUT_TMPDIR="$(mktemp -p "$TMPDIR/" -d -t dracut.XXXXXX)"
 [ -d "$DRACUT_TMPDIR" ] || {
     printf "%s\n" "dracut: mktemp -p '$TMPDIR/' -d -t dracut.XXXXXX failed." >&2
