@@ -52,7 +52,7 @@ test_run() {
                         bash \
                         iscsi-initiator-utils \
                         "$TESTDIR"/dracut-[0-9]*.$(arch).rpm \
-                        ${NULL} || continue
+                        ${NULL} && break
         #"$TESTDIR"/dracut-config-rescue-[0-9]*.$(arch).rpm \
             #"$TESTDIR"/dracut-network-[0-9]*.$(arch).rpm \
             #    ${NULL}
