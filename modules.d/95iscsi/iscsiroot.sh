@@ -190,6 +190,7 @@ handle_netroot()
             if [ "$status" != "activating" ] && ! systemctl is-failed "$netroot_enc" >/dev/null 2>&1; then
                 systemd-run --no-block --service-type=oneshot --remain-after-exit --quiet \
                             --description="Login iSCSI Target $iscsi_target_name" \
+                            -p 'DefaultDependencies=no' \
                             --unit="$netroot_enc" -- \
                             $(command -v iscsistart) \
                             -i "$iscsi_initiator" -t "$iscsi_target_name"        \

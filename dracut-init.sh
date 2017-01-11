@@ -19,6 +19,8 @@
 #
 export LC_MESSAGES=C
 
+export DRACUT_CP="cp --reflink=auto --sparse=auto --preserve=mode,timestamps,xattr,links -dfr"
+
 # is_func <command>
 # Check whether $1 is a function.
 is_func() {
