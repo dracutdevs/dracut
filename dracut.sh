@@ -1132,6 +1132,7 @@ if [[ $hostonly ]]; then
     # check /proc/modules
     declare -A host_modules
     while read m rest; do
+        [ -z "$m" ] && continue
         host_modules["$m"]=1
     done </proc/modules
 fi
