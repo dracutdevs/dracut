@@ -1557,9 +1557,9 @@ for ((i=0; i < ${#include_src[@]}; i++)); do
                         mkdir -m 0755 -p "$object_destdir"
                         chmod --reference="$objectname" "$object_destdir"
                     fi
-                    cp --reflink=auto --sparse=auto -fa -t "$object_destdir" "$objectname"/*
+                    $DRACUT_CP -t "$object_destdir" "$objectname"/*
                 else
-                    cp --reflink=auto --sparse=auto -fa -t "$destdir" "$objectname"
+                    $DRACUT_CP -t "$destdir" "$objectname"
                 fi
             done
         fi
@@ -1671,7 +1671,7 @@ if [[ $acpi_override = yes ]] && [[ -d $acpi_table_dir ]]; then
     mkdir -p $_dest_dir
     for table in $acpi_table_dir/*.aml; do
         dinfo "   Adding ACPI table: $table"
-        cp -a $table $_dest_dir
+        $DRACUT_CP $table $_dest_dir
         create_early_cpio="yes"
     done
 fi
