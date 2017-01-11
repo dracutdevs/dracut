@@ -4,7 +4,7 @@
 check() {
     local _rootdev
     # if cryptsetup is not installed, then we cannot support encrypted devices.
-    require_binaries cryptsetup || return 1
+    require_any_binary $systemdutildir/systemd-cryptsetup cryptsetup || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for fs in "${host_fs_types[@]}"; do
@@ -57,12 +57,12 @@ install() {
         [[ $_cryptconf ]] && printf "%s\n" "$_cryptconf" >> "${initdir}/etc/cmdline.d/90crypt.conf"
     fi
 
-    inst_multiple cryptsetup rmdir readlink umount
-    inst_script "$moddir"/cryptroot-ask.sh /sbin/cryptroot-ask
-    inst_script "$moddir"/probe-keydev.sh /sbin/probe-keydev
-    inst_hook cmdline 10 "$moddir/parse-keydev.sh"
     inst_hook cmdline 30 "$moddir/parse-crypt.sh"
     if ! dracut_module_included "systemd"; then
+        inst_multiple cryptsetup rmdir readlink umount
+        inst_script "$moddir"/cryptroot-ask.sh /sbin/cryptroot-ask
+        inst_script "$moddir"/probe-keydev.sh /sbin/probe-keydev
+        inst_hook cmdline 10 "$moddir/parse-keydev.sh"
         inst_hook cleanup 30 "$moddir/crypt-cleanup.sh"
     fi
 
