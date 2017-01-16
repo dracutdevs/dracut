@@ -59,6 +59,7 @@ static bool arg_resolvedeps = false;
 static bool arg_hostonly = false;
 static char *destrootdir = NULL;
 static char *kerneldir = NULL;
+static size_t kerneldirlen = 0;
 static char **firmwaredirs = NULL;
 static char **pathdirs;
 static char *logdir = NULL;
@@ -910,6 +911,13 @@ static int parse_argv(int argc, char *argv[])
                         break;
                 case ARG_KERNELDIR:
                         kerneldir = strdup(optarg);
+                        if ((strncmp("/lib/modules/", kerneldir, 13) != 0)
+                            && (strncmp("/usr/lib/modules/", kerneldir, 17) != 0)) {
+                                char *p;
+                                p = strstr(kerneldir, "/lib/modules/");
+                                if (p != NULL)
+                                        kerneldirlen = p - kerneldir;
+                        }
                         break;
                 case ARG_FIRMWAREDIRS:
                         firmwaredirs = strv_split(optarg, ":");
@@ -1241,8 +1249,9 @@ static int install_module(struct kmod_module *mod)
                 return 1;
         }
 
-        log_debug("dracut_install '%s'", path);
-        ret = dracut_install(path, path, false, false, true);
+        log_debug("dracut_install '%s' '%s'", path, &path[kerneldirlen]);
+
+        ret = dracut_install(path, &path[kerneldirlen], false, false, true);
         if (ret == 0) {
                 log_debug("dracut_install '%s' OK", kmod_module_get_name(mod));
         } else if (!arg_optional) {
@@ -1256,17 +1265,18 @@ static int install_module(struct kmod_module *mod)
         kmod_list_foreach(itr, modlist) {
                 mod = kmod_module_get_module(itr);
                 path = kmod_module_get_path(mod);
+
                 name = kmod_module_get_name(mod);
                 if (arg_mod_filter_noname && (regexec(&mod_filter_noname, name, 0, NULL, 0) == 0)) {
                         kmod_module_unref(mod);
                         continue;
                 }
-                ret = dracut_install(path, path, false, false, true);
+                ret = dracut_install(path, &path[kerneldirlen], false, false, true);
                 if (ret == 0) {
-                        log_debug("dracut_install '%s' OK", kmod_module_get_name(mod));
+                        log_debug("dracut_install '%s' '%s' OK", path, &path[kerneldirlen]);
                         install_firmware(mod);
                 } else {
-                        log_error("dracut_install '%s' ERROR", kmod_module_get_name(mod));
+                        log_error("dracut_install '%s' '%s' ERROR", path, &path[kerneldirlen]);
                 }
                 kmod_module_unref(mod);
         }
@@ -1287,7 +1297,6 @@ static int install_modules(int argc, char **argv)
         int i;
 
         ctx = kmod_new(kerneldir, NULL);
-
         if (arg_hostonly) {
                 err = kmod_module_new_from_loaded(ctx, &loaded_list);
                 if (err < 0) {
