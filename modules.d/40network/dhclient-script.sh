@@ -48,7 +48,16 @@ setup_interface() {
             # point-to-point connection => set explicit route to gateway
             echo ip route add $gw dev $netif > /tmp/net.$netif.gw
         fi
-        echo ip route replace default via $gw dev $netif >> /tmp/net.$netif.gw
+
+        echo "$gw" | {
+            IFS=' ' read -r main_gw other_gw
+            echo ip route replace default via $main_gw dev $netif >> /tmp/net.$netif.gw
+            if [ -n "$other_gw" ] ; then
+                for g in $other_gw; do
+                    echo ip route add default via $g dev $netif >> /tmp/net.$netif.gw
+                done
+            fi
+        }
     fi
 
     if getargbool 1 rd.peerdns; then
