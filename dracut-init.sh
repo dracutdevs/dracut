@@ -19,7 +19,11 @@
 #
 export LC_MESSAGES=C
 
-export DRACUT_CP="cp --reflink=auto --sparse=auto --preserve=mode,timestamps,xattr,links -dfr"
+if [[ "$UID" = "0" ]]; then
+    export DRACUT_CP="cp --reflink=auto --sparse=auto --preserve=mode,timestamps,xattr,links -dfr"
+else
+    export DRACUT_CP="cp --reflink=auto --sparse=auto --preserve=mode,timestamps,links -dfr"
+fi
 
 # is_func <command>
 # Check whether $1 is a function.

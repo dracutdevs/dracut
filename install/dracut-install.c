@@ -275,8 +275,13 @@ static int cp(const char *src, const char *dst)
                 if (ret == 0) {
                         struct timeval tv[2];
                         if (fchown(dest_desc, sb.st_uid, sb.st_gid) != 0)
-                                if(fchown(dest_desc, (uid_t) - 1, sb.st_gid) != 0)
-                                    log_error("Failed to chown %s: %m", dst);
+                                if(fchown(dest_desc, (uid_t) - 1, sb.st_gid) != 0) {
+                                        if (geteuid() == 0)
+                                                log_error("Failed to chown %s: %m", dst);
+                                        else
+                                                log_info("Failed to chown %s: %m", dst);
+                                }
+
                         tv[0].tv_sec = sb.st_atime;
                         tv[0].tv_usec = 0;
                         tv[1].tv_sec = sb.st_mtime;
@@ -295,16 +300,24 @@ static int cp(const char *src, const char *dst)
  normal_copy:
         pid = fork();
         if (pid == 0) {
-                execlp("cp", "cp", "--reflink=auto", "--sparse=auto", "--preserve=mode,timestamps,xattr", "-fL", src, dst,
-                       NULL);
+                if (geteuid() == 0)
+                        execlp("cp", "cp", "--reflink=auto", "--sparse=auto", "--preserve=mode,xattr,timestamps", "-fL", src, dst,
+                               NULL);
+                else
+                        execlp("cp", "cp", "--reflink=auto", "--sparse=auto", "--preserve=mode,timestamps", "-fL", src, dst,
+                               NULL);
                 _exit(EXIT_FAILURE);
         }
 
         while (waitpid(pid, &ret, 0) < 0) {
                 if (errno != EINTR) {
                         ret = -1;
-                        log_error("Failed: cp --reflink=auto --sparse=auto --preserve=mode,timestamps,xattr -fL %s %s", src,
-                                  dst);
+                        if (geteuid() == 0)
+                                log_error("Failed: cp --reflink=auto --sparse=auto --preserve=mode,xattr,timestamps -fL %s %s", src,
+                                          dst);
+                        else
+                                log_error("Failed: cp --reflink=auto --sparse=auto --preserve=mode,timestamps -fL %s %s", src,
+                                          dst);
                         break;
                 }
         }
