@@ -210,7 +210,7 @@ for netup in /tmp/net.*.did-setup ; do
     if [ -n "$vlan" ] ; then
         {
             echo "TYPE=Vlan"
-            echo "NAME=\"$netif\""
+            echo "DEVICE=\"$netif\""
             echo "VLAN=yes"
             echo "PHYSDEV=\"$phydevice\""
         } >> /tmp/ifcfg/ifcfg-$netif
