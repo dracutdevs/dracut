@@ -29,4 +29,4 @@ if ! [ -f "$VMLINUZ" ]; then
     fi
 fi
 
-exec sudo $BIN $ARGS -kernel $VMLINUZ "$@"
+exec sudo $BIN $ARGS -kernel $VMLINUZ -cpu host "$@"

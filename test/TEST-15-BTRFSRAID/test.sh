@@ -9,7 +9,7 @@ test_run() {
     DISKIMAGE=$TESTDIR/TEST-15-BTRFSRAID-root.img
     $testdir/run-qemu \
 	-drive format=raw,index=0,media=disk,file=$DISKIMAGE \
-	-m 256M  -cpu host -smp 2 -nographic \
+	-m 256M   -smp 2 -nographic \
 	-net none \
         -no-reboot \
 	-append "panic=1 root=LABEL=root rw rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.shell=0 $DEBUGFAIL" \
@@ -78,7 +78,7 @@ test_setup() {
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     $testdir/run-qemu \
 	-drive format=raw,index=0,media=disk,file=$DISKIMAGE \
-	-m 256M  -cpu host -smp 2 -nographic -net none \
+	-m 256M   -smp 2 -nographic -net none \
 	-append "root=/dev/fakeroot rw quiet console=ttyS0,115200n81 selinux=0" \
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
 
