@@ -46,5 +46,16 @@ install() {
 
     inst_multiple -o prelink
     inst_simple /etc/system-fips
+    [ -c ${initdir}/dev/random ] || mknod ${initdir}/dev/random c 1 8 \
+        || {
+            dfatal "Cannot create /dev/random"
+            dfatal "To create an initramfs with fips support, dracut has to run as root"
+            return 1
+        }
+    [ -c ${initdir}/dev/urandom ] || mknod ${initdir}/dev/urandom c 1 9 \
+        || {
+            dfatal "Cannot create /dev/random"
+            dfatal "To create an initramfs with fips support, dracut has to run as root"
+            return 1
+        }
 }
-
