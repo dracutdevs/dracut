@@ -149,7 +149,9 @@ if [ -z "$DO_VLAN_PHY" ] && [ -e /tmp/vlan.${netif}.phy ]; then
 
     for i in /tmp/vlan.*.${netif}; do
         [ -e "$i" ] || continue
-        read vlanname < "$i"
+        unset vlanname
+        unset phydevice
+        . "$i"
         if [ -n "$vlanname" ]; then
             linkup "$phydevice"
             ip link add dev "$vlanname" link "$phydevice" type vlan id "$(get_vid $vlanname)"

@@ -26,6 +26,9 @@ for vlan in $(getargs vlan=); do
         parsevlan "$(getarg vlan=)"
     fi
 
-    echo "$phydevice" > /tmp/vlan.${phydevice}.phy
-    echo "$vlanname" > /tmp/vlan.${vlanname}.${phydevice}
+    echo "phydevice=\"$phydevice\"" > /tmp/vlan.${phydevice}.phy
+    {
+        echo "vlanname=\"$vlanname\""
+        echo "phydevice=\"$phydevice\""
+    } > /tmp/vlan.${vlanname}.${phydevice}
 done
