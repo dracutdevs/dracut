@@ -55,7 +55,7 @@ trim() {
     local var="$*"
     var="${var#"${var%%[![:space:]]*}"}"   # remove leading whitespace characters
     var="${var%"${var##*[![:space:]]}"}"   # remove trailing whitespace characters
-    printf "%s" -- "$var"
+    printf "%s" "$var"
 }
 
 if [ -z "$DRACUT_SYSTEMD" ]; then
