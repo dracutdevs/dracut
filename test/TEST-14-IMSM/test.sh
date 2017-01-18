@@ -13,7 +13,7 @@ client_run() {
 	-drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext2 \
 	-drive format=raw,index=1,media=disk,file=$TESTDIR/disk1 \
 	-drive format=raw,index=2,media=disk,file=$TESTDIR/disk2 \
-	-m 256M -cpu host -smp 2 -nographic \
+	-m 256M  -smp 2 -nographic \
 	-net none \
         -no-reboot \
 	-append "panic=1 $* root=LABEL=root rw debug rd.retry=5 rd.debug console=ttyS0,115200n81 selinux=0 rd.info rd.shell=0 $DEBUGFAIL" \
