@@ -627,10 +627,10 @@ if [[ $kernel ]]; then
     fi
 fi
 
-unset LC_MESSAGES
-unset LC_CTYPE
 export LC_ALL=C
 export LANG=C
+unset LC_MESSAGES
+unset LC_CTYPE
 unset LD_LIBRARY_PATH
 unset LD_PRELOAD
 unset GREP_OPTIONS
