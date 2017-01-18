@@ -19,7 +19,7 @@
 #
 export LC_MESSAGES=C
 
-if [[ "$UID" = "0" ]]; then
+if [[ "$EUID" = "0" ]]; then
     export DRACUT_CP="cp --reflink=auto --sparse=auto --preserve=mode,timestamps,xattr,links -dfr"
 else
     export DRACUT_CP="cp --reflink=auto --sparse=auto --preserve=mode,timestamps,links -dfr"
