@@ -70,7 +70,7 @@ install() {
     local _i
     local _nsslibs
     inst_multiple -o portmap rpcbind rpc.statd mount.nfs \
-        mount.nfs4 umount rpc.idmapd sed /etc/netconfig
+        mount.nfs4 umount rpc.idmapd sed /etc/netconfig chmod
     inst_multiple /etc/services /etc/nsswitch.conf /etc/rpc /etc/protocols /etc/idmapd.conf
 
     if [[ $hostonly_cmdline == "yes" ]]; then
