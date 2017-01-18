@@ -23,7 +23,7 @@ for vlan in $(getargs vlan=); do
     unset vlanname
     unset phydevice
     if [ ! "$vlan" = "vlan" ]; then
-        parsevlan "$(getarg vlan=)"
+        parsevlan "$vlan"
     fi
 
     echo "phydevice=\"$phydevice\"" > /tmp/vlan.${phydevice}.phy
