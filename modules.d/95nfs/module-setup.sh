@@ -100,7 +100,7 @@ install() {
     inst "$moddir/nfsroot.sh" "/sbin/nfsroot"
     inst "$moddir/nfs-lib.sh" "/lib/nfs-lib.sh"
     mkdir -m 0755 -p "$initdir/var/lib/nfs/rpc_pipefs"
-    mkdir -m 0755 -p "$initdir/var/lib/rpcbind"
+    mkdir -m 0770 -p "$initdir/var/lib/rpcbind"
     mkdir -m 0755 -p "$initdir/var/lib/nfs/statd/sm"
 
     # Rather than copy the passwd file in, just set a user for rpcbind
@@ -112,7 +112,6 @@ install() {
     # file
     chmod 770 "$initdir/var/lib/rpcbind"
     grep -q '^rpc:' /etc/passwd \
-        && grep -q '^rpc:' /etc/group \
-        && chown rpc:rpc "$initdir/var/lib/rpcbind"
+        && grep -q '^rpc:' /etc/group
     dracut_need_initqueue
 }
