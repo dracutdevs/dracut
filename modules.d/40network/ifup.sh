@@ -144,6 +144,7 @@ get_vid() {
 
 # check, if we need VLAN's for this interface
 if [ -z "$DO_VLAN_PHY" ] && [ -e /tmp/vlan.${netif}.phy ]; then
+    unset DO_VLAN
     NO_AUTO_DHCP=yes DO_VLAN_PHY=yes ifup "$netif"
     modprobe -b -q 8021q
 
@@ -160,6 +161,16 @@ if [ -z "$DO_VLAN_PHY" ] && [ -e /tmp/vlan.${netif}.phy ]; then
     done
     exit 0
 fi
+
+# Check, if interface is VLAN interface
+if ! [ -e /tmp/vlan.${netif}.phy ]; then
+    for i in /tmp/vlan.${netif}.*; do
+        [ -e "$i" ] || continue
+        export DO_VLAN=yes
+        break
+    done
+fi
+
 
 # bridge this interface?
 if [ -z "$NO_BRIDGE_MASTER" ]; then
@@ -321,6 +332,7 @@ if [ -n "$manualup" ]; then
     rm -f /tmp/net.${netif}.did-setup
 else
     [ -e /tmp/net.${netif}.did-setup ] && exit 0
+    [ -z "$DO_VLAN" ] && \
     [ -e /sys/class/net/$netif/address ] && \
         [ -e /tmp/net.$(cat /sys/class/net/$netif/address).did-setup ] && exit 0
 fi
@@ -393,7 +405,7 @@ for p in $(getargs ip=); do
     if [ $ret -eq 0 ]; then
         > /tmp/net.${netif}.up
 
-        if [ -e /sys/class/net/${netif}/address ]; then
+        if  [ -z "$DO_VLAN" ] && [ -e /sys/class/net/${netif}/address ]; then
             > /tmp/net.$(cat /sys/class/net/${netif}/address).up
         fi
 
