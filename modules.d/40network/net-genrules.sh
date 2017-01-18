@@ -41,15 +41,15 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
         MASTER_IFACES="$MASTER_IFACES ${teammaster}"
     done
 
-    for j in /tmp/vlan.*.phy; do
-        [ -e "$j" ] || continue
+    for i in /tmp/vlan.*.phy; do
+        [ -e "$i" ] || continue
         unset phydevice
-        . "$j"
-        for i in /tmp/vlan.*.${phydevice}; do
-            [ -e "$i" ] || continue
+        . "$i"
+        RAW_IFACES="$RAW_IFACES $phydevice"
+        for j in /tmp/vlan.*.${phydevice}; do
+            [ -e "$j" ] || continue
             unset vlanname
-            . "$i"
-            RAW_IFACES="$RAW_IFACES $phydevice"
+            . "$j"
             MASTER_IFACES="$MASTER_IFACES ${vlanname}"
         done
     done

@@ -132,6 +132,8 @@ for netup in /tmp/net.*.did-setup ; do
     unset slave
     unset ethname
     unset vlan
+    unset vlanname
+    unset phydevice
 
     [ -e /tmp/bond.${netif}.info ] && . /tmp/bond.${netif}.info
     [ -e /tmp/bridge.${netif}.info ] && . /tmp/bridge.${netif}.info
