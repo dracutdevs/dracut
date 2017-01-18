@@ -1392,6 +1392,8 @@ if [[ $kernel_only != yes ]]; then
         [ -c ${initdir}/dev/null ] || mknod ${initdir}/dev/null c 1 3
         [ -c ${initdir}/dev/kmsg ] || mknod ${initdir}/dev/kmsg c 1 11
         [ -c ${initdir}/dev/console ] || mknod ${initdir}/dev/console c 5 1
+        [ -c ${initdir}/dev/random ] || mknod ${initdir}/dev/random c 1 8
+        [ -c ${initdir}/dev/urandom ] || mknod ${initdir}/dev/urandom c 1 9
     fi
 fi
 
