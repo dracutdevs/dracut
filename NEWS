@@ -6,6 +6,8 @@ dracut now requires libkmod for the dracut-install binary helper.
 dracut.sh:
 - restorecon final image file
 - fail hard, if we find modules and modules.dep is missing
+- support --tmpdir as a relative path
+- add default path for --uefi
 
 dracut-functions.sh:
 - fix check_vol_slaves() volume group name stripping
@@ -23,6 +25,7 @@ dracut-install:
     --silent
     --kerneldir
     --firmwaredirs
+- fallback to non-hostonly mode if lsmod fails
 
 lsinitrd:
 - new option "--unpack"
@@ -35,6 +38,8 @@ general initramfs fixes:
 - break at switch_root only for bare rd.break
 - add rd.emergency=[reboot|poweroff|halt]
   specifies what action to execute in case of a critical failure
+- rd.memdebug=4 gives information, about kernel module memory consumption
+  during loading
 
 dmsquash-live:
 - fixed livenet-generator execution flag
@@ -53,6 +58,8 @@ kernel-modules:
   people swap keyboards sometimes and should be able to enter their disk password
 - add usb-storage
   To save the rdsosreport.txt to a USB stick, the usb-storage module is needed.
+- add xennet
+- add nvme
 
 systemd:
 - add /etc/machine-info
@@ -74,6 +81,7 @@ network:
 - support for iBFT IPv6
 - support macaddr in brackets [] (commit 740c46c0224a187d6b5a42b4aa56e173238884cc)
 - use arping2, if available
+- support multiple default gateways from DHCP server
 
 nbd:
 - add systemd generator
@@ -91,6 +99,19 @@ fips:
 
 plymouth:
 - also trigger the acpi subsystem
+
+syslog:
+- add imjournal.so to read systemd journal
+- move start from udev to initqueue/online
+
+caps:
+- make it a non default module
+
+livenet:
+- support nfs:// urls in livenet-generator
+
+nfs:
+- install all nfs modules non-hostonly
 
 dracut-044
 ==========
