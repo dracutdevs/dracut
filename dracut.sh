@@ -1028,13 +1028,9 @@ if [[ ! $print_cmdline ]]; then
         esac
 
         if ! [[ -s $uefi_stub ]]; then
-            for uefi_stub in \
-                "/lib/systemd/boot/efi/linux${EFI_MACHINE_TYPE_NAME}.efi.stub" \
-                    "/usr/lib/gummiboot/linux${EFI_MACHINE_TYPE_NAME}.efi.stub"; do
-                [[ -s $uefi_stub ]] || continue
-                break
-            done
+            uefi_stub="/usr/lib/systemd/boot/efi/linux${EFI_MACHINE_TYPE_NAME}.efi.stub"
         fi
+
         if ! [[ -s $uefi_stub ]]; then
             dfatal "Can't find a uefi stub '$uefi_stub' to create a UEFI executable"
             exit 1
