@@ -6,6 +6,8 @@
 /dracut-gencmdline.8
 /dracut.html
 /dracut.kernel.7
+/dracut.pc
+/dracut-install
 /modules.d/99base/switch_root
 /test/*/test.log
 test*.img
@@ -15,5 +17,7 @@ test*.img
 /install/dracut-install
 /*.rpm
 /*.[0-9]
-/modules.d/98systemd/*.service.8
+/modules.d/98dracut-systemd/*.service.8
 /*.sign
+*.o
+skipcpio/skipcpio
