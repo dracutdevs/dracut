@@ -130,6 +130,12 @@ install() {
         if [ -e $systemdsystemunitdir/mdmon@.service ]; then
             inst_simple $systemdsystemunitdir/mdmon@.service
         fi
+        if [ -e $systemdsystemunitdir/mdadm-last-resort@.service ]; then
+            inst_simple $systemdsystemunitdir/mdadm-last-resort@.service
+        fi
+        if [ -e $systemdsystemunitdir/mdadm-last-resort@.timer ]; then
+            inst_simple $systemdsystemunitdir/mdadm-last-resort@.timer
+        fi
     fi
     inst_hook pre-shutdown 30 "$moddir/mdmon-pre-shutdown.sh"
     dracut_need_initqueue
