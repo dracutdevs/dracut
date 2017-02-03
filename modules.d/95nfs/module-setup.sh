@@ -53,7 +53,7 @@ cmdline() {
     if [[ $nfs_device = [0-9]*\.[0-9]*\.[0-9]*.[0-9]* ]] || [[ $nfs_device = \[.*\] ]]; then
         nfs_address="${nfs_device%%:*}"
     else
-        lookup=$(host "${nfs_device%%:*}"| head -n1)
+        lookup=$(host "${nfs_device%%:*}"| grep " address " | head -n1)
         nfs_address=${lookup##* }
     fi
     ifname=$(ip -o route get to $nfs_address | sed -n 's/.*dev \([^ ]*\).*/\1/p')
