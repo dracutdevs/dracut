@@ -265,7 +265,7 @@ while (($# > 0)); do
 	    ;;
 	-M) read_arg map_file "$@" || shift $?
 	    ;;
-	-A) host_only=0;;
+	-A) dracut_args="${dracut_args} --no-host-only";;
 	-B) skip_update_bootloader=1;;
         -v|--verbose) dracut_args="${dracut_args} -v";;
 	-L) logfile=;;
