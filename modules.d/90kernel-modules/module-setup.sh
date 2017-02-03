@@ -32,7 +32,11 @@ installkernel() {
                 "=drivers/power" \
                 "=drivers/regulator" \
                 "=drivers/rtc" \
+                "=drivers/usb/chipidea" \
+                "=drivers/usb/dwc2" \
+                "=drivers/usb/dwc3" \
                 "=drivers/usb/host" \
+                "=drivers/usb/musb" \
                 "=drivers/usb/phy" \
                 ${NULL}
         fi
