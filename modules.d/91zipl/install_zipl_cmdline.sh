@@ -22,6 +22,13 @@ if [ -f ${MNT}/dracut-cmdline.conf ] ; then
     cp ${MNT}/dracut-cmdline.conf /etc/cmdline.d/99zipl.conf
 fi
 
+if [ -f ${MNT}/active_devices.txt ] ; then
+    while read dev etc ; do
+        [ "$dev" = "#" -o "$dev" = "" ] && continue;
+        cio_ignore -r $dev
+    done < ${MNT}/active_devices.txt
+fi
+
 umount ${MNT}
 
 if [ -f /etc/cmdline.d/99zipl.conf ] ; then
