@@ -374,6 +374,11 @@ for p in $(getargs ip=); do
     [ "$use_bridge" != 'true' ] && \
     [ "$use_vlan" != 'true' ] && continue
 
+    # Store config for later use
+    for i in ip srv gw mask hostname macaddr mtu dns1 dns2; do
+        eval '[ "$'$i'" ] && echo '$i'="$'$i'"'
+    done > /tmp/net.$netif.override
+
     for autoopt in $(str_replace "$autoconf" "," " "); do
         case $autoopt in
             dhcp|on|any)
@@ -394,11 +399,6 @@ for p in $(getargs ip=); do
         [ -n "$s" ] || continue
         echo nameserver $s >> /tmp/net.$netif.resolv.conf
     done
-
-    # Store config for later use
-    for i in ip srv gw mask hostname macaddr dns1 dns2 mtu; do
-        eval '[ "$'$i'" ] && echo '$i'="$'$i'"'
-    done > /tmp/net.$netif.override
 
     if [ $ret -eq 0 ]; then
         > /tmp/net.${netif}.up
