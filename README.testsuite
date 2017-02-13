@@ -11,13 +11,11 @@ nbd \
 dhcp-server \
 scsi-target-utils \
 iscsi-initiator-utils \
-net-tools \
 strace \
 syslinux \
 python-imgcreate \
 genisoimage \
 btrfs-progs \
-bridge-utils \
 kmod-devel \
 gcc \
 bzip2 \
