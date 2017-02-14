@@ -185,11 +185,11 @@ if [ -z "$NO_BRIDGE_MASTER" ]; then
             NO_BRIDGE_MASTER=yes NO_AUTO_DHCP=yes ifup $ethname
             linkup $ethname
             if [ ! -e /tmp/bridge.$bridgename.up ]; then
-                brctl addbr $bridgename
-                brctl setfd $bridgename 0
+                ip link add name $bridgename type bridge
+                echo 0 > /sys/devices/virtual/net/$bridgename/bridge/forward_delay
                 > /tmp/bridge.$bridgename.up
             fi
-            brctl addif $bridgename $ethname
+            ip link set dev $ethname master $bridgename
             ifup $bridgename
             exit 0
         done

@@ -1,6 +1,5 @@
 For the testsuite to work, you will have to install at least the following software packages:
 dash \
-bridge-utils \
 asciidoc \
 mdadm \
 lvm2 \
