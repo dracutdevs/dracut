@@ -210,10 +210,7 @@ for netup in /tmp/net.*.did-setup ; do
     # bridge needs different things written to ifcfg
     if [ -z "$bridge" ] && [ -z "$bond" ] && [ -z "$vlan" ] && [ -z "$team" ]; then
         # standard interface
-        {
-            echo "TYPE=Ethernet"
-            [ -n "$mtu" ] && echo "MTU=\"$mtu\""
-        } >> /tmp/ifcfg/ifcfg-$netif
+        echo "TYPE=Ethernet" >> /tmp/ifcfg/ifcfg-$netif
     fi
 
     if [ -n "$vlan" ] ; then
