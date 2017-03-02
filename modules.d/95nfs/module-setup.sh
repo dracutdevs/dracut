@@ -57,7 +57,10 @@ cmdline() {
         nfs_address=${lookup##* }
     fi
     ifname=$(ip -o route get to $nfs_address | sed -n 's/.*dev \([^ ]*\).*/\1/p')
-    if [ -e /sys/class/net/$ifname/address ] ; then
+    if [ -d /sys/class/net/$ifname/bonding ]; then
+        dinfo "Found bonded interface '${ifname}'. Make sure to provide an appropriate 'bond=' cmdline."
+        return
+    elif [ -e /sys/class/net/$ifname/address ] ; then
         ifmac=$(cat /sys/class/net/$ifname/address)
         printf 'ifname=%s:%s ' ${ifname} ${ifmac}
     fi
