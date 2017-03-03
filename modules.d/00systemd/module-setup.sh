@@ -18,7 +18,7 @@ depends() {
 }
 
 installkernel() {
-    hostonly='' instmods autofs4 ipv6
+    hostonly='' instmods autofs4 ipv6 algif_hash hmac sha256
     instmods -s efivarfs
 }
 
