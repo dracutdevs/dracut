@@ -90,7 +90,6 @@ do_live_overlay() {
     # create a sparse file for the overlay
     # overlay: if non-ram overlay searching is desired, do it,
     #              otherwise, create traditional overlay in ram
-    OVERLAY_LOOPDEV=$( losetup -f )
 
     l=$(blkid -s LABEL -o value $livedev) || l=""
     u=$(blkid -s UUID -o value $livedev) || u=""
@@ -108,14 +107,14 @@ do_live_overlay() {
     devspec=$( echo $overlay | sed -e 's/:.*$//' )
 
     # need to know where to look for the overlay
-    setup=""
-    if [ -n "$devspec" -a -n "$pathspec" -a -n "$overlay" ]; then
+    if [ -z "$setup" -a -n "$devspec" -a -n "$pathspec" -a -n "$overlay" ]; then
         mkdir -m 0755 /run/initramfs/overlayfs
         opt=''
         [ -n "$readonly_overlay" ] && opt=-r
         mount -n -t auto $devspec /run/initramfs/overlayfs || :
         if [ -f /run/initramfs/overlayfs$pathspec -a -w /run/initramfs/overlayfs$pathspec ]; then
-            losetup $opt $OVERLAY_LOOPDEV /run/initramfs/overlayfs$pathspec
+            OVERLAY_LOOPDEV=$(losetup -f --show $opt /run/initramfs/overlayfs$pathspec)
+            over=$OVERLAY_LOOPDEV
             umount -l /run/initramfs/overlayfs || :
             oltype=$(det_img_fs $OVERLAY_LOOPDEV)
             if [ -z "$oltype" ] || [ "$oltype" = DM_snapshot_cow ]; then
@@ -197,24 +196,22 @@ do_live_overlay() {
         else
             dd if=/dev/null of=/overlay bs=1024 count=1 seek=$((overlay_size*1024)) 2> /dev/null
             if [ -n "$setup" -a -n "$readonly_overlay" ]; then
-                RO_OVERLAY_LOOPDEV=$( losetup -f )
-                losetup $RO_OVERLAY_LOOPDEV /overlay
+                RO_OVERLAY_LOOPDEV=$(losetup -f --show /overlay)
+                over=$RO_OVERLAY_LOOPDEV
             else
-                losetup $OVERLAY_LOOPDEV /overlay
+                OVERLAY_LOOPDEV=$(losetup -f --show /overlay)
+                over=$OVERLAY_LOOPDEV
             fi
         fi
     fi
 
     # set up the snapshot
-    sz=$(blockdev --getsz $BASE_LOOPDEV)
     if [ -z "$overlayfs" ]; then
-        if [ -n "$readonly_overlay" ]; then
+        if [ -n "$readonly_overlay" ] && [ -n "$OVERLAY_LOOPDEV" ]; then
             echo 0 $sz snapshot $BASE_LOOPDEV $OVERLAY_LOOPDEV P 8 | dmsetup create --readonly live-ro
             base="/dev/mapper/live-ro"
-            over=$RO_OVERLAY_LOOPDEV
         else
             base=$BASE_LOOPDEV
-            over=$OVERLAY_LOOPDEV
         fi
     fi
 
@@ -301,8 +298,6 @@ else
 fi
 
 if [ -n "$FSIMG" ] ; then
-    BASE_LOOPDEV=$( losetup -f )
-
     if [ -n "$writable_fsimg" ] ; then
         # mount the provided filesystem read/write
         echo "Unpacking live filesystem (may take some time)" > /dev/kmsg
@@ -314,14 +309,24 @@ if [ -n "$FSIMG" ] ; then
         fi
         FSIMG=/run/initramfs/fsimg/rootfs.img
     fi
-    if [ -n "$writable_fsimg" ] || [ -z "$SQUASHED" -a -n "$live_ram" -a -z "$overlayfs" ] ||
+    opt=-r
+       # For writable DM images...
+    if [ -z "$SQUASHED" -a -n "$live_ram" -a -z "$overlayfs" ] ||
+       [ -n "$writable_fsimg" ] ||
        [ "$overlay" = none -o "$overlay" = None -o "$overlay" = NONE ]; then
-        losetup $BASE_LOOPDEV $FSIMG
-        sz=$(blockdev --getsz $BASE_LOOPDEV)
+        if [ -z "$readonly_overlay" ]; then
+            opt=''
+            setup=rw
+        else
+            setup=yes
+        fi
+    fi
+    BASE_LOOPDEV=$(losetup -f --show $opt $FSIMG)
+    sz=$(blockdev --getsz $BASE_LOOPDEV)
+    if [ "$setup" == rw ]; then
         echo 0 $sz linear $BASE_LOOPDEV 0 | dmsetup create live-rw
     else
-        # Attach the filesystem read-only and add a DM snapshot or OverlayFS for writes.
-        losetup -r $BASE_LOOPDEV $FSIMG
+        # Add a DM snapshot or OverlayFS for writes.
         do_live_overlay
     fi
 fi
