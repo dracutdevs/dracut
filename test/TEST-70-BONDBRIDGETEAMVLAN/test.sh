@@ -29,7 +29,6 @@ run_server() {
         ${SERIAL:+-serial "$SERIAL"} \
         ${SERIAL:--serial file:"$TESTDIR"/server.log} \
         -watchdog i6300esb -watchdog-action poweroff \
-        -kernel /boot/vmlinuz-"$KVERSION" \
         -no-reboot \
         -append "panic=1 loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 rd.debug" \
         -initrd "$TESTDIR"/initramfs.server \
@@ -71,7 +70,6 @@ client_test() {
         -net nic,vlan=2,macaddr=52:54:00:12:34:04,model=e1000 \
         -net nic,vlan=3,macaddr=52:54:00:12:34:05,model=e1000 \
         -watchdog i6300esb -watchdog-action poweroff \
-        -kernel /boot/vmlinuz-"$KVERSION" \
         -no-reboot \
         -append "panic=1 $cmdline rd.debug $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
         -initrd "$TESTDIR"/initramfs.testing
