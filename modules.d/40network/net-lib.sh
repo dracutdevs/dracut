@@ -20,6 +20,36 @@ get_ip() {
     echo $ip
 }
 
+mask_to_prefix() {
+    local mask="$1"
+    local prefix=0
+    local OLDIFS="$IFS"
+
+    IFS=.
+    set -- $mask
+    IFS="$OLDIFS"
+    for mask in $@ ; do
+        if [ "$mask" -eq 255 ] ; then
+            prefix=$(($prefix + 8))
+        elif [ "$mask" -eq 254 ] ; then
+            prefix=$(($prefix + 7))
+        elif [ "$mask" -eq 252 ] ; then
+            prefix=$(($prefix + 6))
+        elif [ "$mask" -eq 248 ] ; then
+            prefix=$(($prefix + 5))
+        elif [ "$mask" -eq 240 ] ; then
+            prefix=$(($prefix + 4))
+        elif [ "$mask" -eq 224 ] ; then
+            prefix=$(($prefix + 3))
+        elif [ "$mask" -eq 192 ] ; then
+            prefix=$(($prefix + 2))
+        elif [ "$mask" -eq 128 ] ; then
+            prefix=$(($prefix + 1))
+        fi
+    done
+    echo $prefix
+}
+
 iface_for_remote_addr() {
     set -- $(ip -o route get to $1)
     echo $5
@@ -239,7 +269,7 @@ ibft_to_cmdline() {
         for iface in /sys/firmware/ibft/ethernet*; do
             local mac="" dev=""
             local dhcp="" ip="" gw="" mask="" hostname=""
-            local dns1 dns2
+            local dns1 dns2 prefix
 
             [ -e ${iface}/mac ] || continue
             mac=$(read a < ${iface}/mac; echo $a)
@@ -288,12 +318,18 @@ ibft_to_cmdline() {
                 if [ "$family" = "ipv6" ] ; then
                     if [ -n "$ip" ] ; then
                         ip="[$ip]"
+                        # Prefix defaults to 64 for IPv6
                         [ -n "$prefix" ] || prefix=64
                         ip="[${ip}/${prefix}]"
                         mask=
                     fi
                     if [ -n "$gw" ] ; then
                         gw="[${gw}]"
+                    fi
+                else
+                    if [ -n "$prefix" ] ; then
+                        ip="$ip/$prefix"
+                        mask=
                     fi
                 fi
                 if [ -n "$ip" ] && [ -n "$mask" -o -n "$prefix" ]; then
@@ -303,6 +339,7 @@ ibft_to_cmdline() {
                     warn "ip-addr=$ip"
                     warn "gateway=$gw"
                     warn "subnet-mask=$mask"
+                    warn "prefix-len=$prefix"
                     warn "hostname=$hostname"
                 fi
             else
@@ -450,7 +487,7 @@ ip_to_var() {
         fi
     done
 
-    unset ip srv gw mask hostname dev autoconf macaddr mtu dns1 dns2
+    unset ip srv gw mask prefix hostname dev autoconf macaddr mtu dns1 dns2
 
     if [ $# -eq 0 ]; then
         autoconf="error"
