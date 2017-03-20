@@ -1029,7 +1029,7 @@ if [[ ! $print_cmdline ]]; then
 
         if ! [[ -s $uefi_stub ]]; then
             for uefi_stub in \
-                "/lib/systemd/boot/efi/linux${EFI_MACHINE_TYPE_NAME}.efi.stub" \
+                "${systemdutildir}/boot/efi/linux${EFI_MACHINE_TYPE_NAME}.efi.stub" \
                     "/usr/lib/gummiboot/linux${EFI_MACHINE_TYPE_NAME}.efi.stub"; do
                 [[ -s $uefi_stub ]] || continue
                 break
