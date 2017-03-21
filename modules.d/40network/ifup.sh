@@ -282,7 +282,7 @@ if [ -z "$NO_TEAM_MASTER" ]; then
             # wait for all slaves to show up
             for slave in $teamslaves ; do
                 # try to create the slave (maybe vlan or bridge)
-                NO_BOND_MASTER=yes NO_AUTO_DHCP=yes ifup $slave
+                NO_TEAM_MASTER=yes NO_AUTO_DHCP=yes ifup $slave
 
                 if ! ip link show dev $slave >/dev/null 2>&1; then
                     # wait for the last slave to show up
