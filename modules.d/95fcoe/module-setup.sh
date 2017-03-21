@@ -41,35 +41,47 @@ get_vlan_parent() {
 
 # called by dracut
 cmdline() {
-
-    for c in /sys/bus/fcoe/devices/ctlr_* ; do
-        [ -L $c ] || continue
-        read enabled < $c/enabled
-        [ $enabled -eq 0 ] && continue
-        d=$(cd -P $c; echo $PWD)
-        i=${d%/*}
-        read mac < ${i}/address
-        s=$(dcbtool gc ${i##*/} dcb | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
-        if [ -z "$s" ] ; then
-	    p=$(get_vlan_parent ${i})
-	    if [ "$p" ] ; then
-	        s=$(dcbtool gc ${p} dcb | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
-	    fi
-        fi
-        if [ "$s" = "on" ] ; then
-	    dcb="dcb"
-        else
-	    dcb="nodcb"
-        fi
-        echo "fcoe=${mac}:${dcb}"
-    done
+    {
+        for c in /sys/bus/fcoe/devices/ctlr_* ; do
+            [ -L $c ] || continue
+            read enabled < $c/enabled
+            read mode < $c/mode
+            [ $enabled -eq 0 ] && continue
+            if [ $mode = "VN2VN" ] ; then
+                mode="vn2vn"
+            else
+                mode="fabric"
+            fi
+            d=$(cd -P $c; echo $PWD)
+            i=${d%/*}
+            ifname=${i##*/}
+            read mac < ${i}/address
+            s=$(dcbtool gc ${i##*/} dcb 2>/dev/null | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
+            if [ -z "$s" ] ; then
+	        p=$(get_vlan_parent ${i})
+	        if [ "$p" ] ; then
+	            s=$(dcbtool gc ${p} dcb 2>/dev/null | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
+                    ifname=${p##*/}
+	        fi
+            fi
+            if [ "$s" = "on" ] ; then
+	        dcb="dcb"
+            else
+	        dcb="nodcb"
+            fi
+            echo "ifname=${ifname}:${mac}"
+            echo "fcoe=${ifname}:${dcb}:${mode}"
+        done
+    } | sort | uniq
 }
 
 # called by dracut
 install() {
     inst_multiple ip dcbtool fipvlan lldpad readlink lldptool fcoemon fcoeadm
-    inst_libdir_file 'libhbalinux.so*'
-    inst "/etc/hba.conf" "/etc/hba.conf"
+    if [ -f "/etc/hba.conf" ] ; then
+        inst_libdir_file 'libhbalinux.so*'
+        inst "/etc/hba.conf" "/etc/hba.conf"
+    fi
 
     mkdir -m 0755 -p "$initdir/var/lib/lldpad"
     mkdir -m 0755 -p "$initdir/etc/fcoe"
@@ -84,6 +96,7 @@ install() {
     inst_hook pre-trigger 03 "$moddir/lldpad.sh"
     inst_hook cmdline 99 "$moddir/parse-fcoe.sh"
     inst_hook cleanup 90 "$moddir/cleanup-fcoe.sh"
+    inst_hook shutdown 40 "$moddir/stop-fcoe.sh"
     dracut_need_initqueue
 }
 

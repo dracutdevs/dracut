@@ -104,7 +104,10 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
     else
         cond='ACTION=="add", SUBSYSTEM=="net"'
         # if you change the name of "91-default-net.rules", also change modules.d/80cms/cmssetup.sh
-        echo "$cond, $runcmd" > /etc/udev/rules.d/91-default-net.rules
+        if [ "$NEEDNET" = "1" ]; then
+            echo "$cond, $runcmd" > /etc/udev/rules.d/91-default-net.rules
+            echo "[ -f /tmp/net.*.did-setup ]" >$hookdir/initqueue/finished/wait-network.sh
+        fi
     fi
 
 # if you change the name of "90-net.rules", also change modules.d/80cms/cmssetup.sh

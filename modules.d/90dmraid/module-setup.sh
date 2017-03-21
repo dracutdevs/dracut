@@ -74,6 +74,8 @@ install() {
 
     inst "$moddir/dmraid.sh" /sbin/dmraid_scan
 
+    inst_rules 66-kpartx.rules 67-kpartx-compat.rules
+
     inst_libdir_file "libdmraid-events*.so*"
 
     inst_rules "$moddir/61-dmraid-imsm.rules"

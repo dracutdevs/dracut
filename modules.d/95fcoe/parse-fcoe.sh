@@ -1,8 +1,8 @@
 #!/bin/sh
 #
 # Supported formats:
-# fcoe=<networkdevice>:<dcb|nodcb>
-# fcoe=<macaddress>:<dcb|nodcb>
+# fcoe=<networkdevice>:<dcb|nodcb>:<fabric|vn2vn>
+# fcoe=<macaddress>:<dcb|nodcb>:<fabric|vn2vn>
 #
 # Note currently only nodcb is supported, the dcb option is reserved for
 # future use.
@@ -10,8 +10,8 @@
 # Note letters in the macaddress must be lowercase!
 #
 # Examples:
-# fcoe=eth0:nodcb
-# fcoe=4a:3f:4c:04:f8:d7:nodcb
+# fcoe=eth0:nodcb:vn2vn
+# fcoe=4a:3f:4c:04:f8:d7:nodcb:fabric
 
 [ -z "$fcoe" ] && fcoe=$(getarg fcoe=)
 
@@ -32,11 +32,25 @@ parse_fcoe_opts() {
         2)
             fcoe_interface=$1
             fcoe_dcb=$2
+            fcoe_mode="fabric"
+            return 0
+            ;;
+        3)
+            fcoe_interface=$1
+            fcoe_dcb=$2
+            fcoe_mode=$3
             return 0
             ;;
         7)
             fcoe_mac=$1:$2:$3:$4:$5:$6
             fcoe_dcb=$7
+            fcoe_mode="fabric"
+            return 0
+            ;;
+        8)
+            fcoe_mac=$1:$2:$3:$4:$5:$6
+            fcoe_dcb=$7
+            fcoe_mode=$8
             return 0
             ;;
         *)

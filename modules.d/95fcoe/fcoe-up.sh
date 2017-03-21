@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # We get called like this:
-# fcoe-up <network-device> <dcb|nodcb>
+# fcoe-up <network-device> <dcb|nodcb> <fabric|vn2vn>
 #
 # Note currently only nodcb is supported, the dcb option is reserved for
 # future use.
@@ -15,6 +15,7 @@ type ip_to_var >/dev/null 2>&1 || . /lib/net-lib.sh
 
 netif=$1
 dcb=$2
+mode=$3
 vlan="yes"
 
 iflink=$(cat /sys/class/net/$netif/iflink)
@@ -42,10 +43,20 @@ write_fcoemon_cfg() {
     else
 	    echo AUTO_VLAN=\"no\" >> /etc/fcoe/cfg-$netif
     fi
-    echo MODE=\"fabric\" >> /etc/fcoe/cfg-$netif
+    if [ "$mode" = "vn2vn" ] ; then
+        echo MODE=\"vn2vn\" >> /etc/fcoe/cfg-$netif
+    else
+        echo MODE=\"fabric\" >> /etc/fcoe/cfg-$netif
+    fi
 }
 
-if [ "$dcb" = "dcb" ]; then
+if [ "$netdriver" = "bnx2x" ]; then
+    # If driver is bnx2x, do not use /sys/module/fcoe/parameters/create but fipvlan
+    modprobe 8021q
+    udevadm settle --timeout=30
+    # Sleep for 3 s to allow dcb negotiation
+    sleep 3
+elif [ "$dcb" = "dcb" ]; then
     # wait for lldpad to be ready
     i=0
     while [ $i -lt 60 ]; do
@@ -77,20 +88,8 @@ if [ "$dcb" = "dcb" ]; then
     done
 
     sleep 1
-
-    write_fcoemon_cfg
-    fcoemon --syslog
-elif [ "$netdriver" = "bnx2x" ]; then
-    # If driver is bnx2x, do not use /sys/module/fcoe/parameters/create but fipvlan
-    modprobe 8021q
-    udevadm settle --timeout=30
-    # Sleep for 3 s to allow dcb negotiation
-    sleep 3
-    fipvlan "$netif" -c -s
-else
-    vlan="no"
-    write_fcoemon_cfg
-    fcoemon --syslog
 fi
+write_fcoemon_cfg
+fcoemon --syslog=yes
 
 need_shutdown

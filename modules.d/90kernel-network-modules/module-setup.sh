@@ -10,6 +10,25 @@ depends() {
     return 0
 }
 
+running_in_qemu() {
+    if type -P systemd-detect-virt >/dev/null 2>&1; then
+        vm=$(systemd-detect-virt --vm 2>&1)
+        (($? != 0)) && return 255
+        [[ $vm = "qemu" ]] && return 0
+        [[ $vm = "kvm" ]] && return 0
+        [[ $vm = "bochs" ]] && return 0
+    fi
+
+    for i in /sys/class/dmi/id/*_vendor; do
+        [[ -f $i ]] || continue
+        read vendor < $i
+        [[  "$vendor" == "QEMU" ]] && return 0
+        [[  "$vendor" == "Bochs" ]] && return 0
+    done
+
+    return 255
+}
+
 # called by dracut
 installkernel() {
     # Include wired net drivers, excluding wireless
@@ -30,6 +49,12 @@ installkernel() {
         =drivers/net/ethernet \
         ecb arc4 bridge stp llc ipv6 bonding 8021q af_packet virtio_net xennet
     hostonly="" instmods iscsi_ibft crc32c iscsi_boot_sysfs
+
+    if running_in_qemu; then
+        hostonly='' instmods virtio_net e1000 8139cp pcnet32 e100 ne2k_pci
+    else
+        return 0
+    fi
 }
 
 # called by dracut

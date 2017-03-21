@@ -267,7 +267,7 @@ ibft_to_cmdline() {
                         ;;
                 esac
             fi
-            if [ -n "$dhcp" ] || [ "$origin" -eq 3 ]; then
+            if [ -n "$dhcp" -a "$dhcp" != "0.0.0.0" ] || [ -z "$dhcp" -a "$origin" -eq 3 ]; then
                 if [ "$family" = "ipv6" ] ; then
                     echo "ip=$dev:dhcp6"
                 else
