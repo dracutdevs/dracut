@@ -15,14 +15,14 @@ installkernel() {
     local _modname
     # Include KMS capable drm drivers
 
-    if [[ "$(uname -p)" == arm* ]]; then
-        # arm specific modules needed by drm
+    if [[ "$(uname -m)" == arm* || "$(uname -m)" == aarch64 ]]; then
+        # arm/aarch64 specific modules needed by drm
         instmods \
             "=drivers/gpu/drm/i2c" \
             "=drivers/gpu/drm/panel" \
+            "=drivers/gpu/drm/bridge" \
             "=drivers/pwm" \
             "=drivers/video/backlight" \
-            "=drivers/video/fbdev/omap2/displays-new" \
             ${NULL}
     fi
 
