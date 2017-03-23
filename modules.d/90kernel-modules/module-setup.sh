@@ -52,13 +52,14 @@ installkernel() {
             "=drivers/input/serio" \
             "=drivers/input/keyboard"
 
-        if [[ "$(uname -p)" == arm* ]]; then
-            # arm specific modules
+	if [[ "$(uname -m)" == arm* || "$(uname -m)" == aarch64 ]]; then
+            # arm/aarch64 specific modules
             hostonly='' instmods \
 	        connector-hdmi connector-dvi encoder-tfp410 \
 	        encoder-tpd12s015 i2c-tegra gpio-regulator \
 		as3722-regulator orion-ehci ehci-tegra
             instmods \
+                "=drivers/dma" \
                 "=drivers/i2c/busses" \
                 "=drivers/regulator" \
                 "=drivers/rtc" \
