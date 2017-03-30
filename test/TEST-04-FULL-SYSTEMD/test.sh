@@ -71,8 +71,8 @@ test_setup() {
         ln -sfn /run "$initdir/var/run"
         ln -sfn /run/lock "$initdir/var/lock"
 
-	inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip route \
-	    mount dmesg ifconfig dhclient mkdir cp ping dhclient \
+	inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
+	    mount dmesg dhclient mkdir cp ping dhclient \
 	    umount strace less setsid tree systemctl reset
 
 	for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do

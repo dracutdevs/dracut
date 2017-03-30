@@ -76,8 +76,8 @@ test_setup() {
                 ln -sfnr usr/$i $i
             done
         )
-	inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip route \
-	    mount dmesg ifconfig dhclient mkdir cp ping dhclient
+	inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
+	    mount dmesg dhclient mkdir cp ping dhclient
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
 	    [ -f ${_terminfodir}/l/linux ] && break
 	done
