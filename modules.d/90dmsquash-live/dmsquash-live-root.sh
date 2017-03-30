@@ -28,7 +28,7 @@ getargbool 0 rd.live.overlay.readonly -d -y readonly_overlay && readonly_overlay
 overlay=$(getarg rd.live.overlay -d overlay)
 getargbool 0 rd.writable.fsimg -d -y writable_fsimg && writable_fsimg="yes"
 overlay_size=$(getarg rd.live.overlay.size=)
-[ -z "$overlay_size" ] && overlay_size=512
+[ -z "$overlay_size" ] && overlay_size=32768
 
 getargbool 0 rd.live.overlay.thin && thin_snapshot="yes"
 
@@ -112,9 +112,13 @@ do_live_overlay() {
         mkdir -m 0755 /run/initramfs/overlayfs
         mount -n -t auto $devspec /run/initramfs/overlayfs || :
         if [ -f /run/initramfs/overlayfs$pathspec -a -w /run/initramfs/overlayfs$pathspec ]; then
-            losetup $OVERLAY_LOOPDEV /run/initramfs/overlayfs$pathspec
-            if [ -n "$reset_overlay" ]; then
-                dd if=/dev/zero of=$OVERLAY_LOOPDEV bs=64k count=1 conv=fsync 2>/dev/null
+            if [ -n "$readonly_overlay" ]; then
+                losetup -r $OVERLAY_LOOPDEV /run/initramfs/overlayfs$pathspec
+            else
+                losetup $OVERLAY_LOOPDEV /run/initramfs/overlayfs$pathspec
+                if [ -n "$reset_overlay" ]; then
+                    dd if=/dev/zero of=$OVERLAY_LOOPDEV bs=64k count=1 conv=fsync 2>/dev/null
+                fi
             fi
             setup="yes"
         fi
@@ -141,7 +145,7 @@ do_live_overlay() {
     # set up the snapshot
     sz=$(blockdev --getsz $BASE_LOOPDEV)
     if [ -n "$readonly_overlay" ]; then
-        echo 0 $sz snapshot $BASE_LOOPDEV $OVERLAY_LOOPDEV N 8 | dmsetup create --readonly live-ro
+        echo 0 $sz snapshot $BASE_LOOPDEV $OVERLAY_LOOPDEV P 8 | dmsetup create --readonly live-ro
         base="/dev/mapper/live-ro"
         over=$RO_OVERLAY_LOOPDEV
     else
@@ -271,7 +275,7 @@ fi
 if [ -b "$OSMIN_LOOPDEV" ]; then
     # set up the devicemapper snapshot device, which will merge
     # the normal live fs image, and the delta, into a minimzied fs image
-    echo "0 $( blockdev --getsz $BASE_LOOPDEV ) snapshot $BASE_LOOPDEV $OSMIN_LOOPDEV N 8" | dmsetup create --readonly live-osimg-min
+    echo "0 $( blockdev --getsz $BASE_LOOPDEV ) snapshot $BASE_LOOPDEV $OSMIN_LOOPDEV P 8" | dmsetup create --readonly live-osimg-min
 fi
 
 ROOTFLAGS="$(getarg rootflags)"
