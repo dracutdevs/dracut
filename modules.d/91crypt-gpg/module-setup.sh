@@ -10,6 +10,7 @@ check() {
             dwarning "crypt-gpg: GnuPG >= 2.1 with scdaemon and libusb required for ccid smartcard support"
             return 1
         fi
+        return 0
     fi
 
     return 255
