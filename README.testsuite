@@ -1,6 +1,5 @@
 For the testsuite to work, you will have to install at least the following software packages:
 dash \
-bridge-utils \
 asciidoc \
 mdadm \
 lvm2 \
@@ -11,13 +10,11 @@ nbd \
 dhcp-server \
 scsi-target-utils \
 iscsi-initiator-utils \
-net-tools \
 strace \
 syslinux \
 python-imgcreate \
 genisoimage \
 btrfs-progs \
-bridge-utils \
 kmod-devel \
 gcc \
 bzip2 \

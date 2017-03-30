@@ -36,8 +36,8 @@ test_setup() {
             done
             mkdir -p -- var/lib/nfs/rpc_pipefs
         )
-	inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip route \
-	    mount dmesg ifconfig dhclient mkdir cp ping dhclient \
+	inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
+	    mount dmesg dhclient mkdir cp ping dhclient \
 	    umount strace less setsid
 	for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
