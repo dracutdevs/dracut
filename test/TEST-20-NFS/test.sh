@@ -18,7 +18,8 @@ run_server() {
         -display none \
         -net socket,listen=127.0.0.1:12320 \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
-        -serial ${SERIAL:-null} \
+        ${SERIAL:+-serial "$SERIAL"} \
+        ${SERIAL:--serial file:"$TESTDIR"/server.log} \
         -watchdog i6300esb -watchdog-action poweroff \
         -no-reboot \
         -append "panic=1 rd.debug loglevel=77 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \

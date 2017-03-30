@@ -7,8 +7,7 @@ DEBUGFAIL="loglevel=1"
 #DEBUGFAIL="rd.shell rd.break rd.debug loglevel=7 "
 #DEBUGFAIL="rd.debug loglevel=7 "
 #SERVER_DEBUG="rd.debug loglevel=7"
-SERIAL="tcp:127.0.0.1:9999"
-SERIAL="null"
+#SERIAL="tcp:127.0.0.1:9999"
 
 run_server() {
     # Start server first
@@ -21,7 +20,8 @@ run_server() {
         -drive format=raw,index=3,media=disk,file=$TESTDIR/iscsidisk3.img \
         -m 512M   -smp 2 \
         -display none \
-        -serial $SERIAL \
+        ${SERIAL:+-serial "$SERIAL"} \
+        ${SERIAL:--serial file:"$TESTDIR"/server.log} \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net nic,macaddr=52:54:00:12:34:57,model=e1000 \
         -net socket,listen=127.0.0.1:12330 \
