@@ -23,10 +23,11 @@ installkernel() {
             virtio virtio_blk virtio_ring virtio_pci virtio_scsi \
             "=drivers/pcmcia" =ide nvme
 
-        if [[ "$(uname -p)" == arm* ]]; then
-            # arm specific modules
+	if [[ "$(uname -m)" == arm* || "$(uname -m)" == aarch64 ]]; then
+            # arm/aarch64 specific modules
             instmods \
                 "=drivers/clk" \
+                "=drivers/dma" \
                 "=drivers/i2c/busses" \
                 "=drivers/phy" \
                 "=drivers/power" \
