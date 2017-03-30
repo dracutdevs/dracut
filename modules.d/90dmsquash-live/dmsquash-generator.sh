@@ -52,21 +52,30 @@ esac
 
 GENERATOR_DIR="$2"
 [ -z "$GENERATOR_DIR" ] && exit 1
-
 [ -d "$GENERATOR_DIR" ] || mkdir "$GENERATOR_DIR"
 
+getargbool 0 rd.live.overlay.overlayfs && overlayfs="yes"
+[ -e /xor_overlayfs ] && xor_overlayfs="yes"
 ROOTFLAGS="$(getarg rootflags)"
 {
     echo "[Unit]"
     echo "Before=initrd-root-fs.target"
     echo "[Mount]"
     echo "Where=/sysroot"
-    echo "What=/dev/mapper/live-rw"
-    [ -n "$ROOTFLAGS" ] && echo "Options=${ROOTFLAGS}"
+    if [ "$overlayfs$xor_overlayfs" = "yes" ]; then
+        echo "What=LiveOS_rootfs"
+        echo "Options=${ROOTFLAGS},lowerdir=/run/rootfsbase,upperdir=/run/overlayfs,workdir=/run/ovlwork"
+        echo "Type=overlay"
+        _dev=LiveOS_rootfs
+    else
+        echo "What=/dev/mapper/live-rw"
+        [ -n "$ROOTFLAGS" ] && echo "Options=${ROOTFLAGS}"
+        _dev=dev-mapper-live\x2drw
+    fi
 } > "$GENERATOR_DIR"/sysroot.mount
 
-mkdir -p "$GENERATOR_DIR/dev-mapper-live\x2drw.device.d"
+mkdir -p "$GENERATOR_DIR/$_dev.device.d"
 {
     echo "[Unit]"
     echo "JobTimeoutSec=3000"
-} > "$GENERATOR_DIR/dev-mapper-live\x2drw.device.d/timeout.conf"
+} > "$GENERATOR_DIR/$_dev.device.d/timeout.conf"

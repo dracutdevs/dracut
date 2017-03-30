@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ -b /dev/mapper/live-rw ] && [ -d /run/initramfs/live/updates -o -d /updates ]; then
+if [ -L /run/rootfsbase ] && [ -d /run/initramfs/live/updates -o -d /updates ]; then
     info "Applying updates to live image..."
     mount -o bind /run $NEWROOT/run
     # avoid overwriting symlinks (e.g. /lib -> /usr/lib) with directories

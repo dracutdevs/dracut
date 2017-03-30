@@ -17,7 +17,7 @@ depends() {
 
 # called by dracut
 installkernel() {
-    instmods squashfs loop iso9660
+    instmods squashfs loop iso9660 overlay
 }
 
 # called by dracut
