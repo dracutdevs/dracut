@@ -14,7 +14,8 @@ _do_dm_shutdown() {
     return $ret
 }
 
-if command -v dmsetup >/dev/null; then
+if command -v dmsetup >/dev/null &&
+    [ "x$(dmsetup status)" != "xNo devices found" ]; then
     _do_dm_shutdown $1
 else
     :
