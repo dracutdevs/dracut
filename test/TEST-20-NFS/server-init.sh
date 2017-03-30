@@ -30,6 +30,7 @@ mount -t rpc_pipefs sunrpc /var/lib/nfs/rpc_pipefs
 echo > /dev/watchdog
 [ -x /sbin/portmap ] && portmap
 echo > /dev/watchdog
+mkdir -p /run/rpcbind
 [ -x /sbin/rpcbind ] && rpcbind
 echo > /dev/watchdog
 modprobe nfsd
