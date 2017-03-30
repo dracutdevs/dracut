@@ -251,6 +251,9 @@ if [ -z "$NO_BOND_MASTER" ]; then
                 linkup $slave
             done
 
+            # Set mtu on bond master
+            [ -n "$bondmtu" ] && ip link set mtu $bondmtu dev $netif
+
             # add the bits to setup the needed post enslavement parameters
             for arg in $bondoptions ; do
                 key=${arg%%=*};
