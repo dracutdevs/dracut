@@ -17,7 +17,12 @@ if getargbool 1 rd.luks -n rd_NO_LUKS && \
             continue
         fi
 
-        if [ -n "$keydev" ]; then
+        # A keydev of '/' is treated as the initrd itself
+        if [ "/" == "$keydev" ]; then
+            [ -z "$luksdev" ] && luksdev='*'
+            echo "$luksdev:$keydev:$keypath" >> /tmp/luks.keys
+            continue
+        elif [ -n "$keydev" ]; then
             udevmatch "$keydev" >&7 || {
                 warn 'keydev incorrect!'
                 continue
