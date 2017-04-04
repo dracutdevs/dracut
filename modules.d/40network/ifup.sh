@@ -108,6 +108,9 @@ do_static() {
     if strglobin $ip '*:*:*'; then
         # note no ip addr flush for ipv6
         ip addr add $ip/$mask ${srv:+peer $srv} dev $netif
+        echo 0 > /proc/sys/net/ipv6/conf/$netif/forwarding
+        echo 1 > /proc/sys/net/ipv6/conf/$netif/accept_ra
+        echo 1 > /proc/sys/net/ipv6/conf/$netif/accept_redirects
         wait_for_ipv6_dad $netif
     else
         if command -v arping2 >/dev/null; then
