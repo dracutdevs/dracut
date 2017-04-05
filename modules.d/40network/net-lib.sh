@@ -654,7 +654,7 @@ wait_for_ipv6_dad_link() {
 
     while [ $cnt -lt $timeout ]; do
         [ -z "$(ip -6 addr show dev "$1" scope link tentative)" ] \
-            && [ -n "$(ip -6 route list proto ra dev "$1" | grep default)" ] \
+            && [ -n "$(ip -6 route list proto ra dev "$1" | grep ^default)" ] \
             && return 0
         [ -n "$(ip -6 addr show dev "$1" scope link dadfailed)" ] \
             && return 1
@@ -672,7 +672,7 @@ wait_for_ipv6_dad() {
 
     while [ $cnt -lt $timeout ]; do
         [ -z "$(ip -6 addr show dev "$1" tentative)" ] \
-            && [ -n "$(ip -6 route list proto ra dev "$1" | grep default)" ] \
+            && [ -n "$(ip -6 route list proto ra dev "$1" | grep ^default)" ] \
             && return 0
         [ -n "$(ip -6 addr show dev "$1" dadfailed)" ] \
             && return 1
@@ -690,7 +690,7 @@ wait_for_ipv6_auto() {
 
     while [ $cnt -lt $timeout ]; do
         [ -z "$(ip -6 addr show dev "$1" tentative)" ] \
-            && [ -n "$(ip -6 route list proto ra dev "$1" | grep default)" ] \
+            && [ -n "$(ip -6 route list proto ra dev "$1" | grep ^default)" ] \
             && return 0
         sleep 0.1
         cnt=$(($cnt+1))
