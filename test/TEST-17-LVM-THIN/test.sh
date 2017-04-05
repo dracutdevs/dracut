@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 TEST_DESCRIPTION="root filesystem on LVM PV with thin pool"
 
 KVERSION=${KVERSION-$(uname -r)}

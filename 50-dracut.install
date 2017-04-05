@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 COMMAND="$1"
 KERNEL_VERSION="$2"

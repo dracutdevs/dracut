@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Note lldpad will stay running after switchroot, the system initscripts
 # are to kill it and start a new lldpad to take over. Data is transfered

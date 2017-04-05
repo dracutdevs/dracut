@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 TEST_DESCRIPTION="root filesystem on multiple device btrfs"
 
 KVERSION=${KVERSION-$(uname -r)}

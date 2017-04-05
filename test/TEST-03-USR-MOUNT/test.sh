@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 TEST_DESCRIPTION="root filesystem on a btrfs filesystem with /usr subvolume"
 
