@@ -1,7 +1,8 @@
 dracut-045
 ==========
 
-dracut now requires libkmod for the dracut-install binary helper.
+Important: dracut now requires libkmod for the dracut-install binary helper,
+           which nows handles kernel module installing and filtering.
 
 dracut.sh:
 - restorecon final image file
@@ -46,9 +47,51 @@ dmsquash-live:
   and include only, if systemd is used
 - fixed dmsquash-live-root.sh for cases where the fstype of the liveimage is squashfs
 - fixed typo for rootfs.img
+- enable the use of the OverlayFS for the LiveOS root filesystem
+  Patch notes:
+    Integrate the option to use an OverlayFS as the root filesystem
+    into the 90dmsquash-live module for testing purposes.
+
+    The rd.live.overlay.overlayfs option allows one to request an
+    OverlayFS overlay.  If a persistent overlay is detected at the
+    standard LiveOS path, the overlay & type detected will be used.
+
+    Tested primarily with transient, in-RAM overlay boots on vfat-
+    formatted Live USB devices, with persistent overlay directories
+    on ext4-formatted Live USB devices, and with embedded, persistent
+    overlay directories on vfat-formatted devices. (Persistent overlay
+    directories on a vfat-formatted device must be in an embedded
+    filesystem that supports the creation of trusted.* extended
+    attributes, and must provide valid d_type in readdir responses.)
+
+    The rd.live.overlay.readonly option, which allows a persistent
+    overlayfs to be mounted read only through a higher level transient
+    overlay directory, has been implemented through the multiple lower
+    layers feature of OverlayFS.
+
+    The default transient DM overlay size has been adjusted up to 32 GiB.
+    This change supports comparison of transient Device-mapper vs.
+    transient OverlayFS overlay performance.  A transient DM overlay
+    is a sparse file in memory, so this setting does not consume more
+    RAM for legacy applications.  It does permit a user to use all of
+    the available root filesystem storage, and fails gently when it is
+    consumed, as the available free root filesystem storage on a typical
+    LiveOS build is only a few GiB.  Thus, when booted on other-
+    than-small RAM systems, the transient DM overlay should not overflow.
+
+    OverlayFS offers the potential to use all of the available free RAM
+    or all of the available free disc storage (on non-vfat-devices)
+    in its overlay, even beyond the root filesystem available space,
+    because the OverlayFS root filesystem is a union of directories on
+    two different partitions.
+
+    This patch also cleans up some message spew at shutdown, shortens
+    the execution path in a couple of places, and uses persistent
+    DM targets where required.
 
 dmraid:
 - added "nowatch" option in udev rule, otherwise udev would reread partitions for raid members
+- allow booting from degraded MD RAID arrays
 
 shutdown:
 - handle readonly /run on shutdown
@@ -82,6 +125,12 @@ network:
 - support macaddr in brackets [] (commit 740c46c0224a187d6b5a42b4aa56e173238884cc)
 - use arping2, if available
 - support multiple default gateways from DHCP server
+- fixup VLAN handling
+- enhance team support
+- differ between ipv6 local and global tentative
+- ipv6: wait for a router advertised route
+- add 'mtu' parameter for bond options
+- use 'ip' instead of 'brctl'
 
 nbd:
 - add systemd generator
@@ -112,6 +161,13 @@ livenet:
 
 nfs:
 - install all nfs modules non-hostonly
+
+crypt:
+- support keyfiles embedded in the initramfs
+
+testsuite:
+- add TEST-70-BONDBRIDGETEAMVLAN
+- make "-cpu host" the default
 
 dracut-044
 ==========
