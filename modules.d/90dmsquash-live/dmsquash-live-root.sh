@@ -241,7 +241,12 @@ do_live_overlay() {
     fi
 
     # Create a device that always points to a ro base image
-    echo 0 $sz linear $BASE_LOOPDEV 0 | dmsetup create --readonly live-base
+    if [ -n "$overlayfs" ]; then
+        BASE_LOOPDUP=$(losetup -f --show -r $BASE_LOOPDEV)
+        echo 0 $sz linear $BASE_LOOPDUP 0 | dmsetup create --readonly live-base
+    else
+        echo 0 $sz linear $BASE_LOOPDEV 0 | dmsetup create --readonly live-base
+    fi
 }
 
 # we might have a genMinInstDelta delta file for anaconda to take advantage of
