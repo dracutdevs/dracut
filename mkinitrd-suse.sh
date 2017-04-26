@@ -104,7 +104,7 @@ calc_netmask() {
     local prefix=$1
 
     [ -z "$prefix" ] && return
-    mask=$(echo "(2 ^ 32) - (2 ^ $prefix)" | bc -l)
+    mask=$(( 0xffffffff << (32 - $prefix) ))
     byte1=$(( mask >> 24 ))
     byte2=$(( mask >> 16 ))
     byte3=$(( mask >> 8 ))
