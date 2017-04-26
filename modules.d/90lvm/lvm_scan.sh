@@ -109,9 +109,9 @@ if [ -n "$LVS" ] ; then
     lvm lvscan --ignorelockingfailure 2>&1 | vinfo
     for LV in $LVS; do
         if [ -z "$sysinit" ]; then
-            lvm lvchange --yes -ay --ignorelockingfailure $nopoll --ignoremonitoring $LV 2>&1 | vinfo
+            lvm lvchange --yes -K -ay --ignorelockingfailure $nopoll --ignoremonitoring $LV 2>&1 | vinfo
         else
-            lvm lvchange --yes -ay $sysinit $LV 2>&1 | vinfo
+            lvm lvchange --yes -K -ay $sysinit $LV 2>&1 | vinfo
         fi
     done
 fi
