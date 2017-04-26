@@ -51,10 +51,12 @@ client_test() {
     fi
 
     $testdir/run-qemu -drive format=raw,index=0,media=disk,file="$TESTDIR"/client.img -m 512M  -smp 2 -nographic \
-        -net socket,connect=127.0.0.1:12350 \
-        -net nic,macaddr=52:54:00:12:34:$mac1,model=e1000 \
-        -net nic,macaddr=52:54:00:12:34:$mac2,model=e1000 \
-        -net nic,macaddr=52:54:00:12:34:$mac3,model=e1000 \
+        -net socket,vlan=0,connect=127.0.0.1:12350 \
+        -net nic,vlan=0,macaddr=52:54:00:12:34:$mac1,model=e1000 \
+        -net nic,vlan=0,macaddr=52:54:00:12:34:$mac2,model=e1000 \
+        -net nic,vlan=0,macaddr=52:54:00:12:34:$mac3,model=e1000 \
+        -net nic,vlan=1,macaddr=52:54:00:12:34:98,model=e1000 \
+        -net nic,vlan=2,macaddr=52:54:00:12:34:99,model=e1000 \
         -watchdog i6300esb -watchdog-action poweroff \
         -no-reboot \
         -append "panic=1 rd.shell=0 $cmdline $DEBUGFAIL rd.retry=5 ro console=ttyS0,115200n81 selinux=0 init=/sbin/init rd.debug systemd.log_target=console loglevel=7" \
@@ -146,7 +148,7 @@ test_client() {
 
     client_test "MULTINIC bridging" \
         00 01 02 \
-        "root=nfs:192.168.50.1:/nfs/client ip=bridge0:dhcp  bridge=bridge0:ens3,ens4,ens5" \
+        "root=nfs:192.168.50.1:/nfs/client ip=bridge0:dhcp  bridge=bridge0:ens3,ens6,ens7" \
         "bridge0" || return 1
     return 0
 }
