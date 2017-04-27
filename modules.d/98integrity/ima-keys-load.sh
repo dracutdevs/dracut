@@ -13,7 +13,7 @@ load_x509_keys()
         . ${IMACONFIG}
     fi
 
-    if [ -z "${IMAKEYDIR}" ]; then
+    if [ -z "${IMAKEYSDIR}" ]; then
         IMAKEYSDIR="/etc/keys/ima"
     fi
 
