@@ -1586,13 +1586,14 @@ PRELINK_BIN="$(command -v prelink)"
 if [[ $EUID = 0 ]] && [[ $PRELINK_BIN ]]; then
     if [[ $DRACUT_FIPS_MODE ]]; then
         dinfo "*** Installing prelink files ***"
-        inst_multiple -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf /etc/prelink.cache
+        inst_multiple -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf /etc/prelink.cache /usr/lib*/libelf*.so*
     elif [[ $do_prelink == yes ]]; then
         dinfo "*** Pre-linking files ***"
-        inst_multiple -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf
+        inst_multiple -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf /usr/lib*/libelf*.so*
         chroot "$initdir" "$PRELINK_BIN" -a
         rm -f -- "$initdir/$PRELINK_BIN"
         rm -fr -- "$initdir"/etc/prelink.*
+	rm -f --  "$initdir"/usr/lib*/libelf*.so*
         dinfo "*** Pre-linking files done ***"
     fi
 fi
