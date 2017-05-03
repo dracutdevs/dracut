@@ -15,7 +15,7 @@ depends() {
 
 # called by dracut
 install() {
-    local _dir _crt _found _lib
+    local _dir _crt _found _lib _nssckbi _p11roots _p11root _p11item
     inst_simple "$moddir/url-lib.sh" "/lib/url-lib.sh"
     inst_multiple -o ctorrent
     inst_multiple curl
@@ -29,6 +29,7 @@ install() {
 	[[ -d $_dir ]] || continue
         for _lib in $_dir/libcurl.so.*; do
 	    [[ -e $_lib ]] || continue
+            [[ $_nssckbi ]] || _nssckbi=$(grep -F --binary-files=text -z libnssckbi $_lib)
             _crt=$(grep -F --binary-files=text -z .crt $_lib)
             [[ $_crt ]] || continue
             [[ $_crt == /*/* ]] || continue
@@ -39,6 +40,39 @@ install() {
             _found=1
         done
     done
-    [[ $_found ]] || dwarn "Couldn't find SSL CA cert bundle; HTTPS won't work."
+    # If we found no cert bundle files referenced in libcurl but we
+    # *did* find a mention of libnssckbi (checked above), install it.
+    # If its truly NSS libnssckbi, it includes its own trust bundle,
+    # but if it's really p11-kit-trust.so, we need to find the dirs
+    # where it will look for a trust bundle and install them too.
+    if ! [[ $_found ]] && [[ $_nssckbi ]] ; then
+        _found=1
+        inst_libdir_file "libnssckbi.so*" || _found=
+        for _dir in $libdirs; do
+            [[ -e $_dir/libnssckbi.so ]] || continue
+            # this looks for directory-ish strings in the file
+            for _p11roots in $(grep -o --binary-files=text "/[[:alpha:]][[:print:]]*" $_dir/libnssckbi.so) ; do
+                # the string can be a :-separated list of dirs
+                for _p11root in $(echo "$_p11roots" | tr ':' '\n') ; do
+                    # check if it's actually a directory (there are
+                    # several false positives in the results)
+                    [[ -d "$_p11root" ]] || continue
+                    # check if it has some specific subdirs that all
+                    # p11-kit trust dirs have
+                    [[ -d "${_p11root}/anchors" ]] || continue
+                    [[ -d "${_p11root}/blacklist" ]] || continue
+                    # so now we know it's really a p11-kit trust dir;
+                    # install everything in it
+                    for _p11item in $(find "$_p11root") ; do
+                        if ! inst "$_p11item" ; then
+                            dwarn "Couldn't install '$_p11item' from p11-kit trust dir '$_p11root'; HTTPS might not work."
+                            continue
+                        fi
+                    done
+                done
+            done
+        done
+    fi
+    [[ $_found ]] || dwarn "Couldn't find SSL CA cert bundle or libnssckbi.so; HTTPS won't work."
 }
 
