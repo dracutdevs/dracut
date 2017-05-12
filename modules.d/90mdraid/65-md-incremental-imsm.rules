@@ -31,8 +31,6 @@ PROGRAM="/bin/sh -c 'for i in $sys/$devpath/holders/md[0-9_]*; do [ -e $$i ] && 
 ENV{DEVTYPE}!="partition", \
     RUN+="/sbin/partx -d --nr 1-1024 $env{DEVNAME}"
 
-RUN+="/sbin/initqueue --timeout --name 50-mdraid_start --onetime --unique /sbin/mdraid_start"
-
 #
 # Incrementally build the md array; this will automatically assemble
 # any eventual containers as well (imsm, ddf)
