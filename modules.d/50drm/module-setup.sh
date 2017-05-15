@@ -21,12 +21,11 @@ installkernel() {
             "=drivers/gpu/drm/i2c" \
             "=drivers/gpu/drm/panel" \
             "=drivers/gpu/drm/bridge" \
-            "=drivers/pwm" \
             "=drivers/video/backlight" \
             ${NULL}
     fi
 
-    instmods amdkfd hyperv_fb
+    instmods amdkfd hyperv_fb "=drivers/pwm"
 
     # if the hardware is present, include module even if it is not currently loaded,
     # as we could e.g. be in the installer; nokmsboot boot parameter will disable
