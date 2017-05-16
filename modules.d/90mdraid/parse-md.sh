@@ -25,6 +25,9 @@ else
             done < "${f}" > "${f}.new"
             mv "${f}.new" "$f"
         done
+        for uuid in $MD_UUID; do
+            wait_for_dev "/dev/disk/by-id/md-uuid-${uuid}"
+        done
     fi
 fi
 
