@@ -148,6 +148,18 @@ Provides:  dracut-generic = %{version}-%{release}
 This package requires everything which is needed to build a generic
 all purpose initramfs with network support with dracut.
 
+%package crypt-ssh
+Summary: dracut modules to build a dracut initramfs with dropbear sshd support
+Requires: dropbear
+Requires: %{name} = %{version}-%{release}
+Requires: %{name}-network = %{version}-%{release}
+Requires: openssh
+BuildRequires: libblkid-devel
+
+%description crypt-ssh
+This package provides crypt-ssh dracut module, which enables dropbear sshd
+support to unlock luks volumes remotely
+
 %if 0%{?fedora} || 0%{?rhel} >= 6 || 0%{?suse_version}
 %package fips
 Summary: dracut modules to build a dracut initramfs with an integrity check
@@ -260,6 +272,10 @@ rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00dash
 # remove gentoo specific modules
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/50gensplash
 
+# remove sources for compiled binary helpers
+rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/60crypt-ssh/helper/*.{c,o,h}
+rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/60crypt-ssh/helper/{.gitignore,Makefile}
+
 %if %{defined _unitdir}
 # with systemd IMA and selinux modules do not make sense
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/96securityfs
@@ -272,6 +288,8 @@ mkdir -p $RPM_BUILD_ROOT/var/lib/dracut/overlay
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/log
 touch $RPM_BUILD_ROOT%{_localstatedir}/log/dracut.log
 mkdir -p $RPM_BUILD_ROOT%{_sharedstatedir}/initramfs
+
+install -m 0644 dracut.conf.d/crypt-ssh.conf.example $RPM_BUILD_ROOT%{_sysconfdir}/dracut.conf.d/60-crypt-ssh.conf
 
 %if 0%{?fedora} || 0%{?rhel}
 install -m 0644 dracut.conf.d/fedora.conf.example $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/01-dist.conf
@@ -450,6 +468,11 @@ rm -rf -- $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/95znet
 %{dracutlibdir}/modules.d/95fcoe-uefi
 %{dracutlibdir}/modules.d/99uefi-lib
+
+%files crypt-ssh
+%defattr(-,root,root,0755)
+%{dracutlibdir}/modules.d/60crypt-ssh
+%config(noreplace) %{_sysconfdir}/dracut.conf.d/60-crypt-ssh.conf
 
 %if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
 %files fips
