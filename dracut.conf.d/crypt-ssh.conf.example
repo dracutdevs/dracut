@@ -1,0 +1,33 @@
+# NOTE: The defaults in this file MUST be carefully read and understood before using this module!
+# The defaults may NOT be appropriate for your site.  Carefully review and understand your threat model
+#  (ie, what attack scenarios you are protecting yourself against) and adjust accordingly!
+#
+
+# The port to run the ssh daemon on
+# Default: 222
+# dropbear_port="222"
+
+# Where to get the RSA and/or ECDSA keys for dropbear, options are:
+#  GENERATE: generate a new one for each initrd run, the public key will be printed during the dracut build process
+#            and on boot
+#  SYSTEM:   use (convert) the host key from the host system's SSH daemon. This will make the initrd ssh indistinguishable
+#            from the running system - this may be a security risk, depending on your threat model, but simplifies
+#            your client-side ssh configuration
+#  /path/to/openssh_key:   an absolute path to a host key, in openssh format. A public key with '.pub' ending should be present too
+# 
+# It is recommend that you use the system one, or supply your own.  If using the system key, be aware that an attacker
+# that can access your initrd could use the host key to impersonate the running system.  This could allow them to attempt
+# an MITM attack.
+#
+# Default: GENERATE
+# dropbear_rsa_key="GENERATE"
+# dropbear_ecdsa_key="GENERATE"
+
+# Location of the list of authorized public keys that can log into the initrd ssh daemon
+# Defaults to the authorized_keys list for root.  It may be advantageous to use a different authorized_keys list
+#  so that users/machines that can unlock the machine are not necessarily given full root access after boot.
+#  Note that root access to the initrd does give an attacker means to provide themselves with root access after boot,
+#  especially if they hold the encryption keys to the root drive - choose carefully!
+#
+# Default: /root/.ssh/authorized_keys
+# dropbear_acl="/root/.ssh/authorized_keys"
