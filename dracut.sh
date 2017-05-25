@@ -725,6 +725,8 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ "$hostonly" == "yes" ]] && ! [[ $hostonly_cmdline ]] && hostonly_cmdline="yes"
 [[ $i18n_install_all_l ]] && i18n_install_all=$i18n_install_all_l
 [[ $persistent_policy_l ]] && persistent_policy=$persistent_policy_l
+# add the default fallback
+persistent_policy+=( mapper by-uuid by-label by-partuuid by-partlabel by-id by-path )
 [[ $use_fstab_l ]] && use_fstab=$use_fstab_l
 [[ $mdadmconf_l ]] && mdadmconf=$mdadmconf_l
 [[ $lvmconf_l ]] && lvmconf=$lvmconf_l
