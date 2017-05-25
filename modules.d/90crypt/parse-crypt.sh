@@ -40,7 +40,7 @@ else
                         printf -- 'ENV{ID_FS_UUID}=="*%s*", ' $luksid
                         printf -- 'RUN+="%s --settled --unique --onetime ' $(command -v initqueue)
                         printf -- '--name systemd-cryptsetup-%%k %s start ' $(command -v systemctl)
-                        printf -- 'systemd-cryptsetup@luks$$(dev_unit_name -$env{ID_FS_UUID}).service"\n'
+                        printf -- 'systemd-cryptsetup@luks$$(dev_unit_name $env{ID_FS_UUID}).service"\n'
                     } >> /etc/udev/rules.d/70-luks.rules.new
                 fi
             fi
