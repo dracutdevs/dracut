@@ -40,6 +40,7 @@ installkernel() {
                 "=drivers/usb/host" \
                 "=drivers/usb/musb" \
                 "=drivers/usb/phy" \
+		"=drivers/scsi/hisi_sas" \
                 ${NULL}
         fi
 
