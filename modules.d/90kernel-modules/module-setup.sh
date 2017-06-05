@@ -64,6 +64,7 @@ installkernel() {
                 "=drivers/rtc" \
                 "=drivers/usb/host" \
                 "=drivers/usb/phy" \
+		"=drivers/scsi/hisi_sas" \
                 ${NULL}
         fi
 
