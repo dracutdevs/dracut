@@ -9,7 +9,10 @@ if modprobe sunrpc || strstr "$(cat /proc/filesystems)" rpc_pipefs; then
     # Start rpcbind or rpcbind
     # FIXME occasionally saw 'rpcbind: fork failed: No such device' -- why?
     command -v portmap >/dev/null && [ -z "$(pidof portmap)" ] && portmap
-    command -v rpcbind >/dev/null && [ -z "$(pidof rpcbind)" ] && rpcbind
+    if command -v rpcbind >/dev/null && [ -z "$(pidof rpcbind)" ]; then
+        mkdir -p /run/rpcbind
+        rpcbind
+    fi
 
     # Start rpc.statd as mount won't let us use locks on a NFSv4
     # filesystem without talking to it. NFSv4 does locks internally,
