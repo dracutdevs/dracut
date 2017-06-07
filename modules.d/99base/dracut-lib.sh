@@ -922,7 +922,7 @@ set_systemd_timeout_for_dev()
     fi
 
     _timeout=$(getarg rd.timeout)
-    _timeout=${_timeout:-0}
+    _timeout=${_timeout:-300}
 
     if [ -n "$DRACUT_SYSTEMD" ]; then
         _name=$(dev_unit_name "$1")
