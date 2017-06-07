@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 TEST_DESCRIPTION="rpm integrity after dracut and kernel install"
 
@@ -60,7 +60,7 @@ test_run() {
     (( i < 5 ))
 
     cat >"$rootdir"/test.sh <<EOF
-#!/bin/bash
+#!/usr/bin/env bash
 set -x
 export LC_MESSAGES=C
 rpm -Va |& grep -F -v '85-display-manager.preset' &> /test.output

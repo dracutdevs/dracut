@@ -1,4 +1,4 @@
-#!/bin/bash --norc
+#!/usr/bin/env bash --norc
 #
 # Generator script for a dracut initramfs
 # Tries to retain some degree of compatibility with the command line

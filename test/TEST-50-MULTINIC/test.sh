@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 TEST_DESCRIPTION="root filesystem on NFS with multiple nics"
 
 KVERSION=${KVERSION-$(uname -r)}

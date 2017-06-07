@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 TEST_DESCRIPTION="Full systemd serialization/deserialization test with /usr mount"
 
@@ -145,7 +145,7 @@ EOF
 
 #         mkdir -p $initdir/etc/rc.d
 #         cat >$initdir/etc/rc.d/rc.local <<EOF
-# #!/bin/bash
+# #!/usr/bin/env bash
 # exit 0
 # EOF
 

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # module-setup.sh for livenet
 
 # called by dracut

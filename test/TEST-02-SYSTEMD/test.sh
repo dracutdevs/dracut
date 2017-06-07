@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 TEST_DESCRIPTION="root filesystem on a ext3 filesystem"
 
 KVERSION="${KVERSION-$(uname -r)}"

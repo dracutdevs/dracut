@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 TEST_DESCRIPTION="root filesystem on LVM PV on a isw dmraid"
 
 KVERSION=${KVERSION-$(uname -r)}

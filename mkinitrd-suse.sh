@@ -1,4 +1,4 @@
-#!/bin/bash --norc
+#!/usr/bin/env bash --norc
 #
 # mkinitrd compability wrapper for SUSE.
 #

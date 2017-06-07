@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # We don't support srcdir != builddir
 echo \#buildapi-variable-no-builddir >/dev/null
