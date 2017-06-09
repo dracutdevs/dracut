@@ -77,6 +77,7 @@ install() {
         $systemdsystemunitdir/sys-kernel-config.mount \
         \
         $systemdsystemunitdir/kmod-static-nodes.service \
+        $systemdsystemunitdir/systemd-tmpfiles-setup.service \
         $systemdsystemunitdir/systemd-tmpfiles-setup-dev.service \
         $systemdsystemunitdir/systemd-ask-password-console.path \
         $systemdsystemunitdir/systemd-udevd-control.socket \
@@ -112,6 +113,7 @@ install() {
         $systemdsystemunitdir/sysinit.target.wants/systemd-udevd.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-udev-trigger.service \
         $systemdsystemunitdir/sysinit.target.wants/kmod-static-nodes.service \
+        $systemdsystemunitdir/sysinit.target.wants/systemd-tmpfiles-setup.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-tmpfiles-setup-dev.service \
         $systemdsystemunitdir/sysinit.target.wants/systemd-sysctl.service \
         \
@@ -193,6 +195,10 @@ install() {
     grep '^adm:' /etc/group >> "$initdir/etc/group"
     grep '^utmp:' /etc/group >> "$initdir/etc/group"
     grep '^root:' /etc/group >> "$initdir/etc/group"
+
+    # we don't use systemd-networkd, but the user is in systemd.conf tmpfiles snippet
+    grep '^systemd-network:' /etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
+    grep '^systemd-network:' /etc/group >> "$initdir/etc/group"
 
     ln_r $systemdutildir/systemd "/init"
     ln_r $systemdutildir/systemd "/sbin/init"
