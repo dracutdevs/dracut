@@ -27,6 +27,7 @@ install() {
     fi
 
     inst_rules \
+        40-redhat-cpu-hotplug.rules \
         40-redhat.rules \
         50-firmware.rules \
         50-udev-default.rules \
