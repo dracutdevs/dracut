@@ -152,8 +152,8 @@ getcmdline() {
         while read -r _line || [ -n "$_line" ]; do
             CMDLINE_PROC="$CMDLINE_PROC $_line"
         done </proc/cmdline;
-        CMDLINE="$CMDLINE_ETC_D $CMDLINE_ETC $CMDLINE_PROC"
     fi
+    CMDLINE="$CMDLINE_ETC_D $CMDLINE_ETC $CMDLINE_PROC"
     printf "%s" "$CMDLINE"
 }
 
