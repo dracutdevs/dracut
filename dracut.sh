@@ -1053,8 +1053,8 @@ if [[ ! $print_cmdline ]]; then
     fi
 fi
 
-if [[ $acpi_override = yes ]] && ! check_kernel_config CONFIG_ACPI_INITRD_TABLE_OVERRIDE; then
-    dwarn "Disabling ACPI override, because kernel does not support it. CONFIG_ACPI_INITRD_TABLE_OVERRIDE!=y"
+if [[ $acpi_override = yes ]] && ! ( check_kernel_config CONFIG_ACPI_TABLE_UPGRADE ||  check_kernel_config CONFIG_ACPI_INITRD_TABLE_OVERRIDE ); then
+    dwarn "Disabling ACPI override, because kernel does not support it. CONFIG_ACPI_INITRD_TABLE_OVERRIDE!=y or CONFIG_ACPI_TABLE_UPGRADE!=y"
     unset acpi_override
 fi
 
