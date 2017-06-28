@@ -101,7 +101,7 @@ Requires: sed
 Requires: xz
 Requires: gzip
 
-%if 0%{?fedora} > 22
+%if 0%{?fedora} > 22 || 0%{?rhel} > 7
 Recommends: grubby
 Recommends: hardlink
 Recommends: pigz
