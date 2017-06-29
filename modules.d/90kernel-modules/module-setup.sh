@@ -13,6 +13,7 @@ installkernel() {
             xhci-hcd xhci-pci xhci-plat-hcd \
             pinctrl-cherryview \
             "=drivers/hid" \
+            "=drivers/tty/serial" \
             "=drivers/input/serio" \
             "=drivers/input/keyboard" \
             "=drivers/usb/storage" \
