@@ -78,7 +78,20 @@ if [ -f $livedev ]; then
     esac
     [ -e /sys/fs/$fstype ] || modprobe $fstype
 else
-    mount -n -t $fstype -o ${liverw:-ro} $livedev /run/initramfs/live
+    if [ "$(blkid -o value -s TYPE $livedev)" != "ntfs" ]; then
+        mount -n -t $fstype -o ${liverw:-ro} $livedev /run/initramfs/live
+    else
+        # Symlinking /usr/bin/ntfs-3g as /sbin/mount.ntfs seems to boot
+        # at the first glance, but ends with lots and lots of squashfs
+        # errors, because systemd attempts to kill the ntfs-3g process?!
+        if [ -x "$(find_binary "ntfs-3g")" ]; then
+            ( exec -a @ntfs-3g ntfs-3g -o ${liverw:-ro} $livedev /run/initramfs/live ) | vwarn
+        else
+            die "Failed to mount block device of live image: Missing NTFS support"
+            exit 1
+        fi
+    fi
+
     if [ "$?" != "0" ]; then
         die "Failed to mount block device of live image"
         exit 1
