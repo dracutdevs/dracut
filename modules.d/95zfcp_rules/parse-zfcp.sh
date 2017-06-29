@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 create_udev_rule() {
     local ccw=$1
