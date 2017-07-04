@@ -1314,16 +1314,16 @@ done
 [[ -d $udevdir ]] \
     || udevdir="$(pkg-config udev --variable=udevdir 2>/dev/null)"
 if ! [[ -d "$udevdir" ]]; then
-    [[ ! -h /lib ]] && [[ -d /lib/udev ]] && udevdir=/lib/udev
-    [[ -d /usr/lib/udev ]] && udevdir=/usr/lib/udev
+    [[ -e /lib/udev/collect ]] && udevdir=/lib/udev
+    [[ -e /usr/lib/udev/collect ]] && udevdir=/usr/lib/udev
 fi
 
 [[ -d $systemdutildir ]] \
     || systemdutildir=$(pkg-config systemd --variable=systemdutildir 2>/dev/null)
 
 if ! [[ -d "$systemdutildir" ]]; then
-    [[ ! -h /lib ]] && [[ -d /lib/systemd ]] && systemdutildir=/lib/systemd
-    [[ -d /usr/lib/systemd ]] && systemdutildir=/usr/lib/systemd
+    [[ -e /lib/systemd/systemd-udevd ]] && systemdutildir=/lib/systemd
+    [[ -e /usr/lib/systemd/systemd-udevd ]] && systemdutildir=/usr/lib/systemd
 fi
 
 [[ -d $systemdsystemunitdir ]] \
