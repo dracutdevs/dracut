@@ -166,7 +166,7 @@ if ! [[ -x $DRACUT_INSTALL ]]; then
 fi
 
 if [[ $hostonly == "-h" ]]; then
-    if ! [[ $DRACUT_KERNEL_MODALIASES ]] || ! [[ -d "$DRACUT_KERNEL_MODALIASES" ]]; then
+    if ! [[ $DRACUT_KERNEL_MODALIASES ]] || ! [[ -f "$DRACUT_KERNEL_MODALIASES" ]]; then
         export DRACUT_KERNEL_MODALIASES="${DRACUT_TMPDIR}/modaliases"
         $DRACUT_INSTALL ${srcmods:+--kerneldir "$srcmods"} --modalias > "$DRACUT_KERNEL_MODALIASES"
     fi
