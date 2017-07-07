@@ -52,13 +52,6 @@ if ! [[ -d $initdir ]]; then
     mkdir -p "$initdir"
 fi
 
-if [[ $DRACUT_KERNEL_LAZY ]] && ! [[ $DRACUT_KERNEL_LAZY_HASHDIR ]]; then
-    if ! [[ -d "$initdir/.kernelmodseen" ]]; then
-        mkdir -p "$initdir/.kernelmodseen"
-    fi
-    DRACUT_KERNEL_LAZY_HASHDIR="$initdir/.kernelmodseen"
-fi
-
 if ! [[ $kernel ]]; then
     kernel=$(uname -r)
     export kernel
@@ -170,6 +163,13 @@ fi
 if ! [[ -x $DRACUT_INSTALL ]]; then
     dfatal "dracut-install not found!"
     exit 10
+fi
+
+if [[ $hostonly == "-h" ]]; then
+    if ! [[ $DRACUT_KERNEL_MODALIASES ]] || ! [[ -d "$DRACUT_KERNEL_MODALIASES" ]]; then
+        export DRACUT_KERNEL_MODALIASES="${DRACUT_TMPDIR}/modaliases"
+        $DRACUT_INSTALL --modalias > "$DRACUT_KERNEL_MODALIASES"
+    fi
 fi
 
 [[ $DRACUT_RESOLVE_LAZY ]] || export DRACUT_RESOLVE_DEPS=1
@@ -935,9 +935,6 @@ for_each_kmod_dep() {
 }
 
 dracut_kernel_post() {
-    local _moddirname=${srcmods%%/lib/modules/*}
-    local _pid
-
     for _f in modules.builtin.bin modules.builtin modules.order; do
         [[ $srcmods/$_f ]] && inst_simple "$srcmods/$_f" "/lib/modules/$kernel/$_f"
     done

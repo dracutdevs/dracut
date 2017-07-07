@@ -41,6 +41,7 @@
 #include <libkmod.h>
 #include <fts.h>
 #include <regex.h>
+#include <sys/utsname.h>
 
 #include "log.h"
 #include "hashmap.h"
@@ -54,6 +55,7 @@ static bool arg_optional = false;
 static bool arg_silent = false;
 static bool arg_all = false;
 static bool arg_module = false;
+static bool arg_modalias = false;
 static bool arg_resolvelazy = false;
 static bool arg_resolvedeps = false;
 static bool arg_hostonly = false;
@@ -794,6 +796,7 @@ static void usage(int status)
                "  --kerneldir       Specify the kernel module directory\n"
                "  --firmwaredirs    Specify the firmware directory search path with : separation\n"
                "  --silent          Don't display error messages for kernel module install\n"
+               "  --modalias        Only generate module list from /sys/devices modalias list\n"
                "  -o --optional     If kernel module does not exist, do not fail\n"
                "  -p --mod-filter-path      Filter kernel modules by path regexp\n"
                "  -P --mod-filter-nopath    Exclude kernel modules by path regexp\n"
@@ -818,6 +821,7 @@ static int parse_argv(int argc, char *argv[])
         enum {
                 ARG_VERSION = 0x100,
                 ARG_SILENT,
+                ARG_MODALIAS,
                 ARG_KERNELDIR,
                 ARG_FIRMWAREDIRS,
                 ARG_DEBUG
@@ -843,6 +847,7 @@ static int parse_argv(int argc, char *argv[])
                 {"mod-filter-symbol", required_argument, NULL, 's'},
                 {"mod-filter-nosymbol", required_argument, NULL, 'S'},
                 {"mod-filter-noname", required_argument, NULL, 'N'},
+                {"modalias", no_argument, NULL, ARG_MODALIAS},
                 {"silent", no_argument, NULL, ARG_SILENT},
                 {"kerneldir", required_argument, NULL, ARG_KERNELDIR},
                 {"firmwaredirs", required_argument, NULL, ARG_FIRMWAREDIRS},
@@ -862,6 +867,10 @@ static int parse_argv(int argc, char *argv[])
                         break;
                 case ARG_SILENT:
                         arg_silent = true;
+                        break;
+                case ARG_MODALIAS:
+                        arg_modalias = true;
+                        return 1;
                         break;
                 case 'v':
                         arg_loglevel = LOG_INFO;
@@ -949,6 +958,16 @@ static int parse_argv(int argc, char *argv[])
                 }
         }
 
+        if (!kerneldir) {
+                struct utsname buf;
+                uname(&buf);
+                kerneldir = strdup(buf.version);
+        }
+
+        if (arg_modalias) {
+                return 1;
+        }
+
         if (arg_module) {
                 if (!firmwaredirs) {
                         char *path = NULL;
@@ -965,6 +984,7 @@ static int parse_argv(int argc, char *argv[])
                         firmwaredirs = strv_split(path, ":");
                 }
         }
+
         if (!optind || optind == argc) {
                 log_error("No SOURCE argument given");
                 usage(EXIT_FAILURE);
@@ -1297,12 +1317,94 @@ static int install_module(struct kmod_module *mod)
         return ret;
 }
 
+static int modalias_list(struct kmod_ctx *ctx)
+{
+        int err;
+        struct kmod_list *loaded_list = NULL;
+        struct kmod_list *itr, *l;
+        _cleanup_fts_close_ FTS *fts = NULL;
+
+        {
+                char *paths[] = { "/sys/devices", NULL };
+                fts = fts_open(paths, FTS_NOCHDIR|FTS_NOSTAT, NULL);
+        }
+        for (FTSENT *ftsent = fts_read(fts); ftsent != NULL; ftsent = fts_read(fts)) {
+                _cleanup_fclose_ FILE *f = NULL;
+                _cleanup_kmod_module_unref_list_ struct kmod_list *list = NULL;
+                struct kmod_list *l;
+
+                int err;
+
+                char alias[2048];
+                size_t len;
+
+                if (strncmp("modalias", ftsent->fts_name, 8) != 0)
+                        continue;
+                if (!(f = fopen(ftsent->fts_accpath, "r")))
+                        continue;
+
+                if(!fgets(alias, sizeof(alias), f))
+                        continue;
+
+                len = strlen(alias);
+
+                if (len == 0)
+                        continue;
+
+                if (alias[len-1] == '\n')
+                        alias[len-1] = 0;
+
+                err = kmod_module_new_from_lookup(ctx, alias, &list);
+                if (err < 0)
+                        continue;
+
+                kmod_list_foreach(l, list) {
+                        struct kmod_module *mod = kmod_module_get_module(l);
+                        char *name = strdup(kmod_module_get_name(mod));
+                        kmod_module_unref(mod);
+                        hashmap_put(modules_loaded, name, name);
+                }
+        }
+
+        err = kmod_module_new_from_loaded(ctx, &loaded_list);
+        if (err < 0) {
+                errno = err;
+                log_error("Could not get list of loaded modules: %m. Switching to non-hostonly mode.");
+                arg_hostonly = false;
+        } else {
+                kmod_list_foreach(itr, loaded_list) {
+                        _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
+
+                        struct kmod_module *mod = kmod_module_get_module(itr);
+                        char *name = strdup(kmod_module_get_name(mod));
+                        hashmap_put(modules_loaded, name, name);
+                        kmod_module_unref(mod);
+
+                        /* also put the modules from the new kernel in the hashmap,
+                         * which resolve the name as an alias, in case a kernel module is
+                         * renamed.
+                         */
+                        err = kmod_module_new_from_lookup(ctx, name, &modlist);
+                        if (err < 0)
+                                continue;
+                        if (!modlist)
+                                continue;
+                        kmod_list_foreach(l, modlist) {
+                                mod = kmod_module_get_module(l);
+                                char *name = strdup(kmod_module_get_name(mod));
+                                hashmap_put(modules_loaded, name, name);
+                                kmod_module_unref(mod);
+                        }
+                }
+                kmod_module_unref_list(loaded_list);
+        }
+        return 0;
+}
+
 static int install_modules(int argc, char **argv)
 {
         _cleanup_kmod_unref_ struct kmod_ctx *ctx = NULL;
-        struct kmod_list *loaded_list = NULL;
-        struct kmod_list *itr, *l;
-        int err;
+        struct kmod_list *itr;
 
         struct kmod_module *mod = NULL, *mod_o = NULL;
 
@@ -1311,38 +1413,34 @@ static int install_modules(int argc, char **argv)
 
         ctx = kmod_new(kerneldir, NULL);
         if (arg_hostonly) {
-                err = kmod_module_new_from_loaded(ctx, &loaded_list);
-                if (err < 0) {
-                        errno = err;
-                        log_error("Could not get list of loaded modules: %m. Switching to non-hostonly mode.");
-                        arg_hostonly = false;
+                char *modalias_file;
+                modalias_file = getenv("DRACUT_KERNEL_MODALIASES");
+
+                if (modalias_file == NULL) {
+                        modalias_list(ctx);
                 } else {
-                        kmod_list_foreach(itr, loaded_list) {
-                                _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
+                        _cleanup_fclose_ FILE *f = NULL;
+                        if ((f = fopen(modalias_file, "r"))) {
+                                char name[2048];
 
-                                struct kmod_module *mod = kmod_module_get_module(itr);
-                                char *name = strdup(kmod_module_get_name(mod));
-                                hashmap_put(modules_loaded, name, name);
-                                kmod_module_unref(mod);
+                                while (!feof(f)) {
+                                        size_t len;
 
-                                /* also put the modules from the new kernel in the hashmap,
-                                 * which resolve the name as an alias, in case a kernel module is
-                                 * renamed.
-                                 */
-                                err = kmod_module_new_from_lookup(ctx, name, &modlist);
-                                if (err < 0)
-                                        continue;
-                                if (!modlist)
-                                        continue;
-                                kmod_list_foreach(l, modlist) {
-                                        mod = kmod_module_get_module(l);
-                                        char *name = strdup(kmod_module_get_name(mod));
-                                        hashmap_put(modules_loaded, name, name);
-                                        kmod_module_unref(mod);
+                                        if(!(fgets(name, sizeof(name), f)))
+                                                continue;
+                                        len = strlen(name);
+
+                                        if (len == 0)
+                                                continue;
+
+                                        if (name[len-1] == '\n')
+                                                name[len-1] = 0;
+
+                                        hashmap_put(modules_loaded, name, strdup(name));
                                 }
                         }
-                        kmod_module_unref_list(loaded_list);
                 }
+
         }
 
         for (i = 0; i < argc; i++) {
@@ -1576,6 +1674,20 @@ int main(int argc, char **argv)
 
         log_open();
 
+        modules_loaded = hashmap_new(string_hash_func, string_compare_func);
+        if (arg_modalias) {
+                Iterator i;
+                char *name;
+                _cleanup_kmod_unref_ struct kmod_ctx *ctx = NULL;
+                ctx = kmod_new(kerneldir, NULL);
+
+                modalias_list(ctx);
+                HASHMAP_FOREACH(name, modules_loaded, i) {
+                        printf("%s\n", name);
+                }
+                exit(0);
+        }
+
         path = getenv("PATH");
 
         if (path == NULL) {
@@ -1614,7 +1726,6 @@ int main(int argc, char **argv)
 
         items = hashmap_new(string_hash_func, string_compare_func);
         items_failed = hashmap_new(string_hash_func, string_compare_func);
-        modules_loaded = hashmap_new(string_hash_func, string_compare_func);
 
         if (!items || !items_failed || !modules_loaded) {
                 log_error("Out of memory");
