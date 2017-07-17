@@ -1688,7 +1688,7 @@ if ! ( echo $PARMS_TO_STORE > $initdir/lib/dracut/build-parameter.txt ); then
     exit 1
 fi
 
-if [[ $hostonly_cmdline ]] ; then
+if [[ $hostonly_cmdline == "yes" ]] ; then
     unset _stored_cmdline
     if [ -d $initdir/etc/cmdline.d ];then
         dinfo "Stored kernel commandline:"
