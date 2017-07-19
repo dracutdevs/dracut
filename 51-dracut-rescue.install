@@ -33,11 +33,15 @@ dropindirs_sort()
 
 [[ -f /etc/os-release ]] && . /etc/os-release
 
-if [[ ! -f /etc/machine-id ]] || [[ ! -s /etc/machine-id ]]; then
-    systemd-machine-id-setup
+if [[ ${KERNEL_INSTALL_MACHINE_ID+x} ]]; then
+    MACHINE_ID=$KERNEL_INSTALL_MACHINE_ID
+elif [[ -f /etc/machine-id ]] ; then
+    read MACHINE_ID < /etc/machine-id
 fi
 
-[[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
+if ! [[ $MACHINE_ID ]]; then
+    exit 0
+fi
 
 if [[ -f /etc/kernel/cmdline ]]; then
     read -r -d '' -a BOOT_OPTIONS < /etc/kernel/cmdline

@@ -5,6 +5,12 @@ KERNEL_VERSION="$2"
 BOOT_DIR_ABS="$3"
 KERNEL_IMAGE="$4"
 
+# If KERNEL_INSTALL_MACHINE_ID is defined but empty, BOOT_DIR_ABS is a fake directory.
+# So, let's skip to create initrd.
+if ! [[ ${KERNEL_INSTALL_MACHINE_ID-x} ]]; then
+    exit 0
+fi
+
 ret=0
 case "$COMMAND" in
     add)
