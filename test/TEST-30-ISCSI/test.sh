@@ -207,7 +207,7 @@ test_setup() {
         -drive format=raw,index=1,media=disk,file=$TESTDIR/client.img \
         -drive format=raw,index=2,media=disk,file=$TESTDIR/iscsidisk2.img \
         -drive format=raw,index=3,media=disk,file=$TESTDIR/iscsidisk3.img \
-         -smp 2 -m 256M -nographic -net none \
+         -smp 2 -m 512M -nographic -net none \
         -append "root=/dev/fakeroot rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
     grep -F -m 1 -q dracut-root-block-created $TESTDIR/client.img || return 1

@@ -59,7 +59,7 @@ client_test() {
         return 1
     fi
 
-    $testdir/run-qemu -hda "$TESTDIR"/client.img -m 256M -smp 2 -nographic \
+    $testdir/run-qemu -hda "$TESTDIR"/client.img -m 512M -smp 2 -nographic \
         -net socket,vlan=0,connect=127.0.0.1:12350 \
         ${do_vlan13:+-net socket,vlan=1,connect=127.0.0.1:12351} \
         -net socket,vlan=2,connect=127.0.0.1:12352 \
