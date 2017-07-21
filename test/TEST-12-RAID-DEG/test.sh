@@ -20,7 +20,7 @@ client_run() {
         -drive format=raw,index=3,media=disk,file=$TESTDIR/disk3.img.new \
         -net none \
         -no-reboot \
-        -append "panic=1 $* root=LABEL=root rw rd.retry=10 rd.info console=ttyS0,115200n81 selinux=0 rd.debug rd.shell=0 $DEBUGFAIL " \
+        -append "panic=1 $* root=LABEL=root rw rd.retry=10 rd.info console=ttyS0,115200n81 log_buf_len=2M selinux=0 rd.debug rd.shell=0 $DEBUGFAIL " \
         -initrd $TESTDIR/initramfs.testing
     if ! grep -F -m 1 -q dracut-root-block-success $TESTDIR/root.ext2; then
         echo "CLIENT TEST END: $@ [FAIL]"
