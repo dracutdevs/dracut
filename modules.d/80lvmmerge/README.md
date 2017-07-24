@@ -1,7 +1,6 @@
 # lvmmerge - dracut module
 
 ## Preparation
-
 - ensure that the lvm thin pool is big enough
 - backup any (most likely /boot and /boot/efi) device with:
 ```
@@ -57,7 +56,6 @@ dracut will
 - make a copy of the snapshot
 - merge it back to the original
 - rename the copy back to the name of the snapshot
-- if /restordev appears in the root, then it will restore the images *.devimage
-  found in that directory. This can be used to restore /boot and /boot/efi.
-  Additionally any *.mbrimage files will be restored. This can be used 
-  found in that directory. This can be used to restore /boot and /boot/efi
+- if /restordev appears in the root, then it will restore the images
+  found in that directory. This can be used to restore /boot and /boot/efi and the
+  MBR of the boot device
