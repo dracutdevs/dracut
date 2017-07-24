@@ -25,7 +25,10 @@ installkernel() {
 install() {
     local _arch _i _dir
     inst_multiple ip dhclient sed awk
+
     inst_multiple -o arping arping2
+    strstr "$(arping)" "ARPing 2" && mv "$initdir/bin/arping" "$initdir/bin/arping2"
+
     inst_multiple -o ping ping6
     inst_multiple -o teamd teamdctl teamnl
     inst_simple /etc/libnl/classid
