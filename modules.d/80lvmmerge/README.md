@@ -52,7 +52,7 @@ dr-xr-xr-x. 18 root root        242 Jul 24 04:32 ..
 
 ## Operation
 
-If a boot entry with rd.lvm.mergetags=<tag> is selected and there lv's with <tag>
+If a boot entry with ```rd.lvm.mergetags=<tag>``` is selected and there lv's with <tag>
 dracut will
 - make a copy of the snapshot
 - merge it back to the original
