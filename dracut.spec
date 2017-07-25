@@ -37,7 +37,6 @@ URL: https://dracut.wiki.kernel.org/
 Source0: http://www.kernel.org/pub/linux/utils/boot/dracut/dracut-%{version}.tar.xz
 Source1: https://www.gnu.org/licenses/lgpl-2.1.txt
 
-
 BuildRequires: bash git
 BuildRequires: kmod-devel >= 15
 
@@ -380,6 +379,7 @@ rm -rf -- $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/90lvm
 %{dracutlibdir}/modules.d/90mdraid
 %{dracutlibdir}/modules.d/90multipath
+%{dracutlibdir}/modules.d/90multipath-hostonly
 %{dracutlibdir}/modules.d/90qemu
 %{dracutlibdir}/modules.d/91crypt-gpg
 %{dracutlibdir}/modules.d/91crypt-loop
@@ -472,6 +472,7 @@ rm -rf -- $RPM_BUILD_ROOT
 %defattr(-,root,root,0755)
 %{dracutlibdir}/modules.d/99img-lib
 %{dracutlibdir}/modules.d/90dmsquash-live
+%{dracutlibdir}/modules.d/90dmsquash-live-ntfs
 %{dracutlibdir}/modules.d/90livenet
 
 %files tools
