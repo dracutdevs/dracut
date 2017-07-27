@@ -3,10 +3,22 @@
 sub create_patches {
     my $tag=shift;
     my $pdir=shift;
-    my $num=0;
-    open( GIT, 'git format-patch -M -N --no-signature -o "'.$pdir.'" '.$tag.' |');
-    @lines=<GIT>;
-    close GIT;         # be done
+    my $n=1;
+    my @lines;
+
+    mkdir $pdir, 0755;
+
+    open( GIT, 'git log -p --pretty=email --stat -m --first-parent --reverse '.$tag.'..HEAD |');
+
+    while (<GIT>) {
+        if (/^From [a-z0-9]{40} .*$/) {
+            my $fname = sprintf("%04d", $n++).".patch";
+            push @lines, $fname;
+            open FH, ">".$pdir."/".$fname;
+        }
+        print FH;
+    }
+
     return @lines;
 };
 
@@ -35,7 +47,7 @@ while(<>) {
 	$num=1;
 	for(@patches) {
 	    s/.*\///g;
-	    print "Patch$num: $_";
+	    print "Patch$num: $_\n";
 	    $num++;
 	}
 	print "\n";
