@@ -30,9 +30,9 @@ loop_decrypt() {
         [ -b $key ] || die "Failed to unlock $keypath on $keydev for $device."
 
         initqueue --onetime --finished --unique --name "crypt-loop-cleanup-10-${key##*/}" \
-            $(command -v cryptsetup) "luksClose $key"
+            $(command -v cryptsetup) "luksClose $key; exit 0"
         initqueue --onetime --finished --unique --name "crypt-loop-cleanup-20-${loopdev##*/}" \
-            $(command -v losetup) "-d $loopdev"
+            $(command -v losetup) "-d $loopdev; exit 0"
     fi
 
     cat $key
