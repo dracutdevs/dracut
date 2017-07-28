@@ -155,7 +155,7 @@ test_client() {
 
 test_setup() {
      # Make server root
-    dd if=/dev/null of="$TESTDIR"/server.ext3 bs=1M seek=60
+    dd if=/dev/null of="$TESTDIR"/server.ext3 bs=1M seek=120
     mke2fs -j -F -- "$TESTDIR"/server.ext3
     mkdir -- "$TESTDIR"/mnt
     sudo mount -o loop -- "$TESTDIR"/server.ext3 "$TESTDIR"/mnt

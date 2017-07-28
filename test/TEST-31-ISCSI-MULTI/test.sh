@@ -64,15 +64,12 @@ run_client() {
 
 do_test_run() {
     initiator=$(iscsi-iname)
-
-    run_client "root=dhcp" \
-               "root=/dev/root netroot=dhcp ip=ens3:dhcp" \
-               "rd.iscsi.initiator=$initiator" \
-        || return 1
-
-    run_client "netroot=iscsi target0"\
-               "root=LABEL=singleroot netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0" \
-               "ip=192.168.50.101::192.168.50.1:255.255.255.0:iscsi-1:ens3:off" \
+    run_client "netroot=iscsi target1 target2" \
+               "root=LABEL=sysroot" \
+               "ip=192.168.50.101:::255.255.255.0::ens3:off" \
+               "ip=192.168.51.101:::255.255.255.0::ens4:off" \
+               "netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target1" \
+               "netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2" \
                "rd.iscsi.initiator=$initiator" \
         || return 1
 

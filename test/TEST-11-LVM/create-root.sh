@@ -7,10 +7,10 @@ rm -f -- /etc/lvm/lvm.conf
 udevadm control --reload
 # save a partition at the beginning for future flagging purposes
 sfdisk /dev/sda <<EOF
-,1M
-,10M
-,10M
-,10M
+,2M
+,20M
+,20M
+,20M
 EOF
 udevadm settle
 for i in sda2 sda3 sda4; do

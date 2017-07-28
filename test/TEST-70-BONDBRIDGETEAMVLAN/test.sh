@@ -18,10 +18,10 @@ run_server() {
         -hda "$TESTDIR"/server.ext3 \
         -m 512M -smp 2 \
         -display none \
-        -net socket,vlan=0,listen=127.0.0.1:12350 \
-        -net socket,vlan=1,listen=127.0.0.1:12351 \
-        -net socket,vlan=2,listen=127.0.0.1:12352 \
-        -net socket,vlan=3,listen=127.0.0.1:12353 \
+        -net socket,vlan=0,listen=127.0.0.1:12370 \
+        -net socket,vlan=1,listen=127.0.0.1:12371 \
+        -net socket,vlan=2,listen=127.0.0.1:12372 \
+        -net socket,vlan=3,listen=127.0.0.1:12373 \
         -net nic,vlan=0,macaddr=52:54:01:12:34:56,model=e1000 \
         -net nic,vlan=1,macaddr=52:54:01:12:34:57,model=e1000 \
         -net nic,vlan=2,macaddr=52:54:01:12:34:58,model=e1000 \
@@ -60,10 +60,10 @@ client_test() {
     fi
 
     $testdir/run-qemu -hda "$TESTDIR"/client.img -m 512M -smp 2 -nographic \
-        -net socket,vlan=0,connect=127.0.0.1:12350 \
-        ${do_vlan13:+-net socket,vlan=1,connect=127.0.0.1:12351} \
-        -net socket,vlan=2,connect=127.0.0.1:12352 \
-        ${do_vlan13:+-net socket,vlan=3,connect=127.0.0.1:12353} \
+        -net socket,vlan=0,connect=127.0.0.1:12370 \
+        ${do_vlan13:+-net socket,vlan=1,connect=127.0.0.1:12371} \
+        -net socket,vlan=2,connect=127.0.0.1:12372 \
+        ${do_vlan13:+-net socket,vlan=3,connect=127.0.0.1:12373} \
         -net nic,vlan=0,macaddr=52:54:00:12:34:01,model=e1000 \
         -net nic,vlan=0,macaddr=52:54:00:12:34:02,model=e1000 \
         -net nic,vlan=1,macaddr=52:54:00:12:34:03,model=e1000 \
@@ -160,7 +160,7 @@ root=nfs:192.168.50.1:/nfs/client bootdev=br0
 
 test_setup() {
      # Make server root
-    dd if=/dev/null of="$TESTDIR"/server.ext3 bs=1M seek=60
+    dd if=/dev/null of="$TESTDIR"/server.ext3 bs=1M seek=120
     mke2fs -j -F -- "$TESTDIR"/server.ext3
     mkdir -- "$TESTDIR"/mnt
     mount -o loop -- "$TESTDIR"/server.ext3 "$TESTDIR"/mnt
