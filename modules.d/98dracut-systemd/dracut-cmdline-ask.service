@@ -12,7 +12,6 @@ ConditionPathExists=/usr/lib/initrd-release
 ConditionKernelCommandLine=|rd.cmdline=ask
 ConditionPathExistsGlob=|/etc/cmdline.d/*.conf
 Conflicts=shutdown.target emergency.target
-Before=shutdown.target emergency.target
 
 [Service]
 Environment=DRACUT_SYSTEMD=1

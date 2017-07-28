@@ -8,7 +8,6 @@ DefaultDependencies=no
 After=systemd-vconsole-setup.service
 Wants=systemd-vconsole-setup.service
 Conflicts=shutdown.target emergency.target
-Before=shutdown.target emergency.target
 
 [Service]
 Environment=HOME=/

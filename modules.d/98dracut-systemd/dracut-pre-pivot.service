@@ -6,8 +6,7 @@
 Description=dracut pre-pivot and cleanup hook
 Documentation=man:dracut-pre-pivot.service(8)
 DefaultDependencies=no
-After=initrd.target initrd-parse-etc.service sysroot.mount
-After=dracut-initqueue.service dracut-pre-mount.service dracut-mount.service
+After=initrd.target initrd-parse-etc.service
 Before=initrd-cleanup.service
 Wants=remote-fs.target
 After=remote-fs.target
@@ -20,7 +19,6 @@ ConditionKernelCommandLine=|rd.break
 ConditionPathExists=|/dev/root
 ConditionPathExists=|/dev/nfs
 Conflicts=shutdown.target emergency.target
-Before=shutdown.target emergency.target
 
 [Service]
 Environment=DRACUT_SYSTEMD=1
