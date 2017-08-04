@@ -16,7 +16,7 @@ loop_decrypt() {
     local keydev="$3"
     local device="$4"
 
-    local key="/dev/mapper/$(str_replace "loop-keydev-$keydev-$keypath" '/' '-')"
+    local key="/dev/mapper/$(str_replace "loop-$keydev-$mntp-$keypath" '/' '-')"
 
     if [ ! -b $key ]; then
         local loopdev=$(losetup -f "${mntp}/${keypath}" --show)
