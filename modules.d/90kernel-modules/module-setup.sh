@@ -31,11 +31,14 @@ installkernel() {
             instmods \
                 "=drivers/clk" \
                 "=drivers/dma" \
+                "=drivers/extcon" \
                 "=drivers/i2c/busses" \
+                "=drivers/mfd" \
                 "=drivers/phy" \
                 "=drivers/power" \
                 "=drivers/regulator" \
                 "=drivers/rtc" \
+                "=drivers/soc" \
                 "=drivers/usb/chipidea" \
                 "=drivers/usb/dwc2" \
                 "=drivers/usb/dwc3" \
