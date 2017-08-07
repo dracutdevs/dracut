@@ -306,7 +306,7 @@ rearrange_params()
         --long mount: \
         --long device: \
         --long add-device: \
-        --long nofscks: \
+        --long nofscks \
         --long ro-mnt \
         --long kmoddir: \
         --long conf: \
