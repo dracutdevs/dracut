@@ -118,9 +118,11 @@ do_static() {
         ip addr add $ip/$mask ${srv:+peer $srv} dev $netif
         wait_for_ipv6_dad $netif
     else
-        if ! arping -f -q -D -c 2 -I $netif $ip; then
-            warn "Duplicate address detected for $ip for interface $netif."
-            return 1
+        if [ -z "$srv" ]; then
+            if ! arping -f -q -D -c 2 -I $netif $ip; then
+                warn "Duplicate address detected for $ip for interface $netif."
+                return 1
+            fi
         fi
         ip -4 addr flush dev $netif
         ip addr add $ip/$mask ${srv:+peer $srv} brd + dev $netif
