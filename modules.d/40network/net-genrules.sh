@@ -102,7 +102,7 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
     # Default: We don't know the interface to use, handle all
     # Fixme: waiting for the interface as well.
     else
-        cond='ACTION=="add", SUBSYSTEM=="net"'
+        cond='ACTION=="add", SUBSYSTEM=="net", ENV{DEVTYPE}!="wlan|wwan"'
         # if you change the name of "91-default-net.rules", also change modules.d/80cms/cmssetup.sh
         echo "$cond, $runcmd" > /etc/udev/rules.d/91-default-net.rules
     fi
