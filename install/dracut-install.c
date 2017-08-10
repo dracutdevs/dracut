@@ -1238,16 +1238,6 @@ static bool check_module_path(const char *path)
         return true;
 }
 
-static bool check_module_hostonly(struct kmod_module *mod)
-{
-        const char *name = kmod_module_get_name(mod);
-
-        if (check_hashmap(modules_loaded, name))
-                return true;
-
-        return false;
-}
-
 static int install_module(struct kmod_module *mod)
 {
         int ret = 0;
@@ -1262,7 +1252,7 @@ static int install_module(struct kmod_module *mod)
                 return 0;
         }
 
-        if (arg_hostonly && ! check_module_hostonly(mod)) {
+        if (arg_hostonly && !check_hashmap(modules_loaded, name)) {
                 log_debug("dracut_install '%s' not hostonly", name);
                 return 0;
         }
@@ -1425,6 +1415,7 @@ static int install_modules(int argc, char **argv)
 
                                 while (!feof(f)) {
                                         size_t len;
+                                        char *dupname = NULL;
 
                                         if(!(fgets(name, sizeof(name), f)))
                                                 continue;
@@ -1436,7 +1427,9 @@ static int install_modules(int argc, char **argv)
                                         if (name[len-1] == '\n')
                                                 name[len-1] = 0;
 
-                                        hashmap_put(modules_loaded, name, strdup(name));
+                                        log_debug("Adding module '%s' to hostonly module list", name);
+                                        dupname = strdup(name);
+                                        hashmap_put(modules_loaded, dupname, dupname);
                                 }
                         }
                 }
