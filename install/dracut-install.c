@@ -1278,7 +1278,7 @@ static int install_module(struct kmod_module *mod)
                 return 0;
 
         if (!check_module_path(path) || !check_module_symbols(mod)) {
-                log_debug("No symbol or patch match for '%s'", path);
+                log_debug("No symbol or path match for '%s'", path);
                 return 1;
         }
 
