@@ -1,3 +1,54 @@
+dracut-046
+==========
+
+dracut.sh:
+- bail out if module directory does not exist
+  if people want to build the initramfs without kernel modules,
+  then --no-kernel should be specified
+- add early microcode support for AMD family 16h
+- collect also all modaliases modules from sysfs for hostonly modules
+- sync initramfs after creation
+
+network:
+- wait for IPv6 RA if using none/static IPv6 assignment
+- ipv6 improvements
+- Handle curl using libnssckbi for TLS
+- fix dhcp classless_static_routes
+- dhclient: send client-identifier matching hardware address
+- don't arping for point-to-point connections
+- only bring up wired network interfaces (no wlan and wwan)
+
+mraid:
+- mdraid: wait for rd.md.uuid specified devices to be assembled
+
+crypt:
+- handle rd.luks.name
+
+crypt-gpg:
+- For GnuPG >= 2.1 support OpenPGP smartcards
+
+kernel-install:
+- Skip to create initrd if /etc/machine-id is missing or empty
+
+nfs:
+- handle rpcbind /run/rpcbind directory
+
+s390:
+- various fixes
+
+dmsquash-live:
+- add NTFS support
+
+multipath:
+- split out multipath-hostonly module
+
+lvmmerge:
+- new module, see README.md in the module directory
+
+dracut-systemd:
+- fixed dependencies
+
+
 dracut-045
 ==========
 
