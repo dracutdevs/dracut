@@ -14,9 +14,11 @@
 %define with_nbd 0
 %endif
 
+%define dist_free_release xxx
+
 Name: dracut
 Version: xxx
-Release: xxx
+Release: %{dist_free_release}%{?dist}
 
 Summary: Initramfs generator using udev
 %if 0%{?fedora} || 0%{?rhel}
@@ -136,7 +138,15 @@ NFS, iSCSI, NBD, FCoE with the dracut-network package.
 
 %package network
 Summary: dracut modules to build a dracut initramfs with network support
+%if 0%{?_module_build}
+# In the module-build-service, we have pieces of dracut provided by different
+# modules ("base-runtime" provides most functionality, but we need
+# dracut-network in "installer". Since these two modules build with separate
+# dist-tags, we need to reduce this strict requirement to ignore the dist-tag.
+Requires: %{name} >= %{version}-%{dist_free_release}
+%else
 Requires: %{name} = %{version}-%{release}
+%endif
 Requires: iputils
 Requires: iproute
 Requires: dhclient
@@ -184,7 +194,12 @@ initramfs with dracut, which drops capabilities.
 
 %package live
 Summary: dracut modules to build a dracut initramfs with live image capabilities
+%if 0%{?_module_build}
+# See the network subpackage comment.
+Requires: %{name} >= %{version}-%{dist_free_release}
+%else
 Requires: %{name} = %{version}-%{release}
+%endif
 Requires: %{name}-network = %{version}-%{release}
 Requires: tar gzip coreutils bash device-mapper curl
 

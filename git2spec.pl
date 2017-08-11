@@ -39,8 +39,8 @@ while(<>) {
     if (/^Version:/) {
 	print "Version: $tag\n";
     }
-    elsif (/^Release:/) {
-	print "Release: $release%{?dist}\n";
+    elsif (/^%define dist_free_release/) {
+	print "%define dist_free_release $release\n";
     }
     elsif ((/^Source0:/) || (/^Source:/)) {
 	print $_;
