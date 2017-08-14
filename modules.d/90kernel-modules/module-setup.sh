@@ -57,7 +57,7 @@ installkernel() {
             if [[ -z $filesystems ]]; then
                 dracut_instmods -o -P ".*/(kernel/fs/nfs|kernel/fs/nfsd|kernel/fs/lockd)/.*" '=fs'
             fi
-        else
+        elif [[ "${host_fs_types[*]}" ]]; then
             hostonly='' instmods "${host_fs_types[@]}"
         fi
     fi
