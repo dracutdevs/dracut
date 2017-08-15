@@ -63,7 +63,16 @@ inst_sshenv()
 
 # called by dracut
 install() {
+    local _nsslibs
+
     inst_multiple ssh scp
     inst_sshenv
+
+    _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
+        |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
+    _nsslibs=${_nsslibs#|}
+    _nsslibs=${_nsslibs%|}
+
+    inst_libdir_file -n "$_nsslibs" 'libnss_*.so*'
 }
 
