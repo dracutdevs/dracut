@@ -1307,7 +1307,7 @@ export initdir dracutbasedir \
     dracutmodules force_add_dracutmodules add_dracutmodules omit_dracutmodules \
     mods_to_load \
     fw_dir drivers_dir debug no_kernel kernel_only \
-    omit_drivers mdadmconf lvmconf root_dev \
+    omit_drivers mdadmconf lvmconf root_devs \
     use_fstab fstab_lines libdirs fscks nofscks ro_mnt \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
     debug host_fs_types host_devs swap_devs sshkey add_fstab \
