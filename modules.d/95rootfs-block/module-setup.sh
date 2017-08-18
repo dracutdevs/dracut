@@ -32,6 +32,12 @@ cmdline_journal() {
 cmdline_rootfs() {
     local _dev=/dev/block/$(find_root_block_device)
     local _fstype _flags _subvol
+
+    # "--no-hostonly-default-device" can result in empty root_devs
+    if [ "${#root_devs[@]}" -eq 0 ]; then
+        return
+    fi
+
     if [ -e $_dev ]; then
         printf " root=%s" "$(shorten_persistent_dev "$(get_persistent_dev "$_dev")")"
         _fstype="$(find_mp_fstype /)"

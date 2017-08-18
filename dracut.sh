@@ -151,6 +151,10 @@ Creates initial ramdisk images for preloading modules
                         in the initramfs
   --no-hostonly-cmdline Do not store kernel command line arguments needed
                         in the initramfs
+  --no-hostonly-default-device
+                        Do not generate implicit host devices like root,
+                        swap, fstab, etc. Use "--mount" or "--add-device"
+                        to explicitly add devices as needed.
   --hostonly-i18n       Install only needed keyboard and font files according
                         to the host configuration (default).
   --no-hostonly-i18n    Install all keyboard and font files available.
@@ -345,6 +349,7 @@ rearrange_params()
         --long no-host-only \
         --long hostonly-cmdline \
         --long no-hostonly-cmdline \
+        --long no-hostonly-default-device \
         --long persistent-policy: \
         --long fstab \
         --long help \
@@ -539,6 +544,8 @@ while :; do
                        i18n_install_all_l="yes" ;;
         --no-hostonly-cmdline)
                        hostonly_cmdline_l="no" ;;
+        --no-hostonly-default-device)
+                       hostonly_default_device="no" ;;
         --persistent-policy)
                        persistent_policy_l="$2";       PARMS_TO_STORE+=" '$2'"; shift;;
         --fstab)       use_fstab_l="yes" ;;
@@ -1133,7 +1140,7 @@ if (( ${#add_device_l[@]} )); then
     push_host_devs "${add_device_l[@]}"
 fi
 
-if [[ $hostonly ]]; then
+if [[ $hostonly ]] && [[ "$hostonly_default_device" != "no" ]]; then
     # in hostonly mode, determine all devices, which have to be accessed
     # and examine them for filesystem types
 
@@ -1300,7 +1307,7 @@ export initdir dracutbasedir \
     dracutmodules force_add_dracutmodules add_dracutmodules omit_dracutmodules \
     mods_to_load \
     fw_dir drivers_dir debug no_kernel kernel_only \
-    omit_drivers mdadmconf lvmconf root_dev \
+    omit_drivers mdadmconf lvmconf root_devs \
     use_fstab fstab_lines libdirs fscks nofscks ro_mnt \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
     debug host_fs_types host_devs swap_devs sshkey add_fstab \
