@@ -298,6 +298,8 @@ if [ -e "$SQUASHED" ]; then
         FSIMG="/run/initramfs/squashfs/LiveOS/rootfs.img"
     elif [ -f /run/initramfs/squashfs/LiveOS/ext3fs.img ]; then
         FSIMG="/run/initramfs/squashfs/LiveOS/ext3fs.img"
+    elif [ -d /run/initramfs/squashfs/usr ]; then
+        FSIMG="$SQUASHED"
     fi
 else
     # we might have an embedded fs image to use as rootfs (uncompressed live)
