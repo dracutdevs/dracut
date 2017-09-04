@@ -8,12 +8,13 @@
 # works with stdin if $1 is not set.
 det_archive() {
     # NOTE: echo -e works in ash and bash, but not dash
-    local bz="BZh" xz="$(echo -e '\xfd7zXZ')" gz="$(echo -e '\x1f\x8b')"
+    local bz="BZh" xz="$(echo -e '\xfd7zXZ')" gz="$(echo -e '\x1f\x8b')" zs="$(echo -e '0xFD2FB528')"
     local headerblock="$(dd ${1:+if=$1} bs=262 count=1 2>/dev/null)"
     case "$headerblock" in
         $xz*) echo "xz" ;;
         $gz*) echo "gzip" ;;
         $bz*) echo "bzip2" ;;
+        $zs*) echo "zstd" ;;
         07070*) echo "cpio" ;;
         *ustar) echo "tar" ;;
     esac
@@ -33,7 +34,7 @@ unpack_archive() {
     local img="$1" outdir="$2" archiver="" decompr=""
     local ft="$(det_archive $img)"
     case "$ft" in
-        xz|gzip|bzip2) decompr="$ft -dc" ;;
+        xz|gzip|bzip2|zstd) decompr="$ft -dc" ;;
         cpio|tar) decompr="cat";;
         *) return 1 ;;
     esac
