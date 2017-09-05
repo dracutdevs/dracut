@@ -180,7 +180,8 @@ do_live_overlay() {
             [ -z "$m" ] &&
                 m='  Unable to find a persistent overlay; using a temporary one.'
 		m="$m" printf '%s\n' "     All root filesystem changes will be lost on shutdown." \
-             "        Press any key to continue"
+		m=$(printf '%s\n' "$m" "     All root filesystem changes will be lost on shutdown." \
+		"        Press any key to continue"
             echo -e "\n\n\n${m[*]}\n\n\n" > /dev/kmsg
             if [ -n "$DRACUT_SYSTEMD" ]; then
                 if plymouth --ping ; then
