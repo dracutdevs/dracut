@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # Format:
-#       bond=<bondname>[:<bondslaves>:[:<options>[:<mtu>]]]
+#       bond=<bondname>[:<bondslaves>[:<options>[:<mtu>]]]
 #
 #       bondslaves is a comma-separated list of physical (ethernet) interfaces
 #       options is a comma-separated list on bonding options (modinfo bonding for details) in format compatible with initscripts
@@ -12,7 +12,7 @@
 #       if the mtu is specified, it will be set on the bond master
 #
 
-# We translate list of slaves to space-separated here to mwke it easier to loop over them in ifup
+# We translate list of slaves to space-separated here to make it easier to loop over them in ifup
 # Ditto for bonding options
 parsebond() {
     local v=${1}:
