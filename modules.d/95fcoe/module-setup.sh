@@ -51,16 +51,30 @@ cmdline() {
         read mac < ${i}/address
         s=$(dcbtool gc ${i##*/} dcb | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
         if [ -z "$s" ] ; then
-	    p=$(get_vlan_parent ${i})
-	    if [ "$p" ] ; then
-	        s=$(dcbtool gc ${p} dcb | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
-	    fi
+            p=$(get_vlan_parent ${i})
+            if [ "$p" ] ; then
+                s=$(dcbtool gc ${p} dcb | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
+            fi
         fi
         if [ "$s" = "on" ] ; then
-	    dcb="dcb"
+            dcb="dcb"
         else
-	    dcb="nodcb"
+            dcb="nodcb"
         fi
+
+        # Some Combined Network Adapters(CNAs) implement DCB in firmware.
+        # Do not run software-based DCB or LLDP on CNAs that implement DCB.
+        # If the network interface provides hardware DCB/DCBX capabilities,
+        # DCB_REQUIRED in "/etc/fcoe/cfg-xxx" is expected to set to "no".
+        #
+        # Force "nodcb" if there's any DCB_REQUIRED="no"(child or vlan parent).
+        grep -q "^[[:blank:]]*DCB_REQUIRED=\"no\"" /etc/fcoe/cfg-${i##*/} &>/dev/null
+        [ $? -eq 0 ] && dcb="nodcb"
+        if [ "$p" ] ; then
+            grep -q "^[[:blank:]]*DCB_REQUIRED=\"no\"" /etc/fcoe/cfg-${p} &>/dev/null
+            [ $? -eq 0 ] && dcb="nodcb"
+        fi
+
         echo "fcoe=${mac}:${dcb}"
     done
 }
