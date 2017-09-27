@@ -938,6 +938,7 @@ set_systemd_timeout_for_dev()
             {
                 echo "[Unit]"
                 echo "JobTimeoutSec=$_timeout"
+                echo "JobRunningTimeoutSec=$_timeout"
             } > ${PREFIX}/etc/systemd/system/${_name}.device.d/timeout.conf
             type mark_hostonly >/dev/null 2>&1 && mark_hostonly /etc/systemd/system/${_name}.device.d/timeout.conf
             _needreload=1
