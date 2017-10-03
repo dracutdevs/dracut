@@ -68,22 +68,50 @@ install() {
 
     if [[ $hostonly ]] && [[ -f /etc/crypttab ]]; then
         # filter /etc/crypttab for the devices we need
-        while read _mapper _dev _rest || [ -n "$_mapper" ]; do
+        while read _mapper _dev _luksfile _luksoptions || [ -n "$_mapper" ]; do
             [[ $_mapper = \#* ]] && continue
             [[ $_dev ]] || continue
+
+            [[ $_dev == PARTUUID=* ]] && \
+                _dev="/dev/disk/by-partuuid/${_dev#PARTUUID=}"
 
             [[ $_dev == UUID=* ]] && \
                 _dev="/dev/disk/by-uuid/${_dev#UUID=}"
 
-            echo "$_dev $(blkid $_dev -s UUID -o value)" > /usr/lib/dracut/modules.d/90crypt/block_uuid.map
+            [[ $_dev == ID=* ]] && \
+                _dev="/dev/disk/by-id/${_dev#ID=}"
 
-            for _hdev in "${!host_fs_types[@]}"; do
-                [[ ${host_fs_types[$_hdev]} == "crypto_LUKS" ]] || continue
-                if [[ $_hdev -ef $_dev ]] || [[ /dev/block/$_hdev -ef $_dev ]]; then
-                    echo "$_mapper $_dev $_rest"
-                    break
-                fi
+            echo "$_dev $(blkid $_dev -s UUID -o value)" >> /usr/lib/dracut/modules.d/90crypt/block_uuid.map
+
+            # loop through the options to check for the force option
+            luksoptions=${_luksoptions}
+            OLD_IFS="${IFS}"
+            IFS=,
+            set -- ${luksoptions}
+            IFS="${OLD_IFS}"
+
+            while [ $# -gt 0 ]; do
+                case $1 in
+                    force)
+                        forceentry="yes"
+                        break
+                        ;;
+                esac
+                shift
             done
+
+            # include the entry regardless
+            if [ "${forceentry}" = "yes" ]; then
+                echo "$_mapper $_dev $_luksfile $_luksoptions"
+            else
+                for _hdev in "${!host_fs_types[@]}"; do
+                    [[ ${host_fs_types[$_hdev]} == "crypto_LUKS" ]] || continue
+                    if [[ $_hdev -ef $_dev ]] || [[ /dev/block/$_hdev -ef $_dev ]]; then
+                        echo "$_mapper $_dev $_luksfile $_luksoptions"
+                        break
+                    fi
+                done
+            fi
         done < /etc/crypttab > $initdir/etc/crypttab
         mark_hostonly /etc/crypttab
     fi
