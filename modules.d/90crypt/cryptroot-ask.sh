@@ -29,9 +29,23 @@ if [ -f /etc/crypttab ] && getargbool 1 rd.luks.crypttab -d -n rd_NO_CRYPTTAB; t
             continue
         fi
 
+        # PARTUUID used in crypttab
+        if [ "${dev%%=*}" = "PARTUUID" ]; then
+            if [ "luks-${dev##PARTUUID=}" = "$luksname" ]; then
+                luksname="$name"
+                break
+            fi
+
         # UUID used in crypttab
-        if [ "${dev%%=*}" = "UUID" ]; then
+        elif [ "${dev%%=*}" = "UUID" ]; then
             if [ "luks-${dev##UUID=}" = "$luksname" ]; then
+                luksname="$name"
+                break
+            fi
+
+        # ID used in crypttab
+        elif [ "${dev%%=*}" = "ID" ]; then
+            if [ "luks-${dev##ID=}" = "$luksname" ]; then
                 luksname="$name"
                 break
             fi
@@ -88,6 +102,10 @@ while [ $# -gt 0 ]; do
             ;;
         allow-discards)
             allowdiscards="--allow-discards"
+            ;;
+        header=*)
+            cryptsetupopts="${cryptsetupopts} --${1}"
+            ;;
     esac
     shift
 done
