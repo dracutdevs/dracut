@@ -197,6 +197,9 @@ Creates initial ramdisk images for preloading modules
   --lz4                 Compress the generated initramfs using lz4.
                          Make sure that your kernel has lz4 support compiled
                          in, otherwise you will not be able to boot.
+  --zstd                Compress the generated initramfs using Zstandard.
+                         Make sure that your kernel has zstd support compiled
+                         in, otherwise you will not be able to boot.
   --compress [COMPRESSION] Compress the generated initramfs with the
                          passed compression program.  Make sure your kernel
                          knows how to decompress the generated initramfs,
@@ -358,6 +361,7 @@ rearrange_params()
         --long xz \
         --long lzo \
         --long lz4 \
+        --long zstd \
         --long no-compress \
         --long gzip \
         --long list-modules \
@@ -557,6 +561,7 @@ while :; do
         --xz)          compress_l="xz";;
         --lzo)         compress_l="lzo";;
         --lz4)         compress_l="lz4";;
+        --zstd)        compress_l="zstd";;
         --no-compress) _no_compress_l="cat";;
         --gzip)        compress_l="gzip";;
         --list-modules) do_list="yes";;
@@ -797,7 +802,7 @@ fi
 
 if ! [[ $compress ]]; then
     # check all known compressors, if none specified
-    for i in pigz gzip lz4 lzop lzma xz lbzip2 bzip2 cat; do
+    for i in pigz gzip lz4 lzop zstd lzma xz lbzip2 bzip2 cat; do
         command -v "$i" &>/dev/null || continue
         compress="$i"
         break
@@ -837,6 +842,9 @@ case $compress in
     lz4)
         compress="lz4 -l -9"
         ;;
+    zstd)
+       compress="zstd -15 -q -T0"
+       ;;
 esac
 
 [[ $hostonly = yes ]] && hostonly="-h"

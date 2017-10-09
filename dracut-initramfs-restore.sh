@@ -31,6 +31,8 @@ elif $SKIP "$IMG" | xzcat | cpio -id --no-absolute-filenames --quiet >/dev/null;
     rm -f -- .need_shutdown
 elif $SKIP "$IMG" | lz4 -d -c | cpio -id --no-absolute-filenames --quiet >/dev/null; then
     rm -f -- .need_shutdown
+elif $SKIP "$IMG" | zstd -d -c | cpio -id --no-absolute-filenames --quiet >/dev/null; then
+    rm -f -- .need_shutdown
 else
     # something failed, so we clean up
     echo "Unpacking of $IMG to /run/initramfs failed" >&2

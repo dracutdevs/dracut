@@ -29,7 +29,7 @@ _dracut() {
                               --hardlink --nohardlink --noprefix --mdadmconf --nomdadmconf
                               --lvmconf --nolvmconf --debug --profile --verbose --quiet
                               --local --hostonly --no-hostonly --fstab --help --bzip2 --lzma
-                              --xz --no-compress --gzip --list-modules --show-modules --keep
+                              --xz --zstd --no-compress --gzip --list-modules --show-modules --keep
                               --printsize --regenerate-all --noimageifnotneeded --early-microcode
                               --no-early-microcode --print-cmdline --prelink --noprelink --reproducible
                               --uefi

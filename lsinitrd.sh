@@ -219,6 +219,9 @@ case $bin in
     $'\x89'LZO$'\0'*)
         CAT="lzop -d -c"
         ;;
+    $'0xFD2FB528'*)
+        CAT="zstd -d -c"
+        ;;
     *)
         if echo "test"|xz|xzcat --single-stream >/dev/null 2>&1; then
             CAT="xzcat --single-stream --"
