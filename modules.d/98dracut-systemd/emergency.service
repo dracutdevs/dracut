@@ -17,7 +17,7 @@ Environment=NEWROOT=/sysroot
 WorkingDirectory=/
 ExecStart=/bin/dracut-emergency
 ExecStopPost=-/usr/bin/systemctl --fail --no-block default
-Type=oneshot
+Type=idle
 StandardInput=tty-force
 StandardOutput=inherit
 StandardError=inherit
