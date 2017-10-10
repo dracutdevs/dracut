@@ -1392,7 +1392,7 @@ static int install_modules(int argc, char **argv)
         struct kmod_module *mod = NULL, *mod_o = NULL;
 
         const char *modname = NULL;
-        char *abskpath = NULL;
+        const char *abskpath = NULL;
         char *p;
         int i;
 
