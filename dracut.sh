@@ -1823,8 +1823,7 @@ fi
 
 command -v restorecon &>/dev/null && restorecon -- "$outfile"
 
-sync $outfile 2> /dev/null
-if [ $? -ne 0 ] ; then
+if ! sync "$outfile" 2> /dev/null; then
     dinfo "dracut: sync operartion on newly created initramfs $outfile failed"
     exit 1
 fi
