@@ -114,7 +114,7 @@ if [ -n "$LVS" ] ; then
     info "Scanning devices $lvmdevs for LVM logical volumes $LVS"
     lvm lvscan $lvm_ignorelockingfailure 2>&1 | vinfo
     for LV in $LVS; do
-        lvm lvchange --yes -ay $lvm_quirk_args $LV 2>&1 | vinfo
+        lvm lvchange --yes -K -ay $lvm_quirk_args $LV 2>&1 | vinfo
     done
 fi
 
