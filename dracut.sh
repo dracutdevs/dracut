@@ -1544,6 +1544,10 @@ if [[ $kernel_only != yes ]]; then
         dinfo "*** Resolving executable dependencies done***"
     fi
 
+    # Now we are done with lazy resolving, always install dependencies
+    unset DRACUT_RESOLVE_LAZY
+    export DRACUT_RESOLVE_DEPS=1
+
     # libpthread workaround: pthread_cancel wants to dlopen libgcc_s.so
     for _dir in $libdirs; do
         for _f in "$_dir/libpthread.so"*; do
