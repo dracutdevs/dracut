@@ -172,7 +172,7 @@ fi
 read -N 6 bin < "$image"
 case $bin in
     $'\x71\xc7'*|070701)
-        CAT="cat --"
+        CAT="cat 2>/dev/null --"
         is_early=$(cpio --extract --verbose --quiet --to-stdout -- 'early_cpio' < "$image" 2>/dev/null)
         if [[ "$is_early" ]]; then
             if [[ -n "$unpackearly" ]]; then
@@ -211,7 +211,7 @@ case $bin in
         CAT="bzcat --"
         ;;
     $'\x71\xc7'*|070701)
-        CAT="cat --"
+        CAT="cat 2>/dev/null --"
         ;;
     $'\x02\x21'*)
         CAT="lz4 -d -c"
