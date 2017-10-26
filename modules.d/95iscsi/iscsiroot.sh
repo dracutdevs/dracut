@@ -44,8 +44,9 @@ fi
 handle_firmware()
 {
     if ! iscsistart -f; then
-        warn "iscistart: Could not get list of targets from firmware."
-        return 1
+        warn "iscistart: Could not get list of targets from firmware. Skipping."
+        echo 'skipped' > "/tmp/iscsistarted-firmware"
+        return 0
     fi
 
     for p in $(getargs rd.iscsi.param -d iscsi_param); do
