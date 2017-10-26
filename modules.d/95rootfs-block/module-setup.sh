@@ -32,7 +32,7 @@ cmdline_journal() {
 
 cmdline() {
     local dev=/dev/block/$(find_root_block_device)
-    if [ -e $dev ]; then
+    if [ -e $dev ] && [ -n "$root_dev" ] ; then
         printf " root=%s" "$(shorten_persistent_dev "$(get_persistent_dev "$dev")")"
         printf " rootflags=%s" "$(find_mp_fsopts /)"
         printf " rootfstype=%s" "$(find_mp_fstype /)"
