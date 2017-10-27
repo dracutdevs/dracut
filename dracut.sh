@@ -1121,8 +1121,10 @@ if [[ $hostonly ]] && [[ "$hostonly_default_device" != "no" ]]; then
             [[ -b $_dev ]] && push host_devs "$_dev"
         done < /etc/fstab
     fi
+fi
 
 
+if [[ $hostonly ]]; then
     # record all host modaliases
     declare -A host_modalias
     find  /sys/devices/ -name uevent -print > "$initdir/.modalias"
