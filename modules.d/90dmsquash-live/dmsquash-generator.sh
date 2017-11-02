@@ -70,7 +70,7 @@ ROOTFLAGS="$(getarg rootflags)"
     else
         echo "What=/dev/mapper/live-rw"
         [ -n "$ROOTFLAGS" ] && echo "Options=${ROOTFLAGS}"
-        _dev=dev-mapper-live\x2drw
+        _dev=$'dev-mapper-live\\x2drw'
     fi
 } > "$GENERATOR_DIR"/sysroot.mount
 
