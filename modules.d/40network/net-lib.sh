@@ -257,6 +257,26 @@ ibft_to_cmdline() {
             [ -e ${iface}/origin ] && origin=$(read a < ${iface}/origin; echo $a)
             [ -e ${iface}/ip-addr ] && ip=$(read a < ${iface}/ip-addr; echo $a)
 
+            if [ -e ${iface}/vlan ]; then
+                vlan=$(read a < ${iface}/vlan; echo $a)
+                if [ "$vlan" -ne "0" ]; then
+                    case "$vlan" in
+                        [0-9]*)
+                            echo "vlan=$dev.$vlan:$dev"
+                            echo $mac > /tmp/net.${dev}.${vlan}.has_ibft_config
+                            ;;
+                        *)
+                            echo "vlan=$vlan:$dev"
+                            echo $mac > /tmp/net.${vlan}.has_ibft_config
+                            ;;
+                    esac
+                else
+                    echo $mac > /tmp/net.${dev}.has_ibft_config
+                fi
+            else
+                echo $mac > /tmp/net.${dev}.has_ibft_config
+            fi
+
             if [ -n "$ip" ] ; then
                 case "$ip" in
                     *.*.*.*)
@@ -308,26 +328,6 @@ ibft_to_cmdline() {
             else
                 info "${iface} does not contain a valid iBFT configuration"
                 ls -l ${iface} | vinfo
-            fi
-
-            if [ -e ${iface}/vlan ]; then
-                vlan=$(read a < ${iface}/vlan; echo $a)
-                if [ "$vlan" -ne "0" ]; then
-                    case "$vlan" in
-                        [0-9]*)
-                            echo "vlan=$dev.$vlan:$dev"
-                            echo $mac > /tmp/net.${dev}.${vlan}.has_ibft_config
-                            ;;
-                        *)
-                            echo "vlan=$vlan:$dev"
-                            echo $mac > /tmp/net.${vlan}.has_ibft_config
-                            ;;
-                    esac
-                else
-                    echo $mac > /tmp/net.${dev}.has_ibft_config
-                fi
-            else
-                echo $mac > /tmp/net.${dev}.has_ibft_config
             fi
 
         done
