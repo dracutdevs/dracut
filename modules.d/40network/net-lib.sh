@@ -263,10 +263,12 @@ ibft_to_cmdline() {
                     case "$vlan" in
                         [0-9]*)
                             echo "vlan=$dev.$vlan:$dev"
+                            dev="$dev.$vlan"
                             echo $mac > /tmp/net.${dev}.${vlan}.has_ibft_config
                             ;;
                         *)
                             echo "vlan=$vlan:$dev"
+                            dev="$vlan"
                             echo $mac > /tmp/net.${vlan}.has_ibft_config
                             ;;
                     esac
