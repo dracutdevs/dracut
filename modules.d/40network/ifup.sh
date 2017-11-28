@@ -88,7 +88,7 @@ do_ipv6auto() {
 do_static() {
     strglobin $ip '*:*:*' && load_ipv6
 
-    if [ -z "$dev" ] && ! iface_has_carrier "$netif"; then
+    if ! iface_has_carrier "$netif"; then
         warn "No carrier detected on interface $netif"
         return 1
     elif ! linkup "$netif"; then
