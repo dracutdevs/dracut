@@ -633,7 +633,7 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
 
         hashmap_put(items, i, i);
 
-        ret = asprintf(&fulldstpath, "%s/%s", destrootdir, dst);
+        ret = asprintf(&fulldstpath, "%s/%s", destrootdir, (dst[0]=='/' ? (dst+1) : dst));
         if (ret < 0) {
                 log_error("Out of memory!");
                 exit(EXIT_FAILURE);
@@ -720,7 +720,7 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
                 if (lstat(fulldstpath, &sb) != 0) {
                         _cleanup_free_ char *absdestpath = NULL;
 
-                        ret = asprintf(&absdestpath, "%s/%s", destrootdir, abspath);
+                        ret = asprintf(&absdestpath, "%s/%s", destrootdir, (abspath[0]=='/' ? (abspath+1) : abspath));
                         if (ret < 0) {
                                 log_error("Out of memory!");
                                 exit(EXIT_FAILURE);
