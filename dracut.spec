@@ -202,6 +202,9 @@ Requires: %{name} = %{version}-%{release}
 %endif
 Requires: %{name}-network = %{version}-%{release}
 Requires: tar gzip coreutils bash device-mapper curl
+%if 0%{?fedora}
+Requires: fuse ntfs-3g
+%endif
 
 %description live
 This package requires everything which is needed to build an
