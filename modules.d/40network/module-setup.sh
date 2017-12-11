@@ -4,7 +4,7 @@
 check() {
     local _program
 
-    require_binaries ip dhclient || return 1
+    require_binaries ip dhclient sed awk grep || return 1
     require_any_binary arping arping2 || return 1
 
     return 255
@@ -24,7 +24,7 @@ installkernel() {
 # called by dracut
 install() {
     local _arch _i _dir
-    inst_multiple ip dhclient sed awk
+    inst_multiple ip dhclient sed awk grep
 
     inst_multiple -o arping arping2
     strstr "$(arping 2>&1)" "ARPing 2" && mv "$initdir/bin/arping" "$initdir/bin/arping2"
