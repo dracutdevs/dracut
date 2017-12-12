@@ -40,6 +40,6 @@ installkernel() {
             fi
         done
     else
-        dracut_instmods -s "drm_crtc_init" "=drivers/gpu/drm"
+        dracut_instmods -s "drm_crtc_init" "=drivers/gpu/drm" "=drivers/staging"
     fi
 }
