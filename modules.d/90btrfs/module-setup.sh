@@ -26,6 +26,8 @@ depends() {
 # called by dracut
 installkernel() {
     instmods btrfs
+    # Make sure btfs can use fast crc32c implementations where available (bsc#1011554)
+    instmods crc32c-intel
 }
 
 # called by dracut
