@@ -662,13 +662,8 @@ get_ucode_file ()
     local stepping=`grep -E "stepping" /proc/cpuinfo | head -1 | sed s/.*:\ //`
 
     if [[ "$(get_cpu_vendor)" == "AMD" ]]; then
-        # If family greater than or equal to 0x17
-        if [[ $family -ge 23 ]]; then
-            printf "microcode_amd_fam17h.bin"
-        elif [[ $family -eq 22 ]]; then
-            printf "microcode_amd_fam16h.bin"
-        elif [[ $family -eq 21 ]]; then
-            printf "microcode_amd_fam15h.bin"
+        if [[ $family -ge 21 ]]; then
+            printf "microcode_amd_fam%xh.bin" $family
         else
             printf "microcode_amd.bin"
         fi
