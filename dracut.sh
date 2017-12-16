@@ -1628,4 +1628,10 @@ else
     exit 1
 fi
 
+if $(mountpoint -q $(dirname "$outfile")); then
+    if ! $(fsfreeze -f $(dirname "$outfile") 2>/dev/null && fsfreeze -u $(dirname "$outfile") 2>/dev/null); then
+        dinfo "dracut: warning: could not fsfreeze $(dirname "$outfile")"
+    fi
+fi
+
 exit 0
