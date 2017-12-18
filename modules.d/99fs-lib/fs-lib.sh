@@ -100,7 +100,7 @@ fsck_drv_com() {
     local _ret
     local _out
 
-    if ! strstr "$_fop" "-[ynap]"; then
+    if ! strglobin "$_fop" "-[ynap]"; then
         _fop="-a ${_fop}"
     fi
 
