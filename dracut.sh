@@ -1466,7 +1466,7 @@ if [[ $no_kernel != yes ]]; then
         hostonly='' instmods $drivers
     fi
 
-    if [[ $add_drivers ]]; then
+    if [[ -n "${add_drivers// }" ]]; then
         hostonly='' instmods -c $add_drivers
     fi
     if [[ $force_drivers ]]; then
