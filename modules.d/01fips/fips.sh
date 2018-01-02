@@ -110,18 +110,28 @@ do_fips()
         do_rhevh_check /run/initramfs/live/isolinux/vmlinuz0 || return 1
     else
         BOOT_IMAGE="$(getarg BOOT_IMAGE)"
-        if ! [ -e "/boot/${BOOT_IMAGE}" ]; then
-            #if /boot is not a separate partition BOOT_IMAGE might start with /boot
-            BOOT_IMAGE=${BOOT_IMAGE#"/boot"}
-            [ -e "/boot/${BOOT_IMAGE}" ] || BOOT_IMAGE="vmlinuz-${KERNEL}"
-        fi
-        
-        BOOT_IMAGE_HMAC="/boot/${BOOT_IMAGE%/*}/.${BOOT_IMAGE##*/}.hmac"
+        BOOT_IMAGE_NAME="${BOOT_IMAGE##*/}"
+        BOOT_IMAGE_PATH="${BOOT_IMAGE%${BOOT_IMAGE_NAME}}"
 
+        if [ -z "$BOOT_IMAGE_NAME" ]; then
+            BOOT_IMAGE_NAME="vmlinuz-${KERNEL}"
+        elif ! [ -e "/boot/${BOOT_IMAGE_PATH}/${BOOT_IMAGE}" ]; then
+            #if /boot is not a separate partition BOOT_IMAGE might start with /boot
+            BOOT_IMAGE_PATH=${BOOT_IMAGE_PATH#"/boot"}
+            #on some achitectures BOOT_IMAGE does not contain path to kernel
+            #so if we can't find anything, let's treat it in the same way as if it was empty
+            if ! [ -e "/boot/${BOOT_IMAGE_PATH}/${BOOT_IMAGE_NAME}" ]; then
+                BOOT_IMAGE_NAME="vmlinuz-${KERNEL}"
+                BOOT_IMAGE_PATH=""
+            fi
+        fi
+
+        BOOT_IMAGE_HMAC="/boot/${BOOT_IMAGE_PATH}.${BOOT_IMAGE_NAME}.hmac"
         if ! [ -e "${BOOT_IMAGE_HMAC}" ]; then
             warn "${BOOT_IMAGE_HMAC} does not exist"
             return 1
         fi
+
         sha512hmac -c "${BOOT_IMAGE_HMAC}" || return 1
     fi
 
