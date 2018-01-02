@@ -13,12 +13,12 @@ if getargbool 0 rd.md.waitclean; then
             continue
         fi
         info "Waiting for $md to become clean"
-        mdadm $_offroot -W "$md" >/dev/null 2>&1
+        mdadm $_offroot --wait-clean "$md" >/dev/null 2>&1
     done
 
     for md in $containers; do
         info "Waiting for $md to become clean"
-        mdadm $_offroot -W "$md" >/dev/null 2>&1
+        mdadm $_offroot --wait-clean "$md" >/dev/null 2>&1
     done
 
     unset containers udevinfo _offroot
