@@ -407,6 +407,7 @@ rm -rf -- $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/95dasd_mod
 %{dracutlibdir}/modules.d/95dasd_rules
 %{dracutlibdir}/modules.d/95fstab-sys
+%{dracutlibdir}/modules.d/95lunmask
 %{dracutlibdir}/modules.d/95zfcp
 %{dracutlibdir}/modules.d/95zfcp_rules
 %{dracutlibdir}/modules.d/95terminfo
