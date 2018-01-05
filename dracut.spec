@@ -371,7 +371,6 @@ rm -rf -- $RPM_BUILD_ROOT
 %endif
 
 %if %{defined _unitdir}
-%{dracutlibdir}/modules.d/00systemd-bootchart
 %else
 %{dracutlibdir}/modules.d/00bootchart
 %endif
