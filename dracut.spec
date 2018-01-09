@@ -370,8 +370,7 @@ rm -rf -- $RPM_BUILD_ROOT
 %{_mandir}/man5/dracut.conf.5*
 %endif
 
-%if %{defined _unitdir}
-%else
+%if %{undefined _unitdir}
 %{dracutlibdir}/modules.d/00bootchart
 %endif
 %{dracutlibdir}/modules.d/00bash
