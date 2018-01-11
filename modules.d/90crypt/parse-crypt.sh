@@ -64,6 +64,8 @@ else
                 } >> /etc/udev/rules.d/70-luks.rules.new
             else
                 luksname=$(dev_unit_name "$luksname")
+                luksname="$(str_replace "$luksname" '\' '\\')"
+
                 if ! crypttab_contains "$serialid"; then
                     {
                         printf -- 'ENV{ID_SERIAL_SHORT}=="*%s*", ' "$serialid"
@@ -95,6 +97,8 @@ else
                 } >> /etc/udev/rules.d/70-luks.rules.new
             else
                 luksname=$(dev_unit_name "$luksname")
+                luksname="$(str_replace "$luksname" '\' '\\')"
+
                 if ! crypttab_contains "$luksid"; then
                     {
                         printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", '
