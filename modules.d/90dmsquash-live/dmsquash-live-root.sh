@@ -84,7 +84,7 @@ else
         # Symlinking /usr/bin/ntfs-3g as /sbin/mount.ntfs seems to boot
         # at the first glance, but ends with lots and lots of squashfs
         # errors, because systemd attempts to kill the ntfs-3g process?!
-        if [ -x "$(find_binary "ntfs-3g")" ]; then
+        if [ -x "/usr/bin/ntfs-3g" ]; then
             ( exec -a @ntfs-3g ntfs-3g -o ${liverw:-ro} $livedev /run/initramfs/live ) | vwarn
         else
             die "Failed to mount block device of live image: Missing NTFS support"
