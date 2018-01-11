@@ -8,7 +8,7 @@ check() {
 }
 
 depends() {
-    echo 90dmsquash-live
+    echo dmsquash-live
     return 0
 }
 
