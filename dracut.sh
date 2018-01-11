@@ -1834,8 +1834,10 @@ command -v restorecon &>/dev/null && restorecon -- "$outfile"
 if ! sync "$outfile" 2> /dev/null; then
     dinfo "dracut: sync operation on newly created initramfs $outfile failed"
     exit 1
+fi
+
 # use fsfreeze only if we're not writing to /
-elif ! [ "$(stat -c %m -- "$outfile")" == "/" ]; then
+if [[ "$(stat -c %m -- "$outfile")" != "/" && "$(stat -f -c %T -- "$outfile")" != "msdos" ]]; then
     if ! $(fsfreeze -f $(dirname "$outfile") 2>/dev/null && fsfreeze -u $(dirname "$outfile") 2>/dev/null); then
         dinfo "dracut: warning: could not fsfreeze $(dirname "$outfile")"
     fi
