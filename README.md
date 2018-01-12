@@ -20,6 +20,7 @@ dracut is an initramfs infrastructure.
 - Test 17: [![Test 17](https://ci.centos.org/job/dracut-matrix-master/TESTS=17,label=dracut-ci-slave01/badge/icon)](https://ci.centos.org/job/dracut-matrix-master/TESTS=17,label=dracut-ci-slave01/)
 - Test 20: [![Test 20](https://ci.centos.org/job/dracut-matrix-master/TESTS=20,label=dracut-ci-slave01/badge/icon)](https://ci.centos.org/job/dracut-matrix-master/TESTS=20,label=dracut-ci-slave01/)
 - Test 30: [![Test 30](https://ci.centos.org/job/dracut-matrix-master/TESTS=30,label=dracut-ci-slave01/badge/icon)](https://ci.centos.org/job/dracut-matrix-master/TESTS=30,label=dracut-ci-slave01/)
+- Test 31: [![Test 31](https://ci.centos.org/job/dracut-matrix-master/TESTS=31,label=dracut-ci-slave01/badge/icon)](https://ci.centos.org/job/dracut-matrix-master/TESTS=31,label=dracut-ci-slave01/)
 - Test 40: [![Test 40](https://ci.centos.org/job/dracut-matrix-master/TESTS=40,label=dracut-ci-slave01/badge/icon)](https://ci.centos.org/job/dracut-matrix-master/TESTS=40,label=dracut-ci-slave01/)
 - Test 50: [![Test 50](https://ci.centos.org/job/dracut-matrix-master/TESTS=50,label=dracut-ci-slave01/badge/icon)](https://ci.centos.org/job/dracut-matrix-master/TESTS=50,label=dracut-ci-slave01/)
 - Test 70: [![Test 70](https://ci.centos.org/job/dracut-matrix-master/TESTS=70,label=dracut-ci-slave01/badge/icon)](https://ci.centos.org/job/dracut-matrix-master/TESTS=70,label=dracut-ci-slave01/)
