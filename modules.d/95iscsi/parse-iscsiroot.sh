@@ -121,7 +121,6 @@ if [ -z $iscsi_initiator ] && [ -f /sys/firmware/ibft/initiator/initiator-name ]
         mkdir -p /etc/iscsi
         ln -fs /run/initiatorname.iscsi /etc/iscsi/initiatorname.iscsi
         > /tmp/iscsi_set_initiator
-        systemctl try-restart iscsid && sleep 1
     fi
 fi
 

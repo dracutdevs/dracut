@@ -38,23 +38,24 @@ iroot=${iroot#:}
 # figured out a way how to check whether this is built-in or not
 modprobe crc32c 2>/dev/null
 
-if [ -z "${DRACUT_SYSTEMD}" ] && [ -e /sys/module/bnx2i ] && ! [ -e /tmp/iscsiuio-started ]; then
+if [ -e /sys/module/bnx2i ] && ! [ -e /tmp/iscsiuio-started ]; then
         iscsiuio
         > /tmp/iscsiuio-started
 fi
 
 handle_firmware()
 {
-    if ! iscsistart -f; then
-        warn "iscistart: Could not get list of targets from firmware."
-        return 1
+    if ! iscsistart-flocked -f; then
+        warn "iscistart: Could not get list of targets from firmware. Skipping."
+        echo 'skipped' > "/tmp/iscsistarted-firmware"
+        return 0
     fi
 
     for p in $(getargs rd.iscsi.param -d iscsi_param); do
 	iscsi_param="$iscsi_param --param $p"
     done
 
-    if ! iscsistart -b $iscsi_param; then
+    if ! iscsistart-flocked -b $iscsi_param; then
         warn "'iscsistart -b $iscsi_param' failed with return code $?"
     fi
 
@@ -135,10 +136,7 @@ handle_netroot()
         rm -f /etc/iscsi/initiatorname.iscsi
         mkdir -p /etc/iscsi
         ln -fs /run/initiatorname.iscsi /etc/iscsi/initiatorname.iscsi
-        systemctl restart iscsid
         > /tmp/iscsi_set_initiator
-        # FIXME: iscsid is not yet ready, when the service is :-/
-        sleep 1
     fi
 
 
@@ -184,7 +182,7 @@ handle_netroot()
                             --description="Login iSCSI Target $iscsi_target_name" \
                             -p 'DefaultDependencies=no' \
                             --unit="$netroot_enc" -- \
-                            $(command -v iscsistart) \
+                            $(command -v iscsistart-flocked) \
                             -i "$iscsi_initiator" -t "$iscsi_target_name"        \
                             -g "$iscsi_target_group" -a "$iscsi_target_ip"      \
                             -p "$iscsi_target_port" \
@@ -202,7 +200,7 @@ handle_netroot()
             fi
         fi
     else
-        iscsistart -i "$iscsi_initiator" -t "$iscsi_target_name"        \
+        iscsistart-flocked -i "$iscsi_initiator" -t "$iscsi_target_name"        \
                    -g "$iscsi_target_group" -a "$iscsi_target_ip"      \
                    -p "$iscsi_target_port" \
                    ${iscsi_username:+-u "$iscsi_username"} \
