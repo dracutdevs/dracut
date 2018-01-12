@@ -30,6 +30,11 @@ client_run() {
 
 test_run() {
     read MD_UUID < $TESTDIR/mduuid
+    if [[ -z $MD_UUID ]]; then
+        echo "Setup failed"
+        return 1
+    fi
+
     client_run rd.auto rd.md.imsm=0 || return 1
     client_run rd.md.uuid=$MD_UUID rd.dm=0 || return 1
     # This test succeeds, because the mirror parts are found without
@@ -109,6 +114,12 @@ test_setup() {
 	-initrd $TESTDIR/initramfs.makeroot  || return 1
     grep -F -m 1 -q dracut-root-block-created $TESTDIR/root.ext2 || return 1
     eval $(grep -F --binary-files=text -m 1 MD_UUID $TESTDIR/root.ext2)
+
+    if [[ -z $MD_UUID ]]; then
+        echo "Setup failed"
+        return 1
+    fi
+
     echo $MD_UUID > $TESTDIR/mduuid
     (
 	export initdir=$TESTDIR/overlay
