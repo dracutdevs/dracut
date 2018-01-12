@@ -284,7 +284,7 @@ rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/97masterkey
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/98integrity
 %endif
 
-%infarch s390 s390x
+%ifnarch s390 s390x
 # remove architecture specific modules
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/80cms
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/91zipl
