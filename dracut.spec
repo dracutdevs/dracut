@@ -412,10 +412,10 @@ rm -rf -- $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/91crypt-gpg
 %{dracutlibdir}/modules.d/91crypt-loop
 %{dracutlibdir}/modules.d/95debug
-%{dracutlibdir}/modules.d/95resume
-%{dracutlibdir}/modules.d/95rootfs-block
 %{dracutlibdir}/modules.d/95fstab-sys
 %{dracutlibdir}/modules.d/95lunmask
+%{dracutlibdir}/modules.d/95resume
+%{dracutlibdir}/modules.d/95rootfs-block
 %{dracutlibdir}/modules.d/95terminfo
 %{dracutlibdir}/modules.d/95udev-rules
 %{dracutlibdir}/modules.d/95virtfs
@@ -435,11 +435,11 @@ rm -rf -- $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/98integrity
 %endif
 %{dracutlibdir}/modules.d/97biosdevname
+%{dracutlibdir}/modules.d/98dracut-systemd
 %{dracutlibdir}/modules.d/98ecryptfs
 %{dracutlibdir}/modules.d/98pollcdrom
 %{dracutlibdir}/modules.d/98selinux
 %{dracutlibdir}/modules.d/98syslog
-%{dracutlibdir}/modules.d/98dracut-systemd
 %{dracutlibdir}/modules.d/98usrmount
 %{dracutlibdir}/modules.d/99base
 %{dracutlibdir}/modules.d/99fs-lib
@@ -473,19 +473,19 @@ rm -rf -- $RPM_BUILD_ROOT
 %defattr(-,root,root,0755)
 %{dracutlibdir}/modules.d/02systemd-networkd
 %{dracutlibdir}/modules.d/40network
+%{dracutlibdir}/modules.d/45ifcfg
 %{dracutlibdir}/modules.d/90kernel-network-modules
-%{dracutlibdir}/modules.d/95fcoe
-%{dracutlibdir}/modules.d/95iscsi
 %{dracutlibdir}/modules.d/90qemu-net
 %{dracutlibdir}/modules.d/95cifs
+%{dracutlibdir}/modules.d/95fcoe
+%{dracutlibdir}/modules.d/95fcoe-uefi
+%{dracutlibdir}/modules.d/95iscsi
 %{dracutlibdir}/modules.d/95nbd
 %{dracutlibdir}/modules.d/95nfs
 %{dracutlibdir}/modules.d/95ssh-client
-%{dracutlibdir}/modules.d/45ifcfg
 %ifarch s390 s390x
 %{dracutlibdir}/modules.d/95znet
 %endif
-%{dracutlibdir}/modules.d/95fcoe-uefi
 %{dracutlibdir}/modules.d/99uefi-lib
 
 %if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
