@@ -219,14 +219,6 @@ if [ "$netif" != "timeout" ] && getargbool 1 rd.iscsi.waitnet; then
     all_ifaces_setup || exit 0
 fi
 
-if [ "$netif" = "timeout" ] && all_ifaces_setup; then
-    # s.th. went wrong and the timeout script hits
-    # restart
-    systemctl restart iscsid
-    # damn iscsid is not ready after unit says it's ready
-    sleep 2
-fi
-
 if getargbool 0 rd.iscsi.firmware -d -y iscsi_firmware ; then
     if [ "$netif" = "timeout" ] || [ "$netif" = "online" ]; then
         handle_firmware
