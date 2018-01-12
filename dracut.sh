@@ -1172,6 +1172,7 @@ if [[ $hostonly ]] && [[ "$hostonly_default_device" != "no" ]]; then
         "/usr/lib64" \
         "/boot" \
         "/boot/efi" \
+        "/boot/zipl" \
         ;
     do
         mp=$(readlink -f "$mp")
