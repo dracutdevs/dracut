@@ -560,45 +560,39 @@ for_each_host_dev_and_slaves()
 # but you cannot create the logical volume without the volume group.
 # And the volume group might be bigger than the devices the LV needs.
 check_vol_slaves() {
-    local _lv _vg _pv _dm
-    for i in /dev/mapper/*; do
-        [[ $i == /dev/mapper/control ]] && continue
-        _lv=$(get_maj_min $i)
-        _dm=/sys/dev/block/$_lv/dm
-        [[ -f $_dm/uuid  && $(<$_dm/uuid) =~ LVM-* ]] || continue
-        if [[ $_lv = $2 ]]; then
-            _vg=$(lvm lvs --noheadings -o vg_name $i 2>/dev/null)
-            # strip space
-            _vg="${_vg//[[:space:]]/}"
-            if [[ $_vg ]]; then
-                for _pv in $(lvm vgs --noheadings -o pv_name "$_vg" 2>/dev/null)
-                do
-                    check_block_and_slaves $1 $(get_maj_min $_pv) && return 0
-                done
-            fi
-        fi
-    done
+    local _lv _vg _pv _dm _majmin
+    _majmin="$2"
+    _lv="/dev/block/$_majmin"
+    _dm=/sys/dev/block/$_majmin/dm
+    [[ -f $_dm/uuid  && $(<$_dm/uuid) =~ LVM-* ]] || return 1
+    _vg=$(dmsetup splitname --noheadings -o vg_name $(<"$_dm/name") )
+    # strip space
+    _vg="${_vg//[[:space:]]/}"
+    if [[ $_vg ]]; then
+        for _pv in $(lvm vgs --noheadings -o pv_name "$_vg" 2>/dev/null)
+        do
+            check_block_and_slaves $1 $(get_maj_min $_pv) && return 0
+        done
+    fi
     return 1
 }
 
 check_vol_slaves_all() {
-    local _lv _vg _pv
-    for i in /dev/mapper/*; do
-        [[ $i == /dev/mapper/control ]] && continue
-        _lv=$(get_maj_min $i)
-        if [[ $_lv = $2 ]]; then
-            _vg=$(lvm lvs --noheadings -o vg_name $i 2>/dev/null)
-            # strip space
-            _vg="${_vg//[[:space:]]/}"
-            if [[ $_vg ]]; then
-                for _pv in $(lvm vgs --noheadings -o pv_name "$_vg" 2>/dev/null)
-                do
-                    check_block_and_slaves_all $1 $(get_maj_min $_pv)
-                done
-                return 0
-            fi
-        fi
-    done
+    local _lv _vg _pv _majmin
+    _majmin="$2"
+    _lv="/dev/block/$_majmin"
+    _dm="/sys/dev/block/$_majmin/dm"
+    [[ -f $_dm/uuid  && $(<$_dm/uuid) =~ LVM-* ]] || return 1
+    _vg=$(dmsetup splitname --noheadings -o vg_name $(<"$_dm/name") )
+    # strip space
+    _vg="${_vg//[[:space:]]/}"
+    if [[ $_vg ]]; then
+        for _pv in $(lvm vgs --noheadings -o pv_name "$_vg" 2>/dev/null)
+        do
+            check_block_and_slaves_all $1 $(get_maj_min $_pv)
+        done
+        return 0
+    fi
     return 1
 }
 
