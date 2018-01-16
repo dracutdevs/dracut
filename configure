@@ -66,8 +66,8 @@ sbindir ?= ${sbindir:-${prefix}/sbin}
 mandir ?= ${mandir:-${prefix}/share/man}
 enable_documentation ?= ${enable_documentation:-yes}
 bindir ?= ${bindir:-${prefix}/bin}
-KMOD_CFLAGS ?= $(${PKG_CONFIG} --cflags " libkmod >= 15 ")
-KMOD_LIBS ?= $(${PKG_CONFIG} --libs " libkmod >= 15 ")
+KMOD_CFLAGS ?= $(${PKG_CONFIG} --cflags " libkmod >= 23 ")
+KMOD_LIBS ?= $(${PKG_CONFIG} --libs " libkmod >= 23 ")
 EOF
 
 {
