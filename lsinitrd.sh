@@ -130,7 +130,7 @@ extract_files()
     for f in "${!filenames[@]}"; do
         [[ $nofileinfo ]] || echo "initramfs:/$f"
         [[ $nofileinfo ]] || echo "========================================================================"
-        $CAT $image | cpio --extract --verbose --quiet --to-stdout $f 2>/dev/null
+        $CAT "$image" 2>/dev/null | cpio --extract --verbose --quiet --to-stdout $f 2>/dev/null
         ((ret+=$?))
         [[ $nofileinfo ]] || echo "========================================================================"
         [[ $nofileinfo ]] || echo
@@ -149,9 +149,9 @@ list_files()
 {
     echo "========================================================================"
     if [ "$sorted" -eq 1 ]; then
-        $CAT "$image" | cpio --extract --verbose --quiet --list | sort -n -k5
+        $CAT "$image" 2>/dev/null | cpio --extract --verbose --quiet --list | sort -n -k5
     else
-        $CAT "$image" | cpio --extract --verbose --quiet --list | sort -k9
+        $CAT "$image" 2>/dev/null | cpio --extract --verbose --quiet --list | sort -k9
     fi
     ((ret+=$?))
     echo "========================================================================"
@@ -159,7 +159,7 @@ list_files()
 
 unpack_files()
 {
-    $CAT "$image" | cpio -id --quiet $verbose
+    $CAT "$image" 2>/dev/null | cpio -id --quiet $verbose
     ((ret+=$?))
 }
 
