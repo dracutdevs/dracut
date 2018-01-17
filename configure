@@ -52,8 +52,8 @@ while (($# > 0)); do
     shift
 done
 
-if ! ${PKG_CONFIG} --exists --print-errors " libkmod >= 15 "; then
-    echo "dracut needs pkg-config and libkmod >= 15." >&2
+if ! ${PKG_CONFIG} --exists --print-errors " libkmod >= 23 "; then
+    echo "dracut needs pkg-config and libkmod >= 23." >&2
     exit 1
 fi
 

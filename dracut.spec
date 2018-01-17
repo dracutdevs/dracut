@@ -40,7 +40,7 @@ Source0: http://www.kernel.org/pub/linux/utils/boot/dracut/dracut-%{version}.tar
 Source1: https://www.gnu.org/licenses/lgpl-2.1.txt
 
 BuildRequires: bash git
-BuildRequires: kmod-devel >= 15
+BuildRequires: kmod-devel >= 23
 
 %if 0%{?fedora} || 0%{?rhel}
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
