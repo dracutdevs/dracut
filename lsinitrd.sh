@@ -130,7 +130,7 @@ extract_files()
     for f in "${!filenames[@]}"; do
         [[ $nofileinfo ]] || echo "initramfs:/$f"
         [[ $nofileinfo ]] || echo "========================================================================"
-        $CAT "$image" 2>/dev/null | cpio --extract --verbose --quiet --to-stdout $f 2>/dev/null
+        $CAT "$image" 2>/dev/null | cpio --extract --verbose --quiet --to-stdout "$f" 2>/dev/null
         ((ret+=$?))
         [[ $nofileinfo ]] || echo "========================================================================"
         [[ $nofileinfo ]] || echo
