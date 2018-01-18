@@ -1,8 +1,23 @@
 #!/bin/bash
 
+pkglib_dir() {
+    local _dirs="/usr/lib/plymouth /usr/libexec/plymouth/"
+    if type -P dpkg-architecture &>/dev/null; then
+        _dirs+=" /usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/plymouth"
+    fi
+    for _dir in $_dirs; do
+        if [ -d $_dir ]; then
+            echo $_dir
+            return
+        fi
+    done
+}
+
 # called by dracut
 check() {
     [[ "$mount_needs" ]] && return 1
+    [ -z $(pkglib_dir) ] && return 1
+
     require_binaries plymouthd plymouth plymouth-set-default-theme
 }
 
@@ -13,12 +28,7 @@ depends() {
 
 # called by dracut
 install() {
-    PKGLIBDIR="/usr/lib/plymouth"
-    if type -P dpkg-architecture &>/dev/null; then
-        PKGLIBDIR="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/plymouth"
-    fi
-    [ -x /usr/libexec/plymouth/plymouth-populate-initrd ] && PKGLIBDIR="/usr/libexec/plymouth"
-
+    PKGLIBDIR=$(pkglib_dir)
     if grep -q nash ${PKGLIBDIR}/plymouth-populate-initrd \
         || [ ! -x ${PKGLIBDIR}/plymouth-populate-initrd ]; then
         . "$moddir"/plymouth-populate-initrd.sh
