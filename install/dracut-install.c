@@ -1391,7 +1391,6 @@ static int install_modules(int argc, char **argv)
 
         struct kmod_module *mod = NULL, *mod_o = NULL;
 
-        const char *modname = NULL;
         const char *abskpath = NULL;
         char *p;
         int i;
@@ -1445,6 +1444,7 @@ static int install_modules(int argc, char **argv)
 
                 if (argv[i][0] == '/') {
                         _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
+			_cleanup_free_ const char *modname = NULL;
 
                         r = kmod_module_new_from_path(ctx, argv[i], &mod_o);
                         if (r < 0) {
@@ -1454,7 +1454,7 @@ static int install_modules(int argc, char **argv)
                                 continue;
                         }
                         /* Check, if we have to load another module with that name instead */
-                        modname = kmod_module_get_name(mod_o);
+                        modname = strdup(kmod_module_get_name(mod_o));
 
                         if (!modname) {
                                 if (!arg_optional) {
@@ -1530,6 +1530,7 @@ static int install_modules(int argc, char **argv)
 
                         for (FTSENT *ftsent = fts_read(fts); ftsent != NULL; ftsent = fts_read(fts)) {
                                 _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
+				_cleanup_free_ const char *modname = NULL;
 
                                 if((ftsent->fts_info == FTS_D) && !check_module_path(ftsent->fts_accpath)) {
                                         fts_set(fts, ftsent, FTS_SKIP);
@@ -1552,7 +1553,7 @@ static int install_modules(int argc, char **argv)
                                 }
 
                                 /* Check, if we have to load another module with that name instead */
-                                modname = kmod_module_get_name(mod_o);
+                                modname = strdup(kmod_module_get_name(mod_o));
 
                                 if (!modname) {
                                         log_error("Failed to get name for module '%s'", ftsent->fts_accpath);
@@ -1598,7 +1599,7 @@ static int install_modules(int argc, char **argv)
                         }
                 } else {
                         _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
-                        char *modname = argv[i];
+			char *modname = argv[i];
 
                         if (endswith(modname, ".ko")) {
                                 int len = strlen(modname);
