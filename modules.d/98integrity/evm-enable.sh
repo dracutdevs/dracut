@@ -76,8 +76,21 @@ load_evm_x509()
         return 1
     fi
 
+    local evm_pubid
+    local line=$(keyctl describe %keyring:.evm)
+    if [ $? -eq 0 ]; then
+        # the kernel already setup a trusted .evm keyring so use that one
+        evm_pubid=${line%%:*}
+    else
+        # look for an existing regular keyring
+        evm_pubid=`keyctl search @u keyring _evm`
+        if [ -z "${evm_pubid}" ]; then
+            # create a new regular _evm keyring
+            evm_pubid=`keyctl newring _evm @u`
+        fi
+    fi
+
     # load the EVM public key onto the EVM keyring
-    evm_pubid=`keyctl newring _evm @u`
     EVMX509ID=$(evmctl import ${EVMX509PATH} ${evm_pubid})
     [ $? -eq 0 ] || {
         info "integrity: failed to load the EVM X509 cert ${EVMX509PATH}";
