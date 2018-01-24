@@ -125,11 +125,18 @@ enable_evm()
         return 0
     fi
 
-    # load the EVM encrypted key
-    load_evm_key || return 1
+    local evm_configured
 
-    # load the EVM public key, if it exists
-    load_evm_x509
+    # try to load the EVM encrypted key
+    load_evm_key && evm_configured=1
+
+    # try to load the EVM public key
+    load_evm_x509 && evm_configured=1
+
+    # only enable EVM if a key or x509 certificate could be loaded
+    if [ -z "$evm_configured" ]; then
+        return 1
+    fi
 
     # initialize EVM
     info "Enabling EVM"
