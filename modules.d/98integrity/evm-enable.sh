@@ -72,7 +72,7 @@ load_evm_x509()
     if [ ! -f "${EVMX509PATH}" ]; then
         if [ "${RD_DEBUG}" = "yes" ]; then
             info "integrity: EVM x509 cert file not found: ${EVMX509PATH}"
-	fi
+        fi
         return 1
     fi
 
@@ -80,8 +80,8 @@ load_evm_x509()
     evm_pubid=`keyctl newring _evm @u`
     EVMX509ID=$(evmctl import ${EVMX509PATH} ${evm_pubid})
     [ $? -eq 0 ] || {
-	info "integrity: failed to load the EVM X509 cert ${EVMX509PATH}";
-	return 1;
+        info "integrity: failed to load the EVM X509 cert ${EVMX509PATH}";
+        return 1;
     }
 
     if [ "${RD_DEBUG}" = "yes" ]; then
