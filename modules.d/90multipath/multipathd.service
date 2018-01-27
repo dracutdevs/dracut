@@ -13,7 +13,7 @@ ConditionKernelCommandLine=!multipath=off
 
 [Service]
 Type=simple
-ExecStartPre=/sbin/modprobe dm-multipath
+ExecStartPre=-/sbin/modprobe dm-multipath
 ExecStart=/sbin/multipathd -s -d
 ExecReload=/sbin/multipathd reconfigure
 ExecStop=/sbin/multipathd shutdown
