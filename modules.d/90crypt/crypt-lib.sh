@@ -16,13 +16,13 @@ crypttab_contains() {
                     [ "$dev" -ef "$_dev" ] && return 0
                 done
             fi
-            if [ -e /usr/lib/dracut/modules.d/90crypt/block_uuid.map ]; then
+            if [ -e /etc/block_uuid.map ]; then
                 # search for line starting with $d
-                _line=$(sed -n "\,^$d .*$,{p}" /usr/lib/dracut/modules.d/90crypt/block_uuid.map)
+                _line=$(sed -n "\,^$d .*$,{p}" /etc/block_uuid.map)
                 [ -z "$_line" ] && continue
                 # get second column with uuid
                 _uuid="$(echo $_line | sed 's,^.* \(.*$\),\1,')"
-	        strstr "$_uuid" "${luks##luks-}" && return 0
+                strstr "$_uuid" "${luks##luks-}" && return 0
             fi
         done < /etc/crypttab
     fi

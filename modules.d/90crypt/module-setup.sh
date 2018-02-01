@@ -81,7 +81,7 @@ install() {
             [[ $_dev == ID=* ]] && \
                 _dev="/dev/disk/by-id/${_dev#ID=}"
 
-            echo "$_dev $(blkid $_dev -s UUID -o value)" >> /usr/lib/dracut/modules.d/90crypt/block_uuid.map
+            echo "$_dev $(blkid $_dev -s UUID -o value)" >> "${initdir}/etc/block_uuid.map"
 
             # loop through the options to check for the force option
             luksoptions=${_luksoptions}
