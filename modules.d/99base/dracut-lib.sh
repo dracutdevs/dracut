@@ -1084,6 +1084,7 @@ _emergency_shell()
         rm -f -- /.console_lock
     else
         debug_off
+        source_hook "$hook"
         echo
         /sbin/rdsosreport
         echo 'You might want to save "/run/initramfs/rdsosreport.txt" to a USB stick or /boot'
@@ -1136,7 +1137,6 @@ emergency_shell()
 
     echo ; echo
     warn "$*"
-    source_hook "$hook"
     echo
 
     _emergency_action=$(getarg rd.emergency)
@@ -1147,6 +1147,7 @@ emergency_shell()
     if getargbool 1 rd.shell -d -y rdshell || getarg rd.break -d rdbreak; then
         _emergency_shell $_rdshell_name
     else
+        source_hook "$hook"
         warn "$action has failed. To debug this issue add \"rd.shell rd.debug\" to the kernel command line."
         [ -z "$_emergency_action" ] && _emergency_action=halt
     fi
