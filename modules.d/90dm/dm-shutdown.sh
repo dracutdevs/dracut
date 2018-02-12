@@ -32,7 +32,11 @@ _do_dm_shutdown() {
     info "Disassembling device-mapper devices"
     for dev in /sys/block/dm-* ; do
         [ -e ${dev} ] || continue
-        _remove_dm ${dev##*/} || ret=$?
+        if [ "x$final" != "x" ]; then
+            _remove_dm ${dev##*/} || ret=$?
+        else
+            _remove_dm ${dev##*/} >/dev/null 2>&1 || ret=$?
+        fi
     done
     if [ "x$final" != "x" ]; then
         info "dmsetup ls --tree"
