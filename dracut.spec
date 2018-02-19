@@ -45,15 +45,10 @@ BuildRequires: kmod-devel >= 23
 BuildRequires: gcc
 
 %if 0%{?fedora} || 0%{?rhel}
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: pkgconfig
 %endif
 %if 0%{?fedora}
 BuildRequires: bash-completion
-%endif
-
-%if 0%{?suse_version}
-BuildRoot: %{_tmppath}/%{name}-%{version}-build
 %endif
 
 %if %{with doc}
