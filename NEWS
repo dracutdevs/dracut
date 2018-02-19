@@ -1,3 +1,103 @@
+dracut-047
+==========
+dracut.sh:
+- sync initramfs to filesystem with fsfreeze
+- introduce "--no-hostonly-default-device"
+- disable lsinitrd logging when quiet
+- add support for Zstandard compression
+- fixed relative paths in --kerneldir
+- if /boot/vmlinuz-$version exists use /boot/ as default output dir
+- make qemu and qemu-net a default module in non-hostonly mode
+- fixed relative symlinks
+- support microcode updates for all AMD CPU families
+- install all modules-load.d regardless of hostonly
+- fixed parsing of "-i" and "--include"
+- bump kmod version to >= 23
+- enable 'early_microcode' by default
+- fixed check_block_and_slaves() for nvme
+
+lsinitrd.sh:
+- dismiss "cat" error messages
+
+systemd-bootchart:
+- removed
+
+i18n:
+- install all keymaps for a given locale
+- add correct fontmaps
+
+dmsquash-live:
+- fixed systemd unit escape
+
+systemd:
+- enable core dumps with systemd from initrd
+- fixed setting of timeouts for device units
+- emergency.service: use Type=idle and fixed task limit
+
+multipath:
+- include files from /etc/multipath/conf.d
+- do not fail startup on missing configuration
+- start daemon after udev settle
+- add shutdown script
+- parse kernel commandline option 'multipath=off'
+- start before local-fs-pre.target
+
+dracut-emergency:
+- optionally print filesystem help
+
+network:
+- fixed MTU for bond master
+- fixed race condition when wait for networks
+
+fcoe:
+- handle CNAs with DCB firmware support
+- allow to specify the FCoE mode via the fcoe= parameter
+- always set AUTO_VLAN for fcoemon
+- add shutdown script
+- fixup fcoe-genrules.sh for VN2VN mode
+- switch back to using fipvlan for bnx2fc
+- add timeout mechanism
+
+crypt:
+- add basic LUKS detached header support
+- escape backslashes for systemd unit names correctly
+- put block_uuid.map into initramfs
+
+dmraid:
+- do not delete partitions
+
+dasd_mod:
+- do not set module parameters if dasd_cio_free is not present
+
+nfs:
+- fix mount if IPv4 address is used in /etc/fstab
+- support host being a DNS ALIAS
+
+fips:
+- fixed creating path to .hmac of kernel based on BOOT_IMAGE
+
+lunmask:
+- add module to handle LUN masking
+
+s390:
+- add rd.cio_accept
+
+dcssblk:
+- add new module for DCSS block devices
+
+zipl:
+- add new module to update s390x configuration
+
+iscsi:
+- no more iscsid, either iscsistart or iscsid
+
+integrity:
+- support loading x509 into the trusted/builtin .evm keyring
+- support X.509-only EVM configuration
+
+plymouth:
+- improve distro compatibility
+
 dracut-046
 ==========
 
