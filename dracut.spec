@@ -336,9 +336,6 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 > $RPM_BUILD_ROOT/etc/system-fips
 %endif
 
-%clean
-rm -rf -- $RPM_BUILD_ROOT
-
 %files
 %defattr(-,root,root,0755)
 %if %{with doc}
