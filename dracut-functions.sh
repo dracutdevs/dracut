@@ -497,13 +497,14 @@ check_block_and_slaves() {
     [[ -b /dev/block/$2 ]] || return 1 # Not a block device? So sorry.
     if ! lvm_internal_dev $2; then "$1" $2 && return; fi
     check_vol_slaves "$@" && return 0
-    if [[ -f /sys/dev/block/$2/../dev ]]; then
+    if [[ -f /sys/dev/block/$2/../dev ]] && [[ /sys/dev/block/$2/../subsystem -ef /sys/class/block ]]; then
         check_block_and_slaves $1 $(<"/sys/dev/block/$2/../dev") && return 0
     fi
     [[ -d /sys/dev/block/$2/slaves ]] || return 1
-    for _x in /sys/dev/block/$2/slaves/*/dev; do
-        [[ -f $_x ]] || continue
-        check_block_and_slaves $1 $(<"$_x") && return 0
+    for _x in /sys/dev/block/$2/slaves/*; do
+        [[ -f $_x/dev ]] || continue
+        [[ $_x/subsystem -ef /sys/class/block ]] || continue
+        check_block_and_slaves $1 $(<"$_x/dev") && return 0
     done
     return 1
 }
@@ -515,13 +516,14 @@ check_block_and_slaves_all() {
         _ret=0
     fi
     check_vol_slaves_all "$@" && return 0
-    if [[ -f /sys/dev/block/$2/../dev ]]; then
+    if [[ -f /sys/dev/block/$2/../dev ]] && [[ /sys/dev/block/$2/../subsystem -ef /sys/class/block ]]; then
         check_block_and_slaves_all $1 $(<"/sys/dev/block/$2/../dev") && _ret=0
     fi
     [[ -d /sys/dev/block/$2/slaves ]] || return 1
-    for _x in /sys/dev/block/$2/slaves/*/dev; do
-        [[ -f $_x ]] || continue
-        check_block_and_slaves_all $1 $(<"$_x") && _ret=0
+    for _x in /sys/dev/block/$2/slaves/*; do
+        [[ -f $_x/dev ]] || continue
+        [[ $_x/subsystem -ef /sys/class/block ]] || continue
+        check_block_and_slaves_all $1 $(<"$_x/dev") && _ret=0
     done
     return $_ret
 }
