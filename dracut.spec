@@ -127,11 +127,12 @@ Requires: util-linux-ng >= 2.21
 Conflicts: mdadm < 3.2.6-14
 
 %description
-dracut contains tools to create a bootable initramfs for 2.6 Linux kernels.
-Unlike existing implementations, dracut does hard-code as little as possible
-into the initramfs. dracut contains various modules which are driven by the
-event-based udev. Having root on MD, DM, LVM2, LUKS is supported as well as
-NFS, iSCSI, NBD, FCoE with the dracut-network package.
+dracut contains tools to create bootable initramfses for the Linux
+kernel. Unlike previous implementations, dracut hard-codes as little
+as possible into the initramfs. dracut contains various modules which
+are driven by the event-based udev. Having root on MD, DM, LVM2, LUKS
+is supported as well as NFS, iSCSI, NBD, FCoE with the dracut-network
+package.
 
 %package network
 Summary: dracut modules to build a dracut initramfs with network support
