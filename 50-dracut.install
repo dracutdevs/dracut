@@ -11,6 +11,13 @@ if ! [[ ${KERNEL_INSTALL_MACHINE_ID-x} ]]; then
     exit 0
 fi
 
+if [[ -d "$BOOT_DIR_ABS" ]]; then
+    INITRD="initrd"
+else
+    BOOT_DIR_ABS="/boot"
+    INITRD="initramfs-${KERNEL_VERSION}.img"
+fi
+
 ret=0
 case "$COMMAND" in
     add)
@@ -18,9 +25,9 @@ case "$COMMAND" in
         if [[ -f ${INITRD_IMAGE_PREGENERATED} ]]; then
             # we found an initrd at the same place as the kernel
             # use this and don't generate a new one
-            cp --reflink=auto "$INITRD_IMAGE_PREGENERATED" "$BOOT_DIR_ABS/initrd" \
-                && chown root:root "$BOOT_DIR_ABS/initrd" \
-                && chmod 0600 "$BOOT_DIR_ABS/initrd" \
+            cp --reflink=auto "$INITRD_IMAGE_PREGENERATED" "$BOOT_DIR_ABS/$INITRD" \
+                && chown root:root "$BOOT_DIR_ABS/$INITRD" \
+                && chmod 0600 "$BOOT_DIR_ABS/$INITRD" \
                 && exit 0
         fi
 
@@ -42,11 +49,11 @@ case "$COMMAND" in
                 break
             fi
         done
-	dracut ${noimageifnotneeded:+--noimageifnotneeded} "$BOOT_DIR_ABS"/initrd "$KERNEL_VERSION"
+	dracut ${noimageifnotneeded:+--noimageifnotneeded} "$BOOT_DIR_ABS/$INITRD" "$KERNEL_VERSION"
         ret=$?
 	;;
     remove)
-        rm -f -- "$BOOT_DIR_ABS"/initrd
+        rm -f -- "$BOOT_DIR_ABS/$INITRD"
         ret=$?
 	;;
 esac
