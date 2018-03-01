@@ -17,6 +17,7 @@ installkernel() {
             "=drivers/input/serio" \
             "=drivers/input/keyboard" \
             "=drivers/usb/storage" \
+            "=drivers/pci/host" \
             ${NULL}
 
         instmods \
