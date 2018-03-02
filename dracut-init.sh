@@ -942,7 +942,7 @@ for_each_kmod_dep() {
 
 dracut_kernel_post() {
     for _f in modules.builtin.bin modules.builtin modules.order; do
-        [[ $srcmods/$_f ]] && inst_simple "$srcmods/$_f" "/lib/modules/$kernel/$_f"
+        [[ -e $srcmods/$_f ]] && inst_simple "$srcmods/$_f" "/lib/modules/$kernel/$_f"
     done
 
     # generate module dependencies for the initrd

@@ -12,7 +12,7 @@ crypttab_contains() {
             strstr "${l##luks-}" "${luks##luks-}" && return 0
             strstr "$d" "${luks##luks-}" && return 0
             if [ -n "$dev" ]; then
-                for _dev in "$(devnames $d)"; do
+                for _dev in $(devnames $d); do
                     [ "$dev" -ef "$_dev" ] && return 0
                 done
             fi
