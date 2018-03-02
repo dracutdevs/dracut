@@ -15,7 +15,7 @@ detect_syslog() {
         syslogtype="rsyslogd"
     elif [ -e /sbin/syslogd ]; then
         syslogtype="syslogd"
-    elif [ /sbin/syslog-ng ]; then
+    elif [ -e /sbin/syslog-ng ]; then
         syslogtype="syslog-ng"
     else
         warn "Could not find any syslog binary although the syslogmodule is selected to be installed. Please check."
