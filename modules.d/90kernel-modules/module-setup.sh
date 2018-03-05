@@ -36,6 +36,7 @@ installkernel() {
                 "=drivers/hwspinlock" \
                 "=drivers/i2c/busses" \
                 "=drivers/mfd" \
+                "=drivers/mmc/core" \
                 "=drivers/phy" \
                 "=drivers/power" \
                 "=drivers/regulator" \
