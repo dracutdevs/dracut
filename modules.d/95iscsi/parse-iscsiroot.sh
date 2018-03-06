@@ -96,7 +96,7 @@ fi
 
 initqueue --unique --onetime --timeout /sbin/iscsiroot timeout "$netroot" "$NEWROOT"
 
-initqueue --onetime modprobe --all -b -q qla4xxx cxgb3i cxgb4i bnx2i be2iscsi
+initqueue --onetime modprobe --all -b -q qla4xxx cxgb3i cxgb4i bnx2i be2iscsi qedi
 
 # ISCSI actually supported?
 if ! [ -e /sys/module/iscsi_tcp ]; then

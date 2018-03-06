@@ -159,7 +159,7 @@ installkernel() {
     local _arch=$(uname -m)
     local _funcs='iscsi_register_transport'
 
-    instmods bnx2i qla4xxx cxgb3i cxgb4i be2iscsi
+    instmods bnx2i qla4xxx cxgb3i cxgb4i be2iscsi qedi
     hostonly="" instmods iscsi_tcp iscsi_ibft crc32c iscsi_boot_sysfs
 
     if [ "$_arch" = "s390" -o "$_arch" = "s390x" ]; then
