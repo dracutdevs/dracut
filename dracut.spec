@@ -5,15 +5,6 @@
 # strip the automatically generated dep here and instead co-own the
 # directory.
 %global __requires_exclude pkg-config
-
-# Variables must be defined
-%define with_nbd                1
-
-# nbd in Fedora only
-%if 0%{?rhel} >= 6
-%define with_nbd 0
-%endif
-
 %define dist_free_release xxx
 
 Name: dracut
@@ -46,6 +37,7 @@ BuildRequires: gcc
 
 %if 0%{?fedora} || 0%{?rhel}
 BuildRequires: pkgconfig
+BuildRequires: systemd
 %endif
 %if 0%{?fedora}
 BuildRequires: bash-completion
@@ -63,30 +55,10 @@ BuildRequires: docbook-style-xsl docbook-dtds libxslt
 BuildRequires: asciidoc
 %endif
 
-%if 0%{?fedora} > 12 || 0%{?rhel}
-# no "provides", because dracut does not offer
-# all functionality of the obsoleted packages
-Obsoletes: mkinitrd < 6.0.94
-Obsoletes: mkinitrd-devel < 6.0.94
-Obsoletes: nash < 6.0.94
-Obsoletes: libbdevid-python < 6.0.94
-%endif
-
-%if 0%{?fedora} > 16 || 0%{?rhel} > 6
-BuildRequires: systemd-units
-%endif
-
 %if 0%{?suse_version} > 9999
 Obsoletes: mkinitrd < 2.6.1
 Provides: mkinitrd = 2.6.1
 %endif
-
-Obsoletes: dracut-kernel < 005
-Provides:  dracut-kernel = %{version}-%{release}
-
-Obsoletes: dracut < 030
-Obsoletes: dracut-norescue < 030
-Provides:  dracut-norescue = %{version}-%{release}
 
 Requires: bash >= 4
 Requires: coreutils
@@ -99,32 +71,22 @@ Requires: sed
 Requires: xz
 Requires: gzip
 
-%if 0%{?fedora} > 22 || 0%{?rhel} > 7
+%if 0%{?fedora} || 0%{?rhel}
 Recommends: grubby
 Recommends: hardlink
 Recommends: pigz
 Recommends: kpartx
-%else
-Requires: hardlink
-Requires: gzip
-Requires: kpartx
-%endif
-
-%if 0%{?fedora} || 0%{?rhel} > 6
 Requires: util-linux >= 2.21
 Requires: systemd >= 219
 Requires: systemd-udev >= 219
 Requires: procps-ng
-Conflicts: grubby < 8.23
-Conflicts: initscripts < 8.63-1
-Conflicts: plymouth < 0.8.0-0.2009.29.09.19.1
-Conflicts: bcache-tools < 0-0.14.20130909git
 %else
+Requires: hardlink
+Requires: gzip
+Requires: kpartx
 Requires: udev > 166
 Requires: util-linux-ng >= 2.21
 %endif
-
-Conflicts: mdadm < 3.2.6-14
 
 %description
 dracut contains tools to create bootable initramfses for the Linux
@@ -155,17 +117,12 @@ Provides:  dracut-generic = %{version}-%{release}
 This package requires everything which is needed to build a generic
 all purpose initramfs with network support with dracut.
 
-%if 0%{?fedora} || 0%{?rhel} >= 6 || 0%{?suse_version}
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
 %package fips
 Summary: dracut modules to build a dracut initramfs with an integrity check
 Requires: %{name} = %{version}-%{release}
 Requires: hmaccalc
-%if 0%{?rhel} > 5
-# For Alpha 3, we want nss instead of nss-softokn
 Requires: nss
-%else
-Requires: nss-softokn
-%endif
 Requires: nss-softokn-freebl
 
 %description fips
@@ -250,9 +207,6 @@ cp %{SOURCE1} .
 make %{?_smp_mflags}
 
 %install
-%if 0%{?fedora} || 0%{?rhel}
-rm -rf -- $RPM_BUILD_ROOT
-%endif
 make %{?_smp_mflags} install \
      DESTDIR=$RPM_BUILD_ROOT \
      libdir=%{_prefix}/lib
@@ -314,16 +268,12 @@ install -m 0644 dracut.conf.d/suse.conf.example   $RPM_BUILD_ROOT%{dracutlibdir}
 install -m 0644 dracut.conf.d/fips.conf.example $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/40-fips.conf
 %endif
 
-%if 0%{?fedora} <= 12 && 0%{?rhel} < 6 && 0%{?suse_version} <= 9999
+%if 0%{?fedora} == 0 && 0%{?rhel} == 0 && 0%{?suse_version} <= 9999
 rm -f -- $RPM_BUILD_ROOT%{_bindir}/mkinitrd
 rm -f -- $RPM_BUILD_ROOT%{_bindir}/lsinitrd
 %endif
 
-%if 0%{?fedora} || 0%{?rhel} > 6
-# FIXME: remove after F19
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/kernel/postinst.d
-install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kernel/postinst.d/51-dracut-rescue-postinst.sh
-
+%if 0%{?fedora} || 0%{?rhel}
 echo 'hostonly="no"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-generic-image.conf
 echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-rescue.conf
 %endif
@@ -342,7 +292,7 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %{_bindir}/dracut
 %{_datadir}/bash-completion/completions/dracut
 %{_datadir}/bash-completion/completions/lsinitrd
-%if 0%{?fedora} > 12 || 0%{?rhel} >= 6 || 0%{?suse_version} > 9999
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version} > 9999
 %{_bindir}/mkinitrd
 %{_bindir}/lsinitrd
 %endif
@@ -368,7 +318,7 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %if %{with doc}
 %{_mandir}/man8/dracut.8*
 %{_mandir}/man8/*service.8*
-%if 0%{?fedora} > 12 || 0%{?rhel} >= 6 || 0%{?suse_version} > 9999
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version} > 9999
 %{_mandir}/man8/mkinitrd.8*
 %{_mandir}/man1/lsinitrd.1*
 %endif
@@ -462,7 +412,7 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %{_unitdir}/initrd.target.wants/dracut-pre-udev.service
 
 %endif
-%if 0%{?fedora} || 0%{?rhel} > 6
+%if 0%{?fedora} || 0%{?rhel}
 %{_prefix}/lib/kernel/install.d/50-dracut.install
 %endif
 
@@ -527,9 +477,8 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %files config-rescue
 %defattr(-,root,root,0755)
 %{dracutlibdir}/dracut.conf.d/02-rescue.conf
-%if 0%{?fedora} || 0%{?rhel} > 6
+%if 0%{?fedora} || 0%{?rhel}
 %{_prefix}/lib/kernel/install.d/51-dracut-rescue.install
-%{_sysconfdir}/kernel/postinst.d/51-dracut-rescue-postinst.sh
 %endif
 
 %changelog
