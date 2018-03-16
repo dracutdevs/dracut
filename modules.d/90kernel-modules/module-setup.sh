@@ -24,7 +24,7 @@ installkernel() {
             yenta_socket scsi_dh_rdac scsi_dh_emc scsi_dh_alua \
             atkbd i8042 usbhid firewire-ohci pcmcia hv-vmbus \
             virtio virtio_blk virtio_ring virtio_pci virtio_scsi \
-            "=drivers/pcmcia" =ide nvme
+            "=drivers/pcmcia" =ide nvme vmd
 
 	if [[ "$(uname -m)" == arm* || "$(uname -m)" == aarch64 ]]; then
             # arm/aarch64 specific modules
