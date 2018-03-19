@@ -88,6 +88,12 @@ Requires: udev > 166
 Requires: util-linux-ng >= 2.21
 %endif
 
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
+Requires: hmaccalc
+Requires: nss
+Requires: nss-softokn-freebl
+%endif
+
 %description
 dracut contains tools to create bootable initramfses for the Linux
 kernel. Unlike previous implementations, dracut hard-codes as little
@@ -116,27 +122,6 @@ Provides:  dracut-generic = %{version}-%{release}
 %description network
 This package requires everything which is needed to build a generic
 all purpose initramfs with network support with dracut.
-
-%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
-%package fips
-Summary: dracut modules to build a dracut initramfs with an integrity check
-Requires: %{name} = %{version}-%{release}
-Requires: hmaccalc
-Requires: nss
-Requires: nss-softokn-freebl
-
-%description fips
-This package requires everything which is needed to build an
-initramfs with dracut, which does an integrity check.
-%endif
-
-%package fips-aesni
-Summary: dracut modules to build a dracut initramfs with an integrity check with aesni-intel
-Requires: %{name}-fips = %{version}-%{release}
-
-%description fips-aesni
-This package requires everything which is needed to build an
-initramfs with dracut, which does an integrity check and adds the aesni-intel kernel module.
 
 %package caps
 Summary: dracut modules to build a dracut initramfs which drops capabilities
@@ -264,10 +249,6 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man?/*suse*
 install -m 0644 dracut.conf.d/suse.conf.example   $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/01-dist.conf
 %endif
 
-%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
-install -m 0644 dracut.conf.d/fips.conf.example $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/40-fips.conf
-%endif
-
 %if 0%{?fedora} == 0 && 0%{?rhel} == 0 && 0%{?suse_version} <= 9999
 rm -f -- $RPM_BUILD_ROOT%{_bindir}/mkinitrd
 rm -f -- $RPM_BUILD_ROOT%{_bindir}/lsinitrd
@@ -276,10 +257,6 @@ rm -f -- $RPM_BUILD_ROOT%{_bindir}/lsinitrd
 %if 0%{?fedora} || 0%{?rhel}
 echo 'hostonly="no"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-generic-image.conf
 echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-rescue.conf
-%endif
-
-%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
-> $RPM_BUILD_ROOT/etc/system-fips
 %endif
 
 %files
@@ -416,6 +393,12 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %{_prefix}/lib/kernel/install.d/50-dracut.install
 %endif
 
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
+%defattr(-,root,root,0755)
+%{dracutlibdir}/modules.d/01fips
+%{dracutlibdir}/modules.d/02fips-aesni
+%endif
+
 %files network
 %defattr(-,root,root,0755)
 %{dracutlibdir}/modules.d/02systemd-networkd
@@ -434,18 +417,6 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %{dracutlibdir}/modules.d/95znet
 %endif
 %{dracutlibdir}/modules.d/99uefi-lib
-
-%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
-%files fips
-%defattr(-,root,root,0755)
-%{dracutlibdir}/modules.d/01fips
-%{dracutlibdir}/dracut.conf.d/40-fips.conf
-%config(missingok) /etc/system-fips
-%endif
-
-%files fips-aesni
-%defattr(-,root,root,0755)
-%{dracutlibdir}/modules.d/02fips-aesni
 
 %files caps
 %defattr(-,root,root,0755)
