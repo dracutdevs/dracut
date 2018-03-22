@@ -60,6 +60,11 @@ Obsoletes: mkinitrd < 2.6.1
 Provides: mkinitrd = 2.6.1
 %endif
 
+Obsoletes: dracut-fips <= 047
+Provides:  dracut-fips = %{version}-%{release}
+Obsoletes: dracut-fips-aesni <= 047
+Provides:  dracut-fips-aesni = %{version}-%{release}
+
 Requires: bash >= 4
 Requires: coreutils
 Requires: cpio
