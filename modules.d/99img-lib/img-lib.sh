@@ -8,7 +8,7 @@
 # works with stdin if $1 is not set.
 det_archive() {
     # NOTE: echo -e works in ash and bash, but not dash
-    local bz="BZh" xz="$(echo -e '\xfd7zXZ')" gz="$(echo -e '\x1f\x8b')" zs="$(echo -e '0xFD2FB528')"
+    local bz="BZh" xz="$(echo -e '\xfd7zXZ')" gz="$(echo -e '\x1f\x8b')" zs="$(echo -e '\x28\xB5\x2F\xFD')"
     local headerblock="$(dd ${1:+if=$1} bs=262 count=1 2>/dev/null)"
     case "$headerblock" in
         $xz*) echo "xz" ;;
