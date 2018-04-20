@@ -1,7 +1,7 @@
 #
 # spec file for package dracut
 #
-# Copyright (c) 2017 SUSE LINUX GmbH, Nuernberg, Germany.
+# Copyright (c) 2018 SUSE LINUX GmbH, Nuernberg, Germany.
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -32,6 +32,7 @@ BuildRequires:  bash
 BuildRequires:  docbook-xsl-stylesheets
 BuildRequires:  libxslt
 BuildRequires:  suse-module-tools
+BuildRequires:  pkgconfig(libkmod)
 BuildRequires:  pkgconfig(systemd) >= 219
 Requires:       %{_bindir}/get_kernel_version
 Requires:       bash
@@ -291,10 +292,12 @@ ln -s %{dracutlibdir}/modules.d/45ifcfg/write-ifcfg-redhat.sh %{buildroot}/%{dra
 %{dracutlibdir}/dracut-install
 
 %dir %{dracutlibdir}/modules.d
+
 %{dracutlibdir}/modules.d/00bash
-%{dracutlibdir}/modules.d/00warpclock
 %{dracutlibdir}/modules.d/00systemd
+%{dracutlibdir}/modules.d/00warpclock
 %{dracutlibdir}/modules.d/01systemd-initrd
+%{dracutlibdir}/modules.d/02caps
 %{dracutlibdir}/modules.d/02systemd-networkd
 %{dracutlibdir}/modules.d/03modsign
 %{dracutlibdir}/modules.d/03rescue
@@ -302,53 +305,57 @@ ln -s %{dracutlibdir}/modules.d/45ifcfg/write-ifcfg-redhat.sh %{buildroot}/%{dra
 %{dracutlibdir}/modules.d/10i18n
 %{dracutlibdir}/modules.d/30convertfs
 %{dracutlibdir}/modules.d/40network
-%{dracutlibdir}/modules.d/45url-lib
 %{dracutlibdir}/modules.d/45ifcfg
+%{dracutlibdir}/modules.d/45url-lib
 %{dracutlibdir}/modules.d/50drm
 %{dracutlibdir}/modules.d/50plymouth
 %{dracutlibdir}/modules.d/80cms
+%{dracutlibdir}/modules.d/80lvmmerge
 %{dracutlibdir}/modules.d/81cio_ignore
-%{dracutlibdir}/modules.d/90livenet
 %{dracutlibdir}/modules.d/90btrfs
 %{dracutlibdir}/modules.d/90crypt
 %{dracutlibdir}/modules.d/90dm
 %{dracutlibdir}/modules.d/90dmraid
 %{dracutlibdir}/modules.d/90dmsquash-live
+%{dracutlibdir}/modules.d/90dmsquash-live-ntfs
 %{dracutlibdir}/modules.d/90kernel-modules
+%{dracutlibdir}/modules.d/90kernel-network-modules
+%{dracutlibdir}/modules.d/90livenet
 %{dracutlibdir}/modules.d/90lvm
 %{dracutlibdir}/modules.d/90mdraid
 %{dracutlibdir}/modules.d/90multipath
+%{dracutlibdir}/modules.d/90multipath-hostonly
 %{dracutlibdir}/modules.d/90qemu
-%{dracutlibdir}/modules.d/90kernel-network-modules
+%{dracutlibdir}/modules.d/90qemu-net
 %{dracutlibdir}/modules.d/91crypt-gpg
 %{dracutlibdir}/modules.d/91crypt-loop
 %{dracutlibdir}/modules.d/91zipl
-%{dracutlibdir}/modules.d/95fcoe-uefi
-%{dracutlibdir}/modules.d/95nbd
-%{dracutlibdir}/modules.d/95nfs
-%{dracutlibdir}/modules.d/95ssh-client
-%{dracutlibdir}/modules.d/95fcoe
-%{dracutlibdir}/modules.d/95iscsi
 %{dracutlibdir}/modules.d/95cifs
-%{dracutlibdir}/modules.d/95debug
-%{dracutlibdir}/modules.d/95resume
-%{dracutlibdir}/modules.d/95rootfs-block
-%{dracutlibdir}/modules.d/95dcssblk
 %{dracutlibdir}/modules.d/95dasd_mod
 %{dracutlibdir}/modules.d/95dasd_rules
+%{dracutlibdir}/modules.d/95dcssblk
+%{dracutlibdir}/modules.d/95debug
+%{dracutlibdir}/modules.d/95fcoe
+%{dracutlibdir}/modules.d/95fcoe-uefi
 %{dracutlibdir}/modules.d/95fstab-sys
+%{dracutlibdir}/modules.d/95iscsi
 %{dracutlibdir}/modules.d/95lunmask
-%{dracutlibdir}/modules.d/95zfcp_rules
+%{dracutlibdir}/modules.d/95nbd
+%{dracutlibdir}/modules.d/95nfs
+%{dracutlibdir}/modules.d/95qeth_rules
+%{dracutlibdir}/modules.d/95resume
+%{dracutlibdir}/modules.d/95rootfs-block
+%{dracutlibdir}/modules.d/95ssh-client
 %{dracutlibdir}/modules.d/95terminfo
 %{dracutlibdir}/modules.d/95udev-rules
 %{dracutlibdir}/modules.d/95virtfs
-%{dracutlibdir}/modules.d/95qeth_rules
+%{dracutlibdir}/modules.d/95zfcp_rules
 %{dracutlibdir}/modules.d/97biosdevname
+%{dracutlibdir}/modules.d/98dracut-systemd
 %{dracutlibdir}/modules.d/98ecryptfs
 %{dracutlibdir}/modules.d/98pollcdrom
 %{dracutlibdir}/modules.d/98selinux
 %{dracutlibdir}/modules.d/98syslog
-%{dracutlibdir}/modules.d/98dracut-systemd
 %{dracutlibdir}/modules.d/98usrmount
 %{dracutlibdir}/modules.d/99base
 %{dracutlibdir}/modules.d/99fs-lib
