@@ -1,0 +1,15 @@
+[Unit]
+Description=Purge old kernels
+After=local-fs.target
+ConditionPathExists=/boot/do_purge_kernels
+ConditionPathIsReadWrite=/
+
+[Service]
+Type=oneshot
+Nice=19
+IOSchedulingClass=idle
+ExecStartPre=/bin/rm -f /boot/do_purge_kernels
+ExecStart=/sbin/purge-kernels
+
+[Install]
+WantedBy=multi-user.target

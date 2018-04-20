@@ -1,0 +1,153 @@
+#! /bin/sh
+#
+# /sbin/installkernel  - written by tyson@rwii.com
+#
+# May 21, 2003 - agruen@suse.de
+# * Adapted for SuSE and cleaned up.
+#
+# This file is kept in the following CVS repository:
+#
+# $Source: /suse/yast2/cvsroot/mkinitrd/installkernel,v $
+# $Revision: 1.8 $
+#
+
+: ${INSTALL_PATH:=/boot}
+KERNEL_VERSION=$1
+BOOTIMAGE=$2
+MAPFILE=$3
+CONFIGFILE=config-$KERNEL_VERSION
+
+case "$(uname -m)" in
+    s390|s390x)
+        BOOTFILE=image
+        ;;
+    ppc|ppc64)
+        BOOTFILE=vmlinux
+        ;;
+    aarch64)
+        BOOTFILE=Image
+        ;;
+    armv*)
+	BOOTFILE=zImage
+	;;
+    *)
+        BOOTFILE=vmlinuz
+        ;;
+esac
+
+#
+# Move away files from versions up to SuSE Linux 8.2
+#
+
+if [ -f $INSTALL_PATH/$BOOTFILE -a ! -L $INSTALL_PATH/$BOOTFILE ]; then
+    mv $INSTALL_PATH/$BOOTFILE $INSTALL_PATH/$BOOTFILE.old
+fi
+
+if [ -L $INSTALL_PATH/System.map ]; then
+    rm -f $INSTALL_PATH/System.map
+elif [ -f $INSTALLPATH/System.map ]; then
+    mv $INSTALL_PATH/System.map $INSTALL_PATH/System.map.old
+fi
+
+#
+# Move away files from after SuSE Linux 8.2
+#
+
+if [ -f $INSTALL_PATH/$BOOTFILE-$KERNEL_VERSION ]; then
+    mv $INSTALL_PATH/$BOOTFILE-$KERNEL_VERSION \
+        $INSTALL_PATH/$BOOTFILE-$KERNEL_VERSION.old;
+fi
+
+if [ -f $INSTALL_PATH/System.map-$KERNEL_VERSION ]; then
+    mv $INSTALL_PATH/System.map-$KERNEL_VERSION \
+        $INSTALL_PATH/System.map-$KERNEL_VERSION.old; 
+fi
+
+
+if [ -f .config ] && [ -f $INSTALL_PATH/$CONFIGFILE ]; then
+    mv -v $INSTALL_PATH/$CONFIGFILE \
+        $INSTALL_PATH/$CONFIGFILE.old;
+fi
+
+#
+# Install new files
+#
+
+cp -fp $BOOTIMAGE $INSTALL_PATH/$BOOTFILE-$KERNEL_VERSION
+cp -fp $MAPFILE $INSTALL_PATH/System.map-$KERNEL_VERSION
+[ -f .config ] && cp -fp .config $INSTALL_PATH/$CONFIGFILE
+
+
+# If the kernel has module support, recreate modules.dep using depmod
+# since the contents of modules.dep do not have a consistent format across
+# releases.
+
+if [ -x /sbin/depmod -a -d /lib/modules/$KERNEL_VERSION ]; then
+    /sbin/depmod $KERNEL_VERSION;
+fi
+
+function check_supported()
+{
+   local MOD_SUPP_FILE="/etc/modprobe.d/10-unsupported-modules.conf"
+   local MOD_SUPP_REGEX="^\s*allow_unsupported_modules\s+0\s*$"
+   local cfg="$1"
+
+   if [ ! -e "$cfg" ]; then return; fi
+
+   local tmp=$(modprobe --showconfig | grep -Eq $MOD_SUPP_REGEX)
+   if [ -n "$tmp" ]; then
+       CHECK_SUPPORTED="--check-supported"
+       return;
+   fi
+
+   if grep -q "^CONFIG_SUSE_KERNEL_SUPPORTED=y" $cfg ; then
+       if [ -e $MOD_SUPP_FILE ] && grep -Eq $MOD_SUPP_REGEX $MOD_SUPP_FILE; then
+           CHECK_SUPPORTED="--check-supported"
+       fi
+   fi
+}
+
+CONFIG=$(dirname $MAPFILE)/.config
+CHECK_SUPPORTED=
+
+check_supported $CONFIG
+
+KERNTYPES=$(dirname $MAPFILE)/init/kerntypes.o
+if [ -e $KERNTYPES ]; then
+    cp -fp $KERNTYPES $INSTALL_PATH/Kerntypes-$KERNEL_VERSION
+fi
+
+case "$(uname -m)" in
+i?86 | x86_64)
+    KERNBIN=$(dirname $MAPFILE)/vmlinux
+    if [ -e $KERNBIN ]; then
+        if [ -f $INSTALL_PATH/vmlinux-$KERNEL_VERSION.gz ]; then
+            mv $INSTALL_PATH/vmlinux-$KERNEL_VERSION.gz \
+                $INSTALL_PATH/vmlinux-$KERNEL_VERSION.gz.old;
+        fi
+        gzip -c $KERNBIN > $INSTALL_PATH/vmlinux-$KERNEL_VERSION.gz
+    fi
+    ;;
+esac
+
+#
+# Generate initial ramdisk
+#
+if [ -x /usr/bin/dracut -a -d /lib/modules/$KERNEL_VERSION ]; then
+    /usr/bin/dracut --hostonly --force $CHECK_SUPPORTED \
+       	$INSTALL_PATH/initrd-$KERNEL_VERSION $KERNEL_VERSION
+else
+    echo "You may need to create an initial ramdisk now."
+fi
+
+#
+# Update boot loader
+#
+if [ -x /sbin/update-bootloader ]; then
+    opt_initrd=
+    [ -e $INSTALL_PATH/initrd-$KERNEL_VERSION ] \
+        && opt_initrd="--initrd $INSTALL_PATH/initrd-$KERNEL_VERSION"
+    /sbin/update-bootloader --name $KERNEL_VERSION \
+        --image $INSTALL_PATH/$BOOTFILE-$KERNEL_VERSION \
+        $opt_initrd --add --force
+fi
