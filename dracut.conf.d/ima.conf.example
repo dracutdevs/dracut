@@ -1,0 +1,3 @@
+# turn on ima modules
+
+add_dracutmodules+=" integrity "
