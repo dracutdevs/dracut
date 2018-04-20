@@ -166,8 +166,8 @@ install -m 644 suse/purge-kernels.service %{buildroot}/%{_unitdir}/purge-kernels
 install -D -m 0755 suse/dracut-installkernel %{buildroot}/sbin/installkernel
 
 %if 0%{?suse_version}
-rm -f %{buildroot}/%{dracutlibdir}/modules.d/45ifcfg/write-ifcfg.sh
-ln -s %{dracutlibdir}/modules.d/45ifcfg/write-ifcfg-suse.sh %{buildroot}/%{dracutlibdir}/modules.d/45ifcfg/write-ifcfg.sh
+#rm -f %{buildroot}/%{dracutlibdir}/modules.d/45ifcfg/write-ifcfg.sh
+#ln -s %{dracutlibdir}/modules.d/45ifcfg/write-ifcfg-suse.sh %{buildroot}/%{dracutlibdir}/modules.d/45ifcfg/write-ifcfg.sh
 %else
 mv %{buildroot}/%{dracutlibdir}/modules.d/45ifcfg/write-ifcfg.sh %{buildroot}/%{dracutlibdir}/modules.d/45ifcfg/write-ifcfg-redhat.sh
 ln -s %{dracutlibdir}/modules.d/45ifcfg/write-ifcfg-redhat.sh %{buildroot}/%{dracutlibdir}/modules.d/45ifcfg/write-ifcfg.sh
