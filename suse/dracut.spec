@@ -105,10 +105,6 @@ This package contains tools to assemble the local initrd and host configuration.
 %prep
 %setup -q
 
-chmod a+x modules.d/00warpclock/module-setup.sh
-chmod a+x modules.d/45ifcfg/write-ifcfg-suse.sh
-chmod a+x modules.d/91zipl/install_zipl_cmdline.sh
-
 %build
 %configure\
   --systemdsystemunitdir=%{_unitdir}\
