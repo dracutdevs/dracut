@@ -458,7 +458,7 @@ ip_to_var() {
     fi
 
     if [ $# -eq 1 ]; then
-        # format: ip={dhcp|on|any|dhcp6|auto6}
+        # format: ip={dhcp|on|any|dhcp6|auto6|either6}
         # or
         #         ip=<ipv4-address> means anaconda-style static config argument cluster
         autoconf="$1"
@@ -485,7 +485,7 @@ ip_to_var() {
         return 0
     fi
 
-    if [ "$2" = "dhcp" -o "$2" = "on" -o "$2" = "any" -o "$2" = "dhcp6" -o "$2" = "auto6" ]; then
+    if [ "$2" = "dhcp" -o "$2" = "on" -o "$2" = "any" -o "$2" = "dhcp6" -o "$2" = "auto6" -o "$2" = "either6" ]; then
         # format: ip=<interface>:{dhcp|on|any|dhcp6|auto6}[:[<mtu>][:<macaddr>]]
         [ -n "$1" ] && dev="$1"
         [ -n "$2" ] && autoconf="$2"
