@@ -76,6 +76,7 @@ load_ipv6() {
 }
 
 do_ipv6auto() {
+    local ret
     load_ipv6
     echo 0 > /proc/sys/net/ipv6/conf/$netif/forwarding
     echo 1 > /proc/sys/net/ipv6/conf/$netif/accept_ra
@@ -84,10 +85,11 @@ do_ipv6auto() {
     [ -n "$macaddr" ] && ip link set address $macaddr dev $netif
     [ -n "$mtu" ] && ip link set mtu $mtu dev $netif
     wait_for_ipv6_auto $netif
+    ret=$?
 
     [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
 
-    return 0
+    return $ret
 }
 
 # Handle static ip configuration
@@ -393,6 +395,8 @@ for p in $(getargs ip=); do
                 do_dhcp -6 ;;
             auto6)
                 do_ipv6auto ;;
+            either6)
+                do_ipv6auto || do_dhcp -6 ;;
             *)
                 do_static ;;
         esac
