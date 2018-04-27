@@ -45,7 +45,7 @@ install() {
 
             for INCL in $($cmd "^include " $map | while read a a b || [ -n "$a" ]; do echo ${a//\"/}; done); do
                 for FN in $(find ${kbddir}/keymaps -type f -name $INCL\*); do
-                    findkeymap $FN
+                    strstr "$KEYMAPS" "$FN" || findkeymap $FN
                 done
             done
         done
