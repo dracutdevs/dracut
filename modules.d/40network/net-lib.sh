@@ -171,10 +171,14 @@ setup_net() {
     fi
 
     if [ "$layer2" != "0" ] && [ -n "$dest" ] && ! strstr "$dest" ":"; then
-        if command -v arping2 >/dev/null; then
-            arping2 -q -C 1 -c 60 -I $netif $dest || info "Resolving $dest via ARP on $netif failed"
+        if command -v wicked >/dev/null; then
+            wicked arp ping --interval 3000 --replies 1 --timeout 60000 --quiet $netif $dest 2>/dev/null || info "Resolving $dest via ARP on $netif failed"
         else
-            arping -q -f -w 60 -I $netif $dest || info "Resolving $dest via ARP on $netif failed"
+            if command -v arping2 >/dev/null; then
+                arping2 -q -C 1 -c 60 -I $netif $dest || info "Resolving $dest via ARP on $netif failed"
+            else
+                arping -q -f -w 60 -I $netif $dest || info "Resolving $dest via ARP on $netif failed"
+            fi
         fi
     fi
     unset layer2

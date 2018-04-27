@@ -114,20 +114,28 @@ do_static() {
         wait_for_ipv6_dad $netif
     else
         if [ -z "$srv" ]; then
-            if command -v arping2 >/dev/null; then
-                if arping2 -q -C 1 -c 2 -I $netif -0 $ip ; then
-                    warn "Duplicate address detected for $ip for interface $netif."
-                    return 1
+            if command -v wicked >/dev/null; then
+                wicked arp verify $netif $ip 2>/dev/null
+                if [ $? -eq 4 ]; then
+                    warn "Duplicate address detected for $ip while doing dhcp. retrying"
+                    exit 1
                 fi
             else
-                if ! arping -f -q -D -c 2 -I $netif $ip ; then
-                    warn "Duplicate address detected for $ip for interface $netif."
-                    return 1
+                if command -v arping2 >/dev/null; then
+                    if arping2 -q -C 1 -c 2 -I $netif -0 $ip ; then
+                        warn "Duplicate address detected for $ip for interface $netif."
+                        return 1
+                    fi
+                else
+                    if ! arping -f -q -D -c 2 -I $netif $ip ; then
+                        warn "Duplicate address detected for $ip for interface $netif."
+                        return 1
+                    fi
                 fi
             fi
+            ip addr flush dev $netif
+            ip addr add $ip/$mask ${srv:+peer $srv} brd + dev $netif
         fi
-        ip addr flush dev $netif
-        ip addr add $ip/$mask ${srv:+peer $srv} brd + dev $netif
     fi
 
     [ -n "$gw" ] && echo ip route replace default via $gw dev $netif > /tmp/net.$netif.gw
