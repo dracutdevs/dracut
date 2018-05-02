@@ -1832,15 +1832,22 @@ fi
 
 command -v restorecon &>/dev/null && restorecon -- "$outfile"
 
-if ! sync "$outfile" 2> /dev/null; then
-    dinfo "dracut: sync operation on newly created initramfs $outfile failed"
-    exit 1
-fi
+# We sync/fsfreeze only if we're operating on a live booted system.
+# It's possible for e.g. `kernel` to be installed as an RPM BuildRequires or equivalent,
+# and there's no reason to sync, and *definitely* no reason to fsfreeze.
+# Another case where this happens is rpm-ostree, which performs its own sync/fsfreeze
+# globally.  See e.g. https://github.com/ostreedev/ostree/commit/8642ef5ab3fec3ac8eb8f193054852f83a8bc4d0
+if test -d /run/systemd/system; then
+    if ! sync "$outfile" 2> /dev/null; then
+        dinfo "dracut: sync operation on newly created initramfs $outfile failed"
+        exit 1
+    fi
 
-# use fsfreeze only if we're not writing to /
-if [[ "$(stat -c %m -- "$outfile")" != "/" && "$(stat -f -c %T -- "$outfile")" != "msdos" ]]; then
-    if ! $(fsfreeze -f $(dirname "$outfile") 2>/dev/null && fsfreeze -u $(dirname "$outfile") 2>/dev/null); then
-        dinfo "dracut: warning: could not fsfreeze $(dirname "$outfile")"
+    # use fsfreeze only if we're not writing to /
+    if [[ "$(stat -c %m -- "$outfile")" != "/" && "$(stat -f -c %T -- "$outfile")" != "msdos" ]]; then
+        if ! $(fsfreeze -f $(dirname "$outfile") 2>/dev/null && fsfreeze -u $(dirname "$outfile") 2>/dev/null); then
+            dinfo "dracut: warning: could not fsfreeze $(dirname "$outfile")"
+        fi
     fi
 fi
 
