@@ -1394,6 +1394,7 @@ static int install_modules(int argc, char **argv)
         const char *abskpath = NULL;
         char *p;
         int i;
+        int modinst = 0;
 
         ctx = kmod_new(kerneldir, NULL);
         abskpath = kmod_get_dirname(ctx);
@@ -1498,6 +1499,7 @@ static int install_modules(int argc, char **argv)
                                         return -ENOENT;
                                 };
                                 ret = ( ret == 0 ? 0 : r );
+                                modinst = 1;
                         }
                 } else if (argv[i][0] == '=') {
                         _cleanup_free_ char *path1 = NULL, *path2 = NULL, *path3 = NULL;
@@ -1592,6 +1594,7 @@ static int install_modules(int argc, char **argv)
                                                 return -ENOENT;
                                         };
                                         ret = ( ret == 0 ? 0 : r );
+                                        modinst = 1;
                                 }
                         }
                         if (errno) {
@@ -1638,10 +1641,11 @@ static int install_modules(int argc, char **argv)
                                         return -ENOENT;
                                 };
                                 ret = ( ret == 0 ? 0 : r );
+                                modinst = 1;
                         }
                 }
 
-                if ((ret != 0) && (!arg_optional)) {
+                if ((modinst != 0) && (ret != 0) && (!arg_optional)) {
                         if (!arg_silent)
                                 log_error("ERROR: installing '%s'", argv[i]);
                         return EXIT_FAILURE;
