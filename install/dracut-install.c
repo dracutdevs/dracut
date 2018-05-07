@@ -402,9 +402,9 @@ static int resolve_deps(const char *src)
         _cleanup_pclose_ FILE *fptr = NULL;
         _cleanup_free_ char *cmd = NULL;
 
-	buf = malloc(LINE_MAX);
-	if (buf == NULL)
-		return -errno;
+        buf = malloc(LINE_MAX);
+        if (buf == NULL)
+                return -errno;
 
         if (strstr(src, ".so") == 0) {
                 _cleanup_close_ int fd = -1;
@@ -456,11 +456,11 @@ static int resolve_deps(const char *src)
                         break;
                 }
 
-		/* musl ldd */
-		if (strstr(buf, "Not a valid dynamic program"))
-			break;
+                /* musl ldd */
+                if (strstr(buf, "Not a valid dynamic program"))
+                        break;
 
-		/* glibc */
+                /* glibc */
                 if (strstr(buf, "cannot execute binary file"))
                         break;
 
@@ -1061,7 +1061,7 @@ static int install_one(const char *src, const char *dst)
         if (strchr(src, '/') == NULL) {
                 char **p = find_binary(src);
                 if (p) {
-			char **q = NULL;
+                        char **q = NULL;
                         STRV_FOREACH(q, p) {
                                 char *newsrc = *q;
                                 log_debug("dracut_install '%s' '%s'", newsrc, dst);
@@ -1097,7 +1097,7 @@ static int install_all(int argc, char **argv)
                 if (strchr(argv[i], '/') == NULL) {
                         char **p = find_binary(argv[i]);
                         if (p) {
-				char **q = NULL;
+                                char **q = NULL;
                                 STRV_FOREACH(q, p) {
                                         char *newsrc = *q;
                                         log_debug("dracut_install '%s'", newsrc);
@@ -1440,12 +1440,11 @@ static int install_modules(int argc, char **argv)
         for (i = 0; i < argc; i++) {
                 int r = 0;
                 int ret = -1;
-
                 log_debug("Handle module '%s'", argv[i]);
 
                 if (argv[i][0] == '/') {
                         _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
-			_cleanup_free_ const char *modname = NULL;
+                        _cleanup_free_ const char *modname = NULL;
 
                         r = kmod_module_new_from_path(ctx, argv[i], &mod_o);
                         if (r < 0) {
@@ -1532,7 +1531,7 @@ static int install_modules(int argc, char **argv)
 
                         for (FTSENT *ftsent = fts_read(fts); ftsent != NULL; ftsent = fts_read(fts)) {
                                 _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
-				_cleanup_free_ const char *modname = NULL;
+                                _cleanup_free_ const char *modname = NULL;
 
                                 if((ftsent->fts_info == FTS_D) && !check_module_path(ftsent->fts_accpath)) {
                                         fts_set(fts, ftsent, FTS_SKIP);
@@ -1602,7 +1601,7 @@ static int install_modules(int argc, char **argv)
                         }
                 } else {
                         _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
-			char *modname = argv[i];
+                        char *modname = argv[i];
 
                         if (endswith(modname, ".ko")) {
                                 int len = strlen(modname);
