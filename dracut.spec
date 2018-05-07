@@ -77,7 +77,6 @@ Requires: xz
 Requires: gzip
 
 %if 0%{?fedora} || 0%{?rhel}
-Recommends: grubby
 Recommends: hardlink
 Recommends: pigz
 Recommends: kpartx
