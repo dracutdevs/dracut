@@ -38,7 +38,7 @@ source_hook pre-shutdown
 
 warn "Killing all remaining processes"
 
-killall_proc_mountpoint /oldroot
+killall_proc_mountpoint /oldroot || sleep 0.2
 
 umount_a() {
     local _did_umount="n"

@@ -118,6 +118,7 @@ str_replace() {
 killall_proc_mountpoint() {
     local _pid
     local _t
+    local _killed=0
     for _pid in /proc/*; do
         _pid=${_pid##/proc/}
         case $_pid in
@@ -125,8 +126,12 @@ killall_proc_mountpoint() {
         esac
         [ -e "/proc/$_pid/exe" ] || continue
         [ -e "/proc/$_pid/root" ] || continue
-        strstr "$(ls -l -- "/proc/$_pid" "/proc/$_pid/fd" 2>/dev/null)" "$1" && kill -9 "$_pid"
+        if strstr "$(ls -l -- "/proc/$_pid" "/proc/$_pid/fd" 2>/dev/null)" "$1" ; then
+            kill -9 "$_pid"
+            _killed=1
+        fi
     done
+    return $_killed
 }
 
 getcmdline() {
