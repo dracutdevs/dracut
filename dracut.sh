@@ -1643,6 +1643,11 @@ if [[ $do_strip = yes ]] ; then
     done
 fi
 
+# cleanup empty ldconfig_paths directories
+for d in $(ldconfig_paths); do
+    rmdir -p --ignore-fail-on-non-empty "$initdir/$d" >/dev/null 2>&1
+done
+
 if [[ $do_strip = yes ]] && ! [[ $DRACUT_FIPS_MODE ]]; then
     dinfo "*** Stripping files ***"
     find "$initdir" -type f \
