@@ -1,4 +1,4 @@
-#!/bin/bash --norc
+#!/bin/bash -p
 #
 # Generator script for a dracut initramfs
 # Tries to retain some degree of compatibility with the command line
@@ -22,6 +22,8 @@
 #
 
 # store for logging
+
+unset BASH_ENV
 
 # Verify bash version, current minimum is 4
 if (( BASH_VERSINFO[0] < 4 )); then
