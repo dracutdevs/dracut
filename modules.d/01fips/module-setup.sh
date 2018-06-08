@@ -19,22 +19,15 @@ installkernel() {
         _fipsmodules=""
 
         # Hashes:
-        _fipsmodules+="md4 md5 sha1 sha224 sha256 sha384 sha512 michael_mic "
-        _fipsmodules+="crc32c crct10dif wp256 wp384 wp512 tgr128 tgr160 tgr192 "
-        _fipsmodules+="rmd128 rmd160 rmd256 rmd320 ghash sm3 "
+        _fipsmodules+="sha1 sha224 sha256 sha384 sha512 "
         _fipsmodules+="sha3-224 sha3-256 sha3-384 sha3-512 "
+        _fipsmodules+="crc32c crct10dif ghash "
 
         # Ciphers:
-        _fipsmodules+="cipher_null des des3_ede blowfish twofish serpent aes "
-        _fipsmodules+="cast5 cast6 tea xtea khazad tnepres anubis xeta fcrypt "
-        _fipsmodules+="camellia seed sm4 "
-
-        # Block/stream ciphers:
-        _fipsmodules+="arc4 salsa20 "
+        _fipsmodules+="cipher_null des3_ede aes "
 
         # Modes/templates:
-        _fipsmodules+="ecb cbc ctr lrw xts pcbc xcbc gcm ccm cts authenc "
-        _fipsmodules+="hmac vmac cmac "
+        _fipsmodules+="ecb cbc ctr xts gcm ccm authenc hmac cmac "
 
         # Compression algs:
         _fipsmodules+="deflate lzo zlib "
