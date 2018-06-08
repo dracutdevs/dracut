@@ -16,13 +16,34 @@ installkernel() {
     if [[ -f "${srcmods}/modules.fips" ]]; then
         _fipsmodules="$(cat "${srcmods}/modules.fips")"
     else
-        _fipsmodules="aead aes_generic aes-x86_64 ansi_cprng arc4 authenc authencesn blowfish camellia cast6 cbc ccm "
-        _fipsmodules+="chainiv crc32c crct10dif_generic cryptomgr crypto_null ctr cts deflate des des3_ede dm-crypt dm-mod drbg "
-        _fipsmodules+="ecb eseqiv fcrypt gcm ghash_generic hmac khazad lzo md4 md5 michael_mic rmd128 "
-        _fipsmodules+="rmd160 rmd256 rmd320 rot13 salsa20 seed seqiv serpent sha1 sha224 sha256 sha256_generic "
-        _fipsmodules+="sha384 sha512 sha512_generic tcrypt tea tnepres twofish wp256 wp384 wp512 xeta xtea xts zlib "
-        _fipsmodules+="aes_s390 des_s390 prng sha256_s390 sha_common des_check_key ghash_s390 sha1_s390 sha512_s390 "
-        _fipsmodules+="cmac authenc sha3_generic sm3_generic crypto_user "
+        _fipsmodules=""
+
+        # Hashes:
+        _fipsmodules+="md4 md5 sha1 sha224 sha256 sha384 sha512 michael_mic "
+        _fipsmodules+="crc32c crct10dif wp256 wp384 wp512 tgr128 tgr160 tgr192 "
+        _fipsmodules+="rmd128 rmd160 rmd256 rmd320 ghash sm3 "
+        _fipsmodules+="sha3-224 sha3-256 sha3-384 sha3-512 "
+
+        # Ciphers:
+        _fipsmodules+="cipher_null des des3_ede blowfish twofish serpent aes "
+        _fipsmodules+="cast5 cast6 tea xtea khazad tnepres anubis xeta fcrypt "
+        _fipsmodules+="camellia seed sm4 "
+
+        # Block/stream ciphers:
+        _fipsmodules+="arc4 salsa20 "
+
+        # Modes/templates:
+        _fipsmodules+="ecb cbc ctr lrw xts pcbc xcbc gcm ccm cts authenc "
+        _fipsmodules+="hmac vmac cmac "
+
+        # Compression algs:
+        _fipsmodules+="deflate lzo zlib "
+
+        # PRNG algs:
+        _fipsmodules+="ansi_cprng "
+
+        # Misc:
+        _fipsmodules+="aead cryptomgr tcrypt crypto_user "
     fi
 
     mkdir -m 0755 -p "${initdir}/etc/modprobe.d"
