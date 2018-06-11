@@ -1145,10 +1145,23 @@ if [[ $hostonly ]]; then
 
     # check /proc/modules
     declare -A host_modules
-    while read m rest; do
-        [ -z "$m" ] && continue
-        host_modules["$m"]=1
-    done </proc/modules
+    declare new_module_found=1
+    declare tmpmodules=$(mktemp --tmpdir="$TMPDIR/" -t proc_modules.XXXXXX)
+    while [[ $new_module_found ]]; do
+        new_module_found=
+        sleep 0.1
+        #reading from procfs can be broken, so copy the file elsewhere
+        cp -f /proc/modules "$tmpmodules"
+        while read m rest; do
+            [ -z "$m" ] && continue
+            [[ ${host_modules["$m"]} ]] && continue
+            host_modules["$m"]=1
+            new_module_found=1
+        done < "$tmpmodules"
+    done
+    rm "$tmpmodules"
+    unset new_module_found
+    unset tmpmodules
 fi
 
 unset m
