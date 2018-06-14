@@ -42,14 +42,8 @@ install() {
     inst_hook pre-pivot 01 "$moddir/fips-noboot.sh"
     inst_script "$moddir/fips.sh" /sbin/fips.sh
 
-    inst_multiple sha512hmac rmmod insmod mount uname umount fipscheck
+    inst_multiple sha512hmac rmmod insmod mount uname umount
 
-    inst_libdir_file libsoftokn3.so libsoftokn3.so \
-        libsoftokn3.chk libfreebl3.so libfreebl3.chk \
-        libssl.so 'hmaccalc/sha512hmac.hmac' libssl.so.10 \
-        libfreeblpriv3.so libfreeblpriv3.chk
-
-    inst_multiple -o prelink
     inst_simple /etc/system-fips
     [ -c ${initdir}/dev/random ] || mknod ${initdir}/dev/random c 1 8 \
         || {

@@ -93,9 +93,7 @@ Requires: util-linux-ng >= 2.21
 %endif
 
 %if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
-Requires: hmaccalc
-Requires: nss
-Requires: nss-softokn-freebl
+Requires: libkcapi-hmaccalc
 %endif
 
 %description
