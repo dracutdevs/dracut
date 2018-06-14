@@ -110,8 +110,6 @@ Creates initial ramdisk images for preloading modules
   --kernel-cmdline [PARAMETERS] Specify default kernel command line parameters
   --strip               Strip binaries in the initramfs
   --nostrip             Do not strip binaries in the initramfs
-  --prelink             Prelink binaries in the initramfs
-  --noprelink           Do not prelink binaries in the initramfs
   --hardlink            Hardlink files in the initramfs
   --nohardlink          Do not hardlink files in the initramfs
   --prefix [DIR]        Prefix initramfs files with [DIR]
@@ -336,8 +334,6 @@ rearrange_params()
         --long kernel-cmdline: \
         --long strip \
         --long nostrip \
-        --long prelink \
-        --long noprelink \
         --long hardlink \
         --long nohardlink \
         --long noprefix \
@@ -522,8 +518,6 @@ while :; do
                        early_microcode_l="no";;
         --strip)       do_strip_l="yes";;
         --nostrip)     do_strip_l="no";;
-        --prelink)     do_prelink_l="yes";;
-        --noprelink)   do_prelink_l="no";;
         --hardlink)    do_hardlink_l="yes";;
         --nohardlink)  do_hardlink_l="no";;
         --noprefix)    prefix_l="/";;
@@ -726,8 +720,6 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $drivers_dir_l ]] && drivers_dir=$drivers_dir_l
 [[ $do_strip_l ]] && do_strip=$do_strip_l
 [[ $do_strip ]] || do_strip=yes
-[[ $do_prelink_l ]] && do_prelink=$do_prelink_l
-[[ $do_prelink ]] || do_prelink=yes
 [[ $do_hardlink_l ]] && do_hardlink=$do_hardlink_l
 [[ $do_hardlink ]] || do_hardlink=yes
 [[ $prefix_l ]] && prefix=$prefix_l
@@ -1607,21 +1599,6 @@ if [[ $kernel_only != yes ]]; then
         else
             derror "ldconfig might need uid=0 (root) for chroot()"
         fi
-    fi
-fi
-
-PRELINK_BIN="$(command -v prelink)"
-if [[ $EUID = 0 ]] && [[ $PRELINK_BIN ]]; then
-    if [[ $DRACUT_FIPS_MODE ]]; then
-        dinfo "*** Installing prelink files ***"
-        inst_multiple -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf /etc/prelink.cache
-    elif [[ $do_prelink == yes ]]; then
-        dinfo "*** Pre-linking files ***"
-        inst_multiple -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf
-        chroot "$initdir" "$PRELINK_BIN" -a
-        rm -f -- "$initdir/$PRELINK_BIN"
-        rm -fr -- "$initdir"/etc/prelink.*
-        dinfo "*** Pre-linking files done ***"
     fi
 fi
 
