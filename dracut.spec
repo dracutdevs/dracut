@@ -204,7 +204,6 @@ echo "DRACUT_VERSION=%{version}-%{release}" > $RPM_BUILD_ROOT/%{dracutlibdir}/dr
 
 %if 0%{?fedora} == 0 && 0%{?rhel} == 0 && 0%{?suse_version} == 0
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/01fips
-rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/02fips-aesni
 %endif
 
 %if %{defined _unitdir}
@@ -401,7 +400,6 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
 %defattr(-,root,root,0755)
 %{dracutlibdir}/modules.d/01fips
-%{dracutlibdir}/modules.d/02fips-aesni
 %endif
 
 %files network
