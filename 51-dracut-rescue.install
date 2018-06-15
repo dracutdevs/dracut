@@ -132,6 +132,4 @@ case "$COMMAND" in
         ret=1;;
 esac
 
-((ret+=$?))
-
 exit $ret
