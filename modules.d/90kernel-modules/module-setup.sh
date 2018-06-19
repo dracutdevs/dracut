@@ -2,6 +2,20 @@
 
 # called by dracut
 installkernel() {
+    find_kernel_modules_external () {
+        local _OLDIFS
+        local external_pattern="^/"
+
+        [[ -f "$srcmods/modules.dep" ]] || return 0
+
+        _OLDIFS=$IFS
+        IFS=:
+        while read a rest; do
+            [[ $a =~ $external_pattern ]] || continue
+            printf "%s\n" "$a"
+        done < "$srcmods/modules.dep"
+        IFS=$_OLDIFS
+    }
     local _blockfuncs='ahci_platform_get_resources|ata_scsi_ioctl|scsi_add_host|blk_cleanup_queue|register_mtd_blktrans|scsi_esp_register|register_virtio_device|usb_stor_disconnect|mmc_add_host|sdhci_add_host|scsi_add_host_with_dma'
 
     if [[ -z $drivers ]]; then
@@ -26,7 +40,7 @@ installkernel() {
             virtio virtio_blk virtio_ring virtio_pci virtio_scsi \
             "=drivers/pcmcia" =ide nvme vmd
 
-	if [[ "$(uname -m)" == arm* || "$(uname -m)" == aarch64 ]]; then
+        if [[ "$(uname -m)" == arm* || "$(uname -m)" == aarch64 ]]; then
             # arm/aarch64 specific modules
             _blockfuncs+='|dw_mc_probe|dw_mci_pltfm_register'
             instmods \
@@ -50,11 +64,13 @@ installkernel() {
                 "=drivers/usb/misc" \
                 "=drivers/usb/musb" \
                 "=drivers/usb/phy" \
-		"=drivers/scsi/hisi_sas" \
+                "=drivers/scsi/hisi_sas" \
                 ${NULL}
         fi
 
         dracut_instmods -o -s "${_blockfuncs}" "=drivers"
+
+        find_kernel_modules_external | instmods
 
         # if not on hostonly mode, install all known filesystems,
         # if the required list is not set via the filesystems variable
