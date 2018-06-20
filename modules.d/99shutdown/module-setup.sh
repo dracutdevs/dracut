@@ -19,9 +19,9 @@ install() {
     inst "$moddir/shutdown.sh" "$prefix/shutdown"
     [ -e "${initdir}/lib" ] || mkdir -m 0755 -p ${initdir}/lib
     mkdir -m 0755 -p ${initdir}/lib/dracut
-    mkdir -m 0755 -p ${initdir}/lib/dracut/hooks
+    mkdir -m 0755 -p ${initdir}/var/lib/dracut/hooks
     for _d in $hookdirs shutdown shutdown-emergency; do
-        mkdir -m 0755 -p ${initdir}/lib/dracut/hooks/$_d
+        mkdir -m 0755 -p ${initdir}/var/lib/dracut/hooks/$_d
     done
 }
 

@@ -39,7 +39,7 @@ install() {
 
     [ -e "${initdir}/lib" ] || mkdir -m 0755 -p ${initdir}/lib
     mkdir -m 0755 -p ${initdir}/lib/dracut
-    mkdir -m 0755 -p ${initdir}/lib/dracut/hooks
+    mkdir -m 0755 -p ${initdir}/var/lib/dracut/hooks
 
     mkdir -p ${initdir}/tmp
 

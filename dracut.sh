@@ -1433,8 +1433,10 @@ fi
 
 if [[ $kernel_only != yes ]]; then
     mkdir -p "${initdir}/etc/cmdline.d"
+    mkdir -p "${initdir}/lib/dracut"
+    mkdir -p "${initdir}/var/lib/dracut"
     for _d in $hookdirs; do
-        mkdir -m 0755 -p ${initdir}/lib/dracut/hooks/$_d
+        mkdir -m 0755 -p ${initdir}/var/lib/dracut/hooks/$_d
     done
     if [[ "$EUID" = "0" ]]; then
         [ -c ${initdir}/dev/null ] || mknod ${initdir}/dev/null c 1 3

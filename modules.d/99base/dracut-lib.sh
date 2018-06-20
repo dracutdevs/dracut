@@ -431,7 +431,7 @@ source_all() {
     for f in "/$_dir"/*.sh; do [ -e "$f" ] && . "$f" "$@"; done
 }
 
-hookdir=/lib/dracut/hooks
+hookdir=/var/lib/dracut/hooks
 export hookdir
 
 source_hook() {
