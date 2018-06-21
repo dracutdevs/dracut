@@ -1085,7 +1085,7 @@ _emergency_shell()
         > /.console_lock
         echo "PS1=\"$_name:\\\${PWD}# \"" >/etc/profile
         systemctl start dracut-emergency.service
-        rm -f -- /etc/profile
+        > /etc/profile
         rm -f -- /.console_lock
     else
         debug_off
