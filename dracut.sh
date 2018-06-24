@@ -1749,6 +1749,167 @@ fi
 
 dinfo "*** Creating image file '$outfile' ***"
 
+if dracut_module_included "squash"; then
+    if ! check_kernel_config CONFIG_SQUASHFS; then
+        dfatal "CONFIG_SQUASHFS have to be enabled for squash image to work"
+        exit 1
+    fi
+    if ! check_kernel_config CONFIG_DEVTMPFS; then
+        dfatal "CONFIG_DEVTMPFS have to be enabled for squash image to work"
+        exit 1
+    fi
+
+    readonly squash_dir="${DRACUT_TMPDIR}/squashfs"
+    readonly squash_init_root="/dev/.squash-init-root"
+
+    required_binaries=( "echo" "sh" "mount" "modprobe" "ln" "mkdir" )
+    required_libs=( )
+
+    for binary in "${required_binaries[@]}"; do
+        for lib in $(resolve_binary $binary); do
+            [[ " ${required_libs[@]} " == *" $lib "* ]] && continue
+            required_libs+=( "$lib" )
+        done
+    done
+
+    mkdir -m 0755 -p $squash_dir
+
+    for folder in \
+        usr \
+        etc \
+        ${NULL} \
+        ;
+    do
+        mv $initdir/$folder $squash_dir/$folder
+        mkdir $initdir/$folder
+    done
+
+    # Move files require to mount the squashfs image or need to be accessable
+    # without mounting the squash image to its original place and
+    # After the squash image is mounted, original root paths (/usr, /etc) used
+    # for squash init will be remounted to /dev/.squash-init-root/*
+    # use a symlink in the squash image to take its place.
+    move_to_origin_place() {
+        local src=$1
+        local dst
+
+        # This function is only used to move files out of squash_dir
+        [[ $src != $squash_dir/* ]] && return 1
+
+        while [[ -L $src ]] ; do
+            sym_target=$(readlink $src)
+
+            # Already move to init dir
+            [[ $sym_target == $squash_init_root/* ]] && return
+
+            if [[ $sym_target == "/*" ]] ; then
+                _new_sym_target=$squash_init_root$sym_target
+                sym_target=$initdir$sym_target
+            else
+                _new_sym_target=$sym_target
+                sym_target=$(dirname $src)/$sym_target
+            fi
+
+            dst=$initdir/${src#$squash_dir/}
+            mkdir -p $(dirname $dst)
+            mv $src $dst
+            ln -sfn $_new_sym_target $src
+            src=$sym_target
+        done
+
+        # Already move to init dir
+        [[ $src == $squash_init_root/* ]] && return
+
+        dst=$initdir/${src#$squash_dir/}
+        mkdir -p $(dirname $dst)
+        mv $src $dst
+        ln -sfn $squash_init_root${dst#$initdir} $src
+    }
+
+    # Files and directories required to exist and be accessable before
+    # squashed is mounted or required to be rw
+    # udev and systemd files may get modified by dracut at runtime
+    # dracut files have to be accessable without mounting squahfs and rw-able, for
+    # hook may get modified and "lsinitrd" may read dracut files
+    for init_req in \
+        etc/udev/ \
+        etc/systemd/ \
+        usr/lib/dracut/ \
+        etc/profile \
+        etc/resolv.conf \
+        ${tmpfilesdir#/}/ \
+        ${NULL} \
+        ;
+    do
+        # The root path this file belongs to is not squashed
+        [[ ! -d $squash_dir/$(echo $init_req | cut -d '/' -f 1) ]] && continue
+
+        if [[ ! -e $squash_dir/$init_req ]]; then
+            if [[ ${init_req} == */ ]]; then
+                mkdir $squash_dir/${init_req%/}
+            else
+                touch $squash_dir/$init_req
+            fi
+        fi
+
+        init_req=${init_req%/}
+
+        mkdir -p $(dirname $initdir/$init_req)
+        mv $squash_dir/$init_req $initdir/$init_req
+        ln -snf $squash_init_root/$init_req $squash_dir/$init_req
+    done
+
+    for required_executable in \
+        ${required_binaries[@]} \
+        ${required_libs[@]} \
+        ${NULL};
+    do
+        for squashed_file in $(find \
+            $squash_dir/usr/bin \
+            $squash_dir/usr/sbin \
+            $squash_dir/usr/lib \
+            $squash_dir/usr/lib64 \
+            -not -type d -name $required_executable) ;
+        do
+            move_to_origin_place $squashed_file
+        done
+    done
+
+    for required_module in \
+        loop \
+        squashfs \
+        ${NULL};
+    do
+        for squashed_file in $(find \
+            $squash_dir/usr/lib/modules/*/kernel \
+            -not -type d -name ${required_module}.ko*) ;
+        do
+            move_to_origin_place $squashed_file
+        done
+    done
+
+    for module_spec in $squash_dir/usr/lib/modules/*/modules.*;
+    do
+        move_to_origin_place $module_spec
+    done
+
+    mv ${initdir}/init ${initdir}/init.orig
+
+    chmod 0755 ${initdir}/init.squash
+    ln -nsf init.squash ${initdir}/init
+
+    readonly squash_img=$initdir/init.squash.sqsh
+    mksquashfs $squash_dir $squash_img -comp xz -b 64K -Xdict-size 100% &> /dev/null
+
+    if [[ $? != 0 ]]; then
+        dfatal "dracut: Failed making squash image"
+        exit 1
+    fi
+
+    unset required_binaries
+    unset required_libs
+fi
+
 if [[ $uefi = yes ]]; then
     readonly uefi_outdir="$DRACUT_TMPDIR/uefi"
     mkdir "$uefi_outdir"

@@ -696,3 +696,24 @@ btrfs_devs() {
         printf -- "%s\n" "$_dev"
         done
 }
+
+resolve_binary() {
+    local binary=$1
+
+    if [[ $binary == */* ]]; then
+        binary=$binary
+    else
+        binary=$(\
+            PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/lib/systemd; \
+            which $binary 2>/dev/null)
+    fi
+    [[ $? != 0 ]] && return 1
+
+    local libs=$(ldd $binary 2>/dev/null)
+    [[ $? != 0 ]] && return 1
+
+    while read lib rest; do
+        [[ $lib == /* ]] && echo $lib | rev | cut -d '/' -f 1 | rev && continue
+        echo $lib
+    done <<< "$libs"
+}
