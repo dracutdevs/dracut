@@ -71,10 +71,6 @@ if [[ -d "${BOOT_DIR_ABS%/*}" ]]; then
     INITRD="initrd"
 else
     BLS_DIR="/boot/loader/entries"
-    if [ -d /sys/firmware/efi ]; then
-	BLS_DIR="/boot/efi/EFI/${ID}/loader/entries"
-    fi
-
     BOOT_DIR_ABS="/boot"
     LOADER_ENTRY="$BLS_DIR/${MACHINE_ID}-0-rescue.conf"
     KERNEL="vmlinuz-0-rescue-${MACHINE_ID}"
