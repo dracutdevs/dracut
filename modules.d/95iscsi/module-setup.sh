@@ -4,7 +4,7 @@
 check() {
     local _rootdev
     # If our prerequisites are not met, fail anyways.
-    require_binaries iscsistart hostname iscsi-iname || return 1
+    require_binaries hostname iscsi-iname iscsiadm iscsid || return 1
 
     # If hostonly was requested, fail the check if we are not actually
     # booting from root.
@@ -61,7 +61,7 @@ install_ibft() {
         fi
         if [ -d ${d}/initiator ] ; then
             if [ ${d##*/} = "ibft" ] && [ "$ibft_mod" != "bnx2i" ] ; then
-                echo -n "ip=ibft "
+                echo -n "rd.iscsi.ibft=1 "
             fi
             echo -n "rd.iscsi.firmware=1"
         fi
@@ -70,7 +70,7 @@ install_ibft() {
 
 install_iscsiroot() {
     local devpath=$1
-    local scsi_path iscsi_lun session c d conn
+    local scsi_path iscsi_lun session c d conn host flash
     local iscsi_session iscsi_address iscsi_port iscsi_targetname iscsi_tpgt
 
     scsi_path=${devpath%%/block*}
@@ -81,6 +81,19 @@ install_iscsiroot() {
     [ "$session" = "$devpath" ] && return 1
     iscsi_session=${session##*/}
     [ "$iscsi_session" = "$session" ] && return 1
+    host=${session%%/session*}
+    [ "$host" = "$session" ] && return 1
+    iscsi_host=${host##*/}
+
+    for flash in ${host}/flashnode_sess-* ; do
+        is_boot=$(cat $flash/is_boot_target)
+        if [ $is_boot -eq 1 ] ; then
+            # qla4xxx flashnode session; skip iBFT discovery
+            iscsi_initiator=$(cat /sys/class/iscsi_host/${iscsi_host}/initiatorname)
+            echo "rd.iscsi.initiator=${iscsi_initiator}"
+            return;
+        fi
+    done
 
     for d in ${session}/* ; do
         case $d in
@@ -104,7 +117,14 @@ install_iscsiroot() {
     [ -z "$iscsi_address" ] && return
     local_address=$(ip -o route get to $iscsi_address | sed -n 's/.*src \([0-9a-f.:]*\).*/\1/p')
     ifname=$(ip -o route get to $iscsi_address | sed -n 's/.*dev \([^ ]*\).*/\1/p')
-    printf 'ip=%s:static ' ${ifname}
+
+    #follow ifcfg settings for boot protocol
+    bootproto=$(sed -n "/BOOTPROTO/s/BOOTPROTO='\([[:alpha:]]*6\?\)4\?'/\1/p" /etc/sysconfig/network/ifcfg-$ifname)
+    if [ $bootproto ]; then
+        printf 'ip=%s:%s ' ${ifname} ${bootproto}
+    else
+        printf 'ip=%s:static ' ${ifname}
+    fi
 
     if [ -e /sys/class/net/$ifname/address ] ; then
         ifmac=$(cat /sys/class/net/$ifname/address)
@@ -128,6 +148,7 @@ install_iscsiroot() {
         # can sort out rd.iscsi.initiator= duplicates
         echo "rd.iscsi.initiator=${iscsi_initiator}"
         echo "netroot=iscsi:${iscsi_address}::${iscsi_port}:${iscsi_lun}:${iscsi_targetname}"
+        echo "rd.neednet=1"
     fi
     return 0
 }
@@ -159,15 +180,14 @@ installkernel() {
     local _arch=$(uname -m)
     local _funcs='iscsi_register_transport'
 
-    instmods bnx2i qla4xxx cxgb3i cxgb4i be2iscsi
+    instmods bnx2i qla4xxx cxgb3i cxgb4i be2iscsi qedi
     hostonly="" instmods iscsi_tcp iscsi_ibft crc32c iscsi_boot_sysfs
 
     if [ "$_arch" = "s390" -o "$_arch" = "s390x" ]; then
         _s390drivers="=drivers/s390/scsi"
     fi
 
-    dracut_instmods -o -s "$_funcs" "=drivers/scsi" ${_s390drivers:+"$_s390drivers"}
-
+    dracut_instmods -o -s ${_funcs} =drivers/scsi ${_s390drivers:+"$_s390drivers"}
 }
 
 # called by dracut
@@ -184,9 +204,22 @@ cmdline() {
 
 # called by dracut
 install() {
-    inst_multiple umount iscsistart hostname iscsi-iname
     inst_multiple -o iscsiuio
     inst_libdir_file 'libgcc_s.so*'
+    inst_multiple umount hostname iscsi-iname iscsiadm iscsid
+
+    ln -sf $systemdsystemunitdir/iscsid.socket $systemdsystemunitdir/sockets.target.wants/iscsid.socket
+    ln -sf $systemdsystemunitdir/iscsiuio.socket $systemdsystemunitdir/sockets.target.wants/iscsiuio.socket
+
+    inst_multiple -o \
+        $systemdsystemunitdir/iscsid.socket \
+        $systemdsystemunitdir/iscsid.service \
+        $systemdsystemunitdir/iscsiuio.service \
+        $systemdsystemunitdir/iscsiuio.socket \
+        $systemdsystemunitdir/sockets.target.wants/iscsid.socket \
+        $systemdsystemunitdir/sockets.target.wants/iscsiuio.socket
+
+    [[ -d /etc/iscsi ]] && inst_dir $(/usr/bin/find /etc/iscsi)
 
     # Detect iBFT and perform mandatory steps
     if [[ $hostonly_cmdline == "yes" ]] ; then
@@ -194,12 +227,42 @@ install() {
         [[ $_iscsiconf ]] && printf "%s\n" "$_iscsiconf" >> "${initdir}/etc/cmdline.d/95iscsi.conf"
     fi
 
-    inst "$moddir/iscsistart-flocked.sh" "/bin/iscsistart-flocked"
     inst_hook cmdline 90 "$moddir/parse-iscsiroot.sh"
     inst_hook cleanup 90 "$moddir/cleanup-iscsi.sh"
     inst "$moddir/iscsiroot.sh" "/sbin/iscsiroot"
     if ! dracut_module_included "systemd"; then
         inst "$moddir/mount-lun.sh" "/bin/mount-lun.sh"
+    else
+        inst_multiple -o \
+                      $systemdsystemunitdir/iscsi.service \
+                      $systemdsystemunitdir/iscsid.service \
+                      $systemdsystemunitdir/iscsid.socket \
+                      $systemdsystemunitdir/iscsiuio.service \
+                      $systemdsystemunitdir/iscsiuio.socket \
+                      iscsiadm iscsid
+
+        mkdir -p "${initdir}/$systemdsystemunitdir/sockets.target.wants"
+        for i in \
+                iscsiuio.socket \
+            ; do
+            ln_r "$systemdsystemunitdir/${i}" "$systemdsystemunitdir/sockets.target.wants/${i}"
+        done
+
+        mkdir -p "${initdir}/$systemdsystemunitdir/basic.target.wants"
+        for i in \
+                iscsid.service \
+                iscsiuio.service \
+            ; do
+            ln_r "$systemdsystemunitdir/${i}" "$systemdsystemunitdir/basic.target.wants/${i}"
+        done
+
+        # Make sure iscsid is started after dracut-cmdline and ready for the initqueue
+        mkdir -p "${initdir}/$systemdsystemunitdir/iscsid.service.d"
+        (
+            echo "[Unit]"
+            echo "After=dracut-cmdline.service"
+            echo "Before=dracut-initqueue.service"
+        ) > "${initdir}/$systemdsystemunitdir/iscsid.service.d/dracut.conf"
     fi
     inst_dir /var/lib/iscsi
     dracut_need_initqueue
