@@ -12,6 +12,9 @@ installkernel() {
             uhci-hcd \
             xhci-hcd xhci-pci xhci-plat-hcd \
             pinctrl-cherryview \
+            ${NULL}
+
+        hostonly=$(optional_hostonly) instmods \
             "=drivers/hid" \
             "=drivers/tty/serial" \
             "=drivers/input/serio" \
