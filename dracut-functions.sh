@@ -1770,3 +1770,14 @@ lvm_internal_dev() {
     [[ ${DM_LV_LAYER} ]] || [[ ! -L /dev/${DM_VG_NAME}/${DM_LV_NAME} ]]
 }
 
+# Use with form hostonly="$(optional_hostonly)" inst_xxxx <args>
+# If hosotnly mode is set to "strict", hostonly restrictions will still
+# be applied, else will ignore hostonly mode and try to install all
+# given modules.
+optional_hostonly() {
+    if [[ $hostonly_mode = "strict" ]]; then
+        printf -- "$hostonly"
+    else
+        printf ""
+    fi
+}

@@ -141,6 +141,21 @@ Creates initial ramdisk images for preloading modules
   -H, --hostonly        Host-Only mode: Install only what is needed for
                         booting the local host instead of a generic host.
   -N, --no-hostonly     Disables Host-Only mode
+  --hostonly-mode <mode>
+                        Specify the hostonly mode to use. <mode> could be
+                        one of "sloppy" or "strict". "sloppy" mode is used
+                        by default.
+                        In "sloppy" hostonly mode, extra drivers and modules
+                        will be installed, so minor hardware change won't make
+                        the image unbootable (eg. changed keyboard), and the
+                        image is still portable among similar hosts.
+                        With "strict" mode enabled, anything not necessary
+                        for booting the local host in its current state will
+                        not be included, and modules may do some extra job
+                        to save more space. Minor change of hardware or
+                        environment could make the image unbootable.
+                        DO NOT use "strict" mode unless you know what you
+                        are doing.
   --hostonly-cmdline    Store kernel command line arguments needed
                         in the initramfs
   --no-hostonly-cmdline Do not store kernel command line arguments needed
@@ -364,6 +379,7 @@ rearrange_params()
         --long host-only \
         --long no-hostonly \
         --long no-host-only \
+        --long hostonly-mode: \
         --long hostonly-cmdline \
         --long no-hostonly-cmdline \
         --long no-hostonly-default-device \
@@ -548,6 +564,8 @@ while :; do
                        hostonly_l="yes" ;;
         -N|--no-hostonly|--no-host-only)
                        hostonly_l="no" ;;
+        --hostonly-mode)
+                       hostonly_mode_l="$2";           PARMS_TO_STORE+=" '$2'"; shift;;
         --hostonly-cmdline)
                        hostonly_cmdline_l="yes" ;;
         --hostonly-i18n)
@@ -803,6 +821,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $prefix = "/" ]] && unset prefix
 [[ $hostonly_l ]] && hostonly=$hostonly_l
 [[ $hostonly_cmdline_l ]] && hostonly_cmdline=$hostonly_cmdline_l
+[[ $hostonly_mode_l ]] && hostonly_mode=$hostonly_mode_l
 [[ $i18n_install_all_l ]] && i18n_install_all=$i18n_install_all_l
 [[ $persistent_policy_l ]] && persistent_policy=$persistent_policy_l
 [[ $use_fstab_l ]] && use_fstab=$use_fstab_l
@@ -839,6 +858,21 @@ fi
 
 [[ $hostonly = yes ]] && hostonly="-h"
 [[ $hostonly != "-h" ]] && unset hostonly
+
+case $hostonly_mode in
+    '')
+        [[ $hostonly ]] && hostonly_mode="sloppy" ;;
+    sloppy|strict)
+        if [[ ! $hostonly ]]; then
+            unset hostonly_mode
+        fi
+        ;;
+    *)
+        printf "%s\n" "dracut: Invalid hostonly mode '$hostonly_mode'." >&2
+        exit 1
+esac
+
+
 
 readonly TMPDIR="$tmpdir"
 readonly DRACUT_TMPDIR="$(mktemp -p "$TMPDIR/" -d -t dracut.XXXXXX)"
