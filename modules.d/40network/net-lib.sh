@@ -726,8 +726,12 @@ iface_has_carrier() {
 
     while [ $cnt -lt $timeout ]; do
         if [ -n "$_no_carrier_flag" ]; then
+            li=$(ip -o link show up dev $1)
             # NO-CARRIER flag was cleared
             strstr "$li" "NO-CARRIER" || return 0
+        elif ! [ -e "$interface/carrier" ]; then
+            # sysfs not available and "NO-CARRIER" not displayed
+            return 0
         fi
         # double check the syscfs carrier flag
         [ -e "$interface/carrier" ] && [ "$(cat $interface/carrier)" = 1 ] && return 0
