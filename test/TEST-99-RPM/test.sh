@@ -35,7 +35,7 @@ test_run() {
     dnf_or_yum_cmd=yum
     command -v dnf >/dev/null && { dnf_or_yum="dnf"; dnf_or_yum_cmd="dnf --allowerasing"; }
     for (( i=0; i < 5 ; i++)); do
-        $dnf_or_yum_cmd -v --nogpgcheck --installroot "$rootdir"/ --releasever 25 --disablerepo='*' \
+        $dnf_or_yum_cmd -v --nogpgcheck --installroot "$rootdir"/ --releasever 29 --disablerepo='*' \
                         --enablerepo=fedora --enablerepo=updates \
                         install -y \
                         $dnf_or_yum \
@@ -63,7 +63,11 @@ test_run() {
 #!/bin/bash
 set -x
 export LC_MESSAGES=C
-rpm -Va |& grep -F -v '85-display-manager.preset' &> /test.output
+rpm -Va |& \
+    grep -F \
+       '85-display-manager.preset| /run| /var| /usr/lib/variant| /etc/machine-id| /etc/systemd/system/dbus-org.freedesktop.network1.service| /etc/systemd/system/dbus-org.freedesktop.resolve1.service| /etc/udev/hwdb.bin| /usr/share/info/dir.old' \
+    &> /test.output
+
 find / -xdev -type f -not -path '/var/*' \
   -not -path '/usr/lib/modules/*/modules.*' \
   -not -path '/etc/*-' \
