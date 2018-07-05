@@ -41,13 +41,6 @@ if [ -z "${DRACUT_SYSTEMD}" ] && [ -e /sys/module/bnx2i ] && ! [ -e /tmp/iscsiui
         > /tmp/iscsiuio-started
 fi
 
-#set value for initial login retry
-set_login_retries() {
-    local default retries
-    default=2
-    retries=$(getarg rd.iscsilogin.retries)
-    return ${retries:-$default}
-}
 
 handle_firmware()
 {
@@ -130,8 +123,7 @@ handle_netroot()
     case "$iscsi_param" in
         *node.session.initial_login_retry_max*) ;;
         *)
-            set_login_retries
-            retries=$?
+            retries=$(getargnum 3 0 10000 rd.iscsi.login_retry_max)
             if [ $retries -gt 0 ]; then
                 iscsi_param="${iscsi_param% } node.session.initial_login_retry_max=$retries"
             fi
