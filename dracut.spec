@@ -351,7 +351,6 @@ rm -rf -- $RPM_BUILD_ROOT
 %{dracutlibdir}/modules.d/90lvm
 %{dracutlibdir}/modules.d/90mdraid
 %{dracutlibdir}/modules.d/90multipath
-%{dracutlibdir}/modules.d/90multipath-hostonly
 %{dracutlibdir}/modules.d/90qemu
 %{dracutlibdir}/modules.d/91crypt-gpg
 %{dracutlibdir}/modules.d/91crypt-loop
