@@ -10,7 +10,7 @@ set -x
 
 cat /lib/dracut/dracut-*
 
-cat /proc/cmdline
+cat /proc/cmdline | sed -e 's/\(ftp:\/\/.*\):.*@/\1:*******@/'
 
 [ -f /etc/cmdline ] && cat /etc/cmdline
 
@@ -47,9 +47,9 @@ cat /proc/mdstat
 command -v ip >/dev/null 2>/dev/null && ip addr
 
 if command -v journalctl >/dev/null 2>/dev/null; then
-    journalctl -ab --no-pager -o short-monotonic
+    journalctl -ab --no-pager -o short-monotonic | sed -e 's/\(ftp:\/\/.*\):.*@/\1:*******@/'
 else
-    dmesg
+    dmesg | sed -e 's/\(ftp:\/\/.*\):.*@/\1:*******@/'
     [ -f /run/initramfs/init.log ] && cat /run/initramfs/init.log
 fi
 
