@@ -993,6 +993,10 @@ instmods() {
         set -- "${args[@]}"
     fi
 
+    if (($# == 0)); then
+        return 0
+    fi
+
     $DRACUT_INSTALL \
         ${initdir:+-D "$initdir"} \
         ${loginstall:+-L "$loginstall"} \
