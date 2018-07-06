@@ -1,5 +1,81 @@
 dracut-047
 ==========
+
+dracut.sh:
+- fixed finding of btrfs devices
+- harden dracut against BASH_ENV environment variable
+- no more prelinking
+- scan and install "external" kernel modules
+- fixed instmods with zero input
+- rdsosreport: best effort to strip out passwords
+- introduce tri-state hostonly mode
+
+   Add a new option --hostonly-mode which accept an <mode> parameter, so we have a tri-state hostonly mode:
+
+        * generic: by passing "--no-hostonly" or not passing anything.
+                   "--hostonly-mode" has no effect in such case.
+        * sloppy: by passing "--hostonly --hostonly-mode sloppy". This
+                  is also the default mode when only "--hostonly" is given.
+        * strict: by passing "--hostonly --hostonly-mode strict".
+
+    Sloppy mode is the original hostonly mode, the new introduced strict
+    mode will allow modules to ignore more drivers or do some extra job to
+    save memory and disk space, while making the image less portable.
+
+    Also introduced a helper function "optional_hostonly" to make it
+    easier for modules to leverage new hostonly mode.
+
+    To force install modules only in sloppy hostonly mode, use the form:
+
+    hostonly="$(optional_hostonly)" instmods <modules>
+
+dracut-install:
+- don't error out, if no modules were installed
+- support modules.softdep
+
+lsinitrd.sh:
+- fixed zstd file signature
+
+kernel:
+- include all pci/host modules
+- add mmc/core for arm
+- Include Intel Volume Management Device support
+
+plymouth:
+- fix detection of plymouth directory
+
+drm:
+- make failing installation of drm modules nonfatal
+- include virtio DRM drivers in hostonly initramfs
+
+stratis:
+- initial Stratis support
+
+crypt:
+- correct s390 arch to include arch-specific crypto modules
+- add cmdline rd.luks.partuuid
+- add timeout option rd.luks.timeout
+
+shutdown:
+- sleep a little, if a process was killed
+
+network:
+- introduce ip=either6 option
+
+iscsi:
+- replace iscsistart with iscsid
+
+qeth_rules:
+- new module to copy qeth rules
+
+multipath-hostonly:
+- merged back into multipath
+
+mdraid:
+- fixed case if rd.md.uuid is in ID_FS_UUID format
+
+dracut-047
+==========
 dracut.sh:
 - sync initramfs to filesystem with fsfreeze
 - introduce "--no-hostonly-default-device"
