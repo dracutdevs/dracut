@@ -26,6 +26,11 @@ else
             mv "${f}.new" "$f"
         done
         for uuid in $MD_UUID; do
+            if strstr "$uuid" "-"; then
+                # convert ID_FS_UUID to MD_UUID format
+                uuid=$(str_replace "$uuid" "-" "")
+                uuid="$(expr substr $uuid 1 8):$(expr substr $uuid 9 8):$(expr substr $uuid 17 8):$(expr substr $uuid 25 8)"
+            fi
             wait_for_dev "/dev/disk/by-id/md-uuid-${uuid}"
         done
     fi
