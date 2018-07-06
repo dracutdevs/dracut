@@ -76,6 +76,13 @@ do_test_run() {
                "rd.iscsi.initiator=$initiator" \
         || return 1
 
+    run_client "netroot=iscsi target1 target2" \
+               "root=LABEL=sysroot" \
+               "ip=dhcp" \
+               "netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target1" \
+               "netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2" \
+               "rd.iscsi.initiator=$initiator" \
+        || return 1
 
     echo "All tests passed [OK]"
     return 0
