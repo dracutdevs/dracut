@@ -219,7 +219,7 @@ case $bin in
     $'\x89'LZO$'\0'*)
         CAT="lzop -d -c"
         ;;
-    $'0xFD2FB528'*)
+    $'\x28\xB5\x2F\xFD'*)
         CAT="zstd -d -c"
         ;;
     *)

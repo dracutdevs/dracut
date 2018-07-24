@@ -41,14 +41,6 @@ if [ -z "${DRACUT_SYSTEMD}" ] && [ -e /sys/module/bnx2i ] && ! [ -e /tmp/iscsiui
         > /tmp/iscsiuio-started
 fi
 
-#set value for initial login retry
-set_login_retries() {
-    local default retries
-    default=2
-    retries=$(getarg rd.iscsilogin.retries)
-    return ${retries:-$default}
-}
-
 handle_firmware()
 {
     local ifaces retry
@@ -127,13 +119,15 @@ handle_netroot()
     fi
 
     #limit iscsistart login retries
-    if [[ ! "$iscsi_param" =~ "node.session.initial_login_retry_max" ]]; then
-        set_login_retries
-        retries=$?
-        if [ $retries -gt 0 ]; then
-            iscsi_param="${iscsi_param% } node.session.initial_login_retry_max=$retries"
-        fi
-    fi
+    case "$iscsi_param" in
+        *node.session.initial_login_retry_max*) ;;
+        *)
+            retries=$(getargnum 3 0 10000 rd.iscsi.login_retry_max)
+            if [ $retries -gt 0 ]; then
+                iscsi_param="${iscsi_param% } node.session.initial_login_retry_max=$retries"
+            fi
+        ;;
+    esac
 
 # XXX is this needed?
     getarg ro && iscsirw=ro
@@ -215,15 +209,12 @@ handle_netroot()
 
     ### ToDo: Upstream calls systemd-run - Shall we, do we have to port this?
 
-    if iscsiadm -m node; then
-        targets=$(iscsiadm -m node | sed 's/^.*iqn/iqn/')
-    else
-        targets=$(iscsiadm -m discovery -t st -p $iscsi_target_ip:${iscsi_target_port:+$iscsi_target_port} | sed 's/^.*iqn/iqn/')
-        [ -z "$targets" ] && echo "Target discovery to $iscsi_target_ip:${iscsi_target_port:+$iscsi_target_port} failed with status $?" && exit 1
-    fi
+    targets=$(iscsiadm -m discovery -t st -p $iscsi_target_ip:${iscsi_target_port:+$iscsi_target_port} | sed 's/^.*iqn/iqn/')
+    [ -z "$targets" ] && echo "Target discovery to $iscsi_target_ip:${iscsi_target_port:+$iscsi_target_port} failed with status $?" && exit 1
 
     for target in $iscsi_target_name; do
-        if [[ "$targets" =~ "$target" ]]; then
+        case "$targets" in
+        *$target*)
             if [ -n "$iscsi_iface_name" ]; then
                 $(iscsiadm -m iface -I $iscsi_iface_name --op=new)
                 [ -n "$iscsi_initiator" ] && $(iscsiadm -m iface -I $iscsi_iface_name --op=update --name=iface.initiatorname --value=$iscsi_initiator)
@@ -238,7 +229,10 @@ handle_netroot()
             [ -n "$iscsi_in_username" ] && $($COMMAND --name=node.session.auth.username_in --value=$iscsi_in_username)
             [ -n "$iscsi_in_password" ] && $($COMMAND --name=node.session.auth.password_in --value=$iscsi_in_password)
             [ -n "$iscsi_param" ] && for param in $iscsi_param; do $($COMMAND --name=${param%=*} --value=${param#*=}); done
-        fi
+        ;;
+        *)
+        ;;
+        esac
     done
 
     iscsiadm -m node -L onboot || :

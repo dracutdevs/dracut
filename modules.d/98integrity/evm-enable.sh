@@ -76,8 +76,8 @@ load_evm_x509()
         return 1
     fi
 
-    local evm_pubid
-    local line=$(keyctl describe %keyring:.evm)
+    local evm_pubid line
+    line=$(keyctl describe %keyring:.evm)
     if [ $? -eq 0 ]; then
         # the kernel already setup a trusted .evm keyring so use that one
         evm_pubid=${line%%:*}

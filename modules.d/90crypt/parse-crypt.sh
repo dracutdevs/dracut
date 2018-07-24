@@ -35,6 +35,7 @@ else
         echo 'ACTION!="add|change", GOTO="luks_end"'
     } > /etc/udev/rules.d/70-luks.rules.new
 
+    PARTUUID=$(getargs rd.luks.partuuid -d rd_LUKS_PARTUUID)
     SERIAL=$(getargs rd.luks.serial -d rd_LUKS_SERIAL)
     LUKS=$(getargs rd.luks.uuid -d rd_LUKS_UUID)
     tout=$(getarg rd.luks.key.tout)
@@ -45,7 +46,39 @@ else
         done < /etc/crypttab
     fi
 
-    if [ -n "$SERIAL" ]; then
+    if [ -n "$PARTUUID" ]; then
+        for uuid in $PARTUUID; do
+
+            uuid=${uuid##luks-}
+            if luksname=$(_cryptgetargsname "rd.luks.name=$uuid="); then
+                luksname="${luksname#$uuid=}"
+            else
+                luksname="luks-$uuid"
+            fi
+
+            if [ -z "$DRACUT_SYSTEMD" ]; then
+                {
+                    printf -- 'ENV{ID_PART_ENTRY_UUID}=="*%s*", ' "$uuid"
+                    printf -- 'RUN+="%s --settled --unique --onetime ' "$(command -v initqueue)"
+                    printf -- '--name cryptroot-ask-%%k %s ' "$(command -v cryptroot-ask)"
+                    printf -- '$env{DEVNAME} %s %s"\n' "$luksname" "$tout"
+                } >> /etc/udev/rules.d/70-luks.rules.new
+            else
+                luksname=$(dev_unit_name "$luksname")
+                luksname="$(str_replace "$luksname" '\' '\\')"
+
+                if ! crypttab_contains "$uuid"; then
+                    {
+                        printf -- 'ENV{ID_PART_ENTRY_UUID}=="*%s*", ' "$uuid"
+                        printf -- 'RUN+="%s --settled --unique --onetime ' "$(command -v initqueue)"
+                        printf -- '--name systemd-cryptsetup-%%k %s start ' "$(command -v systemctl)"
+                        printf -- 'systemd-cryptsetup@%s.service"\n' "$luksname"
+                    } >> /etc/udev/rules.d/70-luks.rules.new
+                fi
+            fi
+        done
+
+    elif [ -n "$SERIAL" ]; then
         for serialid in $SERIAL; do
 
             serialid=${serialid##luks-}

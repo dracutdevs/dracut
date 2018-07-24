@@ -402,9 +402,9 @@ static int resolve_deps(const char *src)
         _cleanup_pclose_ FILE *fptr = NULL;
         _cleanup_free_ char *cmd = NULL;
 
-	buf = malloc(LINE_MAX);
-	if (buf == NULL)
-		return -errno;
+        buf = malloc(LINE_MAX);
+        if (buf == NULL)
+                return -errno;
 
         if (strstr(src, ".so") == 0) {
                 _cleanup_close_ int fd = -1;
@@ -456,11 +456,11 @@ static int resolve_deps(const char *src)
                         break;
                 }
 
-		/* musl ldd */
-		if (strstr(buf, "Not a valid dynamic program"))
-			break;
+                /* musl ldd */
+                if (strstr(buf, "Not a valid dynamic program"))
+                        break;
 
-		/* glibc */
+                /* glibc */
                 if (strstr(buf, "cannot execute binary file"))
                         break;
 
@@ -1061,7 +1061,7 @@ static int install_one(const char *src, const char *dst)
         if (strchr(src, '/') == NULL) {
                 char **p = find_binary(src);
                 if (p) {
-			char **q = NULL;
+                        char **q = NULL;
                         STRV_FOREACH(q, p) {
                                 char *newsrc = *q;
                                 log_debug("dracut_install '%s' '%s'", newsrc, dst);
@@ -1097,7 +1097,7 @@ static int install_all(int argc, char **argv)
                 if (strchr(argv[i], '/') == NULL) {
                         char **p = find_binary(argv[i]);
                         if (p) {
-				char **q = NULL;
+                                char **q = NULL;
                                 STRV_FOREACH(q, p) {
                                         char *newsrc = *q;
                                         log_debug("dracut_install '%s'", newsrc);
@@ -1231,11 +1231,42 @@ static bool check_module_path(const char *path)
         return true;
 }
 
+static int install_dependent_modules(struct kmod_list *modlist)
+{
+        struct kmod_list *itr;
+        struct kmod_module *mod;
+        const char *path = NULL;
+        const char *name = NULL;
+        int ret = 0;
+
+        kmod_list_foreach(itr, modlist) {
+                mod = kmod_module_get_module(itr);
+                path = kmod_module_get_path(mod);
+
+                name = kmod_module_get_name(mod);
+                if (arg_mod_filter_noname && (regexec(&mod_filter_noname, name, 0, NULL, 0) == 0)) {
+                        kmod_module_unref(mod);
+                        continue;
+                }
+                ret = dracut_install(path, &path[kerneldirlen], false, false, true);
+                if (ret == 0) {
+                        log_debug("dracut_install '%s' '%s' OK", path, &path[kerneldirlen]);
+                        install_firmware(mod);
+                } else {
+                        log_error("dracut_install '%s' '%s' ERROR", path, &path[kerneldirlen]);
+                }
+                kmod_module_unref(mod);
+        }
+
+        return ret;
+}
+
 static int install_module(struct kmod_module *mod)
 {
         int ret = 0;
-        struct kmod_list *itr;
         _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
+        _cleanup_kmod_module_unref_list_ struct kmod_list *modpre = NULL;
+        _cleanup_kmod_module_unref_list_ struct kmod_list *modpost = NULL;
         const char *path = NULL;
         const char *name = NULL;
 
@@ -1278,23 +1309,12 @@ static int install_module(struct kmod_module *mod)
         install_firmware(mod);
 
         modlist = kmod_module_get_dependencies(mod);
-        kmod_list_foreach(itr, modlist) {
-                mod = kmod_module_get_module(itr);
-                path = kmod_module_get_path(mod);
+        ret = install_dependent_modules(modlist);
 
-                name = kmod_module_get_name(mod);
-                if (arg_mod_filter_noname && (regexec(&mod_filter_noname, name, 0, NULL, 0) == 0)) {
-                        kmod_module_unref(mod);
-                        continue;
-                }
-                ret = dracut_install(path, &path[kerneldirlen], false, false, true);
-                if (ret == 0) {
-                        log_debug("dracut_install '%s' '%s' OK", path, &path[kerneldirlen]);
-                        install_firmware(mod);
-                } else {
-                        log_error("dracut_install '%s' '%s' ERROR", path, &path[kerneldirlen]);
-                }
-                kmod_module_unref(mod);
+        if (ret == 0) {
+                ret = kmod_module_get_softdeps(mod, &modpre, &modpost);
+                if (ret == 0)
+                        ret = install_dependent_modules(modpre);
         }
 
         return ret;
@@ -1394,6 +1414,7 @@ static int install_modules(int argc, char **argv)
         const char *abskpath = NULL;
         char *p;
         int i;
+        int modinst = 0;
 
         ctx = kmod_new(kerneldir, NULL);
         abskpath = kmod_get_dirname(ctx);
@@ -1439,12 +1460,11 @@ static int install_modules(int argc, char **argv)
         for (i = 0; i < argc; i++) {
                 int r = 0;
                 int ret = -1;
-
                 log_debug("Handle module '%s'", argv[i]);
 
                 if (argv[i][0] == '/') {
                         _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
-			_cleanup_free_ const char *modname = NULL;
+                        _cleanup_free_ const char *modname = NULL;
 
                         r = kmod_module_new_from_path(ctx, argv[i], &mod_o);
                         if (r < 0) {
@@ -1498,6 +1518,7 @@ static int install_modules(int argc, char **argv)
                                         return -ENOENT;
                                 };
                                 ret = ( ret == 0 ? 0 : r );
+                                modinst = 1;
                         }
                 } else if (argv[i][0] == '=') {
                         _cleanup_free_ char *path1 = NULL, *path2 = NULL, *path3 = NULL;
@@ -1530,7 +1551,7 @@ static int install_modules(int argc, char **argv)
 
                         for (FTSENT *ftsent = fts_read(fts); ftsent != NULL; ftsent = fts_read(fts)) {
                                 _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
-				_cleanup_free_ const char *modname = NULL;
+                                _cleanup_free_ const char *modname = NULL;
 
                                 if((ftsent->fts_info == FTS_D) && !check_module_path(ftsent->fts_accpath)) {
                                         fts_set(fts, ftsent, FTS_SKIP);
@@ -1592,6 +1613,7 @@ static int install_modules(int argc, char **argv)
                                                 return -ENOENT;
                                         };
                                         ret = ( ret == 0 ? 0 : r );
+                                        modinst = 1;
                                 }
                         }
                         if (errno) {
@@ -1599,7 +1621,7 @@ static int install_modules(int argc, char **argv)
                         }
                 } else {
                         _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
-			char *modname = argv[i];
+                        char *modname = argv[i];
 
                         if (endswith(modname, ".ko")) {
                                 int len = strlen(modname);
@@ -1638,10 +1660,11 @@ static int install_modules(int argc, char **argv)
                                         return -ENOENT;
                                 };
                                 ret = ( ret == 0 ? 0 : r );
+                                modinst = 1;
                         }
                 }
 
-                if ((ret != 0) && (!arg_optional)) {
+                if ((modinst != 0) && (ret != 0) && (!arg_optional)) {
                         if (!arg_silent)
                                 log_error("ERROR: installing '%s'", argv[i]);
                         return EXIT_FAILURE;

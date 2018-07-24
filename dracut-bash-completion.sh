@@ -31,9 +31,7 @@ _dracut() {
                               --local --hostonly --no-hostonly --fstab --help --bzip2 --lzma
                               --xz --zstd --no-compress --gzip --list-modules --show-modules --keep
                               --printsize --regenerate-all --noimageifnotneeded --early-microcode
-                              --no-early-microcode --print-cmdline --prelink --noprelink --reproducible
-                              --uefi
-                              '
+                              --no-early-microcode --print-cmdline --reproducible --uefi'
 
                        [ARG]='-a -m -o -d -I -k -c -L --kver --add --force-add --add-drivers
                               --omit-drivers --modules --omit --drivers --filesystems --install

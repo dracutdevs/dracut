@@ -267,6 +267,18 @@ inst_fsck_help() {
     (($? != 0)) && derror $DRACUT_INSTALL ${initdir:+-D "$initdir"} ${loginstall:+-L "$loginstall"} ${DRACUT_RESOLVE_DEPS:+-l}  ${DRACUT_FIPS_MODE:+-f} "$2" $_helper || :
 }
 
+# Use with form hostonly="$(optional_hostonly)" inst_xxxx <args>
+# If hosotnly mode is set to "strict", hostonly restrictions will still
+# be applied, else will ignore hostonly mode and try to install all
+# given modules.
+optional_hostonly() {
+    if [[ $hostonly_mode = "strict" ]]; then
+        printf -- "$hostonly"
+    else
+        printf ""
+    fi
+}
+
 mark_hostonly() {
     for i in "$@"; do
         echo "$i" >> "$initdir/lib/dracut/hostonly-files"
@@ -979,6 +991,10 @@ instmods() {
     if (($# == 0)); then
         read -r -d '' -a args
         set -- "${args[@]}"
+    fi
+
+    if (($# == 0)); then
+        return 0
     fi
 
     $DRACUT_INSTALL \

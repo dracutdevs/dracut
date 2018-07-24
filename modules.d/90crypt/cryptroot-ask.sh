@@ -165,12 +165,15 @@ fi
 
 if [ $ask_passphrase -ne 0 ]; then
     luks_open="$(command -v cryptsetup) $cryptsetupopts luksOpen"
+    _timeout=$(getargs "rd.luks.timeout")
+    _timeout=${_timeout:-0}
     ask_for_password --ply-tries 5 \
         --ply-cmd "$luks_open -T1 $device $luksname" \
         --ply-prompt "Password ($device)" \
         --tty-tries 1 \
-        --tty-cmd "$luks_open -T5 $device $luksname"
+        --tty-cmd "$luks_open -T5 -t $_timeout $device $luksname"
     unset luks_open
+    unset _timeout
 fi
 
 unset device luksname luksfile

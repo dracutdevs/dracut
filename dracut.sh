@@ -1,4 +1,4 @@
-#!/bin/bash --norc
+#!/bin/bash -p
 #
 # Generator script for a dracut initramfs
 # Tries to retain some degree of compatibility with the command line
@@ -22,6 +22,8 @@
 #
 
 # store for logging
+
+unset BASH_ENV
 
 # Verify bash version, current minimum is 4
 if (( BASH_VERSINFO[0] < 4 )); then
@@ -108,8 +110,6 @@ Creates initial ramdisk images for preloading modules
   --kernel-cmdline [PARAMETERS] Specify default kernel command line parameters
   --strip               Strip binaries in the initramfs
   --nostrip             Do not strip binaries in the initramfs
-  --prelink             Prelink binaries in the initramfs
-  --noprelink           Do not prelink binaries in the initramfs
   --hardlink            Hardlink files in the initramfs
   --nohardlink          Do not hardlink files in the initramfs
   --prefix [DIR]        Prefix initramfs files with [DIR]
@@ -147,6 +147,21 @@ Creates initial ramdisk images for preloading modules
   -H, --hostonly        Host-Only mode: Install only what is needed for
                         booting the local host instead of a generic host.
   -N, --no-hostonly     Disables Host-Only mode
+  --hostonly-mode <mode>
+                        Specify the hostonly mode to use. <mode> could be
+                        one of "sloppy" or "strict". "sloppy" mode is used
+                        by default.
+                        In "sloppy" hostonly mode, extra drivers and modules
+                        will be installed, so minor hardware change won't make
+                        the image unbootable (eg. changed keyboard), and the
+                        image is still portable among similar hosts.
+                        With "strict" mode enabled, anything not necessary
+                        for booting the local host in its current state will
+                        not be included, and modules may do some extra job
+                        to save more space. Minor change of hardware or
+                        environment could make the image unbootable.
+                        DO NOT use "strict" mode unless you know what you
+                        are doing.
   --hostonly-cmdline    Store kernel command line arguments needed
                         in the initramfs
   --no-hostonly-cmdline Do not store kernel command line arguments needed
@@ -334,8 +349,6 @@ rearrange_params()
         --long kernel-cmdline: \
         --long strip \
         --long nostrip \
-        --long prelink \
-        --long noprelink \
         --long hardlink \
         --long nohardlink \
         --long noprefix \
@@ -354,6 +367,7 @@ rearrange_params()
         --long host-only \
         --long no-hostonly \
         --long no-host-only \
+        --long hostonly-mode: \
         --long hostonly-cmdline \
         --long no-hostonly-cmdline \
         --long no-hostonly-default-device \
@@ -520,8 +534,6 @@ while :; do
                        early_microcode_l="no";;
         --strip)       do_strip_l="yes";;
         --nostrip)     do_strip_l="no";;
-        --prelink)     do_prelink_l="yes";;
-        --noprelink)   do_prelink_l="no";;
         --hardlink)    do_hardlink_l="yes";;
         --nohardlink)  do_hardlink_l="no";;
         --noprefix)    prefix_l="/";;
@@ -544,6 +556,8 @@ while :; do
                        hostonly_l="yes" ;;
         -N|--no-hostonly|--no-host-only)
                        hostonly_l="no" ;;
+        --hostonly-mode)
+                       hostonly_mode_l="$2";           PARMS_TO_STORE+=" '$2'"; shift;;
         --hostonly-cmdline)
                        hostonly_cmdline_l="yes" ;;
         --hostonly-i18n)
@@ -724,14 +738,13 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $drivers_dir_l ]] && drivers_dir=$drivers_dir_l
 [[ $do_strip_l ]] && do_strip=$do_strip_l
 [[ $do_strip ]] || do_strip=yes
-[[ $do_prelink_l ]] && do_prelink=$do_prelink_l
-[[ $do_prelink ]] || do_prelink=yes
 [[ $do_hardlink_l ]] && do_hardlink=$do_hardlink_l
 [[ $do_hardlink ]] || do_hardlink=yes
 [[ $prefix_l ]] && prefix=$prefix_l
 [[ $prefix = "/" ]] && unset prefix
 [[ $hostonly_l ]] && hostonly=$hostonly_l
 [[ $hostonly_cmdline_l ]] && hostonly_cmdline=$hostonly_cmdline_l
+[[ $hostonly_mode_l ]] && hostonly_mode=$hostonly_mode_l
 [[ "$hostonly" == "yes" ]] && ! [[ $hostonly_cmdline ]] && hostonly_cmdline="yes"
 [[ $i18n_install_all_l ]] && i18n_install_all=$i18n_install_all_l
 [[ $persistent_policy_l ]] && persistent_policy=$persistent_policy_l
@@ -855,6 +868,19 @@ esac
 
 [[ $hostonly = yes ]] && hostonly="-h"
 [[ $hostonly != "-h" ]] && unset hostonly
+
+case $hostonly_mode in
+    '')
+        [[ $hostonly ]] && hostonly_mode="sloppy" ;;
+    sloppy|strict)
+        if [[ ! $hostonly ]]; then
+            unset hostonly_mode
+        fi
+        ;;
+    *)
+        printf "%s\n" "dracut: Invalid hostonly mode '$hostonly_mode'." >&2
+        exit 1
+esac
 
 [[ $reproducible == yes ]] && DRACUT_REPRODUCIBLE=1
 
@@ -1236,7 +1262,7 @@ if [[ $hostonly ]] && [[ "$hostonly_default_device" != "no" ]]; then
 
             push_host_devs "$_dev"
             if [[ "$_t" == btrfs ]]; then
-                for i in $(find_btrfs_devs "$_m"); do
+                for i in $(btrfs_devs "$_m"); do
                     push_host_devs "$i"
                 done
             fi
@@ -1288,16 +1314,16 @@ done
 [[ -d $udevdir ]] \
     || udevdir="$(pkg-config udev --variable=udevdir 2>/dev/null)"
 if ! [[ -d "$udevdir" ]]; then
-    [[ ! -h /lib ]] && [[ -d /lib/udev ]] && udevdir=/lib/udev
-    [[ -d /usr/lib/udev ]] && udevdir=/usr/lib/udev
+    [[ -e /lib/udev/collect ]] && udevdir=/lib/udev
+    [[ -e /usr/lib/udev/collect ]] && udevdir=/usr/lib/udev
 fi
 
 [[ -d $systemdutildir ]] \
     || systemdutildir=$(pkg-config systemd --variable=systemdutildir 2>/dev/null)
 
 if ! [[ -d "$systemdutildir" ]]; then
-    [[ ! -h /lib ]] && [[ -d /lib/systemd ]] && systemdutildir=/lib/systemd
-    [[ -d /usr/lib/systemd ]] && systemdutildir=/usr/lib/systemd
+    [[ -e /lib/systemd/systemd-udevd ]] && systemdutildir=/lib/systemd
+    [[ -e /usr/lib/systemd/systemd-udevd ]] && systemdutildir=/usr/lib/systemd
 fi
 
 [[ -d $systemdsystemunitdir ]] \
@@ -1608,21 +1634,6 @@ if [[ $kernel_only != yes ]]; then
     fi
 fi
 
-PRELINK_BIN="$(command -v prelink)"
-if [[ $EUID = 0 ]] && [[ $PRELINK_BIN ]]; then
-    if [[ $DRACUT_FIPS_MODE ]]; then
-        dinfo "*** Installing prelink files ***"
-        inst_multiple -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf /etc/prelink.cache
-    elif [[ $do_prelink == yes ]]; then
-        dinfo "*** Pre-linking files ***"
-        inst_multiple -o prelink /etc/prelink.conf /etc/prelink.conf.d/*.conf
-        chroot "$initdir" "$PRELINK_BIN" -a
-        rm -f -- "$initdir/$PRELINK_BIN"
-        rm -fr -- "$initdir"/etc/prelink.*
-        dinfo "*** Pre-linking files done ***"
-    fi
-fi
-
 if [[ $do_hardlink = yes ]] && command -v hardlink >/dev/null; then
     dinfo "*** Hardlinking files ***"
     hardlink "$initdir" 2>&1
@@ -1642,6 +1653,11 @@ if [[ $do_strip = yes ]] ; then
         fi
     done
 fi
+
+# cleanup empty ldconfig_paths directories
+for d in $(ldconfig_paths); do
+    rmdir -p --ignore-fail-on-non-empty "$initdir/$d" >/dev/null 2>&1
+done
 
 if [[ $do_strip = yes ]] && ! [[ $DRACUT_FIPS_MODE ]]; then
     dinfo "*** Stripping files ***"
@@ -1832,15 +1848,22 @@ fi
 
 command -v restorecon &>/dev/null && restorecon -- "$outfile"
 
-if ! sync "$outfile" 2> /dev/null; then
-    dinfo "dracut: sync operation on newly created initramfs $outfile failed"
-    exit 1
-fi
+# We sync/fsfreeze only if we're operating on a live booted system.
+# It's possible for e.g. `kernel` to be installed as an RPM BuildRequires or equivalent,
+# and there's no reason to sync, and *definitely* no reason to fsfreeze.
+# Another case where this happens is rpm-ostree, which performs its own sync/fsfreeze
+# globally.  See e.g. https://github.com/ostreedev/ostree/commit/8642ef5ab3fec3ac8eb8f193054852f83a8bc4d0
+if test -d /run/systemd/system; then
+    if ! sync "$outfile" 2> /dev/null; then
+        dinfo "dracut: sync operation on newly created initramfs $outfile failed"
+        exit 1
+    fi
 
-# use fsfreeze only if we're not writing to /
-if [[ "$(stat -c %m -- "$outfile")" != "/" && "$(stat -f -c %T -- "$outfile")" != "msdos" ]]; then
-    if ! $(fsfreeze -f $(dirname "$outfile") 2>/dev/null && fsfreeze -u $(dirname "$outfile") 2>/dev/null); then
-        dinfo "dracut: warning: could not fsfreeze $(dirname "$outfile")"
+    # use fsfreeze only if we're not writing to /
+    if [[ "$(stat -c %m -- "$outfile")" != "/" && "$(stat -f -c %T -- "$outfile")" != "msdos" ]]; then
+        if ! $(fsfreeze -f $(dirname "$outfile") 2>/dev/null && fsfreeze -u $(dirname "$outfile") 2>/dev/null); then
+            dinfo "dracut: warning: could not fsfreeze $(dirname "$outfile")"
+        fi
     fi
 fi
 

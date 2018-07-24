@@ -6,7 +6,7 @@ pkglib_dir() {
         _dirs+=" /usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/plymouth"
     fi
     for _dir in $_dirs; do
-        if [ -d $_dir ]; then
+        if [ -x $_dir/plymouth-populate-initrd ]; then
             echo $_dir
             return
         fi

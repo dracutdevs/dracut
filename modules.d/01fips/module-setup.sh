@@ -16,12 +16,27 @@ installkernel() {
     if [[ -f "${srcmods}/modules.fips" ]]; then
         _fipsmodules="$(cat "${srcmods}/modules.fips")"
     else
-        _fipsmodules="aead aes_generic aes-x86_64 ansi_cprng arc4 authenc authencesn blowfish camellia cast6 cbc ccm "
-        _fipsmodules+="chainiv crc32c crct10dif_generic cryptomgr crypto_null ctr cts deflate des des3_ede dm-crypt dm-mod drbg "
-        _fipsmodules+="ecb eseqiv fcrypt gcm ghash_generic hmac khazad lzo md4 md5 michael_mic rmd128 "
-        _fipsmodules+="rmd160 rmd256 rmd320 rot13 salsa20 seed seqiv serpent sha1 sha224 sha256 sha256_generic "
-        _fipsmodules+="sha384 sha512 sha512_generic tcrypt tea tnepres twofish wp256 wp384 wp512 xeta xtea xts zlib "
-        _fipsmodules+="aes_s390 des_s390 prng sha256_s390 sha_common des_check_key ghash_s390 sha1_s390 sha512_s390 cmac authenc "
+        _fipsmodules=""
+
+        # Hashes:
+        _fipsmodules+="sha1 sha224 sha256 sha384 sha512 "
+        _fipsmodules+="sha3-224 sha3-256 sha3-384 sha3-512 "
+        _fipsmodules+="crc32c crct10dif ghash "
+
+        # Ciphers:
+        _fipsmodules+="cipher_null des3_ede aes "
+
+        # Modes/templates:
+        _fipsmodules+="ecb cbc ctr xts gcm ccm authenc hmac cmac "
+
+        # Compression algs:
+        _fipsmodules+="deflate lzo zlib "
+
+        # PRNG algs:
+        _fipsmodules+="ansi_cprng "
+
+        # Misc:
+        _fipsmodules+="aead cryptomgr tcrypt crypto_user "
     fi
 
     mkdir -m 0755 -p "${initdir}/etc/modprobe.d"
@@ -41,14 +56,8 @@ install() {
     inst_hook pre-pivot 01 "$moddir/fips-noboot.sh"
     inst_script "$moddir/fips.sh" /sbin/fips.sh
 
-    inst_multiple sha512hmac rmmod insmod mount uname umount fipscheck
+    inst_multiple sha512hmac rmmod insmod mount uname umount
 
-    inst_libdir_file libsoftokn3.so libsoftokn3.so \
-        libsoftokn3.chk libfreebl3.so libfreebl3.chk \
-        libssl.so 'hmaccalc/sha512hmac.hmac' libssl.so.10 \
-        libfreeblpriv3.so libfreeblpriv3.chk
-
-    inst_multiple -o prelink
     inst_simple /etc/system-fips
     [ -c ${initdir}/dev/random ] || mknod ${initdir}/dev/random c 1 8 \
         || {

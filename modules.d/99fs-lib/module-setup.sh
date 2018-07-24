@@ -15,13 +15,10 @@ echo_fs_helper() {
     local dev=$1 fs=$2
     case "$fs" in
         xfs)
-            echo -n " xfs_db xfs_repair xfs_check xfs_metadump"
+            echo -n " xfs_db xfs_repair xfs_check xfs_metadump "
             ;;
         ext?)
             echo -n " e2fsck "
-            ;;
-        f2fs)
-            echo -n " fsck.f2fs "
             ;;
         jfs)
             echo -n " jfs_fsck "
@@ -41,7 +38,7 @@ echo_fs_helper() {
 include_fs_helper_modules() {
     local dev=$1 fs=$2
     case "$fs" in
-        xfs|btrfs)
+        xfs|btrfs|ext4)
             instmods crc32c
             ;;
         f2fs)
@@ -52,12 +49,12 @@ include_fs_helper_modules() {
 
 # called by dracut
 installkernel() {
-    # xfs and btrfs needs crc32c...
+    # xfs/btrfs/ext4 need crc32c, f2fs needs crc32
     if [[ $hostonly ]]; then
         for_each_host_dev_fs include_fs_helper_modules
         :
     else
-        instmods crc32c
+        instmods crc32c crc32
     fi
 }
 
@@ -74,7 +71,7 @@ install() {
         _helpers="\
             umount mount /sbin/fsck*
             xfs_db xfs_check xfs_repair xfs_metadump
-            e2fsck fsck.f2fs jfs_fsck reiserfsck btrfsck
+            e2fsck jfs_fsck reiserfsck btrfsck
         "
         if [[ $hostonly ]]; then
             _helpers="umount mount "
@@ -84,7 +81,7 @@ install() {
         _helpers="$fscks"
     fi
 
-    if [[ "$_helpers" ==  *e2fsck* ]] && [ -e /etc/e2fsck.conf ]; then
+    if [[ "$_helpers" == *e2fsck* ]] && [ -e /etc/e2fsck.conf ]; then
         inst_simple /etc/e2fsck.conf
     fi
 

@@ -63,7 +63,7 @@ if ! [[ ${BOOT_OPTIONS[*]} ]]; then
     exit 1
 fi
 
-if [[ -d "$BOOT_DIR_ABS" ]]; then
+if [[ -d "${BOOT_DIR_ABS%/*}" ]]; then
     BOOT_DIR="/${MACHINE_ID}/0-rescue"
     BOOT_ROOT=${BOOT_DIR_ABS%$BOOT_DIR}
     LOADER_ENTRY="$BOOT_ROOT/loader/entries/${MACHINE_ID}-0-rescue.conf"
@@ -71,10 +71,6 @@ if [[ -d "$BOOT_DIR_ABS" ]]; then
     INITRD="initrd"
 else
     BLS_DIR="/boot/loader/entries"
-    if [ -d /sys/firmware/efi ]; then
-	BLS_DIR="/boot/efi/EFI/${ID}/loader/entries"
-    fi
-
     BOOT_DIR_ABS="/boot"
     LOADER_ENTRY="$BLS_DIR/${MACHINE_ID}-0-rescue.conf"
     KERNEL="vmlinuz-0-rescue-${MACHINE_ID}"
@@ -106,7 +102,7 @@ case "$COMMAND" in
             ((ret+=$?))
         fi
 
-        if [[ -d "$BOOT_DIR" ]]; then
+        if [[ "${BOOT_DIR_ABS}" != "/boot" ]]; then
             {
                 echo "title      $PRETTY_NAME - Rescue Image"
                 echo "version    $KERNEL_VERSION"
@@ -131,7 +127,5 @@ case "$COMMAND" in
         usage
         ret=1;;
 esac
-
-((ret+=$?))
 
 exit $ret
