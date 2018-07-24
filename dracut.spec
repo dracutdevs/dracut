@@ -257,6 +257,9 @@ rm -f -- $RPM_BUILD_ROOT%{_bindir}/lsinitrd
 %endif
 
 %if 0%{?fedora} || 0%{?rhel}
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/kernel/postinst.d
+install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kernel/postinst.d/51-dracut-rescue-postinst.sh
+
 echo 'hostonly="no"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-generic-image.conf
 echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-rescue.conf
 %endif
@@ -452,6 +455,7 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %{dracutlibdir}/dracut.conf.d/02-rescue.conf
 %if 0%{?fedora} || 0%{?rhel}
 %{_prefix}/lib/kernel/install.d/51-dracut-rescue.install
+%{_sysconfdir}/kernel/postinst.d/51-dracut-rescue-postinst.sh
 %endif
 
 %changelog
