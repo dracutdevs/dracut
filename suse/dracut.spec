@@ -109,7 +109,7 @@ This package contains tools to assemble the local initrd and host configuration.
 %build
 %configure\
   --systemdsystemunitdir=%{_unitdir}\
-  --bashcompletiondir=%{_sysconfdir}/bash_completion.d\
+  --bashcompletiondir=%{_datarootdir}/bash-completion/completions \
   --libdir=%{_prefix}/lib
 make all CFLAGS="%{optflags}" %{?_smp_mflags}
 
@@ -241,7 +241,7 @@ ln -s %{dracutlibdir}/modules.d/45ifcfg/write-ifcfg-redhat.sh %{buildroot}/%{dra
 /sbin/installkernel
 /sbin/mkinitrd
 /sbin/mkinitrd_setup
-%config %{_sysconfdir}/bash_completion.d/lsinitrd
+%{_datarootdir}/bash-completion/completions/lsinitrd
 %{_datadir}/pkgconfig/dracut.pc
 
 %config(noreplace) %{_sysconfdir}/dracut.conf
@@ -385,6 +385,6 @@ ln -s %{dracutlibdir}/modules.d/45ifcfg/write-ifcfg-redhat.sh %{buildroot}/%{dra
 %dir %{_unitdir}/sysinit.target.wants
 %{_unitdir}/*.service
 %{_unitdir}/*/*.service
-%config %{_sysconfdir}/bash_completion.d/dracut
+%{_datarootdir}/bash-completion/completions/dracut
 
 %changelog
