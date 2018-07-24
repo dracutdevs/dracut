@@ -214,7 +214,6 @@ ln -s %{dracutlibdir}/modules.d/45ifcfg/write-ifcfg-redhat.sh %{buildroot}/%{dra
 %license COPYING
 %config %{_sysconfdir}/dracut.conf.d/40-fips.conf
 %{dracutlibdir}/modules.d/01fips
-%{dracutlibdir}/modules.d/02fips-aesni
 
 %files ima
 %defattr(-,root,root,0755)
