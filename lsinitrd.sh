@@ -28,7 +28,10 @@ usage()
         echo "-m, --mod                   list modules."
         echo "-f, --file <filename>       print the contents of <filename>."
         echo "--unpack                    unpack the initramfs, instead of displaying the contents."
+        echo "                            If optional filenames are given, will only unpack specified files,"
+        echo "                            else the whole image will be unpacked. Won't unpack anything from early cpio part."
         echo "--unpackearly               unpack the early microcode part of the initramfs."
+        echo "                            Same as --unpack, but only unpack files from early cpio part."
         echo "-v, --verbose               unpack verbosely."
         echo "-k, --kver <kernel version> inspect the initramfs of <kernel version>."
         echo
