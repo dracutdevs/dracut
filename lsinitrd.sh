@@ -159,8 +159,15 @@ list_files()
 
 unpack_files()
 {
-    $CAT "$image" 2>/dev/null | cpio -id --quiet $verbose
-    ((ret+=$?))
+    if (( ${#filenames[@]} > 0 )); then
+        for f in "${!filenames[@]}"; do
+            $CAT "$image" 2>/dev/null | cpio -id --quiet $verbose $f
+            ((ret+=$?))
+        done
+    else
+        $CAT "$image" 2>/dev/null | cpio -id --quiet $verbose
+        ((ret+=$?))
+    fi
 }
 
 
@@ -175,7 +182,10 @@ case $bin in
         CAT="cat --"
         is_early=$(cpio --extract --verbose --quiet --to-stdout -- 'early_cpio' < "$image" 2>/dev/null)
         if [[ "$is_early" ]]; then
-            if [[ -n "$unpackearly" ]]; then
+            if [[ -n "$unpack" ]]; then
+                # should use --unpackearly for early CPIO
+                :
+            elif [[ -n "$unpackearly" ]]; then
                 unpack_files
             elif (( ${#filenames[@]} > 0 )); then
                 extract_files
