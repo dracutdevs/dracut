@@ -251,6 +251,17 @@ if [[ $SKIP ]]; then
     CAT=skipcpio
 fi
 
+if (( ${#filenames[@]} > 1 )); then
+    TMPFILE="$(mktemp -t --suffix=.cpio lsinitrd.XXXXXX)"
+    $CAT "$image" 2>/dev/null > $TMPFILE
+    trap "rm -f '$TMPFILE'" EXIT
+    pre_decompress()
+    {
+        cat $TMPFILE
+    }
+    CAT=pre_decompress
+fi
+
 ret=0
 
 if [[ -n "$unpack" ]]; then
