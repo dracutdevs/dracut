@@ -39,6 +39,18 @@ load_x509_keys()
     return 0
 }
 
+ensure_loading() {
+    # load to the untrusted _ima keyring if the system tried and failed to load to the trusted .ima keyring
+    if [[ "$(keyctl list %keyring:.ima 2> /dev/null)" == 'keyring is empty' ]]; then
+        local _ima_untrusted_id="$(keyctl search @u keyring _ima)"
+        if [ -z "${_ima_id}" ]; then
+            _ima_untrusted_id="$(keyctl newring _ima @u)"
+        fi
+        load_x509_keys ${_ima_untrusted_id}
+    fi
+}
+
+
 # check kernel support for IMA
 if [ ! -e "${IMASECDIR}" ]; then
     if [ "${RD_DEBUG}" = "yes" ]; then
@@ -60,3 +72,4 @@ fi
 
 # load the IMA public key(s)
 load_x509_keys ${_ima_id}
+ensure_loading
