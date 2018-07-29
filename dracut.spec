@@ -320,6 +320,9 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 %ifnarch s390 s390x
 %{dracutlibdir}/modules.d/00warpclock
 %endif
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
+%{dracutlibdir}/modules.d/01fips
+%endif
 %{dracutlibdir}/modules.d/01systemd-initrd
 %{dracutlibdir}/modules.d/03modsign
 %{dracutlibdir}/modules.d/03rescue
@@ -403,11 +406,6 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 %{_prefix}/lib/kernel/install.d/50-dracut.install
 %endif
 
-%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
-%defattr(-,root,root,0755)
-%{dracutlibdir}/modules.d/01fips
-%endif
-
 %files network
 %{dracutlibdir}/modules.d/02systemd-networkd
 %{dracutlibdir}/modules.d/40network
@@ -436,7 +434,6 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 %{dracutlibdir}/modules.d/90livenet
 
 %files tools
-
 %if %{with doc}
 %doc %{_mandir}/man8/dracut-catimages.8*
 %endif
