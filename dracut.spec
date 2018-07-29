@@ -224,6 +224,7 @@ rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/98integrity
 
 %ifnarch s390 s390x
 # remove architecture specific modules
+rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00warpclock
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/80cms
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/81cio_ignore
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/91zipl
@@ -316,7 +317,9 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 %endif
 %{dracutlibdir}/modules.d/00bash
 %{dracutlibdir}/modules.d/00systemd
+%ifnarch s390 s390x
 %{dracutlibdir}/modules.d/00warpclock
+%endif
 %{dracutlibdir}/modules.d/01systemd-initrd
 %{dracutlibdir}/modules.d/03modsign
 %{dracutlibdir}/modules.d/03rescue
