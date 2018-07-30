@@ -34,33 +34,17 @@ load_x509_keys()
     done
 
     if [ "${RD_DEBUG}" = "yes" ]; then
-        keyctl show  ${KEYRING_ID}
+        keyctl show ${KEYRING_ID}
+    fi
+
+    # listing the keyring prints out 'keyring is empty' if no keys have been loaded
+    if [ "$(keyctl list ${KEYRING_ID})" == 'keyring is empty' ]; then
+        if [ "${RD_DEBUG}" = "yes" ]; then
+            info "integrity: failed to load keys to keyring: ${KEYRING_ID}"
+        fi
+        return 1
     fi
     return 0
-}
-
-ensure_key_loading() {
-    # load to the untrusted _ima keyring if the system tried and failed to load to the trusted .ima keyring
-    
-    # if a keyring is empty, keyctl will print 'keyring is empty'. The below check only returns true if 
-    #       1) the .ima keyring exists (in which case, we have already tried to load to it), and
-    #       2) the .ima keyring is empty (loading keys failed)
-    # piping of stderr to /dev/null hides the keyctl error "Can't find 'keyring:.ima'" if the keyring doesn't exist
-    [[ "$(keyctl list %keyring:.ima 2> /dev/null)" != 'keyring is empty' ]] && return 0
-
-    if [ "${RD_DEBUG}" = "yes" ]; then
-        info "integrity: failed to load to .ima keyring. Attempting to load to _ima keyring"
-    fi
-
-    local _ima_untrusted_id="$(keyctl search @u keyring _ima)"
-    if [ -z "${_ima_id}" ]; then
-        _ima_untrusted_id="$(keyctl newring _ima @u)"
-    fi
-
-    # retry loading keys onto _ima keyring
-    load_x509_keys ${_ima_untrusted_id}
-
-    [[ "$(keyctl list %keyring:_ima 2> /dev/null)" == 'keyring is empty' ]] && info "integrity: failed to load to _ima keyring. No IMA keys loaded"
 }
 
 
@@ -84,5 +68,17 @@ else
 fi
 
 # load the IMA public key(s)
-load_x509_keys ${_ima_id}
-ensure_key_loading
+load_x509_keys "${_ima_id}"
+
+if [ $? -ne 0 ]; then
+    # load to the untrusted _ima keyring if the system tried and failed to load to the trusted .ima keyring
+    local _ima_untrusted_id="$(keyctl search @u keyring _ima)"
+    if [ -z "${_ima_untrusted_id}" ]; then
+        _ima_untrusted_id="$(keyctl newring _ima @u)"
+    fi
+    load_x509_keys "${_ima_untrusted_id}"
+    if [ $? -ne 0 ]; then
+        if [ "${RD_DEBUG}" = "yes" ]; then
+            info "integrity: IMA key load failed"
+        fi
+fi
