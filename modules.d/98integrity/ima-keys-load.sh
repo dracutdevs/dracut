@@ -81,4 +81,5 @@ if [ $? -ne 0 ]; then
         if [ "${RD_DEBUG}" = "yes" ]; then
             info "integrity: IMA key load failed"
         fi
+    fi
 fi
