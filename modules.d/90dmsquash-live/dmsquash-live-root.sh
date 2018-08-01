@@ -376,19 +376,20 @@ if [ -n "$overlayfs" ]; then
         mount -r $FSIMG /run/rootfsbase
     fi
     if [ -z "$DRACUT_SYSTEMD" ]; then
-        #FIXME What to link to /dev/root? Is it even needed?
         printf 'mount -t overlay LiveOS_rootfs -o%s,%s %s\n' "$ROOTFLAGS" \
         'lowerdir=/run/rootfsbase,upperdir=/run/overlayfs,workdir=/run/ovlwork' \
         "$NEWROOT" > $hookdir/mount/01-$$-live.sh
     fi
+    _dev=/run/rootfsbase
 else
-    ln -s /dev/mapper/live-rw /dev/root
+    _dev=/dev/mapper/live-rw
     if [ -z "$DRACUT_SYSTEMD" ]; then
         [ -n "$ROOTFLAGS" ] && ROOTFLAGS="-o $ROOTFLAGS"
         printf 'mount %s /dev/mapper/live-rw %s\n' "$ROOTFLAGS" "$NEWROOT" > $hookdir/mount/01-$$-live.sh
     fi
     ln -s $BASE_LOOPDEV /run/rootfsbase
 fi
+ln -s $_dev /dev/root
 
 need_shutdown
 
