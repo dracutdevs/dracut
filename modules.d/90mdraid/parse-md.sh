@@ -14,6 +14,9 @@ else
                 if [ "${line%%UUID CHECK}" != "$line" ]; then
                     printf 'IMPORT{program}="/sbin/mdadm --examine --export $tempnode"\n'
                     for uuid in $MD_UUID; do
+                        uuid=$(str_replace "$uuid" "-" "")
+                        uuid=$(str_replace "$uuid" ":" "")
+                        uuid="$(expr substr $uuid 1 8)-$(expr substr $uuid 9 4)-$(expr substr $uuid 13 4)-$(expr substr $uuid 17 4)-$(expr substr $uuid 21 12)"
                         printf 'ENV{MD_UUID}=="%s", GOTO="md_uuid_ok"\n' $uuid
                         printf 'ENV{ID_FS_UUID}=="%s", GOTO="md_uuid_ok"\n' $uuid
                     done;
@@ -29,6 +32,7 @@ else
             if strstr "$uuid" "-"; then
                 # convert ID_FS_UUID to MD_UUID format
                 uuid=$(str_replace "$uuid" "-" "")
+                uuid=$(str_replace "$uuid" ":" "")
                 uuid="$(expr substr $uuid 1 8):$(expr substr $uuid 9 8):$(expr substr $uuid 17 8):$(expr substr $uuid 25 8)"
             fi
             wait_for_dev "/dev/disk/by-id/md-uuid-${uuid}"
