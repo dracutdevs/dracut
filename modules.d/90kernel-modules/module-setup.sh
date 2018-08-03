@@ -25,7 +25,7 @@ installkernel() {
             ohci-hcd ohci-pci \
             uhci-hcd \
             xhci-hcd xhci-pci xhci-plat-hcd \
-            pinctrl-cherryview \
+            "=drivers/pinctrl" \
             ${NULL}
 
         hostonly=$(optional_hostonly) instmods \
@@ -50,6 +50,7 @@ installkernel() {
                 "=drivers/clk" \
                 "=drivers/dma" \
                 "=drivers/extcon" \
+                "=drivers/gpio" \
                 "=drivers/hwspinlock" \
                 "=drivers/i2c/busses" \
                 "=drivers/mfd" \
