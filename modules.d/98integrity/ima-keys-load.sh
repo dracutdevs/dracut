@@ -17,7 +17,7 @@ load_x509_keys()
         IMAKEYSDIR="/etc/keys/ima"
     fi
 
-    PUBKEY_LIST=`ls ${NEWROOT}${IMAKEYSDIR}/*`
+    PUBKEY_LIST="$(ls ${NEWROOT}${IMAKEYSDIR}/*)"
     for PUBKEY in ${PUBKEY_LIST}; do
         # check for public key's existence
         if [ ! -f "${PUBKEY}" ]; then
@@ -38,7 +38,7 @@ load_x509_keys()
     fi
 
     # listing the keyring prints out 'keyring is empty' if no keys have been loaded
-    if [ "$(keyctl list ${KEYRING_ID})" == 'keyring is empty' ]; then
+    if [ "$(keyctl list ${KEYRING_ID})" == "keyring is empty" ]; then
         if [ "${RD_DEBUG}" = "yes" ]; then
             info "integrity: failed to load keys to keyring: ${KEYRING_ID}"
         fi
@@ -61,9 +61,9 @@ line=$(keyctl describe %keyring:.ima)
 if [ $? -eq 0 ]; then
     _ima_id=${line%%:*}
 else
-    _ima_id=`keyctl search @u keyring _ima`
+    _ima_id="$(keyctl search @u keyring _ima)"
     if [ -z "${_ima_id}" ]; then
-        _ima_id=`keyctl newring _ima @u`
+        _ima_id="$(keyctl newring _ima @u)"
     fi
 fi
 
