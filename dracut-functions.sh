@@ -683,7 +683,7 @@ get_loaded_kernel_modules ()
     local modules=( )
     while read _module _size _used _used_by; do
         modules+=( "$_module" )
-    done <<< $(lsmod | sed -n '1!p')
+    done <<< "$(lsmod | sed -n '1!p')"
     printf '%s\n' "${modules[@]}" | sort
 }
 
