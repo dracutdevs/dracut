@@ -24,6 +24,16 @@ load_ima_policy()
     [ -f "${IMACONFIG}" ] && \
         . ${IMACONFIG}
 
+    # check whether the IMA policy should be loaded
+    [ -z "${IMAPOLICYLOAD}" ] && \
+        IMAPOLICYLOAD="YES"
+
+    if [ "${IMAPOLICYLOAD}" = "NO" ]; then
+        if [ "${RD_DEBUG}" = "yes" ]; then
+            info "integrity: IMA policy will not be loaded"
+        fi
+    fi
+
     # set the IMA policy path name
     IMAPOLICYPATH="${NEWROOT}${IMAPOLICY}"
 
