@@ -109,7 +109,7 @@ handle_netroot()
     arg=$(getarg rd.iscsi.in.password -d iscsi_in_password=)
     [ -n "$arg" ] && iscsi_in_password=$arg
     for p in $(getargs rd.iscsi.param -d iscsi_param); do
-	iscsi_param="$iscsi_param $p"
+        iscsi_param="$iscsi_param $p"
     done
 
     parse_iscsi_root "$1" || return 1
@@ -208,28 +208,31 @@ handle_netroot()
             echo "iscsi_lun=$iscsi_lun . /bin/mount-lun.sh " > $hookdir/mount/01-$$-iscsi.sh
     fi
 
-    ### ToDo: Upstream calls systemd-run - Shall we, do we have to port this?
-
     targets=$(iscsiadm -m discovery -t st -p $iscsi_target_ip:${iscsi_target_port:+$iscsi_target_port} | sed 's/^.*iqn/iqn/')
     [ -z "$targets" ] && echo "Target discovery to $iscsi_target_ip:${iscsi_target_port:+$iscsi_target_port} failed with status $?" && exit 1
 
     for target in $iscsi_target_name; do
         case "$targets" in
         *$target*)
+            EXTRA=""
             if [ -n "$iscsi_iface_name" ]; then
-                $(iscsiadm -m iface -I $iscsi_iface_name --op=new)
-                [ -n "$iscsi_initiator" ] && $(iscsiadm -m iface -I $iscsi_iface_name --op=update --name=iface.initiatorname --value=$iscsi_initiator)
-                [ -n "$iscsi_netdev_name" ] && $(iscsiadm -m iface -I $iscsi_iface_name --op=update --name=iface.net_ifacename --value=$iscsi_netdev_name)
-                COMMAND="iscsiadm -m node -T $target -p $iscsi_target_ip${iscsi_target_port:+:$iscsi_target_port} -I $iscsi_iface_name --op=update"
-            else
-                COMMAND="iscsiadm -m node -T $target -p $iscsi_target_ip${iscsi_target_port:+:$iscsi_target_port} --op=update"
+                iscsiadm -m iface -I $iscsi_iface_name --op=new
+                EXTRA=" ${iscsi_netdev_name:+--name=iface.net_ifacename --value=$iscsi_netdev_name} "
+                EXTRA="$EXTRA ${iscsi_initiator:+--name=iface.initiatorname --value=$iscsi_initiator} "
             fi
-            $($COMMAND --name=node.startup --value=onboot)
-            [ -n "$iscsi_username" ] && $($COMMAND --name=node.session.auth.username --value=$iscsi_username)
-            [ -n "$iscsi_password" ] && $($COMMAND --name=node.session.auth.password --value=$iscsi_password)
-            [ -n "$iscsi_in_username" ] && $($COMMAND --name=node.session.auth.username_in --value=$iscsi_in_username)
-            [ -n "$iscsi_in_password" ] && $($COMMAND --name=node.session.auth.password_in --value=$iscsi_in_password)
-            [ -n "$iscsi_param" ] && for param in $iscsi_param; do $($COMMAND --name=${param%=*} --value=${param#*=}); done
+            [ -n "$iscsi_param" ] && for param in $iscsi_param; do EXTRA="$EXTRA --name=${param%=*} --value=${param#*=}"; done
+
+            iscsiadm -m node -T $target \
+                     ${iscsi_iface_name:+-I $iscsi_iface_name} \
+                     -p $iscsi_target_ip${iscsi_target_port:+:$iscsi_target_port} \
+                     --op=update \
+                     --name=node.startup --value=onboot \
+                     ${iscsi_username:+   --name=node.session.auth.username    --value=$iscsi_username} \
+                     ${iscsi_password:+   --name=node.session.auth.password    --value=$iscsi_password} \
+                     ${iscsi_in_username:+--name=node.session.auth.username_in --value=$iscsi_in_username} \
+                     ${iscsi_in_password:+--name=node.session.auth.password_in --value=$iscsi_in_password} \
+                     $EXTRA \
+                     $NULL
         ;;
         *)
         ;;
