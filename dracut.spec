@@ -224,7 +224,6 @@ rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/98integrity
 
 %ifnarch s390 s390x
 # remove architecture specific modules
-rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00warpclock
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/80cms
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/81cio_ignore
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/91zipl
@@ -236,6 +235,8 @@ rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/95qeth_rules
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/95zfcp
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/95zfcp_rules
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/95znet
+%else
+rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00warpclock
 %endif
 
 mkdir -p $RPM_BUILD_ROOT/boot/dracut
