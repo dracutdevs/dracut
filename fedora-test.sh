@@ -48,7 +48,7 @@ make -j$NCPU all syncheck rpm
 
 cd test
 
-time sudo make -j$((NCPU/2+1)) \
+time sudo make \
      KVERSION=$(rpm -qa kernel --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' | sort -rn | head -1) \
      TEST_RUN_ID=$RUN_ID \
      -k V=2 \
