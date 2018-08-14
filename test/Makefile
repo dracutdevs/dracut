@@ -1,15 +1,16 @@
-.PHONY: all check clean
+.PHONY: all check clean $(wildcard TEST-??-*)
 
-check:
+$(wildcard TEST-??-*):
 	@[ "$$EUID" == "0" ] || { echo "'check' must be run as root! Please use 'sudo'."; exit 1; }
-	@{ ret=0; \
-	for i in TEST-[0-9]*; do \
-		[ -d $$i ] || continue ; \
-		[ -f $$i/Makefile ] || continue ; \
-		if [ -n "$$TESTS" ]; then t=$${i##TEST-}; t=$${t%%-*}; [ "$${TESTS#*$$t*}" != "$$TESTS" ] || continue; fi; \
-		if [ -n "$$SKIP" ]; then t=$${i##TEST-}; t=$${t%%-*}; [ "$${SKIP#*$$t*}" != "$$SKIP" ] && continue; fi; \
-		$(MAKE) -C $$i all ; ret=$$((ret + $$?)); \
-	done; exit $$ret; }
+	@{ \
+		[ -d $@ ] || exit 0; \
+		[ -f $@/Makefile ] || exit 0; \
+		if [ -n "$$TESTS" ]; then t=$${$@##TEST-}; t=$${t%%-*}; [ "$${TESTS#*$$t*}" != "$$TESTS" ] || exit 0; fi; \
+		if [ -n "$$SKIP" ]; then t=$${$@##TEST-}; t=$${t%%-*}; [ "$${SKIP#*$$t*}" != "$$SKIP" ] && exit 0; fi; \
+		$(MAKE) -C $@ all ; \
+	}
+
+check: $(wildcard TEST-??-*)
 
 clean:
 	@for i in TEST-[0-9]*; do \
