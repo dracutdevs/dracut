@@ -1,15 +1,12 @@
+language: generic
 sudo: required
-
 services:
   - docker
-
 env:
   matrix:
     - IMAGE=latest
     - IMAGE=rawhide
-    
 before_script:
 - docker pull fedora:$IMAGE
-
 script:
 - docker run --privileged -it -v $(pwd)/:/dracut fedora:$IMAGE /dracut/fedora-test.sh $IMAGE-$$
