@@ -36,6 +36,7 @@ dnf -y install --best --allowerasing \
     kernel \
     dhcp-client \
     /usr/bin/qemu-kvm \
+    /usr/bin/qemu-system-$(uname -i) \
     e2fsprogs \
     $NULL
 
