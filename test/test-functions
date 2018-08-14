@@ -75,6 +75,9 @@ while (($# > 0)); do
 		    test_setup && test_run
 		    ret=$?
 		    test_cleanup
+                    if ((ret!=0)) && [[ -f "$TESTDIR"/server.log ]]; then
+                        mv [[ -f "$TESTDIR"/server.log ]] ./
+                    fi
 		    rm -fr -- "$TESTDIR"
 		    rm -f -- .testdir
 		    exit $ret
@@ -88,7 +91,8 @@ while (($# > 0)); do
 	    else
 	        echo -e "TEST: $TEST_DESCRIPTION " $COLOR_FAILURE "[FAILED]" $COLOR_NORMAL
                 if [ "$V" == "2" ]; then
-	            cat $(pwd)/test.log
+	            cat $(pwd)/server.log $(pwd)/test.log
+	            echo -e "TEST: $TEST_DESCRIPTION " $COLOR_FAILURE "[FAILED]" $COLOR_NORMAL
                 else
 	            echo "see $(pwd)/test.log"
                 fi
