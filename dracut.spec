@@ -65,6 +65,13 @@ Provides:  dracut-fips = %{version}-%{release}
 Obsoletes: dracut-fips-aesni <= 047
 Provides:  dracut-fips-aesni = %{version}-%{release}
 
+Obsoletes: dracut-kernel < 005
+Provides:  dracut-kernel = %{version}-%{release}
+
+Obsoletes: dracut < 030
+Obsoletes: dracut-norescue < 030
+Provides:  dracut-norescue = %{version}-%{release}
+
 Requires: bash >= 4
 Requires: coreutils
 Requires: cpio
