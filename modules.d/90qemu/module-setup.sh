@@ -35,3 +35,8 @@ installkernel() {
             spapr-vscsi \
             qemu_fw_cfg
 }
+
+# called by dracut
+install() {
+    dracut_need_initqueue
+}
