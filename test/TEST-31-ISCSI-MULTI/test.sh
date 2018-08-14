@@ -1,5 +1,5 @@
 #!/bin/bash
-TEST_DESCRIPTION="root filesystem over iSCSI"
+TEST_DESCRIPTION="root filesystem over multiple iSCSI"
 
 KVERSION=${KVERSION-$(uname -r)}
 
