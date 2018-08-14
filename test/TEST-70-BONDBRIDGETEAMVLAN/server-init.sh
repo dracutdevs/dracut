@@ -49,7 +49,7 @@ linkup() {
      && wait_for_if_up $1 2>/dev/null
 }
 
-modprobe -b -q 8021q
+modprobe --all -b -q 8021q ipvlan macvlan
 >/dev/watchdog
 ip addr add 127.0.0.1/8 dev lo
 linkup lo
