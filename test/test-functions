@@ -2,11 +2,11 @@
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export PATH
 
-[[ -e .testdir ]] && . .testdir
+[[ -e .testdir${TEST_RUN_ID:+-$TEST_RUN_ID} ]] && . .testdir${TEST_RUN_ID:+-$TEST_RUN_ID}
 if [[ -z "$TESTDIR" ]] || [[ ! -d "$TESTDIR" ]]; then
     TESTDIR=$(mktemp -d -p "/var/tmp" -t dracut-test.XXXXXX)
 fi
-echo "TESTDIR=\"$TESTDIR\"" > .testdir
+echo "TESTDIR=\"$TESTDIR\"" > .testdir${TEST_RUN_ID:+-$TEST_RUN_ID}
 export TESTDIR
 
 command -v test_check &>/dev/null || test_check() {
@@ -50,11 +50,11 @@ while (($# > 0)); do
 	    echo "TEST CLEANUP: $TEST_DESCRIPTION"
 	    test_cleanup
 	    rm -fr -- "$TESTDIR"
-	    rm -f -- .testdir
+	    rm -f -- .testdir${TEST_RUN_ID:+-$TEST_RUN_ID}
 	    exit $?;;
         --all)
             check_root
-            if ! test_check 2&>test.log ; then
+            if ! test_check 2&>test-${TEST_RUN_ID:+-$TEST_RUN_ID}.log ; then
  	        echo -e "TEST: $TEST_DESCRIPTION " $COLOR_WARNING "[SKIPPED]" $COLOR_NORMAL
 		exit 0;
             else
@@ -66,9 +66,9 @@ while (($# > 0)); do
 		    ret=$?
 		    test_cleanup
 		    rm -fr -- "$TESTDIR"
-		    rm -f -- .testdir
+		    rm -f -- .testdir${TEST_RUN_ID:+-$TEST_RUN_ID}
 		    exit $ret
-	        ) </dev/null >test.log 2>&1
+	        ) </dev/null >test-${TEST_RUN_ID:+-$TEST_RUN_ID}.log 2>&1
             else
                 set -o pipefail
                 (
@@ -76,25 +76,25 @@ while (($# > 0)); do
 		    ret=$?
 		    test_cleanup
                     if ((ret!=0)) && [[ -f "$TESTDIR"/server.log ]]; then
-                        mv [[ -f "$TESTDIR"/server.log ]] ./
+                        mv [[ -f "$TESTDIR"/server.log ]] ./server${TEST_RUN_ID:+-$TEST_RUN_ID}.log
                     fi
 		    rm -fr -- "$TESTDIR"
-		    rm -f -- .testdir
+		    rm -f -- .testdir${TEST_RUN_ID:+-$TEST_RUN_ID}
 		    exit $ret
-	        ) </dev/null 2>&1 | tee test.log
+	        ) </dev/null 2>&1 | tee test-${TEST_RUN_ID:+-$TEST_RUN_ID}.log
             fi
 	    ret=$?
             set +o pipefail
 	    if [ $ret -eq 0 ]; then
-                rm -- test.log
+                rm -- test-${TEST_RUN_ID:+-$TEST_RUN_ID}.log
 	        echo -e "TEST: $TEST_DESCRIPTION " $COLOR_SUCCESS "[OK]" $COLOR_NORMAL
 	    else
 	        echo -e "TEST: $TEST_DESCRIPTION " $COLOR_FAILURE "[FAILED]" $COLOR_NORMAL
                 if [ "$V" == "2" ]; then
-	            cat $(pwd)/server.log $(pwd)/test.log
+	            cat $(pwd)/server${TEST_RUN_ID:+-$TEST_RUN_ID}.log $(pwd)/test-${TEST_RUN_ID:+-$TEST_RUN_ID}.log
 	            echo -e "TEST: $TEST_DESCRIPTION " $COLOR_FAILURE "[FAILED]" $COLOR_NORMAL
                 else
-	            echo "see $(pwd)/test.log"
+	            echo "see $(pwd)/test-${TEST_RUN_ID:+-$TEST_RUN_ID}.log"
                 fi
 	    fi
 	    exit $ret;;
