@@ -57,7 +57,7 @@ client_test() {
       -net nic,macaddr=52:54:00:12:34:$mac3,model=e1000 \
       -netdev hubport,id=n1,hubid=1 \
       -netdev hubport,id=n2,hubid=2 \
-      --device e1000,netdev=n1,mac=52:54:00:12:34:98 \
+      -device e1000,netdev=n1,mac=52:54:00:12:34:98 \
       -device e1000,netdev=n2,mac=52:54:00:12:34:99 \
       -watchdog i6300esb -watchdog-action poweroff \
       -no-reboot \
