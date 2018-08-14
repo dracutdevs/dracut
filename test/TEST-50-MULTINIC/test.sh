@@ -29,7 +29,9 @@ run_server() {
             -pidfile "$TESTDIR"/server.pid -daemonize || return 1
     else
         $testdir/run-qemu \
-            -drive format=raw,index=0,media=disk,file="$TESTDIR"/client.img -m 512M  -smp 2 -nographic \
+            -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
+            -m 512M  -smp 2 \
+            -display none \
             -net socket,vlan=0,connect=127.0.0.1:12350 \
             -net nic,vlan=0,macaddr=52:54:00:12:34:$mac1,model=e1000 \
             -net nic,vlan=0,macaddr=52:54:00:12:34:$mac2,model=e1000 \
@@ -38,8 +40,9 @@ run_server() {
             -net nic,vlan=2,macaddr=52:54:00:12:34:99,model=e1000 \
             -watchdog i6300esb -watchdog-action poweroff \
             -no-reboot \
-            -append "panic=1 rd.shell=0 $cmdline $DEBUGFAIL rd.retry=5 ro console=ttyS0,115200n81 selinux=0 init=/sbin/init rd.debug systemd.log_target=console loglevel=7" \
-            -initrd "$TESTDIR"/initramfs.testing
+            -append "panic=1 loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
+            -initrd "$TESTDIR"/initramfs.server \
+            -pidfile "$TESTDIR"/server.pid -daemonize || return 1
     fi
 
     sudo chmod 644 -- "$TESTDIR"/server.pid || return 1
