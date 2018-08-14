@@ -13,39 +13,19 @@ run_server() {
 
     fsck -a "$TESTDIR"/server.ext3 || return 1
 
-    if $testdir/run-qemu --help | grep -qF -m1 'netdev hubport,id=str,hubid=n[,netdev=nd]' && echo OK; then
-        $testdir/run-qemu \
-            -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
-            -m 512M  -smp 2 \
-            -display none \
-            -net socket,listen=127.0.0.1:12350 \
-            -net nic,macaddr=52:54:01:12:34:56,model=e1000 \
-            ${SERIAL:+-serial "$SERIAL"} \
-            ${SERIAL:--serial file:"$TESTDIR"/server.log} \
-            -watchdog i6300esb -watchdog-action poweroff \
-            -no-reboot \
-            -append "panic=1 loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
-            -initrd "$TESTDIR"/initramfs.server \
-            -pidfile "$TESTDIR"/server.pid -daemonize || return 1
-    else
-        $testdir/run-qemu \
-            -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
-            -m 512M  -smp 2 \
-            -display none \
-            -net socket,vlan=0,connect=127.0.0.1:12350 \
-            -net nic,vlan=0,macaddr=52:54:00:12:34:$mac1,model=e1000 \
-            -net nic,vlan=0,macaddr=52:54:00:12:34:$mac2,model=e1000 \
-            -net nic,vlan=0,macaddr=52:54:00:12:34:$mac3,model=e1000 \
-            -net nic,vlan=1,macaddr=52:54:00:12:34:98,model=e1000 \
-            -net nic,vlan=2,macaddr=52:54:00:12:34:99,model=e1000 \
-            ${SERIAL:+-serial "$SERIAL"} \
-            ${SERIAL:--serial file:"$TESTDIR"/server.log} \
-            -watchdog i6300esb -watchdog-action poweroff \
-            -no-reboot \
-            -append "panic=1 loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
-            -initrd "$TESTDIR"/initramfs.server \
-            -pidfile "$TESTDIR"/server.pid -daemonize || return 1
-    fi
+    $testdir/run-qemu \
+        -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
+        -m 512M  -smp 2 \
+        -display none \
+        -net socket,listen=127.0.0.1:12350 \
+        -net nic,macaddr=52:54:01:12:34:56,model=e1000 \
+        ${SERIAL:+-serial "$SERIAL"} \
+        ${SERIAL:--serial file:"$TESTDIR"/server.log} \
+        -watchdog i6300esb -watchdog-action poweroff \
+        -no-reboot \
+        -append "panic=1 loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
+        -initrd "$TESTDIR"/initramfs.server \
+        -pidfile "$TESTDIR"/server.pid -daemonize || return 1
 
     sudo chmod 644 -- "$TESTDIR"/server.pid || return 1
 
