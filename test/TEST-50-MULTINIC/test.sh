@@ -38,6 +38,8 @@ run_server() {
             -net nic,vlan=0,macaddr=52:54:00:12:34:$mac3,model=e1000 \
             -net nic,vlan=1,macaddr=52:54:00:12:34:98,model=e1000 \
             -net nic,vlan=2,macaddr=52:54:00:12:34:99,model=e1000 \
+            ${SERIAL:+-serial "$SERIAL"} \
+            ${SERIAL:--serial file:"$TESTDIR"/server.log} \
             -watchdog i6300esb -watchdog-action poweroff \
             -no-reboot \
             -append "panic=1 loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
