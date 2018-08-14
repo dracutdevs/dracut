@@ -2,6 +2,10 @@
 
 dracut is an initramfs infrastructure.
 
+## Travis
+
+[![Build Status](https://travis-ci.org/dracutdevs/dracut.svg?branch=master)](https://travis-ci.org/dracutdevs/dracut)
+
 ## CentOS CI
 
 [![Build Status](https://ci.centos.org/job/dracut-push-master/badge/icon)](https://ci.centos.org/job/dracut-push-master/)
