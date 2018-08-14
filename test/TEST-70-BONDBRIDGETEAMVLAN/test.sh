@@ -14,6 +14,7 @@ run_server() {
     echo "MULTINIC TEST SETUP: Starting DHCP/NFS server"
 
     fsck -a "$TESTDIR"/server.ext3 || return 1
+
     $testdir/run-qemu \
         -hda "$TESTDIR"/server.ext3 \
         -m 512M -smp 2 \
@@ -66,17 +67,38 @@ client_test() {
         nic3=" -netdev hubport,id=n3,hubid=3"
     fi
 
-    $testdir/run-qemu -hda "$TESTDIR"/client.img -m 512M -smp 2 -nographic \
-        -netdev socket,connect=127.0.0.1:12370,id=s1 -netdev hubport,hubid=1,id=h1,netdev=s1 \
-        -netdev hubport,hubid=1,id=h2 -device e1000,mac=52:54:00:12:34:01,netdev=h2 \
-        -netdev hubport,hubid=1,id=h3 -device e1000,mac=52:54:00:12:34:02,netdev=h3 \
-        $nic1 -device e1000,mac=52:54:00:12:34:03,netdev=n1  \
-        -netdev socket,connect=127.0.0.1:12372,id=n2 -device e1000,mac=52:54:00:12:34:04,netdev=n2 \
-        $nic3 -device e1000,mac=52:54:00:12:34:05,netdev=n3 \
-        -watchdog i6300esb -watchdog-action poweroff \
-        -no-reboot \
-        -append "panic=1 $cmdline rd.debug $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
-        -initrd "$TESTDIR"/initramfs.testing
+    if $testdir/run-qemu --help | grep -qF -m1 'netdev hubport,id=str,hubid=n[,netdev=nd]' && echo OK; then
+        $testdir/run-qemu \
+            -hda "$TESTDIR"/client.img -m 512M -smp 2 -nographic \
+            -netdev socket,connect=127.0.0.1:12370,id=s1 \
+            -netdev hubport,hubid=1,id=h1,netdev=s1 \
+            -netdev hubport,hubid=1,id=h2 -device e1000,mac=52:54:00:12:34:01,netdev=h2 \
+            -netdev hubport,hubid=1,id=h3 -device e1000,mac=52:54:00:12:34:02,netdev=h3 \
+            $nic1 -device e1000,mac=52:54:00:12:34:03,netdev=n1  \
+            -netdev socket,connect=127.0.0.1:12372,id=n2 -device e1000,mac=52:54:00:12:34:04,netdev=n2 \
+            $nic3 -device e1000,mac=52:54:00:12:34:05,netdev=n3 \
+            -watchdog i6300esb -watchdog-action poweroff \
+            -no-reboot \
+            -append "panic=1 $cmdline rd.debug $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
+            -initrd "$TESTDIR"/initramfs.testing
+    else
+        $testdir/run-qemu \
+            -hda "$TESTDIR"/client.img -m 512M -smp 2 -nographic \
+            -net socket,vlan=0,connect=127.0.0.1:12370 \
+            ${do_vlan13:+-net socket,vlan=1,connect=127.0.0.1:12371} \
+            -net socket,vlan=2,connect=127.0.0.1:12372 \
+            ${do_vlan13:+-net socket,vlan=3,connect=127.0.0.1:12373} \
+            -net nic,vlan=0,macaddr=52:54:00:12:34:01,model=e1000 \
+            -net nic,vlan=0,macaddr=52:54:00:12:34:02,model=e1000 \
+            -net nic,vlan=1,macaddr=52:54:00:12:34:03,model=e1000 \
+            -net nic,vlan=2,macaddr=52:54:00:12:34:04,model=e1000 \
+            -net nic,vlan=3,macaddr=52:54:00:12:34:05,model=e1000 \
+            -watchdog i6300esb -watchdog-action poweroff \
+            -no-reboot \
+            -append "panic=1 $cmdline rd.debug $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
+            -initrd "$TESTDIR"/initramfs.testing
+    fi
+
     { 
         read OK
         if [[ "$OK" != "OK" ]]; then
@@ -167,7 +189,7 @@ test_setup() {
     mke2fs -j -F -- "$TESTDIR"/server.ext3
     mkdir -- "$TESTDIR"/mnt
     mount -o loop -- "$TESTDIR"/server.ext3 "$TESTDIR"/mnt
-
+    kernel=$KVERSION
     (
         export initdir="$TESTDIR"/mnt
         . "$basedir"/dracut-init.sh
@@ -203,7 +225,7 @@ test_setup() {
         [ -f /etc/netconfig ] && inst_multiple /etc/netconfig
         type -P dhcpd >/dev/null && inst_multiple dhcpd
         [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
-        instmods nfsd sunrpc ipv6 lockd af_packet 8021q
+        instmods nfsd sunrpc ipv6 lockd af_packet 8021q ipvlan macvlan
         inst_simple /etc/os-release
         inst ./server-init.sh /sbin/init
         inst ./hosts /etc/hosts
@@ -286,7 +308,7 @@ test_setup() {
     $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
         --no-early-microcode \
         -m "udev-rules base rootfs-block fs-lib debug kernel-modules watchdog" \
-        -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files nfsd e1000 i6300esb ib700wdt" \
+        -d "ipvlan macvlan af_packet piix ide-gd_mod ata_piix ext3 sd_mod nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files nfsd e1000 i6300esb ib700wdt" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
 
@@ -295,7 +317,7 @@ test_setup() {
         --no-early-microcode \
         -o "plymouth" \
         -a "debug" \
-        -d "af_packet piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files sunrpc i6300esb ib700wdt" \
+        -d "ipvlan macvlan af_packet piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files sunrpc i6300esb ib700wdt" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 }
