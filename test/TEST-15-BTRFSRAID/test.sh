@@ -15,6 +15,7 @@ test_run() {
 	-append "panic=1 root=LABEL=root rw rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.shell=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     dd if=$DISKIMAGE bs=512 count=4 skip=2048 | grep -F -m 1 -q dracut-root-block-success $DISKIMAGE || return 1
+    return 0
 }
 
 test_setup() {
@@ -38,7 +39,7 @@ test_setup() {
             mkdir -p -- var/lib/nfs/rpc_pipefs
         )
 	inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
-	    mount dmesg dhclient mkdir cp ping dhclient
+	    mount dmesg dhclient mkdir cp ping dhclient sync
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
 	    [ -f ${_terminfodir}/l/linux ] && break
 	done
