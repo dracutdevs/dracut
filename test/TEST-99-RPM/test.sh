@@ -35,7 +35,7 @@ test_run() {
     dnf_or_yum_cmd=yum
     command -v dnf >/dev/null && { dnf_or_yum="dnf"; dnf_or_yum_cmd="dnf --allowerasing"; }
     for (( i=0; i < 5 ; i++)); do
-        $dnf_or_yum_cmd -v --nogpgcheck --installroot "$rootdir"/ --releasever 29 --disablerepo='*' \
+        $dnf_or_yum_cmd -v --nogpgcheck --installroot "$rootdir"/ --disablerepo='*' \
                         --enablerepo=fedora --enablerepo=updates \
                         install -y \
                         $dnf_or_yum \
