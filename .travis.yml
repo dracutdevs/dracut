@@ -14,8 +14,8 @@ env:
 before_script:
   - docker pull fedora:$IMAGE
   - |
-    sudo modprobe kvm-intel nested=y || :
-    sudo modprobe kvm-amd nested=y || :
+    sudo modprobe kvm-intel nested=1 || :
+    sudo modprobe kvm-amd nested=1 || :
     dmesg | tail || :
   - git pull --depth=100
   - |
