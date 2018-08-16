@@ -7,7 +7,7 @@ set -ex
 RUN_ID="$1"
 TESTS=$2
 
-dnf -y update --best --allowerasing
+dnf -y update --best --allowerasing &>/dev/null
 
 dnf -y install --best --allowerasing \
     dash \
@@ -39,7 +39,7 @@ dnf -y install --best --allowerasing \
     /usr/bin/qemu-kvm \
     /usr/bin/qemu-system-$(uname -i) \
     e2fsprogs \
-    $NULL
+    $NULL &>/dev/null
 
 ./configure
 
