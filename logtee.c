@@ -6,6 +6,8 @@
 #include <errno.h>
 #include <limits.h>
 
+#define BUFLEN 4096
+
 int
 main(int argc, char *argv[])
 {
@@ -25,9 +27,11 @@ main(int argc, char *argv[])
 
 	fprintf(stderr, "Logging to %s: ", argv[1]);
 
+	slen = 0;
+
 	do {
 		len = splice(STDIN_FILENO, NULL, fd, NULL,
-			     65536, SPLICE_F_MOVE);
+			     BUFLEN, SPLICE_F_MOVE);
 
 		if (len < 0) {
 			if (errno == EAGAIN)
@@ -37,10 +41,14 @@ main(int argc, char *argv[])
 		} else
 			if (len == 0)
 				break;
-		fprintf(stderr, ".", len);
+		slen += len;
+		if ((slen/BUFLEN) > 0) {
+			fprintf(stderr, ".");
+		}
+		slen = slen % BUFLEN;
+
 	} while (1);
 	close(fd);
 	fprintf(stderr, "\n");
 	exit(EXIT_SUCCESS);
 }
-
