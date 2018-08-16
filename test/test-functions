@@ -54,7 +54,7 @@ while (($# > 0)); do
 	    exit $?;;
         --all)
             check_root
-            if ! test_check 2&>test-${TEST_RUN_ID:+-$TEST_RUN_ID}.log ; then
+            if ! test_check 2&>test${TEST_RUN_ID:+-$TEST_RUN_ID}.log ; then
  	        echo -e "TEST: $TEST_DESCRIPTION " $COLOR_WARNING "[SKIPPED]" $COLOR_NORMAL
 		exit 0;
             else
@@ -68,7 +68,7 @@ while (($# > 0)); do
 		    rm -fr -- "$TESTDIR"
 		    rm -f -- .testdir${TEST_RUN_ID:+-$TEST_RUN_ID}
 		    exit $ret
-	        ) </dev/null >test-${TEST_RUN_ID:+-$TEST_RUN_ID}.log 2>&1
+	        ) </dev/null >test${TEST_RUN_ID:+-$TEST_RUN_ID}.log 2>&1
             elif [[ "$V" == "2" ]]; then
                 set -o pipefail
                 (
@@ -81,7 +81,7 @@ while (($# > 0)); do
 		    rm -fr -- "$TESTDIR"
 		    rm -f -- .testdir${TEST_RUN_ID:+-$TEST_RUN_ID}
 		    exit $ret
-	        ) </dev/null 2>&1 | $basedir/logtee test-${TEST_RUN_ID:+-$TEST_RUN_ID}.log
+	        ) </dev/null 2>&1 | $basedir/logtee test${TEST_RUN_ID:+-$TEST_RUN_ID}.log
             else
                 set -o pipefail
                 (
@@ -94,20 +94,20 @@ while (($# > 0)); do
 		    rm -fr -- "$TESTDIR"
 		    rm -f -- .testdir${TEST_RUN_ID:+-$TEST_RUN_ID}
 		    exit $ret
-	        ) </dev/null 2>&1 | tee test-${TEST_RUN_ID:+-$TEST_RUN_ID}.log
+	        ) </dev/null 2>&1 | tee test${TEST_RUN_ID:+-$TEST_RUN_ID}.log
             fi
 	    ret=$?
             set +o pipefail
 	    if [ $ret -eq 0 ]; then
-                rm -- test-${TEST_RUN_ID:+-$TEST_RUN_ID}.log
+                rm -- test${TEST_RUN_ID:+-$TEST_RUN_ID}.log
 	        echo -e "TEST: $TEST_DESCRIPTION " $COLOR_SUCCESS "[OK]" $COLOR_NORMAL
 	    else
 	        echo -e "TEST: $TEST_DESCRIPTION " $COLOR_FAILURE "[FAILED]" $COLOR_NORMAL
                 if [ "$V" == "2" ]; then
-	            cat $(pwd)/server${TEST_RUN_ID:+-$TEST_RUN_ID}.log $(pwd)/test-${TEST_RUN_ID:+-$TEST_RUN_ID}.log
+	            cat $(pwd)/server${TEST_RUN_ID:+-$TEST_RUN_ID}.log $(pwd)/test${TEST_RUN_ID:+-$TEST_RUN_ID}.log
 	            echo -e "TEST: $TEST_DESCRIPTION " $COLOR_FAILURE "[FAILED]" $COLOR_NORMAL
                 else
-	            echo "see $(pwd)/test-${TEST_RUN_ID:+-$TEST_RUN_ID}.log"
+	            echo "see $(pwd)/test${TEST_RUN_ID:+-$TEST_RUN_ID}.log"
                 fi
 	    fi
 	    exit $ret;;
