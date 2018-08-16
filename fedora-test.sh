@@ -2,9 +2,10 @@
 
 set -ex
 
-cd ${0%/*}
+[[ -d ${0%/*} ]] && cd ${0%/*}
 
 RUN_ID="$1"
+TESTS=$2
 
 dnf -y update --best --allowerasing
 
@@ -51,6 +52,7 @@ cd test
 time sudo make \
      KVERSION=$(rpm -qa kernel --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' | sort -rn | head -1) \
      TEST_RUN_ID=$RUN_ID \
+     ${TESTS:+TESTS="$TESTS"} \
      -k V=2 \
      SKIP="14 16" \
      check
