@@ -474,9 +474,6 @@ if [[ $append_args_l == "yes" ]]; then
         eval set -- "$TEMP"
         rearrange_params "$@"
     fi
-
-    # clean the temporarily used scratch-pad directory
-    rm -rf $scratch_dir
 fi
 
 unset PARMS_TO_STORE
