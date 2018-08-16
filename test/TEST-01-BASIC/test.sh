@@ -15,7 +15,7 @@ test_run() {
 	-net none \
 	-watchdog i6300esb -watchdog-action poweroff \
         -no-reboot \
-	-append "panic=1 root=LABEL=dracut rw systemd.log_level=debug systemd.log_target=console rd.retry=3 rd.debug console=ttyS0,115200n81 rd.shell=0 $DEBUGFAIL rd.memdebug=4" \
+	-append "panic=1 root=LABEL=dracut rw systemd.log_level=debug systemd.log_target=console rd.retry=3 rd.debug console=ttyS0,115200n81 rd.shell=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing || return 1
     grep -F -m 1 -q dracut-root-block-success $TESTDIR/result || return 1
 }
