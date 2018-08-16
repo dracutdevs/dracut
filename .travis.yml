@@ -13,7 +13,7 @@ env:
 
 before_script:
   - docker pull fedora:$IMAGE
-  - git pull --tags
+  - git pull --depth=100
   - |
     git describe --abbrev=0 --tags || :
     git describe --tags || :
