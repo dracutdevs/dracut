@@ -45,13 +45,17 @@ dnf -y install --best --allowerasing \
 
 NCPU=$(getconf _NPROCESSORS_ONLN)
 
-make -j$NCPU all syncheck rpm logtee
+if ! [[ $TESTS ]]; then
+    make -j$NCPU all syncheck rpm logtee
+else
+    make -j$NCPU all logtee
 
-cd test
+    cd test
 
-time sudo make \
-     KVERSION=$(rpm -qa kernel --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' | sort -rn | head -1) \
-     TEST_RUN_ID=$RUN_ID \
-     ${TESTS:+TESTS="$TESTS"} \
-     -k V=2 \
-     check
+    time sudo make \
+         KVERSION=$(rpm -qa kernel --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' | sort -rn | head -1) \
+         TEST_RUN_ID=$RUN_ID \
+         ${TESTS:+TESTS="$TESTS"} \
+         -k V=2 \
+         check
+fi
