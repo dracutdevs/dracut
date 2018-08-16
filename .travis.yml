@@ -13,8 +13,9 @@ env:
 
 before_script:
   - docker pull fedora:$IMAGE
-  - git describe --abbrev=0 --tags || :
-  - git describe --tags || :
+  - |
+    git describe --abbrev=0 --tags || :
+    git describe --tags || :
 
 script:
 - docker run --privileged -it -v $(pwd)/:/dracut fedora:$IMAGE /dracut/fedora-test.sh $IMAGE-$$ "$TESTS"
