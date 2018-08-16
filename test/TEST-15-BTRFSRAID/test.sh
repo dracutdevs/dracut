@@ -7,15 +7,17 @@ KVERSION=${KVERSION-$(uname -r)}
 #DEBUGFAIL="rd.shell"
 test_run() {
     DISKIMAGE=$TESTDIR/TEST-15-BTRFSRAID-root.img
+    MARKER_DISKIMAGE=$TESTDIR/TEST-15-BTRFSRAID-marker.img
+    dd if=/dev/zero of=$MARKER_DISKIMAGE bs=512 count=10
     $testdir/run-qemu \
-	-drive format=raw,index=0,media=disk,file=$DISKIMAGE \
-	-m 512M   -smp 2 -nographic \
+	-drive format=raw,index=0,media=disk,file=$MARKER_DISKIMAGE \
+	-drive format=raw,index=1,media=disk,file=$DISKIMAGE \
+	-m 512M -smp 2 -nographic \
 	-net none \
         -no-reboot \
 	-append "panic=1 root=LABEL=root rw rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.shell=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
-    dd if=$DISKIMAGE bs=512 count=4 skip=2048 | grep -F -m 1 -q dracut-root-block-success $DISKIMAGE || return 1
-    return 0
+    grep -F -m 1 -q dracut-root-block-success $MARKER_DISKIMAGE || return 1
 }
 
 test_setup() {
