@@ -45,7 +45,7 @@ dnf -y install --best --allowerasing \
 
 NCPU=$(getconf _NPROCESSORS_ONLN)
 
-make -j$NCPU all syncheck rpm
+make -j$NCPU all syncheck rpm logtee
 
 cd test
 

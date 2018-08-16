@@ -63,6 +63,9 @@ install/strv.o: install/strv.c install/strv.h install/util.h install/macro.h ins
 install/dracut-install: $(DRACUT_INSTALL_OBJECTS)
 	$(CC) $(LDFLAGS) -o $@ $(DRACUT_INSTALL_OBJECTS) $(LDLIBS) $(KMOD_LIBS)
 
+logtee: logtee.c
+	$(CC) $(LDFLAGS) -o $@ $<
+
 dracut-install: install/dracut-install
 	ln -fs $< $@
 
