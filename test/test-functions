@@ -104,7 +104,7 @@ while (($# > 0)); do
 	    else
 	        echo -e "TEST: $TEST_DESCRIPTION " $COLOR_FAILURE "[FAILED]" $COLOR_NORMAL
                 if [ "$V" == "2" ]; then
-	            cat $(pwd)/server${TEST_RUN_ID:+-$TEST_RUN_ID}.log $(pwd)/test${TEST_RUN_ID:+-$TEST_RUN_ID}.log
+	            tail -c 1048576 $(pwd)/server${TEST_RUN_ID:+-$TEST_RUN_ID}.log $(pwd)/test${TEST_RUN_ID:+-$TEST_RUN_ID}.log
 	            echo -e "TEST: $TEST_DESCRIPTION " $COLOR_FAILURE "[FAILED]" $COLOR_NORMAL
                 else
 	            echo "see $(pwd)/test${TEST_RUN_ID:+-$TEST_RUN_ID}.log"
