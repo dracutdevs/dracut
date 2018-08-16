@@ -4,19 +4,17 @@ services:
 - docker
 env:
   matrix:
-  - IMAGE=latest TESTS=01
-  - IMAGE=latest TESTS="02 03 04 10 11 12 13 15 17 18"
-  - IMAGE=latest TESTS=20
-  - IMAGE=latest TESTS="30 31"
-  - IMAGE=latest TESTS=40
-  - IMAGE=latest TESTS=50
-  - IMAGE=latest TESTS=70
-  - IMAGE=latest TESTS=99
+  - IMAGE=latest  TESTS=01
+  - IMAGE=latest  TESTS="02 03 04 10 11 12 13 15 17 18"
+  - IMAGE=latest  TESTS=20
+  - IMAGE=latest  TESTS="30 31"
+  - IMAGE=latest  TESTS=50
+  - IMAGE=latest  TESTS=70
+  - IMAGE=latest  TESTS=99
   - IMAGE=rawhide TESTS=01
   - IMAGE=rawhide TESTS="02 03 04 10 11 12 13 15 17 18"
   - IMAGE=rawhide TESTS=20
   - IMAGE=rawhide TESTS="30 31"
-  - IMAGE=rawhide TESTS=40
   - IMAGE=rawhide TESTS=50
   - IMAGE=rawhide TESTS=70
   - IMAGE=rawhide TESTS=99

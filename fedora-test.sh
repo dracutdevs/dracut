@@ -54,5 +54,4 @@ time sudo make \
      TEST_RUN_ID=$RUN_ID \
      ${TESTS:+TESTS="$TESTS"} \
      -k V=2 \
-     SKIP="14 16" \
      check
