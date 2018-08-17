@@ -228,12 +228,22 @@ install() {
 
     mkdir -p "$initdir/etc/systemd"
     # We must use a volatile journal, and we don't want rate-limiting
+    # and want early startup messages to go everywhere kernel buffer does
     {
         echo "[Journal]"
         echo "Storage=volatile"
         echo "RateLimitInterval=0"
         echo "RateLimitBurst=0"
+        echo "ForwardToConsole=yes"
+        echo "ForwardToKMsg=yes"
+        echo "MaxLevelKMsg=info"
     } >> "$initdir/etc/systemd/journald.conf"
+
+    mkdir -p "$initdir/etc/sysctl.d"
+    # Also disable rate-limiting at kernel ring buffer level
+    {
+        echo "kernel.printk_devkmsg = on"
+    } >> "$initdir/etc/sysctl.d/10-dont-ratelimit-kmsg.conf"
 
     ln_r "${systemdsystemunitdir}/multi-user.target" "${systemdsystemunitdir}/default.target"
 }
