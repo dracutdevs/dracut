@@ -250,13 +250,11 @@ do_live_overlay() {
         echo 0 $sz snapshot $base $over PO 8 | dmsetup create live-rw
     fi
 
-    # Create a device that always points to a ro base image
-    if [ -n "$overlayfs" ]; then
-        BASE_LOOPDUP=$(losetup -f --show -r $BASE_LOOPDEV)
-        echo 0 $sz linear $BASE_LOOPDUP 0 | dmsetup create --readonly live-base
-    else
+    # Create a device for the ro base of overlayed file systems.
+    if [ -z "$overlayfs" ]; then
         echo 0 $sz linear $BASE_LOOPDEV 0 | dmsetup create --readonly live-base
     fi
+    ln -s $BASE_LOOPDEV /dev/live-base
 }
 
 # we might have a genMinInstDelta delta file for anaconda to take advantage of
@@ -291,10 +289,21 @@ if [ -e "$SQUASHED" ]; then
     mkdir -m 0755 -p /run/initramfs/squashfs
     mount -n -t squashfs -o ro $SQUASHED_LOOPDEV /run/initramfs/squashfs
 
-    if [ -f /run/initramfs/squashfs/LiveOS/rootfs.img ]; then
-        FSIMG="/run/initramfs/squashfs/LiveOS/rootfs.img"
-    elif [ -f /run/initramfs/squashfs/LiveOS/ext3fs.img ]; then
-        FSIMG="/run/initramfs/squashfs/LiveOS/ext3fs.img"
+    if [ -d /run/initramfs/squashfs/LiveOS ]; then
+        if [ -f /run/initramfs/squashfs/LiveOS/rootfs.img ]; then
+            FSIMG="/run/initramfs/squashfs/LiveOS/rootfs.img"
+        elif [ -f /run/initramfs/squashfs/LiveOS/ext3fs.img ]; then
+            FSIMG="/run/initramfs/squashfs/LiveOS/ext3fs.img"
+        fi
+    elif [ -d /run/initramfs/squashfs/proc ]; then
+        FSIMG=$SQUASHED
+        if [ -z "$overlayfs" ]; then
+            overlayfs="yes"
+            [ -n "$DRACUT_SYSTEMD" ] && reloadsysrootmountunit="yes"
+        fi
+    else
+        die "Failed to find a root filesystem in $SQUASHED."
+        exit 1
     fi
 else
     # we might have an embedded fs image to use as rootfs (uncompressed live)
@@ -312,8 +321,8 @@ else
     fi
 fi
 
-if [ -n "$FSIMG" ] ; then
-    if [ -n "$writable_fsimg" ] ; then
+if [ -n "$FSIMG" ]; then
+    if [ -n "$writable_fsimg" ]; then
         # mount the provided filesystem read/write
         echo "Unpacking live filesystem (may take some time)" > /dev/kmsg
         mkdir -m 0755 /run/initramfs/fsimg/
@@ -336,17 +345,19 @@ if [ -n "$FSIMG" ] ; then
             setup=yes
         fi
     fi
-    BASE_LOOPDEV=$(losetup -f --show $opt $FSIMG)
-    sz=$(blockdev --getsz $BASE_LOOPDEV)
-    if [ "$setup" == rw ]; then
+    if [ "$FSIMG" = "$SQUASHED" ]; then
+        BASE_LOOPDEV=$SQUASHED_LOOPDEV
+    else
+        BASE_LOOPDEV=$(losetup -f --show $opt $FSIMG)
+        sz=$(blockdev --getsz $BASE_LOOPDEV)
+    fi
+    if [ "$setup" = rw ]; then
         echo 0 $sz linear $BASE_LOOPDEV 0 | dmsetup create live-rw
     else
         # Add a DM snapshot or OverlayFS for writes.
         do_live_overlay
     fi
 fi
-
-[ -e "$SQUASHED" ] && [ -z "$overlayfs" ] && umount -l /run/initramfs/squashfs
 
 if [ -b "$OSMIN_LOOPDEV" ]; then
     # set up the devicemapper snapshot device, which will merge
@@ -380,17 +391,17 @@ if [ -n "$overlayfs" ]; then
         'lowerdir=/run/rootfsbase,upperdir=/run/overlayfs,workdir=/run/ovlwork' \
         "$NEWROOT" > $hookdir/mount/01-$$-live.sh
     fi
-    _dev=/run/rootfsbase
 else
-    _dev=/dev/mapper/live-rw
     if [ -z "$DRACUT_SYSTEMD" ]; then
         [ -n "$ROOTFLAGS" ] && ROOTFLAGS="-o $ROOTFLAGS"
         printf 'mount %s /dev/mapper/live-rw %s\n' "$ROOTFLAGS" "$NEWROOT" > $hookdir/mount/01-$$-live.sh
     fi
-    ln -s $BASE_LOOPDEV /run/rootfsbase
 fi
-ln -s $_dev /dev/root
+[ -e "$SQUASHED" ] && umount -l /run/initramfs/squashfs
+
+ln -s null /dev/root
 
 need_shutdown
 
 exit 0
+
