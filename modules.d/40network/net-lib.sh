@@ -745,6 +745,13 @@ iface_has_link() {
     iface_has_carrier "$@"
 }
 
+iface_is_enslaved() {
+    local _li
+    _li=$(ip -o link show dev $1)
+    strstr "$li" " master " || return 1
+    return 0
+}
+
 find_iface_with_link() {
     local iface_path="" iface=""
     for iface_path in /sys/class/net/*; do
