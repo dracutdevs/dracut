@@ -1532,13 +1532,13 @@ static int install_modules(int argc, char **argv)
                                 exit(EXIT_FAILURE);
                         }
 
-                        r = asprintf(&path1, "%s/extra/%s", kerneldir, &argv[i][1]);
+                        r = asprintf(&path1, "%s/extra", kerneldir);
                         if (r < 0) {
                                 log_error("Out of memory!");
                                 exit(EXIT_FAILURE);
                         }
 
-                        r = asprintf(&path3, "%s/updates/%s", kerneldir, &argv[i][1]);
+                        r = asprintf(&path3, "%s/updates", kerneldir);
                         if (r < 0) {
                                 log_error("Out of memory!");
                                 exit(EXIT_FAILURE);
