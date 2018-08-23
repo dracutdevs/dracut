@@ -2,7 +2,7 @@
 
 # called by dracut
 check() {
-    require_binaries stratisd-init thin_check thin_repair || return 1
+    require_binaries stratisd-init thin_check thin_repair mkfs.xfs xfs_admin xfs_growfs || return 1
     return 255
 }
 
@@ -20,7 +20,7 @@ installkernel() {
 # called by dracut
 install() {
 
-    inst_multiple stratisd-init thin_check thin_repair
+    inst_multiple stratisd-init thin_check thin_repair mkfs.xfs xfs_admin xfs_growfs
 
     if dracut_module_included "systemd"; then
         inst_simple "${moddir}/stratisd-init.service" "${systemdsystemunitdir}/stratisd-init.service"
