@@ -194,6 +194,12 @@ handle_netroot()
             sleep 1
         fi
     fi
+
+   if [ -z "$DRACUT_SYSTEMD" ]; then
+       iscsid
+       sleep 2
+   fi
+
 # FIXME $iscsi_protocol??
 
     if [ "$root" = "dhcp" ] || [ "$netroot" = "dhcp" ]; then
