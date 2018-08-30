@@ -208,9 +208,6 @@ install() {
     inst_libdir_file 'libgcc_s.so*'
     inst_multiple umount hostname iscsi-iname iscsiadm iscsid
 
-    ln -sf $systemdsystemunitdir/iscsid.socket $systemdsystemunitdir/sockets.target.wants/iscsid.socket
-    ln -sf $systemdsystemunitdir/iscsiuio.socket $systemdsystemunitdir/sockets.target.wants/iscsiuio.socket
-
     inst_multiple -o \
         $systemdsystemunitdir/iscsid.socket \
         $systemdsystemunitdir/iscsid.service \
@@ -243,6 +240,7 @@ install() {
 
         mkdir -p "${initdir}/$systemdsystemunitdir/sockets.target.wants"
         for i in \
+                iscsid.socket \
                 iscsiuio.socket \
             ; do
             ln_r "$systemdsystemunitdir/${i}" "$systemdsystemunitdir/sockets.target.wants/${i}"
