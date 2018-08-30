@@ -216,7 +216,11 @@ install() {
         $systemdsystemunitdir/sockets.target.wants/iscsid.socket \
         $systemdsystemunitdir/sockets.target.wants/iscsiuio.socket
 
-    [[ -d /etc/iscsi ]] && inst_dir $(/usr/bin/find /etc/iscsi)
+    if [[ $hostonly ]]; then
+        inst_dir $(/usr/bin/find /etc/iscsi)
+    else
+        inst_simple /etc/iscsi/iscsid.conf
+    fi
 
     # Detect iBFT and perform mandatory steps
     if [[ $hostonly_cmdline == "yes" ]] ; then
