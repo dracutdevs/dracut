@@ -2,7 +2,12 @@
 
 # called by dracut
 depends() {
-    echo "network-legacy"
+    echo -n "kernel-network-modules "
+    if ! dracut_module_included "network-legacy" && [ -x "/usr/libexec/nm-initrd-generator" ] ; then
+        echo "network-manager"
+    else
+        echo "network-legacy"
+    fi
     return 0
 }
 
