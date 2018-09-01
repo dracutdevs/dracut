@@ -340,6 +340,7 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 %{dracutlibdir}/modules.d/90dm
 %{dracutlibdir}/modules.d/90dmraid
 %{dracutlibdir}/modules.d/90kernel-modules
+%{dracutlibdir}/modules.d/90kernel-modules-extra
 %{dracutlibdir}/modules.d/90lvm
 %{dracutlibdir}/modules.d/90mdraid
 %{dracutlibdir}/modules.d/90multipath
