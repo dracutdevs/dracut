@@ -22,7 +22,7 @@ installkernel() {
 
 # called by dracut
 install() {
-    inst_multiple umount dmsetup blkid dd losetup grep blockdev find
+    inst_multiple umount dmsetup blkid dd losetup blockdev find
     inst_multiple -o checkisomd5
     inst_hook cmdline 30 "$moddir/parse-dmsquash-live.sh"
     inst_hook cmdline 31 "$moddir/parse-iso-scan.sh"
