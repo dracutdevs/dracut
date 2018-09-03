@@ -109,15 +109,15 @@ do_live_overlay() {
 
     if [ -z "$overlay" ]; then
         pathspec="/${live_dir}/overlay-$l-$u"
-    elif ( echo $overlay | grep -q ":" ); then
+    elif strstr $overlay ":"; then
         # pathspec specified, extract
-        pathspec=$( echo $overlay | sed -e 's/^.*://' )
+        pathspec=${overlay##*:}
     fi
 
     if [ -z "$pathspec" -o "$pathspec" = "auto" ]; then
         pathspec="/${live_dir}/overlay-$l-$u"
     fi
-    devspec=$( echo $overlay | sed -e 's/:.*$//' )
+    devspec=${overlay%%:*}
 
     # need to know where to look for the overlay
     if [ -z "$setup" -a -n "$devspec" -a -n "$pathspec" -a -n "$overlay" ]; then
