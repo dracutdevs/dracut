@@ -38,13 +38,12 @@ install() {
 
     ln_r "${systemdsystemunitdir}/initrd.target" "${systemdsystemunitdir}/default.target"
 
+    local VERSION=""
+    local PRETTY_NAME=""
     if [ -e /etc/os-release ]; then
         . /etc/os-release
-        VERSION+=" "
-        PRETTY_NAME+=" "
-    else
-        VERSION=""
-        PRETTY_NAME=""
+        [[ -n ${VERSION} ]] && VERSION+=" "
+        [[ -n ${PRETTY_NAME} ]] && PRETTY_NAME+=" "
     fi
     NAME=dracut
     ID=dracut
