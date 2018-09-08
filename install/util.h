@@ -167,7 +167,7 @@ int safe_atoi(const char *s, int *ret_i);
 int safe_atollu(const char *s, unsigned long long *ret_u);
 int safe_atolli(const char *s, long long int *ret_i);
 
-#if __WORDSIZE == 32
+#if LONG_MAX == INT_MAX
 static inline int safe_atolu(const char *s, unsigned long *ret_u) {
         assert_cc(sizeof(unsigned long) == sizeof(unsigned));
         return safe_atou(s, (unsigned*) ret_u);
