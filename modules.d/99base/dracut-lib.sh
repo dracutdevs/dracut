@@ -1060,7 +1060,7 @@ if ! command -v pidof >/dev/null 2>/dev/null; then
             debug_on
             return 1
         fi
-        _exe=$(type -P "$1")
+        _exe=$(command -v "$1")
         for i in /proc/*/exe; do
             [ -e "$i" ] || continue
             if [ -n "$_exe" ]; then
