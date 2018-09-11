@@ -300,10 +300,14 @@ sub remove_packages {
 		my %old_packages = map { $_ => 1 } @packages;
 		my %new_packages;
 		for (@out) {
-			if (/ is needed by \(installed\) (kgraft-patch-.*|kernel-livepatch-.*|.*-kmp-.*)/ &&
+			if (/ is needed by \(installed\) (kernel-syms-.*|kgraft-patch-.*|kernel-livepatch-.*|.*-kmp-.*)/ &&
 					!$old_packages{$1}) {
 				push(@packages, $1) unless $new_packages{$1};
 				$new_packages{$1} = 1;
+				$retry = 1;
+			} elsif (/([^ \t]*) = ([^ \t]*) is needed by \(installed\) /) {
+				print STDERR "$0: $_\n";
+				@packages = grep ! /$1-$2/, @packages;
 				$retry = 1;
 			} else {
 				push(@problems, $_);
