@@ -125,6 +125,10 @@ if getarg "rd.cmdline=ask"; then
 fi
 
 if ! getargbool 1 'rd.hostonly'; then
+    if [ -e /init.squash ]; then
+        warn "*** You can't set rd.hostonly=0 when squash module is enabled, as filesystem is partly read-only ***"
+        return
+    fi
     [ -f /etc/cmdline.d/99-cmdline-ask.conf ] && mv /etc/cmdline.d/99-cmdline-ask.conf /tmp/99-cmdline-ask.conf
     remove_hostonly_files
     [ -f /tmp/99-cmdline-ask.conf ] && mv /tmp/99-cmdline-ask.conf /etc/cmdline.d/99-cmdline-ask.conf

@@ -431,13 +431,13 @@ source_all() {
     for f in "/$_dir"/*.sh; do [ -e "$f" ] && . "$f" "$@"; done
 }
 
-hookdir=/lib/dracut/hooks
+hookdir=/var/lib/dracut/hooks
 export hookdir
 
 source_hook() {
     local _dir
     _dir=$1; shift
-    source_all "/lib/dracut/hooks/$_dir" "$@"
+    source_all "$hookdir/$_dir" "$@"
 }
 
 check_finished() {
@@ -1085,7 +1085,7 @@ _emergency_shell()
         > /.console_lock
         echo "PS1=\"$_name:\\\${PWD}# \"" >/etc/profile
         systemctl start dracut-emergency.service
-        rm -f -- /etc/profile
+        > /etc/profile
         rm -f -- /.console_lock
     else
         debug_off
