@@ -13,14 +13,17 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
 netroot="$2"
 liveurl="${netroot#livenet:}"
 info "fetching $liveurl"
-imgfile=$(fetch_url "$liveurl")
 
-if [ $? != 0 ]; then
-	warn "failed to download live image: error $?"
-	exit 1
-fi
+imgfile=
+until [ ! -z "$imgfile" -a -s "$imgfile" ]
+do
+    imgfile=$(fetch_url "$liveurl")
 
-> /tmp/livenet.downloaded
+    if [ $? != 0 ]; then
+            warn "failed to download live image: error $?"
+            imgfile=
+    fi
+done > /tmp/livenet.downloaded
 
 # TODO: couldn't dmsquash-live-root handle this?
 if [ ${imgfile##*.} = "iso" ]; then
