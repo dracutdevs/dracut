@@ -49,7 +49,7 @@ BuildRequires: docbook-style-xsl docbook-dtds libxslt
 %endif
 
 %if 0%{?suse_version}
--BuildRequires: docbook-xsl-stylesheets libxslt
+BuildRequires: docbook-xsl-stylesheets libxslt
 %endif
 
 BuildRequires: asciidoc
