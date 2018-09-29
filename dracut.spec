@@ -181,7 +181,7 @@ This package contains tools to assemble the local initrd and host configuration.
 %package squash
 Summary: dracut module to build an initramfs with most files in a squashfs image
 Requires: %{name} = %{version}-%{release}
-Requires: squash-tools
+Requires: squashfs-tools
 
 %description squash
 This package provides a dracut module to build an initramfs, but store most files
@@ -452,13 +452,13 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 %doc %{_mandir}/man8/dracut-catimages.8*
 %endif
 
-%files squash
-%{dracutlibdir}/modules.d/99squash
-
 %{_bindir}/dracut-catimages
 %dir /boot/dracut
 %dir /var/lib/dracut
 %dir /var/lib/dracut/overlay
+
+%files squash
+%{dracutlibdir}/modules.d/99squash
 
 %files config-generic
 %{dracutlibdir}/dracut.conf.d/02-generic-image.conf
