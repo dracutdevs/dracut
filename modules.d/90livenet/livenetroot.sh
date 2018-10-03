@@ -6,6 +6,8 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 . /lib/url-lib.sh
 
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
+RETRIES={RETRIES:-100}
+SLEEP={SLEEP:-5}
 
 [ -e /tmp/livenet.downloaded ] && exit 0
 
@@ -15,13 +17,20 @@ liveurl="${netroot#livenet:}"
 info "fetching $liveurl"
 
 imgfile=
-until [ ! -z "$imgfile" -a -s "$imgfile" ]
+#retry until the imgfile is populated with data or the max retries
+for (( i=1; i<=$RETRIES; i++))
 do
     imgfile=$(fetch_url "$liveurl")
 
     if [ $? != 0 ]; then
             warn "failed to download live image: error $?"
             imgfile=
+    fi
+
+    if [ ! -z "$imgfile" -a -s "$imgfile" ]; then
+        break
+    else
+        sleep $SLEEP
     fi
 done > /tmp/livenet.downloaded
 
