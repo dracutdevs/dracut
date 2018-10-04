@@ -30,7 +30,7 @@ do
     if [ ! -z "$imgfile" -a -s "$imgfile" ]; then
         break
     else
-        if [ $i -eq $RETRIES ]; then
+        if [ $i -ge $RETRIES ]; then
             warn "failed to download live image after $i attempts."
             exit 1
         fi
