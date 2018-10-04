@@ -6,8 +6,8 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 . /lib/url-lib.sh
 
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
-RETRIES={$RETRIES:-100}
-SLEEP={$SLEEP:-5}
+RETRIES=${RETRIES:-100}
+SLEEP=${SLEEP:-5}
 
 [ -e /tmp/livenet.downloaded ] && exit 0
 
