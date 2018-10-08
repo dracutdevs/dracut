@@ -45,8 +45,8 @@ test_setup() {
 	inst_multiple -o ${_terminfodir}/l/linux
         inst_simple /etc/os-release
 	inst ./test-init.sh /sbin/init
-	inst "$basedir/modules.d/40network/dhclient-script.sh" "/sbin/dhclient-script"
-	inst "$basedir/modules.d/40network/ifup.sh" "/sbin/ifup"
+	inst "$basedir/modules.d/35network-legacy/dhclient-script.sh" "/sbin/dhclient-script"
+	inst "$basedir/modules.d/35network-legacy/ifup.sh" "/sbin/ifup"
 	inst_multiple grep
 	inst_multiple -o /lib/systemd/systemd-shutdown
 	find_binary plymouth >/dev/null && inst_multiple plymouth

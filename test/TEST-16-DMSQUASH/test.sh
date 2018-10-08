@@ -78,8 +78,8 @@ test_setup() {
 	    [[ -f ${_terminfodir}/l/linux ]] && break
 	done
 	inst_multiple -o "${_terminfodir}"/l/linux
-	inst "$basedir/modules.d/40network/dhclient-script.sh" "/sbin/dhclient-script"
-	inst "$basedir/modules.d/40network/ifup.sh" "/sbin/ifup"
+	inst "$basedir/modules.d/35network-legacy/dhclient-script.sh" "/sbin/dhclient-script"
+	inst "$basedir/modules.d/35network-legacy/ifup.sh" "/sbin/ifup"
 	inst_multiple grep syslinux isohybrid
 	for f in /usr/share/syslinux/*; do
 	    inst_simple "$f"
