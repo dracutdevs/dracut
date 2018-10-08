@@ -1,3 +1,61 @@
+dracut-049
+==========
+lsinitrd:
+- record loaded kernel modules when hostonly mode is enabled
+  lsinitrd $image -f */lib/dracut/loaded-kernel-modules.txt
+- allow to only unpack certain files
+
+kernel-modules:
+- add gpio and pinctrl drivers for arm*/aarch64
+- add nfit
+
+kernel-network-modules:
+- add vlan kernel modules
+
+ifcfg/write-ifcfg.sh:
+- aggregate resolv.conf
+
+livenet:
+- Enable OverlayFS overlay in sysroot.mount generator.
+
+dmsquash-live:
+- Support a flattened squashfs.img
+
+dracut-systemd:
+- Start systemd-vconsole-setup before dracut-cmdline-ask
+
+iscsi:
+- do not install all of /etc/iscsi unless hostonly
+- start iscsid even w/o systemd
+
+multipath:
+- fixed shutdown
+
+network:
+- configure NetworkManager to use dhclient
+
+mdraid:
+- fixed uuid handling ":" versus "-"
+
+stratis:
+- Add additional binaries
+
+new modules:
+- 00warpclock
+- 99squash
+  Adds support for building a squashed initramfs
+- 35network-legacy
+  the old 40network
+- 35network-manager
+  alternative to 35network-legacy
+- 90kernel-modules-extra
+  adds out-of-tree kernel modules
+
+testsuite:
+- now runs on travis
+- support new qemu device options
+- even runs without kvm now
+
 dracut-048
 ==========
 
