@@ -1572,7 +1572,7 @@ if [[ $kernel_only != yes ]]; then
         dinfo "*** Resolving executable dependencies ***"
         find "$initdir" -type f -perm /0111 -not -path '*.ko' -print0 \
         | xargs -r -0 $DRACUT_INSTALL ${initdir:+-D "$initdir"} -R ${DRACUT_FIPS_MODE:+-f} --
-        dinfo "*** Resolving executable dependencies done***"
+        dinfo "*** Resolving executable dependencies done ***"
     fi
 
     # Now we are done with lazy resolving, always install dependencies
