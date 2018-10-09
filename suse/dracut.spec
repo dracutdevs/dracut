@@ -303,6 +303,8 @@ ln -s %{dracutlibdir}/modules.d/45ifcfg/write-ifcfg-redhat.sh %{buildroot}/%{dra
 %{dracutlibdir}/modules.d/04watchdog
 %{dracutlibdir}/modules.d/10i18n
 %{dracutlibdir}/modules.d/30convertfs
+%{dracutlibdir}/modules.d/35network-legacy
+%{dracutlibdir}/modules.d/35network-manager
 %{dracutlibdir}/modules.d/40network
 %{dracutlibdir}/modules.d/45ifcfg
 %{dracutlibdir}/modules.d/45url-lib
@@ -317,6 +319,7 @@ ln -s %{dracutlibdir}/modules.d/45ifcfg/write-ifcfg-redhat.sh %{buildroot}/%{dra
 %{dracutlibdir}/modules.d/90dmraid
 %{dracutlibdir}/modules.d/90dmsquash-live
 %{dracutlibdir}/modules.d/90dmsquash-live-ntfs
+%{dracutlibdir}/modules.d/90kernel-modules-extra
 %{dracutlibdir}/modules.d/90kernel-modules
 %{dracutlibdir}/modules.d/90kernel-network-modules
 %{dracutlibdir}/modules.d/90livenet
@@ -360,6 +363,7 @@ ln -s %{dracutlibdir}/modules.d/45ifcfg/write-ifcfg-redhat.sh %{buildroot}/%{dra
 %{dracutlibdir}/modules.d/99fs-lib
 %{dracutlibdir}/modules.d/99img-lib
 %{dracutlibdir}/modules.d/99shutdown
+%{dracutlibdir}/modules.d/99squash
 %{dracutlibdir}/modules.d/99suse
 %{dracutlibdir}/modules.d/99uefi-lib
 
