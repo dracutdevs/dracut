@@ -7,14 +7,17 @@ KVERSION=${KVERSION-$(uname -r)}
 #DEBUGFAIL="rd.shell"
 test_run() {
     DISKIMAGE=$TESTDIR/TEST-15-BTRFSRAID-root.img
+    MARKER_DISKIMAGE=$TESTDIR/TEST-15-BTRFSRAID-marker.img
+    dd if=/dev/zero of=$MARKER_DISKIMAGE bs=512 count=10
     $testdir/run-qemu \
-	-drive format=raw,index=0,media=disk,file=$DISKIMAGE \
-	-m 512M   -smp 2 -nographic \
+	-drive format=raw,index=0,media=disk,file=$MARKER_DISKIMAGE \
+	-drive format=raw,index=1,media=disk,file=$DISKIMAGE \
+	-m 512M -smp 2 -nographic \
 	-net none \
         -no-reboot \
 	-append "panic=1 root=LABEL=root rw rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.shell=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
-    dd if=$DISKIMAGE bs=512 count=4 skip=2048 | grep -F -m 1 -q dracut-root-block-success $DISKIMAGE || return 1
+    grep -F -m 1 -q dracut-root-block-success $MARKER_DISKIMAGE || return 1
 }
 
 test_setup() {
@@ -38,13 +41,13 @@ test_setup() {
             mkdir -p -- var/lib/nfs/rpc_pipefs
         )
 	inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
-	    mount dmesg dhclient mkdir cp ping dhclient
+	    mount dmesg dhclient mkdir cp ping dhclient sync
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
 	    [ -f ${_terminfodir}/l/linux ] && break
 	done
 	inst_multiple -o ${_terminfodir}/l/linux
-	inst "$basedir/modules.d/40network/dhclient-script.sh" "/sbin/dhclient-script"
-	inst "$basedir/modules.d/40network/ifup.sh" "/sbin/ifup"
+	inst "$basedir/modules.d/35network-legacy/dhclient-script.sh" "/sbin/dhclient-script"
+	inst "$basedir/modules.d/35network-legacy/ifup.sh" "/sbin/ifup"
 	inst_multiple grep
 	inst ./test-init.sh /sbin/init
 	inst_simple /etc/os-release

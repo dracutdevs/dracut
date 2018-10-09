@@ -28,7 +28,10 @@ usage()
         echo "-m, --mod                   list modules."
         echo "-f, --file <filename>       print the contents of <filename>."
         echo "--unpack                    unpack the initramfs, instead of displaying the contents."
+        echo "                            If optional filenames are given, will only unpack specified files,"
+        echo "                            else the whole image will be unpacked. Won't unpack anything from early cpio part."
         echo "--unpackearly               unpack the early microcode part of the initramfs."
+        echo "                            Same as --unpack, but only unpack files from early cpio part."
         echo "-v, --verbose               unpack verbosely."
         echo "-k, --kver <kernel version> inspect the initramfs of <kernel version>."
         echo
@@ -159,8 +162,15 @@ list_files()
 
 unpack_files()
 {
-    $CAT "$image" 2>/dev/null | cpio -id --quiet $verbose
-    ((ret+=$?))
+    if (( ${#filenames[@]} > 0 )); then
+        for f in "${!filenames[@]}"; do
+            $CAT "$image" 2>/dev/null | cpio -id --quiet $verbose $f
+            ((ret+=$?))
+        done
+    else
+        $CAT "$image" 2>/dev/null | cpio -id --quiet $verbose
+        ((ret+=$?))
+    fi
 }
 
 
@@ -175,7 +185,10 @@ case $bin in
         CAT="cat --"
         is_early=$(cpio --extract --verbose --quiet --to-stdout -- 'early_cpio' < "$image" 2>/dev/null)
         if [[ "$is_early" ]]; then
-            if [[ -n "$unpackearly" ]]; then
+            if [[ -n "$unpack" ]]; then
+                # should use --unpackearly for early CPIO
+                :
+            elif [[ -n "$unpackearly" ]]; then
                 unpack_files
             elif (( ${#filenames[@]} > 0 )); then
                 extract_files
@@ -239,6 +252,17 @@ skipcpio()
 if [[ $SKIP ]]; then
     ORIG_CAT="$CAT"
     CAT=skipcpio
+fi
+
+if (( ${#filenames[@]} > 1 )); then
+    TMPFILE="$(mktemp -t --suffix=.cpio lsinitrd.XXXXXX)"
+    $CAT "$image" 2>/dev/null > $TMPFILE
+    trap "rm -f '$TMPFILE'" EXIT
+    pre_decompress()
+    {
+        cat $TMPFILE
+    }
+    CAT=pre_decompress
 fi
 
 ret=0

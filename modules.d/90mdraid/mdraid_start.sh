@@ -39,6 +39,9 @@ _md_force_run() {
     _offroot=$(strstr "$(mdadm --help-options 2>&1)" offroot && echo --offroot)
 
     if [ -n "$_MD_UUID" ]; then
+        _MD_UUID=$(str_replace "$_MD_UUID" "-" "")
+        _MD_UUID=$(str_replace "$_MD_UUID" ":" "")
+
         for _md in /dev/md[0-9_]*; do
             [ -b "$_md" ] || continue
             _UUID=$(
@@ -50,6 +53,7 @@ _md_force_run() {
                 )
 
             [ -z "$_UUID" ] && continue
+            _UUID=$(str_replace "$_UUID" ":" "")
 
             # check if we should handle this device
             strstr " $_MD_UUID " " $_UUID " || continue

@@ -79,8 +79,8 @@ test_setup() {
             [ -f ${_terminfodir}/l/linux ] && break
 	done
 	inst_multiple -o ${_terminfodir}/l/linux
-	inst "$basedir/modules.d/40network/dhclient-script.sh" "/sbin/dhclient-script"
-	inst "$basedir/modules.d/40network/ifup.sh" "/sbin/ifup"
+	inst "$basedir/modules.d/35network-legacy/dhclient-script.sh" "/sbin/dhclient-script"
+	inst "$basedir/modules.d/35network-legacy/ifup.sh" "/sbin/ifup"
 	inst_multiple grep
         inst_simple ./fstab /etc/fstab
         rpm -ql systemd | xargs -r $DRACUT_INSTALL ${initdir:+-D "$initdir"} -o -a -l

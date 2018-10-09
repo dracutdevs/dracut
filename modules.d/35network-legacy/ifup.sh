@@ -41,6 +41,12 @@ do_dhcp() {
         return 1
     fi
 
+    if [ ! -e /run/NetworkManager/conf.d/10-dracut-dhclient.conf ]; then
+        mkdir -p /run/NetworkManager/conf.d
+        echo '[main]' > /run/NetworkManager/conf.d/10-dracut-dhclient.conf
+        echo 'dhcp=dhclient' >>/run/NetworkManager/conf.d/10-dracut-dhclient.conf
+    fi
+
     while [ $_COUNT -lt $_DHCPRETRY ]; do
         info "Starting dhcp for interface $netif"
         dhclient "$@" \

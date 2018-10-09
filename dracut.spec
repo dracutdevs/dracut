@@ -49,7 +49,7 @@ BuildRequires: docbook-style-xsl docbook-dtds libxslt
 %endif
 
 %if 0%{?suse_version}
--BuildRequires: docbook-xsl-stylesheets libxslt
+BuildRequires: docbook-xsl-stylesheets libxslt
 %endif
 
 BuildRequires: asciidoc
@@ -178,6 +178,16 @@ Requires: %{name} = %{version}-%{release}
 %description tools
 This package contains tools to assemble the local initrd and host configuration.
 
+%package squash
+Summary: dracut module to build an initramfs with most files in a squashfs image
+Requires: %{name} = %{version}-%{release}
+Requires: squash-tools
+
+%description squash
+This package provides a dracut module to build an initramfs, but store most files
+in a squashfs image, result in a smaller initramfs size and reduce runtime memory
+usage.
+
 %prep
 %autosetup -n %{name}-%{version} -S git_am
 cp %{SOURCE1} .
@@ -235,6 +245,8 @@ rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/95qeth_rules
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/95zfcp
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/95zfcp_rules
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/95znet
+%else
+rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00warpclock
 %endif
 
 mkdir -p $RPM_BUILD_ROOT/boot/dracut
@@ -259,10 +271,13 @@ rm -f -- $RPM_BUILD_ROOT%{_bindir}/lsinitrd
 %if 0%{?fedora} || 0%{?rhel}
 echo 'hostonly="no"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-generic-image.conf
 echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-rescue.conf
+
+# FIXME: remove after F30
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/kernel/postinst.d
+install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kernel/postinst.d/51-dracut-rescue-postinst.sh
 %endif
 
 %files
-%defattr(-,root,root,0755)
 %if %{with doc}
 %doc README HACKING TODO AUTHORS NEWS dracut.html dracut.png dracut.svg
 %endif
@@ -313,6 +328,12 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %endif
 %{dracutlibdir}/modules.d/00bash
 %{dracutlibdir}/modules.d/00systemd
+%ifnarch s390 s390x
+%{dracutlibdir}/modules.d/00warpclock
+%endif
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
+%{dracutlibdir}/modules.d/01fips
+%endif
 %{dracutlibdir}/modules.d/01systemd-initrd
 %{dracutlibdir}/modules.d/03modsign
 %{dracutlibdir}/modules.d/03rescue
@@ -329,6 +350,7 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %{dracutlibdir}/modules.d/90dm
 %{dracutlibdir}/modules.d/90dmraid
 %{dracutlibdir}/modules.d/90kernel-modules
+%{dracutlibdir}/modules.d/90kernel-modules-extra
 %{dracutlibdir}/modules.d/90lvm
 %{dracutlibdir}/modules.d/90mdraid
 %{dracutlibdir}/modules.d/90multipath
@@ -396,14 +418,10 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %{_prefix}/lib/kernel/install.d/50-dracut.install
 %endif
 
-%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
-%defattr(-,root,root,0755)
-%{dracutlibdir}/modules.d/01fips
-%endif
-
 %files network
-%defattr(-,root,root,0755)
 %{dracutlibdir}/modules.d/02systemd-networkd
+%{dracutlibdir}/modules.d/35network-manager
+%{dracutlibdir}/modules.d/35network-legacy
 %{dracutlibdir}/modules.d/40network
 %{dracutlibdir}/modules.d/45ifcfg
 %{dracutlibdir}/modules.d/90kernel-network-modules
@@ -421,22 +439,21 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %{dracutlibdir}/modules.d/99uefi-lib
 
 %files caps
-%defattr(-,root,root,0755)
 %{dracutlibdir}/modules.d/02caps
 
 %files live
-%defattr(-,root,root,0755)
 %{dracutlibdir}/modules.d/99img-lib
 %{dracutlibdir}/modules.d/90dmsquash-live
 %{dracutlibdir}/modules.d/90dmsquash-live-ntfs
 %{dracutlibdir}/modules.d/90livenet
 
 %files tools
-%defattr(-,root,root,0755)
-
 %if %{with doc}
 %doc %{_mandir}/man8/dracut-catimages.8*
 %endif
+
+%files squash
+%{dracutlibdir}/modules.d/99squash
 
 %{_bindir}/dracut-catimages
 %dir /boot/dracut
@@ -444,14 +461,14 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %dir /var/lib/dracut/overlay
 
 %files config-generic
-%defattr(-,root,root,0755)
 %{dracutlibdir}/dracut.conf.d/02-generic-image.conf
 
 %files config-rescue
-%defattr(-,root,root,0755)
 %{dracutlibdir}/dracut.conf.d/02-rescue.conf
 %if 0%{?fedora} || 0%{?rhel}
 %{_prefix}/lib/kernel/install.d/51-dracut-rescue.install
+# FIXME: remove after F30
+%{_sysconfdir}/kernel/postinst.d/51-dracut-rescue-postinst.sh
 %endif
 
 %changelog

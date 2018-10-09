@@ -1244,7 +1244,7 @@ static int install_dependent_modules(struct kmod_list *modlist)
                 path = kmod_module_get_path(mod);
 
                 name = kmod_module_get_name(mod);
-                if (arg_mod_filter_noname && (regexec(&mod_filter_noname, name, 0, NULL, 0) == 0)) {
+                if ((path == NULL) || (arg_mod_filter_noname && (regexec(&mod_filter_noname, name, 0, NULL, 0) == 0))) {
                         kmod_module_unref(mod);
                         continue;
                 }

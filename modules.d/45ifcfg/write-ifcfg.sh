@@ -286,7 +286,10 @@ echo "files /etc/sysconfig/network-scripts" >> /run/initramfs/rwtab
 echo "files /var/lib/dhclient" >> /run/initramfs/rwtab
 {
     cp /tmp/net.* /run/initramfs/
-    cp /tmp/net.$netif.resolv.conf /run/initramfs/state/etc/resolv.conf
+    for i in /tmp/net.*.resolv.conf; do
+             [ -f "$i" ] && cat "$i"
+    done | sort -u > /run/initramfs/state/etc/resolv.conf
+    [ -s /run/initramfs/state/etc/resolv.conf ] || rm -f /run/initramfs/state/etc/resolv.conf
     copytree /tmp/ifcfg /run/initramfs/state/etc/sysconfig/network-scripts
     cp /tmp/ifcfg-leases/* /run/initramfs/state/var/lib/dhclient
 } > /dev/null 2>&1

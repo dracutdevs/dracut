@@ -30,12 +30,12 @@ test_run() {
        "$TESTDIR"/dracut-[0-9]*.$(arch).rpm \
        "$TESTDIR"/dracut-network-[0-9]*.$(arch).rpm \
        "$rootdir/$TESTDIR/"
-
+    . /etc/os-release
     dnf_or_yum=yum
     dnf_or_yum_cmd=yum
     command -v dnf >/dev/null && { dnf_or_yum="dnf"; dnf_or_yum_cmd="dnf --allowerasing"; }
     for (( i=0; i < 5 ; i++)); do
-        $dnf_or_yum_cmd -v --nogpgcheck --installroot "$rootdir"/ --releasever 29 --disablerepo='*' \
+        $dnf_or_yum_cmd -v --nogpgcheck --installroot "$rootdir"/ --releasever "$VERSION_ID" --disablerepo='*' \
                         --enablerepo=fedora --enablerepo=updates \
                         install -y \
                         $dnf_or_yum \

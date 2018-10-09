@@ -1,7 +1,7 @@
 -include dracut-version.sh
 
-VERSION ?= $(shell [ -d .git ] && git describe --abbrev=0 --tags 2>/dev/null || echo $(DRACUT_VERSION))
-GITVERSION ?= $(shell [ -d .git ] && { v=$$(git describe --tags 2>/dev/null); [ -n "$$v" ] && [ $${v\#*-} != $$v ] && echo -$${v\#*-}; } )
+VERSION ?= $(shell [ -d .git ] && git describe --abbrev=0 --tags --always 2>/dev/null || echo $(DRACUT_VERSION))
+GITVERSION ?= $(shell [ -d .git ] && { v=$$(git describe --tags --always 2>/dev/null); [ -n "$$v" ] && [ $${v\#*-} != $$v ] && echo -$${v\#*-}; } )
 
 -include Makefile.inc
 
@@ -62,6 +62,9 @@ install/strv.o: install/strv.c install/strv.h install/util.h install/macro.h ins
 
 install/dracut-install: $(DRACUT_INSTALL_OBJECTS)
 	$(CC) $(LDFLAGS) -o $@ $(DRACUT_INSTALL_OBJECTS) $(LDLIBS) $(KMOD_LIBS)
+
+logtee: logtee.c
+	$(CC) $(LDFLAGS) -o $@ $<
 
 dracut-install: install/dracut-install
 	ln -fs $< $@

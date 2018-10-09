@@ -46,7 +46,7 @@ if [ -z "$2" ]; then
         # we die. Otherwise we just warn
         if [ -z "$new_root_path" ] ; then
             [ -n "$BOOTDEV" ] && die "No dhcp root-path received for '$BOOTDEV'"
-            warn "No dhcp root-path received for '$BOOTDEV' trying other interfaces if available"
+            warn "No dhcp root-path received for '$netif' trying other interfaces if available"
             exit 1
         fi
 

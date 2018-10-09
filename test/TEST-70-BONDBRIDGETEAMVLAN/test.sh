@@ -14,18 +14,19 @@ run_server() {
     echo "MULTINIC TEST SETUP: Starting DHCP/NFS server"
 
     fsck -a "$TESTDIR"/server.ext3 || return 1
+
     $testdir/run-qemu \
         -hda "$TESTDIR"/server.ext3 \
         -m 512M -smp 2 \
         -display none \
-        -net socket,vlan=0,listen=127.0.0.1:12370 \
-        -net socket,vlan=1,listen=127.0.0.1:12371 \
-        -net socket,vlan=2,listen=127.0.0.1:12372 \
-        -net socket,vlan=3,listen=127.0.0.1:12373 \
-        -net nic,vlan=0,macaddr=52:54:01:12:34:56,model=e1000 \
-        -net nic,vlan=1,macaddr=52:54:01:12:34:57,model=e1000 \
-        -net nic,vlan=2,macaddr=52:54:01:12:34:58,model=e1000 \
-        -net nic,vlan=3,macaddr=52:54:01:12:34:59,model=e1000 \
+        -netdev socket,id=n0,listen=127.0.0.1:12370 \
+        -netdev socket,id=n1,listen=127.0.0.1:12371 \
+        -netdev socket,id=n2,listen=127.0.0.1:12372 \
+        -netdev socket,id=n3,listen=127.0.0.1:12373 \
+        -device e1000,netdev=n0,mac=52:54:01:12:34:56 \
+        -device e1000,netdev=n1,mac=52:54:01:12:34:57 \
+        -device e1000,netdev=n2,mac=52:54:01:12:34:58 \
+        -device e1000,netdev=n3,mac=52:54:01:12:34:59 \
         ${SERIAL:+-serial "$SERIAL"} \
         ${SERIAL:--serial file:"$TESTDIR"/server.log} \
         -watchdog i6300esb -watchdog-action poweroff \
@@ -58,21 +59,45 @@ client_test() {
         echo "Unable to make client sda image" 1>&2
         return 1
     fi
+    if [[ $do_vlan13 ]]; then
+        nic1=" -netdev socket,connect=127.0.0.1:12371,id=n1"
+        nic3=" -netdev socket,connect=127.0.0.1:12373,id=n3"
+    else
+        nic1=" -netdev hubport,id=n1,hubid=2"
+        nic3=" -netdev hubport,id=n3,hubid=3"
+    fi
 
-    $testdir/run-qemu -hda "$TESTDIR"/client.img -m 512M -smp 2 -nographic \
-        -net socket,vlan=0,connect=127.0.0.1:12370 \
-        ${do_vlan13:+-net socket,vlan=1,connect=127.0.0.1:12371} \
-        -net socket,vlan=2,connect=127.0.0.1:12372 \
-        ${do_vlan13:+-net socket,vlan=3,connect=127.0.0.1:12373} \
-        -net nic,vlan=0,macaddr=52:54:00:12:34:01,model=e1000 \
-        -net nic,vlan=0,macaddr=52:54:00:12:34:02,model=e1000 \
-        -net nic,vlan=1,macaddr=52:54:00:12:34:03,model=e1000 \
-        -net nic,vlan=2,macaddr=52:54:00:12:34:04,model=e1000 \
-        -net nic,vlan=3,macaddr=52:54:00:12:34:05,model=e1000 \
-        -watchdog i6300esb -watchdog-action poweroff \
-        -no-reboot \
-        -append "panic=1 $cmdline rd.debug $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
-        -initrd "$TESTDIR"/initramfs.testing
+    if $testdir/run-qemu --help | grep -qF -m1 'netdev hubport,id=str,hubid=n[,netdev=nd]' && echo OK; then
+        $testdir/run-qemu \
+            -hda "$TESTDIR"/client.img -m 512M -smp 2 -nographic \
+            -netdev socket,connect=127.0.0.1:12370,id=s1 \
+            -netdev hubport,hubid=1,id=h1,netdev=s1 \
+            -netdev hubport,hubid=1,id=h2 -device e1000,mac=52:54:00:12:34:01,netdev=h2 \
+            -netdev hubport,hubid=1,id=h3 -device e1000,mac=52:54:00:12:34:02,netdev=h3 \
+            $nic1 -device e1000,mac=52:54:00:12:34:03,netdev=n1  \
+            -netdev socket,connect=127.0.0.1:12372,id=n2 -device e1000,mac=52:54:00:12:34:04,netdev=n2 \
+            $nic3 -device e1000,mac=52:54:00:12:34:05,netdev=n3 \
+            -watchdog i6300esb -watchdog-action poweroff \
+            -no-reboot \
+            -append "panic=1 $cmdline rd.debug $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
+            -initrd "$TESTDIR"/initramfs.testing
+    else
+        $testdir/run-qemu \
+            -hda "$TESTDIR"/client.img -m 512M -smp 2 -nographic \
+            -net socket,vlan=0,connect=127.0.0.1:12370 \
+            ${do_vlan13:+-net socket,vlan=1,connect=127.0.0.1:12371} \
+            -net socket,vlan=2,connect=127.0.0.1:12372 \
+            ${do_vlan13:+-net socket,vlan=3,connect=127.0.0.1:12373} \
+            -net nic,vlan=0,macaddr=52:54:00:12:34:01,model=e1000 \
+            -net nic,vlan=0,macaddr=52:54:00:12:34:02,model=e1000 \
+            -net nic,vlan=1,macaddr=52:54:00:12:34:03,model=e1000 \
+            -net nic,vlan=2,macaddr=52:54:00:12:34:04,model=e1000 \
+            -net nic,vlan=3,macaddr=52:54:00:12:34:05,model=e1000 \
+            -watchdog i6300esb -watchdog-action poweroff \
+            -no-reboot \
+            -append "panic=1 $cmdline rd.debug $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
+            -initrd "$TESTDIR"/initramfs.testing
+    fi
 
     { 
         read OK
@@ -113,19 +138,19 @@ test_client() {
     client_test "Multiple VLAN" \
         "yes" \
         "
-vlan=vlan0001:ens4
-vlan=vlan2:ens4
-vlan=ens4.3:ens4
-vlan=ens4.0004:ens4
+vlan=vlan0001:ens5
+vlan=vlan2:ens5
+vlan=ens5.3:ens5
+vlan=ens5.0004:ens5
 ip=ens3:dhcp
 ip=192.168.54.101::192.168.54.1:24:test:vlan0001:none
 ip=192.168.55.102::192.168.55.1:24:test:vlan2:none
-ip=192.168.56.103::192.168.56.1:24:test:ens4.3:none
-ip=192.168.57.104::192.168.57.1:24:test:ens4.0004:none
+ip=192.168.56.103::192.168.56.1:24:test:ens5.3:none
+ip=192.168.57.104::192.168.57.1:24:test:ens5.0004:none
 rd.neednet=1
 root=nfs:192.168.50.1:/nfs/client bootdev=ens3
 " \
-    'ens3 ens4.0004 ens4.3 vlan0001 vlan2 /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens3 # Generated by dracut initrd NAME="ens3" DEVICE="ens3" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp TYPE=Ethernet /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens4.0004 # Generated by dracut initrd NAME="ens4.0004" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.57.104" PREFIX="24" GATEWAY="192.168.57.1" TYPE=Vlan DEVICE="ens4.0004" VLAN=yes PHYSDEV="ens4" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens4.3 # Generated by dracut initrd NAME="ens4.3" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.56.103" PREFIX="24" GATEWAY="192.168.56.1" TYPE=Vlan DEVICE="ens4.3" VLAN=yes PHYSDEV="ens4" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-vlan0001 # Generated by dracut initrd NAME="vlan0001" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.54.101" PREFIX="24" GATEWAY="192.168.54.1" TYPE=Vlan DEVICE="vlan0001" VLAN=yes PHYSDEV="ens4" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-vlan2 # Generated by dracut initrd NAME="vlan2" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.55.102" PREFIX="24" GATEWAY="192.168.55.1" TYPE=Vlan DEVICE="vlan2" VLAN=yes PHYSDEV="ens4" EOF ' \
+    'ens3 ens5.0004 ens5.3 vlan0001 vlan2 /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens3 # Generated by dracut initrd NAME="ens3" DEVICE="ens3" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp TYPE=Ethernet /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens5.0004 # Generated by dracut initrd NAME="ens5.0004" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.57.104" PREFIX="24" GATEWAY="192.168.57.1" TYPE=Vlan DEVICE="ens5.0004" VLAN=yes PHYSDEV="ens5" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens5.3 # Generated by dracut initrd NAME="ens5.3" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.56.103" PREFIX="24" GATEWAY="192.168.56.1" TYPE=Vlan DEVICE="ens5.3" VLAN=yes PHYSDEV="ens5" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-vlan0001 # Generated by dracut initrd NAME="vlan0001" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.54.101" PREFIX="24" GATEWAY="192.168.54.1" TYPE=Vlan DEVICE="vlan0001" VLAN=yes PHYSDEV="ens5" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-vlan2 # Generated by dracut initrd NAME="vlan2" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.55.102" PREFIX="24" GATEWAY="192.168.55.1" TYPE=Vlan DEVICE="vlan2" VLAN=yes PHYSDEV="ens5" EOF ' \
     || return 1
 
     client_test "Multiple Bonds" \
@@ -164,7 +189,7 @@ test_setup() {
     mke2fs -j -F -- "$TESTDIR"/server.ext3
     mkdir -- "$TESTDIR"/mnt
     mount -o loop -- "$TESTDIR"/server.ext3 "$TESTDIR"/mnt
-
+    kernel=$KVERSION
     (
         export initdir="$TESTDIR"/mnt
         . "$basedir"/dracut-init.sh
@@ -200,7 +225,7 @@ test_setup() {
         [ -f /etc/netconfig ] && inst_multiple /etc/netconfig
         type -P dhcpd >/dev/null && inst_multiple dhcpd
         [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
-        instmods nfsd sunrpc ipv6 lockd af_packet 8021q
+        instmods nfsd sunrpc ipv6 lockd af_packet 8021q ipvlan macvlan
         inst_simple /etc/os-release
         inst ./server-init.sh /sbin/init
         inst ./hosts /etc/hosts
@@ -283,7 +308,7 @@ test_setup() {
     $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
         --no-early-microcode \
         -m "udev-rules base rootfs-block fs-lib debug kernel-modules watchdog" \
-        -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files nfsd e1000 i6300esb ib700wdt" \
+        -d "ipvlan macvlan af_packet piix ide-gd_mod ata_piix ext3 sd_mod nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files nfsd e1000 i6300esb ib700wdt" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
 
@@ -292,7 +317,7 @@ test_setup() {
         --no-early-microcode \
         -o "plymouth" \
         -a "debug" \
-        -d "af_packet piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files sunrpc i6300esb ib700wdt" \
+        -d "ipvlan macvlan af_packet piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files sunrpc i6300esb ib700wdt" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 }

@@ -63,13 +63,12 @@ install() {
         echo ro >> "${initdir}/etc/cmdline.d/base.conf"
     fi
 
+    local VERSION=""
+    local PRETTY_NAME=""
     if [ -e /etc/os-release ]; then
         . /etc/os-release
-        VERSION+=" "
-        PRETTY_NAME+=" "
-    else
-        VERSION=""
-        PRETTY_NAME=""
+        [[ -n ${VERSION} ]] && VERSION+=" "
+        [[ -n ${PRETTY_NAME} ]] && PRETTY_NAME+=" "
     fi
     NAME=dracut
     ID=dracut
@@ -94,6 +93,9 @@ install() {
 
     ## save host_devs which we need bring up
     if [[ $hostonly_cmdline == "yes" ]]; then
+        if [[ -n $add_device ]]; then
+            dracut_need_initqueue
+        fi
         if [[ -f "$initdir/lib/dracut/need-initqueue" ]] || ! dracut_module_included "systemd"; then
             (
                 if dracut_module_included "systemd"; then

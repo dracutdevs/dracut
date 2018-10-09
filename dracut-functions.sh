@@ -676,6 +676,17 @@ get_ucode_file ()
     fi
 }
 
+# Get currently loaded modules
+# sorted, and delimited by newline
+get_loaded_kernel_modules ()
+{
+    local modules=( )
+    while read _module _size _used _used_by; do
+        modules+=( "$_module" )
+    done <<< "$(lsmod | sed -n '1!p')"
+    printf '%s\n' "${modules[@]}" | sort
+}
+
 # Not every device in /dev/mapper should be examined.
 # If it is an LVM device, touch only devices which have /dev/VG/LV symlink.
 lvm_internal_dev() {

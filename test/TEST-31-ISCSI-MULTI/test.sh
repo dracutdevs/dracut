@@ -1,11 +1,11 @@
 #!/bin/bash
-TEST_DESCRIPTION="root filesystem over iSCSI"
+TEST_DESCRIPTION="root filesystem over multiple iSCSI"
 
 KVERSION=${KVERSION-$(uname -r)}
 
-DEBUGFAIL="loglevel=1"
+#DEBUGFAIL="loglevel=1"
 #DEBUGFAIL="rd.shell rd.break rd.debug loglevel=7 "
-#DEBUGFAIL="rd.debug loglevel=7 "
+DEBUGFAIL="rd.debug loglevel=7 "
 #SERVER_DEBUG="rd.debug loglevel=7"
 #SERIAL="tcp:127.0.0.1:9999"
 
@@ -24,7 +24,7 @@ run_server() {
         ${SERIAL:--serial file:"$TESTDIR"/server.log} \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net nic,macaddr=52:54:00:12:34:57,model=e1000 \
-        -net socket,listen=127.0.0.1:12330 \
+        -net socket,listen=127.0.0.1:12331 \
         -no-reboot \
         -append "panic=1 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 $SERVER_DEBUG" \
         -initrd $TESTDIR/initramfs.server \
@@ -49,7 +49,7 @@ run_client() {
         -m 512M  -smp 2 -nographic \
         -net nic,macaddr=52:54:00:12:34:00,model=e1000 \
         -net nic,macaddr=52:54:00:12:34:01,model=e1000 \
-        -net socket,connect=127.0.0.1:12330 \
+        -net socket,connect=127.0.0.1:12331 \
         -no-reboot \
         -append "panic=1 rw rd.auto rd.retry=50 console=ttyS0,115200n81 selinux=0 rd.debug=0 rd.shell=0 $DEBUGFAIL $*" \
         -initrd $TESTDIR/initramfs.testing

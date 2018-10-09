@@ -10,11 +10,13 @@ check() {
 
     [ -e /etc/localtime -a -e /etc/adjtime ] || return 1
     require_binaries /sbin/hwclock || return 1
+
+    return 255
 }
 
 # called by dracut
 depends() {
-    return 255
+    return 0
 }
 
 # called by dracut

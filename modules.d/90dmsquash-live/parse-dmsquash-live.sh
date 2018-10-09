@@ -20,12 +20,12 @@ modprobe -q loop
 case "$liveroot" in
     live:LABEL=*|LABEL=*) \
         root="${root#live:}"
-        root="$(echo $root | sed 's,/,\\x2f,g')"
+        root="${root//\//\\x2f}"
         root="live:/dev/disk/by-label/${root#LABEL=}"
         rootok=1 ;;
     live:CDLABEL=*|CDLABEL=*) \
         root="${root#live:}"
-        root="$(echo $root | sed 's,/,\\x2f,g')"
+        root="${root//\//\\x2f}"
         root="live:/dev/disk/by-label/${root#CDLABEL=}"
         rootok=1 ;;
     live:UUID=*|UUID=*) \
@@ -57,6 +57,6 @@ info "root was $liveroot, is now $root"
 # make sure that init doesn't complain
 [ -z "$root" ] && root="live"
 
-wait_for_dev -n /run/rootfsbase
+wait_for_dev -n /dev/root
 
 return 0

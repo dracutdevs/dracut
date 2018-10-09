@@ -49,7 +49,7 @@ linkup() {
      && wait_for_if_up $1 2>/dev/null
 }
 
-modprobe -b -q 8021q
+modprobe --all -b -q 8021q ipvlan macvlan
 >/dev/watchdog
 ip addr add 127.0.0.1/8 dev lo
 linkup lo
@@ -67,6 +67,10 @@ ip addr add 192.168.55.1/24 dev ens4.2
 ip addr add 192.168.56.1/24 dev ens4.3
 ip addr add 192.168.57.1/24 dev ens4.4
 linkup ens4
+ip link set dev ens4.1 up
+ip link set dev ens4.2 up
+ip link set dev ens4.3 up
+ip link set dev ens4.4 up
 ip link set dev eth2 name ens5
 ip addr add 192.168.51.1/24 dev ens5
 linkup ens5

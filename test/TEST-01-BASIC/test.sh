@@ -15,7 +15,7 @@ test_run() {
 	-net none \
 	-watchdog i6300esb -watchdog-action poweroff \
         -no-reboot \
-	-append "panic=1 root=LABEL=dracut rw systemd.log_level=debug systemd.log_target=console rd.retry=3 rd.debug console=ttyS0,115200n81 rd.shell=0 $DEBUGFAIL rd.memdebug=4" \
+	-append "panic=1 root=LABEL=dracut rw systemd.log_level=debug systemd.log_target=console rd.retry=3 rd.debug console=ttyS0,115200n81 rd.shell=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing || return 1
     grep -F -m 1 -q dracut-root-block-success $TESTDIR/result || return 1
 }
@@ -46,8 +46,8 @@ test_setup() {
             [ -f ${_terminfodir}/l/linux ] && break
 	done
 	inst_multiple -o ${_terminfodir}/l/linux
-	inst "$basedir/modules.d/40network/dhclient-script.sh" "/sbin/dhclient-script"
-	inst "$basedir/modules.d/40network/ifup.sh" "/sbin/ifup"
+	inst "$basedir/modules.d/35network-legacy/dhclient-script.sh" "/sbin/dhclient-script"
+	inst "$basedir/modules.d/35network-legacy/ifup.sh" "/sbin/ifup"
 	inst_multiple grep
         inst_simple /etc/os-release
 	inst ./test-init.sh /sbin/init

@@ -474,9 +474,6 @@ if [[ $append_args_l == "yes" ]]; then
         eval set -- "$TEMP"
         rearrange_params "$@"
     fi
-
-    # clean the temporarily used scratch-pad directory
-    rm -rf $scratch_dir
 fi
 
 unset PARMS_TO_STORE
@@ -1492,6 +1489,9 @@ dinfo "*** Including modules done ***"
 
 ## final stuff that has to happen
 if [[ $no_kernel != yes ]]; then
+    if [[ $hostonly ]]; then
+        echo "$(get_loaded_kernel_modules)" > $initdir/lib/dracut/loaded-kernel-modules.txt
+    fi
 
     if [[ $drivers ]]; then
         hostonly='' instmods $drivers
@@ -1746,6 +1746,120 @@ if [[ $hostonly_cmdline == "yes" ]] ; then
 fi
 
 dinfo "*** Creating image file '$outfile' ***"
+
+if dracut_module_included "squash"; then
+    if ! check_kernel_config CONFIG_SQUASHFS; then
+        dfatal "CONFIG_SQUASHFS have to be enabled for dracut squash module to work"
+        exit 1
+    fi
+    if ! check_kernel_config CONFIG_OVERLAY_FS; then
+        dfatal "CONFIG_OVERLAY_FS have to be enabled for dracut squash module to work"
+        exit 1
+    fi
+    if ! check_kernel_config CONFIG_DEVTMPFS; then
+        dfatal "CONFIG_DEVTMPFS have to be enabled for dracut squash module to work"
+        exit 1
+    fi
+
+    readonly squash_dir="${DRACUT_TMPDIR}/squashfs"
+    readonly squash_img=$initdir/squash/root.img
+
+    # Currently only move "usr" "etc" to squashdir
+    readonly squash_candidate=( "usr" "etc" )
+
+    mkdir -m 0755 -p $squash_dir
+    for folder in "${squash_candidate[@]}"; do
+        mv $initdir/$folder $squash_dir/$folder
+    done
+
+    # Reinstall required files, because we have moved some important folders to $squash_dir
+    inst_multiple "echo" "sh" "mount" "modprobe" "mkdir" \
+        "systemctl" "udevadm" "$systemdutildir/systemd"
+    hostonly="" instmods "loop" "squashfs" "overlay"
+
+    for folder in "${squash_candidate[@]}"; do
+        # Remove duplicated files in squashfs image, save some more space
+        [[ ! -d $initdir/$folder/ ]] && continue
+        for file in $(find $initdir/$folder/ -not -type d);
+        do
+            if [[ -e $squash_dir${file#$initdir} ]]; then
+                mv $squash_dir${file#$initdir} $file
+            fi
+        done
+    done
+
+    # Move some files out side of the squash image, including:
+    # - Files required to boot and mount the squashfs image
+    # - Files need to be accessable without mounting the squash image
+    required_in_root() {
+        local file=$1
+        local _sqsh_file=$squash_dir/$file
+        local _init_file=$initdir/$file
+
+        if [[ -e $_init_file ]]; then
+            return
+        fi
+
+        if [[ ! -e $_sqsh_file ]] && [[ ! -L $_sqsh_file ]]; then
+            derror "$file is required to boot a squashed initramfs but it's not installed!"
+            return
+        fi
+
+        if [[ ! -d $(dirname $_init_file) ]]; then
+            required_in_root $(dirname $file)
+        fi
+
+        if [[ -d $_sqsh_file ]]; then
+            if [[ -L $_sqsh_file ]]; then
+                cp --preserve=all -P $_sqsh_file $_init_file
+            else
+                mkdir $_init_file
+            fi
+        else
+            if [[ -L $_sqsh_file ]]; then
+                cp --preserve=all -P $_sqsh_file $_init_file
+                _sqsh_file=$(realpath $_sqsh_file 2>/dev/null)
+                if [[ -e $_sqsh_file ]] && [[ "$_sqsh_file" == "$squash_dir"* ]]; then
+                    # Relative symlink
+                    required_in_root ${_sqsh_file#$squash_dir/}
+                    return
+                fi
+                if [[ -e $squash_dir$_sqsh_file ]]; then
+                    # Absolute symlink
+                    required_in_root ${_sqsh_file#/}
+                    return
+                fi
+                required_in_root ${module_spec#$squash_dir/}
+            else
+                mv $_sqsh_file $_init_file
+            fi
+        fi
+    }
+
+    required_in_root etc/initrd-release
+
+    for module_spec in $squash_dir/usr/lib/modules/*/modules.*;
+    do
+        required_in_root ${module_spec#$squash_dir/}
+    done
+
+    for dracut_spec in $squash_dir/usr/lib/dracut/*;
+    do
+        required_in_root ${dracut_spec#$squash_dir/}
+    done
+
+    mv $initdir/init $initdir/init.stock
+    mv $initdir/shutdown $initdir/shutdown.stock
+    ln -s squash/init.sh $initdir/init
+    ln -s squash/shutdown.sh $initdir/shutdown
+
+    mksquashfs $squash_dir $squash_img -comp xz -b 64K -Xdict-size 100% &> /dev/null
+
+    if [[ $? != 0 ]]; then
+        dfatal "dracut: Failed making squash image"
+        exit 1
+    fi
+fi
 
 if [[ $uefi = yes ]]; then
     readonly uefi_outdir="$DRACUT_TMPDIR/uefi"

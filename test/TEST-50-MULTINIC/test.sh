@@ -12,6 +12,7 @@ run_server() {
     echo "MULTINIC TEST SETUP: Starting DHCP/NFS server"
 
     fsck -a "$TESTDIR"/server.ext3 || return 1
+
     $testdir/run-qemu \
         -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
         -m 512M  -smp 2 \
@@ -25,6 +26,7 @@ run_server() {
         -append "panic=1 loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.server \
         -pidfile "$TESTDIR"/server.pid -daemonize || return 1
+
     sudo chmod 644 -- "$TESTDIR"/server.pid || return 1
 
     # Cleanup the terminal if we have one
@@ -51,16 +53,18 @@ client_test() {
     fi
 
     $testdir/run-qemu -drive format=raw,index=0,media=disk,file="$TESTDIR"/client.img -m 512M  -smp 2 -nographic \
-        -net socket,vlan=0,connect=127.0.0.1:12350 \
-        -net nic,vlan=0,macaddr=52:54:00:12:34:$mac1,model=e1000 \
-        -net nic,vlan=0,macaddr=52:54:00:12:34:$mac2,model=e1000 \
-        -net nic,vlan=0,macaddr=52:54:00:12:34:$mac3,model=e1000 \
-        -net nic,vlan=1,macaddr=52:54:00:12:34:98,model=e1000 \
-        -net nic,vlan=2,macaddr=52:54:00:12:34:99,model=e1000 \
-        -watchdog i6300esb -watchdog-action poweroff \
-        -no-reboot \
-        -append "panic=1 rd.shell=0 $cmdline $DEBUGFAIL rd.retry=5 ro console=ttyS0,115200n81 selinux=0 init=/sbin/init rd.debug systemd.log_target=console loglevel=7" \
-        -initrd "$TESTDIR"/initramfs.testing
+                      -net socket,connect=127.0.0.1:12350 \
+                      -net nic,macaddr=52:54:00:12:34:$mac1,model=e1000 \
+                      -net nic,macaddr=52:54:00:12:34:$mac2,model=e1000 \
+                      -net nic,macaddr=52:54:00:12:34:$mac3,model=e1000 \
+                      -netdev hubport,id=n1,hubid=1 \
+                      -netdev hubport,id=n2,hubid=2 \
+                      -device e1000,netdev=n1,mac=52:54:00:12:34:98 \
+                      -device e1000,netdev=n2,mac=52:54:00:12:34:99 \
+                      -watchdog i6300esb -watchdog-action poweroff \
+                      -no-reboot \
+                      -append "panic=1 rd.shell=0 $cmdline $DEBUGFAIL rd.retry=5 ro console=ttyS0,115200n81 selinux=0 init=/sbin/init rd.debug systemd.log_target=console loglevel=7" \
+                      -initrd "$TESTDIR"/initramfs.testing
 
     { read OK; read IFACES; } < "$TESTDIR"/client.img
 
@@ -108,58 +112,58 @@ test_client() {
 
     # PXE Style BOOTIF=
     client_test "MULTINIC root=nfs BOOTIF=" \
-        00 01 02 \
-        "root=nfs:192.168.50.1:/nfs/client BOOTIF=52-54-00-12-34-00" \
-        "ens3" || return 1
+                00 01 02 \
+                "root=nfs:192.168.50.1:/nfs/client BOOTIF=52-54-00-12-34-00" \
+                "ens3" || return 1
 
     client_test "MULTINIC root=nfs BOOTIF= ip=ens4:dhcp" \
-        00 01 02 \
-        "root=nfs:192.168.50.1:/nfs/client BOOTIF=52-54-00-12-34-00 ip=ens4:dhcp" \
-        "ens3 ens4" || return 1
+                00 01 02 \
+                "root=nfs:192.168.50.1:/nfs/client BOOTIF=52-54-00-12-34-00 ip=ens4:dhcp" \
+                "ens3 ens4" || return 1
 
     # PXE Style BOOTIF= with dhcp root-path
     client_test "MULTINIC root=dhcp BOOTIF=" \
-        00 01 02 \
-        "root=dhcp BOOTIF=52-54-00-12-34-02" \
-        "ens5" || return 1
+                00 01 02 \
+                "root=dhcp BOOTIF=52-54-00-12-34-02" \
+                "ens5" || return 1
 
     # Multinic case, where only one nic works
     client_test "MULTINIC root=nfs ip=dhcp" \
-        FF 00 FE \
-        "root=nfs:192.168.50.1:/nfs/client ip=dhcp" \
-        "ens4" || return 1
+                FF 00 FE \
+                "root=nfs:192.168.50.1:/nfs/client ip=dhcp" \
+                "ens4" || return 1
 
     # Require two interfaces
     client_test "MULTINIC root=nfs ip=ens4:dhcp ip=ens5:dhcp bootdev=ens4" \
-        00 01 02 \
-        "root=nfs:192.168.50.1:/nfs/client ip=ens4:dhcp ip=ens5:dhcp bootdev=ens4" \
-        "ens4 ens5" || return 1
+                00 01 02 \
+                "root=nfs:192.168.50.1:/nfs/client ip=ens4:dhcp ip=ens5:dhcp bootdev=ens4" \
+                "ens4 ens5" || return 1
 
     # Require three interfaces with dhcp root-path
     client_test "MULTINIC root=dhcp ip=ens3:dhcp ip=ens4:dhcp ip=ens5:dhcp bootdev=ens5" \
-        00 01 02 \
-        "root=dhcp ip=ens3:dhcp ip=ens4:dhcp ip=ens5:dhcp bootdev=ens5" \
-        "ens3 ens4 ens5" || return 1
+                00 01 02 \
+                "root=dhcp ip=ens3:dhcp ip=ens4:dhcp ip=ens5:dhcp bootdev=ens5" \
+                "ens3 ens4 ens5" || return 1
 
     client_test "MULTINIC bonding" \
-        00 01 02 \
-        "root=nfs:192.168.50.1:/nfs/client ip=bond0:dhcp  bond=bond0:ens3,ens4,ens5:mode=balance-rr" \
-        "bond0" || return 1
+                00 01 02 \
+                "root=nfs:192.168.50.1:/nfs/client ip=bond0:dhcp  bond=bond0:ens3,ens4,ens5:mode=balance-rr" \
+                "bond0" || return 1
 
     client_test "MULTINIC bridging" \
-        00 01 02 \
-        "root=nfs:192.168.50.1:/nfs/client ip=bridge0:dhcp  bridge=bridge0:ens3,ens6,ens7" \
-        "bridge0" || return 1
+                00 01 02 \
+                "root=nfs:192.168.50.1:/nfs/client ip=bridge0:dhcp  bridge=bridge0:ens3,ens6,ens7" \
+                "bridge0" || return 1
     return 0
 }
 
 test_setup() {
-     # Make server root
+    # Make server root
     dd if=/dev/null of="$TESTDIR"/server.ext3 bs=1M seek=120
     mke2fs -j -F -- "$TESTDIR"/server.ext3
     mkdir -- "$TESTDIR"/mnt
     sudo mount -o loop -- "$TESTDIR"/server.ext3 "$TESTDIR"/mnt
-
+    kernel=$KVERSION
     (
         export initdir="$TESTDIR"/mnt
         . "$basedir"/dracut-init.sh
@@ -183,9 +187,9 @@ test_setup() {
         done
 
         inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
-            dmesg mkdir cp ping exportfs \
-            modprobe rpc.nfsd rpc.mountd showmount tcpdump \
-            /etc/services sleep mount chmod
+                      dmesg mkdir cp ping exportfs \
+                      modprobe rpc.nfsd rpc.mountd showmount tcpdump \
+                      /etc/services sleep mount chmod
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f "${_terminfodir}"/l/linux ] && break
         done
@@ -210,7 +214,7 @@ test_setup() {
         inst_libdir_file 'libnfsidmap*.so*'
 
         _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
-            |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
+                       |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
         _nsslibs=${_nsslibs#|}
         _nsslibs=${_nsslibs%|}
 
@@ -239,7 +243,7 @@ test_setup() {
             done
         )
         inst_multiple sh shutdown poweroff stty cat ps ln ip \
-            mount dmesg mkdir cp ping grep ls
+                      mount dmesg mkdir cp ping grep ls
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [[ -f ${_terminfodir}/l/linux ]] && break
         done
@@ -256,7 +260,7 @@ test_setup() {
         inst_libdir_file 'libnfsidmap*.so*'
 
         _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' -- /etc/nsswitch.conf \
-            |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
+                       |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
         _nsslibs=${_nsslibs#|}
         _nsslibs=${_nsslibs%|}
 
@@ -280,14 +284,16 @@ test_setup() {
     )
 
     # Make server's dracut image
-    $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
+    $basedir/dracut.sh \
+        -l -i "$TESTDIR"/overlay / \
         -m "dash udev-rules base rootfs-block fs-lib debug kernel-modules watchdog" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files nfsd e1000 i6300esb ib700wdt" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
 
     # Make client's dracut image
-    $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
+    $basedir/dracut.sh \
+        -l -i "$TESTDIR"/overlay / \
         -o "plymouth" \
         -a "debug" \
         -d "af_packet piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files sunrpc i6300esb ib700wdt" \
