@@ -18,7 +18,8 @@ info "fetching $liveurl"
 
 imgfile=
 #retry until the imgfile is populated with data or the max retries
-for (( i=1; i<=$RETRIES; i++))
+i=1
+while [ "$i" -le $RETRIES ]
 do
     imgfile=$(fetch_url "$liveurl")
 
@@ -37,6 +38,8 @@ do
 
         sleep $SLEEP
     fi
+
+    i=$((i + 1))
 done > /tmp/livenet.downloaded
 
 # TODO: couldn't dmsquash-live-root handle this?
