@@ -1,6 +1,11 @@
 #!/bin/bash
 
 # called by dracut
+check() {
+    return 255
+}
+
+# called by dracut
 depends() {
     echo -n "kernel-network-modules "
     if ! dracut_module_included "network-legacy" && [ -x "/usr/libexec/nm-initrd-generator" ] ; then
