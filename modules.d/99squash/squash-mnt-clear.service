@@ -9,6 +9,7 @@ After=dracut-initqueue.service dracut-pre-pivot.service
 Before=initrd-cleanup.service
 ConditionPathExists=/squash/root
 Conflicts=initrd-switch-root.target
+IgnoreOnIsolate=true
 
 [Service]
 Type=oneshot
