@@ -52,7 +52,7 @@ installkernel() {
 # called by dracut
 install() {
     local _dir
-    inst_hook pre-trigger 01 "$moddir/fips-boot.sh"
+    inst_hook pre-mount 01 "$moddir/fips-boot.sh"
     inst_hook pre-pivot 01 "$moddir/fips-noboot.sh"
     inst_script "$moddir/fips.sh" /sbin/fips.sh
 
