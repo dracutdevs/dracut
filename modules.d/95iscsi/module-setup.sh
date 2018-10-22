@@ -257,14 +257,6 @@ install() {
             ; do
             ln_r "$systemdsystemunitdir/${i}" "$systemdsystemunitdir/basic.target.wants/${i}"
         done
-
-        # Make sure iscsid is started after dracut-cmdline and ready for the initqueue
-        mkdir -p "${initdir}/$systemdsystemunitdir/iscsid.service.d"
-        (
-            echo "[Unit]"
-            echo "After=dracut-cmdline.service"
-            echo "Before=dracut-initqueue.service"
-        ) > "${initdir}/$systemdsystemunitdir/iscsid.service.d/dracut.conf"
     fi
     inst_dir /var/lib/iscsi
     dracut_need_initqueue
