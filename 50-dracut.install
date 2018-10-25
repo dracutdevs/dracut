@@ -49,7 +49,7 @@ case "$COMMAND" in
                 break
             fi
         done
-	dracut ${noimageifnotneeded:+--noimageifnotneeded} "$BOOT_DIR_ABS/$INITRD" "$KERNEL_VERSION"
+	dracut -f ${noimageifnotneeded:+--noimageifnotneeded} "$BOOT_DIR_ABS/$INITRD" "$KERNEL_VERSION"
         ret=$?
 	;;
     remove)
