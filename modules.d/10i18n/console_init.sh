@@ -8,7 +8,7 @@ fi
 
 [ -e /etc/vconsole.conf ] && . /etc/vconsole.conf
 
-DEFAULT_FONT=LatArCyrHeb-16
+DEFAULT_FONT=eurlatgr
 DEFAULT_KEYMAP=/etc/sysconfig/console/default.kmap
 
 set_keyboard() {
