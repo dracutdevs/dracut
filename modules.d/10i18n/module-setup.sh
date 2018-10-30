@@ -23,7 +23,7 @@ install() {
     fi
 
     KBDSUBDIRS=consolefonts,consoletrans,keymaps,unimaps
-    DEFAULT_FONT="${i18n_default_font:-LatArCyrHeb-16}"
+    DEFAULT_FONT="${i18n_default_font:-eurlatgr}"
     I18N_CONF="/etc/locale.conf"
     VCONFIG_CONF="/etc/vconsole.conf"
 
