@@ -1690,7 +1690,7 @@ if [[ $early_microcode = yes ]]; then
         for _fwdir in $fw_dir; do
             if [[ -d $_fwdir && -d $_fwdir/$_fw ]]; then
                 _src="*"
-                dinfo "*** Constructing ${ucode_dest[$idx]} ****"
+                dinfo "*** Constructing ${ucode_dest[$idx]} ***"
                 if [[ $hostonly ]]; then
                     _src=$(get_ucode_file)
                     [[ $_src ]] || break
@@ -1790,7 +1790,7 @@ if dracut_module_included "squash"; then
 
     # Move some files out side of the squash image, including:
     # - Files required to boot and mount the squashfs image
-    # - Files need to be accessable without mounting the squash image
+    # - Files need to be accessible without mounting the squash image
     required_in_root() {
         local file=$1
         local _sqsh_file=$squash_dir/$file

@@ -1,6 +1,6 @@
 #!/bin/bash --norc
 #
-# mkinitrd compability wrapper for SUSE.
+# mkinitrd compatibility wrapper for SUSE.
 #
 # Copyright (c) 2013 SUSE Linux Products GmbH. All rights reserved.
 #
@@ -62,7 +62,7 @@ usage () {
     $cmd "				/etc/sysconfig/kernel."
     $cmd "	-d root_device		Root device. Defaults to the device from"
     $cmd "				which / is mounted. Overrides the rootdev"
-    $cmd "				enviroment variable if set."
+    $cmd "				environment variable if set."
     $cmd "	-j device		Journal device"
     $cmd "	-D interface		Run dhcp on the specified interface."
     $cmd "	-I interface		Configure the specified interface statically."
