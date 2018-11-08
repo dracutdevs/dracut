@@ -1,6 +1,6 @@
-# SUSE specifc dracut settings
+# SUSE specific dracut settings
 #
-# SUSE by default always builds a as small as possible initrd for performance
+# SUSE by default always builds as small as possible initrd for performance
 # and resource reasons.
 # If you like to build a generic initrd which works on other platforms than
 # on the one dracut/mkinitrd got called comment out below setting(s).

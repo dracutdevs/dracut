@@ -11,7 +11,7 @@ Then if syslog is configured it is started and will forward all
 kernel messages to the given syslog server.
 
 The syslog implementation is detected automatically by finding the
-apropriate binary with the following order:
+appropriate binary with the following order:
 rsyslogd
 syslogd
 syslog-ng
