@@ -40,4 +40,13 @@ else
     exit 1
 fi
 
+if [[ -d squash ]]; then
+    unsquashfs -no-xattrs -f -d . squash/root.img >/dev/null
+    if [ $? -ne 0 ]; then
+        echo "Squash module is enabled for this initramfs but failed to unpack squash/root.img" >&2
+        rm -f -- /run/initramfs/shutdown
+        exit 1
+    fi
+fi
+
 exit 0
