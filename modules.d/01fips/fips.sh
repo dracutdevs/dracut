@@ -84,7 +84,7 @@ do_fips()
     mv /etc/modprobe.d/fips.conf /etc/modprobe.d/fips.conf.bak
     for _module in $FIPSMODULES; do
         if [ "$_module" != "tcrypt" ]; then
-            if ! modprobe "${_module}"; then
+            if ! modprobe "${_module}" 2>/tmp/fips.modprobe_err; then
                 # check if kernel provides generic algo
                 _found=0
                 while read _k _s _v || [ -n "$_k" ]; do
@@ -93,7 +93,7 @@ do_fips()
                     _found=1
                     break
                 done </proc/crypto
-                [ "$_found" = "0" ] && return 1
+                [ "$_found" = "0" ] && cat /tmp/fips.modprobe_err >&2 && return 1
             fi
         fi
     done
