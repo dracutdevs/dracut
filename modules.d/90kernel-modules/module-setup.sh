@@ -43,6 +43,14 @@ installkernel() {
             virtio virtio_blk virtio_ring virtio_pci virtio_scsi \
             "=drivers/pcmcia" =ide nvme vmd nfit
 
+        if [[ "$(uname -m)" == x86_64 || "$(uname -m)" == aarch64 ]]; then
+            # virtio_net driver for kvm, ENA driver for AWS
+            instmods \
+                "=drivers/net/ethernet/amazon/ena" \
+                virtio_net \
+                ${NULL}
+        fi
+
         if [[ "$(uname -m)" == arm* || "$(uname -m)" == aarch64 ]]; then
             # arm/aarch64 specific modules
             _blockfuncs+='|dw_mc_probe|dw_mci_pltfm_register'
