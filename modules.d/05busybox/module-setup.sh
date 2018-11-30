@@ -22,9 +22,6 @@ install() {
         _progs="$_progs $_i"
     done
 
-    # FIXME: switch_root should be in the above list, but busybox version hangs
-    # (using busybox-1.15.1-7.fc14.i686 at the time of writing)
-
     for _i in $_progs; do
         _path=$(find_binary "$_i")
         [ -z "$_path" ] && continue
