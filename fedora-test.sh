@@ -39,6 +39,7 @@ dnf -y install --best --allowerasing \
     /usr/bin/qemu-kvm \
     /usr/bin/qemu-system-$(uname -i) \
     e2fsprogs \
+    tcpdump \
     $NULL &>/dev/null
 
 ./configure
