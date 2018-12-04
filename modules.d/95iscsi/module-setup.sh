@@ -4,7 +4,7 @@
 check() {
     local _rootdev
     # If our prerequisites are not met, fail anyways.
-    require_binaries hostname iscsi-iname iscsiadm iscsid || return 1
+    require_binaries iscsi-iname iscsiadm iscsid || return 1
 
     # If hostonly was requested, fail the check if we are not actually
     # booting from root.
@@ -206,7 +206,7 @@ cmdline() {
 install() {
     inst_multiple -o iscsiuio
     inst_libdir_file 'libgcc_s.so*'
-    inst_multiple umount hostname iscsi-iname iscsiadm iscsid
+    inst_multiple umount iscsi-iname iscsiadm iscsid
 
     inst_multiple -o \
         $systemdsystemunitdir/iscsid.socket \
