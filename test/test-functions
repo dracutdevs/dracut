@@ -80,7 +80,7 @@ while (($# > 0)); do
                     ret=$?
                     test_cleanup
                     if ((ret!=0)) && [[ -f "$TESTDIR"/server.log ]]; then
-                        mv [[ -f "$TESTDIR"/server.log ]] ./server${TEST_RUN_ID:+-$TEST_RUN_ID}.log
+                        mv "$TESTDIR"/server.log ./server${TEST_RUN_ID:+-$TEST_RUN_ID}.log
                     fi
                     rm -fr -- "$TESTDIR"
                     rm -f -- .testdir${TEST_RUN_ID:+-$TEST_RUN_ID}
