@@ -57,7 +57,7 @@ mount_root() {
 
     # we want rootflags (rflags) to take precedence so prepend rootopts to
     # them; rflags is guaranteed to not be empty
-    rflags="${rootopts:+"${rootopts},"}${rflags}"
+    rflags="${rootopts:+${rootopts},}${rflags}"
 
     umount "$NEWROOT"
 
