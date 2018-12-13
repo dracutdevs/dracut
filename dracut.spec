@@ -222,6 +222,9 @@ rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00bootchart
 # we do not support dash in the initramfs
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00dash
 
+# we do not support mksh in the initramfs
+rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00mksh
+
 # remove gentoo specific modules
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/50gensplash
 
