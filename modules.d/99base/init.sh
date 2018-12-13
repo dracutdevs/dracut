@@ -277,12 +277,18 @@ getarg 'rd.break=cleanup' -d 'rdbreak=cleanup' && emergency_shell -n cleanup "Br
 source_hook cleanup
 
 # By the time we get here, the root filesystem should be mounted.
-# Try to find init. 
+# Try to find init.
 for i in "$(getarg real_init=)" "$(getarg init=)" $(getargs rd.distroinit=) /sbin/init; do
     [ -n "$i" ] || continue
 
-    __p=$(readlink -f "${NEWROOT}/${i}")
-    if [ -x "$__p" -o -x "${NEWROOT}/${__p}" ]; then
+    __p="${NEWROOT}/${i}"
+    if [ -h "$__p" ]; then
+        # relative links need to be left alone,
+        # while absolute links need to be resolved and prefixed.
+        __pt=$(readlink "$__p")
+        [ "${__pt#/}" = "$__pt" ] || __p="${NEWROOT}/$__pt"
+    fi
+    if [ -x "$__p" ]; then
         INIT="$i"
         break
     fi
