@@ -1663,14 +1663,14 @@ if [[ $do_strip = yes ]] && ! [[ $DRACUT_FIPS_MODE ]]; then
     dinfo "*** Stripping files ***"
     find "$initdir" -type f \
         -executable -not -path '*/lib/modules/*.ko' -print0 \
-        | xargs -r -0 $strip_cmd -g 2>/dev/null
+        | xargs -r -0 $strip_cmd -g -p 2>/dev/null
 
     # strip kernel modules, but do not touch signed modules
     find "$initdir" -type f -path '*/lib/modules/*.ko' -print0 \
         | while read -r -d $'\0' f || [ -n "$f" ]; do
         SIG=$(tail -c 28 "$f" | tr -d '\000')
         [[ $SIG == '~Module signature appended~' ]] || { printf "%s\000" "$f"; }
-    done | xargs -r -0 $strip_cmd -g
+    done | xargs -r -0 $strip_cmd -g -p
 
     dinfo "*** Stripping files done ***"
 fi
