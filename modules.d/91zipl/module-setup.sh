@@ -22,7 +22,7 @@ depends() {
 installkernel() {
     local _boot_zipl
 
-    _boot_zipl=$(sed -n 's/\(.*\)\w*\/boot\/zipl.*/\1/p' /etc/fstab)
+    _boot_zipl=$(sed -n -e '/^[[:space:]]*#/d' -e 's/\(.*\)\w*\/boot\/zipl.*/\1/p' /etc/fstab)
     if [ -n "$_boot_zipl" ] ; then
         eval $(blkid -s TYPE -o udev ${_boot_zipl})
         if [ -n "$ID_FS_TYPE" ] ; then
@@ -40,7 +40,7 @@ installkernel() {
 cmdline() {
     local _boot_zipl
 
-    _boot_zipl=$(sed -n 's/\(.*\)\w*\/boot\/zipl.*/\1/p' /etc/fstab)
+    _boot_zipl=$(sed -n -e '/^[[:space:]]*#/d' -e 's/\(.*\)\w*\/boot\/zipl.*/\1/p' /etc/fstab)
     if [ -n "$_boot_zipl" ] ; then
         echo "rd.zipl=${_boot_zipl}"
     fi
