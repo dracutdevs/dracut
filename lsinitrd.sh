@@ -160,6 +160,21 @@ list_files()
     echo "========================================================================"
 }
 
+list_squash_content()
+{
+    SQUASH_IMG="squash/root.img"
+    SQUASH_TMPFILE="$(mktemp -t --suffix=.root.sqsh lsinitrd.XXXXXX)"
+    trap "rm -f '$SQUASH_TMPFILE'" EXIT
+    $CAT "$image" 2>/dev/null | cpio --extract --verbose --quiet --to-stdout -- \
+        $SQUASH_IMG > "$SQUASH_TMPFILE" 2>/dev/null
+    if [[ -s $SQUASH_TMPFILE ]]; then
+        echo "Squashed content ($SQUASH_IMG):"
+        echo "========================================================================"
+        unsquashfs -ll "$SQUASH_TMPFILE" | tail -n +4
+        echo "========================================================================"
+    fi
+}
+
 unpack_files()
 {
     if (( ${#filenames[@]} > 0 )); then
@@ -287,6 +302,7 @@ else
         echo
         list_modules
         list_files
+        list_squash_content
     fi
 fi
 
