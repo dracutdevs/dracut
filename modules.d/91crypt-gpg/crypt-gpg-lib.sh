@@ -53,7 +53,7 @@ gpg_decrypt() {
         --tries 3 --tty-echo-off
 
     # Clean up the smartcard gpg-agent
-    if [ "${useSmartcard}" == "1" ]; then
+    if [ "${useSmartcard}" = "1" ]; then
         GNUPGHOME="$gpghome" gpg-connect-agent 1>/dev/null killagent /bye
     fi
 

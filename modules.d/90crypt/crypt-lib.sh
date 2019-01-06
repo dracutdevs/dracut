@@ -191,7 +191,7 @@ readkey() {
     local device="$3"
 
     # No mounting needed if the keyfile resides inside the initrd
-    if [ "/" == "$keydev" ]; then
+    if [ "/" = "$keydev" ]; then
         local mntp=/
     else
         # This creates a unique single mountpoint for *, or several for explicitly
