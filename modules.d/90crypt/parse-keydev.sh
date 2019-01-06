@@ -18,7 +18,7 @@ if getargbool 1 rd.luks -n rd_NO_LUKS && \
         fi
 
         # A keydev of '/' is treated as the initrd itself
-        if [ "/" == "$keydev" ]; then
+        if [ "/" = "$keydev" ]; then
             [ -z "$luksdev" ] && luksdev='*'
             echo "$luksdev:$keydev:$keypath" >> /tmp/luks.keys
             continue
