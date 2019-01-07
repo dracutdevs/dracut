@@ -36,7 +36,7 @@ install() {
             MAPS=$(find ${kbddir}/keymaps -type f -name ${MAPNAME} -o -name ${MAPNAME}.map -o -name ${MAPNAME}.map.\*)
 
         for map in $MAPS; do
-            KEYMAPS="$KEYMAPS $map"
+            KEYMAPS="$KEYMAPS $map "
             case $map in
                 *.gz) cmd=zgrep;;
                 *.bz2) cmd=bzgrep;;
@@ -45,7 +45,7 @@ install() {
 
             for INCL in $($cmd "^include " $map | while read a a b || [ -n "$a" ]; do echo ${a//\"/}; done); do
                 for FN in $(find ${kbddir}/keymaps -type f -name $INCL\*); do
-                    strstr "$KEYMAPS" "$FN" || findkeymap $FN
+                    strstr "$KEYMAPS" " $FN " || findkeymap $FN
                 done
             done
         done
