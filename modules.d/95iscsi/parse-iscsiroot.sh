@@ -107,14 +107,13 @@ if arg=$(getarg rd.iscsi.initiator -d iscsi_initiator=) && [ -n "$arg" ] && ! [ 
     iscsi_initiator=$arg
     echo "InitiatorName=$iscsi_initiator" > /run/initiatorname.iscsi
     ln -fs /run/initiatorname.iscsi /dev/.initiatorname.iscsi
-    if ! [ -e /etc/iscsi/initiatorname.iscsi ]; then
-        mkdir -p /etc/iscsi
-        ln -fs /run/initiatorname.iscsi /etc/iscsi/initiatorname.iscsi
-        if [ -n "$DRACUT_SYSTEMD" ]; then
-            systemctl try-restart iscsid
-            # FIXME: iscsid is not yet ready, when the service is :-/
-            sleep 1
-        fi
+    rm -f /etc/iscsi/initiatorname.iscsi
+    mkdir -p /etc/iscsi
+    ln -fs /run/initiatorname.iscsi /etc/iscsi/initiatorname.iscsi
+    if [ -n "$DRACUT_SYSTEMD" ]; then
+        systemctl try-restart iscsid
+        # FIXME: iscsid is not yet ready, when the service is :-/
+        sleep 1
     fi
 fi
 
