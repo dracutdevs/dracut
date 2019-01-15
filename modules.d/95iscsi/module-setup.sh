@@ -274,13 +274,13 @@ install() {
             echo "Conflicts=shutdown.target"
             echo "Before=shutdown.target sockets.target"
         ) > "${initdir}/$systemdsystemunitdir/iscsid.socket.d/dracut.conf"
-        mkdir -p "${initdir}/$systemdsystemunitdir/iscsuio.socket.d"
+        mkdir -p "${initdir}/$systemdsystemunitdir/iscsiuio.socket.d"
         (
             echo "[Unit]"
             echo "DefaultDependencies=no"
             echo "Conflicts=shutdown.target"
             echo "Before=shutdown.target sockets.target"
-        ) > "${initdir}/$systemdsystemunitdir/iscsuio.socket.d/dracut.conf"
+        ) > "${initdir}/$systemdsystemunitdir/iscsiuio.socket.d/dracut.conf"
 
     fi
     inst_dir /var/lib/iscsi
