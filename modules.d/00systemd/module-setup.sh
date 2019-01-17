@@ -1,11 +1,14 @@
 #!/bin/bash
 
+getSystemdVersion() {
+    $systemdutildir/systemd --version | { read a b a; echo $b; }
+}
+
 # called by dracut
 check() {
     [[ $mount_needs ]] && return 1
     if require_binaries $systemdutildir/systemd; then
-        SYSTEMD_VERSION=$($systemdutildir/systemd --version | { read a b a; echo $b; })
-        (( $SYSTEMD_VERSION >= 198 )) && return 0
+        (( $(getSystemdVersion) >= 198 )) && return 0
        return 255
     fi
 
@@ -29,6 +32,12 @@ install() {
     if [[ "$prefix" == /run/* ]]; then
         dfatal "systemd does not work with a prefix, which contains \"/run\"!!"
         exit 1
+    fi
+
+    if [ $(getSystemdVersion) -ge 240 ]; then
+        inst_multiple -o \
+            $systemdutildir/system-generators/systemd-debug-generator \
+            $systemdsystemunitdir/debug-shell.service
     fi
 
     inst_multiple -o \
