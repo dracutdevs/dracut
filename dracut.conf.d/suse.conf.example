@@ -10,7 +10,7 @@ hostonly_cmdline="yes"
 compress="xz -0 --check=crc32 --memlimit-compress=50%"
 
 i18n_vars="/etc/sysconfig/language:RC_LANG-LANG,RC_LC_ALL-LC_ALL /etc/sysconfig/console:CONSOLE_UNICODEMAP-FONT_UNIMAP,CONSOLE_FONT-FONT,CONSOLE_SCREENMAP-FONT_MAP /etc/sysconfig/keyboard:KEYTABLE-KEYMAP"
-omit_drivers+=" i2o_scsi"
+omit_drivers+=" i2o_scsi "
 
 # Below adds additional tools to the initrd which are not urgently necessary to
 # bring up the system, but help to debug problems.
