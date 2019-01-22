@@ -407,6 +407,28 @@ rearrange_params()
     fi
 }
 
+# Sanity check for https://github.com/dracutdevs/dracut/pull/526
+# and https://bugs.mageia.org/show_bug.cgi?id=24203 .
+ldd_err_fn="$(mktemp)"
+ldd /bin/echo > /dev/null 2> "$ldd_err_fn"
+ldd_error="$(cat < "$ldd_err_fn")"
+if test -n "$ldd_error" ; then
+    cat << EOF >&2
+ldd emits errors on "ldd /bin/echo". Something is wrong and may prevent
+generating a functional initrd.
+
+Please fix the problem before running dracut.
+
+We got:
+
+$ldd_error
+
+Aborting.
+EOF
+    exit 1
+fi
+rm -f "$ldd_err_fn"
+
 verbosity_mod_l=0
 unset kernel
 unset outfile
