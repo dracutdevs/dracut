@@ -407,6 +407,23 @@ rearrange_params()
     fi
 }
 
+for fn in /lib/ld-linux* ; do
+    # Make sure we do not test unexpanded globs
+    if test -f "$fn"; then
+        if test -x "$fn"; then
+            cat << EOF 2>&1
+$fn which is one of the /lib/ld-linux* files is executable
+which causes an ldd warning and may make the generated initrd unbootable.
+
+Please run "chmod -x /lib/ld-linux*" as root before running dracut.
+
+Aborting.
+EOF
+            exit 1
+        fi
+    fi
+done
+
 verbosity_mod_l=0
 unset kernel
 unset outfile
