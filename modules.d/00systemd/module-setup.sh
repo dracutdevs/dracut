@@ -8,7 +8,14 @@ getSystemdVersion() {
 check() {
     [[ $mount_needs ]] && return 1
     if require_binaries $systemdutildir/systemd; then
-        (( $(getSystemdVersion) >= 198 )) && return 0
+        SYSTEMD_VERSION=$(getSystemdVersion)
+        # Check if the systemd version is a valid number
+        if ! [[ $SYSTEMD_VERSION =~ ^[0-9]+$ ]]; then
+            dfatal "systemd version is not a number ($SYSTEMD_VERSION)"
+            exit 1
+        fi
+        
+        (( $SYSTEMD_VERSION >= 198 )) && return 0
        return 255
     fi
 
