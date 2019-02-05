@@ -1,6 +1,6 @@
 -include dracut-version.sh
 
-VERSION = $(shell [ -d .git ] && git describe --abbrev=0 --tags 2>/dev/null || echo $(DRACUT_VERSION))
+VERSION = $(shell [ -d .git ] && git describe --abbrev=0 2>/dev/null || echo $(DRACUT_VERSION))
 GITVERSION = $(shell [ -d .git ] && { v=$$(git describe --tags 2>/dev/null); [ $${v\#*-} != $$v ] && echo -$${v\#*-}; } )
 
 -include Makefile.inc
@@ -39,7 +39,7 @@ man8pages = dracut.8 \
 
 manpages = $(man1pages) $(man5pages) $(man7pages) $(man8pages)
 
-.PHONY: install clean archive rpm testimage test all check AUTHORS doc dracut-version.sh
+.PHONY: install clean archive rpm srpm testimage test all check AUTHORS doc dracut-version.sh
 
 all: dracut-version.sh dracut.pc dracut-install skipcpio/skipcpio
 
@@ -201,6 +201,16 @@ rpm: dracut-$(VERSION).tar.bz2 syncheck
 	        --define "_specdir $$PWD" --define "_srcrpmdir $$PWD" \
 		--define "_rpmdir $$PWD" -ba dracut.spec; ) && \
 	( mv "$$rpmbuild"/$$(arch)/*.rpm $(DESTDIR).; mv "$$rpmbuild"/*.src.rpm $(DESTDIR).;rm -fr -- "$$rpmbuild"; ls $(DESTDIR)*.rpm )
+
+srpm: dracut-$(VERSION).tar.bz2 syncheck
+	rpmbuild=$$(mktemp -d -t rpmbuild-dracut.XXXXXX); src=$$(pwd); \
+	cp dracut-$(VERSION).tar.bz2 "$$rpmbuild"; \
+	LC_MESSAGES=C $$src/git2spec.pl $(VERSION) "$$rpmbuild" < dracut.spec > $$rpmbuild/dracut.spec; \
+	(cd "$$rpmbuild"; \
+	rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" \
+	        --define "_specdir $$PWD" --define "_srcrpmdir $$PWD" \
+		--define "_rpmdir $$PWD" -bs dracut.spec; ) && \
+	( mv "$$rpmbuild"/*.src.rpm $(DESTDIR).; rm -fr -- "$$rpmbuild"; ls $(DESTDIR)*.rpm )
 
 syncheck:
 	@ret=0;for i in dracut-initramfs-restore.sh modules.d/*/*.sh; do \
