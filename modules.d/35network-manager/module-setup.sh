@@ -41,7 +41,9 @@ install() {
     elif ! [[ -e "$initdir/etc/machine-id" ]]; then
         # The internal DHCP client silently fails if we
         # have no machine-id
-        systemd-machine-id-setup --root="$initdir"
+        local UUID=$(< /proc/sys/kernel/random/uuid)
+        UUID=${UUID//-}
+        echo "$UUID" > "$initdir/etc/machine-id"
     fi
 
     # We don't install the ifcfg files from the host automatically.
