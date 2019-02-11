@@ -64,6 +64,7 @@ static char *kerneldir = NULL;
 static size_t kerneldirlen = 0;
 static char **firmwaredirs = NULL;
 static char **pathdirs;
+static char *ldd = NULL;
 static char *logdir = NULL;
 static char *logfile = NULL;
 FILE *logfile_f = NULL;
@@ -437,7 +438,7 @@ static int resolve_deps(const char *src)
         }
 
         /* run ldd */
-        ret = asprintf(&cmd, "ldd %s 2>&1", src);
+        ret = asprintf(&cmd, "%s %s 2>&1", ldd, src);
         if (ret < 0) {
                 log_error("Out of memory!");
                 exit(EXIT_FAILURE);
@@ -1732,6 +1733,11 @@ int main(int argc, char **argv)
         }
 
         log_debug("PATH=%s", path);
+
+        ldd = getenv("DRACUT_LDD");
+        if (ldd == NULL)
+                ldd = "ldd";
+        log_debug("LDD=%s", ldd);
 
         pathdirs = strv_split(path, ":");
 
