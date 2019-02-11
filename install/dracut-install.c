@@ -1725,7 +1725,9 @@ int main(int argc, char **argv)
                 exit(0);
         }
 
-        path = getenv("PATH");
+        path = getenv("DRACUT_INSTALL_PATH");
+        if (path == NULL)
+                path = getenv("PATH");
 
         if (path == NULL) {
                 log_error("PATH is not set");
