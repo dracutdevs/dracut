@@ -178,7 +178,7 @@ default_kernel_images() {
     local regex kernel_image kernel_version version_version initrd_image
     local qf='%{NAME}-%{VERSION}-%{RELEASE}\n'
 
-    case "$(uname -m)" in
+    case "${DRACUT_ARCH:-$(uname -m)}" in
         s390|s390x)
             regex='image'
             ;;

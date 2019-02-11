@@ -53,7 +53,7 @@ install() {
     # grep '^systemd-timesync:' $dracutsysrootdir/etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
     # grep '^systemd-timesync:' $dracutsysrootdir/etc/group >> "$initdir/etc/group"
 
-    _arch=$(uname -m)
+    _arch=${DRACUT_ARCH:-$(uname -m)}
     inst_libdir_file {"tls/$_arch/",tls/,"$_arch/",}"libnss_dns.so.*" \
                      {"tls/$_arch/",tls/,"$_arch/",}"libnss_mdns4_minimal.so.*" \
                      {"tls/$_arch/",tls/,"$_arch/",}"libnss_myhostname.so.*" \
