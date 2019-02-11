@@ -1625,7 +1625,7 @@ if [[ $kernel_only != yes ]]; then
     for f in /etc/ld.so.conf /etc/ld.so.conf.d/*; do
         [[ -f $f ]] && inst_simple "$f"
     done
-    if ! ldconfig -r "$initdir"; then
+    if ! $DRACUT_LDCONFIG -r "$initdir" -f /etc/ld.so.conf; then
         if [[ $EUID = 0 ]]; then
             derror "ldconfig exited ungracefully"
         else

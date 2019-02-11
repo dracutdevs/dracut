@@ -41,7 +41,7 @@ str_ends() { [ "${1%*"$2"}" != "$1" ]; }
 # search in the usual places to find the binary.
 find_binary() {
     if [[ -z ${1##/*} ]]; then
-        if [[ -x $1 ]] || { [[ "$1" == *.so* ]] && ldd "$1" &>/dev/null; };  then
+        if [[ -x $1 ]] || { [[ "$1" == *.so* ]] && $DRACUT_LDD "$1" &>/dev/null; };  then
             printf "%s\n" "$1"
             return 0
         fi
@@ -52,7 +52,7 @@ find_binary() {
 
 ldconfig_paths()
 {
-    ldconfig -pN 2>/dev/null | grep -E -v '/(lib|lib64|usr/lib|usr/lib64)/[^/]*$' | sed -n 's,.* => \(.*\)/.*,\1,p' | sort | uniq
+    $DRACUT_LDCONFIG -pN 2>/dev/null | grep -E -v '/(lib|lib64|usr/lib|usr/lib64)/[^/]*$' | sed -n 's,.* => \(.*\)/.*,\1,p' | sort | uniq
 }
 
 # Version comparision function.  Assumes Linux style version scheme.
