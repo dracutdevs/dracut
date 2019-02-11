@@ -16,8 +16,8 @@ install() {
     local _d
 
     inst_multiple mount mknod mkdir sleep chroot chown \
-        sed ls flock cp mv dmesg rm ln rmmod mkfifo umount readlink setsid
-    inst $(command -v modprobe) /sbin/modprobe
+        sed ls flock cp mv dmesg rm ln rmmod mkfifo umount readlink setsid \
+        modprobe
 
     inst_multiple -o findmnt less kmod
 
@@ -30,9 +30,9 @@ install() {
     # use password for hostonly images to facilitate secure sulogin in emergency console
     [[ $hostonly ]] && pwshadow='x'
     grep '^root:' "$initdir/etc/passwd" 2>/dev/null || echo  "root:$pwshadow:0:0::/root:/bin/sh" >> "$initdir/etc/passwd"
-    grep '^nobody:' /etc/passwd >> "$initdir/etc/passwd"
+    grep '^nobody:' $dracutsysrootdir/etc/passwd >> "$initdir/etc/passwd"
 
-    [[ $hostonly ]] && grep '^root:' /etc/shadow >> "$initdir/etc/shadow"
+    [[ $hostonly ]] && grep '^root:' $dracutsysrootdir/etc/shadow >> "$initdir/etc/shadow"
 
     # install our scripts and hooks
     inst_script "$moddir/init.sh" "/init"
@@ -69,8 +69,8 @@ install() {
 
     local VERSION=""
     local PRETTY_NAME=""
-    if [ -e /etc/os-release ]; then
-        . /etc/os-release
+    if [ -e $dracutsysrootdir/etc/os-release ]; then
+        . $dracutsysrootdir/etc/os-release
         [[ -n ${VERSION} ]] && VERSION+=" "
         [[ -n ${PRETTY_NAME} ]] && PRETTY_NAME+=" "
     fi

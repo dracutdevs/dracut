@@ -48,10 +48,10 @@ install() {
 
     # inst_dir /var/lib/systemd/clock
 
-    grep '^systemd-network:' /etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
-    grep '^systemd-network:' /etc/group >> "$initdir/etc/group"
-    # grep '^systemd-timesync:' /etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
-    # grep '^systemd-timesync:' /etc/group >> "$initdir/etc/group"
+    grep '^systemd-network:' $dracutsysrootdir/etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
+    grep '^systemd-network:' $dracutsysrootdir/etc/group >> "$initdir/etc/group"
+    # grep '^systemd-timesync:' $dracutsysrootdir/etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
+    # grep '^systemd-timesync:' $dracutsysrootdir/etc/group >> "$initdir/etc/group"
 
     _arch=$(uname -m)
     inst_libdir_file {"tls/$_arch/",tls/,"$_arch/",}"libnss_dns.so.*" \

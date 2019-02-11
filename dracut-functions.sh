@@ -41,18 +41,35 @@ str_ends() { [ "${1%*"$2"}" != "$1" ]; }
 # search in the usual places to find the binary.
 find_binary() {
     if [[ -z ${1##/*} ]]; then
-        if [[ -x $1 ]] || { [[ "$1" == *.so* ]] && $DRACUT_LDD "$1" &>/dev/null; };  then
-            printf "%s\n" "$1"
-            return 0
+        if [[ "$1" == *.so* ]]; then
+            for l in libdirs ; do
+                if { $DRACUT_LDD "$dracutsysrootdir$l$1" &>/dev/null; };  then
+                    printf "%s\n" "$1"
+                    return 0
+                fi
+            done
         fi
+        if [[ "$1" == */* ]]; then
+            if [[ -L $dracutsysrootdir$1 ]] || [[ -x $dracutsysrootdir$1 ]]; then
+                printf "%s\n" "$1"
+                return 0
+            fi
+        fi
+        for p in $DRACUT_PATH ; do
+            if [[ -L $dracutsysrootdir$p$1 ]] || [[ -x $dracutsysrootdir$p$1 ]];  then
+                printf "%s\n" "$1"
+                return 0
+            fi
+        done
     fi
 
+    [[ -n "$dracutsysrootdir" ]] && return 1
     type -P "${1##*/}"
 }
 
 ldconfig_paths()
 {
-    $DRACUT_LDCONFIG -pN 2>/dev/null | grep -E -v '/(lib|lib64|usr/lib|usr/lib64)/[^/]*$' | sed -n 's,.* => \(.*\)/.*,\1,p' | sort | uniq
+    $DRACUT_LDCONFIG ${dracutsysrootdir:+-r ${dracutsysrootdir} -f /etc/ld.so.conf} -pN 2>/dev/null | grep -E -v '/(lib|lib64|usr/lib|usr/lib64)/[^/]*$' | sed -n 's,.* => \(.*\)/.*,\1,p' | sort | uniq
 }
 
 # Version comparision function.  Assumes Linux style version scheme.

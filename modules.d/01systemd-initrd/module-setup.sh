@@ -40,8 +40,8 @@ install() {
 
     local VERSION=""
     local PRETTY_NAME=""
-    if [ -e /etc/os-release ]; then
-        . /etc/os-release
+    if [ -e $dracutsysrootdir/etc/os-release ]; then
+        . $dracutsysrootdir/etc/os-release
         [[ -n ${VERSION} ]] && VERSION+=" "
         [[ -n ${PRETTY_NAME} ]] && PRETTY_NAME+=" "
     fi

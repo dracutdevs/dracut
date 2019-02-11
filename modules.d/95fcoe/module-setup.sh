@@ -92,7 +92,7 @@ cmdline() {
 # called by dracut
 install() {
     inst_multiple ip dcbtool fipvlan lldpad readlink lldptool fcoemon fcoeadm
-    if [ -e "/etc/hba.conf" ]; then
+    if [ -e "$dracutsysrootdir/etc/hba.conf" ]; then
         inst_libdir_file 'libhbalinux.so*'
         inst_simple "/etc/hba.conf"
     fi

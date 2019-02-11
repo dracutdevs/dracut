@@ -4,6 +4,7 @@
 check() {
     [[ $mount_needs ]] && return 1
     if require_binaries $systemdutildir/systemd; then
+		# TODO try to get the sysroot systemd version
         SYSTEMD_VERSION=$($systemdutildir/systemd --version | { read a b a; echo $b; })
         # Check if the systemd version is a valid number
         if ! [[ $SYSTEMD_VERSION =~ ^[0-9]+$ ]]; then
@@ -149,7 +150,7 @@ install() {
 
     modules_load_get() {
         local _line i
-        for i in "$1"/*.conf; do
+        for i in "$dracutsysrootdir$1"/*.conf; do
             [[ -f $i ]] || continue
             while read _line || [ -n "$_line" ]; do
                 case $_line in
@@ -194,17 +195,17 @@ install() {
 
     # install adm user/group for journald
     inst_multiple nologin
-    grep '^systemd-journal:' /etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
-    grep '^adm:' /etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
-    grep '^systemd-journal:' /etc/group >> "$initdir/etc/group"
-    grep '^wheel:' /etc/group >> "$initdir/etc/group"
-    grep '^adm:' /etc/group >> "$initdir/etc/group"
-    grep '^utmp:' /etc/group >> "$initdir/etc/group"
-    grep '^root:' /etc/group >> "$initdir/etc/group"
+    grep '^systemd-journal:' $dracutsysrootdir/etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
+    grep '^adm:' $dracutsysrootdir/etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
+    grep '^systemd-journal:' $dracutsysrootdir/etc/group >> "$initdir/etc/group"
+    grep '^wheel:' $dracutsysrootdir/etc/group >> "$initdir/etc/group"
+    grep '^adm:' $dracutsysrootdir/etc/group >> "$initdir/etc/group"
+    grep '^utmp:' $dracutsysrootdir/etc/group >> "$initdir/etc/group"
+    grep '^root:' $dracutsysrootdir/etc/group >> "$initdir/etc/group"
 
     # we don't use systemd-networkd, but the user is in systemd.conf tmpfiles snippet
-    grep '^systemd-network:' /etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
-    grep '^systemd-network:' /etc/group >> "$initdir/etc/group"
+    grep '^systemd-network:' $dracutsysrootdir/etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
+    grep '^systemd-network:' $dracutsysrootdir/etc/group >> "$initdir/etc/group"
 
     ln_r $systemdutildir/systemd "/init"
     ln_r $systemdutildir/systemd "/sbin/init"
