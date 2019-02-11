@@ -19,7 +19,7 @@ install() {
     if dracut_module_included "systemd"; then
         unset FONT
         unset KEYMAP
-        [[ -f /etc/vconsole.conf ]] && . /etc/vconsole.conf
+        [[ -f $dracutsysrootdir/etc/vconsole.conf ]] && . $dracutsysrootdir/etc/vconsole.conf
     fi
 
     KBDSUBDIRS=consolefonts,consoletrans,keymaps,unimaps
@@ -32,8 +32,8 @@ install() {
         local MAPS=$1
         local MAPNAME=${1%.map*}
         local map
-        [[ ! -f $MAPS ]] && \
-            MAPS=$(find ${kbddir}/keymaps -type f -name ${MAPNAME} -o -name ${MAPNAME}.map -o -name ${MAPNAME}.map.\*)
+        [[ ! -f $dracutsysrootdir$MAPS ]] && \
+            MAPS=$(find $dracutsysrootdir${kbddir}/keymaps -type f -name ${MAPNAME} -o -name ${MAPNAME}.map -o -name ${MAPNAME}.map.\*)
 
         for map in $MAPS; do
             KEYMAPS="$KEYMAPS $map "
@@ -44,7 +44,7 @@ install() {
             esac
 
             for INCL in $($cmd "^include " $map | while read a a b || [ -n "$a" ]; do echo ${a//\"/}; done); do
-                for FN in $(find ${kbddir}/keymaps -type f -name $INCL\*); do
+                for FN in $(find $dracutsysrootdir${kbddir}/keymaps -type f -name $INCL\*); do
                     strstr "$KEYMAPS" " $FN " || findkeymap $FN
                 done
             done
@@ -87,8 +87,8 @@ install() {
             for map in ${item[1]//,/ }
             do
                 map=(${map//-/ })
-                if [[ -f "${item[0]}" ]]; then
-                    value=$(grep "^${map[0]}=" "${item[0]}")
+                if [[ -f "$dracutsysrootdir${item[0]}" ]]; then
+                    value=$(grep "^${map[0]}=" "$dracutsysrootdir${item[0]}")
                     value=${value#*=}
                     echo "${map[1]:-${map[0]}}=${value}"
                 fi
@@ -116,9 +116,10 @@ install() {
     install_all_kbd() {
         local rel f
 
-        for _src in $(eval echo ${kbddir}/{${KBDSUBDIRS}}); do
+        for __src in $(eval echo $dracutsysrootdir${kbddir}/{${KBDSUBDIRS}}); do
+            _src=${__src#$dracutsysrootdir}
             inst_dir "$_src"
-            $DRACUT_CP -L -t "${initdir}/${_src}" "$_src"/*
+            $DRACUT_CP -L -t "${initdir}/${_src}" "$__src"/*
         done
 
         # remove unnecessary files
@@ -139,8 +140,8 @@ install() {
         local map
 
         eval $(gather_vars ${i18n_vars})
-        [ -f $I18N_CONF ] && . $I18N_CONF
-        [ -f $VCONFIG_CONF ] && . $VCONFIG_CONF
+        [ -f $dracutsysrootdir$I18N_CONF ] && . $dracutsysrootdir$I18N_CONF
+        [ -f $dracutsysrootdir$VCONFIG_CONF ] && . $dracutsysrootdir$VCONFIG_CONF
 
         shopt -q -s nocasematch
         if [[ ${UNICODE} ]]
@@ -222,14 +223,14 @@ install() {
             inst_simple ${kbddir}/unimaps/${FONT_UNIMAP}.uni
         fi
 
-        if dracut_module_included "systemd" && [[ -f ${I18N_CONF} ]]; then
+        if dracut_module_included "systemd" && [[ -f $dracutsysrootdir${I18N_CONF} ]]; then
             inst_simple ${I18N_CONF}
         else
             mksubdirs ${initdir}${I18N_CONF}
             print_vars LC_ALL LANG >> ${initdir}${I18N_CONF}
         fi
 
-        if dracut_module_included "systemd" && [[ -f ${VCONFIG_CONF} ]]; then
+        if dracut_module_included "systemd" && [[ -f $dracutsysrootdir${VCONFIG_CONF} ]]; then
             inst_simple ${VCONFIG_CONF}
         else
             mksubdirs ${initdir}${VCONFIG_CONF}
@@ -242,16 +243,16 @@ install() {
     checks() {
         for kbddir in ${kbddir} /usr/lib/kbd /lib/kbd /usr/share /usr/share/kbd
         do
-            [[ -d "${kbddir}" ]] && \
+            [[ -d "$dracutsysrootdir${kbddir}" ]] && \
                 for dir in ${KBDSUBDIRS//,/ }
             do
-                [[ -d "${kbddir}/${dir}" ]] && continue
+                [[ -d "$dracutsysrootdir${kbddir}/${dir}" ]] && continue
                 false
             done && break
             kbddir=''
         done
 
-        [[ -f $I18N_CONF && -f $VCONFIG_CONF ]] || \
+        [[ -f $dracutsysrootdir$I18N_CONF && -f $dracutsysrootdir$VCONFIG_CONF ]] || \
             [[ ! ${hostonly} || ${i18n_vars} ]] || {
             derror 'i18n_vars not set!  Please set up i18n_vars in ' \
                 'configuration file.'
