@@ -31,7 +31,7 @@ if getargbool 1 rd.shell -d -y rdshell || getarg rd.break -d rdbreak; then
             echo
             [ -f "$FSTXT" ] && cat "$FSTXT"
         ) > /dev/$_tty
-    done < /dev/consoles
+    done < /proc/consoles
     [ -f /etc/profile ] && . /etc/profile
     [ -z "$PS1" ] && export PS1="$_name:\${PWD}# "
     exec sulogin -e
