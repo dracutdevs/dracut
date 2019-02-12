@@ -412,7 +412,7 @@ static char *get_real_file(const char *src, bool fullyresolve)
         if (sysrootdirlen) {
                 if (strncmp(src, sysrootdir, sysrootdirlen) == 0)
                         fullsrcpath = strdup(src);
-                else if (asprintf(&fullsrcpath, "%s/%s", sysrootdir, (src[0] == '/' ? src+1 : src)) < 0)
+                else if (asprintf(&fullsrcpath, "%s/%s", (sysrootdirlen ? sysrootdir : ""), (src[0] == '/' ? src+1 : src)) < 0)
 				        _exit(EXIT_FAILURE);
         } else
                 fullsrcpath = strdup(src);
