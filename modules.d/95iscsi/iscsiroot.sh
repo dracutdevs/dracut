@@ -36,9 +36,12 @@ iroot=${iroot#:}
 # figured out a way how to check whether this is built-in or not
 modprobe crc32c 2>/dev/null
 
-if [ -z "${DRACUT_SYSTEMD}" ] && [ -e /sys/module/bnx2i ] && ! [ -e /tmp/iscsiuio-started ]; then
-        iscsiuio
-        > /tmp/iscsiuio-started
+# start iscsiuio if needed
+if [[ -z "${DRACUT_SYSTEMD}" ]] && \
+      ( [[ -e /sys/module/bnx2i ]] || [[ -e /sys/module/qedi ]] ) && \
+       ! [ -e /tmp/iscsiuio-started ]; then
+      iscsiuio
+      > /tmp/iscsiuio-started
 fi
 
 
