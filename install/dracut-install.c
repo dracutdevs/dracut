@@ -440,7 +440,7 @@ static char *get_real_file(const char *src, bool fullyresolve)
         log_debug("get_real_file: readlink('%s') returns '%s'", fullsrcpath, linktarget);
 
         if (linktarget[0] == '/') {
-                if (asprintf(&abspath, "%s%s", sysrootdir, linktarget) < 0)
+                if (asprintf(&abspath, "%s%s", (sysrootdirlen ? sysrootdir : ""), linktarget) < 0)
                         return NULL;
         } else {
                 _cleanup_free_ char *fullsrcdir = strdup(fullsrcpath);
