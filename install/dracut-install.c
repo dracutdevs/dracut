@@ -841,7 +841,7 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
                 return 0;
         }
 
-        if (sb.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH)) {
+        if (src_mode & (S_IXUSR | S_IXGRP | S_IXOTH)) {
                 if (resolvedeps)
                         ret += resolve_deps(fullsrcpath + sysrootdirlen);
                 if (arg_hmac) {
