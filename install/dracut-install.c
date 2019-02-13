@@ -675,6 +675,33 @@ static bool check_hashmap(Hashmap *hm, const char *item)
         return false;
 }
 
+static int dracut_mkdir(const char *src) {
+        _cleanup_free_ char *parent = NULL;
+        struct stat sb;
+
+        parent = strdup(src);
+        if (!parent)
+                return 1;
+
+        parent[dir_len(parent)] = '\0';
+
+        if (stat(parent, &sb) == 0) {
+                if (!S_ISDIR(sb.st_mode)) {
+                        log_error("%s exists but is not a directory!", parent);
+                        return 1;
+                }
+
+                return mkdir(src, 0755);
+        }
+
+        if (errno != ENOENT) {
+                log_error("ERROR: stat '%s': %m", src);
+                return 1;
+        }
+
+        return dracut_mkdir(parent);
+}
+
 static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir, bool resolvedeps, bool hashdst)
 {
         struct stat sb, db;
@@ -800,14 +827,17 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
         }
 
         if (src_isdir) {
-                if (dst_exists && S_ISDIR(sb.st_mode)) {
-                        log_debug("dest dir '%s' already exists", fulldstdir);
-                        return 0;
+                if (dst_exists) {
+                        if (S_ISDIR(sb.st_mode)) {
+                                log_debug("dest dir '%s' already exists", fulldstpath);
+                                return 0;
+                        }
+                        log_error("dest dir '%s' already exists but is not a directory", fulldstpath);
+                        return 1;
                 }
 
                 log_info("mkdir '%s'", fulldstpath);
-                ret = mkdir(fulldstpath, src_mode | S_IWUSR);
-                return ret;
+                return dracut_mkdir(fulldstpath);
         }
 
         /* ready to install src */
