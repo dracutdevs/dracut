@@ -445,6 +445,11 @@ static char *get_real_file(const char *src, bool fullyresolve)
         } else {
                 _cleanup_free_ char *fullsrcdir = strdup(fullsrcpath);
 
+                if (!fullsrcdir) {
+                        log_error("Out of memory!");
+                        return NULL;
+                }
+
                 fullsrcdir[dir_len(fullsrcdir)] = '\0';
 
                 if (asprintf(&abspath, "%s/%s", fullsrcdir, linktarget) < 0)
@@ -764,6 +769,10 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
 
         /* check destination directory */
         fulldstdir = strdup(fulldstpath);
+        if (!fulldstdir) {
+                log_error("Out of memory!");
+                return 1;
+        }
         fulldstdir[dir_len(fulldstdir)] = '\0';
 
         ret = stat(fulldstdir, &db);
