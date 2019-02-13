@@ -156,7 +156,8 @@ static void unlink_entry(Hashmap *h, struct hashmap_entry *e, unsigned hash) {
         h->n_entries--;
 }
 
-static void remove_entry(Hashmap *h, struct hashmap_entry *e) {
+static void remove_entry(Hashmap *h, struct hashmap_entry **ep) {
+        struct hashmap_entry *e = *ep;
         unsigned hash;
 
         assert(h);
@@ -167,6 +168,7 @@ static void remove_entry(Hashmap *h, struct hashmap_entry *e) {
         unlink_entry(h, e, hash);
 
         free(e);
+        *ep = NULL;
 }
 
 void hashmap_free(Hashmap*h) {
@@ -192,8 +194,10 @@ void hashmap_clear(Hashmap *h) {
         if (!h)
                 return;
 
-        while (h->iterate_list_head)
-                remove_entry(h, h->iterate_list_head);
+        while (h->iterate_list_head) {
+                struct hashmap_entry *e = h->iterate_list_head;
+                remove_entry(h, &e);
+        }
 }
 
 static struct hashmap_entry *hash_scan(Hashmap *h, unsigned hash, const void *key) {
@@ -283,7 +287,7 @@ void* hashmap_remove(Hashmap *h, const void *key) {
                 return NULL;
 
         data = e->value;
-        remove_entry(h, e);
+        remove_entry(h, &e);
 
         return data;
 }
@@ -328,7 +332,7 @@ int hashmap_remove_and_replace(Hashmap *h, const void *old_key, const void *new_
 
         if ((k = hash_scan(h, new_hash, new_key)))
                 if (e != k)
-                        remove_entry(h, k);
+                        remove_entry(h, &k);
 
         unlink_entry(h, e, old_hash);
 
@@ -355,7 +359,7 @@ void* hashmap_remove_value(Hashmap *h, const void *key, void *value) {
         if (e->value != value)
                 return NULL;
 
-        remove_entry(h, e);
+        remove_entry(h, &e);
 
         return value;
 }
@@ -481,6 +485,7 @@ void* hashmap_last(Hashmap *h) {
 }
 
 void* hashmap_steal_first(Hashmap *h) {
+        struct hashmap_entry *e;
         void *data;
 
         if (!h)
@@ -489,13 +494,15 @@ void* hashmap_steal_first(Hashmap *h) {
         if (!h->iterate_list_head)
                 return NULL;
 
-        data = h->iterate_list_head->value;
-        remove_entry(h, h->iterate_list_head);
+        e = h->iterate_list_head;
+        data = e->value;
+        remove_entry(h, &e);
 
         return data;
 }
 
 void* hashmap_steal_first_key(Hashmap *h) {
+        struct hashmap_entry *e;
         void *key;
 
         if (!h)
@@ -504,8 +511,9 @@ void* hashmap_steal_first_key(Hashmap *h) {
         if (!h->iterate_list_head)
                 return NULL;
 
-        key = (void*) h->iterate_list_head->key;
-        remove_entry(h, h->iterate_list_head);
+        e = h->iterate_list_head;
+        key = (void*) e->key;
+        remove_entry(h, &e);
 
         return key;
 }
@@ -594,22 +602,6 @@ int hashmap_move_one(Hashmap *h, Hashmap *other, const void *key) {
         link_entry(h, e, h_hash);
 
         return 0;
-}
-
-Hashmap *hashmap_copy(Hashmap *h) {
-        Hashmap *copy;
-
-        assert(h);
-
-        if (!(copy = hashmap_new(h->hash_func, h->compare_func)))
-                return NULL;
-
-        if (hashmap_merge(copy, h) < 0) {
-                hashmap_free(copy);
-                return NULL;
-        }
-
-        return copy;
 }
 
 char **hashmap_get_strv(Hashmap *h) {
