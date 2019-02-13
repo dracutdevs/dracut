@@ -1412,7 +1412,7 @@ static int install_dependent_modules(struct kmod_list *modlist)
                         continue;
                 }
 
-                ret = dracut_install(path, &path[kerneldirlen], false, false, true);
+                ret = dracut_install(((sysrootdir && strncmp(path, sysrootdir, sysrootdirlen) == 0) ? path + sysrootdirlen : path), &path[kerneldirlen], false, false, true);
                 if (ret == 0) {
 			_cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
 			_cleanup_kmod_module_unref_list_ struct kmod_list *modpre = NULL;
@@ -1471,7 +1471,7 @@ static int install_module(struct kmod_module *mod)
 
         log_debug("dracut_install '%s' '%s'", path, &path[kerneldirlen]);
 
-        ret = dracut_install(path, &path[kerneldirlen], false, false, true);
+        ret = dracut_install(((sysrootdir && strncmp(path, sysrootdir, sysrootdirlen) == 0) ? path + sysrootdirlen : path), &path[kerneldirlen], false, false, true);
         if (ret == 0) {
                 log_debug("dracut_install '%s' OK", kmod_module_get_name(mod));
         } else if (!arg_optional) {
