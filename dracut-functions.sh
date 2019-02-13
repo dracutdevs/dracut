@@ -647,9 +647,9 @@ check_kernel_config()
 {
     local _config_opt="$1"
     local _config_file
-    [[ -f /boot/config-$kernel ]] \
+    [[ -f $dracutsysrootdir/boot/config-$kernel ]] \
         && _config_file="/boot/config-$kernel"
-    [[ -f /lib/modules/$kernel/config ]] \
+    [[ -f $dracutsysrootdir/lib/modules/$kernel/config ]] \
         && _config_file="/lib/modules/$kernel/config"
 
     # no kernel config file, so return true
