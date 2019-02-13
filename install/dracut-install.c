@@ -736,7 +736,7 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
                 dst = strdup(orig_dst);
         }
 
-        log_debug("dracut_install('%s', '%s')", src, dst);
+        log_debug("dracut_install('%s', '%s', %d, %d, %d)", src, dst, isdir, resolvedeps, hashdst);
 
         if (check_hashmap(items_failed, src)) {
                 log_debug("hash hit items_failed for '%s'", src);
@@ -760,12 +760,6 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
                 src_isdir = S_ISDIR(sb.st_mode);
                 src_mode = sb.st_mode;
         }
-
-        i = strdup(dst);
-        if (!i)
-                return -ENOMEM;
-
-        hashmap_put(items, i, i);
 
         ret = asprintf(&fulldstpath, "%s/%s", destrootdir, (dst[0]=='/' ? (dst+1) : dst));
         if (ret < 0) {
@@ -837,7 +831,15 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
                 }
 
                 log_info("mkdir '%s'", fulldstpath);
-                return dracut_mkdir(fulldstpath);
+                ret = dracut_mkdir(fulldstpath);
+                if (ret == 0) {
+                        i = strdup(dst);
+                        if (!i)
+                                return -ENOMEM;
+
+                        hashmap_put(items, i, i);
+                }
+                return ret;
         }
 
         /* ready to install src */
@@ -896,8 +898,16 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
                 mark_hostonly(dst);
 
         ret += cp(fullsrcpath, fulldstpath);
-        if (ret == 0 && logfile_f)
-                dracut_log_cp(src);
+        if (ret == 0) {
+                i = strdup(dst);
+                if (!i)
+                        return -ENOMEM;
+
+                hashmap_put(items, i, i);
+
+                if (logfile_f)
+                        dracut_log_cp(src);
+        }
 
         log_debug("dracut_install ret = %d", ret);
 
