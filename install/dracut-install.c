@@ -521,6 +521,8 @@ static int resolve_deps(const char *src)
                 exit(EXIT_FAILURE);
         }
 
+        log_debug("%s", cmd);
+
         ret = 0;
 
         fptr = popen(cmd, "r");
