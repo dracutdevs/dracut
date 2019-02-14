@@ -1203,7 +1203,14 @@ static char **find_binary(const char *src)
 
                 fullsrcpath = get_real_file(newsrc, false);
 
-                if (!fullsrcpath || (fullsrcpath && lstat(fullsrcpath, &sb)) != 0) {
+                if (!fullsrcpath) {
+                        log_debug("get_real_file(%s) not found", newsrc);
+                        free(newsrc);
+                        newsrc = NULL;
+                        continue;
+                }
+
+                if (lstat(fullsrcpath, &sb) != 0) {
                         log_debug("stat(%s) != 0", fullsrcpath);
                         free(newsrc);
                         newsrc = NULL;
