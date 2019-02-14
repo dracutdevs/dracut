@@ -1244,6 +1244,9 @@ static int install_dependent_modules(struct kmod_list *modlist)
                 mod = kmod_module_get_module(itr);
                 path = kmod_module_get_path(mod);
 
+                if (path == NULL)
+                        continue;
+
 		if (check_hashmap(items_failed, path))
 			return -1;
 
@@ -1253,7 +1256,7 @@ static int install_dependent_modules(struct kmod_list *modlist)
 
                 name = kmod_module_get_name(mod);
 
-                if ((path == NULL) || (arg_mod_filter_noname && (regexec(&mod_filter_noname, name, 0, NULL, 0) == 0))) {
+                if (arg_mod_filter_noname && (regexec(&mod_filter_noname, name, 0, NULL, 0) == 0)) {
                         continue;
                 }
 
