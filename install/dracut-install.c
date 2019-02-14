@@ -892,12 +892,18 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
         }
 
         log_debug("dracut_install ret = %d", ret);
-        log_info("cp '%s' '%s'", fullsrcpath, fulldstpath);
 
         if (arg_hostonly && !arg_module)
                 mark_hostonly(dst);
 
-        ret += cp(fullsrcpath, fulldstpath);
+        if (isdir) {
+                log_info("mkdir '%s'", fulldstpath);
+                ret += dracut_mkdir(fulldstpath);
+        } else {
+                log_info("cp '%s' '%s'", fullsrcpath, fulldstpath);
+                ret += cp(fullsrcpath, fulldstpath);
+        }
+
         if (ret == 0) {
                 i = strdup(dst);
                 if (!i)
@@ -1888,6 +1894,10 @@ int main(int argc, char **argv)
                 }
                 exit(0);
         }
+
+        log_debug("Program arguments:");
+        for (r = 0; r < argc; r++)
+                log_debug("%s", argv[r]);
 
         path = getenv("DRACUT_INSTALL_PATH");
         if (path == NULL)
