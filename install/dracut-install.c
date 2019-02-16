@@ -541,6 +541,13 @@ static int resolve_deps(const char *src)
                         break;
                 }
 
+                /* errors from cross-compiler-ldd */
+                if (strstr(buf, "unable to find sysroot") || strstr(buf, "command not found")) {
+                        log_error("%s", buf);
+                        ret += 1;
+                        break;
+                }
+
                 /* musl ldd */
                 if (strstr(buf, "Not a valid dynamic program"))
                         break;
