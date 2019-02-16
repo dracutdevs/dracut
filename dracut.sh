@@ -958,8 +958,8 @@ if [[ $no_kernel != yes ]] && ! [[ -d $srcmods ]]; then
 fi
 
 if ! [[ $print_cmdline ]]; then
-    inst /bin/sh
-    if ! $DRACUT_INSTALL ${initdir:+-D "$initdir"} ${dracutsysrootdir:+-r "$dracutsysrootdir"} -R "/bin/sh" &>/dev/null; then
+    inst $DRACUT_TESTBIN
+    if ! $DRACUT_INSTALL ${initdir:+-D "$initdir"} ${dracutsysrootdir:+-r "$dracutsysrootdir"} -R "$DRACUT_TESTBIN" &>/dev/null; then
         unset DRACUT_RESOLVE_LAZY
         export DRACUT_RESOLVE_DEPS=1
     fi

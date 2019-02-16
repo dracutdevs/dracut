@@ -80,14 +80,14 @@ export srcmods
 }
 
 DRACUT_LDD=${DRACUT_LDD:-ldd}
-DRACUT_BASEBIN=${DRACUT_BASEBIN:-/bin/sh}
+DRACUT_TESTBIN=${DRACUT_TESTBIN:-/bin/sh}
 DRACUT_LDCONFIG=${DRACUT_LDCONFIG:-ldconfig}
 
 . $dracutbasedir/dracut-functions.sh
 
 # Detect lib paths
 if ! [[ $libdirs ]] ; then
-    if [[ "$($DRACUT_LDD $dracutsysrootdir$DRACUT_BASEBIN)" == */lib64/* ]] &>/dev/null \
+    if [[ "$($DRACUT_LDD $dracutsysrootdir$DRACUT_TESTBIN)" == */lib64/* ]] &>/dev/null \
         && [[ -d $dracutsysrootdir/lib64 ]]; then
         libdirs+=" /lib64"
         [[ -d $dracutsysrootdir/usr/lib64 ]] && libdirs+=" /usr/lib64"
