@@ -154,6 +154,10 @@ dracut_no_switch_root() {
     >"$initdir/lib/dracut/no-switch-root"
 }
 
+dracut_module_path() {
+    echo ${dracutbasedir}/modules.d/??${1} | { read a b; echo "$a"; }
+}
+
 if ! [[ $DRACUT_INSTALL ]]; then
     DRACUT_INSTALL=$(find_binary dracut-install)
 fi
