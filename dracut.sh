@@ -1373,7 +1373,7 @@ do_print_cmdline()
     for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
         _d_mod=${moddir##*/}; _d_mod=${_d_mod#[0-9][0-9]}
         [[ ${_mods_to_print[$_d_mod]} ]] || continue
-        module_cmdline "$_d_mod"
+        module_cmdline "$_d_mod" "$moddir"
     done
     unset moddir
 }
@@ -1454,14 +1454,14 @@ for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
         dinfo "*** Including module: $_d_mod ***"
     fi
     if [[ $kernel_only == yes ]]; then
-        module_installkernel "$_d_mod" || {
+        module_installkernel "$_d_mod" "$moddir" || {
             dfatal "installkernel failed in module $_d_mod"
             exit 1
         }
     else
-        module_install "$_d_mod"
+        module_install "$_d_mod" "$moddir"
         if [[ $no_kernel != yes ]]; then
-            module_installkernel "$_d_mod" || {
+            module_installkernel "$_d_mod" "$moddir" || {
                 dfatal "installkernel failed in module $_d_mod"
                 exit 1
             }
