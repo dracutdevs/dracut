@@ -29,7 +29,8 @@ install() {
   sed -e \
 '/^\[Unit\]/aDefaultDependencies=no\
 Conflicts=shutdown.target\
-Before=shutdown.target' \
+Before=shutdown.target
+/^\[Socket\]/aRemoveOnStop=yes' \
     /usr/lib/systemd/system/dbus.service > \
     "$initdir"/usr/lib/systemd/system/dbus.service
 
