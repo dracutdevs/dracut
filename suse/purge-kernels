@@ -268,8 +268,37 @@ sub list_old_packages {
 	return @packages;
 }
 
+sub find_package {
+	my $name = shift @_;
+	my $version = shift @_;
+	my @packages = @_;
+	my $expr = "^" . quotemeta("$name-$version");
+	my @found = grep { $_ =~ $expr } @packages;
+	return @found if @found;
+	$expr = "^" . quotemeta($name) . " = " . quotemeta($version) . "\$";
+	@found = grep {
+		my @provides = qx/rpm -q --provides $_/;
+		chomp (@provides);
+		grep { $_ =~ $expr} @provides;
+	} @packages;
+	return @found;
+}
+
+# Try to remove a list of packages.
+#
+# If there is a KMP or livepatch depending on the package remove it as well. If
+# there is another package depending on the kernel keep the kernel. If there is
+# a package that depends on a KMP keep the KMP and a kernel required to use the
+# KMP.
+# In each step a KMP or livepatch may be added or a package which cannot be
+# removed due to dependencies is marked as taboo and removed from the list.
+#
+# Finish when packages uninstall successfully or we can't find any packages to
+# add or remove from the list to make it uninstallable.
+
 sub remove_packages {
 	my @packages = @_;
+	my %taboo_packages;
 
 	while (1) {
 		pipe(my $read, my $write);
@@ -296,25 +325,30 @@ sub remove_packages {
 			print "Removed:\n    ", join("\n    ", @packages), "\n";
 			return 1;
 		}
-		my ($retry, @problems);
+		my $retry = 0;
 		my %old_packages = map { $_ => 1 } @packages;
 		my %new_packages;
 		for (@out) {
 			if (/ is needed by \(installed\) (kernel-syms-.*|kgraft-patch-.*|kernel-livepatch-.*|.*-kmp-.*)/ &&
-					!$old_packages{$1}) {
+				!$old_packages{$1} && !$taboo_packages{$1}) {
 				push(@packages, $1) unless $new_packages{$1};
 				$new_packages{$1} = 1;
 				$retry = 1;
 			} elsif (/([^ \t]*) = ([^ \t]*) is needed by \(installed\) /) {
-				print STDERR "$0: $_\n";
-				@packages = grep ! /$1-$2/, @packages;
-				$retry = 1;
-			} else {
-				push(@problems, $_);
+				my @unremovable = find_package($1, $2, @packages);
+				my $match = $unremovable[$#unremovable];
+				if ($match) {
+					print STDERR "$0: $_\n";
+					print STDERR "$0: Keeping $1 = $2 ($match)\n";
+					@packages = grep { $_ !~ $match } @packages;
+					$taboo_packages{$match} = 1;
+					$retry = 1;
+					last; # Only remove one package providing the dependency from the list
+				}
 			}
 		}
 		if (!$retry) {
-			print STDERR join("\n", @problems), "\n";
+			print STDERR join("\n", @out), "\n";
 			print STDERR "$0: giving up.\n";
 			return 0;
 		}
