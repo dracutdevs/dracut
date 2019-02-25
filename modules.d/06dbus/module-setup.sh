@@ -3,7 +3,7 @@
 # called by dracut
 check() {
   require_binaries dbus-daemon || return 1
-  
+
   return 255
 }
 
@@ -13,8 +13,25 @@ depends() {
 }
 
 install() {
+  local DBUS_SERVICE=/usr/lib/systemd/system/dbus.service
+  if [[ -e $DBUS_SERVICE ]]; then
+    if [[ -L $DBUS_SERVICE ]]; then
+      DBUS_SERVICE=$(readlink $DBUS_SERVICE)
+    fi
+  else
+    DBUS_SERVICE=/etc/systemd/system/dbus.service
+    if [[ -e $DBUS_SERVICE ]]; then
+      if [[ -L $DBUS_SERVICE ]]; then
+        DBUS_SERVICE=$(readlink $DBUS_SERVICE)
+      fi
+    else
+      echo "Could not find dbus.service";
+      exit 1
+    fi
+  fi
+
   inst_multiple \
-    /usr/lib/systemd/system/dbus.service \
+    $DBUS_SERVICE \
     /usr/lib/systemd/system/dbus.socket \
     /usr/bin/dbus-daemon \
     /usr/bin/dbus-send
@@ -26,19 +43,26 @@ install() {
   grep '^dbus:' /etc/passwd >> "$initdir/etc/passwd"
   grep '^dbus:' /etc/group >> "$initdir/etc/group"
 
-  sed -e \
-'/^\[Unit\]/aDefaultDependencies=no\
-Conflicts=shutdown.target\
-Before=shutdown.target
-/^\[Socket\]/aRemoveOnStop=yes' \
-    /usr/lib/systemd/system/dbus.service > \
-    "$initdir"/usr/lib/systemd/system/dbus.service
+  systemctl --root "$initdir" enable $DBUS_SERVICE > /dev/null 2>&1
 
-  sed -e \
+  sed -i -e \
 '/^\[Unit\]/aDefaultDependencies=no\
 Conflicts=shutdown.target\
 Before=shutdown.target
 /^\[Socket\]/aRemoveOnStop=yes' \
-    /usr/lib/systemd/system/dbus.socket > \
+    "$initdir"$DBUS_SERVICE
+
+  sed -i -e \
+'/^\[Unit\]/aDefaultDependencies=no\
+Conflicts=shutdown.target\
+Before=shutdown.target
+/^\[Socket\]/aRemoveOnStop=yes' \
     "$initdir"/usr/lib/systemd/system/dbus.socket
+
+  #We need to make sure that systemd-tmpfiles-setup.service->dbus.socket will not wait local-fs.target to start,
+  #If swap is encrypted, this would make dbus wait the timeout for the swap before loading. This could delay sysinit
+  #services that are dependent on dbus.service.
+  sed -i -Ee \
+    '/^After/s/(After[[:space:]]*=.*)(local-fs.target[[:space:]]*)(.*)/\1-\.mount \3/' \
+    "$initdir"/usr/lib/systemd/system/systemd-tmpfiles-setup.service
 }
