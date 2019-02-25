@@ -3,7 +3,7 @@
 # called by dracut
 check() {
   require_binaries /usr/libexec/bluetooth/bluetoothd || return 1
-  
+
   return 255
 }
 
@@ -49,7 +49,8 @@ install() {
   sed -e \
 '/^\[Unit\]/aDefaultDependencies=no\
 Conflicts=shutdown.target\
-Before=shutdown.target' \
+Before=shutdown.target\
+After=dbus.service' \
     /usr/lib/systemd/system/bluetooth.service > \
     "$initdir"/usr/lib/systemd/system/bluetooth.service
 
