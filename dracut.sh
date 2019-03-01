@@ -1607,7 +1607,7 @@ for ((i=0; i < ${#include_src[@]}; i++)); do
     if [[ $src && $target ]]; then
         if [[ -f $src ]]; then
             inst $src $target
-        else
+        elif [[ -d $src ]]; then
             ddebug "Including directory: $src"
             destdir="${initdir}/${target}"
             mkdir -p "$destdir"
@@ -1628,6 +1628,10 @@ for ((i=0; i < ${#include_src[@]}; i++)); do
                     $DRACUT_CP -t "$destdir" "$objectname"
                 fi
             done
+        elif [[ -e $src ]]; then
+            derror "$src is neither a directory nor a regular file"
+        else
+            derror "$src doesn't exist"
         fi
     fi
 done
