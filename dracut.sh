@@ -1811,30 +1811,26 @@ if dracut_module_included "squash"; then
             required_in_root $(dirname $file)
         fi
 
-        if [[ -d $_sqsh_file ]]; then
-            if [[ -L $_sqsh_file ]]; then
-                cp --preserve=all -P $_sqsh_file $_init_file
-            else
-                mkdir $_init_file
-            fi
+        if [[ -L $_sqsh_file ]]; then
+          cp --preserve=all -P $_sqsh_file $_init_file
+          _sqsh_file=$(realpath $_sqsh_file 2>/dev/null)
+          if [[ -e $_sqsh_file ]] && [[ "$_sqsh_file" == "$squash_dir"* ]]; then
+            # Relative symlink
+            required_in_root ${_sqsh_file#$squash_dir/}
+            return
+          fi
+          if [[ -e $squash_dir$_sqsh_file ]]; then
+            # Absolute symlink
+            required_in_root ${_sqsh_file#/}
+            return
+          fi
+          required_in_root ${module_spec#$squash_dir/}
         else
-            if [[ -L $_sqsh_file ]]; then
-                cp --preserve=all -P $_sqsh_file $_init_file
-                _sqsh_file=$(realpath $_sqsh_file 2>/dev/null)
-                if [[ -e $_sqsh_file ]] && [[ "$_sqsh_file" == "$squash_dir"* ]]; then
-                    # Relative symlink
-                    required_in_root ${_sqsh_file#$squash_dir/}
-                    return
-                fi
-                if [[ -e $squash_dir$_sqsh_file ]]; then
-                    # Absolute symlink
-                    required_in_root ${_sqsh_file#/}
-                    return
-                fi
-                required_in_root ${module_spec#$squash_dir/}
-            else
-                mv $_sqsh_file $_init_file
-            fi
+          if [[ -d $_sqsh_file ]]; then
+            mkdir $_init_file
+          else
+            mv $_sqsh_file $_init_file
+          fi
         fi
     }
 
