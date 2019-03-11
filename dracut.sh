@@ -1772,9 +1772,11 @@ if dracut_module_included "squash"; then
         mv $initdir/$folder $squash_dir/$folder
     done
 
-    # Reinstall required files, because we have moved some important folders to $squash_dir
-    inst_multiple "echo" "sh" "mount" "modprobe" "mkdir" \
-        "systemctl" "udevadm" "$systemdutildir/systemd"
+    # Reinstall required files for the squash image setup script.
+    # We have moved them inside the squashed image, but they need to be
+    # accessible before mounting the image. Also install systemctl,
+    # it's requires for switch-root, but we will umount the image before switch-root
+    inst_multiple "echo" "sh" "mount" "modprobe" "mkdir" "systemctl"
     hostonly="" instmods "loop" "squashfs" "overlay"
 
     for folder in "${squash_candidate[@]}"; do
