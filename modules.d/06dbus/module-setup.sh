@@ -40,6 +40,8 @@ install() {
   inst_multiple $(find /etc/dbus-1)
   inst_multiple $(find /var/lib/dbus)
 
+  inst_hook cleanup 99 "$moddir/dbus-cleanup.sh"
+
   grep '^dbus:' /etc/passwd >> "$initdir/etc/passwd"
   grep '^dbus:' /etc/group >> "$initdir/etc/group"
 
@@ -48,8 +50,7 @@ install() {
   sed -i -e \
 '/^\[Unit\]/aDefaultDependencies=no\
 Conflicts=shutdown.target\
-Before=shutdown.target
-/^\[Socket\]/aRemoveOnStop=yes' \
+Before=shutdown.target' \
     "$initdir"$DBUS_SERVICE
 
   sed -i -e \
