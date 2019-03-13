@@ -150,6 +150,10 @@ dracut_module_included() {
     [[ " $mods_to_load $modules_loaded " == *\ $*\ * ]]
 }
 
+dracut_no_switch_root() {
+    >"$initdir/lib/dracut/no-switch-root"
+}
+
 if ! [[ $DRACUT_INSTALL ]]; then
     DRACUT_INSTALL=$(find_binary dracut-install)
 fi
