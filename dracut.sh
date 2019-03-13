@@ -1772,24 +1772,6 @@ if dracut_module_included "squash"; then
         mv $initdir/$folder $squash_dir/$folder
     done
 
-    # Reinstall required files for the squash image setup script.
-    # We have moved them inside the squashed image, but they need to be
-    # accessible before mounting the image. Also install systemctl,
-    # it's requires for switch-root, but we will umount the image before switch-root
-    inst_multiple "echo" "sh" "mount" "modprobe" "mkdir" "systemctl"
-    hostonly="" instmods "loop" "squashfs" "overlay"
-
-    for folder in "${squash_candidate[@]}"; do
-        # Remove duplicated files in squashfs image, save some more space
-        [[ ! -d $initdir/$folder/ ]] && continue
-        for file in $(find $initdir/$folder/ -not -type d);
-        do
-            if [[ -e $squash_dir${file#$initdir} ]]; then
-                mv $squash_dir${file#$initdir} $file
-            fi
-        done
-    done
-
     # Move some files out side of the squash image, including:
     # - Files required to boot and mount the squashfs image
     # - Files need to be accessable without mounting the squash image
@@ -1850,6 +1832,28 @@ if dracut_module_included "squash"; then
     mv $initdir/shutdown $initdir/shutdown.stock
     ln -s squash/init.sh $initdir/init
     ln -s squash/shutdown.sh $initdir/shutdown
+
+    # Reinstall required files for the squash image setup script.
+    # We have moved them inside the squashed image, but they need to be
+    # accessible before mounting the image.
+    inst_multiple "echo" "sh" "mount" "modprobe" "mkdir"
+    hostonly="" instmods "loop" "squashfs" "overlay"
+
+    # Only keep systemctl outsite if we need switch root
+    if [[ ! -f "$initdir/lib/dracut/no-switch-root" ]]; then
+      inst "systemctl"
+    fi
+
+    for folder in "${squash_candidate[@]}"; do
+        # Remove duplicated files in squashfs image, save some more space
+        [[ ! -d $initdir/$folder/ ]] && continue
+        for file in $(find $initdir/$folder/ -not -type d);
+        do
+            if [[ -e $squash_dir${file#$initdir} ]]; then
+                mv $squash_dir${file#$initdir} $file
+            fi
+        done
+    done
 
     mksquashfs $squash_dir $squash_img -comp xz -b 64K -Xdict-size 100% &> /dev/null
 
