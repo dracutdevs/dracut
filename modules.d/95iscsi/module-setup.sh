@@ -89,6 +89,7 @@ install_iscsiroot() {
     iscsi_host=${host##*/}
 
     for flash in ${host}/flashnode_sess-* ; do
+        [ -f "$flash" ] || continue
         [ ! -e "$flash/is_boot_target" ] && continue
         is_boot=$(cat $flash/is_boot_target)
         if [ $is_boot -eq 1 ] ; then
