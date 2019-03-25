@@ -228,7 +228,7 @@ handle_netroot()
             fi
             [ -n "$iscsi_param" ] && for param in $iscsi_param; do EXTRA="$EXTRA --name=${param%=*} --value=${param#*=}"; done
 
-            iscsiadm -m node -T $target \
+            CMD="iscsiadm -m node -T $target \
                      ${iscsi_iface_name:+-I $iscsi_iface_name} \
                      -p $iscsi_target_ip${iscsi_target_port:+:$iscsi_target_port} \
                      --op=update \
@@ -238,14 +238,20 @@ handle_netroot()
                      ${iscsi_in_username:+--name=node.session.auth.username_in --value=$iscsi_in_username} \
                      ${iscsi_in_password:+--name=node.session.auth.password_in --value=$iscsi_in_password} \
                      $EXTRA \
-                     $NULL
+                     $NULL"
+            $CMD
+            if [ "$netif" != "timeout" ]; then
+                $CMD --login
+            fi
         ;;
         *)
         ;;
         esac
     done
 
-    iscsiadm -m node -L onboot || :
+    if [ "$netif" = "timeout" ]; then
+        iscsiadm -m node -L onboot || :
+    fi
     > $hookdir/initqueue/work
 
     netroot_enc=$(str_replace "$1" '/' '\2f')
