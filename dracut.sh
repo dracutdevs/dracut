@@ -1694,6 +1694,7 @@ if [[ $early_microcode = yes ]]; then
                 if [[ $hostonly ]]; then
                     _src=$(get_ucode_file)
                     [[ $_src ]] || break
+                    [[ -r $_fwdir/$_fw/$_src ]] || _src="${_src}.early"
                     [[ -r $_fwdir/$_fw/$_src ]] || break
                 fi
 
