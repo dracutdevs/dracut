@@ -1311,8 +1311,8 @@ done
 [[ -d $udevdir ]] \
     || udevdir="$(pkg-config udev --variable=udevdir 2>/dev/null)"
 if ! [[ -d "$udevdir" ]]; then
-    [[ -e /lib/udev/collect ]] && udevdir=/lib/udev
-    [[ -e /usr/lib/udev/collect ]] && udevdir=/usr/lib/udev
+    [[ -e /lib/udev/ata_id ]] && udevdir=/lib/udev
+    [[ -e /usr/lib/udev/ata_id ]] && udevdir=/usr/lib/udev
 fi
 
 [[ -d $systemdutildir ]] \
