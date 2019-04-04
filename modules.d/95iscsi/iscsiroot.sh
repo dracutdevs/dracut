@@ -91,12 +91,6 @@ handle_netroot()
     # override conf settings by command line options
     arg=$(getarg rd.iscsi.initiator -d iscsi_initiator=)
     [ -n "$arg" ] && iscsi_initiator=$arg
-    arg=$(getargs rd.iscsi.target.name -d iscsi_target_name=)
-    [ -n "$arg" ] && iscsi_target_name=$arg
-    arg=$(getarg rd.iscsi.target.ip -d iscsi_target_ip)
-    [ -n "$arg" ] && iscsi_target_ip=$arg
-    arg=$(getarg rd.iscsi.target.port -d iscsi_target_port=)
-    [ -n "$arg" ] && iscsi_target_port=$arg
     arg=$(getarg rd.iscsi.target.group -d iscsi_target_group=)
     [ -n "$arg" ] && iscsi_target_group=$arg
     arg=$(getarg rd.iscsi.username -d iscsi_username=)
@@ -111,6 +105,8 @@ handle_netroot()
         iscsi_param="$iscsi_param $p"
     done
 
+    # this sets iscsi_target_name and possibly overwrites most
+    # parameters read from the command line above
     parse_iscsi_root "$1" || return 1
 
     # Bail out early, if there is no route to the destination
