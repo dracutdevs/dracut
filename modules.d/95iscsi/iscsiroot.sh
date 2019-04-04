@@ -212,10 +212,8 @@ handle_netroot()
     targets=$(iscsiadm -m discovery -t st -p $iscsi_target_ip:${iscsi_target_port:+$iscsi_target_port} | sed 's/^.*iqn/iqn/')
     [ -z "$targets" ] && echo "Target discovery to $iscsi_target_ip:${iscsi_target_port:+$iscsi_target_port} failed with status $?" && exit 1
 
-    for target in $iscsi_target_name; do
-        case "$targets" in
-        *$target*)
-            EXTRA=""
+    for target in $targets; do
+        if [ "$target" = "$iscsi_target_name" ]; then
             if [ -n "$iscsi_iface_name" ]; then
                 iscsiadm -m iface -I $iscsi_iface_name --op=new
                 EXTRA=" ${iscsi_netdev_name:+--name=iface.net_ifacename --value=$iscsi_netdev_name} "
@@ -238,10 +236,7 @@ handle_netroot()
             if [ "$netif" != "timeout" ]; then
                 $CMD --login
             fi
-        ;;
-        *)
-        ;;
-        esac
+        fi
     done
 
     if [ "$netif" = "timeout" ]; then
