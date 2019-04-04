@@ -87,7 +87,7 @@ handle_netroot()
     local iscsi_in_username iscsi_in_password
     local iscsi_iface_name iscsi_netdev_name
     local iscsi_param param
-    local p
+    local p found
 
     # override conf settings by command line options
     arg=$(getarg rd.iscsi.initiator -d iscsi_initiator=)
@@ -213,6 +213,7 @@ handle_netroot()
     targets=$(iscsiadm -m discovery -t st -p $iscsi_target_ip:${iscsi_target_port:+$iscsi_target_port} | sed 's/^.*iqn/iqn/')
     [ -z "$targets" ] && echo "Target discovery to $iscsi_target_ip:${iscsi_target_port:+$iscsi_target_port} failed with status $?" && exit 1
 
+    found=
     for target in $targets; do
         if [ "$target" = "$iscsi_target_name" ]; then
             if [ -n "$iscsi_iface_name" ]; then
@@ -237,11 +238,16 @@ handle_netroot()
             if [ "$netif" != "timeout" ]; then
                 $CMD --login
             fi
+            found=yes
+            break
         fi
     done
 
     if [ "$netif" = "timeout" ]; then
         iscsiadm -m node -L onboot || :
+    elif [ "$found" != yes ]; then
+        warn "iSCSI target \"$iscsi_target_name\" not found on portal $iscsi_target_ip:$iscsi_target_port"
+        return 1
     fi
     > $hookdir/initqueue/work
 
