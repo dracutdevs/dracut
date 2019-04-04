@@ -53,11 +53,11 @@ handle_firmware()
     if ! iscsiadm -m fw; then
         warn "iscsiadm: Could not get list of targets from firmware."
     else
-        ifaces=( $(echo /sys/firmware/ibft/ethernet*) )
+        ifaces=$(set -- /sys/firmware/ibft/ethernet*; echo $#)
         retry=$(cat /tmp/session-retry)
 
-        if [ $retry -lt ${#ifaces[*]} ]; then
-            let retry++
+        if [ $retry -lt $ifaces ]; then
+            retry=$((retry+1))
             echo $retry > /tmp/session-retry
             return 1
         else
@@ -87,6 +87,7 @@ handle_netroot()
     local iscsi_iface_name iscsi_netdev_name
     local iscsi_param param
     local p found
+    local login_retry_max_seen=
 
     # override conf settings by command line options
     arg=$(getarg rd.iscsi.initiator -d iscsi_initiator=)
@@ -102,7 +103,9 @@ handle_netroot()
     arg=$(getarg rd.iscsi.in.password -d iscsi_in_password=)
     [ -n "$arg" ] && iscsi_in_password=$arg
     for p in $(getargs rd.iscsi.param -d iscsi_param); do
-        iscsi_param="$iscsi_param $p"
+        [ "${p%=*}" = node.session.initial_login_retry_max ] && \
+            login_retry_max_seen=yes
+            iscsi_param="$iscsi_param $p"
     done
 
     # this sets iscsi_target_name and possibly overwrites most
@@ -115,15 +118,12 @@ handle_netroot()
     fi
 
     #limit iscsistart login retries
-    case "$iscsi_param" in
-        *node.session.initial_login_retry_max*) ;;
-        *)
-            retries=$(getargnum 3 0 10000 rd.iscsi.login_retry_max)
-            if [ $retries -gt 0 ]; then
-                iscsi_param="${iscsi_param% } node.session.initial_login_retry_max=$retries"
-            fi
-        ;;
-    esac
+    if [ "$login_retry_max_seen" != yes ]; then
+        retries=$(getargnum 3 0 10000 rd.iscsi.login_retry_max)
+        if [ $retries -gt 0 ]; then
+            iscsi_param="${iscsi_param% } node.session.initial_login_retry_max=$retries"
+        fi
+    fi
 
 # XXX is this needed?
     getarg ro && iscsirw=ro
