@@ -35,9 +35,7 @@ case "$COMMAND" in
             read -r -d '' -a BOOT_OPTIONS < /etc/kernel/cmdline
         elif [[ -f /usr/lib/kernel/cmdline ]]; then
             read -r -d '' -a BOOT_OPTIONS < /usr/lib/kernel/cmdline
-        fi
-
-        if ! [[ ${BOOT_OPTIONS[*]} ]]; then
+        else
             read -r -d '' -a BOOT_OPTIONS < /proc/cmdline
         fi
 
