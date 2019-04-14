@@ -23,6 +23,154 @@ if [ "$netif" = "lo" ] ; then
     exit 0
 fi
 
+dhcp_backend() {
+    type wicked >/dev/null 2>&1 && \
+    echo "wicked" || \
+    echo "dhclient"
+}
+
+dhcp_wicked_apply() {
+    unset IPADDR INTERFACE BROADCAST NETWORK PREFIXLEN ROUTES GATEWAYS MTU HOSTNAME DNSDOMAIN DNSSEARCH DNSSERVERS
+    if [ -f "/tmp/leaseinfo.${netif}.dhcp.ipv${1:1:1}" ]; then
+        . "/tmp/leaseinfo.${netif}.dhcp.ipv${1:1:1}"
+    else
+        warn "DHCP failed";
+        return 1
+    fi
+
+    if [ -z "${IPADDR}" ] || [ -z "${INTERFACE}" ]; then
+           warn "Missing crucial DHCP variables"
+           return 1
+    fi
+
+    # Assign IP address
+    ip $1 addr add "$IPADDR" ${BROADCAST:+broadcast $BROADCAST} dev "$INTERFACE"
+
+    # Assign provided routes
+    local r route=()
+    if [ -n "${ROUTES}" ]; then
+        for r in ${ROUTES}; do
+            route=(${r//,/ })
+            ip $1 route add "$route[0]"/"$route[1]" via "$route[2]" dev "$INTERFACE"
+        done
+    fi
+
+    # Assign provided routers
+    local g
+    if [ -n "${GATEWAYS}" ]; then
+        for g in ${GATEWAYS}; do
+            ip $1 route add default via "$g" dev "$INTERFACE" && break
+        done
+    fi
+
+    # Set MTU
+    [ -n "${MTU}" ] && ip $1 link set mtu "$MTU" dev "$INTERFACE"
+
+    # Setup hostname
+    [ -n "${HOSTNAME}" ] && hostname "$HOSTNAME"
+
+    # If nameserver= has not been specified, use what dhcp provides
+    if [ ! -s /tmp/net.$netif.resolv.conf.ipv${1:1:1} ]; then
+        if [ -n "${DNSDOMAIN}" ]; then
+            echo domain "${DNSDOMAIN}"
+        fi >> /tmp/net.$netif.resolv.conf.ipv${1:1:1}
+
+        if [ -n "${DNSSEARCH}" ]; then
+            echo search "${DNSSEARCH}"
+        fi >> /tmp/net.$netif.resolv.conf.ipv${1:1:1}
+    fi
+    # copy resolv.conf if it doesn't exist yet, modify otherwise
+    if [ -e /tmp/net.$netif.resolv.conf.ipv${1:1:1} ] && [ ! -e /etc/resolv.conf ]; then
+        cp -f /tmp/net.$netif.resolv.conf.ipv${1:1:1} /etc/resolv.conf
+    else
+        if [ -n "$(sed -n '/^search .*$/p' /etc/resolv.conf)" ]; then
+            sed -i "s/\(^search .*\)$/\1 ${DNSSEARCH}/" /etc/resolv.conf
+        else
+            echo search ${DNSSEARCH} >> /etc/resolv.conf
+        fi
+        if  [ -n "${DNSSERVERS}" ] ; then
+            for s in ${DNSSERVERS}; do
+                echo nameserver "$s"
+            done
+        fi >> /etc/resolv.conf
+    fi
+
+    info "DHCP is finished successfully"
+    return 0
+
+}
+
+# USECASE?
+dhcp_wicked_read_ifcfg() {
+    unset PREFIXLEN LLADDR MTU REMOTE_IPADDR GATEWAY BOOTPROTO
+
+    if [ -e /etc/sysconfig/network/ifcfg-${netif} ] ; then
+        # Pull in existing configuration
+        . /etc/sysconfig/network/ifcfg-${netif}
+
+        # The first configuration can be anything
+        [ -n "$PREFIXLEN" ] && prefix=${PREFIXLEN}
+        [ -n "$LLADDR" ] && macaddr=${LLADDR}
+        [ -n "$MTU" ] && mtu=${MTU}
+        [ -n "$REMOTE_IPADDR" ] && server=${REMOTE_IPADDR}
+        [ -n "$GATEWAY" ] && gw=${GATEWAY}
+        [ -n "$BOOTPROTO" ] && autoconf=${BOOTPROTO}
+        return 0
+    fi
+    return 1
+}
+
+
+dhcp_dhclient_run() {
+    dhclient "$@" \
+                 ${_timeout:+-timeout $_timeout} \
+                 -q \
+                 -cf /etc/dhclient.conf \
+                 -pf /tmp/dhclient.$netif.pid \
+                 -lf /tmp/dhclient.$netif.lease \
+                 $netif \
+            && return 0
+    return 1
+}
+
+dhcp_wicked_run() {
+    [ -d /var/lib/wicked ] || mkdir -p /var/lib/wicked
+
+    dhclient=
+    if [ "$1" = "-6" ] ; then
+        ipv6_mode=
+        if [ -f "/tmp/net.$netif.auto6" ] ; then
+            ipv6_mode="auto"
+        else
+            ipv6_mode="managed"
+        fi
+        dhclient="wicked test dhcp6 -m $ipv6_mode"
+    else
+        dhclient="wicked test dhcp4"
+    fi
+
+    if ! linkup "$netif"; then
+        warn "Could not bring interface $netif up!"
+        return 1
+    fi
+
+    if dhcp_wicked_read_ifcfg ; then
+        [ -n "$macaddr" ] && ip "$1" link set address $macaddr dev $netif
+        [ -n "$mtu" ] && ip "$1" link set mtu $mtu dev $netif
+    fi
+
+    $dhclient --format leaseinfo --output "/tmp/leaseinfo.${netif}.dhcp.ipv${1:1:1}" --request - $netif << EOF
+<request type="lease"/>
+EOF
+    dhcp_wicked_apply $1 || return $?
+
+    if [ "$1" = "-6" ] ; then
+        wait_for_ipv6_dad $netif
+    fi
+
+    return 0
+}
+
 # Run dhclient
 do_dhcp() {
     # dhclient-script will mark the netif up and generate the online
@@ -49,14 +197,8 @@ do_dhcp() {
 
     while [ $_COUNT -lt $_DHCPRETRY ]; do
         info "Starting dhcp for interface $netif"
-        dhclient "$@" \
-                 ${_timeout:+-timeout $_timeout} \
-                 -q \
-                 -cf /etc/dhclient.conf \
-                 -pf /tmp/dhclient.$netif.pid \
-                 -lf /tmp/dhclient.$netif.lease \
-                 $netif \
-            && return 0
+        backend="$(dhcp_backend)"
+        dhcp_${backend}_run "$@" && return 0
         _COUNT=$(($_COUNT+1))
         [ $_COUNT -lt $_DHCPRETRY ] && sleep 1
     done
