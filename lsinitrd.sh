@@ -102,7 +102,7 @@ else
         && [[ -d /boot/${MACHINE_ID} || -L /boot/${MACHINE_ID} ]] ; then
         image="/boot/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
     else
-        image="/boot/initramfs-${KERNEL_VERSION}.img"
+        image="/boot/initrd-${KERNEL_VERSION}"
     fi
 fi
 

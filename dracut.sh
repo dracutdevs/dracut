@@ -788,11 +788,11 @@ if ! [[ $outfile ]]; then
         outfile="$efidir/Linux/linux-$kernel${MACHINE_ID:+-${MACHINE_ID}}${BUILD_ID:+-${BUILD_ID}}.efi"
     else
         if [[ -e "/boot/vmlinuz-$kernel" ]]; then
-            outfile="/boot/initramfs-$kernel.img"
+            outfile="/boot/initrd-$kernel"
         elif [[ $MACHINE_ID ]] && ( [[ -d /boot/${MACHINE_ID} ]] || [[ -L /boot/${MACHINE_ID} ]] ); then
             outfile="/boot/${MACHINE_ID}/$kernel/initrd"
         else
-            outfile="/boot/initramfs-$kernel.img"
+            outfile="/boot/initrd-$kernel"
         fi
     fi
 fi
