@@ -41,7 +41,6 @@ if [ -z "${DRACUT_SYSTEMD}" ] && [ -e /sys/module/bnx2i ] && ! [ -e /tmp/iscsiui
         > /tmp/iscsiuio-started
 fi
 
-
 handle_firmware()
 {
     local ifaces retry
