@@ -18,6 +18,9 @@ netif=$1
 
 # loopback is always handled the same way
 if [ "$netif" = "lo" ] ; then
+    # systemd probably has already set up lo
+    ip link show dev lo >/dev/null && exit 0
+
     ip link set lo up
     ip addr add 127.0.0.1/8 dev lo
     exit 0
