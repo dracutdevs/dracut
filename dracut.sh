@@ -1490,7 +1490,7 @@ dinfo "*** Including modules done ***"
 ## final stuff that has to happen
 if [[ $no_kernel != yes ]]; then
     if [[ $hostonly ]]; then
-        echo "$(get_loaded_kernel_modules)" > $initdir/lib/dracut/loaded-kernel-modules.txt
+        cp "$DRACUT_KERNEL_MODALIASES" $initdir/lib/dracut/hostonly-kernel-modules.txt
     fi
 
     if [[ $drivers ]]; then
