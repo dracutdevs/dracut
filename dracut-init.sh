@@ -917,8 +917,16 @@ install_kmod_with_fw() {
     for _fw in $(modinfo -k $kernel -F firmware $1 2>/dev/null); do
         _found=''
         for _fwdir in $fw_dir; do
-            [[ -d $_fwdir && -f $_fwdir/$_fw ]] || continue
-            inst_simple "$_fwdir/$_fw" "/lib/firmware/$_fw"
+            [[ -d $_fwdir ]] || continue
+            if [[ -f $_fwdir/$_fw ]]; then
+                inst_simple "$_fwdir/$_fw" "/lib/firmware/$_fw"
+            elif [[ -f $_fwdir/$_fw.xz ]]; then
+                inst_simple "$_fwdir/$_fw.xz" "/lib/firmware/$_fw.xz"
+                rm -f "${initdir}/lib/firmware/$_fw"
+                unxz -f "${initdir}/lib/firmware/$_fw.xz"
+            else
+	        continue
+            fi
             _found=yes
         done
         if [[ $_found != yes ]]; then
