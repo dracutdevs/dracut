@@ -26,7 +26,7 @@ install() {
 
     _nm_version=$(NetworkManager --version)
 
-    inst_multiple sed grep
+    inst_multiple sed grep basename
 
     inst NetworkManager
     inst /usr/libexec/nm-initrd-generator
