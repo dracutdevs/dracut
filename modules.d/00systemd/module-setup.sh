@@ -48,6 +48,7 @@ install() {
         $systemdutildir/systemd-sysctl \
         $systemdutildir/systemd-modules-load \
         $systemdutildir/systemd-vconsole-setup \
+        $systemdutildir/systemd-volatile-root \
         $systemdutildir/system-generators/systemd-fstab-generator \
         $systemdutildir/system-generators/systemd-gpt-auto-generator \
         \
@@ -104,6 +105,7 @@ install() {
         $systemdsystemunitdir/systemd-ask-password-plymouth.service \
         $systemdsystemunitdir/systemd-journald.service \
         $systemdsystemunitdir/systemd-vconsole-setup.service \
+        $systemdsystemunitdir/systemd-volatile-root.service \
         $systemdsystemunitdir/systemd-random-seed-load.service \
         $systemdsystemunitdir/systemd-random-seed.service \
         $systemdsystemunitdir/systemd-sysctl.service \
