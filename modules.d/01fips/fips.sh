@@ -69,15 +69,8 @@ do_rhevh_check()
     return 0
 }
 
-do_fips()
+fips_load_crypto()
 {
-    local _v
-    local _s
-    local _v
-    local _module
-
-    KERNEL=$(uname -r)
-
     FIPSMODULES=$(cat /etc/fipsmodules)
 
     info "Loading and integrity checking all crypto modules"
@@ -102,6 +95,16 @@ do_fips()
     info "Self testing crypto algorithms"
     modprobe tcrypt || return 1
     rmmod tcrypt
+}
+
+do_fips()
+{
+    local _v
+    local _s
+    local _v
+    local _module
+
+    KERNEL=$(uname -r)
 
     info "Checking integrity of kernel"
     if [ -e "/run/initramfs/live/vmlinuz0" ]; then
