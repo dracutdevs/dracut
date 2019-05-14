@@ -64,6 +64,7 @@ install() {
     local _dir
     inst_hook pre-mount 01 "$moddir/fips-boot.sh"
     inst_hook pre-pivot 01 "$moddir/fips-noboot.sh"
+    inst_hook pre-udev 01 "$moddir/fips-load-crypto.sh"
     inst_script "$moddir/fips.sh" /sbin/fips.sh
 
     inst_multiple sha512hmac rmmod insmod mount uname umount
