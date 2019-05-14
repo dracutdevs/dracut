@@ -1070,3 +1070,25 @@ else
         ln -sfn -- "$(convert_abs_rel "${_dest}" "${_source}")" "${initdir}/${_dest}"
     }
 fi
+
+is_qemu_virtualized() {
+    # 0 if a virt environment was detected
+    # 1 if a virt environment could not be detected
+    # 255 if any error was encountered
+    if type -P systemd-detect-virt >/dev/null 2>&1; then
+        vm=$(systemd-detect-virt --vm >/dev/null 2>&1)
+        (($? != 0)) && return 255
+        [[ $vm = "qemu" ]] && return 0
+        [[ $vm = "kvm" ]] && return 0
+        [[ $vm = "bochs" ]] && return 0
+    fi
+
+    for i in /sys/class/dmi/id/*_vendor; do
+        [[ -f $i ]] || continue
+        read vendor < $i
+        [[  "$vendor" == "QEMU" ]] && return 0
+        [[ "$vendor" == "Red Hat" ]] && return 0
+        [[  "$vendor" == "Bochs" ]] && return 0
+    done
+    return 1
+}
