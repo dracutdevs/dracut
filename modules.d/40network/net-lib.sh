@@ -463,7 +463,7 @@ ip_to_var() {
         #         ip=<ipv4-address> means anaconda-style static config argument cluster
         autoconf="$1"
 
-        if strstr "$autoconf" "*.*.*.*"; then
+        if strglob "$autoconf" "*.*.*.*"; then
             # ip=<ipv4-address> means anaconda-style static config argument cluster:
             # ip=<ip> gateway=<gw> netmask=<nm> hostname=<host> mtu=<mtu>
             # ksdevice={link|bootif|ibft|<MAC>|<ifname>}
