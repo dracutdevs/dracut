@@ -294,6 +294,18 @@ do_static() {
     [ -n "$gw" ] && echo ip route replace default via $gw dev $netif > /tmp/net.$netif.gw
     [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
 
+    for ifroute in /etc/sysconfig/network/ifroute-${netif} /etc/sysconfig/network/routes ; do
+        [ -e ${ifroute} ] || continue
+        # Pull in existing routing configuration
+        read ifr_dest ifr_gw ifr_mask ifr_if < ${ifroute}
+        [ -z "$ifr_dest" -o -z "$ifr_gw" ] && continue
+        if [ "$ifr_if" = "-" ] ; then
+            echo ip route add $ifr_dest via $ifr_gw >> /tmp/net.$netif.gw
+        else
+            echo ip route add $ifr_dest via $ifr_gw dev $ifr_if >> /tmp/net.$netif.gw
+        fi
+    done
+
     return 0
 }
 
