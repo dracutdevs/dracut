@@ -787,7 +787,7 @@ if ! [[ $outfile ]]; then
                        [[ $line =~ BUILD_ID\=* ]] && eval "$line" && echo "$BUILD_ID" && break; \
                    done)
         if [[ -d /efi ]] && mountpoint -q /efi; then
-            efidir=/efi
+            efidir=/efi/EFI
         else
             efidir=/boot/EFI
             if [[ -d /boot/efi/EFI ]] && mountpoint -q /boot/efi; then
