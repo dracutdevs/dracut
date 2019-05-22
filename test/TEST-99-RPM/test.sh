@@ -27,8 +27,8 @@ test_run() {
 
     mkdir -p "$rootdir/$TESTDIR"
     cp --reflink=auto -a \
-       "$TESTDIR"/dracut-[0-9]*.$(arch).rpm \
-       "$TESTDIR"/dracut-network-[0-9]*.$(arch).rpm \
+       "$TESTDIR"/dracut-[0-9]*.$(uname -m).rpm \
+       "$TESTDIR"/dracut-network-[0-9]*.$(uname -m).rpm \
        "$rootdir/$TESTDIR/"
     . /etc/os-release
     dnf_or_yum=yum
@@ -51,10 +51,10 @@ test_run() {
                         mdadm \
                         bash \
                         iscsi-initiator-utils \
-                        "$TESTDIR"/dracut-[0-9]*.$(arch).rpm \
+                        "$TESTDIR"/dracut-[0-9]*.$(uname -m).rpm \
                         ${NULL} && break
-        #"$TESTDIR"/dracut-config-rescue-[0-9]*.$(arch).rpm \
-            #"$TESTDIR"/dracut-network-[0-9]*.$(arch).rpm \
+        #"$TESTDIR"/dracut-config-rescue-[0-9]*.$(uname -m).rpm \
+            #"$TESTDIR"/dracut-network-[0-9]*.$(uname -m).rpm \
             #    ${NULL}
     done
     (( i < 5 ))
