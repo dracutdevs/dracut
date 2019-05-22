@@ -533,6 +533,14 @@ inst_libdir_file() {
     [[ $_files ]] && inst_multiple $_files
 }
 
+# get a command to decompress the given file
+get_decompress_cmd() {
+    case "$1" in
+        *.gz) echo 'gzip -f -d' ;;
+        *.bz2) echo 'bzip2 -d' ;;
+        *.xz) echo 'xz -f -d' ;;
+    esac
+}
 
 # install function decompressing the target and handling symlinks
 # $@ = list of compressed (gz or bz2) files or symlinks pointing to such files
@@ -544,11 +552,8 @@ inst_decompress() {
 
     for _src in $@
     do
-        case ${_src} in
-            *.gz) _cmd='gzip -f -d' ;;
-            *.bz2) _cmd='bzip2 -d' ;;
-            *) return 1 ;;
-        esac
+        _cmd=$(get_decompress_cmd ${_src})
+        [[ -z "${_cmd}" ]] && return 1
         inst_simple ${_src}
         # Decompress with chosen tool.  We assume that tool changes name e.g.
         # from 'name.gz' to 'name'.
@@ -911,6 +916,9 @@ install_kmod_with_fw() {
     inst_simple "$1" "/lib/modules/$kernel/${1##*/lib/modules/$kernel/}"
     ret=$?
     (($ret != 0)) && return $ret
+    local _cmd=$(get_decompress_cmd "$1")
+    [[ -n "${_cmd}" ]] && \
+        ${_cmd} "${initdir}/lib/modules/$kernel/${1##*/lib/modules/$kernel/}"
 
     local _modname=${1##*/} _fwdir _found _fw
     _modname=${_modname%.ko*}
