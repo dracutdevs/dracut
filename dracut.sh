@@ -1060,13 +1060,13 @@ if [[ ! $print_cmdline ]]; then
             exit 1
         fi
         unset EFI_MACHINE_TYPE_NAME
-        case $(arch) in
+        case $(uname -m) in
             x86_64)
                 EFI_MACHINE_TYPE_NAME=x64;;
             ia32)
                 EFI_MACHINE_TYPE_NAME=ia32;;
             *)
-                dfatal "Architecture '$(arch)' not supported to create a UEFI executable"
+                dfatal "Architecture '$(uname -m)' not supported to create a UEFI executable"
                 exit 1
                 ;;
         esac
