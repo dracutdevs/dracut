@@ -147,10 +147,6 @@ install -m 0644 dracut.conf.d/ima.conf.example %{buildroot}%{_sysconfdir}/dracut
 install -m 0644 suse/s390x_persistent_device.conf %{buildroot}%{_sysconfdir}/dracut.conf.d/10-s390x_persistent_device.conf
 %endif
 
-%ifarch %ix86 x86_64
-echo 'early_microcode="yes"' > %{buildroot}%{_sysconfdir}/dracut.conf.d/02-early-microcode.conf
-%endif
-
 rm %{buildroot}%{_bindir}/mkinitrd
 # moved to /sbin
 mkdir -p %{buildroot}/sbin
@@ -250,9 +246,6 @@ ln -s %{dracutlibdir}/modules.d/45ifcfg/write-ifcfg-redhat.sh %{buildroot}/%{dra
 %config %{_sysconfdir}/dracut.conf.d/99-debug.conf
 %if 0%{?fedora} || 0%{?suse_version} || 0%{?rhel}
 /usr/lib/dracut/dracut.conf.d/01-dist.conf
-%endif
-%ifarch %ix86 x86_64
-%config %{_sysconfdir}/dracut.conf.d/02-early-microcode.conf
 %endif
 %ifarch s390 s390x
 %config %{_sysconfdir}/dracut.conf.d/10-s390x_persistent_device.conf
