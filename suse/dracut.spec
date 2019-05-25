@@ -26,7 +26,8 @@ License:        GPL-2.0-or-later AND LGPL-2.1-or-later
 Group:          System/Base
 Url:            https://dracut.wiki.kernel.org/
 Source0:        dracut-%{version}.tar.xz
-
+Source1:        dracut-rpmlintrc
+Source2:        README.susemaint
 BuildRequires:  asciidoc
 BuildRequires:  bash
 BuildRequires:  docbook-xsl-stylesheets
