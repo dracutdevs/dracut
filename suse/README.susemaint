@@ -1,0 +1,25 @@
+Maintaining Dracut
+==================
+
+1. Adding/Submitting patches:
+
+Patches get added as merge requests on Github against the respective maintenance branch.
+If the dracut version is 049, the maintenance branch is SUSE/049. Please make sure
+to provide an adiquate patch description. If you fix a modules, please prepend the module
+name in the first line. Also add bugzilla and fate references in their own line:
+
+  99example: Provide a useful description
+
+  Explain the use cases for the module in more detail, give a general summary of
+  its purpose.
+
+  Reference: bsc#4566
+
+2. Updating the OBS repo from git:
+
+  rm dracut*.xz
+  rm dracut*.obscpio
+  osc service localrun
+  osc ar
+  osc commit
+  osc sr
