@@ -1009,6 +1009,16 @@ esac
 
 abs_outfile=$(readlink -f "$outfile") && outfile="$abs_outfile"
 
+
+[[ -d $systemdutildir ]] \
+    || systemdutildir=$(pkg-config systemd --variable=systemdutildir 2>/dev/null)
+
+if ! [[ -d "$systemdutildir" ]]; then
+    [[ -e /lib/systemd/systemd-udevd ]] && systemdutildir=/lib/systemd
+    [[ -e /usr/lib/systemd/systemd-udevd ]] && systemdutildir=/usr/lib/systemd
+fi
+
+
 if [[ $no_kernel != yes ]] && [[ -d $srcmods ]]; then
     if ! [[ -f $srcmods/modules.dep ]]; then
         if [[ -n "$(find "$srcmods" -name '*.ko*')" ]]; then
@@ -1323,14 +1333,6 @@ done
 if ! [[ -d "$udevdir" ]]; then
     [[ -e /lib/udev/ata_id ]] && udevdir=/lib/udev
     [[ -e /usr/lib/udev/ata_id ]] && udevdir=/usr/lib/udev
-fi
-
-[[ -d $systemdutildir ]] \
-    || systemdutildir=$(pkg-config systemd --variable=systemdutildir 2>/dev/null)
-
-if ! [[ -d "$systemdutildir" ]]; then
-    [[ -e /lib/systemd/systemd-udevd ]] && systemdutildir=/lib/systemd
-    [[ -e /usr/lib/systemd/systemd-udevd ]] && systemdutildir=/usr/lib/systemd
 fi
 
 [[ -d $systemdsystemunitdir ]] \
