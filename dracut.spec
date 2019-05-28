@@ -257,21 +257,24 @@ mkdir -p $RPM_BUILD_ROOT%{_sharedstatedir}/initramfs
 
 %if 0%{?fedora} || 0%{?rhel}
 install -m 0644 dracut.conf.d/fedora.conf.example $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/01-dist.conf
-rm -f $RPM_BUILD_ROOT%{_mandir}/man?/*suse*
 %endif
 %if 0%{?suse_version}
 install -m 0644 dracut.conf.d/suse.conf.example   $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/01-dist.conf
+%else
+rm -f $RPM_BUILD_ROOT%{_mandir}/man?/*suse*
 %endif
 
 %if 0%{?fedora} == 0 && 0%{?rhel} == 0 && 0%{?suse_version} <= 9999
 rm -f -- $RPM_BUILD_ROOT%{_bindir}/mkinitrd
 rm -f -- $RPM_BUILD_ROOT%{_bindir}/lsinitrd
+rm -f -- $RPM_BUILD_ROOT%{_mandir}/man8/mkinitrd.8*
+rm -f -- $RPM_BUILD_ROOT%{_mandir}/man1/lsinitrd.1*
 %endif
 
-%if 0%{?fedora} || 0%{?rhel}
 echo 'hostonly="no"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-generic-image.conf
 echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-rescue.conf
 
+%if 0%{?fedora} || 0%{?rhel}
 # FIXME: remove after F30
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/kernel/postinst.d
 install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kernel/postinst.d/51-dracut-rescue-postinst.sh
@@ -413,11 +416,8 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 %{_unitdir}/initrd.target.wants/dracut-pre-pivot.service
 %{_unitdir}/initrd.target.wants/dracut-pre-trigger.service
 %{_unitdir}/initrd.target.wants/dracut-pre-udev.service
-
 %endif
-%if 0%{?fedora} || 0%{?rhel}
 %{_prefix}/lib/kernel/install.d/50-dracut.install
-%endif
 
 %files network
 %{dracutlibdir}/modules.d/02systemd-networkd
@@ -466,8 +466,8 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 
 %files config-rescue
 %{dracutlibdir}/dracut.conf.d/02-rescue.conf
-%if 0%{?fedora} || 0%{?rhel}
 %{_prefix}/lib/kernel/install.d/51-dracut-rescue.install
+%if 0%{?fedora} || 0%{?rhel}
 # FIXME: remove after F30
 %{_sysconfdir}/kernel/postinst.d/51-dracut-rescue-postinst.sh
 %endif
