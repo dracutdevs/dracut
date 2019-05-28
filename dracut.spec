@@ -32,7 +32,7 @@ Source1: https://www.gnu.org/licenses/lgpl-2.1.txt
 
 BuildRequires: bash
 BuildRequires: git
-BuildRequires: kmod-devel >= 23
+BuildRequires: pkgconfig(libkmod) >= 23
 BuildRequires: gcc
 
 %if 0%{?fedora} || 0%{?rhel}
@@ -318,6 +318,9 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 %if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version} > 9999
 %{_mandir}/man8/mkinitrd.8*
 %{_mandir}/man1/lsinitrd.1*
+%endif
+%if 0%{?suse_version}
+%{_mandir}/man8/mkinitrd-suse.8*
 %endif
 %{_mandir}/man7/dracut.kernel.7*
 %{_mandir}/man7/dracut.cmdline.7*
