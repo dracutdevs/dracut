@@ -70,7 +70,7 @@ if [ -z "$DRACUT_SYSTEMD" ]; then
         check_quiet
         echo "<30>dracut: $*" > /dev/kmsg
         [ "$DRACUT_QUIET" != "yes" ] && \
-            echo "dracut: $*" >&2
+            echo "dracut: $*" >&2 || :
     }
 
 else
