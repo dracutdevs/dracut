@@ -11,6 +11,7 @@ env:
   - IMAGE=latest TESTS=50
   - IMAGE=latest TESTS=30
   - IMAGE=latest TESTS=31
+  - IMAGE=latest TESTS=60
   - IMAGE=latest TESTS=70
   - IMAGE=latest TESTS=99
   - IMAGE=latest TESTS=02
