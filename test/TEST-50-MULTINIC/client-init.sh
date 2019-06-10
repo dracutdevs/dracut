@@ -105,7 +105,17 @@ export TERM=linux
 export PS1='initramfs-test:\w\$ '
 stty sane
 echo "made it to the rootfs! Powering down."
+for i in /sys/class/net/*/
+do
+    # booting with network-manager module
+    state=/run/NetworkManager/devices/$(cat $i/ifindex)
+    grep -q connection-uuid= $state 2>/dev/null || continue
+    i=${i##*/}
+    ip link show $i |grep -q master && continue
+    IFACES+="$i "
+done
 for i in /run/initramfs/net.*.did-setup; do
+    # booting with network-legacy module
     [ -f "$i" ] || continue
     strglobin "$i" ":*:*:*:*:" && continue
     i=${i%.did-setup}
