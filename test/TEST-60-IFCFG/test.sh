@@ -316,7 +316,7 @@ test_setup() {
     $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
         --no-early-microcode \
         -o "plymouth" \
-        -a "debug" \
+        -a "debug network-legacy" \
         -d "ipvlan macvlan af_packet piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files sunrpc i6300esb ib700wdt" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
