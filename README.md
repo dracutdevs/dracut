@@ -27,4 +27,5 @@ dracut is an initramfs infrastructure.
 - Test 31: [![Test 31](https://ci.centos.org/job/dracut-matrix-master/TESTS=31,label=dracut-ci-slave01/badge/icon)](https://ci.centos.org/job/dracut-matrix-master/TESTS=31,label=dracut-ci-slave01/)
 - Test 40: [![Test 40](https://ci.centos.org/job/dracut-matrix-master/TESTS=40,label=dracut-ci-slave01/badge/icon)](https://ci.centos.org/job/dracut-matrix-master/TESTS=40,label=dracut-ci-slave01/)
 - Test 50: [![Test 50](https://ci.centos.org/job/dracut-matrix-master/TESTS=50,label=dracut-ci-slave01/badge/icon)](https://ci.centos.org/job/dracut-matrix-master/TESTS=50,label=dracut-ci-slave01/)
+- Test 60: [![Test 60](https://ci.centos.org/job/dracut-matrix-master/TESTS=60,label=dracut-ci-slave01/badge/icon)](https://ci.centos.org/job/dracut-matrix-master/TESTS=60,label=dracut-ci-slave01/)
 - Test 70: [![Test 70](https://ci.centos.org/job/dracut-matrix-master/TESTS=70,label=dracut-ci-slave01/badge/icon)](https://ci.centos.org/job/dracut-matrix-master/TESTS=70,label=dracut-ci-slave01/)
