@@ -10,11 +10,7 @@ echo "made it to the rootfs! Powering down."
 
 (
     echo OK
-    ip -o -4 address show scope global | while read n if rest; do echo $if;done | sort
-    for i in /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-*; do
-	echo $i
-	grep -v 'UUID=' $i
-    done
+    ip -o -4 address show scope global |sed -n 's/^[^:]*: \([^ ]*\) *\(.*\) scope.*/\1 \2/p' |sort
     echo EOF
 ) > /dev/sda
 
