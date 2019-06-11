@@ -9,9 +9,9 @@ udevadm control --reload
 # save a partition at the beginning for future flagging purposes
 sfdisk /dev/sda <<EOF
 ,4M
-,25M
-,25M
-,25M
+,43M
+,43M
+,43M
 EOF
 udevadm settle
 printf test >keyfile

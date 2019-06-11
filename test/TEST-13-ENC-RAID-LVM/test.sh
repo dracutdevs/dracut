@@ -59,7 +59,7 @@ test_run() {
 test_setup() {
     # Create the blank file to use as a root filesystem
     rm -f -- $TESTDIR/root.ext2
-    dd if=/dev/null of=$TESTDIR/root.ext2 bs=1M seek=80
+    dd if=/dev/null of=$TESTDIR/root.ext2 bs=1M seek=134
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
