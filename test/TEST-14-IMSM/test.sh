@@ -53,8 +53,8 @@ test_setup() {
     rm -f -- $TESTDIR/disk1
     rm -f -- $TESTDIR/disk2
     dd if=/dev/null of=$TESTDIR/root.ext2 bs=1M seek=1
-    dd if=/dev/null of=$TESTDIR/disk1 bs=1M seek=80
-    dd if=/dev/null of=$TESTDIR/disk2 bs=1M seek=80
+    dd if=/dev/null of=$TESTDIR/disk1 bs=1M seek=104
+    dd if=/dev/null of=$TESTDIR/disk2 bs=1M seek=104
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
