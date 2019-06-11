@@ -59,9 +59,9 @@ test_setup() {
     # Create the blank file to use as a root filesystem
     rm -f -- $TESTDIR/root.ext2
     dd if=/dev/null of=$TESTDIR/root.ext2 bs=1M seek=40
-    dd if=/dev/null of=$TESTDIR/disk1.img bs=1M seek=20
-    dd if=/dev/null of=$TESTDIR/disk2.img bs=1M seek=20
-    dd if=/dev/null of=$TESTDIR/disk3.img bs=1M seek=20
+    dd if=/dev/null of=$TESTDIR/disk1.img bs=1M seek=35
+    dd if=/dev/null of=$TESTDIR/disk2.img bs=1M seek=35
+    dd if=/dev/null of=$TESTDIR/disk3.img bs=1M seek=35
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay

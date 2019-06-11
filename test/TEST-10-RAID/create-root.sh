@@ -8,9 +8,9 @@ udevadm control --reload
 # save a partition at the beginning for future flagging purposes
 sfdisk /dev/sda <<EOF
 ,4M
-,25M
-,25M
-,25M
+,41M
+,41M
+,41M
 EOF
 udevadm settle
 mdadm --create /dev/md0 --run --auto=yes --level=5 --raid-devices=3 /dev/sda2 /dev/sda3 /dev/sda4
