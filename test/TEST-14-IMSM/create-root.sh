@@ -32,9 +32,9 @@ sfdisk -g /dev/mapper/isw*Test0
 # save a partition at the beginning for future flagging purposes
 sfdisk --no-reread /dev/mapper/isw*Test0 <<EOF
 ,4M
-,20M
-,20M
-,20M
+,28M
+,28M
+,28M
 EOF
 
 udevadm settle
