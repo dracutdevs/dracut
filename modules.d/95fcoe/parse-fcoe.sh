@@ -23,7 +23,7 @@ fi
 # If it's not set we don't continue
 [ -z "$fcoe" ] && return
 
-[ -e /sys/bus/fcoe/ctlr_create ] || modprobe -b -a fcoe || die "FCoE requested but kernel/initrd does not support FCoE"
+[ -e /sys/bus/fcoe/ctlr_create ] || modprobe -b -a fcoe || modprobe -b -a libfcoe || die "FCoE requested but kernel/initrd does not support FCoE"
 
 initqueue --onetime modprobe -b -q bnx2fc
 
