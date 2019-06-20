@@ -142,7 +142,7 @@ fsck_single() {
     local _fs="${2:-auto}"
     local _fsopts="$3"
     local _fop="$4"
-    local _drv
+    _drv=""
 
     [ $# -lt 2 ] && return 255
     # if UUID= marks more than one device, take only the first one
