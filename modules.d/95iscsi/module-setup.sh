@@ -74,6 +74,7 @@ install_iscsiroot() {
     local devpath=$1
     local scsi_path iscsi_lun session c d conn host flash
     local iscsi_session iscsi_address iscsi_port iscsi_targetname iscsi_tpgt
+    local bootproto
 
     scsi_path=${devpath%%/block*}
     [ "$scsi_path" = "$devpath" ] && return 1
@@ -121,8 +122,14 @@ install_iscsiroot() {
     local_address=$(ip -o route get to $iscsi_address | sed -n 's/.*src \([0-9a-f.:]*\).*/\1/p')
     ifname=$(ip -o route get to $iscsi_address | sed -n 's/.*dev \([^ ]*\).*/\1/p')
 
-    #follow ifcfg settings for boot protocol
-    bootproto=$(sed -n "/BOOTPROTO/s/BOOTPROTO='\([[:alpha:]]*6\?\)4\?'/\1/p" /etc/sysconfig/network/ifcfg-$ifname)
+    # follow ifcfg settings for boot protocol
+    for _path in \
+        "/etc/sysconfig/network-scripts/ifcfg-$ifname" \
+        "/etc/sysconfig/network/ifcfg-$ifname" \
+    ; do
+        [ -f "$_path" ] && bootproto=$(sed -n "s/BOOTPROTO='\?\([[:alpha:]]*6\?\)4\?/\1/p" "$_path")
+    done
+
     if [ $bootproto ]; then
         printf 'ip=%s:%s ' ${ifname} ${bootproto}
     else
