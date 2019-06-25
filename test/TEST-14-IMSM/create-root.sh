@@ -1,4 +1,7 @@
 #!/bin/sh
+
+trap 'poweroff -f' EXIT
+
 # don't let udev and this script step on eachother's toes
 for x in 61-dmraid-imsm.rules 64-md-raid.rules 65-md-incremental-imsm.rules 65-md-incremental.rules 64-lvm.rules 70-mdadm.rules 99-mount-rules; do
     rm -f -- "/etc/udev/rules.d/$x"
@@ -55,20 +58,20 @@ mdadm --create /dev/md0 --run --auto=yes --level=5 --raid-devices=3 \
 # wait for the array to finish initailizing, otherwise this sometimes fails
 # randomly.
 mdadm -W /dev/md0
+set -e
 lvm pvcreate -ff  -y /dev/md0
-lvm vgcreate dracut /dev/md0 && \
-lvm lvcreate -l 100%FREE -n root dracut && \
-lvm vgchange -ay && \
-mke2fs -L root /dev/dracut/root && \
-mkdir -p /sysroot && \
-mount /dev/dracut/root /sysroot && \
-cp -a -t /sysroot /source/* && \
-umount /sysroot && \
-lvm lvchange -a n /dev/dracut/root && \
+lvm vgcreate dracut /dev/md0
+lvm lvcreate -l 100%FREE -n root dracut
+lvm vgchange -ay
+mke2fs -L root /dev/dracut/root
+mkdir -p /sysroot
+mount /dev/dracut/root /sysroot
+cp -a -t /sysroot /source/*
+umount /sysroot
+lvm lvchange -a n /dev/dracut/root
 udevadm settle
 mdadm --detail --export /dev/md0 |grep -F MD_UUID > /tmp/mduuid
 . /tmp/mduuid
 echo "MD_UUID=$MD_UUID"
 { echo "dracut-root-block-created"; echo MD_UUID=$MD_UUID;} > /dev/sda
 mdadm --wait-clean /dev/md0
-poweroff -f
