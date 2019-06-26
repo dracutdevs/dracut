@@ -31,7 +31,7 @@ run_server() {
         ${SERIAL:--serial file:"$TESTDIR"/server.log} \
         -watchdog i6300esb -watchdog-action poweroff \
         -no-reboot \
-        -append "panic=1 loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 rd.debug" \
+        -append "panic=1 systemd.crash_reboot loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 rd.debug" \
         -initrd "$TESTDIR"/initramfs.server \
         -pidfile "$TESTDIR"/server.pid -daemonize || return 1
     chmod 644 -- "$TESTDIR"/server.pid || return 1
@@ -79,7 +79,7 @@ client_test() {
             $nic3 -device e1000,mac=52:54:00:12:34:05,netdev=n3 \
             -watchdog i6300esb -watchdog-action poweroff \
             -no-reboot \
-            -append "panic=1 $cmdline rd.debug $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
+            -append "panic=1 systemd.crash_reboot $cmdline rd.debug $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
             -initrd "$TESTDIR"/initramfs.testing
     else
         $testdir/run-qemu \
@@ -95,7 +95,7 @@ client_test() {
             -net nic,vlan=3,macaddr=52:54:00:12:34:05,model=e1000 \
             -watchdog i6300esb -watchdog-action poweroff \
             -no-reboot \
-            -append "panic=1 $cmdline rd.debug $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
+            -append "panic=1 systemd.crash_reboot $cmdline rd.debug $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
             -initrd "$TESTDIR"/initramfs.testing
     fi
 

@@ -22,7 +22,7 @@ run_server() {
         ${SERIAL:--serial file:"$TESTDIR"/server.log} \
         -watchdog i6300esb -watchdog-action poweroff \
         -no-reboot \
-        -append "panic=1 rd.debug loglevel=77 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
+        -append "panic=1 systemd.crash_reboot rd.debug loglevel=77 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.server \
         -pidfile $TESTDIR/server.pid -daemonize || return 1
     sudo chmod 644 $TESTDIR/server.pid || return 1
@@ -57,7 +57,7 @@ client_test() {
         -net socket,connect=127.0.0.1:12320 \
         -watchdog i6300esb -watchdog-action poweroff \
         -no-reboot \
-        -append "panic=1 rd.shell=0 $cmdline $DEBUGFAIL rd.debug rd.retry=10 rd.info quiet  ro console=ttyS0,115200n81 selinux=0" \
+        -append "panic=1 systemd.crash_reboot rd.shell=0 $cmdline $DEBUGFAIL rd.debug rd.retry=10 rd.info quiet  ro console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.testing
 
     if [[ $? -ne 0 ]] || ! grep -F -m 1 -q nfs-OK $TESTDIR/client.img; then
