@@ -16,7 +16,7 @@ client_run() {
 	-m 512M  -smp 2 -nographic \
 	-net none \
         -no-reboot \
-	-append "panic=1 $* root=LABEL=root rw debug rd.retry=5 rd.debug console=ttyS0,115200n81 selinux=0 rd.info rd.shell=0 $DEBUGFAIL" \
+	-append "panic=1 systemd.crash_reboot $* root=LABEL=root rw debug rd.retry=5 rd.debug console=ttyS0,115200n81 selinux=0 rd.info rd.shell=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     if ! grep -F -m 1 -q dracut-root-block-success $TESTDIR/root.ext2; then
 	echo "CLIENT TEST END: $@ [FAIL]"
