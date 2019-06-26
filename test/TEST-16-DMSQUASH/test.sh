@@ -23,7 +23,7 @@ test_run() {
         -nographic \
         -net none \
         -no-reboot \
-        -append "panic=1 root=live:CDLABEL=LiveCD live rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.shell=0 $DEBUGFAIL" \
+        -append "panic=1 systemd.crash_reboot root=live:CDLABEL=LiveCD live rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.shell=0 $DEBUGFAIL" \
         -initrd "$TESTDIR"/initramfs.testing
 
     # mediacheck test with qemu GUI

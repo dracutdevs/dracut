@@ -23,7 +23,7 @@ client_run() {
 	-m 512M  -smp 2 -nographic \
 	-net none \
         -no-reboot \
-	-append "panic=1 root=LABEL=dracut $client_opts rd.retry=3 console=ttyS0,115200n81 selinux=0 $DEBUGOUT rd.shell=0 $DEBUGFAIL" \
+	-append "panic=1 systemd.crash_reboot root=LABEL=dracut $client_opts rd.retry=3 console=ttyS0,115200n81 selinux=0 $DEBUGOUT rd.shell=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
 
     if (($? != 0)); then
