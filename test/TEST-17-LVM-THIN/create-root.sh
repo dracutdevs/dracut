@@ -27,6 +27,7 @@ cp -a -t /sysroot /source/* && \
 umount /sysroot && \
 sleep 1 && \
 lvm lvchange -a n /dev/dracut/root && \
-sleep 1 && \
-echo "dracut-root-block-created" >/dev/sda1
+sleep 1
+dmsetup status |grep out_of_data_space || \
+    echo "dracut-root-block-created" >/dev/sda1
 poweroff -f
