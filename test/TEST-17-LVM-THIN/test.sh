@@ -56,7 +56,7 @@ test_setup() {
     (
 	export initdir=$TESTDIR/overlay
 	. $basedir/dracut-init.sh
-	inst_multiple sfdisk mke2fs poweroff cp umount
+	inst_multiple sfdisk mke2fs poweroff cp umount grep dmsetup
 	inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
 	inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
