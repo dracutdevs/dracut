@@ -19,7 +19,7 @@ env:
   - IMAGE=latest TESTS=10
   - IMAGE=latest TESTS=11
   - IMAGE=latest TESTS=13
-  - IMAGE=latest TESTS=14
+  - IMAGE=29 TESTS=14
   - IMAGE=latest TESTS=15
   - IMAGE=latest TESTS=17
 
