@@ -772,6 +772,16 @@ if ! [[ $outfile ]]; then
     fi
 
     if [[ $uefi == "yes" ]]; then
+        if [[ -n "$uefi_secureboot_key" && -z "$uefi_secureboot_cert" ]] || [[ -z $uefi_secureboot_key && -n $uefi_secureboot_cert ]]; then
+            dfatal "Need 'uefi_secureboot_key' and 'uefi_secureboot_cert' both to be set."
+            exit 1
+        fi
+
+        if [[ -n "$uefi_secureboot_key" && -n "$uefi_secureboot_cert" ]] && !command -v sbsign &>/dev/null; then
+            dfatal "Need 'sbsign' to create a signed UEFI executable"
+            exit 1
+        fi
+
         BUILD_ID=$(cat /etc/os-release /usr/lib/os-release \
                        | while read -r line || [[ $line ]]; do \
                        [[ $line =~ BUILD_ID\=* ]] && eval "$line" && echo "$BUILD_ID" && break; \
@@ -1942,9 +1952,22 @@ if [[ $uefi = yes ]]; then
            --add-section .cmdline="${uefi_outdir}/cmdline.txt" --change-section-vma .cmdline=0x30000 \
            --add-section .linux="$kernel_image" --change-section-vma .linux=0x40000 \
            --add-section .initrd="${DRACUT_TMPDIR}/initramfs.img" --change-section-vma .initrd=0x3000000 \
-           "$uefi_stub" "${uefi_outdir}/linux.efi" \
-            && cp --reflink=auto "${uefi_outdir}/linux.efi" "$outfile"; then
-        dinfo "*** Creating UEFI image file '$outfile' done ***"
+           "$uefi_stub" "${uefi_outdir}/linux.efi"; then
+        if [[ -n "${uefi_secureboot_key}" && -n "${uefi_secureboot_cert}" ]]; then \
+            if sbsign \
+                    --key "${uefi_secureboot_key}" \
+                    --cert "${uefi_secureboot_cert}" \
+                    --output "$outfile" "${uefi_outdir}/linux.efi"; then
+                dinfo "*** Creating signed UEFI image file '$outfile' done ***"
+            else
+                dfatal "*** Creating signed UEFI image file '$outfile' failed ***"
+                exit 1
+            fi
+        else
+            if cp --reflink=auto "${uefi_outdir}/linux.efi" "$outfile"; then
+                dinfo "*** Creating UEFI image file '$outfile' done ***"
+            fi
+        fi
     else
         rm -f -- "$outfile"
         dfatal "*** Creating UEFI image file '$outfile' failed ***"
