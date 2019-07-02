@@ -156,9 +156,9 @@ else
 
         info "Using '$keypath' on '$keydev'"
         readkey "$keypath" "$keydev" "$device" \
-            | cryptsetup -d - $cryptsetupopts luksOpen "$device" "$luksname"
+            | cryptsetup -d - $cryptsetupopts luksOpen "$device" "$luksname" \
+            && ask_passphrase=0
         unset keypath keydev
-        ask_passphrase=0
         break
     done
 fi
