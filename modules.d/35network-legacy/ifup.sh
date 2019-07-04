@@ -627,6 +627,11 @@ for p in $(getargs ip=); do
                 fi
                 ;;
         esac
+
+        if command -v wicked >/dev/null && [ -z "$manualup" ]; then
+            /sbin/netroot $netif
+        fi
+
         exit $ret
     fi
 done
