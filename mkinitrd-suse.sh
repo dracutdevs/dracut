@@ -191,7 +191,7 @@ default_kernel_images() {
         arm*)
             regex='[uz]Image'
             ;;
-        aarch64)
+        aarch64|riscv64)
             regex='Image'
             ;;
         *)  regex='vmlinu.'
