@@ -1671,21 +1671,6 @@ for d in $(ldconfig_paths); do
     rmdir -p --ignore-fail-on-non-empty "$initdir/$d" >/dev/null 2>&1
 done
 
-if [[ $do_strip = yes ]] && ! [[ $DRACUT_FIPS_MODE ]]; then
-    dinfo "*** Stripping files ***"
-    find "$initdir" -type f \
-        -executable -not -path '*/lib/modules/*.ko' -print0 \
-        | xargs -r -0 $strip_cmd -g -p 2>/dev/null
-
-    # strip kernel modules, but do not touch signed modules
-    find "$initdir" -type f -path '*/lib/modules/*.ko' -print0 \
-        | while read -r -d $'\0' f || [ -n "$f" ]; do
-        SIG=$(tail -c 28 "$f" | tr -d '\000')
-        [[ $SIG == '~Module signature appended~' ]] || { printf "%s\000" "$f"; }
-    done | xargs -r -0 $strip_cmd -g -p
-
-    dinfo "*** Stripping files done ***"
-fi
 if [[ $early_microcode = yes ]]; then
     dinfo "*** Generating early-microcode cpio image ***"
     ucode_dir=(amd-ucode intel-ucode)
@@ -1757,9 +1742,8 @@ if [[ $hostonly_cmdline == "yes" ]] ; then
     fi
 fi
 
-dinfo "*** Creating image file '$outfile' ***"
-
 if dracut_module_included "squash"; then
+    dinfo "*** Install squash loader ***"
     if ! check_kernel_config CONFIG_SQUASHFS; then
         dfatal "CONFIG_SQUASHFS have to be enabled for dracut squash module to work"
         exit 1
@@ -1773,7 +1757,7 @@ if dracut_module_included "squash"; then
         exit 1
     fi
 
-    readonly squash_dir="${DRACUT_TMPDIR}/squashfs"
+    readonly squash_dir="$initdir/squash/root"
     readonly squash_img=$initdir/squash/root.img
 
     # Currently only move "usr" "etc" to squashdir
@@ -1864,14 +1848,37 @@ if dracut_module_included "squash"; then
             fi
         done
     done
+fi
 
+if [[ $do_strip = yes ]] && ! [[ $DRACUT_FIPS_MODE ]]; then
+    dinfo "*** Stripping files ***"
+    find "$initdir" -type f \
+        -executable -not -path '*/lib/modules/*.ko' -print0 \
+        | xargs -r -0 $strip_cmd -g -p 2>/dev/null
+
+    # strip kernel modules, but do not touch signed modules
+    find "$initdir" -type f -path '*/lib/modules/*.ko' -print0 \
+        | while read -r -d $'\0' f || [ -n "$f" ]; do
+        SIG=$(tail -c 28 "$f" | tr -d '\000')
+        [[ $SIG == '~Module signature appended~' ]] || { printf "%s\000" "$f"; }
+    done | xargs -r -0 $strip_cmd -g -p
+    dinfo "*** Stripping files done ***"
+fi
+
+if dracut_module_included "squash"; then
+    dinfo "*** Squashing the files inside the initramfs ***"
     mksquashfs $squash_dir $squash_img -comp xz -b 64K -Xdict-size 100% &> /dev/null
 
     if [[ $? != 0 ]]; then
         dfatal "dracut: Failed making squash image"
         exit 1
     fi
+
+    rm -rf $squash_dir
+    dinfo "*** Squashing the files inside the initramfs done ***"
 fi
+
+dinfo "*** Creating image file '$outfile' ***"
 
 if [[ $uefi = yes ]]; then
     readonly uefi_outdir="$DRACUT_TMPDIR/uefi"
