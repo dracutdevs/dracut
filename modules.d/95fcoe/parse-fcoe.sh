@@ -15,7 +15,7 @@
 
 if ! getargbool 0 rd.nofcoe ; then
 	info "rd.nofcoe=0: skipping fcoe"
-	exit 0
+	return 0
 fi
 
 [ -z "$fcoe" ] && fcoe=$(getarg fcoe=)
