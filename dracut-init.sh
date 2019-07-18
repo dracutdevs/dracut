@@ -911,6 +911,13 @@ install_kmod_with_fw() {
     inst_simple "$1" "/lib/modules/$kernel/${1##*/lib/modules/$kernel/}"
     ret=$?
     (($ret != 0)) && return $ret
+    if [ "${1##*.ko}" = ".xz" ]; then
+        dinfo "unxz ${initdir}/lib/modules/$kernel/${1##*/lib/modules/$kernel/}"
+        unxz -f "${initdir}/lib/modules/$kernel/${1##*/lib/modules/$kernel/}"
+    elif [ "${1##*.ko}" = ".gz" ]; then
+        dinfo "gunzip ${initdir}/lib/modules/$kernel/${1##*/lib/modules/$kernel/}"
+        gunzip -f "${initdir}/lib/modules/$kernel/${1##*/lib/modules/$kernel/}"
+    fi
 
     local _modname=${1##*/} _fwdir _found _fw
     _modname=${_modname%.ko*}
