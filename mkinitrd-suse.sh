@@ -146,16 +146,16 @@ is_xen_kernel() {
 }
 
 kernel_version_from_image() {
-    local dir="${1%/*}/"                                                                                             |
-    [[ "$dir" != "$1" ]] || dir=""                                                                                   |
-    local kernel_image="$1" kernel_image_gz="${dir}vmlinux-${1#*-}.gz"                                               |
-    echo kernel_image_gz="'$kernel_image_gz'" >&2                                                                    |
-                                                                                                                     |
-    if get_kernel_version "$kernel_image" 2>/dev/null; then                                                          |
-        return                                                                                                       |
-    fi                                                                                                               |
-                                                                                                                     |
-    # As a last resort, try vmlinux-$version.gz, which might be around                                               |
+    local dir="${1%/*}/"
+    [[ "$dir" != "$1" ]] || dir=""
+    local kernel_image="$1" kernel_image_gz="${dir}vmlinux-${1#*-}.gz"
+    echo kernel_image_gz="'$kernel_image_gz'" >&2
+
+    if get_kernel_version "$kernel_image" 2>/dev/null; then
+        return
+    fi
+
+    # As a last resort, try vmlinux-$version.gz, which might be around
     get_kernel_version "$kernel_image_gz" 2>/dev/null
 }
 
