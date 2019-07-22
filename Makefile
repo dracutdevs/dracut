@@ -1,6 +1,7 @@
 -include dracut-version.sh
 
-VERSION ?= $(shell [ -d .git ] && git describe --abbrev=0 --tags --always 2>/dev/null || echo $(DRACUT_VERSION))
+DRACUT_MAIN_VERSION ?= $(shell [ -d .git ] && git describe --abbrev=0 --tags --always 2>/dev/null || :)
+DRACUT_MAIN_VERSION ?= $(DRACUT_VERSION)
 GITVERSION ?= $(shell [ -d .git ] && { v=$$(git describe --tags --always 2>/dev/null); [ -n "$$v" ] && [ $${v\#*-} != $$v ] && echo -$${v\#*-}; } )
 
 -include Makefile.inc
@@ -108,7 +109,7 @@ dracut.html: dracut.asc $(manpages) dracut.css dracut.usage.asc
 dracut.pc: Makefile.inc Makefile
 	@echo "Name: dracut" > dracut.pc
 	@echo "Description: dracut" >> dracut.pc
-	@echo "Version: $(VERSION)$(GITVERSION)" >> dracut.pc
+	@echo "Version: $(DRACUT_MAIN_VERSION)$(GITVERSION)" >> dracut.pc
 	@echo "dracutdir=$(pkglibdir)" >> dracut.pc
 	@echo "dracutmodulesdir=$(pkglibdir)/modules.d" >> dracut.pc
 	@echo "dracutconfdir=$(pkglibdir)/dracut.conf.d" >> dracut.pc
@@ -178,7 +179,7 @@ endif
 
 dracut-version.sh:
 	@rm -f dracut-version.sh
-	@echo "DRACUT_VERSION=$(VERSION)$(GITVERSION)" > dracut-version.sh
+	@echo "DRACUT_VERSION=$(DRACUT_MAIN_VERSION)$(GITVERSION)" > dracut-version.sh
 
 clean:
 	$(RM) *~
@@ -193,22 +194,22 @@ clean:
 	$(RM) $(manpages) dracut.html
 	$(MAKE) -C test clean
 
-dist: dracut-$(VERSION).tar.xz
+dist: dracut-$(DRACUT_MAIN_VERSION).tar.xz
 
-dracut-$(VERSION).tar.xz: doc syncheck
-	@echo "DRACUT_VERSION=$(VERSION)" > dracut-version.sh
-	git archive --format=tar $(VERSION) --prefix=dracut-$(VERSION)/ > dracut-$(VERSION).tar
-	mkdir -p dracut-$(VERSION)
-	for i in $(manpages) dracut.html dracut-version.sh; do [ "$${i%/*}" != "$$i" ] && mkdir -p "dracut-$(VERSION)/$${i%/*}"; cp "$$i" "dracut-$(VERSION)/$$i"; done
-	tar --owner=root --group=root -rf dracut-$(VERSION).tar $$(find dracut-$(VERSION) -type f)
-	rm -fr -- dracut-$(VERSION).tar.xz dracut-$(VERSION)
-	xz -9 dracut-$(VERSION).tar
-	rm -f -- dracut-$(VERSION).tar
+dracut-$(DRACUT_MAIN_VERSION).tar.xz: doc syncheck
+	@echo "DRACUT_VERSION=$(DRACUT_MAIN_VERSION)" > dracut-version.sh
+	git archive --format=tar $(DRACUT_MAIN_VERSION) --prefix=dracut-$(DRACUT_MAIN_VERSION)/ > dracut-$(DRACUT_MAIN_VERSION).tar
+	mkdir -p dracut-$(DRACUT_MAIN_VERSION)
+	for i in $(manpages) dracut.html dracut-version.sh; do [ "$${i%/*}" != "$$i" ] && mkdir -p "dracut-$(DRACUT_MAIN_VERSION)/$${i%/*}"; cp "$$i" "dracut-$(DRACUT_MAIN_VERSION)/$$i"; done
+	tar --owner=root --group=root -rf dracut-$(DRACUT_MAIN_VERSION).tar $$(find dracut-$(DRACUT_MAIN_VERSION) -type f)
+	rm -fr -- dracut-$(DRACUT_MAIN_VERSION).tar.xz dracut-$(DRACUT_MAIN_VERSION)
+	xz -9 dracut-$(DRACUT_MAIN_VERSION).tar
+	rm -f -- dracut-$(DRACUT_MAIN_VERSION).tar
 
-rpm: dracut-$(VERSION).tar.xz syncheck
+rpm: dracut-$(DRACUT_MAIN_VERSION).tar.xz syncheck
 	rpmbuild=$$(mktemp -d -t rpmbuild-dracut.XXXXXX); src=$$(pwd); \
-	cp dracut-$(VERSION).tar.xz "$$rpmbuild"; \
-	LC_MESSAGES=C $$src/git2spec.pl $(VERSION) "$$rpmbuild" < dracut.spec > $$rpmbuild/dracut.spec; \
+	cp dracut-$(DRACUT_MAIN_VERSION).tar.xz "$$rpmbuild"; \
+	LC_MESSAGES=C $$src/git2spec.pl $(DRACUT_MAIN_VERSION) "$$rpmbuild" < dracut.spec > $$rpmbuild/dracut.spec; \
 	(cd "$$rpmbuild"; \
 	wget https://www.gnu.org/licenses/lgpl-2.1.txt; \
 	rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" \
@@ -216,10 +217,10 @@ rpm: dracut-$(VERSION).tar.xz syncheck
 		--define "_rpmdir $$PWD" -ba dracut.spec; ) && \
 	( mv "$$rpmbuild"/{,$$(uname -m)/}*.rpm $(DESTDIR).; rm -fr -- "$$rpmbuild"; ls $(DESTDIR)*.rpm )
 
-srpm: dracut-$(VERSION).tar.xz syncheck
+srpm: dracut-$(DRACUT_MAIN_VERSION).tar.xz syncheck
 	rpmbuild=$$(mktemp -d -t rpmbuild-dracut.XXXXXX); src=$$(pwd); \
-	cp dracut-$(VERSION).tar.xz "$$rpmbuild"; \
-	LC_MESSAGES=C $$src/git2spec.pl $(VERSION) "$$rpmbuild" < dracut.spec > $$rpmbuild/dracut.spec; \
+	cp dracut-$(DRACUT_MAIN_VERSION).tar.xz "$$rpmbuild"; \
+	LC_MESSAGES=C $$src/git2spec.pl $(DRACUT_MAIN_VERSION) "$$rpmbuild" < dracut.spec > $$rpmbuild/dracut.spec; \
 	(cd "$$rpmbuild"; \
 	[ -f $$src/lgpl-2.1.txt ] && cp $$src/lgpl-2.1.txt . || wget https://www.gnu.org/licenses/lgpl-2.1.txt; \
 	rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" \
@@ -273,9 +274,9 @@ efi: all
 AUTHORS:
 	git shortlog  --numbered --summary -e |while read a rest || [ -n "$$rest" ]; do echo $$rest;done > AUTHORS
 
-dracut.html.sign: dracut-$(VERSION).tar.xz dracut.html
-	gpg-sign-all dracut-$(VERSION).tar.xz dracut.html
+dracut.html.sign: dracut-$(DRACUT_MAIN_VERSION).tar.xz dracut.html
+	gpg-sign-all dracut-$(DRACUT_MAIN_VERSION).tar.xz dracut.html
 
 upload: dracut.html.sign
-	kup put dracut-$(VERSION).tar.xz dracut-$(VERSION).tar.sign /pub/linux/utils/boot/dracut/
+	kup put dracut-$(DRACUT_MAIN_VERSION).tar.xz dracut-$(DRACUT_MAIN_VERSION).tar.sign /pub/linux/utils/boot/dracut/
 	kup put dracut.html dracut.html.sign /pub/linux/utils/boot/dracut/
