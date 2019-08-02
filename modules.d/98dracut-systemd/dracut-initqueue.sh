@@ -55,14 +55,20 @@ while :; do
     done
 
     if [ $main_loop -gt $((2*$RDRETRY/3)) ]; then
-        warn "dracut-initqueue timeout - starting timeout scripts"
-        for job in $hookdir/initqueue/timeout/*.sh; do
-            [ -e "$job" ] || break
-            job=$job . $job
-            udevadm settle --timeout=0 >/dev/null 2>&1 || main_loop=0
-            [ -f $hookdir/initqueue/work ] && main_loop=0
-            [ $main_loop -eq 0 ] && break
+        warn "dracut-initqueue: timeout, still waiting for following initqueue hooks:"
+        for _f in $hookdir/initqueue/finished/*.sh; do
+            warn "$_f: \"$(cat "$_f")\""
         done
+        if [ "$(ls -A $hookdir/initqueue/finished)" ]; then
+            warn "dracut-initqueue: starting timeout scripts"
+            for job in $hookdir/initqueue/timeout/*.sh; do
+                [ -e "$job" ] || break
+                job=$job . $job
+                udevadm settle --timeout=0 >/dev/null 2>&1 || main_loop=0
+                [ -f $hookdir/initqueue/work ] && main_loop=0
+                [ $main_loop -eq 0 ] && break
+            done
+        fi
     fi
 
     main_loop=$(($main_loop+1))
