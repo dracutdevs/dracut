@@ -25,5 +25,6 @@ install() {
     inst $moddir/init.sh /squash/init.sh
 
     inst "$moddir/squash-mnt-clear.service" "$systemdsystemunitdir/squash-mnt-clear.service"
-    ln_r "$systemdsystemunitdir/squash-mnt-clear.service" "$systemdsystemunitdir/initrd.target.wants/squash-mnt-clear.service"
+    mkdir -p "$initdir$systemdsystemunitdir/initrd-switch-root.target.wants"
+    ln_r "$systemdsystemunitdir/squash-mnt-clear.service" "$systemdsystemunitdir/initrd-switch-root.target.wants/squash-mnt-clear.service"
 }
