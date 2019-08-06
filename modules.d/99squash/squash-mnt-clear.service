@@ -4,17 +4,14 @@
 [Unit]
 Description=Cleanup squashfs mounts when switch root
 DefaultDependencies=no
-After=initrd.target
-After=dracut-initqueue.service dracut-pre-pivot.service
-Before=initrd-cleanup.service
+Before=initrd-switch-root.service
+After=initrd-switch-root.target
 ConditionPathExists=/squash/root
-Conflicts=initrd-switch-root.target
-IgnoreOnIsolate=true
 
 [Service]
 Type=oneshot
-RemainAfterExit=yes
+RemainAfterExit=no
 StandardInput=null
 StandardOutput=syslog+console
 StandardError=syslog+console
-ExecStop=/squash/clear-squash.sh
+ExecStart=/squash/clear-squash.sh
