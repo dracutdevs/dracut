@@ -592,6 +592,12 @@ check_vol_slaves_all() {
     # strip space
     _vg="${_vg//[[:space:]]/}"
     if [[ $_vg ]]; then
+        # when filter/global_filter is set, lvm may be failed
+        lvm lvs --noheadings -o vg_name $_vg 2>/dev/null 1>/dev/null
+        if [ $? -ne 0 ]; then
+             return 1
+        fi
+
         for _pv in $(lvm vgs --noheadings -o pv_name "$_vg" 2>/dev/null)
         do
             check_block_and_slaves_all $1 $(get_maj_min $_pv)
