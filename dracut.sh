@@ -1501,7 +1501,7 @@ dinfo "*** Including modules done ***"
 
 ## final stuff that has to happen
 if [[ $no_kernel != yes ]]; then
-    if [[ $hostonly ]]; then
+    if [[ $hostonly_mode = "strict" ]]; then
         cp "$DRACUT_KERNEL_MODALIASES" $initdir/lib/dracut/hostonly-kernel-modules.txt
     fi
 
