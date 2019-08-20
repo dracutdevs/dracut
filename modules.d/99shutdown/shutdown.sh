@@ -6,7 +6,13 @@
 # Harald Hoyer <harald@redhat.com>
 ACTION="$1"
 
-[ -w /dev/console ] && exec </dev/console >>/dev/console 2>>/dev/console
+# Before trying to use /dev/console, verify that it exists,
+# and that it can actually be used. When console=null is used,
+# echo will fail. We do the check in a subshell, because otherwise
+# the process will be killed when when running as PID 1.
+[ -w /dev/console ] && \
+    ( echo </dev/console &>/dev/null ) && \
+    exec </dev/console >>/dev/console 2>>/dev/console
 
 export TERM=linux
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
