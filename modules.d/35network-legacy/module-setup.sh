@@ -4,7 +4,7 @@
 check() {
     local _program
 
-    require_binaries ip sed awk grep || return 1
+    require_binaries ip sed awk grep hostname || return 1
     require_any_binary arping arping2 wicked || return 1
     require_any_binary dhclient wicked || return 1
 
@@ -30,6 +30,7 @@ install() {
     strstr "$(arping 2>&1)" "ARPing 2" && mv "$initdir/bin/arping" "$initdir/bin/arping2"
     inst_multiple -o wicked
     inst_multiple -o ping ping6
+    inst_multiple -o hostname
     inst_multiple -o teamd teamdctl teamnl
     inst_simple /etc/libnl/classid
     inst_script "$moddir/ifup.sh" "/sbin/ifup"
