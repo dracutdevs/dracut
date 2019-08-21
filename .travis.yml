@@ -29,7 +29,7 @@ before_script:
     sudo modprobe kvm-intel nested=1 || :
     sudo modprobe kvm-amd nested=1 || :
     dmesg | tail || :
-  - git pull --depth=100
+  - git fetch --tags --unshallow
   - |
     git describe --abbrev=0 --tags || :
     git describe --tags || :
