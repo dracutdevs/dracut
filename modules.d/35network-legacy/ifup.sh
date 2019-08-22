@@ -608,6 +608,10 @@ for p in $(getargs ip=); do
 
         case $autoconf in
             dhcp|on|any|dhcp6)
+                > /tmp/net.$netif.did-setup
+                [ -z "$DO_VLAN" ] && \
+                    [ -e /sys/class/net/$netif/address ] && \
+                    > /tmp/net.$(cat /sys/class/net/$netif/address).did-setup
             ;;
             *)
                 if [ $ret -eq 0 ]; then
