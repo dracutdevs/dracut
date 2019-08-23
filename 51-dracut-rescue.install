@@ -48,6 +48,8 @@ if [[ -f /etc/kernel/cmdline ]]; then
 elif [[ -f /usr/lib/kernel/cmdline ]]; then
     read -r -d '' -a BOOT_OPTIONS < /usr/lib/kernel/cmdline
 else
+    declare -a BOOT_OPTIONS
+
     read -r -d '' -a line < /proc/cmdline
     for i in "${line[@]}"; do
         [[ "${i#initrd=*}" != "$i" ]] && continue
