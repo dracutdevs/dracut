@@ -97,7 +97,7 @@ install() {
 
     ## save host_devs which we need bring up
     if [[ $hostonly_cmdline == "yes" ]]; then
-        if [[ -n $add_device ]]; then
+        if [[ -n "${host_devs[@]}" ]]; then
             dracut_need_initqueue
         fi
         if [[ -f "$initdir/lib/dracut/need-initqueue" ]] || ! dracut_module_included "systemd"; then

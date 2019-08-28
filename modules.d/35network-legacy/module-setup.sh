@@ -36,7 +36,6 @@ install() {
     inst_simple -H "/etc/dhclient.conf"
     cat "$moddir/dhclient.conf" >> "${initdir}/etc/dhclient.conf"
     inst_hook pre-udev 60 "$moddir/net-genrules.sh"
-    inst_hook cmdline 91 "$moddir/dhcp-root.sh"
     inst_hook cmdline 92 "$moddir/parse-ibft.sh"
     inst_hook cmdline 95 "$moddir/parse-vlan.sh"
     inst_hook cmdline 96 "$moddir/parse-bond.sh"

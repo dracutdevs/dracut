@@ -47,20 +47,14 @@ if [[ -f /etc/kernel/cmdline ]]; then
     read -r -d '' -a BOOT_OPTIONS < /etc/kernel/cmdline
 elif [[ -f /usr/lib/kernel/cmdline ]]; then
     read -r -d '' -a BOOT_OPTIONS < /usr/lib/kernel/cmdline
-fi
+else
+    declare -a BOOT_OPTIONS
 
-if ! [[ "${BOOT_OPTIONS[@]}" ]]; then
     read -r -d '' -a line < /proc/cmdline
     for i in "${line[@]}"; do
         [[ "${i#initrd=*}" != "$i" ]] && continue
         BOOT_OPTIONS+=("$i")
     done
-fi
-
-if ! [[ ${BOOT_OPTIONS[*]} ]]; then
-    echo "Could not determine the kernel command line parameters." >&2
-    echo "Please specify the kernel command line in /etc/kernel/cmdline!" >&2
-    exit 1
 fi
 
 if [[ -d "${BOOT_DIR_ABS%/*}" ]]; then

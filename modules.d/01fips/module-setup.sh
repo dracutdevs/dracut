@@ -12,7 +12,7 @@ depends() {
 
 # called by dracut
 installkernel() {
-    local _fipsmodules _mod
+    local _fipsmodules _mod _bootfstype
     if [[ -f "${srcmods}/modules.fips" ]]; then
         _fipsmodules="$(cat "${srcmods}/modules.fips")"
     else
@@ -24,7 +24,7 @@ installkernel() {
         _fipsmodules+="crc32c crct10dif ghash "
 
         # Ciphers:
-        _fipsmodules+="cipher_null des3_ede aes "
+        _fipsmodules+="cipher_null des3_ede aes cfb "
 
         # Modes/templates:
         _fipsmodules+="ecb cbc ctr xts gcm ccm authenc hmac cmac "
@@ -47,6 +47,16 @@ installkernel() {
             echo "blacklist $_mod" >> "${initdir}/etc/modprobe.d/fips.conf"
         fi
     done
+
+    # with hostonly_default_device fs module for /boot is not installed by default
+    if [[ $hostonly ]] && [[ "$hostonly_default_device" == "no" ]]; then
+        _bootfstype=$(find_mp_fstype /boot)
+        if [[ -n "$_bootfstype" ]]; then
+            hostonly='' instmods $_bootfstype
+        else
+            dwarning "Can't determine fs type for /boot, FIPS check may fail."
+        fi
+    fi
 }
 
 # called by dracut
@@ -54,6 +64,7 @@ install() {
     local _dir
     inst_hook pre-mount 01 "$moddir/fips-boot.sh"
     inst_hook pre-pivot 01 "$moddir/fips-noboot.sh"
+    inst_hook pre-udev 01 "$moddir/fips-load-crypto.sh"
     inst_script "$moddir/fips.sh" /sbin/fips.sh
 
     inst_multiple sha512hmac rmmod insmod mount uname umount

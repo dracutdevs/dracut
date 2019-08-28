@@ -20,7 +20,7 @@ client_run() {
         -drive format=raw,index=3,media=disk,file=$TESTDIR/disk3.img.new \
         -net none \
         -no-reboot \
-        -append "panic=1 $* systemd.log_target=kmsg loglevel=7 root=LABEL=root rw rd.retry=20 rd.info console=ttyS0,115200n81 log_buf_len=2M selinux=0 rd.debug rd.shell=0 $DEBUGFAIL " \
+        -append "panic=1 systemd.crash_reboot $* systemd.log_target=kmsg loglevel=7 root=LABEL=root rw rd.retry=20 rd.info console=ttyS0,115200n81 log_buf_len=2M selinux=0 rd.debug rd.shell=0 $DEBUGFAIL " \
         -initrd $TESTDIR/initramfs.testing
     if ! grep -F -m 1 -q dracut-root-block-success $TESTDIR/root.ext2; then
         echo "CLIENT TEST END: $@ [FAIL]"
@@ -59,9 +59,9 @@ test_setup() {
     # Create the blank file to use as a root filesystem
     rm -f -- $TESTDIR/root.ext2
     dd if=/dev/null of=$TESTDIR/root.ext2 bs=1M seek=40
-    dd if=/dev/null of=$TESTDIR/disk1.img bs=1M seek=20
-    dd if=/dev/null of=$TESTDIR/disk2.img bs=1M seek=20
-    dd if=/dev/null of=$TESTDIR/disk3.img bs=1M seek=20
+    dd if=/dev/null of=$TESTDIR/disk1.img bs=1M seek=35
+    dd if=/dev/null of=$TESTDIR/disk2.img bs=1M seek=35
+    dd if=/dev/null of=$TESTDIR/disk3.img bs=1M seek=35
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay

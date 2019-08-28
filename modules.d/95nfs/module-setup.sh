@@ -65,7 +65,12 @@ cmdline() {
         printf 'ifname=%s:%s ' ${ifname} ${ifmac}
     fi
 
-    printf 'ip=%s:static\n' ${ifname}
+    bootproto=$(sed -n "/BOOTPROTO/s/BOOTPROTO='\([[:alpha:]]*6\?\)4\?'/\1/p" /etc/sysconfig/network/ifcfg-$ifname)
+    if [ $bootproto ]; then
+        printf 'ip=%s:%s ' ${ifname} ${bootproto}
+    else
+        printf 'ip=%s:static ' ${ifname}
+    fi
 }
 
 # called by dracut

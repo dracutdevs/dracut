@@ -126,9 +126,11 @@ parse_option_121() {
         elif [ $mask -gt 8 ]; then
             destination="$1.$2.0.0/$mask"
             shift; shift
-        else
+        elif [ $mask -gt 0 ]; then
             destination="$1.0.0.0/$mask"
             shift
+        else
+            destination="0.0.0.0/$mask"
         fi
 
         # Read the gateway
@@ -138,7 +140,7 @@ parse_option_121() {
         # Multicast routing on Linux
         #  - If you set a next-hop address for a multicast group, this breaks with Cisco switches
         #  - If you simply leave it link-local and attach it to an interface, it works fine.
-        if [ $multicast -eq 1 ]; then
+        if [ $multicast -eq 1 -o "$gateway" = "0.0.0.0" ]; then
             temp_result="$destination dev $interface"
         else
             temp_result="$destination via $gateway dev $interface"

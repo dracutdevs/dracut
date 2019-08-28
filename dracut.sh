@@ -773,20 +773,31 @@ if ! [[ $outfile ]]; then
     fi
 
     if [[ $uefi == "yes" ]]; then
+        if [[ -n "$uefi_secureboot_key" && -z "$uefi_secureboot_cert" ]] || [[ -z $uefi_secureboot_key && -n $uefi_secureboot_cert ]]; then
+            dfatal "Need 'uefi_secureboot_key' and 'uefi_secureboot_cert' both to be set."
+            exit 1
+        fi
+
+        if [[ -n "$uefi_secureboot_key" && -n "$uefi_secureboot_cert" ]] && !command -v sbsign &>/dev/null; then
+            dfatal "Need 'sbsign' to create a signed UEFI executable"
+            exit 1
+        fi
+
         BUILD_ID=$(cat $dracutsysrootdir/etc/os-release $dracutsysrootdir/usr/lib/os-release \
                        | while read -r line || [[ $line ]]; do \
                        [[ $line =~ BUILD_ID\=* ]] && eval "$line" && echo "$BUILD_ID" && break; \
                    done)
         if [[ -z $dracutsysrootdir ]]; then
             if [[ -d /efi ]] && mountpoint -q /efi; then
-                efidir=/efi
+                efidir=/efi/EFI
             else
                 efidir=/boot/EFI
-                if [[ -d /boot/efi/EFI ]] && mountpoint -q /boot/efi; then
+                if [[ -d $dracutsysrootdir/boot/efi/EFI ]]; then
                     efidir=/boot/efi/EFI
                 fi
             fi
         else
+            efidir=/boot/EFI
             efidir=/boot/EFI
             if [[ -d $dracutsysrootdir/boot/efi/EFI ]]; then
                 efidir=/boot/efi/EFI
@@ -1018,6 +1029,16 @@ esac
 
 abs_outfile=$(readlink -f "$outfile") && outfile="$abs_outfile"
 
+
+[[ -d $systemdutildir ]] \
+    || systemdutildir=$(pkg-config systemd --variable=systemdutildir 2>/dev/null)
+
+if ! [[ -d "$systemdutildir" ]]; then
+    [[ -e /lib/systemd/systemd-udevd ]] && systemdutildir=/lib/systemd
+    [[ -e /usr/lib/systemd/systemd-udevd ]] && systemdutildir=/usr/lib/systemd
+fi
+
+
 if [[ $no_kernel != yes ]] && [[ -d $srcmods ]]; then
     if ! [[ -f $srcmods/modules.dep ]]; then
         if [[ -n "$(find "$srcmods" -name '*.ko*')" ]]; then
@@ -1079,13 +1100,13 @@ if [[ ! $print_cmdline ]]; then
             exit 1
         fi
         unset EFI_MACHINE_TYPE_NAME
-        case $(arch) in
+        case $(uname -m) in
             x86_64)
                 EFI_MACHINE_TYPE_NAME=x64;;
             ia32)
                 EFI_MACHINE_TYPE_NAME=ia32;;
             *)
-                dfatal "Architecture '$(arch)' not supported to create a UEFI executable"
+                dfatal "Architecture '$(uname -m)' not supported to create a UEFI executable"
                 exit 1
                 ;;
         esac
@@ -1331,16 +1352,8 @@ done
 [[ -d $dracutsysrootdir$udevdir ]] \
     || udevdir="$(pkg-config udev --variable=udevdir 2>/dev/null)"
 if ! [[ -d "$dracutsysrootdir$udevdir" ]]; then
-    [[ -e $dracutsysrootdir/lib/udev/collect ]] && udevdir=/lib/udev
-    [[ -e $dracutsysrootdir/usr/lib/udev/collect ]] && udevdir=/usr/lib/udev
-fi
-
-[[ -d $dracutsysrootdir$systemdutildir ]] \
-    || systemdutildir=$(pkg-config systemd --variable=systemdutildir 2>/dev/null)
-
-if ! [[ -d "$dracutsysrootdir$systemdutildir" ]]; then
-    [[ -e $dracutsysrootdir/lib/systemd/systemd-udevd ]] && systemdutildir=/lib/systemd
-    [[ -e $dracutsysrootdir/usr/lib/systemd/systemd-udevd ]] && systemdutildir=/usr/lib/systemd
+    [[ -e $dracutsysrootdir/lib/udev/ata_id ]] && udevdir=/lib/udev
+    [[ -e $dracutsysrootdir/usr/lib/udev/ata_id ]] && udevdir=/usr/lib/udev
 fi
 
 [[ -d $dracutsysrootdir$systemdsystemunitdir ]] \
@@ -1393,7 +1406,7 @@ do_print_cmdline()
     for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
         _d_mod=${moddir##*/}; _d_mod=${_d_mod#[0-9][0-9]}
         [[ ${_mods_to_print[$_d_mod]} ]] || continue
-        module_cmdline "$_d_mod"
+        module_cmdline "$_d_mod" "$moddir"
     done
     unset moddir
 }
@@ -1474,14 +1487,14 @@ for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
         dinfo "*** Including module: $_d_mod ***"
     fi
     if [[ $kernel_only == yes ]]; then
-        module_installkernel "$_d_mod" || {
+        module_installkernel "$_d_mod" "$moddir" || {
             dfatal "installkernel failed in module $_d_mod"
             exit 1
         }
     else
-        module_install "$_d_mod"
+        module_install "$_d_mod" "$moddir"
         if [[ $no_kernel != yes ]]; then
-            module_installkernel "$_d_mod" || {
+            module_installkernel "$_d_mod" "$moddir" || {
                 dfatal "installkernel failed in module $_d_mod"
                 exit 1
             }
@@ -1510,7 +1523,7 @@ dinfo "*** Including modules done ***"
 ## final stuff that has to happen
 if [[ $no_kernel != yes ]]; then
     if [[ $hostonly ]]; then
-        echo "$(get_loaded_kernel_modules)" > $initdir/lib/dracut/loaded-kernel-modules.txt
+        cp "$DRACUT_KERNEL_MODALIASES" $initdir/lib/dracut/hostonly-kernel-modules.txt
     fi
 
     if [[ $drivers ]]; then
@@ -1679,21 +1692,6 @@ for d in $(ldconfig_paths); do
     rmdir -p --ignore-fail-on-non-empty "$initdir/$d" >/dev/null 2>&1
 done
 
-if [[ $do_strip = yes ]] && ! [[ $DRACUT_FIPS_MODE ]]; then
-    dinfo "*** Stripping files ***"
-    find "$initdir" -type f \
-        -executable -not -path '*/lib/modules/*.ko' -print0 \
-        | xargs -r -0 $strip_cmd -g -p 2>/dev/null
-
-    # strip kernel modules, but do not touch signed modules
-    find "$initdir" -type f -path '*/lib/modules/*.ko' -print0 \
-        | while read -r -d $'\0' f || [ -n "$f" ]; do
-        SIG=$(tail -c 28 "$f" | tr -d '\000')
-        [[ $SIG == '~Module signature appended~' ]] || { printf "%s\000" "$f"; }
-    done | xargs -r -0 $strip_cmd -g -p
-
-    dinfo "*** Stripping files done ***"
-fi
 if [[ $early_microcode = yes ]]; then
     dinfo "*** Generating early-microcode cpio image ***"
     ucode_dir=(amd-ucode intel-ucode)
@@ -1765,9 +1763,8 @@ if [[ $hostonly_cmdline == "yes" ]] ; then
     fi
 fi
 
-dinfo "*** Creating image file '$outfile' ***"
-
 if dracut_module_included "squash"; then
+    dinfo "*** Install squash loader ***"
     if ! check_kernel_config CONFIG_SQUASHFS; then
         dfatal "CONFIG_SQUASHFS have to be enabled for dracut squash module to work"
         exit 1
@@ -1781,7 +1778,7 @@ if dracut_module_included "squash"; then
         exit 1
     fi
 
-    readonly squash_dir="${DRACUT_TMPDIR}/squashfs"
+    readonly squash_dir="$initdir/squash/root"
     readonly squash_img=$initdir/squash/root.img
 
     # Currently only move "usr" "etc" to squashdir
@@ -1790,22 +1787,6 @@ if dracut_module_included "squash"; then
     mkdir -m 0755 -p $squash_dir
     for folder in "${squash_candidate[@]}"; do
         mv $initdir/$folder $squash_dir/$folder
-    done
-
-    # Reinstall required files, because we have moved some important folders to $squash_dir
-    inst_multiple "echo" "sh" "mount" "modprobe" "mkdir" \
-        "systemctl" "udevadm" "$systemdutildir/systemd"
-    hostonly="" instmods "loop" "squashfs" "overlay"
-
-    for folder in "${squash_candidate[@]}"; do
-        # Remove duplicated files in squashfs image, save some more space
-        [[ ! -d $initdir/$folder/ ]] && continue
-        for file in $(find $initdir/$folder/ -not -type d);
-        do
-            if [[ -e $squash_dir${file#$initdir} ]]; then
-                mv $squash_dir${file#$initdir} $file
-            fi
-        done
     done
 
     # Move some files out side of the squash image, including:
@@ -1829,30 +1810,26 @@ if dracut_module_included "squash"; then
             required_in_root $(dirname $file)
         fi
 
-        if [[ -d $_sqsh_file ]]; then
-            if [[ -L $_sqsh_file ]]; then
-                cp --preserve=all -P $_sqsh_file $_init_file
-            else
-                mkdir $_init_file
-            fi
+        if [[ -L $_sqsh_file ]]; then
+          cp --preserve=all -P $_sqsh_file $_init_file
+          _sqsh_file=$(realpath $_sqsh_file 2>/dev/null)
+          if [[ -e $_sqsh_file ]] && [[ "$_sqsh_file" == "$squash_dir"* ]]; then
+            # Relative symlink
+            required_in_root ${_sqsh_file#$squash_dir/}
+            return
+          fi
+          if [[ -e $squash_dir$_sqsh_file ]]; then
+            # Absolute symlink
+            required_in_root ${_sqsh_file#/}
+            return
+          fi
+          required_in_root ${module_spec#$squash_dir/}
         else
-            if [[ -L $_sqsh_file ]]; then
-                cp --preserve=all -P $_sqsh_file $_init_file
-                _sqsh_file=$(realpath $_sqsh_file 2>/dev/null)
-                if [[ -e $_sqsh_file ]] && [[ "$_sqsh_file" == "$squash_dir"* ]]; then
-                    # Relative symlink
-                    required_in_root ${_sqsh_file#$squash_dir/}
-                    return
-                fi
-                if [[ -e $squash_dir$_sqsh_file ]]; then
-                    # Absolute symlink
-                    required_in_root ${_sqsh_file#/}
-                    return
-                fi
-                required_in_root ${module_spec#$squash_dir/}
-            else
-                mv $_sqsh_file $_init_file
-            fi
+          if [[ -d $_sqsh_file ]]; then
+            mkdir $_init_file
+          else
+            mv $_sqsh_file $_init_file
+          fi
         fi
     }
 
@@ -1871,13 +1848,58 @@ if dracut_module_included "squash"; then
     mv $initdir/init $initdir/init.stock
     ln -s squash/init.sh $initdir/init
 
+    # Reinstall required files for the squash image setup script.
+    # We have moved them inside the squashed image, but they need to be
+    # accessible before mounting the image.
+    inst_multiple "echo" "sh" "mount" "modprobe" "mkdir"
+    hostonly="" instmods "loop" "squashfs" "overlay"
+
+    # Only keep systemctl outsite if we need switch root
+    if [[ ! -f "$initdir/lib/dracut/no-switch-root" ]]; then
+      inst "systemctl"
+    fi
+
+    for folder in "${squash_candidate[@]}"; do
+        # Remove duplicated files in squashfs image, save some more space
+        [[ ! -d $initdir/$folder/ ]] && continue
+        for file in $(find $initdir/$folder/ -not -type d);
+        do
+            if [[ -e $squash_dir${file#$initdir} ]]; then
+                mv $squash_dir${file#$initdir} $file
+            fi
+        done
+    done
+fi
+
+if [[ $do_strip = yes ]] && ! [[ $DRACUT_FIPS_MODE ]]; then
+    dinfo "*** Stripping files ***"
+    find "$initdir" -type f \
+        -executable -not -path '*/lib/modules/*.ko' -print0 \
+        | xargs -r -0 $strip_cmd -g -p 2>/dev/null
+
+    # strip kernel modules, but do not touch signed modules
+    find "$initdir" -type f -path '*/lib/modules/*.ko' -print0 \
+        | while read -r -d $'\0' f || [ -n "$f" ]; do
+        SIG=$(tail -c 28 "$f" | tr -d '\000')
+        [[ $SIG == '~Module signature appended~' ]] || { printf "%s\000" "$f"; }
+    done | xargs -r -0 $strip_cmd -g -p
+    dinfo "*** Stripping files done ***"
+fi
+
+if dracut_module_included "squash"; then
+    dinfo "*** Squashing the files inside the initramfs ***"
     mksquashfs $squash_dir $squash_img -comp xz -b 64K -Xdict-size 100% &> /dev/null
 
     if [[ $? != 0 ]]; then
         dfatal "dracut: Failed making squash image"
         exit 1
     fi
+
+    rm -rf $squash_dir
+    dinfo "*** Squashing the files inside the initramfs done ***"
 fi
+
+dinfo "*** Creating image file '$outfile' ***"
 
 if [[ $uefi = yes ]]; then
     readonly uefi_outdir="$DRACUT_TMPDIR/uefi"
@@ -1960,9 +1982,22 @@ if [[ $uefi = yes ]]; then
            --add-section .cmdline="${uefi_outdir}/cmdline.txt" --change-section-vma .cmdline=0x30000 \
            --add-section .linux="$kernel_image" --change-section-vma .linux=0x40000 \
            --add-section .initrd="${DRACUT_TMPDIR}/initramfs.img" --change-section-vma .initrd=0x3000000 \
-           "$uefi_stub" "${uefi_outdir}/linux.efi" \
-            && cp --reflink=auto "${uefi_outdir}/linux.efi" "$outfile"; then
-        dinfo "*** Creating UEFI image file '$outfile' done ***"
+           "$uefi_stub" "${uefi_outdir}/linux.efi"; then
+        if [[ -n "${uefi_secureboot_key}" && -n "${uefi_secureboot_cert}" ]]; then \
+            if sbsign \
+                    --key "${uefi_secureboot_key}" \
+                    --cert "${uefi_secureboot_cert}" \
+                    --output "$outfile" "${uefi_outdir}/linux.efi"; then
+                dinfo "*** Creating signed UEFI image file '$outfile' done ***"
+            else
+                dfatal "*** Creating signed UEFI image file '$outfile' failed ***"
+                exit 1
+            fi
+        else
+            if cp --reflink=auto "${uefi_outdir}/linux.efi" "$outfile"; then
+                dinfo "*** Creating UEFI image file '$outfile' done ***"
+            fi
+        fi
     else
         rm -f -- "$outfile"
         dfatal "*** Creating UEFI image file '$outfile' failed ***"

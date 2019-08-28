@@ -1338,6 +1338,8 @@ static int install_firmware(struct kmod_module *mod)
                 ret = -1;
                 STRV_FOREACH(q, firmwaredirs) {
                         _cleanup_free_ char *fwpath = NULL;
+                        _cleanup_free_ char *fwpath_xz = NULL;
+                        const char *fw;
                         struct stat sb;
                         int r;
 
@@ -1347,12 +1349,21 @@ static int install_firmware(struct kmod_module *mod)
                                 exit(EXIT_FAILURE);
                         }
 
+                        fw = fwpath;
                         if (stat(fwpath, &sb) != 0) {
-                                log_debug("stat(%s) != 0", fwpath);
-                                continue;
+                                r = asprintf(&fwpath_xz, "%s.xz", fwpath);
+                                if (r < 0) {
+                                        log_error("Out of memory!");
+                                        exit(EXIT_FAILURE);
+                                }
+                                if (stat(fwpath_xz, &sb) != 0) {
+                                        log_debug("stat(%s) != 0", fwpath);
+                                        continue;
+                                }
+                                fw = fwpath_xz;
                         }
 
-                        ret = dracut_install(fwpath, fwpath, false, false, true);
+                        ret = dracut_install(fw, fw, false, false, true);
                         if (ret == 0)
                                 log_debug("dracut_install '%s' OK", fwpath);
                 }
@@ -1431,6 +1442,9 @@ static int install_dependent_modules(struct kmod_list *modlist)
                 mod = kmod_module_get_module(itr);
                 path = kmod_module_get_path(mod);
 
+                if (path == NULL)
+                        continue;
+
 		if (check_hashmap(items_failed, path))
 			return -1;
 
@@ -1440,7 +1454,7 @@ static int install_dependent_modules(struct kmod_list *modlist)
 
                 name = kmod_module_get_name(mod);
 
-                if ((path == NULL) || (arg_mod_filter_noname && (regexec(&mod_filter_noname, name, 0, NULL, 0) == 0))) {
+                if (arg_mod_filter_noname && (regexec(&mod_filter_noname, name, 0, NULL, 0) == 0)) {
                         continue;
                 }
 

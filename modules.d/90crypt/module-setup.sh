@@ -25,7 +25,7 @@ depends() {
 # called by dracut
 installkernel() {
     hostonly="" instmods drbg
-    arch=$(arch)
+    arch=$(uname -m)
     [[ $arch == x86_64 ]] && arch=x86
     [[ $arch == s390x ]] && arch=s390
     instmods dm_crypt =crypto =drivers/crypto =arch/$arch/crypto

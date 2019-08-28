@@ -16,7 +16,7 @@ client_run() {
 	-m 512M  -smp 2 -nographic \
 	-net none \
         -no-reboot \
-	-append "panic=1 $* root=LABEL=root rw debug rd.retry=5 rd.debug console=ttyS0,115200n81 selinux=0 rd.info rd.shell=0 $DEBUGFAIL" \
+	-append "panic=1 systemd.crash_reboot $* root=LABEL=root rw debug rd.retry=5 rd.debug console=ttyS0,115200n81 selinux=0 rd.info rd.shell=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     if ! grep -F -m 1 -q dracut-root-block-success $TESTDIR/root.ext2; then
 	echo "CLIENT TEST END: $@ [FAIL]"
@@ -53,8 +53,8 @@ test_setup() {
     rm -f -- $TESTDIR/disk1
     rm -f -- $TESTDIR/disk2
     dd if=/dev/null of=$TESTDIR/root.ext2 bs=1M seek=1
-    dd if=/dev/null of=$TESTDIR/disk1 bs=1M seek=80
-    dd if=/dev/null of=$TESTDIR/disk2 bs=1M seek=80
+    dd if=/dev/null of=$TESTDIR/disk1 bs=1M seek=104
+    dd if=/dev/null of=$TESTDIR/disk2 bs=1M seek=104
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay

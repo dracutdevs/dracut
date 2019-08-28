@@ -145,31 +145,17 @@ is_xen_kernel() {
     return
 }
 
-# kernel_image_gz_from_image() and kernel_version_from_image() are helpers
-# for arm* kernels which produce zImage files which cannot be read from
-# get_kernel_version -> get rid of this workaround if possible
-kernel_image_gz_from_image() {
-    local arch=$(uname -i)
-    local r=${1}.gz
-
-    # uImage kernels can't be extracted directly. Use the vmlinux.gz instead
-    r=${r//uImage/vmlinux}
-
-    # on ARM a zImage can't be extracted directly. Other platforms define it
-    # as a gzipped vmlinux file, but not ARM. So only on ARM, use vmlinux.gz.
-    if [[ $arch =~ arm ]] || [[ $arch =~ aarch ]]; then
-        r=${r//zImage/vmlinux}
-    fi
-
-    echo $r
-}
-
 kernel_version_from_image() {
-    local kernel_image="$1" kernel_image_gz=$(kernel_image_gz_from_image "$1")
+    local dir="${1%/*}/"
+    [[ "$dir" != "$1" ]] || dir=""
+    local kernel_image="$1" kernel_image_gz="${dir}vmlinux-${1#*-}.gz"
+    echo kernel_image_gz="'$kernel_image_gz'" >&2
 
     if get_kernel_version "$kernel_image" 2>/dev/null; then
         return
     fi
+
+    # As a last resort, try vmlinux-$version.gz, which might be around
     get_kernel_version "$kernel_image_gz" 2>/dev/null
 }
 
@@ -191,7 +177,7 @@ default_kernel_images() {
         arm*)
             regex='[uz]Image'
             ;;
-        aarch64)
+        aarch64|riscv64)
             regex='Image'
             ;;
         *)  regex='vmlinu.'

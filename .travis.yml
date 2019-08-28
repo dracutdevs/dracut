@@ -11,6 +11,7 @@ env:
   - IMAGE=latest TESTS=50
   - IMAGE=latest TESTS=30
   - IMAGE=latest TESTS=31
+  - IMAGE=latest TESTS=60
   - IMAGE=latest TESTS=70
   - IMAGE=latest TESTS=99
   - IMAGE=latest TESTS=02
@@ -18,8 +19,8 @@ env:
   - IMAGE=latest TESTS=04
   - IMAGE=latest TESTS=10
   - IMAGE=latest TESTS=11
-  - IMAGE=latest TESTS=13
-  - IMAGE=latest TESTS=14
+  - IMAGE=29 TESTS=13
+  - IMAGE=29 TESTS=14
   - IMAGE=latest TESTS=15
   - IMAGE=latest TESTS=17
 
@@ -29,7 +30,7 @@ before_script:
     sudo modprobe kvm-intel nested=1 || :
     sudo modprobe kvm-amd nested=1 || :
     dmesg | tail || :
-  - git pull --depth=100
+  - git fetch --tags --unshallow
   - |
     git describe --abbrev=0 --tags || :
     git describe --tags || :

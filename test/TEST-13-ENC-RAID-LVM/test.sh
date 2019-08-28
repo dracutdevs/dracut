@@ -20,7 +20,7 @@ test_run() {
 	-m 512M  -smp 2 -nographic \
 	-net none \
         -no-reboot \
-	-append "panic=1 root=/dev/dracut/root rw rd.auto rd.retry=20 console=ttyS0,115200n81 selinux=0 rd.debug rootwait $LUKSARGS rd.shell=0 $DEBUGFAIL" \
+	-append "panic=1 systemd.crash_reboot root=/dev/dracut/root rw rd.auto rd.retry=20 console=ttyS0,115200n81 selinux=0 rd.debug rootwait $LUKSARGS rd.shell=0 $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     grep -F -m 1 -q dracut-root-block-success $TESTDIR/check-success.img || return 1
     echo "CLIENT TEST END: [OK]"
@@ -34,7 +34,7 @@ test_run() {
 	-m 512M  -smp 2 -nographic \
 	-net none \
         -no-reboot \
-	-append "panic=1 root=/dev/dracut/root rw quiet rd.auto rd.retry=20 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL" \
+	-append "panic=1 systemd.crash_reboot root=/dev/dracut/root rw quiet rd.auto rd.retry=20 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL" \
 	-initrd $TESTDIR/initramfs.testing
     grep -F -m 1 -q dracut-root-block-success $TESTDIR/check-success.img || return 1
     echo "CLIENT TEST END: [OK]"
@@ -48,7 +48,7 @@ test_run() {
 	-m 512M  -smp 2 -nographic \
 	-net none \
         -no-reboot \
-	-append "panic=1 root=/dev/dracut/root rw quiet rd.auto rd.retry=10 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL rd.luks.uuid=failme" \
+	-append "panic=1 systemd.crash_reboot root=/dev/dracut/root rw quiet rd.auto rd.retry=10 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL rd.luks.uuid=failme" \
 	-initrd $TESTDIR/initramfs.testing
     grep -F -m 1 -q dracut-root-block-success $TESTDIR/check-success.img && return 1
     echo "CLIENT TEST END: [OK]"
@@ -59,7 +59,7 @@ test_run() {
 test_setup() {
     # Create the blank file to use as a root filesystem
     rm -f -- $TESTDIR/root.ext2
-    dd if=/dev/null of=$TESTDIR/root.ext2 bs=1M seek=80
+    dd if=/dev/null of=$TESTDIR/root.ext2 bs=1M seek=134
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
