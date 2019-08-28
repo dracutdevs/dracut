@@ -798,7 +798,6 @@ if ! [[ $outfile ]]; then
             fi
         else
             efidir=/boot/EFI
-            efidir=/boot/EFI
             if [[ -d $dracutsysrootdir/boot/efi/EFI ]]; then
                 efidir=/boot/efi/EFI
             fi
