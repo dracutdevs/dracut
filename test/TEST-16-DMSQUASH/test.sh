@@ -7,11 +7,14 @@ KVERSION="${KVERSION-$(uname -r)}"
 #DEBUGFAIL="rd.shell rd.break rd.debug systemd.log_level=debug systemd.log_target=console"
 
 test_check() {
-    if ! [ -d "/usr/lib/python2.7/site-packages/imgcreate" ]; then
-        echo "python-imgcreate not installed"
+    for pdir in $(python -c "import site; print(site.getsitepackages())" | sed -e 's/\[\(.*\)\]/\1/' -e "s/', /' /g") ; do
+        pdir1=$(echo $pdir | sed "s/^'\(.*\)'$/\1/")
+        if [[ -d $pdir1/imgcreate ]]; then
+            return 0
+        fi
+    done
+    echo "python-imgcreate not installed"
 	return 1
-    fi
-    return 0
 }
 
 test_run() {
