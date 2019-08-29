@@ -32,6 +32,10 @@ install() {
     fi
 
     inst_multiple -o \
+        $systemdutildir/system-generators/systemd-debug-generator \
+        $systemdsystemunitdir/debug-shell.service
+
+    inst_multiple -o \
         $systemdutildir/systemd \
         $systemdutildir/systemd-coredump \
         $systemdutildir/systemd-cgroups-agent \

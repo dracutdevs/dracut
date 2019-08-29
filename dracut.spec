@@ -88,7 +88,7 @@ Recommends: hardlink
 Recommends: pigz
 Recommends: kpartx
 Requires: util-linux >= 2.21
-Requires: systemd >= 219
+Requires: systemd >= 239-23
 Requires: systemd-udev >= 219
 Requires: procps-ng
 %else
