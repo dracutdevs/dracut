@@ -1,15 +1,21 @@
 #!/bin/bash
 
+getSystemdVersion() {
+    SYSTEMD_VERSION=$($systemdutildir/systemd --version | { read a b a; echo $b; })
+    # Check if the systemd version is a valid number
+    if ! [[ $SYSTEMD_VERSION =~ ^[0-9]+$ ]]; then
+        dfatal "systemd version is not a number ($SYSTEMD_VERSION)"
+        exit 1
+    fi
+
+    echo $SYSTEMD_VERSION
+}
+
 # called by dracut
 check() {
     [[ $mount_needs ]] && return 1
     if require_binaries $systemdutildir/systemd; then
-        SYSTEMD_VERSION=$($systemdutildir/systemd --version | { read a b a; echo $b; })
-        # Check if the systemd version is a valid number
-        if ! [[ $SYSTEMD_VERSION =~ ^[0-9]+$ ]]; then
-            dfatal "systemd version is not a number ($SYSTEMD_VERSION)"
-            exit 1
-        fi
+        SYSTEMD_VERSION=$(getSystemdVersion)
         (( $SYSTEMD_VERSION >= 198 )) && return 0
        return 255
     fi
@@ -34,6 +40,12 @@ install() {
     if [[ "$prefix" == /run/* ]]; then
         dfatal "systemd does not work with a prefix, which contains \"/run\"!!"
         exit 1
+    fi
+
+    if [ $(getSystemdVersion) -ge 240 ]; then
+    inst_multiple -o \
+        $systemdutildir/system-generators/systemd-debug-generator \
+        $systemdsystemunitdir/debug-shell.service
     fi
 
     inst_multiple -o \
