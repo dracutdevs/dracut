@@ -136,7 +136,7 @@ getarg 'rd.break=cmdline' -d 'rdbreak=cmdline' && emergency_shell -n cmdline "Br
 source_hook cmdline
 
 [ -z "$root" ] && die "No or empty root= argument"
-[ -z "$rootok" ] && die "X0 Don't know how to handle 'root=$root'"
+[ -z "$rootok" ] && die "Don't know how to handle 'root=$root'"
 
 export root rflags fstype netroot NEWROOT
 

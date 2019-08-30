@@ -76,7 +76,7 @@ case "${root}${root_unset}" in
 esac
 
 [ -z "${root}${root_unset}" ] && die "Empty root= argument"
-[ -z "$rootok" ] && die "X1 Don't know how to handle 'root=$root'"
+[ -z "$rootok" ] && die "Don't know how to handle 'root=$root'"
 
 export root rflags fstype netroot NEWROOT
 
