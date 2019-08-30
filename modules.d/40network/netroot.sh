@@ -66,7 +66,7 @@ if [ -z "$2" ]; then
 
     # Check: do we really know how to handle (net)root?
     [ -z "$root" ] && die "No or empty root= argument"
-    [ -z "$rootok" ] && die "X2 Don't know how to handle 'root=$root'"
+    [ -z "$rootok" ] && die "Don't know how to handle 'root=$root'"
 
     handler=${netroot%%:*}
     handler=${handler%%4}
