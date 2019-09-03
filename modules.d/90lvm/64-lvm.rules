@@ -7,7 +7,7 @@
 SUBSYSTEM!="block", GOTO="lvm_end"
 ACTION!="add|change", GOTO="lvm_end"
 # Also don't process disks that are slated to be a multipath device
-ENV{DM_MULTIPATH_DEVICE_PATH}=="?*", GOTO="lvm_end"
+ENV{DM_MULTIPATH_DEVICE_PATH}=="1", GOTO="lvm_end"
 KERNEL=="dm-[0-9]*", ACTION=="add", GOTO="lvm_end"
 ENV{ID_FS_TYPE}!="LVM?_member", GOTO="lvm_end"
 

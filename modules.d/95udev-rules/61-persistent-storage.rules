@@ -1,7 +1,7 @@
 SUBSYSTEM!="block", GOTO="pss_end"
 ACTION!="add|change", GOTO="pss_end"
 # Also don't process disks that are slated to be a multipath device
-ENV{DM_MULTIPATH_DEVICE_PATH}=="?*", GOTO="pss_end"
+ENV{DM_MULTIPATH_DEVICE_PATH}=="1", GOTO="pss_end"
 
 ACTION=="change", KERNEL=="dm-[0-9]*", ENV{DM_UDEV_DISABLE_OTHER_RULES_FLAG}!="1", GOTO="do_pss"
 KERNEL=="cciss[0-9]*", GOTO="do_pss"
