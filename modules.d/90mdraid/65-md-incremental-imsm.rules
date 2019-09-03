@@ -9,7 +9,7 @@ KERNEL=="md*", ENV{ID_FS_TYPE}!="linux_raid_member", GOTO="md_end"
 KERNEL=="md*", ACTION!="change", GOTO="md_end"
 
 # Also don't process disks that are slated to be a multipath device
-ENV{DM_MULTIPATH_DEVICE_PATH}=="?*", GOTO="md_end"
+ENV{DM_MULTIPATH_DEVICE_PATH}=="1", GOTO="md_end"
 
 ENV{ID_FS_TYPE}=="ddf_raid_member|isw_raid_member|linux_raid_member", GOTO="md_try"
 GOTO="md_end"
