@@ -102,8 +102,8 @@ install() {
         if ! dracut_module_included "systemd"; then
             inst ${moddir}/console_init.sh /lib/udev/console_init
             inst_rules ${moddir}/10-console.rules
-            inst_hook cmdline 20 "${moddir}/parse-i18n.sh"
         fi
+        inst_hook cmdline 20 "${moddir}/parse-i18n.sh"
 
         if [[ ${kbddir} != "/usr/share" ]]; then
             inst_dir /usr/share
