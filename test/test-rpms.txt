@@ -26,3 +26,4 @@ xz
 tar
 wget
 rpm-build
+util-linux
