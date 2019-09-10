@@ -16,10 +16,18 @@ fi
 [[ $MACHINE_ID ]] || exit 1
 [[ -f $KERNEL_IMAGE ]] || exit 1
 
+KERNEL_HMAC="${KERNEL_IMAGE%/*}/.vmlinuz-${KERNEL_VERSION}.hmac"
 INITRDFILE="/boot/initramfs-0-rescue-${MACHINE_ID}.img"
 NEW_KERNEL_IMAGE="${KERNEL_IMAGE%/*}/vmlinuz-0-rescue-${MACHINE_ID}"
+NEW_KERNEL_HMAC="${KERNEL_IMAGE%/*}/.vmlinuz-0-rescue-${MACHINE_ID}.hmac"
 
-[[ -f $INITRDFILE ]] && [[ -f $NEW_KERNEL_IMAGE ]] && exit 0
+if [[ -f $INITRDFILE ]] && [[ -f $NEW_KERNEL_IMAGE ]]; then
+   if [[ -f $NEW_KERNEL_HMAC ]]; then
+      exit 0
+   elif [[ ! -f '/usr/bin/sha512hmac' ]]; then
+      exit 0
+   fi
+fi
 
 dropindirs_sort()
 {
@@ -58,11 +66,20 @@ fi
 
 if [[ ! -f $NEW_KERNEL_IMAGE ]]; then
     cp --reflink=auto "$KERNEL_IMAGE" "$NEW_KERNEL_IMAGE"
+    if [[ ! -f $NEW_KERNEL_HMAC  ]] && [[ -f $KERNEL_HMAC ]]; then
+        cp --reflink=auto "$KERNEL_HMAC" "$NEW_KERNEL_HMAC"
+    fi
     ((ret+=$?))
 fi
 
-new-kernel-pkg --install "$KERNEL_VERSION" --kernel-image "$NEW_KERNEL_IMAGE" --initrdfile "$INITRDFILE" --banner "$NAME $VERSION_ID Rescue $MACHINE_ID"
+if [[ ! -f $NEW_KERNEL_HMAC ]] && [[ -f '/usr/bin/sha512hmac' ]]; then
+    sha512hmac "$NEW_KERNEL_IMAGE" > "$NEW_KERNEL_HMAC"
+    ((ret+=$?))
+fi
 
-((ret+=$?))
+if [[ ! $(grep -r Rescue /boot/) ]]; then
+   new-kernel-pkg --install "$KERNEL_VERSION" --kernel-image "$NEW_KERNEL_IMAGE" --initrdfile "$INITRDFILE" --banner "$NAME $VERSION_ID Rescue $MACHINE_ID"
+   ((ret+=$?))
+fi
 
 exit $ret
