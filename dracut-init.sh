@@ -410,7 +410,7 @@ inst_rules() {
     inst_dir "$_target"
     for _rule in "$@"; do
         if [ "${_rule#/}" = "$_rule" ]; then
-            for r in ${udevdir}/rules.d ${hostonly:+/etc/udev/rules.d}; do
+            for r in $dracutsysrootdir${udevdir}/rules.d ${hostonly:+$dracutsysrootdir/etc/udev/rules.d}; do
                 [[ -e $r/$_rule ]] || continue
                 _found="$r/$_rule"
                 inst_rule_programs "$_found"
@@ -419,7 +419,7 @@ inst_rules() {
                 inst_simple "$_found"
             done
         fi
-        for r in '' $dracutbasedir/rules.d/; do
+        for r in '' $dracutsysrootdir$dracutbasedir/rules.d/; do
             # skip rules without an absolute path
             [[ "${r}$_rule" != /* ]] && continue
             [[ -f ${r}$_rule ]] || continue
