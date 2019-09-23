@@ -1,4 +1,5 @@
 language: generic
+dist: bionic
 sudo: required
 services:
 - docker
