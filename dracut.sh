@@ -2019,7 +2019,7 @@ command -v restorecon &>/dev/null && restorecon -- "$outfile"
 # and there's no reason to sync, and *definitely* no reason to fsfreeze.
 # Another case where this happens is rpm-ostree, which performs its own sync/fsfreeze
 # globally.  See e.g. https://github.com/ostreedev/ostree/commit/8642ef5ab3fec3ac8eb8f193054852f83a8bc4d0
-if test -d /run/systemd/system; then
+if test -d $dracutsysrootdir/run/systemd/system; then
     if ! sync "$outfile" 2> /dev/null; then
         dinfo "dracut: sync operation on newly created initramfs $outfile failed"
         exit 1
