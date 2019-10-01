@@ -1,7 +1,7 @@
 #!/bin/bash
 
 getSystemdVersion() {
-    SYSTEMD_VERSION=$($systemdutildir/systemd --version | { read a b a; echo $b; })
+    [ -z "$SYSTEMD_VERSION" ] && SYSTEMD_VERSION=$($systemdutildir/systemd --version | { read a b a; echo $b; })
     # Check if the systemd version is a valid number
     if ! [[ $SYSTEMD_VERSION =~ ^[0-9]+$ ]]; then
         dfatal "systemd version is not a number ($SYSTEMD_VERSION)"
@@ -15,7 +15,7 @@ getSystemdVersion() {
 check() {
     [[ $mount_needs ]] && return 1
     if require_binaries $systemdutildir/systemd; then
-        [ -z "$SYSTEMD_VERSION" ] && SYSTEMD_VERSION=$(getSystemdVersion)
+        SYSTEMD_VERSION=$(getSystemdVersion)
         (( $SYSTEMD_VERSION >= 198 )) && return 0
        return 255
     fi
