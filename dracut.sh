@@ -1627,7 +1627,7 @@ for ((i=0; i < ${#include_src[@]}; i++)); do
     if [[ $src && $target ]]; then
         if [[ -f $src ]]; then
             inst $src $target
-        else
+        elif [[ -d $src ]]; then
             ddebug "Including directory: $src"
             destdir="${initdir}/${target}"
             mkdir -p "$destdir"
@@ -1648,6 +1648,10 @@ for ((i=0; i < ${#include_src[@]}; i++)); do
                     $DRACUT_CP -t "$destdir" "$dracutsysrootdir$objectname"
                 fi
             done
+        elif [[ -e $src ]]; then
+            derror "$src is neither a directory nor a regular file"
+        else
+            derror "$src doesn't exist"
         fi
     fi
 done
@@ -1971,7 +1975,7 @@ if [[ $uefi = yes ]]; then
     echo -ne "\x00" >> "$uefi_outdir/cmdline.txt"
 
     dinfo "Using UEFI kernel cmdline:"
-    dinfo $(< "$uefi_outdir/cmdline.txt")
+    dinfo $(tr -d '\000' < "$uefi_outdir/cmdline.txt")
 
     [[ -s $dracutsysrootdir/usr/lib/os-release ]] && uefi_osrelease="$dracutsysrootdir/usr/lib/os-release"
     [[ -s $dracutsysrootdir/etc/os-release ]] && uefi_osrelease="$dracutsysrootdir/etc/os-release"

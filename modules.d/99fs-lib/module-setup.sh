@@ -69,7 +69,7 @@ install() {
 
     if [[ "$fscks" = "${fscks#*[^ ]*}" ]]; then
         _helpers="\
-            umount mount /sbin/fsck*
+            umount mount /sbin/fsck* /usr/sbin/fsck*
             xfs_db xfs_check xfs_repair xfs_metadump
             e2fsck jfs_fsck reiserfsck btrfsck
         "

@@ -8,6 +8,8 @@ NEWROOT=${NEWROOT:-"/sysroot"}
 
 . /lib/dracut-lib.sh
 
+mkdir -m 0700 /run/cryptsetup
+
 # if device name is /dev/dm-X, convert to /dev/mapper/name
 if [ "${1##/dev/dm-}" != "$1" ]; then
     device="/dev/mapper/$(dmsetup info -c --noheadings -o name "$1")"

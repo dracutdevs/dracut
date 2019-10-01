@@ -74,7 +74,7 @@ mount_root() {
 
     rootopts=
     if getargbool 1 rd.fstab -d -n rd_NO_FSTAB \
-        && ! getarg rootflags \
+        && ! getarg rootflags >/dev/null \
         && [ -f "$NEWROOT/etc/fstab" ] \
         && ! [ -L "$NEWROOT/etc/fstab" ]; then
         # if $NEWROOT/etc/fstab contains special mount options for
