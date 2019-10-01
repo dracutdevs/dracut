@@ -225,8 +225,8 @@ handle_netroot()
 
             CMD="iscsiadm -m node -T $target \
                      ${iscsi_iface_name:+-I $iscsi_iface_name} \
-                     -p $iscsi_target_ip${iscsi_target_port:+:$iscsi_target_port} \
-                     --op=update \
+                     -p $iscsi_target_ip${iscsi_target_port:+:$iscsi_target_port}"
+            __op="--op=update \
                      --name=node.startup --value=onboot \
                      ${iscsi_username:+   --name=node.session.auth.username    --value=$iscsi_username} \
                      ${iscsi_password:+   --name=node.session.auth.password    --value=$iscsi_password} \
@@ -234,7 +234,7 @@ handle_netroot()
                      ${iscsi_in_password:+--name=node.session.auth.password_in --value=$iscsi_in_password} \
                      $EXTRA \
                      $NULL"
-            $CMD
+            $CMD $__op
             if [ "$netif" != "timeout" ]; then
                 $CMD --login
             fi
