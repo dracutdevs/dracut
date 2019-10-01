@@ -4,7 +4,6 @@
 check() {
     [[ $mount_needs ]] && return 1
     if require_binaries $systemdutildir/systemd; then
-		# TODO try to get the sysroot systemd version
         SYSTEMD_VERSION=$($systemdutildir/systemd --version | { read a b a; echo $b; })
         # Check if the systemd version is a valid number
         if ! [[ $SYSTEMD_VERSION =~ ^[0-9]+$ ]]; then
