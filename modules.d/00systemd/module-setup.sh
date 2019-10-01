@@ -15,7 +15,7 @@ getSystemdVersion() {
 check() {
     [[ $mount_needs ]] && return 1
     if require_binaries $systemdutildir/systemd; then
-        SYSTEMD_VERSION=$(getSystemdVersion)
+        [ -z "$SYSTEMD_VERSION" ] && SYSTEMD_VERSION=$(getSystemdVersion)
         (( $SYSTEMD_VERSION >= 198 )) && return 0
        return 255
     fi
