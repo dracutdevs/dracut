@@ -174,9 +174,6 @@ convert_abs_rel() {
 # $ get_fs_env /dev/sda2
 # ext4
 get_fs_env() {
-    local evalstr
-    local found
-
     [[ $1 ]] || return
     unset ID_FS_TYPE
     ID_FS_TYPE=$(blkid -u filesystem -o export -- "$1" \
@@ -199,7 +196,7 @@ get_fs_env() {
 # $ get_maj_min /dev/sda2
 # 8:2
 get_maj_min() {
-    local _maj _min _majmin
+    local _majmin
     _majmin="$(stat -L -c '%t:%T' "$1" 2>/dev/null)"
     printf "%s" "$((0x${_majmin%:*})):$((0x${_majmin#*:}))"
 }
