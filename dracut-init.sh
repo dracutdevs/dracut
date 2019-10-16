@@ -900,24 +900,6 @@ for_each_module_dir() {
     done
 }
 
-# Do something with all the dependencies of a kernel module.
-# Note that kernel modules depend on themselves using the technique we use
-# $1 = function to call for each dependency we find
-#      It will be passed the full path to the found kernel module
-# $2 = module to get dependencies for
-# rest of args = arguments to modprobe
-# _fderr specifies FD passed from surrounding scope
-for_each_kmod_dep() {
-    local _func=$1 _kmod=$2 _cmd _modpath _options
-    shift 2
-    modprobe "$@" --ignore-install --show-depends $_kmod 2>&${_fderr} | (
-        while read _cmd _modpath _options || [ -n "$_cmd" ]; do
-            [[ $_cmd = insmod ]] || continue
-            $_func ${_modpath} || exit $?
-        done
-    )
-}
-
 dracut_kernel_post() {
     for _f in modules.builtin.bin modules.builtin modules.order; do
         [[ -e $srcmods/$_f ]] && inst_simple "$srcmods/$_f" "/lib/modules/$kernel/$_f"
