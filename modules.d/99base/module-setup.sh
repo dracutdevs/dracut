@@ -69,17 +69,19 @@ install() {
 
     local VERSION=""
     local PRETTY_NAME=""
+    # default values
+    ANSI_COLOR="0;34"
     if [ -e /etc/os-release ]; then
         . /etc/os-release
         [[ -n ${VERSION} ]] && VERSION+=" "
         [[ -n ${PRETTY_NAME} ]] && PRETTY_NAME+=" "
     fi
+    # force-override values
     NAME=dracut
     ID=dracut
     VERSION+="dracut-$DRACUT_VERSION"
     PRETTY_NAME+="dracut-$DRACUT_VERSION (Initramfs)"
     VERSION_ID=$DRACUT_VERSION
-    ANSI_COLOR="0;34"
 
     [ -e "${initdir}/usr/lib" ] || mkdir -m 0755 -p ${initdir}/usr/lib
     {
