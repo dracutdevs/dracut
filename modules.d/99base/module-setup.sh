@@ -67,31 +67,36 @@ install() {
         echo ro >> "${initdir}/etc/cmdline.d/base.conf"
     fi
 
+    [ -e "${initdir}/usr/lib" ] || mkdir -m 0755 -p ${initdir}/usr/lib
+
     local VERSION=""
     local PRETTY_NAME=""
-    # default values
-    ANSI_COLOR="0;34"
+    # Derive an os-release file from the host, if it exists
     if [ -e /etc/os-release ]; then
         . /etc/os-release
+        grep -hE -ve '^VERSION=' -ve '^PRETTY_NAME' /etc/os-release >${initdir}/usr/lib/initrd-release
         [[ -n ${VERSION} ]] && VERSION+=" "
         [[ -n ${PRETTY_NAME} ]] && PRETTY_NAME+=" "
+    else
+        # Fall back to synthesizing one, since dracut is presently used
+        # on non-systemd systems as well.
+        {
+            echo NAME=dracut
+            echo ID=dracut
+            echo VERSION_ID=\"$DRACUT_VERSION\"
+            echo ANSI_COLOR='"0;34"'
+        } >${initdir}/usr/lib/initrd-release
     fi
-    # force-override values
-    NAME=dracut
-    ID=dracut
     VERSION+="dracut-$DRACUT_VERSION"
     PRETTY_NAME+="dracut-$DRACUT_VERSION (Initramfs)"
-    VERSION_ID=$DRACUT_VERSION
-
-    [ -e "${initdir}/usr/lib" ] || mkdir -m 0755 -p ${initdir}/usr/lib
     {
-        echo NAME=\"$NAME\"
         echo VERSION=\"$VERSION\"
-        echo ID=$ID
-        echo VERSION_ID=$VERSION_ID
         echo PRETTY_NAME=\"$PRETTY_NAME\"
-        echo ANSI_COLOR=\"$ANSI_COLOR\"
-    } > $initdir/usr/lib/initrd-release
+        # This addition is relatively new, intended to allow software
+        # to easily detect the dracut version if need be without
+        # having it mixed in with the real underlying OS version.
+        echo DRACUT_VERSION=\"${DRACUT_VERSION}\"
+    } >> $initdir/usr/lib/initrd-release
     echo dracut-$DRACUT_VERSION > $initdir/lib/dracut/dracut-$DRACUT_VERSION
     ln -sf ../usr/lib/initrd-release $initdir/etc/initrd-release
     ln -sf initrd-release $initdir/usr/lib/os-release
