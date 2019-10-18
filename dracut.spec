@@ -282,7 +282,7 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 
 %files
 %if %{with doc}
-%doc README HACKING TODO AUTHORS NEWS dracut.html dracut.png dracut.svg
+%doc README.md HACKING TODO AUTHORS NEWS dracut.html dracut.png dracut.svg
 %endif
 %{!?_licensedir:%global license %%doc}
 %license COPYING lgpl-2.1.txt
