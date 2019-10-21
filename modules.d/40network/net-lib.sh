@@ -14,20 +14,20 @@ is_ip() {
 
 get_ip() {
     local iface="$1" ip=""
-    ip=$(ip -o -f inet addr show $iface)
+    ip=$(ip -f inet addr show $iface)
     ip=${ip%%/*}
     ip=${ip##* }
     echo $ip
 }
 
 iface_for_remote_addr() {
-    set -- $(ip -o route get to $1)
-    echo $5
+    set -- $(ip route get to $1 | sed  's/.*\bdev\b//p;q')
+    echo $1
 }
 
 iface_for_ip() {
-    set -- $(ip -o addr show to $1)
-    echo $2
+    set -- $(ip addr show to $1)
+    echo ${2%:}
 }
 
 iface_for_mac() {
@@ -593,7 +593,7 @@ wait_for_if_link() {
     timeout=$(($timeout*10))
 
     while [ $cnt -lt $timeout ]; do
-        li=$(ip -o link show dev $1 2>/dev/null)
+        li=$(ip link show dev $1 2>/dev/null)
         [ -n "$li" ] && return 0
         sleep 0.1
         cnt=$(($cnt+1))
@@ -609,7 +609,7 @@ wait_for_if_up() {
     timeout=$(($timeout*10))
 
     while [ $cnt -lt $timeout ]; do
-        li=$(ip -o link show up dev $1)
+        li=$(ip link show up dev $1)
         if [ -n "$li" ]; then
             case "$li" in
                 *\<UP*)
@@ -721,12 +721,12 @@ iface_has_carrier() {
 
     linkup "$1"
 
-    li=$(ip -o link show up dev $1)
+    li=$(ip link show up dev $1)
     strstr "$li" "NO-CARRIER" && _no_carrier_flag=1
 
     while [ $cnt -lt $timeout ]; do
         if [ -n "$_no_carrier_flag" ]; then
-            li=$(ip -o link show up dev $1)
+            li=$(ip link show up dev $1)
             # NO-CARRIER flag was cleared
             strstr "$li" "NO-CARRIER" || return 0
         elif ! [ -e "$interface/carrier" ]; then
@@ -747,7 +747,7 @@ iface_has_link() {
 
 iface_is_enslaved() {
     local _li
-    _li=$(ip -o link show dev $1)
+    _li=$(ip link show dev $1)
     strstr "$_li" " master " || return 1
     return 0
 }
