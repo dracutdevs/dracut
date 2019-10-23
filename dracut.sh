@@ -272,6 +272,14 @@ read_arg() {
     fi
 }
 
+check_conf_file()
+{
+    if grep -H -e '^[^#]*[+]=\("[^ ]\|.*[^ ]"\)' "$@"; then
+        printf '\ndracut: WARNING: <key>+=" <values> ": <values> should have surrounding white spaces!\n' >&2
+        printf 'dracut: WARNING: This will lead to unwanted side effects! Please fix the configuration file.\n\n' >&2
+    fi
+}
+
 dropindirs_sort()
 {
     local suffix=$1; shift
@@ -689,10 +697,14 @@ if [[ ! -d $confdir ]]; then
 fi
 
 # source our config file
-[[ -f $conffile ]] && . "$conffile"
+if [[ -f $conffile ]]; then
+    check_conf_file "$conffile"
+    . "$conffile"
+fi
 
 # source our config dir
 for f in $(dropindirs_sort ".conf" "$confdir" "$dracutbasedir/dracut.conf.d"); do
+    check_conf_file "$f"
     [[ -e $f ]] && . "$f"
 done
 
