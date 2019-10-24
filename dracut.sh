@@ -313,7 +313,7 @@ rearrange_params()
     set -- "${newat[@]}" # Set new $@
 
     TEMP=$(unset POSIXLY_CORRECT; getopt \
-        -o "a:m:o:d:I:k:c:L:fvqlHhMN" \
+        -o "a:m:o:d:I:k:c:r:L:fvqlHhMN" \
         --long kver: \
         --long add: \
         --long force-add: \
@@ -339,6 +339,7 @@ rearrange_params()
         --long conf: \
         --long confdir: \
         --long tmpdir: \
+        --long sysroot: \
         --long stdlog: \
         --long compress: \
         --long prefix: \
@@ -512,6 +513,7 @@ while :; do
         -c|--conf)     conffile="$2";                  PARMS_TO_STORE+=" '$2'"; shift;;
         --confdir)     confdir="$2";                   PARMS_TO_STORE+=" '$2'"; shift;;
         --tmpdir)      tmpdir_l="$2";                  PARMS_TO_STORE+=" '$2'"; shift;;
+        -r|--sysroot)  sysroot_l="$2";                 PARMS_TO_STORE+=" '$2'"; shift;;
         -L|--stdlog)   stdloglvl_l="$2";               PARMS_TO_STORE+=" '$2'"; shift;;
         --compress)    compress_l="$2";                PARMS_TO_STORE+=" '$2'"; shift;;
         --prefix)      prefix_l="$2";                  PARMS_TO_STORE+=" '$2'"; shift;;
@@ -617,6 +619,8 @@ while (($# > 0)); do
     fi
     shift
 done
+
+[[ $sysroot_l ]] && dracutsysrootdir="$sysroot_l"
 
 if [[ $regenerate_all == "yes" ]]; then
     ret=0
