@@ -51,6 +51,7 @@ run_client() {
         -net nic,macaddr=52:54:00:12:34:01,model=e1000 \
         -net socket,connect=127.0.0.1:12330 \
         -no-reboot \
+        -acpitable file=ibft.table \
         -append "panic=1 systemd.crash_reboot rw rd.auto rd.retry=50 console=ttyS0,115200n81 selinux=0 rd.debug=0 rd.shell=0 $DEBUGFAIL $*" \
         -initrd $TESTDIR/initramfs.testing
     if ! grep -F -m 1 -q iscsi-OK $TESTDIR/client.img; then
@@ -82,6 +83,12 @@ do_test_run() {
                "netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target1" \
                "netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target2" \
                "rd.iscsi.initiator=$initiator" \
+        || return 1
+
+    run_client "root=ibft" \
+               "root=LABEL=singleroot" \
+               "rd.iscsi.ibft=1" \
+               "rd.iscsi.firmware=1" \
         || return 1
 
     echo "All tests passed [OK]"
