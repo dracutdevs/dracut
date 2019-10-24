@@ -1033,12 +1033,12 @@ esac
 abs_outfile=$(readlink -f "$outfile") && outfile="$abs_outfile"
 
 
-[[ -d $systemdutildir ]] \
+[[ -d $dracutsysrootdir$systemdutildir ]] \
     || systemdutildir=$(pkg-config systemd --variable=systemdutildir 2>/dev/null)
 
-if ! [[ -d "$systemdutildir" ]]; then
-    [[ -e /lib/systemd/systemd-udevd ]] && systemdutildir=/lib/systemd
-    [[ -e /usr/lib/systemd/systemd-udevd ]] && systemdutildir=/usr/lib/systemd
+if ! [[ -d "$dracutsysrootdir$systemdutildir" ]]; then
+    [[ -e $dracutsysrootdir/lib/systemd/systemd-udevd ]] && systemdutildir=/lib/systemd
+    [[ -e $dracutsysrootdir/usr/lib/systemd/systemd-udevd ]] && systemdutildir=/usr/lib/systemd
 fi
 
 
