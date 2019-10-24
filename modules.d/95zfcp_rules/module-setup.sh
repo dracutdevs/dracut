@@ -38,7 +38,7 @@ cmdline() {
 
 # called by dracut
 check() {
-    local _arch=$(uname -m)
+    local _arch=${DRACUT_ARCH:-$(uname -m)}
     local _ccw
     [ "$_arch" = "s390" -o "$_arch" = "s390x" ] || return 1
     require_binaries /usr/lib/udev/collect || return 1

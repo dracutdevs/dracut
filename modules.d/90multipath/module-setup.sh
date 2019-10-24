@@ -52,7 +52,7 @@ cmdline() {
 # called by dracut
 installkernel() {
     local _ret
-    local _arch=$(uname -m)
+    local _arch=${DRACUT_ARCH:-$(uname -m)}
     local _funcs='scsi_register_device_handler|dm_dirty_log_type_register|dm_register_path_selector|dm_register_target'
     local _s390
 

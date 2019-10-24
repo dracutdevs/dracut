@@ -86,7 +86,7 @@ install() {
         [[ $_netconf ]] && printf "%s\n" "$_netconf" >> "${initdir}/etc/cmdline.d/95nfs.conf"
     fi
 
-    if [ -f /lib/modprobe.d/nfs.conf ]; then
+    if [ -f $dracutsysrootdir/lib/modprobe.d/nfs.conf ]; then
         inst_multiple /lib/modprobe.d/nfs.conf
     else
         [ -d $initdir/etc/modprobe.d/ ] || mkdir $initdir/etc/modprobe.d
@@ -95,7 +95,7 @@ install() {
 
     inst_libdir_file 'libnfsidmap_nsswitch.so*' 'libnfsidmap/*.so' 'libnfsidmap*.so*'
 
-    _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
+    _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' $dracutsysrootdir/etc/nsswitch.conf \
         |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
     _nsslibs=${_nsslibs#|}
     _nsslibs=${_nsslibs%|}
@@ -113,13 +113,13 @@ install() {
 
     # Rather than copy the passwd file in, just set a user for rpcbind
     # We'll save the state and restart the daemon from the root anyway
-    grep -E '^nfsnobody:|^rpc:|^rpcuser:' /etc/passwd >> "$initdir/etc/passwd"
-    grep -E '^nogroup:|^rpc:|^nobody:' /etc/group >> "$initdir/etc/group"
+    grep -E '^nfsnobody:|^rpc:|^rpcuser:' $dracutsysrootdir/etc/passwd >> "$initdir/etc/passwd"
+    grep -E '^nogroup:|^rpc:|^nobody:' $dracutsysrootdir/etc/group >> "$initdir/etc/group"
 
     # rpc user needs to be able to write to this directory to save the warmstart
     # file
     chmod 770 "$initdir/var/lib/rpcbind"
-    grep -q '^rpc:' /etc/passwd \
-        && grep -q '^rpc:' /etc/group
+    grep -q '^rpc:' $dracutsysrootdir/etc/passwd \
+        && grep -q '^rpc:' $dracutsysrootdir/etc/group
     dracut_need_initqueue
 }

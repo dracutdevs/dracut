@@ -43,7 +43,7 @@ installkernel() {
             virtio virtio_blk virtio_ring virtio_pci virtio_scsi \
             "=drivers/pcmcia" =ide nvme vmd nfit
 
-        if [[ "$(uname -m)" == arm* || "$(uname -m)" == aarch64 ]]; then
+        if [[ "${DRACUT_ARCH:-$(uname -m)}" == arm* || "${DRACUT_ARCH:-$(uname -m)}" == aarch64 ]]; then
             # arm/aarch64 specific modules
             _blockfuncs+='|dw_mc_probe|dw_mci_pltfm_register'
             instmods \

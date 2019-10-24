@@ -187,7 +187,7 @@ depends() {
 
 # called by dracut
 installkernel() {
-    local _arch=$(uname -m)
+    local _arch=${DRACUT_ARCH:-$(uname -m)}
     local _funcs='iscsi_register_transport'
 
     instmods bnx2i qla4xxx cxgb3i cxgb4i be2iscsi qedi
