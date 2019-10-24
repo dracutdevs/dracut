@@ -26,14 +26,14 @@ install() {
     inst_libdir_file "libsqlite3.so*"
 
     for _dir in $libdirs; do
-	[[ -d $_dir ]] || continue
-        for _lib in $_dir/libcurl.so.*; do
+	[[ -d $dracutsysrootdir$_dir ]] || continue
+        for _lib in $dracutsysrootdir$_dir/libcurl.so.*; do
 	    [[ -e $_lib ]] || continue
             [[ $_nssckbi ]] || _nssckbi=$(grep -F --binary-files=text -z libnssckbi $_lib)
             _crt=$(grep -F --binary-files=text -z .crt $_lib)
             [[ $_crt ]] || continue
             [[ $_crt == /*/* ]] || continue
-            if ! inst "$_crt"; then
+            if ! inst "${_crt#$dracutsysrootdir}"; then
                 dwarn "Couldn't install '$_crt' SSL CA cert bundle; HTTPS might not work."
                 continue
             fi
@@ -49,23 +49,23 @@ install() {
         _found=1
         inst_libdir_file "libnssckbi.so*" || _found=
         for _dir in $libdirs; do
-            [[ -e $_dir/libnssckbi.so ]] || continue
+            [[ -e $dracutsysrootdir$_dir/libnssckbi.so ]] || continue
             # this looks for directory-ish strings in the file
-            for _p11roots in $(grep -o --binary-files=text "/[[:alpha:]][[:print:]]*" $_dir/libnssckbi.so) ; do
+            for _p11roots in $(grep -o --binary-files=text "/[[:alpha:]][[:print:]]*" $dracutsysrootdir$_dir/libnssckbi.so) ; do
                 # the string can be a :-separated list of dirs
                 for _p11root in $(echo "$_p11roots" | tr ':' '\n') ; do
                     # check if it's actually a directory (there are
                     # several false positives in the results)
-                    [[ -d "$_p11root" ]] || continue
+                    [[ -d "$dracutsysrootdir$_p11root" ]] || continue
                     # check if it has some specific subdirs that all
                     # p11-kit trust dirs have
-                    [[ -d "${_p11root}/anchors" ]] || continue
-                    [[ -d "${_p11root}/blacklist" ]] || continue
+                    [[ -d "$dracutsysrootdir${_p11root}/anchors" ]] || continue
+                    [[ -d "$dracutsysrootdir${_p11root}/blacklist" ]] || continue
                     # so now we know it's really a p11-kit trust dir;
                     # install everything in it
-                    for _p11item in $(find "$_p11root") ; do
-                        if ! inst "$_p11item" ; then
-                            dwarn "Couldn't install '$_p11item' from p11-kit trust dir '$_p11root'; HTTPS might not work."
+                    for _p11item in $(find "$dracutsysrootdir$_p11root") ; do
+                        if ! inst "${_p11item#$dracutsysrootdir}" ; then
+                            dwarn "Couldn't install '${_p11item#$dracutsysrootdir}' from p11-kit trust dir '${_p11root#$dracutsysrootdir}'; HTTPS might not work."
                             continue
                         fi
                     done

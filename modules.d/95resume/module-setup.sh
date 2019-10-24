@@ -34,7 +34,7 @@ install() {
     fi
 
     # if systemd is included and has the hibernate-resume tool, use it and nothing else
-    if dracut_module_included "systemd" && [[ -x $systemdutildir/systemd-hibernate-resume ]]; then
+    if dracut_module_included "systemd" && [[ -x $dracutsysrootdir$systemdutildir/systemd-hibernate-resume ]]; then
         inst_multiple -o \
                       $systemdutildir/system-generators/systemd-hibernate-resume-generator \
                       $systemdsystemunitdir/systemd-hibernate-resume@.service \
@@ -45,9 +45,9 @@ install() {
     # Optional uswsusp support
     for _bin in /usr/sbin/resume /usr/lib/suspend/resume /usr/lib/uswsusp/resume
     do
-        [[ -x "${_bin}" ]] && {
+        [[ -x "$dracutsysrootdir${_bin}" ]] && {
             inst "${_bin}" /usr/sbin/resume
-            [[ $hostonly ]] && [[ -f /etc/suspend.conf ]] && inst -H /etc/suspend.conf
+            [[ $hostonly ]] && [[ -f $dracutsysrootdir/etc/suspend.conf ]] && inst -H /etc/suspend.conf
             break
         }
     done

@@ -13,7 +13,7 @@ install() {
 
     [ -d ${initdir}/$systemdutildir ] || mkdir -p ${initdir}/$systemdutildir
     for _i in ${systemdutildir}/systemd-udevd ${udevdir}/udevd /sbin/udevd; do
-        [ -x "$_i" ] || continue
+        [ -x "$dracutsysrootdir$_i" ] || continue
         inst "$_i"
 
         if ! [[ -f  ${initdir}${systemdutildir}/systemd-udevd ]]; then
@@ -64,7 +64,7 @@ install() {
     {
         for i in cdrom tape dialout floppy; do
             if ! grep -q "^$i:" "$initdir/etc/group" 2>/dev/null; then
-                if ! grep "^$i:" /etc/group 2>/dev/null; then
+                if ! grep "^$i:" $dracutsysrootdir/etc/group 2>/dev/null; then
                         case $i in
                             cdrom)   echo "$i:x:11:";;
                             dialout) echo "$i:x:18:";;
@@ -96,7 +96,7 @@ install() {
 
     inst_multiple -o /etc/pcmcia/config.opts
 
-    [ -f /etc/arch-release ] && \
+    [ -f $dracutsysrootdir/etc/arch-release ] && \
         inst_script "$moddir/load-modules.sh" /lib/udev/load-modules.sh
 
     inst_libdir_file "libnss_files*"

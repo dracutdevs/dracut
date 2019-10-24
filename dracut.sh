@@ -37,7 +37,7 @@ readonly dracut_cmd="$(readlink -f $0)"
 set -o pipefail
 
 usage() {
-    [[ $dracutbasedir ]] || dracutbasedir=/usr/lib/dracut
+    [[ $dracutbasedir ]] || dracutbasedir=$dracutsysrootdir/usr/lib/dracut
     if [[ -f $dracutbasedir/dracut-version.sh ]]; then
         . $dracutbasedir/dracut-version.sh
     fi
@@ -62,7 +62,7 @@ EOF
 }
 
 long_usage() {
-    [[ $dracutbasedir ]] || dracutbasedir=/usr/lib/dracut
+    [[ $dracutbasedir ]] || dracutbasedir=$dracutsysrootdir/usr/lib/dracut
     if [[ -f $dracutbasedir/dracut-version.sh ]]; then
         . $dracutbasedir/dracut-version.sh
     fi
@@ -140,6 +140,7 @@ Creates initial ramdisk images for preloading modules
                          from. Default: /etc/dracut.conf.d
   --tmpdir [DIR]        Temporary directory to be used instead of default
                          /var/tmp.
+  -r, --sysroot [DIR]   Specify sysroot directory to collect files from.
   -l, --local           Local mode. Use modules from the current working
                          directory instead of the system-wide installed in
                          /usr/lib/dracut/modules.d.
@@ -635,7 +636,7 @@ if [[ $regenerate_all == "yes" ]]; then
             unset dracut_args[$i]
     done
 
-    cd /lib/modules
+    cd $dracutsysrootdir/lib/modules
     for i in *; do
         [[ -f $i/modules.dep ]] || [[ -f $i/modules.dep.bin ]] || continue
         "$dracut_cmd" --kver="$i" "${dracut_args[@]}"
@@ -669,14 +670,14 @@ export DRACUT_LOG_LEVEL=warning
     debug=yes
 }
 
-[[ $dracutbasedir ]] || dracutbasedir=/usr/lib/dracut
+[[ $dracutbasedir ]] || dracutbasedir=$dracutsysrootdir/usr/lib/dracut
 
 # if we were not passed a config file, try the default one
 if [[ ! -f $conffile ]]; then
     if [[ $allowlocal ]]; then
         conffile="$dracutbasedir/dracut.conf"
     else
-        conffile="/etc/dracut.conf"
+        conffile="$dracutsysrootdir/etc/dracut.conf"
     fi
 fi
 
@@ -684,7 +685,7 @@ if [[ ! -d $confdir ]]; then
     if [[ $allowlocal ]]; then
         confdir="$dracutbasedir/dracut.conf.d"
     else
-        confdir="/etc/dracut.conf.d"
+        confdir="$dracutsysrootdir/etc/dracut.conf.d"
     fi
 fi
 
@@ -700,8 +701,8 @@ DRACUT_PATH=${DRACUT_PATH:-/sbin /bin /usr/sbin /usr/bin}
 
 for i in $DRACUT_PATH; do
     rl=$i
-    if [ -L "$i" ]; then
-        rl=$(readlink -f $i)
+    if [ -L "$dracutsysrootdir$i" ]; then
+        rl=$(readlink -f $dracutsysrootdir$i)
     fi
     if [[ "$NPATH" != *:$rl* ]] ; then
         NPATH+=":$rl"
@@ -748,10 +749,10 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $use_fstab_l ]] && use_fstab=$use_fstab_l
 [[ $mdadmconf_l ]] && mdadmconf=$mdadmconf_l
 [[ $lvmconf_l ]] && lvmconf=$lvmconf_l
-[[ $dracutbasedir ]] || dracutbasedir=/usr/lib/dracut
-[[ $fw_dir ]] || fw_dir="/lib/firmware/updates:/lib/firmware:/lib/firmware/$kernel"
+[[ $dracutbasedir ]] || dracutbasedir=$dracutsysrootdir/usr/lib/dracut
+[[ $fw_dir ]] || fw_dir="$dracutsysrootdir/lib/firmware/updates:$dracutsysrootdir/lib/firmware:$dracutsysrootdir/lib/firmware/$kernel"
 [[ $tmpdir_l ]] && tmpdir="$tmpdir_l"
-[[ $tmpdir ]] || tmpdir=/var/tmp
+[[ $tmpdir ]] || tmpdir=$dracutsysrootdir/var/tmp
 [[ $INITRD_COMPRESS ]] && compress=$INITRD_COMPRESS
 [[ $compress_l ]] && compress=$compress_l
 [[ $show_modules_l ]] && show_modules=$show_modules_l
@@ -768,7 +769,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 
 if ! [[ $outfile ]]; then
     if [[ $machine_id != "no" ]]; then
-        [[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
+        [[ -f $dracutsysrootdir/etc/machine-id ]] && read MACHINE_ID < $dracutsysrootdir/etc/machine-id
     fi
 
     if [[ $uefi == "yes" ]]; then
@@ -782,27 +783,34 @@ if ! [[ $outfile ]]; then
             exit 1
         fi
 
-        BUILD_ID=$(cat /etc/os-release /usr/lib/os-release \
+        BUILD_ID=$(cat $dracutsysrootdir/etc/os-release $dracutsysrootdir/usr/lib/os-release \
                        | while read -r line || [[ $line ]]; do \
                        [[ $line =~ BUILD_ID\=* ]] && eval "$line" && echo "$BUILD_ID" && break; \
                    done)
-        if [[ -d /efi ]] && mountpoint -q /efi; then
-            efidir=/efi/EFI
+        if [[ -z $dracutsysrootdir ]]; then
+            if [[ -d /efi ]] && mountpoint -q /efi; then
+                efidir=/efi/EFI
+            else
+                efidir=/boot/EFI
+                if [[ -d $dracutsysrootdir/boot/efi/EFI ]]; then
+                    efidir=/boot/efi/EFI
+                fi
+            fi
         else
             efidir=/boot/EFI
-            if [[ -d /boot/efi/EFI ]] && mountpoint -q /boot/efi; then
+            if [[ -d $dracutsysrootdir/boot/efi/EFI ]]; then
                 efidir=/boot/efi/EFI
             fi
         fi
-        mkdir -p "$efidir/Linux"
-        outfile="$efidir/Linux/linux-$kernel${MACHINE_ID:+-${MACHINE_ID}}${BUILD_ID:+-${BUILD_ID}}.efi"
+        mkdir -p "$dracutsysrootdir$efidir/Linux"
+        outfile="$dracutsysrootdir$efidir/Linux/linux-$kernel${MACHINE_ID:+-${MACHINE_ID}}${BUILD_ID:+-${BUILD_ID}}.efi"
     else
-        if [[ -e "/boot/vmlinuz-$kernel" ]]; then
+        if [[ -e "$dracutsysrootdir/boot/vmlinuz-$kernel" ]]; then
             outfile="/boot/initramfs-$kernel.img"
-        elif [[ $MACHINE_ID ]] && ( [[ -d /boot/${MACHINE_ID} ]] || [[ -L /boot/${MACHINE_ID} ]] ); then
-            outfile="/boot/${MACHINE_ID}/$kernel/initrd"
+        elif [[ $MACHINE_ID ]] && ( [[ -d $dracutsysrootdir/boot/${MACHINE_ID} ]] || [[ -L $dracutsysrootdir/boot/${MACHINE_ID} ]] ); then
+            outfile="$dracutsysrootdir/boot/${MACHINE_ID}/$kernel/initrd"
         else
-            outfile="/boot/initramfs-$kernel.img"
+            outfile="$dracutsysrootdir/boot/initramfs-$kernel.img"
         fi
     fi
 fi
@@ -822,13 +830,24 @@ if [[ -n "$logfile" ]];then
 fi
 
 # handle compression options.
-if [[ $_no_compress_l = "cat" ]]; then
-    compress="cat"
+DRACUT_COMPRESS_BZIP2=${DRACUT_COMPRESS_BZIP2:-bzip2}
+DRACUT_COMPRESS_LBZIP2=${DRACUT_COMPRESS_LBZIP2:-lbzip2}
+DRACUT_COMPRESS_LZMA=${DRACUT_COMPRESS_LZMA:-lzma}
+DRACUT_COMPRESS_XZ=${DRACUT_COMPRESS_XZ:-xz}
+DRACUT_COMPRESS_GZIP=${DRACUT_COMPRESS_GZIP:-gzip}
+DRACUT_COMPRESS_PIGZ=${DRACUT_COMPRESS_PIGZ:-pigz}
+DRACUT_COMPRESS_LZOP=${DRACUT_COMPRESS_LZOP:-lzop}
+DRACUT_COMPRESS_ZSTD=${DRACUT_COMPRESS_ZSTD:-zstd}
+DRACUT_COMPRESS_LZ4=${DRACUT_COMPRESS_LZ4:-lz4}
+DRACUT_COMPRESS_CAT=${DRACUT_COMPRESS_CAT:-cat}
+
+if [[ $_no_compress_l = "$DRACUT_COMPRESS_CAT" ]]; then
+    compress="$DRACUT_COMPRESS_CAT"
 fi
 
 if ! [[ $compress ]]; then
     # check all known compressors, if none specified
-    for i in pigz gzip lz4 lzop zstd lzma xz lbzip2 bzip2 cat; do
+    for i in $DRACUT_COMPRESS_PIGZ $DRACUT_COMPRESS_GZIP $DRACUT_COMPRESS_LZ4 $DRACUT_COMPRESS_LZOP $ $DRACUT_COMPRESS_ZSTD $DRACUT_COMPRESS_LZMA $DRACUT_COMPRESS_XZ $DRACUT_COMPRESS_LBZIP2 $OMPRESS_BZIP2 $DRACUT_COMPRESS_CAT; do
         command -v "$i" &>/dev/null || continue
         compress="$i"
         break
@@ -841,35 +860,35 @@ fi
 # choose the right arguments for the compressor
 case $compress in
     bzip2|lbzip2)
-        if [[ "$compress" =  lbzip2 ]] || command -v lbzip2 &>/dev/null; then
-            compress="lbzip2 -9"
+        if [[ "$compress" =  lbzip2 ]] || command -v $DRACUT_COMPRESS_LBZIP2 &>/dev/null; then
+            compress="$DRACUT_COMPRESS_LBZIP2 -9"
         else
-            compress="bzip2 -9"
+            compress="$DRACUT_COMPRESS_BZIP2 -9"
         fi
         ;;
     lzma)
-        compress="lzma -9 -T0"
+        compress="$DRACUT_COMPRESS_LZMA -9 -T0"
         ;;
     xz)
-        compress="xz --check=crc32 --lzma2=dict=1MiB -T0"
+        compress="$DRACUT_COMPRESS_XZ --check=crc32 --lzma2=dict=1MiB -T0"
         ;;
     gzip|pigz)
-        if [[ "$compress" = pigz ]] || command -v pigz &>/dev/null; then
-            compress="pigz -9 -n -T -R"
-        elif command -v gzip &>/dev/null && gzip --help 2>&1 | grep -q rsyncable; then
-            compress="gzip -n -9 --rsyncable"
+        if [[ "$compress" = pigz ]] || command -v $DRACUT_COMPRESS_PIGZ &>/dev/null; then
+            compress="$DRACUT_COMPRESS_PIGZ -9 -n -T -R"
+        elif command -v gzip &>/dev/null && $DRACUT_COMPRESS_GZIP --help 2>&1 | grep -q rsyncable; then
+            compress="$DRACUT_COMPRESS_GZIP -n -9 --rsyncable"
         else
-            compress="gzip -n -9"
+            compress="$DRACUT_COMPRESS_GZIP -n -9"
         fi
         ;;
     lzo|lzop)
-        compress="lzop -9"
+        compress="$DRACUT_COMPRESS_LZOP -9"
         ;;
     lz4)
-        compress="lz4 -l -9"
+        compress="$DRACUT_COMPRESS_LZ4 -l -9"
         ;;
     zstd)
-       compress="zstd -15 -q -T0"
+       compress="$DRACUT_COMPRESS_ZSTD -15 -q -T0"
        ;;
 esac
 
@@ -920,7 +939,7 @@ if [[ $early_microcode = yes ]] || ( [[ $acpi_override = yes ]] && [[ -d $acpi_t
     mkdir "$early_cpio_dir"
 fi
 
-export DRACUT_RESOLVE_LAZY="1"
+[[ -n "$dracutsysrootdir" ]] || export DRACUT_RESOLVE_LAZY="1"
 
 if [[ $print_cmdline ]]; then
     stdloglvl=0
@@ -949,8 +968,8 @@ if [[ $no_kernel != yes ]] && ! [[ -d $srcmods ]]; then
 fi
 
 if ! [[ $print_cmdline ]]; then
-    inst /bin/sh
-    if ! $DRACUT_INSTALL ${initdir:+-D "$initdir"} -R "$initdir/bin/sh" &>/dev/null; then
+    inst $DRACUT_TESTBIN
+    if ! $DRACUT_INSTALL ${initdir:+-D "$initdir"} ${dracutsysrootdir:+-r "$dracutsysrootdir"} -R "$DRACUT_TESTBIN" &>/dev/null; then
         unset DRACUT_RESOLVE_LAZY
         export DRACUT_RESOLVE_DEPS=1
     fi
@@ -1093,8 +1112,8 @@ if [[ ! $print_cmdline ]]; then
 
         if ! [[ -s $uefi_stub ]]; then
             for uefi_stub in \
-                "${systemdutildir}/boot/efi/linux${EFI_MACHINE_TYPE_NAME}.efi.stub" \
-                    "/usr/lib/gummiboot/linux${EFI_MACHINE_TYPE_NAME}.efi.stub"; do
+                $dracutsysrootdir"${systemdutildir}/boot/efi/linux${EFI_MACHINE_TYPE_NAME}.efi.stub" \
+                    "$dracutsysrootdir/usr/lib/gummiboot/linux${EFI_MACHINE_TYPE_NAME}.efi.stub"; do
                 [[ -s $uefi_stub ]] || continue
                 break
             done
@@ -1105,7 +1124,7 @@ if [[ ! $print_cmdline ]]; then
         fi
 
         if ! [[ $kernel_image ]]; then
-            for kernel_image in "/lib/modules/$kernel/vmlinuz" "/boot/vmlinuz-$kernel"; do
+            for kernel_image in "$dracutsysrootdir/lib/modules/$kernel/vmlinuz" "$dracutsysrootdir/boot/vmlinuz-$kernel"; do
                 [[ -s "$kernel_image" ]] || continue
                 break
             done
@@ -1218,7 +1237,7 @@ if [[ $hostonly ]] && [[ "$hostonly_default_device" != "no" ]]; then
         "/boot/zipl" \
         ;
     do
-        mp=$(readlink -f "$mp")
+        mp=$(readlink -f "$dracutsysrootdir$mp")
         mountpoint "$mp" >/dev/null 2>&1 || continue
         _dev=$(find_block_device "$mp")
         _bdev=$(readlink -f "/dev/block/$_dev")
@@ -1233,7 +1252,8 @@ if [[ $hostonly ]] && [[ "$hostonly_default_device" != "no" ]]; then
         fi
     done
 
-    if [[ -f /proc/swaps ]] && [[ -f /etc/fstab ]]; then
+    # TODO - with sysroot, /proc/swaps is not relevant
+    if [[ -f /proc/swaps ]] && [[ -f $dracutsysrootdir/etc/fstab ]]; then
         while read dev type rest || [ -n "$dev" ]; do
             [[ -b $dev ]] || continue
             [[ "$type" == "partition" ]] || continue
@@ -1247,7 +1267,7 @@ if [[ $hostonly ]] && [[ "$hostonly_default_device" != "no" ]]; then
                 _d=$(expand_persistent_dev "$_d")
                 [[ "$_d" -ef "$dev" ]] || continue
 
-                if [[ -f /etc/crypttab ]]; then
+                if [[ -f $dracutsysrootdir/etc/crypttab ]]; then
                     while read _mapper _a _p _o || [ -n "$_mapper" ]; do
                         [[ $_mapper = \#* ]] && continue
                         [[ "$_d" -ef /dev/mapper/"$_mapper" ]] || continue
@@ -1256,19 +1276,19 @@ if [[ $hostonly ]] && [[ "$hostonly_default_device" != "no" ]]; then
                         [[ "$_p" == /* ]] && [[ -f $_p ]] && continue 2
                         # skip mkswap swap
                         [[ $_o == *swap* ]] && continue 2
-                    done < /etc/crypttab
+                    done < $dracutsysrootdir/etc/crypttab
                 fi
 
                 _dev="$(readlink -f "$dev")"
                 push_host_devs "$_dev"
                 swap_devs+=("$_dev")
                 break
-            done < /etc/fstab
+            done < $dracutsysrootdir/etc/fstab
         done < /proc/swaps
     fi
 
     # collect all "x-initrd.mount" entries from /etc/fstab
-    if [[ -f /etc/fstab ]]; then
+    if [[ -f $dracutsysrootdir/etc/fstab ]]; then
         while read _d _m _t _o _r || [ -n "$_d" ]; do
             [[ "$_d" == \#* ]] && continue
             [[ $_d ]] || continue
@@ -1283,7 +1303,7 @@ if [[ $hostonly ]] && [[ "$hostonly_default_device" != "no" ]]; then
                     push_host_devs "$i"
                 done
             fi
-        done < /etc/fstab
+        done < $dracutsysrootdir/etc/fstab
     fi
 fi
 
@@ -1328,29 +1348,29 @@ for dev in "${!host_fs_types[@]}"; do
     fi
 done
 
-[[ -d $udevdir ]] \
+[[ -d $dracutsysrootdir$udevdir ]] \
     || udevdir="$(pkg-config udev --variable=udevdir 2>/dev/null)"
-if ! [[ -d "$udevdir" ]]; then
-    [[ -e /lib/udev/ata_id ]] && udevdir=/lib/udev
-    [[ -e /usr/lib/udev/ata_id ]] && udevdir=/usr/lib/udev
+if ! [[ -d "$dracutsysrootdir$udevdir" ]]; then
+    [[ -e $dracutsysrootdir/lib/udev/ata_id ]] && udevdir=/lib/udev
+    [[ -e $dracutsysrootdir/usr/lib/udev/ata_id ]] && udevdir=/usr/lib/udev
 fi
 
-[[ -d $systemdsystemunitdir ]] \
+[[ -d $dracutsysrootdir$systemdsystemunitdir ]] \
     || systemdsystemunitdir=$(pkg-config systemd --variable=systemdsystemunitdir 2>/dev/null)
 
-[[ -d "$systemdsystemunitdir" ]] || systemdsystemunitdir=${systemdutildir}/system
+[[ -d "$dracutsysrootdir$systemdsystemunitdir" ]] || systemdsystemunitdir=${systemdutildir}/system
 
-[[ -d $systemdsystemconfdir ]] \
+[[ -d $dracutsysrootdir$systemdsystemconfdir ]] \
     || systemdsystemconfdir=$(pkg-config systemd --variable=systemdsystemconfdir 2>/dev/null)
 
-[[ -d "$systemdsystemconfdir" ]] || systemdsystemconfdir=/etc/systemd/system
+[[ -d "$dracutsysrootdir$systemdsystemconfdir" ]] || systemdsystemconfdir=/etc/systemd/system
 
-[[ -d $tmpfilesdir ]] \
+[[ -d $dracutsysrootdir$tmpfilesdir ]] \
     || tmpfilesdir=$(pkg-config systemd --variable=tmpfilesdir 2>/dev/null)
 
-if ! [[ -d "$tmpfilesdir" ]]; then
-    [[ -d /lib/tmpfiles.d ]] && tmpfilesdir=/lib/tmpfiles.d
-    [[ -d /usr/lib/tmpfiles.d ]] && tmpfilesdir=/usr/lib/tmpfiles.d
+if ! [[ -d "$dracutsysrootdir$tmpfilesdir" ]]; then
+    [[ -d $dracutsysrootdir/lib/tmpfiles.d ]] && tmpfilesdir=/lib/tmpfiles.d
+    [[ -d $dracutsysrootdir/usr/lib/tmpfiles.d ]] && tmpfilesdir=/usr/lib/tmpfiles.d
 fi
 
 export initdir dracutbasedir \
@@ -1399,7 +1419,7 @@ fi
 # Create some directory structure first
 [[ $prefix ]] && mkdir -m 0755 -p "${initdir}${prefix}"
 
-[[ -h /lib ]] || mkdir -m 0755 -p "${initdir}${prefix}/lib"
+[[ -h $dracutsysrootdir/lib ]] || mkdir -m 0755 -p "${initdir}${prefix}/lib"
 [[ $prefix ]] && ln -sfn "${prefix#/}/lib" "$initdir/lib"
 
 if [[ $prefix ]]; then
@@ -1569,7 +1589,7 @@ if [[ $kernel_only != yes ]]; then
         cat "$f" >> "${initdir}/etc/fstab"
     done
 
-    if [[ $systemdutildir ]]; then
+    if [[ $dracutsysrootdir$systemdutildir ]]; then
         if [ -d ${initdir}/$systemdutildir ]; then
             mkdir -p ${initdir}/etc/conf.d
             {
@@ -1583,7 +1603,7 @@ if [[ $kernel_only != yes ]]; then
     if [[ $DRACUT_RESOLVE_LAZY ]] && [[ $DRACUT_INSTALL ]]; then
         dinfo "*** Resolving executable dependencies ***"
         find "$initdir" -type f -perm /0111 -not -path '*.ko' -print0 \
-        | xargs -r -0 $DRACUT_INSTALL ${initdir:+-D "$initdir"} -R ${DRACUT_FIPS_MODE:+-f} --
+        | xargs -r -0 $DRACUT_INSTALL ${initdir:+-D "$initdir"} ${dracutsysrootdir:+-r "$dracutsysrootdir"} -R ${DRACUT_FIPS_MODE:+-f} --
         dinfo "*** Resolving executable dependencies done ***"
     fi
 
@@ -1593,7 +1613,7 @@ if [[ $kernel_only != yes ]]; then
 
     # libpthread workaround: pthread_cancel wants to dlopen libgcc_s.so
     for _dir in $libdirs; do
-        for _f in "$_dir/libpthread.so"*; do
+        for _f in "$dracutsysrootdir$_dir/libpthread.so"*; do
             [[ -e "$_f" ]] || continue
             inst_libdir_file "libgcc_s.so*"
             break 2
@@ -1623,9 +1643,9 @@ for ((i=0; i < ${#include_src[@]}; i++)); do
                         mkdir -m 0755 -p "$object_destdir"
                         chmod --reference="$objectname" "$object_destdir"
                     fi
-                    $DRACUT_CP -t "$object_destdir" "$objectname"/*
+                    $DRACUT_CP -t "$object_destdir" "$dracutsysrootdir$objectname"/*
                 else
-                    $DRACUT_CP -t "$destdir" "$objectname"
+                    $DRACUT_CP -t "$destdir" "$dracutsysrootdir$objectname"
                 fi
             done
         elif [[ -e $src ]]; then
@@ -1638,10 +1658,10 @@ done
 
 if [[ $kernel_only != yes ]]; then
     # make sure that library links are correct and up to date
-    for f in /etc/ld.so.conf /etc/ld.so.conf.d/*; do
-        [[ -f $f ]] && inst_simple "$f"
+    for f in $dracutsysrootdir/etc/ld.so.conf $dracutsysrootdir/etc/ld.so.conf.d/*; do
+        [[ -f $f ]] && inst_simple "${f#$dracutsysrootdir}"
     done
-    if ! ldconfig -r "$initdir"; then
+    if ! $DRACUT_LDCONFIG -r "$initdir" -f /etc/ld.so.conf; then
         if [[ $EUID = 0 ]]; then
             derror "ldconfig exited ungracefully"
         else
@@ -1958,8 +1978,8 @@ if [[ $uefi = yes ]]; then
     dinfo "Using UEFI kernel cmdline:"
     dinfo $(tr -d '\000' < "$uefi_outdir/cmdline.txt")
 
-    [[ -s /usr/lib/os-release ]] && uefi_osrelease="/usr/lib/os-release"
-    [[ -s /etc/os-release ]] && uefi_osrelease="/etc/os-release"
+    [[ -s $dracutsysrootdir/usr/lib/os-release ]] && uefi_osrelease="$dracutsysrootdir/usr/lib/os-release"
+    [[ -s $dracutsysrootdir/etc/os-release ]] && uefi_osrelease="$dracutsysrootdir/etc/os-release"
 
     if objcopy \
            ${uefi_osrelease:+--add-section .osrel=$uefi_osrelease --change-section-vma .osrel=0x20000} \
@@ -2004,7 +2024,7 @@ command -v restorecon &>/dev/null && restorecon -- "$outfile"
 # and there's no reason to sync, and *definitely* no reason to fsfreeze.
 # Another case where this happens is rpm-ostree, which performs its own sync/fsfreeze
 # globally.  See e.g. https://github.com/ostreedev/ostree/commit/8642ef5ab3fec3ac8eb8f193054852f83a8bc4d0
-if test -d /run/systemd/system; then
+if test -d $dracutsysrootdir/run/systemd/system; then
     if ! sync "$outfile" 2> /dev/null; then
         dinfo "dracut: sync operation on newly created initramfs $outfile failed"
         exit 1
