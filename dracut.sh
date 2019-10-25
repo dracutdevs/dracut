@@ -37,6 +37,7 @@ readonly dracut_cmd="$(readlink -f $0)"
 set -o pipefail
 
 usage() {
+	[[ $sysroot_l ]] && dracutsysrootdir="$sysroot_l"
     [[ $dracutbasedir ]] || dracutbasedir=$dracutsysrootdir/usr/lib/dracut
     if [[ -f $dracutbasedir/dracut-version.sh ]]; then
         . $dracutbasedir/dracut-version.sh
