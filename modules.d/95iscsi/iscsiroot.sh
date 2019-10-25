@@ -37,8 +37,8 @@ iroot=${iroot#:}
 modprobe crc32c 2>/dev/null
 
 # start iscsiuio if needed
-if [[ -z "${DRACUT_SYSTEMD}" ]] && \
-      ( [[ -e /sys/module/bnx2i ]] || [[ -e /sys/module/qedi ]] ) && \
+if [ -z "${DRACUT_SYSTEMD}" ] && \
+      ( [ -e /sys/module/bnx2i ] || [ -e /sys/module/qedi ] ) && \
        ! [ -e /tmp/iscsiuio-started ]; then
       iscsiuio
       > /tmp/iscsiuio-started
