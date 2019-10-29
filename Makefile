@@ -92,13 +92,16 @@ endif
 
 %.xml: %.asc
 	@rm -f -- "$@"
-	asciidoc -d manpage -b docbook -o "$@" $<
+	asciidoc -a "version=$(DRACUT_MAIN_VERSION)$(GITVERSION)" -d manpage -b docbook -o "$@" $<
 
 dracut.8: dracut.usage.asc dracut.8.asc
 
 dracut.html: dracut.asc $(manpages) dracut.css dracut.usage.asc
 	@rm -f -- dracut.xml
-	asciidoc -a numbered -d book -b docbook -o dracut.xml dracut.asc
+	asciidoc -a "mainversion=$(DRACUT_MAIN_VERSION)" \
+		-a "version=$(DRACUT_MAIN_VERSION)$(GITVERSION)" \
+		-a numbered \
+		-d book -b docbook -o dracut.xml dracut.asc
 	@rm -f -- dracut.html
 	xsltproc -o dracut.html --xinclude -nonet \
 		--stringparam custom.css.source dracut.css \
