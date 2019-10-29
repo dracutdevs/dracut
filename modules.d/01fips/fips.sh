@@ -129,7 +129,7 @@ do_fips()
             fi
         fi
 
-        BOOT_IMAGE_HMAC="/boot/${BOOT_IMAGE_PATH}.${BOOT_IMAGE_NAME}.hmac"
+        BOOT_IMAGE_HMAC="/boot/${BOOT_IMAGE_PATH}/.${BOOT_IMAGE_NAME}.hmac"
         if ! [ -e "${BOOT_IMAGE_HMAC}" ]; then
             warn "${BOOT_IMAGE_HMAC} does not exist"
             return 1
