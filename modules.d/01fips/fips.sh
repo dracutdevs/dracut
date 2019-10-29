@@ -113,6 +113,10 @@ do_fips()
         do_rhevh_check /run/initramfs/live/isolinux/vmlinuz0 || return 1
     else
         BOOT_IMAGE="$(getarg BOOT_IMAGE)"
+
+        # Trim off any leading GRUB boot device (e.g. ($root) )
+        BOOT_IMAGE="$(echo "${BOOT_IMAGE}" | sed 's/^(.*)//')"
+
         BOOT_IMAGE_NAME="${BOOT_IMAGE##*/}"
         BOOT_IMAGE_PATH="${BOOT_IMAGE%${BOOT_IMAGE_NAME}}"
 
