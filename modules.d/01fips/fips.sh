@@ -118,7 +118,7 @@ do_fips()
 
         if [ -z "$BOOT_IMAGE_NAME" ]; then
             BOOT_IMAGE_NAME="vmlinuz-${KERNEL}"
-        elif ! [ -e "/boot/${BOOT_IMAGE_PATH}/${BOOT_IMAGE}" ]; then
+        elif ! [ -e "/boot/${BOOT_IMAGE_PATH}/${BOOT_IMAGE_NAME}" ]; then
             #if /boot is not a separate partition BOOT_IMAGE might start with /boot
             BOOT_IMAGE_PATH=${BOOT_IMAGE_PATH#"/boot"}
             #on some achitectures BOOT_IMAGE does not contain path to kernel
