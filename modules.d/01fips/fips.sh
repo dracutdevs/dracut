@@ -135,7 +135,7 @@ do_fips()
             return 1
         fi
 
-        sha512hmac -c "${BOOT_IMAGE_HMAC}" || return 1
+        (cd "${BOOT_IMAGE_HMAC%/*}" && sha512hmac -c "${BOOT_IMAGE_HMAC}") || return 1
     fi
 
     info "All initrd crypto checks done"
