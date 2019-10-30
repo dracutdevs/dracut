@@ -6,7 +6,7 @@ else
     /usr/sbin/NetworkManager --configure-and-quit=initrd --no-daemon
 fi
 
-for _i in /sys/class/net/*/
+for _i in /sys/class/net/*
 do
     state=/run/NetworkManager/devices/$(cat $_i/ifindex)
     grep -q connection-uuid= $state 2>/dev/null || continue
