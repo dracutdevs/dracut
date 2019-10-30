@@ -579,39 +579,6 @@ else
     }
 fi
 
-# root=nfs:[<server-ip>:]<root-dir>[:<nfs-options>]
-# root=nfs4:[<server-ip>:]<root-dir>[:<nfs-options>]
-nfsroot_to_var() {
-    # strip nfs[4]:
-    local arg="$@:"
-    nfs="${arg%%:*}"
-    arg="${arg##$nfs:}"
-
-    # check if we have a server
-    if strstr "$arg" ':/' ; then
-        server="${arg%%:/*}"
-        arg="/${arg##*:/}"
-    fi
-
-    path="${arg%%:*}"
-
-    # rest are options
-    options="${arg##$path}"
-    # strip leading ":"
-    options="${options##:}"
-    # strip  ":"
-    options="${options%%:}"
-
-    # Does it really start with '/'?
-    [ -n "${path%%/*}" ] && path="error";
-
-    #Fix kernel legacy style separating path and options with ','
-    if [ "$path" != "${path#*,}" ] ; then
-        options=${path#*,}
-        path=${path%%,*}
-    fi
-}
-
 # Create udev rule match for a device with its device name, or the udev property
 # ID_FS_UUID or ID_FS_LABEL
 #
