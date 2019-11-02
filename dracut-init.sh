@@ -465,6 +465,10 @@ prepare_udev_rules() {
         derror "Failed to detect udev version!"
         return 1
     fi
+    if [ -z "${UDEVVERSION##*[!0-9]*}" ]; then
+        derror "udevadm --version did not report an integer, udev version cannot be determined!"
+        return 1
+    fi
 
     for f in "$@"; do
         f="${initdir}/etc/udev/rules.d/$f"
