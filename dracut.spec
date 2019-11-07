@@ -117,7 +117,8 @@ Requires: %{name} = %{version}-%{release}
 %endif
 Requires: iputils
 Requires: iproute
-Requires: dhclient
+Requires: (NetworkManager >= 1.20 or dhclient)
+Suggests: NetworkManager
 Obsoletes: dracut-generic < 008
 Provides:  dracut-generic = %{version}-%{release}
 
