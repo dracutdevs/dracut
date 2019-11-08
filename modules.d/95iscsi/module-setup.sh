@@ -254,20 +254,18 @@ install() {
                       $systemdsystemunitdir/iscsiuio.socket \
                       iscsiadm iscsid
 
-        mkdir -p "${initdir}/$systemdsystemunitdir/sockets.target.wants"
         for i in \
                 iscsid.socket \
                 iscsiuio.socket \
             ; do
-            ln_r "$systemdsystemunitdir/${i}" "$systemdsystemunitdir/sockets.target.wants/${i}"
+            systemctl -q --root "$initdir" enable "$i"
         done
-
-        mkdir -p "${initdir}/$systemdsystemunitdir/basic.target.wants"
+        
         for i in \
                 iscsid.service \
                 iscsiuio.service \
             ; do
-            ln_r "$systemdsystemunitdir/${i}" "$systemdsystemunitdir/basic.target.wants/${i}"
+            systemctl -q --root "$initdir" add-wants basic.target "$i"
         done
 
         # Make sure iscsid is started after dracut-cmdline and ready for the initqueue
