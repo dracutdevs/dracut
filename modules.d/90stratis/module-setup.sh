@@ -24,8 +24,7 @@ install() {
 
     if dracut_module_included "systemd"; then
         inst_simple "${moddir}/stratisd-init.service" "${systemdsystemunitdir}/stratisd-init.service"
-        mkdir -p "${initdir}${systemdsystemunitdir}/sysinit.target.wants"
-        ln -rfs "${initdir}${systemdsystemunitdir}/stratisd-init.service" "${initdir}${systemdsystemunitdir}/sysinit.target.wants/stratisd-init.service"
+        systemctl -q --root "$initdir" enable stratisd-init.service
     else
         inst_hook cmdline 25 "$moddir/stratisd-start.sh"
         inst_hook cleanup 25 "$moddir/stratisd-stop.sh"
