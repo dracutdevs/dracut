@@ -29,6 +29,7 @@ check() {
 
     # if there's no multipath binary, no go.
     require_binaries multipath || return 1
+    require_binaries kpartx || return 1
 
     return 0
 }
