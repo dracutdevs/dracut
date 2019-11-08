@@ -61,11 +61,11 @@ install() {
 
     for i in \
         systemd-networkd-wait-online.service \
-            systemd-networkd.service \
-            systemd-networkd.socket
-#            systemd-timesyncd.service
+        systemd-networkd.service \
+        systemd-networkd.socket
+#       systemd-timesyncd.service
     do
-        systemctl --root "$initdir" enable "$i"
+        systemctl -q --root "$initdir" enable "$i"
     done
 }
 
