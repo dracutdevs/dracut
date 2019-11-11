@@ -49,6 +49,8 @@ linkup() {
      && wait_for_if_up $1 2>/dev/null
 }
 
+wait_for_if_link eth0
+
 >/dev/watchdog
 ip addr add 127.0.0.1/8 dev lo
 linkup lo

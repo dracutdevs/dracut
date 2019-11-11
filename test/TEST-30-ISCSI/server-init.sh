@@ -7,6 +7,22 @@ export PS1='nfstest-server:\w\$ '
 stty sane
 echo "made it to the rootfs!"
 echo server > /proc/sys/kernel/hostname
+
+wait_for_if_link() {
+    local cnt=0
+    local li
+    while [ $cnt -lt 600 ]; do
+        li=$(ip -o link show dev $1 2>/dev/null)
+        [ -n "$li" ] && return 0
+        sleep 0.1
+        cnt=$(($cnt+1))
+    done
+    return 1
+}
+
+wait_for_if_link eth0
+wait_for_if_link eth1
+
 ip addr add 127.0.0.1/8 dev lo
 ip link set lo up
 ip link set dev eth0 name ens3
