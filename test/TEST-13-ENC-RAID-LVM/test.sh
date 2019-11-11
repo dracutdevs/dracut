@@ -17,7 +17,7 @@ test_run() {
     $testdir/run-qemu \
 	-drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext2 \
 	-drive format=raw,index=1,media=disk,file=$TESTDIR/check-success.img \
-	-m 512M  -smp 2 -nographic \
+	-m 1024M  -smp 2 -nographic \
 	-net none \
         -no-reboot \
 	-append "panic=1 systemd.crash_reboot root=/dev/dracut/root rw rd.auto rd.retry=20 console=ttyS0,115200n81 selinux=0 rd.debug rootwait $LUKSARGS rd.shell=0 $DEBUGFAIL" \
@@ -31,7 +31,7 @@ test_run() {
     $testdir/run-qemu \
 	-drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext2 \
 	-drive format=raw,index=1,media=disk,file=$TESTDIR/check-success.img \
-	-m 512M  -smp 2 -nographic \
+	-m 1024M  -smp 2 -nographic \
 	-net none \
         -no-reboot \
 	-append "panic=1 systemd.crash_reboot root=/dev/dracut/root rw quiet rd.auto rd.retry=20 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL" \
@@ -45,7 +45,7 @@ test_run() {
     $testdir/run-qemu \
 	-drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext2 \
 	-drive format=raw,index=1,media=disk,file=$TESTDIR/check-success.img \
-	-m 512M  -smp 2 -nographic \
+	-m 1024M  -smp 2 -nographic \
 	-net none \
         -no-reboot \
 	-append "panic=1 systemd.crash_reboot root=/dev/dracut/root rw quiet rd.auto rd.retry=10 rd.info console=ttyS0,115200n81 selinux=0 rd.debug  $DEBUGFAIL rd.luks.uuid=failme" \
