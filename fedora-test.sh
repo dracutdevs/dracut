@@ -53,7 +53,7 @@ else
 
     cd test
 
-    time sudo make \
+    time sudo LOGTEE_TIMEOUT_MS=590000 make \
          KVERSION=$(rpm -qa kernel --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' | sort -rn | head -1) \
          TEST_RUN_ID=$RUN_ID \
          ${TESTS:+TESTS="$TESTS"} \
