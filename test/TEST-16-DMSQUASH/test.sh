@@ -55,7 +55,8 @@ test_setup() {
     dd if=/dev/zero of="$TESTDIR"/root.img count=100
 
     sudo $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
-	-a "debug dmsquash-live" \
+	-a "debug dmsquash-live qemu" \
+        -o "rngd" \
 	-d "piix ide-gd_mod ata_piix ext3 sd_mod" \
         --no-hostonly-cmdline -N \
 	-f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
