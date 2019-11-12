@@ -17,6 +17,9 @@ $(lsmod | grep -q '^kqemu ') && BIN=/usr/bin/qemu && ARGS="-kernel-kqemu -cpu ho
    exit 1
 }
 
+# Provide rng device sourcing the hosts /dev/urandom
+ARGS="$ARGS -device virtio-rng-pci"
+
 KVERSION=${KVERSION-$(uname -r)}
 
 VMLINUZ="/lib/modules/${KVERSION}/vmlinuz"
