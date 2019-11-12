@@ -238,7 +238,7 @@ EOF
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-	-m "dash udev-rules btrfs base rootfs-block fs-lib kernel-modules" \
+	-m "dash udev-rules btrfs base rootfs-block fs-lib kernel-modules qemu" \
 	-d "piix ide-gd_mod ata_piix btrfs sd_mod" \
         --nomdadmconf \
         --nohardlink \
@@ -270,9 +270,9 @@ EOF
     [ -e /etc/machine-info ] && EXTRA_MACHINE+=" /etc/machine-info"
 
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-	-a "debug systemd i18n" \
+	-a "debug systemd i18n qemu" \
 	${EXTRA_MACHINE:+-I "$EXTRA_MACHINE"} \
-        -o "dash network plymouth lvm mdraid resume crypt caps dm terminfo usrmount kernel-network-modules" \
+        -o "dash network plymouth lvm mdraid resume crypt caps dm terminfo usrmount kernel-network-modules rngd" \
 	-d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \
         --no-hostonly-cmdline -N \
 	-f $TESTDIR/initramfs.testing $KVERSION || return 1
