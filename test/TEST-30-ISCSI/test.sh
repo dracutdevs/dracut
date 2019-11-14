@@ -56,6 +56,12 @@ run_client() {
         -initrd $TESTDIR/initramfs.testing
     if ! grep -F -m 1 -q iscsi-OK $TESTDIR/client.img; then
 	echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
+        if [ -f "$TESTDIR/server.log" ]; then
+            echo ""
+            echo "SERVER LOG:"
+            cat "$TESTDIR/server.log"
+            echo "SERVER LOG ENDS"
+        fi
 	return 1
     fi
 
