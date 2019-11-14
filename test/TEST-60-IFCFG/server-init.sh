@@ -8,14 +8,22 @@ stty sane
 echo "made it to the rootfs!"
 echo server > /proc/sys/kernel/hostname
 
-wait_for_if_link() {
+# params: ensure_device <old> <new>
+# waits for device and renames it to <new> if needed
+ensure_device() {
     local cnt=0
     local li
     while [ $cnt -lt 600 ]; do
-        li=$(ip -o link show dev $1 2>/dev/null)
-        [ -n "$li" ] && return 0
+        local _if
+        for _if in $*; do
+           li=$(ip -o link show dev $_if 2>/dev/null)
+           [ -n "$li" ] && {
+                [[ $_if == $1 ]] && ip link set dev $1 name $2
+	            return 0
+           }
         sleep 0.1
         cnt=$(($cnt+1))
+        done
     done
     return 1
 }
@@ -49,20 +57,18 @@ linkup() {
      && wait_for_if_up $1 2>/dev/null
 }
 
-wait_for_if_link eth0
-wait_for_if_link eth1
-wait_for_if_link eth2
-wait_for_if_link eth3
+ensure_device eth0 ens3
+ensure_device eth1 ens4
+ensure_device eth2 ens5
+ensure_device eth3 ens6
 
 modprobe --all -b -q 8021q ipvlan macvlan
 >/dev/watchdog
 ip addr add 127.0.0.1/8 dev lo
 linkup lo
-ip link set dev eth0 name ens3
 ip addr add 192.168.50.1/24 dev ens3
 linkup ens3
 >/dev/watchdog
-ip link set dev eth1 name ens4
 ip link add dev ens4.1 link ens4 type vlan id 1
 ip link add dev ens4.2 link ens4 type vlan id 2
 ip link add dev ens4.3 link ens4 type vlan id 3
@@ -76,10 +82,8 @@ ip link set dev ens4.1 up
 ip link set dev ens4.2 up
 ip link set dev ens4.3 up
 ip link set dev ens4.4 up
-ip link set dev eth2 name ens5
 ip addr add 192.168.51.1/24 dev ens5
 linkup ens5
-ip link set dev eth3 name ens6
 linkup ens6
 >/dev/watchdog
 modprobe af_packet

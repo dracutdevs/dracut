@@ -8,14 +8,22 @@ stty sane
 echo "made it to the rootfs!"
 echo server > /proc/sys/kernel/hostname
 
-wait_for_if_link() {
+# params: ensure_device <old> <new>
+# waits for device and renames it to <new> if needed
+ensure_device() {
     local cnt=0
     local li
     while [ $cnt -lt 600 ]; do
-        li=$(ip -o link show dev $1 2>/dev/null)
-        [ -n "$li" ] && return 0
+        local _if
+        for _if in $*; do
+           li=$(ip -o link show dev $_if 2>/dev/null)
+           [ -n "$li" ] && {
+                [[ $_if == $1 ]] && ip link set dev $1 name $2
+	            return 0
+           }
         sleep 0.1
         cnt=$(($cnt+1))
+        done
     done
     return 1
 }
@@ -49,12 +57,11 @@ linkup() {
      && wait_for_if_up $1 2>/dev/null
 }
 
-wait_for_if_link eth0
+ensure_device eth0 ens3
 
 >/dev/watchdog
 ip addr add 127.0.0.1/8 dev lo
 linkup lo
-ip link set dev eth0 name ens3
 ip addr add 192.168.50.1/24 dev ens3
 linkup ens3
 >/dev/watchdog

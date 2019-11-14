@@ -8,27 +8,33 @@ stty sane
 echo "made it to the rootfs!"
 echo server > /proc/sys/kernel/hostname
 
-wait_for_if_link() {
+# params: ensure_device <old> <new>
+# waits for device and renames it to <new> if needed
+ensure_device() {
     local cnt=0
     local li
     while [ $cnt -lt 600 ]; do
-        li=$(ip -o link show dev $1 2>/dev/null)
-        [ -n "$li" ] && return 0
+    local _if
+        for _if in $*; do
+           li=$(ip -o link show dev $_if 2>/dev/null)
+           [ -n "$li" ] && {
+                [[ $_if == $1 ]] && ip link set dev $1 name $2
+	            return 0
+           }
         sleep 0.1
         cnt=$(($cnt+1))
+        done
     done
     return 1
 }
 
-wait_for_if_link eth0
-wait_for_if_link eth1
+ensure_device eth0 ens3
+ensure_device eth1 ens4
 
 ip addr add 127.0.0.1/8 dev lo
 ip link set lo up
-ip link set dev eth0 name ens3
 ip addr add 192.168.50.1/24 dev ens3
 ip link set ens3 up
-ip link set dev eth1 name ens4
 ip addr add 192.168.51.1/24 dev ens4
 ip link set ens4 up
 >/var/lib/dhcpd/dhcpd.leases
