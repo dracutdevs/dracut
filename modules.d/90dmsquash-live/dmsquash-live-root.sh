@@ -26,6 +26,7 @@ getargbool 0 rd.live.ram -d -y live_ram && live_ram="yes"
 getargbool 0 rd.live.overlay.reset -d -y reset_overlay && reset_overlay="yes"
 getargbool 0 rd.live.overlay.readonly -d -y readonly_overlay && readonly_overlay="--readonly" || readonly_overlay=""
 overlay=$(getarg rd.live.overlay -d overlay)
+join=$(getarg rd.live.join -d join)
 getargbool 0 rd.writable.fsimg -d -y writable_fsimg && writable_fsimg="yes"
 overlay_size=$(getarg rd.live.overlay.size=)
 [ -z "$overlay_size" ] && overlay_size=32768
@@ -286,6 +287,9 @@ fi
 if [ -e /run/initramfs/live/${live_dir}/${squash_image} ]; then
     SQUASHED="/run/initramfs/live/${live_dir}/${squash_image}"
 fi
+if [ -e /run/initramfs/live/${live_dir}/${join} ]; then
+    SQUASHED_JOIN="/run/initramfs/live/${live_dir}/${join}"
+fi
 if [ -e "$SQUASHED" ]; then
     if [ -n "$live_ram" ]; then
         echo 'Copying live image to RAM...' > /dev/kmsg
@@ -293,6 +297,13 @@ if [ -e "$SQUASHED" ]; then
         dd if=$SQUASHED of=/run/initramfs/squashed.img bs=512 2> /dev/null
         echo 'Done copying live image to RAM.' > /dev/kmsg
         SQUASHED="/run/initramfs/squashed.img"
+        if [ -n ${join} ];then
+            echo 'Copying live image to RAM...' > /dev/kmsg
+            echo ' (this may take a minute)' > /dev/kmsg
+            dd if=$SQUASHED_JOIN of=/run/initramfs/${join} bs=512 2> /dev/null
+            echo 'Done copying live image to RAM.' > /dev/kmsg
+            SQUASHED_JOIN="/run/initramfs/${join}"
+        fi
     fi
 
     SQUASHED_LOOPDEV=$( losetup -f )
@@ -300,14 +311,25 @@ if [ -e "$SQUASHED" ]; then
     mkdir -m 0755 -p /run/initramfs/squashfs
     mount -n -t squashfs -o ro $SQUASHED_LOOPDEV /run/initramfs/squashfs
 
+    if [ -n ${join} ]; then
+        SQUASHED_JOIN_LOOPDEV=$( losetup -f )
+        losetup -r $SQUASHED_JOIN_LOOPDEV $SQUASHED_JOIN
+        mkdir -m 0755 -p /run/initramfs/joinfs
+        mount -n -t squashfs -o ro $SQUASHED_LOOPDEV /run/initramfs/joinfs
+    fi
+
     if [ -d /run/initramfs/squashfs/LiveOS ]; then
         if [ -f /run/initramfs/squashfs/LiveOS/rootfs.img ]; then
             FSIMG="/run/initramfs/squashfs/LiveOS/rootfs.img"
         elif [ -f /run/initramfs/squashfs/LiveOS/ext3fs.img ]; then
             FSIMG="/run/initramfs/squashfs/LiveOS/ext3fs.img"
         fi
+        if [ -f /run/initramfs/squashfs/LiveOS/${join} ]; then
+            FSIMG_JOIN="/run/initramfs/squashfs/LiveOS/${join}"
+        fi
     elif [ -d /run/initramfs/squashfs/proc ]; then
         FSIMG=$SQUASHED
+        FSIMG_JOIN=$SQUASHED_JOIN
         if [ -z "$overlayfs" ] && [ -n "$DRACUT_SYSTEMD" ]; then
             reloadsysrootmountunit=":>/xor_overlayfs;"
         fi
@@ -323,12 +345,22 @@ else
     elif [ -e /run/initramfs/live/${live_dir}/ext3fs.img ]; then
         FSIMG="/run/initramfs/live/${live_dir}/ext3fs.img"
     fi
+    if [ -e /run/initramfs/live/${live_dir}/${join} ]; then
+        FSIMG_JOIN="/run/initramfs/live/${live_dir}/${join}"
+    fi
     if [ -n "$live_ram" ]; then
         echo 'Copying live image to RAM...' > /dev/kmsg
         echo ' (this may take a minute or so)' > /dev/kmsg
         dd if=$FSIMG of=/run/initramfs/rootfs.img bs=512 2> /dev/null
         echo 'Done copying live image to RAM.' > /dev/kmsg
         FSIMG='/run/initramfs/rootfs.img'
+        if [ -n ${join} ]; then
+            echo 'Copying live image to RAM...' > /dev/kmsg
+            echo ' (this may take a minute or so)' > /dev/kmsg
+            dd if=$FSIMG_JOIN of=/run/initramfs/${join} bs=512 2> /dev/null
+            echo 'Done copying live image to RAM.' > /dev/kmsg
+            FSIMG_JOIN="/run/initramfs/${join}"
+        fi
     fi
 fi
 
@@ -343,6 +375,15 @@ if [ -n "$FSIMG" ]; then
             unpack_archive $FSIMG /run/initramfs/fsimg/
         fi
         FSIMG=/run/initramfs/fsimg/rootfs.img
+
+        if [ -n ${join} ]; then
+            echo "Unpacking live filesystem (may take some time)" > /dev/kmsg
+            mkdir -m 0755 /run/initramfs/fsimg/
+            if [ -n "$SQUASHED_JOIN" ]; then
+                cp -v $FSIMG_JOIN /run/initramfs/fsimg/${join}
+            fi
+            FSIMG_JOIN=/run/initramfs/fsimg/${join}
+        fi
     fi
     opt=-r
        # For writable DM images...
@@ -358,12 +399,23 @@ if [ -n "$FSIMG" ]; then
     fi
     if [ "$FSIMG" = "$SQUASHED" ]; then
         BASE_LOOPDEV=$SQUASHED_LOOPDEV
+        if [ -n ${join} ]; then
+            BASE_JOIN_LOOPDEV=$SQUASHED_JOIN_LOOPDEV
+        fi
     else
         BASE_LOOPDEV=$(losetup -f --show $opt $FSIMG)
         sz=$(blockdev --getsz $BASE_LOOPDEV)
+        if [ -n ${join} ]; then
+            BASE__JOIN_LOOPDEV=$(losetup -f --show $opt $FSIMG_JOIN)
+            sz=$(blockdev --getsz $BASE_JOIN_LOOPDEV)
+        fi
     fi
+
     if [ "$setup" = rw ]; then
         echo 0 $sz linear $BASE_LOOPDEV 0 | dmsetup create live-rw
+        if [ -n ${join} ]; then
+            echo 0 $sz linear $BASE_JOIN_LOOPDEV 0 | dmsetup create live-rw
+        fi
     else
         # Add a DM snapshot or OverlayFS for writes.
         do_live_overlay
@@ -390,12 +442,26 @@ if [ -n "$overlayfs" ]; then
         info "Resetting the OverlayFS overlay directory."
         rm -r -- ${ovlfs}/* ${ovlfs}/.* >/dev/null 2>&1
     fi
+    if [ -n ${join} ]; then
+        mkdir -m 0755 /run/rootfsjoin
+    fi
     if [ -n "$readonly_overlay" ] && [ -h /run/overlayfs-r ]; then
-        ovlfs=lowerdir=/run/overlayfs-r:/run/rootfsbase
+        if [ -n ${join} ]; then
+            ovlfs=lowerdir=/run/overlayfs-r:/run/rootfsjoin:/run/rootfsbase
+        else
+            ovlfs=lowerdir=/run/overlayfs-r:/run/rootfsbase
+        fi
     else
-        ovlfs=lowerdir=/run/rootfsbase
+        if [ -n ${join} ]; then
+            ovlfs=lowerdir=/run/rootfsjoin:/run/rootfsbase
+        else
+            ovlfs=lowerdir=/run/rootfsbase
+        fi
     fi
     mount -r $FSIMG /run/rootfsbase
+    if [ -n ${join} ]; then
+        mount -r $FSIMG_JOIN /run/rootfsjoin
+    fi
     if [ -z "$DRACUT_SYSTEMD" ]; then
         printf 'mount -t overlay LiveOS_rootfs -o%s,%s %s\n' "$ROOTFLAGS" \
         "$ovlfs",upperdir=/run/overlayfs,workdir=/run/ovlwork \
