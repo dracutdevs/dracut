@@ -372,6 +372,7 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 %{dracutlibdir}/modules.d/95debug
 %{dracutlibdir}/modules.d/95fstab-sys
 %{dracutlibdir}/modules.d/95lunmask
+%{dracutlibdir}/modules.d/95nvmf
 %{dracutlibdir}/modules.d/95resume
 %{dracutlibdir}/modules.d/95rootfs-block
 %{dracutlibdir}/modules.d/95terminfo
