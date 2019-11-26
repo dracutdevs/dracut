@@ -146,7 +146,7 @@ parse_option_121() {
             temp_result="$destination via $gateway dev $interface"
         fi
 
-        echo "/sbin/ip route add $temp_result"
+        echo "/sbin/ip route replace $temp_result"
     done
 }
 
