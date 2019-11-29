@@ -228,7 +228,8 @@ install() {
         $systemdsystemunitdir/sockets.target.wants/iscsiuio.socket
 
     if [[ $hostonly ]]; then
-        inst_dir $(/usr/bin/find /etc/iscsi)
+        inst_dir /etc/iscsi
+        inst_multiple $(find /etc/iscsi -type f)
     else
         inst_simple /etc/iscsi/iscsid.conf
     fi
