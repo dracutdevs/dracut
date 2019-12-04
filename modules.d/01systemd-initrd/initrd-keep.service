@@ -1,0 +1,7 @@
+[Unit]
+Description=Hang in initrd.target
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=

@@ -416,6 +416,7 @@ rearrange_params()
         --long no-hostonly-i18n \
         --long hostonly-i18n \
         --long no-machineid \
+        --long no-switch-root \
         -- "$@")
 
     if (( $? != 0 )); then
@@ -616,6 +617,8 @@ while :; do
                        kernel_image_l="$2";            PARMS_TO_STORE+=" '$2'"; shift;;
         --no-machineid)
                        machine_id_l="no";;
+        --no-switch-root)
+                       no_switch_root_l="yes";;
         --) shift; break;;
 
         *)  # should not even reach this point
@@ -796,6 +799,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $uefi_splash_image_l ]] && uefi_splash_image="$uefi_splash_image_l"
 [[ $kernel_image_l ]] && kernel_image="$kernel_image_l"
 [[ $machine_id_l ]] && machine_id="$machine_id_l"
+[[ $no_switch_root_l ]] && no_switch_root="$no_switch_root_l"
 
 if ! [[ $outfile ]]; then
     if [[ $machine_id != "no" ]]; then

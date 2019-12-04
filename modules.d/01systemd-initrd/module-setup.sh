@@ -30,11 +30,19 @@ install() {
         $systemdsystemunitdir/initrd-fs.target \
         $systemdsystemunitdir/initrd-root-device.target \
         $systemdsystemunitdir/initrd-root-fs.target \
-        $systemdsystemunitdir/initrd-switch-root.target \
-        $systemdsystemunitdir/initrd-switch-root.service \
-        $systemdsystemunitdir/initrd-cleanup.service \
-        $systemdsystemunitdir/initrd-udevadm-cleanup-db.service \
-        $systemdsystemunitdir/initrd-parse-etc.service
+
+    # Only install switch-root related service if switch root is needed
+    if [[ ! "$no_switch_root" ]]; then
+        inst_multiple -o \
+            $systemdsystemunitdir/initrd-switch-root.target \
+            $systemdsystemunitdir/initrd-switch-root.service \
+            $systemdsystemunitdir/initrd-cleanup.service \
+            $systemdsystemunitdir/initrd-udevadm-cleanup-db.service \
+            $systemdsystemunitdir/initrd-parse-etc.service
+
+        # Install a dummy service, skip parsing real root and keep initrd.target
+        inst $moddir/initrd-keep.service $systemdsystemunitdir/initrd-parse-etc.service
+    fi
 
     systemctl -q --root "$initdir" set-default initrd.target
 }
