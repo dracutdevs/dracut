@@ -111,6 +111,9 @@ do_fips()
         do_rhevh_check /run/initramfs/live/vmlinuz0 || return 1
     elif [ -e "/run/initramfs/live/isolinux/vmlinuz0" ]; then
         do_rhevh_check /run/initramfs/live/isolinux/vmlinuz0 || return 1
+    elif [ -e "/run/install/repo/images/pxeboot/vmlinuz" ]; then
+        # This is a boot.iso with the .hmac inside the install.img
+        do_rhevh_check /run/install/repo/images/pxeboot/vmlinuz || return 1
     else
         BOOT_IMAGE="$(getarg BOOT_IMAGE)"
         BOOT_IMAGE_NAME="${BOOT_IMAGE##*/}"
