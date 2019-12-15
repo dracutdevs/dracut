@@ -244,6 +244,7 @@ install() {
     fi
 
     inst_hook cmdline 90 "$moddir/parse-iscsiroot.sh"
+    inst_hook cmdline 92 "$moddir/parse-ibft.sh"
     inst_hook cleanup 90 "$moddir/cleanup-iscsi.sh"
     inst "$moddir/iscsiroot.sh" "/sbin/iscsiroot"
     if ! dracut_module_included "systemd"; then
