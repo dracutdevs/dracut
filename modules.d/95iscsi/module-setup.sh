@@ -51,6 +51,7 @@ install_ibft() {
     #   Note: bnx2i is using a different MAC address of iSCSI offloading
     #         so the 'ip=ibft' parameter must not be set
     # - specify firmware booting cmdline parameter
+    local ibft_cmdline firmware_cmdline
 
     for d in /sys/firmware/* ; do
         if [ -d ${d}/ethernet0 ] ; then
@@ -63,11 +64,14 @@ install_ibft() {
         fi
         if [ -d ${d}/initiator ] ; then
             if [ ${d##*/} = "ibft" ] && [ "$ibft_mod" != "bnx2i" ] ; then
-                echo -n "rd.iscsi.ibft=1 "
+                ibft_cmdline="rd.iscsi.ibft=1 "
             fi
-            echo -n "rd.iscsi.firmware=1"
+            firmware_cmdline="rd.iscsi.firmware=1 "
         fi
     done
+
+    [[ -n "$ibft_cmdline" ]] && echo -n "$ibft_cmdline "
+    [[ -n "$firmware_cmdline" ]] && echo -n "$firmware_cmdline "
 }
 
 install_iscsiroot() {
