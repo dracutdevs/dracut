@@ -75,8 +75,16 @@ ret=0
 
 case "$COMMAND" in
     add)
-        [[ -f "$LOADER_ENTRY" ]] && [[ -f "$BOOT_DIR_ABS/$KERNEL" ]] \
-            && [[ -f "$BOOT_DIR_ABS/$INITRD" ]] && exit 0
+        if [[ -f "$LOADER_ENTRY" ]] ; then
+            #for the same version
+			[[ $(uname -r) == "$KERNEL_VERSION" ]] \
+				&& [[ -f "$BOOT_DIR_ABS/$KERNEL" ]] && [[ -f "$BOOT_DIR_ABS/$INITRD" ]] \
+				&& exit 0
+            #if you want to update "$BOOT_DIR_ABS/$INITRD" just remove it and run
+            #kernel-install add $(uname -r) /lib/modules/$(uname -r)/vmlinuz
+			[[ -f "$BOOT_DIR_ABS/$KERNEL" ]] && mv "$BOOT_DIR_ABS/$KERNEL" "$BOOT_DIR_ABS/$KERNEL.bkp"
+            [[ -f "$BOOT_DIR_ABS/$INITRD" ]] && mv "$BOOT_DIR_ABS/$INITRD" "$BOOT_DIR_ABS/$INITRD.bkp"
+        fi
 
         # source our config dir
         for f in $(dropindirs_sort ".conf" "/etc/dracut.conf.d" "/usr/lib/dracut/dracut.conf.d"); do
