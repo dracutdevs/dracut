@@ -765,6 +765,9 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $ro_mnt_l ]] && ro_mnt="yes"
 [[ $early_microcode_l ]] && early_microcode=$early_microcode_l
 [[ $early_microcode ]] || early_microcode=yes
+[[ $early_microcode_image_dir ]] || early_microcode_image_dir=('/boot')
+[[ $early_microcode_image_name ]] || \
+    early_microcode_image_name=('intel-uc.img' 'intel-ucode.img' 'amd-uc.img' 'amd-ucode.img' 'early_ucode.cpio' 'microcode.cpio')
 [[ $logfile_l ]] && logfile="$logfile_l"
 [[ $reproducible_l ]] && reproducible="$reproducible_l"
 [[ $loginstall_l ]] && loginstall="$loginstall_l"
@@ -1737,6 +1740,21 @@ if [[ $early_microcode = yes ]]; then
                 create_early_cpio="yes"
             fi
         done
+        if [[ ! -e "$_dest_dir/${ucode_dest[$idx]}" ]]; then
+            cd "$early_cpio_dir/d"
+            for _ucodedir in "${early_microcode_image_dir[@]}"; do
+                for _ucodename in "${early_microcode_image_name[@]}"; do
+                    [[ -e "$_ucodedir/$_ucodename" ]] && \
+                    cpio --extract --file "$_ucodedir/$_ucodename" --quiet \
+                         "kernel/x86/microcode/${ucode_dest[$idx]}"
+                    if [[ -e "$_dest_dir/${ucode_dest[$idx]}" ]]; then
+                        dinfo "*** Using microcode found in '$_ucodedir/$_ucodename' ***"
+                        create_early_cpio="yes"
+                        break 2
+                    fi
+                done
+            done
+        fi
     done
 fi
 
