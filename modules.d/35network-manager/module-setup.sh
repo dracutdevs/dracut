@@ -26,7 +26,9 @@ install() {
 
     _nm_version=$(NetworkManager --version)
 
-    inst_multiple sed grep
+    # We don't need `ip` but having it is *really* useful for people debugging
+    # in an emergency shell.
+    inst_multiple ip sed grep
 
     inst NetworkManager
     inst /usr/libexec/nm-initrd-generator
