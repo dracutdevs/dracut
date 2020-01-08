@@ -50,7 +50,7 @@ do_dhcp() {
     while [ $_COUNT -lt $_DHCPRETRY ]; do
         info "Starting dhcp for interface $netif"
         dhclient "$@" \
-                 ${_timeout:+-timeout $_timeout} \
+                 ${_timeout:+--timeout $_timeout} \
                  -q \
                  -cf /etc/dhclient.conf \
                  -pf /tmp/dhclient.$netif.pid \
