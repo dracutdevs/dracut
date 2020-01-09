@@ -52,6 +52,7 @@ do_dhcp() {
         dhclient "$@" \
                  ${_timeout:+-timeout $_timeout} \
                  -q \
+                 -1 \
                  -cf /etc/dhclient.conf \
                  -pf /tmp/dhclient.$netif.pid \
                  -lf /tmp/dhclient.$netif.lease \
