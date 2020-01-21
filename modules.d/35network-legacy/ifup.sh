@@ -62,6 +62,9 @@ do_dhcp() {
         [ $_COUNT -lt $_DHCPRETRY ] && sleep 1
     done
     warn "dhcp for interface $netif failed"
+    # nuke those files since we failed; we might retry dhcp again if it's e.g.
+    # `ip=dhcp,dhcp6` and we check for the PID file at the top
+    rm -f /tmp/dhclient.$netif.{pid,lease}
     return 1
 }
 
