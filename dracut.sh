@@ -918,6 +918,21 @@ esac
 
 [[ $reproducible == yes ]] && DRACUT_REPRODUCIBLE=1
 
+case "${drivers_dir}" in
+    ''|*lib/modules/${kernel}|*lib/modules/${kernel}/) ;;
+    *)
+        [[ "$DRACUT_KMODDIR_OVERRIDE" ]] || {
+	    printf "%s\n" "dracut: -k/--kmoddir path must contain \"lib/modules\" as a parent of your kernel module directory,"
+	    printf "%s\n" "dracut: or modules may not be placed in the correct location inside the initramfs."
+	    printf "%s\n" "dracut: was given: ${drivers_dir}"
+	    printf "%s\n" "dracut: expected: $(dirname ${drivers_dir})/lib/modules/${kernel}"
+	    printf "%s\n" "dracut: Please move your modules into the correct directory structure and pass the new location,"
+	    printf "%s\n" "dracut: or set DRACUT_KMODDIR_OVERRIDE=1 to ignore this check."
+	    exit 1
+	}
+	;;
+esac
+
 readonly TMPDIR="$(realpath -e "$tmpdir")"
 [ -d "$TMPDIR" ] || {
     printf "%s\n" "dracut: Invalid tmpdir '$tmpdir'." >&2
