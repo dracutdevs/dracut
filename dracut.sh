@@ -2075,6 +2075,40 @@ fi
 
 command -v restorecon &>/dev/null && restorecon -- "$outfile"
 
+btrfs_uuid() {
+    btrfs filesystem show "$1" | sed -n '1s/^.*uuid: //p'
+}
+
+freeze_ok_for_btrfs() {
+    local mnt uuid1 uuid2
+    # If the output file is on btrfs, we need to make sure that it's
+    # not on a subvolume of the same file system as the root FS.
+    # Otherwise, fsfreeze() might freeze the entire system.
+    # This is most conveniently checked by comparing the FS uuid.
+
+    [[ "$(stat -f -c %T -- "/")" == "btrfs" ]] || return 0
+    mnt=$(stat -c %m -- "$1")
+    uuid1=$(btrfs_uuid "$mnt")
+    uuid2=$(btrfs_uuid "/")
+    [[ "$uuid1" && "$uuid2" && "$uuid1" != "$uuid2" ]]
+}
+
+freeze_ok_for_fstype() {
+    local outfile=$1
+    local fstype
+
+    [[ "$(stat -c %m -- "$outfile")" == "/" ]] && return 1
+    fstype=$(stat -f -c %T -- "$outfile")
+    case $fstype in
+        msdos)
+            return 1;;
+        btrfs)
+            freeze_ok_for_btrfs "$outfile";;
+        *)
+            return 0;;
+    esac
+}
+
 # We sync/fsfreeze only if we're operating on a live booted system.
 # It's possible for e.g. `kernel` to be installed as an RPM BuildRequires or equivalent,
 # and there's no reason to sync, and *definitely* no reason to fsfreeze.
@@ -2087,7 +2121,7 @@ if test -d $dracutsysrootdir/run/systemd/system; then
     fi
 
     # use fsfreeze only if we're not writing to /
-    if [[ "$(stat -c %m -- "$outfile")" != "/" && "$(stat -f -c %T -- "$outfile")" != "msdos" ]]; then
+    if [[ "$(stat -c %m -- "$outfile")" != "/" ]] && freeze_ok_for_fstype "$outfile"; then
         if ! $(fsfreeze -f $(dirname "$outfile") 2>/dev/null && fsfreeze -u $(dirname "$outfile") 2>/dev/null); then
             dinfo "dracut: warning: could not fsfreeze $(dirname "$outfile")"
         fi
