@@ -28,7 +28,7 @@ installkernel() {
         hostonly='' instmods sr_mod sd_mod scsi_dh ata_piix
         instmods \
             scsi_dh_rdac scsi_dh_emc scsi_dh_alua \
-            =ide nvme vmd nfit \
+            =ide nvme vmd \
             virtio_blk
 
         dracut_instmods -o -s "${_blockfuncs}" "=drivers"
