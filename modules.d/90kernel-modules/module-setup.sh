@@ -49,6 +49,7 @@ installkernel() {
             "=drivers/tty/serial" \
             "=drivers/input/serio" \
             "=drivers/input/keyboard" \
+            "=drivers/usb/controller" \
             "=drivers/usb/storage" \
             "=drivers/pci/host" \
             ${NULL}
