@@ -717,7 +717,7 @@ iface_has_carrier() {
     interface="/sys/class/net/$interface"
     [ -d "$interface" ] || return 2
     local timeout="$(getargs rd.net.timeout.carrier=)"
-    timeout=${timeout:-5}
+    timeout=${timeout:-10}
     timeout=$(($timeout*10))
 
     linkup "$1"
