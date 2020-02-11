@@ -75,8 +75,8 @@ setup_interface() {
 
 setup_interface6() {
     domain=$new_domain_name
-    search=$(printf -- "$new_domain_search")
-    namesrv=$new_domain_name_servers
+    search=$(printf -- "$new_dhcp6_domain_search")
+    namesrv=$new_dhcp6_name_servers
     hostname=$new_host_name
     [ -n "$new_dhcp_lease_time" ] && lease_time=$new_dhcp_lease_time
     [ -n "$new_max_life" ] && lease_time=$new_max_life
