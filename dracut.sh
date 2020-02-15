@@ -236,6 +236,9 @@ Creates initial ramdisk images for preloading modules
   --uefi                Create an UEFI executable with the kernel cmdline and
                         kernel combined
   --uefi-stub [FILE]    Use the UEFI stub [FILE] to create an UEFI executable
+  --uefi-splash-image [FILE]
+                        Use [FILE] as a splash image when creating an UEFI
+                        executable
   --kernel-image [FILE] location of the kernel image
 
 If [LIST] has multiple arguments, then you have to put these in quotes.
@@ -398,6 +401,7 @@ rearrange_params()
         --long loginstall: \
         --long uefi \
         --long uefi-stub: \
+        --long uefi-splash-image: \
         --long kernel-image: \
         --long no-hostonly-i18n \
         --long hostonly-i18n \
@@ -596,6 +600,8 @@ while :; do
         --uefi)        uefi="yes";;
         --uefi-stub)
                        uefi_stub_l="$2";               PARMS_TO_STORE+=" '$2'"; shift;;
+        --uefi-splash-image)
+                       uefi_splash_image_l="$2";       PARMS_TO_STORE+=" '$2'"; shift;;
         --kernel-image)
                        kernel_image_l="$2";            PARMS_TO_STORE+=" '$2'"; shift;;
         --no-machineid)
@@ -772,6 +778,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $reproducible_l ]] && reproducible="$reproducible_l"
 [[ $loginstall_l ]] && loginstall="$loginstall_l"
 [[ $uefi_stub_l ]] && uefi_stub="$uefi_stub_l"
+[[ $uefi_splash_image_l ]] && uefi_splash_image="$uefi_splash_image_l"
 [[ $kernel_image_l ]] && kernel_image="$kernel_image_l"
 [[ $machine_id_l ]] && machine_id="$machine_id_l"
 
@@ -2018,11 +2025,14 @@ if [[ $uefi = yes ]]; then
 
     [[ -s $dracutsysrootdir/usr/lib/os-release ]] && uefi_osrelease="$dracutsysrootdir/usr/lib/os-release"
     [[ -s $dracutsysrootdir/etc/os-release ]] && uefi_osrelease="$dracutsysrootdir/etc/os-release"
+    [[ -s "${dracutsysrootdir}${uefi_splash_image}" ]] && \
+        uefi_splash_image="${dracutsysroot}${uefi_splash_image}" || unset uefi_splash_image
 
     if objcopy \
            ${uefi_osrelease:+--add-section .osrel=$uefi_osrelease --change-section-vma .osrel=0x20000} \
            --add-section .cmdline="${uefi_outdir}/cmdline.txt" --change-section-vma .cmdline=0x30000 \
-           --add-section .linux="$kernel_image" --change-section-vma .linux=0x40000 \
+           ${uefi_splash_image:+--add-section .splash="$uefi_splash_image" --change-section-vma .splash=0x40000} \
+           --add-section .linux="$kernel_image" --change-section-vma .linux=0x2000000 \
            --add-section .initrd="${DRACUT_TMPDIR}/initramfs.img" --change-section-vma .initrd=0x3000000 \
            "$uefi_stub" "${uefi_outdir}/linux.efi"; then
         if [[ -n "${uefi_secureboot_key}" && -n "${uefi_secureboot_cert}" ]]; then \
