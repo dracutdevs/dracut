@@ -154,6 +154,7 @@ install() {
         mount umount reboot poweroff \
         systemd-run systemd-escape \
         systemd-cgls systemd-tmpfiles \
+        systemd-ask-password systemd-tty-ask-password-agent \
         /etc/udev/udev.hwdb \
         ${NULL}
 
@@ -254,4 +255,3 @@ install() {
 
     systemctl -q --root "$initdir" set-default multi-user.target
 }
-
