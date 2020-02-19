@@ -453,17 +453,16 @@ for p in $(getargs ip=); do
             > /tmp/net.$(cat /sys/class/net/${netif}/address).up
         fi
 
-        case $autoconf in
-            dhcp|on|any|dhcp6)
-            ;;
-            *)
+        # and finally, finish interface set up if there isn't already a script
+        # to do so (which is the case in the dhcp path)
+        if [ ! -e $hookdir/initqueue/setup_net_$netif.sh ]; then
                 setup_net $netif
                 source_hook initqueue/online $netif
                 if [ -z "$manualup" ]; then
                     /sbin/netroot $netif
                 fi
-                ;;
-        esac
+        fi
+
         exit $ret
     fi
 done
