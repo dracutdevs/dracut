@@ -687,29 +687,41 @@ static bool check_hashmap(Hashmap *hm, const char *item)
 
 static int dracut_mkdir(const char *src) {
         _cleanup_free_ char *parent = NULL;
+        char *path;
         struct stat sb;
 
         parent = strdup(src);
         if (!parent)
                 return 1;
 
-        parent[dir_len(parent)] = '\0';
+        path = parent[0] == '/' ? parent+1 : parent;
+        while (path) {
+                path = strstr(path, "/");
+                if (path)
+                        *path = '\0';
 
-        if (stat(parent, &sb) == 0) {
-                if (!S_ISDIR(sb.st_mode)) {
-                        log_error("%s exists but is not a directory!", parent);
+                if (stat(parent, &sb) == 0) {
+                        if (!S_ISDIR(sb.st_mode)) {
+                                log_error("%s exists but is not a directory!", parent);
+                                return 1;
+                        }
+                } else if (errno != ENOENT) {
+                        log_error("ERROR: stat '%s': %s", parent, strerror(errno));
                         return 1;
+                } else {
+                        if (mkdir(parent, 0755) < 0) {
+                                log_error("ERROR: mkdir '%s': %s", parent, strerror(errno));
+                                return 1;
+                        }
                 }
 
-                return mkdir(src, 0755);
+                if (path) {
+                        *path = '/';
+                        path++;
+                }
         }
 
-        if (errno != ENOENT) {
-                log_error("ERROR: stat '%s': %m", src);
-                return 1;
-        }
-
-        return dracut_mkdir(parent);
+        return 0;
 }
 
 static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir, bool resolvedeps, bool hashdst)
