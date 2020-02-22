@@ -40,6 +40,7 @@ dnf -y install --best --allowerasing \
     /usr/bin/qemu-system-$(uname -i) \
     e2fsprogs \
     tcpdump \
+    NetworkManager \
     $NULL &>/dev/null
 
 ./configure
