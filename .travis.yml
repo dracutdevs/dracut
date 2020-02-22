@@ -5,25 +5,25 @@ services:
 - docker
 env:
   matrix:
-  - IMAGE=latest
-  - IMAGE=latest TESTS=01
-  - IMAGE=latest TESTS=12
-  - IMAGE=latest TESTS=20
-  - IMAGE=latest TESTS=50
-  - IMAGE=latest TESTS=30
-  - IMAGE=latest TESTS=31
-  - IMAGE=latest TESTS=60
-  - IMAGE=latest TESTS=70
-  - IMAGE=latest TESTS=99
-  - IMAGE=latest TESTS=02
-  - IMAGE=latest TESTS=03
-  - IMAGE=latest TESTS=04
-  - IMAGE=latest TESTS=10
-  - IMAGE=latest TESTS=11
-  - IMAGE=latest TESTS=13
-  - IMAGE=latest TESTS=14
-  - IMAGE=latest TESTS=15
-  - IMAGE=latest TESTS=17
+  - IMAGE=30
+  - IMAGE=30 TESTS=01
+  - IMAGE=30 TESTS=12
+  - IMAGE=30 TESTS=20
+  - IMAGE=30 TESTS=50
+  - IMAGE=30 TESTS=30
+  - IMAGE=30 TESTS=31
+  - IMAGE=30 TESTS=60
+  - IMAGE=30 TESTS=70
+  - IMAGE=30 TESTS=99
+  - IMAGE=30 TESTS=02
+  - IMAGE=30 TESTS=03
+  - IMAGE=30 TESTS=04
+  - IMAGE=30 TESTS=10
+  - IMAGE=30 TESTS=11
+  - IMAGE=30 TESTS=13
+  - IMAGE=30 TESTS=14
+  - IMAGE=30 TESTS=15
+  - IMAGE=30 TESTS=17
 
 before_script:
   - docker pull fedora:$IMAGE
