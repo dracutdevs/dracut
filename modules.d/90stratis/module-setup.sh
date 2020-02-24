@@ -26,7 +26,7 @@ install() {
         inst_simple "${moddir}/stratisd-init.service" "${systemdsystemunitdir}/stratisd-init.service"
         systemctl -q --root "$initdir" enable stratisd-init.service
     else
-        inst_hook cmdline 25 "$moddir/stratisd-start.sh"
+        inst_hook pre-mount 25 "$moddir/stratisd-start.sh"
         inst_hook cleanup 25 "$moddir/stratisd-stop.sh"
     fi
 }
