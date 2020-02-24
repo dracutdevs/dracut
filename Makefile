@@ -210,7 +210,7 @@ dracut-$(DRACUT_MAIN_VERSION).tar.xz: doc syncheck
 	rm -f -- dracut-$(DRACUT_MAIN_VERSION).tar
 
 rpm: dracut-$(DRACUT_MAIN_VERSION).tar.xz syncheck
-	rpmbuild=$$(mktemp -d -t rpmbuild-dracut.XXXXXX); src=$$(pwd); \
+	rpmbuild=$$(mktemp -d -p /var/tmp rpmbuild-dracut.XXXXXX); src=$$(pwd); \
 	cp dracut-$(DRACUT_MAIN_VERSION).tar.xz "$$rpmbuild"; \
 	LC_MESSAGES=C $$src/git2spec.pl $(DRACUT_MAIN_VERSION) "$$rpmbuild" < dracut.spec > $$rpmbuild/dracut.spec; \
 	(cd "$$rpmbuild"; \
