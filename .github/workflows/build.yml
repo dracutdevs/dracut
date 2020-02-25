@@ -1,0 +1,31 @@
+name: Rust
+
+on:
+  push:
+    branches:
+      - 'master'
+    tags:
+      - '*'
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container: registry.fedoraproject.org/fedora:latest
+
+    steps:
+    - name: "Checkout Repository"
+      uses: actions/checkout@v2
+
+    - name: "Print Versions"
+      run: |
+        sudo modprobe kvm-intel nested=1 || :
+        sudo modprobe kvm-amd nested=1 || :
+        dmesg | tail || :
+        git fetch --tags --unshallow
+        git describe --abbrev=0 --tags || :
+        git describe --tags || :
+
+    - name: "TEST-01"
+      run: ./fedora-test.sh "TEST-01" "01"
