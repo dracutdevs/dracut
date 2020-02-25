@@ -32,8 +32,16 @@ run_server() {
     # Cleanup the terminal if we have one
     tty -s && stty sane
 
-    echo Sleeping 10 seconds to give the server a head start
-    sleep 10
+    if ! [[ $SERIAL ]]; then
+        echo "Waiting for the server to startup"
+        while : ; do
+            grep Serving "$TESTDIR"/server.log && break
+            sleep 1
+        done
+    else
+        echo Sleeping 10 seconds to give the server a head start
+        sleep 10
+    fi
 }
 
 client_test() {

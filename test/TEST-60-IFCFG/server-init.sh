@@ -116,7 +116,7 @@ dhcpd -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases ens3 ens5
 #sh -i
 #tcpdump -i ens3
 # Wait forever for the VM to die
-echo "Serving NFS mounts"
+echo "Serving"
 while :; do
 	sleep 10
 	>/dev/watchdog

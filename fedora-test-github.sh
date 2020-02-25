@@ -18,11 +18,11 @@ else
 
     cd test
 
-    time sudo LOGTEE_TIMEOUT_MS=590000 make \
+    time LOGTEE_TIMEOUT_MS=590000 make \
          KVERSION=$(rpm -qa kernel --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' | sort -rn | head -1) \
          DRACUT_NO_XATTR=1 \
          TEST_RUN_ID=$RUN_ID \
          ${TESTS:+TESTS="$TESTS"} \
-         -k V=2 \
+         -k V=1 \
          check
 fi
