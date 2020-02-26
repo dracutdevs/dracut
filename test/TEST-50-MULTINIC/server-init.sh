@@ -13,7 +13,11 @@ wait_for_if_link() {
     local li
     while [ $cnt -lt 600 ]; do
         li=$(ip -o link show dev $1 2>/dev/null)
-        [ -n "$li" ] && return 0
+	[ -n "$li" ] && return 0
+        if [[ $2 ]]; then
+	    li=$(ip -o link show dev $2 2>/dev/null)
+	    [ -n "$li" ] && return 0
+        fi
         sleep 0.1
         cnt=$(($cnt+1))
     done
@@ -49,7 +53,7 @@ linkup() {
      && wait_for_if_up $1 2>/dev/null
 }
 
-wait_for_if_link eth0
+wait_for_if_link eth0 ens3
 
 >/dev/watchdog
 ip addr add 127.0.0.1/8 dev lo
@@ -57,6 +61,7 @@ linkup lo
 ip link set dev eth0 name ens3
 ip addr add 192.168.50.1/24 dev ens3
 linkup ens3
+
 >/dev/watchdog
 modprobe af_packet
 > /dev/watchdog

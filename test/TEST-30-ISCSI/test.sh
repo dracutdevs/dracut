@@ -38,6 +38,7 @@ run_server() {
         echo "Waiting for the server to startup"
         while : ; do
             grep Serving "$TESTDIR"/server.log && break
+            echo "Waiting for the server to startup"
             sleep 1
         done
     else

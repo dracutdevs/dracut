@@ -13,7 +13,11 @@ wait_for_if_link() {
     local li
     while [ $cnt -lt 600 ]; do
         li=$(ip -o link show dev $1 2>/dev/null)
-        [ -n "$li" ] && return 0
+	[ -n "$li" ] && return 0
+        if [[ $2 ]]; then
+	    li=$(ip -o link show dev $2 2>/dev/null)
+	    [ -n "$li" ] && return 0
+        fi
         sleep 0.1
         cnt=$(($cnt+1))
     done
@@ -49,10 +53,10 @@ linkup() {
      && wait_for_if_up $1 2>/dev/null
 }
 
-wait_for_if_link eth0
-wait_for_if_link eth1
-wait_for_if_link eth2
-wait_for_if_link eth3
+wait_for_if_link eth0 ens3
+wait_for_if_link eth1 ens4
+wait_for_if_link eth2 ens5
+wait_for_if_link eth3 ens6
 
 modprobe --all -b -q 8021q ipvlan macvlan
 >/dev/watchdog

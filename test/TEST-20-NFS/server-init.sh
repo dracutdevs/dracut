@@ -14,6 +14,22 @@ wait_for_if_link() {
     local li
     while [ $cnt -lt 600 ]; do
         li=$(ip -o link show dev $1 2>/dev/null)
+	[ -n "$li" ] && return 0
+        if [[ $2 ]]; then
+	    li=$(ip -o link show dev $2 2>/dev/null)
+	    [ -n "$li" ] && return 0
+        fi
+        sleep 0.1
+        cnt=$(($cnt+1))
+    done
+    return 1
+}
+
+wait_for_if_up() {
+    local cnt=0
+    local li
+    while [ $cnt -lt 200 ]; do
+        li=$(ip -o link show up dev $1)
         [ -n "$li" ] && return 0
         sleep 0.1
         cnt=$(($cnt+1))
@@ -21,7 +37,24 @@ wait_for_if_link() {
     return 1
 }
 
-wait_for_if_link eth0
+wait_for_route_ok() {
+    local cnt=0
+    while [ $cnt -lt 200 ]; do
+        li=$(ip route show)
+        [ -n "$li" ] && [ -z "${li##*$1*}" ] && return 0
+        sleep 0.1
+        cnt=$(($cnt+1))
+    done
+    return 1
+}
+
+linkup() {
+    wait_for_if_link $1 2>/dev/null\
+     && ip link set $1 up 2>/dev/null\
+     && wait_for_if_up $1 2>/dev/null
+}
+
+wait_for_if_link eth0 ens3
 
 ip addr add 127.0.0.1/8 dev lo
 ip link set lo up
@@ -29,7 +62,8 @@ ip link set dev eth0 name ens3
 ip addr add 192.168.50.1/24 dev ens3
 ip addr add 192.168.50.2/24 dev ens3
 ip addr add 192.168.50.3/24 dev ens3
-ip link set ens3 up
+linkup ens3
+
 echo > /dev/watchdog
 modprobe af_packet
 echo > /dev/watchdog
