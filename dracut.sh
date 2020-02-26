@@ -945,6 +945,12 @@ readonly TMPDIR="$(realpath -e "$tmpdir")"
     printf "%s\n" "dracut: Invalid tmpdir '$tmpdir'." >&2
     exit 1
 }
+
+if findmnt --raw -n --target "$tmpdir" --output=options | grep -q noexec; then
+    [[ $debug == yes ]] && printf "%s\n" "dracut: Tmpdir '$tmpdir' is mounted with 'noexec'."
+    noexec=1
+fi
+
 readonly DRACUT_TMPDIR="$(mktemp -p "$TMPDIR/" -d -t dracut.XXXXXX)"
 [ -d "$DRACUT_TMPDIR" ] || {
     printf "%s\n" "dracut: mktemp -p '$TMPDIR/' -d -t dracut.XXXXXX failed." >&2
@@ -969,7 +975,7 @@ if [[ $early_microcode = yes ]] || ( [[ $acpi_override = yes ]] && [[ -d $acpi_t
     mkdir "$early_cpio_dir"
 fi
 
-[[ -n "$dracutsysrootdir" ]] || export DRACUT_RESOLVE_LAZY="1"
+[[ -n "$dracutsysrootdir" || "$noexec" ]] || export DRACUT_RESOLVE_LAZY="1"
 
 if [[ $print_cmdline ]]; then
     stdloglvl=0
