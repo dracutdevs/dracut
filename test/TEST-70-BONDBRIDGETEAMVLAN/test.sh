@@ -144,8 +144,8 @@ test_run() {
 
 test_client() {
     client_test "Multiple VLAN" \
-        "yes" \
-        "
+                "yes" \
+                "
 vlan=vlan0001:ens5
 vlan=vlan2:ens5
 vlan=ens5.3:ens5
@@ -158,12 +158,12 @@ ip=192.168.57.104::192.168.57.1:24:test:ens5.0004:none
 rd.neednet=1
 root=nfs:192.168.50.1:/nfs/client bootdev=ens3
 " \
-    'ens3 inet 192\.168\.50\.[0-9]*/24 brd 192\.168\.50\.255 ens5\.0004 inet 192\.168\.57\.104/24 brd 192\.168\.57\.255 ens5\.3 inet 192\.168\.56\.103/24 brd 192\.168\.56\.255 vlan0001 inet 192\.168\.54\.101/24 brd 192\.168\.54\.255 vlan2 inet 192\.168\.55\.102/24 brd 192\.168\.55\.255 EOF ' \
-    || return 1
+                'ens3 inet 192\.168\.50\.[0-9]*/24 brd 192\.168\.50\.255 ens5\.0004 inet 192\.168\.57\.104/24 brd 192\.168\.57\.255 ens5\.3 inet 192\.168\.56\.103/24 brd 192\.168\.56\.255 vlan0001 inet 192\.168\.54\.101/24 brd 192\.168\.54\.255 vlan2 inet 192\.168\.55\.102/24 brd 192\.168\.55\.255 EOF ' \
+        || return 1
 
     client_test "Multiple Bonds" \
-        "yes" \
-        "
+                "yes" \
+                "
 bond=bond0:ens4,ens5
 bond=bond1:ens6,ens7
 ip=bond0:dhcp
@@ -171,12 +171,12 @@ ip=bond1:dhcp
 rd.neednet=1
 root=nfs:192.168.50.1:/nfs/client bootdev=bond0
 " \
-    'bond0 inet 192\.168\.50\.[0-9]*/24 brd 192\.168\.50\.255 bond1 inet 192\.168\.51\.[0-9]*/24 brd 192\.168\.51\.255 EOF ' \
-    || return 1
+                'bond0 inet 192\.168\.50\.[0-9]*/24 brd 192\.168\.50\.255 bond1 inet 192\.168\.51\.[0-9]*/24 brd 192\.168\.51\.255 EOF ' \
+        || return 1
 
     client_test "Multiple Bridges" \
-        "no" \
-        "
+                "no" \
+                "
 bridge=br0:ens4,ens5
 bridge=br1:ens6,ens7
 ip=br0:dhcp
@@ -184,15 +184,15 @@ ip=br1:dhcp
 rd.neednet=1
 root=nfs:192.168.50.1:/nfs/client bootdev=br0
 " \
-    'br0 inet 192\.168\.50\.[0-9]*/24 brd 192\.168\.50\.255 br1 inet 192\.168\.51\.[0-9]*/24 brd 192\.168\.51\.255 EOF ' \
-    || return 1
+                'br0 inet 192\.168\.50\.[0-9]*/24 brd 192\.168\.50\.255 br1 inet 192\.168\.51\.[0-9]*/24 brd 192\.168\.51\.255 EOF ' \
+        || return 1
 
     kill_server
     return 0
 }
 
 test_setup() {
-     # Make server root
+    # Make server root
     dd if=/dev/null of="$TESTDIR"/server.ext3 bs=1M seek=120
     mke2fs -j -F -- "$TESTDIR"/server.ext3
     mkdir -- "$TESTDIR"/mnt
@@ -221,9 +221,9 @@ test_setup() {
         done
 
         inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
-            dmesg mkdir cp ping exportfs \
-            modprobe rpc.nfsd rpc.mountd showmount tcpdump \
-            /etc/services sleep mount chmod
+                      dmesg mkdir cp ping exportfs \
+                      modprobe rpc.nfsd rpc.mountd showmount tcpdump \
+                      /etc/services sleep mount chmod
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f "${_terminfodir}"/l/linux ] && break
         done
@@ -248,7 +248,7 @@ test_setup() {
         inst_libdir_file 'libnfsidmap*.so*'
 
         _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
-            |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
+                       |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
         _nsslibs=${_nsslibs#|}
         _nsslibs=${_nsslibs%|}
 
@@ -268,7 +268,7 @@ test_setup() {
         export initdir="$TESTDIR"/mnt/nfs/client
         . "$basedir"/dracut-init.sh
         inst_multiple sh shutdown poweroff stty cat ps ln ip \
-            mount dmesg mkdir cp ping grep ls sort sed
+                      mount dmesg mkdir cp ping grep ls sort sed
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [[ -f ${_terminfodir}/l/linux ]] && break
         done
@@ -290,7 +290,7 @@ test_setup() {
         inst_libdir_file 'libnfsidmap*.so*'
 
         _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' -- /etc/nsswitch.conf \
-            |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
+                       |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
         _nsslibs=${_nsslibs#|}
         _nsslibs=${_nsslibs%|}
 
@@ -315,20 +315,20 @@ test_setup() {
 
     # Make server's dracut image
     $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
-        --no-early-microcode \
-        -m "udev-rules base rootfs-block fs-lib debug kernel-modules watchdog qemu" \
-        -d "ipvlan macvlan af_packet piix ide-gd_mod ata_piix ext3 sd_mod nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files nfsd e1000 i6300esb ib700wdt" \
-        --no-hostonly-cmdline -N \
-        -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
+                       --no-early-microcode \
+                       -m "udev-rules base rootfs-block fs-lib debug kernel-modules watchdog qemu" \
+                       -d "ipvlan macvlan af_packet piix ide-gd_mod ata_piix ext3 sd_mod nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files nfsd e1000 i6300esb ib700wdt" \
+                       --no-hostonly-cmdline -N \
+                       -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
 
     # Make client's dracut image
     $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
-        --no-early-microcode \
-        -o "plymouth" \
-        -a "debug" \
-        -d "ipvlan macvlan af_packet piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files sunrpc i6300esb ib700wdt" \
-        --no-hostonly-cmdline -N \
-        -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
+                       --no-early-microcode \
+                       -o "plymouth" \
+                       -a "debug" \
+                       -d "ipvlan macvlan af_packet piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files sunrpc i6300esb ib700wdt" \
+                       --no-hostonly-cmdline -N \
+                       -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 }
 
 kill_server() {

@@ -37,8 +37,8 @@ test_setup() {
             mkdir -p -- var/lib/nfs/rpc_pipefs
         )
         inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
-            mount dmesg dhclient mkdir cp ping dhclient \
-            umount strace less setsid systemd-analyze
+                      mount dmesg dhclient mkdir cp ping dhclient \
+                      umount strace less setsid systemd-analyze
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
@@ -67,11 +67,11 @@ test_setup() {
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-        -m "dash udev-rules base rootfs-block fs-lib kernel-modules qemu" \
-        -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
-        --nomdadmconf \
-        --no-hostonly-cmdline -N \
-        -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
+                       -m "dash udev-rules base rootfs-block fs-lib kernel-modules qemu" \
+                       -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
+                       --nomdadmconf \
+                       --no-hostonly-cmdline -N \
+                       -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
     rm -rf -- $TESTDIR/overlay
     # Invoke KVM and/or QEMU to actually create the target filesystem.
 
@@ -93,13 +93,13 @@ test_setup() {
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
     sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-        -a "debug systemd" \
-        -o "network kernel-network-modules" \
-        -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
-        --no-hostonly-cmdline -N \
-        -f $TESTDIR/initramfs.testing $KVERSION || return 1
+         -a "debug systemd" \
+         -o "network kernel-network-modules" \
+         -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
+         --no-hostonly-cmdline -N \
+         -f $TESTDIR/initramfs.testing $KVERSION || return 1
 
-#       -o "plymouth network md dmraid multipath fips caps crypt btrfs resume dmsquash-live dm"
+    #       -o "plymouth network md dmraid multipath fips caps crypt btrfs resume dmsquash-live dm"
 }
 
 test_cleanup() {

@@ -211,11 +211,11 @@ make_encrypted_root() {
         mkdir -p "$initdir"
         (
             cd "$initdir"
-	    mkdir -p dev sys proc etc var tmp run root usr/bin usr/lib usr/lib64 usr/sbin
+            mkdir -p dev sys proc etc var tmp run root usr/bin usr/lib usr/lib64 usr/sbin
             for i in bin sbin lib lib64; do
                 ln -sfnr usr/$i $i
             done
-	    ln -s ../run var/run
+            ln -s ../run var/run
         )
         inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
                       mount dmesg mkdir cp ping
@@ -236,11 +236,11 @@ make_encrypted_root() {
         . $basedir/dracut-init.sh
         (
             cd "$initdir"
-	    mkdir -p dev sys proc etc tmp var run root usr/bin usr/lib usr/lib64 usr/sbin
+            mkdir -p dev sys proc etc tmp var run root usr/bin usr/lib usr/lib64 usr/sbin
             for i in bin sbin lib lib64; do
                 ln -sfnr usr/$i $i
             done
-	    ln -s ../run var/run
+            ln -s ../run var/run
         )
         inst_multiple mke2fs poweroff cp umount tune2fs
         inst_hook shutdown-emergency 000 ./hard-off.sh
@@ -285,11 +285,11 @@ make_client_root() {
         mkdir -p "$initdir"
         (
             cd "$initdir"
-	    mkdir -p dev sys proc etc var tmp run root usr/bin usr/lib usr/lib64 usr/sbin
+            mkdir -p dev sys proc etc var tmp run root usr/bin usr/lib usr/lib64 usr/sbin
             for i in bin sbin lib lib64; do
                 ln -sfnr usr/$i $i
             done
-	    ln -s ../run var/run
+            ln -s ../run var/run
         )
         inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
                       dmesg mkdir cp ping
@@ -328,7 +328,7 @@ make_server_root() {
         (
             cd "$initdir";
             mkdir -p run dev sys proc etc var var/lib/dhcpd tmp etc/nbd-server
-	    ln -s ../run var/run
+            ln -s ../run var/run
         )
         cat > "$initdir/etc/nbd-server/config" <<EOF
 [generic]
