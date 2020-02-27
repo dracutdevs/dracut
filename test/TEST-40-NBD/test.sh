@@ -288,7 +288,10 @@ make_client_root() {
     dd if=/dev/null of=$TESTDIR/nbd.ext2 bs=1M seek=120
     mke2fs -F -j $TESTDIR/nbd.ext2
     mkdir $TESTDIR/mnt
-    mount -o loop $TESTDIR/nbd.ext2 $TESTDIR/mnt
+    if ! mount -o loop $TESTDIR/nbd.ext2 $TESTDIR/mnt; then
+        echo "Cannot mount loop"
+        return 1
+    fi
 
     kernel=$KVERSION
     (
