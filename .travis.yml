@@ -26,7 +26,7 @@ env:
   - IMAGE=latest TESTS=17
 
 before_script:
-  - docker pull fedora:$IMAGE
+  - docker pull quay.io/haraldh/dracut-fedora:$IMAGE
   - |
     sudo modprobe kvm-intel nested=1 || :
     sudo modprobe kvm-amd nested=1 || :
