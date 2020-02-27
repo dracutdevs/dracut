@@ -39,7 +39,7 @@ run_server() {
         -no-reboot \
         -append "panic=1 systemd.crash_reboot root=/dev/sda rootfstype=ext2 rw quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.server -pidfile $TESTDIR/server.pid -daemonize || return 1
-    sudo chmod 644 $TESTDIR/server.pid || return 1
+    chmod 644 $TESTDIR/server.pid || return 1
 
     # Cleanup the terminal if we have one
     tty -s && stty sane
@@ -204,7 +204,7 @@ client_run() {
 #                "root=LABEL=dracut rd.luks.uuid=$ID_FS_UUID rd.lv.vg=dracut netroot=dhcp" || return 1
 
     if [[ -s server.pid ]]; then
-        sudo kill -TERM $(cat $TESTDIR/server.pid)
+        kill -TERM $(cat $TESTDIR/server.pid)
         rm -f -- $TESTDIR/server.pid
     fi
 
@@ -239,7 +239,7 @@ make_encrypted_root() {
         inst_simple /etc/os-release
         find_binary plymouth >/dev/null && inst_multiple plymouth
         cp -a /etc/ld.so.conf* $initdir/etc
-        sudo ldconfig -r "$initdir"
+        ldconfig -r "$initdir"
     )
 
     # second, install the files needed to make the root filesystem
@@ -288,7 +288,7 @@ make_client_root() {
     dd if=/dev/null of=$TESTDIR/nbd.ext2 bs=1M seek=120
     mke2fs -F -j $TESTDIR/nbd.ext2
     mkdir $TESTDIR/mnt
-    sudo mount -o loop $TESTDIR/nbd.ext2 $TESTDIR/mnt
+    mount -o loop $TESTDIR/nbd.ext2 $TESTDIR/mnt
 
     kernel=$KVERSION
     (
@@ -319,10 +319,10 @@ make_client_root() {
             inst $i
         done
         cp -a /etc/ld.so.conf* $initdir/etc
-        sudo ldconfig -r "$initdir"
+        ldconfig -r "$initdir"
     )
 
-    sudo umount $TESTDIR/mnt
+    umount $TESTDIR/mnt
     rm -fr -- $TESTDIR/mnt
 }
 
@@ -330,7 +330,7 @@ make_server_root() {
     dd if=/dev/null of=$TESTDIR/server.ext2 bs=1M seek=120
     mke2fs -F $TESTDIR/server.ext2
     mkdir $TESTDIR/mnt
-    sudo mount -o loop $TESTDIR/server.ext2 $TESTDIR/mnt
+    mount -o loop $TESTDIR/server.ext2 $TESTDIR/mnt
 
     kernel=$KVERSION
     (
@@ -376,10 +376,10 @@ EOF
         done
 
         cp -a /etc/ld.so.conf* $initdir/etc
-        sudo ldconfig -r "$initdir"
+        ldconfig -r "$initdir"
     )
 
-    sudo umount $TESTDIR/mnt
+    umount $TESTDIR/mnt
     rm -fr -- $TESTDIR/mnt
 }
 
@@ -407,13 +407,13 @@ test_setup() {
         echo -n test > $initdir/etc/key
     )
 
-    sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
          -m "dash udev-rules rootfs-block fs-lib base debug kernel-modules" \
          -d "af_packet piix ide-gd_mod ata_piix ext2 ext3 sd_mod e1000" \
          --no-hostonly-cmdline -N \
          -f $TESTDIR/initramfs.server $KVERSION || return 1
 
-    sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
          -o "plymouth" \
          -a "debug watchdog" \
          -d "af_packet piix ide-gd_mod ata_piix ext2 ext3 sd_mod e1000 i6300esb ib700wdt" \
@@ -423,7 +423,7 @@ test_setup() {
 
 kill_server() {
     if [[ -s $TESTDIR/server.pid ]]; then
-        sudo kill -TERM $(cat $TESTDIR/server.pid)
+        kill -TERM $(cat $TESTDIR/server.pid)
         rm -f -- $TESTDIR/server.pid
     fi
 }

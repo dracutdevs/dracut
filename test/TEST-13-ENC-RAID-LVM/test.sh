@@ -88,7 +88,7 @@ test_setup() {
         inst ./test-init.sh /sbin/init
         find_binary plymouth >/dev/null && inst_multiple plymouth
         cp -a /etc/ld.so.conf* $initdir/etc
-        sudo ldconfig -r "$initdir"
+        ldconfig -r "$initdir"
     )
 
     # second, install the files needed to make the root filesystem
@@ -139,7 +139,7 @@ test_setup() {
         done > $initdir/etc/crypttab
         echo -n test > $initdir/etc/key
     )
-    sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
          -o "plymouth network kernel-network-modules" \
          -a "debug" \
          -d "piix ide-gd_mod ata_piix ext2 sd_mod" \

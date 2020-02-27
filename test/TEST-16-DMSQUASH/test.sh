@@ -54,7 +54,7 @@ test_setup() {
 
     dd if=/dev/zero of="$TESTDIR"/root.img count=100
 
-    sudo $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
+    $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
          -a "debug dmsquash-live qemu" \
          -o "rngd" \
          -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
@@ -104,7 +104,7 @@ test_setup() {
         inst "$VMLINUZ" "/boot/vmlinuz-${KVERSION}"
         find_binary plymouth >/dev/null && inst_multiple plymouth
         cp -a -- /etc/ld.so.conf* "$initdir"/etc
-        sudo ldconfig -r "$initdir"
+        ldconfig -r "$initdir"
     )
     python create.py -d -c livecd-fedora-minimal.ks
     return 0

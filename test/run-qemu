@@ -34,4 +34,4 @@ if ! [ -f "$VMLINUZ" ]; then
     fi
 fi
 
-exec sudo $BIN $ARGS -kernel $VMLINUZ "$@"
+exec $BIN $ARGS -kernel $VMLINUZ "$@"

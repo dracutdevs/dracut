@@ -81,7 +81,7 @@ test_setup() {
         inst ./test-init.sh /sbin/init
         find_binary plymouth >/dev/null && inst_multiple plymouth
         cp -a /etc/ld.so.conf* $initdir/etc
-        sudo ldconfig -r "$initdir"
+        ldconfig -r "$initdir"
     )
 
     # second, install the files needed to make the root filesystem
@@ -131,7 +131,7 @@ test_setup() {
         inst_hook emergency 000 ./hard-off.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
-    sudo $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
          -a "debug watchdog" \
          -o "network kernel-network-modules" \
          -d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \
