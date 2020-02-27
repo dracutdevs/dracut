@@ -114,6 +114,13 @@ if ismounted /usr && [ ! -s /failed ]; then
     echo "dracut-root-block-success" >/dev/sdc
 fi
 
+if ! ismounted /usr; then
+    echo "**************************FAILED**************************"
+    echo "/usr not mounted!!"
+    cat /proc/mounts
+    echo "**************************FAILED**************************"
+fi
+
 journalctl --full --no-pager -o short-monotonic
 
 if [ -s /failed ]; then
