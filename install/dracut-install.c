@@ -59,6 +59,7 @@ static bool arg_modalias = false;
 static bool arg_resolvelazy = false;
 static bool arg_resolvedeps = false;
 static bool arg_hostonly = false;
+static bool no_xattr = false;
 static char *destrootdir = NULL;
 static char *sysrootdir = NULL;
 static size_t sysrootdirlen = 0;
@@ -310,7 +311,7 @@ static int cp(const char *src, const char *dst)
  normal_copy:
         pid = fork();
         if (pid == 0) {
-                if (geteuid() == 0)
+                if (geteuid() == 0 && no_xattr == false)
                         execlp("cp", "cp", "--reflink=auto", "--sparse=auto", "--preserve=mode,xattr,timestamps", "-fL", src, dst,
                                NULL);
                 else
@@ -322,7 +323,7 @@ static int cp(const char *src, const char *dst)
         while (waitpid(pid, &ret, 0) < 0) {
                 if (errno != EINTR) {
                         ret = -1;
-                        if (geteuid() == 0)
+                        if (geteuid() == 0 && no_xattr == false)
                                 log_error("Failed: cp --reflink=auto --sparse=auto --preserve=mode,xattr,timestamps -fL %s %s", src,
                                           dst);
                         else
@@ -1898,6 +1899,7 @@ int main(int argc, char **argv)
         int r;
         char *i;
         char *path = NULL;
+        char *env_no_xattr = NULL;
 
         r = parse_argv(argc, argv);
         if (r <= 0)
@@ -1944,6 +1946,10 @@ int main(int argc, char **argv)
         if (ldd == NULL)
                 ldd = "ldd";
         log_debug("LDD=%s", ldd);
+
+        env_no_xattr = getenv("DRACUT_NO_XATTR");
+        if (env_no_xattr != NULL)
+                no_xattr = true;
 
         pathdirs = strv_split(path, ":");
 
