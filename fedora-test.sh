@@ -18,7 +18,7 @@ else
 
     cd test
 
-    time sudo LOGTEE_TIMEOUT_MS=590000 make \
+    time sudo LOGTEE_TIMEOUT_MS=300000 make \
          enable_documentation=no \
          KVERSION=$(rpm -qa kernel --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' | sort -rn | head -1) \
          DRACUT_NO_XATTR=1 \
