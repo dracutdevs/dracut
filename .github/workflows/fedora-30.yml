@@ -35,6 +35,7 @@ jobs:
           "40",
           "50",
           "60",
+          "99",
         ]
       fail-fast: false
     steps:
