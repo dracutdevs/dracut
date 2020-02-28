@@ -22,6 +22,10 @@ test_run() {
               -boot order=d \
               -drive format=raw,bps=1000000,index=0,media=disk,file="$TESTDIR"/livecd.iso \
               -drive format=raw,index=1,media=disk,file="$TESTDIR"/root.img \
+              -m 512M  -smp 2 \
+              -nographic \
+              -net none \
+              -no-reboot \
               -append "panic=1 systemd.crash_reboot root=live:CDLABEL=LiveCD live rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.shell=0 $DEBUGFAIL" \
               -initrd "$TESTDIR"/initramfs.testing
 

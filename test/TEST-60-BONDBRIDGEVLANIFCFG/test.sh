@@ -17,6 +17,8 @@ run_server() {
 
     $testdir/run-qemu \
         -hda "$TESTDIR"/server.ext3 \
+        -m 512M -smp 2 \
+        -display none \
         -netdev socket,id=n0,listen=127.0.0.1:12370 \
         -netdev socket,id=n1,listen=127.0.0.1:12371 \
         -netdev socket,id=n2,listen=127.0.0.1:12372 \
@@ -28,6 +30,7 @@ run_server() {
         ${SERIAL:+-serial "$SERIAL"} \
         ${SERIAL:--serial file:"$TESTDIR"/server.log} \
         -watchdog i6300esb -watchdog-action poweroff \
+        -no-reboot \
         -append "panic=1 loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 rd.debug" \
         -initrd "$TESTDIR"/initramfs.server \
         -pidfile "$TESTDIR"/server.pid -daemonize || return 1
@@ -74,7 +77,7 @@ client_test() {
 
     if $testdir/run-qemu --help | grep -qF -m1 'netdev hubport,id=str,hubid=n[,netdev=nd]' && echo OK; then
         $testdir/run-qemu \
-            -hda "$TESTDIR"/client.img \
+            -hda "$TESTDIR"/client.img -m 512M -smp 2 -nographic \
             -netdev socket,connect=127.0.0.1:12370,id=s1 \
             -netdev hubport,hubid=1,id=h1,netdev=s1 \
             -netdev hubport,hubid=1,id=h2 -device e1000,mac=52:54:00:12:34:01,netdev=h2 \
@@ -83,11 +86,12 @@ client_test() {
             -netdev socket,connect=127.0.0.1:12372,id=n2 -device e1000,mac=52:54:00:12:34:04,netdev=n2 \
             $nic3 -device e1000,mac=52:54:00:12:34:05,netdev=n3 \
             -watchdog i6300esb -watchdog-action poweroff \
+            -no-reboot \
             -append "panic=1 $cmdline systemd.crash_reboot rd.debug $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
             -initrd "$TESTDIR"/initramfs.testing
     else
         $testdir/run-qemu \
-            -hda "$TESTDIR"/client.img \
+            -hda "$TESTDIR"/client.img -m 512M -smp 2 -nographic \
             -net socket,vlan=0,connect=127.0.0.1:12370 \
             ${do_vlan13:+-net socket,vlan=1,connect=127.0.0.1:12371} \
             -net socket,vlan=2,connect=127.0.0.1:12372 \
@@ -98,6 +102,7 @@ client_test() {
             -net nic,vlan=2,macaddr=52:54:00:12:34:04,model=e1000 \
             -net nic,vlan=3,macaddr=52:54:00:12:34:05,model=e1000 \
             -watchdog i6300esb -watchdog-action poweroff \
+            -no-reboot \
             -append "panic=1 $cmdline systemd.crash_reboot rd.debug $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
             -initrd "$TESTDIR"/initramfs.testing
     fi

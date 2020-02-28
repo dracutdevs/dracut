@@ -12,6 +12,9 @@ test_run() {
     $testdir/run-qemu \
         -drive format=raw,index=0,media=disk,file=$MARKER_DISKIMAGE \
         -drive format=raw,index=1,media=disk,file=$DISKIMAGE \
+        -m 512M -smp 2 -nographic \
+        -net none \
+        -no-reboot \
         -append "panic=1 systemd.crash_reboot root=LABEL=root rw rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.shell=0 $DEBUGFAIL" \
         -initrd $TESTDIR/initramfs.testing
     grep -F -m 1 -q dracut-root-block-success $MARKER_DISKIMAGE || return 1
@@ -78,6 +81,7 @@ test_setup() {
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     $testdir/run-qemu \
         -drive format=raw,index=0,media=disk,file=$DISKIMAGE \
+        -m 512M   -smp 2 -nographic -net none \
         -append "root=/dev/fakeroot rw quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
 
