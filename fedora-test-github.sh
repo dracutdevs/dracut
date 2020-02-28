@@ -7,6 +7,16 @@ set -ex
 RUN_ID="$1"
 TESTS=$2
 
+# GitHub workflows fetch a clone of the dracut repository which doesn't
+# contain git tags, thus "breaking" the RPM build in certain situations
+# i.e.:
+# DRACUT_MAIN_VERSION in Makefile is defined as an output of `git describe`,
+# which in full git clone returns a tag with a numeric version. However,
+# without tags it returns SHA of the last commit, which later propagates into
+# `Provides:` attribute of the built RPM and can break dependency tree when
+# installed
+[[ -d .git ]] && git fetch --tags && git describe --tags
+
 ./configure
 
 NCPU=$(getconf _NPROCESSORS_ONLN)
