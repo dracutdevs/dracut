@@ -43,6 +43,7 @@ before_script:
     git describe --tags || :
 
 script:
+  ## The test container is created with https://github.com/dracutdevs/fedora-container
 - docker run --privileged -it -v $(pwd)/:/dracut quay.io/haraldh/dracut-fedora:$IMAGE /dracut/fedora-test.sh $IMAGE-$$ "$TESTS"
 
 notifications:
