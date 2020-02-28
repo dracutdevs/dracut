@@ -24,17 +24,17 @@ wait_for_if_link() {
     return 1
 }
 
-wait_for_if_link eth0 ens3
-wait_for_if_link eth1 ens4
+wait_for_if_link eth0 ens2
+wait_for_if_link eth1 ens3
 
 ip addr add 127.0.0.1/8 dev lo
 ip link set lo up
-ip link set dev eth0 name ens3
-ip addr add 192.168.50.1/24 dev ens3
+ip link set dev eth0 name ens2
+ip addr add 192.168.50.1/24 dev ens2
+ip link set ens2 up
+ip link set dev eth1 name ens3
+ip addr add 192.168.51.1/24 dev ens3
 ip link set ens3 up
-ip link set dev eth1 name ens4
-ip addr add 192.168.51.1/24 dev ens4
-ip link set ens4 up
 >/var/lib/dhcpd/dhcpd.leases
 chmod 777 /var/lib/dhcpd/dhcpd.leases
 dhcpd -d -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases &

@@ -9,11 +9,17 @@ env:
   - IMAGE=latest TESTS=01
   - IMAGE=latest TESTS=12
   - IMAGE=latest TESTS=20
+  - IMAGE=latest TESTS=21
   - IMAGE=latest TESTS=50
+  - IMAGE=latest TESTS=51
   - IMAGE=latest TESTS=30
   - IMAGE=latest TESTS=31
+  - IMAGE=latest TESTS=35
+  - IMAGE=latest TESTS=36
   - IMAGE=latest TESTS=40
+  - IMAGE=latest TESTS=41
   - IMAGE=latest TESTS=60
+  - IMAGE=latest TESTS=61
   - IMAGE=latest TESTS=99
   - IMAGE=latest TESTS=02
   - IMAGE=latest TESTS=03

@@ -1,7 +1,18 @@
 #!/bin/bash
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
-TEST_DESCRIPTION="root filesystem on NFS with bridging/bonding/vlan"
+
+
+if [[ $NM ]]; then
+    USE_NETWORK="network-manager"
+    OMIT_NETWORK="network-legacy"
+else
+    USE_NETWORK="network-legacy"
+    OMIT_NETWORK="network-manager"
+fi
+
+TEST_DESCRIPTION="root filesystem on NFS with bridging/bonding/vlan with $USE_NETWORK"
+
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
@@ -17,8 +28,6 @@ run_server() {
 
     $testdir/run-qemu \
         -hda "$TESTDIR"/server.ext3 \
-        -m 512M -smp 2 \
-        -display none \
         -netdev socket,id=n0,listen=127.0.0.1:12370 \
         -netdev socket,id=n1,listen=127.0.0.1:12371 \
         -netdev socket,id=n2,listen=127.0.0.1:12372 \
@@ -30,7 +39,6 @@ run_server() {
         ${SERIAL:+-serial "$SERIAL"} \
         ${SERIAL:--serial file:"$TESTDIR"/server.log} \
         -watchdog i6300esb -watchdog-action poweroff \
-        -no-reboot \
         -append "panic=1 loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 rd.debug" \
         -initrd "$TESTDIR"/initramfs.server \
         -pidfile "$TESTDIR"/server.pid -daemonize || return 1
@@ -75,37 +83,18 @@ client_test() {
         nic3=" -netdev hubport,id=n3,hubid=3"
     fi
 
-    if $testdir/run-qemu --help | grep -qF -m1 'netdev hubport,id=str,hubid=n[,netdev=nd]' && echo OK; then
-        $testdir/run-qemu \
-            -hda "$TESTDIR"/client.img -m 512M -smp 2 -nographic \
-            -netdev socket,connect=127.0.0.1:12370,id=s1 \
-            -netdev hubport,hubid=1,id=h1,netdev=s1 \
-            -netdev hubport,hubid=1,id=h2 -device e1000,mac=52:54:00:12:34:01,netdev=h2 \
-            -netdev hubport,hubid=1,id=h3 -device e1000,mac=52:54:00:12:34:02,netdev=h3 \
-            $nic1 -device e1000,mac=52:54:00:12:34:03,netdev=n1  \
-            -netdev socket,connect=127.0.0.1:12372,id=n2 -device e1000,mac=52:54:00:12:34:04,netdev=n2 \
-            $nic3 -device e1000,mac=52:54:00:12:34:05,netdev=n3 \
-            -watchdog i6300esb -watchdog-action poweroff \
-            -no-reboot \
-            -append "panic=1 $cmdline systemd.crash_reboot rd.debug $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
-            -initrd "$TESTDIR"/initramfs.testing
-    else
-        $testdir/run-qemu \
-            -hda "$TESTDIR"/client.img -m 512M -smp 2 -nographic \
-            -net socket,vlan=0,connect=127.0.0.1:12370 \
-            ${do_vlan13:+-net socket,vlan=1,connect=127.0.0.1:12371} \
-            -net socket,vlan=2,connect=127.0.0.1:12372 \
-            ${do_vlan13:+-net socket,vlan=3,connect=127.0.0.1:12373} \
-            -net nic,vlan=0,macaddr=52:54:00:12:34:01,model=e1000 \
-            -net nic,vlan=0,macaddr=52:54:00:12:34:02,model=e1000 \
-            -net nic,vlan=1,macaddr=52:54:00:12:34:03,model=e1000 \
-            -net nic,vlan=2,macaddr=52:54:00:12:34:04,model=e1000 \
-            -net nic,vlan=3,macaddr=52:54:00:12:34:05,model=e1000 \
-            -watchdog i6300esb -watchdog-action poweroff \
-            -no-reboot \
-            -append "panic=1 $cmdline systemd.crash_reboot rd.debug $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
-            -initrd "$TESTDIR"/initramfs.testing
-    fi
+    $testdir/run-qemu \
+        -hda "$TESTDIR"/client.img \
+        -netdev socket,connect=127.0.0.1:12370,id=s1 \
+        -netdev hubport,hubid=1,id=h1,netdev=s1 \
+        -netdev hubport,hubid=1,id=h2 -device e1000,mac=52:54:00:12:34:01,netdev=h2 \
+        -netdev hubport,hubid=1,id=h3 -device e1000,mac=52:54:00:12:34:02,netdev=h3 \
+        $nic1 -device e1000,mac=52:54:00:12:34:03,netdev=n1  \
+        -netdev socket,connect=127.0.0.1:12372,id=n2 -device e1000,mac=52:54:00:12:34:04,netdev=n2 \
+        $nic3 -device e1000,mac=52:54:00:12:34:05,netdev=n3 \
+        -watchdog i6300esb -watchdog-action poweroff \
+        -append "panic=1 $cmdline systemd.crash_reboot rd.debug $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
+        -initrd "$TESTDIR"/initramfs.testing
 
     {
         read OK
@@ -143,51 +132,12 @@ test_run() {
 }
 
 test_client() {
-    if $testdir/run-qemu --help | grep -qF -m1 'netdev hubport,id=str,hubid=n[,netdev=nd]'; then
-        client_test "Multiple VLAN" \
-                "yes" \
-                "
-vlan=vlan0001:ens6
-vlan=vlan2:ens6
-vlan=ens6.3:ens6
-vlan=ens6.0004:ens6
-ip=ens4:dhcp
-ip=192.168.54.101::192.168.54.1:24:test:vlan0001:none
-ip=192.168.55.102::192.168.55.1:24:test:vlan2:none
-ip=192.168.56.103::192.168.56.1:24:test:ens6.3:none
-ip=192.168.57.104::192.168.57.1:24:test:ens6.0004:none
-rd.neednet=1
-root=nfs:192.168.50.1:/nfs/client bootdev=ens4
-" \
-               'ens4 ens6.0004 ens6.3 vlan0001 vlan2 /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens4 # Generated by dracut initrd NAME="ens4" DEVICE="ens4" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp TYPE=Ethernet /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens6.0004 # Generated by dracut initrd NAME="ens6.0004" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.57.104" PREFIX="24" GATEWAY="192.168.57.1" TYPE=Vlan DEVICE="ens6.0004" VLAN=yes PHYSDEV="ens6" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens6.3 # Generated by dracut initrd NAME="ens6.3" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.56.103" PREFIX="24" GATEWAY="192.168.56.1" TYPE=Vlan DEVICE="ens6.3" VLAN=yes PHYSDEV="ens6" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-vlan0001 # Generated by dracut initrd NAME="vlan0001" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.54.101" PREFIX="24" GATEWAY="192.168.54.1" TYPE=Vlan DEVICE="vlan0001" VLAN=yes PHYSDEV="ens6" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-vlan2 # Generated by dracut initrd NAME="vlan2" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.55.102" PREFIX="24" GATEWAY="192.168.55.1" TYPE=Vlan DEVICE="vlan2" VLAN=yes PHYSDEV="ens6" EOF ' \
-        || return 1
-
-    client_test "Multiple Bonds" \
-                "yes" \
-                "
-bond=bond0:ens4,ens5
-bond=bond1:ens7,ens8
-ip=bond0:dhcp
-ip=bond1:dhcp
-rd.neednet=1
-root=nfs:192.168.50.1:/nfs/client bootdev=bond0
-" \
-                'bond0 bond1 /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-bond0 # Generated by dracut initrd NAME="bond0" DEVICE="bond0" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp BONDING_OPTS="" NAME="bond0" TYPE=Bond /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-bond1 # Generated by dracut initrd NAME="bond1" DEVICE="bond1" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp BONDING_OPTS="" NAME="bond1" TYPE=Bond /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens4 # Generated by dracut initrd NAME="ens4" TYPE=Ethernet ONBOOT=yes NETBOOT=yes SLAVE=yes MASTER="bond0" DEVICE="ens4" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens5 # Generated by dracut initrd NAME="ens5" TYPE=Ethernet ONBOOT=yes NETBOOT=yes SLAVE=yes MASTER="bond0" DEVICE="ens5" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens7 # Generated by dracut initrd NAME="ens7" TYPE=Ethernet ONBOOT=yes NETBOOT=yes SLAVE=yes MASTER="bond1" DEVICE="ens7" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens8 # Generated by dracut initrd NAME="ens8" TYPE=Ethernet ONBOOT=yes NETBOOT=yes SLAVE=yes MASTER="bond1" DEVICE="ens8" EOF ' \
-        || return 1
-
-    client_test "Multiple Bridges" \
-                "no" \
-                "
-bridge=br0:ens4,ens5
-bridge=br1:ens7,ens8
-ip=br0:dhcp
-ip=br1:dhcp
-rd.neednet=1
-root=nfs:192.168.50.1:/nfs/client bootdev=br0
-" \
-                'br0 br1 /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-br0 # Generated by dracut initrd NAME="br0" DEVICE="br0" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp TYPE=Bridge NAME="br0" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-br1 # Generated by dracut initrd NAME="br1" DEVICE="br1" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp TYPE=Bridge NAME="br1" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens4 # Generated by dracut initrd NAME="ens4" TYPE=Ethernet ONBOOT=yes NETBOOT=yes BRIDGE="br0" DEVICE="ens4" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens5 # Generated by dracut initrd NAME="ens5" TYPE=Ethernet ONBOOT=yes NETBOOT=yes BRIDGE="br0" DEVICE="ens5" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens7 # Generated by dracut initrd NAME="ens7" TYPE=Ethernet ONBOOT=yes NETBOOT=yes BRIDGE="br1" DEVICE="ens7" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens8 # Generated by dracut initrd NAME="ens8" TYPE=Ethernet ONBOOT=yes NETBOOT=yes BRIDGE="br1" DEVICE="ens8" EOF ' \
-        || return 1
+    if [[ $NM ]]; then
+        EXPECT='ens3 ens5.0004 ens5.3 vlan0001 vlan2 /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-* EOF '
     else
+        EXPECT='ens3 ens5.0004 ens5.3 vlan0001 vlan2 /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens3 # Generated by dracut initrd NAME="ens3" DEVICE="ens3" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp TYPE=Ethernet /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens5.0004 # Generated by dracut initrd NAME="ens5.0004" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.57.104" PREFIX="24" GATEWAY="192.168.57.1" TYPE=Vlan DEVICE="ens5.0004" VLAN=yes PHYSDEV="ens5" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens5.3 # Generated by dracut initrd NAME="ens5.3" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.56.103" PREFIX="24" GATEWAY="192.168.56.1" TYPE=Vlan DEVICE="ens5.3" VLAN=yes PHYSDEV="ens5" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-vlan0001 # Generated by dracut initrd NAME="vlan0001" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.54.101" PREFIX="24" GATEWAY="192.168.54.1" TYPE=Vlan DEVICE="vlan0001" VLAN=yes PHYSDEV="ens5" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-vlan2 # Generated by dracut initrd NAME="vlan2" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.55.102" PREFIX="24" GATEWAY="192.168.55.1" TYPE=Vlan DEVICE="vlan2" VLAN=yes PHYSDEV="ens5" EOF '
+    fi
+
     client_test "Multiple VLAN" \
                 "yes" \
                 "
@@ -203,35 +153,46 @@ ip=192.168.57.104::192.168.57.1:24:test:ens5.0004:none
 rd.neednet=1
 root=nfs:192.168.50.1:/nfs/client bootdev=ens3
 " \
-                'ens3 ens5.0004 ens5.3 vlan0001 vlan2 /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens3 # Generated by dracut initrd NAME="ens3" DEVICE="ens3" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp TYPE=Ethernet /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens5.0004 # Generated by dracut initrd NAME="ens5.0004" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.57.104" PREFIX="24" GATEWAY="192.168.57.1" TYPE=Vlan DEVICE="ens5.0004" VLAN=yes PHYSDEV="ens5" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens5.3 # Generated by dracut initrd NAME="ens5.3" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.56.103" PREFIX="24" GATEWAY="192.168.56.1" TYPE=Vlan DEVICE="ens5.3" VLAN=yes PHYSDEV="ens5" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-vlan0001 # Generated by dracut initrd NAME="vlan0001" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.54.101" PREFIX="24" GATEWAY="192.168.54.1" TYPE=Vlan DEVICE="vlan0001" VLAN=yes PHYSDEV="ens5" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-vlan2 # Generated by dracut initrd NAME="vlan2" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.55.102" PREFIX="24" GATEWAY="192.168.55.1" TYPE=Vlan DEVICE="vlan2" VLAN=yes PHYSDEV="ens5" EOF ' \
+                "$EXPECT" \
         || return 1
+
+    if [[ $NM ]]; then
+        EXPECT='bond0 bond1 /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-* EOF '
+    else
+        EXPECT='bond0 bond1 /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-bond0 # Generated by dracut initrd NAME="bond0" DEVICE="bond0" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp BONDING_OPTS="" NAME="bond0" TYPE=Bond /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-bond1 # Generated by dracut initrd NAME="bond1" DEVICE="bond1" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp BONDING_OPTS="" NAME="bond1" TYPE=Bond /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens3 # Generated by dracut initrd NAME="ens3" TYPE=Ethernet ONBOOT=yes NETBOOT=yes SLAVE=yes MASTER="bond0" DEVICE="ens3" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens4 # Generated by dracut initrd NAME="ens4" TYPE=Ethernet ONBOOT=yes NETBOOT=yes SLAVE=yes MASTER="bond0" DEVICE="ens4" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens6 # Generated by dracut initrd NAME="ens6" TYPE=Ethernet ONBOOT=yes NETBOOT=yes SLAVE=yes MASTER="bond1" DEVICE="ens6" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens7 # Generated by dracut initrd NAME="ens7" TYPE=Ethernet ONBOOT=yes NETBOOT=yes SLAVE=yes MASTER="bond1" DEVICE="ens7" EOF '
+    fi
 
     client_test "Multiple Bonds" \
                 "yes" \
                 "
-bond=bond0:ens4,ens5
+bond=bond0:ens3,ens4
 bond=bond1:ens6,ens7
 ip=bond0:dhcp
 ip=bond1:dhcp
 rd.neednet=1
 root=nfs:192.168.50.1:/nfs/client bootdev=bond0
 " \
-                'bond0 bond1 /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-bond0 # Generated by dracut initrd NAME="bond0" DEVICE="bond0" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp BONDING_OPTS="" NAME="bond0" TYPE=Bond /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-bond1 # Generated by dracut initrd NAME="bond1" DEVICE="bond1" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp BONDING_OPTS="" NAME="bond1" TYPE=Bond /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens4 # Generated by dracut initrd NAME="ens4" TYPE=Ethernet ONBOOT=yes NETBOOT=yes SLAVE=yes MASTER="bond0" DEVICE="ens4" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens5 # Generated by dracut initrd NAME="ens5" TYPE=Ethernet ONBOOT=yes NETBOOT=yes SLAVE=yes MASTER="bond0" DEVICE="ens5" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens6 # Generated by dracut initrd NAME="ens6" TYPE=Ethernet ONBOOT=yes NETBOOT=yes SLAVE=yes MASTER="bond1" DEVICE="ens6" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens7 # Generated by dracut initrd NAME="ens7" TYPE=Ethernet ONBOOT=yes NETBOOT=yes SLAVE=yes MASTER="bond1" DEVICE="ens7" EOF ' \
+                "$EXPECT" \
         || return 1
+
+    if [[ $NM ]]; then
+        EXPECT='br0 br1 /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-* EOF '
+    else
+        EXPECT='br0 br1 /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-br0 # Generated by dracut initrd NAME="br0" DEVICE="br0" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp TYPE=Bridge NAME="br0" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-br1 # Generated by dracut initrd NAME="br1" DEVICE="br1" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp TYPE=Bridge NAME="br1" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens3 # Generated by dracut initrd NAME="ens3" TYPE=Ethernet ONBOOT=yes NETBOOT=yes BRIDGE="br0" DEVICE="ens3" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens4 # Generated by dracut initrd NAME="ens4" TYPE=Ethernet ONBOOT=yes NETBOOT=yes BRIDGE="br0" DEVICE="ens4" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens6 # Generated by dracut initrd NAME="ens6" TYPE=Ethernet ONBOOT=yes NETBOOT=yes BRIDGE="br1" DEVICE="ens6" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens7 # Generated by dracut initrd NAME="ens7" TYPE=Ethernet ONBOOT=yes NETBOOT=yes BRIDGE="br1" DEVICE="ens7" EOF '
+    fi
 
     client_test "Multiple Bridges" \
                 "no" \
                 "
-bridge=br0:ens4,ens5
+bridge=br0:ens3,ens4
 bridge=br1:ens6,ens7
 ip=br0:dhcp
 ip=br1:dhcp
 rd.neednet=1
 root=nfs:192.168.50.1:/nfs/client bootdev=br0
 " \
-                'br0 br1 /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-br0 # Generated by dracut initrd NAME="br0" DEVICE="br0" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp TYPE=Bridge NAME="br0" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-br1 # Generated by dracut initrd NAME="br1" DEVICE="br1" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp TYPE=Bridge NAME="br1" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens4 # Generated by dracut initrd NAME="ens4" TYPE=Ethernet ONBOOT=yes NETBOOT=yes BRIDGE="br0" DEVICE="ens4" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens5 # Generated by dracut initrd NAME="ens5" TYPE=Ethernet ONBOOT=yes NETBOOT=yes BRIDGE="br0" DEVICE="ens5" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens6 # Generated by dracut initrd NAME="ens6" TYPE=Ethernet ONBOOT=yes NETBOOT=yes BRIDGE="br1" DEVICE="ens6" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens7 # Generated by dracut initrd NAME="ens7" TYPE=Ethernet ONBOOT=yes NETBOOT=yes BRIDGE="br1" DEVICE="ens7" EOF ' \
+                "$EXPECT" \
         || return 1
-    fi
     kill_server
     return 0
 }
@@ -369,8 +330,8 @@ test_setup() {
     # Make client's dracut image
     $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
                        --no-early-microcode \
-                       -o "plymouth" \
-                       -a "debug network-legacy" \
+                       -o "plymouth ${OMIT_NETWORK}" \
+                       -a "debug ${USE_NETWORK}" \
                        -d "ipvlan macvlan af_packet piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files sunrpc i6300esb ib700wdt" \
                        --no-hostonly-cmdline -N \
                        -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1

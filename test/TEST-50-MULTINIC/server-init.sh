@@ -84,7 +84,7 @@ rpc.nfsd
 >/dev/watchdog
 rpc.mountd
 >/dev/watchdog
-rpc.idmapd
+rpc.idmapd -S
 >/dev/watchdog
 exportfs -r
 >/dev/watchdog

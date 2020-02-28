@@ -54,15 +54,15 @@ linkup() {
      && wait_for_if_up $1 2>/dev/null
 }
 
-wait_for_if_link eth0 ens3
+wait_for_if_link eth0 ens2
 
 ip addr add 127.0.0.1/8 dev lo
 ip link set lo up
-ip link set dev eth0 name ens3
-ip addr add 192.168.50.1/24 dev ens3
-ip addr add 192.168.50.2/24 dev ens3
-ip addr add 192.168.50.3/24 dev ens3
-linkup ens3
+ip link set dev eth0 name ens2
+ip addr add 192.168.50.1/24 dev ens2
+ip addr add 192.168.50.2/24 dev ens2
+ip addr add 192.168.50.3/24 dev ens2
+linkup ens2
 
 echo > /dev/watchdog
 modprobe af_packet
