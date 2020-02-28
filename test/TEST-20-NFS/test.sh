@@ -305,7 +305,7 @@ test_setup() {
         export initdir=$TESTDIR/mnt/nfs/client
         . $basedir/dracut-init.sh
 
-        inst_multiple sh shutdown poweroff stty cat ps ln ip \
+        inst_multiple sh shutdown poweroff stty cat ps ln ip dd \
                       mount dmesg mkdir cp ping grep setsid ls vi /etc/virc less cat
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break

@@ -35,7 +35,7 @@ test_setup() {
         )
         inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
                       mount dmesg dhclient mkdir cp ping dhclient \
-                      umount strace less setsid systemd-analyze
+                      umount strace less setsid systemd-analyze dd
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
@@ -54,7 +54,7 @@ test_setup() {
     (
         export initdir=$TESTDIR/overlay
         . $basedir/dracut-init.sh
-        inst_multiple sfdisk mkfs.ext3 poweroff cp umount
+        inst_multiple sfdisk mkfs.ext3 poweroff cp umount dd
         inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
@@ -82,7 +82,7 @@ test_setup() {
     (
         export initdir=$TESTDIR/overlay
         . $basedir/dracut-init.sh
-        inst_multiple poweroff shutdown
+        inst_multiple poweroff shutdown dd
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook pre-pivot 000 ./systemd-analyze.sh
         inst_hook emergency 000 ./hard-off.sh

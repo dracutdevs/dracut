@@ -16,7 +16,7 @@ echo "made it to the rootfs! Powering down."
 	  grep -v 'UUID=' $i
     done
     echo EOF
-) > /dev/sda
+) | dd oflag=direct,dsync of=/dev/sda
 
 strstr "$CMDLINE" "rd.shell" && sh -i
 poweroff -f

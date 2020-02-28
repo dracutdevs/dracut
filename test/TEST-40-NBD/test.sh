@@ -227,7 +227,7 @@ make_encrypted_root() {
             ln -s ../run var/run
         )
         inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
-                      mount dmesg mkdir cp ping
+                      mount dmesg mkdir cp ping dd
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
@@ -251,7 +251,7 @@ make_encrypted_root() {
             done
             ln -s ../run var/run
         )
-        inst_multiple mke2fs poweroff cp umount tune2fs
+        inst_multiple mke2fs poweroff cp umount tune2fs dd
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
         inst_hook initqueue 01 ./create-root.sh
@@ -302,7 +302,7 @@ make_client_root() {
             ln -s ../run var/run
         )
         inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
-                      dmesg mkdir cp ping
+                      dmesg mkdir cp ping dd
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
@@ -390,7 +390,7 @@ test_setup() {
     (
         export initdir=$TESTDIR/overlay
         . $basedir/dracut-init.sh
-        inst_multiple poweroff shutdown
+        inst_multiple poweroff shutdown dd
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
         inst ./cryptroot-ask.sh /sbin/cryptroot-ask

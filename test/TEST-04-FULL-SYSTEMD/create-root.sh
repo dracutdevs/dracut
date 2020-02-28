@@ -38,7 +38,7 @@ btrfs filesystem sync /root/usr
 btrfs filesystem sync /root
 umount /root/usr
 umount /root
-echo "dracut-root-block-created" >/dev/sda1
+echo "dracut-root-block-created" | dd oflag=direct,dsync of=/dev/sda1
 sync
 poweroff -f
 

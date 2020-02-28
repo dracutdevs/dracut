@@ -67,7 +67,7 @@ test_setup() {
             done
         )
         inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
-                      mount dmesg dhclient mkdir cp ping dhclient
+                      mount dmesg dhclient mkdir cp ping dhclient dd
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
@@ -87,7 +87,7 @@ test_setup() {
     (
         export initdir=$TESTDIR/overlay
         . $basedir/dracut-init.sh
-        inst_multiple sfdisk mke2fs poweroff cp umount grep
+        inst_multiple sfdisk mke2fs poweroff cp umount grep dd
         inst_hook initqueue 01 ./create-root.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )

@@ -111,7 +111,7 @@ ismounted() {
 systemctl --failed --no-legend --no-pager > /failed
 
 if ismounted /usr && [ ! -s /failed ]; then
-    echo "dracut-root-block-success" >/dev/sdc
+    echo "dracut-root-block-success" | dd oflag=direct,dsync of=/dev/sdc
 fi
 
 if ! ismounted /usr; then

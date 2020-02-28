@@ -73,7 +73,7 @@ test_setup() {
         )
         inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
                       mount dmesg dhclient mkdir cp ping dhclient \
-                      umount strace less
+                      umount strace less dd
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [[ -f ${_terminfodir}/l/linux ]] && break
         done

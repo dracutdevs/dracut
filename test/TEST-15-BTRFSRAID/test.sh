@@ -38,7 +38,7 @@ test_setup() {
             mkdir -p -- var/lib/nfs/rpc_pipefs
         )
         inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
-                      mount dmesg dhclient mkdir cp ping dhclient sync
+                      mount dmesg dhclient mkdir cp ping dhclient sync dd
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
@@ -57,7 +57,7 @@ test_setup() {
     (
         export initdir=$TESTDIR/overlay
         . $basedir/dracut-init.sh
-        inst_multiple sfdisk mkfs.btrfs poweroff cp umount
+        inst_multiple sfdisk mkfs.btrfs poweroff cp umount dd
         inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules

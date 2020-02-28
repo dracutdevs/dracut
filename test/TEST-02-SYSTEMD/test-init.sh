@@ -102,7 +102,7 @@ strstr() { [ "${1##*"$2"*}" != "$1" ]; }
 
 plymouth --quit
 exec </dev/console >/dev/console 2>&1
-echo "dracut-root-block-success" >/dev/sda1
+echo "dracut-root-block-success" | dd oflag=direct,dsync of=/dev/sda1
 export TERM=linux
 export PS1='initramfs-test:\w\$ '
 [ -f /etc/mtab ] || ln -sfn /proc/mounts /etc/mtab

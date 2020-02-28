@@ -124,7 +124,7 @@ done
 {
     echo "OK"
     echo "$IFACES"
-} > /dev/sda
+} | dd oflag=direct,dsync of=/dev/sda
 
 getargbool 0 rd.shell && sh -i
 poweroff -f
