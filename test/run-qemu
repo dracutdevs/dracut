@@ -18,7 +18,7 @@ $(lsmod | grep -q '^kqemu ') && BIN=/usr/bin/qemu && ARGS="-kernel-kqemu -cpu ho
 }
 
 # Provide rng device sourcing the hosts /dev/urandom and other standard parameters
-ARGS="$ARGS -smp 2 -m 512 -nodefaults -vga none -display none -no-reboot -device virtio-rng-pci -serial stdio"
+ARGS="$ARGS -smp 2 -m 512 -nodefaults -vga none -display none -no-reboot -device virtio-rng-pci"
 
 KVERSION=${KVERSION-$(uname -r)}
 
