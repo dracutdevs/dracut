@@ -15,11 +15,9 @@ client_run() {
     cp --sparse=always --reflink=auto $TESTDIR/disk3.img $TESTDIR/disk3.img.new
 
     $testdir/run-qemu \
-        -drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext2 -m 512M -nographic   -smp 2 \
+        -drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext2 \
         -drive format=raw,index=2,media=disk,file=$TESTDIR/disk2.img.new \
         -drive format=raw,index=3,media=disk,file=$TESTDIR/disk3.img.new \
-        -net none \
-        -no-reboot \
         -append "panic=1 systemd.crash_reboot $* systemd.log_target=kmsg loglevel=7 root=LABEL=root rw rd.retry=20 rd.info console=ttyS0,115200n81 log_buf_len=2M selinux=0 rd.debug rd.shell=0 $DEBUGFAIL " \
         -initrd $TESTDIR/initramfs.testing
     if ! grep -F -m 1 -q dracut-root-block-success $TESTDIR/root.ext2; then
@@ -117,7 +115,6 @@ test_setup() {
         -drive format=raw,index=1,media=disk,file=$TESTDIR/disk1.img \
         -drive format=raw,index=2,media=disk,file=$TESTDIR/disk2.img \
         -drive format=raw,index=3,media=disk,file=$TESTDIR/disk3.img \
-        -m 512M  -smp 2 -nographic -net none \
         -append "root=/dev/fakeroot rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
 
