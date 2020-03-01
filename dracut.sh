@@ -140,7 +140,7 @@ Creates initial ramdisk images for preloading modules
   --confdir [DIR]       Specify configuration directory to use *.conf files
                          from. Default: /etc/dracut.conf.d
   --tmpdir [DIR]        Temporary directory to be used instead of default
-                         /var/tmp.
+                         ${TMPDIR:-/var/tmp}.
   -r, --sysroot [DIR]   Specify sysroot directory to collect files from.
   -l, --local           Local mode. Use modules from the current working
                          directory instead of the system-wide installed in
@@ -765,6 +765,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $dracutbasedir ]] || dracutbasedir=$dracutsysrootdir/usr/lib/dracut
 [[ $fw_dir ]] || fw_dir="$dracutsysrootdir/lib/firmware/updates:$dracutsysrootdir/lib/firmware:$dracutsysrootdir/lib/firmware/$kernel"
 [[ $tmpdir_l ]] && tmpdir="$tmpdir_l"
+[[ $tmpdir ]] && tmpdir="$TMPDIR"
 [[ $tmpdir ]] || tmpdir=$dracutsysrootdir/var/tmp
 [[ $INITRD_COMPRESS ]] && compress=$INITRD_COMPRESS
 [[ $compress_l ]] && compress=$compress_l
