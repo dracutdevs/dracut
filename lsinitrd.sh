@@ -236,6 +236,8 @@ case $bin in
     $'\x71\xc7'*|070701)
         CAT="cat --"
         is_early=$(cpio --extract --verbose --quiet --to-stdout -- 'early_cpio' < "$image" 2>/dev/null)
+        # Debian mkinitramfs does not create the file 'early_cpio', so let's check if firmware files exist
+        [[ "$is_early" ]] || is_early=$(cpio --list --verbose --quiet --to-stdout -- 'kernel/*/microcode/*.bin' < "$image" 2>/dev/null)
         if [[ "$is_early" ]]; then
             if [[ -n "$unpack" ]]; then
                 # should use --unpackearly for early CPIO
