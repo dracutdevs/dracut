@@ -23,11 +23,6 @@ client_run() {
         -append "panic=1 systemd.crash_reboot root=LABEL=dracut $client_opts rd.retry=3 console=ttyS0,115200n81 selinux=0 $DEBUGOUT rd.shell=0 $DEBUGFAIL" \
         -initrd $TESTDIR/initramfs.testing
 
-    if (($? != 0)); then
-        echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
-        return 1
-    fi
-
     if ! grep -F -m 1 -q dracut-root-block-success $TESTDIR/result; then
         echo "CLIENT TEST END: $test_name [FAILED]"
         return 1
