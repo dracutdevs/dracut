@@ -110,26 +110,22 @@ ismounted() {
 
 systemctl --failed --no-legend --no-pager > /failed
 
-if ismounted /usr && [ ! -s /failed ]; then
-    echo "dracut-root-block-success" | dd oflag=direct,dsync of=/dev/sdc
-fi
-
 if ! ismounted /usr; then
     echo "**************************FAILED**************************"
     echo "/usr not mounted!!"
     cat /proc/mounts
     echo "**************************FAILED**************************"
+else
+    if [ -s /failed ]; then
+        echo "**************************FAILED**************************"
+        cat /failed
+        echo "**************************FAILED**************************"
+
+    else
+        echo "dracut-root-block-success" | dd oflag=direct,dsync of=/dev/sdc
+        echo "All OK"
+    fi
 fi
-
-journalctl --full --no-pager -o short-monotonic
-
-if [ -s /failed ]; then
-    echo "**************************FAILED**************************"
-    cat /failed
-    echo "**************************FAILED**************************"
-fi
-
-ls -al /run/systemd/system
 
 export TERM=linux
 export PS1='initramfs-test:\w\$ '
