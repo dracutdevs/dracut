@@ -242,12 +242,14 @@ EOF
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     rm -rf -- $TESTDIR/overlay
 
+    dd if=/dev/zero of=$TESTDIR/result bs=1M count=1
     $testdir/run-qemu \
         -drive format=raw,index=0,media=disk,file=$TESTDIR/root.btrfs \
         -drive format=raw,index=1,media=disk,file=$TESTDIR/usr.btrfs \
+        -drive format=raw,index=2,media=disk,file=$TESTDIR/result \
         -append "root=/dev/fakeroot rw rootfstype=btrfs quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
-    if ! grep -F -m 1 -q dracut-root-block-created $TESTDIR/root.btrfs; then
+    if ! grep -F -m 1 -q dracut-root-block-created $TESTDIR/result; then
         echo "Could not create root filesystem"
         return 1
     fi
