@@ -184,8 +184,8 @@ Creates initial ramdisk images for preloading modules
   --mount "[DEV] [MP] [FSTYPE] [FSOPTS]"
                         Mount device [DEV] on mountpoint [MP] with filesystem
                         [FSTYPE] and options [FSOPTS] in the initramfs
-  --mount "[MP]"	Same as above, but [DEV], [FSTYPE] and [FSOPTS] are
-			determined by looking at the current mounts.
+  --mount "[MP]"        Same as above, but [DEV], [FSTYPE] and [FSOPTS] are
+                        determined by looking at the current mounts.
   --add-device "[DEV]"  Bring up [DEV] in initramfs
   -i, --include [SOURCE] [TARGET]
                         Include the files in the SOURCE directory into the
@@ -240,6 +240,8 @@ Creates initial ramdisk images for preloading modules
                         Use [FILE] as a splash image when creating an UEFI
                         executable
   --kernel-image [FILE] location of the kernel image
+  --regenerate-all      Regenerate all initramfs images at the default location
+                        for the kernel versions found on the system
 
 If [LIST] has multiple arguments, then you have to put these in quotes.
 
