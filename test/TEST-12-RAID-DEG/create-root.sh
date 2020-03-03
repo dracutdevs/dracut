@@ -10,14 +10,6 @@ rm -f -- /etc/lvm/lvm.conf
 udevadm control --reload
 udevadm settle
 sleep 1
-# save a partition at the beginning for future flagging purposes
-sfdisk /dev/sda <<EOF
-,5M
-,10M
-,10M
-,10M
-EOF
-udevadm settle
 mdadm --create /dev/md0 --run --auto=yes --level=5 --raid-devices=3 /dev/sdb /dev/sdc /dev/sdd
 # wait for the array to finish initailizing, otherwise this sometimes fails
 # randomly.
@@ -45,4 +37,4 @@ mdadm -W /dev/md0 || :
 mdadm --detail --export /dev/md0 |grep -F MD_UUID > /tmp/mduuid
 . /tmp/mduuid
 eval $(udevadm info --query=env --name=/dev/md0|while read line || [ -n "$line" ]; do [ "$line" != "${line#*ID_FS_UUID*}" ] && echo $line; done;)
-{ echo "dracut-root-block-created"; echo MD_UUID=$MD_UUID;  echo "ID_FS_UUID=$ID_FS_UUID";} > /dev/sda1
+{ echo "dracut-root-block-created"; echo MD_UUID=$MD_UUID;  echo "ID_FS_UUID=$ID_FS_UUID";} | dd oflag=direct,dsync of=/dev/sda

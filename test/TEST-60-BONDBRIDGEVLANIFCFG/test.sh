@@ -1,7 +1,18 @@
 #!/bin/bash
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
-TEST_DESCRIPTION="root filesystem on NFS with bridging/bonding/vlan"
+
+
+if [[ $NM ]]; then
+    USE_NETWORK="network-manager"
+    OMIT_NETWORK="network-legacy"
+else
+    USE_NETWORK="network-legacy"
+    OMIT_NETWORK="network-manager"
+fi
+
+TEST_DESCRIPTION="root filesystem on NFS with bridging/bonding/vlan with $USE_NETWORK"
+
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
@@ -17,8 +28,6 @@ run_server() {
 
     $testdir/run-qemu \
         -hda "$TESTDIR"/server.ext3 \
-        -m 512M -smp 2 \
-        -display none \
         -netdev socket,id=n0,listen=127.0.0.1:12370 \
         -netdev socket,id=n1,listen=127.0.0.1:12371 \
         -netdev socket,id=n2,listen=127.0.0.1:12372 \
@@ -30,8 +39,7 @@ run_server() {
         ${SERIAL:+-serial "$SERIAL"} \
         ${SERIAL:--serial file:"$TESTDIR"/server.log} \
         -watchdog i6300esb -watchdog-action poweroff \
-        -no-reboot \
-        -append "panic=1 systemd.crash_reboot loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 rd.debug" \
+        -append "panic=1 loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 rd.debug" \
         -initrd "$TESTDIR"/initramfs.server \
         -pidfile "$TESTDIR"/server.pid -daemonize || return 1
     chmod 644 -- "$TESTDIR"/server.pid || return 1
@@ -39,8 +47,16 @@ run_server() {
     # Cleanup the terminal if we have one
     tty -s && stty sane
 
-    echo Sleeping 10 seconds to give the server a head start
-    sleep 10
+    if ! [[ $SERIAL ]]; then
+        echo "Waiting for the server to startup"
+        while : ; do
+            grep Serving "$TESTDIR"/server.log && break
+            sleep 1
+        done
+    else
+        echo Sleeping 10 seconds to give the server a head start
+        sleep 10
+    fi
 }
 
 client_test() {
@@ -67,39 +83,20 @@ client_test() {
         nic3=" -netdev hubport,id=n3,hubid=3"
     fi
 
-    if $testdir/run-qemu --help | grep -qF -m1 'netdev hubport,id=str,hubid=n[,netdev=nd]' && echo OK; then
-        $testdir/run-qemu \
-            -hda "$TESTDIR"/client.img -m 512M -smp 2 -nographic \
-            -netdev socket,connect=127.0.0.1:12370,id=s1 \
-            -netdev hubport,hubid=1,id=h1,netdev=s1 \
-            -netdev hubport,hubid=1,id=h2 -device e1000,mac=52:54:00:12:34:01,netdev=h2 \
-            -netdev hubport,hubid=1,id=h3 -device e1000,mac=52:54:00:12:34:02,netdev=h3 \
-            $nic1 -device e1000,mac=52:54:00:12:34:03,netdev=n1  \
-            -netdev socket,connect=127.0.0.1:12372,id=n2 -device e1000,mac=52:54:00:12:34:04,netdev=n2 \
-            $nic3 -device e1000,mac=52:54:00:12:34:05,netdev=n3 \
-            -watchdog i6300esb -watchdog-action poweroff \
-            -no-reboot \
-            -append "panic=1 systemd.crash_reboot $cmdline rd.debug $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
-            -initrd "$TESTDIR"/initramfs.testing
-    else
-        $testdir/run-qemu \
-            -hda "$TESTDIR"/client.img -m 512M -smp 2 -nographic \
-            -net socket,vlan=0,connect=127.0.0.1:12370 \
-            ${do_vlan13:+-net socket,vlan=1,connect=127.0.0.1:12371} \
-            -net socket,vlan=2,connect=127.0.0.1:12372 \
-            ${do_vlan13:+-net socket,vlan=3,connect=127.0.0.1:12373} \
-            -net nic,vlan=0,macaddr=52:54:00:12:34:01,model=e1000 \
-            -net nic,vlan=0,macaddr=52:54:00:12:34:02,model=e1000 \
-            -net nic,vlan=1,macaddr=52:54:00:12:34:03,model=e1000 \
-            -net nic,vlan=2,macaddr=52:54:00:12:34:04,model=e1000 \
-            -net nic,vlan=3,macaddr=52:54:00:12:34:05,model=e1000 \
-            -watchdog i6300esb -watchdog-action poweroff \
-            -no-reboot \
-            -append "panic=1 systemd.crash_reboot $cmdline rd.debug $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
-            -initrd "$TESTDIR"/initramfs.testing
-    fi
+    $testdir/run-qemu \
+        -hda "$TESTDIR"/client.img \
+        -netdev socket,connect=127.0.0.1:12370,id=s1 \
+        -netdev hubport,hubid=1,id=h1,netdev=s1 \
+        -netdev hubport,hubid=1,id=h2 -device e1000,mac=52:54:00:12:34:01,netdev=h2 \
+        -netdev hubport,hubid=1,id=h3 -device e1000,mac=52:54:00:12:34:02,netdev=h3 \
+        $nic1 -device e1000,mac=52:54:00:12:34:03,netdev=n1  \
+        -netdev socket,connect=127.0.0.1:12372,id=n2 -device e1000,mac=52:54:00:12:34:04,netdev=n2 \
+        $nic3 -device e1000,mac=52:54:00:12:34:05,netdev=n3 \
+        -watchdog i6300esb -watchdog-action poweroff \
+        -append "panic=1 $cmdline systemd.crash_reboot rd.debug $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
+        -initrd "$TESTDIR"/initramfs.testing
 
-    { 
+    {
         read OK
         if [[ "$OK" != "OK" ]]; then
             echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
@@ -112,8 +109,8 @@ client_test() {
         done
     } < "$TESTDIR"/client.img || return 1
 
-    if [[ ! "$CONF" =~ ^$check$ ]]; then
-        echo "Expected: /^$check\$/"
+    if [[ "$check" != "$CONF" ]]; then
+        echo "Expected: '$check'"
         echo
         echo
         echo "Got:      '$CONF'"
@@ -135,9 +132,15 @@ test_run() {
 }
 
 test_client() {
+    if [[ $NM ]]; then
+        EXPECT='ens3 ens5.0004 ens5.3 vlan0001 vlan2 /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-* EOF '
+    else
+        EXPECT='ens3 ens5.0004 ens5.3 vlan0001 vlan2 /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens3 # Generated by dracut initrd NAME="ens3" DEVICE="ens3" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp TYPE=Ethernet /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens5.0004 # Generated by dracut initrd NAME="ens5.0004" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.57.104" PREFIX="24" GATEWAY="192.168.57.1" TYPE=Vlan DEVICE="ens5.0004" VLAN=yes PHYSDEV="ens5" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens5.3 # Generated by dracut initrd NAME="ens5.3" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.56.103" PREFIX="24" GATEWAY="192.168.56.1" TYPE=Vlan DEVICE="ens5.3" VLAN=yes PHYSDEV="ens5" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-vlan0001 # Generated by dracut initrd NAME="vlan0001" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.54.101" PREFIX="24" GATEWAY="192.168.54.1" TYPE=Vlan DEVICE="vlan0001" VLAN=yes PHYSDEV="ens5" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-vlan2 # Generated by dracut initrd NAME="vlan2" ONBOOT=yes NETBOOT=yes BOOTPROTO=none IPADDR="192.168.55.102" PREFIX="24" GATEWAY="192.168.55.1" TYPE=Vlan DEVICE="vlan2" VLAN=yes PHYSDEV="ens5" EOF '
+    fi
+
     client_test "Multiple VLAN" \
-        "yes" \
-        "
+                "yes" \
+                "
 vlan=vlan0001:ens5
 vlan=vlan2:ens5
 vlan=ens5.3:ens5
@@ -150,41 +153,52 @@ ip=192.168.57.104::192.168.57.1:24:test:ens5.0004:none
 rd.neednet=1
 root=nfs:192.168.50.1:/nfs/client bootdev=ens3
 " \
-    'ens3 inet 192\.168\.50\.[0-9]*/24 brd 192\.168\.50\.255 ens5\.0004 inet 192\.168\.57\.104/24 brd 192\.168\.57\.255 ens5\.3 inet 192\.168\.56\.103/24 brd 192\.168\.56\.255 vlan0001 inet 192\.168\.54\.101/24 brd 192\.168\.54\.255 vlan2 inet 192\.168\.55\.102/24 brd 192\.168\.55\.255 EOF ' \
-    || return 1
+                "$EXPECT" \
+        || return 1
+
+    if [[ $NM ]]; then
+        EXPECT='bond0 bond1 /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-* EOF '
+    else
+        EXPECT='bond0 bond1 /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-bond0 # Generated by dracut initrd NAME="bond0" DEVICE="bond0" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp BONDING_OPTS="" NAME="bond0" TYPE=Bond /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-bond1 # Generated by dracut initrd NAME="bond1" DEVICE="bond1" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp BONDING_OPTS="" NAME="bond1" TYPE=Bond /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens3 # Generated by dracut initrd NAME="ens3" TYPE=Ethernet ONBOOT=yes NETBOOT=yes SLAVE=yes MASTER="bond0" DEVICE="ens3" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens4 # Generated by dracut initrd NAME="ens4" TYPE=Ethernet ONBOOT=yes NETBOOT=yes SLAVE=yes MASTER="bond0" DEVICE="ens4" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens6 # Generated by dracut initrd NAME="ens6" TYPE=Ethernet ONBOOT=yes NETBOOT=yes SLAVE=yes MASTER="bond1" DEVICE="ens6" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens7 # Generated by dracut initrd NAME="ens7" TYPE=Ethernet ONBOOT=yes NETBOOT=yes SLAVE=yes MASTER="bond1" DEVICE="ens7" EOF '
+    fi
 
     client_test "Multiple Bonds" \
-        "yes" \
-        "
-bond=bond0:ens4,ens5
+                "yes" \
+                "
+bond=bond0:ens3,ens4
 bond=bond1:ens6,ens7
 ip=bond0:dhcp
 ip=bond1:dhcp
 rd.neednet=1
 root=nfs:192.168.50.1:/nfs/client bootdev=bond0
 " \
-    'bond0 inet 192\.168\.50\.[0-9]*/24 brd 192\.168\.50\.255 bond1 inet 192\.168\.51\.[0-9]*/24 brd 192\.168\.51\.255 EOF ' \
-    || return 1
+                "$EXPECT" \
+        || return 1
+
+    if [[ $NM ]]; then
+        EXPECT='br0 br1 /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-* EOF '
+    else
+        EXPECT='br0 br1 /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-br0 # Generated by dracut initrd NAME="br0" DEVICE="br0" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp TYPE=Bridge NAME="br0" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-br1 # Generated by dracut initrd NAME="br1" DEVICE="br1" ONBOOT=yes NETBOOT=yes IPV6INIT=yes BOOTPROTO=dhcp TYPE=Bridge NAME="br1" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens3 # Generated by dracut initrd NAME="ens3" TYPE=Ethernet ONBOOT=yes NETBOOT=yes BRIDGE="br0" DEVICE="ens3" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens4 # Generated by dracut initrd NAME="ens4" TYPE=Ethernet ONBOOT=yes NETBOOT=yes BRIDGE="br0" DEVICE="ens4" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens6 # Generated by dracut initrd NAME="ens6" TYPE=Ethernet ONBOOT=yes NETBOOT=yes BRIDGE="br1" DEVICE="ens6" /run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-ens7 # Generated by dracut initrd NAME="ens7" TYPE=Ethernet ONBOOT=yes NETBOOT=yes BRIDGE="br1" DEVICE="ens7" EOF '
+    fi
 
     client_test "Multiple Bridges" \
-        "no" \
-        "
-bridge=br0:ens4,ens5
+                "no" \
+                "
+bridge=br0:ens3,ens4
 bridge=br1:ens6,ens7
 ip=br0:dhcp
 ip=br1:dhcp
 rd.neednet=1
 root=nfs:192.168.50.1:/nfs/client bootdev=br0
 " \
-    'br0 inet 192\.168\.50\.[0-9]*/24 brd 192\.168\.50\.255 br1 inet 192\.168\.51\.[0-9]*/24 brd 192\.168\.51\.255 EOF ' \
-    || return 1
-
+                "$EXPECT" \
+        || return 1
     kill_server
     return 0
 }
 
 test_setup() {
-     # Make server root
+    # Make server root
     dd if=/dev/null of="$TESTDIR"/server.ext3 bs=1M seek=120
     mke2fs -j -F -- "$TESTDIR"/server.ext3
     mkdir -- "$TESTDIR"/mnt
@@ -213,9 +227,9 @@ test_setup() {
         done
 
         inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
-            dmesg mkdir cp ping exportfs \
-            modprobe rpc.nfsd rpc.mountd showmount tcpdump \
-            /etc/services sleep mount chmod
+                      dmesg mkdir cp ping exportfs \
+                      modprobe rpc.nfsd rpc.mountd showmount tcpdump \
+                      /etc/services sleep mount chmod
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f "${_terminfodir}"/l/linux ] && break
         done
@@ -240,7 +254,7 @@ test_setup() {
         inst_libdir_file 'libnfsidmap*.so*'
 
         _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
-            |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
+                       |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
         _nsslibs=${_nsslibs#|}
         _nsslibs=${_nsslibs%|}
 
@@ -260,7 +274,7 @@ test_setup() {
         export initdir="$TESTDIR"/mnt/nfs/client
         . "$basedir"/dracut-init.sh
         inst_multiple sh shutdown poweroff stty cat ps ln ip \
-            mount dmesg mkdir cp ping grep ls sort sed
+                      mount dmesg mkdir cp ping grep ls sort dd
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [[ -f ${_terminfodir}/l/linux ]] && break
         done
@@ -282,7 +296,7 @@ test_setup() {
         inst_libdir_file 'libnfsidmap*.so*'
 
         _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' -- /etc/nsswitch.conf \
-            |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
+                       |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
         _nsslibs=${_nsslibs#|}
         _nsslibs=${_nsslibs%|}
 
@@ -307,20 +321,20 @@ test_setup() {
 
     # Make server's dracut image
     $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
-        --no-early-microcode \
-        -m "udev-rules base rootfs-block fs-lib debug kernel-modules watchdog qemu" \
-        -d "ipvlan macvlan af_packet piix ide-gd_mod ata_piix ext3 sd_mod nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files nfsd e1000 i6300esb ib700wdt" \
-        --no-hostonly-cmdline -N \
-        -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
+                       --no-early-microcode \
+                       -m "udev-rules base rootfs-block fs-lib debug kernel-modules watchdog qemu" \
+                       -d "ipvlan macvlan af_packet piix ide-gd_mod ata_piix ext3 sd_mod nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files nfsd e1000 i6300esb ib700wdt" \
+                       --no-hostonly-cmdline -N \
+                       -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
 
     # Make client's dracut image
     $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
-        --no-early-microcode \
-        -o "plymouth" \
-        -a "debug" \
-        -d "ipvlan macvlan af_packet piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files sunrpc i6300esb ib700wdt" \
-        --no-hostonly-cmdline -N \
-        -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
+                       --no-early-microcode \
+                       -o "plymouth ${OMIT_NETWORK}" \
+                       -a "debug ${USE_NETWORK}" \
+                       -d "ipvlan macvlan af_packet piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files sunrpc i6300esb ib700wdt" \
+                       --no-hostonly-cmdline -N \
+                       -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 }
 
 kill_server() {

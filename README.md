@@ -4,6 +4,8 @@ dracut
 dracut is an event driven initramfs infrastructure.
 
 [![Build Status](https://travis-ci.org/dracutdevs/dracut.svg?branch=master)](https://travis-ci.org/dracutdevs/dracut)
+![Fedora-30](https://github.com/dracutdevs/dracut/workflows/Fedora-30/badge.svg?branch=master)
+![Fedora-31](https://github.com/dracutdevs/dracut/workflows/Fedora-31/badge.svg?branch=master)
 
 dracut (the tool) is used to create an initramfs image by copying tools
 and files from an installed system and combining it with the

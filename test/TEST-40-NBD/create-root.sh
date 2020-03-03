@@ -26,5 +26,5 @@ cryptsetup luksClose /dev/mapper/dracut_crypt_test
 udevadm settle
 sleep 1
 eval $(udevadm info --query=env --name=/dev/sdb|while read line || [ -n "$line" ]; do [ "$line" != "${line#*ID_FS_UUID*}" ] && echo $line; done;)
-{ echo "dracut-root-block-created"; echo "ID_FS_UUID=$ID_FS_UUID"; } >/dev/sda
+{ echo "dracut-root-block-created"; echo "ID_FS_UUID=$ID_FS_UUID"; } | dd oflag=direct,dsync of=/dev/sda
 poweroff -f

@@ -1,5 +1,14 @@
 #!/bin/bash
-TEST_DESCRIPTION="root filesystem on NFS with multiple nics"
+
+if [[ $NM ]]; then
+    USE_NETWORK="network-manager"
+    OMIT_NETWORK="network-legacy"
+else
+    USE_NETWORK="network-legacy"
+    OMIT_NETWORK="network-manager"
+fi
+
+TEST_DESCRIPTION="root filesystem on NFS with multiple nics with $USE_NETWORK"
 
 KVERSION=${KVERSION-$(uname -r)}
 
@@ -15,25 +24,30 @@ run_server() {
 
     $testdir/run-qemu \
         -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
-        -m 512M  -smp 2 \
-        -display none \
         -net socket,listen=127.0.0.1:12350 \
         -net nic,macaddr=52:54:01:12:34:56,model=e1000 \
         ${SERIAL:+-serial "$SERIAL"} \
         ${SERIAL:--serial file:"$TESTDIR"/server.log} \
         -watchdog i6300esb -watchdog-action poweroff \
-        -no-reboot \
         -append "panic=1 systemd.crash_reboot loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.server \
         -pidfile "$TESTDIR"/server.pid -daemonize || return 1
 
-    sudo chmod 644 -- "$TESTDIR"/server.pid || return 1
+    chmod 644 -- "$TESTDIR"/server.pid || return 1
 
     # Cleanup the terminal if we have one
     tty -s && stty sane
 
-    echo Sleeping 10 seconds to give the server a head start
-    sleep 10
+    if ! [[ $SERIAL ]]; then
+        while : ; do
+            grep Serving "$TESTDIR"/server.log && break
+            echo "Waiting for the server to startup"
+            sleep 1
+        done
+    else
+        echo Sleeping 10 seconds to give the server a head start
+        sleep 10
+    fi
 }
 
 client_test() {
@@ -52,7 +66,7 @@ client_test() {
         return 1
     fi
 
-    $testdir/run-qemu -drive format=raw,index=0,media=disk,file="$TESTDIR"/client.img -m 512M  -smp 2 -nographic \
+    $testdir/run-qemu -drive format=raw,index=0,media=disk,file="$TESTDIR"/client.img \
                       -net socket,connect=127.0.0.1:12350 \
                       -net nic,macaddr=52:54:00:12:34:$mac1,model=e1000 \
                       -net nic,macaddr=52:54:00:12:34:$mac2,model=e1000 \
@@ -62,8 +76,7 @@ client_test() {
                       -device e1000,netdev=n1,mac=52:54:00:12:34:98 \
                       -device e1000,netdev=n2,mac=52:54:00:12:34:99 \
                       -watchdog i6300esb -watchdog-action poweroff \
-                      -no-reboot \
-                      -append "panic=1 systemd.crash_reboot rd.shell=0 $cmdline $DEBUGFAIL rd.retry=5 ro console=ttyS0,115200n81 selinux=0 init=/sbin/init rd.debug systemd.log_target=console loglevel=7" \
+                      -append "quiet rd.net.timeout.dhcp=3 panic=1 systemd.crash_reboot rd.shell=0 $cmdline $DEBUGFAIL rd.retry=5 ro console=ttyS0,115200n81 selinux=0 init=/sbin/init rd.debug systemd.log_target=console" \
                       -initrd "$TESTDIR"/initramfs.testing
 
     { read OK; read IFACES; } < "$TESTDIR"/client.img
@@ -114,45 +127,46 @@ test_client() {
     client_test "MULTINIC root=nfs BOOTIF=" \
                 00 01 02 \
                 "root=nfs:192.168.50.1:/nfs/client BOOTIF=52-54-00-12-34-00" \
-                "ens3" || return 1
+                "ens2" || return 1
 
     client_test "MULTINIC root=nfs BOOTIF= ip=ens4:dhcp" \
                 00 01 02 \
-                "root=nfs:192.168.50.1:/nfs/client BOOTIF=52-54-00-12-34-00 ip=ens4:dhcp" \
-                "ens3 ens4" || return 1
+                "root=nfs:192.168.50.1:/nfs/client BOOTIF=52-54-00-12-34-00 ip=ens3:dhcp" \
+                "ens2 ens3" || return 1
 
     # PXE Style BOOTIF= with dhcp root-path
     client_test "MULTINIC root=dhcp BOOTIF=" \
                 00 01 02 \
                 "root=dhcp BOOTIF=52-54-00-12-34-02" \
-                "ens5" || return 1
+                "ens4" || return 1
 
     # Multinic case, where only one nic works
     client_test "MULTINIC root=nfs ip=dhcp" \
                 FF 00 FE \
                 "root=nfs:192.168.50.1:/nfs/client ip=dhcp" \
-                "ens4" || return 1
+                "ens3" || return 1
 
     # Require two interfaces
-    client_test "MULTINIC root=nfs ip=ens4:dhcp ip=ens5:dhcp bootdev=ens4" \
+    client_test "MULTINIC root=nfs ip=ens3:dhcp ip=ens4:dhcp bootdev=ens3" \
                 00 01 02 \
-                "root=nfs:192.168.50.1:/nfs/client ip=ens4:dhcp ip=ens5:dhcp bootdev=ens4" \
-                "ens4 ens5" || return 1
+                "root=nfs:192.168.50.1:/nfs/client ip=ens3:dhcp ip=ens4:dhcp bootdev=ens3" \
+                "ens3 ens4" || return 1
 
     # Require three interfaces with dhcp root-path
-    client_test "MULTINIC root=dhcp ip=ens3:dhcp ip=ens4:dhcp ip=ens5:dhcp bootdev=ens5" \
+    client_test "MULTINIC root=dhcp ip=ens2:dhcp ip=ens3:dhcp ip=ens4:dhcp bootdev=ens4" \
                 00 01 02 \
-                "root=dhcp ip=ens3:dhcp ip=ens4:dhcp ip=ens5:dhcp bootdev=ens5" \
-                "ens3 ens4 ens5" || return 1
+                "root=dhcp ip=ens2:dhcp ip=ens3:dhcp ip=ens4:dhcp bootdev=ens4" \
+                "ens2 ens3 ens4" || return 1
 
     client_test "MULTINIC bonding" \
                 00 01 02 \
-                "root=nfs:192.168.50.1:/nfs/client ip=bond0:dhcp  bond=bond0:ens3,ens4,ens5:mode=balance-rr" \
+                "root=nfs:192.168.50.1:/nfs/client ip=bond0:dhcp  bond=bond0:ens2,ens3,ens4:mode=balance-rr" \
                 "bond0" || return 1
 
+    # bridge, where only one interface is actually connected
     client_test "MULTINIC bridging" \
                 00 01 02 \
-                "root=nfs:192.168.50.1:/nfs/client ip=bridge0:dhcp  bridge=bridge0:ens3,ens6,ens7" \
+                "root=nfs:192.168.50.1:/nfs/client ip=bridge0:dhcp  bridge=bridge0:ens2,ens6,ens7" \
                 "bridge0" || return 1
     return 0
 }
@@ -162,7 +176,7 @@ test_setup() {
     dd if=/dev/null of="$TESTDIR"/server.ext3 bs=1M seek=120
     mke2fs -j -F -- "$TESTDIR"/server.ext3
     mkdir -- "$TESTDIR"/mnt
-    sudo mount -o loop -- "$TESTDIR"/server.ext3 "$TESTDIR"/mnt
+    mount -o loop -- "$TESTDIR"/server.ext3 "$TESTDIR"/mnt
     kernel=$KVERSION
     (
         export initdir="$TESTDIR"/mnt
@@ -243,7 +257,7 @@ test_setup() {
             done
         )
         inst_multiple sh shutdown poweroff stty cat ps ln ip \
-                      mount dmesg mkdir cp ping grep ls
+                      mount dmesg mkdir cp ping grep ls dd
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [[ -f ${_terminfodir}/l/linux ]] && break
         done
@@ -267,10 +281,10 @@ test_setup() {
         inst_libdir_file -n "$_nsslibs" 'libnss_*.so*'
 
         cp -a -- /etc/ld.so.conf* "$initdir"/etc
-        sudo ldconfig -r "$initdir"
+        ldconfig -r "$initdir"
     )
 
-    sudo umount "$TESTDIR"/mnt
+    umount "$TESTDIR"/mnt
     rm -fr -- "$TESTDIR"/mnt
 
     # Make an overlay with needed tools for the test harness
@@ -295,8 +309,8 @@ test_setup() {
     # Make client's dracut image
     $basedir/dracut.sh \
         -l -i "$TESTDIR"/overlay / \
-        -o "plymouth" \
-        -a "debug" \
+        -o "plymouth ${OMIT_NETWORK}" \
+        -a "debug ${USE_NETWORK}" \
         -d "af_packet piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files sunrpc i6300esb ib700wdt" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
@@ -304,7 +318,7 @@ test_setup() {
 
 kill_server() {
     if [[ -s "$TESTDIR"/server.pid ]]; then
-        sudo kill -TERM -- $(cat "$TESTDIR"/server.pid)
+        kill -TERM -- $(cat "$TESTDIR"/server.pid)
         rm -f -- "$TESTDIR"/server.pid
     fi
 }

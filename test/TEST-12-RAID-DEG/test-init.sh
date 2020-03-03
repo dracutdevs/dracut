@@ -99,7 +99,7 @@ strstr() { [ "${1##*"$2"*}" != "$1" ]; }
 CMDLINE=$(while read line || [ -n "$line" ]; do echo $line;done < /proc/cmdline)
 command -v plymouth >/dev/null && plymouth --quit
 exec >/dev/console 2>&1
-echo "dracut-root-block-success" >/dev/sda1
+echo "dracut-root-block-success" | dd oflag=direct,dsync of=/dev/sda
 export TERM=linux
 export PS1='initramfs-test:\w\$ '
 [ -f /etc/mtab ] || ln -sfn /proc/mounts /etc/mtab
