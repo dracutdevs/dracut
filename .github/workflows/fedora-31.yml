@@ -14,7 +14,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     #container: quay.io/haraldh/dracut-fedora:30
-    timeout-minutes: 30
+    timeout-minutes: 45
     strategy:
       matrix:
         test: [
