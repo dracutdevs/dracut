@@ -1,9 +1,13 @@
 -include dracut-version.sh
 
 DRACUT_MAIN_VERSION ?= $(shell env GIT_CEILING_DIRECTORIES=$(CWD)/.. git describe --abbrev=0 --tags --always 2>/dev/null || :)
-DRACUT_MAIN_VERSION ?= $(DRACUT_VERSION)
+ifeq ($(DRACUT_MAIN_VERSION),)
+DRACUT_MAIN_VERSION = $(DRACUT_VERSION)
+endif
 DRACUT_FULL_VERSION ?= $(shell env GIT_CEILING_DIRECTORIES=$(CWD)/.. git describe --tags --always 2>/dev/null || :)
-DRACUT_FULL_VERSION ?= $(DRACUT_VERSION)
+ifeq ($(DRACUT_FULL_VERSION),)
+DRACUT_FULL_VERSION = $(DRACUT_VERSION)
+endif
 
 -include Makefile.inc
 
