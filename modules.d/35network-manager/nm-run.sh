@@ -22,3 +22,5 @@ do
     source_hook initqueue/online $ifname
     /sbin/netroot $ifname
 done
+
+> /tmp/nm.done
