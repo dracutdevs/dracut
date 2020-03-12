@@ -19,7 +19,7 @@ client_run() {
         -drive format=raw,index=1,media=disk,file=$TESTDIR/usr.btrfs \
         -drive format=raw,index=2,media=disk,file=$TESTDIR/result \
         -watchdog i6300esb -watchdog-action poweroff \
-        -append "panic=1 systemd.crash_reboot root=LABEL=dracut $client_opts quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug rd.shell=0 $DEBUGFAIL" \
+        -append "panic=1 systemd.crash_reboot root=LABEL=dracut $client_opts loglevel=7 rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug rd.shell=0 $DEBUGFAIL" \
         -initrd $TESTDIR/initramfs.testing
 
     if ! grep -F -m 1 -q dracut-root-block-success $TESTDIR/result; then
