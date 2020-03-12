@@ -16,7 +16,7 @@ test_run() {
 test_setup() {
     rm -f -- $TESTDIR/root.ext3
     # Create the blank file to use as a root filesystem
-    dd if=/dev/null of=$TESTDIR/root.ext3 bs=1M seek=80
+    dd if=/dev/zero of=$TESTDIR/root.ext3 bs=1M count=80
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay

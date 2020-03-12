@@ -25,7 +25,7 @@ client_run() {
         return 1;
     fi
     rm -f -- $TESTDIR/marker.img
-    dd if=/dev/null of=$TESTDIR/marker.img bs=1M seek=40
+    dd if=/dev/zero of=$TESTDIR/marker.img bs=1M count=40
 
     echo "CLIENT TEST END: $@ [OK]"
     return 0
@@ -56,10 +56,10 @@ test_run() {
 test_setup() {
     # Create the blank file to use as a root filesystem
     rm -f -- $TESTDIR/marker.img
-    dd if=/dev/null of=$TESTDIR/marker.img bs=1M seek=40
-    dd if=/dev/null of=$TESTDIR/disk1.img bs=1M seek=35
-    dd if=/dev/null of=$TESTDIR/disk2.img bs=1M seek=35
-    dd if=/dev/null of=$TESTDIR/disk3.img bs=1M seek=35
+    dd if=/dev/zero of=$TESTDIR/marker.img bs=1M count=40
+    dd if=/dev/zero of=$TESTDIR/disk1.img bs=1M count=35
+    dd if=/dev/zero of=$TESTDIR/disk2.img bs=1M count=35
+    dd if=/dev/zero of=$TESTDIR/disk3.img bs=1M count=35
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
