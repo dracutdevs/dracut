@@ -225,7 +225,7 @@ test_run() {
 
 test_setup() {
     # Make server root
-    dd if=/dev/null of=$TESTDIR/server.ext3 bs=1M seek=120
+    dd if=/dev/zero of=$TESTDIR/server.ext3 bs=1M count=120
     mke2fs -j -F $TESTDIR/server.ext3
     mkdir $TESTDIR/mnt
     mount -o loop $TESTDIR/server.ext3 $TESTDIR/mnt

@@ -42,8 +42,8 @@ test_setup() {
     rm -f -- $TESTDIR/root.btrfs
     rm -f -- $TESTDIR/usr.btrfs
     # Create the blank file to use as a root filesystem
-    dd if=/dev/null of=$TESTDIR/root.btrfs bs=1M seek=320
-    dd if=/dev/null of=$TESTDIR/usr.btrfs bs=1M seek=320
+    dd if=/dev/zero of=$TESTDIR/root.btrfs bs=1M count=320
+    dd if=/dev/zero of=$TESTDIR/usr.btrfs bs=1M count=320
 
     export kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
