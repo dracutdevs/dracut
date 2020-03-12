@@ -129,9 +129,9 @@ test_setup() {
     fi
 
     # Create the blank file to use as a root filesystem
-    dd if=/dev/null of=$TESTDIR/root.ext3 bs=1M seek=45
-    dd if=/dev/null of=$TESTDIR/iscsidisk2.img bs=1M seek=45
-    dd if=/dev/null of=$TESTDIR/iscsidisk3.img bs=1M seek=45
+    dd if=/dev/zero of=$TESTDIR/root.ext3 bs=1M count=45
+    dd if=/dev/zero of=$TESTDIR/iscsidisk2.img bs=1M count=45
+    dd if=/dev/zero of=$TESTDIR/iscsidisk3.img bs=1M count=45
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
@@ -182,7 +182,7 @@ test_setup() {
 
 
     # Need this so kvm-qemu will boot (needs non-/dev/zero local disk)
-    if ! dd if=/dev/null of=$TESTDIR/client.img bs=1M seek=1; then
+    if ! dd if=/dev/zero of=$TESTDIR/client.img bs=1M count=1; then
         echo "Unable to make client sdb image" 1>&2
         return 1
     fi
@@ -198,7 +198,7 @@ test_setup() {
     rm -- $TESTDIR/client.img
 
     # Make server root
-    dd if=/dev/null of=$TESTDIR/server.ext3 bs=1M seek=60
+    dd if=/dev/zero of=$TESTDIR/server.ext3 bs=1M count=60
     mkfs.ext3 -j -F $TESTDIR/server.ext3
     mkdir $TESTDIR/mnt
     mount -o loop $TESTDIR/server.ext3 $TESTDIR/mnt

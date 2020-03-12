@@ -209,8 +209,8 @@ client_run() {
 
 make_encrypted_root() {
     # Create the blank file to use as a root filesystem
-    dd if=/dev/null of=$TESTDIR/encrypted.ext2 bs=1M seek=80
-    dd if=/dev/null of=$TESTDIR/flag.img bs=1M seek=1
+    dd if=/dev/zero of=$TESTDIR/encrypted.ext2 bs=1M count=80
+    dd if=/dev/zero of=$TESTDIR/flag.img bs=1M count=1
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
@@ -280,7 +280,7 @@ make_encrypted_root() {
 }
 
 make_client_root() {
-    dd if=/dev/null of=$TESTDIR/nbd.ext2 bs=1M seek=120
+    dd if=/dev/zero of=$TESTDIR/nbd.ext2 bs=1M count=120
     mke2fs -F -j $TESTDIR/nbd.ext2
     mkdir $TESTDIR/mnt
     if ! mount -o loop $TESTDIR/nbd.ext2 $TESTDIR/mnt; then
@@ -325,7 +325,7 @@ make_client_root() {
 }
 
 make_server_root() {
-    dd if=/dev/null of=$TESTDIR/server.ext2 bs=1M seek=120
+    dd if=/dev/zero of=$TESTDIR/server.ext2 bs=1M count=120
     mke2fs -F $TESTDIR/server.ext2
     mkdir $TESTDIR/mnt
     mount -o loop $TESTDIR/server.ext2 $TESTDIR/mnt
