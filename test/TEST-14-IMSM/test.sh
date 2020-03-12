@@ -11,7 +11,7 @@ client_run() {
     echo "CLIENT TEST START: $@"
 
     rm -f -- $TESTDIR/marker.img
-    dd if=/dev/null of=$TESTDIR/marker.img bs=1M seek=1
+    dd if=/dev/zero of=$TESTDIR/marker.img bs=1M count=1
 
     $testdir/run-qemu \
         -drive format=raw,index=0,media=disk,file=$TESTDIR/marker.img \
@@ -53,9 +53,9 @@ test_setup() {
     rm -f -- $TESTDIR/marker.img
     rm -f -- $TESTDIR/disk1
     rm -f -- $TESTDIR/disk2
-    dd if=/dev/null of=$TESTDIR/marker.img bs=1M seek=1
-    dd if=/dev/null of=$TESTDIR/disk1 bs=1M seek=104
-    dd if=/dev/null of=$TESTDIR/disk2 bs=1M seek=104
+    dd if=/dev/zero of=$TESTDIR/marker.img bs=1M count=1
+    dd if=/dev/zero of=$TESTDIR/disk1 bs=1M count=104
+    dd if=/dev/zero of=$TESTDIR/disk2 bs=1M count=104
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay

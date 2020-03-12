@@ -19,7 +19,7 @@ test_setup() {
     DISKIMAGE=$TESTDIR/TEST-10-RAID-root.img
     # Create the blank file to use as a root filesystem
     rm -f -- $DISKIMAGE
-    dd if=/dev/null of=$DISKIMAGE bs=1M seek=128
+    dd if=/dev/zero of=$DISKIMAGE bs=1M count=128
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
