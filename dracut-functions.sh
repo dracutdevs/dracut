@@ -40,19 +40,43 @@ str_ends() { [ "${1%*"$2"}" != "$1" ]; }
 # find a binary.  If we were not passed the full path directly,
 # search in the usual places to find the binary.
 find_binary() {
-    if [[ -z ${1##/*} ]]; then
-        if [[ -x $1 ]] || { [[ "$1" == *.so* ]] && ldd "$1" &>/dev/null; };  then
+    local _delim
+    local l
+    local p
+    [[ -z ${1##/*} ]] || _delim="/"
+
+    if [[ "$1" == *.so* ]]; then
+        for l in libdirs ; do
+            if { $DRACUT_LDD "$dracutsysrootdir$l$_delim$1" &>/dev/null; };  then
+                printf "%s\n" "$1"
+                return 0
+            fi
+        done
+        if { $DRACUT_LDD "$dracutsysrootdir$_delim$1" &>/dev/null; }; then
             printf "%s\n" "$1"
             return 0
         fi
     fi
+    if [[ "$1" == */* ]]; then
+        if [[ -L $dracutsysrootdir$_delim$1 ]] || [[ -x $dracutsysrootdir$_delim$1 ]]; then
+            printf "%s\n" "$1"
+            return 0
+        fi
+    fi
+    for p in $DRACUT_PATH ; do
+        if [[ -L $dracutsysrootdir$p$_delim$1 ]] || [[ -x $dracutsysrootdir$p$_delim$1 ]];  then
+            printf "%s\n" "$1"
+            return 0
+        fi
+    done
 
+    [[ -n "$dracutsysrootdir" ]] && return 1
     type -P "${1##*/}"
 }
 
 ldconfig_paths()
 {
-    ldconfig -pN 2>/dev/null | grep -E -v '/(lib|lib64|usr/lib|usr/lib64)/[^/]*$' | sed -n 's,.* => \(.*\)/.*,\1,p' | sort | uniq
+    $DRACUT_LDCONFIG ${dracutsysrootdir:+-r ${dracutsysrootdir} -f /etc/ld.so.conf} -pN 2>/dev/null | grep -E -v '/(lib|lib64|usr/lib|usr/lib64)/[^/]*$' | sed -n 's,.* => \(.*\)/.*,\1,p' | sort | uniq
 }
 
 # Version comparision function.  Assumes Linux style version scheme.
@@ -592,6 +616,12 @@ check_vol_slaves_all() {
     # strip space
     _vg="${_vg//[[:space:]]/}"
     if [[ $_vg ]]; then
+        # when filter/global_filter is set, lvm may be failed
+        lvm lvs --noheadings -o vg_name $_vg 2>/dev/null 1>/dev/null
+        if [ $? -ne 0 ]; then
+             return 1
+        fi
+
         for _pv in $(lvm vgs --noheadings -o pv_name "$_vg" 2>/dev/null)
         do
             check_block_and_slaves_all $1 $(get_maj_min $_pv)
@@ -627,9 +657,9 @@ check_kernel_config()
 {
     local _config_opt="$1"
     local _config_file
-    [[ -f /boot/config-$kernel ]] \
+    [[ -f $dracutsysrootdir/boot/config-$kernel ]] \
         && _config_file="/boot/config-$kernel"
-    [[ -f /lib/modules/$kernel/config ]] \
+    [[ -f $dracutsysrootdir/lib/modules/$kernel/config ]] \
         && _config_file="/lib/modules/$kernel/config"
 
     # no kernel config file, so return true

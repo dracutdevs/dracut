@@ -33,7 +33,6 @@ check() {
 install() {
     inst rngd
     inst_simple "${moddir}/rngd.service" "${systemdsystemunitdir}/rngd.service"
-    mkdir -p "${initdir}${systemdsystemunitdir}/sysinit.target.wants"
-    ln -rfs "${initdir}${systemdsystemunitdir}/rngd.service" \
-        "${initdir}${systemdsystemunitdir}/sysinit.target.wants/rngd.service"
+
+    systemctl -q --root "$initdir" add-wants sysinit.target rngd.service
 }

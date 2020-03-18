@@ -10,7 +10,7 @@ check() {
     require_binaries ssh scp  || return 1
 
     if [[ $sshkey ]]; then
-        [ ! -f $sshkey ] && {
+        [ ! -f $dracutsysrootdir$sshkey ] && {
             derror "ssh key: $sshkey is not found!"
             return 1
         }
@@ -27,7 +27,7 @@ depends() {
 
 inst_sshenv()
 {
-    if [ -d /root/.ssh ]; then
+    if [ -d $dracutsysrootdir/root/.ssh ]; then
         inst_dir /root/.ssh
         chmod 700 ${initdir}/root/.ssh
     fi
@@ -35,13 +35,13 @@ inst_sshenv()
     # Copy over ssh key and knowhosts if needed
     [[ $sshkey ]] && {
         inst_simple $sshkey
-        [[ -f /root/.ssh/known_hosts ]] && inst_simple /root/.ssh/known_hosts
-        [[ -f /etc/ssh/ssh_known_hosts ]] && inst_simple /etc/ssh/ssh_known_hosts
+        [[ -f $dracutsysrootdir/root/.ssh/known_hosts ]] && inst_simple /root/.ssh/known_hosts
+        [[ -f $dracutsysrootdir/etc/ssh/ssh_known_hosts ]] && inst_simple /etc/ssh/ssh_known_hosts
     }
 
     # Copy over root and system-wide ssh configs.
-    [[ -f /root/.ssh/config ]] && inst_simple /root/.ssh/config
-    if [[ -f /etc/ssh/ssh_config ]]; then
+    [[ -f $dracutsysrootdir/root/.ssh/config ]] && inst_simple /root/.ssh/config
+    if [[ -f $dracutsysrootdir/etc/ssh/ssh_config ]]; then
         inst_simple /etc/ssh/ssh_config
         sed -i -e 's/\(^[[:space:]]*\)ProxyCommand/\1# ProxyCommand/' ${initdir}/etc/ssh/ssh_config
         while read key val || [ -n "$key" ]; do
@@ -55,7 +55,7 @@ inst_sshenv()
                 fi
                 inst_simple "$val"
             fi
-        done < /etc/ssh/ssh_config
+        done < $dracutsysrootdir/etc/ssh/ssh_config
     fi
 
     return 0
@@ -68,7 +68,9 @@ install() {
     inst_multiple ssh scp
     inst_sshenv
 
-    _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
+    _nsslibs=$(
+        sed -e 's/#.*//; s/^[^:]*://; s/\[[^]]*\]//' \
+            $dracutsysrootdir/etc/nsswitch.conf \
         |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
     _nsslibs=${_nsslibs#|}
     _nsslibs=${_nsslibs%|}

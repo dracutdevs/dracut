@@ -11,7 +11,7 @@ crypttab_contains "$luks" "$dev" && exit 0
 allowdiscards="-"
 
 # parse for allow-discards
-if strstr "$(cryptsetup --help)" "allow-discards"; then
+if [ -n "$DRACUT_SYSTEMD" ] || strstr "$(cryptsetup --help)" "allow-discards"; then
     if discarduuids=$(getargs "rd.luks.allow-discards"); then
         discarduuids=$(str_replace "$discarduuids" 'luks-' '')
         if strstr " $discarduuids " " ${luks##luks-}"; then

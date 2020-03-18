@@ -2,14 +2,14 @@
 
 # called by dracut
 check() {
-    arch=$(uname -m)
+    arch=${DRACUT_ARCH:-$(uname -m)}
     [ "$arch" = "s390" -o "$arch" = "s390x" ] || return 1
     return 255
 }
 
 # called by dracut
 depends() {
-    arch=$(uname -m)
+    arch=${DRACUT_ARCH:-$(uname -m)}
     [ "$arch" = "s390" -o "$arch" = "s390x" ] || return 1
     echo znet zfcp dasd dasd_mod
     return 0

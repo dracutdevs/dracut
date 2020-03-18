@@ -46,10 +46,10 @@ fi
 [ "${netroot%%:*}" = "nbd" ] || return
 
 
-if [ -n "${DRACUT_SYSTEMD}" ] && [ "$root" = "dhcp" ]; then
-    echo "root=$netroot" > /etc/cmdline.d/root.conf
-    systemctl --no-block daemon-reload
-fi
+#if [ -n "${DRACUT_SYSTEMD}" ] && [ "$root" = "dhcp" ]; then
+#    echo "root=$netroot" > /etc/cmdline.d/root.conf
+#    systemctl --no-block daemon-reload
+#fi
 
 # Check required arguments
 netroot_to_var $netroot

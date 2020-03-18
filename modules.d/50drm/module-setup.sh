@@ -15,7 +15,7 @@ installkernel() {
     local _modname
     # Include KMS capable drm drivers
 
-    if [[ "$(uname -m)" == arm* || "$(uname -m)" == aarch64 ]]; then
+    if [[ "${DRACUT_ARCH:-$(uname -m)}" == arm* || "${DRACUT_ARCH:-$(uname -m)}" == aarch64 ]]; then
         # arm/aarch64 specific modules needed by drm
         instmods \
             "=drivers/gpu/drm/i2c" \
@@ -40,6 +40,6 @@ installkernel() {
             fi
         done
     else
-        dracut_instmods -o -s "drm_crtc_init" "=drivers/gpu/drm" "=drivers/staging"
+        dracut_instmods -o -s "drm_crtc_init|drm_dev_register" "=drivers/gpu/drm" "=drivers/staging"
     fi
 }

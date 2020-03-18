@@ -5,7 +5,7 @@ exec >/dev/console 2>&1
 while read dev fs fstype opts rest || [ -n "$dev" ]; do
     [ "$dev" = "rootfs" ] && continue
     [ "$fs" != "/" ] && continue
-    echo "nbd-OK $fstype $opts" >/dev/sda
+    echo "nbd-OK $fstype $opts" | dd oflag=direct,dsync of=/dev/sda
     echo "nbd-OK $fstype $opts" 
     break
 done < /proc/mounts

@@ -264,14 +264,21 @@ int log_set_max_level_from_string(const char *e) {
 void log_parse_environment(void) {
         const char *e;
 
-        if ((e = getenv("DRACUT_LOG_TARGET")))
+        if ((e = getenv("DRACUT_INSTALL_LOG_TARGET"))) {
                 if (log_set_target_from_string(e) < 0)
                         log_warning("Failed to parse log target %s. Ignoring.", e);
+        } else if ((e = getenv("DRACUT_LOG_TARGET"))) {
+                if (log_set_target_from_string(e) < 0)
+                        log_warning("Failed to parse log target %s. Ignoring.", e);
+        }
 
-        if ((e = getenv("DRACUT_LOG_LEVEL")))
+        if ((e = getenv("DRACUT_INSTALL_LOG_LEVEL"))) {
                 if (log_set_max_level_from_string(e) < 0)
                         log_warning("Failed to parse log level %s. Ignoring.", e);
-
+        } else if ((e = getenv("DRACUT_LOG_LEVEL"))) {
+                if (log_set_max_level_from_string(e) < 0)
+                        log_warning("Failed to parse log level %s. Ignoring.", e);
+        }
 }
 
 LogTarget log_get_target(void) {

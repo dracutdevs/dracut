@@ -59,11 +59,15 @@ static bool arg_modalias = false;
 static bool arg_resolvelazy = false;
 static bool arg_resolvedeps = false;
 static bool arg_hostonly = false;
+static bool no_xattr = false;
 static char *destrootdir = NULL;
+static char *sysrootdir = NULL;
+static size_t sysrootdirlen = 0;
 static char *kerneldir = NULL;
 static size_t kerneldirlen = 0;
 static char **firmwaredirs = NULL;
 static char **pathdirs;
+static char *ldd = NULL;
 static char *logdir = NULL;
 static char *logfile = NULL;
 FILE *logfile_f = NULL;
@@ -307,7 +311,7 @@ static int cp(const char *src, const char *dst)
  normal_copy:
         pid = fork();
         if (pid == 0) {
-                if (geteuid() == 0)
+                if (geteuid() == 0 && no_xattr == false)
                         execlp("cp", "cp", "--reflink=auto", "--sparse=auto", "--preserve=mode,xattr,timestamps", "-fL", src, dst,
                                NULL);
                 else
@@ -319,7 +323,7 @@ static int cp(const char *src, const char *dst)
         while (waitpid(pid, &ret, 0) < 0) {
                 if (errno != EINTR) {
                         ret = -1;
-                        if (geteuid() == 0)
+                        if (geteuid() == 0 && no_xattr == false)
                                 log_error("Failed: cp --reflink=auto --sparse=auto --preserve=mode,xattr,timestamps -fL %s %s", src,
                                           dst);
                         else
@@ -398,6 +402,75 @@ static int library_install(const char *src, const char *lib)
         return ret;
 }
 
+static char *get_real_file(const char *src, bool fullyresolve)
+{
+        char linktarget[PATH_MAX + 1];
+        ssize_t linksz;
+        _cleanup_free_ char *fullsrcpath;
+        char *abspath = NULL;
+        struct stat sb;
+
+        if (sysrootdirlen) {
+                if (strncmp(src, sysrootdir, sysrootdirlen) == 0)
+                        fullsrcpath = strdup(src);
+                else if (asprintf(&fullsrcpath, "%s/%s", (sysrootdirlen ? sysrootdir : ""), (src[0] == '/' ? src+1 : src)) < 0)
+				        _exit(EXIT_FAILURE);
+        } else
+                fullsrcpath = strdup(src);
+
+        log_debug("get_real_file('%s')", fullsrcpath);
+
+        if (lstat(fullsrcpath, &sb) < 0)
+            return NULL;
+
+        switch (sb.st_mode & S_IFMT) {
+        case S_IFDIR:
+        case S_IFREG:
+            return strdup(fullsrcpath);
+        case S_IFLNK:
+            break;
+        default:
+            return NULL;
+        }
+
+        linksz = readlink(fullsrcpath, linktarget, sizeof(linktarget));
+        if (linksz < 0)
+                return NULL;
+        linktarget[linksz] = '\0';
+
+        log_debug("get_real_file: readlink('%s') returns '%s'", fullsrcpath, linktarget);
+
+        if (linktarget[0] == '/') {
+                if (asprintf(&abspath, "%s%s", (sysrootdirlen ? sysrootdir : ""), linktarget) < 0)
+                        return NULL;
+        } else {
+                _cleanup_free_ char *fullsrcdir = strdup(fullsrcpath);
+
+                if (!fullsrcdir) {
+                        log_error("Out of memory!");
+                        return NULL;
+                }
+
+                fullsrcdir[dir_len(fullsrcdir)] = '\0';
+
+                if (asprintf(&abspath, "%s/%s", fullsrcdir, linktarget) < 0)
+                        return NULL;
+        }
+
+        if (fullyresolve) {
+                struct stat st;
+                if (lstat(abspath, &st) < 0) {
+                        if (errno != ENOENT)
+                                return NULL;
+                }
+                if (S_ISLNK(st.st_mode))
+                        return get_real_file(abspath, fullyresolve);
+        }
+
+        log_debug("get_real_file('%s') => '%s'", src, abspath);
+        return abspath;
+}
+
 static int resolve_deps(const char *src)
 {
         int ret = 0;
@@ -406,6 +479,12 @@ static int resolve_deps(const char *src)
         size_t linesize = LINE_MAX;
         _cleanup_pclose_ FILE *fptr = NULL;
         _cleanup_free_ char *cmd = NULL;
+        _cleanup_free_ char *fullsrcpath = NULL;
+
+        fullsrcpath = get_real_file(src, true);
+        log_debug("resolve_deps('%s') -> get_real_file('%s', true) = '%s'", src, src, fullsrcpath);
+        if (!fullsrcpath)
+                return 0;
 
         buf = malloc(LINE_MAX);
         if (buf == NULL)
@@ -413,7 +492,7 @@ static int resolve_deps(const char *src)
 
         if (strstr(src, ".so") == 0) {
                 _cleanup_close_ int fd = -1;
-                fd = open(src, O_RDONLY | O_CLOEXEC);
+                fd = open(fullsrcpath, O_RDONLY | O_CLOEXEC);
                 if (fd < 0)
                         return -errno;
 
@@ -437,11 +516,13 @@ static int resolve_deps(const char *src)
         }
 
         /* run ldd */
-        ret = asprintf(&cmd, "ldd %s 2>&1", src);
+        ret = asprintf(&cmd, "%s %s 2>&1", ldd, fullsrcpath);
         if (ret < 0) {
                 log_error("Out of memory!");
                 exit(EXIT_FAILURE);
         }
+
+        log_debug("%s", cmd);
 
         ret = 0;
 
@@ -456,6 +537,13 @@ static int resolve_deps(const char *src)
                 log_debug("ldd: '%s'", buf);
 
                 if (strstr(buf, "you do not have execution permission")) {
+                        log_error("%s", buf);
+                        ret += 1;
+                        break;
+                }
+
+                /* errors from cross-compiler-ldd */
+                if (strstr(buf, "unable to find sysroot") || strstr(buf, "command not found")) {
                         log_error("%s", buf);
                         ret += 1;
                         break;
@@ -597,16 +685,80 @@ static bool check_hashmap(Hashmap *hm, const char *item)
         return false;
 }
 
-static int dracut_install(const char *src, const char *dst, bool isdir, bool resolvedeps, bool hashdst)
+static int dracut_mkdir(const char *src) {
+        _cleanup_free_ char *parent = NULL;
+        char *path;
+        struct stat sb;
+
+        parent = strdup(src);
+        if (!parent)
+                return 1;
+
+        path = parent[0] == '/' ? parent+1 : parent;
+        while (path) {
+                path = strstr(path, "/");
+                if (path)
+                        *path = '\0';
+
+                if (stat(parent, &sb) == 0) {
+                        if (!S_ISDIR(sb.st_mode)) {
+                                log_error("%s exists but is not a directory!", parent);
+                                return 1;
+                        }
+                } else if (errno != ENOENT) {
+                        log_error("ERROR: stat '%s': %s", parent, strerror(errno));
+                        return 1;
+                } else {
+                        if (mkdir(parent, 0755) < 0) {
+                                log_error("ERROR: mkdir '%s': %s", parent, strerror(errno));
+                                return 1;
+                        }
+                }
+
+                if (path) {
+                        *path = '/';
+                        path++;
+                }
+        }
+
+        return 0;
+}
+
+static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir, bool resolvedeps, bool hashdst)
 {
         struct stat sb, db;
+        _cleanup_free_ char *fullsrcpath = NULL;
         _cleanup_free_ char *fulldstpath = NULL;
         _cleanup_free_ char *fulldstdir = NULL;
         int ret;
-        bool src_exists = true;
+        bool src_islink = false;
+        bool src_isdir = false;
+        mode_t src_mode = 0;
+        bool dst_exists = true;
         char *i = NULL;
+        _cleanup_free_ char *src;
+        _cleanup_free_ char *dst;
 
-        log_debug("dracut_install('%s', '%s')", src, dst);
+        if (sysrootdirlen) {
+                if (strncmp(orig_src, sysrootdir, sysrootdirlen) == 0) {
+                        src = strdup(orig_src + sysrootdirlen);
+                        fullsrcpath = strdup(orig_src);
+                } else {
+                        src = strdup(orig_src);
+                        if (asprintf(&fullsrcpath, "%s%s", sysrootdir, src) < 0)
+                                _exit(EXIT_FAILURE);
+                }
+                if (strncmp(orig_dst, sysrootdir, sysrootdirlen) == 0)
+                        dst = strdup(orig_dst + sysrootdirlen);
+                else
+                        dst = strdup(orig_dst);
+        } else {
+                src = strdup(orig_src);
+                fullsrcpath = strdup(src);
+                dst = strdup(orig_dst);
+        }
+
+        log_debug("dracut_install('%s', '%s', %d, %d, %d)", src, dst, isdir, resolvedeps, hashdst);
 
         if (check_hashmap(items_failed, src)) {
                 log_debug("hash hit items_failed for '%s'", src);
@@ -618,21 +770,18 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
                 return 0;
         }
 
-        if (lstat(src, &sb) < 0) {
-                src_exists = false;
+        if (lstat(fullsrcpath, &sb) < 0) {
                 if (!isdir) {
                         i = strdup(src);
                         hashmap_put(items_failed, i, i);
                         /* src does not exist */
                         return 1;
                 }
+        } else {
+                src_islink = S_ISLNK(sb.st_mode);
+                src_isdir = S_ISDIR(sb.st_mode);
+                src_mode = sb.st_mode;
         }
-
-        i = strdup(dst);
-        if (!i)
-                return -ENOMEM;
-
-        hashmap_put(items, i, i);
 
         ret = asprintf(&fulldstpath, "%s/%s", destrootdir, (dst[0]=='/' ? (dst+1) : dst));
         if (ret < 0) {
@@ -642,15 +791,18 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
 
         ret = stat(fulldstpath, &sb);
 
-        if (ret != 0 && (errno != ENOENT)) {
-                log_error("ERROR: stat '%s': %m", fulldstpath);
-                return 1;
+        if (ret != 0) {
+                dst_exists = false;
+                if (errno != ENOENT) {
+                        log_error("ERROR: stat '%s': %m", fulldstpath);
+                        return 1;
+                }
         }
 
         if (ret == 0) {
                 if (resolvedeps && S_ISREG(sb.st_mode) && (sb.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))) {
                         log_debug("'%s' already exists, but checking for any deps", fulldstpath);
-                        ret = resolve_deps(src);
+                        ret = resolve_deps(fullsrcpath + sysrootdirlen);
                 } else
                         log_debug("'%s' already exists", fulldstpath);
 
@@ -660,6 +812,10 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
 
         /* check destination directory */
         fulldstdir = strdup(fulldstpath);
+        if (!fulldstdir) {
+                log_error("Out of memory!");
+                return 1;
+        }
         fulldstdir[dir_len(fulldstdir)] = '\0';
 
         ret = stat(fulldstdir, &db);
@@ -686,24 +842,34 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
                 }
         }
 
-        if (isdir && !src_exists) {
+        if (src_isdir) {
+                if (dst_exists) {
+                        if (S_ISDIR(sb.st_mode)) {
+                                log_debug("dest dir '%s' already exists", fulldstpath);
+                                return 0;
+                        }
+                        log_error("dest dir '%s' already exists but is not a directory", fulldstpath);
+                        return 1;
+                }
+
                 log_info("mkdir '%s'", fulldstpath);
-                ret = mkdir(fulldstpath, 0755);
+                ret = dracut_mkdir(fulldstpath);
+                if (ret == 0) {
+                        i = strdup(dst);
+                        if (!i)
+                                return -ENOMEM;
+
+                        hashmap_put(items, i, i);
+                }
                 return ret;
         }
 
         /* ready to install src */
 
-        if (S_ISDIR(sb.st_mode)) {
-                log_info("mkdir '%s'", fulldstpath);
-                ret = mkdir(fulldstpath, sb.st_mode | S_IWUSR);
-                return ret;
-        }
-
-        if (S_ISLNK(sb.st_mode)) {
+        if (src_islink) {
                 _cleanup_free_ char *abspath = NULL;
 
-                abspath = realpath(src, NULL);
+                abspath = get_real_file(src, false);
 
                 if (abspath == NULL)
                         return 1;
@@ -721,7 +887,7 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
                 if (lstat(fulldstpath, &sb) != 0) {
                         _cleanup_free_ char *absdestpath = NULL;
 
-                        ret = asprintf(&absdestpath, "%s/%s", destrootdir, (abspath[0]=='/' ? (abspath+1) : abspath));
+                        ret = asprintf(&absdestpath, "%s/%s", destrootdir, (abspath[0]=='/' ? (abspath+1) : abspath) + sysrootdirlen);
                         if (ret < 0) {
                                 log_error("Out of memory!");
                                 exit(EXIT_FAILURE);
@@ -738,9 +904,9 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
                 return 0;
         }
 
-        if (sb.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH)) {
+        if (src_mode & (S_IXUSR | S_IXGRP | S_IXOTH)) {
                 if (resolvedeps)
-                        ret += resolve_deps(src);
+                        ret += resolve_deps(fullsrcpath + sysrootdirlen);
                 if (arg_hmac) {
                         /* copy .hmac files also */
                         hmac_install(src, dst, NULL);
@@ -748,14 +914,28 @@ static int dracut_install(const char *src, const char *dst, bool isdir, bool res
         }
 
         log_debug("dracut_install ret = %d", ret);
-        log_info("cp '%s' '%s'", src, fulldstpath);
 
         if (arg_hostonly && !arg_module)
                 mark_hostonly(dst);
 
-        ret += cp(src, fulldstpath);
-        if (ret == 0 && logfile_f)
-                dracut_log_cp(src);
+        if (isdir) {
+                log_info("mkdir '%s'", fulldstpath);
+                ret += dracut_mkdir(fulldstpath);
+        } else {
+                log_info("cp '%s' '%s'", fullsrcpath, fulldstpath);
+                ret += cp(fullsrcpath, fulldstpath);
+        }
+
+        if (ret == 0) {
+                i = strdup(dst);
+                if (!i)
+                        return -ENOMEM;
+
+                hashmap_put(items, i, i);
+
+                if (logfile_f)
+                        dracut_log_cp(src);
+        }
 
         log_debug("dracut_install ret = %d", ret);
 
@@ -771,11 +951,11 @@ static void item_free(char *i)
 static void usage(int status)
 {
               /*                                                                                */
-        printf("Usage: %s -D DESTROOTDIR [OPTION]... -a SOURCE...\n"
-               "or: %s -D DESTROOTDIR [OPTION]... SOURCE DEST\n"
-               "or: %s -D DESTROOTDIR [OPTION]... -m KERNELMODULE [KERNELMODULE …]\n"
+        printf("Usage: %s -D DESTROOTDIR [-r SYSROOTDIR] [OPTION]... -a SOURCE...\n"
+               "or: %s -D DESTROOTDIR [-r SYSROOTDIR] [OPTION]... SOURCE DEST\n"
+               "or: %s -D DESTROOTDIR [-r SYSROOTDIR] [OPTION]... -m KERNELMODULE [KERNELMODULE …]\n"
                "\n"
-               "Install SOURCE to DEST in DESTROOTDIR with all needed dependencies.\n"
+               "Install SOURCE (from rootfs or SYSROOTDIR) to DEST in DESTROOTDIR with all needed dependencies.\n"
                "\n"
                "  KERNELMODULE can have the format:\n"
                "     <absolute path> with a leading /\n"
@@ -783,6 +963,7 @@ static void usage(int status)
                "     <module name>\n"
                "\n"
                "  -D --destrootdir  Install all files to DESTROOTDIR as the root\n"
+               "  -r --sysrootdir   Install all files from SYSROOTDIR\n"
                "  -a --all          Install all SOURCE arguments to DESTROOTDIR\n"
                "  -o --optional     If SOURCE does not exist, do not fail\n"
                "  -d --dir          SOURCE is a directory\n"
@@ -842,6 +1023,7 @@ static int parse_argv(int argc, char *argv[])
                 {"module", no_argument, NULL, 'm'},
                 {"fips", no_argument, NULL, 'f'},
                 {"destrootdir", required_argument, NULL, 'D'},
+                {"sysrootdir", required_argument, NULL, 'r'},
                 {"logdir", required_argument, NULL, 'L'},
                 {"mod-filter-path", required_argument, NULL, 'p'},
                 {"mod-filter-nopath", required_argument, NULL, 'P'},
@@ -855,7 +1037,7 @@ static int parse_argv(int argc, char *argv[])
                 {NULL, 0, NULL, 0}
         };
 
-        while ((c = getopt_long(argc, argv, "madfhlL:oD:HRp:P:s:S:N:", options, NULL)) != -1) {
+        while ((c = getopt_long(argc, argv, "madfhlL:oD:Hr:Rp:P:s:S:N:v", options, NULL)) != -1) {
                 switch (c) {
                 case ARG_VERSION:
                         puts(PROGRAM_VERSION_STRING);
@@ -893,6 +1075,10 @@ static int parse_argv(int argc, char *argv[])
                         break;
                 case 'D':
                         destrootdir = strdup(optarg);
+                        break;
+                case 'r':
+                        sysrootdir = strdup(optarg);
+                        sysrootdirlen = strlen(sysrootdir);
                         break;
                 case 'p':
                         if (regcomp(&mod_filter_path, optarg, REG_NOSUB|REG_EXTENDED) != 0) {
@@ -1022,6 +1208,7 @@ static char **find_binary(const char *src)
 {
         char **ret = NULL;
         char **q;
+        char *fullsrcpath;
         char *newsrc = NULL;
 
         STRV_FOREACH(q, pathdirs) {
@@ -1034,15 +1221,28 @@ static char **find_binary(const char *src)
                         exit(EXIT_FAILURE);
                 }
 
-                if (stat(newsrc, &sb) != 0) {
-                        log_debug("stat(%s) != 0", newsrc);
+                fullsrcpath = get_real_file(newsrc, false);
+
+                if (!fullsrcpath) {
+                        log_debug("get_real_file(%s) not found", newsrc);
                         free(newsrc);
                         newsrc = NULL;
                         continue;
                 }
 
+                if (lstat(fullsrcpath, &sb) != 0) {
+                        log_debug("stat(%s) != 0", fullsrcpath);
+                        free(newsrc);
+                        newsrc = NULL;
+                        free(fullsrcpath);
+                        fullsrcpath = NULL;
+                        continue;
+                }
+
                 strv_push(&ret, newsrc);
 
+                free(fullsrcpath);
+                fullsrcpath = NULL;
         };
 
         if (ret) {
@@ -1711,6 +1911,7 @@ int main(int argc, char **argv)
         int r;
         char *i;
         char *path = NULL;
+        char *env_no_xattr = NULL;
 
         r = parse_argv(argc, argv);
         if (r <= 0)
@@ -1738,7 +1939,13 @@ int main(int argc, char **argv)
                 exit(0);
         }
 
-        path = getenv("PATH");
+        log_debug("Program arguments:");
+        for (r = 0; r < argc; r++)
+                log_debug("%s", argv[r]);
+
+        path = getenv("DRACUT_INSTALL_PATH");
+        if (path == NULL)
+                path = getenv("PATH");
 
         if (path == NULL) {
                 log_error("PATH is not set");
@@ -1746,6 +1953,15 @@ int main(int argc, char **argv)
         }
 
         log_debug("PATH=%s", path);
+
+        ldd = getenv("DRACUT_LDD");
+        if (ldd == NULL)
+                ldd = "ldd";
+        log_debug("LDD=%s", ldd);
+
+        env_no_xattr = getenv("DRACUT_NO_XATTR");
+        if (env_no_xattr != NULL)
+                no_xattr = true;
 
         pathdirs = strv_split(path, ":");
 

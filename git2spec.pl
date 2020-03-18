@@ -10,7 +10,7 @@ sub create_patches {
 
     mkdir $pdir, 0755;
 
-    open( GIT, 'git log -p --pretty=email --stat -m --first-parent --reverse '.$tag.'..HEAD |');
+    open( GIT, 'git log -p --pretty=email --stat -m --first-parent --reverse --binary '.$tag.'..HEAD |');
 
     while (<GIT>) {
         if (/^From [a-z0-9]{40} .*$/) {

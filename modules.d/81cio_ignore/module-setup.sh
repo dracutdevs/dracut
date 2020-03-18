@@ -5,7 +5,7 @@
 # called by dracut
 check() {
 # do not add this module by default
-    local arch=$(uname -m)
+    local arch=${DRACUT_ARCH:-$(uname -m)}
     [ "$arch" = "s390" -o "$arch" = "s390x" ] || return 1
     return 0
 }

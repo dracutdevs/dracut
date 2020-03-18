@@ -29,6 +29,7 @@ check() {
 
     # if there's no multipath binary, no go.
     require_binaries multipath || return 1
+    require_binaries kpartx || return 1
 
     return 0
 }
@@ -52,7 +53,7 @@ cmdline() {
 # called by dracut
 installkernel() {
     local _ret
-    local _arch=$(uname -m)
+    local _arch=${DRACUT_ARCH:-$(uname -m)}
     local _funcs='scsi_register_device_handler|dm_dirty_log_type_register|dm_register_path_selector|dm_register_target'
     local _s390
 
@@ -109,8 +110,7 @@ install() {
 
     if dracut_module_included "systemd"; then
         inst_simple "${moddir}/multipathd.service" "${systemdsystemunitdir}/multipathd.service"
-        mkdir -p "${initdir}${systemdsystemunitdir}/sysinit.target.wants"
-        ln -rfs "${initdir}${systemdsystemunitdir}/multipathd.service" "${initdir}${systemdsystemunitdir}/sysinit.target.wants/multipathd.service"
+        systemctl -q --root "$initdir" enable multipathd.service
     else
         inst_hook pre-trigger 02 "$moddir/multipathd.sh"
         inst_hook cleanup   02 "$moddir/multipathd-stop.sh"

@@ -1,8 +1,13 @@
 -include dracut-version.sh
 
-DRACUT_MAIN_VERSION ?= $(shell [ -d .git ] && git describe --abbrev=0 --tags --always 2>/dev/null || :)
-DRACUT_MAIN_VERSION ?= $(DRACUT_VERSION)
-GITVERSION ?= $(shell [ -d .git ] && { v=$$(git describe --tags --always 2>/dev/null); [ -n "$$v" ] && [ $${v\#*-} != $$v ] && echo -$${v\#*-}; } )
+DRACUT_MAIN_VERSION ?= $(shell env GIT_CEILING_DIRECTORIES=$(CWD)/.. git describe --abbrev=0 --tags --always 2>/dev/null || :)
+ifeq ($(DRACUT_MAIN_VERSION),)
+DRACUT_MAIN_VERSION = $(DRACUT_VERSION)
+endif
+DRACUT_FULL_VERSION ?= $(shell env GIT_CEILING_DIRECTORIES=$(CWD)/.. git describe --tags --always 2>/dev/null || :)
+ifeq ($(DRACUT_FULL_VERSION),)
+DRACUT_FULL_VERSION = $(DRACUT_VERSION)
+endif
 
 -include Makefile.inc
 
@@ -62,7 +67,7 @@ install/util.o: install/util.c install/util.h install/macro.h install/log.h
 install/strv.o: install/strv.c install/strv.h install/util.h install/macro.h install/log.h
 
 install/dracut-install: $(DRACUT_INSTALL_OBJECTS)
-	$(CC) $(LDFLAGS) -o $@ $(DRACUT_INSTALL_OBJECTS) $(LDLIBS) $(KMOD_LIBS)
+	$(CC) $(LDFLAGS) -o $@ $(DRACUT_INSTALL_OBJECTS) $(LDLIBS) $(FTS_LIBS) $(KMOD_LIBS)
 
 logtee: logtee.c
 	$(CC) $(LDFLAGS) -o $@ $<
@@ -92,13 +97,16 @@ endif
 
 %.xml: %.asc
 	@rm -f -- "$@"
-	asciidoc -d manpage -b docbook -o "$@" $<
+	asciidoc -a "version=$(DRACUT_FULL_VERSION)" -d manpage -b docbook -o "$@" $<
 
 dracut.8: dracut.usage.asc dracut.8.asc
 
 dracut.html: dracut.asc $(manpages) dracut.css dracut.usage.asc
 	@rm -f -- dracut.xml
-	asciidoc -a numbered -d book -b docbook -o dracut.xml dracut.asc
+	asciidoc -a "mainversion=$(DRACUT_MAIN_VERSION)" \
+		-a "version=$(DRACUT_FULL_VERSION)" \
+		-a numbered \
+		-d book -b docbook -o dracut.xml dracut.asc
 	@rm -f -- dracut.html
 	xsltproc -o dracut.html --xinclude -nonet \
 		--stringparam custom.css.source dracut.css \
@@ -109,7 +117,7 @@ dracut.html: dracut.asc $(manpages) dracut.css dracut.usage.asc
 dracut.pc: Makefile.inc Makefile
 	@echo "Name: dracut" > dracut.pc
 	@echo "Description: dracut" >> dracut.pc
-	@echo "Version: $(DRACUT_MAIN_VERSION)$(GITVERSION)" >> dracut.pc
+	@echo "Version: $(DRACUT_FULL_VERSION)" >> dracut.pc
 	@echo "dracutdir=$(pkglibdir)" >> dracut.pc
 	@echo "dracutmodulesdir=$(pkglibdir)/modules.d" >> dracut.pc
 	@echo "dracutconfdir=$(pkglibdir)/dracut.conf.d" >> dracut.pc
@@ -179,7 +187,7 @@ endif
 
 dracut-version.sh:
 	@rm -f dracut-version.sh
-	@echo "DRACUT_VERSION=$(DRACUT_MAIN_VERSION)$(GITVERSION)" > dracut-version.sh
+	@echo "DRACUT_VERSION=$(DRACUT_FULL_VERSION)" > dracut-version.sh
 
 clean:
 	$(RM) *~
@@ -207,7 +215,7 @@ dracut-$(DRACUT_MAIN_VERSION).tar.xz: doc syncheck
 	rm -f -- dracut-$(DRACUT_MAIN_VERSION).tar
 
 rpm: dracut-$(DRACUT_MAIN_VERSION).tar.xz syncheck
-	rpmbuild=$$(mktemp -d -t rpmbuild-dracut.XXXXXX); src=$$(pwd); \
+	rpmbuild=$$(mktemp -d -p /var/tmp rpmbuild-dracut.XXXXXX); src=$$(pwd); \
 	cp dracut-$(DRACUT_MAIN_VERSION).tar.xz "$$rpmbuild"; \
 	LC_MESSAGES=C $$src/git2spec.pl $(DRACUT_MAIN_VERSION) "$$rpmbuild" < dracut.spec > $$rpmbuild/dracut.spec; \
 	(cd "$$rpmbuild"; \

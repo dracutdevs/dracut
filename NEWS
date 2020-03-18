@@ -1,3 +1,68 @@
+dracut-050
+==========
+
+dracut:
+- support for running on a cross-compiled rootfs, see README.cross
+- add support for creating secureboot signed UEFI images
+- use microcode found in packed cpio images
+- `-k/--kmodir` must now contain "lib/modules/$KERNEL_VERSION"
+  use DRACUT_KMODDIR_OVERRIDE=1 to ignore this check
+- support the EFI Stub loader's splash image feature.
+  `--uefi-splash-image <FILE>`
+
+dracut modules:
+- remove bashism in various boot scripts
+- emergency mode: use sulogin
+
+fcoe:
+- add rd.nofcoe option to disable the FCoE module from the command line
+
+10i18n:
+- fix keymaps not getting included sometimes
+- use eurlatgr as default console font
+
+iscsi:
+- add option `rd.iscsi.testroute`
+
+multipath:
+- fix udev rules detection of multipath devices
+
+network:
+- support NetworkManager
+
+network-legacy:
+- fix classless static route parsing
+- ifup: fix typo when calling dhclient --timeout
+- ifup: nuke pid and lease files if dhclient failed
+- fix ip=dhcp,dhcp6
+- use $name instead of $env{INTERFACE} (systemd-udevd regression)
+
+shutdown:
+- fix for non-systemd reboot/halt/shutdown commands
+- set selinux labels
+- fix shutdown with console=null
+
+lsinitrd:
+- list squash content as well
+- handle UEFI created with dracut --uefi
+- make lsinitrd usable for images made with Debian mkinitramfs
+
+dracut-install:
+- fixed ldd parsing
+- install kernel module dependencies of dependencies
+- fixed segfault for hashing NULL pointers
+- add support for compressed firmware files
+- dracut_mkdir(): create parent directories as needed.
+
+test suite:
+- lots of cleanups
+- add github actions
+
+new modules:
+- rngd
+- network-manager
+- ppcmac - thermal/fan control modules on PowerPC based Macs
+
 dracut-049
 ==========
 lsinitrd:

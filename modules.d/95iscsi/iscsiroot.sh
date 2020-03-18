@@ -36,9 +36,12 @@ iroot=${iroot#:}
 # figured out a way how to check whether this is built-in or not
 modprobe crc32c 2>/dev/null
 
-if [ -z "${DRACUT_SYSTEMD}" ] && [ -e /sys/module/bnx2i ] && ! [ -e /tmp/iscsiuio-started ]; then
-        iscsiuio
-        > /tmp/iscsiuio-started
+# start iscsiuio if needed
+if [ -z "${DRACUT_SYSTEMD}" ] && \
+      ( [ -e /sys/module/bnx2i ] || [ -e /sys/module/qedi ] ) && \
+       ! [ -e /tmp/iscsiuio-started ]; then
+      iscsiuio
+      > /tmp/iscsiuio-started
 fi
 
 
@@ -54,11 +57,11 @@ handle_firmware()
     if ! iscsiadm -m fw; then
         warn "iscsiadm: Could not get list of targets from firmware."
     else
-        ifaces=( $(echo /sys/firmware/ibft/ethernet*) )
+        ifaces=$(set -- /sys/firmware/ibft/ethernet*; echo $#)
         retry=$(cat /tmp/session-retry)
 
-        if [ $retry -lt ${#ifaces[*]} ]; then
-            let retry++
+        if [ $retry -lt $ifaces ]; then
+            retry=$((retry+1))
             echo $retry > /tmp/session-retry
             return 1
         else
@@ -87,17 +90,12 @@ handle_netroot()
     local iscsi_in_username iscsi_in_password
     local iscsi_iface_name iscsi_netdev_name
     local iscsi_param param
-    local p
+    local p found
+    local login_retry_max_seen=
 
     # override conf settings by command line options
     arg=$(getarg rd.iscsi.initiator -d iscsi_initiator=)
     [ -n "$arg" ] && iscsi_initiator=$arg
-    arg=$(getargs rd.iscsi.target.name -d iscsi_target_name=)
-    [ -n "$arg" ] && iscsi_target_name=$arg
-    arg=$(getarg rd.iscsi.target.ip -d iscsi_target_ip)
-    [ -n "$arg" ] && iscsi_target_ip=$arg
-    arg=$(getarg rd.iscsi.target.port -d iscsi_target_port=)
-    [ -n "$arg" ] && iscsi_target_port=$arg
     arg=$(getarg rd.iscsi.target.group -d iscsi_target_group=)
     [ -n "$arg" ] && iscsi_target_group=$arg
     arg=$(getarg rd.iscsi.username -d iscsi_username=)
@@ -109,9 +107,13 @@ handle_netroot()
     arg=$(getarg rd.iscsi.in.password -d iscsi_in_password=)
     [ -n "$arg" ] && iscsi_in_password=$arg
     for p in $(getargs rd.iscsi.param -d iscsi_param); do
-        iscsi_param="$iscsi_param $p"
+        [ "${p%=*}" = node.session.initial_login_retry_max ] && \
+            login_retry_max_seen=yes
+            iscsi_param="$iscsi_param $p"
     done
 
+    # this sets iscsi_target_name and possibly overwrites most
+    # parameters read from the command line above
     parse_iscsi_root "$1" || return 1
 
     # Bail out early, if there is no route to the destination
@@ -120,15 +122,12 @@ handle_netroot()
     fi
 
     #limit iscsistart login retries
-    case "$iscsi_param" in
-        *node.session.initial_login_retry_max*) ;;
-        *)
-            retries=$(getargnum 3 0 10000 rd.iscsi.login_retry_max)
-            if [ $retries -gt 0 ]; then
-                iscsi_param="${iscsi_param% } node.session.initial_login_retry_max=$retries"
-            fi
-        ;;
-    esac
+    if [ "$login_retry_max_seen" != yes ]; then
+        retries=$(getargnum 3 0 10000 rd.iscsi.login_retry_max)
+        if [ $retries -gt 0 ]; then
+            iscsi_param="${iscsi_param% } node.session.initial_login_retry_max=$retries"
+        fi
+    fi
 
 # XXX is this needed?
     getarg ro && iscsirw=ro
@@ -217,10 +216,9 @@ handle_netroot()
     targets=$(iscsiadm -m discovery -t st -p $iscsi_target_ip:${iscsi_target_port:+$iscsi_target_port} | sed 's/^.*iqn/iqn/')
     [ -z "$targets" ] && echo "Target discovery to $iscsi_target_ip:${iscsi_target_port:+$iscsi_target_port} failed with status $?" && exit 1
 
-    for target in $iscsi_target_name; do
-        case "$targets" in
-        *$target*)
-            EXTRA=""
+    found=
+    for target in $targets; do
+        if [ "$target" = "$iscsi_target_name" ]; then
             if [ -n "$iscsi_iface_name" ]; then
                 iscsiadm -m iface -I $iscsi_iface_name --op=new
                 EXTRA=" ${iscsi_netdev_name:+--name=iface.net_ifacename --value=$iscsi_netdev_name} "
@@ -228,24 +226,32 @@ handle_netroot()
             fi
             [ -n "$iscsi_param" ] && for param in $iscsi_param; do EXTRA="$EXTRA --name=${param%=*} --value=${param#*=}"; done
 
-            iscsiadm -m node -T $target \
+            CMD="iscsiadm -m node -T $target \
                      ${iscsi_iface_name:+-I $iscsi_iface_name} \
-                     -p $iscsi_target_ip${iscsi_target_port:+:$iscsi_target_port} \
-                     --op=update \
+                     -p $iscsi_target_ip${iscsi_target_port:+:$iscsi_target_port}"
+            __op="--op=update \
                      --name=node.startup --value=onboot \
                      ${iscsi_username:+   --name=node.session.auth.username    --value=$iscsi_username} \
                      ${iscsi_password:+   --name=node.session.auth.password    --value=$iscsi_password} \
                      ${iscsi_in_username:+--name=node.session.auth.username_in --value=$iscsi_in_username} \
                      ${iscsi_in_password:+--name=node.session.auth.password_in --value=$iscsi_in_password} \
                      $EXTRA \
-                     $NULL
-        ;;
-        *)
-        ;;
-        esac
+                     $NULL"
+            $CMD $__op
+            if [ "$netif" != "timeout" ]; then
+                $CMD --login
+            fi
+            found=yes
+            break
+        fi
     done
 
-    iscsiadm -m node -L onboot || :
+    if [ "$netif" = "timeout" ]; then
+        iscsiadm -m node -L onboot || :
+    elif [ "$found" != yes ]; then
+        warn "iSCSI target \"$iscsi_target_name\" not found on portal $iscsi_target_ip:$iscsi_target_port"
+        return 1
+    fi
     > $hookdir/initqueue/work
 
     netroot_enc=$(str_replace "$1" '/' '\2f')

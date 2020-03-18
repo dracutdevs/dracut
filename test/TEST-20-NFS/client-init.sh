@@ -112,7 +112,7 @@ echo "made it to the rootfs! Powering down."
 
 while read dev fs fstype opts rest || [ -n "$dev" ]; do
     [ "$fstype" != "nfs" -a "$fstype" != "nfs4" ] && continue
-    echo "nfs-OK $dev $fstype $opts" > /dev/sda
+    echo "nfs-OK $dev $fstype $opts" | dd oflag=direct,dsync of=/dev/sda
     break
 done < /proc/mounts
 >/dev/watchdog

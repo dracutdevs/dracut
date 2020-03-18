@@ -89,6 +89,7 @@ install_iscsiroot() {
     iscsi_host=${host##*/}
 
     for flash in ${host}/flashnode_sess-* ; do
+        [ -f "$flash" ] || continue
         [ ! -e "$flash/is_boot_target" ] && continue
         is_boot=$(cat $flash/is_boot_target)
         if [ $is_boot -eq 1 ] ; then
@@ -187,7 +188,7 @@ depends() {
 
 # called by dracut
 installkernel() {
-    local _arch=$(uname -m)
+    local _arch=${DRACUT_ARCH:-$(uname -m)}
     local _funcs='iscsi_register_transport'
 
     instmods bnx2i qla4xxx cxgb3i cxgb4i be2iscsi qedi
@@ -227,7 +228,8 @@ install() {
         $systemdsystemunitdir/sockets.target.wants/iscsiuio.socket
 
     if [[ $hostonly ]]; then
-        inst_dir $(/usr/bin/find /etc/iscsi)
+        inst_dir /etc/iscsi
+        inst_multiple $(find /etc/iscsi -type f)
     else
         inst_simple /etc/iscsi/iscsid.conf
     fi
@@ -252,20 +254,18 @@ install() {
                       $systemdsystemunitdir/iscsiuio.socket \
                       iscsiadm iscsid
 
-        mkdir -p "${initdir}/$systemdsystemunitdir/sockets.target.wants"
         for i in \
                 iscsid.socket \
                 iscsiuio.socket \
             ; do
-            ln_r "$systemdsystemunitdir/${i}" "$systemdsystemunitdir/sockets.target.wants/${i}"
+            systemctl -q --root "$initdir" enable "$i"
         done
-
-        mkdir -p "${initdir}/$systemdsystemunitdir/basic.target.wants"
+        
         for i in \
                 iscsid.service \
                 iscsiuio.service \
             ; do
-            ln_r "$systemdsystemunitdir/${i}" "$systemdsystemunitdir/basic.target.wants/${i}"
+            systemctl -q --root "$initdir" add-wants basic.target "$i"
         done
 
         # Make sure iscsid is started after dracut-cmdline and ready for the initqueue

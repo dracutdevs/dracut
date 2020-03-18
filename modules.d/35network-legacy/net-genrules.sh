@@ -65,9 +65,9 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
         bootdev=$(cat /tmp/net.bootdev)
     fi
 
-    ifup='/sbin/ifup $env{INTERFACE}'
+    ifup='/sbin/ifup $name'
 
-    runcmd="RUN+=\"/sbin/initqueue --name ifup-\$env{INTERFACE} --unique --onetime $ifup\""
+    runcmd="RUN+=\"/sbin/initqueue --name ifup-\$name --unique --onetime $ifup\""
 
     # We have some specific interfaces to handle
     if [ -n "${RAW_IFACES}${IFACES}" ]; then
@@ -96,7 +96,11 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
 
         for iface in $IFACES; do
             if [ "$bootdev" = "$iface" ] || [ "$NEEDNET" = "1" ]; then
-                echo "[ -f /tmp/net.${iface}.did-setup ]" >$hookdir/initqueue/finished/wait-$iface.sh
+		if [ -n "$netroot" ] && [ -n "$DRACUT_SYSTEMD" ]; then
+                    echo "systemctl is-active initrd-root-device.target || [ -f /tmp/net.${iface}.did-setup ]"
+		else
+                    echo "[ -f /tmp/net.${iface}.did-setup ]"
+		fi >$hookdir/initqueue/finished/wait-$iface.sh
             fi
         done
     # Default: We don't know the interface to use, handle all
