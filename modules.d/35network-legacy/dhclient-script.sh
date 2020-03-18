@@ -164,7 +164,7 @@ case $reason in
         ;;
 
     BOUND)
-        echo "dhcp: BOND setting $netif"
+        echo "dhcp: BOUND setting up $netif"
         unset layer2
         if [ -f /sys/class/net/$netif/device/layer2 ]; then
             read layer2 < /sys/class/net/$netif/device/layer2
@@ -223,7 +223,7 @@ case $reason in
         ;;
 
     BOUND6)
-        echo "dhcp: BOND6 setting $netif"
+        echo "dhcp: BOUND6 setting up $netif"
         setup_interface6
 
         set | while read line || [ -n "$line" ]; do
