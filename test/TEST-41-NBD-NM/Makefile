@@ -1,6 +1,6 @@
 .PHONY: all setup clean run
 
-BASETEST=../TEST-20-NFS
+BASETEST=../TEST-40-NBD
 
 all:
 	@$(MAKE) NM=1 -s --no-print-directory -C $(BASETEST) all

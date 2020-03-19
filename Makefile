@@ -1,8 +1,13 @@
 -include dracut-version.sh
 
-DRACUT_MAIN_VERSION ?= $(shell [ -d .git ] && git describe --abbrev=0 --tags --always 2>/dev/null || :)
-DRACUT_MAIN_VERSION ?= $(DRACUT_VERSION)
-GITVERSION ?= $(shell [ -d .git ] && { v=$$(git describe --tags --always 2>/dev/null); [ -n "$$v" ] && [ $${v\#*-} != $$v ] && echo -$${v\#*-}; } )
+DRACUT_MAIN_VERSION ?= $(shell env GIT_CEILING_DIRECTORIES=$(CWD)/.. git describe --abbrev=0 --tags --always 2>/dev/null || :)
+ifeq ($(DRACUT_MAIN_VERSION),)
+DRACUT_MAIN_VERSION = $(DRACUT_VERSION)
+endif
+DRACUT_FULL_VERSION ?= $(shell env GIT_CEILING_DIRECTORIES=$(CWD)/.. git describe --tags --always 2>/dev/null || :)
+ifeq ($(DRACUT_FULL_VERSION),)
+DRACUT_FULL_VERSION = $(DRACUT_VERSION)
+endif
 
 -include Makefile.inc
 
@@ -94,14 +99,14 @@ endif
 
 %.xml: %.asc
 	@rm -f -- "$@"
-	asciidoc -a "version=$(DRACUT_MAIN_VERSION)$(GITVERSION)" -d manpage -b docbook -o "$@" $<
+	asciidoc -a "version=$(DRACUT_FULL_VERSION)" -d manpage -b docbook -o "$@" $<
 
 dracut.8: dracut.usage.asc dracut.8.asc
 
 dracut.html: dracut.asc $(manpages) dracut.css dracut.usage.asc
 	@rm -f -- dracut.xml
 	asciidoc -a "mainversion=$(DRACUT_MAIN_VERSION)" \
-		-a "version=$(DRACUT_MAIN_VERSION)$(GITVERSION)" \
+		-a "version=$(DRACUT_FULL_VERSION)" \
 		-a numbered \
 		-d book -b docbook -o dracut.xml dracut.asc
 	@rm -f -- dracut.html
@@ -114,7 +119,7 @@ dracut.html: dracut.asc $(manpages) dracut.css dracut.usage.asc
 dracut.pc: Makefile.inc Makefile
 	@echo "Name: dracut" > dracut.pc
 	@echo "Description: dracut" >> dracut.pc
-	@echo "Version: $(DRACUT_MAIN_VERSION)$(GITVERSION)" >> dracut.pc
+	@echo "Version: $(DRACUT_FULL_VERSION)" >> dracut.pc
 	@echo "dracutdir=$(pkglibdir)" >> dracut.pc
 	@echo "dracutmodulesdir=$(pkglibdir)/modules.d" >> dracut.pc
 	@echo "dracutconfdir=$(pkglibdir)/dracut.conf.d" >> dracut.pc
@@ -184,7 +189,7 @@ endif
 
 dracut-version.sh:
 	@rm -f dracut-version.sh
-	@echo "DRACUT_VERSION=$(DRACUT_MAIN_VERSION)$(GITVERSION)" > dracut-version.sh
+	@echo "DRACUT_VERSION=$(DRACUT_FULL_VERSION)" > dracut-version.sh
 
 clean:
 	$(RM) *~

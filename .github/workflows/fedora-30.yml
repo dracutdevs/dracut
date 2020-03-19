@@ -13,8 +13,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    #container: quay.io/haraldh/dracut-fedora:30
-    timeout-minutes: 30
+    container:
+      image: quay.io/haraldh/dracut-fedora:30
+      options: "--privileged"
+    timeout-minutes: 45
     strategy:
       matrix:
         test: [
@@ -45,4 +47,4 @@ jobs:
           fetch-depth: 0
 
       - name: "TEST-${{ matrix.test }}"
-        run: docker run --privileged -v $(pwd)/:/dracut quay.io/haraldh/dracut-fedora:30 /dracut/fedora-test-github.sh "TEST-${{ matrix.test }}" ${{ matrix.test }}
+        run: ./fedora-test-github.sh "TEST-${{ matrix.test }}" ${{ matrix.test }}

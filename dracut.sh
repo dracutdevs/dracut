@@ -140,7 +140,7 @@ Creates initial ramdisk images for preloading modules
   --confdir [DIR]       Specify configuration directory to use *.conf files
                          from. Default: /etc/dracut.conf.d
   --tmpdir [DIR]        Temporary directory to be used instead of default
-                         /var/tmp.
+                         ${TMPDIR:-/var/tmp}.
   -r, --sysroot [DIR]   Specify sysroot directory to collect files from.
   -l, --local           Local mode. Use modules from the current working
                          directory instead of the system-wide installed in
@@ -276,6 +276,14 @@ read_arg() {
         # There is no way to shift our callers args, so
         # return 1 to indicate they should do it instead.
         return 1
+    fi
+}
+
+check_conf_file()
+{
+    if grep -H -e '^[^#]*[+]=\("[^ ]\|.*[^ ]"\)' "$@"; then
+        printf '\ndracut: WARNING: <key>+=" <values> ": <values> should have surrounding white spaces!\n' >&2
+        printf 'dracut: WARNING: This will lead to unwanted side effects! Please fix the configuration file.\n\n' >&2
     fi
 }
 
@@ -703,10 +711,14 @@ if [[ ! -d $confdir ]]; then
 fi
 
 # source our config file
-[[ -f $conffile ]] && . "$conffile"
+if [[ -f $conffile ]]; then
+    check_conf_file "$conffile"
+    . "$conffile"
+fi
 
 # source our config dir
 for f in $(dropindirs_sort ".conf" "$confdir" "$dracutbasedir/dracut.conf.d"); do
+    check_conf_file "$f"
     [[ -e $f ]] && . "$f"
 done
 
@@ -765,6 +777,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $dracutbasedir ]] || dracutbasedir=$dracutsysrootdir/usr/lib/dracut
 [[ $fw_dir ]] || fw_dir="$dracutsysrootdir/lib/firmware/updates:$dracutsysrootdir/lib/firmware:$dracutsysrootdir/lib/firmware/$kernel"
 [[ $tmpdir_l ]] && tmpdir="$tmpdir_l"
+[[ $tmpdir ]] || tmpdir="$TMPDIR"
 [[ $tmpdir ]] || tmpdir=$dracutsysrootdir/var/tmp
 [[ $INITRD_COMPRESS ]] && compress=$INITRD_COMPRESS
 [[ $compress_l ]] && compress=$compress_l
@@ -2075,6 +2088,40 @@ fi
 
 command -v restorecon &>/dev/null && restorecon -- "$outfile"
 
+btrfs_uuid() {
+    btrfs filesystem show "$1" | sed -n '1s/^.*uuid: //p'
+}
+
+freeze_ok_for_btrfs() {
+    local mnt uuid1 uuid2
+    # If the output file is on btrfs, we need to make sure that it's
+    # not on a subvolume of the same file system as the root FS.
+    # Otherwise, fsfreeze() might freeze the entire system.
+    # This is most conveniently checked by comparing the FS uuid.
+
+    [[ "$(stat -f -c %T -- "/")" == "btrfs" ]] || return 0
+    mnt=$(stat -c %m -- "$1")
+    uuid1=$(btrfs_uuid "$mnt")
+    uuid2=$(btrfs_uuid "/")
+    [[ "$uuid1" && "$uuid2" && "$uuid1" != "$uuid2" ]]
+}
+
+freeze_ok_for_fstype() {
+    local outfile=$1
+    local fstype
+
+    [[ "$(stat -c %m -- "$outfile")" == "/" ]] && return 1
+    fstype=$(stat -f -c %T -- "$outfile")
+    case $fstype in
+        msdos)
+            return 1;;
+        btrfs)
+            freeze_ok_for_btrfs "$outfile";;
+        *)
+            return 0;;
+    esac
+}
+
 # We sync/fsfreeze only if we're operating on a live booted system.
 # It's possible for e.g. `kernel` to be installed as an RPM BuildRequires or equivalent,
 # and there's no reason to sync, and *definitely* no reason to fsfreeze.
@@ -2087,7 +2134,7 @@ if test -d $dracutsysrootdir/run/systemd/system; then
     fi
 
     # use fsfreeze only if we're not writing to /
-    if [[ "$(stat -c %m -- "$outfile")" != "/" && "$(stat -f -c %T -- "$outfile")" != "msdos" ]]; then
+    if [[ "$(stat -c %m -- "$outfile")" != "/" ]] && freeze_ok_for_fstype "$outfile"; then
         if ! $(fsfreeze -f $(dirname "$outfile") 2>/dev/null && fsfreeze -u $(dirname "$outfile") 2>/dev/null); then
             dinfo "dracut: warning: could not fsfreeze $(dirname "$outfile")"
         fi
