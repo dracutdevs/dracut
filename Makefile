@@ -18,8 +18,7 @@ pkglibdir ?= ${libdir}/dracut
 sysconfdir ?= ${prefix}/etc
 bindir ?= ${prefix}/bin
 mandir ?= ${prefix}/share/man
-CFLAGS ?= -O2 -g -Wall
-CFLAGS += -std=gnu99 -D_FILE_OFFSET_BITS=64 -Wformat -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 $(KMOD_CFLAGS)
+CFLAGS ?= -O2 -g -Wall -std=gnu99 -D_FILE_OFFSET_BITS=64 -Wformat -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2
 bashcompletiondir ?= ${datadir}/bash-completion/completions
 pkgconfigdatadir ?= $(datadir)/pkgconfig
 
@@ -49,6 +48,9 @@ manpages = $(man1pages) $(man5pages) $(man7pages) $(man8pages)
 .PHONY: install clean archive rpm srpm testimage test all check AUTHORS doc dracut-version.sh
 
 all: dracut-version.sh dracut.pc dracut-install skipcpio/skipcpio
+
+%.o : %.c
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(KMOD_CFLAGS) $< -o $@
 
 DRACUT_INSTALL_OBJECTS = \
         install/dracut-install.o \
