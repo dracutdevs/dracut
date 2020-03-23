@@ -51,4 +51,9 @@ install() {
     if ! [[ -d "$initdir/etc/sysconfig/network-scripts" ]]; then
         inst_libdir_file "NetworkManager/$_nm_version/libnm-settings-plugin-ifcfg-rh.so"
     fi
+
+    _arch=${DRACUT_ARCH:-$(uname -m)}
+
+    inst_libdir_file {"tls/$_arch/",tls/,"$_arch/",}"libnss_dns.so.*" \
+        {"tls/$_arch/",tls/,"$_arch/",}"libnss_mdns4_minimal.so.*"
 }
