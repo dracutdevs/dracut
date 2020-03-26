@@ -19,11 +19,13 @@ install() {
     inst_simple "$moddir/url-lib.sh" "/lib/url-lib.sh"
     inst_multiple -o ctorrent
     inst_multiple curl
-    # also install libs for curl https
-    inst_libdir_file "libnsspem.so*"
-    inst_libdir_file "libnsssysinit.so*"
-    inst_libdir_file "libsoftokn3.so*"
-    inst_libdir_file "libsqlite3.so*"
+    if curl --version | grep -qi '\bNSS\b'; then
+        # also install libs for curl https
+        inst_libdir_file "libnsspem.so*"
+        inst_libdir_file "libnsssysinit.so*"
+        inst_libdir_file "libsoftokn3.so*"
+        inst_libdir_file "libsqlite3.so*"
+    fi
 
     for _dir in $libdirs; do
 	[[ -d $dracutsysrootdir$_dir ]] || continue
