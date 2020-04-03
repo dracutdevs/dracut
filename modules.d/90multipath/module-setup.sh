@@ -83,11 +83,12 @@ install() {
         dmsetup \
         kpartx \
         mpath_wait \
+        mpathconf \
+        mpathpersist \
         multipath  \
         multipathd \
-        mpathpersist \
-        xdrgetuid \
         xdrgetprio \
+        xdrgetuid \
         /etc/xdrdevices.conf \
         /etc/multipath.conf \
         /etc/multipath/* \
@@ -109,7 +110,9 @@ install() {
     fi
 
     if dracut_module_included "systemd"; then
+        inst_simple "${moddir}/multipathd-configure.service" "${systemdsystemunitdir}/multipathd-configure.service"
         inst_simple "${moddir}/multipathd.service" "${systemdsystemunitdir}/multipathd.service"
+        systemctl -q --root "$initdir" enable multipathd-configure.service
         systemctl -q --root "$initdir" enable multipathd.service
     else
         inst_hook pre-trigger 02 "$moddir/multipathd.sh"
