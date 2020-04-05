@@ -85,7 +85,7 @@ EOF
 
 found=no
 for lib in "-lc" "-lfts"; do
-	${CC} $CFLAGS -Wl,$lib $LDFLAGS conftest.c >/dev/null 2>&1
+	${CC} $CFLAGS $LDFLAGS conftest.c -Wl,$lib >/dev/null 2>&1
 	ret=$?
 	if test $ret -eq 0; then
 		FTS_LIBS="$lib"
