@@ -1,0 +1,19 @@
+[Unit]
+Description=Device-Mapper Multipath Default Configuration
+Before=iscsi.service iscsid.service lvm2-activation-early.service
+Wants=systemd-udev-trigger.service systemd-udev-settle.service local-fs-pre.target
+After=systemd-udev-trigger.service systemd-udev-settle.service
+Before=local-fs-pre.target multipathd.service
+DefaultDependencies=no
+Conflicts=shutdown.target
+
+ConditionKernelCommandLine=rd.multipath=default
+ConditionPathExists=!/etc/multipath.conf
+
+[Service]
+Type=oneshot
+ExecStartPre=-/usr/bin/mkdir -p /etc/multipath/multipath.conf.d
+ExecStart=/usr/sbin/mpathconf --enable
+
+[Install]
+WantedBy=sysinit.target
