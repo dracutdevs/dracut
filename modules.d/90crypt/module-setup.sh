@@ -26,6 +26,31 @@ depends() {
 installkernel() {
     hostonly="" instmods drbg
     instmods dm_crypt
+
+    # in case some of the crypto modules moved from compiled in
+    # to module based, try to install those modules
+    # best guess
+    [[ $hostonly ]] || [[ $mount_needs ]] && {
+        # dmsetup returns s.th. like
+        # cryptvol: 0 2064384 crypt aes-xts-plain64 :64:logon:cryptsetup:....
+        dmsetup table | while read name _ _ is_crypt cipher _; do
+            [[ $is_crypt != "crypt" ]] && continue
+            # get the device name
+            name=/dev/$(dmsetup info -c --noheadings -o blkdevname ${name%:})
+            # check if the device exists as a key in our host_fs_types
+            if [[ ${host_fs_types[$name]+_} ]]; then
+                # split the cipher aes-xts-plain64 in pieces
+                _OLD_IFS=$IFS
+                IFS='-:'
+                set -- $cipher
+                IFS=$_OLD_IFS
+                # try to load the cipher part with "crypto-" prepended
+                # in non-hostonly mode
+                hostonly= instmods $(for k in "$@"; do echo "crypto-$k";done)
+            fi
+        done
+    }
+    return 0
 }
 
 # called by dracut
