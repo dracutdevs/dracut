@@ -1187,50 +1187,25 @@ are_lists_eq() {
 
 setmemdebug() {
     if [ -z "$DEBUG_MEM_LEVEL" ]; then
-        export DEBUG_MEM_LEVEL=$(getargnum 0 0 4 rd.memdebug)
+        export DEBUG_MEM_LEVEL=$(getargnum 0 0 3 rd.memdebug)
     fi
 }
 
 setmemdebug
 
-cleanup_trace_mem()
-{
-    # tracekomem based on kernel trace needs cleanup after use.
-    if [ "$DEBUG_MEM_LEVEL" -eq 4 ]; then
-        tracekomem --cleanup
-    fi
-}
-
-# parameters: msg [trace_level:trace]...
+# parameters: func log_level prefix msg [trace_level:trace]...
 make_trace_mem()
 {
-    local msg
-    msg="$1"
-    shift
-    if [ -n "$DEBUG_MEM_LEVEL" ] && [ "$DEBUG_MEM_LEVEL" -gt 0 ]; then
-        make_trace show_memstats $DEBUG_MEM_LEVEL "[debug_mem]" "$msg" "$@" >&2
-    fi
-}
-
-# parameters: func log_level prefix msg [trace_level:trace]...
-make_trace()
-{
-    local func log_level prefix msg msg_printed
+    local log_level prefix msg msg_printed
     local trace trace_level trace_in_higher_levels insert_trace
-
-    func=$1
-    shift
-
-    log_level=$1
-    shift
-
-    prefix=$1
-    shift
 
     msg=$1
     shift
 
-    if [ -z "$log_level" ]; then
+    prefix='[debug_mem]'
+    log_level=$DEBUG_MEM_LEVEL
+
+    if [ -z "$log_level" ] || [ "$log_level" -le 0 ]; then
         return
     fi
 
@@ -1263,7 +1238,7 @@ make_trace()
                 echo "$prefix $msg"
                 msg_printed=1
             fi
-            $func $trace
+            show_memstats $trace
         fi
         shift
     done
@@ -1284,9 +1259,6 @@ show_memstats()
             ;;
         iomem)
             cat /proc/iomem
-            ;;
-        komem)
-            tracekomem
             ;;
     esac
 }
