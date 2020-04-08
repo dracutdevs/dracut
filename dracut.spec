@@ -77,6 +77,7 @@ Requires: xz
 Requires: gzip
 
 %if 0%{?fedora} || 0%{?rhel}
+Recommends: memstrack
 Recommends: hardlink
 Recommends: pigz
 Recommends: kpartx
@@ -403,6 +404,7 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 %{dracutlibdir}/modules.d/98syslog
 %{dracutlibdir}/modules.d/98usrmount
 %{dracutlibdir}/modules.d/99base
+%{dracutlibdir}/modules.d/99memstrack
 %{dracutlibdir}/modules.d/99fs-lib
 %{dracutlibdir}/modules.d/99shutdown
 %attr(0644,root,root) %ghost %config(missingok,noreplace) %{_localstatedir}/log/dracut.log
