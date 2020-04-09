@@ -84,6 +84,7 @@ find / -xdev -type f -not -path '/var/*' \
   -not -path "/boot/loader/entries/\$(cat /etc/machine-id)-*" \
   -not -path "/boot/\$(cat /etc/machine-id)/*" \
   -not -path '/etc/openldap/certs/*' \
+  -not -path '/etc/dnf/*' \
   -print0 | xargs -0 rpm -qf | \
   grep -F 'not owned' &>> /test.output || :
 exit 0
