@@ -6,7 +6,7 @@ elif [ -z "$fipsmode" ]; then
     die "FIPS mode have to be enabled by 'fips=1' not just 'fips'"
 elif getarg boot= >/dev/null; then
     . /sbin/fips.sh
-    if mount_boot; then
+    if mount_boot boot fips=1; then
         do_fips || die "FIPS integrity test failed"
     fi
 fi

@@ -1,0 +1,20 @@
+[Unit]
+Description=Update initramfs etc
+Before=iscsi.service iscsid.service lvm2-activation-early.service
+Wants=systemd-udev-trigger.service systemd-udev-settle.service local-fs-pre.target
+After=systemd-udev-trigger.service systemd-udev-settle.service
+Before=local-fs-pre.target dracut-initqueue.service
+
+DefaultDependencies=no
+Conflicts=shutdown.target
+
+ConditionKernelCommandLine=bootetc
+ConditionPathExists=!/run/bootetc.done
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/boot-etc
+ExecStart=/usr/bin/touch /run/bootetc.done
+
+[Install]
+WantedBy=sysinit.target
