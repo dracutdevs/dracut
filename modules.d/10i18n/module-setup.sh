@@ -230,9 +230,7 @@ install() {
             print_vars LC_ALL LANG >> ${initdir}${I18N_CONF}
         fi
 
-        if dracut_module_included "systemd" && [[ -f $dracutsysrootdir${VCONFIG_CONF} ]]; then
-            inst_simple ${VCONFIG_CONF}
-        else
+        if ! dracut_module_included "systemd"; then
             mksubdirs ${initdir}${VCONFIG_CONF}
             print_vars KEYMAP EXT_KEYMAPS UNICODE FONT FONT_MAP FONT_UNIMAP >> ${initdir}${VCONFIG_CONF}
         fi
@@ -262,6 +260,11 @@ install() {
 
     if checks; then
         install_base
+
+        # https://github.com/dracutdevs/dracut/issues/796
+        if dracut_module_included "systemd" && [[ -f $dracutsysrootdir${VCONFIG_CONF} ]]; then
+            inst_simple ${VCONFIG_CONF}
+        fi
 
         if [[ ${hostonly} ]] && ! [[ ${i18n_install_all} == "yes" ]]; then
             install_local_i18n || install_all_kbd
