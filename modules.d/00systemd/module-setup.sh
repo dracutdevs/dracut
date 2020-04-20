@@ -241,6 +241,7 @@ install() {
         systemd-ask-password-console.service \
         systemd-ask-password-plymouth.service \
         ; do
+        [[ -f $systemdsystemunitdir/$i ]] || continue
         systemctl -q --root "$initdir" add-wants "$i" systemd-vconsole-setup.service
     done
 
