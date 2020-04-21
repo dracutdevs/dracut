@@ -47,10 +47,8 @@ install() {
     fi
 
     # We don't install the ifcfg files from the host automatically.
-    # But if the user chooses to include them, we pull in the machinery to read them.
-    if ! [[ -d "$initdir/etc/sysconfig/network-scripts" ]]; then
-        inst_libdir_file "NetworkManager/$_nm_version/libnm-settings-plugin-ifcfg-rh.so"
-    fi
+    # But the user might choose to include them, so we pull in the machinery to read them.
+    inst_libdir_file "NetworkManager/$_nm_version/libnm-settings-plugin-ifcfg-rh.so"
 
     _arch=${DRACUT_ARCH:-$(uname -m)}
 
