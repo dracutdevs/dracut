@@ -104,6 +104,15 @@ installkernel() {
         elif [[ "${host_fs_types[*]}" ]]; then
             hostonly='' instmods "${host_fs_types[@]}"
         fi
+
+        arch=${DRACUT_ARCH:-$(uname -m)}
+
+        # We don't want to play catch up with hash and encryption algorithms.
+        # To be safe, just use the hammer and include all crypto.
+        [[ $arch == x86_64 ]] && arch=x86
+        [[ $arch == s390x ]] && arch=s390
+        [[ $arch == aarch64 ]] && arch=arm64
+        instmods "=crypto" "=arch/$arch/crypto" "=drivers/crypto"
     fi
     :
 }
