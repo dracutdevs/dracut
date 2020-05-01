@@ -113,6 +113,7 @@ install() {
             set -- ${luksoptions}
             IFS="${OLD_IFS}"
 
+            forceentry=""
             while [ $# -gt 0 ]; do
                 case $1 in
                     force)
