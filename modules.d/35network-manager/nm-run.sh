@@ -10,6 +10,10 @@ for i in /usr/lib/NetworkManager/system-connections/* \
   else
       /usr/sbin/NetworkManager --configure-and-quit=initrd --no-daemon
   fi
+
+  if [ -s /run/NetworkManager/initrd/hostname ]; then
+      cat /run/NetworkManager/initrd/hostname > /proc/sys/kernel/hostname
+  fi
   break
 done
 
