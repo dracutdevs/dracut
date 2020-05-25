@@ -41,31 +41,36 @@ str_ends() { [ "${1%*"$2"}" != "$1" ]; }
 # search in the usual places to find the binary.
 find_binary() {
     local _delim
+    local _path
     local l
     local p
     [[ -z ${1##/*} ]] || _delim="/"
 
     if [[ "$1" == *.so* ]]; then
         for l in libdirs ; do
-            if { $DRACUT_LDD "$dracutsysrootdir$l$_delim$1" &>/dev/null; };  then
-                printf "%s\n" "$1"
+            _path="${l}${_delim}${1}"
+            if { $DRACUT_LDD "${dracutsysrootdir}${_path}" &>/dev/null; };  then
+                printf "%s\n" "${_path}"
                 return 0
             fi
         done
-        if { $DRACUT_LDD "$dracutsysrootdir$_delim$1" &>/dev/null; }; then
-            printf "%s\n" "$1"
+        _path="${_delim}${1}"
+        if { $DRACUT_LDD "${dracutsysrootdir}${_path}" &>/dev/null; }; then
+            printf "%s\n" "${_path}"
             return 0
         fi
     fi
     if [[ "$1" == */* ]]; then
-        if [[ -L $dracutsysrootdir$_delim$1 ]] || [[ -x $dracutsysrootdir$_delim$1 ]]; then
-            printf "%s\n" "$1"
+        _path="${_delim}${1}"
+        if [[ -L ${dracutsysrootdir}${_path} ]] || [[ -x ${dracutsysrootdir}${_path} ]]; then
+            printf "%s\n" "${_path}"
             return 0
         fi
     fi
     for p in $DRACUT_PATH ; do
-        if [[ -L $dracutsysrootdir$p$_delim$1 ]] || [[ -x $dracutsysrootdir$p$_delim$1 ]];  then
-            printf "%s\n" "$1"
+        _path="${p}${_delim}${1}"
+        if [[ -L ${dracutsysrootdir}${_path} ]] || [[ -x ${dracutsysrootdir}${_path} ]];  then
+            printf "%s\n" "${_path}"
             return 0
         fi
     done
