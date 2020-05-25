@@ -8,9 +8,9 @@ check() {
 # called by dracut
 depends() {
     echo -n "kernel-network-modules "
-    # RHEL 8.1: Default to network-legacy unless the user chose
-    # network-manager manually
-    if ! dracut_module_included "network-manager" ; then
+    if ! dracut_module_included "network-legacy" && [ -x "/usr/libexec/nm-initrd-generator" ] ; then
+        echo "network-manager"
+    else
         echo "network-legacy"
     fi
     return 0
