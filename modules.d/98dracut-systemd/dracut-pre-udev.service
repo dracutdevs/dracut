@@ -24,7 +24,7 @@ Environment=NEWROOT=/sysroot
 Type=oneshot
 ExecStart=-/bin/dracut-pre-udev
 StandardInput=null
-StandardOutput=syslog
+StandardOutput=syslog+console
 StandardError=syslog+console
 KillMode=process
 RemainAfterExit=yes
