@@ -14,7 +14,6 @@ make_trace_mem "hook pre-pivot" '1:shortmem' '2+:mem' '3+:slab'
 getarg 'rd.break=pre-pivot' 'rdbreak=pre-pivot' && emergency_shell -n pre-pivot "Break pre-pivot"
 source_hook pre-pivot
 
-cleanup_trace_mem
 # pre pivot cleanup scripts are sourced just before we switch over to the new root.
 getarg 'rd.break=cleanup' 'rdbreak=cleanup' && emergency_shell -n cleanup "Break cleanup"
 source_hook cleanup
