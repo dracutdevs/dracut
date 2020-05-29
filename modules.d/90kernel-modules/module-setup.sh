@@ -25,7 +25,7 @@ installkernel() {
     }
 
     install_block_modules () {
-        hostonly='' instmods sr_mod sd_mod scsi_dh ata_piix
+        hostonly='' instmods sg sr_mod sd_mod scsi_dh ata_piix
         instmods \
             scsi_dh_rdac scsi_dh_emc scsi_dh_alua \
             =ide nvme vmd \
@@ -104,6 +104,15 @@ installkernel() {
         elif [[ "${host_fs_types[*]}" ]]; then
             hostonly='' instmods "${host_fs_types[@]}"
         fi
+
+        arch=${DRACUT_ARCH:-$(uname -m)}
+
+        # We don't want to play catch up with hash and encryption algorithms.
+        # To be safe, just use the hammer and include all crypto.
+        [[ $arch == x86_64 ]] && arch=x86
+        [[ $arch == s390x ]] && arch=s390
+        [[ $arch == aarch64 ]] && arch=arm64
+        instmods "=crypto" "=arch/$arch/crypto" "=drivers/crypto"
     fi
     :
 }

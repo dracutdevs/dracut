@@ -2,7 +2,7 @@
 . /lib/dracut-lib.sh
 
 if ! [ "$DEBUG_MEM_LEVEL" -ge 4 ]; then
-    exit 0
+    return 0
 fi
 
 if type -P systemctl >/dev/null; then
