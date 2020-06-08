@@ -1578,15 +1578,6 @@ if [[ $kernel_only != yes ]]; then
     # Now we are done with lazy resolving, always install dependencies
     unset DRACUT_RESOLVE_LAZY
     export DRACUT_RESOLVE_DEPS=1
-
-    # libpthread workaround: pthread_cancel wants to dlopen libgcc_s.so
-    for _dir in $libdirs; do
-        for _f in "$_dir/libpthread.so"*; do
-            [[ -e "$_f" ]] || continue
-            inst_libdir_file "libgcc_s.so*"
-            break 2
-        done
-    done
 fi
 
 for ((i=0; i < ${#include_src[@]}; i++)); do
@@ -1836,6 +1827,17 @@ if dracut_module_included "squash"; then
             if [[ -e $squash_dir${file#$initdir} ]]; then
                 mv $squash_dir${file#$initdir} $file
             fi
+        done
+    done
+fi
+
+if [[ $kernel_only != yes ]]; then
+    # libpthread workaround: pthread_cancel wants to dlopen libgcc_s.so
+    for _dir in $libdirs; do
+        for _f in "$dracutsysrootdir$_dir/libpthread.so"*; do
+            [[ -e "$_f" ]] || continue
+            inst_libdir_file "libgcc_s.so*"
+            break 2
         done
     done
 fi
