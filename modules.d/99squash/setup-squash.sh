@@ -4,7 +4,6 @@ PATH=/bin:/sbin
 SQUASH_IMG=/squash/root.img
 SQUASH_MNT=/squash/root
 SQUASH_MNT_REC=/squash/mounts
-SQUASHED_MNT="usr etc"
 
 echo $SQUASH_MNT > $SQUASH_MNT_REC
 
@@ -45,7 +44,8 @@ if [ $? != 0 ]; then
     echo "Unable to mount squashed initramfs image"
 fi
 
-for file in $SQUASHED_MNT; do
+for file in $SQUASH_MNT/*; do
+	file=${file#$SQUASH_MNT/}
 	lowerdir=$SQUASH_MNT/$file
 	workdir=/squash/overlay-work/$file
 	upperdir=/$file
