@@ -444,7 +444,7 @@ inst_rules_wildcard() {
 }
 
 prepare_udev_rules() {
-    [ -z "$UDEVVERSION" ] && export UDEVVERSION=$(udevadm --version)
+    [ -z "$UDEVVERSION" ] && export UDEVVERSION=$(udevadm --version | { read v _ ; echo $v ; })
 
     for f in "$@"; do
         f="${initdir}/etc/udev/rules.d/$f"

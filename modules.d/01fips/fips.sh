@@ -27,7 +27,7 @@ mount_boot()
 
         if ! [ -e "$boot" ]; then
             udevadm trigger --action=add >/dev/null 2>&1
-            [ -z "$UDEVVERSION" ] && UDEVVERSION=$(udevadm --version)
+            [ -z "$UDEVVERSION" ] && UDEVVERSION=$(udevadm --version | { read v _ ; echo $v ; })
             i=0
             while ! [ -e $boot ]; do
                 if [ $UDEVVERSION -ge 143 ]; then
