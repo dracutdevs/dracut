@@ -92,7 +92,7 @@ fi
 
 trap "emergency_shell Signal caught!" 0
 
-export UDEVVERSION=$(udevadm --version)
+export UDEVVERSION=$(udevadm --version | { read v _ ; echo $v ; })
 if [ $UDEVVERSION -gt 166 ]; then
     # newer versions of udev use /run/udev/rules.d
     export UDEVRULESD=/run/udev/rules.d
