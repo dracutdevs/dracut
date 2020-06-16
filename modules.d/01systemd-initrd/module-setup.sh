@@ -36,6 +36,5 @@ install() {
         $systemdsystemunitdir/initrd-udevadm-cleanup-db.service \
         $systemdsystemunitdir/initrd-parse-etc.service
 
-    ln_r "${systemdsystemunitdir}/initrd.target" "${systemdsystemunitdir}/default.target"
+    systemctl -q --root "$initdir" set-default initrd.target
 }
-

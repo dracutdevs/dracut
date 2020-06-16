@@ -43,7 +43,6 @@ install() {
 
     inst_script "$moddir/rootfs-generator.sh" $systemdutildir/system-generators/dracut-rootfs-generator
 
-    mkdir -p "${initdir}/$systemdsystemunitdir/initrd.target.wants"
     for i in \
         dracut-cmdline.service \
         dracut-cmdline-ask.service \
@@ -55,7 +54,7 @@ install() {
         dracut-pre-udev.service \
         ; do
         inst_simple "$moddir/${i}" "$systemdsystemunitdir/${i}"
-        ln_r "$systemdsystemunitdir/${i}" "$systemdsystemunitdir/initrd.target.wants/${i}"
+        systemctl -q --root "$initdir" add-wants initrd.target "$i"
     done
 
     inst_simple "$moddir/dracut-tmpfiles.conf" "$tmpfilesdir/dracut-tmpfiles.conf"

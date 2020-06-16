@@ -55,6 +55,8 @@ install() {
     inst_rules 91-permissions.rules
     # eudev rules
     inst_rules 80-drivers-modprobe.rules
+    # legacy persistent network device name rules
+    [[ $hostonly ]] && inst_rules 70-persistent-net.rules
 
     if dracut_module_included "systemd"; then
         inst_multiple -o ${systemdutildir}/network/*.link

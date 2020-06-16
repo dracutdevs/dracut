@@ -1,8 +1,6 @@
 #!/bin/sh
 
-
 if modprobe sunrpc || strstr "$(cat /proc/filesystems)" rpc_pipefs; then
-
     [ ! -d /var/lib/nfs/rpc_pipefs/nfs ] && \
         mount -t rpc_pipefs rpc_pipefs /var/lib/nfs/rpc_pipefs
 
@@ -17,8 +15,8 @@ if modprobe sunrpc || strstr "$(cat /proc/filesystems)" rpc_pipefs; then
     # Start rpc.statd as mount won't let us use locks on a NFSv4
     # filesystem without talking to it. NFSv4 does locks internally,
     # rpc.lockd isn't needed
-    [ -z "$(pidof rpc.statd)" ] && rpc.statd
-    [ -z "$(pidof rpc.idmapd)" ] && rpc.idmapd
+    command -v rpc.statd >/dev/null && [ -z "$(pidof rpc.statd)" ] && rpc.statd
+    command -v rpc.idmapd >/dev/null && [ -z "$(pidof rpc.idmapd)" ] && rpc.idmapd
 else
     warn 'Kernel module "sunrpc" not in the initramfs, or support for filesystem "rpc_pipefs" missing!'
 fi

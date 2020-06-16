@@ -75,8 +75,8 @@ setup_interface() {
 
 setup_interface6() {
     domain=$new_domain_name
-    search=$(printf -- "$new_domain_search")
-    namesrv=$new_domain_name_servers
+    search=$(printf -- "$new_dhcp6_domain_search")
+    namesrv=$new_dhcp6_name_servers
     hostname=$new_host_name
     [ -n "$new_dhcp_lease_time" ] && lease_time=$new_dhcp_lease_time
     [ -n "$new_max_life" ] && lease_time=$new_max_life
@@ -146,7 +146,7 @@ parse_option_121() {
             temp_result="$destination via $gateway dev $interface"
         fi
 
-        echo "/sbin/ip route add $temp_result"
+        echo "/sbin/ip route replace $temp_result"
     done
 }
 
@@ -164,7 +164,7 @@ case $reason in
         ;;
 
     BOUND)
-        echo "dhcp: BOND setting $netif"
+        echo "dhcp: BOUND setting up $netif"
         unset layer2
         if [ -f /sys/class/net/$netif/device/layer2 ]; then
             read layer2 < /sys/class/net/$netif/device/layer2
@@ -223,7 +223,7 @@ case $reason in
         ;;
 
     BOUND6)
-        echo "dhcp: BOND6 setting $netif"
+        echo "dhcp: BOUND6 setting up $netif"
         setup_interface6
 
         set | while read line || [ -n "$line" ]; do

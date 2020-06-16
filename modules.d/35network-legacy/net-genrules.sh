@@ -65,9 +65,9 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
         bootdev=$(cat /tmp/net.bootdev)
     fi
 
-    ifup='/sbin/ifup $env{INTERFACE}'
+    ifup='/sbin/ifup $name'
 
-    runcmd="RUN+=\"/sbin/initqueue --name ifup-\$env{INTERFACE} --unique --onetime $ifup\""
+    runcmd="RUN+=\"/sbin/initqueue --name ifup-\$name --unique --onetime $ifup\""
 
     # We have some specific interfaces to handle
     if [ -n "${RAW_IFACES}${IFACES}" ]; then

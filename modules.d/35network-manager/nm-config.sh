@@ -5,3 +5,14 @@ if [ -n "$netroot" ] || [ -e /tmp/net.ifaces ]; then
 fi
 
 /usr/libexec/nm-initrd-generator -- $(getcmdline)
+
+if getargbool 0 rd.neednet; then
+  for i in /usr/lib/NetworkManager/system-connections/* \
+           /run/NetworkManager/system-connections/* \
+           /etc/NetworkManager/system-connections/* \
+           /etc/sysconfig/network-scripts/ifcfg-*; do
+    [ -f "$i" ] || continue
+    echo '[ -f /tmp/nm.done ]' >$hookdir/initqueue/finished/nm.sh
+    break
+  done
+fi

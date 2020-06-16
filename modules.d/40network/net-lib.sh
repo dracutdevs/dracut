@@ -251,8 +251,10 @@ ibft_to_cmdline() {
             [ -e ${iface}/flags ] && flags=$(read a < ${iface}/flags; echo $a)
             # Skip invalid interfaces
             (( $flags & 1 )) || continue
-            # Skip interfaces not used for booting
-            (( $flags & 2 )) || continue
+            # Skip interfaces not used for booting unless using multipath
+            if ! getargbool 0 rd.iscsi.mp ; then
+                (( $flags & 2 )) || continue
+            fi
             [ -e ${iface}/dhcp ] && dhcp=$(read a < ${iface}/dhcp; echo $a)
             [ -e ${iface}/origin ] && origin=$(read a < ${iface}/origin; echo $a)
             [ -e ${iface}/ip-addr ] && ip=$(read a < ${iface}/ip-addr; echo $a)
@@ -508,7 +510,7 @@ ip_to_var() {
     [ -n "$6" ] && dev=$6
     [ -n "$7" ] && autoconf=$7
     case "$8" in
-        [0-9]*:*|[0-9]*.[0-9]*.[0-9]*.[0-9]*)
+        [0-9a-fA-F]*:*|[0-9]*.[0-9]*.[0-9]*.[0-9]*)
             dns1="$8"
             [ -n "$9" ] && dns2="$9"
             ;;
@@ -655,7 +657,6 @@ wait_for_ipv6_dad_link() {
     while [ $cnt -lt $timeout ]; do
         [ -n "$(ip -6 addr show dev "$1" scope link)" ] \
             && [ -z "$(ip -6 addr show dev "$1" scope link tentative)" ] \
-            && [ -n "$(ip -6 route list proto ra dev "$1" | grep ^default)" ] \
             && return 0
         [ -n "$(ip -6 addr show dev "$1" scope link dadfailed)" ] \
             && return 1
@@ -718,7 +719,7 @@ iface_has_carrier() {
     interface="/sys/class/net/$interface"
     [ -d "$interface" ] || return 2
     local timeout="$(getargs rd.net.timeout.carrier=)"
-    timeout=${timeout:-5}
+    timeout=${timeout:-10}
     timeout=$(($timeout*10))
 
     linkup "$1"

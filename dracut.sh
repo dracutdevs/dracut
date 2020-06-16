@@ -140,7 +140,7 @@ Creates initial ramdisk images for preloading modules
   --confdir [DIR]       Specify configuration directory to use *.conf files
                          from. Default: /etc/dracut.conf.d
   --tmpdir [DIR]        Temporary directory to be used instead of default
-                         /var/tmp.
+                         ${TMPDIR:-/var/tmp}.
   -r, --sysroot [DIR]   Specify sysroot directory to collect files from.
   -l, --local           Local mode. Use modules from the current working
                          directory instead of the system-wide installed in
@@ -184,8 +184,8 @@ Creates initial ramdisk images for preloading modules
   --mount "[DEV] [MP] [FSTYPE] [FSOPTS]"
                         Mount device [DEV] on mountpoint [MP] with filesystem
                         [FSTYPE] and options [FSOPTS] in the initramfs
-  --mount "[MP]"	Same as above, but [DEV], [FSTYPE] and [FSOPTS] are
-			determined by looking at the current mounts.
+  --mount "[MP]"        Same as above, but [DEV], [FSTYPE] and [FSOPTS] are
+                        determined by looking at the current mounts.
   --add-device "[DEV]"  Bring up [DEV] in initramfs
   -i, --include [SOURCE] [TARGET]
                         Include the files in the SOURCE directory into the
@@ -236,7 +236,12 @@ Creates initial ramdisk images for preloading modules
   --uefi                Create an UEFI executable with the kernel cmdline and
                         kernel combined
   --uefi-stub [FILE]    Use the UEFI stub [FILE] to create an UEFI executable
+  --uefi-splash-image [FILE]
+                        Use [FILE] as a splash image when creating an UEFI
+                        executable
   --kernel-image [FILE] location of the kernel image
+  --regenerate-all      Regenerate all initramfs images at the default location
+                        for the kernel versions found on the system
 
 If [LIST] has multiple arguments, then you have to put these in quotes.
 
@@ -271,6 +276,14 @@ read_arg() {
         # There is no way to shift our callers args, so
         # return 1 to indicate they should do it instead.
         return 1
+    fi
+}
+
+check_conf_file()
+{
+    if grep -H -e '^[^#]*[+]=\("[^ ]\|.*[^ ]"\)' "$@"; then
+        printf '\ndracut: WARNING: <key>+=" <values> ": <values> should have surrounding white spaces!\n' >&2
+        printf 'dracut: WARNING: This will lead to unwanted side effects! Please fix the configuration file.\n\n' >&2
     fi
 }
 
@@ -398,6 +411,7 @@ rearrange_params()
         --long loginstall: \
         --long uefi \
         --long uefi-stub: \
+        --long uefi-splash-image: \
         --long kernel-image: \
         --long no-hostonly-i18n \
         --long hostonly-i18n \
@@ -596,6 +610,8 @@ while :; do
         --uefi)        uefi="yes";;
         --uefi-stub)
                        uefi_stub_l="$2";               PARMS_TO_STORE+=" '$2'"; shift;;
+        --uefi-splash-image)
+                       uefi_splash_image_l="$2";       PARMS_TO_STORE+=" '$2'"; shift;;
         --kernel-image)
                        kernel_image_l="$2";            PARMS_TO_STORE+=" '$2'"; shift;;
         --no-machineid)
@@ -695,10 +711,14 @@ if [[ ! -d $confdir ]]; then
 fi
 
 # source our config file
-[[ -f $conffile ]] && . "$conffile"
+if [[ -f $conffile ]]; then
+    check_conf_file "$conffile"
+    . "$conffile"
+fi
 
 # source our config dir
 for f in $(dropindirs_sort ".conf" "$confdir" "$dracutbasedir/dracut.conf.d"); do
+    check_conf_file "$f"
     [[ -e $f ]] && . "$f"
 done
 
@@ -757,6 +777,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $dracutbasedir ]] || dracutbasedir=$dracutsysrootdir/usr/lib/dracut
 [[ $fw_dir ]] || fw_dir="$dracutsysrootdir/lib/firmware/updates:$dracutsysrootdir/lib/firmware:$dracutsysrootdir/lib/firmware/$kernel"
 [[ $tmpdir_l ]] && tmpdir="$tmpdir_l"
+[[ $tmpdir ]] || tmpdir="$TMPDIR"
 [[ $tmpdir ]] || tmpdir=$dracutsysrootdir/var/tmp
 [[ $INITRD_COMPRESS ]] && compress=$INITRD_COMPRESS
 [[ $compress_l ]] && compress=$compress_l
@@ -765,10 +786,14 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $ro_mnt_l ]] && ro_mnt="yes"
 [[ $early_microcode_l ]] && early_microcode=$early_microcode_l
 [[ $early_microcode ]] || early_microcode=yes
+[[ $early_microcode_image_dir ]] || early_microcode_image_dir=('/boot')
+[[ $early_microcode_image_name ]] || \
+    early_microcode_image_name=('intel-uc.img' 'intel-ucode.img' 'amd-uc.img' 'amd-ucode.img' 'early_ucode.cpio' 'microcode.cpio')
 [[ $logfile_l ]] && logfile="$logfile_l"
 [[ $reproducible_l ]] && reproducible="$reproducible_l"
 [[ $loginstall_l ]] && loginstall="$loginstall_l"
 [[ $uefi_stub_l ]] && uefi_stub="$uefi_stub_l"
+[[ $uefi_splash_image_l ]] && uefi_splash_image="$uefi_splash_image_l"
 [[ $kernel_image_l ]] && kernel_image="$kernel_image_l"
 [[ $machine_id_l ]] && machine_id="$machine_id_l"
 
@@ -915,11 +940,32 @@ esac
 
 [[ $reproducible == yes ]] && DRACUT_REPRODUCIBLE=1
 
+case "${drivers_dir}" in
+    ''|*lib/modules/${kernel}|*lib/modules/${kernel}/) ;;
+    *)
+        [[ "$DRACUT_KMODDIR_OVERRIDE" ]] || {
+	    printf "%s\n" "dracut: -k/--kmoddir path must contain \"lib/modules\" as a parent of your kernel module directory,"
+	    printf "%s\n" "dracut: or modules may not be placed in the correct location inside the initramfs."
+	    printf "%s\n" "dracut: was given: ${drivers_dir}"
+	    printf "%s\n" "dracut: expected: $(dirname ${drivers_dir})/lib/modules/${kernel}"
+	    printf "%s\n" "dracut: Please move your modules into the correct directory structure and pass the new location,"
+	    printf "%s\n" "dracut: or set DRACUT_KMODDIR_OVERRIDE=1 to ignore this check."
+	    exit 1
+	}
+	;;
+esac
+
 readonly TMPDIR="$(realpath -e "$tmpdir")"
 [ -d "$TMPDIR" ] || {
     printf "%s\n" "dracut: Invalid tmpdir '$tmpdir'." >&2
     exit 1
 }
+
+if findmnt --raw -n --target "$tmpdir" --output=options | grep -q noexec; then
+    [[ $debug == yes ]] && printf "%s\n" "dracut: Tmpdir '$tmpdir' is mounted with 'noexec'."
+    noexec=1
+fi
+
 readonly DRACUT_TMPDIR="$(mktemp -p "$TMPDIR/" -d -t dracut.XXXXXX)"
 [ -d "$DRACUT_TMPDIR" ] || {
     printf "%s\n" "dracut: mktemp -p '$TMPDIR/' -d -t dracut.XXXXXX failed." >&2
@@ -944,7 +990,7 @@ if [[ $early_microcode = yes ]] || ( [[ $acpi_override = yes ]] && [[ -d $acpi_t
     mkdir "$early_cpio_dir"
 fi
 
-[[ -n "$dracutsysrootdir" ]] || export DRACUT_RESOLVE_LAZY="1"
+[[ -n "$dracutsysrootdir" || "$noexec" ]] || export DRACUT_RESOLVE_LAZY="1"
 
 if [[ $print_cmdline ]]; then
     stdloglvl=0
@@ -1737,6 +1783,21 @@ if [[ $early_microcode = yes ]]; then
                 create_early_cpio="yes"
             fi
         done
+        if [[ ! -e "$_dest_dir/${ucode_dest[$idx]}" ]]; then
+            cd "$early_cpio_dir/d"
+            for _ucodedir in "${early_microcode_image_dir[@]}"; do
+                for _ucodename in "${early_microcode_image_name[@]}"; do
+                    [[ -e "$_ucodedir/$_ucodename" ]] && \
+                    cpio --extract --file "$_ucodedir/$_ucodename" --quiet \
+                         "kernel/x86/microcode/${ucode_dest[$idx]}"
+                    if [[ -e "$_dest_dir/${ucode_dest[$idx]}" ]]; then
+                        dinfo "*** Using microcode found in '$_ucodedir/$_ucodename' ***"
+                        create_early_cpio="yes"
+                        break 2
+                    fi
+                done
+            done
+        fi
     done
 fi
 
@@ -1985,11 +2046,14 @@ if [[ $uefi = yes ]]; then
 
     [[ -s $dracutsysrootdir/usr/lib/os-release ]] && uefi_osrelease="$dracutsysrootdir/usr/lib/os-release"
     [[ -s $dracutsysrootdir/etc/os-release ]] && uefi_osrelease="$dracutsysrootdir/etc/os-release"
+    [[ -s "${dracutsysrootdir}${uefi_splash_image}" ]] && \
+        uefi_splash_image="${dracutsysroot}${uefi_splash_image}" || unset uefi_splash_image
 
     if objcopy \
            ${uefi_osrelease:+--add-section .osrel=$uefi_osrelease --change-section-vma .osrel=0x20000} \
            --add-section .cmdline="${uefi_outdir}/cmdline.txt" --change-section-vma .cmdline=0x30000 \
-           --add-section .linux="$kernel_image" --change-section-vma .linux=0x40000 \
+           ${uefi_splash_image:+--add-section .splash="$uefi_splash_image" --change-section-vma .splash=0x40000} \
+           --add-section .linux="$kernel_image" --change-section-vma .linux=0x2000000 \
            --add-section .initrd="${DRACUT_TMPDIR}/initramfs.img" --change-section-vma .initrd=0x3000000 \
            "$uefi_stub" "${uefi_outdir}/linux.efi"; then
         if [[ -n "${uefi_secureboot_key}" && -n "${uefi_secureboot_cert}" ]]; then \
@@ -2024,6 +2088,40 @@ fi
 
 command -v restorecon &>/dev/null && restorecon -- "$outfile"
 
+btrfs_uuid() {
+    btrfs filesystem show "$1" | sed -n '1s/^.*uuid: //p'
+}
+
+freeze_ok_for_btrfs() {
+    local mnt uuid1 uuid2
+    # If the output file is on btrfs, we need to make sure that it's
+    # not on a subvolume of the same file system as the root FS.
+    # Otherwise, fsfreeze() might freeze the entire system.
+    # This is most conveniently checked by comparing the FS uuid.
+
+    [[ "$(stat -f -c %T -- "/")" == "btrfs" ]] || return 0
+    mnt=$(stat -c %m -- "$1")
+    uuid1=$(btrfs_uuid "$mnt")
+    uuid2=$(btrfs_uuid "/")
+    [[ "$uuid1" && "$uuid2" && "$uuid1" != "$uuid2" ]]
+}
+
+freeze_ok_for_fstype() {
+    local outfile=$1
+    local fstype
+
+    [[ "$(stat -c %m -- "$outfile")" == "/" ]] && return 1
+    fstype=$(stat -f -c %T -- "$outfile")
+    case $fstype in
+        msdos)
+            return 1;;
+        btrfs)
+            freeze_ok_for_btrfs "$outfile";;
+        *)
+            return 0;;
+    esac
+}
+
 # We sync/fsfreeze only if we're operating on a live booted system.
 # It's possible for e.g. `kernel` to be installed as an RPM BuildRequires or equivalent,
 # and there's no reason to sync, and *definitely* no reason to fsfreeze.
@@ -2036,7 +2134,7 @@ if test -d $dracutsysrootdir/run/systemd/system; then
     fi
 
     # use fsfreeze only if we're not writing to /
-    if [[ "$(stat -c %m -- "$outfile")" != "/" && "$(stat -f -c %T -- "$outfile")" != "msdos" ]]; then
+    if [[ "$(stat -c %m -- "$outfile")" != "/" ]] && freeze_ok_for_fstype "$outfile"; then
         if ! $(fsfreeze -f $(dirname "$outfile") 2>/dev/null && fsfreeze -u $(dirname "$outfile") 2>/dev/null); then
             dinfo "dracut: warning: could not fsfreeze $(dirname "$outfile")"
         fi

@@ -59,6 +59,7 @@ static bool arg_modalias = false;
 static bool arg_resolvelazy = false;
 static bool arg_resolvedeps = false;
 static bool arg_hostonly = false;
+static bool no_xattr = false;
 static char *destrootdir = NULL;
 static char *sysrootdir = NULL;
 static size_t sysrootdirlen = 0;
@@ -310,7 +311,7 @@ static int cp(const char *src, const char *dst)
  normal_copy:
         pid = fork();
         if (pid == 0) {
-                if (geteuid() == 0)
+                if (geteuid() == 0 && no_xattr == false)
                         execlp("cp", "cp", "--reflink=auto", "--sparse=auto", "--preserve=mode,xattr,timestamps", "-fL", src, dst,
                                NULL);
                 else
@@ -322,7 +323,7 @@ static int cp(const char *src, const char *dst)
         while (waitpid(pid, &ret, 0) < 0) {
                 if (errno != EINTR) {
                         ret = -1;
-                        if (geteuid() == 0)
+                        if (geteuid() == 0 && no_xattr == false)
                                 log_error("Failed: cp --reflink=auto --sparse=auto --preserve=mode,xattr,timestamps -fL %s %s", src,
                                           dst);
                         else
@@ -686,29 +687,41 @@ static bool check_hashmap(Hashmap *hm, const char *item)
 
 static int dracut_mkdir(const char *src) {
         _cleanup_free_ char *parent = NULL;
+        char *path;
         struct stat sb;
 
         parent = strdup(src);
         if (!parent)
                 return 1;
 
-        parent[dir_len(parent)] = '\0';
+        path = parent[0] == '/' ? parent+1 : parent;
+        while (path) {
+                path = strstr(path, "/");
+                if (path)
+                        *path = '\0';
 
-        if (stat(parent, &sb) == 0) {
-                if (!S_ISDIR(sb.st_mode)) {
-                        log_error("%s exists but is not a directory!", parent);
+                if (stat(parent, &sb) == 0) {
+                        if (!S_ISDIR(sb.st_mode)) {
+                                log_error("%s exists but is not a directory!", parent);
+                                return 1;
+                        }
+                } else if (errno != ENOENT) {
+                        log_error("ERROR: stat '%s': %s", parent, strerror(errno));
                         return 1;
+                } else {
+                        if (mkdir(parent, 0755) < 0) {
+                                log_error("ERROR: mkdir '%s': %s", parent, strerror(errno));
+                                return 1;
+                        }
                 }
 
-                return mkdir(src, 0755);
+                if (path) {
+                        *path = '/';
+                        path++;
+                }
         }
 
-        if (errno != ENOENT) {
-                log_error("ERROR: stat '%s': %m", src);
-                return 1;
-        }
-
-        return dracut_mkdir(parent);
+        return 0;
 }
 
 static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir, bool resolvedeps, bool hashdst)
@@ -1458,12 +1471,12 @@ static int install_dependent_modules(struct kmod_list *modlist)
                         continue;
                 }
 
-                ret = dracut_install(&path[kerneldirlen], &path[kerneldirlen], false, false, true);
+                ret = dracut_install(path, &path[kerneldirlen], false, false, true);
                 if (ret == 0) {
 			_cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
 			_cleanup_kmod_module_unref_list_ struct kmod_list *modpre = NULL;
 			_cleanup_kmod_module_unref_list_ struct kmod_list *modpost = NULL;
-                        log_debug("dracut_install '%s' '%s' OK", &path[kerneldirlen], &path[kerneldirlen]);
+                        log_debug("dracut_install '%s' '%s' OK", path, &path[kerneldirlen]);
                         install_firmware(mod);
 			modlist = kmod_module_get_dependencies(mod);
 			ret = install_dependent_modules(modlist);
@@ -1473,7 +1486,7 @@ static int install_dependent_modules(struct kmod_list *modlist)
 					ret = install_dependent_modules(modpre);
 			}
                 } else {
-                        log_error("dracut_install '%s' '%s' ERROR", &path[kerneldirlen], &path[kerneldirlen]);
+                        log_error("dracut_install '%s' '%s' ERROR", path, &path[kerneldirlen]);
                 }
         }
 
@@ -1515,9 +1528,9 @@ static int install_module(struct kmod_module *mod)
                 return 1;
         }
 
-        log_debug("dracut_install '%s' '%s'", &path[kerneldirlen], &path[kerneldirlen]);
+        log_debug("dracut_install '%s' '%s'", path, &path[kerneldirlen]);
 
-        ret = dracut_install(&path[kerneldirlen], &path[kerneldirlen], false, false, true);
+        ret = dracut_install(path, &path[kerneldirlen], false, false, true);
         if (ret == 0) {
                 log_debug("dracut_install '%s' OK", kmod_module_get_name(mod));
         } else if (!arg_optional) {
@@ -1898,6 +1911,7 @@ int main(int argc, char **argv)
         int r;
         char *i;
         char *path = NULL;
+        char *env_no_xattr = NULL;
 
         r = parse_argv(argc, argv);
         if (r <= 0)
@@ -1944,6 +1958,10 @@ int main(int argc, char **argv)
         if (ldd == NULL)
                 ldd = "ldd";
         log_debug("LDD=%s", ldd);
+
+        env_no_xattr = getenv("DRACUT_NO_XATTR");
+        if (env_no_xattr != NULL)
+                no_xattr = true;
 
         pathdirs = strv_split(path, ":");
 
