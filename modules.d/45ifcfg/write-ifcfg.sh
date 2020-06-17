@@ -270,7 +270,7 @@ for netup in /tmp/net.*.did-setup ; do
         done
     fi
     i=1
-    for ns in $(getargs nameserver); do
+    for ns in $(getargs nameserver) $dns1 $dns2; do
         echo "DNS${i}=\"${ns}\"" >> /tmp/ifcfg/ifcfg-$netif
         i=$((i+1))
     done

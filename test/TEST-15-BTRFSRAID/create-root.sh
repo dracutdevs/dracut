@@ -23,5 +23,5 @@ mkdir -p /sysroot
 mount -t btrfs /dev/sda5 /sysroot
 cp -a -t /sysroot /source/*
 umount /sysroot
-echo "dracut-root-block-created" >/dev/sda1
+echo "dracut-root-block-created" | dd oflag=direct,dsync of=/dev/sda1
 poweroff -f

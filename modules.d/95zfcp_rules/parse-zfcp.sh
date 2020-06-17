@@ -22,8 +22,6 @@ create_udev_rule() {
         return 0;
     fi
 
-    [ -e ${_rule} ] && return 0
-
     if [ ! -f "$_rule" ] ; then
         cat > $_rule <<EOF
 ACTION=="add", SUBSYSTEM=="ccw", KERNEL=="$ccw", IMPORT{program}="collect $ccw %k ${ccw} zfcp"

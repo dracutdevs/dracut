@@ -1,5 +1,22 @@
 #!/bin/bash
 
+# return value:
+#  'nfs4': Only nfs4 founded
+#  'nfs': nfs with version < 4 founded
+#  '': No nfs founded
+get_nfs_type() {
+    local _nfs _nfs4
+
+    for fs in "${host_fs_types[@]}"; do
+        [[ "$fs" == "nfs" ]] && _nfs=1
+        [[ "$fs" == "nfs3" ]] && _nfs=1
+        [[ "$fs" == "nfs4" ]] && _nfs4=1
+    done
+
+    [[ "$_nfs" ]] && echo "nfs" && return
+    [[ "$_nfs4" ]] && echo "nfs4" && return
+}
+
 # called by dracut
 check() {
     # If our prerequisites are not met, fail anyways.
@@ -7,11 +24,7 @@ check() {
     require_binaries rpc.statd mount.nfs mount.nfs4 umount || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        for fs in "${host_fs_types[@]}"; do
-            [[ "$fs" == "nfs" ]] && return 0
-            [[ "$fs" == "nfs3" ]] && return 0
-            [[ "$fs" == "nfs4" ]] && return 0
-        done
+        [[ "$(get_nfs_type)" ]] && return 0
         return 255
     }
     return 0
@@ -77,8 +90,7 @@ cmdline() {
 install() {
     local _i
     local _nsslibs
-    inst_multiple -o portmap rpcbind rpc.statd mount.nfs \
-        mount.nfs4 umount rpc.idmapd sed /etc/netconfig chmod "$tmpfilesdir/rpcbind.conf"
+    inst_multiple -o rpc.idmapd mount.nfs mount.nfs4 umount sed /etc/netconfig chmod "$tmpfilesdir/rpcbind.conf"
     inst_multiple /etc/services /etc/nsswitch.conf /etc/rpc /etc/protocols /etc/idmapd.conf
 
     if [[ $hostonly_cmdline == "yes" ]]; then
@@ -106,6 +118,12 @@ install() {
     inst_hook pre-udev 99 "$moddir/nfs-start-rpc.sh"
     inst_hook cleanup 99 "$moddir/nfsroot-cleanup.sh"
     inst "$moddir/nfsroot.sh" "/sbin/nfsroot"
+
+    # For strict hostonly, only install rpcbind for NFS < 4
+    if [[ $hostonly_mode != "strict" ]] || [[ "$(get_nfs_type)" != "nfs4" ]]; then
+        inst_multiple -o portmap rpcbind rpc.statd
+    fi
+
     inst "$moddir/nfs-lib.sh" "/lib/nfs-lib.sh"
     mkdir -m 0755 -p "$initdir/var/lib/nfs/rpc_pipefs"
     mkdir -m 0770 -p "$initdir/var/lib/rpcbind"
@@ -121,5 +139,6 @@ install() {
     chmod 770 "$initdir/var/lib/rpcbind"
     grep -q '^rpc:' $dracutsysrootdir/etc/passwd \
         && grep -q '^rpc:' $dracutsysrootdir/etc/group
+
     dracut_need_initqueue
 }

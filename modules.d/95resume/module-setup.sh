@@ -2,12 +2,9 @@
 
 # called by dracut
 check() {
-    # No point trying to support resume, if no swap partition exist
+    # Only support resume if hibernation is currently on
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        for fs in "${host_fs_types[@]}"; do
-            [[ $fs =~ ^(swap|swsuspend|swsupend)$ ]] && return 0
-        done
-        return 255
+        [[ "$(cat /sys/power/resume)" == "0:0" ]] && return 255
     }
 
     return 0

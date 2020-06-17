@@ -39,7 +39,6 @@ install() {
     inst_script "$moddir/initqueue.sh" "/sbin/initqueue"
     inst_script "$moddir/loginit.sh" "/sbin/loginit"
     inst_script "$moddir/rdsosreport.sh" "/sbin/rdsosreport"
-    inst_script "$moddir/memtrace-ko.sh" "/sbin/tracekomem"
 
     [ -e "${initdir}/lib" ] || mkdir -m 0755 -p ${initdir}/lib
     mkdir -m 0755 -p ${initdir}/lib/dracut
