@@ -1272,9 +1272,13 @@ static int install_dependent_modules(struct kmod_list *modlist)
 			ret = install_dependent_modules(modlist);
 			if (ret == 0) {
 				ret = kmod_module_get_softdeps(mod, &modpre, &modpost);
-				if (ret == 0)
-					ret = install_dependent_modules(modpre);
-			}
+                                if (ret == 0) {                        
+                                        int r;
+                                        ret = install_dependent_modules(modpre);    
+                                        r = install_dependent_modules(modpost);
+                                        ret = ret ? : r;
+                                }
+                        }
                 } else {
                         log_error("dracut_install '%s' '%s' ERROR", path, &path[kerneldirlen]);
                 }
@@ -1335,8 +1339,12 @@ static int install_module(struct kmod_module *mod)
 
         if (ret == 0) {
                 ret = kmod_module_get_softdeps(mod, &modpre, &modpost);
-                if (ret == 0)
-                        ret = install_dependent_modules(modpre);
+                if (ret == 0) {                        
+                        int r;
+                        ret = install_dependent_modules(modpre);    
+                        r = install_dependent_modules(modpost);
+                        ret = ret ? : r;
+                }
         }
 
         return ret;
