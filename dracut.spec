@@ -481,4 +481,9 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 %{_sysconfdir}/kernel/postinst.d/51-dracut-rescue-postinst.sh
 %endif
 
+%triggerin network -- dracut-network < 049-83.git20200525
+echo '# Since rhel-8.3 dracut moved to use NetworkManager
+# On existing installations we want to preserve the old scripts
+add_dracutmodules+=" network-legacy "' > /etc/dracut.conf.d/50-network-legacy.conf
+
 %changelog
