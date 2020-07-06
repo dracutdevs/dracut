@@ -69,6 +69,14 @@ do_rhevh_check()
     return 0
 }
 
+nonfatal_modprobe()
+{
+    modprobe $1 2>&1 > /dev/stdout |
+        while read -r line || [ -n "$line" ]; do
+            echo "${line#modprobe: FATAL: }" >&2
+        done
+}
+
 fips_load_crypto()
 {
     FIPSMODULES=$(cat /etc/fipsmodules)
@@ -77,7 +85,7 @@ fips_load_crypto()
     mv /etc/modprobe.d/fips.conf /etc/modprobe.d/fips.conf.bak
     for _module in $FIPSMODULES; do
         if [ "$_module" != "tcrypt" ]; then
-            if ! modprobe "${_module}" 2>/tmp/fips.modprobe_err; then
+            if ! nonfatal_modprobe "${_module}" 2>/tmp/fips.modprobe_err; then
                 # check if kernel provides generic algo
                 _found=0
                 while read _k _s _v || [ -n "$_k" ]; do
