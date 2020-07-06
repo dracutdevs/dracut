@@ -27,6 +27,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <getopt.h>
+#include <glob.h>
 #include <libgen.h>
 #include <limits.h>
 #include <stdbool.h>
@@ -123,6 +124,7 @@ static inline void fts_closep(FTS **p) {
 }
 #define _cleanup_fts_close_ _cleanup_(fts_closep)
 
+#define _cleanup_globfree_ _cleanup_(globfree)
 
 
 static size_t dir_len(char const *file)
@@ -1325,8 +1327,33 @@ static int install_all(int argc, char **argv)
         return r;
 }
 
-static int install_firmware(struct kmod_module *mod)
+static int install_firmware_fullpath(const char *fwpath)
 {
+        const char *fw;
+        _cleanup_free_ char *fwpath_xz = NULL;
+        fw = fwpath;
+        struct stat sb;
+        int ret, r;
+        if (stat(fwpath, &sb) != 0) {
+                r = asprintf(&fwpath_xz, "%s.xz", fwpath);
+                if (r < 0) {
+                        log_error("Out of memory!");
+                        exit(EXIT_FAILURE);
+                }
+                if (stat(fwpath_xz, &sb) != 0) {
+                        log_debug("stat(%s) != 0", fwpath);
+                        return 1;
+                }
+                fw = fwpath_xz;
+        }
+        ret = dracut_install(fw, fw, false, false, true);
+        if (ret == 0) {
+                log_debug("dracut_install '%s' OK", fwpath);
+        }
+        return ret;
+}
+
+static int install_firmware(struct kmod_module *mod) {
         struct kmod_list *l;
         _cleanup_kmod_module_info_free_list_ struct kmod_list *list = NULL;
         int ret;
@@ -1351,8 +1378,6 @@ static int install_firmware(struct kmod_module *mod)
                 ret = -1;
                 STRV_FOREACH(q, firmwaredirs) {
                         _cleanup_free_ char *fwpath = NULL;
-                        _cleanup_free_ char *fwpath_xz = NULL;
-                        const char *fw;
                         struct stat sb;
                         int r;
 
@@ -1362,27 +1387,22 @@ static int install_firmware(struct kmod_module *mod)
                                 exit(EXIT_FAILURE);
                         }
 
-                        fw = fwpath;
-                        if (stat(fwpath, &sb) != 0) {
-                                r = asprintf(&fwpath_xz, "%s.xz", fwpath);
-                                if (r < 0) {
-                                        log_error("Out of memory!");
-                                        exit(EXIT_FAILURE);
+                        if ((strstr(value, "*") != 0 || strstr(value, "?") != 0 || strstr(value, "[") != 0) && stat(fwpath, &sb) != 0) {
+                                int i;
+                                _cleanup_globfree_ glob_t globbuf;
+                                glob(fwpath, 0, NULL, &globbuf);
+                                for (i = 0; i < globbuf.gl_pathc; i++) {
+                                        install_firmware_fullpath(globbuf.gl_pathv[i]);
+                                        if (ret != 0) {
+                                                log_info("Possible missing firmware %s for kernel module %s", value, kmod_module_get_name(mod));
+                                        }
                                 }
-                                if (stat(fwpath_xz, &sb) != 0) {
-                                        log_debug("stat(%s) != 0", fwpath);
-                                        continue;
+                        } else {
+                                install_firmware_fullpath(fwpath);
+                                if (ret != 0) {
+                                        log_info("Possible missing firmware %s for kernel module %s", value, kmod_module_get_name(mod));
                                 }
-                                fw = fwpath_xz;
                         }
-
-                        ret = dracut_install(fw, fw, false, false, true);
-                        if (ret == 0)
-                                log_debug("dracut_install '%s' OK", fwpath);
-                }
-
-                if (ret != 0) {
-                        log_info("Possible missing firmware %s for kernel module %s", value, kmod_module_get_name(mod));
                 }
         }
         return 0;
