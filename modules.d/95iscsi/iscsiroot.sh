@@ -213,6 +213,9 @@ handle_netroot()
             echo "iscsi_lun=$iscsi_lun . /bin/mount-lun.sh " > $hookdir/mount/01-$$-iscsi.sh
     fi
 
+    if strglobin $iscsi_target_ip '*:*:*' && ! strglobin $iscsi_target_ip '['; then
+        iscsi_target_ip="[$iscsi_target_ip]"
+    fi
     targets=$(iscsiadm -m discovery -t st -p $iscsi_target_ip:${iscsi_target_port:+$iscsi_target_port} | sed 's/^.*iqn/iqn/')
     [ -z "$targets" ] && echo "Target discovery to $iscsi_target_ip:${iscsi_target_port:+$iscsi_target_port} failed with status $?" && exit 1
 
