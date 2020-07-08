@@ -23,6 +23,75 @@ if [ "$netif" = "lo" ] ; then
     exit 0
 fi
 
+min_device=""
+DHCP_FAIL="/run/initramfs/dhcpfaildev"
+UDEVLOG="/run/initramfs/udevlog"
+
+min_bdf_device() {
+    devs=$(ls /sys/class/net)
+
+    # Get the udevadm output in file $UDEVLOG
+    udevadm info -e > "$UDEVLOG"
+
+    for netdev in $devs; do
+        if [ "$netdev" = "lo" ]; then
+            continue
+        fi
+        if [ -e  "$DHCP_FAIL" ]; then
+            faildh=$(awk -v patrn="$netdev" '$0==patrn' "$DHCP_FAIL")
+            if [ "$faildh" = "$netdev" ]; then
+                warn "DHCP failed on $netdev earlier, skipping"
+                continue
+            fi
+        fi
+
+        # As an example, relevant output of udevadm when searching for a
+        # string ending with net/eno2 (eg. for device eno2), gives:
+        # P: /devices/pci0000:3a/0000:3a:00.0/0000:3b:00.0/net/eno2
+        # E: DEVPATH=/devices/pci0000:3a/0000:3a:00.0/0000:3b:00.0/net/eno2
+        # Choosing 5th field (with FS=/) and then the first line gives us the
+        # domain:bus:slot.func (in $pcinfo below)
+
+        # Initialize awk variable pat, which holds the pattern $nif to match
+        nf="net/$netdev$"
+        pcinfo=$(awk -v pat="$nf" '$0 ~ pat{print $5}' FS=/ "$UDEVLOG" | awk 'NR==1')
+
+        # We flatten the BDF by removing the : and . characters from the BDF,
+        # convert BDF to decimal and then compare the result without need to
+        # split the BDF into sub-components and comparing them
+        # eg. 16#00003b000 < 16#00003b001
+
+        hex_pcinfo="${pcinfo//:}"
+        hex_pcinfo="${hex_pcinfo//.}"
+        dpcinfo=$(( 16#$hex_pcinfo ))
+
+        if [ -z "$min_dpcinfo" ] || [ "$dpcinfo" -lt "$min_dpcinfo" ]; then
+            min_dpcinfo=$dpcinfo
+            min_device=$netdev
+        fi
+    done
+    echo "Device for DHCP is $min_device"
+    rm -f "$UDEVLOG"
+}
+
+do_single_dhcp() {
+    min_device=""
+    min_bdf_device
+    if [ "$min_device" = "$netif" ]; then
+        do_dhcp -4
+        dhret=$?
+        if [ $dhret -eq 0 ]; then
+            return 0
+        else
+            warn "DHCP failed for min BDF device, removing it for DHCP"
+            echo "$min_device" >> "$DHCP_FAIL"
+            return 1
+        fi
+    else
+        return 1
+    fi
+}
+
 # Run dhclient
 do_dhcp() {
     # dhclient-script will mark the netif up and generate the online
@@ -427,6 +496,8 @@ for p in $(getargs ip=); do
         case $autoopt in
             dhcp|on|any)
                 do_dhcp -4 ;;
+            single-dhcp)
+                do_single_dhcp ;;
             dhcp6)
                 load_ipv6
                 do_dhcp -6 ;;
