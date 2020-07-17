@@ -66,7 +66,7 @@ parse_nvmf_discover() {
     echo "--transport=$trtype --traddr=$traddr --host-traddr=$hosttraddr --trsvcid=$trsvcid" >> /etc/nvme/discovery.conf
 }
 
-if ! getargbool 0 rd.nonvmf ; then
+if getargbool 0 rd.nonvmf ; then
 	info "rd.nonvmf=0: skipping nvmf"
 	return 0
 fi
