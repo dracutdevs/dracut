@@ -51,7 +51,7 @@ parse_nvmf_discover() {
         return 1;
     fi
     [ -z "$hosttraddr" ] && hosttraddr="none"
-    [ -z "$trsvcid" ] && trsvcid="none"
+    [ -z "$trsvcid" ] && trsvcid=4420
     if [ "$trtype" = "fc" ] ; then
         if [ -z "$hosttraddr" ] ; then
             warn "host traddr is mandatory for fc"
@@ -60,8 +60,6 @@ parse_nvmf_discover() {
     elif [ "$trtype" != "rdma" ] && [ "$trtype" != "tcp" ] ; then
         warn "unsupported transport $trtype"
         return 1
-    elif [ -z "$trsvcid" ] ; then
-        trsvcid=4420
     fi
     echo "--transport=$trtype --traddr=$traddr --host-traddr=$hosttraddr --trsvcid=$trsvcid" >> /etc/nvme/discovery.conf
 }
