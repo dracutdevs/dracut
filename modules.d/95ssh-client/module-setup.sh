@@ -68,7 +68,9 @@ install() {
     inst_multiple ssh scp
     inst_sshenv
 
-    _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' $dracutsysrootdir/etc/nsswitch.conf \
+    _nsslibs=$(
+        sed -e 's/#.*//; s/^[^:]*://; s/\[[^]]*\]//' \
+            $dracutsysrootdir/etc/nsswitch.conf \
         |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
     _nsslibs=${_nsslibs#|}
     _nsslibs=${_nsslibs%|}

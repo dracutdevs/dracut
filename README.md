@@ -4,13 +4,15 @@ dracut
 dracut is an event driven initramfs infrastructure.
 
 [![Build Status](https://travis-ci.org/dracutdevs/dracut.svg?branch=master)](https://travis-ci.org/dracutdevs/dracut)
+[![Fedora-31](https://github.com/dracutdevs/dracut/workflows/Fedora-31/badge.svg?branch=master)](https://github.com/dracutdevs/dracut/actions?query=workflow%3AFedora-31)
+[![Fedora-32](https://github.com/dracutdevs/dracut/workflows/Fedora-32/badge.svg?branch=master)](https://github.com/dracutdevs/dracut/actions?query=workflow%3AFedora-32)
 
 dracut (the tool) is used to create an initramfs image by copying tools
 and files from an installed system and combining it with the
 dracut framework, usually found in /usr/lib/dracut/modules.d.
 
-Unlike existing initramfs's, this is an attempt at having as little as
-possible hard-coded into the initramfs as possible.  The initramfs has
+Unlike other implementations, dracut hard-codes as little
+as possible into the initramfs. The initramfs has
 (basically) one purpose in life -- getting the rootfs mounted so that
 we can transition to the real rootfs.  This is all driven off of
 device availability.  Therefore, instead of scripts hard-coded to do
@@ -18,10 +20,7 @@ various things, we depend on udev to create device nodes for us and
 then when we have the rootfs's device node, we mount and carry on.
 This helps to keep the time required in the initramfs as little as
 possible so that things like a 5 second boot aren't made impossible as
-a result of the very existence of an initramfs.  It's likely that
-we'll grow some hooks for running arbitrary commands in the flow of
-the script, but it's worth trying to resist the urge as much as we can
-as hooks are guaranteed to be the path to slow-down.
+a result of the very existence of an initramfs.
 
 Most of the initramfs generation functionality in dracut is provided by a bunch
 of generator modules that are sourced by the main dracut script to install

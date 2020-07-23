@@ -154,6 +154,7 @@ install() {
         mount umount reboot poweroff \
         systemd-run systemd-escape \
         systemd-cgls systemd-tmpfiles \
+        systemd-ask-password systemd-tty-ask-password-agent \
         /etc/udev/udev.hwdb \
         ${NULL}
 
@@ -240,9 +241,8 @@ install() {
         systemd-ask-password-console.service \
         systemd-ask-password-plymouth.service \
         ; do
-        mkdir -p "${initdir}${systemdsystemunitdir}/${i}.wants"
-        ln_r "${systemdsystemunitdir}/systemd-vconsole-setup.service" \
-            "${systemdsystemunitdir}/${i}.wants/systemd-vconsole-setup.service"
+        [[ -f $systemdsystemunitdir/$i ]] || continue
+        systemctl -q --root "$initdir" add-wants "$i" systemd-vconsole-setup.service
     done
 
     mkdir -p "$initdir/etc/systemd"
@@ -254,6 +254,5 @@ install() {
         echo "RateLimitBurst=0"
     } >> "$initdir/etc/systemd/journald.conf"
 
-    ln_r "${systemdsystemunitdir}/multi-user.target" "${systemdsystemunitdir}/default.target"
+    systemctl -q --root "$initdir" set-default multi-user.target
 }
-

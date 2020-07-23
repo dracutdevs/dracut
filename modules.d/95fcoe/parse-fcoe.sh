@@ -13,7 +13,7 @@
 # fcoe=eth0:nodcb:vn2vn
 # fcoe=4a:3f:4c:04:f8:d7:nodcb:fabric
 
-if ! getargbool 0 rd.nofcoe ; then
+if getargbool 0 rd.nofcoe ; then
 	info "rd.nofcoe=0: skipping fcoe"
 	return 0
 fi

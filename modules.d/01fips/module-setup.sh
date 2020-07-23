@@ -27,7 +27,7 @@ installkernel() {
         _fipsmodules+="cipher_null des3_ede aes cfb "
 
         # Modes/templates:
-        _fipsmodules+="ecb cbc ctr xts gcm ccm authenc hmac cmac "
+        _fipsmodules+="ecb cbc ctr xts gcm ccm authenc hmac cmac ofb cts "
 
         # Compression algs:
         _fipsmodules+="deflate lzo zlib "

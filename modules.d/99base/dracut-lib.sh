@@ -24,7 +24,7 @@ debug_on() {
 
 # returns OK if $1 contains literal string $2 (and isn't empty)
 strstr() {
-    [ "${1##*$2*}" != "$1" ]
+    [ "${1##*"$2"*}" != "$1" ]
 }
 
 # returns OK if $1 matches (completely) glob pattern $2
@@ -43,18 +43,18 @@ strglobin() {
 
 # returns OK if $1 contains literal string $2 at the beginning, and isn't empty
 str_starts() {
-    [ "${1#$2*}" != "$1" ]
+    [ "${1#"$2"*}" != "$1" ]
 }
 
 # returns OK if $1 contains literal string $2 at the end, and isn't empty
 str_ends() {
-    [ "${1%*$2}" != "$1" ]
+    [ "${1%*"$2"}" != "$1" ]
 }
 
 trim() {
     local var="$*"
-    var="${var#${var%%[![:space:]]*}}"   # remove leading whitespace characters
-    var="${var%${var##*[![:space:]]}}"   # remove trailing whitespace characters
+    var="${var#"${var%%[![:space:]]*}"}"   # remove leading whitespace characters
+    var="${var%"${var##*[![:space:]]}"}"   # remove trailing whitespace characters
     printf "%s" "$var"
 }
 
@@ -108,9 +108,9 @@ str_replace() {
     local out=''
 
     while strstr "${in}" "$s"; do
-        chop="${in%%$s*}"
+        chop="${in%%"$s"*}"
         out="${out}${chop}$r"
-        in="${in#*$s}"
+        in="${in#*"$s"}"
     done
     echo "${out}${in}"
 }
@@ -396,7 +396,7 @@ splitsep() {
     while [ -n "$str" -a "$#" -gt 1 ]; do
         tmp="${str%%$sep*}"
         eval "$1='${tmp}'"
-        str="${str#$tmp}"
+        str="${str#"$tmp"}"
         str="${str#$sep}"
         shift
     done
@@ -578,39 +578,6 @@ else
         return 1
     }
 fi
-
-# root=nfs:[<server-ip>:]<root-dir>[:<nfs-options>]
-# root=nfs4:[<server-ip>:]<root-dir>[:<nfs-options>]
-nfsroot_to_var() {
-    # strip nfs[4]:
-    local arg="$@:"
-    nfs="${arg%%:*}"
-    arg="${arg##$nfs:}"
-
-    # check if we have a server
-    if strstr "$arg" ':/' ; then
-        server="${arg%%:/*}"
-        arg="/${arg##*:/}"
-    fi
-
-    path="${arg%%:*}"
-
-    # rest are options
-    options="${arg##$path}"
-    # strip leading ":"
-    options="${options##:}"
-    # strip  ":"
-    options="${options%%:}"
-
-    # Does it really start with '/'?
-    [ -n "${path%%/*}" ] && path="error";
-
-    #Fix kernel legacy style separating path and options with ','
-    if [ "$path" != "${path#*,}" ] ; then
-        options=${path#*,}
-        path=${path%%,*}
-    fi
-}
 
 # Create udev rule match for a device with its device name, or the udev property
 # ID_FS_UUID or ID_FS_LABEL
@@ -1220,50 +1187,25 @@ are_lists_eq() {
 
 setmemdebug() {
     if [ -z "$DEBUG_MEM_LEVEL" ]; then
-        export DEBUG_MEM_LEVEL=$(getargnum 0 0 4 rd.memdebug)
+        export DEBUG_MEM_LEVEL=$(getargnum 0 0 5 rd.memdebug)
     fi
 }
 
 setmemdebug
 
-cleanup_trace_mem()
-{
-    # tracekomem based on kernel trace needs cleanup after use.
-    if [ "$DEBUG_MEM_LEVEL" -eq 4 ]; then
-        tracekomem --cleanup
-    fi
-}
-
-# parameters: msg [trace_level:trace]...
+# parameters: func log_level prefix msg [trace_level:trace]...
 make_trace_mem()
 {
-    local msg
-    msg="$1"
-    shift
-    if [ -n "$DEBUG_MEM_LEVEL" ] && [ "$DEBUG_MEM_LEVEL" -gt 0 ]; then
-        make_trace show_memstats $DEBUG_MEM_LEVEL "[debug_mem]" "$msg" "$@" >&2
-    fi
-}
-
-# parameters: func log_level prefix msg [trace_level:trace]...
-make_trace()
-{
-    local func log_level prefix msg msg_printed
+    local log_level prefix msg msg_printed
     local trace trace_level trace_in_higher_levels insert_trace
-
-    func=$1
-    shift
-
-    log_level=$1
-    shift
-
-    prefix=$1
-    shift
 
     msg=$1
     shift
 
-    if [ -z "$log_level" ]; then
+    prefix='[debug_mem]'
+    log_level=$DEBUG_MEM_LEVEL
+
+    if [ -z "$log_level" ] || [ "$log_level" -le 0 ]; then
         return
     fi
 
@@ -1296,7 +1238,7 @@ make_trace()
                 echo "$prefix $msg"
                 msg_printed=1
             fi
-            $func $trace
+            show_memstats $trace
         fi
         shift
     done
@@ -1317,9 +1259,6 @@ show_memstats()
             ;;
         iomem)
             cat /proc/iomem
-            ;;
-        komem)
-            tracekomem
             ;;
     esac
 }

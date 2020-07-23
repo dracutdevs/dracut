@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if ! getargbool 0 rd.nofcoe ; then
+if getargbool 0 rd.nofcoe ; then
 	info "rd.nofcoe=0: skipping lldpad activation"
-	exit 0
+	return 0
 fi
 
 # Note lldpad will stay running after switchroot, the system initscripts

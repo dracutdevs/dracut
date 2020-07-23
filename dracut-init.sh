@@ -19,7 +19,7 @@
 #
 export LC_MESSAGES=C
 
-if [[ "$EUID" = "0" ]]; then
+if [[ "$EUID" = "0" ]] && ! [[ $DRACUT_NO_XATTR ]]; then
     export DRACUT_CP="cp --reflink=auto --sparse=auto --preserve=mode,timestamps,xattr,links -dfr"
 else
     export DRACUT_CP="cp --reflink=auto --sparse=auto --preserve=mode,timestamps,links -dfr"
@@ -461,6 +461,14 @@ inst_rules_wildcard() {
 
 prepare_udev_rules() {
     [ -z "$UDEVVERSION" ] && export UDEVVERSION=$(udevadm --version)
+    if [ -z "$UDEVVERSION" ]; then
+        derror "Failed to detect udev version!"
+        return 1
+    fi
+    if [ -z "${UDEVVERSION##*[!0-9]*}" ]; then
+        derror "udevadm --version did not report an integer, udev version cannot be determined!"
+        return 1
+    fi
 
     for f in "$@"; do
         f="${initdir}/etc/udev/rules.d/$f"

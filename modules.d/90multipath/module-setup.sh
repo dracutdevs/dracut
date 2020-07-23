@@ -29,6 +29,7 @@ check() {
 
     # if there's no multipath binary, no go.
     require_binaries multipath || return 1
+    require_binaries kpartx || return 1
 
     return 0
 }
@@ -82,11 +83,12 @@ install() {
         dmsetup \
         kpartx \
         mpath_wait \
+        mpathconf \
+        mpathpersist \
         multipath  \
         multipathd \
-        mpathpersist \
-        xdrgetuid \
         xdrgetprio \
+        xdrgetuid \
         /etc/xdrdevices.conf \
         /etc/multipath.conf \
         /etc/multipath/* \
@@ -108,9 +110,10 @@ install() {
     fi
 
     if dracut_module_included "systemd"; then
+        inst_simple "${moddir}/multipathd-configure.service" "${systemdsystemunitdir}/multipathd-configure.service"
         inst_simple "${moddir}/multipathd.service" "${systemdsystemunitdir}/multipathd.service"
-        mkdir -p "${initdir}${systemdsystemunitdir}/sysinit.target.wants"
-        ln -rfs "${initdir}${systemdsystemunitdir}/multipathd.service" "${initdir}${systemdsystemunitdir}/sysinit.target.wants/multipathd.service"
+        systemctl -q --root "$initdir" enable multipathd-configure.service
+        systemctl -q --root "$initdir" enable multipathd.service
     else
         inst_hook pre-trigger 02 "$moddir/multipathd.sh"
         inst_hook cleanup   02 "$moddir/multipathd-stop.sh"

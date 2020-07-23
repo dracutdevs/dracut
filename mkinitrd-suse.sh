@@ -171,7 +171,7 @@ default_kernel_images() {
         ppc|ppc64)
             regex='vmlinux'
             ;;
-        i386|x86_64)
+        i?86|x86_64)
             regex='vmlinuz'
             ;;
         arm*)
