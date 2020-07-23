@@ -6,27 +6,7 @@ check() {
     [ -f /etc/nvme/hostnqn ] || return 255
     [ -f /etc/nvme/hostid ] || return 255
 
-    is_nvme_fc() {
-        local _dev=$1
-        local traddr
-
-        [[ -L "/sys/dev/block/$_dev" ]] || return 0
-        cd -P "/sys/dev/block/$_dev" || return 0
-        if [ -f partition ] ; then
-            cd ..
-        fi
-        for d in device/nvme* ; do
-            [ -L "$d" ] || continue
-            if readlink "$d" | grep -q nvme-fabrics ; then
-                traddr=$(cat "$d"/address)
-                break
-            fi
-        done
-        [[ "${traddr#traddr=nn-}" != "$traddr" ]]
-    }
-
-    # XXX: maybe create a "get_nvmf_transport" function?
-    is_nvme_tcp() {
+    is_nvmf() {
         local _dev=$1
         local trtype
 
@@ -42,17 +22,15 @@ check() {
                 break
             fi
         done
-        [[ "$trtype" == "tcp" ]]
+        [[ "$trtype" == "fc" ]] || [[ "$trtype" == "tcp" ]] || [[ "$trtype" == "rdma" ]]
     }
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         pushd . >/dev/null
-        for_each_host_dev_and_slaves is_nvme_fc
-        local _is_nvme_fc=$?
-        for_each_host_dev_and_slaves is_nvme_tcp
-        local _is_nvme_tcp=$?
+        for_each_host_dev_and_slaves is_nvmf
+        local _is_nvmf=$?
         popd >/dev/null
-        [[ $_is_nvme_fc == 0 ]] || [[ $_is_nvme_tcp == 0 ]] || return 255
+        [[ $_is_nvmf == 0 ]] || return 255
         if [ ! -f /sys/class/fc/fc_udev_device/nvme_discovery ] ; then
             if [ ! -f /etc/nvme/discovery.conf ] ; then
                 echo "No discovery arguments present"
