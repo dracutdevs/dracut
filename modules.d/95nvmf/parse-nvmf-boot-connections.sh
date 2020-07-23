@@ -16,6 +16,8 @@
 # specify any discover parameters for FC.
 #
 
+type is_ip >/dev/null 2>&1 || . /lib/net-lib.sh
+
 if getargbool 0 rd.nonvmf ; then
     warn "rd.nonvmf=0: skipping nvmf"
     return 0
@@ -27,6 +29,31 @@ traddr="none"
 trtype="none"
 hosttraddr="none"
 trsvcid=4420
+
+validate_ip_conn() {
+    if ! getargbool 0 rd.neednet ; then
+        warn "$trtype transport requires rd.neednet=1"
+        return 1
+    fi
+
+    local_address=$(ip -o route get to $traddr | sed -n 's/.*src \([0-9a-f.:]*\).*/\1/p')
+
+    # confirm we got a local IP address
+    if ! is_ip "$local_address" ; then
+        warn "$traddr is an invalid address";
+        return 1
+    fi
+
+    ifname=$(ip -o route get to $iscsi_address | sed -n 's/.*dev \([^ ]*\).*/\1/p')
+
+    # XXX: any way to validate ifname?
+
+    # confirm there's a route to destination
+    if ip route get "$traddr" >/dev/null 2>&1 ; then
+        warn "no route to $traddr"
+        return 1
+    fi
+}
 
 parse_nvmf_discover() {
     OLDIFS="$IFS"
@@ -68,11 +95,8 @@ parse_nvmf_discover() {
         warn "unsupported transport $trtype"
         return 1
     fi
-    if [ "$trtype" = "tcp" ] ; then
-        if ! getargbool 0 rd.neednet ; then
-            warn "$trtype transport requires rd.neednet=1"
-            return 1
-        fi
+    if [ "$trtype" = "tcp" ]; then
+        validate_ip_conn
     fi
     echo "--transport=$trtype --traddr=$traddr --host-traddr=$hosttraddr --trsvcid=$trsvcid" >> /etc/nvme/discovery.conf
 }
@@ -97,14 +121,14 @@ done
 if [ -f "/etc/nvme/discovery.conf" ] ; then
     if [ "$trtype" = "tcp" ] ; then
         /sbin/initqueue --settled --onetime --unique --name nvme-discover /usr/sbin/nvme connect-all
-        echo "exit 0" > /tmp/net.nvmf.did-setup # hack to fool rd.neednet=1, FIXME
+        > /tmp/net.$ifname.did-setup
     else
         /sbin/initqueue --onetime --unique --name nvme-discover /usr/sbin/nvme connect-all
     fi
 else
     if [ "$trtype" = "tcp" ] ; then
         /sbin/initqueue --settled --onetime --unique /usr/sbin/nvme connect-all -t tcp -a $traddr -s $trsvcid
-        echo "exit 0" > /tmp/net.nvmf.did-setup # hack to fool rd.neednet=1, FIXME
+        > /tmp/net.$ifname.did-setup
     else
         /sbin/initqueue --finished --unique --name nvme-fc-autoconnect echo 1 > /sys/class/fc/fc_udev_device/nvme_discovery
     fi
