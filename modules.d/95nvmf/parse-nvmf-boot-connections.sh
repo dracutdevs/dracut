@@ -36,33 +36,31 @@ parse_nvmf_discover() {
 
     case $# in
         2)
-            trtype=$1
-            traddr=$2
+            [ ! -z "$1" ] && trtype=$1
+            [ ! -z "$2" ] && traddr=$2
             ;;
         3)
-            trtype=$1
-            traddr=$2
-            hosttraddr=$3
+            [ ! -z "$1" ] && trtype=$1
+            [ ! -z "$2" ] && traddr=$2
+            [ ! -z "$3" ] && hosttraddr=$3
             ;;
         4)
-            trtype=$1
-            traddr=$2
-            hosttraddr=$3
-            trsvcid=$4
+            [ ! -z "$1" ] && trtype=$1
+            [ ! -z "$2" ] && traddr=$2
+            [ ! -z "$3" ] && hosttraddr=$3
+            [ ! -z "$4" ] && trsvcid=$4
             ;;
         *)
             warn "Invalid arguments for nvmf.discover=$1"
             return 1
             ;;
     esac
-    if [ -z "$traddr" ] ; then
+    if [ "$traddr" = "none" ] ; then
         warn "traddr is mandatory for $trtype"
         return 1;
     fi
-    [ -z "$hosttraddr" ] && hosttraddr="none"
-    [ -z "$trsvcid" ] && trsvcid=4420
     if [ "$trtype" = "fc" ] ; then
-        if [ -z "$hosttraddr" ] ; then
+        if [ "$hosttraddr" = "none" ] ; then
             warn "host traddr is mandatory for fc"
             return 1
         fi
