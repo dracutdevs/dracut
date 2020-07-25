@@ -1153,7 +1153,7 @@ if [[ ! $print_cmdline ]]; then
         case $(uname -m) in
             x86_64)
                 EFI_MACHINE_TYPE_NAME=x64;;
-            ia32)
+            i?86)
                 EFI_MACHINE_TYPE_NAME=ia32;;
             *)
                 dfatal "Architecture '$(uname -m)' not supported to create a UEFI executable"
