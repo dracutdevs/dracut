@@ -44,9 +44,12 @@ validate_ip_conn() {
         return 1
     fi
 
-    ifname=$(ip -o route get to $iscsi_address | sed -n 's/.*dev \([^ ]*\).*/\1/p')
-
-    # XXX: any way to validate ifname?
+    ifname=$(ip -o route get to $local_address | sed -n 's/.*dev \([^ ]*\).*/\1/p')
+    
+    if ip l show "$ifname" >/dev/null 2>&1 ; then
+       warn "invalid network interface $ifname"
+       return 1
+    fi
 
     # confirm there's a route to destination
     if ip route get "$traddr" >/dev/null 2>&1 ; then
@@ -63,19 +66,19 @@ parse_nvmf_discover() {
 
     case $# in
         2)
-            [ ! -z "$1" ] && trtype=$1
-            [ ! -z "$2" ] && traddr=$2
+            [ -n "$1" ] && trtype=$1
+            [ -n "$2" ] && traddr=$2
             ;;
         3)
-            [ ! -z "$1" ] && trtype=$1
-            [ ! -z "$2" ] && traddr=$2
-            [ ! -z "$3" ] && hosttraddr=$3
+            [ -n "$1" ] && trtype=$1
+            [ -n "$2" ] && traddr=$2
+            [ -n "$3" ] && hosttraddr=$3
             ;;
         4)
-            [ ! -z "$1" ] && trtype=$1
-            [ ! -z "$2" ] && traddr=$2
-            [ ! -z "$3" ] && hosttraddr=$3
-            [ ! -z "$4" ] && trsvcid=$4
+            [ -n "$1" ] && trtype=$1
+            [ -n "$2" ] && traddr=$2
+            [ -n "$3" ] && hosttraddr=$3
+            [ -n "$4" ] && trsvcid=$4
             ;;
         *)
             warn "Invalid arguments for nvmf.discover=$1"
