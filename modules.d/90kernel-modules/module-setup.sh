@@ -56,7 +56,7 @@ installkernel() {
         instmods \
             yenta_socket \
             atkbd i8042 usbhid firewire-ohci pcmcia hv-vmbus \
-            virtio virtio_ring virtio_pci virtio_scsi \
+            virtio virtio_ring virtio_pci virtio_scsi pci_hyperv \
             "=drivers/pcmcia"
 
         if [[ "$(uname -m)" == arm* || "$(uname -m)" == aarch64 ]]; then
