@@ -9,20 +9,9 @@ check() {
     # If hostonly was requested, fail the check if we are not actually
     # booting from root.
 
-    is_iscsi() {
-        local _dev=$1
-
-        [[ -L "/sys/dev/block/$_dev" ]] || return
-        cd "$(readlink -f "/sys/dev/block/$_dev")"
-        until [[ -d sys || -d iscsi_session ]]; do
-            cd ..
-        done
-        [[ -d iscsi_session ]]
-    }
-
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         pushd . >/dev/null
-        for_each_host_dev_and_slaves is_iscsi
+        for_each_host_dev_and_slaves block_is_iscsi
         local _is_iscsi=$?
         popd >/dev/null
         [[ $_is_iscsi == 0 ]] || return 255
@@ -223,6 +212,7 @@ install() {
     inst_hook cmdline 90 "$moddir/parse-iscsiroot.sh"
     inst_hook cleanup 90 "$moddir/cleanup-iscsi.sh"
     inst "$moddir/iscsiroot.sh" "/sbin/iscsiroot"
+
     if ! dracut_module_included "systemd"; then
         inst "$moddir/mount-lun.sh" "/bin/mount-lun.sh"
     else
