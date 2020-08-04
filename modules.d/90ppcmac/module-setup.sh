@@ -17,9 +17,9 @@
 
 # called by dracut
 check() {
-    local _arch="$(uname -m)"
+    local _arch=${DRACUT_ARCH:-$(uname -m)}
     # only for PowerPC Macs
-    [[ "$_arch" == ppc* && "$_arch" != ppc*le ]] || return 1
+    [[ "$_arch" == ppc* && "$_arch" != ppc64le ]] || return 1
     return 0
 }
 
@@ -36,7 +36,7 @@ installkernel() {
     }
 
     # only PowerMac3,6 has a module, special case
-    if [[ "$(uname -m)" == ppc ]]; then
+    if [[ "${DRACUT_ARCH:-$(uname -m)}" != ppc64* ]]; then
         if ! [[ $hostonly ]] || [[ "$(pmac_model)" == "PowerMac3,6" ]]; then
             instmods therm_windtunnel
         fi

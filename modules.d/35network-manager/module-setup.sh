@@ -37,6 +37,7 @@ install() {
     inst_hook initqueue/settled 99 "$moddir/nm-run.sh"
     inst_rules 85-nm-unmanaged.rules
     inst_libdir_file "NetworkManager/$_nm_version/libnm-device-plugin-team.so"
+    inst_simple "$moddir/nm-lib.sh" "/lib/nm-lib.sh"
 
     if [[ -x "$initdir/usr/sbin/dhclient" ]]; then
         inst /usr/libexec/nm-dhcp-helper
