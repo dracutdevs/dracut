@@ -206,7 +206,7 @@ if [ "$bin" = "MZ" ]; then
 fi
 
 if (( ${#filenames[@]} <= 0 )) && [[ -z "$unpack" ]] && [[ -z "$unpackearly" ]]; then
-    if [ -n $uefi ]; then
+    if [ -n "$uefi" ]; then
         echo -n "initrd in UEFI: $uefi: "
         du -h $image | while read a b || [ -n "$a" ]; do echo $a;done
         if [ -f "$TMPDIR/osrel.txt" ]; then
