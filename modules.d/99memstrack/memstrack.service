@@ -9,5 +9,5 @@ Type=simple
 ExecStart=/bin/memstrack-start
 PIDFile=/run/memstrack.pid
 StandardInput=null
-StandardOutput=syslog+console
-StandardError=syslog+console
+StandardOutput=journal+console
+StandardError=journal+console
