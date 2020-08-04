@@ -99,7 +99,7 @@ Requires: libkcapi-hmaccalc
 
 %description
 dracut contains tools to create bootable initramfses for the Linux
-kernel. Unlike previous implementations, dracut hard-codes as little
+kernel. Unlike other implementations, dracut hard-codes as little
 as possible into the initramfs. dracut contains various modules which
 are driven by the event-based udev. Having root on MD, DM, LVM2, LUKS
 is supported as well as NFS, iSCSI, NBD, FCoE with the dracut-network
@@ -374,6 +374,7 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 %{dracutlibdir}/modules.d/95debug
 %{dracutlibdir}/modules.d/95fstab-sys
 %{dracutlibdir}/modules.d/95lunmask
+%{dracutlibdir}/modules.d/95nvmf
 %{dracutlibdir}/modules.d/95resume
 %{dracutlibdir}/modules.d/95rootfs-block
 %{dracutlibdir}/modules.d/95terminfo
