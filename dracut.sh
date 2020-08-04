@@ -1153,7 +1153,7 @@ if [[ ! $print_cmdline ]]; then
         case $(uname -m) in
             x86_64)
                 EFI_MACHINE_TYPE_NAME=x64;;
-            ia32)
+            i?86)
                 EFI_MACHINE_TYPE_NAME=ia32;;
             *)
                 dfatal "Architecture '$(uname -m)' not supported to create a UEFI executable"
@@ -1194,19 +1194,26 @@ fi
 
 if [[ $early_microcode = yes ]]; then
     if [[ $hostonly ]]; then
-        [[ $(get_cpu_vendor) == "AMD" ]] \
-            && ! check_kernel_config CONFIG_MICROCODE_AMD \
-            && unset early_microcode
-        [[ $(get_cpu_vendor) == "Intel" ]] \
-            && ! check_kernel_config CONFIG_MICROCODE_INTEL \
-            && unset early_microcode
+        if [[ $(get_cpu_vendor) == "AMD" ]]; then
+            check_kernel_config CONFIG_MICROCODE_AMD || unset early_microcode
+        elif [[ $(get_cpu_vendor) == "Intel" ]]; then
+            check_kernel_config CONFIG_MICROCODE_INTEL || unset early_microcode
+        else
+            unset early_microcode
+        fi
     else
         ! check_kernel_config CONFIG_MICROCODE_AMD \
             && ! check_kernel_config CONFIG_MICROCODE_INTEL \
             && unset early_microcode
     fi
-    [[ $early_microcode != yes ]] \
-        && dwarn "Disabling early microcode, because kernel does not support it. CONFIG_MICROCODE_[AMD|INTEL]!=y"
+    # Do not complain on non-x86 architectures as it makes no sense
+    case $(uname -m) in
+        x86_64|i?86)
+            [[ $early_microcode != yes ]] \
+                && dwarn "Disabling early microcode, because kernel does not support it. CONFIG_MICROCODE_[AMD|INTEL]!=y"
+            ;;
+        *) ;;
+    esac
 fi
 
 # Need to be able to have non-root users read stuff (rpcbind etc)
@@ -1661,15 +1668,6 @@ if [[ $kernel_only != yes ]]; then
     # Now we are done with lazy resolving, always install dependencies
     unset DRACUT_RESOLVE_LAZY
     export DRACUT_RESOLVE_DEPS=1
-
-    # libpthread workaround: pthread_cancel wants to dlopen libgcc_s.so
-    for _dir in $libdirs; do
-        for _f in "$dracutsysrootdir$_dir/libpthread.so"*; do
-            [[ -e "$_f" ]] || continue
-            inst_libdir_file "libgcc_s.so*"
-            break 2
-        done
-    done
 fi
 
 for ((i=0; i < ${#include_src[@]}; i++)); do
@@ -1890,6 +1888,28 @@ if dracut_module_included "squash"; then
             fi
         done
     done
+fi
+
+if [[ $kernel_only != yes ]]; then
+    # libpthread workaround: pthread_cancel wants to dlopen libgcc_s.so
+    for _dir in $libdirs; do
+        for _f in "$dracutsysrootdir$_dir/libpthread.so"*; do
+            [[ -e "$_f" ]] || continue
+            inst_libdir_file "libgcc_s.so*"
+            break 2
+        done
+    done
+
+    # FIPS workaround for Fedora/RHEL: libcrypto needs libssl when FIPS is enabled
+    if [[ $DRACUT_FIPS_MODE ]]; then
+      for _dir in $libdirs; do
+          for _f in "$dracutsysrootdir$_dir/libcrypto.so"*; do
+              [[ -e "$_f" ]] || continue
+              inst_libdir_file -o "libssl.so*"
+              break 2
+          done
+      done
+    fi
 fi
 
 if [[ $do_strip = yes ]] && ! [[ $DRACUT_FIPS_MODE ]]; then
