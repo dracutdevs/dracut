@@ -842,3 +842,47 @@ ip_params_for_remote_addr() {
     fi
 
 }
+
+# block_is_nbd <maj:min>
+# Check whether $1 is an nbd device
+block_is_nbd() {
+    [[ -b /dev/block/$1 && $1 == 43:* ]]
+}
+
+# block_is_iscsi <maj:min>
+# Check whether $1 is an nbd device
+block_is_iscsi() {
+    local _dir
+    local _dev=$1
+    [[ -L "/sys/dev/block/$_dev" ]] || return
+    _dir="$(readlink -f "/sys/dev/block/$_dev")" || return
+    until [[ -d "$_dir/sys" || -d "$_dir/iscsi_session" ]]; do
+        _dir="$_dir/.."
+    done
+    [[ -d "$_dir/iscsi_session" ]]
+}
+
+# block_is_fcoe <maj:min>
+# Check whether $1 is an FCoE device
+# Will not work for HBAs that hide the ethernet aspect
+# completely and present a pure FC device
+block_is_fcoe() {
+    local _dir
+    local _dev=$1
+    [[ -L "/sys/dev/block/$_dev" ]] || return
+    _dir="$(readlink -f "/sys/dev/block/$_dev")"
+    until [[ -d "$_dir/sys" ]]; do
+        _dir="$_dir/.."
+        if [[ -d "$_dir/subsystem" ]]; then
+            subsystem=$(basename $(readlink $_dir/subsystem))
+            [[ $subsystem == "fcoe" ]] && return 0
+        fi
+    done
+    return 1
+}
+
+# block_is_netdevice <maj:min>
+# Check whether $1 is a net device
+block_is_netdevice() {
+    block_is_nbd "$1" || block_is_iscsi "$1" || block_is_fcoe "$1"
+}
