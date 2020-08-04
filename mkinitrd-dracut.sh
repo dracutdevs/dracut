@@ -57,10 +57,10 @@ default_kernel_images() {
         s390|s390x)
             regex='image'
             ;;
-        ppc|ppc64)
+        ppc*)
             regex='vmlinux'
             ;;
-        i386|x86_64)
+        i?86|x86_64)
             regex='vmlinuz'
             ;;
         arm*)

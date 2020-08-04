@@ -6,9 +6,9 @@ check() {
     [ -f /etc/nvme/hostnqn ] || return 255
     [ -f /etc/nvme/hostid ] || return 255
 
-    is_nvme_fc() {
+    is_nvmf() {
         local _dev=$1
-        local traddr
+        local trtype
 
         [[ -L "/sys/dev/block/$_dev" ]] || return 0
         cd -P "/sys/dev/block/$_dev" || return 0
@@ -18,19 +18,19 @@ check() {
         for d in device/nvme* ; do
             [ -L "$d" ] || continue
             if readlink "$d" | grep -q nvme-fabrics ; then
-                traddr=$(cat "$d"/address)
-		break
-	    fi
-	done
-        [[ "${traddr#traddr=nn-}" != "$traddr" ]]
+                trtype=$(cat "$d"/transport)
+                break
+            fi
+        done
+        [[ "$trtype" == "fc" ]] || [[ "$trtype" == "tcp" ]] || [[ "$trtype" == "rdma" ]]
     }
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         pushd . >/dev/null
-        for_each_host_dev_and_slaves is_nvme_fc
-        local _is_nvme_fc=$?
+        for_each_host_dev_and_slaves is_nvmf
+        local _is_nvmf=$?
         popd >/dev/null
-        [[ $_is_nvme_fc == 0 ]] || return 255
+        [[ $_is_nvmf == 0 ]] || return 255
         if [ ! -f /sys/class/fc/fc_udev_device/nvme_discovery ] ; then
             if [ ! -f /etc/nvme/discovery.conf ] ; then
                 echo "No discovery arguments present"
@@ -43,13 +43,14 @@ check() {
 
 # called by dracut
 depends() {
-    echo bash rootfs-block
+    echo bash rootfs-block network
     return 0
 }
 
 # called by dracut
 installkernel() {
     instmods nvme_fc lpfc qla2xxx
+    hostonly="" instmods nvme_tcp nvme_fabrics
 }
 
 # called by dracut
@@ -75,6 +76,8 @@ install() {
     fi
     inst_simple "/etc/nvme/hostnqn"
     inst_simple "/etc/nvme/hostid"
+
+    inst_multiple ip sed
 
     inst_multiple nvme
     inst_multiple -o \
