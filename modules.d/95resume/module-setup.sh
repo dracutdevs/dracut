@@ -2,9 +2,18 @@
 
 # called by dracut
 check() {
+    swap_on_netdevice() {
+        local _dev
+        for _dev in "${swap_devs[@]}"; do
+            block_is_netdevice $_dev && return 0
+        done
+        return 1
+    }
+
     # Only support resume if hibernation is currently on
+    # and no swap is mounted on a net device
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        [[ "$(cat /sys/power/resume)" == "0:0" ]] && return 255
+        swap_on_netdevice || [[ "$(cat /sys/power/resume)" == "0:0" ]] && return 255
     }
 
     return 0
