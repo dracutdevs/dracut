@@ -1153,7 +1153,7 @@ if [[ ! $print_cmdline ]]; then
         case $(uname -m) in
             x86_64)
                 EFI_MACHINE_TYPE_NAME=x64;;
-            ia32)
+            i?86)
                 EFI_MACHINE_TYPE_NAME=ia32;;
             *)
                 dfatal "Architecture '$(uname -m)' not supported to create a UEFI executable"
@@ -1194,19 +1194,26 @@ fi
 
 if [[ $early_microcode = yes ]]; then
     if [[ $hostonly ]]; then
-        [[ $(get_cpu_vendor) == "AMD" ]] \
-            && ! check_kernel_config CONFIG_MICROCODE_AMD \
-            && unset early_microcode
-        [[ $(get_cpu_vendor) == "Intel" ]] \
-            && ! check_kernel_config CONFIG_MICROCODE_INTEL \
-            && unset early_microcode
+        if [[ $(get_cpu_vendor) == "AMD" ]]; then
+            check_kernel_config CONFIG_MICROCODE_AMD || unset early_microcode
+        elif [[ $(get_cpu_vendor) == "Intel" ]]; then
+            check_kernel_config CONFIG_MICROCODE_INTEL || unset early_microcode
+        else
+            unset early_microcode
+        fi
     else
         ! check_kernel_config CONFIG_MICROCODE_AMD \
             && ! check_kernel_config CONFIG_MICROCODE_INTEL \
             && unset early_microcode
     fi
-    [[ $early_microcode != yes ]] \
-        && dwarn "Disabling early microcode, because kernel does not support it. CONFIG_MICROCODE_[AMD|INTEL]!=y"
+    # Do not complain on non-x86 architectures as it makes no sense
+    case $(uname -m) in
+        x86_64|i?86)
+            [[ $early_microcode != yes ]] \
+                && dwarn "Disabling early microcode, because kernel does not support it. CONFIG_MICROCODE_[AMD|INTEL]!=y"
+            ;;
+        *) ;;
+    esac
 fi
 
 # Need to be able to have non-root users read stuff (rpcbind etc)
