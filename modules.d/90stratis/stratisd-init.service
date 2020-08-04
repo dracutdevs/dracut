@@ -8,8 +8,6 @@ DefaultDependencies=no
 Type=simple
 ExecStart=/sbin/stratisd-init --debug
 KillSignal=SIGINT
-StandardOutput=syslog
-StandardError=syslog
 
 [Install]
 WantedBy=sysinit.target
