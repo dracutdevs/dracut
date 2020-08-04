@@ -91,7 +91,7 @@ export LVM_SUPPRESS_LOCKING_FAILURE_MESSAGES=1
 if [ -n "$SNAPSHOT" ] ; then
     # HACK - this should probably be done elsewhere or turned into a function
     # Enable read-write LVM locking
-    sed -i -e 's/\(^[[:space:]]*\)locking_type[[:space:]]*=[[:space:]]*[[:digit:]]/\1locking_type =  1/' ${initdir}/etc/lvm/lvm.conf
+    sed -i -e 's/\(^[[:space:]]*\)locking_type[[:space:]]*=[[:space:]]*[[:digit:]]/\1locking_type =  1/' /etc/lvm/lvm.conf
 
     # Expected SNAPSHOT format "<orig lv name>:<snap lv name>"
     ORIG_LV=${SNAPSHOT%%:*}

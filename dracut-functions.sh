@@ -728,3 +728,161 @@ btrfs_devs() {
         printf -- "%s\n" "$_dev"
         done
 }
+
+iface_for_remote_addr() {
+    set -- $(ip -o route get to "$1")
+    echo $3
+}
+
+local_addr_for_remote_addr() {
+    set -- $(ip -o route get to "$1")
+    echo $5
+}
+
+peer_for_addr() {
+    local addr=$1
+    local qtd
+
+    # quote periods in IPv4 address
+    qtd=${addr//./\\.}
+    ip -o addr show | \
+        sed -n 's%^.* '"$qtd"' peer \([0-9a-f.:]\{1,\}\(/[0-9]*\)\?\).*$%\1%p'
+}
+
+netmask_for_addr() {
+    local addr=$1
+    local qtd
+
+    # quote periods in IPv4 address
+    qtd=${addr//./\\.}
+    ip -o addr show | sed -n 's,^.* '"$qtd"'/\([0-9]*\) .*$,\1,p'
+}
+
+gateway_for_iface() {
+    local ifname=$1 addr=$2
+
+    case $addr in
+        *.*) proto=4;;
+        *:*) proto=6;;
+        *)   return;;
+    esac
+    ip -o -$proto route show | \
+        sed -n "s/^default via \([0-9a-z.:]\{1,\}\) dev $ifname .*\$/\1/p"
+}
+
+# This works only for ifcfg-style network configuration!
+bootproto_for_iface() {
+    local ifname=$1
+    local dir
+
+    # follow ifcfg settings for boot protocol
+    for dir in network-scripts network; do
+        [ -f "/etc/sysconfig/$dir/ifcfg-$ifname" ] && {
+            sed -n "s/BOOTPROTO=[\"']\?\([[:alnum:]]\{1,\}\)[\"']\?.*\$/\1/p" \
+                "/etc/sysconfig/$dir/ifcfg-$ifname"
+            return
+        }
+    done
+}
+
+is_unbracketed_ipv6_address() {
+    strglob "$1" '*:*' && ! strglob "$1" '\[*:*\]'
+}
+
+# Create an ip= string to set up networking such that the given
+# remote address can be reached
+ip_params_for_remote_addr() {
+    local remote_addr=$1
+    local ifname local_addr peer netmask= gateway ifmac
+
+    [[ $remote_addr ]] || return 1
+    ifname=$(iface_for_remote_addr "$remote_addr")
+    [[ $ifname ]] || {
+        berror "failed to determine interface to connect to $remote_addr"
+        return 1
+    }
+
+    # ifname clause to bind the interface name to a MAC address
+    if [ -d "/sys/class/net/$ifname/bonding" ]; then
+        dinfo "Found bonded interface '${ifname}'. Make sure to provide an appropriate 'bond=' cmdline."
+    elif [ -e "/sys/class/net/$ifname/address" ] ; then
+        ifmac=$(cat "/sys/class/net/$ifname/address")
+        [[ $ifmac ]] && printf 'ifname=%s:%s ' "${ifname}" "${ifmac}"
+    fi
+
+    bootproto=$(bootproto_for_iface "$ifname")
+    case $bootproto in
+        dhcp|dhcp6|auto6) ;;
+        dhcp4)
+            bootproto=dhcp;;
+        static*|"")
+            bootproto=;;
+        *)
+            derror "bootproto \"$bootproto\" is unsupported by dracut, trying static configuration"
+            bootproto=;;
+    esac
+    if [[ $bootproto ]]; then
+        printf 'ip=%s:%s ' "${ifname}" "${bootproto}"
+    else
+        local_addr=$(local_addr_for_remote_addr "$remote_addr")
+        [[ $local_addr ]] || {
+            berror "failed to determine local address to connect to $remote_addr"
+            return 1
+        }
+        peer=$(peer_for_addr "$local_addr")
+        # Set peer or netmask, but not both
+        [[ $peer ]] || netmask=$(netmask_for_addr "$local_addr")
+        gateway=$(gateway_for_iface "$ifname" "$local_addr")
+        # Quote IPv6 addresses with brackets
+        is_unbracketed_ipv6_address "$local_addr" && local_addr="[$local_addr]"
+        is_unbracketed_ipv6_address "$peer" && peer="[$peer]"
+        is_unbracketed_ipv6_address "$gateway" && gateway="[$gateway]"
+        printf 'ip=%s:%s:%s:%s::%s:none ' \
+               "${local_addr}" "${peer}" "${gateway}" "${netmask}" "${ifname}"
+    fi
+
+}
+
+# block_is_nbd <maj:min>
+# Check whether $1 is an nbd device
+block_is_nbd() {
+    [[ -b /dev/block/$1 && $1 == 43:* ]]
+}
+
+# block_is_iscsi <maj:min>
+# Check whether $1 is an nbd device
+block_is_iscsi() {
+    local _dir
+    local _dev=$1
+    [[ -L "/sys/dev/block/$_dev" ]] || return
+    _dir="$(readlink -f "/sys/dev/block/$_dev")" || return
+    until [[ -d "$_dir/sys" || -d "$_dir/iscsi_session" ]]; do
+        _dir="$_dir/.."
+    done
+    [[ -d "$_dir/iscsi_session" ]]
+}
+
+# block_is_fcoe <maj:min>
+# Check whether $1 is an FCoE device
+# Will not work for HBAs that hide the ethernet aspect
+# completely and present a pure FC device
+block_is_fcoe() {
+    local _dir
+    local _dev=$1
+    [[ -L "/sys/dev/block/$_dev" ]] || return
+    _dir="$(readlink -f "/sys/dev/block/$_dev")"
+    until [[ -d "$_dir/sys" ]]; do
+        _dir="$_dir/.."
+        if [[ -d "$_dir/subsystem" ]]; then
+            subsystem=$(basename $(readlink $_dir/subsystem))
+            [[ $subsystem == "fcoe" ]] && return 0
+        fi
+    done
+    return 1
+}
+
+# block_is_netdevice <maj:min>
+# Check whether $1 is a net device
+block_is_netdevice() {
+    block_is_nbd "$1" || block_is_iscsi "$1" || block_is_fcoe "$1"
+}

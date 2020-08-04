@@ -1153,7 +1153,7 @@ if [[ ! $print_cmdline ]]; then
         case $(uname -m) in
             x86_64)
                 EFI_MACHINE_TYPE_NAME=x64;;
-            ia32)
+            i?86)
                 EFI_MACHINE_TYPE_NAME=ia32;;
             *)
                 dfatal "Architecture '$(uname -m)' not supported to create a UEFI executable"
@@ -1194,19 +1194,26 @@ fi
 
 if [[ $early_microcode = yes ]]; then
     if [[ $hostonly ]]; then
-        [[ $(get_cpu_vendor) == "AMD" ]] \
-            && ! check_kernel_config CONFIG_MICROCODE_AMD \
-            && unset early_microcode
-        [[ $(get_cpu_vendor) == "Intel" ]] \
-            && ! check_kernel_config CONFIG_MICROCODE_INTEL \
-            && unset early_microcode
+        if [[ $(get_cpu_vendor) == "AMD" ]]; then
+            check_kernel_config CONFIG_MICROCODE_AMD || unset early_microcode
+        elif [[ $(get_cpu_vendor) == "Intel" ]]; then
+            check_kernel_config CONFIG_MICROCODE_INTEL || unset early_microcode
+        else
+            unset early_microcode
+        fi
     else
         ! check_kernel_config CONFIG_MICROCODE_AMD \
             && ! check_kernel_config CONFIG_MICROCODE_INTEL \
             && unset early_microcode
     fi
-    [[ $early_microcode != yes ]] \
-        && dwarn "Disabling early microcode, because kernel does not support it. CONFIG_MICROCODE_[AMD|INTEL]!=y"
+    # Do not complain on non-x86 architectures as it makes no sense
+    case $(uname -m) in
+        x86_64|i?86)
+            [[ $early_microcode != yes ]] \
+                && dwarn "Disabling early microcode, because kernel does not support it. CONFIG_MICROCODE_[AMD|INTEL]!=y"
+            ;;
+        *) ;;
+    esac
 fi
 
 # Need to be able to have non-root users read stuff (rpcbind etc)
@@ -1826,23 +1833,19 @@ fi
 
 if dracut_module_included "squash"; then
     dinfo "*** Install squash loader ***"
-    if ! check_kernel_config CONFIG_SQUASHFS; then
-        dfatal "CONFIG_SQUASHFS have to be enabled for dracut squash module to work"
+    for config in \
+      CONFIG_SQUASHFS \
+      CONFIG_OVERLAY_FS \
+      CONFIG_DEVTMPFS;
+    do
+      if ! check_kernel_config $config; then
+        dfatal "$config have to be enabled for dracut squash module to work"
         exit 1
-    fi
-    if ! check_kernel_config CONFIG_OVERLAY_FS; then
-        dfatal "CONFIG_OVERLAY_FS have to be enabled for dracut squash module to work"
-        exit 1
-    fi
-    if ! check_kernel_config CONFIG_DEVTMPFS; then
-        dfatal "CONFIG_DEVTMPFS have to be enabled for dracut squash module to work"
-        exit 1
-    fi
+      fi
+    done
 
     readonly squash_dir="$initdir/squash/root"
-    readonly squash_img=$initdir/squash/root.img
-
-    # Currently only move "usr" "etc" to squashdir
+    readonly squash_img="$initdir/squash/root.img"
     readonly squash_candidate=( "usr" "etc" )
 
     mkdir -m 0755 -p $squash_dir
@@ -1853,57 +1856,15 @@ if dracut_module_included "squash"; then
     # Move some files out side of the squash image, including:
     # - Files required to boot and mount the squashfs image
     # - Files need to be accessible without mounting the squash image
-    required_in_root() {
-        local file=$1
-        local _sqsh_file=$squash_dir/$file
-        local _init_file=$initdir/$file
-
-        if [[ -e $_init_file ]]; then
-            return
-        fi
-
-        if [[ ! -e $_sqsh_file ]] && [[ ! -L $_sqsh_file ]]; then
-            derror "$file is required to boot a squashed initramfs but it's not installed!"
-            return
-        fi
-
-        if [[ ! -d $(dirname $_init_file) ]]; then
-            required_in_root $(dirname $file)
-        fi
-
-        if [[ -L $_sqsh_file ]]; then
-          cp --preserve=all -P $_sqsh_file $_init_file
-          _sqsh_file=$(realpath $_sqsh_file 2>/dev/null)
-          if [[ -e $_sqsh_file ]] && [[ "$_sqsh_file" == "$squash_dir"* ]]; then
-            # Relative symlink
-            required_in_root ${_sqsh_file#$squash_dir/}
-            return
-          fi
-          if [[ -e $squash_dir$_sqsh_file ]]; then
-            # Absolute symlink
-            required_in_root ${_sqsh_file#/}
-            return
-          fi
-          required_in_root ${module_spec#$squash_dir/}
-        else
-          if [[ -d $_sqsh_file ]]; then
-            mkdir $_init_file
-          else
-            mv $_sqsh_file $_init_file
-          fi
-        fi
-    }
-
-    required_in_root etc/initrd-release
-
-    for module_spec in $squash_dir/usr/lib/modules/*/modules.*;
+    # - Initramfs marker
+    for file in \
+        $squash_dir/usr/lib/modules/*/modules.* \
+        $squash_dir/usr/lib/dracut/* \
+        $squash_dir/etc/initrd-release
     do
-        required_in_root ${module_spec#$squash_dir/}
-    done
-
-    for dracut_spec in $squash_dir/usr/lib/dracut/*;
-    do
-        required_in_root ${dracut_spec#$squash_dir/}
+        [[ -d $file ]] && continue
+        DRACUT_RESOLVE_DEPS=1 dracutsysrootdir=$squash_dir inst ${file#$squash_dir}
+        rm $file
     done
 
     mv $initdir/init $initdir/init.stock
@@ -1914,17 +1875,14 @@ if dracut_module_included "squash"; then
     # accessible before mounting the image.
     inst_multiple "echo" "sh" "mount" "modprobe" "mkdir"
     hostonly="" instmods "loop" "squashfs" "overlay"
-
     # Only keep systemctl outsite if we need switch root
     if [[ ! -f "$initdir/lib/dracut/no-switch-root" ]]; then
       inst "systemctl"
     fi
 
+    # Remove duplicated files
     for folder in "${squash_candidate[@]}"; do
-        # Remove duplicated files in squashfs image, save some more space
-        [[ ! -d $initdir/$folder/ ]] && continue
-        for file in $(find $initdir/$folder/ -not -type d);
-        do
+        for file in $(find $initdir/$folder/ -not -type d); do
             if [[ -e $squash_dir${file#$initdir} ]]; then
                 mv $squash_dir${file#$initdir} $file
             fi
