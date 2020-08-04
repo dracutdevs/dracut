@@ -50,8 +50,9 @@ do_dhcp() {
     while [ $_COUNT -lt $_DHCPRETRY ]; do
         info "Starting dhcp for interface $netif"
         dhclient "$@" \
-                 ${_timeout:+-timeout $_timeout} \
+                 ${_timeout:+--timeout $_timeout} \
                  -q \
+                 -1 \
                  -cf /etc/dhclient.conf \
                  -pf /tmp/dhclient.$netif.pid \
                  -lf /tmp/dhclient.$netif.lease \
@@ -61,6 +62,9 @@ do_dhcp() {
         [ $_COUNT -lt $_DHCPRETRY ] && sleep 1
     done
     warn "dhcp for interface $netif failed"
+    # nuke those files since we failed; we might retry dhcp again if it's e.g.
+    # `ip=dhcp,dhcp6` and we check for the PID file at the top
+    rm -f /tmp/dhclient.$netif.{pid,lease}
     return 1
 }
 
@@ -449,19 +453,20 @@ for p in $(getargs ip=); do
             > /tmp/net.$(cat /sys/class/net/${netif}/address).up
         fi
 
-        case $autoconf in
-            dhcp|on|any|dhcp6)
-            ;;
-            *)
-                if [ $ret -eq 0 ]; then
-                    setup_net $netif
-                    source_hook initqueue/online $netif
-                    if [ -z "$manualup" ]; then
-                        /sbin/netroot $netif
-                    fi
-                fi
-                ;;
-        esac
+        # and finally, finish interface set up if there isn't already a script
+        # to do so (which is the case in the dhcp path)
+        if [ ! -e $hookdir/initqueue/setup_net_$netif.sh ]; then
+            setup_net $netif
+            source_hook initqueue/online $netif
+            if [ -z "$manualup" ]; then
+                /sbin/netroot $netif
+            fi
+        fi
+
+        if command -v wicked >/dev/null && [ -z "$manualup" ]; then
+            /sbin/netroot $netif
+        fi
+
         exit $ret
     fi
 done

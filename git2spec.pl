@@ -10,7 +10,7 @@ sub create_patches {
 
     mkdir $pdir, 0755;
 
-    open( GIT, 'git log -p --pretty=email --stat -m --first-parent --reverse '.$tag.'..HEAD |');
+    open( GIT, 'git log -p --pretty=email --stat -m --first-parent --reverse --binary '.$tag.'..HEAD |');
 
     while (<GIT>) {
         if (/^From [a-z0-9]{40} .*$/) {
@@ -37,7 +37,7 @@ $tag=`git describe --abbrev=0 --tags` if not defined $tag;
 chomp($tag);
 my @patches=&create_patches($tag, $pdir);
 my $num=$#patches + 2;
-$tag=~s/[^0-9]+?([0-9]+)/$1/;
+$tag=~s/[^0-9]+?([0-9]+)/$1/ if $tag !~ /\b[0-9a-f]{5,40}\b/;
 my $release="$num.git$datestr";
 $release="1" if $num == 1;
 

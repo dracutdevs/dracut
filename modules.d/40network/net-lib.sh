@@ -14,20 +14,20 @@ is_ip() {
 
 get_ip() {
     local iface="$1" ip=""
-    ip=$(ip -o -f inet addr show $iface)
+    ip=$(ip -f inet addr show $iface)
     ip=${ip%%/*}
     ip=${ip##* }
     echo $ip
 }
 
 iface_for_remote_addr() {
-    set -- $(ip -o route get to $1)
-    echo $5
+    set -- $(ip route get to $1 | sed  's/.*\bdev\b//p;q')
+    echo $1
 }
 
 iface_for_ip() {
-    set -- $(ip -o addr show to $1)
-    echo $2
+    set -- $(ip addr show to $1)
+    echo ${2%:}
 }
 
 iface_for_mac() {
@@ -251,8 +251,10 @@ ibft_to_cmdline() {
             [ -e ${iface}/flags ] && flags=$(read a < ${iface}/flags; echo $a)
             # Skip invalid interfaces
             (( $flags & 1 )) || continue
-            # Skip interfaces not used for booting
-            (( $flags & 2 )) || continue
+            # Skip interfaces not used for booting unless using multipath
+            if ! getargbool 0 rd.iscsi.mp ; then
+                (( $flags & 2 )) || continue
+            fi
             [ -e ${iface}/dhcp ] && dhcp=$(read a < ${iface}/dhcp; echo $a)
             [ -e ${iface}/origin ] && origin=$(read a < ${iface}/origin; echo $a)
             [ -e ${iface}/ip-addr ] && ip=$(read a < ${iface}/ip-addr; echo $a)
@@ -463,7 +465,7 @@ ip_to_var() {
         #         ip=<ipv4-address> means anaconda-style static config argument cluster
         autoconf="$1"
 
-        if strstr "$autoconf" "*.*.*.*"; then
+        if strglob "$autoconf" "*.*.*.*"; then
             # ip=<ipv4-address> means anaconda-style static config argument cluster:
             # ip=<ip> gateway=<gw> netmask=<nm> hostname=<host> mtu=<mtu>
             # ksdevice={link|bootif|ibft|<MAC>|<ifname>}
@@ -508,7 +510,7 @@ ip_to_var() {
     [ -n "$6" ] && dev=$6
     [ -n "$7" ] && autoconf=$7
     case "$8" in
-        [0-9]*:*|[0-9]*.[0-9]*.[0-9]*.[0-9]*)
+        [0-9a-fA-F]*:*|[0-9]*.[0-9]*.[0-9]*.[0-9]*)
             dns1="$8"
             [ -n "$9" ] && dns2="$9"
             ;;
@@ -593,7 +595,7 @@ wait_for_if_link() {
     timeout=$(($timeout*10))
 
     while [ $cnt -lt $timeout ]; do
-        li=$(ip -o link show dev $1 2>/dev/null)
+        li=$(ip link show dev $1 2>/dev/null)
         [ -n "$li" ] && return 0
         sleep 0.1
         cnt=$(($cnt+1))
@@ -609,7 +611,7 @@ wait_for_if_up() {
     timeout=$(($timeout*10))
 
     while [ $cnt -lt $timeout ]; do
-        li=$(ip -o link show up dev $1)
+        li=$(ip link show up dev $1)
         if [ -n "$li" ]; then
             case "$li" in
                 *\<UP*)
@@ -653,8 +655,8 @@ wait_for_ipv6_dad_link() {
     timeout=$(($timeout*10))
 
     while [ $cnt -lt $timeout ]; do
-        [ -z "$(ip -6 addr show dev "$1" scope link tentative)" ] \
-            && [ -n "$(ip -6 route list proto ra dev "$1" | grep ^default)" ] \
+        [ -n "$(ip -6 addr show dev "$1" scope link)" ] \
+            && [ -z "$(ip -6 addr show dev "$1" scope link tentative)" ] \
             && return 0
         [ -n "$(ip -6 addr show dev "$1" scope link dadfailed)" ] \
             && return 1
@@ -671,7 +673,8 @@ wait_for_ipv6_dad() {
     timeout=$(($timeout*10))
 
     while [ $cnt -lt $timeout ]; do
-        [ -z "$(ip -6 addr show dev "$1" tentative)" ] \
+        [ -n "$(ip -6 addr show dev "$1")" ] \
+            && [ -z "$(ip -6 addr show dev "$1" tentative)" ] \
             && [ -n "$(ip -6 route list proto ra dev "$1" | grep ^default)" ] \
             && return 0
         [ -n "$(ip -6 addr show dev "$1" dadfailed)" ] \
@@ -716,17 +719,17 @@ iface_has_carrier() {
     interface="/sys/class/net/$interface"
     [ -d "$interface" ] || return 2
     local timeout="$(getargs rd.net.timeout.carrier=)"
-    timeout=${timeout:-5}
+    timeout=${timeout:-10}
     timeout=$(($timeout*10))
 
     linkup "$1"
 
-    li=$(ip -o link show up dev $1)
+    li=$(ip link show up dev $1)
     strstr "$li" "NO-CARRIER" && _no_carrier_flag=1
 
     while [ $cnt -lt $timeout ]; do
         if [ -n "$_no_carrier_flag" ]; then
-            li=$(ip -o link show up dev $1)
+            li=$(ip link show up dev $1)
             # NO-CARRIER flag was cleared
             strstr "$li" "NO-CARRIER" || return 0
         elif ! [ -e "$interface/carrier" ]; then
@@ -747,8 +750,8 @@ iface_has_link() {
 
 iface_is_enslaved() {
     local _li
-    _li=$(ip -o link show dev $1)
-    strstr "$li" " master " || return 1
+    _li=$(ip link show dev $1)
+    strstr "$_li" " master " || return 1
     return 0
 }
 

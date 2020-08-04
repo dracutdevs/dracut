@@ -1,0 +1,15 @@
+[Unit]
+Description=Memstrack Anylazing Service
+DefaultDependencies=no
+Before=dracut-cmdline.service systemd-udevd.service local-fs-pre.target
+IgnoreOnIsolate=true
+ConditionKernelCommandLine=|rd.memdebug=4
+ConditionKernelCommandLine=|rd.memdebug=5
+
+[Service]
+Type=simple
+ExecStart=/bin/memstrack-start
+PIDFile=/run/memstrack.pid
+StandardInput=null
+StandardOutput=journal+console
+StandardError=journal+console

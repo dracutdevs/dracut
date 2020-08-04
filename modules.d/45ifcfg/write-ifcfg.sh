@@ -270,7 +270,7 @@ for netup in /tmp/net.*.did-setup ; do
         done
     fi
     i=1
-    for ns in $(getargs nameserver); do
+    for ns in $(getargs nameserver) $dns1 $dns2; do
         echo "DNS${i}=\"${ns}\"" >> /tmp/ifcfg/ifcfg-$netif
         i=$((i+1))
     done
@@ -288,7 +288,7 @@ echo "files /var/lib/dhclient" >> /run/initramfs/rwtab
     cp /tmp/net.* /run/initramfs/
     for i in /tmp/net.*.resolv.conf; do
              [ -f "$i" ] && cat "$i"
-    done | sort -u > /run/initramfs/state/etc/resolv.conf
+    done | awk '!($0 in a) { a[$0]; print }' > /run/initramfs/state/etc/resolv.conf
     [ -s /run/initramfs/state/etc/resolv.conf ] || rm -f /run/initramfs/state/etc/resolv.conf
     copytree /tmp/ifcfg /run/initramfs/state/etc/sysconfig/network-scripts
     cp /tmp/ifcfg-leases/* /run/initramfs/state/var/lib/dhclient

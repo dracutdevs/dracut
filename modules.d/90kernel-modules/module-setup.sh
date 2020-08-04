@@ -2,6 +2,8 @@
 
 # called by dracut
 installkernel() {
+    local _blockfuncs='ahci_platform_get_resources|ata_scsi_ioctl|scsi_add_host|blk_cleanup_queue|register_mtd_blktrans|scsi_esp_register|register_virtio_device|usb_stor_disconnect|mmc_add_host|sdhci_add_host|scsi_add_host_with_dma'
+
     find_kernel_modules_external () {
         local _OLDIFS
         local external_pattern="^/"
@@ -16,11 +18,25 @@ installkernel() {
         done < "$srcmods/modules.dep"
         IFS=$_OLDIFS
     }
-    local _blockfuncs='ahci_platform_get_resources|ata_scsi_ioctl|scsi_add_host|blk_cleanup_queue|register_mtd_blktrans|scsi_esp_register|register_virtio_device|usb_stor_disconnect|mmc_add_host|sdhci_add_host|scsi_add_host_with_dma'
+
+    is_block_dev() {
+        [ -e /sys/dev/block/$1 ] && return 0
+        return 1
+    }
+
+    install_block_modules () {
+        hostonly='' instmods sg sr_mod sd_mod scsi_dh ata_piix
+        instmods \
+            scsi_dh_rdac scsi_dh_emc scsi_dh_alua \
+            =ide nvme vmd \
+            virtio_blk
+
+        dracut_instmods -o -s "${_blockfuncs}" "=drivers"
+    }
 
     if [[ -z $drivers ]]; then
         hostonly='' instmods \
-            sr_mod sd_mod scsi_dh ata_piix hid_generic unix \
+            hid_generic unix \
             ehci-hcd ehci-pci ehci-platform \
             ohci-hcd ohci-pci \
             uhci-hcd \
@@ -35,15 +51,16 @@ installkernel() {
             "=drivers/input/keyboard" \
             "=drivers/usb/storage" \
             "=drivers/pci/host" \
+            "=drivers/pci/controller" \
             ${NULL}
 
         instmods \
-            yenta_socket scsi_dh_rdac scsi_dh_emc scsi_dh_alua \
+            yenta_socket \
             atkbd i8042 usbhid firewire-ohci pcmcia hv-vmbus \
-            virtio virtio_blk virtio_ring virtio_pci virtio_scsi \
-            "=drivers/pcmcia" =ide nvme vmd nfit
+            virtio virtio_ring virtio_pci virtio_scsi pci_hyperv \
+            "=drivers/pcmcia"
 
-        if [[ "$(uname -m)" == arm* || "$(uname -m)" == aarch64 ]]; then
+        if [[ "${DRACUT_ARCH:-$(uname -m)}" == arm* || "${DRACUT_ARCH:-$(uname -m)}" == aarch64 ]]; then
             # arm/aarch64 specific modules
             _blockfuncs+='|dw_mc_probe|dw_mci_pltfm_register'
             instmods \
@@ -72,9 +89,11 @@ installkernel() {
                 ${NULL}
         fi
 
-        dracut_instmods -o -s "${_blockfuncs}" "=drivers"
-
         find_kernel_modules_external | instmods
+
+        if ! [[ $hostonly ]] || for_each_host_dev_and_slaves is_block_dev; then
+            install_block_modules
+        fi
 
         # if not on hostonly mode, install all known filesystems,
         # if the required list is not set via the filesystems variable
@@ -85,6 +104,15 @@ installkernel() {
         elif [[ "${host_fs_types[*]}" ]]; then
             hostonly='' instmods "${host_fs_types[@]}"
         fi
+
+        arch=${DRACUT_ARCH:-$(uname -m)}
+
+        # We don't want to play catch up with hash and encryption algorithms.
+        # To be safe, just use the hammer and include all crypto.
+        [[ $arch == x86_64 ]] && arch=x86
+        [[ $arch == s390x ]] && arch=s390
+        [[ $arch == aarch64 ]] && arch=arm64
+        instmods "=crypto" "=arch/$arch/crypto" "=drivers/crypto"
     fi
     :
 }

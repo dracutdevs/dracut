@@ -10,7 +10,7 @@ $ keyctl add encrypted evm-key "new trusted:kmk-trusted 32" @u
 782117972
 
 # Save the encrypted key
-$ su -c 'keyctl pipe `keyctl search @u encrypted evm_key` > /etc/keys/evm-trusted.blob'
+$ su -c 'keyctl pipe `keyctl search @u encrypted evm-key` > /etc/keys/evm-trusted.blob'
 
 # The EVM key path name can be set in one of the following ways (specified in
 # the order in which the variable is overwritten):

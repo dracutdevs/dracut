@@ -13,9 +13,9 @@
 # fcoe=eth0:nodcb:vn2vn
 # fcoe=4a:3f:4c:04:f8:d7:nodcb:fabric
 
-if ! getargbool 0 rd.nofcoe ; then
+if getargbool 0 rd.nofcoe ; then
 	info "rd.nofcoe=0: skipping fcoe"
-	exit 0
+	return 0
 fi
 
 [ -z "$fcoe" ] && fcoe=$(getarg fcoe=)
@@ -23,7 +23,7 @@ fi
 # If it's not set we don't continue
 [ -z "$fcoe" ] && return
 
-[ -e /sys/bus/fcoe/ctlr_create ] || modprobe -b -a fcoe || die "FCoE requested but kernel/initrd does not support FCoE"
+[ -e /sys/bus/fcoe/ctlr_create ] || modprobe -b -a fcoe || modprobe -b -a libfcoe || die "FCoE requested but kernel/initrd does not support FCoE"
 
 initqueue --onetime modprobe -b -q bnx2fc
 

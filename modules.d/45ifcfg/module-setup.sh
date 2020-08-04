@@ -2,7 +2,7 @@
 
 # called by dracut
 check() {
-    [[ -d /etc/sysconfig/network-scripts ]] && return 0
+    [[ -d $dracutsysrootdir/etc/sysconfig/network-scripts ]] && return 0
     return 255
 }
 
@@ -14,7 +14,7 @@ depends() {
 
 # called by dracut
 install() {
-    inst_binary sort
+    inst_binary awk
     inst_hook pre-pivot 85 "$moddir/write-ifcfg.sh"
 }
 

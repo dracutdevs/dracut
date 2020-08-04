@@ -13,7 +13,7 @@ depends() {
 # called by dracut
 installkernel() {
     # Include wired net drivers, excluding wireless
-    local _arch=$(uname -m)
+    local _arch=${DRACUT_ARCH:-$(uname -m)}
     local _net_drivers='eth_type_trans|register_virtio_device|usbnet_open'
     local _unwanted_drivers='/(wireless|isdn|uwb|net/ethernet|net/phy|net/team)/'
 

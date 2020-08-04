@@ -32,7 +32,7 @@ Source1: https://www.gnu.org/licenses/lgpl-2.1.txt
 
 BuildRequires: bash
 BuildRequires: git
-BuildRequires: kmod-devel >= 23
+BuildRequires: pkgconfig(libkmod) >= 23
 BuildRequires: gcc
 
 %if 0%{?fedora} || 0%{?rhel}
@@ -77,6 +77,7 @@ Requires: xz
 Requires: gzip
 
 %if 0%{?fedora} || 0%{?rhel}
+Recommends: memstrack
 Recommends: hardlink
 Recommends: pigz
 Recommends: kpartx
@@ -98,7 +99,7 @@ Requires: libkcapi-hmaccalc
 
 %description
 dracut contains tools to create bootable initramfses for the Linux
-kernel. Unlike previous implementations, dracut hard-codes as little
+kernel. Unlike other implementations, dracut hard-codes as little
 as possible into the initramfs. dracut contains various modules which
 are driven by the event-based udev. Having root on MD, DM, LVM2, LUKS
 is supported as well as NFS, iSCSI, NBD, FCoE with the dracut-network
@@ -117,7 +118,8 @@ Requires: %{name} = %{version}-%{release}
 %endif
 Requires: iputils
 Requires: iproute
-Requires: dhclient
+Requires: (NetworkManager >= 1.20 or dhclient)
+Suggests: NetworkManager
 Obsoletes: dracut-generic < 008
 Provides:  dracut-generic = %{version}-%{release}
 
@@ -222,6 +224,9 @@ rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00bootchart
 # we do not support dash in the initramfs
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00dash
 
+# we do not support mksh in the initramfs
+rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00mksh
+
 # remove gentoo specific modules
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/50gensplash
 
@@ -257,29 +262,31 @@ mkdir -p $RPM_BUILD_ROOT%{_sharedstatedir}/initramfs
 
 %if 0%{?fedora} || 0%{?rhel}
 install -m 0644 dracut.conf.d/fedora.conf.example $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/01-dist.conf
-rm -f $RPM_BUILD_ROOT%{_mandir}/man?/*suse*
 %endif
 %if 0%{?suse_version}
 install -m 0644 dracut.conf.d/suse.conf.example   $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/01-dist.conf
+%else
+rm -f $RPM_BUILD_ROOT%{_mandir}/man?/*suse*
 %endif
 
 %if 0%{?fedora} == 0 && 0%{?rhel} == 0 && 0%{?suse_version} <= 9999
 rm -f -- $RPM_BUILD_ROOT%{_bindir}/mkinitrd
 rm -f -- $RPM_BUILD_ROOT%{_bindir}/lsinitrd
+rm -f -- $RPM_BUILD_ROOT%{_mandir}/man8/mkinitrd.8*
+rm -f -- $RPM_BUILD_ROOT%{_mandir}/man1/lsinitrd.1*
 %endif
 
-%if 0%{?fedora} || 0%{?rhel}
 echo 'hostonly="no"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-generic-image.conf
 echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-rescue.conf
 
-# FIXME: remove after F30
+%if 0%{?fedora} <= 30 || 0%{?rhel} <= 8
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/kernel/postinst.d
 install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kernel/postinst.d/51-dracut-rescue-postinst.sh
 %endif
 
 %files
 %if %{with doc}
-%doc README HACKING TODO AUTHORS NEWS dracut.html dracut.png dracut.svg
+%doc README.md HACKING TODO AUTHORS NEWS dracut.html dracut.png dracut.svg
 %endif
 %{!?_licensedir:%global license %%doc}
 %license COPYING lgpl-2.1.txt
@@ -316,6 +323,9 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 %{_mandir}/man8/mkinitrd.8*
 %{_mandir}/man1/lsinitrd.1*
 %endif
+%if 0%{?suse_version}
+%{_mandir}/man8/mkinitrd-suse.8*
+%endif
 %{_mandir}/man7/dracut.kernel.7*
 %{_mandir}/man7/dracut.cmdline.7*
 %{_mandir}/man7/dracut.modules.7*
@@ -339,6 +349,7 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 %{dracutlibdir}/modules.d/03rescue
 %{dracutlibdir}/modules.d/04watchdog
 %{dracutlibdir}/modules.d/05busybox
+%{dracutlibdir}/modules.d/06rngd
 %{dracutlibdir}/modules.d/10i18n
 %{dracutlibdir}/modules.d/30convertfs
 %{dracutlibdir}/modules.d/45url-lib
@@ -354,13 +365,16 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 %{dracutlibdir}/modules.d/90lvm
 %{dracutlibdir}/modules.d/90mdraid
 %{dracutlibdir}/modules.d/90multipath
+%{dracutlibdir}/modules.d/90nvdimm
 %{dracutlibdir}/modules.d/90stratis
+%{dracutlibdir}/modules.d/90ppcmac
 %{dracutlibdir}/modules.d/90qemu
 %{dracutlibdir}/modules.d/91crypt-gpg
 %{dracutlibdir}/modules.d/91crypt-loop
 %{dracutlibdir}/modules.d/95debug
 %{dracutlibdir}/modules.d/95fstab-sys
 %{dracutlibdir}/modules.d/95lunmask
+%{dracutlibdir}/modules.d/95nvmf
 %{dracutlibdir}/modules.d/95resume
 %{dracutlibdir}/modules.d/95rootfs-block
 %{dracutlibdir}/modules.d/95terminfo
@@ -391,6 +405,7 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 %{dracutlibdir}/modules.d/98syslog
 %{dracutlibdir}/modules.d/98usrmount
 %{dracutlibdir}/modules.d/99base
+%{dracutlibdir}/modules.d/99memstrack
 %{dracutlibdir}/modules.d/99fs-lib
 %{dracutlibdir}/modules.d/99shutdown
 %attr(0644,root,root) %ghost %config(missingok,noreplace) %{_localstatedir}/log/dracut.log
@@ -412,11 +427,8 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 %{_unitdir}/initrd.target.wants/dracut-pre-pivot.service
 %{_unitdir}/initrd.target.wants/dracut-pre-trigger.service
 %{_unitdir}/initrd.target.wants/dracut-pre-udev.service
-
 %endif
-%if 0%{?fedora} || 0%{?rhel}
 %{_prefix}/lib/kernel/install.d/50-dracut.install
-%endif
 
 %files network
 %{dracutlibdir}/modules.d/02systemd-networkd
@@ -465,8 +477,8 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 
 %files config-rescue
 %{dracutlibdir}/dracut.conf.d/02-rescue.conf
-%if 0%{?fedora} || 0%{?rhel}
 %{_prefix}/lib/kernel/install.d/51-dracut-rescue.install
+%if 0%{?fedora} <= 30 || 0%{?rhel} <= 8
 # FIXME: remove after F30
 %{_sysconfdir}/kernel/postinst.d/51-dracut-rescue-postinst.sh
 %endif

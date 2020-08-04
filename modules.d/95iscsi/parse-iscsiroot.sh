@@ -84,7 +84,7 @@ if [ -n "$iscsi_firmware" ]; then
     modprobe -b -q iscsi_boot_sysfs 2>/dev/null
     modprobe -b -q iscsi_ibft
     # if no ip= is given, but firmware
-    echo "[ -f '/tmp/iscsistarted-firmware' ]" > $hookdir/initqueue/finished/iscsi_started.sh
+    echo "${DRACUT_SYSTEMD+systemctl is-active initrd-root-device.target || }[ -f '/tmp/iscsistarted-firmware' ]" > $hookdir/initqueue/finished/iscsi_started.sh
     initqueue --unique --online /sbin/iscsiroot online "iscsi:" "$NEWROOT"
     initqueue --unique --onetime --timeout /sbin/iscsiroot timeout "iscsi:" "$NEWROOT"
     initqueue --unique --onetime --settled /sbin/iscsiroot online "iscsi:" "'$NEWROOT'"
@@ -145,7 +145,7 @@ for nroot in $(getargs netroot); do
     type parse_iscsi_root >/dev/null 2>&1 || . /lib/net-lib.sh
     parse_iscsi_root "$nroot" || return 1
     netroot_enc=$(str_replace "$nroot" '/' '\2f')
-    echo "[ -f '/tmp/iscsistarted-$netroot_enc' ]" > $hookdir/initqueue/finished/iscsi_started.sh
+    echo "${DRACUT_SYSTEMD+systemctl is-active initrd-root-device.target || }[ -f '/tmp/iscsistarted-$netroot_enc' ]" > $hookdir/initqueue/finished/iscsi_started.sh
 done
 
 # Done, all good!

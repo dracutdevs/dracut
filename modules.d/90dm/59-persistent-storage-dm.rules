@@ -1,7 +1,7 @@
 SUBSYSTEM!="block", GOTO="dm_end"
 ACTION!="add|change", GOTO="dm_end"
 # Also don't process disks that are slated to be a multipath device
-ENV{DM_MULTIPATH_DEVICE_PATH}=="?*", GOTO="dm_end"
+ENV{DM_MULTIPATH_DEVICE_PATH}=="1", GOTO="dm_end"
 
 KERNEL!="dm-[0-9]*", GOTO="dm_end"
 ACTION=="add", GOTO="dm_end"

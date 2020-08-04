@@ -23,8 +23,7 @@ Environment=NEWROOT=/sysroot
 Type=oneshot
 ExecStart=-/bin/dracut-cmdline
 StandardInput=null
-StandardOutput=syslog
-StandardError=syslog+console
+StandardError=journal+console
 KillMode=process
 RemainAfterExit=yes
 

@@ -40,19 +40,48 @@ str_ends() { [ "${1%*"$2"}" != "$1" ]; }
 # find a binary.  If we were not passed the full path directly,
 # search in the usual places to find the binary.
 find_binary() {
-    if [[ -z ${1##/*} ]]; then
-        if [[ -x $1 ]] || { [[ "$1" == *.so* ]] && ldd "$1" &>/dev/null; };  then
-            printf "%s\n" "$1"
+    local _delim
+    local _path
+    local l
+    local p
+    [[ -z ${1##/*} ]] || _delim="/"
+
+    if [[ "$1" == *.so* ]]; then
+        for l in libdirs ; do
+            _path="${l}${_delim}${1}"
+            if { $DRACUT_LDD "${dracutsysrootdir}${_path}" &>/dev/null; };  then
+                printf "%s\n" "${_path}"
+                return 0
+            fi
+        done
+        _path="${_delim}${1}"
+        if { $DRACUT_LDD "${dracutsysrootdir}${_path}" &>/dev/null; }; then
+            printf "%s\n" "${_path}"
             return 0
         fi
     fi
+    if [[ "$1" == */* ]]; then
+        _path="${_delim}${1}"
+        if [[ -L ${dracutsysrootdir}${_path} ]] || [[ -x ${dracutsysrootdir}${_path} ]]; then
+            printf "%s\n" "${_path}"
+            return 0
+        fi
+    fi
+    for p in $DRACUT_PATH ; do
+        _path="${p}${_delim}${1}"
+        if [[ -L ${dracutsysrootdir}${_path} ]] || [[ -x ${dracutsysrootdir}${_path} ]];  then
+            printf "%s\n" "${_path}"
+            return 0
+        fi
+    done
 
+    [[ -n "$dracutsysrootdir" ]] && return 1
     type -P "${1##*/}"
 }
 
 ldconfig_paths()
 {
-    ldconfig -pN 2>/dev/null | grep -E -v '/(lib|lib64|usr/lib|usr/lib64)/[^/]*$' | sed -n 's,.* => \(.*\)/.*,\1,p' | sort | uniq
+    $DRACUT_LDCONFIG ${dracutsysrootdir:+-r ${dracutsysrootdir} -f /etc/ld.so.conf} -pN 2>/dev/null | grep -E -v '/(lib|lib64|usr/lib|usr/lib64)/[^/]*$' | sed -n 's,.* => \(.*\)/.*,\1,p' | sort | uniq
 }
 
 # Version comparision function.  Assumes Linux style version scheme.
@@ -174,9 +203,6 @@ convert_abs_rel() {
 # $ get_fs_env /dev/sda2
 # ext4
 get_fs_env() {
-    local evalstr
-    local found
-
     [[ $1 ]] || return
     unset ID_FS_TYPE
     ID_FS_TYPE=$(blkid -u filesystem -o export -- "$1" \
@@ -199,7 +225,7 @@ get_fs_env() {
 # $ get_maj_min /dev/sda2
 # 8:2
 get_maj_min() {
-    local _maj _min _majmin
+    local _majmin
     _majmin="$(stat -L -c '%t:%T' "$1" 2>/dev/null)"
     printf "%s" "$((0x${_majmin%:*})):$((0x${_majmin#*:}))"
 }
@@ -595,6 +621,12 @@ check_vol_slaves_all() {
     # strip space
     _vg="${_vg//[[:space:]]/}"
     if [[ $_vg ]]; then
+        # when filter/global_filter is set, lvm may be failed
+        lvm lvs --noheadings -o vg_name $_vg 2>/dev/null 1>/dev/null
+        if [ $? -ne 0 ]; then
+             return 1
+        fi
+
         for _pv in $(lvm vgs --noheadings -o pv_name "$_vg" 2>/dev/null)
         do
             check_block_and_slaves_all $1 $(get_maj_min $_pv)
@@ -630,9 +662,9 @@ check_kernel_config()
 {
     local _config_opt="$1"
     local _config_file
-    [[ -f /boot/config-$kernel ]] \
+    [[ -f $dracutsysrootdir/boot/config-$kernel ]] \
         && _config_file="/boot/config-$kernel"
-    [[ -f /lib/modules/$kernel/config ]] \
+    [[ -f $dracutsysrootdir/lib/modules/$kernel/config ]] \
         && _config_file="/lib/modules/$kernel/config"
 
     # no kernel config file, so return true
@@ -676,17 +708,6 @@ get_ucode_file ()
     fi
 }
 
-# Get currently loaded modules
-# sorted, and delimited by newline
-get_loaded_kernel_modules ()
-{
-    local modules=( )
-    while read _module _size _used _used_by; do
-        modules+=( "$_module" )
-    done <<< "$(lsmod | sed -n '1!p')"
-    printf '%s\n' "${modules[@]}" | sort
-}
-
 # Not every device in /dev/mapper should be examined.
 # If it is an LVM device, touch only devices which have /dev/VG/LV symlink.
 lvm_internal_dev() {
@@ -706,4 +727,162 @@ btrfs_devs() {
         _dev=${_dev%,}
         printf -- "%s\n" "$_dev"
         done
+}
+
+iface_for_remote_addr() {
+    set -- $(ip -o route get to "$1")
+    echo $3
+}
+
+local_addr_for_remote_addr() {
+    set -- $(ip -o route get to "$1")
+    echo $5
+}
+
+peer_for_addr() {
+    local addr=$1
+    local qtd
+
+    # quote periods in IPv4 address
+    qtd=${addr//./\\.}
+    ip -o addr show | \
+        sed -n 's%^.* '"$qtd"' peer \([0-9a-f.:]\{1,\}\(/[0-9]*\)\?\).*$%\1%p'
+}
+
+netmask_for_addr() {
+    local addr=$1
+    local qtd
+
+    # quote periods in IPv4 address
+    qtd=${addr//./\\.}
+    ip -o addr show | sed -n 's,^.* '"$qtd"'/\([0-9]*\) .*$,\1,p'
+}
+
+gateway_for_iface() {
+    local ifname=$1 addr=$2
+
+    case $addr in
+        *.*) proto=4;;
+        *:*) proto=6;;
+        *)   return;;
+    esac
+    ip -o -$proto route show | \
+        sed -n "s/^default via \([0-9a-z.:]\{1,\}\) dev $ifname .*\$/\1/p"
+}
+
+# This works only for ifcfg-style network configuration!
+bootproto_for_iface() {
+    local ifname=$1
+    local dir
+
+    # follow ifcfg settings for boot protocol
+    for dir in network-scripts network; do
+        [ -f "/etc/sysconfig/$dir/ifcfg-$ifname" ] && {
+            sed -n "s/BOOTPROTO=[\"']\?\([[:alnum:]]\{1,\}\)[\"']\?.*\$/\1/p" \
+                "/etc/sysconfig/$dir/ifcfg-$ifname"
+            return
+        }
+    done
+}
+
+is_unbracketed_ipv6_address() {
+    strglob "$1" '*:*' && ! strglob "$1" '\[*:*\]'
+}
+
+# Create an ip= string to set up networking such that the given
+# remote address can be reached
+ip_params_for_remote_addr() {
+    local remote_addr=$1
+    local ifname local_addr peer netmask= gateway ifmac
+
+    [[ $remote_addr ]] || return 1
+    ifname=$(iface_for_remote_addr "$remote_addr")
+    [[ $ifname ]] || {
+        berror "failed to determine interface to connect to $remote_addr"
+        return 1
+    }
+
+    # ifname clause to bind the interface name to a MAC address
+    if [ -d "/sys/class/net/$ifname/bonding" ]; then
+        dinfo "Found bonded interface '${ifname}'. Make sure to provide an appropriate 'bond=' cmdline."
+    elif [ -e "/sys/class/net/$ifname/address" ] ; then
+        ifmac=$(cat "/sys/class/net/$ifname/address")
+        [[ $ifmac ]] && printf 'ifname=%s:%s ' "${ifname}" "${ifmac}"
+    fi
+
+    bootproto=$(bootproto_for_iface "$ifname")
+    case $bootproto in
+        dhcp|dhcp6|auto6) ;;
+        dhcp4)
+            bootproto=dhcp;;
+        static*|"")
+            bootproto=;;
+        *)
+            derror "bootproto \"$bootproto\" is unsupported by dracut, trying static configuration"
+            bootproto=;;
+    esac
+    if [[ $bootproto ]]; then
+        printf 'ip=%s:%s ' "${ifname}" "${bootproto}"
+    else
+        local_addr=$(local_addr_for_remote_addr "$remote_addr")
+        [[ $local_addr ]] || {
+            berror "failed to determine local address to connect to $remote_addr"
+            return 1
+        }
+        peer=$(peer_for_addr "$local_addr")
+        # Set peer or netmask, but not both
+        [[ $peer ]] || netmask=$(netmask_for_addr "$local_addr")
+        gateway=$(gateway_for_iface "$ifname" "$local_addr")
+        # Quote IPv6 addresses with brackets
+        is_unbracketed_ipv6_address "$local_addr" && local_addr="[$local_addr]"
+        is_unbracketed_ipv6_address "$peer" && peer="[$peer]"
+        is_unbracketed_ipv6_address "$gateway" && gateway="[$gateway]"
+        printf 'ip=%s:%s:%s:%s::%s:none ' \
+               "${local_addr}" "${peer}" "${gateway}" "${netmask}" "${ifname}"
+    fi
+
+}
+
+# block_is_nbd <maj:min>
+# Check whether $1 is an nbd device
+block_is_nbd() {
+    [[ -b /dev/block/$1 && $1 == 43:* ]]
+}
+
+# block_is_iscsi <maj:min>
+# Check whether $1 is an nbd device
+block_is_iscsi() {
+    local _dir
+    local _dev=$1
+    [[ -L "/sys/dev/block/$_dev" ]] || return
+    _dir="$(readlink -f "/sys/dev/block/$_dev")" || return
+    until [[ -d "$_dir/sys" || -d "$_dir/iscsi_session" ]]; do
+        _dir="$_dir/.."
+    done
+    [[ -d "$_dir/iscsi_session" ]]
+}
+
+# block_is_fcoe <maj:min>
+# Check whether $1 is an FCoE device
+# Will not work for HBAs that hide the ethernet aspect
+# completely and present a pure FC device
+block_is_fcoe() {
+    local _dir
+    local _dev=$1
+    [[ -L "/sys/dev/block/$_dev" ]] || return
+    _dir="$(readlink -f "/sys/dev/block/$_dev")"
+    until [[ -d "$_dir/sys" ]]; do
+        _dir="$_dir/.."
+        if [[ -d "$_dir/subsystem" ]]; then
+            subsystem=$(basename $(readlink $_dir/subsystem))
+            [[ $subsystem == "fcoe" ]] && return 0
+        fi
+    done
+    return 1
+}
+
+# block_is_netdevice <maj:min>
+# Check whether $1 is a net device
+block_is_netdevice() {
+    block_is_nbd "$1" || block_is_iscsi "$1" || block_is_fcoe "$1"
 }

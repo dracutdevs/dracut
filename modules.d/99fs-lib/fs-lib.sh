@@ -44,22 +44,22 @@ fsck_able() {
             ;;
         ext?)
             type e2fsck >/dev/null 2>&1 &&
-            _drv="_drv=e2fsck fsck_drv_com" &&
+            _drv="fsck_drv_com e2fsck" &&
             return 0
             ;;
         f2fs)
 	    type fsck.f2fs >/dev/null 2>&1 &&
-	    _drv="_drv=fsck.f2fs fsck_drv_com" &&
+	    _drv="fsck_drv_com fsck.f2fs" &&
 	    return 0
 	    ;;
         jfs)
             type jfs_fsck >/dev/null 2>&1 &&
-            _drv="_drv=jfs_fsck fsck_drv_com" &&
+            _drv="fsck_drv_com jfs_fsck" &&
             return 0
             ;;
         reiserfs)
             type reiserfsck >/dev/null 2>&1 &&
-            _drv="_drv=reiserfsck fsck_drv_com" &&
+            _drv="fsck_drv_com reiserfsck" &&
             return 0
             ;;
         btrfs)
@@ -70,12 +70,12 @@ fsck_able() {
             ;;
         nfs*)
             # nfs can be a nop, returning success
-            _drv="_drv=none :" &&
+            _drv=":" &&
             return 0
             ;;
         *)
             type fsck >/dev/null 2>&1 &&
-            _drv="_drv=fsck fsck_drv_std" &&
+            _drv="fsck_drv_std fsck" &&
             return 0
             ;;
     esac
@@ -97,6 +97,7 @@ fsck_drv_btrfs() {
 
 # common code for checkers that follow usual subset of options and return codes
 fsck_drv_com() {
+    local _drv="$1"
     local _ret
     local _out
 

@@ -25,10 +25,32 @@ depends() {
 # called by dracut
 installkernel() {
     hostonly="" instmods drbg
-    arch=$(arch)
-    [[ $arch == x86_64 ]] && arch=x86
-    [[ $arch == s390x ]] && arch=s390
-    instmods dm_crypt =crypto =drivers/crypto =arch/$arch/crypto
+    instmods dm_crypt
+
+    # in case some of the crypto modules moved from compiled in
+    # to module based, try to install those modules
+    # best guess
+    [[ $hostonly ]] || [[ $mount_needs ]] && {
+        # dmsetup returns s.th. like
+        # cryptvol: 0 2064384 crypt aes-xts-plain64 :64:logon:cryptsetup:....
+        dmsetup table | while read name _ _ is_crypt cipher _; do
+            [[ $is_crypt != "crypt" ]] && continue
+            # get the device name
+            name=/dev/$(dmsetup info -c --noheadings -o blkdevname ${name%:})
+            # check if the device exists as a key in our host_fs_types
+            if [[ ${host_fs_types[$name]+_} ]]; then
+                # split the cipher aes-xts-plain64 in pieces
+                _OLD_IFS=$IFS
+                IFS='-:'
+                set -- $cipher
+                IFS=$_OLD_IFS
+                # try to load the cipher part with "crypto-" prepended
+                # in non-hostonly mode
+                hostonly= instmods $(for k in "$@"; do echo "crypto-$k";done)
+            fi
+        done
+    }
+    return 0
 }
 
 # called by dracut
@@ -67,7 +89,7 @@ install() {
         inst_hook cleanup 30 "$moddir/crypt-cleanup.sh"
     fi
 
-    if [[ $hostonly ]] && [[ -f /etc/crypttab ]]; then
+    if [[ $hostonly ]] && [[ -f $dracutsysrootdir/etc/crypttab ]]; then
         # filter /etc/crypttab for the devices we need
         while read _mapper _dev _luksfile _luksoptions || [ -n "$_mapper" ]; do
             [[ $_mapper = \#* ]] && continue
@@ -91,6 +113,7 @@ install() {
             set -- ${luksoptions}
             IFS="${OLD_IFS}"
 
+            forceentry=""
             while [ $# -gt 0 ]; do
                 case $1 in
                     force)
@@ -113,11 +136,12 @@ install() {
                     fi
                 done
             fi
-        done < /etc/crypttab > $initdir/etc/crypttab
+        done < $dracutsysrootdir/etc/crypttab > $initdir/etc/crypttab
         mark_hostonly /etc/crypttab
     fi
 
     inst_simple "$moddir/crypt-lib.sh" "/lib/dracut-crypt-lib.sh"
+    inst_script "$moddir/crypt-run-generator.sh" "/sbin/crypt-run-generator"
 
     if dracut_module_included "systemd"; then
         inst_multiple -o \
@@ -128,7 +152,6 @@ install() {
                       $systemdsystemunitdir/cryptsetup.target \
                       $systemdsystemunitdir/sysinit.target.wants/cryptsetup.target \
                       systemd-ask-password systemd-tty-ask-password-agent
-        inst_script "$moddir"/crypt-run-generator.sh /sbin/crypt-run-generator
     fi
 
     dracut_need_initqueue

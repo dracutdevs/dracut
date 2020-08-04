@@ -5,7 +5,7 @@
 # called by dracut
 check() {
     # hwclock does not exist on S390(x), bail out silently then
-    local _arch=$(uname -m)
+    local _arch=${DRACUT_ARCH:-$(uname -m)}
     [ "$_arch" = "s390" -o "$_arch" = "s390x" ] && return 1
 
     [ -e /etc/localtime -a -e /etc/adjtime ] || return 1

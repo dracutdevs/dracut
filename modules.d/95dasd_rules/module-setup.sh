@@ -18,7 +18,7 @@ cmdline() {
 
 # called by dracut
 check() {
-    local _arch=$(uname -m)
+    local _arch=${DRACUT_ARCH:-$(uname -m)}
     local found=0
     local bdev
     [ "$_arch" = "s390" -o "$_arch" = "s390x" ] || return 1

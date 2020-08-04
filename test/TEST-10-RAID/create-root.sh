@@ -8,9 +8,9 @@ udevadm control --reload
 # save a partition at the beginning for future flagging purposes
 sfdisk /dev/sda <<EOF
 ,4M
-,25M
-,25M
-,25M
+,41M
+,41M
+,41M
 EOF
 udevadm settle
 mdadm --create /dev/md0 --run --auto=yes --level=5 --raid-devices=3 /dev/sda2 /dev/sda3 /dev/sda4
@@ -36,5 +36,5 @@ udevadm settle
 cryptsetup luksClose /dev/mapper/dracut_crypt_test
 udevadm settle
 eval $(udevadm info --query=env --name=/dev/md0|while read line || [ -n "$line" ]; do [ "$line" != "${line#*ID_FS_UUID*}" ] && echo $line; done;)
-{ echo "dracut-root-block-created"; echo "ID_FS_UUID=$ID_FS_UUID"; } >/dev/sda1
+{ echo "dracut-root-block-created"; echo "ID_FS_UUID=$ID_FS_UUID"; } | dd oflag=direct,dsync of=/dev/sda1
 poweroff -f

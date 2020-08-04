@@ -121,6 +121,9 @@ if ! [[ -f "$image" ]]; then
     exit 1
 fi
 
+TMPDIR="$(mktemp -d -t lsinitrd.XXXXXX)"
+trap "rm -rf '$TMPDIR'" EXIT
+
 dracutlibdirs() {
     for d in lib64/dracut lib/dracut usr/lib64/dracut usr/lib/dracut; do
         echo "$d/$1"
@@ -163,8 +166,8 @@ list_files()
 list_squash_content()
 {
     SQUASH_IMG="squash/root.img"
-    SQUASH_TMPFILE="$(mktemp -t --suffix=.root.sqsh lsinitrd.XXXXXX)"
-    trap "rm -f '$SQUASH_TMPFILE'" EXIT
+    SQUASH_TMPFILE="$TMPDIR/initrd.root.sqsh"
+
     $CAT "$image" 2>/dev/null | cpio --extract --verbose --quiet --to-stdout -- \
         $SQUASH_IMG > "$SQUASH_TMPFILE" 2>/dev/null
     if [[ -s $SQUASH_TMPFILE ]]; then
@@ -188,9 +191,43 @@ unpack_files()
     fi
 }
 
+read -N 2 bin < "$image"
+if [ "$bin" = "MZ" ]; then
+    command -v objcopy > /dev/null || { echo "Need 'objcopy' to unpack an UEFI executable."; exit 1; }
+    objcopy \
+        --dump-section .linux="$TMPDIR/vmlinuz" \
+        --dump-section .initrd="$TMPDIR/initrd.img" \
+        --dump-section .cmdline="$TMPDIR/cmdline.txt" \
+        --dump-section .osrel="$TMPDIR/osrel.txt" \
+        "$image" /dev/null
+    uefi="$image"
+    image="$TMPDIR/initrd.img"
+    [ -f "$image" ] || exit 1
+fi
 
 if (( ${#filenames[@]} <= 0 )) && [[ -z "$unpack" ]] && [[ -z "$unpackearly" ]]; then
-    echo "Image: $image: $(du -h $image | while read a b || [ -n "$a" ]; do echo $a;done)"
+    if [ -n "$uefi" ]; then
+        echo -n "initrd in UEFI: $uefi: "
+        du -h $image | while read a b || [ -n "$a" ]; do echo $a;done
+        if [ -f "$TMPDIR/osrel.txt" ]; then
+            name=$(sed -En '/^PRETTY_NAME/ s/^\w+=["'"'"']?([^"'"'"'$]*)["'"'"']?/\1/p' "$TMPDIR/osrel.txt")
+            id=$(sed -En '/^ID/ s/^\w+=["'"'"']?([^"'"'"'$]*)["'"'"']?/\1/p' "$TMPDIR/osrel.txt")
+            build=$(sed -En '/^BUILD_ID/ s/^\w+=["'"'"']?([^"'"'"'$]*)["'"'"']?/\1/p' "$TMPDIR/osrel.txt")
+            echo "OS Release: $name (${id}-${build})"
+        fi
+        if [ -f "$TMPDIR/vmlinuz" ]; then
+            version=$(strings -n 20 "$TMPDIR/vmlinuz" | sed -En '/[0-9]+\.[0-9]+\.[0-9]+/ { p; q 0 }')
+            echo "Kernel Version: $version"
+        fi
+        if [ -f "$TMPDIR/cmdline.txt" ]; then
+            echo "Command line:"
+            sed -En 's/\s+/\n/g; s/\x00/\n/; p' "$TMPDIR/cmdline.txt"
+        fi
+    else
+        echo -n "Image: $image: "
+        du -h $image | while read a b || [ -n "$a" ]; do echo $a;done
+    fi
+
     echo "========================================================================"
 fi
 
@@ -199,6 +236,8 @@ case $bin in
     $'\x71\xc7'*|070701)
         CAT="cat --"
         is_early=$(cpio --extract --verbose --quiet --to-stdout -- 'early_cpio' < "$image" 2>/dev/null)
+        # Debian mkinitramfs does not create the file 'early_cpio', so let's check if firmware files exist
+        [[ "$is_early" ]] || is_early=$(cpio --list --verbose --quiet --to-stdout -- 'kernel/*/microcode/*.bin' < "$image" 2>/dev/null)
         if [[ "$is_early" ]]; then
             if [[ -n "$unpack" ]]; then
                 # should use --unpackearly for early CPIO
@@ -270,9 +309,8 @@ if [[ $SKIP ]]; then
 fi
 
 if (( ${#filenames[@]} > 1 )); then
-    TMPFILE="$(mktemp -t --suffix=.cpio lsinitrd.XXXXXX)"
+    TMPFILE="$TMPDIR/initrd.cpio"
     $CAT "$image" 2>/dev/null > $TMPFILE
-    trap "rm -f '$TMPFILE'" EXIT
     pre_decompress()
     {
         cat $TMPFILE

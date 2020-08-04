@@ -8,6 +8,8 @@ NEWROOT=${NEWROOT:-"/sysroot"}
 
 . /lib/dracut-lib.sh
 
+mkdir -p -m 0700 /run/cryptsetup
+
 # if device name is /dev/dm-X, convert to /dev/mapper/name
 if [ "${1##/dev/dm-}" != "$1" ]; then
     device="/dev/mapper/$(dmsetup info -c --noheadings -o name "$1")"
@@ -156,9 +158,9 @@ else
 
         info "Using '$keypath' on '$keydev'"
         readkey "$keypath" "$keydev" "$device" \
-            | cryptsetup -d - $cryptsetupopts luksOpen "$device" "$luksname"
+            | cryptsetup -d - $cryptsetupopts luksOpen "$device" "$luksname" \
+            && ask_passphrase=0
         unset keypath keydev
-        ask_passphrase=0
         break
     done
 fi
