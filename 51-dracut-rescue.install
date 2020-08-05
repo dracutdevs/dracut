@@ -106,7 +106,11 @@ case "$COMMAND" in
                 echo "initrd     $BOOT_DIR/initrd"
             } > $LOADER_ENTRY
         else
-            cp -aT "${KERNEL_IMAGE%/*}/bls.conf" $LOADER_ENTRY
+            if [[ -e "${BLS_DIR}/${MACHINE_ID}-${KERNEL_VERSION}.conf" ]]; then
+                cp -aT "${BLS_DIR}/${MACHINE_ID}-${KERNEL_VERSION}.conf" $LOADER_ENTRY
+            else
+                cp -aT "${KERNEL_IMAGE%/*}/bls.conf" $LOADER_ENTRY
+            fi
             sed -i 's/'$KERNEL_VERSION'/0-rescue-'${MACHINE_ID}'/' $LOADER_ENTRY
         fi
 

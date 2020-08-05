@@ -7,11 +7,9 @@ check() {
     # if an nbd device is not somewhere in the chain of devices root is
     # mounted on, fail the hostonly check.
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        is_nbd() { [[ -b /dev/block/$1 && $1 == 43:* ]] ;}
-
         _rootdev=$(find_root_block_device)
         [[ -b /dev/block/$_rootdev ]] || return 1
-        check_block_and_slaves is_nbd "$_rootdev" || return 255
+        check_block_and_slaves block_is_nbd "$_rootdev" || return 255
     }
     require_binaries nbd-client || return 1
 

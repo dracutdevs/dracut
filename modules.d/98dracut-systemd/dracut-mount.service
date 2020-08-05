@@ -19,8 +19,7 @@ Environment=NEWROOT=/sysroot
 Type=oneshot
 ExecStart=-/bin/dracut-mount
 StandardInput=null
-StandardOutput=syslog
-StandardError=syslog+console
+StandardError=journal+console
 KillMode=process
 RemainAfterExit=yes
 

@@ -35,4 +35,9 @@ fi
 IFACES="$IFACES $DEVICE"
 echo "$IFACES" >> /tmp/net.ifaces
 
-exec ifup "$DEVICE"
+if [ -x /usr/libexec/nm-initrd-generator ]; then
+    type nm_generate_connections >/dev/null 2>&1 || . /lib/nm-lib.sh
+    nm_generate_connections
+else
+    exec ifup "$DEVICE"
+fi

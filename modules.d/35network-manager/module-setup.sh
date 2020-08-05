@@ -37,6 +37,7 @@ install() {
     inst_hook initqueue/settled 99 "$moddir/nm-run.sh"
     inst_rules 85-nm-unmanaged.rules
     inst_libdir_file "NetworkManager/$_nm_version/libnm-device-plugin-team.so"
+    inst_simple "$moddir/nm-lib.sh" "/lib/nm-lib.sh"
 
     if [[ -x "$initdir/usr/sbin/dhclient" ]]; then
         inst /usr/libexec/nm-dhcp-helper
@@ -47,8 +48,11 @@ install() {
     fi
 
     # We don't install the ifcfg files from the host automatically.
-    # But if the user chooses to include them, we pull in the machinery to read them.
-    if ! [[ -d "$initdir/etc/sysconfig/network-scripts" ]]; then
-        inst_libdir_file "NetworkManager/$_nm_version/libnm-settings-plugin-ifcfg-rh.so"
-    fi
+    # But the user might choose to include them, so we pull in the machinery to read them.
+    inst_libdir_file "NetworkManager/$_nm_version/libnm-settings-plugin-ifcfg-rh.so"
+
+    _arch=${DRACUT_ARCH:-$(uname -m)}
+
+    inst_libdir_file {"tls/$_arch/",tls/,"$_arch/",}"libnss_dns.so.*" \
+        {"tls/$_arch/",tls/,"$_arch/",}"libnss_mdns4_minimal.so.*"
 }
