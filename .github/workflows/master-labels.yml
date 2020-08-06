@@ -1,0 +1,18 @@
+# This workflow will triage pull requests for the RHEL-6 branch and 
+# apply a label based on the paths that are modified in the pull request.
+
+name: master-labeler
+on: 
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/labeler@v2
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        configuration-path: .github/master-label-triggers.yml
