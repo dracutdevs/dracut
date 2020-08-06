@@ -1,0 +1,18 @@
+# This workflow will triage pull requests for the RHEL-7 branch and 
+# apply a label based on the paths that are modified in the pull request.
+
+name: rhel7-labeler
+on: 
+  pull_request:
+    branches:
+      - RHEL-7
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/labeler@v2
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        configuration-path: .github/rhel7-label-triggers.yml
