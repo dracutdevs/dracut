@@ -570,6 +570,11 @@ parse_ifname_opts() {
             # udev requires MAC addresses to be lower case
             ifname_mac=$(echo $2:$3:$4:$5:$6:$7 | sed 'y/ABCDEF/abcdef/')
             ;;
+        21)
+            ifname_if=$1
+            # udev requires MAC addresses to be lower case
+            ifname_mac=$(echo $2:$3:$4:$5:$6:$7:$8:$9:${10}:${11}:${12}:${13}:${14}:${15}:${16}:${17}:${18}:${19}:${20}:${21} | sed 'y/ABCDEF/abcdef/')
+            ;;
         *)
             die "Invalid arguments for ifname="
             ;;
