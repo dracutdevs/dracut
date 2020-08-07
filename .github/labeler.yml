@@ -294,6 +294,3 @@ uefi-lib:
 test:
   - test/*
   - test/**/*
-
-dracut:
-  - any: ['!.github/*', '!.mkosi/*', '!install/*', '!examples/*', '!modules.d/*', '.test/*']
