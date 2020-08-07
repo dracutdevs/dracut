@@ -3,16 +3,17 @@
 
 name: master-labeler
 on: 
-  pull_request:
-    branches:
-      - master
+   schedule:
+     - cron: '*/15 * * * *'
+        branches:
+        - master
 
 jobs:
   label:
     runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/labeler@v2
-      with:
-        repo-token: "${{ secrets.GITHUB_TOKEN }}"
-        configuration-path: .github/master-label-triggers.yml
+      steps:
+       - uses: paulfantom/periodic-labeler@master
+           env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              GITHUB_REPOSITORY: ${{ github.repository }}
+              LABEL_MAPPINGS_FILE: .github/master-label-triggers.yml
