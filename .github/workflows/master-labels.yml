@@ -2,11 +2,11 @@
 # apply a label based on the paths that are modified in the pull request.
 
 name: master-labeler
-on: 
+  on: 
    schedule:
      - cron: '*/15 * * * *'
-        branches:
-        - master
+   branches:
+     - master
 
 jobs:
   label:
