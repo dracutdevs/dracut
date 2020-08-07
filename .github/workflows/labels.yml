@@ -1,17 +1,15 @@
-# This workflow will triage pull request and apply a 
-# label based on the paths that are modified in the pull request.
+name: Label the Pull Requests automatically via Cron
 
-name: master-labeler
 on:
-   schedule:
+    schedule:
         - cron: '*/15 * * * *'
 
 jobs:
     label:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-18.04
         steps:
             - uses: paulfantom/periodic-labeler@master
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GITHUB_REPOSITORY: ${{ github.repository }}
-                  LABEL_MAPPINGS_FILE: .github/master-label-triggers.yml
+                  LABEL_MAPPINGS_FILE: .github/labeler.yml
