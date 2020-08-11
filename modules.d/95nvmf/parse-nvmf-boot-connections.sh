@@ -8,8 +8,8 @@
 # Examples:
 # nvmf.hostnqn=nqn.2014-08.org.nvmexpress:uuid:37303738-3034-584d-5137-333230423843
 # nvmf.discover=rdma:192.168.1.3::4420
-# nvme.discover=tcp:192.168.1.3::4420
-# nvme.discover=tcp:192.168.1.3
+# nvmf.discover=tcp:192.168.1.3::4420
+# nvmf.discover=tcp:192.168.1.3
 # nvmf.discover=fc:auto
 #
 # Note: FC does autodiscovery, so typically there is no need to
