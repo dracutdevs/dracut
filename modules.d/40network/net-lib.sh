@@ -122,7 +122,12 @@ setup_net() {
     [ -e /tmp/dhclient.$netif.dhcpopts ] && . /tmp/dhclient.$netif.dhcpopts
     # set up resolv.conf
     [ -e /tmp/net.$netif.resolv.conf ] && \
-        awk '!array[$0]++' /tmp/net.$netif.resolv.conf > /etc/resolv.conf
+        # save existing entries
+        touch /etc/resolv.conf
+        cp /etc/resolv.conf /tmp/net.$netif.resolv.conf.orig
+        # prepend new DNS servers while making sure that each appear only once
+        cat /tmp/net.$netif.resolv.conf /tmp/net.$netif.resolv.conf.orig \
+            | awk '!array[$0]++' > /etc/resolv.conf
     [ -e /tmp/net.$netif.gw ]            && . /tmp/net.$netif.gw
 
     # add static route
