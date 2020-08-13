@@ -277,6 +277,7 @@ Creates initial ramdisk images for preloading modules
                         supported --regenerate-all)
                         images simultaneously.
   --version             Display version.
+  -g, --source-hash     Install file with list of all files and coresponding hashes
 
 If [LIST] has multiple arguments, then you have to put these in quotes.
 
@@ -371,7 +372,7 @@ rearrange_params() {
     TEMP=$(
         unset POSIXLY_CORRECT
         getopt \
-            -o "a:m:o:d:I:k:c:r:L:fvqlHhMNp" \
+            -o "a:m:o:d:I:k:c:r:L:fgvqlHhMN" \
             --long kver: \
             --long add: \
             --long force-add: \
@@ -467,6 +468,7 @@ rearrange_params() {
             --long hostonly-nics: \
             --long no-machineid \
             --long version \
+            --long source-hash \
             -- "$@"
     )
 
@@ -713,6 +715,7 @@ while :; do
             shift
             ;;
         -f | --force) force=yes ;;
+        -g | --source-hash) sourcehash=yes ;;
         --kernel-only)
             kernel_only="yes"
             no_kernel="no"

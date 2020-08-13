@@ -27,6 +27,7 @@ mandir ?= ${prefix}/share/man
 CFLAGS ?= -O2 -g -Wall -std=gnu99 -D_FILE_OFFSET_BITS=64 -Wformat -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2
 bashcompletiondir ?= ${datadir}/bash-completion/completions
 pkgconfigdatadir ?= $(datadir)/pkgconfig
+OPENSSL_LIBS ?= -DOPENSSL -lssl -lcrypto
 
 man1pages = man/lsinitrd.1
 
@@ -73,7 +74,7 @@ src/install/util.o: src/install/util.c src/install/util.h src/install/macro.h sr
 src/install/strv.o: src/install/strv.c src/install/strv.h src/install/util.h src/install/macro.h src/install/log.h
 
 src/install/dracut-install: $(DRACUT_INSTALL_OBJECTS)
-	$(CC) $(LDFLAGS) -o $@ $(DRACUT_INSTALL_OBJECTS) $(LDLIBS) $(FTS_LIBS) $(KMOD_LIBS)
+	$(CC) $(LDFLAGS) -o $@ $(DRACUT_INSTALL_OBJECTS) $(LDLIBS) $(FTS_LIBS) $(KMOD_LIBS) $(OPENSSL_LIBS)
 
 logtee: src/logtee/logtee.c
 	$(CC) $(LDFLAGS) -o $@ $<

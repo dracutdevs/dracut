@@ -19,6 +19,9 @@
 
 #define PROGRAM_VERSION_STRING "2"
 
+#define HASH_BUFF_SIZE 1024
+#define HASH_FILE "source_hash.txt"
+
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
@@ -43,6 +46,7 @@
 #include <fts.h>
 #include <regex.h>
 #include <sys/utsname.h>
+#include <openssl/evp.h>
 
 #include "log.h"
 #include "hashmap.h"
@@ -68,6 +72,7 @@ static bool arg_modalias = false;
 static bool arg_resolvelazy = false;
 static bool arg_resolvedeps = false;
 static bool arg_hostonly = false;
+static bool arg_hash_source = false;
 static bool no_xattr = false;
 static char *destrootdir = NULL;
 static char *sysrootdir = NULL;
@@ -93,6 +98,8 @@ static bool arg_mod_filter_nopath = false;
 static bool arg_mod_filter_symbol = false;
 static bool arg_mod_filter_nosymbol = false;
 static bool arg_mod_filter_noname = false;
+static char *hash_file = NULL;
+FILE *hash_file_fd = NULL;
 
 static int dracut_install(const char *src, const char *dst, bool isdir, bool resolvedeps, bool hashdst);
 
@@ -740,6 +747,37 @@ static int dracut_mkdir(const char *src)
         return 0;
 }
 
+static int hash_file_md5(const char *file_path, char *dst_path)
+{
+        EVP_MD_CTX *contxt;
+        const EVP_MD *md5_struct;
+        unsigned int md5_len, bytes;
+        unsigned char buff[HASH_BUFF_SIZE], md5_value[EVP_MAX_MD_SIZE];
+
+        FILE *fd = fopen(file_path, "r");
+        if (fd == NULL) {
+                log_error("ERROR: %s can't be opened.\n", hash_file);
+                return EXIT_FAILURE;
+        }
+
+        md5_struct = EVP_md5();
+        contxt = EVP_MD_CTX_new();
+        EVP_DigestInit_ex(contxt, md5_struct, NULL);
+
+        while ((bytes = fread(buff, 1, HASH_BUFF_SIZE, fd)) != 0)
+                EVP_DigestUpdate(contxt, buff, bytes);
+
+        EVP_DigestFinal_ex(contxt, md5_value, &md5_len);
+        EVP_MD_CTX_free(contxt);
+
+        for (size_t i = 0; i < md5_len; i++)
+                fprintf(hash_file_fd, "%02x", md5_value[i]);
+        fprintf(hash_file_fd, " %s\n", dst_path);
+
+        fclose(fd);
+        return EXIT_SUCCESS;
+}
+
 static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir, bool resolvedeps, bool hashdst)
 {
         struct stat sb, db;
@@ -754,6 +792,7 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
         char *i = NULL;
         _cleanup_free_ char *src;
         _cleanup_free_ char *dst;
+        _cleanup_free_ char *dstpath = NULL;
 
         if (sysrootdirlen) {
                 if (strncmp(orig_src, sysrootdir, sysrootdirlen) == 0) {
@@ -928,6 +967,19 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
                 } else {
                         log_info("cp '%s' '%s'", fullsrcpath, fulldstpath);
                         ret += cp(fullsrcpath, fulldstpath);
+
+                        if (arg_hash_source) {
+                                /* create hash of source and save it into the file */
+                                if (dst[0] != '/') {
+                                        if (_asprintf(&dstpath, "/%s", dst) < 0) {
+                                                log_error("Out of memory!");
+                                                exit(EXIT_FAILURE);
+                                        }
+                                }
+
+                                log_info("Creating hash of '%s'", fulldstpath);
+                                ret += hash_file_md5(fulldstpath, (dstpath ?: dst));
+                        }
                 }
         }
 
@@ -995,6 +1047,7 @@ static void usage(int status)
                "  -s --mod-filter-symbol    Filter kernel modules by symbol regexp\n"
                "  -S --mod-filter-nosymbol  Exclude kernel modules by symbol regexp\n"
                "  -N --mod-filter-noname    Exclude kernel modules by name regexp\n"
+               "  -g --source-hash          Install file (/usr/lib/dracut/source_hash.txt) with list of all files and coresponding MD5 hashes"
                "\n"
                "  -v --verbose      Show more output\n"
                "     --debug        Show debug output\n"
@@ -1030,6 +1083,7 @@ static int parse_argv(int argc, char *argv[])
                 {"all", no_argument, NULL, 'a'},
                 {"module", no_argument, NULL, 'm'},
                 {"fips", no_argument, NULL, 'f'},
+                {"source-hash", no_argument, NULL, 'g'},
                 {"destrootdir", required_argument, NULL, 'D'},
                 {"sysrootdir", required_argument, NULL, 'r'},
                 {"logdir", required_argument, NULL, 'L'},
@@ -1045,7 +1099,7 @@ static int parse_argv(int argc, char *argv[])
                 {NULL, 0, NULL, 0}
         };
 
-        while ((c = getopt_long(argc, argv, "madfhlL:oD:Hr:Rp:P:s:S:N:v", options, NULL)) != -1) {
+        while ((c = getopt_long(argc, argv, "madfghlL:oD:Hr:Rp:P:s:S:N:v", options, NULL)) != -1) {
                 switch (c) {
                 case ARG_VERSION:
                         puts(PROGRAM_VERSION_STRING);
@@ -1134,6 +1188,9 @@ static int parse_argv(int argc, char *argv[])
                         break;
                 case 'f':
                         arg_hmac = true;
+                        break;
+                case 'g':
+                        arg_hash_source = true;
                         break;
                 case 'H':
                         arg_hostonly = true;
@@ -1970,6 +2027,8 @@ int main(int argc, char **argv)
         char *i;
         char *path = NULL;
         char *env_no_xattr = NULL;
+        char *libdir;
+        struct stat sb;
 
         log_set_target(LOG_TARGET_CONSOLE);
         log_parse_environment();
@@ -2079,6 +2138,47 @@ int main(int argc, char **argv)
                 }
         }
 
+        if (arg_hash_source) {
+                r = asprintf(&libdir, "%s/usr/lib/dracut", destrootdir);
+                if (r < 0) {
+                        log_error("Out of memory!");
+                        r = EXIT_FAILURE;
+                        goto finish;
+                }
+
+                r = faccessat(AT_FDCWD, libdir, F_OK, AT_SYMLINK_NOFOLLOW);
+                if (r != 0) {
+                        if (errno != ENOENT) {
+                                log_error("ERROR: lstat '%s': %m", libdir);
+                                r = EXIT_FAILURE;
+                                goto finish;
+                        } else {
+                                log_info("mkdir '%s'", libdir);
+                                r = dracut_mkdir(libdir);
+                                if (r != 0) {
+                                        r = EXIT_FAILURE;
+                                        goto finish;
+
+                                hashmap_put(items, i, i);
+                        }
+                        }
+                }
+
+                r = asprintf(&hash_file, "%s/%s", libdir, HASH_FILE);
+                if (r < 0) {
+                        log_error("Out of memory!");
+                        r = EXIT_FAILURE;
+                        goto finish;
+                }
+
+                hash_file_fd = fopen(hash_file, "a");
+                if (hash_file_fd == NULL) {
+                        log_error("ERROR: %s can't be opened.\n", hash_file);
+                        r = EXIT_FAILURE;
+                        goto finish;
+                }
+        }
+
         if (arg_module) {
                 r = install_modules(argc - optind, &argv[optind]);
         } else if (arg_resolvelazy) {
@@ -2096,6 +2196,9 @@ int main(int argc, char **argv)
 finish:
         if (logfile_f)
                 fclose(logfile_f);
+
+        if (hash_file_fd)
+                fclose(hash_file_fd);
 
         while ((i = hashmap_steal_first(modules_loaded)))
                 item_free(i);

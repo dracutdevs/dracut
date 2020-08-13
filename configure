@@ -151,6 +151,7 @@ enable_dracut_cpio ?= ${enable_dracut_cpio}
 bindir ?= ${bindir:-${prefix}/bin}
 KMOD_CFLAGS ?= $(${PKG_CONFIG} --cflags " libkmod >= 23 ")
 KMOD_LIBS ?= $(${PKG_CONFIG} --libs " libkmod >= 23 ")
+OPENSSL_LIBS ?= $(${PKG_CONFIG} --libs " openssl >= 1.1.0 ")
 FTS_LIBS ?= ${FTS_LIBS}
 EOF
 

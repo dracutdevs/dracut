@@ -71,6 +71,7 @@ Requires: kmod
 Requires: sed
 Requires: xz
 Requires: gzip
+Requires: openssl-devel >= 1.1.0
 
 %if 0%{?fedora} || 0%{?rhel}
 Recommends: memstrack
