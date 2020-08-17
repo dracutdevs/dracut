@@ -242,6 +242,7 @@ Creates initial ramdisk images for preloading modules
   --kernel-image [FILE] location of the kernel image
   --regenerate-all      Regenerate all initramfs images at the default location
                         for the kernel versions found on the system
+  --version             Display version
 
 If [LIST] has multiple arguments, then you have to put these in quotes.
 
@@ -250,6 +251,14 @@ For example:
     # dracut --add-drivers "module1 module2"  ...
 
 EOF
+}
+
+long_version() {
+    [[ $dracutbasedir ]] || dracutbasedir=$dracutsysrootdir/usr/lib/dracut
+    if [[ -f $dracutbasedir/dracut-version.sh ]]; then
+        . $dracutbasedir/dracut-version.sh
+    fi
+    echo "dracut $DRACUT_VERSION"
 }
 
 # Fills up host_devs stack variable and makes sure there are no duplicates
@@ -416,6 +425,7 @@ rearrange_params()
         --long no-hostonly-i18n \
         --long hostonly-i18n \
         --long no-machineid \
+        --long version \
         -- "$@")
 
     if (( $? != 0 )); then
@@ -616,6 +626,7 @@ while :; do
                        kernel_image_l="$2";            PARMS_TO_STORE+=" '$2'"; shift;;
         --no-machineid)
                        machine_id_l="no";;
+        --version)     long_version; exit 1 ;;
         --) shift; break;;
 
         *)  # should not even reach this point
