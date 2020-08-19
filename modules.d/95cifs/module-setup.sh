@@ -25,11 +25,11 @@ depends() {
 installkernel() {
     instmods cifs ipv6
     # hash algos
-    instmods md4 md5 sha256
+    instmods md4 md5 sha256 sha512
     # ciphers
-    instmods aes arc4 des ecb
+    instmods aes arc4 des ecb gcm aead2
     # macs
-    instmods hmac cmac
+    instmods hmac cmac ccm
 }
 
 # called by dracut
