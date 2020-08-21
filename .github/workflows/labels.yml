@@ -1,0 +1,15 @@
+name: Label the Pull Requests automatically via Cron
+
+on:
+    schedule:
+        - cron: '*/15 * * * *'
+
+jobs:
+    label:
+        runs-on: ubuntu-18.04
+        steps:
+            - uses: paulfantom/periodic-labeler@master
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_REPOSITORY: ${{ github.repository }}
+                  LABEL_MAPPINGS_FILE: .github/labeler.yml

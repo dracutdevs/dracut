@@ -16,7 +16,7 @@ echo server: $server
 echo path: $path
 echo options: $options
 
-mount.cifs //$server/$path $NEWROOT -o $options && { [ -e /dev/root ] || ln -s null /dev/root ; }
+mount.cifs "//$server/$path" "$NEWROOT" -o "$options" && { [ -e /dev/root ] || ln -s null /dev/root ; }
 
 # inject new exit_if_exists
 echo 'settle_exit_if_exists="--exit-if-exists=/dev/root"; rm -f -- "$job"' > $hookdir/initqueue/cifs.sh

@@ -183,7 +183,7 @@ for i in $DRACUT_INSTALL ; do
     DRINSTALLPARTS=$(($DRINSTALLPARTS+1))
 done
 
-if [[ $DRINSTALLPARTS = 1 ]] && ! [[ -x $DRACUT_INSTALL ]]; then
+if [[ $DRINSTALLPARTS = 1 ]] && ! command -v "$DRACUT_INSTALL" > /dev/null 2>&1 ; then
     dfatal "dracut-install not found!"
     exit 10
 fi

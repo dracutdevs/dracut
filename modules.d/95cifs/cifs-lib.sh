@@ -30,5 +30,5 @@ cifs_to_var() {
     if [ ! "$cifsuser" -o ! "$cifspass" ]; then
 	die "For CIFS support you need to specify a cifsuser and cifspass either in the cifsuser and cifspass commandline parameters or in the root= CIFS URL."
     fi
-    options="user=$cifsuser,pass=$cifspass"
+    options="user=$cifsuser,pass=$cifspass,$(getarg rootflags=)"
 }

@@ -36,7 +36,7 @@ cmdline() {
         eval $(dmsetup splitname --nameprefixes --noheadings --rows "$dev" 2>/dev/null)
         [[ ${DM_VG_NAME} ]] && [[ ${DM_LV_NAME} ]] || return 1
         if ! [[ ${_activated[${DM_VG_NAME}/${DM_LV_NAME}]} ]]; then
-            printf " rd.lvm.lv=%s\n" "${DM_VG_NAME}/${DM_LV_NAME} "
+            printf " rd.lvm.lv=%s " "${DM_VG_NAME}/${DM_LV_NAME} "
             _activated["${DM_VG_NAME}/${DM_LV_NAME}"]=1
         fi
     done
