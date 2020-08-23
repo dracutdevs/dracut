@@ -1731,7 +1731,7 @@ fi
 if [[ $do_strip = yes ]] ; then
     # Prefer strip from elfutils for package size
     declare strip_cmd=$(command -v eu-strip)
-    test -z "$strip_cmd" && strip_cmd="strip"
+    [ -z "$strip_cmd" ] && strip_cmd="strip"
 
     for p in $strip_cmd xargs find; do
         if ! type -P $p >/dev/null; then
@@ -1824,7 +1824,7 @@ if [[ $hostonly_cmdline == "yes" ]] ; then
         dinfo "Stored kernel commandline:"
         for conf in $initdir/etc/cmdline.d/*.conf ; do
             [ -e "$conf" ] || continue
-            dinfo "$(< $conf)"
+            dinfo "$(< "$conf")"
             _stored_cmdline=1
         done
     fi
@@ -2004,10 +2004,10 @@ umask 077
 if [[ $uefi = yes ]]; then
     if [[ $kernel_cmdline ]]; then
         echo -n "$kernel_cmdline" > "$uefi_outdir/cmdline.txt"
-    elif [[ $hostonly_cmdline = yes ]] && [ -d $initdir/etc/cmdline.d ];then
-        for conf in $initdir/etc/cmdline.d/*.conf ; do
+    elif [[ $hostonly_cmdline = yes ]] && [ -d "$initdir/etc/cmdline.d" ];then
+        for conf in "$initdir"/etc/cmdline.d/*.conf ; do
             [ -e "$conf" ] || continue
-            printf "%s " "$(< $conf)" >> "$uefi_outdir/cmdline.txt"
+            printf "%s " "$(< "$conf")" >> "$uefi_outdir/cmdline.txt"
         done
     else
         do_print_cmdline > "$uefi_outdir/cmdline.txt"
@@ -2020,7 +2020,7 @@ if [[ $uefi = yes ]]; then
     [[ -s $dracutsysrootdir/usr/lib/os-release ]] && uefi_osrelease="$dracutsysrootdir/usr/lib/os-release"
     [[ -s $dracutsysrootdir/etc/os-release ]] && uefi_osrelease="$dracutsysrootdir/etc/os-release"
     [[ -s "${dracutsysrootdir}${uefi_splash_image}" ]] && \
-        uefi_splash_image="${dracutsysroot}${uefi_splash_image}" || unset uefi_splash_image
+        uefi_splash_image="${dracutsysrootdir}${uefi_splash_image}" || unset uefi_splash_image
 
     if objcopy \
            ${uefi_osrelease:+--add-section .osrel=$uefi_osrelease --change-section-vma .osrel=0x20000} \
@@ -2100,7 +2100,7 @@ freeze_ok_for_fstype() {
 # and there's no reason to sync, and *definitely* no reason to fsfreeze.
 # Another case where this happens is rpm-ostree, which performs its own sync/fsfreeze
 # globally.  See e.g. https://github.com/ostreedev/ostree/commit/8642ef5ab3fec3ac8eb8f193054852f83a8bc4d0
-if test -d $dracutsysrootdir/run/systemd/system; then
+if [ -d "$dracutsysrootdir/run/systemd/system" ]; then
     if ! sync "$outfile" 2> /dev/null; then
         dinfo "dracut: sync operation on newly created initramfs $outfile failed"
         exit 1
@@ -2108,7 +2108,7 @@ if test -d $dracutsysrootdir/run/systemd/system; then
 
     # use fsfreeze only if we're not writing to /
     if [[ "$(stat -c %m -- "$outfile")" != "/" ]] && freeze_ok_for_fstype "$outfile"; then
-        if ! $(fsfreeze -f $(dirname "$outfile") 2>/dev/null && fsfreeze -u $(dirname "$outfile") 2>/dev/null); then
+        if ! (fsfreeze -f "$(dirname "$outfile")" 2>/dev/null && fsfreeze -u "$(dirname "$outfile")" 2>/dev/null); then
             dinfo "dracut: warning: could not fsfreeze $(dirname "$outfile")"
         fi
     fi
