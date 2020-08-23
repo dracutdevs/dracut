@@ -37,7 +37,7 @@ readonly dracut_cmd="$(readlink -f $0)"
 set -o pipefail
 
 usage() {
-	[[ $sysroot_l ]] && dracutsysrootdir="$sysroot_l"
+    [[ $sysroot_l ]] && dracutsysrootdir="$sysroot_l"
     [[ $dracutbasedir ]] || dracutbasedir=$dracutsysrootdir/usr/lib/dracut
     if [[ -f $dracutbasedir/dracut-version.sh ]]; then
         . $dracutbasedir/dracut-version.sh
@@ -436,20 +436,20 @@ unset append_args_l
 unset rebuild_file
 while :
 do
-	if [ "$1" == "--" ]; then
-	    shift; break
-	fi
-	if [ "$1" == "--rebuild" ]; then
-	    append_args_l="yes"
+    if [ "$1" == "--" ]; then
+        shift; break
+    fi
+    if [ "$1" == "--rebuild" ]; then
+        append_args_l="yes"
             rebuild_file=$2
             if [ ! -e $rebuild_file ]; then
                 echo "Image file '$rebuild_file', for rebuild, does not exist!"
                 exit 1
             fi
             abs_rebuild_file=$(readlink -f "$rebuild_file") && rebuild_file="$abs_rebuild_file"
-	    shift; continue
-	fi
-	shift
+        shift; continue
+    fi
+    shift
 done
 
 # get output file name and kernel version from command line arguments
@@ -944,15 +944,15 @@ case "${drivers_dir}" in
     ''|*lib/modules/${kernel}|*lib/modules/${kernel}/) ;;
     *)
         [[ "$DRACUT_KMODDIR_OVERRIDE" ]] || {
-	    printf "%s\n" "dracut: -k/--kmoddir path must contain \"lib/modules\" as a parent of your kernel module directory,"
-	    printf "%s\n" "dracut: or modules may not be placed in the correct location inside the initramfs."
-	    printf "%s\n" "dracut: was given: ${drivers_dir}"
-	    printf "%s\n" "dracut: expected: $(dirname ${drivers_dir})/lib/modules/${kernel}"
-	    printf "%s\n" "dracut: Please move your modules into the correct directory structure and pass the new location,"
-	    printf "%s\n" "dracut: or set DRACUT_KMODDIR_OVERRIDE=1 to ignore this check."
-	    exit 1
-	}
-	;;
+            printf "%s\n" "dracut: -k/--kmoddir path must contain \"lib/modules\" as a parent of your kernel module directory,"
+            printf "%s\n" "dracut: or modules may not be placed in the correct location inside the initramfs."
+            printf "%s\n" "dracut: was given: ${drivers_dir}"
+            printf "%s\n" "dracut: expected: $(dirname ${drivers_dir})/lib/modules/${kernel}"
+            printf "%s\n" "dracut: Please move your modules into the correct directory structure and pass the new location,"
+            printf "%s\n" "dracut: or set DRACUT_KMODDIR_OVERRIDE=1 to ignore this check."
+            exit 1
+        }
+        ;;
 esac
 
 readonly TMPDIR="$(realpath -e "$tmpdir")"
@@ -1993,7 +1993,7 @@ fi
 
 if (( maxloglvl >= 5 )) && (( verbosity_mod_l >= 0 )); then
     if [[ $allowlocal ]]; then
-	"$dracutbasedir/lsinitrd.sh" "${DRACUT_TMPDIR}/initramfs.img"| ddebug
+        "$dracutbasedir/lsinitrd.sh" "${DRACUT_TMPDIR}/initramfs.img"| ddebug
     else
         lsinitrd "${DRACUT_TMPDIR}/initramfs.img"| ddebug
     fi
