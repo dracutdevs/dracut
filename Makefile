@@ -21,6 +21,7 @@ mandir ?= ${prefix}/share/man
 CFLAGS ?= -O2 -g -Wall -std=gnu99 -D_FILE_OFFSET_BITS=64 -Wformat -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2
 bashcompletiondir ?= ${datadir}/bash-completion/completions
 pkgconfigdatadir ?= $(datadir)/pkgconfig
+dbusdir ?= $(datadir)/dbus-1
 
 man1pages = lsinitrd.1
 
@@ -186,6 +187,7 @@ endif
 	install -m 0644 lsinitrd-bash-completion.sh $(DESTDIR)${bashcompletiondir}/lsinitrd
 	mkdir -p $(DESTDIR)${pkgconfigdatadir}
 	install -m 0644 dracut.pc $(DESTDIR)${pkgconfigdatadir}/dracut.pc
+        mkdir -p $(DESTDIR)${dbusdir}
 
 dracut-version.sh:
 	@rm -f dracut-version.sh

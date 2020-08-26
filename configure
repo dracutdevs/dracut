@@ -48,7 +48,8 @@ while (($# > 0)); do
         --infodir) read_arg infodir "$@" || shift;;
         --systemdsystemunitdir) read_arg systemdsystemunitdir "$@" || shift;;
         --bashcompletiondir) read_arg bashcompletiondir "$@" || shift;;
-        *) echo "Ignoring unknown option '$1'";;
+        --dbusdir) read_arg dbusdir "$@" || shift;;
+	*) echo "Ignoring unknown option '$1'";;
     esac
     shift
 done
@@ -124,6 +125,7 @@ EOF
     [[ $infodir ]] && echo "infodir ?= ${infodir}"
     [[ $systemdsystemunitdir ]] && echo "systemdsystemunitdir ?= ${systemdsystemunitdir}"
     [[ $bashcompletiondir ]] && echo "bashcompletiondir ?= ${bashcompletiondir}"
+    [[ $dbusdir ]] && echo "dbusdir ?= ${dbusdir}"
 } >> Makefile.inc.$$
 
 mv Makefile.inc.$$ Makefile.inc
