@@ -1,5 +1,5 @@
 ---
-name: \U0001F4D6 Documentation
+name: "\U0001F4D6 Documentation"
 about: Suggest an improvement for documentation in Dracut
 labels: 'documents'
 ---
