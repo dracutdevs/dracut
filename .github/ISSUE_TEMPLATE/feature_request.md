@@ -1,5 +1,5 @@
 ---
-name: "\U0002728 Feature Request"
+name: "\U00002728 Feature Request"
 about: A request for enhancement in Dracut
 labels: 'enhancement'
 ---
