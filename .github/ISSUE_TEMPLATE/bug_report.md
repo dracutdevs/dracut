@@ -1,5 +1,5 @@
 ---
-name: \U0001F41B Bug report 
+name: "\U0001F41B Bug report"
 about: A report of an error in a recent Dracut version
 labels: 'bug'
 ---
