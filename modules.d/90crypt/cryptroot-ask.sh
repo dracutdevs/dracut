@@ -20,8 +20,11 @@ fi
 # default luksname - luks-UUID
 luksname=$2
 
+# is_keysource - ask for passphrase even if a rd.luks.key argument is set
+is_keysource=${3:-0}
+
 # number of tries
-numtries=${3:-10}
+numtries=${4:-10}
 
 # TODO: improve to support what cmdline does
 if [ -f /etc/crypttab ] && getargbool 1 rd.luks.crypttab -d -n rd_NO_CRYPTTAB; then
@@ -137,6 +140,8 @@ if [ -n "$luksfile" -a "$luksfile" != "none" -a -e "$luksfile" ]; then
     if cryptsetup --key-file "$luksfile" $cryptsetupopts luksOpen "$device" "$luksname"; then
         ask_passphrase=0
     fi
+elif [ "$is_keysource" -ne 0 ]; then
+    info "Asking for passphrase because $device is a keysource."
 else
     while [ -n "$(getarg rd.luks.key)" ]; do
         if tmp=$(getkey /tmp/luks.keys $device); then
@@ -151,7 +156,7 @@ else
             info "No key found for $device.  Will try $numtries time(s) more later."
             initqueue --unique --onetime --settled \
                 --name cryptroot-ask-$luksname \
-                $(command -v cryptroot-ask) "$device" "$luksname" "$(($numtries-1))"
+                $(command -v cryptroot-ask) "$device" "$luksname" "$is_keysource" "$(($numtries-1))"
             exit 0
         fi
         unset tmp
@@ -176,6 +181,15 @@ if [ $ask_passphrase -ne 0 ]; then
         --tty-cmd "$luks_open -T5 -t $_timeout $device $luksname"
     unset luks_open
     unset _timeout
+fi
+
+if [ "$is_keysource" -ne 0 -a ${luksname##luks-} != "$luksname" ]; then
+    luks_close="$(command -v cryptsetup) close"
+    {
+        printf -- '[ -e /dev/mapper/%s ] && ' "$luksname"
+        printf -- '%s "%s"\n' "$luks_close" "$luksname"
+    } >> "$hookdir/cleanup/31-crypt-keysource.sh"
+    unset luks_close
 fi
 
 unset device luksname luksfile
