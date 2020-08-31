@@ -3,10 +3,17 @@ dracut
 
 dracut is an event driven initramfs infrastructure.
 
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](.github/CODE_OF_CONDUCT.md) 
-[![Build Status](https://travis-ci.org/dracutdevs/dracut.svg?branch=master)](https://travis-ci.org/dracutdevs/dracut)
-[![Fedora-31](https://github.com/dracutdevs/dracut/workflows/Fedora-31/badge.svg?branch=master)](https://github.com/dracutdevs/dracut/actions?query=workflow%3AFedora-31)
-[![Fedora-32](https://github.com/dracutdevs/dracut/workflows/Fedora-32/badge.svg?branch=master)](https://github.com/dracutdevs/dracut/actions?query=workflow%3AFedora-32)
+[![Build Status](https://travis-ci.org/dracutdevs/dracut.svg?branch=master)](https://travis-ci.org/dracutdevs/dracut)<br/>
+[![Fedora-31](https://github.com/dracutdevs/dracut/workflows/Fedora-31/badge.svg?branch=master)](https://github.com/dracutdevs/dracut/actions?query=workflow%3AFedora-31)<br/>
+[![Fedora-32](https://github.com/dracutdevs/dracut/workflows/Fedora-32/badge.svg?branch=master)](https://github.com/dracutdevs/dracut/actions?query=workflow%3AFedora-32)<br/>
+[![latest packaged version(s)](https://repology.org/badge/latest-versions/dracut.svg)](https://repology.org/project/dracut/versions)<br/>
+[![Arch package](https://repology.org/badge/version-for-repo/arch/dracut.svg)](https://repology.org/project/dracut/versions)<br/>
+[![Debian Unstable package](https://repology.org/badge/version-for-repo/debian_unstable/dracut.svg)](https://repology.org/project/dracut/versions)<br/>
+[![Fedora Rawhide package](https://repology.org/badge/version-for-repo/fedora_rawhide/dracut.svg)](https://repology.org/project/dracut/versions)<br/>
+[![Gentoo package](https://repology.org/badge/version-for-repo/gentoo/dracut.svg)](https://repology.org/project/dracut/versions)<br/>
+[![openSUSE Tumbleweed package](https://repology.org/badge/version-for-repo/opensuse_tumbleweed/dracut.svg)](https://repology.org/project/dracut/versions)<br/>
+[![Packaging status](https://repology.org/badge/tiny-repos/dracut.svg)](https://repology.org/project/dracut/versions)<br/>
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](.github/CODE_OF_CONDUCT.md)
 
 dracut (the tool) is used to create an initramfs image by copying tools
 and files from an installed system and combining it with the
