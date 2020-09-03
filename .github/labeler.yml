@@ -8,7 +8,7 @@ github:
   - .github/*
   - .github/**/*
 
-dracut install:
+dracut-install:
   - install/*
   - install/**/*
 
