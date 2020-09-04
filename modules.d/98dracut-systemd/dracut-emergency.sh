@@ -14,9 +14,9 @@ export _rdshell_name="dracut" action="Boot" hook="emergency"
 _emergency_action=$(getarg rd.emergency)
 
 if getargbool 1 rd.shell -d -y rdshell || getarg rd.break -d rdbreak; then
+    source_hook "$hook"
     FSTXT="/run/dracut/fsck/fsck_help_$fstype.txt"
     RDSOSREPORT="$(rdsosreport)"
-    source_hook "$hook"
     while read _tty rest; do
         (
             echo
