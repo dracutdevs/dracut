@@ -1,0 +1,8 @@
+[Unit]
+Description=Wait NetworkManager startup complete
+
+[Path]
+PathExists=/run/NetworkManager/startup-complete
+
+[Install]
+WantedBy=sysinit.target

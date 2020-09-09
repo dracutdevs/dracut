@@ -7,3 +7,11 @@ if [ -n "$netroot" ] || [ -e /tmp/net.ifaces ]; then
 fi
 
 nm_generate_connections
+
+if [ -s /run/NetworkManager/initrd/hostname ]; then
+    cat /run/NetworkManager/initrd/hostname > /proc/sys/kernel/hostname || :
+fi
+
+if [ "$RD_DEBUG" = yes ]; then
+    sed -i "s/^level=.*/level=debug/" /etc/NetworkManager/NetworkManager.conf
+fi

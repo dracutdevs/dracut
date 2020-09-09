@@ -1,0 +1,9 @@
+[Unit]
+Description=dracut wait NetworkManager
+After=NetworkManager.service
+DefaultDependencies=no
+Conflicts=shutdown.target
+
+[Service]
+Type=simple
+ExecStart=sh -c '> /tmp/nm.done'
