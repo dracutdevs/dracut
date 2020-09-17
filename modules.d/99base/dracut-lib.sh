@@ -6,13 +6,15 @@ if [ -n "$NEWROOT" ]; then
     [ -d $NEWROOT ] || mkdir -p -m 0755 $NEWROOT
 fi
 
-if ! [ -d /run/initramfs ]; then
-    mkdir -p -m 0755 /run/initramfs/log
-    ln -sfn /run/initramfs/log /var/log
-fi
+if [ -z "$PREFIX" ]; then
+    if ! [ -d /run/initramfs ]; then
+        mkdir -p -m 0755 /run/initramfs/log
+        ln -sfn /run/initramfs/log /var/log
+    fi
 
-[ -d /run/lock ] || mkdir -p -m 0755 /run/lock
-[ -d /run/log ] || mkdir -p -m 0755 /run/log
+    [ -d /run/lock ] || mkdir -p -m 0755 /run/lock
+    [ -d /run/log ] || mkdir -p -m 0755 /run/log
+fi
 
 debug_off() {
     set +x
