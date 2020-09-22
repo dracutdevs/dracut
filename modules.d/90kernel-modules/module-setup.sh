@@ -65,6 +65,7 @@ installkernel() {
             _blockfuncs+='|dw_mc_probe|dw_mci_pltfm_register'
             instmods \
                 "=drivers/clk" \
+                "=drivers/devfreq" \
                 "=drivers/dma" \
                 "=drivers/extcon" \
                 "=drivers/gpio" \
