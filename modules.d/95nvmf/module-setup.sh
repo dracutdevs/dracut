@@ -110,12 +110,9 @@ install() {
     inst_multiple ip sed
 
     inst_multiple nvme
-    inst_multiple -o \
-        "$systemdsystemunitdir/nvm*-connect@.service" \
-        "$systemdsystemunitdir/nvm*-connect.target"
     inst_hook cmdline 99 "$moddir/parse-nvmf-boot-connections.sh"
     inst_simple "/etc/nvme/discovery.conf"
-    inst_rules /usr/lib/udev/rules.d/70-nvm*-autoconnect.rules
     inst_rules /usr/lib/udev/rules.d/71-nvmf-iopolicy-netapp.rules
+    inst_rules "$moddir/95-nvmf-initqueue.rules"
     dracut_need_initqueue
 }
