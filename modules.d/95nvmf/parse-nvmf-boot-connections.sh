@@ -3,14 +3,14 @@
 # Supported formats:
 # nvmf.hostnqn=<hostnqn>
 # nvmf.hostid=<hostid>
-# nvmf.discover=<transport>:<traddr>:<host-traddr>:<trsvcid>
+# nvmf.discover=<transport>,<traddr>,<host-traddr>,<trsvcid>
 #
 # Examples:
 # nvmf.hostnqn=nqn.2014-08.org.nvmexpress:uuid:37303738-3034-584d-5137-333230423843
-# nvmf.discover=rdma:192.168.1.3::4420
-# nvmf.discover=tcp:192.168.1.3::4420
-# nvmf.discover=tcp:192.168.1.3
-# nvmf.discover=fc:auto
+# nvmf.discover=rdma,192.168.1.3,,4420
+# nvmf.discover=tcp,192.168.1.3,,4420
+# nvmf.discover=tcp,192.168.1.3
+# nvmf.discover=fc,nn-0x200400a098d85236:pn-0x201400a098d85236,nn-0x200000109b7db455:pn-0x100000109b7db455
 #
 # Note: FC does autodiscovery, so typically there is no need to
 # specify any discover parameters for FC.
@@ -24,11 +24,6 @@ if getargbool 0 rd.nonvmf ; then
 fi
 
 initqueue --onetime modprobe --all -b -q nvme nvme_tcp nvme_core nvme_fabrics
-
-traddr="none"
-trtype="none"
-hosttraddr="none"
-trsvcid=4420
 
 validate_ip_conn() {
     if ! getargbool 0 rd.neednet ; then
@@ -59,8 +54,12 @@ validate_ip_conn() {
 }
 
 parse_nvmf_discover() {
+    traddr="none"
+    trtype="none"
+    hosttraddr="none"
+    trsvcid=4420
     OLDIFS="$IFS"
-    IFS=:
+    IFS=,
     set $1
     IFS="$OLDIFS"
 
@@ -101,7 +100,11 @@ parse_nvmf_discover() {
     if [ "$trtype" = "tcp" ]; then
         validate_ip_conn
     fi
-    echo "--transport=$trtype --traddr=$traddr --host-traddr=$hosttraddr --trsvcid=$trsvcid" >> /etc/nvme/discovery.conf
+    if [ "$trtype" = "fc" ] ; then
+        echo "--transport=$trtype --traddr=$traddr --host-traddr=$hosttraddr" >> /etc/nvme/discovery.conf
+    else
+        echo "--transport=$trtype --traddr=$traddr --host-traddr=$hosttraddr --trsvcid=$trsvcid" >> /etc/nvme/discovery.conf
+    fi
 }
 
 nvmf_hostnqn=$(getarg nvmf.hostnqn=)
@@ -122,17 +125,13 @@ done
 [ -f "/etc/nvme/hostid" ] || exit 0
 
 if [ -f "/etc/nvme/discovery.conf" ] ; then
+    /sbin/initqueue --settled --onetime --unique --name nvme-discover /usr/sbin/nvme connect-all
     if [ "$trtype" = "tcp" ] ; then
-        /sbin/initqueue --settled --onetime --unique --name nvme-discover /usr/sbin/nvme connect-all
         > /tmp/net.$ifname.did-setup
-    else
-        /sbin/initqueue --onetime --unique --name nvme-discover /usr/sbin/nvme connect-all
     fi
 else
-    if [ "$trtype" = "tcp" ] ; then
-        /sbin/initqueue --settled --onetime --unique /usr/sbin/nvme connect-all -t tcp -a $traddr -s $trsvcid
-        > /tmp/net.$ifname.did-setup
-    else
-        /sbin/initqueue --finished --unique --name nvme-fc-autoconnect echo 1 > /sys/class/fc/fc_udev_device/nvme_discovery
+    # No nvme command line arguments present, try autodiscovery
+    if [ "$trtype" = "fc" ] ; then
+        /sbin/initqueue --finished --onetime --unique --name nvme-fc-autoconnect echo 1 > /sys/class/fc/fc_udev_device/nvme_discovery
     fi
 fi
