@@ -11,6 +11,7 @@
 # nvmf.discover=tcp,192.168.1.3,,4420
 # nvmf.discover=tcp,192.168.1.3
 # nvmf.discover=fc,nn-0x200400a098d85236:pn-0x201400a098d85236,nn-0x200000109b7db455:pn-0x100000109b7db455
+# nvmf.discover=fc,auto
 #
 # Note: FC does autodiscovery, so typically there is no need to
 # specify any discover parameters for FC.
@@ -81,21 +82,25 @@ parse_nvmf_discover() {
             ;;
         *)
             warn "Invalid arguments for nvmf.discover=$1"
-            return 1
+            return 0
             ;;
     esac
     if [ "$traddr" = "none" ] ; then
         warn "traddr is mandatory for $trtype"
-        return 1;
+        return 0;
     fi
     if [ "$trtype" = "fc" ] ; then
+        if [ "$traddr" = "auto" ] ; then
+            rm /etc/nvme/discovery.conf
+            return 1
+        fi
         if [ "$hosttraddr" = "none" ] ; then
             warn "host traddr is mandatory for fc"
-            return 1
+            return 0
         fi
     elif [ "$trtype" != "rdma" ] && [ "$trtype" != "tcp" ] ; then
         warn "unsupported transport $trtype"
-        return 1
+        return 0
     fi
     if [ "$trtype" = "tcp" ]; then
         validate_ip_conn
@@ -105,6 +110,7 @@ parse_nvmf_discover() {
     else
         echo "--transport=$trtype --traddr=$traddr --host-traddr=$hosttraddr --trsvcid=$trsvcid" >> /etc/nvme/discovery.conf
     fi
+    return 0
 }
 
 nvmf_hostnqn=$(getarg nvmf.hostnqn=)
@@ -117,7 +123,7 @@ if [ -n "$nvmf_hostid" ] ; then
 fi
 
 for d in $(getargs nvmf.discover=); do
-    parse_nvmf_discover "$d"
+    parse_nvmf_discover "$d" || break
 done
 
 # Host NQN and host id are mandatory for NVMe-oF
