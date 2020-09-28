@@ -109,6 +109,8 @@ install() {
 
     inst_multiple ip sed
 
+    inst_script "${moddir}/nvmf-autoconnect.sh" /sbin/nvmf-autoconnect.sh
+
     inst_multiple nvme
     inst_hook cmdline 99 "$moddir/parse-nvmf-boot-connections.sh"
     inst_simple "/etc/nvme/discovery.conf"
