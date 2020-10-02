@@ -569,6 +569,9 @@ static int resolve_deps(const char *src)
                 if (strstr(buf, "cannot read header"))
                         break;
 
+                if (strstr(buf, "cannot be preloaded"))
+                        break;
+
                 if (strstr(buf, destrootdir))
                         break;
 
