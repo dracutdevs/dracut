@@ -203,11 +203,10 @@ cp %{SOURCE1} .
 %endif
             ${NULL}
 
-make %{?_smp_mflags}
+%make_build
 
 %install
-make %{?_smp_mflags} install \
-     DESTDIR=$RPM_BUILD_ROOT \
+%make_install %{?_smp_mflags} \
      libdir=%{_prefix}/lib
 
 echo "DRACUT_VERSION=%{version}-%{release}" > $RPM_BUILD_ROOT/%{dracutlibdir}/dracut-version.sh
