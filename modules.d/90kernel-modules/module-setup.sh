@@ -69,6 +69,7 @@ installkernel() {
                 "=drivers/dma" \
                 "=drivers/extcon" \
                 "=drivers/gpio" \
+                "=drivers/hwmon" \
                 "=drivers/hwspinlock" \
                 "=drivers/i2c/busses" \
                 "=drivers/mfd" \
