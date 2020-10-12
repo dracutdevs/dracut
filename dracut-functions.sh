@@ -889,3 +889,8 @@ block_is_fcoe() {
 block_is_netdevice() {
     block_is_nbd "$1" || block_is_iscsi "$1" || block_is_fcoe "$1"
 }
+
+# get the corresponding kernel modules of a /sys/class/*/* or/dev/* device
+get_dev_module() {
+    udevadm info -a "$1" | sed -n 's/\s*DRIVERS=="\(\S\+\)"/\1/p'
+}
