@@ -30,7 +30,8 @@ cmdline_journal() {
 }
 
 cmdline_rootfs() {
-    local _dev=/dev/block/$(find_root_block_device)
+    local _block=$(find_root_block_device)
+    local _dev=/dev/block/$_block
     local _fstype _flags _subvol
 
     # "--no-hostonly-default-device" can result in empty root_devs
@@ -38,17 +39,21 @@ cmdline_rootfs() {
         return
     fi
 
-    if [ -e $_dev ]; then
+    if [ -n "$_block" -a -b $_dev ]; then
         printf " root=%s" "$(shorten_persistent_dev "$(get_persistent_dev "$_dev")")"
-        _fstype="$(find_mp_fstype /)"
-        _flags="$(find_mp_fsopts /)"
+    fi
+    _fstype="$(find_mp_fstype /)"
+    _flags="$(find_mp_fsopts /)"
+    if [ -n "$_fstype" ]; then
         printf " rootfstype=%s" "$_fstype"
-        if [[ $use_fstab != yes ]] && [[ $_fstype = btrfs ]]; then
-            _subvol=$(findmnt -e -v -n -o FSROOT --target /) \
-		&& _subvol=${_subvol#/}
-            _flags="$_flags,${_subvol:+subvol=$_subvol}"
-        fi
-        printf " rootflags=%s" "${_flags#,}"
+    fi
+    if [[ $use_fstab != yes ]] && [[ $_fstype = btrfs ]]; then
+        _subvol=$(findmnt -e -v -n -o FSROOT --target /) \
+            && _subvol=${_subvol#/}
+        _flags="$_flags${_subvol:+,subvol=$_subvol}"
+    fi
+    if [ -n "$_flags" ]; then
+        printf " rootflags=%s" "$_flags"
     fi
 }
 
