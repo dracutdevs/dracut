@@ -526,7 +526,6 @@ check_block_and_slaves() {
     if [[ -f /sys/dev/block/$2/../dev ]] && [[ /sys/dev/block/$2/../subsystem -ef /sys/class/block ]]; then
         check_block_and_slaves $1 $(<"/sys/dev/block/$2/../dev") && return 0
     fi
-    [[ -d /sys/dev/block/$2/slaves ]] || return 1
     for _x in /sys/dev/block/$2/slaves/*; do
         [[ -f $_x/dev ]] || continue
         [[ $_x/subsystem -ef /sys/class/block ]] || continue
@@ -545,7 +544,6 @@ check_block_and_slaves_all() {
     if [[ -f /sys/dev/block/$2/../dev ]] && [[ /sys/dev/block/$2/../subsystem -ef /sys/class/block ]]; then
         check_block_and_slaves_all $1 $(<"/sys/dev/block/$2/../dev") && _ret=0
     fi
-    [[ -d /sys/dev/block/$2/slaves ]] || return 1
     for _x in /sys/dev/block/$2/slaves/*; do
         [[ -f $_x/dev ]] || continue
         [[ $_x/subsystem -ef /sys/class/block ]] || continue
