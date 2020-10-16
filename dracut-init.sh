@@ -839,7 +839,7 @@ check_module() {
     [[ $2 ]] || mods_checked_as_dep+=" $_mod "
 
     if [[ " $omit_dracutmodules " == *\ $_mod\ * ]]; then
-        dinfo "dracut module '$_mod' will not be installed, because it's in the list to be omitted!"
+        ddebug "dracut module '$_mod' will not be installed, because it's in the list to be omitted!"
         return 1
     fi
 
