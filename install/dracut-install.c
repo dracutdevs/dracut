@@ -1328,12 +1328,34 @@ static int install_all(int argc, char **argv)
         return r;
 }
 
+char *find_firmware_ext(const char* fwpath) {
+        const char* exts[] = { "", ".gz", ".bz2", ".xz", ".lzma", ".lzo", ".lz4", ".zst"};
+        const char **ext;
+        char *fwpath_candidate = NULL;
+        struct stat sb;
+        int r;
+
+        STRV_FOREACH(ext, exts) {
+                r = asprintf(&fwpath_candidate, "%s%s", fwpath, *ext);
+                if (r < 0) {
+                        log_error("Out of memory!");
+                        exit(EXIT_FAILURE);
+                }
+
+                if (stat(fwpath_candidate, &sb) != 0) {
+                        log_debug("stat(%s) != 0", fwpath);
+                        return fwpath_candidate;
+                }
+                free(fwpath_candidate);
+        }
+        return NULL;
+}
+
 static int install_firmware(struct kmod_module *mod)
 {
         struct kmod_list *l;
         _cleanup_kmod_module_info_free_list_ struct kmod_list *list = NULL;
         int ret;
-
         char **q;
 
         ret = kmod_module_get_info(mod, &list);
@@ -1354,9 +1376,7 @@ static int install_firmware(struct kmod_module *mod)
                 ret = -1;
                 STRV_FOREACH(q, firmwaredirs) {
                         _cleanup_free_ char *fwpath = NULL;
-                        _cleanup_free_ char *fwpath_xz = NULL;
-                        const char *fw;
-                        struct stat sb;
+                        _cleanup_free_ char *fw;
                         int r;
 
                         r = asprintf(&fwpath, "%s/%s", *q, value);
@@ -1365,18 +1385,10 @@ static int install_firmware(struct kmod_module *mod)
                                 exit(EXIT_FAILURE);
                         }
 
-                        fw = fwpath;
-                        if (stat(fwpath, &sb) != 0) {
-                                r = asprintf(&fwpath_xz, "%s.xz", fwpath);
-                                if (r < 0) {
-                                        log_error("Out of memory!");
-                                        exit(EXIT_FAILURE);
-                                }
-                                if (stat(fwpath_xz, &sb) != 0) {
-                                        log_debug("stat(%s) != 0", fwpath);
-                                        continue;
-                                }
-                                fw = fwpath_xz;
+                        fw = find_firmware_ext(fwpath);
+                        if (fw == NULL) {
+                                log_error("Could not find firmware %s", fwpath);
+                                break;
                         }
 
                         ret = dracut_install(fw, fw, false, false, true);
@@ -1865,14 +1877,17 @@ static int install_modules(int argc, char **argv)
                 } else {
                         _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
                         char *modname = argv[i];
+                        int len = strlen(modname);
 
                         if (endswith(modname, ".ko")) {
-                                int len = strlen(modname);
                                 modname[len-3]=0;
-                        }
-                        if (endswith(modname, ".ko.xz") || endswith(modname, ".ko.gz")) {
-                                int len = strlen(modname);
+                        } else if (endswith(modname, ".ko.xz") || endswith(modname, ".ko.gz")) {
                                 modname[len-6]=0;
+                        } else if (endswith(modname, ".ko.bz2") || endswith(modname, ".ko.lzo")
+                                || endswith(modname, ".ko.lz4") || endswith(modname, ".ko.zst")) {
+                                modname[len-7]=0;
+                        } else if (endswith(modname, ".ko.lzma")) {
+                                modname[len-8]=0;
                         }
                         r = kmod_module_new_from_lookup(ctx, modname, &modlist);
                         if (r < 0) {
