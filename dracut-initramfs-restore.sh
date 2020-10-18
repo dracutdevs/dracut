@@ -13,6 +13,7 @@ SKIP="$dracutbasedir/skipcpio"
 [[ -x $SKIP ]] || SKIP=cat
 
 [[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
+[[ -f "/lib/modules/${KERNEL_VERSION}/pkgbase" ]] && read PKGBASE < "/lib/modules/${KERNEL_VERSION}/pkgbase"
 
 mount -o ro /boot &>/dev/null || true
 
@@ -24,6 +25,8 @@ elif [[ -d /boot/loader/entries || -L /boot/loader/entries ]] \
     && [[ $MACHINE_ID ]] \
     && [[ -d /boot/${MACHINE_ID} || -L /boot/${MACHINE_ID} ]] ; then
     IMG="/boot/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
+elif [[ $PKGBASE ]] && [[ -f "/boot/initramfs-${PKGBASE}.img" ]]; then
+    IMG="/boot/initramfs-${PKGBASE}.img"
 else
     IMG="/boot/initramfs-${KERNEL_VERSION}.img"
 fi
