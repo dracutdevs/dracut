@@ -41,7 +41,6 @@ installkernel() {
         =drivers/net/team \
         =drivers/net/ethernet \
         ecb arc4 bridge stp llc ipv6 bonding 8021q ipvlan macvlan af_packet virtio_net xennet
-    hostonly="" instmods iscsi_ibft crc32c iscsi_boot_sysfs
 }
 
 # called by dracut
