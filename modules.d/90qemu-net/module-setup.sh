@@ -17,5 +17,5 @@ check() {
 # called by dracut
 installkernel() {
     # qemu specific modules
-    hostonly='' instmods virtio_net e1000 8139cp pcnet32 e100 ne2k_pci
+    hostonly=$(optional_hostonly) instmods virtio_net e1000 8139cp pcnet32 e100 ne2k_pci
 }
