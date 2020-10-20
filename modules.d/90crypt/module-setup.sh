@@ -151,6 +151,8 @@ install() {
                       $systemdsystemunitdir/systemd-ask-password-console.service \
                       $systemdsystemunitdir/cryptsetup.target \
                       $systemdsystemunitdir/sysinit.target.wants/cryptsetup.target \
+                      $systemdsystemunitdir/initrd-cryptsetup.target \
+                      $systemdsystemunitdir/sysinit.target.wants/initrd-cryptsetup.target \
                       systemd-ask-password systemd-tty-ask-password-agent
     fi
 
