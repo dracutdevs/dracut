@@ -2,10 +2,15 @@
 
 # called by dracut
 check() {
-    if [[ $hostonly ]] || [[ $mount_needs ]]; then
+    if [[ $hostonly ]]; then
+        return 255
+    fi
+
+    if [[ $mount_needs ]]; then
         is_qemu_virtualized && return 0
         return 255
     fi
+
     return 0
 }
 
