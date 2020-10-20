@@ -35,8 +35,9 @@ installkernel() {
     install_block_modules () {
         instmods \
             scsi_dh_rdac scsi_dh_emc scsi_dh_alua \
+            =drivers/usb/storage \
             =ide nvme vmd \
-            virtio_blk
+            virtio_blk virtio_scsi
 
         dracut_instmods -o -s "${_blockfuncs}" "=drivers"
     }
@@ -48,7 +49,6 @@ installkernel() {
             ohci-hcd ohci-pci \
             uhci-hcd \
             xhci-hcd xhci-pci xhci-plat-hcd \
-            "=drivers/pinctrl" \
             ${NULL}
 
         hostonly=$(optional_hostonly) instmods \
@@ -56,15 +56,15 @@ installkernel() {
             "=drivers/tty/serial" \
             "=drivers/input/serio" \
             "=drivers/input/keyboard" \
-            "=drivers/usb/storage" \
             "=drivers/pci/host" \
             "=drivers/pci/controller" \
+            "=drivers/pinctrl" \
             ${NULL}
 
         instmods \
             yenta_socket \
             atkbd i8042 usbhid firewire-ohci pcmcia hv-vmbus \
-            virtio virtio_ring virtio_pci virtio_scsi pci_hyperv \
+            virtio virtio_ring virtio_pci pci_hyperv \
             "=drivers/pcmcia"
 
         if [[ "${DRACUT_ARCH:-$(uname -m)}" == arm* || "${DRACUT_ARCH:-$(uname -m)}" == aarch64 ]]; then
