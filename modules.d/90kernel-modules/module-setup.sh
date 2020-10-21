@@ -79,6 +79,7 @@ installkernel() {
                 "=drivers/hwmon" \
                 "=drivers/hwspinlock" \
                 "=drivers/i2c/busses" \
+                "=drivers/memory" \
                 "=drivers/mfd" \
                 "=drivers/mmc/core" \
                 "=drivers/phy" \
