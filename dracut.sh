@@ -175,6 +175,8 @@ Creates initial ramdisk images for preloading modules
   --hostonly-i18n       Install only needed keyboard and font files according
                         to the host configuration (default).
   --no-hostonly-i18n    Install all keyboard and font files available.
+  --hostonly-nics [LIST]
+                        Only enable listed NICs in the initramfs.
   --persistent-policy [POLICY]
                         Use [POLICY] to address disks and partitions.
                         POLICY can be any directory name found in /dev/disk.
@@ -424,6 +426,7 @@ rearrange_params()
         --long kernel-image: \
         --long no-hostonly-i18n \
         --long hostonly-i18n \
+        --long hostonly-nics: \
         --long no-machineid \
         --long version \
         -- "$@")
@@ -587,6 +590,8 @@ while :; do
                        hostonly_cmdline_l="yes" ;;
         --hostonly-i18n)
                        i18n_install_all_l="no" ;;
+        --hostonly-nics)
+                       hostonly_nics_l+=("$2");           PARMS_TO_STORE+=" '$2'"; shift;;
         --no-hostonly-i18n)
                        i18n_install_all_l="yes" ;;
         --no-hostonly-cmdline)
@@ -755,6 +760,7 @@ unset NPATH
 (( ${#fstab_lines_l[@]} )) && fstab_lines+=( "${fstab_lines_l[@]}" )
 (( ${#install_items_l[@]} )) && install_items+=" ${install_items_l[@]} "
 (( ${#install_optional_items_l[@]} )) && install_optional_items+=" ${install_optional_items_l[@]} "
+(( ${#hostonly_nics_l[@]} )) && hostonly_nics+=" ${hostonly_nics_l[@]} "
 
 # these options override the stuff in the config file
 (( ${#dracutmodules_l[@]} )) && dracutmodules="${dracutmodules_l[@]}"
