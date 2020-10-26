@@ -674,6 +674,11 @@ check_kernel_config()
     return 1
 }
 
+# 0 if the kernel module is either built-in or available
+# 1 if the kernel module is not enabled
+check_kernel_module() {
+    modprobe -S $kernel --dry-run $1 &>/dev/null || return 1
+}
 
 # get_cpu_vendor
 # Only two values are returned: AMD or Intel

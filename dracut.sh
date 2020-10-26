@@ -1852,17 +1852,6 @@ fi
 
 if dracut_module_included "squash"; then
     dinfo "*** Install squash loader ***"
-    for config in \
-      CONFIG_SQUASHFS \
-      CONFIG_OVERLAY_FS \
-      CONFIG_DEVTMPFS;
-    do
-      if ! check_kernel_config $config; then
-        dfatal "$config have to be enabled for dracut squash module to work"
-        exit 1
-      fi
-    done
-
     readonly squash_dir="$initdir/squash/root"
     readonly squash_img="$initdir/squash/root.img"
     readonly squash_candidate=( "usr" "etc" )
