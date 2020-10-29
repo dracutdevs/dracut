@@ -23,6 +23,34 @@ if [ "$netif" = "lo" ] ; then
     exit 0
 fi
 
+do_dhcp_parallel() {
+    # dhclient-script will mark the netif up and generate the online
+    # event for nfsroot
+    # XXX add -V vendor class and option parsing per kernel
+
+    [ -e /tmp/dhclient.$netif.pid ] && return 0
+
+    if ! iface_has_carrier $netif; then
+        warn "No carrier detected on interface $netif"
+        return 1
+    fi
+
+    bootintf=$(readlink $IFNETFILE)
+    if [ ! -z $bootintf ]  && [ -e /tmp/dhclient.$bootintf.lease ]; then
+        info "DHCP already succeeded for $bootintf, exiting for $netif"
+        return 1;
+    fi
+
+    if [ ! -e /run/NetworkManager/conf.d/10-dracut-dhclient.conf ]; then
+        mkdir -p /run/NetworkManager/conf.d
+        echo '[main]' > /run/NetworkManager/conf.d/10-dracut-dhclient.conf
+        echo 'dhcp=dhclient' >>/run/NetworkManager/conf.d/10-dracut-dhclient.conf
+    fi
+
+    /sbin/dhcp-multi.sh "$netif" "$DO_VLAN" "$@" &
+    return 0
+}
+
 # Run dhclient
 do_dhcp() {
     # dhclient-script will mark the netif up and generate the online
@@ -410,6 +438,9 @@ for p in $(getargs ip=); do
         case $autoopt in
             dhcp|on|any)
                 do_dhcp -4 ;;
+            single-dhcp)
+                do_dhcp_parallel -4
+                exit 0 ;;
             dhcp6)
                 load_ipv6
                 do_dhcp -6 ;;

@@ -32,6 +32,7 @@ install() {
     inst_multiple -o teamd teamdctl teamnl
     inst_simple /etc/libnl/classid
     inst_script "$moddir/ifup.sh" "/sbin/ifup"
+    inst_script "$moddir/dhcp-multi.sh" "/sbin/dhcp-multi.sh"
     inst_script "$moddir/dhclient-script.sh" "/sbin/dhclient-script"
     inst_simple -H "/etc/dhclient.conf"
     cat "$moddir/dhclient.conf" >> "${initdir}/etc/dhclient.conf"
