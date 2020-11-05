@@ -66,6 +66,7 @@ install() {
         \
         $systemdsystemunitdir/cryptsetup.target \
         $systemdsystemunitdir/cryptsetup-pre.target \
+        $systemdsystemunitdir/remote-cryptsetup.target \
         $systemdsystemunitdir/emergency.target \
         $systemdsystemunitdir/sysinit.target \
         $systemdsystemunitdir/basic.target \
