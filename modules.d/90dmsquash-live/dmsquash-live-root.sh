@@ -78,7 +78,11 @@ if [ -f $livedev ]; then
     esac
     [ -e /sys/fs/$fstype ] || modprobe $fstype
 else
-    if [ "$(blkid -o value -s TYPE $livedev)" != "ntfs" ]; then
+    livedev_fstype=$(blkid -o value -s TYPE $livedev)
+    if [ "$livedev_fstype" = "squashfs" ]; then
+       # no mount needed - we've already got the LiveOS image in $livedev
+       SQUASHED=$livedev
+    elif [ "$livedev_fstype" != "ntfs" ]; then
         mount -n -t $fstype -o ${liverw:-ro} $livedev /run/initramfs/live
     else
         # Symlinking /usr/bin/ntfs-3g as /sbin/mount.ntfs seems to boot
