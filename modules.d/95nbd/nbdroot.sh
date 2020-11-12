@@ -109,25 +109,9 @@ if strstr "$(nbd-client --help 2>&1)" "systemd-mark"; then
 fi
 
 if [ "$nbdport" -gt 0 ] 2>/dev/null; then
-    if [ -z "$DRACUT_SYSTEMD" ]; then
-        nbd-client "$nbdserver" $nbdport /dev/nbd0 $preopts $opts || exit 1
-    else
-        systemd-run --no-block --service-type=forking --quiet \
-                    --description="nbd nbd0" \
-                    -p 'DefaultDependencies=no' \
-                    -p 'KillMode=none' \
-                    --unit="nbd0" -- nbd-client "$nbdserver" $nbdport /dev/nbd0 $preopts $opts >/dev/null 2>&1 || exit 1
-    fi
+    nbd-client "$nbdserver" $nbdport /dev/nbd0 $preopts $opts || exit 1
 else
-    if [ -z "$DRACUT_SYSTEMD" ]; then
-        nbd-client -name "$nbdport" "$nbdserver" /dev/nbd0 $preopts $opts || exit 1
-    else
-        systemd-run --no-block --service-type=forking --quiet \
-                    --description="nbd nbd0" \
-                    -p 'DefaultDependencies=no' \
-                    -p 'KillMode=none' \
-                    --unit="nbd0" --  nbd-client -name "$nbdport" "$nbdserver" /dev/nbd0 $preopts $opts >/dev/null 2>&1 || exit 1
-    fi
+    nbd-client -name "$nbdport" "$nbdserver" /dev/nbd0 $preopts $opts || exit 1
 fi
 
 # NBD doesn't emit uevents when it gets connected, so kick it
