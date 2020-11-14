@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 check() {
     if type -P memstrack >/dev/null; then

@@ -125,6 +125,6 @@ install() {
     inst_rules 40-multipath.rules 56-multipath.rules \
 	62-multipath.rules 65-multipath.rules \
 	66-kpartx.rules 67-kpartx-compat.rules \
-	11-dm-mpath.rules
+	11-dm-mpath.rules 11-dm-parts.rules
 }
 

@@ -137,7 +137,8 @@ unset allowdiscards
 ask_passphrase=1
 
 if [ -n "$luksfile" -a "$luksfile" != "none" -a -e "$luksfile" ]; then
-    if cryptsetup --key-file "$luksfile" $cryptsetupopts luksOpen "$device" "$luksname"; then
+    if readkey "$luksfile" / "$device" \
+        | cryptsetup -d - $cryptsetupopts luksOpen "$device" "$luksname"; then
         ask_passphrase=0
     fi
 elif [ "$is_keysource" -ne 0 ]; then
