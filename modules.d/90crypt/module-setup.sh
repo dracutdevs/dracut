@@ -144,6 +144,8 @@ install() {
     inst_script "$moddir/crypt-run-generator.sh" "/sbin/crypt-run-generator"
 
     if dracut_module_included "systemd"; then
+        # the cryptsetup targets are already pulled in by 00systemd, but not
+        # the enablement symlinks
         inst_multiple -o \
                       $systemdutildir/system-generators/systemd-cryptsetup-generator \
                       $systemdutildir/systemd-cryptsetup \
@@ -151,7 +153,8 @@ install() {
                       $systemdsystemunitdir/systemd-ask-password-console.service \
                       $systemdsystemunitdir/cryptsetup.target \
                       $systemdsystemunitdir/sysinit.target.wants/cryptsetup.target \
-                      $systemdsystemunitdir/initrd-root-fs.target.wants/remote-cryptsetup.target \
+                      $systemdsystemunitdir/remote-cryptsetup.target \
+                      $systemdsystemunitdir/initrd-root-device.target.wants/remote-cryptsetup.target \
                       systemd-ask-password systemd-tty-ask-password-agent
     fi
 
