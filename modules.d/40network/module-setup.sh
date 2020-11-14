@@ -8,6 +8,9 @@ check() {
 # called by dracut
 depends() {
     echo -n "kernel-network-modules "
+
+    is_qemu_virtualized && echo -n "qemu-net "
+
     if ! dracut_module_included "network-legacy" && [ -x "$dracutsysrootdir/usr/libexec/nm-initrd-generator" ] ; then
         echo "network-manager"
     else
