@@ -526,7 +526,6 @@ check_block_and_slaves() {
     if [[ -f /sys/dev/block/$2/../dev ]] && [[ /sys/dev/block/$2/../subsystem -ef /sys/class/block ]]; then
         check_block_and_slaves $1 $(<"/sys/dev/block/$2/../dev") && return 0
     fi
-    [[ -d /sys/dev/block/$2/slaves ]] || return 1
     for _x in /sys/dev/block/$2/slaves/*; do
         [[ -f $_x/dev ]] || continue
         [[ $_x/subsystem -ef /sys/class/block ]] || continue
@@ -545,7 +544,6 @@ check_block_and_slaves_all() {
     if [[ -f /sys/dev/block/$2/../dev ]] && [[ /sys/dev/block/$2/../subsystem -ef /sys/class/block ]]; then
         check_block_and_slaves_all $1 $(<"/sys/dev/block/$2/../dev") && _ret=0
     fi
-    [[ -d /sys/dev/block/$2/slaves ]] || return 1
     for _x in /sys/dev/block/$2/slaves/*; do
         [[ -f $_x/dev ]] || continue
         [[ $_x/subsystem -ef /sys/class/block ]] || continue
@@ -674,6 +672,11 @@ check_kernel_config()
     return 1
 }
 
+# 0 if the kernel module is either built-in or available
+# 1 if the kernel module is not enabled
+check_kernel_module() {
+    modprobe -S $kernel --dry-run $1 &>/dev/null || return 1
+}
 
 # get_cpu_vendor
 # Only two values are returned: AMD or Intel
@@ -885,4 +888,9 @@ block_is_fcoe() {
 # Check whether $1 is a net device
 block_is_netdevice() {
     block_is_nbd "$1" || block_is_iscsi "$1" || block_is_fcoe "$1"
+}
+
+# get the corresponding kernel modules of a /sys/class/*/* or/dev/* device
+get_dev_module() {
+    udevadm info -a "$1" | sed -n 's/\s*DRIVERS=="\(\S\+\)"/\1/p'
 }
