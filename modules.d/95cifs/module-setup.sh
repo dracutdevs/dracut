@@ -37,7 +37,13 @@ install() {
     local _i
     local _nsslibs
     inst_multiple -o mount.cifs
-    inst_multiple /etc/services /etc/nsswitch.conf /etc/protocols
+    inst_multiple /etc/nsswitch.conf
+    if [ $hostonly ]; then
+        getent services > ${initdir}/etc/services
+        getent protocols > ${initdir}/etc/protocols
+    else
+        inst_multiple /etc/services /etc/protocols
+    fi
 
     inst_libdir_file 'libcap-ng.so*'
 
