@@ -22,7 +22,7 @@ depends() {
 
 # called by dracut
 installkernel() {
-    instmods fcoe 8021q edd
+    instmods fcoe libfcoe 8021q edd bnx2fc
 }
 
 get_vlan_parent() {
