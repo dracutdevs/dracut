@@ -203,11 +203,10 @@ cp %{SOURCE1} .
 %endif
             ${NULL}
 
-make %{?_smp_mflags}
+%make_build
 
 %install
-make %{?_smp_mflags} install \
-     DESTDIR=$RPM_BUILD_ROOT \
+%make_install %{?_smp_mflags} \
      libdir=%{_prefix}/lib
 
 echo "DRACUT_VERSION=%{version}-%{release}" > $RPM_BUILD_ROOT/%{dracutlibdir}/dracut-version.sh
@@ -279,7 +278,7 @@ rm -f -- $RPM_BUILD_ROOT%{_mandir}/man1/lsinitrd.1*
 echo 'hostonly="no"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-generic-image.conf
 echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/02-rescue.conf
 
-%if 0%{?fedora} <= 30 || 0%{?rhel} <= 8
+%if 0%{?rhel} > 0 && 0%{?rhel} <= 8
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/kernel/postinst.d
 install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kernel/postinst.d/51-dracut-rescue-postinst.sh
 %endif
@@ -348,6 +347,7 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 %{dracutlibdir}/modules.d/03modsign
 %{dracutlibdir}/modules.d/03rescue
 %{dracutlibdir}/modules.d/04watchdog
+%{dracutlibdir}/modules.d/04watchdog-modules
 %{dracutlibdir}/modules.d/05busybox
 %{dracutlibdir}/modules.d/06rngd
 %{dracutlibdir}/modules.d/10i18n
@@ -477,8 +477,7 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 %files config-rescue
 %{dracutlibdir}/dracut.conf.d/02-rescue.conf
 %{_prefix}/lib/kernel/install.d/51-dracut-rescue.install
-%if 0%{?fedora} <= 30 || 0%{?rhel} <= 8
-# FIXME: remove after F30
+%if 0%{?rhel} > 0 && 0%{?rhel} <= 8
 %{_sysconfdir}/kernel/postinst.d/51-dracut-rescue-postinst.sh
 %endif
 

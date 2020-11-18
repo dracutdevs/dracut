@@ -38,7 +38,7 @@ depends() {
 
 # called by dracut
 installkernel() {
-    hostonly='' instmods =net/sunrpc =fs/nfs ipv6 nfs_acl nfs_layout_nfsv41_files
+    hostonly=$(optional_hostonly) instmods =net/sunrpc =fs/nfs ipv6 nfs_acl nfs_layout_nfsv41_files
 }
 
 cmdline() {
@@ -77,8 +77,16 @@ cmdline() {
 install() {
     local _i
     local _nsslibs
-    inst_multiple -o rpc.idmapd mount.nfs mount.nfs4 umount sed /etc/netconfig chmod "$tmpfilesdir/rpcbind.conf"
-    inst_multiple /etc/services /etc/nsswitch.conf /etc/rpc /etc/protocols /etc/idmapd.conf
+    inst_multiple -o portmap rpcbind rpc.statd mount.nfs \
+        mount.nfs4 umount rpc.idmapd sed /etc/netconfig chmod "$tmpfilesdir/rpcbind.conf"
+    inst_multiple /etc/nsswitch.conf /etc/idmapd.conf
+    if [ $hostonly ]; then
+        getent services > ${initdir}/etc/services
+        getent protocols > ${initdir}/etc/protocols
+        getent rpc > ${initdir}/etc/rpc
+    else
+        inst_multiple /etc/services /etc/protocols /etc/rpc
+    fi
 
     if [[ $hostonly_cmdline == "yes" ]]; then
         local _netconf="$(cmdline)"
@@ -114,7 +122,8 @@ install() {
     inst "$moddir/nfs-lib.sh" "/lib/nfs-lib.sh"
     mkdir -m 0755 -p "$initdir/var/lib/nfs/rpc_pipefs"
     mkdir -m 0770 -p "$initdir/var/lib/rpcbind"
-    mkdir -m 0755 -p "$initdir/var/lib/nfs/statd/sm"
+    [ -d "$initdir/var/lib/nfs/statd/sm" ] && mkdir -m 0755 -p "$initdir/var/lib/nfs/statd/sm"
+    [ -d "$initdir/var/lib/nfs/sm" ] && mkdir -m 0755 -p "$initdir/var/lib/nfs/sm"
 
     # Rather than copy the passwd file in, just set a user for rpcbind
     # We'll save the state and restart the daemon from the root anyway
