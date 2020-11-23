@@ -47,6 +47,7 @@ do_dhcp_parallel() {
         echo 'dhcp=dhclient' >>/run/NetworkManager/conf.d/10-dracut-dhclient.conf
     fi
 
+    chmod +x /sbin/dhcp-multi.sh
     /sbin/dhcp-multi.sh "$netif" "$DO_VLAN" "$@" &
     return 0
 }
