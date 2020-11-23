@@ -73,6 +73,17 @@ _dracut() {
                 COMPREPLY=( $(compgen -W '${OPTS[*]}' -- "$cur") )
                 return 0
         fi
+
+        local args
+        _count_args
+        if [[ $args -eq 1 ]]; then
+                _filedir
+                return 0
+        elif [[ $args -eq 2 ]]; then
+                comps=$(cd /lib/modules; echo [0-9]*)
+                COMPREPLY=( $(compgen -W '$comps' -- "$cur") )
+                return 0
+        fi
 }
 
 complete -F _dracut dracut
