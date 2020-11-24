@@ -38,7 +38,7 @@ _dracut() {
                               --fwdir --libdirs --fscks --add-fstab --mount --device --nofscks
                               --kmoddir --conf --confdir --tmpdir --stdlog --compress --prefix
                               --kernel-cmdline --sshkey --persistent-policy --install-optional
-                              --loginstall --uefi-stub --kernel-image
+                              --loginstall --uefi-stub --kernel-image --uefi-output
                               '
         )
 
