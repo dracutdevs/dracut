@@ -28,6 +28,9 @@ install() {
     # Seems to not execute if in initqueue/settled
     inst_hook pre-udev 99 "$moddir/wicked-run.sh"
 
+    # even with wicked configuring the interface, ip is useful
+    inst_multiple ip
+
     inst_dir /etc/wicked/extensions
     inst_dir /usr/share/wicked/schema
     inst_dir /usr/lib/wicked/bin
