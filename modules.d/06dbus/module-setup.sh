@@ -34,7 +34,8 @@ install() {
     $DBUS_SERVICE \
     /usr/lib/systemd/system/dbus.socket \
     /usr/bin/dbus-daemon \
-    /usr/bin/dbus-send
+    /usr/bin/dbus-send \
+    /usr/bin/busctl
 
   inst_dir      /etc/dbus-1/system.d
   inst_dir      /usr/share/dbus-1/services
