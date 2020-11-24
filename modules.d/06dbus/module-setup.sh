@@ -12,30 +12,36 @@ depends() {
   return 0
 }
 
+adjust_dependencies() {
+  sed -i -e \
+'/^\[Unit\]/aDefaultDependencies=no\
+Conflicts=shutdown.target\
+Before=shutdown.target' \
+    "$initdir"${1}
+
+}
+
 install() {
-  local DBUS_SERVICE=/usr/lib/systemd/system/dbus.service
-  if [[ -e $DBUS_SERVICE ]]; then
-    if [[ -L $DBUS_SERVICE ]]; then
-      DBUS_SERVICE=$(readlink $DBUS_SERVICE)
-    fi
-  else
-    DBUS_SERVICE=/etc/systemd/system/dbus.service
-    if [[ -e $DBUS_SERVICE ]]; then
-      if [[ -L $DBUS_SERVICE ]]; then
-        DBUS_SERVICE=$(readlink $DBUS_SERVICE)
-      fi
-    else
-      echo "Could not find dbus.service";
-      exit 1
-    fi
-  fi
 
   inst_multiple \
-    $DBUS_SERVICE \
-    /usr/lib/systemd/system/dbus.socket \
-    /usr/bin/dbus-daemon \
+    $systemdsystemunitdir/dbus.service \
+    $systemdsystemunitdir/dbus.socket \
     /usr/bin/dbus-send \
     /usr/bin/busctl
+  adjust_dependencies $systemdsystemunitdir/dbus.service
+
+  if [[ -e /usr/bin/dbus-daemon ]]; then
+    inst_multiple \
+      /usr/bin/dbus-daemon
+  fi
+
+  if [[ -e /usr/bin/dbus-broker ]]; then
+    inst_multiple \
+      $systemdsystemunitdir/dbus-broker.service \
+      /usr/bin/dbus-broker \
+      /usr/bin/dbus-broker-launch
+    adjust_dependencies $systemdsystemunitdir/dbus-broker.service
+  fi
 
   inst_dir      /etc/dbus-1/system.d
   inst_dir      /usr/share/dbus-1/services
@@ -45,19 +51,8 @@ install() {
                 /usr/share/dbus-1/services/org.freedesktop.systemd1.service
   inst_multiple $(find /var/lib/dbus)
 
-  inst_hook cleanup 99 "$moddir/dbus-cleanup.sh"
-
   grep '^\(d\|message\)bus:' /etc/passwd >> "$initdir/etc/passwd"
   grep '^\(d\|message\)bus:' /etc/group >> "$initdir/etc/group"
-
-  # do not enable -- this is a static service
-  #systemctl --root "$initdir" enable $DBUS_SERVICE > /dev/null 2>&1
-
-  sed -i -e \
-'/^\[Unit\]/aDefaultDependencies=no\
-Conflicts=shutdown.target\
-Before=shutdown.target' \
-    "$initdir"$DBUS_SERVICE
 
   sed -i -e \
 '/^\[Unit\]/aDefaultDependencies=no\
