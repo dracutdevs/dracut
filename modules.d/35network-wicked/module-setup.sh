@@ -26,7 +26,7 @@ install() {
     inst_hook cmdline 99 "$moddir/wicked-config.sh"
 
     # Seems to not execute if in initqueue/settled
-    inst_hook pre-mount 99 "$moddir/wicked-run.sh"
+    inst_hook pre-udev 99 "$moddir/wicked-run.sh"
 
     inst_dir /etc/wicked/extensions
     inst_dir /usr/share/wicked/schema
@@ -51,6 +51,7 @@ install() {
 
     for unit in $wicked_units; do
         sed -i 's/^After=.*/After=dbus.service/g' $initdir/$unit
+        sed -i 's/^Before=\(.*\)/Before=\1 dracut-pre-udev.service/g' $initdir/$unit
         sed -i 's/^Wants=\(.*\)/Wants=\1 dbus.service/g' $initdir/$unit
         sed -i -e \
             '/^\[Unit\]/aDefaultDependencies=no\
