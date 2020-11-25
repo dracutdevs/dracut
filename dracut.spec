@@ -349,6 +349,7 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 %{dracutlibdir}/modules.d/04watchdog
 %{dracutlibdir}/modules.d/04watchdog-modules
 %{dracutlibdir}/modules.d/05busybox
+%{dracutlibdir}/modules.d/06dbus
 %{dracutlibdir}/modules.d/06rngd
 %{dracutlibdir}/modules.d/10i18n
 %{dracutlibdir}/modules.d/30convertfs
@@ -433,6 +434,7 @@ install -m 0755 51-dracut-rescue-postinst.sh $RPM_BUILD_ROOT%{_sysconfdir}/kerne
 %{dracutlibdir}/modules.d/02systemd-networkd
 %{dracutlibdir}/modules.d/35network-manager
 %{dracutlibdir}/modules.d/35network-legacy
+%{dracutlibdir}/modules.d/35network-wicked
 %{dracutlibdir}/modules.d/40network
 %{dracutlibdir}/modules.d/45ifcfg
 %{dracutlibdir}/modules.d/90kernel-network-modules

@@ -241,6 +241,8 @@ Creates initial ramdisk images for preloading modules
   --uefi-splash-image [FILE]
                         Use [FILE] as a splash image when creating an UEFI
                         executable
+  --uefi-output [FILE]  Use [FILE] as output filename when creating an UEFI
+                        executable
   --kernel-image [FILE] location of the kernel image
   --regenerate-all      Regenerate all initramfs images at the default location
                         for the kernel versions found on the system
@@ -423,6 +425,7 @@ rearrange_params()
         --long uefi \
         --long uefi-stub: \
         --long uefi-splash-image: \
+        --long uefi-output: \
         --long kernel-image: \
         --long no-hostonly-i18n \
         --long hostonly-i18n \
@@ -627,6 +630,8 @@ while :; do
                        uefi_stub_l="$2";               PARMS_TO_STORE+=" '$2'"; shift;;
         --uefi-splash-image)
                        uefi_splash_image_l="$2";       PARMS_TO_STORE+=" '$2'"; shift;;
+        --uefi-output)
+                       uefi_output_l="$2";             PARMS_TO_STORE+=" '$2'"; shift;;
         --kernel-image)
                        kernel_image_l="$2";            PARMS_TO_STORE+=" '$2'"; shift;;
         --no-machineid)
@@ -811,6 +816,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $loginstall_l ]] && loginstall="$loginstall_l"
 [[ $uefi_stub_l ]] && uefi_stub="$uefi_stub_l"
 [[ $uefi_splash_image_l ]] && uefi_splash_image="$uefi_splash_image_l"
+[[ $uefi_output_l ]] && uefi_output="$uefi_output_l"
 [[ $kernel_image_l ]] && kernel_image="$kernel_image_l"
 [[ $machine_id_l ]] && machine_id="$machine_id_l"
 
@@ -830,27 +836,31 @@ if ! [[ $outfile ]]; then
             exit 1
         fi
 
-        BUILD_ID=$(cat $dracutsysrootdir/etc/os-release $dracutsysrootdir/usr/lib/os-release \
-                       | while read -r line || [[ $line ]]; do \
-                       [[ $line =~ BUILD_ID\=* ]] && eval "$line" && echo "$BUILD_ID" && break; \
-                   done)
-        if [[ -z $dracutsysrootdir ]]; then
-            if [[ -d /efi ]] && mountpoint -q /efi; then
-                efidir=/efi/EFI
+        if [[ -z "$uefi_output" ]]; then
+            BUILD_ID=$(cat $dracutsysrootdir/etc/os-release $dracutsysrootdir/usr/lib/os-release \
+                           | while read -r line || [[ $line ]]; do \
+                           [[ $line =~ BUILD_ID\=* ]] && eval "$line" && echo "$BUILD_ID" && break; \
+                       done)
+            if [[ -z $dracutsysrootdir ]]; then
+                if [[ -d /efi ]] && mountpoint -q /efi; then
+                    efidir=/efi/EFI
+                else
+                    efidir=/boot/EFI
+                    if [[ -d $dracutsysrootdir/boot/efi/EFI ]]; then
+                        efidir=/boot/efi/EFI
+                    fi
+                fi
             else
                 efidir=/boot/EFI
                 if [[ -d $dracutsysrootdir/boot/efi/EFI ]]; then
                     efidir=/boot/efi/EFI
                 fi
             fi
+            mkdir -p "$dracutsysrootdir$efidir/Linux"
+            outfile="$dracutsysrootdir$efidir/Linux/linux-$kernel${MACHINE_ID:+-${MACHINE_ID}}${BUILD_ID:+-${BUILD_ID}}.efi"
         else
-            efidir=/boot/EFI
-            if [[ -d $dracutsysrootdir/boot/efi/EFI ]]; then
-                efidir=/boot/efi/EFI
-            fi
+            outfile="$uefi_output"
         fi
-        mkdir -p "$dracutsysrootdir$efidir/Linux"
-        outfile="$dracutsysrootdir$efidir/Linux/linux-$kernel${MACHINE_ID:+-${MACHINE_ID}}${BUILD_ID:+-${BUILD_ID}}.efi"
     else
         if [[ -e "$dracutsysrootdir/boot/vmlinuz-$kernel" ]]; then
             outfile="/boot/initramfs-$kernel.img"
