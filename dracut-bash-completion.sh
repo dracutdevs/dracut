@@ -38,7 +38,7 @@ _dracut() {
                               --fwdir --libdirs --fscks --add-fstab --mount --device --nofscks
                               --kmoddir --conf --confdir --tmpdir --stdlog --compress --prefix
                               --kernel-cmdline --sshkey --persistent-policy --install-optional
-                              --loginstall --uefi-stub --kernel-image
+                              --loginstall --uefi-stub --kernel-image --uefi-output
                               '
         )
 
@@ -71,6 +71,17 @@ _dracut() {
 
         if [[ $cur = -* ]]; then
                 COMPREPLY=( $(compgen -W '${OPTS[*]}' -- "$cur") )
+                return 0
+        fi
+
+        local args
+        _count_args
+        if [[ $args -eq 1 ]]; then
+                _filedir
+                return 0
+        elif [[ $args -eq 2 ]]; then
+                comps=$(cd /lib/modules; echo [0-9]*)
+                COMPREPLY=( $(compgen -W '$comps' -- "$cur") )
                 return 0
         fi
 }

@@ -175,6 +175,8 @@ Creates initial ramdisk images for preloading modules
   --hostonly-i18n       Install only needed keyboard and font files according
                         to the host configuration (default).
   --no-hostonly-i18n    Install all keyboard and font files available.
+  --hostonly-nics [LIST]
+                        Only enable listed NICs in the initramfs.
   --persistent-policy [POLICY]
                         Use [POLICY] to address disks and partitions.
                         POLICY can be any directory name found in /dev/disk.
@@ -238,6 +240,8 @@ Creates initial ramdisk images for preloading modules
   --uefi-stub [FILE]    Use the UEFI stub [FILE] to create an UEFI executable
   --uefi-splash-image [FILE]
                         Use [FILE] as a splash image when creating an UEFI
+                        executable
+  --uefi-output [FILE]  Use [FILE] as output filename when creating an UEFI
                         executable
   --kernel-image [FILE] location of the kernel image
   --regenerate-all      Regenerate all initramfs images at the default location
@@ -421,9 +425,11 @@ rearrange_params()
         --long uefi \
         --long uefi-stub: \
         --long uefi-splash-image: \
+        --long uefi-output: \
         --long kernel-image: \
         --long no-hostonly-i18n \
         --long hostonly-i18n \
+        --long hostonly-nics: \
         --long no-machineid \
         --long version \
         -- "$@")
@@ -587,6 +593,8 @@ while :; do
                        hostonly_cmdline_l="yes" ;;
         --hostonly-i18n)
                        i18n_install_all_l="no" ;;
+        --hostonly-nics)
+                       hostonly_nics_l+=("$2");           PARMS_TO_STORE+=" '$2'"; shift;;
         --no-hostonly-i18n)
                        i18n_install_all_l="yes" ;;
         --no-hostonly-cmdline)
@@ -622,6 +630,8 @@ while :; do
                        uefi_stub_l="$2";               PARMS_TO_STORE+=" '$2'"; shift;;
         --uefi-splash-image)
                        uefi_splash_image_l="$2";       PARMS_TO_STORE+=" '$2'"; shift;;
+        --uefi-output)
+                       uefi_output_l="$2";             PARMS_TO_STORE+=" '$2'"; shift;;
         --kernel-image)
                        kernel_image_l="$2";            PARMS_TO_STORE+=" '$2'"; shift;;
         --no-machineid)
@@ -755,6 +765,7 @@ unset NPATH
 (( ${#fstab_lines_l[@]} )) && fstab_lines+=( "${fstab_lines_l[@]}" )
 (( ${#install_items_l[@]} )) && install_items+=" ${install_items_l[@]} "
 (( ${#install_optional_items_l[@]} )) && install_optional_items+=" ${install_optional_items_l[@]} "
+(( ${#hostonly_nics_l[@]} )) && hostonly_nics+=" ${hostonly_nics_l[@]} "
 
 # these options override the stuff in the config file
 (( ${#dracutmodules_l[@]} )) && dracutmodules="${dracutmodules_l[@]}"
@@ -805,6 +816,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $loginstall_l ]] && loginstall="$loginstall_l"
 [[ $uefi_stub_l ]] && uefi_stub="$uefi_stub_l"
 [[ $uefi_splash_image_l ]] && uefi_splash_image="$uefi_splash_image_l"
+[[ $uefi_output_l ]] && uefi_output="$uefi_output_l"
 [[ $kernel_image_l ]] && kernel_image="$kernel_image_l"
 [[ $machine_id_l ]] && machine_id="$machine_id_l"
 
@@ -824,27 +836,31 @@ if ! [[ $outfile ]]; then
             exit 1
         fi
 
-        BUILD_ID=$(cat $dracutsysrootdir/etc/os-release $dracutsysrootdir/usr/lib/os-release \
-                       | while read -r line || [[ $line ]]; do \
-                       [[ $line =~ BUILD_ID\=* ]] && eval "$line" && echo "$BUILD_ID" && break; \
-                   done)
-        if [[ -z $dracutsysrootdir ]]; then
-            if [[ -d /efi ]] && mountpoint -q /efi; then
-                efidir=/efi/EFI
+        if [[ -z "$uefi_output" ]]; then
+            BUILD_ID=$(cat $dracutsysrootdir/etc/os-release $dracutsysrootdir/usr/lib/os-release \
+                           | while read -r line || [[ $line ]]; do \
+                           [[ $line =~ BUILD_ID\=* ]] && eval "$line" && echo "$BUILD_ID" && break; \
+                       done)
+            if [[ -z $dracutsysrootdir ]]; then
+                if [[ -d /efi ]] && mountpoint -q /efi; then
+                    efidir=/efi/EFI
+                else
+                    efidir=/boot/EFI
+                    if [[ -d $dracutsysrootdir/boot/efi/EFI ]]; then
+                        efidir=/boot/efi/EFI
+                    fi
+                fi
             else
                 efidir=/boot/EFI
                 if [[ -d $dracutsysrootdir/boot/efi/EFI ]]; then
                     efidir=/boot/efi/EFI
                 fi
             fi
+            mkdir -p "$dracutsysrootdir$efidir/Linux"
+            outfile="$dracutsysrootdir$efidir/Linux/linux-$kernel${MACHINE_ID:+-${MACHINE_ID}}${BUILD_ID:+-${BUILD_ID}}.efi"
         else
-            efidir=/boot/EFI
-            if [[ -d $dracutsysrootdir/boot/efi/EFI ]]; then
-                efidir=/boot/efi/EFI
-            fi
+            outfile="$uefi_output"
         fi
-        mkdir -p "$dracutsysrootdir$efidir/Linux"
-        outfile="$dracutsysrootdir$efidir/Linux/linux-$kernel${MACHINE_ID:+-${MACHINE_ID}}${BUILD_ID:+-${BUILD_ID}}.efi"
     else
         if [[ -e "$dracutsysrootdir/boot/vmlinuz-$kernel" ]]; then
             outfile="/boot/initramfs-$kernel.img"
@@ -1846,17 +1862,6 @@ fi
 
 if dracut_module_included "squash"; then
     dinfo "*** Install squash loader ***"
-    for config in \
-      CONFIG_SQUASHFS \
-      CONFIG_OVERLAY_FS \
-      CONFIG_DEVTMPFS;
-    do
-      if ! check_kernel_config $config; then
-        dfatal "$config have to be enabled for dracut squash module to work"
-        exit 1
-      fi
-    done
-
     readonly squash_dir="$initdir/squash/root"
     readonly squash_img="$initdir/squash/root.img"
     readonly squash_candidate=( "usr" "etc" )
