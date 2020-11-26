@@ -128,6 +128,7 @@ dhcp_dhclient_run() {
     dhclient "$@" \
                  ${_timeout:+-timeout $_timeout} \
                  -q \
+                 -1 \
                  -cf /etc/dhclient.conf \
                  -pf /tmp/dhclient.$netif.pid \
                  -lf /tmp/dhclient.$netif.lease \
@@ -206,6 +207,9 @@ do_dhcp() {
         [ $_COUNT -lt $_DHCPRETRY ] && sleep 1
     done
     warn "dhcp for interface $netif failed"
+    # nuke those files since we failed; we might retry dhcp again if it's e.g.
+    # `ip=dhcp,dhcp6` and we check for the PID file at the top
+    rm -f /tmp/dhclient.$netif.{pid,lease}
     return 1
 }
 
@@ -529,23 +533,6 @@ else
 fi
 
 
-# No ip lines default to dhcp
-ip=$(getarg ip)
-
-if [ -z "$NO_AUTO_DHCP" ] && [ -z "$ip" ]; then
-    if [ "$netroot" = "dhcp6" ]; then
-        do_dhcp -6
-    else
-        do_dhcp -4
-    fi
-
-    for s in $(getargs nameserver); do
-        [ -n "$s" ] || continue
-        echo nameserver $s >> /tmp/net.$netif.resolv.conf
-    done
-fi
-
-
 # Specific configuration, spin through the kernel command line
 # looking for ip= lines
 for p in $(getargs ip=); do
@@ -606,43 +593,54 @@ for p in $(getargs ip=); do
             > /tmp/net.$(cat /sys/class/net/${netif}/address).up
         fi
 
-        case $autoconf in
-            dhcp|on|any|dhcp6)
-                > /tmp/net.$netif.did-setup
-                [ -z "$DO_VLAN" ] && \
-                    [ -e /sys/class/net/$netif/address ] && \
-                    > /tmp/net.$(cat /sys/class/net/$netif/address).did-setup
-            ;;
-            *)
-                if [ $ret -eq 0 ]; then
-                    setup_net $netif
-                    source_hook initqueue/online $netif
-                    if [ -z "$manualup" ]; then
-                        /sbin/netroot $netif
-                    fi
-                fi
-                ;;
-        esac
+        # and finally, finish interface set up if there isn't already a script
+        # to do so (which is the case in the dhcp path)
+        if [ ! -e $hookdir/initqueue/setup_net_$netif.sh ]; then
+            setup_net $netif
+            source_hook initqueue/online $netif
+            if [ -z "$manualup" ]; then
+                /sbin/netroot $netif
+            fi
+        fi
+
         exit $ret
     fi
 done
 
 # no ip option directed at our interface?
 if [ -z "$NO_AUTO_DHCP" ] && [ ! -e /tmp/net.${netif}.up ]; then
+    ret=1
     if [ -e /tmp/net.bootdev ]; then
         BOOTDEV=$(cat /tmp/net.bootdev)
         if [ "$netif" = "$BOOTDEV" ] || [ "$BOOTDEV" = "$(cat /sys/class/net/${netif}/address)" ]; then
-            load_ipv6
             do_dhcp
+            ret=$?
         fi
     else
-        if getargs 'ip=dhcp6'; then
+        # No ip lines, no bootdev -> default to dhcp
+        ip=$(getarg ip)
+
+        if getargs 'ip=dhcp6' || [ -z "$ip" -a "$netroot" = "dhcp6" ]; then
             load_ipv6
             do_dhcp -6
+            ret=$?
         fi
-        if getargs 'ip=dhcp'; then
+        if getargs 'ip=dhcp' || [ -z "$ip" -a "$netroot" != "dhcp6" ]; then
             do_dhcp -4
+            ret=$?
         fi
+    fi
+
+    for s in $(getargs nameserver); do
+        [ -n "$s" ] || continue
+        echo nameserver $s >> /tmp/net.$netif.resolv.conf
+    done
+
+    if [ "$ret" -eq 0 ] && [ -n "$(ls /tmp/leaseinfo.${netif}*)" ]; then
+         > /tmp/net.${netif}.did-setup
+         if [ -e /sys/class/net/${netif}/address ]; then
+             > /tmp/net.$(cat /sys/class/net/${netif}/address).did-setup
+         fi
     fi
 fi
 

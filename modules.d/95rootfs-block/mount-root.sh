@@ -74,7 +74,7 @@ mount_root() {
 
     rootopts=
     if getargbool 1 rd.fstab -d -n rd_NO_FSTAB \
-        && ! getarg rootflags \
+        && ! getarg rootflags >/dev/null \
         && [ -f "$NEWROOT/etc/fstab" ] \
         && ! [ -L "$NEWROOT/etc/fstab" ]; then
         # if $NEWROOT/etc/fstab contains special mount options for
@@ -116,7 +116,7 @@ mount_root() {
         ran_fsck=1
     fi
 
-    echo "${root#block:} $NEWROOT $rootfs ${rflags:-defaults} 0 $rootfsck" >> /etc/fstab
+    echo "${root#block:} $NEWROOT $rootfs ${rflags:-defaults} 0 ${rootfsck:-0}" >> /etc/fstab
 
     if ! ismounted "$NEWROOT"; then
         info "Mounting ${root#block:} with -o ${rflags}"

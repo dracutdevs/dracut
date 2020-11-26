@@ -47,20 +47,14 @@ if [[ -f /etc/kernel/cmdline ]]; then
     read -r -d '' -a BOOT_OPTIONS < /etc/kernel/cmdline
 elif [[ -f /usr/lib/kernel/cmdline ]]; then
     read -r -d '' -a BOOT_OPTIONS < /usr/lib/kernel/cmdline
-fi
+else
+    declare -a BOOT_OPTIONS
 
-if ! [[ "${BOOT_OPTIONS[@]}" ]]; then
     read -r -d '' -a line < /proc/cmdline
     for i in "${line[@]}"; do
         [[ "${i#initrd=*}" != "$i" ]] && continue
         BOOT_OPTIONS+=("$i")
     done
-fi
-
-if ! [[ ${BOOT_OPTIONS[*]} ]]; then
-    echo "Could not determine the kernel command line parameters." >&2
-    echo "Please specify the kernel command line in /etc/kernel/cmdline!" >&2
-    exit 1
 fi
 
 if [[ -d "${BOOT_DIR_ABS%/*}" ]]; then
@@ -112,7 +106,11 @@ case "$COMMAND" in
                 echo "initrd     $BOOT_DIR/initrd"
             } > $LOADER_ENTRY
         else
-            cp -aT "${KERNEL_IMAGE%/*}/bls.conf" $LOADER_ENTRY
+            if [[ -e "${BLS_DIR}/${MACHINE_ID}-${KERNEL_VERSION}.conf" ]]; then
+                cp -aT "${BLS_DIR}/${MACHINE_ID}-${KERNEL_VERSION}.conf" $LOADER_ENTRY
+            else
+                cp -aT "${KERNEL_IMAGE%/*}/bls.conf" $LOADER_ENTRY
+            fi
             sed -i 's/'$KERNEL_VERSION'/0-rescue-'${MACHINE_ID}'/' $LOADER_ENTRY
         fi
 

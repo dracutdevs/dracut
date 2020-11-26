@@ -1,0 +1,8 @@
+[Unit]
+Description=Hardware RNG Entropy Gatherer Daemon
+DefaultDependencies=no
+Before=systemd-udevd.service
+ConditionVirtualization=!container
+
+[Service]
+ExecStart=/usr/sbin/rngd -f

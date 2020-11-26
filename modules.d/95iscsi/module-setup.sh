@@ -9,20 +9,9 @@ check() {
     # If hostonly was requested, fail the check if we are not actually
     # booting from root.
 
-    is_iscsi() {
-        local _dev=$1
-
-        [[ -L "/sys/dev/block/$_dev" ]] || return
-        cd "$(readlink -f "/sys/dev/block/$_dev")"
-        until [[ -d sys || -d iscsi_session ]]; do
-            cd ..
-        done
-        [[ -d iscsi_session ]]
-    }
-
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         pushd . >/dev/null
-        for_each_host_dev_and_slaves is_iscsi
+        for_each_host_dev_and_slaves block_is_iscsi
         local _is_iscsi=$?
         popd >/dev/null
         [[ $_is_iscsi == 0 ]] || return 255
@@ -65,7 +54,7 @@ install_ibft() {
             if [ ${d##*/} = "ibft" ] && [ "$ibft_mod" != "bnx2i" ] ; then
                 echo -n "rd.iscsi.ibft=1 "
             fi
-            echo -n "rd.iscsi.firmware=1"
+            echo -n "rd.iscsi.firmware=1 "
         fi
     done
 }
@@ -74,6 +63,7 @@ install_iscsiroot() {
     local devpath=$1
     local scsi_path iscsi_lun session c d conn host flash
     local iscsi_session iscsi_address iscsi_port iscsi_targetname iscsi_tpgt
+    local bootproto
 
     scsi_path=${devpath%%/block*}
     [ "$scsi_path" = "$devpath" ] && return 1
@@ -88,6 +78,7 @@ install_iscsiroot() {
     iscsi_host=${host##*/}
 
     for flash in ${host}/flashnode_sess-* ; do
+        [ -f "$flash" ] || continue
         [ ! -e "$flash/is_boot_target" ] && continue
         is_boot=$(cat $flash/is_boot_target)
         if [ $is_boot -eq 1 ] ; then
@@ -118,21 +109,7 @@ install_iscsiroot() {
     done
 
     [ -z "$iscsi_address" ] && return
-    local_address=$(ip -o route get to $iscsi_address | sed -n 's/.*src \([0-9a-f.:]*\).*/\1/p')
-    ifname=$(ip -o route get to $iscsi_address | sed -n 's/.*dev \([^ ]*\).*/\1/p')
-
-    #follow ifcfg settings for boot protocol
-    bootproto=$(sed -n "/BOOTPROTO/s/BOOTPROTO='\([[:alpha:]]*6\?\)4\?'/\1/p" /etc/sysconfig/network/ifcfg-$ifname)
-    if [ $bootproto ]; then
-        printf 'ip=%s:%s ' ${ifname} ${bootproto}
-    else
-        printf 'ip=%s:static ' ${ifname}
-    fi
-
-    if [ -e /sys/class/net/$ifname/address ] ; then
-        ifmac=$(cat /sys/class/net/$ifname/address)
-        printf 'ifname=%s:%s ' ${ifname} ${ifmac}
-    fi
+    ip_params_for_remote_addr "$iscsi_address"
 
     if [ -n "$iscsi_address" -a -n "$iscsi_targetname" ] ; then
         if [ -n "$iscsi_port" -a "$iscsi_port" -eq 3260 ] ; then
@@ -180,7 +157,7 @@ depends() {
 
 # called by dracut
 installkernel() {
-    local _arch=$(uname -m)
+    local _arch=${DRACUT_ARCH:-$(uname -m)}
     local _funcs='iscsi_register_transport'
 
     instmods bnx2i qla4xxx cxgb3i cxgb4i be2iscsi qedi
@@ -220,7 +197,8 @@ install() {
         $systemdsystemunitdir/sockets.target.wants/iscsiuio.socket
 
     if [[ $hostonly ]]; then
-        inst_dir $(/usr/bin/find /etc/iscsi)
+        inst_dir /etc/iscsi
+        inst_multiple $(find /etc/iscsi -type f)
     else
         inst_simple /etc/iscsi/iscsid.conf
     fi
@@ -234,6 +212,7 @@ install() {
     inst_hook cmdline 90 "$moddir/parse-iscsiroot.sh"
     inst_hook cleanup 90 "$moddir/cleanup-iscsi.sh"
     inst "$moddir/iscsiroot.sh" "/sbin/iscsiroot"
+
     if ! dracut_module_included "systemd"; then
         inst "$moddir/mount-lun.sh" "/bin/mount-lun.sh"
     else
@@ -245,20 +224,18 @@ install() {
                       $systemdsystemunitdir/iscsiuio.socket \
                       iscsiadm iscsid
 
-        mkdir -p "${initdir}/$systemdsystemunitdir/sockets.target.wants"
         for i in \
                 iscsid.socket \
                 iscsiuio.socket \
             ; do
-            ln_r "$systemdsystemunitdir/${i}" "$systemdsystemunitdir/sockets.target.wants/${i}"
+            systemctl -q --root "$initdir" enable "$i"
         done
-
-        mkdir -p "${initdir}/$systemdsystemunitdir/basic.target.wants"
+        
         for i in \
                 iscsid.service \
                 iscsiuio.service \
             ; do
-            ln_r "$systemdsystemunitdir/${i}" "$systemdsystemunitdir/basic.target.wants/${i}"
+            systemctl -q --root "$initdir" add-wants basic.target "$i"
         done
 
         # Make sure iscsid is started after dracut-cmdline and ready for the initqueue

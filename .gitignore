@@ -10,6 +10,7 @@
 /dracut-install
 /modules.d/99base/switch_root
 /test/*/test.log
+/test/*/.testdir
 test*.img
 /.buildpath
 /.project

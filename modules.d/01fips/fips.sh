@@ -1,5 +1,17 @@
 #!/bin/sh
 
+# systemd lets stdout go to journal only, but the system
+# has to halt when the integrity check fails to satisfy FIPS.
+if [ -z "$DRACUT_SYSTEMD" ]; then
+    fips_info() {
+        info "$*"
+    }
+else
+    fips_info() {
+        echo "$*" >&2
+    }
+fi
+
 mount_boot()
 {
     boot=$(getarg boot=)
@@ -45,7 +57,7 @@ mount_boot()
         [ -e "$boot" ] || return 1
 
         mkdir /boot
-        info "Mounting $boot as /boot"
+        fips_info "Mounting $boot as /boot"
         mount -oro "$boot" /boot || return 1
     elif [ -d "$NEWROOT/boot" ]; then
         rm -fr -- /boot
@@ -65,26 +77,27 @@ do_rhevh_check()
         warn "HMAC sum mismatch"
         return 1
     fi
-    info "rhevh_check OK"
+    fips_info "rhevh_check OK"
     return 0
 }
 
-do_fips()
+nonfatal_modprobe()
 {
-    local _v
-    local _s
-    local _v
-    local _module
+    modprobe $1 2>&1 > /dev/stdout |
+        while read -r line || [ -n "$line" ]; do
+            echo "${line#modprobe: FATAL: }" >&2
+        done
+}
 
-    KERNEL=$(uname -r)
-
+fips_load_crypto()
+{
     FIPSMODULES=$(cat /etc/fipsmodules)
 
-    info "Loading and integrity checking all crypto modules"
+    fips_info "Loading and integrity checking all crypto modules"
     mv /etc/modprobe.d/fips.conf /etc/modprobe.d/fips.conf.bak
     for _module in $FIPSMODULES; do
         if [ "$_module" != "tcrypt" ]; then
-            if ! modprobe "${_module}" 2>/tmp/fips.modprobe_err; then
+            if ! nonfatal_modprobe "${_module}" 2>/tmp/fips.modprobe_err; then
                 # check if kernel provides generic algo
                 _found=0
                 while read _k _s _v || [ -n "$_k" ]; do
@@ -99,23 +112,40 @@ do_fips()
     done
     mv /etc/modprobe.d/fips.conf.bak /etc/modprobe.d/fips.conf
 
-    info "Self testing crypto algorithms"
+    fips_info "Self testing crypto algorithms"
     modprobe tcrypt || return 1
     rmmod tcrypt
+}
 
-    info "Checking integrity of kernel"
+do_fips()
+{
+    local _v
+    local _s
+    local _v
+    local _module
+
+    KERNEL=$(uname -r)
+
+    fips_info "Checking integrity of kernel"
     if [ -e "/run/initramfs/live/vmlinuz0" ]; then
         do_rhevh_check /run/initramfs/live/vmlinuz0 || return 1
     elif [ -e "/run/initramfs/live/isolinux/vmlinuz0" ]; then
         do_rhevh_check /run/initramfs/live/isolinux/vmlinuz0 || return 1
+    elif [ -e "/run/install/repo/images/pxeboot/vmlinuz" ]; then
+        # This is a boot.iso with the .hmac inside the install.img
+        do_rhevh_check /run/install/repo/images/pxeboot/vmlinuz || return 1
     else
         BOOT_IMAGE="$(getarg BOOT_IMAGE)"
+
+        # Trim off any leading GRUB boot device (e.g. ($root) )
+        BOOT_IMAGE="$(echo "${BOOT_IMAGE}" | sed 's/^(.*)//')"
+
         BOOT_IMAGE_NAME="${BOOT_IMAGE##*/}"
         BOOT_IMAGE_PATH="${BOOT_IMAGE%${BOOT_IMAGE_NAME}}"
 
         if [ -z "$BOOT_IMAGE_NAME" ]; then
             BOOT_IMAGE_NAME="vmlinuz-${KERNEL}"
-        elif ! [ -e "/boot/${BOOT_IMAGE_PATH}/${BOOT_IMAGE}" ]; then
+        elif ! [ -e "/boot/${BOOT_IMAGE_PATH}/${BOOT_IMAGE_NAME}" ]; then
             #if /boot is not a separate partition BOOT_IMAGE might start with /boot
             BOOT_IMAGE_PATH=${BOOT_IMAGE_PATH#"/boot"}
             #on some achitectures BOOT_IMAGE does not contain path to kernel
@@ -126,16 +156,16 @@ do_fips()
             fi
         fi
 
-        BOOT_IMAGE_HMAC="/boot/${BOOT_IMAGE_PATH}.${BOOT_IMAGE_NAME}.hmac"
+        BOOT_IMAGE_HMAC="/boot/${BOOT_IMAGE_PATH}/.${BOOT_IMAGE_NAME}.hmac"
         if ! [ -e "${BOOT_IMAGE_HMAC}" ]; then
             warn "${BOOT_IMAGE_HMAC} does not exist"
             return 1
         fi
 
-        sha512hmac -c "${BOOT_IMAGE_HMAC}" || return 1
+        (cd "${BOOT_IMAGE_HMAC%/*}" && sha512hmac -c "${BOOT_IMAGE_HMAC}") || return 1
     fi
 
-    info "All initrd crypto checks done"
+    fips_info "All initrd crypto checks done"
 
     > /tmp/fipsdone
 

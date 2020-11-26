@@ -187,7 +187,7 @@ installkernel()
 	printf "^%s\.ko(\.gz|\.bz2|\.xz)?:\n" "${pathlist[@]}" \
 		| (LANG=C grep -E -o -f - -- "$depmod_modules_dep" || exit 0) \
 		| tr -d ':' \
-		| (cd "$depmod_module_dir" || exit; xargs -r realpath -e --) \
+		| (cd "$depmod_module_dir" || exit; xargs -r realpath -se --) \
 		| instmods || return 1
 
 	return 0

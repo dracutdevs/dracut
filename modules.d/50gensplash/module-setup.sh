@@ -52,7 +52,7 @@ install() {
         _splash_res=${DRACUT_GENSPLASH_RES}
     elif [[ ${hostonly} ]]; then
         # Settings from config only in hostonly
-        [[ -e /etc/conf.d/splash ]] && source /etc/conf.d/splash
+        [[ -e $dracutsysrootdir/etc/conf.d/splash ]] && source $dracutsysrootdir/etc/conf.d/splash
         [[ ! ${_splash_theme} ]] && _splash_theme=default
         [[ ${_splash_res} ]] && _opts+=" -r ${_splash_res}"
     else

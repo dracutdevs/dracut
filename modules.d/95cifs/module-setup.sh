@@ -25,11 +25,11 @@ depends() {
 installkernel() {
     instmods cifs ipv6
     # hash algos
-    instmods md4 md5 sha256
+    instmods md4 md5 sha256 sha512
     # ciphers
-    instmods aes arc4 des ecb
+    instmods aes arc4 des ecb gcm aead2
     # macs
-    instmods hmac cmac
+    instmods hmac cmac ccm
 }
 
 # called by dracut
@@ -37,11 +37,17 @@ install() {
     local _i
     local _nsslibs
     inst_multiple -o mount.cifs
-    inst_multiple /etc/services /etc/nsswitch.conf /etc/protocols
+    inst_multiple /etc/nsswitch.conf
+    if [ $hostonly ]; then
+        getent services > ${initdir}/etc/services
+        getent protocols > ${initdir}/etc/protocols
+    else
+        inst_multiple /etc/services /etc/protocols
+    fi
 
     inst_libdir_file 'libcap-ng.so*'
 
-    _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
+    _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' $dracutsysrootdir/etc/nsswitch.conf \
         |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
     _nsslibs=${_nsslibs#|}
     _nsslibs=${_nsslibs%|}

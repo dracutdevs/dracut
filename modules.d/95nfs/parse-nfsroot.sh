@@ -24,6 +24,7 @@
 #
 
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+ . /lib/nfs-lib.sh
 
 # This script is sourced, so root should be set. But let's be paranoid
 [ -z "$root" ] && root=$(getarg root=)

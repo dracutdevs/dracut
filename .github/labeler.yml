@@ -1,0 +1,296 @@
+needs review:
+  - "*"
+
+repository:
+  - ./*
+
+github:
+  - .github/*
+  - .github/**/*
+
+dracut-install:
+  - install/*
+  - install/**/*
+
+example:
+  - examples/*
+  - examples/**/*
+  - examples/**/**/*
+
+modules:
+  - modules.d/*
+  - modules.d/**/*
+
+bash:
+  - modules.d/00bash/*
+
+bootchart:
+  - modules.d/00bootchart/*
+
+dash:
+  - modules.d/00dash/*
+
+mksh:
+  - modules.d/00mksh/*
+
+systemd:
+  - modules.d/00systemd/*
+
+warpclock:
+  - modules.d/00warpclock/*
+
+fips:
+  - modules.d/01fips/*
+
+systemd-initrd:
+  - modules.d/01systemd-initrd/*
+
+caps:
+  - modules.d/02caps/*
+
+systemd-networkd:
+  - modules.d/02systemd-networkd/*
+
+modsign:
+  - modules.d/03modsign/*
+
+rescue:
+  - modules.d/03rescue/*
+
+watchdog:
+  - modules.d/04watchdog/*
+
+busybox:
+  - modules.d/05busybox/*
+
+rngd:
+  - modules.d/06rngd/*
+
+i18n:
+  - modules.d/10i18n/*
+
+convertfs:
+  - modules.d/30convertfs/*
+
+network-legacy:
+  - modules.d/35network-legacy/*
+
+network-manager:
+ - modules.d/35network-manager/*
+
+network:
+  - modules.d/40network/*
+
+ifcfg:
+  - modules.d/45ifcfg/*
+
+url-lib:
+  - modules.d/45url-lib/*
+
+drm:
+  - modules.d/50drm/*
+
+gensplash:
+  - modules.d/50gensplash/*
+
+plymouth:
+  - modules.d/50plymouth/*
+
+cms:
+  - modules.d/80cms/*
+
+lvmmerge:
+  - modules.d/80lvmmerge/*
+
+cio_ignore:
+  - modules.d/81cio_ignore/*
+
+btrfs:
+  - modules.d/90btrfs/*
+
+crypt:
+  - modules.d/90crypt/*
+
+dm:
+  - modules.d/90dm/*
+
+dmraid:
+  - modules.d/90dmraid/*
+
+dmsquash-live:
+  - modules.d/90dmsquash-live/*
+
+dmsquash-live-ntfs:
+  - modules.d/90dmsquash-live-ntfs/*
+
+kernel-modules:
+  - modules.d/90kernel-modules/*
+
+kernel-modules-extra:
+  - modules.d/90kernel-modules-extra/*
+
+kernel-network-modules:
+  - modules.d/90kernel-network-modules/*
+
+livenet:
+  - modules.d/90livenet/*
+
+lvm:
+  - modules.d/90lvm/*
+
+mdraid:
+  - modules.d/90mdraid/*
+
+multipath:
+  - modules.d/90multipath/*
+
+nvdimm:
+  - modules.d/90nvdimm/*
+
+ppcmac:
+  - modules.d/90ppcmac/*
+
+qemu:
+  - modules.d/90qemu/*
+
+qemu-net:
+  - modules.d/90qemu-net/*
+
+stratis:
+  - modules.d/90stratis/*
+
+crypt-gpg:
+  - modules.d/91crypt-gpg/*
+
+crypt-loop:
+  - modules.d/91crypt-loop/*
+
+zipl:
+  - modules.d/91zipl/*
+
+cifs:
+  - modules.d/95cifs/*
+
+dasd:
+  - modules.d/95dasd/*
+
+dasd_mod:
+  - modules.d/95dasd_mod/*
+
+dasd_rules:
+  - modules.d/95dasd_rules/*
+
+dcssblk:
+  - modules.d/95dcssblk/*
+
+debug:
+  - modules.d/95debug/*
+
+fcoe:
+  - modules.d/95fcoe/*
+
+fcoe-uefi:
+  - modules.d/95fcoe-uefi/*
+
+fstab-sys:
+  - modules.d/95fstab-sys/*
+
+iscsi:
+  - modules.d/95iscsi/*
+
+lunmask:
+  - modules.d/95lunmask/*
+
+nbd:
+  - modules.d/95nbd/*
+
+nfs:
+  - modules.d/95nfs/*
+
+nvmf:
+  - modules.d/95nvmf/*
+
+qeth_rules:
+  - modules.d/95qeth_rules/*
+
+resume:
+  - modules.d/95resume/*
+
+rootfs-block:
+  - modules.d/95rootfs-block/*
+
+ssh-client:
+  - modules.d/95ssh-client/*
+
+terminfo:
+  - modules.d/95terminfo/*
+
+udev-rules:
+  - modules.d/95udev-rules/*
+
+virtfs:
+  - modules.d/95virtfs/*
+
+zfcp:
+  - modules.d/95zfcp/*
+
+zfcp_rules:
+  - modules.d/95zfcp_rules/*
+
+znet:
+  - modules.d/95znet/*
+
+securityfs:
+  - modules.d/96securityfs/*
+
+biosdevname:
+  - modules.d/97biosdevname/*
+
+masterkey:
+- modules.d/97masterkey/*
+
+dracut-systemd:
+  - modules.d/98dracut-systemd/*
+
+ecryptfs:
+  - modules.d/98ecryptfs/*
+
+integrity:
+  - modules.d/98integrity/*
+
+pollcdrom:
+  - modules.d/98pollcdrom/*
+
+selinux:
+  - modules.d/98selinux/*
+
+syslog:
+  - modules.d/98syslog/*
+
+usrmount:
+  - modules.d/98usrmount/*
+
+base:
+  - modules.d/99base/*
+
+fs-lib:
+  - modules.d/99fs-lib/*
+
+img-lib:
+  - modules.d/99img-lib/*
+
+memstrack:
+  - modules.d/99memstrack/*
+
+shutdown:
+  - modules.d/99shutdown/*
+
+squash:
+  - modules.d/99squash/*
+
+uefi-lib:
+  - modules.d/99uefi-lib/*
+
+test:
+  - test/*
+  - test/**/*

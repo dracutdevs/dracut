@@ -137,7 +137,8 @@ def parse_options(args):
 def main():
     try:
         options = parse_options(sys.argv[1:])
-    except Usage, (msg, no_error):
+    except Usage as e:
+        msg, no_error = e.args
         if no_error:
             out = sys.stdout
             ret = 0
@@ -179,12 +180,12 @@ def main():
         creator.install()
         creator.configure()
         if options.give_shell:
-            print "Launching shell. Exit to continue."
-            print "----------------------------------"
+            print("Launching shell. Exit to continue.")
+            print("----------------------------------")
             creator.launch_shell()
         creator.unmount()
         creator.package(os.environ.get("TESTDIR", "."))
-    except imgcreate.CreatorError, e:
+    except imgcreate.CreatorError as e:
         logging.error(u"Error creating Live CD : %s" % e)
         return 1
     finally:

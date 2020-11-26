@@ -112,8 +112,8 @@ nfsroot_from_dhcp() {
     [ -n "$new_root_path" ] && nfsroot_to_var "$nfs:$new_root_path"
     [ -z "$path" ] && [ "$(getarg root=)" = "/dev/nfs" ] && path=/tftpboot/%s
     [ -z "$server" ] && server=$srv
-    [ -z "$server" ] && server=$new_dhcp_server_identifier
     [ -z "$server" ] && server=$new_next_server
+    [ -z "$server" ] && server=$new_dhcp_server_identifier
     [ -z "$server" ] && server=$BOOTSERVERADDR
     [ -z "$server" ] && server=${new_root_path%%:*}
 }

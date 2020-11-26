@@ -104,16 +104,16 @@ install() {
     fi
 
     if [[ $hostonly ]] || [[ $mdadmconf = "yes" ]]; then
-        if [ -f /etc/mdadm.conf ]; then
+        if [ -f $dracutsysrootdir/etc/mdadm.conf ]; then
             inst -H /etc/mdadm.conf
         else
-            [ -f /etc/mdadm/mdadm.conf ] && inst -H /etc/mdadm/mdadm.conf /etc/mdadm.conf
+            [ -f $dracutsysrootdir/etc/mdadm/mdadm.conf ] && inst -H /etc/mdadm/mdadm.conf /etc/mdadm.conf
         fi
-        if [ -d /etc/mdadm.conf.d ]; then
+        if [ -d $dracutsysrootdir/etc/mdadm.conf.d ]; then
             local f
             inst_dir /etc/mdadm.conf.d
             for f in /etc/mdadm.conf.d/*.conf; do
-                [ -f "$f" ] || continue
+                [ -f "$dracutsysrootdir$f" ] || continue
                 inst -H "$f"
             done
         fi
@@ -127,13 +127,13 @@ install() {
     inst_script "$moddir/mdraid-cleanup.sh" /sbin/mdraid-cleanup
     inst_script "$moddir/mdraid_start.sh" /sbin/mdraid_start
     if dracut_module_included "systemd"; then
-        if [ -e $systemdsystemunitdir/mdmon@.service ]; then
+        if [ -e $dracutsysrootdir$systemdsystemunitdir/mdmon@.service ]; then
             inst_simple $systemdsystemunitdir/mdmon@.service
         fi
-        if [ -e $systemdsystemunitdir/mdadm-last-resort@.service ]; then
+        if [ -e $dracutsysrootdir$systemdsystemunitdir/mdadm-last-resort@.service ]; then
             inst_simple $systemdsystemunitdir/mdadm-last-resort@.service
         fi
-        if [ -e $systemdsystemunitdir/mdadm-last-resort@.timer ]; then
+        if [ -e $dracutsysrootdir$systemdsystemunitdir/mdadm-last-resort@.timer ]; then
             inst_simple $systemdsystemunitdir/mdadm-last-resort@.timer
         fi
     fi

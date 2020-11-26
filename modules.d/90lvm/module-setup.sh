@@ -36,7 +36,7 @@ cmdline() {
         eval $(dmsetup splitname --nameprefixes --noheadings --rows "$dev" 2>/dev/null)
         [[ ${DM_VG_NAME} ]] && [[ ${DM_LV_NAME} ]] || return 1
         if ! [[ ${_activated[${DM_VG_NAME}/${DM_LV_NAME}]} ]]; then
-            printf " rd.lvm.lv=%s\n" "${DM_VG_NAME}/${DM_LV_NAME} "
+            printf " rd.lvm.lv=%s " "${DM_VG_NAME}/${DM_LV_NAME} "
             _activated["${DM_VG_NAME}/${DM_LV_NAME}"]=1
         fi
     done
@@ -60,7 +60,7 @@ install() {
     inst_rules "$moddir/64-lvm.rules"
 
     if [[ $hostonly ]] || [[ $lvmconf = "yes" ]]; then
-        if [ -f /etc/lvm/lvm.conf ]; then
+        if [ -f $dracutsysrootdir/etc/lvm/lvm.conf ]; then
             inst_simple -H /etc/lvm/lvm.conf
             # FIXME: near-term hack to establish read-only locking;
             # use command-line lvm.conf editor once it is available
@@ -70,7 +70,7 @@ install() {
 
         export LVM_SUPPRESS_FD_WARNINGS=1
         # Also install any files needed for LVM system id support.
-        if [ -f /etc/lvm/lvmlocal.conf ]; then
+        if [ -f $dracutsysrootdir/etc/lvm/lvmlocal.conf ]; then
             inst_simple -H /etc/lvm/lvmlocal.conf
         fi
         eval $(lvm dumpconfig global/system_id_source &>/dev/null)
@@ -101,7 +101,7 @@ install() {
             sed -i -e 's/^ENV{SYSTEMD_ALIAS}=.*/# No LVM pvscan in dracut - lvmetad is not running yet/' \
                 ${initdir}/lib/udev/rules.d/69-dm-lvm-metad.rules
             sed -i -e 's/^ENV{ID_MODEL}=.*//' ${initdir}/lib/udev/rules.d/69-dm-lvm-metad.rules
-            sed -i -e 's/^ENV{SYSTEMD_WANTS}=.*//' ${initdir}/lib/udev/rules.d/69-dm-lvm-metad.rules
+            sed -i -e 's/^ENV{SYSTEMD_WANTS}+\?=.*//' ${initdir}/lib/udev/rules.d/69-dm-lvm-metad.rules
         else
             sed -i -e 's/.*lvm pvscan.*/# No LVM pvscan for in dracut - lvmetad is not running yet/' \
                 ${initdir}/lib/udev/rules.d/69-dm-lvm-metad.rules

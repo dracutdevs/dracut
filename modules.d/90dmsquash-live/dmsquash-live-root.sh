@@ -268,20 +268,6 @@ do_live_overlay() {
 }
 # end do_live_overlay()
 
-# we might have a genMinInstDelta delta file for anaconda to take advantage of
-if [ -e /run/initramfs/live/${live_dir}/osmin.img ]; then
-    OSMINSQFS=/run/initramfs/live/${live_dir}/osmin.img
-    # decompress the delta data
-    dd if=$OSMINSQFS of=/run/initramfs/osmin.img 2> /dev/null
-    OSMIN_SQUASHED_LOOPDEV=$( losetup -f )
-    losetup -r $OSMIN_SQUASHED_LOOPDEV /run/initramfs/osmin.img
-    mkdir -m 0755 -p /run/initramfs/squashfs.osmin
-    mount -n -t squashfs -o ro $OSMIN_SQUASHED_LOOPDEV /run/initramfs/squashfs.osmin
-    OSMIN_LOOPDEV=$( losetup -f )
-    losetup -r $OSMIN_LOOPDEV /run/initramfs/squashfs.osmin/osmin
-    umount -l /run/initramfs/squashfs.osmin
-fi
-
 # we might have an embedded fs image on squashfs (compressed live)
 if [ -e /run/initramfs/live/${live_dir}/${squash_image} ]; then
     SQUASHED="/run/initramfs/live/${live_dir}/${squash_image}"
@@ -368,12 +354,6 @@ if [ -n "$FSIMG" ]; then
         # Add a DM snapshot or OverlayFS for writes.
         do_live_overlay
     fi
-fi
-
-if [ -b "$OSMIN_LOOPDEV" ]; then
-    # set up the devicemapper snapshot device, which will merge
-    # the normal live fs image, and the delta, into a minimzied fs image
-    echo "0 $sz snapshot $BASE_LOOPDEV $OSMIN_LOOPDEV P 8" | dmsetup create --readonly live-osimg-min
 fi
 
 if [ -n "$reloadsysrootmountunit" ]; then

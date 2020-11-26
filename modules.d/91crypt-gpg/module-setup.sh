@@ -30,7 +30,7 @@ install() {
         inst_multiple gpg-agent
         inst_multiple gpg-connect-agent
         inst_multiple /usr/libexec/scdaemon
-        cp "$(sc_public_key)" "${initdir}/root/"
+        cp "$dracutsysrootdir$(sc_public_key)" "${initdir}/root/"
     fi
 }
 
@@ -46,7 +46,7 @@ sc_supported() {
        require_binaries gpg-agent &&
        require_binaries gpg-connect-agent &&
        require_binaries /usr/libexec/scdaemon &&
-       (ldd /usr/libexec/scdaemon | grep libusb > /dev/null); then
+       ($DRACUT_LDD $dracutsysrootdir/usr/libexec/scdaemon | grep libusb > /dev/null); then
         return 0
     else
         return 1
@@ -54,7 +54,7 @@ sc_supported() {
 }
 
 sc_requested() {
-    if [ -f "$(sc_public_key)" ]; then
+    if [ -f "$dracutsysrootdir$(sc_public_key)" ]; then
         return 0
     else
         return 1

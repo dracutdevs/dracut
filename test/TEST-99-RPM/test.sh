@@ -27,8 +27,8 @@ test_run() {
 
     mkdir -p "$rootdir/$TESTDIR"
     cp --reflink=auto -a \
-       "$TESTDIR"/dracut-[0-9]*.$(arch).rpm \
-       "$TESTDIR"/dracut-network-[0-9]*.$(arch).rpm \
+       "$TESTDIR"/dracut-[0-9]*.$(uname -m).rpm \
+       "$TESTDIR"/dracut-network-[0-9]*.$(uname -m).rpm \
        "$rootdir/$TESTDIR/"
     . /etc/os-release
     dnf_or_yum=yum
@@ -36,7 +36,7 @@ test_run() {
     command -v dnf >/dev/null && { dnf_or_yum="dnf"; dnf_or_yum_cmd="dnf --allowerasing"; }
     for (( i=0; i < 5 ; i++)); do
         $dnf_or_yum_cmd -v --nogpgcheck --installroot "$rootdir"/ --releasever "$VERSION_ID" --disablerepo='*' \
-                        --enablerepo=fedora --enablerepo=updates \
+                        --enablerepo=fedora --enablerepo=updates --setopt=install_weak_deps=False \
                         install -y \
                         $dnf_or_yum \
                         passwd \
@@ -51,10 +51,10 @@ test_run() {
                         mdadm \
                         bash \
                         iscsi-initiator-utils \
-                        "$TESTDIR"/dracut-[0-9]*.$(arch).rpm \
+                        "$TESTDIR"/dracut-[0-9]*.$(uname -m).rpm \
                         ${NULL} && break
-        #"$TESTDIR"/dracut-config-rescue-[0-9]*.$(arch).rpm \
-            #"$TESTDIR"/dracut-network-[0-9]*.$(arch).rpm \
+        #"$TESTDIR"/dracut-config-rescue-[0-9]*.$(uname -m).rpm \
+            #"$TESTDIR"/dracut-network-[0-9]*.$(uname -m).rpm \
             #    ${NULL}
     done
     (( i < 5 ))
@@ -84,6 +84,7 @@ find / -xdev -type f -not -path '/var/*' \
   -not -path "/boot/loader/entries/\$(cat /etc/machine-id)-*" \
   -not -path "/boot/\$(cat /etc/machine-id)/*" \
   -not -path '/etc/openldap/certs/*' \
+  -not -path '/etc/dnf/*' \
   -print0 | xargs -0 rpm -qf | \
   grep -F 'not owned' &>> /test.output || :
 exit 0

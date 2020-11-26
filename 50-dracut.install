@@ -35,10 +35,14 @@ case "$COMMAND" in
             read -r -d '' -a BOOT_OPTIONS < /etc/kernel/cmdline
         elif [[ -f /usr/lib/kernel/cmdline ]]; then
             read -r -d '' -a BOOT_OPTIONS < /usr/lib/kernel/cmdline
-        fi
+        else
+            declare -a BOOT_OPTIONS
 
-        if ! [[ ${BOOT_OPTIONS[*]} ]]; then
-            read -r -d '' -a BOOT_OPTIONS < /proc/cmdline
+            read -r -d '' -a line < /proc/cmdline
+            for i in "${line[@]}"; do
+                [[ "${i#initrd=*}" != "$i" ]] && continue
+                BOOT_OPTIONS+=("$i")
+            done
         fi
 
         unset noimageifnotneeded

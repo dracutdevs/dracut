@@ -6,7 +6,7 @@ pkglib_dir() {
         _dirs+=" /usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/plymouth"
     fi
     for _dir in $_dirs; do
-        if [ -x $_dir/plymouth-populate-initrd ]; then
+        if [ -x $dracutsysrootdir$_dir/plymouth-populate-initrd ]; then
             echo $_dir
             return
         fi
@@ -29,12 +29,12 @@ depends() {
 # called by dracut
 install() {
     PKGLIBDIR=$(pkglib_dir)
-    if grep -q nash ${PKGLIBDIR}/plymouth-populate-initrd \
-        || [ ! -x ${PKGLIBDIR}/plymouth-populate-initrd ]; then
+    if grep -q nash $dracutsysrootdir${PKGLIBDIR}/plymouth-populate-initrd \
+        || [ ! -x $dracutsysrootdir${PKGLIBDIR}/plymouth-populate-initrd ]; then
         . "$moddir"/plymouth-populate-initrd.sh
     else
         PLYMOUTH_POPULATE_SOURCE_FUNCTIONS="$dracutfunctions" \
-            ${PKGLIBDIR}/plymouth-populate-initrd -t "$initdir"
+            $dracutsysrootdir${PKGLIBDIR}/plymouth-populate-initrd -t "$initdir"
     fi
 
     inst_hook emergency 50 "$moddir"/plymouth-emergency.sh
