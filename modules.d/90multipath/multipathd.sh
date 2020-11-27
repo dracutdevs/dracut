@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ "$(getarg rd.multipath)x" == "default" ] && [ ! -e /etc/multipath.conf ]; then
+if [ "$(getarg rd.multipath)" = "default" ] && [ ! -e /etc/multipath.conf ]; then
     mkdir -p /etc/multipath/multipath.conf.d
     mpathconf --enable
 fi
