@@ -109,7 +109,7 @@ if [ $ret -eq 0 ]; then
             # already got one successful interface
 
             npid=$(cat /tmp/dhclient.$netif.pid)
-            pidlist=$(ps -ax | grep dhclient | awk '{print $1 }')
+            pidlist=$(pgrep dhclient)
             for pid in $pidlist; do
                 [ "$pid" -eq "$npid" ] && continue
                 kill -9 $pid >/dev/null 2>&1
