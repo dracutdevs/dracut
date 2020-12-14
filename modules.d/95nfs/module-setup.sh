@@ -77,16 +77,8 @@ cmdline() {
 install() {
     local _i
     local _nsslibs
-    inst_multiple -o portmap rpcbind rpc.statd mount.nfs \
-        mount.nfs4 umount rpc.idmapd sed /etc/netconfig chmod "$tmpfilesdir/rpcbind.conf"
-    inst_multiple /etc/nsswitch.conf /etc/idmapd.conf
-    if [ $hostonly ]; then
-        getent services > ${initdir}/etc/services
-        getent protocols > ${initdir}/etc/protocols
-        getent rpc > ${initdir}/etc/rpc
-    else
-        inst_multiple /etc/services /etc/protocols /etc/rpc
-    fi
+    inst_multiple -o rpc.idmapd mount.nfs mount.nfs4 umount sed /etc/netconfig chmod "$tmpfilesdir/rpcbind.conf"
+    inst_multiple /etc/services /etc/nsswitch.conf /etc/rpc /etc/protocols /etc/idmapd.conf
 
     if [[ $hostonly_cmdline == "yes" ]]; then
         local _netconf="$(cmdline)"
