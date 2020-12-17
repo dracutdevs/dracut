@@ -1868,20 +1868,6 @@ for ((i=0; i < ${#include_src[@]}; i++)); do
     fi
 done
 
-if [[ $kernel_only != yes ]]; then
-    # make sure that library links are correct and up to date
-    for f in $dracutsysrootdir/etc/ld.so.conf $dracutsysrootdir/etc/ld.so.conf.d/*; do
-        [[ -f $f ]] && inst_simple "${f#$dracutsysrootdir}"
-    done
-    if ! $DRACUT_LDCONFIG -r "$initdir" -f /etc/ld.so.conf; then
-        if [[ $EUID = 0 ]]; then
-            derror "ldconfig exited ungracefully"
-        else
-            derror "ldconfig might need uid=0 (root) for chroot()"
-        fi
-    fi
-fi
-
 if [[ $do_hardlink = yes ]] && command -v hardlink >/dev/null; then
     dinfo "*** Hardlinking files ***"
     hardlink "$initdir" 2>&1
@@ -2061,6 +2047,20 @@ if [[ $kernel_only != yes ]]; then
               break 2
           done
       done
+    fi
+fi
+
+if [[ $kernel_only != yes ]]; then
+    # make sure that library links are correct and up to date
+    for f in $dracutsysrootdir/etc/ld.so.conf $dracutsysrootdir/etc/ld.so.conf.d/*; do
+        [[ -f $f ]] && inst_simple "${f#$dracutsysrootdir}"
+    done
+    if ! $DRACUT_LDCONFIG -r "$initdir" -f /etc/ld.so.conf; then
+        if [[ $EUID = 0 ]]; then
+            derror "ldconfig exited ungracefully"
+        else
+            derror "ldconfig might need uid=0 (root) for chroot()"
+        fi
     fi
 fi
 
