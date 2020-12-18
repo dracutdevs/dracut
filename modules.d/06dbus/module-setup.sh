@@ -26,20 +26,20 @@ install() {
   inst_multiple \
     $systemdsystemunitdir/dbus.service \
     $systemdsystemunitdir/dbus.socket \
-    /usr/bin/dbus-send \
-    /usr/bin/busctl
+    dbus-send \
+    busctl
   adjust_dependencies $systemdsystemunitdir/dbus.service
 
-  if [[ -e /usr/bin/dbus-daemon ]]; then
+  if type -P dbus-daemon >/dev/null; then
     inst_multiple \
-      /usr/bin/dbus-daemon
+      dbus-daemon
   fi
 
-  if [[ -e /usr/bin/dbus-broker ]]; then
+  if type -P dbus-broker >/dev/null; then
     inst_multiple \
       $systemdsystemunitdir/dbus-broker.service \
-      /usr/bin/dbus-broker \
-      /usr/bin/dbus-broker-launch
+      dbus-broker \
+      dbus-broker-launch
     adjust_dependencies $systemdsystemunitdir/dbus-broker.service
   fi
 
