@@ -59,12 +59,12 @@ install() {
 Conflicts=shutdown.target\
 Before=shutdown.target
 /^\[Socket\]/aRemoveOnStop=yes' \
-    "$initdir"/usr/lib/systemd/system/dbus.socket
+    "$initdir$systemdsystemunitdir/dbus.socket"
 
   #We need to make sure that systemd-tmpfiles-setup.service->dbus.socket will not wait local-fs.target to start,
   #If swap is encrypted, this would make dbus wait the timeout for the swap before loading. This could delay sysinit
   #services that are dependent on dbus.service.
   sed -i -Ee \
     '/^After/s/(After[[:space:]]*=.*)(local-fs.target[[:space:]]*)(.*)/\1-\.mount \3/' \
-    "$initdir"/usr/lib/systemd/system/systemd-tmpfiles-setup.service
+    "$initdir$systemdsystemunitdir/systemd-tmpfiles-setup.service"
 }
