@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 #
 # Copyright 2005-2010 Harald Hoyer <harald@redhat.com>
 # Copyright 2005-2010 Red Hat, Inc.  All rights reserved.
