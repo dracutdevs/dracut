@@ -1,4 +1,4 @@
-#!/bin/bash -p
+#!/usr/bin/bash -p
 #
 # Generator script for a dracut initramfs
 # Tries to retain some degree of compatibility with the command line
