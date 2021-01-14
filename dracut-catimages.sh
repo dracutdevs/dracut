@@ -1,4 +1,4 @@
-#!/bin/bash --norc
+#!/usr/bin/bash --norc
 #
 # Copyright 2009 Red Hat, Inc.  All rights reserved.
 #
