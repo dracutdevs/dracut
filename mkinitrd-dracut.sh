@@ -1,4 +1,4 @@
-#!/bin/bash --norc
+#!/usr/bin/bash --norc
 kver=$(uname -r)
 
 boot_dir="/boot"
