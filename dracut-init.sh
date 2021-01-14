@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 #
 # functions used only by dracut and dracut modules
 #
@@ -355,7 +355,7 @@ inst_rule_programs() {
         _bin=""
         if [ -x ${udevdir}/$_prog ]; then
             _bin=${udevdir}/$_prog
-        elif [[ "${_prog/\$env\{/}" == "$_prog" ]] && [[ "${_prog}" != "/sbin/initqueue" ]]; then
+        elif [[ "${_prog/\$env\{/}" == "$_prog" ]] && [[ "${_prog}" != "/usr/sbin/initqueue" ]]; then
             _bin=$(find_binary "$_prog") || {
                 dinfo "Skipping program $_prog using in udev rule ${1##*/} as it cannot be found"
                 continue;
@@ -484,7 +484,7 @@ prepare_udev_rules() {
                 if [ $UDEVVERSION -ge 176 ]; then
                     printf '%sIMPORT{builtin}="blkid"\n' "${line%%IMPORT BLKID}"
                 else
-                    printf '%sIMPORT{program}="/sbin/blkid -o udev -p $tempnode"\n' "${line%%IMPORT BLKID}"
+                    printf '%sIMPORT{program}="/usr/sbin/blkid -o udev -p $tempnode"\n' "${line%%IMPORT BLKID}"
                 fi
             else
                 echo "$line"
