@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 #
 # logging faciality module for dracut both at build- and boot-time
 #
