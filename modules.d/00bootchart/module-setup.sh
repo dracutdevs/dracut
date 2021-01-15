@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # called by dracut
 check() {
     [[ "$mount_needs" ]] && return 1
-    require_binaries /sbin/bootchartd || return 1
+    require_binaries /usr/sbin/bootchartd || return 1
     return 255
 }
 
@@ -14,7 +14,7 @@ depends() {
 
 # called by dracut
 install() {
-    inst_symlink /init /sbin/init
+    inst_symlink /init /usr/sbin/init
     inst_dir /lib/bootchart/tmpfs
 
     inst_multiple bootchartd bash \
