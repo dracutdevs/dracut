@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 #
 # Supported formats:
 # nvmf.hostnqn=<hostnqn>
@@ -131,13 +131,13 @@ done
 [ -f "/etc/nvme/hostid" ] || exit 0
 
 if [ -f "/etc/nvme/discovery.conf" ] ; then
-    /sbin/initqueue --settled --onetime --unique --name nvme-discover /usr/sbin/nvme connect-all
+    /usr/sbin/initqueue --settled --onetime --unique --name nvme-discover /usr/sbin/nvme connect-all
     if [ "$trtype" = "tcp" ] ; then
         > /tmp/net.$ifname.did-setup
     fi
 else
     # No nvme command line arguments present, try autodiscovery
     if [ "$trtype" = "fc" ] ; then
-        /sbin/initqueue --finished --onetime --unique --name nvme-fc-autoconnect /sbin/nvmf-autoconnect.sh
+        /usr/sbin/initqueue --finished --onetime --unique --name nvme-fc-autoconnect /usr/sbin/nvmf-autoconnect.sh
     fi
 fi
