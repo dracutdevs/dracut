@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 command -v getarg >/dev/null          || . /lib/dracut-lib.sh
 command -v ibft_to_cmdline >/dev/null || . /lib/net-lib.sh
