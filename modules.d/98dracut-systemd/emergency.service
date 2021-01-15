@@ -15,7 +15,7 @@ Environment=HOME=/
 Environment=DRACUT_SYSTEMD=1
 Environment=NEWROOT=/sysroot
 WorkingDirectory=/
-ExecStart=/bin/dracut-emergency
+ExecStart=/usr/bin/dracut-emergency
 ExecStopPost=-/usr/bin/systemctl --fail --no-block default
 Type=idle
 StandardInput=tty-force
