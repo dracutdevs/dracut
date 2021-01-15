@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 # NFS root might have reached here before /tmp/net.ifaces was written
 type is_persistent_ethernet_name >/dev/null 2>&1 || . /lib/net-lib.sh
