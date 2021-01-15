@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # called by dracut
 check() {
@@ -25,7 +25,7 @@ install() {
     inst_hook cmdline 30 "$moddir/parse-zfcp.sh"
     inst_multiple zfcp_cio_free grep sed seq
 
-    inst_script /sbin/zfcpconf.sh
+    inst_script /usr/sbin/zfcpconf.sh
     inst_rules 56-zfcp.rules
 
     if [[ $hostonly ]]; then

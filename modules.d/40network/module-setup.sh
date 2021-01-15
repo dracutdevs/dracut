@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # called by dracut
 check() {
@@ -38,7 +38,7 @@ installkernel() {
 install() {
     local _arch _i _dir
 
-    inst_script "$moddir/netroot.sh" "/sbin/netroot"
+    inst_script "$moddir/netroot.sh" "/usr/sbin/netroot"
     inst_simple "$moddir/net-lib.sh" "/lib/net-lib.sh"
     inst_hook pre-udev 50 "$moddir/ifname-genrules.sh"
     inst_hook cmdline 91 "$moddir/dhcp-root.sh"
