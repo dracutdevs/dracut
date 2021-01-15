@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 exec >/dev/console 2>&1
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 strstr() { [ "${1#*$2*}" != "$1" ]; }
