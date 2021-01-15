@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 # livenetroot - fetch a live image from the network and run it
 
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
@@ -50,4 +50,4 @@ else
     root=$imgfile
 fi
 
-exec /sbin/dmsquash-live-root $root
+exec /usr/sbin/dmsquash-live-root $root
