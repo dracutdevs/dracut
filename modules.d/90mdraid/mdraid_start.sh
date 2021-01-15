@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 type getargs >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
@@ -45,7 +45,7 @@ _md_force_run() {
         for _md in /dev/md[0-9_]*; do
             [ -b "$_md" ] || continue
             _UUID=$(
-                /sbin/mdadm -D --export "$_md" \
+                /usr/sbin/mdadm -D --export "$_md" \
                     | while read line || [ -n "$line" ]; do
                     str_starts "$line" "MD_UUID=" || continue
                     printf "%s" "${line#MD_UUID=}"
