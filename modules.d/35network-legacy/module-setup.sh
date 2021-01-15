@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # called by dracut
 check() {
@@ -26,13 +26,13 @@ install() {
     inst_multiple ip dhclient sed awk grep
 
     inst_multiple -o arping arping2
-    strstr "$(arping 2>&1)" "ARPing 2" && mv "$initdir/bin/arping" "$initdir/bin/arping2"
+    strstr "$(arping 2>&1)" "ARPing 2" && mv "$initdir/usr/bin/arping" "$initdir/usr/bin/arping2"
 
     inst_multiple -o ping ping6
     inst_multiple -o teamd teamdctl teamnl
     inst_simple /etc/libnl/classid
-    inst_script "$moddir/ifup.sh" "/sbin/ifup"
-    inst_script "$moddir/dhclient-script.sh" "/sbin/dhclient-script"
+    inst_script "$moddir/ifup.sh" "/usr/sbin/ifup"
+    inst_script "$moddir/dhclient-script.sh" "/usr/sbin/dhclient-script"
     inst_simple -H "/etc/dhclient.conf"
     cat "$moddir/dhclient.conf" >> "${initdir}/etc/dhclient.conf"
     inst_hook pre-udev 60 "$moddir/net-genrules.sh"
