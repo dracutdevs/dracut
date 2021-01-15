@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 # nodmraid for anaconda / rc.sysinit compatibility
 if ! getargbool 1 rd.dm -d -n rd_NO_DM || getarg "rd.dm=0" -d nodmraid; then

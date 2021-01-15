@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # called by dracut
 check() {
@@ -71,15 +71,15 @@ install() {
 
     inst_multiple dmraid
     inst_multiple -o kpartx
-    inst $(command -v partx) /sbin/partx
+    inst $(command -v partx) /usr/sbin/partx
 
-    inst "$moddir/dmraid.sh" /sbin/dmraid_scan
+    inst "$moddir/dmraid.sh" /usr/sbin/dmraid_scan
 
     inst_rules 66-kpartx.rules 67-kpartx-compat.rules
 
     inst_libdir_file "libdmraid-events*.so*"
 
     inst_rules "$moddir/61-dmraid-imsm.rules"
-    #inst "$moddir/dmraid-cleanup.sh" /sbin/dmraid-cleanup
+    #inst "$moddir/dmraid-cleanup.sh" /usr/sbin/dmraid-cleanup
     inst_hook pre-trigger 30 "$moddir/parse-dm.sh"
 }
