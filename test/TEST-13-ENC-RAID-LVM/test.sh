@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 TEST_DESCRIPTION="root filesystem on LVM on encrypted partitions of a RAID-5"
 
 KVERSION=${KVERSION-$(uname -r)}
@@ -72,8 +72,8 @@ test_setup() {
             [ -f ${_terminfodir}/l/linux ] && break
         done
         inst_multiple -o ${_terminfodir}/l/linux
-        inst "$basedir/modules.d/35network-legacy/dhclient-script.sh" "/sbin/dhclient-script"
-        inst "$basedir/modules.d/35network-legacy/ifup.sh" "/sbin/ifup"
+        inst "$basedir/modules.d/35network-legacy/dhclient-script.sh" "/usr/sbin/dhclient-script"
+        inst "$basedir/modules.d/35network-legacy/ifup.sh" "/usr/sbin/ifup"
         inst_multiple grep
         inst_simple /etc/os-release
         inst ./test-init.sh /sbin/init
