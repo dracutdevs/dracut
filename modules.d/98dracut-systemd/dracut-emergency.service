@@ -14,8 +14,8 @@ Environment=HOME=/
 Environment=DRACUT_SYSTEMD=1
 Environment=NEWROOT=/sysroot
 WorkingDirectory=/
-ExecStart=-/bin/dracut-emergency
-ExecStopPost=-/bin/rm -f -- /.console_lock
+ExecStart=-/usr/bin/dracut-emergency
+ExecStopPost=-/usr/bin/rm -f -- /.console_lock
 Type=oneshot
 StandardInput=tty-force
 StandardOutput=inherit
