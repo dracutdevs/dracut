@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 check() {
     if ! dracut_module_included "systemd-initrd"; then
