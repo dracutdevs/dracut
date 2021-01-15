@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/usr/bin/sh
 # live images are specified with
 # root=live:backingdev
 
 isofile=$(getarg iso-scan/filename)
 
 if [ -n "$isofile" ]; then
-    /sbin/initqueue --settled --unique /sbin/iso-scan "$isofile"
+    /usr/sbin/initqueue --settled --unique /usr/sbin/iso-scan "$isofile"
 fi
