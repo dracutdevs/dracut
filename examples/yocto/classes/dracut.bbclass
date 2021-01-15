@@ -98,7 +98,7 @@ python dracut_populate_packages() {
 
     postinst = d.getVar('pkg_postinst_%s' % pkg, True)
     if not postinst:
-        postinst = '#!/bin/sh\n'
+        postinst = '#!/usr/bin/sh\n'
     postinst += localdata.getVar('dracut_postinst', True)
     d.setVar('pkg_postinst_%s' % pkg, postinst)
 }

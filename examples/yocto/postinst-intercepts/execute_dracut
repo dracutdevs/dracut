@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 set -e
 
@@ -14,7 +14,7 @@ export prefix=
 # DRACUT settings
 export UDEVVERSION=241
 export SYSTEMD_VERSION=241
-export DRACUT_TESTBIN=/bin/bash.bash
+export DRACUT_TESTBIN=/usr/bin/bash.bash
 export DRACUT_INSTALL_PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 # PLYMOUTH settings
