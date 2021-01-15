@@ -8,7 +8,7 @@ ConditionKernelCommandLine=|rd.memdebug=5
 
 [Service]
 Type=simple
-ExecStart=/bin/memstrack-start
+ExecStart=/usr/bin/memstrack-start
 PIDFile=/run/memstrack.pid
 StandardInput=null
 StandardOutput=journal+console
