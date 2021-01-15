@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 dcb="$1"
 
@@ -42,7 +42,7 @@ for disk in /sys/firmware/edd/int13_*; do
         if [ -e ${nic}/address ]; then
 	    fcoe_interface=${nic##*/}
 	    if ! [ -e "/tmp/.fcoe-$fcoe_interface" ]; then
-		/sbin/fcoe-up "$fcoe_interface" "$dcb"
+		/usr/sbin/fcoe-up "$fcoe_interface" "$dcb"
 		> "/tmp/.fcoe-$fcoe_interface"
 	    fi
         fi
