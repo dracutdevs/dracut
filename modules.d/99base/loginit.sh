@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 # turn off debugging
 set +x

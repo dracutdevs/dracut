@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 #
 # Licensed under the GPLv2
 #
@@ -64,7 +64,7 @@ fi
 
 if ! ismounted /run; then
     mkdir -m 0755 /newrun
-    if ! str_starts "$(readlink -f /bin/sh)" "/run/"; then
+    if ! str_starts "$(readlink -f /usr/bin/sh)" "/run/"; then
         mount -t tmpfs -o mode=0755,noexec,nosuid,nodev,strictatime tmpfs /newrun >/dev/null
     else
         # the initramfs binaries are located in /run, so don't mount it with noexec
@@ -277,7 +277,7 @@ source_hook cleanup
 
 # By the time we get here, the root filesystem should be mounted.
 # Try to find init.
-for i in "$(getarg real_init=)" "$(getarg init=)" $(getargs rd.distroinit=) /sbin/init; do
+for i in "$(getarg real_init=)" "$(getarg init=)" $(getargs rd.distroinit=) /usr/sbin/init; do
     [ -n "$i" ] || continue
 
     __p="${NEWROOT}/${i}"
