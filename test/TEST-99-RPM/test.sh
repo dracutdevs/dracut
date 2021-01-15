@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 TEST_DESCRIPTION="rpm integrity after dracut and kernel install"
 

@@ -1,6 +1,4 @@
-#!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
-# ex: ts=8 sw=4 sts=4 et filetype=sh
+#!/usr/bin/bash
 
 
 if [[ $NM ]]; then
@@ -241,7 +239,7 @@ test_setup() {
         [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
         instmods nfsd sunrpc ipv6 lockd af_packet 8021q ipvlan macvlan
         inst_simple /etc/os-release
-        inst ./server-init.sh /sbin/init
+        inst ./server-init.sh /usr/sbin/init
         inst ./hosts /etc/hosts
         inst ./exports /etc/exports
         inst ./dhcpd.conf /etc/dhcpd.conf
@@ -280,7 +278,7 @@ test_setup() {
         done
         inst_multiple -o "${_terminfodir}"/l/linux
         inst_simple /etc/os-release
-        inst ./client-init.sh /sbin/init
+        inst ./client-init.sh /usr/sbin/init
         (
             cd "$initdir"
             mkdir -p -- dev sys proc etc run
