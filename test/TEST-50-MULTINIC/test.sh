@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 if [[ $NM ]]; then
     USE_NETWORK="network-manager"
@@ -215,7 +215,7 @@ test_setup() {
         [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
         instmods nfsd sunrpc ipv6 lockd af_packet
         inst_simple /etc/os-release
-        inst ./server-init.sh /sbin/init
+        inst ./server-init.sh /usr/sbin/init
         inst ./hosts /etc/hosts
         inst ./exports /etc/exports
         inst ./dhcpd.conf /etc/dhcpd.conf
@@ -263,7 +263,7 @@ test_setup() {
         done
         inst_multiple -o "${_terminfodir}"/l/linux
         inst_simple /etc/os-release
-        inst ./client-init.sh /sbin/init
+        inst ./client-init.sh /usr/sbin/init
         inst /etc/nsswitch.conf /etc/nsswitch.conf
         inst /etc/passwd /etc/passwd
         inst /etc/group /etc/group
