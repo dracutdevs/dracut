@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 if getargbool 0 rd.md.waitclean; then
     _offroot=$(strstr "$(mdadm --help-options 2>&1)" offroot && echo --offroot)
