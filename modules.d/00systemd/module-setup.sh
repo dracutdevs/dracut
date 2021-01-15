@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 getSystemdVersion() {
     [ -z "$SYSTEMD_VERSION" ] && SYSTEMD_VERSION=$($systemdutildir/systemd --version | { read a b a; echo $b; })
@@ -224,11 +224,11 @@ install() {
     grep '^systemd-network:' $dracutsysrootdir/etc/group >> "$initdir/etc/group"
 
     ln_r $systemdutildir/systemd "/init"
-    ln_r $systemdutildir/systemd "/sbin/init"
+    ln_r $systemdutildir/systemd "/usr/sbin/init"
 
     inst_binary true
     ln_r $(type -P true) "/usr/bin/loginctl"
-    ln_r $(type -P true) "/bin/loginctl"
+    ln_r $(type -P true) "/usr/bin/loginctl"
     inst_rules \
         70-uaccess.rules \
         71-seat.rules \
