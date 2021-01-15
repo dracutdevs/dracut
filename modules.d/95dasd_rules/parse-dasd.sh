@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 create_udev_rule() {
     local ccw=$1
     local _drv _cu_type _dev_type
     local _rule=/etc/udev/rules.d/51-dasd-${ccw}.rules
 
-    if [ -x /sbin/cio_ignore ] && cio_ignore -i $ccw > /dev/null ; then
+    if [ -x /usr/sbin/cio_ignore ] && cio_ignore -i $ccw > /dev/null ; then
         cio_ignore -r $ccw
     fi
 
