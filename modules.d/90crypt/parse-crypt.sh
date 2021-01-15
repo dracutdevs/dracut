@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 type crypttab_contains >/dev/null 2>&1 || . /lib/dracut-crypt-lib.sh
 
