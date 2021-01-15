@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # called by dracut
 check() {
@@ -31,7 +31,7 @@ install() {
         inst_hook cmdline  90 "$moddir/parse-syslog-opts.sh"
         inst_hook cleanup 99 "$moddir/syslog-cleanup.sh"
         inst_hook initqueue/online 70 "$moddir/rsyslogd-start.sh"
-        inst_simple "$moddir/rsyslogd-stop.sh" /sbin/rsyslogd-stop
+        inst_simple "$moddir/rsyslogd-stop.sh" /usr/sbin/rsyslogd-stop
         mkdir -m 0755 -p ${initdir}/etc/templates
         inst_simple "${moddir}/rsyslog.conf" /etc/templates/rsyslog.conf
     fi
