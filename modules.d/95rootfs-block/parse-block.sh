@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 case "$root" in
     block:LABEL=*|LABEL=*)
