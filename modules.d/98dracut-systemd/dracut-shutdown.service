@@ -14,5 +14,5 @@ ConditionPathExists=!/run/initramfs/bin/sh
 [Service]
 RemainAfterExit=yes
 Type=oneshot
-ExecStart=/bin/true
+ExecStart=/usr/bin/true
 ExecStop=/usr/lib/dracut/dracut-initramfs-restore
