@@ -85,7 +85,7 @@ test_setup() {
             inst_simple "$f"
         done
         inst_simple /etc/os-release
-        inst ./test-init.sh /sbin/init
+        inst ./test-init.sh /usr/sbin/init
         inst "$TESTDIR"/initramfs.testing "/boot/initramfs-$KVERSION.img"
         [[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
 
