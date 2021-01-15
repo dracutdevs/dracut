@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 cp /usr/bin/true /usr/bin/man
 
