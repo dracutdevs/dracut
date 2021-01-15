@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 [ -n "$DRACUT_SYSTEMD" ] && exit 0
 
