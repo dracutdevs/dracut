@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 is_ip() {
     echo "$1" | {

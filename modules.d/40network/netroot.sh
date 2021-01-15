@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 command -v getarg >/dev/null    || . /lib/dracut-lib.sh
