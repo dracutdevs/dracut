@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 for f in /tmp/dhclient.*.pid; do
     [ -e $f ] || continue
