@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # called by dracut
 check() {
@@ -34,9 +34,9 @@ install() {
         inst_rules "$moddir/80-btrfs.rules"
         case "$(btrfs --help)" in
             *device\ ready*)
-                inst_script "$moddir/btrfs_device_ready.sh" /sbin/btrfs_finished ;;
+                inst_script "$moddir/btrfs_device_ready.sh" /usr/sbin/btrfs_finished ;;
             *)
-                inst_script "$moddir/btrfs_finished.sh" /sbin/btrfs_finished ;;
+                inst_script "$moddir/btrfs_finished.sh" /usr/sbin/btrfs_finished ;;
         esac
     fi
 
@@ -45,7 +45,7 @@ install() {
     fi
 
     inst_multiple -o btrfsck btrfs-zero-log
-    inst $(command -v btrfs) /sbin/btrfs
+    inst $(command -v btrfs) /usr/sbin/btrfs
     # Hack for slow machines
     # see https://github.com/dracutdevs/dracut/issues/658
     echo "rd.driver.pre=btrfs" > ${initdir}/etc/cmdline.d/00-btrfs.conf
