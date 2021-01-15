@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 TEST_DESCRIPTION="root filesystem on an encrypted LVM PV on a RAID-5"
 
 KVERSION=${KVERSION-$(uname -r)}
@@ -85,7 +85,7 @@ test_setup() {
         inst_multiple poweroff shutdown dd
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
-        inst ./cryptroot-ask.sh /sbin/cryptroot-ask
+        inst ./cryptroot-ask.sh /usr/sbin/cryptroot-ask
         mkdir -p $initdir/etc
         echo "testluks UUID=$ID_FS_UUID /etc/key" > $initdir/etc/crypttab
         #echo "luks-$ID_FS_UUID /dev/md0 none" > $initdir/etc/crypttab
