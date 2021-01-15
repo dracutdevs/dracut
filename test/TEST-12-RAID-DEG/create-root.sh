@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 # don't let udev and this script step on eachother's toes
 
 trap 'poweroff -f' EXIT
