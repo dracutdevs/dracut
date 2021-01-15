@@ -1,5 +1,4 @@
-#!/bin/bash
-# vim: set tabstop=8 shiftwidth=4 softtabstop=4 expandtab smarttab colorcolumn=80:
+#!/usr/bin/bash
 #
 # Copyright (c) 2019 Red Hat, Inc.
 # Author: Renaud Métrich <rmetrich@redhat.com>
