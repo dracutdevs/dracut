@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 #
 # Supported formats:
 # fcoe=<networkdevice>:<dcb|nodcb>:<fabric|vn2vn>
@@ -71,7 +71,7 @@ if [ "$fcoe_interface" = "edd" ]; then
     if [ "$fcoe_dcb" != "nodcb" -a "$fcoe_dcb" != "dcb" ] ; then
         warn "Invalid FCoE DCB option: $fcoe_dcb"
     fi
-    /sbin/initqueue --settled --unique /sbin/fcoe-edd $fcoe_dcb
+    /usr/sbin/initqueue --settled --unique /usr/sbin/fcoe-edd $fcoe_dcb
 else
     for fcoe in $(getargs fcoe=); do
         unset fcoe_mac
