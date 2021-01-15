@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # called by dracut
 check() {
@@ -45,7 +45,7 @@ cmdline() {
         [[ "${host_fs_types[$dev]}" != *_raid_member ]] && continue
 
         UUID=$(
-            /sbin/mdadm --examine --export $dev \
+            /usr/sbin/mdadm --examine --export $dev \
                 | while read line || [ -n "$line" ]; do
                 [[ ${line#MD_UUID=} = $line ]] && continue
                 printf "%s" "${line#MD_UUID=} "
@@ -67,8 +67,8 @@ install() {
     local rule rule_path
     inst_multiple cat expr
     inst_multiple -o mdmon
-    inst $(command -v partx) /sbin/partx
-    inst $(command -v mdadm) /sbin/mdadm
+    inst $(command -v partx) /usr/sbin/partx
+    inst $(command -v mdadm) /usr/sbin/mdadm
 
     if [[ $hostonly_cmdline == "yes" ]]; then
         local _raidconf=$(cmdline)
@@ -124,8 +124,8 @@ install() {
     inst_hook pre-mount 10 "$moddir/mdraid-waitclean.sh"
     inst_hook cleanup 99 "$moddir/mdraid-needshutdown.sh"
     inst_hook shutdown 30 "$moddir/md-shutdown.sh"
-    inst_script "$moddir/mdraid-cleanup.sh" /sbin/mdraid-cleanup
-    inst_script "$moddir/mdraid_start.sh" /sbin/mdraid_start
+    inst_script "$moddir/mdraid-cleanup.sh" /usr/sbin/mdraid-cleanup
+    inst_script "$moddir/mdraid_start.sh" /usr/sbin/mdraid_start
     if dracut_module_included "systemd"; then
         if [ -e $dracutsysrootdir$systemdsystemunitdir/mdmon@.service ]; then
             inst_simple $systemdsystemunitdir/mdmon@.service
