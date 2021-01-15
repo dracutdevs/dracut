@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 if test -e /etc/adjtime ; then
     while read line ; do
