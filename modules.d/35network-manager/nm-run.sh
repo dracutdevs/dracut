@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 if [ -e /tmp/nm.done ]; then
     return
@@ -28,7 +28,7 @@ do
     ifname=${_i##*/}
     sed -n 's/root-path/new_root_path/p;s/next-server/new_next_server/p' <$state >/tmp/dhclient.$ifname.dhcpopts
     source_hook initqueue/online $ifname
-    /sbin/netroot $ifname
+    /usr/sbin/netroot $ifname
 done
 
 > /tmp/nm.done
