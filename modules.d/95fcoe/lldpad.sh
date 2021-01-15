@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 if getargbool 0 rd.nofcoe ; then
 	info "rd.nofcoe=0: skipping lldpad activation"
