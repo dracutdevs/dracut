@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 # systemd lets stdout go to journal only, but the system
 # has to halt when the integrity check fails to satisfy FIPS.
