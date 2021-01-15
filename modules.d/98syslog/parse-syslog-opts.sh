@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 # Parses the syslog commandline options
 #
@@ -11,11 +11,11 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 detect_syslog() {
     syslogtype=""
-    if [ -e /sbin/rsyslogd ]; then
+    if [ -e /usr/sbin/rsyslogd ]; then
         syslogtype="rsyslogd"
-    elif [ -e /sbin/syslogd ]; then
+    elif [ -e /usr/sbin/syslogd ]; then
         syslogtype="syslogd"
-    elif [ -e /sbin/syslog-ng ]; then
+    elif [ -e /usr/sbin/syslog-ng ]; then
         syslogtype="syslog-ng"
     else
         warn "Could not find any syslog binary although the syslogmodule is selected to be installed. Please check."
