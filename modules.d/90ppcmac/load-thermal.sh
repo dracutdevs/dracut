@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 #
 # This hook attempts to load the appropriate thermal modules
 # for PowerPC Macs depending on the specific machine you have.

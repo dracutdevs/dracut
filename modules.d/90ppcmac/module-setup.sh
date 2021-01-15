@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 #
 # This module attempts to properly deal with thermal behavior on PowerPC
 # based Mac systems, by installing the model-appropriate (when hostonly)
@@ -77,6 +77,6 @@ installkernel() {
 
 # called by dracut
 install() {
-    # this will attempt to load the appropriate modules 
+    # this will attempt to load the appropriate modules
     inst_hook pre-udev 99 "$moddir/load-thermal.sh"
 }
