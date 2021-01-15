@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 if resume=$(getarg resume=) && ! getarg noresume; then
     export resume
@@ -50,21 +50,21 @@ if ! getarg noresume; then
             if [ -x /usr/sbin/resume ]; then
                 printf -- 'KERNEL=="%s", ' "${resume#/dev/}"
                 printf -- '%s' 'ACTION=="add|change", ENV{ID_FS_TYPE}=="suspend|swsuspend|swsupend",'
-                printf -- " RUN+=\"/sbin/initqueue --finished --unique --name 00resume /usr/sbin/resume %s \'%s\'\"\n" \
+                printf -- " RUN+=\"/usr/sbin/initqueue --finished --unique --name 00resume /usr/sbin/resume %s \'%s\'\"\n" \
                      "$a_splash" "$resume";
                 printf -- 'SYMLINK=="%s", ' "${resume#/dev/}"
                 printf -- '%s' 'ACTION=="add|change", ENV{ID_FS_TYPE}=="suspend|swsuspend|swsupend",'
-                printf -- " RUN+=\"/sbin/initqueue --finished --unique --name 00resume /usr/sbin/resume %s \'%s\'\"\n" \
+                printf -- " RUN+=\"/usr/sbin/initqueue --finished --unique --name 00resume /usr/sbin/resume %s \'%s\'\"\n" \
                     "$a_splash" "$resume";
             fi
 
             printf -- 'KERNEL=="%s", ' "${resume#/dev/}"
             printf -- '%s' 'ACTION=="add|change", ENV{ID_FS_TYPE}=="suspend|swsuspend|swsupend",'
-            printf -- '%s\n' ' RUN+="/sbin/initqueue --finished --unique --name 00resume echo %M:%m > /sys/power/resume"'
+            printf -- '%s\n' ' RUN+="/usr/sbin/initqueue --finished --unique --name 00resume echo %M:%m > /sys/power/resume"'
 
             printf -- 'SYMLINK=="%s", ' "${resume#/dev/}"
             printf -- '%s' 'ACTION=="add|change", ENV{ID_FS_TYPE}=="suspend|swsuspend|swsupend",'
-            printf -- '%s\n' ' RUN+="/sbin/initqueue --finished --unique --name 00resume echo %M:%m  > /sys/power/resume"'
+            printf -- '%s\n' ' RUN+="/usr/sbin/initqueue --finished --unique --name 00resume echo %M:%m  > /sys/power/resume"'
         } >> /etc/udev/rules.d/99-resume.rules
 
         printf '[ -e "%s" ] && { ln -fs "%s" /dev/resume 2> /dev/null; rm -f -- "$job" "%s/initqueue/timeout/resume.sh"; }\n' \
@@ -80,10 +80,10 @@ if ! getarg noresume; then
         {
             if [ -x /usr/sbin/resume ]; then
                 printf -- '%s' 'SUBSYSTEM=="block", ACTION=="add|change", ENV{ID_FS_TYPE}=="suspend|swsuspend|swsupend",'
-                printf -- ' RUN+="/sbin/initqueue --finished --unique --name 00resume /usr/sbin/resume %s $tempnode"\n' "$a_splash"
+                printf -- ' RUN+="/usr/sbin/initqueue --finished --unique --name 00resume /usr/sbin/resume %s $tempnode"\n' "$a_splash"
             fi
             printf -- '%s' 'SUBSYSTEM=="block", ACTION=="add|change", ENV{ID_FS_TYPE}=="suspend|swsuspend|swsupend",'
-            printf -- '%s\n' ' RUN+="/sbin/initqueue --finished --unique --name 00resume echo %M:%m > /sys/power/resume"';
+            printf -- '%s\n' ' RUN+="/usr/sbin/initqueue --finished --unique --name 00resume echo %M:%m > /sys/power/resume"';
         } >> /etc/udev/rules.d/99-resume.rules
     fi
 fi
