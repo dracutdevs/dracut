@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # called by dracut
 check() {
@@ -25,21 +25,21 @@ installkernel() {
 # called by dracut
 install() {
     local _mods
-    inst_script "$moddir/dracut-emergency.sh" /bin/dracut-emergency
+    inst_script "$moddir/dracut-emergency.sh" /usr/bin/dracut-emergency
     inst_simple "$moddir/emergency.service" ${systemdsystemunitdir}/emergency.service
     inst_simple "$moddir/dracut-emergency.service" ${systemdsystemunitdir}/dracut-emergency.service
     inst_simple "$moddir/emergency.service" ${systemdsystemunitdir}/rescue.service
 
     ln_r "${systemdsystemunitdir}/initrd.target" "${systemdsystemunitdir}/default.target"
 
-    inst_script "$moddir/dracut-cmdline.sh" /bin/dracut-cmdline
-    inst_script "$moddir/dracut-cmdline-ask.sh" /bin/dracut-cmdline-ask
-    inst_script "$moddir/dracut-pre-udev.sh" /bin/dracut-pre-udev
-    inst_script "$moddir/dracut-pre-trigger.sh" /bin/dracut-pre-trigger
-    inst_script "$moddir/dracut-initqueue.sh" /bin/dracut-initqueue
-    inst_script "$moddir/dracut-pre-mount.sh" /bin/dracut-pre-mount
-    inst_script "$moddir/dracut-mount.sh" /bin/dracut-mount
-    inst_script "$moddir/dracut-pre-pivot.sh" /bin/dracut-pre-pivot
+    inst_script "$moddir/dracut-cmdline.sh" /usr/bin/dracut-cmdline
+    inst_script "$moddir/dracut-cmdline-ask.sh" /usr/bin/dracut-cmdline-ask
+    inst_script "$moddir/dracut-pre-udev.sh" /usr/bin/dracut-pre-udev
+    inst_script "$moddir/dracut-pre-trigger.sh" /usr/bin/dracut-pre-trigger
+    inst_script "$moddir/dracut-initqueue.sh" /usr/bin/dracut-initqueue
+    inst_script "$moddir/dracut-pre-mount.sh" /usr/bin/dracut-pre-mount
+    inst_script "$moddir/dracut-mount.sh" /usr/bin/dracut-mount
+    inst_script "$moddir/dracut-pre-pivot.sh" /usr/bin/dracut-pre-pivot
 
     inst_script "$moddir/rootfs-generator.sh" $systemdutildir/system-generators/dracut-rootfs-generator
 
