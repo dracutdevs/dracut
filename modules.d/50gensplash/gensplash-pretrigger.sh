@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 if getargbool 1 rd.splash -d -n rd_NO_SPLASH; then
     info "Starting Gentoo Splash"
