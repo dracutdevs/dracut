@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 TEST_DESCRIPTION="Full systemd serialization/deserialization test with /usr mount"
 
