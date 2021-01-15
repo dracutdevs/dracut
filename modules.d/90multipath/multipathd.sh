@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 if [ "$(getarg rd.multipath)" = "default" ] && [ ! -e /etc/multipath.conf ]; then
     mkdir -p /etc/multipath/multipath.conf.d
