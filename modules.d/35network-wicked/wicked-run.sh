@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 # ensure wickedd is running
 systemctl start wickedd
