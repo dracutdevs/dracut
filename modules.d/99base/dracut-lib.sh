@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 export DRACUT_SYSTEMD
 export NEWROOT
@@ -919,7 +919,7 @@ set_systemd_timeout_for_dev()
         fi
 
         if [ -z "$PREFIX" ] && [ "$_needreload" = 1 ] && [ -z "$_noreload" ]; then
-            /sbin/initqueue --onetime --unique --name daemon-reload systemctl daemon-reload
+            /usr/sbin/initqueue --onetime --unique --name daemon-reload systemctl daemon-reload
         fi
     fi
 }
@@ -964,7 +964,7 @@ cancel_wait_for_dev()
         _name=$(dev_unit_name "$1")
         rm -f -- ${PREFIX}/etc/systemd/system/initrd.target.wants/${_name}.device
         rm -f -- ${PREFIX}/etc/systemd/system/${_name}.device.d/timeout.conf
-        /sbin/initqueue --onetime --unique --name daemon-reload systemctl daemon-reload
+        /usr/sbin/initqueue --onetime --unique --name daemon-reload systemctl daemon-reload
     fi
 }
 
@@ -1060,7 +1060,7 @@ _emergency_shell()
         debug_off
         source_hook "$hook"
         echo
-        /sbin/rdsosreport
+        /usr/sbin/rdsosreport
         echo 'You might want to save "/run/initramfs/rdsosreport.txt" to a USB stick or /boot'
         echo 'after mounting them and attach it to a bug report.'
         if ! RD_DEBUG= getargbool 0 rd.debug -d -y rdinitdebug -d -y rdnetdebug; then
@@ -1085,7 +1085,7 @@ _emergency_shell()
         fi
         [ -c "$_ctty" ] || _ctty=/dev/tty1
         case "$(/usr/bin/setsid --help 2>&1)" in *--ctty*) CTTY="--ctty";; esac
-        setsid $CTTY /bin/sh -i -l 0<>$_ctty 1<>$_ctty 2<>$_ctty
+        setsid $CTTY /usr/bin/sh -i -l 0<>$_ctty 1<>$_ctty 2<>$_ctty
     fi
 }
 
