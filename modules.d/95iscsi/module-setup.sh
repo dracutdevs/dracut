@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # called by dracut
 check() {
@@ -211,10 +211,10 @@ install() {
 
     inst_hook cmdline 90 "$moddir/parse-iscsiroot.sh"
     inst_hook cleanup 90 "$moddir/cleanup-iscsi.sh"
-    inst "$moddir/iscsiroot.sh" "/sbin/iscsiroot"
+    inst "$moddir/iscsiroot.sh" "/usr/sbin/iscsiroot"
 
     if ! dracut_module_included "systemd"; then
-        inst "$moddir/mount-lun.sh" "/bin/mount-lun.sh"
+        inst "$moddir/mount-lun.sh" "/usr/bin/mount-lun.sh"
     else
         inst_multiple -o \
                       $systemdsystemunitdir/iscsi.service \
@@ -230,7 +230,7 @@ install() {
             ; do
             systemctl -q --root "$initdir" enable "$i"
         done
-        
+
         for i in \
                 iscsid.service \
                 iscsiuio.service \

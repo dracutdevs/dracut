@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 if [ -z $iscsi_lun ]; then
     iscsi_lun=0
 fi
