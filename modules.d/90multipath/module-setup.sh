@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 is_mpath() {
     local _dev=$1
@@ -99,7 +99,7 @@ install() {
         [ -n "$_allow" ] && mpathconf $_allow --outfile ${initdir}/etc/multipath.conf
     }
 
-    inst $(command -v partx) /sbin/partx
+    inst $(command -v partx) /usr/sbin/partx
 
     inst_libdir_file "libmultipath*" "multipath/*"
     inst_libdir_file 'libgcc_s.so*'
