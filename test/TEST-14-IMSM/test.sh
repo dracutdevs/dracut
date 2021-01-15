@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 TEST_DESCRIPTION="root filesystem on LVM PV on a isw dmraid"
 
 KVERSION=${KVERSION-$(uname -r)}
@@ -77,8 +77,8 @@ test_setup() {
         done
         inst_multiple -o ${_terminfodir}/l/linux
         inst_simple /etc/os-release
-        inst "$basedir/modules.d/35network-legacy/dhclient-script.sh" "/sbin/dhclient-script"
-        inst "$basedir/modules.d/35network-legacy/ifup.sh" "/sbin/ifup"
+        inst "$basedir/modules.d/35network-legacy/dhclient-script.sh" "/usr/sbin/dhclient-script"
+        inst "$basedir/modules.d/35network-legacy/ifup.sh" "/usr/sbin/ifup"
         inst_multiple grep
         inst ./test-init.sh /sbin/init
         find_binary plymouth >/dev/null && inst_multiple plymouth
