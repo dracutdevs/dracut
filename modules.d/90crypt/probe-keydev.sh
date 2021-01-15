@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 . /lib/dracut-crypt-lib.sh
 
