@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 TEST_DESCRIPTION="root filesystem on LVM PV with thin pool"
 
 KVERSION=${KVERSION-$(uname -r)}
@@ -38,11 +38,11 @@ test_setup() {
             [ -f ${_terminfodir}/l/linux ] && break
         done
         inst_multiple -o ${_terminfodir}/l/linux
-        inst "$basedir/modules.d/35network-legacy/dhclient-script.sh" "/sbin/dhclient-script"
-        inst "$basedir/modules.d/35network-legacy/ifup.sh" "/sbin/ifup"
+        inst "$basedir/modules.d/35network-legacy/dhclient-script.sh" "/usr/sbin/dhclient-script"
+        inst "$basedir/modules.d/35network-legacy/ifup.sh" "/usr/sbin/ifup"
         inst_multiple grep
         inst_simple /etc/os-release
-        inst ./test-init.sh /sbin/init
+        inst ./test-init.sh /usr/sbin/init
         find_binary plymouth >/dev/null && inst_multiple plymouth
         cp -a /etc/ld.so.conf* $initdir/etc
         mkdir $initdir/run
