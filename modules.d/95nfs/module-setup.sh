@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # return value:
 #  'nfs4': Only nfs4 founded
@@ -104,7 +104,7 @@ install() {
     inst_hook cmdline 90 "$moddir/parse-nfsroot.sh"
     inst_hook pre-udev 99 "$moddir/nfs-start-rpc.sh"
     inst_hook cleanup 99 "$moddir/nfsroot-cleanup.sh"
-    inst "$moddir/nfsroot.sh" "/sbin/nfsroot"
+    inst "$moddir/nfsroot.sh" "/usr/sbin/nfsroot"
 
     # For strict hostonly, only install rpcbind for NFS < 4
     if [[ $hostonly_mode != "strict" ]] || [[ "$(get_nfs_type)" != "nfs4" ]]; then
