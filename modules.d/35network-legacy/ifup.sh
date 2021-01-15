@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 #
 # We don't need to check for ip= errors here, that is handled by the
 # cmdline parser script
