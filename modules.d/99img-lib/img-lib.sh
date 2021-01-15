@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 # img-lib.sh: utilities for dealing with archives and filesystem images.
 #
 # TODO: identify/unpack rpm, deb, maybe others?
