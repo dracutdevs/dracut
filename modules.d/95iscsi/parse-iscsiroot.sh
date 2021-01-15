@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 #
 # Preferred format:
 #       root=iscsi:[<servername>]:[<protocol>]:[<port>]:[<LUN>]:<targetname>
@@ -85,9 +85,9 @@ if [ -n "$iscsi_firmware" ]; then
     modprobe -b -q iscsi_ibft
     # if no ip= is given, but firmware
     echo "${DRACUT_SYSTEMD+systemctl is-active initrd-root-device.target || }[ -f '/tmp/iscsistarted-firmware' ]" > $hookdir/initqueue/finished/iscsi_started.sh
-    initqueue --unique --online /sbin/iscsiroot online "iscsi:" "$NEWROOT"
-    initqueue --unique --onetime --timeout /sbin/iscsiroot timeout "iscsi:" "$NEWROOT"
-    initqueue --unique --onetime --settled /sbin/iscsiroot online "iscsi:" "'$NEWROOT'"
+    initqueue --unique --online /usr/sbin/iscsiroot online "iscsi:" "$NEWROOT"
+    initqueue --unique --onetime --timeout /usr/sbin/iscsiroot timeout "iscsi:" "$NEWROOT"
+    initqueue --unique --onetime --settled /usr/sbin/iscsiroot online "iscsi:" "'$NEWROOT'"
 fi
 
 # ISCSI actually supported?
@@ -99,7 +99,7 @@ modprobe --all -b -q qla4xxx cxgb3i cxgb4i bnx2i be2iscsi
 
 if [ -n "$netroot" ] && [ "$root" != "/dev/root" ] && [ "$root" != "dhcp" ]; then
     if ! getargbool 1 rd.neednet >/dev/null || ! getarg "ip="; then
-        initqueue --unique --onetime --settled /sbin/iscsiroot dummy "'$netroot'" "'$NEWROOT'"
+        initqueue --unique --onetime --settled /usr/sbin/iscsiroot dummy "'$netroot'" "'$NEWROOT'"
     fi
 fi
 
@@ -138,7 +138,7 @@ if [ -z "$netroot" ] || ! [ "${netroot%%:*}" = "iscsi" ]; then
     return 1
 fi
 
-initqueue --unique --onetime --timeout /sbin/iscsiroot timeout "$netroot" "$NEWROOT"
+initqueue --unique --onetime --timeout /usr/sbin/iscsiroot timeout "$netroot" "$NEWROOT"
 
 for nroot in $(getargs netroot); do
     [ "${nroot%%:*}" = "iscsi" ] || continue
