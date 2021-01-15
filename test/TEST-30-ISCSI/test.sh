@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 if [[ $NM ]]; then
     USE_NETWORK="network-manager"
@@ -155,7 +155,7 @@ test_setup() {
         done
         inst_multiple -o ${_terminfodir}/l/linux
         inst_simple /etc/os-release
-        inst ./client-init.sh /sbin/init
+        inst ./client-init.sh /usr/sbin/init
         cp -a /etc/ld.so.conf* $initdir/etc
         ldconfig -r "$initdir"
     )
