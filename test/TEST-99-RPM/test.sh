@@ -60,7 +60,7 @@ test_run() {
     (( i < 5 ))
 
     cat >"$rootdir"/test.sh <<EOF
-#!/bin/bash
+#!/usr/bin/bash
 set -x
 export LC_MESSAGES=C
 rpm -Va |& \
