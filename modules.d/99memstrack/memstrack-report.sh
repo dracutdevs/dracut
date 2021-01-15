@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 . /lib/dracut-lib.sh
 
 if ! [ "$DEBUG_MEM_LEVEL" -ge 4 ]; then
