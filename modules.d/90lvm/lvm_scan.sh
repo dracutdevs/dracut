@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 # run lvm scan if udev has settled
 

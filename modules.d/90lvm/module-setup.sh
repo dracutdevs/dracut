@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # called by dracut
 check() {
@@ -114,7 +114,7 @@ install() {
     # debian udev rules
     inst_rules 56-lvm.rules 60-persistent-storage-lvm.rules
 
-    inst_script "$moddir/lvm_scan.sh" /sbin/lvm_scan
+    inst_script "$moddir/lvm_scan.sh" /usr/sbin/lvm_scan
     inst_hook cmdline 30 "$moddir/parse-lvm.sh"
 
     inst_libdir_file "libdevmapper-event-lvm*.so"
