@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 # FIXME: load selinux policy.  this should really be done after we switchroot
 
