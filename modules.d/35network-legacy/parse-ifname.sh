@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 #
 # Format:
 #       ifname=<interface>:<mac>
