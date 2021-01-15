@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 #
 # Format:
 #       bond=<bondname>[:<bondslaves>[:<options>[:<mtu>]]]
