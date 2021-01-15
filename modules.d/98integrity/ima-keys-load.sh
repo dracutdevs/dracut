@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 SECURITYFSDIR="/sys/kernel/security"
 IMASECDIR="${SECURITYFSDIR}/ima"
@@ -30,7 +30,7 @@ load_x509_keys()
         X509ID=$(evmctl import ${PUBKEY} ${KEYRING_ID})
         if [ $? -ne 0 ]; then
             info "integrity: IMA x509 cert not loaded on keyring: ${PUBKEY}"
-        fi 
+        fi
     done
 
     if [ "${RD_DEBUG}" = "yes" ]; then
