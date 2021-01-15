@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # called by dracut
 check() {
@@ -21,9 +21,9 @@ install() {
 
     inst_multiple -o findmnt less kmod
 
-    if [ ! -e "${initdir}/bin/sh" ]; then
+    if [ ! -e "${initdir}/usr/bin/sh" ]; then
         inst_multiple bash
-        (ln -s bash "${initdir}/bin/sh" || :)
+        (ln -s bash "${initdir}/usr/bin/sh" || :)
     fi
 
     # add common users in /etc/passwd, it will be used by nfs/ssh currently
@@ -36,9 +36,9 @@ install() {
 
     # install our scripts and hooks
     inst_script "$moddir/init.sh" "/init"
-    inst_script "$moddir/initqueue.sh" "/sbin/initqueue"
-    inst_script "$moddir/loginit.sh" "/sbin/loginit"
-    inst_script "$moddir/rdsosreport.sh" "/sbin/rdsosreport"
+    inst_script "$moddir/initqueue.sh" "/usr/sbin/initqueue"
+    inst_script "$moddir/loginit.sh" "/usr/sbin/loginit"
+    inst_script "$moddir/rdsosreport.sh" "/usr/sbin/rdsosreport"
 
     [ -e "${initdir}/lib" ] || mkdir -m 0755 -p ${initdir}/lib
     mkdir -m 0755 -p ${initdir}/lib/dracut

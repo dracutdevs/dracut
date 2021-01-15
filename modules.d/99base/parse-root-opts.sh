@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 root=$(getarg root=)
 
