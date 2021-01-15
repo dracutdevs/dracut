@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # called by dracut
 check() {
@@ -83,8 +83,8 @@ install() {
     inst_hook cmdline 30 "$moddir/parse-crypt.sh"
     if ! dracut_module_included "systemd"; then
         inst_multiple cryptsetup rmdir readlink umount
-        inst_script "$moddir"/cryptroot-ask.sh /sbin/cryptroot-ask
-        inst_script "$moddir"/probe-keydev.sh /sbin/probe-keydev
+        inst_script "$moddir"/cryptroot-ask.sh /usr/sbin/cryptroot-ask
+        inst_script "$moddir"/probe-keydev.sh /usr/sbin/probe-keydev
         inst_hook cmdline 10 "$moddir/parse-keydev.sh"
         inst_hook cleanup 30 "$moddir/crypt-cleanup.sh"
     fi
@@ -141,7 +141,7 @@ install() {
     fi
 
     inst_simple "$moddir/crypt-lib.sh" "/lib/dracut-crypt-lib.sh"
-    inst_script "$moddir/crypt-run-generator.sh" "/sbin/crypt-run-generator"
+    inst_script "$moddir/crypt-run-generator.sh" "/usr/sbin/crypt-run-generator"
 
     if dracut_module_included "systemd"; then
         # the cryptsetup targets are already pulled in by 00systemd, but not
