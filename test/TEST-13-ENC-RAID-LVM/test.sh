@@ -120,7 +120,7 @@ test_setup() {
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
-        inst ./cryptroot-ask.sh /sbin/cryptroot-ask
+        inst ./cryptroot-ask.sh /usr/sbin/cryptroot-ask
         mkdir -p $initdir/etc
         i=2
         for uuid in $cryptoUUIDS; do
