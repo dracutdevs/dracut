@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 if getargbool 1 rd.luks -n rd_NO_LUKS && \
         [ -n "$(getarg rd.luks.key)" ]; then
