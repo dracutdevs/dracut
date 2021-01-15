@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # called by dracut
 install() {
@@ -12,7 +12,7 @@ install() {
     inst_multiple -o /etc/udev/udev.conf
 
     [ -d ${initdir}/$systemdutildir ] || mkdir -p ${initdir}/$systemdutildir
-    for _i in ${systemdutildir}/systemd-udevd ${udevdir}/udevd /sbin/udevd; do
+    for _i in ${systemdutildir}/systemd-udevd ${udevdir}/udevd /usr/sbin/udevd; do
         [ -x "$dracutsysrootdir$_i" ] || continue
         inst "$_i"
 
