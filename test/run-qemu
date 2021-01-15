@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 # Check which virtualization technology to use
 # We prefer kvm, kqemu, userspace in that order.
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
