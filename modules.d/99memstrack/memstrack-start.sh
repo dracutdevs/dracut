@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 # Mount kernel debug fs so debug tools can work.
 # memdebug=4 and memdebug=5 requires debug fs to be mounted.
 # And there is no need to umount it.
