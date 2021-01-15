@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 SQUASH_MNT_REC=/squash/mounts
 SQUASH_MNTS=( )
 
