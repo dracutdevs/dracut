@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 # if there are no ifname parameters, just use NAME=KERNEL
 if ! getarg ifname= >/dev/null ; then
