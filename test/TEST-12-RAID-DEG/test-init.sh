@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 getcmdline() {
     while read -r _line || [ -n "$_line" ]; do
