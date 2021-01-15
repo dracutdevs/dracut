@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 getcmdline() {
     while read -r _line || [ -n "$_line" ]; do
