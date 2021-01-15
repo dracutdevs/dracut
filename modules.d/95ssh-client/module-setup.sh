@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # fixme: assume user is root
 
