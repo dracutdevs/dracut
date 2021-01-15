@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # called by dracut
 check() {
-    require_binaries /bin/mksh
+    require_binaries /usr/bin/mksh
 }
 
 # called by dracut
@@ -16,6 +16,6 @@ install() {
     [[ -x $initdir/bin/sh ]] && return
 
     # Prefer mksh as /bin/sh if it is available.
-    inst /bin/mksh && ln -sf mksh "${initdir}/bin/sh"
+    inst /usr/bin/mksh && ln -sf mksh "${initdir}/bin/sh"
 }
 
