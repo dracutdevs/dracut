@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 PATH=/bin:/sbin
 
 SQUASH_IMG=/squash/root.img
