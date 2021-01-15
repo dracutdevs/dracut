@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 check() {
     if type -P memstrack >/dev/null; then
@@ -17,9 +17,9 @@ depends() {
 }
 
 install() {
-    inst "/bin/memstrack" "/bin/memstrack"
+    inst "/usr/bin/memstrack" "/usr/bin/memstrack"
 
-    inst "$moddir/memstrack-start.sh" "/bin/memstrack-start"
+    inst "$moddir/memstrack-start.sh" "/usr/bin/memstrack-start"
     inst_hook cleanup 99 "$moddir/memstrack-report.sh"
 
     inst "$moddir/memstrack.service" "$systemdsystemunitdir/memstrack.service"
