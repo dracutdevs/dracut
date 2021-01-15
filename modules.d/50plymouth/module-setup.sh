@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 pkglib_dir() {
     local _dirs="/usr/lib/plymouth /usr/libexec/plymouth/"
