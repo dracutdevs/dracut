@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 export DRACUT_SYSTEMD=1
 if [ -f /dracut-state.sh ]; then
@@ -42,7 +42,7 @@ else
     [ -z "$_emergency_action" ] && _emergency_action=halt
 fi
 
-/bin/rm -f -- /.console_lock
+/usr/bin/rm -f -- /.console_lock
 
 case "$_emergency_action" in
     reboot)
