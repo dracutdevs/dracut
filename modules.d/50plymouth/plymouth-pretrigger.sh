@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 if type plymouthd >/dev/null 2>&1 && [ -z "$DRACUT_SYSTEMD" ]; then
     if getargbool 1 plymouth.enable && getargbool 1 rd.plymouth -d -n rd_NO_PLYMOUTH; then
