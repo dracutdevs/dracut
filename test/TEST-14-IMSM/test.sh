@@ -80,7 +80,7 @@ test_setup() {
         inst "$basedir/modules.d/35network-legacy/dhclient-script.sh" "/usr/sbin/dhclient-script"
         inst "$basedir/modules.d/35network-legacy/ifup.sh" "/usr/sbin/ifup"
         inst_multiple grep
-        inst ./test-init.sh /sbin/init
+        inst ./test-init.sh /usr/sbin/init
         find_binary plymouth >/dev/null && inst_multiple plymouth
         cp -a /etc/ld.so.conf* $initdir/etc
         mkdir $initdir/run
