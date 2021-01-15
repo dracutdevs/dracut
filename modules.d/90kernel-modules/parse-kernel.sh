@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 _modprobe_d=/etc/modprobe.d
 if [ -d /usr/lib/modprobe.d ] ; then

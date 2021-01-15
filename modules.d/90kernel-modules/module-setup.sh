@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # called by dracut
 installkernel() {
@@ -143,5 +143,5 @@ install() {
     if ! dracut_module_included "systemd"; then
         inst_hook cmdline 01 "$moddir/parse-kernel.sh"
     fi
-    inst_simple "$moddir/insmodpost.sh" /sbin/insmodpost.sh
+    inst_simple "$moddir/insmodpost.sh" /usr/sbin/insmodpost.sh
 }
