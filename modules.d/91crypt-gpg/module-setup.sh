@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # GPG support is optional
 # called by dracut
