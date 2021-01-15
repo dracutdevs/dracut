@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 if modprobe sunrpc || strstr "$(cat /proc/filesystems)" rpc_pipefs; then
     [ ! -d /var/lib/nfs/rpc_pipefs/nfs ] && \
