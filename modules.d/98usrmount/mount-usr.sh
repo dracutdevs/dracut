@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 type info >/dev/null 2>&1 || . /lib/dracut-lib.sh
 type fsck_single >/dev/null 2>&1 || . /lib/fs-lib.sh
