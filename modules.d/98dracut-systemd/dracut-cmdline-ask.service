@@ -19,7 +19,7 @@ Conflicts=shutdown.target emergency.target
 Environment=DRACUT_SYSTEMD=1
 Environment=NEWROOT=/sysroot
 Type=oneshot
-ExecStart=-/bin/dracut-cmdline-ask
+ExecStart=-/usr/bin/dracut-cmdline-ask
 StandardInput=tty
 StandardOutput=inherit
 StandardError=inherit
