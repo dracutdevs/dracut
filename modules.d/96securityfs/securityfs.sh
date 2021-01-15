@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 SECURITYFSDIR="/sys/kernel/security"
 export SECURITYFSDIR
