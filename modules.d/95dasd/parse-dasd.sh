@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 for dasd_arg in $(getargs rd.dasd= -d rd_DASD= DASD=); do
     (
         local OLDIFS="$IFS"
