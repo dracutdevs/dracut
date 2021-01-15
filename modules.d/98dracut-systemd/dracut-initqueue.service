@@ -19,7 +19,7 @@ Conflicts=shutdown.target emergency.target
 Environment=DRACUT_SYSTEMD=1
 Environment=NEWROOT=/sysroot
 Type=oneshot
-ExecStart=-/bin/dracut-initqueue
+ExecStart=-/usr/bin/dracut-initqueue
 StandardInput=null
 StandardError=journal+console
 KillMode=process
