@@ -77,10 +77,10 @@ modprobe sunrpc
 echo > /dev/watchdog
 mount -t rpc_pipefs sunrpc /var/lib/nfs/rpc_pipefs
 echo > /dev/watchdog
-[ -x /sbin/portmap ] && portmap
+[ -x /usr/sbin/portmap ] && portmap
 echo > /dev/watchdog
 mkdir -p /run/rpcbind
-[ -x /sbin/rpcbind ] && rpcbind
+[ -x /usr/sbin/rpcbind ] && rpcbind
 echo > /dev/watchdog
 modprobe nfsd
 echo > /dev/watchdog
