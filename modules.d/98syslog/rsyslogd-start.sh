@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 # Triggered by initqueue/online and starts rsyslogd with bootparameters
 
