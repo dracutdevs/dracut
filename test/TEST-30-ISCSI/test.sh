@@ -227,7 +227,7 @@ test_setup() {
         type -P dhcpd >/dev/null && inst_multiple dhcpd
         [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
         inst_simple /etc/os-release
-        inst ./server-init.sh /sbin/init
+        inst ./server-init.sh /usr/sbin/init
         inst ./hosts /etc/hosts
         inst ./dhcpd.conf /etc/dhcpd.conf
         inst_multiple /etc/nsswitch.conf /etc/rpc /etc/protocols
