@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 # don't let udev and this script step on eachother's toes
 set -x
 for x in 64-lvm.rules 70-mdadm.rules 99-mount-rules; do
