@@ -1,6 +1,4 @@
-#!/bin/sh
-# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
-# ex: ts=8 sw=4 sts=4 et filetype=sh
+#!/usr/bin/sh
 
 CIO_IGNORE=$(getarg cio_ignore)
 CIO_ACCEPT=$(getarg rd.cio_accept)
