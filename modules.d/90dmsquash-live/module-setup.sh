@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # called by dracut
 check() {
@@ -29,8 +29,8 @@ install() {
     inst_hook pre-udev 30 "$moddir/dmsquash-live-genrules.sh"
     inst_hook pre-udev 30 "$moddir/dmsquash-liveiso-genrules.sh"
     inst_hook pre-pivot 20 "$moddir/apply-live-updates.sh"
-    inst_script "$moddir/dmsquash-live-root.sh" "/sbin/dmsquash-live-root"
-    inst_script "$moddir/iso-scan.sh" "/sbin/iso-scan"
+    inst_script "$moddir/dmsquash-live-root.sh" "/usr/sbin/dmsquash-live-root"
+    inst_script "$moddir/iso-scan.sh" "/usr/sbin/iso-scan"
     inst_script "$moddir/dmsquash-generator.sh" $systemdutildir/system-generators/dracut-dmsquash-generator
     # should probably just be generally included
     inst_rules 60-cdrom_id.rules
