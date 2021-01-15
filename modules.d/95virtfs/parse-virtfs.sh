@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 if [ "${root%%:*}" = "virtfs" ] ; then
     modprobe 9pnet_virtio
