@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 TEST_DESCRIPTION="root filesystem on an encrypted LVM PV on a degraded RAID-5"
 
 KVERSION=${KVERSION-$(uname -r)}
