@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 #
 # Preferred format:
 #       root=nfs[4]:[server:]path[:options]
