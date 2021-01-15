@@ -22,7 +22,7 @@ Conflicts=shutdown.target emergency.target
 Environment=DRACUT_SYSTEMD=1
 Environment=NEWROOT=/sysroot
 Type=oneshot
-ExecStart=-/bin/dracut-pre-udev
+ExecStart=-/usr/bin/dracut-pre-udev
 StandardInput=null
 StandardError=journal+console
 KillMode=process
