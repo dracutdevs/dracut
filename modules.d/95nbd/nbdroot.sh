@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
@@ -98,7 +98,7 @@ if [ "$root" = "block:/dev/root" -o "$root" = "dhcp" ]; then
     wait_for_dev -n /dev/root
 
     if [ -z "$DRACUT_SYSTEMD" ]; then
-        printf '/bin/mount %s\n' \
+        printf '/usr/bin/mount %s\n' \
              "$NEWROOT" \
              > $hookdir/mount/01-$$-nbd.sh
     fi
