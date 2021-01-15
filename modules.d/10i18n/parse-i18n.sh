@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 inst_key_val() {
     local _value

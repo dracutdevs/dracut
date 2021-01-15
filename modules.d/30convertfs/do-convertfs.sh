@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 if getargbool 0 rd.convertfs; then
     if getargbool 0 rd.debug; then
