@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 TEST_DESCRIPTION="root filesystem on NBD"
 
@@ -232,7 +232,7 @@ make_encrypted_root() {
             [ -f ${_terminfodir}/l/linux ] && break
         done
         inst_multiple -o ${_terminfodir}/l/linux
-        inst ./client-init.sh /sbin/init
+        inst ./client-init.sh /usr/sbin/init
         inst_simple /etc/os-release
         find_binary plymouth >/dev/null && inst_multiple plymouth
         cp -a /etc/ld.so.conf* $initdir/etc
@@ -307,7 +307,7 @@ make_client_root() {
             [ -f ${_terminfodir}/l/linux ] && break
         done
         inst_multiple -o ${_terminfodir}/l/linux
-        inst ./client-init.sh /sbin/init
+        inst ./client-init.sh /usr/sbin/init
         inst_simple /etc/os-release
         inst /etc/nsswitch.conf /etc/nsswitch.conf
         inst /etc/passwd /etc/passwd
@@ -361,7 +361,7 @@ EOF
         instmods af_packet
         type -P dhcpd >/dev/null && inst_multiple dhcpd
         [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
-        inst ./server-init.sh /sbin/init
+        inst ./server-init.sh /usr/sbin/init
         inst_simple /etc/os-release
         inst ./hosts /etc/hosts
         inst ./dhcpd.conf /etc/dhcpd.conf
@@ -393,7 +393,7 @@ test_setup() {
         inst_multiple poweroff shutdown dd
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
-        inst ./cryptroot-ask.sh /sbin/cryptroot-ask
+        inst ./cryptroot-ask.sh /usr/sbin/cryptroot-ask
 
         #        inst ./debug-shell.service /lib/systemd/system/debug-shell.service
         #        mkdir -p "${initdir}/lib/systemd/system/sysinit.target.wants"
