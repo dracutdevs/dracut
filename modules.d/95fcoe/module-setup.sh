@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # called by dracut
 check() {
@@ -105,9 +105,9 @@ install() {
     fi
     inst_multiple /etc/fcoe/cfg-*
 
-    inst "$moddir/fcoe-up.sh" "/sbin/fcoe-up"
-    inst "$moddir/fcoe-edd.sh" "/sbin/fcoe-edd"
-    inst "$moddir/fcoe-genrules.sh" "/sbin/fcoe-genrules.sh"
+    inst "$moddir/fcoe-up.sh" "/usr/sbin/fcoe-up"
+    inst "$moddir/fcoe-edd.sh" "/usr/sbin/fcoe-edd"
+    inst "$moddir/fcoe-genrules.sh" "/usr/sbin/fcoe-genrules.sh"
     inst_hook pre-trigger 03 "$moddir/lldpad.sh"
     inst_hook cmdline 99 "$moddir/parse-fcoe.sh"
     inst_hook cleanup 90 "$moddir/cleanup-fcoe.sh"
