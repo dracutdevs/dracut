@@ -1,6 +1,4 @@
-#!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
-# ex: ts=8 sw=4 sts=4 et filetype=sh
+#!/usr/bin/bash
 
 # called by dracut
 check() {
@@ -51,7 +49,7 @@ install() {
     inst_multiple mount umount
 
     inst_hook cmdline 91 "$moddir/parse-zipl.sh"
-    inst_script "${moddir}/install_zipl_cmdline.sh" /sbin/install_zipl_cmdline.sh
+    inst_script "${moddir}/install_zipl_cmdline.sh" /usr/sbin/install_zipl_cmdline.sh
     if [[ $hostonly_cmdline == "yes" ]] ; then
         local _zipl=$(cmdline)
 
