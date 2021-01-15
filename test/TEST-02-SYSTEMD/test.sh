@@ -8,7 +8,9 @@ KVERSION="${KVERSION-$(uname -r)}"
 test_run() {
     $testdir/run-qemu \
         -drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext3 \
-        -append "panic=1 systemd.crash_reboot root=LABEL=dracut rw loglevel=77 systemd.log_level=debug systemd.log_target=console rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 init=/sbin/init rd.shell=0 $DEBUGFAIL" \
+        -append "panic=1 systemd.crash_reboot root=LABEL=dracut rw loglevel=77
+            systemd.log_level=debug systemd.log_target=console rd.retry=3
+            rd.info console=ttyS0,115200n81 selinux=0 init=/usr/sbin/init rd.shell=0 $DEBUGFAIL" \
         -initrd $TESTDIR/initramfs.testing
     grep -F -m 1 -q dracut-root-block-success $TESTDIR/root.ext3 || return 1
 }
