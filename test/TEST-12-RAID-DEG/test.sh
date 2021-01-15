@@ -132,7 +132,7 @@ test_setup() {
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
-        inst ./cryptroot-ask.sh /sbin/cryptroot-ask
+        inst ./cryptroot-ask.sh /usr/sbin/cryptroot-ask
         mkdir -p $initdir/etc
         echo "ARRAY /dev/md0 level=raid5 num-devices=3 UUID=$MD_UUID" > $initdir/etc/mdadm.conf
         echo "luks-$ID_FS_UUID UUID=$ID_FS_UUID /etc/key" > $initdir/etc/crypttab
