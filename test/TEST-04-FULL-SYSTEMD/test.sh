@@ -113,7 +113,7 @@ Conflicts=rescue.target
 AllowIsolate=yes
 EOF
 
-        inst ./test-init.sh /sbin/test-init
+        inst ./test-init.sh /usr/sbin/test-init
 
         # setup the testsuite service
         cat >$initdir/etc/systemd/system/testsuite.service <<EOF
@@ -122,7 +122,7 @@ Description=Testsuite service
 After=basic.target
 
 [Service]
-ExecStart=/sbin/test-init
+ExecStart=/usr/sbin/test-init
 Type=oneshot
 StandardInput=tty
 StandardOutput=tty
