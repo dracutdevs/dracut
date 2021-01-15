@@ -135,7 +135,7 @@ EOF
 
         #         mkdir -p $initdir/etc/rc.d
         #         cat >$initdir/etc/rc.d/rc.local <<EOF
-        # #!/bin/bash
+        # #!/usr/bin/bash
         # exit 0
         # EOF
 
