@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 # module-setup for url-lib
 
 # called by dracut
