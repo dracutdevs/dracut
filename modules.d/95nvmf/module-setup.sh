@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # called by dracut
 check() {
@@ -109,7 +109,7 @@ install() {
 
     inst_multiple ip sed
 
-    inst_script "${moddir}/nvmf-autoconnect.sh" /sbin/nvmf-autoconnect.sh
+    inst_script "${moddir}/nvmf-autoconnect.sh" /usr/sbin/nvmf-autoconnect.sh
 
     inst_multiple nvme
     inst_hook cmdline 99 "$moddir/parse-nvmf-boot-connections.sh"
