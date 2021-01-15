@@ -1,6 +1,4 @@
-#!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
-# ex: ts=8 sw=4 sts=4 et filetype=sh
+#!/usr/bin/bash
 
 # called by dracut
 check() {
@@ -9,7 +7,7 @@ check() {
     [ "$_arch" = "s390" -o "$_arch" = "s390x" ] && return 1
 
     [ -e /etc/localtime -a -e /etc/adjtime ] || return 1
-    require_binaries /sbin/hwclock || return 1
+    require_binaries /usr/sbin/hwclock || return 1
 
     return 255
 }
@@ -25,5 +23,5 @@ install() {
     inst /etc/localtime
     inst /etc/adjtime
     inst_hook pre-trigger 00 "$moddir/warpclock.sh"
-    inst /sbin/hwclock
+    inst /usr/sbin/hwclock
 }
