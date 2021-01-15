@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # called by dracut
 check() {
@@ -49,7 +49,7 @@ install() {
     inst_libdir_file -n "$_nsslibs" 'libnss_*.so*'
 
     inst_hook cmdline 90 "$moddir/parse-cifsroot.sh"
-    inst "$moddir/cifsroot.sh" "/sbin/cifsroot"
+    inst "$moddir/cifsroot.sh" "/usr/sbin/cifsroot"
     inst "$moddir/cifs-lib.sh" "/lib/cifs-lib.sh"
     dracut_need_initqueue
 }
