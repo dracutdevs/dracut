@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 MD_UUID=$(getargs rd.md.uuid -d rd_MD_UUID=)
 # normalize the uuid
@@ -18,7 +18,7 @@ else
                     for uuid in $MD_UUID; do
                         printf 'ENV{ID_FS_UUID}=="%s", GOTO="md_uuid_ok"\n' "$(expr substr $uuid 1 8)-$(expr substr $uuid 9 4)-$(expr substr $uuid 13 4)-$(expr substr $uuid 17 4)-$(expr substr $uuid 21 12)"
                     done;
-                    printf 'IMPORT{program}="/sbin/mdadm --examine --export $tempnode"\n'
+                    printf 'IMPORT{program}="/usr/sbin/mdadm --examine --export $tempnode"\n'
                     for uuid in $MD_UUID; do
                         printf 'ENV{MD_UUID}=="%s", GOTO="md_uuid_ok"\n' "$(expr substr $uuid 1 8):$(expr substr $uuid 9 8):$(expr substr $uuid 17 8):$(expr substr $uuid 25 8)"
                     done;
