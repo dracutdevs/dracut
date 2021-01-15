@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 TEST_DESCRIPTION="root filesystem on multiple device btrfs"
 
 KVERSION=${KVERSION-$(uname -r)}
@@ -43,10 +43,10 @@ test_setup() {
             [ -f ${_terminfodir}/l/linux ] && break
         done
         inst_multiple -o ${_terminfodir}/l/linux
-        inst "$basedir/modules.d/35network-legacy/dhclient-script.sh" "/sbin/dhclient-script"
-        inst "$basedir/modules.d/35network-legacy/ifup.sh" "/sbin/ifup"
+        inst "$basedir/modules.d/35network-legacy/dhclient-script.sh" "/usr/sbin/dhclient-script"
+        inst "$basedir/modules.d/35network-legacy/ifup.sh" "/usr/sbin/ifup"
         inst_multiple grep
-        inst ./test-init.sh /sbin/init
+        inst ./test-init.sh /usr/sbin/init
         inst_simple /etc/os-release
         find_binary plymouth >/dev/null && inst_multiple plymouth
         cp -a /etc/ld.so.conf* $initdir/etc

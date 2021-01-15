@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 exec >/dev/console 2>&1
 echo "dracut-root-block-success" | dd oflag=direct,dsync of=/dev/sda
