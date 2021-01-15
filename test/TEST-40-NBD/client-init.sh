@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 >/dev/watchdog
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 exec >/dev/console 2>&1
@@ -6,7 +6,7 @@ while read dev fs fstype opts rest || [ -n "$dev" ]; do
     [ "$dev" = "rootfs" ] && continue
     [ "$fs" != "/" ] && continue
     echo "nbd-OK $fstype $opts" | dd oflag=direct,dsync of=/dev/sda
-    echo "nbd-OK $fstype $opts" 
+    echo "nbd-OK $fstype $opts"
     break
 done < /proc/mounts
 export TERM=linux
