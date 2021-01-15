@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 /squash/setup-squash.sh
 
 exec /init.stock
