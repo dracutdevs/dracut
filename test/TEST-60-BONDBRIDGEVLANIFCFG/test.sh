@@ -91,7 +91,8 @@ client_test() {
         -netdev socket,connect=127.0.0.1:12372,id=n2 -device e1000,mac=52:54:00:12:34:04,netdev=n2 \
         $nic3 -device e1000,mac=52:54:00:12:34:05,netdev=n3 \
         -watchdog i6300esb -watchdog-action poweroff \
-        -append "panic=1 $cmdline systemd.crash_reboot rd.debug $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
+        -append "panic=1 $cmdline systemd.crash_reboot rd.debug $DEBUGFAIL
+            rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/usr/sbin/init" \
         -initrd "$TESTDIR"/initramfs.testing
 
     {
