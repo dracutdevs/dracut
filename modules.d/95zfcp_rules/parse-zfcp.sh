@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 create_udev_rule() {
     local ccw=$1
@@ -7,7 +7,7 @@ create_udev_rule() {
     local _rule=/etc/udev/rules.d/51-zfcp-${ccw}.rules
     local _cu_type _dev_type
 
-    if [ -x /sbin/cio_ignore ] && cio_ignore -i $ccw > /dev/null ; then
+    if [ -x /usr/sbin/cio_ignore ] && cio_ignore -i $ccw > /dev/null ; then
         cio_ignore -r $ccw
     fi
 
@@ -36,7 +36,7 @@ EOF
 ACTION=="add", KERNEL=="rport-*", ATTR{port_name}=="$wwpn", SUBSYSTEMS=="ccw", KERNELS=="$ccw", ATTR{[ccw/$ccw]$wwpn/unit_add}="$lun"
 EOF
     fi
-    if [ -x /sbin/cio_ignore ] && ! cio_ignore -i $ccw > /dev/null ; then
+    if [ -x /usr/sbin/cio_ignore ] && ! cio_ignore -i $ccw > /dev/null ; then
         cio_ignore -r $ccw
     fi
 }
