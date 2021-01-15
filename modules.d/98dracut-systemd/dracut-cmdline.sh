@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 if [ -f /dracut-state.sh ]; then
     . /dracut-state.sh 2>/dev/null
