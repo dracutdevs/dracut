@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
@@ -146,7 +146,7 @@ parse_option_121() {
             temp_result="$destination via $gateway dev $interface"
         fi
 
-        echo "/sbin/ip route replace $temp_result"
+        echo "/usr/sbin/ip route replace $temp_result"
     done
 }
 
@@ -199,7 +199,7 @@ case $reason in
                 IFS="$OLDIFS"
             fi
             echo "source_hook initqueue/online $netif"
-            [ -e /tmp/net.$netif.manualup ] || echo "/sbin/netroot $netif"
+            [ -e /tmp/net.$netif.manualup ] || echo "/usr/sbin/netroot $netif"
             echo "rm -f -- $hookdir/initqueue/setup_net_$netif.sh"
         } > $hookdir/initqueue/setup_net_$netif.sh
 
@@ -235,7 +235,7 @@ case $reason in
             echo '. /lib/net-lib.sh'
             echo "setup_net $netif"
             echo "source_hook initqueue/online $netif"
-            [ -e /tmp/net.$netif.manualup ] || echo "/sbin/netroot $netif"
+            [ -e /tmp/net.$netif.manualup ] || echo "/usr/sbin/netroot $netif"
             echo "rm -f -- $hookdir/initqueue/setup_net_$netif.sh"
         } > $hookdir/initqueue/setup_net_$netif.sh
 
