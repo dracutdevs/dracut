@@ -44,7 +44,7 @@ test_setup() {
         inst "$basedir/modules.d/35network-legacy/ifup.sh" "/sbin/ifup"
         inst_multiple grep
         inst_simple /etc/os-release
-        inst ./test-init.sh /sbin/init
+        inst ./test-init.sh /usr/sbin/init
         find_binary plymouth >/dev/null && inst_multiple plymouth
         cp -a /etc/ld.so.conf* $initdir/etc
         ldconfig -r "$initdir"
