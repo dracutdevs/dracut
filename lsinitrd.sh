@@ -97,7 +97,11 @@ if [[ $1 ]]; then
 else
     [[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
 
-    if [[ -d /boot/loader/entries || -L /boot/loader/entries ]] \
+    if [[ -d /efi/loader/entries || -L /efi/loader/entries ]] \
+        && [[ $MACHINE_ID ]] \
+        && [[ -d /efi/${MACHINE_ID} || -L /efi/${MACHINE_ID} ]] ; then
+        image="/efi/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
+    elif [[ -d /boot/loader/entries || -L /boot/loader/entries ]] \
         && [[ $MACHINE_ID ]] \
         && [[ -d /boot/${MACHINE_ID} || -L /boot/${MACHINE_ID} ]] ; then
         image="/boot/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
