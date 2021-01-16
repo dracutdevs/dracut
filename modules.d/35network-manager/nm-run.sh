@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [ -e /tmp/nm.done ]; then
+    return
+fi
+
 for i in /usr/lib/NetworkManager/system-connections/* \
          /run/NetworkManager/system-connections/* \
          /etc/NetworkManager/system-connections/* \
