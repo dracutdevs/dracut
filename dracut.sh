@@ -1423,6 +1423,36 @@ for dev in "${!host_fs_types[@]}"; do
     fi
 done
 
+[[ -d $dracutsysrootdir$dbus ]] \
+         || dbus=$(pkg-config dbus --variable=dbus 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbus" ]] || dbus=/usr/share/dbus-1
+
+[[ -d $dracutsysrootdir$dbusinterfaces ]] \
+          || dbusinterfaces=$(pkg-config dbus --variable=dbusinterfaces 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbusinterfaces" ]] || dbusinterfaces=${dbus}/interfaces
+
+[[ -d $dracutsysrootdir$dbusservices ]] \
+          || dbusservices=$(pkg-config dbus --variable=dbusservices 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbusservices" ]] || dbusservices=${dbus}/services
+
+[[ -d $dracutsysrootdir$dbussession ]] \
+          || dbussession=$(pkg-config dbus --variable=dbussession 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbussession" ]] || dbussession=${dbus}/session.d
+
+[[ -d $dracutsysrootdir$dbussystem ]] \
+          || dbussystem=$(pkg-config dbus --variable=dbussystem 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbussystem" ]] || dbussystem=${dbus}/system.d
+
+[[ -d $dracutsysrootdir$dbussystemservices ]] \
+          || dbussystemservices=$(pkg-config dbus --variable=dbussystemservices 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbussystemservices" ]] || dbussystemservices=${dbus}/system-services
+
 [[ -d $dracutsysrootdir$udevdir ]] \
     || udevdir="$(pkg-config udev --variable=udevdir 2>/dev/null)"
 if ! [[ -d "$dracutsysrootdir$udevdir" ]]; then
@@ -1430,15 +1460,55 @@ if ! [[ -d "$dracutsysrootdir$udevdir" ]]; then
     [[ -e $dracutsysrootdir/usr/lib/udev/ata_id ]] && udevdir=/usr/lib/udev
 fi
 
+[[ -d $dracutsysrootdir$sysctl ]] \
+        || sysctl=$(pkg-config systemd --variable=sysctl 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$sysctl" ]] || sysusers=/usr/lib/sysctl.d
+
+[[ -d $dracutsysrootdir$environment ]] \
+      || environment=$(pkg-config systemd --variable=environment 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$environment" ]] || environment=/usr/lib/environment.d
+
+[[ -d $dracutsysrootdir$systemdcatalog ]] \
+      || systemdcatalog=$(pkg-config systemd --variable=systemdcatalog 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$systemdcatalog" ]] || systemdcatalog=${systemdutildir}/catalog
+
+[[ -d $dracutsysrootdir$systemdnetwork ]] \
+      || systemdnetwork=$(pkg-config systemd --variable=systemdnetwork 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$systemdnetwork" ]] || systemdnetwork=${systemdutildir}/network
+
+[[ -d $dracutsysrootdir$systemdntpunits ]] \
+      || systemdntpunits=$(pkg-config systemd --variable=systemdntpunits 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$systemdntpunits" ]] || systemdntpunits=${systemdutildir}/ntp-units.d
+
+[[ -d $dracutsysrootdir$systemdportable ]] \
+      || systemdportable=$(pkg-config systemd --variable=systemdportable 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$systemdportable" ]] || systemdportable=${systemdutildir}/portable
+
 [[ -d $dracutsysrootdir$systemdsystemunitdir ]] \
     || systemdsystemunitdir=$(pkg-config systemd --variable=systemdsystemunitdir 2>/dev/null)
 
 [[ -d "$dracutsysrootdir$systemdsystemunitdir" ]] || systemdsystemunitdir=${systemdutildir}/system
 
+[[ -d $dracutsysrootdir$systemduser ]] \
+      || systemduser=$(pkg-config systemd --variable=systemduser 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$systemduser" ]] || systemduser=${systemdutildir}/user
+
 [[ -d $dracutsysrootdir$systemdsystemconfdir ]] \
     || systemdsystemconfdir=$(pkg-config systemd --variable=systemdsystemconfdir 2>/dev/null)
 
 [[ -d "$dracutsysrootdir$systemdsystemconfdir" ]] || systemdsystemconfdir=/etc/systemd/system
+
+[[ -d $dracutsysrootdir$sysusers ]] \
+       || sysusers=$(pkg-config systemd --variable=sysusers 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$sysusers" ]] || sysusers=/usr/lib/sysusers.d
 
 [[ -d $dracutsysrootdir$tmpfilesdir ]] \
     || tmpfilesdir=$(pkg-config systemd --variable=tmpfilesdir 2>/dev/null)
@@ -1457,7 +1527,10 @@ export initdir dracutbasedir \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
     debug host_fs_types host_devs swap_devs sshkey add_fstab \
     DRACUT_VERSION udevdir prefix filesystems drivers \
-    systemdutildir systemdsystemunitdir systemdsystemconfdir \
+    dbus dbusinterfaces dbusservices dbussession dbussystem \
+    dbussystemservices environment sysctl \
+    systemdutildir systemdcatalog systemdntpunits \
+    systemdsystemunitdir systemdsystemconfdir \
     hostonly_cmdline loginstall \
     tmpfilesdir
 
