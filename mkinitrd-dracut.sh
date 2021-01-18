@@ -153,7 +153,6 @@ while (($# > 0)); do
         --loopopts*) ;;
         --looppath*) ;;
         --dsdt*) ;;
-        --bootchart) ;;
 	-s) ;;
 	--quiet|-q) quiet=1;;
 	-b) read_arg boot_dir "$@" || shift $?
