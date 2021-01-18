@@ -237,6 +237,7 @@ Creates initial ramdisk images for preloading modules
   --loginstall [DIR]    Log all files installed from the host to [DIR]
   --uefi                Create an UEFI executable with the kernel cmdline and
                         kernel combined
+  --no-uefi             Disables UEFI mode
   --uefi-stub [FILE]    Use the UEFI stub [FILE] to create an UEFI executable
   --uefi-splash-image [FILE]
                         Use [FILE] as a splash image when creating an UEFI
@@ -421,6 +422,7 @@ rearrange_params()
         --long no-reproducible \
         --long loginstall: \
         --long uefi \
+        --long no-uefi \
         --long uefi-stub: \
         --long uefi-splash-image: \
         --long kernel-image: \
@@ -622,7 +624,8 @@ while :; do
         --noimageifnotneeded) noimageifnotneeded="yes";;
         --reproducible) reproducible_l="yes";;
         --no-reproducible) reproducible_l="no";;
-        --uefi)        uefi="yes";;
+        --uefi)        uefi_l="yes";;
+        --no-uefi)     uefi_l="no";;
         --uefi-stub)
                        uefi_stub_l="$2";               PARMS_TO_STORE+=" '$2'"; shift;;
         --uefi-splash-image)
@@ -809,6 +812,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $logfile_l ]] && logfile="$logfile_l"
 [[ $reproducible_l ]] && reproducible="$reproducible_l"
 [[ $loginstall_l ]] && loginstall="$loginstall_l"
+[[ $uefi_l ]] && uefi=$uefi_l
 [[ $uefi_stub_l ]] && uefi_stub="$uefi_stub_l"
 [[ $uefi_splash_image_l ]] && uefi_splash_image="$uefi_splash_image_l"
 [[ $kernel_image_l ]] && kernel_image="$kernel_image_l"
