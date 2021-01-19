@@ -668,7 +668,7 @@ check_kernel_config()
     # no kernel config file, so return true
     [[ $_config_file ]] || return 0
 
-    grep -q -F "${_config_opt}=" "$_config_file" && return 0
+    grep -q -F "${_config_opt}=" "$dracutsysrootdir$_config_file" && return 0
     return 1
 }
 
