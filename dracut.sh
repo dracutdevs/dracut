@@ -1596,9 +1596,11 @@ export initdir dracutbasedir \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
     debug host_fs_types host_devs swap_devs sshkey add_fstab \
     DRACUT_VERSION udevdir prefix filesystems drivers \
-    dbus dbusinterfaces dbusservices dbussession dbussystem \
-    dbussystemservices environment sysctl \
-    systemdutildir systemdcatalog systemdntpunits \
+    dbus dbusconfdir dbusinterfaces dbusinterfacesconfdir \
+    dbusservices dbusservicesconfdir dbussession dbussessionconfdir \
+    dbussystem dbussystemconfdir dbussystemservices dbussystemservicesconfdir \
+    environment environmentconfdir sysctl sysctlconfdir sysusers sysusersconfdir \
+    systemdutildir systemdcatalog systemdntpunits systemdntpunitsconfdir \
     systemdsystemunitdir systemdsystemconfdir \
     hostonly_cmdline loginstall \
     tmpfilesdir
