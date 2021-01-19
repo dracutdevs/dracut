@@ -11,9 +11,9 @@ check() {
         return 1
     fi
 
-    for i in squashfs loop overlay; do
-        if ! check_kernel_module $i; then
-            derror "dracut-squash module requires kernel module $i"
+    for i in CONFIG_SQUASHFS CONFIG_BLK_DEV_LOOP CONFIG_OVERLAY_FS ; do
+        if ! check_kernel_config $i; then
+            derror "dracut-squash module requires kernel configuration $i (y or m)"
             return 1
         fi
     done
