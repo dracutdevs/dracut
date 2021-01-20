@@ -1432,30 +1432,60 @@ done
 
 [[ -d "$dracutsysrootdir$dbus" ]] || dbus=/usr/share/dbus-1
 
+[[ -d $dracutsysrootdir$dbusconfdir ]] \
+         || dbusconfdir=$(pkg-config dbus --variable=dbusconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbusconfdir" ]] || dbusconfdir=/etc/dbus-1
+
 [[ -d $dracutsysrootdir$dbusinterfaces ]] \
           || dbusinterfaces=$(pkg-config dbus --variable=dbusinterfaces 2>/dev/null)
 
 [[ -d "$dracutsysrootdir$dbusinterfaces" ]] || dbusinterfaces=${dbus}/interfaces
+
+[[ -d $dracutsysrootdir$dbusinterfacesconfdir ]] \
+          || dbusinterfacesconfdir=$(pkg-config dbus --variable=dbusinterfacesconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbusinterfacesconfdir" ]] || dbusinterfacesconfdir=${dbusconfdir}/interfaces
 
 [[ -d $dracutsysrootdir$dbusservices ]] \
           || dbusservices=$(pkg-config dbus --variable=dbusservices 2>/dev/null)
 
 [[ -d "$dracutsysrootdir$dbusservices" ]] || dbusservices=${dbus}/services
 
+[[ -d $dracutsysrootdir$dbusservicesconfdir ]] \
+          || dbusservicesconfdir=$(pkg-config dbus --variable=dbusservicesconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbusservicesconfdir" ]] || dbusservicesconfdir=${dbusconfdir}/services
+
 [[ -d $dracutsysrootdir$dbussession ]] \
           || dbussession=$(pkg-config dbus --variable=dbussession 2>/dev/null)
 
 [[ -d "$dracutsysrootdir$dbussession" ]] || dbussession=${dbus}/session.d
+
+[[ -d $dracutsysrootdir$dbussessionconfdir ]] \
+          || dbussessionconfdir=$(pkg-config dbus --variable=dbussessionconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbussessionconfdir" ]] || dbussessionconfdir=${dbusconfdir}/session.d
 
 [[ -d $dracutsysrootdir$dbussystem ]] \
           || dbussystem=$(pkg-config dbus --variable=dbussystem 2>/dev/null)
 
 [[ -d "$dracutsysrootdir$dbussystem" ]] || dbussystem=${dbus}/system.d
 
+[[ -d $dracutsysrootdir$dbussystemconfdir ]] \
+          || dbussystemconfdir=$(pkg-config dbus --variable=dbussystemconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbussystemconfdir" ]] || dbussystemconfdir=${dbusconfdir}/system.d
+
 [[ -d $dracutsysrootdir$dbussystemservices ]] \
           || dbussystemservices=$(pkg-config dbus --variable=dbussystemservices 2>/dev/null)
 
 [[ -d "$dracutsysrootdir$dbussystemservices" ]] || dbussystemservices=${dbus}/system-services
+
+[[ -d $dracutsysrootdir$dbussystemservicesconfdir ]] \
+           || dbussystemservicesconfdir=$(pkg-config dbus --variable=dbussystemservicesconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbussystemservicesconfdir" ]] || dbussystemservicesconfdir=${dbusconfdir}/system-services
 
 [[ -d $dracutsysrootdir$udevdir ]] \
     || udevdir="$(pkg-config udev --variable=udevdir 2>/dev/null)"
@@ -1465,14 +1495,24 @@ if ! [[ -d "$dracutsysrootdir$udevdir" ]]; then
 fi
 
 [[ -d $dracutsysrootdir$sysctl ]] \
-        || sysctl=$(pkg-config systemd --variable=sysctl 2>/dev/null)
+      || sysctl=$(pkg-config systemd --variable=sysctl 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$sysctl" ]] || sysusers=/usr/lib/sysctl.d
+[[ -d "$dracutsysrootdir$sysctl" ]] || sysctl=/usr/lib/sysctl.d
+
+[[ -d $dracutsysrootdir$sysctlconfdir ]] \
+      || sysctlconfdir=$(pkg-config systemd --variable=sysctlconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$sysctlconfdir" ]] || sysctlconfdir=/etc/sysctl.d
 
 [[ -d $dracutsysrootdir$environment ]] \
       || environment=$(pkg-config systemd --variable=environment 2>/dev/null)
 
 [[ -d "$dracutsysrootdir$environment" ]] || environment=/usr/lib/environment.d
+
+[[ -d $dracutsysrootdir$environmentconfdir ]] \
+      || environmentconfdir=$(pkg-config systemd --variable=environmentconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$environmentconfdir" ]] || environmentconfdir=/etc/environment.d
 
 [[ -d $dracutsysrootdir$systemdcatalog ]] \
       || systemdcatalog=$(pkg-config systemd --variable=systemdcatalog 2>/dev/null)
@@ -1484,15 +1524,30 @@ fi
 
 [[ -d "$dracutsysrootdir$systemdnetwork" ]] || systemdnetwork=${systemdutildir}/network
 
+[[ -d $dracutsysrootdir$systemdnetworkconfdir ]] \
+       || systemdnetworkconfdir=$(pkg-config systemd --variable=systemdnetworkconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$systemdnetworkconfdir" ]] || systemdnetworkconfdir=${systemdsystemconfdir}/network
+
 [[ -d $dracutsysrootdir$systemdntpunits ]] \
       || systemdntpunits=$(pkg-config systemd --variable=systemdntpunits 2>/dev/null)
 
 [[ -d "$dracutsysrootdir$systemdntpunits" ]] || systemdntpunits=${systemdutildir}/ntp-units.d
 
+[[ -d $dracutsysrootdir$systemdntpunitsconfdir ]] \
+      || systemdntpunitsconfdir=$(pkg-config systemd --variable=systemdntpunitsconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$systemdntpunitsconfdir" ]] || systemdntpunitsconfdir=${systemdsystemconfdir}/ntp-units.d
+
 [[ -d $dracutsysrootdir$systemdportable ]] \
       || systemdportable=$(pkg-config systemd --variable=systemdportable 2>/dev/null)
 
 [[ -d "$dracutsysrootdir$systemdportable" ]] || systemdportable=${systemdutildir}/portable
+
+[[ -d $dracutsysrootdir$systemdportableconfdir ]] \
+      || systemdportableconfdir=$(pkg-config systemd --variable=systemdportableconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$systemdportableconfdir" ]] || systemdportableconfdir=${systemdsystemconfdir}/portable
 
 [[ -d $dracutsysrootdir$systemdsystemunitdir ]] \
     || systemdsystemunitdir=$(pkg-config systemd --variable=systemdsystemunitdir 2>/dev/null)
@@ -1504,6 +1559,11 @@ fi
 
 [[ -d "$dracutsysrootdir$systemduser" ]] || systemduser=${systemdutildir}/user
 
+[[ -d $dracutsysrootdir$systemduserconfdir ]] \
+       || systemduserconfdir=$(pkg-config systemd --variable=systemduserconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$systemduserconfdir" ]] || systemduserconfdir=${systemdsystemconfdir}/user
+
 [[ -d $dracutsysrootdir$systemdsystemconfdir ]] \
     || systemdsystemconfdir=$(pkg-config systemd --variable=systemdsystemconfdir 2>/dev/null)
 
@@ -1513,6 +1573,11 @@ fi
        || sysusers=$(pkg-config systemd --variable=sysusers 2>/dev/null)
 
 [[ -d "$dracutsysrootdir$sysusers" ]] || sysusers=/usr/lib/sysusers.d
+
+[[ -d $dracutsysrootdir$sysusersconfdir ]] \
+       || sysusersconfdir=$(pkg-config systemd --variable=sysusersconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$sysusersconfdir" ]] || sysusersconfdir=/etc/sysusers.d
 
 [[ -d $dracutsysrootdir$tmpfilesdir ]] \
     || tmpfilesdir=$(pkg-config systemd --variable=tmpfilesdir 2>/dev/null)
@@ -1531,9 +1596,11 @@ export initdir dracutbasedir \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
     debug host_fs_types host_devs swap_devs sshkey add_fstab \
     DRACUT_VERSION udevdir prefix filesystems drivers \
-    dbus dbusinterfaces dbusservices dbussession dbussystem \
-    dbussystemservices environment sysctl \
-    systemdutildir systemdcatalog systemdntpunits \
+    dbus dbusconfdir dbusinterfaces dbusinterfacesconfdir \
+    dbusservices dbusservicesconfdir dbussession dbussessionconfdir \
+    dbussystem dbussystemconfdir dbussystemservices dbussystemservicesconfdir \
+    environment environmentconfdir sysctl sysctlconfdir sysusers sysusersconfdir \
+    systemdutildir systemdcatalog systemdntpunits systemdntpunitsconfdir \
     systemdsystemunitdir systemdsystemconfdir \
     hostonly_cmdline loginstall \
     tmpfilesdir
