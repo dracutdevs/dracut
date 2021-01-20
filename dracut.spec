@@ -332,6 +332,7 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
 %{dracutlibdir}/modules.d/01fips
 %endif
+%{dracutlibdir}/modules.d/01dbus-broker
 %{dracutlibdir}/modules.d/01systemd-sysusers
 %{dracutlibdir}/modules.d/01systemd-initrd
 %{dracutlibdir}/modules.d/03modsign
