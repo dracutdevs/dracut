@@ -1487,6 +1487,16 @@ done
 
 [[ -d "$dracutsysrootdir$dbussystemservicesconfdir" ]] || dbussystemservicesconfdir=${dbusconfdir}/system-services
 
+[[ -d $dracutsysrootdir$modulesload ]] \
+            || modulesload=$(pkg-config kmod --variable=modulesload 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$modulesload" ]] || modulesload=/usr/lib/modules-load.d
+
+[[ -d $dracutsysrootdir$modulesloadconfdir ]] \
+            || modulesloadconfdir=$(pkg-config kmod --variable=modulesloadconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$modulesloadconfdir" ]] || modulesloadconfdir=/etc/modules-load.d
+
 [[ -d $dracutsysrootdir$udevdir ]] \
     || udevdir="$(pkg-config udev --variable=udevdir 2>/dev/null)"
 if ! [[ -d "$dracutsysrootdir$udevdir" ]]; then
