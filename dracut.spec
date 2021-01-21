@@ -215,11 +215,6 @@ echo "DRACUT_VERSION=%{version}-%{release}" > $RPM_BUILD_ROOT/%{dracutlibdir}/dr
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/01fips
 %endif
 
-%if %{defined _unitdir}
-# for systemd, better use systemd-bootchart
-rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00bootchart
-%endif
-
 # we do not support dash in the initramfs
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00dash
 
@@ -280,7 +275,7 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 
 %files
 %if %{with doc}
-%doc README.md HACKING TODO AUTHORS NEWS dracut.html dracut.png dracut.svg
+%doc README.md HACKING.md TODO AUTHORS NEWS dracut.html dracut.png dracut.svg
 %endif
 %{!?_licensedir:%global license %%doc}
 %license COPYING lgpl-2.1.txt
@@ -328,7 +323,6 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %endif
 
 %if %{undefined _unitdir}
-%{dracutlibdir}/modules.d/00bootchart
 %endif
 %{dracutlibdir}/modules.d/00bash
 %{dracutlibdir}/modules.d/00systemd
