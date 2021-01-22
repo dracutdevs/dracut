@@ -26,20 +26,20 @@ install() {
   inst_multiple \
     $systemdsystemunitdir/dbus.service \
     $systemdsystemunitdir/dbus.socket \
-    /usr/bin/dbus-send \
-    /usr/bin/busctl
+    dbus-send \
+    busctl
   adjust_dependencies $systemdsystemunitdir/dbus.service
 
-  if [[ -e /usr/bin/dbus-daemon ]]; then
+  if type -P dbus-daemon >/dev/null; then
     inst_multiple \
-      /usr/bin/dbus-daemon
+      dbus-daemon
   fi
 
-  if [[ -e /usr/bin/dbus-broker ]]; then
+  if type -P dbus-broker >/dev/null; then
     inst_multiple \
       $systemdsystemunitdir/dbus-broker.service \
-      /usr/bin/dbus-broker \
-      /usr/bin/dbus-broker-launch
+      dbus-broker \
+      dbus-broker-launch
     adjust_dependencies $systemdsystemunitdir/dbus-broker.service
   fi
 
@@ -59,12 +59,12 @@ install() {
 Conflicts=shutdown.target\
 Before=shutdown.target
 /^\[Socket\]/aRemoveOnStop=yes' \
-    "$initdir"/usr/lib/systemd/system/dbus.socket
+    "$initdir$systemdsystemunitdir/dbus.socket"
 
   #We need to make sure that systemd-tmpfiles-setup.service->dbus.socket will not wait local-fs.target to start,
   #If swap is encrypted, this would make dbus wait the timeout for the swap before loading. This could delay sysinit
   #services that are dependent on dbus.service.
   sed -i -Ee \
     '/^After/s/(After[[:space:]]*=.*)(local-fs.target[[:space:]]*)(.*)/\1-\.mount \3/' \
-    "$initdir"/usr/lib/systemd/system/systemd-tmpfiles-setup.service
+    "$initdir$systemdsystemunitdir/systemd-tmpfiles-setup.service"
 }
