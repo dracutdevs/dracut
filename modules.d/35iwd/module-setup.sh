@@ -4,6 +4,7 @@
 
 # Prerequisite check(s) for module.
 check() {
+    [[ $mount_needs ]] && return 1
 
     # If the binary(s) requirements are not fulfilled
     # return 1 to not include the binary.
@@ -13,13 +14,23 @@ check() {
 
     # If the module dependency requirements are not fulfilled
     # return 1 to not include the required module(s).
+    if ! dracut_module_included "dbus-broker"; then
+        derror "iwd needs dbus-broker in the initramfs."
+        return 1
+    fi
+
+    if ! dracut_module_included "kernel-network-modules"; then
+        derror "iwd needs kernel-network-modules in the initramfs."
+        return 1
+    fi
+
     if ! dracut_module_included "systemd"; then
         derror "iwd needs systemd in the initramfs."
         return 1
     fi
 
-    if ! dracut_module_included "dbus-broker"; then
-        derror "iwd needs dbus-broker in the initramfs."
+    if ! dracut_module_included "systemd-load-modules"; then
+        derror "iwd needs systemd-load-modules in the initramfs."
         return 1
     fi
 
@@ -32,7 +43,7 @@ check() {
 depends() {
 
     # This module has external dependency on modules.
-    echo systemd dbus-broker
+    echo dbus-broker kernel-network-modules systemd systemd-load-modules
     # Return 0 to include the dependent module(s) in the initramfs.
     return 0
 
