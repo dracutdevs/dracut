@@ -421,6 +421,7 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %{_prefix}/lib/kernel/install.d/50-dracut.install
 
 %files network
+%{dracutlibdir}/modules.d/01systemd-ask-password
 %{dracutlibdir}/modules.d/02systemd-networkd
 %{dracutlibdir}/modules.d/35network-manager
 %{dracutlibdir}/modules.d/35network-legacy
