@@ -332,7 +332,11 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
 %{dracutlibdir}/modules.d/01fips
 %endif
+<<<<<<< HEAD
 %{dracutlibdir}/modules.d/01systemd-sysusers
+=======
+%{dracutlibdir}/modules.d/01systemd-ask-password
+>>>>>>> 061b40dd (fix: spec file)
 %{dracutlibdir}/modules.d/01systemd-initrd
 %{dracutlibdir}/modules.d/03modsign
 %{dracutlibdir}/modules.d/03rescue
@@ -421,7 +425,6 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %{_prefix}/lib/kernel/install.d/50-dracut.install
 
 %files network
-%{dracutlibdir}/modules.d/01systemd-ask-password
 %{dracutlibdir}/modules.d/02systemd-networkd
 %{dracutlibdir}/modules.d/35network-manager
 %{dracutlibdir}/modules.d/35network-legacy
