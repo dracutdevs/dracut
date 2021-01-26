@@ -4,7 +4,7 @@
 check() {
     local _rootdev
     # if cryptsetup is not installed, then we cannot support encrypted devices.
-    require_any_binary $systemdutildir/systemd-cryptsetup cryptsetup || return 1
+    require_binaries cryptsetup || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for fs in "${host_fs_types[@]}"; do
@@ -142,21 +142,6 @@ install() {
 
     inst_simple "$moddir/crypt-lib.sh" "/lib/dracut-crypt-lib.sh"
     inst_script "$moddir/crypt-run-generator.sh" "/sbin/crypt-run-generator"
-
-    if dracut_module_included "systemd"; then
-        # the cryptsetup targets are already pulled in by 00systemd, but not
-        # the enablement symlinks
-        inst_multiple -o \
-                      $systemdutildir/system-generators/systemd-cryptsetup-generator \
-                      $systemdutildir/systemd-cryptsetup \
-                      $systemdsystemunitdir/systemd-ask-password-console.path \
-                      $systemdsystemunitdir/systemd-ask-password-console.service \
-                      $systemdsystemunitdir/cryptsetup.target \
-                      $systemdsystemunitdir/sysinit.target.wants/cryptsetup.target \
-                      $systemdsystemunitdir/remote-cryptsetup.target \
-                      $systemdsystemunitdir/initrd-root-device.target.wants/remote-cryptsetup.target \
-                      systemd-ask-password systemd-tty-ask-password-agent
-    fi
 
     dracut_need_initqueue
 }
