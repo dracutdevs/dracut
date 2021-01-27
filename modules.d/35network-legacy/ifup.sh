@@ -237,7 +237,8 @@ if [ -z "$NO_BOND_MASTER" ]; then
                 fi
             done
 
-            modprobe -q -b bonding
+            # Load bonding module with default miimon value
+            modprobe -q -b bonding miimon=100
             echo "+$bondname" >  /sys/class/net/bonding_masters 2>/dev/null
             ip link set $bondname down
 
