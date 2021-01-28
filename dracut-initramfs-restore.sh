@@ -16,10 +16,17 @@ SKIP="$dracutbasedir/skipcpio"
 
 mount -o ro /boot &>/dev/null || true
 
-if [[ $MACHINE_ID ]] && [[ -d /boot/${MACHINE_ID} || -L /boot/${MACHINE_ID} ]] ; then
+if [[ -d /efi/loader/entries || -L /efi/loader/entries ]] \
+    && [[ $MACHINE_ID ]] \
+    && [[ -d /efi/${MACHINE_ID} || -L /efi/${MACHINE_ID} ]] ; then
+    IMG="/efi/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
+elif [[ -d /boot/loader/entries || -L /boot/loader/entries ]] \
+    && [[ $MACHINE_ID ]] \
+    && [[ -d /boot/${MACHINE_ID} || -L /boot/${MACHINE_ID} ]] ; then
     IMG="/boot/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
+else
+    IMG="/boot/initramfs-${KERNEL_VERSION}.img"
 fi
-[[ -f $IMG ]] || IMG="/boot/initramfs-${KERNEL_VERSION}.img"
 
 cd /run/initramfs
 
