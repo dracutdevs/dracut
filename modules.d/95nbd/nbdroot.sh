@@ -112,7 +112,7 @@ if [ "$nbdport" -gt 0 ] 2>/dev/null; then
     if [ -z "$DRACUT_SYSTEMD" ]; then
         nbd-client "$nbdserver" $nbdport /dev/nbd0 $preopts $opts || exit 1
     else
-        systemd-run --no-block --service-type=forking --quiet \
+        systemd-run --no-block --service-type=oneshot --quiet \
                     --description="nbd nbd0" \
                     -p 'DefaultDependencies=no' \
                     -p 'KillMode=none' \
@@ -122,7 +122,7 @@ else
     if [ -z "$DRACUT_SYSTEMD" ]; then
         nbd-client -name "$nbdport" "$nbdserver" /dev/nbd0 $preopts $opts || exit 1
     else
-        systemd-run --no-block --service-type=forking --quiet \
+        systemd-run --no-block --service-type=oneshot --quiet \
                     --description="nbd nbd0" \
                     -p 'DefaultDependencies=no' \
                     -p 'KillMode=none' \
