@@ -11,6 +11,13 @@ check() {
         return 1
     fi
 
+    for i in CONFIG_SQUASHFS CONFIG_BLK_DEV_LOOP CONFIG_OVERLAY_FS ; do
+        if ! check_kernel_config $i; then
+            derror "dracut-squash module requires kernel configuration $i (y or m)"
+            return 1
+        fi
+    done
+
     return 255
 }
 
@@ -20,7 +27,7 @@ depends() {
 }
 
 installkernel() {
-    hostonly="" instmods -c squashfs loop overlay
+    hostonly="" instmods squashfs loop overlay
 }
 
 install() {

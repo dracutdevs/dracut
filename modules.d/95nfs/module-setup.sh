@@ -38,7 +38,7 @@ depends() {
 
 # called by dracut
 installkernel() {
-    hostonly='' instmods =net/sunrpc =fs/nfs ipv6 nfs_acl nfs_layout_nfsv41_files
+    hostonly=$(optional_hostonly) instmods =net/sunrpc =fs/nfs ipv6 nfs_acl nfs_layout_nfsv41_files
 }
 
 cmdline() {
@@ -114,7 +114,8 @@ install() {
     inst "$moddir/nfs-lib.sh" "/lib/nfs-lib.sh"
     mkdir -m 0755 -p "$initdir/var/lib/nfs/rpc_pipefs"
     mkdir -m 0770 -p "$initdir/var/lib/rpcbind"
-    mkdir -m 0755 -p "$initdir/var/lib/nfs/statd/sm"
+    [ -d "$initdir/var/lib/nfs/statd/sm" ] && mkdir -m 0755 -p "$initdir/var/lib/nfs/statd/sm"
+    [ -d "$initdir/var/lib/nfs/sm" ] && mkdir -m 0755 -p "$initdir/var/lib/nfs/sm"
 
     # Rather than copy the passwd file in, just set a user for rpcbind
     # We'll save the state and restart the daemon from the root anyway

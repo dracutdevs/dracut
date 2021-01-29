@@ -1,6 +1,6 @@
 ## The test container is created with https://github.com/dracutdevs/fedora-container
 
-name: Fedora-31
+name: Fedora-latest
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     container:
-      image: quay.io/haraldh/dracut-fedora:31
+      image: quay.io/haraldh/dracut-fedora:latest
       options: "--privileged"
     timeout-minutes: 45
     strategy:

@@ -27,6 +27,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <getopt.h>
+#include <glob.h>
 #include <libgen.h>
 #include <limits.h>
 #include <stdbool.h>
@@ -123,6 +124,7 @@ static inline void fts_closep(FTS **p) {
 }
 #define _cleanup_fts_close_ _cleanup_(fts_closep)
 
+#define _cleanup_globfree_ _cleanup_(globfree)
 
 
 static size_t dir_len(char const *file)
@@ -569,6 +571,9 @@ static int resolve_deps(const char *src)
                 if (strstr(buf, "cannot read header"))
                         break;
 
+                if (strstr(buf, "cannot be preloaded"))
+                        break;
+
                 if (strstr(buf, destrootdir))
                         break;
 
@@ -807,123 +812,123 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
                         log_debug("'%s' already exists", fulldstpath);
 
                 /* dst does already exist */
-                return ret;
-        }
-
-        /* check destination directory */
-        fulldstdir = strdup(fulldstpath);
-        if (!fulldstdir) {
-                log_error("Out of memory!");
-                return 1;
-        }
-        fulldstdir[dir_len(fulldstdir)] = '\0';
-
-        ret = stat(fulldstdir, &db);
-
-        if (ret < 0) {
-                _cleanup_free_ char *dname = NULL;
-
-                if (errno != ENOENT) {
-                        log_error("ERROR: stat '%s': %m", fulldstdir);
-                        return 1;
-                }
-                /* create destination directory */
-                log_debug("dest dir '%s' does not exist", fulldstdir);
-                dname = strdup(dst);
-                if (!dname)
-                        return 1;
-
-                dname[dir_len(dname)] = '\0';
-                ret = dracut_install(dname, dname, true, false, true);
-
-                if (ret != 0) {
-                        log_error("ERROR: failed to create directory '%s'", fulldstdir);
-                        return 1;
-                }
-        }
-
-        if (src_isdir) {
-                if (dst_exists) {
-                        if (S_ISDIR(sb.st_mode)) {
-                                log_debug("dest dir '%s' already exists", fulldstpath);
-                                return 0;
-                        }
-                        log_error("dest dir '%s' already exists but is not a directory", fulldstpath);
-                        return 1;
-                }
-
-                log_info("mkdir '%s'", fulldstpath);
-                ret = dracut_mkdir(fulldstpath);
-                if (ret == 0) {
-                        i = strdup(dst);
-                        if (!i)
-                                return -ENOMEM;
-
-                        hashmap_put(items, i, i);
-                }
-                return ret;
-        }
-
-        /* ready to install src */
-
-        if (src_islink) {
-                _cleanup_free_ char *abspath = NULL;
-
-                abspath = get_real_file(src, false);
-
-                if (abspath == NULL)
-                        return 1;
-
-                if (dracut_install(abspath, abspath, false, resolvedeps, hashdst)) {
-                        log_debug("'%s' install error", abspath);
-                        return 1;
-                }
-
-                if (lstat(abspath, &sb) != 0) {
-                        log_debug("lstat '%s': %m", abspath);
-                        return 1;
-                }
-
-                if (lstat(fulldstpath, &sb) != 0) {
-                        _cleanup_free_ char *absdestpath = NULL;
-
-                        ret = asprintf(&absdestpath, "%s/%s", destrootdir, (abspath[0]=='/' ? (abspath+1) : abspath) + sysrootdirlen);
-                        if (ret < 0) {
-                                log_error("Out of memory!");
-                                exit(EXIT_FAILURE);
-                        }
-
-                        ln_r(absdestpath, fulldstpath);
-                }
-
-                if (arg_hmac) {
-                        /* copy .hmac files also */
-                        hmac_install(src, dst, NULL);
-                }
-
-                return 0;
-        }
-
-        if (src_mode & (S_IXUSR | S_IXGRP | S_IXOTH)) {
-                if (resolvedeps)
-                        ret += resolve_deps(fullsrcpath + sysrootdirlen);
-                if (arg_hmac) {
-                        /* copy .hmac files also */
-                        hmac_install(src, dst, NULL);
-                }
-        }
-
-        log_debug("dracut_install ret = %d", ret);
-
-        if (arg_hostonly && !arg_module)
-                mark_hostonly(dst);
-
-        if (isdir) {
-                log_info("mkdir '%s'", fulldstpath);
-                ret += dracut_mkdir(fulldstpath);
         } else {
-                log_info("cp '%s' '%s'", fullsrcpath, fulldstpath);
-                ret += cp(fullsrcpath, fulldstpath);
+
+                /* check destination directory */
+                fulldstdir = strdup(fulldstpath);
+                if (!fulldstdir) {
+                        log_error("Out of memory!");
+                        return 1;
+                }
+                fulldstdir[dir_len(fulldstdir)] = '\0';
+
+                ret = stat(fulldstdir, &db);
+
+                if (ret < 0) {
+                        _cleanup_free_ char *dname = NULL;
+
+                        if (errno != ENOENT) {
+                                log_error("ERROR: stat '%s': %m", fulldstdir);
+                                return 1;
+                        }
+                        /* create destination directory */
+                        log_debug("dest dir '%s' does not exist", fulldstdir);
+                        dname = strdup(dst);
+                        if (!dname)
+                                return 1;
+
+                        dname[dir_len(dname)] = '\0';
+                        ret = dracut_install(dname, dname, true, false, true);
+
+                        if (ret != 0) {
+                                log_error("ERROR: failed to create directory '%s'", fulldstdir);
+                                return 1;
+                        }
+                }
+
+                if (src_isdir) {
+                        if (dst_exists) {
+                                if (S_ISDIR(sb.st_mode)) {
+                                        log_debug("dest dir '%s' already exists", fulldstpath);
+                                        return 0;
+                                }
+                                log_error("dest dir '%s' already exists but is not a directory", fulldstpath);
+                                return 1;
+                        }
+
+                        log_info("mkdir '%s'", fulldstpath);
+                        ret = dracut_mkdir(fulldstpath);
+                        if (ret == 0) {
+                                i = strdup(dst);
+                                if (!i)
+                                        return -ENOMEM;
+
+                                hashmap_put(items, i, i);
+                        }
+                        return ret;
+                }
+
+                /* ready to install src */
+
+                if (src_islink) {
+                        _cleanup_free_ char *abspath = NULL;
+
+                        abspath = get_real_file(src, false);
+
+                        if (abspath == NULL)
+                                return 1;
+
+                        if (dracut_install(abspath, abspath, false, resolvedeps, hashdst)) {
+                                log_debug("'%s' install error", abspath);
+                                return 1;
+                        }
+
+                        if (lstat(abspath, &sb) != 0) {
+                                log_debug("lstat '%s': %m", abspath);
+                                return 1;
+                        }
+
+                        if (lstat(fulldstpath, &sb) != 0) {
+                                _cleanup_free_ char *absdestpath = NULL;
+
+                                ret = asprintf(&absdestpath, "%s/%s", destrootdir, (abspath[0]=='/' ? (abspath+1) : abspath) + sysrootdirlen);
+                                if (ret < 0) {
+                                        log_error("Out of memory!");
+                                        exit(EXIT_FAILURE);
+                                }
+
+                                ln_r(absdestpath, fulldstpath);
+                        }
+
+                        if (arg_hmac) {
+                                /* copy .hmac files also */
+                                hmac_install(src, dst, NULL);
+                        }
+
+                        return 0;
+                }
+
+                if (src_mode & (S_IXUSR | S_IXGRP | S_IXOTH)) {
+                        if (resolvedeps)
+                                ret += resolve_deps(fullsrcpath + sysrootdirlen);
+                        if (arg_hmac) {
+                                /* copy .hmac files also */
+                                hmac_install(src, dst, NULL);
+                        }
+                }
+
+                log_debug("dracut_install ret = %d", ret);
+
+                if (arg_hostonly && !arg_module)
+                        mark_hostonly(dst);
+
+                if (isdir) {
+                        log_info("mkdir '%s'", fulldstpath);
+                        ret += dracut_mkdir(fulldstpath);
+                } else {
+                        log_info("cp '%s' '%s'", fullsrcpath, fulldstpath);
+                        ret += cp(fullsrcpath, fulldstpath);
+                }
         }
 
         if (ret == 0) {
@@ -1325,8 +1330,33 @@ static int install_all(int argc, char **argv)
         return r;
 }
 
-static int install_firmware(struct kmod_module *mod)
+static int install_firmware_fullpath(const char *fwpath)
 {
+        const char *fw;
+        _cleanup_free_ char *fwpath_xz = NULL;
+        fw = fwpath;
+        struct stat sb;
+        int ret, r;
+        if (stat(fwpath, &sb) != 0) {
+                r = asprintf(&fwpath_xz, "%s.xz", fwpath);
+                if (r < 0) {
+                        log_error("Out of memory!");
+                        exit(EXIT_FAILURE);
+                }
+                if (stat(fwpath_xz, &sb) != 0) {
+                        log_debug("stat(%s) != 0", fwpath);
+                        return 1;
+                }
+                fw = fwpath_xz;
+        }
+        ret = dracut_install(fw, fw, false, false, true);
+        if (ret == 0) {
+                log_debug("dracut_install '%s' OK", fwpath);
+        }
+        return ret;
+}
+
+static int install_firmware(struct kmod_module *mod) {
         struct kmod_list *l;
         _cleanup_kmod_module_info_free_list_ struct kmod_list *list = NULL;
         int ret;
@@ -1351,8 +1381,6 @@ static int install_firmware(struct kmod_module *mod)
                 ret = -1;
                 STRV_FOREACH(q, firmwaredirs) {
                         _cleanup_free_ char *fwpath = NULL;
-                        _cleanup_free_ char *fwpath_xz = NULL;
-                        const char *fw;
                         struct stat sb;
                         int r;
 
@@ -1362,27 +1390,22 @@ static int install_firmware(struct kmod_module *mod)
                                 exit(EXIT_FAILURE);
                         }
 
-                        fw = fwpath;
-                        if (stat(fwpath, &sb) != 0) {
-                                r = asprintf(&fwpath_xz, "%s.xz", fwpath);
-                                if (r < 0) {
-                                        log_error("Out of memory!");
-                                        exit(EXIT_FAILURE);
+                        if ((strstr(value, "*") != 0 || strstr(value, "?") != 0 || strstr(value, "[") != 0) && stat(fwpath, &sb) != 0) {
+                                int i;
+                                _cleanup_globfree_ glob_t globbuf;
+                                glob(fwpath, 0, NULL, &globbuf);
+                                for (i = 0; i < globbuf.gl_pathc; i++) {
+                                        install_firmware_fullpath(globbuf.gl_pathv[i]);
+                                        if (ret != 0) {
+                                                log_info("Possible missing firmware %s for kernel module %s", value, kmod_module_get_name(mod));
+                                        }
                                 }
-                                if (stat(fwpath_xz, &sb) != 0) {
-                                        log_debug("stat(%s) != 0", fwpath);
-                                        continue;
+                        } else {
+                                install_firmware_fullpath(fwpath);
+                                if (ret != 0) {
+                                        log_info("Possible missing firmware %s for kernel module %s", value, kmod_module_get_name(mod));
                                 }
-                                fw = fwpath_xz;
                         }
-
-                        ret = dracut_install(fw, fw, false, false, true);
-                        if (ret == 0)
-                                log_debug("dracut_install '%s' OK", fwpath);
-                }
-
-                if (ret != 0) {
-                        log_info("Possible missing firmware %s for kernel module %s", value, kmod_module_get_name(mod));
                 }
         }
         return 0;

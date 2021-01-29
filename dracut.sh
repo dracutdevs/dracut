@@ -175,6 +175,8 @@ Creates initial ramdisk images for preloading modules
   --hostonly-i18n       Install only needed keyboard and font files according
                         to the host configuration (default).
   --no-hostonly-i18n    Install all keyboard and font files available.
+  --hostonly-nics [LIST]
+                        Only enable listed NICs in the initramfs.
   --persistent-policy [POLICY]
                         Use [POLICY] to address disks and partitions.
                         POLICY can be any directory name found in /dev/disk.
@@ -235,6 +237,7 @@ Creates initial ramdisk images for preloading modules
   --loginstall [DIR]    Log all files installed from the host to [DIR]
   --uefi                Create an UEFI executable with the kernel cmdline and
                         kernel combined
+  --no-uefi             Disables UEFI mode
   --uefi-stub [FILE]    Use the UEFI stub [FILE] to create an UEFI executable
   --uefi-splash-image [FILE]
                         Use [FILE] as a splash image when creating an UEFI
@@ -242,6 +245,7 @@ Creates initial ramdisk images for preloading modules
   --kernel-image [FILE] location of the kernel image
   --regenerate-all      Regenerate all initramfs images at the default location
                         for the kernel versions found on the system
+  --version             Display version
 
 If [LIST] has multiple arguments, then you have to put these in quotes.
 
@@ -250,6 +254,14 @@ For example:
     # dracut --add-drivers "module1 module2"  ...
 
 EOF
+}
+
+long_version() {
+    [[ $dracutbasedir ]] || dracutbasedir=$dracutsysrootdir/usr/lib/dracut
+    if [[ -f $dracutbasedir/dracut-version.sh ]]; then
+        . $dracutbasedir/dracut-version.sh
+    fi
+    echo "dracut $DRACUT_VERSION"
 }
 
 # Fills up host_devs stack variable and makes sure there are no duplicates
@@ -410,12 +422,15 @@ rearrange_params()
         --long no-reproducible \
         --long loginstall: \
         --long uefi \
+        --long no-uefi \
         --long uefi-stub: \
         --long uefi-splash-image: \
         --long kernel-image: \
         --long no-hostonly-i18n \
         --long hostonly-i18n \
+        --long hostonly-nics: \
         --long no-machineid \
+        --long version \
         -- "$@")
 
     if (( $? != 0 )); then
@@ -577,6 +592,8 @@ while :; do
                        hostonly_cmdline_l="yes" ;;
         --hostonly-i18n)
                        i18n_install_all_l="no" ;;
+        --hostonly-nics)
+                       hostonly_nics_l+=("$2");           PARMS_TO_STORE+=" '$2'"; shift;;
         --no-hostonly-i18n)
                        i18n_install_all_l="yes" ;;
         --no-hostonly-cmdline)
@@ -607,7 +624,8 @@ while :; do
         --noimageifnotneeded) noimageifnotneeded="yes";;
         --reproducible) reproducible_l="yes";;
         --no-reproducible) reproducible_l="no";;
-        --uefi)        uefi="yes";;
+        --uefi)        uefi_l="yes";;
+        --no-uefi)     uefi_l="no";;
         --uefi-stub)
                        uefi_stub_l="$2";               PARMS_TO_STORE+=" '$2'"; shift;;
         --uefi-splash-image)
@@ -616,6 +634,7 @@ while :; do
                        kernel_image_l="$2";            PARMS_TO_STORE+=" '$2'"; shift;;
         --no-machineid)
                        machine_id_l="no";;
+        --version)     long_version; exit 1 ;;
         --) shift; break;;
 
         *)  # should not even reach this point
@@ -744,6 +763,7 @@ unset NPATH
 (( ${#fstab_lines_l[@]} )) && fstab_lines+=( "${fstab_lines_l[@]}" )
 (( ${#install_items_l[@]} )) && install_items+=" ${install_items_l[@]} "
 (( ${#install_optional_items_l[@]} )) && install_optional_items+=" ${install_optional_items_l[@]} "
+(( ${#hostonly_nics_l[@]} )) && hostonly_nics+=" ${hostonly_nics_l[@]} "
 
 # these options override the stuff in the config file
 (( ${#dracutmodules_l[@]} )) && dracutmodules="${dracutmodules_l[@]}"
@@ -792,6 +812,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $logfile_l ]] && logfile="$logfile_l"
 [[ $reproducible_l ]] && reproducible="$reproducible_l"
 [[ $loginstall_l ]] && loginstall="$loginstall_l"
+[[ $uefi_l ]] && uefi=$uefi_l
 [[ $uefi_stub_l ]] && uefi_stub="$uefi_stub_l"
 [[ $uefi_splash_image_l ]] && uefi_splash_image="$uefi_splash_image_l"
 [[ $kernel_image_l ]] && kernel_image="$kernel_image_l"
@@ -1406,6 +1427,66 @@ for dev in "${!host_fs_types[@]}"; do
     fi
 done
 
+[[ -d $dracutsysrootdir$dbus ]] \
+         || dbus=$(pkg-config dbus --variable=dbus 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbus" ]] || dbus=/usr/share/dbus-1
+
+[[ -d $dracutsysrootdir$dbusconfdir ]] \
+         || dbusconfdir=$(pkg-config dbus --variable=dbusconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbusconfdir" ]] || dbusconfdir=/etc/dbus-1
+
+[[ -d $dracutsysrootdir$dbusinterfaces ]] \
+          || dbusinterfaces=$(pkg-config dbus --variable=dbusinterfaces 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbusinterfaces" ]] || dbusinterfaces=${dbus}/interfaces
+
+[[ -d $dracutsysrootdir$dbusinterfacesconfdir ]] \
+          || dbusinterfacesconfdir=$(pkg-config dbus --variable=dbusinterfacesconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbusinterfacesconfdir" ]] || dbusinterfacesconfdir=${dbusconfdir}/interfaces
+
+[[ -d $dracutsysrootdir$dbusservices ]] \
+          || dbusservices=$(pkg-config dbus --variable=dbusservices 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbusservices" ]] || dbusservices=${dbus}/services
+
+[[ -d $dracutsysrootdir$dbusservicesconfdir ]] \
+          || dbusservicesconfdir=$(pkg-config dbus --variable=dbusservicesconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbusservicesconfdir" ]] || dbusservicesconfdir=${dbusconfdir}/services
+
+[[ -d $dracutsysrootdir$dbussession ]] \
+          || dbussession=$(pkg-config dbus --variable=dbussession 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbussession" ]] || dbussession=${dbus}/session.d
+
+[[ -d $dracutsysrootdir$dbussessionconfdir ]] \
+          || dbussessionconfdir=$(pkg-config dbus --variable=dbussessionconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbussessionconfdir" ]] || dbussessionconfdir=${dbusconfdir}/session.d
+
+[[ -d $dracutsysrootdir$dbussystem ]] \
+          || dbussystem=$(pkg-config dbus --variable=dbussystem 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbussystem" ]] || dbussystem=${dbus}/system.d
+
+[[ -d $dracutsysrootdir$dbussystemconfdir ]] \
+          || dbussystemconfdir=$(pkg-config dbus --variable=dbussystemconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbussystemconfdir" ]] || dbussystemconfdir=${dbusconfdir}/system.d
+
+[[ -d $dracutsysrootdir$dbussystemservices ]] \
+          || dbussystemservices=$(pkg-config dbus --variable=dbussystemservices 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbussystemservices" ]] || dbussystemservices=${dbus}/system-services
+
+[[ -d $dracutsysrootdir$dbussystemservicesconfdir ]] \
+           || dbussystemservicesconfdir=$(pkg-config dbus --variable=dbussystemservicesconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$dbussystemservicesconfdir" ]] || dbussystemservicesconfdir=${dbusconfdir}/system-services
+
 [[ -d $dracutsysrootdir$udevdir ]] \
     || udevdir="$(pkg-config udev --variable=udevdir 2>/dev/null)"
 if ! [[ -d "$dracutsysrootdir$udevdir" ]]; then
@@ -1413,15 +1494,90 @@ if ! [[ -d "$dracutsysrootdir$udevdir" ]]; then
     [[ -e $dracutsysrootdir/usr/lib/udev/ata_id ]] && udevdir=/usr/lib/udev
 fi
 
+[[ -d $dracutsysrootdir$sysctl ]] \
+      || sysctl=$(pkg-config systemd --variable=sysctl 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$sysctl" ]] || sysctl=/usr/lib/sysctl.d
+
+[[ -d $dracutsysrootdir$sysctlconfdir ]] \
+      || sysctlconfdir=$(pkg-config systemd --variable=sysctlconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$sysctlconfdir" ]] || sysctlconfdir=/etc/sysctl.d
+
+[[ -d $dracutsysrootdir$environment ]] \
+      || environment=$(pkg-config systemd --variable=environment 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$environment" ]] || environment=/usr/lib/environment.d
+
+[[ -d $dracutsysrootdir$environmentconfdir ]] \
+      || environmentconfdir=$(pkg-config systemd --variable=environmentconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$environmentconfdir" ]] || environmentconfdir=/etc/environment.d
+
+[[ -d $dracutsysrootdir$systemdcatalog ]] \
+      || systemdcatalog=$(pkg-config systemd --variable=systemdcatalog 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$systemdcatalog" ]] || systemdcatalog=${systemdutildir}/catalog
+
+[[ -d $dracutsysrootdir$systemdnetwork ]] \
+      || systemdnetwork=$(pkg-config systemd --variable=systemdnetwork 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$systemdnetwork" ]] || systemdnetwork=${systemdutildir}/network
+
+[[ -d $dracutsysrootdir$systemdnetworkconfdir ]] \
+       || systemdnetworkconfdir=$(pkg-config systemd --variable=systemdnetworkconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$systemdnetworkconfdir" ]] || systemdnetworkconfdir=${systemdsystemconfdir}/network
+
+[[ -d $dracutsysrootdir$systemdntpunits ]] \
+      || systemdntpunits=$(pkg-config systemd --variable=systemdntpunits 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$systemdntpunits" ]] || systemdntpunits=${systemdutildir}/ntp-units.d
+
+[[ -d $dracutsysrootdir$systemdntpunitsconfdir ]] \
+      || systemdntpunitsconfdir=$(pkg-config systemd --variable=systemdntpunitsconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$systemdntpunitsconfdir" ]] || systemdntpunitsconfdir=${systemdsystemconfdir}/ntp-units.d
+
+[[ -d $dracutsysrootdir$systemdportable ]] \
+      || systemdportable=$(pkg-config systemd --variable=systemdportable 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$systemdportable" ]] || systemdportable=${systemdutildir}/portable
+
+[[ -d $dracutsysrootdir$systemdportableconfdir ]] \
+      || systemdportableconfdir=$(pkg-config systemd --variable=systemdportableconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$systemdportableconfdir" ]] || systemdportableconfdir=${systemdsystemconfdir}/portable
+
 [[ -d $dracutsysrootdir$systemdsystemunitdir ]] \
     || systemdsystemunitdir=$(pkg-config systemd --variable=systemdsystemunitdir 2>/dev/null)
 
 [[ -d "$dracutsysrootdir$systemdsystemunitdir" ]] || systemdsystemunitdir=${systemdutildir}/system
 
+[[ -d $dracutsysrootdir$systemduser ]] \
+      || systemduser=$(pkg-config systemd --variable=systemduser 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$systemduser" ]] || systemduser=${systemdutildir}/user
+
+[[ -d $dracutsysrootdir$systemduserconfdir ]] \
+       || systemduserconfdir=$(pkg-config systemd --variable=systemduserconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$systemduserconfdir" ]] || systemduserconfdir=${systemdsystemconfdir}/user
+
 [[ -d $dracutsysrootdir$systemdsystemconfdir ]] \
     || systemdsystemconfdir=$(pkg-config systemd --variable=systemdsystemconfdir 2>/dev/null)
 
 [[ -d "$dracutsysrootdir$systemdsystemconfdir" ]] || systemdsystemconfdir=/etc/systemd/system
+
+[[ -d $dracutsysrootdir$sysusers ]] \
+       || sysusers=$(pkg-config systemd --variable=sysusers 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$sysusers" ]] || sysusers=/usr/lib/sysusers.d
+
+[[ -d $dracutsysrootdir$sysusersconfdir ]] \
+       || sysusersconfdir=$(pkg-config systemd --variable=sysusersconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$sysusersconfdir" ]] || sysusersconfdir=/etc/sysusers.d
 
 [[ -d $dracutsysrootdir$tmpfilesdir ]] \
     || tmpfilesdir=$(pkg-config systemd --variable=tmpfilesdir 2>/dev/null)
@@ -1440,7 +1596,12 @@ export initdir dracutbasedir \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
     debug host_fs_types host_devs swap_devs sshkey add_fstab \
     DRACUT_VERSION udevdir prefix filesystems drivers \
-    systemdutildir systemdsystemunitdir systemdsystemconfdir \
+    dbus dbusconfdir dbusinterfaces dbusinterfacesconfdir \
+    dbusservices dbusservicesconfdir dbussession dbussessionconfdir \
+    dbussystem dbussystemconfdir dbussystemservices dbussystemservicesconfdir \
+    environment environmentconfdir sysctl sysctlconfdir sysusers sysusersconfdir \
+    systemdutildir systemdcatalog systemdntpunits systemdntpunitsconfdir \
+    systemdsystemunitdir systemdsystemconfdir \
     hostonly_cmdline loginstall \
     tmpfilesdir
 
@@ -1835,17 +1996,6 @@ fi
 
 if dracut_module_included "squash"; then
     dinfo "*** Install squash loader ***"
-    for config in \
-      CONFIG_SQUASHFS \
-      CONFIG_OVERLAY_FS \
-      CONFIG_DEVTMPFS;
-    do
-      if ! check_kernel_config $config; then
-        dfatal "$config have to be enabled for dracut squash module to work"
-        exit 1
-      fi
-    done
-
     readonly squash_dir="$initdir/squash/root"
     readonly squash_img="$initdir/squash/root.img"
     readonly squash_candidate=( "usr" "etc" )

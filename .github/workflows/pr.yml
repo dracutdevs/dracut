@@ -1,0 +1,19 @@
+name: Commisery
+on:
+  pull_request:
+    types: [edited, opened, synchronize, reopened]
+
+jobs:
+  commit-message:
+    name: Conventional Commit Message Checker (Commisery)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check-out the repo under $GITHUB_WORKSPACE
+      uses: actions/checkout@v2
+
+    - name: Run Commisery
+      uses: dracutdevs/commisery-action@master
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        pull_request: ${{ github.event.number }}
+

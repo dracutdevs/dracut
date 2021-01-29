@@ -547,17 +547,17 @@ inst_libdir_file() {
         shift 2
         for _dir in $libdirs; do
             for _i in "$@"; do
-                for _f in "$_dir"/$_i; do
-                    [[ "$_f" =~ $_pattern ]] || continue
-                    [[ -e "$dracutsysrootdir$_f" ]] && _files+="$_f "
+                for _f in "$dracutsysrootdir$_dir"/$_i; do
+                    [[ "${_f#$dracutsysrootdir}" =~ $_pattern ]] || continue
+                    [[ -e "$_f" ]] && _files+="${_f#$dracutsysrootdir} "
                 done
             done
         done
     else
         for _dir in $libdirs; do
             for _i in "$@"; do
-                for _f in "$_dir"/$_i; do
-                    [[ -e "$dracutsysrootdir$_f" ]] && _files+="$_f "
+                for _f in "$dracutsysrootdir$_dir"/$_i; do
+                    [[ -e "$_f" ]] && _files+="${_f#$dracutsysrootdir} "
                 done
             done
         done
@@ -839,7 +839,7 @@ check_module() {
     [[ $2 ]] || mods_checked_as_dep+=" $_mod "
 
     if [[ " $omit_dracutmodules " == *\ $_mod\ * ]]; then
-        dinfo "dracut module '$_mod' will not be installed, because it's in the list to be omitted!"
+        ddebug "dracut module '$_mod' will not be installed, because it's in the list to be omitted!"
         return 1
     fi
 
