@@ -27,5 +27,5 @@ installkernel() {
 
 # called by dracut
 install() {
-    inst_multiple -o ndctl /etc/ndctl/keys/tpm.handle /etc/ndctl/keys/*.blob
+    inst_multiple -o ndctl /etc/ndctl/keys/tpm.handle "/etc/ndctl/keys/*.blob"
 }
