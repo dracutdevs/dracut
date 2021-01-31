@@ -2052,6 +2052,9 @@ if dracut_module_included "squash"; then
 
     rm -rf "$squash_dir"
     dinfo "*** Squashing the files inside the initramfs done ***"
+
+    # Skip initramfs compress
+    compress="cat"
 fi
 
 dinfo "*** Creating image file '$outfile' ***"
