@@ -27,6 +27,7 @@ dbussystemservicesconfdir=/etc/dbus-1/system-services
 sysctld=/usr/lib/sysctl.d
 sysctldconfdir=/etc/sysctl.d
 systemdutildir=/usr/lib/systemd
+systemdutilconfdir=/etc/systemd
 systemdcatalog=/usr/lib/systemd/catalog
 systemdntpunits=/usr/lib/systemd/ntp-units.d
 systemdntpunitsconfdir=/etc/systemd/ntp-units.d
