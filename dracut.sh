@@ -1109,6 +1109,10 @@ if ! [[ -d "$dracutsysrootdir$systemdutildir" ]]; then
     [[ -e $dracutsysrootdir/usr/lib/systemd/systemd-udevd ]] && systemdutildir=/usr/lib/systemd
 fi
 
+[[ -d $dracutsysrootdir$systemdutilconfdir ]] \
+    || systemdutilconfdir=$(pkg-config systemd --variable=systemdutilconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$systemdutilconfdir" ]] || systemdutilconfdir=/etc/systemd
 
 if [[ $no_kernel != yes ]] && [[ -d $srcmods ]]; then
     if ! [[ -f $srcmods/modules.dep ]]; then
@@ -1600,8 +1604,8 @@ export initdir dracutbasedir \
     dbusservices dbusservicesconfdir dbussession dbussessionconfdir \
     dbussystem dbussystemconfdir dbussystemservices dbussystemservicesconfdir \
     environment environmentconfdir sysctl sysctlconfdir sysusers sysusersconfdir \
-    systemdutildir systemdcatalog systemdntpunits systemdntpunitsconfdir \
-    systemdsystemunitdir systemdsystemconfdir \
+    systemdutildir systemdutilconfdir systemdcatalog systemdntpunits \
+    systemdntpunitsconfdir systemdsystemunitdir systemdsystemconfdir \
     hostonly_cmdline loginstall \
     tmpfilesdir
 
