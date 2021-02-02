@@ -72,7 +72,7 @@ int main(int argc, char **argv)
                         if (s <= 0)
                                 break;
 
-                        h = strstr(buf, CPIO_END);
+                        h = memmem(buf, sizeof(buf), CPIO_END, sizeof(CPIO_END));
                         if (h) {
                                 pos = (h - buf) + pos + CPIO_ENDLEN;
                                 fseek(f, pos, SEEK_SET);

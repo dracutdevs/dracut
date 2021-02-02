@@ -215,11 +215,6 @@ echo "DRACUT_VERSION=%{version}-%{release}" > $RPM_BUILD_ROOT/%{dracutlibdir}/dr
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/01fips
 %endif
 
-%if %{defined _unitdir}
-# for systemd, better use systemd-bootchart
-rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00bootchart
-%endif
-
 # we do not support dash in the initramfs
 rm -fr -- $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00dash
 
@@ -328,7 +323,6 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %endif
 
 %if %{undefined _unitdir}
-%{dracutlibdir}/modules.d/00bootchart
 %endif
 %{dracutlibdir}/modules.d/00bash
 %{dracutlibdir}/modules.d/00systemd
@@ -338,6 +332,7 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
 %{dracutlibdir}/modules.d/01fips
 %endif
+%{dracutlibdir}/modules.d/01systemd-sysusers
 %{dracutlibdir}/modules.d/01systemd-initrd
 %{dracutlibdir}/modules.d/03modsign
 %{dracutlibdir}/modules.d/03rescue

@@ -30,6 +30,7 @@ StandardInput=null
 StandardError=journal+console
 KillMode=process
 RemainAfterExit=yes
+KeyringMode=shared
 
 # Bash ignores SIGTERM, so we send SIGHUP instead, to ensure that bash
 # terminates cleanly.

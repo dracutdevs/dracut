@@ -40,7 +40,7 @@ getword () {
 # Acpi(PNP0A08,0x0)/Pci(0x3,0x0)/Pci(0x0,0x0)/MAC(90E2BA265ED4,0x0)/Vlan(172)/Fibre(0x4EA06104A0CC0050,0x0)
 uefi_device_path()
 {
-    data=${1:-/sys/firmware/efi/vars/FcoeBootDevice-a0ebca23-5f9c-447a-a268-22b6c158c2ac/data}
+    data=${1:-/sys/firmware/efi/efivars/FcoeBootDevice-a0ebca23-5f9c-447a-a268-22b6c158c2ac}
     [ -f "$data" ] || return 1
 
     local IFS= LC_CTYPE=C res tt len type hextype first
@@ -106,7 +106,7 @@ uefi_device_path()
 
 get_fcoe_boot_mac()
 {
-    data=${1:-/sys/firmware/efi/vars/FcoeBootDevice-a0ebca23-5f9c-447a-a268-22b6c158c2ac/data}
+    data=${1:-/sys/firmware/efi/efivars/FcoeBootDevice-a0ebca23-5f9c-447a-a268-22b6c158c2ac}
     [ -f "$data" ] || return 1
     local IFS= LC_CTYPE=C tt len type hextype
     {
@@ -138,7 +138,7 @@ get_fcoe_boot_mac()
 
 get_fcoe_boot_vlan()
 {
-    data=${1:-/sys/firmware/efi/vars/FcoeBootDevice-a0ebca23-5f9c-447a-a268-22b6c158c2ac/data}
+    data=${1:-/sys/firmware/efi/efivars/FcoeBootDevice-a0ebca23-5f9c-447a-a268-22b6c158c2ac}
     [ -f "$data" ] || return 1
     local IFS= LC_CTYPE=C tt len type hextype
     {
