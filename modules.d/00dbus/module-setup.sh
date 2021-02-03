@@ -4,7 +4,7 @@
 
 # Prerequisite check(s) for module.
 check() {
-    # We only want to return 255 since this is a bus meta module.
+    # We only want to return 255 since this is a meta module.
     return 255
 }
 
@@ -17,4 +17,7 @@ depends() {
             break
         fi
     done;
+
+    echo "$dbus"
+    return 0
 }
