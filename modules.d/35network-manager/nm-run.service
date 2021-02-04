@@ -1,0 +1,28 @@
+# This file is part of dracut.
+# SPDX-License-Identifier: GPL-2.0-or-later
+
+[Unit]
+#make sure all devices showed up
+Wants=systemd-udev-settle.service
+After=systemd-udev-settle.service
+
+#pull the network targets into transaction
+Wants=network.target network-online.target
+Before=network.target network-online.target
+
+#run before we try to mount anything from the dracut hooks
+Before=dracut-initqueue.service
+
+#do not run, if there is no configuration
+ConditionPathExistsGlob=|/usr/lib/NetworkManager/system-connections/*
+ConditionPathExistsGlob=|/run/NetworkManager/system-connections/*
+ConditionPathExistsGlob=|/etc/NetworkManager/system-connections/*
+ConditionPathExistsGlob=|/etc/sysconfig/network-scripts/ifcfg-*
+
+[Service]
+#run the script and wait before it finishes
+Type=oneshot
+ExecStart=/usr/sbin/NetworkManager --configure-and-quit=initrd --no-daemon
+
+[Install]
+WantedBy=initrd.target
