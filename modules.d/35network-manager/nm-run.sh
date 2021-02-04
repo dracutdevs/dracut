@@ -1,5 +1,7 @@
 #!/bin/sh
 
+type source_hook >/dev/null 2>&1 || . /lib/dracut-lib.sh
+
 if [ -e /tmp/nm.done ]; then
     return
 fi

@@ -65,6 +65,9 @@ if [ -z "$2" ]; then
     fi
 
     # Check: do we really know how to handle (net)root?
+    if [ -z "$root" ]; then
+        root=$(getarg root=)
+    fi
     [ -z "$root" ] && die "No or empty root= argument"
     [ -z "$rootok" ] && die "Don't know how to handle 'root=$root'"
 

@@ -34,7 +34,13 @@ install() {
     inst /usr/libexec/nm-initrd-generator
     inst_multiple -o teamd dhclient
     inst_hook cmdline 99 "$moddir/nm-config.sh"
-    inst_hook initqueue/settled 99 "$moddir/nm-run.sh"
+    if dracut_module_included "systemd"; then
+        inst_simple "${moddir}/nm-run.sh" "/usr/bin/nm-run.sh"
+        inst_simple "${moddir}/nm-run.service" "${systemdsystemunitdir}/nm-run.service"
+        systemctl -q --root "$initdir" enable nm-run.service
+    else
+        inst_hook initqueue/settled 99 "$moddir/nm-run.sh"
+    fi
     inst_rules 85-nm-unmanaged.rules
     inst_libdir_file "NetworkManager/$_nm_version/libnm-device-plugin-team.so"
     inst_simple "$moddir/nm-lib.sh" "/lib/nm-lib.sh"
