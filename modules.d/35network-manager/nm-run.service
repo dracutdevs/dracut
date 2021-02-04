@@ -19,6 +19,8 @@ ConditionPathExistsGlob=|/etc/sysconfig/network-scripts/ifcfg-*
 [Service]
 Environment=DRACUT_SYSTEMD=1
 Environment=NEWROOT=/sysroot
+StandardOutput=kmsg+console
+StandardError=kmsg+console
 #run the script and wait before it finishes
 Type=oneshot
 ExecStart=/usr/bin/nm-run.sh

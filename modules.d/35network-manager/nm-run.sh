@@ -2,6 +2,8 @@
 
 type source_hook >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
+set -x
+
 if [ -e /tmp/nm.done ]; then
     return
 fi
@@ -11,17 +13,19 @@ for i in /usr/lib/NetworkManager/system-connections/* \
          /etc/NetworkManager/system-connections/* \
          /etc/sysconfig/network-scripts/ifcfg-*; do
   [ -f "$i" ] || continue
-  if getargbool 0 rd.debug -d -y rdinitdebug -d -y rdnetdebug; then
+#  if getargbool 0 rd.debug -d -y rdinitdebug -d -y rdnetdebug; then
       /usr/sbin/NetworkManager --configure-and-quit=initrd --debug --log-level=trace
-  else
-      /usr/sbin/NetworkManager --configure-and-quit=initrd --no-daemon
-  fi
+#  else
+#      /usr/sbin/NetworkManager --configure-and-quit=initrd --no-daemon
+#  fi
 
   if [ -s /run/NetworkManager/initrd/hostname ]; then
       cat /run/NetworkManager/initrd/hostname > /proc/sys/kernel/hostname
   fi
   break
 done
+
+ip a
 
 for _i in /sys/class/net/*
 do
