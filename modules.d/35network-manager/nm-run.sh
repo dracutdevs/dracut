@@ -1,21 +1,24 @@
 #!/bin/sh
 
+type source_hook >/dev/null 2>&1 || . /lib/dracut-lib.sh
+
 if [ -e /tmp/nm.done ]; then
     return
 fi
 
+[ -z "$DRACUT_SYSTEMD" ] && \
 for i in /usr/lib/NetworkManager/system-connections/* \
          /run/NetworkManager/system-connections/* \
          /etc/NetworkManager/system-connections/* \
          /etc/sysconfig/network-scripts/ifcfg-*; do
   [ -f "$i" ] || continue
   /usr/sbin/NetworkManager --configure-and-quit=initrd --no-daemon
-
-  if [ -s /run/NetworkManager/initrd/hostname ]; then
-      cat /run/NetworkManager/initrd/hostname > /proc/sys/kernel/hostname
-  fi
   break
 done
+
+if [ -s /run/NetworkManager/initrd/hostname ]; then
+    cat /run/NetworkManager/initrd/hostname > /proc/sys/kernel/hostname
+fi
 
 for _i in /sys/class/net/*
 do
