@@ -6,20 +6,12 @@ Items are ordered in priority.
 
 INITRAMFS TODO
 
-- search domain string
 - allow dual stack configuration (IPv4, IPv6) for the same interface
-- "bind-mount" kernel drivers in real root for the rescue image,
-  if the real root does not have any kernel modules for this kernel
-  https://bugzilla.redhat.com/show_bug.cgi?id=1046510
 - use info and warn prefix
-- generate systemd unit dracut-initramfs-restore in /run/systemd dynamically
 - put "root=" parsing hooks in separate hook dir
 - call "root=" parsing hooks after getting new rootpath from dhcp
 - put mount hook in main initqueue loop / careful about resume!
-- the hard-coded list of udev rules that we care about is kind of lame.
-- panic fallback
 - progress indication for fsck https://bugzilla.redhat.com/show_bug.cgi?id=827118
-- domain, searchdomain https://bugzilla.redhat.com/show_bug.cgi?id=840778
 - probably fix "--include" https://bugzilla.redhat.com/show_bug.cgi?id=849338
 
 GENERATOR TODO
@@ -33,8 +25,6 @@ GENERATOR TODO
 - pkg-config integration, to make it easy for other packages to use us.
 - default module specification could use some work
 - udev rule copying, as mentioned above, is a bit too hard-coded
-
-- dracut-install parse LD_SHOW_AUXV="" AT_PLATFORM for lib install
 
 CODE TODO
 
