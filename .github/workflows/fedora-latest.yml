@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: quay.io/haraldh/dracut-fedora:latest
-      options: "--privileged"
     timeout-minutes: 45
     strategy:
       matrix:
