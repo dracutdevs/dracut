@@ -23,5 +23,5 @@ install() {
     inst_hook cleanup 99 "$moddir/memstrack-report.sh"
 
     inst "$moddir/memstrack.service" "$systemdsystemunitdir/memstrack.service"
-    systemctl -q --root "$initdir" add-wants initrd.target memstrack.service
+    $SYSTEMCTL -q --root "$initdir" add-wants initrd.target memstrack.service
 }

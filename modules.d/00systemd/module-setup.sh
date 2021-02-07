@@ -244,7 +244,7 @@ install() {
         systemd-ask-password-plymouth.service \
         ; do
         [[ -f $systemdsystemunitdir/$i ]] || continue
-        systemctl -q --root "$initdir" add-wants "$i" systemd-vconsole-setup.service
+        $SYSTEMCTL -q --root "$initdir" add-wants "$i" systemd-vconsole-setup.service
     done
 
     mkdir -p "$initdir/etc/systemd"
@@ -256,5 +256,5 @@ install() {
         echo "RateLimitBurst=0"
     } >> "$initdir/etc/systemd/journald.conf"
 
-    systemctl -q --root "$initdir" set-default multi-user.target
+    $SYSTEMCTL -q --root "$initdir" set-default multi-user.target
 }

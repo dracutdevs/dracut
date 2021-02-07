@@ -54,7 +54,7 @@ install() {
         dracut-pre-udev.service \
         ; do
         inst_simple "$moddir/${i}" "$systemdsystemunitdir/${i}"
-        systemctl -q --root "$initdir" add-wants initrd.target "$i"
+        $SYSTEMCTL -q --root "$initdir" add-wants initrd.target "$i"
     done
 
     inst_simple "$moddir/dracut-tmpfiles.conf" "$tmpfilesdir/dracut-tmpfiles.conf"
