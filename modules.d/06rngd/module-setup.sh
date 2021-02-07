@@ -36,5 +36,5 @@ install() {
     # make sure dependant libs are installed too
     inst_libdir_file opensc-pkcs11.so
 
-    systemctl -q --root "$initdir" add-wants sysinit.target rngd.service
+    $SYSTEMCTL -q --root "$initdir" add-wants sysinit.target rngd.service
 }

@@ -756,6 +756,8 @@ done
 [[ -z "$dracutsysrootdir" ]] && export PATH="${NPATH#:}"
 unset NPATH
 
+export SYSTEMCTL=${SYSTEMCTL:-systemctl}
+
 # these options add to the stuff in the config file
 (( ${#add_dracutmodules_l[@]} )) && add_dracutmodules+=" ${add_dracutmodules_l[@]} "
 (( ${#force_add_dracutmodules_l[@]} )) && force_add_dracutmodules+=" ${force_add_dracutmodules_l[@]} "
