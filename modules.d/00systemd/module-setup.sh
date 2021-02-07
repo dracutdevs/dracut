@@ -227,8 +227,8 @@ install() {
     ln_r $systemdutildir/systemd "/sbin/init"
 
     inst_binary true
-    ln_r $(type -P true) "/usr/bin/loginctl"
-    ln_r $(type -P true) "/bin/loginctl"
+    ln_r $(find_binary true) "/usr/bin/loginctl"
+    ln_r $(find_binary true) "/bin/loginctl"
     inst_rules \
         70-uaccess.rules \
         71-seat.rules \

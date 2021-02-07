@@ -119,7 +119,7 @@ install() {
 
     inst_libdir_file "libdevmapper-event-lvm*.so"
 
-    if [[ $hostonly ]] && type -P lvs &>/dev/null; then
+    if [[ $hostonly ]] && find_binary lvs &>/dev/null; then
         for dev in "${!host_fs_types[@]}"; do
             [ -e /sys/block/${dev#/dev/}/dm/name ] || continue
             dev=$(</sys/block/${dev#/dev/}/dm/name)

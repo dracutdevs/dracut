@@ -6,7 +6,7 @@ check() {
         return 1
     fi
 
-    if ! type -P mksquashfs >/dev/null || ! type -P unsquashfs >/dev/null ; then
+    if ! find_binary mksquashfs >/dev/null || ! find_binary unsquashfs >/dev/null ; then
         derror "dracut-squash module requires squashfs-tools"
         return 1
     fi
