@@ -16,7 +16,7 @@ depends() {
 install() {
     local _i _path _busybox
     local _progs=()
-    _busybox=$(type -P busybox)
+    _busybox=$(find_binary busybox)
     inst $_busybox /usr/bin/busybox
     for _i in $($_busybox --list); do
         [[ ${_i} == busybox ]] && continue

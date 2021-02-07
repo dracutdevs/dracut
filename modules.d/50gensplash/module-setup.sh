@@ -40,7 +40,7 @@ install() {
         return ${_ret}
     }
 
-    type -P splash_geninitramfs >/dev/null || return 1
+    find_binary splash_geninitramfs >/dev/null || return 1
 
     _opts=''
     if [[ ${DRACUT_GENSPLASH_THEME} ]]; then
