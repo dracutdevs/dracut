@@ -748,11 +748,12 @@ for i in $DRACUT_PATH; do
     if [ -L "$dracutsysrootdir$i" ]; then
         rl=$(readlink -f $dracutsysrootdir$i)
     fi
+    rl="${rl#$dracutsysrootdir}"
     if [[ "$NPATH" != *:$rl* ]] ; then
         NPATH+=":$rl"
     fi
 done
-export PATH="${NPATH#:}"
+[[ -z "$dracutsysrootdir" ]] && export PATH="${NPATH#:}"
 unset NPATH
 
 # these options add to the stuff in the config file
