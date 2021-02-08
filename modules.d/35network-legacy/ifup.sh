@@ -515,7 +515,7 @@ if [ -z "$NO_AUTO_DHCP" ] && [ ! -e /tmp/net.${netif}.up ]; then
         echo nameserver $s >> /tmp/net.$netif.resolv.conf
     done
 
-    if [ "$ret" -eq 0 ] && [ -n "$(ls /tmp/leaseinfo.${netif}*)" ]; then
+    if [ "$ret" -eq 0 ] && [ -n "$(ls /tmp/leaseinfo.${netif}* 2>/dev/null)" ]; then
          > /tmp/net.${netif}.did-setup
          if [ -e /sys/class/net/${netif}/address ]; then
              > /tmp/net.$(cat /sys/class/net/${netif}/address).did-setup
