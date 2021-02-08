@@ -3,6 +3,8 @@
 TEST_DESCRIPTION="rpm integrity after dracut and kernel install"
 
 test_check() {
+    # disable for now
+    return 1
     command -v rpm &>/dev/null && ( command -v yum || command -v dnf ) &>/dev/null
 }
 

@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: quay.io/haraldh/dracut-fedora:32
-      options: "--privileged"
+      options: "-v /dev:/dev"
     timeout-minutes: 45
     strategy:
       matrix:
@@ -43,7 +43,6 @@ jobs:
           "51",
           "60",
           "61",
-          "99",
         ]
       fail-fast: false
     steps:

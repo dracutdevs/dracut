@@ -16,11 +16,11 @@ KVERSION=${KVERSION-$(uname -r)}
 #DEBUGFAIL="rd.shell rd.break"
 #SERIAL="tcp:127.0.0.1:9999"
 
+
+
 run_server() {
     # Start server first
     echo "MULTINIC TEST SETUP: Starting DHCP/NFS server"
-
-    fsck -a "$TESTDIR"/server.ext3 || return 1
 
     $testdir/run-qemu \
         -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
@@ -29,7 +29,7 @@ run_server() {
         ${SERIAL:+-serial "$SERIAL"} \
         ${SERIAL:--serial file:"$TESTDIR"/server.log} \
         -watchdog i6300esb -watchdog-action poweroff \
-        -append "panic=1 systemd.crash_reboot loglevel=7 root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
+        -append "panic=1 systemd.crash_reboot loglevel=7 root=LABEL=dracut rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.server \
         -pidfile "$TESTDIR"/server.pid -daemonize || return 1
 
@@ -42,6 +42,7 @@ run_server() {
         while : ; do
             grep Serving "$TESTDIR"/server.log && break
             echo "Waiting for the server to startup"
+            tail "$TESTDIR"/server.log
             sleep 1
         done
     else
@@ -174,13 +175,13 @@ test_client() {
 test_setup() {
     # Make server root
     dd if=/dev/zero of="$TESTDIR"/server.ext3 bs=1M count=120
-    mke2fs -j -F -- "$TESTDIR"/server.ext3
-    mkdir -- "$TESTDIR"/mnt
-    mount -o loop -- "$TESTDIR"/server.ext3 "$TESTDIR"/mnt
+
     kernel=$KVERSION
     (
-        export initdir="$TESTDIR"/mnt
-        . "$basedir"/dracut-init.sh
+        mkdir -p $TESTDIR/overlay/source
+        export initdir=$TESTDIR/overlay/source
+        . $basedir/dracut-init.sh
+
 
         (
             cd "$initdir";
@@ -245,8 +246,8 @@ test_setup() {
 
     # Make client root inside server root
     (
-        export initdir="$TESTDIR"/mnt/nfs/client
-        . "$basedir"/dracut-init.sh
+        export initdir=$TESTDIR/overlay/source/nfs/client
+        . $basedir/dracut-init.sh
         (
             cd "$initdir"
             mkdir -p dev sys proc etc run
@@ -284,8 +285,33 @@ test_setup() {
         ldconfig -r "$initdir"
     )
 
-    umount "$TESTDIR"/mnt
-    rm -fr -- "$TESTDIR"/mnt
+    # second, install the files needed to make the root filesystem
+    (
+        export initdir=$TESTDIR/overlay
+        . $basedir/dracut-init.sh
+        inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd
+        inst_hook initqueue 01 ./create-root.sh
+        inst_hook initqueue/finished 01 ./finished-false.sh
+        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
+    )
+
+    # create an initramfs that will create the target root filesystem.
+    # We do it this way so that we do not risk trashing the host mdraid
+    # devices, volume groups, encrypted partitions, etc.
+    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+                       -m "dash udev-rules base rootfs-block fs-lib kernel-modules fs-lib qemu" \
+                       -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
+                       --nomdadmconf \
+                       --no-hostonly-cmdline -N \
+                       -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
+
+    # Invoke KVM and/or QEMU to actually create the target filesystem.
+    $testdir/run-qemu \
+        -drive format=raw,index=0,media=disk,file=$TESTDIR/server.ext3 \
+        -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
+        -initrd $TESTDIR/initramfs.makeroot  || return 1
+    grep -F -m 1 -q dracut-root-block-created $TESTDIR/server.ext3 || return 1
+    rm -fr "$TESTDIR"/overlay
 
     # Make an overlay with needed tools for the test harness
     (
