@@ -7,7 +7,6 @@ _md_start() {
     local _path_s
     local _path_d
     local _md="$1"
-    local _offroot="$2"
 
     _udevinfo="$(udevadm info --query=env --name="${_md}")"
     strstr "$_udevinfo" "MD_LEVEL=container" && continue
@@ -19,7 +18,7 @@ _md_start() {
     # inactive ?
     [ "$(cat "$_path_s")" != "inactive" ] && continue
 
-    mdadm $_offroot -R "${_md}" 2>&1 | vinfo
+    mdadm -R "${_md}" 2>&1 | vinfo
 
     # still inactive ?
     [ "$(cat "$_path_s")" = "inactive" ] && continue
@@ -30,13 +29,10 @@ _md_start() {
 }
 
 _md_force_run() {
-    local _offroot
     local _md
     local _UUID
     local _MD_UUID=$(getargs rd.md.uuid -d rd_MD_UUID=)
     [ -n "$_MD_UUID" ] || getargbool 0 rd.auto || return
-
-    _offroot=$(strstr "$(mdadm --help-options 2>&1)" offroot && echo --offroot)
 
     if [ -n "$_MD_UUID" ]; then
         _MD_UUID=$(str_replace "$_MD_UUID" "-" "")
@@ -58,13 +54,13 @@ _md_force_run() {
             # check if we should handle this device
             strstr " $_MD_UUID " " $_UUID " || continue
 
-            _md_start "${_md}" "${_offroot}"
+            _md_start "${_md}"
         done
     else
         # try to force-run anything not running yet
         for _md in /dev/md[0-9_]*; do
             [ -b "$_md" ] || continue
-            _md_start "${_md}" "${_offroot}"
+            _md_start "${_md}"
         done
     fi
 }

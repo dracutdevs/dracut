@@ -136,6 +136,9 @@ install() {
         if [ -e $dracutsysrootdir$systemdsystemunitdir/mdadm-last-resort@.timer ]; then
             inst_simple $systemdsystemunitdir/mdadm-last-resort@.timer
         fi
+        if [ -e $dracutsysrootdir$systemdsystemunitdir/mdadm-grow-continue@.service ]; then
+            inst_simple $systemdsystemunitdir/mdadm-grow-continue@.service
+        fi
     fi
     inst_hook pre-shutdown 30 "$moddir/mdmon-pre-shutdown.sh"
     dracut_need_initqueue
