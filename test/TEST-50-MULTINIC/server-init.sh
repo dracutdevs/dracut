@@ -4,6 +4,7 @@ set -x
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export TERM=linux
 export PS1='nfstest-server:\w\$ '
+echo > /dev/watchdog
 stty sane
 echo "made it to the rootfs!"
 echo server > /proc/sys/kernel/hostname
@@ -53,14 +54,14 @@ linkup() {
      && wait_for_if_up $1 2>/dev/null
 }
 
-wait_for_if_link eth0 ens3
+wait_for_if_link eth0 ens2
 
 >/dev/watchdog
 ip addr add 127.0.0.1/8 dev lo
 linkup lo
-ip link set dev eth0 name ens3
-ip addr add 192.168.50.1/24 dev ens3
-linkup ens3
+ip link set dev eth0 name ens2
+ip addr add 192.168.50.1/24 dev ens2
+linkup ens2
 
 >/dev/watchdog
 modprobe af_packet

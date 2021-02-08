@@ -39,6 +39,6 @@ RUN+="/sbin/initqueue --timeout --name 50-mdraid_start --onetime --unique /sbin/
 #
 LABEL="md_incremental"
 
-RUN+="/sbin/mdadm $env{rd_MD_OFFROOT} -I $env{DEVNAME}"
+RUN+="/sbin/mdadm -I $env{DEVNAME}"
 
 LABEL="md_end"
