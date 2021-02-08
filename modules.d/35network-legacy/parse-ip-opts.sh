@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # Format:
-#       ip=[dhcp|on|any]
+#       ip=[dhcp|on|any|single-dhcp]
 #
 #       ip=<interface>:[dhcp|on|any][:[<mtu>][:<macaddr>]]
 #
@@ -77,7 +77,7 @@ for p in $(getargs ip=); do
                 ;;
             auto6);;
             either6);;
-            dhcp|dhcp6|on|any) \
+            dhcp|dhcp6|on|any|single-dhcp) \
                 [ -n "$NEEDBOOTDEV" ] && [ -z "$dev" ] && \
                     die "Sorry, 'ip=$p' does not make sense for multiple interface configurations"
                 [ -n "$ip" ] && \

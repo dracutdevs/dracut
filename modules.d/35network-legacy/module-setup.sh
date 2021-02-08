@@ -4,7 +4,7 @@
 check() {
     local _program
 
-    require_binaries ip dhclient sed awk grep || return 1
+    require_binaries ip dhclient sed awk grep pgrep || return 1
     require_any_binary arping arping2 || return 1
 
     return 255
@@ -23,7 +23,7 @@ installkernel() {
 # called by dracut
 install() {
     local _arch _i _dir
-    inst_multiple ip dhclient sed awk grep
+    inst_multiple ip dhclient sed awk grep pgrep
 
     inst_multiple -o arping arping2
     strstr "$(arping 2>&1)" "ARPing 2" && mv "$initdir/bin/arping" "$initdir/bin/arping2"
@@ -32,6 +32,7 @@ install() {
     inst_multiple -o teamd teamdctl teamnl
     inst_simple /etc/libnl/classid
     inst_script "$moddir/ifup.sh" "/sbin/ifup"
+    inst_script "$moddir/dhcp-multi.sh" "/sbin/dhcp-multi.sh"
     inst_script "$moddir/dhclient-script.sh" "/sbin/dhclient-script"
     inst_simple -H "/etc/dhclient.conf"
     cat "$moddir/dhclient.conf" >> "${initdir}/etc/dhclient.conf"

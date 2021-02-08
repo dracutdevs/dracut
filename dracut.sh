@@ -1109,6 +1109,10 @@ if ! [[ -d "$dracutsysrootdir$systemdutildir" ]]; then
     [[ -e $dracutsysrootdir/usr/lib/systemd/systemd-udevd ]] && systemdutildir=/usr/lib/systemd
 fi
 
+[[ -d $dracutsysrootdir$systemdutilconfdir ]] \
+    || systemdutilconfdir=$(pkg-config systemd --variable=systemdutilconfdir 2>/dev/null)
+
+[[ -d "$dracutsysrootdir$systemdutilconfdir" ]] || systemdutilconfdir=/etc/systemd
 
 if [[ $no_kernel != yes ]] && [[ -d $srcmods ]]; then
     if ! [[ -f $srcmods/modules.dep ]]; then
@@ -1600,8 +1604,8 @@ export initdir dracutbasedir \
     dbusservices dbusservicesconfdir dbussession dbussessionconfdir \
     dbussystem dbussystemconfdir dbussystemservices dbussystemservicesconfdir \
     environment environmentconfdir sysctl sysctlconfdir sysusers sysusersconfdir \
-    systemdutildir systemdcatalog systemdntpunits systemdntpunitsconfdir \
-    systemdsystemunitdir systemdsystemconfdir \
+    systemdutildir systemdutilconfdir systemdcatalog systemdntpunits \
+    systemdntpunitsconfdir systemdsystemunitdir systemdsystemconfdir \
     hostonly_cmdline loginstall \
     tmpfilesdir
 
@@ -2159,13 +2163,16 @@ if [[ $uefi = yes ]]; then
             [ -e "$conf" ] || continue
             printf "%s " "$(< "$conf")" >> "$uefi_outdir/cmdline.txt"
         done
-    else
-        do_print_cmdline > "$uefi_outdir/cmdline.txt"
     fi
-    echo -ne "\x00" >> "$uefi_outdir/cmdline.txt"
 
-    dinfo "Using UEFI kernel cmdline:"
-    dinfo $(tr -d '\000' < "$uefi_outdir/cmdline.txt")
+    if [[ $kernel_cmdline ]] || [[ $hostonly_cmdline = yes && -d "$initdir/etc/cmdline.d" ]]; then
+        echo -ne "\x00" >> "$uefi_outdir/cmdline.txt"
+        dinfo "Using UEFI kernel cmdline:"
+        dinfo $(tr -d '\000' < "$uefi_outdir/cmdline.txt")
+        uefi_cmdline="--add-section .cmdline="${uefi_outdir}/cmdline.txt" --change-section-vma .cmdline=0x30000"
+    else
+        uefi_cmdline=""
+    fi
 
     [[ -s $dracutsysrootdir/usr/lib/os-release ]] && uefi_osrelease="$dracutsysrootdir/usr/lib/os-release"
     [[ -s $dracutsysrootdir/etc/os-release ]] && uefi_osrelease="$dracutsysrootdir/etc/os-release"
@@ -2174,7 +2181,7 @@ if [[ $uefi = yes ]]; then
 
     if objcopy \
            ${uefi_osrelease:+--add-section .osrel=$uefi_osrelease --change-section-vma .osrel=0x20000} \
-           --add-section .cmdline="${uefi_outdir}/cmdline.txt" --change-section-vma .cmdline=0x30000 \
+           ${uefi_cmdline} \
            ${uefi_splash_image:+--add-section .splash="$uefi_splash_image" --change-section-vma .splash=0x40000} \
            --add-section .linux="$kernel_image" --change-section-vma .linux=0x2000000 \
            --add-section .initrd="${DRACUT_TMPDIR}/initramfs.img" --change-section-vma .initrd=0x3000000 \
