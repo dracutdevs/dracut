@@ -24,7 +24,7 @@ installkernel() {
 install() {
     local _nm_version
 
-    _nm_version=$(NetworkManager --version)
+    _nm_version=${NM_VERSION:-$(NetworkManager --version)}
 
     # We don't need `ip` but having it is *really* useful for people debugging
     # in an emergency shell.
