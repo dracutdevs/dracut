@@ -34,14 +34,14 @@ depends() {
 # Install the required file(s) for the module in the initramfs.
 install() {
 
+    # Install the system users and groups configuration file.
+    # Install the systemd users and groups configuration file.
+    # Install the systemd type service unit for sysusers.
+    # Install the binary executable(s) for sysusers.
     inst_multiple -o \
-        # Install the system users and groups configuration file.
         $sysusers/basic.conf \
-        # Install the systemd users and groups configuration file.
         $sysusers/systemd.conf \
-        # Install the systemd type service unit for sysusers.
         $systemdsystemunitdir/systemd-sysusers.service \
-        # Install the binary executable(s) for sysusers.
         systemd-sysusers
 
         # Install the hosts local user configurations if enabled.
@@ -50,7 +50,7 @@ install() {
             $sysusersconfdir/basic.conf \
             $sysusersconfdir/systemd.conf \
             $systemdsystemconfdir/systemd-sysusers.service \
-            $systemdsystemconfdir/systemd-sysusers.service.d/*.conf
+            $systemdsystemconfdir/systemd-sysusers.service.d/*.conf \
             ${NULL}
         fi
 
