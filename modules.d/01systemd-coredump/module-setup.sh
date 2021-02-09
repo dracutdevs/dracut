@@ -48,17 +48,17 @@ install() {
     # Install the required directories.
     inst_dir   /var/lib/systemd/coredump
     # Install the required file(s.
+    # Install the kernel configuration parameters for coredump.
+    # Install vendor configuration files.
+    # Install the systemd type service unit for coredump.
+    # Install the binary executable(s) for sysusers.
     inst_multiple -o \
-        # Install the kernel configuration parameters for coredump.
         $sysctld/50-coredump.conf \
-        # Install vendor configuration files.
         $systemdutildir/coredump.conf \
-        # Install the systemd type service unit for coredump.
         $systemdsystemunitdir/systemd-coredump \
         $systemdsystemunitdir/systemd-coredump.socket \
         $systemdsystemunitdir/systemd-coredump@.service\
-        $systemdsystemunitdir/sockets.target.wants/systemd-coredump.socket
-        # Install the binary executable(s) for sysusers.
+        $systemdsystemunitdir/sockets.target.wants/systemd-coredump.socket \
         coredumpctl
 
     # Install the hosts local user configurations if enabled.

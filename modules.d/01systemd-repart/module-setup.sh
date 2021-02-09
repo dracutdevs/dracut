@@ -34,14 +34,13 @@ depends() {
 # Install the required file(s) for the module in the initramfs.
 install() {
 
-    # Install the required file(s.
+    # Install vendor repartition configurations
+    # Install the systemd type service unit for systemd repart.
+    # Install the binary executable(s) for systemd repart
     inst_multiple -o \
-        # Install vendor repartition configurations
-        $libdir/repart.d/*.conf
-        # Install the systemd type service unit for systemd repart.
+        $libdir/repart.d/*.conf \
         $systemdsystemunitdir/systemd-repart.service \
-        $systemdsystemunitdir/initrd-root-fs.target.wants/systemd-repart.service
-        # Install the binary executable(s) for systemd repart.
+        $systemdsystemunitdir/initrd-root-fs.target.wants/systemd-repart.service \
         systemd-repart
 
     # Install the hosts local user configurations if enabled.
