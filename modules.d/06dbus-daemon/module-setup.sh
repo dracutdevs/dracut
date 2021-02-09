@@ -54,21 +54,21 @@ install() {
     inst_dir $dbussystemconfdir
     inst_dir $dbussystemservicesconfdir
 
+    # Install the dbus system configuration file.
+    # The systemd module should be providing this and
+    # depend on the dbus module. Added here until it does.
+    # Install the systemd type service unit for dbus.
+    # Install the systemd type socket unit for dbus.
+    # Install the dbus target.
+    # Install the binary executable(s) for dbus.
     inst_multiple -o \
-        # Install the dbus system configuration file.
         $dbus/system.conf \
-        # The systemd module should be providing this and
-        # depend on the dbus module. Added here until it does.
         $dbussystem/org.freedesktop.systemd1.conf \
         $dbusservicesconfdir/org.freedesktop.systemd1.service \
         $dbussystemservices/org.freedesktop.systemd1.service \
-        # Install the systemd type service unit for dbus.
         $systemdsystemunitdir/dbus.service \
-        # Install the systemd type socket unit for dbus.
         $systemdsystemunitdir/dbus.socket \
-        # Install the dbus target.
-        $systemdsystemunitdir/dbus.target.wants
-        # Install the binary executable(s) for dbus.
+        $systemdsystemunitdir/dbus.target.wants \
         busctl dbus-send dbus-daemon
 
     # Adjusting dependencies for initramfs in the dbus service unit.

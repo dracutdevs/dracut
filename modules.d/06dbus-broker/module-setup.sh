@@ -62,30 +62,30 @@ install() {
     inst_dir $dbussystemconfdir
     inst_dir $dbussystemservicesconfdir
 
+    # Install the dbus user session configuration file.
+    # Install the dbus system configuration file.
+    # The systemd module should be providing this and
+    # depend on the dbus module. Added here until it does.
+    # Install the dbus users and groups configuration file.
+    # Install the dbus-broker systemd journal message catalogs files.
+    # Install the systemd type service unit for dbus-broker.
+    # Install the systemd type socket unit for dbus.
+    # Install the dbus target.
+    # Install the binary executable(s) for dbus-broker.
     inst_multiple -o \
-        # Install the dbus user session configuration file.
         $dbus/session.conf \
-        # Install the dbus system configuration file.
         $dbus/system.conf \
-        # The systemd module should be providing this and
-        # depend on the dbus module. Added here until it does.
         $dbussystem/org.freedesktop.systemd1.conf \
         $dbusservicesconfdir/org.freedesktop.systemd1.service \
         $dbussystemservices/org.freedesktop.systemd1.service \
-        # Install the dbus users and groups configuration file.
         $sysusers/dbus.conf \
-        # Install the dbus-broker systemd journal message catalogs files.
         $systemdcatalog/dbus-broker.catalog \
         $systemdcatalog/dbus-broker-launch.catalog \
-        # Install the systemd type service unit for dbus-broker.
         $systemdsystemunitdir/dbus-broker.service \
         $systemduser/dbus-broker.service \
-        # Install the systemd type socket unit for dbus.
         $systemdsystemunitdir/dbus.socket \
         $systemduser/dbus.socket \
-        # Install the dbus target.
-        $systemdsystemunitdir/dbus.target.wants
-        # Install the binary executable(s) for dbus-broker.
+        $systemdsystemunitdir/dbus.target.wants \
         busctl dbus-broker dbus-broker-launch
 
     # Adjusting dependencies for initramfs in the dbus socket unit.
