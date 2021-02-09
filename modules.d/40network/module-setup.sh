@@ -17,7 +17,7 @@ depends() {
         done;
 
         if [ -z "$network_handler" ]; then
-            if require_binaries wicked; then
+            if find_binary wicked  &>/dev/null ; then
                 network_handler="network-wicked"
             elif [ -x "$dracutsysrootdir/usr/libexec/nm-initrd-generator" ]; then
                 network_handler="network-manager"

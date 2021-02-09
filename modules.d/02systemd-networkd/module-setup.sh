@@ -4,11 +4,6 @@
 check() {
     [[ $mount_needs ]] && return 1
 
-    if ! dracut_module_included "systemd"; then
-        derror "systemd-networkd needs systemd in the initramfs"
-        return 1
-    fi
-
     return 255
 }
 
