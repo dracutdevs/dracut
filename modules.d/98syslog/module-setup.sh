@@ -15,12 +15,12 @@ depends() {
 install() {
     local _i
     local _installs
-    if type -P rsyslogd >/dev/null; then
+    if find_binary rsyslogd >/dev/null; then
         _installs="rsyslogd"
         inst_libdir_file rsyslog/lmnet.so rsyslog/imklog.so rsyslog/imuxsock.so rsyslog/imjournal.so
-    elif type -P syslogd >/dev/null; then
+    elif find_binary syslogd >/dev/null; then
         _installs="syslogd"
-    elif type -P syslog-ng >/dev/null; then
+    elif find_binary syslog-ng >/dev/null; then
         _installs="syslog-ng"
     else
         derror "Could not find any syslog binary although the syslogmodule" \

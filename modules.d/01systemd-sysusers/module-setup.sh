@@ -55,6 +55,6 @@ install() {
         fi
 
         # Enable the systemd type service unit for sysusers.
-        systemctl -q --root "$initdir" enable systemd-sysusers.service
+        $SYSTEMCTL -q --root "$initdir" enable systemd-sysusers.service
 
 }

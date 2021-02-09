@@ -1318,8 +1318,30 @@ static int install_all(int argc, char **argv)
                         }
 
                 } else {
-                        _cleanup_free_ char *dest = strdup(argv[i]);
-                        ret = dracut_install(argv[i], dest, arg_createdir, arg_resolvedeps, true);
+                        if (strchr(argv[i], '*') == NULL) {
+                                _cleanup_free_ char *dest = strdup(argv[i]);
+                                ret = dracut_install(argv[i], dest, arg_createdir, arg_resolvedeps, true);
+                        } else {
+                                _cleanup_free_ char *realsrc = NULL;
+                                _cleanup_globfree_ glob_t globbuf;
+
+                                ret = asprintf(&realsrc, "%s%s", sysrootdir ? sysrootdir : "", argv[i]);
+                                if (ret < 0) {
+                                        log_error("Out of memory!");
+                                        exit(EXIT_FAILURE);
+                                }
+
+                                ret = glob(realsrc, 0, NULL, &globbuf);
+                                if (ret == 0) {
+                                        int j;
+
+                                        for (j = 0; j < globbuf.gl_pathc; j++) {
+                                                char *dest = strdup(globbuf.gl_pathv[j] + sysrootdirlen);
+                                                ret |= dracut_install(globbuf.gl_pathv[j] + sysrootdirlen, dest, arg_createdir, arg_resolvedeps, true);
+                                                free(dest);
+                                        }
+                                }
+                        }
                 }
 
                 if ((ret != 0) && (!arg_optional)) {
