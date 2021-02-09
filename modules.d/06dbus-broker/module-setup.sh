@@ -11,25 +11,6 @@ check() {
     require_binaries dbus-broker || return 1
     require_binaries dbus-broker-launch || return 1
 
-    # If the module dependency requirements are not fulfilled
-    # return 1 to not include the required module(s).
-    if ! dracut_module_included "systemd"; then
-        derror "dbus-broker needs systemd in the initramfs."
-        return 1
-    fi
-
-    if ! dracut_module_included "systemd-sysusers"; then
-        derror "dbus-broker needs systemd-sysusers in the initramfs."
-        return 1
-    fi
-
-    # dbus-broker conflicts with dbus.
-
-    if dracut_module_included "dbus"; then
-        derror "dbus-broker conflicts with dbus in the initramfs."
-        exit 1
-    fi
-
     # Return 255 to only include the module, if another module requires it.
     return 255
 
@@ -37,7 +18,6 @@ check() {
 
 # Module dependency requirements.
 depends() {
-
     # This module has external dependency on the systemd module.
     echo systemd systemd-sysusers
     # Return 0 to include the dependent systemd module in the initramfs.

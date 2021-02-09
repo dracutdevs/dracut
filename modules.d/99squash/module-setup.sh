@@ -1,19 +1,11 @@
 #!/bin/bash
 
 check() {
-    if ! dracut_module_included "systemd-initrd"; then
-        derror "dracut-squash only supports systemd bases initramfs"
-        return 1
-    fi
-
-    if ! find_binary mksquashfs >/dev/null || ! find_binary unsquashfs >/dev/null ; then
-        derror "dracut-squash module requires squashfs-tools"
-        return 1
-    fi
+    require_binaries mksquashfs unsquashfs || return 1
 
     for i in CONFIG_SQUASHFS CONFIG_BLK_DEV_LOOP CONFIG_OVERLAY_FS ; do
         if ! check_kernel_config $i; then
-            derror "dracut-squash module requires kernel configuration $i (y or m)"
+            dinfo "dracut-squash module requires kernel configuration $i (y or m)"
             return 1
         fi
     done
