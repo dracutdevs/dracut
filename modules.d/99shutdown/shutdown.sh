@@ -46,28 +46,56 @@ warn "Killing all remaining processes"
 
 killall_proc_mountpoint /oldroot || sleep 0.2
 
+# Timeout for umount calls. The value can be set to 0 to wait forever.
+_umount_timeout=$(getarg rd.shutdown.timeout.umount)
+_umount_timeout=${_umount_timeout:-90s}
+_timed_out_umounts=""
+
 umount_a() {
+    local _verbose="n"
+    if [ "$1" = "-v" ]; then
+        _verbose="y"; shift
+        exec 7>&2
+    else
+        exec 7>/dev/null
+    fi
+
     local _did_umount="n"
     while read a mp a || [ -n "$mp" ]; do
-        if strstr "$mp" oldroot; then
-            if umount "$mp"; then
-                _did_umount="y"
-                warn "Unmounted $mp."
-            fi
+        strstr "$mp" oldroot || continue
+        strstr "$_timed_out_umounts" " $mp " && continue
+
+        # Unmount the file system. The operation uses a timeout to avoid waiting
+        # indefinitely if this is e.g. a stuck NFS mount. The command is
+        # invoked in a subshell to silence also the "Killed" message that might
+        # be produced by the shell.
+        (set +m; timeout --signal=KILL "$_umount_timeout" umount "$mp") 2>&7
+        local ret=$?
+        if [ $ret -eq 0 ]; then
+            _did_umount="y"
+            warn "Unmounted $mp."
+        elif [ $ret -eq 137 ]; then
+            _timed_out_umounts="$_timed_out_umounts $mp "
+            warn "Unmounting $mp timed out."
+        elif [ "$_verbose" = "y" ]; then
+            warn "Unmounting $mp failed with status $ret."
         fi
     done </proc/mounts
-    losetup -D
+
+    losetup -D 2>&7
+
+    exec 7>&-
     [ "$_did_umount" = "y" ] && return 0
     return 1
 }
 
 _cnt=0
 while [ $_cnt -le 40 ]; do
-    umount_a 2>/dev/null || break
+    umount_a || break
     _cnt=$(($_cnt+1))
 done
 
-[ $_cnt -ge 40 ] && umount_a
+[ $_cnt -ge 40 ] && umount_a -v
 
 if strstr "$(cat /proc/mounts)" "/oldroot"; then
     warn "Cannot umount /oldroot"
