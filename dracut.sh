@@ -2007,7 +2007,7 @@ if dracut_module_included "squash"; then
         $squash_dir/usr/lib/dracut/* \
         $squash_dir/etc/initrd-release
     do
-        [[ -d $file ]] && continue
+        [[ -f $file ]] || continue
         DRACUT_RESOLVE_DEPS=1 dracutsysrootdir=$squash_dir inst ${file#$squash_dir}
         rm $file
     done
@@ -2029,7 +2029,7 @@ if dracut_module_included "squash"; then
     for folder in "${squash_candidate[@]}"; do
         for file in $(find $initdir/$folder/ -not -type d); do
             if [[ -e $squash_dir${file#$initdir} ]]; then
-                mv $squash_dir${file#$initdir} $file
+                mv -f $squash_dir${file#$initdir} $file
             fi
         done
     done
