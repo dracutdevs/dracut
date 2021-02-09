@@ -228,14 +228,14 @@ install() {
                 iscsid.socket \
                 iscsiuio.socket \
             ; do
-            systemctl -q --root "$initdir" enable "$i"
+            $SYSTEMCTL -q --root "$initdir" enable "$i"
         done
         
         for i in \
                 iscsid.service \
                 iscsiuio.service \
             ; do
-            systemctl -q --root "$initdir" add-wants basic.target "$i"
+            $SYSTEMCTL -q --root "$initdir" add-wants basic.target "$i"
         done
 
         # Make sure iscsid is started after dracut-cmdline and ready for the initqueue

@@ -2,7 +2,7 @@
 
 pkglib_dir() {
     local _dirs="/usr/lib/plymouth /usr/libexec/plymouth/"
-    if type -P dpkg-architecture &>/dev/null; then
+    if find_binary dpkg-architecture &>/dev/null; then
         _dirs+=" /usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/plymouth"
     fi
     for _dir in $_dirs; do
@@ -40,6 +40,8 @@ install() {
     inst_hook emergency 50 "$moddir"/plymouth-emergency.sh
 
     inst_multiple readlink
+
+    inst_multiple plymouthd plymouth plymouth-set-default-theme
 
     if ! dracut_module_included "systemd"; then
         inst_hook pre-trigger 10 "$moddir"/plymouth-pretrigger.sh

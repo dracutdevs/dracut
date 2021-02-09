@@ -14,9 +14,5 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
     esac
     [ -x "$(command -v resume)" ] && command resume $a_splash "$resume"
 
-    # parsing the output of ls is Bad, but until there is a better way...
-    ls -lH "$resume" | (
-        read x x x x maj min x;
-        echo "${maj%,}:$min"> /sys/power/resume)
-    >/.resume
+    (readlink -fn $resume > /sys/power/resume)>/.resume
 }

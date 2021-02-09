@@ -79,6 +79,7 @@ installkernel() {
                 "=drivers/hwmon" \
                 "=drivers/hwspinlock" \
                 "=drivers/i2c/busses" \
+                "=drivers/memory" \
                 "=drivers/mfd" \
                 "=drivers/mmc/core" \
                 "=drivers/phy" \
@@ -139,7 +140,7 @@ installkernel() {
 
 # called by dracut
 install() {
-    inst_multiple -o /lib/modprobe.d/*.conf
+    inst_multiple -o "/lib/modprobe.d/*.conf"
     [[ $hostonly ]] && inst_multiple -H -o /etc/modprobe.d/*.conf /etc/modprobe.conf
     if ! dracut_module_included "systemd"; then
         inst_hook cmdline 01 "$moddir/parse-kernel.sh"

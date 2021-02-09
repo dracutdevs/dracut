@@ -65,7 +65,7 @@ install() {
         systemd-networkd.socket
 #       systemd-timesyncd.service
     do
-        systemctl -q --root "$initdir" enable "$i"
+        $SYSTEMCTL -q --root "$initdir" enable "$i"
     done
 }
 
