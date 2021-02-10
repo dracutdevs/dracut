@@ -9,11 +9,7 @@ for i in /usr/lib/NetworkManager/system-connections/* \
          /etc/NetworkManager/system-connections/* \
          /etc/sysconfig/network-scripts/ifcfg-*; do
   [ -f "$i" ] || continue
-  if getargbool 0 rd.debug -d -y rdinitdebug -d -y rdnetdebug; then
-      /usr/sbin/NetworkManager --configure-and-quit=initrd --debug --log-level=trace
-  else
-      /usr/sbin/NetworkManager --configure-and-quit=initrd --no-daemon
-  fi
+  /usr/sbin/NetworkManager --configure-and-quit=initrd --no-daemon
 
   if [ -s /run/NetworkManager/initrd/hostname ]; then
       cat /run/NetworkManager/initrd/hostname > /proc/sys/kernel/hostname
