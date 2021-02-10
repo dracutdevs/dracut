@@ -12,6 +12,12 @@ end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
 charset = utf-8
+indent_style = space
+indent_size = 4
+switch_case_indent = true
+function_next_line = false
+binary_next_line   = true
+space_redirects    = true
 
 # Match config files, set indent to spaces with width of eight.
 [*.{c,h}]
@@ -22,6 +28,10 @@ indent_size = 8
 [*.sh]
 indent_style = space
 indent_size = 4
+switch_case_indent = true
+function_next_line = false
+binary_next_line   = true
+space_redirects    = true
 
 # Match xml man pages, set indent to spaces with width of two.
 [man/*.xml]
