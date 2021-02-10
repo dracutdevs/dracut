@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: quay.io/haraldh/dracut-fedora:latest
-      options: "-v /dev:/dev"
+      options: "-v /dev/kvm:/dev/kvm"
     timeout-minutes: 45
     strategy:
       matrix:
