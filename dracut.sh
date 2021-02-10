@@ -2019,14 +2019,6 @@ if [[ $hostonly_cmdline == "yes" ]] ; then
     fi
 fi
 
-if dracut_module_included "squash"; then
-    readonly squash_dir="$initdir/squash/root"
-    readonly squash_img="$initdir/squash/root.img"
-
-    dinfo "*** Install squash loader ***"
-    DRACUT_SQUASH_POST_INST=1 module_install "squash"
-fi
-
 if [[ $kernel_only != yes ]]; then
     # libpthread workaround: pthread_cancel wants to dlopen libgcc_s.so
     for _dir in $libdirs; do
@@ -2061,6 +2053,14 @@ if [[ $kernel_only != yes ]]; then
             derror "ldconfig might need uid=0 (root) for chroot()"
         fi
     fi
+fi
+
+if dracut_module_included "squash"; then
+    readonly squash_dir="$initdir/squash/root"
+    readonly squash_img="$initdir/squash/root.img"
+
+    dinfo "*** Install squash loader ***"
+    DRACUT_SQUASH_POST_INST=1 module_install "squash"
 fi
 
 if [[ $do_strip = yes ]] && ! [[ $DRACUT_FIPS_MODE ]]; then
