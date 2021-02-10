@@ -5,8 +5,7 @@
 # Prerequisite check(s) for module.
 check() {
 
-    # If the binary(s) requirements are not fulfilled
-    # return 1 to not include the binary.
+    # If the binary(s) requirements are not fulfilled the module can't be installed
     require_binaries systemd-repart || return 1
 
     # Return 255 to only include the module, if another module requires it.
@@ -27,9 +26,6 @@ depends() {
 # Install the required file(s) for the module in the initramfs.
 install() {
 
-    # Install vendor repartition configurations
-    # Install the systemd type service unit for systemd repart.
-    # Install the binary executable(s) for systemd repart
     inst_multiple -o \
         $libdir/repart.d/*.conf \
         $systemdsystemunitdir/systemd-repart.service \

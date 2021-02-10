@@ -5,8 +5,7 @@
 # Prerequisite check(s) for module.
 check() {
 
-    # If the binary(s) requirements are not fulfilled
-    # return 1 to not include the binary.
+    # If the binary(s) requirements are not fulfilled the module can't be installed
     require_binaries busctl || return 1
     require_binaries dbus-broker || return 1
     require_binaries dbus-broker-launch || return 1
@@ -25,7 +24,7 @@ depends() {
 
 }
 
-# Install the required file(s) for the module in the initramfs.
+# Install the required file(s) and directories for the module in the initramfs.
 install() {
 
     # Create dbus related directories.
@@ -42,16 +41,6 @@ install() {
     inst_dir $dbussystemconfdir
     inst_dir $dbussystemservicesconfdir
 
-    # Install the dbus user session configuration file.
-    # Install the dbus system configuration file.
-    # The systemd module should be providing this and
-    # depend on the dbus module. Added here until it does.
-    # Install the dbus users and groups configuration file.
-    # Install the dbus-broker systemd journal message catalogs files.
-    # Install the systemd type service unit for dbus-broker.
-    # Install the systemd type socket unit for dbus.
-    # Install the dbus target.
-    # Install the binary executable(s) for dbus-broker.
     inst_multiple -o \
         $dbus/session.conf \
         $dbus/system.conf \
