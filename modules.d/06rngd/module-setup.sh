@@ -18,15 +18,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-depends() {
-    echo systemd
-    return 0
-}
-
 check() {
     # if there's no rngd binary, no go.
     require_binaries rngd || return 1
 
+    return 0
+}
+
+depends() {
+    echo systemd
     return 0
 }
 

@@ -10,23 +10,6 @@ check() {
     require_binaries coredumpctl || return 1
     require_binaries $systemdutildir/systemd-coredump || return 1
 
-    # If the module dependency requirements are not fulfilled
-    # return 1 to not include the required module(s).
-    if ! dracut_module_included "systemd"; then
-        derror "systemd-coredump needs systemd in the initramfs."
-        return 1
-    fi
-
-    if ! dracut_module_included "systemd-journald"; then
-         derror "systemd-coredump needs systemd-journald in the initramfs."
-         return 1
-    fi
-
-    if ! dracut_module_included "systemd-sysctl"; then
-        derror "systemd-coredump needs systemd-sysctl in the initramfs."
-        return 1
-    fi
-
     # Return 255 to only include the module, if another module requires it.
     return 255
 
@@ -70,7 +53,7 @@ install() {
             $systemdsystemconfdir/systemd-coredump.socket.d/*.conf \
             $systemdsystemconfdir/systemd-coredump@.service \
             $systemdsystemconfdir/systemd-coredump@.service.d/*.conf \
-            $systemdsystemconfdir/sockets.target.wants/systemd-coredump.socket
+            $systemdsystemconfdir/sockets.target.wants/systemd-coredump.socket \
             ${NULL}
     fi
 }
