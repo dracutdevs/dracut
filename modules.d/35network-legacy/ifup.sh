@@ -135,7 +135,7 @@ do_static() {
         return 1
     fi
 
-    ip route get "$ip" | {
+    ip route get "$ip" 2>/dev/null | {
         read a rest
         if [ "$a" = "local" ]; then
             warn "Not assigning $ip to interface $netif, cause it is already assigned!"
