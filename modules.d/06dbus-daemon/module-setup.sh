@@ -5,8 +5,7 @@
 # Prerequisite check(s) for module.
 check() {
 
-    # If the binary(s) requirements are not fulfilled
-    # return 1 to not include the binary.
+    # If the binary(s) requirements are not fulfilled the module can't be installed
     require_binaries busctl || return 1
     require_binaries dbus-daemon || return 1
     require_binaries dbus-send || return 1
@@ -30,7 +29,7 @@ depends() {
     return 0
 }
 
-# Install the required file(s) for the module in the initramfs.
+# Install the required file(s) and directories for the module in the initramfs.
 install() {
 
     # Create dbus related directories.
@@ -47,13 +46,6 @@ install() {
     inst_dir $dbussystemconfdir
     inst_dir $dbussystemservicesconfdir
 
-    # Install the dbus system configuration file.
-    # The systemd module should be providing this and
-    # depend on the dbus module. Added here until it does.
-    # Install the systemd type service unit for dbus.
-    # Install the systemd type socket unit for dbus.
-    # Install the dbus target.
-    # Install the binary executable(s) for dbus.
     inst_multiple -o \
         $dbus/system.conf \
         $dbussystem/org.freedesktop.systemd1.conf \

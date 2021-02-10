@@ -5,8 +5,7 @@
 # Prerequisite check(s) for module.
 check() {
 
-    # If the binary(s) requirements are not fulfilled
-    # return 1 to not include the binary.
+    # If the binary(s) requirements are not fulfilled the module can't be installed
     require_binaries coredumpctl || return 1
     require_binaries $systemdutildir/systemd-coredump || return 1
 
@@ -25,16 +24,10 @@ depends() {
 
 }
 
-# Install the required file(s) for the module in the initramfs.
+# Install the required file(s) and directories for the module in the initramfs.
 install() {
 
-    # Install the required directories.
     inst_dir   /var/lib/systemd/coredump
-    # Install the required file(s.
-    # Install the kernel configuration parameters for coredump.
-    # Install vendor configuration files.
-    # Install the systemd type service unit for coredump.
-    # Install the binary executable(s) for sysusers.
     inst_multiple -o \
         $sysctld/50-coredump.conf \
         $systemdutildir/coredump.conf \
