@@ -31,7 +31,7 @@ Source0: http://www.kernel.org/pub/linux/utils/boot/dracut/dracut-%{version}.tar
 Source1: https://www.gnu.org/licenses/lgpl-2.1.txt
 
 BuildRequires: bash
-BuildRequires: git
+BuildRequires: git-core
 BuildRequires: pkgconfig(libkmod) >= 23
 BuildRequires: gcc
 
