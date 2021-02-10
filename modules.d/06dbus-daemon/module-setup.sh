@@ -11,13 +11,6 @@ check() {
     require_binaries dbus-daemon || return 1
     require_binaries dbus-send || return 1
 
-    # If the module dependency requirements are not fulfilled
-    # return 1 to not include the required module(s).
-    if ! dracut_module_included "systemd"; then
-        derror "dbus needs systemd in the initramfs."
-        return 1
-    fi
-
     # dbus conflicts with dbus-broker.
     if dracut_module_included "dbus-broker"; then
         derror "dbus conflicts with dbus-broker in the initramfs."
