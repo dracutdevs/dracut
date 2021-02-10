@@ -53,7 +53,7 @@ install() {
             $systemdsystemconfdir/systemd-coredump.socket.d/*.conf \
             $systemdsystemconfdir/systemd-coredump@.service \
             $systemdsystemconfdir/systemd-coredump@.service.d/*.conf \
-            $systemdsystemconfdir/sockets.target.wants/systemd-coredump.socket
+            $systemdsystemconfdir/sockets.target.wants/systemd-coredump.socket \
             ${NULL}
     fi
 }

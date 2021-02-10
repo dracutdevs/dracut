@@ -86,7 +86,7 @@ install() {
             $systemdsystemconfdir/dbus.socket \
             $systemdsystemconfdir/dbus.socket.d/*.conf \
             $systemdsystemconfdir/dbus-broker.service \
-            $systemdsystemconfdir/dbus-broker.service.d/*.conf
+            $systemdsystemconfdir/dbus-broker.service.d/*.conf \
             ${NULL}
     fi
 
