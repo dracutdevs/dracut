@@ -31,6 +31,7 @@ strstr() { [[ $1 = *"$2"* ]]; }
 # Generic glob matching function. If glob pattern $2 matches anywhere in $1, OK
 strglobin() { [[ $1 = *$2* ]]; }
 # Generic glob matching function. If glob pattern $2 matches all of $1, OK
+# shellcheck disable=SC2053
 strglob() { [[ $1 = $2 ]]; }
 # returns OK if $1 contains literal string $2 at the beginning, and isn't empty
 str_starts() { [ "${1#"$2"*}" != "$1" ]; }
@@ -47,7 +48,8 @@ find_binary() {
     [[ -z ${1##/*} ]] || _delim="/"
 
     if [[ "$1" == *.so* ]]; then
-        for l in libdirs ; do
+        # shellcheck disable=SC2154
+        for l in $libdirs ; do
             _path="${l}${_delim}${1}"
             if { $DRACUT_LDD "${dracutsysrootdir}${_path}" &>/dev/null; };  then
                 printf "%s\n" "${_path}"
@@ -89,7 +91,12 @@ ldconfig_paths()
 # $2 = comparision op (gt, ge, eq, le, lt, ne)
 # $3 = version b
 vercmp() {
-    local _n1=(${1//./ }) _op=$2 _n2=(${3//./ }) _i _res
+    local _n1
+    read -a _n1 <<< "${1//./ }"
+    local _op=$2
+    local _n2
+    read -a _n2 <<< "${3//./ }"
+    local _i _res
 
     for ((_i=0; ; _i++))
     do
@@ -114,6 +121,7 @@ vercmp() {
 # Create all subdirectories for given path without creating the last element.
 # $1 = path
 mksubdirs() {
+    # shellcheck disable=SC2174
     [[ -e ${1%/*} ]] || mkdir -m 0755 -p -- "${1%/*}"
 }
 
@@ -160,8 +168,8 @@ convert_abs_rel() {
     # corner case #2 - own dir link
     [[ "${1%/*}" == "$2" ]] && { printf ".\n"; return; }
 
-    IFS="/" __current=($1)
-    IFS="/" __absolute=($2)
+    read -d '/' -r -a __current <<< "$1"
+    read -d '/' -a __absolute <<< "$2"
 
     __abssize=${#__absolute[@]}
     __cursize=${#__current[@]}
@@ -193,7 +201,7 @@ convert_abs_rel() {
         __newpath=$__newpath${__absolute[__i]}
     done
 
-    printf "%s\n" "$__newpath"
+    printf -- "%s\n" "$__newpath"
 }
 
 
@@ -335,6 +343,7 @@ shorten_persistent_dev() {
 find_block_device() {
     local _dev _majmin _find_mpt
     _find_mpt="$1"
+
     if [[ $use_fstab != yes ]]; then
         [[ -d $_find_mpt/. ]]
         findmnt -e -v -n -o 'MAJ:MIN,SOURCE' --target "$_find_mpt" | { \
@@ -470,11 +479,13 @@ find_mp_fsopts() {
 # Echo the filesystem options for a given device.
 # /proc/self/mountinfo is taken as the primary source of information
 # and /etc/fstab is used as a fallback.
+# if `use_fstab == yes`, then only `/etc/fstab` is used.
+#
 # Example:
 # $ find_dev_fsopts /dev/sda2
 # rw,relatime,discard,data=ordered
 find_dev_fsopts() {
-    local _find_dev _opts
+    local _find_dev
     _find_dev="$1"
     if ! [[ "$_find_dev" = /dev* ]]; then
         [[ -b "/dev/block/$_find_dev" ]] && _find_dev="/dev/block/$_find_dev"
@@ -560,7 +571,7 @@ for_each_host_dev_and_slaves_all()
     local _dev
     local _ret=1
 
-    [[ "${host_devs[@]}" ]] || return 2
+    [[ "${host_devs[*]}" ]] || return 2
 
     for _dev in "${host_devs[@]}"; do
         [[ -b "$_dev" ]] || continue
@@ -576,7 +587,7 @@ for_each_host_dev_and_slaves()
     local _func="$1"
     local _dev
 
-    [[ "${host_devs[@]}" ]] || return 2
+    [[ "${host_devs[*]}" ]] || return 2
 
     for _dev in "${host_devs[@]}"; do
         [[ -b "$_dev" ]] || continue
