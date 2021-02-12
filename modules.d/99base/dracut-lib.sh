@@ -785,10 +785,10 @@ inst_hook() {
     if [ -n "$onetime" ]; then
         {
             echo '[ -e "$_job" ] && rm -f -- "$_job"'
-            echo "$_exe $@"
+            echo "$_exe $*"
         } > "/tmp/$$-${_job}.sh"
     else
-        echo "$_exe $@" > "/tmp/$$-${_job}.sh"
+        echo "$_exe $*" > "/tmp/$$-${_job}.sh"
     fi
 
     mv -f "/tmp/$$-${_job}.sh" "$hookdir/${_hookname}/${_job}.sh"
@@ -821,7 +821,7 @@ add_mount_point() {
     if [ -n "$_dev" ]; then
         udevmatch "$_dev" >&7 || {
             warn "add_mount_point dev=$_dev incorrect!"
-            continue
+            return 1
         }
         printf ', ' >&7
     fi
