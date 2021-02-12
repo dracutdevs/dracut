@@ -72,8 +72,8 @@ install() {
         "$initdir$systemdsystemunitdir/dbus.socket"
 
     # Adding the user and group for dbus
-    grep '^\(d\|message\)bus:' $dracutsysrootdir/etc/passwd >> "$initdir/etc/passwd"
-    grep '^\(d\|message\)bus:' $dracutsysrootdir/etc/group >> "$initdir/etc/group"
+    grep '^\(d\|message\)bus:' "$dracutsysrootdir"/etc/passwd >> "$initdir/etc/passwd"
+    grep '^\(d\|message\)bus:' "$dracutsysrootdir"/etc/group >> "$initdir/etc/group"
 
     # Install the hosts local user configurations if enabled.
     if [[ $hostonly ]]; then
