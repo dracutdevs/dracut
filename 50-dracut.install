@@ -48,6 +48,7 @@ case "$COMMAND" in
         unset noimageifnotneeded
 
         for ((i=0; i < "${#BOOT_OPTIONS[@]}"; i++)); do
+            # shellcheck disable=SC1001
             if [[ ${BOOT_OPTIONS[$i]} == root\=PARTUUID\=* ]]; then
                 noimageifnotneeded="yes"
                 break
