@@ -325,7 +325,6 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %if %{undefined _unitdir}
 %endif
 %{dracutlibdir}/modules.d/00bash
-%{dracutlibdir}/modules.d/00dbus
 %{dracutlibdir}/modules.d/00systemd
 %ifnarch s390 s390x
 %{dracutlibdir}/modules.d/00warpclock
@@ -348,6 +347,7 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %{dracutlibdir}/modules.d/06dbus-broker
 %{dracutlibdir}/modules.d/06dbus-daemon
 %{dracutlibdir}/modules.d/06rngd
+%{dracutlibdir}/modules.d/09dbus
 %{dracutlibdir}/modules.d/10i18n
 %{dracutlibdir}/modules.d/30convertfs
 %{dracutlibdir}/modules.d/45url-lib
