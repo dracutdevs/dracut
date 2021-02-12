@@ -1,4 +1,4 @@
-#
+#!/bin/bash
 # Copyright 2013 Red Hat, Inc.  All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -16,19 +16,20 @@
 #
 
 __contains_word () {
-        local word=$1; shift
-        for w in $*; do [[ $w = $word ]] && return 0; done
+        local word="$1"; shift
+        for w in "$@"; do [[ $w = "$word" ]] && return 0; done
         return 1
 }
 
 _lsinitrd() {
-        local field_vals= cur=${COMP_WORDS[COMP_CWORD]} prev=${COMP_WORDS[COMP_CWORD-1]}
+        local cur=${COMP_WORDS[COMP_CWORD]} prev=${COMP_WORDS[COMP_CWORD-1]}
         local -A OPTS=(
                 [STANDALONE]='-s --size -h --help'
 
                        [ARG]='-f --file -k --kver'
         )
 
+        # shellcheck disable=SC2086
         if __contains_word "$prev" ${OPTS[ARG]}; then
                 case $prev in
                         --file|-f)
@@ -36,23 +37,30 @@ _lsinitrd() {
                                 compopt -o filenames
                         ;;
                         --kver|-k)
-                                comps=$(cd /lib/modules; echo [0-9]*)
+                                comps=$(cd /lib/modules || return 1; echo [0-9]*)
                         ;;
                         *)
                                 return 0
                         ;;
                 esac
+                # shellcheck disable=SC2207
+                # shellcheck disable=SC2016
                 COMPREPLY=( $(compgen -W '$comps' -- "$cur") )
                 return 0
         fi
 
         if [[ $cur = -* ]]; then
+                # shellcheck disable=SC2207
+                # shellcheck disable=SC2016
                 COMPREPLY=( $(compgen -W '${OPTS[*]}' -- "$cur") )
                 return 0
         fi
 
+        # shellcheck disable=SC2034
         comps=$(compgen -f -- "$cur")
         compopt -o filenames
+        # shellcheck disable=SC2207
+        # shellcheck disable=SC2016
         COMPREPLY=( $(compgen -W '$comps' -- "$cur") )
         return 0
 }
