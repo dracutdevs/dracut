@@ -39,10 +39,12 @@ if ! [[ $dracutbasedir ]]; then
 fi
 
 if ! is_func dinfo >/dev/null 2>&1; then
+    # shellcheck source=./dracut-logger.sh
     . "$dracutbasedir/dracut-logger.sh"
     dlog_init
 fi
 
+# shellcheck disable=SC2154
 if ! [[ $initdir ]]; then
     dfatal "initdir not set"
     exit 1
@@ -57,8 +59,10 @@ if ! [[ $kernel ]]; then
     export kernel
 fi
 
+# shellcheck disable=SC2154
 srcmods="$dracutsysrootdir/lib/modules/$kernel/"
 
+# shellcheck disable=SC2154
 [[ $drivers_dir ]] && {
     if ! command -v kmod &>/dev/null && vercmp "$(modprobe --version | cut -d' ' -f3)" lt 3.7; then
         dfatal 'To use --kmoddir option module-init-tools >= 3.7 is required.'
@@ -83,11 +87,12 @@ DRACUT_LDD=${DRACUT_LDD:-ldd}
 DRACUT_TESTBIN=${DRACUT_TESTBIN:-/bin/sh}
 DRACUT_LDCONFIG=${DRACUT_LDCONFIG:-ldconfig}
 
-. $dracutbasedir/dracut-functions.sh
+# shellcheck source=./dracut-functions.sh
+. "$dracutbasedir"/dracut-functions.sh
 
 # Detect lib paths
 if ! [[ $libdirs ]] ; then
-    if [[ "$($DRACUT_LDD $dracutsysrootdir$DRACUT_TESTBIN)" == */lib64/* ]] &>/dev/null \
+    if [[ $("$DRACUT_LDD" "$dracutsysrootdir$DRACUT_TESTBIN") == */lib64/* ]] &>/dev/null \
         && [[ -d $dracutsysrootdir/lib64 ]]; then
         libdirs+=" /lib64"
         [[ -d $dracutsysrootdir/usr/lib64 ]] && libdirs+=" /usr/lib64"
@@ -105,6 +110,7 @@ fi
 # to check for required installed binaries
 # issues a standardized warning message
 require_binaries() {
+    # shellcheck disable=SC2154
     local _module_name="${moddir##*/}"
     local _ret=0
 
@@ -119,7 +125,7 @@ require_binaries() {
             ((_ret++))
         fi
     done
-    return $_ret
+    return "$_ret"
 }
 
 require_any_binary() {
@@ -138,8 +144,8 @@ require_any_binary() {
         fi
     done
 
-    if (( $_ret != 0 )); then
-        dinfo "$_module_name: Could not find any command of '$@'!"
+    if (( _ret != 0 )); then
+        dinfo "$_module_name: Could not find any command of '$*'!"
         return 1
     fi
 
@@ -147,19 +153,27 @@ require_any_binary() {
 }
 
 dracut_need_initqueue() {
-    >"$initdir/lib/dracut/need-initqueue"
+    : >"$initdir/lib/dracut/need-initqueue"
 }
 
 dracut_module_included() {
+    # shellcheck disable=SC2154
     [[ " $mods_to_load $modules_loaded " == *\ $*\ * ]]
 }
 
 dracut_no_switch_root() {
-    >"$initdir/lib/dracut/no-switch-root"
+    : >"$initdir/lib/dracut/no-switch-root"
 }
 
 dracut_module_path() {
-    echo ${dracutbasedir}/modules.d/??${1} | { read a b; echo "$a"; }
+    local _dir
+
+    # shellcheck disable=SC2231
+    for _dir in "${dracutbasedir}"/modules.d/??${1}; do
+        echo "$_dir"
+        return 0
+    done
+    return 1
 }
 
 if ! [[ $DRACUT_INSTALL ]]; then
@@ -180,7 +194,7 @@ fi
 # in which case the string cannot be tested for being executable.
 DRINSTALLPARTS=0
 for i in $DRACUT_INSTALL ; do
-    DRINSTALLPARTS=$(($DRINSTALLPARTS+1))
+    DRINSTALLPARTS=$((DRINSTALLPARTS+1))
 done
 
 if [[ $DRINSTALLPARTS = 1 ]] && ! command -v "$DRACUT_INSTALL" > /dev/null 2>&1 ; then
@@ -191,15 +205,16 @@ fi
 if [[ $hostonly == "-h" ]]; then
     if ! [[ $DRACUT_KERNEL_MODALIASES ]] || ! [[ -f "$DRACUT_KERNEL_MODALIASES" ]]; then
         export DRACUT_KERNEL_MODALIASES="${DRACUT_TMPDIR}/modaliases"
-        $DRACUT_INSTALL ${dracutsysrootdir:+-r "$dracutsysrootdir"} ${srcmods:+--kerneldir "$srcmods"} --modalias > "$DRACUT_KERNEL_MODALIASES"
+        "$DRACUT_INSTALL" ${dracutsysrootdir:+-r "$dracutsysrootdir"} ${srcmods:+--kerneldir "$srcmods"} --modalias > "$DRACUT_KERNEL_MODALIASES"
     fi
 fi
 
 [[ $DRACUT_RESOLVE_LAZY ]] || export DRACUT_RESOLVE_DEPS=1
 inst_dir() {
     [[ -e ${initdir}/"$1" ]] && return 0  # already there
-    $DRACUT_INSTALL ${dracutsysrootdir:+-r "$dracutsysrootdir"} ${initdir:+-D "$initdir"} -d "$@"
-    (($? != 0)) && derror FAILED: $DRACUT_INSTALL ${dracutsysrootdir:+-r "$dracutsysrootdir"} ${initdir:+-D "$initdir"} -d "$@" || :
+    if ! "$DRACUT_INSTALL" ${dracutsysrootdir:+-r "$dracutsysrootdir"} ${initdir:+-D "$initdir"} -d "$@"; then
+        derror FAILED: "$DRACUT_INSTALL" ${dracutsysrootdir:+-r "$dracutsysrootdir"} ${initdir:+-D "$initdir"} -d "$@"
+    fi
 }
 
 inst() {
@@ -209,8 +224,10 @@ inst() {
         shift
     fi
     [[ -e ${initdir}/"${2:-$1}" ]] && return 0  # already there
-    $DRACUT_INSTALL ${dracutsysrootdir:+-r "$dracutsysrootdir"} ${initdir:+-D "$initdir"} ${loginstall:+-L "$loginstall"} ${DRACUT_RESOLVE_DEPS:+-l} ${DRACUT_FIPS_MODE:+-f} ${_hostonly_install:+-H} "$@"
-    (($? != 0)) && derror FAILED: $DRACUT_INSTALL ${dracutsysrootdir:+-r "$dracutsysrootdir"} ${initdir:+-D "$initdir"} ${loginstall:+-L "$loginstall"} ${DRACUT_RESOLVE_DEPS:+-l} ${DRACUT_FIPS_MODE:+-f} ${_hostonly_install:+-H} "$@" || :
+    # shellcheck disable=SC2154
+    if ! "$DRACUT_INSTALL" ${dracutsysrootdir:+-r "$dracutsysrootdir"} ${initdir:+-D "$initdir"} ${loginstall:+-L "$loginstall"} ${DRACUT_RESOLVE_DEPS:+-l} ${DRACUT_FIPS_MODE:+-f} ${_hostonly_install:+-H} "$@"; then
+        derror FAILED: "$DRACUT_INSTALL" ${dracutsysrootdir:+-r "$dracutsysrootdir"} ${initdir:+-D "$initdir"} ${loginstall:+-L "$loginstall"} ${DRACUT_RESOLVE_DEPS:+-l} ${DRACUT_FIPS_MODE:+-f} ${_hostonly_install:+-H} "$@"
+    fi
 }
 
 inst_simple() {
