@@ -2025,9 +2025,10 @@ if dracut_module_included "squash"; then
     readonly squash_img="$initdir/squash/root.img"
     readonly squash_candidate=( "usr" "etc" )
 
-    mkdir -m 0755 -p $squash_dir
+    # shellcheck disable=SC2174
+    mkdir -m 0755 -p "$squash_dir"
     for folder in "${squash_candidate[@]}"; do
-        mv $initdir/$folder $squash_dir/$folder
+        mv "$initdir/$folder" "$squash_dir/$folder"
     done
 
     # Move some files out side of the squash image, including:
@@ -2035,17 +2036,17 @@ if dracut_module_included "squash"; then
     # - Files need to be accessible without mounting the squash image
     # - Initramfs marker
     for file in \
-        $squash_dir/usr/lib/modules/*/modules.* \
-        $squash_dir/usr/lib/dracut/* \
-        $squash_dir/etc/initrd-release
+        "$squash_dir"/usr/lib/modules/*/modules.* \
+        "$squash_dir"/usr/lib/dracut/* \
+        "$squash_dir"/etc/initrd-release
     do
         [[ -f $file ]] || continue
-        DRACUT_RESOLVE_DEPS=1 dracutsysrootdir=$squash_dir inst ${file#$squash_dir}
-        rm $file
+        DRACUT_RESOLVE_DEPS=1 dracutsysrootdir="$squash_dir" inst "${file#$squash_dir}"
+        rm "$file"
     done
 
-    mv $initdir/init $initdir/init.stock
-    ln -s squash/init.sh $initdir/init
+    mv "$initdir"/init "$initdir"/init.stock
+    ln -s squash/init.sh "$initdir"/init
 
     # Reinstall required files for the squash image setup script.
     # We have moved them inside the squashed image, but they need to be
@@ -2059,11 +2060,8 @@ if dracut_module_included "squash"; then
 
     # Remove duplicated files
     for folder in "${squash_candidate[@]}"; do
-        for file in $(find $initdir/$folder/ -not -type d); do
-            if [[ -e $squash_dir${file#$initdir} ]]; then
-                mv -f $squash_dir${file#$initdir} $file
-            fi
-        done
+        find "$initdir/$folder/" -not -type d \
+            -exec bash -c 'mv -f "$squash_dir${1#$initdir}" "$1"' -- "{}" \;
     done
 fi
 
@@ -2091,7 +2089,7 @@ fi
 
 if [[ $kernel_only != yes ]]; then
     # make sure that library links are correct and up to date
-    for f in $dracutsysrootdir/etc/ld.so.conf $dracutsysrootdir/etc/ld.so.conf.d/*; do
+    for f in "$dracutsysrootdir"/etc/ld.so.conf "$dracutsysrootdir"/etc/ld.so.conf.d/*; do
         [[ -f $f ]] && inst_simple "${f#$dracutsysrootdir}"
     done
     if ! $DRACUT_LDCONFIG -r "$initdir" -f /etc/ld.so.conf; then
@@ -2120,14 +2118,15 @@ fi
 
 if dracut_module_included "squash"; then
     dinfo "*** Squashing the files inside the initramfs ***"
-    mksquashfs $squash_dir $squash_img -no-xattrs -no-exports -noappend -always-use-fragments -comp xz -Xdict-size 100% -no-progress 1> /dev/null
-
-    if [[ $? != 0 ]]; then
+    if ! mksquashfs "$squash_dir" "$squash_img" \
+        -no-xattrs -no-exports -noappend -always-use-fragments \
+        -comp xz -Xdict-size 100% -no-progress \
+        > /dev/null; then
         dfatal "dracut: Failed making squash image"
         exit 1
     fi
 
-    rm -rf $squash_dir
+    rm -rf "$squash_dir"
     dinfo "*** Squashing the files inside the initramfs done ***"
 fi
 
@@ -2149,7 +2148,7 @@ if [[ $DRACUT_REPRODUCIBLE ]]; then
     fi
 fi
 
-[[ "$EUID" != 0 ]] && cpio_owner_root="-R 0:0"
+[[ "$EUID" != 0 ]] && cpio_owner="0:0"
 
 if [[ $create_early_cpio = yes ]]; then
     echo 1 > "$early_cpio_dir/d/early_cpio"
@@ -2163,7 +2162,8 @@ if [[ $create_early_cpio = yes ]]; then
     if ! (
             umask 077; cd "$early_cpio_dir/d"
             find . -print0 | sort -z \
-                | cpio ${CPIO_REPRODUCIBLE:+--reproducible} --null $cpio_owner_root -H newc -o --quiet > "${DRACUT_TMPDIR}/initramfs.img"
+                | cpio ${CPIO_REPRODUCIBLE:+--reproducible} --null \
+                    ${cpio_owner:+-R "$cpio_owner"} -H newc -o --quiet > "${DRACUT_TMPDIR}/initramfs.img"
         ); then
         dfatal "dracut: creation of $outfile failed"
         exit 1
@@ -2173,13 +2173,14 @@ fi
 if ! (
         umask 077; cd "$initdir"
         find . -print0 | sort -z \
-            | cpio ${CPIO_REPRODUCIBLE:+--reproducible} --null $cpio_owner_root -H newc -o --quiet \
+            | cpio ${CPIO_REPRODUCIBLE:+--reproducible} --null ${cpio_owner:+-R "$cpio_owner"} -H newc -o --quiet \
             | $compress >> "${DRACUT_TMPDIR}/initramfs.img"
     ); then
     dfatal "dracut: creation of $outfile failed"
     exit 1
 fi
 
+# shellcheck disable=SC2154
 if (( maxloglvl >= 5 )) && (( verbosity_mod_l >= 0 )); then
     if [[ $allowlocal ]]; then
         "$dracutbasedir/lsinitrd.sh" "${DRACUT_TMPDIR}/initramfs.img"| ddebug
@@ -2203,20 +2204,23 @@ if [[ $uefi = yes ]]; then
     if [[ $kernel_cmdline ]] || [[ $hostonly_cmdline = yes && -d "$initdir/etc/cmdline.d" ]]; then
         echo -ne "\x00" >> "$uefi_outdir/cmdline.txt"
         dinfo "Using UEFI kernel cmdline:"
-        dinfo $(tr -d '\000' < "$uefi_outdir/cmdline.txt")
-        uefi_cmdline="--add-section .cmdline="${uefi_outdir}/cmdline.txt" --change-section-vma .cmdline=0x30000"
+        dinfo "$(tr -d '\000' < "$uefi_outdir/cmdline.txt")"
+        uefi_cmdline="${uefi_outdir}/cmdline.txt"
     else
-        uefi_cmdline=""
+        unset uefi_cmdline
     fi
 
     [[ -s $dracutsysrootdir/usr/lib/os-release ]] && uefi_osrelease="$dracutsysrootdir/usr/lib/os-release"
     [[ -s $dracutsysrootdir/etc/os-release ]] && uefi_osrelease="$dracutsysrootdir/etc/os-release"
-    [[ -s "${dracutsysrootdir}${uefi_splash_image}" ]] && \
-        uefi_splash_image="${dracutsysrootdir}${uefi_splash_image}" || unset uefi_splash_image
+    if [[ -s ${dracutsysrootdir}${uefi_splash_image} ]]; then
+        uefi_splash_image="${dracutsysrootdir}${uefi_splash_image}"
+    else
+        unset uefi_splash_image
+    fi
 
     if objcopy \
-           ${uefi_osrelease:+--add-section .osrel=$uefi_osrelease --change-section-vma .osrel=0x20000} \
-           ${uefi_cmdline} \
+           ${uefi_osrelease:+--add-section .osrel="$uefi_osrelease" --change-section-vma .osrel=0x20000} \
+           ${uefi_cmdline:+--add-section .cmdline="$uefi_cmdline" --change-section-vma .cmdline=0x30000} \
            ${uefi_splash_image:+--add-section .splash="$uefi_splash_image" --change-section-vma .splash=0x40000} \
            --add-section .linux="$kernel_image" --change-section-vma .linux=0x2000000 \
            --add-section .initrd="${DRACUT_TMPDIR}/initramfs.img" --change-section-vma .initrd=0x3000000 \
@@ -2292,7 +2296,7 @@ freeze_ok_for_fstype() {
 # and there's no reason to sync, and *definitely* no reason to fsfreeze.
 # Another case where this happens is rpm-ostree, which performs its own sync/fsfreeze
 # globally.  See e.g. https://github.com/ostreedev/ostree/commit/8642ef5ab3fec3ac8eb8f193054852f83a8bc4d0
-if [ -d "$dracutsysrootdir/run/systemd/system" ]; then
+if [[ -d $dracutsysrootdir/run/systemd/system ]]; then
     if ! sync "$outfile" 2> /dev/null; then
         dinfo "dracut: sync operation on newly created initramfs $outfile failed"
         exit 1
