@@ -24,9 +24,9 @@ installkernel() {
 
 install() {
     inst_multiple kmod modprobe mount mkdir ln echo
-    inst $moddir/setup-squash.sh /squash/setup-squash.sh
-    inst $moddir/clear-squash.sh /squash/clear-squash.sh
-    inst $moddir/init.sh /squash/init.sh
+    inst "$moddir"/setup-squash.sh /squash/setup-squash.sh
+    inst "$moddir"/clear-squash.sh /squash/clear-squash.sh
+    inst "$moddir"/init.sh /squash/init.sh
 
     inst "$moddir/squash-mnt-clear.service" "$systemdsystemunitdir/squash-mnt-clear.service"
     $SYSTEMCTL -q --root "$initdir" add-wants initrd-switch-root.target squash-mnt-clear.service
