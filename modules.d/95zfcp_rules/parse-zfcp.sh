@@ -29,7 +29,7 @@ ACTION=="add", SUBSYSTEM=="drivers", KERNEL=="zfcp", IMPORT{program}="collect $c
 ACTION=="add", ENV{COLLECT_$ccw}=="0", ATTR{[ccw/$ccw]online}="1"
 EOF
     fi
-    [ -z "$wwpn" -o -z "$lun" ] && return
+    [ -z "$wwpn" ] || [ -z "$lun" ] && return
     m=$(sed -n "/.*${wwpn}.*${lun}.*/p" $_rule)
     if [ -z "$m" ] ; then
         cat >> $_rule <<EOF
@@ -44,9 +44,9 @@ EOF
 if [[ -f /sys/firmware/ipl/ipl_type &&
             $(</sys/firmware/ipl/ipl_type) = "fcp" ]] ; then
     (
-        local _wwpn=$(cat /sys/firmware/ipl/wwpn)
-        local _lun=$(cat /sys/firmware/ipl/lun)
-        local _ccw=$(cat /sys/firmware/ipl/device)
+        _wwpn=$(cat /sys/firmware/ipl/wwpn)
+        _lun=$(cat /sys/firmware/ipl/lun)
+        _ccw=$(cat /sys/firmware/ipl/device)
 
         create_udev_rule $_ccw $_wwpn $_lun
     )
@@ -64,9 +64,6 @@ done
 
 for zfcp_arg in $(getargs root=) $(getargs resume=); do
     (
-        local _wwpn
-        local _lun
-
         case $zfcp_arg in
             /dev/disk/by-path/ccw-*)
                 ccw_arg=${zfcp_arg##*/}
