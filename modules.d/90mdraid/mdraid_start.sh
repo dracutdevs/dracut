@@ -9,23 +9,23 @@ _md_start() {
     local _md="$1"
 
     _udevinfo="$(udevadm info --query=env --name="${_md}")"
-    strstr "$_udevinfo" "MD_LEVEL=container" && continue
-    strstr "$_udevinfo" "DEVTYPE=partition" && continue
+    strstr "$_udevinfo" "MD_LEVEL=container" && return 0
+    strstr "$_udevinfo" "DEVTYPE=partition" && return 0
 
     _path_s="/sys/$(udevadm info -q path -n "${_md}")/md/array_state"
-    [ ! -r "$_path_s" ] && continue
+    [ ! -r "$_path_s" ] && return 0
 
     # inactive ?
-    [ "$(cat "$_path_s")" != "inactive" ] && continue
+    [ "$(cat "$_path_s")" != "inactive" ] && return 0
 
     mdadm -R "${_md}" 2>&1 | vinfo
 
     # still inactive ?
-    [ "$(cat "$_path_s")" = "inactive" ] && continue
+    [ "$(cat "$_path_s")" = "inactive" ] && return 0
 
     _path_d="${_path_s%/*}/degraded"
-    [ ! -r "$_path_d" ] && continue
-    > $hookdir/initqueue/work
+    [ ! -r "$_path_d" ] && return 0
+    : > "$hookdir"/initqueue/work
 }
 
 _md_force_run() {
@@ -42,7 +42,7 @@ _md_force_run() {
             [ -b "$_md" ] || continue
             _UUID=$(
                 /sbin/mdadm -D --export "$_md" \
-                    | while read line || [ -n "$line" ]; do
+                    | while read -r line || [ -n "$line" ]; do
                     str_starts "$line" "MD_UUID=" || continue
                     printf "%s" "${line#MD_UUID=}"
                 done
