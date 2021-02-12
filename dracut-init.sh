@@ -728,12 +728,12 @@ module_depends() {
     if [[ ! -f $_moddir/module-setup.sh ]]; then
         # if we do not have a check script, we have no deps
         [[ -x $_moddir/check ]] || return 0
-        $_moddir/check -d
+        "$_moddir"/check -d
         return $?
     else
         unset check depends cmdline install installkernel
         depends() { true; }
-        . $_moddir/module-setup.sh
+        . "$_moddir"/module-setup.sh
         moddir=$_moddir depends
         _ret=$?
         unset check depends cmdline install installkernel
@@ -755,8 +755,8 @@ module_cmdline() {
     else
         unset check depends cmdline install installkernel
         cmdline() { true; }
-        . $_moddir/module-setup.sh
-        moddir=$_moddir cmdline
+        . "$_moddir"/module-setup.sh
+        moddir="$_moddir" cmdline
         _ret=$?
         unset check depends cmdline install installkernel
         return $_ret
@@ -777,8 +777,8 @@ module_install() {
     else
         unset check depends cmdline install installkernel
         install() { true; }
-        . $_moddir/module-setup.sh
-        moddir=$_moddir install
+        . "$_moddir"/module-setup.sh
+        moddir="$_moddir" install
         _ret=$?
         unset check depends cmdline install installkernel
         return $_ret
@@ -799,8 +799,8 @@ module_installkernel() {
     else
         unset check depends cmdline install installkernel
         installkernel() { true; }
-        . $_moddir/module-setup.sh
-        moddir=$_moddir installkernel
+        . "$_moddir"/module-setup.sh
+        moddir="$_moddir" installkernel
         _ret=$?
         unset check depends cmdline install installkernel
         return $_ret
@@ -817,6 +817,7 @@ check_mount() {
     local _moddep
 
     [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
+    # shellcheck disable=SC2154
     [ "${#host_fs_types[@]}" -le 0 ] && return 1
 
     # If we are already scheduled to be loaded, no need to check again.
@@ -828,12 +829,13 @@ check_mount() {
 
     [[ $2 ]] || mods_checked_as_dep+=" $_mod "
 
+    # shellcheck disable=SC2154
     if [[ " $omit_dracutmodules " == *\ $_mod\ * ]]; then
         return 1
     fi
 
     if [[ " $dracutmodules $add_dracutmodules $force_add_dracutmodules" == *\ $_mod\ * ]]; then
-        module_check_mount $_mod $_moddir; ret=$?
+        module_check_mount "$_mod" "$_moddir"; ret=$?
 
         # explicit module, so also accept ret=255
         [[ $ret = 0 || $ret = 255 ]] || return 1
@@ -841,14 +843,14 @@ check_mount() {
         # module not in our list
         if [[ $dracutmodules = all ]]; then
             # check, if we can and should install this module
-            module_check_mount $_mod $_moddir || return 1
+            module_check_mount "$_mod" "$_moddir" || return 1
         else
             # skip this module
             return 1
         fi
     fi
 
-    for _moddep in $(module_depends $_mod $_moddir); do
+    for _moddep in $(module_depends "$_mod" "$_moddir"); do
         # handle deps as if they were manually added
         [[ " $dracutmodules " == *\ $_mod\ * ]] \
             && [[ " $dracutmodules " != *\ $_moddep\ * ]] \
@@ -860,7 +862,7 @@ check_mount() {
             && [[ " $force_add_dracutmodules " != *\ $_moddep\ * ]] \
             && force_add_dracutmodules+=" $_moddep "
         # if a module we depend on fail, fail also
-        if ! check_module $_moddep; then
+        if ! check_module "$_moddep"; then
             derror "dracut module '$_mod' depends on '$_moddep', which can't be installed"
             return 1
         fi
@@ -899,9 +901,9 @@ check_module() {
 
     if [[ " $dracutmodules $add_dracutmodules $force_add_dracutmodules" == *\ $_mod\ * ]]; then
         if [[ " $dracutmodules $force_add_dracutmodules " == *\ $_mod\ * ]]; then
-            module_check $_mod 1 $_moddir; ret=$?
+            module_check "$_mod" 1 "$_moddir"; ret=$?
         else
-            module_check $_mod 0 $_moddir; ret=$?
+            module_check "$_mod" 0 "$_moddir"; ret=$?
         fi
         # explicit module, so also accept ret=255
         [[ $ret = 0 || $ret = 255 ]] || return 1
@@ -909,7 +911,7 @@ check_module() {
         # module not in our list
         if [[ $dracutmodules = all ]]; then
             # check, if we can and should install this module
-            module_check $_mod 0 $_moddir; ret=$?
+            module_check "$_mod" 0 "$_moddir"; ret=$?
             if [[ $ret != 0 ]]; then
                 [[ $2 ]] && return 1
                 [[ $ret != 255 ]] && return 1
