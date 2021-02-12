@@ -465,7 +465,7 @@ inst_rules() {
                 inst_simple "$_found"
             done
         fi
-        for r in '' $dracutsysrootdir$dracutbasedir/rules.d/; do
+        for r in '' "$dracutsysrootdir$dracutbasedir/rules.d/"; do
             # skip rules without an absolute path
             [[ "${r}$_rule" != /* ]] && continue
             [[ -f ${r}$_rule ]] || continue
@@ -506,7 +506,11 @@ inst_rules_wildcard() {
 }
 
 prepare_udev_rules() {
-    [ -z "$UDEVVERSION" ] && export UDEVVERSION=$(udevadm --version)
+    if [ -z "$UDEVVERSION" ]; then
+        UDEVVERSION=$(udevadm --version)
+        export UDEVVERSION
+    fi
+
     if [ -z "$UDEVVERSION" ]; then
         derror "Failed to detect udev version!"
         return 1
@@ -519,17 +523,18 @@ prepare_udev_rules() {
     for f in "$@"; do
         f="${initdir}/etc/udev/rules.d/$f"
         [ -e "$f" ] || continue
-        while read line || [ -n "$line" ]; do
+        while read -r line || [ -n "$line" ]; do
             if [ "${line%%IMPORT PATH_ID}" != "$line" ]; then
-                if [ $UDEVVERSION -ge 174 ]; then
+                if (( UDEVVERSION >= 174 )); then
                     printf '%sIMPORT{builtin}="path_id"\n' "${line%%IMPORT PATH_ID}"
                 else
                     printf '%sIMPORT{program}="path_id %%p"\n' "${line%%IMPORT PATH_ID}"
                 fi
             elif [ "${line%%IMPORT BLKID}" != "$line" ]; then
-                if [ $UDEVVERSION -ge 176 ]; then
+                if (( UDEVVERSION >= 176 )); then
                     printf '%sIMPORT{builtin}="blkid"\n' "${line%%IMPORT BLKID}"
                 else
+                    # shellcheck disable=SC2016
                     printf '%sIMPORT{program}="/sbin/blkid -o udev -p $tempnode"\n' "${line%%IMPORT BLKID}"
                 fi
             else
@@ -587,7 +592,7 @@ inst_any() {
 # Install a <file> located on a lib directory to the initramfs image
 # -n <pattern> install matching files
 inst_libdir_file() {
-    local _files
+    local -a _files
     if [[ "$1" == "-n" ]]; then
         local _pattern=$2
         shift 2
@@ -595,7 +600,7 @@ inst_libdir_file() {
             for _i in "$@"; do
                 for _f in "$dracutsysrootdir$_dir"/$_i; do
                     [[ "${_f#$dracutsysrootdir}" =~ $_pattern ]] || continue
-                    [[ -e "$_f" ]] && _files+="${_f#$dracutsysrootdir} "
+                    [[ -e "$_f" ]] && _files+=("${_f#$dracutsysrootdir}")
                 done
             done
         done
@@ -603,12 +608,12 @@ inst_libdir_file() {
         for _dir in $libdirs; do
             for _i in "$@"; do
                 for _f in "$dracutsysrootdir$_dir"/$_i; do
-                    [[ -e "$_f" ]] && _files+="${_f#$dracutsysrootdir} "
+                    [[ -e "$_f" ]] && _files+=("${_f#$dracutsysrootdir}")
                 done
             done
         done
     fi
-    [[ $_files ]] && inst_multiple $_files
+    [[ ${#_files[@]} -gt 0 ]] && inst_multiple "${_files[@]}"
 }
 
 # get a command to decompress the given file
@@ -628,11 +633,10 @@ get_decompress_cmd() {
 inst_decompress() {
     local _src _cmd
 
-    for _src in $@
-    do
-        _cmd=$(get_decompress_cmd ${_src})
+    for _src in "$@"; do
+        _cmd=$(get_decompress_cmd "${_src}")
         [[ -z "${_cmd}" ]] && return 1
-        inst_simple ${_src}
+        inst_simple "${_src}"
         # Decompress with chosen tool.  We assume that tool changes name e.g.
         # from 'name.gz' to 'name'.
         ${_cmd} "${initdir}${_src}"
@@ -645,7 +649,7 @@ inst_decompress() {
 inst_opt_decompress() {
     local _src
 
-    for _src in $@; do
+    for _src in "$@"; do
         inst_decompress "${_src}" || inst "${_src}"
     done
 }
@@ -665,16 +669,20 @@ module_check() {
     if [[ ! -f $_moddir/module-setup.sh ]]; then
         # if we do not have a check script, we are unconditionally included
         [[ -x $_moddir/check ]] || return 0
-        [ $_forced -ne 0 ] && unset hostonly
-        $_moddir/check $hostonly
+        [[ $_forced != 0 ]] && unset hostonly
+        # don't quote $hostonly to leave argument empty
+        # shellcheck disable=SC2086
+        "$_moddir"/check $hostonly
         _ret=$?
     else
         unset check depends cmdline install installkernel
         check() { true; }
-        . $_moddir/module-setup.sh
+        . "$_moddir"/module-setup.sh
         is_func check || return 0
-        [ $_forced -ne 0 ] && unset hostonly
-        moddir=$_moddir check $hostonly
+        [[ $_forced != 0 ]] && unset hostonly
+        # don't quote $hostonly to leave argument empty
+        # shellcheck disable=SC2086
+        moddir="$_moddir" check $hostonly
         _ret=$?
         unset check depends cmdline install installkernel
     fi
@@ -689,24 +697,24 @@ module_check() {
 module_check_mount() {
     local _moddir=$2
     local _ret
-    mount_needs=1
+    export mount_needs=1
     [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
     [[ -d $_moddir ]] || return 1
     if [[ ! -f $_moddir/module-setup.sh ]]; then
         # if we do not have a check script, we are unconditionally included
         [[ -x $_moddir/check ]] || return 0
-        mount_needs=1 $_moddir/check 0
+        mount_needs=1 "$_moddir"/check 0
         _ret=$?
     else
         unset check depends cmdline install installkernel
         check() { false; }
-        . $_moddir/module-setup.sh
+        . "$_moddir"/module-setup.sh
         moddir=$_moddir check 0
         _ret=$?
         unset check depends cmdline install installkernel
     fi
     unset mount_needs
-    return $_ret
+    return "$_ret"
 }
 
 # module_depends <dracut module> [<module path>]
