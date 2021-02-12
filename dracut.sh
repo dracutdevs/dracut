@@ -1803,7 +1803,7 @@ if [[ $no_kernel != yes ]]; then
     if [[ $noimageifnotneeded == yes ]] && [[ $hostonly ]]; then
         if [[ ! -f "$initdir/lib/dracut/need-initqueue" ]] && \
             [[ -f ${initdir}/lib/modules/$kernel/modules.dep && ! -s ${initdir}/lib/modules/$kernel/modules.dep ]]; then
-            for i in ${initdir}/etc/cmdline.d/*.conf; do
+            for i in "${initdir}"/etc/cmdline.d/*.conf; do
                 # We need no initramfs image and do not generate one.
                 [[ $i == "${initdir}/etc/cmdline.d/*.conf" ]] && exit 0
             done
@@ -1812,7 +1812,10 @@ if [[ $no_kernel != yes ]]; then
 fi
 
 if [[ $kernel_only != yes ]]; then
+    # FIXME: handle legacy item split
+    # shellcheck disable=SC2068
     (( ${#install_items[@]} > 0 )) && inst_multiple ${install_items[@]}
+    # shellcheck disable=SC2068
     (( ${#install_optional_items[@]} > 0 )) && inst_multiple -o ${install_optional_items[@]}
 
     if [[ $kernel_cmdline ]] && [[ $uefi != yes ]]; then
@@ -1820,24 +1823,23 @@ if [[ $kernel_only != yes ]]; then
     fi
 
     for line in "${fstab_lines[@]}"; do
-        line=($line)
-
-        if [ -z "${line[1]}" ]; then
+        read -r -a fstab_field <<< "$line"
+        if [ -z "${fstab_field[1]}" ]; then
             # Determine device and mount options from current system
-            mountpoint -q "${line[0]}" || derror "${line[0]} is not a mount point!"
-            line=($(findmnt --raw -n --target "${line[0]}" --output=source,target,fstype,options))
-            dinfo "Line for ${line[1]}: ${line[@]}"
+            mountpoint -q "${fstab_field[0]}" || derror "${fstab_field[0]} is not a mount point!"
+            read -r -a fstab_field <<< "$(findmnt --raw -n --target "${fstab_field[0]}" --output=source,target,fstype,options)"
+            dinfo "Line for ${fstab_field[1]}: ${fstab_field[*]}"
         else
             # Use default options
-            [ -z "${line[3]}" ] && line[3]="defaults"
+            [ -z "${fstab_field[3]}" ] && fstab_field[3]="defaults"
         fi
 
         # Default options for freq and passno
-        [ -z "${line[4]}" ] && line[4]="0"
-        [ -z "${line[5]}" ] && line[5]="2"
+        [ -z "${fstab_field[4]}" ] && fstab_field[4]="0"
+        [ -z "${fstab_field[5]}" ] && fstab_field[5]="2"
 
-        strstr "${line[2]}" "nfs" && line[5]="0"
-        echo "${line[@]}" >> "${initdir}/etc/fstab"
+        strstr "${fstab_field[2]}" "nfs" && fstab_field[5]="0"
+        echo "${fstab_field[@]}" >> "${initdir}/etc/fstab"
     done
 
     for f in $add_fstab; do
@@ -1845,20 +1847,20 @@ if [[ $kernel_only != yes ]]; then
     done
 
     if [[ $dracutsysrootdir$systemdutildir ]]; then
-        if [ -d ${initdir}/$systemdutildir ]; then
-            mkdir -p ${initdir}/etc/conf.d
+        if [[ -d ${initdir}/$systemdutildir ]]; then
+            mkdir -p "${initdir}"/etc/conf.d
             {
                 printf "%s\n" "systemdutildir=\"$systemdutildir\""
                 printf "%s\n" "systemdsystemunitdir=\"$systemdsystemunitdir\""
                 printf "%s\n" "systemdsystemconfdir=\"$systemdsystemconfdir\""
-            } > ${initdir}/etc/conf.d/systemd.conf
+            } > "${initdir}"/etc/conf.d/systemd.conf
         fi
     fi
 
     if [[ $DRACUT_RESOLVE_LAZY ]] && [[ $DRACUT_INSTALL ]]; then
         dinfo "*** Resolving executable dependencies ***"
         find "$initdir" -type f -perm /0111 -not -path '*.ko' -print0 \
-        | xargs -r -0 $DRACUT_INSTALL ${initdir:+-D "$initdir"} ${dracutsysrootdir:+-r "$dracutsysrootdir"} -R ${DRACUT_FIPS_MODE:+-f} --
+        | xargs -r -0 "$DRACUT_INSTALL" ${initdir:+-D "$initdir"} ${dracutsysrootdir:+-r "$dracutsysrootdir"} -R ${DRACUT_FIPS_MODE:+-f} --
         dinfo "*** Resolving executable dependencies done ***"
     fi
 
@@ -1872,7 +1874,7 @@ for ((i=0; i < ${#include_src[@]}; i++)); do
     target="${include_target[$i]}"
     if [[ $src && $target ]]; then
         if [[ -f $src ]]; then
-            inst $src $target
+            inst "$src" "$target"
         elif [[ -d $src ]]; then
             ddebug "Including directory: $src"
             destdir="${initdir}/${target}"
@@ -1886,6 +1888,7 @@ for ((i=0; i < ${#include_src[@]}; i++)); do
                     # objectname is a directory, let's compute the final directory name
                     object_destdir=${destdir}/${objectname#$src/}
                     if ! [[ -e "$object_destdir" ]]; then
+                        # shellcheck disable=SC2174
                         mkdir -m 0755 -p "$object_destdir"
                         chmod --reference="$objectname" "$object_destdir"
                     fi
@@ -1911,7 +1914,8 @@ fi
 # strip binaries
 if [[ $do_strip = yes ]] ; then
     # Prefer strip from elfutils for package size
-    declare strip_cmd=$(command -v eu-strip)
+    declare strip_cmd
+    strip_cmd=$(command -v eu-strip)
     [ -z "$strip_cmd" ] && strip_cmd="strip"
 
     for p in $strip_cmd xargs find; do
@@ -1933,7 +1937,7 @@ if [[ $early_microcode = yes ]]; then
     ucode_dest=(AuthenticAMD.bin GenuineIntel.bin)
     _dest_dir="$early_cpio_dir/d/kernel/x86/microcode"
     _dest_idx="0 1"
-    mkdir -p $_dest_dir
+    mkdir -p "$_dest_dir"
     if [[ $hostonly ]]; then
         [[ $(get_cpu_vendor) == "AMD" ]] && _dest_idx="0"
         [[ $(get_cpu_vendor) == "Intel" ]] && _dest_idx="1"
@@ -1959,25 +1963,26 @@ if [[ $early_microcode = yes ]]; then
                     [[ -e "$i" ]] || continue
                     # skip gpg files
                     str_ends "$i" ".asc" && continue
-                    cat "$i" >> $_dest_dir/${ucode_dest[$idx]}
+                    cat "$i" >> "$_dest_dir/${ucode_dest[$idx]}"
                 done
                 create_early_cpio="yes"
             fi
         done
         if [[ ! -e "$_dest_dir/${ucode_dest[$idx]}" ]]; then
-            cd "$early_cpio_dir/d"
-            for _ucodedir in "${early_microcode_image_dir[@]}"; do
-                for _ucodename in "${early_microcode_image_name[@]}"; do
-                    [[ -e "$_ucodedir/$_ucodename" ]] && \
-                    cpio --extract --file "$_ucodedir/$_ucodename" --quiet \
-                         "kernel/x86/microcode/${ucode_dest[$idx]}"
-                    if [[ -e "$_dest_dir/${ucode_dest[$idx]}" ]]; then
-                        dinfo "*** Using microcode found in '$_ucodedir/$_ucodename' ***"
-                        create_early_cpio="yes"
-                        break 2
-                    fi
+            if cd "$early_cpio_dir/d"; then
+                for _ucodedir in "${early_microcode_image_dir[@]}"; do
+                    for _ucodename in "${early_microcode_image_name[@]}"; do
+                        [[ -e "$_ucodedir/$_ucodename" ]] && \
+                        cpio --extract --file "$_ucodedir/$_ucodename" --quiet \
+                             "kernel/x86/microcode/${ucode_dest[$idx]}"
+                        if [[ -e "$_dest_dir/${ucode_dest[$idx]}" ]]; then
+                            dinfo "*** Using microcode found in '$_ucodedir/$_ucodename' ***"
+                            create_early_cpio="yes"
+                            break 2
+                        fi
+                    done
                 done
-            done
+            fi
         fi
     done
 fi
@@ -1985,25 +1990,25 @@ fi
 if [[ $acpi_override = yes ]] && [[ -d $acpi_table_dir ]]; then
     dinfo "*** Packaging ACPI tables to override BIOS provided ones ***"
     _dest_dir="$early_cpio_dir/d/kernel/firmware/acpi"
-    mkdir -p $_dest_dir
-    for table in $acpi_table_dir/*.aml; do
+    mkdir -p "$_dest_dir"
+    for table in "$acpi_table_dir"/*.aml; do
         dinfo "   Adding ACPI table: $table"
-        $DRACUT_CP $table $_dest_dir
+        $DRACUT_CP "$table" "$_dest_dir"
         create_early_cpio="yes"
     done
 fi
 
 dinfo "*** Store current command line parameters ***"
-if ! ( echo $PARMS_TO_STORE > $initdir/lib/dracut/build-parameter.txt ); then
+if ! ( echo "$PARMS_TO_STORE" > "$initdir"/lib/dracut/build-parameter.txt ); then
     dfatal "Could not store the current command line parameters"
     exit 1
 fi
 
 if [[ $hostonly_cmdline == "yes" ]] ; then
     unset _stored_cmdline
-    if [ -d $initdir/etc/cmdline.d ];then
+    if [[ -d $initdir/etc/cmdline.d ]];then
         dinfo "Stored kernel commandline:"
-        for conf in $initdir/etc/cmdline.d/*.conf ; do
+        for conf in "$initdir"/etc/cmdline.d/*.conf ; do
             [ -e "$conf" ] || continue
             dinfo "$(< "$conf")"
             _stored_cmdline=1
