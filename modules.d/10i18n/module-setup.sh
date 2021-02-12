@@ -19,7 +19,7 @@ install() {
     if dracut_module_included "systemd"; then
         unset FONT
         unset KEYMAP
-        [[ -f $dracutsysrootdir/etc/vconsole.conf ]] && . $dracutsysrootdir/etc/vconsole.conf
+        [[ -f "$dracutsysrootdir"/etc/vconsole.conf ]] && . "$dracutsysrootdir"/etc/vconsole.conf
     fi
 
     KBDSUBDIRS=consolefonts,consoletrans,keymaps,unimaps
@@ -38,13 +38,14 @@ install() {
         for map in $MAPS; do
             KEYMAPS="$KEYMAPS $map "
             case $map in
-                *.gz) cmd=zgrep;;
-                *.bz2) cmd=bzgrep;;
-                *) cmd=grep ;;
+                *.gz) cmd="zgrep";;
+                *.bz2) cmd="bzgrep";;
+                *) cmd="grep";;
             esac
 
-            for INCL in $($cmd "^include " $map | while read a a b || [ -n "$a" ]; do echo ${a//\"/}; done); do
+            for INCL in $($cmd "^include " $map | while read _ a _ || [ -n "$a" ]; do echo ${a//\"/}; done); do
                 for FN in $(find $dracutsysrootdir${kbddir}/keymaps -type f -name $INCL\*); do
+                    [[ -f $FN ]] || continue
                     strstr "$KEYMAPS" " $FN " || findkeymap $FN
                 done
             done
@@ -81,6 +82,8 @@ install() {
     gather_vars() {
         local item map value
 
+        # FIXME: double check
+        # shellcheck disable=SC2068
         for item in $@
         do
             item=(${item/:/ })
@@ -107,7 +110,7 @@ install() {
 
         if [[ ${kbddir} != "/usr/share" ]]; then
             inst_dir /usr/share
-            for _src in $(eval echo {${KBDSUBDIRS}}); do
+            for _src in $(eval echo "{ ${KBDSUBDIRS} }"); do
                 [ ! -e "${initdir}/usr/share/${_src}" ] && ln -s "${kbddir}/${_src}" "${initdir}/usr/share/${_src}"
             done
         fi
