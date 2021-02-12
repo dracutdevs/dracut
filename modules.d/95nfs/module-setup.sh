@@ -38,7 +38,7 @@ depends() {
 
 # called by dracut
 installkernel() {
-    hostonly=$(optional_hostonly) instmods =net/sunrpc =fs/nfs ipv6 nfs_acl nfs_layout_nfsv41_files
+    hostonly=$(optional_hostonly) instmods '=net/sunrpc' '=fs/nfs' ipv6 nfs_acl nfs_layout_nfsv41_files
 }
 
 cmdline() {
@@ -62,7 +62,7 @@ cmdline() {
     echo "$nfs_root"
 
     ### ip= ###
-    if [[ $nfs_device = [0-9]*\.[0-9]*\.[0-9]*.[0-9]* ]] || [[ $nfs_device = \[.*\] ]]; then
+    if [[ $nfs_device =~ [0-9]*\.[0-9]*\.[0-9]*.[0-9]* ]] || [[ $nfs_device =~ \[[^]]*\] ]]; then
         nfs_address="${nfs_device%%:*}"
     else
         lookup=$(host "${nfs_device%%:*}"| grep " address " | head -n1)
@@ -75,26 +75,26 @@ cmdline() {
 
 # called by dracut
 install() {
-    local _i
     local _nsslibs
     inst_multiple -o rpc.idmapd mount.nfs mount.nfs4 umount sed /etc/netconfig chmod "$tmpfilesdir/rpcbind.conf"
     inst_multiple /etc/services /etc/nsswitch.conf /etc/rpc /etc/protocols /etc/idmapd.conf
 
     if [[ $hostonly_cmdline == "yes" ]]; then
-        local _netconf="$(cmdline)"
+        local _netconf
+        _netconf="$(cmdline)"
         [[ $_netconf ]] && printf "%s\n" "$_netconf" >> "${initdir}/etc/cmdline.d/95nfs.conf"
     fi
 
-    if [ -f $dracutsysrootdir/lib/modprobe.d/nfs.conf ]; then
+    if [[ -f $dracutsysrootdir/lib/modprobe.d/nfs.conf ]]; then
         inst_multiple /lib/modprobe.d/nfs.conf
     else
-        [ -d $initdir/etc/modprobe.d/ ] || mkdir $initdir/etc/modprobe.d
-        echo "alias nfs4 nfs" > $initdir/etc/modprobe.d/nfs.conf
+        [[ -d $initdir/etc/modprobe.d ]] || mkdir "$initdir"/etc/modprobe.d
+        echo "alias nfs4 nfs" > "$initdir"/etc/modprobe.d/nfs.conf
     fi
 
     inst_libdir_file 'libnfsidmap_nsswitch.so*' 'libnfsidmap/*.so' 'libnfsidmap*.so*'
 
-    _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' $dracutsysrootdir/etc/nsswitch.conf \
+    _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' "$dracutsysrootdir"/etc/nsswitch.conf \
         |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
     _nsslibs=${_nsslibs#|}
     _nsslibs=${_nsslibs%|}
@@ -112,6 +112,7 @@ install() {
     fi
 
     inst "$moddir/nfs-lib.sh" "/lib/nfs-lib.sh"
+    mkdir -m 0755 -p "$initdir/var/lib/nfs"
     mkdir -m 0755 -p "$initdir/var/lib/nfs/rpc_pipefs"
     mkdir -m 0770 -p "$initdir/var/lib/rpcbind"
     [ -d "/var/lib/nfs/statd/sm" ] && mkdir -m 0755 -p "$initdir/var/lib/nfs/statd/sm"
@@ -119,14 +120,14 @@ install() {
 
     # Rather than copy the passwd file in, just set a user for rpcbind
     # We'll save the state and restart the daemon from the root anyway
-    grep -E '^nfsnobody:|^rpc:|^rpcuser:' $dracutsysrootdir/etc/passwd >> "$initdir/etc/passwd"
-    grep -E '^nogroup:|^rpc:|^nobody:' $dracutsysrootdir/etc/group >> "$initdir/etc/group"
+    grep -E '^nfsnobody:|^rpc:|^rpcuser:' "$dracutsysrootdir"/etc/passwd >> "$initdir/etc/passwd"
+    grep -E '^nogroup:|^rpc:|^nobody:' "$dracutsysrootdir"/etc/group >> "$initdir/etc/group"
 
     # rpc user needs to be able to write to this directory to save the warmstart
     # file
     chmod 770 "$initdir/var/lib/rpcbind"
-    grep -q '^rpc:' $dracutsysrootdir/etc/passwd \
-        && grep -q '^rpc:' $dracutsysrootdir/etc/group
+    grep -q '^rpc:' "$dracutsysrootdir"/etc/passwd \
+        && grep -q '^rpc:' "$dracutsysrootdir"/etc/group
 
     dracut_need_initqueue
 }
