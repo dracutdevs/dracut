@@ -34,14 +34,13 @@ installkernel() {
 
 # called by dracut
 install() {
-    local _i
     local _nsslibs
     inst_multiple -o mount.cifs
     inst_multiple /etc/services /etc/nsswitch.conf /etc/protocols
 
     inst_libdir_file 'libcap-ng.so*'
 
-    _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' $dracutsysrootdir/etc/nsswitch.conf \
+    _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' "$dracutsysrootdir"/etc/nsswitch.conf \
         |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
     _nsslibs=${_nsslibs#|}
     _nsslibs=${_nsslibs%|}
