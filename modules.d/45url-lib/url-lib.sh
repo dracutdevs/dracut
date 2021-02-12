@@ -46,7 +46,7 @@ add_url_handler() {
         [ "$(get_url_handler $scheme)" = "$handler" ] && continue
         set -- "$@" "$scheme:$handler"
     done
-    set -- $@ $url_handler_map # add new items to *front* of list
+    set -- "$@" $url_handler_map # add new items to *front* of list
     url_handler_map="$@"
 }
 
