@@ -1204,7 +1204,7 @@ if [[ ! $print_cmdline ]]; then
 
         if ! [[ -s $uefi_stub ]]; then
             for uefi_stub in \
-                $dracutsysrootdir"${systemdutildir}/boot/efi/linux${EFI_MACHINE_TYPE_NAME}.efi.stub" \
+                "$dracutsysrootdir${systemdutildir}/boot/efi/linux${EFI_MACHINE_TYPE_NAME}.efi.stub" \
                     "$dracutsysrootdir/usr/lib/gummiboot/linux${EFI_MACHINE_TYPE_NAME}.efi.stub"; do
                 [[ -s $uefi_stub ]] || continue
                 break
@@ -1272,24 +1272,25 @@ fi
 declare -A host_fs_types
 
 for line in "${fstab_lines[@]}"; do
+    # shellcheck disable=SC2086
     set -- $line
     dev="$1"
     #dev mp fs fsopts
     case "$dev" in
         UUID=*)
-            dev=$(blkid -l -t UUID=${dev#UUID=} -o device)
+            dev=$(blkid -l -t "UUID=${dev#UUID=}" -o device)
             ;;
         LABEL=*)
-            dev=$(blkid -l -t LABEL=${dev#LABEL=} -o device)
+            dev=$(blkid -l -t "LABEL=${dev#LABEL=}" -o device)
             ;;
         PARTUUID=*)
-            dev=$(blkid -l -t PARTUUID=${dev#PARTUUID=} -o device)
+            dev=$(blkid -l -t "PARTUUID=${dev#PARTUUID=}" -o device)
             ;;
         PARTLABEL=*)
-            dev=$(blkid -l -t PARTLABEL=${dev#PARTLABEL=} -o device)
+            dev=$(blkid -l -t "PARTLABEL=${dev#PARTLABEL=}" -o device)
             ;;
     esac
-    [ -z "$dev" ] && dwarn "Bad fstab entry $@" && continue
+    [ -z "$dev" ] && dwarn "Bad fstab entry $*" && continue
     if [[ "$3" == btrfs ]]; then
         for i in $(btrfs_devs "$2"); do
             push_host_devs "$i"
@@ -1301,7 +1302,7 @@ done
 
 for f in $add_fstab; do
     [[ -e $f ]] || continue
-    while read dev rest || [ -n "$dev" ]; do
+    while read -r dev rest || [ -n "$dev" ]; do
         push_host_devs "$dev"
     done < "$f"
 done
@@ -1311,7 +1312,7 @@ for dev in $add_device; do
 done
 
 if (( ${#add_device_l[@]} )); then
-    add_device+=" ${add_device_l[@]} "
+    add_device+=" ${add_device_l[*]} "
     push_host_devs "${add_device_l[@]}"
 fi
 
@@ -1353,11 +1354,11 @@ if [[ $hostonly ]] && [[ "$hostonly_default_device" != "no" ]]; then
 
     # TODO - with sysroot, /proc/swaps is not relevant
     if [[ -f /proc/swaps ]] && [[ -f $dracutsysrootdir/etc/fstab ]]; then
-        while read dev type rest || [ -n "$dev" ]; do
+        while read -r dev type rest || [ -n "$dev" ]; do
             [[ -b $dev ]] || continue
             [[ "$type" == "partition" ]] || continue
 
-            while read _d _m _t _o _r || [ -n "$_d" ]; do
+            while read -r _d _m _t _o _ || [ -n "$_d" ]; do
                 [[ "$_d" == \#* ]] && continue
                 [[ $_d ]] || continue
                 [[ $_t != "swap" ]] && continue
@@ -1367,7 +1368,7 @@ if [[ $hostonly ]] && [[ "$hostonly_default_device" != "no" ]]; then
                 [[ "$_d" -ef "$dev" ]] || continue
 
                 if [[ -f $dracutsysrootdir/etc/crypttab ]]; then
-                    while read _mapper _a _p _o || [ -n "$_mapper" ]; do
+                    while read -r _mapper _ _p _o || [ -n "$_mapper" ]; do
                         [[ $_mapper = \#* ]] && continue
                         [[ "$_d" -ef /dev/mapper/"$_mapper" ]] || continue
                         [[ "$_o" ]] || _o="$_p"
@@ -1375,20 +1376,20 @@ if [[ $hostonly ]] && [[ "$hostonly_default_device" != "no" ]]; then
                         [[ "$_p" == /* ]] && [[ -f $_p ]] && continue 2
                         # skip mkswap swap
                         [[ $_o == *swap* ]] && continue 2
-                    done < $dracutsysrootdir/etc/crypttab
+                    done < "$dracutsysrootdir"/etc/crypttab
                 fi
 
                 _dev="$(readlink -f "$dev")"
                 push_host_devs "$_dev"
                 swap_devs+=("$_dev")
                 break
-            done < $dracutsysrootdir/etc/fstab
+            done < "$dracutsysrootdir"/etc/fstab
         done < /proc/swaps
     fi
 
     # collect all "x-initrd.mount" entries from /etc/fstab
     if [[ -f $dracutsysrootdir/etc/fstab ]]; then
-        while read _d _m _t _o _r || [ -n "$_d" ]; do
+        while read -r _d _m _t _o _ || [ -n "$_d" ]; do
             [[ "$_d" == \#* ]] && continue
             [[ $_d ]] || continue
             [[ "$_o" != *x-initrd.mount* ]] && continue
@@ -1402,7 +1403,7 @@ if [[ $hostonly ]] && [[ "$hostonly_default_device" != "no" ]]; then
                     push_host_devs "$i"
                 done
             fi
-        done < $dracutsysrootdir/etc/fstab
+        done < "$dracutsysrootdir"/etc/fstab
     fi
 fi
 
@@ -1435,9 +1436,9 @@ for dev in "${!host_fs_types[@]}"; do
     [[ ${host_fs_types[$dev]} = "reiserfs" ]] || [[ ${host_fs_types[$dev]} = "xfs" ]] || continue
     rootopts=$(find_dev_fsopts "$dev")
     if [[ ${host_fs_types[$dev]} = "reiserfs" ]]; then
-        journaldev=$(fs_get_option $rootopts "jdev")
+        journaldev=$(fs_get_option "$rootopts" "jdev")
     elif [[ ${host_fs_types[$dev]} = "xfs" ]]; then
-        journaldev=$(fs_get_option $rootopts "logdev")
+        journaldev=$(fs_get_option "$rootopts" "logdev")
     fi
     if [[ $journaldev ]]; then
         dev="$(readlink -f "$dev")"
@@ -1450,66 +1451,66 @@ done
 [[ -d $dracutsysrootdir$dbus ]] \
          || dbus=$(pkg-config dbus --variable=dbus 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$dbus" ]] || dbus=/usr/share/dbus-1
+[[ -d $dracutsysrootdir$dbus ]] || dbus=/usr/share/dbus-1
 
 [[ -d $dracutsysrootdir$dbusconfdir ]] \
          || dbusconfdir=$(pkg-config dbus --variable=dbusconfdir 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$dbusconfdir" ]] || dbusconfdir=/etc/dbus-1
+[[ -d $dracutsysrootdir$dbusconfdir ]] || dbusconfdir=/etc/dbus-1
 
 [[ -d $dracutsysrootdir$dbusinterfaces ]] \
           || dbusinterfaces=$(pkg-config dbus --variable=dbusinterfaces 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$dbusinterfaces" ]] || dbusinterfaces=${dbus}/interfaces
+[[ -d $dracutsysrootdir$dbusinterfaces ]] || dbusinterfaces=${dbus}/interfaces
 
 [[ -d $dracutsysrootdir$dbusinterfacesconfdir ]] \
           || dbusinterfacesconfdir=$(pkg-config dbus --variable=dbusinterfacesconfdir 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$dbusinterfacesconfdir" ]] || dbusinterfacesconfdir=${dbusconfdir}/interfaces
+[[ -d $dracutsysrootdir$dbusinterfacesconfdir ]] || dbusinterfacesconfdir=${dbusconfdir}/interfaces
 
 [[ -d $dracutsysrootdir$dbusservices ]] \
           || dbusservices=$(pkg-config dbus --variable=dbusservices 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$dbusservices" ]] || dbusservices=${dbus}/services
+[[ -d $dracutsysrootdir$dbusservices ]] || dbusservices=${dbus}/services
 
 [[ -d $dracutsysrootdir$dbusservicesconfdir ]] \
           || dbusservicesconfdir=$(pkg-config dbus --variable=dbusservicesconfdir 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$dbusservicesconfdir" ]] || dbusservicesconfdir=${dbusconfdir}/services
+[[ -d $dracutsysrootdir$dbusservicesconfdir ]] || dbusservicesconfdir=${dbusconfdir}/services
 
 [[ -d $dracutsysrootdir$dbussession ]] \
           || dbussession=$(pkg-config dbus --variable=dbussession 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$dbussession" ]] || dbussession=${dbus}/session.d
+[[ -d $dracutsysrootdir$dbussession ]] || dbussession=${dbus}/session.d
 
 [[ -d $dracutsysrootdir$dbussessionconfdir ]] \
           || dbussessionconfdir=$(pkg-config dbus --variable=dbussessionconfdir 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$dbussessionconfdir" ]] || dbussessionconfdir=${dbusconfdir}/session.d
+[[ -d $dracutsysrootdir$dbussessionconfdir ]] || dbussessionconfdir=${dbusconfdir}/session.d
 
 [[ -d $dracutsysrootdir$dbussystem ]] \
           || dbussystem=$(pkg-config dbus --variable=dbussystem 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$dbussystem" ]] || dbussystem=${dbus}/system.d
+[[ -d $dracutsysrootdir$dbussystem ]] || dbussystem=${dbus}/system.d
 
 [[ -d $dracutsysrootdir$dbussystemconfdir ]] \
           || dbussystemconfdir=$(pkg-config dbus --variable=dbussystemconfdir 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$dbussystemconfdir" ]] || dbussystemconfdir=${dbusconfdir}/system.d
+[[ -d $dracutsysrootdir$dbussystemconfdir ]] || dbussystemconfdir=${dbusconfdir}/system.d
 
 [[ -d $dracutsysrootdir$dbussystemservices ]] \
           || dbussystemservices=$(pkg-config dbus --variable=dbussystemservices 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$dbussystemservices" ]] || dbussystemservices=${dbus}/system-services
+[[ -d $dracutsysrootdir$dbussystemservices ]] || dbussystemservices=${dbus}/system-services
 
 [[ -d $dracutsysrootdir$dbussystemservicesconfdir ]] \
            || dbussystemservicesconfdir=$(pkg-config dbus --variable=dbussystemservicesconfdir 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$dbussystemservicesconfdir" ]] || dbussystemservicesconfdir=${dbusconfdir}/system-services
+[[ -d $dracutsysrootdir$dbussystemservicesconfdir ]] || dbussystemservicesconfdir=${dbusconfdir}/system-services
 
 [[ -d $dracutsysrootdir$udevdir ]] \
     || udevdir="$(pkg-config udev --variable=udevdir 2>/dev/null)"
-if ! [[ -d "$dracutsysrootdir$udevdir" ]]; then
+if ! [[ -d $dracutsysrootdir$udevdir ]]; then
     [[ -e $dracutsysrootdir/lib/udev/ata_id ]] && udevdir=/lib/udev
     [[ -e $dracutsysrootdir/usr/lib/udev/ata_id ]] && udevdir=/usr/lib/udev
 fi
