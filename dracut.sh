@@ -677,16 +677,16 @@ if [[ $regenerate_all == "yes" ]]; then
     ((len=${#dracut_args[@]}))
     for ((i=0; i < len; i++)); do
         [[ ${dracut_args[$i]} == "--regenerate-all" ]] && \
-            unset dracut_args[$i]
+            unset "dracut_args[$i]"
     done
 
-    cd $dracutsysrootdir/lib/modules
+    cd "$dracutsysrootdir"/lib/modules || exit 1
     for i in *; do
         [[ -f $i/modules.dep ]] || [[ -f $i/modules.dep.bin ]] || continue
         "$dracut_cmd" --kver="$i" "${dracut_args[@]}"
         ((ret+=$?))
     done
-    exit $ret
+    exit "$ret"
 fi
 
 if ! [[ $kernel ]]; then
@@ -714,7 +714,7 @@ export DRACUT_LOG_LEVEL=warning
     debug=yes
 }
 
-[[ $dracutbasedir ]] || dracutbasedir=$dracutsysrootdir/usr/lib/dracut
+[[ $dracutbasedir ]] || dracutbasedir="$dracutsysrootdir"/usr/lib/dracut
 
 # if we were not passed a config file, try the default one
 if [[ ! -f $conffile ]]; then
@@ -736,12 +736,14 @@ fi
 # source our config file
 if [[ -f $conffile ]]; then
     check_conf_file "$conffile"
+    # shellcheck disable=SC1090
     . "$conffile"
 fi
 
 # source our config dir
 for f in $(dropindirs_sort ".conf" "$confdir" "$dracutbasedir/dracut.conf.d"); do
     check_conf_file "$f"
+    # shellcheck disable=SC1090
     [[ -e $f ]] && . "$f"
 done
 
@@ -750,7 +752,7 @@ DRACUT_PATH=${DRACUT_PATH:-/sbin /bin /usr/sbin /usr/bin}
 for i in $DRACUT_PATH; do
     rl=$i
     if [ -L "$dracutsysrootdir$i" ]; then
-        rl=$(readlink -f $dracutsysrootdir$i)
+        rl=$(readlink -f "$dracutsysrootdir$i")
     fi
     rl="${rl#$dracutsysrootdir}"
     if [[ "$NPATH" != *:$rl* ]] ; then
@@ -763,21 +765,22 @@ unset NPATH
 export SYSTEMCTL=${SYSTEMCTL:-systemctl}
 
 # these options add to the stuff in the config file
-(( ${#add_dracutmodules_l[@]} )) && add_dracutmodules+=" ${add_dracutmodules_l[@]} "
-(( ${#force_add_dracutmodules_l[@]} )) && force_add_dracutmodules+=" ${force_add_dracutmodules_l[@]} "
-(( ${#fscks_l[@]} )) && fscks+=" ${fscks_l[@]} "
-(( ${#add_fstab_l[@]} )) && add_fstab+=" ${add_fstab_l[@]} "
+(( ${#add_dracutmodules_l[@]} )) && add_dracutmodules+=" ${add_dracutmodules_l[*]} "
+(( ${#force_add_dracutmodules_l[@]} )) && force_add_dracutmodules+=" ${force_add_dracutmodules_l[*]} "
+(( ${#fscks_l[@]} )) && fscks+=" ${fscks_l[*]} "
+(( ${#add_fstab_l[@]} )) && add_fstab+=" ${add_fstab_l[*]} "
+# shellcheck disable=SC2154
 (( ${#fstab_lines_l[@]} )) && fstab_lines+=( "${fstab_lines_l[@]}" )
-(( ${#install_items_l[@]} )) && install_items+=" ${install_items_l[@]} "
-(( ${#install_optional_items_l[@]} )) && install_optional_items+=" ${install_optional_items_l[@]} "
-(( ${#hostonly_nics_l[@]} )) && hostonly_nics+=" ${hostonly_nics_l[@]} "
+(( ${#install_items_l[@]} )) && install_items+=" ${install_items_l[*]} "
+(( ${#install_optional_items_l[@]} )) && install_optional_items+=" ${install_optional_items_l[*]} "
+(( ${#hostonly_nics_l[@]} )) && hostonly_nics+=" ${hostonly_nics_l[*]} "
 
 # these options override the stuff in the config file
-(( ${#dracutmodules_l[@]} )) && dracutmodules="${dracutmodules_l[@]}"
-(( ${#omit_dracutmodules_l[@]} )) && omit_dracutmodules="${omit_dracutmodules_l[@]}"
-(( ${#filesystems_l[@]} )) && filesystems="${filesystems_l[@]}"
-(( ${#fw_dir_l[@]} )) && fw_dir="${fw_dir_l[@]}"
-(( ${#libdirs_l[@]} ))&& libdirs="${libdirs_l[@]}"
+(( ${#dracutmodules_l[@]} )) && dracutmodules="${dracutmodules_l[*]}"
+(( ${#omit_dracutmodules_l[@]} )) && omit_dracutmodules="${omit_dracutmodules_l[*]}"
+(( ${#filesystems_l[@]} )) && filesystems="${filesystems_l[*]}"
+(( ${#fw_dir_l[@]} )) && fw_dir="${fw_dir_l[*]}"
+(( ${#libdirs_l[@]} ))&& libdirs="${libdirs_l[*]}"
 
 [[ $stdloglvl_l ]] && stdloglvl=$stdloglvl_l
 [[ ! $stdloglvl ]] && stdloglvl=4
@@ -796,16 +799,18 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $hostonly_cmdline_l ]] && hostonly_cmdline=$hostonly_cmdline_l
 [[ $hostonly_mode_l ]] && hostonly_mode=$hostonly_mode_l
 [[ "$hostonly" == "yes" ]] && ! [[ $hostonly_cmdline ]] && hostonly_cmdline="yes"
+# shellcheck disable=SC2034
 [[ $i18n_install_all_l ]] && i18n_install_all=$i18n_install_all_l
+# shellcheck disable=SC2034
 [[ $persistent_policy_l ]] && persistent_policy=$persistent_policy_l
 [[ $use_fstab_l ]] && use_fstab=$use_fstab_l
 [[ $mdadmconf_l ]] && mdadmconf=$mdadmconf_l
 [[ $lvmconf_l ]] && lvmconf=$lvmconf_l
-[[ $dracutbasedir ]] || dracutbasedir=$dracutsysrootdir/usr/lib/dracut
+[[ $dracutbasedir ]] || dracutbasedir="$dracutsysrootdir"/usr/lib/dracut
 [[ $fw_dir ]] || fw_dir="$dracutsysrootdir/lib/firmware/updates:$dracutsysrootdir/lib/firmware:$dracutsysrootdir/lib/firmware/$kernel"
 [[ $tmpdir_l ]] && tmpdir="$tmpdir_l"
 [[ $tmpdir ]] || tmpdir="$TMPDIR"
-[[ $tmpdir ]] || tmpdir=$dracutsysrootdir/var/tmp
+[[ $tmpdir ]] || tmpdir="$dracutsysrootdir"/var/tmp
 [[ $INITRD_COMPRESS ]] && compress=$INITRD_COMPRESS
 [[ $compress_l ]] && compress=$compress_l
 [[ $show_modules_l ]] && show_modules=$show_modules_l
@@ -827,21 +832,22 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 
 if ! [[ $outfile ]]; then
     if [[ $machine_id != "no" ]]; then
-        [[ -f $dracutsysrootdir/etc/machine-id ]] && read MACHINE_ID < $dracutsysrootdir/etc/machine-id
+        [[ -f "$dracutsysrootdir"/etc/machine-id ]] && read -r MACHINE_ID < "$dracutsysrootdir"/etc/machine-id
     fi
 
     if [[ $uefi == "yes" ]]; then
+        # shellcheck disable=SC2154
         if [[ -n "$uefi_secureboot_key" && -z "$uefi_secureboot_cert" ]] || [[ -z $uefi_secureboot_key && -n $uefi_secureboot_cert ]]; then
             dfatal "Need 'uefi_secureboot_key' and 'uefi_secureboot_cert' both to be set."
             exit 1
         fi
 
-        if [[ -n "$uefi_secureboot_key" && -n "$uefi_secureboot_cert" ]] && !command -v sbsign &>/dev/null; then
+        if [[ -n "$uefi_secureboot_key" && -n "$uefi_secureboot_cert" ]] && ! command -v sbsign &>/dev/null; then
             dfatal "Need 'sbsign' to create a signed UEFI executable"
             exit 1
         fi
 
-        BUILD_ID=$(cat $dracutsysrootdir/etc/os-release $dracutsysrootdir/usr/lib/os-release \
+        BUILD_ID=$(cat "$dracutsysrootdir"/etc/os-release "$dracutsysrootdir"/usr/lib/os-release \
                        | while read -r line || [[ $line ]]; do \
                        [[ $line =~ BUILD_ID\=* ]] && eval "$line" && echo "$BUILD_ID" && break; \
                    done)
@@ -863,9 +869,9 @@ if ! [[ $outfile ]]; then
         mkdir -p "$dracutsysrootdir$efidir/Linux"
         outfile="$dracutsysrootdir$efidir/Linux/linux-$kernel${MACHINE_ID:+-${MACHINE_ID}}${BUILD_ID:+-${BUILD_ID}}.efi"
     else
-        if [[ -e "$dracutsysrootdir/boot/vmlinuz-$kernel" ]]; then
+        if [[ -e $dracutsysrootdir/boot/vmlinuz-$kernel ]]; then
             outfile="/boot/initramfs-$kernel.img"
-        elif [[ $MACHINE_ID ]] && ( [[ -d $dracutsysrootdir/boot/${MACHINE_ID} ]] || [[ -L $dracutsysrootdir/boot/${MACHINE_ID} ]] ); then
+        elif [[ $MACHINE_ID ]] && { [[ -d $dracutsysrootdir/boot/${MACHINE_ID} ]] || [[ -L $dracutsysrootdir/boot/${MACHINE_ID} ]] ;}; then
             outfile="$dracutsysrootdir/boot/${MACHINE_ID}/$kernel/initrd"
         else
             outfile="$dracutsysrootdir/boot/initramfs-$kernel.img"
@@ -878,10 +884,9 @@ export DRACUT_FIRMWARE_PATH=${fw_dir// /:}
 fw_dir=${fw_dir//:/ }
 
 # check for logfile and try to create one if it doesn't exist
-if [[ -n "$logfile" ]];then
-    if [[ ! -f "$logfile" ]];then
-        touch "$logfile"
-        if [ ! $? -eq 0 ] ;then
+if [[ -n "$logfile" ]]; then
+    if [[ ! -f "$logfile" ]]; then
+        if touch "$logfile"; then
             printf "%s\n" "dracut: touch $logfile failed." >&2
         fi
     fi
@@ -918,7 +923,7 @@ fi
 # choose the right arguments for the compressor
 case $compress in
     bzip2|lbzip2)
-        if [[ "$compress" =  lbzip2 ]] || command -v $DRACUT_COMPRESS_LBZIP2 &>/dev/null; then
+        if [[ "$compress" =  lbzip2 ]] || command -v "$DRACUT_COMPRESS_LBZIP2" &>/dev/null; then
             compress="$DRACUT_COMPRESS_LBZIP2 -9"
         else
             compress="$DRACUT_COMPRESS_BZIP2 -9"
