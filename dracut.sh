@@ -1518,52 +1518,52 @@ fi
 [[ -d $dracutsysrootdir$sysctl ]] \
       || sysctl=$(pkg-config systemd --variable=sysctl 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$sysctl" ]] || sysctl=/usr/lib/sysctl.d
+[[ -d $dracutsysrootdir$sysctl ]] || sysctl=/usr/lib/sysctl.d
 
 [[ -d $dracutsysrootdir$sysctlconfdir ]] \
       || sysctlconfdir=$(pkg-config systemd --variable=sysctlconfdir 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$sysctlconfdir" ]] || sysctlconfdir=/etc/sysctl.d
+[[ -d $dracutsysrootdir$sysctlconfdir ]] || sysctlconfdir=/etc/sysctl.d
 
 [[ -d $dracutsysrootdir$environment ]] \
       || environment=$(pkg-config systemd --variable=environment 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$environment" ]] || environment=/usr/lib/environment.d
+[[ -d $dracutsysrootdir$environment ]] || environment=/usr/lib/environment.d
 
 [[ -d $dracutsysrootdir$environmentconfdir ]] \
       || environmentconfdir=$(pkg-config systemd --variable=environmentconfdir 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$environmentconfdir" ]] || environmentconfdir=/etc/environment.d
+[[ -d $dracutsysrootdir$environmentconfdir ]] || environmentconfdir=/etc/environment.d
 
 [[ -d $dracutsysrootdir$systemdcatalog ]] \
       || systemdcatalog=$(pkg-config systemd --variable=systemdcatalog 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$systemdcatalog" ]] || systemdcatalog=${systemdutildir}/catalog
+[[ -d $dracutsysrootdir$systemdcatalog ]] || systemdcatalog=${systemdutildir}/catalog
 
 [[ -d $dracutsysrootdir$systemdnetwork ]] \
       || systemdnetwork=$(pkg-config systemd --variable=systemdnetwork 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$systemdnetwork" ]] || systemdnetwork=${systemdutildir}/network
+[[ -d $dracutsysrootdir$systemdnetwork ]] || systemdnetwork=${systemdutildir}/network
 
 [[ -d $dracutsysrootdir$systemdnetworkconfdir ]] \
        || systemdnetworkconfdir=$(pkg-config systemd --variable=systemdnetworkconfdir 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$systemdnetworkconfdir" ]] || systemdnetworkconfdir=${systemdsystemconfdir}/network
+[[ -d $dracutsysrootdir$systemdnetworkconfdir ]] || systemdnetworkconfdir=${systemdsystemconfdir}/network
 
 [[ -d $dracutsysrootdir$systemdntpunits ]] \
       || systemdntpunits=$(pkg-config systemd --variable=systemdntpunits 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$systemdntpunits" ]] || systemdntpunits=${systemdutildir}/ntp-units.d
+[[ -d $dracutsysrootdir$systemdntpunits ]] || systemdntpunits=${systemdutildir}/ntp-units.d
 
 [[ -d $dracutsysrootdir$systemdntpunitsconfdir ]] \
       || systemdntpunitsconfdir=$(pkg-config systemd --variable=systemdntpunitsconfdir 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$systemdntpunitsconfdir" ]] || systemdntpunitsconfdir=${systemdsystemconfdir}/ntp-units.d
+[[ -d $dracutsysrootdir$systemdntpunitsconfdir ]] || systemdntpunitsconfdir=${systemdsystemconfdir}/ntp-units.d
 
 [[ -d $dracutsysrootdir$systemdportable ]] \
       || systemdportable=$(pkg-config systemd --variable=systemdportable 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$systemdportable" ]] || systemdportable=${systemdutildir}/portable
+[[ -d $dracutsysrootdir$systemdportable ]] || systemdportable=${systemdutildir}/portable
 
 [[ -d $dracutsysrootdir$systemdportableconfdir ]] \
       || systemdportableconfdir=$(pkg-config systemd --variable=systemdportableconfdir 2>/dev/null)
@@ -1578,32 +1578,32 @@ fi
 [[ -d $dracutsysrootdir$systemduser ]] \
       || systemduser=$(pkg-config systemd --variable=systemduser 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$systemduser" ]] || systemduser=${systemdutildir}/user
+[[ -d $dracutsysrootdir$systemduser ]] || systemduser=${systemdutildir}/user
 
 [[ -d $dracutsysrootdir$systemduserconfdir ]] \
        || systemduserconfdir=$(pkg-config systemd --variable=systemduserconfdir 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$systemduserconfdir" ]] || systemduserconfdir=${systemdsystemconfdir}/user
+[[ -d $dracutsysrootdir$systemduserconfdir ]] || systemduserconfdir=${systemdsystemconfdir}/user
 
 [[ -d $dracutsysrootdir$systemdsystemconfdir ]] \
     || systemdsystemconfdir=$(pkg-config systemd --variable=systemdsystemconfdir 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$systemdsystemconfdir" ]] || systemdsystemconfdir=/etc/systemd/system
+[[ -d $dracutsysrootdir$systemdsystemconfdir ]] || systemdsystemconfdir=/etc/systemd/system
 
 [[ -d $dracutsysrootdir$sysusers ]] \
        || sysusers=$(pkg-config systemd --variable=sysusers 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$sysusers" ]] || sysusers=/usr/lib/sysusers.d
+[[ -d $dracutsysrootdir$sysusers ]] || sysusers=/usr/lib/sysusers.d
 
 [[ -d $dracutsysrootdir$sysusersconfdir ]] \
        || sysusersconfdir=$(pkg-config systemd --variable=sysusersconfdir 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$sysusersconfdir" ]] || sysusersconfdir=/etc/sysusers.d
+[[ -d $dracutsysrootdir$sysusersconfdir ]] || sysusersconfdir=/etc/sysusers.d
 
 [[ -d $dracutsysrootdir$tmpfilesdir ]] \
     || tmpfilesdir=$(pkg-config systemd --variable=tmpfilesdir 2>/dev/null)
 
-if ! [[ -d "$dracutsysrootdir$tmpfilesdir" ]]; then
+if ! [[ -d $dracutsysrootdir$tmpfilesdir ]]; then
     [[ -d $dracutsysrootdir/lib/tmpfiles.d ]] && tmpfilesdir=/lib/tmpfiles.d
     [[ -d $dracutsysrootdir/usr/lib/tmpfiles.d ]] && tmpfilesdir=/usr/lib/tmpfiles.d
 fi
@@ -1657,8 +1657,10 @@ if [[ $print_cmdline ]]; then
 fi
 
 # Create some directory structure first
+# shellcheck disable=SC2174
 [[ $prefix ]] && mkdir -m 0755 -p "${initdir}${prefix}"
 
+# shellcheck disable=SC2174
 [[ -h $dracutsysrootdir/lib ]] || mkdir -m 0755 -p "${initdir}${prefix}/lib"
 [[ $prefix ]] && ln -sfn "${prefix#/}/lib" "$initdir/lib"
 
@@ -1670,11 +1672,12 @@ if [[ $prefix ]]; then
 fi
 
 if [[ $kernel_only != yes ]]; then
-    for d in usr/bin usr/sbin bin etc lib sbin tmp usr var var/tmp $libdirs; do
+    for d in usr usr/bin usr/sbin bin etc lib sbin tmp var var/tmp $libdirs; do
         [[ -e "${initdir}${prefix}/$d" ]] && continue
         if [ -L "/$d" ]; then
             inst_symlink "/$d" "${prefix}/$d"
         else
+            # shellcheck disable=SC2174
             mkdir -m 0755 -p "${initdir}${prefix}/$d"
         fi
     done
@@ -1683,6 +1686,7 @@ if [[ $kernel_only != yes ]]; then
         if [ -L "/$d" ]; then
             inst_symlink "/$d"
         else
+            # shellcheck disable=SC2174
             mkdir -m 0755 -p "$initdir/$d"
         fi
     done
@@ -1690,11 +1694,12 @@ if [[ $kernel_only != yes ]]; then
     ln -sfn ../run "$initdir/var/run"
     ln -sfn ../run/lock "$initdir/var/lock"
 else
-    for d in lib "$libdir"; do
+    for d in lib "$libdirs"; do
         [[ -e "${initdir}${prefix}/$d" ]] && continue
         if [ -h "/$d" ]; then
             inst "/$d" "${prefix}/$d"
         else
+            # shellcheck disable=SC2174
             mkdir -m 0755 -p "${initdir}${prefix}/$d"
         fi
     done
@@ -1702,15 +1707,19 @@ fi
 
 if [[ $kernel_only != yes ]]; then
     mkdir -p "${initdir}/etc/cmdline.d"
+    # shellcheck disable=SC2174
+    mkdir -m 0755 -p "${initdir}"/lib "${initdir}"/lib/dracut "${initdir}"/lib/dracut/hooks
+    # shellcheck disable=SC2154
     for _d in $hookdirs; do
-        mkdir -m 0755 -p ${initdir}/lib/dracut/hooks/$_d
+        # shellcheck disable=SC2174
+        mkdir -m 0755 -p "${initdir}/lib/dracut/hooks/$_d"
     done
     if [[ "$EUID" = "0" ]]; then
-        [ -c ${initdir}/dev/null ] || mknod ${initdir}/dev/null c 1 3
-        [ -c ${initdir}/dev/kmsg ] || mknod ${initdir}/dev/kmsg c 1 11
-        [ -c ${initdir}/dev/console ] || mknod ${initdir}/dev/console c 5 1
-        [ -c ${initdir}/dev/random ] || mknod ${initdir}/dev/random c 1 8
-        [ -c ${initdir}/dev/urandom ] || mknod ${initdir}/dev/urandom c 1 9
+        [[ -c ${initdir}/dev/null ]] || mknod "${initdir}"/dev/null c 1 3
+        [[ -c ${initdir}/dev/kmsg ]] || mknod "${initdir}"/dev/kmsg c 1 11
+        [[ -c ${initdir}/dev/console ]] || mknod "${initdir}"/dev/console c 5 1
+        [[ -c ${initdir}/dev/random ]] || mknod "${initdir}"/dev/random c 1 8
+        [[ -c ${initdir}/dev/urandom ]] || mknod "${initdir}"/dev/urandom c 1 9
     fi
 fi
 
@@ -1744,7 +1753,7 @@ for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
 
     #print the module install size
     if [ -n "$printsize" ]; then
-        _isize_new=$(du -sk ${initdir}|cut -f1)
+        _isize_new=$(du -sk "${initdir}" | { read -r a _; echo -n "$a"; })
         _isize_delta=$((_isize_new - _isize))
         printf "%s\n" "$_d_mod install size: ${_isize_delta}k"
         _isize=$_isize_new
@@ -1753,8 +1762,8 @@ done
 unset moddir
 
 for i in $modules_loaded; do
-    mkdir -p $initdir/lib/dracut
-    printf "%s\n" "$i" >> $initdir/lib/dracut/modules.txt
+    mkdir -p "$initdir"/lib/dracut
+    printf "%s\n" "$i" >> "$initdir"/lib/dracut/modules.txt
 done
 
 dinfo "*** Including modules done ***"
@@ -1762,24 +1771,28 @@ dinfo "*** Including modules done ***"
 ## final stuff that has to happen
 if [[ $no_kernel != yes ]]; then
     if [[ $hostonly_mode = "strict" ]]; then
-        cp "$DRACUT_KERNEL_MODALIASES" $initdir/lib/dracut/hostonly-kernel-modules.txt
+        cp "$DRACUT_KERNEL_MODALIASES" "$initdir"/lib/dracut/hostonly-kernel-modules.txt
     fi
 
     if [[ $drivers ]]; then
+        # shellcheck disable=SC2086
         hostonly='' instmods $drivers
     fi
 
     if [[ -n "${add_drivers// }" ]]; then
+        # shellcheck disable=SC2086
         hostonly='' instmods -c $add_drivers
     fi
     if [[ $force_drivers ]]; then
+        # shellcheck disable=SC2086
         hostonly='' instmods -c $force_drivers
-        rm -f $initdir/etc/cmdline.d/20-force_driver.conf
+        rm -f "$initdir"/etc/cmdline.d/20-force_driver.conf
         for mod in $force_drivers; do
-            echo "rd.driver.pre=$mod" >>$initdir/etc/cmdline.d/20-force_drivers.conf
+            echo "rd.driver.pre=$mod" >>"$initdir"/etc/cmdline.d/20-force_drivers.conf
         done
     fi
     if [[ $filesystems ]]; then
+        # shellcheck disable=SC2086
         hostonly='' instmods -c $filesystems
     fi
 
