@@ -32,15 +32,16 @@ if (( BASH_VERSINFO[0] < 4 )); then
 fi
 
 dracut_args=( "$@" )
-readonly dracut_cmd="$(readlink -f $0)"
+readonly dracut_cmd=$(readlink -f "$0")
 
 set -o pipefail
 
 usage() {
     [[ $sysroot_l ]] && dracutsysrootdir="$sysroot_l"
-    [[ $dracutbasedir ]] || dracutbasedir=$dracutsysrootdir/usr/lib/dracut
+    [[ $dracutbasedir ]] || dracutbasedir="$dracutsysrootdir"/usr/lib/dracut
     if [[ -f $dracutbasedir/dracut-version.sh ]]; then
-        . $dracutbasedir/dracut-version.sh
+        # shellcheck source=./dracut-version.sh
+        . "$dracutbasedir"/dracut-version.sh
     fi
 
 #                                                       80x25 linebreak here ^
@@ -63,9 +64,10 @@ EOF
 }
 
 long_usage() {
-    [[ $dracutbasedir ]] || dracutbasedir=$dracutsysrootdir/usr/lib/dracut
+    [[ $dracutbasedir ]] || dracutbasedir="$dracutsysrootdir"/usr/lib/dracut
     if [[ -f $dracutbasedir/dracut-version.sh ]]; then
-        . $dracutbasedir/dracut-version.sh
+        # shellcheck source=./dracut-version.sh
+        . "$dracutbasedir"/dracut-version.sh
     fi
 
 #                                                       80x25 linebreak here ^
@@ -257,9 +259,10 @@ EOF
 }
 
 long_version() {
-    [[ $dracutbasedir ]] || dracutbasedir=$dracutsysrootdir/usr/lib/dracut
+    [[ $dracutbasedir ]] || dracutbasedir="$dracutsysrootdir"/usr/lib/dracut
     if [[ -f $dracutbasedir/dracut-version.sh ]]; then
-        . $dracutbasedir/dracut-version.sh
+        # shellcheck source=./dracut-version.sh
+        . "$dracutbasedir"/dracut-version.sh
     fi
     echo "dracut $DRACUT_VERSION"
 }
@@ -268,7 +271,7 @@ long_version() {
 push_host_devs() {
     local _dev
     for _dev in "$@"; do
-        [[ " ${host_devs[@]} " == *" $_dev "* ]] && return
+        [[ " ${host_devs[*]} " == *" $_dev "* ]] && return
         host_devs+=( "$_dev" )
     done
 }
@@ -282,9 +285,9 @@ read_arg() {
     # $3 = arg parameter
     local rematch='^[^=]*=(.*)$'
     if [[ $2 =~ $rematch ]]; then
-        read "$1" <<< "${BASH_REMATCH[1]}"
+        read -r "$1" <<< "${BASH_REMATCH[1]}"
     else
-        read "$1" <<< "$3"
+        read -r "$1" <<< "$3"
         # There is no way to shift our callers args, so
         # return 1 to indicate they should do it instead.
         return 1
@@ -433,6 +436,7 @@ rearrange_params()
         --long version \
         -- "$@")
 
+    # shellcheck disable=SC2181
     if (( $? != 0 )); then
         usage
         exit 1
@@ -456,8 +460,8 @@ do
     fi
     if [ "$1" == "--rebuild" ]; then
         append_args_l="yes"
-            rebuild_file=$2
-            if [ ! -e $rebuild_file ]; then
+            rebuild_file="$2"
+            if [ ! -e "$rebuild_file" ]; then
                 echo "Image file '$rebuild_file', for rebuild, does not exist!"
                 exit 1
             fi
@@ -495,7 +499,7 @@ if [[ $append_args_l == "yes" ]]; then
         outfile=$rebuild_file
     fi
 
-    if ! rebuild_param=$(lsinitrd $rebuild_file '*lib/dracut/build-parameter.txt'); then
+    if ! rebuild_param=$(lsinitrd "$rebuild_file" '*lib/dracut/build-parameter.txt'); then
         echo "Image '$rebuild_file' has no rebuild information stored"
         exit 1
     fi
@@ -514,7 +518,7 @@ PARMS_TO_STORE=""
 eval set -- "$TEMP"
 
 while :; do
-    if [ $1 != "--" ] && [ $1 != "--rebuild" ]; then
+    if [[ $1 != "--" ]] && [[ $1 != "--rebuild" ]]; then
         PARMS_TO_STORE+=" $1";
     fi
     case $1 in
@@ -548,7 +552,7 @@ while :; do
         --compress)    compress_l="$2";                PARMS_TO_STORE+=" '$2'"; shift;;
         --prefix)      prefix_l="$2";                  PARMS_TO_STORE+=" '$2'"; shift;;
         --loginstall)  loginstall_l="$2";              PARMS_TO_STORE+=" '$2'"; shift;;
-        --rebuild)     if [ $rebuild_file == $outfile ]; then
+        --rebuild)     if [[ $rebuild_file == "$outfile" ]]; then
                            force=yes
                        fi
                        shift
