@@ -11,13 +11,13 @@ install() {
     inst_dir /etc/udev
     inst_multiple -o /etc/udev/udev.conf
 
-    [ -d ${initdir}/$systemdutildir ] || mkdir -p ${initdir}/$systemdutildir
-    for _i in ${systemdutildir}/systemd-udevd ${udevdir}/udevd /sbin/udevd; do
-        [ -x "$dracutsysrootdir$_i" ] || continue
+    [[ -d ${initdir}/$systemdutildir ]] || mkdir -p "${initdir}/$systemdutildir"
+    for _i in "${systemdutildir}"/systemd-udevd "${udevdir}"/udevd /sbin/udevd; do
+        [[ -x $dracutsysrootdir$_i ]] || continue
         inst "$_i"
 
         if ! [[ -f  ${initdir}${systemdutildir}/systemd-udevd ]]; then
-            ln -fs "$_i" ${initdir}${systemdutildir}/systemd-udevd
+            ln -fs "$_i" "${initdir}${systemdutildir}"/systemd-udevd
         fi
         break
     done
@@ -59,14 +59,14 @@ install() {
     [[ $hostonly ]] && inst_rules 70-persistent-net.rules
 
     if dracut_module_included "systemd"; then
-        inst_multiple -o ${systemdutildir}"/network/*.link"
+        inst_multiple -o "${systemdutildir}/network/*.link"
         [[ $hostonly ]] && inst_multiple -H -o "/etc/systemd/network/*.link"
     fi
 
     {
         for i in cdrom tape dialout floppy; do
-            if ! grep -q "^$i:" "$initdir/etc/group" 2>/dev/null; then
-                if ! grep "^$i:" $dracutsysrootdir/etc/group 2>/dev/null; then
+            if ! grep -q "^$i:" "$initdir"/etc/group 2>/dev/null; then
+                if ! grep "^$i:" "$dracutsysrootdir"/etc/group 2>/dev/null; then
                         case $i in
                             cdrom)   echo "$i:x:11:";;
                             dialout) echo "$i:x:18:";;
@@ -79,26 +79,26 @@ install() {
     } >> "$initdir/etc/group"
 
     inst_multiple -o \
-        ${udevdir}/ata_id \
-        ${udevdir}/cdrom_id \
-        ${udevdir}/create_floppy_devices \
-        ${udevdir}/edd_id \
-        ${udevdir}/firmware.sh \
-        ${udevdir}/firmware \
-        ${udevdir}/firmware.agent \
-        ${udevdir}/hotplug.functions \
-        ${udevdir}/fw_unit_symlinks.sh \
-        ${udevdir}/hid2hci \
-        ${udevdir}/path_id \
-        ${udevdir}/input_id \
-        ${udevdir}/scsi_id \
-        ${udevdir}/usb_id \
-        ${udevdir}/pcmcia-socket-startup \
-        ${udevdir}/pcmcia-check-broken-cis
+        "${udevdir}"/ata_id \
+        "${udevdir}"/cdrom_id \
+        "${udevdir}"/create_floppy_devices \
+        "${udevdir}"/edd_id \
+        "${udevdir}"/firmware.sh \
+        "${udevdir}"/firmware \
+        "${udevdir}"/firmware.agent \
+        "${udevdir}"/hotplug.functions \
+        "${udevdir}"/fw_unit_symlinks.sh \
+        "${udevdir}"/hid2hci \
+        "${udevdir}"/path_id \
+        "${udevdir}"/input_id \
+        "${udevdir}"/scsi_id \
+        "${udevdir}"/usb_id \
+        "${udevdir}"/pcmcia-socket-startup \
+        "${udevdir}"/pcmcia-check-broken-cis
 
     inst_multiple -o /etc/pcmcia/config.opts
 
-    [ -f $dracutsysrootdir/etc/arch-release ] && \
+    [[ -f $dracutsysrootdir/etc/arch-release ]] && \
         inst_script "$moddir/load-modules.sh" /lib/udev/load-modules.sh
 
     inst_libdir_file "libnss_files*"
