@@ -46,7 +46,7 @@ sc_supported() {
        require_binaries gpg-agent &&
        require_binaries gpg-connect-agent &&
        require_binaries /usr/libexec/scdaemon &&
-       ($DRACUT_LDD $dracutsysrootdir/usr/libexec/scdaemon | grep libusb > /dev/null); then
+       ($DRACUT_LDD "$dracutsysrootdir"/usr/libexec/scdaemon | grep libusb > /dev/null); then
         return 0
     else
         return 1
