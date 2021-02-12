@@ -373,7 +373,8 @@ parse_iscsi_root()
     case "$v" in
         [[]*[]]:*)
             iscsi_target_ip=${v#[[]}
-                iscsi_target_ip=${iscsi_target_ip%%[]]*}
+            iscsi_target_ip=${iscsi_target_ip%%[]]*}
+            # shellcheck disable=SC1087
             v=${v#[[]$iscsi_target_ip[]]:}
             ;;
         *)
