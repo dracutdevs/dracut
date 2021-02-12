@@ -50,7 +50,7 @@ installkernel()
 
 	## Gathering and sorting configuration file list
 
-	[ -n "${depmod_configs[@]-}" ] \
+	[ -n "${depmod_configs[*]-}" ] \
 		|| depmod_configs=(/run/depmod.d/ /etc/depmod.d/ /lib/depmod.d/)
 
 	for cfg in "${depmod_configs[@]}"; do
@@ -106,8 +106,8 @@ installkernel()
 					continue
 				fi
 
-				if [[ '*' = "$kverpat" \
-				      || "$kernel" =~ "$kverpat" ]]
+				if [[ '*' = "$kverpat" ]] \
+				      || [[ "$kernel" =~ $kverpat ]]
 				then
 					overrides+=("${path}/${mod}")
 
@@ -129,7 +129,7 @@ installkernel()
 				fi
 
 				if [[ '*' = "$kverpat" \
-				      || "$kernel" =~ "$kverpat" ]]
+				      || "$kernel" =~ $kverpat ]]
 				then
 					external_dirs+=("$path")
 
