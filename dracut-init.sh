@@ -922,7 +922,7 @@ check_module() {
         fi
     fi
 
-    for _moddep in $(module_depends $_mod $_moddir); do
+    for _moddep in $(module_depends "$_mod" "$_moddir"); do
         # handle deps as if they were manually added
         [[ " $dracutmodules " == *\ $_mod\ * ]] \
             && [[ " $dracutmodules " != *\ $_moddep\ * ]] \
@@ -934,7 +934,7 @@ check_module() {
             && [[ " $force_add_dracutmodules " != *\ $_moddep\ * ]] \
             && force_add_dracutmodules+=" $_moddep "
         # if a module we depend on fail, fail also
-        if ! check_module $_moddep; then
+        if ! check_module "$_moddep"; then
             derror "dracut module '$_mod' depends on '$_moddep', which can't be installed"
             return 1
         fi
@@ -959,7 +959,7 @@ for_each_module_dir() {
         [[ -e $_moddir/install || -e $_moddir/installkernel || \
             -e $_moddir/module-setup.sh ]] || continue
         _mod=${_moddir##*/}; _mod=${_mod#[0-9][0-9]}
-        $_func $_mod 1 $_moddir
+        $_func "$_mod" 1 "$_moddir"
     done
 
     # Report any missing dracut modules, the user has specified
@@ -987,7 +987,7 @@ dracut_kernel_post() {
 
     # generate module dependencies for the initrd
     if [[ -d $initdir/lib/modules/$kernel ]] && \
-        ! depmod -a -b "$initdir" $kernel; then
+        ! depmod -a -b "$initdir" "$kernel"; then
         dfatal "\"depmod -a $kernel\" failed."
         exit 1
     fi
@@ -1025,7 +1025,7 @@ instmods() {
         return 0
     fi
 
-    $DRACUT_INSTALL \
+    "$DRACUT_INSTALL" \
         ${initdir:+-D "$initdir"} \
         ${dracutsysrootdir:+-r "$dracutsysrootdir"} \
         ${loginstall:+-L "$loginstall"} \
@@ -1037,9 +1037,9 @@ instmods() {
         -m "$@"
     _ret=$?
 
-    if (($_ret != 0)) && [[ -z "$_silent" ]]; then
+    if ((_ret != 0)) && [[ -z "$_silent" ]]; then
         derror "FAILED: " \
-            $DRACUT_INSTALL \
+            "$DRACUT_INSTALL" \
                 ${initdir:+-D "$initdir"} \
                 ${dracutsysrootdir:+-r "$dracutsysrootdir"} \
                 ${loginstall:+-L "$loginstall"} \
@@ -1073,8 +1073,9 @@ is_qemu_virtualized() {
     # 1 if a virt environment could not be detected
     # 255 if any error was encountered
     if type -P systemd-detect-virt >/dev/null 2>&1; then
-        vm=$(systemd-detect-virt --vm >/dev/null 2>&1)
-        (($? != 0)) && return 255
+        if ! vm=$(systemd-detect-virt --vm >/dev/null 2>&1); then
+            return 255
+        fi
         [[ $vm = "qemu" ]] && return 0
         [[ $vm = "kvm" ]] && return 0
         [[ $vm = "bochs" ]] && return 0
@@ -1082,7 +1083,7 @@ is_qemu_virtualized() {
 
     for i in /sys/class/dmi/id/*_vendor; do
         [[ -f $i ]] || continue
-        read vendor < $i
+        read -r vendor < "$i"
         [[  "$vendor" == "QEMU" ]] && return 0
         [[ "$vendor" == "Red Hat" ]] && return 0
         [[  "$vendor" == "Bochs" ]] && return 0
