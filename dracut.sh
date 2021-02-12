@@ -936,7 +936,7 @@ case $compress in
         compress="$DRACUT_COMPRESS_XZ --check=crc32 --lzma2=dict=1MiB -T0"
         ;;
     gzip|pigz)
-        if [[ "$compress" = pigz ]] || command -v $DRACUT_COMPRESS_PIGZ &>/dev/null; then
+        if [[ "$compress" = pigz ]] || command -v "$DRACUT_COMPRESS_PIGZ" &>/dev/null; then
             compress="$DRACUT_COMPRESS_PIGZ -9 -n -T -R"
         elif command -v gzip &>/dev/null && $DRACUT_COMPRESS_GZIP --help 2>&1 | grep -q rsyncable; then
             compress="$DRACUT_COMPRESS_GZIP -n -9 --rsyncable"
@@ -980,7 +980,7 @@ case "${drivers_dir}" in
             printf "%s\n" "dracut: -k/--kmoddir path must contain \"lib/modules\" as a parent of your kernel module directory,"
             printf "%s\n" "dracut: or modules may not be placed in the correct location inside the initramfs."
             printf "%s\n" "dracut: was given: ${drivers_dir}"
-            printf "%s\n" "dracut: expected: $(dirname ${drivers_dir})/lib/modules/${kernel}"
+            printf "%s\n" "dracut: expected: $(dirname "${drivers_dir}")/lib/modules/${kernel}"
             printf "%s\n" "dracut: Please move your modules into the correct directory structure and pass the new location,"
             printf "%s\n" "dracut: or set DRACUT_KMODDIR_OVERRIDE=1 to ignore this check."
             exit 1
@@ -1018,12 +1018,13 @@ trap 'exit 1;' SIGINT
 readonly initdir="${DRACUT_TMPDIR}/initramfs"
 mkdir "$initdir"
 
-if [[ $early_microcode = yes ]] || ( [[ $acpi_override = yes ]] && [[ -d $acpi_table_dir ]] ); then
+# shellcheck disable=SC2154
+if [[ $early_microcode = yes ]] || { [[ $acpi_override = yes ]] && [[ -d $acpi_table_dir ]] ;}; then
     readonly early_cpio_dir="${DRACUT_TMPDIR}/earlycpio"
     mkdir "$early_cpio_dir"
 fi
 
-[[ -n "$dracutsysrootdir" || "$noexec" ]] || export DRACUT_RESOLVE_LAZY="1"
+[[ "$dracutsysrootdir" ]] || [[ "$noexec" ]] || export DRACUT_RESOLVE_LAZY="1"
 
 if [[ $print_cmdline ]]; then
     stdloglvl=0
@@ -1033,11 +1034,13 @@ if [[ $print_cmdline ]]; then
 fi
 
 if [[ -f $dracutbasedir/dracut-version.sh ]]; then
-    . $dracutbasedir/dracut-version.sh
+    # shellcheck source=./dracut-version.sh
+    . "$dracutbasedir"/dracut-version.sh
 fi
 
 if [[ -f $dracutbasedir/dracut-init.sh ]]; then
-    . $dracutbasedir/dracut-init.sh
+    # shellcheck source=./dracut-init.sh
+    . "$dracutbasedir"/dracut-init.sh
 else
     printf "%s\n" "dracut: Cannot find $dracutbasedir/dracut-init.sh." >&2
     printf "%s\n" "dracut: Are you running from a git checkout?" >&2
@@ -1045,6 +1048,7 @@ else
     exit 1
 fi
 
+# shellcheck disable=SC2154
 if [[ $no_kernel != yes ]] && ! [[ -d $srcmods ]]; then
     printf "%s\n" "dracut: Cannot find module directory $srcmods" >&2
     printf "%s\n" "dracut: and --no-kernel was not specified" >&2
@@ -1052,30 +1056,30 @@ if [[ $no_kernel != yes ]] && ! [[ -d $srcmods ]]; then
 fi
 
 if ! [[ $print_cmdline ]]; then
-    inst $DRACUT_TESTBIN
+    inst "$DRACUT_TESTBIN"
     if ! $DRACUT_INSTALL ${initdir:+-D "$initdir"} ${dracutsysrootdir:+-r "$dracutsysrootdir"} -R "$DRACUT_TESTBIN" &>/dev/null; then
         unset DRACUT_RESOLVE_LAZY
         export DRACUT_RESOLVE_DEPS=1
     fi
-    rm -fr -- ${initdir}/*
+    rm -fr -- "${initdir:?}"/*
 fi
 
 dracutfunctions=$dracutbasedir/dracut-functions.sh
 export dracutfunctions
 
-(( ${#drivers_l[@]} )) && drivers="${drivers_l[@]}"
+(( ${#drivers_l[@]} )) && drivers="${drivers_l[*]}"
 drivers=${drivers/-/_}
 
-(( ${#add_drivers_l[@]} )) && add_drivers+=" ${add_drivers_l[@]} "
+(( ${#add_drivers_l[@]} )) && add_drivers+=" ${add_drivers_l[*]} "
 add_drivers=${add_drivers/-/_}
 
-(( ${#force_drivers_l[@]} )) && force_drivers+=" ${force_drivers_l[@]} "
+(( ${#force_drivers_l[@]} )) && force_drivers+=" ${force_drivers_l[*]} "
 force_drivers=${force_drivers/-/_}
 
-(( ${#omit_drivers_l[@]} )) && omit_drivers+=" ${omit_drivers_l[@]} "
+(( ${#omit_drivers_l[@]} )) && omit_drivers+=" ${omit_drivers_l[*]} "
 omit_drivers=${omit_drivers/-/_}
 
-(( ${#kernel_cmdline_l[@]} )) && kernel_cmdline+=" ${kernel_cmdline_l[@]} "
+(( ${#kernel_cmdline_l[@]} )) && kernel_cmdline+=" ${kernel_cmdline_l[*]} "
 
 omit_drivers_corrected=""
 for d in $omit_drivers; do
@@ -1093,10 +1097,10 @@ for ((i=0; i < ${#dracut_args[@]}; i++)); do
         #" keep vim happy
 done
 
-dinfo "Executing: $dracut_cmd ${dracut_args[@]}"
+dinfo "Executing: $dracut_cmd ${dracut_args[*]}"
 
 [[ $do_list = yes ]] && {
-    for mod in $dracutbasedir/modules.d/*; do
+    for mod in "$dracutbasedir"/modules.d/*; do
         [[ -d $mod ]] || continue;
         [[ -e $mod/install || -e $mod/installkernel || \
             -e $mod/module-setup.sh ]] || continue
@@ -1116,7 +1120,7 @@ abs_outfile=$(readlink -f "$outfile") && outfile="$abs_outfile"
 [[ -d $dracutsysrootdir$systemdutildir ]] \
     || systemdutildir=$(pkg-config systemd --variable=systemdutildir 2>/dev/null)
 
-if ! [[ -d "$dracutsysrootdir$systemdutildir" ]]; then
+if ! [[ -d $dracutsysrootdir$systemdutildir ]]; then
     [[ -e $dracutsysrootdir/lib/systemd/systemd-udevd ]] && systemdutildir=/lib/systemd
     [[ -e $dracutsysrootdir/usr/lib/systemd/systemd-udevd ]] && systemdutildir=/usr/lib/systemd
 fi
@@ -1124,7 +1128,7 @@ fi
 [[ -d $dracutsysrootdir$systemdutilconfdir ]] \
     || systemdutilconfdir=$(pkg-config systemd --variable=systemdutilconfdir 2>/dev/null)
 
-[[ -d "$dracutsysrootdir$systemdutilconfdir" ]] || systemdutilconfdir=/etc/systemd
+[[ -d $dracutsysrootdir$systemdutilconfdir ]] || systemdutilconfdir=/etc/systemd
 
 if [[ $no_kernel != yes ]] && [[ -d $srcmods ]]; then
     if ! [[ -f $srcmods/modules.dep ]]; then
@@ -1135,7 +1139,7 @@ if [[ $no_kernel != yes ]] && [[ -d $srcmods ]]; then
             dwarn "$srcmods/modules.dep is missing. Did you run depmod?"
         fi
     elif ! ( command -v gzip &>/dev/null && command -v xz &>/dev/null); then
-        read _mod < $srcmods/modules.dep
+        read -r _mod < "$srcmods"/modules.dep
         _mod=${_mod%%:*}
         if [[ -f $srcmods/"$_mod" ]]; then
             # Check, if kernel modules are compressed, and if we can uncompress them
