@@ -9,6 +9,8 @@ done
 rm -f -- /etc/lvm/lvm.conf
 
 udevadm control --reload
+udevadm settle
+
 # dmraid does not want symlinks in --disk "..."
 if [ -e /dev/hda ] ; then
     echo y|dmraid -f isw -C Test0 --type 1 --disk "/dev/hdb /dev/hdc"

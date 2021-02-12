@@ -7,6 +7,7 @@ done
 rm -f -- /etc/lvm/lvm.conf
 modprobe btrfs
 udevadm control --reload
+udevadm settle
 set -e
 # save a partition at the beginning for future flagging purposes
 sfdisk /dev/sda <<EOF
