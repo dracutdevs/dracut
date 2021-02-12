@@ -18,7 +18,7 @@
 
 
 dwarning() {
-    echo "Warning: $@" >&2
+    echo "Warning: $*" >&2
 }
 
 dinfo() {
@@ -26,7 +26,7 @@ dinfo() {
 }
 
 derror() {
-    echo "Error: $@" >&2
+    echo "Error: $*" >&2
 }
 
 usage() {
@@ -61,7 +61,7 @@ while (($# > 0)); do
         --nooverlay) no_overlay=yes;shift;;
         --noimagedir) no_imagedir=yes;shift;;
         -h|--help) usage; exit 1 ;;
-        --debug) debug="yes";;
+        --debug) export debug="yes";;
         -v|--verbose) beverbose="yes";;
         -*) printf "\nUnknown option: %s\n\n" "$1" >&2; usage; exit 1;;
         *) break ;;
@@ -104,7 +104,7 @@ if [[ ! $no_overlay ]]; then
     ofile="$imagedir/90-overlay.img"
     dinfo "Creating image $ofile from directory $overlay"
     type pigz &>/dev/null && gzip=pigz || gzip=gzip
-    ( cd "$overlay"; find . |cpio --quiet -H newc -o |$gzip -9 > "$ofile"; )
+    ( cd "$overlay" || return 1 ; find . |cpio --quiet -H newc -o |$gzip -9 > "$ofile"; )
 fi
 
 if [[ ! $no_imagedir ]]; then
@@ -113,7 +113,7 @@ if [[ ! $no_imagedir ]]; then
     done
 fi
 
-images+=($@)
+images+=( "$@" )
 
 dinfo "Using base image $baseimage"
 cat -- "$baseimage" > "$outfile"
