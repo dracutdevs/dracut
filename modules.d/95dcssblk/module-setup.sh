@@ -5,14 +5,20 @@
 # called by dracut
 check() {
     local _arch=${DRACUT_ARCH:-$(uname -m)}
-    [ "$_arch" = "s390" -o "$_arch" = "s390x" ] || return 1
+    [[ "$_arch" = "s390" ]] || [[ "$_arch" = "s390x" ]] || return 1
     return 0
 }
 
 # called by dracut
 installkernel() {
-    if [ -e /sys/devices/dcssblk/*/block/dcssblk* ];then
-	hostonly='' instmods dcssblk
+    if [[ $hostonly ]]; then
+        for dev in /sys/devices/dcssblk/*/block/dcssblk* ; do
+            [[ -e $dev ]] || continue
+            hostonly='' instmods dcssblk
+            return $?
+        done
+    else
+        hostonly='' instmods dcssblk
     fi
 }
 
