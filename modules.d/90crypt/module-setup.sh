@@ -136,7 +136,7 @@ install() {
                     fi
                 done
             fi
-        done < $dracutsysrootdir/etc/crypttab > $initdir/etc/crypttab
+        done < "$dracutsysrootdir"/etc/crypttab > "$initdir"/etc/crypttab
         mark_hostonly /etc/crypttab
     fi
 
