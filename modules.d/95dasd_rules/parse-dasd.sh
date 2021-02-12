@@ -45,7 +45,7 @@ EOF
 if [[ -f /sys/firmware/ipl/ipl_type &&
             $(</sys/firmware/ipl/ipl_type) = "ccw" ]] ; then
     (
-        local _ccw=$(cat /sys/firmware/ipl/device)
+        _ccw=$(cat /sys/firmware/ipl/device)
 
         create_udev_rule $_ccw
     )
@@ -91,7 +91,7 @@ for dasd_arg in $(getargs rd.dasd=); do
                     shift
                     IFS="$OLDIFS"
                     for dev in $(seq $(( 16#$start )) $(( 16#$end )) ) ; do
-                        create_udev_rule $(printf "%s.%04x" "$prefix" "$dev")
+                        create_udev_rule "$(printf "%s.%04x" "$prefix" "$dev")"
                     done
                     ;;
                 *)
@@ -108,7 +108,7 @@ for dasd_arg in $(getargs rd.dasd=); do
                     shift
                     chan=$1
                     IFS="$OLDIFS"
-                    create_udev_rule $(printf "%01x.%01x.%04x" $(( 16#$sid )) $(( 16#$ssid )) $(( 16#$chan )) )
+                    create_udev_rule "$(printf "%01x.%01x.%04x" $(( 16#$sid )) $(( 16#$ssid )) $(( 16#$chan )) )"
                     shift
                     ;;
             esac
