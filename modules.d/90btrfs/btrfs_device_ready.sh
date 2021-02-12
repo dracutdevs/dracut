@@ -15,5 +15,4 @@ btrfs_check_complete() {
     return 0
 }
 
-btrfs_check_complete $1
-exit $?
+btrfs_check_complete "$1"
