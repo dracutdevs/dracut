@@ -5,6 +5,7 @@ for x in 64-lvm.rules 70-mdadm.rules 99-mount-rules; do
 done
 modprobe btrfs
 udevadm control --reload
+udevadm settle
 # save a partition at the beginning for future flagging purposes
 sfdisk -X gpt /dev/sda <<EOF
 ,10M

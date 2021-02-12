@@ -6,6 +6,7 @@ for x in 64-lvm.rules 70-mdadm.rules 99-mount-rules; do
 done
 rm -f -- /etc/lvm/lvm.conf
 udevadm control --reload
+udevadm settle
 set -e
 # save a partition at the beginning for future flagging purposes
 sfdisk /dev/sda <<EOF

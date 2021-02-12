@@ -5,6 +5,8 @@ for x in 64-lvm.rules 70-mdadm.rules 99-mount-rules; do
 done
 rm -f -- /etc/lvm/lvm.conf
 udevadm control --reload
+udevadm settle
+
 mkfs.ext3 -j -L singleroot -F /dev/sda && \
 mkdir -p /sysroot && \
 mount /dev/sda /sysroot && \
