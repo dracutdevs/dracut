@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-__DRACUT_LOGGER__=1
+export __DRACUT_LOGGER__=1
 
 
 ## @brief Logging facility module for dracut both at build- and boot-time.
@@ -114,13 +114,13 @@ dlog_init() {
 
     if [ -z "$fileloglvl" ]; then
         [ -w "$logfile" ] && fileloglvl=4 || fileloglvl=0
-    elif (( $fileloglvl > 0 )); then
+    elif (( fileloglvl > 0 )); then
         if [[ $logfile ]]; then
             __oldumask=$(umask)
             umask 0377
-            ! [ -e "$logfile" ] && >"$logfile"
-            umask $__oldumask
-            if [ -w "$logfile" -a -f "$logfile" ]; then
+            ! [ -e "$logfile" ] && : >"$logfile"
+            umask "$__oldumask"
+            if [[ -w $logfile ]] && [[ -f $logfile ]]; then
             # Mark new run in the log file
                 echo >>"$logfile"
                 if command -v date >/dev/null; then
@@ -138,12 +138,12 @@ dlog_init() {
         fi
     fi
 
-    if (( $UID  != 0 )); then
+    if (( UID  != 0 )); then
         kmsgloglvl=0
         sysloglvl=0
     fi
 
-    if (( $sysloglvl > 0 )); then
+    if (( sysloglvl > 0 )); then
         if [[ -d /run/systemd/journal ]] \
             && type -P systemd-cat &>/dev/null \
             && systemctl --quiet is-active systemd-journald.socket &>/dev/null \
@@ -153,7 +153,7 @@ dlog_init() {
             readonly _dlogfd=15
             systemd-cat -t 'dracut' --level-prefix=true <"$_systemdcatfile" &
             exec 15>"$_systemdcatfile"
-        elif ! [ -S /dev/log -a -w /dev/log ] || ! command -v logger >/dev/null; then
+        elif ! [[ -S /dev/log ]] && [[ -w /dev/log ]] || ! command -v logger >/dev/null; then
             # We cannot log to syslog, so turn this facility off.
             kmsgloglvl=$sysloglvl
             sysloglvl=0
@@ -162,7 +162,7 @@ dlog_init() {
         fi
     fi
 
-    if (($sysloglvl > 0)) || (($kmsgloglvl > 0 )); then
+    if (( sysloglvl > 0 )) || (( kmsgloglvl > 0 )); then
         if [ -n "$dracutbasedir" ]; then
             readonly syslogfacility=user
         else
@@ -173,40 +173,40 @@ dlog_init() {
 
     local lvl; local maxloglvl_l=0
     for lvl in $stdloglvl $sysloglvl $fileloglvl $kmsgloglvl; do
-        (( $lvl > $maxloglvl_l )) && maxloglvl_l=$lvl
+        (( lvl > maxloglvl_l )) && maxloglvl_l=$lvl
     done
     readonly maxloglvl=$maxloglvl_l
     export maxloglvl
 
 
-    if (($stdloglvl < 6)) && (($kmsgloglvl < 6)) && (($fileloglvl < 6)) && (($sysloglvl < 6)); then
+    if (( stdloglvl < 6 )) && ((kmsgloglvl < 6)) && ((fileloglvl < 6)) && ((sysloglvl < 6)); then
         unset dtrace
         dtrace() { :; };
     fi
 
-    if (($stdloglvl < 5)) && (($kmsgloglvl < 5)) && (($fileloglvl < 5)) && (($sysloglvl < 5)); then
+    if ((stdloglvl < 5)) && ((kmsgloglvl < 5)) && ((fileloglvl < 5)) && ((sysloglvl < 5)); then
         unset ddebug
         ddebug() { :; };
     fi
 
-    if (($stdloglvl < 4)) && (($kmsgloglvl < 4)) && (($fileloglvl < 4)) && (($sysloglvl < 4)); then
+    if ((stdloglvl < 4)) && ((kmsgloglvl < 4)) && ((fileloglvl < 4)) && ((sysloglvl < 4)); then
         unset dinfo
         dinfo() { :; };
     fi
 
-    if (($stdloglvl < 3)) && (($kmsgloglvl < 3)) && (($fileloglvl < 3)) && (($sysloglvl < 3)); then
+    if ((stdloglvl < 3)) && ((kmsgloglvl < 3)) && ((fileloglvl < 3)) && ((sysloglvl < 3)); then
         unset dwarn
         dwarn() { :; };
         unset dwarning
         dwarning() { :; };
     fi
 
-    if (($stdloglvl < 2)) && (($kmsgloglvl < 2)) && (($fileloglvl < 2)) && (($sysloglvl < 2)); then
+    if ((stdloglvl < 2)) && ((kmsgloglvl < 2)) && ((fileloglvl < 2)) && ((sysloglvl < 2)); then
         unset derror
         derror() { :; };
     fi
 
-    if (($stdloglvl < 1)) && (($kmsgloglvl < 1)) && (($fileloglvl < 1)) && (($sysloglvl < 1)); then
+    if ((stdloglvl < 1)) && ((kmsgloglvl < 1)) && ((fileloglvl < 1)) && ((sysloglvl < 1)); then
         unset dfatal
         dfatal() { :; };
     fi
@@ -241,7 +241,7 @@ _lvl2char() {
 # @retval 0 if @a lvl is correct.
 # @result Echoes logger priority.
 _lvl2syspri() {
-    printf $syslogfacility.
+    printf "%s" -- "$syslogfacility."
     case "$1" in
         1) echo crit;;
         2) echo error;;
@@ -288,7 +288,7 @@ _dlvl2syslvl() {
         *) return 1;;
     esac
 
-    [ "$syslogfacility" = user ] && echo $((8+$lvl)) || echo $((24+$lvl))
+    [ "$syslogfacility" = user ] && echo $(( 8 + lvl )) || echo $(( 24 + lvl ))
 }
 
 ## @brief Prints to stderr and/or writes to file, to syslog and/or /dev/kmsg
@@ -323,22 +323,22 @@ _do_dlog() {
     local msg="$*"
     local lmsg="$lvlc: $*"
 
-    (( $lvl <= $stdloglvl )) && printf -- 'dracut: %s\n' "$msg" >&2
+    (( lvl <= stdloglvl )) && printf -- 'dracut: %s\n' "$msg" >&2
 
-    if (( $lvl <= $sysloglvl )); then
+    if (( lvl <= sysloglvl )); then
         if [[ "$_dlogfd" ]]; then
-            printf -- "<%s>%s\n" "$(($(_dlvl2syslvl $lvl) & 7))" "$msg" >&$_dlogfd
+            printf -- "<%s>%s\n" "$(($(_dlvl2syslvl "$lvl") & 7))" "$msg" >&$_dlogfd
         else
-            logger -t "dracut[$$]" -p $(_lvl2syspri $lvl) -- "$msg"
+            logger -t "dracut[$$]" -p "$(_lvl2syspri "$lvl")" -- "$msg"
         fi
     fi
 
-    if (( $lvl <= $fileloglvl )) && [[ -w "$logfile" ]] && [[ -f "$logfile" ]]; then
+    if (( lvl <= fileloglvl )) && [[ -w "$logfile" ]] && [[ -f "$logfile" ]]; then
         echo "$lmsg" >>"$logfile"
     fi
 
-    (( $lvl <= $kmsgloglvl )) && \
-        echo "<$(_dlvl2syslvl $lvl)>dracut[$$] $msg" >/dev/kmsg
+    (( lvl <= kmsgloglvl )) && \
+        echo "<$(_dlvl2syslvl "$lvl")>dracut[$$] $msg" >/dev/kmsg
 }
 
 ## @brief Internal helper function for _do_dlog()
@@ -359,12 +359,12 @@ _do_dlog() {
 # echo "This is a warning" | dwarn
 dlog() {
     [ -z "$maxloglvl" ] && return 0
-    (( $1 <= $maxloglvl )) || return 0
+    (( $1 <= maxloglvl )) || return 0
 
     if (( $# > 1 )); then
         _do_dlog "$@"
     else
-        while read line || [ -n "$line" ]; do
+        while read -r line || [ -n "$line" ]; do
             _do_dlog "$1" "$line"
         done
     fi
