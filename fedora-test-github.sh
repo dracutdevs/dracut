@@ -2,7 +2,7 @@
 
 set -ex
 
-[[ -d ${0%/*} ]] && cd ${0%/*}
+[[ -d ${0%/*} ]] && cd "${0%/*}"
 
 RUN_ID="$1"
 TESTS=$2
@@ -21,7 +21,7 @@ if ! [[ $TESTS ]]; then
     # `Provides:` attribute of the built RPM and can break dependency tree when
     # installed
     [[ -d .git ]] && git fetch --tags && git describe --tags
-    make -j$NCPU all syncheck rpm logtee
+    make -j "$NCPU" all syncheck rpm logtee
 else
     if [[ $TESTS == "99" ]]; then
         [[ -d .git ]] && git fetch --tags && git describe --tags
@@ -30,15 +30,15 @@ else
         make_docs=no
     fi
 
-    make -j$NCPU enable_documentation=$make_docs all logtee
+    make -j "$NCPU" enable_documentation=$make_docs all logtee
 
     cd test
 
     time LOGTEE_TIMEOUT_MS=590000 make \
          enable_documentation=$make_docs \
-         KVERSION=$(rpm -qa kernel --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' | sort -rn | head -1) \
+         KVERSION="$(rpm -qa kernel --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' | sort -rn | head -1)" \
          DRACUT_NO_XATTR=1 \
-         TEST_RUN_ID=$RUN_ID \
+         TEST_RUN_ID="$RUN_ID" \
          ${TESTS:+TESTS="$TESTS"} \
          -k V=1 \
          check
