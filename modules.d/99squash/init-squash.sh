@@ -1,61 +1,29 @@
-#!/bin/bash
+#!/bin/sh
 PATH=/bin:/sbin
 
-SQUASH_IMG=/squash/root.img
-SQUASH_MNT=/squash/root
+# Basic mounts for mounting a squash image
+mkdir /proc /sys /dev /run
+mount -t proc -o nosuid,noexec,nodev proc /proc
+mount -t sysfs -o nosuid,noexec,nodev sysfs /sys
+mount -t devtmpfs -o mode=755,noexec,nosuid,strictatime devtmpfs /dev
+mount -t tmpfs -o mode=755,nodev,nosuid,strictatime tmpfs /run
 
-# Following mount points are neccessary for mounting a squash image
-
-[ ! -d /proc/self ] && \
-    mount -t proc -o nosuid,noexec,nodev proc /proc
-
-[ ! -d /sys/kernel ] && \
-    mount -t sysfs -o nosuid,noexec,nodev sysfs /sys
-
-[ ! -e /dev/loop-control ] && \
-    mount -t devtmpfs -o mode=0755,noexec,nosuid,strictatime devtmpfs /dev
-
-# Need a loop device backend, overlayfs, and squashfs module
+# Load required modules
 modprobe loop
-if [ $? != 0 ]; then
-    echo "Unable to setup loop module"
-fi
-
 modprobe squashfs
-if [ $? != 0 ]; then
-    echo "Unable to setup squashfs module"
-fi
-
 modprobe overlay
-if [ $? != 0 ]; then
-    echo "Unable to setup overlay module"
-fi
 
-[ ! -d "$SQUASH_MNT" ] && \
-	mkdir -m 0755 -p $SQUASH_MNT
+# Mount the squash image
+mount -t ramfs ramfs /squash
+mkdir -p /squash/root /squash/overlay/upper /squash/overlay/work
+mount -t squashfs -o ro,loop /squash-root.img /squash/root
 
-# Mount the squashfs image
-mount -t squashfs -o ro,loop $SQUASH_IMG $SQUASH_MNT
+# Setup new root overlay
+mkdir /newroot
+mount -t overlay overlay -o lowerdir=/squash/root,upperdir=/squash/overlay/upper,workdir=/squash/overlay/work/ /newroot/
 
-if [ $? != 0 ]; then
-    echo "Unable to mount squashed initramfs image"
-fi
+# Move all mount points to new root to prepare chroot
+mount --move /squash /newroot/squash
 
-for file in $SQUASH_MNT/*; do
-	file=${file#$SQUASH_MNT/}
-	lowerdir=$SQUASH_MNT/$file
-	workdir=/squash/overlay-work/$file
-	upperdir=/$file
-	mntdir=/$file
-
-	mkdir -m 0755 -p $workdir
-	mkdir -m 0755 -p $mntdir
-
-	mount -t overlay overlay -o\
-		lowerdir=$lowerdir,upperdir=$upperdir,workdir=$workdir $mntdir
-done
-
-exec /init.orig
-
-echo "Something went wrong when trying to exec original init!"
-exit 1
+# Jump to new root and clean setup files
+SYSTEMD_IN_INITRD=lenient exec switch_root /newroot /init

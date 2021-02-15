@@ -19,56 +19,36 @@ depends() {
 }
 
 installpost() {
-    local squash_candidate=( "usr" "etc" )
-
-    # shellcheck disable=SC2174
-    mkdir -m 0755 -p "$squash_dir"
-    for folder in "${squash_candidate[@]}"; do
-        mv "$initdir/$folder" "$squash_dir/$folder"
+    # Move everything under $initdir except $squash_dir
+    # itself into squash image
+    for i in "$initdir"/*; do
+        [[ "$squash_dir" == "$i"/* ]] || mv "$i" "$squash_dir"/
     done
 
-    # Move some files out side of the squash image, including:
-    # - Files required to boot and mount the squashfs image
-    # - Files need to be accessible without mounting the squash image
-    # - Initramfs marker
-    for file in \
-        "$squash_dir"/usr/lib/dracut/* \
-        "$squash_dir"/etc/initrd-release
-    do
+    # Create mount points for squash loader
+    mkdir -p "$initdir"/squash/
+    mkdir -p "$squash_dir"/squash/
+
+    # Copy dracut spec files out side of the squash image
+    # so dracut rebuild and lsinitrd can work
+    for file in "$squash_dir"/usr/lib/dracut/*; do
         [[ -f $file ]] || continue
         DRACUT_RESOLVE_DEPS=1 dracutsysrootdir="$squash_dir" inst "${file#$squash_dir}"
-        rm "$file"
     done
 
-    # Install required files for the squash image setup script.
-    inst_multiple modprobe mount mkdir ln echo rm
-
-    mv "$initdir"/init "$initdir"/init.orig
-    inst "$moddir"/init-squash.sh /init
-    inst "$moddir"/clear-squash.sh /squash/clear-squash.sh
-
-    # Keep systemctl outsite if we need switch root
-    if [[ ! -f "$initdir/lib/dracut/no-switch-root" ]]; then
-      inst "systemctl"
-    fi
-
-    # Remove duplicated files
-    for folder in "${squash_candidate[@]}"; do
-        find "$initdir/$folder/" -not -type d \
-            -exec bash -c 'mv -f "$squash_dir${1#$initdir}" "$1"' -- "{}" \;
-    done
-
-    # Install required modules for the squash image init script.
+    # Install required modules and binaries for the squash image init script.
+    DRACUT_RESOLVE_DEPS=1 inst_multiple sh mount modprobe mkdir switch_root
     hostonly="" instmods "loop" "squashfs" "overlay"
     dracut_kernel_post
+
+    # Install squash image init script.
+    ln -sfn /usr/bin "$initdir/bin"
+    ln -sfn /usr/sbin "$initdir/sbin"
+    inst_simple "$moddir"/init-squash.sh /init
 }
 
 install() {
     if [[ $DRACUT_SQUASH_POST_INST ]]; then
         installpost
-        return
     fi
-
-    inst "$moddir/squash-mnt-clear.service" "$systemdsystemunitdir/squash-mnt-clear.service"
-    $SYSTEMCTL -q --root "$initdir" add-wants initrd-switch-root.target squash-mnt-clear.service
 }
