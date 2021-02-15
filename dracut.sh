@@ -2020,49 +2020,11 @@ if [[ $hostonly_cmdline == "yes" ]] ; then
 fi
 
 if dracut_module_included "squash"; then
-    dinfo "*** Install squash loader ***"
     readonly squash_dir="$initdir/squash/root"
     readonly squash_img="$initdir/squash/root.img"
-    readonly squash_candidate=( "usr" "etc" )
 
-    # shellcheck disable=SC2174
-    mkdir -m 0755 -p "$squash_dir"
-    for folder in "${squash_candidate[@]}"; do
-        mv "$initdir/$folder" "$squash_dir/$folder"
-    done
-
-    # Move some files out side of the squash image, including:
-    # - Files required to boot and mount the squashfs image
-    # - Files need to be accessible without mounting the squash image
-    # - Initramfs marker
-    for file in \
-        "$squash_dir"/usr/lib/modules/*/modules.* \
-        "$squash_dir"/usr/lib/dracut/* \
-        "$squash_dir"/etc/initrd-release
-    do
-        [[ -f $file ]] || continue
-        DRACUT_RESOLVE_DEPS=1 dracutsysrootdir="$squash_dir" inst "${file#$squash_dir}"
-        rm "$file"
-    done
-
-    mv "$initdir"/init "$initdir"/init.stock
-    ln -s squash/init.sh "$initdir"/init
-
-    # Reinstall required files for the squash image setup script.
-    # We have moved them inside the squashed image, but they need to be
-    # accessible before mounting the image.
-    inst_multiple "echo" "sh" "mount" "modprobe" "mkdir"
-    hostonly="" instmods "loop" "squashfs" "overlay"
-    # Only keep systemctl outsite if we need switch root
-    if [[ ! -f "$initdir/lib/dracut/no-switch-root" ]]; then
-      inst "systemctl"
-    fi
-
-    # Remove duplicated files
-    for folder in "${squash_candidate[@]}"; do
-        find "$initdir/$folder/" -not -type d \
-            -exec bash -c 'mv -f "$squash_dir${1#$initdir}" "$1"' -- "{}" \;
-    done
+    dinfo "*** Install squash loader ***"
+    DRACUT_SQUASH_POST_INST=1 module_install "squash"
 fi
 
 if [[ $kernel_only != yes ]]; then
