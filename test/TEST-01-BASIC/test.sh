@@ -14,7 +14,7 @@ test_run() {
         -watchdog i6300esb -watchdog-action poweroff \
         -append "panic=1 systemd.crash_reboot root=LABEL=dracut rw systemd.log_level=debug systemd.log_target=console rd.retry=3 rd.debug console=ttyS0,115200n81 rd.shell=0 $DEBUGFAIL" \
         -initrd $TESTDIR/initramfs.testing || return 1
-    grep -F -m 1 -q dracut-root-block-success $TESTDIR/result || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success $TESTDIR/result || return 1
 }
 
 test_setup() {
@@ -79,7 +79,7 @@ test_setup() {
         -drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext3 \
         -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
-    grep -F -m 1 -q dracut-root-block-created $TESTDIR/root.ext3 || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/root.ext3 || return 1
 
 
     (

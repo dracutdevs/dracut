@@ -20,7 +20,7 @@ client_run() {
         -append "panic=1 systemd.crash_reboot $* root=LABEL=root rw debug rd.retry=5 rd.debug console=ttyS0,115200n81 selinux=0 rd.info rd.shell=0 $DEBUGFAIL" \
         -initrd $TESTDIR/initramfs.testing
 
-    if ! grep -F -m 1 -q dracut-root-block-success $TESTDIR/marker.img; then
+    if ! grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success $TESTDIR/marker.img; then
         echo "CLIENT TEST END: $@ [FAIL]"
         return 1;
     fi
@@ -112,7 +112,7 @@ test_setup() {
         -drive format=raw,index=2,media=disk,file=$TESTDIR/disk2 \
         -append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
-    grep -F -m 1 -q dracut-root-block-created $TESTDIR/marker.img || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/marker.img || return 1
     eval $(grep -F --binary-files=text -m 1 MD_UUID $TESTDIR/marker.img)
 
     if [[ -z $MD_UUID ]]; then

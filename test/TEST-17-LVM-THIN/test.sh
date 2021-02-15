@@ -11,7 +11,7 @@ test_run() {
         -drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext2 \
         -append "panic=1 systemd.crash_reboot root=/dev/dracut/root rw rd.auto=1 quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug rd.shell=0 $DEBUGFAIL" \
         -initrd $TESTDIR/initramfs.testing
-    grep -F -m 1 -q dracut-root-block-success $TESTDIR/root.ext2 || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success $TESTDIR/root.ext2 || return 1
 }
 
 test_setup() {
@@ -72,7 +72,7 @@ test_setup() {
     $testdir/run-qemu -drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext2 \
                       -append "root=/dev/fakeroot rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
                       -initrd $TESTDIR/initramfs.makeroot  || return 1
-    grep -F -m 1 -q dracut-root-block-created $TESTDIR/root.ext2 || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/root.ext2 || return 1
     (
         export initdir=$TESTDIR/overlay
         . $basedir/dracut-init.sh

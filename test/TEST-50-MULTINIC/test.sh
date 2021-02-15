@@ -310,7 +310,7 @@ test_setup() {
         -drive format=raw,index=0,media=disk,file=$TESTDIR/server.ext3 \
         -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
-    grep -F -m 1 -q dracut-root-block-created $TESTDIR/server.ext3 || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/server.ext3 || return 1
     rm -fr "$TESTDIR"/overlay
 
     # Make an overlay with needed tools for the test harness
