@@ -169,7 +169,7 @@ list_files()
 
 list_squash_content()
 {
-    SQUASH_IMG="squash/root.img"
+    SQUASH_IMG="squash-root.img"
     SQUASH_TMPFILE="$TMPDIR/initrd.root.sqsh"
 
     $CAT "$image" 2>/dev/null | cpio --extract --verbose --quiet --to-stdout -- \

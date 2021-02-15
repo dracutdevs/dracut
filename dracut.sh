@@ -2057,8 +2057,8 @@ fi
 
 if dracut_module_included "squash"; then
     readonly squash_dir="$initdir/squash/root"
-    readonly squash_img="$initdir/squash/root.img"
-
+    readonly squash_img="$initdir/squash-root.img"
+    mkdir -p "$squash_dir"
     dinfo "*** Install squash loader ***"
     DRACUT_SQUASH_POST_INST=1 module_install "squash"
 fi
