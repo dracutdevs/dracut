@@ -2033,12 +2033,22 @@ fi
 
 if dracut_module_included "squash"; then
     dinfo "*** Squashing the files inside the initramfs ***"
+    declare squash_compress_arg
+    # shellcheck disable=SC2086
+    if [[ $compress ]]; then
+        if ! mksquashfs /dev/null "$DRACUT_TMPDIR"/.squash-test.img -no-progress -comp $compress &>/dev/null; then
+            dwarn "mksquashfs doesn't support compressor '$compress', failing back to default compressor."
+        else
+            squash_compress_arg="$compress"
+        fi
+    fi
+
+    # shellcheck disable=SC2086
     if ! mksquashfs "$squash_dir" "$squash_img" \
-        -no-xattrs -no-exports -noappend -always-use-fragments \
-        -comp xz -Xdict-size 100% -no-progress \
-        > /dev/null; then
-        dfatal "dracut: Failed making squash image"
-        exit 1
+        -no-xattrs -no-exports -noappend -no-recovery -always-use-fragments \
+        -no-progress ${squash_compress_arg:+-comp $squash_compress_arg} 1> /dev/null; then
+            dfatal "dracut: Failed making squash image"
+            exit 1
     fi
 
     rm -rf "$squash_dir"
