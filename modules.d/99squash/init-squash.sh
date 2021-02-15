@@ -3,9 +3,6 @@ PATH=/bin:/sbin
 
 SQUASH_IMG=/squash/root.img
 SQUASH_MNT=/squash/root
-SQUASH_MNT_REC=/squash/mounts
-
-echo $SQUASH_MNT > $SQUASH_MNT_REC
 
 # Following mount points are neccessary for mounting a squash image
 
@@ -34,9 +31,6 @@ if [ $? != 0 ]; then
     echo "Unable to setup overlay module"
 fi
 
-# These modules are no longer needed, delete to save memory
-rm -rf /usr/lib/modules/
-
 [ ! -d "$SQUASH_MNT" ] && \
 	mkdir -m 0755 -p $SQUASH_MNT
 
@@ -59,8 +53,6 @@ for file in $SQUASH_MNT/*; do
 
 	mount -t overlay overlay -o\
 		lowerdir=$lowerdir,upperdir=$upperdir,workdir=$workdir $mntdir
-
-	echo $mntdir >> $SQUASH_MNT_REC
 done
 
 exec /init.orig
