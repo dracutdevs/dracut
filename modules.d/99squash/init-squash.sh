@@ -59,3 +59,8 @@ for file in $SQUASH_MNT/*; do
 
 	echo $mntdir >> $SQUASH_MNT_REC
 done
+
+exec /init.orig
+
+echo "Something went wrong when trying to exec original init!"
+exit 1

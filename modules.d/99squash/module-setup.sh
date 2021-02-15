@@ -48,11 +48,10 @@ installpost() {
     # Install required files for the squash image setup script.
     hostonly="" instmods "loop" "squashfs" "overlay"
     inst_multiple modprobe mount mkdir ln echo
-    inst "$moddir"/setup-squash.sh /squash/setup-squash.sh
-    inst "$moddir"/clear-squash.sh /squash/clear-squash.sh
 
     mv "$initdir"/init "$initdir"/init.orig
-    inst "$moddir"/init.sh "$initdir"/init
+    inst "$moddir"/init-squash.sh /init
+    inst "$moddir"/clear-squash.sh /squash/clear-squash.sh
 
     # Keep systemctl outsite if we need switch root
     if [[ ! -f "$initdir/lib/dracut/no-switch-root" ]]; then
