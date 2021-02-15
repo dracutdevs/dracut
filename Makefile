@@ -45,7 +45,7 @@ man8pages = dracut.8 \
 
 manpages = $(man1pages) $(man5pages) $(man7pages) $(man8pages)
 
-.PHONY: install clean archive rpm srpm testimage test all check AUTHORS doc dracut-version.sh
+.PHONY: install clean archive rpm srpm testimage test all check AUTHORS CONTRIBUTORS doc dracut-version.sh
 
 all: dracut-version.sh dracut.pc dracut-install skipcpio/skipcpio
 
@@ -283,6 +283,9 @@ efi: all
 
 AUTHORS:
 	git shortlog  --numbered --summary -e |while read a rest || [ -n "$$rest" ]; do echo $$rest;done > AUTHORS
+
+CONTRIBUTORS:
+	@git shortlog $(DRACUT_MAIN_VERSION).. --numbered --summary -e |while read a rest || [ -n "$$rest" ]; do echo "- $$rest";done
 
 dracut.html.sign: dracut-$(DRACUT_MAIN_VERSION).tar.xz dracut.html
 	gpg-sign-all dracut-$(DRACUT_MAIN_VERSION).tar.xz dracut.html
