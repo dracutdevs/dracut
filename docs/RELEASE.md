@@ -1,15 +1,65 @@
 # Conducting A Successful Release
-This documents should contain the necessary steps to conduct a successful release.
-TODO Harald,Daniel fill in every step required for doing release in their correct order.
-( Replace the sample steps with relevant actual steps ) 
 
-1. Add all items to NEWS (Should outline the step required)
-2. Update the contributors list in NEWS (Should outline the step required)
-3. Update the time and place in NEWS (Should outline the step required)
-4. Tag the release (version=05X && git tag -s "${version}" -m "dracut ${version}")
-5. Make sure that the version string and package string match(Should outline the step required)
-6. Close the github milestone and open a new one (https://github.com/dracutdevs/dracut/milestones)
-7. "Draft" a new release on github (https://github.com/dracutdevs/dracut/releases/new)
-8. Ensure that announcement was sent and reached the linux-initramfs mailinglist (https://www.spinics.net/lists/linux-initramfs/)
-9. Update description on dracuts lobby on gitter.
-9. Push commits to relevant branches (RHEL/SUSE)
+This documents contains the necessary steps to conduct a successful release.
+
+1. Add all items to `NEWS.md`
+
+    Get a first template with [`clog`](https://github.com/clog-tool/clog-cli)
+    ```console
+    $ clog -r https://github.com/dracutdevs/dracut
+    ```
+
+2. Update the contributors list in NEWS.md
+
+   Produce the list with:
+   ```console
+   $ make CONTRIBUTORS
+   ```
+
+   Append the list to the section in `NEWS.md`
+
+3. Update AUTHORS
+
+   ```console
+   $ make AUTHORS
+   ```
+
+4. Check in AUTHORS and NEWS.md
+
+   ```console
+   $ git ci -m "docs: update NEWS.md and AUTHORS" NEWS.md AUTHORS
+   ```
+
+5. Tag the release
+
+   ```console
+   $ VERSION=052
+   $ git tag -s "$VERSION"
+   ```
+
+   Add the section from `NEWS.md` to the git tag message.
+
+6. Push git to kernel.org
+
+   With:
+   ```console
+   $ git remote add kernelorg ssh://gitolite@ra.kernel.org/pub/scm/boot/dracut/dracut.git
+   ```
+
+   Push to kernel.org git:
+   ```console
+   $ git push kernelorg master
+   ```
+
+
+7. Sign and upload tarballs to kernel.org
+
+   ```console
+   $ make upload
+   ```
+
+   This requires `kup` and a kernel.org account.
+
+
+8. Close the github milestone and open a new one (https://github.com/dracutdevs/dracut/milestones)
+9. Ensure that announcement was sent and reached the linux-initramfs mailinglist (https://www.spinics.net/lists/linux-initramfs/)
