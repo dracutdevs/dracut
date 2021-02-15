@@ -22,7 +22,7 @@ client_run() {
         -append "panic=1 systemd.crash_reboot root=LABEL=dracut $client_opts loglevel=7 rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug rd.shell=0 $DEBUGFAIL" \
         -initrd $TESTDIR/initramfs.testing
 
-    if ! grep -F -m 1 -q dracut-root-block-success $TESTDIR/result; then
+    if ! grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success $TESTDIR/result; then
         echo "CLIENT TEST END: $test_name [FAILED]"
         return 1
     fi
@@ -109,7 +109,7 @@ test_setup() {
         -drive format=raw,index=1,media=disk,file=$TESTDIR/usr.btrfs \
         -append "root=/dev/dracut/root rw rootfstype=btrfs quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
-    if ! grep -F -m 1 -q dracut-root-block-created $TESTDIR/root.btrfs; then
+    if ! grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/root.btrfs; then
         echo "Could not create root filesystem"
         return 1
     fi

@@ -67,7 +67,7 @@ run_client() {
         -acpitable file=ibft.table \
         -append "panic=1 systemd.crash_reboot rw rd.auto rd.retry=50 console=ttyS0,115200n81 selinux=0 rd.debug=0 rd.shell=0 $DEBUGFAIL $*" \
         -initrd $TESTDIR/initramfs.testing
-    if ! grep -F -m 1 -q iscsi-OK $TESTDIR/client.img; then
+    if ! grep -U --binary-files=binary -F -m 1 -q iscsi-OK $TESTDIR/client.img; then
         echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
         return 1
     fi
@@ -193,7 +193,7 @@ test_setup() {
         -drive format=raw,index=3,media=disk,file=$TESTDIR/iscsidisk3.img \
         -append "root=/dev/fakeroot rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
-    grep -F -m 1 -q dracut-root-block-created $TESTDIR/client.img || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/client.img || return 1
     rm -- $TESTDIR/client.img
     rm -rf -- $TESTDIR/overlay
 
@@ -262,7 +262,7 @@ test_setup() {
         -drive format=raw,index=0,media=disk,file=$TESTDIR/server.ext3 \
         -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
-    grep -F -m 1 -q dracut-root-block-created $TESTDIR/server.ext3 || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/server.ext3 || return 1
     rm -rf -- $TESTDIR/overlay
 
     # Make an overlay with needed tools for the test harness

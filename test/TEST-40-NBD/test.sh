@@ -83,7 +83,7 @@ client_test() {
         -append "panic=1 systemd.crash_reboot rd.shell=0 $cmdline $DEBUGFAIL rd.auto rd.info rd.retry=10 ro console=ttyS0,115200n81  selinux=0  " \
         -initrd $TESTDIR/initramfs.testing
 
-    if [[ $? -ne 0 ]] || ! grep -F -m 1 -q nbd-OK $TESTDIR/flag.img; then
+    if [[ $? -ne 0 ]] || ! grep -U --binary-files=binary -F -m 1 -q nbd-OK $TESTDIR/flag.img; then
         echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
         return 1
     fi
@@ -271,7 +271,7 @@ make_encrypted_root() {
         -drive format=raw,index=1,media=disk,file=$TESTDIR/flag.img \
         -append "root=/dev/fakeroot rw quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
-    grep -F -m 1 -q dracut-root-block-created $TESTDIR/flag.img || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/flag.img || return 1
     grep -F -a -m 1 ID_FS_UUID $TESTDIR/flag.img > $TESTDIR/luks.uuid
 }
 
@@ -339,7 +339,7 @@ make_client_root() {
         -drive format=raw,index=1,media=disk,file=$TESTDIR/flag.img \
         -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
-    grep -F -m 1 -q dracut-root-block-created $TESTDIR/flag.img || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/flag.img || return 1
     rm -fr "$TESTDIR"/overlay
 }
 
@@ -422,7 +422,7 @@ EOF
         -drive format=raw,index=1,media=disk,file=$TESTDIR/flag.img \
         -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
-    grep -F -m 1 -q dracut-root-block-created $TESTDIR/flag.img || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/flag.img || return 1
     rm -fr "$TESTDIR"/overlay
 }
 

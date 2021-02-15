@@ -10,7 +10,7 @@ test_run() {
         -drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext3 \
         -append "panic=1 systemd.crash_reboot root=LABEL=dracut rw loglevel=77 systemd.log_level=debug systemd.log_target=console rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 init=/sbin/init rd.shell=0 $DEBUGFAIL" \
         -initrd $TESTDIR/initramfs.testing
-    grep -F -m 1 -q dracut-root-block-success $TESTDIR/root.ext3 || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success $TESTDIR/root.ext3 || return 1
 }
 
 test_setup() {
@@ -76,7 +76,7 @@ test_setup() {
         -drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext3 \
         -append "root=/dev/fakeroot rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
-    grep -F -m 1 -q dracut-root-block-created $TESTDIR/root.ext3 || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/root.ext3 || return 1
 
 
     (

@@ -12,7 +12,7 @@ test_run() {
         -drive format=raw,index=0,media=disk,file=$DISKIMAGE \
         -append "panic=1 systemd.crash_reboot root=/dev/dracut/root rd.auto rw rd.retry=10 console=ttyS0,115200n81 selinux=0 rd.shell=0 $DEBUGFAIL" \
         -initrd $TESTDIR/initramfs.testing
-    grep -F -m 1 -q dracut-root-block-success $DISKIMAGE || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success $DISKIMAGE || return 1
 }
 
 test_setup() {
@@ -76,7 +76,7 @@ test_setup() {
         -drive format=raw,index=0,media=disk,file=$DISKIMAGE \
         -append "root=/dev/cannotreach rw rootfstype=ext2 console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
-    grep -F -m 1 -q dracut-root-block-created $DISKIMAGE || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $DISKIMAGE || return 1
     eval $(grep -F -a -m 1 ID_FS_UUID $DISKIMAGE)
 
     (

@@ -14,7 +14,7 @@ test_run() {
         -drive format=raw,index=1,media=disk,file=$DISKIMAGE \
         -append "panic=1 systemd.crash_reboot root=LABEL=root rw rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.shell=0 $DEBUGFAIL" \
         -initrd $TESTDIR/initramfs.testing
-    grep -F -m 1 -q dracut-root-block-success $MARKER_DISKIMAGE || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success $MARKER_DISKIMAGE || return 1
 }
 
 test_setup() {
@@ -81,7 +81,7 @@ test_setup() {
         -append "root=/dev/fakeroot rw quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
 
-    dd if=$DISKIMAGE bs=512 count=4 skip=2048 | grep -F -m 1 -q dracut-root-block-created || return 1
+    dd if=$DISKIMAGE bs=512 count=4 skip=2048 | grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created || return 1
 
     (
         export initdir=$TESTDIR/overlay

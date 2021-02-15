@@ -34,7 +34,7 @@ test_run() {
         #     -append "root=live:CDLABEL=LiveCD live quiet rhgb selinux=0 rd.live.check" \
         #     -initrd "$TESTDIR"/initramfs.testing
 
-    grep -F -m 1 -q dracut-root-block-success -- "$TESTDIR"/root.img || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success -- "$TESTDIR"/root.img || return 1
 }
 
 test_setup() {

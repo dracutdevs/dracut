@@ -74,7 +74,7 @@ client_test() {
         -append "rd.net.timeout.dhcp=3 panic=1 systemd.crash_reboot rd.shell=0 $cmdline $DEBUGFAIL rd.retry=10 quiet ro console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.testing
 
-    if [[ $? -ne 0 ]] || ! grep -F -m 1 -q nfs-OK $TESTDIR/client.img; then
+    if [[ $? -ne 0 ]] || ! grep -U --binary-files=binary -F -m 1 -q nfs-OK $TESTDIR/client.img; then
         echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
         return 1
     fi
@@ -364,7 +364,7 @@ test_setup() {
         -drive format=raw,index=0,media=disk,file=$TESTDIR/server.ext3 \
         -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd $TESTDIR/initramfs.makeroot  || return 1
-    grep -F -m 1 -q dracut-root-block-created $TESTDIR/server.ext3 || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/server.ext3 || return 1
 
 
 
