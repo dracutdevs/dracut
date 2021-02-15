@@ -18,10 +18,6 @@ depends() {
     return 0
 }
 
-installkernel() {
-    hostonly="" instmods squashfs loop overlay
-}
-
 installpost() {
     local squash_candidate=( "usr" "etc" )
 
@@ -36,7 +32,6 @@ installpost() {
     # - Files need to be accessible without mounting the squash image
     # - Initramfs marker
     for file in \
-        "$squash_dir"/usr/lib/modules/*/modules.* \
         "$squash_dir"/usr/lib/dracut/* \
         "$squash_dir"/etc/initrd-release
     do
@@ -46,8 +41,7 @@ installpost() {
     done
 
     # Install required files for the squash image setup script.
-    hostonly="" instmods "loop" "squashfs" "overlay"
-    inst_multiple modprobe mount mkdir ln echo
+    inst_multiple modprobe mount mkdir ln echo rm
 
     mv "$initdir"/init "$initdir"/init.orig
     inst "$moddir"/init-squash.sh /init
@@ -63,6 +57,10 @@ installpost() {
         find "$initdir/$folder/" -not -type d \
             -exec bash -c 'mv -f "$squash_dir${1#$initdir}" "$1"' -- "{}" \;
     done
+
+    # Install required modules for the squash image init script.
+    hostonly="" instmods "loop" "squashfs" "overlay"
+    dracut_kernel_post
 }
 
 install() {

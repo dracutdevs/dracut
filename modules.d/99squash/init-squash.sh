@@ -34,6 +34,9 @@ if [ $? != 0 ]; then
     echo "Unable to setup overlay module"
 fi
 
+# These modules are no longer needed, delete to save memory
+rm -rf /usr/lib/modules/
+
 [ ! -d "$SQUASH_MNT" ] && \
 	mkdir -m 0755 -p $SQUASH_MNT
 
