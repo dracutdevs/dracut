@@ -19,6 +19,9 @@ depends() {
 }
 
 installpost() {
+    local _busybox
+    _busybox=$(find_binary busybox)
+
     # Move everything under $initdir except $squash_dir
     # itself into squash image
     for i in "$initdir"/*; do
@@ -37,7 +40,15 @@ installpost() {
     done
 
     # Install required modules and binaries for the squash image init script.
-    DRACUT_RESOLVE_DEPS=1 inst_multiple sh mount modprobe mkdir switch_root
+    if [[ $_busybox ]]; then
+        inst "$_busybox" /usr/bin/busybox
+        for _i in sh echo mount modprobe mkdir switch_root; do
+            ln_r /usr/bin/busybox /usr/bin/$_i
+        done
+    else
+        DRACUT_RESOLVE_DEPS=1 inst_multiple sh mount modprobe mkdir switch_root
+    fi
+
     hostonly="" instmods "loop" "squashfs" "overlay"
     dracut_kernel_post
 
