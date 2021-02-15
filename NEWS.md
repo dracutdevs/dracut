@@ -1,3 +1,95 @@
+Rendered view: https://github.com/dracutdevs/dracut/blob/master/NEWS.md
+
+dracut-052
+==========
+
+#### Features
+
+- **dracut:**
+  - allow overriding the systemctl command for sysroot with `$SYSTEMCTL` for cross compilation
+  - add additional global variables
+
+     Variables like `dbusconfdir` or `systemdnetwork` are now exported
+     to the individual modules as global variables. If they are not set
+     in the distribution dracut config files, they are set via `pkg-config`
+
+  - A `--no-uefi` option as been added to the CLI options to disable a default `uefi=yes`
+    set by a configuration file.
+
+- **kernel-modules:**  add modules from `drivers/memory` for arm
+- **network-legacy:**  send dhcp in parallel on all devices via the `single-dhcp` option
+- **dbus:**  introduce a meta module for dbus
+- **dbus-broker:**  introduce the dbus-broker module
+- **dbus-daemon:**  introduce the dbus-daemon module
+- **systemd-ask-password:**  introduce the systemd-ask-password module
+- **systemd-coredump:**  introduce the systemd-coredump module
+- **systemd-modules-load:**  introduce the systemd-modules-load module
+- **systemd-repart:**  introduce the systemd-repart module
+- **systemd-sysctl:**  introduce the systemd-sysctl module
+- **systemd-sysusers:** introduce the systemd-sysuser module
+
+#### Bug Fixes
+
+-   first round of shellcheck for all shell scripts
+-   revise all module checks to not error out about missing dependencies
+-   use the top-level `/efi` path to address the EFI partition
+-   correct the squash quirk
+-   use `find_binary` instead of other methods, because `find_binary` honors `dracutsysrootdir`
+-   quote globbing in module-setup.sh for `inst_multiple`
+-   move ldconfig after library workaround
+-   do not set cmdline for uefi images unless asked
+- **dracut:**  don't override `PATH`, if `dracutsysrootdir` is set
+- **dracut-functions.sh:**  check kernel config from `dracutsysrootdir`
+- **dracut-init.sh:**  make inst_libdir_file work with `dracutsysrootdir` set
+- **dracut-install:**  allow globbing for multiple sources
+- **06dbus:**
+  -  do not hardcode path to dbus utils
+  -  do not hardcode path to systemd unit
+- **uefi**  use efivars fs over the deprecated sysfs entries
+- **keyring**  adding shared keyring mode to systemd unit `dracut-pre-pivot.service`
+- **35network-manager:**  avoid restarting NetworkManager
+- **90kernel-modules:**  install generic crypto modules with hostonly unset
+- **99squash:**  use kernel config instead of modprobe to check modules
+- **dbus-daemon:**  use uid/gid from sysroot if `dracutsysrootdir` is set
+- **kernel-modules:**  add reset controllers for arm
+- **kernel-network-modules:**  also install modules from mdio subdirectory
+- **mdraid:**
+  -  remove the `offroot` option (long deprecated)
+  -  add the grow continue service `mdadm-grow-continue`
+- **network-legacy:**  silent the check for dhcp leaseinfo
+- **network-manager:**  allow override network manager version
+- **plymouth:**  install binaries with dependencies
+- **shutdown:**  add timeout to umount calls
+- **watchdog:**  fix dependencies in `module-setup.sh`
+
+#### Contributors
+
+- Harald Hoyer <harald@redhat.com>
+- Jóhann B. Guðmundsson <johannbg@gmail.com>
+- Zoltán Böszörményi <zboszor@pr.hu>
+- Alexey Shabalin <shaba@altlinux.org>
+- Daniel Molkentin <daniel.molkentin@suse.com>
+- Luiz Angelo Daros de Luca <luizluca@gmail.com>
+- Mariusz Tkaczyk <mariusz.tkaczyk@linux.intel.com>
+- Alexander Tsoy <alexander@tsoy.me>
+- Anjali Kulkarni <anjali.k.kulkarni@oracle.com>
+- Beniamino Galvani <bgalvani@redhat.com>
+- David Tardon <dtardon@redhat.com>
+- Javier Martinez Canillas <javierm@redhat.com>
+- Kairui Song <kasong@redhat.com>
+- Lukas Nykryn <lnykryn@redhat.com>
+- Matthew Thode <mthode@mthode.org>
+- Nicolas Chauvet <kwizart@gmail.com>
+- Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+- Ondrej Mosnacek <omosnace@redhat.com>
+- Peter Levine <plevine457@gmail.com>
+- Petr Pavlu <petr.pavlu@suse.com>
+- Vladius25 <vkorol2509@icloud.com>
+- Yang Liu <50459973+ly4096x@users.noreply.github.com>
+- foopub <45460217+foopub@users.noreply.github.com>
+- realtime-neil <neil@rtr.ai>
+
+
 dracut-051
 ==========
 
