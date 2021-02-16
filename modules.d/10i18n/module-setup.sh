@@ -110,7 +110,7 @@ install() {
 
         if [[ ${kbddir} != "/usr/share" ]]; then
             inst_dir /usr/share
-            for _src in $(eval echo "{ ${KBDSUBDIRS} }"); do
+            for _src in $(eval echo "{${KBDSUBDIRS}}"); do
                 [ ! -e "${initdir}/usr/share/${_src}" ] && ln -s "${kbddir}/${_src}" "${initdir}/usr/share/${_src}"
             done
         fi
