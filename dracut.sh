@@ -608,8 +608,6 @@ while :; do
                        persistent_policy_l="$2";       PARMS_TO_STORE+=" '$2'"; shift;;
         --fstab)       use_fstab_l="yes" ;;
         -h|--help)     long_usage; exit 1 ;;
-        -i|--include)  include_src+=("$2");          PARMS_TO_STORE+=" '$2'";
-                       shift;;
         --bzip2)       compress_l="bzip2";;
         --lzma)        compress_l="lzma";;
         --xz)          compress_l="xz";;
@@ -769,8 +767,6 @@ export SYSTEMCTL=${SYSTEMCTL:-systemctl}
 (( ${#force_add_dracutmodules_l[@]} )) && force_add_dracutmodules+=" ${force_add_dracutmodules_l[*]} "
 (( ${#fscks_l[@]} )) && fscks+=" ${fscks_l[*]} "
 (( ${#add_fstab_l[@]} )) && add_fstab+=" ${add_fstab_l[*]} "
-# shellcheck disable=SC2154
-(( ${#fstab_lines_l[@]} )) && fstab_lines+=( "${fstab_lines_l[@]}" )
 (( ${#install_items_l[@]} )) && install_items+=" ${install_items_l[*]} "
 (( ${#install_optional_items_l[@]} )) && install_optional_items+=" ${install_optional_items_l[*]} "
 (( ${#hostonly_nics_l[@]} )) && hostonly_nics+=" ${hostonly_nics_l[*]} "
