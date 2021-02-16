@@ -30,11 +30,12 @@ This documents contains the necessary steps to conduct a successful release.
    $ git ci -m "docs: update NEWS.md and AUTHORS" NEWS.md AUTHORS
    ```
 
-5. Tag the release
+5. Tag the release and push
 
    ```console
    $ VERSION=052
    $ git tag -s "$VERSION"
+   $ git push --tags
    ```
 
    Add the section from `NEWS.md` to the git tag message.
@@ -48,7 +49,7 @@ This documents contains the necessary steps to conduct a successful release.
 
    Push to kernel.org git:
    ```console
-   $ git push kernelorg master
+   $ git push --tags kernelorg master
    ```
 
 
@@ -59,7 +60,11 @@ This documents contains the necessary steps to conduct a successful release.
    ```
 
    This requires `kup` and a kernel.org account.
+   Wait until the tarballs are synced to http://www.kernel.org/pub/linux/utils/boot/dracut/ .
 
+8. Create a new release on github (https://github.com/dracutdevs/dracut/releases/new)
+   - Add the section from `NEWS.md` to the release.
+   - Attach the tarballs and signature file from http://www.kernel.org/pub/linux/utils/boot/dracut/ to the github release.
 
-8. Close the github milestone and open a new one (https://github.com/dracutdevs/dracut/milestones)
-9. Ensure that announcement was sent and reached the linux-initramfs mailinglist (https://www.spinics.net/lists/linux-initramfs/)
+9. Close the github milestone and open a new one (https://github.com/dracutdevs/dracut/milestones)
+10. Ensure that announcement was sent and reached the linux-initramfs mailinglist (https://www.spinics.net/lists/linux-initramfs/)
