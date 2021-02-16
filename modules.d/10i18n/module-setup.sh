@@ -22,7 +22,7 @@ install() {
         [[ -f "$dracutsysrootdir"/etc/vconsole.conf ]] && . "$dracutsysrootdir"/etc/vconsole.conf
     fi
 
-    KBDSUBDIRS=consolefonts,consoletrans,keymaps,unimaps
+    KBDSUBDIRS=(consolefonts consoletrans keymaps unimaps)
     DEFAULT_FONT="${i18n_default_font:-eurlatgr}"
     I18N_CONF="/etc/locale.conf"
     VCONFIG_CONF="/etc/vconsole.conf"
@@ -110,7 +110,7 @@ install() {
 
         if [[ ${kbddir} != "/usr/share" ]]; then
             inst_dir /usr/share
-            for _src in $(eval echo "{${KBDSUBDIRS}}"); do
+            for _src in "${KBDSUBDIRS[@]}"; do
                 [ ! -e "${initdir}/usr/share/${_src}" ] && ln -s "${kbddir}/${_src}" "${initdir}/usr/share/${_src}"
             done
         fi
@@ -119,10 +119,9 @@ install() {
     install_all_kbd() {
         local rel f
 
-        for __src in $(eval echo $dracutsysrootdir${kbddir}/{${KBDSUBDIRS}}); do
-            _src=${__src#$dracutsysrootdir}
-            inst_dir "$_src"
-            $DRACUT_CP -L -t "${initdir}/${_src}" "$__src"/*
+        for _src in "${KBDSUBDIRS[@]}"; do
+            inst_dir "${kbddir}/$_src"
+            $DRACUT_CP -L -t "${initdir}/${kbddir}/$_src" "${dracutsysrootdir}${kbddir}/$_src"/*
         done
 
         # remove unnecessary files
@@ -242,14 +241,13 @@ install() {
     }
 
     checks() {
-        for kbddir in ${kbddir} /usr/lib/kbd /lib/kbd /usr/share /usr/share/kbd
-        do
-            [[ -d "$dracutsysrootdir${kbddir}" ]] && \
-                for dir in ${KBDSUBDIRS//,/ }
-            do
-                [[ -d "$dracutsysrootdir${kbddir}/${dir}" ]] && continue
-                false
-            done && break
+        for kbddir in ${kbddir} /usr/lib/kbd /lib/kbd /usr/share /usr/share/kbd; do
+            if [[ -d "$dracutsysrootdir${kbddir}" ]]; then
+                for dir in "${KBDSUBDIRS[@]}"; do
+                    [[ -d "$dracutsysrootdir${kbddir}/${dir}" ]] && continue
+                    false
+                done && break
+            fi
             kbddir=''
         done
 
