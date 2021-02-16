@@ -447,6 +447,31 @@ verbosity_mod_l=0
 unset kernel
 unset outfile
 
+global_add_arrays_varnames=(
+    add_dracutmodules
+    force_add_dracutmodules
+    add_drivers
+    force_drivers
+    omit_drivers
+    drivers
+    install_items
+    install_optional_items
+    fscks
+    add_fstab
+    fstab_lines
+    add_device
+    hostonly_nics
+)
+
+global_arrays_varnames=(
+    dracutmodules
+    omit_dracutmodules
+    filesystems
+    fw_dir
+    libdirs
+    kernel_cmdline
+)
+
 rearrange_params "$@"
 eval set -- "$TEMP"
 
@@ -1116,19 +1141,91 @@ esac
 
 abs_outfile=$(readlink -f "$outfile") && outfile="$abs_outfile"
 
+[[ -d $dracutsysrootdir$udevdir ]] \
+    || udevdir="$(pkg-config udev --variable=udevdir 2>/dev/null)"
+if ! [[ -d $dracutsysrootdir$udevdir ]]; then
+    [[ -e $dracutsysrootdir/lib/udev/ata_id ]] && udevdir=/lib/udev
+    [[ -e $dracutsysrootdir/usr/lib/udev/ata_id ]] && udevdir=/usr/lib/udev
+fi
+export udevdir
 
+pkg_conf_pkgs=(
+  dbus
+  systemd
+)
+
+declare -A pkg_conf_dbus
+pkg_conf_dbus[dbus]='/usr/share/dbus-1'
+pkg_conf_dbus[dbusconfdir]='/etc/dbus-1'
+pkg_conf_dbus[dbusinterfaces]='${dbus}/interfaces'
+pkg_conf_dbus[dbusinterfacesconfdir]='${dbusconfdir}/interfaces'
+pkg_conf_dbus[dbusservices]='${dbus}/services'
+pkg_conf_dbus[dbusservicesconfdir]='${dbusconfdir}/interfaces'
+pkg_conf_dbus[dbussession]='${dbus}/session.d'
+pkg_conf_dbus[dbussessionconfdir]='${dbusconfdir}/session.d'
+pkg_conf_dbus[dbussystem]='${dbus}/system.d'
+pkg_conf_dbus[dbussystemconfdir]='${dbusconfdir}/system.d'
+pkg_conf_dbus[dbussystemservices]='${dbusconfdir}/session.d'
+pkg_conf_dbus[dbussessionconfdir]='${dbus}/system-services'
+pkg_conf_dbus[dbussystemservicesconfdir]='${dbusconfdir}/system-services'
+pkg_conf_dbus[dbussessionconfdir]='${dbusconfdir}/session.d'
+
+declare -A pkg_conf_systemd
+pkg_conf_systemd[sysctl]='/usr/lib/sysctl.d'
+pkg_conf_systemd[sysctlconfdir]='/etc/sysctl.d'
+pkg_conf_systemd[environment]='/usr/lib/environment.d'
+pkg_conf_systemd[environmentconfdir]='/etc/environment.d'
+pkg_conf_systemd[systemdcatalog]='${systemdutildir}/catalog'
+pkg_conf_systemd[systemdnetwork]='${systemdutildir}/network'
+pkg_conf_systemd[systemdnetworkconfdir]='${systemdsystemconfdir}/network'
+pkg_conf_systemd[systemdntpunits]='${systemdutildir}/ntp-units.d'
+pkg_conf_systemd[systemdntpunitsconfdir]='${systemdsystemconfdir}/ntp-units.d'
+pkg_conf_systemd[systemdportable]='${systemdutildir}/portable'
+pkg_conf_systemd[systemdportableconfdir]='${systemdsystemconfdir}/portable'
+pkg_conf_systemd[systemdsystemunitdir]='${systemdutildir}/system'
+pkg_conf_systemd[systemduser]='${systemdutildir}/user'
+pkg_conf_systemd[systemduserconfdir]='${systemdsystemconfdir}/user'
+pkg_conf_systemd[systemdsystemconfdir]='/etc/systemd/system'
+pkg_conf_systemd[sysusers]='/usr/lib/sysusers.d'
+pkg_conf_systemd[sysusersconfdir]='/etc/sysusers.d'
+pkg_conf_systemd[systemdutilconfdir]='/etc/systemd'
 [[ -d $dracutsysrootdir$systemdutildir ]] \
     || systemdutildir=$(pkg-config systemd --variable=systemdutildir 2>/dev/null)
-
 if ! [[ -d $dracutsysrootdir$systemdutildir ]]; then
     [[ -e $dracutsysrootdir/lib/systemd/systemd-udevd ]] && systemdutildir=/lib/systemd
     [[ -e $dracutsysrootdir/usr/lib/systemd/systemd-udevd ]] && systemdutildir=/usr/lib/systemd
 fi
+export systemdutildir
 
-[[ -d $dracutsysrootdir$systemdutilconfdir ]] \
-    || systemdutilconfdir=$(pkg-config systemd --variable=systemdutilconfdir 2>/dev/null)
+if [[ -z $tmpfilesdir ]] || ! [[ -d $dracutsysrootdir$tmpfilesdir ]]; then
+    tmpfilesdir=$(pkg-config systemd --variable=tmpfilesdir 2>/dev/null)
+fi
+if ! [[ -d $dracutsysrootdir$tmpfilesdir ]]; then
+    [[ -d $dracutsysrootdir/lib/tmpfiles.d ]] && tmpfilesdir=/lib/tmpfiles.d
+    [[ -d $dracutsysrootdir/usr/lib/tmpfiles.d ]] && tmpfilesdir=/usr/lib/tmpfiles.d
+fi
+export tmpfilesdir
 
-[[ -d $dracutsysrootdir$systemdutilconfdir ]] || systemdutilconfdir=/etc/systemd
+# Evaluate pkg-config variables
+for pkg in "${pkg_conf_pkgs[@]}"; do
+  eval "keys=(\${!pkg_conf_${pkg}[@]})"
+  for var in "${keys[@]}"; do
+      if eval "[[ -z \${${var}} ]] || ! [[ -d \$dracutsysrootdir\${${var}} ]]"; then
+          eval "${var}=\$(pkg-config ${pkg} --variable=${var} 2>/dev/null)"
+      fi
+      if eval "[[ -z \${${var}} ]] || ! [[ -d \$dracutsysrootdir\${${var}} ]]"; then
+          eval "${var}=\${pkg_conf_${pkg}[${var}]}"
+      fi
+      eval export "${var}"
+  done
+
+  for var in "${keys[@]}"; do
+      if eval "[[ -z \${${var}} ]] || ! [[ -d \$dracutsysrootdir\${${var}} ]]"; then
+          eval "${var}=$(eval echo \${${var}})"
+      fi
+  done
+done
+
 
 if [[ $no_kernel != yes ]] && [[ -d $srcmods ]]; then
     if ! [[ -f $srcmods/modules.dep ]]; then
@@ -1448,166 +1545,6 @@ for dev in "${!host_fs_types[@]}"; do
     fi
 done
 
-[[ -d $dracutsysrootdir$dbus ]] \
-         || dbus=$(pkg-config dbus --variable=dbus 2>/dev/null)
-
-[[ -d $dracutsysrootdir$dbus ]] || dbus=/usr/share/dbus-1
-
-[[ -d $dracutsysrootdir$dbusconfdir ]] \
-         || dbusconfdir=$(pkg-config dbus --variable=dbusconfdir 2>/dev/null)
-
-[[ -d $dracutsysrootdir$dbusconfdir ]] || dbusconfdir=/etc/dbus-1
-
-[[ -d $dracutsysrootdir$dbusinterfaces ]] \
-          || dbusinterfaces=$(pkg-config dbus --variable=dbusinterfaces 2>/dev/null)
-
-[[ -d $dracutsysrootdir$dbusinterfaces ]] || dbusinterfaces=${dbus}/interfaces
-
-[[ -d $dracutsysrootdir$dbusinterfacesconfdir ]] \
-          || dbusinterfacesconfdir=$(pkg-config dbus --variable=dbusinterfacesconfdir 2>/dev/null)
-
-[[ -d $dracutsysrootdir$dbusinterfacesconfdir ]] || dbusinterfacesconfdir=${dbusconfdir}/interfaces
-
-[[ -d $dracutsysrootdir$dbusservices ]] \
-          || dbusservices=$(pkg-config dbus --variable=dbusservices 2>/dev/null)
-
-[[ -d $dracutsysrootdir$dbusservices ]] || dbusservices=${dbus}/services
-
-[[ -d $dracutsysrootdir$dbusservicesconfdir ]] \
-          || dbusservicesconfdir=$(pkg-config dbus --variable=dbusservicesconfdir 2>/dev/null)
-
-[[ -d $dracutsysrootdir$dbusservicesconfdir ]] || dbusservicesconfdir=${dbusconfdir}/services
-
-[[ -d $dracutsysrootdir$dbussession ]] \
-          || dbussession=$(pkg-config dbus --variable=dbussession 2>/dev/null)
-
-[[ -d $dracutsysrootdir$dbussession ]] || dbussession=${dbus}/session.d
-
-[[ -d $dracutsysrootdir$dbussessionconfdir ]] \
-          || dbussessionconfdir=$(pkg-config dbus --variable=dbussessionconfdir 2>/dev/null)
-
-[[ -d $dracutsysrootdir$dbussessionconfdir ]] || dbussessionconfdir=${dbusconfdir}/session.d
-
-[[ -d $dracutsysrootdir$dbussystem ]] \
-          || dbussystem=$(pkg-config dbus --variable=dbussystem 2>/dev/null)
-
-[[ -d $dracutsysrootdir$dbussystem ]] || dbussystem=${dbus}/system.d
-
-[[ -d $dracutsysrootdir$dbussystemconfdir ]] \
-          || dbussystemconfdir=$(pkg-config dbus --variable=dbussystemconfdir 2>/dev/null)
-
-[[ -d $dracutsysrootdir$dbussystemconfdir ]] || dbussystemconfdir=${dbusconfdir}/system.d
-
-[[ -d $dracutsysrootdir$dbussystemservices ]] \
-          || dbussystemservices=$(pkg-config dbus --variable=dbussystemservices 2>/dev/null)
-
-[[ -d $dracutsysrootdir$dbussystemservices ]] || dbussystemservices=${dbus}/system-services
-
-[[ -d $dracutsysrootdir$dbussystemservicesconfdir ]] \
-           || dbussystemservicesconfdir=$(pkg-config dbus --variable=dbussystemservicesconfdir 2>/dev/null)
-
-[[ -d $dracutsysrootdir$dbussystemservicesconfdir ]] || dbussystemservicesconfdir=${dbusconfdir}/system-services
-
-[[ -d $dracutsysrootdir$udevdir ]] \
-    || udevdir="$(pkg-config udev --variable=udevdir 2>/dev/null)"
-if ! [[ -d $dracutsysrootdir$udevdir ]]; then
-    [[ -e $dracutsysrootdir/lib/udev/ata_id ]] && udevdir=/lib/udev
-    [[ -e $dracutsysrootdir/usr/lib/udev/ata_id ]] && udevdir=/usr/lib/udev
-fi
-
-[[ -d $dracutsysrootdir$sysctl ]] \
-      || sysctl=$(pkg-config systemd --variable=sysctl 2>/dev/null)
-
-[[ -d $dracutsysrootdir$sysctl ]] || sysctl=/usr/lib/sysctl.d
-
-[[ -d $dracutsysrootdir$sysctlconfdir ]] \
-      || sysctlconfdir=$(pkg-config systemd --variable=sysctlconfdir 2>/dev/null)
-
-[[ -d $dracutsysrootdir$sysctlconfdir ]] || sysctlconfdir=/etc/sysctl.d
-
-[[ -d $dracutsysrootdir$environment ]] \
-      || environment=$(pkg-config systemd --variable=environment 2>/dev/null)
-
-[[ -d $dracutsysrootdir$environment ]] || environment=/usr/lib/environment.d
-
-[[ -d $dracutsysrootdir$environmentconfdir ]] \
-      || environmentconfdir=$(pkg-config systemd --variable=environmentconfdir 2>/dev/null)
-
-[[ -d $dracutsysrootdir$environmentconfdir ]] || environmentconfdir=/etc/environment.d
-
-[[ -d $dracutsysrootdir$systemdcatalog ]] \
-      || systemdcatalog=$(pkg-config systemd --variable=systemdcatalog 2>/dev/null)
-
-[[ -d $dracutsysrootdir$systemdcatalog ]] || systemdcatalog=${systemdutildir}/catalog
-
-[[ -d $dracutsysrootdir$systemdnetwork ]] \
-      || systemdnetwork=$(pkg-config systemd --variable=systemdnetwork 2>/dev/null)
-
-[[ -d $dracutsysrootdir$systemdnetwork ]] || systemdnetwork=${systemdutildir}/network
-
-[[ -d $dracutsysrootdir$systemdnetworkconfdir ]] \
-       || systemdnetworkconfdir=$(pkg-config systemd --variable=systemdnetworkconfdir 2>/dev/null)
-
-[[ -d $dracutsysrootdir$systemdnetworkconfdir ]] || systemdnetworkconfdir=${systemdsystemconfdir}/network
-
-[[ -d $dracutsysrootdir$systemdntpunits ]] \
-      || systemdntpunits=$(pkg-config systemd --variable=systemdntpunits 2>/dev/null)
-
-[[ -d $dracutsysrootdir$systemdntpunits ]] || systemdntpunits=${systemdutildir}/ntp-units.d
-
-[[ -d $dracutsysrootdir$systemdntpunitsconfdir ]] \
-      || systemdntpunitsconfdir=$(pkg-config systemd --variable=systemdntpunitsconfdir 2>/dev/null)
-
-[[ -d $dracutsysrootdir$systemdntpunitsconfdir ]] || systemdntpunitsconfdir=${systemdsystemconfdir}/ntp-units.d
-
-[[ -d $dracutsysrootdir$systemdportable ]] \
-      || systemdportable=$(pkg-config systemd --variable=systemdportable 2>/dev/null)
-
-[[ -d $dracutsysrootdir$systemdportable ]] || systemdportable=${systemdutildir}/portable
-
-[[ -d $dracutsysrootdir$systemdportableconfdir ]] \
-      || systemdportableconfdir=$(pkg-config systemd --variable=systemdportableconfdir 2>/dev/null)
-
-[[ -d "$dracutsysrootdir$systemdportableconfdir" ]] || systemdportableconfdir=${systemdsystemconfdir}/portable
-
-[[ -d $dracutsysrootdir$systemdsystemunitdir ]] \
-    || systemdsystemunitdir=$(pkg-config systemd --variable=systemdsystemunitdir 2>/dev/null)
-
-[[ -d "$dracutsysrootdir$systemdsystemunitdir" ]] || systemdsystemunitdir=${systemdutildir}/system
-
-[[ -d $dracutsysrootdir$systemduser ]] \
-      || systemduser=$(pkg-config systemd --variable=systemduser 2>/dev/null)
-
-[[ -d $dracutsysrootdir$systemduser ]] || systemduser=${systemdutildir}/user
-
-[[ -d $dracutsysrootdir$systemduserconfdir ]] \
-       || systemduserconfdir=$(pkg-config systemd --variable=systemduserconfdir 2>/dev/null)
-
-[[ -d $dracutsysrootdir$systemduserconfdir ]] || systemduserconfdir=${systemdsystemconfdir}/user
-
-[[ -d $dracutsysrootdir$systemdsystemconfdir ]] \
-    || systemdsystemconfdir=$(pkg-config systemd --variable=systemdsystemconfdir 2>/dev/null)
-
-[[ -d $dracutsysrootdir$systemdsystemconfdir ]] || systemdsystemconfdir=/etc/systemd/system
-
-[[ -d $dracutsysrootdir$sysusers ]] \
-       || sysusers=$(pkg-config systemd --variable=sysusers 2>/dev/null)
-
-[[ -d $dracutsysrootdir$sysusers ]] || sysusers=/usr/lib/sysusers.d
-
-[[ -d $dracutsysrootdir$sysusersconfdir ]] \
-       || sysusersconfdir=$(pkg-config systemd --variable=sysusersconfdir 2>/dev/null)
-
-[[ -d $dracutsysrootdir$sysusersconfdir ]] || sysusersconfdir=/etc/sysusers.d
-
-[[ -d $dracutsysrootdir$tmpfilesdir ]] \
-    || tmpfilesdir=$(pkg-config systemd --variable=tmpfilesdir 2>/dev/null)
-
-if ! [[ -d $dracutsysrootdir$tmpfilesdir ]]; then
-    [[ -d $dracutsysrootdir/lib/tmpfiles.d ]] && tmpfilesdir=/lib/tmpfiles.d
-    [[ -d $dracutsysrootdir/usr/lib/tmpfiles.d ]] && tmpfilesdir=/usr/lib/tmpfiles.d
-fi
-
 export initdir dracutbasedir \
     dracutmodules force_add_dracutmodules add_dracutmodules omit_dracutmodules \
     mods_to_load \
@@ -1616,15 +1553,8 @@ export initdir dracutbasedir \
     use_fstab fstab_lines libdirs fscks nofscks ro_mnt \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
     debug host_fs_types host_devs swap_devs sshkey add_fstab \
-    DRACUT_VERSION udevdir prefix filesystems drivers \
-    dbus dbusconfdir dbusinterfaces dbusinterfacesconfdir \
-    dbusservices dbusservicesconfdir dbussession dbussessionconfdir \
-    dbussystem dbussystemconfdir dbussystemservices dbussystemservicesconfdir \
-    environment environmentconfdir sysctl sysctlconfdir sysusers sysusersconfdir \
-    systemdutildir systemdutilconfdir systemdcatalog systemdntpunits \
-    systemdntpunitsconfdir systemdsystemunitdir systemdsystemconfdir \
-    hostonly_cmdline loginstall \
-    tmpfilesdir
+    DRACUT_VERSION prefix filesystems drivers \
+    hostonly_cmdline loginstall
 
 mods_to_load=""
 # check all our modules to see if they should be sourced.
