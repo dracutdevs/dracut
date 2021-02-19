@@ -1009,6 +1009,9 @@ readonly DRACUT_TMPDIR="$(mktemp -p "$TMPDIR/" -d -t dracut.XXXXXX)"
 trap '
     ret=$?;
     [[ $keep ]] && echo "Not removing $DRACUT_TMPDIR." >&2 || { [[ $DRACUT_TMPDIR ]] && rm -rf -- "$DRACUT_TMPDIR"; };
+    if [[ ${FSFROZEN} ]]; then
+      fsfreeze -u "${FSFROZEN}"
+    fi
     exit $ret;
     ' EXIT
 
@@ -2304,9 +2307,11 @@ if [[ -d $dracutsysrootdir/run/systemd/system ]]; then
 
     # use fsfreeze only if we're not writing to /
     if [[ "$(stat -c %m -- "$outfile")" != "/" ]] && freeze_ok_for_fstype "$outfile"; then
-        if ! (fsfreeze -f "$(dirname "$outfile")" 2>/dev/null && fsfreeze -u "$(dirname "$outfile")" 2>/dev/null); then
+        FSFROZEN="$(dirname "$outfile")"
+        if ! (fsfreeze -f "${FSFROZEN}" 2>/dev/null && fsfreeze -u "${FSFROZEN}" 2>/dev/null); then
             dinfo "dracut: warning: could not fsfreeze $(dirname "$outfile")"
         fi
+        unset FSFROZEN
     fi
 fi
 
