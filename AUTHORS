@@ -6,12 +6,12 @@ Daniel Molkentin <daniel.molkentin@suse.com>
 Will Woods <wwoods@redhat.com>
 Philippe Seewer <philippe.seewer@bfh.ch>
 Warren Togami <wtogami@redhat.com>
-Kairui Song <kasong@redhat.com>
 Jóhann B. Guðmundsson <johannbg@gmail.com>
+Kairui Song <kasong@redhat.com>
 Dave Young <dyoung@redhat.com>
 Jeremy Katz <katzj@redhat.com>
-David Dillow <dave@thedillows.org>
 Lukas Nykryn <lnykryn@redhat.com>
+David Dillow <dave@thedillows.org>
 Lubomir Rintel <lkundrak@v3.sk>
 Michal Soltys <soltys@ziu.info>
 Colin Guthrie <colin@mageia.org>
@@ -35,6 +35,7 @@ Zoltán Böszörményi <zboszor@pr.hu>
 Colin Walters <walters@verbum.org>
 John Reiser <jreiser@bitwagon.com>
 Luca Berra <bluca@vodka.it>
+Tomasz Paweł Gajc <tpgxyz@gmail.com>
 Xunlei Pang <xlpang@redhat.com>
 Brian C. Lane <bcl@redhat.com>
 Daniel Drake <drake@endlessm.com>
@@ -79,8 +80,6 @@ Norbert Lange <norbert.lange@andritz.com>
 Roberto Sassu <roberto.sassu@polito.it>
 Stefan Reimer <it@startux.de>
 Takashi Iwai <tiwai@suse.de>
-Tomasz Paweł Gajc <tpgxyz@gmail.com>
-tpgxyz <tpgxyz@gmail.com>
 Anton Blanchard <anton@samba.org>
 Bill Nottingham <notting@redhat.com>
 Chapman Flack <g2@anastigmatix.net>
@@ -165,6 +164,7 @@ Alexander Todorov <atodorov@redhat.com>
 Alexey Kodanev <alexey.kodanev@oracle.com>
 Andreas Schwab <schwab@suse.de>
 Andreas Stieger <astieger@suse.com>
+Andrew J. Hesford <ajh@sideband.org>
 Andy Lutomirski <luto@mit.edu>
 Anjali Kulkarni <anjali.k.kulkarni@oracle.com>
 Anssi Hannula <anssi@mageia.org>
@@ -198,6 +198,7 @@ Enno Boland <g@s01.de>
 Enzo Matsumiya <ematsumiya@suse.de>
 Eugene S. Sobolev <sobolev@protei.ru>
 Eugene Syromiatnikov <esyr@redhat.com>
+Evgeni Golov <evgeni@golov.de>
 Fabian Vogt <fvogt@suse.de>
 Florian Albrechtskirchinger <falbrechtskirchinger@gmail.com>
 Florian Gamböck <mail@floga.de>
@@ -268,6 +269,7 @@ Ruben Kerkhof <ruben@rubenkerkhof.com>
 Rumbaut Thomas <Thomas.Rumbaut@digipolis.gent>
 Rusty Bird <rustybird@openmailbox.org>
 Sebastian Mitterle <smitterl@redhat.com>
+Sergei Iudin <tsipa740@gmail.com>
 Sergey Fionov <fionov@gmail.com>
 Shawn W Dunn <sfalken@opensuse.org>
 Srinivasa T N <seenutn@linux.vnet.ibm.com>
@@ -305,6 +307,5 @@ mwberry <mwberry@users.noreply.github.com>
 nabijaczleweli <nabijaczleweli@gmail.com>
 privb0x23 <privb0x23@users.noreply.github.com>
 realtime-neil <neil@rtr.ai>
-tpg <tpgxyz@gmail.com>
 xtraeme <xtraeme@voidlinux.eu>
 Дамјан Георгиевски <gdamjan@gmail.com>

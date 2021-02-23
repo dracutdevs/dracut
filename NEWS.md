@@ -1,5 +1,25 @@
 Rendered view: https://github.com/dracutdevs/dracut/blob/master/NEWS.md
 
+dracut-053
+==========
+
+#### Bug Fixes
+
+* **dracut.sh:**
+  *  unfreeze /boot on exit ([d87ae137](https://github.com/dracutdevs/dracut/commit/d87ae13721d04a8a2192d896af224ac6965caf70))
+  *  proper return code for inst_multiple in dracut-init.sh ([d437970c](https://github.com/dracutdevs/dracut/commit/d437970c013e3287de263a1e60a117b15239896c))
+* **fcoe:**
+  *  rename rd.nofcoe to rd.fcoe ([6f7823bc](https://github.com/dracutdevs/dracut/commit/6f7823bce65dd4b52497dbb94892b637fd06471a))
+  *  rd.nofcoe=0 should disable fcoe ([805b46c2](https://github.com/dracutdevs/dracut/commit/805b46c2a81e04d69fc3af912942568516d05ee7))
+* **i18n:**
+  *  get rid of `eval` calls ([5387ed24](https://github.com/dracutdevs/dracut/commit/5387ed24c8b33da1214232d57ab1831e117aaba0))
+  *  create the keyboard symlinks again ([9e1c7f3d](https://github.com/dracutdevs/dracut/commit/9e1c7f3deadd387adaa97b189593b4ba3d7c6d5a))
+* **network-manager:**
+  *  run as a service if systemd module is present ([c17c5b76](https://github.com/dracutdevs/dracut/commit/c17c5b7604c8d61dd1c00ee22d44c3a5d7d6dfee))
+  *  rework how NM is started in debug mode ([34c73b33](https://github.com/dracutdevs/dracut/commit/34c73b339baa025dfd8916379c4d191be34a8af5))
+* **drm:**  skip empty modalias files in drm module setup ([c3f24184](https://github.com/dracutdevs/dracut/commit/c3f241849de6434d063ef92e6880f6b0335c1800))
+
+
 dracut-052
 ==========
 
