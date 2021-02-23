@@ -6,7 +6,7 @@ This documents contains the necessary steps to conduct a successful release.
 
     Get a first template with [`clog`](https://github.com/clog-tool/clog-cli)
     ```console
-    $ clog -r https://github.com/dracutdevs/dracut
+    $ clog -F -r https://github.com/dracutdevs/dracut
     ```
 
 2. Update the contributors list in NEWS.md
@@ -49,7 +49,7 @@ This documents contains the necessary steps to conduct a successful release.
 
    Push to kernel.org git:
    ```console
-   $ git push --tags kernelorg master
+   $ git push --atomic kernelorg master "$VERSION"
    ```
 
 
