@@ -44,7 +44,8 @@ static bool show_location = false;
  * use here. */
 static char *log_abort_msg = NULL;
 
-void log_close_console(void) {
+void log_close_console(void)
+{
 
         if (console_fd < 0)
                 return;
@@ -57,14 +58,15 @@ void log_close_console(void) {
         }
 }
 
-static int log_open_console(void) {
+static int log_open_console(void)
+{
 
         if (console_fd >= 0)
                 return 0;
 
         if (getpid() == 1) {
 
-                console_fd = open_terminal("/dev/console", O_WRONLY|O_NOCTTY|O_CLOEXEC);
+                console_fd = open_terminal("/dev/console", O_WRONLY | O_NOCTTY | O_CLOEXEC);
                 if (console_fd < 0) {
                         log_error("Failed to open /dev/console for logging: %s", strerror(-console_fd));
                         return console_fd;
@@ -77,33 +79,30 @@ static int log_open_console(void) {
         return 0;
 }
 
-
-int log_open(void) {
+int log_open(void)
+{
         return log_open_console();
 }
 
-
-void log_close(void) {
+void log_close(void)
+{
         log_close_console();
 }
 
-
-void log_set_max_level(int level) {
+void log_set_max_level(int level)
+{
         assert((level & LOG_PRIMASK) == level);
 
         log_max_level = level;
 }
 
-void log_set_facility(int facility) {
+void log_set_facility(int facility)
+{
         log_facility = facility;
 }
 
-static int write_to_console(
-                int level,
-                const char*file,
-                unsigned int line,
-                const char *func,
-                const char *buffer) {
+static int write_to_console(int level, const char *file, unsigned int line, const char *func, const char *buffer)
+{
 
         struct iovec iovec[5];
         unsigned n = 0;
@@ -131,12 +130,8 @@ static int write_to_console(
         return 1;
 }
 
-static int log_dispatch(
-        int level,
-        const char*file,
-        int line,
-        const char *func,
-        char *buffer) {
+static int log_dispatch(int level, const char *file, int line, const char *func, char *buffer)
+{
 
         int r = 0;
 
@@ -168,13 +163,8 @@ static int log_dispatch(
         return r;
 }
 
-int log_metav(
-        int level,
-        const char*file,
-        int line,
-        const char *func,
-        const char *format,
-        va_list ap) {
+int log_metav(int level, const char *file, int line, const char *func, const char *format, va_list ap)
+{
 
         char buffer[LINE_MAX];
         int saved_errno, r;
@@ -192,12 +182,8 @@ int log_metav(
         return r;
 }
 
-int log_meta(
-        int level,
-        const char*file,
-        int line,
-        const char *func,
-        const char *format, ...) {
+int log_meta(int level, const char *file, int line, const char *func, const char *format, ...)
+{
 
         int r;
         va_list ap;
@@ -211,7 +197,8 @@ int log_meta(
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
-_noreturn_ static void log_assert(const char *text, const char *file, int line, const char *func, const char *format) {
+_noreturn_ static void log_assert(const char *text, const char *file, int line, const char *func, const char *format)
+{
         static char buffer[LINE_MAX];
 
         snprintf(buffer, sizeof(buffer), format, text, file, line, func);
@@ -222,24 +209,29 @@ _noreturn_ static void log_assert(const char *text, const char *file, int line, 
         log_dispatch(LOG_CRIT, file, line, func, buffer);
         abort();
 }
+
 #pragma GCC diagnostic pop
 
-_noreturn_ void log_assert_failed(const char *text, const char *file, int line, const char *func) {
+_noreturn_ void log_assert_failed(const char *text, const char *file, int line, const char *func)
+{
         log_assert(text, file, line, func, "Assertion '%s' failed at %s:%u, function %s(). Aborting.");
 }
 
-_noreturn_ void log_assert_failed_unreachable(const char *text, const char *file, int line, const char *func) {
+_noreturn_ void log_assert_failed_unreachable(const char *text, const char *file, int line, const char *func)
+{
         log_assert(text, file, line, func, "Code should not be reached '%s' at %s:%u, function %s(). Aborting.");
 }
 
-void log_set_target(LogTarget target) {
+void log_set_target(LogTarget target)
+{
         assert(target >= 0);
         assert(target < _LOG_TARGET_MAX);
 
         log_target = target;
 }
 
-int log_set_target_from_string(const char *e) {
+int log_set_target_from_string(const char *e)
+{
         LogTarget t;
 
         t = log_target_from_string(e);
@@ -250,7 +242,8 @@ int log_set_target_from_string(const char *e) {
         return 0;
 }
 
-int log_set_max_level_from_string(const char *e) {
+int log_set_max_level_from_string(const char *e)
+{
         int t;
 
         t = log_level_from_string(e);
@@ -261,7 +254,8 @@ int log_set_max_level_from_string(const char *e) {
         return 0;
 }
 
-void log_parse_environment(void) {
+void log_parse_environment(void)
+{
         const char *e;
 
         if ((e = getenv("DRACUT_INSTALL_LOG_TARGET"))) {
@@ -281,14 +275,15 @@ void log_parse_environment(void) {
         }
 }
 
-LogTarget log_get_target(void) {
+LogTarget log_get_target(void)
+{
         return log_target;
 }
 
-int log_get_max_level(void) {
+int log_get_max_level(void)
+{
         return log_max_level;
 }
-
 
 static const char *const log_target_table[] = {
         [LOG_TARGET_CONSOLE] = "console",

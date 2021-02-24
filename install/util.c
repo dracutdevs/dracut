@@ -26,11 +26,13 @@
 
 #include "util.h"
 
-static inline pid_t gettid(void) {
+static inline pid_t gettid(void)
+{
         return (pid_t) syscall(SYS_gettid);
 }
 
-size_t page_size(void) {
+size_t page_size(void)
+{
         static __thread size_t pgsz = 0;
         long r;
 
@@ -39,12 +41,13 @@ size_t page_size(void) {
 
         assert_se((r = sysconf(_SC_PAGESIZE)) > 0);
 
-        pgsz = (size_t) r;
+        pgsz = (size_t)r;
 
         return pgsz;
 }
 
-bool endswith(const char *s, const char *postfix) {
+bool endswith(const char *s, const char *postfix)
+{
         size_t sl, pl;
 
         assert(s);
@@ -61,7 +64,9 @@ bool endswith(const char *s, const char *postfix) {
 
         return memcmp(s + sl - pl, postfix, pl) == 0;
 }
-int close_nointr(int fd) {
+
+int close_nointr(int fd)
+{
         assert(fd >= 0);
 
         for (;;) {
@@ -76,7 +81,8 @@ int close_nointr(int fd) {
         }
 }
 
-void close_nointr_nofail(int fd) {
+void close_nointr_nofail(int fd)
+{
         int saved_errno = errno;
 
         /* like close_nointr() but cannot fail, and guarantees errno
@@ -87,7 +93,8 @@ void close_nointr_nofail(int fd) {
         errno = saved_errno;
 }
 
-int open_terminal(const char *name, int mode) {
+int open_terminal(const char *name, int mode)
+{
         int fd, r;
         unsigned c = 0;
 
@@ -130,7 +137,8 @@ int open_terminal(const char *name, int mode) {
         return fd;
 }
 
-bool streq_ptr(const char *a, const char *b) {
+bool streq_ptr(const char *a, const char *b)
+{
 
         /* Like streq(), but tries to make sense of NULL pointers */
 
@@ -142,16 +150,19 @@ bool streq_ptr(const char *a, const char *b) {
 
         return false;
 }
-bool is_main_thread(void) {
+
+bool is_main_thread(void)
+{
         static __thread int cached = 0;
 
         if (_unlikely_(cached == 0))
-                cached = getpid() == gettid() ? 1 : -1;
+                cached = getpid() == gettid()? 1 : -1;
 
         return cached > 0;
 }
 
-int safe_atou(const char *s, unsigned *ret_u) {
+int safe_atou(const char *s, unsigned *ret_u)
+{
         char *x = NULL;
         unsigned long l;
 
@@ -164,10 +175,10 @@ int safe_atou(const char *s, unsigned *ret_u) {
         if (!x || *x || errno)
                 return errno ? -errno : -EINVAL;
 
-        if ((unsigned long) (unsigned) l != l)
+        if ((unsigned long)(unsigned)l != l)
                 return -ERANGE;
 
-        *ret_u = (unsigned) l;
+        *ret_u = (unsigned)l;
         return 0;
 }
 
@@ -184,7 +195,8 @@ static const char *const log_level_table[] = {
 
 DEFINE_STRING_TABLE_LOOKUP(log_level, int);
 
-char *strnappend(const char *s, const char *suffix, size_t b) {
+char *strnappend(const char *s, const char *suffix, size_t b)
+{
         size_t a;
         char *r;
 
@@ -201,25 +213,27 @@ char *strnappend(const char *s, const char *suffix, size_t b) {
         assert(suffix);
 
         a = strlen(s);
-        if (b > ((size_t) -1) - a)
+        if (b > ((size_t)-1) - a)
                 return NULL;
 
-        r = new(char, a+b+1);
+        r = new(char, a + b + 1);
         if (!r)
                 return NULL;
 
         memcpy(r, s, a);
-        memcpy(r+a, suffix, b);
-        r[a+b] = 0;
+        memcpy(r + a, suffix, b);
+        r[a + b] = 0;
 
         return r;
 }
 
-char *strappend(const char *s, const char *suffix) {
+char *strappend(const char *s, const char *suffix)
+{
         return strnappend(s, suffix, suffix ? strlen(suffix) : 0);
 }
 
-char *strjoin(const char *x, ...) {
+char *strjoin(const char *x, ...)
+{
         va_list ap;
         size_t l;
         char *r;
@@ -238,7 +252,7 @@ char *strjoin(const char *x, ...) {
                                 break;
 
                         n = strlen(t);
-                        if (n > ((size_t) -1) - l) {
+                        if (n > ((size_t)-1) - l) {
                                 va_end(ap);
                                 return NULL;
                         }
@@ -250,7 +264,7 @@ char *strjoin(const char *x, ...) {
 
         va_end(ap);
 
-        r = new(char, l+1);
+        r = new(char, l + 1);
         if (!r)
                 return NULL;
 
@@ -278,7 +292,8 @@ char *strjoin(const char *x, ...) {
         return r;
 }
 
-char *cunescape_length_with_prefix(const char *s, size_t length, const char *prefix) {
+char *cunescape_length_with_prefix(const char *s, size_t length, const char *prefix)
+{
         char *r, *t;
         const char *f;
         size_t pl;
@@ -289,7 +304,7 @@ char *cunescape_length_with_prefix(const char *s, size_t length, const char *pre
 
         pl = prefix ? strlen(prefix) : 0;
 
-        r = new(char, pl+length+1);
+        r = new(char, pl + length + 1);
         if (!r)
                 return r;
 
@@ -343,24 +358,24 @@ char *cunescape_length_with_prefix(const char *s, size_t length, const char *pre
                         *(t++) = ' ';
                         break;
 
-                case 'x': {
-                        /* hexadecimal encoding */
-                        int a, b;
+                case 'x':{
+                                /* hexadecimal encoding */
+                                int a, b;
 
-                        a = unhexchar(f[1]);
-                        b = unhexchar(f[2]);
+                                a = unhexchar(f[1]);
+                                b = unhexchar(f[2]);
 
-                        if (a < 0 || b < 0) {
-                                /* Invalid escape code, let's take it literal then */
-                                *(t++) = '\\';
-                                *(t++) = 'x';
-                        } else {
-                                *(t++) = (char) ((a << 4) | b);
-                                f += 2;
+                                if (a < 0 || b < 0) {
+                                        /* Invalid escape code, let's take it literal then */
+                                        *(t++) = '\\';
+                                        *(t++) = 'x';
+                                } else {
+                                        *(t++) = (char)((a << 4) | b);
+                                        f += 2;
+                                }
+
+                                break;
                         }
-
-                        break;
-                }
 
                 case '0':
                 case '1':
@@ -369,28 +384,28 @@ char *cunescape_length_with_prefix(const char *s, size_t length, const char *pre
                 case '4':
                 case '5':
                 case '6':
-                case '7': {
-                        /* octal encoding */
-                        int a, b, c;
+                case '7':{
+                                /* octal encoding */
+                                int a, b, c;
 
-                        a = unoctchar(f[0]);
-                        b = unoctchar(f[1]);
-                        c = unoctchar(f[2]);
+                                a = unoctchar(f[0]);
+                                b = unoctchar(f[1]);
+                                c = unoctchar(f[2]);
 
-                        if (a < 0 || b < 0 || c < 0) {
-                                /* Invalid escape code, let's take it literal then */
-                                *(t++) = '\\';
-                                *(t++) = f[0];
-                        } else {
-                                *(t++) = (char) ((a << 6) | (b << 3) | c);
-                                f += 2;
+                                if (a < 0 || b < 0 || c < 0) {
+                                        /* Invalid escape code, let's take it literal then */
+                                        *(t++) = '\\';
+                                        *(t++) = f[0];
+                                } else {
+                                        *(t++) = (char)((a << 6) | (b << 3) | c);
+                                        f += 2;
+                                }
+
+                                break;
                         }
 
-                        break;
-                }
-
                 case 0:
-                        /* premature end of string.*/
+                        /* premature end of string. */
                         *(t++) = '\\';
                         goto finish;
 
@@ -402,19 +417,20 @@ char *cunescape_length_with_prefix(const char *s, size_t length, const char *pre
                 }
         }
 
-finish:
+ finish:
         *t = 0;
         return r;
 }
 
-char *cunescape_length(const char *s, size_t length) {
+char *cunescape_length(const char *s, size_t length)
+{
         return cunescape_length_with_prefix(s, length, NULL);
 }
 
-
 /* Split a string into words, but consider strings enclosed in '' and
  * "" as words even if they include spaces. */
-char *split_quoted(const char *c, size_t *l, char **state) {
+char *split_quoted(const char *c, size_t *l, char **state)
+{
         const char *current, *e;
         bool escaped = false;
 
@@ -430,7 +446,7 @@ char *split_quoted(const char *c, size_t *l, char **state) {
                 return NULL;
 
         else if (*current == '\'') {
-                current ++;
+                current++;
 
                 for (e = current; *e; e++) {
                         if (escaped)
@@ -441,11 +457,11 @@ char *split_quoted(const char *c, size_t *l, char **state) {
                                 break;
                 }
 
-                *l = e-current;
-                *state = (char*) (*e == 0 ? e : e+1);
+                *l = e - current;
+                *state = (char *)(*e == 0 ? e : e + 1);
 
         } else if (*current == '\"') {
-                current ++;
+                current++;
 
                 for (e = current; *e; e++) {
                         if (escaped)
@@ -456,8 +472,8 @@ char *split_quoted(const char *c, size_t *l, char **state) {
                                 break;
                 }
 
-                *l = e-current;
-                *state = (char*) (*e == 0 ? e : e+1);
+                *l = e - current;
+                *state = (char *)(*e == 0 ? e : e + 1);
 
         } else {
                 for (e = current; *e; e++) {
@@ -468,30 +484,32 @@ char *split_quoted(const char *c, size_t *l, char **state) {
                         else if (strchr(WHITESPACE, *e))
                                 break;
                 }
-                *l = e-current;
-                *state = (char*) e;
+                *l = e - current;
+                *state = (char *)e;
         }
 
-        return (char*) current;
+        return (char *)current;
 }
 
 /* Split a string into words. */
-char *split(const char *c, size_t *l, const char *separator, char **state) {
+char *split(const char *c, size_t *l, const char *separator, char **state)
+{
         char *current;
 
-        current = *state ? *state : (char*) c;
+        current = *state ? *state : (char *)c;
 
         if (!*current || *c == 0)
                 return NULL;
 
         current += strspn(current, separator);
         *l = strcspn(current, separator);
-        *state = current+*l;
+        *state = current + *l;
 
-        return (char*) current;
+        return (char *)current;
 }
 
-int unhexchar(char c) {
+int unhexchar(char c)
+{
 
         if (c >= '0' && c <= '9')
                 return c - '0';
@@ -505,7 +523,8 @@ int unhexchar(char c) {
         return -1;
 }
 
-int unoctchar(char c) {
+int unoctchar(char c)
+{
 
         if (c >= '0' && c <= '7')
                 return c - '0';
