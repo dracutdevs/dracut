@@ -905,53 +905,6 @@ if [[ $_no_compress_l = "$DRACUT_COMPRESS_CAT" ]]; then
     compress="$DRACUT_COMPRESS_CAT"
 fi
 
-if ! [[ $compress ]]; then
-    # check all known compressors, if none specified
-    for i in $DRACUT_COMPRESS_PIGZ $DRACUT_COMPRESS_GZIP $DRACUT_COMPRESS_LZ4 $DRACUT_COMPRESS_LZOP $ $DRACUT_COMPRESS_ZSTD $DRACUT_COMPRESS_LZMA $DRACUT_COMPRESS_XZ $DRACUT_COMPRESS_LBZIP2 $OMPRESS_BZIP2 $DRACUT_COMPRESS_CAT; do
-        command -v "$i" &>/dev/null || continue
-        compress="$i"
-        break
-    done
-    if [[ $compress = cat ]]; then
-            printf "%s\n" "dracut: no compression tool available. Initramfs image is going to be big." >&2
-    fi
-fi
-
-# choose the right arguments for the compressor
-case $compress in
-    bzip2|lbzip2)
-        if [[ "$compress" =  lbzip2 ]] || command -v "$DRACUT_COMPRESS_LBZIP2" &>/dev/null; then
-            compress="$DRACUT_COMPRESS_LBZIP2 -9"
-        else
-            compress="$DRACUT_COMPRESS_BZIP2 -9"
-        fi
-        ;;
-    lzma)
-        compress="$DRACUT_COMPRESS_LZMA -9 -T0"
-        ;;
-    xz)
-        compress="$DRACUT_COMPRESS_XZ --check=crc32 --lzma2=dict=1MiB -T0"
-        ;;
-    gzip|pigz)
-        if [[ "$compress" = pigz ]] || command -v "$DRACUT_COMPRESS_PIGZ" &>/dev/null; then
-            compress="$DRACUT_COMPRESS_PIGZ -9 -n -T -R"
-        elif command -v gzip &>/dev/null && $DRACUT_COMPRESS_GZIP --help 2>&1 | grep -q rsyncable; then
-            compress="$DRACUT_COMPRESS_GZIP -n -9 --rsyncable"
-        else
-            compress="$DRACUT_COMPRESS_GZIP -n -9"
-        fi
-        ;;
-    lzo|lzop)
-        compress="$DRACUT_COMPRESS_LZOP -9"
-        ;;
-    lz4)
-        compress="$DRACUT_COMPRESS_LZ4 -l -9"
-        ;;
-    zstd)
-       compress="$DRACUT_COMPRESS_ZSTD -15 -q -T0"
-       ;;
-esac
-
 [[ $hostonly = yes ]] && hostonly="-h"
 [[ $hostonly != "-h" ]] && unset hostonly
 
@@ -2131,6 +2084,53 @@ if [[ $create_early_cpio = yes ]]; then
         exit 1
     fi
 fi
+
+if ! [[ $compress ]]; then
+    # check all known compressors, if none specified
+    for i in $DRACUT_COMPRESS_PIGZ $DRACUT_COMPRESS_GZIP $DRACUT_COMPRESS_LZ4 $DRACUT_COMPRESS_LZOP $ $DRACUT_COMPRESS_ZSTD $DRACUT_COMPRESS_LZMA $DRACUT_COMPRESS_XZ $DRACUT_COMPRESS_LBZIP2 $OMPRESS_BZIP2 $DRACUT_COMPRESS_CAT; do
+        command -v "$i" &>/dev/null || continue
+        compress="$i"
+        break
+    done
+    if [[ $compress = cat ]]; then
+            printf "%s\n" "dracut: no compression tool available. Initramfs image is going to be big." >&2
+    fi
+fi
+
+# choose the right arguments for the compressor
+case $compress in
+    bzip2|lbzip2)
+        if [[ "$compress" =  lbzip2 ]] || command -v "$DRACUT_COMPRESS_LBZIP2" &>/dev/null; then
+            compress="$DRACUT_COMPRESS_LBZIP2 -9"
+        else
+            compress="$DRACUT_COMPRESS_BZIP2 -9"
+        fi
+        ;;
+    lzma)
+        compress="$DRACUT_COMPRESS_LZMA -9 -T0"
+        ;;
+    xz)
+        compress="$DRACUT_COMPRESS_XZ --check=crc32 --lzma2=dict=1MiB -T0"
+        ;;
+    gzip|pigz)
+        if [[ "$compress" = pigz ]] || command -v "$DRACUT_COMPRESS_PIGZ" &>/dev/null; then
+            compress="$DRACUT_COMPRESS_PIGZ -9 -n -T -R"
+        elif command -v gzip &>/dev/null && $DRACUT_COMPRESS_GZIP --help 2>&1 | grep -q rsyncable; then
+            compress="$DRACUT_COMPRESS_GZIP -n -9 --rsyncable"
+        else
+            compress="$DRACUT_COMPRESS_GZIP -n -9"
+        fi
+        ;;
+    lzo|lzop)
+        compress="$DRACUT_COMPRESS_LZOP -9"
+        ;;
+    lz4)
+        compress="$DRACUT_COMPRESS_LZ4 -l -9"
+        ;;
+    zstd)
+       compress="$DRACUT_COMPRESS_ZSTD -15 -q -T0"
+       ;;
+esac
 
 if ! (
         umask 077; cd "$initdir"
