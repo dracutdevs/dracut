@@ -29,7 +29,7 @@
 
 typedef struct Hashmap Hashmap;
 typedef struct _IteratorStruct _IteratorStruct;
-typedef _IteratorStruct* Iterator;
+typedef _IteratorStruct *Iterator;
 
 #define ITERATOR_FIRST ((Iterator) 0)
 #define ITERATOR_LAST ((Iterator) -1)
@@ -44,37 +44,37 @@ unsigned trivial_hash_func(const void *p);
 int trivial_compare_func(const void *a, const void *b);
 
 Hashmap *hashmap_new(hash_func_t hash_func, compare_func_t compare_func);
-void hashmap_free(Hashmap *h);
-void hashmap_free_free(Hashmap *h);
-int hashmap_ensure_allocated(Hashmap **h, hash_func_t hash_func, compare_func_t compare_func);
+void hashmap_free(Hashmap * h);
+void hashmap_free_free(Hashmap * h);
+int hashmap_ensure_allocated(Hashmap ** h, hash_func_t hash_func, compare_func_t compare_func);
 
-int hashmap_put(Hashmap *h, const void *key, void *value);
-int hashmap_replace(Hashmap *h, const void *key, void *value);
-void* hashmap_get(Hashmap *h, const void *key);
-void* hashmap_remove(Hashmap *h, const void *key);
-void* hashmap_remove_value(Hashmap *h, const void *key, void *value);
-int hashmap_remove_and_put(Hashmap *h, const void *old_key, const void *new_key, void *value);
-int hashmap_remove_and_replace(Hashmap *h, const void *old_key, const void *new_key, void *value);
+int hashmap_put(Hashmap * h, const void *key, void *value);
+int hashmap_replace(Hashmap * h, const void *key, void *value);
+void *hashmap_get(Hashmap * h, const void *key);
+void *hashmap_remove(Hashmap * h, const void *key);
+void *hashmap_remove_value(Hashmap * h, const void *key, void *value);
+int hashmap_remove_and_put(Hashmap * h, const void *old_key, const void *new_key, void *value);
+int hashmap_remove_and_replace(Hashmap * h, const void *old_key, const void *new_key, void *value);
 
-int hashmap_merge(Hashmap *h, Hashmap *other);
-void hashmap_move(Hashmap *h, Hashmap *other);
-int hashmap_move_one(Hashmap *h, Hashmap *other, const void *key);
+int hashmap_merge(Hashmap * h, Hashmap * other);
+void hashmap_move(Hashmap * h, Hashmap * other);
+int hashmap_move_one(Hashmap * h, Hashmap * other, const void *key);
 
-unsigned hashmap_size(Hashmap *h);
-bool hashmap_isempty(Hashmap *h);
+unsigned hashmap_size(Hashmap * h);
+bool hashmap_isempty(Hashmap * h);
 
-void *hashmap_iterate(Hashmap *h, Iterator *i, const void **key);
-void *hashmap_iterate_backwards(Hashmap *h, Iterator *i, const void **key);
-void *hashmap_iterate_skip(Hashmap *h, const void *key, Iterator *i);
+void *hashmap_iterate(Hashmap * h, Iterator * i, const void **key);
+void *hashmap_iterate_backwards(Hashmap * h, Iterator * i, const void **key);
+void *hashmap_iterate_skip(Hashmap * h, const void *key, Iterator * i);
 
-void hashmap_clear(Hashmap *h);
-void *hashmap_steal_first(Hashmap *h);
-void *hashmap_steal_first_key(Hashmap *h);
-void* hashmap_first(Hashmap *h);
-void* hashmap_first_key(Hashmap *h);
-void* hashmap_last(Hashmap *h);
+void hashmap_clear(Hashmap * h);
+void *hashmap_steal_first(Hashmap * h);
+void *hashmap_steal_first_key(Hashmap * h);
+void *hashmap_first(Hashmap * h);
+void *hashmap_first_key(Hashmap * h);
+void *hashmap_last(Hashmap * h);
 
-char **hashmap_get_strv(Hashmap *h);
+char **hashmap_get_strv(Hashmap * h);
 
 #define HASHMAP_FOREACH(e, h, i) \
         for ((i) = ITERATOR_FIRST, (e) = hashmap_iterate((h), &(i), NULL); (e); (e) = hashmap_iterate((h), &(i), NULL))

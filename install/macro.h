@@ -68,7 +68,8 @@
 #define ALIGN4_PTR(p) ((void*) ALIGN4((unsigned long) p))
 #define ALIGN8_PTR(p) ((void*) ALIGN8((unsigned long) p))
 
-static inline size_t ALIGN_TO(size_t l, size_t ali) {
+static inline size_t ALIGN_TO(size_t l, size_t ali)
+{
         return ((l + ali - 1) & ~(ali - 1));
 }
 
@@ -189,7 +190,8 @@ static inline size_t ALIGN_TO(size_t l, size_t ali) {
                 _i->iov_len = strlen(_s);       \
         } while(false)
 
-static inline size_t IOVEC_TOTAL_SIZE(const struct iovec *i, unsigned n) {
+static inline size_t IOVEC_TOTAL_SIZE(const struct iovec *i, unsigned n)
+{
         unsigned j;
         size_t r = 0;
 
@@ -199,7 +201,8 @@ static inline size_t IOVEC_TOTAL_SIZE(const struct iovec *i, unsigned n) {
         return r;
 }
 
-static inline size_t IOVEC_INCREMENT(struct iovec *i, unsigned n, size_t k) {
+static inline size_t IOVEC_INCREMENT(struct iovec *i, unsigned n, size_t k)
+{
         unsigned j;
 
         for (j = 0; j < n; j++) {
@@ -210,7 +213,7 @@ static inline size_t IOVEC_INCREMENT(struct iovec *i, unsigned n, size_t k) {
 
                 sub = MIN(i[j].iov_len, k);
                 i[j].iov_len -= sub;
-                i[j].iov_base = (uint8_t*) i[j].iov_base + sub;
+                i[j].iov_base = (uint8_t *) i[j].iov_base + sub;
                 k -= sub;
         }
 
@@ -265,9 +268,8 @@ do {                                                                    \
  /* Because statfs.t_type can be int on some architecures, we have to cast
   * the const magic to the type, otherwise the compiler warns about
   * signed/unsigned comparison, because the magic can be 32 bit unsigned.
- */
+  */
 #define F_TYPE_CMP(a, b) (a == (typeof(a)) b)
-
 
 /* Returns the number of chars needed to format variables of the
  * specified type as a decimal string. Adds in extra space for a

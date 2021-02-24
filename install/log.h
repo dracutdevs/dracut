@@ -26,19 +26,19 @@
 
 #include "macro.h"
 
-typedef enum LogTarget{
+typedef enum LogTarget {
         LOG_TARGET_CONSOLE,
         LOG_TARGET_KMSG,
         LOG_TARGET_JOURNAL,
         LOG_TARGET_JOURNAL_OR_KMSG,
         LOG_TARGET_SYSLOG,
         LOG_TARGET_SYSLOG_OR_KMSG,
-        LOG_TARGET_AUTO, /* console if stderr is tty, JOURNAL_OR_KMSG otherwise */
-        LOG_TARGET_SAFE, /* console if stderr is tty, KMSG otherwise */
+        LOG_TARGET_AUTO,        /* console if stderr is tty, JOURNAL_OR_KMSG otherwise */
+        LOG_TARGET_SAFE,        /* console if stderr is tty, KMSG otherwise */
         LOG_TARGET_NULL,
         _LOG_TARGET_MAX,
         _LOG_TARGET_INVALID = -1
-}  LogTarget;
+} LogTarget;
 
 void log_set_target(LogTarget target);
 void log_set_max_level(int level);
@@ -67,31 +67,15 @@ void log_close_console(void);
 
 void log_parse_environment(void);
 
-int log_meta(
-        int level,
-        const char*file,
-        int line,
-        const char *func,
-        const char *format, ...) _printf_attr_(5,6);
+int log_meta(int level, const char *file, int line, const char *func, const char *format, ...) _printf_attr_(5, 6);
 
-int log_metav(
-        int level,
-        const char*file,
-        int line,
-        const char *func,
-        const char *format,
-        va_list ap);
+int log_metav(int level, const char *file, int line, const char *func, const char *format, va_list ap);
 
 _noreturn_ void log_assert_failed(const char *text, const char *file, int line, const char *func);
 _noreturn_ void log_assert_failed_unreachable(const char *text, const char *file, int line, const char *func);
 
 /* This modifies the buffer passed! */
-int log_dump_internal(
-        int level,
-        const char*file,
-        int line,
-        const char *func,
-        char *buffer);
+int log_dump_internal(int level, const char *file, int line, const char *func, char *buffer);
 
 #define log_full(level, ...) log_meta(level,   __FILE__, __LINE__, __func__, __VA_ARGS__)
 

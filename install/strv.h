@@ -28,11 +28,11 @@ char *strv_find(char **l, const char *name) _pure_;
 char *strv_find_prefix(char **l, const char *name) _pure_;
 
 void strv_free(char **l);
-DEFINE_TRIVIAL_CLEANUP_FUNC(char**, strv_free);
+DEFINE_TRIVIAL_CLEANUP_FUNC(char **, strv_free);
 #define _cleanup_strv_free_ _cleanup_(strv_freep)
 
-char **strv_copy(char * const *l);
-unsigned int strv_length(char * const *l) _pure_;
+char **strv_copy(char *const *l);
+unsigned int strv_length(char *const *l) _pure_;
 
 char **strv_merge(char **a, char **b);
 char **strv_merge_concat(char **a, char **b, const char *suffix);
@@ -49,11 +49,13 @@ char **strv_uniq(char **l);
 char **strv_new(const char *x, ...) _sentinel_;
 char **strv_new_ap(const char *x, va_list ap);
 
-static inline const char* STRV_IFNOTNULL(const char *x) {
-        return x ? x : (const char *) -1;
+static inline const char *STRV_IFNOTNULL(const char *x)
+{
+        return x ? x : (const char *)-1;
 }
 
-static inline bool strv_isempty(char * const *l) {
+static inline bool strv_isempty(char *const *l)
+{
         return !l || !*l;
 }
 

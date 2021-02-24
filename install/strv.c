@@ -26,31 +26,34 @@
 #include "util.h"
 #include "strv.h"
 
-char *strv_find(char **l, const char *name) {
+char *strv_find(char **l, const char *name)
+{
         char **i;
 
         assert(name);
 
         STRV_FOREACH(i, l)
-                if (streq(*i, name))
-                        return *i;
+            if (streq(*i, name))
+                return *i;
 
         return NULL;
 }
 
-char *strv_find_prefix(char **l, const char *name) {
+char *strv_find_prefix(char **l, const char *name)
+{
         char **i;
 
         assert(name);
 
         STRV_FOREACH(i, l)
-                if (startswith(*i, name))
-                        return *i;
+            if (startswith(*i, name))
+                return *i;
 
         return NULL;
 }
 
-void strv_free(char **l) {
+void strv_free(char **l)
+{
         char **k;
 
         if (!l)
@@ -62,10 +65,11 @@ void strv_free(char **l) {
         free(l);
 }
 
-char **strv_copy(char * const *l) {
+char **strv_copy(char *const *l)
+{
         char **r, **k;
 
-        k = r = new(char*, strv_length(l) + 1);
+        k = r = new(char *, strv_length(l) + 1);
         if (!r)
                 return NULL;
 
@@ -82,7 +86,8 @@ char **strv_copy(char * const *l) {
         return r;
 }
 
-unsigned int strv_length(char * const *l) {
+unsigned int strv_length(char *const *l)
+{
         unsigned n = 0;
 
         if (!l)
@@ -94,7 +99,8 @@ unsigned int strv_length(char * const *l) {
         return n;
 }
 
-char **strv_new_ap(const char *x, va_list ap) {
+char **strv_new_ap(const char *x, va_list ap)
+{
         const char *s;
         char **a;
         unsigned n = 0, i = 0;
@@ -106,11 +112,11 @@ char **strv_new_ap(const char *x, va_list ap) {
          * the string list. */
 
         if (x) {
-                n = x == (const char*) -1 ? 0 : 1;
+                n = x == (const char *)-1 ? 0 : 1;
 
                 va_copy(aq, ap);
-                while ((s = va_arg(aq, const char*))) {
-                        if (s == (const char*) -1)
+                while ((s = va_arg(aq, const char *))) {
+                        if (s == (const char *)-1)
                                 continue;
 
                         n++;
@@ -119,21 +125,21 @@ char **strv_new_ap(const char *x, va_list ap) {
                 va_end(aq);
         }
 
-        a = new(char*, n+1);
+        a = new(char *, n + 1);
         if (!a)
                 return NULL;
 
         if (x) {
-                if (x != (const char*) -1) {
+                if (x != (const char *)-1) {
                         a[i] = strdup(x);
                         if (!a[i])
                                 goto fail;
                         i++;
                 }
 
-                while ((s = va_arg(ap, const char*))) {
+                while ((s = va_arg(ap, const char *))) {
 
-                        if (s == (const char*) -1)
+                        if (s == (const char *)-1)
                                 continue;
 
                         a[i] = strdup(s);
@@ -148,12 +154,13 @@ char **strv_new_ap(const char *x, va_list ap) {
 
         return a;
 
-fail:
+ fail:
         strv_free(a);
         return NULL;
 }
 
-char **strv_new(const char *x, ...) {
+char **strv_new(const char *x, ...)
+{
         char **r;
         va_list ap;
 
@@ -164,7 +171,8 @@ char **strv_new(const char *x, ...) {
         return r;
 }
 
-char **strv_merge(char **a, char **b) {
+char **strv_merge(char **a, char **b)
+{
         char **r, **k;
 
         if (!a)
@@ -173,7 +181,7 @@ char **strv_merge(char **a, char **b) {
         if (!b)
                 return strv_copy(a);
 
-        r = new(char*, strv_length(a) + strv_length(b) + 1);
+        r = new(char *, strv_length(a) + strv_length(b) + 1);
         if (!r)
                 return NULL;
 
@@ -192,12 +200,13 @@ char **strv_merge(char **a, char **b) {
         *k = NULL;
         return r;
 
-fail:
+ fail:
         strv_free(r);
         return NULL;
 }
 
-char **strv_merge_concat(char **a, char **b, const char *suffix) {
+char **strv_merge_concat(char **a, char **b, const char *suffix)
+{
         char **r, **k;
 
         /* Like strv_merge(), but appends suffix to all strings in b, before adding */
@@ -205,7 +214,7 @@ char **strv_merge_concat(char **a, char **b, const char *suffix) {
         if (!b)
                 return strv_copy(a);
 
-        r = new(char*, strv_length(a) + strv_length(b) + 1);
+        r = new(char *, strv_length(a) + strv_length(b) + 1);
         if (!r)
                 return NULL;
 
@@ -226,13 +235,14 @@ char **strv_merge_concat(char **a, char **b, const char *suffix) {
         *k = NULL;
         return r;
 
-fail:
+ fail:
         strv_free(r);
         return NULL;
 
 }
 
-char **strv_split(const char *s, const char *separator) {
+char **strv_split(const char *s, const char *separator)
+{
         char *state;
         char *w;
         size_t l;
@@ -243,9 +253,9 @@ char **strv_split(const char *s, const char *separator) {
 
         n = 0;
         FOREACH_WORD_SEPARATOR(w, l, s, separator, state)
-                n++;
+            n++;
 
-        r = new(char*, n+1);
+        r = new(char *, n + 1);
         if (!r)
                 return NULL;
 
@@ -264,7 +274,8 @@ char **strv_split(const char *s, const char *separator) {
         return r;
 }
 
-char **strv_split_quoted(const char *s) {
+char **strv_split_quoted(const char *s)
+{
         char *state;
         char *w;
         size_t l;
@@ -275,9 +286,9 @@ char **strv_split_quoted(const char *s) {
 
         n = 0;
         FOREACH_WORD_QUOTED(w, l, s, state)
-                n++;
+            n++;
 
-        r = new(char*, n+1);
+        r = new(char *, n + 1);
         if (!r)
                 return NULL;
 
@@ -295,7 +306,8 @@ char **strv_split_quoted(const char *s) {
         return r;
 }
 
-char **strv_split_newlines(const char *s) {
+char **strv_split_newlines(const char *s)
+{
         char **l;
         unsigned int n;
 
@@ -312,15 +324,16 @@ char **strv_split_newlines(const char *s) {
         if (n == 0)
                 return l;
 
-        if (isempty(l[n-1])) {
-                free(l[n-1]);
-                l[n-1] = NULL;
+        if (isempty(l[n - 1])) {
+                free(l[n - 1]);
+                l[n - 1] = NULL;
         }
 
         return l;
 }
 
-char *strv_join(char **l, const char *separator) {
+char *strv_join(char **l, const char *separator)
+{
         char *r, *e;
         char **s;
         size_t n, k;
@@ -337,7 +350,7 @@ char *strv_join(char **l, const char *separator) {
                 n += strlen(*s);
         }
 
-        r = new(char, n+1);
+        r = new(char, n + 1);
         if (!r)
                 return NULL;
 
@@ -354,7 +367,8 @@ char *strv_join(char **l, const char *separator) {
         return r;
 }
 
-char **strv_append(char **l, const char *s) {
+char **strv_append(char **l, const char *s)
+{
         char **r, **k;
 
         if (!l)
@@ -363,7 +377,7 @@ char **strv_append(char **l, const char *s) {
         if (!s)
                 return strv_copy(l);
 
-        r = new(char*, strv_length(l)+2);
+        r = new(char *, strv_length(l) + 2);
         if (!r)
                 return NULL;
 
@@ -380,12 +394,13 @@ char **strv_append(char **l, const char *s) {
         k[1] = NULL;
         return r;
 
-fail:
+ fail:
         strv_free(r);
         return NULL;
 }
 
-int strv_push(char ***l, char *value) {
+int strv_push(char ***l, char *value)
+{
         char **c;
         unsigned n;
 
@@ -393,18 +408,19 @@ int strv_push(char ***l, char *value) {
                 return 0;
 
         n = strv_length(*l);
-        c = realloc(*l, sizeof(char*) * (n + 2));
+        c = realloc(*l, sizeof(char *) * (n + 2));
         if (!c)
                 return -ENOMEM;
 
         c[n] = value;
-        c[n+1] = NULL;
+        c[n + 1] = NULL;
 
         *l = c;
         return 0;
 }
 
-int strv_extend(char ***l, const char *value) {
+int strv_extend(char ***l, const char *value)
+{
         char *v;
         int r;
 
@@ -422,19 +438,21 @@ int strv_extend(char ***l, const char *value) {
         return r;
 }
 
-char **strv_uniq(char **l) {
+char **strv_uniq(char **l)
+{
         char **i;
 
         /* Drops duplicate entries. The first identical string will be
          * kept, the others dropped */
 
         STRV_FOREACH(i, l)
-                strv_remove(i+1, *i);
+            strv_remove(i + 1, *i);
 
         return l;
 }
 
-char **strv_remove(char **l, const char *s) {
+char **strv_remove(char **l, const char *s)
+{
         char **f, **t;
 
         if (!l)
@@ -459,7 +477,8 @@ char **strv_remove(char **l, const char *s) {
         return l;
 }
 
-char **strv_remove_prefix(char **l, const char *s) {
+char **strv_remove_prefix(char **l, const char *s)
+{
         char **f, **t;
 
         if (!l)
@@ -484,7 +503,8 @@ char **strv_remove_prefix(char **l, const char *s) {
         return l;
 }
 
-char **strv_parse_nulstr(const char *s, size_t l) {
+char **strv_parse_nulstr(const char *s, size_t l)
+{
         const char *p;
         unsigned c = 0, i = 0;
         char **v;
@@ -492,16 +512,16 @@ char **strv_parse_nulstr(const char *s, size_t l) {
         assert(s || l == 0);
 
         if (l == 0)
-                return new0(char*, 1);
+                return new0(char *, 1);
 
         for (p = s; p < s + l; p++)
                 if (*p == 0)
                         c++;
 
-        if (s[l-1] != 0)
+        if (s[l - 1] != 0)
                 c++;
 
-        v = new0(char*, c+1);
+        v = new0(char *, c + 1);
         if (!v)
                 return NULL;
 
@@ -530,15 +550,16 @@ char **strv_parse_nulstr(const char *s, size_t l) {
         return v;
 }
 
-char **strv_split_nulstr(const char *s) {
+char **strv_split_nulstr(const char *s)
+{
         const char *i;
         char **r = NULL;
 
         NULSTR_FOREACH(i, s)
-                if (strv_extend(&r, i) < 0) {
-                        strv_free(r);
-                        return NULL;
-                }
+            if (strv_extend(&r, i) < 0) {
+                strv_free(r);
+                return NULL;
+        }
 
         if (!r)
                 return strv_new(NULL, NULL);
@@ -546,7 +567,8 @@ char **strv_split_nulstr(const char *s) {
         return r;
 }
 
-bool strv_overlap(char **a, char **b) {
+bool strv_overlap(char **a, char **b)
+{
         char **i, **j;
 
         STRV_FOREACH(i, a) {
@@ -559,27 +581,30 @@ bool strv_overlap(char **a, char **b) {
         return false;
 }
 
-static int str_compare(const void *_a, const void *_b) {
-        const char **a = (const char**) _a, **b = (const char**) _b;
+static int str_compare(const void *_a, const void *_b)
+{
+        const char **a = (const char **)_a, **b = (const char **)_b;
 
         return strcmp(*a, *b);
 }
 
-char **strv_sort(char **l) {
+char **strv_sort(char **l)
+{
 
         if (strv_isempty(l))
                 return l;
 
-        qsort(l, strv_length(l), sizeof(char*), str_compare);
+        qsort(l, strv_length(l), sizeof(char *), str_compare);
         return l;
 }
 
-void strv_print(char **l) {
+void strv_print(char **l)
+{
         char **s;
 
         if (!l)
                 return;
 
         STRV_FOREACH(s, l)
-                puts(*s);
+            puts(*s);
 }
