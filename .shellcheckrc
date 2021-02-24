@@ -1,0 +1,5 @@
+# SC2039: In POSIX sh, 'local' is undefined.
+disable=SC2039
+
+# SC2166: Prefer [ p ] || [ q ] as [ p -o q ] is not well defined.
+disable=SC2166
