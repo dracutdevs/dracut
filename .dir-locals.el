@@ -21,5 +21,5 @@
              (sh-indentation . 4)))
  (awk-mode . ((c-basic-offset . 8)))
  (nil . ((indent-tabs-mode . nil)
-         (tab-width . 8)
+         (tab-width . 4)
          (fill-column . 79))) )
