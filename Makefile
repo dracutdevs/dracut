@@ -91,9 +91,8 @@ dracut-util: util/util
 	cp -a $< $@
 
 indent:
-	indent -i8 -nut -br -linux -l120 install/dracut-install.c
-	indent -i8 -nut -br -linux -l120 skipcpio/skipcpio.c
-	indent -i8 -nut -br -linux -l120 util/util.c
+	indent -i8 -nut -br -linux -l120 $(wildcard *.[ch] */*.[ch])
+	if type -P shfmt >/dev/null; then shfmt -w -s .; fi
 
 doc: $(manpages) dracut.html
 
