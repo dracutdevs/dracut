@@ -49,17 +49,18 @@ install() {
     # grep '^systemd-timesync:' "$dracutsysrootdir"/etc/group >> "$initdir/etc/group"
 
     _arch=${DRACUT_ARCH:-$(uname -m)}
-    inst_libdir_file {"tls/$_arch/",tls/,"$_arch/",}"libnss_dns.so.*" \
+    inst_libdir_file \
+                     {"tls/$_arch/",tls/,"$_arch/",}"libnss_dns.so.*" \
                      {"tls/$_arch/",tls/,"$_arch/",}"libnss_mdns4_minimal.so.*" \
                      {"tls/$_arch/",tls/,"$_arch/",}"libnss_myhostname.so.*" \
                      {"tls/$_arch/",tls/,"$_arch/",}"libnss_resolve.so.*"
 
+    #       systemd-timesyncd.service
     for i in \
         systemd-networkd-wait-online.service \
         systemd-networkd.service \
-        systemd-networkd.socket
-#       systemd-timesyncd.service
-    do
+        systemd-networkd.socket \
+        ${NULL}; do
         $SYSTEMCTL -q --root "$initdir" enable "$i"
     done
 }

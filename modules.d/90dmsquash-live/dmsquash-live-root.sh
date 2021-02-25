@@ -64,7 +64,12 @@ det_img_fs() {
 
 modprobe squashfs
 CMDLINE=$(getcmdline)
-for arg in $CMDLINE; do case $arg in ro|rw) liverw=$arg ;; esac; done
+for arg in $CMDLINE; do
+    case $arg in
+        ro | rw) liverw=$arg ;;
+    esac
+done
+
 # mount the backing of the live image first
 mkdir -m 0755 -p /run/initramfs/live
 if [ -f $livedev ]; then

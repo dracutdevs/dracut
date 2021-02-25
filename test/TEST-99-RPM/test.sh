@@ -68,30 +68,30 @@ test_run() {
 #!/bin/bash
 set -x
 export LC_MESSAGES=C
-rpm -Va |& \
-    grep -F \
-       '85-display-manager.preset| /run| /var| /usr/lib/variant| /etc/machine-id| /etc/systemd/system/dbus-org.freedesktop.network1.service| /etc/systemd/system/dbus-org.freedesktop.resolve1.service| /etc/udev/hwdb.bin| /usr/share/info/dir.old' \
-    &> /test.output
+rpm -Va 2>&1 | \\
+    grep -F \\
+           '85-display-manager.preset| /run| /var| /usr/lib/variant| /etc/machine-id| /etc/systemd/system/dbus-org.freedesktop.network1.service| /etc/systemd/system/dbus-org.freedesktop.resolve1.service| /etc/udev/hwdb.bin| /usr/share/info/dir.old' \\
+        &> /test.output
 
-find / -xdev -type f -not -path '/var/*' \
-  -not -path '/usr/lib/modules/*/modules.*' \
-  -not -path '/etc/*-' \
-  -not -path '/etc/.pwd.lock' \
-  -not -path '/run/mount/utab' \
-  -not -path '/test.sh' \
-  -not -path '/test.output' \
-  -not -path '/etc/nsswitch.conf.bak' \
-  -not -path '/etc/iscsi/initiatorname.iscsi' \
-  -not -path '/boot/*0-rescue*' \
-  -not -path '/usr/share/mime/*' \
-  -not -path '/etc/crypto-policies/*' \
-  -not -path '/dev/null' \
-  -not -path "/boot/loader/entries/\$(cat /etc/machine-id)-*" \
-  -not -path "/boot/\$(cat /etc/machine-id)/*" \
-  -not -path '/etc/openldap/certs/*' \
-  -not -path '/etc/dnf/*' \
-  -print0 | xargs -0 rpm -qf | \
-  grep -F 'not owned' &>> /test.output || :
+find / -xdev -type f -not -path '/var/*' \\
+    -not -path '/usr/lib/modules/*/modules.*' \\
+    -not -path '/etc/*-' \\
+    -not -path '/etc/.pwd.lock' \\
+    -not -path '/run/mount/utab' \\
+    -not -path '/test.sh' \\
+    -not -path '/test.output' \\
+    -not -path '/etc/nsswitch.conf.bak' \\
+    -not -path '/etc/iscsi/initiatorname.iscsi' \\
+    -not -path '/boot/*0-rescue*' \\
+    -not -path '/usr/share/mime/*' \\
+    -not -path '/etc/crypto-policies/*' \\
+    -not -path '/dev/null' \\
+    -not -path "/boot/loader/entries/\$(cat /etc/machine-id)-*" \\
+    -not -path "/boot/\$(cat /etc/machine-id)/*" \\
+    -not -path '/etc/openldap/certs/*' \\
+    -not -path '/etc/dnf/*' \\
+    -print0 | xargs -0 rpm -qf | \\
+    grep -F 'not owned' &>> /test.output || :
 exit 0
 EOF
 

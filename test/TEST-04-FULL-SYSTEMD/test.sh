@@ -172,9 +172,10 @@ EOF
         # install basic keyboard maps and fonts
         for i in \
             /usr/lib/kbd/consolefonts/eurlatgr* \
-                /usr/lib/kbd/keymaps/{legacy/,/}include/* \
-                /usr/lib/kbd/keymaps/{legacy/,/}i386/include/* \
-                /usr/lib/kbd/keymaps/{legacy/,/}i386/qwerty/us.*; do
+            /usr/lib/kbd/keymaps/{legacy/,/}include/* \
+            /usr/lib/kbd/keymaps/{legacy/,/}i386/include/* \
+            /usr/lib/kbd/keymaps/{legacy/,/}i386/qwerty/us.* \
+            ${NULL}; do
             [[ -f $i ]] || continue
             inst $i
         done

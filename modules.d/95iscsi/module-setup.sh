@@ -225,16 +225,16 @@ install() {
                       iscsiadm iscsid
 
         for i in \
-                iscsid.socket \
-                iscsiuio.socket \
-            ; do
+            iscsid.socket \
+            iscsiuio.socket \
+            ${NULL}; do
             $SYSTEMCTL -q --root "$initdir" enable "$i"
         done
-        
+
         for i in \
-                iscsid.service \
-                iscsiuio.service \
-            ; do
+            iscsid.service \
+            iscsiuio.service \
+            ${NULL}; do
             $SYSTEMCTL -q --root "$initdir" add-wants basic.target "$i"
         done
 

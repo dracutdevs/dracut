@@ -32,8 +32,7 @@ _dracut() {
                               --xz --zstd --no-compress --gzip --list-modules --show-modules --keep
                               --printsize --regenerate-all --noimageifnotneeded --early-microcode
                               --no-early-microcode --print-cmdline --reproducible --uefi'
-
-                       [ARG]='-a -m -o -d -I -k -c -L --kver --add --force-add --add-drivers
+                [ARG]='-a -m -o -d -I -k -c -L --kver --add --force-add --add-drivers
                               --omit-drivers --modules --omit --drivers --filesystems --install
                               --fwdir --libdirs --fscks --add-fstab --mount --device --nofscks
                               --kmoddir --conf --confdir --tmpdir --stdlog --compress --prefix

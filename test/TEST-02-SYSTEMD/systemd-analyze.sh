@@ -4,12 +4,13 @@ cp /usr/bin/true /usr/bin/man
 
 for i in \
     sysinit.target \
-        basic.target \
-        initrd-fs.target \
-        initrd.target \
-        initrd-switch-root.target \
-        emergency.target \
-        shutdown.target; do
+    basic.target \
+    initrd-fs.target \
+    initrd.target \
+    initrd-switch-root.target \
+    emergency.target \
+    shutdown.target \
+    ${NULL}; do
     if ! systemd-analyze verify $i; then
         warn "systemd-analyze verify $i failed"
         poweroff
