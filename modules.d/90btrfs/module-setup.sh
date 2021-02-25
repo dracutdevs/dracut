@@ -40,6 +40,8 @@ install() {
                 inst_script "$moddir/btrfs_finished.sh" /sbin/btrfs_finished
                 ;;
         esac
+    else
+        inst_rules 64-btrfs-dm.rules
     fi
 
     if ! dracut_module_included "systemd"; then
