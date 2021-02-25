@@ -26,20 +26,20 @@ _dracut() {
     local cur=${COMP_WORDS[COMP_CWORD]} prev=${COMP_WORDS[COMP_CWORD - 1]}
     local -A OPTS=(
         [STANDALONE]='-f -v -q -l -H -h -M -N
-                              --ro-mnt --force --kernel-only --no-kernel --strip --nostrip
-                              --hardlink --nohardlink --noprefix --mdadmconf --nomdadmconf
-                              --lvmconf --nolvmconf --debug --profile --verbose --quiet
-                              --local --hostonly --no-hostonly --fstab --help --bzip2 --lzma
-                              --xz --zstd --no-compress --gzip --list-modules --show-modules --keep
-                              --printsize --regenerate-all --noimageifnotneeded --early-microcode
-                              --no-early-microcode --print-cmdline --reproducible --uefi'
+            --ro-mnt --force --kernel-only --no-kernel --strip --nostrip
+            --hardlink --nohardlink --noprefix --mdadmconf --nomdadmconf
+            --lvmconf --nolvmconf --debug --profile --verbose --quiet
+            --local --hostonly --no-hostonly --fstab --help --bzip2 --lzma
+            --xz --zstd --no-compress --gzip --list-modules --show-modules --keep
+            --printsize --regenerate-all --noimageifnotneeded --early-microcode
+            --no-early-microcode --print-cmdline --reproducible --uefi'
         [ARG]='-a -m -o -d -I -k -c -L --kver --add --force-add --add-drivers
-                              --omit-drivers --modules --omit --drivers --filesystems --install
-                              --fwdir --libdirs --fscks --add-fstab --mount --device --nofscks
-                              --kmoddir --conf --confdir --tmpdir --stdlog --compress --prefix
-                              --kernel-cmdline --sshkey --persistent-policy --install-optional
-                              --loginstall --uefi-stub --kernel-image
-                              '
+            --omit-drivers --modules --omit --drivers --filesystems --install
+            --fwdir --libdirs --fscks --add-fstab --mount --device --nofscks
+            --kmoddir --conf --confdir --tmpdir --stdlog --compress --prefix
+            --kernel-cmdline --sshkey --persistent-policy --install-optional
+            --loginstall --uefi-stub --kernel-image
+            '
     )
 
     # shellcheck disable=SC2086
