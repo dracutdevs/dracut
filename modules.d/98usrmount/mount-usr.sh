@@ -1,7 +1,7 @@
 #!/bin/sh
 
-type info >/dev/null 2>&1 || . /lib/dracut-lib.sh
-type fsck_single >/dev/null 2>&1 || . /lib/fs-lib.sh
+type info > /dev/null 2>&1 || . /lib/dracut-lib.sh
+type fsck_single > /dev/null 2>&1 || . /lib/fs-lib.sh
 
 filtersubvol() {
     local _oldifs
@@ -11,15 +11,14 @@ filtersubvol() {
     IFS="$_oldifs"
     while [ $# -gt 0 ]; do
         case $1 in
-            subvol\=*) :;;
+            subvol\=*) : ;;
             *) printf '%s' "${1}," ;;
         esac
         shift
     done
 }
 
-fsck_usr()
-{
+fsck_usr() {
     local _dev=$1
     local _fs=$2
     local _fsopts=$3
@@ -29,7 +28,7 @@ fsck_usr()
         _fsckoptions=$(cat "$NEWROOT"/fsckoptions)
     fi
 
-    if [ -f "$NEWROOT"/forcefsck ] || getargbool 0 forcefsck ; then
+    if [ -f "$NEWROOT"/forcefsck ] || getargbool 0 forcefsck; then
         _fsckoptions="-f $_fsckoptions"
     elif [ -f "$NEWROOT"/.autofsck ]; then
         [ -f "$NEWROOT"/etc/sysconfig/autofsck ] && . "$NEWROOT"/etc/sysconfig/autofsck
@@ -48,8 +47,7 @@ fsck_usr()
     fsck_single "$_dev" "$_fs" "$_fsopts" "$_fsckoptions"
 }
 
-mount_usr()
-{
+mount_usr() {
     local _dev _mp _fs _opts _rest _usr_found _ret _freq _passno
     # check, if we have to mount the /usr filesystem
     while read _dev _mp _fs _opts _freq _passno || [ -n "$_dev" ]; do
@@ -57,9 +55,9 @@ mount_usr()
         if [ "$_mp" = "/usr" ]; then
             _dev="$(label_uuid_to_dev "$_dev")"
 
-            if strstr "$_opts" "subvol=" && \
-                [ "${root#block:}" -ef $_dev ] && \
-                [ -n "$rflags" ]; then
+            if strstr "$_opts" "subvol=" \
+                && [ "${root#block:}" -ef $_dev ] \
+                && [ -n "$rflags" ]; then
                 # for btrfs subvolumes we have to mount /usr with the same rflags
                 rflags=$(filtersubvol "$rflags")
                 rflags=${rflags%%,}
@@ -84,7 +82,7 @@ mount_usr()
             if [ "0" != "${_passno:-0}" ]; then
                 fsck_usr "$_dev" "$_fs" "$_opts"
                 _fsck_ret=$?
-                [ $_fsck_ret -ne 255 ] && echo $_fsck_ret >/run/initramfs/usr-fsck
+                [ $_fsck_ret -ne 255 ] && echo $_fsck_ret > /run/initramfs/usr-fsck
             fi
         fi
 

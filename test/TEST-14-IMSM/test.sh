@@ -22,7 +22,7 @@ client_run() {
 
     if ! grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success $TESTDIR/marker.img; then
         echo "CLIENT TEST END: $@ [FAIL]"
-        return 1;
+        return 1
     fi
 
     echo "CLIENT TEST END: $@ [OK]"
@@ -71,7 +71,7 @@ test_setup() {
             done
         )
         inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
-                      mount dmesg dhclient mkdir cp ping dhclient dd
+            mount dmesg dhclient mkdir cp ping dhclient dd
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
@@ -81,7 +81,7 @@ test_setup() {
         inst "$basedir/modules.d/35network-legacy/ifup.sh" "/sbin/ifup"
         inst_multiple grep
         inst ./test-init.sh /sbin/init
-        find_binary plymouth >/dev/null && inst_multiple plymouth
+        find_binary plymouth > /dev/null && inst_multiple plymouth
         cp -a /etc/ld.so.conf* $initdir/etc
         mkdir -p $initdir/run
         ldconfig -r "$initdir"
@@ -100,10 +100,10 @@ test_setup() {
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-                       -m "bash lvm mdraid dmraid udev-rules base rootfs-block fs-lib kernel-modules qemu" \
-                       -d "piix ide-gd_mod ata_piix ext2 sd_mod dm-multipath dm-crypt dm-round-robin faulty linear multipath raid0 raid10 raid1 raid456" \
-                       --no-hostonly-cmdline -N \
-                       -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
+        -m "bash lvm mdraid dmraid udev-rules base rootfs-block fs-lib kernel-modules qemu" \
+        -d "piix ide-gd_mod ata_piix ext2 sd_mod dm-multipath dm-crypt dm-round-robin faulty linear multipath raid0 raid10 raid1 raid456" \
+        --no-hostonly-cmdline -N \
+        -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
     rm -rf -- $TESTDIR/overlay
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     $testdir/run-qemu \
@@ -111,7 +111,7 @@ test_setup() {
         -drive format=raw,index=1,media=disk,file=$TESTDIR/disk1 \
         -drive format=raw,index=2,media=disk,file=$TESTDIR/disk2 \
         -append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
-        -initrd $TESTDIR/initramfs.makeroot  || return 1
+        -initrd $TESTDIR/initramfs.makeroot || return 1
     grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/marker.img || return 1
     eval $(grep -F --binary-files=text -m 1 MD_UUID $TESTDIR/marker.img)
 
@@ -130,11 +130,11 @@ test_setup() {
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-         -o "plymouth network kernel-network-modules" \
-         -a "debug" \
-         -d "piix ide-gd_mod ata_piix ext2 sd_mod" \
-         --no-hostonly-cmdline -N \
-         -f $TESTDIR/initramfs.testing $KVERSION || return 1
+        -o "plymouth network kernel-network-modules" \
+        -a "debug" \
+        -d "piix ide-gd_mod ata_piix ext2 sd_mod" \
+        --no-hostonly-cmdline -N \
+        -f $TESTDIR/initramfs.testing $KVERSION || return 1
 }
 
 test_cleanup() {

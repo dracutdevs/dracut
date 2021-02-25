@@ -56,4 +56,3 @@ install() {
 
     inst_multiple sulogin
 }
-

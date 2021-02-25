@@ -1,7 +1,6 @@
 #!/bin/sh
 
-type crypttab_contains >/dev/null 2>&1 || . /lib/dracut-crypt-lib.sh
-
+type crypttab_contains > /dev/null 2>&1 || . /lib/dracut-crypt-lib.sh
 
 _cryptgetargsname() {
     debug_off
@@ -12,15 +11,15 @@ _cryptgetargsname() {
     set --
     for _o in $(getargs rd.luks.name); do
         if [ "${_o%=*}" = "${_key%=}" ]; then
-            [ -n "${_o%=*}" ] && set -- "$@" "${_o#*=}";
-            _found=1;
+            [ -n "${_o%=*}" ] && set -- "$@" "${_o#*=}"
+            _found=1
         fi
     done
     if [ -n "$_found" ]; then
         [ $# -gt 0 ] && printf '%s' "$*"
         return 0
     fi
-    return 1;
+    return 1
 }
 
 if ! getargbool 1 rd.luks -d -n rd_NO_LUKS; then

@@ -24,4 +24,3 @@ install() {
         mkdir -m 0755 -p ${initdir}/lib/dracut/hooks/$_d
     done
 }
-

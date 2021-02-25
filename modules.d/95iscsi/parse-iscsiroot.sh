@@ -31,11 +31,11 @@ fi
 
 [ -n "$iscsiroot" ] && [ -n "$iscsi_firmware" ] && die "Mixing iscsiroot and iscsi_firmware is dangerous"
 
-type write_fs_tab >/dev/null 2>&1 || . /lib/fs-lib.sh
+type write_fs_tab > /dev/null 2>&1 || . /lib/fs-lib.sh
 
 # Root takes precedence over netroot
-if [ "${root%%:*}" = "iscsi" ] ; then
-    if [ -n "$netroot" ] ; then
+if [ "${root%%:*}" = "iscsi" ]; then
+    if [ -n "$netroot" ]; then
         echo "Warning: root takes precedence over netroot. Ignoring netroot"
     fi
     netroot=$root
@@ -55,22 +55,22 @@ for nroot in $(getargs netroot); do
 done
 
 # Root takes precedence over netroot
-if [ "${root}" = "/dev/root" ] && getarg "netroot=dhcp" ; then
+if [ "${root}" = "/dev/root" ] && getarg "netroot=dhcp"; then
     # if root is not specified try to mount the whole iSCSI LUN
     printf 'ENV{DEVTYPE}!="partition", SYMLINK=="disk/by-path/*-iscsi-*-*", SYMLINK+="root"\n' >> /etc/udev/rules.d/99-iscsi-root.rules
     [ -n "$DRACUT_SYSTEMD" ] && systemctl is-active systemd-udevd && udevadm control --reload-rules
 fi
 
-if [ -n "$iscsiroot" ] ; then
-    [ -z "$netroot" ]  && netroot=$root
+if [ -n "$iscsiroot" ]; then
+    [ -z "$netroot" ] && netroot=$root
 
     # @deprecated
     echo "Warning: Argument iscsiroot is deprecated and might be removed in a future"
     echo "release. See 'man dracut.kernel' for more information."
 
     # Accept iscsiroot argument?
-    [ -z "$netroot" ] || [ "$netroot" = "iscsi" ] || \
-        die "Argument iscsiroot only accepted for empty root= or [net]root=iscsi"
+    [ -z "$netroot" ] || [ "$netroot" = "iscsi" ] \
+        || die "Argument iscsiroot only accepted for empty root= or [net]root=iscsi"
 
     # Override root with iscsiroot content?
     [ -z "$netroot" ] || [ "$netroot" = "iscsi" ] && netroot=iscsi:$iscsiroot
@@ -81,7 +81,7 @@ if [ -n "$iscsi_firmware" ]; then
     if [ "$root" != "dhcp" ] && [ "$netroot" != "dhcp" ]; then
         [ -z "$netroot" ] && netroot=iscsi:
     fi
-    modprobe -b -q iscsi_boot_sysfs 2>/dev/null
+    modprobe -b -q iscsi_boot_sysfs 2> /dev/null
     modprobe -b -q iscsi_ibft
     # if no ip= is given, but firmware
     echo "${DRACUT_SYSTEMD+systemctl is-active initrd-root-device.target || }[ -f '/tmp/iscsistarted-firmware' ]" > $hookdir/initqueue/finished/iscsi_started.sh
@@ -98,12 +98,12 @@ fi
 modprobe --all -b -q qla4xxx cxgb3i cxgb4i bnx2i be2iscsi
 
 if [ -n "$netroot" ] && [ "$root" != "/dev/root" ] && [ "$root" != "dhcp" ]; then
-    if ! getargbool 1 rd.neednet >/dev/null || ! getarg "ip="; then
+    if ! getargbool 1 rd.neednet > /dev/null || ! getarg "ip="; then
         initqueue --unique --onetime --settled /sbin/iscsiroot dummy "'$netroot'" "'$NEWROOT'"
     fi
 fi
 
-if arg=$(getarg rd.iscsi.initiator -d iscsi_initiator=) && [ -n "$arg" ] && ! [ -f /run/initiatorname.iscsi ] ; then
+if arg=$(getarg rd.iscsi.initiator -d iscsi_initiator=) && [ -n "$arg" ] && ! [ -f /run/initiatorname.iscsi ]; then
     iscsi_initiator=$arg
     echo "InitiatorName=$iscsi_initiator" > /run/initiatorname.iscsi
     ln -fs /run/initiatorname.iscsi /dev/.initiatorname.iscsi
@@ -119,7 +119,7 @@ fi
 
 # If not given on the cmdline and initiator-name available via iBFT
 if [ -z $iscsi_initiator ] && [ -f /sys/firmware/ibft/initiator/initiator-name ] && ! [ -f /tmp/iscsi_set_initiator ]; then
-    iscsi_initiator=$(while read line || [ -n "$line" ]; do echo $line;done < /sys/firmware/ibft/initiator/initiator-name)
+    iscsi_initiator=$(while read line || [ -n "$line" ]; do echo $line; done < /sys/firmware/ibft/initiator/initiator-name)
     if [ -n "$iscsi_initiator" ]; then
         echo "InitiatorName=$iscsi_initiator" > /run/initiatorname.iscsi
         rm -f /etc/iscsi/initiatorname.iscsi
@@ -142,7 +142,7 @@ initqueue --unique --onetime --timeout /sbin/iscsiroot timeout "$netroot" "$NEWR
 
 for nroot in $(getargs netroot); do
     [ "${nroot%%:*}" = "iscsi" ] || continue
-    type parse_iscsi_root >/dev/null 2>&1 || . /lib/net-lib.sh
+    type parse_iscsi_root > /dev/null 2>&1 || . /lib/net-lib.sh
     parse_iscsi_root "$nroot" || return 1
     netroot_enc=$(str_replace "$nroot" '/' '\2f')
     echo "${DRACUT_SYSTEMD+systemctl is-active initrd-root-device.target || }[ -f '/tmp/iscsistarted-$netroot_enc' ]" > $hookdir/initqueue/finished/iscsi_started.sh

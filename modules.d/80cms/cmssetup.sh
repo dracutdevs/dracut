@@ -1,15 +1,15 @@
 #!/bin/bash
 
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
-function sysecho () {
+function sysecho() {
     file="$1"
     shift
     local i=1
-    while [ $i -le 10 ] ; do
+    while [ $i -le 10 ]; do
         if [ ! -f "$file" ]; then
             sleep 1
-            i=$((i+1))
+            i=$((i + 1))
         else
             break
         fi
@@ -27,23 +27,25 @@ function dasd_settle() {
         return 1
     fi
     local i=1
-    while [ $i -le 60 ] ; do
+    while [ $i -le 60 ]; do
         local status
         read status < $dasd_status
         case $status in
-            online|unformatted)
-                return 0 ;;
+            online | unformatted)
+                return 0
+                ;;
             *)
                 sleep 0.1
-                i=$((i+1)) ;;
+                i=$((i + 1))
+                ;;
         esac
     done
     return 1
 }
 
 function dasd_settle_all() {
-    for dasdccw in $(while read line || [ -n "$line" ]; do echo "${line%%(*}"; done < /proc/dasd/devices) ; do
-        if ! dasd_settle $dasdccw ; then
+    for dasdccw in $(while read line || [ -n "$line" ]; do echo "${line%%(*}"; done < /proc/dasd/devices); do
+        if ! dasd_settle $dasdccw; then
             echo $"Could not access DASD $dasdccw in time"
             return 1
         fi
@@ -52,8 +54,7 @@ function dasd_settle_all() {
 }
 
 # prints a canonocalized device bus ID for a given devno of any format
-function canonicalize_devno()
-{
+function canonicalize_devno() {
     case ${#1} in
         3) echo "0.0.0${1}" ;;
         4) echo "0.0.${1}" ;;
@@ -63,15 +64,14 @@ function canonicalize_devno()
 }
 
 # read file from CMS and write it to /tmp
-function readcmsfile() # $1=dasdport $2=filename
-{
+function readcmsfile() { # $1=dasdport $2=filename
     local dev
     local numcpus
     local devname
     local ret=0
     if [ $# -ne 2 ]; then return; fi
     # precondition: udevd created dasda block device node
-    if ! dasd_cio_free -d $1 ; then
+    if ! dasd_cio_free -d $1; then
         echo $"DASD $1 could not be cleared from device blacklist"
         return 1
     fi
@@ -86,9 +86,9 @@ function readcmsfile() # $1=dasdport $2=filename
     numcpus=$(
         while read line || [ -n "$line" ]; do
             if strstr "$line" "# processors"; then
-                echo ${line##*:};
-                break;
-            fi;
+                echo ${line##*:}
+                break
+            fi
         done < /proc/cpuinfo
     )
 
@@ -100,7 +100,7 @@ function readcmsfile() # $1=dasdport $2=filename
             return 1
         fi
         udevadm settle
-        if ! dasd_settle $dev ; then
+        if ! dasd_settle $dev; then
             echo $"Could not access DASD $dev in time"
             return 1
         fi
@@ -108,7 +108,11 @@ function readcmsfile() # $1=dasdport $2=filename
 
     udevadm settle
 
-    devname=$(cd /sys/bus/ccw/devices/$dev/block; set -- *; [ -b /dev/$1 ] && echo $1)
+    devname=$(
+        cd /sys/bus/ccw/devices/$dev/block
+        set -- *
+        [ -b /dev/$1 ] && echo $1
+    )
     devname=${devname:-dasda}
 
     [[ -d /mnt ]] || mkdir -p /mnt
@@ -128,7 +132,10 @@ function readcmsfile() # $1=dasdport $2=filename
     udevadm settle
 
     # unbind all dasds to unload the dasd modules for a clean start
-    ( cd /sys/bus/ccw/drivers/dasd-eckd; for i in *.*; do echo $i > unbind;done)
+    (
+        cd /sys/bus/ccw/drivers/dasd-eckd
+        for i in *.*; do echo $i > unbind; done
+    )
     udevadm settle
     modprobe -r dasd_eckd_mod
     udevadm settle
@@ -139,8 +146,7 @@ function readcmsfile() # $1=dasdport $2=filename
     return $ret
 }
 
-processcmsfile()
-{
+processcmsfile() {
     source /tmp/cms.conf
     SUBCHANNELS="$(echo $SUBCHANNELS | sed 'y/ABCDEF/abcdef/')"
 
@@ -183,8 +189,8 @@ processcmsfile()
     for i in ${!FCP_*}; do
         echo "${!i}" | while read port rest || [ -n "$port" ]; do
             case $port in
-                *.*.*)
-                    ;;
+                *.*.*) ;;
+
                 *.*)
                     port="0.$port"
                     ;;

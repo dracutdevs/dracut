@@ -7,28 +7,39 @@
 
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
 while [ $# -gt 0 ]; do
     case "$1" in
         --onetime)
-            onetime="yes";;
+            onetime="yes"
+            ;;
         --online)
-            qname="/online";;
+            qname="/online"
+            ;;
         --settled)
-            qname="/settled";;
+            qname="/settled"
+            ;;
         --finished)
-            qname="/finished";;
+            qname="/finished"
+            ;;
         --timeout)
-            qname="/timeout";;
+            qname="/timeout"
+            ;;
         --unique)
-            unique="yes";;
+            unique="yes"
+            ;;
         --name)
-            name="$2";shift;;
+            name="$2"
+            shift
+            ;;
         --env)
-            env="$2"; shift;;
+            env="$2"
+            shift
+            ;;
         *)
-            break;;
+            break
+            ;;
     esac
     shift
 done
@@ -44,7 +55,7 @@ exe=$1
 shift
 
 [ -x "$exe" ] || exe=$(command -v $exe)
-if [ -z "$exe" ] ; then
+if [ -z "$exe" ]; then
     echo "Invalid command"
     exit 1
 fi

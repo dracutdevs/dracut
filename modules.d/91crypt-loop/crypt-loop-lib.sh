@@ -1,6 +1,6 @@
 #!/bin/sh
 
-command -v ask_for_password >/dev/null || . /lib/dracut-crypt-lib.sh
+command -v ask_for_password > /dev/null || . /lib/dracut-crypt-lib.sh
 
 # loop_decrypt mnt_point keypath keydev device
 #

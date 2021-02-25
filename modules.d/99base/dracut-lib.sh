@@ -55,8 +55,8 @@ str_ends() {
 
 trim() {
     local var="$*"
-    var="${var#"${var%%[![:space:]]*}"}"   # remove leading whitespace characters
-    var="${var%"${var##*[![:space:]]}"}"   # remove trailing whitespace characters
+    var="${var#"${var%%[![:space:]]*}"}" # remove leading whitespace characters
+    var="${var%"${var##*[![:space:]]}"}" # remove trailing whitespace characters
     printf "%s" "$var"
 }
 
@@ -71,8 +71,8 @@ if [ -z "$DRACUT_SYSTEMD" ]; then
     info() {
         check_quiet
         echo "<30>dracut: $*" > /dev/kmsg
-        [ "$DRACUT_QUIET" != "yes" ] && \
-            echo "dracut: $*" >&2 || :
+        [ "$DRACUT_QUIET" != "yes" ] \
+            && echo "dracut: $*" >&2 || :
     }
 
 else
@@ -89,13 +89,13 @@ fi
 
 vwarn() {
     while read line || [ -n "$line" ]; do
-        warn $line;
+        warn $line
     done
 }
 
 vinfo() {
     while read line || [ -n "$line" ]; do
-        info $line;
+        info $line
     done
 }
 
@@ -106,7 +106,9 @@ vinfo() {
 # example:
 # str_replace '  one two  three  ' ' ' '_'
 str_replace() {
-    local in="$1"; local s="$2"; local r="$3"
+    local in="$1"
+    local s="$2"
+    local r="$3"
     local out=''
 
     while strstr "${in}" "$s"; do
@@ -124,11 +126,11 @@ killall_proc_mountpoint() {
     for _pid in /proc/*; do
         _pid=${_pid##/proc/}
         case $_pid in
-            *[!0-9]*) continue;;
+            *[!0-9]*) continue ;;
         esac
         [ -e "/proc/$_pid/exe" ] || continue
         [ -e "/proc/$_pid/root" ] || continue
-        if strstr "$(ls -l -- "/proc/$_pid" "/proc/$_pid/fd" 2>/dev/null)" "$1" ; then
+        if strstr "$(ls -l -- "/proc/$_pid" "/proc/$_pid/fd" 2> /dev/null)" "$1"; then
             kill -9 "$_pid"
             _killed=1
         fi
@@ -146,19 +148,19 @@ getcmdline() {
 
     if [ -e /etc/cmdline ]; then
         while read -r _line || [ -n "$_line" ]; do
-            CMDLINE_ETC="$CMDLINE_ETC $_line";
-        done </etc/cmdline;
+            CMDLINE_ETC="$CMDLINE_ETC $_line"
+        done < /etc/cmdline
     fi
     for _i in /etc/cmdline.d/*.conf; do
         [ -e "$_i" ] || continue
         while read -r _line || [ -n "$_line" ]; do
-            CMDLINE_ETC_D="$CMDLINE_ETC_D $_line";
-        done <"$_i";
+            CMDLINE_ETC_D="$CMDLINE_ETC_D $_line"
+        done < "$_i"
     done
     if [ -e /proc/cmdline ]; then
         while read -r _line || [ -n "$_line" ]; do
             CMDLINE_PROC="$CMDLINE_PROC $_line"
-        done </proc/cmdline;
+        done < /proc/cmdline
     fi
     CMDLINE="$CMDLINE_ETC_D $CMDLINE_ETC $CMDLINE_PROC"
     printf "%s" "$CMDLINE"
@@ -171,8 +173,12 @@ getarg() {
     export CMDLINE
     while [ $# -gt 0 ]; do
         case $1 in
-            -d) _deprecated=1; shift;;
-            -y) if dracut-getarg "$2" >/dev/null; then
+            -d)
+                _deprecated=1
+                shift
+                ;;
+            -y)
+                if dracut-getarg "$2" > /dev/null; then
                     if [ "$_deprecated" = "1" ]; then
                         [ -n "$_newoption" ] && warn "Kernel command line option '$2' is deprecated, use '$_newoption' instead." || warn "Option '$2' is deprecated."
                     fi
@@ -181,9 +187,11 @@ getarg() {
                     return 0
                 fi
                 _deprecated=0
-                shift 2;;
-            -n) if dracut-getarg "$2" >/dev/null; then
-                    echo 0;
+                shift 2
+                ;;
+            -n)
+                if dracut-getarg "$2" > /dev/null; then
+                    echo 0
                     if [ "$_deprecated" = "1" ]; then
                         [ -n "$_newoption" ] && warn "Kernel command line option '$2' is deprecated, use '$_newoption=0' instead." || warn "Option '$2' is deprecated."
                     fi
@@ -191,8 +199,10 @@ getarg() {
                     return 1
                 fi
                 _deprecated=0
-                shift 2;;
-            *)  if [ -z "$_newoption" ]; then
+                shift 2
+                ;;
+            *)
+                if [ -z "$_newoption" ]; then
                     _newoption="$1"
                 fi
                 if dracut-getarg "$1"; then
@@ -200,10 +210,11 @@ getarg() {
                         [ -n "$_newoption" ] && warn "Kernel command line option '$1' is deprecated, use '$_newoption' instead." || warn "Option '$1' is deprecated."
                     fi
                     debug_on
-                    return 0;
+                    return 0
                 fi
                 _deprecated=0
-                shift;;
+                shift
+                ;;
         esac
     done
     debug_on
@@ -221,7 +232,8 @@ getargbool() {
     local _b
     unset _b
     local _default
-    _default="$1"; shift
+    _default="$1"
+    shift
     _b=$(getarg "$@")
     [ $? -ne 0 -a -z "$_b" ] && _b="$_default"
     if [ -n "$_b" ]; then
@@ -234,7 +246,7 @@ getargbool() {
 
 isdigit() {
     case "$1" in
-        *[!0-9]*|"") return 1;;
+        *[!0-9]* | "") return 1 ;;
     esac
 
     return 0
@@ -249,14 +261,17 @@ getargnum() {
     local _b
     unset _b
     local _default _min _max
-    _default="$1"; shift
-    _min="$1"; shift
-    _max="$1"; shift
+    _default="$1"
+    shift
+    _min="$1"
+    shift
+    _max="$1"
+    shift
     _b=$(getarg "$1")
     [ $? -ne 0 -a -z "$_b" ] && _b=$_default
     if [ -n "$_b" ]; then
-        isdigit "$_b" && _b=$(($_b)) && \
-          [ $_b -ge $_min ] && [ $_b -le $_max ] && echo $_b && return
+        isdigit "$_b" && _b=$(($_b)) \
+            && [ $_b -ge $_min ] && [ $_b -le $_max ] && echo $_b && return
     fi
     echo $_default
 }
@@ -294,9 +309,8 @@ getargs() {
         return 0
     fi
     debug_on
-    return 1;
+    return 1
 }
-
 
 # Prints value of given option.  If option is a flag and it's present,
 # it just returns 0.  Otherwise 1 is returned.
@@ -309,7 +323,9 @@ getargs() {
 # Output:
 # sha256
 getoptcomma() {
-    local line=",$1,"; local opt="$2"; local tmp
+    local line=",$1,"
+    local opt="$2"
+    local tmp
 
     case "${line}" in
         *,${opt}=*,*)
@@ -317,7 +333,7 @@ getoptcomma() {
             echo "${tmp%%,*}"
             return 0
             ;;
-        *,${opt},*) return 0;;
+        *,${opt},*) return 0 ;;
     esac
     return 1
 }
@@ -337,7 +353,9 @@ getoptcomma() {
 # TODO: ':' inside fields.
 splitsep() {
     debug_off
-    local sep="$1"; local str="$2"; shift 2
+    local sep="$1"
+    local str="$2"
+    shift 2
     local tmp
 
     while [ -n "$str" -a "$#" -gt 1 ]; do
@@ -359,9 +377,9 @@ setdebug() {
             RD_DEBUG=no
             if getargbool 0 rd.debug -d -y rdinitdebug -d -y rdnetdebug; then
                 RD_DEBUG=yes
-                [ -n "$BASH" ] && \
-                    export PS4='${BASH_SOURCE}@${LINENO}(${FUNCNAME[0]}): ';
-           fi
+                [ -n "$BASH" ] \
+                    && export PS4='${BASH_SOURCE}@${LINENO}(${FUNCNAME[0]}): '
+            fi
         fi
         export RD_DEBUG
     fi
@@ -373,8 +391,9 @@ setdebug
 source_all() {
     local f
     local _dir
-    _dir=$1; shift
-    [ "$_dir" ] && [  -d "/$_dir" ] || return
+    _dir=$1
+    shift
+    [ "$_dir" ] && [ -d "/$_dir" ] || return
     for f in "/$_dir"/*.sh; do [ -e "$f" ] && . "$f" "$@"; done
 }
 
@@ -383,7 +402,8 @@ export hookdir
 
 source_hook() {
     local _dir
-    _dir=$1; shift
+    _dir=$1
+    shift
     source_all "/lib/dracut/hooks/$_dir" "$@"
 }
 
@@ -391,26 +411,26 @@ check_finished() {
     local f
     for f in $hookdir/initqueue/finished/*.sh; do
         [ "$f" = "$hookdir/initqueue/finished/*.sh" ] && return 0
-        { [ -e "$f" ] && ( . "$f" ) ; } || return 1
+        { [ -e "$f" ] && (. "$f"); } || return 1
     done
     return 0
 }
 
 source_conf() {
     local f
-    [ "$1" ] && [  -d "/$1" ] || return
+    [ "$1" ] && [ -d "/$1" ] || return
     for f in "/$1"/*.conf; do [ -e "$f" ] && . "$f"; done
 }
 
 die() {
     {
-        echo "<24>dracut: FATAL: $*";
-        echo "<24>dracut: Refusing to continue";
+        echo "<24>dracut: FATAL: $*"
+        echo "<24>dracut: Refusing to continue"
     } > /dev/kmsg
 
     {
-        echo "warn dracut: FATAL: \"$*\"";
-        echo "warn dracut: Refusing to continue";
+        echo "warn dracut: FATAL: \"$*\""
+        echo "warn dracut: Refusing to continue"
     } >> $hookdir/emergency/01-die.sh
     [ -d /run/initramfs ] || mkdir -p -- /run/initramfs
 
@@ -441,7 +461,6 @@ check_quiet() {
     fi
 }
 
-
 check_occurances() {
     # Count the number of times the character $ch occurs in $str
     # Return 0 if the count matches the expected number, 1 otherwise
@@ -452,7 +471,7 @@ check_occurances() {
 
     while [ "${str#*$ch}" != "${str}" ]; do
         str="${str#*$ch}"
-        count=$(( $count + 1 ))
+        count=$(($count + 1))
     done
 
     [ $count -eq $expected ]
@@ -460,12 +479,12 @@ check_occurances() {
 
 incol2() {
     debug_off
-    local dummy check;
-    local file="$1";
-    local str="$2";
+    local dummy check
+    local file="$1"
+    local str="$2"
 
-    [ -z "$file" ] && return 1;
-    [ -z "$str"  ] && return 1;
+    [ -z "$file" ] && return 1
+    [ -z "$str" ] && return 1
 
     while read dummy check restofline || [ -n "$check" ]; do
         if [ "$check" = "$str" ]; then
@@ -508,7 +527,7 @@ find_mount() {
 
 # usage: ismounted <mountpoint>
 # usage: ismounted /dev/<device>
-if command -v findmnt >/dev/null; then
+if command -v findmnt > /dev/null; then
     ismounted() {
         findmnt "$1" > /dev/null 2>&1
     }
@@ -537,17 +556,17 @@ fi
 # TODO: symlinks
 udevmatch() {
     case "$1" in
-    UUID=????????-????-????-????-????????????|LABEL=*|PARTLABEL=*|PARTUUID=????????-????-????-????-????????????)
-        printf 'ENV{ID_FS_%s}=="%s"' "${1%%=*}" "${1#*=}"
-        ;;
-    UUID=*)
-        printf 'ENV{ID_FS_UUID}=="%s*"' "${1#*=}"
-        ;;
-    PARTUUID=*)
-        printf 'ENV{ID_FS_PARTUUID}=="%s*"' "${1#*=}"
-        ;;
-    /dev/?*) printf -- 'KERNEL=="%s"' "${1#/dev/}" ;;
-    *) return 255 ;;
+        UUID=????????-????-????-????-???????????? | LABEL=* | PARTLABEL=* | PARTUUID=????????-????-????-????-????????????)
+            printf 'ENV{ID_FS_%s}=="%s"' "${1%%=*}" "${1#*=}"
+            ;;
+        UUID=*)
+            printf 'ENV{ID_FS_UUID}=="%s*"' "${1#*=}"
+            ;;
+        PARTUUID=*)
+            printf 'ENV{ID_FS_PARTUUID}=="%s*"' "${1#*=}"
+            ;;
+        /dev/?*) printf -- 'KERNEL=="%s"' "${1#/dev/}" ;;
+        *) return 255 ;;
     esac
 }
 
@@ -583,13 +602,14 @@ label_uuid_to_dev() {
 # # funiq /mnt cdrom
 # /mnt/cdrom2
 funiq() {
-    local dir="$1"; local prefix="$2"
+    local dir="$1"
+    local prefix="$2"
     local i=0
 
     [ -d "${dir}" ] || return 1
 
     while [ -e "${dir}/${prefix}$i" ]; do
-        i=$(($i+1)) || return 1
+        i=$(($i + 1)) || return 1
     done
 
     echo "${dir}/${prefix}$i"
@@ -600,13 +620,15 @@ funiq() {
 #
 # mkuniqdir subdir new_dir_name
 mkuniqdir() {
-    local dir="$1"; local prefix="$2"
-    local retdir; local retdir_new
+    local dir="$1"
+    local prefix="$2"
+    local retdir
+    local retdir_new
 
     [ -d "${dir}" ] || mkdir -m 0755 -p "${dir}" || return 1
 
     retdir=$(funiq "${dir}" "${prefix}") || return 1
-    until mkdir -m 0755 "${retdir}" 2>/dev/null; do
+    until mkdir -m 0755 "${retdir}" 2> /dev/null; do
         retdir_new=$(funiq "${dir}" "${prefix}") || return 1
         [ "$retdir_new" = "$retdir" ] && return 1
         retdir="$retdir_new"
@@ -622,8 +644,12 @@ mkuniqdir() {
 # copytree SRC DEST
 copytree() {
     local src="$1" dest="$2"
-    mkdir -p "$dest"; dest=$(readlink -e -q "$dest")
-    ( cd "$src"; cp -af . -t "$dest" )
+    mkdir -p "$dest"
+    dest=$(readlink -e -q "$dest")
+    (
+        cd "$src"
+        cp -af . -t "$dest"
+    )
 }
 
 # Evaluates command for UUIDs either given as arguments for this function or all
@@ -648,8 +674,12 @@ foreach_uuid_until() (
     cd /dev/disk/by-uuid
 
     [ "$1" = -p ] && local prefix="$2" && shift 2
-    local cmd="$1"; shift; local uuids_list="$*"
-    local uuid; local full_uuid; local ___
+    local cmd="$1"
+    shift
+    local uuids_list="$*"
+    local uuid
+    local full_uuid
+    local ___
 
     [ -n "${cmd}" ] || return 1
 
@@ -679,17 +709,19 @@ foreach_uuid_until() (
 #   /dev/sdb1
 #   /dev/sdf3
 devnames() {
-    local dev="$1"; local d; local names
+    local dev="$1"
+    local d
+    local names
 
     case "$dev" in
-    UUID=*)
-        dev="$(foreach_uuid_until '! blkid -U $___' "${dev#UUID=}")" \
-            && return 255
-        [ -z "$dev" ] && return 255
-        ;;
-    LABEL=*) dev="$(blkid -L "${dev#LABEL=}")" || return 255 ;;
-    /dev/?*) ;;
-    *) return 255 ;;
+        UUID=*)
+            dev="$(foreach_uuid_until '! blkid -U $___' "${dev#UUID=}")" \
+                && return 255
+            [ -z "$dev" ] && return 255
+            ;;
+        LABEL=*) dev="$(blkid -L "${dev#LABEL=}")" || return 255 ;;
+        /dev/?*) ;;
+        *) return 255 ;;
     esac
 
     for d in $dev; do
@@ -700,7 +732,6 @@ $(readlink -e -q "$d")" || return 255
     echo "${names#
 }"
 }
-
 
 usable_root() {
     local _i
@@ -723,13 +754,19 @@ inst_hook() {
     while [ $# -gt 0 ]; do
         case "$1" in
             --hook)
-                _hookname="/$2";shift;;
+                _hookname="/$2"
+                shift
+                ;;
             --unique)
-                _unique="yes";;
+                _unique="yes"
+                ;;
             --name)
-                _name="$2";shift;;
+                _name="$2"
+                shift
+                ;;
             *)
-                break;;
+                break
+                ;;
         esac
         shift
     done
@@ -779,7 +816,7 @@ add_mount_point() {
     local _devname="dev-$(str_replace "$1" '/' '\\x2f')"
     echo "$_dev $_mp $_fs $_fsopts 0 0" >> /etc/fstab
 
-    exec 7>/etc/udev/rules.d/99-mount-${_devname}.rules
+    exec 7> /etc/udev/rules.d/99-mount-${_devname}.rules
     echo 'SUBSYSTEM!="block", GOTO="mount_end"' >&7
     echo 'ACTION!="add|change", GOTO="mount_end"' >&7
     if [ -n "$_dev" ]; then
@@ -804,8 +841,7 @@ add_mount_point() {
 # Installs a initqueue-finished script,
 # which will cause the main loop only to exit,
 # if <mountpoint> is mounted.
-wait_for_mount()
-{
+wait_for_mount() {
     local _name
     _name="$(str_replace "$1" '/' '\\x2f')"
     printf '. /lib/dracut-lib.sh\nismounted "%s"\n' $1 \
@@ -818,11 +854,10 @@ wait_for_mount()
 
 # get a systemd-compatible unit name from a path
 # (mimicks unit_name_from_path_instance())
-dev_unit_name()
-{
+dev_unit_name() {
     local dev="$1"
 
-    if command -v systemd-escape >/dev/null; then
+    if command -v systemd-escape > /dev/null; then
         systemd-escape -p -- "$dev"
         return
     fi
@@ -847,8 +882,7 @@ dev_unit_name()
 # set_systemd_timeout_for_dev <dev>
 # Set 'rd.timeout' as the systemd timeout for <dev>
 
-set_systemd_timeout_for_dev()
-{
+set_systemd_timeout_for_dev() {
     local _name
     local _needreload
     local _noreload
@@ -867,7 +901,7 @@ set_systemd_timeout_for_dev()
         if ! [ -L ${PREFIX}/etc/systemd/system/initrd.target.wants/${_name}.device ]; then
             [ -d ${PREFIX}/etc/systemd/system/initrd.target.wants ] || mkdir -p ${PREFIX}/etc/systemd/system/initrd.target.wants
             ln -s ../${_name}.device ${PREFIX}/etc/systemd/system/initrd.target.wants/${_name}.device
-            type mark_hostonly >/dev/null 2>&1 && mark_hostonly /etc/systemd/system/initrd.target.wants/${_name}.device
+            type mark_hostonly > /dev/null 2>&1 && mark_hostonly /etc/systemd/system/initrd.target.wants/${_name}.device
             _needreload=1
         fi
 
@@ -878,7 +912,7 @@ set_systemd_timeout_for_dev()
                 echo "JobTimeoutSec=$_timeout"
                 echo "JobRunningTimeoutSec=$_timeout"
             } > ${PREFIX}/etc/systemd/system/${_name}.device.d/timeout.conf
-            type mark_hostonly >/dev/null 2>&1 && mark_hostonly /etc/systemd/system/${_name}.device.d/timeout.conf
+            type mark_hostonly > /dev/null 2>&1 && mark_hostonly /etc/systemd/system/${_name}.device.d/timeout.conf
             _needreload=1
         fi
 
@@ -892,8 +926,7 @@ set_systemd_timeout_for_dev()
 # Installs a initqueue-finished script,
 # which will cause the main loop only to exit,
 # if the device <dev> is recognized by the system.
-wait_for_dev()
-{
+wait_for_dev() {
     local _name
     local _noreload
 
@@ -904,7 +937,7 @@ wait_for_dev()
 
     _name="$(str_replace "$1" '/' '\x2f')"
 
-    type mark_hostonly >/dev/null 2>&1 && mark_hostonly "$hookdir/initqueue/finished/devexists-${_name}.sh"
+    type mark_hostonly > /dev/null 2>&1 && mark_hostonly "$hookdir/initqueue/finished/devexists-${_name}.sh"
 
     [ -e "${PREFIX}$hookdir/initqueue/finished/devexists-${_name}.sh" ] && return 0
 
@@ -918,8 +951,7 @@ wait_for_dev()
     set_systemd_timeout_for_dev $_noreload $1
 }
 
-cancel_wait_for_dev()
-{
+cancel_wait_for_dev() {
     local _name
     _name="$(str_replace "$1" '/' '\x2f')"
     rm -f -- "$hookdir/initqueue/finished/devexists-${_name}.sh"
@@ -940,7 +972,7 @@ killproc() {
     [ -x "$_exe" ] || return 1
     for _i in /proc/[0-9]*; do
         [ "$_i" = "/proc/1" ] && continue
-        if [ -e "$_i"/_exe ] && [  "$_i/_exe" -ef "$_exe" ] ; then
+        if [ -e "$_i"/_exe ] && [ "$_i/_exe" -ef "$_exe" ]; then
             kill $_sig ${_i##*/}
         fi
     done
@@ -948,17 +980,16 @@ killproc() {
 }
 
 need_shutdown() {
-    >/run/initramfs/.need_shutdown
+    > /run/initramfs/.need_shutdown
 }
 
-wait_for_loginit()
-{
+wait_for_loginit() {
     [ "$RD_DEBUG" = "yes" ] || return
     [ -e /run/initramfs/loginit.pipe ] || return
     debug_off
     echo "DRACUT_LOG_END"
-    exec 0<>/dev/console 1<>/dev/console 2<>/dev/console
-        # wait for loginit
+    exec 0<> /dev/console 1<> /dev/console 2<> /dev/console
+    # wait for loginit
     i=0
     while [ $i -lt 10 ]; do
         if [ ! -e /run/initramfs/loginit.pipe ]; then
@@ -967,12 +998,12 @@ wait_for_loginit()
             [ -z "${j##*Running*}" ] || break
         fi
         sleep 0.1
-        i=$(($i+1))
+        i=$(($i + 1))
     done
 
     if [ $i -eq 10 ]; then
-        kill %1 >/dev/null 2>&1
-        kill $(while read line || [ -n "$line" ];do echo $line;done</run/initramfs/loginit.pid)
+        kill %1 > /dev/null 2>&1
+        kill $(while read line || [ -n "$line" ]; do echo $line; done < /run/initramfs/loginit.pid)
     fi
 
     setdebug
@@ -980,7 +1011,7 @@ wait_for_loginit()
 }
 
 # pidof version for root
-if ! command -v pidof >/dev/null 2>/dev/null; then
+if ! command -v pidof > /dev/null 2> /dev/null; then
     pidof() {
         debug_off
         local _cmd
@@ -999,7 +1030,7 @@ if ! command -v pidof >/dev/null 2>/dev/null; then
             if [ -n "$_exe" ]; then
                 [ "$i" -ef "$_exe" ] || continue
             else
-                _rl=$(readlink -f "$i");
+                _rl=$(readlink -f "$i")
                 [ "${_rl%/$_cmd}" != "$_rl" ] || continue
             fi
             i=${i%/exe}
@@ -1011,12 +1042,11 @@ if ! command -v pidof >/dev/null 2>/dev/null; then
     }
 fi
 
-_emergency_shell()
-{
+_emergency_shell() {
     local _name="$1"
     if [ -n "$DRACUT_SYSTEMD" ]; then
         > /.console_lock
-        echo "PS1=\"$_name:\\\${PWD}# \"" >/etc/profile
+        echo "PS1=\"$_name:\\\${PWD}# \"" > /etc/profile
         systemctl start dracut-emergency.service
         rm -f -- /etc/profile
         rm -f -- /.console_lock
@@ -1036,7 +1066,7 @@ _emergency_shell()
         echo 'Dropping to debug shell.'
         echo
         export PS1="$_name:\${PWD}# "
-        [ -e /.profile ] || >/.profile
+        [ -e /.profile ] || > /.profile
 
         _ctty="$(RD_DEBUG= getarg rd.ctty=)" && _ctty="/dev/${_ctty##*/}"
         if [ -z "$_ctty" ]; then
@@ -1048,13 +1078,12 @@ _emergency_shell()
             _ctty=/dev/$_ctty
         fi
         [ -c "$_ctty" ] || _ctty=/dev/tty1
-        case "$(/usr/bin/setsid --help 2>&1)" in *--ctty*) CTTY="--ctty";; esac
-        setsid $CTTY /bin/sh -i -l 0<>$_ctty 1<>$_ctty 2<>$_ctty
+        case "$(/usr/bin/setsid --help 2>&1)" in *--ctty*) CTTY="--ctty" ;; esac
+        setsid $CTTY /bin/sh -i -l 0<> $_ctty 1<> $_ctty 2<> $_ctty
     fi
 }
 
-emergency_shell()
-{
+emergency_shell() {
     local _ctty
     set +e
     local _rdshell_name="dracut" action="Boot" hook="emergency"
@@ -1064,8 +1093,10 @@ emergency_shell()
         _rdshell_name=$2
         shift 2
     elif [ "$1" = "--shutdown" ]; then
-        _rdshell_name=$2; action="Shutdown"; hook="shutdown-emergency"
-        if type plymouth >/dev/null 2>&1; then
+        _rdshell_name=$2
+        action="Shutdown"
+        hook="shutdown-emergency"
+        if type plymouth > /dev/null 2>&1; then
             plymouth --hide-splash
         elif [ -x /oldroot/bin/plymouth ]; then
             /oldroot/bin/plymouth --hide-splash
@@ -1073,7 +1104,8 @@ emergency_shell()
         shift 2
     fi
 
-    echo ; echo
+    echo
+    echo
     warn "$*"
     echo
 
@@ -1092,18 +1124,20 @@ emergency_shell()
 
     case "$_emergency_action" in
         reboot)
-            reboot || exit 1;;
+            reboot || exit 1
+            ;;
         poweroff)
-            poweroff || exit 1;;
+            poweroff || exit 1
+            ;;
         halt)
-            halt || exit 1;;
+            halt || exit 1
+            ;;
     esac
 }
 
 # Retain the values of these variables but ensure that they are unexported
 # This is a POSIX-compliant equivalent of bash's "export -n"
-export_n()
-{
+export_n() {
     local var
     local val
     for var in "$@"; do
@@ -1131,8 +1165,7 @@ listlist() {
     [ "$_list" = "$_sublist" ] && return 0
 
     for _v in $_sublist; do
-        if [ -n "$_v" ] && ! ( [ -n "$_iglist" ] && strstr "$_iglist" "$_v" )
-        then
+        if [ -n "$_v" ] && ! ([ -n "$_iglist" ] && strstr "$_iglist" "$_v"); then
             strstr "$_list" "$_v" || return 1
         fi
     done
@@ -1160,8 +1193,7 @@ setmemdebug() {
 setmemdebug
 
 # parameters: func log_level prefix msg [trace_level:trace]...
-make_trace_mem()
-{
+make_trace_mem() {
     local log_level prefix msg msg_printed
     local trace trace_level trace_in_higher_levels insert_trace
 
@@ -1211,11 +1243,10 @@ make_trace_mem()
 }
 
 # parameters: type
-show_memstats()
-{
+show_memstats() {
     case $1 in
         shortmem)
-            cat /proc/meminfo  | grep -e "^MemFree" -e "^Cached" -e "^Slab"
+            cat /proc/meminfo | grep -e "^MemFree" -e "^Cached" -e "^Slab"
             ;;
         mem)
             cat /proc/meminfo

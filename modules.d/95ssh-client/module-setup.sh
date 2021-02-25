@@ -7,7 +7,7 @@ check() {
     [[ $mount_needs ]] && return 1
 
     # If our prerequisites are not met, fail.
-    require_binaries ssh scp  || return 1
+    require_binaries ssh scp || return 1
 
     if [[ $sshkey ]]; then
         [[ ! -f $dracutsysrootdir$sshkey ]] && {
@@ -25,8 +25,7 @@ depends() {
     echo network
 }
 
-inst_sshenv()
-{
+inst_sshenv() {
     if [[ -d $dracutsysrootdir/root/.ssh ]]; then
         inst_dir /root/.ssh
         chmod 700 "${initdir}"/root/.ssh
@@ -71,10 +70,10 @@ install() {
     _nsslibs=$(
         sed -e 's/#.*//; s/^[^:]*://; s/\[[^]]*\]//' \
             "$dracutsysrootdir"/etc/nsswitch.conf \
-        |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
+            | tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|'
+    )
     _nsslibs=${_nsslibs#|}
     _nsslibs=${_nsslibs%|}
 
     inst_libdir_file -n "$_nsslibs" 'libnss_*.so*'
 }
-

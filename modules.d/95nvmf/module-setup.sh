@@ -12,12 +12,12 @@ check() {
 
         [[ -L "/sys/dev/block/$_dev" ]] || return 0
         cd -P "/sys/dev/block/$_dev" || return 0
-        if [ -f partition ] ; then
+        if [ -f partition ]; then
             cd ..
         fi
-        for d in device/nvme* ; do
+        for d in device/nvme*; do
             [ -L "$d" ] || continue
-            if readlink "$d" | grep -q nvme-fabrics ; then
+            if readlink "$d" | grep -q nvme-fabrics; then
                 trtype=$(cat "$d"/transport)
                 break
             fi
@@ -26,13 +26,13 @@ check() {
     }
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        pushd . >/dev/null
+        pushd . > /dev/null
         for_each_host_dev_and_slaves is_nvmf
         local _is_nvmf=$?
-        popd >/dev/null
+        popd > /dev/null
         [[ $_is_nvmf == 0 ]] || return 255
-        if [ ! -f /sys/class/fc/fc_udev_device/nvme_discovery ] ; then
-            if [ ! -f /etc/nvme/discovery.conf ] ; then
+        if [ ! -f /sys/class/fc/fc_udev_device/nvme_discovery ]; then
+            if [ ! -f /etc/nvme/discovery.conf ]; then
                 echo "No discovery arguments present"
                 return 255
             fi
@@ -64,12 +64,12 @@ cmdline() {
 
         [[ -L "/sys/dev/block/$_dev" ]] || return 0
         cd -P "/sys/dev/block/$_dev" || return 0
-        if [ -f partition ] ; then
+        if [ -f partition ]; then
             cd ..
         fi
-        for d in device/nvme* ; do
+        for d in device/nvme*; do
             [ -L "$d" ] || continue
-            if readlink "$d" | grep -q nvme-fabrics ; then
+            if readlink "$d" | grep -q nvme-fabrics; then
                 trtype=$(cat "$d"/transport)
                 break
             fi
@@ -82,27 +82,27 @@ cmdline() {
         done
     }
 
-    if [ -f /etc/nvme/hostnqn ] ; then
+    if [ -f /etc/nvme/hostnqn ]; then
         _hostnqn=$(cat /etc/nvme/hostnqn)
         echo -n " nvmf.hostnqn=${_hostnqn}"
     fi
-    if [ -f /etc/nvme/hostid ] ; then
+    if [ -f /etc/nvme/hostid ]; then
         _hostid=$(cat /etc/nvme/hostid)
         echo -n " nvmf.hostid=${_hostid}"
     fi
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        pushd . >/dev/null
+        pushd . > /dev/null
         for_each_host_dev_and_slaves gen_nvmf_cmdline
-        popd >/dev/null
+        popd > /dev/null
     }
 }
 
 # called by dracut
 install() {
     if [[ $hostonly_cmdline == "yes" ]]; then
-	local _nvmf_args=$(cmdline)
-	[[ "$_nvmf_args" ]] && printf "%s" "$_nvmf_args" >> "${initdir}/etc/cmdline.d/95nvmf-args.conf"
+        local _nvmf_args=$(cmdline)
+        [[ "$_nvmf_args" ]] && printf "%s" "$_nvmf_args" >> "${initdir}/etc/cmdline.d/95nvmf-args.conf"
     fi
     inst_simple "/etc/nvme/hostnqn"
     inst_simple "/etc/nvme/hostid"

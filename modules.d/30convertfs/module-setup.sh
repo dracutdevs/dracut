@@ -17,4 +17,3 @@ install() {
     inst_hook pre-pivot 99 "$moddir/do-convertfs.sh"
     inst_script "$moddir/convertfs.sh" /usr/bin/convertfs
 }
-

@@ -12,23 +12,23 @@ else
     }
 fi
 
-mount_boot()
-{
+mount_boot() {
     boot=$(getarg boot=)
 
     if [ -n "$boot" ]; then
         case "$boot" in
-        LABEL=* | UUID=* | PARTUUID=* | PARTLABEL=*)
-            boot="$(label_uuid_to_dev "$boot")"
-            ;;
-        /dev/*)
-            ;;
-        *)
-            die "You have to specify boot=<boot device> as a boot option for fips=1" ;;
+            LABEL=* | UUID=* | PARTUUID=* | PARTLABEL=*)
+                boot="$(label_uuid_to_dev "$boot")"
+                ;;
+            /dev/*) ;;
+
+            *)
+                die "You have to specify boot=<boot device> as a boot option for fips=1"
+                ;;
         esac
 
         if ! [ -e "$boot" ]; then
-            udevadm trigger --action=add >/dev/null 2>&1
+            udevadm trigger --action=add > /dev/null 2>&1
             [ -z "$UDEVVERSION" ] && UDEVVERSION=$(udevadm --version)
             i=0
             while ! [ -e $boot ]; do
@@ -39,7 +39,7 @@ mount_boot()
                 fi
                 [ -e $boot ] && break
                 sleep 0.5
-                i=$(($i+1))
+                i=$(($i + 1))
                 [ $i -gt 40 ] && break
             done
         fi
@@ -55,8 +55,7 @@ mount_boot()
     fi
 }
 
-do_rhevh_check()
-{
+do_rhevh_check() {
     KERNEL=$(uname -r)
     kpath=${1}
 
@@ -71,23 +70,21 @@ do_rhevh_check()
     return 0
 }
 
-nonfatal_modprobe()
-{
-    modprobe $1 2>&1 > /dev/stdout |
-        while read -r line || [ -n "$line" ]; do
+nonfatal_modprobe() {
+    modprobe $1 2>&1 > /dev/stdout \
+        | while read -r line || [ -n "$line" ]; do
             echo "${line#modprobe: FATAL: }" >&2
         done
 }
 
-fips_load_crypto()
-{
+fips_load_crypto() {
     FIPSMODULES=$(cat /etc/fipsmodules)
 
     fips_info "Loading and integrity checking all crypto modules"
     mv /etc/modprobe.d/fips.conf /etc/modprobe.d/fips.conf.bak
     for _module in $FIPSMODULES; do
         if [ "$_module" != "tcrypt" ]; then
-            if ! nonfatal_modprobe "${_module}" 2>/tmp/fips.modprobe_err; then
+            if ! nonfatal_modprobe "${_module}" 2> /tmp/fips.modprobe_err; then
                 # check if kernel provides generic algo
                 _found=0
                 while read _k _s _v || [ -n "$_k" ]; do
@@ -95,7 +92,7 @@ fips_load_crypto()
                     [ "$_v" != "$_module" ] && continue
                     _found=1
                     break
-                done </proc/crypto
+                done < /proc/crypto
                 [ "$_found" = "0" ] && cat /tmp/fips.modprobe_err >&2 && return 1
             fi
         fi
@@ -107,8 +104,7 @@ fips_load_crypto()
     rmmod tcrypt
 }
 
-do_fips()
-{
+do_fips() {
     local _v
     local _s
     local _v
@@ -159,7 +155,7 @@ do_fips()
 
     > /tmp/fipsdone
 
-    umount /boot >/dev/null 2>&1
+    umount /boot > /dev/null 2>&1
 
     return 0
 }

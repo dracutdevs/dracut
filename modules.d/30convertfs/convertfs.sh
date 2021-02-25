@@ -47,7 +47,6 @@ if ! [ -e "$ROOT/usr/bin" ]; then
     exit 1
 fi
 
-
 if ! needconvert; then
     echo "Your system is already converted."
     exit 0
@@ -82,7 +81,7 @@ find_mount() {
 
 # usage: ismounted <mountpoint>
 # usage: ismounted /dev/<device>
-if command -v findmnt >/dev/null; then
+if command -v findmnt > /dev/null; then
     ismounted() {
         findmnt "$1" > /dev/null 2>&1
     }
@@ -104,7 +103,7 @@ fi
 cleanup() {
     echo "Something failed. Move back to the original state"
     for dir in "$ROOT/bin" "$ROOT/sbin" "$ROOT/lib" "$ROOT/lib64" \
-	"$ROOT/usr/bin" "$ROOT/usr/sbin" "$ROOT/usr/lib" \
+        "$ROOT/usr/bin" "$ROOT/usr/sbin" "$ROOT/usr/lib" \
         "$ROOT/usr/lib64"; do
         [[ -d "${dir}.usrmove-new" ]] && rm -fr -- "${dir}.usrmove-new"
         if [[ -d "${dir}.usrmove-old" ]]; then
@@ -166,8 +165,8 @@ done
 echo "Clean up backup files."
 # everything seems to work; cleanup
 for dir in bin sbin lib lib64; do
-     # if we get killed in the middle of "rm -rf", ensure not to leave
-     # an incomplete directory, which is moved back by cleanup()
+    # if we get killed in the middle of "rm -rf", ensure not to leave
+    # an incomplete directory, which is moved back by cleanup()
     [[ -d "$ROOT/usr/${dir}.usrmove-old" ]] \
         && mv "$ROOT/usr/${dir}.usrmove-old" "$ROOT/usr/${dir}.usrmove-old~"
     [[ -d "$ROOT/${dir}.usrmove-old" ]] \

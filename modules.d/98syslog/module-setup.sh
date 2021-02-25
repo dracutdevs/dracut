@@ -15,12 +15,12 @@ depends() {
 install() {
     local _i
     local _installs
-    if find_binary rsyslogd >/dev/null; then
+    if find_binary rsyslogd > /dev/null; then
         _installs="rsyslogd"
         inst_libdir_file rsyslog/lmnet.so rsyslog/imklog.so rsyslog/imuxsock.so rsyslog/imjournal.so
-    elif find_binary syslogd >/dev/null; then
+    elif find_binary syslogd > /dev/null; then
         _installs="syslogd"
-    elif find_binary syslog-ng >/dev/null; then
+    elif find_binary syslog-ng > /dev/null; then
         _installs="syslog-ng"
     else
         derror "Could not find any syslog binary although the syslogmodule" \
@@ -28,7 +28,7 @@ install() {
     fi
     if [ -n "$_installs" ]; then
         inst_multiple cat $_installs
-        inst_hook cmdline  90 "$moddir/parse-syslog-opts.sh"
+        inst_hook cmdline 90 "$moddir/parse-syslog-opts.sh"
         inst_hook cleanup 99 "$moddir/syslog-cleanup.sh"
         inst_hook initqueue/online 70 "$moddir/rsyslogd-start.sh"
         inst_simple "$moddir/rsyslogd-stop.sh" /sbin/rsyslogd-stop
@@ -37,4 +37,3 @@ install() {
     fi
     dracut_need_initqueue
 }
-

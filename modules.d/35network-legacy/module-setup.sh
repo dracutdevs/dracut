@@ -62,7 +62,7 @@ install() {
         (
             . "$i"
             if ! [ "${ONBOOT}" = "no" -o "${ONBOOT}" = "NO" ] \
-                    && [ -n "${TEAM_MASTER}${TEAM_CONFIG}${TEAM_PORT_CONFIG}" ]; then
+                && [ -n "${TEAM_MASTER}${TEAM_CONFIG}${TEAM_PORT_CONFIG}" ]; then
                 if [ -n "$TEAM_CONFIG" ] && [ -n "$DEVICE" ]; then
                     mkdir -p $initdir/etc/teamd
                     printf -- "%s" "$TEAM_CONFIG" > "$initdir/etc/teamd/${DEVICE}.conf"
@@ -90,4 +90,3 @@ install() {
 
     dracut_need_initqueue
 }
-

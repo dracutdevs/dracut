@@ -14,4 +14,3 @@ depends() {
 install() {
     inst_hook initqueue/settled 99 "$moddir/pollcdrom.sh"
 }
-

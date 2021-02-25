@@ -25,7 +25,7 @@ installkernel() {
     if [[ $hostonly_mode == 'strict' ]] && [[ $hostonly_nics ]]; then
         for _nic in $hostonly_nics; do
             mapfile -t _net_drivers <<< "$(get_dev_module /sys/class/net/"$_nic")"
-            if (( ${#_net_drivers[@]} == 0 )); then
+            if ((${#_net_drivers[@]} == 0)); then
                 derror "--hostonly-nics contains invalid NIC '$_nic'"
                 continue
             fi
@@ -48,4 +48,3 @@ installkernel() {
 install() {
     return 0
 }
-

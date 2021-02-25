@@ -1,6 +1,6 @@
 #!/bin/sh
 
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
 [ -z "$root" ] && root=$(getarg root=)
 
@@ -14,15 +14,18 @@ GENERATOR_DIR="$2"
 ROOTFLAGS="$(getarg rootflags)"
 
 nroot=${root#nbd:}
-nbdserver=${nroot%%:*};
+nbdserver=${nroot%%:*}
 if [ "${nbdserver%"${nbdserver#?}"}" = "[" ]; then
     nbdserver=${nroot#[}
-    nbdserver=${nbdserver%%]:*}\]; nroot=${nroot#*]:}
+    nbdserver=${nbdserver%%]:*}\]
+    nroot=${nroot#*]:}
 else
     nroot=${nroot#*:}
 fi
-nbdport=${nroot%%:*}; nroot=${nroot#*:}
-nbdfstype=${nroot%%:*}; nroot=${nroot#*:}
+nbdport=${nroot%%:*}
+nroot=${nroot#*:}
+nbdfstype=${nroot%%:*}
+nroot=${nroot#*:}
 nbdflags=${nroot%%:*}
 
 if [ "$nbdflags" = "$nbdfstype" ]; then

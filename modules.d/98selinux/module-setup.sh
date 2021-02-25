@@ -15,4 +15,3 @@ install() {
     inst_hook pre-pivot 50 "$moddir/selinux-loadpolicy.sh"
     inst_multiple setenforce
 }
-

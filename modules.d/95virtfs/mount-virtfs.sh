@@ -1,6 +1,6 @@
 #!/bin/sh
 
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
 filter_rootopts() {
     rootopts=$1
@@ -12,10 +12,11 @@ filter_rootopts() {
     local v
     while [ $# -gt 0 ]; do
         case $1 in
-            rw|ro);;
-            defaults);;
+            rw | ro) ;;
+            defaults) ;;
             *)
-                v="$v,${1}";;
+                v="$v,${1}"
+                ;;
         esac
         shift
     done
@@ -64,8 +65,8 @@ mount_root() {
     info "Remounting ${root#virtfs:} with -o ${rflags}"
     mount -t ${rootfs} -o "$rflags" "${root#virtfs:}" "$NEWROOT" 2>&1 | vinfo
 
-    [ -f "$NEWROOT"/forcefsck ] && rm -f -- "$NEWROOT"/forcefsck 2>/dev/null
-    [ -f "$NEWROOT"/.autofsck ] && rm -f -- "$NEWROOT"/.autofsck 2>/dev/null
+    [ -f "$NEWROOT"/forcefsck ] && rm -f -- "$NEWROOT"/forcefsck 2> /dev/null
+    [ -f "$NEWROOT"/.autofsck ] && rm -f -- "$NEWROOT"/.autofsck 2> /dev/null
 }
 
 if [ -n "$root" -a -z "${root%%virtfs:*}" ]; then

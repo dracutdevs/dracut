@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if getargbool 0 rd.md.waitclean; then
-    type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+    type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
     containers=""
     for md in /dev/md[0-9_]*; do
         [ -b "$md" ] || continue
@@ -12,12 +12,12 @@ if getargbool 0 rd.md.waitclean; then
             continue
         fi
         info "Waiting for $md to become clean"
-        mdadm -W "$md" >/dev/null 2>&1
+        mdadm -W "$md" > /dev/null 2>&1
     done
 
     for md in $containers; do
         info "Waiting for $md to become clean"
-        mdadm -W "$md" >/dev/null 2>&1
+        mdadm -W "$md" > /dev/null 2>&1
     done
 
     unset containers udevinfo

@@ -8,7 +8,8 @@ KVERSION=${KVERSION-$(uname -r)}
 #DEBUGFAIL="rd.shell rd.break"
 
 client_run() {
-    local test_name="$1"; shift
+    local test_name="$1"
+    shift
     local client_opts="$*"
 
     echo "CLIENT TEST START: $test_name"
@@ -59,8 +60,8 @@ test_setup() {
             done
         )
         inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
-                      mount dmesg dhclient mkdir cp ping dhclient \
-                      umount strace less setsid dd
+            mount dmesg dhclient mkdir cp ping dhclient \
+            umount strace less setsid dd
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
@@ -71,7 +72,7 @@ test_setup() {
         inst_simple ./fstab /etc/fstab
         inst_simple /etc/os-release
         inst ./test-init.sh /sbin/init
-        find_binary plymouth >/dev/null && inst_multiple plymouth
+        find_binary plymouth > /dev/null && inst_multiple plymouth
         cp -a /etc/ld.so.conf* $initdir/etc
         ldconfig -r "$initdir"
     )
@@ -90,12 +91,12 @@ test_setup() {
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-                       -m "dash udev-rules btrfs base rootfs-block fs-lib kernel-modules qemu" \
-                       -d "piix ide-gd_mod ata_piix btrfs sd_mod" \
-                       --nomdadmconf \
-                       --nohardlink \
-                       --no-hostonly-cmdline -N \
-                       -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
+        -m "dash udev-rules btrfs base rootfs-block fs-lib kernel-modules qemu" \
+        -d "piix ide-gd_mod ata_piix btrfs sd_mod" \
+        --nomdadmconf \
+        --nohardlink \
+        --no-hostonly-cmdline -N \
+        -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
 
@@ -108,7 +109,7 @@ test_setup() {
         -drive format=raw,index=0,media=disk,file=$TESTDIR/root.btrfs \
         -drive format=raw,index=1,media=disk,file=$TESTDIR/usr.btrfs \
         -append "root=/dev/dracut/root rw rootfstype=btrfs quiet console=ttyS0,115200n81 selinux=0" \
-        -initrd $TESTDIR/initramfs.makeroot  || return 1
+        -initrd $TESTDIR/initramfs.makeroot || return 1
     if ! grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/root.btrfs; then
         echo "Could not create root filesystem"
         return 1
@@ -123,11 +124,11 @@ test_setup() {
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-         -a "debug watchdog" \
-         -o "network kernel-network-modules" \
-         -d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \
-         --no-hostonly-cmdline -N \
-         -f $TESTDIR/initramfs.testing $KVERSION || return 1
+        -a "debug watchdog" \
+        -o "network kernel-network-modules" \
+        -d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \
+        --no-hostonly-cmdline -N \
+        -f $TESTDIR/initramfs.testing $KVERSION || return 1
 
     rm -rf -- $TESTDIR/overlay
 

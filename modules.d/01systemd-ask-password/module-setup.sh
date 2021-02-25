@@ -34,26 +34,26 @@ install() {
         $systemdsystemunitdir/sysinit.target.wants/systemd-ask-password-console.path \
         systemd-ask-password systemd-tty-ask-password-agent
 
-        # Enable the systemd type service unit for systemd-ask-password.
-        $SYSTEMCTL -q --root "$initdir" enable systemd-ask-password-console.service
+    # Enable the systemd type service unit for systemd-ask-password.
+    $SYSTEMCTL -q --root "$initdir" enable systemd-ask-password-console.service
 
-        # Install systemd-ask-password plymouth units if plymouth is enabled.
-        if dracut_module_included "plymouth"; then
-            inst_multiple -o \
-                $systemdsystemunitdir/systemd-ask-password-plymouth.path \
-                $systemdsystemunitdir/systemd-ask-password-plymouth.service
+    # Install systemd-ask-password plymouth units if plymouth is enabled.
+    if dracut_module_included "plymouth"; then
+        inst_multiple -o \
+            $systemdsystemunitdir/systemd-ask-password-plymouth.path \
+            $systemdsystemunitdir/systemd-ask-password-plymouth.service
 
-            $SYSTEMCTL -q --root "$initdir" enable systemd-ask-password-plymouth.service
-        fi
+        $SYSTEMCTL -q --root "$initdir" enable systemd-ask-password-plymouth.service
+    fi
 
-        # Uncomment this section if the usecase for wall module in the initramfs arises.
-        # Install systemd-ask-password wall units if <wall module> is enabled.
-        #if dracut_module_included "<wall module>"; then
-        #    inst_multiple -o \
-        #        $systemdsystemunitdir/systemd-ask-password-wall.path \
-        #        $systemdsystemunitdir/systemd-ask-password-wall.service \
-        #        $systemdsystemunitdir/multi-user.target.wants/systemd-ask-password-wall.path
-        #
-        #    $SYSTEMCTL -q --root "$initdir" enable systemd-ask-password-wall.service
-        #fi
+    # Uncomment this section if the usecase for wall module in the initramfs arises.
+    # Install systemd-ask-password wall units if <wall module> is enabled.
+    #if dracut_module_included "<wall module>"; then
+    #    inst_multiple -o \
+    #        $systemdsystemunitdir/systemd-ask-password-wall.path \
+    #        $systemdsystemunitdir/systemd-ask-password-wall.service \
+    #        $systemdsystemunitdir/multi-user.target.wants/systemd-ask-password-wall.path
+    #
+    #    $SYSTEMCTL -q --root "$initdir" enable systemd-ask-password-wall.service
+    #fi
 }

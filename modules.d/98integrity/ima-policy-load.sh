@@ -10,8 +10,7 @@ IMASECDIR="${SECURITYFSDIR}/ima"
 IMACONFIG="${NEWROOT}/etc/sysconfig/ima"
 IMAPOLICY="/etc/sysconfig/ima-policy"
 
-load_ima_policy()
-{
+load_ima_policy() {
     # check kernel support for IMA
     if [ ! -e "${IMASECDIR}" ]; then
         if [ "${RD_DEBUG}" = "yes" ]; then
@@ -21,17 +20,17 @@ load_ima_policy()
     fi
 
     # override the default configuration
-    [ -f "${IMACONFIG}" ] && \
-        . ${IMACONFIG}
+    [ -f "${IMACONFIG}" ] \
+        && . ${IMACONFIG}
 
     # set the IMA policy path name
     IMAPOLICYPATH="${NEWROOT}${IMAPOLICY}"
 
     # check the existence of the IMA policy file
     [ -f "${IMAPOLICYPATH}" ] && {
-        info "Loading the provided IMA custom policy";
-        printf '%s' "${IMAPOLICYPATH}" > ${IMASECDIR}/policy || \
-            cat "${IMAPOLICYPATH}" > ${IMASECDIR}/policy
+        info "Loading the provided IMA custom policy"
+        printf '%s' "${IMAPOLICYPATH}" > ${IMASECDIR}/policy \
+            || cat "${IMAPOLICYPATH}" > ${IMASECDIR}/policy
     }
 
     return 0

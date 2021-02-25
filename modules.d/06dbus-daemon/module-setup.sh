@@ -65,7 +65,7 @@ install() {
 
     # Adjusting dependencies for initramfs in the dbus socket unit.
     sed -i -e \
-       '/^\[Unit\]/aDefaultDependencies=no\
+        '/^\[Unit\]/aDefaultDependencies=no\
         Conflicts=shutdown.target\
         Before=shutdown.target
         /^\[Socket\]/aRemoveOnStop=yes' \
@@ -84,7 +84,7 @@ install() {
             $systemdsystemconfdir/dbus.service \
             $systemdsystemconfdir/dbus.service.d/*.conf \
             ${NULL}
-     fi
+    fi
 
     # We need to make sure that systemd-tmpfiles-setup.service->dbus.socket
     # will not wait for local-fs.target to start if swap is encrypted,

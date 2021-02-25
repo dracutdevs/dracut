@@ -23,8 +23,8 @@
 # NFSv3 is used.
 #
 
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
- . /lib/nfs-lib.sh
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
+. /lib/nfs-lib.sh
 
 # This script is sourced, so root should be set. But let's be paranoid
 [ -z "$root" ] && root=$(getarg root=)
@@ -34,7 +34,7 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 # netroot= cmdline argument must be ignored, but must be used if
 # we're inside netroot to parse dhcp root-path
-if [ -n "$netroot" ] ; then
+if [ -n "$netroot" ]; then
     for n in $(getargs netroot=); do
         [ "$n" = "$netroot" ] && break
     done
@@ -43,37 +43,38 @@ if [ -n "$netroot" ] ; then
         netroot=$root
     fi
 else
-    netroot=$root;
+    netroot=$root
 fi
 
 # LEGACY: nfsroot= is valid only if root=/dev/nfs
-if [ -n "$nfsroot" ] ; then
+if [ -n "$nfsroot" ]; then
     # @deprecated
     warn "Argument nfsroot is deprecated and might be removed in a future release. See 'man dracut.kernel' for more information."
-    if [ "$(getarg root=)" != "/dev/nfs"  ]; then
+    if [ "$(getarg root=)" != "/dev/nfs" ]; then
         die "Argument nfsroot only accepted for legacy root=/dev/nfs"
     fi
-    netroot=nfs:$nfsroot;
+    netroot=nfs:$nfsroot
 fi
 
 case "$netroot" in
-    /dev/nfs) netroot=nfs;;
+    /dev/nfs) netroot=nfs ;;
     /dev/*)
         if [ -n "$oldnetroot" ]; then
             netroot="$oldnetroot"
         else
             unset netroot
         fi
-	return
-	;;
+        return
+        ;;
     # LEGACY: root=<server-ip>:/<path
-    [0-9]*:/*|[0-9]*\.[0-9]*\.[0-9]*[!:]|/*)
-        netroot=nfs:$netroot;;
+    [0-9]*:/* | [0-9]*\.[0-9]*\.[0-9]*[!:] | /*)
+        netroot=nfs:$netroot
+        ;;
 esac
 
 # Continue if nfs
 case "${netroot%%:*}" in
-    nfs|nfs4|/dev/nfs);;
+    nfs | nfs4 | /dev/nfs) ;;
     *)
         if [ -n "$oldnetroot" ]; then
             netroot="$oldnetroot"
@@ -106,9 +107,9 @@ fstype=${nfs#/dev/}
 netroot="$fstype:$server:$path:$options"
 
 # If we don't have a server, we need dhcp
-if [ -z "$server" ] ; then
+if [ -z "$server" ]; then
     DHCPORSERVER="1"
-fi;
+fi
 
 # Done, all good!
 rootok=1

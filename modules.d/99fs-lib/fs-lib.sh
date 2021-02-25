@@ -1,6 +1,6 @@
 #!/bin/sh
 
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
 fsck_ask_reboot() {
     info "note - fsck suggests reboot, if you"
@@ -19,10 +19,10 @@ fsck_ask_err() {
 fsck_tail() {
     [ $_ret -gt 0 ] && warn "$_drv returned with $_ret"
     if [ $_ret -ge 4 ]; then
-        [ -n "$_out" ] && echo "$_out"|vwarn
+        [ -n "$_out" ] && echo "$_out" | vwarn
         fsck_ask_err
     else
-        [ -n "$_out" ] && echo "$_out"|vinfo
+        [ -n "$_out" ] && echo "$_out" | vinfo
         [ $_ret -ge 2 ] && fsck_ask_reboot
     fi
 }
@@ -43,24 +43,24 @@ fsck_able() {
             return 1
             ;;
         ext?)
-            type e2fsck >/dev/null 2>&1 &&
-            _drv="fsck_drv_com e2fsck" &&
-            return 0
+            type e2fsck > /dev/null 2>&1 \
+                && _drv="fsck_drv_com e2fsck" \
+                && return 0
             ;;
         f2fs)
-	    type fsck.f2fs >/dev/null 2>&1 &&
-	    _drv="fsck_drv_com fsck.f2fs" &&
-	    return 0
-	    ;;
+            type fsck.f2fs > /dev/null 2>&1 \
+                && _drv="fsck_drv_com fsck.f2fs" \
+                && return 0
+            ;;
         jfs)
-            type jfs_fsck >/dev/null 2>&1 &&
-            _drv="fsck_drv_com jfs_fsck" &&
-            return 0
+            type jfs_fsck > /dev/null 2>&1 \
+                && _drv="fsck_drv_com jfs_fsck" \
+                && return 0
             ;;
         reiserfs)
-            type reiserfsck >/dev/null 2>&1 &&
-            _drv="fsck_drv_com reiserfsck" &&
-            return 0
+            type reiserfsck > /dev/null 2>&1 \
+                && _drv="fsck_drv_com reiserfsck" \
+                && return 0
             ;;
         btrfs)
             # type btrfsck >/dev/null 2>&1 &&
@@ -70,13 +70,13 @@ fsck_able() {
             ;;
         nfs*)
             # nfs can be a nop, returning success
-            _drv=":" &&
-            return 0
+            _drv=":" \
+                && return 0
             ;;
         *)
-            type fsck >/dev/null 2>&1 &&
-            _drv="fsck_drv_std fsck" &&
-            return 0
+            type fsck > /dev/null 2>&1 \
+                && _drv="fsck_drv_std fsck" \
+                && return 0
             ;;
     esac
 
@@ -124,7 +124,7 @@ fsck_drv_std() {
     # note, we don't enforce -a here, thus fsck is being run (in theory)
     # interactively; otherwise some tool might complain about lack of terminal
     # (and using -a might not be safe)
-    fsck $_fop "$_dev" >/dev/console 2>&1
+    fsck $_fop "$_dev" > /dev/console 2>&1
     _ret=$?
     fsck_tail
 
@@ -147,7 +147,10 @@ fsck_single() {
 
     [ $# -lt 2 ] && return 255
     # if UUID= marks more than one device, take only the first one
-    [ -e "$_dev" ] || _dev=$(devnames "$_dev"| while read line || [ -n "$line" ]; do if [ -n "$line" ]; then echo $line; break;fi;done)
+    [ -e "$_dev" ] || _dev=$(devnames "$_dev" | while read line || [ -n "$line" ]; do if [ -n "$line" ]; then
+        echo $line
+        break
+    fi; done)
     [ -e "$_dev" ] || return 255
     _fs=$(det_fs "$_dev" "$_fs")
     fsck_able "$_fs" || return 255
@@ -167,7 +170,7 @@ fsck_batch() {
     local _ret
     local _out
 
-    [ $# -eq 0 ] || ! type fsck >/dev/null 2>&1 && return 255
+    [ $# -eq 0 ] || ! type fsck > /dev/null 2>&1 && return 255
 
     info "Checking filesystems (fsck -M -T -a):"
     for _dev in "$@"; do
@@ -191,13 +194,13 @@ det_fs() {
     local _orig="${2:-auto}"
     local _fs
 
-    _fs=$(udevadm info --query=env --name="$_dev" | \
-    while read line || [ -n "$line" ]; do
-        if str_starts $line "ID_FS_TYPE="; then
-            echo ${line#ID_FS_TYPE=}
-            break
-        fi
-    done)
+    _fs=$(udevadm info --query=env --name="$_dev" \
+        | while read line || [ -n "$line" ]; do
+            if str_starts $line "ID_FS_TYPE="; then
+                echo ${line#ID_FS_TYPE=}
+                break
+            fi
+        done)
     _fs=${_fs:-auto}
 
     if [ "$_fs" = "auto" ]; then
@@ -235,9 +238,11 @@ write_fs_tab() {
     for _o in $CMDLINE; do
         case $_o in
             rw)
-                _rw=1;;
+                _rw=1
+                ;;
             ro)
-                _rw=0;;
+                _rw=0
+                ;;
         esac
     done
     if [ "$_rw" = "1" ]; then
@@ -253,7 +258,7 @@ write_fs_tab() {
         return
     fi
 
-    if type systemctl >/dev/null 2>/dev/null; then
+    if type systemctl > /dev/null 2> /dev/null; then
         systemctl daemon-reload
         systemctl --no-block start initrd-root-fs.target
     fi

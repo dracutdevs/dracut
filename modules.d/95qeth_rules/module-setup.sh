@@ -12,14 +12,14 @@ check() {
         for i in /sys/devices/qeth/*/online; do
             read _online < $i
             [ $_online -eq 1 ] && return 0
-	done
+        done
     }
     return 255
 }
 
 # called by dracut
 installkernel() {
-   instmods qeth
+    instmods qeth
 }
 
 # called by dracut
@@ -31,11 +31,11 @@ install() {
 
     inst_rules_qeth() {
         for rule in /etc/udev/rules.d/{4,5}1-qeth-${1}.rules; do
-           # prefer chzdev generated 41- rules
-           if [ -f "$rule" ]; then
-              inst_rules "$rule"
-              break
-           fi
+            # prefer chzdev generated 41- rules
+            if [ -f "$rule" ]; then
+                inst_rules "$rule"
+                break
+            fi
         done
     }
 
@@ -44,9 +44,9 @@ install() {
         # not readable in qeth interfaces
         # that have just been assembled, ignore
         # read error and assume no carrier
-        read carrier 2>/dev/null < "$1/carrier"
+        read carrier 2> /dev/null < "$1/carrier"
         [ "$carrier" -eq 1 ] && return 0
-        return 1;
+        return 1
     }
 
     for dev in /sys/class/net/*; do

@@ -2,11 +2,10 @@
 
 if resume=$(getarg resume=) && ! getarg noresume; then
     export resume
-    echo "$resume" >/.resume
+    echo "$resume" > /.resume
 else
     unset resume
 fi
-
 
 resume="$(label_uuid_to_dev "$resume")"
 
@@ -17,14 +16,13 @@ else
 fi
 
 case "$splash" in
-    quiet )
+    quiet)
         a_splash="-P splash=y"
-    ;;
-    * )
+        ;;
+    *)
         a_splash="-P splash=n"
-    ;;
+        ;;
 esac
-
 
 if ! getarg noresume; then
     if [ -n "$resume" ]; then
@@ -32,9 +30,9 @@ if ! getarg noresume; then
 
         {
             printf "KERNEL==\"%s\", ACTION==\"add|change\", SYMLINK+=\"resume\"\n" \
-                ${resume#/dev/};
+                ${resume#/dev/}
             printf "SYMLINK==\"%s\", ACTION==\"add|change\", SYMLINK+=\"resume\"\n" \
-                ${resume#/dev/};
+                ${resume#/dev/}
         } >> /etc/udev/rules.d/99-resume-link.rules
 
         {
@@ -42,11 +40,11 @@ if ! getarg noresume; then
                 printf -- 'KERNEL=="%s", ' "${resume#/dev/}"
                 printf -- '%s' 'ACTION=="add|change", ENV{ID_FS_TYPE}=="suspend|swsuspend|swsupend",'
                 printf -- " RUN+=\"/sbin/initqueue --finished --unique --name 00resume /usr/sbin/resume %s \'%s\'\"\n" \
-                     "$a_splash" "$resume";
+                    "$a_splash" "$resume"
                 printf -- 'SYMLINK=="%s", ' "${resume#/dev/}"
                 printf -- '%s' 'ACTION=="add|change", ENV{ID_FS_TYPE}=="suspend|swsuspend|swsupend",'
                 printf -- " RUN+=\"/sbin/initqueue --finished --unique --name 00resume /usr/sbin/resume %s \'%s\'\"\n" \
-                    "$a_splash" "$resume";
+                    "$a_splash" "$resume"
             fi
 
             printf -- 'KERNEL=="%s", ' "${resume#/dev/}"
@@ -74,7 +72,7 @@ if ! getarg noresume; then
                 printf -- ' RUN+="/sbin/initqueue --finished --unique --name 00resume /usr/sbin/resume %s $tempnode"\n' "$a_splash"
             fi
             printf -- '%s' 'SUBSYSTEM=="block", ACTION=="add|change", ENV{ID_FS_TYPE}=="suspend|swsuspend|swsupend",'
-            printf -- '%s\n' ' RUN+="/sbin/initqueue --finished --unique --name 00resume echo %M:%m > /sys/power/resume"';
+            printf -- '%s\n' ' RUN+="/sbin/initqueue --finished --unique --name 00resume echo %M:%m > /sys/power/resume"'
         } >> /etc/udev/rules.d/99-resume.rules
     fi
 fi

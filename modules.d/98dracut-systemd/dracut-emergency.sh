@@ -2,13 +2,13 @@
 
 export DRACUT_SYSTEMD=1
 if [ -f /dracut-state.sh ]; then
-    . /dracut-state.sh 2>/dev/null
+    . /dracut-state.sh 2> /dev/null
 fi
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
 source_conf /etc/conf.d
 
-type plymouth >/dev/null 2>&1 && plymouth quit
+type plymouth > /dev/null 2>&1 && plymouth quit
 
 export _rdshell_name="dracut" action="Boot" hook="emergency"
 _emergency_action=$(getarg rd.emergency)
@@ -46,11 +46,14 @@ fi
 
 case "$_emergency_action" in
     reboot)
-        reboot || exit 1;;
+        reboot || exit 1
+        ;;
     poweroff)
-        poweroff || exit 1;;
+        poweroff || exit 1
+        ;;
     halt)
-        halt || exit 1;;
+        halt || exit 1
+        ;;
 esac
 
 exit 0

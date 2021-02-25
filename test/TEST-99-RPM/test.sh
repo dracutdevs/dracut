@@ -8,7 +8,7 @@ TEST_DESCRIPTION="rpm integrity after dracut and kernel install"
 test_check() {
     # disable for now
     return 1
-    command -v rpm &>/dev/null && ( command -v yum || command -v dnf ) &>/dev/null
+    command -v rpm &> /dev/null && (command -v yum || command -v dnf) &> /dev/null
 }
 
 test_run() {
@@ -32,39 +32,42 @@ test_run() {
 
     mkdir -p "$rootdir/$TESTDIR"
     cp --reflink=auto -a \
-       "$TESTDIR"/dracut-[0-9]*.$(uname -m).rpm \
-       "$TESTDIR"/dracut-network-[0-9]*.$(uname -m).rpm \
-       "$rootdir/$TESTDIR/"
+        "$TESTDIR"/dracut-[0-9]*.$(uname -m).rpm \
+        "$TESTDIR"/dracut-network-[0-9]*.$(uname -m).rpm \
+        "$rootdir/$TESTDIR/"
     . /etc/os-release
     dnf_or_yum=yum
     dnf_or_yum_cmd=yum
-    command -v dnf >/dev/null && { dnf_or_yum="dnf"; dnf_or_yum_cmd="dnf --allowerasing"; }
-    for (( i=0; i < 5 ; i++)); do
+    command -v dnf > /dev/null && {
+        dnf_or_yum="dnf"
+        dnf_or_yum_cmd="dnf --allowerasing"
+    }
+    for ((i = 0; i < 5; i++)); do
         $dnf_or_yum_cmd -v --nogpgcheck --installroot "$rootdir"/ --releasever "$VERSION_ID" --disablerepo='*' \
-                        --enablerepo=fedora --enablerepo=updates --setopt=install_weak_deps=False \
-                        install -y \
-                        $dnf_or_yum \
-                        passwd \
-                        rootfiles \
-                        systemd \
-                        systemd-udev \
-                        kernel \
-                        kernel-core \
-                        redhat-release \
-                        device-mapper-multipath \
-                        lvm2 \
-                        mdadm \
-                        bash \
-                        iscsi-initiator-utils \
-                        "$TESTDIR"/dracut-[0-9]*.$(uname -m).rpm \
-                        ${NULL} && break
+            --enablerepo=fedora --enablerepo=updates --setopt=install_weak_deps=False \
+            install -y \
+            $dnf_or_yum \
+            passwd \
+            rootfiles \
+            systemd \
+            systemd-udev \
+            kernel \
+            kernel-core \
+            redhat-release \
+            device-mapper-multipath \
+            lvm2 \
+            mdadm \
+            bash \
+            iscsi-initiator-utils \
+            "$TESTDIR"/dracut-[0-9]*.$(uname -m).rpm \
+            ${NULL} && break
         #"$TESTDIR"/dracut-config-rescue-[0-9]*.$(uname -m).rpm \
-            #"$TESTDIR"/dracut-network-[0-9]*.$(uname -m).rpm \
-            #    ${NULL}
+        #"$TESTDIR"/dracut-network-[0-9]*.$(uname -m).rpm \
+        #    ${NULL}
     done
-    (( i < 5 ))
+    ((i < 5))
 
-    cat >"$rootdir"/test.sh <<EOF
+    cat > "$rootdir"/test.sh << EOF
 #!/bin/bash
 set -x
 export LC_MESSAGES=C

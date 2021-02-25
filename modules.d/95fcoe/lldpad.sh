@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if ! getargbool 1 rd.fcoe -d -n rd.nofcoe ; then
-	info "rd.fcoe=0: skipping lldpad activation"
-	return 0
+if ! getargbool 1 rd.fcoe -d -n rd.nofcoe; then
+    info "rd.fcoe=0: skipping lldpad activation"
+    return 0
 fi
 
 # Note lldpad will stay running after switchroot, the system initscripts
@@ -15,5 +15,5 @@ while [ $i -lt 60 ]; do
     lldptool -p && break
     info "Waiting for lldpad to be ready"
     sleep 1
-    i=$(($i+1))
+    i=$(($i + 1))
 done

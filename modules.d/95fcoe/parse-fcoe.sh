@@ -13,9 +13,9 @@
 # fcoe=eth0:nodcb:vn2vn
 # fcoe=4a:3f:4c:04:f8:d7:nodcb:fabric
 
-if ! getargbool 1 rd.fcoe -d -n rd.nofcoe ; then
-	info "rd.fcoe=0: skipping fcoe"
-	return 0
+if ! getargbool 1 rd.fcoe -d -n rd.nofcoe; then
+    info "rd.fcoe=0: skipping fcoe"
+    return 0
 fi
 
 [ -z "$fcoe" ] && fcoe=$(getarg fcoe=)
@@ -68,7 +68,7 @@ parse_fcoe_opts() {
 parse_fcoe_opts
 
 if [ "$fcoe_interface" = "edd" ]; then
-    if [ "$fcoe_dcb" != "nodcb" -a "$fcoe_dcb" != "dcb" ] ; then
+    if [ "$fcoe_dcb" != "nodcb" -a "$fcoe_dcb" != "dcb" ]; then
         warn "Invalid FCoE DCB option: $fcoe_dcb"
     fi
     /sbin/initqueue --settled --unique /sbin/fcoe-edd $fcoe_dcb
@@ -77,7 +77,7 @@ else
         unset fcoe_mac
         unset fcoe_interface
         parse_fcoe_opts
-        if [ "$fcoe_dcb" != "nodcb" -a "$fcoe_dcb" != "dcb" ] ; then
+        if [ "$fcoe_dcb" != "nodcb" -a "$fcoe_dcb" != "dcb" ]; then
             warn "Invalid FCoE DCB option: $fcoe_dcb"
         fi
         . $(command -v fcoe-genrules.sh)

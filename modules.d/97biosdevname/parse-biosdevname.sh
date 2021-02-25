@@ -8,4 +8,3 @@ else
     info "biosdevname=1: activating biosdevname network renaming"
     udevproperty UDEV_BIOSDEVNAME=1
 fi
-

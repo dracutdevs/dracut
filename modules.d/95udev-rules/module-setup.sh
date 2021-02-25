@@ -16,7 +16,7 @@ install() {
         [[ -x $dracutsysrootdir$_i ]] || continue
         inst "$_i"
 
-        if ! [[ -f  ${initdir}${systemdutildir}/systemd-udevd ]]; then
+        if ! [[ -f ${initdir}${systemdutildir}/systemd-udevd ]]; then
             ln -fs "$_i" "${initdir}${systemdutildir}"/systemd-udevd
         fi
         break
@@ -43,8 +43,7 @@ install() {
         73-seat-late.rules \
         75-net-description.rules \
         80-drivers.rules 95-udev-late.rules \
-        80-net-name-slot.rules\
-        80-net-setup-link.rules \
+        80-net-name-slot.rules 80-net-setup-link.rules \
         95-late.rules \
         "$moddir/59-persistent-storage.rules" \
         "$moddir/61-persistent-storage.rules" \
@@ -65,14 +64,14 @@ install() {
 
     {
         for i in cdrom tape dialout floppy; do
-            if ! grep -q "^$i:" "$initdir"/etc/group 2>/dev/null; then
-                if ! grep "^$i:" "$dracutsysrootdir"/etc/group 2>/dev/null; then
-                        case $i in
-                            cdrom)   echo "$i:x:11:";;
-                            dialout) echo "$i:x:18:";;
-                            floppy)  echo "$i:x:19:";;
-                            tape)    echo "$i:x:33:";;
-                        esac
+            if ! grep -q "^$i:" "$initdir"/etc/group 2> /dev/null; then
+                if ! grep "^$i:" "$dracutsysrootdir"/etc/group 2> /dev/null; then
+                    case $i in
+                        cdrom) echo "$i:x:11:" ;;
+                        dialout) echo "$i:x:18:" ;;
+                        floppy) echo "$i:x:19:" ;;
+                        tape) echo "$i:x:33:" ;;
+                    esac
                 fi
             fi
         done
@@ -98,10 +97,9 @@ install() {
 
     inst_multiple -o /etc/pcmcia/config.opts
 
-    [[ -f $dracutsysrootdir/etc/arch-release ]] && \
-        inst_script "$moddir/load-modules.sh" /lib/udev/load-modules.sh
+    [[ -f $dracutsysrootdir/etc/arch-release ]] \
+        && inst_script "$moddir/load-modules.sh" /lib/udev/load-modules.sh
 
     inst_libdir_file "libnss_files*"
 
 }
-

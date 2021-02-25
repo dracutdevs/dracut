@@ -9,9 +9,9 @@ fi
 echo "TESTDIR=\"$TESTDIR\"" > .testdir${TEST_RUN_ID:+-$TEST_RUN_ID}
 export TESTDIR
 
-command -v test_check &>/dev/null || test_check() {
-        :
-    }
+command -v test_check &> /dev/null || test_check() {
+    :
+}
 
 # terminal sequence to set color to a 'success' color (currently: green)
 function SETCOLOR_SUCCESS() { echo -en '\033[0;32m'; }
@@ -28,8 +28,10 @@ COLOR_WARNING='\033[0;33m'
 COLOR_NORMAL='\033[0;39m'
 
 check_root() {
-    if (( $EUID != 0 )); then
-        SETCOLOR_FAILURE; echo "Tests must be run as root! Please use 'sudo'."; SETCOLOR_NORMAL
+    if (($EUID != 0)); then
+        SETCOLOR_FAILURE
+        echo "Tests must be run as root! Please use 'sudo'."
+        SETCOLOR_NORMAL
         exit 1
     fi
 }
@@ -40,25 +42,28 @@ while (($# > 0)); do
             check_root
             echo "TEST RUN: $TEST_DESCRIPTION"
             test_check && test_run
-            exit $?;;
+            exit $?
+            ;;
         --setup)
             check_root
             echo "TEST SETUP: $TEST_DESCRIPTION"
             test_check && test_setup
-            exit $?;;
+            exit $?
+            ;;
         --clean)
             echo "TEST CLEANUP: $TEST_DESCRIPTION"
             test_cleanup
             rm -fr -- "$TESTDIR"
             rm -f -- .testdir${TEST_RUN_ID:+-$TEST_RUN_ID}
-            exit $?;;
+            exit $?
+            ;;
         --all)
             check_root
-            if ! test_check 2&>test${TEST_RUN_ID:+-$TEST_RUN_ID}.log ; then
+            if ! test_check 2 &> test${TEST_RUN_ID:+-$TEST_RUN_ID}.log; then
                 echo -e "TEST: $TEST_DESCRIPTION " $COLOR_WARNING "[SKIPPED]" $COLOR_NORMAL
-                exit 0;
+                exit 0
             else
-                echo -e "TEST: $TEST_DESCRIPTION " $COLOR_SUCCESS "[STARTED]" $COLOR_NORMAL;
+                echo -e "TEST: $TEST_DESCRIPTION " $COLOR_SUCCESS "[STARTED]" $COLOR_NORMAL
             fi
             if [[ "$V" == "1" ]]; then
                 set -o pipefail
@@ -66,26 +71,26 @@ while (($# > 0)); do
                     test_setup && test_run
                     ret=$?
                     test_cleanup
-                    if ((ret!=0)) && [[ -f "$TESTDIR"/server.log ]]; then
+                    if ((ret != 0)) && [[ -f "$TESTDIR"/server.log ]]; then
                         mv "$TESTDIR"/server.log ./server${TEST_RUN_ID:+-$TEST_RUN_ID}.log
                     fi
                     rm -fr -- "$TESTDIR"
                     rm -f -- .testdir${TEST_RUN_ID:+-$TEST_RUN_ID}
                     exit $ret
-                ) </dev/null 2>&1 | tee test${TEST_RUN_ID:+-$TEST_RUN_ID}.log
+                ) < /dev/null 2>&1 | tee test${TEST_RUN_ID:+-$TEST_RUN_ID}.log
             elif [[ "$V" == "2" ]]; then
                 set -o pipefail
                 (
                     test_setup && test_run
                     ret=$?
                     test_cleanup
-                    if ((ret!=0)) && [[ -f "$TESTDIR"/server.log ]]; then
+                    if ((ret != 0)) && [[ -f "$TESTDIR"/server.log ]]; then
                         mv "$TESTDIR"/server.log ./server${TEST_RUN_ID:+-$TEST_RUN_ID}.log
                     fi
                     rm -fr -- "$TESTDIR"
                     rm -f -- .testdir${TEST_RUN_ID:+-$TEST_RUN_ID}
                     exit $ret
-                ) </dev/null 2>&1 | $basedir/logtee test${TEST_RUN_ID:+-$TEST_RUN_ID}.log
+                ) < /dev/null 2>&1 | $basedir/logtee test${TEST_RUN_ID:+-$TEST_RUN_ID}.log
             else
                 (
                     test_setup && test_run
@@ -94,7 +99,7 @@ while (($# > 0)); do
                     rm -fr -- "$TESTDIR"
                     rm -f -- .testdir${TEST_RUN_ID:+-$TEST_RUN_ID}
                     exit $ret
-                ) </dev/null >test${TEST_RUN_ID:+-$TEST_RUN_ID}.log 2>&1
+                ) < /dev/null > test${TEST_RUN_ID:+-$TEST_RUN_ID}.log 2>&1
             fi
             ret=$?
             set +o pipefail
@@ -110,7 +115,8 @@ while (($# > 0)); do
                     echo "see $(pwd)/test${TEST_RUN_ID:+-$TEST_RUN_ID}.log"
                 fi
             fi
-            exit $ret;;
+            exit $ret
+            ;;
         *) break ;;
     esac
     shift

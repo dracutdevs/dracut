@@ -46,7 +46,7 @@ installkernel() {
                 IFS=$_OLD_IFS
                 # try to load the cipher part with "crypto-" prepended
                 # in non-hostonly mode
-                hostonly= instmods $(for k in "$@"; do echo "crypto-$k";done)
+                hostonly= instmods $(for k in "$@"; do echo "crypto-$k"; done)
             fi
         done
     }
@@ -62,10 +62,10 @@ cmdline() {
         UUID=$(
             blkid -u crypto -o export $dev \
                 | while read line || [ -n "$line" ]; do
-                [[ ${line#UUID} = $line ]] && continue
-                printf "%s" "${line#UUID=}"
-                break
-            done
+                    [[ ${line#UUID} = $line ]] && continue
+                    printf "%s" "${line#UUID=}"
+                    break
+                done
         )
         [[ ${UUID} ]] || continue
         printf "%s" " rd.luks.uuid=luks-${UUID}"
@@ -95,14 +95,14 @@ install() {
             [[ $_mapper = \#* ]] && continue
             [[ $_dev ]] || continue
 
-            [[ $_dev == PARTUUID=* ]] && \
-                _dev="/dev/disk/by-partuuid/${_dev#PARTUUID=}"
+            [[ $_dev == PARTUUID=* ]] \
+                && _dev="/dev/disk/by-partuuid/${_dev#PARTUUID=}"
 
-            [[ $_dev == UUID=* ]] && \
-                _dev="/dev/disk/by-uuid/${_dev#UUID=}"
+            [[ $_dev == UUID=* ]] \
+                && _dev="/dev/disk/by-uuid/${_dev#UUID=}"
 
-            [[ $_dev == ID=* ]] && \
-                _dev="/dev/disk/by-id/${_dev#ID=}"
+            [[ $_dev == ID=* ]] \
+                && _dev="/dev/disk/by-id/${_dev#ID=}"
 
             echo "$_dev $(blkid $_dev -s UUID -o value)" >> "${initdir}/etc/block_uuid.map"
 
@@ -147,15 +147,15 @@ install() {
         # the cryptsetup targets are already pulled in by 00systemd, but not
         # the enablement symlinks
         inst_multiple -o \
-                      $systemdutildir/system-generators/systemd-cryptsetup-generator \
-                      $systemdutildir/systemd-cryptsetup \
-                      $systemdsystemunitdir/systemd-ask-password-console.path \
-                      $systemdsystemunitdir/systemd-ask-password-console.service \
-                      $systemdsystemunitdir/cryptsetup.target \
-                      $systemdsystemunitdir/sysinit.target.wants/cryptsetup.target \
-                      $systemdsystemunitdir/remote-cryptsetup.target \
-                      $systemdsystemunitdir/initrd-root-device.target.wants/remote-cryptsetup.target \
-                      systemd-ask-password systemd-tty-ask-password-agent
+            $systemdutildir/system-generators/systemd-cryptsetup-generator \
+            $systemdutildir/systemd-cryptsetup \
+            $systemdsystemunitdir/systemd-ask-password-console.path \
+            $systemdsystemunitdir/systemd-ask-password-console.service \
+            $systemdsystemunitdir/cryptsetup.target \
+            $systemdsystemunitdir/sysinit.target.wants/cryptsetup.target \
+            $systemdsystemunitdir/remote-cryptsetup.target \
+            $systemdsystemunitdir/initrd-root-device.target.wants/remote-cryptsetup.target \
+            systemd-ask-password systemd-tty-ask-password-agent
     fi
 
     dracut_need_initqueue

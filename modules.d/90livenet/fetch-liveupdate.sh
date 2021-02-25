@@ -6,9 +6,9 @@
 # no updates requested? we're not needed.
 [ -e /tmp/liveupdates.info ] || return 0
 
-command -v getarg >/dev/null || . /lib/dracut-lib.sh
-command -v fetch_url >/dev/null || . /lib/url-lib.sh
-command -v unpack_img >/dev/null || . /lib/img-lib.sh
+command -v getarg > /dev/null || . /lib/dracut-lib.sh
+command -v fetch_url > /dev/null || . /lib/url-lib.sh
+command -v unpack_img > /dev/null || . /lib/img-lib.sh
 
 read url < /tmp/liveupdates.info
 

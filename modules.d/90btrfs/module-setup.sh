@@ -34,9 +34,11 @@ install() {
         inst_rules "$moddir/80-btrfs.rules"
         case "$(btrfs --help)" in
             *device\ ready*)
-                inst_script "$moddir/btrfs_device_ready.sh" /sbin/btrfs_finished ;;
+                inst_script "$moddir/btrfs_device_ready.sh" /sbin/btrfs_finished
+                ;;
             *)
-                inst_script "$moddir/btrfs_finished.sh" /sbin/btrfs_finished ;;
+                inst_script "$moddir/btrfs_finished.sh" /sbin/btrfs_finished
+                ;;
         esac
     fi
 

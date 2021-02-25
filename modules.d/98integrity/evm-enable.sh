@@ -12,21 +12,20 @@ EVMKEYDESC="evm-key"
 EVMKEYTYPE="encrypted"
 EVMKEYID=""
 
-load_evm_key()
-{
+load_evm_key() {
     # read the configuration from the config file
-    [ -f "${EVMCONFIG}" ] && \
-        . ${EVMCONFIG}
+    [ -f "${EVMCONFIG}" ] \
+        && . ${EVMCONFIG}
 
     # override the EVM key path name from the 'evmkey=' parameter in the kernel
     # command line
     EVMKEYARG=$(getarg evmkey=)
-    [ $? -eq 0 ] && \
-        EVMKEY=${EVMKEYARG}
+    [ $? -eq 0 ] \
+        && EVMKEY=${EVMKEYARG}
 
     # set the default value
-    [ -z "${EVMKEY}" ] && \
-        EVMKEY="/etc/keys/evm-trusted.blob";
+    [ -z "${EVMKEY}" ] \
+        && EVMKEY="/etc/keys/evm-trusted.blob"
 
     # set the EVM key path name
     EVMKEYPATH="${NEWROOT}${EVMKEY}"
@@ -45,25 +44,24 @@ load_evm_key()
     # load the EVM encrypted key
     EVMKEYID=$(keyctl add ${EVMKEYTYPE} ${EVMKEYDESC} "load ${KEYBLOB}" @u)
     [ $? -eq 0 ] || {
-        info "integrity: failed to load the EVM encrypted key: ${EVMKEYDESC}";
-        return 1;
+        info "integrity: failed to load the EVM encrypted key: ${EVMKEYDESC}"
+        return 1
     }
     return 0
 }
 
-load_evm_x509()
-{
+load_evm_x509() {
     info "Load EVM IMA X509"
 
     # override the EVM key path name from the 'evmx509=' parameter in
     # the kernel command line
     EVMX509ARG=$(getarg evmx509=)
-    [ $? -eq 0 ] && \
-        EVMX509=${EVMX509ARG}
+    [ $? -eq 0 ] \
+        && EVMX509=${EVMX509ARG}
 
     # set the default value
-    [ -z "${EVMX509}" ] && \
-        EVMX509="/etc/keys/x509_evm.der";
+    [ -z "${EVMX509}" ] \
+        && EVMX509="/etc/keys/x509_evm.der"
 
     # set the EVM public key path name
     EVMX509PATH="${NEWROOT}${EVMX509}"
@@ -83,18 +81,18 @@ load_evm_x509()
         evm_pubid=${line%%:*}
     else
         # look for an existing regular keyring
-        evm_pubid=`keyctl search @u keyring _evm`
+        evm_pubid=$(keyctl search @u keyring _evm)
         if [ -z "${evm_pubid}" ]; then
             # create a new regular _evm keyring
-            evm_pubid=`keyctl newring _evm @u`
+            evm_pubid=$(keyctl newring _evm @u)
         fi
     fi
 
     # load the EVM public key onto the EVM keyring
     EVMX509ID=$(evmctl import ${EVMX509PATH} ${evm_pubid})
     [ $? -eq 0 ] || {
-        info "integrity: failed to load the EVM X509 cert ${EVMX509PATH}";
-        return 1;
+        info "integrity: failed to load the EVM X509 cert ${EVMX509PATH}"
+        return 1
     }
 
     if [ "${RD_DEBUG}" = "yes" ]; then
@@ -104,19 +102,17 @@ load_evm_x509()
     return 0
 }
 
-unload_evm_key()
-{
+unload_evm_key() {
     # unlink the EVM encrypted key
     keyctl unlink ${EVMKEYID} @u || {
-        info "integrity: failed to unlink the EVM encrypted key: ${EVMKEYDESC}";
-        return 1;
+        info "integrity: failed to unlink the EVM encrypted key: ${EVMKEYDESC}"
+        return 1
     }
 
     return 0
 }
 
-enable_evm()
-{
+enable_evm() {
     # check kernel support for EVM
     if [ ! -e "${EVMSECFILE}" ]; then
         if [ "${RD_DEBUG}" = "yes" ]; then

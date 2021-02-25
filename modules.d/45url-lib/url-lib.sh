@@ -4,7 +4,7 @@
 # Authors:
 #   Will Woods <wwoods@redhat.com>
 
-type mkuniqdir >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type mkuniqdir > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
 # fetch_url URL [OUTFILE]
 #   fetch the given URL to a locally-visible location.
@@ -39,7 +39,8 @@ get_url_handler() {
 # add_url_handler HANDLERNAME SCHEME [SCHEME...]
 #   associate the named handler with the named scheme(s).
 add_url_handler() {
-    local handler="$1"; shift
+    local handler="$1"
+    shift
     local schemes="$@" scheme=""
     set --
     for scheme in $schemes; do
@@ -67,14 +68,17 @@ curl_fetch_url() {
         curl $curl_args --output - -- "$url" > "$outloc" || return $?
     else
         local outdir="$(mkuniqdir /tmp curl_fetch_url)"
-        ( cd "$outdir"; curl $curl_args --remote-name "$url" || return $? )
+        (
+            cd "$outdir"
+            curl $curl_args --remote-name "$url" || return $?
+        )
         outloc="$outdir/$(ls -A $outdir)"
     fi
     if ! [ -f "$outloc" ]; then
-	    warn "Downloading '$url' failed!"
-	    return 253
+        warn "Downloading '$url' failed!"
+        return 253
     fi
-    if [ -z "$2" ]; then echo "$outloc" ; fi
+    if [ -z "$2" ]; then echo "$outloc"; fi
 }
 add_url_handler curl_fetch_url http https ftp tftp
 
@@ -95,7 +99,10 @@ ctorrent_fetch_url() {
         curl $curl_args --output - -- "$url" > "$torrent_outloc" || return $?
     else
         local outdir="$(mkuniqdir /tmp torrent_fetch_url)"
-        ( cd "$outdir"; curl $curl_args --remote-name "$url" || return $? )
+        (
+            cd "$outdir"
+            curl $curl_args --remote-name "$url" || return $?
+        )
         torrent_outloc="$outdir/$(ls -A $outdir)"
         outloc=${torrent_outloc%.*}
     fi
@@ -108,10 +115,10 @@ ctorrent_fetch_url() {
         warn "Torrent download of '$url' failed!"
         return 253
     fi
-    if [ -z "$2" ]; then echo "$outloc" ; fi
+    if [ -z "$2" ]; then echo "$outloc"; fi
 }
 
-command -v ctorrent >/dev/null \
+command -v ctorrent > /dev/null \
     && add_url_handler ctorrent_fetch_url torrent
 
 ### NFS ##############################################################
@@ -152,6 +159,6 @@ nfs_fetch_url() {
         cp -f -- "$mntdir/$filename" "$outloc" || return $?
     fi
     [ -f "$outloc" ] || return 253
-    if [ -z "$2" ]; then echo "$outloc" ; fi
+    if [ -z "$2" ]; then echo "$outloc"; fi
 }
-command -v nfs_to_var >/dev/null && add_url_handler nfs_fetch_url nfs nfs4
+command -v nfs_to_var > /dev/null && add_url_handler nfs_fetch_url nfs nfs4

@@ -3,7 +3,7 @@
 # memdebug=4 and memdebug=5 requires debug fs to be mounted.
 # And there is no need to umount it.
 
-type getargnum >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type getargnum > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
 # "sys/kernel/tracing" has the priority if exists.
 get_trace_base() {
@@ -37,7 +37,7 @@ prepare_debugfs() {
     fi
 }
 
-if ! is_debugfs_ready ; then
+if ! is_debugfs_ready; then
     prepare_debugfs
 fi
 
@@ -49,7 +49,7 @@ if [ -n "$DEBUG_MEM_LEVEL" ]; then
         echo "memstrack - will report memory usage summary"
         memstrack --report module_summary --notui --throttle 80 -o /.memstrack &
     else
-        exit 0;
+        exit 0
     fi
 fi
 

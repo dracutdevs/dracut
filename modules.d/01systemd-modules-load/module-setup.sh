@@ -26,24 +26,24 @@ depends() {
 # Install the required file(s) for the module in the initramfs.
 install() {
 
-        # Create systemd-modules-load related directories.
-        inst_dir    $modulesload
-        inst_dir    $modulesloadconfdir
+    # Create systemd-modules-load related directories.
+    inst_dir $modulesload
+    inst_dir $modulesloadconfdir
 
-        # Install related files for systemd-modules-load
-        inst_multiple -o \
-            $systemdsystemunitdir/systemd-modules-load.service \
-            $systemdutildir/systemd-modules-load
+    # Install related files for systemd-modules-load
+    inst_multiple -o \
+        $systemdsystemunitdir/systemd-modules-load.service \
+        $systemdutildir/systemd-modules-load
 
-        # Install local user configurations if host only is enabled..
-        if [[ $hostonly ]]; then
-            inst_multiple -H -o \
+    # Install local user configurations if host only is enabled..
+    if [[ $hostonly ]]; then
+        inst_multiple -H -o \
             $systemdsystemconfdir/systemd-modules-load.service \
             $systemdsystemconfdir/systemd-systemd-modules-load.d/*.conf \
             ${NULL}
-        fi
+    fi
 
-        # Enable the systemd type service unit for systemd-modules-load.
-        $SYSTEMCTL -q --root "$initdir" enable systemd-modules-load.service
+    # Enable the systemd type service unit for systemd-modules-load.
+    $SYSTEMCTL -q --root "$initdir" enable systemd-modules-load.service
 
 }

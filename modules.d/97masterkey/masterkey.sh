@@ -10,27 +10,26 @@ MASTERKEYSCONFIG="${NEWROOT}/etc/sysconfig/masterkey"
 MULTIKERNELMODE="NO"
 PCRLOCKNUM=11
 
-load_masterkey()
-{
+load_masterkey() {
     # read the configuration from the config file
-    [ -f "${MASTERKEYSCONFIG}" ] && \
-        . ${MASTERKEYSCONFIG}
+    [ -f "${MASTERKEYSCONFIG}" ] \
+        && . ${MASTERKEYSCONFIG}
 
     # override the kernel master key path name from the 'masterkey=' parameter
     # in the kernel command line
     MASTERKEYARG=$(getarg masterkey=)
-    [ $? -eq 0 ] && \
-        MASTERKEY=${MASTERKEYARG}
+    [ $? -eq 0 ] \
+        && MASTERKEY=${MASTERKEYARG}
 
     # override the kernel master key type from the 'masterkeytype=' parameter
     # in the kernel command line
     MASTERKEYTYPEARG=$(getarg masterkeytype=)
-    [ $? -eq 0 ] && \
-        MASTERKEYTYPE=${MASTERKEYTYPEARG}
+    [ $? -eq 0 ] \
+        && MASTERKEYTYPE=${MASTERKEYTYPEARG}
 
     # set default values
-    [ -z "${MASTERKEYTYPE}" ] && \
-        MASTERKEYTYPE="trusted"
+    [ -z "${MASTERKEYTYPE}" ] \
+        && MASTERKEYTYPE="trusted"
 
     if [ -z "${MASTERKEY}" ]; then
         # append the kernel version to the default masterkey path name
@@ -57,14 +56,14 @@ load_masterkey()
     KEYBLOB=$(cat ${MASTERKEYPATH})
 
     # add the 'load' prefix if the key type is 'trusted'
-    [ "${MASTERKEYTYPE}" = "trusted" ] && \
-        KEYBLOB="load ${KEYBLOB} pcrlock=${PCRLOCKNUM}"
+    [ "${MASTERKEYTYPE}" = "trusted" ] \
+        && KEYBLOB="load ${KEYBLOB} pcrlock=${PCRLOCKNUM}"
 
     # load the kernel master key
     info "Loading the kernel master key"
-    keyctl add "${MASTERKEYTYPE}" "kmk-${MASTERKEYTYPE}" "${KEYBLOB}" @u >/dev/null || {
-        info "masterkey: failed to load the kernel master key: kmk-${MASTERKEYTYPE}";
-        return 1;
+    keyctl add "${MASTERKEYTYPE}" "kmk-${MASTERKEYTYPE}" "${KEYBLOB}" @u > /dev/null || {
+        info "masterkey: failed to load the kernel master key: kmk-${MASTERKEYTYPE}"
+        return 1
     }
 
     return 0

@@ -50,7 +50,7 @@ cmdline() {
 
     ### nfsroot= ###
     nfs_device=$(findmnt -t nfs4 -n -o SOURCE /)
-    if [ -n "$nfs_device" ];then
+    if [ -n "$nfs_device" ]; then
         nfs_root="root=nfs4:$nfs_device"
     else
         nfs_device=$(findmnt -t nfs -n -o SOURCE /)
@@ -65,7 +65,7 @@ cmdline() {
     if [[ $nfs_device =~ [0-9]*\.[0-9]*\.[0-9]*.[0-9]* ]] || [[ $nfs_device =~ \[[^]]*\] ]]; then
         nfs_address="${nfs_device%%:*}"
     else
-        lookup=$(host "${nfs_device%%:*}"| grep " address " | head -n1)
+        lookup=$(host "${nfs_device%%:*}" | grep " address " | head -n1)
         nfs_address=${lookup##* }
     fi
 
@@ -95,7 +95,7 @@ install() {
     inst_libdir_file 'libnfsidmap_nsswitch.so*' 'libnfsidmap/*.so' 'libnfsidmap*.so*'
 
     _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' "$dracutsysrootdir"/etc/nsswitch.conf \
-        |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
+        | tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
     _nsslibs=${_nsslibs#|}
     _nsslibs=${_nsslibs%|}
 

@@ -33,7 +33,7 @@ test_setup() {
             mkdir -p -- var/lib/nfs/rpc_pipefs
         )
         inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
-                      mount dmesg dhclient mkdir cp ping dhclient dd
+            mount dmesg dhclient mkdir cp ping dhclient dd
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
@@ -43,7 +43,7 @@ test_setup() {
         inst_multiple grep
         inst_simple /etc/os-release
         inst ./test-init.sh /sbin/init
-        find_binary plymouth >/dev/null && inst_multiple plymouth
+        find_binary plymouth > /dev/null && inst_multiple plymouth
         cp -a /etc/ld.so.conf* $initdir/etc
         mkdir -p $initdir/run
         ldconfig -r "$initdir"
@@ -63,15 +63,15 @@ test_setup() {
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-                       -m "bash lvm mdraid udev-rules base rootfs-block fs-lib kernel-modules qemu" \
-                       -d "piix ide-gd_mod ata_piix ext2 sd_mod" \
-                       --no-hostonly-cmdline -N \
-                       -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
+        -m "bash lvm mdraid udev-rules base rootfs-block fs-lib kernel-modules qemu" \
+        -d "piix ide-gd_mod ata_piix ext2 sd_mod" \
+        --no-hostonly-cmdline -N \
+        -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
     rm -rf -- $TESTDIR/overlay
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     $testdir/run-qemu -drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext2 \
-                      -append "root=/dev/fakeroot rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
-                      -initrd $TESTDIR/initramfs.makeroot  || return 1
+        -append "root=/dev/fakeroot rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
+        -initrd $TESTDIR/initramfs.makeroot || return 1
     grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/root.ext2 || return 1
     (
         export initdir=$TESTDIR/overlay
@@ -82,11 +82,11 @@ test_setup() {
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-         -o "plymouth network kernel-network-modules" \
-         -a "debug" -I lvs \
-         -d "piix ide-gd_mod ata_piix ext2 sd_mod" \
-         --no-hostonly-cmdline -N \
-         -f $TESTDIR/initramfs.testing $KVERSION || return 1
+        -o "plymouth network kernel-network-modules" \
+        -a "debug" -I lvs \
+        -d "piix ide-gd_mod ata_piix ext2 sd_mod" \
+        --no-hostonly-cmdline -N \
+        -f $TESTDIR/initramfs.testing $KVERSION || return 1
 }
 
 test_cleanup() {

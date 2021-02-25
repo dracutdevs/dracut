@@ -6,9 +6,9 @@
 # iscsistart needs this.
 #
 
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
-type parse_iscsi_root >/dev/null 2>&1 || . /lib/net-lib.sh
-type write_fs_tab >/dev/null 2>&1 || . /lib/fs-lib.sh
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
+type parse_iscsi_root > /dev/null 2>&1 || . /lib/net-lib.sh
+type write_fs_tab > /dev/null 2>&1 || . /lib/fs-lib.sh
 
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
@@ -34,19 +34,17 @@ iroot=${iroot#:}
 
 # XXX modprobe crc32c should go in the cmdline parser, but I haven't yet
 # figured out a way how to check whether this is built-in or not
-modprobe crc32c 2>/dev/null
+modprobe crc32c 2> /dev/null
 
 # start iscsiuio if needed
-if [ -z "${DRACUT_SYSTEMD}" ] && \
-      ( [ -e /sys/module/bnx2i ] || [ -e /sys/module/qedi ] ) && \
-       ! [ -e /tmp/iscsiuio-started ]; then
-      iscsiuio
-      > /tmp/iscsiuio-started
+if [ -z "${DRACUT_SYSTEMD}" ] \
+    && ([ -e /sys/module/bnx2i ] || [ -e /sys/module/qedi ]) \
+    && ! [ -e /tmp/iscsiuio-started ]; then
+    iscsiuio
+    > /tmp/iscsiuio-started
 fi
 
-
-handle_firmware()
-{
+handle_firmware() {
     local ifaces retry
 
     # Depending on the 'ql4xdisablesysfsboot' qla4xxx
@@ -57,11 +55,14 @@ handle_firmware()
     if ! iscsiadm -m fw; then
         warn "iscsiadm: Could not get list of targets from firmware."
     else
-        ifaces=$(set -- /sys/firmware/ibft/ethernet*; echo $#)
+        ifaces=$(
+            set -- /sys/firmware/ibft/ethernet*
+            echo $#
+        )
         retry=$(cat /tmp/session-retry)
 
         if [ $retry -lt $ifaces ]; then
-            retry=$((retry+1))
+            retry=$((retry + 1))
             echo $retry > /tmp/session-retry
             return 1
         else
@@ -81,9 +82,7 @@ handle_firmware()
     return 0
 }
 
-
-handle_netroot()
-{
+handle_netroot() {
     local iscsi_initiator iscsi_target_name iscsi_target_ip iscsi_target_port
     local iscsi_target_group iscsi_protocol iscsirw iscsi_lun
     local iscsi_username iscsi_password
@@ -107,9 +106,9 @@ handle_netroot()
     arg=$(getarg rd.iscsi.in.password -d iscsi_in_password=)
     [ -n "$arg" ] && iscsi_in_password=$arg
     for p in $(getargs rd.iscsi.param -d iscsi_param); do
-        [ "${p%=*}" = node.session.initial_login_retry_max ] && \
-            login_retry_max_seen=yes
-            iscsi_param="$iscsi_param $p"
+        [ "${p%=*}" = node.session.initial_login_retry_max ] \
+            && login_retry_max_seen=yes
+        iscsi_param="$iscsi_param $p"
     done
 
     # this sets iscsi_target_name and possibly overwrites most
@@ -118,7 +117,7 @@ handle_netroot()
 
     # Bail out early, if there is no route to the destination
     if is_ip "$iscsi_target_ip" && [ "$netif" != "timeout" ] && ! all_ifaces_setup && getargbool 1 rd.iscsi.testroute; then
-        ip route get "$iscsi_target_ip" >/dev/null 2>&1 || return 0
+        ip route get "$iscsi_target_ip" > /dev/null 2>&1 || return 0
     fi
 
     #limit iscsistart login retries
@@ -129,23 +128,23 @@ handle_netroot()
         fi
     fi
 
-# XXX is this needed?
+    # XXX is this needed?
     getarg ro && iscsirw=ro
     getarg rw && iscsirw=rw
     fsopts=${fsopts:+$fsopts,}${iscsirw}
 
     if [ -z "$iscsi_initiator" ] && [ -f /sys/firmware/ibft/initiator/initiator-name ] && ! [ -f /tmp/iscsi_set_initiator ]; then
-           iscsi_initiator=$(while read line || [ -n "$line" ]; do echo $line;done < /sys/firmware/ibft/initiator/initiator-name)
-           echo "InitiatorName=$iscsi_initiator" > /run/initiatorname.iscsi
-           rm -f /etc/iscsi/initiatorname.iscsi
-           mkdir -p /etc/iscsi
-           ln -fs /run/initiatorname.iscsi /etc/iscsi/initiatorname.iscsi
-           > /tmp/iscsi_set_initiator
-           if [ -n "$DRACUT_SYSTEMD" ]; then
-               systemctl try-restart iscsid
-               # FIXME: iscsid is not yet ready, when the service is :-/
-               sleep 1
-           fi
+        iscsi_initiator=$(while read line || [ -n "$line" ]; do echo $line; done < /sys/firmware/ibft/initiator/initiator-name)
+        echo "InitiatorName=$iscsi_initiator" > /run/initiatorname.iscsi
+        rm -f /etc/iscsi/initiatorname.iscsi
+        mkdir -p /etc/iscsi
+        ln -fs /run/initiatorname.iscsi /etc/iscsi/initiatorname.iscsi
+        > /tmp/iscsi_set_initiator
+        if [ -n "$DRACUT_SYSTEMD" ]; then
+            systemctl try-restart iscsid
+            # FIXME: iscsid is not yet ready, when the service is :-/
+            sleep 1
+        fi
     fi
 
     if [ -z "$iscsi_initiator" ]; then
@@ -168,7 +167,6 @@ handle_netroot()
             sleep 1
         fi
     fi
-
 
     if [ -z "$iscsi_target_port" ]; then
         iscsi_target_port=3260
@@ -194,12 +192,12 @@ handle_netroot()
         fi
     fi
 
-   if [ -z "$DRACUT_SYSTEMD" ]; then
-       iscsid
-       sleep 2
-   fi
+    if [ -z "$DRACUT_SYSTEMD" ]; then
+        iscsid
+        sleep 2
+    fi
 
-# FIXME $iscsi_protocol??
+    # FIXME $iscsi_protocol??
 
     if [ "$root" = "dhcp" ] || [ "$netroot" = "dhcp" ]; then
         # if root is not specified try to mount the whole iSCSI LUN
@@ -209,8 +207,8 @@ handle_netroot()
         wait_for_dev -n /dev/root
 
         # install mount script
-        [ -z "$DRACUT_SYSTEMD" ] && \
-            echo "iscsi_lun=$iscsi_lun . /bin/mount-lun.sh " > $hookdir/mount/01-$$-iscsi.sh
+        [ -z "$DRACUT_SYSTEMD" ] \
+            && echo "iscsi_lun=$iscsi_lun . /bin/mount-lun.sh " > $hookdir/mount/01-$$-iscsi.sh
     fi
 
     if strglobin $iscsi_target_ip '*:*:*' && ! strglobin $iscsi_target_ip '['; then
@@ -276,7 +274,7 @@ if [ "$netif" = "timeout" ] && all_ifaces_setup; then
     sleep 2
 fi
 
-if getargbool 0 rd.iscsi.firmware -d -y iscsi_firmware ; then
+if getargbool 0 rd.iscsi.firmware -d -y iscsi_firmware; then
     if [ "$netif" = "timeout" ] || [ "$netif" = "online" ] || [ "$netif" = "dummy" ]; then
         [ -f /tmp/session-retry ] || echo 1 > /tmp/session-retry
         handle_firmware

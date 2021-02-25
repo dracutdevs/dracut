@@ -7,7 +7,7 @@ modprobe btrfs
 udevadm control --reload
 udevadm settle
 # save a partition at the beginning for future flagging purposes
-sfdisk -X gpt /dev/sda <<EOF
+sfdisk -X gpt /dev/sda << EOF
 ,10M
 ,200M
 ,200M

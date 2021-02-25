@@ -15,53 +15,57 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__contains_word () {
-        local word="$1"; shift
-        for w in "$@"; do [[ $w = "$word" ]] && return 0; done
-        return 1
+__contains_word() {
+    local word="$1"
+    shift
+    for w in "$@"; do [[ $w = "$word" ]] && return 0; done
+    return 1
 }
 
 _lsinitrd() {
-        local cur=${COMP_WORDS[COMP_CWORD]} prev=${COMP_WORDS[COMP_CWORD-1]}
-        local -A OPTS=(
-            [STANDALONE]='-s --size -h --help'
-            [ARG]='-f --file -k --kver'
-        )
+    local cur=${COMP_WORDS[COMP_CWORD]} prev=${COMP_WORDS[COMP_CWORD - 1]}
+    local -A OPTS=(
+        [STANDALONE]='-s --size -h --help'
+        [ARG]='-f --file -k --kver'
+    )
 
-        # shellcheck disable=SC2086
-        if __contains_word "$prev" ${OPTS[ARG]}; then
-                case $prev in
-                        --file|-f)
-                                comps=$(compgen -f -- "$cur")
-                                compopt -o filenames
-                        ;;
-                        --kver|-k)
-                                comps=$(cd /lib/modules || return 1; echo [0-9]*)
-                        ;;
-                        *)
-                                return 0
-                        ;;
-                esac
-                # shellcheck disable=SC2207
-                # shellcheck disable=SC2016
-                COMPREPLY=( $(compgen -W '$comps' -- "$cur") )
+    # shellcheck disable=SC2086
+    if __contains_word "$prev" ${OPTS[ARG]}; then
+        case $prev in
+            --file | -f)
+                comps=$(compgen -f -- "$cur")
+                compopt -o filenames
+                ;;
+            --kver | -k)
+                comps=$(
+                    cd /lib/modules || return 1
+                    echo [0-9]*
+                )
+                ;;
+            *)
                 return 0
-        fi
-
-        if [[ $cur = -* ]]; then
-                # shellcheck disable=SC2207
-                # shellcheck disable=SC2016
-                COMPREPLY=( $(compgen -W '${OPTS[*]}' -- "$cur") )
-                return 0
-        fi
-
-        # shellcheck disable=SC2034
-        comps=$(compgen -f -- "$cur")
-        compopt -o filenames
+                ;;
+        esac
         # shellcheck disable=SC2207
         # shellcheck disable=SC2016
-        COMPREPLY=( $(compgen -W '$comps' -- "$cur") )
+        COMPREPLY=($(compgen -W '$comps' -- "$cur"))
         return 0
+    fi
+
+    if [[ $cur = -* ]]; then
+        # shellcheck disable=SC2207
+        # shellcheck disable=SC2016
+        COMPREPLY=($(compgen -W '${OPTS[*]}' -- "$cur"))
+        return 0
+    fi
+
+    # shellcheck disable=SC2034
+    comps=$(compgen -f -- "$cur")
+    compopt -o filenames
+    # shellcheck disable=SC2207
+    # shellcheck disable=SC2016
+    COMPREPLY=($(compgen -W '$comps' -- "$cur"))
+    return 0
 }
 
 complete -F _lsinitrd lsinitrd

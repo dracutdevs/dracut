@@ -7,7 +7,7 @@ if [ -z "$netroot" ] && [ ! -e "/tmp/net.ifaces" ] && [ "$NEEDNET" != "1" ]; the
     return
 fi
 
-command -v fix_bootif >/dev/null || . /lib/net-lib.sh
+command -v fix_bootif > /dev/null || . /lib/net-lib.sh
 
 # Write udev rules
 {
@@ -75,15 +75,15 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
         echo 'ACTION!="add|change|move", GOTO="net_end"'
         for iface in $IFACES $RAW_IFACES; do
             case "$iface" in
-                ??:??:??:??:??:??)  # MAC address
+                ??:??:??:??:??:??) # MAC address
                     cond="ATTR{address}==\"$iface\""
                     echo "$cond, $runcmd, GOTO=\"net_end\""
                     ;;
-                ??-??-??-??-??-??)  # MAC address in BOOTIF form
+                ??-??-??-??-??-??) # MAC address in BOOTIF form
                     cond="ATTR{address}==\"$(fix_bootif $iface)\""
                     echo "$cond, $runcmd, GOTO=\"net_end\""
                     ;;
-                *)                  # an interface name
+                *) # an interface name
                     cond="ENV{INTERFACE}==\"$iface\""
                     echo "$cond, $runcmd, GOTO=\"net_end\""
                     cond="NAME==\"$iface\""
@@ -96,11 +96,11 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
 
         for iface in $IFACES; do
             if [ "$bootdev" = "$iface" ] || [ "$NEEDNET" = "1" ]; then
-		if [ -n "$netroot" ] && [ -n "$DRACUT_SYSTEMD" ]; then
+                if [ -n "$netroot" ] && [ -n "$DRACUT_SYSTEMD" ]; then
                     echo "systemctl is-active initrd-root-device.target || [ -f /tmp/net.${iface}.did-setup ]"
-		else
+                else
                     echo "[ -f /tmp/net.${iface}.did-setup ]"
-		fi >$hookdir/initqueue/finished/wait-$iface.sh
+                fi > $hookdir/initqueue/finished/wait-$iface.sh
             fi
         done
     # Default: We don't know the interface to use, handle all
@@ -110,9 +110,9 @@ command -v fix_bootif >/dev/null || . /lib/net-lib.sh
         # if you change the name of "91-default-net.rules", also change modules.d/80cms/cmssetup.sh
         echo "$cond, $runcmd" > /etc/udev/rules.d/91-default-net.rules
         if [ "$NEEDNET" = "1" ]; then
-            echo 'for i in /tmp/net.*.did-setup; do [ -f "$i" ]  && exit 0; done; exit 1' >$hookdir/initqueue/finished/wait-network.sh
+            echo 'for i in /tmp/net.*.did-setup; do [ -f "$i" ]  && exit 0; done; exit 1' > $hookdir/initqueue/finished/wait-network.sh
         fi
     fi
 
-# if you change the name of "90-net.rules", also change modules.d/80cms/cmssetup.sh
+    # if you change the name of "90-net.rules", also change modules.d/80cms/cmssetup.sh
 } > /etc/udev/rules.d/90-net.rules

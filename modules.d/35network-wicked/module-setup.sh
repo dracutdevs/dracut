@@ -61,6 +61,6 @@ install() {
             '/^\[Unit\]/aDefaultDependencies=no\
             Conflicts=shutdown.target\
             Before=shutdown.target' \
-                "$initdir"$unit
+            "$initdir"$unit
     done
 }

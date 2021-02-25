@@ -10,7 +10,7 @@ updates=$(getarg live.updates=)
 if [ -n "$updates" ]; then
     # make sure network comes up even if we're doing a local live device
     if [ -z "$netroot" ]; then
-	echo > /tmp/net.ifaces
+        echo > /tmp/net.ifaces
     fi
     echo "$updates" > /tmp/liveupdates.info
     echo '[ -e /tmp/liveupdates.done ]' > \
@@ -22,7 +22,7 @@ str_starts "$liveurl" "live:" || return
 liveurl="${liveurl#live:}"
 
 # setting netroot to "livenet:..." makes "livenetroot" get run after ifup
-if get_url_handler "$liveurl" >/dev/null; then
+if get_url_handler "$liveurl" > /dev/null; then
     info "livenet: root image at $liveurl"
     netroot="livenet:$liveurl"
     root="livenet" # quiet complaints from init

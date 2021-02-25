@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # We don't support srcdir != builddir
-echo \#buildapi-variable-no-builddir >/dev/null
+echo \#buildapi-variable-no-builddir > /dev/null
 
 prefix=/usr
 
@@ -31,24 +31,24 @@ read_arg() {
 
 while (($# > 0)); do
     case "${1%%=*}" in
-        --prefix) read_arg prefix "$@" || shift;;
-        --libdir) read_arg libdir "$@" || shift;;
-        --datadir) read_arg datadir "$@" || shift;;
-        --sysconfdir) read_arg sysconfdir "$@" || shift;;
-        --sbindir) read_arg sbindir "$@" || shift;;
-        --mandir) read_arg mandir "$@" || shift;;
-        --disable-documentation) enable_documentation=no;;
-        --program-prefix) read_arg programprefix "$@" || shift;;
-        --exec-prefix) read_arg execprefix "$@" || shift;;
-        --bindir) read_arg bindir "$@" || shift;;
-        --includedir) read_arg includedir "$@" || shift;;
-        --libexecdir) read_arg libexecdir "$@" || shift;;
-        --localstatedir) read_arg localstatedir "$@" || shift;;
-        --sharedstatedir) read_arg sharedstatedir "$@" || shift;;
-        --infodir) read_arg infodir "$@" || shift;;
-        --systemdsystemunitdir) read_arg systemdsystemunitdir "$@" || shift;;
-        --bashcompletiondir) read_arg bashcompletiondir "$@" || shift;;
-        *) echo "Ignoring unknown option '$1'";;
+        --prefix) read_arg prefix "$@" || shift ;;
+        --libdir) read_arg libdir "$@" || shift ;;
+        --datadir) read_arg datadir "$@" || shift ;;
+        --sysconfdir) read_arg sysconfdir "$@" || shift ;;
+        --sbindir) read_arg sbindir "$@" || shift ;;
+        --mandir) read_arg mandir "$@" || shift ;;
+        --disable-documentation) enable_documentation=no ;;
+        --program-prefix) read_arg programprefix "$@" || shift ;;
+        --exec-prefix) read_arg execprefix "$@" || shift ;;
+        --bindir) read_arg bindir "$@" || shift ;;
+        --includedir) read_arg includedir "$@" || shift ;;
+        --libexecdir) read_arg libexecdir "$@" || shift ;;
+        --localstatedir) read_arg localstatedir "$@" || shift ;;
+        --sharedstatedir) read_arg sharedstatedir "$@" || shift ;;
+        --infodir) read_arg infodir "$@" || shift ;;
+        --systemdsystemunitdir) read_arg systemdsystemunitdir "$@" || shift ;;
+        --bashcompletiondir) read_arg bashcompletiondir "$@" || shift ;;
+        *) echo "Ignoring unknown option '$1'" ;;
     esac
     shift
 done
@@ -58,7 +58,7 @@ if ! ${PKG_CONFIG} --exists --print-errors " libkmod >= 23 "; then
     exit 1
 fi
 
-cat <<EOF >conftest.c
+cat << EOF > conftest.c
 #include <fts.h>
 int main() {
 	return 0;
@@ -66,17 +66,17 @@ int main() {
 EOF
 
 # shellcheck disable=SC2086
-${CC} $CFLAGS $LDFLAGS conftest.c >/dev/null 2>&1
+${CC} $CFLAGS $LDFLAGS conftest.c > /dev/null 2>&1
 ret=$?
 rm -f conftest.c a.out
 
 # musl doesn't have fts.h included
 if test $ret -ne 0; then
-	echo "dracut needs fts development files." >&2
-	exit 1
+    echo "dracut needs fts development files." >&2
+    exit 1
 fi
 
-cat <<EOF >conftest.c
+cat << EOF > conftest.c
 #include <fts.h>
 int main(void) {
 	fts_open(0, 0, 0);
@@ -86,23 +86,23 @@ EOF
 
 found=no
 for lib in "-lc" "-lfts"; do
-  # shellcheck disable=SC2086
-  ${CC} $CFLAGS $LDFLAGS conftest.c -Wl,$lib >/dev/null 2>&1
-	ret=$?
-	if test $ret -eq 0; then
-		FTS_LIBS="$lib"
-		found=yes
-		break;
-	fi
+    # shellcheck disable=SC2086
+    ${CC} $CFLAGS $LDFLAGS conftest.c -Wl,$lib > /dev/null 2>&1
+    ret=$?
+    if test $ret -eq 0; then
+        FTS_LIBS="$lib"
+        found=yes
+        break
+    fi
 done
 rm -f conftest.c a.out
 
 if test $found = no; then
-	echo "dracut couldn't find usable fts library" >&2
-	exit 1
+    echo "dracut couldn't find usable fts library" >&2
+    exit 1
 fi
 
-cat > Makefile.inc.$$ <<EOF
+cat > Makefile.inc.$$ << EOF
 prefix ?= ${prefix}
 libdir ?= ${libdir:-${prefix}/lib}
 datadir ?= ${datadir:-${prefix}/share}

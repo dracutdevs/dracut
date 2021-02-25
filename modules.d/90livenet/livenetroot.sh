@@ -1,7 +1,7 @@
 #!/bin/sh
 # livenetroot - fetch a live image from the network and run it
 
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
 . /lib/url-lib.sh
 
@@ -19,13 +19,12 @@ info "fetching $liveurl"
 imgfile=
 #retry until the imgfile is populated with data or the max retries
 i=1
-while [ "$i" -le $RETRIES ]
-do
+while [ "$i" -le $RETRIES ]; do
     imgfile=$(fetch_url "$liveurl")
 
     if [ $? != 0 ]; then
-            warn "failed to download live image: error $?"
-            imgfile=
+        warn "failed to download live image: error $?"
+        imgfile=
     fi
 
     if [ ! -z "$imgfile" -a -s "$imgfile" ]; then

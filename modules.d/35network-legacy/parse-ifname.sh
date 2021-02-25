@@ -12,11 +12,11 @@
 # an ifname= argument for each interface used in an ip= or fcoe= argument
 
 # check if there are any ifname parameters
-if ! getarg ifname= >/dev/null ; then
+if ! getarg ifname= > /dev/null; then
     return
 fi
 
-command -v parse_ifname_opts >/dev/null || . /lib/net-lib.sh
+command -v parse_ifname_opts > /dev/null || . /lib/net-lib.sh
 
 # Check ifname= lines
 for p in $(getargs ifname=); do

@@ -19,4 +19,3 @@ install() {
     inst_multiple -o cpio xz bzip2 zstd
     inst_simple "$moddir/img-lib.sh" "/lib/img-lib.sh"
 }
-

@@ -17,4 +17,3 @@ install() {
     inst_multiple biosdevname
     inst_rules 71-biosdevname.rules
 }
-

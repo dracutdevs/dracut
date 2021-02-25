@@ -7,8 +7,8 @@ QUIET=$1
 
 printf -- "$$" > /run/initramfs/loginit.pid
 
-[ -e /dev/kmsg ] && exec 5>/dev/kmsg || exec 5>/dev/null
-exec 6>/run/initramfs/init.log
+[ -e /dev/kmsg ] && exec 5> /dev/kmsg || exec 5> /dev/null
+exec 6> /run/initramfs/init.log
 
 while read line || [ -n "$line" ]; do
     if [ "$line" = "DRACUT_LOG_END" ]; then

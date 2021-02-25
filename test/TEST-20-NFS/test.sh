@@ -39,7 +39,7 @@ run_server() {
     tty -s && stty sane
 
     if ! [[ $SERIAL ]]; then
-        while : ; do
+        while :; do
             grep Serving "$TESTDIR"/server.log && break
             echo "Waiting for the server to startup"
             sleep 1
@@ -61,7 +61,7 @@ client_test() {
     echo "CLIENT TEST START: $test_name"
 
     # Need this so kvm-qemu will boot (needs non-/dev/zero local disk)
-    if ! dd if=/dev/zero of=$TESTDIR/client.img bs=1M count=1 &>/dev/null; then
+    if ! dd if=/dev/zero of=$TESTDIR/client.img bs=1M count=1 &> /dev/null; then
         echo "Unable to make client sda image" 1>&2
         return 1
     fi
@@ -127,52 +127,52 @@ test_nfsv3() {
     # NFSv4: last octect starts at 0x80 and works up
 
     client_test "NFSv3 root=dhcp DHCP path only" 52:54:00:12:34:00 \
-                "root=dhcp" 192.168.50.1 -wsize=4096 || return 1
+        "root=dhcp" 192.168.50.1 -wsize=4096 || return 1
 
-    if [[ "$(systemctl --version)" != *"systemd 230"* ]] 2>/dev/null; then
+    if [[ "$(systemctl --version)" != *"systemd 230"* ]] 2> /dev/null; then
         client_test "NFSv3 Legacy root=/dev/nfs nfsroot=IP:path" 52:54:00:12:34:01 \
-                    "root=/dev/nfs nfsroot=192.168.50.1:/nfs/client" 192.168.50.1 -wsize=4096 || return 1
+            "root=/dev/nfs nfsroot=192.168.50.1:/nfs/client" 192.168.50.1 -wsize=4096 || return 1
 
         client_test "NFSv3 Legacy root=/dev/nfs DHCP path only" 52:54:00:12:34:00 \
-                    "root=/dev/nfs" 192.168.50.1 -wsize=4096 || return 1
+            "root=/dev/nfs" 192.168.50.1 -wsize=4096 || return 1
 
         client_test "NFSv3 Legacy root=/dev/nfs DHCP IP:path" 52:54:00:12:34:01 \
-                    "root=/dev/nfs" 192.168.50.2 -wsize=4096 || return 1
+            "root=/dev/nfs" 192.168.50.2 -wsize=4096 || return 1
     fi
 
     client_test "NFSv3 root=dhcp DHCP IP:path" 52:54:00:12:34:01 \
-                "root=dhcp" 192.168.50.2 -wsize=4096 || return 1
+        "root=dhcp" 192.168.50.2 -wsize=4096 || return 1
 
     client_test "NFSv3 root=dhcp DHCP proto:IP:path" 52:54:00:12:34:02 \
-                "root=dhcp" 192.168.50.3 -wsize=4096 || return 1
+        "root=dhcp" 192.168.50.3 -wsize=4096 || return 1
 
     client_test "NFSv3 root=dhcp DHCP proto:IP:path:options" 52:54:00:12:34:03 \
-                "root=dhcp" 192.168.50.3 wsize=4096 || return 1
+        "root=dhcp" 192.168.50.3 wsize=4096 || return 1
 
     client_test "NFSv3 root=nfs:..." 52:54:00:12:34:04 \
-                "root=nfs:192.168.50.1:/nfs/client" 192.168.50.1 -wsize=4096 || return 1
+        "root=nfs:192.168.50.1:/nfs/client" 192.168.50.1 -wsize=4096 || return 1
 
     client_test "NFSv3 Bridge root=nfs:..." 52:54:00:12:34:04 \
-                "root=nfs:192.168.50.1:/nfs/client bridge net.ifnames=0" 192.168.50.1 -wsize=4096 || return 1
+        "root=nfs:192.168.50.1:/nfs/client bridge net.ifnames=0" 192.168.50.1 -wsize=4096 || return 1
 
     client_test "NFSv3 Legacy root=IP:path" 52:54:00:12:34:04 \
-                "root=192.168.50.1:/nfs/client" 192.168.50.1 -wsize=4096 || return 1
+        "root=192.168.50.1:/nfs/client" 192.168.50.1 -wsize=4096 || return 1
 
     # This test must fail: nfsroot= requires root=/dev/nfs
     client_test "NFSv3 Invalid root=dhcp nfsroot=/nfs/client" 52:54:00:12:34:04 \
-                "root=dhcp nfsroot=/nfs/client failme rd.debug" 192.168.50.1 -wsize=4096 && return 1
+        "root=dhcp nfsroot=/nfs/client failme rd.debug" 192.168.50.1 -wsize=4096 && return 1
 
     client_test "NFSv3 root=dhcp DHCP path,options" \
-                52:54:00:12:34:05 "root=dhcp" 192.168.50.1 wsize=4096 || return 1
+        52:54:00:12:34:05 "root=dhcp" 192.168.50.1 wsize=4096 || return 1
 
     client_test "NFSv3 Bridge Customized root=dhcp DHCP path,options" \
-                52:54:00:12:34:05 "root=dhcp bridge=foobr0:ens2" 192.168.50.1 wsize=4096 || return 1
+        52:54:00:12:34:05 "root=dhcp bridge=foobr0:ens2" 192.168.50.1 wsize=4096 || return 1
 
     client_test "NFSv3 root=dhcp DHCP IP:path,options" \
-                52:54:00:12:34:06 "root=dhcp" 192.168.50.2 wsize=4096 || return 1
+        52:54:00:12:34:06 "root=dhcp" 192.168.50.2 wsize=4096 || return 1
 
     client_test "NFSv3 root=dhcp DHCP proto:IP:path,options" \
-                52:54:00:12:34:07 "root=dhcp" 192.168.50.3 wsize=4096 || return 1
+        52:54:00:12:34:07 "root=dhcp" 192.168.50.3 wsize=4096 || return 1
 
     return 0
 }
@@ -183,17 +183,17 @@ test_nfsv4() {
     # switch_root
 
     client_test "NFSv4 root=dhcp DHCP proto:IP:path" 52:54:00:12:34:82 \
-                "root=dhcp" 192.168.50.3 -wsize=4096 || return 1
+        "root=dhcp" 192.168.50.3 -wsize=4096 || return 1
 
     client_test "NFSv4 root=dhcp DHCP proto:IP:path:options" 52:54:00:12:34:83 \
-                "root=dhcp" 192.168.50.3 wsize=4096 || return 1
+        "root=dhcp" 192.168.50.3 wsize=4096 || return 1
 
     client_test "NFSv4 root=nfs4:..." 52:54:00:12:34:84 \
-                "root=nfs4:192.168.50.1:/client" 192.168.50.1 \
-                -wsize=4096 || return 1
+        "root=nfs4:192.168.50.1:/client" 192.168.50.1 \
+        -wsize=4096 || return 1
 
     client_test "NFSv4 root=dhcp DHCP proto:IP:path,options" \
-                52:54:00:12:34:87 "root=dhcp" 192.168.50.3 wsize=4096 || return 1
+        52:54:00:12:34:87 "root=dhcp" 192.168.50.3 wsize=4096 || return 1
 
     return 0
 }
@@ -209,8 +209,8 @@ test_run() {
         return 1
     fi
 
-    test_nfsv3 && \
-        test_nfsv4
+    test_nfsv3 \
+        && test_nfsv4
 
     ret=$?
 
@@ -247,17 +247,17 @@ test_setup() {
         done
 
         inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
-                      dmesg mkdir cp ping exportfs \
-                      modprobe rpc.nfsd rpc.mountd showmount tcpdump \
-                      /etc/services sleep mount chmod rm
+            dmesg mkdir cp ping exportfs \
+            modprobe rpc.nfsd rpc.mountd showmount tcpdump \
+            /etc/services sleep mount chmod rm
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
         inst_multiple -o ${_terminfodir}/l/linux
-        type -P portmap >/dev/null && inst_multiple portmap
-        type -P rpcbind >/dev/null && inst_multiple rpcbind
+        type -P portmap > /dev/null && inst_multiple portmap
+        type -P rpcbind > /dev/null && inst_multiple rpcbind
         [ -f /etc/netconfig ] && inst_multiple /etc/netconfig
-        type -P dhcpd >/dev/null && inst_multiple dhcpd
+        type -P dhcpd > /dev/null && inst_multiple dhcpd
         [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
         instmods nfsd sunrpc ipv6 lockd af_packet
         inst ./server-init.sh /sbin/init
@@ -273,14 +273,14 @@ test_setup() {
         inst_libdir_file 'libnfsidmap*.so*'
 
         _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
-                       |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
+            | tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
         _nsslibs=${_nsslibs#|}
         _nsslibs=${_nsslibs%|}
 
         inst_libdir_file -n "$_nsslibs" 'libnss_*.so*'
 
         (
-            cd "$initdir";
+            cd "$initdir"
             mkdir -p dev sys proc run etc var/run tmp var/lib/{dhcpd,rpcbind}
             mkdir -p var/lib/nfs/{v4recovery,rpc_pipefs}
             chmod 777 var/lib/rpcbind var/lib/nfs
@@ -296,14 +296,13 @@ test_setup() {
 
     )
 
-
     # Make client root inside server root
     (
         export initdir=$TESTDIR/server/overlay/source/nfs/client
         . $basedir/dracut-init.sh
 
         inst_multiple sh shutdown poweroff stty cat ps ln ip dd \
-                      mount dmesg mkdir cp ping grep setsid ls vi /etc/virc less cat
+            mount dmesg mkdir cp ping grep setsid ls vi /etc/virc less cat
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
@@ -328,7 +327,7 @@ test_setup() {
         inst_libdir_file 'libnfsidmap*.so*'
 
         _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
-                       |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
+            | tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
         _nsslibs=${_nsslibs#|}
         _nsslibs=${_nsslibs%|}
 
@@ -352,21 +351,19 @@ test_setup() {
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     $basedir/dracut.sh -l -i $TESTDIR/server/overlay / \
-                       -m "bash udev-rules base rootfs-block fs-lib kernel-modules fs-lib qemu" \
-                       -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
-                       --nomdadmconf \
-                       --no-hostonly-cmdline -N \
-                       -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
+        -m "bash udev-rules base rootfs-block fs-lib kernel-modules fs-lib qemu" \
+        -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
+        --nomdadmconf \
+        --no-hostonly-cmdline -N \
+        -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
     rm -rf -- $TESTDIR/server
     # Invoke KVM and/or QEMU to actually create the target filesystem.
 
     $testdir/run-qemu \
         -drive format=raw,index=0,media=disk,file=$TESTDIR/server.ext3 \
         -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
-        -initrd $TESTDIR/initramfs.makeroot  || return 1
+        -initrd $TESTDIR/initramfs.makeroot || return 1
     grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/server.ext3 || return 1
-
-
 
     # Make an overlay with needed tools for the test harness
     (
@@ -382,18 +379,18 @@ test_setup() {
 
     # Make server's dracut image
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-                       -m "dash udev-rules base rootfs-block fs-lib debug kernel-modules watchdog qemu" \
-                       -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 i6300esb" \
-                       --no-hostonly-cmdline -N \
-                       -f $TESTDIR/initramfs.server $KVERSION || return 1
+        -m "dash udev-rules base rootfs-block fs-lib debug kernel-modules watchdog qemu" \
+        -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 i6300esb" \
+        --no-hostonly-cmdline -N \
+        -f $TESTDIR/initramfs.server $KVERSION || return 1
 
     # Make client's dracut image
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-                       -o "plymouth dash ${OMIT_NETWORK}" \
-                       -a "debug watchdog ${USE_NETWORK}" \
-                       -d "af_packet piix ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc i6300esb" \
-                       --no-hostonly-cmdline -N \
-                       -f $TESTDIR/initramfs.testing $KVERSION || return 1
+        -o "plymouth dash ${OMIT_NETWORK}" \
+        -a "debug watchdog ${USE_NETWORK}" \
+        -d "af_packet piix ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc i6300esb" \
+        --no-hostonly-cmdline -N \
+        -f $TESTDIR/initramfs.testing $KVERSION || return 1
 }
 
 test_cleanup() {

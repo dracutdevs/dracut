@@ -2,7 +2,6 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
-
 if [[ $NM ]]; then
     USE_NETWORK="network-manager"
     OMIT_NETWORK="network-legacy"
@@ -47,7 +46,7 @@ run_server() {
 
     if ! [[ $SERIAL ]]; then
         echo "Waiting for the server to startup"
-        while : ; do
+        while :; do
             grep Serving "$TESTDIR"/server.log && break
             tail "$TESTDIR"/server.log
             sleep 1
@@ -88,7 +87,7 @@ client_test() {
         -netdev hubport,hubid=1,id=h1,netdev=s1 \
         -netdev hubport,hubid=1,id=h2 -device e1000,mac=52:54:00:12:34:01,netdev=h2 \
         -netdev hubport,hubid=1,id=h3 -device e1000,mac=52:54:00:12:34:02,netdev=h3 \
-        $nic1 -device e1000,mac=52:54:00:12:34:03,netdev=n1  \
+        $nic1 -device e1000,mac=52:54:00:12:34:03,netdev=n1 \
         -netdev socket,connect=127.0.0.1:12372,id=n2 -device e1000,mac=52:54:00:12:34:04,netdev=n2 \
         $nic3 -device e1000,mac=52:54:00:12:34:05,netdev=n3 \
         -watchdog i6300esb -watchdog-action poweroff \
@@ -121,13 +120,15 @@ client_test() {
     return 0
 }
 
-
 test_run() {
     if ! run_server; then
         echo "Failed to start server" 1>&2
         return 1
     fi
-    test_client || { kill_server; return 1; }
+    test_client || {
+        kill_server
+        return 1
+    }
 }
 
 test_client() {
@@ -138,8 +139,8 @@ test_client() {
     fi
 
     client_test "Multiple VLAN" \
-                "yes" \
-                "
+        "yes" \
+        "
 vlan=vlan0001:ens5
 vlan=vlan2:ens5
 vlan=ens5.3:ens5
@@ -152,7 +153,7 @@ ip=192.168.57.104::192.168.57.1:24:test:ens5.0004:none
 rd.neednet=1
 root=nfs:192.168.50.1:/nfs/client bootdev=ens3
 " \
-                "$EXPECT" \
+        "$EXPECT" \
         || return 1
 
     if [[ $NM ]]; then
@@ -162,8 +163,8 @@ root=nfs:192.168.50.1:/nfs/client bootdev=ens3
     fi
 
     client_test "Multiple Bonds" \
-                "yes" \
-                "
+        "yes" \
+        "
 bond=bond0:ens3,ens4
 bond=bond1:ens6,ens7
 ip=bond0:dhcp
@@ -171,7 +172,7 @@ ip=bond1:dhcp
 rd.neednet=1
 root=nfs:192.168.50.1:/nfs/client bootdev=bond0
 " \
-                "$EXPECT" \
+        "$EXPECT" \
         || return 1
 
     if [[ $NM ]]; then
@@ -181,8 +182,8 @@ root=nfs:192.168.50.1:/nfs/client bootdev=bond0
     fi
 
     client_test "Multiple Bridges" \
-                "no" \
-                "
+        "no" \
+        "
 bridge=br0:ens3,ens4
 bridge=br1:ens6,ens7
 ip=br0:dhcp
@@ -190,7 +191,7 @@ ip=br1:dhcp
 rd.neednet=1
 root=nfs:192.168.50.1:/nfs/client bootdev=br0
 " \
-                "$EXPECT" \
+        "$EXPECT" \
         || return 1
     kill_server
     return 0
@@ -207,7 +208,7 @@ test_setup() {
         . "$basedir"/dracut-init.sh
 
         (
-            cd "$initdir";
+            cd "$initdir"
             mkdir -p -- dev sys proc run etc var/run tmp var/lib/{dhcpd,rpcbind}
             mkdir -p -- var/lib/nfs/{v4recovery,rpc_pipefs}
             chmod 777 -- var/lib/rpcbind var/lib/nfs
@@ -225,17 +226,17 @@ test_setup() {
         done
 
         inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
-                      dmesg mkdir cp ping exportfs \
-                      modprobe rpc.nfsd rpc.mountd showmount tcpdump \
-                      /etc/services sleep mount chmod
+            dmesg mkdir cp ping exportfs \
+            modprobe rpc.nfsd rpc.mountd showmount tcpdump \
+            /etc/services sleep mount chmod
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f "${_terminfodir}"/l/linux ] && break
         done
         inst_multiple -o "${_terminfodir}"/l/linux
-        type -P portmap >/dev/null && inst_multiple portmap
-        type -P rpcbind >/dev/null && inst_multiple rpcbind
+        type -P portmap > /dev/null && inst_multiple portmap
+        type -P rpcbind > /dev/null && inst_multiple rpcbind
         [ -f /etc/netconfig ] && inst_multiple /etc/netconfig
-        type -P dhcpd >/dev/null && inst_multiple dhcpd
+        type -P dhcpd > /dev/null && inst_multiple dhcpd
         [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
         instmods nfsd sunrpc ipv6 lockd af_packet 8021q ipvlan macvlan
         inst_simple /etc/os-release
@@ -252,7 +253,7 @@ test_setup() {
         inst_libdir_file 'libnfsidmap*.so*'
 
         _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
-                       |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
+            | tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
         _nsslibs=${_nsslibs#|}
         _nsslibs=${_nsslibs%|}
 
@@ -272,7 +273,7 @@ test_setup() {
         export initdir=$TESTDIR/overlay/source/nfs/client
         . $basedir/dracut-init.sh
         inst_multiple sh shutdown poweroff stty cat ps ln ip \
-                      mount dmesg mkdir cp ping grep ls sort dd
+            mount dmesg mkdir cp ping grep ls sort dd
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [[ -f ${_terminfodir}/l/linux ]] && break
         done
@@ -294,7 +295,7 @@ test_setup() {
         inst_libdir_file 'libnfsidmap*.so*'
 
         _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' -- /etc/nsswitch.conf \
-                       |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
+            | tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
         _nsslibs=${_nsslibs#|}
         _nsslibs=${_nsslibs%|}
 
@@ -318,17 +319,17 @@ test_setup() {
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-                       -m "bash udev-rules base rootfs-block fs-lib kernel-modules fs-lib qemu" \
-                       -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
-                       --nomdadmconf \
-                       --no-hostonly-cmdline -N \
-                       -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
+        -m "bash udev-rules base rootfs-block fs-lib kernel-modules fs-lib qemu" \
+        -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
+        --nomdadmconf \
+        --no-hostonly-cmdline -N \
+        -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     $testdir/run-qemu \
         -drive format=raw,index=0,media=disk,file=$TESTDIR/server.ext3 \
         -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
-        -initrd $TESTDIR/initramfs.makeroot  || return 1
+        -initrd $TESTDIR/initramfs.makeroot || return 1
     grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/server.ext3 || return 1
     rm -fr "$TESTDIR"/overlay
 
@@ -344,20 +345,20 @@ test_setup() {
 
     # Make server's dracut image
     $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
-                       --no-early-microcode \
-                       -m "udev-rules base rootfs-block fs-lib debug kernel-modules watchdog qemu" \
-                       -d "ipvlan macvlan af_packet piix ide-gd_mod ata_piix ext3 sd_mod nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files nfsd e1000 i6300esb ib700wdt" \
-                       --no-hostonly-cmdline -N \
-                       -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
+        --no-early-microcode \
+        -m "udev-rules base rootfs-block fs-lib debug kernel-modules watchdog qemu" \
+        -d "ipvlan macvlan af_packet piix ide-gd_mod ata_piix ext3 sd_mod nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files nfsd e1000 i6300esb ib700wdt" \
+        --no-hostonly-cmdline -N \
+        -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
 
     # Make client's dracut image
     $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
-                       --no-early-microcode \
-                       -o "plymouth ${OMIT_NETWORK}" \
-                       -a "debug ${USE_NETWORK}" \
-                       -d "ipvlan macvlan af_packet piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files sunrpc i6300esb ib700wdt" \
-                       --no-hostonly-cmdline -N \
-                       -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
+        --no-early-microcode \
+        -o "plymouth ${OMIT_NETWORK}" \
+        -a "debug ${USE_NETWORK}" \
+        -d "ipvlan macvlan af_packet piix sd_mod sr_mod ata_piix ide-gd_mod e1000 nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files sunrpc i6300esb ib700wdt" \
+        --no-hostonly-cmdline -N \
+        -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 }
 
 kill_server() {

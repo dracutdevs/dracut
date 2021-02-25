@@ -15,10 +15,16 @@ parsebridge() {
         v=${v#*:}
     done
     case $# in
-        0)  bridgename=br0; bridgeslaves=$iface ;;
-        1)  die "bridge= requires two parameters" ;;
-        2)  bridgename=$1; bridgeslaves=$(str_replace "$2" "," " ") ;;
-        *)  die "bridge= requires two parameters" ;;
+        0)
+            bridgename=br0
+            bridgeslaves=$iface
+            ;;
+        1) die "bridge= requires two parameters" ;;
+        2)
+            bridgename=$1
+            bridgeslaves=$(str_replace "$2" "," " ")
+            ;;
+        *) die "bridge= requires two parameters" ;;
     esac
 }
 

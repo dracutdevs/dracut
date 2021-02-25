@@ -17,9 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 export __DRACUT_LOGGER__=1
-
 
 ## @brief Logging facility module for dracut both at build- and boot-time.
 #
@@ -86,7 +84,6 @@ export __DRACUT_LOGGER__=1
 #
 # @see dlog_init()
 
-
 ## @brief Initializes dracut Logger.
 #
 # @retval 1 if something has gone wrong
@@ -105,7 +102,8 @@ export __DRACUT_LOGGER__=1
 # See file doc comment for details.
 dlog_init() {
     local __oldumask
-    local ret=0; local errmsg
+    local ret=0
+    local errmsg
     [ -z "$stdloglvl" ] && stdloglvl=4
     [ -z "$sysloglvl" ] && sysloglvl=0
     [ -z "$kmsgloglvl" ] && kmsgloglvl=0
@@ -114,23 +112,23 @@ dlog_init() {
 
     if [ -z "$fileloglvl" ]; then
         [ -w "$logfile" ] && fileloglvl=4 || fileloglvl=0
-    elif (( fileloglvl > 0 )); then
+    elif ((fileloglvl > 0)); then
         if [[ $logfile ]]; then
             __oldumask=$(umask)
             umask 0377
-            ! [ -e "$logfile" ] && : >"$logfile"
+            ! [ -e "$logfile" ] && : > "$logfile"
             umask "$__oldumask"
             if [[ -w $logfile ]] && [[ -f $logfile ]]; then
-            # Mark new run in the log file
-                echo >>"$logfile"
-                if command -v date >/dev/null; then
-                    echo "=== $(date) ===" >>"$logfile"
+                # Mark new run in the log file
+                echo >> "$logfile"
+                if command -v date > /dev/null; then
+                    echo "=== $(date) ===" >> "$logfile"
                 else
-                    echo "===============================================" >>"$logfile"
+                    echo "===============================================" >> "$logfile"
                 fi
-                echo >>"$logfile"
+                echo >> "$logfile"
             else
-            # We cannot log to file, so turn this facility off.
+                # We cannot log to file, so turn this facility off.
                 fileloglvl=0
                 ret=1
                 errmsg="'$logfile' is not a writable file"
@@ -138,22 +136,22 @@ dlog_init() {
         fi
     fi
 
-    if (( UID  != 0 )); then
+    if ((UID != 0)); then
         kmsgloglvl=0
         sysloglvl=0
     fi
 
-    if (( sysloglvl > 0 )); then
+    if ((sysloglvl > 0)); then
         if [[ -d /run/systemd/journal ]] \
-            && type -P systemd-cat &>/dev/null \
-            && systemctl --quiet is-active systemd-journald.socket &>/dev/null \
-            && { echo "dracut-$DRACUT_VERSION" | systemd-cat -t 'dracut' &>/dev/null; } ; then
+            && type -P systemd-cat &> /dev/null \
+            && systemctl --quiet is-active systemd-journald.socket &> /dev/null \
+            && { echo "dracut-$DRACUT_VERSION" | systemd-cat -t 'dracut' &> /dev/null; }; then
             readonly _systemdcatfile="$DRACUT_TMPDIR/systemd-cat"
             mkfifo "$_systemdcatfile"
             readonly _dlogfd=15
-            systemd-cat -t 'dracut' --level-prefix=true <"$_systemdcatfile" &
-            exec 15>"$_systemdcatfile"
-        elif ! [[ -S /dev/log ]] && [[ -w /dev/log ]] || ! command -v logger >/dev/null; then
+            systemd-cat -t 'dracut' --level-prefix=true < "$_systemdcatfile" &
+            exec 15> "$_systemdcatfile"
+        elif ! [[ -S /dev/log ]] && [[ -w /dev/log ]] || ! command -v logger > /dev/null; then
             # We cannot log to syslog, so turn this facility off.
             kmsgloglvl=$sysloglvl
             sysloglvl=0
@@ -162,7 +160,7 @@ dlog_init() {
         fi
     fi
 
-    if (( sysloglvl > 0 )) || (( kmsgloglvl > 0 )); then
+    if ((sysloglvl > 0)) || ((kmsgloglvl > 0)); then
         if [ -n "$dracutbasedir" ]; then
             readonly syslogfacility=user
         else
@@ -171,44 +169,44 @@ dlog_init() {
         export syslogfacility
     fi
 
-    local lvl; local maxloglvl_l=0
+    local lvl
+    local maxloglvl_l=0
     for lvl in $stdloglvl $sysloglvl $fileloglvl $kmsgloglvl; do
-        (( lvl > maxloglvl_l )) && maxloglvl_l=$lvl
+        ((lvl > maxloglvl_l)) && maxloglvl_l=$lvl
     done
     readonly maxloglvl=$maxloglvl_l
     export maxloglvl
 
-
-    if (( stdloglvl < 6 )) && ((kmsgloglvl < 6)) && ((fileloglvl < 6)) && ((sysloglvl < 6)); then
+    if ((stdloglvl < 6)) && ((kmsgloglvl < 6)) && ((fileloglvl < 6)) && ((sysloglvl < 6)); then
         unset dtrace
-        dtrace() { :; };
+        dtrace() { :; }
     fi
 
     if ((stdloglvl < 5)) && ((kmsgloglvl < 5)) && ((fileloglvl < 5)) && ((sysloglvl < 5)); then
         unset ddebug
-        ddebug() { :; };
+        ddebug() { :; }
     fi
 
     if ((stdloglvl < 4)) && ((kmsgloglvl < 4)) && ((fileloglvl < 4)) && ((sysloglvl < 4)); then
         unset dinfo
-        dinfo() { :; };
+        dinfo() { :; }
     fi
 
     if ((stdloglvl < 3)) && ((kmsgloglvl < 3)) && ((fileloglvl < 3)) && ((sysloglvl < 3)); then
         unset dwarn
-        dwarn() { :; };
+        dwarn() { :; }
         unset dwarning
-        dwarning() { :; };
+        dwarning() { :; }
     fi
 
     if ((stdloglvl < 2)) && ((kmsgloglvl < 2)) && ((fileloglvl < 2)) && ((sysloglvl < 2)); then
         unset derror
-        derror() { :; };
+        derror() { :; }
     fi
 
     if ((stdloglvl < 1)) && ((kmsgloglvl < 1)) && ((fileloglvl < 1)) && ((sysloglvl < 1)); then
         unset dfatal
-        dfatal() { :; };
+        dfatal() { :; }
     fi
 
     [ -n "$errmsg" ] && derror "$errmsg"
@@ -224,13 +222,13 @@ dlog_init() {
 # @result Echoes first letter of level name.
 _lvl2char() {
     case "$1" in
-        1) echo F;;
-        2) echo E;;
-        3) echo W;;
-        4) echo I;;
-        5) echo D;;
-        6) echo T;;
-        *) return 1;;
+        1) echo F ;;
+        2) echo E ;;
+        3) echo W ;;
+        4) echo I ;;
+        5) echo D ;;
+        6) echo T ;;
+        *) return 1 ;;
     esac
 }
 
@@ -243,13 +241,13 @@ _lvl2char() {
 _lvl2syspri() {
     printf "%s" -- "$syslogfacility."
     case "$1" in
-        1) echo crit;;
-        2) echo error;;
-        3) echo warning;;
-        4) echo info;;
-        5) echo debug;;
-        6) echo debug;;
-        *) return 1;;
+        1) echo crit ;;
+        2) echo error ;;
+        3) echo warning ;;
+        4) echo info ;;
+        5) echo debug ;;
+        6) echo debug ;;
+        *) return 1 ;;
     esac
 }
 
@@ -279,16 +277,16 @@ _dlvl2syslvl() {
     local lvl
 
     case "$1" in
-        1) lvl=2;;
-        2) lvl=3;;
-        3) lvl=4;;
-        4) lvl=6;;
-        5) lvl=7;;
-        6) lvl=7;;
-        *) return 1;;
+        1) lvl=2 ;;
+        2) lvl=3 ;;
+        3) lvl=4 ;;
+        4) lvl=6 ;;
+        5) lvl=7 ;;
+        6) lvl=7 ;;
+        *) return 1 ;;
     esac
 
-    [ "$syslogfacility" = user ] && echo $(( 8 + lvl )) || echo $(( 24 + lvl ))
+    [ "$syslogfacility" = user ] && echo $((8 + lvl)) || echo $((24 + lvl))
 }
 
 ## @brief Prints to stderr and/or writes to file, to syslog and/or /dev/kmsg
@@ -318,14 +316,15 @@ _dlvl2syslvl() {
 #   - @c INFO to @c info
 #   - @c DEBUG and @c TRACE both to @c debug
 _do_dlog() {
-    local lvl="$1"; shift
+    local lvl="$1"
+    shift
     local lvlc=$(_lvl2char "$lvl") || return 0
     local msg="$*"
     local lmsg="$lvlc: $*"
 
-    (( lvl <= stdloglvl )) && printf -- 'dracut: %s\n' "$msg" >&2
+    ((lvl <= stdloglvl)) && printf -- 'dracut: %s\n' "$msg" >&2
 
-    if (( lvl <= sysloglvl )); then
+    if ((lvl <= sysloglvl)); then
         if [[ "$_dlogfd" ]]; then
             printf -- "<%s>%s\n" "$(($(_dlvl2syslvl "$lvl") & 7))" "$msg" >&$_dlogfd
         else
@@ -333,12 +332,12 @@ _do_dlog() {
         fi
     fi
 
-    if (( lvl <= fileloglvl )) && [[ -w "$logfile" ]] && [[ -f "$logfile" ]]; then
-        echo "$lmsg" >>"$logfile"
+    if ((lvl <= fileloglvl)) && [[ -w "$logfile" ]] && [[ -f "$logfile" ]]; then
+        echo "$lmsg" >> "$logfile"
     fi
 
-    (( lvl <= kmsgloglvl )) && \
-        echo "<$(_dlvl2syslvl "$lvl")>dracut[$$] $msg" >/dev/kmsg
+    ((lvl <= kmsgloglvl)) \
+        && echo "<$(_dlvl2syslvl "$lvl")>dracut[$$] $msg" > /dev/kmsg
 }
 
 ## @brief Internal helper function for _do_dlog()
@@ -359,9 +358,9 @@ _do_dlog() {
 # echo "This is a warning" | dwarn
 dlog() {
     [ -z "$maxloglvl" ] && return 0
-    (( $1 <= maxloglvl )) || return 0
+    (($1 <= maxloglvl)) || return 0
 
-    if (( $# > 1 )); then
+    if (($# > 1)); then
         _do_dlog "$@"
     else
         while read -r line || [ -n "$line" ]; do

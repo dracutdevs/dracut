@@ -4,46 +4,46 @@
 
 zipl_arg=$(getarg rd.zipl)
 
-if [ -n "$zipl_arg" ] ; then
+if [ -n "$zipl_arg" ]; then
     case "$zipl_arg" in
-    LABEL=*) \
-        zipl_env="ENV{ID_FS_LABEL}"
-        zipl_val=${zipl_arg#LABEL=}
-        zipl_arg="$(label_uuid_to_dev "${zipl_val}")"
-        ;;
-    UUID=*) \
-        zipl_env="ENV{ID_FS_UUID}"
-        zipl_val=${zipl_arg#UUID=}
-        zipl_arg="$(label_uuid_to_dev "${zipl_val}")"
-        ;;
-    PARTLABEL=*) \
-        zipl_env="ENV{ID_FS_PARTLABEL}"
-        zipl_val=${zipl_arg#PARTLABEL=}
-        zipl_arg="$(label_uuid_to_dev "${zipl_val}")"
-        ;;
-    PARTUUID=*) \
-        zipl_env="ENV{ID_FS_PARTUUID}"
-        zipl_val=${zipl_arg#PARTUUID=}
-        zipl_arg="$(label_uuid_to_dev "${zipl_val}")"
-        ;;
-    /dev/mapper/*) \
-        zipl_env="ENV{DM_NAME}"
-        zipl_val=${zipl_arg#/dev/mapper/}
-        ;;
-    /dev/disk/by-*) \
-        zipl_env="SYMLINK"
-        zipl_val=${zipl_arg#/dev/}
-        ;;
-    /dev/*) \
-        zipl_env="KERNEL"
-        zipl_val=${zipl_arg}
-        ;;
+        LABEL=*)
+            zipl_env="ENV{ID_FS_LABEL}"
+            zipl_val=${zipl_arg#LABEL=}
+            zipl_arg="$(label_uuid_to_dev "${zipl_val}")"
+            ;;
+        UUID=*)
+            zipl_env="ENV{ID_FS_UUID}"
+            zipl_val=${zipl_arg#UUID=}
+            zipl_arg="$(label_uuid_to_dev "${zipl_val}")"
+            ;;
+        PARTLABEL=*)
+            zipl_env="ENV{ID_FS_PARTLABEL}"
+            zipl_val=${zipl_arg#PARTLABEL=}
+            zipl_arg="$(label_uuid_to_dev "${zipl_val}")"
+            ;;
+        PARTUUID=*)
+            zipl_env="ENV{ID_FS_PARTUUID}"
+            zipl_val=${zipl_arg#PARTUUID=}
+            zipl_arg="$(label_uuid_to_dev "${zipl_val}")"
+            ;;
+        /dev/mapper/*)
+            zipl_env="ENV{DM_NAME}"
+            zipl_val=${zipl_arg#/dev/mapper/}
+            ;;
+        /dev/disk/by-*)
+            zipl_env="SYMLINK"
+            zipl_val=${zipl_arg#/dev/}
+            ;;
+        /dev/*)
+            zipl_env="KERNEL"
+            zipl_val=${zipl_arg}
+            ;;
     esac
-    if [ "$zipl_env" ] ; then
+    if [ "$zipl_env" ]; then
         {
             printf 'ACTION=="add|change", SUBSYSTEM=="block", %s=="%s", ENV{SYSTEMD_READY}!="0", RUN+="/sbin/initqueue --settled --onetime --unique --name install_zipl_cmdline /sbin/install_zipl_cmdline.sh %s"\n' \
                 ${zipl_env} ${zipl_val} ${zipl_arg}
-            echo "[ -f /tmp/install.zipl.cmdline-done ]" >$hookdir/initqueue/finished/wait-zipl-conf.sh
+            echo "[ -f /tmp/install.zipl.cmdline-done ]" > $hookdir/initqueue/finished/wait-zipl-conf.sh
         } >> /etc/udev/rules.d/99zipl-conf.rules
         cat /etc/udev/rules.d/99zipl-conf.rules
     fi

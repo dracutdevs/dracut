@@ -1,6 +1,6 @@
 #!/bin/bash
 
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
 do_merge() {
     sed -i -e 's/\(^[[:space:]]*\)locking_type[[:space:]]*=[[:space:]]*[[:digit:]]/\1locking_type = 1/' \
@@ -11,8 +11,8 @@ do_merge() {
     umount -R /sysroot
 
     for tag in $(getargs rd.lvm.mergetags); do
-        lvm vgs --noheadings -o vg_name | \
-            while read -r vg || [[ -n $vg ]]; do
+        lvm vgs --noheadings -o vg_name \
+            | while read -r vg || [[ -n $vg ]]; do
                 unset LVS
                 declare -a LVS
                 lvs=$(lvm lvs --noheadings -o lv_name "$vg")
@@ -22,7 +22,7 @@ do_merge() {
                     tags=$(trim "$(lvm lvs --noheadings -o lv_tags "$vg/$lv")")
                     strstr ",${tags}," ",${tag}," || continue
 
-                    if ! lvm lvs --noheadings -o lv_name "${vg}/${lv}_dracutsnap" &>/dev/null; then
+                    if ! lvm lvs --noheadings -o lv_name "${vg}/${lv}_dracutsnap" &> /dev/null; then
                         info "Creating backup ${lv}_dracutsnap of ${vg}/${lv}"
                         lvm lvcreate -pr -s "${vg}/${lv}" --name "${lv}_dracutsnap"
                     fi
@@ -37,7 +37,7 @@ do_merge() {
                 systemctl --no-block stop sysroot.mount
                 udevadm settle
 
-                for ((i=0; i < 100; i++)); do
+                for ((i = 0; i < 100; i++)); do
                     lvm vgchange -an "$vg" && break
                     sleep 0.5
                 done
@@ -58,7 +58,7 @@ do_merge() {
     systemctl --no-block reset-failed sysroot.mount
     systemctl --no-block start sysroot.mount
 
-    for ((i=0; i < 100; i++)); do
+    for ((i = 0; i < 100; i++)); do
         [[ -d /sysroot/dev ]] && break
         sleep 0.5
         systemctl --no-block start sysroot.mount
@@ -93,4 +93,3 @@ do_merge() {
 if getarg rd.lvm.mergetags; then
     do_merge
 fi
-

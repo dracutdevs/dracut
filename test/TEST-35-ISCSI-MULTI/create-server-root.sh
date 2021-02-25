@@ -8,7 +8,7 @@ udevadm control --reload
 udevadm settle
 set -e
 # save a partition at the beginning for future flagging purposes
-sfdisk /dev/sda <<EOF
+sfdisk /dev/sda << EOF
 ,1M
 ,
 EOF
@@ -23,4 +23,3 @@ umount /root
 echo "dracut-root-block-created" | dd oflag=direct,dsync of=/dev/sda1
 sync
 poweroff -f
-

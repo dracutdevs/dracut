@@ -47,7 +47,7 @@ cmdline() {
         for holder in "$DEVPATH"/holders/*; do
             [[ -e "$holder" ]] || continue
             dev="/dev/${holder##*/}"
-            DM_NAME="$(dmsetup info -c --noheadings -o name "$dev" 2>/dev/null)"
+            DM_NAME="$(dmsetup info -c --noheadings -o name "$dev" 2> /dev/null)"
             [[ ${DM_NAME} ]] && break
         done
 

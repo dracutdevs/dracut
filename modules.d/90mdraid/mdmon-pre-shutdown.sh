@@ -8,6 +8,6 @@ _do_mdmon_takeover() {
     return $ret
 }
 
-if command -v mdmon >/dev/null; then
+if command -v mdmon > /dev/null; then
     _do_mdmon_takeover $1
 fi

@@ -16,7 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-
 dwarning() {
     echo "Warning: $*" >&2
 }
@@ -49,27 +48,46 @@ line and /boot/dracut/
 EOF
 }
 
-
 imagedir=/boot/dracut/
 overlay=/var/lib/dracut/overlay
 
 while (($# > 0)); do
     case $1 in
-        -f|--force) force=yes;;
-        -i|--imagedir) imagedir=$2;shift;;
-        -o|--overlaydir) overlay=$2;shift;;
-        --nooverlay) no_overlay=yes;shift;;
-        --noimagedir) no_imagedir=yes;shift;;
-        -h|--help) usage; exit 1 ;;
-        --debug) export debug="yes";;
-        -v|--verbose) beverbose="yes";;
-        -*) printf "\nUnknown option: %s\n\n" "$1" >&2; usage; exit 1;;
+        -f | --force) force=yes ;;
+        -i | --imagedir)
+            imagedir=$2
+            shift
+            ;;
+        -o | --overlaydir)
+            overlay=$2
+            shift
+            ;;
+        --nooverlay)
+            no_overlay=yes
+            shift
+            ;;
+        --noimagedir)
+            no_imagedir=yes
+            shift
+            ;;
+        -h | --help)
+            usage
+            exit 1
+            ;;
+        --debug) export debug="yes" ;;
+        -v | --verbose) beverbose="yes" ;;
+        -*)
+            printf "\nUnknown option: %s\n\n" "$1" >&2
+            usage
+            exit 1
+            ;;
         *) break ;;
     esac
     shift
 done
 
-outfile=$1; shift
+outfile=$1
+shift
 
 if [[ -z $outfile ]]; then
     derror "No output file specified."
@@ -77,7 +95,8 @@ if [[ -z $outfile ]]; then
     exit 1
 fi
 
-baseimage=$1; shift
+baseimage=$1
+shift
 
 if [[ -z $baseimage ]]; then
     derror "No base image specified."
@@ -103,8 +122,11 @@ fi
 if [[ ! $no_overlay ]]; then
     ofile="$imagedir/90-overlay.img"
     dinfo "Creating image $ofile from directory $overlay"
-    type pigz &>/dev/null && gzip=pigz || gzip=gzip
-    ( cd "$overlay" || return 1 ; find . |cpio --quiet -H newc -o |$gzip -9 > "$ofile"; )
+    type pigz &> /dev/null && gzip=pigz || gzip=gzip
+    (
+        cd "$overlay" || return 1
+        find . | cpio --quiet -H newc -o | $gzip -9 > "$ofile"
+    )
 fi
 
 if [[ ! $no_imagedir ]]; then
@@ -113,7 +135,7 @@ if [[ ! $no_imagedir ]]; then
     done
 fi
 
-images+=( "$@" )
+images+=("$@")
 
 dinfo "Using base image $baseimage"
 cat -- "$baseimage" > "$outfile"

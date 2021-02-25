@@ -27,14 +27,13 @@ depends() {
 # Install the required file(s) and directories for the module in the initramfs.
 install() {
 
-    inst_dir   /var/lib/systemd/coredump
+    inst_dir /var/lib/systemd/coredump
     inst_multiple -o \
         $sysctld/50-coredump.conf \
         $systemdutildir/coredump.conf \
         $systemdsystemunitdir/systemd-coredump \
         $systemdsystemunitdir/systemd-coredump.socket \
-        $systemdsystemunitdir/systemd-coredump@.service\
-        $systemdsystemunitdir/sockets.target.wants/systemd-coredump.socket \
+        $systemdsystemunitdir/systemd-coredump@.service $systemdsystemunitdir/sockets.target.wants/systemd-coredump.socket \
         coredumpctl
 
     # Install the hosts local user configurations if enabled.

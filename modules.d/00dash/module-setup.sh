@@ -18,4 +18,3 @@ install() {
     # Prefer dash as /bin/sh if it is available.
     inst /bin/dash && ln -sf dash "${initdir}/bin/sh"
 }
-
