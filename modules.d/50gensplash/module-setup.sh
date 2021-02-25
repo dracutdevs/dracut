@@ -32,7 +32,7 @@ install() {
                     dwarn "${line}"
                 else
                     derror "${line}"
-                    (($_ret == 0)) && _ret=1
+                    ((_ret == 0)) && _ret=1
                 fi
             done
         fi

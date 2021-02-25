@@ -65,7 +65,7 @@ install() {
     fi
 
     ln -fs /proc/self/mounts "$initdir/etc/mtab"
-    if [[ $ro_mnt = yes ]]; then
+    if [[ $ro_mnt == yes ]]; then
         echo ro >> "${initdir}/etc/cmdline.d/base.conf"
     fi
 
@@ -106,7 +106,7 @@ install() {
 
     ## save host_devs which we need bring up
     if [[ $hostonly_cmdline == "yes" ]]; then
-        if [[ -n "${host_devs[*]}" ]]; then
+        if [[ -n ${host_devs[*]} ]]; then
             dracut_need_initqueue
         fi
         if [[ -f $initdir/lib/dracut/need-initqueue ]] || ! dracut_module_included "systemd"; then
@@ -120,14 +120,14 @@ install() {
 
                 for _dev in "${host_devs[@]}"; do
                     for _dev2 in "${root_devs[@]}"; do
-                        [[ "$_dev" == "$_dev2" ]] && continue 2
+                        [[ $_dev == "$_dev2" ]] && continue 2
                     done
 
                     # We only actually wait for real devs - swap is only needed
                     # for resume and udev rules generated when parsing resume=
                     # argument take care of the waiting for us
                     for _dev2 in "${swap_devs[@]}"; do
-                        [[ "$_dev" == "$_dev2" ]] && continue 2
+                        [[ $_dev == "$_dev2" ]] && continue 2
                     done
 
                     _pdev=$(get_persistent_dev $_dev)

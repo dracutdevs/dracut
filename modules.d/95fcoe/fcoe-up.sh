@@ -74,28 +74,28 @@ if [ "$dcb" = "dcb" ]; then
         lldptool -p && break
         info "Waiting for lldpad to be ready"
         sleep 1
-        i=$(($i + 1))
+        i=$((i + 1))
     done
 
     while [ $i -lt 60 ]; do
         dcbtool sc "$netif" dcb on && break
         info "Retrying to turn dcb on"
         sleep 1
-        i=$(($i + 1))
+        i=$((i + 1))
     done
 
     while [ $i -lt 60 ]; do
         dcbtool sc "$netif" pfc e:1 a:1 w:1 && break
         info "Retrying to turn dcb on"
         sleep 1
-        i=$(($i + 1))
+        i=$((i + 1))
     done
 
     while [ $i -lt 60 ]; do
         dcbtool sc "$netif" app:fcoe e:1 a:1 w:1 && break
         info "Retrying to turn fcoe on"
         sleep 1
-        i=$(($i + 1))
+        i=$((i + 1))
     done
 
     sleep 1

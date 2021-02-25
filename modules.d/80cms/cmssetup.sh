@@ -16,7 +16,7 @@ function sysecho() {
     done
     local status
     read status < "$file"
-    if [[ ! $status == $* ]]; then
+    if [[ $status != $* ]]; then
         [ -f "$file" ] && echo $* > "$file"
     fi
 }
@@ -155,7 +155,7 @@ processcmsfile() {
             echo -n $NETTYPE,$SUBCHANNELS
             [[ $PORTNAME ]] && echo -n ",portname=$PORTNAME"
             [[ $LAYER2 ]] && echo -n ",layer2=$LAYER2"
-            [[ "$NETTYPE" = "ctc" ]] && [[ $CTCPROT ]] && echo -n ",protocol=$CTCPROT"
+            [[ $NETTYPE == "ctc" ]] && [[ $CTCPROT ]] && echo -n ",protocol=$CTCPROT"
             echo
         ) >> /etc/ccw.conf
 

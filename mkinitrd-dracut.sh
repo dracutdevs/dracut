@@ -9,7 +9,7 @@ force=0
 error() { echo "$@" >&2; }
 
 usage() {
-    [[ $1 = '-n' ]] && cmd=echo || cmd=error
+    [[ $1 == '-n' ]] && cmd=echo || cmd=error
 
     $cmd "usage: ${0##*/} [--version] [--help] [-v] [-f] [--preload <module>]"
     $cmd "       [--image-version] [--with=<module>]"
@@ -18,7 +18,7 @@ usage() {
     $cmd ""
     $cmd "       (ex: ${0##*/} /boot/initramfs-$kver.img $kver)"
 
-    [[ $1 = '-n' ]] && exit 0
+    [[ $1 == '-n' ]] && exit 0
     exit 1
 }
 
@@ -34,17 +34,17 @@ read_arg() {
     if [[ $2 =~ $rematch ]]; then
         read "$param" <<< "${BASH_REMATCH[1]}"
     else
-        for ((i = 3; $i <= $#; i++)); do
+        for ((i = 3; i <= $#; i++)); do
             # Only read next arg if it not an arg itself.
-            if [[ ${*:$i:1} = -* ]]; then
+            if [[ ${*:i:1} == -* ]]; then
                 break
             fi
-            result="$result ${@:$i:1}"
+            result="$result ${@:i:1}"
             # There is no way to shift our callers args, so
             # return "no of args" to indicate they should do it instead.
         done
         read "$1" <<< "$result"
-        return $(($i - 3))
+        return $((i - 3))
     fi
 }
 
@@ -210,7 +210,7 @@ targets=($targets)
 [[ $force == 1 ]] && dracut_args="${dracut_args} -f"
 
 echo "Creating: target|kernel|dracut args|basicmodules "
-for ((i = 0; $i < ${#targets[@]}; i++)); do
+for ((i = 0; i < ${#targets[@]}; i++)); do
 
     if [[ $img_vers ]]; then
         target="${targets[$i]}-${kernels[$i]}"

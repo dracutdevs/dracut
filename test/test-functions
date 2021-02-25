@@ -3,7 +3,7 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export PATH
 
 [[ -e .testdir${TEST_RUN_ID:+-$TEST_RUN_ID} ]] && . .testdir${TEST_RUN_ID:+-$TEST_RUN_ID}
-if [[ -z "$TESTDIR" ]] || [[ ! -d "$TESTDIR" ]]; then
+if [[ -z $TESTDIR ]] || [[ ! -d $TESTDIR ]]; then
     TESTDIR=$(mktemp -d -p "/var/tmp" -t dracut-test.XXXXXX)
 fi
 echo "TESTDIR=\"$TESTDIR\"" > .testdir${TEST_RUN_ID:+-$TEST_RUN_ID}
@@ -28,7 +28,7 @@ COLOR_WARNING='\033[0;33m'
 COLOR_NORMAL='\033[0;39m'
 
 check_root() {
-    if (($EUID != 0)); then
+    if ((EUID != 0)); then
         SETCOLOR_FAILURE
         echo "Tests must be run as root! Please use 'sudo'."
         SETCOLOR_NORMAL
@@ -65,7 +65,7 @@ while (($# > 0)); do
             else
                 echo -e "TEST: $TEST_DESCRIPTION " $COLOR_SUCCESS "[STARTED]" $COLOR_NORMAL
             fi
-            if [[ "$V" == "1" ]]; then
+            if [[ $V == "1" ]]; then
                 set -o pipefail
                 (
                     test_setup && test_run
@@ -78,7 +78,7 @@ while (($# > 0)); do
                     rm -f -- .testdir${TEST_RUN_ID:+-$TEST_RUN_ID}
                     exit $ret
                 ) < /dev/null 2>&1 | tee test${TEST_RUN_ID:+-$TEST_RUN_ID}.log
-            elif [[ "$V" == "2" ]]; then
+            elif [[ $V == "2" ]]; then
                 set -o pipefail
                 (
                     test_setup && test_run

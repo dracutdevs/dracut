@@ -126,7 +126,7 @@ ask_for_password() {
                     && printf "$tty_prompt [$i/$tty_tries]:" >&2
                 eval "$tty_cmd" && ret=0 && break
                 ret=$?
-                i=$(($i + 1))
+                i=$((i + 1))
                 [ -n "$tty_prompt" ] && printf '\n' >&2
             done
 

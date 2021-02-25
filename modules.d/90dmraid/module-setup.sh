@@ -10,12 +10,12 @@ check() {
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for dev in "${!host_fs_types[@]}"; do
-            [[ "${host_fs_types[$dev]}" != *_raid_member ]] && continue
+            [[ ${host_fs_types[$dev]} != *_raid_member ]] && continue
 
             DEVPATH=$(get_devpath_block "$dev")
 
             for holder in "$DEVPATH"/holders/*; do
-                [[ -e "$holder" ]] || continue
+                [[ -e $holder ]] || continue
                 [[ -e "$holder/dm" ]] && return 0
                 break
             done
@@ -40,12 +40,12 @@ cmdline() {
 
     for dev in "${!host_fs_types[@]}"; do
         local holder DEVPATH DM_NAME majmin
-        [[ "${host_fs_types[$dev]}" != *_raid_member ]] && continue
+        [[ ${host_fs_types[$dev]} != *_raid_member ]] && continue
 
         DEVPATH=$(get_devpath_block "$dev")
 
         for holder in "$DEVPATH"/holders/*; do
-            [[ -e "$holder" ]] || continue
+            [[ -e $holder ]] || continue
             dev="/dev/${holder##*/}"
             DM_NAME="$(dmsetup info -c --noheadings -o name "$dev" 2> /dev/null)"
             [[ ${DM_NAME} ]] && break

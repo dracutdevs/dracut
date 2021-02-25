@@ -50,7 +50,7 @@ check() {
         found=0
         for _ccw in /sys/bus/ccw/devices/*/host*; do
             [ -d "$_ccw" ] || continue
-            found=$(($found + 1))
+            found=$((found + 1))
         done
         [ $found -eq 0 ] && return 255
     }

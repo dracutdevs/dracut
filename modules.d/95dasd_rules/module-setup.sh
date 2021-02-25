@@ -31,7 +31,7 @@ check() {
         for bdev in /sys/block/*; do
             case "${bdev##*/}" in
                 dasd*)
-                    found=$(($found + 1))
+                    found=$((found + 1))
                     break
                     ;;
             esac

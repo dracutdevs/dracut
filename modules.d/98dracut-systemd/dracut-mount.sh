@@ -28,7 +28,7 @@ while :; do
         fi
     done
 
-    i=$(($i + 1))
+    i=$((i + 1))
     [ $i -gt 20 ] && emergency_shell "Can't mount root filesystem"
 done
 

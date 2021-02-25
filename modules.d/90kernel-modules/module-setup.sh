@@ -67,7 +67,7 @@ installkernel() {
             virtio virtio_ring virtio_pci pci_hyperv \
             "=drivers/pcmcia"
 
-        if [[ "${DRACUT_ARCH:-$(uname -m)}" == arm* || "${DRACUT_ARCH:-$(uname -m)}" == aarch64 ]]; then
+        if [[ ${DRACUT_ARCH:-$(uname -m)} == arm* || ${DRACUT_ARCH:-$(uname -m)} == aarch64 ]]; then
             # arm/aarch64 specific modules
             _blockfuncs+='|dw_mc_probe|dw_mci_pltfm_register'
             instmods \
@@ -108,7 +108,7 @@ installkernel() {
             || for_each_host_dev_and_slaves_all record_block_dev_drv; then
             hostonly='' instmods sg sr_mod sd_mod scsi_dh ata_piix
 
-            if [[ "$hostonly_mode" == "strict" ]]; then
+            if [[ $hostonly_mode == "strict" ]]; then
                 install_block_modules_strict
             else
                 install_block_modules

@@ -25,7 +25,7 @@ installpost() {
     # Move everything under $initdir except $squash_dir
     # itself into squash image
     for i in "$initdir"/*; do
-        [[ "$squash_dir" == "$i"/* ]] || mv "$i" "$squash_dir"/
+        [[ $squash_dir == "$i"/* ]] || mv "$i" "$squash_dir"/
     done
 
     # Create mount points for squash loader

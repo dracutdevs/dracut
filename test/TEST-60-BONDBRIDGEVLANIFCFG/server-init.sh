@@ -22,7 +22,7 @@ wait_for_if_link() {
             [ -n "$li" ] && return 0
         fi
         sleep 0.1
-        cnt=$(($cnt + 1))
+        cnt=$((cnt + 1))
     done
     return 1
 }
@@ -34,7 +34,7 @@ wait_for_if_up() {
         li=$(ip -o link show up dev $1)
         [ -n "$li" ] && return 0
         sleep 0.1
-        cnt=$(($cnt + 1))
+        cnt=$((cnt + 1))
     done
     return 1
 }
@@ -45,7 +45,7 @@ wait_for_route_ok() {
         li=$(ip route show)
         [ -n "$li" ] && [ -z "${li##*$1*}" ] && return 0
         sleep 0.1
-        cnt=$(($cnt + 1))
+        cnt=$((cnt + 1))
     done
     return 1
 }

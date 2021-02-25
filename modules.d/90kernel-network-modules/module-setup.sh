@@ -18,7 +18,7 @@ installkernel() {
     local _unwanted_drivers='/(wireless|isdn|uwb|net/ethernet|net/phy|net/team)/'
     local _net_drivers
 
-    if [[ "$_arch" = "s390" ]] || [[ "$_arch" = "s390x" ]]; then
+    if [[ $_arch == "s390" ]] || [[ $_arch == "s390x" ]]; then
         dracut_instmods -o -P ".*${_unwanted_drivers}.*" -s "$_net_symbols" "=drivers/s390/net"
     fi
 

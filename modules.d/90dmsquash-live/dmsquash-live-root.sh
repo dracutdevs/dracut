@@ -249,8 +249,8 @@ do_live_overlay() {
         mkdir -m 0755 -p /run/initramfs/thin-overlay
 
         # In block units (512b)
-        thin_data_sz=$(($overlay_size * 1024 * 1024 / 512))
-        thin_meta_sz=$(($thin_data_sz / 10))
+        thin_data_sz=$((overlay_size * 1024 * 1024 / 512))
+        thin_meta_sz=$((thin_data_sz / 10))
 
         # It is important to have the backing file on a tmpfs
         # this is needed to let the loopdevice support TRIM

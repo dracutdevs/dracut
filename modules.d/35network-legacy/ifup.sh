@@ -87,7 +87,7 @@ do_dhcp() {
             -lf /tmp/dhclient.$netif.lease \
             $netif \
             && return 0
-        _COUNT=$(($_COUNT + 1))
+        _COUNT=$((_COUNT + 1))
         [ $_COUNT -lt $_DHCPRETRY ] && sleep 1
     done
     warn "dhcp for interface $netif failed"
@@ -102,7 +102,7 @@ load_ipv6() {
     modprobe ipv6
     i=0
     while [ ! -d /proc/sys/net/ipv6 ]; do
-        i=$(($i + 1))
+        i=$((i + 1))
         [ $i -gt 10 ] && break
         sleep 0.1
     done

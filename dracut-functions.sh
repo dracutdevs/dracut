@@ -22,16 +22,16 @@ export LC_MESSAGES=C
 # is_func <command>
 # Check whether $1 is a function.
 is_func() {
-    [[ "$(type -t "$1")" = "function" ]]
+    [[ "$(type -t "$1")" == "function" ]]
 }
 
 # Generic substring function.  If $2 is in $1, return 0.
-strstr() { [[ $1 = *"$2"* ]]; }
+strstr() { [[ $1 == *"$2"* ]]; }
 # Generic glob matching function. If glob pattern $2 matches anywhere in $1, OK
-strglobin() { [[ $1 = *$2* ]]; }
+strglobin() { [[ $1 == *$2* ]]; }
 # Generic glob matching function. If glob pattern $2 matches all of $1, OK
 # shellcheck disable=SC2053
-strglob() { [[ $1 = $2 ]]; }
+strglob() { [[ $1 == $2 ]]; }
 # returns OK if $1 contains literal string $2 at the beginning, and isn't empty
 str_starts() { [ "${1#"$2"*}" != "$1" ]; }
 # returns OK if $1 contains literal string $2 at the end, and isn't empty
@@ -46,7 +46,7 @@ find_binary() {
     local p
     [[ -z ${1##/*} ]] || _delim="/"
 
-    if [[ "$1" == *.so* ]]; then
+    if [[ $1 == *.so* ]]; then
         # shellcheck disable=SC2154
         for l in $libdirs; do
             _path="${l}${_delim}${1}"
@@ -61,7 +61,7 @@ find_binary() {
             return 0
         fi
     fi
-    if [[ "$1" == */* ]]; then
+    if [[ $1 == */* ]]; then
         _path="${_delim}${1}"
         if [[ -L ${dracutsysrootdir}${_path} ]] || [[ -x ${dracutsysrootdir}${_path} ]]; then
             printf "%s\n" "${_path}"
@@ -76,7 +76,7 @@ find_binary() {
         fi
     done
 
-    [[ -n "$dracutsysrootdir" ]] && return 1
+    [[ -n $dracutsysrootdir ]] && return 1
     type -P "${1##*/}"
 }
 
@@ -163,13 +163,13 @@ convert_abs_rel() {
     set -- "$(normalize_path "$1")" "$(normalize_path "$2")"
 
     # corner case #1 - self looping link
-    [[ "$1" == "$2" ]] && {
+    [[ $1 == "$2" ]] && {
         printf "%s\n" "${1##*/}"
         return
     }
 
     # corner case #2 - own dir link
-    [[ "${1%/*}" == "$2" ]] && {
+    [[ ${1%/*} == "$2" ]] && {
         printf ".\n"
         return
     }
@@ -180,7 +180,7 @@ convert_abs_rel() {
     __abssize=${#__absolute[@]}
     __cursize=${#__current[@]}
 
-    while [[ "${__absolute[__level]}" == "${__current[__level]}" ]]; do
+    while [[ ${__absolute[__level]} == "${__current[__level]}" ]]; do
         ((__level++))
         if ((__level > __abssize || __level > __cursize)); then
             break
@@ -214,7 +214,7 @@ get_fs_env() {
     unset ID_FS_TYPE
     ID_FS_TYPE=$(blkid -u filesystem -o export -- "$1" \
         | while read line || [ -n "$line" ]; do
-            if [[ "$line" == TYPE\=* ]]; then
+            if [[ $line == TYPE\=* ]]; then
                 printf "%s" "${line#TYPE=}"
                 exit 0
             fi
@@ -244,8 +244,8 @@ get_devpath_block() {
     _majmin=$(get_maj_min "$1")
 
     for _i in /sys/block/*/dev /sys/block/*/*/dev; do
-        [[ -e "$_i" ]] || continue
-        if [[ "$_majmin" == "$(< "$_i")" ]]; then
+        [[ -e $_i ]] || continue
+        if [[ $_majmin == "$(< "$_i")" ]]; then
             printf "%s" "${_i%/dev}"
             return 0
         fi
@@ -260,7 +260,7 @@ get_persistent_dev() {
     _dev=$(get_maj_min "$1")
     [ -z "$_dev" ] && return
 
-    if [[ -n "$persistent_policy" ]]; then
+    if [[ -n $persistent_policy ]]; then
         _pol="/dev/disk/${persistent_policy}/*"
     else
         _pol=
@@ -275,7 +275,7 @@ get_persistent_dev() {
         /dev/disk/by-partlabel/* \
         /dev/disk/by-id/* \
         /dev/disk/by-path/*; do
-        [[ -e "$i" ]] || continue
+        [[ -e $i ]] || continue
         [[ $i == /dev/mapper/control ]] && continue
         [[ $i == /dev/mapper/mpath* ]] && continue
         _tmp=$(get_maj_min "$i")
@@ -361,7 +361,7 @@ find_block_device() {
                     fi
                     return 0
                 fi
-                if [[ $_dev = *:* ]]; then
+                if [[ $_dev == *:* ]]; then
                     printf "%s\n" "$_dev"
                     return 0
                 fi
@@ -386,7 +386,7 @@ find_block_device() {
                 fi
                 return 0
             fi
-            if [[ $_dev = *:* ]]; then
+            if [[ $_dev == *:* ]]; then
                 printf "%s\n" "$_dev"
                 return 0
             fi
@@ -412,7 +412,7 @@ find_mp_fstype() {
         findmnt -e -v -n -o 'FSTYPE' --target "$1" | {
             while read _fs || [ -n "$_fs" ]; do
                 [[ $_fs ]] || continue
-                [[ $_fs = "autofs" ]] && continue
+                [[ $_fs == "autofs" ]] && continue
                 printf "%s" "$_fs"
                 return 0
             done
@@ -423,7 +423,7 @@ find_mp_fstype() {
     findmnt --fstab -e -v -n -o 'FSTYPE' --target "$1" | {
         while read _fs || [ -n "$_fs" ]; do
             [[ $_fs ]] || continue
-            [[ $_fs = "autofs" ]] && continue
+            [[ $_fs == "autofs" ]] && continue
             printf "%s" "$_fs"
             return 0
         done
@@ -444,7 +444,7 @@ find_mp_fstype() {
 find_dev_fstype() {
     local _find_dev _fs
     _find_dev="$1"
-    if ! [[ "$_find_dev" = /dev* ]]; then
+    if ! [[ $_find_dev == /dev* ]]; then
         [[ -b "/dev/block/$_find_dev" ]] && _find_dev="/dev/block/$_find_dev"
     fi
 
@@ -452,7 +452,7 @@ find_dev_fstype() {
         findmnt -e -v -n -o 'FSTYPE' --source "$_find_dev" | {
             while read _fs || [ -n "$_fs" ]; do
                 [[ $_fs ]] || continue
-                [[ $_fs = "autofs" ]] && continue
+                [[ $_fs == "autofs" ]] && continue
                 printf "%s" "$_fs"
                 return 0
             done
@@ -463,7 +463,7 @@ find_dev_fstype() {
     findmnt --fstab -e -v -n -o 'FSTYPE' --source "$_find_dev" | {
         while read _fs || [ -n "$_fs" ]; do
             [[ $_fs ]] || continue
-            [[ $_fs = "autofs" ]] && continue
+            [[ $_fs == "autofs" ]] && continue
             printf "%s" "$_fs"
             return 0
         done
@@ -501,7 +501,7 @@ find_mp_fsopts() {
 find_dev_fsopts() {
     local _find_dev
     _find_dev="$1"
-    if ! [[ "$_find_dev" = /dev* ]]; then
+    if ! [[ $_find_dev == /dev* ]]; then
         [[ -b "/dev/block/$_find_dev" ]] && _find_dev="/dev/block/$_find_dev"
     fi
 
@@ -583,7 +583,7 @@ for_each_host_dev_and_slaves_all() {
     [[ "${host_devs[*]}" ]] || return 2
 
     for _dev in "${host_devs[@]}"; do
-        [[ -b "$_dev" ]] || continue
+        [[ -b $_dev ]] || continue
         if check_block_and_slaves_all $_func $(get_maj_min $_dev); then
             _ret=0
         fi
@@ -598,7 +598,7 @@ for_each_host_dev_and_slaves() {
     [[ "${host_devs[*]}" ]] || return 2
 
     for _dev in "${host_devs[@]}"; do
-        [[ -b "$_dev" ]] || continue
+        [[ -b $_dev ]] || continue
         check_block_and_slaves $_func $(get_maj_min $_dev) && return 0
     done
     return 1

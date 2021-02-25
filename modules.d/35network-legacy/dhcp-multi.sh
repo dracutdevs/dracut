@@ -58,7 +58,7 @@ do_dhclient() {
             fi
         fi
 
-        _COUNT=$(($_COUNT + 1))
+        _COUNT=$((_COUNT + 1))
         [ $_COUNT -lt $_DHCPRETRY ] && sleep 1
     done
     warn "dhcp for interface $netif failed"

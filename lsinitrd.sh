@@ -99,7 +99,7 @@ done
 
 if [[ $1 ]]; then
     image="$1"
-    if ! [[ -f "$image" ]]; then
+    if ! [[ -f $image ]]; then
         {
             echo "$image does not exist"
             echo
@@ -129,7 +129,7 @@ while (($# > 0)); do
     shift
 done
 
-if ! [[ -f "$image" ]]; then
+if ! [[ -f $image ]]; then
     {
         echo "No <initramfs file> specified and the default image '$image' cannot be accessed!"
         echo
@@ -220,7 +220,7 @@ if [ "$bin" = "MZ" ]; then
     [ -f "$image" ] || exit 1
 fi
 
-if ((${#filenames[@]} <= 0)) && [[ -z "$unpack" ]] && [[ -z "$unpackearly" ]]; then
+if ((${#filenames[@]} <= 0)) && [[ -z $unpack ]] && [[ -z $unpackearly ]]; then
     if [ -n "$uefi" ]; then
         echo -n "initrd in UEFI: $uefi: "
         du -h $image | while read a b || [ -n "$a" ]; do echo $a; done
@@ -254,10 +254,10 @@ case $bin in
         # Debian mkinitramfs does not create the file 'early_cpio', so let's check if firmware files exist
         [[ "$is_early" ]] || is_early=$(cpio --list --verbose --quiet --to-stdout -- 'kernel/*/microcode/*.bin' < "$image" 2> /dev/null)
         if [[ "$is_early" ]]; then
-            if [[ -n "$unpack" ]]; then
+            if [[ -n $unpack ]]; then
                 # should use --unpackearly for early CPIO
                 :
-            elif [[ -n "$unpackearly" ]]; then
+            elif [[ -n $unpackearly ]]; then
                 unpack_files
             elif ((${#filenames[@]} > 0)); then
                 extract_files
@@ -333,7 +333,7 @@ fi
 
 ret=0
 
-if [[ -n "$unpack" ]]; then
+if [[ -n $unpack ]]; then
     unpack_files
 elif ((${#filenames[@]} > 0)); then
     extract_files

@@ -78,10 +78,10 @@ cmdline() {
             # DCB_REQUIRED in "/etc/fcoe/cfg-xxx" is expected to set to "no".
             #
             # Force "nodcb" if there's any DCB_REQUIRED="no"(child or vlan parent).
-            grep -q "^[[:blank:]]*DCB_REQUIRED=\"no\"" /etc/fcoe/cfg-${i##*/} &> /dev/null
+            grep -q '^[[:blank:]]*DCB_REQUIRED="no"' /etc/fcoe/cfg-${i##*/} &> /dev/null
             [ $? -eq 0 ] && dcb="nodcb"
             if [ "$p" ]; then
-                grep -q "^[[:blank:]]*DCB_REQUIRED=\"no\"" /etc/fcoe/cfg-${p} &> /dev/null
+                grep -q '^[[:blank:]]*DCB_REQUIRED="no"' /etc/fcoe/cfg-${p} &> /dev/null
                 [ $? -eq 0 ] && dcb="nodcb"
             fi
 

@@ -22,7 +22,7 @@ check() {
                 break
             fi
         done
-        [[ "$trtype" == "fc" ]] || [[ "$trtype" == "tcp" ]] || [[ "$trtype" == "rdma" ]]
+        [[ $trtype == "fc" ]] || [[ $trtype == "tcp" ]] || [[ $trtype == "rdma" ]]
     }
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {

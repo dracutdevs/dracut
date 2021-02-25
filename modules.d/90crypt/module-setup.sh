@@ -8,7 +8,7 @@ check() {
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for fs in "${host_fs_types[@]}"; do
-            [[ $fs = "crypto_LUKS" ]] && return 0
+            [[ $fs == "crypto_LUKS" ]] && return 0
         done
         return 255
     }
@@ -57,12 +57,12 @@ installkernel() {
 cmdline() {
     local dev UUID
     for dev in "${!host_fs_types[@]}"; do
-        [[ "${host_fs_types[$dev]}" != "crypto_LUKS" ]] && continue
+        [[ ${host_fs_types[$dev]} != "crypto_LUKS" ]] && continue
 
         UUID=$(
             blkid -u crypto -o export $dev \
                 | while read line || [ -n "$line" ]; do
-                    [[ ${line#UUID} = $line ]] && continue
+                    [[ ${line#UUID} == $line ]] && continue
                     printf "%s" "${line#UUID=}"
                     break
                 done
@@ -92,7 +92,7 @@ install() {
     if [[ $hostonly ]] && [[ -f $dracutsysrootdir/etc/crypttab ]]; then
         # filter /etc/crypttab for the devices we need
         while read _mapper _dev _luksfile _luksoptions || [ -n "$_mapper" ]; do
-            [[ $_mapper = \#* ]] && continue
+            [[ $_mapper == \#* ]] && continue
             [[ $_dev ]] || continue
 
             [[ $_dev == PARTUUID=* ]] \

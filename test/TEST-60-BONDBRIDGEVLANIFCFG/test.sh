@@ -96,7 +96,7 @@ client_test() {
 
     {
         read OK
-        if [[ "$OK" != "OK" ]]; then
+        if [[ $OK != "OK" ]]; then
             echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
             return 1
         fi
@@ -107,7 +107,7 @@ client_test() {
         done
     } < "$TESTDIR"/client.img || return 1
 
-    if [[ "$check" != "$CONF" ]]; then
+    if [[ $check != "$CONF" ]]; then
         echo "Expected: '$check'"
         echo
         echo

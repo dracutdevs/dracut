@@ -61,7 +61,7 @@ uefi_device_path() {
                 0101)
                     # PCI
                     tt=$(getword)
-                    printf "PCI(0x%x,0x%x)" $(($tt / 256)) $(($tt & 255))
+                    printf "PCI(0x%x,0x%x)" $((tt / 256)) $((tt & 255))
                     ;;
                 0201)
                     # ACPI

@@ -145,9 +145,9 @@ install() {
 
         shopt -q -s nocasematch
         if [[ ${UNICODE} ]]; then
-            if [[ ${UNICODE} = YES || ${UNICODE} = 1 ]]; then
+            if [[ ${UNICODE} == YES || ${UNICODE} == 1 ]]; then
                 UNICODE=1
-            elif [[ ${UNICODE} = NO || ${UNICODE} = 0 ]]; then
+            elif [[ ${UNICODE} == NO || ${UNICODE} == 0 ]]; then
                 UNICODE=0
             else
                 UNICODE=''
