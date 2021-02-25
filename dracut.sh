@@ -45,7 +45,7 @@ usage() {
         . "$dracutbasedir"/dracut-version.sh
     fi
 
-#                                                       80x25 linebreak here ^
+    #                                                   80x25 linebreak here ^
     cat << EOF
 Usage: $dracut_cmd [OPTION]... [<initramfs> [<kernel-version>]]
 
@@ -71,7 +71,7 @@ long_usage() {
         . "$dracutbasedir"/dracut-version.sh
     fi
 
-#                                                       80x25 linebreak here ^
+    #                                                   80x25 linebreak here ^
     cat << EOF
 Usage: $dracut_cmd [OPTION]... [<initramfs> [<kernel-version>]]
 

@@ -24,9 +24,8 @@ __contains_word () {
 _lsinitrd() {
         local cur=${COMP_WORDS[COMP_CWORD]} prev=${COMP_WORDS[COMP_CWORD-1]}
         local -A OPTS=(
-                [STANDALONE]='-s --size -h --help'
-
-                       [ARG]='-f --file -k --kver'
+            [STANDALONE]='-s --size -h --help'
+            [ARG]='-f --file -k --kver'
         )
 
         # shellcheck disable=SC2086

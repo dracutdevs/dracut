@@ -30,7 +30,7 @@ derror() {
 }
 
 usage() {
-#                                                       80x25 linebreak here ^
+    #                                                   80x25 linebreak here ^
     cat << EOF
 Usage: $0 [OPTION]... <initramfs> <base image> [<image>...]
 Creates initial ramdisk image by concatenating several images from the command

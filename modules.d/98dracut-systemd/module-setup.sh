@@ -47,7 +47,7 @@ install() {
         dracut-pre-pivot.service \
         dracut-pre-trigger.service \
         dracut-pre-udev.service \
-        ; do
+        ${NULL}; do
         inst_simple "$moddir/${i}" "$systemdsystemunitdir/${i}"
         $SYSTEMCTL -q --root "$initdir" add-wants initrd.target "$i"
     done

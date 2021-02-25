@@ -242,7 +242,7 @@ install() {
         rescue.target \
         systemd-ask-password-console.service \
         systemd-ask-password-plymouth.service \
-        ; do
+        ${NULL}; do
         [[ -f "$systemdsystemunitdir"/$i ]] || continue
         $SYSTEMCTL -q --root "$initdir" add-wants "$i" systemd-vconsole-setup.service
     done
