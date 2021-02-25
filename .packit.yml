@@ -45,13 +45,16 @@ jobs:
   trigger: pull_request
   metadata:
     targets:
-      - fedora-rawhide
+      - fedora-development
+      - fedora-eln
 
 - job: copr_build
   trigger: commit
   metadata:
     targets:
-      - fedora-rawhide
+      - fedora-all
+      - fedora-development
+      - fedora-eln
     branch: master
     owner: "@dracut"
     project: Dracut
