@@ -2,7 +2,7 @@
 
 pkglib_dir() {
     local _dirs="/usr/lib/plymouth /usr/libexec/plymouth/"
-    if find_binary dpkg-architecture &>/dev/null; then
+    if find_binary dpkg-architecture &> /dev/null; then
         _dirs+=" /usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/plymouth"
     fi
     for _dir in $_dirs; do
@@ -48,4 +48,3 @@ install() {
         inst_hook pre-pivot 90 "$moddir"/plymouth-newroot.sh
     fi
 }
-

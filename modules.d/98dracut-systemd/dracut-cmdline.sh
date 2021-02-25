@@ -1,9 +1,9 @@
 #!/bin/sh
 
 if [ -f /dracut-state.sh ]; then
-    . /dracut-state.sh 2>/dev/null
+    . /dracut-state.sh 2> /dev/null
 fi
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
 [ -f /usr/lib/initrd-release ] && . /usr/lib/initrd-release
 [ -n "$VERSION" ] && info "dracut-$VERSION"
@@ -52,13 +52,16 @@ source_hook cmdline
 case "${root#block:}${root_unset}" in
     LABEL=* | UUID=* | PARTUUID=* | PARTLABEL=*)
         root="block:$(label_uuid_to_dev "$root")"
-        rootok=1 ;;
+        rootok=1
+        ;;
     /dev/*)
         root="block:${root}"
-        rootok=1 ;;
-    UNSET|gpt-auto|tmpfs)
+        rootok=1
+        ;;
+    UNSET | gpt-auto | tmpfs)
         # systemd's gpt-auto-generator/fstab-generator handles this case.
-        rootok=1 ;;
+        rootok=1
+        ;;
 esac
 
 [ -z "${root}${root_unset}" ] && die "Empty root= argument"

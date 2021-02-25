@@ -14,8 +14,11 @@ parsevlan() {
 
     unset vlanname phydevice
     case $# in
-    2)  vlanname=$1; phydevice=$2 ;;
-    *)  die "vlan= requires two parameters" ;;
+        2)
+            vlanname=$1
+            phydevice=$2
+            ;;
+        *) die "vlan= requires two parameters" ;;
     esac
 }
 

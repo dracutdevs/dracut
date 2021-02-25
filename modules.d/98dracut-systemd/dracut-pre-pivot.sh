@@ -2,9 +2,9 @@
 
 export DRACUT_SYSTEMD=1
 if [ -f /dracut-state.sh ]; then
-    . /dracut-state.sh 2>/dev/null
+    . /dracut-state.sh 2> /dev/null
 fi
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
 source_conf /etc/conf.d
 
@@ -18,8 +18,8 @@ source_hook pre-pivot
 getarg 'rd.break=cleanup' 'rdbreak=cleanup' && emergency_shell -n cleanup "Break cleanup"
 source_hook cleanup
 
-_bv=$(getarg rd.break -d rdbreak) && [ -z "$_bv" ] &&
-    emergency_shell -n switch_root "Break before switch_root"
+_bv=$(getarg rd.break -d rdbreak) && [ -z "$_bv" ] \
+    && emergency_shell -n switch_root "Break before switch_root"
 unset _bv
 
 # remove helper symlink

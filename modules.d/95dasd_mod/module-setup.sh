@@ -25,4 +25,3 @@ install() {
     inst_multiple grep sed seq
     inst_multiple -o dasd_cio_free
 }
-

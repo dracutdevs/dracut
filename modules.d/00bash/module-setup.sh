@@ -18,4 +18,3 @@ install() {
     # Prefer bash as /bin/sh if it is available.
     inst /bin/bash && ln -sf bash "${initdir}/bin/sh"
 }
-

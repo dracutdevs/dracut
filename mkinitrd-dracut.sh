@@ -8,7 +8,7 @@ force=0
 
 error() { echo "$@" >&2; }
 
-usage () {
+usage() {
     [[ $1 = '-n' ]] && cmd=echo || cmd=error
 
     $cmd "usage: ${0##*/} [--version] [--help] [-v] [-f] [--preload <module>]"
@@ -34,16 +34,16 @@ read_arg() {
     if [[ $2 =~ $rematch ]]; then
         read "$param" <<< "${BASH_REMATCH[1]}"
     else
-	for ((i=3; $i <= $#; i++)); do
+        for ((i = 3; $i <= $#; i++)); do
             # Only read next arg if it not an arg itself.
-            if [[ ${*:$i:1} = -* ]];then
-		break
+            if [[ ${*:$i:1} = -* ]]; then
+                break
             fi
             result="$result ${@:$i:1}"
             # There is no way to shift our callers args, so
             # return "no of args" to indicate they should do it instead.
-	done
-	read "$1" <<< "$result"
+        done
+        read "$1" <<< "$result"
         return $(($i - 3))
     fi
 }
@@ -54,35 +54,36 @@ default_kernel_images() {
     local qf='%{NAME}-%{VERSION}-%{RELEASE}\n'
 
     case "${DRACUT_ARCH:-$(uname -m)}" in
-        s390|s390x)
+        s390 | s390x)
             regex='image'
             ;;
         ppc*)
             regex='vmlinux'
             ;;
-        i?86|x86_64)
+        i?86 | x86_64)
             regex='vmlinuz'
             ;;
         arm*)
             regex='[uz]Image'
             ;;
-        aarch64|riscv64)
+        aarch64 | riscv64)
             regex='Image'
             ;;
-        *)  regex='vmlinu.'
+        *)
+            regex='vmlinu.'
             ;;
     esac
 
     # user mode linux
     if grep -q UML /proc/cpuinfo; then
-            regex='linux'
+        regex='linux'
     fi
 
     kernel_images=""
     initrd_images=""
     for kernel_image in $(ls $boot_dir \
-            | sed -ne "\|^$regex\(-[0-9.]\+-[0-9]\+-[a-z0-9]\+$\)\?|p" \
-            | grep -v kdump$ ) ; do
+        | sed -ne "\|^$regex\(-[0-9.]\+-[0-9]\+-[a-z0-9]\+$\)\?|p" \
+        | grep -v kdump$); do
 
         # Note that we cannot check the RPM database here -- this
         # script is itself called from within the binary kernel
@@ -91,20 +92,20 @@ default_kernel_images() {
         [ -L "$boot_dir/$kernel_image" ] && continue
         [ "${kernel_image%%.gz}" != "$kernel_image" ] && continue
         kernel_version=$(/usr/bin/get_kernel_version \
-                         $boot_dir/$kernel_image 2> /dev/null)
+            $boot_dir/$kernel_image 2> /dev/null)
         initrd_image=$(echo $kernel_image | sed -e "s|${regex}|initrd|")
         if [ "$kernel_image" != "$initrd_image" -a \
-             -n "$kernel_version" -a \
-             -d "/lib/modules/$kernel_version" ]; then
-                kernel_images="$kernel_images $boot_dir/$kernel_image"
-                initrd_images="$initrd_images $boot_dir/$initrd_image"
+            -n "$kernel_version" -a \
+            -d "/lib/modules/$kernel_version" ]; then
+            kernel_images="$kernel_images $boot_dir/$kernel_image"
+            initrd_images="$initrd_images $boot_dir/$initrd_image"
         fi
     done
-    for kernel_image in $kernel_images;do
-	kernels="$kernels ${kernel_image#*-}"
+    for kernel_image in $kernel_images; do
+        kernels="$kernels ${kernel_image#*-}"
     done
-    for initrd_image in $initrd_images;do
-	targets="$targets $initrd_image"
+    for initrd_image in $initrd_images; do
+        targets="$targets $initrd_image"
     done
     host_only=1
     force=1
@@ -112,25 +113,36 @@ default_kernel_images() {
 
 while (($# > 0)); do
     case ${1%%=*} in
-        --with-usb) read_arg usbmodule "$@" || shift $?
+        --with-usb)
+            read_arg usbmodule "$@" || shift $?
             basicmodules="$basicmodules ${usbmodule:-usb-storage}"
-            unset usbmodule;;
-        --with-avail) read_arg modname "$@" || shift $?
-            basicmodules="$basicmodules $modname";;
-        --with) read_arg modname "$@" || shift $?
-            basicmodules="$basicmodules $modname";;
+            unset usbmodule
+            ;;
+        --with-avail)
+            read_arg modname "$@" || shift $?
+            basicmodules="$basicmodules $modname"
+            ;;
+        --with)
+            read_arg modname "$@" || shift $?
+            basicmodules="$basicmodules $modname"
+            ;;
         --version)
             echo "mkinitrd: dracut compatibility wrapper"
-            exit 0;;
-        -v|--verbose) dracut_args="${dracut_args} -v";;
-        -f|--force) force=1;;
-        --preload) read_arg modname "$@" || shift $?
-            basicmodules="$basicmodules $modname";;
-        --image-version) img_vers=yes;;
-        --rootfs|-d) read_arg rootfs "$@" || shift $?
-            dracut_args="${dracut_args} --filesystems $rootfs";;
-        --nocompress) dracut_args="$dracut_args --no-compress";;
-        --help) usage -n;;
+            exit 0
+            ;;
+        -v | --verbose) dracut_args="${dracut_args} -v" ;;
+        -f | --force) force=1 ;;
+        --preload)
+            read_arg modname "$@" || shift $?
+            basicmodules="$basicmodules $modname"
+            ;;
+        --image-version) img_vers=yes ;;
+        --rootfs | -d)
+            read_arg rootfs "$@" || shift $?
+            dracut_args="${dracut_args} --filesystems $rootfs"
+            ;;
+        --nocompress) dracut_args="$dracut_args --no-compress" ;;
+        --help) usage -n ;;
         --builtin) ;;
         --without*) ;;
         --without-usb) ;;
@@ -153,34 +165,36 @@ while (($# > 0)); do
         --loopopts*) ;;
         --looppath*) ;;
         --dsdt*) ;;
-	-s) ;;
-	--quiet|-q) quiet=1;;
-	-b) read_arg boot_dir "$@" || shift $?
-	    if [ ! -d $boot_dir ];then
-		error "Boot directory $boot_dir does not exist"
-		exit 1
-	    fi
-	    ;;
-	-k) # Would be nice to get a list of images here
-	    read_arg kernel_images "$@" || shift $?
-	    for kernel_image in $kernel_images;do
-		kernels="$kernels ${kernel_image#*-}"
-	    done
-	    host_only=1
-	    force=1
-	    ;;
-	-i) read_arg initrd_images "$@" || shift $?
-	    for initrd_image in $initrd_images;do
-		targets="$targets $boot_dir/$initrd_image"
-	    done
-	    ;;
-        *)  if [[ ! $targets ]]; then
+        -s) ;;
+        --quiet | -q) quiet=1 ;;
+        -b)
+            read_arg boot_dir "$@" || shift $?
+            if [ ! -d $boot_dir ]; then
+                error "Boot directory $boot_dir does not exist"
+                exit 1
+            fi
+            ;;
+        -k) # Would be nice to get a list of images here
+            read_arg kernel_images "$@" || shift $?
+            for kernel_image in $kernel_images; do
+                kernels="$kernels ${kernel_image#*-}"
+            done
+            host_only=1
+            force=1
+            ;;
+        -i)
+            read_arg initrd_images "$@" || shift $?
+            for initrd_image in $initrd_images; do
+                targets="$targets $boot_dir/$initrd_image"
+            done
+            ;;
+        *) if [[ ! $targets ]]; then
             targets=$1
-            elif [[ ! $kernels ]]; then
+        elif [[ ! $kernels ]]; then
             kernels=$1
-            else
+        else
             usage
-            fi;;
+        fi ;;
     esac
     shift
 done
@@ -189,37 +203,37 @@ done
 [[ $targets && $kernels ]] || (error "No kernel found in $boot_dir" && usage)
 
 # We can have several targets/kernels, transform the list to an array
-targets=( $targets )
-[[ $kernels ]] && kernels=( $kernels )
+targets=($targets)
+[[ $kernels ]] && kernels=($kernels)
 
 [[ $host_only == 1 ]] && dracut_args="${dracut_args} -H"
-[[ $force == 1 ]]     && dracut_args="${dracut_args} -f"
+[[ $force == 1 ]] && dracut_args="${dracut_args} -f"
 
 echo "Creating: target|kernel|dracut args|basicmodules "
-for ((i=0 ; $i<${#targets[@]} ; i++)); do
+for ((i = 0; $i < ${#targets[@]}; i++)); do
 
-    if [[ $img_vers ]];then
-	target="${targets[$i]}-${kernels[$i]}"
+    if [[ $img_vers ]]; then
+        target="${targets[$i]}-${kernels[$i]}"
     else
-	target="${targets[$i]}"
+        target="${targets[$i]}"
     fi
     kernel="${kernels[$i]}"
 
     # Duplicate code: No way found how to redirect output based on $quiet
-    if [[ $quiet == 1 ]];then
-	echo "$target|$kernel|$dracut_args|$basicmodules"
-	if [[ $basicmodules ]]; then
+    if [[ $quiet == 1 ]]; then
+        echo "$target|$kernel|$dracut_args|$basicmodules"
+        if [[ $basicmodules ]]; then
             dracut $dracut_args --add-drivers "$basicmodules" "$target" \
-		"$kernel" &>/dev/null
-	else
-            dracut $dracut_args "$target" "$kernel" &>/dev/null
-	fi
+                "$kernel" &> /dev/null
+        else
+            dracut $dracut_args "$target" "$kernel" &> /dev/null
+        fi
     else
-	if [[ $basicmodules ]]; then
+        if [[ $basicmodules ]]; then
             dracut $dracut_args --add-drivers "$basicmodules" "$target" \
-		"$kernel"
-	else
+                "$kernel"
+        else
             dracut $dracut_args "$target" "$kernel"
-	fi
+        fi
     fi
 done

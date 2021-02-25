@@ -12,7 +12,7 @@ check() {
 # called by dracut
 installkernel() {
     if [[ $hostonly ]]; then
-        for dev in /sys/devices/dcssblk/*/block/dcssblk* ; do
+        for dev in /sys/devices/dcssblk/*/block/dcssblk*; do
             [[ -e $dev ]] || continue
             hostonly='' instmods dcssblk
             return $?

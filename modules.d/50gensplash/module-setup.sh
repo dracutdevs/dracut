@@ -32,7 +32,7 @@ install() {
                     dwarn "${line}"
                 else
                     derror "${line}"
-                    (( $_ret == 0 )) && _ret=1
+                    (($_ret == 0)) && _ret=1
                 fi
             done
         fi
@@ -40,7 +40,7 @@ install() {
         return ${_ret}
     }
 
-    find_binary splash_geninitramfs >/dev/null || return 1
+    find_binary splash_geninitramfs > /dev/null || return 1
 
     _opts=''
     if [[ ${DRACUT_GENSPLASH_THEME} ]]; then
@@ -62,7 +62,7 @@ install() {
 
     dinfo "Installing Gentoo Splash (using the ${_splash_theme} theme)"
 
-    pushd "${initdir}" >/dev/null
+    pushd "${initdir}" > /dev/null
     mv dev dev.old
     call_splash_geninitramfs "${initdir}" ${_opts} ${_splash_theme} || {
         derror "Could not build splash"
@@ -70,7 +70,7 @@ install() {
     }
     rm -rf dev
     mv dev.old dev
-    popd >/dev/null
+    popd > /dev/null
 
     inst_multiple chvt
     inst /usr/share/splashutils/initrd.splash /lib/gensplash-lib.sh

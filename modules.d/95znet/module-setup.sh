@@ -26,4 +26,3 @@ install() {
     inst_rules 81-ccw.rules
     inst_multiple znet_cio_free grep sed seq readlink /lib/udev/ccw_init
 }
-

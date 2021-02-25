@@ -8,7 +8,7 @@ udevadm control --reload
 udevadm settle
 set -e
 # save a partition at the beginning for future flagging purposes
-sfdisk /dev/sda <<EOF
+sfdisk /dev/sda << EOF
 ,1M
 ,
 EOF

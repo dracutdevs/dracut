@@ -2,7 +2,7 @@
 
 # Triggered by initqueue/online and starts rsyslogd with bootparameters
 
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
 # prevent starting again if already running
 if [ -f /var/run/syslogd.pid ]; then

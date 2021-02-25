@@ -32,7 +32,7 @@ install() {
     # add common users in /etc/passwd, it will be used by nfs/ssh currently
     # use password for hostonly images to facilitate secure sulogin in emergency console
     [[ $hostonly ]] && pwshadow='x'
-    grep '^root:' "$initdir/etc/passwd" 2>/dev/null || echo  "root:$pwshadow:0:0::/root:/bin/sh" >> "$initdir/etc/passwd"
+    grep '^root:' "$initdir/etc/passwd" 2> /dev/null || echo "root:$pwshadow:0:0::/root:/bin/sh" >> "$initdir/etc/passwd"
     grep '^nobody:' "$dracutsysrootdir"/etc/passwd >> "$initdir/etc/passwd"
 
     [[ $hostonly ]] && grep '^root:' "$dracutsysrootdir"/etc/shadow >> "$initdir/etc/shadow"
@@ -76,7 +76,7 @@ install() {
     # Derive an os-release file from the host, if it exists
     if [[ -e $dracutsysrootdir/etc/os-release ]]; then
         . "$dracutsysrootdir"/etc/os-release
-        grep -hE -ve '^VERSION=' -ve '^PRETTY_NAME' "$dracutsysrootdir"/etc/os-release >"${initdir}"/usr/lib/initrd-release
+        grep -hE -ve '^VERSION=' -ve '^PRETTY_NAME' "$dracutsysrootdir"/etc/os-release > "${initdir}"/usr/lib/initrd-release
         [[ -n ${VERSION} ]] && VERSION+=" "
         [[ -n ${PRETTY_NAME} ]] && PRETTY_NAME+=" "
     else
@@ -87,7 +87,7 @@ install() {
             echo ID=dracut
             echo VERSION_ID=\"$DRACUT_VERSION\"
             echo ANSI_COLOR='"0;34"'
-        } >${initdir}/usr/lib/initrd-release
+        } > ${initdir}/usr/lib/initrd-release
     fi
     VERSION+="dracut-$DRACUT_VERSION"
     PRETTY_NAME+="dracut-$DRACUT_VERSION (Initramfs)"
@@ -127,13 +127,13 @@ install() {
                     # for resume and udev rules generated when parsing resume=
                     # argument take care of the waiting for us
                     for _dev2 in "${swap_devs[@]}"; do
-                      [[ "$_dev" == "$_dev2" ]] && continue 2
+                        [[ "$_dev" == "$_dev2" ]] && continue 2
                     done
 
                     _pdev=$(get_persistent_dev $_dev)
 
                     case "$_pdev" in
-                        /dev/?*) wait_for_dev $_pdev;;
+                        /dev/?*) wait_for_dev $_pdev ;;
                         *) ;;
                     esac
                 done

@@ -29,4 +29,3 @@ install() {
         ln_r /usr/bin/busybox $_path
     done
 }
-

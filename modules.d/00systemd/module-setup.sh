@@ -1,7 +1,10 @@
 #!/bin/bash
 
 getSystemdVersion() {
-    [ -z "$SYSTEMD_VERSION" ] && SYSTEMD_VERSION=$("$systemdutildir"/systemd --version | { read -r _ b _; echo "$b"; })
+    [ -z "$SYSTEMD_VERSION" ] && SYSTEMD_VERSION=$("$systemdutildir"/systemd --version | {
+        read -r _ b _
+        echo "$b"
+    })
     # Check if the systemd version is a valid number
     if ! [[ $SYSTEMD_VERSION =~ ^[0-9]+$ ]]; then
         dfatal "systemd version is not a number ($SYSTEMD_VERSION)"
@@ -16,8 +19,8 @@ check() {
     [[ $mount_needs ]] && return 1
     if require_binaries "$systemdutildir"/systemd; then
         SYSTEMD_VERSION=$(getSystemdVersion)
-        (( SYSTEMD_VERSION >= 198 )) && return 0
-       return 255
+        ((SYSTEMD_VERSION >= 198)) && return 0
+        return 255
     fi
 
     return 1
@@ -43,9 +46,9 @@ install() {
     fi
 
     if [[ $(getSystemdVersion) -ge 240 ]]; then
-    inst_multiple -o \
-        "$systemdutildir"/system-generators/systemd-debug-generator \
-        "$systemdsystemunitdir"/debug-shell.service
+        inst_multiple -o \
+            "$systemdutildir"/system-generators/systemd-debug-generator \
+            "$systemdsystemunitdir"/debug-shell.service
     fi
 
     inst_multiple -o \
@@ -170,12 +173,13 @@ install() {
             [[ -f $i ]] || continue
             while read -r _line || [ -n "$_line" ]; do
                 case $_line in
-                    \#*)
-                        ;;
-                    \;*)
-                        ;;
+                    \#*) ;;
+
+                    \;*) ;;
+
                     *)
                         echo "$_line"
+                        ;;
                 esac
             done < "$i"
         done
@@ -211,8 +215,8 @@ install() {
 
     # install adm user/group for journald
     inst_multiple nologin
-    grep '^systemd-journal:' "$dracutsysrootdir"/etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
-    grep '^adm:' "$dracutsysrootdir"/etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
+    grep '^systemd-journal:' "$dracutsysrootdir"/etc/passwd 2> /dev/null >> "$initdir/etc/passwd"
+    grep '^adm:' "$dracutsysrootdir"/etc/passwd 2> /dev/null >> "$initdir/etc/passwd"
     grep '^systemd-journal:' "$dracutsysrootdir"/etc/group >> "$initdir/etc/group"
     grep '^wheel:' "$dracutsysrootdir"/etc/group >> "$initdir/etc/group"
     grep '^adm:' "$dracutsysrootdir"/etc/group >> "$initdir/etc/group"
@@ -220,7 +224,7 @@ install() {
     grep '^root:' "$dracutsysrootdir"/etc/group >> "$initdir/etc/group"
 
     # we don't use systemd-networkd, but the user is in systemd.conf tmpfiles snippet
-    grep '^systemd-network:' "$dracutsysrootdir"/etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
+    grep '^systemd-network:' "$dracutsysrootdir"/etc/passwd 2> /dev/null >> "$initdir/etc/passwd"
     grep '^systemd-network:' "$dracutsysrootdir"/etc/group >> "$initdir/etc/group"
 
     ln_r "$systemdutildir"/systemd "/init"

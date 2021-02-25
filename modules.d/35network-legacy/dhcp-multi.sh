@@ -23,14 +23,14 @@ do_dhclient() {
     while [ $_COUNT -lt $_DHCPRETRY ]; do
         info "Starting dhcp for interface $netif"
         dhclient $arg \
-                 ${_timeout:+--timeout $_timeout} \
-                 -q \
-                 -1 \
-                 -cf /etc/dhclient.conf \
-                 -pf /tmp/dhclient.$netif.pid \
-                 -lf /tmp/dhclient.$netif.lease \
-                 $netif &
-        wait $! 2>/dev/null
+            ${_timeout:+--timeout $_timeout} \
+            -q \
+            -1 \
+            -cf /etc/dhclient.conf \
+            -pf /tmp/dhclient.$netif.pid \
+            -lf /tmp/dhclient.$netif.lease \
+            $netif &
+        wait $! 2> /dev/null
 
         # wait will return the return value of dhclient
         retv=$?
@@ -45,7 +45,7 @@ do_dhclient() {
         # find the process with that pid and return error code 127. In that
         # case we need to check if /tmp/dhclient.$netif.lease exists. If it
         # does, it means dhclient finished executing before wait was called,
-        # and it was successful (return 0). If /tmp/dhclient.$netif.lease 
+        # and it was successful (return 0). If /tmp/dhclient.$netif.lease
         # does not exist, then it means dhclient was killed by another thread
         # or it finished execution but failed dhcp on that interface.
 
@@ -56,14 +56,14 @@ do_dhclient() {
                 info "PID $pid not found but DHCP successful on $netif"
                 return 0
             fi
-        fi    
+        fi
 
-        _COUNT=$(($_COUNT+1))
+        _COUNT=$(($_COUNT + 1))
         [ $_COUNT -lt $_DHCPRETRY ] && sleep 1
     done
     warn "dhcp for interface $netif failed"
     # nuke those files since we failed; we might retry dhcp again if it's e.g.
-    # `ip=dhcp,dhcp6` and we check for the PID file earlier 
+    # `ip=dhcp,dhcp6` and we check for the PID file earlier
     rm -f /tmp/dhclient.$netif.{pid,lease}
     return 1
 }
@@ -85,15 +85,15 @@ if [ $ret -eq 0 ]; then
     fi
 
     # Check if DHCP also suceeded on another interface before this one.
-    # We will always use the first one on which DHCP succeeded, by using 
+    # We will always use the first one on which DHCP succeeded, by using
     # a commom file $IFNETFILE, to synchronize between threads.
-    # Consider the race condition in which multiple threads 
+    # Consider the race condition in which multiple threads
     # corresponding to different interfaces may try to read $IFNETFILE
     # and find it does not exist; they may all end up thinking they are the
     # first to succeed (hence more than one thread may end up writing to
-    # $IFNETFILE). To take care of this, instead of checking if $IFNETFILE 
+    # $IFNETFILE). To take care of this, instead of checking if $IFNETFILE
     # exists to determine if we are the first, we create a symbolic link
-    # in $IFNETFILE, pointing to the interface name ($netif), thus storing 
+    # in $IFNETFILE, pointing to the interface name ($netif), thus storing
     # the interface name in the link pointer.
     # Creating a link will fail, if the link already exists, hence kernel
     # will take care of allowing only first thread to create link, which
@@ -101,22 +101,22 @@ if [ $ret -eq 0 ]; then
     # Also, the link points to the interface name, which will tell us which
     # interface succeeded.
 
-    if ln -s $netif $IFNETFILE 2>/dev/null; then
+    if ln -s $netif $IFNETFILE 2> /dev/null; then
         intf=$(readlink $IFNETFILE)
         if [ -e /tmp/dhclient.$intf.lease ]; then
             info "DHCP successful on interface $intf"
-            # Kill all existing dhclient calls for other interfaces, since we 
+            # Kill all existing dhclient calls for other interfaces, since we
             # already got one successful interface
 
             npid=$(cat /tmp/dhclient.$netif.pid)
             pidlist=$(pgrep dhclient)
             for pid in $pidlist; do
                 [ "$pid" -eq "$npid" ] && continue
-                kill -9 $pid >/dev/null 2>&1
+                kill -9 $pid > /dev/null 2>&1
             done
         else
             echo "ERROR! $IFNETFILE exists but /tmp/dhclient.$intf.lease does not exist!!!"
-         fi
+        fi
     else
         info "DHCP success on $netif, and also on $intf"
         exit 0

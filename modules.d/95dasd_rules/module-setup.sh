@@ -4,7 +4,10 @@
 cmdline() {
     is_dasd() {
         local _dev=$1
-        local _devpath=$(cd -P /sys/dev/block/$_dev ; echo $PWD)
+        local _devpath=$(
+            cd -P /sys/dev/block/$_dev
+            echo $PWD
+        )
 
         [ "${_devpath#*/dasd}" == "$_devpath" ] && return 1
         _ccw="${_devpath%%/block/*}"
@@ -25,11 +28,12 @@ check() {
     require_binaries /usr/lib/udev/collect || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        for bdev in /sys/block/* ; do
+        for bdev in /sys/block/*; do
             case "${bdev##*/}" in
                 dasd*)
-                    found=$(($found+1));
-                    break;
+                    found=$(($found + 1))
+                    break
+                    ;;
             esac
         done
         [ $found -eq 0 ] && return 255
@@ -47,11 +51,11 @@ depends() {
 install() {
     inst_multiple /usr/lib/udev/collect
     inst_hook cmdline 30 "$moddir/parse-dasd.sh"
-    if [[ $hostonly_cmdline == "yes" ]] ; then
+    if [[ $hostonly_cmdline == "yes" ]]; then
         local _dasd=$(cmdline)
         [[ $_dasd ]] && printf "%s\n" "$_dasd" >> "${initdir}/etc/cmdline.d/95dasd.conf"
     fi
-    if [[ $hostonly ]] ; then
+    if [[ $hostonly ]]; then
         inst_rules_wildcard 51-dasd-*.rules
         inst_rules_wildcard 41-s390x-dasd-*.rules
         mark_hostonly /etc/udev/rules.d/51-dasd-*.rules

@@ -19,10 +19,9 @@ install() {
     inst_hook cmdline 30 "$moddir/parse-dasd.sh"
     inst_multiple dasdinfo dasdconf.sh normalize_dasd_arg
     conf=/etc/dasd.conf
-    if [[ $hostonly && -f $conf ]] ; then
+    if [[ $hostonly && -f $conf ]]; then
         inst -H $conf
     fi
     inst_rules 56-dasd.rules
     inst_rules 59-dasd.rules
 }
-

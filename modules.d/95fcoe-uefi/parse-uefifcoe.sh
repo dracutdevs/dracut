@@ -1,16 +1,15 @@
 #!/bin/bash
 
-command -v getarg >/dev/null          || . /lib/dracut-lib.sh
-command -v get_fcoe_boot_mac >/dev/null || . /lib/uefi-lib.sh
-command -v set_ifname >/dev/null || . /lib/net-lib.sh
+command -v getarg > /dev/null || . /lib/dracut-lib.sh
+command -v get_fcoe_boot_mac > /dev/null || . /lib/uefi-lib.sh
+command -v set_ifname > /dev/null || . /lib/net-lib.sh
 
-print_fcoe_uefi_conf()
-{
+print_fcoe_uefi_conf() {
     local mac dev vlan
     mac=$(get_fcoe_boot_mac "$1")
     [ -z "$mac" ] && return 1
     dev=$(set_ifname fcoe $mac)
-    vlan=$(get_fcoe_boot_vlan  "$1")
+    vlan=$(get_fcoe_boot_vlan "$1")
     if [ "$vlan" -ne "0" ]; then
         case "$vlan" in
             [0-9]*)

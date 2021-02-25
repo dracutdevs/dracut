@@ -3,8 +3,8 @@
 set -e
 
 if [[ -z "$DRACUT_TMPDIR" ]]; then
-	echo "DRACUT_TMPDIR is unset, exiting"
-	exit 0
+    echo "DRACUT_TMPDIR is unset, exiting"
+    exit 0
 fi
 
 # We have to unset "prefix" as dracut uses it to move files around.
@@ -21,11 +21,11 @@ export DRACUT_INSTALL_PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 export PLYMOUTH_SYSROOT=$D
 
 export \
-	systemdutildir systemdsystemunitdir systemdsystemconfdir udevdir \
-	DRACUT_ARCH DRACUT_TESTBIN DRACUT_LDD DRACUT_LDCONFIG DRACUT_INSTALL \
-	DRACUT_COMPRESS_GZIP DRACUT_COMPRESS_BZIP2 DRACUT_COMPRESS_LZMA \
-	PLYMOUTH_LDD PLYMOUTH_LDD_PATH PLYMOUTH_PLUGIN_PATH \
-	PLYMOUTH_THEME_NAME PLYMOUTH_THEME
+    systemdutildir systemdsystemunitdir systemdsystemconfdir udevdir \
+    DRACUT_ARCH DRACUT_TESTBIN DRACUT_LDD DRACUT_LDCONFIG DRACUT_INSTALL \
+    DRACUT_COMPRESS_GZIP DRACUT_COMPRESS_BZIP2 DRACUT_COMPRESS_LZMA \
+    PLYMOUTH_LDD PLYMOUTH_LDD_PATH PLYMOUTH_PLUGIN_PATH \
+    PLYMOUTH_THEME_NAME PLYMOUTH_THEME
 
 # List environment for debugging
 echo ROOTFS-POSTINST-ENVIRONMENT

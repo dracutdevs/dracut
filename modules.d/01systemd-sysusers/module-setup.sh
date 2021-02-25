@@ -37,17 +37,17 @@ install() {
         $systemdsystemunitdir/systemd-sysusers.service \
         systemd-sysusers
 
-        # Install the hosts local user configurations if enabled.
-        if [[ $hostonly ]]; then
-            inst_multiple -H -o \
+    # Install the hosts local user configurations if enabled.
+    if [[ $hostonly ]]; then
+        inst_multiple -H -o \
             $sysusersconfdir/basic.conf \
             $sysusersconfdir/systemd.conf \
             $systemdsystemconfdir/systemd-sysusers.service \
             $systemdsystemconfdir/systemd-sysusers.service.d/*.conf \
             ${NULL}
-        fi
+    fi
 
-        # Enable the systemd type service unit for sysusers.
-        $SYSTEMCTL -q --root "$initdir" enable systemd-sysusers.service
+    # Enable the systemd type service unit for sysusers.
+    $SYSTEMCTL -q --root "$initdir" enable systemd-sysusers.service
 
 }

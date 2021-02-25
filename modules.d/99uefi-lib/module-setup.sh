@@ -15,4 +15,3 @@ depends() {
 install() {
     inst_simple "$moddir/uefi-lib.sh" "/lib/uefi-lib.sh"
 }
-

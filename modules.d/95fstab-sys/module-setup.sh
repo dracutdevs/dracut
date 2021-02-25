@@ -2,7 +2,7 @@
 
 # called by dracut
 check() {
-    [[ -f $dracutsysrootdir/etc/fstab.sys ]] || [[ -n $add_fstab  ||  -n $fstab_lines ]]
+    [[ -f $dracutsysrootdir/etc/fstab.sys ]] || [[ -n $add_fstab || -n $fstab_lines ]]
 }
 
 # called by dracut

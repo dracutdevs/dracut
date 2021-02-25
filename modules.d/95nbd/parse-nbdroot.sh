@@ -9,7 +9,6 @@
 # root= takes precedence over netroot= if root=nbd[...]
 #
 
-
 # This script is sourced, so root should be set. But let's be paranoid
 [ -z "$root" ] && root=$(getarg root=)
 
@@ -21,8 +20,8 @@ if [ -z "$netroot" ]; then
 fi
 
 # Root takes precedence over netroot
-if [ "${root%%:*}" = "nbd" ] ; then
-    if [ -n "$netroot" ] ; then
+if [ "${root%%:*}" = "nbd" ]; then
+    if [ -n "$netroot" ]; then
         warn "root takes precedence over netroot. Ignoring netroot"
 
     fi
@@ -33,13 +32,13 @@ fi
 # If it's not nbd we don't continue
 [ "${netroot%%:*}" = "nbd" ] || return
 
-
 # Check required arguments
 nroot=${netroot#nbd:}
-server=${nroot%%:*};
+server=${nroot%%:*}
 if [ "${server%"${server#?}"}" = "[" ]; then
     server=${nroot#[}
-    server=${server%%]:*}\]; nroot=${nroot#*]:}
+    server=${server%%]:*}\]
+    nroot=${nroot#*]:}
 else
     nroot=${nroot#*:}
 fi
@@ -60,4 +59,3 @@ if [ -z "$root" ]; then
     root=block:/dev/root
     # the device is created and waited for in ./nbdroot.sh
 fi
-

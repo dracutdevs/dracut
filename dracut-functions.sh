@@ -25,7 +25,6 @@ is_func() {
     [[ "$(type -t "$1")" = "function" ]]
 }
 
-
 # Generic substring function.  If $2 is in $1, return 0.
 strstr() { [[ $1 = *"$2"* ]]; }
 # Generic glob matching function. If glob pattern $2 matches anywhere in $1, OK
@@ -49,15 +48,15 @@ find_binary() {
 
     if [[ "$1" == *.so* ]]; then
         # shellcheck disable=SC2154
-        for l in $libdirs ; do
+        for l in $libdirs; do
             _path="${l}${_delim}${1}"
-            if { $DRACUT_LDD "${dracutsysrootdir}${_path}" &>/dev/null; };  then
+            if { $DRACUT_LDD "${dracutsysrootdir}${_path}" &> /dev/null; }; then
                 printf "%s\n" "${_path}"
                 return 0
             fi
         done
         _path="${_delim}${1}"
-        if { $DRACUT_LDD "${dracutsysrootdir}${_path}" &>/dev/null; }; then
+        if { $DRACUT_LDD "${dracutsysrootdir}${_path}" &> /dev/null; }; then
             printf "%s\n" "${_path}"
             return 0
         fi
@@ -69,9 +68,9 @@ find_binary() {
             return 0
         fi
     fi
-    for p in $DRACUT_PATH ; do
+    for p in $DRACUT_PATH; do
         _path="${p}${_delim}${1}"
-        if [[ -L ${dracutsysrootdir}${_path} ]] || [[ -x ${dracutsysrootdir}${_path} ]];  then
+        if [[ -L ${dracutsysrootdir}${_path} ]] || [[ -x ${dracutsysrootdir}${_path} ]]; then
             printf "%s\n" "${_path}"
             return 0
         fi
@@ -81,9 +80,8 @@ find_binary() {
     type -P "${1##*/}"
 }
 
-ldconfig_paths()
-{
-    $DRACUT_LDCONFIG ${dracutsysrootdir:+-r ${dracutsysrootdir} -f /etc/ld.so.conf} -pN 2>/dev/null | grep -E -v '/(lib|lib64|usr/lib|usr/lib64)/[^/]*$' | sed -n 's,.* => \(.*\)/.*,\1,p' | sort | uniq
+ldconfig_paths() {
+    $DRACUT_LDCONFIG ${dracutsysrootdir:+-r ${dracutsysrootdir} -f /etc/ld.so.conf} -pN 2> /dev/null | grep -E -v '/(lib|lib64|usr/lib|usr/lib64)/[^/]*$' | sed -n 's,.* => \(.*\)/.*,\1,p' | sort | uniq
 }
 
 # Version comparision function.  Assumes Linux style version scheme.
@@ -98,23 +96,26 @@ vercmp() {
     read -a _n2 <<< "${3//./ }"
     local _i _res
 
-    for ((_i=0; ; _i++))
-    do
-        if [[ ! ${_n1[_i]}${_n2[_i]} ]]; then _res=0
-        elif ((${_n1[_i]:-0} > ${_n2[_i]:-0})); then _res=1
-        elif ((${_n1[_i]:-0} < ${_n2[_i]:-0})); then _res=2
-        else continue
+    for ((_i = 0; ; _i++)); do
+        if [[ ! ${_n1[_i]}${_n2[_i]} ]]; then
+            _res=0
+        elif ((${_n1[_i]:-0} > ${_n2[_i]:-0})); then
+            _res=1
+        elif ((${_n1[_i]:-0} < ${_n2[_i]:-0})); then
+            _res=2
+        else
+            continue
         fi
         break
     done
 
     case $_op in
-        gt) ((_res == 1));;
-        ge) ((_res != 2));;
-        eq) ((_res == 0));;
-        le) ((_res != 1));;
-        lt) ((_res == 2));;
-        ne) ((_res != 0));;
+        gt) ((_res == 1)) ;;
+        ge) ((_res != 2)) ;;
+        eq) ((_res == 0)) ;;
+        le) ((_res != 1)) ;;
+        lt) ((_res == 2)) ;;
+        ne) ((_res != 0)) ;;
     esac
 }
 
@@ -130,8 +131,7 @@ mksubdirs() {
 print_vars() {
     local _var _value
 
-    for _var in "$@"
-    do
+    for _var in "$@"; do
         eval printf -v _value "%s" \""\$$_var"\"
         [[ ${_value} ]] && printf '%s="%s"\n' "$_var" "$_value"
     done
@@ -163,10 +163,16 @@ convert_abs_rel() {
     set -- "$(normalize_path "$1")" "$(normalize_path "$2")"
 
     # corner case #1 - self looping link
-    [[ "$1" == "$2" ]] && { printf "%s\n" "${1##*/}"; return; }
+    [[ "$1" == "$2" ]] && {
+        printf "%s\n" "${1##*/}"
+        return
+    }
 
     # corner case #2 - own dir link
-    [[ "${1%/*}" == "$2" ]] && { printf ".\n"; return; }
+    [[ "${1%/*}" == "$2" ]] && {
+        printf ".\n"
+        return
+    }
 
     read -d '/' -r -a __current <<< "$1"
     read -d '/' -a __absolute <<< "$2"
@@ -174,28 +180,22 @@ convert_abs_rel() {
     __abssize=${#__absolute[@]}
     __cursize=${#__current[@]}
 
-    while [[ "${__absolute[__level]}" == "${__current[__level]}" ]]
-    do
-        (( __level++ ))
-        if (( __level > __abssize || __level > __cursize ))
-        then
+    while [[ "${__absolute[__level]}" == "${__current[__level]}" ]]; do
+        ((__level++))
+        if ((__level > __abssize || __level > __cursize)); then
             break
         fi
     done
 
-    for ((__i = __level; __i < __cursize-1; __i++))
-    do
-        if ((__i > __level))
-        then
+    for ((__i = __level; __i < __cursize - 1; __i++)); do
+        if ((__i > __level)); then
             __newpath=$__newpath"/"
         fi
         __newpath=$__newpath".."
     done
 
-    for ((__i = __level; __i < __abssize; __i++))
-    do
-        if [[ -n $__newpath ]]
-        then
+    for ((__i = __level; __i < __abssize; __i++)); do
+        if [[ -n $__newpath ]]; then
             __newpath=$__newpath"/"
         fi
         __newpath=$__newpath${__absolute[__i]}
@@ -203,7 +203,6 @@ convert_abs_rel() {
 
     printf -- "%s\n" "$__newpath"
 }
-
 
 # get_fs_env <device>
 # Get and the ID_FS_TYPE variable from udev for a device.
@@ -216,10 +215,10 @@ get_fs_env() {
     ID_FS_TYPE=$(blkid -u filesystem -o export -- "$1" \
         | while read line || [ -n "$line" ]; do
             if [[ "$line" == TYPE\=* ]]; then
-                printf "%s" "${line#TYPE=}";
-                exit 0;
+                printf "%s" "${line#TYPE=}"
+                exit 0
             fi
-            done)
+        done)
     if [[ $ID_FS_TYPE ]]; then
         printf "%s" "$ID_FS_TYPE"
         return 0
@@ -234,10 +233,9 @@ get_fs_env() {
 # 8:2
 get_maj_min() {
     local _majmin
-    _majmin="$(stat -L -c '%t:%T' "$1" 2>/dev/null)"
+    _majmin="$(stat -L -c '%t:%T' "$1" 2> /dev/null)"
     printf "%s" "$((0x${_majmin%:*})):$((0x${_majmin#*:}))"
 }
-
 
 # get_devpath_block <device>
 # get the DEVPATH in /sys of a block device
@@ -247,7 +245,7 @@ get_devpath_block() {
 
     for _i in /sys/block/*/dev /sys/block/*/*/dev; do
         [[ -e "$_i" ]] || continue
-        if [[ "$_majmin" == "$(<"$_i")" ]]; then
+        if [[ "$_majmin" == "$(< "$_i")" ]]; then
             printf "%s" "${_i%/dev}"
             return 0
         fi
@@ -263,9 +261,9 @@ get_persistent_dev() {
     [ -z "$_dev" ] && return
 
     if [[ -n "$persistent_policy" ]]; then
-	_pol="/dev/disk/${persistent_policy}/*"
+        _pol="/dev/disk/${persistent_policy}/*"
     else
-	_pol=
+        _pol=
     fi
 
     for i in \
@@ -276,8 +274,7 @@ get_persistent_dev() {
         /dev/disk/by-partuuid/* \
         /dev/disk/by-partlabel/* \
         /dev/disk/by-id/* \
-        /dev/disk/by-path/* \
-        ; do
+        /dev/disk/by-path/*; do
         [[ -e "$i" ]] || continue
         [[ $i == /dev/mapper/control ]] && continue
         [[ $i == /dev/mapper/mpath* ]] && continue
@@ -318,15 +315,20 @@ shorten_persistent_dev() {
     local _dev="$1"
     case "$_dev" in
         /dev/disk/by-uuid/*)
-            printf "%s" "UUID=${_dev##*/}";;
+            printf "%s" "UUID=${_dev##*/}"
+            ;;
         /dev/disk/by-label/*)
-            printf "%s" "LABEL=${_dev##*/}";;
+            printf "%s" "LABEL=${_dev##*/}"
+            ;;
         /dev/disk/by-partuuid/*)
-            printf "%s" "PARTUUID=${_dev##*/}";;
+            printf "%s" "PARTUUID=${_dev##*/}"
+            ;;
         /dev/disk/by-partlabel/*)
-            printf "%s" "PARTLABEL=${_dev##*/}";;
+            printf "%s" "PARTLABEL=${_dev##*/}"
+            ;;
         *)
-            printf "%s" "$_dev";;
+            printf "%s" "$_dev"
+            ;;
     esac
 }
 
@@ -346,7 +348,7 @@ find_block_device() {
 
     if [[ $use_fstab != yes ]]; then
         [[ -d $_find_mpt/. ]]
-        findmnt -e -v -n -o 'MAJ:MIN,SOURCE' --target "$_find_mpt" | { \
+        findmnt -e -v -n -o 'MAJ:MIN,SOURCE' --target "$_find_mpt" | {
             while read _majmin _dev || [ -n "$_dev" ]; do
                 if [[ -b $_dev ]]; then
                     if ! [[ $_majmin ]] || [[ $_majmin == 0:* ]]; then
@@ -363,11 +365,13 @@ find_block_device() {
                     printf "%s\n" "$_dev"
                     return 0
                 fi
-            done; return 1; } && return 0
+            done
+            return 1
+        } && return 0
     fi
     # fall back to /etc/fstab
 
-    findmnt -e --fstab -v -n -o 'MAJ:MIN,SOURCE' --target "$_find_mpt" | { \
+    findmnt -e --fstab -v -n -o 'MAJ:MIN,SOURCE' --target "$_find_mpt" | {
         while read _majmin _dev || [ -n "$_dev" ]; do
             if ! [[ $_dev ]]; then
                 _dev="$_majmin"
@@ -386,7 +390,9 @@ find_block_device() {
                 printf "%s\n" "$_dev"
                 return 0
             fi
-        done; return 1; } && return 0
+        done
+        return 1
+    } && return 0
 
     return 1
 }
@@ -403,22 +409,26 @@ find_mp_fstype() {
     local _fs
 
     if [[ $use_fstab != yes ]]; then
-        findmnt -e -v -n -o 'FSTYPE' --target "$1" | { \
+        findmnt -e -v -n -o 'FSTYPE' --target "$1" | {
             while read _fs || [ -n "$_fs" ]; do
                 [[ $_fs ]] || continue
                 [[ $_fs = "autofs" ]] && continue
                 printf "%s" "$_fs"
                 return 0
-            done; return 1; } && return 0
+            done
+            return 1
+        } && return 0
     fi
 
-    findmnt --fstab -e -v -n -o 'FSTYPE' --target "$1" | { \
+    findmnt --fstab -e -v -n -o 'FSTYPE' --target "$1" | {
         while read _fs || [ -n "$_fs" ]; do
             [[ $_fs ]] || continue
             [[ $_fs = "autofs" ]] && continue
             printf "%s" "$_fs"
             return 0
-        done; return 1; } && return 0
+        done
+        return 1
+    } && return 0
 
     return 1
 }
@@ -439,22 +449,26 @@ find_dev_fstype() {
     fi
 
     if [[ $use_fstab != yes ]]; then
-        findmnt -e -v -n -o 'FSTYPE' --source "$_find_dev" | { \
+        findmnt -e -v -n -o 'FSTYPE' --source "$_find_dev" | {
             while read _fs || [ -n "$_fs" ]; do
                 [[ $_fs ]] || continue
                 [[ $_fs = "autofs" ]] && continue
                 printf "%s" "$_fs"
                 return 0
-            done; return 1; } && return 0
+            done
+            return 1
+        } && return 0
     fi
 
-    findmnt --fstab -e -v -n -o 'FSTYPE' --source "$_find_dev" | { \
+    findmnt --fstab -e -v -n -o 'FSTYPE' --source "$_find_dev" | {
         while read _fs || [ -n "$_fs" ]; do
             [[ $_fs ]] || continue
             [[ $_fs = "autofs" ]] && continue
             printf "%s" "$_fs"
             return 0
-        done; return 1; } && return 0
+        done
+        return 1
+    } && return 0
 
     return 1
 }
@@ -469,7 +483,7 @@ find_dev_fstype() {
 # rw,relatime,discard,data=ordered
 find_mp_fsopts() {
     if [[ $use_fstab != yes ]]; then
-        findmnt -e -v -n -o 'OPTIONS' --target "$1" 2>/dev/null && return 0
+        findmnt -e -v -n -o 'OPTIONS' --target "$1" 2> /dev/null && return 0
     fi
 
     findmnt --fstab -e -v -n -o 'OPTIONS' --target "$1"
@@ -492,12 +506,11 @@ find_dev_fsopts() {
     fi
 
     if [[ $use_fstab != yes ]]; then
-        findmnt -e -v -n -o 'OPTIONS' --source "$_find_dev" 2>/dev/null && return 0
+        findmnt -e -v -n -o 'OPTIONS' --source "$_find_dev" 2> /dev/null && return 0
     fi
 
     findmnt --fstab -e -v -n -o 'OPTIONS' --source "$_find_dev"
 }
-
 
 # finds the major:minor of the block device backing the root filesystem.
 find_root_block_device() { find_block_device /; }
@@ -505,14 +518,12 @@ find_root_block_device() { find_block_device /; }
 # for_each_host_dev_fs <func>
 # Execute "<func> <dev> <filesystem>" for every "<dev> <fs>" pair found
 # in ${host_fs_types[@]}
-for_each_host_dev_fs()
-{
+for_each_host_dev_fs() {
     local _func="$1"
     local _dev
     local _ret=1
 
     [[ "${#host_fs_types[@]}" ]] || return 2
-
 
     for _dev in "${!host_fs_types[@]}"; do
         $_func "$_dev" "${host_fs_types[$_dev]}" && _ret=0
@@ -520,8 +531,7 @@ for_each_host_dev_fs()
     return $_ret
 }
 
-host_fs_all()
-{
+host_fs_all() {
     printf "%s\n" "${host_fs_types[@]}"
 }
 
@@ -535,12 +545,12 @@ check_block_and_slaves() {
     if ! lvm_internal_dev $2; then "$1" $2 && return; fi
     check_vol_slaves "$@" && return 0
     if [[ -f /sys/dev/block/$2/../dev ]] && [[ /sys/dev/block/$2/../subsystem -ef /sys/class/block ]]; then
-        check_block_and_slaves $1 $(<"/sys/dev/block/$2/../dev") && return 0
+        check_block_and_slaves $1 $(< "/sys/dev/block/$2/../dev") && return 0
     fi
     for _x in /sys/dev/block/$2/slaves/*; do
         [[ -f $_x/dev ]] || continue
         [[ $_x/subsystem -ef /sys/class/block ]] || continue
-        check_block_and_slaves $1 $(<"$_x/dev") && return 0
+        check_block_and_slaves $1 $(< "$_x/dev") && return 0
     done
     return 1
 }
@@ -553,20 +563,19 @@ check_block_and_slaves_all() {
     fi
     check_vol_slaves_all "$@" && return 0
     if [[ -f /sys/dev/block/$2/../dev ]] && [[ /sys/dev/block/$2/../subsystem -ef /sys/class/block ]]; then
-        check_block_and_slaves_all $1 $(<"/sys/dev/block/$2/../dev") && _ret=0
+        check_block_and_slaves_all $1 $(< "/sys/dev/block/$2/../dev") && _ret=0
     fi
     for _x in /sys/dev/block/$2/slaves/*; do
         [[ -f $_x/dev ]] || continue
         [[ $_x/subsystem -ef /sys/class/block ]] || continue
-        check_block_and_slaves_all $1 $(<"$_x/dev") && _ret=0
+        check_block_and_slaves_all $1 $(< "$_x/dev") && _ret=0
     done
     return $_ret
 }
 # for_each_host_dev_and_slaves <func>
 # Execute "<func> <dev>" for every "<dev>" found
 # in ${host_devs[@]} and their slaves
-for_each_host_dev_and_slaves_all()
-{
+for_each_host_dev_and_slaves_all() {
     local _func="$1"
     local _dev
     local _ret=1
@@ -582,8 +591,7 @@ for_each_host_dev_and_slaves_all()
     return $_ret
 }
 
-for_each_host_dev_and_slaves()
-{
+for_each_host_dev_and_slaves() {
     local _func="$1"
     local _dev
 
@@ -607,13 +615,12 @@ check_vol_slaves() {
     _majmin="$2"
     _lv="/dev/block/$_majmin"
     _dm=/sys/dev/block/$_majmin/dm
-    [[ -f $_dm/uuid  && $(<$_dm/uuid) =~ LVM-* ]] || return 1
-    _vg=$(dmsetup splitname --noheadings -o vg_name $(<"$_dm/name") )
+    [[ -f $_dm/uuid && $(< $_dm/uuid) =~ LVM-* ]] || return 1
+    _vg=$(dmsetup splitname --noheadings -o vg_name $(< "$_dm/name"))
     # strip space
     _vg="${_vg//[[:space:]]/}"
     if [[ $_vg ]]; then
-        for _pv in $(lvm vgs --noheadings -o pv_name "$_vg" 2>/dev/null)
-        do
+        for _pv in $(lvm vgs --noheadings -o pv_name "$_vg" 2> /dev/null); do
             check_block_and_slaves $1 $(get_maj_min $_pv) && return 0
         done
     fi
@@ -625,27 +632,24 @@ check_vol_slaves_all() {
     _majmin="$2"
     _lv="/dev/block/$_majmin"
     _dm="/sys/dev/block/$_majmin/dm"
-    [[ -f $_dm/uuid  && $(<$_dm/uuid) =~ LVM-* ]] || return 1
-    _vg=$(dmsetup splitname --noheadings -o vg_name $(<"$_dm/name") )
+    [[ -f $_dm/uuid && $(< $_dm/uuid) =~ LVM-* ]] || return 1
+    _vg=$(dmsetup splitname --noheadings -o vg_name $(< "$_dm/name"))
     # strip space
     _vg="${_vg//[[:space:]]/}"
     if [[ $_vg ]]; then
         # when filter/global_filter is set, lvm may be failed
-        lvm lvs --noheadings -o vg_name $_vg 2>/dev/null 1>/dev/null
+        lvm lvs --noheadings -o vg_name $_vg 2> /dev/null 1> /dev/null
         if [ $? -ne 0 ]; then
-             return 1
+            return 1
         fi
 
-        for _pv in $(lvm vgs --noheadings -o pv_name "$_vg" 2>/dev/null)
-        do
+        for _pv in $(lvm vgs --noheadings -o pv_name "$_vg" 2> /dev/null); do
             check_block_and_slaves_all $1 $(get_maj_min $_pv)
         done
         return 0
     fi
     return 1
 }
-
-
 
 # fs_get_option <filesystem options> <search for option>
 # search for a specific option in a bunch of filesystem options
@@ -662,13 +666,13 @@ fs_get_option() {
             $_option=*)
                 echo ${1#${_option}=}
                 break
+                ;;
         esac
         shift
     done
 }
 
-check_kernel_config()
-{
+check_kernel_config() {
     local _config_opt="$1"
     local _config_file
     [[ -f $dracutsysrootdir/boot/config-$kernel ]] \
@@ -686,13 +690,12 @@ check_kernel_config()
 # 0 if the kernel module is either built-in or available
 # 1 if the kernel module is not enabled
 check_kernel_module() {
-    modprobe -S $kernel --dry-run $1 &>/dev/null || return 1
+    modprobe -S $kernel --dry-run $1 &> /dev/null || return 1
 }
 
 # get_cpu_vendor
 # Only two values are returned: AMD or Intel
-get_cpu_vendor ()
-{
+get_cpu_vendor() {
     if grep -qE AMD /proc/cpuinfo; then
         printf "AMD"
     fi
@@ -703,11 +706,10 @@ get_cpu_vendor ()
 
 # get_host_ucode
 # Get the hosts' ucode file based on the /proc/cpuinfo
-get_ucode_file ()
-{
-    local family=`grep -E "cpu family" /proc/cpuinfo | head -1 | sed s/.*:\ //`
-    local model=`grep -E "model" /proc/cpuinfo |grep -v name | head -1 | sed s/.*:\ //`
-    local stepping=`grep -E "stepping" /proc/cpuinfo | head -1 | sed s/.*:\ //`
+get_ucode_file() {
+    local family=$(grep -E "cpu family" /proc/cpuinfo | head -1 | sed s/.*:\ //)
+    local model=$(grep -E "model" /proc/cpuinfo | grep -v name | head -1 | sed s/.*:\ //)
+    local stepping=$(grep -E "stepping" /proc/cpuinfo | head -1 | sed s/.*:\ //)
 
     if [[ "$(get_cpu_vendor)" == "AMD" ]]; then
         if [[ $family -ge 21 ]]; then
@@ -726,9 +728,9 @@ get_ucode_file ()
 # If it is an LVM device, touch only devices which have /dev/VG/LV symlink.
 lvm_internal_dev() {
     local dev_dm_dir=/sys/dev/block/$1/dm
-    [[ ! -f $dev_dm_dir/uuid || $(<$dev_dm_dir/uuid) != LVM-* ]] && return 1 # Not an LVM device
+    [[ ! -f $dev_dm_dir/uuid || $(< $dev_dm_dir/uuid) != LVM-* ]] && return 1 # Not an LVM device
     local DM_VG_NAME DM_LV_NAME DM_LV_LAYER
-    eval $(dmsetup splitname --nameprefixes --noheadings --rows "$(<$dev_dm_dir/name)" 2>/dev/null)
+    eval $(dmsetup splitname --nameprefixes --noheadings --rows "$(< $dev_dm_dir/name)" 2> /dev/null)
     [[ ${DM_VG_NAME} ]] && [[ ${DM_LV_NAME} ]] || return 0 # Better skip this!
     [[ ${DM_LV_LAYER} ]] || [[ ! -L /dev/${DM_VG_NAME}/${DM_LV_NAME} ]]
 }
@@ -737,9 +739,9 @@ btrfs_devs() {
     local _mp="$1"
     btrfs device usage "$_mp" \
         | while read _dev _rest; do
-        str_starts "$_dev" "/" || continue
-        _dev=${_dev%,}
-        printf -- "%s\n" "$_dev"
+            str_starts "$_dev" "/" || continue
+            _dev=${_dev%,}
+            printf -- "%s\n" "$_dev"
         done
 }
 
@@ -759,8 +761,8 @@ peer_for_addr() {
 
     # quote periods in IPv4 address
     qtd=${addr//./\\.}
-    ip -o addr show | \
-        sed -n 's%^.* '"$qtd"' peer \([0-9a-f.:]\{1,\}\(/[0-9]*\)\?\).*$%\1%p'
+    ip -o addr show \
+        | sed -n 's%^.* '"$qtd"' peer \([0-9a-f.:]\{1,\}\(/[0-9]*\)\?\).*$%\1%p'
 }
 
 netmask_for_addr() {
@@ -776,12 +778,12 @@ gateway_for_iface() {
     local ifname=$1 addr=$2
 
     case $addr in
-        *.*) proto=4;;
-        *:*) proto=6;;
-        *)   return;;
+        *.*) proto=4 ;;
+        *:*) proto=6 ;;
+        *) return ;;
     esac
-    ip -o -$proto route show | \
-        sed -n "s/^default via \([0-9a-z.:]\{1,\}\) dev $ifname .*\$/\1/p"
+    ip -o -$proto route show \
+        | sed -n "s/^default via \([0-9a-z.:]\{1,\}\) dev $ifname .*\$/\1/p"
 }
 
 # This works only for ifcfg-style network configuration!
@@ -819,21 +821,24 @@ ip_params_for_remote_addr() {
     # ifname clause to bind the interface name to a MAC address
     if [ -d "/sys/class/net/$ifname/bonding" ]; then
         dinfo "Found bonded interface '${ifname}'. Make sure to provide an appropriate 'bond=' cmdline."
-    elif [ -e "/sys/class/net/$ifname/address" ] ; then
+    elif [ -e "/sys/class/net/$ifname/address" ]; then
         ifmac=$(cat "/sys/class/net/$ifname/address")
         [[ $ifmac ]] && printf 'ifname=%s:%s ' "${ifname}" "${ifmac}"
     fi
 
     bootproto=$(bootproto_for_iface "$ifname")
     case $bootproto in
-        dhcp|dhcp6|auto6) ;;
+        dhcp | dhcp6 | auto6) ;;
         dhcp4)
-            bootproto=dhcp;;
-        static*|"")
-            bootproto=;;
+            bootproto=dhcp
+            ;;
+        static* | "")
+            bootproto=
+            ;;
         *)
             derror "bootproto \"$bootproto\" is unsupported by dracut, trying static configuration"
-            bootproto=;;
+            bootproto=
+            ;;
     esac
     if [[ $bootproto ]]; then
         printf 'ip=%s:%s ' "${ifname}" "${bootproto}"
@@ -852,7 +857,7 @@ ip_params_for_remote_addr() {
         is_unbracketed_ipv6_address "$peer" && peer="[$peer]"
         is_unbracketed_ipv6_address "$gateway" && gateway="[$gateway]"
         printf 'ip=%s:%s:%s:%s::%s:none ' \
-               "${local_addr}" "${peer}" "${gateway}" "${netmask}" "${ifname}"
+            "${local_addr}" "${peer}" "${gateway}" "${netmask}" "${ifname}"
     fi
 
 }

@@ -11,4 +11,3 @@ fstype="$(getarg rootfstype=)"
 if [ -z "$fstype" ]; then
     fstype="auto"
 fi
-

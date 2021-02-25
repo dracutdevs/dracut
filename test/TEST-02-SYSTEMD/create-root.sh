@@ -7,7 +7,7 @@ rm -f -- /etc/lvm/lvm.conf
 udevadm control --reload
 set -e
 # save a partition at the beginning for future flagging purposes
-sfdisk /dev/sda <<EOF
+sfdisk /dev/sda << EOF
 ,1M
 ,
 EOF
@@ -21,4 +21,3 @@ mkdir -p /root/run
 umount /root
 echo "dracut-root-block-created" | dd oflag=direct,dsync of=/dev/sda1
 poweroff -f
-

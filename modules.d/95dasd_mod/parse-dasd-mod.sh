@@ -13,6 +13,6 @@ if [ -x /sbin/dasd_cio_free -a -n "$mod_args" ]; then
 fi
 
 unset dasd_arg
-if [ -x /sbin/dasd_cio_free ] ; then
+if [ -x /sbin/dasd_cio_free ]; then
     dasd_cio_free
 fi

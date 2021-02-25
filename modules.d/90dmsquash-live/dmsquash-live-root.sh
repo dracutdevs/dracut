@@ -1,8 +1,8 @@
 #!/bin/sh
 
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
-command -v unpack_archive >/dev/null || . /lib/img-lib.sh
+command -v unpack_archive > /dev/null || . /lib/img-lib.sh
 
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
@@ -40,7 +40,7 @@ if [ "$fs" = "iso9660" -o "$fs" = "udf" ]; then
 fi
 getarg rd.live.check -d check || check=""
 if [ -n "$check" ]; then
-    type plymouth >/dev/null 2>&1 && plymouth --hide-splash
+    type plymouth > /dev/null 2>&1 && plymouth --hide-splash
     if [ -n "$DRACUT_SYSTEMD" ]; then
         p=$(dev_unit_name "$livedev")
         systemctl start checkisomd5@${p}.service
@@ -51,7 +51,7 @@ if [ -n "$check" ]; then
         die "CD check failed!"
         exit 1
     fi
-    type plymouth >/dev/null 2>&1 && plymouth --show-splash
+    type plymouth > /dev/null 2>&1 && plymouth --show-splash
 fi
 
 ln -s $livedev /run/initramfs/livedev
@@ -77,7 +77,7 @@ if [ -f $livedev ]; then
     # check filesystem type and handle accordingly
     fstype=$(det_img_fs $livedev)
     case $fstype in
-        squashfs) SQUASHED=$livedev;;
+        squashfs) SQUASHED=$livedev ;;
         auto) die "cannot mount live image (unknown filesystem type)" ;;
         *) FSIMG=$livedev ;;
     esac
@@ -85,8 +85,8 @@ if [ -f $livedev ]; then
 else
     livedev_fstype=$(blkid -o value -s TYPE $livedev)
     if [ "$livedev_fstype" = "squashfs" ]; then
-       # no mount needed - we've already got the LiveOS image in $livedev
-       SQUASHED=$livedev
+        # no mount needed - we've already got the LiveOS image in $livedev
+        SQUASHED=$livedev
     elif [ "$livedev_fstype" != "ntfs" ]; then
         mount -n -t $fstype -o ${liverw:-ro} $livedev /run/initramfs/live
     else
@@ -94,7 +94,7 @@ else
         # at the first glance, but ends with lots and lots of squashfs
         # errors, because systemd attempts to kill the ntfs-3g process?!
         if [ -x "/usr/bin/ntfs-3g" ]; then
-            ( exec -a @ntfs-3g ntfs-3g -o ${liverw:-ro} $livedev /run/initramfs/live ) | vwarn
+            (exec -a @ntfs-3g ntfs-3g -o ${liverw:-ro} $livedev /run/initramfs/live) | vwarn
         else
             die "Failed to mount block device of live image: Missing NTFS support"
             exit 1
@@ -142,7 +142,7 @@ do_live_overlay() {
             if [ -z "$oltype" ] || [ "$oltype" = DM_snapshot_cow ]; then
                 if [ -n "$reset_overlay" ]; then
                     info "Resetting the Device-mapper overlay."
-                    dd if=/dev/zero of=$OVERLAY_LOOPDEV bs=64k count=1 conv=fsync 2>/dev/null
+                    dd if=/dev/zero of=$OVERLAY_LOOPDEV bs=64k count=1 conv=fsync 2> /dev/null
                 fi
                 if [ -n "$overlayfs" ]; then
                     unset -v overlayfs
@@ -151,8 +151,8 @@ do_live_overlay() {
                 setup="yes"
             else
                 mount -n -t $oltype $opt $OVERLAY_LOOPDEV /run/initramfs/overlayfs
-                if [ -d /run/initramfs/overlayfs/overlayfs ] &&
-                    [ -d /run/initramfs/overlayfs/ovlwork ]; then
+                if [ -d /run/initramfs/overlayfs/overlayfs ] \
+                    && [ -d /run/initramfs/overlayfs/ovlwork ]; then
                     ln -s /run/initramfs/overlayfs/overlayfs /run/overlayfs$opt
                     ln -s /run/initramfs/overlayfs/ovlwork /run/ovlwork$opt
                     if [ -z "$overlayfs" ] && [ -n "$DRACUT_SYSTEMD" ]; then
@@ -162,8 +162,8 @@ do_live_overlay() {
                     setup="yes"
                 fi
             fi
-        elif [ -d /run/initramfs/overlayfs$pathspec ] &&
-            [ -d /run/initramfs/overlayfs$pathspec/../ovlwork ]; then
+        elif [ -d /run/initramfs/overlayfs$pathspec ] \
+            && [ -d /run/initramfs/overlayfs$pathspec/../ovlwork ]; then
             ln -s /run/initramfs/overlayfs$pathspec /run/overlayfs$opt
             ln -s /run/initramfs/overlayfs$pathspec/../ovlwork /run/ovlwork$opt
             if [ -z "$overlayfs" ] && [ -n "$DRACUT_SYSTEMD" ]; then
@@ -191,14 +191,14 @@ do_live_overlay() {
         if [ -n "$setup" ]; then
             warn "Using temporary overlay."
         elif [ -n "$devspec" -a -n "$pathspec" ]; then
-            [ -z "$m" ] &&
-                m='   Unable to find a persistent overlay; using a temporary one.'
+            [ -z "$m" ] \
+                && m='   Unable to find a persistent overlay; using a temporary one.'
             m="$m"$'\n      All root filesystem changes will be lost on shutdown.'
             m="$m"$'\n         Press [Enter] to continue.'
             printf "\n\n\n\n${m}\n\n\n" > /dev/kmsg
             if [ -n "$DRACUT_SYSTEMD" ]; then
-                if type plymouth >/dev/null 2>&1 && plymouth --ping ; then
-                    if getargbool 0 rhgb || getargbool 0 splash ; then
+                if type plymouth > /dev/null 2>&1 && plymouth --ping; then
+                    if getargbool 0 rhgb || getargbool 0 splash; then
                         m='>>>'$'\n''>>>'$'\n''>>>'$'\n\n\n'"$m"
                         m="${m%n.*}"$'n.\n\n\n''<<<'$'\n''<<<'$'\n''<<<'
                         plymouth display-message --text="${m}"
@@ -210,7 +210,7 @@ do_live_overlay() {
                     systemd-ask-password --timeout=0 "${m}"
                 fi
             else
-                type plymouth >/dev/null 2>&1 && plymouth --ping && plymouth --quit
+                type plymouth > /dev/null 2>&1 && plymouth --ping && plymouth --quit
                 read -s -r -p $'\n\n'"${m}" -n 1 reply
             fi
         fi
@@ -223,7 +223,7 @@ do_live_overlay() {
                 [ -n "$DRACUT_SYSTEMD" ] && reloadsysrootmountunit="${reloadsysrootmountunit}:>/xor_readonly;"
             fi
         else
-            dd if=/dev/null of=/overlay bs=1024 count=1 seek=$((overlay_size*1024)) 2> /dev/null
+            dd if=/dev/null of=/overlay bs=1024 count=1 seek=$((overlay_size * 1024)) 2> /dev/null
             if [ -n "$setup" -a -n "$readonly_overlay" ]; then
                 RO_OVERLAY_LOOPDEV=$(losetup -f --show /overlay)
                 over=$RO_OVERLAY_LOOPDEV
@@ -249,16 +249,16 @@ do_live_overlay() {
         mkdir -m 0755 -p /run/initramfs/thin-overlay
 
         # In block units (512b)
-        thin_data_sz=$(( $overlay_size * 1024 * 1024 / 512 ))
-        thin_meta_sz=$(( $thin_data_sz / 10 ))
+        thin_data_sz=$(($overlay_size * 1024 * 1024 / 512))
+        thin_meta_sz=$(($thin_data_sz / 10))
 
         # It is important to have the backing file on a tmpfs
         # this is needed to let the loopdevice support TRIM
         dd if=/dev/null of=/run/initramfs/thin-overlay/meta bs=1b count=1 seek=$((thin_meta_sz)) 2> /dev/null
         dd if=/dev/null of=/run/initramfs/thin-overlay/data bs=1b count=1 seek=$((thin_data_sz)) 2> /dev/null
 
-        THIN_META_LOOPDEV=$( losetup --show -f /run/initramfs/thin-overlay/meta )
-        THIN_DATA_LOOPDEV=$( losetup --show -f /run/initramfs/thin-overlay/data )
+        THIN_META_LOOPDEV=$(losetup --show -f /run/initramfs/thin-overlay/meta)
+        THIN_DATA_LOOPDEV=$(losetup --show -f /run/initramfs/thin-overlay/data)
 
         echo 0 $thin_data_sz thin-pool $THIN_META_LOOPDEV $THIN_DATA_LOOPDEV 1024 1024 | dmsetup create live-overlay-pool
         dmsetup message /dev/mapper/live-overlay-pool 0 "create_thin 0"
@@ -290,7 +290,7 @@ if [ -e "$SQUASHED" ]; then
         SQUASHED="/run/initramfs/squashed.img"
     fi
 
-    SQUASHED_LOOPDEV=$( losetup -f )
+    SQUASHED_LOOPDEV=$(losetup -f)
     losetup -r $SQUASHED_LOOPDEV $SQUASHED
     mkdir -m 0755 -p /run/initramfs/squashfs
     mount -n -t squashfs -o ro $SQUASHED_LOOPDEV /run/initramfs/squashfs
@@ -340,10 +340,10 @@ if [ -n "$FSIMG" ]; then
         FSIMG=/run/initramfs/fsimg/rootfs.img
     fi
     opt=-r
-       # For writable DM images...
-    if [ -z "$SQUASHED" -a -n "$live_ram" -a -z "$overlayfs" ] ||
-       [ -n "$writable_fsimg" ] ||
-       [ "$overlay" = none -o "$overlay" = None -o "$overlay" = NONE ]; then
+    # For writable DM images...
+    if [ -z "$SQUASHED" -a -n "$live_ram" -a -z "$overlayfs" ] \
+        || [ -n "$writable_fsimg" ] \
+        || [ "$overlay" = none -o "$overlay" = None -o "$overlay" = NONE ]; then
         if [ -z "$readonly_overlay" ]; then
             opt=''
             setup=rw
@@ -377,7 +377,7 @@ if [ -n "$overlayfs" ]; then
     if [ -n "$reset_overlay" ] && [ -h /run/overlayfs ]; then
         ovlfs=$(readlink /run/overlayfs)
         info "Resetting the OverlayFS overlay directory."
-        rm -r -- ${ovlfs}/* ${ovlfs}/.* >/dev/null 2>&1
+        rm -r -- ${ovlfs}/* ${ovlfs}/.* > /dev/null 2>&1
     fi
     if [ -n "$readonly_overlay" ] && [ -h /run/overlayfs-r ]; then
         ovlfs=lowerdir=/run/overlayfs-r:/run/rootfsbase
@@ -387,8 +387,8 @@ if [ -n "$overlayfs" ]; then
     mount -r $FSIMG /run/rootfsbase
     if [ -z "$DRACUT_SYSTEMD" ]; then
         printf 'mount -t overlay LiveOS_rootfs -o%s,%s %s\n' "$ROOTFLAGS" \
-        "$ovlfs",upperdir=/run/overlayfs,workdir=/run/ovlwork \
-        "$NEWROOT" > $hookdir/mount/01-$$-live.sh
+            "$ovlfs",upperdir=/run/overlayfs,workdir=/run/ovlwork \
+            "$NEWROOT" > $hookdir/mount/01-$$-live.sh
     fi
 else
     if [ -z "$DRACUT_SYSTEMD" ]; then
@@ -403,4 +403,3 @@ ln -s null /dev/root
 need_shutdown
 
 exit 0
-

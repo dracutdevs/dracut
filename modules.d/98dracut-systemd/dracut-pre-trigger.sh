@@ -2,9 +2,9 @@
 
 export DRACUT_SYSTEMD=1
 if [ -f /dracut-state.sh ]; then
-    . /dracut-state.sh 2>/dev/null
+    . /dracut-state.sh 2> /dev/null
 fi
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
 source_conf /etc/conf.d
 
@@ -14,7 +14,7 @@ source_hook pre-trigger
 
 getarg 'rd.break=pre-trigger' 'rdbreak=pre-trigger' && emergency_shell -n pre-trigger "Break pre-trigger"
 
-udevadm control --reload >/dev/null 2>&1 || :
+udevadm control --reload > /dev/null 2>&1 || :
 
 export -p > /dracut-state.sh
 

@@ -1,8 +1,8 @@
 #!/bin/sh
 
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
-command -v getarg >/dev/null    || . /lib/dracut-lib.sh
-command -v setup_net >/dev/null || . /lib/net-lib.sh
+command -v getarg > /dev/null || . /lib/dracut-lib.sh
+command -v setup_net > /dev/null || . /lib/net-lib.sh
 
 # Huh? Empty $1?
 [ -z "$1" ] && exit 1
@@ -24,7 +24,7 @@ netif=$1
 [ -e "/tmp/net.bootdev" ] && read netif < /tmp/net.bootdev
 
 case "$netif" in
-    ??:??:??:??:??:??)  # MAC address
+    ??:??:??:??:??:??) # MAC address
         for i in /sys/class/net/*/address; do
             mac=$(cat $i)
             if [ "$mac" = "$netif" ]; then
@@ -32,7 +32,7 @@ case "$netif" in
                 netif=${i##*/}
                 break
             fi
-        done
+        done ;;
 esac
 
 # Figure out the handler for root=dhcp by recalling all netroot cmdline
@@ -44,7 +44,7 @@ if [ -z "$2" ]; then
 
         # If we have a specific bootdev with no dhcpoptions or empty root-path,
         # we die. Otherwise we just warn
-        if [ -z "$new_root_path" ] ; then
+        if [ -z "$new_root_path" ]; then
             [ -n "$BOOTDEV" ] && die "No dhcp root-path received for '$BOOTDEV'"
             warn "No dhcp root-path received for '$netif' trying other interfaces if available"
             exit 1
@@ -58,7 +58,7 @@ if [ -z "$2" ]; then
         # FIXME!
         unset rootok
         for f in $hookdir/cmdline/90*.sh; do
-            [ -f "$f" ] && . "$f";
+            [ -f "$f" ] && . "$f"
         done
     else
         rootok="1"
@@ -74,7 +74,7 @@ if [ -z "$2" ]; then
     handler=${netroot%%:*}
     handler=${handler%%4}
     handler=$(command -v ${handler}root)
-    if [ -z "$netroot" ] || [ ! -e "$handler" ] ; then
+    if [ -z "$netroot" ] || [ ! -e "$handler" ]; then
         die "No handler for netroot type '$netroot'"
     fi
 fi

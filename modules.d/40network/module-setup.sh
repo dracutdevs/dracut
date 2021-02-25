@@ -9,22 +9,22 @@ check() {
 depends() {
     is_qemu_virtualized && echo -n "qemu-net "
 
-    for module in network-wicked network-manager network-legacy ; do
-        if dracut_module_included "$module" ; then
-                network_handler="$module"
-                break
-            fi
-        done;
-
-        if [ -z "$network_handler" ]; then
-            if find_binary wicked  &>/dev/null ; then
-                network_handler="network-wicked"
-            elif [[ -x $dracutsysrootdir/usr/libexec/nm-initrd-generator ]]; then
-                network_handler="network-manager"
-            else
-                network_handler="network-legacy"
-            fi
+    for module in network-wicked network-manager network-legacy; do
+        if dracut_module_included "$module"; then
+            network_handler="$module"
+            break
         fi
+    done
+
+    if [ -z "$network_handler" ]; then
+        if find_binary wicked &> /dev/null; then
+            network_handler="network-wicked"
+        elif [[ -x $dracutsysrootdir/usr/libexec/nm-initrd-generator ]]; then
+            network_handler="network-manager"
+        else
+            network_handler="network-legacy"
+        fi
+    fi
     echo "kernel-network-modules $network_handler"
     return 0
 }

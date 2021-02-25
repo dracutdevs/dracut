@@ -5,7 +5,7 @@ _remove_dm() {
     local s
     local devname
 
-    for s in /sys/block/${dev}/holders/dm-* ; do
+    for s in /sys/block/${dev}/holders/dm-*; do
         [ -e ${s} ] || continue
         _remove_dm ${s##*/}
     done
@@ -30,12 +30,12 @@ _do_dm_shutdown() {
     local dev
 
     info "Disassembling device-mapper devices"
-    for dev in /sys/block/dm-* ; do
+    for dev in /sys/block/dm-*; do
         [ -e ${dev} ] || continue
         if [ "x$final" != "x" ]; then
             _remove_dm ${dev##*/} || ret=$?
         else
-            _remove_dm ${dev##*/} >/dev/null 2>&1 || ret=$?
+            _remove_dm ${dev##*/} > /dev/null 2>&1 || ret=$?
         fi
     done
     if [ "x$final" != "x" ]; then
@@ -45,8 +45,8 @@ _do_dm_shutdown() {
     return $ret
 }
 
-if command -v dmsetup >/dev/null &&
-    [ "x$(dmsetup status)" != "xNo devices found" ]; then
+if command -v dmsetup > /dev/null \
+    && [ "x$(dmsetup status)" != "xNo devices found" ]; then
     _do_dm_shutdown $1
 else
     :

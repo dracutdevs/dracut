@@ -1,9 +1,8 @@
 #!/bin/sh
 
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
-generator_wait_for_dev()
-{
+generator_wait_for_dev() {
     local _name
     local _timeout
 
@@ -44,8 +43,7 @@ EOF
     fi
 }
 
-generator_mount_rootfs()
-{
+generator_mount_rootfs() {
     local _type=$2
     local _flags=$3
     local _name
@@ -73,8 +71,7 @@ generator_mount_rootfs()
     fi
 }
 
-generator_fsck_after_pre_mount()
-{
+generator_fsck_after_pre_mount() {
     local _name
 
     [ -z "$1" ] && return 0
@@ -94,20 +91,22 @@ root=$(getarg root=)
 case "${root#block:}" in
     LABEL=* | UUID=* | PARTUUID=* | PARTLABEL=*)
         root="block:$(label_uuid_to_dev "$root")"
-        rootok=1 ;;
+        rootok=1
+        ;;
     /dev/nfs) # ignore legacy /dev/nfs
         ;;
     /dev/*)
         root="block:${root}"
-        rootok=1 ;;
+        rootok=1
+        ;;
 esac
 
 GENERATOR_DIR="$1"
 
-if [ "$rootok" = "1"  ]; then
-   generator_wait_for_dev "${root#block:}" "$RDRETRY"
-   generator_fsck_after_pre_mount "${root#block:}"
-   strstr "$(cat /proc/cmdline)" 'root=' || generator_mount_rootfs "${root#block:}" "$(getarg rootfstype=)" "$(getarg rootflags=)"
+if [ "$rootok" = "1" ]; then
+    generator_wait_for_dev "${root#block:}" "$RDRETRY"
+    generator_fsck_after_pre_mount "${root#block:}"
+    strstr "$(cat /proc/cmdline)" 'root=' || generator_mount_rootfs "${root#block:}" "$(getarg rootfstype=)" "$(getarg rootflags=)"
 fi
 
 exit 0

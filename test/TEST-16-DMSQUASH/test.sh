@@ -7,7 +7,7 @@ KVERSION="${KVERSION-$(uname -r)}"
 #DEBUGFAIL="rd.shell rd.break rd.debug systemd.log_level=debug systemd.log_target=console"
 
 test_check() {
-    for pdir in $(python -c "import site; print(site.getsitepackages())" | sed -e 's/\[\(.*\)\]/\1/' -e "s/', /' /g") ; do
+    for pdir in $(python -c "import site; print(site.getsitepackages())" | sed -e 's/\[\(.*\)\]/\1/' -e "s/', /' /g"); do
         pdir1=$(echo $pdir | sed "s/^'\(.*\)'$/\1/")
         if [[ -d $pdir1/imgcreate ]]; then
             return 0
@@ -19,20 +19,20 @@ test_check() {
 
 test_run() {
     "$testdir"/run-qemu \
-              -boot order=d \
-              -drive format=raw,bps=1000000,index=0,media=disk,file="$TESTDIR"/livecd.iso \
-              -drive format=raw,index=1,media=disk,file="$TESTDIR"/root.img \
-              -append "panic=1 systemd.crash_reboot root=live:CDLABEL=LiveCD live rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.shell=0 $DEBUGFAIL" \
-              -initrd "$TESTDIR"/initramfs.testing
+        -boot order=d \
+        -drive format=raw,bps=1000000,index=0,media=disk,file="$TESTDIR"/livecd.iso \
+        -drive format=raw,index=1,media=disk,file="$TESTDIR"/root.img \
+        -append "panic=1 systemd.crash_reboot root=live:CDLABEL=LiveCD live rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.shell=0 $DEBUGFAIL" \
+        -initrd "$TESTDIR"/initramfs.testing
 
     # mediacheck test with qemu GUI
     # "$testdir"/run-qemu \
-        #     -drive format=raw,bps=1000000,index=0,media=disk,file="$TESTDIR"/livecd.iso \
-        #     -drive format=raw,index=1,media=disk,file="$TESTDIR"/root.img \
-        #     -m 512M  -smp 2 \
-        #     -net none \
-        #     -append "root=live:CDLABEL=LiveCD live quiet rhgb selinux=0 rd.live.check" \
-        #     -initrd "$TESTDIR"/initramfs.testing
+    #     -drive format=raw,bps=1000000,index=0,media=disk,file="$TESTDIR"/livecd.iso \
+    #     -drive format=raw,index=1,media=disk,file="$TESTDIR"/root.img \
+    #     -m 512M  -smp 2 \
+    #     -net none \
+    #     -append "root=live:CDLABEL=LiveCD live quiet rhgb selinux=0 rd.live.check" \
+    #     -initrd "$TESTDIR"/initramfs.testing
 
     grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success -- "$TESTDIR"/root.img || return 1
 }
@@ -51,11 +51,11 @@ test_setup() {
     dd if=/dev/zero of="$TESTDIR"/root.img count=100
 
     $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
-         -a "debug dmsquash-live qemu" \
-         -o "rngd" \
-         -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
-         --no-hostonly-cmdline -N \
-         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
+        -a "debug dmsquash-live qemu" \
+        -o "rngd" \
+        -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
+        --no-hostonly-cmdline -N \
+        -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 
     mkdir -p -- "$TESTDIR"/root-source
     kernel="$KVERSION"
@@ -72,8 +72,8 @@ test_setup() {
             done
         )
         inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
-                      mount dmesg dhclient mkdir cp ping dhclient \
-                      umount strace less dd
+            mount dmesg dhclient mkdir cp ping dhclient \
+            umount strace less dd
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [[ -f ${_terminfodir}/l/linux ]] && break
         done
@@ -91,14 +91,14 @@ test_setup() {
 
         VMLINUZ="/lib/modules/${KVERSION}/vmlinuz"
         if ! [[ -e $VMLINUZ ]]; then
-            if [[ $MACHINE_ID ]] && ( [[ -d /boot/${MACHINE_ID} ]] || [[ -L /boot/${MACHINE_ID} ]] ); then
+            if [[ $MACHINE_ID ]] && ([[ -d /boot/${MACHINE_ID} ]] || [[ -L /boot/${MACHINE_ID} ]]); then
                 VMLINUZ="/boot/${MACHINE_ID}/$KVERSION/linux"
             fi
         fi
         [[ -e $VMLINUZ ]] || VMLINUZ="/boot/vmlinuz-${KVERSION}"
 
         inst "$VMLINUZ" "/boot/vmlinuz-${KVERSION}"
-        find_binary plymouth >/dev/null && inst_multiple plymouth
+        find_binary plymouth > /dev/null && inst_multiple plymouth
         cp -a -- /etc/ld.so.conf* "$initdir"/etc
         ldconfig -r "$initdir"
     )

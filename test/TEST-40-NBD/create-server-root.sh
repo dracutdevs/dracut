@@ -15,6 +15,9 @@ mount /dev/sda /root
 cp -a -t /root /source/*
 mkdir -p /root/run
 umount /root
-{ echo "dracut-root-block-created"; echo "ID_FS_UUID=$ID_FS_UUID"; } | dd oflag=direct,dsync of=/dev/sdb
+{
+    echo "dracut-root-block-created"
+    echo "ID_FS_UUID=$ID_FS_UUID"
+} | dd oflag=direct,dsync of=/dev/sdb
 sync
 poweroff -f

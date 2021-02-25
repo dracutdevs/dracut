@@ -47,9 +47,9 @@ cmdline() {
         UUID=$(
             /sbin/mdadm --examine --export $dev \
                 | while read line || [ -n "$line" ]; do
-                [[ ${line#MD_UUID=} = $line ]] && continue
-                printf "%s" "${line#MD_UUID=} "
-            done
+                    [[ ${line#MD_UUID=} = $line ]] && continue
+                    printf "%s" "${line#MD_UUID=} "
+                done
         )
 
         [[ -z "$UUID" ]] && continue
@@ -96,10 +96,10 @@ install() {
     prepare_udev_rules 59-persistent-storage-md.rules
 
     # guard against pre-3.0 mdadm versions, that can't handle containers
-    if ! mdadm -Q -e imsm /dev/null >/dev/null 2>&1; then
+    if ! mdadm -Q -e imsm /dev/null > /dev/null 2>&1; then
         inst_hook pre-trigger 30 "$moddir/md-noimsm.sh"
     fi
-    if ! mdadm -Q -e ddf /dev/null >/dev/null 2>&1; then
+    if ! mdadm -Q -e ddf /dev/null > /dev/null 2>&1; then
         inst_hook pre-trigger 30 "$moddir/md-noddf.sh"
     fi
 

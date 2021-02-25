@@ -10,7 +10,8 @@ export KVERSION=${KVERSION-$(uname -r)}
 #DEBUGOUT="quiet systemd.log_level=debug systemd.log_target=console loglevel=77  rd.info rd.debug"
 DEBUGOUT="loglevel=0 "
 client_run() {
-    local test_name="$1"; shift
+    local test_name="$1"
+    shift
     local client_opts="$*"
 
     echo "CLIENT TEST START: $test_name"
@@ -64,8 +65,8 @@ test_setup() {
         ln -sfn /run/lock "$initdir/var/lock"
 
         inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
-                      mount dmesg mkdir cp ping dd \
-                      umount strace less setsid tree systemctl reset
+            mount dmesg mkdir cp ping dd \
+            umount strace less setsid tree systemctl reset
 
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
@@ -86,25 +87,25 @@ test_setup() {
         mkdir -p $initdir/var/log/journal
 
         # install some basic config files
-        inst_multiple -o  \
-                      /etc/machine-id \
-                      /etc/adjtime \
-                      /etc/passwd \
-                      /etc/shadow \
-                      /etc/group \
-                      /etc/shells \
-                      /etc/nsswitch.conf \
-                      /etc/pam.conf \
-                      /etc/securetty \
-                      /etc/os-release \
-                      /etc/localtime
+        inst_multiple -o \
+            /etc/machine-id \
+            /etc/adjtime \
+            /etc/passwd \
+            /etc/shadow \
+            /etc/group \
+            /etc/shells \
+            /etc/nsswitch.conf \
+            /etc/pam.conf \
+            /etc/securetty \
+            /etc/os-release \
+            /etc/localtime
 
         # we want an empty environment
         > $initdir/etc/environment
 
         # setup the testsuite target
         mkdir -p $initdir/etc/systemd/system
-        cat >$initdir/etc/systemd/system/testsuite.target <<EOF
+        cat > $initdir/etc/systemd/system/testsuite.target << EOF
 [Unit]
 Description=Testsuite target
 Requires=basic.target
@@ -116,7 +117,7 @@ EOF
         inst ./test-init.sh /sbin/test-init
 
         # setup the testsuite service
-        cat >$initdir/etc/systemd/system/testsuite.service <<EOF
+        cat > $initdir/etc/systemd/system/testsuite.service << EOF
 [Unit]
 Description=Testsuite service
 After=basic.target
@@ -141,7 +142,7 @@ EOF
 
         # install basic tools needed
         inst_multiple sh bash setsid loadkeys setfont \
-                      login sushell sulogin gzip sleep echo mount umount
+            login sushell sulogin gzip sleep echo mount umount
         inst_multiple modprobe
 
         # install libnss_files for login
@@ -155,8 +156,8 @@ EOF
             /lib64/security \
             /lib/security -xtype f \
             | while read file || [ -n "$file" ]; do
-            inst_multiple -o $file
-        done
+                inst_multiple -o $file
+            done
 
         # install dbus socket and service file
         inst /usr/lib/systemd/system/dbus.socket
@@ -167,7 +168,7 @@ EOF
         (
             echo "FONT=eurlatgr"
             echo "KEYMAP=us"
-        ) >$initrd/etc/vconsole.conf
+        ) > $initrd/etc/vconsole.conf
 
         # install basic keyboard maps and fonts
         for i in \
@@ -192,9 +193,10 @@ EOF
         # install any Execs from the service files
         grep -Eho '^Exec[^ ]*=[^ ]+' $initdir/lib/systemd/system/*.service \
             | while read i || [ -n "$i" ]; do
-            i=${i##Exec*=}; i=${i##-}
-            inst_multiple -o $i
-        done
+                i=${i##Exec*=}
+                i=${i##-}
+                inst_multiple -o $i
+            done
 
         # some helper tools for debugging
         [[ $DEBUGTOOLS ]] && inst_multiple $DEBUGTOOLS
@@ -209,8 +211,8 @@ EOF
         inst /lib/modules/$kernel/modules.order
         inst /lib/modules/$kernel/modules.builtin
         # generate module dependencies
-        if [[ -d $initdir/lib/modules/$kernel ]] && \
-               ! depmod -a -b "$initdir" $kernel; then
+        if [[ -d $initdir/lib/modules/$kernel ]] \
+            && ! depmod -a -b "$initdir" $kernel; then
             dfatal "\"depmod -a $kernel\" failed."
             exit 1
         fi
@@ -233,12 +235,12 @@ EOF
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-                       -m "bash udev-rules btrfs base rootfs-block fs-lib kernel-modules qemu" \
-                       -d "piix ide-gd_mod ata_piix btrfs sd_mod" \
-                       --nomdadmconf \
-                       --nohardlink \
-                       --no-hostonly-cmdline -N \
-                       -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
+        -m "bash udev-rules btrfs base rootfs-block fs-lib kernel-modules qemu" \
+        -d "piix ide-gd_mod ata_piix btrfs sd_mod" \
+        --nomdadmconf \
+        --nohardlink \
+        --no-hostonly-cmdline -N \
+        -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     rm -rf -- $TESTDIR/overlay
@@ -249,7 +251,7 @@ EOF
         -drive format=raw,index=1,media=disk,file=$TESTDIR/usr.btrfs \
         -drive format=raw,index=2,media=disk,file=$TESTDIR/result \
         -append "root=/dev/fakeroot rw rootfstype=btrfs quiet console=ttyS0,115200n81 selinux=0" \
-        -initrd $TESTDIR/initramfs.makeroot  || return 1
+        -initrd $TESTDIR/initramfs.makeroot || return 1
     if ! grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/result; then
         echo "Could not create root filesystem"
         return 1
@@ -268,12 +270,12 @@ EOF
     [ -e /etc/machine-info ] && EXTRA_MACHINE+=" /etc/machine-info"
 
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-         -a "debug systemd i18n qemu" \
-         ${EXTRA_MACHINE:+-I "$EXTRA_MACHINE"} \
-         -o "dash network plymouth lvm mdraid resume crypt caps dm terminfo usrmount kernel-network-modules rngd" \
-         -d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \
-         --no-hostonly-cmdline -N \
-         -f $TESTDIR/initramfs.testing $KVERSION || return 1
+        -a "debug systemd i18n qemu" \
+        ${EXTRA_MACHINE:+-I "$EXTRA_MACHINE"} \
+        -o "dash network plymouth lvm mdraid resume crypt caps dm terminfo usrmount kernel-network-modules rngd" \
+        -d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \
+        --no-hostonly-cmdline -N \
+        -f $TESTDIR/initramfs.testing $KVERSION || return 1
 
     rm -rf -- $TESTDIR/overlay
 }

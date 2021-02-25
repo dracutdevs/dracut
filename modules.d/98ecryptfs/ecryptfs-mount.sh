@@ -13,17 +13,16 @@ ECRYPTFSKEYID=""
 ECRYPTFSSRCDIR="/secret"
 ECRYPTFS_EXTRA_MOUNT_OPTS=""
 
-load_ecryptfs_key()
-{
+load_ecryptfs_key() {
     # override the eCryptfs key path name from the 'ecryptfskey=' parameter in the kernel
     # command line
     ECRYPTFSKEYARG=$(getarg ecryptfskey=)
-    [ $? -eq 0 ] && \
-        ECRYPTFSKEY=${ECRYPTFSKEYARG}
+    [ $? -eq 0 ] \
+        && ECRYPTFSKEY=${ECRYPTFSKEYARG}
 
     # set the default value
-    [ -z "${ECRYPTFSKEY}" ] && \
-        ECRYPTFSKEY="/etc/keys/ecryptfs-trusted.blob";
+    [ -z "${ECRYPTFSKEY}" ] \
+        && ECRYPTFSKEY="/etc/keys/ecryptfs-trusted.blob"
 
     # set the eCryptfs key path name
     ECRYPTFSKEYPATH="${NEWROOT}${ECRYPTFSKEY}"
@@ -42,36 +41,34 @@ load_ecryptfs_key()
     # load the eCryptfs encrypted key blob
     ECRYPTFSKEYID=$(keyctl add ${ECRYPTFSKEYTYPE} ${ECRYPTFSKEYDESC} "load ${KEYBLOB}" @u)
     [ $? -eq 0 ] || {
-        info "eCryptfs: failed to load the eCryptfs key: ${ECRYPTFSKEYDESC}";
-        return 1;
+        info "eCryptfs: failed to load the eCryptfs key: ${ECRYPTFSKEYDESC}"
+        return 1
     }
 
     return 0
 }
 
-unload_ecryptfs_key()
-{
+unload_ecryptfs_key() {
     # unlink the eCryptfs encrypted key
     keyctl unlink ${ECRYPTFSKEYID} @u || {
-        info "eCryptfs: failed to unlink the eCryptfs key: ${ECRYPTFSKEYDESC}";
-        return 1;
+        info "eCryptfs: failed to unlink the eCryptfs key: ${ECRYPTFSKEYDESC}"
+        return 1
     }
 
     return 0
 }
 
-mount_ecryptfs()
-{
+mount_ecryptfs() {
     # read the configuration from the config file
-    [ -f "${ECRYPTFSCONFIG}" ] && \
-        . ${ECRYPTFSCONFIG}
+    [ -f "${ECRYPTFSCONFIG}" ] \
+        && . ${ECRYPTFSCONFIG}
 
     # load the eCryptfs encrypted key
     load_ecryptfs_key || return 1
 
     # set the default value for ECRYPTFSDSTDIR
-    [ -z "${ECRYPTFSDSTDIR}" ] && \
-        ECRYPTFSDSTDIR=${ECRYPTFSSRCDIR}
+    [ -z "${ECRYPTFSDSTDIR}" ] \
+        && ECRYPTFSDSTDIR=${ECRYPTFSSRCDIR}
 
     # set the eCryptfs filesystem mount point
     ECRYPTFSSRCMNT="${NEWROOT}${ECRYPTFSSRCDIR}"
@@ -79,14 +76,14 @@ mount_ecryptfs()
 
     # build the mount options variable
     ECRYPTFS_MOUNT_OPTS="ecryptfs_sig=${ECRYPTFSKEYDESC}"
-    [ ! -z "${ECRYPTFS_EXTRA_MOUNT_OPTS}" ] && \
-        ECRYPTFS_MOUNT_OPTS="${ECRYPTFS_MOUNT_OPTS},${ECRYPTFS_EXTRA_MOUNT_OPTS}"
+    [ ! -z "${ECRYPTFS_EXTRA_MOUNT_OPTS}" ] \
+        && ECRYPTFS_MOUNT_OPTS="${ECRYPTFS_MOUNT_OPTS},${ECRYPTFS_EXTRA_MOUNT_OPTS}"
 
     # mount the eCryptfs filesystem
     info "Mounting the configured eCryptfs filesystem"
-    mount -i -t ecryptfs -o${ECRYPTFS_MOUNT_OPTS} ${ECRYPTFSSRCMNT} ${ECRYPTFSDSTMNT} >/dev/null || {
-        info "eCryptfs: mount of the eCryptfs filesystem failed";
-        return 1;
+    mount -i -t ecryptfs -o${ECRYPTFS_MOUNT_OPTS} ${ECRYPTFSSRCMNT} ${ECRYPTFSDSTMNT} > /dev/null || {
+        info "eCryptfs: mount of the eCryptfs filesystem failed"
+        return 1
     }
 
     # unload the eCryptfs encrypted key

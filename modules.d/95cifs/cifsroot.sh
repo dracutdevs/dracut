@@ -1,6 +1,6 @@
 #!/bin/sh
 
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 . /lib/cifs-lib.sh
 
 [ "$#" = 3 ] || exit 1
@@ -14,7 +14,7 @@ NEWROOT="$3"
 cifs_to_var "$root"
 
 # shellcheck disable=SC2154
-mount.cifs "//$server/$path" "$NEWROOT" -o "$options" && { [ -e /dev/root ] || ln -s null /dev/root ; }
+mount.cifs "//$server/$path" "$NEWROOT" -o "$options" && { [ -e /dev/root ] || ln -s null /dev/root; }
 
 # inject new exit_if_exists
 # shellcheck disable=SC2016

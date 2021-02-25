@@ -10,7 +10,7 @@ if [ "$capsmode" = "1" ]; then
     CAPS_KEXEC_DISABLED=$(getarg rd.caps.disablekexec=)
 
     info "Loading CAPS_MODULES $CAPS_MODULES"
-    for i in $CAPS_MODULES;do modprobe "$i" 2>&1 >/dev/null | vinfo; done
+    for i in $CAPS_MODULES; do modprobe "$i" 2>&1 > /dev/null | vinfo; done
 
     if [ "$CAPS_MODULES_DISABLED" = "1" -a -e /proc/sys/kernel/modules_disabled ]; then
         info "Disabling module loading."
@@ -32,4 +32,3 @@ if [ "$capsmode" = "1" ]; then
     echo "CAPS_INIT_DROP=\"$CAPS_INIT_DROP\"" > /etc/capsdrop
     info "Will drop capabilities $CAPS_INIT_DROP from init."
 fi
-

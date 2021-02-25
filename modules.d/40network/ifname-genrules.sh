@@ -1,11 +1,11 @@
 #!/bin/sh
 
 # if there are no ifname parameters, just use NAME=KERNEL
-if ! getarg ifname= >/dev/null ; then
+if ! getarg ifname= > /dev/null; then
     return
 fi
 
-command -v parse_ifname_opts >/dev/null || . /lib/net-lib.sh
+command -v parse_ifname_opts > /dev/null || . /lib/net-lib.sh
 
 {
     for p in $(getargs ifname=); do

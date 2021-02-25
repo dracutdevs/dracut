@@ -27,33 +27,32 @@ install() {
         $systemdutildir/network/99-default.link \
         networkctl ip
 
-        #hostnamectl timedatectl
-        # $systemdutildir/systemd-timesyncd \
-        # $systemdutildir/systemd-timedated \
-        # $systemdutildir/systemd-hostnamed \
-        # $systemdutildir/systemd-resolvd \
-        # $systemdutildir/systemd-resolve-host \
-        # $systemdsystemunitdir/systemd-resolved.service \
-        # $systemdsystemunitdir/systemd-hostnamed.service \
-        # $systemdsystemunitdir/systemd-timesyncd.service \
-        # $systemdsystemunitdir/systemd-timedated.service \
-        # $systemdsystemunitdir/time-sync.target \
-        # /etc/systemd/resolved.conf \
-
+    #hostnamectl timedatectl
+    # $systemdutildir/systemd-timesyncd \
+    # $systemdutildir/systemd-timedated \
+    # $systemdutildir/systemd-hostnamed \
+    # $systemdutildir/systemd-resolvd \
+    # $systemdutildir/systemd-resolve-host \
+    # $systemdsystemunitdir/systemd-resolved.service \
+    # $systemdsystemunitdir/systemd-hostnamed.service \
+    # $systemdsystemunitdir/systemd-timesyncd.service \
+    # $systemdsystemunitdir/systemd-timedated.service \
+    # $systemdsystemunitdir/time-sync.target \
+    # /etc/systemd/resolved.conf \
 
     # inst_dir /var/lib/systemd/clock
 
-    grep '^systemd-network:' "$dracutsysrootdir"/etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
+    grep '^systemd-network:' "$dracutsysrootdir"/etc/passwd 2> /dev/null >> "$initdir/etc/passwd"
     grep '^systemd-network:' "$dracutsysrootdir"/etc/group >> "$initdir/etc/group"
     # grep '^systemd-timesync:' "$dracutsysrootdir"/etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
     # grep '^systemd-timesync:' "$dracutsysrootdir"/etc/group >> "$initdir/etc/group"
 
     _arch=${DRACUT_ARCH:-$(uname -m)}
     inst_libdir_file \
-                     {"tls/$_arch/",tls/,"$_arch/",}"libnss_dns.so.*" \
-                     {"tls/$_arch/",tls/,"$_arch/",}"libnss_mdns4_minimal.so.*" \
-                     {"tls/$_arch/",tls/,"$_arch/",}"libnss_myhostname.so.*" \
-                     {"tls/$_arch/",tls/,"$_arch/",}"libnss_resolve.so.*"
+        {"tls/$_arch/",tls/,"$_arch/",}"libnss_dns.so.*" \
+        {"tls/$_arch/",tls/,"$_arch/",}"libnss_mdns4_minimal.so.*" \
+        {"tls/$_arch/",tls/,"$_arch/",}"libnss_myhostname.so.*" \
+        {"tls/$_arch/",tls/,"$_arch/",}"libnss_resolve.so.*"
 
     #       systemd-timesyncd.service
     for i in \
@@ -64,4 +63,3 @@ install() {
         $SYSTEMCTL -q --root "$initdir" enable "$i"
     done
 }
-

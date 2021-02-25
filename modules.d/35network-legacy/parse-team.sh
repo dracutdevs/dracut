@@ -18,11 +18,27 @@ parseteam() {
     done
 
     case $# in
-    0)  teammaster=team0; teamslaves="eth0 eth1"; teamrunner="activebackup" ;;
-    1)  teammaster=$1; teamslaves="eth0 eth1"; teamrunner="activebackup" ;;
-    2)  teammaster=$1; teamslaves=$(str_replace "$2" "," " "); teamrunner="activebackup" ;;
-    3)  teammaster=$1; teamslaves=$(str_replace "$2" "," " "); teamrunner=$3 ;;
-    *)  die "team= requires zero to three parameters" ;;
+        0)
+            teammaster=team0
+            teamslaves="eth0 eth1"
+            teamrunner="activebackup"
+            ;;
+        1)
+            teammaster=$1
+            teamslaves="eth0 eth1"
+            teamrunner="activebackup"
+            ;;
+        2)
+            teammaster=$1
+            teamslaves=$(str_replace "$2" "," " ")
+            teamrunner="activebackup"
+            ;;
+        3)
+            teammaster=$1
+            teamslaves=$(str_replace "$2" "," " ")
+            teamrunner=$3
+            ;;
+        *) die "team= requires zero to three parameters" ;;
     esac
     return 0
 }
@@ -46,4 +62,3 @@ for team in $(getargs team); do
         printf -- "%s" "{\"runner\": {\"name\": \"$teamrunner\"}, \"link_watch\": {\"name\": \"ethtool\"}}" > "/tmp/${teammaster}.conf"
     fi
 done
-

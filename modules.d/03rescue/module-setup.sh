@@ -17,4 +17,3 @@ install() {
         ping netstat rpcinfo vi scp ping6 ssh \
         fsck fsck.ext2 fsck.ext4 fsck.ext3 fsck.ext4dev fsck.f2fs fsck.vfat e2fsck
 }
-

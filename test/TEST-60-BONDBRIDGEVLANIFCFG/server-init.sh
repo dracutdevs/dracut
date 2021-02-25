@@ -1,5 +1,5 @@
 #!/bin/sh
-exec </dev/console >/dev/console 2>&1
+exec < /dev/console > /dev/console 2>&1
 set -x
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export TERM=linux
@@ -13,16 +13,16 @@ wait_for_if_link() {
     local li
 
     while [ $cnt -lt 600 ]; do
-ip link show
+        ip link show
 
-        li=$(ip -o link show dev $1 2>/dev/null)
-	[ -n "$li" ] && return 0
+        li=$(ip -o link show dev $1 2> /dev/null)
+        [ -n "$li" ] && return 0
         if [[ $2 ]]; then
-	    li=$(ip -o link show dev $2 2>/dev/null)
-	    [ -n "$li" ] && return 0
+            li=$(ip -o link show dev $2 2> /dev/null)
+            [ -n "$li" ] && return 0
         fi
         sleep 0.1
-        cnt=$(($cnt+1))
+        cnt=$(($cnt + 1))
     done
     return 1
 }
@@ -34,7 +34,7 @@ wait_for_if_up() {
         li=$(ip -o link show up dev $1)
         [ -n "$li" ] && return 0
         sleep 0.1
-        cnt=$(($cnt+1))
+        cnt=$(($cnt + 1))
     done
     return 1
 }
@@ -45,15 +45,13 @@ wait_for_route_ok() {
         li=$(ip route show)
         [ -n "$li" ] && [ -z "${li##*$1*}" ] && return 0
         sleep 0.1
-        cnt=$(($cnt+1))
+        cnt=$(($cnt + 1))
     done
     return 1
 }
 
 linkup() {
-    wait_for_if_link $1 2>/dev/null\
-     && ip link set $1 up 2>/dev/null\
-     && wait_for_if_up $1 2>/dev/null
+    wait_for_if_link $1 2> /dev/null && ip link set $1 up 2> /dev/null && wait_for_if_up $1 2> /dev/null
 }
 
 udevadm settle
@@ -66,13 +64,13 @@ wait_for_if_link eth2 ens5
 wait_for_if_link eth3 ens6
 
 modprobe --all -b -q 8021q ipvlan macvlan
->/dev/watchdog
+> /dev/watchdog
 ip addr add 127.0.0.1/8 dev lo
 linkup lo
 ip link set dev eth0 name ens3
 ip addr add 192.168.50.1/24 dev ens3
 linkup ens3
->/dev/watchdog
+> /dev/watchdog
 ip link set dev eth1 name ens4
 ip link add dev ens4.1 link ens4 type vlan id 1
 ip link add dev ens4.2 link ens4 type vlan id 2
@@ -92,36 +90,36 @@ ip addr add 192.168.51.1/24 dev ens5
 linkup ens5
 ip link set dev eth3 name ens6
 linkup ens6
->/dev/watchdog
+> /dev/watchdog
 modprobe af_packet
 > /dev/watchdog
 modprobe sunrpc
->/dev/watchdog
+> /dev/watchdog
 mount -t rpc_pipefs sunrpc /var/lib/nfs/rpc_pipefs
->/dev/watchdog
+> /dev/watchdog
 [ -x /sbin/portmap ] && portmap
->/dev/watchdog
+> /dev/watchdog
 mkdir -p /run/rpcbind
 [ -x /sbin/rpcbind ] && rpcbind
->/dev/watchdog
+> /dev/watchdog
 modprobe nfsd
->/dev/watchdog
+> /dev/watchdog
 mount -t nfsd nfsd /proc/fs/nfsd
->/dev/watchdog
+> /dev/watchdog
 exportfs -r
->/dev/watchdog
+> /dev/watchdog
 rpc.nfsd
->/dev/watchdog
+> /dev/watchdog
 rpc.mountd
->/dev/watchdog
+> /dev/watchdog
 rpc.idmapd -S
->/dev/watchdog
+> /dev/watchdog
 exportfs -r
->/dev/watchdog
->/var/lib/dhcpd/dhcpd.leases
->/dev/watchdog
+> /dev/watchdog
+> /var/lib/dhcpd/dhcpd.leases
+> /dev/watchdog
 chmod 777 /var/lib/dhcpd/dhcpd.leases
->/dev/watchdog
+> /dev/watchdog
 dhcpd -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases ens3 ens5
 #echo -n 'V' > /dev/watchdog
 #sh -i
@@ -129,8 +127,8 @@ dhcpd -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases ens3 ens5
 # Wait forever for the VM to die
 echo "Serving"
 while :; do
-	sleep 10
-	>/dev/watchdog
+    sleep 10
+    > /dev/watchdog
 done
 mount -n -o remount,ro /
 poweroff -f

@@ -44,7 +44,7 @@ depends() {
 # called by dracut
 cmdline() {
     for m in scsi_dh_alua scsi_dh_emc scsi_dh_rdac dm_multipath; do
-        if grep -m 1 -q "$m" /proc/modules ; then
+        if grep -m 1 -q "$m" /proc/modules; then
             printf 'rd.driver.pre=%s ' "$m"
         fi
     done
@@ -79,13 +79,13 @@ install() {
         }
     }
 
-    inst_multiple -o  \
+    inst_multiple -o \
         dmsetup \
         kpartx \
         mpath_wait \
         mpathconf \
         mpathpersist \
-        multipath  \
+        multipath \
         multipathd \
         xdrgetprio \
         xdrgetuid \
@@ -104,7 +104,7 @@ install() {
     inst_libdir_file "libmultipath*" "multipath/*"
     inst_libdir_file 'libgcc_s.so*'
 
-    if [[ $hostonly_cmdline ]] ; then
+    if [[ $hostonly_cmdline ]]; then
         local _conf=$(cmdline)
         [[ $_conf ]] && echo "$_conf" >> "${initdir}/etc/cmdline.d/90multipath.conf"
     fi
@@ -116,15 +116,14 @@ install() {
         $SYSTEMCTL -q --root "$initdir" enable multipathd.service
     else
         inst_hook pre-trigger 02 "$moddir/multipathd.sh"
-        inst_hook cleanup   02 "$moddir/multipathd-stop.sh"
+        inst_hook cleanup 02 "$moddir/multipathd-stop.sh"
     fi
 
-    inst_hook cleanup   80 "$moddir/multipathd-needshutdown.sh"
-    inst_hook shutdown  20 "$moddir/multipath-shutdown.sh"
+    inst_hook cleanup 80 "$moddir/multipathd-needshutdown.sh"
+    inst_hook shutdown 20 "$moddir/multipath-shutdown.sh"
 
     inst_rules 40-multipath.rules 56-multipath.rules \
-	62-multipath.rules 65-multipath.rules \
-	66-kpartx.rules 67-kpartx-compat.rules \
-	11-dm-mpath.rules 11-dm-parts.rules
+        62-multipath.rules 65-multipath.rules \
+        66-kpartx.rules 67-kpartx-compat.rules \
+        11-dm-mpath.rules 11-dm-parts.rules
 }
-

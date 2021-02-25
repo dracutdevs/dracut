@@ -1,6 +1,6 @@
 #!/bin/sh
 
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
@@ -22,15 +22,18 @@ NEWROOT="$3"
 [ "${nroot%%:*}" = "nbd" ] || return
 
 nroot=${nroot#nbd:}
-nbdserver=${nroot%%:*};
+nbdserver=${nroot%%:*}
 if [ "${nbdserver%"${nbdserver#?}"}" = "[" ]; then
     nbdserver=${nroot#[}
-    nbdserver=${nbdserver%%]:*}; nroot=${nroot#*]:}
+    nbdserver=${nbdserver%%]:*}
+    nroot=${nroot#*]:}
 else
     nroot=${nroot#*:}
 fi
-nbdport=${nroot%%:*}; nroot=${nroot#*:}
-nbdfstype=${nroot%%:*}; nroot=${nroot#*:}
+nbdport=${nroot%%:*}
+nroot=${nroot#*:}
+nbdfstype=${nroot%%:*}
+nroot=${nroot#*:}
 nbdflags=${nroot%%:*}
 nbdopts=${nroot#*:}
 
@@ -102,13 +105,13 @@ if [ "$root" = "block:/dev/root" -o "$root" = "dhcp" ]; then
     wait_for_dev -n /dev/root
 
     if [ -z "$DRACUT_SYSTEMD" ]; then
-        type write_fs_tab >/dev/null 2>&1 || . /lib/fs-lib.sh
+        type write_fs_tab > /dev/null 2>&1 || . /lib/fs-lib.sh
 
         write_fs_tab /dev/root "$nbdfstype" "$fsopts"
 
         printf '/bin/mount %s\n' \
-             "$NEWROOT" \
-             > $hookdir/mount/01-$$-nbd.sh
+            "$NEWROOT" \
+            > $hookdir/mount/01-$$-nbd.sh
     fi
     # if we're on systemd, use the nbd-generator script
     # to create the /sysroot mount.
@@ -119,14 +122,14 @@ if strstr "$(nbd-client --help 2>&1)" "systemd-mark"; then
     preopts="-systemd-mark $preopts"
 fi
 
-if [ "$nbdport" -gt 0 ] 2>/dev/null; then
+if [ "$nbdport" -gt 0 ] 2> /dev/null; then
     nbdport="$nbdport"
 else
     nbdport="-name $nbdport"
 fi
 
-nbd-client -check /dev/nbd0 >/dev/null || \
-    nbd-client "$nbdserver" $nbdport /dev/nbd0 $preopts $opts || exit 1
+nbd-client -check /dev/nbd0 > /dev/null \
+    || nbd-client "$nbdserver" $nbdport /dev/nbd0 $preopts $opts || exit 1
 
 # NBD doesn't emit uevents when it gets connected, so kick it
 echo change > /sys/block/nbd0/uevent

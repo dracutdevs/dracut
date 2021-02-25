@@ -14,13 +14,13 @@ mdadm --create /dev/md0 --run --auto=yes --level=5 --raid-devices=3 /dev/sdb /de
 # wait for the array to finish initailizing, otherwise this sometimes fails
 # randomly.
 mdadm -W /dev/md0
-printf test >keyfile
+printf test > keyfile
 cryptsetup -q luksFormat /dev/md0 /keyfile
 echo "The passphrase is test"
 set -e
 set -x
-cryptsetup luksOpen /dev/md0 dracut_crypt_test </keyfile
-lvm pvcreate -ff  -y /dev/mapper/dracut_crypt_test
+cryptsetup luksOpen /dev/md0 dracut_crypt_test < /keyfile
+lvm pvcreate -ff -y /dev/mapper/dracut_crypt_test
 lvm vgcreate dracut /dev/mapper/dracut_crypt_test
 lvm lvcreate -l 100%FREE -n root dracut
 lvm vgchange -ay
@@ -36,10 +36,14 @@ cryptsetup luksClose /dev/mapper/dracut_crypt_test
 udevadm settle
 mdadm -W /dev/md0 || :
 udevadm settle
-mdadm --detail --export /dev/md0 |grep -F MD_UUID > /tmp/mduuid
+mdadm --detail --export /dev/md0 | grep -F MD_UUID > /tmp/mduuid
 . /tmp/mduuid
 udevadm settle
-eval $(udevadm info --query=env --name=/dev/md0|while read line || [ -n "$line" ]; do [ "$line" != "${line#*ID_FS_UUID*}" ] && echo $line; done;)
-{ echo "dracut-root-block-created"; echo MD_UUID=$MD_UUID;  echo "ID_FS_UUID=$ID_FS_UUID";} | dd oflag=direct,dsync of=/dev/sda
+eval $(udevadm info --query=env --name=/dev/md0 | while read line || [ -n "$line" ]; do [ "$line" != "${line#*ID_FS_UUID*}" ] && echo $line; done)
+{
+    echo "dracut-root-block-created"
+    echo MD_UUID=$MD_UUID
+    echo "ID_FS_UUID=$ID_FS_UUID"
+} | dd oflag=direct,dsync of=/dev/sda
 sync
 poweroff -f

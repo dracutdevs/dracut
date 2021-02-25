@@ -18,4 +18,3 @@ install() {
     # Prefer mksh as /bin/sh if it is available.
     inst /bin/mksh && ln -sf mksh "${initdir}/bin/sh"
 }
-

@@ -52,12 +52,12 @@ installkernel() {
         else
             # guess model specific module, then install the rest
             case "$(pmac_model)" in
-                PowerMac7,2|PowerMac7,3) instmods windfarm_pm72  ;;
-                PowerMac8,1|PowerMac8,2) instmods windfarm_pm81  ;;
-                PowerMac9,1)             instmods windfarm_pm91  ;;
-                PowerMac11,2)            instmods windfarm_pm112 ;;
-                PowerMac12,1)            instmods windfarm_pm121 ;;
-                RackMac3,1)              instmods windfarm_rm31  ;;
+                PowerMac7,2 | PowerMac7,3) instmods windfarm_pm72 ;;
+                PowerMac8,1 | PowerMac8,2) instmods windfarm_pm81 ;;
+                PowerMac9,1) instmods windfarm_pm91 ;;
+                PowerMac11,2) instmods windfarm_pm112 ;;
+                PowerMac12,1) instmods windfarm_pm121 ;;
+                RackMac3,1) instmods windfarm_rm31 ;;
                 # no match, so skip installation of the rest
                 *) return 1 ;;
             esac
@@ -77,6 +77,6 @@ installkernel() {
 
 # called by dracut
 install() {
-    # this will attempt to load the appropriate modules 
+    # this will attempt to load the appropriate modules
     inst_hook pre-udev 99 "$moddir/load-thermal.sh"
 }

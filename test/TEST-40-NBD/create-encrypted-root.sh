@@ -7,26 +7,29 @@ rm -f -- /etc/lvm/lvm.conf
 udevadm control --reload
 udevadm settle
 
-printf test >keyfile
+printf test > keyfile
 cryptsetup -q luksFormat /dev/sda /keyfile
 echo "The passphrase is test"
-cryptsetup luksOpen /dev/sda dracut_crypt_test </keyfile && \
-lvm pvcreate -ff  -y /dev/mapper/dracut_crypt_test && \
-lvm vgcreate dracut /dev/mapper/dracut_crypt_test && \
-lvm lvcreate -l 100%FREE -n root dracut && \
-lvm vgchange -ay && \
-mkfs.ext3 -L dracut -j /dev/dracut/root && \
-mkdir -p /sysroot && \
-mount /dev/dracut/root /sysroot && \
-cp -a -t /sysroot /source/* && \
-umount /sysroot
+cryptsetup luksOpen /dev/sda dracut_crypt_test < /keyfile \
+    && lvm pvcreate -ff -y /dev/mapper/dracut_crypt_test \
+    && lvm vgcreate dracut /dev/mapper/dracut_crypt_test \
+    && lvm lvcreate -l 100%FREE -n root dracut \
+    && lvm vgchange -ay \
+    && mkfs.ext3 -L dracut -j /dev/dracut/root \
+    && mkdir -p /sysroot \
+    && mount /dev/dracut/root /sysroot \
+    && cp -a -t /sysroot /source/* \
+    && umount /sysroot
 sleep 1
 lvm lvchange -a n /dev/dracut/root
 udevadm settle
 cryptsetup luksClose /dev/mapper/dracut_crypt_test
 udevadm settle
 sleep 1
-eval $(udevadm info --query=env --name=/dev/sda|while read line || [ -n "$line" ]; do [ "$line" != "${line#*ID_FS_UUID*}" ] && echo $line; done;)
-{ echo "dracut-root-block-created"; echo "ID_FS_UUID=$ID_FS_UUID"; } | dd oflag=direct,dsync of=/dev/sdb
+eval $(udevadm info --query=env --name=/dev/sda | while read line || [ -n "$line" ]; do [ "$line" != "${line#*ID_FS_UUID*}" ] && echo $line; done)
+{
+    echo "dracut-root-block-created"
+    echo "ID_FS_UUID=$ID_FS_UUID"
+} | dd oflag=direct,dsync of=/dev/sdb
 sync
 poweroff -f

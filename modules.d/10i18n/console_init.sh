@@ -45,7 +45,9 @@ set_keymap() {
 }
 
 set_font() {
-    local dev=$1; local trans=''; local uni=''
+    local dev=$1
+    local trans=''
+    local uni=''
 
     [ -z "${FONT}" ] && FONT=${DEFAULT_FONT}
     [ -n "${FONT_MAP}" ] && trans="-m ${FONT_MAP}"
@@ -62,8 +64,8 @@ dev_close() {
 dev_open() {
     local dev=$1
 
-    exec 6<${dev} && \
-        exec 7>>${dev}
+    exec 6< ${dev} \
+        && exec 7>> ${dev}
 }
 
 dev=/dev/${1#/dev/}
@@ -90,4 +92,3 @@ set_font ${dev}
 set_keymap
 
 dev_close
-

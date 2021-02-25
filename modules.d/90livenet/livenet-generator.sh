@@ -1,6 +1,6 @@
 #!/bin/sh
 
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
 [ -z "$root" ] && root=$(getarg root=)
 
@@ -9,31 +9,37 @@ if getargbool 0 rd.live.image -d -y liveimg; then
     liveroot="live:$root"
 fi
 
-if [ "${root%%:*}" = "live" ] ; then
+if [ "${root%%:*}" = "live" ]; then
     liveroot=$root
 fi
 
 [ "${liveroot%%:*}" = "live" ] || exit 0
 
 case "$liveroot" in
-    live:nfs://*|nfs://*) \
+    live:nfs://* | nfs://*)
         root="${root#live:}"
-        rootok=1 ;;
-    live:http://*|http://*) \
+        rootok=1
+        ;;
+    live:http://* | http://*)
         root="${root#live:}"
-        rootok=1 ;;
-    live:https://*|https://*) \
+        rootok=1
+        ;;
+    live:https://* | https://*)
         root="${root#live:}"
-        rootok=1 ;;
-    live:ftp://*|ftp://*) \
+        rootok=1
+        ;;
+    live:ftp://* | ftp://*)
         root="${root#live:}"
-        rootok=1 ;;
-    live:torrent://*|torrent://*) \
+        rootok=1
+        ;;
+    live:torrent://* | torrent://*)
         root="${root#live:}"
-        rootok=1 ;;
-    live:tftp://*|tftp://*) \
+        rootok=1
+        ;;
+    live:tftp://* | tftp://*)
         root="${root#live:}"
-        rootok=1 ;;
+        rootok=1
+        ;;
 esac
 
 [ "$rootok" != "1" ] && exit 0

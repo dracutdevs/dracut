@@ -1,6 +1,6 @@
 #!/bin/sh
 
-type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 . /lib/net-lib.sh
 
 # TODO: make these things not pollute the calling namespace
@@ -39,7 +39,7 @@ nfsroot_to_var() {
     arg="${arg##$nfs:}"
 
     # check if we have a server
-    if strstr "$arg" ':/' ; then
+    if strstr "$arg" ':/'; then
         server="${arg%%:/*}"
         arg="/${arg##*:/}"
     fi
@@ -54,10 +54,10 @@ nfsroot_to_var() {
     options="${options%%:}"
 
     # Does it really start with '/'?
-    [ -n "${path%%/*}" ] && path="error";
+    [ -n "${path%%/*}" ] && path="error"
 
     #Fix kernel legacy style separating path and options with ','
-    if [ "$path" != "${path#*,}" ] ; then
+    if [ "$path" != "${path#*,}" ]; then
         options=${path#*,}
         path=${path%%,*}
     fi
@@ -123,16 +123,16 @@ munge_nfs_options() {
     IFS=,
     for f in $options; do
         case $f in
-            ro|rw) nfsrw=$f ;;
-            lock|nolock) nfslock=$f ;;
+            ro | rw) nfsrw=$f ;;
+            lock | nolock) nfslock=$f ;;
             *) flags=${flags:+$flags,}$f ;;
         esac
     done
     IFS="$OLDIFS"
 
     # Override rw/ro if set on cmdline
-    getarg ro >/dev/null && nfsrw=ro
-    getarg rw >/dev/null && nfsrw=rw
+    getarg ro > /dev/null && nfsrw=ro
+    getarg rw > /dev/null && nfsrw=rw
 
     options=$nfsrw${flags:+,$flags}
 }

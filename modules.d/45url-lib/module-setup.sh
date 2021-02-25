@@ -28,9 +28,9 @@ install() {
     fi
 
     for _dir in $libdirs; do
-	[[ -d $dracutsysrootdir$_dir ]] || continue
+        [[ -d $dracutsysrootdir$_dir ]] || continue
         for _lib in $dracutsysrootdir$_dir/libcurl.so.*; do
-	    [[ -e $_lib ]] || continue
+            [[ -e $_lib ]] || continue
             [[ $_nssckbi ]] || _nssckbi=$(grep -F --binary-files=text -z libnssckbi $_lib)
             _crt=$(grep -F --binary-files=text -z .crt $_lib)
             [[ $_crt ]] || continue
@@ -47,15 +47,15 @@ install() {
     # If its truly NSS libnssckbi, it includes its own trust bundle,
     # but if it's really p11-kit-trust.so, we need to find the dirs
     # where it will look for a trust bundle and install them too.
-    if ! [[ $_found ]] && [[ $_nssckbi ]] ; then
+    if ! [[ $_found ]] && [[ $_nssckbi ]]; then
         _found=1
         inst_libdir_file "libnssckbi.so*" || _found=
         for _dir in $libdirs; do
             [[ -e $dracutsysrootdir$_dir/libnssckbi.so ]] || continue
             # this looks for directory-ish strings in the file
-            for _p11roots in $(grep -o --binary-files=text "/[[:alpha:]][[:print:]]*" $dracutsysrootdir$_dir/libnssckbi.so) ; do
+            for _p11roots in $(grep -o --binary-files=text "/[[:alpha:]][[:print:]]*" $dracutsysrootdir$_dir/libnssckbi.so); do
                 # the string can be a :-separated list of dirs
-                for _p11root in $(echo "$_p11roots" | tr ':' '\n') ; do
+                for _p11root in $(echo "$_p11roots" | tr ':' '\n'); do
                     # check if it's actually a directory (there are
                     # several false positives in the results)
                     [[ -d "$dracutsysrootdir$_p11root" ]] || continue
@@ -65,8 +65,8 @@ install() {
                     [[ -d "$dracutsysrootdir${_p11root}/blacklist" ]] || continue
                     # so now we know it's really a p11-kit trust dir;
                     # install everything in it
-                    for _p11item in $(find "$dracutsysrootdir$_p11root") ; do
-                        if ! inst "${_p11item#$dracutsysrootdir}" ; then
+                    for _p11item in $(find "$dracutsysrootdir$_p11root"); do
+                        if ! inst "${_p11item#$dracutsysrootdir}"; then
                             dwarn "Couldn't install '${_p11item#$dracutsysrootdir}' from p11-kit trust dir '${_p11root#$dracutsysrootdir}'; HTTPS might not work."
                             continue
                         fi
@@ -77,4 +77,3 @@ install() {
     fi
     [[ $_found ]] || dwarn "Couldn't find SSL CA cert bundle or libnssckbi.so; HTTPS won't work."
 }
-

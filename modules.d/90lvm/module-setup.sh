@@ -30,12 +30,12 @@ cmdline() {
     for dev in "${!host_fs_types[@]}"; do
         [ -e /sys/block/${dev#/dev/}/dm/name ] || continue
         [ -e /sys/block/${dev#/dev/}/dm/uuid ] || continue
-        uuid=$(</sys/block/${dev#/dev/}/dm/uuid)
+        uuid=$(< /sys/block/${dev#/dev/}/dm/uuid)
         [[ "${uuid#LVM-}" == "$uuid" ]] && continue
-        dev=$(</sys/block/${dev#/dev/}/dm/name)
-        eval $(dmsetup splitname --nameprefixes --noheadings --rows "$dev" 2>/dev/null)
+        dev=$(< /sys/block/${dev#/dev/}/dm/name)
+        eval $(dmsetup splitname --nameprefixes --noheadings --rows "$dev" 2> /dev/null)
         [[ ${DM_VG_NAME} ]] && [[ ${DM_LV_NAME} ]] || return 1
-        if ! [[ ${_activated[${DM_VG_NAME}/${DM_LV_NAME}]} ]]; then
+        if ! [[ ${_activated[${DM_VG_NAME} / ${DM_LV_NAME}]} ]]; then
             printf " rd.lvm.lv=%s " "${DM_VG_NAME}/${DM_LV_NAME} "
             _activated["${DM_VG_NAME}/${DM_LV_NAME}"]=1
         fi
@@ -73,7 +73,7 @@ install() {
         if [[ -f $dracutsysrootdir/etc/lvm/lvmlocal.conf ]]; then
             inst_simple -H /etc/lvm/lvmlocal.conf
         fi
-        eval $(lvm dumpconfig global/system_id_source &>/dev/null)
+        eval $(lvm dumpconfig global/system_id_source &> /dev/null)
         if [ "$system_id_source" == "file" ]; then
             eval $(lvm dumpconfig global/system_id_file)
             if [ -f "$system_id_file" ]; then
@@ -119,26 +119,27 @@ install() {
 
     inst_libdir_file "libdevmapper-event-lvm*.so"
 
-    if [[ $hostonly ]] && find_binary lvs &>/dev/null; then
+    if [[ $hostonly ]] && find_binary lvs &> /dev/null; then
         for dev in "${!host_fs_types[@]}"; do
             [ -e /sys/block/${dev#/dev/}/dm/name ] || continue
-            dev=$(</sys/block/${dev#/dev/}/dm/name)
-            eval $(dmsetup splitname --nameprefixes --noheadings --rows "$dev" 2>/dev/null)
+            dev=$(< /sys/block/${dev#/dev/}/dm/name)
+            eval $(dmsetup splitname --nameprefixes --noheadings --rows "$dev" 2> /dev/null)
             [[ ${DM_VG_NAME} ]] && [[ ${DM_LV_NAME} ]] || continue
-            case "$(lvs --noheadings -o segtype ${DM_VG_NAME} 2>/dev/null)" in
-                *thin*|*cache*|*era*)
+            case "$(lvs --noheadings -o segtype ${DM_VG_NAME} 2> /dev/null)" in
+                *thin* | *cache* | *era*)
                     inst_multiple -o thin_dump thin_restore thin_check thin_repair \
-                                  cache_dump cache_restore cache_check cache_repair \
-                                  era_check era_dump era_invalidate era_restore
-                    break;;
+                        cache_dump cache_restore cache_check cache_repair \
+                        era_check era_dump era_invalidate era_restore
+                    break
+                    ;;
             esac
         done
     fi
 
     if ! [[ $hostonly ]]; then
         inst_multiple -o thin_dump thin_restore thin_check thin_repair \
-                      cache_dump cache_restore cache_check cache_repair \
-                      era_check era_dump era_invalidate era_restore
+            cache_dump cache_restore cache_check cache_repair \
+            era_check era_dump era_invalidate era_restore
     fi
 
     dracut_need_initqueue

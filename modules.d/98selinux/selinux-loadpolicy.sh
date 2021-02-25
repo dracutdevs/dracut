@@ -2,8 +2,7 @@
 
 # FIXME: load selinux policy.  this should really be done after we switchroot
 
-rd_load_policy()
-{
+rd_load_policy() {
     # If SELinux is disabled exit now
     getarg "selinux=0" > /dev/null && return 0
 
@@ -38,7 +37,7 @@ rd_load_policy()
         umount $NEWROOT/sys
 
         if [ "$SELINUX" = "disabled" ]; then
-            return 0;
+            return 0
         fi
 
         if [ $ret -eq 0 -o $ret -eq 2 ]; then
