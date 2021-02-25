@@ -9,6 +9,31 @@ Currently dracut lives on github.com and kernel.org.
 
 Pull requests should be filed preferably on github nowadays.
 
+### Code Format
+
+It is recommended, that you install a plugin for your editor, which reads in `.editorconfig`.
+Additionally `emacs` and `vim` config files are provided for convenience.
+
+To reformat C files use `indent`:
+```console
+$ indent -i8 -nut -br -linux -l120 <FILE>
+```
+
+For convenience there is also a Makefile `indent` target `make indent`.
+
+To reformat shell files use `shfmt`:
+
+```console
+$ shfmt_version=3.0.1
+$ wget "https://github.com/mvdan/sh/releases/download/v${shfmt_version}/shfmt_v${shfmt_version}_linux_amd64" -O shfmt
+$ chmod u+x shfmt
+$ ./shfmt -w -s .
+```
+
+Some IDEs already have support for shfmt.
+
+For convenience the `make indent` Makefile target also calls shfmt, if it is in `$PATH`.
+
 ### Commit Messages
 
 Commit messages should answer these questions:
