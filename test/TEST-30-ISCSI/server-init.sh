@@ -19,7 +19,7 @@ wait_for_if_link() {
             [ -n "$li" ] && return 0
         fi
         sleep 0.1
-        cnt=$(($cnt + 1))
+        cnt=$((cnt + 1))
     done
     return 1
 }

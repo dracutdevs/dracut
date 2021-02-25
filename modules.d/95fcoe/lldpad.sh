@@ -15,5 +15,5 @@ while [ $i -lt 60 ]; do
     lldptool -p && break
     info "Waiting for lldpad to be ready"
     sleep 1
-    i=$(($i + 1))
+    i=$((i + 1))
 done

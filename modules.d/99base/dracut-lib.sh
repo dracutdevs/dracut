@@ -270,7 +270,7 @@ getargnum() {
     _b=$(getarg "$1")
     [ $? -ne 0 -a -z "$_b" ] && _b=$_default
     if [ -n "$_b" ]; then
-        isdigit "$_b" && _b=$(($_b)) \
+        isdigit "$_b" && _b=$((_b)) \
             && [ $_b -ge $_min ] && [ $_b -le $_max ] && echo $_b && return
     fi
     echo $_default
@@ -471,7 +471,7 @@ check_occurances() {
 
     while [ "${str#*$ch}" != "${str}" ]; do
         str="${str#*$ch}"
-        count=$(($count + 1))
+        count=$((count + 1))
     done
 
     [ $count -eq $expected ]
@@ -609,7 +609,7 @@ funiq() {
     [ -d "${dir}" ] || return 1
 
     while [ -e "${dir}/${prefix}$i" ]; do
-        i=$(($i + 1)) || return 1
+        i=$((i + 1)) || return 1
     done
 
     echo "${dir}/${prefix}$i"
@@ -998,7 +998,7 @@ wait_for_loginit() {
             [ -z "${j##*Running*}" ] || break
         fi
         sleep 0.1
-        i=$(($i + 1))
+        i=$((i + 1))
     done
 
     if [ $i -eq 10 ]; then

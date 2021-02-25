@@ -2,7 +2,7 @@
 
 set -e
 
-if [[ -z "$DRACUT_TMPDIR" ]]; then
+if [[ -z $DRACUT_TMPDIR ]]; then
     echo "DRACUT_TMPDIR is unset, exiting"
     exit 0
 fi

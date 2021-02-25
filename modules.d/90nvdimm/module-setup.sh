@@ -5,7 +5,7 @@ check() {
     if [[ ! $hostonly ]]; then
         return 0
     fi
-    [[ $DRACUT_KERNEL_MODALIASES && -f "$DRACUT_KERNEL_MODALIASES" ]] \
+    [[ $DRACUT_KERNEL_MODALIASES && -f $DRACUT_KERNEL_MODALIASES ]] \
         && grep -q libnvdimm "$DRACUT_KERNEL_MODALIASES" && return 0
     return 255
 }

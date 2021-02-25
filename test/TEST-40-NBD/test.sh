@@ -91,14 +91,14 @@ client_test() {
     # nbdinfo=( fstype fsoptions )
     nbdinfo=($(awk '{print $2, $3; exit}' $TESTDIR/flag.img))
 
-    if [[ "${nbdinfo[0]}" != "$fstype" ]]; then
+    if [[ ${nbdinfo[0]} != "$fstype" ]]; then
         echo "CLIENT TEST END: $test_name [FAILED - WRONG FS TYPE] \"${nbdinfo[0]}\" != \"$fstype\""
         return 1
     fi
 
     opts=${nbdinfo[1]},
     while [[ $opts ]]; do
-        if [[ ${opts%%,*} = $fsopt ]]; then
+        if [[ ${opts%%,*} == $fsopt ]]; then
             found=1
             break
         fi

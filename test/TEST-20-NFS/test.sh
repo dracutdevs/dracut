@@ -82,7 +82,7 @@ client_test() {
     # nfsinfo=( server:/path nfs{,4} options )
     nfsinfo=($(awk '{print $2, $3, $4; exit}' $TESTDIR/client.img))
 
-    if [[ "${nfsinfo[0]%%:*}" != "$server" ]]; then
+    if [[ ${nfsinfo[0]%%:*} != "$server" ]]; then
         echo "CLIENT TEST INFO: got server: ${nfsinfo[0]%%:*}"
         echo "CLIENT TEST INFO: expected server: $server"
         echo "CLIENT TEST END: $test_name [FAILED - WRONG SERVER]"
@@ -91,14 +91,14 @@ client_test() {
 
     found=0
     expected=1
-    if [[ ${check_opt:0:1} = '-' ]]; then
+    if [[ ${check_opt:0:1} == '-' ]]; then
         expected=0
         check_opt=${check_opt:1}
     fi
 
     opts=${nfsinfo[2]},
     while [[ $opts ]]; do
-        if [[ ${opts%%,*} = $check_opt ]]; then
+        if [[ ${opts%%,*} == $check_opt ]]; then
             found=1
             break
         fi

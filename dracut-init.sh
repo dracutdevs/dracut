@@ -19,7 +19,7 @@
 #
 export LC_MESSAGES=C
 
-if [[ "$EUID" = "0" ]] && ! [[ $DRACUT_NO_XATTR ]]; then
+if [[ $EUID == "0" ]] && ! [[ $DRACUT_NO_XATTR ]]; then
     export DRACUT_CP="cp --reflink=auto --sparse=auto --preserve=mode,timestamps,xattr,links -dfr"
 else
     export DRACUT_CP="cp --reflink=auto --sparse=auto --preserve=mode,timestamps,links -dfr"
@@ -28,12 +28,12 @@ fi
 # is_func <command>
 # Check whether $1 is a function.
 is_func() {
-    [[ "$(type -t "$1")" = "function" ]]
+    [[ "$(type -t "$1")" == "function" ]]
 }
 
 if ! [[ $dracutbasedir ]]; then
     dracutbasedir=${BASH_SOURCE[0]%/*}
-    [[ $dracutbasedir = dracut-functions* ]] && dracutbasedir="."
+    [[ $dracutbasedir == dracut-functions* ]] && dracutbasedir="."
     [[ $dracutbasedir ]] || dracutbasedir="."
     dracutbasedir="$(readlink -f $dracutbasedir)"
 fi
@@ -114,7 +114,7 @@ require_binaries() {
     local _module_name="${moddir##*/}"
     local _ret=0
 
-    if [[ "$1" = "-m" ]]; then
+    if [[ $1 == "-m" ]]; then
         _module_name="$2"
         shift 2
     fi
@@ -132,7 +132,7 @@ require_any_binary() {
     local _module_name="${moddir##*/}"
     local _ret=1
 
-    if [[ "$1" = "-m" ]]; then
+    if [[ $1 == "-m" ]]; then
         _module_name="$2"
         shift 2
     fi
@@ -197,13 +197,13 @@ for i in $DRACUT_INSTALL; do
     DRINSTALLPARTS=$((DRINSTALLPARTS + 1))
 done
 
-if [[ $DRINSTALLPARTS = 1 ]] && ! command -v "$DRACUT_INSTALL" > /dev/null 2>&1; then
+if [[ $DRINSTALLPARTS == 1 ]] && ! command -v "$DRACUT_INSTALL" > /dev/null 2>&1; then
     dfatal "dracut-install not found!"
     exit 10
 fi
 
 if [[ $hostonly == "-h" ]]; then
-    if ! [[ $DRACUT_KERNEL_MODALIASES ]] || ! [[ -f "$DRACUT_KERNEL_MODALIASES" ]]; then
+    if ! [[ $DRACUT_KERNEL_MODALIASES ]] || ! [[ -f $DRACUT_KERNEL_MODALIASES ]]; then
         export DRACUT_KERNEL_MODALIASES="${DRACUT_TMPDIR}/modaliases"
         "$DRACUT_INSTALL" ${dracutsysrootdir:+-r "$dracutsysrootdir"} ${srcmods:+--kerneldir "$srcmods"} --modalias > "$DRACUT_KERNEL_MODALIASES"
     fi
@@ -219,7 +219,7 @@ inst_dir() {
 
 inst() {
     local _hostonly_install
-    if [[ "$1" == "-H" ]]; then
+    if [[ $1 == "-H" ]]; then
         _hostonly_install="-H"
         shift
     fi
@@ -232,7 +232,7 @@ inst() {
 
 inst_simple() {
     local _hostonly_install
-    if [[ "$1" == "-H" ]]; then
+    if [[ $1 == "-H" ]]; then
         _hostonly_install="-H"
         shift
     fi
@@ -245,7 +245,7 @@ inst_simple() {
 
 inst_symlink() {
     local _hostonly_install
-    if [[ "$1" == "-H" ]]; then
+    if [[ $1 == "-H" ]]; then
         _hostonly_install="-H"
         shift
     fi
@@ -275,7 +275,7 @@ dracut_instmods() {
     local _silent=0
     local i
     # shellcheck disable=SC2154
-    [[ $no_kernel = yes ]] && return
+    [[ $no_kernel == yes ]] && return
     for i in "$@"; do
         [[ $i == "--silent" ]] && _silent=1
     done
@@ -292,7 +292,7 @@ dracut_instmods() {
 
 inst_library() {
     local _hostonly_install
-    if [[ "$1" == "-H" ]]; then
+    if [[ $1 == "-H" ]]; then
         _hostonly_install="-H"
         shift
     fi
@@ -328,7 +328,7 @@ inst_fsck_help() {
 # given modules.
 optional_hostonly() {
     # shellcheck disable=SC2154
-    if [[ $hostonly_mode = "strict" ]]; then
+    if [[ $hostonly_mode == "strict" ]]; then
         printf -- "%s" "$hostonly"
     else
         printf ""
@@ -382,7 +382,7 @@ inst_rule_programs() {
         # shellcheck disable=SC2154
         if [[ -x ${udevdir}/$_prog ]]; then
             _bin="${udevdir}"/$_prog
-        elif [[ "${_prog/\$env\{/}" == "$_prog" ]]; then
+        elif [[ ${_prog/\$env\{/} == "$_prog" ]]; then
             _bin=$(find_binary "$_prog") || {
                 dinfo "Skipping program $_prog using in udev rule ${1##*/} as it cannot be found"
                 continue
@@ -397,7 +397,7 @@ inst_rule_programs() {
         _bin=""
         if [[ -x ${udevdir}/$_prog ]]; then
             _bin=${udevdir}/$_prog
-        elif [[ "${_prog/\$env\{/}" == "$_prog" ]] && [[ "${_prog}" != "/sbin/initqueue" ]]; then
+        elif [[ ${_prog/\$env\{/} == "$_prog" ]] && [[ ${_prog} != "/sbin/initqueue" ]]; then
             _bin=$(find_binary "$_prog") || {
                 dinfo "Skipping program $_prog using in udev rule ${1##*/} as it cannot be found"
                 continue
@@ -412,7 +412,7 @@ inst_rule_programs() {
         _bin=""
         if [[ -x ${udevdir}/$_prog ]]; then
             _bin=${udevdir}/$_prog
-        elif [[ "${_prog/\$env\{/}" == "$_prog" ]]; then
+        elif [[ ${_prog/\$env\{/} == "$_prog" ]]; then
             _bin=$(find_binary "$_prog") || {
                 dinfo "Skipping program $_prog using in udev rule ${1##*/} as it cannot be found"
                 continue
@@ -554,7 +554,7 @@ inst_hook() {
         dfatal "Cannot install a hook ($3) that does not exist."
         dfatal "Aborting initrd creation."
         exit 1
-    elif ! [[ "$hookdirs" == *$1* ]]; then
+    elif ! [[ $hookdirs == *$1* ]]; then
         dfatal "No such hook type $1. Aborting initrd creation."
         exit 1
     fi
@@ -577,7 +577,7 @@ inst_hook() {
 inst_any() {
     local to f
 
-    [[ $1 = '-d' ]] && to="$2" && shift 2
+    [[ $1 == '-d' ]] && to="$2" && shift 2
 
     for f in "$@"; do
         [[ -e $f ]] || continue
@@ -593,14 +593,14 @@ inst_any() {
 # -n <pattern> install matching files
 inst_libdir_file() {
     local -a _files
-    if [[ "$1" == "-n" ]]; then
+    if [[ $1 == "-n" ]]; then
         local _pattern=$2
         shift 2
         for _dir in $libdirs; do
             for _i in "$@"; do
                 for _f in "$dracutsysrootdir$_dir"/$_i; do
-                    [[ "${_f#$dracutsysrootdir}" =~ $_pattern ]] || continue
-                    [[ -e "$_f" ]] && _files+=("${_f#$dracutsysrootdir}")
+                    [[ ${_f#$dracutsysrootdir} =~ $_pattern ]] || continue
+                    [[ -e $_f ]] && _files+=("${_f#$dracutsysrootdir}")
                 done
             done
         done
@@ -608,7 +608,7 @@ inst_libdir_file() {
         for _dir in $libdirs; do
             for _i in "$@"; do
                 for _f in "$dracutsysrootdir$_dir"/$_i; do
-                    [[ -e "$_f" ]] && _files+=("${_f#$dracutsysrootdir}")
+                    [[ -e $_f ]] && _files+=("${_f#$dracutsysrootdir}")
                 done
             done
         done
@@ -635,7 +635,7 @@ inst_decompress() {
 
     for _src in "$@"; do
         _cmd=$(get_decompress_cmd "${_src}")
-        [[ -z "${_cmd}" ]] && return 1
+        [[ -z ${_cmd} ]] && return 1
         inst_simple "${_src}"
         # Decompress with chosen tool.  We assume that tool changes name e.g.
         # from 'name.gz' to 'name'.
@@ -839,10 +839,10 @@ check_mount() {
         ret=$?
 
         # explicit module, so also accept ret=255
-        [[ $ret = 0 || $ret = 255 ]] || return 1
+        [[ $ret == 0 || $ret == 255 ]] || return 1
     else
         # module not in our list
-        if [[ $dracutmodules = all ]]; then
+        if [[ $dracutmodules == all ]]; then
             # check, if we can and should install this module
             module_check_mount "$_mod" "$_moddir" || return 1
         else
@@ -909,10 +909,10 @@ check_module() {
             ret=$?
         fi
         # explicit module, so also accept ret=255
-        [[ $ret = 0 || $ret = 255 ]] || return 1
+        [[ $ret == 0 || $ret == 255 ]] || return 1
     else
         # module not in our list
-        if [[ $dracutmodules = all ]]; then
+        if [[ $dracutmodules == all ]]; then
             # check, if we can and should install this module
             module_check "$_mod" 0 "$_moddir"
             ret=$?
@@ -1010,13 +1010,13 @@ instmods() {
     local _silent
     local _ret
 
-    [[ $no_kernel = yes ]] && return
+    [[ $no_kernel == yes ]] && return
 
-    if [[ $1 = '-c' ]]; then
+    if [[ $1 == '-c' ]]; then
         unset _optional
         shift
     fi
-    if [[ $1 = '-s' ]]; then
+    if [[ $1 == '-s' ]]; then
         _silent=1
         shift
     fi
@@ -1042,7 +1042,7 @@ instmods() {
         -m "$@"
     _ret=$?
 
-    if ((_ret != 0)) && [[ -z "$_silent" ]]; then
+    if ((_ret != 0)) && [[ -z $_silent ]]; then
         derror "FAILED: " \
             "$DRACUT_INSTALL" \
             ${initdir:+-D "$initdir"} \
@@ -1068,7 +1068,7 @@ else
     ln_r() {
         local _source=$1
         local _dest=$2
-        [[ -d "${_dest%/*}" ]] && _dest=$(readlink -f "${_dest%/*}")/${_dest##*/}
+        [[ -d ${_dest%/*} ]] && _dest=$(readlink -f "${_dest%/*}")/${_dest##*/}
         ln -sfn -- "$(convert_abs_rel "${_dest}" "${_source}")" "${initdir}/${_dest}"
     }
 fi
@@ -1081,17 +1081,17 @@ is_qemu_virtualized() {
         if ! vm=$(systemd-detect-virt --vm > /dev/null 2>&1); then
             return 255
         fi
-        [[ $vm = "qemu" ]] && return 0
-        [[ $vm = "kvm" ]] && return 0
-        [[ $vm = "bochs" ]] && return 0
+        [[ $vm == "qemu" ]] && return 0
+        [[ $vm == "kvm" ]] && return 0
+        [[ $vm == "bochs" ]] && return 0
     fi
 
     for i in /sys/class/dmi/id/*_vendor; do
         [[ -f $i ]] || continue
         read -r vendor < "$i"
-        [[ "$vendor" == "QEMU" ]] && return 0
-        [[ "$vendor" == "Red Hat" ]] && return 0
-        [[ "$vendor" == "Bochs" ]] && return 0
+        [[ $vendor == "QEMU" ]] && return 0
+        [[ $vendor == "Red Hat" ]] && return 0
+        [[ $vendor == "Bochs" ]] && return 0
     done
     return 1
 }

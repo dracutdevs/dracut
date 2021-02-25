@@ -8,12 +8,12 @@ check() {
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for dev in "${!host_fs_types[@]}"; do
-            [[ "${host_fs_types[$dev]}" != *_raid_member ]] && continue
+            [[ ${host_fs_types[$dev]} != *_raid_member ]] && continue
 
             DEVPATH=$(get_devpath_block "$dev")
 
             for holder in "$DEVPATH"/holders/*; do
-                [[ -e "$holder" ]] || continue
+                [[ -e $holder ]] || continue
                 [[ -e "$holder/md" ]] && return 0
                 break
             done
@@ -42,17 +42,17 @@ cmdline() {
     declare -A _activated
 
     for dev in "${!host_fs_types[@]}"; do
-        [[ "${host_fs_types[$dev]}" != *_raid_member ]] && continue
+        [[ ${host_fs_types[$dev]} != *_raid_member ]] && continue
 
         UUID=$(
             /sbin/mdadm --examine --export $dev \
                 | while read line || [ -n "$line" ]; do
-                    [[ ${line#MD_UUID=} = $line ]] && continue
+                    [[ ${line#MD_UUID=} == $line ]] && continue
                     printf "%s" "${line#MD_UUID=} "
                 done
         )
 
-        [[ -z "$UUID" ]] && continue
+        [[ -z $UUID ]] && continue
 
         if ! [[ ${_activated[${UUID}]} ]]; then
             printf "%s" " rd.md.uuid=${UUID}"
@@ -103,7 +103,7 @@ install() {
         inst_hook pre-trigger 30 "$moddir/md-noddf.sh"
     fi
 
-    if [[ $hostonly ]] || [[ $mdadmconf = "yes" ]]; then
+    if [[ $hostonly ]] || [[ $mdadmconf == "yes" ]]; then
         if [[ -f $dracutsysrootdir/etc/mdadm.conf ]]; then
             inst -H /etc/mdadm.conf
         else

@@ -18,7 +18,7 @@
 __contains_word() {
     local word="$1"
     shift
-    for w in "$@"; do [[ $w = "$word" ]] && return 0; done
+    for w in "$@"; do [[ $w == "$word" ]] && return 0; done
     return 1
 }
 
@@ -52,7 +52,7 @@ _lsinitrd() {
         return 0
     fi
 
-    if [[ $cur = -* ]]; then
+    if [[ $cur == -* ]]; then
         # shellcheck disable=SC2207
         # shellcheck disable=SC2016
         COMPREPLY=($(compgen -W '${OPTS[*]}' -- "$cur"))

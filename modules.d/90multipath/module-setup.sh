@@ -94,7 +94,7 @@ install() {
         /etc/multipath/* \
         /etc/multipath/conf.d/*
 
-    [[ $hostonly ]] && [[ $hostonly_mode = "strict" ]] && {
+    [[ $hostonly ]] && [[ $hostonly_mode == "strict" ]] && {
         for_each_host_dev_and_slaves_all add_hostonly_mpath_conf
         [ -n "$_allow" ] && mpathconf $_allow --outfile ${initdir}/etc/multipath.conf
     }

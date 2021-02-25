@@ -2,12 +2,12 @@
 
 ROOT="$1"
 
-if [[ ! -d "$ROOT" ]]; then
+if [[ ! -d $ROOT ]]; then
     echo "Usage: $0 <rootdir>"
     exit 1
 fi
 
-if [[ "$ROOT" -ef / ]]; then
+if [[ $ROOT -ef / ]]; then
     echo "Can't convert the running system."
     echo "Please boot with 'rd.convertfs' on the kernel command line,"
     echo "to update with the help of the initramfs,"
@@ -15,7 +15,7 @@ if [[ "$ROOT" -ef / ]]; then
     exit 1
 fi
 
-while [[ "$ROOT" != "${ROOT%/}" ]]; do
+while [[ $ROOT != "${ROOT%/}" ]]; do
     ROOT=${ROOT%/}
 done
 
@@ -33,8 +33,8 @@ fi
 
 needconvert() {
     for dir in "$ROOT/bin" "$ROOT/sbin" "$ROOT/lib" "$ROOT/lib64"; do
-        if [[ -e "$dir" ]]; then
-            [[ -L "$dir" ]] || return 0
+        if [[ -e $dir ]]; then
+            [[ -L $dir ]] || return 0
         fi
     done
     return 1
@@ -55,7 +55,7 @@ fi
 testfile="$ROOT/.usrmovecheck$$"
 rm -f -- "$testfile"
 > "$testfile"
-if [[ ! -e "$testfile" ]]; then
+if [[ ! -e $testfile ]]; then
     echo "Cannot write to $ROOT/"
     exit 1
 fi
@@ -64,7 +64,7 @@ rm -f -- "$testfile"
 testfile="$ROOT/usr/.usrmovecheck$$"
 rm -f -- "$testfile"
 > "$testfile"
-if [[ ! -e "$testfile" ]]; then
+if [[ ! -e $testfile ]]; then
     echo "Cannot write to $ROOT/usr/"
     exit 1
 fi

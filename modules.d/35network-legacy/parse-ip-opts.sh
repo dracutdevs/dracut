@@ -28,7 +28,7 @@ if [ -z "$NEEDBOOTDEV" ]; then
                 continue
                 ;;
         esac
-        count=$(($count + 1))
+        count=$((count + 1))
     done
     [ $count -gt 1 ] && NEEDBOOTDEV=1
 fi

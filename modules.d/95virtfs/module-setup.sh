@@ -4,7 +4,7 @@
 check() {
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for fs in "${host_fs_types[@]}"; do
-            [[ "$fs" == "9p" ]] && return 0
+            [[ $fs == "9p" ]] && return 0
         done
         return 255
     }

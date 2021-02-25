@@ -94,7 +94,7 @@ while [ ! -b /dev/nbd0 ]; do
     else
         sleep 0.1
     fi
-    i=$(($i + 1))
+    i=$((i + 1))
 done
 
 # If we didn't get a root= on the command line, then we need to

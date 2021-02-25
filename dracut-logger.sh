@@ -332,7 +332,7 @@ _do_dlog() {
         fi
     fi
 
-    if ((lvl <= fileloglvl)) && [[ -w "$logfile" ]] && [[ -f "$logfile" ]]; then
+    if ((lvl <= fileloglvl)) && [[ -w $logfile ]] && [[ -f $logfile ]]; then
         echo "$lmsg" >> "$logfile"
     fi
 

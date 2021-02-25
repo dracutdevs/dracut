@@ -64,9 +64,9 @@ install() {
     inst "$moddir/fs-lib.sh" "/lib/fs-lib.sh"
     > ${initdir}/etc/fstab.empty
 
-    [[ "$nofscks" = "yes" ]] && return
+    [[ $nofscks == "yes" ]] && return
 
-    if [[ "$fscks" = "${fscks#*[^ ]*}" ]]; then
+    if [[ $fscks == "${fscks#*[^ ]*}" ]]; then
         _helpers="\
             umount mount /sbin/fsck* /usr/sbin/fsck*
             xfs_db xfs_check xfs_repair xfs_metadump
@@ -80,7 +80,7 @@ install() {
         _helpers="$fscks"
     fi
 
-    if [[ "$_helpers" == *e2fsck* ]] && [[ -e $dracutsysrootdir/etc/e2fsck.conf ]]; then
+    if [[ $_helpers == *e2fsck* ]] && [[ -e $dracutsysrootdir/etc/e2fsck.conf ]]; then
         inst_simple /etc/e2fsck.conf
     fi
 

@@ -32,7 +32,7 @@ if [[ $hostonly ]]; then
     fi
 else
     for x in "$dracutsysrootdir"/usr/share/plymouth/themes/{text,details}/*; do
-        [[ -f "$x" ]] || continue
+        [[ -f $x ]] || continue
         THEME_DIR=$(dirname "${x#$dracutsysrootdir}")
         mkdir -m 0755 -p "${initdir}/$THEME_DIR"
         inst_multiple "${x#$dracutsysrootdir}"

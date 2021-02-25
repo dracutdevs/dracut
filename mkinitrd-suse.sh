@@ -26,7 +26,7 @@ dracut_cmd=dracut
 error() { echo "$@" >&2; }
 
 usage() {
-    [[ $1 = '-n' ]] && cmd=echo || cmd=error
+    [[ $1 == '-n' ]] && cmd=echo || cmd=error
 
     $cmd "usage: ${0##*/} [options]"
     $cmd ""
@@ -37,27 +37,27 @@ usage() {
     $cmd "	for the root file system, or a network interface driver module for dhcp."
     $cmd ""
     $cmd "	options:"
-    $cmd "	-f \"feature list\"	Features to be enabled when generating initrd."
+    $cmd '	-f "feature list"	Features to be enabled when generating initrd.'
     $cmd "				Available features are:"
     $cmd "					iscsi, md, multipath, lvm, lvm2,"
     $cmd "					ifup, fcoe, dcbd"
-    $cmd "	-k \"kernel list\"	List of kernel images for which initrd files are"
+    $cmd '	-k "kernel list"	List of kernel images for which initrd files are'
     $cmd "				created. Defaults to all kernels found in /boot."
-    $cmd "	-i \"initrd list\"	List of file names for the initrd; position have"
-    $cmd "				match to \"kernel list\". Defaults to all kernels"
+    $cmd '	-i "initrd list"	List of file names for the initrd; position have'
+    $cmd '				match to "kernel list". Defaults to all kernels'
     $cmd "				found in /boot."
     $cmd "	-b boot_dir		Boot directory. Defaults to /boot."
     $cmd "	-t tmp_dir		Temporary directory. Defaults to /var/tmp."
     $cmd "	-M map			System.map file to use."
-    $cmd "	-A			Create a so called \"monster initrd\" which"
+    $cmd '	-A			Create a so called "monster initrd" which'
     $cmd "				includes all features and modules possible."
     $cmd "	-B			Do not update bootloader configuration."
     $cmd "	-v			Verbose mode."
     $cmd "	-L			Disable logging."
     $cmd "	-h			This help screen."
-    $cmd "	-m \"module list\"	Modules to include in initrd. Defaults to the"
+    $cmd '	-m "module list"	Modules to include in initrd. Defaults to the'
     $cmd "				INITRD_MODULES variable in /etc/sysconfig/kernel"
-    $cmd "	-u \"DomU module list\"	Modules to include in initrd. Defaults to the"
+    $cmd '	-u "DomU module list"	Modules to include in initrd. Defaults to the'
     $cmd "				DOMU_INITRD_MODULES variable in"
     $cmd "				/etc/sysconfig/kernel."
     $cmd "	-d root_device		Root device. Defaults to the device from"
@@ -69,7 +69,7 @@ usage() {
     $cmd "	-a acpi_dsdt		Obsolete, do not use."
     $cmd "	-s size			Add splash animation and bootscreen to initrd."
 
-    [[ $1 = '-n' ]] && exit 0
+    [[ $1 == '-n' ]] && exit 0
     exit 1
 }
 
@@ -85,17 +85,17 @@ read_arg() {
     if [[ $2 =~ $rematch ]]; then
         read "$param" <<< "${BASH_REMATCH[1]}"
     else
-        for ((i = 3; $i <= $#; i++)); do
+        for ((i = 3; i <= $#; i++)); do
             # Only read next arg if it not an arg itself.
-            if [[ ${*:$i:1} = -* ]]; then
+            if [[ ${*:i:1} == -* ]]; then
                 break
             fi
-            result="$result ${@:$i:1}"
+            result="$result ${@:i:1}"
             # There is no way to shift our callers args, so
             # return "no of args" to indicate they should do it instead.
         done
         read "$1" <<< "$result"
-        return $(($i - 3))
+        return $((i - 3))
     fi
 }
 
@@ -104,7 +104,7 @@ calc_netmask() {
     local prefix=$1
 
     [ -z "$prefix" ] && return
-    mask=$((0xffffffff << (32 - $prefix)))
+    mask=$((0xffffffff << (32 - prefix)))
     byte1=$((mask >> 24))
     byte2=$((mask >> 16))
     byte3=$((mask >> 8))
@@ -137,7 +137,7 @@ is_xen_kernel() {
 
     for cfg in ${root_dir}/boot/config-$kversion $root_dir/lib/modules/$kversion/build/.config; do
         test -r $cfg || continue
-        grep -q "^CONFIG_XEN=y\$" $cfg
+        grep -q '^CONFIG_XEN=y$' $cfg
         return
     done
     test $kversion != "${kversion%-xen*}"
@@ -146,7 +146,7 @@ is_xen_kernel() {
 
 kernel_version_from_image() {
     local dir="${1%/*}/"
-    [[ "$dir" != "$1" ]] || dir=""
+    [[ $dir != "$1" ]] || dir=""
     local kernel_image="$1" kernel_image_gz="${dir}vmlinux-${1#*-}.gz"
     echo kernel_image_gz="'$kernel_image_gz'" >&2
 
@@ -337,7 +337,7 @@ shopt -s extglob
 
 failed=""
 
-for ((i = 0; $i < ${#targets[@]}; i++)); do
+for ((i = 0; i < ${#targets[@]}; i++)); do
 
     if [[ $img_vers ]]; then
         target="${targets[$i]}-${kernels[$i]}"

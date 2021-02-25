@@ -157,7 +157,7 @@ else
             info "No key found for $device.  Will try $numtries time(s) more later."
             initqueue --unique --onetime --settled \
                 --name cryptroot-ask-$luksname \
-                $(command -v cryptroot-ask) "$device" "$luksname" "$is_keysource" "$(($numtries - 1))"
+                $(command -v cryptroot-ask) "$device" "$luksname" "$is_keysource" "$((numtries - 1))"
             exit 0
         fi
         unset tmp

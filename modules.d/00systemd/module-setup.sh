@@ -40,8 +40,8 @@ installkernel() {
 install() {
     local _mods
 
-    if [[ "$prefix" == /run/* ]]; then
-        dfatal "systemd does not work with a prefix, which contains \"/run\"!!"
+    if [[ $prefix == /run/* ]]; then
+        dfatal 'systemd does not work with a prefix, which contains "/run"!!'
         exit 1
     fi
 

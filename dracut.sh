@@ -310,7 +310,7 @@ dropindirs_sort() {
 
     for d in "$@"; do
         for i in "$d/"*"$suffix"; do
-            if [[ -e "$i" ]]; then
+            if [[ -e $i ]]; then
                 printf "%s\n" "${i##*/}"
             fi
         done
@@ -928,11 +928,11 @@ for i in $DRACUT_PATH; do
         rl=$(readlink -f "$dracutsysrootdir$i")
     fi
     rl="${rl#$dracutsysrootdir}"
-    if [[ "$NPATH" != *:$rl* ]]; then
+    if [[ $NPATH != *:$rl* ]]; then
         NPATH+=":$rl"
     fi
 done
-[[ -z "$dracutsysrootdir" ]] && export PATH="${NPATH#:}"
+[[ -z $dracutsysrootdir ]] && export PATH="${NPATH#:}"
 unset NPATH
 
 export SYSTEMCTL=${SYSTEMCTL:-systemctl}
@@ -965,11 +965,11 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $do_hardlink_l ]] && do_hardlink=$do_hardlink_l
 [[ $do_hardlink ]] || do_hardlink=yes
 [[ $prefix_l ]] && prefix=$prefix_l
-[[ $prefix = "/" ]] && unset prefix
+[[ $prefix == "/" ]] && unset prefix
 [[ $hostonly_l ]] && hostonly=$hostonly_l
 [[ $hostonly_cmdline_l ]] && hostonly_cmdline=$hostonly_cmdline_l
 [[ $hostonly_mode_l ]] && hostonly_mode=$hostonly_mode_l
-[[ "$hostonly" == "yes" ]] && ! [[ $hostonly_cmdline ]] && hostonly_cmdline="yes"
+[[ $hostonly == "yes" ]] && ! [[ $hostonly_cmdline ]] && hostonly_cmdline="yes"
 # shellcheck disable=SC2034
 [[ $i18n_install_all_l ]] && i18n_install_all=$i18n_install_all_l
 # shellcheck disable=SC2034
@@ -1008,12 +1008,12 @@ if ! [[ $outfile ]]; then
 
     if [[ $uefi == "yes" ]]; then
         # shellcheck disable=SC2154
-        if [[ -n "$uefi_secureboot_key" && -z "$uefi_secureboot_cert" ]] || [[ -z $uefi_secureboot_key && -n $uefi_secureboot_cert ]]; then
+        if [[ -n $uefi_secureboot_key && -z $uefi_secureboot_cert ]] || [[ -z $uefi_secureboot_key && -n $uefi_secureboot_cert ]]; then
             dfatal "Need 'uefi_secureboot_key' and 'uefi_secureboot_cert' both to be set."
             exit 1
         fi
 
-        if [[ -n "$uefi_secureboot_key" && -n "$uefi_secureboot_cert" ]] && ! command -v sbsign &> /dev/null; then
+        if [[ -n $uefi_secureboot_key && -n $uefi_secureboot_cert ]] && ! command -v sbsign &> /dev/null; then
             dfatal "Need 'sbsign' to create a signed UEFI executable"
             exit 1
         fi
@@ -1055,8 +1055,8 @@ export DRACUT_FIRMWARE_PATH=${fw_dir// /:}
 fw_dir=${fw_dir//:/ }
 
 # check for logfile and try to create one if it doesn't exist
-if [[ -n "$logfile" ]]; then
-    if [[ ! -f "$logfile" ]]; then
+if [[ -n $logfile ]]; then
+    if [[ ! -f $logfile ]]; then
         if touch "$logfile"; then
             printf "%s\n" "dracut: touch $logfile failed." >&2
         fi
@@ -1075,11 +1075,11 @@ DRACUT_COMPRESS_ZSTD=${DRACUT_COMPRESS_ZSTD:-zstd}
 DRACUT_COMPRESS_LZ4=${DRACUT_COMPRESS_LZ4:-lz4}
 DRACUT_COMPRESS_CAT=${DRACUT_COMPRESS_CAT:-cat}
 
-if [[ $_no_compress_l = "$DRACUT_COMPRESS_CAT" ]]; then
+if [[ $_no_compress_l == "$DRACUT_COMPRESS_CAT" ]]; then
     compress="$DRACUT_COMPRESS_CAT"
 fi
 
-[[ $hostonly = yes ]] && hostonly="-h"
+[[ $hostonly == yes ]] && hostonly="-h"
 [[ $hostonly != "-h" ]] && unset hostonly
 
 case $hostonly_mode in
@@ -1103,7 +1103,7 @@ case "${drivers_dir}" in
     '' | *lib/modules/${kernel} | *lib/modules/${kernel}/) ;;
     *)
         [[ "$DRACUT_KMODDIR_OVERRIDE" ]] || {
-            printf "%s\n" "dracut: -k/--kmoddir path must contain \"lib/modules\" as a parent of your kernel module directory,"
+            printf "%s\n" 'dracut: -k/--kmoddir path must contain "lib/modules" as a parent of your kernel module directory,'
             printf "%s\n" "dracut: or modules may not be placed in the correct location inside the initramfs."
             printf "%s\n" "dracut: was given: ${drivers_dir}"
             printf "%s\n" "dracut: expected: $(dirname "${drivers_dir}")/lib/modules/${kernel}"
@@ -1148,7 +1148,7 @@ readonly initdir="${DRACUT_TMPDIR}/initramfs"
 mkdir -p "$initdir"
 
 # shellcheck disable=SC2154
-if [[ $early_microcode = yes ]] || { [[ $acpi_override = yes ]] && [[ -d $acpi_table_dir ]]; }; then
+if [[ $early_microcode == yes ]] || { [[ $acpi_override == yes ]] && [[ -d $acpi_table_dir ]]; }; then
     readonly early_cpio_dir="${DRACUT_TMPDIR}/earlycpio"
     mkdir "$early_cpio_dir"
 fi
@@ -1221,14 +1221,14 @@ unset omit_drivers_corrected
 
 # prepare args for logging
 for ((i = 0; i < ${#dracut_args[@]}; i++)); do
-    [[ "${dracut_args[$i]}" == *\ * ]] \
+    [[ ${dracut_args[$i]} == *\ * ]] \
         && dracut_args[$i]="\"${dracut_args[$i]}\""
     #" keep vim happy
 done
 
 dinfo "Executing: $dracut_cmd ${dracut_args[*]}"
 
-[[ $do_list = yes ]] && {
+[[ $do_list == yes ]] && {
     for mod in "$dracutbasedir"/modules.d/*; do
         [[ -d $mod ]] || continue
         [[ -e $mod/install || -e $mod/installkernel || -e \
@@ -1294,13 +1294,13 @@ if [[ ! $print_cmdline ]]; then
     outdir=${outfile%/*}
     [[ $outdir ]] || outdir="/"
 
-    if [[ ! -d "$outdir" ]]; then
+    if [[ ! -d $outdir ]]; then
         dfatal "Can't write to $outdir: Directory $outdir does not exist or is not accessible."
         exit 1
-    elif [[ ! -w "$outdir" ]]; then
+    elif [[ ! -w $outdir ]]; then
         dfatal "No permission to write to $outdir."
         exit 1
-    elif [[ -f "$outfile" && ! -w "$outfile" ]]; then
+    elif [[ -f $outfile && ! -w $outfile ]]; then
         dfatal "No permission to write $outfile."
         exit 1
     fi
@@ -1313,7 +1313,7 @@ if [[ ! $print_cmdline ]]; then
         loginstall=$(readlink -f "$loginstall")
     fi
 
-    if [[ $uefi = yes ]]; then
+    if [[ $uefi == yes ]]; then
         if ! command -v objcopy &> /dev/null; then
             dfatal "Need 'objcopy' to create a UEFI executable"
             exit 1
@@ -1347,7 +1347,7 @@ if [[ ! $print_cmdline ]]; then
 
         if ! [[ $kernel_image ]]; then
             for kernel_image in "$dracutsysrootdir/lib/modules/$kernel/vmlinuz" "$dracutsysrootdir/boot/vmlinuz-$kernel"; do
-                [[ -s "$kernel_image" ]] || continue
+                [[ -s $kernel_image ]] || continue
                 break
             done
         fi
@@ -1358,12 +1358,12 @@ if [[ ! $print_cmdline ]]; then
     fi
 fi
 
-if [[ $acpi_override = yes ]] && ! (check_kernel_config CONFIG_ACPI_TABLE_UPGRADE || check_kernel_config CONFIG_ACPI_INITRD_TABLE_OVERRIDE); then
+if [[ $acpi_override == yes ]] && ! (check_kernel_config CONFIG_ACPI_TABLE_UPGRADE || check_kernel_config CONFIG_ACPI_INITRD_TABLE_OVERRIDE); then
     dwarn "Disabling ACPI override, because kernel does not support it. CONFIG_ACPI_INITRD_TABLE_OVERRIDE!=y or CONFIG_ACPI_TABLE_UPGRADE!=y"
     unset acpi_override
 fi
 
-if [[ $early_microcode = yes ]]; then
+if [[ $early_microcode == yes ]]; then
     if [[ $hostonly ]]; then
         if [[ $(get_cpu_vendor) == "AMD" ]]; then
             check_kernel_config CONFIG_MICROCODE_AMD || unset early_microcode
@@ -1421,7 +1421,7 @@ for line in "${fstab_lines[@]}"; do
             ;;
     esac
     [ -z "$dev" ] && dwarn "Bad fstab entry $*" && continue
-    if [[ "$3" == btrfs ]]; then
+    if [[ $3 == btrfs ]]; then
         for i in $(btrfs_devs "$2"); do
             push_host_devs "$i"
         done
@@ -1446,7 +1446,7 @@ if ((${#add_device_l[@]})); then
     push_host_devs "${add_device_l[@]}"
 fi
 
-if [[ $hostonly ]] && [[ "$hostonly_default_device" != "no" ]]; then
+if [[ $hostonly ]] && [[ $hostonly_default_device != "no" ]]; then
     # in hostonly mode, determine all devices, which have to be accessed
     # and examine them for filesystem types
 
@@ -1470,11 +1470,11 @@ if [[ $hostonly ]] && [[ "$hostonly_default_device" != "no" ]]; then
         _dev=$(find_block_device "$mp")
         _bdev=$(readlink -f "/dev/block/$_dev")
         [[ -b $_bdev ]] && _dev=$_bdev
-        [[ "$mp" == "/" ]] && root_devs+=("$_dev")
+        [[ $mp == "/" ]] && root_devs+=("$_dev")
         push_host_devs "$_dev"
         if [[ $(find_mp_fstype "$mp") == btrfs ]]; then
             for i in $(btrfs_devs "$mp"); do
-                [[ "$mp" == "/" ]] && root_devs+=("$i")
+                [[ $mp == "/" ]] && root_devs+=("$i")
                 push_host_devs "$i"
             done
         fi
@@ -1484,24 +1484,24 @@ if [[ $hostonly ]] && [[ "$hostonly_default_device" != "no" ]]; then
     if [[ -f /proc/swaps ]] && [[ -f $dracutsysrootdir/etc/fstab ]]; then
         while read -r dev type rest || [ -n "$dev" ]; do
             [[ -b $dev ]] || continue
-            [[ "$type" == "partition" ]] || continue
+            [[ $type == "partition" ]] || continue
 
             while read -r _d _m _t _o _ || [ -n "$_d" ]; do
-                [[ "$_d" == \#* ]] && continue
+                [[ $_d == \#* ]] && continue
                 [[ $_d ]] || continue
                 [[ $_t != "swap" ]] && continue
                 [[ $_m != "swap" ]] && [[ $_m != "none" ]] && continue
-                [[ "$_o" == *noauto* ]] && continue
+                [[ $_o == *noauto* ]] && continue
                 _d=$(expand_persistent_dev "$_d")
-                [[ "$_d" -ef "$dev" ]] || continue
+                [[ $_d -ef $dev ]] || continue
 
                 if [[ -f $dracutsysrootdir/etc/crypttab ]]; then
                     while read -r _mapper _ _p _o || [ -n "$_mapper" ]; do
-                        [[ $_mapper = \#* ]] && continue
-                        [[ "$_d" -ef /dev/mapper/"$_mapper" ]] || continue
+                        [[ $_mapper == \#* ]] && continue
+                        [[ $_d -ef /dev/mapper/"$_mapper" ]] || continue
                         [[ "$_o" ]] || _o="$_p"
                         # skip entries with password files
-                        [[ "$_p" == /* ]] && [[ -f $_p ]] && continue 2
+                        [[ $_p == /* ]] && [[ -f $_p ]] && continue 2
                         # skip mkswap swap
                         [[ $_o == *swap* ]] && continue 2
                     done < "$dracutsysrootdir"/etc/crypttab
@@ -1518,15 +1518,15 @@ if [[ $hostonly ]] && [[ "$hostonly_default_device" != "no" ]]; then
     # collect all "x-initrd.mount" entries from /etc/fstab
     if [[ -f $dracutsysrootdir/etc/fstab ]]; then
         while read -r _d _m _t _o _ || [ -n "$_d" ]; do
-            [[ "$_d" == \#* ]] && continue
+            [[ $_d == \#* ]] && continue
             [[ $_d ]] || continue
-            [[ "$_o" != *x-initrd.mount* ]] && continue
+            [[ $_o != *x-initrd.mount* ]] && continue
             _dev=$(expand_persistent_dev "$_d")
             _dev="$(readlink -f "$_dev")"
             [[ -b $_dev ]] || continue
 
             push_host_devs "$_dev"
-            if [[ "$_t" == btrfs ]]; then
+            if [[ $_t == btrfs ]]; then
                 for i in $(btrfs_devs "$_m"); do
                     push_host_devs "$i"
                 done
@@ -1561,11 +1561,11 @@ for dev in "${host_devs[@]}"; do
 done
 
 for dev in "${!host_fs_types[@]}"; do
-    [[ ${host_fs_types[$dev]} = "reiserfs" ]] || [[ ${host_fs_types[$dev]} = "xfs" ]] || continue
+    [[ ${host_fs_types[$dev]} == "reiserfs" ]] || [[ ${host_fs_types[$dev]} == "xfs" ]] || continue
     rootopts=$(find_dev_fsopts "$dev")
-    if [[ ${host_fs_types[$dev]} = "reiserfs" ]]; then
+    if [[ ${host_fs_types[$dev]} == "reiserfs" ]]; then
         journaldev=$(fs_get_option "$rootopts" "jdev")
-    elif [[ ${host_fs_types[$dev]} = "xfs" ]]; then
+    elif [[ ${host_fs_types[$dev]} == "xfs" ]]; then
         journaldev=$(fs_get_option "$rootopts" "logdev")
     fi
     if [[ $journaldev ]]; then
@@ -1794,7 +1794,7 @@ fi
 
 if [[ $prefix ]]; then
     for d in bin etc lib sbin tmp usr var $libdirs; do
-        [[ "$d" == */* ]] && continue
+        [[ $d == */* ]] && continue
         ln -sfn "${prefix#/}/${d#/}" "$initdir/$d"
     done
 fi
@@ -1842,7 +1842,7 @@ if [[ $kernel_only != yes ]]; then
         # shellcheck disable=SC2174
         mkdir -m 0755 -p "${initdir}/lib/dracut/hooks/$_d"
     done
-    if [[ "$EUID" = "0" ]]; then
+    if [[ $EUID == "0" ]]; then
         [[ -c ${initdir}/dev/null ]] || mknod "${initdir}"/dev/null c 1 3
         [[ -c ${initdir}/dev/kmsg ]] || mknod "${initdir}"/dev/kmsg c 1 11
         [[ -c ${initdir}/dev/console ]] || mknod "${initdir}"/dev/console c 5 1
@@ -1857,8 +1857,8 @@ modules_loaded=" "
 for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
     _d_mod=${moddir##*/}
     _d_mod=${_d_mod#[0-9][0-9]}
-    [[ "$mods_to_load" == *\ $_d_mod\ * ]] || continue
-    if [[ $show_modules = yes ]]; then
+    [[ $mods_to_load == *\ $_d_mod\ * ]] || continue
+    if [[ $show_modules == yes ]]; then
         printf "%s\n" "$_d_mod"
     else
         dinfo "*** Including module: $_d_mod ***"
@@ -1902,7 +1902,7 @@ dinfo "*** Including modules done ***"
 
 ## final stuff that has to happen
 if [[ $no_kernel != yes ]]; then
-    if [[ $hostonly_mode = "strict" ]]; then
+    if [[ $hostonly_mode == "strict" ]]; then
         cp "$DRACUT_KERNEL_MODALIASES" "$initdir"/lib/dracut/hostonly-kernel-modules.txt
     fi
 
@@ -1911,7 +1911,7 @@ if [[ $no_kernel != yes ]]; then
         hostonly='' instmods $drivers
     fi
 
-    if [[ -n "${add_drivers// /}" ]]; then
+    if [[ -n ${add_drivers// /} ]]; then
         # shellcheck disable=SC2086
         hostonly='' instmods -c $add_drivers
     fi
@@ -2015,11 +2015,11 @@ for ((i = 0; i < ${#include_src[@]}; i++)); do
             # symlinks to $prefix
             # Objectname is a file or a directory
             for objectname in "$src"/*; do
-                [[ -e "$objectname" || -L "$objectname" ]] || continue
-                if [[ -d "$objectname" ]]; then
+                [[ -e $objectname || -L $objectname ]] || continue
+                if [[ -d $objectname ]]; then
                     # objectname is a directory, let's compute the final directory name
                     object_destdir=${destdir}/${objectname#$src/}
-                    if ! [[ -e "$object_destdir" ]]; then
+                    if ! [[ -e $object_destdir ]]; then
                         # shellcheck disable=SC2174
                         mkdir -m 0755 -p "$object_destdir"
                         chmod --reference="$objectname" "$object_destdir"
@@ -2037,14 +2037,14 @@ for ((i = 0; i < ${#include_src[@]}; i++)); do
     fi
 done
 
-if [[ $do_hardlink = yes ]] && command -v hardlink > /dev/null; then
+if [[ $do_hardlink == yes ]] && command -v hardlink > /dev/null; then
     dinfo "*** Hardlinking files ***"
     hardlink "$initdir" 2>&1
     dinfo "*** Hardlinking files done ***"
 fi
 
 # strip binaries
-if [[ $do_strip = yes ]]; then
+if [[ $do_strip == yes ]]; then
     # Prefer strip from elfutils for package size
     declare strip_cmd
     strip_cmd=$(command -v eu-strip)
@@ -2063,7 +2063,7 @@ for d in $(ldconfig_paths); do
     rmdir -p --ignore-fail-on-non-empty "$initdir/$d" > /dev/null 2>&1
 done
 
-if [[ $early_microcode = yes ]]; then
+if [[ $early_microcode == yes ]]; then
     dinfo "*** Generating early-microcode cpio image ***"
     ucode_dir=(amd-ucode intel-ucode)
     ucode_dest=(AuthenticAMD.bin GenuineIntel.bin)
@@ -2092,7 +2092,7 @@ if [[ $early_microcode = yes ]]; then
                     break 2
                 done
                 for i in $_fwdir/$_fw/$_src; do
-                    [[ -e "$i" ]] || continue
+                    [[ -e $i ]] || continue
                     # skip gpg files
                     str_ends "$i" ".asc" && continue
                     cat "$i" >> "$_dest_dir/${ucode_dest[$idx]}"
@@ -2119,7 +2119,7 @@ if [[ $early_microcode = yes ]]; then
     done
 fi
 
-if [[ $acpi_override = yes ]] && [[ -d $acpi_table_dir ]]; then
+if [[ $acpi_override == yes ]] && [[ -d $acpi_table_dir ]]; then
     dinfo "*** Packaging ACPI tables to override BIOS provided ones ***"
     _dest_dir="$early_cpio_dir/d/kernel/firmware/acpi"
     mkdir -p "$_dest_dir"
@@ -2155,7 +2155,7 @@ if [[ $kernel_only != yes ]]; then
     # libpthread workaround: pthread_cancel wants to dlopen libgcc_s.so
     for _dir in $libdirs; do
         for _f in "$dracutsysrootdir$_dir/libpthread.so"*; do
-            [[ -e "$_f" ]] || continue
+            [[ -e $_f ]] || continue
             inst_libdir_file "libgcc_s.so*"
             break 2
         done
@@ -2165,7 +2165,7 @@ if [[ $kernel_only != yes ]]; then
     if [[ $DRACUT_FIPS_MODE ]]; then
         for _dir in $libdirs; do
             for _f in "$dracutsysrootdir$_dir/libcrypto.so"*; do
-                [[ -e "$_f" ]] || continue
+                [[ -e $_f ]] || continue
                 inst_libdir_file -o "libssl.so*"
                 break 2
             done
@@ -2179,7 +2179,7 @@ if [[ $kernel_only != yes ]]; then
         [[ -f $f ]] && inst_simple "${f#$dracutsysrootdir}"
     done
     if ! $DRACUT_LDCONFIG -r "$initdir" -f /etc/ld.so.conf; then
-        if [[ $EUID = 0 ]]; then
+        if [[ $EUID == 0 ]]; then
             derror "ldconfig exited ungracefully"
         else
             derror "ldconfig might need uid=0 (root) for chroot()"
@@ -2195,7 +2195,7 @@ if dracut_module_included "squash"; then
     DRACUT_SQUASH_POST_INST=1 module_install "squash"
 fi
 
-if [[ $do_strip = yes ]] && ! [[ $DRACUT_FIPS_MODE ]]; then
+if [[ $do_strip == yes ]] && ! [[ $DRACUT_FIPS_MODE ]]; then
     dinfo "*** Stripping files ***"
     find "$initdir" -type f \
         -executable -not -path '*/lib/modules/*.ko' -print0 \
@@ -2239,7 +2239,7 @@ fi
 
 dinfo "*** Creating image file '$outfile' ***"
 
-if [[ $uefi = yes ]]; then
+if [[ $uefi == yes ]]; then
     readonly uefi_outdir="$DRACUT_TMPDIR/uefi"
     mkdir -p "$uefi_outdir"
 fi
@@ -2255,9 +2255,9 @@ if [[ $DRACUT_REPRODUCIBLE ]]; then
     fi
 fi
 
-[[ "$EUID" != 0 ]] && cpio_owner="0:0"
+[[ $EUID != 0 ]] && cpio_owner="0:0"
 
-if [[ $create_early_cpio = yes ]]; then
+if [[ $create_early_cpio == yes ]]; then
     echo 1 > "$early_cpio_dir/d/early_cpio"
 
     if [[ $DRACUT_REPRODUCIBLE ]]; then
@@ -2285,7 +2285,7 @@ if ! [[ $compress ]]; then
         compress="$i"
         break
     done
-    if [[ $compress = cat ]]; then
+    if [[ $compress == cat ]]; then
         printf "%s\n" "dracut: no compression tool available. Initramfs image is going to be big." >&2
     fi
 fi
@@ -2293,7 +2293,7 @@ fi
 # choose the right arguments for the compressor
 case $compress in
     bzip2 | lbzip2)
-        if [[ "$compress" = lbzip2 ]] || command -v "$DRACUT_COMPRESS_LBZIP2" &> /dev/null; then
+        if [[ $compress == lbzip2 ]] || command -v "$DRACUT_COMPRESS_LBZIP2" &> /dev/null; then
             compress="$DRACUT_COMPRESS_LBZIP2 -9"
         else
             compress="$DRACUT_COMPRESS_BZIP2 -9"
@@ -2306,7 +2306,7 @@ case $compress in
         compress="$DRACUT_COMPRESS_XZ --check=crc32 --lzma2=dict=1MiB -T0"
         ;;
     gzip | pigz)
-        if [[ "$compress" = pigz ]] || command -v "$DRACUT_COMPRESS_PIGZ" &> /dev/null; then
+        if [[ $compress == pigz ]] || command -v "$DRACUT_COMPRESS_PIGZ" &> /dev/null; then
             compress="$DRACUT_COMPRESS_PIGZ -9 -n -T -R"
         elif command -v gzip &> /dev/null && $DRACUT_COMPRESS_GZIP --help 2>&1 | grep -q rsyncable; then
             compress="$DRACUT_COMPRESS_GZIP -n -9 --rsyncable"
@@ -2347,17 +2347,17 @@ fi
 
 umask 077
 
-if [[ $uefi = yes ]]; then
+if [[ $uefi == yes ]]; then
     if [[ $kernel_cmdline ]]; then
         echo -n "$kernel_cmdline" > "$uefi_outdir/cmdline.txt"
-    elif [[ $hostonly_cmdline = yes ]] && [ -d "$initdir/etc/cmdline.d" ]; then
+    elif [[ $hostonly_cmdline == yes ]] && [ -d "$initdir/etc/cmdline.d" ]; then
         for conf in "$initdir"/etc/cmdline.d/*.conf; do
             [ -e "$conf" ] || continue
             printf "%s " "$(< "$conf")" >> "$uefi_outdir/cmdline.txt"
         done
     fi
 
-    if [[ $kernel_cmdline ]] || [[ $hostonly_cmdline = yes && -d "$initdir/etc/cmdline.d" ]]; then
+    if [[ $kernel_cmdline ]] || [[ $hostonly_cmdline == yes && -d "$initdir/etc/cmdline.d" ]]; then
         echo -ne "\x00" >> "$uefi_outdir/cmdline.txt"
         dinfo "Using UEFI kernel cmdline:"
         dinfo "$(tr -d '\000' < "$uefi_outdir/cmdline.txt")"
@@ -2381,7 +2381,7 @@ if [[ $uefi = yes ]]; then
         --add-section .linux="$kernel_image" --change-section-vma .linux=0x2000000 \
         --add-section .initrd="${DRACUT_TMPDIR}/initramfs.img" --change-section-vma .initrd=0x3000000 \
         "$uefi_stub" "${uefi_outdir}/linux.efi"; then
-        if [[ -n "${uefi_secureboot_key}" && -n "${uefi_secureboot_cert}" ]]; then
+        if [[ -n ${uefi_secureboot_key} && -n ${uefi_secureboot_cert} ]]; then
             if sbsign \
                 --key "${uefi_secureboot_key}" \
                 --cert "${uefi_secureboot_cert}" \
@@ -2428,7 +2428,7 @@ freeze_ok_for_btrfs() {
     mnt=$(stat -c %m -- "$1")
     uuid1=$(btrfs_uuid "$mnt")
     uuid2=$(btrfs_uuid "/")
-    [[ "$uuid1" && "$uuid2" && "$uuid1" != "$uuid2" ]]
+    [[ $uuid1 && $uuid2 && $uuid1 != "$uuid2" ]]
 }
 
 freeze_ok_for_fstype() {

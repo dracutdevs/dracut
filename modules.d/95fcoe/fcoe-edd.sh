@@ -14,7 +14,7 @@ check_edd() {
 
     while [ $cnt -lt 600 ]; do
         [ -d /sys/firmware/edd ] && return 0
-        cnt=$(($cnt + 1))
+        cnt=$((cnt + 1))
         sleep 0.1
     done
     return 1

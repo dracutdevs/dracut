@@ -290,7 +290,7 @@ if ! [ "$netif" = "online" ]; then
             nroot="${nroot##iscsi:}"
             if [ -n "$nroot" ]; then
                 handle_netroot "$nroot"
-                ret=$(($ret + $?))
+                ret=$((ret + $?))
             fi
         done
     else

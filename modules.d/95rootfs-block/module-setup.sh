@@ -13,11 +13,11 @@ depends() {
 cmdline_journal() {
     if [[ $hostonly ]]; then
         for dev in "${!host_fs_types[@]}"; do
-            [[ ${host_fs_types[$dev]} = "reiserfs" ]] || [[ ${host_fs_types[$dev]} = "xfs" ]] || continue
+            [[ ${host_fs_types[$dev]} == "reiserfs" ]] || [[ ${host_fs_types[$dev]} == "xfs" ]] || continue
             rootopts=$(find_dev_fsopts "$dev")
-            if [[ ${host_fs_types[$dev]} = "reiserfs" ]]; then
+            if [[ ${host_fs_types[$dev]} == "reiserfs" ]]; then
                 journaldev=$(fs_get_option $rootopts "jdev")
-            elif [[ ${host_fs_types[$dev]} = "xfs" ]]; then
+            elif [[ ${host_fs_types[$dev]} == "xfs" ]]; then
                 journaldev=$(fs_get_option $rootopts "logdev")
             fi
 
@@ -47,7 +47,7 @@ cmdline_rootfs() {
     if [ -n "$_fstype" ]; then
         printf " rootfstype=%s" "$_fstype"
     fi
-    if [[ $use_fstab != yes ]] && [[ $_fstype = btrfs ]]; then
+    if [[ $use_fstab != yes ]] && [[ $_fstype == btrfs ]]; then
         _subvol=$(findmnt -e -v -n -o FSROOT --target /) \
             && _subvol=${_subvol#/}
         _flags="$_flags${_subvol:+,subvol=$_subvol}"

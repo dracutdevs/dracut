@@ -21,8 +21,8 @@ test_run() {
     set -x
     (
         cd "$TESTDIR"
-        export CMDLINE="key1=0 key2=val key2=val2 key3=\"  val  3  \" \"  key 4  =\"val4 \"key  5=val  5\" \"key 6=\"\"val  6\" key7=\"foo\"bar\" baz=\"end \"  key8  =  val 8  \"
-\"key 9\"=\"val 9\""
+        export CMDLINE='key1=0 key2=val key2=val2 key3="  val  3  " "  key 4  ="val4 "key  5=val  5" "key 6=""val  6" key7="foo"bar" baz="end "  key8  =  val 8  "
+"key 9"="val 9"'
 
         ret=0
 
@@ -33,10 +33,10 @@ test_run() {
             ["key3"]="  val  3  "
             ["  key 4  "]="val4"
             ["key  5"]="val  5"
-            ["key 6"]="\"val  6"
-            ["key7"]="foo\"bar\" baz=\"end"
+            ["key 6"]='"val  6'
+            ["key7"]='foo"bar" baz="end'
             ["  key8  "]="  val 8  "
-            ["key 9\""]="val 9"
+            ['key 9"']="val 9"
         )
         for key in "${!TEST[@]}"; do
             if ! val=$(./dracut-getarg "${key}="); then
@@ -52,7 +52,7 @@ test_run() {
 
         declare -a INVALIDKEYS
 
-        INVALIDKEYS=("key" "4" "5" "6" "key8" "9" "\"" "baz")
+        INVALIDKEYS=("key" "4" "5" "6" "key8" "9" '"' "baz")
         for key in "${INVALIDKEYS[@]}"; do
             val=$(./dracut-getarg "$key")
             if (($? == 0)); then

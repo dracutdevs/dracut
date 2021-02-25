@@ -13,7 +13,7 @@ getarg 'rd.break=initqueue' -d 'rdbreak=initqueue' && emergency_shell -n initque
 
 RDRETRY=$(getarg rd.retry -d 'rd_retry=')
 RDRETRY=${RDRETRY:-180}
-RDRETRY=$(($RDRETRY * 2))
+RDRETRY=$((RDRETRY * 2))
 export RDRETRY
 
 main_loop=0
@@ -54,7 +54,7 @@ while :; do
         [ -e "$i" ] && continue 2
     done
 
-    if [ $main_loop -gt $((2 * $RDRETRY / 3)) ]; then
+    if [ $main_loop -gt $((2 * RDRETRY / 3)) ]; then
         warn "dracut-initqueue: timeout, still waiting for following initqueue hooks:"
         for _f in $hookdir/initqueue/finished/*.sh; do
             warn "$_f: \"$(cat "$_f")\""
@@ -71,7 +71,7 @@ while :; do
         fi
     fi
 
-    main_loop=$(($main_loop + 1))
+    main_loop=$((main_loop + 1))
     if [ $main_loop -gt $RDRETRY ]; then
         if ! [ -f /sysroot/etc/fstab ] || ! [ -e /sysroot/sbin/init ]; then
             emergency_shell "Could not boot."

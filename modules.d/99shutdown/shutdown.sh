@@ -96,7 +96,7 @@ umount_a() {
 _cnt=0
 while [ $_cnt -le 40 ]; do
     umount_a || break
-    _cnt=$(($_cnt + 1))
+    _cnt=$((_cnt + 1))
 done
 
 [ $_cnt -ge 40 ] && umount_a -v
@@ -142,7 +142,7 @@ _check_shutdown() {
 _cnt=0
 while [ $_cnt -le 40 ]; do
     _check_shutdown && break
-    _cnt=$(($_cnt + 1))
+    _cnt=$((_cnt + 1))
 done
 [ $_cnt -ge 40 ] && _check_shutdown final
 

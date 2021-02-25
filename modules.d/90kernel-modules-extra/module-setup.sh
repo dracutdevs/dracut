@@ -25,7 +25,7 @@ installkernel() {
     : "${depmod_modules_dep:=$srcmods/modules.dep}"
     : "${depmod_module_dir:=$srcmods}"
 
-    [[ -f "${depmod_modules_dep}" ]] || return 0
+    [[ -f ${depmod_modules_dep} ]] || return 0
 
     # Message printers with custom prefix
     local mod_name="kernel-modules-extra"
@@ -61,7 +61,7 @@ installkernel() {
         # configuration path
         if [ -d "$cfg" ]; then
             for f in "$cfg/"*; do
-                [[ -e "$f" && ! -d "$f" ]] || {
+                [[ -e $f && ! -d $f ]] || {
                     prdebug "configuration source" \
                         "\"$cfg\" is ignored" \
                         "(directory or doesn't exist)"
@@ -96,14 +96,14 @@ installkernel() {
                 override) # module_name kver_pattern dir
                     read -r mod kverpat path <<< "$v"
 
-                    if [[ ! "$mod" || ! "$kverpat" || ! "$path" ]]; then
+                    if [[ ! $mod || ! $kverpat || ! $path ]]; then
                         prinfo "$cfg: ignoring incorrect" \
                             "override option: \"$k $v\""
                         continue
                     fi
 
-                    if [[ '*' = "$kverpat" ]] \
-                        || [[ "$kernel" =~ $kverpat ]]; then
+                    if [[ '*' == "$kverpat" ]] \
+                        || [[ $kernel =~ $kverpat ]]; then
                         overrides+=("${path}/${mod}")
 
                         prdebug "$cfg: added override" \
@@ -117,14 +117,14 @@ installkernel() {
                 external) # kverpat dir
                     read -r kverpat path <<< "$v"
 
-                    if [[ ! "$kverpat" || ! "$path" ]]; then
+                    if [[ ! $kverpat || ! $path ]]; then
                         prinfo "$cfg: ignoring incorrect" \
                             "external option: \"$k $v\""
                         continue
                     fi
 
-                    if [[ '*' = "$kverpat" || \
-                        "$kernel" =~ $kverpat ]]; then
+                    if [[ '*' == "$kverpat" || \
+                        $kernel =~ $kverpat ]]; then
                         external_dirs+=("$path")
 
                         prdebug "$cfg: added external" \

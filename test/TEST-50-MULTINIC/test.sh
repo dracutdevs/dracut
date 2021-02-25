@@ -83,7 +83,7 @@ client_test() {
         read IFACES
     } < "$TESTDIR"/client.img
 
-    if [[ "$OK" != "OK" ]]; then
+    if [[ $OK != "OK" ]]; then
         echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
         return 1
     fi

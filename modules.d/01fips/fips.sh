@@ -39,7 +39,7 @@ mount_boot() {
                 fi
                 [ -e $boot ] && break
                 sleep 0.5
-                i=$(($i + 1))
+                i=$((i + 1))
                 [ $i -gt 40 ] && break
             done
         fi

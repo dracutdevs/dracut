@@ -8,9 +8,9 @@ get_nfs_type() {
     local _nfs _nfs4
 
     for fs in "${host_fs_types[@]}"; do
-        [[ "$fs" == "nfs" ]] && _nfs=1
-        [[ "$fs" == "nfs3" ]] && _nfs=1
-        [[ "$fs" == "nfs4" ]] && _nfs4=1
+        [[ $fs == "nfs" ]] && _nfs=1
+        [[ $fs == "nfs3" ]] && _nfs=1
+        [[ $fs == "nfs4" ]] && _nfs4=1
     done
 
     [[ "$_nfs" ]] && echo "nfs" && return

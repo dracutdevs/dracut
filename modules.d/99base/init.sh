@@ -174,7 +174,7 @@ getarg 'rd.break=initqueue' -d 'rdbreak=initqueue' && emergency_shell -n initque
 
 RDRETRY=$(getarg rd.retry -d 'rd_retry=')
 RDRETRY=${RDRETRY:-180}
-RDRETRY=$(($RDRETRY * 2))
+RDRETRY=$((RDRETRY * 2))
 export RDRETRY
 main_loop=0
 export main_loop
@@ -209,7 +209,7 @@ while :; do
     # no more udev jobs and queues empty.
     sleep 0.5
 
-    if [ $main_loop -gt $((2 * $RDRETRY / 3)) ]; then
+    if [ $main_loop -gt $((2 * RDRETRY / 3)) ]; then
         for job in $hookdir/initqueue/timeout/*.sh; do
             [ -e "$job" ] || break
             job=$job . $job
@@ -218,7 +218,7 @@ while :; do
         done
     fi
 
-    main_loop=$(($main_loop + 1))
+    main_loop=$((main_loop + 1))
     [ $main_loop -gt $RDRETRY ] \
         && {
             flock -s 9
@@ -255,7 +255,7 @@ while :; do
         fi
     done
 
-    _i_mount=$(($_i_mount + 1))
+    _i_mount=$((_i_mount + 1))
     [ $_i_mount -gt 20 ] \
         && {
             flock -s 9

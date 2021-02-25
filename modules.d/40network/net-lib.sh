@@ -214,7 +214,7 @@ set_ifname() {
     done
     # otherwise, pick a new name and use that
     while :; do
-        num=$(($num + 1))
+        num=$((num + 1))
         [ -e /sys/class/net/$name$num ] && continue
         for n in $(getargs ifname=); do
             [ "$name$num" = "${n%%:*}" ] && continue 2
@@ -261,10 +261,10 @@ ibft_to_cmdline() {
                 echo $a
             )
             # Skip invalid interfaces
-            (($flags & 1)) || continue
+            ((flags & 1)) || continue
             # Skip interfaces not used for booting unless using multipath
             if ! getargbool 0 rd.iscsi.mp; then
-                (($flags & 2)) || continue
+                ((flags & 2)) || continue
             fi
             [ -e ${iface}/dhcp ] && dhcp=$(
                 read a < ${iface}/dhcp
@@ -639,7 +639,7 @@ parse_ifname_opts() {
         eth[0-9] | eth[0-9][0-9] | eth[0-9][0-9][0-9] | eth[0-9][0-9][0-9][0-9])
             warn "ifname=$ifname_if uses the kernel name space for interfaces"
             warn "This can fail for multiple network interfaces and is discouraged!"
-            warn "Please use a custom name like \"netboot\" or \"bluesocket\""
+            warn 'Please use a custom name like "netboot" or "bluesocket"'
             warn "or use biosdevname and no ifname= at all."
             ;;
     esac
@@ -652,13 +652,13 @@ wait_for_if_link() {
     local li
     local timeout="$(getargs rd.net.timeout.iflink=)"
     timeout=${timeout:-60}
-    timeout=$(($timeout * 10))
+    timeout=$((timeout * 10))
 
     while [ $cnt -lt $timeout ]; do
         li=$(ip link show dev $1 2> /dev/null)
         [ -n "$li" ] && return 0
         sleep 0.1
-        cnt=$(($cnt + 1))
+        cnt=$((cnt + 1))
     done
     return 1
 }
@@ -668,7 +668,7 @@ wait_for_if_up() {
     local li
     local timeout="$(getargs rd.net.timeout.ifup=)"
     timeout=${timeout:-20}
-    timeout=$(($timeout * 10))
+    timeout=$((timeout * 10))
 
     while [ $cnt -lt $timeout ]; do
         li=$(ip link show up dev $1)
@@ -691,7 +691,7 @@ wait_for_if_up() {
             return 0
         fi
         sleep 0.1
-        cnt=$(($cnt + 1))
+        cnt=$((cnt + 1))
     done
     return 1
 }
@@ -700,13 +700,13 @@ wait_for_route_ok() {
     local cnt=0
     local timeout="$(getargs rd.net.timeout.route=)"
     timeout=${timeout:-20}
-    timeout=$(($timeout * 10))
+    timeout=$((timeout * 10))
 
     while [ $cnt -lt $timeout ]; do
         li=$(ip route show)
         [ -n "$li" ] && [ -z "${li##*$1*}" ] && return 0
         sleep 0.1
-        cnt=$(($cnt + 1))
+        cnt=$((cnt + 1))
     done
     return 1
 }
@@ -715,7 +715,7 @@ wait_for_ipv6_dad_link() {
     local cnt=0
     local timeout="$(getargs rd.net.timeout.ipv6dad=)"
     timeout=${timeout:-50}
-    timeout=$(($timeout * 10))
+    timeout=$((timeout * 10))
 
     while [ $cnt -lt $timeout ]; do
         [ -n "$(ip -6 addr show dev "$1" scope link)" ] \
@@ -724,7 +724,7 @@ wait_for_ipv6_dad_link() {
         [ -n "$(ip -6 addr show dev "$1" scope link dadfailed)" ] \
             && return 1
         sleep 0.1
-        cnt=$(($cnt + 1))
+        cnt=$((cnt + 1))
     done
     return 1
 }
@@ -733,7 +733,7 @@ wait_for_ipv6_dad() {
     local cnt=0
     local timeout="$(getargs rd.net.timeout.ipv6dad=)"
     timeout=${timeout:-50}
-    timeout=$(($timeout * 10))
+    timeout=$((timeout * 10))
 
     while [ $cnt -lt $timeout ]; do
         [ -n "$(ip -6 addr show dev "$1")" ] \
@@ -743,7 +743,7 @@ wait_for_ipv6_dad() {
         [ -n "$(ip -6 addr show dev "$1" dadfailed)" ] \
             && return 1
         sleep 0.1
-        cnt=$(($cnt + 1))
+        cnt=$((cnt + 1))
     done
     return 1
 }
@@ -752,14 +752,14 @@ wait_for_ipv6_auto() {
     local cnt=0
     local timeout="$(getargs rd.net.timeout.ipv6auto=)"
     timeout=${timeout:-40}
-    timeout=$(($timeout * 10))
+    timeout=$((timeout * 10))
 
     while [ $cnt -lt $timeout ]; do
         [ -z "$(ip -6 addr show dev "$1" tentative)" ] \
             && [ -n "$(ip -6 route list proto ra dev "$1" | grep ^default)" ] \
             && return 0
         sleep 0.1
-        cnt=$(($cnt + 1))
+        cnt=$((cnt + 1))
     done
     return 1
 }
@@ -781,7 +781,7 @@ iface_has_carrier() {
     [ -d "$interface" ] || return 2
     local timeout="$(getargs rd.net.timeout.carrier=)"
     timeout=${timeout:-10}
-    timeout=$(($timeout * 10))
+    timeout=$((timeout * 10))
 
     linkup "$1"
 
@@ -800,7 +800,7 @@ iface_has_carrier() {
         # double check the syscfs carrier flag
         [ -e "$interface/carrier" ] && [ "$(cat $interface/carrier)" = 1 ] && return 0
         sleep 0.1
-        cnt=$(($cnt + 1))
+        cnt=$((cnt + 1))
     done
     return 1
 }

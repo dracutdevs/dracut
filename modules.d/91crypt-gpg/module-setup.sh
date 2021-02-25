@@ -42,7 +42,7 @@ sc_public_key() {
 sc_supported() {
     local gpgMajor="$(gpg --version | sed -n 1p | sed -n -r -e 's|.* ([0-9]*).*|\1|p')"
     local gpgMinor="$(gpg --version | sed -n 1p | sed -n -r -e 's|.* [0-9]*\.([0-9]*).*|\1|p')"
-    if [[ "${gpgMajor}" -gt 2 || "${gpgMajor}" -eq 2 && "${gpgMinor}" -ge 1 ]] \
+    if [[ ${gpgMajor} -gt 2 || ${gpgMajor} -eq 2 && ${gpgMinor} -ge 1 ]] \
         && require_binaries gpg-agent \
         && require_binaries gpg-connect-agent \
         && require_binaries /usr/libexec/scdaemon \
