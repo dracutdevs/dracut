@@ -1015,7 +1015,7 @@ trap '
 trap 'exit 1;' SIGINT
 
 readonly initdir="${DRACUT_TMPDIR}/initramfs"
-mkdir "$initdir"
+mkdir -p "$initdir"
 
 # shellcheck disable=SC2154
 if [[ $early_microcode = yes ]] || { [[ $acpi_override = yes ]] && [[ -d $acpi_table_dir ]] ;}; then
@@ -2133,7 +2133,7 @@ dinfo "*** Creating image file '$outfile' ***"
 
 if [[ $uefi = yes ]]; then
     readonly uefi_outdir="$DRACUT_TMPDIR/uefi"
-    mkdir "$uefi_outdir"
+    mkdir -p "$uefi_outdir"
 fi
 
 if [[ $DRACUT_REPRODUCIBLE ]]; then

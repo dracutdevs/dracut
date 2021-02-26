@@ -56,7 +56,7 @@ mount_boot()
 
         [ -e "$boot" ] || return 1
 
-        mkdir /boot
+        mkdir -p /boot
         fips_info "Mounting $boot as /boot"
         mount -oro "$boot" /boot || return 1
     elif [ -d "$NEWROOT/boot" ]; then

@@ -111,7 +111,7 @@ function readcmsfile() # $1=dasdport $2=filename
     devname=$(cd /sys/bus/ccw/devices/$dev/block; set -- *; [ -b /dev/$1 ] && echo $1)
     devname=${devname:-dasda}
 
-    [[ -d /mnt ]] || mkdir /mnt
+    [[ -d /mnt ]] || mkdir -p /mnt
     if cmsfs-fuse --to=UTF-8 -a /dev/$devname /mnt; then
         cat /mnt/$2 > /run/initramfs/$2
         umount /mnt || umount -l /mnt

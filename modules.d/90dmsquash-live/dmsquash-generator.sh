@@ -52,7 +52,7 @@ esac
 
 GENERATOR_DIR="$2"
 [ -z "$GENERATOR_DIR" ] && exit 1
-[ -d "$GENERATOR_DIR" ] || mkdir "$GENERATOR_DIR"
+[ -d "$GENERATOR_DIR" ] || mkdir -p "$GENERATOR_DIR"
 
 getargbool 0 rd.live.overlay.readonly -d -y readonly_overlay && readonly_overlay="--readonly" || readonly_overlay=""
 getargbool 0 rd.live.overlay.overlayfs && overlayfs="yes"

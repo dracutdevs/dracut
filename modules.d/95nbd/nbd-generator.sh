@@ -9,7 +9,7 @@ type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 GENERATOR_DIR="$2"
 [ -z "$GENERATOR_DIR" ] && exit 1
 
-[ -d "$GENERATOR_DIR" ] || mkdir "$GENERATOR_DIR"
+[ -d "$GENERATOR_DIR" ] || mkdir -p "$GENERATOR_DIR"
 
 ROOTFLAGS="$(getarg rootflags)"
 
