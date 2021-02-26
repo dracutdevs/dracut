@@ -51,7 +51,7 @@ manpages = $(man1pages) $(man5pages) $(man7pages) $(man8pages)
 
 .PHONY: install clean archive rpm srpm testimage test all check AUTHORS CONTRIBUTORS doc dracut-version.sh
 
-all: dracut-version.sh dracut.pc dracut-install skipcpio/skipcpio dracut-util
+all: dracut-version.sh dracut.pc dracut-install skipcpio/skipcpio skipcpio/padcpio dracut-util
 
 %.o : %.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(KMOD_CFLAGS) $< -o $@
@@ -84,6 +84,9 @@ dracut-install: install/dracut-install
 SKIPCPIO_OBJECTS = skipcpio/skipcpio.o
 skipcpio/skipcpio.o: skipcpio/skipcpio.c
 skipcpio/skipcpio: $(SKIPCPIO_OBJECTS)
+
+skipcpio/padcpio.o: skipcpio/padcpio.c
+skipcpio/padcpio: skipcpio/padcpio.o
 
 UTIL_OBJECTS = util/util.o
 util/util.o: util/util.c
@@ -193,6 +196,9 @@ endif
 	if [ -f skipcpio/skipcpio ]; then \
 		install -m 0755 skipcpio/skipcpio $(DESTDIR)$(pkglibdir)/skipcpio; \
 	fi
+	if [ -f skipcpio/padcpio ]; then \
+		install -m 0755 skipcpio/padcpio $(DESTDIR)$(pkglibdir)/padcpio; \
+	fi
 	if [ -f dracut-util ]; then \
 		install -m 0755 dracut-util $(DESTDIR)$(pkglibdir)/dracut-util; \
 	fi
@@ -218,7 +224,7 @@ clean:
 	$(RM) dracut-*.rpm dracut-*.tar.bz2 dracut-*.tar.xz
 	$(RM) dracut-version.sh
 	$(RM) dracut-install install/dracut-install $(DRACUT_INSTALL_OBJECTS)
-	$(RM) skipcpio/skipcpio $(SKIPCPIO_OBJECTS)
+	$(RM) skipcpio/skipcpio $(SKIPCPIO_OBJECTS) skipcpio/padcpio skipcpio/padcpio.o
 	$(RM) dracut-util util/util $(UTIL_OBJECTS)
 	$(RM) $(manpages) dracut.html
 	$(RM) dracut.pc
