@@ -17,8 +17,6 @@
    along with this program; If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define PROGRAM_VERSION_STRING "1"
-
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
@@ -26,29 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define CPIO_MAGIC "070701"
-#define CPIO_END "TRAILER!!!"
-#define CPIO_ENDLEN (sizeof(CPIO_END) - 1)
-
-#define CPIO_ALIGNMENT 4
-
-struct cpio_header {
-        char c_magic[6];
-        char c_ino[8];
-        char c_mode[8];
-        char c_uid[8];
-        char c_gid[8];
-        char c_nlink[8];
-        char c_mtime[8];
-        char c_filesize[8];
-        char c_dev_maj[8];
-        char c_dev_min[8];
-        char c_rdev_maj[8];
-        char c_rdev_min[8];
-        char c_namesize[8];
-        char c_chksum[8];
-} __attribute__((packed));
+#include "skipcpio.h"
 
 struct buf_struct {
         struct cpio_header h;
@@ -61,8 +37,6 @@ union buf_union {
 };
 
 static union buf_union buf;
-
-#define ALIGN_UP(n, a) (((n) + (a) - 1) & (~((a) - 1)))
 
 int main(int argc, char **argv)
 {
