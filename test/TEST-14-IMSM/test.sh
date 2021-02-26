@@ -83,7 +83,7 @@ test_setup() {
         inst ./test-init.sh /sbin/init
         find_binary plymouth >/dev/null && inst_multiple plymouth
         cp -a /etc/ld.so.conf* $initdir/etc
-        mkdir $initdir/run
+        mkdir -p $initdir/run
         ldconfig -r "$initdir"
     )
 

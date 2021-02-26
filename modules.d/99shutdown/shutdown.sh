@@ -22,9 +22,9 @@ if [ "$(stat -c '%T' -f /)" = "tmpfs" ]; then
     mount -o remount,rw /
 fi
 
-mkdir /oldsys
+mkdir -p /oldsys
 for i in sys proc run dev; do
-    mkdir /oldsys/$i
+    mkdir -p /oldsys/$i
     mount --move /oldroot/$i /oldsys/$i
 done
 

@@ -27,7 +27,7 @@ btrfs device scan /dev/sda2
 btrfs device scan /dev/sdb2
 mkdir -p /root
 mount -t btrfs /dev/sda2 /root
-[ -d /root/usr ] || mkdir /root/usr
+[ -d /root/usr ] || mkdir -p /root/usr
 mount -t btrfs /dev/sdb2 /root/usr
 btrfs subvolume create /root/usr/usr
 umount /root/usr

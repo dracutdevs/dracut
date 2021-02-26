@@ -125,7 +125,7 @@ do_live_overlay() {
 
     # need to know where to look for the overlay
     if [ -z "$setup" -a -n "$devspec" -a -n "$pathspec" -a -n "$overlay" ]; then
-        mkdir -m 0755 /run/initramfs/overlayfs
+        mkdir -m 0755 -p /run/initramfs/overlayfs
         opt=''
         [ -n "$readonly_overlay" ] && opt=-r
         mount -n -t auto $devspec /run/initramfs/overlayfs || :
@@ -210,8 +210,8 @@ do_live_overlay() {
             fi
         fi
         if [ -n "$overlayfs" ]; then
-            mkdir -m 0755 /run/overlayfs
-            mkdir -m 0755 /run/ovlwork
+            mkdir -m 0755 -p /run/overlayfs
+            mkdir -m 0755 -p /run/ovlwork
             if [ -n "$readonly_overlay" ] && ! [ -h /run/overlayfs-r ]; then
                 info "No persistent overlay found."
                 unset -v readonly_overlay
@@ -241,7 +241,7 @@ do_live_overlay() {
 
     if [ -n "$thin_snapshot" ]; then
         modprobe dm_thin_pool
-        mkdir -m 0755 /run/initramfs/thin-overlay
+        mkdir -m 0755 -p /run/initramfs/thin-overlay
 
         # In block units (512b)
         thin_data_sz=$(( $overlay_size * 1024 * 1024 / 512 ))
@@ -326,7 +326,7 @@ if [ -n "$FSIMG" ]; then
     if [ -n "$writable_fsimg" ]; then
         # mount the provided filesystem read/write
         echo "Unpacking live filesystem (may take some time)" > /dev/kmsg
-        mkdir -m 0755 /run/initramfs/fsimg/
+        mkdir -m 0755 -p /run/initramfs/fsimg/
         if [ -n "$SQUASHED" ]; then
             cp -v $FSIMG /run/initramfs/fsimg/rootfs.img
         else
@@ -368,7 +368,7 @@ fi
 ROOTFLAGS="$(getarg rootflags)"
 
 if [ -n "$overlayfs" ]; then
-    mkdir -m 0755 /run/rootfsbase
+    mkdir -m 0755 -p /run/rootfsbase
     if [ -n "$reset_overlay" ] && [ -h /run/overlayfs ]; then
         ovlfs=$(readlink /run/overlayfs)
         info "Resetting the OverlayFS overlay directory."

@@ -27,7 +27,7 @@ mke2fs -L root /dev/dracut/root
 mkdir -p /sysroot
 mount /dev/dracut/root /sysroot
 cp -a -t /sysroot /source/*
-mkdir /sysroot/run
+mkdir -p /sysroot/run
 umount /sysroot
 lvm lvchange -a n /dev/dracut/root
 udevadm settle

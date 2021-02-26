@@ -200,7 +200,7 @@ readkey() {
         local mntp="/mnt/$(str_replace "keydev-$keydev-$keypath" '/' '-')"
 
         if [ ! -d "$mntp" ]; then
-            mkdir "$mntp"
+            mkdir -p "$mntp"
             mount -r "$keydev" "$mntp" || die 'Mounting rem. dev. failed!'
         fi
     fi

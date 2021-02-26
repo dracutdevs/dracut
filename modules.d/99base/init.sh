@@ -53,17 +53,17 @@ fi
 [ ! -h /dev/stderr ] && ln -s /proc/self/fd/2 /dev/stderr >/dev/null 2>&1
 
 if ! ismounted /dev/pts; then
-    mkdir -m 0755 /dev/pts
+    mkdir -m 0755 -p /dev/pts
     mount -t devpts -o gid=5,mode=620,noexec,nosuid devpts /dev/pts >/dev/null
 fi
 
 if ! ismounted /dev/shm; then
-    mkdir -m 0755 /dev/shm
+    mkdir -m 0755 -p /dev/shm
     mount -t tmpfs -o mode=1777,noexec,nosuid,nodev,strictatime tmpfs /dev/shm >/dev/null
 fi
 
 if ! ismounted /run; then
-    mkdir -m 0755 /newrun
+    mkdir -m 0755 -p /newrun
     if ! str_starts "$(readlink -f /bin/sh)" "/run/"; then
         mount -t tmpfs -o mode=0755,noexec,nosuid,nodev,strictatime tmpfs /newrun >/dev/null
     else
@@ -99,7 +99,7 @@ if [ $UDEVVERSION -gt 166 ]; then
     [ -d /run/udev ] || mkdir -p -m 0755 /run/udev
     [ -d $UDEVRULESD ] || mkdir -p -m 0755 $UDEVRULESD
 else
-    mkdir -m 0755 /dev/.udev /dev/.udev/rules.d
+    mkdir -m 0755 -p /dev/.udev /dev/.udev/rules.d
     export UDEVRULESD=/dev/.udev/rules.d
 fi
 
@@ -368,7 +368,7 @@ debug_on
 
 if ! [ -d "$NEWROOT"/run ]; then
     NEWRUN=/dev/.initramfs
-    mkdir -m 0755 "$NEWRUN"
+    mkdir -m 0755 -p "$NEWRUN"
     mount --rbind /run/initramfs "$NEWRUN"
 fi
 
