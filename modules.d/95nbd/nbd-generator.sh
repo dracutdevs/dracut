@@ -14,7 +14,13 @@ GENERATOR_DIR="$2"
 ROOTFLAGS="$(getarg rootflags)"
 
 nroot=${root#nbd:}
-nbdserver=${nroot%%:*}; nroot=${nroot#*:}
+nbdserver=${nroot%%:*};
+if [ "${nbdserver%"${nbdserver#?}"}" = "[" ]; then
+    nbdserver=${nroot#[}
+    nbdserver=${nbdserver%%]:*}\]; nroot=${nroot#*]:}
+else
+    nroot=${nroot#*:}
+fi
 nbdport=${nroot%%:*}; nroot=${nroot#*:}
 nbdfstype=${nroot%%:*}; nroot=${nroot#*:}
 nbdflags=${nroot%%:*}

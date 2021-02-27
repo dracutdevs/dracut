@@ -247,7 +247,11 @@ write_fs_tab() {
         fi
     fi
 
-    echo "$_root /sysroot $_rootfstype $_rootflags $_fspassno 0" >> /etc/fstab
+    if grep -q "$_root /sysroot" /etc/fstab; then
+        echo "$_root /sysroot $_rootfstype $_rootflags $_fspassno 0" >> /etc/fstab
+    else
+        return
+    fi
 
     if type systemctl >/dev/null 2>/dev/null; then
         systemctl daemon-reload

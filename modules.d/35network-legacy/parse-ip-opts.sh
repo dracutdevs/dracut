@@ -75,7 +75,7 @@ for p in $(getargs ip=); do
                 [ -z "$mask" ] && \
                     die "Sorry, automatic calculation of netmask is not yet supported"
                 ;;
-            auto6);;
+            auto6|link6);;
             either6);;
             dhcp|dhcp6|on|any|single-dhcp) \
                 [ -n "$NEEDBOOTDEV" ] && [ -z "$dev" ] && \

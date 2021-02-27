@@ -22,7 +22,13 @@ NEWROOT="$3"
 [ "${nroot%%:*}" = "nbd" ] || return
 
 nroot=${nroot#nbd:}
-nbdserver=${nroot%%:*}; nroot=${nroot#*:}
+nbdserver=${nroot%%:*};
+if [ "${nbdserver%"${nbdserver#?}"}" = "[" ]; then
+    nbdserver=${nroot#[}
+    nbdserver=${nbdserver%%]:*}; nroot=${nroot#*]:}
+else
+    nroot=${nroot#*:}
+fi
 nbdport=${nroot%%:*}; nroot=${nroot#*:}
 nbdfstype=${nroot%%:*}; nroot=${nroot#*:}
 nbdflags=${nroot%%:*}
@@ -91,28 +97,36 @@ done
 # If we didn't get a root= on the command line, then we need to
 # add the udev rules for mounting the nbd0 device
 if [ "$root" = "block:/dev/root" -o "$root" = "dhcp" ]; then
-    printf 'KERNEL=="nbd0", ENV{DEVTYPE}!="partition", ENV{ID_FS_TYPE}=="?*", SYMLINK+="root"\n' >> /etc/udev/rules.d/99-nbd-root.rules
+    printf 'KERNEL=="nbd0", ENV{DEVTYPE}!="partition", ENV{ID_FS_TYPE}=="?*", SYMLINK+="root"\n' > /etc/udev/rules.d/99-nbd-root.rules
     udevadm control --reload
-    type write_fs_tab >/dev/null 2>&1 || . /lib/fs-lib.sh
-    write_fs_tab /dev/root "$nbdfstype" "$fsopts"
     wait_for_dev -n /dev/root
 
     if [ -z "$DRACUT_SYSTEMD" ]; then
+        type write_fs_tab >/dev/null 2>&1 || . /lib/fs-lib.sh
+
+        write_fs_tab /dev/root "$nbdfstype" "$fsopts"
+
         printf '/bin/mount %s\n' \
              "$NEWROOT" \
              > $hookdir/mount/01-$$-nbd.sh
     fi
+    # if we're on systemd, use the nbd-generator script
+    # to create the /sysroot mount.
 fi
 
+# supported since nbd 3.8 via 77e97612
 if strstr "$(nbd-client --help 2>&1)" "systemd-mark"; then
-    preopts="--systemd-mark $preopts"
+    preopts="-systemd-mark $preopts"
 fi
 
 if [ "$nbdport" -gt 0 ] 2>/dev/null; then
-    nbd-client "$nbdserver" $nbdport /dev/nbd0 $preopts $opts || exit 1
+    nbdport="$nbdport"
 else
-    nbd-client -name "$nbdport" "$nbdserver" /dev/nbd0 $preopts $opts || exit 1
+    nbdport="-name $nbdport"
 fi
+
+nbd-client -check /dev/nbd0 >/dev/null || \
+    nbd-client "$nbdserver" $nbdport /dev/nbd0 $preopts $opts || exit 1
 
 # NBD doesn't emit uevents when it gets connected, so kick it
 echo change > /sys/block/nbd0/uevent
