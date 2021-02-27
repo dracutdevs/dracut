@@ -9,18 +9,6 @@
 # root= takes precedence over netroot= if root=nbd[...]
 #
 
-# Sadly there's no easy way to split ':' separated lines into variables
-netroot_to_var() {
-    local v=${1}:
-    set --
-    while [ -n "$v" ]; do
-        set -- "$@" "${v%%:*}"
-        v=${v#*:}
-    done
-
-    unset server port
-    server=$2; port=$3;
-}
 
 # This script is sourced, so root should be set. But let's be paranoid
 [ -z "$root" ] && root=$(getarg root=)
@@ -46,13 +34,18 @@ fi
 [ "${netroot%%:*}" = "nbd" ] || return
 
 
-#if [ -n "${DRACUT_SYSTEMD}" ] && [ "$root" = "dhcp" ]; then
-#    echo "root=$netroot" > /etc/cmdline.d/root.conf
-#    systemctl --no-block daemon-reload
-#fi
-
 # Check required arguments
-netroot_to_var $netroot
+nroot=${netroot#nbd:}
+server=${nroot%%:*};
+if [ "${server%"${server#?}"}" = "[" ]; then
+    server=${nroot#[}
+    server=${server%%]:*}\]; nroot=${nroot#*]:}
+else
+    nroot=${nroot#*:}
+fi
+port=${nroot%%:*}
+unset nroot
+
 [ -z "$server" ] && die "Argument server for nbdroot is missing"
 [ -z "$port" ] && die "Argument port for nbdroot is missing"
 
@@ -65,6 +58,6 @@ rootok=1
 # Shut up init error check
 if [ -z "$root" ]; then
     root=block:/dev/root
-    wait_for_dev -n /dev/root
+    # the device is created and waited for in ./nbdroot.sh
 fi
 

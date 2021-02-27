@@ -123,6 +123,19 @@ do_ipv6auto() {
     return $ret
 }
 
+do_ipv6link() {
+    local ret
+    load_ipv6
+    echo 0 > /proc/sys/net/ipv6/conf/$netif/forwarding
+    echo 0 > /proc/sys/net/ipv6/conf/$netif/accept_ra
+    echo 0 > /proc/sys/net/ipv6/conf/$netif/accept_redirects
+    linkup $netif
+
+    [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
+
+    return $ret
+}
+
 # Handle static ip configuration
 do_static() {
     strglobin $ip '*:*:*' && load_ipv6
@@ -449,6 +462,8 @@ for p in $(getargs ip=); do
                 do_ipv6auto ;;
             either6)
                 do_ipv6auto || do_dhcp -6 ;;
+            link6)
+                do_ipv6link ;;
             *)
                 do_static ;;
         esac
