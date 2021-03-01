@@ -24,6 +24,7 @@
 # store for logging
 
 unset BASH_ENV
+unset GZIP
 
 # Verify bash version, current minimum is 4
 if (( BASH_VERSINFO[0] < 4 )); then
