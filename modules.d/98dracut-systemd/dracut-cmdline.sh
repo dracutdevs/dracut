@@ -70,8 +70,8 @@ case "${root}${root_unset}" in
     /dev/*)
         root="block:${root}"
         rootok=1 ;;
-    UNSET|gpt-auto)
-        # systemd's gpt-auto-generator handles this case.
+    UNSET|gpt-auto|tmpfs)
+        # systemd's gpt-auto-generator/fstab-generator handles this case.
         rootok=1 ;;
 esac
 
