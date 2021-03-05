@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# This file is part of dracut.
+# SPDX-License-Identifier: GPL-2.0-or-later
+
 TEST_DESCRIPTION="rpm integrity after dracut and kernel install"
 
 test_check() {

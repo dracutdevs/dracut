@@ -49,7 +49,7 @@ manpages = $(man1pages) $(man5pages) $(man7pages) $(man8pages)
 
 .PHONY: install clean archive rpm srpm testimage test all check AUTHORS CONTRIBUTORS doc dracut-version.sh
 
-all: dracut-version.sh dracut.pc dracut-install skipcpio/skipcpio
+all: dracut-version.sh dracut.pc dracut-install skipcpio/skipcpio dracut-util
 
 %.o : %.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(KMOD_CFLAGS) $< -o $@
@@ -79,15 +79,21 @@ logtee: logtee.c
 dracut-install: install/dracut-install
 	ln -fs $< $@
 
-SKIPCPIO_OBJECTS= \
-	skipcpio/skipcpio.o
-
+SKIPCPIO_OBJECTS = skipcpio/skipcpio.o
 skipcpio/skipcpio.o: skipcpio/skipcpio.c
-skipcpio/skipcpio: skipcpio/skipcpio.o
+skipcpio/skipcpio: $(SKIPCPIO_OBJECTS)
+
+UTIL_OBJECTS = util/util.o
+util/util.o: util/util.c
+util/util: $(UTIL_OBJECTS)
+
+dracut-util: util/util
+	cp -a $< $@
 
 indent:
 	indent -i8 -nut -br -linux -l120 install/dracut-install.c
 	indent -i8 -nut -br -linux -l120 skipcpio/skipcpio.c
+	indent -i8 -nut -br -linux -l120 util/util.c
 
 doc: $(manpages) dracut.html
 
@@ -180,6 +186,9 @@ endif
 	if [ -f skipcpio/skipcpio ]; then \
 		install -m 0755 skipcpio/skipcpio $(DESTDIR)$(pkglibdir)/skipcpio; \
 	fi
+	if [ -f dracut-util ]; then \
+		install -m 0755 dracut-util $(DESTDIR)$(pkglibdir)/dracut-util; \
+	fi
 	mkdir -p $(DESTDIR)${prefix}/lib/kernel/install.d
 	install -m 0755 50-dracut.install $(DESTDIR)${prefix}/lib/kernel/install.d/50-dracut.install
 	install -m 0755 51-dracut-rescue.install $(DESTDIR)${prefix}/lib/kernel/install.d/51-dracut-rescue.install
@@ -203,6 +212,7 @@ clean:
 	$(RM) dracut-version.sh
 	$(RM) dracut-install install/dracut-install $(DRACUT_INSTALL_OBJECTS)
 	$(RM) skipcpio/skipcpio $(SKIPCPIO_OBJECTS)
+	$(RM) dracut-util util/util $(UTIL_OBJECTS)
 	$(RM) $(manpages) dracut.html
 	$(RM) dracut.pc
 	$(MAKE) -C test clean
