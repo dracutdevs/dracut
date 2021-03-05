@@ -164,49 +164,15 @@ getcmdline() {
     printf "%s" "$CMDLINE"
 }
 
-_dogetarg() {
-    local _o _val _doecho
-    unset _val
-    unset _o
-    unset _doecho
-    CMDLINE=$(getcmdline)
-
-    for _o in $CMDLINE; do
-        if [ "${_o%%=*}" = "${1%%=*}" ]; then
-            if [ -n "${1#*=}" -a "${1#*=*}" != "${1}" ]; then
-                # if $1 has a "=<value>", we want the exact match
-                if [ "$_o" = "$1" ]; then
-                    _val="1";
-                    unset _doecho
-                fi
-                continue
-            fi
-
-            if [ "${_o#*=}" = "$_o" ]; then
-                # if cmdline argument has no "=<value>", we assume "=1"
-                _val="1";
-                unset _doecho
-                continue
-            fi
-
-            _val="${_o#*=}"
-            _doecho=1
-        fi
-    done
-    if [ -n "$_val" ]; then
-        [ "x$_doecho" != "x" ] && echo "$_val";
-        return 0;
-    fi
-    return 1;
-}
-
 getarg() {
     debug_off
     local _deprecated _newoption
+    CMDLINE=$(getcmdline)
+    export CMDLINE
     while [ $# -gt 0 ]; do
         case $1 in
             -d) _deprecated=1; shift;;
-            -y) if _dogetarg $2 >/dev/null; then
+            -y) if dracut-getarg "$2" >/dev/null; then
                     if [ "$_deprecated" = "1" ]; then
                         [ -n "$_newoption" ] && warn "Kernel command line option '$2' is deprecated, use '$_newoption' instead." || warn "Option '$2' is deprecated."
                     fi
@@ -216,7 +182,7 @@ getarg() {
                 fi
                 _deprecated=0
                 shift 2;;
-            -n) if _dogetarg $2 >/dev/null; then
+            -n) if dracut-getarg "$2" >/dev/null; then
                     echo 0;
                     if [ "$_deprecated" = "1" ]; then
                         [ -n "$_newoption" ] && warn "Kernel command line option '$2' is deprecated, use '$_newoption=0' instead." || warn "Option '$2' is deprecated."
@@ -229,7 +195,7 @@ getarg() {
             *)  if [ -z "$_newoption" ]; then
                     _newoption="$1"
                 fi
-                if _dogetarg $1; then
+                if dracut-getarg "$1"; then
                     if [ "$_deprecated" = "1" ]; then
                         [ -n "$_newoption" ] && warn "Kernel command line option '$1' is deprecated, use '$_newoption' instead." || warn "Option '$1' is deprecated."
                     fi
@@ -295,30 +261,9 @@ getargnum() {
     echo $_default
 }
 
-_dogetargs() {
-    debug_off
-    local _o _found _key
-    unset _o
-    unset _found
-    CMDLINE=$(getcmdline)
-    _key="$1"
-    set --
-    for _o in $CMDLINE; do
-        if [ "$_o" = "$_key" ]; then
-            _found=1;
-        elif [ "${_o%%=*}" = "${_key%=}" ]; then
-            [ -n "${_o%%=*}" ] && set -- "$@" "${_o#*=}";
-            _found=1;
-        fi
-    done
-    if [ -n "$_found" ]; then
-        [ $# -gt 0 ] && printf '%s' "$*"
-        return 0
-    fi
-    return 1;
-}
-
 getargs() {
+    CMDLINE=$(getcmdline)
+    export CMDLINE
     debug_off
     local _val _i _args _gfound _deprecated
     unset _val
@@ -331,7 +276,7 @@ getargs() {
             _deprecated=1
             continue
         fi
-        _val="$(_dogetargs $_i)"
+        _val="$(dracut-getargs "$_i")"
         if [ $? -eq 0 ]; then
             if [ "$_deprecated" = "1" ]; then
                 [ -n "$_newoption" ] && warn "Option '$_i' is deprecated, use '$_newoption' instead." || warn "Option $_i is deprecated!"

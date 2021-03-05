@@ -21,7 +21,8 @@ Group: System/Base
 
 # The entire source code is GPLv2+
 # except install/* which is LGPLv2+
-License: GPLv2+ and LGPLv2+
+# except util/* which is GPLv2
+License: GPLv2+ and LGPLv2+ and GPLv2
 
 URL: https://dracut.wiki.kernel.org/
 
@@ -295,6 +296,7 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %{dracutlibdir}/dracut-logger.sh
 %{dracutlibdir}/dracut-initramfs-restore
 %{dracutlibdir}/dracut-install
+%{dracutlibdir}/dracut-util
 %{dracutlibdir}/skipcpio
 %config(noreplace) %{_sysconfdir}/dracut.conf
 %if 0%{?fedora} || 0%{?suse_version} || 0%{?rhel}
