@@ -4,7 +4,7 @@ TEST_DESCRIPTION="root filesystem on a ext3 filesystem"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-#DEBUGFAIL="rd.shell rd.break"
+# DEBUGFAIL="rd.shell rd.break"
 
 test_run() {
     dd if=/dev/zero of=$TESTDIR/result bs=1M count=1
@@ -12,7 +12,7 @@ test_run() {
         -drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext3 \
         -drive format=raw,index=1,media=disk,file=$TESTDIR/result \
         -watchdog i6300esb -watchdog-action poweroff \
-        -append "panic=1 systemd.crash_reboot root=LABEL=dracut rw systemd.log_level=debug systemd.log_target=console rd.retry=3 rd.debug console=ttyS0,115200n81 rd.shell=0 $DEBUGFAIL" \
+        -append "panic=1 systemd.crash_reboot \"root=LABEL=  rdinit=/bin/sh\" rw systemd.log_level=debug systemd.log_target=console rd.retry=3 rd.debug console=ttyS0,115200n81 rd.shell=0 $DEBUGFAIL" \
         -initrd $TESTDIR/initramfs.testing || return 1
     grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success $TESTDIR/result || return 1
 }
