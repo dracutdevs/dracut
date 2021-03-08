@@ -551,6 +551,25 @@ udevmatch() {
     esac
 }
 
+label_uuid_to_dev() {
+    local _dev
+    _dev="${1#block:}"
+    case "$_dev" in
+        LABEL=*)
+            echo "/dev/disk/by-label/$(echo "${_dev#LABEL=}" | sed 's,/,\\x2f,g;s, ,\\x20,g')"
+            ;;
+        PARTLABEL=*)
+            echo "/dev/disk/by-partlabel/$(echo "${_dev#PARTLABEL=}" | sed 's,/,\\x2f,g;s, ,\\x20,g')"
+            ;;
+        UUID=*)
+            echo "/dev/disk/by-uuid/$(echo "${_dev#UUID=}" | tr "[:upper:]" "[:lower:]")"
+            ;;
+        PARTUUID=*)
+            echo "/dev/disk/by-partuuid/$(echo "${_dev#PARTUUID=}" | tr "[:upper:]" "[:lower:]")"
+            ;;
+    esac
+}
+
 # Prints unique path for potential file inside specified directory.  It consists
 # of specified directory, prefix and number at the end which is incremented
 # until non-existing file is found.

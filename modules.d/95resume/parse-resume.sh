@@ -7,17 +7,8 @@ else
     unset resume
 fi
 
-case "$resume" in
-    LABEL=*) \
-        resume="$(echo $resume | sed 's,/,\\x2f,g')"
-        resume="/dev/disk/by-label/${resume#LABEL=}" ;;
-    UUID=*) \
-        resume="/dev/disk/by-uuid/${resume#UUID=}" ;;
-    PARTUUID=*) \
-        resume="/dev/disk/by-partuuid/${resume#PARTUUID=}" ;;
-    PARTLABEL=*) \
-        resume="/dev/disk/by-partlabel/${resume#PARTLABEL=}" ;;
-esac
+
+resume="$(label_uuid_to_dev "$resume")"
 
 if splash=$(getarg splash=); then
     export splash
