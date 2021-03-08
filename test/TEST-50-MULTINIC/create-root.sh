@@ -23,4 +23,3 @@ umount /root
 echo "dracut-root-block-created" | dd oflag=direct,dsync of=/dev/sda1
 sync
 poweroff -f
-
