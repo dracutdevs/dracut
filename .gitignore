@@ -22,3 +22,6 @@ test*.img
 /*.sign
 *.o
 skipcpio/skipcpio
+/util/util
+/dracut-util
+.idea/
