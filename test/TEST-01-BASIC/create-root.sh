@@ -13,7 +13,7 @@ sfdisk /dev/sda <<EOF
 EOF
 
 udevadm settle
-mkfs.ext3 -L dracut /dev/sda2
+mkfs.ext3 -L '  rdinit=/bin/sh' /dev/sda2
 mkdir -p /root
 mount /dev/sda2 /root
 cp -a -t /root /source/*
