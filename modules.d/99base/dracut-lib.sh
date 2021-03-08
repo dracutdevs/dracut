@@ -908,11 +908,11 @@ wait_for_dev()
 
     [ -e "${PREFIX}$hookdir/initqueue/finished/devexists-${_name}.sh" ] && return 0
 
-    printf '[ -e "%s" ]\n' $1 \
+    printf '[ -e "%s" ]\n' "$1" \
         >> "${PREFIX}$hookdir/initqueue/finished/devexists-${_name}.sh"
     {
-        printf '[ -e "%s" ] || ' $1
-        printf 'warn "\"%s\" does not exist"\n' $1
+        printf '[ -e "%s" ] || ' "$1"
+        printf 'warn "\"%s\" does not exist"\n' "$1"
     } >> "${PREFIX}$hookdir/emergency/80-${_name}.sh"
 
     set_systemd_timeout_for_dev $_noreload $1
