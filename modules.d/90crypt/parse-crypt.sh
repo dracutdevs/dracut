@@ -8,13 +8,10 @@ _cryptgetargsname() {
     local _o _found _key
     unset _o
     unset _found
-    CMDLINE=$(getcmdline)
     _key="$1"
     set --
-    for _o in $CMDLINE; do
-        if [ "$_o" = "$_key" ]; then
-            _found=1;
-        elif [ "${_o%=*}" = "${_key%=}" ]; then
+    for _o in $(getargs rd.luks.name); do
+        if [ "${_o%=*}" = "${_key%=}" ]; then
             [ -n "${_o%=*}" ] && set -- "$@" "${_o#*=}";
             _found=1;
         fi
@@ -56,7 +53,7 @@ else
             unset _uuid
 
             uuid=${uuid##luks-}
-            if luksname=$(_cryptgetargsname "rd.luks.name=$uuid="); then
+            if luksname=$(_cryptgetargsname "$uuid="); then
                 luksname="${luksname#$uuid=}"
             else
                 luksname="luks-$uuid"
@@ -94,7 +91,7 @@ else
             unset _serialid
 
             serialid=${serialid##luks-}
-            if luksname=$(_cryptgetargsname "rd.luks.name=$serialid="); then
+            if luksname=$(_cryptgetargsname "$serialid="); then
                 luksname="${luksname#$serialid=}"
             else
                 luksname="luks-$serialid"
@@ -132,7 +129,7 @@ else
             unset _luksid
 
             luksid=${luksid##luks-}
-            if luksname=$(_cryptgetargsname "rd.luks.name=$luksid="); then
+            if luksname=$(_cryptgetargsname "$luksid="); then
                 luksname="${luksname#$luksid=}"
             else
                 luksname="luks-$luksid"
