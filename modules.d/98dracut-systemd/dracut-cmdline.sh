@@ -49,23 +49,9 @@ source_hook cmdline
 
 [ -f /lib/dracut/parse-resume.sh ] && . /lib/dracut/parse-resume.sh
 
-case "${root}${root_unset}" in
-    block:LABEL=*|LABEL=*)
-        root="${root#block:}"
-        root="$(echo $root | sed 's,/,\\x2f,g')"
-        root="block:/dev/disk/by-label/${root#LABEL=}"
-        rootok=1 ;;
-    block:UUID=*|UUID=*)
-        root="${root#block:}"
-        root="block:/dev/disk/by-uuid/${root#UUID=}"
-        rootok=1 ;;
-    block:PARTUUID=*|PARTUUID=*)
-        root="${root#block:}"
-        root="block:/dev/disk/by-partuuid/${root#PARTUUID=}"
-        rootok=1 ;;
-    block:PARTLABEL=*|PARTLABEL=*)
-        root="${root#block:}"
-        root="block:/dev/disk/by-partlabel/${root#PARTLABEL=}"
+case "${root#block:}${root_unset}" in
+    LABEL=* | UUID=* | PARTUUID=* | PARTLABEL=*)
+        root="block:$(label_uuid_to_dev "$root")"
         rootok=1 ;;
     /dev/*)
         root="block:${root}"

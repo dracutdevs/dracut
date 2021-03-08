@@ -3,29 +3,7 @@
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 for root in $(getargs rootfallback=); do
-    case "$root" in
-        block:LABEL=*|LABEL=*)
-            root="${root#block:}"
-            root="$(echo $root | sed 's,/,\\x2f,g')"
-            root="/dev/disk/by-label/${root#LABEL=}"
-            ;;
-        block:UUID=*|UUID=*)
-            root="${root#block:}"
-            root="${root#UUID=}"
-            root="$(echo $root | tr "[:upper:]" "[:lower:]")"
-            root="/dev/disk/by-uuid/${root#UUID=}"
-            ;;
-        block:PARTUUID=*|PARTUUID=*)
-            root="${root#block:}"
-            root="${root#PARTUUID=}"
-            root="$(echo $root | tr "[:upper:]" "[:lower:]")"
-            root="/dev/disk/by-partuuid/${root}"
-            ;;
-        block:PARTLABEL=*|PARTLABEL=*)
-            root="${root#block:}"
-            root="/dev/disk/by-partlabel/${root#PARTLABEL=}"
-            ;;
-    esac
+    root=$(label_uuid_to_dev "$root")
 
     if ! [ -b "$root" ]; then
         warn "Could not find rootfallback $root"

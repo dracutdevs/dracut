@@ -18,18 +18,8 @@ mount_boot()
 
     if [ -n "$boot" ]; then
         case "$boot" in
-        LABEL=*)
-            boot="$(echo $boot | sed 's,/,\\x2f,g')"
-            boot="/dev/disk/by-label/${boot#LABEL=}"
-            ;;
-        UUID=*)
-            boot="/dev/disk/by-uuid/${boot#UUID=}"
-            ;;
-        PARTUUID=*)
-            boot="/dev/disk/by-partuuid/${boot#PARTUUID=}"
-            ;;
-        PARTLABEL=*)
-            boot="/dev/disk/by-partlabel/${boot#PARTLABEL=}"
+        LABEL=* | UUID=* | PARTUUID=* | PARTLABEL=*)
+            boot="$(label_uuid_to_dev "$boot")"
             ;;
         /dev/*)
             ;;

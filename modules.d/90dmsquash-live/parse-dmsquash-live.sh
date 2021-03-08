@@ -18,27 +18,13 @@ fi
 modprobe -q loop
 
 case "$liveroot" in
-    live:LABEL=*|LABEL=*) \
-        root="${root#live:}"
-        root="${root//\//\\x2f}"
-        root="live:/dev/disk/by-label/${root#LABEL=}"
+    live:LABEL=*|LABEL=* | live:UUID=*|UUID=* | live:PARTUUID=*|PARTUUID=* | live:PARTLABEL=*|PARTLABEL=*)
+        root="live:$(label_uuid_to_dev "${root#live:}")"
         rootok=1 ;;
-    live:CDLABEL=*|CDLABEL=*) \
+    live:CDLABEL=*|CDLABEL=*)
         root="${root#live:}"
-        root="${root//\//\\x2f}"
+        root="$(echo "$root" | sed 's,/,\\x2f,g;s, ,\\x20,g')"
         root="live:/dev/disk/by-label/${root#CDLABEL=}"
-        rootok=1 ;;
-    live:UUID=*|UUID=*) \
-        root="${root#live:}"
-        root="live:/dev/disk/by-uuid/${root#UUID=}"
-        rootok=1 ;;
-    live:PARTUUID=*|PARTUUID=*) \
-        root="${root#live:}"
-        root="live:/dev/disk/by-partuuid/${root#PARTUUID=}"
-        rootok=1 ;;
-    live:PARTLABEL=*|PARTLABEL=*) \
-        root="${root#live:}"
-        root="live:/dev/disk/by-partlabel/${root#PARTLABEL=}"
         rootok=1 ;;
     live:/*.[Ii][Ss][Oo]|/*.[Ii][Ss][Oo])
         root="${root#live:}"
