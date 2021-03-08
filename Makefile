@@ -204,6 +204,7 @@ clean:
 	$(RM) dracut-install install/dracut-install $(DRACUT_INSTALL_OBJECTS)
 	$(RM) skipcpio/skipcpio $(SKIPCPIO_OBJECTS)
 	$(RM) $(manpages) dracut.html
+	$(RM) dracut.pc
 	$(MAKE) -C test clean
 
 dist: dracut-$(DRACUT_MAIN_VERSION).tar.xz
