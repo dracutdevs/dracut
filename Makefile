@@ -11,6 +11,8 @@ endif
 
 -include Makefile.inc
 
+KVERSION ?= $(shell uname -r)
+
 prefix ?= /usr
 libdir ?= ${prefix}/lib
 datadir ?= ${prefix}/share
@@ -256,30 +258,30 @@ check: all syncheck rpm
 	@$(MAKE) -C test check
 
 testimage: all
-	./dracut.sh -N -l -a debug -f test-$(shell uname -r).img $(shell uname -r)
-	@echo wrote  test-$(shell uname -r).img
+	./dracut.sh -N -l -a debug -f test-$(KVERSION).img $(KVERSION)
+	@echo wrote  test-$(KVERSION).img
 
 debugtestimage: all
-	./dracut.sh --debug -l -a debug -f test-$(shell uname -r).img $(shell uname -r)
-	@echo wrote  test-$(shell uname -r).img
+	./dracut.sh --debug -l -a debug -f test-$(KVERSION).img $(KVERSION)
+	@echo wrote  test-$(KVERSION).img
 
 testimages: all
-	./dracut.sh -l -a debug --kernel-only -f test-kernel-$(shell uname -r).img $(shell uname -r)
-	@echo wrote  test-$(shell uname -r).img
-	./dracut.sh -l -a debug --no-kernel -f test-dracut.img $(shell uname -r)
+	./dracut.sh -l -a debug --kernel-only -f test-kernel-$(KVERSION).img $(KVERSION)
+	@echo wrote  test-$(KVERSION).img
+	./dracut.sh -l -a debug --no-kernel -f test-dracut.img $(KVERSION)
 	@echo wrote  test-dracut.img
 
 debughostimage: all
-	./dracut.sh --debug -H -l -f test-$(shell uname -r).img $(shell uname -r)
-	@echo wrote  test-$(shell uname -r).img
+	./dracut.sh --debug -H -l -f test-$(KVERSION).img $(KVERSION)
+	@echo wrote  test-$(KVERSION).img
 
 hostimage: all
-	./dracut.sh -H -l -f test-$(shell uname -r).img $(shell uname -r)
-	@echo wrote  test-$(shell uname -r).img
+	./dracut.sh -H -l -f test-$(KVERSION).img $(KVERSION)
+	@echo wrote  test-$(KVERSION).img
 
 efi: all
-	./dracut.sh --uefi -H -l -f linux-$(shell uname -r).efi $(shell uname -r)
-	@echo wrote linux-$(shell uname -r).efi
+	./dracut.sh --uefi -H -l -f linux-$(KVERSION).efi $(KVERSION)
+	@echo wrote linux-$(KVERSION).efi
 
 AUTHORS:
 	git shortlog  --numbered --summary -e |while read a rest || [ -n "$$rest" ]; do echo $$rest;done > AUTHORS
