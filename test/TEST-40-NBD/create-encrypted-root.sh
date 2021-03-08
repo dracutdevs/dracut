@@ -28,4 +28,5 @@ udevadm settle
 sleep 1
 eval $(udevadm info --query=env --name=/dev/sda|while read line || [ -n "$line" ]; do [ "$line" != "${line#*ID_FS_UUID*}" ] && echo $line; done;)
 { echo "dracut-root-block-created"; echo "ID_FS_UUID=$ID_FS_UUID"; } | dd oflag=direct,dsync of=/dev/sdb
+sync
 poweroff -f

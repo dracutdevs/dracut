@@ -24,4 +24,5 @@ cp -a -t /sysroot /source/* && \
 umount /sysroot && \
 lvm lvchange -a n /dev/dracut/root && \
 echo "dracut-root-block-created" | dd oflag=direct,dsync of=/dev/sdb
+sync
 poweroff -f

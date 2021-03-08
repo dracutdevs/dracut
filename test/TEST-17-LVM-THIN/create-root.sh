@@ -31,4 +31,5 @@ lvm lvchange -a n /dev/dracut/root && \
 sleep 1
 dmsetup status |grep out_of_data_space || \
     echo "dracut-root-block-created" | dd oflag=direct,dsync of=/dev/sda1
+sync
 poweroff -f

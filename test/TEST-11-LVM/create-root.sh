@@ -29,4 +29,5 @@ sleep 1 && \
 lvm lvchange -a n /dev/dracut/root && \
 sleep 1 && \
 echo "dracut-root-block-created" | dd oflag=direct,dsync of=/dev/sda1
+sync
 poweroff -f

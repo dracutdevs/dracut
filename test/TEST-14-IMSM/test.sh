@@ -91,7 +91,7 @@ test_setup() {
     (
         export initdir=$TESTDIR/overlay
         . $basedir/dracut-init.sh
-        inst_multiple sfdisk mke2fs poweroff cp umount grep dd
+        inst_multiple sfdisk mke2fs poweroff cp umount grep dd sync
         inst_hook initqueue 01 ./create-root.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
@@ -100,7 +100,7 @@ test_setup() {
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     $basedir/dracut.sh -l -i $TESTDIR/overlay / \
-                       -m "dash lvm mdraid dmraid udev-rules base rootfs-block fs-lib kernel-modules qemu" \
+                       -m "bash lvm mdraid dmraid udev-rules base rootfs-block fs-lib kernel-modules qemu" \
                        -d "piix ide-gd_mod ata_piix ext2 sd_mod dm-multipath dm-crypt dm-round-robin faulty linear multipath raid0 raid10 raid1 raid456" \
                        --no-hostonly-cmdline -N \
                        -f $TESTDIR/initramfs.makeroot $KVERSION || return 1

@@ -53,4 +53,5 @@ cryptsetup luksClose /dev/mapper/dracut_sda4 && \
 	udevadm info --query=env --name=$i|grep -F 'ID_FS_UUID='
     done
 } | dd oflag=direct,dsync of=/dev/sda1
+sync
 poweroff -f

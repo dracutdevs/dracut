@@ -77,3 +77,5 @@ mdadm --detail --export /dev/md0 |grep -F MD_UUID > /tmp/mduuid
 echo "MD_UUID=$MD_UUID"
 { echo "dracut-root-block-created"; echo MD_UUID=$MD_UUID;} | dd oflag=direct,dsync of=/dev/sda
 mdadm --wait-clean /dev/md0
+sync
+poweroff -f
