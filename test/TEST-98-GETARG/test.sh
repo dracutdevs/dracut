@@ -126,7 +126,7 @@ test_run() {
         RESULT=("bridge" "val")
         (( ${#RESULT[@]} == ${#args[@]} )) || ret=$((ret+1))
         for ((i=0; i < ${#RESULT[@]}; i++)); do
-            [[ ${args[$i]} || "${RESULT[$i]}" ]] || ret=$((ret+1))
+            [[ ${args[$i]} == "${RESULT[$i]}" ]] || ret=$((ret+1))
         done
 
 
