@@ -29,4 +29,4 @@ for _i in /sys/class/net/*; do
     /sbin/netroot "$ifname"
 done
 
-> /tmp/nm.done
+: > /tmp/nm.done
