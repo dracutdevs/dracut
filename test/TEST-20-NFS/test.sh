@@ -23,17 +23,17 @@ run_server() {
     # Start server first
     echo "NFS TEST SETUP: Starting DHCP/NFS server"
 
-    $testdir/run-qemu \
-        -drive format=raw,index=0,media=disk,file=$TESTDIR/server.ext3 \
+    "$testdir"/run-qemu \
+        -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
         -net socket,listen=127.0.0.1:12320 \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         ${SERIAL:+-serial "$SERIAL"} \
-        ${SERIAL:--serial file:"$TESTDIR"/server.log} \
+        "${SERIAL:--serial file:"$TESTDIR"/server.log}" \
         -watchdog i6300esb -watchdog-action poweroff \
         -append "panic=1 quiet root=LABEL=dracut rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
-        -initrd $TESTDIR/initramfs.server \
-        -pidfile $TESTDIR/server.pid -daemonize || return 1
-    chmod 644 $TESTDIR/server.pid || return 1
+        -initrd "$TESTDIR"/initramfs.server \
+        -pidfile "$TESTDIR"/server.pid -daemonize || return 1
+    chmod 644 "$TESTDIR"/server.pid || return 1
 
     # Cleanup the terminal if we have one
     tty -s && stty sane
@@ -61,26 +61,26 @@ client_test() {
     echo "CLIENT TEST START: $test_name"
 
     # Need this so kvm-qemu will boot (needs non-/dev/zero local disk)
-    if ! dd if=/dev/zero of=$TESTDIR/client.img bs=1M count=1 &> /dev/null; then
+    if ! dd if=/dev/zero of="$TESTDIR"/client.img bs=1M count=1 &> /dev/null; then
         echo "Unable to make client sda image" 1>&2
         return 1
     fi
 
-    $testdir/run-qemu \
-        -drive format=raw,index=0,media=disk,file=$TESTDIR/client.img \
-        -net nic,macaddr=$mac,model=e1000 \
+    "$testdir"/run-qemu \
+        -drive format=raw,index=0,media=disk,file="$TESTDIR"/client.img \
+        -net nic,macaddr="$mac",model=e1000 \
         -net socket,connect=127.0.0.1:12320 \
         -watchdog i6300esb -watchdog-action poweroff \
         -append "rd.net.timeout.dhcp=3 panic=1 systemd.crash_reboot rd.shell=0 $cmdline $DEBUGFAIL rd.retry=10 quiet ro console=ttyS0,115200n81 selinux=0" \
-        -initrd $TESTDIR/initramfs.testing
+        -initrd "$TESTDIR"/initramfs.testing
 
-    if [[ $? -ne 0 ]] || ! grep -U --binary-files=binary -F -m 1 -q nfs-OK $TESTDIR/client.img; then
+    if [[ $? -ne 0 ]] || ! grep -U --binary-files=binary -F -m 1 -q nfs-OK "$TESTDIR"/client.img; then
         echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
         return 1
     fi
 
     # nfsinfo=( server:/path nfs{,4} options )
-    nfsinfo=($(awk '{print $2, $3, $4; exit}' $TESTDIR/client.img))
+    nfsinfo=($(awk '{print $2, $3, $4; exit}' "$TESTDIR"/client.img))
 
     if [[ ${nfsinfo[0]%%:*} != "$server" ]]; then
         echo "CLIENT TEST INFO: got server: ${nfsinfo[0]%%:*}"
@@ -200,8 +200,8 @@ test_nfsv4() {
 
 test_run() {
     if [[ -s server.pid ]]; then
-        kill -TERM $(cat $TESTDIR/server.pid)
-        rm -f -- $TESTDIR/server.pid
+        kill -TERM $(cat "$TESTDIR"/server.pid)
+        rm -f -- "$TESTDIR"/server.pid
     fi
 
     if ! run_server; then
@@ -215,8 +215,8 @@ test_run() {
     ret=$?
 
     if [[ -s $TESTDIR/server.pid ]]; then
-        kill -TERM $(cat $TESTDIR/server.pid)
-        rm -f -- $TESTDIR/server.pid
+        kill -TERM $(cat "$TESTDIR"/server.pid)
+        rm -f -- "$TESTDIR"/server.pid
     fi
 
     return $ret
@@ -224,16 +224,16 @@ test_run() {
 
 test_setup() {
     # Make server root
-    dd if=/dev/zero of=$TESTDIR/server.ext3 bs=1M count=120
+    dd if=/dev/zero of="$TESTDIR"/server.ext3 bs=1M count=120
 
     export kernel=$KVERSION
     export srcmods="/lib/modules/$kernel/"
     # Detect lib paths
 
     (
-        mkdir -p $TESTDIR/server/overlay/source
+        mkdir -p "$TESTDIR"/server/overlay/source
         export initdir=$TESTDIR/server/overlay/source
-        . $basedir/dracut-init.sh
+        . "$basedir"/dracut-init.sh
 
         for _f in modules.builtin.bin modules.builtin; do
             [[ $srcmods/$_f ]] && break
@@ -280,7 +280,7 @@ test_setup() {
         inst_libdir_file -n "$_nsslibs" 'libnss_*.so*'
 
         (
-            cd "$initdir"
+            cd "$initdir" || exit
             mkdir -p dev sys proc run etc var/run tmp var/lib/{dhcpd,rpcbind}
             mkdir -p var/lib/nfs/{v4recovery,rpc_pipefs}
             chmod 777 var/lib/rpcbind var/lib/nfs
@@ -290,7 +290,7 @@ test_setup() {
         inst /etc/passwd /etc/passwd
         inst /etc/group /etc/group
 
-        cp -a /etc/ld.so.conf* $initdir/etc
+        cp -a /etc/ld.so.conf* "$initdir"/etc
         ldconfig -r "$initdir"
         dracut_kernel_post
 
@@ -299,7 +299,7 @@ test_setup() {
     # Make client root inside server root
     (
         export initdir=$TESTDIR/server/overlay/source/nfs/client
-        . $basedir/dracut-init.sh
+        . "$basedir"/dracut-init.sh
 
         inst_multiple sh shutdown poweroff stty cat ps ln ip dd \
             mount dmesg mkdir cp ping grep setsid ls vi /etc/virc less cat
@@ -310,7 +310,7 @@ test_setup() {
         inst ./client-init.sh /sbin/init
         inst_simple /etc/os-release
         (
-            cd "$initdir"
+            cd "$initdir" || exit
             mkdir -p dev sys proc etc run
             mkdir -p var/lib/nfs/rpc_pipefs
             mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
@@ -333,14 +333,14 @@ test_setup() {
 
         inst_libdir_file -n "$_nsslibs" 'libnss_*.so*'
 
-        cp -a /etc/ld.so.conf* $initdir/etc
+        cp -a /etc/ld.so.conf* "$initdir"/etc
         ldconfig -r "$initdir"
     )
 
     # second, install the files needed to make the root filesystem
     (
         export initdir=$TESTDIR/server/overlay
-        . $basedir/dracut-init.sh
+        . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd
         inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
@@ -350,26 +350,26 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    $basedir/dracut.sh -l -i $TESTDIR/server/overlay / \
+    "$basedir"/dracut.sh -l -i "$TESTDIR"/server/overlay / \
         -m "bash udev-rules base rootfs-block fs-lib kernel-modules fs-lib qemu" \
         -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
         --nomdadmconf \
         --no-hostonly-cmdline -N \
-        -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
-    rm -rf -- $TESTDIR/server
+        -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
+    rm -rf -- "$TESTDIR"/server
     # Invoke KVM and/or QEMU to actually create the target filesystem.
 
-    $testdir/run-qemu \
-        -drive format=raw,index=0,media=disk,file=$TESTDIR/server.ext3 \
+    "$testdir"/run-qemu \
+        -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
         -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
-        -initrd $TESTDIR/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/server.ext3 || return 1
+        -initrd "$TESTDIR"/initramfs.makeroot || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/server.ext3 || return 1
 
     # Make an overlay with needed tools for the test harness
     (
         export initdir=$TESTDIR/overlay
-        . $basedir/dracut-init.sh
-        mkdir -p $TESTDIR/overlay
+        . "$basedir"/dracut-init.sh
+        mkdir -p "$TESTDIR"/overlay
         inst_multiple poweroff shutdown
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
@@ -378,26 +378,26 @@ test_setup() {
     )
 
     # Make server's dracut image
-    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -m "dash udev-rules base rootfs-block fs-lib debug kernel-modules watchdog qemu" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 i6300esb" \
         --no-hostonly-cmdline -N \
-        -f $TESTDIR/initramfs.server $KVERSION || return 1
+        -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
 
     # Make client's dracut image
-    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -o "plymouth dash ${OMIT_NETWORK}" \
         -a "debug watchdog ${USE_NETWORK}" \
         -d "af_packet piix ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc i6300esb" \
         --no-hostonly-cmdline -N \
-        -f $TESTDIR/initramfs.testing $KVERSION || return 1
+        -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 }
 
 test_cleanup() {
     if [[ -s $TESTDIR/server.pid ]]; then
-        kill -TERM $(cat $TESTDIR/server.pid)
-        rm -f -- $TESTDIR/server.pid
+        kill -TERM $(cat "$TESTDIR"/server.pid)
+        rm -f -- "$TESTDIR"/server.pid
     fi
 }
 
-. $testdir/test-functions
+. "$testdir"/test-functions
