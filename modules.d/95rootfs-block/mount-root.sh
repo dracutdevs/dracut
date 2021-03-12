@@ -26,7 +26,7 @@ mount_root() {
     _rflags_ro="$rflags,ro"
     _rflags_ro="${_rflags_ro##,}"
 
-    while ! mount -t ${rootfs} -o "$_rflags_ro" "${root#block:}" "$NEWROOT"; do
+    while ! mount -t "${rootfs}" -o "$_rflags_ro" "${root#block:}" "$NEWROOT"; do
         warn "Failed to mount -t ${rootfs} -o $_rflags_ro ${root#block:} $NEWROOT"
         fsck_ask_err
     done
