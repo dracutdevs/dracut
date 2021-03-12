@@ -52,7 +52,7 @@ lvm pvcreate -ff -y /dev/md0 \
     && {
         echo "dracut-root-block-created"
         for i in /dev/sda[234]; do
-            udevadm info --query=env --name=$i | grep -F 'ID_FS_UUID='
+            udevadm info --query=env --name="$i" | grep -F 'ID_FS_UUID='
         done
     } | dd oflag=direct,dsync of=/dev/sda1
 sync
