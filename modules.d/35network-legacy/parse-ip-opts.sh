@@ -48,7 +48,7 @@ fi
 # Check ip= lines
 # XXX Would be nice if we could errorcheck ip addresses here as well
 for p in $(getargs ip=); do
-    ip_to_var $p
+    ip_to_var "$p"
 
     # make first device specified the BOOTDEV
     if [ -n "$NEEDBOOTDEV" ] && [ -z "$BOOTDEV" ] && [ -n "$dev" ]; then
@@ -126,7 +126,7 @@ done
 
 # put BOOTIF in IFACES to make sure it comes up
 if getargbool 1 "rd.bootif" && BOOTIF="$(getarg BOOTIF=)"; then
-    BOOTDEV=$(fix_bootif $BOOTIF)
+    BOOTDEV=$(fix_bootif "$BOOTIF")
     IFACES="$BOOTDEV $IFACES"
 fi
 
@@ -137,5 +137,5 @@ if [ -n "$BOOTDEV" ] && [ -n "$IFACES" ]; then
 fi
 
 # Store BOOTDEV and IFACES for later use
-[ -n "$BOOTDEV" ] && echo $BOOTDEV > /tmp/net.bootdev
-[ -n "$IFACES" ] && echo $IFACES > /tmp/net.ifaces
+[ -n "$BOOTDEV" ] && echo "$BOOTDEV" > /tmp/net.bootdev
+[ -n "$IFACES" ] && echo "$IFACES" > /tmp/net.ifaces
