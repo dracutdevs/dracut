@@ -30,7 +30,7 @@ initqueue --onetime modprobe -b -q bnx2fc
 parse_fcoe_opts() {
     local OLDIFS="$IFS"
     local IFS=:
-    set $fcoe
+    set "$fcoe"
     IFS="$OLDIFS"
 
     case $# in
@@ -71,7 +71,7 @@ if [ "$fcoe_interface" = "edd" ]; then
     if [ "$fcoe_dcb" != "nodcb" -a "$fcoe_dcb" != "dcb" ]; then
         warn "Invalid FCoE DCB option: $fcoe_dcb"
     fi
-    /sbin/initqueue --settled --unique /sbin/fcoe-edd $fcoe_dcb
+    /sbin/initqueue --settled --unique /sbin/fcoe-edd "$fcoe_dcb"
 else
     for fcoe in $(getargs fcoe=); do
         unset fcoe_mac
