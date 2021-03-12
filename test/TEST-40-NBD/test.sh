@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem on NBD"
 
 KVERSION=${KVERSION-$(uname -r)}
@@ -83,13 +84,14 @@ client_test() {
         -append "panic=1 systemd.crash_reboot rd.shell=0 $cmdline $DEBUGFAIL rd.auto rd.info rd.retry=10 ro console=ttyS0,115200n81  selinux=0  " \
         -initrd "$TESTDIR"/initramfs.testing
 
+    # shellcheck disable=SC2181
     if [[ $? -ne 0 ]] || ! grep -U --binary-files=binary -F -m 1 -q nbd-OK "$TESTDIR"/flag.img; then
         echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
         return 1
     fi
 
     # nbdinfo=( fstype fsoptions )
-    nbdinfo=($(awk '{print $2, $3; exit}' "$TESTDIR"/flag.img))
+    read -a -r nbdinfo < <(awk '{print $2, $3; exit}' "$TESTDIR"/flag.img)
 
     if [[ ${nbdinfo[0]} != "$fstype" ]]; then
         echo "CLIENT TEST END: $test_name [FAILED - WRONG FS TYPE] \"${nbdinfo[0]}\" != \"$fstype\""
@@ -98,7 +100,7 @@ client_test() {
 
     opts=${nbdinfo[1]},
     while [[ $opts ]]; do
-        if [[ ${opts%%,*} == $fsopt ]]; then
+        if [[ ${opts%%,*} == "$fsopt" ]]; then
             found=1
             break
         fi
@@ -195,7 +197,7 @@ client_run() {
     #                "root=LABEL=dracut rd.luks.uuid=$ID_FS_UUID rd.lv.vg=dracut netroot=dhcp" || return 1
 
     if [[ -s server.pid ]]; then
-        kill -TERM $(cat "$TESTDIR"/server.pid)
+        kill -TERM "$(cat "$TESTDIR"/server.pid)"
         rm -f -- "$TESTDIR"/server.pid
     fi
 
@@ -210,6 +212,7 @@ make_encrypted_root() {
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay/source
         . "$basedir"/dracut-init.sh
         mkdir -p "$initdir"
@@ -237,6 +240,7 @@ make_encrypted_root() {
 
     # second, install the files needed to make the root filesystem
     (
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay
         . "$basedir"/dracut-init.sh
         (
@@ -283,6 +287,7 @@ make_client_root() {
     kernel=$KVERSION
     (
         mkdir -p "$TESTDIR"/overlay/source
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay/source
         . "$basedir"/dracut-init.sh
         mkdir -p "$initdir"
@@ -315,6 +320,7 @@ make_client_root() {
 
     # second, install the files needed to make the root filesystem
     (
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay
         . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd
@@ -351,6 +357,7 @@ make_server_root() {
     kernel=$KVERSION
     (
         mkdir -p "$TESTDIR"/overlay/source
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay/source
         . "$basedir"/dracut-init.sh
         mkdir -p "$initdir"
@@ -398,6 +405,7 @@ EOF
 
     # second, install the files needed to make the root filesystem
     (
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay
         . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd
@@ -467,7 +475,7 @@ test_setup() {
 
 kill_server() {
     if [[ -s $TESTDIR/server.pid ]]; then
-        kill -TERM $(cat "$TESTDIR"/server.pid)
+        kill -TERM "$(cat "$TESTDIR"/server.pid)"
         rm -f -- "$TESTDIR"/server.pid
     fi
 }
