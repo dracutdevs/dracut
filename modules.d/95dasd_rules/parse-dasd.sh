@@ -5,13 +5,13 @@ create_udev_rule() {
     local _drv _cu_type _dev_type
     local _rule=/etc/udev/rules.d/51-dasd-${ccw}.rules
 
-    if [ -x /sbin/cio_ignore ] && cio_ignore -i $ccw > /dev/null; then
-        cio_ignore -r $ccw
+    if [ -x /sbin/cio_ignore ] && cio_ignore -i "$ccw" > /dev/null; then
+        cio_ignore -r "$ccw"
     fi
 
-    if [ -e /sys/bus/ccw/devices/${ccw} ]; then
-        read _cu_type < /sys/bus/ccw/devices/${ccw}/cutype
-        read _dev_type < /sys/bus/ccw/devices/${ccw}/devtype
+    if [ -e /sys/bus/ccw/devices/"${ccw}" ]; then
+        read _cu_type < /sys/bus/ccw/devices/"${ccw}"/cutype
+        read _dev_type < /sys/bus/ccw/devices/"${ccw}"/devtype
     fi
     case "$_cu_type" in
         3990/* | 2105/* | 2107/* | 1750/* | 9343/*)
@@ -33,9 +33,9 @@ create_udev_rule() {
     esac
     [ -z "${_drv}" ] && return 0
 
-    [ -e ${_rule} ] && return 0
+    [ -e "${_rule}" ] && return 0
 
-    cat > $_rule << EOF
+    cat > "$_rule" << EOF
 ACTION=="add", SUBSYSTEM=="ccw", KERNEL=="$ccw", IMPORT{program}="collect $ccw %k ${ccw} $_drv"
 ACTION=="add", SUBSYSTEM=="drivers", KERNEL=="$_drv", IMPORT{program}="collect $ccw %k ${ccw} $_drv"
 ACTION=="add", ENV{COLLECT_$ccw}=="0", ATTR{[ccw/$ccw]online}="1"
@@ -47,7 +47,7 @@ if [[ -f /sys/firmware/ipl/ipl_type && \
     (
         _ccw=$(cat /sys/firmware/ipl/device)
 
-        create_udev_rule $_ccw
+        create_udev_rule "$_ccw"
     )
 fi
 
@@ -61,9 +61,9 @@ for dasd_arg in $(getargs root=) $(getargs resume=); do
         if [ -n "$ccw_arg" ]; then
             OLDIFS="$IFS"
             IFS="-"
-            set -- $ccw_arg
+            set -- "$ccw_arg"
             IFS="$OLDIFS"
-            create_udev_rule $2
+            create_udev_rule "$2"
         fi
     )
 done
@@ -72,7 +72,7 @@ for dasd_arg in $(getargs rd.dasd=); do
     (
         OLDIFS="$IFS"
         IFS=","
-        set -- $dasd_arg
+        set -- "$dasd_arg"
         IFS="$OLDIFS"
         while (($# > 0)); do
             case $1 in
@@ -83,7 +83,7 @@ for dasd_arg in $(getargs rd.dasd=); do
                     range=$1
                     OLDIFS="$IFS"
                     IFS="-"
-                    set -- $range
+                    set -- "$range"
                     prefix=${1%.*}
                     start=${1##*.}
                     shift
@@ -101,7 +101,7 @@ for dasd_arg in $(getargs rd.dasd=); do
                     fi
                     OLDIFS="$IFS"
                     IFS="."
-                    set -- $dev
+                    set -- "$dev"
                     sid=$1
                     shift
                     ssid=$1
