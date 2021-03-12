@@ -9,5 +9,5 @@ _do_mdmon_takeover() {
 }
 
 if command -v mdmon > /dev/null; then
-    _do_mdmon_takeover $1
+    _do_mdmon_takeover "$1"
 fi
