@@ -16,7 +16,7 @@ test_run() {
     set -e
     export rootdir=$TESTDIR/root
 
-    mkdir -p $rootdir
+    mkdir -p "$rootdir"
 
     mkdir -p "$rootdir/proc"
     mkdir -p "$rootdir/sys"
@@ -60,7 +60,7 @@ test_run() {
             bash \
             iscsi-initiator-utils \
             "$TESTDIR"/dracut-[0-9]*.$(uname -m).rpm \
-            ${NULL} && break
+            "${NULL}" && break
         #"$TESTDIR"/dracut-config-rescue-[0-9]*.$(uname -m).rpm \
         #"$TESTDIR"/dracut-network-[0-9]*.$(uname -m).rpm \
         #    ${NULL}
@@ -127,4 +127,4 @@ test_cleanup() {
     return 0
 }
 
-. $testdir/test-functions
+. "$testdir"/test-functions
