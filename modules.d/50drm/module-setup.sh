@@ -21,8 +21,7 @@ installkernel() {
             "=drivers/gpu/drm/i2c" \
             "=drivers/gpu/drm/panel" \
             "=drivers/gpu/drm/bridge" \
-            "=drivers/video/backlight" \
-            "${NULL}"
+            "=drivers/video/backlight"
     fi
 
     instmods amdkfd hyperv_fb "=drivers/pwm"
