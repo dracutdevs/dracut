@@ -33,7 +33,7 @@ install() {
         local MAPNAME=${1%.map*}
         local map
         [[ ! -f $dracutsysrootdir$MAPS ]] \
-            && MAPS=$(find $dracutsysrootdir${kbddir}/keymaps -type f -name ${MAPNAME} -o -name ${MAPNAME}.map -o -name ${MAPNAME}.map.\*)
+            && MAPS=$(find "$dracutsysrootdir""${kbddir}"/keymaps -type f -name "${MAPNAME}" -o -name "${MAPNAME}".map -o -name "${MAPNAME}".map.\*)
 
         for map in $MAPS; do
             KEYMAPS="$KEYMAPS $map "
@@ -43,10 +43,10 @@ install() {
                 *) cmd="grep" ;;
             esac
 
-            for INCL in $($cmd "^include " $map | while read _ a _ || [ -n "$a" ]; do echo ${a//\"/}; done); do
-                for FN in $(find $dracutsysrootdir${kbddir}/keymaps -type f -name $INCL\*); do
+            for INCL in $($cmd "^include " "$map" | while read _ a _ || [ -n "$a" ]; do echo "${a//\"/}"; done); do
+                for FN in $(find "$dracutsysrootdir""${kbddir}"/keymaps -type f -name "$INCL"\*); do
                     [[ -f $FN ]] || continue
-                    strstr "$KEYMAPS" " $FN " || findkeymap $FN
+                    strstr "$KEYMAPS" " $FN " || findkeymap "$FN"
                 done
             done
         done
@@ -101,8 +101,8 @@ install() {
         inst_multiple setfont loadkeys kbd_mode stty
 
         if ! dracut_module_included "systemd"; then
-            inst ${moddir}/console_init.sh /lib/udev/console_init
-            inst_rules ${moddir}/10-console.rules
+            inst "${moddir}"/console_init.sh /lib/udev/console_init
+            inst_rules "${moddir}"/10-console.rules
             inst_hook cmdline 20 "${moddir}/parse-i18n.sh"
         fi
 
@@ -139,9 +139,9 @@ install() {
     install_local_i18n() {
         local map
 
-        eval $(gather_vars ${i18n_vars})
-        [ -f $dracutsysrootdir$I18N_CONF ] && . $dracutsysrootdir$I18N_CONF
-        [ -f $dracutsysrootdir$VCONFIG_CONF ] && . $dracutsysrootdir$VCONFIG_CONF
+        eval $(gather_vars "${i18n_vars}")
+        [ -f "$dracutsysrootdir"$I18N_CONF ] && . "$dracutsysrootdir"$I18N_CONF
+        [ -f "$dracutsysrootdir"$VCONFIG_CONF ] && . "$dracutsysrootdir"$VCONFIG_CONF
 
         shopt -q -s nocasematch
         if [[ ${UNICODE} ]]; then
@@ -183,48 +183,48 @@ install() {
             return 1
         }
 
-        findkeymap ${KEYMAP}
+        findkeymap "${KEYMAP}"
 
         for map in ${EXT_KEYMAPS}; do
             ddebug "Adding extra map: ${map}"
-            findkeymap ${map}
+            findkeymap "${map}"
         done
 
         for keymap in ${KEYMAPS}; do
-            inst_opt_decompress ${keymap}
+            inst_opt_decompress "${keymap}"
         done
 
-        inst_opt_decompress ${kbddir}/consolefonts/${DEFAULT_FONT}.*
+        inst_opt_decompress "${kbddir}"/consolefonts/"${DEFAULT_FONT}".*
 
         if [[ ${FONT} ]] && [[ ${FONT} != ${DEFAULT_FONT} ]]; then
             FONT=${FONT%.psf*}
-            inst_opt_decompress ${kbddir}/consolefonts/${FONT}.*
+            inst_opt_decompress "${kbddir}"/consolefonts/"${FONT}".*
         fi
 
         if [[ ${FONT_MAP} ]]; then
             FONT_MAP=${FONT_MAP%.trans}
             # There are three different formats that setfont supports
-            inst_simple ${kbddir}/consoletrans/${FONT_MAP} \
-                || inst_simple ${kbddir}/consoletrans/${FONT_MAP}.trans \
-                || inst_simple ${kbddir}/consoletrans/${FONT_MAP}_to_uni.trans \
+            inst_simple "${kbddir}"/consoletrans/"${FONT_MAP}" \
+                || inst_simple "${kbddir}"/consoletrans/"${FONT_MAP}".trans \
+                || inst_simple "${kbddir}"/consoletrans/"${FONT_MAP}"_to_uni.trans \
                 || dwarn "Could not find FONT_MAP ${FONT_MAP}!"
         fi
 
         if [[ ${FONT_UNIMAP} ]]; then
             FONT_UNIMAP=${FONT_UNIMAP%.uni}
-            inst_simple ${kbddir}/unimaps/${FONT_UNIMAP}.uni
+            inst_simple "${kbddir}"/unimaps/"${FONT_UNIMAP}".uni
         fi
 
         if dracut_module_included "systemd" && [[ -f $dracutsysrootdir${I18N_CONF} ]]; then
             inst_simple ${I18N_CONF}
         else
-            mksubdirs ${initdir}${I18N_CONF}
-            print_vars LC_ALL LANG >> ${initdir}${I18N_CONF}
+            mksubdirs "${initdir}"${I18N_CONF}
+            print_vars LC_ALL LANG >> "${initdir}"${I18N_CONF}
         fi
 
         if ! dracut_module_included "systemd"; then
-            mksubdirs ${initdir}${VCONFIG_CONF}
-            print_vars KEYMAP EXT_KEYMAPS UNICODE FONT FONT_MAP FONT_UNIMAP >> ${initdir}${VCONFIG_CONF}
+            mksubdirs "${initdir}"${VCONFIG_CONF}
+            print_vars KEYMAP EXT_KEYMAPS UNICODE FONT FONT_MAP FONT_UNIMAP >> "${initdir}"${VCONFIG_CONF}
         fi
 
         return 0
