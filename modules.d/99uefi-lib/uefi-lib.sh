@@ -33,7 +33,7 @@ getword() {
     b1=$(getbyte)
     b2=$(getbyte)
     ((val = b2 * 256 + b1))
-    echo $val
+    echo "$val"
     return 0
 }
 
