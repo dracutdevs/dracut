@@ -17,13 +17,13 @@ fsck_ask_err() {
 
 # inherits: _ret _drv _out
 fsck_tail() {
-    [ $_ret -gt 0 ] && warn "$_drv returned with $_ret"
-    if [ $_ret -ge 4 ]; then
+    [ "$_ret" -gt 0 ] && warn "$_drv returned with $_ret"
+    if [ "$_ret" -ge 4 ]; then
         [ -n "$_out" ] && echo "$_out" | vwarn
         fsck_ask_err
     else
         [ -n "$_out" ] && echo "$_out" | vinfo
-        [ $_ret -ge 2 ] && fsck_ask_reboot
+        [ "$_ret" -ge 2 ] && fsck_ask_reboot
     fi
 }
 
@@ -107,7 +107,7 @@ fsck_drv_com() {
 
     info "issuing $_drv $_fop $_dev"
     # we enforce non-interactive run, so $() is fine
-    _out=$($_drv $_fop "$_dev")
+    _out=$($_drv "$_fop" "$_dev")
     _ret=$?
     fsck_tail
 
@@ -124,7 +124,7 @@ fsck_drv_std() {
     # note, we don't enforce -a here, thus fsck is being run (in theory)
     # interactively; otherwise some tool might complain about lack of terminal
     # (and using -a might not be safe)
-    fsck $_fop "$_dev" > /dev/console 2>&1
+    fsck "$_fop" "$_dev" > /dev/console 2>&1
     _ret=$?
     fsck_tail
 
@@ -148,7 +148,7 @@ fsck_single() {
     [ $# -lt 2 ] && return 255
     # if UUID= marks more than one device, take only the first one
     [ -e "$_dev" ] || _dev=$(devnames "$_dev" | while read line || [ -n "$line" ]; do if [ -n "$line" ]; then
-        echo $line
+        echo "$line"
         break
     fi; done)
     [ -e "$_dev" ] || return 255
@@ -196,8 +196,8 @@ det_fs() {
 
     _fs=$(udevadm info --query=env --name="$_dev" \
         | while read line || [ -n "$line" ]; do
-            if str_starts $line "ID_FS_TYPE="; then
-                echo ${line#ID_FS_TYPE=}
+            if str_starts "$line" "ID_FS_TYPE="; then
+                echo "${line#ID_FS_TYPE=}"
                 break
             fi
         done)
