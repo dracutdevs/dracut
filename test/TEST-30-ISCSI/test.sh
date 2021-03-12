@@ -22,20 +22,20 @@ run_server() {
     # Start server first
     echo "iSCSI TEST SETUP: Starting DHCP/iSCSI server"
 
-    $testdir/run-qemu \
-        -drive format=raw,index=0,media=disk,file=$TESTDIR/server.ext3 \
-        -drive format=raw,index=1,media=disk,file=$TESTDIR/root.ext3 \
-        -drive format=raw,index=2,media=disk,file=$TESTDIR/iscsidisk2.img \
-        -drive format=raw,index=3,media=disk,file=$TESTDIR/iscsidisk3.img \
+    "$testdir"/run-qemu \
+        -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
+        -drive format=raw,index=1,media=disk,file="$TESTDIR"/root.ext3 \
+        -drive format=raw,index=2,media=disk,file="$TESTDIR"/iscsidisk2.img \
+        -drive format=raw,index=3,media=disk,file="$TESTDIR"/iscsidisk3.img \
         ${SERIAL:+-serial "$SERIAL"} \
-        ${SERIAL:--serial file:"$TESTDIR"/server.log} \
+        "${SERIAL:--serial file:"$TESTDIR"/server.log}" \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net nic,macaddr=52:54:00:12:34:57,model=e1000 \
         -net socket,listen=127.0.0.1:12330 \
         -append "panic=1 quiet root=/dev/sda2 rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 $SERVER_DEBUG" \
-        -initrd $TESTDIR/initramfs.server \
-        -pidfile $TESTDIR/server.pid -daemonize || return 1
-    chmod 644 $TESTDIR/server.pid || return 1
+        -initrd "$TESTDIR"/initramfs.server \
+        -pidfile "$TESTDIR"/server.pid -daemonize || return 1
+    chmod 644 "$TESTDIR"/server.pid || return 1
 
     # Cleanup the terminal if we have one
     tty -s && stty sane
@@ -58,17 +58,17 @@ run_client() {
     shift
     echo "CLIENT TEST START: $test_name"
 
-    dd if=/dev/zero of=$TESTDIR/client.img bs=1M count=1
+    dd if=/dev/zero of="$TESTDIR"/client.img bs=1M count=1
 
-    $testdir/run-qemu \
-        -drive format=raw,index=0,media=disk,file=$TESTDIR/client.img \
+    "$testdir"/run-qemu \
+        -drive format=raw,index=0,media=disk,file="$TESTDIR"/client.img \
         -net nic,macaddr=52:54:00:12:34:00,model=e1000 \
         -net nic,macaddr=52:54:00:12:34:01,model=e1000 \
         -net socket,connect=127.0.0.1:12330 \
         -acpitable file=ibft.table \
         -append "panic=1 systemd.crash_reboot rw rd.auto rd.retry=50 console=ttyS0,115200n81 selinux=0 rd.debug=0 rd.shell=0 $DEBUGFAIL $*" \
-        -initrd $TESTDIR/initramfs.testing
-    if ! grep -U --binary-files=binary -F -m 1 -q iscsi-OK $TESTDIR/client.img; then
+        -initrd "$TESTDIR"/initramfs.testing
+    if ! grep -U --binary-files=binary -F -m 1 -q iscsi-OK "$TESTDIR"/client.img; then
         echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
         return 1
     fi
@@ -117,8 +117,8 @@ test_run() {
     do_test_run
     ret=$?
     if [[ -s $TESTDIR/server.pid ]]; then
-        kill -TERM $(cat $TESTDIR/server.pid)
-        rm -f -- $TESTDIR/server.pid
+        kill -TERM $(cat "$TESTDIR"/server.pid)
+        rm -f -- "$TESTDIR"/server.pid
     fi
     return $ret
 }
@@ -130,18 +130,18 @@ test_setup() {
     fi
 
     # Create the blank file to use as a root filesystem
-    dd if=/dev/zero of=$TESTDIR/root.ext3 bs=1M count=100
-    dd if=/dev/zero of=$TESTDIR/iscsidisk2.img bs=1M count=50
-    dd if=/dev/zero of=$TESTDIR/iscsidisk3.img bs=1M count=50
+    dd if=/dev/zero of="$TESTDIR"/root.ext3 bs=1M count=100
+    dd if=/dev/zero of="$TESTDIR"/iscsidisk2.img bs=1M count=50
+    dd if=/dev/zero of="$TESTDIR"/iscsidisk3.img bs=1M count=50
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
-    rm -rf -- $TESTDIR/overlay
+    rm -rf -- "$TESTDIR"/overlay
     (
         export initdir=$TESTDIR/overlay/source
-        . $basedir/dracut-init.sh
+        . "$basedir"/dracut-init.sh
         (
-            cd "$initdir"
+            cd "$initdir" || exit
             mkdir -p -- dev sys proc etc var/run tmp
             mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
             for i in bin sbin lib lib64; do
@@ -157,14 +157,14 @@ test_setup() {
         inst_multiple -o ${_terminfodir}/l/linux
         inst_simple /etc/os-release
         inst ./client-init.sh /sbin/init
-        cp -a /etc/ld.so.conf* $initdir/etc
+        cp -a /etc/ld.so.conf* "$initdir"/etc
         ldconfig -r "$initdir"
     )
 
     # second, install the files needed to make the root filesystem
     (
         export initdir=$TESTDIR/overlay
-        . $basedir/dracut-init.sh
+        . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount setsid dd
         inst_hook initqueue 01 ./create-client-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
@@ -174,41 +174,41 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -m "dash crypt lvm mdraid udev-rules base rootfs-block fs-lib kernel-modules qemu" \
         -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
         --no-hostonly-cmdline -N \
-        -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
-    rm -rf -- $TESTDIR/overlay
+        -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
+    rm -rf -- "$TESTDIR"/overlay
 
     # Need this so kvm-qemu will boot (needs non-/dev/zero local disk)
-    if ! dd if=/dev/zero of=$TESTDIR/client.img bs=1M count=1; then
+    if ! dd if=/dev/zero of="$TESTDIR"/client.img bs=1M count=1; then
         echo "Unable to make client sdb image" 1>&2
         return 1
     fi
     # Invoke KVM and/or QEMU to actually create the target filesystem.
-    $testdir/run-qemu \
-        -drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext3 \
-        -drive format=raw,index=1,media=disk,file=$TESTDIR/client.img \
-        -drive format=raw,index=2,media=disk,file=$TESTDIR/iscsidisk2.img \
-        -drive format=raw,index=3,media=disk,file=$TESTDIR/iscsidisk3.img \
+    "$testdir"/run-qemu \
+        -drive format=raw,index=0,media=disk,file="$TESTDIR"/root.ext3 \
+        -drive format=raw,index=1,media=disk,file="$TESTDIR"/client.img \
+        -drive format=raw,index=2,media=disk,file="$TESTDIR"/iscsidisk2.img \
+        -drive format=raw,index=3,media=disk,file="$TESTDIR"/iscsidisk3.img \
         -append "root=/dev/fakeroot rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
-        -initrd $TESTDIR/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/client.img || return 1
-    rm -- $TESTDIR/client.img
-    rm -rf -- $TESTDIR/overlay
+        -initrd "$TESTDIR"/initramfs.makeroot || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/client.img || return 1
+    rm -- "$TESTDIR"/client.img
+    rm -rf -- "$TESTDIR"/overlay
 
     # Make server root
-    dd if=/dev/zero of=$TESTDIR/server.ext3 bs=1M count=120
+    dd if=/dev/zero of="$TESTDIR"/server.ext3 bs=1M count=120
 
     kernel=$KVERSION
-    rm -rf -- $TESTDIR/overlay
+    rm -rf -- "$TESTDIR"/overlay
     (
-        mkdir -p $TESTDIR/overlay/source
+        mkdir -p "$TESTDIR"/overlay/source
         export initdir=$TESTDIR/overlay/source
-        . $basedir/dracut-init.sh
+        . "$basedir"/dracut-init.sh
         (
-            cd "$initdir"
+            cd "$initdir" || exit
             mkdir -p dev sys proc etc var/run tmp var/lib/dhcpd /etc/iscsi
         )
         inst /etc/passwd /etc/passwd
@@ -232,7 +232,7 @@ test_setup() {
         inst_multiple /etc/nsswitch.conf /etc/rpc /etc/protocols
         inst /etc/group /etc/group
 
-        cp -a /etc/ld.so.conf* $initdir/etc
+        cp -a /etc/ld.so.conf* "$initdir"/etc
         ldconfig -r "$initdir"
         dracut_kernel_post
     )
@@ -240,7 +240,7 @@ test_setup() {
     # second, install the files needed to make the root filesystem
     (
         export initdir=$TESTDIR/overlay
-        . $basedir/dracut-init.sh
+        . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd
         inst_hook initqueue 01 ./create-server-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
@@ -250,25 +250,25 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -m "dash udev-rules base rootfs-block fs-lib kernel-modules fs-lib qemu" \
         -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
         --nomdadmconf \
         --no-hostonly-cmdline -N \
-        -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
+        -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
-    $testdir/run-qemu \
-        -drive format=raw,index=0,media=disk,file=$TESTDIR/server.ext3 \
+    "$testdir"/run-qemu \
+        -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
         -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
-        -initrd $TESTDIR/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/server.ext3 || return 1
-    rm -rf -- $TESTDIR/overlay
+        -initrd "$TESTDIR"/initramfs.makeroot || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/server.ext3 || return 1
+    rm -rf -- "$TESTDIR"/overlay
 
     # Make an overlay with needed tools for the test harness
     (
         export initdir=$TESTDIR/overlay
-        . $basedir/dracut-init.sh
+        . "$basedir"/dracut-init.sh
         inst_multiple poweroff shutdown
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
@@ -277,28 +277,28 @@ test_setup() {
     )
 
     # Make server's dracut image
-    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -a "dash udev-rules base rootfs-block fs-lib debug kernel-modules" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 drbg" \
         --no-hostonly-cmdline -N \
-        -f $TESTDIR/initramfs.server $KVERSION || return 1
+        -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
 
     # Make client dracut image
-    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -o "dash plymouth dmraid nfs ${OMIT_NETWORK}" \
         -a "debug ${USE_NETWORK}" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod" \
         --no-hostonly-cmdline -N \
-        -f $TESTDIR/initramfs.testing $KVERSION || return 1
-    rm -rf -- $TESTDIR/overlay
+        -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
+    rm -rf -- "$TESTDIR"/overlay
 
 }
 
 test_cleanup() {
     if [[ -s $TESTDIR/server.pid ]]; then
-        kill -TERM $(cat $TESTDIR/server.pid)
-        rm -f -- $TESTDIR/server.pid
+        kill -TERM $(cat "$TESTDIR"/server.pid)
+        rm -f -- "$TESTDIR"/server.pid
     fi
 }
 
-. $testdir/test-functions
+. "$testdir"/test-functions
