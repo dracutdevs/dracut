@@ -12,7 +12,7 @@ nm_generate_connections() {
             /etc/NetworkManager/system-connections/* \
             /etc/sysconfig/network-scripts/ifcfg-*; do
             [ -f "$i" ] || continue
-            echo '[ -f /tmp/nm.done ]' > $hookdir/initqueue/finished/nm.sh
+            echo '[ -f /tmp/nm.done ]' > "$hookdir"/initqueue/finished/nm.sh
             break
         done
     fi
