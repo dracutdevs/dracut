@@ -2,7 +2,7 @@
 
 set -ex
 
-[[ -d ${0%/*} ]] && cd ${0%/*}
+[[ -d ${0%/*} ]] && cd "${0%/*}"
 
 RUN_ID="$1"
 TESTS=$2
@@ -12,10 +12,10 @@ TESTS=$2
 NCPU=$(getconf _NPROCESSORS_ONLN)
 
 if ! [[ $TESTS ]]; then
-    make -j$NCPU all syncheck rpm logtee
+    make -j"$NCPU" all syncheck rpm logtee
 else
     [[ $TESTS == "99" ]] && make_docs=yes || make_docs=no
-    make -j$NCPU enable_documentation=$make_docs all logtee
+    make -j"$NCPU" enable_documentation=$make_docs all logtee
 
     cd test
 
@@ -23,7 +23,7 @@ else
         enable_documentation=$make_docs \
         KVERSION=$(rpm -qa kernel --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' | sort -rn | head -1) \
         DRACUT_NO_XATTR=1 \
-        TEST_RUN_ID=$RUN_ID \
+        TEST_RUN_ID="$RUN_ID" \
         ${TESTS:+TESTS="$TESTS"} \
         -k V=2 \
         check
