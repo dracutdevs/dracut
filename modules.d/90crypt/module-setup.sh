@@ -4,7 +4,7 @@
 check() {
     local _rootdev
     # if cryptsetup is not installed, then we cannot support encrypted devices.
-    require_any_binary $systemdutildir/systemd-cryptsetup cryptsetup || return 1
+    require_any_binary "$systemdutildir"/systemd-cryptsetup cryptsetup || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for fs in "${host_fs_types[@]}"; do
@@ -36,13 +36,13 @@ installkernel() {
         dmsetup table | while read name _ _ is_crypt cipher _; do
             [[ $is_crypt != "crypt" ]] && continue
             # get the device name
-            name=/dev/$(dmsetup info -c --noheadings -o blkdevname ${name%:})
+            name=/dev/$(dmsetup info -c --noheadings -o blkdevname "${name%:}")
             # check if the device exists as a key in our host_fs_types
             if [[ ${host_fs_types[$name]+_} ]]; then
                 # split the cipher aes-xts-plain64 in pieces
                 _OLD_IFS=$IFS
                 IFS='-:'
-                set -- $cipher
+                set -- "$cipher"
                 IFS=$_OLD_IFS
                 # try to load the cipher part with "crypto-" prepended
                 # in non-hostonly mode
@@ -60,7 +60,7 @@ cmdline() {
         [[ ${host_fs_types[$dev]} != "crypto_LUKS" ]] && continue
 
         UUID=$(
-            blkid -u crypto -o export $dev \
+            blkid -u crypto -o export "$dev" \
                 | while read line || [ -n "$line" ]; do
                     [[ ${line#UUID} == $line ]] && continue
                     printf "%s" "${line#UUID=}"
@@ -104,13 +104,13 @@ install() {
             [[ $_dev == ID=* ]] \
                 && _dev="/dev/disk/by-id/${_dev#ID=}"
 
-            echo "$_dev $(blkid $_dev -s UUID -o value)" >> "${initdir}/etc/block_uuid.map"
+            echo "$_dev $(blkid "$_dev" -s UUID -o value)" >> "${initdir}/etc/block_uuid.map"
 
             # loop through the options to check for the force option
             luksoptions=${_luksoptions}
             OLD_IFS="${IFS}"
             IFS=,
-            set -- ${luksoptions}
+            set -- "${luksoptions}"
             IFS="${OLD_IFS}"
 
             forceentry=""
@@ -147,14 +147,14 @@ install() {
         # the cryptsetup targets are already pulled in by 00systemd, but not
         # the enablement symlinks
         inst_multiple -o \
-            $systemdutildir/system-generators/systemd-cryptsetup-generator \
-            $systemdutildir/systemd-cryptsetup \
-            $systemdsystemunitdir/systemd-ask-password-console.path \
-            $systemdsystemunitdir/systemd-ask-password-console.service \
-            $systemdsystemunitdir/cryptsetup.target \
-            $systemdsystemunitdir/sysinit.target.wants/cryptsetup.target \
-            $systemdsystemunitdir/remote-cryptsetup.target \
-            $systemdsystemunitdir/initrd-root-device.target.wants/remote-cryptsetup.target \
+            "$systemdutildir"/system-generators/systemd-cryptsetup-generator \
+            "$systemdutildir"/systemd-cryptsetup \
+            "$systemdsystemunitdir"/systemd-ask-password-console.path \
+            "$systemdsystemunitdir"/systemd-ask-password-console.service \
+            "$systemdsystemunitdir"/cryptsetup.target \
+            "$systemdsystemunitdir"/sysinit.target.wants/cryptsetup.target \
+            "$systemdsystemunitdir"/remote-cryptsetup.target \
+            "$systemdsystemunitdir"/initrd-root-device.target.wants/remote-cryptsetup.target \
             systemd-ask-password systemd-tty-ask-password-agent
     fi
 
