@@ -7,7 +7,7 @@ filter_rootopts() {
     # strip ro and rw options
     local OLDIFS="$IFS"
     IFS=,
-    set -- $rootopts
+    set -- "$rootopts"
     IFS="$OLDIFS"
     local v
     while [ $# -gt 0 ]; do
@@ -21,7 +21,7 @@ filter_rootopts() {
         shift
     done
     rootopts=${v#,}
-    echo $rootopts
+    echo "$rootopts"
 }
 
 mount_root() {
@@ -53,7 +53,7 @@ mount_root() {
             fi
         done < "$NEWROOT/etc/fstab"
 
-        rootopts=$(filter_rootopts $rootopts)
+        rootopts=$(filter_rootopts "$rootopts")
     fi
 
     # we want rootflags (rflags) to take precedence so prepend rootopts to
