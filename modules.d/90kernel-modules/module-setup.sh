@@ -21,7 +21,7 @@ installkernel() {
     }
 
     record_block_dev_drv() {
-        for _mod in $(get_dev_module /dev/block/$1); do
+        for _mod in $(get_dev_module /dev/block/"$1"); do
             [[ " $_hostonly_drvs " != *$_mod* ]] && _hostonly_drvs+=" $_mod"
         done
         [[ "$_hostonly_drvs" ]] && return 0
@@ -29,7 +29,7 @@ installkernel() {
     }
 
     install_block_modules_strict() {
-        hostonly='' instmods $_hostonly_drvs
+        hostonly='' instmods "$_hostonly_drvs"
     }
 
     install_block_modules() {
@@ -49,7 +49,7 @@ installkernel() {
             ohci-hcd ohci-pci \
             uhci-hcd \
             xhci-hcd xhci-pci xhci-plat-hcd \
-            ${NULL}
+            "${NULL}"
 
         hostonly=$(optional_hostonly) instmods \
             "=drivers/hid" \
@@ -59,7 +59,7 @@ installkernel() {
             "=drivers/pci/host" \
             "=drivers/pci/controller" \
             "=drivers/pinctrl" \
-            ${NULL}
+            "${NULL}"
 
         instmods \
             yenta_socket \
@@ -97,7 +97,7 @@ installkernel() {
                 "=drivers/usb/musb" \
                 "=drivers/usb/phy" \
                 "=drivers/scsi/hisi_sas" \
-                ${NULL}
+                "${NULL}"
         fi
 
         find_kernel_modules_external | instmods
