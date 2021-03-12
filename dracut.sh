@@ -286,7 +286,7 @@ read_arg() {
     # $3 = arg parameter
     local rematch='^[^=]*=(.*)$'
     if [[ $2 =~ $rematch ]]; then
-        read -r "$1" <<<"${BASH_REMATCH[1]}"
+        read -r "$1" <<< "${BASH_REMATCH[1]}"
     else
         read -r "$1" <<< "$3"
         # There is no way to shift our callers args, so
