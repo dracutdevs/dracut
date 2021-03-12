@@ -35,7 +35,7 @@ for bridge in $(getargs bridge=); do
     iface=eth0
     # Read bridge= parameters if they exist
     if [ "$bridge" != "bridge" ]; then
-        parsebridge $bridge
+        parsebridge "$bridge"
     fi
     # Simple default bridge
     if [ -z "$bridgename" ]; then
