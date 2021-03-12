@@ -38,8 +38,7 @@ install() {
             /etc/sysctl.conf \
             "$sysctldconfdir"/*.conf \
             "$systemdsystemconfdir"/systemd-sysctl.service \
-            "$systemdsystemconfdir"/systemd-sysctl.service.d/*.conf \
-            "${NULL}"
+            "$systemdsystemconfdir"/systemd-sysctl.service.d/*.conf
     fi
 
     # Enable the systemd type service unit for sysctl.
