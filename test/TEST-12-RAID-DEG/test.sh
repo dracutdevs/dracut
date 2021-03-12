@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem on an encrypted LVM PV on a degraded RAID-5"
 
 KVERSION=${KVERSION-$(uname -r)}
@@ -10,7 +11,7 @@ KVERSION=${KVERSION-$(uname -r)}
 #DEBUGFAIL="rd.shell loglevel=70 systemd.log_target=kmsg"
 
 client_run() {
-    echo "CLIENT TEST START: $@"
+    echo "CLIENT TEST START: $*"
     cp --sparse=always --reflink=auto "$TESTDIR"/disk2.img "$TESTDIR"/disk2.img.new
     cp --sparse=always --reflink=auto "$TESTDIR"/disk3.img "$TESTDIR"/disk3.img.new
 
@@ -21,19 +22,19 @@ client_run() {
         -append "panic=1 systemd.crash_reboot $* systemd.log_target=kmsg root=LABEL=root rw rd.retry=10 rd.info console=ttyS0,115200n81 log_buf_len=2M selinux=0 rd.shell=0 $DEBUGFAIL " \
         -initrd "$TESTDIR"/initramfs.testing
     if ! grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success "$TESTDIR"/marker.img; then
-        echo "CLIENT TEST END: $@ [FAIL]"
+        echo "CLIENT TEST END: $* [FAIL]"
         return 1
     fi
     rm -f -- "$TESTDIR"/marker.img
     dd if=/dev/zero of="$TESTDIR"/marker.img bs=1M count=40
 
-    echo "CLIENT TEST END: $@ [OK]"
+    echo "CLIENT TEST END: $* [OK]"
     return 0
 }
 
 test_run() {
-    read LUKS_UUID < "$TESTDIR"/luksuuid
-    read MD_UUID < "$TESTDIR"/mduuid
+    read -r LUKS_UUID < "$TESTDIR"/luksuuid
+    read -r MD_UUID < "$TESTDIR"/mduuid
 
     client_run failme && return 1
     client_run rd.auto || return 1
@@ -63,6 +64,7 @@ test_setup() {
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay/source
         . "$basedir"/dracut-init.sh
         (
@@ -91,6 +93,7 @@ test_setup() {
 
     # second, install the files needed to make the root filesystem
     (
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay
         . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mke2fs poweroff cp umount dd grep sync
@@ -118,10 +121,10 @@ test_setup() {
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
 
     grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
-    eval $(grep -F --binary-files=text -m 1 MD_UUID "$TESTDIR"/marker.img)
-    eval $(grep -F -a -m 1 ID_FS_UUID "$TESTDIR"/marker.img)
+    eval "$(grep -F --binary-files=text -m 1 MD_UUID "$TESTDIR"/marker.img)"
+    eval "$(grep -F -a -m 1 ID_FS_UUID "$TESTDIR"/marker.img)"
     echo "$ID_FS_UUID" > "$TESTDIR"/luksuuid
-    eval $(grep -F --binary-files=text -m 1 MD_UUID "$TESTDIR"/marker.img)
+    eval "$(grep -F --binary-files=text -m 1 MD_UUID "$TESTDIR"/marker.img)"
     echo "$MD_UUID" > "$TESTDIR"/mduuid
 
     (
