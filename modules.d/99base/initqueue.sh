@@ -54,7 +54,7 @@ fi
 exe=$1
 shift
 
-[ -x "$exe" ] || exe=$(command -v $exe)
+[ -x "$exe" ] || exe=$(command -v "$exe")
 if [ -z "$exe" ]; then
     echo "Invalid command"
     exit 1
@@ -67,5 +67,5 @@ fi
 } > "/tmp/$$-${job}.sh"
 
 mv -f "/tmp/$$-${job}.sh" "$hookdir/initqueue${qname}/${job}.sh"
-[ -z "$qname" ] && >> $hookdir/initqueue/work
+[ -z "$qname" ] && >> "$hookdir"/initqueue/work
 exit 0
