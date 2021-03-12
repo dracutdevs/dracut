@@ -3,7 +3,7 @@
 # called by dracut
 check() {
     is_fcoe() {
-        block_is_fcoe $1 || return 1
+        block_is_fcoe "$1" || return 1
     }
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
@@ -28,12 +28,12 @@ installkernel() {
 get_vlan_parent() {
     local link=$1
 
-    [ -d $link ] || return
-    read iflink < $link/iflink
+    [ -d "$link" ] || return
+    read iflink < "$link"/iflink
     for if in /sys/class/net/*; do
-        read idx < $if/ifindex
-        if [ $idx -eq $iflink ]; then
-            echo ${if##*/}
+        read idx < "$if"/ifindex
+        if [ "$idx" -eq "$iflink" ]; then
+            echo "${if##*/}"
         fi
     done
 }
@@ -42,27 +42,27 @@ get_vlan_parent() {
 cmdline() {
     {
         for c in /sys/bus/fcoe/devices/ctlr_*; do
-            [ -L $c ] || continue
-            read enabled < $c/enabled
-            read mode < $c/mode
-            [ $enabled -eq 0 ] && continue
-            if [ $mode = "VN2VN" ]; then
+            [ -L "$c" ] || continue
+            read enabled < "$c"/enabled
+            read mode < "$c"/mode
+            [ "$enabled" -eq 0 ] && continue
+            if [ "$mode" = "VN2VN" ]; then
                 mode="vn2vn"
             else
                 mode="fabric"
             fi
             d=$(
-                cd -P $c
-                echo $PWD
+                cd -P "$c" || exit
+                echo "$PWD"
             )
             i=${d%/*}
             ifname=${i##*/}
-            read mac < ${i}/address
-            s=$(dcbtool gc ${i##*/} dcb 2> /dev/null | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
+            read mac < "${i}"/address
+            s=$(dcbtool gc "${i##*/}" dcb 2> /dev/null | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
             if [ -z "$s" ]; then
-                p=$(get_vlan_parent ${i})
+                p=$(get_vlan_parent "${i}")
                 if [ "$p" ]; then
-                    s=$(dcbtool gc ${p} dcb 2> /dev/null | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
+                    s=$(dcbtool gc "${p}" dcb 2> /dev/null | sed -n 's/^DCB State:\t*\(.*\)/\1/p')
                     ifname=${p##*/}
                 fi
             fi
@@ -78,10 +78,10 @@ cmdline() {
             # DCB_REQUIRED in "/etc/fcoe/cfg-xxx" is expected to set to "no".
             #
             # Force "nodcb" if there's any DCB_REQUIRED="no"(child or vlan parent).
-            grep -q '^[[:blank:]]*DCB_REQUIRED="no"' /etc/fcoe/cfg-${i##*/} &> /dev/null
+            grep -q '^[[:blank:]]*DCB_REQUIRED="no"' /etc/fcoe/cfg-"${i##*/}" &> /dev/null
             [ $? -eq 0 ] && dcb="nodcb"
             if [ "$p" ]; then
-                grep -q '^[[:blank:]]*DCB_REQUIRED="no"' /etc/fcoe/cfg-${p} &> /dev/null
+                grep -q '^[[:blank:]]*DCB_REQUIRED="no"' /etc/fcoe/cfg-"${p}" &> /dev/null
                 [ $? -eq 0 ] && dcb="nodcb"
             fi
 
