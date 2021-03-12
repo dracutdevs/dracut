@@ -17,7 +17,7 @@ install() {
 
 installkernel() {
     local -A _drivers
-    local _alldrivers _wdtdrv _wdtppath _dir
+    local _alldrivers _wdtdrv
 
     for _wd in /sys/class/watchdog/*; do
         ! [ -e "$_wd" ] && continue
