@@ -81,10 +81,10 @@ if command -v kmod > /dev/null 2> /dev/null; then
             type=${type%\!}
             case $type in
                 d)
-                    mkdir -m $mode -p $file
+                    mkdir -m "$mode" -p "$file"
                     ;;
                 c)
-                    mknod -m $mode $file $type ${majmin%:*} ${majmin#*:}
+                    mknod -m "$mode" "$file" "$type" "${majmin%:*}" "${majmin#*:}"
                     ;;
             esac
         done
@@ -93,7 +93,7 @@ fi
 trap "emergency_shell Signal caught!" 0
 
 export UDEVVERSION=$(udevadm --version)
-if [ $UDEVVERSION -gt 166 ]; then
+if [ "$UDEVVERSION" -gt 166 ]; then
     # newer versions of udev use /run/udev/rules.d
     export UDEVRULESD=/run/udev/rules.d
     [ -d /run/udev ] || mkdir -p -m 0755 /run/udev
@@ -105,7 +105,7 @@ fi
 
 if [ "$RD_DEBUG" = "yes" ]; then
     mkfifo /run/initramfs/loginit.pipe
-    loginit $DRACUT_QUIET < /run/initramfs/loginit.pipe > /dev/console 2>&1 &
+    loginit "$DRACUT_QUIET" < /run/initramfs/loginit.pipe > /dev/console 2>&1 &
     exec > /run/initramfs/loginit.pipe 2>&1
 else
     exec 0<> /dev/console 1<> /dev/console 2<> /dev/console
@@ -150,11 +150,11 @@ getargbool 0 rd.udev.info -d -y rdudevinfo && UDEV_LOG=info
 getargbool 0 rd.udev.debug -d -y rdudevdebug && UDEV_LOG=debug
 
 # start up udev and trigger cold plugs
-UDEV_LOG=$UDEV_LOG $systemdutildir/systemd-udevd --daemon --resolve-names=never
+UDEV_LOG=$UDEV_LOG "$systemdutildir"/systemd-udevd --daemon --resolve-names=never
 
 UDEV_QUEUE_EMPTY="udevadm settle --timeout=0"
 
-if [ $UDEVVERSION -lt 140 ]; then
+if [ "$UDEVVERSION" -lt 140 ]; then
     UDEV_QUEUE_EMPTY="udevadm settle --timeout=1"
 fi
 
@@ -186,13 +186,13 @@ while :; do
 
     check_finished && break
 
-    if [ -f $hookdir/initqueue/work ]; then
-        rm -f -- $hookdir/initqueue/work
+    if [ -f "$hookdir"/initqueue/work ]; then
+        rm -f -- "$hookdir"/initqueue/work
     fi
 
     for job in $hookdir/initqueue/*.sh; do
         [ -e "$job" ] || break
-        job=$job . $job
+        job=$job . "$job"
         check_finished && break 2
     done
 
@@ -200,7 +200,7 @@ while :; do
 
     for job in $hookdir/initqueue/settled/*.sh; do
         [ -e "$job" ] || break
-        job=$job . $job
+        job=$job . "$job"
         check_finished && break 2
     done
 
@@ -212,9 +212,9 @@ while :; do
     if [ $main_loop -gt $((2 * RDRETRY / 3)) ]; then
         for job in $hookdir/initqueue/timeout/*.sh; do
             [ -e "$job" ] || break
-            job=$job . $job
+            job=$job . "$job"
             udevadm settle --timeout=0 > /dev/null 2>&1 || main_loop=0
-            [ -f $hookdir/initqueue/work ] && main_loop=0
+            [ -f "$hookdir"/initqueue/work ] && main_loop=0
         done
     fi
 
@@ -265,7 +265,7 @@ done
 
 {
     printf "Mounted root filesystem "
-    while read dev mp rest || [ -n "$dev" ]; do [ "$mp" = "$NEWROOT" ] && echo $dev; done < /proc/mounts
+    while read dev mp rest || [ -n "$dev" ]; do [ "$mp" = "$NEWROOT" ] && echo "$dev"; done < /proc/mounts
 } | vinfo
 
 # pre pivot scripts are sourced just before we doing cleanup and switch over
@@ -303,14 +303,14 @@ done
     emergency_shell
 }
 
-if [ $UDEVVERSION -lt 168 ]; then
+if [ "$UDEVVERSION" -lt 168 ]; then
     # stop udev queue before killing it
     udevadm control --stop-exec-queue
 
     HARD=""
     while pidof udevd > /dev/null 2>&1; do
         for pid in $(pidof udevd); do
-            kill $HARD $pid > /dev/null 2>&1
+            kill "$HARD" "$pid" > /dev/null 2>&1
         done
         HARD="-9"
     done
@@ -350,18 +350,18 @@ if getarg init= > /dev/null; then
     ignoreargs="console BOOT_IMAGE"
     # only pass arguments after init= to the init
     CLINE=${CLINE#*init=}
-    set -- $CLINE
+    set -- "$CLINE"
     shift # clear out the rest of the "init=" arg
     for x in "$@"; do
         for s in $ignoreargs; do
-            [ "${x%%=*}" = $s ] && continue 2
+            [ "${x%%=*}" = "$s" ] && continue 2
         done
         initargs="$initargs $x"
     done
     unset CLINE
 else
     debug_off # Turn off debugging for this section
-    set -- $CLINE
+    set -- "$CLINE"
     for x in "$@"; do
         case "$x" in
             [0-9] | s | S | single | emergency | auto)
@@ -399,17 +399,17 @@ if [ -f /etc/capsdrop ]; then
     . /etc/capsdrop
     info "Calling $INIT with capabilities $CAPS_INIT_DROP dropped."
     unset RD_DEBUG
-    exec $CAPSH --drop="$CAPS_INIT_DROP" -- \
+    exec "$CAPSH" --drop="$CAPS_INIT_DROP" -- \
         -c "exec switch_root \"$NEWROOT\" \"$INIT\" $initargs" \
         || {
             warn "Command:"
-            warn capsh --drop=$CAPS_INIT_DROP -- -c exec switch_root "$NEWROOT" "$INIT" $initargs
+            warn capsh --drop="$CAPS_INIT_DROP" -- -c exec switch_root "$NEWROOT" "$INIT" "$initargs"
             warn "failed."
             emergency_shell
         }
 else
     unset RD_DEBUG
-    exec $SWITCH_ROOT "$NEWROOT" "$INIT" $initargs || {
+    exec "$SWITCH_ROOT" "$NEWROOT" "$INIT" "$initargs" || {
         warn "Something went very badly wrong in the initramfs.  Please "
         warn "file a bug against dracut."
         emergency_shell
