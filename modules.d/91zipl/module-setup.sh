@@ -24,7 +24,7 @@ installkernel() {
 
     _boot_zipl=$(sed -n -e '/^[[:space:]]*#/d' -e 's/\(.*\)\w*\/boot\/zipl.*/\1/p' /etc/fstab)
     if [ -n "$_boot_zipl" ]; then
-        eval $(blkid -s TYPE -o udev ${_boot_zipl})
+        eval $(blkid -s TYPE -o udev "${_boot_zipl}")
         if [ -n "$ID_FS_TYPE" ]; then
             case "$ID_FS_TYPE" in
                 ext?)
