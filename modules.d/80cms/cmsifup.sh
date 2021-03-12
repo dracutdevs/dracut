@@ -18,21 +18,21 @@ fi
 
 if [ "$ipv6" ]; then
     DNS1=$(
-        set -- ${DNS/,/ }
-        echo $1
+        set -- "${DNS/,/ }"
+        echo "$1"
     )
     DNS2=$(
-        set -- ${DNS/,/ }
-        echo $2
+        set -- "${DNS/,/ }"
+        echo "$2"
     )
 else
     DNS1=$(
-        set -- ${DNS/:/ }
-        echo $1
+        set -- "${DNS/:/ }"
+        echo "$1"
     )
     DNS2=$(
-        set -- ${DNS/:/ }
-        echo $2
+        set -- "${DNS/:/ }"
+        echo "$2"
     )
 fi
 
