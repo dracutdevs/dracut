@@ -80,7 +80,7 @@ command -v fix_bootif > /dev/null || . /lib/net-lib.sh
                     echo "$cond, $runcmd, GOTO=\"net_end\""
                     ;;
                 ??-??-??-??-??-??) # MAC address in BOOTIF form
-                    cond="ATTR{address}==\"$(fix_bootif $iface)\""
+                    cond="ATTR{address}==\"$(fix_bootif "$iface")\""
                     echo "$cond, $runcmd, GOTO=\"net_end\""
                     ;;
                 *) # an interface name
@@ -100,7 +100,7 @@ command -v fix_bootif > /dev/null || . /lib/net-lib.sh
                     echo "systemctl is-active initrd-root-device.target || [ -f /tmp/net.${iface}.did-setup ]"
                 else
                     echo "[ -f /tmp/net.${iface}.did-setup ]"
-                fi > $hookdir/initqueue/finished/wait-$iface.sh
+                fi > "$hookdir"/initqueue/finished/wait-"$iface".sh
             fi
         done
     # Default: We don't know the interface to use, handle all
@@ -110,7 +110,7 @@ command -v fix_bootif > /dev/null || . /lib/net-lib.sh
         # if you change the name of "91-default-net.rules", also change modules.d/80cms/cmssetup.sh
         echo "$cond, $runcmd" > /etc/udev/rules.d/91-default-net.rules
         if [ "$NEEDNET" = "1" ]; then
-            echo 'for i in /tmp/net.*.did-setup; do [ -f "$i" ]  && exit 0; done; exit 1' > $hookdir/initqueue/finished/wait-network.sh
+            echo 'for i in /tmp/net.*.did-setup; do [ -f "$i" ]  && exit 0; done; exit 1' > "$hookdir"/initqueue/finished/wait-network.sh
         fi
     fi
 
