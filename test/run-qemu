@@ -31,7 +31,7 @@ VMLINUZ="/lib/modules/${KVERSION}/vmlinuz"
 if ! [ -f "$VMLINUZ" ]; then
     [[ -f /etc/machine-id ]] && read -r MACHINE_ID < /etc/machine-id
 
-    if [[ $MACHINE_ID ]] && { [[ -d /boot/${MACHINE_ID} ]] || [[ -L /boot/${MACHINE_ID} ]] ;} ; then
+    if [[ $MACHINE_ID ]] && { [[ -d /boot/${MACHINE_ID} ]] || [[ -L /boot/${MACHINE_ID} ]]; }; then
         VMLINUZ="/boot/${MACHINE_ID}/$KVERSION/linux"
     else
         VMLINUZ="/boot/vmlinuz-${KVERSION}"
