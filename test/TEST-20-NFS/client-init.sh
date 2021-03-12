@@ -50,7 +50,7 @@ getarg() {
                 shift
                 ;;
             -y)
-                if _dogetarg $2 > /dev/null; then
+                if _dogetarg "$2" > /dev/null; then
                     if [ "$_deprecated" = "1" ]; then
                         [ -n "$_newoption" ] && warn "Kernel command line option '$2' is deprecated, use '$_newoption' instead." || warn "Option '$2' is deprecated."
                     fi
@@ -61,7 +61,7 @@ getarg() {
                 shift 2
                 ;;
             -n)
-                if _dogetarg $2 > /dev/null; then
+                if _dogetarg "$2" > /dev/null; then
                     echo 0
                     if [ "$_deprecated" = "1" ]; then
                         [ -n "$_newoption" ] && warn "Kernel command line option '$2' is deprecated, use '$_newoption=0' instead." || warn "Option '$2' is deprecated."
@@ -75,7 +75,7 @@ getarg() {
                 if [ -z "$_newoption" ]; then
                     _newoption="$1"
                 fi
-                if _dogetarg $1; then
+                if _dogetarg "$1"; then
                     if [ "$_deprecated" = "1" ]; then
                         [ -n "$_newoption" ] && warn "Kernel command line option '$1' is deprecated, use '$_newoption' instead." || warn "Option '$1' is deprecated."
                     fi
@@ -120,10 +120,10 @@ fi
 
 echo "made it to the rootfs! Powering down."
 
-while read dev fs fstype opts rest || [ -n "$dev" ]; do
+while read dev _ fstype opts rest || [ -n "$dev" ]; do
     [ "$fstype" != "nfs" -a "$fstype" != "nfs4" ] && continue
     echo "nfs-OK $dev $fstype $opts" | dd oflag=direct,dsync of=/dev/sda
     break
 done < /proc/mounts
-> /dev/watchdog
+: > /dev/watchdog
 poweroff -f
