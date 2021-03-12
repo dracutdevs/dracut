@@ -36,7 +36,7 @@ load_ecryptfs_key() {
     fi
 
     # read the eCryptfs encrypted key blob
-    KEYBLOB=$(cat ${ECRYPTFSKEYPATH})
+    KEYBLOB=$(cat "${ECRYPTFSKEYPATH}")
 
     # load the eCryptfs encrypted key blob
     ECRYPTFSKEYID=$(keyctl add ${ECRYPTFSKEYTYPE} ${ECRYPTFSKEYDESC} "load ${KEYBLOB}" @u)
@@ -50,7 +50,7 @@ load_ecryptfs_key() {
 
 unload_ecryptfs_key() {
     # unlink the eCryptfs encrypted key
-    keyctl unlink ${ECRYPTFSKEYID} @u || {
+    keyctl unlink "${ECRYPTFSKEYID}" @u || {
         info "eCryptfs: failed to unlink the eCryptfs key: ${ECRYPTFSKEYDESC}"
         return 1
     }
@@ -61,7 +61,7 @@ unload_ecryptfs_key() {
 mount_ecryptfs() {
     # read the configuration from the config file
     [ -f "${ECRYPTFSCONFIG}" ] \
-        && . ${ECRYPTFSCONFIG}
+        && . "${ECRYPTFSCONFIG}"
 
     # load the eCryptfs encrypted key
     load_ecryptfs_key || return 1
@@ -81,7 +81,7 @@ mount_ecryptfs() {
 
     # mount the eCryptfs filesystem
     info "Mounting the configured eCryptfs filesystem"
-    mount -i -t ecryptfs -o${ECRYPTFS_MOUNT_OPTS} ${ECRYPTFSSRCMNT} ${ECRYPTFSDSTMNT} > /dev/null || {
+    mount -i -t ecryptfs -o${ECRYPTFS_MOUNT_OPTS} "${ECRYPTFSSRCMNT}" "${ECRYPTFSDSTMNT}" > /dev/null || {
         info "eCryptfs: mount of the eCryptfs filesystem failed"
         return 1
     }
