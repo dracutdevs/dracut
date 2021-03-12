@@ -33,8 +33,7 @@ install() {
         "$systemdsystemunitdir"/multi-user.target.wants/systemd-ask-password-wall.path \
         "$systemdsystemunitdir"/sysinit.target.wants/systemd-ask-password-console.path \
         systemd-ask-password \
-        systemd-tty-ask-password-agent \
-        # EOL
+        systemd-tty-ask-password-agent
 
     # Enable the systemd type service unit for systemd-ask-password.
     $SYSTEMCTL -q --root "$initdir" enable systemd-ask-password-console.service
@@ -43,8 +42,7 @@ install() {
     if dracut_module_included "plymouth"; then
         inst_multiple -o \
             "$systemdsystemunitdir"/systemd-ask-password-plymouth.path \
-            "$systemdsystemunitdir"/systemd-ask-password-plymouth.service \
-            # EOL
+            "$systemdsystemunitdir"/systemd-ask-password-plymouth.service
 
         $SYSTEMCTL -q --root "$initdir" enable systemd-ask-password-plymouth.service
     fi
@@ -56,7 +54,6 @@ install() {
     #        $systemdsystemunitdir/systemd-ask-password-wall.path \
     #        $systemdsystemunitdir/systemd-ask-password-wall.service \
     #        $systemdsystemunitdir/multi-user.target.wants/systemd-ask-password-wall.path \
-    #        # EOL
     #
     #    $SYSTEMCTL -q --root "$initdir" enable systemd-ask-password-wall.service
     #fi
