@@ -33,27 +33,27 @@ depends() {
 install() {
 
     # Create dbus related directories.
-    inst_dir $dbus
-    inst_dir $dbusinterfaces
-    inst_dir $dbusservices
-    inst_dir $dbussession
-    inst_dir $dbussystem
-    inst_dir $dbussystemservices
-    inst_dir $dbusconfdir
-    inst_dir $dbusinterfacesconfdir
-    inst_dir $dbusservicesconfdir
-    inst_dir $dbussessionconfdir
-    inst_dir $dbussystemconfdir
-    inst_dir $dbussystemservicesconfdir
+    inst_dir "$dbus"
+    inst_dir "$dbusinterfaces"
+    inst_dir "$dbusservices"
+    inst_dir "$dbussession"
+    inst_dir "$dbussystem"
+    inst_dir "$dbussystemservices"
+    inst_dir "$dbusconfdir"
+    inst_dir "$dbusinterfacesconfdir"
+    inst_dir "$dbusservicesconfdir"
+    inst_dir "$dbussessionconfdir"
+    inst_dir "$dbussystemconfdir"
+    inst_dir "$dbussystemservicesconfdir"
 
     inst_multiple -o \
-        $dbus/system.conf \
-        $dbussystem/org.freedesktop.systemd1.conf \
-        $dbusservicesconfdir/org.freedesktop.systemd1.service \
-        $dbussystemservices/org.freedesktop.systemd1.service \
-        $systemdsystemunitdir/dbus.service \
-        $systemdsystemunitdir/dbus.socket \
-        $systemdsystemunitdir/dbus.target.wants \
+        "$dbus"/system.conf \
+        "$dbussystem"/org.freedesktop.systemd1.conf \
+        "$dbusservicesconfdir"/org.freedesktop.systemd1.service \
+        "$dbussystemservices"/org.freedesktop.systemd1.service \
+        "$systemdsystemunitdir"/dbus.service \
+        "$systemdsystemunitdir"/dbus.socket \
+        "$systemdsystemunitdir"/dbus.target.wants \
         busctl dbus-send dbus-daemon
 
     # Adjusting dependencies for initramfs in the dbus service unit.
@@ -78,12 +78,12 @@ install() {
     # Install the hosts local user configurations if enabled.
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
-            $dbusconfdir/system.conf \
-            $systemdsystemconfdir/dbus.socket \
-            $systemdsystemconfdir/dbus.socket.d/*.conf \
-            $systemdsystemconfdir/dbus.service \
-            $systemdsystemconfdir/dbus.service.d/*.conf \
-            ${NULL}
+            "$dbusconfdir"/system.conf \
+            "$systemdsystemconfdir"/dbus.socket \
+            "$systemdsystemconfdir"/dbus.socket.d/*.conf \
+            "$systemdsystemconfdir"/dbus.service \
+            "$systemdsystemconfdir"/dbus.service.d/*.conf \
+            "${NULL}"
     fi
 
     # We need to make sure that systemd-tmpfiles-setup.service->dbus.socket
