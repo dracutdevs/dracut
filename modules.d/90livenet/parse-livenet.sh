@@ -14,7 +14,7 @@ if [ -n "$updates" ]; then
     fi
     echo "$updates" > /tmp/liveupdates.info
     echo '[ -e /tmp/liveupdates.done ]' > \
-        $hookdir/initqueue/finished/liveupdates.sh
+        "$hookdir"/initqueue/finished/liveupdates.sh
 fi
 
 str_starts "$root" "live:" && liveurl="$root"
