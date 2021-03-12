@@ -7,7 +7,7 @@ if ! getarg rd.luks.uuid -d rd_LUKS_UUID > /dev/null 2>&1 && getargbool 1 rd.luk
     while true; do
         local do_break="y"
         for i in /dev/mapper/luks-*; do
-            cryptsetup luksClose $i > /dev/null 2>&1 && do_break=n
+            cryptsetup luksClose "$i" > /dev/null 2>&1 && do_break=n
         done
         [ "$do_break" = "y" ] && break
     done
