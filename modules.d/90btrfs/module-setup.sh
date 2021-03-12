@@ -52,5 +52,5 @@ install() {
     inst $(command -v btrfs) /sbin/btrfs
     # Hack for slow machines
     # see https://github.com/dracutdevs/dracut/issues/658
-    echo "rd.driver.pre=btrfs" > ${initdir}/etc/cmdline.d/00-btrfs.conf
+    echo "rd.driver.pre=btrfs" > "${initdir}"/etc/cmdline.d/00-btrfs.conf
 }
