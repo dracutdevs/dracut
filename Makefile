@@ -9,6 +9,8 @@ ifeq ($(DRACUT_FULL_VERSION),)
 DRACUT_FULL_VERSION = $(DRACUT_VERSION)
 endif
 
+HAVE_SHFMT ?= $(shell which shfmt >/dev/null  2>&1 && echo yes)
+
 -include Makefile.inc
 
 KVERSION ?= $(shell uname -r)
@@ -92,7 +94,9 @@ dracut-util: util/util
 
 indent:
 	indent -i8 -nut -br -linux -l120 $(wildcard *.[ch] */*.[ch])
-	if type -P shfmt >/dev/null; then shfmt -w -s .; fi
+ifeq ($(HAVE_SHFMT),yes)
+	shfmt -w -s .
+endif
 
 doc: $(manpages) dracut.html
 
