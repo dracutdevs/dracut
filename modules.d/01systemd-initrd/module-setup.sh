@@ -27,8 +27,7 @@ install() {
         "$systemdsystemunitdir"/initrd-switch-root.service \
         "$systemdsystemunitdir"/initrd-cleanup.service \
         "$systemdsystemunitdir"/initrd-udevadm-cleanup-db.service \
-        "$systemdsystemunitdir"/initrd-parse-etc.service \
-        # EOL
+        "$systemdsystemunitdir"/initrd-parse-etc.service
 
     $SYSTEMCTL -q --root "$initdir" set-default initrd.target
 }
