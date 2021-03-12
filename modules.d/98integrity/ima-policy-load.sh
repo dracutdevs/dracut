@@ -21,7 +21,7 @@ load_ima_policy() {
 
     # override the default configuration
     [ -f "${IMACONFIG}" ] \
-        && . ${IMACONFIG}
+        && . "${IMACONFIG}"
 
     # set the IMA policy path name
     IMAPOLICYPATH="${NEWROOT}${IMAPOLICY}"
@@ -29,8 +29,8 @@ load_ima_policy() {
     # check the existence of the IMA policy file
     [ -f "${IMAPOLICYPATH}" ] && {
         info "Loading the provided IMA custom policy"
-        printf '%s' "${IMAPOLICYPATH}" > ${IMASECDIR}/policy \
-            || cat "${IMAPOLICYPATH}" > ${IMASECDIR}/policy
+        printf '%s' "${IMAPOLICYPATH}" > "${IMASECDIR}"/policy \
+            || cat "${IMAPOLICYPATH}" > "${IMASECDIR}"/policy
     }
 
     return 0
