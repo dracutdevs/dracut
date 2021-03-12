@@ -28,11 +28,13 @@ depends() {
 install() {
 
     inst_multiple -o \
-        $systemdsystemunitdir/systemd-ask-password-console.path \
-        $systemdsystemunitdir/systemd-ask-password-console.service \
-        $systemdsystemunitdir/multi-user.target.wants/systemd-ask-password-wall.path \
-        $systemdsystemunitdir/sysinit.target.wants/systemd-ask-password-console.path \
-        systemd-ask-password systemd-tty-ask-password-agent
+        "$systemdsystemunitdir"/systemd-ask-password-console.path \
+        "$systemdsystemunitdir"/systemd-ask-password-console.service \
+        "$systemdsystemunitdir"/multi-user.target.wants/systemd-ask-password-wall.path \
+        "$systemdsystemunitdir"/sysinit.target.wants/systemd-ask-password-console.path \
+        systemd-ask-password \
+        systemd-tty-ask-password-agent \
+        # EOL
 
     # Enable the systemd type service unit for systemd-ask-password.
     $SYSTEMCTL -q --root "$initdir" enable systemd-ask-password-console.service
@@ -40,8 +42,9 @@ install() {
     # Install systemd-ask-password plymouth units if plymouth is enabled.
     if dracut_module_included "plymouth"; then
         inst_multiple -o \
-            $systemdsystemunitdir/systemd-ask-password-plymouth.path \
-            $systemdsystemunitdir/systemd-ask-password-plymouth.service
+            "$systemdsystemunitdir"/systemd-ask-password-plymouth.path \
+            "$systemdsystemunitdir"/systemd-ask-password-plymouth.service \
+            # EOL
 
         $SYSTEMCTL -q --root "$initdir" enable systemd-ask-password-plymouth.service
     fi
@@ -52,7 +55,8 @@ install() {
     #    inst_multiple -o \
     #        $systemdsystemunitdir/systemd-ask-password-wall.path \
     #        $systemdsystemunitdir/systemd-ask-password-wall.service \
-    #        $systemdsystemunitdir/multi-user.target.wants/systemd-ask-password-wall.path
+    #        $systemdsystemunitdir/multi-user.target.wants/systemd-ask-password-wall.path \
+    #        # EOL
     #
     #    $SYSTEMCTL -q --root "$initdir" enable systemd-ask-password-wall.service
     #fi
