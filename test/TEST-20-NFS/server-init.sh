@@ -13,10 +13,10 @@ wait_for_if_link() {
     local cnt=0
     local li
     while [ $cnt -lt 600 ]; do
-        li=$(ip -o link show dev $1 2> /dev/null)
+        li=$(ip -o link show dev "$1" 2> /dev/null)
         [ -n "$li" ] && return 0
         if [[ $2 ]]; then
-            li=$(ip -o link show dev $2 2> /dev/null)
+            li=$(ip -o link show dev "$2" 2> /dev/null)
             [ -n "$li" ] && return 0
         fi
         sleep 0.1
@@ -29,7 +29,7 @@ wait_for_if_up() {
     local cnt=0
     local li
     while [ $cnt -lt 200 ]; do
-        li=$(ip -o link show up dev $1)
+        li=$(ip -o link show up dev "$1")
         [ -n "$li" ] && return 0
         sleep 0.1
         cnt=$((cnt + 1))
@@ -49,7 +49,7 @@ wait_for_route_ok() {
 }
 
 linkup() {
-    wait_for_if_link $1 2> /dev/null && ip link set $1 up 2> /dev/null && wait_for_if_up $1 2> /dev/null
+    wait_for_if_link "$1" 2> /dev/null && ip link set "$1" up 2> /dev/null && wait_for_if_up "$1" 2> /dev/null
 }
 
 wait_for_if_link eth0 ens2
