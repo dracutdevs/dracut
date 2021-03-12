@@ -141,39 +141,39 @@ dracut.pc: Makefile.inc Makefile
 	@echo "dracutconfdir=$(pkglibdir)/dracut.conf.d" >> dracut.pc
 
 install: all
-	mkdir -p $(DESTDIR)$(pkglibdir)
-	mkdir -p $(DESTDIR)$(bindir)
-	mkdir -p $(DESTDIR)$(sysconfdir)
-	mkdir -p $(DESTDIR)$(pkglibdir)/modules.d
-	mkdir -p $(DESTDIR)$(mandir)/man1 $(DESTDIR)$(mandir)/man5 $(DESTDIR)$(mandir)/man7 $(DESTDIR)$(mandir)/man8
-	install -m 0755 dracut.sh $(DESTDIR)$(bindir)/dracut
-	install -m 0755 dracut-catimages.sh $(DESTDIR)$(bindir)/dracut-catimages
-	install -m 0755 mkinitrd-dracut.sh $(DESTDIR)$(bindir)/mkinitrd
-	install -m 0755 lsinitrd.sh $(DESTDIR)$(bindir)/lsinitrd
-	install -m 0644 dracut.conf $(DESTDIR)$(sysconfdir)/dracut.conf
-	mkdir -p $(DESTDIR)$(sysconfdir)/dracut.conf.d
-	mkdir -p $(DESTDIR)$(pkglibdir)/dracut.conf.d
-	install -m 0755 dracut-init.sh $(DESTDIR)$(pkglibdir)/dracut-init.sh
-	install -m 0755 dracut-functions.sh $(DESTDIR)$(pkglibdir)/dracut-functions.sh
-	install -m 0755 dracut-version.sh $(DESTDIR)$(pkglibdir)/dracut-version.sh
-	ln -fs dracut-functions.sh $(DESTDIR)$(pkglibdir)/dracut-functions
-	install -m 0755 dracut-logger.sh $(DESTDIR)$(pkglibdir)/dracut-logger.sh
-	install -m 0755 dracut-initramfs-restore.sh $(DESTDIR)$(pkglibdir)/dracut-initramfs-restore
-	cp -arx modules.d $(DESTDIR)$(pkglibdir)
+	mkdir -p "$(DESTDIR)$(pkglibdir)"
+	mkdir -p "$(DESTDIR)$(bindir)"
+	mkdir -p "$(DESTDIR)$(sysconfdir)"
+	mkdir -p "$(DESTDIR)$(pkglibdir)/modules.d"
+	mkdir -p "$(DESTDIR)$(mandir)/man1" "$(DESTDIR)$(mandir)/man5" "$(DESTDIR)$(mandir)/man7" "$(DESTDIR)$(mandir)/man8"
+	install -m 0755 dracut.sh "$(DESTDIR)$(bindir)/dracut"
+	install -m 0755 dracut-catimages.sh "$(DESTDIR)$(bindir)/dracut-catimages"
+	install -m 0755 mkinitrd-dracut.sh "$(DESTDIR)$(bindir)/mkinitrd"
+	install -m 0755 lsinitrd.sh "$(DESTDIR)$(bindir)/lsinitrd"
+	install -m 0644 dracut.conf "$(DESTDIR)$(sysconfdir)/dracut.conf"
+	mkdir -p "$(DESTDIR)$(sysconfdir)/dracut.conf.d"
+	mkdir -p "$(DESTDIR)$(pkglibdir)/dracut.conf.d"
+	install -m 0755 dracut-init.sh "$(DESTDIR)$(pkglibdir)/dracut-init.sh"
+	install -m 0755 dracut-functions.sh "$(DESTDIR)$(pkglibdir)/dracut-functions.sh"
+	install -m 0755 dracut-version.sh "$(DESTDIR)$(pkglibdir)/dracut-version.sh"
+	ln -fs dracut-functions.sh "$(DESTDIR)$(pkglibdir)/dracut-functions"
+	install -m 0755 dracut-logger.sh "$(DESTDIR)$(pkglibdir)/dracut-logger.sh"
+	install -m 0755 dracut-initramfs-restore.sh "$(DESTDIR)$(pkglibdir)/dracut-initramfs-restore"
+	cp -arx modules.d "$(DESTDIR)$(pkglibdir)"
 ifneq ($(enable_documentation),no)
-	for i in $(man1pages); do install -m 0644 $$i $(DESTDIR)$(mandir)/man1/$${i##*/}; done
-	for i in $(man5pages); do install -m 0644 $$i $(DESTDIR)$(mandir)/man5/$${i##*/}; done
-	for i in $(man7pages); do install -m 0644 $$i $(DESTDIR)$(mandir)/man7/$${i##*/}; done
-	for i in $(man8pages); do install -m 0644 $$i $(DESTDIR)$(mandir)/man8/$${i##*/}; done
-	ln -fs dracut.cmdline.7 $(DESTDIR)$(mandir)/man7/dracut.kernel.7
+	for i in $(man1pages); do install -m 0644 "$$i" "$(DESTDIR)$(mandir)/man1/$${i##*/}"; done
+	for i in $(man5pages); do install -m 0644 "$$i" "$(DESTDIR)$(mandir)/man5/$${i##*/}"; done
+	for i in $(man7pages); do install -m 0644 "$$i" "$(DESTDIR)$(mandir)/man7/$${i##*/}"; done
+	for i in $(man8pages); do install -m 0644 "$$i" "$(DESTDIR)$(mandir)/man8/$${i##*/}"; done
+	ln -fs dracut.cmdline.7 "$(DESTDIR)$(mandir)/man7/dracut.kernel.7"
 endif
 	if [ -n "$(systemdsystemunitdir)" ]; then \
-		mkdir -p $(DESTDIR)$(systemdsystemunitdir); \
-		ln -srf $(DESTDIR)$(pkglibdir)/modules.d/98dracut-systemd/dracut-shutdown.service $(DESTDIR)$(systemdsystemunitdir)/dracut-shutdown.service; \
-		mkdir -p $(DESTDIR)$(systemdsystemunitdir)/sysinit.target.wants; \
+		mkdir -p "$(DESTDIR)$(systemdsystemunitdir)"; \
+		ln -srf "$(DESTDIR)$(pkglibdir)/modules.d/98dracut-systemd/dracut-shutdown.service" "$(DESTDIR)$(systemdsystemunitdir)/dracut-shutdown.service"; \
+		mkdir -p "$(DESTDIR)$(systemdsystemunitdir)/sysinit.target.wants"; \
 		ln -s ../dracut-shutdown.service \
-		$(DESTDIR)$(systemdsystemunitdir)/sysinit.target.wants/dracut-shutdown.service; \
-		mkdir -p $(DESTDIR)$(systemdsystemunitdir)/initrd.target.wants; \
+		"$(DESTDIR)$(systemdsystemunitdir)/sysinit.target.wants/dracut-shutdown.service"; \
+		mkdir -p "$(DESTDIR)$(systemdsystemunitdir)/initrd.target.wants"; \
 		for i in \
 		    dracut-cmdline.service \
 		    dracut-initqueue.service \
@@ -183,28 +183,28 @@ endif
 		    dracut-pre-trigger.service \
 		    dracut-pre-udev.service \
 		    ; do \
-			ln -srf $(DESTDIR)$(pkglibdir)/modules.d/98dracut-systemd/$$i $(DESTDIR)$(systemdsystemunitdir); \
-			ln -s ../$$i \
-			$(DESTDIR)$(systemdsystemunitdir)/initrd.target.wants/$$i; \
+			ln -srf "$(DESTDIR)$(pkglibdir)/modules.d/98dracut-systemd/$$i" "$(DESTDIR)$(systemdsystemunitdir)"; \
+			ln -s "../$$i" \
+			"$(DESTDIR)$(systemdsystemunitdir)/initrd.target.wants/$$i"; \
 		done \
 	fi
 	if [ -f install/dracut-install ]; then \
-		install -m 0755 install/dracut-install $(DESTDIR)$(pkglibdir)/dracut-install; \
+		install -m 0755 install/dracut-install "$(DESTDIR)$(pkglibdir)/dracut-install"; \
 	fi
 	if [ -f skipcpio/skipcpio ]; then \
-		install -m 0755 skipcpio/skipcpio $(DESTDIR)$(pkglibdir)/skipcpio; \
+		install -m 0755 skipcpio/skipcpio "$(DESTDIR)$(pkglibdir)/skipcpio"; \
 	fi
 	if [ -f dracut-util ]; then \
-		install -m 0755 dracut-util $(DESTDIR)$(pkglibdir)/dracut-util; \
+		install -m 0755 dracut-util "$(DESTDIR)$(pkglibdir)/dracut-util"; \
 	fi
-	mkdir -p $(DESTDIR)${prefix}/lib/kernel/install.d
-	install -m 0755 50-dracut.install $(DESTDIR)${prefix}/lib/kernel/install.d/50-dracut.install
-	install -m 0755 51-dracut-rescue.install $(DESTDIR)${prefix}/lib/kernel/install.d/51-dracut-rescue.install
-	mkdir -p $(DESTDIR)${bashcompletiondir}
-	install -m 0644 dracut-bash-completion.sh $(DESTDIR)${bashcompletiondir}/dracut
-	install -m 0644 lsinitrd-bash-completion.sh $(DESTDIR)${bashcompletiondir}/lsinitrd
-	mkdir -p $(DESTDIR)${pkgconfigdatadir}
-	install -m 0644 dracut.pc $(DESTDIR)${pkgconfigdatadir}/dracut.pc
+	mkdir -p "$(DESTDIR)${prefix}/lib/kernel/install.d"
+	install -m 0755 50-dracut.install "$(DESTDIR)${prefix}/lib/kernel/install.d/50-dracut.install"
+	install -m 0755 51-dracut-rescue.install "$(DESTDIR)${prefix}/lib/kernel/install.d/51-dracut-rescue.install"
+	mkdir -p "$(DESTDIR)${bashcompletiondir}"
+	install -m 0644 dracut-bash-completion.sh "$(DESTDIR)${bashcompletiondir}/dracut"
+	install -m 0644 lsinitrd-bash-completion.sh "$(DESTDIR)${bashcompletiondir}/lsinitrd"
+	mkdir -p "$(DESTDIR)${pkgconfigdatadir}"
+	install -m 0644 dracut.pc "$(DESTDIR)${pkgconfigdatadir}/dracut.pc"
 
 dracut-version.sh:
 	@rm -f dracut-version.sh
