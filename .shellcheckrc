@@ -3,3 +3,6 @@ disable=SC2039
 
 # SC2166: Prefer [ p ] || [ q ] as [ p -o q ] is not well defined.
 disable=SC2166
+
+# SC2154: Variable is referenced but not assigned
+disable=SC2154
