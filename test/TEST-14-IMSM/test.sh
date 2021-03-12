@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem on LVM PV on a isw dmraid"
 
 KVERSION=${KVERSION-$(uname -r)}
@@ -8,7 +9,7 @@ KVERSION=${KVERSION-$(uname -r)}
 #DEBUGFAIL="$DEBUGFAIL udev.log-priority=debug"
 
 client_run() {
-    echo "CLIENT TEST START: $@"
+    echo "CLIENT TEST START: $*"
 
     rm -f -- "$TESTDIR"/marker.img
     dd if=/dev/zero of="$TESTDIR"/marker.img bs=1M count=1
@@ -21,16 +22,16 @@ client_run() {
         -initrd "$TESTDIR"/initramfs.testing
 
     if ! grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success "$TESTDIR"/marker.img; then
-        echo "CLIENT TEST END: $@ [FAIL]"
+        echo "CLIENT TEST END: $* [FAIL]"
         return 1
     fi
 
-    echo "CLIENT TEST END: $@ [OK]"
+    echo "CLIENT TEST END: $* [OK]"
     return 0
 }
 
 test_run() {
-    read MD_UUID < "$TESTDIR"/mduuid
+    read -r MD_UUID < "$TESTDIR"/mduuid
     if [[ -z $MD_UUID ]]; then
         echo "Setup failed"
         return 1
@@ -60,6 +61,7 @@ test_setup() {
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay/source
         . "$basedir"/dracut-init.sh
         (
@@ -89,6 +91,7 @@ test_setup() {
 
     # second, install the files needed to make the root filesystem
     (
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay
         . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mke2fs poweroff cp umount grep dd sync
@@ -113,7 +116,7 @@ test_setup() {
         -append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
     grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
-    eval $(grep -F --binary-files=text -m 1 MD_UUID "$TESTDIR"/marker.img)
+    eval "$(grep -F --binary-files=text -m 1 MD_UUID "$TESTDIR"/marker.img)"
 
     if [[ -z $MD_UUID ]]; then
         echo "Setup failed"
