@@ -15,7 +15,7 @@ EVMKEYID=""
 load_evm_key() {
     # read the configuration from the config file
     [ -f "${EVMCONFIG}" ] \
-        && . ${EVMCONFIG}
+        && . "${EVMCONFIG}"
 
     # override the EVM key path name from the 'evmkey=' parameter in the kernel
     # command line
@@ -39,7 +39,7 @@ load_evm_key() {
     fi
 
     # read the EVM encrypted key blob
-    KEYBLOB=$(cat ${EVMKEYPATH})
+    KEYBLOB=$(cat "${EVMKEYPATH}")
 
     # load the EVM encrypted key
     EVMKEYID=$(keyctl add ${EVMKEYTYPE} ${EVMKEYDESC} "load ${KEYBLOB}" @u)
@@ -89,7 +89,7 @@ load_evm_x509() {
     fi
 
     # load the EVM public key onto the EVM keyring
-    EVMX509ID=$(evmctl import ${EVMX509PATH} ${evm_pubid})
+    EVMX509ID=$(evmctl import "${EVMX509PATH}" "${evm_pubid}")
     [ $? -eq 0 ] || {
         info "integrity: failed to load the EVM X509 cert ${EVMX509PATH}"
         return 1
@@ -104,7 +104,7 @@ load_evm_x509() {
 
 unload_evm_key() {
     # unlink the EVM encrypted key
-    keyctl unlink ${EVMKEYID} @u || {
+    keyctl unlink "${EVMKEYID}" @u || {
         info "integrity: failed to unlink the EVM encrypted key: ${EVMKEYDESC}"
         return 1
     }
@@ -136,7 +136,7 @@ enable_evm() {
 
     # initialize EVM
     info "Enabling EVM"
-    echo 1 > ${EVMSECFILE}
+    echo 1 > "${EVMSECFILE}"
 
     # unload the EVM encrypted key
     unload_evm_key || return 1
