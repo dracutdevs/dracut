@@ -98,9 +98,9 @@ getargbool() {
     _b=$(getarg "$@")
     [ $? -ne 0 -a -z "$_b" ] && _b="$_default"
     if [ -n "$_b" ]; then
-        [ $_b = "0" ] && return 1
-        [ $_b = "no" ] && return 1
-        [ $_b = "off" ] && return 1
+        [ "$_b" = "0" ] && return 1
+        [ "$_b" = "no" ] && return 1
+        [ "$_b" = "off" ] && return 1
     fi
     return 0
 }
@@ -108,7 +108,7 @@ export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 exec > /dev/console 2>&1
 export TERM=linux
 export PS1='initramfs-test:\w\$ '
-CMDLINE=$(while read line || [ -n "$line" ]; do echo $line; done < /proc/cmdline)
+CMDLINE=$(while read line || [ -n "$line" ]; do echo "$line"; done < /proc/cmdline)
 strstr() { [ "${1##*"$2"*}" != "$1" ]; }
 
 stty sane
