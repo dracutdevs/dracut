@@ -64,17 +64,17 @@ install() {
             if ! [ "${ONBOOT}" = "no" -o "${ONBOOT}" = "NO" ] \
                 && [ -n "${TEAM_MASTER}${TEAM_CONFIG}${TEAM_PORT_CONFIG}" ]; then
                 if [ -n "$TEAM_CONFIG" ] && [ -n "$DEVICE" ]; then
-                    mkdir -p $initdir/etc/teamd
+                    mkdir -p "$initdir"/etc/teamd
                     printf -- "%s" "$TEAM_CONFIG" > "$initdir/etc/teamd/${DEVICE}.conf"
                 elif [ -n "$TEAM_PORT_CONFIG" ]; then
                     inst_simple "$i"
 
-                    HWADDR="$(echo $HWADDR | sed 'y/ABCDEF/abcdef/')"
+                    HWADDR="$(echo "$HWADDR" | sed 'y/ABCDEF/abcdef/')"
                     if [ -n "$HWADDR" ]; then
                         ln_r "$i" "/etc/sysconfig/network-scripts/mac-${HWADDR}.conf"
                     fi
 
-                    SUBCHANNELS="$(echo $SUBCHANNELS | sed 'y/ABCDEF/abcdef/')"
+                    SUBCHANNELS="$(echo "$SUBCHANNELS" | sed 'y/ABCDEF/abcdef/')"
                     if [ -n "$SUBCHANNELS" ]; then
                         ln_r "$i" "/etc/sysconfig/network-scripts/ccw-${SUBCHANNELS}.conf"
                     fi
