@@ -9,14 +9,14 @@ load_x509_keys() {
 
     # override the default configuration
     if [ -f "${IMACONFIG}" ]; then
-        . ${IMACONFIG}
+        . "${IMACONFIG}"
     fi
 
     if [ -z "${IMAKEYSDIR}" ]; then
         IMAKEYSDIR="/etc/keys/ima"
     fi
 
-    PUBKEY_LIST=$(ls ${NEWROOT}${IMAKEYSDIR}/*)
+    PUBKEY_LIST=$(ls "${NEWROOT}"${IMAKEYSDIR}/*)
     for PUBKEY in ${PUBKEY_LIST}; do
         # check for public key's existence
         if [ ! -f "${PUBKEY}" ]; then
@@ -26,14 +26,14 @@ load_x509_keys() {
             continue
         fi
 
-        X509ID=$(evmctl import ${PUBKEY} ${KEYRING_ID})
+        X509ID=$(evmctl import "${PUBKEY}" "${KEYRING_ID}")
         if [ $? -ne 0 ]; then
             info "integrity: IMA x509 cert not loaded on keyring: ${PUBKEY}"
         fi
     done
 
     if [ "${RD_DEBUG}" = "yes" ]; then
-        keyctl show ${KEYRING_ID}
+        keyctl show "${KEYRING_ID}"
     fi
     return 0
 }
@@ -58,4 +58,4 @@ else
 fi
 
 # load the IMA public key(s)
-load_x509_keys ${_ima_id}
+load_x509_keys "${_ima_id}"
