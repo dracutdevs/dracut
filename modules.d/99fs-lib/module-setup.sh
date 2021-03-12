@@ -62,7 +62,7 @@ install() {
     local _helpers
 
     inst "$moddir/fs-lib.sh" "/lib/fs-lib.sh"
-    > ${initdir}/etc/fstab.empty
+    > "${initdir}"/etc/fstab.empty
 
     [[ $nofscks == "yes" ]] && return
 
@@ -84,5 +84,5 @@ install() {
         inst_simple /etc/e2fsck.conf
     fi
 
-    inst_multiple -o $_helpers fsck
+    inst_multiple -o "$_helpers" fsck
 }
