@@ -45,7 +45,7 @@ cmdline() {
         [[ ${host_fs_types[$dev]} != *_raid_member ]] && continue
 
         UUID=$(
-            /sbin/mdadm --examine --export $dev \
+            /sbin/mdadm --examine --export "$dev" \
                 | while read line || [ -n "$line" ]; do
                     [[ ${line#MD_UUID=} == $line ]] && continue
                     printf "%s" "${line#MD_UUID=} "
@@ -128,16 +128,16 @@ install() {
     inst_script "$moddir/mdraid_start.sh" /sbin/mdraid_start
     if dracut_module_included "systemd"; then
         if [[ -e $dracutsysrootdir$systemdsystemunitdir/mdmon@.service ]]; then
-            inst_simple $systemdsystemunitdir/mdmon@.service
+            inst_simple "$systemdsystemunitdir"/mdmon@.service
         fi
         if [[ -e $dracutsysrootdir$systemdsystemunitdir/mdadm-last-resort@.service ]]; then
-            inst_simple $systemdsystemunitdir/mdadm-last-resort@.service
+            inst_simple "$systemdsystemunitdir"/mdadm-last-resort@.service
         fi
         if [[ -e $dracutsysrootdir$systemdsystemunitdir/mdadm-last-resort@.timer ]]; then
-            inst_simple $systemdsystemunitdir/mdadm-last-resort@.timer
+            inst_simple "$systemdsystemunitdir"/mdadm-last-resort@.timer
         fi
         if [[ -e $dracutsysrootdir$systemdsystemunitdir/mdadm-grow-continue@.service ]]; then
-            inst_simple $systemdsystemunitdir/mdadm-grow-continue@.service
+            inst_simple "$systemdsystemunitdir"/mdadm-grow-continue@.service
         fi
     fi
     inst_hook pre-shutdown 30 "$moddir/mdmon-pre-shutdown.sh"
