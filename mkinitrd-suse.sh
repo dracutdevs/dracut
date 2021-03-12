@@ -111,21 +111,21 @@ calc_netmask() {
     byte4=$((mask & 0xff))
     netmask=$(printf "%d.%d.%d.%d" $((byte1 & 0xff)) $((byte2 & 0xff)) $((byte3 & 0xff)) $byte4)
 
-    echo $netmask
+    echo "$netmask"
 }
 
 ipconfig() {
     local interface=$1
     local iplink macaddr broadcast gateway ipaddr prefix netmask
 
-    iplink=$(ip addr show dev $interface | sed -n 's/ *inet \(.*\) brd.*/\1/p')
-    macaddr=$(ip addr show dev $interface | sed -n 's/.*ether \(.*\) brd.*/\1/p')
-    broadcast=$(ip addr show dev $interface | sed -n 's/.*brd \(.*\) scope.*/\1/p')
-    gateway=$(ip route show dev $interface | sed -n 's/default via \([0-9\.]*\).*/\1/p')
+    iplink=$(ip addr show dev "$interface" | sed -n 's/ *inet \(.*\) brd.*/\1/p')
+    macaddr=$(ip addr show dev "$interface" | sed -n 's/.*ether \(.*\) brd.*/\1/p')
+    broadcast=$(ip addr show dev "$interface" | sed -n 's/.*brd \(.*\) scope.*/\1/p')
+    gateway=$(ip route show dev "$interface" | sed -n 's/default via \([0-9\.]*\).*/\1/p')
 
     ipaddr=${iplink%%/*}
     prefix=${iplink##*/}
-    netmask=$(calc_netmask $prefix)
+    netmask=$(calc_netmask "$prefix")
 
     echo "${ipaddr}:${serveraddr}:${gateway}:${netmask}:${hostname}:${interface}:none::${macaddr}"
 }
@@ -136,11 +136,11 @@ is_xen_kernel() {
     local cfg
 
     for cfg in ${root_dir}/boot/config-$kversion $root_dir/lib/modules/$kversion/build/.config; do
-        test -r $cfg || continue
-        grep -q '^CONFIG_XEN=y$' $cfg
+        test -r "$cfg" || continue
+        grep -q '^CONFIG_XEN=y$' "$cfg"
         return
     done
-    test $kversion != "${kversion%-xen*}"
+    test "$kversion" != "${kversion%-xen*}"
     return
 }
 
@@ -198,8 +198,8 @@ default_kernel_images() {
         [ "${kernel_image%%.gz}" != "$kernel_image" ] && continue
 
         kernel_version=$(kernel_version_from_image \
-            $boot_dir/$kernel_image 2> /dev/null)
-        initrd_image=$(echo $kernel_image | sed -e "s|${regex}|initrd|")
+            $boot_dir/"$kernel_image" 2> /dev/null)
+        initrd_image=$(echo "$kernel_image" | sed -e "s|${regex}|initrd|")
         if [ "$kernel_image" != "$initrd_image" -a \
             -n "$kernel_version" -a \
             -d "/lib/modules/$kernel_version" ]; then
@@ -234,7 +234,7 @@ while (($# > 0)); do
                 [ -L "/boot/$initrd_image" ] && initrd_image="$(readlink "/boot/$initrd_image")"
                 # Check if the initrd_image contains a path.
                 # if not, then add the default boot_dir
-                dname=$(dirname $initrd_image)
+                dname=$(dirname "$initrd_image")
                 if [ "$dname" == "." ]; then
                     targets="$targets $boot_dir/$initrd_image"
                 else
@@ -276,7 +276,7 @@ while (($# > 0)); do
             ;;
         -I)
             read_arg static_if "$@" || shift $?
-            dracut_cmdline="${dracut_cmdline} ip=$(ipconfig $static_if)":
+            dracut_cmdline="${dracut_cmdline} ip=$(ipconfig "$static_if")":
             ;;
         -a)
             read_arg acpi_dsdt "$@" || shift $?
@@ -346,7 +346,7 @@ for ((i = 0; i < ${#targets[@]}; i++)); do
     fi
     kernel="${kernels[$i]}"
 
-    if is_xen_kernel $kernel $rootfs; then
+    if is_xen_kernel "$kernel" "$rootfs"; then
         modules_all="${module_list} ${domu_module_list}"
     else
         modules_all="${module_list}"
@@ -364,18 +364,18 @@ for ((i = 0; i < ${#targets[@]}; i++)); do
         # -> dracut bug workarounded ugly, because of complex whitespace
         # expansion magics
         if [ -n "${modules_all}" ]; then
-            $dracut_cmd $dracut_args --force-drivers "${modules_all}" "$target" "$kernel" &> /dev/null
+            $dracut_cmd "$dracut_args" --force-drivers "${modules_all}" "$target" "$kernel" &> /dev/null
             [ $? -ne 0 ] && failed="$failed $target"
         else
-            $dracut_cmd $dracut_args "$target" "$kernel" &> /dev/null
+            $dracut_cmd "$dracut_args" "$target" "$kernel" &> /dev/null
             [ $? -ne 0 ] && failed="$failed $target"
         fi
     else
         if [ -n "${modules_all}" ]; then
-            $dracut_cmd $dracut_args --force-drivers "${modules_all}" "$target" "$kernel"
+            $dracut_cmd "$dracut_args" --force-drivers "${modules_all}" "$target" "$kernel"
             [ $? -ne 0 ] && failed="$failed $target"
         else
-            $dracut_cmd $dracut_args "$target" "$kernel"
+            $dracut_cmd "$dracut_args" "$target" "$kernel"
             [ $? -ne 0 ] && failed="$failed $target"
         fi
     fi
