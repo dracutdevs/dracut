@@ -13,7 +13,7 @@ check() {
         pushd . > /dev/null
         for_each_host_dev_and_slaves block_is_iscsi
         local _is_iscsi=$?
-        popd > /dev/null
+        popd > /dev/null || exit
         [[ $_is_iscsi == 0 ]] || return 255
     }
     return 0
@@ -28,7 +28,7 @@ get_ibft_mod() {
         iface_mac=${iface_desc#*,}
         iface_mac=${iface_mac%%,*}
         if [ "$ibft_mac" = "$iface_mac" ]; then
-            echo $iface_mod
+            echo "$iface_mod"
             return 0
         fi
     done
@@ -42,16 +42,16 @@ install_ibft() {
     # - specify firmware booting cmdline parameter
 
     for d in /sys/firmware/*; do
-        if [ -d ${d}/ethernet0 ]; then
-            read ibft_mac < ${d}/ethernet0/mac
-            ibft_mod=$(get_ibft_mod $ibft_mac)
+        if [ -d "${d}"/ethernet0 ]; then
+            read ibft_mac < "${d}"/ethernet0/mac
+            ibft_mod=$(get_ibft_mod "$ibft_mac")
         fi
-        if [ -z "$ibft_mod" ] && [ -d ${d}/ethernet1 ]; then
-            read ibft_mac < ${d}/ethernet1/mac
-            ibft_mod=$(get_ibft_mod $ibft_mac)
+        if [ -z "$ibft_mod" ] && [ -d "${d}"/ethernet1 ]; then
+            read ibft_mac < "${d}"/ethernet1/mac
+            ibft_mod=$(get_ibft_mod "$ibft_mac")
         fi
-        if [ -d ${d}/initiator ]; then
-            if [ ${d##*/} = "ibft" ] && [ "$ibft_mod" != "bnx2i" ]; then
+        if [ -d "${d}"/initiator ]; then
+            if [ "${d##*/}" = "ibft" ] && [ "$ibft_mod" != "bnx2i" ]; then
                 echo -n "rd.iscsi.ibft=1 "
             fi
             echo -n "rd.iscsi.firmware=1 "
@@ -80,10 +80,10 @@ install_iscsiroot() {
     for flash in ${host}/flashnode_sess-*; do
         [ -f "$flash" ] || continue
         [ ! -e "$flash/is_boot_target" ] && continue
-        is_boot=$(cat $flash/is_boot_target)
-        if [ $is_boot -eq 1 ]; then
+        is_boot=$(cat "$flash"/is_boot_target)
+        if [ "$is_boot" -eq 1 ]; then
             # qla4xxx flashnode session; skip iBFT discovery
-            iscsi_initiator=$(cat /sys/class/iscsi_host/${iscsi_host}/initiatorname)
+            iscsi_initiator=$(cat /sys/class/iscsi_host/"${iscsi_host}"/initiatorname)
             echo "rd.iscsi.initiator=${iscsi_initiator}"
             return
         fi
@@ -94,15 +94,15 @@ install_iscsiroot() {
             *connection*)
                 c=${d##*/}
                 conn=${d}/iscsi_connection/${c}
-                if [ -d ${conn} ]; then
-                    iscsi_address=$(cat ${conn}/persistent_address)
-                    iscsi_port=$(cat ${conn}/persistent_port)
+                if [ -d "${conn}" ]; then
+                    iscsi_address=$(cat "${conn}"/persistent_address)
+                    iscsi_port=$(cat "${conn}"/persistent_port)
                 fi
                 ;;
             *session)
-                if [ -d ${d}/${iscsi_session} ]; then
-                    iscsi_initiator=$(cat ${d}/${iscsi_session}/initiatorname)
-                    iscsi_targetname=$(cat ${d}/${iscsi_session}/targetname)
+                if [ -d "${d}"/"${iscsi_session}" ]; then
+                    iscsi_initiator=$(cat "${d}"/"${iscsi_session}"/initiatorname)
+                    iscsi_targetname=$(cat "${d}"/"${iscsi_session}"/targetname)
                 fi
                 ;;
         esac
@@ -142,10 +142,10 @@ install_softiscsi() {
 
         [[ -L "/sys/dev/block/$_dev" ]] || return
         iscsi_dev=$(
-            cd -P /sys/dev/block/$_dev
-            echo $PWD
+            cd -P /sys/dev/block/"$_dev" || exit
+            echo "$PWD"
         )
-        install_iscsiroot $iscsi_dev
+        install_iscsiroot "$iscsi_dev"
     }
 
     for_each_host_dev_and_slaves_all is_softiscsi || return 255
@@ -177,7 +177,7 @@ cmdline() {
     local _iscsiconf=$(install_ibft)
     {
         if [ "$_iscsiconf" ]; then
-            echo ${_iscsiconf}
+            echo "${_iscsiconf}"
         else
             install_softiscsi
         fi
@@ -191,12 +191,12 @@ install() {
     inst_multiple umount iscsi-iname iscsiadm iscsid
 
     inst_multiple -o \
-        $systemdsystemunitdir/iscsid.socket \
-        $systemdsystemunitdir/iscsid.service \
-        $systemdsystemunitdir/iscsiuio.service \
-        $systemdsystemunitdir/iscsiuio.socket \
-        $systemdsystemunitdir/sockets.target.wants/iscsid.socket \
-        $systemdsystemunitdir/sockets.target.wants/iscsiuio.socket
+        "$systemdsystemunitdir"/iscsid.socket \
+        "$systemdsystemunitdir"/iscsid.service \
+        "$systemdsystemunitdir"/iscsiuio.service \
+        "$systemdsystemunitdir"/iscsiuio.socket \
+        "$systemdsystemunitdir"/sockets.target.wants/iscsid.socket \
+        "$systemdsystemunitdir"/sockets.target.wants/iscsiuio.socket
 
     if [[ $hostonly ]]; then
         inst_dir /etc/iscsi
@@ -219,11 +219,11 @@ install() {
         inst "$moddir/mount-lun.sh" "/bin/mount-lun.sh"
     else
         inst_multiple -o \
-            $systemdsystemunitdir/iscsi.service \
-            $systemdsystemunitdir/iscsid.service \
-            $systemdsystemunitdir/iscsid.socket \
-            $systemdsystemunitdir/iscsiuio.service \
-            $systemdsystemunitdir/iscsiuio.socket \
+            "$systemdsystemunitdir"/iscsi.service \
+            "$systemdsystemunitdir"/iscsid.service \
+            "$systemdsystemunitdir"/iscsid.socket \
+            "$systemdsystemunitdir"/iscsiuio.service \
+            "$systemdsystemunitdir"/iscsiuio.socket \
             iscsiadm iscsid
 
         for i in \
