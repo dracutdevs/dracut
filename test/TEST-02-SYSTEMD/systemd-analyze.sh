@@ -11,7 +11,7 @@ for i in \
     emergency.target \
     shutdown.target \
     ${NULL}; do
-    if ! systemd-analyze verify $i; then
+    if ! systemd-analyze verify "$i"; then
         warn "systemd-analyze verify $i failed"
         poweroff
     fi
