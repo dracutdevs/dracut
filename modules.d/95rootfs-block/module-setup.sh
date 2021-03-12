@@ -16,9 +16,9 @@ cmdline_journal() {
             [[ ${host_fs_types[$dev]} == "reiserfs" ]] || [[ ${host_fs_types[$dev]} == "xfs" ]] || continue
             rootopts=$(find_dev_fsopts "$dev")
             if [[ ${host_fs_types[$dev]} == "reiserfs" ]]; then
-                journaldev=$(fs_get_option $rootopts "jdev")
+                journaldev=$(fs_get_option "$rootopts" "jdev")
             elif [[ ${host_fs_types[$dev]} == "xfs" ]]; then
-                journaldev=$(fs_get_option $rootopts "logdev")
+                journaldev=$(fs_get_option "$rootopts" "logdev")
             fi
 
             if [ -n "$journaldev" ]; then
@@ -39,7 +39,7 @@ cmdline_rootfs() {
         return
     fi
 
-    if [ -n "$_block" -a -b $_dev ]; then
+    if [ -n "$_block" -a -b "$_dev" ]; then
         printf " root=%s" "$(shorten_persistent_dev "$(get_persistent_dev "$_dev")")"
     fi
     _fstype="$(find_mp_fstype /)"
