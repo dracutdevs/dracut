@@ -228,13 +228,13 @@ install() {
 
         for i in \
             iscsid.socket \
-            iscsiuio.socket ; do
+            iscsiuio.socket; do
             $SYSTEMCTL -q --root "$initdir" enable "$i"
         done
 
         for i in \
             iscsid.service \
-            iscsiuio.service ; do
+            iscsiuio.service; do
             $SYSTEMCTL -q --root "$initdir" add-wants basic.target "$i"
         done
 
