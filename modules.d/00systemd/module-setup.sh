@@ -160,8 +160,7 @@ install() {
         systemd-run systemd-escape \
         systemd-cgls systemd-tmpfiles \
         systemd-ask-password systemd-tty-ask-password-agent \
-        /etc/udev/udev.hwdb \
-        #EOL
+        /etc/udev/udev.hwdb
 
     inst_multiple -o \
         /usr/lib/modules-load.d/*.conf \
@@ -202,8 +201,7 @@ install() {
             /etc/modules-load.d/*.conf \
             /etc/sysctl.d/*.conf \
             /etc/sysctl.conf \
-            /etc/udev/udev.conf \
-            #EOL
+            /etc/udev/udev.conf
 
         mapfile -t _mods < <(modules_load_get /etc/modules-load.d)
         [[ ${#_mods[@]} -gt 0 ]] && hostonly='' instmods "${_mods[@]}"
@@ -243,15 +241,13 @@ install() {
         71-seat.rules \
         73-seat-late.rules \
         90-vconsole.rules \
-        99-systemd.rules \
-        #EOL
+        99-systemd.rules
 
     for i in \
         emergency.target \
         rescue.target \
         systemd-ask-password-console.service \
-        systemd-ask-password-plymouth.service \
-        ${NULL}; do
+        systemd-ask-password-plymouth.service; do
         [[ -f "$systemdsystemunitdir"/$i ]] || continue
         $SYSTEMCTL -q --root "$initdir" add-wants "$i" systemd-vconsole-setup.service
     done
