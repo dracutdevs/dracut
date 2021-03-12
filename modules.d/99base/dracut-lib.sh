@@ -3,9 +3,10 @@
 export DRACUT_SYSTEMD
 export NEWROOT
 if [ -n "$NEWROOT" ]; then
-    [ -d $NEWROOT ] || mkdir -p -m 0755 $NEWROOT
+    [ -d "$NEWROOT" ] || mkdir -p -m 0755 "$NEWROOT"
 fi
 
+# shellcheck disable=SC2153
 if [ -z "$PREFIX" ]; then
     if ! [ -d /run/initramfs ]; then
         mkdir -p -m 0755 /run/initramfs/log
@@ -71,8 +72,9 @@ if [ -z "$DRACUT_SYSTEMD" ]; then
     info() {
         check_quiet
         echo "<30>dracut: $*" > /dev/kmsg
-        [ "$DRACUT_QUIET" != "yes" ] \
-            && echo "dracut: $*" >&2 || :
+        if [ "$DRACUT_QUIET" != "yes" ]; then
+            echo "dracut: $*" >&2
+        fi
     }
 
 else
@@ -88,14 +90,14 @@ else
 fi
 
 vwarn() {
-    while read line || [ -n "$line" ]; do
-        warn $line
+    while read -r line || [ -n "$line" ]; do
+        warn "$line"
     done
 }
 
 vinfo() {
-    while read line || [ -n "$line" ]; do
-        info $line
+    while read -r line || [ -n "$line" ]; do
+        info "$line"
     done
 }
 
@@ -121,7 +123,6 @@ str_replace() {
 
 killall_proc_mountpoint() {
     local _pid
-    local _t
     local _killed=0
     for _pid in /proc/*; do
         _pid=${_pid##/proc/}
@@ -180,7 +181,11 @@ getarg() {
             -y)
                 if dracut-getarg "$2" > /dev/null; then
                     if [ "$_deprecated" = "1" ]; then
-                        [ -n "$_newoption" ] && warn "Kernel command line option '$2' is deprecated, use '$_newoption' instead." || warn "Option '$2' is deprecated."
+                        if [ -n "$_newoption" ]; then
+                            warn "Kernel command line option '$2' is deprecated, use '$_newoption' instead."
+                        else
+                            warn "Option '$2' is deprecated."
+                        fi
                     fi
                     echo 1
                     debug_on
@@ -193,7 +198,11 @@ getarg() {
                 if dracut-getarg "$2" > /dev/null; then
                     echo 0
                     if [ "$_deprecated" = "1" ]; then
-                        [ -n "$_newoption" ] && warn "Kernel command line option '$2' is deprecated, use '$_newoption=0' instead." || warn "Option '$2' is deprecated."
+                        if [ -n "$_newoption" ]; then
+                            warn "Kernel command line option '$2' is deprecated, use '$_newoption=0' instead."
+                        else
+                            warn "Option '$2' is deprecated."
+                        fi
                     fi
                     debug_on
                     return 1
@@ -207,7 +216,11 @@ getarg() {
                 fi
                 if dracut-getarg "$1"; then
                     if [ "$_deprecated" = "1" ]; then
-                        [ -n "$_newoption" ] && warn "Kernel command line option '$1' is deprecated, use '$_newoption' instead." || warn "Option '$1' is deprecated."
+                        if [ -n "$_newoption" ]; then
+                            warn "Kernel command line option '$1' is deprecated, use '$_newoption' instead."
+                        else
+                            warn "Option '$1' is deprecated."
+                        fi
                     fi
                     debug_on
                     return 0
@@ -234,12 +247,11 @@ getargbool() {
     local _default
     _default="$1"
     shift
-    _b=$(getarg "$@")
-    [ $? -ne 0 -a -z "$_b" ] && _b="$_default"
+    _b=$(getarg "$@") || _b="$_default"
     if [ -n "$_b" ]; then
-        [ $_b = "0" ] && return 1
-        [ $_b = "no" ] && return 1
-        [ $_b = "off" ] && return 1
+        [ "$_b" = "0" ] && return 1
+        [ "$_b" = "no" ] && return 1
+        [ "$_b" = "off" ] && return 1
     fi
     return 0
 }
@@ -267,44 +279,44 @@ getargnum() {
     shift
     _max="$1"
     shift
-    _b=$(getarg "$1")
-    [ $? -ne 0 -a -z "$_b" ] && _b=$_default
+    _b=$(getarg "$1") || _b=$_default
     if [ -n "$_b" ]; then
         isdigit "$_b" && _b=$((_b)) \
-            && [ $_b -ge $_min ] && [ $_b -le $_max ] && echo $_b && return
+            && [ $_b -ge "$_min" ] && [ $_b -le "$_max" ] && echo $_b && return
     fi
-    echo $_default
+    echo "$_default"
 }
 
 getargs() {
     CMDLINE=$(getcmdline)
     export CMDLINE
     debug_off
-    local _val _i _args _gfound _deprecated
+    local _val _i _gfound _deprecated
     unset _val
     unset _gfound
     _newoption="$1"
-    _args="$@"
-    set --
-    for _i in $_args; do
+    for _i in "$@"; do
         if [ "$_i" = "-d" ]; then
             _deprecated=1
             continue
         fi
-        _val="$(dracut-getargs "$_i")"
-        if [ $? -eq 0 ]; then
+
+        if _val="$(dracut-getargs "$_i")"; then
             if [ "$_deprecated" = "1" ]; then
-                [ -n "$_newoption" ] && warn "Option '$_i' is deprecated, use '$_newoption' instead." || warn "Option $_i is deprecated!"
+                if [ -n "$_newoption" ]; then
+                    warn "Option '$_i' is deprecated, use '$_newoption' instead."
+                else
+                    warn "Option $_i is deprecated!"
+                fi
+            fi
+            if [ -n "$_val" ]; then
+                printf '%s' "$_val"
             fi
             _gfound=1
         fi
-        [ -n "$_val" ] && set -- "$@" "$_val"
         _deprecated=0
     done
     if [ -n "$_gfound" ]; then
-        if [ $# -gt 0 ]; then
-            printf '%s' "$*"
-        fi
         debug_on
         return 0
     fi
@@ -394,7 +406,17 @@ source_all() {
     _dir=$1
     shift
     [ "$_dir" ] && [ -d "/$_dir" ] || return
-    for f in "/$_dir"/*.sh; do [ -e "$f" ] && . "$f" "$@"; done
+    for f in "/$_dir"/*.sh; do
+        if [ -e "$f" ]; then
+            # dash can't source with parameters
+            if [ -z "$BASH" ] && [ $# -gt 0 ]; then
+                "$f" "$@"
+            else
+                # shellcheck disable=SC1090
+                . "$f"
+            fi
+        fi
+    done
 }
 
 hookdir=/lib/dracut/hooks
@@ -409,8 +431,9 @@ source_hook() {
 
 check_finished() {
     local f
-    for f in $hookdir/initqueue/finished/*.sh; do
+    for f in "$hookdir"/initqueue/finished/*.sh; do
         [ "$f" = "$hookdir/initqueue/finished/*.sh" ] && return 0
+        # shellcheck disable=SC1090
         { [ -e "$f" ] && (. "$f"); } || return 1
     done
     return 0
@@ -419,6 +442,7 @@ check_finished() {
 source_conf() {
     local f
     [ "$1" ] && [ -d "/$1" ] || return
+    # shellcheck disable=SC1090
     for f in "/$1"/*.conf; do [ -e "$f" ] && . "$f"; done
 }
 
@@ -434,7 +458,7 @@ die() {
     } >> $hookdir/emergency/01-die.sh
     [ -d /run/initramfs ] || mkdir -p -- /run/initramfs
 
-    > /run/initramfs/.die
+    : > /run/initramfs/.die
 
     if getargbool 0 "rd.shell"; then
         emergency_shell
@@ -456,7 +480,7 @@ check_quiet() {
         getargbool 0 rd.debug -d -y rdinitdebug && DRACUT_QUIET="no"
         getarg quiet || DRACUT_QUIET="yes"
         a=$(getarg loglevel=)
-        [ -n "$a" ] && [ $a -ge 28 ] && DRACUT_QUIET="yes"
+        [ -n "$a" ] && [ "$a" -ge 28 ] && DRACUT_QUIET="yes"
         export DRACUT_QUIET
     fi
 }
@@ -474,52 +498,58 @@ check_occurances() {
         count=$((count + 1))
     done
 
-    [ $count -eq $expected ]
+    [ $count -eq "$expected" ]
 }
 
 incol2() {
     debug_off
-    local dummy check
+    local check
     local file="$1"
     local str="$2"
 
     [ -z "$file" ] && return 1
     [ -z "$str" ] && return 1
 
-    while read dummy check restofline || [ -n "$check" ]; do
+    while read -r _ check _ || [ -n "$check" ]; do
         if [ "$check" = "$str" ]; then
             debug_on
             return 0
         fi
-    done < $file
+    done < "$file"
     debug_on
     return 1
 }
 
 udevsettle() {
-    [ -z "$UDEVVERSION" ] && export UDEVVERSION=$(udevadm --version)
+    if [ -z "$UDEVVERSION" ]; then
+        UDEVVERSION=$(udevadm --version)
+        export UDEVVERSION
+    fi
 
-    if [ $UDEVVERSION -ge 143 ]; then
-        udevadm settle --exit-if-exists=$hookdir/initqueue/work $settle_exit_if_exists
+    if [ "$UDEVVERSION" -ge 143 ]; then
+        udevadm settle --exit-if-exists=$hookdir/initqueue/work "$settle_exit_if_exists"
     else
         udevadm settle --timeout=30
     fi
 }
 
 udevproperty() {
-    [ -z "$UDEVVERSION" ] && export UDEVVERSION=$(udevadm --version)
+    if [ -z "$UDEVVERSION" ]; then
+        UDEVVERSION=$(udevadm --version)
+        export UDEVVERSION
+    fi
 
-    if [ $UDEVVERSION -ge 143 ]; then
-        for i in "$@"; do udevadm control --property=$i; done
+    if [ "$UDEVVERSION" -ge 143 ]; then
+        for i in "$@"; do udevadm control --property="$i"; done
     else
-        for i in "$@"; do udevadm control --env=$i; done
+        for i in "$@"; do udevadm control --env="$i"; done
     fi
 }
 
 find_mount() {
-    local dev mnt etc wanted_dev
-    wanted_dev="$(readlink -e -q $1)"
-    while read dev mnt etc || [ -n "$dev" ]; do
+    local dev wanted_dev
+    wanted_dev="$(readlink -e -q "$1")"
+    while read -r dev _ || [ -n "$dev" ]; do
         [ "$dev" = "$wanted_dev" ] && echo "$dev" && return 0
     done < /proc/mounts
     return 1
@@ -538,7 +568,7 @@ else
             return 1
         fi
 
-        while read a m a || [ -n "$m" ]; do
+        while read -r _ m _ || [ -n "$m" ]; do
             [ "$m" = "$1" ] && return 0
         done < /proc/mounts
         return 1
@@ -647,7 +677,7 @@ copytree() {
     mkdir -p "$dest"
     dest=$(readlink -e -q "$dest")
     (
-        cd "$src"
+        cd "$src" || exit
         cp -af . -t "$dest"
     )
 }
@@ -671,7 +701,7 @@ copytree() {
 # foreach_uuid_until "mount -U \$___ /mnt; echo OK; umount /mnt" \
 #       "01234 f512 a235567f-12a3-c123-a1b1-01234567abcb"
 foreach_uuid_until() (
-    cd /dev/disk/by-uuid
+    cd /dev/disk/by-uuid || return 1
 
     [ "$1" = -p ] && local prefix="$2" && shift 2
     local cmd="$1"
@@ -684,10 +714,11 @@ foreach_uuid_until() (
     [ -n "${cmd}" ] || return 1
 
     for uuid in ${uuids_list:-*}; do
-        for full_uuid in ${uuid}*; do
+        for full_uuid in "${uuid}"*; do
             [ -e "${full_uuid}" ] || continue
+            # shellcheck disable=SC2034
             ___="${prefix}${full_uuid}"
-            eval ${cmd} && return 0
+            eval "${cmd}" && return 0
         done
     done
 
@@ -715,6 +746,7 @@ devnames() {
 
     case "$dev" in
         UUID=*)
+            # shellcheck disable=SC2016
             dev="$(foreach_uuid_until '! blkid -U $___' "${dev#UUID=}")" \
                 && return 255
             [ -z "$dev" ] && return 255
@@ -781,10 +813,11 @@ inst_hook() {
     _exe=$1
     shift
 
-    [ -x "$_exe" ] || _exe=$(command -v $_exe)
+    [ -x "$_exe" ] || _exe=$(command -v "$_exe")
 
     if [ -n "$onetime" ]; then
         {
+            # shellcheck disable=SC2016
             echo '[ -e "$_job" ] && rm -f -- "$_job"'
             echo "$_exe $*"
         } > "/tmp/$$-${_job}.sh"
@@ -801,7 +834,8 @@ inst_hook() {
 # which executes <script> as soon as <mountpoint> is mounted.
 inst_mount_hook() {
     local _prio="$2" _jobname="$3" _script="$4"
-    local _hookname="mount-$(str_replace "$1" '/' '\\x2f')"
+    local _hookname
+    _hookname="mount-$(str_replace "$1" '/' '\\x2f')"
     [ -d "$hookdir/${_hookname}" ] || mkdir -p "$hookdir/${_hookname}"
     inst_hook --hook "$_hookname" --unique --name "${_prio}-${_jobname}" "$_script"
 }
@@ -812,11 +846,13 @@ inst_mount_hook() {
 # and call any mount hooks, as soon, as it is mounted
 add_mount_point() {
     local _dev="$1" _mp="$2" _fs="$3" _fsopts="$4"
-    local _hookname="mount-$(str_replace "$2" '/' '\\x2f')"
-    local _devname="dev-$(str_replace "$1" '/' '\\x2f')"
+    local _hookname
+    local _devname
+    _hookname="mount-$(str_replace "$2" '/' '\\x2f')"
+    _devname="dev-$(str_replace "$1" '/' '\\x2f')"
     echo "$_dev $_mp $_fs $_fsopts 0 0" >> /etc/fstab
 
-    exec 7> /etc/udev/rules.d/99-mount-${_devname}.rules
+    exec 7> /etc/udev/rules.d/99-mount-"${_devname}".rules
     echo 'SUBSYSTEM!="block", GOTO="mount_end"' >&7
     echo 'ACTION!="add|change", GOTO="mount_end"' >&7
     if [ -n "$_dev" ]; then
@@ -828,7 +864,7 @@ add_mount_point() {
     fi
 
     {
-        printf -- 'RUN+="%s --unique --onetime ' $(command -v initqueue)
+        printf -- 'RUN+="%s --unique --onetime ' "$(command -v initqueue)"
         printf -- '--name mount-%%k '
         printf -- '%s %s"\n' "$(command -v mount_hook)" "${_mp}"
     } >&7
@@ -844,11 +880,11 @@ add_mount_point() {
 wait_for_mount() {
     local _name
     _name="$(str_replace "$1" '/' '\\x2f')"
-    printf '. /lib/dracut-lib.sh\nismounted "%s"\n' $1 \
+    printf '. /lib/dracut-lib.sh\nismounted "%s"\n' "$1" \
         >> "$hookdir/initqueue/finished/ismounted-${_name}.sh"
     {
-        printf 'ismounted "%s" || ' $1
-        printf 'warn "\"%s\" is not mounted"\n' $1
+        printf 'ismounted "%s" || ' "$1"
+        printf 'warn "\"%s\" is not mounted"\n' "$1"
     } >> "$hookdir/emergency/90-${_name}.sh"
 }
 
@@ -869,6 +905,7 @@ dev_unit_name() {
 
     dev="${1%%/}"
     dev="${dev##/}"
+    # shellcheck disable=SC1003
     dev="$(str_replace "$dev" '\' '\x5c')"
     dev="$(str_replace "$dev" '-' '\x2d')"
     if [ "${dev##.}" != "$dev" ]; then
@@ -898,21 +935,21 @@ set_systemd_timeout_for_dev() {
 
     if [ -n "$DRACUT_SYSTEMD" ]; then
         _name=$(dev_unit_name "$1")
-        if ! [ -L ${PREFIX}/etc/systemd/system/initrd.target.wants/${_name}.device ]; then
-            [ -d ${PREFIX}/etc/systemd/system/initrd.target.wants ] || mkdir -p ${PREFIX}/etc/systemd/system/initrd.target.wants
-            ln -s ../${_name}.device ${PREFIX}/etc/systemd/system/initrd.target.wants/${_name}.device
-            type mark_hostonly > /dev/null 2>&1 && mark_hostonly /etc/systemd/system/initrd.target.wants/${_name}.device
+        if ! [ -L "${PREFIX}"/etc/systemd/system/initrd.target.wants/"${_name}".device ]; then
+            [ -d "${PREFIX}"/etc/systemd/system/initrd.target.wants ] || mkdir -p "${PREFIX}"/etc/systemd/system/initrd.target.wants
+            ln -s ../"${_name}".device "${PREFIX}"/etc/systemd/system/initrd.target.wants/"${_name}".device
+            type mark_hostonly > /dev/null 2>&1 && mark_hostonly /etc/systemd/system/initrd.target.wants/"${_name}".device
             _needreload=1
         fi
 
-        if ! [ -f ${PREFIX}/etc/systemd/system/${_name}.device.d/timeout.conf ]; then
-            mkdir -p ${PREFIX}/etc/systemd/system/${_name}.device.d
+        if ! [ -f "${PREFIX}"/etc/systemd/system/"${_name}".device.d/timeout.conf ]; then
+            mkdir -p "${PREFIX}"/etc/systemd/system/"${_name}".device.d
             {
                 echo "[Unit]"
                 echo "JobTimeoutSec=$_timeout"
                 echo "JobRunningTimeoutSec=$_timeout"
-            } > ${PREFIX}/etc/systemd/system/${_name}.device.d/timeout.conf
-            type mark_hostonly > /dev/null 2>&1 && mark_hostonly /etc/systemd/system/${_name}.device.d/timeout.conf
+            } > "${PREFIX}"/etc/systemd/system/"${_name}".device.d/timeout.conf
+            type mark_hostonly > /dev/null 2>&1 && mark_hostonly /etc/systemd/system/"${_name}".device.d/timeout.conf
             _needreload=1
         fi
 
@@ -948,7 +985,7 @@ wait_for_dev() {
         printf 'warn "\"%s\" does not exist"\n' "$1"
     } >> "${PREFIX}$hookdir/emergency/80-${_name}.sh"
 
-    set_systemd_timeout_for_dev $_noreload $1
+    set_systemd_timeout_for_dev $_noreload "$1"
 }
 
 cancel_wait_for_dev() {
@@ -958,29 +995,30 @@ cancel_wait_for_dev() {
     rm -f -- "$hookdir/emergency/80-${_name}.sh"
     if [ -n "$DRACUT_SYSTEMD" ]; then
         _name=$(dev_unit_name "$1")
-        rm -f -- ${PREFIX}/etc/systemd/system/initrd.target.wants/${_name}.device
-        rm -f -- ${PREFIX}/etc/systemd/system/${_name}.device.d/timeout.conf
+        rm -f -- "${PREFIX}"/etc/systemd/system/initrd.target.wants/"${_name}".device
+        rm -f -- "${PREFIX}"/etc/systemd/system/"${_name}".device.d/timeout.conf
         /sbin/initqueue --onetime --unique --name daemon-reload systemctl daemon-reload
     fi
 }
 
 killproc() {
     debug_off
-    local _exe="$(command -v $1)"
+    local _exe
+    _exe="$(command -v "$1")"
     local _sig=$2
     local _i
     [ -x "$_exe" ] || return 1
     for _i in /proc/[0-9]*; do
         [ "$_i" = "/proc/1" ] && continue
         if [ -e "$_i"/_exe ] && [ "$_i/_exe" -ef "$_exe" ]; then
-            kill $_sig ${_i##*/}
+            kill "$_sig" "${_i##*/}"
         fi
     done
     debug_on
 }
 
 need_shutdown() {
-    > /run/initramfs/.need_shutdown
+    : > /run/initramfs/.need_shutdown
 }
 
 wait_for_loginit() {
@@ -1003,7 +1041,7 @@ wait_for_loginit() {
 
     if [ $i -eq 10 ]; then
         kill %1 > /dev/null 2>&1
-        kill $(while read line || [ -n "$line" ]; do echo $line; done < /run/initramfs/loginit.pid)
+        kill "$(while read -r line || [ -n "$line" ]; do echo "$line"; done < /run/initramfs/loginit.pid)"
     fi
 
     setdebug
@@ -1034,7 +1072,7 @@ if ! command -v pidof > /dev/null 2> /dev/null; then
                 [ "${_rl%/$_cmd}" != "$_rl" ] || continue
             fi
             i=${i%/exe}
-            echo ${i##/proc/}
+            echo "${i##/proc/}"
             _ret=0
         done
         debug_on
@@ -1045,7 +1083,7 @@ fi
 _emergency_shell() {
     local _name="$1"
     if [ -n "$DRACUT_SYSTEMD" ]; then
-        > /.console_lock
+        : > /.console_lock
         echo "PS1=\"$_name:\\\${PWD}# \"" > /etc/profile
         systemctl start dracut-emergency.service
         rm -f -- /etc/profile
@@ -1057,7 +1095,7 @@ _emergency_shell() {
         /sbin/rdsosreport
         echo 'You might want to save "/run/initramfs/rdsosreport.txt" to a USB stick or /boot'
         echo 'after mounting them and attach it to a bug report.'
-        if ! RD_DEBUG= getargbool 0 rd.debug -d -y rdinitdebug -d -y rdnetdebug; then
+        if ! RD_DEBUG='' getargbool 0 rd.debug -d -y rdinitdebug -d -y rdnetdebug; then
             echo
             echo 'To get more debug information in the report,'
             echo 'reboot with "rd.debug" added to the kernel command line.'
@@ -1066,9 +1104,9 @@ _emergency_shell() {
         echo 'Dropping to debug shell.'
         echo
         export PS1="$_name:\${PWD}# "
-        [ -e /.profile ] || > /.profile
+        [ -e /.profile ] || : > /.profile
 
-        _ctty="$(RD_DEBUG= getarg rd.ctty=)" && _ctty="/dev/${_ctty##*/}"
+        _ctty="$(RD_DEBUG='' getarg rd.ctty=)" && _ctty="/dev/${_ctty##*/}"
         if [ -z "$_ctty" ]; then
             _ctty=console
             while [ -f /sys/class/tty/$_ctty/active ]; do
@@ -1115,7 +1153,7 @@ emergency_shell() {
         && _emergency_action=halt
 
     if getargbool 1 rd.shell -d -y rdshell || getarg rd.break -d rdbreak; then
-        _emergency_shell $_rdshell_name
+        _emergency_shell "$_rdshell_name"
     else
         source_hook "$hook"
         warn "$action has failed. To debug this issue add \"rd.shell rd.debug\" to the kernel command line."
@@ -1143,7 +1181,7 @@ export_n() {
     for var in "$@"; do
         eval val=\$$var
         unset $var
-        [ -n "$val" ] && eval $var=\"$val\"
+        [ -n "$val" ] && eval $var=\""$val"\"
     done
 }
 
@@ -1186,7 +1224,8 @@ are_lists_eq() {
 
 setmemdebug() {
     if [ -z "$DEBUG_MEM_LEVEL" ]; then
-        export DEBUG_MEM_LEVEL=$(getargnum 0 0 5 rd.memdebug)
+        DEBUG_MEM_LEVEL=$(getargnum 0 0 5 rd.memdebug)
+        export DEBUG_MEM_LEVEL
     fi
 }
 
@@ -1207,7 +1246,9 @@ make_trace_mem() {
         return
     fi
 
-    msg=$(echo $msg)
+    # FIXME? useless echo?
+    # shellcheck disable=SC2116
+    msg=$(echo "$msg")
 
     msg_printed=0
     while [ $# -gt 0 ]; do
@@ -1236,7 +1277,7 @@ make_trace_mem() {
                 echo "$prefix $msg"
                 msg_printed=1
             fi
-            show_memstats $trace
+            show_memstats "$trace"
         fi
         shift
     done
@@ -1246,7 +1287,7 @@ make_trace_mem() {
 show_memstats() {
     case $1 in
         shortmem)
-            cat /proc/meminfo | grep -e "^MemFree" -e "^Cached" -e "^Slab"
+            grep -e "^MemFree" -e "^Cached" -e "^Slab" /proc/meminfo
             ;;
         mem)
             cat /proc/meminfo
