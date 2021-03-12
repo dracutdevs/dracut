@@ -58,8 +58,7 @@ install() {
     for i in \
         systemd-networkd-wait-online.service \
         systemd-networkd.service \
-        systemd-networkd.socket \
-        ${NULL}; do
+        systemd-networkd.socket; do
         $SYSTEMCTL -q --root "$initdir" enable "$i"
     done
 }
