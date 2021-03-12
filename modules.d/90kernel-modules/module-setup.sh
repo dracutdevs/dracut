@@ -48,8 +48,7 @@ installkernel() {
             ehci-hcd ehci-pci ehci-platform \
             ohci-hcd ohci-pci \
             uhci-hcd \
-            xhci-hcd xhci-pci xhci-plat-hcd \
-            "${NULL}"
+            xhci-hcd xhci-pci xhci-plat-hcd
 
         hostonly=$(optional_hostonly) instmods \
             "=drivers/hid" \
@@ -58,8 +57,7 @@ installkernel() {
             "=drivers/input/keyboard" \
             "=drivers/pci/host" \
             "=drivers/pci/controller" \
-            "=drivers/pinctrl" \
-            "${NULL}"
+            "=drivers/pinctrl"
 
         instmods \
             yenta_socket \
@@ -96,8 +94,7 @@ installkernel() {
                 "=drivers/usb/misc" \
                 "=drivers/usb/musb" \
                 "=drivers/usb/phy" \
-                "=drivers/scsi/hisi_sas" \
-                "${NULL}"
+                "=drivers/scsi/hisi_sas"
         fi
 
         find_kernel_modules_external | instmods
