@@ -9,6 +9,7 @@ ifeq ($(DRACUT_FULL_VERSION),)
 DRACUT_FULL_VERSION = $(DRACUT_VERSION)
 endif
 
+HAVE_SHELLCHECK ?= $(shell which shellcheck >/dev/null 2>&1 && echo yes)
 HAVE_SHFMT ?= $(shell which shfmt >/dev/null  2>&1 && echo yes)
 
 -include Makefile.inc
@@ -270,6 +271,11 @@ syncheck:
 	                modules.d/*/module-setup.sh; do \
 		[ $$V ] && echo "bash syntax check: $$i"; bash -n "$$i" ; ret=$$(($$ret+$$?)); \
 	done;exit $$ret
+ifeq ($(HAVE_SHFMT),yes)
+ifeq ($(HAVE_SHELLCHECK),yes)
+	shellcheck $$(shfmt -f .)
+endif
+endif
 
 check: all syncheck rpm
 	@[ "$$EUID" == "0" ] || { echo "'check' must be run as root! Please use 'sudo'."; exit 1; }
