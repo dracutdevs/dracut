@@ -5,8 +5,8 @@ cmdline() {
     is_dasd() {
         local _dev=$1
         local _devpath=$(
-            cd -P /sys/dev/block/$_dev
-            echo $PWD
+            cd -P /sys/dev/block/"$_dev" || exit
+            echo "$PWD"
         )
 
         [ "${_devpath#*/dasd}" == "$_devpath" ] && return 1
