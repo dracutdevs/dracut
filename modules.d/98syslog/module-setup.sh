@@ -32,7 +32,7 @@ install() {
         inst_hook cleanup 99 "$moddir/syslog-cleanup.sh"
         inst_hook initqueue/online 70 "$moddir/rsyslogd-start.sh"
         inst_simple "$moddir/rsyslogd-stop.sh" /sbin/rsyslogd-stop
-        mkdir -m 0755 -p ${initdir}/etc/templates
+        mkdir -m 0755 -p "${initdir}"/etc/templates
         inst_simple "${moddir}/rsyslog.conf" /etc/templates/rsyslog.conf
     fi
     dracut_need_initqueue
