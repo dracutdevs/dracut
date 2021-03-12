@@ -352,7 +352,7 @@ find_block_device() {
             while read _majmin _dev || [ -n "$_dev" ]; do
                 if [[ -b $_dev ]]; then
                     if ! [[ $_majmin ]] || [[ $_majmin == 0:* ]]; then
-                        _majmin=$(get_maj_min $_dev)
+                        _majmin=$(get_maj_min "$_dev")
                     fi
                     if [[ $_majmin ]]; then
                         printf "%s\n" "$_majmin"
@@ -378,7 +378,7 @@ find_block_device() {
                 unset _majmin
             fi
             if [[ -b $_dev ]]; then
-                [[ $_majmin ]] || _majmin=$(get_maj_min $_dev)
+                [[ $_majmin ]] || _majmin=$(get_maj_min "$_dev")
                 if [[ $_majmin ]]; then
                     printf "%s\n" "$_majmin"
                 else
@@ -542,15 +542,15 @@ host_fs_all() {
 check_block_and_slaves() {
     local _x
     [[ -b /dev/block/$2 ]] || return 1 # Not a block device? So sorry.
-    if ! lvm_internal_dev $2; then "$1" $2 && return; fi
+    if ! lvm_internal_dev "$2"; then "$1" "$2" && return; fi
     check_vol_slaves "$@" && return 0
     if [[ -f /sys/dev/block/$2/../dev ]] && [[ /sys/dev/block/$2/../subsystem -ef /sys/class/block ]]; then
-        check_block_and_slaves $1 $(< "/sys/dev/block/$2/../dev") && return 0
+        check_block_and_slaves "$1" $(< "/sys/dev/block/$2/../dev") && return 0
     fi
     for _x in /sys/dev/block/$2/slaves/*; do
         [[ -f $_x/dev ]] || continue
         [[ $_x/subsystem -ef /sys/class/block ]] || continue
-        check_block_and_slaves $1 $(< "$_x/dev") && return 0
+        check_block_and_slaves "$1" $(< "$_x/dev") && return 0
     done
     return 1
 }
@@ -558,17 +558,17 @@ check_block_and_slaves() {
 check_block_and_slaves_all() {
     local _x _ret=1
     [[ -b /dev/block/$2 ]] || return 1 # Not a block device? So sorry.
-    if ! lvm_internal_dev $2 && "$1" $2; then
+    if ! lvm_internal_dev "$2" && "$1" "$2"; then
         _ret=0
     fi
     check_vol_slaves_all "$@" && return 0
     if [[ -f /sys/dev/block/$2/../dev ]] && [[ /sys/dev/block/$2/../subsystem -ef /sys/class/block ]]; then
-        check_block_and_slaves_all $1 $(< "/sys/dev/block/$2/../dev") && _ret=0
+        check_block_and_slaves_all "$1" $(< "/sys/dev/block/$2/../dev") && _ret=0
     fi
     for _x in /sys/dev/block/$2/slaves/*; do
         [[ -f $_x/dev ]] || continue
         [[ $_x/subsystem -ef /sys/class/block ]] || continue
-        check_block_and_slaves_all $1 $(< "$_x/dev") && _ret=0
+        check_block_and_slaves_all "$1" $(< "$_x/dev") && _ret=0
     done
     return $_ret
 }
@@ -584,7 +584,7 @@ for_each_host_dev_and_slaves_all() {
 
     for _dev in "${host_devs[@]}"; do
         [[ -b $_dev ]] || continue
-        if check_block_and_slaves_all $_func $(get_maj_min $_dev); then
+        if check_block_and_slaves_all "$_func" $(get_maj_min "$_dev"); then
             _ret=0
         fi
     done
@@ -599,7 +599,7 @@ for_each_host_dev_and_slaves() {
 
     for _dev in "${host_devs[@]}"; do
         [[ -b $_dev ]] || continue
-        check_block_and_slaves $_func $(get_maj_min $_dev) && return 0
+        check_block_and_slaves "$_func" $(get_maj_min "$_dev") && return 0
     done
     return 1
 }
@@ -615,13 +615,13 @@ check_vol_slaves() {
     _majmin="$2"
     _lv="/dev/block/$_majmin"
     _dm=/sys/dev/block/$_majmin/dm
-    [[ -f $_dm/uuid && $(< $_dm/uuid) =~ LVM-* ]] || return 1
+    [[ -f $_dm/uuid && $(< "$_dm"/uuid) =~ LVM-* ]] || return 1
     _vg=$(dmsetup splitname --noheadings -o vg_name $(< "$_dm/name"))
     # strip space
     _vg="${_vg//[[:space:]]/}"
     if [[ $_vg ]]; then
         for _pv in $(lvm vgs --noheadings -o pv_name "$_vg" 2> /dev/null); do
-            check_block_and_slaves $1 $(get_maj_min $_pv) && return 0
+            check_block_and_slaves "$1" $(get_maj_min "$_pv") && return 0
         done
     fi
     return 1
@@ -632,19 +632,19 @@ check_vol_slaves_all() {
     _majmin="$2"
     _lv="/dev/block/$_majmin"
     _dm="/sys/dev/block/$_majmin/dm"
-    [[ -f $_dm/uuid && $(< $_dm/uuid) =~ LVM-* ]] || return 1
+    [[ -f $_dm/uuid && $(< "$_dm"/uuid) =~ LVM-* ]] || return 1
     _vg=$(dmsetup splitname --noheadings -o vg_name $(< "$_dm/name"))
     # strip space
     _vg="${_vg//[[:space:]]/}"
     if [[ $_vg ]]; then
         # when filter/global_filter is set, lvm may be failed
-        lvm lvs --noheadings -o vg_name $_vg 2> /dev/null 1> /dev/null
+        lvm lvs --noheadings -o vg_name "$_vg" 2> /dev/null 1> /dev/null
         if [ $? -ne 0 ]; then
             return 1
         fi
 
         for _pv in $(lvm vgs --noheadings -o pv_name "$_vg" 2> /dev/null); do
-            check_block_and_slaves_all $1 $(get_maj_min $_pv)
+            check_block_and_slaves_all "$1" $(get_maj_min "$_pv")
         done
         return 0
     fi
@@ -659,12 +659,12 @@ fs_get_option() {
     local _option=$2
     local OLDIFS="$IFS"
     IFS=,
-    set -- $_fsopts
+    set -- "$_fsopts"
     IFS="$OLDIFS"
     while [ $# -gt 0 ]; do
         case $1 in
             $_option=*)
-                echo ${1#${_option}=}
+                echo "${1#${_option}=}"
                 break
                 ;;
         esac
@@ -690,7 +690,7 @@ check_kernel_config() {
 # 0 if the kernel module is either built-in or available
 # 1 if the kernel module is not enabled
 check_kernel_module() {
-    modprobe -S $kernel --dry-run $1 &> /dev/null || return 1
+    modprobe -S "$kernel" --dry-run "$1" &> /dev/null || return 1
 }
 
 # get_cpu_vendor
@@ -713,14 +713,14 @@ get_ucode_file() {
 
     if [[ "$(get_cpu_vendor)" == "AMD" ]]; then
         if [[ $family -ge 21 ]]; then
-            printf "microcode_amd_fam%xh.bin" $family
+            printf "microcode_amd_fam%xh.bin" "$family"
         else
             printf "microcode_amd.bin"
         fi
     fi
     if [[ "$(get_cpu_vendor)" == "Intel" ]]; then
         # The /proc/cpuinfo are in decimal.
-        printf "%02x-%02x-%02x" ${family} ${model} ${stepping}
+        printf "%02x-%02x-%02x" "${family}" "${model}" "${stepping}"
     fi
 }
 
@@ -728,9 +728,9 @@ get_ucode_file() {
 # If it is an LVM device, touch only devices which have /dev/VG/LV symlink.
 lvm_internal_dev() {
     local dev_dm_dir=/sys/dev/block/$1/dm
-    [[ ! -f $dev_dm_dir/uuid || $(< $dev_dm_dir/uuid) != LVM-* ]] && return 1 # Not an LVM device
+    [[ ! -f $dev_dm_dir/uuid || $(< "$dev_dm_dir"/uuid) != LVM-* ]] && return 1 # Not an LVM device
     local DM_VG_NAME DM_LV_NAME DM_LV_LAYER
-    eval $(dmsetup splitname --nameprefixes --noheadings --rows "$(< $dev_dm_dir/name)" 2> /dev/null)
+    eval $(dmsetup splitname --nameprefixes --noheadings --rows "$(< "$dev_dm_dir"/name)" 2> /dev/null)
     [[ ${DM_VG_NAME} ]] && [[ ${DM_LV_NAME} ]] || return 0 # Better skip this!
     [[ ${DM_LV_LAYER} ]] || [[ ! -L /dev/${DM_VG_NAME}/${DM_LV_NAME} ]]
 }
@@ -747,12 +747,12 @@ btrfs_devs() {
 
 iface_for_remote_addr() {
     set -- $(ip -o route get to "$1")
-    echo $3
+    echo "$3"
 }
 
 local_addr_for_remote_addr() {
     set -- $(ip -o route get to "$1")
-    echo $5
+    echo "$5"
 }
 
 peer_for_addr() {
@@ -893,7 +893,7 @@ block_is_fcoe() {
     until [[ -d "$_dir/sys" ]]; do
         _dir="$_dir/.."
         if [[ -d "$_dir/subsystem" ]]; then
-            subsystem=$(basename $(readlink $_dir/subsystem))
+            subsystem=$(basename $(readlink "$_dir"/subsystem))
             [[ $subsystem == "fcoe" ]] && return 0
         fi
     done
