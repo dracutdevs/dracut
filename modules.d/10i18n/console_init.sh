@@ -69,7 +69,6 @@ dev_open() {
 }
 
 dev=/dev/${1#/dev/}
-devname=${dev#/dev/}
 
 [ -c "${dev}" ] || {
     echo "Usage: $0 device" >&2
