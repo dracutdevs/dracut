@@ -37,7 +37,6 @@ install() {
         inst_multiple -H -o \
             /etc/repart.d/*.conf \
             "$systemdsystemconfdir"/systemd-repart.service \
-            "$systemdsystemconfdir"/systemd-repart.service.d/*.conf \
-            "${NULL}"
+            "$systemdsystemconfdir"/systemd-repart.service.d/*.conf
     fi
 }
