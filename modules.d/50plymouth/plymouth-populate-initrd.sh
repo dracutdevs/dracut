@@ -20,14 +20,14 @@ if [[ $hostonly ]]; then
     if [[ -d $dracutsysrootdir/usr/share/plymouth/themes/${PLYMOUTH_THEME} ]]; then
         for x in "/usr/share/plymouth/themes/${PLYMOUTH_THEME}"/*; do
             [[ -f "$dracutsysrootdir$x" ]] || break
-            inst $x
+            inst "$x"
         done
     fi
 
     if [[ -L $dracutsysrootdir/usr/share/plymouth/themes/default.plymouth ]]; then
         inst /usr/share/plymouth/themes/default.plymouth
         # Install plugin for this theme
-        PLYMOUTH_PLUGIN=$(grep "^ModuleName=" "$dracutsysrootdir"/usr/share/plymouth/themes/default.plymouth | while read a b c || [ -n "$b" ]; do echo $b; done)
+        PLYMOUTH_PLUGIN=$(grep "^ModuleName=" "$dracutsysrootdir"/usr/share/plymouth/themes/default.plymouth | while read a b c || [ -n "$b" ]; do echo "$b"; done)
         inst_libdir_file "plymouth/${PLYMOUTH_PLUGIN}.so"
     fi
 else
@@ -38,7 +38,7 @@ else
         inst_multiple "${x#$dracutsysrootdir}"
     done
     (
-        cd ${initdir}/usr/share/plymouth/themes
+        cd "${initdir}"/usr/share/plymouth/themes || exit
         ln -s text/text.plymouth default.plymouth 2>&1
     )
 fi
