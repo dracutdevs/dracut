@@ -7,24 +7,24 @@ KVERSION=${KVERSION-$(uname -r)}
 #DEBUGFAIL="rd.break rd.shell"
 
 test_run() {
-    $testdir/run-qemu \
-        -drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext2 \
+    "$testdir"/run-qemu \
+        -drive format=raw,index=0,media=disk,file="$TESTDIR"/root.ext2 \
         -append "panic=1 systemd.crash_reboot root=/dev/dracut/root rw rd.auto=1 quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug rd.shell=0 $DEBUGFAIL" \
-        -initrd $TESTDIR/initramfs.testing
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success $TESTDIR/root.ext2 || return 1
+        -initrd "$TESTDIR"/initramfs.testing
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success "$TESTDIR"/root.ext2 || return 1
 }
 
 test_setup() {
     # Create the blank file to use as a root filesystem
-    dd if=/dev/zero of=$TESTDIR/root.ext2 bs=1M count=92
+    dd if=/dev/zero of="$TESTDIR"/root.ext2 bs=1M count=92
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
         export initdir=$TESTDIR/overlay/source
-        . $basedir/dracut-init.sh
+        . "$basedir"/dracut-init.sh
         (
-            cd "$initdir"
+            cd "$initdir" || exit
             mkdir -p -- dev sys proc etc var/run tmp
             mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
             for i in bin sbin lib lib64; do
@@ -44,15 +44,15 @@ test_setup() {
         inst_simple /etc/os-release
         inst ./test-init.sh /sbin/init
         find_binary plymouth > /dev/null && inst_multiple plymouth
-        cp -a /etc/ld.so.conf* $initdir/etc
-        mkdir -p $initdir/run
+        cp -a /etc/ld.so.conf* "$initdir"/etc
+        mkdir -p "$initdir"/run
         ldconfig -r "$initdir"
     )
 
     # second, install the files needed to make the root filesystem
     (
         export initdir=$TESTDIR/overlay
-        . $basedir/dracut-init.sh
+        . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mke2fs poweroff cp umount grep dmsetup dd sync
         inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
@@ -62,35 +62,35 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -m "bash lvm mdraid udev-rules base rootfs-block fs-lib kernel-modules qemu" \
         -d "piix ide-gd_mod ata_piix ext2 sd_mod" \
         --no-hostonly-cmdline -N \
-        -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
-    rm -rf -- $TESTDIR/overlay
+        -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
+    rm -rf -- "$TESTDIR"/overlay
     # Invoke KVM and/or QEMU to actually create the target filesystem.
-    $testdir/run-qemu -drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext2 \
+    "$testdir"/run-qemu -drive format=raw,index=0,media=disk,file="$TESTDIR"/root.ext2 \
         -append "root=/dev/fakeroot rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
-        -initrd $TESTDIR/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/root.ext2 || return 1
+        -initrd "$TESTDIR"/initramfs.makeroot || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/root.ext2 || return 1
     (
         export initdir=$TESTDIR/overlay
-        . $basedir/dracut-init.sh
+        . "$basedir"/dracut-init.sh
         inst_multiple poweroff shutdown
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
-    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -o "plymouth network kernel-network-modules" \
         -a "debug" -I lvs \
         -d "piix ide-gd_mod ata_piix ext2 sd_mod" \
         --no-hostonly-cmdline -N \
-        -f $TESTDIR/initramfs.testing $KVERSION || return 1
+        -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 }
 
 test_cleanup() {
     return 0
 }
 
-. $testdir/test-functions
+. "$testdir"/test-functions
