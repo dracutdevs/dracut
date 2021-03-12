@@ -33,15 +33,13 @@ install() {
     # Install related files for systemd-modules-load
     inst_multiple -o \
         "$systemdsystemunitdir"/systemd-modules-load.service \
-        "$systemdutildir"/systemd-modules-load \
-        # EOL
+        "$systemdutildir"/systemd-modules-load
 
     # Install local user configurations if host only is enabled..
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
             "$systemdsystemconfdir"/systemd-modules-load.service \
-            "$systemdsystemconfdir"/systemd-systemd-modules-load.d/*.conf \
-            # EOL
+            "$systemdsystemconfdir"/systemd-systemd-modules-load.d/*.conf
     fi
 
     # Enable the systemd type service unit for systemd-modules-load.
