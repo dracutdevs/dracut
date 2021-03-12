@@ -13,7 +13,7 @@ PCRLOCKNUM=11
 load_masterkey() {
     # read the configuration from the config file
     [ -f "${MASTERKEYSCONFIG}" ] \
-        && . ${MASTERKEYSCONFIG}
+        && . "${MASTERKEYSCONFIG}"
 
     # override the kernel master key path name from the 'masterkey=' parameter
     # in the kernel command line
@@ -53,7 +53,7 @@ load_masterkey() {
     fi
 
     # read the kernel master key blob
-    KEYBLOB=$(cat ${MASTERKEYPATH})
+    KEYBLOB=$(cat "${MASTERKEYPATH}")
 
     # add the 'load' prefix if the key type is 'trusted'
     [ "${MASTERKEYTYPE}" = "trusted" ] \
