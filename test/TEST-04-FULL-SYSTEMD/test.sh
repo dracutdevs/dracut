@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# shellcheck disable=SC2034
 TEST_DESCRIPTION="Full systemd serialization/deserialization test with /usr mount"
 
 export KVERSION=${KVERSION-$(uname -r)}
@@ -49,6 +50,7 @@ test_setup() {
     export kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay/source
         mkdir -p "$initdir"
         . "$basedir"/dracut-init.sh
@@ -101,7 +103,7 @@ test_setup() {
             /etc/localtime
 
         # we want an empty environment
-        > "$initdir"/etc/environment
+        : > "$initdir"/etc/environment
 
         # setup the testsuite target
         mkdir -p "$initdir"/etc/systemd/system
@@ -155,7 +157,7 @@ EOF
             /etc/security \
             /lib64/security \
             /lib/security -xtype f \
-            | while read file || [ -n "$file" ]; do
+            | while read -r file || [ -n "$file" ]; do
                 inst_multiple -o "$file"
             done
 
@@ -175,8 +177,7 @@ EOF
             /usr/lib/kbd/consolefonts/eurlatgr* \
             /usr/lib/kbd/keymaps/{legacy/,/}include/* \
             /usr/lib/kbd/keymaps/{legacy/,/}i386/include/* \
-            /usr/lib/kbd/keymaps/{legacy/,/}i386/qwerty/us.* \
-            ${NULL}; do
+            /usr/lib/kbd/keymaps/{legacy/,/}i386/qwerty/us.*; do
             [[ -f $i ]] || continue
             inst "$i"
         done
@@ -192,7 +193,7 @@ EOF
 
         # install any Execs from the service files
         grep -Eho '^Exec[^ ]*=[^ ]+' "$initdir"/lib/systemd/system/*.service \
-            | while read i || [ -n "$i" ]; do
+            | while read -r i || [ -n "$i" ]; do
                 i=${i##Exec*=}
                 i=${i##-}
                 inst_multiple -o "$i"
@@ -205,7 +206,7 @@ EOF
         cp -a /etc/ld.so.conf* "$initdir"/etc
         ldconfig -r "$initdir"
         ddebug "Strip binaeries"
-        find "$initdir" -perm /0111 -type f | xargs -r strip --strip-unneeded | ddebug
+        find "$initdir" -perm /0111 -type f -print0 | xargs -0 -r strip --strip-unneeded | ddebug
 
         # copy depmod files
         inst /lib/modules/"$kernel"/modules.order
@@ -223,6 +224,7 @@ EOF
 
     # second, install the files needed to make the root filesystem
     (
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay
         . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mkfs.btrfs btrfs poweroff cp umount sync dd
