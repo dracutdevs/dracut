@@ -19,16 +19,16 @@ while [[ $ROOT != "${ROOT%/}" ]]; do
     ROOT=${ROOT%/}
 done
 
-if [ ! -L $ROOT/var/run -a -e $ROOT/var/run ]; then
+if [ ! -L "$ROOT"/var/run -a -e "$ROOT"/var/run ]; then
     echo "Converting /var/run to symlink"
-    mv -f $ROOT/var/run $ROOT/var/run.runmove~
-    ln -sfn ../run $ROOT/var/run
+    mv -f "$ROOT"/var/run "$ROOT"/var/run.runmove~
+    ln -sfn ../run "$ROOT"/var/run
 fi
 
-if [ ! -L $ROOT/var/lock -a -e $ROOT/var/lock ]; then
+if [ ! -L "$ROOT"/var/lock -a -e "$ROOT"/var/lock ]; then
     echo "Converting /var/lock to symlink"
-    mv -f $ROOT/var/lock $ROOT/var/lock.lockmove~
-    ln -sfn ../run/lock $ROOT/var/lock
+    mv -f "$ROOT"/var/lock "$ROOT"/var/lock.lockmove~
+    ln -sfn ../run/lock "$ROOT"/var/lock
 fi
 
 needconvert() {
@@ -72,7 +72,7 @@ rm -f -- "$testfile"
 
 find_mount() {
     local dev mnt etc wanted_dev
-    wanted_dev="$(readlink -e -q $1)"
+    wanted_dev="$(readlink -e -q "$1")"
     while read dev mnt etc || [ -n "$dev" ]; do
         [ "$dev" = "$wanted_dev" ] && echo "$dev" && return 0
     done < /proc/mounts
@@ -184,7 +184,7 @@ for dir in lib lib64; do
     [[ -d "$ROOT/$dir" ]] || continue
     for lib in "$ROOT"/usr/${dir}/lib*.so*.usrmove~; do
         [[ -f $lib ]] || continue
-        mv $lib ${lib/.so/_so}
+        mv "$lib" "${lib/.so/_so}"
     done
 done
 
@@ -193,10 +193,10 @@ set +e
 echo "Run ldconfig."
 ldconfig -r "$ROOT"
 
-. $ROOT/etc/selinux/config
-if [ -n "$(command -v setfiles)" ] && [ "$SELINUX" != "disabled" ] && [ -f /etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts ]; then
+. "$ROOT"/etc/selinux/config
+if [ -n "$(command -v setfiles)" ] && [ "$SELINUX" != "disabled" ] && [ -f /etc/selinux/"${SELINUXTYPE}"/contexts/files/file_contexts ]; then
     echo "Fixing SELinux labels"
-    setfiles -r $ROOT -p /etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts $ROOT/sbin $ROOT/bin $ROOT/lib $ROOT/lib64 $ROOT/usr/lib $ROOT/usr/lib64 $ROOT/etc/ld.so.cache $ROOT/var/cache/ldconfig || :
+    setfiles -r "$ROOT" -p /etc/selinux/"${SELINUXTYPE}"/contexts/files/file_contexts "$ROOT"/sbin "$ROOT"/bin "$ROOT"/lib "$ROOT"/lib64 "$ROOT"/usr/lib "$ROOT"/usr/lib64 "$ROOT"/etc/ld.so.cache "$ROOT"/var/cache/ldconfig || :
 fi
 
 echo "Done."
