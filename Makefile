@@ -9,6 +9,7 @@ ifeq ($(DRACUT_FULL_VERSION),)
 DRACUT_FULL_VERSION = $(DRACUT_VERSION)
 endif
 
+HAVE_SHELLCHECK ?= $(shell which shellcheck >/dev/null 2>&1 && echo yes)
 HAVE_SHFMT ?= $(shell which shfmt >/dev/null  2>&1 && echo yes)
 
 -include Makefile.inc
@@ -207,7 +208,7 @@ endif
 
 dracut-version.sh:
 	@rm -f dracut-version.sh
-	@echo "DRACUT_VERSION=$(DRACUT_FULL_VERSION)" > dracut-version.sh
+	@printf "#!/bin/sh\n# shellcheck disable=SC2034\nDRACUT_VERSION=%s\n" "$(DRACUT_FULL_VERSION)" > dracut-version.sh
 
 clean:
 	$(RM) *~
@@ -270,6 +271,13 @@ syncheck:
 	                modules.d/*/module-setup.sh; do \
 		[ $$V ] && echo "bash syntax check: $$i"; bash -n "$$i" ; ret=$$(($$ret+$$?)); \
 	done;exit $$ret
+ifeq ($(HAVE_SHELLCHECK),yes)
+ifeq ($(HAVE_SHFMT),yes)
+	shellcheck $$(shfmt -f .)
+else
+	find . -name '*.sh' -print0 | xargs -0 shellcheck
+endif
+endif
 
 check: all syncheck rpm
 	@[ "$$EUID" == "0" ] || { echo "'check' must be run as root! Please use 'sudo'."; exit 1; }
