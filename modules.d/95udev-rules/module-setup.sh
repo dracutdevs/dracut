@@ -48,7 +48,7 @@ install() {
         95-late.rules \
         "$moddir/59-persistent-storage.rules" \
         "$moddir/61-persistent-storage.rules" \
-        ${NULL}
+        "${NULL}"
 
     prepare_udev_rules 59-persistent-storage.rules 61-persistent-storage.rules
     # debian udev rules
