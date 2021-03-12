@@ -92,8 +92,8 @@ default_kernel_images() {
         [ -L "$boot_dir/$kernel_image" ] && continue
         [ "${kernel_image%%.gz}" != "$kernel_image" ] && continue
         kernel_version=$(/usr/bin/get_kernel_version \
-            $boot_dir/$kernel_image 2> /dev/null)
-        initrd_image=$(echo $kernel_image | sed -e "s|${regex}|initrd|")
+            $boot_dir/"$kernel_image" 2> /dev/null)
+        initrd_image=$(echo "$kernel_image" | sed -e "s|${regex}|initrd|")
         if [ "$kernel_image" != "$initrd_image" -a \
             -n "$kernel_version" -a \
             -d "/lib/modules/$kernel_version" ]; then
@@ -223,17 +223,17 @@ for ((i = 0; i < ${#targets[@]}; i++)); do
     if [[ $quiet == 1 ]]; then
         echo "$target|$kernel|$dracut_args|$basicmodules"
         if [[ $basicmodules ]]; then
-            dracut $dracut_args --add-drivers "$basicmodules" "$target" \
+            dracut "$dracut_args" --add-drivers "$basicmodules" "$target" \
                 "$kernel" &> /dev/null
         else
-            dracut $dracut_args "$target" "$kernel" &> /dev/null
+            dracut "$dracut_args" "$target" "$kernel" &> /dev/null
         fi
     else
         if [[ $basicmodules ]]; then
-            dracut $dracut_args --add-drivers "$basicmodules" "$target" \
+            dracut "$dracut_args" --add-drivers "$basicmodules" "$target" \
                 "$kernel"
         else
-            dracut $dracut_args "$target" "$kernel"
+            dracut "$dracut_args" "$target" "$kernel"
         fi
     fi
 done
