@@ -7,7 +7,7 @@ filtersubvol() {
     local _oldifs
     _oldifs="$IFS"
     IFS=","
-    set $*
+    set "$*"
     IFS="$_oldifs"
     while [ $# -gt 0 ]; do
         case $1 in
@@ -56,7 +56,7 @@ mount_usr() {
             _dev="$(label_uuid_to_dev "$_dev")"
 
             if strstr "$_opts" "subvol=" \
-                && [ "${root#block:}" -ef $_dev ] \
+                && [ "${root#block:}" -ef "$_dev" ] \
                 && [ -n "$rflags" ]; then
                 # for btrfs subvolumes we have to mount /usr with the same rflags
                 rflags=$(filtersubvol "$rflags")
