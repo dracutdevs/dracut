@@ -3,6 +3,7 @@
 # This file is part of dracut.
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+# shellcheck disable=SC2034
 TEST_DESCRIPTION="dracut getarg command"
 
 test_check() {
@@ -55,6 +56,7 @@ test_run() {
         INVALIDKEYS=("key" "4" "5" "6" "key8" "9" '"' "baz")
         for key in "${INVALIDKEYS[@]}"; do
             val=$(./dracut-getarg "$key")
+            # shellcheck disable=SC2181
             if (($? == 0)); then
                 echo "key '$key' should not be found"
                 ret=$((ret + 1))
