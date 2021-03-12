@@ -74,8 +74,7 @@ install() {
             "$systemdsystemconfdir"/dbus.socket \
             "$systemdsystemconfdir"/dbus.socket.d/*.conf \
             "$systemdsystemconfdir"/dbus-broker.service \
-            "$systemdsystemconfdir"/dbus-broker.service.d/*.conf \
-            "${NULL}"
+            "$systemdsystemconfdir"/dbus-broker.service.d/*.conf
     fi
 
     # We need to make sure that systemd-tmpfiles-setup.service->dbus.socket
