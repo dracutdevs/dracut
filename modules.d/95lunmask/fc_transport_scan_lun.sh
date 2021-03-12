@@ -8,7 +8,7 @@
 #    PROGRAM="fc_transport_lun_scan lun"
 #
 
-[ -z $DEVPATH ] && exit 1
+[ -z "$DEVPATH" ] && exit 1
 
 if [ -n "$1" ]; then
     LUN=$1
@@ -19,8 +19,8 @@ ID=${DEVPATH##*/rport-}
 HOST=${ID%%:*}
 CHANNEL=${ID%%-*}
 CHANNEL=${CHANNEL#*:}
-if [ -f /sys$DEVPATH/scsi_target_id ]; then
-    TARGET=$(cat /sys$DEVPATH/scsi_target_id)
+if [ -f /sys"$DEVPATH"/scsi_target_id ]; then
+    TARGET=$(cat /sys"$DEVPATH"/scsi_target_id)
 fi
 [ -z "$TARGET" ] && exit 1
-echo $CHANNEL $TARGET $LUN > /sys/class/scsi_host/host$HOST/scan
+echo "$CHANNEL" "$TARGET" $LUN > /sys/class/scsi_host/host"$HOST"/scan
