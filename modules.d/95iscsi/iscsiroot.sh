@@ -236,8 +236,7 @@ handle_netroot() {
                      ${iscsi_password:+   --name=node.session.auth.password    --value=$iscsi_password} \
                      ${iscsi_in_username:+--name=node.session.auth.username_in --value=$iscsi_in_username} \
                      ${iscsi_in_password:+--name=node.session.auth.password_in --value=$iscsi_in_password} \
-                     $EXTRA \
-                     $NULL"
+                     $EXTRA"
             $CMD "$__op"
             if [ "$netif" != "timeout" ]; then
                 $CMD --login
