@@ -8,7 +8,7 @@ KVERSION="${KVERSION-$(uname -r)}"
 
 test_check() {
     for pdir in $(python -c "import site; print(site.getsitepackages())" | sed -e 's/\[\(.*\)\]/\1/' -e "s/', /' /g"); do
-        pdir1=$(echo $pdir | sed "s/^'\(.*\)'$/\1/")
+        pdir1=$(echo "$pdir" | sed "s/^'\(.*\)'$/\1/")
         if [[ -d $pdir1/imgcreate ]]; then
             return 0
         fi
@@ -50,7 +50,7 @@ test_setup() {
 
     dd if=/dev/zero of="$TESTDIR"/root.img count=100
 
-    $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -a "debug dmsquash-live qemu" \
         -o "rngd" \
         -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
@@ -64,7 +64,7 @@ test_setup() {
         export initdir="$TESTDIR"/root-source
         . "$basedir"/dracut-init.sh
         (
-            cd "$initdir"
+            cd "$initdir" || exit
             mkdir -p -- dev sys proc etc var/run tmp
             mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
             for i in bin sbin lib lib64; do
