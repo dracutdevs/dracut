@@ -12,10 +12,10 @@ wait_for_if_link() {
     local cnt=0
     local li
     while [ $cnt -lt 600 ]; do
-        li=$(ip -o link show dev $1 2> /dev/null)
+        li=$(ip -o link show dev "$1" 2> /dev/null)
         [ -n "$li" ] && return 0
         if [[ $2 ]]; then
-            li=$(ip -o link show dev $2 2> /dev/null)
+            li=$(ip -o link show dev "$2" 2> /dev/null)
             [ -n "$li" ] && return 0
         fi
         sleep 0.1
