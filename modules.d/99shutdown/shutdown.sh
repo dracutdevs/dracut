@@ -108,15 +108,15 @@ if strstr "$(cat /proc/mounts)" "/oldroot"; then
         case $_pid in
             *[!0-9]*) continue ;;
         esac
-        [ $_pid -eq $$ ] && continue
+        [ "$_pid" -eq $$ ] && continue
 
         [ -e "/proc/$_pid/exe" ] || continue
         [ -e "/proc/$_pid/root" ] || continue
 
-        if strstr "$(ls -l /proc/$_pid /proc/$_pid/fd 2> /dev/null)" "oldroot"; then
-            warn "Blocking umount of /oldroot [$_pid] $(cat /proc/$_pid/cmdline)"
+        if strstr "$(ls -l /proc/"$_pid" /proc/"$_pid"/fd 2> /dev/null)" "oldroot"; then
+            warn "Blocking umount of /oldroot [$_pid] $(cat /proc/"$_pid"/cmdline)"
         else
-            warn "Still running [$_pid] $(cat /proc/$_pid/cmdline)"
+            warn "Still running [$_pid] $(cat /proc/"$_pid"/cmdline)"
         fi
 
         ls -l "/proc/$_pid/exe" 2>&1 | vwarn
@@ -129,9 +129,9 @@ _check_shutdown() {
     local __s=0
     for __f in $hookdir/shutdown/*.sh; do
         [ -e "$__f" ] || continue
-        (. "$__f" $1)
+        (. "$__f" "$1")
         if [ $? -eq 0 ]; then
-            rm -f -- $__f
+            rm -f -- "$__f"
         else
             __s=1
         fi
