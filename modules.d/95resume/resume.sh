@@ -12,7 +12,7 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
             a_splash="-P splash=n"
             ;;
     esac
-    [ -x "$(command -v resume)" ] && command resume $a_splash "$resume"
+    [ -x "$(command -v resume)" ] && command resume "$a_splash" "$resume"
 
-    (readlink -fn $resume > /sys/power/resume) > /.resume
+    (readlink -fn "$resume" > /sys/power/resume) > /.resume
 }
