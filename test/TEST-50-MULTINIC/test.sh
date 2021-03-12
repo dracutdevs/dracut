@@ -20,12 +20,12 @@ run_server() {
     # Start server first
     echo "MULTINIC TEST SETUP: Starting DHCP/NFS server"
 
-    $testdir/run-qemu \
+    "$testdir"/run-qemu \
         -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
         -net socket,listen=127.0.0.1:12350 \
         -net nic,macaddr=52:54:01:12:34:56,model=e1000 \
         ${SERIAL:+-serial "$SERIAL"} \
-        ${SERIAL:--serial file:"$TESTDIR"/server.log} \
+        "${SERIAL:--serial file:"$TESTDIR"/server.log}" \
         -watchdog i6300esb -watchdog-action poweroff \
         -append "panic=1 systemd.crash_reboot loglevel=7 root=LABEL=dracut rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.server \
@@ -65,11 +65,11 @@ client_test() {
         return 1
     fi
 
-    $testdir/run-qemu -drive format=raw,index=0,media=disk,file="$TESTDIR"/client.img \
+    "$testdir"/run-qemu -drive format=raw,index=0,media=disk,file="$TESTDIR"/client.img \
         -net socket,connect=127.0.0.1:12350 \
-        -net nic,macaddr=52:54:00:12:34:$mac1,model=e1000 \
-        -net nic,macaddr=52:54:00:12:34:$mac2,model=e1000 \
-        -net nic,macaddr=52:54:00:12:34:$mac3,model=e1000 \
+        -net nic,macaddr=52:54:00:12:34:"$mac1",model=e1000 \
+        -net nic,macaddr=52:54:00:12:34:"$mac2",model=e1000 \
+        -net nic,macaddr=52:54:00:12:34:"$mac3",model=e1000 \
         -netdev hubport,id=n1,hubid=1 \
         -netdev hubport,id=n2,hubid=2 \
         -device e1000,netdev=n1,mac=52:54:00:12:34:98 \
@@ -178,12 +178,12 @@ test_setup() {
 
     kernel=$KVERSION
     (
-        mkdir -p $TESTDIR/overlay/source
+        mkdir -p "$TESTDIR"/overlay/source
         export initdir=$TESTDIR/overlay/source
-        . $basedir/dracut-init.sh
+        . "$basedir"/dracut-init.sh
 
         (
-            cd "$initdir"
+            cd "$initdir" || exit
             mkdir -p -- dev sys proc run var/run etc tmp var/lib/{dhcpd,rpcbind}
             mkdir -p -- var/lib/nfs/{v4recovery,rpc_pipefs}
             chmod 777 -- var/lib/rpcbind var/lib/nfs
@@ -246,9 +246,9 @@ test_setup() {
     # Make client root inside server root
     (
         export initdir=$TESTDIR/overlay/source/nfs/client
-        . $basedir/dracut-init.sh
+        . "$basedir"/dracut-init.sh
         (
-            cd "$initdir"
+            cd "$initdir" || exit
             mkdir -p dev sys proc etc run
             mkdir -p var/lib/nfs/rpc_pipefs
             mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
@@ -287,7 +287,7 @@ test_setup() {
     # second, install the files needed to make the root filesystem
     (
         export initdir=$TESTDIR/overlay
-        . $basedir/dracut-init.sh
+        . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd
         inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
@@ -297,19 +297,19 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    $basedir/dracut.sh -l -i $TESTDIR/overlay / \
+    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -m "bash udev-rules base rootfs-block fs-lib kernel-modules fs-lib qemu" \
         -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
         --nomdadmconf \
         --no-hostonly-cmdline -N \
-        -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
+        -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
-    $testdir/run-qemu \
-        -drive format=raw,index=0,media=disk,file=$TESTDIR/server.ext3 \
+    "$testdir"/run-qemu \
+        -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
         -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
-        -initrd $TESTDIR/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created $TESTDIR/server.ext3 || return 1
+        -initrd "$TESTDIR"/initramfs.makeroot || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/server.ext3 || return 1
     rm -fr "$TESTDIR"/overlay
 
     # Make an overlay with needed tools for the test harness
@@ -324,7 +324,7 @@ test_setup() {
     )
 
     # Make server's dracut image
-    $basedir/dracut.sh \
+    "$basedir"/dracut.sh \
         -l -i "$TESTDIR"/overlay / \
         -m "dash udev-rules base rootfs-block fs-lib debug kernel-modules watchdog qemu" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files nfsd e1000 i6300esb ib700wdt" \
@@ -332,7 +332,7 @@ test_setup() {
         -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
 
     # Make client's dracut image
-    $basedir/dracut.sh \
+    "$basedir"/dracut.sh \
         -l -i "$TESTDIR"/overlay / \
         -o "plymouth ${OMIT_NETWORK}" \
         -a "debug ${USE_NETWORK}" \
