@@ -48,7 +48,7 @@ else
             is_keysource=0
             _uuid=$uuid
             uuid=${uuid#keysource:}
-            [ $uuid != $_uuid ] && is_keysource=1
+            [ "$uuid" != "$_uuid" ] && is_keysource=1
             unset _uuid
 
             uuid=${uuid##luks-}
@@ -86,7 +86,7 @@ else
             is_keysource=0
             _serialid=$serialid
             serialid=${serialid#keysource:}
-            [ $serialid != $_serialid ] && is_keysource=1
+            [ "$serialid" != "$_serialid" ] && is_keysource=1
             unset _serialid
 
             serialid=${serialid##luks-}
@@ -124,7 +124,7 @@ else
             is_keysource=0
             _luksid=$luksid
             luksid=${luksid#keysource:}
-            [ $luksid != $_luksid ] && is_keysource=1
+            [ "$luksid" != "$_luksid" ] && is_keysource=1
             unset _luksid
 
             luksid=${luksid##luks-}
@@ -160,11 +160,11 @@ else
             if [ $is_keysource -eq 0 ]; then
                 uuid=$luksid
                 while [ "$uuid" != "${uuid#*-}" ]; do uuid=${uuid%%-*}${uuid#*-}; done
-                printf -- '[ -e /dev/disk/by-id/dm-uuid-CRYPT-LUKS?-*%s*-* ] || exit 1\n' $uuid \
+                printf -- '[ -e /dev/disk/by-id/dm-uuid-CRYPT-LUKS?-*%s*-* ] || exit 1\n' "$uuid" \
                     >> "$hookdir/initqueue/finished/90-crypt.sh"
                 {
-                    printf -- '[ -e /dev/disk/by-uuid/*%s* ] || ' $luksid
-                    printf -- 'warn "crypto LUKS UUID "%s" not found"\n' $luksid
+                    printf -- '[ -e /dev/disk/by-uuid/*%s* ] || ' "$luksid"
+                    printf -- 'warn "crypto LUKS UUID "%s" not found"\n' "$luksid"
                 } >> "$hookdir/emergency/90-crypt.sh"
             fi
         done
