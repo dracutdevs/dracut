@@ -35,7 +35,7 @@ fi
 [ "${netroot%%:*}" = "cifs" ] || return
 
 # Check required arguments
-cifs_to_var $netroot
+cifs_to_var "$netroot"
 
 # If we don't have a server, we need dhcp
 if [ -z "$server" ]; then
@@ -45,4 +45,4 @@ fi
 # Done, all good!
 rootok=1
 
-echo '[ -e $NEWROOT/proc ]' > $hookdir/initqueue/finished/cifsroot.sh
+echo '[ -e $NEWROOT/proc ]' > "$hookdir"/initqueue/finished/cifsroot.sh
