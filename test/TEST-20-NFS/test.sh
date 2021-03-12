@@ -8,6 +8,7 @@ else
     OMIT_NETWORK="network-manager"
 fi
 
+# shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem on NFS with $USE_NETWORK"
 
 KVERSION=${KVERSION-$(uname -r)}
@@ -74,13 +75,14 @@ client_test() {
         -append "rd.net.timeout.dhcp=3 panic=1 systemd.crash_reboot rd.shell=0 $cmdline $DEBUGFAIL rd.retry=10 quiet ro console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.testing
 
+    # shellcheck disable=SC2181
     if [[ $? -ne 0 ]] || ! grep -U --binary-files=binary -F -m 1 -q nfs-OK "$TESTDIR"/client.img; then
         echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
         return 1
     fi
 
     # nfsinfo=( server:/path nfs{,4} options )
-    nfsinfo=($(awk '{print $2, $3, $4; exit}' "$TESTDIR"/client.img))
+    read -a -r nfsinfo < <(awk '{print $2, $3, $4; exit}' "$TESTDIR"/client.img)
 
     if [[ ${nfsinfo[0]%%:*} != "$server" ]]; then
         echo "CLIENT TEST INFO: got server: ${nfsinfo[0]%%:*}"
@@ -98,7 +100,7 @@ client_test() {
 
     opts=${nfsinfo[2]},
     while [[ $opts ]]; do
-        if [[ ${opts%%,*} == $check_opt ]]; then
+        if [[ ${opts%%,*} == "$check_opt" ]]; then
             found=1
             break
         fi
@@ -200,7 +202,7 @@ test_nfsv4() {
 
 test_run() {
     if [[ -s server.pid ]]; then
-        kill -TERM $(cat "$TESTDIR"/server.pid)
+        kill -TERM "$(cat "$TESTDIR"/server.pid)"
         rm -f -- "$TESTDIR"/server.pid
     fi
 
@@ -215,7 +217,7 @@ test_run() {
     ret=$?
 
     if [[ -s $TESTDIR/server.pid ]]; then
-        kill -TERM $(cat "$TESTDIR"/server.pid)
+        kill -TERM "$(cat "$TESTDIR"/server.pid)"
         rm -f -- "$TESTDIR"/server.pid
     fi
 
@@ -232,18 +234,19 @@ test_setup() {
 
     (
         mkdir -p "$TESTDIR"/server/overlay/source
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/server/overlay/source
         . "$basedir"/dracut-init.sh
 
         for _f in modules.builtin.bin modules.builtin; do
-            [[ $srcmods/$_f ]] && break
+            [[ -f $srcmods/$_f ]] && break
         done || {
             dfatal "No modules.builtin.bin and modules.builtin found!"
             return 1
         }
 
         for _f in modules.builtin.bin modules.builtin modules.order; do
-            [[ $srcmods/$_f ]] && inst_simple "$srcmods/$_f" "/lib/modules/$kernel/$_f"
+            [[ -f $srcmods/$_f ]] && inst_simple "$srcmods/$_f" "/lib/modules/$kernel/$_f"
         done
 
         inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
@@ -298,6 +301,7 @@ test_setup() {
 
     # Make client root inside server root
     (
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/server/overlay/source/nfs/client
         . "$basedir"/dracut-init.sh
 
@@ -339,6 +343,7 @@ test_setup() {
 
     # second, install the files needed to make the root filesystem
     (
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/server/overlay
         . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd
@@ -395,7 +400,7 @@ test_setup() {
 
 test_cleanup() {
     if [[ -s $TESTDIR/server.pid ]]; then
-        kill -TERM $(cat "$TESTDIR"/server.pid)
+        kill -TERM "$(cat "$TESTDIR"/server.pid)"
         rm -f -- "$TESTDIR"/server.pid
     fi
 }
