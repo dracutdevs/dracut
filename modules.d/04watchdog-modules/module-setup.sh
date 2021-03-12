@@ -20,10 +20,10 @@ installkernel() {
     local _alldrivers _wdtdrv _wdtppath _dir
 
     for _wd in /sys/class/watchdog/*; do
-        ! [ -e $_wd ] && continue
-        _wdtdrv=$(get_dev_module $_wd)
+        ! [ -e "$_wd" ] && continue
+        _wdtdrv=$(get_dev_module "$_wd")
         if [[ $_wdtdrv ]]; then
-            instmods $_wdtdrv
+            instmods "$_wdtdrv"
             for i in $_wdtdrv; do
                 _drivers[$i]=1
             done
@@ -32,7 +32,7 @@ installkernel() {
 
     # ensure that watchdog module is loaded as early as possible
     _alldrivers="${!_drivers[*]}"
-    [[ $_alldrivers ]] && echo "rd.driver.pre=${_alldrivers// /,}" > ${initdir}/etc/cmdline.d/00-watchdog.conf
+    [[ $_alldrivers ]] && echo "rd.driver.pre=${_alldrivers// /,}" > "${initdir}"/etc/cmdline.d/00-watchdog.conf
 
     return 0
 }
