@@ -30,9 +30,9 @@ if ! getarg noresume; then
 
         {
             printf "KERNEL==\"%s\", ACTION==\"add|change\", SYMLINK+=\"resume\"\n" \
-                ${resume#/dev/}
+                "${resume#/dev/}"
             printf "SYMLINK==\"%s\", ACTION==\"add|change\", SYMLINK+=\"resume\"\n" \
-                ${resume#/dev/}
+                "${resume#/dev/}"
         } >> /etc/udev/rules.d/99-resume-link.rules
 
         {
@@ -57,12 +57,12 @@ if ! getarg noresume; then
         } >> /etc/udev/rules.d/99-resume.rules
 
         printf '[ -e "%s" ] && { ln -fs "%s" /dev/resume 2> /dev/null; rm -f -- "$job" "%s/initqueue/timeout/resume.sh"; }\n' \
-            "$resume" "$resume" "$hookdir" >> $hookdir/initqueue/settled/resume.sh
+            "$resume" "$resume" "$hookdir" >> "$hookdir"/initqueue/settled/resume.sh
 
         {
             printf -- "%s" 'warn "Cancelling resume operation. Device not found.";'
             printf -- ' cancel_wait_for_dev /dev/resume; rm -f -- "$job" "%s/initqueue/settled/resume.sh";\n' "$hookdir"
-        } >> $hookdir/initqueue/timeout/resume.sh
+        } >> "$hookdir"/initqueue/timeout/resume.sh
 
         mv /lib/dracut/resume.sh /lib/dracut/hooks/pre-mount/10-resume.sh
     else
