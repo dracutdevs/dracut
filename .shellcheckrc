@@ -6,3 +6,6 @@ disable=SC2166
 
 # SC2154: Variable is referenced but not assigned
 disable=SC2154
+
+# SC1091: Not following <file>
+disable=SC1091
