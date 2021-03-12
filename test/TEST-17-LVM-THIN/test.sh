@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem on LVM PV with thin pool"
 
 KVERSION=${KVERSION-$(uname -r)}
@@ -21,6 +22,7 @@ test_setup() {
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay/source
         . "$basedir"/dracut-init.sh
         (
@@ -51,6 +53,7 @@ test_setup() {
 
     # second, install the files needed to make the root filesystem
     (
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay
         . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mke2fs poweroff cp umount grep dmsetup dd sync
