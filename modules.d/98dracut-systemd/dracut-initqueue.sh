@@ -23,17 +23,17 @@ while :; do
 
     check_finished && break
 
-    udevadm settle --exit-if-exists=$hookdir/initqueue/work
+    udevadm settle --exit-if-exists="$hookdir"/initqueue/work
 
     check_finished && break
 
-    if [ -f $hookdir/initqueue/work ]; then
+    if [ -f "$hookdir"/initqueue/work ]; then
         rm -f -- "$hookdir/initqueue/work"
     fi
 
     for job in $hookdir/initqueue/*.sh; do
         [ -e "$job" ] || break
-        job=$job . $job
+        job=$job . "$job"
         check_finished && break 2
     done
 
@@ -41,7 +41,7 @@ while :; do
 
     for job in $hookdir/initqueue/settled/*.sh; do
         [ -e "$job" ] || break
-        job=$job . $job
+        job=$job . "$job"
         check_finished && break 2
     done
 
@@ -59,13 +59,13 @@ while :; do
         for _f in $hookdir/initqueue/finished/*.sh; do
             warn "$_f: \"$(cat "$_f")\""
         done
-        if [ "$(ls -A $hookdir/initqueue/finished)" ]; then
+        if [ "$(ls -A "$hookdir"/initqueue/finished)" ]; then
             warn "dracut-initqueue: starting timeout scripts"
             for job in $hookdir/initqueue/timeout/*.sh; do
                 [ -e "$job" ] || break
-                job=$job . $job
+                job=$job . "$job"
                 udevadm settle --timeout=0 > /dev/null 2>&1 || main_loop=0
-                [ -f $hookdir/initqueue/work ] && main_loop=0
+                [ -f "$hookdir"/initqueue/work ] && main_loop=0
                 [ $main_loop -eq 0 ] && break
             done
         fi
