@@ -18,7 +18,7 @@ loop_decrypt() {
 
     local key="/dev/mapper/$(str_replace "loop-$keydev-$mntp-$keypath" '/' '-')"
 
-    if [ ! -b $key ]; then
+    if [ ! -b "$key" ]; then
         local loopdev=$(losetup -f "${mntp}/${keypath}" --show)
         local opts="-d - luksOpen $loopdev ${key##*/}"
 
@@ -27,11 +27,11 @@ loop_decrypt() {
             --prompt "Password ($keypath on $keydev for $device)" \
             --tty-echo-off
 
-        [ -b $key ] || die "Failed to unlock $keypath on $keydev for $device."
+        [ -b "$key" ] || die "Failed to unlock $keypath on $keydev for $device."
 
-        printf "%s\n" "cryptsetup luksClose \"$key\"" > ${hookdir}/cleanup/"crypt-loop-cleanup-10-${key##*/}".sh
-        printf "%s\n" "losetup -d \"$loopdev\"" > ${hookdir}/cleanup/"crypt-loop-cleanup-20-${loopdev##*/}".sh
+        printf "%s\n" "cryptsetup luksClose \"$key\"" > "${hookdir}"/cleanup/"crypt-loop-cleanup-10-${key##*/}".sh
+        printf "%s\n" "losetup -d \"$loopdev\"" > "${hookdir}"/cleanup/"crypt-loop-cleanup-20-${loopdev##*/}".sh
     fi
 
-    cat $key
+    cat "$key"
 }
