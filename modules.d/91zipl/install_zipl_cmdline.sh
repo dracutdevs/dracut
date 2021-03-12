@@ -11,7 +11,7 @@ fi
 
 [ -d ${MNT} ] || mkdir -p ${MNT}
 
-mount -o ro ${DEV} ${MNT}
+mount -o ro "${DEV}" ${MNT}
 if [ "$?" != "0" ]; then
     echo "Failed to mount ${MNT}"
     > /tmp/install.zipl.cmdline-done
@@ -25,7 +25,7 @@ fi
 if [ -f ${MNT}/active_devices.txt ]; then
     while read dev etc; do
         [ "$dev" = "#" -o "$dev" = "" ] && continue
-        cio_ignore -r $dev
+        cio_ignore -r "$dev"
     done < ${MNT}/active_devices.txt
 fi
 
