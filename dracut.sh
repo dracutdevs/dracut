@@ -286,7 +286,7 @@ read_arg() {
     # $3 = arg parameter
     local rematch='^[^=]*=(.*)$'
     if [[ $2 =~ $rematch ]]; then
-        read -r "$1" <<< "${BASH_REMATCH[1]}"
+        read -r "$1" <<<"${BASH_REMATCH[1]}"
     else
         read -r "$1" <<< "$3"
         # There is no way to shift our callers args, so
@@ -1959,7 +1959,7 @@ if [[ $kernel_only != yes ]]; then
         if [ -z "${fstab_field[1]}" ]; then
             # Determine device and mount options from current system
             mountpoint -q "${fstab_field[0]}" || derror "${fstab_field[0]} is not a mount point!"
-            read -r -a fstab_field <<< "$(findmnt --raw -n --target "${fstab_field[0]}" --output=source,target,fstype,options)"
+            read -r -a fstab_field < <(findmnt --raw -n --target "${fstab_field[0]}" --output=source,target,fstype,options)
             dinfo "Line for ${fstab_field[1]}: ${fstab_field[*]}"
         else
             # Use default options
