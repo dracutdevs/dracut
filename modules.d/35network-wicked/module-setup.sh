@@ -51,16 +51,16 @@ install() {
         $systemdsystemunitdir/wickedd-dhcp6.service \
         $systemdsystemunitdir/wickedd-nanny.service"
 
-    inst_multiple $wicked_units
+    inst_multiple "$wicked_units"
 
     for unit in $wicked_units; do
-        sed -i 's/^After=.*/After=dbus.service/g' $initdir/$unit
-        sed -i 's/^Before=\(.*\)/Before=\1 dracut-pre-udev.service/g' $initdir/$unit
-        sed -i 's/^Wants=\(.*\)/Wants=\1 dbus.service/g' $initdir/$unit
+        sed -i 's/^After=.*/After=dbus.service/g' "$initdir"/"$unit"
+        sed -i 's/^Before=\(.*\)/Before=\1 dracut-pre-udev.service/g' "$initdir"/"$unit"
+        sed -i 's/^Wants=\(.*\)/Wants=\1 dbus.service/g' "$initdir"/"$unit"
         sed -i -e \
             '/^\[Unit\]/aDefaultDependencies=no\
             Conflicts=shutdown.target\
             Before=shutdown.target' \
-            "$initdir"$unit
+            "$initdir""$unit"
     done
 }
