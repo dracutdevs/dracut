@@ -14,7 +14,7 @@ if [ ! -e /sys/module/block/parameters/events_dfl_poll_msecs ]; then
     for cdrom in /sys/block/sr*; do
         [ -e "$cdrom" ] || continue
         # skip, if cdrom medium was already found
-        strstr "$(udevadm info --query=env --path=${cdrom##/sys})" \
+        strstr "$(udevadm info --query=env --path="${cdrom##/sys}")" \
             ID_CDROM_MEDIA && continue
         echo change > "$cdrom/uevent"
     done
