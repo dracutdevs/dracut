@@ -97,7 +97,7 @@ if nfsdomain=$(getarg rd.nfs.domain -d rd_NFS_DOMAIN); then
     echo "Domain = $nfsdomain" >> /etc/idmapd.conf
 fi
 
-nfsroot_to_var $netroot
+nfsroot_to_var "$netroot"
 [ "$path" = "error" ] && die "Argument nfsroot must contain a valid path!"
 
 # Set fstype, might help somewhere
@@ -118,7 +118,7 @@ rootok=1
 # confused by having /dev/nfs[4]
 root="$fstype"
 
-echo '[ -e $NEWROOT/proc ]' > $hookdir/initqueue/finished/nfsroot.sh
+echo '[ -e $NEWROOT/proc ]' > "$hookdir"/initqueue/finished/nfsroot.sh
 
 mkdir -p /var/lib/rpcbind
 chown rpc:rpc /var/lib/rpcbind
