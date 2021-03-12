@@ -16,8 +16,8 @@ cat /proc/cmdline | sed -e "$PWFILTER"
 
 for _i in /etc/cmdline.d/*.conf; do
     [ -f "$_i" ] || break
-    echo $_i
-    cat $_i | sed -e "$PWFILTER"
+    echo "$_i"
+    cat "$_i" | sed -e "$PWFILTER"
 done
 
 cat /proc/self/mountinfo
@@ -30,8 +30,8 @@ ls -l /dev/disk/by*
 
 for _i in /etc/conf.d/*.conf; do
     [ -f "$_i" ] || break
-    echo $_i
-    cat $_i | sed -e "$PWFILTER"
+    echo "$_i"
+    cat "$_i" | sed -e "$PWFILTER"
 done
 
 if command -v lvm > /dev/null 2> /dev/null; then
