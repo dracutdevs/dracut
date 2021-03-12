@@ -8,6 +8,7 @@ else
     OMIT_NETWORK="network-manager"
 fi
 
+# shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem on NFS with multiple nics with $USE_NETWORK"
 
 KVERSION=${KVERSION-$(uname -r)}
@@ -79,8 +80,8 @@ client_test() {
         -initrd "$TESTDIR"/initramfs.testing
 
     {
-        read OK
-        read IFACES
+        read -r OK _
+        read -r IFACES _
     } < "$TESTDIR"/client.img
 
     if [[ $OK != "OK" ]]; then
@@ -179,6 +180,7 @@ test_setup() {
     kernel=$KVERSION
     (
         mkdir -p "$TESTDIR"/overlay/source
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay/source
         . "$basedir"/dracut-init.sh
 
@@ -190,14 +192,14 @@ test_setup() {
         )
 
         for _f in modules.builtin.bin modules.builtin; do
-            [[ $srcmods/$_f ]] && break
+            [[ -f $srcmods/$_f ]] && break
         done || {
             dfatal "No modules.builtin.bin and modules.builtin found!"
             return 1
         }
 
         for _f in modules.builtin.bin modules.builtin modules.order; do
-            [[ $srcmods/$_f ]] && inst_simple "$srcmods/$_f" "/lib/modules/$kernel/$_f"
+            [[ -f $srcmods/$_f ]] && inst_simple "$srcmods/$_f" "/lib/modules/$kernel/$_f"
         done
 
         inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
@@ -245,6 +247,7 @@ test_setup() {
 
     # Make client root inside server root
     (
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay/source/nfs/client
         . "$basedir"/dracut-init.sh
         (
@@ -286,6 +289,7 @@ test_setup() {
 
     # second, install the files needed to make the root filesystem
     (
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay
         . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd
@@ -343,7 +347,7 @@ test_setup() {
 
 kill_server() {
     if [[ -s "$TESTDIR"/server.pid ]]; then
-        kill -TERM -- $(cat "$TESTDIR"/server.pid)
+        kill -TERM -- "$(cat "$TESTDIR"/server.pid)"
         rm -f -- "$TESTDIR"/server.pid
     fi
 }
