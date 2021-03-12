@@ -12,7 +12,7 @@ crypttab_contains() {
             strstr "${l##luks-}" "${luks##luks-}" && return 0
             strstr "$d" "${luks##luks-}" && return 0
             if [ -n "$dev" ]; then
-                for _dev in $(devnames $d); do
+                for _dev in $(devnames "$d"); do
                     [ "$dev" -ef "$_dev" ] && return 0
                 done
             fi
@@ -21,7 +21,7 @@ crypttab_contains() {
                 _line=$(sed -n "\,^$d .*$,{p}" /etc/block_uuid.map)
                 [ -z "$_line" ] && continue
                 # get second column with uuid
-                _uuid="$(echo $_line | sed 's,^.* \(.*$\),\1,')"
+                _uuid="$(echo "$_line" | sed 's,^.* \(.*$\),\1,')"
                 strstr "$_uuid" "${luks##luks-}" && return 0
             fi
         done < /etc/crypttab
@@ -111,7 +111,7 @@ ask_for_password() {
         # Prompt for password with plymouth, if installed and running.
         if type plymouth > /dev/null 2>&1 && plymouth --ping 2> /dev/null; then
             plymouth ask-for-password \
-                --prompt "$ply_prompt" --number-of-tries=$ply_tries \
+                --prompt "$ply_prompt" --number-of-tries="$ply_tries" \
                 --command="$ply_cmd"
             ret=$?
         else
@@ -121,7 +121,7 @@ ask_for_password() {
             fi
 
             local i=1
-            while [ $i -le $tty_tries ]; do
+            while [ $i -le "$tty_tries" ]; do
                 [ -n "$tty_prompt" ] \
                     && printf "$tty_prompt [$i/$tty_tries]:" >&2
                 eval "$tty_cmd" && ret=0 && break
@@ -130,7 +130,7 @@ ask_for_password() {
                 [ -n "$tty_prompt" ] && printf '\n' >&2
             done
 
-            [ "$tty_echo_off" = yes ] && stty $stty_orig
+            [ "$tty_echo_off" = yes ] && stty "$stty_orig"
         fi
     } 9> /.console_lock
 
@@ -155,7 +155,7 @@ test_dev() {
     [ -d "$mount_point" ] || die 'Mount point does not exist!'
 
     if mount -r "$dev" "$mount_point" > /dev/null 2>&1; then
-        test $test_op "${mount_point}/${f}"
+        test "$test_op" "${mount_point}/${f}"
         ret=$?
         umount "$mount_point"
     fi
@@ -262,7 +262,7 @@ readkey() {
             if [ -f /lib/dracut-crypt-loop-lib.sh ]; then
                 . /lib/dracut-crypt-loop-lib.sh
                 loop_decrypt "$mntp" "$keypath" "$keydev" "$device"
-                printf "%s\n" "umount \"$mntp\"; rmdir \"$mntp\";" > ${hookdir}/cleanup/"crypt-loop-cleanup-99-${mntp##*/}".sh
+                printf "%s\n" "umount \"$mntp\"; rmdir \"$mntp\";" > "${hookdir}"/cleanup/"crypt-loop-cleanup-99-${mntp##*/}".sh
                 return 0
             else
                 die "No loop file support to decrypt '$keypath' on '$keydev'."
