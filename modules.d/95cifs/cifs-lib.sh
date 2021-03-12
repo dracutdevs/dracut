@@ -25,11 +25,14 @@ cifs_to_var() {
         cifsuser=$(getarg cifsuser)
     fi
 
+    # shellcheck disable=SC2034
     path=${server#*/}
+    # shellcheck disable=SC2034
     server=${server%/*}
 
     if [ ! "$cifsuser" -o ! "$cifspass" ]; then
         die "For CIFS support you need to specify a cifsuser and cifspass either in the cifsuser and cifspass commandline parameters or in the root= CIFS URL."
     fi
+    # shellcheck disable=SC2034
     options="user=$cifsuser,pass=$cifspass,$(getarg rootflags=)"
 }
