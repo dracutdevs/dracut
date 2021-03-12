@@ -20,7 +20,7 @@ test_setup() {
 test_run() {
     set -x
     (
-        cd "$TESTDIR"
+        cd "$TESTDIR" || exit
         export CMDLINE='key1=0 key2=val key2=val2 key3="  val  3  " "  key 4  ="val4 "key  5=val  5" "key 6=""val  6" key7="foo"bar" baz="end "  key8  =  val 8  "
 "key 9"="val 9"'
 
@@ -148,4 +148,4 @@ test_cleanup() {
     return 0
 }
 
-. $testdir/test-functions
+. "$testdir"/test-functions
