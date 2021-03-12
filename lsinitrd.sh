@@ -223,7 +223,7 @@ fi
 if ((${#filenames[@]} <= 0)) && [[ -z $unpack ]] && [[ -z $unpackearly ]]; then
     if [ -n "$uefi" ]; then
         echo -n "initrd in UEFI: $uefi: "
-        du -h $image | while read a b || [ -n "$a" ]; do echo $a; done
+        du -h "$image" | while read a b || [ -n "$a" ]; do echo "$a"; done
         if [ -f "$TMPDIR/osrel.txt" ]; then
             name=$(sed -En '/^PRETTY_NAME/ s/^\w+=["'"'"']?([^"'"'"'$]*)["'"'"']?/\1/p' "$TMPDIR/osrel.txt")
             id=$(sed -En '/^ID/ s/^\w+=["'"'"']?([^"'"'"'$]*)["'"'"']?/\1/p' "$TMPDIR/osrel.txt")
@@ -240,7 +240,7 @@ if ((${#filenames[@]} <= 0)) && [[ -z $unpack ]] && [[ -z $unpackearly ]]; then
         fi
     else
         echo -n "Image: $image: "
-        du -h $image | while read a b || [ -n "$a" ]; do echo $a; done
+        du -h "$image" | while read a b || [ -n "$a" ]; do echo "$a"; done
     fi
 
     echo "========================================================================"
@@ -324,9 +324,9 @@ fi
 
 if ((${#filenames[@]} > 1)); then
     TMPFILE="$TMPDIR/initrd.cpio"
-    $CAT "$image" 2> /dev/null > $TMPFILE
+    $CAT "$image" 2> /dev/null > "$TMPFILE"
     pre_decompress() {
-        cat $TMPFILE
+        cat "$TMPFILE"
     }
     CAT=pre_decompress
 fi
@@ -357,4 +357,4 @@ else
     fi
 fi
 
-exit $ret
+exit "$ret"
