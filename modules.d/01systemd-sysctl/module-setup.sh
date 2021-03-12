@@ -6,7 +6,7 @@
 check() {
 
     # If the binary(s) requirements are not fulfilled the module can't be installed
-    require_binaries $systemdutildir/systemd-sysctl || return 1
+    require_binaries "$systemdutildir"/systemd-sysctl || return 1
 
     # Return 255 to only include the module, if another module requires it.
     return 255
@@ -27,19 +27,19 @@ depends() {
 install() {
 
     inst_multiple -o \
-        $sysctld/*.conf \
-        $systemdsystemunitdir/systemd-sysctl.service \
-        $systemdsystemunitdir/sysinit.target.wants/systemd-sysctl.service \
-        $systemdutildir/systemd-sysctl
+        "$sysctld"/*.conf \
+        "$systemdsystemunitdir"/systemd-sysctl.service \
+        "$systemdsystemunitdir"/sysinit.target.wants/systemd-sysctl.service \
+        "$systemdutildir"/systemd-sysctl
 
     # Install the hosts local user configurations if enabled.
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
             /etc/sysctl.conf \
-            $sysctldconfdir/*.conf \
-            $systemdsystemconfdir/systemd-sysctl.service \
-            $systemdsystemconfdir/systemd-sysctl.service.d/*.conf \
-            ${NULL}
+            "$sysctldconfdir"/*.conf \
+            "$systemdsystemconfdir"/systemd-sysctl.service \
+            "$systemdsystemconfdir"/systemd-sysctl.service.d/*.conf \
+            "${NULL}"
     fi
 
     # Enable the systemd type service unit for sysctl.
