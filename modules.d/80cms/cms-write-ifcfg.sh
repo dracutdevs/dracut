@@ -2,14 +2,17 @@
 
 type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
-mkdir -m 0755 -p /run/initramfs/state/etc/sysconfig/network-scripts
+OLD_UMASK=$(umask)
+umask 0022
+mkdir -p /run/initramfs/state/etc/sysconfig/network-scripts
+umask "$OLD_UMASK"
 
 function cms_write_config() {
     . /tmp/cms.conf
-    SUBCHANNELS="$(echo $SUBCHANNELS | sed 'y/ABCDEF/abcdef/')"
+    SUBCHANNELS="$(echo "$SUBCHANNELS" | sed 'y/ABCDEF/abcdef/')"
     OLDIFS=$IFS
     IFS=,
-    read -a subch_array <<< "indexzero,$SUBCHANNELS"
+    read -ra subch_array <<< "indexzero,$SUBCHANNELS"
     IFS=$OLDIFS
     devbusid=${subch_array[1]}
     if [ "$NETTYPE" = "ctc" ]; then
@@ -18,7 +21,7 @@ function cms_write_config() {
         driver=$NETTYPE
     fi
 
-    DEVICE=$(cd /sys/devices/${driver}/$devbusid/net/ && set -- * && [ "$1" != "*" ] && echo $1)
+    DEVICE=$(cd "/sys/devices/${driver}/$devbusid/net/" && set -- * && [ "$1" != "*" ] && echo "$1")
 
     uuid=$(cat /proc/sys/kernel/random/uuid)
 
@@ -37,7 +40,7 @@ EOF
         echo "NETWORKING=yes" >> /etc/sysconfig/network
     fi
 
-    cat > $IFCFGFILE << EOF
+    cat > "$IFCFGFILE" << EOF
 DEVICE=$DEVICE
 UUID=$uuid
 ONBOOT=yes
@@ -46,14 +49,14 @@ MTU=$MTU
 SUBCHANNELS=$SUBCHANNELS
 EOF
     if [ "$ipv6" ]; then
-        cat >> $IFCFGFILE << EOF
+        cat >> "$IFCFGFILE" << EOF
 IPV6INIT=yes
 IPV6_AUTOCONF=no
 IPV6ADDR=$IPADDR/$NETMASK
 IPV6_DEFAULTGW=$GATEWAY
 EOF
     else
-        cat >> $IFCFGFILE << EOF
+        cat >> "$IFCFGFILE" << EOF
 IPADDR=$IPADDR
 NETMASK=$NETMASK
 BROADCAST=$BROADCAST
@@ -61,41 +64,28 @@ GATEWAY=$GATEWAY
 EOF
     fi
     if [ "$ipv6" ]; then
-        DNS1=$(
-            set -- ${DNS/,/ }
-            echo $1
-        )
-        DNS2=$(
-            set -- ${DNS/,/ }
-            echo $2
-        )
+        # shellcheck disable=SC2153
+        IFS="," read -r DNS1 DNS2 _ <<< "$DNS"
     else
-        DNS1=$(
-            set -- ${DNS/:/ }
-            echo $1
-        )
-        DNS2=$(
-            set -- ${DNS/:/ }
-            echo $2
-        )
+        IFS=":" read -r DNS1 DNS2 _ <<< "$DNS"
     fi
     # real DNS config for NetworkManager to generate /etc/resolv.conf
-    [ "$DNS1" != "" ] && echo "DNS1=$DNS1" >> $IFCFGFILE
-    [ "$DNS2" != "" ] && echo "DNS2=$DNS2" >> $IFCFGFILE
+    [[ $DNS1 ]] && echo "DNS1=$DNS1" >> "$IFCFGFILE"
+    [[ $DNS2 ]] && echo "DNS2=$DNS2" >> "$IFCFGFILE"
     # just to please loader's readNetInfo && writeEnabledNetInfo
     # which eats DNS1,DNS2,... and generates it themselves based on DNS
-    if [ "$ipv6" ]; then
-        [ "$DNS" != "" ] && echo "DNS=\"$DNS\"" >> $IFCFGFILE
+    if [[ $ipv6 ]]; then
+        [[ $DNS ]] && echo "DNS=\"$DNS\"" >> "$IFCFGFILE"
     else
-        [ "$DNS" != "" ] && echo "DNS=\"${DNS/:/,}\"" >> $IFCFGFILE
+        [[ $DNS ]] && echo "DNS=\"${DNS/:/,}\"" >> "$IFCFGFILE"
     fi
     # colons in SEARCHDNS already replaced with spaces above for /etc/resolv.conf
-    [ "$SEARCHDNS" != "" ] && echo "DOMAIN=\"$SEARCHDNS\"" >> $IFCFGFILE
-    [ "$NETTYPE" != "" ] && echo "NETTYPE=$NETTYPE" >> $IFCFGFILE
-    [ "$PEERID" != "" ] && echo "PEERID=$PEERID" >> $IFCFGFILE
-    [ "$PORTNAME" != "" ] && echo "PORTNAME=$PORTNAME" >> $IFCFGFILE
-    [ "$CTCPROT" != "" ] && echo "CTCPROT=$CTCPROT" >> $IFCFGFILE
-    [ "$MACADDR" != "" ] && echo "MACADDR=$MACADDR" >> $IFCFGFILE
+    [[ $SEARCHDNS ]] && echo "DOMAIN=\"$SEARCHDNS\"" >> "$IFCFGFILE"
+    [[ $NETTYPE ]] && echo "NETTYPE=$NETTYPE" >> "$IFCFGFILE"
+    [[ $PEERID ]] && echo "PEERID=$PEERID" >> "$IFCFGFILE"
+    [[ $PORTNAME ]] && echo "PORTNAME=$PORTNAME" >> "$IFCFGFILE"
+    [[ $CTCPROT ]] && echo "CTCPROT=$CTCPROT" >> "$IFCFGFILE"
+    [[ $MACADDR ]] && echo "MACADDR=$MACADDR" >> "$IFCFGFILE"
     optstr=""
     for option in LAYER2 PORTNO; do
         [ -z "${!option}" ] && continue
@@ -103,7 +93,7 @@ EOF
         optstr=${optstr}$(echo ${option} | sed 'y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/')"="${!option}
     done
     # write single quotes since network.py removes double quotes but we need quotes
-    echo "OPTIONS='$optstr'" >> $IFCFGFILE
+    echo "OPTIONS='$optstr'" >> "$IFCFGFILE"
     unset option
     unset optstr
     unset DNS1
