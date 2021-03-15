@@ -17,9 +17,9 @@ int main(int argc, char *argv[])
         int timeout;
         char *timeout_env;
         struct pollfd fds[] = { {
-                                 .fd = STDIN_FILENO,
-                                 .events = POLLIN | POLLERR,
-                                 }
+                        .fd = STDIN_FILENO,
+                        .events = POLLIN | POLLERR,
+                }
         };
 
         timeout_env = getenv("LOGTEE_TIMEOUT_MS");

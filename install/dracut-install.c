@@ -127,7 +127,7 @@ static inline void kmod_module_dependency_symbols_free_listp(struct kmod_list **
 
 #define _cleanup_kmod_module_dependency_symbols_free_list_ _cleanup_(kmod_module_dependency_symbols_free_listp)
 
-static inline void fts_closep(FTS ** p)
+static inline void fts_closep(FTS **p)
 {
         if (*p)
                 fts_close(*p);
@@ -286,8 +286,8 @@ static int cp(const char *src, const char *dst)
                         goto normal_copy;
 
                 dest_desc =
-                    open(dst, O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC,
-                         (sb.st_mode) & (S_ISUID | S_ISGID | S_ISVTX | S_IRWXU | S_IRWXG | S_IRWXO));
+                        open(dst, O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC,
+                             (sb.st_mode) & (S_ISUID | S_ISGID | S_ISVTX | S_IRWXU | S_IRWXG | S_IRWXO));
 
                 if (dest_desc < 0) {
                         goto normal_copy;
@@ -320,7 +320,7 @@ static int cp(const char *src, const char *dst)
                 use_clone = false;
         }
 
- normal_copy:
+normal_copy:
         pid = fork();
         if (pid == 0) {
                 if (geteuid() == 0 && no_xattr == false)
@@ -337,12 +337,12 @@ static int cp(const char *src, const char *dst)
                         ret = -1;
                         if (geteuid() == 0 && no_xattr == false)
                                 log_error
-                                    ("Failed: cp --reflink=auto --sparse=auto --preserve=mode,xattr,timestamps -fL %s %s",
-                                     src, dst);
+                                ("Failed: cp --reflink=auto --sparse=auto --preserve=mode,xattr,timestamps -fL %s %s",
+                                 src, dst);
                         else
                                 log_error
-                                    ("Failed: cp --reflink=auto --sparse=auto --preserve=mode,timestamps -fL %s %s",
-                                     src, dst);
+                                ("Failed: cp --reflink=auto --sparse=auto --preserve=mode,timestamps -fL %s %s",
+                                 src, dst);
                         break;
                 }
         }
@@ -692,7 +692,7 @@ void dracut_log_cp(const char *path)
                 log_error("Could not append '%s' to logfile '%s': %m", path, logfile);
 }
 
-static bool check_hashmap(Hashmap * hm, const char *item)
+static bool check_hashmap(Hashmap *hm, const char *item)
 {
         char *existing;
         existing = hashmap_get(hm, item);
@@ -907,8 +907,8 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
                                 _cleanup_free_ char *absdestpath = NULL;
 
                                 ret =
-                                    asprintf(&absdestpath, "%s/%s", destrootdir,
-                                             (abspath[0] == '/' ? (abspath + 1) : abspath) + sysrootdirlen);
+                                        asprintf(&absdestpath, "%s/%s", destrootdir,
+                                                 (abspath[0] == '/' ? (abspath + 1) : abspath) + sysrootdirlen);
                                 if (ret < 0) {
                                         log_error("Out of memory!");
                                         exit(EXIT_FAILURE);
@@ -1353,8 +1353,8 @@ static int install_all(int argc, char **argv)
                                         for (j = 0; j < globbuf.gl_pathc; j++) {
                                                 char *dest = strdup(globbuf.gl_pathv[j] + sysrootdirlen);
                                                 ret |=
-                                                    dracut_install(globbuf.gl_pathv[j] + sysrootdirlen, dest,
-                                                                   arg_createdir, arg_resolvedeps, true);
+                                                        dracut_install(globbuf.gl_pathv[j] + sysrootdirlen, dest,
+                                                                       arg_createdir, arg_resolvedeps, true);
                                                 free(dest);
                                         }
                                 }
@@ -1638,7 +1638,7 @@ static int modalias_list(struct kmod_ctx *ctx)
                 char *paths[] = { "/sys/devices", NULL };
                 fts = fts_open(paths, FTS_NOCHDIR | FTS_NOSTAT, NULL);
         }
-        for (FTSENT * ftsent = fts_read(fts); ftsent != NULL; ftsent = fts_read(fts)) {
+        for (FTSENT *ftsent = fts_read(fts); ftsent != NULL; ftsent = fts_read(fts)) {
                 _cleanup_fclose_ FILE *f = NULL;
                 _cleanup_kmod_module_unref_list_ struct kmod_list *list = NULL;
                 struct kmod_list *l;
@@ -1856,7 +1856,7 @@ static int install_modules(int argc, char **argv)
                                 fts = fts_open(paths, FTS_COMFOLLOW | FTS_NOCHDIR | FTS_NOSTAT | FTS_LOGICAL, NULL);
                         }
 
-                        for (FTSENT * ftsent = fts_read(fts); ftsent != NULL; ftsent = fts_read(fts)) {
+                        for (FTSENT *ftsent = fts_read(fts); ftsent != NULL; ftsent = fts_read(fts)) {
                                 _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
                                 _cleanup_free_ const char *modname = NULL;
 
@@ -2118,7 +2118,7 @@ int main(int argc, char **argv)
         if (arg_optional)
                 r = EXIT_SUCCESS;
 
- finish:
+finish:
         if (logfile_f)
                 fclose(logfile_f);
 

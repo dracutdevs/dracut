@@ -156,7 +156,7 @@ char **strv_new_ap(const char *x, va_list ap)
 
         return a;
 
- fail:
+fail:
         strv_free(a);
         return NULL;
 }
@@ -202,7 +202,7 @@ char **strv_merge(char **a, char **b)
         *k = NULL;
         return r;
 
- fail:
+fail:
         strv_free(r);
         return NULL;
 }
@@ -237,7 +237,7 @@ char **strv_merge_concat(char **a, char **b, const char *suffix)
         *k = NULL;
         return r;
 
- fail:
+fail:
         strv_free(r);
         return NULL;
 
@@ -398,7 +398,7 @@ char **strv_append(char **l, const char *s)
         k[1] = NULL;
         return r;
 
- fail:
+fail:
         strv_free(r);
         return NULL;
 }

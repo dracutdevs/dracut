@@ -265,10 +265,10 @@ do {                                                                    \
         }                                                               \
 } while(false)
 
- /* Because statfs.t_type can be int on some architecures, we have to cast
-  * the const magic to the type, otherwise the compiler warns about
-  * signed/unsigned comparison, because the magic can be 32 bit unsigned.
-  */
+/* Because statfs.t_type can be int on some architecures, we have to cast
+ * the const magic to the type, otherwise the compiler warns about
+ * signed/unsigned comparison, because the magic can be 32 bit unsigned.
+ */
 #define F_TYPE_CMP(a, b) (a == (typeof(a)) b)
 
 /* Returns the number of chars needed to format variables of the

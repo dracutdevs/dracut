@@ -358,24 +358,24 @@ char *cunescape_length_with_prefix(const char *s, size_t length, const char *pre
                         *(t++) = ' ';
                         break;
 
-                case 'x':{
-                                /* hexadecimal encoding */
-                                int a, b;
+                case 'x': {
+                        /* hexadecimal encoding */
+                        int a, b;
 
-                                a = unhexchar(f[1]);
-                                b = unhexchar(f[2]);
+                        a = unhexchar(f[1]);
+                        b = unhexchar(f[2]);
 
-                                if (a < 0 || b < 0) {
-                                        /* Invalid escape code, let's take it literal then */
-                                        *(t++) = '\\';
-                                        *(t++) = 'x';
-                                } else {
-                                        *(t++) = (char)((a << 4) | b);
-                                        f += 2;
-                                }
-
-                                break;
+                        if (a < 0 || b < 0) {
+                                /* Invalid escape code, let's take it literal then */
+                                *(t++) = '\\';
+                                *(t++) = 'x';
+                        } else {
+                                *(t++) = (char)((a << 4) | b);
+                                f += 2;
                         }
+
+                        break;
+                }
 
                 case '0':
                 case '1':
@@ -384,25 +384,25 @@ char *cunescape_length_with_prefix(const char *s, size_t length, const char *pre
                 case '4':
                 case '5':
                 case '6':
-                case '7':{
-                                /* octal encoding */
-                                int a, b, c;
+                case '7': {
+                        /* octal encoding */
+                        int a, b, c;
 
-                                a = unoctchar(f[0]);
-                                b = unoctchar(f[1]);
-                                c = unoctchar(f[2]);
+                        a = unoctchar(f[0]);
+                        b = unoctchar(f[1]);
+                        c = unoctchar(f[2]);
 
-                                if (a < 0 || b < 0 || c < 0) {
-                                        /* Invalid escape code, let's take it literal then */
-                                        *(t++) = '\\';
-                                        *(t++) = f[0];
-                                } else {
-                                        *(t++) = (char)((a << 6) | (b << 3) | c);
-                                        f += 2;
-                                }
-
-                                break;
+                        if (a < 0 || b < 0 || c < 0) {
+                                /* Invalid escape code, let's take it literal then */
+                                *(t++) = '\\';
+                                *(t++) = f[0];
+                        } else {
+                                *(t++) = (char)((a << 6) | (b << 3) | c);
+                                f += 2;
                         }
+
+                        break;
+                }
 
                 case 0:
                         /* premature end of string. */
@@ -417,7 +417,7 @@ char *cunescape_length_with_prefix(const char *s, size_t length, const char *pre
                 }
         }
 
- finish:
+finish:
         *t = 0;
         return r;
 }
