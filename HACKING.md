@@ -14,12 +14,12 @@ Pull requests should be filed preferably on github nowadays.
 It is recommended, that you install a plugin for your editor, which reads in `.editorconfig`.
 Additionally `emacs` and `vim` config files are provided for convenience.
 
-To reformat C files use `indent`:
+To reformat C files use `astyle`:
 ```console
-$ indent -i8 -nut -br -linux -l120 <FILE>
+$ astyle --options=.astylerc <FILE>
 ```
 
-For convenience there is also a Makefile `indent` target `make indent`.
+For convenience there is also a Makefile `indent-c` target `make indent-c`.
 
 To reformat shell files use `shfmt`:
 
@@ -29,6 +29,8 @@ $ wget "https://github.com/mvdan/sh/releases/download/v${shfmt_version}/shfmt_v$
 $ chmod u+x shfmt
 $ ./shfmt -w -s .
 ```
+
+or if `shfmt` is already in your `PATH`, use `make indent`.
 
 Some IDEs already have support for shfmt.
 
