@@ -336,13 +336,11 @@ normal_copy:
                 if (errno != EINTR) {
                         ret = -1;
                         if (geteuid() == 0 && no_xattr == false)
-                                log_error
-                                ("Failed: cp --reflink=auto --sparse=auto --preserve=mode,xattr,timestamps -fL %s %s",
-                                 src, dst);
+                                log_error("Failed: cp --reflink=auto --sparse=auto --preserve=mode,xattr,timestamps -fL %s %s",
+                                          src, dst);
                         else
-                                log_error
-                                ("Failed: cp --reflink=auto --sparse=auto --preserve=mode,timestamps -fL %s %s",
-                                 src, dst);
+                                log_error("Failed: cp --reflink=auto --sparse=auto --preserve=mode,timestamps -fL %s %s",
+                                          src, dst);
                         break;
                 }
         }
