@@ -2,8 +2,6 @@
 
 # called by dracut
 check() {
-    local _program
-
     require_binaries sed grep || return 1
 
     # do not add this module by default
