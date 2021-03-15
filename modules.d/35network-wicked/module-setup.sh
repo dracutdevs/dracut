@@ -2,8 +2,6 @@
 
 # called by dracut
 check() {
-    local _program
-
     require_binaries wicked || return 1
 
     # do not add this module by default
@@ -57,6 +55,7 @@ install() {
         sed -i 's/^After=.*/After=dbus.service/g' "$initdir"/"$unit"
         sed -i 's/^Before=\(.*\)/Before=\1 dracut-pre-udev.service/g' "$initdir"/"$unit"
         sed -i 's/^Wants=\(.*\)/Wants=\1 dbus.service/g' "$initdir"/"$unit"
+        # shellcheck disable=SC1004
         sed -i -e \
             '/^\[Unit\]/aDefaultDependencies=no\
             Conflicts=shutdown.target\
