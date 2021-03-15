@@ -29,7 +29,7 @@ install() {
 
     for _dir in $libdirs; do
         [[ -d $dracutsysrootdir$_dir ]] || continue
-        for _lib in $dracutsysrootdir$_dir/libcurl.so.*; do
+        for _lib in "$dracutsysrootdir$_dir"/libcurl.so.*; do
             [[ -e $_lib ]] || continue
             [[ $_nssckbi ]] || _nssckbi=$(grep -F --binary-files=text -z libnssckbi "$_lib")
             _crt=$(grep -F --binary-files=text -z .crt "$_lib")
@@ -53,6 +53,7 @@ install() {
         for _dir in $libdirs; do
             [[ -e $dracutsysrootdir$_dir/libnssckbi.so ]] || continue
             # this looks for directory-ish strings in the file
+            # shellcheck disable=SC2013
             for _p11roots in $(grep -o --binary-files=text "/[[:alpha:]][[:print:]]*" "$dracutsysrootdir""$_dir"/libnssckbi.so); do
                 # the string can be a :-separated list of dirs
                 for _p11root in $(echo "$_p11roots" | tr ':' '\n'); do
