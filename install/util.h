@@ -86,8 +86,8 @@ typedef struct dual_timestamp {
 
 usec_t now(clockid_t clock);
 
-dual_timestamp *dual_timestamp_get(dual_timestamp * ts);
-dual_timestamp *dual_timestamp_from_realtime(dual_timestamp * ts, usec_t u);
+dual_timestamp *dual_timestamp_get(dual_timestamp *ts);
+dual_timestamp *dual_timestamp_from_realtime(dual_timestamp *ts, usec_t u);
 
 #define dual_timestamp_is_set(ts) ((ts)->realtime > 0)
 
@@ -158,11 +158,11 @@ void close_nointr_nofail(int fd);
 void close_many(const int fds[], unsigned n_fd);
 
 int parse_boolean(const char *v);
-int parse_usec(const char *t, usec_t * usec);
-int parse_nsec(const char *t, nsec_t * nsec);
-int parse_bytes(const char *t, off_t * bytes);
-int parse_pid(const char *s, pid_t * ret_pid);
-int parse_uid(const char *s, uid_t * ret_uid);
+int parse_usec(const char *t, usec_t *usec);
+int parse_nsec(const char *t, nsec_t *nsec);
+int parse_bytes(const char *t, off_t *bytes);
+int parse_pid(const char *s, pid_t *ret_pid);
+int parse_uid(const char *s, uid_t *ret_uid);
 #define parse_gid(s, ret_uid) parse_uid(s, ret_uid)
 
 int safe_atou(const char *s, unsigned *ret_u);
@@ -197,25 +197,25 @@ static inline int safe_atoli(const char *s, long int *ret_u)
 }
 #endif
 
-static inline int safe_atou32(const char *s, uint32_t * ret_u)
+static inline int safe_atou32(const char *s, uint32_t *ret_u)
 {
         assert_cc(sizeof(uint32_t) == sizeof(unsigned));
         return safe_atou(s, (unsigned *)ret_u);
 }
 
-static inline int safe_atoi32(const char *s, int32_t * ret_i)
+static inline int safe_atoi32(const char *s, int32_t *ret_i)
 {
         assert_cc(sizeof(int32_t) == sizeof(int));
         return safe_atoi(s, (int *)ret_i);
 }
 
-static inline int safe_atou64(const char *s, uint64_t * ret_u)
+static inline int safe_atou64(const char *s, uint64_t *ret_u)
 {
         assert_cc(sizeof(uint64_t) == sizeof(unsigned long long));
         return safe_atollu(s, (unsigned long long *)ret_u);
 }
 
-static inline int safe_atoi64(const char *s, int64_t * ret_i)
+static inline int safe_atoi64(const char *s, int64_t *ret_i)
 {
         assert_cc(sizeof(int64_t) == sizeof(long long int));
         return safe_atolli(s, (long long int *)ret_i);
@@ -233,7 +233,7 @@ char *split_quoted(const char *c, size_t *l, char **state);
 #define FOREACH_WORD_QUOTED(word, length, s, state)                     \
         for ((state) = NULL, (word) = split_quoted((s), &(length), &(state)); (word); (word) = split_quoted((s), &(length), &(state)))
 
-pid_t get_parent_of_pid(pid_t pid, pid_t * ppid);
+pid_t get_parent_of_pid(pid_t pid, pid_t *ppid);
 int get_starttime_of_pid(pid_t pid, unsigned long long *st);
 
 int write_one_line_file(const char *fn, const char *line);
@@ -268,7 +268,7 @@ int rmdir_parents(const char *path, const char *stop);
 int get_process_comm(pid_t pid, char **name);
 int get_process_cmdline(pid_t pid, size_t max_length, bool comm_fallback, char **line);
 int get_process_exe(pid_t pid, char **name);
-int get_process_uid(pid_t pid, uid_t * uid);
+int get_process_uid(pid_t pid, uid_t *uid);
 
 char hexchar(int x);
 int unhexchar(char c);
@@ -337,7 +337,7 @@ bool fstype_is_network(const char *fstype);
 
 int chvt(int vt);
 
-int read_one_char(FILE * f, char *ret, usec_t timeout, bool *need_nl);
+int read_one_char(FILE *f, char *ret, usec_t timeout, bool *need_nl);
 int ask(char *ret, const char *replies, const char *text, ...);
 
 int reset_terminal_fd(int fd, bool switch_to_text);
@@ -354,7 +354,7 @@ int default_signals(int sig, ...);
 int sigaction_many(const struct sigaction *sa, ...);
 
 int close_pipe(int p[]);
-int fopen_temporary(const char *path, FILE ** _f, char **_temp_path);
+int fopen_temporary(const char *path, FILE **_f, char **_temp_path);
 
 ssize_t loop_read(int fd, void *buf, size_t nbytes, bool do_poll);
 ssize_t loop_write(int fd, const void *buf, size_t nbytes, bool do_poll);
@@ -365,7 +365,7 @@ int dir_is_empty(const char *path);
 
 void rename_process(const char name[8]);
 
-void sigset_add_many(sigset_t * ss, ...);
+void sigset_add_many(sigset_t *ss, ...);
 
 char *gethostname_malloc(void);
 bool hostname_is_set(void);
@@ -374,8 +374,8 @@ char *getlogname_malloc(void);
 int getttyname_malloc(int fd, char **r);
 int getttyname_harder(int fd, char **r);
 
-int get_ctty_devnr(pid_t pid, dev_t * d);
-int get_ctty(pid_t, dev_t * _devnr, char **r);
+int get_ctty_devnr(pid_t pid, dev_t *d);
+int get_ctty(pid_t, dev_t *_devnr, char **r);
 
 int chmod_and_chown(const char *path, mode_t mode, uid_t uid, gid_t gid);
 int fchmod_and_fchown(int fd, mode_t mode, uid_t uid, gid_t gid);
@@ -407,7 +407,7 @@ int touch(const char *path);
 char *unquote(const char *s, const char *quotes);
 char *normalize_env_assignment(const char *s);
 
-int wait_for_terminate(pid_t pid, siginfo_t * status);
+int wait_for_terminate(pid_t pid, siginfo_t *status);
 int wait_for_terminate_and_warn(const char *name, pid_t pid);
 
 _noreturn_ void freeze(void);
@@ -417,8 +417,8 @@ int null_or_empty_path(const char *fn);
 
 DIR *xopendirat(int dirfd, const char *name, int flags);
 
-void dual_timestamp_serialize(FILE * f, const char *name, dual_timestamp * t);
-void dual_timestamp_deserialize(const char *value, dual_timestamp * t);
+void dual_timestamp_serialize(FILE *f, const char *name, dual_timestamp *t);
+void dual_timestamp_deserialize(const char *value, dual_timestamp *t);
 
 char *fstab_node_to_udev_node(const char *p);
 
@@ -428,7 +428,7 @@ bool tty_is_console(const char *tty);
 int vtnr_from_tty(const char *tty);
 const char *default_term_for_tty(const char *tty);
 
-void execute_directory(const char *directory, DIR * _d, char *argv[]);
+void execute_directory(const char *directory, DIR *_d, char *argv[]);
 
 int kill_and_sigcont(pid_t pid, int sig);
 
@@ -459,14 +459,14 @@ int fchmod_umask(int fd, mode_t mode);
 bool display_is_local(const char *display);
 int socket_from_display(const char *display, char **path);
 
-int get_user_creds(const char **username, uid_t * uid, gid_t * gid, const char **home);
-int get_group_creds(const char **groupname, gid_t * gid);
+int get_user_creds(const char **username, uid_t *uid, gid_t *gid, const char **home);
+int get_group_creds(const char **groupname, gid_t *gid);
 
 int in_group(const char *name);
 
 int glob_exists(const char *path);
 
-int dirent_ensure_type(DIR * d, struct dirent *de);
+int dirent_ensure_type(DIR *d, struct dirent *de);
 
 int in_search_path(const char *path, char **search);
 int get_files_in_directory(const char *path, char ***list);
@@ -477,7 +477,7 @@ bool is_main_thread(void);
 
 bool in_charset(const char *s, const char *charset);
 
-int block_get_whole_disk(dev_t d, dev_t * ret);
+int block_get_whole_disk(dev_t d, dev_t *ret);
 
 int file_is_priv_sticky(const char *p);
 
@@ -535,13 +535,13 @@ static inline void freep(void *p)
         free(*(void **)p);
 }
 
-static inline void fclosep(FILE ** f)
+static inline void fclosep(FILE **f)
 {
         if (*f)
                 fclose(*f);
 }
 
-static inline void pclosep(FILE ** f)
+static inline void pclosep(FILE **f)
 {
         if (*f)
                 pclose(*f);
@@ -553,13 +553,13 @@ static inline void closep(int *fd)
                 close_nointr_nofail(*fd);
 }
 
-static inline void closedirp(DIR ** d)
+static inline void closedirp(DIR **d)
 {
         if (*d)
                 closedir(*d);
 }
 
-static inline void umaskp(mode_t * u)
+static inline void umaskp(mode_t *u)
 {
         umask(*u);
 }
@@ -575,7 +575,7 @@ static inline void umaskp(mode_t * u)
 int fd_inc_sndbuf(int fd, size_t n);
 int fd_inc_rcvbuf(int fd, size_t n);
 
-int fork_agent(pid_t * pid, const int except[], unsigned n_except, const char *path, ...);
+int fork_agent(pid_t *pid, const int except[], unsigned n_except, const char *path, ...);
 
 int setrlimit_closest(int resource, const struct rlimit *rlim);
 
