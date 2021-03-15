@@ -15,8 +15,8 @@ function sysecho() {
         fi
     done
     local status
-    read status < "$file"
-    if [[ $status != $* ]]; then
+    read -r status < "$file"
+    if [[ $status != "$*" ]]; then
         [ -f "$file" ] && echo "$*" > "$file"
     fi
 }
@@ -29,7 +29,7 @@ function dasd_settle() {
     local i=1
     while [ $i -le 60 ]; do
         local status
-        read status < "$dasd_status"
+        read -r status < "$dasd_status"
         case $status in
             online | unformatted)
                 return 0
@@ -44,7 +44,7 @@ function dasd_settle() {
 }
 
 function dasd_settle_all() {
-    for dasdccw in $(while read line || [ -n "$line" ]; do echo "${line%%(*}"; done < /proc/dasd/devices); do
+    for dasdccw in $(while read -r line || [ -n "$line" ]; do echo "${line%%(*}"; done < /proc/dasd/devices); do
         if ! dasd_settle "$dasdccw"; then
             echo $"Could not access DASD $dasdccw in time"
             return 1
@@ -84,7 +84,7 @@ function readcmsfile() { # $1=dasdport $2=filename
     #               dasd_mod must be loaded without setting any DASD online
     dev=$(canonicalize_devno "$1")
     numcpus=$(
-        while read line || [ -n "$line" ]; do
+        while read -r line || [ -n "$line" ]; do
             if strstr "$line" "# processors"; then
                 echo "${line##*:}"
                 break
@@ -161,7 +161,7 @@ processcmsfile() {
 
         OLDIFS=$IFS
         IFS=,
-        read -a subch_array <<< "indexzero,$SUBCHANNELS"
+        read -r -a subch_array <<< "indexzero,$SUBCHANNELS"
         IFS=$OLDIFS
         devbusid=${subch_array[1]}
         if [ "$NETTYPE" = "ctc" ]; then
@@ -170,9 +170,11 @@ processcmsfile() {
             driver=$NETTYPE
         fi
 
+        # shellcheck disable=SC2016
         printf 'SUBSYSTEM=="net", ACTION=="add", DRIVERS=="%s", KERNELS=="%s", ENV{INTERFACE}=="?*", RUN+="/sbin/initqueue --onetime --unique --name cmsifup-$name /sbin/cmsifup $name"\n' "$driver" "$devbusid" > /etc/udev/rules.d/99-cms.rules
         # remove the default net rules
         rm -f -- /etc/udev/rules.d/91-default-net.rules
+        # shellcheck disable=SC2016
         [[ -f /etc/udev/rules.d/90-net.rules ]] \
             || printf 'SUBSYSTEM=="net", ACTION=="online", RUN+="/sbin/initqueue --onetime --env netif=$name source_hook initqueue/online"\n' >> /etc/udev/rules.d/99-cms.rules
         udevadm control --reload
@@ -187,7 +189,7 @@ processcmsfile() {
 
     unset _do_zfcp
     for i in ${!FCP_*}; do
-        echo "${!i}" | while read port rest || [ -n "$port" ]; do
+        echo "${!i}" | while read -r port rest || [ -n "$port" ]; do
             case $port in
                 *.*.*) ;;
 
