@@ -26,7 +26,7 @@ dracut_cmd=dracut
 error() { echo "$@" >&2; }
 
 usage() {
-    [[ $1 == '-n' ]] && cmd=echo || cmd=error
+    [[ $1 == '-n' ]] && cmd="echo" || cmd="error"
 
     $cmd "usage: ${0##*/} [options]"
     $cmd ""
@@ -83,18 +83,20 @@ read_arg() {
     param="$1"
     local rematch='^[^=]*=(.*)$' result
     if [[ $2 =~ $rematch ]]; then
-        read "$param" <<< "${BASH_REMATCH[1]}"
+        # shellcheck disable=SC2229
+        read -r "$param" <<< "${BASH_REMATCH[1]}"
     else
         for ((i = 3; i <= $#; i++)); do
             # Only read next arg if it not an arg itself.
             if [[ ${*:i:1} == -* ]]; then
                 break
             fi
+            # shellcheck disable=SC2124
             result="$result ${@:i:1}"
             # There is no way to shift our callers args, so
             # return "no of args" to indicate they should do it instead.
         done
-        read "$1" <<< "$result"
+        read -r "$1" <<< "$result"
         return $((i - 3))
     fi
 }
@@ -120,6 +122,8 @@ ipconfig() {
 
     iplink=$(ip addr show dev "$interface" | sed -n 's/ *inet \(.*\) brd.*/\1/p')
     macaddr=$(ip addr show dev "$interface" | sed -n 's/.*ether \(.*\) brd.*/\1/p')
+    # FIXME: unused?
+    # shellcheck disable=SC2034
     broadcast=$(ip addr show dev "$interface" | sed -n 's/.*brd \(.*\) scope.*/\1/p')
     gateway=$(ip route show dev "$interface" | sed -n 's/default via \([0-9\.]*\).*/\1/p')
 
@@ -160,8 +164,7 @@ kernel_version_from_image() {
 
 # Taken over from SUSE mkinitrd
 default_kernel_images() {
-    local regex kernel_image kernel_version version_version initrd_image
-    local qf='%{NAME}-%{VERSION}-%{RELEASE}\n'
+    local regex kernel_image kernel_version initrd_image
 
     case "${DRACUT_ARCH:-$(uname -m)}" in
         s390 | s390x)
@@ -186,6 +189,8 @@ default_kernel_images() {
 
     kernel_images=""
     initrd_images=""
+    # FIXME
+    # shellcheck disable=SC2012
     for kernel_image in $(ls $boot_dir \
         | sed -ne "\|^$regex\(-[0-9.]\+-[0-9]\+-[a-z0-9]\+$\)\?|p" \
         | grep -v kdump$); do
@@ -199,6 +204,8 @@ default_kernel_images() {
 
         kernel_version=$(kernel_version_from_image \
             $boot_dir/"$kernel_image" 2> /dev/null)
+        # FIXME
+        # shellcheck disable=SC2001
         initrd_image=$(echo "$kernel_image" | sed -e "s|${regex}|initrd|")
         if [ "$kernel_image" != "$initrd_image" -a \
             -n "$kernel_version" -a \
@@ -318,8 +325,8 @@ if [[ ! $targets || ! $kernels ]]; then
 fi
 
 # We can have several targets/kernels, transform the list to an array
-targets=($targets)
-[[ $kernels ]] && kernels=($kernels)
+read -r -a targets <<< "$targets"
+[[ $kernels ]] && read -r -a kernels <<< "$kernels"
 
 [[ $logfile ]] && dracut_args="${dracut_args} --logfile $logfile"
 dracut_args="${dracut_args} --force"
@@ -384,8 +391,10 @@ done
 if [ "$skip_update_bootloader" ]; then
     echo 2>&1 "Did not refresh the bootloader. You might need to refresh it manually."
 else
-    update-bootloader --refresh
-    [ $? -ne 0 ] && echo "Updating bootloader failed" && exit 1
+    if ! update-bootloader --refresh; then
+        echo "Updating bootloader failed"
+        exit 1
+    fi
 fi
 
 if [ "$failed" != "" ]; then
