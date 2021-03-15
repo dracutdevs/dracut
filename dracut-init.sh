@@ -677,6 +677,7 @@ module_check() {
     else
         unset check depends cmdline install installkernel
         check() { true; }
+        # shellcheck disable=SC1090
         . "$_moddir"/module-setup.sh
         is_func check || return 0
         [[ $_forced != 0 ]] && unset hostonly
@@ -708,6 +709,7 @@ module_check_mount() {
     else
         unset check depends cmdline install installkernel
         check() { false; }
+        # shellcheck disable=SC1090
         . "$_moddir"/module-setup.sh
         moddir=$_moddir check 0
         _ret=$?
@@ -733,6 +735,7 @@ module_depends() {
     else
         unset check depends cmdline install installkernel
         depends() { true; }
+        # shellcheck disable=SC1090
         . "$_moddir"/module-setup.sh
         moddir=$_moddir depends
         _ret=$?
@@ -750,11 +753,13 @@ module_cmdline() {
     [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
     [[ -d $_moddir ]] || return 1
     if [[ ! -f $_moddir/module-setup.sh ]]; then
+        # shellcheck disable=SC1090
         [[ -x $_moddir/cmdline ]] && . "$_moddir/cmdline"
         return $?
     else
         unset check depends cmdline install installkernel
         cmdline() { true; }
+        # shellcheck disable=SC1090
         . "$_moddir"/module-setup.sh
         moddir="$_moddir" cmdline
         _ret=$?
@@ -772,11 +777,13 @@ module_install() {
     [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
     [[ -d $_moddir ]] || return 1
     if [[ ! -f $_moddir/module-setup.sh ]]; then
+        # shellcheck disable=SC1090
         [[ -x $_moddir/install ]] && . "$_moddir/install"
         return $?
     else
         unset check depends cmdline install installkernel
         install() { true; }
+        # shellcheck disable=SC1090
         . "$_moddir"/module-setup.sh
         moddir="$_moddir" install
         _ret=$?
@@ -794,11 +801,13 @@ module_installkernel() {
     [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
     [[ -d $_moddir ]] || return 1
     if [[ ! -f $_moddir/module-setup.sh ]]; then
+        # shellcheck disable=SC1090
         [[ -x $_moddir/installkernel ]] && . "$_moddir/installkernel"
         return $?
     else
         unset check depends cmdline install installkernel
         installkernel() { true; }
+        # shellcheck disable=SC1090
         . "$_moddir"/module-setup.sh
         moddir="$_moddir" installkernel
         _ret=$?
