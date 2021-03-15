@@ -24,10 +24,17 @@ For convenience there is also a Makefile `indent-c` target `make indent-c`.
 To reformat shell files use `shfmt`:
 
 ```console
-$ shfmt_version=3.0.1
+$ shfmt_version=3.2.4
 $ wget "https://github.com/mvdan/sh/releases/download/v${shfmt_version}/shfmt_v${shfmt_version}_linux_amd64" -O shfmt
 $ chmod u+x shfmt
 $ ./shfmt -w -s .
+```
+
+or
+
+```console
+$ GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt
+$ $GOPATH/bin/shfmt -w -s .
 ```
 
 or if `shfmt` is already in your `PATH`, use `make indent`.
