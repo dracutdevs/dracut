@@ -9,3 +9,5 @@ disable=SC2154
 
 # SC1091: Not following <file>
 disable=SC1091
+
+disable=SC2174
