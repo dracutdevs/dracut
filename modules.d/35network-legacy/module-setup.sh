@@ -2,9 +2,7 @@
 
 # called by dracut
 check() {
-    local _program
-
-    require_binaries ip dhclient sed awk grep pgrep || return 1
+    require_binaries ip dhclient sed awk grep pgrep tr || return 1
     require_any_binary arping arping2 || return 1
 
     return 255
@@ -22,8 +20,8 @@ installkernel() {
 
 # called by dracut
 install() {
-    local _arch _i _dir
-    inst_multiple ip dhclient sed awk grep pgrep
+    local _arch
+    inst_multiple ip dhclient sed awk grep pgrep tr
 
     inst_multiple -o arping arping2
     strstr "$(arping 2>&1)" "ARPing 2" && mv "$initdir/bin/arping" "$initdir/bin/arping2"
@@ -60,6 +58,7 @@ install() {
                 ;;
         esac
         (
+            # shellcheck disable=SC1090
             . "$i"
             if ! [ "${ONBOOT}" = "no" -o "${ONBOOT}" = "NO" ] \
                 && [ -n "${TEAM_MASTER}${TEAM_CONFIG}${TEAM_PORT_CONFIG}" ]; then
