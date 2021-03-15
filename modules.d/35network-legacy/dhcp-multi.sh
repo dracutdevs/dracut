@@ -16,8 +16,10 @@ arg=$3
 # Run dhclient in parallel
 do_dhclient() {
     local _COUNT=0
-    local _timeout=$(getargs rd.net.timeout.dhcp=)
-    local _DHCPRETRY=$(getargs rd.net.dhcp.retry=)
+    local _timeout
+    local _DHCPRETRY
+    _timeout=$(getargs rd.net.timeout.dhcp=)
+    _DHCPRETRY=$(getargs rd.net.dhcp.retry=)
     _DHCPRETRY=${_DHCPRETRY:-1}
 
     while [ $_COUNT -lt "$_DHCPRETRY" ]; do
@@ -78,10 +80,10 @@ for s in "$dns1" "$dns2" $(getargs nameserver); do
 done
 
 if [ $ret -eq 0 ]; then
-    > /tmp/net."${netif}".up
+    : > /tmp/net."${netif}".up
 
     if [ -z "$do_vlan" ] && [ -e /sys/class/net/"${netif}"/address ]; then
-        > /tmp/net.$(cat /sys/class/net/"${netif}"/address).up
+        : > "/tmp/net.$(cat /sys/class/net/"${netif}"/address).up"
     fi
 
     # Check if DHCP also suceeded on another interface before this one.
