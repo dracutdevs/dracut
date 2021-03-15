@@ -1,0 +1,9 @@
+lineend=linux
+style=linux
+indent=spaces=8
+convert-tabs
+min-conditional-indent=0
+max-instatement-indent=120
+align-pointer=name
+max-code-length=120
+
