@@ -649,8 +649,9 @@ char **hashmap_get_strv(Hashmap * h)
                 return NULL;
 
         n = 0;
-        HASHMAP_FOREACH(item, h, it)
-            sv[n++] = item;
+        HASHMAP_FOREACH(item, h, it) {
+                sv[n++] = item;
+        }
         sv[n] = NULL;
 
         return sv;

@@ -32,9 +32,10 @@ char *strv_find(char **l, const char *name)
 
         assert(name);
 
-        STRV_FOREACH(i, l)
-            if (streq(*i, name))
-                return *i;
+        STRV_FOREACH(i, l) {
+                if (streq(*i, name))
+                        return *i;
+        }
 
         return NULL;
 }
@@ -45,9 +46,10 @@ char *strv_find_prefix(char **l, const char *name)
 
         assert(name);
 
-        STRV_FOREACH(i, l)
-            if (startswith(*i, name))
-                return *i;
+        STRV_FOREACH(i, l) {
+                if (startswith(*i, name))
+                        return *i;
+        }
 
         return NULL;
 }
@@ -252,8 +254,9 @@ char **strv_split(const char *s, const char *separator)
         assert(s);
 
         n = 0;
-        FOREACH_WORD_SEPARATOR(w, l, s, separator, state)
-            n++;
+        FOREACH_WORD_SEPARATOR(w, l, s, separator, state) {
+                n++;
+        }
 
         r = new(char *, n + 1);
         if (!r)
@@ -285,8 +288,9 @@ char **strv_split_quoted(const char *s)
         assert(s);
 
         n = 0;
-        FOREACH_WORD_QUOTED(w, l, s, state)
-            n++;
+        FOREACH_WORD_QUOTED(w, l, s, state) {
+                n++;
+        }
 
         r = new(char *, n + 1);
         if (!r)
@@ -445,9 +449,9 @@ char **strv_uniq(char **l)
         /* Drops duplicate entries. The first identical string will be
          * kept, the others dropped */
 
-        STRV_FOREACH(i, l)
-            strv_remove(i + 1, *i);
-
+        STRV_FOREACH(i, l) {
+                strv_remove(i + 1, *i);
+        }
         return l;
 }
 
@@ -555,10 +559,11 @@ char **strv_split_nulstr(const char *s)
         const char *i;
         char **r = NULL;
 
-        NULSTR_FOREACH(i, s)
-            if (strv_extend(&r, i) < 0) {
-                strv_free(r);
-                return NULL;
+        NULSTR_FOREACH(i, s) {
+                if (strv_extend(&r, i) < 0) {
+                        strv_free(r);
+                        return NULL;
+                }
         }
 
         if (!r)
@@ -605,6 +610,7 @@ void strv_print(char **l)
         if (!l)
                 return;
 
-        STRV_FOREACH(s, l)
-            puts(*s);
+        STRV_FOREACH(s, l) {
+                puts(*s);
+        }
 }
