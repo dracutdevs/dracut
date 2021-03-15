@@ -9,7 +9,7 @@ force=0
 error() { echo "$@" >&2; }
 
 usage() {
-    [[ $1 == '-n' ]] && cmd=echo || cmd=error
+    [[ $1 == '-n' ]] && cmd="echo" || cmd="error"
 
     $cmd "usage: ${0##*/} [--version] [--help] [-v] [-f] [--preload <module>]"
     $cmd "       [--image-version] [--with=<module>]"
@@ -32,26 +32,27 @@ read_arg() {
     param="$1"
     local rematch='^[^=]*=(.*)$' result
     if [[ $2 =~ $rematch ]]; then
-        read "$param" <<< "${BASH_REMATCH[1]}"
+        # shellcheck disable=SC2229
+        read -r "$param" <<< "${BASH_REMATCH[1]}"
     else
         for ((i = 3; i <= $#; i++)); do
             # Only read next arg if it not an arg itself.
             if [[ ${*:i:1} == -* ]]; then
                 break
             fi
+            # shellcheck disable=SC2124
             result="$result ${@:i:1}"
             # There is no way to shift our callers args, so
             # return "no of args" to indicate they should do it instead.
         done
-        read "$1" <<< "$result"
+        read -r "$1" <<< "$result"
         return $((i - 3))
     fi
 }
 
 # Taken over from SUSE mkinitrd
 default_kernel_images() {
-    local regex kernel_image kernel_version version_version initrd_image
-    local qf='%{NAME}-%{VERSION}-%{RELEASE}\n'
+    local regex kernel_image kernel_version initrd_image
 
     case "${DRACUT_ARCH:-$(uname -m)}" in
         s390 | s390x)
@@ -81,6 +82,8 @@ default_kernel_images() {
 
     kernel_images=""
     initrd_images=""
+    # FIXME
+    # shellcheck disable=SC2012
     for kernel_image in $(ls $boot_dir \
         | sed -ne "\|^$regex\(-[0-9.]\+-[0-9]\+-[a-z0-9]\+$\)\?|p" \
         | grep -v kdump$); do
@@ -93,6 +96,8 @@ default_kernel_images() {
         [ "${kernel_image%%.gz}" != "$kernel_image" ] && continue
         kernel_version=$(/usr/bin/get_kernel_version \
             $boot_dir/"$kernel_image" 2> /dev/null)
+        # FIXME
+        # shellcheck disable=SC2001
         initrd_image=$(echo "$kernel_image" | sed -e "s|${regex}|initrd|")
         if [ "$kernel_image" != "$initrd_image" -a \
             -n "$kernel_version" -a \
@@ -145,7 +150,6 @@ while (($# > 0)); do
         --help) usage -n ;;
         --builtin) ;;
         --without*) ;;
-        --without-usb) ;;
         --fstab*) ;;
         --ifneeded) ;;
         --omit-scsi-modules) ;;
@@ -203,8 +207,8 @@ done
 [[ $targets && $kernels ]] || (error "No kernel found in $boot_dir" && usage)
 
 # We can have several targets/kernels, transform the list to an array
-targets=($targets)
-[[ $kernels ]] && kernels=($kernels)
+read -r -a targets <<< "$targets"
+[[ $kernels ]] && read -r -a kernels <<< "$kernels"
 
 [[ $host_only == 1 ]] && dracut_args="${dracut_args} -H"
 [[ $force == 1 ]] && dracut_args="${dracut_args} -f"
