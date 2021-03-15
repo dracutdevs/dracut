@@ -15,7 +15,8 @@ setup_interface() {
     bcast=$new_broadcast_address
     gw=${new_routers%%,*}
     domain=$new_domain_name
-    search=$(printf -- "$new_domain_search")
+    # get rid of control chars
+    search=$(printf -- "%s" "$new_domain_search" | tr -d '[:cntrl:]')
     namesrv=$new_domain_name_servers
     hostname=$new_host_name
     [ -n "$new_dhcp_lease_time" ] && lease_time=$new_dhcp_lease_time
@@ -23,6 +24,7 @@ setup_interface() {
     preferred_lft=$lease_time
     [ -n "$new_preferred_life" ] && preferred_lft=$new_preferred_life
 
+    # shellcheck disable=SC1090
     [ -f /tmp/net."$netif".override ] && . /tmp/net."$netif".override
 
     # Taken from debian dhclient-script:
@@ -75,7 +77,8 @@ setup_interface() {
 
 setup_interface6() {
     domain=$new_domain_name
-    search=$(printf -- "$new_dhcp6_domain_search")
+    # get rid of control chars
+    search=$(printf -- "%s" "$new_dhcp6_domain_search" | tr -d '[:cntrl:]')
     namesrv=$new_dhcp6_name_servers
     hostname=$new_host_name
     [ -n "$new_dhcp_lease_time" ] && lease_time=$new_dhcp_lease_time
@@ -83,6 +86,7 @@ setup_interface6() {
     preferred_lft=$lease_time
     [ -n "$new_preferred_life" ] && preferred_lft=$new_preferred_life
 
+    # shellcheck disable=SC1090
     [ -f /tmp/net."$netif".override ] && . /tmp/net."$netif".override
 
     ip -6 addr add "${new_ip6_address}"/"${new_ip6_prefixlen}" \
@@ -175,7 +179,7 @@ case $reason in
         echo "dhcp: BOUND setting up $netif"
         unset layer2
         if [ -f /sys/class/net/"$netif"/device/layer2 ]; then
-            read layer2 < /sys/class/net/"$netif"/device/layer2
+            read -r layer2 < /sys/class/net/"$netif"/device/layer2
         fi
         if [ "$layer2" != "0" ]; then
             if command -v arping2 > /dev/null; then
@@ -192,7 +196,7 @@ case $reason in
         fi
         unset layer2
         setup_interface
-        set | while read line || [ -n "$line" ]; do
+        set | while read -r line || [ -n "$line" ]; do
             [ "${line#new_}" = "$line" ] && continue
             echo "$line"
         done > /tmp/dhclient."$netif".dhcpopts
@@ -212,9 +216,9 @@ case $reason in
         } > "$hookdir"/initqueue/setup_net_"$netif".sh
 
         echo "[ -f /tmp/net.$netif.did-setup ]" > "$hookdir"/initqueue/finished/dhclient-"$netif".sh
-        > /tmp/net."$netif".up
+        : > /tmp/net."$netif".up
         if [ -e /sys/class/net/"${netif}"/address ]; then
-            > /tmp/net.$(cat /sys/class/net/"${netif}"/address).up
+            : > "/tmp/net.$(cat /sys/class/net/"${netif}"/address).up"
         fi
 
         ;;
@@ -234,7 +238,7 @@ case $reason in
         echo "dhcp: BOUND6 setting up $netif"
         setup_interface6
 
-        set | while read line || [ -n "$line" ]; do
+        set | while read -r line || [ -n "$line" ]; do
             [ "${line#new_}" = "$line" ] && continue
             echo "$line"
         done > /tmp/dhclient."$netif".dhcpopts
@@ -248,9 +252,9 @@ case $reason in
         } > "$hookdir"/initqueue/setup_net_"$netif".sh
 
         echo "[ -f /tmp/net.$netif.did-setup ]" > "$hookdir"/initqueue/finished/dhclient-"$netif".sh
-        > /tmp/net."$netif".up
+        : > /tmp/net."$netif".up
         if [ -e /sys/class/net/"${netif}"/address ]; then
-            > /tmp/net.$(cat /sys/class/net/"${netif}"/address).up
+            : > "/tmp/net.$(cat /sys/class/net/"${netif}"/address).up"
         fi
         ;;
 
