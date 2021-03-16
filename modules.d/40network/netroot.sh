@@ -21,7 +21,7 @@ fi
 
 # Set or override primary interface
 netif=$1
-[ -e "/tmp/net.bootdev" ] && read netif < /tmp/net.bootdev
+[ -e "/tmp/net.bootdev" ] && read -r netif < /tmp/net.bootdev
 
 case "$netif" in
     ??:??:??:??:??:??) # MAC address
@@ -40,6 +40,7 @@ esac
 if [ -z "$2" ]; then
     if getarg "root=dhcp" || getarg "netroot=dhcp" || getarg "root=dhcp6" || getarg "netroot=dhcp6"; then
         # Load dhcp options
+        # shellcheck disable=SC1090
         [ -e /tmp/dhclient."$netif".dhcpopts ] && . /tmp/dhclient."$netif".dhcpopts
 
         # If we have a specific bootdev with no dhcpoptions or empty root-path,
@@ -57,7 +58,8 @@ if [ -z "$2" ]; then
 
         # FIXME!
         unset rootok
-        for f in $hookdir/cmdline/90*.sh; do
+        for f in "$hookdir"/cmdline/90*.sh; do
+            # shellcheck disable=SC1090
             [ -f "$f" ] && . "$f"
         done
     else
