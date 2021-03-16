@@ -27,6 +27,7 @@ test_run() {
 
         ret=0
 
+        unset TEST
         declare -A TEST
         TEST=(
             ["key1"]="0"
