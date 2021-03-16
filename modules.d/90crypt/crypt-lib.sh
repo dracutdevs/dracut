@@ -8,7 +8,7 @@ crypttab_contains() {
     local dev="$2"
     local l d rest
     if [ -f /etc/crypttab ]; then
-        while read l d rest || [ -n "$l" ]; do
+        while read -r l d rest || [ -n "$l" ]; do
             strstr "${l##luks-}" "${luks##luks-}" && return 0
             strstr "$d" "${luks##luks-}" && return 0
             if [ -n "$dev" ]; then
@@ -49,9 +49,6 @@ crypttab_contains() {
 #   Turn off input echo before tty command is executed and turn on after.
 #   It's useful when password is read from stdin.
 ask_for_password() {
-    local cmd
-    local prompt
-    local tries=3
     local ply_cmd
     local ply_prompt
     local ply_tries=3
@@ -123,7 +120,7 @@ ask_for_password() {
             local i=1
             while [ $i -le "$tty_tries" ]; do
                 [ -n "$tty_prompt" ] \
-                    && printf "$tty_prompt [$i/$tty_tries]:" >&2
+                    && printf "%s" "$tty_prompt [$i/$tty_tries]:" >&2
                 eval "$tty_cmd" && ret=0 && break
                 ret=$?
                 i=$((i + 1))
@@ -148,9 +145,9 @@ test_dev() {
     local dev="$2"
     local f="$3"
     local ret=1
-    local mount_point=$(mkuniqdir /mnt testdev)
-    local path
+    local mount_point
 
+    mount_point=$(mkuniqdir /mnt testdev)
     [ -n "$dev" -a -n "$*" ] || return 1
     [ -d "$mount_point" ] || die 'Mount point does not exist!'
 
@@ -212,8 +209,7 @@ getkey() {
     [ -z "$keys_file" -o -z "$for_dev" ] && die 'getkey: wrong usage!'
     [ -f "$keys_file" ] || return 1
 
-    local IFS=:
-    while read luks_dev key_dev key_path || [ -n "$luks_dev" ]; do
+    while IFS=: read -r luks_dev key_dev key_path _ || [ -n "$luks_dev" ]; do
         if match_dev "$luks_dev" "$for_dev"; then
             echo "${key_dev}:${key_path}"
             return 0
@@ -241,7 +237,8 @@ readkey() {
         # This creates a unique single mountpoint for *, or several for explicitly
         # given LUKS devices. It accomplishes unlocking multiple LUKS devices with
         # a single password entry.
-        local mntp="/mnt/$(str_replace "keydev-$keydev-$keypath" '/' '-')"
+        local mntp
+        mntp="/mnt/$(str_replace "keydev-$keydev-$keypath" '/' '-')"
 
         if [ ! -d "$mntp" ]; then
             mkdir -p "$mntp"
@@ -262,7 +259,7 @@ readkey() {
             if [ -f /lib/dracut-crypt-loop-lib.sh ]; then
                 . /lib/dracut-crypt-loop-lib.sh
                 loop_decrypt "$mntp" "$keypath" "$keydev" "$device"
-                printf "%s\n" "umount \"$mntp\"; rmdir \"$mntp\";" > "${hookdir}"/cleanup/"crypt-loop-cleanup-99-${mntp##*/}".sh
+                printf "%s\n" "umount \"$mntp\"; rmdir \"$mntp\";" > "${hookdir}/cleanup/crypt-loop-cleanup-99-${mntp##*/}".sh
                 return 0
             else
                 die "No loop file support to decrypt '$keypath' on '$keydev'."
