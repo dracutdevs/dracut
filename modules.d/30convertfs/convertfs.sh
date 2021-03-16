@@ -197,7 +197,11 @@ set +e
 echo "Run ldconfig."
 ldconfig -r "$ROOT"
 
-. "$ROOT"/etc/selinux/config
+if [[ -f "$ROOT"/etc/selinux/config ]]; then
+    # shellcheck disable=SC1090
+    . "$ROOT"/etc/selinux/config
+fi
+
 if [ -n "$(command -v setfiles)" ] && [ "$SELINUX" != "disabled" ] && [ -f /etc/selinux/"${SELINUXTYPE}"/contexts/files/file_contexts ]; then
     echo "Fixing SELinux labels"
     setfiles -r "$ROOT" -p /etc/selinux/"${SELINUXTYPE}"/contexts/files/file_contexts "$ROOT"/sbin "$ROOT"/bin "$ROOT"/lib "$ROOT"/lib64 "$ROOT"/usr/lib "$ROOT"/usr/lib64 "$ROOT"/etc/ld.so.cache "$ROOT"/var/cache/ldconfig || :
