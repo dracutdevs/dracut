@@ -16,6 +16,8 @@ depends() {
 
 # called by dracut
 install() {
+    declare -A KEYMAPS
+
     if dracut_module_included "systemd"; then
         unset FONT
         unset KEYMAP
@@ -27,26 +29,43 @@ install() {
     I18N_CONF="/etc/locale.conf"
     VCONFIG_CONF="/etc/vconsole.conf"
 
-    # This is from 10redhat-i18n.
     findkeymap() {
-        local MAPS=$1
-        local MAPNAME=${1%.map*}
-        local map
-        [[ ! -f $dracutsysrootdir$MAPS ]] \
-            && MAPS=$(find "$dracutsysrootdir""${kbddir}"/keymaps -type f -name "${MAPNAME}" -o -name "${MAPNAME}".map -o -name "${MAPNAME}".map.\*)
+        # shellcheck disable=SC2064
+        trap "$(shopt -p nullglob globstar)" RETURN
+        shopt -q -s nullglob globstar
 
-        for map in $MAPS; do
-            KEYMAPS="$KEYMAPS $map "
-            case $map in
-                *.gz) cmd="zgrep" ;;
-                *.bz2) cmd="bzgrep" ;;
-                *) cmd="grep" ;;
+        local -a MAPS
+        local MAPNAME
+        local INCLUDES
+        local MAP
+        local CMD
+        local FN
+
+        if [[ -f $dracutsysrootdir$1 ]]; then
+            MAPS=( "$1" )
+        else
+            MAPNAME=${1%.map*}
+            MAPS=( "$dracutsysrootdir""${kbddir}"/keymaps/**/"${MAPNAME}"{,.map{,.*}} )
+        fi
+
+        for MAP in "${MAPS[@]}"; do
+            [[ -f $MAP ]] || continue
+            [[ ${KEYMAPS["$MAP"]} == 1 ]] && continue
+
+            KEYMAPS["$MAP"]=1
+
+            case "$MAP" in
+                *.gz) CMD="zgrep" ;;
+                *.bz2) CMD="bzgrep" ;;
+                *) CMD="grep" ;;
             esac
 
-            for INCL in $($cmd "^include " "$map" | while read _ a _ || [ -n "$a" ]; do echo "${a//\"/}"; done); do
-                for FN in $(find "$dracutsysrootdir""${kbddir}"/keymaps -type f -name "$INCL"\*); do
+            readarray -t INCLUDES < <("$CMD" '^include ' "$MAP" | while read -r _ a _ || [ -n "$a" ]; do echo "${a//\"/}"; done)
+
+            for INCL in "${INCLUDES[@]}"; do
+                for FN in "$dracutsysrootdir""${kbddir}"/keymaps/**/"$INCL"*; do
                     [[ -f $FN ]] || continue
-                    strstr "$KEYMAPS" " $FN " || findkeymap "$FN"
+                    [[ ${KEYMAPS["$FN"]} == 1 ]] || findkeymap "$FN"
                 done
             done
         done
@@ -84,15 +103,16 @@ install() {
 
         # FIXME: double check
         # shellcheck disable=SC2068
-        for item in $@; do
-            item=(${item/:/ })
+        for item in "$@"; do
+            read -r -a item <<< "${item/:/ }"
             for map in ${item[1]//,/ }; do
-                map=(${map//-/ })
+                read -r -a map <<< "${map//-/ }"
                 if [[ -f "$dracutsysrootdir${item[0]}" ]]; then
                     value=$(grep "^${map[0]}=" "$dracutsysrootdir${item[0]}")
                     value=${value#*=}
                     echo "${map[1]:-${map[0]}}=${value}"
                 fi
+                unset map
             done
         done
     }
@@ -115,7 +135,7 @@ install() {
     }
 
     install_all_kbd() {
-        local rel f
+        local _src _line
 
         for _src in "${KBDSUBDIRS[@]}"; do
             inst_dir "${kbddir}/$_src"
@@ -126,12 +146,12 @@ install() {
         rm -f -- "${initdir}${kbddir}/consoletrans/utflist"
         find "${initdir}${kbddir}/" -name README\* -delete
         find "${initdir}${kbddir}/" -name '*.gz' -print -quit \
-            | while read line || [ -n "$line" ]; do
+            | while read -r _line || [ -n "$_line" ]; do
                 inst_multiple gzip
             done
 
         find "${initdir}${kbddir}/" -name '*.bz2' -print -quit \
-            | while read line || [ -n "$line" ]; do
+            | while read -r _line || [ -n "$_line" ]; do
                 inst_multiple bzip2
             done
     }
@@ -139,8 +159,11 @@ install() {
     install_local_i18n() {
         local map
 
-        eval $(gather_vars "${i18n_vars}")
+        # shellcheck disable=SC2086
+        eval "$(gather_vars ${i18n_vars})"
+        # shellcheck disable=SC1090
         [ -f "$dracutsysrootdir"$I18N_CONF ] && . "$dracutsysrootdir"$I18N_CONF
+        # shellcheck disable=SC1090
         [ -f "$dracutsysrootdir"$VCONFIG_CONF ] && . "$dracutsysrootdir"$VCONFIG_CONF
 
         shopt -q -s nocasematch
@@ -190,13 +213,13 @@ install() {
             findkeymap "${map}"
         done
 
-        for keymap in ${KEYMAPS}; do
+        for keymap in "${!KEYMAPS[@]}"; do
             inst_opt_decompress "${keymap}"
         done
 
         inst_opt_decompress "${kbddir}"/consolefonts/"${DEFAULT_FONT}".*
 
-        if [[ ${FONT} ]] && [[ ${FONT} != ${DEFAULT_FONT} ]]; then
+        if [[ ${FONT} ]] && [[ ${FONT} != "${DEFAULT_FONT}" ]]; then
             FONT=${FONT%.psf*}
             inst_opt_decompress "${kbddir}"/consolefonts/"${FONT}".*
         fi
