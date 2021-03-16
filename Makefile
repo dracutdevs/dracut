@@ -208,7 +208,7 @@ endif
 
 dracut-version.sh:
 	@rm -f dracut-version.sh
-	@printf "# shellcheck disable=SC2034\nDRACUT_VERSION=%s\n" "$(DRACUT_FULL_VERSION)" > dracut-version.sh
+	@printf "#!/bin/sh\n# shellcheck disable=SC2034\nDRACUT_VERSION=%s\n" "$(DRACUT_FULL_VERSION)" > dracut-version.sh
 
 clean:
 	$(RM) *~
