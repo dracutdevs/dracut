@@ -11,11 +11,11 @@ mkdir -m 0755 -p /tmp/ifcfg/
 mkdir -m 0755 -p /tmp/ifcfg-leases/
 
 get_config_line_by_subchannel() {
-    local CHANNEL
+    local CHANNELS
     local line
 
     CHANNELS="$1"
-    while read line || [ -n "$line" ]; do
+    while read -r line || [ -n "$line" ]; do
         if strstr "$line" "$CHANNELS"; then
             echo "$line"
             return 0
@@ -38,7 +38,7 @@ print_s390() {
     # if we find ccw channel, then use those, instead of
     # of the MAC
     SUBCHANNELS=$({
-        for i in /sys/class/net/$_netif/device/cdev[0-9]*; do
+        for i in /sys/class/net/"$_netif"/device/cdev[0-9]*; do
             [ -e "$i" ] || continue
             channel=$(readlink -f "$i")
             printf '%s' "${channel##*/},"
@@ -50,6 +50,7 @@ print_s390() {
     echo "SUBCHANNELS=\"${SUBCHANNELS}\""
 
     CONFIG_LINE=$(get_config_line_by_subchannel "$SUBCHANNELS")
+    # shellcheck disable=SC2181
     [ $? -ne 0 -o -z "$CONFIG_LINE" ] && return 0
 
     OLD_IFS=$IFS
@@ -137,8 +138,11 @@ for netup in /tmp/net.*.did-setup; do
     unset vlanname
     unset phydevice
 
+    # shellcheck disable=SC1090
     [ -e /tmp/bond."${netif}".info ] && . /tmp/bond."${netif}".info
+    # shellcheck disable=SC1090
     [ -e /tmp/bridge."${netif}".info ] && . /tmp/bridge."${netif}".info
+    # shellcheck disable=SC1090
     [ -e /tmp/team."${netif}".info ] && . /tmp/team."${netif}".info
 
     uuid=$(cat /proc/sys/kernel/random/uuid)
@@ -151,8 +155,9 @@ for netup in /tmp/net.*.did-setup; do
         bond=yes
     fi
 
-    for i in /tmp/vlan.${netif}.*; do
+    for i in "/tmp/vlan.${netif}."*; do
         [ ! -e "$i" ] && continue
+        # shellcheck disable=SC1090
         . "$i"
         vlan=yes
         break
@@ -170,6 +175,7 @@ for netup in /tmp/net.*.did-setup; do
         echo "UUID=\"$uuid\""
         strstr "$(ip -6 addr show dev "$netif")" 'inet6' && echo "IPV6INIT=yes"
         if [ -f /tmp/dhclient."$netif".lease ]; then
+            # shellcheck disable=SC1090
             [ -f /tmp/dhclient."$netif".dhcpopts ] && . /tmp/dhclient."$netif".dhcpopts
             if [ -f /tmp/net."$netif".has_ibft_config ]; then
                 echo "BOOTPROTO=ibft"
@@ -179,6 +185,7 @@ for netup in /tmp/net.*.did-setup; do
             cp /tmp/dhclient."$netif".lease /tmp/ifcfg-leases/dhclient-"$uuid"-"$netif".lease
         else
             # If we've booted with static ip= lines, the override file is there
+            # shellcheck disable=SC1090
             [ -e /tmp/net."$netif".override ] && . /tmp/net."$netif".override
             if strglobin "$ip" '*:*:*'; then
                 echo "IPV6INIT=yes"
@@ -242,6 +249,7 @@ for netup in /tmp/net.*.did-setup; do
                 echo "MASTER=\"$netif\""
                 echo "UUID=\"$(cat /proc/sys/kernel/random/uuid)\""
                 unset macaddr
+                # shellcheck disable=SC1090
                 [ -e /tmp/net."$slave".override ] && . /tmp/net."$slave".override
                 interface_bind "$slave" "$macaddr"
             ) >> /tmp/ifcfg/ifcfg-"$slave"
@@ -265,6 +273,7 @@ for netup in /tmp/net.*.did-setup; do
                 echo "BRIDGE=\"$bridgename\""
                 echo "UUID=\"$(cat /proc/sys/kernel/random/uuid)\""
                 unset macaddr
+                # shellcheck disable=SC1090
                 [ -e /tmp/net."$slave".override ] && . /tmp/net."$slave".override
                 interface_bind "$slave" "$macaddr"
             ) >> /tmp/ifcfg/ifcfg-"$slave"
