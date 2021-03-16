@@ -28,7 +28,7 @@ numtries=${4:-10}
 
 # TODO: improve to support what cmdline does
 if [ -f /etc/crypttab ] && getargbool 1 rd.luks.crypttab -d -n rd_NO_CRYPTTAB; then
-    while read name dev luksfile luksoptions || [ -n "$name" ]; do
+    while read -r name dev luksfile luksoptions || [ -n "$name" ]; do
         # ignore blank lines and comments
         if [ -z "$name" -o "${name#\#}" != "$name" ]; then
             continue
@@ -157,7 +157,7 @@ else
             info "No key found for $device.  Will try $numtries time(s) more later."
             initqueue --unique --onetime --settled \
                 --name cryptroot-ask-"$luksname" \
-                $(command -v cryptroot-ask) "$device" "$luksname" "$is_keysource" "$((numtries - 1))"
+                "$(command -v cryptroot-ask)" "$device" "$luksname" "$is_keysource" "$((numtries - 1))"
             exit 0
         fi
         unset tmp
@@ -196,7 +196,7 @@ fi
 unset device luksname luksfile
 
 # mark device as asked
->> "$asked_file"
+: >> "$asked_file"
 
 need_shutdown
 udevsettle
