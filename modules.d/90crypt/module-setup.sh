@@ -2,7 +2,7 @@
 
 # called by dracut
 check() {
-    local _rootdev
+    local fs
     # if cryptsetup is not installed, then we cannot support encrypted devices.
     require_any_binary "$systemdutildir"/systemd-cryptsetup cryptsetup || return 1
 
@@ -33,20 +33,18 @@ installkernel() {
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         # dmsetup returns s.th. like
         # cryptvol: 0 2064384 crypt aes-xts-plain64 :64:logon:cryptsetup:....
-        dmsetup table | while read name _ _ is_crypt cipher _; do
-            [[ $is_crypt != "crypt" ]] && continue
+        dmsetup table | while read -r name _ _ is_crypt cipher _; do
+            [[ $is_crypt == "crypt" ]] || continue
             # get the device name
             name=/dev/$(dmsetup info -c --noheadings -o blkdevname "${name%:}")
-            # check if the device exists as a key in our host_fs_types
+            # check if the device exists as a key in our host_fs_types (even with null string)
+            # shellcheck disable=SC2030  # this is a shellcheck bug
             if [[ ${host_fs_types[$name]+_} ]]; then
                 # split the cipher aes-xts-plain64 in pieces
-                _OLD_IFS=$IFS
-                IFS='-:'
-                set -- "$cipher"
-                IFS=$_OLD_IFS
+                IFS='-:' read -ra mods <<< "$cipher"
                 # try to load the cipher part with "crypto-" prepended
                 # in non-hostonly mode
-                hostonly= instmods $(for k in "$@"; do echo "crypto-$k"; done)
+                hostonly='' instmods "${mods[@]/#/crypto-}" "crypto-$cipher"
             fi
         done
     }
@@ -61,8 +59,8 @@ cmdline() {
 
         UUID=$(
             blkid -u crypto -o export "$dev" \
-                | while read line || [ -n "$line" ]; do
-                    [[ ${line#UUID} == $line ]] && continue
+                | while read -r line || [ -n "$line" ]; do
+                    [[ ${line#UUID} == "$line" ]] && continue
                     printf "%s" "${line#UUID=}"
                     break
                 done
@@ -76,7 +74,8 @@ cmdline() {
 install() {
 
     if [[ $hostonly_cmdline == "yes" ]]; then
-        local _cryptconf=$(cmdline)
+        local _cryptconf
+        _cryptconf=$(cmdline)
         [[ $_cryptconf ]] && printf "%s\n" "$_cryptconf" >> "${initdir}/etc/cmdline.d/90crypt.conf"
     fi
 
@@ -91,7 +90,7 @@ install() {
 
     if [[ $hostonly ]] && [[ -f $dracutsysrootdir/etc/crypttab ]]; then
         # filter /etc/crypttab for the devices we need
-        while read _mapper _dev _luksfile _luksoptions || [ -n "$_mapper" ]; do
+        while read -r _mapper _dev _luksfile _luksoptions || [ -n "$_mapper" ]; do
             [[ $_mapper == \#* ]] && continue
             [[ $_dev ]] || continue
 
