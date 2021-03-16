@@ -365,26 +365,16 @@ for ((i = 0; i < ${#targets[@]}; i++)); do
 
     echo "Creating initrd: $target"
 
-    # Duplicate code: No way found how to redirect output based on $quiet
     if [[ $quiet == 1 ]]; then
-        # Duplicate code: --force-drivers must not be called with empty string
-        # -> dracut bug workarounded ugly, because of complex whitespace
-        # expansion magics
-        if [ -n "${modules_all}" ]; then
-            $dracut_cmd "$dracut_args" --force-drivers "${modules_all}" "$target" "$kernel" &> /dev/null
-            [ $? -ne 0 ] && failed="$failed $target"
-        else
-            $dracut_cmd "$dracut_args" "$target" "$kernel" &> /dev/null
-            [ $? -ne 0 ] && failed="$failed $target"
-        fi
+        stdout="/dev/null"
+        stderr="/dev/null"
     else
-        if [ -n "${modules_all}" ]; then
-            $dracut_cmd "$dracut_args" --force-drivers "${modules_all}" "$target" "$kernel"
-            [ $? -ne 0 ] && failed="$failed $target"
-        else
-            $dracut_cmd "$dracut_args" "$target" "$kernel"
-            [ $? -ne 0 ] && failed="$failed $target"
-        fi
+        stdout="/dev/stdout"
+        stderr="/dev/stderr"
+    fi
+
+    if ! $dracut_cmd "$dracut_args" ${modules_all:+--force-drivers "${modules_all}"} "$target" "$kernel" > "$stdout" 2> "$stderr"; then
+        failed="$failed $target"
     fi
 done
 
