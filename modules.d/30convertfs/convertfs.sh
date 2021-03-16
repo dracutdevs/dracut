@@ -54,7 +54,7 @@ fi
 
 testfile="$ROOT/.usrmovecheck$$"
 rm -f -- "$testfile"
-> "$testfile"
+: > "$testfile"
 if [[ ! -e $testfile ]]; then
     echo "Cannot write to $ROOT/"
     exit 1
@@ -63,7 +63,7 @@ rm -f -- "$testfile"
 
 testfile="$ROOT/usr/.usrmovecheck$$"
 rm -f -- "$testfile"
-> "$testfile"
+: > "$testfile"
 if [[ ! -e $testfile ]]; then
     echo "Cannot write to $ROOT/usr/"
     exit 1
@@ -71,9 +71,9 @@ fi
 rm -f -- "$testfile"
 
 find_mount() {
-    local dev mnt etc wanted_dev
+    local dev wanted_dev
     wanted_dev="$(readlink -e -q "$1")"
-    while read dev mnt etc || [ -n "$dev" ]; do
+    while read -r dev _ || [ -n "$dev" ]; do
         [ "$dev" = "$wanted_dev" ] && echo "$dev" && return 0
     done < /proc/mounts
     return 1
@@ -92,7 +92,7 @@ else
             return 1
         fi
 
-        while read a m a || [ -n "$m" ]; do
+        while read -r _ m _ || [ -n "$m" ]; do
             [ "$m" = "$1" ] && return 0
         done < /proc/mounts
         return 1
@@ -137,6 +137,7 @@ for dir in bin sbin lib lib64; do
     # delete all symlinks that have been backed up
     find "$ROOT/usr/${dir}.usrmove-new" -type l -name '*.usrmove~' -delete || :
     # replace symlink with backed up binary
+    # shellcheck disable=SC2156
     find "$ROOT/usr/${dir}.usrmove-new" \
         -name '*.usrmove~' \
         -type f \
@@ -174,15 +175,18 @@ for dir in bin sbin lib lib64; do
 done
 
 for dir in bin sbin lib lib64; do
-    [[ -d "$ROOT/usr/${dir}.usrmove-old~" ]] \
-        && rm -rf -- "$ROOT/usr/${dir}.usrmove-old~" || :
-    [[ -d "$ROOT/${dir}.usrmove-old~" ]] \
-        && rm -rf -- "$ROOT/${dir}.usrmove-old~" || :
+    if [[ -d "$ROOT/usr/${dir}.usrmove-old~" ]]; then
+        rm -rf -- "$ROOT/usr/${dir}.usrmove-old~"
+    fi
+
+    if [[ -d "$ROOT/${dir}.usrmove-old~" ]]; then
+        rm -rf -- "$ROOT/${dir}.usrmove-old~"
+    fi
 done
 
 for dir in lib lib64; do
     [[ -d "$ROOT/$dir" ]] || continue
-    for lib in "$ROOT"/usr/${dir}/lib*.so*.usrmove~; do
+    for lib in "$ROOT"/usr/"${dir}"/lib*.so*.usrmove~; do
         [[ -f $lib ]] || continue
         mv "$lib" "${lib/.so/_so}"
     done
