@@ -21,6 +21,7 @@ install() {
     if dracut_module_included "systemd"; then
         unset FONT
         unset KEYMAP
+        # shellcheck disable=SC1090
         [[ -f "$dracutsysrootdir"/etc/vconsole.conf ]] && . "$dracutsysrootdir"/etc/vconsole.conf
     fi
 
@@ -42,15 +43,15 @@ install() {
         local FN
 
         if [[ -f $dracutsysrootdir$1 ]]; then
-            MAPS=( "$1" )
+            MAPS=("$1")
         else
             MAPNAME=${1%.map*}
-            MAPS=( "$dracutsysrootdir""${kbddir}"/keymaps/**/"${MAPNAME}"{,.map{,.*}} )
+            MAPS=("$dracutsysrootdir""${kbddir}"/keymaps/**/"${MAPNAME}"{,.map{,.*}})
         fi
 
         for MAP in "${MAPS[@]}"; do
             [[ -f $MAP ]] || continue
-            [[ ${KEYMAPS["$MAP"]} == 1 ]] && continue
+            [[ -v KEYMAPS["$MAP"] ]] && continue
 
             KEYMAPS["$MAP"]=1
 
@@ -65,7 +66,7 @@ install() {
             for INCL in "${INCLUDES[@]}"; do
                 for FN in "$dracutsysrootdir""${kbddir}"/keymaps/**/"$INCL"*; do
                     [[ -f $FN ]] || continue
-                    [[ ${KEYMAPS["$FN"]} == 1 ]] || findkeymap "$FN"
+                    [[ -v KEYMAPS["$FN"] ]] || findkeymap "$FN"
                 done
             done
         done
