@@ -6,11 +6,11 @@
 cmdline() {
     get_lunmask() {
         local _dev=$1
-        local _devpath=$(
+        local _devpath _sdev _lun _rport _end_device _classdev _wwpn _sas_address
+        _devpath=$(
             cd -P /sys/dev/block/"$_dev" || exit
             echo "$PWD"
         )
-        local _sdev _lun _rport _end_device _classdev _wwpn _sas_address
 
         [ "${_devpath#*/sd}" == "$_devpath" ] && return 1
         _sdev="${_devpath%%/block/*}"
