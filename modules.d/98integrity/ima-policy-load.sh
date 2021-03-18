@@ -20,6 +20,7 @@ load_ima_policy() {
     fi
 
     # override the default configuration
+    # shellcheck disable=SC1090
     [ -f "${IMACONFIG}" ] \
         && . "${IMACONFIG}"
 
