@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem on a ext3 filesystem"
 
 KVERSION="${KVERSION-$(uname -r)}"
@@ -21,8 +22,10 @@ test_setup() {
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay/source
         mkdir -p "$initdir"
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         (
             cd "$initdir" || exit
@@ -52,7 +55,10 @@ test_setup() {
 
     # second, install the files needed to make the root filesystem
     (
+        # shellcheck disable=SC2031
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount dd
         inst_hook initqueue 01 ./create-root.sh
@@ -79,7 +85,9 @@ test_setup() {
     grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/root.ext3 || return 1
 
     (
+        # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         inst_multiple poweroff shutdown dd
         inst_hook shutdown-emergency 000 ./hard-off.sh
@@ -101,4 +109,5 @@ test_cleanup() {
     return 0
 }
 
+# shellcheck disable=SC1090
 . "$testdir"/test-functions
