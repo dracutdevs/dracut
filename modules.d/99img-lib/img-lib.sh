@@ -6,9 +6,14 @@
 # super-simple "file" that only identifies archives.
 # works with stdin if $1 is not set.
 det_archive() {
-    # NOTE: echo -e works in ash and bash, but not dash
-    local bz="BZh" xz="$(echo -e '\xfd7zXZ')" gz="$(echo -e '\x1f\x8b')" zs="$(echo -e '\x28\xB5\x2F\xFD')"
-    local headerblock="$(dd ${1:+if=$1} bs=262 count=1 2> /dev/null)"
+    # NOTE: internal echo -e works in ash and bash, but not dash
+    local bz xz gz zs
+    local headerblock
+    bz="BZh"
+    xz="$(/bin/echo -e '\xfd7zXZ')"
+    gz="$(/bin/echo -e '\x1f\x8b')"
+    zs="$(/bin/echo -e '\x28\xB5\x2F\xFD')"
+    headerblock="$(dd ${1:+if=$1} bs=262 count=1 2> /dev/null)"
     case "$headerblock" in
         $xz*) echo "xz" ;;
         $gz*) echo "gzip" ;;
@@ -21,7 +26,8 @@ det_archive() {
 
 # determine filesystem type for a filesystem image
 det_fs_img() {
-    local dev=$(losetup --find --show "$1") rv=""
+    local dev
+    dev=$(losetup --find --show "$1") rv=""
     det_fs "$dev"
     rv=$?
     losetup -d "$dev"
@@ -32,7 +38,8 @@ det_fs_img() {
 # unpack a (possibly compressed) cpio/tar archive
 unpack_archive() {
     local img="$1" outdir="$2" archiver="" decompr=""
-    local ft="$(det_archive "$img")"
+    local ft
+    ft="$(det_archive "$img")"
     case "$ft" in
         xz | gzip | bzip2 | zstd) decompr="$ft -dc" ;;
         cpio | tar) decompr="cat" ;;
@@ -54,7 +61,9 @@ unpack_archive() {
 # unpack_fs FSIMAGE OUTDIR
 # unpack a filesystem image
 unpack_fs() {
-    local img="$1" outdir="$2" mnt="$(mkuniqdir /tmp unpack_fs.)"
+    local img="$1" outdir="$2"
+    local mnt
+    mnt="$(mkuniqdir /tmp unpack_fs.)"
     mount -o loop "$img" "$mnt" || {
         rmdir "$mnt"
         return 1
