@@ -18,7 +18,7 @@ do_iso_scan() {
     for dev in /dev/disk/by-uuid/*; do
         _name=$(dev_unit_name "$dev")
         [ -e /tmp/isoscan-"${_name}" ] && continue
-        > /tmp/isoscan-"${_name}"
+        : > /tmp/isoscan-"${_name}"
         mount -t auto -o ro "$dev" "/run/initramfs/isoscan" || continue
         if [ -f "/run/initramfs/isoscan/$isofile" ]; then
             losetup -f "/run/initramfs/isoscan/$isofile"
