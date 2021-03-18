@@ -5,7 +5,7 @@ type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 # Kills rsyslogd
 
 if [ -f /var/run/syslogd.pid ]; then
-    read pid < /var/run/syslogd.pid
+    read -r pid < /var/run/syslogd.pid
     kill "$pid"
     kill -0 "$pid" && kill -9 "$pid"
 else
