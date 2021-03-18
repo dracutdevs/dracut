@@ -39,10 +39,13 @@ cifs_to_var "$netroot"
 
 # If we don't have a server, we need dhcp
 if [ -z "$server" ]; then
+    # shellcheck disable=SC2034
     DHCPORSERVER="1"
 fi
 
 # Done, all good!
+# shellcheck disable=SC2034
 rootok=1
 
+# shellcheck disable=SC2016
 echo '[ -e $NEWROOT/proc ]' > "$hookdir"/initqueue/finished/cifsroot.sh
