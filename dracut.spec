@@ -56,11 +56,6 @@ BuildRequires: docbook-xsl-stylesheets libxslt
 BuildRequires: asciidoc
 %endif
 
-%if 0%{?suse_version} > 9999
-Obsoletes: mkinitrd < 2.6.1
-Provides: mkinitrd = 2.6.1
-%endif
-
 Obsoletes: dracut-fips <= 047
 Provides:  dracut-fips = %{version}-%{release}
 Obsoletes: dracut-fips-aesni <= 047
@@ -265,9 +260,7 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man?/*suse*
 %endif
 
 %if 0%{?fedora} == 0 && 0%{?rhel} == 0 && 0%{?suse_version} <= 9999
-rm -f -- $RPM_BUILD_ROOT%{_bindir}/mkinitrd
 rm -f -- $RPM_BUILD_ROOT%{_bindir}/lsinitrd
-rm -f -- $RPM_BUILD_ROOT%{_mandir}/man8/mkinitrd.8*
 rm -f -- $RPM_BUILD_ROOT%{_mandir}/man1/lsinitrd.1*
 %endif
 
@@ -284,7 +277,6 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %{_datadir}/bash-completion/completions/dracut
 %{_datadir}/bash-completion/completions/lsinitrd
 %if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version} > 9999
-%{_bindir}/mkinitrd
 %{_bindir}/lsinitrd
 %endif
 %dir %{dracutlibdir}
@@ -311,7 +303,6 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %{_mandir}/man8/dracut.8*
 %{_mandir}/man8/*service.8*
 %if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version} > 9999
-%{_mandir}/man8/mkinitrd.8*
 %{_mandir}/man1/lsinitrd.1*
 %endif
 %if 0%{?suse_version}
