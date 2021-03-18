@@ -56,11 +56,13 @@ if ! getarg noresume; then
             printf -- '%s\n' ' RUN+="/sbin/initqueue --finished --unique --name 00resume echo %M:%m  > /sys/power/resume"'
         } >> /etc/udev/rules.d/99-resume.rules
 
+        # shellcheck disable=SC2016
         printf '[ -e "%s" ] && { ln -fs "%s" /dev/resume 2> /dev/null; rm -f -- "$job" "%s/initqueue/timeout/resume.sh"; }\n' \
             "$resume" "$resume" "$hookdir" >> "$hookdir"/initqueue/settled/resume.sh
 
         {
             printf -- "%s" 'warn "Cancelling resume operation. Device not found.";'
+            # shellcheck disable=SC2016
             printf -- ' cancel_wait_for_dev /dev/resume; rm -f -- "$job" "%s/initqueue/settled/resume.sh";\n' "$hookdir"
         } >> "$hookdir"/initqueue/timeout/resume.sh
 
@@ -69,6 +71,7 @@ if ! getarg noresume; then
         {
             if [ -x /usr/sbin/resume ]; then
                 printf -- '%s' 'SUBSYSTEM=="block", ACTION=="add|change", ENV{ID_FS_TYPE}=="suspend|swsuspend|swsupend",'
+                # shellcheck disable=SC2016
                 printf -- ' RUN+="/sbin/initqueue --finished --unique --name 00resume /usr/sbin/resume %s $tempnode"\n' "$a_splash"
             fi
             printf -- '%s' 'SUBSYSTEM=="block", ACTION=="add|change", ENV{ID_FS_TYPE}=="suspend|swsuspend|swsupend",'
