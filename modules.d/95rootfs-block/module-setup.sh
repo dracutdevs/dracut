@@ -30,7 +30,8 @@ cmdline_journal() {
 }
 
 cmdline_rootfs() {
-    local _block=$(find_root_block_device)
+    local _block
+    _block=$(find_root_block_device)
     local _dev=/dev/block/$_block
     local _fstype _flags _subvol
 
@@ -66,9 +67,11 @@ cmdline() {
 # called by dracut
 install() {
     if [[ $hostonly_cmdline == "yes" ]]; then
-        local _journaldev=$(cmdline_journal)
+        local _journaldev
+        _journaldev=$(cmdline_journal)
         [[ $_journaldev ]] && printf "%s\n" "$_journaldev" >> "${initdir}/etc/cmdline.d/95root-journaldev.conf"
-        local _rootdev=$(cmdline_rootfs)
+        local _rootdev
+        _rootdev=$(cmdline_rootfs)
         [[ $_rootdev ]] && printf "%s\n" "$_rootdev" >> "${initdir}/etc/cmdline.d/95root-dev.conf"
     fi
 
