@@ -61,7 +61,7 @@ linkup ens3
 
 modprobe af_packet
 nbd-server
-> /var/lib/dhcpd/dhcpd.leases
+: > /var/lib/dhcpd/dhcpd.leases
 chmod 777 /var/lib/dhcpd/dhcpd.leases
 dhcpd -d -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases &
 echo "Serving NBD disks"
