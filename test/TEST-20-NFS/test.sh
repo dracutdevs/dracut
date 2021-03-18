@@ -236,6 +236,7 @@ test_setup() {
         mkdir -p "$TESTDIR"/server/overlay/source
         # shellcheck disable=SC2030
         export initdir=$TESTDIR/server/overlay/source
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
 
         for _f in modules.builtin.bin modules.builtin; do
@@ -302,7 +303,9 @@ test_setup() {
     # Make client root inside server root
     (
         # shellcheck disable=SC2030
+        # shellcheck disable=SC2031
         export initdir=$TESTDIR/server/overlay/source/nfs/client
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
 
         inst_multiple sh shutdown poweroff stty cat ps ln ip dd \
@@ -344,7 +347,9 @@ test_setup() {
     # second, install the files needed to make the root filesystem
     (
         # shellcheck disable=SC2030
+        # shellcheck disable=SC2031
         export initdir=$TESTDIR/server/overlay
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd
         inst_hook initqueue 01 ./create-root.sh
@@ -372,7 +377,9 @@ test_setup() {
 
     # Make an overlay with needed tools for the test harness
     (
+        # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         mkdir -p "$TESTDIR"/overlay
         inst_multiple poweroff shutdown
@@ -405,4 +412,5 @@ test_cleanup() {
     fi
 }
 
+# shellcheck disable=SC1090
 . "$testdir"/test-functions
