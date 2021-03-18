@@ -12,8 +12,8 @@ create_udev_rule() {
     fi
 
     if [ -e /sys/bus/ccw/devices/"${ccw}" ]; then
-        read _cu_type < /sys/bus/ccw/devices/"${ccw}"/cutype
-        read _dev_type < /sys/bus/ccw/devices/"${ccw}"/devtype
+        read -r _cu_type < /sys/bus/ccw/devices/"${ccw}"/cutype
+        read -r _dev_type < /sys/bus/ccw/devices/"${ccw}"/devtype
     fi
     if [ "$_cu_type" != "1731/03" ]; then
         return 0
