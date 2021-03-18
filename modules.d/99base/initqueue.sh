@@ -61,11 +61,12 @@ if [ -z "$exe" ]; then
 fi
 
 {
+    # shellcheck disable=SC2016
     [ -n "$onetime" ] && echo '[ -e "$job" ] && rm -f -- "$job"'
     [ -n "$env" ] && echo "$env"
     echo "$exe" "$@"
 } > "/tmp/$$-${job}.sh"
 
 mv -f "/tmp/$$-${job}.sh" "$hookdir/initqueue${qname}/${job}.sh"
-[ -z "$qname" ] && >> "$hookdir"/initqueue/work
+[ -z "$qname" ] && : >> "$hookdir"/initqueue/work
 exit 0
