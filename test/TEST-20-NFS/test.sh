@@ -23,13 +23,12 @@ DEBUGFAIL="loglevel=1"
 run_server() {
     # Start server first
     echo "NFS TEST SETUP: Starting DHCP/NFS server"
-
+    SERIAL=${SERIAL:-"file:$TESTDIR/server.log"}
     "$testdir"/run-qemu \
         -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
         -net socket,listen=127.0.0.1:12320 \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
-        ${SERIAL:+-serial "$SERIAL"} \
-        "${SERIAL:--serial file:"$TESTDIR"/server.log}" \
+        -serial "$SERIAL" \
         -watchdog i6300esb -watchdog-action poweroff \
         -append "panic=1 quiet root=LABEL=dracut rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.server \
