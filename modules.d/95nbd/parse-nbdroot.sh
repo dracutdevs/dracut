@@ -52,6 +52,7 @@ unset nroot
 incol2 /proc/devices nbd || modprobe nbd || die "nbdroot requested but kernel/initrd does not support nbd"
 
 # Done, all good!
+# shellcheck disable=SC2034
 rootok=1
 
 # Shut up init error check
