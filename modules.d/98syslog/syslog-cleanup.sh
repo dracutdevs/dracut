@@ -5,7 +5,7 @@
 type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
 if [ -f /tmp/syslog.server ]; then
-    read syslogtype < /tmp/syslog.type
+    read -r syslogtype < /tmp/syslog.type
     if command -v "${syslogtype}-stop" > /dev/null; then
         "${syslogtype}"-stop
     else
