@@ -126,4 +126,5 @@ test_cleanup() {
     return 0
 }
 
+# shellcheck disable=SC1090
 . "$testdir"/test-functions
