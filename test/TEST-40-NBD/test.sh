@@ -30,14 +30,14 @@ run_server() {
     # Start server first
     echo "NBD TEST SETUP: Starting DHCP/NBD server"
 
+    SERIAL=${SERIAL:-"file:$TESTDIR/server.log"}
     "$testdir"/run-qemu \
         -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
         -drive format=raw,index=1,media=disk,file="$TESTDIR"/nbd.ext3 \
         -drive format=raw,index=2,media=disk,file="$TESTDIR"/encrypted.ext3 \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net socket,listen=127.0.0.1:12340 \
-        ${SERIAL:+-serial "$SERIAL"} \
-        "${SERIAL:--serial file:"$TESTDIR"/server.log}" \
+        -serial "$SERIAL" \
         -append "panic=1 systemd.crash_reboot root=/dev/sda rootfstype=ext3 rw quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.server -pidfile "$TESTDIR"/server.pid -daemonize || return 1
     chmod 644 "$TESTDIR"/server.pid || return 1
