@@ -6,18 +6,13 @@ installkernel() {
     local _hostonly_drvs
 
     find_kernel_modules_external() {
-        local _OLDIFS
-        local external_pattern="^/"
+        local a
 
         [[ -f "$srcmods/modules.dep" ]] || return 0
 
-        _OLDIFS=$IFS
-        IFS=:
-        while read a rest; do
-            [[ $a =~ $external_pattern ]] || continue
-            printf "%s\n" "$a"
+        while IFS=: read -r a _ || [[ $a ]]; do
+            [[ $a =~ ^/ ]] && printf "%s\n" "$a"
         done < "$srcmods/modules.dep"
-        IFS=$_OLDIFS
     }
 
     record_block_dev_drv() {
