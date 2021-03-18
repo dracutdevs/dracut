@@ -119,13 +119,13 @@ fi
 
 # If not given on the cmdline and initiator-name available via iBFT
 if [ -z "$iscsi_initiator" ] && [ -f /sys/firmware/ibft/initiator/initiator-name ] && ! [ -f /tmp/iscsi_set_initiator ]; then
-    iscsi_initiator=$(while read line || [ -n "$line" ]; do echo "$line"; done < /sys/firmware/ibft/initiator/initiator-name)
+    iscsi_initiator=$(while read -r line || [ -n "$line" ]; do echo "$line"; done < /sys/firmware/ibft/initiator/initiator-name)
     if [ -n "$iscsi_initiator" ]; then
         echo "InitiatorName=$iscsi_initiator" > /run/initiatorname.iscsi
         rm -f /etc/iscsi/initiatorname.iscsi
         mkdir -p /etc/iscsi
         ln -fs /run/initiatorname.iscsi /etc/iscsi/initiatorname.iscsi
-        > /tmp/iscsi_set_initiator
+        : > /tmp/iscsi_set_initiator
         if [ -n "$DRACUT_SYSTEMD" ]; then
             systemctl try-restart iscsid
             # FIXME: iscsid is not yet ready, when the service is :-/
@@ -149,6 +149,7 @@ for nroot in $(getargs netroot); do
 done
 
 # Done, all good!
+# shellcheck disable=SC2034
 rootok=1
 
 # Shut up init error check
