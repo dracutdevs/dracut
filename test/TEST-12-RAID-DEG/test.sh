@@ -66,6 +66,7 @@ test_setup() {
     (
         # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay/source
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         (
             cd "$initdir" || exit
@@ -94,7 +95,9 @@ test_setup() {
     # second, install the files needed to make the root filesystem
     (
         # shellcheck disable=SC2030
+        # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mke2fs poweroff cp umount dd grep sync
         inst_hook initqueue 01 ./create-root.sh
@@ -128,7 +131,9 @@ test_setup() {
     echo "$MD_UUID" > "$TESTDIR"/mduuid
 
     (
+        # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         inst_multiple poweroff shutdown dd
         inst_hook shutdown-emergency 000 ./hard-off.sh
@@ -153,4 +158,5 @@ test_cleanup() {
     return 0
 }
 
+# shellcheck disable=SC1090
 . "$testdir"/test-functions
