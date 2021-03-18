@@ -14,6 +14,7 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
 [ -z "$3" ] && exit 1
 
 # root is in the form root=nbd:srv:port[:fstype[:rootflags[:nbdopts]]]
+# shellcheck disable=SC2034
 netif="$1"
 nroot="$2"
 NEWROOT="$3"
