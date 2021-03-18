@@ -1,5 +1,8 @@
 #!/bin/sh
-> /dev/watchdog
+# shellcheck disable=SC2015
+
+: > /dev/watchdog
+
 getcmdline() {
     while read -r _line || [ -n "$_line" ]; do
         printf "%s" "$_line"
@@ -96,8 +99,7 @@ getargbool() {
     local _default
     _default="$1"
     shift
-    _b=$(getarg "$@")
-    [ $? -ne 0 -a -z "$_b" ] && _b="$_default"
+    _b=$(getarg "$@") || _b="$_default"
     if [ -n "$_b" ]; then
         [ "$_b" = "0" ] && return 1
         [ "$_b" = "no" ] && return 1
@@ -107,12 +109,12 @@ getargbool() {
 }
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 strstr() { [ "${1##*"$2"*}" != "$1" ]; }
-CMDLINE=$(while read line || [ -n "$line" ]; do echo "$line"; done < /proc/cmdline)
+CMDLINE=$(while read -r line || [ -n "$line" ]; do echo "$line"; done < /proc/cmdline)
 plymouth --quit
 exec < /dev/console > /dev/console 2>&1
 
 ismounted() {
-    while read a m a || [ -n "$m" ]; do
+    while read -r _ m _ || [ -n "$m" ]; do
         [ "$m" = "$1" ] && return 0
     done < /proc/mounts
     return 1
