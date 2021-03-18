@@ -38,10 +38,10 @@ modprobe crc32c 2> /dev/null
 
 # start iscsiuio if needed
 if [ -z "${DRACUT_SYSTEMD}" ] \
-    && ([ -e /sys/module/bnx2i ] || [ -e /sys/module/qedi ]) \
+    && { [ -e /sys/module/bnx2i ] || [ -e /sys/module/qedi ]; } \
     && ! [ -e /tmp/iscsiuio-started ]; then
     iscsiuio
-    > /tmp/iscsiuio-started
+    : > /tmp/iscsiuio-started
 fi
 
 handle_firmware() {
@@ -84,7 +84,7 @@ handle_firmware() {
 
 handle_netroot() {
     local iscsi_initiator iscsi_target_name iscsi_target_ip iscsi_target_port
-    local iscsi_target_group iscsi_protocol iscsirw iscsi_lun
+    local iscsi_target_group iscsirw iscsi_lun
     local iscsi_username iscsi_password
     local iscsi_in_username iscsi_in_password
     local iscsi_iface_name iscsi_netdev_name
@@ -134,12 +134,12 @@ handle_netroot() {
     fsopts=${fsopts:+$fsopts,}${iscsirw}
 
     if [ -z "$iscsi_initiator" ] && [ -f /sys/firmware/ibft/initiator/initiator-name ] && ! [ -f /tmp/iscsi_set_initiator ]; then
-        iscsi_initiator=$(while read line || [ -n "$line" ]; do echo "$line"; done < /sys/firmware/ibft/initiator/initiator-name)
+        iscsi_initiator=$(while read -r line || [ -n "$line" ]; do echo "$line"; done < /sys/firmware/ibft/initiator/initiator-name)
         echo "InitiatorName=$iscsi_initiator" > /run/initiatorname.iscsi
         rm -f /etc/iscsi/initiatorname.iscsi
         mkdir -p /etc/iscsi
         ln -fs /run/initiatorname.iscsi /etc/iscsi/initiatorname.iscsi
-        > /tmp/iscsi_set_initiator
+        : > /tmp/iscsi_set_initiator
         if [ -n "$DRACUT_SYSTEMD" ]; then
             systemctl try-restart iscsid
             # FIXME: iscsid is not yet ready, when the service is :-/
@@ -160,7 +160,7 @@ handle_netroot() {
         rm -f /etc/iscsi/initiatorname.iscsi
         mkdir -p /etc/iscsi
         ln -fs /run/initiatorname.iscsi /etc/iscsi/initiatorname.iscsi
-        > /tmp/iscsi_set_initiator
+        : > /tmp/iscsi_set_initiator
         if [ -n "$DRACUT_SYSTEMD" ]; then
             systemctl try-restart iscsid
             # FIXME: iscsid is not yet ready, when the service is :-/
@@ -252,7 +252,7 @@ handle_netroot() {
         warn "iSCSI target \"$iscsi_target_name\" not found on portal $iscsi_target_ip:$iscsi_target_port"
         return 1
     fi
-    > "$hookdir"/initqueue/work
+    : > "$hookdir"/initqueue/work
 
     netroot_enc=$(str_replace "$1" '/' '\2f')
     echo 'started' > "/tmp/iscsistarted-iscsi:${netroot_enc}"
