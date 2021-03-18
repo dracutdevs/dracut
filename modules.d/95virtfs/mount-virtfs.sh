@@ -25,8 +25,6 @@ filter_rootopts() {
 }
 
 mount_root() {
-    local _ret
-
     rootfs="9p"
     rflags="trans=virtio,version=9p2000.L"
 
@@ -43,7 +41,7 @@ mount_root() {
         # the root filesystem,
         # remount it with the proper options
         rootopts="defaults"
-        while read dev mp fs opts rest || [ -n "$dev" ]; do
+        while read -r dev mp _ opts rest || [ -n "$dev" ]; do
             # skip comments
             [ "${dev%%#*}" != "$dev" ] && continue
 
