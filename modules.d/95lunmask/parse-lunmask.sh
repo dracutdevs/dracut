@@ -7,7 +7,6 @@ create_udev_rule() {
     local tgtid=$2
     local lun=$3
     local _rule=/etc/udev/rules.d/51-${transport}-lunmask-${tgtid}.rules
-    local _cu_type _dev_type
 
     [ -e "${_rule}" ] && return 0
 
@@ -25,16 +24,11 @@ EOF
 }
 
 for lunmask_arg in $(getargs rd.lunmask); do
-    (
-        local OLDIFS="$IFS"
-        local IFS=","
-        set "$lunmask_arg"
-        IFS="$OLDIFS"
-        if [ -d /sys/module/scsi_mod ]; then
-            printf "manual" > /sys/module/scsi_mod/parameters/scan
-        elif [ ! -f /etc/modprobe.d/95lunmask.conf ]; then
-            echo "options scsi_mod scan=manual" > /etc/modprobe.d/95lunmask.conf
-        fi
-        create_udev_rule "$1" "$2" "$3"
-    )
+    IFS="," read -r -a _args <<< "$lunmask_arg"
+    if [ -d /sys/module/scsi_mod ]; then
+        printf "manual" > /sys/module/scsi_mod/parameters/scan
+    elif [ ! -f /etc/modprobe.d/95lunmask.conf ]; then
+        echo "options scsi_mod scan=manual" > /etc/modprobe.d/95lunmask.conf
+    fi
+    create_udev_rule "${_args[@]}"
 done
