@@ -5,12 +5,13 @@ set +x
 
 QUIET=$1
 
-printf -- "$$" > /run/initramfs/loginit.pid
+printf "%s" "$$" > /run/initramfs/loginit.pid
 
+# shellcheck disable=SC2015
 [ -e /dev/kmsg ] && exec 5> /dev/kmsg || exec 5> /dev/null
 exec 6> /run/initramfs/init.log
 
-while read line || [ -n "$line" ]; do
+while read -r line || [ -n "$line" ]; do
     if [ "$line" = "DRACUT_LOG_END" ]; then
         rm -f -- /run/initramfs/loginit.pipe
         exit 0
