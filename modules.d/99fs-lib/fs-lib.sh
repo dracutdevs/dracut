@@ -141,13 +141,12 @@ fsck_single() {
     local FSTAB_FILE=/etc/fstab.empty
     local _dev="$1"
     local _fs="${2:-auto}"
-    local _fsopts="$3"
     local _fop="$4"
     local _drv
 
     [ $# -lt 2 ] && return 255
     # if UUID= marks more than one device, take only the first one
-    [ -e "$_dev" ] || _dev=$(devnames "$_dev" | while read line || [ -n "$line" ]; do if [ -n "$line" ]; then
+    [ -e "$_dev" ] || _dev=$(devnames "$_dev" | while read -r line || [ -n "$line" ]; do if [ -n "$line" ]; then
         echo "$line"
         break
     fi; done)
@@ -195,7 +194,7 @@ det_fs() {
     local _fs
 
     _fs=$(udevadm info --query=env --name="$_dev" \
-        | while read line || [ -n "$line" ]; do
+        | while read -r line || [ -n "$line" ]; do
             if str_starts "$line" "ID_FS_TYPE="; then
                 echo "${line#ID_FS_TYPE=}"
                 break
