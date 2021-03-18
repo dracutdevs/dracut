@@ -5,7 +5,7 @@ _remove_dm() {
     local s
     local devname
 
-    for s in /sys/block/${dev}/holders/dm-*; do
+    for s in /sys/block/"${dev}"/holders/dm-*; do
         [ -e "${s}" ] || continue
         _remove_dm "${s##*/}"
     done
@@ -47,7 +47,7 @@ _do_dm_shutdown() {
 
 if command -v dmsetup > /dev/null \
     && [ "x$(dmsetup status)" != "xNo devices found" ]; then
-    _do_dm_shutdown "$1"
+    _do_dm_shutdown "${1-$final}"
 else
     :
 fi
