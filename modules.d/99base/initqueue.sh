@@ -67,6 +67,8 @@ fi
     echo "$exe" "$@"
 } > "/tmp/$$-${job}.sh"
 
+chmod u+x "/tmp/$$-${job}.sh"
+
 mv -f "/tmp/$$-${job}.sh" "$hookdir/initqueue${qname}/${job}.sh"
 [ -z "$qname" ] && : >> "$hookdir"/initqueue/work
 exit 0
