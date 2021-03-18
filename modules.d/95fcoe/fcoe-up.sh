@@ -31,7 +31,7 @@ linkup "$netif"
 # Some fcoemon implementations expect --syslog=true
 syslogopt="--syslog"
 if fcoemon -h | grep syslog | grep -q yes; then
-    fcoemonyes="$syslogopt=yes"
+    syslogopt="$syslogopt=yes"
 fi
 
 netdriver=$(readlink -f /sys/class/net/"$netif"/device/driver)
