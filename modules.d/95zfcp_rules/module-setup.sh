@@ -4,7 +4,8 @@
 cmdline() {
     is_zfcp() {
         local _dev=$1
-        local _devpath=$(
+        local _devpath
+        _devpath=$(
             cd -P /sys/dev/block/"$_dev" || exit
             echo "$PWD"
         )
