@@ -10,14 +10,18 @@ PWFILTER='s/\(ftp:\/\/.*\):.*@/\1:*******@/g;s/\(cifs:\/\/.*\):.*@/\1:*******@/g
 set -x
 cat /lib/dracut/dracut-*
 
-cat /proc/cmdline | sed -e "$PWFILTER"
+echo "/proc/cmdline"
+sed -e "$PWFILTER" /proc/cmdline
 
-[ -f /etc/cmdline ] && cat /etc/cmdline | sed -e "$PWFILTER"
+if [ -f /etc/cmdline ]; then
+    echo "/etc/cmdline"
+    sed -e "$PWFILTER" /etc/cmdline
+fi
 
 for _i in /etc/cmdline.d/*.conf; do
     [ -f "$_i" ] || break
     echo "$_i"
-    cat "$_i" | sed -e "$PWFILTER"
+    sed -e "$PWFILTER" "$_i"
 done
 
 cat /proc/self/mountinfo
@@ -31,7 +35,7 @@ ls -l /dev/disk/by*
 for _i in /etc/conf.d/*.conf; do
     [ -f "$_i" ] || break
     echo "$_i"
-    cat "$_i" | sed -e "$PWFILTER"
+    sed -e "$PWFILTER" "$_i"
 done
 
 if command -v lvm > /dev/null 2> /dev/null; then
@@ -50,5 +54,8 @@ if command -v journalctl > /dev/null 2> /dev/null; then
     journalctl -ab --no-pager -o short-monotonic | sed -e "$PWFILTER"
 else
     dmesg | sed -e "$PWFILTER"
-    [ -f /run/initramfs/init.log ] && cat /run/initramfs/init.log | sed -e "$PWFILTER"
+    if [ -f /run/initramfs/init.log ]; then
+        echo "/run/initramfs/init.log"
+        sed -e "$PWFILTER" /run/initramfs/init.log
+    fi
 fi
