@@ -1,7 +1,7 @@
 #!/bin/sh
 # don't let udev and this script step on eachother's toes
 for x in 64-lvm.rules 70-mdadm.rules 99-mount-rules; do
-    > "/etc/udev/rules.d/$x"
+    : > "/etc/udev/rules.d/$x"
 done
 rm -f -- /etc/lvm/lvm.conf
 udevadm control --reload
@@ -26,7 +26,7 @@ udevadm settle
 cryptsetup luksClose /dev/mapper/dracut_crypt_test
 udevadm settle
 sleep 1
-eval $(udevadm info --query=env --name=/dev/sda | while read line || [ -n "$line" ]; do [ "$line" != "${line#*ID_FS_UUID*}" ] && echo "$line"; done)
+eval "$(udevadm info --query=env --name=/dev/sda | while read -r line || [ -n "$line" ]; do [ "$line" != "${line#*ID_FS_UUID*}" ] && echo "$line"; done)"
 {
     echo "dracut-root-block-created"
     echo "ID_FS_UUID=$ID_FS_UUID"
