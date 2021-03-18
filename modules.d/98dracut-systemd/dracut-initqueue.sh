@@ -31,16 +31,18 @@ while :; do
         rm -f -- "$hookdir/initqueue/work"
     fi
 
-    for job in $hookdir/initqueue/*.sh; do
+    for job in "$hookdir"/initqueue/*.sh; do
         [ -e "$job" ] || break
+        # shellcheck disable=SC2097 disable=SC1090 disable=SC2098
         job=$job . "$job"
         check_finished && break 2
     done
 
     udevadm settle --timeout=0 > /dev/null 2>&1 || continue
 
-    for job in $hookdir/initqueue/settled/*.sh; do
+    for job in "$hookdir"/initqueue/settled/*.sh; do
         [ -e "$job" ] || break
+        # shellcheck disable=SC2097 disable=SC1090 disable=SC2098
         job=$job . "$job"
         check_finished && break 2
     done
@@ -56,13 +58,14 @@ while :; do
 
     if [ $main_loop -gt $((2 * RDRETRY / 3)) ]; then
         warn "dracut-initqueue: timeout, still waiting for following initqueue hooks:"
-        for _f in $hookdir/initqueue/finished/*.sh; do
+        for _f in "$hookdir"/initqueue/finished/*.sh; do
             warn "$_f: \"$(cat "$_f")\""
         done
         if [ "$(ls -A "$hookdir"/initqueue/finished)" ]; then
             warn "dracut-initqueue: starting timeout scripts"
-            for job in $hookdir/initqueue/timeout/*.sh; do
+            for job in "$hookdir"/initqueue/timeout/*.sh; do
                 [ -e "$job" ] || break
+                # shellcheck disable=SC2097 disable=SC1090 disable=SC2098
                 job=$job . "$job"
                 udevadm settle --timeout=0 > /dev/null 2>&1 || main_loop=0
                 [ -f "$hookdir"/initqueue/work ] && main_loop=0
