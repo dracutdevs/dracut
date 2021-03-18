@@ -95,7 +95,7 @@ echo > /dev/watchdog
 exportfs -r
 echo > /dev/watchdog
 mkdir -p /var/lib/dhcpd
-> /var/lib/dhcpd/dhcpd.leases
+: > /var/lib/dhcpd/dhcpd.leases
 echo > /dev/watchdog
 chmod 777 /var/lib/dhcpd/dhcpd.leases
 echo > /dev/watchdog
