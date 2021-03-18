@@ -43,7 +43,7 @@ for disk in /sys/firmware/edd/int13_*; do
             fcoe_interface=${nic##*/}
             if ! [ -e "/tmp/.fcoe-$fcoe_interface" ]; then
                 /sbin/fcoe-up "$fcoe_interface" "$dcb"
-                > "/tmp/.fcoe-$fcoe_interface"
+                : > "/tmp/.fcoe-$fcoe_interface"
             fi
         fi
     done
