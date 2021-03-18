@@ -183,6 +183,7 @@ client_run() {
 
     # Encrypted root handling via LVM/LUKS over NBD
 
+    # shellcheck disable=SC1090
     . "$TESTDIR"/luks.uuid
 
     client_test "NBD root=LABEL=dracut netroot=nbd:IP:port" \
@@ -214,6 +215,7 @@ make_encrypted_root() {
     (
         # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay/source
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         mkdir -p "$initdir"
         (
@@ -241,7 +243,9 @@ make_encrypted_root() {
     # second, install the files needed to make the root filesystem
     (
         # shellcheck disable=SC2030
+        # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         (
             cd "$initdir" || exit
@@ -288,7 +292,9 @@ make_client_root() {
     (
         mkdir -p "$TESTDIR"/overlay/source
         # shellcheck disable=SC2030
+        # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay/source
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         mkdir -p "$initdir"
         (
@@ -321,7 +327,9 @@ make_client_root() {
     # second, install the files needed to make the root filesystem
     (
         # shellcheck disable=SC2030
+        # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd
         inst_hook initqueue 01 ./create-client-root.sh
@@ -358,7 +366,9 @@ make_server_root() {
     (
         mkdir -p "$TESTDIR"/overlay/source
         # shellcheck disable=SC2030
+        # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay/source
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         mkdir -p "$initdir"
         (
@@ -406,7 +416,9 @@ EOF
     # second, install the files needed to make the root filesystem
     (
         # shellcheck disable=SC2030
+        # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd
         inst_hook initqueue 01 ./create-server-root.sh
@@ -442,7 +454,9 @@ test_setup() {
     rm -fr "$TESTDIR"/overlay
     # Make the test image
     (
+        # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         inst_multiple poweroff shutdown dd
         inst_hook shutdown-emergency 000 ./hard-off.sh
@@ -453,6 +467,7 @@ test_setup() {
         #        mkdir -p "${initdir}/lib/systemd/system/sysinit.target.wants"
         #        ln -fs ../debug-shell.service "${initdir}/lib/systemd/system/sysinit.target.wants/debug-shell.service"
 
+        # shellcheck disable=SC1090
         . "$TESTDIR"/luks.uuid
         mkdir -p "$initdir"/etc
         echo "luks-$ID_FS_UUID /dev/nbd0 /etc/key" > "$initdir"/etc/crypttab
@@ -484,4 +499,5 @@ test_cleanup() {
     kill_server
 }
 
+# shellcheck disable=SC1090
 . "$testdir"/test-functions
