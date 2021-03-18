@@ -53,6 +53,7 @@ test_setup() {
         # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay/source
         mkdir -p "$initdir"
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
 
         for d in usr/bin usr/sbin bin etc lib "$libdir" sbin tmp usr var var/log dev proc sys sysroot root run; do
@@ -225,7 +226,9 @@ EOF
     # second, install the files needed to make the root filesystem
     (
         # shellcheck disable=SC2030
+        # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mkfs.btrfs btrfs poweroff cp umount sync dd
         inst_hook initqueue 01 ./create-root.sh
@@ -260,7 +263,9 @@ EOF
     fi
 
     (
+        # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         inst_multiple poweroff shutdown dd
         inst_hook shutdown-emergency 000 ./hard-off.sh
@@ -286,4 +291,5 @@ test_cleanup() {
     return 0
 }
 
+# shellcheck disable=SC1090
 . "$testdir"/test-functions
