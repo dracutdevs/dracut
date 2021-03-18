@@ -75,6 +75,7 @@ install() {
     local PRETTY_NAME=""
     # Derive an os-release file from the host, if it exists
     if [[ -e $dracutsysrootdir/etc/os-release ]]; then
+        # shellcheck disable=SC1090
         . "$dracutsysrootdir"/etc/os-release
         grep -hE -ve '^VERSION=' -ve '^PRETTY_NAME' "$dracutsysrootdir"/etc/os-release > "${initdir}"/usr/lib/initrd-release
         [[ -n ${VERSION} ]] && VERSION+=" "
@@ -112,10 +113,11 @@ install() {
         if [[ -f $initdir/lib/dracut/need-initqueue ]] || ! dracut_module_included "systemd"; then
             (
                 if dracut_module_included "systemd"; then
-                    DRACUT_SYSTEMD=1
+                    export DRACUT_SYSTEMD=1
                 fi
-                PREFIX="$initdir"
+                export PREFIX="$initdir"
 
+                # shellcheck source=dracut-lib.sh
                 . "$moddir/dracut-lib.sh"
 
                 for _dev in "${host_devs[@]}"; do
