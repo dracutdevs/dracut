@@ -16,20 +16,18 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
 export PATH
 
 # mount some important things
-[ ! -d /proc/self ] \
-    && mount -t proc -o nosuid,noexec,nodev proc /proc > /dev/null
-
-if [ "$?" != "0" ]; then
-    echo "Cannot mount proc on /proc! Compile the kernel with CONFIG_PROC_FS!"
-    exit 1
+if [ ! -d /proc/self ]; then
+    if ! mount -t proc -o nosuid,noexec,nodev proc /proc > /dev/null; then
+        echo "Cannot mount proc on /proc! Compile the kernel with CONFIG_PROC_FS!"
+        exit 1
+    fi
 fi
 
-[ ! -d /sys/kernel ] \
-    && mount -t sysfs -o nosuid,noexec,nodev sysfs /sys > /dev/null
-
-if [ "$?" != "0" ]; then
-    echo "Cannot mount sysfs on /sys! Compile the kernel with CONFIG_SYSFS!"
-    exit 1
+if [ ! -d /sys/kernel ]; then
+    if ! mount -t sysfs -o nosuid,noexec,nodev sysfs /sys > /dev/null; then
+        echo "Cannot mount sysfs on /sys! Compile the kernel with CONFIG_SYSFS!"
+        exit 1
+    fi
 fi
 
 RD_DEBUG=""
@@ -77,7 +75,7 @@ fi
 
 if command -v kmod > /dev/null 2> /dev/null; then
     kmod static-nodes --format=tmpfiles 2> /dev/null \
-        | while read type file mode a a a majmin || [ -n "$type" ]; do
+        | while read -r type file mode _ _ _ majmin || [ -n "$type" ]; do
             type=${type%\!}
             case $type in
                 d)
@@ -92,7 +90,8 @@ fi
 
 trap "emergency_shell Signal caught!" 0
 
-export UDEVVERSION=$(udevadm --version)
+UDEVVERSION=$(udevadm --version)
+export UDEVVERSION
 if [ "$UDEVVERSION" -gt 166 ]; then
     # newer versions of udev use /run/udev/rules.d
     export UDEVRULESD=/run/udev/rules.d
@@ -118,7 +117,7 @@ source_conf /etc/conf.d
 
 if getarg "rd.cmdline=ask"; then
     echo "Enter additional kernel command line parameter (end with ctrl-d or .)"
-    while read -p "> " line || [ -n "$line" ]; do
+    while read -r -p "> " line || [ -n "$line" ]; do
         [ "$line" = "." ] && break
         echo "$line" >> /etc/cmdline.d/99-cmdline-ask.conf
     done
@@ -190,16 +189,18 @@ while :; do
         rm -f -- "$hookdir"/initqueue/work
     fi
 
-    for job in $hookdir/initqueue/*.sh; do
+    for job in "$hookdir"/initqueue/*.sh; do
         [ -e "$job" ] || break
+        # shellcheck disable=SC2097 disable=SC1090 disable=SC2098
         job=$job . "$job"
         check_finished && break 2
     done
 
     $UDEV_QUEUE_EMPTY > /dev/null 2>&1 || continue
 
-    for job in $hookdir/initqueue/settled/*.sh; do
+    for job in "$hookdir"/initqueue/settled/*.sh; do
         [ -e "$job" ] || break
+        # shellcheck disable=SC2097 disable=SC1090 disable=SC2098
         job=$job . "$job"
         check_finished && break 2
     done
@@ -210,8 +211,9 @@ while :; do
     sleep 0.5
 
     if [ $main_loop -gt $((2 * RDRETRY / 3)) ]; then
-        for job in $hookdir/initqueue/timeout/*.sh; do
+        for job in "$hookdir"/initqueue/timeout/*.sh; do
             [ -e "$job" ] || break
+            # shellcheck disable=SC2097 disable=SC1090 disable=SC2098
             job=$job . "$job"
             udevadm settle --timeout=0 > /dev/null 2>&1 || main_loop=0
             [ -f "$hookdir"/initqueue/work ] && main_loop=0
@@ -245,7 +247,8 @@ while :; do
         usable_root "$NEWROOT" && break
         umount "$NEWROOT"
     fi
-    for f in $hookdir/mount/*.sh; do
+    for f in "$hookdir"/mount/*.sh; do
+        # shellcheck disable=SC1090
         [ -f "$f" ] && . "$f"
         if ismounted "$NEWROOT"; then
             usable_root "$NEWROOT" && break
@@ -265,7 +268,7 @@ done
 
 {
     printf "Mounted root filesystem "
-    while read dev mp rest || [ -n "$dev" ]; do [ "$mp" = "$NEWROOT" ] && echo "$dev"; done < /proc/mounts
+    while read -r dev mp _ || [ -n "$dev" ]; do [ "$mp" = "$NEWROOT" ] && echo "$dev"; done < /proc/mounts
 } | vinfo
 
 # pre pivot scripts are sourced just before we doing cleanup and switch over
@@ -345,7 +348,7 @@ done
 rm -f -- /tmp/export.orig
 
 initargs=""
-read CLINE < /proc/cmdline
+read -r CLINE < /proc/cmdline
 if getarg init= > /dev/null; then
     ignoreargs="console BOOT_IMAGE"
     # only pass arguments after init= to the init
