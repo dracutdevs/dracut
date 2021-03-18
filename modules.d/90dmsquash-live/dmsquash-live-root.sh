@@ -88,7 +88,10 @@ else
         # no mount needed - we've already got the LiveOS image in $livedev
         SQUASHED=$livedev
     elif [ "$livedev_fstype" != "ntfs" ]; then
-        mount -n -t "$fstype" -o "${liverw:-ro}" "$livedev" /run/initramfs/live
+        if ! mount -n -t "$fstype" -o "${liverw:-ro}" "$livedev" /run/initramfs/live; then
+            die "Failed to mount block device of live image"
+            exit 1
+        fi
     else
         # Symlinking /usr/bin/ntfs-3g as /sbin/mount.ntfs seems to boot
         # at the first glance, but ends with lots and lots of squashfs
@@ -99,11 +102,6 @@ else
             die "Failed to mount block device of live image: Missing NTFS support"
             exit 1
         fi
-    fi
-
-    if [ "$?" != "0" ]; then
-        die "Failed to mount block device of live image"
-        exit 1
     fi
 fi
 
@@ -174,8 +172,7 @@ do_live_overlay() {
         fi
     fi
     if [ -n "$overlayfs" ]; then
-        modprobe overlay
-        if [ $? != 0 ]; then
+        if ! modprobe overlay; then
             if [ "$overlayfs" = required ]; then
                 die "OverlayFS is required but not available."
                 exit 1
@@ -195,7 +192,7 @@ do_live_overlay() {
                 && m='   Unable to find a persistent overlay; using a temporary one.'
             m="$m"$'\n      All root filesystem changes will be lost on shutdown.'
             m="$m"$'\n         Press [Enter] to continue.'
-            printf "\n\n\n\n${m}\n\n\n" > /dev/kmsg
+            printf "\n\n\n\n%s\n\n\n" "${m}" > /dev/kmsg
             if [ -n "$DRACUT_SYSTEMD" ]; then
                 if type plymouth > /dev/null 2>&1 && plymouth --ping; then
                     if getargbool 0 rhgb || getargbool 0 splash; then
@@ -211,7 +208,7 @@ do_live_overlay() {
                 fi
             else
                 type plymouth > /dev/null 2>&1 && plymouth --ping && plymouth --quit
-                read -s -r -p $'\n\n'"${m}" -n 1 reply
+                read -s -r -p $'\n\n'"${m}" -n 1 _
             fi
         fi
         if [ -n "$overlayfs" ]; then
@@ -377,7 +374,7 @@ if [ -n "$overlayfs" ]; then
     if [ -n "$reset_overlay" ] && [ -h /run/overlayfs ]; then
         ovlfs=$(readlink /run/overlayfs)
         info "Resetting the OverlayFS overlay directory."
-        rm -r -- "${ovlfs}"/* "${ovlfs}"/.* > /dev/null 2>&1
+        rm -r -- "${ovlfs:?}"/* "${ovlfs:?}"/.* > /dev/null 2>&1
     fi
     if [ -n "$readonly_overlay" ] && [ -h /run/overlayfs-r ]; then
         ovlfs=lowerdir=/run/overlayfs-r:/run/rootfsbase
