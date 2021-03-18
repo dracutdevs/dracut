@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem on an encrypted LVM PV on a RAID-5"
 
 KVERSION=${KVERSION-$(uname -r)}
@@ -24,7 +25,9 @@ test_setup() {
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay/source
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         (
             cd "$initdir" || exit
@@ -53,7 +56,10 @@ test_setup() {
 
     # second, install the files needed to make the root filesystem
     (
+        # shellcheck disable=SC2031
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mke2fs poweroff cp umount dd sync
         inst_hook initqueue 01 ./create-root.sh
@@ -77,10 +83,12 @@ test_setup() {
         -append "root=/dev/cannotreach rw rootfstype=ext2 console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
     grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$DISKIMAGE" || return 1
-    eval $(grep -F -a -m 1 ID_FS_UUID "$DISKIMAGE")
+    eval "$(grep -F -a -m 1 ID_FS_UUID "$DISKIMAGE")"
 
     (
+        # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         inst_multiple poweroff shutdown dd
         inst_hook shutdown-emergency 000 ./hard-off.sh
@@ -105,4 +113,5 @@ test_cleanup() {
     return 0
 }
 
+# shellcheck disable=SC1090
 . "$testdir"/test-functions
