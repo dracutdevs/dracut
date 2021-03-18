@@ -15,7 +15,7 @@ depends() {
 
 # called by dracut
 install() {
-    local _dir _crt _found _lib _nssckbi _p11roots _p11root _p11item
+    local _dir _crt _found _lib _nssckbi _p11roots _p11root
     inst_simple "$moddir/url-lib.sh" "/lib/url-lib.sh"
     inst_multiple -o ctorrent
     inst_multiple curl
