@@ -4,10 +4,10 @@ type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 type det_fs > /dev/null 2>&1 || . /lib/fs-lib.sh
 
 fstab_mount() {
-    local _dev _mp _fs _opts _dump _pass _rest
+    local _dev _mp _fs _opts _pass
     test -e "$1" || return 1
     info "Mounting from $1"
-    while read _dev _mp _fs _opts _dump _pass _rest || [ -n "$_dev" ]; do
+    while read -r _dev _mp _fs _opts _ _pass _ || [ -n "$_dev" ]; do
         [ -z "${_dev%%#*}" ] && continue # Skip comment lines
         ismounted "$_mp" && continue     # Skip mounted filesystem
         if [ "$_pass" -gt 0 ] && ! strstr "$_opts" _netdev; then
