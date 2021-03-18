@@ -24,7 +24,7 @@ nfs_to_var() {
     # if there's a "%s" in the path, replace it with the hostname/IP
     if strstr "$path" "%s"; then
         local node=""
-        read node < /proc/sys/kernel/hostname
+        read -r node < /proc/sys/kernel/hostname
         [ "$node" = "(none)" ] && node=$(get_ip "$2")
         path=${path%%%s*}$node${path#*%s} # replace only the first %s
     fi
@@ -34,7 +34,7 @@ nfs_to_var() {
 # root=nfs4:[<server-ip>:]<root-dir>[:<nfs-options>]
 nfsroot_to_var() {
     # strip nfs[4]:
-    local arg="$@:"
+    local arg="$*:"
     nfs="${arg%%:*}"
     arg="${arg##$nfs:}"
 
@@ -107,6 +107,7 @@ anaconda_nfsv6_to_var() {
 nfsroot_from_dhcp() {
     local f
     for f in /tmp/net.$1.override /tmp/dhclient.$1.dhcpopts; do
+        # shellcheck disable=SC1090
         [ -f "$f" ] && . "$f"
     done
     [ -n "$new_root_path" ] && nfsroot_to_var "$nfs:$new_root_path"
