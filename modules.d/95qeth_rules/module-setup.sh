@@ -10,7 +10,7 @@ check() {
 
     [[ $hostonly ]] && {
         for i in /sys/devices/qeth/*/online; do
-            read _online < "$i"
+            read -r _online < "$i"
             [ "$_online" -eq 1 ] && return 0
         done
     }
@@ -44,7 +44,7 @@ install() {
         # not readable in qeth interfaces
         # that have just been assembled, ignore
         # read error and assume no carrier
-        read carrier 2> /dev/null < "$1/carrier"
+        read -r carrier 2> /dev/null < "$1/carrier"
         [ "$carrier" -eq 1 ] && return 0
         return 1
     }
