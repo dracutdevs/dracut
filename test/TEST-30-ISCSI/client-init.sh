@@ -1,4 +1,6 @@
 #!/bin/sh
+# shellcheck disable=SC2015
+
 getcmdline() {
     while read -r _line || [ -n "$_line" ]; do
         printf "%s" "$_line"
@@ -95,8 +97,7 @@ getargbool() {
     local _default
     _default="$1"
     shift
-    _b=$(getarg "$@")
-    [ $? -ne 0 -a -z "$_b" ] && _b="$_default"
+    _b=$(getarg "$@") || _b="$_default"
     if [ -n "$_b" ]; then
         [ "$_b" = "0" ] && return 1
         [ "$_b" = "no" ] && return 1
@@ -107,12 +108,12 @@ getargbool() {
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 exec > /dev/console 2>&1
 strstr() { [ "${1##*"$2"*}" != "$1" ]; }
-CMDLINE=$(while read line || [ -n "$line" ]; do echo "$line"; done < /proc/cmdline)
+CMDLINE=$(while read -r line || [ -n "$line" ]; do echo "$line"; done < /proc/cmdline)
 export TERM=linux
 export PS1='initramfs-test:\w\$ '
 stty sane
 echo "made it to the rootfs! Powering down."
-while read dev fs fstype opts rest || [ -n "$dev" ]; do
+while read -r dev _ fstype opts rest || [ -n "$dev" ]; do
     [ "$fstype" != "ext3" ] && continue
     echo "iscsi-OK $dev $fstype $opts" | dd oflag=direct,dsync of=/dev/sda
     break
