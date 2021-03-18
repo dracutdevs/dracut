@@ -15,12 +15,15 @@ loop_decrypt() {
     local keypath="$2"
     local keydev="$3"
     local device="$4"
+    local key
 
-    local key="/dev/mapper/$(str_replace "loop-$keydev-$mntp-$keypath" '/' '-')"
+    key="/dev/mapper/$(str_replace "loop-$keydev-$mntp-$keypath" '/' '-')"
 
     if [ ! -b "$key" ]; then
-        local loopdev=$(losetup -f "${mntp}/${keypath}" --show)
-        local opts="-d - luksOpen $loopdev ${key##*/}"
+        local loopdev
+        local opts
+        loopdev=$(losetup -f "${mntp}/${keypath}" --show)
+        opts="-d - luksOpen $loopdev ${key##*/}"
 
         ask_for_password \
             --cmd "cryptsetup $opts" \
@@ -29,8 +32,8 @@ loop_decrypt() {
 
         [ -b "$key" ] || die "Failed to unlock $keypath on $keydev for $device."
 
-        printf "%s\n" "cryptsetup luksClose \"$key\"" > "${hookdir}"/cleanup/"crypt-loop-cleanup-10-${key##*/}".sh
-        printf "%s\n" "losetup -d \"$loopdev\"" > "${hookdir}"/cleanup/"crypt-loop-cleanup-20-${loopdev##*/}".sh
+        printf "%s\n" "cryptsetup luksClose \"$key\"" > "${hookdir}/cleanup/crypt-loop-cleanup-10-${key##*/}.sh"
+        printf "%s\n" "losetup -d \"$loopdev\"" > "${hookdir}/cleanup/crypt-loop-cleanup-20-${loopdev##*/}.sh"
     fi
 
     cat "$key"
