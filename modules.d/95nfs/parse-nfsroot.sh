@@ -108,16 +108,19 @@ netroot="$fstype:$server:$path:$options"
 
 # If we don't have a server, we need dhcp
 if [ -z "$server" ]; then
+    # shellcheck disable=SC2034
     DHCPORSERVER="1"
 fi
 
 # Done, all good!
+# shellcheck disable=SC2034
 rootok=1
 
 # Shut up init error check or make sure that block parser wont get
 # confused by having /dev/nfs[4]
 root="$fstype"
 
+# shellcheck disable=SC2016
 echo '[ -e $NEWROOT/proc ]' > "$hookdir"/initqueue/finished/nfsroot.sh
 
 mkdir -p /var/lib/rpcbind
