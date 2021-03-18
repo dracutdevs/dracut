@@ -2,7 +2,6 @@
 
 # called by dracut
 check() {
-    local _rootdev
     # If our prerequisites are not met, fail anyways.
     require_binaries iscsi-iname iscsiadm iscsid || return 1
 
@@ -43,11 +42,11 @@ install_ibft() {
 
     for d in /sys/firmware/*; do
         if [ -d "${d}"/ethernet0 ]; then
-            read ibft_mac < "${d}"/ethernet0/mac
+            read -r ibft_mac < "${d}"/ethernet0/mac
             ibft_mod=$(get_ibft_mod "$ibft_mac")
         fi
         if [ -z "$ibft_mod" ] && [ -d "${d}"/ethernet1 ]; then
-            read ibft_mac < "${d}"/ethernet1/mac
+            read -r ibft_mac < "${d}"/ethernet1/mac
             ibft_mod=$(get_ibft_mod "$ibft_mac")
         fi
         if [ -d "${d}"/initiator ]; then
@@ -62,8 +61,7 @@ install_ibft() {
 install_iscsiroot() {
     local devpath=$1
     local scsi_path iscsi_lun session c d conn host flash
-    local iscsi_session iscsi_address iscsi_port iscsi_targetname iscsi_tpgt
-    local bootproto
+    local iscsi_session iscsi_address iscsi_port iscsi_targetname
 
     scsi_path=${devpath%%/block*}
     [ "$scsi_path" = "$devpath" ] && return 1
@@ -77,7 +75,7 @@ install_iscsiroot() {
     [ "$host" = "$session" ] && return 1
     iscsi_host=${host##*/}
 
-    for flash in ${host}/flashnode_sess-*; do
+    for flash in "${host}"/flashnode_sess-*; do
         [ -f "$flash" ] || continue
         [ ! -e "$flash/is_boot_target" ] && continue
         is_boot=$(cat "$flash"/is_boot_target)
@@ -89,7 +87,7 @@ install_iscsiroot() {
         fi
     done
 
-    for d in ${session}/*; do
+    for d in "${session}"/*; do
         case $d in
             *connection*)
                 c=${d##*/}
@@ -174,7 +172,8 @@ installkernel() {
 
 # called by dracut
 cmdline() {
-    local _iscsiconf=$(install_ibft)
+    local _iscsiconf
+    _iscsiconf=$(install_ibft)
     {
         if [ "$_iscsiconf" ]; then
             echo "${_iscsiconf}"
@@ -199,15 +198,19 @@ install() {
         "$systemdsystemunitdir"/sockets.target.wants/iscsiuio.socket
 
     if [[ $hostonly ]]; then
+        local -a _filenames
+
         inst_dir /etc/iscsi
-        inst_multiple $(find /etc/iscsi -type f)
+        mapfile -t -d '' _filenames < <(find /etc/iscsi -type f -print0)
+        inst_multiple "${_filenames[@]}"
     else
         inst_simple /etc/iscsi/iscsid.conf
     fi
 
     # Detect iBFT and perform mandatory steps
     if [[ $hostonly_cmdline == "yes" ]]; then
-        local _iscsiconf=$(cmdline)
+        local _iscsiconf
+        _iscsiconf=$(cmdline)
         [[ $_iscsiconf ]] && printf "%s\n" "$_iscsiconf" >> "${initdir}/etc/cmdline.d/95iscsi.conf"
     fi
 
