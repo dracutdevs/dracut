@@ -63,7 +63,7 @@ ip link set dev eth1 name ens3
 ip addr add 192.168.51.1/24 dev ens3
 linkup ens3
 
-> /var/lib/dhcpd/dhcpd.leases
+: > /var/lib/dhcpd/dhcpd.leases
 chmod 777 /var/lib/dhcpd/dhcpd.leases
 dhcpd -d -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases &
 
