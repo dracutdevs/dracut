@@ -268,9 +268,11 @@ syncheck:
 	@ret=0;for i in *.sh modules.d/*/*.sh modules.d/*/module-setup.sh; do \
 		[ $$V ] && echo "bash syntax check: $$i"; bash -n "$$i" ; ret=$$(($$ret+$$?)); \
 	done;exit $$ret
-ifeq ($(HAVE_SHFMT),yes)
 ifeq ($(HAVE_SHELLCHECK),yes)
+ifeq ($(HAVE_SHFMT),yes)
 	shellcheck $$(shfmt -f .)
+else
+	find . -name '*.sh' -print0 | xargs -0 shellcheck
 endif
 endif
 
