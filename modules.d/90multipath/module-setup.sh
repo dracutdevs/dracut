@@ -21,8 +21,6 @@ majmin_to_mpath_dev() {
 
 # called by dracut
 check() {
-    local _rootdev
-
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for_each_host_dev_and_slaves is_mpath || return 255
     }
@@ -52,10 +50,8 @@ cmdline() {
 
 # called by dracut
 installkernel() {
-    local _ret
     local _arch=${DRACUT_ARCH:-$(uname -m)}
     local _funcs='scsi_register_device_handler|dm_dirty_log_type_register|dm_register_path_selector|dm_register_target'
-    local _s390
 
     if [ "$_arch" = "s390" -o "$_arch" = "s390x" ]; then
         _s390drivers="=drivers/s390/scsi"
@@ -66,7 +62,7 @@ installkernel() {
 
 # called by dracut
 install() {
-    local _f _allow
+    local _allow
 
     add_hostonly_mpath_conf() {
         is_mpath "$1" && {
@@ -99,13 +95,14 @@ install() {
         [ -n "$_allow" ] && mpathconf "$_allow" --outfile "${initdir}"/etc/multipath.conf
     }
 
-    inst $(command -v partx) /sbin/partx
+    inst "$(command -v partx)" /sbin/partx
 
     inst_libdir_file "libmultipath*" "multipath/*"
     inst_libdir_file 'libgcc_s.so*'
 
     if [[ $hostonly_cmdline ]]; then
-        local _conf=$(cmdline)
+        local _conf
+        _conf=$(cmdline)
         [[ $_conf ]] && echo "$_conf" >> "${initdir}/etc/cmdline.d/90multipath.conf"
     fi
 
