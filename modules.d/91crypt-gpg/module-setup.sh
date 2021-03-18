@@ -40,8 +40,11 @@ sc_public_key() {
 
 # CCID Smartcard support requires GnuPG >= 2.1 with scdaemon and libusb
 sc_supported() {
-    local gpgMajor="$(gpg --version | sed -n 1p | sed -n -r -e 's|.* ([0-9]*).*|\1|p')"
-    local gpgMinor="$(gpg --version | sed -n 1p | sed -n -r -e 's|.* [0-9]*\.([0-9]*).*|\1|p')"
+    local gpgMajor
+    local gpgMinor
+    gpgMajor="$(gpg --version | sed -n 1p | sed -n -r -e 's|.* ([0-9]*).*|\1|p')"
+    gpgMinor="$(gpg --version | sed -n 1p | sed -n -r -e 's|.* [0-9]*\.([0-9]*).*|\1|p')"
+
     if [[ ${gpgMajor} -gt 2 || ${gpgMajor} -eq 2 && ${gpgMinor} -ge 1 ]] \
         && require_binaries gpg-agent \
         && require_binaries gpg-connect-agent \
