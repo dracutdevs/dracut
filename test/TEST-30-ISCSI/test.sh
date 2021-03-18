@@ -8,6 +8,7 @@ else
     OMIT_NETWORK="network-manager"
 fi
 
+# shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem over iSCSI with $USE_NETWORK"
 
 KVERSION=${KVERSION-$(uname -r)}
@@ -117,7 +118,7 @@ test_run() {
     do_test_run
     ret=$?
     if [[ -s $TESTDIR/server.pid ]]; then
-        kill -TERM $(cat "$TESTDIR"/server.pid)
+        kill -TERM "$(cat "$TESTDIR"/server.pid)"
         rm -f -- "$TESTDIR"/server.pid
     fi
     return $ret
@@ -138,7 +139,9 @@ test_setup() {
     # Create what will eventually be our root filesystem onto an overlay
     rm -rf -- "$TESTDIR"/overlay
     (
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay/source
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         (
             cd "$initdir" || exit
@@ -163,7 +166,10 @@ test_setup() {
 
     # second, install the files needed to make the root filesystem
     (
+        # shellcheck disable=SC2031
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount setsid dd
         inst_hook initqueue 01 ./create-client-root.sh
@@ -201,11 +207,14 @@ test_setup() {
     # Make server root
     dd if=/dev/zero of="$TESTDIR"/server.ext3 bs=1M count=120
 
-    kernel=$KVERSION
+    export kernel=$KVERSION
     rm -rf -- "$TESTDIR"/overlay
     (
         mkdir -p "$TESTDIR"/overlay/source
+        # shellcheck disable=SC2031
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay/source
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         (
             cd "$initdir" || exit
@@ -239,7 +248,10 @@ test_setup() {
 
     # second, install the files needed to make the root filesystem
     (
+        # shellcheck disable=SC2031
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd
         inst_hook initqueue 01 ./create-server-root.sh
@@ -267,7 +279,9 @@ test_setup() {
 
     # Make an overlay with needed tools for the test harness
     (
+        # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         inst_multiple poweroff shutdown
         inst_hook shutdown-emergency 000 ./hard-off.sh
@@ -296,9 +310,10 @@ test_setup() {
 
 test_cleanup() {
     if [[ -s $TESTDIR/server.pid ]]; then
-        kill -TERM $(cat "$TESTDIR"/server.pid)
+        kill -TERM "$(cat "$TESTDIR"/server.pid)"
         rm -f -- "$TESTDIR"/server.pid
     fi
 }
 
+# shellcheck disable=SC1090
 . "$testdir"/test-functions
