@@ -26,6 +26,7 @@ if get_url_handler "$liveurl" > /dev/null; then
     info "livenet: root image at $liveurl"
     netroot="livenet:$liveurl"
     root="livenet" # quiet complaints from init
+    # shellcheck disable=SC2034
     rootok=1
     wait_for_dev -n /dev/root
 else
