@@ -9,6 +9,7 @@ load_x509_keys() {
 
     # override the default configuration
     if [ -f "${IMACONFIG}" ]; then
+        # shellcheck disable=SC1090
         . "${IMACONFIG}"
     fi
 
@@ -26,8 +27,9 @@ load_x509_keys() {
             continue
         fi
 
-        X509ID=$(evmctl import "${PUBKEY}" "${KEYRING_ID}")
-        if [ $? -ne 0 ]; then
+        # FIXME: X509ID unused?
+        # shellcheck disable=SC2034
+        if ! X509ID=$(evmctl import "${PUBKEY}" "${KEYRING_ID}"); then
             info "integrity: IMA x509 cert not loaded on keyring: ${PUBKEY}"
         fi
     done
@@ -47,8 +49,8 @@ if [ ! -e "${IMASECDIR}" ]; then
 fi
 
 # get the IMA keyring id
-line=$(keyctl describe %keyring:.ima)
-if [ $? -eq 0 ]; then
+
+if line=$(keyctl describe %keyring:.ima); then
     _ima_id=${line%%:*}
 else
     _ima_id=$(keyctl search @u keyring _ima)
