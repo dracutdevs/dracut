@@ -76,7 +76,7 @@ cmdline() {
         done
 
         [ -z "$trtype" ] && return 0
-        nvme list-subsys "${PWD##*/}" | while read x dev trtype traddr host_traddr state ana; do
+        nvme list-subsys "${PWD##*/}" | while read -r _ _ trtype traddr host_traddr _; do
             [ "$trtype" != "${trtype#NQN}" ] && continue
             echo -n " nvmf.discover=$trtype,${traddr#traddr=},${host_traddr#host_traddr=}"
         done
@@ -101,7 +101,8 @@ cmdline() {
 # called by dracut
 install() {
     if [[ $hostonly_cmdline == "yes" ]]; then
-        local _nvmf_args=$(cmdline)
+        local _nvmf_args
+        _nvmf_args=$(cmdline)
         [[ "$_nvmf_args" ]] && printf "%s" "$_nvmf_args" >> "${initdir}/etc/cmdline.d/95nvmf-args.conf"
     fi
     inst_simple "/etc/nvme/hostnqn"
