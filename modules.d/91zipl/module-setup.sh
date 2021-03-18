@@ -24,7 +24,7 @@ installkernel() {
 
     _boot_zipl=$(sed -n -e '/^[[:space:]]*#/d' -e 's/\(.*\)\w*\/boot\/zipl.*/\1/p' /etc/fstab)
     if [ -n "$_boot_zipl" ]; then
-        eval $(blkid -s TYPE -o udev "${_boot_zipl}")
+        eval "$(blkid -s TYPE -o udev "${_boot_zipl}")"
         if [ -n "$ID_FS_TYPE" ]; then
             case "$ID_FS_TYPE" in
                 ext?)
@@ -53,7 +53,8 @@ install() {
     inst_hook cmdline 91 "$moddir/parse-zipl.sh"
     inst_script "${moddir}/install_zipl_cmdline.sh" /sbin/install_zipl_cmdline.sh
     if [[ $hostonly_cmdline == "yes" ]]; then
-        local _zipl=$(cmdline)
+        local _zipl
+        _zipl=$(cmdline)
 
         [[ $_zipl ]] && printf "%s\n" "$_zipl" > "${initdir}/etc/cmdline.d/91zipl.conf"
     fi
