@@ -550,6 +550,7 @@ prepare_udev_rules() {
 # $1 = type of hook, $2 = hook priority (lower runs first), $3 = hook
 # All hooks should be POSIX/SuS compliant, they will be sourced by init.
 inst_hook() {
+    local hook
     if ! [[ -f $3 ]]; then
         dfatal "Cannot install a hook ($3) that does not exist."
         dfatal "Aborting initrd creation."
@@ -558,7 +559,9 @@ inst_hook() {
         dfatal "No such hook type $1. Aborting initrd creation."
         exit 1
     fi
-    inst_simple "$3" "/lib/dracut/hooks/${1}/${2}-${3##*/}"
+    hook="/lib/dracut/hooks/${1}/${2}-${3##*/}"
+    inst_simple "$3" "$hook"
+    chmod u+x "$initdir/$hook"
 }
 
 # install any of listed files
