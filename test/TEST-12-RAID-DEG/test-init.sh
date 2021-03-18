@@ -53,7 +53,11 @@ getarg() {
             -y)
                 if _dogetarg "$2" > /dev/null; then
                     if [ "$_deprecated" = "1" ]; then
-                        [ -n "$_newoption" ] && warn "Kernel command line option '$2' is deprecated, use '$_newoption' instead." || warn "Option '$2' is deprecated."
+                        if [ -n "$_newoption" ]; then
+                            warn "Kernel command line option '$2' is deprecated, use '$_newoption' instead."
+                        else
+                            warn "Option '$2' is deprecated."
+                        fi
                     fi
                     echo 1
                     return 0
@@ -65,7 +69,11 @@ getarg() {
                 if _dogetarg "$2" > /dev/null; then
                     echo 0
                     if [ "$_deprecated" = "1" ]; then
-                        [ -n "$_newoption" ] && warn "Kernel command line option '$2' is deprecated, use '$_newoption=0' instead." || warn "Option '$2' is deprecated."
+                        if [ -n "$_newoption" ]; then
+                            warn "Kernel command line option '$2' is deprecated, use '$_newoption=0' instead."
+                        else
+                            warn "Option '$2' is deprecated."
+                        fi
                     fi
                     return 1
                 fi
@@ -78,7 +86,11 @@ getarg() {
                 fi
                 if _dogetarg "$1"; then
                     if [ "$_deprecated" = "1" ]; then
-                        [ -n "$_newoption" ] && warn "Kernel command line option '$1' is deprecated, use '$_newoption' instead." || warn "Option '$1' is deprecated."
+                        if [ -n "$_newoption" ]; then
+                            warn "Kernel command line option '$1' is deprecated, use '$_newoption' instead."
+                        else
+                            warn "Option '$1' is deprecated."
+                        fi
                     fi
                     return 0
                 fi
@@ -96,8 +108,7 @@ getargbool() {
     local _default
     _default="$1"
     shift
-    _b=$(getarg "$@")
-    [ $? -ne 0 -a -z "$_b" ] && _b="$_default"
+    _b=$(getarg "$@") || _b="$_default"
     if [ -n "$_b" ]; then
         [ "$_b" = "0" ] && return 1
         [ "$_b" = "no" ] && return 1
@@ -106,7 +117,7 @@ getargbool() {
     return 0
 }
 strstr() { [ "${1##*"$2"*}" != "$1" ]; }
-CMDLINE=$(while read line || [ -n "$line" ]; do echo "$line"; done < /proc/cmdline)
+CMDLINE=$(while read -r line || [ -n "$line" ]; do echo "$line"; done < /proc/cmdline)
 command -v plymouth > /dev/null && plymouth --quit
 exec > /dev/console 2>&1
 echo "dracut-root-block-success" | dd oflag=direct,dsync of=/dev/sda
