@@ -13,7 +13,6 @@ depends() {
 
 # called by dracut
 install() {
-    local _i
     local _installs
     if find_binary rsyslogd > /dev/null; then
         _installs="rsyslogd"
