@@ -22,12 +22,13 @@ i=1
 while [ "$i" -le "$RETRIES" ]; do
     imgfile=$(fetch_url "$liveurl")
 
+    # shellcheck disable=SC2181
     if [ $? != 0 ]; then
         warn "failed to download live image: error $?"
         imgfile=
     fi
 
-    if [ ! -z "$imgfile" -a -s "$imgfile" ]; then
+    if [ -n "$imgfile" -a -s "$imgfile" ]; then
         break
     else
         if [ $i -ge "$RETRIES" ]; then
