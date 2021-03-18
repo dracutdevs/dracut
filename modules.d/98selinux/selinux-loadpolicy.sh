@@ -7,12 +7,13 @@ rd_load_policy() {
     getarg "selinux=0" > /dev/null && return 0
 
     SELINUX="enforcing"
+    # shellcheck disable=SC1090
     [ -e "$NEWROOT/etc/selinux/config" ] && . "$NEWROOT/etc/selinux/config"
 
     # Check whether SELinux is in permissive mode
     permissive=0
-    getarg "enforcing=0" > /dev/null
-    if [ $? -eq 0 -o "$SELINUX" = "permissive" ]; then
+
+    if getarg "enforcing=0" > /dev/null || [ "$SELINUX" = "permissive" ]; then
         permissive=1
     fi
 
