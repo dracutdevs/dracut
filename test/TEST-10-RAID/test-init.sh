@@ -1,4 +1,6 @@
 #!/bin/sh
+# shellcheck disable=SC2015
+
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 getcmdline() {
     while read -r _line || [ -n "$_line" ]; do
@@ -96,8 +98,7 @@ getargbool() {
     local _default
     _default="$1"
     shift
-    _b=$(getarg "$@")
-    [ $? -ne 0 -a -z "$_b" ] && _b="$_default"
+    _b=$(getarg "$@") || _b="$_default"
     if [ -n "$_b" ]; then
         [ "$_b" = "0" ] && return 1
         [ "$_b" = "no" ] && return 1
@@ -106,7 +107,7 @@ getargbool() {
     return 0
 }
 strstr() { [ "${1##*"$2"*}" != "$1" ]; }
-CMDLINE=$(while read line || [ -n "$line" ]; do echo "$line"; done < /proc/cmdline)
+CMDLINE=$(while read -r line || [ -n "$line" ]; do echo "$line"; done < /proc/cmdline)
 command -v plymouth > /dev/null && plymouth --quit
 exec > /dev/console 2>&1
 echo "dracut-root-block-success" | dd oflag=direct,dsync of=/dev/sda1
