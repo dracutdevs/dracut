@@ -1572,6 +1572,13 @@ static int install_module(struct kmod_module *mod)
         const char *name = NULL;
 
         name = kmod_module_get_name(mod);
+
+        path = kmod_module_get_path(mod);
+        if (!path) {
+                log_debug("dracut_install '%s' is a builtin kernel module", name);
+                return 0;
+        }
+
         if (arg_mod_filter_noname && (regexec(&mod_filter_noname, name, 0, NULL, 0) == 0)) {
                 log_debug("dracut_install '%s' is excluded", name);
                 return 0;
@@ -1581,10 +1588,6 @@ static int install_module(struct kmod_module *mod)
                 log_debug("dracut_install '%s' not hostonly", name);
                 return 0;
         }
-
-        path = kmod_module_get_path(mod);
-        if (!path)
-                return -ENOENT;
 
         if (check_hashmap(items_failed, path))
                 return -1;
