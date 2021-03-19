@@ -88,7 +88,8 @@ info "luksOpen $device $luksname $luksfile $luksoptions"
 
 OLD_IFS="$IFS"
 IFS=,
-set -- "$luksoptions"
+# shellcheck disable=SC2086
+set -- $luksoptions
 IFS="$OLD_IFS"
 
 while [ $# -gt 0 ]; do
