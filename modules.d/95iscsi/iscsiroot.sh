@@ -237,7 +237,8 @@ handle_netroot() {
                      ${iscsi_in_username:+--name=node.session.auth.username_in --value=$iscsi_in_username} \
                      ${iscsi_in_password:+--name=node.session.auth.password_in --value=$iscsi_in_password} \
                      $EXTRA"
-            $CMD "$__op"
+            # shellcheck disable=SC2086
+            $CMD $__op
             if [ "$netif" != "timeout" ]; then
                 $CMD --login
             fi
