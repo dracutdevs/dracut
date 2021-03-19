@@ -61,7 +61,8 @@ parse_nvmf_discover() {
     trsvcid=4420
     OLDIFS="$IFS"
     IFS=,
-    set "$1"
+    # shellcheck disable=SC2086
+    set -- $1
     IFS="$OLDIFS"
 
     case $# in
