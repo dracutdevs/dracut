@@ -850,7 +850,7 @@ if [[ $regenerate_all == "yes" ]]; then
     ((len = ${#dracut_args[@]}))
     for ((i = 0; i < len; i++)); do
         [[ ${dracut_args[$i]} == "--regenerate-all" ]] \
-            && unset "dracut_args[$i]"
+            && unset dracut_args["$i"]
     done
 
     cd "$dracutsysrootdir"/lib/modules || exit 1
