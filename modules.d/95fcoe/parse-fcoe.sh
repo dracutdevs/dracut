@@ -36,7 +36,9 @@ parse_fcoe_opts() {
     local fcoe_mac
     local OLDIFS="$IFS"
     local IFS=:
-    set -- "$@"
+    # shellcheck disable=SC2086
+    # shellcheck disable=SC2048
+    set -- $*
     IFS="$OLDIFS"
 
     case $# in
