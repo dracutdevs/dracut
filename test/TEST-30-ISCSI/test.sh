@@ -15,7 +15,7 @@ KVERSION=${KVERSION-$(uname -r)}
 
 DEBUGFAIL="loglevel=1"
 #DEBUGFAIL="rd.shell rd.break rd.debug loglevel=7 "
-#DEBUGFAIL="rd.debug loglevel=7 "
+DEBUGFAIL="rd.debug loglevel=7 "
 #SERVER_DEBUG="rd.debug loglevel=7"
 #SERIAL="tcp:127.0.0.1:9999"
 
@@ -23,13 +23,12 @@ run_server() {
     # Start server first
     echo "iSCSI TEST SETUP: Starting DHCP/iSCSI server"
 
-    SERIAL=${SERIAL:-"file:$TESTDIR/server.log"}
     "$testdir"/run-qemu \
         -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
         -drive format=raw,index=1,media=disk,file="$TESTDIR"/root.ext3 \
         -drive format=raw,index=2,media=disk,file="$TESTDIR"/iscsidisk2.img \
         -drive format=raw,index=3,media=disk,file="$TESTDIR"/iscsidisk3.img \
-        -serial "$SERIAL" \
+        -serial "${SERIAL:-"file:$TESTDIR/server.log"}" \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net nic,macaddr=52:54:00:12:34:57,model=e1000 \
         -net socket,listen=127.0.0.1:12330 \
@@ -43,8 +42,7 @@ run_server() {
 
     if ! [[ $SERIAL ]]; then
         echo "Waiting for the server to startup"
-        while :; do
-            grep Serving "$TESTDIR"/server.log && break
+        while ! grep -q Serving "$TESTDIR"/server.log; do
             echo "Waiting for the server to startup"
             sleep 1
         done
