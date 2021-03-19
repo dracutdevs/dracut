@@ -47,13 +47,6 @@ if [ "${root%%:*}" = "iscsi" ]; then
     write_fs_tab /dev/root
 fi
 
-# If it's not empty or iscsi we don't continue
-for nroot in $(getargs netroot); do
-    [ "${nroot%%:*}" = "iscsi" ] || continue
-    netroot="$nroot"
-    break
-done
-
 # Root takes precedence over netroot
 if [ "${root}" = "/dev/root" ] && getarg "netroot=dhcp"; then
     # if root is not specified try to mount the whole iSCSI LUN
@@ -90,12 +83,18 @@ if [ -n "$iscsi_firmware" ]; then
     initqueue --unique --onetime --settled /sbin/iscsiroot online "iscsi:" "'$NEWROOT'"
 fi
 
-# ISCSI actually supported?
-if ! [ -e /sys/module/iscsi_tcp ]; then
-    modprobe -b -q iscsi_tcp || die "iscsiroot requested but kernel/initrd does not support iscsi"
+if [ "${netroot%%:*}" = "iscsi" ] || [ "$root" == "dhcp" ]; then
+    # ISCSI actually supported?
+    if ! [ -e /sys/module/iscsi_tcp ]; then
+        modprobe -b -q iscsi_tcp || die "iscsit requested but kernel/initrd does not support iscsi"
+    fi
+
+    modprobe --all -b -q qla4xxx cxgb3i cxgb4i bnx2i be2iscsi
 fi
 
-modprobe --all -b -q qla4xxx cxgb3i cxgb4i bnx2i be2iscsi
+if [ -z "$netroot" ] || ! [ "${netroot%%:*}" = "iscsi" ]; then
+    return 1
+fi
 
 if [ -n "$netroot" ] && [ "$root" != "/dev/root" ] && [ "$root" != "dhcp" ]; then
     if ! getargbool 1 rd.neednet > /dev/null || ! getarg "ip="; then
@@ -132,10 +131,6 @@ if [ -z "$iscsi_initiator" ] && [ -f /sys/firmware/ibft/initiator/initiator-name
             sleep 1
         fi
     fi
-fi
-
-if [ -z "$netroot" ] || ! [ "${netroot%%:*}" = "iscsi" ]; then
-    return 1
 fi
 
 initqueue --unique --onetime --timeout /sbin/iscsiroot timeout "$netroot" "$NEWROOT"
