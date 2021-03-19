@@ -96,7 +96,7 @@ test_run() {
         }
 
         getcmdline() {
-            echo "rdbreak=cmdline rd.lvm rd.auto rd.retry=10"
+            echo "rdbreak=cmdline rd.lvm rd.auto=0 rd.auto rd.retry=10"
         }
         RDRETRY=$(getarg rd.retry -d 'rd_retry=')
         [[ $RDRETRY == "10" ]] || ret=$((ret + 1))
@@ -105,7 +105,7 @@ test_run() {
         getargbool 0 rd.auto || ret=$((ret + 1))
 
         getcmdline() {
-            echo "rd.break=cmdlined rd.lvm=0 rd.auto=0"
+            echo "rd.break=cmdlined rd.lvm=0 rd.auto rd.auto=1 rd.auto=0"
         }
         getarg rd.break=cmdline -d rdbreak=cmdline && ret=$((ret + 1))
         getargbool 1 rd.lvm -d -n rd_NO_LVM && ret=$((ret + 1))
