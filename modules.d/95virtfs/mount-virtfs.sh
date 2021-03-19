@@ -7,7 +7,7 @@ filter_rootopts() {
     # strip ro and rw options
     local OLDIFS="$IFS"
     IFS=,
-    set -- "$rootopts"
+    set -- $rootopts
     IFS="$OLDIFS"
     local v
     while [ $# -gt 0 ]; do
