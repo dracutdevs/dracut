@@ -56,6 +56,7 @@ for zfcp_arg in $(getargs rd.zfcp); do
     (
         OLDIFS="$IFS"
         IFS=","
+        # shellcheck disable=SC2086
         set $zfcp_arg
         IFS="$OLDIFS"
         create_udev_rule "$1" "$2" "$3"
