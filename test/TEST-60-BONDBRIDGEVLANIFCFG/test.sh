@@ -24,7 +24,6 @@ run_server() {
     # Start server first
     echo "MULTINIC TEST SETUP: Starting DHCP/NFS server"
 
-    SERIAL=${SERIAL:-"file:$TESTDIR/server.log"}
     "$testdir"/run-qemu \
         -hda "$TESTDIR"/server.ext3 \
         -netdev socket,id=n0,listen=127.0.0.1:12370 \
@@ -35,7 +34,7 @@ run_server() {
         -device e1000,netdev=n1,mac=52:54:01:12:34:57 \
         -device e1000,netdev=n2,mac=52:54:01:12:34:58 \
         -device e1000,netdev=n3,mac=52:54:01:12:34:59 \
-        -serial "$SERIAL" \
+        -serial "${SERIAL:-"file:$TESTDIR/server.log"}" \
         -watchdog i6300esb -watchdog-action poweroff \
         -append "panic=1 loglevel=7 root=LABEL=dracut rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 rd.debug" \
         -initrd "$TESTDIR"/initramfs.server \
