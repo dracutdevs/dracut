@@ -14,23 +14,22 @@ TEST_DESCRIPTION="root filesystem on NFS with $USE_NETWORK"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-DEBUGFAIL="loglevel=1"
+#DEBUGFAIL="loglevel=1"
 #DEBUGFAIL="rd.shell rd.break rd.debug loglevel=7 "
 #DEBUGFAIL="rd.debug loglevel=7 "
 #SERVER_DEBUG="rd.debug loglevel=7"
-#SERIAL="tcp:127.0.0.1:9999"
+#SERIAL="unix:/tmp/server.sock"
 
 run_server() {
     # Start server first
     echo "NFS TEST SETUP: Starting DHCP/NFS server"
-    SERIAL=${SERIAL:-"file:$TESTDIR/server.log"}
     "$testdir"/run-qemu \
         -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
         -net socket,listen=127.0.0.1:12320 \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
-        -serial "$SERIAL" \
+        -serial "${SERIAL:-"file:$TESTDIR/server.log"}" \
         -watchdog i6300esb -watchdog-action poweroff \
-        -append "panic=1 quiet root=LABEL=dracut rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0" \
+        -append "panic=1 quiet root=LABEL=dracut rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 $SERVER_DEBUG" \
         -initrd "$TESTDIR"/initramfs.server \
         -pidfile "$TESTDIR"/server.pid -daemonize || return 1
     chmod 644 "$TESTDIR"/server.pid || return 1
@@ -39,8 +38,7 @@ run_server() {
     tty -s && stty sane
 
     if ! [[ $SERIAL ]]; then
-        while :; do
-            grep Serving "$TESTDIR"/server.log && break
+        while ! grep -q Serving "$TESTDIR"/server.log; do
             echo "Waiting for the server to startup"
             sleep 1
         done
@@ -81,7 +79,7 @@ client_test() {
     fi
 
     # nfsinfo=( server:/path nfs{,4} options )
-    read -a -r nfsinfo < <(awk '{print $2, $3, $4; exit}' "$TESTDIR"/client.img)
+    read -r -a nfsinfo < <(awk '{print $2, $3, $4; exit}' "$TESTDIR"/client.img)
 
     if [[ ${nfsinfo[0]%%:*} != "$server" ]]; then
         echo "CLIENT TEST INFO: got server: ${nfsinfo[0]%%:*}"
