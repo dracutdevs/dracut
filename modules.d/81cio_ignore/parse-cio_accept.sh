@@ -12,7 +12,8 @@ fi
 if [ -n "$CIO_ACCEPT" ]; then
     OLDIFS="$IFS"
     IFS=,
-    set -- "$CIO_ACCEPT"
+    # shellcheck disable=SC2086
+    set -- $CIO_ACCEPT
     while (($# > 0)); do
         info "Enabling device $1"
         cio_ignore --remove "$1"
