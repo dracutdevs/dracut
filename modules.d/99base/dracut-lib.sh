@@ -288,9 +288,9 @@ getargnum() {
 }
 
 getargs() {
+    debug_off
     CMDLINE=$(getcmdline)
     export CMDLINE
-    debug_off
     local _val _i _gfound _deprecated
     unset _val
     unset _gfound
@@ -410,6 +410,7 @@ source_all() {
         if [ -e "$f" ]; then
             # dash can't source with parameters
             if [ -z "$BASH" ] && [ $# -gt 0 ]; then
+                [ -x "$f" ] || chmod 0755 "$f"
                 "$f" "$@"
             else
                 # shellcheck disable=SC1090
