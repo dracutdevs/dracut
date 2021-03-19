@@ -7,7 +7,8 @@ for zfcp_arg in $(getargs rd.zfcp -d 'rd_ZFCP='); do
     test $? -ne 0 && die "For argument 'rd.zfcp=$zfcp_arg'\nSorry, invalid format."
     (
         IFS=","
-        set "$zfcp_arg"
+        # shellcheck disable=SC2086
+        set $zfcp_arg
         echo "$@" >> /etc/zfcp.conf
     )
 done
