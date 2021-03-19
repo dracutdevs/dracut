@@ -102,7 +102,7 @@ fsck_drv_com() {
     local _out
 
     if ! strglobin "$_fop" "-[ynap]"; then
-        _fop="-a ${_fop}"
+        _fop="-a${_fop:+ "$_fop"}"
     fi
 
     info "issuing $_drv $_fop $_dev"
@@ -124,7 +124,8 @@ fsck_drv_std() {
     # note, we don't enforce -a here, thus fsck is being run (in theory)
     # interactively; otherwise some tool might complain about lack of terminal
     # (and using -a might not be safe)
-    fsck "$_fop" "$_dev" > /dev/console 2>&1
+    # shellcheck disable=SC2086
+    fsck $_fop "$_dev" > /dev/console 2>&1
     _ret=$?
     fsck_tail
 
