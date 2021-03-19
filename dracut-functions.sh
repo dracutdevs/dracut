@@ -144,10 +144,11 @@ print_vars() {
 # $ normalize_path ///test/test//
 # /test/test
 normalize_path() {
+    # shellcheck disable=SC2064
+    trap "$(shopt -p extglob)" RETURN
     shopt -q -s extglob
-    set -- "${1//+(\/)//}"
-    shopt -q -u extglob
-    printf "%s\n" "${1%/}"
+    local p=${1//+(\/)//}
+    printf "%s\n" "${p%/}"
 }
 
 # convert_abs_rel <from> <to>
@@ -174,8 +175,8 @@ convert_abs_rel() {
         return
     }
 
-    read -r -d '/' -r -a __current <<< "$1"
-    read -r -d '/' -a __absolute <<< "$2"
+    IFS=/ read -r -a __current <<< "$1"
+    IFS=/ read -r -a __absolute <<< "$2"
 
     __abssize=${#__absolute[@]}
     __cursize=${#__current[@]}
@@ -656,7 +657,8 @@ fs_get_option() {
     local _option=$2
     local OLDIFS="$IFS"
     IFS=,
-    set -- "$_fsopts"
+    # shellcheck disable=SC2086
+    set -- $_fsopts
     IFS="$OLDIFS"
     while [ $# -gt 0 ]; do
         case $1 in
