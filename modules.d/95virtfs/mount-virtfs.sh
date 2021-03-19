@@ -7,6 +7,7 @@ filter_rootopts() {
     # strip ro and rw options
     local OLDIFS="$IFS"
     IFS=,
+    # shellcheck disable=SC2086
     set -- $rootopts
     IFS="$OLDIFS"
     local v
