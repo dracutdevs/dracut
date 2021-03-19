@@ -55,7 +55,8 @@ print_s390() {
 
     OLD_IFS=$IFS
     IFS=","
-    set -- "$CONFIG_LINE"
+    # shellcheck disable=SC2086
+    set -- $CONFIG_LINE
     IFS=$OLD_IFS
     NETTYPE=$1
     shift
