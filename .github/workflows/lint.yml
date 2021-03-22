@@ -28,12 +28,21 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Run the sh-checker
+      - name: install tools
+        run: |
+          sudo apt-get install shellcheck
+          sudo wget "https://github.com/mvdan/sh/releases/download/v3.2.4/shfmt_v3.2.4_linux_amd64" \
+                    -O /usr/local/bin/shfmt
+          sudo chmod +x /usr/local/bin/shfmt
+
+      - name: shfmt
         uses: luizm/action-sh-checker@v0.1.13
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SHELLCHECK_OPTS: -e SC1004 # exclude some shellcheck warnings.
           SHFMT_OPTS: -s # arguments to shfmt.
         with:
           sh_checker_shellcheck_disable: true
           sh_checker_comment: true
+
+      - name: shellcheck on all marked directories
+        run: while read -r -d '' dir; do shellcheck $(shfmt -f $dir); done < <(find . -name .shchkdir -printf '%h\0')
