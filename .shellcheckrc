@@ -1,5 +1,19 @@
 # SC2039: In POSIX sh, 'local' is undefined.
+# https://github.com/koalaman/shellcheck/wiki/SC2039
 disable=SC2039
 
 # SC2166: Prefer [ p ] || [ q ] as [ p -o q ] is not well defined.
+# https://github.com/koalaman/shellcheck/wiki/SC2166
 disable=SC2166
+
+# SC2154: Variable is referenced but not assigned
+# https://github.com/koalaman/shellcheck/wiki/SC2154
+disable=SC2154
+
+# SC1091: Not following <file>
+# https://github.com/koalaman/shellcheck/wiki/SC1091
+disable=SC1091
+
+# SC2174: When used with -p, -m only applies to the deepest directory.
+# https://github.com/koalaman/shellcheck/wiki/SC2174
+disable=SC2174
