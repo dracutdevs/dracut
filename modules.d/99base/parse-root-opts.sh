@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# shellcheck disable=SC2034
 root=$(getarg root=)
 
 rflags="$(getarg rootflags=)"
