@@ -15,7 +15,7 @@ depends() {
 install() {
     inst_multiple mount mknod mkdir sleep chroot chown \
         sed ls flock cp mv dmesg rm ln rmmod mkfifo umount readlink setsid \
-        modprobe
+        modprobe chmod
 
     inst_multiple -o findmnt less kmod dracut-getargs
 
@@ -55,7 +55,7 @@ install() {
     if ! dracut_module_included "systemd"; then
         inst_multiple switch_root || dfatal "Failed to install switch_root"
         inst_hook cmdline 10 "$moddir/parse-root-opts.sh"
-        inst_multiple -o $systemdutildir/systemd-timestamp
+        inst_multiple -o "$systemdutildir"/systemd-timestamp
     fi
 
     if [[ $realinitpath ]]; then
@@ -69,12 +69,13 @@ install() {
         echo ro >> "${initdir}/etc/cmdline.d/base.conf"
     fi
 
-    [ -e "${initdir}/usr/lib" ] || mkdir -m 0755 -p ${initdir}/usr/lib
+    [ -e "${initdir}/usr/lib" ] || mkdir -m 0755 -p "${initdir}"/usr/lib
 
     local VERSION=""
     local PRETTY_NAME=""
     # Derive an os-release file from the host, if it exists
     if [[ -e $dracutsysrootdir/etc/os-release ]]; then
+        # shellcheck disable=SC1090
         . "$dracutsysrootdir"/etc/os-release
         grep -hE -ve '^VERSION=' -ve '^PRETTY_NAME' "$dracutsysrootdir"/etc/os-release > "${initdir}"/usr/lib/initrd-release
         [[ -n ${VERSION} ]] && VERSION+=" "
@@ -83,26 +84,26 @@ install() {
         # Fall back to synthesizing one, since dracut is presently used
         # on non-systemd systems as well.
         {
-            echo NAME=dracut
-            echo ID=dracut
-            echo VERSION_ID=\"$DRACUT_VERSION\"
-            echo ANSI_COLOR='"0;34"'
-        } > ${initdir}/usr/lib/initrd-release
+            echo "NAME=dracut"
+            echo "ID=dracut"
+            echo "VERSION_ID=\"$DRACUT_VERSION\""
+            echo 'ANSI_COLOR="0;34"'
+        } > "${initdir}"/usr/lib/initrd-release
     fi
     VERSION+="dracut-$DRACUT_VERSION"
     PRETTY_NAME+="dracut-$DRACUT_VERSION (Initramfs)"
     {
-        echo VERSION=\"$VERSION\"
-        echo PRETTY_NAME=\"$PRETTY_NAME\"
+        echo "VERSION=\"$VERSION\""
+        echo "PRETTY_NAME=\"$PRETTY_NAME\""
         # This addition is relatively new, intended to allow software
         # to easily detect the dracut version if need be without
         # having it mixed in with the real underlying OS version.
-        echo DRACUT_VERSION=\"${DRACUT_VERSION}\"
+        echo "DRACUT_VERSION=\"${DRACUT_VERSION}\""
     } >> "$initdir"/usr/lib/initrd-release
     echo "dracut-$DRACUT_VERSION" > "$initdir/lib/dracut/dracut-$DRACUT_VERSION"
-    ln -sf ../usr/lib/initrd-release $initdir/etc/initrd-release
-    ln -sf initrd-release $initdir/usr/lib/os-release
-    ln -sf initrd-release $initdir/etc/os-release
+    ln -sf ../usr/lib/initrd-release "$initdir"/etc/initrd-release
+    ln -sf initrd-release "$initdir"/usr/lib/os-release
+    ln -sf initrd-release "$initdir"/etc/os-release
 
     ## save host_devs which we need bring up
     if [[ $hostonly_cmdline == "yes" ]]; then
@@ -112,10 +113,11 @@ install() {
         if [[ -f $initdir/lib/dracut/need-initqueue ]] || ! dracut_module_included "systemd"; then
             (
                 if dracut_module_included "systemd"; then
-                    DRACUT_SYSTEMD=1
+                    export DRACUT_SYSTEMD=1
                 fi
-                PREFIX="$initdir"
+                export PREFIX="$initdir"
 
+                # shellcheck source=dracut-lib.sh
                 . "$moddir/dracut-lib.sh"
 
                 for _dev in "${host_devs[@]}"; do
@@ -130,10 +132,10 @@ install() {
                         [[ $_dev == "$_dev2" ]] && continue 2
                     done
 
-                    _pdev=$(get_persistent_dev $_dev)
+                    _pdev=$(get_persistent_dev "$_dev")
 
                     case "$_pdev" in
-                        /dev/?*) wait_for_dev $_pdev ;;
+                        /dev/?*) wait_for_dev "$_pdev" ;;
                         *) ;;
                     esac
                 done
