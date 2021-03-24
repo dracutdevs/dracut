@@ -1,7 +1,7 @@
 #!/bin/bash
 
 pkglib_dir() {
-    local _dirs="/usr/lib/plymouth /usr/libexec/plymouth/"
+    local _dirs="/usr/lib/plymouth $libexecdir/plymouth/"
     if find_binary dpkg-architecture &> /dev/null; then
         _dirs+=" /usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/plymouth"
     fi

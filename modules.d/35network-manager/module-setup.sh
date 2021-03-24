@@ -31,7 +31,7 @@ install() {
     inst_multiple ip sed grep
 
     inst NetworkManager
-    inst /usr/libexec/nm-initrd-generator
+    inst $libexecdir/nm-initrd-generator
     inst_multiple -o teamd dhclient
     inst_hook cmdline 99 "$moddir/nm-config.sh"
     if dracut_module_included "systemd"; then
@@ -46,7 +46,7 @@ install() {
     inst_simple "$moddir/nm-lib.sh" "/lib/nm-lib.sh"
 
     if [[ -x "$initdir/usr/sbin/dhclient" ]]; then
-        inst /usr/libexec/nm-dhcp-helper
+        inst $libexecdir/nm-dhcp-helper
     elif ! [[ -e "$initdir/etc/machine-id" ]]; then
         # The internal DHCP client silently fails if we
         # have no machine-id

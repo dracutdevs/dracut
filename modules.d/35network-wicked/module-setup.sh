@@ -41,7 +41,7 @@ install() {
     inst_multiple "/etc/dbus-1/system.d/org.opensuse.Network*"
     inst_multiple "/usr/share/wicked/schema/*"
     inst_multiple "/usr/lib/wicked/bin/*"
-    inst_multiple "/usr/libexec/wicked/bin/*"
+    inst_multiple "$libexecdir/wicked/bin/*"
     inst_multiple "/usr/sbin/wicked*"
 
     wicked_units="

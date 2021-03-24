@@ -1736,6 +1736,11 @@ if ! [[ -d $dracutsysrootdir$tmpfilesdir ]]; then
     [[ -d $dracutsysrootdir/usr/lib/tmpfiles.d ]] && tmpfilesdir=/usr/lib/tmpfiles.d
 fi
 
+[[ -d $dracutsysrootdir$libexecdir ]] \
+    || libexecdir=$(pkg-config libexecdir --variable=libexecdir 2> /dev/null)
+
+[[ -d $dracutsysrootdir$libexecdir ]] || libexecdir=/usr/libexec
+
 export initdir dracutbasedir \
     dracutmodules force_add_dracutmodules add_dracutmodules omit_dracutmodules \
     mods_to_load \
@@ -1752,7 +1757,7 @@ export initdir dracutbasedir \
     systemdutildir systemdutilconfdir systemdcatalog systemdntpunits \
     systemdntpunitsconfdir systemdsystemunitdir systemdsystemconfdir \
     hostonly_cmdline loginstall \
-    tmpfilesdir
+    tmpfilesdir libexecdir
 
 mods_to_load=""
 # check all our modules to see if they should be sourced.
