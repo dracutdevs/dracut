@@ -21,12 +21,12 @@ if [ -s /run/NetworkManager/initrd/hostname ]; then
 fi
 
 for _i in /sys/class/net/*; do
-    state=/run/NetworkManager/devices/$(cat $_i/ifindex)
-    grep -q connection-uuid= $state 2> /dev/null || continue
+    state=/run/NetworkManager/devices/$(cat "$_i"/ifindex)
+    grep -q connection-uuid= "$state" 2> /dev/null || continue
     ifname=${_i##*/}
-    sed -n 's/root-path/new_root_path/p;s/next-server/new_next_server/p' < $state > /tmp/dhclient.$ifname.dhcpopts
-    source_hook initqueue/online $ifname
-    /sbin/netroot $ifname
+    sed -n 's/root-path/new_root_path/p;s/next-server/new_next_server/p' < "$state" > /tmp/dhclient."$ifname".dhcpopts
+    source_hook initqueue/online "$ifname"
+    /sbin/netroot "$ifname"
 done
 
-> /tmp/nm.done
+: > /tmp/nm.done
