@@ -32,19 +32,18 @@ install() {
     # Install the systemd type service unit for sysusers.
     # Install the binary executable(s) for sysusers.
     inst_multiple -o \
-        $sysusers/basic.conf \
-        $sysusers/systemd.conf \
-        $systemdsystemunitdir/systemd-sysusers.service \
+        "$sysusers"/basic.conf \
+        "$sysusers"/systemd.conf \
+        "$systemdsystemunitdir"/systemd-sysusers.service \
         systemd-sysusers
 
     # Install the hosts local user configurations if enabled.
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
-            $sysusersconfdir/basic.conf \
-            $sysusersconfdir/systemd.conf \
-            $systemdsystemconfdir/systemd-sysusers.service \
-            $systemdsystemconfdir/systemd-sysusers.service.d/*.conf \
-            ${NULL}
+            "$sysusersconfdir"/basic.conf \
+            "$sysusersconfdir"/systemd.conf \
+            "$systemdsystemconfdir"/systemd-sysusers.service \
+            "$systemdsystemconfdir"/systemd-sysusers.service.d/*.conf
     fi
 
     # Enable the systemd type service unit for sysusers.
