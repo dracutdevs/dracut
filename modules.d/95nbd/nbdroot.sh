@@ -14,6 +14,7 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
 [ -z "$3" ] && exit 1
 
 # root is in the form root=nbd:srv:port[:fstype[:rootflags[:nbdopts]]]
+# shellcheck disable=SC2034
 netif="$1"
 nroot="$2"
 NEWROOT="$3"
@@ -89,7 +90,7 @@ fsopts=${fsopts:+$fsopts,}${nbdrw}
 i=0
 while [ ! -b /dev/nbd0 ]; do
     [ $i -ge 20 ] && exit 1
-    if [ $UDEVVERSION -ge 143 ]; then
+    if [ "$UDEVVERSION" -ge 143 ]; then
         udevadm settle --exit-if-exists=/dev/nbd0
     else
         sleep 0.1
@@ -111,7 +112,7 @@ if [ "$root" = "block:/dev/root" -o "$root" = "dhcp" ]; then
 
         printf '/bin/mount %s\n' \
             "$NEWROOT" \
-            > $hookdir/mount/01-$$-nbd.sh
+            > "$hookdir"/mount/01-$$-nbd.sh
     fi
     # if we're on systemd, use the nbd-generator script
     # to create the /sysroot mount.
@@ -129,7 +130,7 @@ else
 fi
 
 nbd-client -check /dev/nbd0 > /dev/null \
-    || nbd-client "$nbdserver" $nbdport /dev/nbd0 $preopts $opts || exit 1
+    || nbd-client "$nbdserver" "$nbdport" /dev/nbd0 "$preopts" "$opts" || exit 1
 
 # NBD doesn't emit uevents when it gets connected, so kick it
 echo change > /sys/block/nbd0/uevent
