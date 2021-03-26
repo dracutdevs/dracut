@@ -27,17 +27,16 @@ depends() {
 install() {
 
     inst_multiple -o \
-        $libdir/repart.d/*.conf \
-        $systemdsystemunitdir/systemd-repart.service \
-        $systemdsystemunitdir/initrd-root-fs.target.wants/systemd-repart.service \
+        "$libdir"/repart.d/*.conf \
+        "$systemdsystemunitdir"/systemd-repart.service \
+        "$systemdsystemunitdir"/initrd-root-fs.target.wants/systemd-repart.service \
         systemd-repart
 
     # Install the hosts local user configurations if enabled.
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
             /etc/repart.d/*.conf \
-            $systemdsystemconfdir/systemd-repart.service \
-            $systemdsystemconfdir/systemd-repart.service.d/*.conf \
-            ${NULL}
+            "$systemdsystemconfdir"/systemd-repart.service \
+            "$systemdsystemconfdir"/systemd-repart.service.d/*.conf
     fi
 }
