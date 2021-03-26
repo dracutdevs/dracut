@@ -17,23 +17,10 @@ if [ "$ipv6" ] && ! str_starts "$GATEWAY" "["; then
 fi
 
 if [ "$ipv6" ]; then
-    DNS1=$(
-        set -- ${DNS/,/ }
-        echo $1
-    )
-    DNS2=$(
-        set -- ${DNS/,/ }
-        echo $2
-    )
+    # shellcheck disable=SC2153
+    IFS="," read -r DNS1 DNS2 _ <<< "$DNS"
 else
-    DNS1=$(
-        set -- ${DNS/:/ }
-        echo $1
-    )
-    DNS2=$(
-        set -- ${DNS/:/ }
-        echo $2
-    )
+    IFS=":" read -r DNS1 DNS2 _ <<< "$DNS"
 fi
 
 {
@@ -43,7 +30,7 @@ fi
     done
 } > /etc/cmdline.d/80-cms.conf
 
-[ -e "/tmp/net.ifaces" ] && read IFACES < /tmp/net.ifaces
+[ -e "/tmp/net.ifaces" ] && read -r IFACES < /tmp/net.ifaces
 IFACES="$IFACES $DEVICE"
 echo "$IFACES" >> /tmp/net.ifaces
 
