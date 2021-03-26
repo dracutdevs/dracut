@@ -31,7 +31,7 @@ do_merge() {
                     info "Merging back ${vg}/${lv} to the original LV"
                     lvm lvconvert --merge "${vg}/${lv}"
 
-                    LVS+=($lv)
+                    LVS+=("$lv")
                 done
 
                 systemctl --no-block stop sysroot.mount
