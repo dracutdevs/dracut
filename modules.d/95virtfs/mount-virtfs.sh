@@ -7,6 +7,7 @@ filter_rootopts() {
     # strip ro and rw options
     local OLDIFS="$IFS"
     IFS=,
+    # shellcheck disable=SC2086
     set -- $rootopts
     IFS="$OLDIFS"
     local v
@@ -21,12 +22,10 @@ filter_rootopts() {
         shift
     done
     rootopts=${v#,}
-    echo $rootopts
+    echo "$rootopts"
 }
 
 mount_root() {
-    local _ret
-
     rootfs="9p"
     rflags="trans=virtio,version=9p2000.L"
 
@@ -43,7 +42,7 @@ mount_root() {
         # the root filesystem,
         # remount it with the proper options
         rootopts="defaults"
-        while read dev mp fs opts rest || [ -n "$dev" ]; do
+        while read -r dev mp _ opts rest || [ -n "$dev" ]; do
             # skip comments
             [ "${dev%%#*}" != "$dev" ] && continue
 
@@ -53,7 +52,7 @@ mount_root() {
             fi
         done < "$NEWROOT/etc/fstab"
 
-        rootopts=$(filter_rootopts $rootopts)
+        rootopts=$(filter_rootopts "$rootopts")
     fi
 
     # we want rootflags (rflags) to take precedence so prepend rootopts to
