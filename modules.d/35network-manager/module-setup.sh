@@ -10,6 +10,7 @@ check() {
 
 # called by dracut
 depends() {
+    echo dbus
     return 0
 }
 
@@ -33,8 +34,18 @@ install() {
     inst_multiple -o teamd dhclient
     inst_hook cmdline 99 "$moddir/nm-config.sh"
     if dracut_module_included "systemd"; then
-        inst_simple "${moddir}/nm-run.service" "${systemdsystemunitdir}/nm-run.service"
-        $SYSTEMCTL -q --root "$initdir" enable nm-run.service
+
+        inst "$dbussystem"/org.freedesktop.NetworkManager.conf
+        inst_multiple nmcli nm-online
+
+        # Install a configuration snippet to prevent the automatic creation of
+        # "Wired connection #" DHCP connections for Ethernet interfaces
+        inst_simple "$moddir"/initrd-no-auto-default.conf /usr/lib/NetworkManager/conf.d/
+
+        inst_simple "$moddir"/nm-initrd.service "$systemdsystemunitdir"/nm-initrd.service
+        inst_simple "$moddir"/nm-wait-online-initrd.service "$systemdsystemunitdir"/nm-wait-online-initrd.service
+
+        $SYSTEMCTL -q --root "$initdir" enable nm-initrd.service
     fi
 
     inst_hook initqueue/settled 99 "$moddir/nm-run.sh"
