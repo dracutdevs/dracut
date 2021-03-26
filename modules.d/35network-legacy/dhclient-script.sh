@@ -15,7 +15,8 @@ setup_interface() {
     bcast=$new_broadcast_address
     gw=${new_routers%%,*}
     domain=$new_domain_name
-    search=$(printf -- "$new_domain_search")
+    # get rid of control chars
+    search=$(printf -- "%s" "$new_domain_search" | tr -d '[:cntrl:]')
     namesrv=$new_domain_name_servers
     hostname=$new_host_name
     [ -n "$new_dhcp_lease_time" ] && lease_time=$new_dhcp_lease_time
@@ -23,7 +24,8 @@ setup_interface() {
     preferred_lft=$lease_time
     [ -n "$new_preferred_life" ] && preferred_lft=$new_preferred_life
 
-    [ -f /tmp/net.$netif.override ] && . /tmp/net.$netif.override
+    # shellcheck disable=SC1090
+    [ -f /tmp/net."$netif".override ] && . /tmp/net."$netif".override
 
     # Taken from debian dhclient-script:
     # The 576 MTU is only used for X.25 and dialup connections
@@ -31,51 +33,52 @@ setup_interface() {
     # problems with UDP traffic, among other things.  As such,
     # disallow MTUs from 576 and below by default, so that broken
     # MTUs are ignored, but higher stuff is allowed (1492, 1500, etc).
-    if [ -n "$mtu" ] && [ $mtu -gt 576 ]; then
-        if ! ip link set $netif mtu $mtu; then
-            ip link set $netif down
-            ip link set $netif mtu $mtu
-            linkup $netif
+    if [ -n "$mtu" ] && [ "$mtu" -gt 576 ]; then
+        if ! ip link set "$netif" mtu "$mtu"; then
+            ip link set "$netif" down
+            ip link set "$netif" mtu "$mtu"
+            linkup "$netif"
         fi
     fi
 
-    ip addr add $ip${mask:+/$mask} ${bcast:+broadcast $bcast} dev $netif \
+    ip addr add "$ip"${mask:+/$mask} ${bcast:+broadcast $bcast} dev "$netif" \
         ${lease_time:+valid_lft $lease_time} \
         ${preferred_lft:+preferred_lft ${preferred_lft}}
 
     if [ -n "$gw" ]; then
         if [ "$mask" = "255.255.255.255" ]; then
             # point-to-point connection => set explicit route to gateway
-            echo ip route add $gw dev $netif > /tmp/net.$netif.gw
+            echo ip route add "$gw" dev "$netif" > /tmp/net."$netif".gw
         fi
 
         echo "$gw" | {
             IFS=' ' read -r main_gw other_gw
-            echo ip route replace default via $main_gw dev $netif >> /tmp/net.$netif.gw
+            echo ip route replace default via "$main_gw" dev "$netif" >> /tmp/net."$netif".gw
             if [ -n "$other_gw" ]; then
                 for g in $other_gw; do
-                    echo ip route add default via $g dev $netif >> /tmp/net.$netif.gw
+                    echo ip route add default via "$g" dev "$netif" >> /tmp/net."$netif".gw
                 done
             fi
         }
     fi
 
     if getargbool 1 rd.peerdns; then
-        [ -n "${search}${domain}" ] && echo "search $search $domain" > /tmp/net.$netif.resolv.conf
+        [ -n "${search}${domain}" ] && echo "search $search $domain" > /tmp/net."$netif".resolv.conf
         if [ -n "$namesrv" ]; then
             for s in $namesrv; do
-                echo nameserver $s
+                echo nameserver "$s"
             done
-        fi >> /tmp/net.$netif.resolv.conf
+        fi >> /tmp/net."$netif".resolv.conf
     fi
     # Note: hostname can be fqdn OR short hostname, so chop off any
     # trailing domain name and explicity add any domain if set.
-    [ -n "$hostname" ] && echo "echo ${hostname%.$domain}${domain:+.$domain} > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
+    [ -n "$hostname" ] && echo "echo ${hostname%.$domain}${domain:+.$domain} > /proc/sys/kernel/hostname" > /tmp/net."$netif".hostname
 }
 
 setup_interface6() {
     domain=$new_domain_name
-    search=$(printf -- "$new_dhcp6_domain_search")
+    # get rid of control chars
+    search=$(printf -- "%s" "$new_dhcp6_domain_search" | tr -d '[:cntrl:]')
     namesrv=$new_dhcp6_name_servers
     hostname=$new_host_name
     [ -n "$new_dhcp_lease_time" ] && lease_time=$new_dhcp_lease_time
@@ -83,25 +86,26 @@ setup_interface6() {
     preferred_lft=$lease_time
     [ -n "$new_preferred_life" ] && preferred_lft=$new_preferred_life
 
-    [ -f /tmp/net.$netif.override ] && . /tmp/net.$netif.override
+    # shellcheck disable=SC1090
+    [ -f /tmp/net."$netif".override ] && . /tmp/net."$netif".override
 
-    ip -6 addr add ${new_ip6_address}/${new_ip6_prefixlen} \
-        dev ${netif} scope global \
+    ip -6 addr add "${new_ip6_address}"/"${new_ip6_prefixlen}" \
+        dev "${netif}" scope global \
         ${lease_time:+valid_lft $lease_time} \
         ${preferred_lft:+preferred_lft ${preferred_lft}}
 
     if getargbool 1 rd.peerdns; then
-        [ -n "${search}${domain}" ] && echo "search $search $domain" > /tmp/net.$netif.resolv.conf
+        [ -n "${search}${domain}" ] && echo "search $search $domain" > /tmp/net."$netif".resolv.conf
         if [ -n "$namesrv" ]; then
             for s in $namesrv; do
-                echo nameserver $s
+                echo nameserver "$s"
             done
-        fi >> /tmp/net.$netif.resolv.conf
+        fi >> /tmp/net."$netif".resolv.conf
     fi
 
     # Note: hostname can be fqdn OR short hostname, so chop off any
     # trailing domain name and explicity add any domain if set.
-    [ -n "$hostname" ] && echo "echo ${hostname%.$domain}${domain:+.$domain} > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
+    [ -n "$hostname" ] && echo "echo ${hostname%.$domain}${domain:+.$domain} > /proc/sys/kernel/hostname" > /tmp/net."$netif".hostname
 }
 
 parse_option_121() {
@@ -110,29 +114,29 @@ parse_option_121() {
         shift
 
         # Is the destination a multicast group?
-        if [ $1 -ge 224 -a $1 -lt 240 ]; then
+        if [ "$1" -ge 224 -a "$1" -lt 240 ]; then
             multicast=1
         else
             multicast=0
         fi
 
         # Parse the arguments into a CIDR net/mask string
-        if [ $mask -gt 24 ]; then
+        if [ "$mask" -gt 24 ]; then
             destination="$1.$2.$3.$4/$mask"
             shift
             shift
             shift
             shift
-        elif [ $mask -gt 16 ]; then
+        elif [ "$mask" -gt 16 ]; then
             destination="$1.$2.$3.0/$mask"
             shift
             shift
             shift
-        elif [ $mask -gt 8 ]; then
+        elif [ "$mask" -gt 8 ]; then
             destination="$1.$2.0.0/$mask"
             shift
             shift
-        elif [ $mask -gt 0 ]; then
+        elif [ "$mask" -gt 0 ]; then
             destination="$1.0.0.0/$mask"
             shift
         else
@@ -162,29 +166,29 @@ parse_option_121() {
 case $reason in
     PREINIT)
         echo "dhcp: PREINIT $netif up"
-        linkup $netif
+        linkup "$netif"
         ;;
 
     PREINIT6)
         echo "dhcp: PREINIT6 $netif up"
-        linkup $netif
-        wait_for_ipv6_dad_link $netif
+        linkup "$netif"
+        wait_for_ipv6_dad_link "$netif"
         ;;
 
     BOUND)
         echo "dhcp: BOUND setting up $netif"
         unset layer2
-        if [ -f /sys/class/net/$netif/device/layer2 ]; then
-            read layer2 < /sys/class/net/$netif/device/layer2
+        if [ -f /sys/class/net/"$netif"/device/layer2 ]; then
+            read -r layer2 < /sys/class/net/"$netif"/device/layer2
         fi
         if [ "$layer2" != "0" ]; then
             if command -v arping2 > /dev/null; then
-                if arping2 -q -C 1 -c 2 -I $netif -0 $new_ip_address; then
+                if arping2 -q -C 1 -c 2 -I "$netif" -0 "$new_ip_address"; then
                     warn "Duplicate address detected for $new_ip_address while doing dhcp. retrying"
                     exit 1
                 fi
             else
-                if ! arping -f -q -D -c 2 -I $netif $new_ip_address; then
+                if ! arping -f -q -D -c 2 -I "$netif" "$new_ip_address"; then
                     warn "Duplicate address detected for $new_ip_address while doing dhcp. retrying"
                     exit 1
                 fi
@@ -192,10 +196,10 @@ case $reason in
         fi
         unset layer2
         setup_interface
-        set | while read line || [ -n "$line" ]; do
+        set | while read -r line || [ -n "$line" ]; do
             [ "${line#new_}" = "$line" ] && continue
             echo "$line"
-        done > /tmp/dhclient.$netif.dhcpopts
+        done > /tmp/dhclient."$netif".dhcpopts
 
         {
             echo '. /lib/net-lib.sh'
@@ -203,18 +207,18 @@ case $reason in
             if [ -n "$new_classless_static_routes" ]; then
                 OLDIFS="$IFS"
                 IFS=".$IFS"
-                parse_option_121 $new_classless_static_routes
+                parse_option_121 "$new_classless_static_routes"
                 IFS="$OLDIFS"
             fi
             echo "source_hook initqueue/online $netif"
-            [ -e /tmp/net.$netif.manualup ] || echo "/sbin/netroot $netif"
+            [ -e /tmp/net."$netif".manualup ] || echo "/sbin/netroot $netif"
             echo "rm -f -- $hookdir/initqueue/setup_net_$netif.sh"
-        } > $hookdir/initqueue/setup_net_$netif.sh
+        } > "$hookdir"/initqueue/setup_net_"$netif".sh
 
-        echo "[ -f /tmp/net.$netif.did-setup ]" > $hookdir/initqueue/finished/dhclient-$netif.sh
-        > /tmp/net.$netif.up
-        if [ -e /sys/class/net/${netif}/address ]; then
-            > /tmp/net.$(cat /sys/class/net/${netif}/address).up
+        echo "[ -f /tmp/net.$netif.did-setup ]" > "$hookdir"/initqueue/finished/dhclient-"$netif".sh
+        : > /tmp/net."$netif".up
+        if [ -e /sys/class/net/"${netif}"/address ]; then
+            : > "/tmp/net.$(cat /sys/class/net/"${netif}"/address).up"
         fi
 
         ;;
@@ -225,7 +229,7 @@ case $reason in
         [ -n "$new_max_life" ] && lease_time=$new_max_life
         preferred_lft=$lease_time
         [ -n "$new_preferred_life" ] && preferred_lft=$new_preferred_life
-        ip -4 addr change ${new_ip_address}/${new_subnet_mask} broadcast ${new_broadcast_address} dev ${interface} \
+        ip -4 addr change "${new_ip_address}"/"${new_subnet_mask}" broadcast "${new_broadcast_address}" dev "${interface}" \
             ${lease_time:+valid_lft $lease_time} ${preferred_lft:+preferred_lft ${preferred_lft}} \
             > /dev/null 2>&1
         ;;
@@ -234,23 +238,23 @@ case $reason in
         echo "dhcp: BOUND6 setting up $netif"
         setup_interface6
 
-        set | while read line || [ -n "$line" ]; do
+        set | while read -r line || [ -n "$line" ]; do
             [ "${line#new_}" = "$line" ] && continue
             echo "$line"
-        done > /tmp/dhclient.$netif.dhcpopts
+        done > /tmp/dhclient."$netif".dhcpopts
 
         {
             echo '. /lib/net-lib.sh'
             echo "setup_net $netif"
             echo "source_hook initqueue/online $netif"
-            [ -e /tmp/net.$netif.manualup ] || echo "/sbin/netroot $netif"
+            [ -e /tmp/net."$netif".manualup ] || echo "/sbin/netroot $netif"
             echo "rm -f -- $hookdir/initqueue/setup_net_$netif.sh"
-        } > $hookdir/initqueue/setup_net_$netif.sh
+        } > "$hookdir"/initqueue/setup_net_"$netif".sh
 
-        echo "[ -f /tmp/net.$netif.did-setup ]" > $hookdir/initqueue/finished/dhclient-$netif.sh
-        > /tmp/net.$netif.up
-        if [ -e /sys/class/net/${netif}/address ]; then
-            > /tmp/net.$(cat /sys/class/net/${netif}/address).up
+        echo "[ -f /tmp/net.$netif.did-setup ]" > "$hookdir"/initqueue/finished/dhclient-"$netif".sh
+        : > /tmp/net."$netif".up
+        if [ -e /sys/class/net/"${netif}"/address ]; then
+            : > "/tmp/net.$(cat /sys/class/net/"${netif}"/address).up"
         fi
         ;;
 
@@ -260,7 +264,7 @@ case $reason in
         [ -n "$new_max_life" ] && lease_time=$new_max_life
         preferred_lft=$lease_time
         [ -n "$new_preferred_life" ] && preferred_lft=$new_preferred_life
-        ip -6 addr change ${new_ip6_address}/${new_ip6_prefixlen} dev ${interface} scope global \
+        ip -6 addr change "${new_ip6_address}"/"${new_ip6_prefixlen}" dev "${interface}" scope global \
             ${lease_time:+valid_lft $lease_time} ${preferred_lft:+preferred_lft ${preferred_lft}} \
             > /dev/null 2>&1
         ;;

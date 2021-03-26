@@ -35,13 +35,15 @@ for bridge in $(getargs bridge=); do
     iface=eth0
     # Read bridge= parameters if they exist
     if [ "$bridge" != "bridge" ]; then
-        parsebridge $bridge
+        parsebridge "$bridge"
     fi
     # Simple default bridge
     if [ -z "$bridgename" ]; then
         bridgename=br0
         bridgeslaves=$iface
     fi
-    echo "bridgename=$bridgename" > /tmp/bridge.${bridgename}.info
-    echo "bridgeslaves=\"$bridgeslaves\"" >> /tmp/bridge.${bridgename}.info
+    {
+        echo "bridgename=$bridgename"
+        echo "bridgeslaves=\"$bridgeslaves\""
+    } > /tmp/bridge.${bridgename}.info
 done

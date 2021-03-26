@@ -2,9 +2,7 @@
 
 # called by dracut
 check() {
-    local _program
-
-    require_binaries ip dhclient sed awk grep pgrep || return 1
+    require_binaries ip dhclient sed awk grep pgrep tr || return 1
     require_any_binary arping arping2 || return 1
 
     return 255
@@ -22,8 +20,8 @@ installkernel() {
 
 # called by dracut
 install() {
-    local _arch _i _dir
-    inst_multiple ip dhclient sed awk grep pgrep
+    local _arch
+    inst_multiple ip dhclient sed awk grep pgrep tr
 
     inst_multiple -o arping arping2
     strstr "$(arping 2>&1)" "ARPing 2" && mv "$initdir/bin/arping" "$initdir/bin/arping2"
@@ -60,21 +58,22 @@ install() {
                 ;;
         esac
         (
+            # shellcheck disable=SC1090
             . "$i"
             if ! [ "${ONBOOT}" = "no" -o "${ONBOOT}" = "NO" ] \
                 && [ -n "${TEAM_MASTER}${TEAM_CONFIG}${TEAM_PORT_CONFIG}" ]; then
                 if [ -n "$TEAM_CONFIG" ] && [ -n "$DEVICE" ]; then
-                    mkdir -p $initdir/etc/teamd
+                    mkdir -p "$initdir"/etc/teamd
                     printf -- "%s" "$TEAM_CONFIG" > "$initdir/etc/teamd/${DEVICE}.conf"
                 elif [ -n "$TEAM_PORT_CONFIG" ]; then
                     inst_simple "$i"
 
-                    HWADDR="$(echo $HWADDR | sed 'y/ABCDEF/abcdef/')"
+                    HWADDR="$(echo "$HWADDR" | sed 'y/ABCDEF/abcdef/')"
                     if [ -n "$HWADDR" ]; then
                         ln_r "$i" "/etc/sysconfig/network-scripts/mac-${HWADDR}.conf"
                     fi
 
-                    SUBCHANNELS="$(echo $SUBCHANNELS | sed 'y/ABCDEF/abcdef/')"
+                    SUBCHANNELS="$(echo "$SUBCHANNELS" | sed 'y/ABCDEF/abcdef/')"
                     if [ -n "$SUBCHANNELS" ]; then
                         ln_r "$i" "/etc/sysconfig/network-scripts/ccw-${SUBCHANNELS}.conf"
                     fi
