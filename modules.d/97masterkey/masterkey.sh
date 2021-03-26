@@ -12,20 +12,17 @@ PCRLOCKNUM=11
 
 load_masterkey() {
     # read the configuration from the config file
+    # shellcheck disable=SC1090
     [ -f "${MASTERKEYSCONFIG}" ] \
-        && . ${MASTERKEYSCONFIG}
+        && . "${MASTERKEYSCONFIG}"
 
     # override the kernel master key path name from the 'masterkey=' parameter
     # in the kernel command line
-    MASTERKEYARG=$(getarg masterkey=)
-    [ $? -eq 0 ] \
-        && MASTERKEY=${MASTERKEYARG}
+    MASTERKEYARG=$(getarg masterkey=) && MASTERKEY=${MASTERKEYARG}
 
     # override the kernel master key type from the 'masterkeytype=' parameter
     # in the kernel command line
-    MASTERKEYTYPEARG=$(getarg masterkeytype=)
-    [ $? -eq 0 ] \
-        && MASTERKEYTYPE=${MASTERKEYTYPEARG}
+    MASTERKEYTYPEARG=$(getarg masterkeytype=) && MASTERKEYTYPE=${MASTERKEYTYPEARG}
 
     # set default values
     [ -z "${MASTERKEYTYPE}" ] \
@@ -53,7 +50,7 @@ load_masterkey() {
     fi
 
     # read the kernel master key blob
-    KEYBLOB=$(cat ${MASTERKEYPATH})
+    KEYBLOB=$(cat "${MASTERKEYPATH}")
 
     # add the 'load' prefix if the key type is 'trusted'
     [ "${MASTERKEYTYPE}" = "trusted" ] \
