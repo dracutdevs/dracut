@@ -1,5 +1,7 @@
 #!/bin/sh
 
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
+
 # systemd lets stdout go to journal only, but the system
 # has to halt when the integrity check fails to satisfy FIPS.
 if [ -z "$DRACUT_SYSTEMD" ]; then
@@ -31,13 +33,13 @@ mount_boot() {
             udevadm trigger --action=add > /dev/null 2>&1
             [ -z "$UDEVVERSION" ] && UDEVVERSION=$(udevadm --version)
             i=0
-            while ! [ -e $boot ]; do
-                if [ $UDEVVERSION -ge 143 ]; then
-                    udevadm settle --exit-if-exists=$boot
+            while ! [ -e "$boot" ]; do
+                if [ "$UDEVVERSION" -ge 143 ]; then
+                    udevadm settle --exit-if-exists="$boot"
                 else
                     udevadm settle --timeout=30
                 fi
-                [ -e $boot ] && break
+                [ -e "$boot" ] && break
                 sleep 0.5
                 i=$((i + 1))
                 [ $i -gt 40 ] && break
@@ -50,6 +52,7 @@ mount_boot() {
         fips_info "Mounting $boot as /boot"
         mount -oro "$boot" /boot || return 1
     elif [ -d "$NEWROOT/boot" ]; then
+        # shellcheck disable=SC2114
         rm -fr -- /boot
         ln -sf "$NEWROOT/boot" /boot
     fi
@@ -60,8 +63,8 @@ do_rhevh_check() {
     kpath=${1}
 
     # If we're on RHEV-H, the kernel is in /run/initramfs/live/vmlinuz0
-    HMAC_SUM_ORIG=$(cat $NEWROOT/boot/.vmlinuz-${KERNEL}.hmac | while read a b || [ -n "$a" ]; do printf "%s\n" $a; done)
-    HMAC_SUM_CALC=$(sha512hmac $kpath | while read a b || [ -n "$a" ]; do printf "%s\n" $a; done || return 1)
+    HMAC_SUM_ORIG=$(while read -r a _ || [ -n "$a" ]; do printf "%s\n" "$a"; done < "$NEWROOT/boot/.vmlinuz-${KERNEL}.hmac")
+    HMAC_SUM_CALC=$(sha512hmac "$kpath" | while read -r a _ || [ -n "$a" ]; do printf "%s\n" "$a"; done || return 1)
     if [ -z "$HMAC_SUM_ORIG" ] || [ -z "$HMAC_SUM_CALC" ] || [ "${HMAC_SUM_ORIG}" != "${HMAC_SUM_CALC}" ]; then
         warn "HMAC sum mismatch"
         return 1
@@ -71,13 +74,17 @@ do_rhevh_check() {
 }
 
 nonfatal_modprobe() {
-    modprobe $1 2>&1 > /dev/stdout \
+    modprobe "$1" 2>&1 > /dev/stdout \
         | while read -r line || [ -n "$line" ]; do
             echo "${line#modprobe: FATAL: }" >&2
         done
 }
 
 fips_load_crypto() {
+    local _k
+    local _v
+    local _found
+
     FIPSMODULES=$(cat /etc/fipsmodules)
 
     fips_info "Loading and integrity checking all crypto modules"
@@ -87,7 +94,7 @@ fips_load_crypto() {
             if ! nonfatal_modprobe "${_module}" 2> /tmp/fips.modprobe_err; then
                 # check if kernel provides generic algo
                 _found=0
-                while read _k _s _v || [ -n "$_k" ]; do
+                while read -r _k _ _v || [ -n "$_k" ]; do
                     [ "$_k" != "name" -a "$_k" != "driver" ] && continue
                     [ "$_v" != "$_module" ] && continue
                     _found=1
@@ -105,8 +112,6 @@ fips_load_crypto() {
 }
 
 do_fips() {
-    local _v
-    local _s
     local _v
     local _module
 
@@ -153,7 +158,7 @@ do_fips() {
 
     fips_info "All initrd crypto checks done"
 
-    > /tmp/fipsdone
+    : > /tmp/fipsdone
 
     umount /boot > /dev/null 2>&1
 
