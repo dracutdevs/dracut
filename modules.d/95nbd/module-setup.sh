@@ -33,7 +33,7 @@ install() {
     inst_hook cmdline 90 "$moddir/parse-nbdroot.sh"
     inst_script "$moddir/nbdroot.sh" "/sbin/nbdroot"
     if dracut_module_included "systemd-initrd"; then
-        inst_script "$moddir/nbd-generator.sh" $systemdutildir/system-generators/dracut-nbd-generator
+        inst_script "$moddir/nbd-generator.sh" "$systemdutildir"/system-generators/dracut-nbd-generator
     fi
     dracut_need_initqueue
 }
