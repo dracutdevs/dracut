@@ -14,7 +14,7 @@ cmdline() {
     local cio_accept
 
     if [ -e /boot/zipl/active_devices.txt ]; then
-        while read dev etc; do
+        while read -r dev _; do
             [ "$dev" = "#" -o "$dev" = "" ] && continue
             if [ -z "$cio_accept" ]; then
                 cio_accept="$dev"
@@ -31,7 +31,8 @@ cmdline() {
 # called by dracut
 install() {
     if [[ $hostonly_cmdline == "yes" ]]; then
-        local _cio_accept=$(cmdline)
+        local _cio_accept
+        _cio_accept=$(cmdline)
         [[ $_cio_accept ]] && printf "%s\n" "$_cio_accept" >> "${initdir}/etc/cmdline.d/01cio_accept.conf"
     fi
 
