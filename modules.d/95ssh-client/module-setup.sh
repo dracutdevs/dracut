@@ -49,6 +49,7 @@ inst_sshenv() {
             # Copy customized UserKnowHostsFile
             elif [[ $key == "UserKnownHostsFile" ]]; then
                 # Make sure that ~/foo will be copied as /root/foo in kdump's initramfs
+                # shellcheck disable=SC2088
                 if str_starts "$val" "~/"; then
                     val="/root/${val#"~/"}"
                 fi
