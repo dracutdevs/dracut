@@ -2,7 +2,9 @@
 
 # called by dracut
 check() {
-    local _rootdev
+    local holder
+    local dev
+
     # if we don't have dmraid installed on the host system, no point
     # in trying to support it in the initramfs.
     require_binaries dmraid || return 1
@@ -35,11 +37,11 @@ depends() {
 
 # called by dracut
 cmdline() {
-    local _activated
-    declare -A _activated
+    local dev
+    local -A _activated
 
     for dev in "${!host_fs_types[@]}"; do
-        local holder DEVPATH DM_NAME majmin
+        local holder DEVPATH DM_NAME
         [[ ${host_fs_types[$dev]} != *_raid_member ]] && continue
 
         DEVPATH=$(get_devpath_block "$dev")
@@ -62,16 +64,16 @@ cmdline() {
 
 # called by dracut
 install() {
-    local _i
+    local _raidconf
 
     if [[ $hostonly_cmdline == "yes" ]]; then
-        local _raidconf=$(cmdline)
+        _raidconf=$(cmdline)
         [[ $_raidconf ]] && printf "%s\n" "$_raidconf" >> "${initdir}/etc/cmdline.d/90dmraid.conf"
     fi
 
     inst_multiple dmraid
     inst_multiple -o kpartx
-    inst $(command -v partx) /sbin/partx
+    inst "$(command -v partx)" /sbin/partx
 
     inst "$moddir/dmraid.sh" /sbin/dmraid_scan
 
