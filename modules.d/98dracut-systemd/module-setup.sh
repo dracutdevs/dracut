@@ -19,11 +19,10 @@ installkernel() {
 
 # called by dracut
 install() {
-    local _mods
     inst_script "$moddir/dracut-emergency.sh" /bin/dracut-emergency
-    inst_simple "$moddir/emergency.service" ${systemdsystemunitdir}/emergency.service
-    inst_simple "$moddir/dracut-emergency.service" ${systemdsystemunitdir}/dracut-emergency.service
-    inst_simple "$moddir/emergency.service" ${systemdsystemunitdir}/rescue.service
+    inst_simple "$moddir/emergency.service" "${systemdsystemunitdir}"/emergency.service
+    inst_simple "$moddir/dracut-emergency.service" "${systemdsystemunitdir}"/dracut-emergency.service
+    inst_simple "$moddir/emergency.service" "${systemdsystemunitdir}"/rescue.service
 
     ln_r "${systemdsystemunitdir}/initrd.target" "${systemdsystemunitdir}/default.target"
 
@@ -36,7 +35,7 @@ install() {
     inst_script "$moddir/dracut-mount.sh" /bin/dracut-mount
     inst_script "$moddir/dracut-pre-pivot.sh" /bin/dracut-pre-pivot
 
-    inst_script "$moddir/rootfs-generator.sh" $systemdutildir/system-generators/dracut-rootfs-generator
+    inst_script "$moddir/rootfs-generator.sh" "$systemdutildir"/system-generators/dracut-rootfs-generator
 
     for i in \
         dracut-cmdline.service \
@@ -46,8 +45,7 @@ install() {
         dracut-pre-mount.service \
         dracut-pre-pivot.service \
         dracut-pre-trigger.service \
-        dracut-pre-udev.service \
-        ${NULL}; do
+        dracut-pre-udev.service; do
         inst_simple "$moddir/${i}" "$systemdsystemunitdir/${i}"
         $SYSTEMCTL -q --root "$initdir" add-wants initrd.target "$i"
     done

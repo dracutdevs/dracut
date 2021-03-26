@@ -22,24 +22,24 @@ if ! grep -q After=remote-fs-pre.target /run/systemd/generator/systemd-cryptsetu
 fi
 EOF
         {
-            printf '[ -e "%s" ] || ' $1
-            printf 'warn "\"%s\" does not exist"\n' $1
+            printf '[ -e "%s" ] || ' "$1"
+            printf 'warn "\"%s\" does not exist"\n' "$1"
         } >> "$hookdir/emergency/80-${_name}.sh"
     fi
 
     _name=$(dev_unit_name "$1")
-    if ! [ -L "$GENERATOR_DIR"/initrd.target.wants/${_name}.device ]; then
+    if ! [ -L "$GENERATOR_DIR"/initrd.target.wants/"${_name}".device ]; then
         [ -d "$GENERATOR_DIR"/initrd.target.wants ] || mkdir -p "$GENERATOR_DIR"/initrd.target.wants
-        ln -s ../${_name}.device "$GENERATOR_DIR"/initrd.target.wants/${_name}.device
+        ln -s ../"${_name}".device "$GENERATOR_DIR"/initrd.target.wants/"${_name}".device
     fi
 
-    if ! [ -f "$GENERATOR_DIR"/${_name}.device.d/timeout.conf ]; then
-        mkdir -p "$GENERATOR_DIR"/${_name}.device.d
+    if ! [ -f "$GENERATOR_DIR"/"${_name}".device.d/timeout.conf ]; then
+        mkdir -p "$GENERATOR_DIR"/"${_name}".device.d
         {
             echo "[Unit]"
             echo "JobTimeoutSec=$_timeout"
             echo "JobRunningTimeoutSec=$_timeout"
-        } > "$GENERATOR_DIR"/${_name}.device.d/timeout.conf
+        } > "$GENERATOR_DIR"/"${_name}".device.d/timeout.conf
     fi
 }
 
@@ -77,12 +77,12 @@ generator_fsck_after_pre_mount() {
     [ -z "$1" ] && return 0
 
     _name=$(dev_unit_name "$1")
-    [ -d /run/systemd/generator/systemd-fsck@${_name}.service.d ] || mkdir -p /run/systemd/generator/systemd-fsck@${_name}.service.d
-    if ! [ -f /run/systemd/generator/systemd-fsck@${_name}.service.d/after-pre-mount.conf ]; then
+    [ -d /run/systemd/generator/systemd-fsck@"${_name}".service.d ] || mkdir -p /run/systemd/generator/systemd-fsck@"${_name}".service.d
+    if ! [ -f /run/systemd/generator/systemd-fsck@"${_name}".service.d/after-pre-mount.conf ]; then
         {
             echo "[Unit]"
             echo "After=dracut-pre-mount.service"
-        } > /run/systemd/generator/systemd-fsck@${_name}.service.d/after-pre-mount.conf
+        } > /run/systemd/generator/systemd-fsck@"${_name}".service.d/after-pre-mount.conf
     fi
 
 }
