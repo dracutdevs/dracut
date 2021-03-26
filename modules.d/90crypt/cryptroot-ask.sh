@@ -4,7 +4,7 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
 NEWROOT=${NEWROOT:-"/sysroot"}
 
 # do not ask, if we already have root
-[ -f $NEWROOT/proc ] && exit 0
+[ -f "$NEWROOT"/proc ] && exit 0
 
 . /lib/dracut-lib.sh
 
@@ -28,7 +28,7 @@ numtries=${4:-10}
 
 # TODO: improve to support what cmdline does
 if [ -f /etc/crypttab ] && getargbool 1 rd.luks.crypttab -d -n rd_NO_CRYPTTAB; then
-    while read name dev luksfile luksoptions || [ -n "$name" ]; do
+    while read -r name dev luksfile luksoptions || [ -n "$name" ]; do
         # ignore blank lines and comments
         if [ -z "$name" -o "${name#\#}" != "$name" ]; then
             continue
@@ -57,8 +57,8 @@ if [ -f /etc/crypttab ] && getargbool 1 rd.luks.crypttab -d -n rd_NO_CRYPTTAB; t
 
         # path used in crypttab
         else
-            cdev=$(readlink -f $dev)
-            mdev=$(readlink -f $device)
+            cdev=$(readlink -f "$dev")
+            mdev=$(readlink -f "$device")
             if [ "$cdev" = "$mdev" ]; then
                 luksname="$name"
                 break
@@ -69,11 +69,11 @@ if [ -f /etc/crypttab ] && getargbool 1 rd.luks.crypttab -d -n rd_NO_CRYPTTAB; t
 fi
 
 # check if destination already exists
-[ -b /dev/mapper/$luksname ] && exit 0
+[ -b /dev/mapper/"$luksname" ] && exit 0
 
 # we already asked for this device
 asked_file=/tmp/cryptroot-asked-$luksname
-[ -f $asked_file ] && exit 0
+[ -f "$asked_file" ] && exit 0
 
 # load dm_crypt if it is not already loaded
 [ -d /sys/module/dm_crypt ] || modprobe dm_crypt
@@ -88,6 +88,7 @@ info "luksOpen $device $luksname $luksfile $luksoptions"
 
 OLD_IFS="$IFS"
 IFS=,
+# shellcheck disable=SC2086
 set -- $luksoptions
 IFS="$OLD_IFS"
 
@@ -138,33 +139,33 @@ ask_passphrase=1
 
 if [ -n "$luksfile" -a "$luksfile" != "none" -a -e "$luksfile" ]; then
     if readkey "$luksfile" / "$device" \
-        | cryptsetup -d - $cryptsetupopts luksOpen "$device" "$luksname"; then
+        | cryptsetup -d - "$cryptsetupopts" luksOpen "$device" "$luksname"; then
         ask_passphrase=0
     fi
 elif [ "$is_keysource" -ne 0 ]; then
     info "Asking for passphrase because $device is a keysource."
 else
     while [ -n "$(getarg rd.luks.key)" ]; do
-        if tmp=$(getkey /tmp/luks.keys $device); then
+        if tmp=$(getkey /tmp/luks.keys "$device"); then
             keydev="${tmp%%:*}"
             keypath="${tmp#*:}"
         else
-            if [ $numtries -eq 0 ]; then
+            if [ "$numtries" -eq 0 ]; then
                 warn "No key found for $device.  Fallback to passphrase mode."
                 break
             fi
             sleep 1
             info "No key found for $device.  Will try $numtries time(s) more later."
             initqueue --unique --onetime --settled \
-                --name cryptroot-ask-$luksname \
-                $(command -v cryptroot-ask) "$device" "$luksname" "$is_keysource" "$((numtries - 1))"
+                --name cryptroot-ask-"$luksname" \
+                "$(command -v cryptroot-ask)" "$device" "$luksname" "$is_keysource" "$((numtries - 1))"
             exit 0
         fi
         unset tmp
 
         info "Using '$keypath' on '$keydev'"
         readkey "$keypath" "$keydev" "$device" \
-            | cryptsetup -d - $cryptsetupopts luksOpen "$device" "$luksname" \
+            | cryptsetup -d - "$cryptsetupopts" luksOpen "$device" "$luksname" \
             && ask_passphrase=0
         unset keypath keydev
         break
@@ -184,7 +185,7 @@ if [ $ask_passphrase -ne 0 ]; then
     unset _timeout
 fi
 
-if [ "$is_keysource" -ne 0 -a ${luksname##luks-} != "$luksname" ]; then
+if [ "$is_keysource" -ne 0 -a "${luksname##luks-}" != "$luksname" ]; then
     luks_close="$(command -v cryptsetup) close"
     {
         printf -- '[ -e /dev/mapper/%s ] && ' "$luksname"
@@ -196,7 +197,7 @@ fi
 unset device luksname luksfile
 
 # mark device as asked
->> $asked_file
+: >> "$asked_file"
 
 need_shutdown
 udevsettle

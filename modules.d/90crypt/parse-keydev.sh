@@ -31,10 +31,10 @@ if getargbool 1 rd.luks -n rd_NO_LUKS \
         fi
 
         {
-            printf -- 'RUN+="%s --unique --onetime ' $(command -v initqueue)
+            printf -- 'RUN+="%s --unique --onetime ' "$(command -v initqueue)"
             printf -- '--name probe-keydev-%%k '
             printf -- '%s /dev/%%k %s %s"\n' \
-                $(command -v probe-keydev) "${keypath}" "${luksdev}"
+                "$(command -v probe-keydev)" "${keypath}" "${luksdev}"
         } >&7
     done
     unset arg keypath keydev luksdev

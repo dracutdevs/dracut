@@ -48,7 +48,7 @@ else
             is_keysource=0
             _uuid=$uuid
             uuid=${uuid#keysource:}
-            [ $uuid != $_uuid ] && is_keysource=1
+            [ "$uuid" != "$_uuid" ] && is_keysource=1
             unset _uuid
 
             uuid=${uuid##luks-}
@@ -63,10 +63,12 @@ else
                     printf -- 'ENV{ID_PART_ENTRY_UUID}=="*%s*", ' "$uuid"
                     printf -- 'RUN+="%s --settled --unique --onetime ' "$(command -v initqueue)"
                     printf -- '--name cryptroot-ask-%%k %s ' "$(command -v cryptroot-ask)"
-                    printf -- '$env{DEVNAME} %s %s"\n' "$luksname" "$is_keysource" "$tout"
+                    # shellcheck disable=SC2016
+                    printf -- '$env{DEVNAME} %s %s %s"\n' "$luksname" "$is_keysource" "$tout"
                 } >> /etc/udev/rules.d/70-luks.rules.new
             else
                 luksname=$(dev_unit_name "$luksname")
+                # shellcheck disable=SC1003
                 luksname="$(str_replace "$luksname" '\' '\\')"
 
                 if ! crypttab_contains "$uuid"; then
@@ -86,7 +88,7 @@ else
             is_keysource=0
             _serialid=$serialid
             serialid=${serialid#keysource:}
-            [ $serialid != $_serialid ] && is_keysource=1
+            [ "$serialid" != "$_serialid" ] && is_keysource=1
             unset _serialid
 
             serialid=${serialid##luks-}
@@ -101,10 +103,12 @@ else
                     printf -- 'ENV{ID_SERIAL_SHORT}=="*%s*", ' "$serialid"
                     printf -- 'RUN+="%s --settled --unique --onetime ' "$(command -v initqueue)"
                     printf -- '--name cryptroot-ask-%%k %s ' "$(command -v cryptroot-ask)"
-                    printf -- '$env{DEVNAME} %s %s"\n' "$luksname" "$is_keysource" "$tout"
+                    # shellcheck disable=SC2016
+                    printf -- '$env{DEVNAME} %s %s %s"\n' "$luksname" "$is_keysource" "$tout"
                 } >> /etc/udev/rules.d/70-luks.rules.new
             else
                 luksname=$(dev_unit_name "$luksname")
+                # shellcheck disable=SC1003
                 luksname="$(str_replace "$luksname" '\' '\\')"
 
                 if ! crypttab_contains "$serialid"; then
@@ -124,7 +128,7 @@ else
             is_keysource=0
             _luksid=$luksid
             luksid=${luksid#keysource:}
-            [ $luksid != $_luksid ] && is_keysource=1
+            [ "$luksid" != "$_luksid" ] && is_keysource=1
             unset _luksid
 
             luksid=${luksid##luks-}
@@ -140,10 +144,12 @@ else
                     printf -- 'ENV{ID_FS_UUID}=="*%s*", ' "$luksid"
                     printf -- 'RUN+="%s --settled --unique --onetime ' "$(command -v initqueue)"
                     printf -- '--name cryptroot-ask-%%k %s ' "$(command -v cryptroot-ask)"
+                    # shellcheck disable=SC2016
                     printf -- '$env{DEVNAME} %s %s %s"\n' "$luksname" "$is_keysource" "$tout"
                 } >> /etc/udev/rules.d/70-luks.rules.new
             else
                 luksname=$(dev_unit_name "$luksname")
+                # shellcheck disable=SC1003
                 luksname="$(str_replace "$luksname" '\' '\\')"
 
                 if ! crypttab_contains "$luksid"; then
@@ -160,11 +166,11 @@ else
             if [ $is_keysource -eq 0 ]; then
                 uuid=$luksid
                 while [ "$uuid" != "${uuid#*-}" ]; do uuid=${uuid%%-*}${uuid#*-}; done
-                printf -- '[ -e /dev/disk/by-id/dm-uuid-CRYPT-LUKS?-*%s*-* ] || exit 1\n' $uuid \
+                printf -- '[ -e /dev/disk/by-id/dm-uuid-CRYPT-LUKS?-*%s*-* ] || exit 1\n' "$uuid" \
                     >> "$hookdir/initqueue/finished/90-crypt.sh"
                 {
-                    printf -- '[ -e /dev/disk/by-uuid/*%s* ] || ' $luksid
-                    printf -- 'warn "crypto LUKS UUID "%s" not found"\n' $luksid
+                    printf -- '[ -e /dev/disk/by-uuid/*%s* ] || ' "$luksid"
+                    printf -- 'warn "crypto LUKS UUID "%s" not found"\n' "$luksid"
                 } >> "$hookdir/emergency/90-crypt.sh"
             fi
         done
@@ -173,12 +179,14 @@ else
             {
                 printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="%s ' "$(command -v initqueue)"
                 printf -- '--unique --settled --onetime --name cryptroot-ask-%%k '
+                # shellcheck disable=SC2016
                 printf -- '%s $env{DEVNAME} luks-$env{ID_FS_UUID} %s"\n' "$(command -v cryptroot-ask)" "$tout"
             } >> /etc/udev/rules.d/70-luks.rules.new
         else
             {
                 printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="%s ' "$(command -v initqueue)"
                 printf -- '--unique --settled --onetime --name crypt-run-generator-%%k '
+                # shellcheck disable=SC2016
                 printf -- '%s $env{DEVNAME} luks-$env{ID_FS_UUID}"\n' "$(command -v crypt-run-generator)"
             } >> /etc/udev/rules.d/70-luks.rules.new
         fi
