@@ -18,42 +18,42 @@ dcb=$2
 mode=$3
 vlan="yes"
 
-iflink=$(cat /sys/class/net/$netif/iflink)
-ifindex=$(cat /sys/class/net/$netif/ifindex)
+iflink=$(cat /sys/class/net/"$netif"/iflink)
+ifindex=$(cat /sys/class/net/"$netif"/ifindex)
 if [ "$iflink" != "$ifindex" ]; then
     # Skip VLAN devices
     exit 0
 fi
 
-ip link set dev $netif up
+ip link set dev "$netif" up
 linkup "$netif"
 
 # Some fcoemon implementations expect --syslog=true
 syslogopt="--syslog"
 if fcoemon -h | grep syslog | grep -q yes; then
-    fcoemonyes="$syslogopt=yes"
+    syslogopt="$syslogopt=yes"
 fi
 
-netdriver=$(readlink -f /sys/class/net/$netif/device/driver)
+netdriver=$(readlink -f /sys/class/net/"$netif"/device/driver)
 netdriver=${netdriver##*/}
 
 write_fcoemon_cfg() {
-    [ -f /etc/fcoe/cfg-$netif ] && return
-    echo FCOE_ENABLE=\"yes\" > /etc/fcoe/cfg-$netif
+    [ -f /etc/fcoe/cfg-"$netif" ] && return
+    echo FCOE_ENABLE=\"yes\" > /etc/fcoe/cfg-"$netif"
     if [ "$dcb" = "dcb" ]; then
-        echo DCB_REQUIRED=\"yes\" >> /etc/fcoe/cfg-$netif
+        echo DCB_REQUIRED=\"yes\" >> /etc/fcoe/cfg-"$netif"
     else
-        echo DCB_REQUIRED=\"no\" >> /etc/fcoe/cfg-$netif
+        echo DCB_REQUIRED=\"no\" >> /etc/fcoe/cfg-"$netif"
     fi
     if [ "$vlan" = "yes" ]; then
-        echo AUTO_VLAN=\"yes\" >> /etc/fcoe/cfg-$netif
+        echo AUTO_VLAN=\"yes\" >> /etc/fcoe/cfg-"$netif"
     else
-        echo AUTO_VLAN=\"no\" >> /etc/fcoe/cfg-$netif
+        echo AUTO_VLAN=\"no\" >> /etc/fcoe/cfg-"$netif"
     fi
     if [ "$mode" = "vn2vn" ]; then
-        echo MODE=\"vn2vn\" >> /etc/fcoe/cfg-$netif
+        echo MODE=\"vn2vn\" >> /etc/fcoe/cfg-"$netif"
     else
-        echo MODE=\"fabric\" >> /etc/fcoe/cfg-$netif
+        echo MODE=\"fabric\" >> /etc/fcoe/cfg-"$netif"
     fi
 }
 

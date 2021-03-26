@@ -35,15 +35,15 @@ for disk in /sys/firmware/edd/int13_*; do
     for nic in "${disk}"/pci_dev/net/*; do
         [ -d "$nic" ] || continue
         if [ -n "${dev_port}" -a -e "${nic}/dev_port" ]; then
-            if [ "$(cat ${nic}/dev_port)" -ne "${dev_port}" ]; then
+            if [ "$(cat "${nic}"/dev_port)" -ne "${dev_port}" ]; then
                 continue
             fi
         fi
-        if [ -e ${nic}/address ]; then
+        if [ -e "${nic}"/address ]; then
             fcoe_interface=${nic##*/}
             if ! [ -e "/tmp/.fcoe-$fcoe_interface" ]; then
                 /sbin/fcoe-up "$fcoe_interface" "$dcb"
-                > "/tmp/.fcoe-$fcoe_interface"
+                : > "/tmp/.fcoe-$fcoe_interface"
             fi
         fi
     done
