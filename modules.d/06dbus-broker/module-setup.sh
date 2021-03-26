@@ -28,36 +28,37 @@ depends() {
 install() {
 
     # Create dbus related directories.
-    inst_dir $dbus
-    inst_dir $dbusinterfaces
-    inst_dir $dbusservices
-    inst_dir $dbussession
-    inst_dir $dbussystem
-    inst_dir $dbussystemservices
-    inst_dir $dbusconfdir
-    inst_dir $dbusinterfacesconfdir
-    inst_dir $dbusservicesconfdir
-    inst_dir $dbussessionconfdir
-    inst_dir $dbussystemconfdir
-    inst_dir $dbussystemservicesconfdir
+    inst_dir "$dbus"
+    inst_dir "$dbusinterfaces"
+    inst_dir "$dbusservices"
+    inst_dir "$dbussession"
+    inst_dir "$dbussystem"
+    inst_dir "$dbussystemservices"
+    inst_dir "$dbusconfdir"
+    inst_dir "$dbusinterfacesconfdir"
+    inst_dir "$dbusservicesconfdir"
+    inst_dir "$dbussessionconfdir"
+    inst_dir "$dbussystemconfdir"
+    inst_dir "$dbussystemservicesconfdir"
 
     inst_multiple -o \
-        $dbus/session.conf \
-        $dbus/system.conf \
-        $dbussystem/org.freedesktop.systemd1.conf \
-        $dbusservicesconfdir/org.freedesktop.systemd1.service \
-        $dbussystemservices/org.freedesktop.systemd1.service \
-        $sysusers/dbus.conf \
-        $systemdcatalog/dbus-broker.catalog \
-        $systemdcatalog/dbus-broker-launch.catalog \
-        $systemdsystemunitdir/dbus-broker.service \
-        $systemduser/dbus-broker.service \
-        $systemdsystemunitdir/dbus.socket \
-        $systemduser/dbus.socket \
-        $systemdsystemunitdir/dbus.target.wants \
+        "$dbus"/session.conf \
+        "$dbus"/system.conf \
+        "$dbussystem"/org.freedesktop.systemd1.conf \
+        "$dbusservicesconfdir"/org.freedesktop.systemd1.service \
+        "$dbussystemservices"/org.freedesktop.systemd1.service \
+        "$sysusers"/dbus.conf \
+        "$systemdcatalog"/dbus-broker.catalog \
+        "$systemdcatalog"/dbus-broker-launch.catalog \
+        "$systemdsystemunitdir"/dbus-broker.service \
+        "$systemduser"/dbus-broker.service \
+        "$systemdsystemunitdir"/dbus.socket \
+        "$systemduser"/dbus.socket \
+        "$systemdsystemunitdir"/dbus.target.wants \
         busctl dbus-broker dbus-broker-launch
 
     # Adjusting dependencies for initramfs in the dbus socket unit.
+    # shellcheck disable=SC1004
     sed -i -e \
         '/^\[Unit\]/aDefaultDependencies=no\
         Conflicts=shutdown.target\
@@ -68,14 +69,13 @@ install() {
     # Install the hosts local user configurations if enabled.
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
-            $dbusconfdir/session.conf \
-            $dbusconfdir/system.conf \
-            $sysusersconfdir/dbus.conf \
-            $systemdsystemconfdir/dbus.socket \
-            $systemdsystemconfdir/dbus.socket.d/*.conf \
-            $systemdsystemconfdir/dbus-broker.service \
-            $systemdsystemconfdir/dbus-broker.service.d/*.conf \
-            ${NULL}
+            "$dbusconfdir"/session.conf \
+            "$dbusconfdir"/system.conf \
+            "$sysusersconfdir"/dbus.conf \
+            "$systemdsystemconfdir"/dbus.socket \
+            "$systemdsystemconfdir"/dbus.socket.d/*.conf \
+            "$systemdsystemconfdir"/dbus-broker.service \
+            "$systemdsystemconfdir"/dbus-broker.service.d/*.conf
     fi
 
     # We need to make sure that systemd-tmpfiles-setup.service->dbus.socket
