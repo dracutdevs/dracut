@@ -8,11 +8,11 @@ crypttab_contains() {
     local dev="$2"
     local l d rest
     if [ -f /etc/crypttab ]; then
-        while read l d rest || [ -n "$l" ]; do
+        while read -r l d rest || [ -n "$l" ]; do
             strstr "${l##luks-}" "${luks##luks-}" && return 0
             strstr "$d" "${luks##luks-}" && return 0
             if [ -n "$dev" ]; then
-                for _dev in $(devnames $d); do
+                for _dev in $(devnames "$d"); do
                     [ "$dev" -ef "$_dev" ] && return 0
                 done
             fi
@@ -21,7 +21,7 @@ crypttab_contains() {
                 _line=$(sed -n "\,^$d .*$,{p}" /etc/block_uuid.map)
                 [ -z "$_line" ] && continue
                 # get second column with uuid
-                _uuid="$(echo $_line | sed 's,^.* \(.*$\),\1,')"
+                _uuid="$(echo "$_line" | sed 's,^.* \(.*$\),\1,')"
                 strstr "$_uuid" "${luks##luks-}" && return 0
             fi
         done < /etc/crypttab
@@ -49,9 +49,6 @@ crypttab_contains() {
 #   Turn off input echo before tty command is executed and turn on after.
 #   It's useful when password is read from stdin.
 ask_for_password() {
-    local cmd
-    local prompt
-    local tries=3
     local ply_cmd
     local ply_prompt
     local ply_tries=3
@@ -111,7 +108,7 @@ ask_for_password() {
         # Prompt for password with plymouth, if installed and running.
         if type plymouth > /dev/null 2>&1 && plymouth --ping 2> /dev/null; then
             plymouth ask-for-password \
-                --prompt "$ply_prompt" --number-of-tries=$ply_tries \
+                --prompt "$ply_prompt" --number-of-tries="$ply_tries" \
                 --command="$ply_cmd"
             ret=$?
         else
@@ -121,16 +118,16 @@ ask_for_password() {
             fi
 
             local i=1
-            while [ $i -le $tty_tries ]; do
+            while [ $i -le "$tty_tries" ]; do
                 [ -n "$tty_prompt" ] \
-                    && printf "$tty_prompt [$i/$tty_tries]:" >&2
+                    && printf "%s" "$tty_prompt [$i/$tty_tries]:" >&2
                 eval "$tty_cmd" && ret=0 && break
                 ret=$?
                 i=$((i + 1))
                 [ -n "$tty_prompt" ] && printf '\n' >&2
             done
 
-            [ "$tty_echo_off" = yes ] && stty $stty_orig
+            [ "$tty_echo_off" = yes ] && stty "$stty_orig"
         fi
     } 9> /.console_lock
 
@@ -148,14 +145,14 @@ test_dev() {
     local dev="$2"
     local f="$3"
     local ret=1
-    local mount_point=$(mkuniqdir /mnt testdev)
-    local path
+    local mount_point
 
+    mount_point=$(mkuniqdir /mnt testdev)
     [ -n "$dev" -a -n "$*" ] || return 1
     [ -d "$mount_point" ] || die 'Mount point does not exist!'
 
     if mount -r "$dev" "$mount_point" > /dev/null 2>&1; then
-        test $test_op "${mount_point}/${f}"
+        test "$test_op" "${mount_point}/${f}"
         ret=$?
         umount "$mount_point"
     fi
@@ -212,8 +209,7 @@ getkey() {
     [ -z "$keys_file" -o -z "$for_dev" ] && die 'getkey: wrong usage!'
     [ -f "$keys_file" ] || return 1
 
-    local IFS=:
-    while read luks_dev key_dev key_path || [ -n "$luks_dev" ]; do
+    while IFS=: read -r luks_dev key_dev key_path _ || [ -n "$luks_dev" ]; do
         if match_dev "$luks_dev" "$for_dev"; then
             echo "${key_dev}:${key_path}"
             return 0
@@ -241,7 +237,8 @@ readkey() {
         # This creates a unique single mountpoint for *, or several for explicitly
         # given LUKS devices. It accomplishes unlocking multiple LUKS devices with
         # a single password entry.
-        local mntp="/mnt/$(str_replace "keydev-$keydev-$keypath" '/' '-')"
+        local mntp
+        mntp="/mnt/$(str_replace "keydev-$keydev-$keypath" '/' '-')"
 
         if [ ! -d "$mntp" ]; then
             mkdir -p "$mntp"
@@ -262,7 +259,7 @@ readkey() {
             if [ -f /lib/dracut-crypt-loop-lib.sh ]; then
                 . /lib/dracut-crypt-loop-lib.sh
                 loop_decrypt "$mntp" "$keypath" "$keydev" "$device"
-                printf "%s\n" "umount \"$mntp\"; rmdir \"$mntp\";" > ${hookdir}/cleanup/"crypt-loop-cleanup-99-${mntp##*/}".sh
+                printf "%s\n" "umount \"$mntp\"; rmdir \"$mntp\";" > "${hookdir}/cleanup/crypt-loop-cleanup-99-${mntp##*/}".sh
                 return 0
             else
                 die "No loop file support to decrypt '$keypath' on '$keydev'."
