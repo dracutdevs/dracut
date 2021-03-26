@@ -10,22 +10,22 @@ command -v getarg > /dev/null || . /lib/dracut-lib.sh
 command -v fetch_url > /dev/null || . /lib/url-lib.sh
 command -v unpack_img > /dev/null || . /lib/img-lib.sh
 
-read url < /tmp/liveupdates.info
+read -r url < /tmp/liveupdates.info
 
 info "fetching live updates from $url"
 
-fetch_url "$url" /tmp/updates.img
-if [ $? != 0 ]; then
+if ! fetch_url "$url" /tmp/updates.img; then
     warn "failed to fetch update image!"
     warn "url: $url"
     return 1
 fi
 
-unpack_img /tmp/updates.img /updates.tmp.$$
-if [ $? != 0 ]; then
+if ! unpack_img /tmp/updates.img /updates.tmp.$$; then
     warn "failed to unpack update image!"
     warn "url: $url"
     return 1
 fi
+
 copytree /updates.tmp.$$ /updates
+
 mv /tmp/liveupdates.info /tmp/liveupdates.done
