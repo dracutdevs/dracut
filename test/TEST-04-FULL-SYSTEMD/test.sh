@@ -207,6 +207,8 @@ EOF
         ddebug "Strip binaeries"
         find "$initdir" -perm /0111 -type f | xargs -r strip --strip-unneeded | ddebug
 
+        hostonly='' instmods fuse
+
         # copy depmod files
         inst /lib/modules/$kernel/modules.order
         inst /lib/modules/$kernel/modules.builtin
