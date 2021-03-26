@@ -22,7 +22,7 @@ installkernel() {
     local _provider_dirs='=drivers/nvdimm =drivers/acpi =arch/powerpc'
 
     #instmods() will take care of hostonly
-    dracut_instmods -o -s nvdimm_bus_register $_provider_dirs
+    dracut_instmods -o -s nvdimm_bus_register "$_provider_dirs"
 }
 
 # called by dracut
