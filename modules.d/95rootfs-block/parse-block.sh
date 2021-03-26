@@ -7,6 +7,7 @@ case "${root#block:}" in
         ;;
     /dev/*)
         root="block:${root#block:}"
+        # shellcheck disable=SC2034
         rootok=1
         ;;
 esac
