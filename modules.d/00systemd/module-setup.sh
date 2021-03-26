@@ -160,8 +160,7 @@ install() {
         systemd-run systemd-escape \
         systemd-cgls systemd-tmpfiles \
         systemd-ask-password systemd-tty-ask-password-agent \
-        /etc/udev/udev.hwdb \
-        ${NULL}
+        /etc/udev/udev.hwdb
 
     inst_multiple -o \
         /usr/lib/modules-load.d/*.conf \
@@ -185,7 +184,7 @@ install() {
         done
     }
 
-    mapfile -t _mods <<< $(modules_load_get /usr/lib/modules-load.d)
+    mapfile -t _mods < <(modules_load_get /usr/lib/modules-load.d)
     [[ ${#_mods[@]} -gt 0 ]] && hostonly='' instmods "${_mods[@]}"
 
     if [[ $hostonly ]]; then
@@ -202,10 +201,9 @@ install() {
             /etc/modules-load.d/*.conf \
             /etc/sysctl.d/*.conf \
             /etc/sysctl.conf \
-            /etc/udev/udev.conf \
-            ${NULL}
+            /etc/udev/udev.conf
 
-        mapfile -t _mods <<< $(modules_load_get /etc/modules-load.d)
+        mapfile -t _mods < <(modules_load_get /etc/modules-load.d)
         [[ ${#_mods[@]} -gt 0 ]] && hostonly='' instmods "${_mods[@]}"
     fi
 
@@ -215,17 +213,22 @@ install() {
 
     # install adm user/group for journald
     inst_multiple nologin
-    grep '^systemd-journal:' "$dracutsysrootdir"/etc/passwd 2> /dev/null >> "$initdir/etc/passwd"
-    grep '^adm:' "$dracutsysrootdir"/etc/passwd 2> /dev/null >> "$initdir/etc/passwd"
-    grep '^systemd-journal:' "$dracutsysrootdir"/etc/group >> "$initdir/etc/group"
-    grep '^wheel:' "$dracutsysrootdir"/etc/group >> "$initdir/etc/group"
-    grep '^adm:' "$dracutsysrootdir"/etc/group >> "$initdir/etc/group"
-    grep '^utmp:' "$dracutsysrootdir"/etc/group >> "$initdir/etc/group"
-    grep '^root:' "$dracutsysrootdir"/etc/group >> "$initdir/etc/group"
+    {
+        grep '^systemd-journal:' "$dracutsysrootdir"/etc/passwd 2> /dev/null
+        grep '^adm:' "$dracutsysrootdir"/etc/passwd 2> /dev/null
+        # we don't use systemd-networkd, but the user is in systemd.conf tmpfiles snippet
+        grep '^systemd-network:' "$dracutsysrootdir"/etc/passwd 2> /dev/null
+    } >> "$initdir/etc/passwd"
 
-    # we don't use systemd-networkd, but the user is in systemd.conf tmpfiles snippet
-    grep '^systemd-network:' "$dracutsysrootdir"/etc/passwd 2> /dev/null >> "$initdir/etc/passwd"
-    grep '^systemd-network:' "$dracutsysrootdir"/etc/group >> "$initdir/etc/group"
+    {
+        grep '^systemd-journal:' "$dracutsysrootdir"/etc/group 2> /dev/null
+        grep '^wheel:' "$dracutsysrootdir"/etc/group 2> /dev/null
+        grep '^adm:' "$dracutsysrootdir"/etc/group 2> /dev/null
+        grep '^utmp:' "$dracutsysrootdir"/etc/group 2> /dev/null
+        grep '^root:' "$dracutsysrootdir"/etc/group 2> /dev/null
+        # we don't use systemd-networkd, but the user is in systemd.conf tmpfiles snippet
+        grep '^systemd-network:' "$dracutsysrootdir"/etc/group 2> /dev/null
+    } >> "$initdir/etc/group"
 
     ln_r "$systemdutildir"/systemd "/init"
     ln_r "$systemdutildir"/systemd "/sbin/init"
@@ -238,15 +241,13 @@ install() {
         71-seat.rules \
         73-seat-late.rules \
         90-vconsole.rules \
-        99-systemd.rules \
-        ${NULL}
+        99-systemd.rules
 
     for i in \
         emergency.target \
         rescue.target \
         systemd-ask-password-console.service \
-        systemd-ask-password-plymouth.service \
-        ${NULL}; do
+        systemd-ask-password-plymouth.service; do
         [[ -f "$systemdsystemunitdir"/$i ]] || continue
         $SYSTEMCTL -q --root "$initdir" add-wants "$i" systemd-vconsole-setup.service
     done
