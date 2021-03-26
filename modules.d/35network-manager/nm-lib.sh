@@ -14,7 +14,7 @@ nm_generate_connections() {
             /etc/sysconfig/network-scripts/ifcfg-*; do
             [ -f "$i" ] || continue
             echo '[ -f /tmp/nm.done ]' > "$hookdir"/initqueue/finished/nm.sh
-            : > /run/NetworkManager/initrd/neednet # activate nm-run.service
+            : > /run/NetworkManager/initrd/neednet # activate NM services
             break
         done
     fi

@@ -10,6 +10,9 @@ if getargbool 0 rd.debug -d -y rdinitdebug -d -y rdnetdebug; then
     # shellcheck disable=SC2174
     mkdir -m 0755 -p /run/NetworkManager/conf.d
     (
+        echo '[.config]'
+        echo 'enable=env:initrd'
+        echo
         echo '[logging]'
         echo 'level=TRACE'
     ) > /run/NetworkManager/conf.d/initrd-logging.conf

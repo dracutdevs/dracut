@@ -1,0 +1,26 @@
+[Unit]
+DefaultDependencies=no
+Wants=systemd-udev-settle.service
+After=systemd-udev-settle.service
+Before=network.target
+ConditionPathExists=/run/NetworkManager/initrd/neednet
+ConditionPathExistsGlob=|/usr/lib/NetworkManager/system-connections/*
+ConditionPathExistsGlob=|/run/NetworkManager/system-connections/*
+ConditionPathExistsGlob=|/etc/NetworkManager/system-connections/*
+ConditionPathExistsGlob=|/etc/sysconfig/network-scripts/ifcfg-*
+
+[Service]
+Type=dbus
+BusName=org.freedesktop.NetworkManager
+ExecReload=/usr/bin/busctl call org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager Reload u 0
+ExecStart=/usr/sbin/NetworkManager --debug
+KillMode=process
+StandardOutput=tty
+Environment=NM_CONFIG_ENABLE_TAG=initrd
+Restart=on-failure
+ProtectSystem=true
+ProtectHome=read-only
+
+[Install]
+WantedBy=initrd.target
+Also=nm-wait-online-initrd.service
