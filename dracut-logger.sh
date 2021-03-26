@@ -316,9 +316,10 @@ _dlvl2syslvl() {
 #   - @c INFO to @c info
 #   - @c DEBUG and @c TRACE both to @c debug
 _do_dlog() {
+    local lvlc
     local lvl="$1"
     shift
-    local lvlc=$(_lvl2char "$lvl") || return 0
+    lvlc=$(_lvl2char "$lvl") || return 0
     local msg="$*"
     local lmsg="$lvlc: $*"
 
@@ -376,7 +377,9 @@ dlog() {
 dtrace() {
     set +x
     dlog 6 "$@"
-    [ -n "$debug" ] && set -x || :
+    if [ -n "$debug" ]; then
+        set -x
+    fi
 }
 
 ## @brief Logs message at DEBUG level (5)
@@ -386,7 +389,9 @@ dtrace() {
 ddebug() {
     set +x
     dlog 5 "$@"
-    [ -n "$debug" ] && set -x || :
+    if [ -n "$debug" ]; then
+        set -x
+    fi
 }
 
 ## @brief Logs message at INFO level (4)
@@ -396,7 +401,9 @@ ddebug() {
 dinfo() {
     set +x
     dlog 4 "$@"
-    [ -n "$debug" ] && set -x || :
+    if [ -n "$debug" ]; then
+        set -x
+    fi
 }
 
 ## @brief Logs message at WARN level (3)
@@ -406,7 +413,9 @@ dinfo() {
 dwarn() {
     set +x
     dlog 3 "$@"
-    [ -n "$debug" ] && set -x || :
+    if [ -n "$debug" ]; then
+        set -x
+    fi
 }
 
 ## @brief It's an alias to dwarn() function.
@@ -416,7 +425,9 @@ dwarn() {
 dwarning() {
     set +x
     dwarn "$@"
-    [ -n "$debug" ] && set -x || :
+    if [ -n "$debug" ]; then
+        set -x
+    fi
 }
 
 ## @brief Logs message at ERROR level (2)
@@ -426,7 +437,9 @@ dwarning() {
 derror() {
     set +x
     dlog 2 "$@"
-    [ -n "$debug" ] && set -x || :
+    if [ -n "$debug" ]; then
+        set -x
+    fi
 }
 
 ## @brief Logs message at FATAL level (1)
@@ -436,5 +449,7 @@ derror() {
 dfatal() {
     set +x
     dlog 1 "$@"
-    [ -n "$debug" ] && set -x || :
+    if [ -n "$debug" ]; then
+        set -x
+    fi
 }

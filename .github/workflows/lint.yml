@@ -45,4 +45,8 @@ jobs:
           sh_checker_comment: true
 
       - name: shellcheck on all marked directories
-        run: while read -r -d '' dir; do shellcheck $(shfmt -f $dir); done < <(find . -name .shchkdir -printf '%h\0')
+        run: |
+          while read -r -d '' dir; do
+            shellcheck $(shfmt -f $dir)
+          done < <(find . -name .shchkdir -printf '%h\0')
+          shellcheck dracut.sh dracut-init.sh dracut-functions.sh dracut-logger.sh
