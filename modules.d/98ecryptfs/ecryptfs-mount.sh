@@ -16,9 +16,9 @@ ECRYPTFS_EXTRA_MOUNT_OPTS=""
 load_ecryptfs_key() {
     # override the eCryptfs key path name from the 'ecryptfskey=' parameter in the kernel
     # command line
-    ECRYPTFSKEYARG=$(getarg ecryptfskey=)
-    [ $? -eq 0 ] \
-        && ECRYPTFSKEY=${ECRYPTFSKEYARG}
+    if ECRYPTFSKEYARG=$(getarg ecryptfskey=); then
+        ECRYPTFSKEY=${ECRYPTFSKEYARG}
+    fi
 
     # set the default value
     [ -z "${ECRYPTFSKEY}" ] \
@@ -36,21 +36,20 @@ load_ecryptfs_key() {
     fi
 
     # read the eCryptfs encrypted key blob
-    KEYBLOB=$(cat ${ECRYPTFSKEYPATH})
+    KEYBLOB=$(cat "${ECRYPTFSKEYPATH}")
 
     # load the eCryptfs encrypted key blob
-    ECRYPTFSKEYID=$(keyctl add ${ECRYPTFSKEYTYPE} ${ECRYPTFSKEYDESC} "load ${KEYBLOB}" @u)
-    [ $? -eq 0 ] || {
+    if ! ECRYPTFSKEYID=$(keyctl add ${ECRYPTFSKEYTYPE} ${ECRYPTFSKEYDESC} "load ${KEYBLOB}" @u); then
         info "eCryptfs: failed to load the eCryptfs key: ${ECRYPTFSKEYDESC}"
         return 1
-    }
+    fi
 
     return 0
 }
 
 unload_ecryptfs_key() {
     # unlink the eCryptfs encrypted key
-    keyctl unlink ${ECRYPTFSKEYID} @u || {
+    keyctl unlink "${ECRYPTFSKEYID}" @u || {
         info "eCryptfs: failed to unlink the eCryptfs key: ${ECRYPTFSKEYDESC}"
         return 1
     }
@@ -60,8 +59,9 @@ unload_ecryptfs_key() {
 
 mount_ecryptfs() {
     # read the configuration from the config file
+    # shellcheck disable=SC1090
     [ -f "${ECRYPTFSCONFIG}" ] \
-        && . ${ECRYPTFSCONFIG}
+        && . "${ECRYPTFSCONFIG}"
 
     # load the eCryptfs encrypted key
     load_ecryptfs_key || return 1
@@ -76,12 +76,12 @@ mount_ecryptfs() {
 
     # build the mount options variable
     ECRYPTFS_MOUNT_OPTS="ecryptfs_sig=${ECRYPTFSKEYDESC}"
-    [ ! -z "${ECRYPTFS_EXTRA_MOUNT_OPTS}" ] \
+    [ -n "${ECRYPTFS_EXTRA_MOUNT_OPTS}" ] \
         && ECRYPTFS_MOUNT_OPTS="${ECRYPTFS_MOUNT_OPTS},${ECRYPTFS_EXTRA_MOUNT_OPTS}"
 
     # mount the eCryptfs filesystem
     info "Mounting the configured eCryptfs filesystem"
-    mount -i -t ecryptfs -o${ECRYPTFS_MOUNT_OPTS} ${ECRYPTFSSRCMNT} ${ECRYPTFSDSTMNT} > /dev/null || {
+    mount -i -t ecryptfs -o${ECRYPTFS_MOUNT_OPTS} "${ECRYPTFSSRCMNT}" "${ECRYPTFSDSTMNT}" > /dev/null || {
         info "eCryptfs: mount of the eCryptfs filesystem failed"
         return 1
     }
