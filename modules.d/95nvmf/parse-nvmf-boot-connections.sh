@@ -32,7 +32,7 @@ validate_ip_conn() {
         return 1
     fi
 
-    local_address=$(ip -o route get to $traddr | sed -n 's/.*src \([0-9a-f.:]*\).*/\1/p')
+    local_address=$(ip -o route get to "$traddr" | sed -n 's/.*src \([0-9a-f.:]*\).*/\1/p')
 
     # confirm we got a local IP address
     if ! is_ip "$local_address"; then
@@ -40,7 +40,7 @@ validate_ip_conn() {
         return 1
     fi
 
-    ifname=$(ip -o route get to $local_address | sed -n 's/.*dev \([^ ]*\).*/\1/p')
+    ifname=$(ip -o route get to "$local_address" | sed -n 's/.*dev \([^ ]*\).*/\1/p')
 
     if ip l show "$ifname" > /dev/null 2>&1; then
         warn "invalid network interface $ifname"
@@ -61,7 +61,8 @@ parse_nvmf_discover() {
     trsvcid=4420
     OLDIFS="$IFS"
     IFS=,
-    set $1
+    # shellcheck disable=SC2086
+    set -- $1
     IFS="$OLDIFS"
 
     case $# in
@@ -133,7 +134,7 @@ done
 if [ -f "/etc/nvme/discovery.conf" ]; then
     /sbin/initqueue --settled --onetime --unique --name nvme-discover /usr/sbin/nvme connect-all
     if [ "$trtype" = "tcp" ]; then
-        > /tmp/net.$ifname.did-setup
+        : > /tmp/net."$ifname".did-setup
     fi
 else
     # No nvme command line arguments present, try autodiscovery
