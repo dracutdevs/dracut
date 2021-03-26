@@ -14,14 +14,15 @@ EVMKEYID=""
 
 load_evm_key() {
     # read the configuration from the config file
+    # shellcheck disable=SC1090
     [ -f "${EVMCONFIG}" ] \
-        && . ${EVMCONFIG}
+        && . "${EVMCONFIG}"
 
     # override the EVM key path name from the 'evmkey=' parameter in the kernel
     # command line
-    EVMKEYARG=$(getarg evmkey=)
-    [ $? -eq 0 ] \
-        && EVMKEY=${EVMKEYARG}
+    if EVMKEYARG=$(getarg evmkey=); then
+        EVMKEY=${EVMKEYARG}
+    fi
 
     # set the default value
     [ -z "${EVMKEY}" ] \
@@ -39,14 +40,13 @@ load_evm_key() {
     fi
 
     # read the EVM encrypted key blob
-    KEYBLOB=$(cat ${EVMKEYPATH})
+    KEYBLOB=$(cat "${EVMKEYPATH}")
 
     # load the EVM encrypted key
-    EVMKEYID=$(keyctl add ${EVMKEYTYPE} ${EVMKEYDESC} "load ${KEYBLOB}" @u)
-    [ $? -eq 0 ] || {
+    if ! EVMKEYID=$(keyctl add ${EVMKEYTYPE} ${EVMKEYDESC} "load ${KEYBLOB}" @u); then
         info "integrity: failed to load the EVM encrypted key: ${EVMKEYDESC}"
         return 1
-    }
+    fi
     return 0
 }
 
@@ -55,9 +55,9 @@ load_evm_x509() {
 
     # override the EVM key path name from the 'evmx509=' parameter in
     # the kernel command line
-    EVMX509ARG=$(getarg evmx509=)
-    [ $? -eq 0 ] \
-        && EVMX509=${EVMX509ARG}
+    if EVMX509ARG=$(getarg evmx509=); then
+        EVMX509=${EVMX509ARG}
+    fi
 
     # set the default value
     [ -z "${EVMX509}" ] \
@@ -75,8 +75,7 @@ load_evm_x509() {
     fi
 
     local evm_pubid line
-    line=$(keyctl describe %keyring:.evm)
-    if [ $? -eq 0 ]; then
+    if line=$(keyctl describe %keyring:.evm); then
         # the kernel already setup a trusted .evm keyring so use that one
         evm_pubid=${line%%:*}
     else
@@ -89,11 +88,12 @@ load_evm_x509() {
     fi
 
     # load the EVM public key onto the EVM keyring
-    EVMX509ID=$(evmctl import ${EVMX509PATH} ${evm_pubid})
-    [ $? -eq 0 ] || {
+    # FIXME: EVMX509ID unused?
+    # shellcheck disable=SC2034
+    if ! EVMX509ID=$(evmctl import "${EVMX509PATH}" "${evm_pubid}"); then
         info "integrity: failed to load the EVM X509 cert ${EVMX509PATH}"
         return 1
-    }
+    fi
 
     if [ "${RD_DEBUG}" = "yes" ]; then
         keyctl show @u
@@ -104,7 +104,7 @@ load_evm_x509() {
 
 unload_evm_key() {
     # unlink the EVM encrypted key
-    keyctl unlink ${EVMKEYID} @u || {
+    keyctl unlink "${EVMKEYID}" @u || {
         info "integrity: failed to unlink the EVM encrypted key: ${EVMKEYDESC}"
         return 1
     }
@@ -136,7 +136,7 @@ enable_evm() {
 
     # initialize EVM
     info "Enabling EVM"
-    echo 1 > ${EVMSECFILE}
+    echo 1 > "${EVMSECFILE}"
 
     # unload the EVM encrypted key
     unload_evm_key || return 1
