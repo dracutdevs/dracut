@@ -11,19 +11,20 @@ netif="$1"
 root="$2"
 NEWROOT="$3"
 
-nfs_to_var $root $netif
+nfs_to_var "$root" "$netif"
 [ -z "$server" ] && die "Required parameter 'server' is missing"
 
-mount_nfs $root $NEWROOT $netif && {
+mount_nfs "$root" "$NEWROOT" "$netif" && {
     [ -e /dev/root ] || ln -s null /dev/root
     [ -e /dev/nfs ] || ln -s null /dev/nfs
 }
 
-[ -f $NEWROOT/etc/fstab ] && cat $NEWROOT/etc/fstab > /dev/null
+[ -f "$NEWROOT"/etc/fstab ] && cat "$NEWROOT"/etc/fstab > /dev/null
 
 # inject new exit_if_exists
-echo 'settle_exit_if_exists="--exit-if-exists=/dev/root"; rm -- "$job"' > $hookdir/initqueue/nfs.sh
+# shellcheck disable=SC2016
+echo 'settle_exit_if_exists="--exit-if-exists=/dev/root"; rm -- "$job"' > "$hookdir"/initqueue/nfs.sh
 # force udevsettle to break
-> $hookdir/initqueue/work
+: > "$hookdir"/initqueue/work
 
 need_shutdown
