@@ -2,7 +2,6 @@
 
 # called by dracut
 check() {
-    local _rootdev
     # if we don't have btrfs installed on the host system,
     # no point in trying to support it in the initramfs.
     require_binaries btrfs || return 1
@@ -49,8 +48,8 @@ install() {
     fi
 
     inst_multiple -o btrfsck btrfs-zero-log
-    inst $(command -v btrfs) /sbin/btrfs
+    inst "$(command -v btrfs)" /sbin/btrfs
     # Hack for slow machines
     # see https://github.com/dracutdevs/dracut/issues/658
-    echo "rd.driver.pre=btrfs" > ${initdir}/etc/cmdline.d/00-btrfs.conf
+    echo "rd.driver.pre=btrfs" > "${initdir}"/etc/cmdline.d/00-btrfs.conf
 }
