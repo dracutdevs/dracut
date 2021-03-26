@@ -19,12 +19,12 @@ installkernel() {
 # called by dracut
 install() {
     inst_multiple -o \
-        $systemdutildir/systemd-networkd \
-        $systemdutildir/systemd-networkd-wait-online \
-        $systemdsystemunitdir/systemd-networkd-wait-online.service \
-        $systemdsystemunitdir/systemd-networkd.service \
-        $systemdsystemunitdir/systemd-networkd.socket \
-        $systemdutildir/network/99-default.link \
+        "$systemdutildir"/systemd-networkd \
+        "$systemdutildir"/systemd-networkd-wait-online \
+        "$systemdsystemunitdir"/systemd-networkd-wait-online.service \
+        "$systemdsystemunitdir"/systemd-networkd.service \
+        "$systemdsystemunitdir"/systemd-networkd.socket \
+        "$systemdutildir"/network/99-default.link \
         networkctl ip
 
     #hostnamectl timedatectl
@@ -58,8 +58,7 @@ install() {
     for i in \
         systemd-networkd-wait-online.service \
         systemd-networkd.service \
-        systemd-networkd.socket \
-        ${NULL}; do
+        systemd-networkd.socket; do
         $SYSTEMCTL -q --root "$initdir" enable "$i"
     done
 }
