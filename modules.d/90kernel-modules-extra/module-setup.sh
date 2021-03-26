@@ -38,7 +38,6 @@ installkernel() {
         printf "%s" "$1" | sed 's/\([.+?^$\/\\|()\[]\|\]\)/\\\0/'
     }
 
-    local OLDIFS
     local cfg
     local cfgs=()
     local search_list=""
@@ -49,7 +48,7 @@ installkernel() {
     ## Gathering and sorting configuration file list
 
     [ -n "${depmod_configs[*]-}" ] \
-        || depmod_configs=(/run/depmod.d/ /etc/depmod.d/ /lib/depmod.d/)
+        || depmod_configs=(/run/depmod.d /etc/depmod.d /lib/depmod.d)
 
     for cfg in "${depmod_configs[@]}"; do
         [ -e "$cfg" ] || {
@@ -60,25 +59,23 @@ installkernel() {
         # '/' is used as a separator between configuration name and
         # configuration path
         if [ -d "$cfg" ]; then
-            for f in "$cfg/"*; do
+            for f in "$cfg/"*.conf; do
                 [[ -e $f && ! -d $f ]] || {
                     prdebug "configuration source" \
                         "\"$cfg\" is ignored" \
                         "(directory or doesn't exist)"
                     continue
                 }
-                cfgs+=("$(basename "$f")/$f")
+                cfgs+=("${f##*/}/$f")
             done
         else
-            cfgs+=("$(basename "$cfg")/$cfg")
+            cfgs+=("${cfg##*/}/$cfg")
         fi
     done
 
-    OLDIFS="$IFS"
-    IFS=$'\n'
-    LANG=C cfgs=($(printf '%s\n' "${cfgs[@]}" \
-        | sort -u -k1,1 -t '/' | cut -f 2- -d '/'))
-    IFS="$OLDIFS"
+    if ((${#cfgs[@]} > 0)); then
+        mapfile -t cfgs < <(printf '%s\n' "${cfgs[@]}" | LANG=C sort -u -k1,1 -t '/' | cut -f 2- -d '/')
+    fi
 
     ## Parse configurations
 
@@ -160,9 +157,9 @@ installkernel() {
 
     for f in $(printf "%s" "$search_list"); do
         # Ignoring builtin modules
-        [ "built-in" != "$f" ] || continue
+        [[ $f == "built-in" ]] && continue
 
-        if [ "external" = "$f" ]; then
+        if [[ $f == "external" ]]; then
             for e in "${external_dirs[@]}"; do
                 pathlist+=("$(re_escape "${e%/}")/[^:]+")
             done
@@ -174,7 +171,7 @@ installkernel() {
     ## Filter modules.dep, canonicalise the resulting filenames and supply
     ## them to instmods.
 
-    [ 0 -lt "${#pathlist[@]}" ] || return 0
+    ((${#pathlist[@]} > 0)) || return 0
 
     printf "^%s\.ko(\.gz|\.bz2|\.xz)?:\n" "${pathlist[@]}" \
         | (LANG=C grep -E -o -f - -- "$depmod_modules_dep" || exit 0) \
