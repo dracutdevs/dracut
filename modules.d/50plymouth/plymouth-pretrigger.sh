@@ -16,7 +16,7 @@ if type plymouthd > /dev/null 2>&1 && [ -z "$DRACUT_SYSTEMD" ]; then
 
         info "Starting plymouth daemon"
         mkdir -m 0755 /run/plymouth
-        read consoledev rest < /sys/class/tty/console/active
+        read -r consoledev rest < /sys/class/tty/console/active
         consoledev=${consoledev:-tty0}
         [ -x /lib/udev/console_init -a -e "/dev/$consoledev" ] && /lib/udev/console_init "/dev/$consoledev"
         plymouthd --attach-to-session --pid-file /run/plymouth/pid
