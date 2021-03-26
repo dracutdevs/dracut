@@ -5,17 +5,19 @@ type is_persistent_ethernet_name > /dev/null 2>&1 || . /lib/net-lib.sh
 
 udevadm settle --timeout=30
 
+# shellcheck disable=SC2174
 mkdir -m 0755 -p /tmp/ifcfg/
+# shellcheck disable=SC2174
 mkdir -m 0755 -p /tmp/ifcfg-leases/
 
 get_config_line_by_subchannel() {
-    local CHANNEL
+    local CHANNELS
     local line
 
     CHANNELS="$1"
-    while read line || [ -n "$line" ]; do
+    while read -r line || [ -n "$line" ]; do
         if strstr "$line" "$CHANNELS"; then
-            echo $line
+            echo "$line"
             return 0
         fi
     done < /etc/ccw.conf
@@ -36,9 +38,9 @@ print_s390() {
     # if we find ccw channel, then use those, instead of
     # of the MAC
     SUBCHANNELS=$({
-        for i in /sys/class/net/$_netif/device/cdev[0-9]*; do
-            [ -e $i ] || continue
-            channel=$(readlink -f $i)
+        for i in /sys/class/net/"$_netif"/device/cdev[0-9]*; do
+            [ -e "$i" ] || continue
+            channel=$(readlink -f "$i")
             printf '%s' "${channel##*/},"
         done
     })
@@ -47,11 +49,13 @@ print_s390() {
     SUBCHANNELS=${SUBCHANNELS%,}
     echo "SUBCHANNELS=\"${SUBCHANNELS}\""
 
-    CONFIG_LINE=$(get_config_line_by_subchannel $SUBCHANNELS)
+    CONFIG_LINE=$(get_config_line_by_subchannel "$SUBCHANNELS")
+    # shellcheck disable=SC2181
     [ $? -ne 0 -o -z "$CONFIG_LINE" ] && return 0
 
     OLD_IFS=$IFS
     IFS=","
+    # shellcheck disable=SC2086
     set -- $CONFIG_LINE
     IFS=$OLD_IFS
     NETTYPE=$1
@@ -92,7 +96,7 @@ hw_bind() {
     [ -f "/sys/class/net/$_netif/address" ] \
         || return 1
 
-    echo "HWADDR=\"$(cat /sys/class/net/$_netif/address)\""
+    echo "HWADDR=\"$(cat /sys/class/net/"$_netif"/address)\""
 }
 
 interface_bind() {
@@ -109,12 +113,12 @@ interface_bind() {
 }
 
 for netup in /tmp/net.*.did-setup; do
-    [ -f $netup ] || continue
+    [ -f "$netup" ] || continue
 
     netif=${netup%%.did-setup}
     netif=${netif##*/net.}
     strglobin "$netif" ":*:*:*:*:" && continue
-    [ -e /tmp/ifcfg/ifcfg-$netif ] && continue
+    [ -e /tmp/ifcfg/ifcfg-"$netif" ] && continue
     unset bridge
     unset bond
     unset bondslaves
@@ -135,9 +139,12 @@ for netup in /tmp/net.*.did-setup; do
     unset vlanname
     unset phydevice
 
-    [ -e /tmp/bond.${netif}.info ] && . /tmp/bond.${netif}.info
-    [ -e /tmp/bridge.${netif}.info ] && . /tmp/bridge.${netif}.info
-    [ -e /tmp/team.${netif}.info ] && . /tmp/team.${netif}.info
+    # shellcheck disable=SC1090
+    [ -e /tmp/bond."${netif}".info ] && . /tmp/bond."${netif}".info
+    # shellcheck disable=SC1090
+    [ -e /tmp/bridge."${netif}".info ] && . /tmp/bridge."${netif}".info
+    # shellcheck disable=SC1090
+    [ -e /tmp/team."${netif}".info ] && . /tmp/team."${netif}".info
 
     uuid=$(cat /proc/sys/kernel/random/uuid)
     if [ "$netif" = "$bridgename" ]; then
@@ -149,8 +156,9 @@ for netup in /tmp/net.*.did-setup; do
         bond=yes
     fi
 
-    for i in /tmp/vlan.${netif}.*; do
+    for i in "/tmp/vlan.${netif}."*; do
         [ ! -e "$i" ] && continue
+        # shellcheck disable=SC1090
         . "$i"
         vlan=yes
         break
@@ -166,24 +174,26 @@ for netup in /tmp/net.*.did-setup; do
         echo "ONBOOT=yes"
         echo "NETBOOT=yes"
         echo "UUID=\"$uuid\""
-        strstr "$(ip -6 addr show dev $netif)" 'inet6' && echo "IPV6INIT=yes"
-        if [ -f /tmp/dhclient.$netif.lease ]; then
-            [ -f /tmp/dhclient.$netif.dhcpopts ] && . /tmp/dhclient.$netif.dhcpopts
-            if [ -f /tmp/net.$netif.has_ibft_config ]; then
+        strstr "$(ip -6 addr show dev "$netif")" 'inet6' && echo "IPV6INIT=yes"
+        if [ -f /tmp/dhclient."$netif".lease ]; then
+            # shellcheck disable=SC1090
+            [ -f /tmp/dhclient."$netif".dhcpopts ] && . /tmp/dhclient."$netif".dhcpopts
+            if [ -f /tmp/net."$netif".has_ibft_config ]; then
                 echo "BOOTPROTO=ibft"
             else
                 echo "BOOTPROTO=dhcp"
             fi
-            cp /tmp/dhclient.$netif.lease /tmp/ifcfg-leases/dhclient-$uuid-$netif.lease
+            cp /tmp/dhclient."$netif".lease /tmp/ifcfg-leases/dhclient-"$uuid"-"$netif".lease
         else
             # If we've booted with static ip= lines, the override file is there
-            [ -e /tmp/net.$netif.override ] && . /tmp/net.$netif.override
+            # shellcheck disable=SC1090
+            [ -e /tmp/net."$netif".override ] && . /tmp/net."$netif".override
             if strglobin "$ip" '*:*:*'; then
                 echo "IPV6INIT=yes"
                 echo "IPV6_AUTOCONF=no"
                 echo "IPV6ADDR=\"$ip/$mask\""
             else
-                if [ -f /tmp/net.$netif.has_ibft_config ]; then
+                if [ -f /tmp/net."$netif".has_ibft_config ]; then
                     echo "BOOTPROTO=ibft"
                 else
                     echo "BOOTPROTO=none"
@@ -202,12 +212,12 @@ for netup in /tmp/net.*.did-setup; do
             fi
         fi
         [ -n "$mtu" ] && echo "MTU=\"$mtu\""
-    } > /tmp/ifcfg/ifcfg-$netif
+    } > /tmp/ifcfg/ifcfg-"$netif"
 
     # bridge needs different things written to ifcfg
     if [ -z "$bridge" ] && [ -z "$bond" ] && [ -z "$vlan" ] && [ -z "$team" ]; then
         # standard interface
-        echo "TYPE=Ethernet" >> /tmp/ifcfg/ifcfg-$netif
+        echo "TYPE=Ethernet" >> /tmp/ifcfg/ifcfg-"$netif"
     fi
 
     if [ -n "$vlan" ]; then
@@ -216,7 +226,7 @@ for netup in /tmp/net.*.did-setup; do
             echo "DEVICE=\"$netif\""
             echo "VLAN=yes"
             echo "PHYSDEV=\"$phydevice\""
-        } >> /tmp/ifcfg/ifcfg-$netif
+        } >> /tmp/ifcfg/ifcfg-"$netif"
     fi
 
     if [ -n "$bond" ]; then
@@ -226,7 +236,7 @@ for netup in /tmp/net.*.did-setup; do
             echo "BONDING_OPTS=\"$bondoptions\""
             echo "NAME=\"$netif\""
             echo "TYPE=Bond"
-        } >> /tmp/ifcfg/ifcfg-$netif
+        } >> /tmp/ifcfg/ifcfg-"$netif"
 
         for slave in $bondslaves; do
             # write separate ifcfg file for the raw eth interface
@@ -240,9 +250,10 @@ for netup in /tmp/net.*.did-setup; do
                 echo "MASTER=\"$netif\""
                 echo "UUID=\"$(cat /proc/sys/kernel/random/uuid)\""
                 unset macaddr
-                [ -e /tmp/net.$slave.override ] && . /tmp/net.$slave.override
+                # shellcheck disable=SC1090
+                [ -e /tmp/net."$slave".override ] && . /tmp/net."$slave".override
                 interface_bind "$slave" "$macaddr"
-            ) >> /tmp/ifcfg/ifcfg-$slave
+            ) >> /tmp/ifcfg/ifcfg-"$slave"
         done
     fi
 
@@ -251,7 +262,7 @@ for netup in /tmp/net.*.did-setup; do
         {
             echo "TYPE=Bridge"
             echo "NAME=\"$netif\""
-        } >> /tmp/ifcfg/ifcfg-$netif
+        } >> /tmp/ifcfg/ifcfg-"$netif"
         for slave in $bridgeslaves; do
             # write separate ifcfg file for the raw eth interface
             (
@@ -263,14 +274,15 @@ for netup in /tmp/net.*.did-setup; do
                 echo "BRIDGE=\"$bridgename\""
                 echo "UUID=\"$(cat /proc/sys/kernel/random/uuid)\""
                 unset macaddr
-                [ -e /tmp/net.$slave.override ] && . /tmp/net.$slave.override
+                # shellcheck disable=SC1090
+                [ -e /tmp/net."$slave".override ] && . /tmp/net."$slave".override
                 interface_bind "$slave" "$macaddr"
-            ) >> /tmp/ifcfg/ifcfg-$slave
+            ) >> /tmp/ifcfg/ifcfg-"$slave"
         done
     fi
     i=1
     for ns in $(getargs nameserver) $dns1 $dns2; do
-        echo "DNS${i}=\"${ns}\"" >> /tmp/ifcfg/ifcfg-$netif
+        echo "DNS${i}=\"${ns}\"" >> /tmp/ifcfg/ifcfg-"$netif"
         i=$((i + 1))
     done
 
