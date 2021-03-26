@@ -19,34 +19,35 @@ info "fetching $liveurl"
 imgfile=
 #retry until the imgfile is populated with data or the max retries
 i=1
-while [ "$i" -le $RETRIES ]; do
+while [ "$i" -le "$RETRIES" ]; do
     imgfile=$(fetch_url "$liveurl")
 
+    # shellcheck disable=SC2181
     if [ $? != 0 ]; then
         warn "failed to download live image: error $?"
         imgfile=
     fi
 
-    if [ ! -z "$imgfile" -a -s "$imgfile" ]; then
+    if [ -n "$imgfile" -a -s "$imgfile" ]; then
         break
     else
-        if [ $i -ge $RETRIES ]; then
+        if [ $i -ge "$RETRIES" ]; then
             warn "failed to download live image after $i attempts."
             exit 1
         fi
 
-        sleep $SLEEP
+        sleep "$SLEEP"
     fi
 
     i=$((i + 1))
 done > /tmp/livenet.downloaded
 
 # TODO: couldn't dmsquash-live-root handle this?
-if [ ${imgfile##*.} = "iso" ]; then
+if [ "${imgfile##*.}" = "iso" ]; then
     root=$(losetup -f)
-    losetup $root $imgfile
+    losetup "$root" "$imgfile"
 else
     root=$imgfile
 fi
 
-exec /sbin/dmsquash-live-root $root
+exec /sbin/dmsquash-live-root "$root"

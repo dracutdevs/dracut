@@ -14,7 +14,7 @@ if [ -n "$updates" ]; then
     fi
     echo "$updates" > /tmp/liveupdates.info
     echo '[ -e /tmp/liveupdates.done ]' > \
-        $hookdir/initqueue/finished/liveupdates.sh
+        "$hookdir"/initqueue/finished/liveupdates.sh
 fi
 
 str_starts "$root" "live:" && liveurl="$root"
@@ -26,6 +26,7 @@ if get_url_handler "$liveurl" > /dev/null; then
     info "livenet: root image at $liveurl"
     netroot="livenet:$liveurl"
     root="livenet" # quiet complaints from init
+    # shellcheck disable=SC2034
     rootok=1
     wait_for_dev -n /dev/root
 else
