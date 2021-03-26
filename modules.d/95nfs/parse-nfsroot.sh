@@ -97,7 +97,7 @@ if nfsdomain=$(getarg rd.nfs.domain -d rd_NFS_DOMAIN); then
     echo "Domain = $nfsdomain" >> /etc/idmapd.conf
 fi
 
-nfsroot_to_var $netroot
+nfsroot_to_var "$netroot"
 [ "$path" = "error" ] && die "Argument nfsroot must contain a valid path!"
 
 # Set fstype, might help somewhere
@@ -108,17 +108,20 @@ netroot="$fstype:$server:$path:$options"
 
 # If we don't have a server, we need dhcp
 if [ -z "$server" ]; then
+    # shellcheck disable=SC2034
     DHCPORSERVER="1"
 fi
 
 # Done, all good!
+# shellcheck disable=SC2034
 rootok=1
 
 # Shut up init error check or make sure that block parser wont get
 # confused by having /dev/nfs[4]
 root="$fstype"
 
-echo '[ -e $NEWROOT/proc ]' > $hookdir/initqueue/finished/nfsroot.sh
+# shellcheck disable=SC2016
+echo '[ -e $NEWROOT/proc ]' > "$hookdir"/initqueue/finished/nfsroot.sh
 
 mkdir -p /var/lib/rpcbind
 chown rpc:rpc /var/lib/rpcbind
