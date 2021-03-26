@@ -10,6 +10,7 @@ ACTION="$1"
 # and that it can actually be used. When console=null is used,
 # echo will fail. We do the check in a subshell, because otherwise
 # the process will be killed when when running as PID 1.
+# shellcheck disable=SC2217
 [ -w /dev/console ] \
     && (echo < /dev/console &> /dev/null) \
     && exec < /dev/console >> /dev/console 2>> /dev/console
@@ -62,7 +63,7 @@ umount_a() {
     fi
 
     local _did_umount="n"
-    while read a mp a || [ -n "$mp" ]; do
+    while read -r _ mp _ || [ -n "$mp" ]; do
         strstr "$mp" oldroot || continue
         strstr "$_timed_out_umounts" " $mp " && continue
 
@@ -108,18 +109,20 @@ if strstr "$(cat /proc/mounts)" "/oldroot"; then
         case $_pid in
             *[!0-9]*) continue ;;
         esac
-        [ $_pid -eq $$ ] && continue
+        [ "$_pid" -eq $$ ] && continue
 
         [ -e "/proc/$_pid/exe" ] || continue
         [ -e "/proc/$_pid/root" ] || continue
 
-        if strstr "$(ls -l /proc/$_pid /proc/$_pid/fd 2> /dev/null)" "oldroot"; then
-            warn "Blocking umount of /oldroot [$_pid] $(cat /proc/$_pid/cmdline)"
+        if strstr "$(ls -l /proc/"$_pid" /proc/"$_pid"/fd 2> /dev/null)" "oldroot"; then
+            warn "Blocking umount of /oldroot [$_pid] $(cat /proc/"$_pid"/cmdline)"
         else
-            warn "Still running [$_pid] $(cat /proc/$_pid/cmdline)"
+            warn "Still running [$_pid] $(cat /proc/"$_pid"/cmdline)"
         fi
 
+        # shellcheck disable=SC2012
         ls -l "/proc/$_pid/exe" 2>&1 | vwarn
+        # shellcheck disable=SC2012
         ls -l "/proc/$_pid/fd" 2>&1 | vwarn
     done
 fi
@@ -127,11 +130,11 @@ fi
 _check_shutdown() {
     local __f
     local __s=0
-    for __f in $hookdir/shutdown/*.sh; do
+    for __f in "$hookdir"/shutdown/*.sh; do
         [ -e "$__f" ] || continue
-        (. "$__f" $1)
-        if [ $? -eq 0 ]; then
-            rm -f -- $__f
+        # shellcheck disable=SC1090 disable=SC2240
+        if (final="$1" . "$__f" "$1"); then
+            rm -f -- "$__f"
         else
             __s=1
         fi
