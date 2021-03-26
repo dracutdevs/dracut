@@ -25,7 +25,7 @@ prepare_debugfs() {
     trace_base=$(get_trace_base)
     # old debugfs interface case.
     if ! [ -d "$trace_base/tracing" ]; then
-        mount none -t debugfs $trace_base
+        mount none -t debugfs "$trace_base"
     # new tracefs interface case.
     elif ! [ -f "$trace_base/tracing/trace" ]; then
         mount none -t tracefs "$trace_base/tracing"
