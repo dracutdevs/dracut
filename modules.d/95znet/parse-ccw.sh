@@ -1,11 +1,11 @@
 #!/bin/sh
 
 for ccw_arg in $(getargs rd.ccw -d 'rd_CCW=') $(getargs rd.znet -d 'rd_ZNET='); do
-    echo $ccw_arg >> /etc/ccw.conf
+    echo "$ccw_arg" >> /etc/ccw.conf
 done
 
 for ifname in $(getargs rd.znet_ifname); do
-    IFS=: read ifname_if ifname_subchannels _rest <<< "$ifname"
+    IFS=: read -r ifname_if ifname_subchannels _rest <<< "$ifname"
     if [ -z "$ifname_if" ] || [ -z "$ifname_subchannels" ] || [ -n "$_rest" ]; then
         warn "Invalid arguments for rd.znet_ifname="
     else
