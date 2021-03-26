@@ -15,7 +15,7 @@ depends() {
 
 # called by dracut
 install() {
-    local _dir _crt _found _lib _nssckbi _p11roots _p11root _p11item
+    local _dir _crt _found _lib _nssckbi _p11roots _p11root
     inst_simple "$moddir/url-lib.sh" "/lib/url-lib.sh"
     inst_multiple -o ctorrent
     inst_multiple curl
@@ -29,10 +29,12 @@ install() {
 
     for _dir in $libdirs; do
         [[ -d $dracutsysrootdir$_dir ]] || continue
-        for _lib in $dracutsysrootdir$_dir/libcurl.so.*; do
+        for _lib in "$dracutsysrootdir$_dir"/libcurl.so.*; do
             [[ -e $_lib ]] || continue
-            [[ $_nssckbi ]] || _nssckbi=$(grep -F --binary-files=text -z libnssckbi $_lib)
-            _crt=$(grep -F --binary-files=text -z .crt $_lib)
+            if ! [[ $_nssckbi ]]; then
+                read -r -d '' _nssckbi < <(grep -F --binary-files=text -z libnssckbi "$_lib")
+            fi
+            read -r -d '' _crt < <(grep -F --binary-files=text -z .crt "$_lib")
             [[ $_crt ]] || continue
             [[ $_crt == /*/* ]] || continue
             if ! inst "${_crt#$dracutsysrootdir}"; then
@@ -53,26 +55,26 @@ install() {
         for _dir in $libdirs; do
             [[ -e $dracutsysrootdir$_dir/libnssckbi.so ]] || continue
             # this looks for directory-ish strings in the file
-            for _p11roots in $(grep -o --binary-files=text "/[[:alpha:]][[:print:]]*" $dracutsysrootdir$_dir/libnssckbi.so); do
-                # the string can be a :-separated list of dirs
-                for _p11root in $(echo "$_p11roots" | tr ':' '\n'); do
-                    # check if it's actually a directory (there are
-                    # several false positives in the results)
-                    [[ -d "$dracutsysrootdir$_p11root" ]] || continue
-                    # check if it has some specific subdirs that all
-                    # p11-kit trust dirs have
-                    [[ -d "$dracutsysrootdir${_p11root}/anchors" ]] || continue
-                    [[ -d "$dracutsysrootdir${_p11root}/blacklist" ]] || continue
-                    # so now we know it's really a p11-kit trust dir;
-                    # install everything in it
-                    for _p11item in $(find "$dracutsysrootdir$_p11root"); do
-                        if ! inst "${_p11item#$dracutsysrootdir}"; then
-                            dwarn "Couldn't install '${_p11item#$dracutsysrootdir}' from p11-kit trust dir '${_p11root#$dracutsysrootdir}'; HTTPS might not work."
-                            continue
+            grep -z -o --binary-files=text '/[[:alpha:]][[:print:]]*' "${dracutsysrootdir}${_dir}"/libnssckbi.so \
+                | while read -r -d '' _p11roots || [[ $_p11roots ]]; do
+                    IFS=":" read -r -a _p11roots <<< "$_p11roots"
+                    # the string can be a :-separated list of dirs
+                    for _p11root in "${_p11roots[@]}"; do
+                        # check if it's actually a directory (there are
+                        # several false positives in the results)
+                        [[ -d "$dracutsysrootdir$_p11root" ]] || continue
+                        # check if it has some specific subdirs that all
+                        # p11-kit trust dirs have
+                        [[ -d "$dracutsysrootdir${_p11root}/anchors" ]] || continue
+                        [[ -d "$dracutsysrootdir${_p11root}/blacklist" ]] || continue
+                        # so now we know it's really a p11-kit trust dir;
+                        # install everything in it
+                        mkdir -p -- "${initdir}/${_p11root}"
+                        if ! $DRACUT_CP -L -t "${initdir}/${_p11root}" "${dracutsysrootdir}${_p11root}"/*; then
+                            dwarn "Couldn't install from p11-kit trust dir '${_p11root#$dracutsysrootdir}'; HTTPS might not work."
                         fi
                     done
                 done
-            done
         done
     fi
     [[ $_found ]] || dwarn "Couldn't find SSL CA cert bundle or libnssckbi.so; HTTPS won't work."
