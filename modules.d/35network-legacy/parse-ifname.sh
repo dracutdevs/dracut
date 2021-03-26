@@ -20,5 +20,5 @@ command -v parse_ifname_opts > /dev/null || . /lib/net-lib.sh
 
 # Check ifname= lines
 for p in $(getargs ifname=); do
-    parse_ifname_opts $p
+    parse_ifname_opts "$p"
 done

@@ -28,15 +28,15 @@ do_dhcp_parallel() {
     # event for nfsroot
     # XXX add -V vendor class and option parsing per kernel
 
-    [ -e /tmp/dhclient.$netif.pid ] && return 0
+    [ -e "/tmp/dhclient.$netif.pid" ] && return 0
 
-    if ! iface_has_carrier $netif; then
+    if ! iface_has_carrier "$netif"; then
         warn "No carrier detected on interface $netif"
         return 1
     fi
 
-    bootintf=$(readlink $IFNETFILE)
-    if [ ! -z $bootintf ] && [ -e /tmp/dhclient.$bootintf.lease ]; then
+    bootintf=$(readlink "$IFNETFILE")
+    if [ -n "$bootintf" ] && [ -e "/tmp/dhclient.${bootintf}.lease" ]; then
         info "DHCP already succeeded for $bootintf, exiting for $netif"
         return 1
     fi
@@ -58,14 +58,17 @@ do_dhcp() {
     # event for nfsroot
     # XXX add -V vendor class and option parsing per kernel
 
-    local _COUNT=0
-    local _timeout=$(getargs rd.net.timeout.dhcp=)
-    local _DHCPRETRY=$(getargs rd.net.dhcp.retry=)
-    _DHCPRETRY=${_DHCPRETRY:-1}
+    local _COUNT
+    local _timeout
+    local _DHCPRETRY
 
-    [ -e /tmp/dhclient.$netif.pid ] && return 0
+    _COUNT=0
+    _timeout=$(getarg rd.net.timeout.dhcp=)
+    _DHCPRETRY=$(getargnum 1 1 1000000000 rd.net.dhcp.retry=)
 
-    if ! iface_has_carrier $netif; then
+    [ -e "/tmp/dhclient.${netif}.pid" ] && return 0
+
+    if ! iface_has_carrier "$netif"; then
         warn "No carrier detected on interface $netif"
         return 1
     fi
@@ -76,24 +79,24 @@ do_dhcp() {
         echo 'dhcp=dhclient' >> /run/NetworkManager/conf.d/10-dracut-dhclient.conf
     fi
 
-    while [ $_COUNT -lt $_DHCPRETRY ]; do
+    while [ "$_COUNT" -lt "$_DHCPRETRY" ]; do
         info "Starting dhcp for interface $netif"
         dhclient "$@" \
-            ${_timeout:+--timeout $_timeout} \
+            ${_timeout:+--timeout "$_timeout"} \
             -q \
             -1 \
             -cf /etc/dhclient.conf \
-            -pf /tmp/dhclient.$netif.pid \
-            -lf /tmp/dhclient.$netif.lease \
-            $netif \
+            -pf "/tmp/dhclient.${netif}.pid" \
+            -lf "/tmp/dhclient.${netif}.lease" \
+            "$netif" \
             && return 0
         _COUNT=$((_COUNT + 1))
-        [ $_COUNT -lt $_DHCPRETRY ] && sleep 1
+        [ "$_COUNT" -lt "$_DHCPRETRY" ] && sleep 1
     done
     warn "dhcp for interface $netif failed"
     # nuke those files since we failed; we might retry dhcp again if it's e.g.
     # `ip=dhcp,dhcp6` and we check for the PID file at the top
-    rm -f /tmp/dhclient.$netif.{pid,lease}
+    rm -f "/tmp/dhclient.${netif}".{pid,lease}
     return 1
 }
 
@@ -111,34 +114,34 @@ load_ipv6() {
 do_ipv6auto() {
     local ret
     load_ipv6
-    echo 0 > /proc/sys/net/ipv6/conf/$netif/forwarding
-    echo 1 > /proc/sys/net/ipv6/conf/$netif/accept_ra
-    echo 1 > /proc/sys/net/ipv6/conf/$netif/accept_redirects
-    linkup $netif
-    wait_for_ipv6_auto $netif
+    echo 0 > /proc/sys/net/ipv6/conf/"${netif}"/forwarding
+    echo 1 > /proc/sys/net/ipv6/conf/"${netif}"/accept_ra
+    echo 1 > /proc/sys/net/ipv6/conf/"${netif}"/accept_redirects
+    linkup "$netif"
+    wait_for_ipv6_auto "$netif"
     ret=$?
 
-    [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
+    [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > "/tmp/net.${netif}.hostname"
 
-    return $ret
+    return "$ret"
 }
 
 do_ipv6link() {
     local ret
     load_ipv6
-    echo 0 > /proc/sys/net/ipv6/conf/$netif/forwarding
-    echo 0 > /proc/sys/net/ipv6/conf/$netif/accept_ra
-    echo 0 > /proc/sys/net/ipv6/conf/$netif/accept_redirects
-    linkup $netif
+    echo 0 > /proc/sys/net/ipv6/conf/"${netif}"/forwarding
+    echo 0 > /proc/sys/net/ipv6/conf/"${netif}"/accept_ra
+    echo 0 > /proc/sys/net/ipv6/conf/"${netif}"/accept_redirects
+    linkup "$netif"
 
-    [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
+    [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > "/tmp/net.${netif}.hostname"
 
-    return $ret
+    return "$ret"
 }
 
 # Handle static ip configuration
 do_static() {
-    strglobin $ip '*:*:*' && load_ipv6
+    strglobin "$ip" '*:*:*' && load_ipv6
 
     if ! iface_has_carrier "$netif"; then
         warn "No carrier detected on interface $netif"
@@ -149,7 +152,7 @@ do_static() {
     fi
 
     ip route get "$ip" 2> /dev/null | {
-        read a rest
+        read -r a rest
         if [ "$a" = "local" ]; then
             warn "Not assigning $ip to interface $netif, cause it is already assigned!"
             return 1
@@ -157,35 +160,35 @@ do_static() {
         return 0
     } || return 1
 
-    [ -n "$macaddr" ] && ip link set address $macaddr dev $netif
-    [ -n "$mtu" ] && ip link set mtu $mtu dev $netif
-    if strglobin $ip '*:*:*'; then
+    [ -n "$macaddr" ] && ip link set address "$macaddr" dev "$netif"
+    [ -n "$mtu" ] && ip link set mtu "$mtu" dev "$netif"
+    if strglobin "$ip" '*:*:*'; then
         # note no ip addr flush for ipv6
-        ip addr add $ip/$mask ${srv:+peer $srv} dev $netif
-        echo 0 > /proc/sys/net/ipv6/conf/$netif/forwarding
-        echo 1 > /proc/sys/net/ipv6/conf/$netif/accept_ra
-        echo 1 > /proc/sys/net/ipv6/conf/$netif/accept_redirects
-        wait_for_ipv6_dad $netif
+        ip addr add "$ip/$mask" ${srv:+peer "$srv"} dev "$netif"
+        echo 0 > /proc/sys/net/ipv6/conf/"${netif}"/forwarding
+        echo 1 > /proc/sys/net/ipv6/conf/"${netif}"/accept_ra
+        echo 1 > /proc/sys/net/ipv6/conf/"${netif}"/accept_redirects
+        wait_for_ipv6_dad "$netif"
     else
         if [ -z "$srv" ]; then
             if command -v arping2 > /dev/null; then
-                if arping2 -q -C 1 -c 2 -I $netif -0 $ip; then
+                if arping2 -q -C 1 -c 2 -I "$netif" -0 "$ip"; then
                     warn "Duplicate address detected for $ip for interface $netif."
                     return 1
                 fi
             else
-                if ! arping -f -q -D -c 2 -I $netif $ip; then
+                if ! arping -f -q -D -c 2 -I "$netif" "$ip"; then
                     warn "Duplicate address detected for $ip for interface $netif."
                     return 1
                 fi
             fi
         fi
-        ip addr flush dev $netif
-        ip addr add $ip/$mask ${srv:+peer $srv} brd + dev $netif
+        ip addr flush dev "$netif"
+        ip addr add "$ip/$mask" ${srv:+peer "$srv"} brd + dev "$netif"
     fi
 
-    [ -n "$gw" ] && echo ip route replace default via $gw dev $netif > /tmp/net.$netif.gw
-    [ -n "$hostname" ] && echo "echo $hostname > /proc/sys/kernel/hostname" > /tmp/net.$netif.hostname
+    [ -n "$gw" ] && echo "ip route replace default via '$gw' dev '$netif'" > "/tmp/net.$netif.gw"
+    [ -n "$hostname" ] && echo "echo '$hostname' > /proc/sys/kernel/hostname" > "/tmp/net.$netif.hostname"
 
     return 0
 }
@@ -193,28 +196,29 @@ do_static() {
 get_vid() {
     case "$1" in
         vlan*)
-            echo ${1#vlan}
+            echo "${1#vlan}"
             ;;
         *.*)
-            echo ${1##*.}
+            echo "${1##*.}"
             ;;
     esac
 }
 
 # check, if we need VLAN's for this interface
-if [ -z "$DO_VLAN_PHY" ] && [ -e /tmp/vlan.${netif}.phy ]; then
+if [ -z "$DO_VLAN_PHY" ] && [ -e "/tmp/vlan.${netif}.phy" ]; then
     unset DO_VLAN
     NO_AUTO_DHCP=yes DO_VLAN_PHY=yes ifup "$netif"
     modprobe -b -q 8021q
 
-    for i in /tmp/vlan.*.${netif}; do
+    for i in /tmp/vlan.*."${netif}"; do
         [ -e "$i" ] || continue
         unset vlanname
         unset phydevice
+        # shellcheck disable=SC1090
         . "$i"
         if [ -n "$vlanname" ]; then
             linkup "$phydevice"
-            ip link add dev "$vlanname" link "$phydevice" type vlan id "$(get_vid $vlanname)"
+            ip link add dev "$vlanname" link "$phydevice" type vlan id "$(get_vid "$vlanname")"
             ifup "$vlanname"
         fi
     done
@@ -222,8 +226,8 @@ if [ -z "$DO_VLAN_PHY" ] && [ -e /tmp/vlan.${netif}.phy ]; then
 fi
 
 # Check, if interface is VLAN interface
-if ! [ -e /tmp/vlan.${netif}.phy ]; then
-    for i in /tmp/vlan.${netif}.*; do
+if ! [ -e "/tmp/vlan.${netif}.phy" ]; then
+    for i in "/tmp/vlan.${netif}".*; do
         [ -e "$i" ] || continue
         export DO_VLAN=yes
         break
@@ -236,19 +240,20 @@ if [ -z "$NO_BRIDGE_MASTER" ]; then
         [ -e "$i" ] || continue
         unset bridgeslaves
         unset bridgename
+        # shellcheck disable=SC1090
         . "$i"
         for ethname in $bridgeslaves; do
             [ "$netif" != "$ethname" ] && continue
 
-            NO_BRIDGE_MASTER=yes NO_AUTO_DHCP=yes ifup $ethname
-            linkup $ethname
-            if [ ! -e /tmp/bridge.$bridgename.up ]; then
-                ip link add name $bridgename type bridge
-                echo 0 > /sys/devices/virtual/net/$bridgename/bridge/forward_delay
-                > /tmp/bridge.$bridgename.up
+            NO_BRIDGE_MASTER=yes NO_AUTO_DHCP=yes ifup "$ethname"
+            linkup "$ethname"
+            if [ ! -e "/tmp/bridge.$bridgename.up" ]; then
+                ip link add name "$bridgename" type bridge
+                echo 0 > "/sys/devices/virtual/net/$bridgename/bridge/forward_delay"
+                : > "/tmp/bridge.$bridgename.up"
             fi
-            ip link set dev $ethname master $bridgename
-            ifup $bridgename
+            ip link set dev "$ethname" master "$bridgename"
+            ifup "$bridgename"
             exit 0
         done
     done
@@ -260,19 +265,20 @@ if [ -z "$NO_BOND_MASTER" ]; then
         [ -e "$i" ] || continue
         unset bondslaves
         unset bondname
+        # shellcheck disable=SC1090
         . "$i"
-        for slave in $bondslaves; do
-            [ "$netif" != "$slave" ] && continue
+        for testslave in $bondslaves; do
+            [ "$netif" != "testslave" ] && continue
 
             # already setup
-            [ -e /tmp/bond.$bondname.up ] && exit 0
+            [ -e "/tmp/bond.$bondname.up" ] && exit 0
 
             # wait for all slaves to show up
             for slave in $bondslaves; do
                 # try to create the slave (maybe vlan or bridge)
-                NO_BOND_MASTER=yes NO_AUTO_DHCP=yes ifup $slave
+                NO_BOND_MASTER=yes NO_AUTO_DHCP=yes ifup "$slave"
 
-                if ! ip link show dev $slave > /dev/null 2>&1; then
+                if ! ip link show dev "$slave" > /dev/null 2>&1; then
                     # wait for the last slave to show up
                     exit 0
                 fi
@@ -280,7 +286,7 @@ if [ -z "$NO_BOND_MASTER" ]; then
 
             modprobe -q -b bonding
             echo "+$bondname" > /sys/class/net/bonding_masters 2> /dev/null
-            ip link set $bondname down
+            ip link set "$bondname" down
 
             # Stolen from ifup-eth
             # add the bits to setup driver parameters here
@@ -292,38 +298,38 @@ if [ -z "$NO_BOND_MASTER" ]; then
                     OLDIFS=$IFS
                     IFS=','
                     for arp_ip in $value; do
-                        echo +$arp_ip > /sys/class/net/${bondname}/bonding/$key
+                        echo "+$arp_ip" > "/sys/class/net/${bondname}/bonding/$key"
                     done
                     IFS=$OLDIFS
                 else
-                    echo $value > /sys/class/net/${bondname}/bonding/$key
+                    echo "$value" > "/sys/class/net/${bondname}/bonding/$key"
                 fi
             done
 
-            linkup $bondname
+            linkup "$bondname"
 
             for slave in $bondslaves; do
-                cat /sys/class/net/$slave/address > /tmp/net.${bondname}.${slave}.hwaddr
-                ip link set $slave down
-                echo "+$slave" > /sys/class/net/$bondname/bonding/slaves
-                linkup $slave
+                cat "/sys/class/net/$slave/address" > "/tmp/net.${bondname}.${slave}.hwaddr"
+                ip link set "$slave" down
+                echo "+$slave" > "/sys/class/net/$bondname/bonding/slaves"
+                linkup "$slave"
             done
 
             # Set mtu on bond master
-            [ -n "$bondmtu" ] && ip link set mtu $bondmtu dev $bondname
+            [ -n "$bondmtu" ] && ip link set mtu "$bondmtu" dev "$bondname"
 
             # add the bits to setup the needed post enslavement parameters
             for arg in $bondoptions; do
                 key=${arg%%=*}
                 value=${arg##*=}
                 if [ "${key}" = "primary" ]; then
-                    echo $value > /sys/class/net/${bondname}/bonding/$key
+                    echo "$value" > "/sys/class/net/${bondname}/bonding/$key"
                 fi
             done
 
-            > /tmp/bond.$bondname.up
+            : > "/tmp/bond.$bondname.up"
 
-            NO_BOND_MASTER=yes ifup $bondname
+            NO_BOND_MASTER=yes ifup "$bondname"
             exit $?
         done
     done
@@ -334,63 +340,67 @@ if [ -z "$NO_TEAM_MASTER" ]; then
         [ -e "$i" ] || continue
         unset teammaster
         unset teamslaves
+        # shellcheck disable=SC1090
         . "$i"
-        for slave in $teamslaves; do
-            [ "$netif" != "$slave" ] && continue
+        for testslave in $teamslaves; do
+            [ "$netif" != "$testslave" ] && continue
 
-            [ -e /tmp/team.$teammaster.up ] && exit 0
+            [ -e "/tmp/team.$teammaster.up" ] && exit 0
 
             # wait for all slaves to show up
             for slave in $teamslaves; do
                 # try to create the slave (maybe vlan or bridge)
-                NO_TEAM_MASTER=yes NO_AUTO_DHCP=yes ifup $slave
+                NO_TEAM_MASTER=yes NO_AUTO_DHCP=yes ifup "$slave"
 
-                if ! ip link show dev $slave > /dev/null 2>&1; then
+                if ! ip link show dev "$slave" > /dev/null 2>&1; then
                     # wait for the last slave to show up
                     exit 0
                 fi
             done
 
-            if [ ! -e /tmp/team.$teammaster.up ]; then
+            if [ ! -e "/tmp/team.$teammaster.up" ]; then
                 # We shall only bring up those _can_ come up
                 # in case of some slave is gone in active-backup mode
                 working_slaves=""
                 for slave in $teamslaves; do
-                    teamdctl ${teammaster} port present ${slave} 2> /dev/null \
+                    teamdctl "${teammaster}" port present "${slave}" 2> /dev/null \
                         && continue
-                    ip link set dev $slave up 2> /dev/null
-                    if wait_for_if_up $slave; then
+                    ip link set dev "$slave" up 2> /dev/null
+                    if wait_for_if_up "$slave"; then
                         working_slaves="$working_slaves$slave "
                     fi
                 done
                 # Do not add slaves now
-                teamd -d -U -n -N -t $teammaster -f /etc/teamd/${teammaster}.conf
+                teamd -d -U -n -N -t "$teammaster" -f "/etc/teamd/${teammaster}.conf"
                 for slave in $working_slaves; do
                     # team requires the slaves to be down before joining team
-                    ip link set dev $slave down
+                    ip link set dev "$slave" down
                     (
                         unset TEAM_PORT_CONFIG
-                        _hwaddr=$(cat /sys/class/net/$slave/address)
+                        _hwaddr=$(cat "/sys/class/net/$slave/address")
                         _subchannels=$(iface_get_subchannels "$slave")
                         if [ -n "$_hwaddr" ] && [ -e "/etc/sysconfig/network-scripts/mac-${_hwaddr}.conf" ]; then
+                            # shellcheck disable=SC1090
                             . "/etc/sysconfig/network-scripts/mac-${_hwaddr}.conf"
                         elif [ -n "$_subchannels" ] && [ -e "/etc/sysconfig/network-scripts/ccw-${_subchannels}.conf" ]; then
+                            # shellcheck disable=SC1090
                             . "/etc/sysconfig/network-scripts/ccw-${_subchannels}.conf"
                         elif [ -e "/etc/sysconfig/network-scripts/ifcfg-${slave}" ]; then
+                            # shellcheck disable=SC1090
                             . "/etc/sysconfig/network-scripts/ifcfg-${slave}"
                         fi
 
                         if [ -n "${TEAM_PORT_CONFIG}" ]; then
-                            /usr/bin/teamdctl ${teammaster} port config update ${slave} "${TEAM_PORT_CONFIG}"
+                            /usr/bin/teamdctl "${teammaster}" port config update "${slave}" "${TEAM_PORT_CONFIG}"
                         fi
                     )
-                    teamdctl $teammaster port add $slave
+                    teamdctl "$teammaster" port add "$slave"
                 done
 
-                ip link set dev $teammaster up
+                ip link set dev "$teammaster" up
 
-                > /tmp/team.$teammaster.up
-                NO_TEAM_MASTER=yes ifup $teammaster
+                : > "/tmp/team.$teammaster.up"
+                NO_TEAM_MASTER=yes ifup "$teammaster"
                 exit $?
             fi
         done
@@ -398,7 +408,7 @@ if [ -z "$NO_TEAM_MASTER" ]; then
 fi
 
 # all synthetic interfaces done.. now check if the interface is available
-if ! ip link show dev $netif > /dev/null 2>&1; then
+if ! ip link show dev "$netif" > /dev/null 2>&1; then
     exit 1
 fi
 
@@ -407,29 +417,29 @@ fi
 [ -n "$2" -a "$2" = "-m" ] && [ -z "$netroot" ] && manualup="$2"
 
 if [ -n "$manualup" ]; then
-    > /tmp/net.$netif.manualup
-    rm -f /tmp/net.${netif}.did-setup
+    : > "/tmp/net.$netif.manualup"
+    rm -f "/tmp/net.${netif}.did-setup"
 else
-    [ -e /tmp/net.${netif}.did-setup ] && exit 0
+    [ -e "/tmp/net.${netif}.did-setup" ] && exit 0
     [ -z "$DO_VLAN" ] \
-        && [ -e /sys/class/net/$netif/address ] \
-        && [ -e /tmp/net.$(cat /sys/class/net/$netif/address).did-setup ] && exit 0
+        && [ -e "/sys/class/net/$netif/address" ] \
+        && [ -e "/tmp/net.$(cat "/sys/class/net/$netif/address").did-setup" ] && exit 0
 fi
 
 # Specific configuration, spin through the kernel command line
 # looking for ip= lines
 for p in $(getargs ip=); do
-    ip_to_var $p
+    ip_to_var "$p"
     # skip ibft
     [ "$autoconf" = "ibft" ] && continue
 
     case "$dev" in
         ??:??:??:??:??:??) # MAC address
-            _dev=$(iface_for_mac $dev)
+            _dev=$(iface_for_mac "$dev")
             [ -n "$_dev" ] && dev="$_dev"
             ;;
         ??-??-??-??-??-??) # MAC address in BOOTIF form
-            _dev=$(iface_for_mac $(fix_bootif $dev))
+            _dev=$(iface_for_mac "$(fix_bootif "$dev")")
             [ -n "$_dev" ] && dev="$_dev"
             ;;
     esac
@@ -444,7 +454,7 @@ for p in $(getargs ip=); do
     # Store config for later use
     for i in ip srv gw mask hostname macaddr mtu dns1 dns2; do
         eval '[ "$'$i'" ] && echo '$i'="$'$i'"'
-    done > /tmp/net.$netif.override
+    done > "/tmp/net.$netif.override"
 
     for autoopt in $(str_replace "$autoconf" "," " "); do
         case $autoopt in
@@ -478,28 +488,28 @@ for p in $(getargs ip=); do
     # setup nameserver
     for s in "$dns1" "$dns2" $(getargs nameserver); do
         [ -n "$s" ] || continue
-        echo nameserver $s >> /tmp/net.$netif.resolv.conf
+        echo "nameserver $s" >> "/tmp/net.$netif.resolv.conf"
     done
 
     if [ $ret -eq 0 ]; then
-        > /tmp/net.${netif}.up
+        : > "/tmp/net.${netif}.up"
 
-        if [ -z "$DO_VLAN" ] && [ -e /sys/class/net/${netif}/address ]; then
-            > /tmp/net.$(cat /sys/class/net/${netif}/address).up
+        if [ -z "$DO_VLAN" ] && [ -e "/sys/class/net/${netif}/address" ]; then
+            : > "/tmp/net.$(cat "/sys/class/net/${netif}/address").up"
         fi
 
         # and finally, finish interface set up if there isn't already a script
         # to do so (which is the case in the dhcp path)
-        if [ ! -e $hookdir/initqueue/setup_net_$netif.sh ]; then
-            setup_net $netif
-            source_hook initqueue/online $netif
+        if [ ! -e "$hookdir/initqueue/setup_net_$netif.sh" ]; then
+            setup_net "$netif"
+            source_hook initqueue/online "$netif"
             if [ -z "$manualup" ]; then
-                /sbin/netroot $netif
+                /sbin/netroot "$netif"
             fi
         fi
 
         if command -v wicked > /dev/null && [ -z "$manualup" ]; then
-            /sbin/netroot $netif
+            /sbin/netroot "$netif"
         fi
 
         exit $ret
@@ -507,11 +517,11 @@ for p in $(getargs ip=); do
 done
 
 # no ip option directed at our interface?
-if [ -z "$NO_AUTO_DHCP" ] && [ ! -e /tmp/net.${netif}.up ]; then
+if [ -z "$NO_AUTO_DHCP" ] && [ ! -e "/tmp/net.${netif}.up" ]; then
     ret=1
     if [ -e /tmp/net.bootdev ]; then
         BOOTDEV=$(cat /tmp/net.bootdev)
-        if [ "$netif" = "$BOOTDEV" ] || [ "$BOOTDEV" = "$(cat /sys/class/net/${netif}/address)" ]; then
+        if [ "$netif" = "$BOOTDEV" ] || [ "$BOOTDEV" = "$(cat "/sys/class/net/${netif}/address")" ]; then
             do_dhcp
             ret=$?
         fi
@@ -532,13 +542,13 @@ if [ -z "$NO_AUTO_DHCP" ] && [ ! -e /tmp/net.${netif}.up ]; then
 
     for s in $(getargs nameserver); do
         [ -n "$s" ] || continue
-        echo nameserver $s >> /tmp/net.$netif.resolv.conf
+        echo "nameserver $s" >> "/tmp/net.$netif.resolv.conf"
     done
 
-    if [ "$ret" -eq 0 ] && [ -n "$(ls /tmp/leaseinfo.${netif}* 2> /dev/null)" ]; then
-        > /tmp/net.${netif}.did-setup
-        if [ -e /sys/class/net/${netif}/address ]; then
-            > /tmp/net.$(cat /sys/class/net/${netif}/address).did-setup
+    if [ "$ret" -eq 0 ] && [ -n "$(ls "/tmp/leaseinfo.${netif}"* 2> /dev/null)" ]; then
+        : > "/tmp/net.${netif}.did-setup"
+        if [ -e "/sys/class/net/${netif}/address" ]; then
+            : > "/tmp/net.$(cat "/sys/class/net/${netif}/address").did-setup"
         fi
     fi
 fi

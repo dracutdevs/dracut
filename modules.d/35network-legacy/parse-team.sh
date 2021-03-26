@@ -52,11 +52,13 @@ for team in $(getargs team); do
 
     parseteam "$team" || continue
 
-    echo "teammaster=$teammaster" > /tmp/team.${teammaster}.info
-    echo "teamslaves=\"$teamslaves\"" >> /tmp/team.${teammaster}.info
-    echo "teamrunner=\"$teamrunner\"" >> /tmp/team.${teammaster}.info
+    {
+        echo "teammaster=$teammaster"
+        echo "teamslaves=\"$teamslaves\""
+        echo "teamrunner=\"$teamrunner\""
+    } > /tmp/team."${teammaster}".info
 
-    if ! [ -e /etc/teamd/${teammaster}.conf ]; then
+    if ! [ -e /etc/teamd/"${teammaster}".conf ]; then
         warn "Team master $teammaster specified, but no /etc/teamd/$teammaster.conf present. Using $teamrunner."
         mkdir -p /etc/teamd
         printf -- "%s" "{\"runner\": {\"name\": \"$teamrunner\"}, \"link_watch\": {\"name\": \"ethtool\"}}" > "/tmp/${teammaster}.conf"
