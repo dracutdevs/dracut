@@ -4,9 +4,10 @@
 cmdline() {
     is_dasd() {
         local _dev=$1
-        local _devpath=$(
-            cd -P /sys/dev/block/$_dev
-            echo $PWD
+        local _devpath
+        _devpath=$(
+            cd -P /sys/dev/block/"$_dev" || exit
+            echo "$PWD"
         )
 
         [ "${_devpath#*/dasd}" == "$_devpath" ] && return 1
@@ -52,7 +53,8 @@ install() {
     inst_multiple /usr/lib/udev/collect
     inst_hook cmdline 30 "$moddir/parse-dasd.sh"
     if [[ $hostonly_cmdline == "yes" ]]; then
-        local _dasd=$(cmdline)
+        local _dasd
+        _dasd=$(cmdline)
         [[ $_dasd ]] && printf "%s\n" "$_dasd" >> "${initdir}/etc/cmdline.d/95dasd.conf"
     fi
     if [[ $hostonly ]]; then
