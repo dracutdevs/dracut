@@ -2,7 +2,8 @@
 
 # called by dracut
 check() {
-    local _rootdev
+    local dev holder
+
     # No mdadm?  No mdraid support.
     require_binaries mdadm expr || return 1
 
@@ -45,9 +46,9 @@ cmdline() {
         [[ ${host_fs_types[$dev]} != *_raid_member ]] && continue
 
         UUID=$(
-            /sbin/mdadm --examine --export $dev \
-                | while read line || [ -n "$line" ]; do
-                    [[ ${line#MD_UUID=} == $line ]] && continue
+            /sbin/mdadm --examine --export "$dev" \
+                | while read -r line || [[ "$line" ]]; do
+                    [[ ${line#MD_UUID=} == "$line" ]] && continue
                     printf "%s" "${line#MD_UUID=} "
                 done
         )
@@ -67,11 +68,12 @@ install() {
     local rule rule_path
     inst_multiple cat expr
     inst_multiple -o mdmon
-    inst $(command -v partx) /sbin/partx
-    inst $(command -v mdadm) /sbin/mdadm
+    inst "$(command -v partx)" /sbin/partx
+    inst "$(command -v mdadm)" /sbin/mdadm
 
     if [[ $hostonly_cmdline == "yes" ]]; then
-        local _raidconf=$(cmdline)
+        local _raidconf
+        _raidconf=$(cmdline)
         [[ $_raidconf ]] && printf "%s\n" "$_raidconf" >> "${initdir}/etc/cmdline.d/90mdraid.conf"
     fi
 
@@ -85,6 +87,7 @@ install() {
     # assembled
     for rule in 64-md-raid.rules 64-md-raid-assembly.rules; do
         rule_path="${initdir}${udevdir}/rules.d/${rule}"
+        # shellcheck disable=SC2016
         [ -f "${rule_path}" ] && sed -i -r \
             -e '/(RUN|IMPORT\{program\})\+?="[[:alpha:]/]*mdadm[[:blank:]]+(--incremental|-I)[[:blank:]]+(--export )?(\$env\{DEVNAME\}|\$tempnode|\$devnode)/d' \
             "${rule_path}"
@@ -128,16 +131,16 @@ install() {
     inst_script "$moddir/mdraid_start.sh" /sbin/mdraid_start
     if dracut_module_included "systemd"; then
         if [[ -e $dracutsysrootdir$systemdsystemunitdir/mdmon@.service ]]; then
-            inst_simple $systemdsystemunitdir/mdmon@.service
+            inst_simple "$systemdsystemunitdir"/mdmon@.service
         fi
         if [[ -e $dracutsysrootdir$systemdsystemunitdir/mdadm-last-resort@.service ]]; then
-            inst_simple $systemdsystemunitdir/mdadm-last-resort@.service
+            inst_simple "$systemdsystemunitdir"/mdadm-last-resort@.service
         fi
         if [[ -e $dracutsysrootdir$systemdsystemunitdir/mdadm-last-resort@.timer ]]; then
-            inst_simple $systemdsystemunitdir/mdadm-last-resort@.timer
+            inst_simple "$systemdsystemunitdir"/mdadm-last-resort@.timer
         fi
         if [[ -e $dracutsysrootdir$systemdsystemunitdir/mdadm-grow-continue@.service ]]; then
-            inst_simple $systemdsystemunitdir/mdadm-grow-continue@.service
+            inst_simple "$systemdsystemunitdir"/mdadm-grow-continue@.service
         fi
     fi
     inst_hook pre-shutdown 30 "$moddir/mdmon-pre-shutdown.sh"

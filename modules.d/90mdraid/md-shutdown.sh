@@ -17,7 +17,7 @@ _do_md_shutdown() {
 }
 
 if command -v mdadm > /dev/null; then
-    _do_md_shutdown $1
+    _do_md_shutdown "$1"
 else
     :
 fi
