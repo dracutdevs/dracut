@@ -1,5 +1,7 @@
 #!/bin/sh
 
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
+
 if ! fipsmode=$(getarg fips) || [ "$fipsmode" = "0" ]; then
     rm -f -- /etc/modprobe.d/fips.conf > /dev/null 2>&1
 elif [ -z "$fipsmode" ]; then
