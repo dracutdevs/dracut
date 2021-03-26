@@ -1,10 +1,11 @@
 #!/bin/sh
 
+# shellcheck disable=SC2034
 IFNETFILE="/tmp/bootnetif"
 
 is_ip() {
     echo "$1" | {
-        IFS=. read a b c d
+        IFS=. read -r a b c d
         test "$a" -ge 0 -a "$a" -le 255 \
             -a "$b" -ge 0 -a "$b" -le 255 \
             -a "$c" -ge 0 -a "$c" -le 255 \
@@ -16,52 +17,56 @@ is_ip() {
 
 get_ip() {
     local iface="$1" ip=""
-    ip=$(ip -f inet addr show $iface)
+    ip=$(ip -f inet addr show "$iface")
     ip=${ip%%/*}
     ip=${ip##* }
-    echo $ip
+    echo "$ip"
 }
 
 iface_for_remote_addr() {
-    set -- $(ip route get to $1 | sed 's/.*\bdev\b//p;q')
-    echo $1
+    # shellcheck disable=SC2046
+    set -- $(ip route get to "$@" | sed 's/.*\bdev\b//p;q')
+    echo "$1"
 }
 
 iface_for_ip() {
-    set -- $(ip addr show to $1)
-    echo ${2%:}
+    # shellcheck disable=SC2046
+    set -- $(ip addr show to "$@")
+    echo "${2%:}"
 }
 
 iface_for_mac() {
-    local interface="" mac="$(echo $1 | sed 'y/ABCDEF/abcdef/')"
+    local interface=""
+    local mac
+    mac="$(echo "$@" | sed 'y/ABCDEF/abcdef/')"
     for interface in /sys/class/net/*; do
-        if [ $(cat $interface/address) = "$mac" ]; then
-            echo ${interface##*/}
+        if [ "$(cat "$interface"/address)" = "$mac" ]; then
+            echo "${interface##*/}"
         fi
     done
 }
 
 # get the iface name for the given identifier - either a MAC, IP, or iface name
 iface_name() {
-    case $1 in
-        ??:??:??:??:??:?? | ??-??-??-??-??-??) iface_for_mac $1 ;;
-        *:*:* | *.*.*.*) iface_for_ip $1 ;;
-        *) echo $1 ;;
+    case "$1" in
+        ??:??:??:??:??:?? | ??-??-??-??-??-??) iface_for_mac "$1" ;;
+        *:*:* | *.*.*.*) iface_for_ip "$1" ;;
+        *) echo "$1" ;;
     esac
 }
 
 # list the configured interfaces
 configured_ifaces() {
     local IFACES="" iface_id="" rv=1
-    [ -e "/tmp/net.ifaces" ] && read IFACES < /tmp/net.ifaces
+    [ -e "/tmp/net.ifaces" ] && read -r IFACES < /tmp/net.ifaces
     if { pidof udevd || pidof systemd-udevd; } > /dev/null; then
         for iface_id in $IFACES; do
-            echo $(iface_name $iface_id)
+            printf "%s\n" "$(iface_name "$iface_id")"
             rv=0
         done
     else
         warn "configured_ifaces called before udev is running"
-        echo $IFACES
+        echo "$IFACES"
         [ -n "$IFACES" ] && rv=0
     fi
     return $rv
@@ -69,17 +74,17 @@ configured_ifaces() {
 
 all_ifaces_up() {
     local iface="" IFACES=""
-    [ -e "/tmp/net.ifaces" ] && read IFACES < /tmp/net.ifaces
+    [ -e "/tmp/net.ifaces" ] && read -r IFACES < /tmp/net.ifaces
     for iface in $IFACES; do
-        [ -e /tmp/net.$iface.up ] || return 1
+        [ -e /tmp/net."$iface".up ] || return 1
     done
 }
 
 all_ifaces_setup() {
     local iface="" IFACES=""
-    [ -e "/tmp/net.ifaces" ] && read IFACES < /tmp/net.ifaces
+    [ -e "/tmp/net.ifaces" ] && read -r IFACES < /tmp/net.ifaces
     for iface in $IFACES; do
-        [ -e /tmp/net.$iface.did-setup ] || return 1
+        [ -e /tmp/net."$iface".did-setup ] || return 1
     done
 }
 
@@ -96,39 +101,43 @@ get_netroot_ip() {
 }
 
 ip_is_local() {
-    strstr "$(ip route get $1 2> /dev/null)" " via "
+    strstr "$(ip route get "$@" 2> /dev/null)" " via "
 }
 
 ifdown() {
     local netif="$1"
     # ip down/flush ensures that routing info goes away as well
-    ip link set $netif down
-    ip addr flush dev $netif
+    ip link set "$netif" down
+    ip addr flush dev "$netif"
     echo "#empty" > /etc/resolv.conf
-    rm -f -- /tmp/net.$netif.did-setup
+    rm -f -- /tmp/net."$netif".did-setup
     [ -z "$DO_VLAN" ] \
-        && [ -e /sys/class/net/$netif/address ] \
-        && rm -f -- /tmp/net.$(cat /sys/class/net/$netif/address).did-setup
+        && [ -e /sys/class/net/"$netif"/address ] \
+        && rm -f -- "/tmp/net.$(cat /sys/class/net/"$netif"/address).did-setup"
     # TODO: send "offline" uevent?
 }
 
 setup_net() {
     local netif="$1" f="" gw_ip="" netroot_ip="" iface="" IFACES=""
     local _p
-    [ -e /tmp/net.$netif.did-setup ] && return
+    [ -e /tmp/net."$netif".did-setup ] && return
     [ -z "$DO_VLAN" ] \
-        && [ -e /sys/class/net/$netif/address ] \
-        && [ -e /tmp/net.$(cat /sys/class/net/$netif/address).did-setup ] && return
-    [ -e "/tmp/net.ifaces" ] && read IFACES < /tmp/net.ifaces
+        && [ -e /sys/class/net/"$netif"/address ] \
+        && [ -e "/tmp/net.$(cat /sys/class/net/"$netif"/address).did-setup" ] && return
+    [ -e "/tmp/net.ifaces" ] && read -r IFACES < /tmp/net.ifaces
     [ -z "$IFACES" ] && IFACES="$netif"
     # run the scripts written by ifup
-    [ -e /tmp/net.$netif.hostname ] && . /tmp/net.$netif.hostname
-    [ -e /tmp/net.$netif.override ] && . /tmp/net.$netif.override
-    [ -e /tmp/dhclient.$netif.dhcpopts ] && . /tmp/dhclient.$netif.dhcpopts
+    # shellcheck disable=SC1090
+    [ -e /tmp/net."$netif".hostname ] && . /tmp/net."$netif".hostname
+    # shellcheck disable=SC1090
+    [ -e /tmp/net."$netif".override ] && . /tmp/net."$netif".override
+    # shellcheck disable=SC1090
+    [ -e /tmp/dhclient."$netif".dhcpopts ] && . /tmp/dhclient."$netif".dhcpopts
     # set up resolv.conf
-    [ -e /tmp/net.$netif.resolv.conf ] \
-        && awk '!array[$0]++' /tmp/net.$netif.resolv.conf > /etc/resolv.conf
-    [ -e /tmp/net.$netif.gw ] && . /tmp/net.$netif.gw
+    [ -e /tmp/net."$netif".resolv.conf ] \
+        && awk '!array[$0]++' /tmp/net."$netif".resolv.conf > /etc/resolv.conf
+    # shellcheck disable=SC1090
+    [ -e /tmp/net."$netif".gw ] && . /tmp/net."$netif".gw
 
     # add static route
     for _p in $(getargs rd.route); do
@@ -149,7 +158,8 @@ setup_net() {
     #     RTNETLINK answers: Network is unreachable
     # Replace the default route again after static routes to cover
     # this scenario.
-    [ -e /tmp/net.$netif.gw ] && . /tmp/net.$netif.gw
+    # shellcheck disable=SC1090
+    [ -e /tmp/net."$netif".gw ] && . /tmp/net."$netif".gw
 
     # Handle STP Timeout: arping the default gateway.
     # (or the root server, if a) it's local or b) there's no gateway.)
@@ -161,48 +171,48 @@ setup_net() {
     [ -n "$gw" ] && gw_ip=$gw
 
     # Get the "netroot" IP (if there's an IP address in there)
-    netroot_ip=$(get_netroot_ip $netroot)
+    netroot_ip=$(get_netroot_ip "$netroot")
 
     # try netroot if it's local (or there's no gateway)
-    if ip_is_local $netroot_ip || [ -z "$gw_ip" ]; then
+    if ip_is_local "$netroot_ip" || [ -z "$gw_ip" ]; then
         dest="$netroot_ip"
     else
         dest="$gw_ip"
     fi
 
     unset layer2
-    if [ -f /sys/class/net/$netif/device/layer2 ]; then
-        read layer2 < /sys/class/net/$netif/device/layer2
+    if [ -f /sys/class/net/"$netif"/device/layer2 ]; then
+        read -r layer2 < /sys/class/net/"$netif"/device/layer2
     fi
 
     if [ "$layer2" != "0" ] && [ -n "$dest" ] && ! strstr "$dest" ":"; then
         if command -v arping2 > /dev/null; then
-            arping2 -q -C 1 -c 60 -I $netif $dest || info "Resolving $dest via ARP on $netif failed"
+            arping2 -q -C 1 -c 60 -I "$netif" "$dest" || info "Resolving $dest via ARP on $netif failed"
         else
-            arping -q -f -w 60 -I $netif $dest || info "Resolving $dest via ARP on $netif failed"
+            arping -q -f -w 60 -I "$netif" "$dest" || info "Resolving $dest via ARP on $netif failed"
         fi
     fi
     unset layer2
 
-    > /tmp/net.$netif.did-setup
+    : > /tmp/net."$netif".did-setup
     [ -z "$DO_VLAN" ] \
-        && [ -e /sys/class/net/$netif/address ] \
-        && > /tmp/net.$(cat /sys/class/net/$netif/address).did-setup
+        && [ -e /sys/class/net/"$netif"/address ] \
+        && : > "/tmp/net.$(cat /sys/class/net/"$netif"/address).did-setup"
 }
 
 save_netinfo() {
     local netif="$1" IFACES="" f="" i=""
-    [ -e /tmp/net.ifaces ] && read IFACES < /tmp/net.ifaces
+    [ -e /tmp/net.ifaces ] && read -r IFACES < /tmp/net.ifaces
     # Add $netif to the front of IFACES (if it's not there already).
     set -- "$netif"
     for i in $IFACES; do [ "$i" != "$netif" ] && set -- "$@" "$i"; done
     IFACES="$*"
     for i in $IFACES; do
-        for f in /tmp/dhclient.$i.*; do
-            [ -f $f ] && cp -f $f /tmp/net.${f#/tmp/dhclient.}
+        for f in "/tmp/dhclient.$i."*; do
+            [ -f "$f" ] && cp -f "$f" /tmp/net."${f#/tmp/dhclient.}"
         done
     done
-    echo $IFACES > /tmp/.net.ifaces.new
+    echo "$IFACES" > /tmp/.net.ifaces.new
     mv /tmp/.net.ifaces.new /tmp/net.ifaces
 }
 
@@ -210,12 +220,12 @@ set_ifname() {
     local name="$1" mac="$2" num=-1 n=""
     # if it's already set, return the existing name
     for n in $(getargs ifname=); do
-        strstr "$n" "$mac" && echo ${n%%:*} && return
+        strstr "$n" "$mac" && echo "${n%%:*}" && return
     done
     # otherwise, pick a new name and use that
     while :; do
         num=$((num + 1))
-        [ -e /sys/class/net/$name$num ] && continue
+        [ -e /sys/class/net/"$name"$num ] && continue
         for n in $(getargs ifname=); do
             [ "$name$num" = "${n%%:*}" ] && continue 2
         done
@@ -229,12 +239,13 @@ set_ifname() {
 fix_bootif() {
     local macaddr=${1}
     local IFS='-'
+    # shellcheck disable=SC2086
     macaddr=$(printf '%s:' ${macaddr})
     macaddr=${macaddr%:}
     # strip hardware type field from pxelinux
     [ -n "${macaddr%??:??:??:??:??:??}" ] && macaddr=${macaddr#??:}
     # return macaddr with lowercase alpha characters expected by udev
-    echo $macaddr | sed 'y/ABCDEF/abcdef/'
+    echo "$macaddr" | sed 'y/ABCDEF/abcdef/'
 }
 
 ibft_to_cmdline() {
@@ -246,38 +257,23 @@ ibft_to_cmdline() {
             local dhcp="" ip="" gw="" mask="" hostname=""
             local dns1 dns2
 
-            [ -e ${iface}/mac ] || continue
-            mac=$(
-                read a < ${iface}/mac
-                echo $a
-            )
+            [ -e "${iface}"/mac ] || continue
+            read -r mac < "${iface}"/mac
             [ -z "$mac" ] && continue
-            dev=$(set_ifname ibft $mac)
+            dev=$(set_ifname ibft "$mac")
 
-            [ -e /tmp/net.${dev}.has_ibft_config ] && continue
+            [ -e /tmp/net."${dev}".has_ibft_config ] && continue
 
-            [ -e ${iface}/flags ] && flags=$(
-                read a < ${iface}/flags
-                echo $a
-            )
+            [ -e "${iface}"/flags ] && read -r flags < "${iface}"/flags
             # Skip invalid interfaces
             ((flags & 1)) || continue
             # Skip interfaces not used for booting unless using multipath
             if ! getargbool 0 rd.iscsi.mp; then
                 ((flags & 2)) || continue
             fi
-            [ -e ${iface}/dhcp ] && dhcp=$(
-                read a < ${iface}/dhcp
-                echo $a
-            )
-            [ -e ${iface}/origin ] && origin=$(
-                read a < ${iface}/origin
-                echo $a
-            )
-            [ -e ${iface}/ip-addr ] && ip=$(
-                read a < ${iface}/ip-addr
-                echo $a
-            )
+            [ -e "${iface}"/dhcp ] && read -r dhcp < "${iface}"/dhcp
+            [ -e "${iface}"/origin ] && read -r origin < "${iface}"/origin
+            [ -e "${iface}"/ip-addr ] && read -r ip < "${iface}"/ip-addr
 
             if [ -n "$ip" ]; then
                 case "$ip" in
@@ -295,36 +291,18 @@ ibft_to_cmdline() {
                 else
                     echo "ip=$dev:dhcp"
                 fi
-            elif [ -e ${iface}/ip-addr ]; then
+            elif [ -e "${iface}"/ip-addr ]; then
                 # skip not assigned ip adresses
                 [ "$ip" = "0.0.0.0" ] && continue
-                [ -e ${iface}/gateway ] && gw=$(
-                    read a < ${iface}/gateway
-                    echo $a
-                )
-                [ "$gateway" = "0.0.0.0" ] && unset $gateway
-                [ -e ${iface}/subnet-mask ] && mask=$(
-                    read a < ${iface}/subnet-mask
-                    echo $a
-                )
-                [ -e ${iface}/prefix-len ] && prefix=$(
-                    read a < ${iface}/prefix-len
-                    echo $a
-                )
-                [ -e ${iface}/primary-dns ] && dns1=$(
-                    read a < ${iface}/primary-dns
-                    echo $a
-                )
-                [ "$dns1" = "0.0.0.0" ] && unset $dns1
-                [ -e ${iface}/secondary-dns ] && dns2=$(
-                    read a < ${iface}/secondary-dns
-                    echo $a
-                )
-                [ "$dns2" = "0.0.0.0" ] && unset $dns2
-                [ -e ${iface}/hostname ] && hostname=$(
-                    read a < ${iface}/hostname
-                    echo $a
-                )
+                [ -e "${iface}"/gateway ] && read -r gw < "${iface}"/gateway
+                [ "$gateway" = "0.0.0.0" ] && unset gateway
+                [ -e "${iface}"/subnet-mask ] && read -r mask < "${iface}"/subnet-mask
+                [ -e "${iface}"/prefix-len ] && read -r prefix < "${iface}"/prefix-len
+                [ -e "${iface}"/primary-dns ] && read -r dns1 < "${iface}"/primary-dns
+                [ "$dns1" = "0.0.0.0" ] && unset dns1
+                [ -e "${iface}"/secondary-dns ] && read -r dns2 < "${iface}"/secondary-dns
+                [ "$dns2" = "0.0.0.0" ] && unset dns
+                [ -e "${iface}"/hostname ] && read -r hostname < "${iface}"/hostname
                 if [ "$family" = "ipv6" ]; then
                     if [ -n "$ip" ]; then
                         ip="[$ip]"
@@ -347,30 +325,28 @@ ibft_to_cmdline() {
                 fi
             else
                 info "${iface} does not contain a valid iBFT configuration"
-                ls -l ${iface} | vinfo
+                # shellcheck disable=SC2012
+                ls -l "${iface}" | vinfo
             fi
 
-            if [ -e ${iface}/vlan ]; then
-                vlan=$(
-                    read a < ${iface}/vlan
-                    echo $a
-                )
+            if [ -e "${iface}"/vlan ]; then
+                read -r vlan < "${iface}"/vlan
                 if [ "$vlan" -ne "0" ]; then
                     case "$vlan" in
                         [0-9]*)
                             echo "vlan=$dev.$vlan:$dev"
-                            echo $mac > /tmp/net.${dev}.${vlan}.has_ibft_config
+                            echo "$mac" > /tmp/net."${dev}"."${vlan}".has_ibft_config
                             ;;
                         *)
                             echo "vlan=$vlan:$dev"
-                            echo $mac > /tmp/net.${vlan}.has_ibft_config
+                            echo "$mac" > /tmp/net."${vlan}".has_ibft_config
                             ;;
                     esac
                 else
-                    echo $mac > /tmp/net.${dev}.has_ibft_config
+                    echo "$mac" > /tmp/net."${dev}".has_ibft_config
                 fi
             else
-                echo $mac > /tmp/net.${dev}.has_ibft_config
+                echo "$mac" > /tmp/net."${dev}".has_ibft_config
             fi
 
         done
@@ -391,6 +367,7 @@ parse_iscsi_root() {
             if [ -n "$authinfo" ]; then
                 OLDIFS="$IFS"
                 IFS=:
+                # shellcheck disable=SC2086
                 set $authinfo
                 IFS="$OLDIFS"
                 if [ $# -gt 4 ]; then
@@ -441,6 +418,7 @@ parse_iscsi_root() {
     # parse the rest
     OLDIFS="$IFS"
     IFS=:
+    # shellcheck disable=SC2086
     set $v
     IFS="$OLDIFS"
 
@@ -527,7 +505,7 @@ ip_to_var() {
 
             # handle special values for ksdevice
             case "$dev" in
-                bootif | BOOTIF) dev=$(fix_bootif $(getarg BOOTIF=)) ;;
+                bootif | BOOTIF) dev=$(fix_bootif "$(getarg BOOTIF=)") ;;
                 link) dev="" ;; # FIXME: do something useful with this
                 ibft) dev="" ;; # ignore - ibft is handled elsewhere
             esac
@@ -617,18 +595,19 @@ route_to_var() {
 
 parse_ifname_opts() {
     local IFS=:
-    set $1
+    # shellcheck disable=SC2086
+    set -- $1
 
     case $# in
         7)
             ifname_if=$1
             # udev requires MAC addresses to be lower case
-            ifname_mac=$(echo $2:$3:$4:$5:$6:$7 | sed 'y/ABCDEF/abcdef/')
+            ifname_mac=$(echo "$2:$3:$4:$5:$6:$7" | sed 'y/ABCDEF/abcdef/')
             ;;
         21)
             ifname_if=$1
             # udev requires MAC addresses to be lower case
-            ifname_mac=$(echo $2:$3:$4:$5:$6:$7:$8:$9:${10}:${11}:${12}:${13}:${14}:${15}:${16}:${17}:${18}:${19}:${20}:${21} | sed 'y/ABCDEF/abcdef/')
+            ifname_mac=$(echo "$2:$3:$4:$5:$6:$7:$8:$9:${10}:${11}:${12}:${13}:${14}:${15}:${16}:${17}:${18}:${19}:${20}:${21}" | sed 'y/ABCDEF/abcdef/')
             ;;
         *)
             die "Invalid arguments for ifname="
@@ -650,12 +629,13 @@ parse_ifname_opts() {
 wait_for_if_link() {
     local cnt=0
     local li
-    local timeout="$(getargs rd.net.timeout.iflink=)"
+    local timeout
+    timeout=$(getargs rd.net.timeout.iflink=)
     timeout=${timeout:-60}
     timeout=$((timeout * 10))
 
     while [ $cnt -lt $timeout ]; do
-        li=$(ip link show dev $1 2> /dev/null)
+        li=$(ip link show dev "$@" 2> /dev/null)
         [ -n "$li" ] && return 0
         sleep 0.1
         cnt=$((cnt + 1))
@@ -666,12 +646,13 @@ wait_for_if_link() {
 wait_for_if_up() {
     local cnt=0
     local li
-    local timeout="$(getargs rd.net.timeout.ifup=)"
+    local timeout
+    timeout=$(getargs rd.net.timeout.ifup=)
     timeout=${timeout:-20}
     timeout=$((timeout * 10))
 
     while [ $cnt -lt $timeout ]; do
-        li=$(ip link show up dev $1)
+        li=$(ip link show up dev "$@")
         if [ -n "$li" ]; then
             case "$li" in
                 *\<UP*)
@@ -698,7 +679,8 @@ wait_for_if_up() {
 
 wait_for_route_ok() {
     local cnt=0
-    local timeout="$(getargs rd.net.timeout.route=)"
+    local timeout
+    timeout=$(getargs rd.net.timeout.route=)
     timeout=${timeout:-20}
     timeout=$((timeout * 10))
 
@@ -713,15 +695,16 @@ wait_for_route_ok() {
 
 wait_for_ipv6_dad_link() {
     local cnt=0
-    local timeout="$(getargs rd.net.timeout.ipv6dad=)"
+    local timeout
+    timeout=$(getargs rd.net.timeout.ipv6dad=)
     timeout=${timeout:-50}
     timeout=$((timeout * 10))
 
     while [ $cnt -lt $timeout ]; do
-        [ -n "$(ip -6 addr show dev "$1" scope link)" ] \
-            && [ -z "$(ip -6 addr show dev "$1" scope link tentative)" ] \
+        [ -n "$(ip -6 addr show dev "$@" scope link)" ] \
+            && [ -z "$(ip -6 addr show dev "$@" scope link tentative)" ] \
             && return 0
-        [ -n "$(ip -6 addr show dev "$1" scope link dadfailed)" ] \
+        [ -n "$(ip -6 addr show dev "$@" scope link dadfailed)" ] \
             && return 1
         sleep 0.1
         cnt=$((cnt + 1))
@@ -731,16 +714,17 @@ wait_for_ipv6_dad_link() {
 
 wait_for_ipv6_dad() {
     local cnt=0
-    local timeout="$(getargs rd.net.timeout.ipv6dad=)"
+    local timeout
+    timeout=$(getargs rd.net.timeout.ipv6dad=)
     timeout=${timeout:-50}
     timeout=$((timeout * 10))
 
     while [ $cnt -lt $timeout ]; do
-        [ -n "$(ip -6 addr show dev "$1")" ] \
-            && [ -z "$(ip -6 addr show dev "$1" tentative)" ] \
-            && [ -n "$(ip -6 route list proto ra dev "$1" | grep ^default)" ] \
+        [ -n "$(ip -6 addr show dev "$@")" ] \
+            && [ -z "$(ip -6 addr show dev "$@" tentative)" ] \
+            && { ip -6 route list proto ra dev "$@" | grep -q ^default; } \
             && return 0
-        [ -n "$(ip -6 addr show dev "$1" dadfailed)" ] \
+        [ -n "$(ip -6 addr show dev "$@" dadfailed)" ] \
             && return 1
         sleep 0.1
         cnt=$((cnt + 1))
@@ -750,13 +734,14 @@ wait_for_ipv6_dad() {
 
 wait_for_ipv6_auto() {
     local cnt=0
-    local timeout="$(getargs rd.net.timeout.ipv6auto=)"
+    local timeout
+    timeout=$(getargs rd.net.timeout.ipv6auto=)
     timeout=${timeout:-40}
     timeout=$((timeout * 10))
 
     while [ $cnt -lt $timeout ]; do
-        [ -z "$(ip -6 addr show dev "$1" tentative)" ] \
-            && [ -n "$(ip -6 route list proto ra dev "$1" | grep ^default)" ] \
+        [ -z "$(ip -6 addr show dev "$@" tentative)" ] \
+            && { ip -6 route list proto ra dev "$@" | grep -q ^default; } \
             && return 0
         sleep 0.1
         cnt=$((cnt + 1))
@@ -765,7 +750,7 @@ wait_for_ipv6_auto() {
 }
 
 linkup() {
-    wait_for_if_link $1 2> /dev/null && ip link set $1 up 2> /dev/null && wait_for_if_up $1 2> /dev/null
+    wait_for_if_link "$@" 2> /dev/null && ip link set "$@" up 2> /dev/null && wait_for_if_up "$@" 2> /dev/null
 }
 
 type hostname > /dev/null 2>&1 \
@@ -776,21 +761,22 @@ type hostname > /dev/null 2>&1 \
 iface_has_carrier() {
     local cnt=0
     local interface="$1" flags=""
+    local timeout
     [ -n "$interface" ] || return 2
     interface="/sys/class/net/$interface"
     [ -d "$interface" ] || return 2
-    local timeout="$(getargs rd.net.timeout.carrier=)"
+    timeout=$(getargs rd.net.timeout.carrier=)
     timeout=${timeout:-10}
     timeout=$((timeout * 10))
 
     linkup "$1"
 
-    li=$(ip link show up dev $1)
+    li=$(ip link show up dev "$interface")
     strstr "$li" "NO-CARRIER" && _no_carrier_flag=1
 
     while [ $cnt -lt $timeout ]; do
         if [ -n "$_no_carrier_flag" ]; then
-            li=$(ip link show up dev $1)
+            li=$(ip link show up dev "$interface")
             # NO-CARRIER flag was cleared
             strstr "$li" "NO-CARRIER" || return 0
         elif ! [ -e "$interface/carrier" ]; then
@@ -798,7 +784,7 @@ iface_has_carrier() {
             return 0
         fi
         # double check the syscfs carrier flag
-        [ -e "$interface/carrier" ] && [ "$(cat $interface/carrier)" = 1 ] && return 0
+        [ -e "$interface/carrier" ] && [ "$(cat "$interface"/carrier)" = 1 ] && return 0
         sleep 0.1
         cnt=$((cnt + 1))
     done
@@ -811,7 +797,7 @@ iface_has_link() {
 
 iface_is_enslaved() {
     local _li
-    _li=$(ip link show dev $1)
+    _li=$(ip link show dev "$@")
     strstr "$_li" " master " || return 1
     return 0
 }
@@ -821,7 +807,7 @@ find_iface_with_link() {
     for iface_path in /sys/class/net/*; do
         iface=${iface_path##*/}
         str_starts "$iface" "lo" && continue
-        if iface_has_link $iface; then
+        if iface_has_link "$iface"; then
             echo "$iface"
             return 0
         fi
@@ -834,7 +820,7 @@ is_persistent_ethernet_name() {
     local _name_assign_type="0"
 
     [ -f "/sys/class/net/$_netif/name_assign_type" ] \
-        && _name_assign_type=$(cat "/sys/class/net/$_netif/name_assign_type")
+        && _name_assign_type=$(cat "/sys/class/net/$_netif/name_assign_type" 2> /dev/null)
 
     # NET_NAME_ENUM 1
     [ "$_name_assign_type" = "1" ] && return 1
@@ -904,13 +890,13 @@ iface_get_subchannels() {
     _netif="$1"
 
     _subchannels=$({
-        for i in /sys/class/net/$_netif/device/cdev[0-9]*; do
-            [ -e $i ] || continue
-            channel=$(readlink -f $i)
+        for i in /sys/class/net/"$_netif"/device/cdev[0-9]*; do
+            [ -e "$i" ] || continue
+            channel=$(readlink -f "$i")
             printf -- "%s" "${channel##*/},"
         done
     })
     [ -n "$_subchannels" ] || return 1
 
-    printf -- "%s" ${_subchannels%,}
+    printf -- "%s" "${_subchannels%,}"
 }

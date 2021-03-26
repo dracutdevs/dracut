@@ -36,8 +36,6 @@ installkernel() {
 
 # called by dracut
 install() {
-    local _arch _i _dir
-
     inst_script "$moddir/netroot.sh" "/sbin/netroot"
     inst_simple "$moddir/net-lib.sh" "/lib/net-lib.sh"
     inst_hook pre-udev 50 "$moddir/ifname-genrules.sh"

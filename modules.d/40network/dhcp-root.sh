@@ -13,9 +13,11 @@ fi
 
 if [ "$root" = "dhcp" ] || [ "$root" = "dhcp6" ] || [ "$netroot" = "dhcp" ] || [ "$netroot" = "dhcp6" ]; then
     # Tell ip= checker that we need dhcp
+    # shellcheck disable=SC2034
     NEEDDHCP="1"
 
     # Done, all good!
+    # shellcheck disable=SC2034
     rootok=1
     if [ "$netroot" != "dhcp" ] && [ "$netroot" != "dhcp6" ]; then
         netroot=$root
@@ -23,5 +25,6 @@ if [ "$root" = "dhcp" ] || [ "$root" = "dhcp6" ] || [ "$netroot" = "dhcp" ] || [
 
     # Shut up init error check
     [ -z "$root" ] && root="dhcp"
-    echo '[ -d $NEWROOT/proc -o -e /dev/root ]' > $hookdir/initqueue/finished/dhcp.sh
+    # shellcheck disable=SC2016
+    echo '[ -d $NEWROOT/proc -o -e /dev/root ]' > "$hookdir"/initqueue/finished/dhcp.sh
 fi
