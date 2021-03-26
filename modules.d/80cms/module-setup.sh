@@ -25,6 +25,7 @@ install() {
     inst_hook pre-trigger 30 "$moddir/cmssetup.sh"
     inst_hook pre-pivot 95 "$moddir/cms-write-ifcfg.sh"
     inst_script "$moddir/cmsifup.sh" /sbin/cmsifup
+    # shellcheck disable=SC2046
     inst_multiple /etc/cmsfs-fuse/filetypes.conf /etc/udev/rules.d/99-fuse.rules /etc/fuse.conf \
         cmsfs-fuse fusermount ulockmgr_server bash insmod rmmod cat normalize_dasd_arg sed \
         $(rpm -ql s390utils-base) awk getopt
