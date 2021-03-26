@@ -6,8 +6,8 @@ type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
 # prevent starting again if already running
 if [ -f /var/run/syslogd.pid ]; then
-    read pid < /var/run/syslogd.pid
-    kill -0 $pid && exit 0
+    read -r pid < /var/run/syslogd.pid
+    kill -0 "$pid" && exit 0
 fi
 
 rsyslog_config() {
@@ -18,7 +18,7 @@ rsyslog_config() {
     local filters=$*
     local filter=
 
-    cat $syslog_template
+    cat "$syslog_template"
 
     (
         # disable shell expansion / globbing
@@ -31,14 +31,14 @@ rsyslog_config() {
     #echo "*.* /tmp/syslog"
 }
 
-[ -f /tmp/syslog.type ] && read type < /tmp/syslog.type
-[ -f /tmp/syslog.server ] && read server < /tmp/syslog.server
-[ -f /tmp/syslog.filters ] && read filters < /tmp/syslog.filters
+[ -f /tmp/syslog.type ] && read -r type < /tmp/syslog.type
+[ -f /tmp/syslog.server ] && read -r server < /tmp/syslog.server
+[ -f /tmp/syslog.filters ] && read -r filters < /tmp/syslog.filters
 [ -z "$filters" ] && filters="kern.*"
-[ -f /tmp/syslog.conf ] && read conf < /tmp/syslog.conf
+[ -f /tmp/syslog.conf ] && read -r conf < /tmp/syslog.conf
 [ -z "$conf" ] && conf="/etc/rsyslog.conf" && echo "$conf" > /tmp/syslog.conf
 
-if [ $type = "rsyslogd" ]; then
+if [ "$type" = "rsyslogd" ]; then
     template=/etc/templates/rsyslog.conf
     if [ -n "$server" ]; then
         rsyslog_config "$server" "$template" "$filters" > $conf

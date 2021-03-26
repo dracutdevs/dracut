@@ -28,11 +28,11 @@ syslogserver=$(getarg syslog.server -d syslog)
 syslogfilters=$(getargs syslog.filter -d filter)
 syslogtype=$(getarg syslog.type -d syslogtype)
 
-[ -n "$syslogserver" ] && echo $syslogserver > /tmp/syslog.server
+[ -n "$syslogserver" ] && echo "$syslogserver" > /tmp/syslog.server
 [ -n "$syslogfilters" ] && echo "$syslogfilters" > /tmp/syslog.filters
 if [ -n "$syslogtype" ]; then
     echo "$syslogtype" > /tmp/syslog.type
 else
     syslogtype=$(detect_syslog)
-    echo $syslogtype > /tmp/syslog.type
+    echo "$syslogtype" > /tmp/syslog.type
 fi
