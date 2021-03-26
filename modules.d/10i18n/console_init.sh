@@ -2,8 +2,8 @@
 
 [ -n "$DRACUT_SYSTEMD" ] && exit 0
 
-if [ -x $systemdutildir/systemd-vconsole-setup ]; then
-    $systemdutildir/systemd-vconsole-setup "$@"
+if [ -x "$systemdutildir"/systemd-vconsole-setup ]; then
+    "$systemdutildir"/systemd-vconsole-setup "$@"
 fi
 
 [ -e /etc/vconsole.conf ] && . /etc/vconsole.conf
@@ -23,10 +23,10 @@ set_terminal() {
 
     if [ "${UNICODE}" = 1 ]; then
         printf '\033%%G' >&7
-        stty -F ${dev} iutf8
+        stty -F "${dev}" iutf8
     else
         printf '\033%%@' >&7
-        stty -F ${dev} -iutf8
+        stty -F "${dev}" -iutf8
     fi
 }
 
@@ -41,19 +41,15 @@ set_keymap() {
 
     [ "${UNICODE}" = 1 ] && utf_switch=-u
 
+    # shellcheck disable=SC2086
     loadkeys -q ${utf_switch} ${KEYMAP} ${EXT_KEYMAPS}
 }
 
 set_font() {
-    local dev=$1
-    local trans=''
-    local uni=''
-
-    [ -z "${FONT}" ] && FONT=${DEFAULT_FONT}
-    [ -n "${FONT_MAP}" ] && trans="-m ${FONT_MAP}"
-    [ -n "${FONT_UNIMAP}" ] && uni="-u ${FONT_UNIMAP}"
-
-    setfont ${FONT} -C ${dev} ${trans} ${uni}
+    setfont "${FONT-${DEFAULT_FONT}}" \
+        -C "${1}" \
+        ${FONT_MAP:+-m "${FONT_MAP}"} \
+        ${FONT_UNIMAP:+-u "${FONT_UNIMAP}"}
 }
 
 dev_close() {
@@ -64,19 +60,18 @@ dev_close() {
 dev_open() {
     local dev=$1
 
-    exec 6< ${dev} \
-        && exec 7>> ${dev}
+    exec 6< "${dev}" \
+        && exec 7>> "${dev}"
 }
 
 dev=/dev/${1#/dev/}
-devname=${dev#/dev/}
 
 [ -c "${dev}" ] || {
     echo "Usage: $0 device" >&2
     exit 1
 }
 
-dev_open ${dev}
+dev_open "${dev}"
 
 for fd in 6 7; do
     if ! [ -t ${fd} ]; then
@@ -87,8 +82,8 @@ for fd in 6 7; do
 done
 
 set_keyboard
-set_terminal ${dev}
-set_font ${dev}
+set_terminal "${dev}"
+set_font "${dev}"
 set_keymap
 
 dev_close
