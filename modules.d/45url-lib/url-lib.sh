@@ -20,7 +20,8 @@ type mkuniqdir > /dev/null 2>&1 || . /lib/dracut-lib.sh
 #   other: fetch command failure (whatever curl/mount/etc return)
 fetch_url() {
     local url="$1" outloc="$2"
-    local handler="$(get_url_handler $url)"
+    local handler
+    handler="$(get_url_handler "$url")"
     [ -n "$handler" ] || return 254
     [ -n "$url" ] || return 255
     "$handler" "$url" "$outloc"
@@ -41,14 +42,14 @@ get_url_handler() {
 add_url_handler() {
     local handler="$1"
     shift
-    local schemes="$@" scheme=""
+    local schemes="$*" scheme=""
     set --
     for scheme in $schemes; do
-        [ "$(get_url_handler $scheme)" = "$handler" ] && continue
+        [ "$(get_url_handler "$scheme")" = "$handler" ] && continue
         set -- "$@" "$scheme:$handler"
     done
-    set -- "$@" $url_handler_map # add new items to *front* of list
-    url_handler_map="$@"
+    set -- "$@" "$url_handler_map" # add new items to *front* of list
+    url_handler_map="$*"
 }
 
 ### HTTP, HTTPS, FTP #################################################
@@ -65,14 +66,15 @@ curl_fetch_url() {
     local url="$1" outloc="$2"
     echo "$url" > /proc/self/fd/0
     if [ -n "$outloc" ]; then
-        curl $curl_args --output - -- "$url" > "$outloc" || return $?
+        curl "$curl_args" --output - -- "$url" > "$outloc" || return $?
     else
-        local outdir="$(mkuniqdir /tmp curl_fetch_url)"
+        local outdir
+        outdir="$(mkuniqdir /tmp curl_fetch_url)"
         (
-            cd "$outdir"
-            curl $curl_args --remote-name "$url" || return $?
+            cd "$outdir" || exit
+            curl "$curl_args" --remote-name "$url" || return $?
         )
-        outloc="$outdir/$(ls -A $outdir)"
+        outloc="$outdir/$(ls -A "$outdir")"
     fi
     if ! [ -f "$outloc" ]; then
         warn "Downloading '$url' failed!"
@@ -96,21 +98,22 @@ ctorrent_fetch_url() {
     torrent_outloc="$outloc.torrent"
     echo "$url" > /proc/self/fd/0
     if [ -n "$outloc" ]; then
-        curl $curl_args --output - -- "$url" > "$torrent_outloc" || return $?
+        curl "$curl_args" --output - -- "$url" > "$torrent_outloc" || return $?
     else
-        local outdir="$(mkuniqdir /tmp torrent_fetch_url)"
+        local outdir
+        outdir="$(mkuniqdir /tmp torrent_fetch_url)"
         (
-            cd "$outdir"
-            curl $curl_args --remote-name "$url" || return $?
+            cd "$outdir" || exit
+            curl "$curl_args" --remote-name "$url" || return $?
         )
-        torrent_outloc="$outdir/$(ls -A $outdir)"
+        torrent_outloc="$outdir/$(ls -A "$outdir")"
         outloc=${torrent_outloc%.*}
     fi
     if ! [ -f "$torrent_outloc" ]; then
         warn "Downloading '$url' failed!"
         return 253
     fi
-    ctorrent $ctorrent_args -s $outloc $torrent_outloc >&2
+    ctorrent "$ctorrent_args" -s "$outloc" "$torrent_outloc" >&2
     if ! [ -f "$outloc" ]; then
         warn "Torrent download of '$url' failed!"
         return 253
@@ -126,17 +129,17 @@ command -v ctorrent > /dev/null \
 [ -e /lib/nfs-lib.sh ] && . /lib/nfs-lib.sh
 
 nfs_already_mounted() {
-    local server="$1" path="$2" localdir="" s="" p=""
-    cat /proc/mounts | while read src mnt rest || [ -n "$src" ]; do
+    local server="$1" path="$2" s="" p=""
+    while read -r src mnt rest || [ -n "$src" ]; do
         splitsep ":" "$src" s p
         if [ "$server" = "$s" ]; then
             if [ "$path" = "$p" ]; then
-                echo $mnt
+                echo "$mnt"
             elif str_starts "$path" "$p"; then
-                echo $mnt/${path#$p/}
+                echo "$mnt"/"${path#$p/}"
             fi
         fi
-    done
+    done < /proc/mounts
 }
 
 nfs_fetch_url() {
@@ -147,7 +150,8 @@ nfs_fetch_url() {
     # skip mount if server:/filepath is already mounted
     mntdir=$(nfs_already_mounted "$server" "$path")
     if [ -z "$mntdir" ]; then
-        local mntdir="$(mkuniqdir /run nfs_mnt)"
+        local mntdir
+        mntdir="$(mkuniqdir /run nfs_mnt)"
         mount_nfs "$nfs:$server:$filepath${options:+:$options}" "$mntdir"
         # lazy unmount during pre-pivot hook
         inst_hook --hook pre-pivot --name 99url-lib-umount-nfs umount -l -- "$mntdir"
