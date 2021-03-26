@@ -850,7 +850,7 @@ if [[ $regenerate_all == "yes" ]]; then
     ((len = ${#dracut_args[@]}))
     for ((i = 0; i < len; i++)); do
         [[ ${dracut_args[$i]} == "--regenerate-all" ]] \
-            && unset "dracut_args[$i]"
+            && unset dracut_args["$i"]
     done
 
     cd "$dracutsysrootdir"/lib/modules || exit 1
@@ -1959,7 +1959,7 @@ if [[ $kernel_only != yes ]]; then
         if [ -z "${fstab_field[1]}" ]; then
             # Determine device and mount options from current system
             mountpoint -q "${fstab_field[0]}" || derror "${fstab_field[0]} is not a mount point!"
-            read -r -a fstab_field <<< "$(findmnt --raw -n --target "${fstab_field[0]}" --output=source,target,fstype,options)"
+            read -r -a fstab_field < <(findmnt --raw -n --target "${fstab_field[0]}" --output=source,target,fstype,options)
             dinfo "Line for ${fstab_field[1]}: ${fstab_field[*]}"
         else
             # Use default options
