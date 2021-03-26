@@ -24,7 +24,7 @@ getbyte() {
     # the single quote in the argument of the printf
     # yields the numeric value of $c (ASCII since LC_CTYPE=C)
     [[ -n $c ]] && c=$(printf '%u' "'$c") || c=0
-    printf "$c"
+    printf "%s" "$c"
     return $res
 }
 
@@ -33,11 +33,11 @@ getword() {
     b1=$(getbyte)
     b2=$(getbyte)
     ((val = b2 * 256 + b1))
-    echo $val
+    echo "$val"
     return 0
 }
 
-# Acpi(PNP0A08,0x0)/Pci(0x3,0x0)/Pci(0x0,0x0)/MAC(90E2BA265ED4,0x0)/Vlan(172)/Fibre(0x4EA06104A0CC0050,0x0)
+# E.g. Acpi(PNP0A08,0x0)/Pci(0x3,0x0)/Pci(0x0,0x0)/MAC(90E2BA265ED4,0x0)/Vlan(172)/Fibre(0x4EA06104A0CC0050,0x0)
 uefi_device_path() {
     data=${1:-/sys/firmware/efi/efivars/FcoeBootDevice-a0ebca23-5f9c-447a-a268-22b6c158c2ac}
     [ -f "$data" ] || return 1
@@ -72,20 +72,19 @@ uefi_device_path() {
                     getword &> /dev/null
                     getword &> /dev/null
                     printf "Fibre(0x%x%x%x%x%x%x%x%x,0x%x)" \
-                        $(getbyte) $(getbyte) $(getbyte) $(getbyte) \
-                        $(getbyte) $(getbyte) $(getbyte) $(getbyte) \
-                        $(($(getword) + $(getword) * 65536 + 4294967296 * ($(getword) + $(getword) * 65536)))
+                        "$(getbyte)" "$(getbyte)" "$(getbyte)" "$(getbyte)" \
+                        "$(getbyte)" "$(getbyte)" "$(getbyte)" "$(getbyte)" \
+                        "$(($(getword) + $(getword) * 65536 + 4294967296 * ($(getword) + $(getword) * 65536)))"
                     ;;
                 030b)
                     # MAC
-                    printf "MAC(%02x%02x%02x%02x%02x%02x," $(getbyte) $(getbyte) $(getbyte) $(getbyte) $(getbyte) $(getbyte)
+                    printf "MAC(%02x%02x%02x%02x%02x%02x," "$(getbyte)" "$(getbyte)" "$(getbyte)" "$(getbyte)" "$(getbyte)" "$(getbyte)"
                     for ((i = 0; i < 26; i++)); do tt=$(getbyte) || return 1; done
-                    #read -r -d '' -n 26 tt || return 1
-                    printf "0x%x)" $(getbyte)
+                    printf "0x%x)" "$(getbyte)"
                     ;;
                 0314)
                     # VLAN
-                    printf "VLAN(%d)" $(getword)
+                    printf "VLAN(%d)" "$(getword)"
                     ;;
                 7fff)
                     # END
@@ -100,8 +99,6 @@ uefi_device_path() {
         done
     } < "$data"
 }
-
-# /home/harald/Downloads/FcoeBootDevice-80005007-4248-4e4b-8df4-93060220756f
 
 get_fcoe_boot_mac() {
     data=${1:-/sys/firmware/efi/efivars/FcoeBootDevice-a0ebca23-5f9c-447a-a268-22b6c158c2ac}
@@ -118,7 +115,7 @@ get_fcoe_boot_mac() {
             case $hextype in
                 030b)
                     # MAC
-                    printf "%02x:%02x:%02x:%02x:%02x:%02x" $(getbyte) $(getbyte) $(getbyte) $(getbyte) $(getbyte) $(getbyte)
+                    printf "%02x:%02x:%02x:%02x:%02x:%02x" "$(getbyte)" "$(getbyte)" "$(getbyte)" "$(getbyte)" "$(getbyte)" "$(getbyte)"
                     for ((i = 0; i < 27; i++)); do tt=$(getbyte) || return 1; done
                     ;;
                 7fff)
@@ -149,7 +146,7 @@ get_fcoe_boot_vlan() {
             case $hextype in
                 0314)
                     # VLAN
-                    printf "%d" $(getword)
+                    printf "%d" "$(getword)"
                     ;;
                 7fff)
                     # END
