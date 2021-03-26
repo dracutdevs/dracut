@@ -3,7 +3,7 @@
 # called by dracut
 check() {
     is_fcoe() {
-        block_is_fcoe $1 || return 1
+        block_is_fcoe "$1" || return 1
     }
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {

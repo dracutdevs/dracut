@@ -8,7 +8,7 @@ print_fcoe_uefi_conf() {
     local mac dev vlan
     mac=$(get_fcoe_boot_mac "$1")
     [ -z "$mac" ] && return 1
-    dev=$(set_ifname fcoe $mac)
+    dev=$(set_ifname fcoe "$mac")
     vlan=$(get_fcoe_boot_vlan "$1")
     if [ "$vlan" -ne "0" ]; then
         case "$vlan" in
@@ -29,5 +29,5 @@ print_fcoe_uefi_conf() {
 
 for i in /sys/firmware/efi/efivars/FcoeBootDevice-*; do
     [ -e "$i" ] || continue
-    print_fcoe_uefi_conf $i > /etc/cmdline.d/40-fcoe-uefi.conf && break
+    print_fcoe_uefi_conf "$i" > /etc/cmdline.d/40-fcoe-uefi.conf && break
 done
