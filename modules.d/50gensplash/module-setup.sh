@@ -52,6 +52,7 @@ install() {
         _splash_res=${DRACUT_GENSPLASH_RES}
     elif [[ ${hostonly} ]]; then
         # Settings from config only in hostonly
+        # shellcheck disable=SC1090
         [[ -e $dracutsysrootdir/etc/conf.d/splash ]] && source "$dracutsysrootdir"/etc/conf.d/splash
         [[ ! ${_splash_theme} ]] && _splash_theme=default
         [[ ${_splash_res} ]] && _opts+=" -r ${_splash_res}"
@@ -62,15 +63,15 @@ install() {
 
     dinfo "Installing Gentoo Splash (using the ${_splash_theme} theme)"
 
-    pushd "${initdir}" > /dev/null
+    pushd "${initdir}" > /dev/null || exit
     mv dev dev.old
-    call_splash_geninitramfs "${initdir}" ${_opts} ${_splash_theme} || {
+    call_splash_geninitramfs "${initdir}" "${_opts}" ${_splash_theme} || {
         derror "Could not build splash"
         return 1
     }
     rm -rf dev
     mv dev.old dev
-    popd > /dev/null
+    popd > /dev/null || exit
 
     inst_multiple chvt
     inst /usr/share/splashutils/initrd.splash /lib/gensplash-lib.sh
