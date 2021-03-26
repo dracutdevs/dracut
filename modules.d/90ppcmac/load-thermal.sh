@@ -6,7 +6,8 @@
 [ -r /proc/cpuinfo ] || exit 0
 
 load_windfarm() {
-    local pm_model="$(sed -n '/model/p' /proc/cpuinfo)"
+    local pm_model
+    pm_model="$(sed -n '/model/p' /proc/cpuinfo)"
     pm_model="${pm_model##*: }"
 
     # load quietly and respect the blacklist

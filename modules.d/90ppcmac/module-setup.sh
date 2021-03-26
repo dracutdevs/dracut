@@ -31,7 +31,8 @@ depends() {
 # called by dracut
 installkernel() {
     pmac_model() {
-        local pm_model="$(grep model /proc/cpuinfo)"
+        local pm_model
+        pm_model="$(grep model /proc/cpuinfo)"
         echo "${pm_model##*: }"
     }
 
