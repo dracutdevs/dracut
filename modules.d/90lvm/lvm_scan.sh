@@ -116,6 +116,7 @@ if [ -n "$LVS" ]; then
     info "Scanning devices $lvmdevs for LVM logical volumes $LVS"
     lvm lvscan $lvm_ignorelockingfailure 2>&1 | vinfo
     for LV in $LVS; do
+        # shellcheck disable=SC2086
         lvm lvchange --yes -K -ay $lvm_quirk_args "$LV" 2>&1 | vinfo
     done
 fi
@@ -123,6 +124,7 @@ fi
 if [ -z "$LVS" ] || [ -n "$VGS" ]; then
     info "Scanning devices $lvmdevs for LVM volume groups $VGS"
     lvm vgscan $lvm_ignorelockingfailure 2>&1 | vinfo
+    # shellcheck disable=SC2086
     lvm vgchange -ay $lvm_quirk_args $VGS 2>&1 | vinfo
 fi
 
