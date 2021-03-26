@@ -17,10 +17,10 @@ if getargbool 1 rd.shell -d -y rdshell || getarg rd.break -d rdbreak; then
     FSTXT="/run/dracut/fsck/fsck_help_$fstype.txt"
     RDSOSREPORT="$(rdsosreport)"
     source_hook "$hook"
-    while read _tty rest; do
+    while read -r _tty rest; do
         (
             echo
-            echo $RDSOSREPORT
+            echo "$RDSOSREPORT"
             echo
             echo
             echo 'Entering emergency mode. Exit the shell to continue.'
@@ -30,7 +30,7 @@ if getargbool 1 rd.shell -d -y rdshell || getarg rd.break -d rdbreak; then
             echo
             echo
             [ -f "$FSTXT" ] && cat "$FSTXT"
-        ) > /dev/$_tty
+        ) > /dev/"$_tty"
     done < /proc/consoles
     [ -f /etc/profile ] && . /etc/profile
     [ -z "$PS1" ] && export PS1="$_name:\${PWD}# "

@@ -18,7 +18,8 @@ while :; do
         usable_root "$NEWROOT" && break
         umount "$NEWROOT"
     fi
-    for f in $hookdir/mount/*.sh; do
+    for f in "$hookdir"/mount/*.sh; do
+        # shellcheck disable=SC1090
         [ -f "$f" ] && . "$f"
         if ismounted "$NEWROOT"; then
             usable_root "$NEWROOT" && break
