@@ -84,7 +84,7 @@ if [ -n "$iscsi_firmware" ]; then
     modprobe -b -q iscsi_boot_sysfs 2> /dev/null
     modprobe -b -q iscsi_ibft
     # if no ip= is given, but firmware
-    echo "${DRACUT_SYSTEMD+systemctl is-active initrd-root-device.target || }[ -f '/tmp/iscsistarted-firmware' ]" > $hookdir/initqueue/finished/iscsi_started.sh
+    echo "${DRACUT_SYSTEMD+systemctl is-active initrd-root-device.target || }[ -f '/tmp/iscsistarted-firmware' ]" > "$hookdir"/initqueue/finished/iscsi_started.sh
     initqueue --unique --online /sbin/iscsiroot online "iscsi:" "$NEWROOT"
     initqueue --unique --onetime --timeout /sbin/iscsiroot timeout "iscsi:" "$NEWROOT"
     initqueue --unique --onetime --settled /sbin/iscsiroot online "iscsi:" "'$NEWROOT'"
@@ -118,14 +118,14 @@ if arg=$(getarg rd.iscsi.initiator -d iscsi_initiator=) && [ -n "$arg" ] && ! [ 
 fi
 
 # If not given on the cmdline and initiator-name available via iBFT
-if [ -z $iscsi_initiator ] && [ -f /sys/firmware/ibft/initiator/initiator-name ] && ! [ -f /tmp/iscsi_set_initiator ]; then
-    iscsi_initiator=$(while read line || [ -n "$line" ]; do echo $line; done < /sys/firmware/ibft/initiator/initiator-name)
+if [ -z "$iscsi_initiator" ] && [ -f /sys/firmware/ibft/initiator/initiator-name ] && ! [ -f /tmp/iscsi_set_initiator ]; then
+    iscsi_initiator=$(while read -r line || [ -n "$line" ]; do echo "$line"; done < /sys/firmware/ibft/initiator/initiator-name)
     if [ -n "$iscsi_initiator" ]; then
         echo "InitiatorName=$iscsi_initiator" > /run/initiatorname.iscsi
         rm -f /etc/iscsi/initiatorname.iscsi
         mkdir -p /etc/iscsi
         ln -fs /run/initiatorname.iscsi /etc/iscsi/initiatorname.iscsi
-        > /tmp/iscsi_set_initiator
+        : > /tmp/iscsi_set_initiator
         if [ -n "$DRACUT_SYSTEMD" ]; then
             systemctl try-restart iscsid
             # FIXME: iscsid is not yet ready, when the service is :-/
@@ -145,10 +145,11 @@ for nroot in $(getargs netroot); do
     type parse_iscsi_root > /dev/null 2>&1 || . /lib/net-lib.sh
     parse_iscsi_root "$nroot" || return 1
     netroot_enc=$(str_replace "$nroot" '/' '\2f')
-    echo "${DRACUT_SYSTEMD+systemctl is-active initrd-root-device.target || }[ -f '/tmp/iscsistarted-$netroot_enc' ]" > $hookdir/initqueue/finished/iscsi_started.sh
+    echo "${DRACUT_SYSTEMD+systemctl is-active initrd-root-device.target || }[ -f '/tmp/iscsistarted-$netroot_enc' ]" > "$hookdir"/initqueue/finished/iscsi_started.sh
 done
 
 # Done, all good!
+# shellcheck disable=SC2034
 rootok=1
 
 # Shut up init error check
