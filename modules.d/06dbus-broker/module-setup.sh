@@ -66,6 +66,8 @@ install() {
         /^\[Socket\]/aRemoveOnStop=yes' \
         "$initdir$systemdsystemunitdir/dbus.socket"
 
+    $SYSTEMCTL -q --root "$initdir" enable dbus-broker.service
+
     # Install the hosts local user configurations if enabled.
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
