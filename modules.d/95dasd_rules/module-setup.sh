@@ -44,7 +44,7 @@ check() {
 
 # called by dracut
 depends() {
-    echo 'dasd_mod'
+    echo 'dasd_mod' bash
     return 0
 }
 
