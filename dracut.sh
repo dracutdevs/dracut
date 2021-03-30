@@ -1,9 +1,6 @@
 #!/bin/bash -p
 #
 # Generator script for a dracut initramfs
-# Tries to retain some degree of compatibility with the command line
-# of the various mkinitrd implementations out there
-#
 
 # Copyright 2005-2013 Red Hat, Inc.  All rights reserved.
 #
