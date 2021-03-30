@@ -4,7 +4,7 @@
 # The name of the upstream package
 upstream_package_name: dracut
 
-# The upstream tag versioning scheme 
+# The upstream tag versioning scheme
 upstream_tag_template: "{version}"
 
 # The URL of the upstream project
@@ -46,7 +46,6 @@ jobs:
   metadata:
     targets:
       - fedora-development
-      - fedora-eln
 
 - job: copr_build
   trigger: commit
@@ -54,7 +53,6 @@ jobs:
     targets:
       - fedora-all
       - fedora-development
-      - fedora-eln
     branch: master
     owner: "@dracut"
     project: Dracut
