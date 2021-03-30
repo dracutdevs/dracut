@@ -3,6 +3,7 @@
 # This file is part of dracut.
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+# shellcheck disable=SC2034
 TEST_DESCRIPTION="dracut getarg command"
 
 test_check() {
@@ -20,12 +21,13 @@ test_setup() {
 test_run() {
     set -x
     (
-        cd "$TESTDIR"
+        cd "$TESTDIR" || exit 1
         export CMDLINE='key1=0 key2=val key2=val2 key3="  val  3  " "  key 4  ="val4 "key  5=val  5" "key 6=""val  6" key7="foo"bar" baz="end "  key8  =  val 8  "
 "key 9"="val 9"'
 
         ret=0
 
+        unset TEST
         declare -A TEST
         TEST=(
             ["key1"]="0"
@@ -55,6 +57,7 @@ test_run() {
         INVALIDKEYS=("key" "4" "5" "6" "key8" "9" '"' "baz")
         for key in "${INVALIDKEYS[@]}"; do
             val=$(./dracut-getarg "$key")
+            # shellcheck disable=SC2181
             if (($? == 0)); then
                 echo "key '$key' should not be found"
                 ret=$((ret + 1))
@@ -93,7 +96,7 @@ test_run() {
         }
 
         getcmdline() {
-            echo "rdbreak=cmdline rd.lvm rd.auto rd.retry=10"
+            echo "rdbreak=cmdline rd.lvm rd.auto=0 rd.auto rd.retry=10"
         }
         RDRETRY=$(getarg rd.retry -d 'rd_retry=')
         [[ $RDRETRY == "10" ]] || ret=$((ret + 1))
@@ -102,7 +105,7 @@ test_run() {
         getargbool 0 rd.auto || ret=$((ret + 1))
 
         getcmdline() {
-            echo "rd.break=cmdlined rd.lvm=0 rd.auto=0"
+            echo "rd.break=cmdlined rd.lvm=0 rd.auto rd.auto=1 rd.auto=0"
         }
         getarg rd.break=cmdline -d rdbreak=cmdline && ret=$((ret + 1))
         getargbool 1 rd.lvm -d -n rd_NO_LVM && ret=$((ret + 1))
@@ -148,4 +151,5 @@ test_cleanup() {
     return 0
 }
 
-. $testdir/test-functions
+# shellcheck disable=SC1090
+. "$testdir"/test-functions
