@@ -37,8 +37,6 @@ man7pages = dracut.cmdline.7 \
 
 man8pages = dracut.8 \
             dracut-catimages.8 \
-            mkinitrd.8 \
-            mkinitrd-suse.8 \
             modules.d/98dracut-systemd/dracut-cmdline.service.8 \
             modules.d/98dracut-systemd/dracut-initqueue.service.8 \
             modules.d/98dracut-systemd/dracut-mount.service.8 \
@@ -148,7 +146,6 @@ install: all
 	mkdir -p $(DESTDIR)$(mandir)/man1 $(DESTDIR)$(mandir)/man5 $(DESTDIR)$(mandir)/man7 $(DESTDIR)$(mandir)/man8
 	install -m 0755 dracut.sh $(DESTDIR)$(bindir)/dracut
 	install -m 0755 dracut-catimages.sh $(DESTDIR)$(bindir)/dracut-catimages
-	install -m 0755 mkinitrd-dracut.sh $(DESTDIR)$(bindir)/mkinitrd
 	install -m 0755 lsinitrd.sh $(DESTDIR)$(bindir)/lsinitrd
 	install -m 0644 dracut.conf $(DESTDIR)$(sysconfdir)/dracut.conf
 	mkdir -p $(DESTDIR)$(sysconfdir)/dracut.conf.d
@@ -267,8 +264,7 @@ syncheck:
 		[ $$V ] && echo "checking for [[: $$i"; if grep -Fq '[[ ' "$$i" ; then ret=$$(($$ret+1)); echo "$$i contains [["; fi; \
 		[ $$V ] && echo "checking for echo -n: $$i"; if grep -Fq 'echo -n ' "$$i" ; then ret=$$(($$ret+1)); echo "$$i contains echo -n"; fi \
 	done;exit $$ret
-	@ret=0;for i in *.sh mkinitrd-dracut.sh modules.d/*/*.sh \
-	                modules.d/*/module-setup.sh; do \
+	@ret=0;for i in *.sh modules.d/*/*.sh modules.d/*/module-setup.sh; do \
 		[ $$V ] && echo "bash syntax check: $$i"; bash -n "$$i" ; ret=$$(($$ret+$$?)); \
 	done;exit $$ret
 ifeq ($(HAVE_SHELLCHECK),yes)
