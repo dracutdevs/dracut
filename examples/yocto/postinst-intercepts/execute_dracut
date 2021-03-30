@@ -33,12 +33,12 @@ echo -----------
 env
 echo -----------
 
-[[ -d $DRACUT_TMPDIR ]] || mkdir -p $DRACUT_TMPDIR
+[[ -d $DRACUT_TMPDIR ]] || mkdir -p "$DRACUT_TMPDIR"
 
 # Execute depmod and dracut
 echo "$(date) - RUNNING: depmod -b $D -a $MY_KERNEL_VERSION"
-depmod -b $D -a $MY_KERNEL_VERSION
-echo "dracut: $(dracut --sysroot $D --help | grep 'Version:')"
+depmod -b "$D" -a "$MY_KERNEL_VERSION"
+echo "dracut: $(dracut --sysroot "$D" --help | grep 'Version:')"
 echo "$(date) - RUNNING: dracut -f --sysroot $D --tmpdir $DRACUT_TMPDIR $DRACUT_OPTS $DEBUGOPTS -k $D/lib/modules/$MY_KERNEL_VERSION $D/boot/initramfs.img $MY_KERNEL_VERSION"
-dracut -f --sysroot $D --tmpdir $DRACUT_TMPDIR $DRACUT_OPTS $DEBUGOPTS -k $D/lib/modules/$MY_KERNEL_VERSION $D/boot/initramfs.img $MY_KERNEL_VERSION
+dracut -f --sysroot "$D" --tmpdir "$DRACUT_TMPDIR" $DRACUT_OPTS $DEBUGOPTS -k "$D"/lib/modules/"$MY_KERNEL_VERSION" "$D"/boot/initramfs.img "$MY_KERNEL_VERSION"
 echo "$(date) - DONE: dracut"
