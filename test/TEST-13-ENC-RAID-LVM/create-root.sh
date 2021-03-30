@@ -2,7 +2,7 @@
 # don't let udev and this script step on eachother's toes
 set -x
 for x in 64-lvm.rules 70-mdadm.rules 99-mount-rules; do
-    > "/etc/udev/rules.d/$x"
+    : > "/etc/udev/rules.d/$x"
 done
 rm -f -- /etc/lvm/lvm.conf
 udevadm control --reload
@@ -52,7 +52,7 @@ lvm pvcreate -ff -y /dev/md0 \
     && {
         echo "dracut-root-block-created"
         for i in /dev/sda[234]; do
-            udevadm info --query=env --name=$i | grep -F 'ID_FS_UUID='
+            udevadm info --query=env --name="$i" | grep -F 'ID_FS_UUID='
         done
     } | dd oflag=direct,dsync of=/dev/sda1
 sync
