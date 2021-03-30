@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 for f in /sys/bus/fcoe/devices/ctlr_*; do
     [ -e "$f" ] || continue
