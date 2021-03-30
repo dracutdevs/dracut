@@ -12,10 +12,10 @@ wait_for_if_link() {
     local cnt=0
     local li
     while [ $cnt -lt 600 ]; do
-        li=$(ip -o link show dev $1 2> /dev/null)
+        li=$(ip -o link show dev "$1" 2> /dev/null)
         [ -n "$li" ] && return 0
         if [[ $2 ]]; then
-            li=$(ip -o link show dev $2 2> /dev/null)
+            li=$(ip -o link show dev "$2" 2> /dev/null)
             [ -n "$li" ] && return 0
         fi
         sleep 0.1
@@ -35,7 +35,7 @@ ip link set ens2 up
 ip link set dev eth1 name ens3
 ip addr add 192.168.51.1/24 dev ens3
 ip link set ens3 up
-> /var/lib/dhcpd/dhcpd.leases
+: > /var/lib/dhcpd/dhcpd.leases
 chmod 777 /var/lib/dhcpd/dhcpd.leases
 dhcpd -d -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases &
 
