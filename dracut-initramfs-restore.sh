@@ -10,9 +10,9 @@ KERNEL_VERSION="$(uname -r)"
 
 [[ $dracutbasedir ]] || dracutbasedir=/usr/lib/dracut
 SKIP="$dracutbasedir/skipcpio"
-[[ -x $SKIP ]] || SKIP=cat
+[[ -x $SKIP ]] || SKIP="cat"
 
-[[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
+[[ -f /etc/machine-id ]] && read -r MACHINE_ID < /etc/machine-id
 
 mount -o ro /boot &> /dev/null || true
 
@@ -48,8 +48,7 @@ else
 fi
 
 if [[ -d squash ]]; then
-    unsquashfs -no-xattrs -f -d . squash-root.img > /dev/null
-    if [ $? -ne 0 ]; then
+    if ! unsquashfs -no-xattrs -f -d . squash-root.img > /dev/null; then
         echo "Squash module is enabled for this initramfs but failed to unpack squash-root.img" >&2
         rm -f -- /run/initramfs/shutdown
         exit 1
@@ -58,7 +57,7 @@ fi
 
 if [ -e /etc/selinux/config -a -x /usr/sbin/setfiles ]; then
     . /etc/selinux/config
-    /usr/sbin/setfiles -v -r /run/initramfs /etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts /run/initramfs > /dev/null
+    /usr/sbin/setfiles -v -r /run/initramfs /etc/selinux/"${SELINUXTYPE}"/contexts/files/file_contexts /run/initramfs > /dev/null
 fi
 
 exit 0
