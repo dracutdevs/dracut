@@ -147,6 +147,7 @@ install() {
         # the cryptsetup targets are already pulled in by 00systemd, but not
         # the enablement symlinks
         inst_multiple -o \
+            "$tmpfilesdir"/cryptsetup.conf \
             "$systemdutildir"/system-generators/systemd-cryptsetup-generator \
             "$systemdutildir"/systemd-cryptsetup \
             "$systemdsystemunitdir"/systemd-ask-password-console.path \
