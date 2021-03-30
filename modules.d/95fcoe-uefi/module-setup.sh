@@ -17,7 +17,7 @@ check() {
 
 # called by dracut
 depends() {
-    echo fcoe uefi-lib
+    echo fcoe uefi-lib bash
     return 0
 }
 
