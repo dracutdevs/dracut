@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem on a LiveCD dmsquash filesystem"
 
 KVERSION="${KVERSION-$(uname -r)}"
@@ -8,7 +9,8 @@ KVERSION="${KVERSION-$(uname -r)}"
 
 test_check() {
     for pdir in $(python -c "import site; print(site.getsitepackages())" | sed -e 's/\[\(.*\)\]/\1/' -e "s/', /' /g"); do
-        pdir1=$(echo $pdir | sed "s/^'\(.*\)'$/\1/")
+        # shellcheck disable=SC2001
+        pdir1=$(echo "$pdir" | sed "s/^'\(.*\)'$/\1/")
         if [[ -d $pdir1/imgcreate ]]; then
             return 0
         fi
@@ -40,7 +42,9 @@ test_run() {
 test_setup() {
     mkdir -p -- "$TESTDIR"/overlay
     (
+        # shellcheck disable=SC2030
         export initdir="$TESTDIR"/overlay
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         inst_multiple poweroff shutdown
         inst_hook shutdown-emergency 000 ./hard-off.sh
@@ -50,7 +54,7 @@ test_setup() {
 
     dd if=/dev/zero of="$TESTDIR"/root.img count=100
 
-    $basedir/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -a "debug dmsquash-live qemu" \
         -o "rngd" \
         -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
@@ -61,10 +65,12 @@ test_setup() {
     kernel="$KVERSION"
     # Create what will eventually be our root filesystem onto an overlay
     (
+        # shellcheck disable=SC2031
         export initdir="$TESTDIR"/root-source
+        # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         (
-            cd "$initdir"
+            cd "$initdir" || exit
             mkdir -p -- dev sys proc etc var/run tmp
             mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
             for i in bin sbin lib lib64; do
@@ -73,13 +79,19 @@ test_setup() {
         )
         inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
             mount dmesg dhclient mkdir cp ping dhclient \
-            umount strace less dd
+            umount strace less dd sync
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [[ -f ${_terminfodir}/l/linux ]] && break
         done
         inst_multiple -o "${_terminfodir}"/l/linux
         inst "$basedir/modules.d/35network-legacy/dhclient-script.sh" "/sbin/dhclient-script"
         inst "$basedir/modules.d/35network-legacy/ifup.sh" "/sbin/ifup"
+
+        inst_simple "${basedir}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh"
+        inst_binary "${basedir}/dracut-util" "/usr/bin/dracut-util"
+        ln -s dracut-util "${initdir}/usr/bin/dracut-getarg"
+        ln -s dracut-util "${initdir}/usr/bin/dracut-getargs"
+
         inst_multiple grep syslinux isohybrid
         for f in /usr/share/syslinux/*; do
             inst_simple "$f"
@@ -87,11 +99,11 @@ test_setup() {
         inst_simple /etc/os-release
         inst ./test-init.sh /sbin/init
         inst "$TESTDIR"/initramfs.testing "/boot/initramfs-$KVERSION.img"
-        [[ -f /etc/machine-id ]] && read MACHINE_ID < /etc/machine-id
+        [[ -f /etc/machine-id ]] && read -r MACHINE_ID < /etc/machine-id
 
         VMLINUZ="/lib/modules/${KVERSION}/vmlinuz"
         if ! [[ -e $VMLINUZ ]]; then
-            if [[ $MACHINE_ID ]] && ([[ -d /boot/${MACHINE_ID} ]] || [[ -L /boot/${MACHINE_ID} ]]); then
+            if [[ $MACHINE_ID ]] && { [[ -d /boot/${MACHINE_ID} ]] || [[ -L /boot/${MACHINE_ID} ]]; }; then
                 VMLINUZ="/boot/${MACHINE_ID}/$KVERSION/linux"
             fi
         fi
@@ -110,4 +122,5 @@ test_cleanup() {
     return 0
 }
 
+# shellcheck disable=SC1090
 . "$testdir"/test-functions
