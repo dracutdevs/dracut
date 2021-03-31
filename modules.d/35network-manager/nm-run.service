@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 [Unit]
+DefaultDependencies=no
+
 #make sure all devices showed up
 Wants=systemd-udev-settle.service
 After=systemd-udev-settle.service
