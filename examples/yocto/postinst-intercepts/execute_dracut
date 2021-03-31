@@ -40,5 +40,6 @@ echo "$(date) - RUNNING: depmod -b $D -a $MY_KERNEL_VERSION"
 depmod -b "$D" -a "$MY_KERNEL_VERSION"
 echo "dracut: $(dracut --sysroot "$D" --help | grep 'Version:')"
 echo "$(date) - RUNNING: dracut -f --sysroot $D --tmpdir $DRACUT_TMPDIR $DRACUT_OPTS $DEBUGOPTS -k $D/lib/modules/$MY_KERNEL_VERSION $D/boot/initramfs.img $MY_KERNEL_VERSION"
+# shellcheck disable=SC2086
 dracut -f --sysroot "$D" --tmpdir "$DRACUT_TMPDIR" $DRACUT_OPTS $DEBUGOPTS -k "$D"/lib/modules/"$MY_KERNEL_VERSION" "$D"/boot/initramfs.img "$MY_KERNEL_VERSION"
 echo "$(date) - DONE: dracut"
