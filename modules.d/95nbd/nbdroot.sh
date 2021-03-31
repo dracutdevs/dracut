@@ -129,8 +129,10 @@ else
     nbdport="-name $nbdport"
 fi
 
-nbd-client -check /dev/nbd0 > /dev/null \
-    || nbd-client "$nbdserver" "$nbdport" /dev/nbd0 "$preopts" "$opts" || exit 1
+if ! nbd-client -check /dev/nbd0 > /dev/null; then
+    # shellcheck disable=SC2086
+    nbd-client "$nbdserver" $nbdport /dev/nbd0 $preopts $opts || exit 1
+fi
 
 # NBD doesn't emit uevents when it gets connected, so kick it
 echo change > /sys/block/nbd0/uevent
