@@ -62,17 +62,16 @@ installkernel() {
 
 # called by dracut
 install() {
-    local _allow
+    local -A _allow
 
     add_hostonly_mpath_conf() {
-        is_mpath "$1" && {
+        if is_mpath "$1"; then
             local _dev
 
             _dev=$(majmin_to_mpath_dev "$1")
             [ -z "$_dev" ] && return
-            strstr "$_allow" "$_dev" && return
-            _allow="$_allow --allow $_dev"
-        }
+            _allow["$_dev"]="$_dev"
+        fi
     }
 
     inst_multiple -o \
@@ -92,7 +91,14 @@ install() {
 
     [[ $hostonly ]] && [[ $hostonly_mode == "strict" ]] && {
         for_each_host_dev_and_slaves_all add_hostonly_mpath_conf
-        [ -n "$_allow" ] && mpathconf "$_allow" --outfile "${initdir}"/etc/multipath.conf
+        if ((${#_allow[@]} > 0)); then
+            local -a _args
+            local _dev
+            for _dev in "${_allow[@]}"; do
+                _args+=("--allow" "$_dev")
+            done
+            mpathconf "${_args[@]}" --outfile "${initdir}"/etc/multipath.conf
+        fi
     }
 
     inst "$(command -v partx)" /sbin/partx
