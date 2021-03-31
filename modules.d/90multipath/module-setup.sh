@@ -75,14 +75,18 @@ install() {
         }
     }
 
-    inst_multiple -o \
-        dmsetup \
+    inst_multiple \
+        pkill \
+        pidof \
         kpartx \
+        dmsetup \
+        multipath \
+        multipathd
+
+    inst_multiple -o \
         mpath_wait \
         mpathconf \
         mpathpersist \
-        multipath \
-        multipathd \
         xdrgetprio \
         xdrgetuid \
         /etc/xdrdevices.conf \
