@@ -51,11 +51,11 @@ source_hook cmdline
 
 case "${root#block:}${root_unset}" in
     LABEL=* | UUID=* | PARTUUID=* | PARTLABEL=*)
-        root="block:$(label_uuid_to_dev "$root")"
+        root="block:$(label_uuid_to_dev "${root#block:}")"
         rootok=1
         ;;
     /dev/*)
-        root="block:${root}"
+        root="block:${root#block:}"
         rootok=1
         ;;
     UNSET | gpt-auto | tmpfs)
