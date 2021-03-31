@@ -14,7 +14,6 @@ check() {
 
 # called by dracut
 depends() {
-    echo grub2
     return 0
 }
 
