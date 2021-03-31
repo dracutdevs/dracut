@@ -24,11 +24,17 @@ EOF
 }
 
 for lunmask_arg in $(getargs rd.lunmask); do
-    IFS="," read -r -a _args <<< "$lunmask_arg"
-    if [ -d /sys/module/scsi_mod ]; then
-        printf "manual" > /sys/module/scsi_mod/parameters/scan
-    elif [ ! -f /etc/modprobe.d/95lunmask.conf ]; then
-        echo "options scsi_mod scan=manual" > /etc/modprobe.d/95lunmask.conf
-    fi
-    create_udev_rule "${_args[@]}"
+    (
+        local OLDIFS="$IFS"
+        local IFS=","
+        # shellcheck disable=SC2086
+        set $lunmask_arg
+        IFS="$OLDIFS"
+        if [ -d /sys/module/scsi_mod ]; then
+            printf "manual" > /sys/module/scsi_mod/parameters/scan
+        elif [ ! -f /etc/modprobe.d/95lunmask.conf ]; then
+            echo "options scsi_mod scan=manual" > /etc/modprobe.d/95lunmask.conf
+        fi
+        create_udev_rule "$1" "$2" "$3"
+    )
 done
