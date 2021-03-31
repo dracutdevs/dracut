@@ -19,10 +19,11 @@ depends() {
 installkernel() {
     # Directories to search for NVDIMM "providers" (firmware drivers)
     # These modules call "nvdimm_bus_register()".
-    local _provider_dirs='=drivers/nvdimm =drivers/acpi =arch/powerpc'
-
     #instmods() will take care of hostonly
-    dracut_instmods -o -s nvdimm_bus_register "$_provider_dirs"
+    dracut_instmods -o -s nvdimm_bus_register \
+        '=drivers/nvdimm' \
+        '=drivers/acpi' \
+        '=arch/powerpc'
 }
 
 # called by dracut
