@@ -760,31 +760,32 @@ type hostname > /dev/null 2>&1 \
 
 iface_has_carrier() {
     local cnt=0
-    local interface="$1" flags=""
+    local iface="$1" flags=""
     local timeout
-    [ -n "$interface" ] || return 2
-    interface="/sys/class/net/$interface"
-    [ -d "$interface" ] || return 2
+    local iface_sys_path
+    [ -n "$iface" ] || return 2
+    iface_sys_path="/sys/class/net/$iface"
+    [ -d "$iface_sys_path" ] || return 2
     timeout=$(getargs rd.net.timeout.carrier=)
     timeout=${timeout:-10}
     timeout=$((timeout * 10))
 
     linkup "$1"
 
-    li=$(ip link show up dev "$interface")
+    li=$(ip link show up dev "$iface")
     strstr "$li" "NO-CARRIER" && _no_carrier_flag=1
 
     while [ $cnt -lt $timeout ]; do
         if [ -n "$_no_carrier_flag" ]; then
-            li=$(ip link show up dev "$interface")
+            li=$(ip link show up dev "$iface")
             # NO-CARRIER flag was cleared
             strstr "$li" "NO-CARRIER" || return 0
-        elif ! [ -e "$interface/carrier" ]; then
+        elif ! [ -e "$iface_sys_path/carrier" ]; then
             # sysfs not available and "NO-CARRIER" not displayed
             return 0
         fi
         # double check the syscfs carrier flag
-        [ -e "$interface/carrier" ] && [ "$(cat "$interface"/carrier)" = 1 ] && return 0
+        [ -e "$iface_sys_path/carrier" ] && [ "$(cat "$iface_sys_path"/carrier)" = 1 ] && return 0
         sleep 0.1
         cnt=$((cnt + 1))
     done
