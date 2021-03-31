@@ -408,15 +408,9 @@ source_all() {
     [ "$_dir" ] && [ -d "/$_dir" ] || return
     for f in "/$_dir"/*.sh; do
         if [ -e "$f" ]; then
-            # dash can't source with parameters
-            if [ -z "$BASH" ] && [ $# -gt 0 ]; then
-                [ -x "$f" ] || chmod 0755 "$f"
-                "$f" "$@"
-            else
-                # shellcheck disable=SC1090
-                # shellcheck disable=SC2240
-                . "$f" "$@"
-            fi
+            # shellcheck disable=SC1090
+            # shellcheck disable=SC2240
+            . "$f" "$@"
         fi
     done
 }
