@@ -3,7 +3,7 @@
 # called by dracut
 installkernel() {
     local _blockfuncs='ahci_platform_get_resources|ata_scsi_ioctl|scsi_add_host|blk_cleanup_queue|register_mtd_blktrans|scsi_esp_register|register_virtio_device|usb_stor_disconnect|mmc_add_host|sdhci_add_host|scsi_add_host_with_dma'
-    local _hostonly_drvs
+    local -A _hostonly_drvs
 
     find_kernel_modules_external() {
         local a
@@ -17,14 +17,14 @@ installkernel() {
 
     record_block_dev_drv() {
         for _mod in $(get_dev_module /dev/block/"$1"); do
-            [[ " $_hostonly_drvs " != *$_mod* ]] && _hostonly_drvs+=" $_mod"
+            _hostonly_drvs["$_mod"]="$_mod"
         done
-        [[ "$_hostonly_drvs" ]] && return 0
+        ((${#_hostonly_drvs[@]} > 0)) && return 0
         return 1
     }
 
     install_block_modules_strict() {
-        hostonly='' instmods "$_hostonly_drvs"
+        hostonly='' instmods "${_hostonly_drvs[@]}"
     }
 
     install_block_modules() {
