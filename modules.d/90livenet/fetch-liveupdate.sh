@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # fetch-liveupdate - fetch an update image for dmsquash-live media.
 # this gets called by the "initqueue/online" hook for each network interface
 # that comes online.
