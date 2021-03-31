@@ -1,7 +1,15 @@
 #!/bin/bash
 
+if [[ $NM ]]; then
+    USE_NETWORK="network-manager"
+    OMIT_NETWORK="network-legacy"
+else
+    USE_NETWORK="network-legacy"
+    OMIT_NETWORK="network-manager"
+fi
+
 # shellcheck disable=SC2034
-TEST_DESCRIPTION="root filesystem on NBD"
+TEST_DESCRIPTION="root filesystem on NBD with $USE_NETWORK"
 
 KVERSION=${KVERSION-$(uname -r)}
 
@@ -10,9 +18,6 @@ KVERSION=${KVERSION-$(uname -r)}
 #SERIAL="tcp:127.0.0.1:9999"
 
 test_check() {
-    # NBD is still too flaky and hangs hard sometimes
-    return 1
-
     if ! type -p nbd-server 2> /dev/null; then
         echo "Test needs nbd-server... Skipping"
         return 1
@@ -90,7 +95,7 @@ client_test() {
     fi
 
     # nbdinfo=( fstype fsoptions )
-    read -a -r nbdinfo < <(awk '{print $2, $3; exit}' "$TESTDIR"/flag.img)
+    read -r -a nbdinfo < <(awk '{print $2, $3; exit}' "$TESTDIR"/flag.img)
 
     if [[ ${nbdinfo[0]} != "$fstype" ]]; then
         echo "CLIENT TEST END: $test_name [FAILED - WRONG FS TYPE] \"${nbdinfo[0]}\" != \"$fstype\""
@@ -140,45 +145,27 @@ client_run() {
         "root=nbd:192.168.50.1:raw:ext3:errors=panic rd.luks=0" \
         ext3 errors=panic || return 1
 
-    #
-    # FIXME! These fail, but probably shouldn't
-    #
-
-    # There doesn't seem to be a good way to validate the NBD options, so
-    # just check that we don't screw up the other options
-    #
-    #    client_test "NBD root=nbd:IP:port:::NBD opts" 52:54:00:12:34:00 \
-    #                "root=nbd:192.168.50.1:raw:::bs=2048 rd.luks=0" || return 1
-    #
-    #    client_test "NBD root=nbd:IP:port:fstype::NBD opts" 52:54:00:12:34:00 \
-    #                "root=nbd:192.168.50.1:raw:ext3::bs=2048 rd.luks=0" ext3 || return 1
-    #
-    #    client_test "NBD root=nbd:IP:port:fstype:fsopts:NBD opts" \
-    #                52:54:00:12:34:00 \
-    #                "root=nbd:192.168.50.1:raw:ext3:errors=panic:bs=2048 rd.luks=0" \
-    #                ext3 errors=panic || return 1
-
     # DHCP root-path parsing
 
-    client_test "NBD root=dhcp DHCP root-path nbd:srv:port" 52:54:00:12:34:01 \
-        "root=dhcp rd.luks=0" || return 1
+    client_test "NBD root=/dev/root netroot=dhcp DHCP root-path nbd:srv:port" 52:54:00:12:34:01 \
+        "root=/dev/root netroot=dhcp ip=dhcp rd.luks=0" || return 1
 
-    client_test "NBD root=dhcp DHCP root-path nbd:srv:port:fstype" \
-        52:54:00:12:34:02 "root=dhcp rd.luks=0" ext3 || return 1
+    client_test "NBD root=/dev/root netroot=dhcp DHCP root-path nbd:srv:port:fstype" \
+        52:54:00:12:34:02 "root=/dev/root netroot=dhcp ip=dhcp rd.luks=0" ext2 || return 1
 
-    client_test "NBD root=dhcp DHCP root-path nbd:srv:port::fsopts" \
-        52:54:00:12:34:03 "root=dhcp rd.luks=0" ext3 errors=panic || return 1
+    client_test "NBD root=/dev/root netroot=dhcp DHCP root-path nbd:srv:port::fsopts" \
+        52:54:00:12:34:03 "root=/dev/root netroot=dhcp ip=dhcp rd.luks=0" ext3 errors=panic || return 1
 
-    client_test "NBD root=dhcp DHCP root-path nbd:srv:port:fstype:fsopts" \
-        52:54:00:12:34:04 "root=dhcp rd.luks=0" ext3 errors=panic || return 1
+    client_test "NBD root=/dev/root netroot=dhcp DHCP root-path nbd:srv:port:fstype:fsopts" \
+        52:54:00:12:34:04 "root=/dev/root netroot=dhcp ip=dhcp rd.luks=0" ext2 errors=panic || return 1
 
     # netroot handling
 
     client_test "NBD netroot=nbd:IP:port" 52:54:00:12:34:00 \
-        "netroot=nbd:192.168.50.1:raw rd.luks=0" || return 1
+        "root=LABEL=dracut netroot=nbd:192.168.50.1:raw ip=dhcp rd.luks=0" || return 1
 
-    client_test "NBD netroot=dhcp DHCP root-path nbd:srv:port:fstype:fsopts" \
-        52:54:00:12:34:04 "netroot=dhcp rd.luks=0" ext3 errors=panic || return 1
+    client_test "NBD root=/dev/root netroot=dhcp DHCP root-path nbd:srv:port:fstype:fsopts" \
+        52:54:00:12:34:04 "root=/dev/root netroot=dhcp ip=dhcp rd.luks=0" ext2 errors=panic || return 1
 
     # Encrypted root handling via LVM/LUKS over NBD
 
@@ -187,7 +174,7 @@ client_run() {
 
     client_test "NBD root=LABEL=dracut netroot=nbd:IP:port" \
         52:54:00:12:34:00 \
-        "root=LABEL=dracut rd.luks.uuid=$ID_FS_UUID rd.lv.vg=dracut netroot=nbd:192.168.50.1:encrypted" || return 1
+        "root=LABEL=dracut rd.luks.uuid=$ID_FS_UUID rd.lv.vg=dracut ip=dhcp netroot=nbd:192.168.50.1:encrypted" || return 1
 
     # XXX This should be ext3,errors=panic but that doesn't currently
     # XXX work when you have a real root= line in addition to netroot=
@@ -219,7 +206,7 @@ make_encrypted_root() {
         mkdir -p "$initdir"
         (
             cd "$initdir" || exit
-            mkdir -p -- dev sys proc etc var/run tmp
+            mkdir -p dev sys proc etc run var/run tmp
             mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
             for i in bin sbin lib lib64; do
                 ln -sfnr usr/$i $i
@@ -254,7 +241,7 @@ make_encrypted_root() {
             done
             ln -s ../run var/run
         )
-        inst_multiple mkfs.ext3 poweroff cp umount dd
+        inst_multiple mkfs.ext3 poweroff cp umount dd sync
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
         inst_hook initqueue 01 ./create-encrypted-root.sh
@@ -298,7 +285,7 @@ make_client_root() {
         mkdir -p "$initdir"
         (
             cd "$initdir" || exit
-            mkdir -p -- dev sys proc etc var/run tmp
+            mkdir -p dev sys proc etc run var/run tmp
             mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
             for i in bin sbin lib lib64; do
                 ln -sfnr usr/$i $i
@@ -361,7 +348,7 @@ make_server_root() {
     dd if=/dev/zero of="$TESTDIR"/flag.img bs=1M count=1
 
     rm -fr "$TESTDIR"/overlay
-    kernel=$KVERSION
+    export kernel=$KVERSION
     (
         mkdir -p "$TESTDIR"/overlay/source
         # shellcheck disable=SC2030
@@ -419,7 +406,7 @@ EOF
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
-        inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd
+        inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd sync
         inst_hook initqueue 01 ./create-server-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
@@ -480,8 +467,8 @@ test_setup() {
         -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
 
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
-        -o "plymouth" \
-        -a "debug watchdog" \
+        -o "plymouth dash iscsi nfs ${OMIT_NETWORK}" \
+        -a "debug watchdog ${USE_NETWORK}" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 ext3 sd_mod e1000 i6300esb ib700wdt" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
