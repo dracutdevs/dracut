@@ -1,12 +1,17 @@
 #!/bin/sh
 PATH=/bin:/sbin
 
-# Basic mounts for mounting a squash image
-mkdir /proc /sys /dev /run
-mount -t proc -o nosuid,noexec,nodev proc /proc
-mount -t sysfs -o nosuid,noexec,nodev sysfs /sys
-mount -t devtmpfs -o mode=755,noexec,nosuid,strictatime devtmpfs /dev
-mount -t tmpfs -o mode=755,nodev,nosuid,strictatime tmpfs /run
+[ -e /proc/self/mounts ] \
+    || (mkdir -p /proc && mount -t proc -o nosuid,noexec,nodev proc /proc)
+
+grep -q '^sysfs /sys sysfs' /proc/self/mounts \
+    || (mkdir -p /sys && mount -t sysfs -o nosuid,noexec,nodev sysfs /sys)
+
+grep -q '^devtmpfs /dev devtmpfs' /proc/self/mounts \
+    || (mkdir -p /dev && mount -t devtmpfs -o mode=755,noexec,nosuid,strictatime devtmpfs /dev)
+
+grep -q '^tmpfs /run tmpfs' /proc/self/mounts \
+    || (mkdir -p /run && mount -t tmpfs -o mode=755,noexec,nosuid,strictatime tmpfs /run)
 
 # Load required modules
 modprobe loop
