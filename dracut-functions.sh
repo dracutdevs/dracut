@@ -709,9 +709,9 @@ get_ucode_file() {
     local family
     local model
     local stepping
-    family=$(grep -E "cpu family" /proc/cpuinfo | head -1 | sed s/.*:\ //)
-    model=$(grep -E "model" /proc/cpuinfo | grep -v name | head -1 | sed s/.*:\ //)
-    stepping=$(grep -E "stepping" /proc/cpuinfo | head -1 | sed s/.*:\ //)
+    family=$(grep -E "cpu family" /proc/cpuinfo | head -1 | sed "s/.*:\ //")
+    model=$(grep -E "model" /proc/cpuinfo | grep -v name | head -1 | sed "s/.*:\ //")
+    stepping=$(grep -E "stepping" /proc/cpuinfo | head -1 | sed "s/.*:\ //")
 
     if [[ "$(get_cpu_vendor)" == "AMD" ]]; then
         if [[ $family -ge 21 ]]; then
