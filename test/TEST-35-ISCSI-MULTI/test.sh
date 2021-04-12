@@ -145,9 +145,12 @@ test_setup() {
     fi
 
     # Create the blank file to use as a root filesystem
-    dd if=/dev/zero of="$TESTDIR"/root.ext3 bs=1M count=180
-    dd if=/dev/zero of="$TESTDIR"/iscsidisk2.img bs=1M count=90
-    dd if=/dev/zero of="$TESTDIR"/iscsidisk3.img bs=1M count=90
+    rm -f "$TESTDIR"/root.ext3
+    dd if=/dev/zero of="$TESTDIR"/root.ext3 bs=4096 count=$((200 * 256))
+    rm -f "$TESTDIR"/iscsidisk2.img
+    dd if=/dev/zero of="$TESTDIR"/iscsidisk2.img bs=4096 count=$((100 * 256))
+    rm -f "$TESTDIR"/iscsidisk3.img
+    dd if=/dev/zero of="$TESTDIR"/iscsidisk3.img bs=4096 count=$((100 * 256))
 
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
@@ -191,7 +194,7 @@ test_setup() {
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
-        inst_multiple sfdisk mkfs.ext3 poweroff cp umount setsid dd
+        inst_multiple sfdisk mkfs.ext3 poweroff cp umount setsid dd sync blockdev
         inst_hook initqueue 01 ./create-client-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
         inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
