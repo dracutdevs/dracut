@@ -265,6 +265,8 @@ install() {
             kbddir=''
         done
 
+        [[ "$kbddir" ]] || return 1
+
         [[ -f $dracutsysrootdir$I18N_CONF && -f $dracutsysrootdir$VCONFIG_CONF ]] \
             || [[ ! ${hostonly} || ${i18n_vars} ]] || {
             derror 'i18n_vars not set!  Please set up i18n_vars in ' \
