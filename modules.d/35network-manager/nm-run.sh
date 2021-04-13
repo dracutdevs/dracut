@@ -6,15 +6,19 @@ if [ -e /tmp/nm.done ]; then
     return
 fi
 
-[ -z "$DRACUT_SYSTEMD" ] \
-    && for i in /usr/lib/NetworkManager/system-connections/* \
-        /run/NetworkManager/system-connections/* \
-        /etc/NetworkManager/system-connections/* \
-        /etc/sysconfig/network-scripts/ifcfg-*; do
-        [ -f "$i" ] || continue
-        /usr/sbin/NetworkManager --configure-and-quit=initrd --no-daemon
-        break
-    done
+if [ -z "$DRACUT_SYSTEMD" ]; then
+    # Only start NM if networking is needed
+    if [ -e /run/NetworkManager/initrd/neednet ]; then
+        for i in /usr/lib/NetworkManager/system-connections/* \
+            /run/NetworkManager/system-connections/* \
+            /etc/NetworkManager/system-connections/* \
+            /etc/sysconfig/network-scripts/ifcfg-*; do
+            [ -f "$i" ] || continue
+            /usr/sbin/NetworkManager --configure-and-quit=initrd --no-daemon
+            break
+        done
+    fi
+fi
 
 if [ -s /run/NetworkManager/initrd/hostname ]; then
     cat /run/NetworkManager/initrd/hostname > /proc/sys/kernel/hostname
