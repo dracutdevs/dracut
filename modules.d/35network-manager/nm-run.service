@@ -15,6 +15,9 @@ Before=network.target network-online.target
 #run before we try to mount anything from the dracut hooks
 Before=dracut-initqueue.service
 
+#do not run if networking not needed
+ConditionPathExists=/run/NetworkManager/initrd/neednet
+
 #do not run, if there is no configuration
 ConditionPathExistsGlob=|/usr/lib/NetworkManager/system-connections/*
 ConditionPathExistsGlob=|/run/NetworkManager/system-connections/*
