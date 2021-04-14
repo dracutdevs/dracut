@@ -25,6 +25,8 @@ ConditionPathExistsGlob=|/etc/sysconfig/network-scripts/ifcfg-*
 #run the script and wait before it finishes
 Type=oneshot
 ExecStart=/usr/sbin/NetworkManager --configure-and-quit=initrd --no-daemon
+#don't kill forked off processes (for example: teamd for teaming)
+KillMode=process
 
 [Install]
 WantedBy=initrd.target
