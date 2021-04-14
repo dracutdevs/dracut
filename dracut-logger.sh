@@ -239,7 +239,7 @@ _lvl2char() {
 # @retval 0 if @a lvl is correct.
 # @result Echoes logger priority.
 _lvl2syspri() {
-    printf "%s" -- "$syslogfacility."
+    printf -- "%s" "$syslogfacility."
     case "$1" in
         1) echo crit ;;
         2) echo error ;;
