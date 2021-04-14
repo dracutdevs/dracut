@@ -1,64 +1,79 @@
 #!/bin/bash
+# This file is part of dracut.
+# SPDX-License-Identifier: GPL-2.0-or-later
 
-# called by dracut
+# Prerequisite check(s) for module.
 check() {
     [[ $mount_needs ]] && return 1
 
-    return 255
-}
-
-# called by dracut
-depends() {
-    echo "systemd kernel-network-modules"
-}
-
-installkernel() {
-    return 0
-}
-
-# called by dracut
-install() {
-    inst_multiple -o \
+    # If the binary(s) requirements are not fulfilled the module can't be installed
+    require_binaries ip networkctl \
         "$systemdutildir"/systemd-networkd \
+        "$systemdutildir"/systemd-network-generator \
         "$systemdutildir"/systemd-networkd-wait-online \
-        "$systemdsystemunitdir"/systemd-networkd-wait-online.service \
+        || return 1
+
+    # Return 255 to only include the module, if another module requires it.
+    return 255
+
+}
+
+# Module dependency requirements.
+depends() {
+
+    # This module has external dependency on other module(s).
+    echo dbus kernel-network-modules systemd-sysusers
+    # Return 0 to include the dependent module(s) in the initramfs.
+    return 0
+
+}
+
+# Install the required file(s) and directories for the module in the initramfs.
+install() {
+
+    inst_multiple -o \
+        "$dbussystem"/org.freedesktop.network1.conf \
+        "$dbussystemservices"/org.freedesktop.network1.service \
+        "$systemdutildir"/networkd.conf \
+        "$systemdutildir/networkd.conf.d/*.conf" \
+        "$systemdutildir"/systemd-networkd \
+        "$systemdutildir"/systemd-network-generator \
+        "$systemdutildir"/systemd-networkd-wait-online \
+        "$systemdutildir"/network/80-container-host0.network \
+        "$systemdutildir"/network/80-container-ve.network \
+        "$systemdutildir"/network/80-container-vz.network \
+        "$systemdutildir"/network/80-vm-vt.network \
+        "$systemdutildir"/network/80-wifi-adhoc.network \
+        "$systemdutildir"/network/99-default.link \
         "$systemdsystemunitdir"/systemd-networkd.service \
         "$systemdsystemunitdir"/systemd-networkd.socket \
-        "$systemdutildir"/network/99-default.link \
+        "$systemdsystemunitdir"/systemd-network-generator.service \
+        "$systemdsystemunitdir"/systemd-networkd-wait-online.service \
+        "$systemdsystemunitdir"/systemd-network-generator.service \
         networkctl ip
 
-    #hostnamectl timedatectl
-    # $systemdutildir/systemd-timesyncd \
-    # $systemdutildir/systemd-timedated \
-    # $systemdutildir/systemd-hostnamed \
-    # $systemdutildir/systemd-resolvd \
-    # $systemdutildir/systemd-resolve-host \
-    # $systemdsystemunitdir/systemd-resolved.service \
-    # $systemdsystemunitdir/systemd-hostnamed.service \
-    # $systemdsystemunitdir/systemd-timesyncd.service \
-    # $systemdsystemunitdir/systemd-timedated.service \
-    # $systemdsystemunitdir/time-sync.target \
-    # /etc/systemd/resolved.conf \
-
-    # inst_dir /var/lib/systemd/clock
-
-    grep '^systemd-network:' "$dracutsysrootdir"/etc/passwd 2> /dev/null >> "$initdir/etc/passwd"
-    grep '^systemd-network:' "$dracutsysrootdir"/etc/group >> "$initdir/etc/group"
-    # grep '^systemd-timesync:' "$dracutsysrootdir"/etc/passwd 2>/dev/null >> "$initdir/etc/passwd"
-    # grep '^systemd-timesync:' "$dracutsysrootdir"/etc/group >> "$initdir/etc/group"
-
-    _arch=${DRACUT_ARCH:-$(uname -m)}
-    inst_libdir_file \
-        {"tls/$_arch/",tls/,"$_arch/",}"libnss_dns.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libnss_mdns4_minimal.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libnss_myhostname.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libnss_resolve.so.*"
-
-    #       systemd-timesyncd.service
+    # Enable systemd type units
     for i in \
-        systemd-networkd-wait-online.service \
         systemd-networkd.service \
-        systemd-networkd.socket; do
+        systemd-networkd.socket \
+        systemd-network-generator.service \
+        systemd-networkd-wait-online.service; do
         $SYSTEMCTL -q --root "$initdir" enable "$i"
     done
+
+    # Install the hosts local user configurations if enabled.
+    if [[ $hostonly ]]; then
+        inst_multiple -H -o \
+            "$systemdutilconfdir"/networkd.conf \
+            "$systemdutilconfdir/networkd.conf.d/*.conf" \
+            "$systemdutilconfdir/network/*" \
+            "$systemdsystemconfdir"/systemd-networkd.service \
+            "$systemdsystemconfdir/systemd-networkd.service/*.conf" \
+            "$systemdsystemunitdir"/systemd-networkd.socket \
+            "$systemdsystemunitdir/systemd-networkd.socket/*.conf" \
+            "$systemdsystemconfdir"/systemd-network-generator.service \
+            "$systemdsystemconfdir/systemd-network-generator.service/*.conf" \
+            "$systemdsystemconfdir"/systemd-networkd-wait-online.service \
+            "$systemdsystemconfdir/systemd-networkd-wait-online.service/*.conf"
+    fi
 }
