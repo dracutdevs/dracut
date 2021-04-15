@@ -23,6 +23,7 @@ install() {
         "$systemdsystemunitdir"/initrd-fs.target \
         "$systemdsystemunitdir"/initrd-root-device.target \
         "$systemdsystemunitdir"/initrd-root-fs.target \
+        "$systemdsystemunitdir"/initrd-usr-fs.target \
         "$systemdsystemunitdir"/initrd-switch-root.target \
         "$systemdsystemunitdir"/initrd-switch-root.service \
         "$systemdsystemunitdir"/initrd-cleanup.service \
