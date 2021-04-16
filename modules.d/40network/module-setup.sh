@@ -41,5 +41,10 @@ install() {
     inst_hook pre-udev 50 "$moddir/ifname-genrules.sh"
     inst_hook cmdline 91 "$moddir/dhcp-root.sh"
 
+    if [[ $hostonly ]]; then
+        inst "/etc/hosts"
+        inst "/etc/nsswitch.conf"
+    fi
+
     dracut_need_initqueue
 }
