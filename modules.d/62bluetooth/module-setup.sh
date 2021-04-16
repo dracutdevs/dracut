@@ -48,7 +48,7 @@ installkernel() {
 # Install the required file(s) for the module in the initramfs.
 install() {
     inst_multiple \
-        $(find /usr/libexec/bluetooth/bluetoothd /usr/lib/bluetooth/bluetoothd 2> /dev/null || :) \
+        "$(find /usr/libexec/bluetooth/bluetoothd /usr/lib/bluetooth/bluetoothd 2> /dev/null || :)" \
         "${systemdsystemunitdir}/bluetooth.target" \
         "${systemdsystemunitdir}/bluetooth.service" \
         bluetoothctl
@@ -59,10 +59,11 @@ install() {
             /etc/dbus-1/system.d/bluetooth.conf
     fi
 
-    inst_multiple $(find /var/lib/bluetooth)
+    inst_multiple "$(find /var/lib/bluetooth)"
 
     inst_rules 69-btattach-bcm.rules 60-persistent-input.rules
 
+    # shellcheck disable=SC1004
     sed -i -e \
         '/^\[Unit\]/aDefaultDependencies=no\
         Conflicts=shutdown.target\
