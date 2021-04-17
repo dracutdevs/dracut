@@ -10,12 +10,6 @@ check() {
     require_binaries dbus-daemon || return 1
     require_binaries dbus-send || return 1
 
-    # dbus conflicts with dbus-broker.
-    if dracut_module_included "dbus-broker"; then
-        derror "dbus conflicts with dbus-broker in the initramfs."
-        exit 1
-    fi
-
     # Return 255 to only include the module, if another module requires it.
     return 255
 }
@@ -31,6 +25,11 @@ depends() {
 
 # Install the required file(s) and directories for the module in the initramfs.
 install() {
+    # dbus conflicts with dbus-broker.
+    if dracut_module_included "dbus-broker"; then
+        derror "dbus conflicts with dbus-broker in the initramfs."
+        return 1
+    fi
 
     # Create dbus related directories.
     inst_dir "$dbus"
