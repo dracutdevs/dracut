@@ -6,10 +6,13 @@
 check() {
     # If the binary(s) requirements are not fulfilled the module can't be installed
     require_any_binary /usr/lib/bluetooth/bluetoothd /usr/libexec/bluetooth/bluetoothd || return 1
-    # Include by default if a Peripheral (0x500) is found of minor class:
-    #  * Keyboard (0x40)
-    #  * Keyboard/pointing (0xC0)
-    grep -qiE 'Class=0x[0-9a-f]{3}5[4c]0' /var/lib/bluetooth/*/*/info 2> /dev/null && return 0
+
+    if [[ $hostonly ]]; then
+        # Include by default if a Peripheral (0x500) is found of minor class:
+        #  * Keyboard (0x40)
+        #  * Keyboard/pointing (0xC0)
+        grep -qiE 'Class=0x[0-9a-f]{3}5[4c]0' /var/lib/bluetooth/*/*/info 2> /dev/null && return 0
+    fi
 
     return 255
 }
@@ -47,22 +50,32 @@ installkernel() {
 
 # Install the required file(s) for the module in the initramfs.
 install() {
+    # shellcheck disable=SC2064
+    trap "$(shopt -p nullglob globstar)" RETURN
+    shopt -q -s nullglob globstar
+    local -a var_lib_files
+
     inst_multiple \
-        $(find /usr/libexec/bluetooth/bluetoothd /usr/lib/bluetooth/bluetoothd 2> /dev/null || :) \
         "${systemdsystemunitdir}/bluetooth.target" \
         "${systemdsystemunitdir}/bluetooth.service" \
         bluetoothctl
 
+    inst_multiple -o \
+        /usr/libexec/bluetooth/bluetoothd \
+        /usr/lib/bluetooth/bluetoothd
+
     if [[ $hostonly ]]; then
+        var_lib_files=("$dracutsysrootdir"/var/lib/bluetooth/**)
+
         inst_multiple \
             /etc/bluetooth/main.conf \
-            /etc/dbus-1/system.d/bluetooth.conf
+            /etc/dbus-1/system.d/bluetooth.conf \
+            "${var_lib_files[@]#"$dracutsysrootdir"}"
     fi
-
-    inst_multiple $(find /var/lib/bluetooth)
 
     inst_rules 69-btattach-bcm.rules 60-persistent-input.rules
 
+    # shellcheck disable=SC1004
     sed -i -e \
         '/^\[Unit\]/aDefaultDependencies=no\
         Conflicts=shutdown.target\
