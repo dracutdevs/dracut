@@ -1,0 +1,8 @@
+# This file is part of dracut.
+# SPDX-License-Identifier: GPL-2.0-or-later
+
+[Unit]
+Description=Initial RAM Disk On AC Power
+ConditionPathExists=/usr/lib/initrd-release
+DefaultDependencies=no
+StopWhenUnneeded=yes
