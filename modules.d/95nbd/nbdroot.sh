@@ -90,11 +90,7 @@ fsopts=${fsopts:+$fsopts,}${nbdrw}
 i=0
 while [ ! -b /dev/nbd0 ]; do
     [ $i -ge 20 ] && exit 1
-    if [ "$UDEVVERSION" -ge 143 ]; then
-        udevadm settle --exit-if-exists=/dev/nbd0
-    else
-        sleep 0.1
-    fi
+    udevadm settle --exit-if-exists=/dev/nbd0
     i=$((i + 1))
 done
 
