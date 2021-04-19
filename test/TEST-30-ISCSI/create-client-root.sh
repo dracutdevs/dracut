@@ -7,8 +7,12 @@ rm -f -- /etc/lvm/lvm.conf
 udevadm control --reload
 udevadm settle
 
-echo "Size of /dev/sdc and /dev/sdd"
-blockdev --getsize64 /dev/sdc /dev/sdd
+echo "Size of disks"
+for dev in /dev/sd?; do
+    printf "%s: %s\n" "$dev" "$(blockdev --getsize64 "$dev")"
+done
+
+ls -l /dev/disk/by*
 
 mkfs.ext3 -j -L singleroot -F /dev/sda \
     && mkdir -p /sysroot \
