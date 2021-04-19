@@ -31,14 +31,10 @@ mount_boot() {
 
         if ! [ -e "$boot" ]; then
             udevadm trigger --action=add > /dev/null 2>&1
-            [ -z "$UDEVVERSION" ] && UDEVVERSION=$(udevadm --version)
+
             i=0
             while ! [ -e "$boot" ]; do
-                if [ "$UDEVVERSION" -ge 143 ]; then
-                    udevadm settle --exit-if-exists="$boot"
-                else
-                    udevadm settle --timeout=30
-                fi
+                udevadm settle --exit-if-exists="$boot"
                 [ -e "$boot" ] && break
                 sleep 0.5
                 i=$((i + 1))
