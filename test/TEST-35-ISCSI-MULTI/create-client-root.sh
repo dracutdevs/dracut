@@ -7,15 +7,12 @@ rm -f -- /etc/lvm/lvm.conf
 udevadm control --reload
 udevadm settle
 
-echo "Size of /dev/sdc and /dev/sdd"
-blockdev --getsize64 /dev/sdc /dev/sdd
-
-mkfs.ext3 -j -L singleroot -F /dev/sda \
+mkfs.ext3 -j -L singleroot -F /dev/disk/by-id/ata-disk_singleroot \
     && mkdir -p /sysroot \
-    && mount /dev/sda /sysroot \
+    && mount /dev/disk/by-id/ata-disk_singleroot /sysroot \
     && cp -a -t /sysroot /source/* \
     && umount /sysroot \
-    && mdadm --create /dev/md0 --run --auto=yes --level=stripe --raid-devices=2 /dev/sdc /dev/sdd \
+    && mdadm --create /dev/md0 --run --auto=yes --level=stripe --raid-devices=2 /dev/disk/by-id/ata-disk_raid0-1 /dev/disk/by-id/ata-disk_raid0-2 \
     && mdadm -W /dev/md0 || : \
     && lvm pvcreate -ff -y /dev/md0 \
     && lvm vgcreate dracut /dev/md0 \
@@ -26,6 +23,6 @@ mkfs.ext3 -j -L singleroot -F /dev/sda \
     && cp -a -t /sysroot /source/* \
     && umount /sysroot \
     && lvm lvchange -a n /dev/dracut/root \
-    && echo "dracut-root-block-created" | dd oflag=direct,dsync of=/dev/sdb
+    && echo "dracut-root-block-created" | dd oflag=direct,dsync of=/dev/disk/by-id/ata-disk_marker
 sync
 poweroff -f
