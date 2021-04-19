@@ -1,29 +1,14 @@
 #!/bin/bash
+# This file is part of dracut.
+# SPDX-License-Identifier: GPL-2.0-or-later
 
-getSystemdVersion() {
-    [ -z "$SYSTEMD_VERSION" ] && SYSTEMD_VERSION=$("$systemdutildir"/systemd --version | {
-        read -r _ b _
-        echo "$b"
-    })
-    # Check if the systemd version is a valid number
-    if ! [[ $SYSTEMD_VERSION =~ ^[0-9]+$ ]]; then
-        dfatal "systemd version is not a number ($SYSTEMD_VERSION)"
-        exit 1
-    fi
-
-    echo "$SYSTEMD_VERSION"
-}
-
-# called by dracut
+# Prerequisite check(s) for module.
 check() {
     [[ $mount_needs ]] && return 1
-    if require_binaries "$systemdutildir"/systemd; then
-        SYSTEMD_VERSION=$(getSystemdVersion)
-        ((SYSTEMD_VERSION >= 198)) && return 0
-        return 255
-    fi
-
-    return 1
+    # If the binary(s) requirements are not fulfilled the module can't be installed
+    require_binaries "$systemdutildir"/systemd || return 1
+    # Return 255 to only include the module, if another module requires it.
+    return 255
 }
 
 # called by dracut
@@ -45,12 +30,6 @@ install() {
         exit 1
     fi
 
-    if [[ $(getSystemdVersion) -ge 240 ]]; then
-        inst_multiple -o \
-            "$systemdutildir"/system-generators/systemd-debug-generator \
-            "$systemdsystemunitdir"/debug-shell.service
-    fi
-
     inst_multiple -o \
         "$systemdutildir"/systemd \
         "$systemdutildir"/systemd-coredump \
@@ -64,9 +43,11 @@ install() {
         "$systemdutildir"/systemd-modules-load \
         "$systemdutildir"/systemd-vconsole-setup \
         "$systemdutildir"/systemd-volatile-root \
+        "$systemdutildir"/system-generators/systemd-debug-generator \
         "$systemdutildir"/system-generators/systemd-fstab-generator \
         "$systemdutildir"/system-generators/systemd-gpt-auto-generator \
         \
+        "$systemdsystemunitdir"/debug-shell.service \
         "$systemdsystemunitdir"/cryptsetup.target \
         "$systemdsystemunitdir"/cryptsetup-pre.target \
         "$systemdsystemunitdir"/remote-cryptsetup.target \
