@@ -37,6 +37,46 @@ check_root() {
     fi
 }
 
+# generate qemu arguments for named raw disks
+#
+# qemu_add_drive_args <index> <args> <filename> <id-name> [<bootindex>]
+#
+# index: name of the index variable (set to 0 at start)
+# args: name of the argument array variable (set to () at start)
+# filename: filename of the raw disk image
+# id-name: name of the disk in /dev/disk/by-id -> /dev/disk/by-id/ata-disk_$name
+# bootindex: optional bootindex number
+#
+# to be used later with `qemu … "${args[@]}" …`
+# The <index> variable will be incremented each time the function is called.
+#
+# can't be easier than this :-/
+#
+# # EXAMPLES
+# ```
+#   declare -a disk_args=()
+#   declare -i disk_index=0
+#   qemu_add_drive_args disk_index disk_args "$TESTDIR"/root.ext3 root 1
+#   qemu_add_drive_args disk_index disk_args "$TESTDIR"/client.img client
+#   qemu_add_drive_args disk_index disk_args "$TESTDIR"/iscsidisk2.img iscsidisk2
+#   qemu_add_drive_args disk_index disk_args "$TESTDIR"/iscsidisk3.img iscsidisk3
+#   qemu "${disk_args[@]}"
+# ```
+qemu_add_drive_args() {
+    local index=${!1}
+    local file=$3
+    local name=${4:-$index}
+    local bootindex=$5
+
+    eval "${2}"'+=(' \
+        -drive "if=none,format=raw,file=${file},id=drive-sata${index}" \
+        -device "ide-hd,bus=ide.${index},drive=drive-sata${index},id=sata${index},${bootindex:+bootindex=$bootindex,}model=disk,serial=${name}" \
+        ')'
+
+    # shellcheck disable=SC2219
+    let "${1}++"
+}
+
 while (($# > 0)); do
     case $1 in
         --run)
