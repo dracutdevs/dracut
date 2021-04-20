@@ -18,8 +18,8 @@ check() {
 depends() {
 
     # This module has external dependency on the systemd module.
-    echo systemd systemd-journald systemd-sysctl
-    # Return 0 to include the dependent systemd module in the initramfs.
+    echo systemd-journald systemd-sysctl
+    # Return 0 to include the dependent module(s) in the initramfs.
     return 0
 
 }
