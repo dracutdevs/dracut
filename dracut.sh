@@ -1640,10 +1640,10 @@ if ! [[ -d $dracutsysrootdir$udevdir ]]; then
     [[ -e $dracutsysrootdir/usr/lib/udev/ata_id ]] && udevdir=/usr/lib/udev
 fi
 
-[[ -d $dracutsysrootdir$sysctl ]] \
-    || sysctl=$(pkg-config systemd --variable=sysctl 2> /dev/null)
+[[ -d $dracutsysrootdir$sysctld ]] \
+    || sysctld=$(pkg-config systemd --variable=sysctld 2> /dev/null)
 
-[[ -d $dracutsysrootdir$sysctl ]] || sysctl=/usr/lib/sysctl.d
+[[ -d $dracutsysrootdir$sysctld ]] || sysctld=/usr/lib/sysctl.d
 
 [[ -d $dracutsysrootdir$sysctlconfdir ]] \
     || sysctlconfdir=$(pkg-config systemd --variable=sysctlconfdir 2> /dev/null)
