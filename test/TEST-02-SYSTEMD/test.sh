@@ -7,18 +7,22 @@ KVERSION="${KVERSION-$(uname -r)}"
 # Uncomment this to debug failures
 #DEBUGFAIL="rd.shell=1 rd.break=pre-mount"
 test_run() {
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/root.img root
+
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/root.ext3 \
+        "${disk_args[@]}" \
         -append "panic=1 systemd.crash_reboot root=LABEL=dracut rw loglevel=77 systemd.log_level=debug systemd.log_target=console rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 init=/sbin/init rd.shell=0 $DEBUGFAIL" \
-        -initrd "$TESTDIR"/initramfs.testing
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success "$TESTDIR"/root.ext3 || return 1
+        -initrd "$TESTDIR"/initramfs.testing || return 1
+
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success "$TESTDIR"/marker.img
 }
 
 test_setup() {
-    rm -f -- "$TESTDIR"/root.ext3
-    # Create the blank file to use as a root filesystem
-    dd if=/dev/zero of="$TESTDIR"/root.ext3 bs=1M count=80
-
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
@@ -69,7 +73,6 @@ test_setup() {
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount dd
         inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
-        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 
     # create an initramfs that will create the target root filesystem.
@@ -82,13 +85,22 @@ test_setup() {
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
     rm -rf -- "$TESTDIR"/overlay
-    # Invoke KVM and/or QEMU to actually create the target filesystem.
 
+    dd if=/dev/zero of="$TESTDIR"/root.img bs=1MiB count=80
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/root.img root
+
+    # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/root.ext3 \
+        "${disk_args[@]}" \
         -append "root=/dev/fakeroot rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/root.ext3 || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
+    rm -- "$TESTDIR"/marker.img
 
     (
         # shellcheck disable=SC2031
@@ -99,7 +111,6 @@ test_setup() {
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook pre-pivot 000 ./systemd-analyze.sh
         inst_hook emergency 000 ./hard-off.sh
-        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -a "debug systemd" \

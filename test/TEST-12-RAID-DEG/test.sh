@@ -12,21 +12,25 @@ KVERSION=${KVERSION-$(uname -r)}
 
 client_run() {
     echo "CLIENT TEST START: $*"
-    cp --sparse=always --reflink=auto "$TESTDIR"/disk2.img "$TESTDIR"/disk2.img.new
-    cp --sparse=always --reflink=auto "$TESTDIR"/disk3.img "$TESTDIR"/disk3.img.new
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
+    # degrade the RAID
+    # qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-1.img raid1
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-2.img raid2
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-3.img raid3
 
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/marker.img \
-        -drive format=raw,index=2,media=disk,file="$TESTDIR"/disk2.img.new \
-        -drive format=raw,index=3,media=disk,file="$TESTDIR"/disk3.img.new \
+        "${disk_args[@]}" \
         -append "panic=1 systemd.crash_reboot $* systemd.log_target=kmsg root=LABEL=root rw rd.retry=10 rd.info console=ttyS0,115200n81 log_buf_len=2M selinux=0 rd.shell=0 $DEBUGFAIL " \
         -initrd "$TESTDIR"/initramfs.testing
+
     if ! grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success "$TESTDIR"/marker.img; then
         echo "CLIENT TEST END: $* [FAIL]"
         return 1
     fi
-    rm -f -- "$TESTDIR"/marker.img
-    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1M count=40
 
     echo "CLIENT TEST END: $* [OK]"
     return 0
@@ -54,13 +58,6 @@ test_run() {
 }
 
 test_setup() {
-    # Create the blank file to use as a root filesystem
-    rm -f -- "$TESTDIR"/marker.img
-    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1M count=40
-    dd if=/dev/zero of="$TESTDIR"/disk1.img bs=1M count=35
-    dd if=/dev/zero of="$TESTDIR"/disk2.img bs=1M count=35
-    dd if=/dev/zero of="$TESTDIR"/disk3.img bs=1M count=35
-
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
@@ -108,7 +105,6 @@ test_setup() {
         inst_multiple sfdisk mke2fs poweroff cp umount dd grep sync
         inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
-        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 
     # create an initramfs that will create the target root filesystem.
@@ -120,12 +116,22 @@ test_setup() {
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
     rm -rf -- "$TESTDIR"/overlay
-    # Invoke KVM and/or QEMU to actually create the target filesystem.
+
+    # Create the blank files to use as a root filesystem
+    dd if=/dev/zero of="$TESTDIR"/raid-1.img bs=1MiB count=40
+    dd if=/dev/zero of="$TESTDIR"/raid-2.img bs=1MiB count=40
+    dd if=/dev/zero of="$TESTDIR"/raid-3.img bs=1MiB count=40
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-1.img raid1
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-2.img raid2
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-3.img raid3
+
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/marker.img \
-        -drive format=raw,index=1,media=disk,file="$TESTDIR"/disk1.img \
-        -drive format=raw,index=2,media=disk,file="$TESTDIR"/disk2.img \
-        -drive format=raw,index=3,media=disk,file="$TESTDIR"/disk3.img \
+        "${disk_args[@]}" \
         -append "root=/dev/fakeroot rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
 
@@ -144,12 +150,12 @@ test_setup() {
         inst_multiple poweroff shutdown dd
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
-        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
         inst ./cryptroot-ask.sh /sbin/cryptroot-ask
         mkdir -p "$initdir"/etc
         echo "ARRAY /dev/md0 level=raid5 num-devices=3 UUID=$MD_UUID" > "$initdir"/etc/mdadm.conf
         echo "luks-$ID_FS_UUID UUID=$ID_FS_UUID /etc/key" > "$initdir"/etc/crypttab
         echo -n test > "$initdir"/etc/key
+        chmod 0600 "$initdir"/etc/key
     )
 
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \

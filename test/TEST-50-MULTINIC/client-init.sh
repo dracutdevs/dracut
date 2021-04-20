@@ -27,7 +27,7 @@ done
 {
     echo "OK"
     echo "$IFACES"
-} | dd oflag=direct,dsync of=/dev/sda
+} | dd oflag=direct,dsync of=/dev/disk/by-id/ata-disk_marker
 
 getargbool 0 rd.shell && sh -i
 

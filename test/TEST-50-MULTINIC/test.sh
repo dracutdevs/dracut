@@ -21,8 +21,13 @@ run_server() {
     # Start server first
     echo "MULTINIC TEST SETUP: Starting DHCP/NFS server"
 
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/server.img root
+
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
+        "${disk_args[@]}" \
         -net socket,listen=127.0.0.1:12350 \
         -net nic,macaddr=52:54:01:12:34:56,model=e1000 \
         -serial "${SERIAL:-"file:$TESTDIR/server.log"}" \
@@ -59,13 +64,15 @@ client_test() {
 
     echo "CLIENT TEST START: $test_name"
 
-    # Need this so kvm-qemu will boot (needs non-/dev/zero local disk)
-    if ! dd if=/dev/zero of="$TESTDIR"/client.img bs=1M count=1; then
-        echo "Unable to make client sda image" 1>&2
-        return 1
-    fi
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
 
-    "$testdir"/run-qemu -drive format=raw,index=0,media=disk,file="$TESTDIR"/client.img \
+    # Invoke KVM and/or QEMU to actually create the target filesystem.
+    "$testdir"/run-qemu \
+        "${disk_args[@]}" \
         -net socket,connect=127.0.0.1:12350 \
         -net nic,macaddr=52:54:00:12:34:"$mac1",model=e1000 \
         -net nic,macaddr=52:54:00:12:34:"$mac2",model=e1000 \
@@ -76,12 +83,12 @@ client_test() {
         -device e1000,netdev=n2,mac=52:54:00:12:34:99 \
         -watchdog i6300esb -watchdog-action poweroff \
         -append "quiet rd.net.timeout.dhcp=3 panic=1 systemd.crash_reboot rd.shell=0 $cmdline $DEBUGFAIL rd.retry=5 ro console=ttyS0,115200n81 selinux=0 init=/sbin/init rd.debug systemd.log_target=console" \
-        -initrd "$TESTDIR"/initramfs.testing
+        -initrd "$TESTDIR"/initramfs.testing || return 1
 
     {
         read -r OK
         read -r IFACES
-    } < "$TESTDIR"/client.img
+    } < "$TESTDIR"/marker.img
 
     if [[ $OK != "OK" ]]; then
         echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
@@ -128,54 +135,51 @@ test_client() {
     client_test "MULTINIC root=nfs BOOTIF=" \
         00 01 02 \
         "root=nfs:192.168.50.1:/nfs/client BOOTIF=52-54-00-12-34-00" \
-        "ens2" || return 1
+        "enp0s1" || return 1
 
-    client_test "MULTINIC root=nfs BOOTIF= ip=ens4:dhcp" \
+    client_test "MULTINIC root=nfs BOOTIF= ip=enp0s3:dhcp" \
         00 01 02 \
-        "root=nfs:192.168.50.1:/nfs/client BOOTIF=52-54-00-12-34-00 ip=ens3:dhcp" \
-        "ens2 ens3" || return 1
+        "root=nfs:192.168.50.1:/nfs/client BOOTIF=52-54-00-12-34-00 ip=enp0s2:dhcp" \
+        "enp0s1 enp0s2" || return 1
 
     # PXE Style BOOTIF= with dhcp root-path
     client_test "MULTINIC root=dhcp BOOTIF=" \
         00 01 02 \
         "root=dhcp BOOTIF=52-54-00-12-34-02" \
-        "ens4" || return 1
+        "enp0s3" || return 1
 
     # Multinic case, where only one nic works
     client_test "MULTINIC root=nfs ip=dhcp" \
         FF 00 FE \
         "root=nfs:192.168.50.1:/nfs/client ip=dhcp" \
-        "ens3" || return 1
+        "enp0s2" || return 1
 
     # Require two interfaces
-    client_test "MULTINIC root=nfs ip=ens3:dhcp ip=ens4:dhcp bootdev=ens3" \
+    client_test "MULTINIC root=nfs ip=enp0s2:dhcp ip=enp0s3:dhcp bootdev=enp0s2" \
         00 01 02 \
-        "root=nfs:192.168.50.1:/nfs/client ip=ens3:dhcp ip=ens4:dhcp bootdev=ens3" \
-        "ens3 ens4" || return 1
+        "root=nfs:192.168.50.1:/nfs/client ip=enp0s2:dhcp ip=enp0s3:dhcp bootdev=enp0s2" \
+        "enp0s2 enp0s3" || return 1
 
     # Require three interfaces with dhcp root-path
-    client_test "MULTINIC root=dhcp ip=ens2:dhcp ip=ens3:dhcp ip=ens4:dhcp bootdev=ens4" \
+    client_test "MULTINIC root=dhcp ip=enp0s1:dhcp ip=enp0s2:dhcp ip=enp0s3:dhcp bootdev=enp0s3" \
         00 01 02 \
-        "root=dhcp ip=ens2:dhcp ip=ens3:dhcp ip=ens4:dhcp bootdev=ens4" \
-        "ens2 ens3 ens4" || return 1
+        "root=dhcp ip=enp0s1:dhcp ip=enp0s2:dhcp ip=enp0s3:dhcp bootdev=enp0s3" \
+        "enp0s1 enp0s2 enp0s3" || return 1
 
     client_test "MULTINIC bonding" \
         00 01 02 \
-        "root=nfs:192.168.50.1:/nfs/client ip=bond0:dhcp  bond=bond0:ens2,ens3,ens4:mode=balance-rr" \
+        "root=nfs:192.168.50.1:/nfs/client ip=bond0:dhcp  bond=bond0:enp0s1,enp0s2,enp0s3:mode=balance-rr" \
         "bond0" || return 1
 
     # bridge, where only one interface is actually connected
     client_test "MULTINIC bridging" \
         00 01 02 \
-        "root=nfs:192.168.50.1:/nfs/client ip=bridge0:dhcp  bridge=bridge0:ens2,ens6,ens7" \
+        "root=nfs:192.168.50.1:/nfs/client ip=bridge0:dhcp  bridge=bridge0:enp0s1,enp0s5,enp0s6" \
         "bridge0" || return 1
     return 0
 }
 
 test_setup() {
-    # Make server root
-    dd if=/dev/zero of="$TESTDIR"/server.ext3 bs=1M count=120
-
     kernel=$KVERSION
     (
         mkdir -p "$TESTDIR"/overlay/source
@@ -305,7 +309,6 @@ test_setup() {
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd
         inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
-        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 
     # create an initramfs that will create the target root filesystem.
@@ -317,14 +320,22 @@ test_setup() {
         --nomdadmconf \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
+    rm -fr "$TESTDIR"/overlay
+
+    dd if=/dev/zero of="$TESTDIR"/server.img bs=1MiB count=120
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/server.img root
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
+        "${disk_args[@]}" \
         -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/server.ext3 || return 1
-    rm -fr "$TESTDIR"/overlay
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
 
     # Make an overlay with needed tools for the test harness
     (
@@ -335,7 +346,6 @@ test_setup() {
         inst_multiple poweroff shutdown
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
-        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
         inst_simple ./99-default.link /etc/systemd/network/99-default.link
     )
 

@@ -21,7 +21,7 @@ else
         echo "**************************FAILED**************************"
 
     else
-        echo "dracut-root-block-success" | dd oflag=direct,dsync of=/dev/sdc
+        echo "dracut-root-block-success" | dd oflag=direct,dsync of=/dev/disk/by-id/ata-disk_marker
         echo "All OK"
     fi
 fi
@@ -33,11 +33,9 @@ export PS1='initramfs-test:\w\$ '
 stty sane
 echo "made it to the rootfs!"
 if getargbool 0 rd.shell; then
-    #	while sleep 1; do sleep 1;done
     strstr "$(setsid --help)" "control" && CTTY="-c"
     setsid $CTTY sh -i
 fi
-sync
-systemctl poweroff
 echo "Powering down."
+systemctl --no-block poweroff
 exit 0

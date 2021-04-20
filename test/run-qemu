@@ -18,7 +18,7 @@ export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 }
 
 # Provide rng device sourcing the hosts /dev/urandom and other standard parameters
-ARGS+=(-smp 2 -m 512 -nodefaults -vga none -display none -no-reboot -device virtio-rng-pci)
+ARGS+=(-M q35 -smp 2 -m 512 -nodefaults -vga none -display none -no-reboot -device virtio-rng-pci)
 
 if ! [[ $* == *-daemonize* ]] && ! [[ $* == *-daemonize* ]]; then
     ARGS+=(-serial stdio)

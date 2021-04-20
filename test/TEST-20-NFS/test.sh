@@ -23,8 +23,13 @@ KVERSION=${KVERSION-$(uname -r)}
 run_server() {
     # Start server first
     echo "NFS TEST SETUP: Starting DHCP/NFS server"
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/root.img root 1
+
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
+        "${disk_args[@]}" \
         -net socket,listen=127.0.0.1:12320 \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -serial "${SERIAL:-"file:$TESTDIR/server.log"}" \
@@ -59,13 +64,14 @@ client_test() {
     echo "CLIENT TEST START: $test_name"
 
     # Need this so kvm-qemu will boot (needs non-/dev/zero local disk)
-    if ! dd if=/dev/zero of="$TESTDIR"/client.img bs=1M count=1 &> /dev/null; then
-        echo "Unable to make client sda image" 1>&2
-        return 1
-    fi
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
 
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/client.img \
+        "${disk_args[@]}" \
         -net nic,macaddr="$mac",model=e1000 \
         -net socket,connect=127.0.0.1:12320 \
         -watchdog i6300esb -watchdog-action poweroff \
@@ -73,13 +79,13 @@ client_test() {
         -initrd "$TESTDIR"/initramfs.testing
 
     # shellcheck disable=SC2181
-    if [[ $? -ne 0 ]] || ! grep -U --binary-files=binary -F -m 1 -q nfs-OK "$TESTDIR"/client.img; then
+    if [[ $? -ne 0 ]] || ! grep -U --binary-files=binary -F -m 1 -q nfs-OK "$TESTDIR"/marker.img; then
         echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
         return 1
     fi
 
     # nfsinfo=( server:/path nfs{,4} options )
-    read -r -a nfsinfo < <(awk '{print $2, $3, $4; exit}' "$TESTDIR"/client.img)
+    read -r -a nfsinfo < <(awk '{print $2, $3, $4; exit}' "$TESTDIR"/marker.img)
 
     if [[ ${nfsinfo[0]%%:*} != "$server" ]]; then
         echo "CLIENT TEST INFO: got server: ${nfsinfo[0]%%:*}"
@@ -165,7 +171,7 @@ test_nfsv3() {
         52:54:00:12:34:05 "root=dhcp" 192.168.50.1 wsize=4096 || return 1
 
     client_test "NFSv3 Bridge Customized root=dhcp DHCP path,options" \
-        52:54:00:12:34:05 "root=dhcp bridge=foobr0:ens2" 192.168.50.1 wsize=4096 || return 1
+        52:54:00:12:34:05 "root=dhcp bridge=foobr0:enp0s1" 192.168.50.1 wsize=4096 || return 1
 
     client_test "NFSv3 root=dhcp DHCP IP:path,options" \
         52:54:00:12:34:06 "root=dhcp" 192.168.50.2 wsize=4096 || return 1
@@ -222,9 +228,6 @@ test_run() {
 }
 
 test_setup() {
-    # Make server root
-    dd if=/dev/zero of="$TESTDIR"/server.ext3 bs=1M count=120
-
     export kernel=$KVERSION
     export srcmods="/lib/modules/$kernel/"
     # Detect lib paths
@@ -358,7 +361,6 @@ test_setup() {
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd
         inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
-        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 
     # create an initramfs that will create the target root filesystem.
@@ -371,13 +373,21 @@ test_setup() {
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
     rm -rf -- "$TESTDIR"/server
-    # Invoke KVM and/or QEMU to actually create the target filesystem.
 
+    dd if=/dev/zero of="$TESTDIR"/root.img bs=1MiB count=80
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/root.img root
+
+    # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
+        "${disk_args[@]}" \
         -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/server.ext3 || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
 
     # Make an overlay with needed tools for the test harness
     (
@@ -389,7 +399,6 @@ test_setup() {
         inst_multiple poweroff shutdown
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
-        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
         inst_simple ./99-default.link /etc/systemd/network/99-default.link
     )
 

@@ -1,11 +1,14 @@
 #!/bin/sh
+: > /dev/watchdog
+
 . /lib/dracut-lib.sh
 
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 command -v plymouth > /dev/null 2>&1 && plymouth --quit
 exec > /dev/console 2>&1
 
-echo "dracut-root-block-success" | dd oflag=direct,dsync of=/dev/sda1
+echo "dracut-root-block-success" | dd oflag=direct,dsync of=/dev/disk/by-id/ata-disk_marker
+
 export TERM=linux
 export PS1='initramfs-test:\w\$ '
 [ -f /etc/mtab ] || ln -sfn /proc/mounts /etc/mtab
@@ -18,5 +21,4 @@ if getargbool 0 rd.shell; then
 fi
 echo "Powering down."
 mount -n -o remount,ro /
-sync
 poweroff -f

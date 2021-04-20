@@ -1,4 +1,4 @@
-#!/usr/bin/python -tt
+#!/usr/bin/python3 -tt
 #
 # livecd-creator : Creates Live CD based for Fedora.
 #

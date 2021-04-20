@@ -17,15 +17,20 @@ client_run() {
 
     echo "CLIENT TEST START: $test_name"
 
-    dd if=/dev/zero of="$TESTDIR"/result bs=1M count=1
-    "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/root.btrfs \
-        -drive format=raw,index=1,media=disk,file="$TESTDIR"/usr.btrfs \
-        -drive format=raw,index=2,media=disk,file="$TESTDIR"/result \
-        -append "panic=1 systemd.crash_reboot root=LABEL=dracut $client_opts rd.retry=3 console=ttyS0,115200n81 selinux=0 $DEBUGOUT rd.shell=0 $DEBUGFAIL" \
-        -initrd "$TESTDIR"/initramfs.testing
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/root.btrfs root
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/usr.btrfs usr
 
-    if ! grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success "$TESTDIR"/result; then
+    "$testdir"/run-qemu \
+        "${disk_args[@]}" \
+        -append "panic=1 systemd.crash_reboot root=LABEL=dracut $client_opts rd.retry=3 console=ttyS0,115200n81 selinux=0 $DEBUGOUT rd.shell=0 $DEBUGFAIL" \
+        -initrd "$TESTDIR"/initramfs.testing || return 1
+
+    if ! grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success "$TESTDIR"/marker.img; then
         echo "CLIENT TEST END: $test_name [FAILED]"
         return 1
     fi
@@ -41,11 +46,9 @@ test_run() {
 }
 
 test_setup() {
-    rm -f -- "$TESTDIR"/root.btrfs
-    rm -f -- "$TESTDIR"/usr.btrfs
-    # Create the blank file to use as a root filesystem
-    dd if=/dev/zero of="$TESTDIR"/root.btrfs bs=1M count=320
-    dd if=/dev/zero of="$TESTDIR"/usr.btrfs bs=1M count=320
+    # shellcheck disable=SC2064
+    trap "$(shopt -p nullglob globstar)" RETURN
+    shopt -q -s nullglob globstar
 
     export kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
@@ -69,7 +72,7 @@ test_setup() {
 
         inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
             mount dmesg mkdir cp ping dd \
-            umount strace less setsid tree systemctl reset sync
+            umount strace less setsid systemctl reset sync
 
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
@@ -81,9 +84,7 @@ test_setup() {
         inst /lib/systemd/system/systemd-remount-fs.service
         inst /lib/systemd/systemd-remount-fs
         inst /lib/systemd/system/systemd-journal-flush.service
-        inst /etc/sysconfig/init
         inst /lib/systemd/system/slices.target
-        inst /lib/systemd/system/system.slice
         inst_multiple -o /lib/systemd/system/dracut*
 
         inst_simple "${basedir}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh"
@@ -150,28 +151,26 @@ EOF
 
         # install basic tools needed
         inst_multiple sh bash setsid loadkeys setfont \
-            login sushell sulogin gzip sleep echo mount umount
+            login sulogin gzip sleep echo mount umount
         inst_multiple modprobe
 
         # install libnss_files for login
         inst_libdir_file "libnss_files*"
 
         # install dbus and pam
-        find \
-            /etc/dbus-1 \
-            /etc/pam.d \
-            /etc/security \
-            /lib64/security \
-            /lib/security -xtype f \
-            | while read -r file || [ -n "$file" ]; do
-                inst_multiple -o "$file"
-            done
+        inst_multiple -o \
+            /etc/dbus-1/** \
+            /etc/pam.d/** \
+            /etc/security/** \
+            /lib64/security/** \
+            /lib/security/**
 
         # install dbus socket and service file
-        inst /usr/lib/systemd/system/dbus.socket
-        inst /usr/lib/systemd/system/dbus.service
-        inst /usr/lib/systemd/system/dbus-broker.service
-        inst /usr/lib/systemd/system/dbus-daemon.service
+        inst_multiple -o \
+            /usr/lib/systemd/system/dbus.socket \
+            /usr/lib/systemd/system/dbus.service \
+            /usr/lib/systemd/system/dbus-broker.service \
+            /usr/lib/systemd/system/dbus-daemon.service
 
         (
             echo "FONT=eurlatgr"
@@ -240,7 +239,6 @@ EOF
         inst_multiple sfdisk mkfs.btrfs btrfs poweroff cp umount sync dd
         inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
-        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 
     # create an initramfs that will create the target root filesystem.
@@ -253,18 +251,26 @@ EOF
         --nohardlink \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
-
-    # Invoke KVM and/or QEMU to actually create the target filesystem.
     rm -rf -- "$TESTDIR"/overlay
 
-    dd if=/dev/zero of="$TESTDIR"/result bs=1M count=1
+    # Create the blank file to use as a root filesystem
+    dd if=/dev/zero of="$TESTDIR"/root.btrfs bs=1MiB count=160
+    dd if=/dev/zero of="$TESTDIR"/usr.btrfs bs=1MiB count=160
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/root.btrfs root
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/usr.btrfs usr
+
+    # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/root.btrfs \
-        -drive format=raw,index=1,media=disk,file="$TESTDIR"/usr.btrfs \
-        -drive format=raw,index=2,media=disk,file="$TESTDIR"/result \
+        "${disk_args[@]}" \
         -append "root=/dev/fakeroot rw rootfstype=btrfs quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
-    if ! grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/result; then
+
+    if ! grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img; then
         echo "Could not create root filesystem"
         return 1
     fi
@@ -277,7 +283,6 @@ EOF
         inst_multiple poweroff shutdown dd
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
-        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 
     [ -e /etc/machine-id ] && EXTRA_MACHINE="/etc/machine-id"

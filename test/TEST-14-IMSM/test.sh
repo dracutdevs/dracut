@@ -11,15 +11,18 @@ KVERSION=${KVERSION-$(uname -r)}
 client_run() {
     echo "CLIENT TEST START: $*"
 
-    rm -f -- "$TESTDIR"/marker.img
-    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1M count=1
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/disk-1.img disk1
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/disk-2.img disk2
 
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/marker.img \
-        -drive format=raw,index=1,media=disk,file="$TESTDIR"/disk1 \
-        -drive format=raw,index=2,media=disk,file="$TESTDIR"/disk2 \
+        "${disk_args[@]}" \
         -append "panic=1 systemd.crash_reboot $* root=LABEL=root rw debug rd.retry=5 rd.debug console=ttyS0,115200n81 selinux=0 rd.info rd.shell=0 $DEBUGFAIL" \
-        -initrd "$TESTDIR"/initramfs.testing
+        -initrd "$TESTDIR"/initramfs.testing || return 1
 
     if ! grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success "$TESTDIR"/marker.img; then
         echo "CLIENT TEST END: $* [FAIL]"
@@ -49,15 +52,6 @@ test_run() {
 }
 
 test_setup() {
-
-    # Create the blank file to use as a root filesystem
-    rm -f -- "$TESTDIR"/marker.img
-    rm -f -- "$TESTDIR"/disk1
-    rm -f -- "$TESTDIR"/disk2
-    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1M count=1
-    dd if=/dev/zero of="$TESTDIR"/disk1 bs=1M count=104
-    dd if=/dev/zero of="$TESTDIR"/disk2 bs=1M count=104
-
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
@@ -103,9 +97,8 @@ test_setup() {
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
-        inst_multiple sfdisk mke2fs poweroff cp umount grep dd sync
+        inst_multiple sfdisk mke2fs poweroff cp umount grep dd sync realpath
         inst_hook initqueue 01 ./create-root.sh
-        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 
     # create an initramfs that will create the target root filesystem.
@@ -117,11 +110,21 @@ test_setup() {
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
     rm -rf -- "$TESTDIR"/overlay
+
+    # Create the blank files to use as a root filesystem
+    dd if=/dev/zero of="$TESTDIR"/disk-1.img bs=1MiB count=100
+    dd if=/dev/zero of="$TESTDIR"/disk-2.img bs=1MiB count=100
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/disk-1.img disk1
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/disk-2.img disk2
+
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/marker.img \
-        -drive format=raw,index=1,media=disk,file="$TESTDIR"/disk1 \
-        -drive format=raw,index=2,media=disk,file="$TESTDIR"/disk2 \
+        "${disk_args[@]}" \
         -append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
     grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
@@ -141,7 +144,6 @@ test_setup() {
         inst_multiple poweroff shutdown
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
-        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -o "plymouth network kernel-network-modules" \

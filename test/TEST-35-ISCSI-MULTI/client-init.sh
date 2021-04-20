@@ -14,6 +14,7 @@ while read -r dev _ fstype opts rest || [ -n "$dev" ]; do
     echo "iscsi-OK $dev $fstype $opts" | dd oflag=direct,dsync of=/dev/disk/by-id/ata-disk_marker
     break
 done < /proc/mounts
+
 if getargbool 0 rd.shell; then
     strstr "$(setsid --help)" "control" && CTTY="-c"
     setsid $CTTY sh -i

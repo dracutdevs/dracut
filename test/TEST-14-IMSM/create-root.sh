@@ -12,11 +12,7 @@ udevadm control --reload
 udevadm settle
 
 # dmraid does not want symlinks in --disk "..."
-if [ -e /dev/hda ]; then
-    echo y | dmraid -f isw -C Test0 --type 1 --disk "/dev/hdb /dev/hdc"
-else
-    echo y | dmraid -f isw -C Test0 --type 1 --disk "/dev/sdb /dev/sdc"
-fi
+echo y | dmraid -f isw -C Test0 --type 1 --disk "$(realpath /dev/disk/by-id/ata-disk_disk1) $(realpath /dev/disk/by-id/ata-disk_disk2)"
 udevadm settle
 
 SETS=$(dmraid -c -s)
@@ -78,7 +74,7 @@ echo "MD_UUID=$MD_UUID"
 {
     echo "dracut-root-block-created"
     echo MD_UUID="$MD_UUID"
-} | dd oflag=direct,dsync of=/dev/sda
+} | dd oflag=direct,dsync of=/dev/disk/by-id/ata-disk_marker
 mdadm --wait-clean /dev/md0
 sync
 poweroff -f
