@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # This file is part of dracut.
 # SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -16,33 +16,29 @@ check() {
 # Module dependency requirements.
 depends() {
 
-    # This module has external dependency on the systemd module.
-    echo systemd
-    # Return 0 to include the dependent systemd module in the initramfs.
+    # Return 0 to include the dependent module(s) in the initramfs.
     return 0
 
 }
 
-# Install the required file(s) for the module in the initramfs.
+# Install the required file(s) and directories for the module in the initramfs.
 install() {
 
-    # Create systemd-modules-load related directories.
-    inst_dir "$modulesload"
-    inst_dir "$modulesloadconfdir"
-
-    # Install related files for systemd-modules-load
     inst_multiple -o \
+        "$modulesload/*.conf" \
+        "$systemdutildir"/systemd-modules-load \
         "$systemdsystemunitdir"/systemd-modules-load.service \
-        "$systemdutildir"/systemd-modules-load
+        "$systemdsystemunitdir"/sysinit.target.wants/systemd-modules-load.service
 
-    # Install local user configurations if host only is enabled..
+    # Enable systemd type unit(s)
+    $SYSTEMCTL -q --root "$initdir" enable systemd-modules-load.service
+
+    # Install the hosts local user configurations if enabled.
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
+            "$modulesloadconfdir/*.conf" \
             "$systemdsystemconfdir"/systemd-modules-load.service \
-            "$systemdsystemconfdir"/systemd-systemd-modules-load.d/*.conf
+            "$systemdsystemconfdir/systemd-modules-load.service.d/*.conf"
     fi
-
-    # Enable the systemd type service unit for systemd-modules-load.
-    $SYSTEMCTL -q --root "$initdir" enable systemd-modules-load.service
 
 }
