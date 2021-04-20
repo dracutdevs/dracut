@@ -23,16 +23,20 @@ run_server() {
     # Start server first
     echo "iSCSI TEST SETUP: Starting DHCP/iSCSI server"
 
+    declare -a disk_args=()
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/server.img serverroot 1
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/singleroot.img singleroot
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid0-1.img raid0-1
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid0-2.img raid0-2
+
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
-        -drive format=raw,index=1,media=disk,file="$TESTDIR"/root.ext3 \
-        -drive format=raw,index=2,media=disk,file="$TESTDIR"/iscsidisk2.img \
-        -drive format=raw,index=3,media=disk,file="$TESTDIR"/iscsidisk3.img \
+        "${disk_args[@]}" \
         -serial "${SERIAL:-"file:$TESTDIR/server.log"}" \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net nic,macaddr=52:54:00:12:34:57,model=e1000 \
         -net socket,listen=127.0.0.1:12330 \
-        -append "panic=1 quiet root=/dev/sda2 rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 $SERVER_DEBUG" \
+        -append "panic=1 quiet root=/dev/disk/by-id/ata-disk_serverroot rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 $SERVER_DEBUG" \
         -initrd "$TESTDIR"/initramfs.server \
         -pidfile "$TESTDIR"/server.pid -daemonize || return 1
     chmod 644 "$TESTDIR"/server.pid || return 1
@@ -41,15 +45,17 @@ run_server() {
     tty -s && stty sane
 
     if ! [[ $SERIAL ]]; then
-        echo "Waiting for the server to startup"
-        while ! grep -q Serving "$TESTDIR"/server.log; do
+        while :; do
+            grep Serving "$TESTDIR"/server.log && break
             echo "Waiting for the server to startup"
+            tail "$TESTDIR"/server.log
             sleep 1
         done
     else
         echo Sleeping 10 seconds to give the server a head start
         sleep 10
     fi
+
 }
 
 run_client() {
@@ -57,17 +63,22 @@ run_client() {
     shift
     echo "CLIENT TEST START: $test_name"
 
-    dd if=/dev/zero of="$TESTDIR"/client.img bs=1M count=1
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    declare -a disk_args=()
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
 
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/client.img \
+        "${disk_args[@]}" \
         -net nic,macaddr=52:54:00:12:34:00,model=e1000 \
         -net nic,macaddr=52:54:00:12:34:01,model=e1000 \
         -net socket,connect=127.0.0.1:12330 \
         -acpitable file=ibft.table \
         -append "panic=1 systemd.crash_reboot rw rd.auto rd.retry=50 console=ttyS0,115200n81 selinux=0 rd.debug=0 rd.shell=0 $DEBUGFAIL $*" \
         -initrd "$TESTDIR"/initramfs.testing
-    if ! grep -U --binary-files=binary -F -m 1 -q iscsi-OK "$TESTDIR"/client.img; then
+
+    # shellcheck disable=SC2181
+    if [[ $? -ne 0 ]] || ! grep -U --binary-files=binary -F -m 1 -q iscsi-OK "$TESTDIR"/marker.img; then
         echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
         return 1
     fi
@@ -80,13 +91,13 @@ do_test_run() {
     initiator=$(iscsi-iname)
 
     run_client "root=dhcp" \
-        "root=/dev/root netroot=dhcp ip=ens2:dhcp" \
+        "root=/dev/root netroot=dhcp ip=enp0s1:dhcp" \
         "rd.iscsi.initiator=$initiator" \
         || return 1
 
     run_client "netroot=iscsi target0" \
         "root=LABEL=singleroot netroot=iscsi:192.168.50.1::::iqn.2009-06.dracut:target0" \
-        "ip=192.168.50.101::192.168.50.1:255.255.255.0:iscsi-1:ens2:off" \
+        "ip=192.168.50.101::192.168.50.1:255.255.255.0:iscsi-1:enp0s1:off" \
         "rd.iscsi.initiator=$initiator" \
         || return 1
 
@@ -181,7 +192,6 @@ test_setup() {
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount setsid dd sync blockdev
         inst_hook initqueue 01 ./create-client-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
-        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 
     # create an initramfs that will create the target root filesystem.
@@ -194,22 +204,25 @@ test_setup() {
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
     rm -rf -- "$TESTDIR"/overlay
 
-    # Need this so kvm-qemu will boot (needs non-/dev/zero local disk)
-    if ! dd if=/dev/zero of="$TESTDIR"/client.img bs=1M count=1; then
-        echo "Unable to make client sdb image" 1>&2
-        return 1
-    fi
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    dd if=/dev/zero of="$TESTDIR"/singleroot.img bs=1MiB count=200
+    dd if=/dev/zero of="$TESTDIR"/raid0-1.img bs=1MiB count=100
+    dd if=/dev/zero of="$TESTDIR"/raid0-2.img bs=1MiB count=100
+
+    declare -a disk_args=()
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/singleroot.img singleroot
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid0-1.img raid0-1
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid0-2.img raid0-2
+
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/root.ext3 \
-        -drive format=raw,index=1,media=disk,file="$TESTDIR"/client.img \
-        -drive format=raw,index=2,media=disk,file="$TESTDIR"/iscsidisk2.img \
-        -drive format=raw,index=3,media=disk,file="$TESTDIR"/iscsidisk3.img \
+        "${disk_args[@]}" \
         -append "root=/dev/fakeroot rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/client.img || return 1
-    rm -- "$TESTDIR"/client.img
-    rm -rf -- "$TESTDIR"/overlay
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
+    rm -- "$TESTDIR"/marker.img
 
     # Make server root
     dd if=/dev/zero of="$TESTDIR"/server.ext3 bs=1M count=120
@@ -263,7 +276,6 @@ test_setup() {
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd
         inst_hook initqueue 01 ./create-server-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
-        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 
     # create an initramfs that will create the target root filesystem.
@@ -275,14 +287,23 @@ test_setup() {
         --nomdadmconf \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
+    rm -rf -- "$TESTDIR"/overlay
+
+    dd if=/dev/zero of="$TESTDIR"/server.img bs=1MiB count=60
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/server.img root
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
+        "${disk_args[@]}" \
         -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/server.ext3 || return 1
-    rm -rf -- "$TESTDIR"/overlay
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
+    rm -- "$TESTDIR"/marker.img
 
     # Make an overlay with needed tools for the test harness
     (
@@ -293,7 +314,6 @@ test_setup() {
         inst_multiple poweroff shutdown
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
-        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
         inst_simple ./99-default.link /etc/systemd/network/99-default.link
     )
 

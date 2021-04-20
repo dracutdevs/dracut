@@ -1,2 +1,2 @@
-LABEL=dracut	/                       btrfs   subvol=root      0 0
-LABEL=dracutusr /usr                    btrfs   subvol=usr,ro    0 0
+/dev/disk/by-id/ata-disk_root	/                       btrfs   defaults         0 0
+/dev/disk/by-id/ata-disk_usr	/usr                    btrfs   subvol=usr,ro    0 0

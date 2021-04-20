@@ -8,20 +8,24 @@ KVERSION=${KVERSION-$(uname -r)}
 #DEBUGFAIL="rd.shell rd.udev.log-priority=debug loglevel=70 systemd.log_target=kmsg"
 #DEBUGFAIL="rd.break rd.shell rd.debug debug"
 test_run() {
-    DISKIMAGE=$TESTDIR/TEST-10-RAID-root.img
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-1.img raid1
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-2.img raid2
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-3.img raid3
+
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$DISKIMAGE" \
+        "${disk_args[@]}" \
         -append "panic=1 systemd.crash_reboot root=/dev/dracut/root rd.auto rw rd.retry=10 console=ttyS0,115200n81 selinux=0 rd.shell=0 $DEBUGFAIL" \
-        -initrd "$TESTDIR"/initramfs.testing
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success "$DISKIMAGE" || return 1
+        -initrd "$TESTDIR"/initramfs.testing || return 1
+
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success "$TESTDIR"/marker.img
 }
 
 test_setup() {
-    DISKIMAGE=$TESTDIR/TEST-10-RAID-root.img
-    # Create the blank file to use as a root filesystem
-    rm -f -- "$DISKIMAGE"
-    dd if=/dev/zero of="$DISKIMAGE" bs=1M count=128
-
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
@@ -67,10 +71,9 @@ test_setup() {
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
-        inst_multiple sfdisk mke2fs poweroff cp umount dd sync
+        inst_multiple sfdisk mke2fs poweroff cp umount dd sync grep
         inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
-        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 
     # create an initramfs that will create the target root filesystem.
@@ -83,13 +86,26 @@ test_setup() {
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
     rm -rf -- "$TESTDIR"/overlay
-    # Invoke KVM and/or QEMU to actually create the target filesystem.
+
+    # Create the blank files to use as a root filesystem
+    dd if=/dev/zero of="$TESTDIR"/raid-1.img bs=1MiB count=40
+    dd if=/dev/zero of="$TESTDIR"/raid-2.img bs=1MiB count=40
+    dd if=/dev/zero of="$TESTDIR"/raid-3.img bs=1MiB count=40
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-1.img raid1
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-2.img raid2
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-3.img raid3
+
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$DISKIMAGE" \
+        "${disk_args[@]}" \
         -append "root=/dev/cannotreach rw rootfstype=ext2 console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$DISKIMAGE" || return 1
-    eval "$(grep -F -a -m 1 ID_FS_UUID "$DISKIMAGE")"
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
+    eval "$(grep -F -a -m 1 ID_FS_UUID "$TESTDIR"/marker.img)"
 
     (
         # shellcheck disable=SC2031
@@ -104,7 +120,6 @@ test_setup() {
         echo "testluks UUID=$ID_FS_UUID /etc/key" > "$initdir"/etc/crypttab
         #echo "luks-$ID_FS_UUID /dev/md0 none" > $initdir/etc/crypttab
         echo -n "test" > "$initdir"/etc/key
-        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \

@@ -35,15 +35,21 @@ run_server() {
     # Start server first
     echo "NBD TEST SETUP: Starting DHCP/NBD server"
 
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/unencrypted.img unencrypted
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/encrypted.img encrypted
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/server.img serverroot
+
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
-        -drive format=raw,index=1,media=disk,file="$TESTDIR"/nbd.ext3 \
-        -drive format=raw,index=2,media=disk,file="$TESTDIR"/encrypted.ext3 \
+        "${disk_args[@]}" \
+        -serial "${SERIAL:-"file:$TESTDIR/server.log"}" \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net socket,listen=127.0.0.1:12340 \
-        -serial "${SERIAL:-"file:$TESTDIR/server.log"}" \
-        -append "panic=1 systemd.crash_reboot root=/dev/sda rootfstype=ext3 rw quiet console=ttyS0,115200n81 selinux=0" \
-        -initrd "$TESTDIR"/initramfs.server -pidfile "$TESTDIR"/server.pid -daemonize || return 1
+        -append "panic=1 rd.luks=0 systemd.crash_reboot quiet root=/dev/disk/by-id/ata-disk_serverroot rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 $SERVER_DEBUG" \
+        -initrd "$TESTDIR"/initramfs.server \
+        -pidfile "$TESTDIR"/server.pid -daemonize || return 1
     chmod 644 "$TESTDIR"/server.pid || return 1
 
     # Cleanup the terminal if we have one
@@ -75,27 +81,26 @@ client_test() {
 
     echo "CLIENT TEST START: $test_name"
 
-    # Clear out the flags for each test
-    if ! dd if=/dev/zero of="$TESTDIR"/flag.img bs=1M count=1; then
-        echo "Unable to make client flag image" 1>&2
-        return 1
-    fi
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    declare -a disk_args=()
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
 
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/flag.img \
+        "${disk_args[@]}" \
         -net nic,macaddr="$mac",model=e1000 \
         -net socket,connect=127.0.0.1:12340 \
         -append "panic=1 systemd.crash_reboot rd.shell=0 $cmdline $DEBUGFAIL rd.auto rd.info rd.retry=10 ro console=ttyS0,115200n81  selinux=0  " \
         -initrd "$TESTDIR"/initramfs.testing
 
     # shellcheck disable=SC2181
-    if [[ $? -ne 0 ]] || ! grep -U --binary-files=binary -F -m 1 -q nbd-OK "$TESTDIR"/flag.img; then
+    if [[ $? -ne 0 ]] || ! grep -U --binary-files=binary -F -m 1 -q nbd-OK "$TESTDIR"/marker.img; then
         echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
         return 1
     fi
 
     # nbdinfo=( fstype fsoptions )
-    read -r -a nbdinfo < <(awk '{print $2, $3; exit}' "$TESTDIR"/flag.img)
+    read -r -a nbdinfo < <(awk '{print $2, $3; exit}' "$TESTDIR"/marker.img)
 
     if [[ ${nbdinfo[0]} != "$fstype" ]]; then
         echo "CLIENT TEST END: $test_name [FAILED - WRONG FS TYPE] \"${nbdinfo[0]}\" != \"$fstype\""
@@ -191,10 +196,6 @@ client_run() {
 }
 
 make_encrypted_root() {
-    # Create the blank file to use as a root filesystem
-    dd if=/dev/zero of="$TESTDIR"/encrypted.ext3 bs=1M count=80
-    dd if=/dev/zero of="$TESTDIR"/flag.img bs=1M count=1
-
     rm -fr "$TESTDIR"/overlay
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
@@ -214,11 +215,17 @@ make_encrypted_root() {
         )
 
         inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
-            mount dmesg mkdir cp ping dd
+            mount dmesg mkdir cp ping dd sync
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
         inst_multiple -o ${_terminfodir}/l/linux
+
+        inst_simple "${basedir}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh"
+        inst_binary "${basedir}/dracut-util" "/usr/bin/dracut-util"
+        ln -s dracut-util "${initdir}/usr/bin/dracut-getarg"
+        ln -s dracut-util "${initdir}/usr/bin/dracut-getargs"
+
         inst ./client-init.sh /sbin/init
         inst_simple /etc/os-release
         find_binary plymouth > /dev/null && inst_multiple plymouth
@@ -246,7 +253,6 @@ make_encrypted_root() {
         inst_hook emergency 000 ./hard-off.sh
         inst_hook initqueue 01 ./create-encrypted-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
-        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 
     # create an initramfs that will create the target root filesystem.
@@ -259,20 +265,24 @@ make_encrypted_root() {
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
     rm -rf -- "$TESTDIR"/overlay
 
+    dd if=/dev/zero of="$TESTDIR"/encrypted.img bs=1MiB count=120
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/encrypted.img root
+
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/encrypted.ext3 \
-        -drive format=raw,index=1,media=disk,file="$TESTDIR"/flag.img \
+        "${disk_args[@]}" \
         -append "root=/dev/fakeroot rw quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/flag.img || return 1
-    grep -F -a -m 1 ID_FS_UUID "$TESTDIR"/flag.img > "$TESTDIR"/luks.uuid
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
+    grep -F -a -m 1 ID_FS_UUID "$TESTDIR"/marker.img > "$TESTDIR"/luks.uuid
 }
 
 make_client_root() {
-    dd if=/dev/zero of="$TESTDIR"/nbd.ext3 bs=1M count=120
-    dd if=/dev/zero of="$TESTDIR"/flag.img bs=1M count=1
-
     rm -fr "$TESTDIR"/overlay
     kernel=$KVERSION
     (
@@ -292,11 +302,17 @@ make_client_root() {
             done
         )
         inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
-            dmesg mkdir cp ping dd
+            dmesg mkdir cp ping dd mount sync
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
         inst_multiple -o ${_terminfodir}/l/linux
+
+        inst_simple "${basedir}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh"
+        inst_binary "${basedir}/dracut-util" "/usr/bin/dracut-util"
+        ln -s dracut-util "${initdir}/usr/bin/dracut-getarg"
+        ln -s dracut-util "${initdir}/usr/bin/dracut-getargs"
+
         inst ./client-init.sh /sbin/init
         inst_simple /etc/os-release
         inst /etc/nsswitch.conf /etc/nsswitch.conf
@@ -320,7 +336,6 @@ make_client_root() {
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd
         inst_hook initqueue 01 ./create-client-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
-        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 
     # create an initramfs that will create the target root filesystem.
@@ -333,20 +348,24 @@ make_client_root() {
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
 
+    dd if=/dev/zero of="$TESTDIR"/unencrypted.img bs=1MiB count=120
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/unencrypted.img root
+
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/nbd.ext3 \
-        -drive format=raw,index=1,media=disk,file="$TESTDIR"/flag.img \
+        "${disk_args[@]}" \
         -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/flag.img || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
     rm -fr "$TESTDIR"/overlay
 }
 
 make_server_root() {
-    dd if=/dev/zero of="$TESTDIR"/server.ext3 bs=1M count=120
-    dd if=/dev/zero of="$TESTDIR"/flag.img bs=1M count=1
-
     rm -fr "$TESTDIR"/overlay
     export kernel=$KVERSION
     (
@@ -365,11 +384,11 @@ make_server_root() {
         cat > "$initdir/etc/nbd-server/config" << EOF
 [generic]
 [raw]
-exportname = /dev/sdb
+exportname = /dev/disk/by-id/ata-disk_unencrypted
 port = 2000
 bs = 4096
 [encrypted]
-exportname = /dev/sdc
+exportname = /dev/disk/by-id/ata-disk_encrypted
 port = 2001
 bs = 4096
 EOF
@@ -409,7 +428,6 @@ EOF
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd sync
         inst_hook initqueue 01 ./create-server-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
-        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
     )
 
     # create an initramfs that will create the target root filesystem.
@@ -422,13 +440,20 @@ EOF
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
 
+    dd if=/dev/zero of="$TESTDIR"/server.img bs=1MiB count=120
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/server.img root
+
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
-        -drive format=raw,index=0,media=disk,file="$TESTDIR"/server.ext3 \
-        -drive format=raw,index=1,media=disk,file="$TESTDIR"/flag.img \
+        "${disk_args[@]}" \
         -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/flag.img || return 1
+    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
     rm -fr "$TESTDIR"/overlay
 }
 
@@ -446,7 +471,6 @@ test_setup() {
         . "$basedir"/dracut-init.sh
         inst_multiple poweroff shutdown dd
         inst_hook shutdown-emergency 000 ./hard-off.sh
-        inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
         inst ./cryptroot-ask.sh /sbin/cryptroot-ask
 
         #        inst ./debug-shell.service /lib/systemd/system/debug-shell.service
@@ -461,8 +485,8 @@ test_setup() {
     )
 
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
-        -m "dash udev-rules rootfs-block fs-lib base debug kernel-modules" \
-        -d "af_packet piix ide-gd_mod ata_piix ext3 ext3 sd_mod e1000" \
+        -a "udev-rules base rootfs-block fs-lib debug kernel-modules" \
+        -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 drbg" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
 

@@ -30,7 +30,7 @@ run_server() {
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid0-1.img raid0-1
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid0-2.img raid0-2
 
-    "$testdir"/run-qemu -M q35 \
+    "$testdir"/run-qemu \
         "${disk_args[@]}" \
         -serial "${SERIAL:-"file:$TESTDIR/server.log"}" \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
@@ -67,7 +67,7 @@ run_client() {
     declare -i disk_index=0
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
 
-    "$testdir"/run-qemu -M q35 \
+    "$testdir"/run-qemu \
         "${disk_args[@]}" \
         -net nic,macaddr=52:54:00:12:34:00,model=e1000 \
         -net nic,macaddr=52:54:00:12:34:01,model=e1000 \
@@ -221,7 +221,7 @@ test_setup() {
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid0-2.img raid0-2
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
-    "$testdir"/run-qemu -M q35 \
+    "$testdir"/run-qemu \
         "${disk_args[@]}" \
         -append "root=/dev/fakeroot rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
@@ -290,9 +290,10 @@ test_setup() {
         --nomdadmconf \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
+    rm -rf -- "$TESTDIR"/overlay
 
-    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
     dd if=/dev/zero of="$TESTDIR"/server.img bs=1MiB count=60
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
     declare -a disk_args=()
     # shellcheck disable=SC2034
     declare -i disk_index=0
@@ -300,13 +301,12 @@ test_setup() {
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/server.img root
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
-    "$testdir"/run-qemu -M q35 \
+    "$testdir"/run-qemu \
         "${disk_args[@]}" \
         -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
     grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
     rm -- "$TESTDIR"/marker.img
-    rm -rf -- "$TESTDIR"/overlay
 
     # Make an overlay with needed tools for the test harness
     (
