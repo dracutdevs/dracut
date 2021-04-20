@@ -16,9 +16,7 @@ check() {
 # Module dependency requirements.
 depends() {
 
-    # This module has external dependency on the systemd module.
-    echo systemd
-    # Return 0 to include the dependent systemd module in the initramfs.
+    # Return 0 to include the dependent module(s) in the initramfs.
     return 0
 
 }
