@@ -36,7 +36,7 @@ install() {
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
             /etc/sysctl.conf \
-            "$sysctldconfdir"/*.conf \
+            "$sysctlconfdir"/*.conf \
             "$systemdsystemconfdir"/systemd-sysctl.service \
             "$systemdsystemconfdir"/systemd-sysctl.service.d/*.conf
     fi
