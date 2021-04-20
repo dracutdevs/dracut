@@ -1665,6 +1665,16 @@ fi
 
 [[ -d $dracutsysrootdir$systemdcatalog ]] || systemdcatalog=${systemdutildir}/catalog
 
+[[ -d $dracutsysrootdir$modulesload ]] \
+    || modulesload=$(pkg-config systemd --variable=modulesload 2> /dev/null)
+
+[[ -d $dracutsysrootdir$modulesload ]] || modulesload=/usr/lib/modules-load.d
+
+[[ -d $dracutsysrootdir$modulesloadconfdir ]] \
+    || modulesloadconfdir=$(pkg-config systemd --variable=modulesloadconfdir 2> /dev/null)
+
+[[ -d $dracutsysrootdir$modulesloadconfdir ]] || modulesloadconfdir=/etc/modules-load.d
+
 [[ -d $dracutsysrootdir$systemdnetwork ]] \
     || systemdnetwork=$(pkg-config systemd --variable=systemdnetwork 2> /dev/null)
 
@@ -1745,10 +1755,10 @@ export initdir dracutbasedir \
     dbus dbusconfdir dbusinterfaces dbusinterfacesconfdir \
     dbusservices dbusservicesconfdir dbussession dbussessionconfdir \
     dbussystem dbussystemconfdir dbussystemservices dbussystemservicesconfdir \
-    environment environmentconfdir sysctl sysctlconfdir sysusers sysusersconfdir \
-    systemdutildir systemdutilconfdir systemdcatalog systemdntpunits \
-    systemdntpunitsconfdir systemdsystemunitdir systemdsystemconfdir \
-    hostonly_cmdline loginstall \
+    environment environmentconfdir modulesload modulesloadconfdir sysctl \
+    sysctlconfdir sysusers sysusersconfdir systemdutildir systemdutilconfdir \
+    systemdcatalog systemdntpunits systemdntpunitsconfdir systemdsystemunitdir \
+    systemdsystemconfdir hostonly_cmdline loginstall \
     tmpfilesdir
 
 mods_to_load=""
