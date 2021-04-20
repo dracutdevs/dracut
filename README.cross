@@ -46,25 +46,3 @@ documented in the dracut(8) man page.
 For the Plymouth boot splash to be added to the initramfs image,
 this gitlab PR is needed for Plymouth:
 https://gitlab.freedesktop.org/plymouth/plymouth/merge_requests/72
-
-Extensions to be used with Yocto
-================================
-
-examples/yocto/classes/dracut.bbclass:
-  Bitbake class for running dracut during the "do_rootfs" stage of
-  creating a distribution image and from the postinstall script of
-  a package. A kernel recipe needs this line to activate it:
-
-  inherit dracut
-
-examples/yocto/postinst-intercepts/execute_dracut
-  The "intercept" script used during "do_rootfs" mentioned above.
-
-examples/yocto/recipes/cross-compiler-ldd_git.bb
-  Package recipe for the cross-compiler-ldd script from the above link.
-
-All the above three need to be added to a Yocto layer to their
-proper locations.
-
-They were tested on Yocto 2.7 with MACHINE="intel-core2-32" and
-MACHINE="genericx86-64".
