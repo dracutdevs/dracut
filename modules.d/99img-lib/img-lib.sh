@@ -13,7 +13,7 @@ det_archive() {
     xz="$(/bin/echo -e '\xfd7zXZ')"
     gz="$(/bin/echo -e '\x1f\x8b')"
     zs="$(/bin/echo -e '\x28\xB5\x2F\xFD')"
-    headerblock="$(dd ${1:+if=$1} bs=262 count=1 2> /dev/null)"
+    headerblock="$(dd ${1:+if=$1} bs=262 count=1 2> /dev/null | tr -d '\0')"
     case "$headerblock" in
         $xz*) echo "xz" ;;
         $gz*) echo "gzip" ;;
