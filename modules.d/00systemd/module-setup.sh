@@ -174,7 +174,9 @@ install() {
             /etc/systemd/journald.conf.d/*.conf \
             /etc/systemd/system.conf \
             /etc/systemd/system.conf.d/*.conf \
+            /etc/hosts \
             /etc/hostname \
+            /etc/nsswitch.conf \
             /etc/machine-id \
             /etc/machine-info \
             /etc/vconsole.conf \
