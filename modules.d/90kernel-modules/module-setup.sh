@@ -52,7 +52,8 @@ installkernel() {
             "=drivers/input/keyboard" \
             "=drivers/pci/host" \
             "=drivers/pci/controller" \
-            "=drivers/pinctrl"
+            "=drivers/pinctrl" \
+            "=drivers/watchdog"
 
         instmods \
             yenta_socket \
