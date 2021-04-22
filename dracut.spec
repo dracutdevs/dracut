@@ -316,6 +316,7 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %endif
 %{dracutlibdir}/modules.d/00bash
 %{dracutlibdir}/modules.d/00systemd
+%{dracutlibdir}/modules.d/00systemd-network-management
 %ifnarch s390 s390x
 %{dracutlibdir}/modules.d/00warpclock
 %endif
