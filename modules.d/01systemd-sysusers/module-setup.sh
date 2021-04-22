@@ -41,7 +41,7 @@ install() {
             "$sysusersconfdir"/basic.conf \
             "$sysusersconfdir"/systemd.conf \
             "$systemdsystemconfdir"/systemd-sysusers.service \
-            "$systemdsystemconfdir"/systemd-sysusers.service.d/*.conf
+            "$systemdsystemconfdir/systemd-sysusers.service.d/*.conf"
     fi
 
     # Enable the systemd type service unit for sysusers.

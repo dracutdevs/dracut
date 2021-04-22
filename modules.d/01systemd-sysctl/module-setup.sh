@@ -27,7 +27,7 @@ depends() {
 install() {
 
     inst_multiple -o \
-        "$sysctld"/*.conf \
+        "$sysctld/*.conf" \
         "$systemdsystemunitdir"/systemd-sysctl.service \
         "$systemdsystemunitdir"/sysinit.target.wants/systemd-sysctl.service \
         "$systemdutildir"/systemd-sysctl
@@ -36,9 +36,9 @@ install() {
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
             /etc/sysctl.conf \
-            "$sysctlconfdir"/*.conf \
+            "$sysctlconfdir/*.conf" \
             "$systemdsystemconfdir"/systemd-sysctl.service \
-            "$systemdsystemconfdir"/systemd-sysctl.service.d/*.conf
+            "$systemdsystemconfdir/systemd-sysctl.service.d/*.conf"
     fi
 
     # Enable the systemd type service unit for sysctl.

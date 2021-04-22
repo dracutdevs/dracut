@@ -5,7 +5,7 @@
 # Prerequisite check(s) for module.
 check() {
 
-    # If the binary(s) requirements are not fulfilled the module can't be installed
+    # If the binary(s) requirements are not fulfilled the module can't be installed.
     require_binaries systemd-repart || return 1
 
     # Return 255 to only include the module, if another module requires it.
@@ -25,7 +25,7 @@ depends() {
 install() {
 
     inst_multiple -o \
-        "$libdir"/repart.d/*.conf \
+        "$libdir/repart.d/*.conf" \
         "$systemdsystemunitdir"/systemd-repart.service \
         "$systemdsystemunitdir"/initrd-root-fs.target.wants/systemd-repart.service \
         systemd-repart
@@ -33,8 +33,8 @@ install() {
     # Install the hosts local user configurations if enabled.
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
-            /etc/repart.d/*.conf \
+            "/etc/repart.d/*.conf" \
             "$systemdsystemconfdir"/systemd-repart.service \
-            "$systemdsystemconfdir"/systemd-repart.service.d/*.conf
+            "$systemdsystemconfdir/systemd-repart.service.d/*.conf"
     fi
 }
