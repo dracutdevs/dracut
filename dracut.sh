@@ -1419,8 +1419,10 @@ for line in "${fstab_lines[@]}"; do
     esac
     [ -z "$dev" ] && dwarn "Bad fstab entry $*" && continue
     if [[ $3 == btrfs ]]; then
-        for i in $(btrfs_devs "$2"); do
-            push_host_devs "$i"
+        for mp in $(findmnt --source "$1" -o TARGET -n); do
+            for i in $(btrfs_devs "$mp"); do
+                push_host_devs "$i"
+            done
         done
     fi
     push_host_devs "$dev"
