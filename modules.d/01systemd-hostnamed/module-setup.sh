@@ -44,6 +44,6 @@ install() {
         inst_multiple -H -o \
             /etc/hostname \
             "$systemdsystemconfdir"/systemd-hostnamed.service \
-            "$systemdsystemconfdir"/systemd-hostnamed.service.d/*.conf"
+            "$systemdsystemconfdir"/systemd-hostnamed.service.d/*.conf
     fi
 }
