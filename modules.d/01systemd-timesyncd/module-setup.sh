@@ -6,8 +6,10 @@
 check() {
 
     # If the binary(s) requirements are not fulfilled the module can't be installed
-    require_binaries "$systemdutildir"/systemd-timesyncd || return 1
-    require_binaries "$systemdutildir"/systemd-time-wait-sync || return 1
+    require_binaries \
+        "$systemdutildir"/systemd-timesyncd \
+        "$systemdutildir"/systemd-time-wait-sync \
+        || return 1
 
     # Return 255 to only include the module, if another module requires it.
     return 255
