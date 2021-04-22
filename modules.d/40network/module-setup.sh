@@ -21,7 +21,7 @@ depends() {
             network_handler="network-wicked"
         elif [[ -x $dracutsysrootdir/usr/libexec/nm-initrd-generator ]]; then
             network_handler="network-manager"
-        elif [[ -x $dracutsysrootdir/usr/lib/systemd/systemd-networkd ]]; then
+        elif [[ -x $dracutsysrootdir$systemdutildir/systemd-networkd ]]; then
             network_handler="systemd-networkd"
         else
             network_handler="network-legacy"
