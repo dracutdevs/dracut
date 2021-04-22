@@ -2,6 +2,7 @@
 DefaultDependencies=no
 Wants=systemd-udev-settle.service
 After=systemd-udev-settle.service
+After=dracut-cmdline.service
 Before=network.target
 ConditionPathExists=/run/NetworkManager/initrd/neednet
 ConditionPathExistsGlob=|/usr/lib/NetworkManager/system-connections/*
