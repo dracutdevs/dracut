@@ -41,11 +41,11 @@ install() {
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
             "$systemdutilconfdir"/coredump.conf \
-            "$systemdsystemconfdir"/coredump.conf.d/*.conf \
+            "$systemdsystemconfdir/coredump.conf.d/*.conf" \
             "$systemdsystemconfdir"/systemd-coredump.socket \
-            "$systemdsystemconfdir"/systemd-coredump.socket.d/*.conf \
+            "$systemdsystemconfdir/systemd-coredump.socket.d/*.conf" \
             "$systemdsystemconfdir"/systemd-coredump@.service \
-            "$systemdsystemconfdir"/systemd-coredump@.service.d/*.conf \
+            "$systemdsystemconfdir/systemd-coredump@.service.d/*.conf" \
             "$systemdsystemconfdir"/sockets.target.wants/systemd-coredump.socket
     fi
 }
