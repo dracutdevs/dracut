@@ -6,8 +6,10 @@
 check() {
 
     # If the binary(s) requirements are not fulfilled the module can't be installed
-    require_binaries systemd-ask-password || return 1
-    require_binaries systemd-tty-ask-password-agent || return 1
+    require_binaries \
+        systemd-ask-password \
+        systemd-tty-ask-password-agent \
+        || return 1
 
     # Return 255 to only include the module, if another module requires it.
     return 255
