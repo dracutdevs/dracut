@@ -5,7 +5,7 @@
 # Prerequisite check(s) for module.
 check() {
 
-    # If the binary(s) requirements are not fulfilled the module can't be installed
+    # If the binary(s) requirements are not fulfilled the module can't be installed.
     require_binaries hostnamectl || return 1
     require_binaries "$systemdutildir"/systemd-hostnamed || return 1
 
@@ -44,6 +44,6 @@ install() {
         inst_multiple -H -o \
             /etc/hostname \
             "$systemdsystemconfdir"/systemd-hostnamed.service \
-            "$systemdsystemconfdir"/systemd-hostnamed.service.d/*.conf"
+            "$systemdsystemconfdir/systemd-hostnamed.service.d/*.conf"
     fi
 }
