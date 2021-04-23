@@ -4,8 +4,10 @@ Before=iscsi.service iscsid.service lvm2-activation-early.service
 Wants=systemd-udev-trigger.service systemd-udev-settle.service local-fs-pre.target
 After=systemd-udev-trigger.service systemd-udev-settle.service
 Before=local-fs-pre.target
+Before=initrd-cleanup.service
 DefaultDependencies=no
 Conflicts=shutdown.target
+Conflicts=initrd-cleanup.service
 ConditionKernelCommandLine=!nompath
 ConditionKernelCommandLine=!rd.multipath=0
 ConditionKernelCommandLine=!rd_NO_MULTIPATH
