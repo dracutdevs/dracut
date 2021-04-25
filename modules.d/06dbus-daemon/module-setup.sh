@@ -51,9 +51,30 @@ install() {
         "$dbusservicesconfdir"/org.freedesktop.systemd1.service \
         "$dbussystemservices"/org.freedesktop.systemd1.service \
         "$systemdsystemunitdir"/dbus.service \
+        "$systemdsystemunitdir"/dbus-daemon.service \
         "$systemdsystemunitdir"/dbus.socket \
+        "$systemdsystemunitdir"/dbus-daemon.socket \
         "$systemdsystemunitdir"/dbus.target.wants \
         busctl dbus-send dbus-daemon
+
+    local dbus_service=""
+    if [ -e "${initdir}${systemdsystemunitdir}/dbus-daemon.service" ]
+        then dbus_service="dbus-daemon.service"
+        else dbus_service="dbus.service"
+    fi
+    local dbus_socket=""
+    if [ -e "${initdir}${systemdsystemunitdir}/dbus-daemon.socket" ]
+        then dbus_socket="dbus-daemon.socket"
+        else dbus_socket="dbus.socket"
+    fi
+    if [ ! -e "${initdir}${systemdsystemunitdir}/${dbus_service}" ]; then
+        derror "dbus systemd service file not found!"
+        return 1
+    fi
+    if [ ! -e "${initdir}${systemdsystemunitdir}/${dbus_socket}" ]; then
+        derror "dbus systemd socket file not found!"
+        return 1
+    fi
 
     # Adjusting dependencies for initramfs in the dbus service unit.
     # shellcheck disable=SC1004
@@ -61,7 +82,7 @@ install() {
         '/^\[Unit\]/aDefaultDependencies=no\
         Conflicts=shutdown.target\
         Before=shutdown.target' \
-        "$initdir$systemdsystemunitdir/dbus.service"
+        "$initdir$systemdsystemunitdir/${dbus_service}"
 
     # Adjusting dependencies for initramfs in the dbus socket unit.
     # shellcheck disable=SC1004
@@ -70,7 +91,7 @@ install() {
         Conflicts=shutdown.target\
         Before=shutdown.target
         /^\[Socket\]/aRemoveOnStop=yes' \
-        "$initdir$systemdsystemunitdir/dbus.socket"
+        "$initdir$systemdsystemunitdir/${dbus_socket}"
 
     # Adding the user and group for dbus
     grep '^\(d\|message\)bus:' "$dracutsysrootdir"/etc/passwd >> "$initdir/etc/passwd"
@@ -80,10 +101,10 @@ install() {
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
             "$dbusconfdir"/system.conf \
-            "$systemdsystemconfdir"/dbus.socket \
-            "$systemdsystemconfdir"/dbus.socket.d/*.conf \
-            "$systemdsystemconfdir"/dbus.service \
-            "$systemdsystemconfdir"/dbus.service.d/*.conf
+            "${systemdsystemconfdir}/${dbus_socket}" \
+            "${systemdsystemconfdir}/${dbus_socket}.d/"*.conf \
+            "${systemdsystemconfdir}/${dbus_service}" \
+            "${systemdsystemconfdir}/${dbus_service}.d/"*.conf
     fi
 
     # We need to make sure that systemd-tmpfiles-setup.service->dbus.socket
