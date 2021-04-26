@@ -44,11 +44,14 @@ tgtadm --lld iscsi --mode target --op bind --tid 1 -I 192.168.50.101
 tgtadm --lld iscsi --mode target --op bind --tid 2 -I 192.168.51.101
 tgtadm --lld iscsi --mode target --op bind --tid 3 -I 192.168.50.101
 
+echo "Serving iSCSI"
+
 # Wait forever for the VM to die
-while :; do
-    echo "Serving iSCSI"
-    [ -n "$(jobs -rp)" ] && echo > /dev/watchdog
-    sleep 10
+while pidof tgtd > /dev/null; do
+    : > /dev/watchdog
+    dmesg -c
+    sleep 1
 done
+dmesg -c
 mount -n -o remount,ro /
 poweroff -f
