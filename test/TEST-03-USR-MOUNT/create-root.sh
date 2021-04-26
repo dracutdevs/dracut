@@ -11,7 +11,7 @@ udevadm control --reload
 set -e
 
 udevadm settle
-modprobe btrfs
+modprobe btrfs || :
 mkfs.btrfs -L dracut /dev/disk/by-id/ata-disk_root
 mkfs.btrfs -L dracutusr /dev/disk/by-id/ata-disk_usr
 btrfs device scan /dev/disk/by-id/ata-disk_root

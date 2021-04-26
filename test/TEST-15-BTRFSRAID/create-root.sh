@@ -6,7 +6,7 @@ trap 'poweroff -f' EXIT
 for x in 64-lvm.rules 70-mdadm.rules 99-mount-rules; do
     : > "/etc/udev/rules.d/$x"
 done
-modprobe btrfs
+modprobe btrfs || :
 udevadm control --reload
 udevadm settle
 
