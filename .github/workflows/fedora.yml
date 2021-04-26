@@ -16,7 +16,9 @@ jobs:
         strategy:
             matrix:
                 fedora: [
-                        "32", "33", "34", "latest"
+                        "33",
+                        "34",
+                        "latest"
                 ]
                 test: [
                         "01",
@@ -43,12 +45,12 @@ jobs:
             fail-fast: false
         container:
             image: quay.io/haraldh/dracut-fedora:${{ matrix.fedora }}
-            options: "-v /dev/kvm:/dev/kvm"
+            options: "--privileged -v /dev/kvm:/dev/kvm"
         steps:
             -   name: "Checkout Repository"
                 uses: actions/checkout@v2
                 with:
                     fetch-depth: 0
 
-            -   name: "F${{ matrix.fedora }} TEST-${{ matrix.test }} ${{ github.head_ref }}"
+            -   name: "Fedora-${{ matrix.fedora }} TEST-${{ matrix.test }}"
                 run: ./fedora-test-github.sh "TEST-${{ matrix.test }}" ${{ matrix.test }}
