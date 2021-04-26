@@ -248,7 +248,7 @@ test_setup() {
         inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
             dmesg mkdir cp ping \
             modprobe tcpdump setsid \
-            /etc/services sleep mount chmod
+            /etc/services sleep mount chmod pidof
         inst_multiple tgtd tgtadm
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
