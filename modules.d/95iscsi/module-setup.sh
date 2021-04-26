@@ -235,21 +235,14 @@ install() {
             $SYSTEMCTL -q --root "$initdir" enable "$i"
         done
 
-        for i in \
-            iscsid.service \
-            iscsiuio.service; do
-            $SYSTEMCTL -q --root "$initdir" add-wants basic.target "$i"
-        done
-
-        # Make sure iscsid is started after dracut-cmdline and ready for the initqueue
         mkdir -p "${initdir}/$systemdsystemunitdir/iscsid.service.d"
         (
             echo "[Unit]"
-            echo "After=dracut-cmdline.service"
-            echo "Before=dracut-initqueue.service"
+            echo "DefaultDependencies=no"
+            echo "Conflicts=shutdown.target"
+            echo "Before=shutdown.target"
         ) > "${initdir}/$systemdsystemunitdir/iscsid.service.d/dracut.conf"
 
-        # The iscsi deamon does not need to wait for any storage inside initrd
         mkdir -p "${initdir}/$systemdsystemunitdir/iscsid.socket.d"
         (
             echo "[Unit]"
@@ -257,6 +250,15 @@ install() {
             echo "Conflicts=shutdown.target"
             echo "Before=shutdown.target sockets.target"
         ) > "${initdir}/$systemdsystemunitdir/iscsid.socket.d/dracut.conf"
+
+        mkdir -p "${initdir}/$systemdsystemunitdir/iscsiuio.service.d"
+        (
+            echo "[Unit]"
+            echo "DefaultDependencies=no"
+            echo "Conflicts=shutdown.target"
+            echo "Before=shutdown.target"
+        ) > "${initdir}/$systemdsystemunitdir/iscsiuio.service.d/dracut.conf"
+
         mkdir -p "${initdir}/$systemdsystemunitdir/iscsiuio.socket.d"
         (
             echo "[Unit]"
