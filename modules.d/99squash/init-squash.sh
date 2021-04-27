@@ -8,10 +8,10 @@ mount -t sysfs -o nosuid,noexec,nodev sysfs /sys
 mount -t devtmpfs -o mode=755,noexec,nosuid,strictatime devtmpfs /dev
 mount -t tmpfs -o mode=755,nodev,nosuid,strictatime tmpfs /run
 
-# Load required modules
-modprobe loop
-modprobe squashfs
-modprobe overlay
+# load required modules if they are not already loaded
+[ -d /sys/module/loop ] || modprobe loop
+[ -d /sys/module/squashfs ] || modprobe squashfs
+[ -d /sys/module/overlay ] || modprobe overlay
 
 # Mount the squash image
 mount -t ramfs ramfs /squash
