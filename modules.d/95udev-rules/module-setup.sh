@@ -57,11 +57,6 @@ install() {
     # legacy persistent network device name rules
     [[ $hostonly ]] && inst_rules 70-persistent-net.rules
 
-    if dracut_module_included "systemd"; then
-        inst_multiple -o "${systemdutildir}/network/*.link"
-        [[ $hostonly ]] && inst_multiple -H -o "/etc/systemd/network/*.link"
-    fi
-
     {
         for i in cdrom tape dialout floppy; do
             if ! grep -q "^$i:" "$initdir"/etc/group 2> /dev/null; then

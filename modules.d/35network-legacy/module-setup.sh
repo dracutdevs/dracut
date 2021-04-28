@@ -21,6 +21,13 @@ installkernel() {
 # called by dracut
 install() {
     local _arch
+
+    #Adding default link
+    if dracut_module_included "systemd"; then
+        inst_multiple -o "${systemdutildir}/network/99-default.link"
+        [[ $hostonly ]] && inst_multiple -H -o "${systemdsystemconfdir}/network/*.link"
+    fi
+
     inst_multiple ip dhclient sed awk grep pgrep tr
 
     inst_multiple -o arping arping2
