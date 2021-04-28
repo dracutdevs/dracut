@@ -335,6 +335,7 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %{dracutlibdir}/modules.d/01systemd-sysusers
 %{dracutlibdir}/modules.d/01systemd-timedated
 %{dracutlibdir}/modules.d/01systemd-timesyncd
+%{dracutlibdir}/modules.d/01systemd-udevd
 %{dracutlibdir}/modules.d/01systemd-veritysetup
 %{dracutlibdir}/modules.d/03modsign
 %{dracutlibdir}/modules.d/03rescue
