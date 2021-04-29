@@ -1642,6 +1642,21 @@ if ! [[ -d $dracutsysrootdir$udevdir ]]; then
     [[ -e $dracutsysrootdir/usr/lib/udev/ata_id ]] && udevdir=/usr/lib/udev
 fi
 
+[[ -d $dracutsysrootdir$udevconfdir ]] \
+    || udevconfdir=$(pkg-config udev --variable=udevconfdir 2> /dev/null)
+
+[[ -d $dracutsysrootdir$udevconfdir ]] || udevconfdir=/etc/udev
+
+[[ -d $dracutsysrootdir$udevrulesdir ]] \
+    || udevrulesdir=$(pkg-config udev --variable=udevrulesdir 2> /dev/null)
+
+[[ -d $dracutsysrootdir$udevrulesdir ]] || udevrulesdir=${udevdir}/rules.d
+
+[[ -d $dracutsysrootdir$udevrulesconfdir ]] \
+    || udevrulesconfdir=$(pkg-config udev --variable=udevrulesconfdir 2> /dev/null)
+
+[[ -d $dracutsysrootdir$udevrulesconfdir ]] || udevrulesconfdir=${udevconfdir}/rules.d
+
 [[ -d $dracutsysrootdir$sysctld ]] \
     || sysctld=$(pkg-config systemd --variable=sysctld 2> /dev/null)
 
@@ -1753,15 +1768,15 @@ export initdir dracutbasedir \
     use_fstab fstab_lines libdirs fscks nofscks ro_mnt \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
     debug host_fs_types host_devs swap_devs sshkey add_fstab \
-    DRACUT_VERSION udevdir prefix filesystems drivers \
-    dbus dbusconfdir dbusinterfaces dbusinterfacesconfdir \
-    dbusservices dbusservicesconfdir dbussession dbussessionconfdir \
-    dbussystem dbussystemconfdir dbussystemservices dbussystemservicesconfdir \
-    environment environmentconfdir modulesload modulesloadconfdir sysctl \
-    sysctlconfdir sysusers sysusersconfdir systemdutildir systemdutilconfdir \
-    systemdcatalog systemdntpunits systemdntpunitsconfdir systemdsystemunitdir \
-    systemdsystemconfdir hostonly_cmdline loginstall \
-    tmpfilesdir
+    DRACUT_VERSION udevdir udevconfdir udevrulesdir udevrulesconfdir \
+    prefix filesystems drivers dbus dbusconfdir dbusinterfaces \
+    dbusinterfacesconfdir dbusservices dbusservicesconfdir dbussession \
+    dbussessionconfdir dbussystem dbussystemconfdir dbussystemservices \
+    dbussystemservicesconfdir environment environmentconfdir modulesload \
+    modulesloadconfdir sysctl sysctlconfdir sysusers sysusersconfdir \
+    systemdutildir systemdutilconfdir systemdcatalog systemdntpunits \
+    systemdntpunitsconfdir systemdsystemunitdir systemdsystemconfdir \
+    hostonly_cmdline loginstall tmpfilesdir
 
 mods_to_load=""
 # check all our modules to see if they should be sourced.
