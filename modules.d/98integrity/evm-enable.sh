@@ -11,6 +11,15 @@ EVMCONFIG="${NEWROOT}/etc/sysconfig/evm"
 EVMKEYDESC="evm-key"
 EVMKEYTYPE="encrypted"
 EVMKEYID=""
+EVM_ACTIVATION_BITS=0
+
+# The following variables can be set in /etc/sysconfig/evm:
+# EVMKEY: path to the symmetric key; defaults to /etc/keys/evm-trusted.blob
+# EVMKEYDESC: Description of the symmetric key; default is 'evm-key'
+# EVMKEYTYPE: Type of the symmetric key; default is 'encrypted'
+# EMX509: path to x509 cert; default is /etc/keys/x509_evm.der
+# EVM_ACTIVATION_BITS: additional EVM activation bits, such as
+#                      EVM_SETUP_COMPLETE; default is 0
 
 load_evm_key() {
     # read the configuration from the config file
@@ -121,25 +130,35 @@ enable_evm() {
         return 0
     fi
 
-    local evm_configured
+    local evm_configured=0
+    local EVM_INIT_HMAC=1 EVM_INIT_X509=2 EVM_ALLOW_METADATA_WRITES=4
 
     # try to load the EVM encrypted key
-    load_evm_key && evm_configured=1
+    load_evm_key && evm_configured=${EVM_INIT_HMAC}
 
     # try to load the EVM public key
-    load_evm_x509 && evm_configured=1
+    load_evm_x509 && evm_configured=$((evm_configured | EVM_INIT_X509))
 
     # only enable EVM if a key or x509 certificate could be loaded
-    if [ -z "$evm_configured" ]; then
+    if [ $evm_configured -eq 0 ]; then
         return 1
     fi
 
     # initialize EVM
     info "Enabling EVM"
-    echo 1 > "${EVMSECFILE}"
+    if [ "$((evm_configured & EVM_INIT_X509))" -ne 0 ]; then
+      # Older kernels did not support EVM_ALLOW_METADATA_WRITES, try for
+      # newer ones first that need it when an x509 is used
+      echo $((evm_configured | EVM_ALLOW_METADATA_WRITES | EVM_ACTIVATION_BITS)) > "${EVMSECFILE}" ||
+        echo $((evm_configured | EVM_ACTIVATION_BITS)) > "${EVMSECFILE}"
+    else
+      echo $((evm_configured | EVM_ACTIVATION_BITS)) > "${EVMSECFILE}"
+    fi
 
-    # unload the EVM encrypted key
-    unload_evm_key || return 1
+    if [ "$((evm_configured & EVM_INIT_HMAC))" -ne 0 ]; then
+      # unload the EVM encrypted key
+      unload_evm_key || return 1
+    fi
 
     return 0
 }
