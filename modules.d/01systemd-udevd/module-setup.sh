@@ -30,35 +30,35 @@ depends() {
 install() {
 
     inst_multiple -o \
-        /usr/lib/udev/hwdb.bin \
-        /usr/lib/udev/udev.conf \
-        /usr/lib/udev/rules.d/50-udev-default.rules \
-        /usr/lib/udev/rules.d/60-autosuspend.rules \
-        /usr/lib/udev/rules.d/60-block.rules \
-        /usr/lib/udev/rules.d/60-cdrom_id.rules \
-        /usr/lib/udev/rules.d/60-drm.rules \
-        /usr/lib/udev/rules.d/60-evdev.rules \
-        /usr/lib/udev/rules.d/60-fido-id.rules \
-        /usr/lib/udev/rules.d/60-input-id.rules \
-        /usr/lib/udev/rules.d/60-persistent-alsa.rules \
-        /usr/lib/udev/rules.d/60-persistent-input.rules \
-        /usr/lib/udev/rules.d/60-persistent-storage-tape.rules \
-        /usr/lib/udev/rules.d/60-persistent-storage.rules \
-        /usr/lib/udev/rules.d/60-persistent-v4l.rules \
-        /usr/lib/udev/rules.d/60-sensor.rules \
-        /usr/lib/udev/rules.d/60-serial.rules \
-        /usr/lib/udev/rules.d/64-btrfs.rules \
-        /usr/lib/udev/rules.d/70-joystick.rules \
-        /usr/lib/udev/rules.d/70-memory.rules \
-        /usr/lib/udev/rules.d/70-mouse.rules \
-        /usr/lib/udev/rules.d/70-touchpad.rules \
-        /usr/lib/udev/rules.d/75-net-description.rules \
-        /usr/lib/udev/rules.d/75-probe_mtd.rules \
-        /usr/lib/udev/rules.d/78-sound-card.rules \
-        /usr/lib/udev/rules.d/80-drivers.rules \
-        /usr/lib/udev/rules.d/80-net-setup-link.rules \
-        /usr/lib/udev/rules.d/81-net-dhcp.rules \
-        /usr/lib/udev/rules.d/99-systemd.rules \
+        "$udevdir"/hwdb.bin \
+        "$udevdir"/udev.conf \
+        "$udevrulesdir"/50-udev-default.rules \
+        "$udevrulesdir"/60-autosuspend.rules \
+        "$udevrulesdir"/60-block.rules \
+        "$udevrulesdir"/60-cdrom_id.rules \
+        "$udevrulesdir"/60-drm.rules \
+        "$udevrulesdir"/60-evdev.rules \
+        "$udevrulesdir"/60-fido-id.rules \
+        "$udevrulesdir"/60-input-id.rules \
+        "$udevrulesdir"/60-persistent-alsa.rules \
+        "$udevrulesdir"/60-persistent-input.rules \
+        "$udevrulesdir"/60-persistent-storage-tape.rules \
+        "$udevrulesdir"/60-persistent-storage.rules \
+        "$udevrulesdir"/60-persistent-v4l.rules \
+        "$udevrulesdir"/60-sensor.rules \
+        "$udevrulesdir"/60-serial.rules \
+        "$udevrulesdir"/64-btrfs.rules \
+        "$udevrulesdir"/70-joystick.rules \
+        "$udevrulesdir"/70-memory.rules \
+        "$udevrulesdir"/70-mouse.rules \
+        "$udevrulesdir"/70-touchpad.rules \
+        "$udevrulesdir"/75-net-description.rules \
+        "$udevrulesdir"/75-probe_mtd.rules \
+        "$udevrulesdir"/78-sound-card.rules \
+        "$udevrulesdir"/80-drivers.rules \
+        "$udevrulesdir"/80-net-setup-link.rules \
+        "$udevrulesdir"/81-net-dhcp.rules \
+        "$udevrulesdir"/99-systemd.rules \
         "$systemdutildir"/systemd-udevd \
         "$systemdsystemunitdir"/systemd-udevd.service \
         "$systemdsystemunitdir/systemd-udevd.service.d/*.conf" \
@@ -77,9 +77,9 @@ install() {
     # Install the hosts local user configurations if enabled.
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
-            /etc/udev/hwdb.bin \
-            /etc/udev/udev.conf \
-            "/etc/udev/rules.d/*.rules" \
+            "$udevconfdir"/hwdb.bin \
+            "$udevconfdir"/udev.conf \
+            "$udevrulesconfdir/*.rules" \
             "$systemdutilconfdir"/hwdb/hwdb.bin \
             "$systemdsystemconfdir"/systemd-udevd.service \
             "$systemdsystemconfdir/systemd-udevd.service.d/*.conf" \
