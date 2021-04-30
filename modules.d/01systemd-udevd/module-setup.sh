@@ -32,6 +32,14 @@ install() {
     inst_multiple -o \
         "$udevdir"/hwdb.bin \
         "$udevdir"/udev.conf \
+        "$udevdir"/ata_id \
+        "$udevdir"/cdrom_id \
+        "$udevdir"/dmi_memory_id \
+        "$udevdir"/fido_id \
+        "$udevdir"/mtd_probe \
+        "$udevdir"/mtp-probe \
+        "$udevdir"/scsi_id \
+        "$udevdir"/v4l_id \
         "$udevrulesdir"/50-udev-default.rules \
         "$udevrulesdir"/60-autosuspend.rules \
         "$udevrulesdir"/60-block.rules \
