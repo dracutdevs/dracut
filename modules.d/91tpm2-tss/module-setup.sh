@@ -5,6 +5,9 @@
 # Prerequisite check(s) for module.
 check() {
 
+    # If the binary(s) requirements are not fulfilled the module can't be installed.
+    require_binaries tpm2 || return 1
+
     # Return 255 to only include the module, if another module requires it.
     return 255
 
@@ -51,13 +54,5 @@ install() {
         {"tls/$_arch/",tls/,"$_arch/",}"libcryptsetup.so.*" \
         {"tls/$_arch/",tls/,"$_arch/",}"libcurl.so.*" \
         {"tls/$_arch/",tls/,"$_arch/",}"libjson-c.so.*"
-
-    # Install the hosts local user configurations if enabled.
-    if [[ $hostonly ]]; then
-        inst_multiple -H -o \
-            "$udevrulesdir"/60-tpm-udev.rules \
-            /etc/tpm2-tss/fapi-config.json \
-            "/etc/tpm2-tss/fapi-profiles/*.json"
-    fi
 
 }
