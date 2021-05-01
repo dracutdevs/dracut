@@ -9,12 +9,23 @@ check() {
 depends() {
     is_qemu_virtualized && echo -n "qemu-net "
 
-    for module in network-wicked network-manager network-legacy systemd-networkd; do
-        if dracut_module_included "$module"; then
-            network_handler="$module"
-            break
-        fi
-    done
+    preferred_network_handler="${preferred_network_handler:-none}"
+    case "$preferred_network_handler" in
+		none )
+			for module in network-wicked network-manager network-legacy systemd-networkd; do
+				if dracut_module_included "$module"; then
+					network_handler="$module"
+					break
+				fi
+			done
+		;;
+		network-wicked | network-manager | network-legacy | systemd-networkd )
+			network_handler="$preferred_network_handler"
+		;;
+		* )
+			dwarn "Preferred network module $preferred_network_handler is not known, ignoring."
+		;;
+    esac
 
     if [ -z "$network_handler" ]; then
         if [[ -x $dracutsysrootdir$systemdsystemunitdir/wicked.service ]]; then
