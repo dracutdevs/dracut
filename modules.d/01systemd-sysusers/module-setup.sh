@@ -1,12 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 # This file is part of dracut.
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 # Prerequisite check(s) for module.
 check() {
 
-    # If the binary(s) requirements are not fulfilled
-    # return 1 to not include the binary.
+    # If the binary(s) requirements are not fulfilled the module can't be installed.
     require_binaries systemd-sysusers || return 1
 
     # Return 255 to only include the module, if another module requires it.
@@ -22,17 +21,14 @@ depends() {
 
 }
 
-# Install the required file(s) for the module in the initramfs.
+# Install the required file(s) and directories for the module in the initramfs.
 install() {
 
-    # Install the system users and groups configuration file.
-    # Install the systemd users and groups configuration file.
-    # Install the systemd type service unit for sysusers.
-    # Install the binary executable(s) for sysusers.
     inst_multiple -o \
         "$sysusers"/basic.conf \
         "$sysusers"/systemd.conf \
         "$systemdsystemunitdir"/systemd-sysusers.service \
+        "$systemdsystemunitdir"/sysinit.target.wants/systemd-sysusers.service \
         systemd-sysusers
 
     # Install the hosts local user configurations if enabled.
@@ -43,8 +39,5 @@ install() {
             "$systemdsystemconfdir"/systemd-sysusers.service \
             "$systemdsystemconfdir/systemd-sysusers.service.d/*.conf"
     fi
-
-    # Enable the systemd type service unit for sysusers.
-    $SYSTEMCTL -q --root "$initdir" enable systemd-sysusers.service
 
 }
