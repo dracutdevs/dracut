@@ -45,14 +45,6 @@ install() {
     # Enable systemd type unit(s)
     $SYSTEMCTL -q --root "$initdir" enable systemd-resolved.service
 
-    # Install library file(s)
-    _arch=${DRACUT_ARCH:-$(uname -m)}
-    inst_libdir_file \
-        {"tls/$_arch/",tls/,"$_arch/",}"libnss_dns.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libnss_mdns4_minimal.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libnss_myhostname.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libnss_resolve.so.*"
-
     # Install the hosts local user configurations if enabled.
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
