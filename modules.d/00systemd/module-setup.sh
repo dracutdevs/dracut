@@ -245,4 +245,10 @@ install() {
     } >> "$initdir/etc/systemd/journald.conf"
 
     $SYSTEMCTL -q --root "$initdir" set-default multi-user.target
+
+    # Install library file(s)
+    _arch=${DRACUT_ARCH:-$(uname -m)}
+    inst_libdir_file \
+        {"tls/$_arch/",tls/,"$_arch/",}"libnss_*"
+
 }
