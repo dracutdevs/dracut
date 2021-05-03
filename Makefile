@@ -50,7 +50,7 @@ manpages = $(man1pages) $(man5pages) $(man7pages) $(man8pages)
 
 .PHONY: install clean archive rpm srpm testimage test all check AUTHORS CONTRIBUTORS doc dracut-version.sh
 
-all: dracut-version.sh dracut.pc dracut-install skipcpio/skipcpio dracut-util
+all: dracut-version.sh dracut.pc dracut-install src/skipcpio/skipcpio dracut-util
 
 %.o : %.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(KMOD_CFLAGS) $< -o $@
@@ -74,21 +74,21 @@ install/strv.o: install/strv.c install/strv.h install/util.h install/macro.h ins
 install/dracut-install: $(DRACUT_INSTALL_OBJECTS)
 	$(CC) $(LDFLAGS) -o $@ $(DRACUT_INSTALL_OBJECTS) $(LDLIBS) $(FTS_LIBS) $(KMOD_LIBS)
 
-logtee: logtee.c
+logtee: src/logtee/logtee.c
 	$(CC) $(LDFLAGS) -o $@ $<
 
 dracut-install: install/dracut-install
 	ln -fs $< $@
 
-SKIPCPIO_OBJECTS = skipcpio/skipcpio.o
-skipcpio/skipcpio.o: skipcpio/skipcpio.c
+SKIPCPIO_OBJECTS = src/skipcpio/skipcpio.o
+skipcpio/skipcpio.o: src/skipcpio/skipcpio.c
 skipcpio/skipcpio: $(SKIPCPIO_OBJECTS)
 
-UTIL_OBJECTS = util/util.o
-util/util.o: util/util.c
+UTIL_OBJECTS = src/util/util.o
+util/util.o: src/util/util.c
 util/util: $(UTIL_OBJECTS)
 
-dracut-util: util/util
+dracut-util: src/util/util
 	cp -a $< $@
 
 .PHONY: indent-c
@@ -189,8 +189,8 @@ endif
 	if [ -f install/dracut-install ]; then \
 		install -m 0755 install/dracut-install $(DESTDIR)$(pkglibdir)/dracut-install; \
 	fi
-	if [ -f skipcpio/skipcpio ]; then \
-		install -m 0755 skipcpio/skipcpio $(DESTDIR)$(pkglibdir)/skipcpio; \
+	if [ -f src/skipcpio/skipcpio ]; then \
+		install -m 0755 src/skipcpio/skipcpio $(DESTDIR)$(pkglibdir)/skipcpio; \
 	fi
 	if [ -f dracut-util ]; then \
 		install -m 0755 dracut-util $(DESTDIR)$(pkglibdir)/dracut-util; \
