@@ -53,4 +53,4 @@ jobs:
                     fetch-depth: 0
 
             -   name: "Fedora-${{ matrix.fedora }} TEST-${{ matrix.test }}"
-                run: ./fedora-test-github.sh "TEST-${{ matrix.test }}" ${{ matrix.test }}
+                run: ./tools/fedora-test-github.sh "TEST-${{ matrix.test }}" ${{ matrix.test }}
