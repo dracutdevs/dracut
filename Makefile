@@ -27,16 +27,16 @@ CFLAGS ?= -O2 -g -Wall -std=gnu99 -D_FILE_OFFSET_BITS=64 -Wformat -Werror=format
 bashcompletiondir ?= ${datadir}/bash-completion/completions
 pkgconfigdatadir ?= $(datadir)/pkgconfig
 
-man1pages = lsinitrd.1
+man1pages = man/lsinitrd.1
 
-man5pages = dracut.conf.5
+man5pages = man/dracut.conf.5
 
-man7pages = dracut.cmdline.7 \
-            dracut.bootup.7 \
-            dracut.modules.7
+man7pages = man/dracut.cmdline.7 \
+            man/dracut.bootup.7 \
+            man/dracut.modules.7
 
-man8pages = dracut.8 \
-            dracut-catimages.8 \
+man8pages = man/dracut.8 \
+            man/dracut-catimages.8 \
             modules.d/98dracut-systemd/dracut-cmdline.service.8 \
             modules.d/98dracut-systemd/dracut-initqueue.service.8 \
             modules.d/98dracut-systemd/dracut-mount.service.8 \
@@ -115,14 +115,15 @@ endif
 	@rm -f -- "$@"
 	asciidoc -a "version=$(DRACUT_FULL_VERSION)" -d manpage -b docbook -o "$@" $<
 
-dracut.8: dracut.usage.asc dracut.8.asc
+dracut.8: man/dracut.8.asc \
+	man/dracut.usage.asc
 
-dracut.html: dracut.asc $(manpages) dracut.css dracut.usage.asc
+dracut.html: man/dracut.asc $(manpages) dracut.css man/dracut.usage.asc
 	@rm -f -- dracut.xml
 	asciidoc -a "mainversion=$(DRACUT_MAIN_VERSION)" \
 		-a "version=$(DRACUT_FULL_VERSION)" \
 		-a numbered \
-		-d book -b docbook -o dracut.xml dracut.asc
+		-d book -b docbook -o dracut.xml man/dracut.asc
 	@rm -f -- dracut.html
 	xsltproc -o dracut.html --xinclude -nonet \
 		--stringparam custom.css.source dracut.css \
