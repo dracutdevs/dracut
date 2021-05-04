@@ -128,6 +128,11 @@ installkernel() {
         hostonly='' instmods "=crypto"
         instmods "=arch/$arch/crypto" "=drivers/crypto"
     fi
+
+    inst_multiple -o "$depmodd/*.conf"
+    if [[ $hostonly ]]; then
+        inst_multiple -H -o "$depmodconfdir/*.conf"
+    fi
     :
 }
 
