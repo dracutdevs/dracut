@@ -226,6 +226,9 @@ init has the following hook points to inject scripts:
 ## Testsuite
 
 For the testsuite to work, you will have to install at least the following software packages:
+
+Fedora:
+
 ```
 dash \
 asciidoc \
@@ -253,7 +256,33 @@ rpm-build \
 ${NULL}
 ```
 
-How to run the testsuite:
+Arch Linux:
+
+```
+linux \
+dash \
+strace \
+gcc \
+dhclient \
+asciidoc \
+make \
+dracut \
+qemu \
+jack \
+btrfs-progs \
+mdadm \
+dmraid \
+nfs-utils \
+nfsidmap \
+lvm2 \
+nbd \
+dhcp \
+networkmanager \
+multipath-tools \
+${NULL}
+```
+
+### How to run the testsuite on bare metal:
 
 ```
 $ sudo make clean check
@@ -280,3 +309,43 @@ $ sudo make clean setup run
 $ sudo make run
 ```
 to run the test without doing the setup
+
+### Rootless in a container with podman
+
+```console
+podman run -it \
+    --cap-add=SYS_PTRACE --user 0 \
+    -v /dev:/dev -v ./:/dracut \
+    [CONTAINER] \
+    bash
+```
+
+#### Fedora
+
+```console
+$ podman run -it \
+    --cap-add=SYS_PTRACE --user 0 \
+    -v /dev:/dev -v ./:/dracut \
+    quay.io/haraldh/dracut-fedora:34 bash
+# cd /dracut
+# make V=1 check
+# cd test/TEST-01*
+# make clean setup run
+# cd ../..
+# make clean
+```
+
+#### Arch Linux
+```console
+$ podman run -it \
+    --cap-add=SYS_PTRACE --user 0 \
+    -v /dev:/dev -v ./:/dracut \
+    archlinux bash
+# pacman -Sy linux dash strace gcc dhclient asciidoc make dracut \
+    qemu jack btrfs-progs mdadm dmraid nfs-utils nfsidmap lvm2 nbd \
+    dhcp networkmanager multipath-tools vi tcpdump \
+    git shfmt shellcheck astyle
+# cd /dracut
+# export DRACUT_NO_XATTR=1 KVERSION=$(cd /lib/modules; ls -1 | tail -1)
+# make V=1 TESTS="01 02 03 04 10 11 12 13 14 15 17 20 21 40 41 98" check
+```
