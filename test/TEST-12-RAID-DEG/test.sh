@@ -24,7 +24,7 @@ client_run() {
 
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
-        -append "panic=1 systemd.crash_reboot $* systemd.log_target=kmsg root=LABEL=root rw rd.retry=10 rd.info console=ttyS0,115200n81 log_buf_len=2M selinux=0 rd.shell=0 $DEBUGFAIL " \
+        -append "panic=1 hung_task_panic=1 oops=panic softlockup_panic=1 systemd.crash_reboot $* systemd.log_target=kmsg root=LABEL=root rw rd.retry=10 rd.info console=ttyS0,115200n81 log_buf_len=2M selinux=0 rd.shell=0 $DEBUGFAIL " \
         -initrd "$TESTDIR"/initramfs.testing
 
     if ! grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success "$TESTDIR"/marker.img; then

@@ -15,10 +15,6 @@ wait_for_if_link() {
     while [ $cnt -lt 600 ]; do
         li=$(ip -o link show dev "$1" 2> /dev/null)
         [ -n "$li" ] && return 0
-        if [[ $2 ]]; then
-            li=$(ip -o link show dev "$2" 2> /dev/null)
-            [ -n "$li" ] && return 0
-        fi
         sleep 0.1
         cnt=$((cnt + 1))
     done
@@ -52,11 +48,10 @@ linkup() {
     wait_for_if_link "$1" 2> /dev/null && ip link set "$1" up 2> /dev/null && wait_for_if_up "$1" 2> /dev/null
 }
 
-wait_for_if_link eth0 enp0s1
+wait_for_if_link enp0s1
 
 ip addr add 127.0.0.1/8 dev lo
 ip link set lo up
-ip link set dev eth0 name enp0s1
 ip addr add 192.168.50.1/24 dev enp0s1
 ip addr add 192.168.50.2/24 dev enp0s1
 ip addr add 192.168.50.3/24 dev enp0s1

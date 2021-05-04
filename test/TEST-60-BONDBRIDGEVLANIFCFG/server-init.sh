@@ -17,10 +17,6 @@ wait_for_if_link() {
 
         li=$(ip -o link show dev "$1" 2> /dev/null)
         [ -n "$li" ] && return 0
-        if [[ $2 ]]; then
-            li=$(ip -o link show dev "$2" 2> /dev/null)
-            [ -n "$li" ] && return 0
-        fi
         sleep 0.1
         cnt=$((cnt + 1))
     done
@@ -58,38 +54,39 @@ udevadm settle
 
 ip link show
 
-wait_for_if_link eth0 ens3
-wait_for_if_link eth1 ens4
-wait_for_if_link eth2 ens5
-wait_for_if_link eth3 ens6
+wait_for_if_link enx525401123456
+wait_for_if_link enx525401123457
+wait_for_if_link enx525401123458
+wait_for_if_link enx525401123459
+
+ip link set dev enx525401123456 name net1
+ip link set dev enx525401123457 name net2
+ip link set dev enx525401123458 name net3
+ip link set dev enx525401123459 name net4
 
 modprobe --all -b -q 8021q ipvlan macvlan
 : > /dev/watchdog
 ip addr add 127.0.0.1/8 dev lo
 linkup lo
-ip link set dev eth0 name ens3
-ip addr add 192.168.50.1/24 dev ens3
-linkup ens3
+ip addr add 192.168.50.1/24 dev net1
+linkup net1
 : > /dev/watchdog
-ip link set dev eth1 name ens4
-ip link add dev ens4.1 link ens4 type vlan id 1
-ip link add dev ens4.2 link ens4 type vlan id 2
-ip link add dev ens4.3 link ens4 type vlan id 3
-ip link add dev ens4.4 link ens4 type vlan id 4
-ip addr add 192.168.54.1/24 dev ens4.1
-ip addr add 192.168.55.1/24 dev ens4.2
-ip addr add 192.168.56.1/24 dev ens4.3
-ip addr add 192.168.57.1/24 dev ens4.4
-linkup ens4
-ip link set dev ens4.1 up
-ip link set dev ens4.2 up
-ip link set dev ens4.3 up
-ip link set dev ens4.4 up
-ip link set dev eth2 name ens5
-ip addr add 192.168.51.1/24 dev ens5
-linkup ens5
-ip link set dev eth3 name ens6
-linkup ens6
+ip link add dev net2.1 link net2 type vlan id 1
+ip link add dev net2.2 link net2 type vlan id 2
+ip link add dev net2.3 link net2 type vlan id 3
+ip link add dev net2.4 link net2 type vlan id 4
+ip addr add 192.168.54.1/24 dev net2.1
+ip addr add 192.168.55.1/24 dev net2.2
+ip addr add 192.168.56.1/24 dev net2.3
+ip addr add 192.168.57.1/24 dev net2.4
+linkup net2
+ip link set dev net2.1 up
+ip link set dev net2.2 up
+ip link set dev net2.3 up
+ip link set dev net2.4 up
+ip addr add 192.168.51.1/24 dev net3
+linkup net3
+linkup net4
 : > /dev/watchdog
 modprobe af_packet
 : > /dev/watchdog
@@ -120,10 +117,10 @@ exportfs -r
 : > /dev/watchdog
 chmod 777 /var/lib/dhcpd/dhcpd.leases
 : > /dev/watchdog
-dhcpd -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases ens3 ens5
+dhcpd -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases net1 net3
 #echo -n 'V' : > /dev/watchdog
 #sh -i
-#tcpdump -i ens3
+#tcpdump -i net1
 # Wait forever for the VM to die
 echo "Serving"
 while :; do

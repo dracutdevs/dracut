@@ -17,3 +17,18 @@ disable=SC1091
 # SC2174: When used with -p, -m only applies to the deepest directory.
 # https://github.com/koalaman/shellcheck/wiki/SC2174
 disable=SC2174
+
+# SC3043: In POSIX sh, 'local' is undefined.
+# https://github.com/koalaman/shellcheck/wiki/SC3043
+# ... but dash supports it
+disable=SC3043
+
+# SC3013: In POSIX sh, -ef is undefined.
+# https://github.com/koalaman/shellcheck/wiki/SC3013
+# ... but dash supports it
+disable=SC3013
+
+# SC3045: In POSIX sh, read -p is undefined.
+# https://github.com/koalaman/shellcheck/wiki/SC3045
+# ... but dash supports it
+disable=SC3045

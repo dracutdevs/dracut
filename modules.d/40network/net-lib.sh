@@ -266,10 +266,10 @@ ibft_to_cmdline() {
 
             [ -e "${iface}"/flags ] && read -r flags < "${iface}"/flags
             # Skip invalid interfaces
-            ((flags & 1)) || continue
+            awk -- 'BEGIN { exit (!and('"$flags"',1)) }' || continue
             # Skip interfaces not used for booting unless using multipath
             if ! getargbool 0 rd.iscsi.mp; then
-                ((flags & 2)) || continue
+                awk -- 'BEGIN { exit (!and('"$flags"',2)) }' || continue
             fi
             [ -e "${iface}"/dhcp ] && read -r dhcp < "${iface}"/dhcp
             [ -e "${iface}"/origin ] && read -r origin < "${iface}"/origin

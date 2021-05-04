@@ -109,7 +109,7 @@ source_conf /etc/conf.d
 
 if getarg "rd.cmdline=ask"; then
     echo "Enter additional kernel command line parameter (end with ctrl-d or .)"
-    while read -r -p "> " line || [ -n "$line" ]; do
+    while read -r -p "> " ${BASH:+-e} line || [ -n "$line" ]; do
         [ "$line" = "." ] && break
         echo "$line" >> /etc/cmdline.d/99-cmdline-ask.conf
     done

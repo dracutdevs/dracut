@@ -30,6 +30,7 @@ if ((BASH_VERSINFO[0] < 4)); then
 fi
 
 dracut_args=("$@")
+# shellcheck disable=SC2155
 readonly dracut_cmd=$(readlink -f "$0")
 
 set -o pipefail
@@ -1111,6 +1112,7 @@ case "${drivers_dir}" in
         ;;
 esac
 
+# shellcheck disable=SC2155
 readonly TMPDIR="$(realpath -e "$tmpdir")"
 [ -d "$TMPDIR" ] || {
     printf "%s\n" "dracut: Invalid tmpdir '$tmpdir'." >&2
@@ -1122,6 +1124,7 @@ if findmnt --raw -n --target "$tmpdir" --output=options | grep -q noexec; then
     noexec=1
 fi
 
+# shellcheck disable=SC2155
 readonly DRACUT_TMPDIR="$(mktemp -p "$TMPDIR/" -d -t dracut.XXXXXX)"
 [ -d "$DRACUT_TMPDIR" ] || {
     printf "%s\n" "dracut: mktemp -p '$TMPDIR/' -d -t dracut.XXXXXX failed." >&2

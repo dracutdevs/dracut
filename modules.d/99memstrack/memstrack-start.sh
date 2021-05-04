@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Mount kernel debug fs so debug tools can work.
 # memdebug=4 and memdebug=5 requires debug fs to be mounted.
 # And there is no need to umount it.
@@ -65,4 +65,5 @@ fi
 sleep 1
 
 echo $PID > /run/memstrack.pid
+# bash specific - non posix
 disown

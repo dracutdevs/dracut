@@ -36,7 +36,7 @@ run_server() {
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net nic,macaddr=52:54:00:12:34:57,model=e1000 \
         -net socket,listen=127.0.0.1:12330 \
-        -append "panic=1 quiet root=/dev/disk/by-id/ata-disk_serverroot rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 $SERVER_DEBUG" \
+        -append "panic=1 hung_task_panic=1 oops=panic softlockup_panic=1 quiet root=/dev/disk/by-id/ata-disk_serverroot rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 $SERVER_DEBUG" \
         -initrd "$TESTDIR"/initramfs.server \
         -pidfile "$TESTDIR"/server.pid -daemonize || return 1
     chmod 644 "$TESTDIR"/server.pid || return 1
@@ -74,7 +74,7 @@ run_client() {
         -net nic,macaddr=52:54:00:12:34:01,model=e1000 \
         -net socket,connect=127.0.0.1:12330 \
         -acpitable file=ibft.table \
-        -append "panic=1 systemd.crash_reboot rw rd.auto rd.retry=50 console=ttyS0,115200n81 selinux=0 rd.debug=0 rd.shell=0 $DEBUGFAIL $*" \
+        -append "panic=1 hung_task_panic=1 oops=panic softlockup_panic=1 systemd.crash_reboot rw rd.auto rd.retry=50 console=ttyS0,115200n81 selinux=0 rd.debug=0 rd.shell=0 $DEBUGFAIL $*" \
         -initrd "$TESTDIR"/initramfs.testing
 
     # shellcheck disable=SC2181
@@ -227,6 +227,7 @@ test_setup() {
     # Make server root
     dd if=/dev/zero of="$TESTDIR"/server.ext3 bs=1M count=120
 
+    # shellcheck disable=SC2031
     export kernel=$KVERSION
     rm -rf -- "$TESTDIR"/overlay
     (

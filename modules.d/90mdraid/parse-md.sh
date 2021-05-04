@@ -7,7 +7,7 @@ MD_UUID=$(getargs rd.md.uuid -d rd_MD_UUID=)
 MD_UUID=$(str_replace "$MD_UUID" "-" "")
 MD_UUID=$(str_replace "$MD_UUID" ":" "")
 
-if ([ -z "$MD_UUID" ] && ! getargbool 0 rd.auto) || ! getargbool 1 rd.md -d -n rd_NO_MD; then
+if { [ -z "$MD_UUID" ] && ! getargbool 0 rd.auto; } || ! getargbool 1 rd.md -d -n rd_NO_MD; then
     info "rd.md=0: removing MD RAID activation"
     udevproperty rd_NO_MD=1
 else

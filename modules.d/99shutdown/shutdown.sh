@@ -12,7 +12,7 @@ ACTION="$1"
 # the process will be killed when when running as PID 1.
 # shellcheck disable=SC2217
 [ -w /dev/console ] \
-    && (echo < /dev/console &> /dev/null) \
+    && (echo < /dev/console > /dev/null 2> /dev/null) \
     && exec < /dev/console >> /dev/console 2>> /dev/console
 
 export TERM=linux
