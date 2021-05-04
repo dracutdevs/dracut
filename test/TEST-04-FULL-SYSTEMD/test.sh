@@ -80,7 +80,16 @@ test_setup() {
         inst_multiple -o ${_terminfodir}/l/linux
         inst_multiple grep
         inst_simple ./fstab /etc/fstab
-        rpm -ql systemd | xargs -r "$DRACUT_INSTALL" ${initdir:+-D "$initdir"} -o -a -l
+        if type -P rpm &> /dev/null; then
+            rpm -ql systemd | xargs -r "$DRACUT_INSTALL" ${initdir:+-D "$initdir"} -o -a -l
+        elif type -P pacman &> /dev/null; then
+            pacman -Q -l systemd | while read -r _ a; do printf -- "%s\0" "$a"; done | xargs -0 -r "$DRACUT_INSTALL" ${initdir:+-D "$initdir"} -o -a -l
+            rm "$initdir"/usr/lib/systemd/system/sysinit.target.wants/systemd-firstboot.service
+        else
+            echo "Can't install systemd base"
+            return 1
+        fi
+        inst /sbin/init
         inst /lib/systemd/system/systemd-remount-fs.service
         inst /lib/systemd/systemd-remount-fs
         inst /lib/systemd/system/systemd-journal-flush.service
@@ -141,13 +150,7 @@ EOF
         ln -fs ../testsuite.service "$initdir"/etc/systemd/system/testsuite.target.wants/testsuite.service
 
         # make the testsuite the default target
-        ln -fs testsuite.target "$initdir"/etc/systemd/system/default.target
-
-        #         mkdir -p $initdir/etc/rc.d
-        #         cat >$initdir/etc/rc.d/rc.local <<EOF
-        # #!/bin/bash
-        # exit 0
-        # EOF
+        systemctl --root="$initdir" set-default testsuite.target
 
         # install basic tools needed
         inst_multiple sh bash setsid loadkeys setfont \
