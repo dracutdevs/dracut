@@ -1,6 +1,7 @@
 #!/bin/bash
 # Check which virtualization technology to use
 # We prefer kvm, kqemu, userspace in that order.
+
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
 [[ -x /usr/bin/qemu ]] && BIN=/usr/bin/qemu && ARGS=(-cpu max)
@@ -8,8 +9,8 @@ export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 [[ -c /dev/kvm && -x /usr/bin/kvm ]] && BIN=/usr/bin/kvm && ARGS=(-cpu host)
 [[ -c /dev/kvm && -x /usr/bin/qemu-kvm ]] && BIN=/usr/bin/qemu-kvm && ARGS=(-cpu host)
 [[ -c /dev/kvm && -x /usr/libexec/qemu-kvm ]] && BIN=/usr/libexec/qemu-kvm && ARGS=(-cpu host)
-[[ -x /usr/bin/qemu-system-$(uname -i) ]] && BIN=/usr/bin/qemu-system-$(uname -i) && ARGS=(-cpu max)
-[[ -c /dev/kvm && -x /usr/bin/qemu-system-$(uname -i) ]] && BIN=/usr/bin/qemu-system-$(uname -i) && ARGS=(-enable-kvm -cpu host)
+[[ -x /usr/bin/qemu-system-$(uname -m) ]] && BIN=/usr/bin/qemu-system-$(uname -m) && ARGS=(-cpu max)
+[[ -c /dev/kvm && -x /usr/bin/qemu-system-$(uname -m) ]] && BIN=/usr/bin/qemu-system-$(uname -m) && ARGS=(-enable-kvm -cpu host)
 
 [[ $BIN ]] || {
     echo "Could not find a working KVM or QEMU to test with!" >&2
