@@ -30,7 +30,7 @@ installkernel() {
     # in case some of the crypto modules moved from compiled in
     # to module based, try to install those modules
     # best guess
-    [[ $hostonly ]] || [[ $mount_needs ]] && {
+    if [[ $hostonly ]] || [[ $mount_needs ]]; then
         # dmsetup returns s.th. like
         # cryptvol: 0 2064384 crypt aes-xts-plain64 :64:logon:cryptsetup:....
         dmsetup table | while read -r name _ _ is_crypt cipher _; do
@@ -47,7 +47,9 @@ installkernel() {
                 hostonly='' instmods "${mods[@]/#/crypto-}" "crypto-$cipher"
             fi
         done
-    }
+    else
+        instmods "=crypto"
+    fi
     return 0
 }
 
