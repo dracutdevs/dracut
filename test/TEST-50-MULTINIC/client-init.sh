@@ -15,14 +15,14 @@ for i in /sys/class/net/*; do
     grep -q connection-uuid= "$state" 2> /dev/null || continue
     i=${i##*/}
     ip link show "$i" | grep -q master && continue
-    IFACES+="$i "
+    IFACES="${IFACES}${i} "
 done
 for i in /run/initramfs/net.*.did-setup; do
     # booting with network-legacy module
     [ -f "$i" ] || continue
     strglobin "$i" ":*:*:*:*:" && continue
     i=${i%.did-setup}
-    IFACES+="${i##*/net.} "
+    IFACES="${IFACES}${i##*/net.} "
 done
 {
     echo "OK"

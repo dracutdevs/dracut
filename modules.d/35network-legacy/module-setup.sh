@@ -2,7 +2,7 @@
 
 # called by dracut
 check() {
-    require_binaries ip dhclient sed awk grep pgrep tr || return 1
+    require_binaries ip dhclient sed awk grep pgrep tr expr || return 1
     require_any_binary arping arping2 || return 1
 
     return 255
@@ -28,7 +28,7 @@ install() {
         [[ $hostonly ]] && inst_multiple -H -o "${systemdsystemconfdir}/network/*.link"
     fi
 
-    inst_multiple ip dhclient sed awk grep pgrep tr
+    inst_multiple ip dhclient sed awk grep pgrep tr expr
 
     inst_multiple -o arping arping2
     strstr "$(arping 2>&1)" "ARPing 2" && mv "$initdir/bin/arping" "$initdir/bin/arping2"

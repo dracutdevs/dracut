@@ -8,7 +8,7 @@ check() {
 
 # called by dracut
 depends() {
-    echo network url-lib dmsquash-live img-lib
+    echo network url-lib dmsquash-live img-lib bash
     return 0
 }
 

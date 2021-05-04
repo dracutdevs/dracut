@@ -65,7 +65,7 @@ do_dhclient() {
     warn "dhcp for interface $netif failed"
     # nuke those files since we failed; we might retry dhcp again if it's e.g.
     # `ip=dhcp,dhcp6` and we check for the PID file earlier
-    rm -f /tmp/dhclient."$netif".{pid,lease}
+    rm -f /tmp/dhclient."$netif".pid /tmp/dhclient."$netif".lease
     return 1
 }
 

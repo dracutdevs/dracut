@@ -11,7 +11,7 @@ check() {
 }
 
 depends() {
-    echo systemd
+    echo systemd bash
     return 0
 }
 

@@ -53,11 +53,9 @@ wait_for_if_link enp0s2
 ip addr add 127.0.0.1/8 dev lo
 ip link set lo up
 
-ip link set dev eth0 name enp0s1
 ip addr add 192.168.50.1/24 dev enp0s1
 linkup enp0s1
 
-ip link set dev eth1 name enp0s2
 ip addr add 192.168.51.1/24 dev enp0s2
 linkup enp0s2
 

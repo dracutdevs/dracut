@@ -96,7 +96,7 @@ do_dhcp() {
     warn "dhcp for interface $netif failed"
     # nuke those files since we failed; we might retry dhcp again if it's e.g.
     # `ip=dhcp,dhcp6` and we check for the PID file at the top
-    rm -f "/tmp/dhclient.${netif}".{pid,lease}
+    rm -f /tmp/dhclient."$netif".pid /tmp/dhclient."$netif".lease
     return 1
 }
 
@@ -268,7 +268,7 @@ if [ -z "$NO_BOND_MASTER" ]; then
         # shellcheck disable=SC1090
         . "$i"
         for testslave in $bondslaves; do
-            [ "$netif" != "testslave" ] && continue
+            [ "$netif" != "$testslave" ] && continue
 
             # already setup
             [ -e "/tmp/bond.$bondname.up" ] && exit 0

@@ -56,6 +56,7 @@ installkernel() {
 # called by dracut
 cmdline() {
     local dev UUID
+    # shellcheck disable=SC2031
     for dev in "${!host_fs_types[@]}"; do
         [[ ${host_fs_types[$dev]} != "crypto_LUKS" ]] && continue
 
@@ -130,6 +131,7 @@ install() {
             if [ "${forceentry}" = "yes" ]; then
                 echo "$_mapper $_dev $_luksfile $_luksoptions"
             else
+                # shellcheck disable=SC2031
                 for _hdev in "${!host_fs_types[@]}"; do
                     [[ ${host_fs_types[$_hdev]} == "crypto_LUKS" ]] || continue
                     if [[ $_hdev -ef $_dev ]] || [[ /dev/block/$_hdev -ef $_dev ]]; then

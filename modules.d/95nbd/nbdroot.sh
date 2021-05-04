@@ -129,9 +129,7 @@ if strstr "$(nbd-client --help 2>&1)" "systemd-mark"; then
     preopts="-systemd-mark $preopts"
 fi
 
-if [ "$nbdport" -gt 0 ] 2> /dev/null; then
-    nbdport="$nbdport"
-else
+if ! [ "$nbdport" -gt 0 ] 2> /dev/null; then
     nbdport="-name $nbdport"
 fi
 
