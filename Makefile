@@ -93,7 +93,7 @@ dracut-util: src/util/util
 
 .PHONY: indent-c
 indent-c:
-	astyle -n --quiet --options=.astylerc $(wildcard *.[ch] */*.[ch])
+	astyle -n --quiet --options=.astylerc $(wildcard *.[ch] */*.[ch] src/*/*.[ch])
 
 .PHONY: indent
 indent: indent-c
