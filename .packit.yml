@@ -11,7 +11,7 @@ upstream_tag_template: "{version}"
 upstream_project_url: https://github.com/dracutdevs/dracut
 
 # Relative path to a spec file within the upstream repository
-specfile_path: dracut.spec
+specfile_path: pkgbuild/dracut.spec
 
 # Name of the downstream package
 downstream_package_name: dracut
