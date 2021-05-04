@@ -24,13 +24,16 @@ elif [[ -d /boot/loader/entries || -L /boot/loader/entries ]] \
     && [[ $MACHINE_ID ]] \
     && [[ -d /boot/${MACHINE_ID} || -L /boot/${MACHINE_ID} ]]; then
     IMG="/boot/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
-else
+elif [[ -f /boot/initramfs-${KERNEL_VERSION}.img ]]; then
     IMG="/boot/initramfs-${KERNEL_VERSION}.img"
+elif [[ -f /lib/modules/${KERNEL_VERSION}/initrd ]]; then
+    IMG="/lib/modules/${KERNEL_VERSION}/initrd"
+else
+    echo "No initramfs image found to restore!"
+    exit 1
 fi
 
 cd /run/initramfs
-
-[ -f .need_shutdown -a -f "$IMG" ] || exit 1
 
 if $SKIP "$IMG" | zcat | cpio -id --no-absolute-filenames --quiet > /dev/null; then
     rm -f -- .need_shutdown
