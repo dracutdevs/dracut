@@ -70,12 +70,16 @@ client_test() {
     declare -i disk_index=0
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
 
+    if dhclient --help 2>&1 | grep -q -F -- '--timeout' 2> /dev/null; then
+        cmdline="$cmdline rd.net.timeout.dhcp=3"
+    fi
+
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
         -net nic,macaddr="$mac",model=e1000 \
         -net socket,connect=127.0.0.1:12320 \
         -watchdog i6300esb -watchdog-action poweroff \
-        -append "rd.net.timeout.dhcp=3 panic=1 systemd.crash_reboot rd.shell=0 $cmdline $DEBUGFAIL rd.retry=10 quiet ro console=ttyS0,115200n81 selinux=0" \
+        -append "panic=1 systemd.crash_reboot rd.shell=0 $cmdline $DEBUGFAIL rd.retry=10 quiet ro console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.testing
 
     # shellcheck disable=SC2181
@@ -319,7 +323,7 @@ test_setup() {
         )
 
         inst_multiple sh shutdown poweroff stty cat ps ln ip dd \
-            mount dmesg mkdir cp ping grep setsid ls vi /etc/virc less cat sync
+            mount dmesg mkdir cp ping grep setsid ls vi less cat sync
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
