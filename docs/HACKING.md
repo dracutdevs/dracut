@@ -344,7 +344,7 @@ $ podman run -it \
 # pacman -Sy linux dash strace gcc dhclient asciidoc make dracut \
     qemu jack btrfs-progs mdadm dmraid nfs-utils nfsidmap lvm2 nbd \
     dhcp networkmanager multipath-tools vi tcpdump \
-    git shfmt shellcheck astyle
+    git shfmt shellcheck astyle which
 # cd /dracut
 # export DRACUT_NO_XATTR=1 KVERSION=$(cd /lib/modules; ls -1 | tail -1)
 # make V=1 TESTS="01 02 03 04 10 11 12 13 14 15 17 20 21 40 41 98" check
