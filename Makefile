@@ -11,6 +11,7 @@ endif
 
 HAVE_SHELLCHECK ?= $(shell which shellcheck >/dev/null 2>&1 && echo yes)
 HAVE_SHFMT ?= $(shell which shfmt >/dev/null  2>&1 && echo yes)
+HAVE_RPMBUILD ?= $(shell which rpmbuild >/dev/null  2>&1 && echo yes)
 
 -include Makefile.inc
 
@@ -235,6 +236,7 @@ dracut-$(DRACUT_MAIN_VERSION).tar.xz: doc syncheck
 	xz -9 dracut-$(DRACUT_MAIN_VERSION).tar
 	rm -f -- dracut-$(DRACUT_MAIN_VERSION).tar
 
+ifeq ($(HAVE_RPMBUILD),yes)
 rpm: dracut-$(DRACUT_MAIN_VERSION).tar.xz syncheck
 	rpmbuild=$$(mktemp -d -p /var/tmp rpmbuild-dracut.XXXXXX); src=$$(pwd); \
 	cp dracut-$(DRACUT_MAIN_VERSION).tar.xz "$$rpmbuild"; \
@@ -256,6 +258,11 @@ srpm: dracut-$(DRACUT_MAIN_VERSION).tar.xz syncheck
 	        --define "_specdir $$PWD" --define "_srcrpmdir $$PWD" \
 		--define "_rpmdir $$PWD" -bs dracut.spec; ) && \
 	( mv "$$rpmbuild"/*.src.rpm $(DESTDIR).; rm -fr -- "$$rpmbuild"; ls $(DESTDIR)*.rpm )
+else
+.PHONY: rpm srpm
+rpm: syncheck
+srpm: syncheck
+endif
 
 syncheck:
 	@ret=0;for i in dracut-initramfs-restore.sh modules.d/*/*.sh; do \
