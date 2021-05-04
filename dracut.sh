@@ -1770,7 +1770,6 @@ fi
 
 [[ -d $dracutsysrootdir$depmodconfdir ]] || depmodconfdir=/etc/depmod.d
 
-
 export initdir dracutbasedir \
     dracutmodules force_add_dracutmodules add_dracutmodules omit_dracutmodules \
     mods_to_load \

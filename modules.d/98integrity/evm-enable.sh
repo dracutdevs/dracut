@@ -147,17 +147,17 @@ enable_evm() {
     # initialize EVM
     info "Enabling EVM"
     if [ "$((evm_configured & EVM_INIT_X509))" -ne 0 ]; then
-      # Older kernels did not support EVM_ALLOW_METADATA_WRITES, try for
-      # newer ones first that need it when an x509 is used
-      echo $((evm_configured | EVM_ALLOW_METADATA_WRITES | EVM_ACTIVATION_BITS)) > "${EVMSECFILE}" ||
-        echo $((evm_configured | EVM_ACTIVATION_BITS)) > "${EVMSECFILE}"
+        # Older kernels did not support EVM_ALLOW_METADATA_WRITES, try for
+        # newer ones first that need it when an x509 is used
+        echo $((evm_configured | EVM_ALLOW_METADATA_WRITES | EVM_ACTIVATION_BITS)) > "${EVMSECFILE}" \
+            || echo $((evm_configured | EVM_ACTIVATION_BITS)) > "${EVMSECFILE}"
     else
-      echo $((evm_configured | EVM_ACTIVATION_BITS)) > "${EVMSECFILE}"
+        echo $((evm_configured | EVM_ACTIVATION_BITS)) > "${EVMSECFILE}"
     fi
 
     if [ "$((evm_configured & EVM_INIT_HMAC))" -ne 0 ]; then
-      # unload the EVM encrypted key
-      unload_evm_key || return 1
+        # unload the EVM encrypted key
+        unload_evm_key || return 1
     fi
 
     return 0
