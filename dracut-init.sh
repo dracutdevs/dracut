@@ -998,7 +998,7 @@ for_each_module_dir() {
 }
 
 dracut_kernel_post() {
-    for _f in modules.builtin.bin modules.builtin modules.order; do
+    for _f in modules.builtin modules.builtin.modinfo modules.order; do
         [[ -e $srcmods/$_f ]] && inst_simple "$srcmods/$_f" "/lib/modules/$kernel/$_f"
     done
 
