@@ -1937,6 +1937,10 @@ static int install_modules(int argc, char **argv)
                                 int len = strlen(modname);
                                 modname[len - 6] = 0;
                         }
+                        if (endswith(modname, ".ko.zst")) {
+                                int len = strlen(modname);
+                                modname[len - 7] = 0;
+                        }
                         r = kmod_module_new_from_lookup(ctx, modname, &modlist);
                         if (r < 0) {
                                 if (!arg_optional) {

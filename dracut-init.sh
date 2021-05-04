@@ -625,6 +625,7 @@ get_decompress_cmd() {
         *.gz) echo 'gzip -f -d' ;;
         *.bz2) echo 'bzip2 -d' ;;
         *.xz) echo 'xz -f -d' ;;
+        *.zst) echo 'zstd -f -d ' ;;
     esac
 }
 

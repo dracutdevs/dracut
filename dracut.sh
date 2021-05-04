@@ -1271,6 +1271,7 @@ if [[ $no_kernel != yes ]] && [[ -d $srcmods ]]; then
             case "$_mod" in
                 *.ko.gz) kcompress=gzip ;;
                 *.ko.xz) kcompress=xz ;;
+                *.ko.zst) kcompress=zstd ;;
             esac
             if [[ $kcompress ]]; then
                 if ! command -v "$kcompress" &> /dev/null; then
