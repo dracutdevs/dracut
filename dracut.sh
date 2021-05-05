@@ -1768,6 +1768,11 @@ if ! [[ -d $dracutsysrootdir$tmpfilesdir ]]; then
     [[ -d $dracutsysrootdir/usr/lib/tmpfiles.d ]] && tmpfilesdir=/usr/lib/tmpfiles.d
 fi
 
+[[ -d $dracutsysrootdir$tmpfilesconfdir ]] \
+    || tmpfilesconfdir=$(pkg-config systemd --variable=tmpfilesconfdir 2> /dev/null)
+
+[[ -d $dracutsysrootdir$tmpfilesconfdir ]] || tmpfilesconfdir=/etc/tmpfiles.d
+
 [[ -d $dracutsysrootdir$depmodd ]] \
     || sysctld=$(pkg-config libkmod --variable=depmodd 2> /dev/null)
 
@@ -1794,7 +1799,8 @@ export initdir dracutbasedir \
     modulesloadconfdir sysctl sysctlconfdir sysusers sysusersconfdir \
     systemdutildir systemdutilconfdir systemdcatalog systemdntpunits \
     systemdntpunitsconfdir systemdsystemunitdir systemdsystemconfdir \
-    hostonly_cmdline loginstall tmpfilesdir depmodd depmodconfdir
+    hostonly_cmdline loginstall tmpfilesdir tmpfilesconfdir depmodd \
+    depmodconfdir
 
 mods_to_load=""
 # check all our modules to see if they should be sourced.

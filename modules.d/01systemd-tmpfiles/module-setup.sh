@@ -33,7 +33,6 @@ install() {
     # Excluding "$tmpfilesdir/systemd-pstore.conf", belongs in seperated pstore module
     # Excluding "$tmpfilesdir/x11.conf", belongs in seperated x11 module
 
-
     inst_multiple -o \
         /usr/lib/group \
         /usr/lib/passwd \
