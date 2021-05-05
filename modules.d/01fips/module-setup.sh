@@ -24,7 +24,7 @@ installkernel() {
         _fipsmodules+="crc32c crct10dif ghash "
 
         # Ciphers:
-        _fipsmodules+="cipher_null des3_ede aes cfb "
+        _fipsmodules+="cipher_null des3_ede aes cfb dh ecdh "
 
         # Modes/templates:
         _fipsmodules+="ecb cbc ctr xts gcm ccm authenc hmac cmac ofb cts "
