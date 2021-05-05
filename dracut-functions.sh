@@ -234,8 +234,13 @@ get_fs_env() {
 # 8:2
 get_maj_min() {
     local _majmin
-    _majmin="$(stat -L -c '%t:%T' "$1" 2> /dev/null)"
-    printf "%s" "$((0x${_majmin%:*})):$((0x${_majmin#*:}))"
+    out="$(grep -m1 -oP "^$1 \K\S+$" "${get_maj_min_cache_file:?}")"
+    if [ -z "$out" ]; then
+        _majmin="$(stat -L -c '%t:%T' "$1" 2> /dev/null)"
+        out="$(printf "%s" "$((0x${_majmin%:*})):$((0x${_majmin#*:}))")"
+        echo "$1 $out" >> "${get_maj_min_cache_file:?}"
+    fi
+    echo -n "$out"
 }
 
 # get_devpath_block <device>

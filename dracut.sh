@@ -1128,6 +1128,10 @@ readonly DRACUT_TMPDIR="$(mktemp -p "$TMPDIR/" -d -t dracut.XXXXXX)"
     exit 1
 }
 
+# Cache file used to optimize get_maj_min()
+declare -x -r get_maj_min_cache_file="${DRACUT_TMPDIR}/majmin_cache"
+: > "$get_maj_min_cache_file"
+
 # clean up after ourselves no matter how we die.
 trap '
     ret=$?;
