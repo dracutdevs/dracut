@@ -203,7 +203,7 @@ make_encrypted_root() {
         # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay/source
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
         mkdir -p "$initdir"
         (
             cd "$initdir" || exit
@@ -239,7 +239,7 @@ make_encrypted_root() {
         # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
         (
             cd "$initdir" || exit
             mkdir -p dev sys proc etc tmp var run root usr/bin usr/lib usr/lib64 usr/sbin
@@ -258,7 +258,7 @@ make_encrypted_root() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$dracutdir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -m "dash crypt lvm mdraid udev-rules base rootfs-block fs-lib kernel-modules qemu" \
         -d "piix ide-gd_mod ata_piix ext3 ext3 sd_mod" \
         --no-hostonly-cmdline -N \
@@ -291,7 +291,7 @@ make_client_root() {
         # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay/source
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
         mkdir -p "$initdir"
         (
             cd "$initdir" || exit
@@ -332,7 +332,7 @@ make_client_root() {
         # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd
         inst_hook initqueue 01 ./create-client-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
@@ -341,7 +341,7 @@ make_client_root() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$dracutdir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -m "dash udev-rules base rootfs-block fs-lib kernel-modules fs-lib qemu" \
         -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
         --nomdadmconf \
@@ -375,7 +375,7 @@ make_server_root() {
         # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay/source
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
         mkdir -p "$initdir"
         (
             cd "$initdir" || exit
@@ -425,7 +425,7 @@ EOF
         # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd sync
         inst_hook initqueue 01 ./create-server-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
@@ -434,7 +434,7 @@ EOF
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$dracutdir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -m "dash udev-rules base rootfs-block fs-lib kernel-modules fs-lib qemu" \
         -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
         --nomdadmconf \
@@ -469,7 +469,7 @@ test_setup() {
         # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
         inst_multiple poweroff shutdown dd
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst ./cryptroot-ask.sh /sbin/cryptroot-ask
@@ -485,13 +485,13 @@ test_setup() {
         echo -n test > "$initdir"/etc/key
     )
 
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$dracutdir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -a "udev-rules base rootfs-block fs-lib debug kernel-modules" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 drbg" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
 
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$dracutdir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -o "plymouth dash iscsi nfs ${OMIT_NETWORK}" \
         -a "debug watchdog ${USE_NETWORK}" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 ext3 sd_mod e1000 i6300esb ib700wdt" \

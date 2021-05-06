@@ -334,7 +334,7 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$dracutdir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -m "bash udev-rules base rootfs-block fs-lib kernel-modules fs-lib qemu" \
         -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
         --nomdadmconf \
@@ -360,7 +360,7 @@ test_setup() {
         inst_hook emergency 000 ./hard-off.sh
     )
     # Make client's dracut image
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$dracutdir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         --no-early-microcode \
         -o "plymouth ${OMIT_NETWORK}" \
         -a "debug ${USE_NETWORK}" \
@@ -377,7 +377,7 @@ test_setup() {
         inst_hook pre-mount 99 ./wait-if-server.sh
     )
     # Make server's dracut image
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$dracutdir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         --no-early-microcode \
         -m "udev-rules base rootfs-block fs-lib debug kernel-modules watchdog qemu network network-legacy" \
         -d "ipvlan macvlan af_packet piix ide-gd_mod ata_piix ext3 sd_mod nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files nfsd virtio-net i6300esb ib700wdt" \

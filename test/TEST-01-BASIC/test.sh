@@ -32,7 +32,7 @@ test_setup() {
         export initdir=$TESTDIR/overlay/source
         mkdir -p "$initdir"
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
         (
             cd "$initdir" || exit
             mkdir -p -- dev sys proc etc var/run tmp
@@ -79,7 +79,7 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$dracutdir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -m "dash udev-rules base rootfs-block fs-lib kernel-modules fs-lib qemu" \
         -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
         --nomdadmconf \
@@ -112,7 +112,7 @@ test_setup() {
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
     )
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$dracutdir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -a "debug watchdog" \
         -d "piix ide-gd_mod ata_piix ext3 sd_mod i6300esb ib700wdt" \
         --no-hostonly-cmdline -N \

@@ -57,7 +57,7 @@ test_setup() {
         export initdir=$TESTDIR/overlay/source
         mkdir -p "$initdir"
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
 
         for d in usr/bin usr/sbin bin etc lib "$libdir" sbin tmp usr var var/log dev proc sys sysroot root run; do
             if [ -L "/$d" ]; then
@@ -238,7 +238,7 @@ EOF
         # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
         inst_multiple sfdisk mkfs.btrfs btrfs poweroff cp umount sync dd
         inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
@@ -247,7 +247,7 @@ EOF
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$dracutdir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -m "bash udev-rules btrfs base rootfs-block fs-lib kernel-modules qemu" \
         -d "piix ide-gd_mod ata_piix btrfs sd_mod" \
         --nomdadmconf \
@@ -282,7 +282,7 @@ EOF
         # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
         inst_multiple poweroff shutdown dd
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
@@ -291,7 +291,7 @@ EOF
     [ -e /etc/machine-id ] && EXTRA_MACHINE="/etc/machine-id"
     [ -e /etc/machine-info ] && EXTRA_MACHINE+=" /etc/machine-info"
 
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$dracutdir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -a "debug systemd i18n qemu" \
         ${EXTRA_MACHINE:+-I "$EXTRA_MACHINE"} \
         -o "dash network plymouth lvm mdraid resume crypt caps dm terminfo usrmount kernel-network-modules rngd" \

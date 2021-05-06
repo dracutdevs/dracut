@@ -154,7 +154,7 @@ test_setup() {
         # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay/source
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
         (
             cd "$initdir" || exit
             mkdir -p -- dev sys proc etc var/run tmp
@@ -188,7 +188,7 @@ test_setup() {
         # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount setsid dd sync blockdev
         inst_hook initqueue 01 ./create-client-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
@@ -197,7 +197,7 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$dracutdir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -m "dash crypt lvm mdraid udev-rules base rootfs-block fs-lib kernel-modules qemu" \
         -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
         --no-hostonly-cmdline -N \
@@ -236,7 +236,7 @@ test_setup() {
         # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay/source
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
         (
             cd "$initdir" || exit
             mkdir -p dev sys proc etc var/run tmp var/lib/dhcpd /etc/iscsi
@@ -272,7 +272,7 @@ test_setup() {
         # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd
         inst_hook initqueue 01 ./create-server-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
@@ -281,7 +281,7 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$dracutdir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -m "dash udev-rules base rootfs-block fs-lib kernel-modules fs-lib qemu" \
         -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
         --nomdadmconf \
@@ -310,21 +310,21 @@ test_setup() {
         # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
         inst_multiple poweroff shutdown
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
     )
 
     # Make server's dracut image
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$dracutdir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -a "dash udev-rules base rootfs-block fs-lib debug kernel-modules" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 drbg" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
 
     # Make client dracut image
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$dracutdir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -o "dash plymouth dmraid nfs ${OMIT_NETWORK}" \
         -a "debug ${USE_NETWORK}" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod" \

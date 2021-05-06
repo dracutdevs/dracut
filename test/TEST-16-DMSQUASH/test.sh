@@ -51,13 +51,13 @@ test_setup() {
         # shellcheck disable=SC2030
         export initdir="$TESTDIR"/overlay
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
         inst_multiple poweroff shutdown
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
     )
 
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$dracutdir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -a "debug dmsquash-live qemu" \
         -o "rngd" \
         -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
@@ -71,7 +71,7 @@ test_setup() {
         # shellcheck disable=SC2031
         export initdir="$TESTDIR"/root-source
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
         (
             cd "$initdir" || exit
             mkdir -p -- dev sys proc etc var/run tmp

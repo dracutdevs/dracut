@@ -241,7 +241,7 @@ test_setup() {
         # shellcheck disable=SC2030
         export initdir=$TESTDIR/server/overlay/source
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
 
         for _f in modules.builtin.bin modules.builtin; do
             [[ -f $srcmods/$_f ]] && break
@@ -310,7 +310,7 @@ test_setup() {
         # shellcheck disable=SC2031
         export initdir=$TESTDIR/server/overlay/source/nfs/client
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
 
         (
             cd "$initdir" || exit
@@ -361,7 +361,7 @@ test_setup() {
         # shellcheck disable=SC2031
         export initdir=$TESTDIR/server/overlay
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
         inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd
         inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
@@ -370,7 +370,7 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/server/overlay / \
+    "$dracutdir"/dracut.sh -l -i "$TESTDIR"/server/overlay / \
         -m "bash udev-rules base rootfs-block fs-lib kernel-modules fs-lib qemu" \
         -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
         --nomdadmconf \
@@ -398,7 +398,7 @@ test_setup() {
         # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$dracutdir"/dracut-init.sh
         mkdir -p "$TESTDIR"/overlay
         inst_multiple poweroff shutdown
         inst_hook shutdown-emergency 000 ./hard-off.sh
@@ -407,14 +407,14 @@ test_setup() {
     )
 
     # Make server's dracut image
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$dracutdir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -m "dash udev-rules base rootfs-block fs-lib debug kernel-modules watchdog qemu" \
         -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 i6300esb" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
 
     # Make client's dracut image
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$dracutdir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -o "plymouth dash ${OMIT_NETWORK}" \
         -a "debug watchdog ${USE_NETWORK}" \
         -d "af_packet piix ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc i6300esb" \

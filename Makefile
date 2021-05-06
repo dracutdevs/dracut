@@ -146,18 +146,18 @@ install: all
 	mkdir -p $(DESTDIR)$(sysconfdir)
 	mkdir -p $(DESTDIR)$(pkglibdir)/modules.d
 	mkdir -p $(DESTDIR)$(mandir)/man1 $(DESTDIR)$(mandir)/man5 $(DESTDIR)$(mandir)/man7 $(DESTDIR)$(mandir)/man8
-	install -m 0755 dracut.sh $(DESTDIR)$(bindir)/dracut
-	install -m 0755 dracut-catimages.sh $(DESTDIR)$(bindir)/dracut-catimages
-	install -m 0755 lsinitrd.sh $(DESTDIR)$(bindir)/lsinitrd
-	install -m 0644 dracut.conf $(DESTDIR)$(sysconfdir)/dracut.conf
+	install -m 0755 src/dracut/dracut.sh $(DESTDIR)$(bindir)/dracut
+	install -m 0755 src/dracut/dracut-catimages.sh $(DESTDIR)$(bindir)/dracut-catimages
+	install -m 0755 src/dracut/lsinitrd.sh $(DESTDIR)$(bindir)/lsinitrd
+	install -m 0644 src/dracut/dracut.conf $(DESTDIR)$(sysconfdir)/dracut.conf
 	mkdir -p $(DESTDIR)$(sysconfdir)/dracut.conf.d
 	mkdir -p $(DESTDIR)$(pkglibdir)/dracut.conf.d
-	install -m 0755 dracut-init.sh $(DESTDIR)$(pkglibdir)/dracut-init.sh
-	install -m 0755 dracut-functions.sh $(DESTDIR)$(pkglibdir)/dracut-functions.sh
+	install -m 0755 src/dracut/dracut-init.sh $(DESTDIR)$(pkglibdir)/dracut-init.sh
+	install -m 0755 src/dracut/dracut-functions.sh $(DESTDIR)$(pkglibdir)/dracut-functions.sh
 	install -m 0755 dracut-version.sh $(DESTDIR)$(pkglibdir)/dracut-version.sh
 	ln -fs dracut-functions.sh $(DESTDIR)$(pkglibdir)/dracut-functions
-	install -m 0755 dracut-logger.sh $(DESTDIR)$(pkglibdir)/dracut-logger.sh
-	install -m 0755 dracut-initramfs-restore.sh $(DESTDIR)$(pkglibdir)/dracut-initramfs-restore
+	install -m 0755 src/dracut/dracut-logger.sh $(DESTDIR)$(pkglibdir)/dracut-logger.sh
+	install -m 0755 src/dracut/dracut-initramfs-restore.sh $(DESTDIR)$(pkglibdir)/dracut-initramfs-restore
 	cp -arx modules.d $(DESTDIR)$(pkglibdir)
 ifneq ($(enable_documentation),no)
 	for i in $(man1pages); do install -m 0644 $$i $(DESTDIR)$(mandir)/man1/$${i##*/}; done
@@ -265,7 +265,7 @@ srpm: syncheck
 endif
 
 syncheck:
-	@ret=0;for i in dracut-initramfs-restore.sh modules.d/*/*.sh; do \
+	@ret=0;for i in src/dracut/dracut-initramfs-restore.sh modules.d/*/*.sh; do \
                 [ "$${i##*/}" = "module-setup.sh" ] && continue; \
                 read line < "$$i"; [ "$${line#*bash*}" != "$$line" ] && continue; \
 		[ $$V ] && echo "posix syntax check: $$i"; bash --posix -n "$$i" ; ret=$$(($$ret+$$?)); \
@@ -288,29 +288,29 @@ check: all syncheck rpm
 	@$(MAKE) -C test check
 
 testimage: all
-	./dracut.sh -N -l -a debug -f test-$(KVERSION).img $(KVERSION)
+	./src/dracut/dracut.sh -N -l -a debug -f test-$(KVERSION).img $(KVERSION)
 	@echo wrote  test-$(KVERSION).img
 
 debugtestimage: all
-	./dracut.sh --debug -l -a debug -f test-$(KVERSION).img $(KVERSION)
+	./src/dracut/dracut.sh --debug -l -a debug -f test-$(KVERSION).img $(KVERSION)
 	@echo wrote  test-$(KVERSION).img
 
 testimages: all
-	./dracut.sh -l -a debug --kernel-only -f test-kernel-$(KVERSION).img $(KVERSION)
+	./src/dracut/dracut.sh -l -a debug --kernel-only -f test-kernel-$(KVERSION).img $(KVERSION)
 	@echo wrote  test-$(KVERSION).img
-	./dracut.sh -l -a debug --no-kernel -f test-dracut.img $(KVERSION)
+	./src/dracut/dracut.sh -l -a debug --no-kernel -f test-dracut.img $(KVERSION)
 	@echo wrote  test-dracut.img
 
 debughostimage: all
-	./dracut.sh --debug -H -l -f test-$(KVERSION).img $(KVERSION)
+	./src/dracut/dracut.sh --debug -H -l -f test-$(KVERSION).img $(KVERSION)
 	@echo wrote  test-$(KVERSION).img
 
 hostimage: all
-	./dracut.sh -H -l -f test-$(KVERSION).img $(KVERSION)
+	./src/dracut/dracut.sh -H -l -f test-$(KVERSION).img $(KVERSION)
 	@echo wrote  test-$(KVERSION).img
 
 efi: all
-	./dracut.sh --uefi -H -l -f linux-$(KVERSION).efi $(KVERSION)
+	./src/dracut/dracut.sh --uefi -H -l -f linux-$(KVERSION).efi $(KVERSION)
 	@echo wrote linux-$(KVERSION).efi
 
 AUTHORS:
