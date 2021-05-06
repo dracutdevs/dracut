@@ -17,7 +17,7 @@ install() {
         sed ls flock cp mv dmesg rm ln rmmod mkfifo umount readlink setsid \
         modprobe chmod
 
-    inst_multiple -o findmnt less kmod dracut-getargs
+    inst_multiple -o findmnt less kmod
 
     inst_binary "${dracutsysrootdir}${dracutbasedir}/dracut-util" "/usr/bin/dracut-util"
 
@@ -117,6 +117,8 @@ install() {
                 fi
                 export PREFIX="$initdir"
 
+                # suppress getarg for `rd.memdebug`
+                export DEBUG_MEM_LEVEL=0
                 # shellcheck source=dracut-lib.sh
                 . "$moddir/dracut-lib.sh"
 
