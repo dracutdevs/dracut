@@ -1,5 +1,5 @@
 #!/bin/bash
-PATH=/sbin:/bin:/usr/sbin:/usr/bin
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
 export PATH
 
 # shellcheck disable=SC1090

@@ -90,11 +90,7 @@ test_setup() {
             return 1
         fi
         inst /sbin/init
-        inst /lib/systemd/system/systemd-remount-fs.service
-        inst /lib/systemd/systemd-remount-fs
-        inst /lib/systemd/system/systemd-journal-flush.service
-        inst /lib/systemd/system/slices.target
-        inst_multiple -o /lib/systemd/system/dracut*
+        inst_multiple -o {,/usr}/lib/systemd/system/"dracut*"
 
         inst_simple "${basedir}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh"
         inst_binary "${basedir}/dracut-util" "/usr/bin/dracut-util"
@@ -112,7 +108,7 @@ test_setup() {
             /etc/shadow \
             /etc/group \
             /etc/shells \
-            /etc/nsswitch.conf \
+            {,/usr}/etc/nsswitch.conf \
             /etc/pam.conf \
             /etc/securetty \
             /etc/os-release \
@@ -200,7 +196,7 @@ EOF
         ln -fs /proc/self/mounts "$initdir"/etc/mtab
 
         # install any Execs from the service files
-        grep -Eho '^Exec[^ ]*=[^ ]+' "$initdir"/lib/systemd/system/*.service \
+        grep -Eho '^Exec[^ ]*=[^ ]+' "$initdir"{,/usr}/lib/systemd/system/*.service \
             | while read -r i || [ -n "$i" ]; do
                 i=${i##Exec*=}
                 i=${i##-}

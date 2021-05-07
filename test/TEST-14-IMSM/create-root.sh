@@ -27,13 +27,14 @@ sleep 1
 udevadm settle
 
 sfdisk -g /dev/mapper/isw*Test0
-# save a partition at the beginning for future flagging purposes
 sfdisk --no-reread /dev/mapper/isw*Test0 << EOF
 ,4M
 ,28M
 ,28M
 ,28M
 EOF
+
+set -x
 
 udevadm settle
 dmraid -a n
@@ -49,10 +50,7 @@ done
 udevadm settle
 
 mdadm --create /dev/md0 --run --auto=yes --level=5 --raid-devices=3 \
-    /dev/mapper/isw*p2 \
-    /dev/mapper/isw*p3 \
-    /dev/mapper/isw*p4
-
+    /dev/mapper/isw*p*[234]
 # wait for the array to finish initailizing, otherwise this sometimes fails
 # randomly.
 mdadm -W /dev/md0

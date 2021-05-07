@@ -1,7 +1,7 @@
 #!/bin/sh
 . /lib/dracut-lib.sh
 
-export PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 command -v plymouth > /dev/null 2>&1 && plymouth --quit
 exec > /dev/console 2>&1
 
@@ -9,6 +9,9 @@ export TERM=linux
 export PS1='initramfs-test:\w\$ '
 stty sane
 echo "made it to the rootfs! Powering down."
+
+set -x
+
 for i in /sys/class/net/*; do
     # booting with network-manager module
     state=/run/NetworkManager/devices/$(cat "$i"/ifindex)
@@ -17,6 +20,7 @@ for i in /sys/class/net/*; do
     ip link show "$i" | grep -q master && continue
     IFACES="${IFACES}${i} "
 done
+
 for i in /run/initramfs/net.*.did-setup; do
     # booting with network-legacy module
     [ -f "$i" ] || continue

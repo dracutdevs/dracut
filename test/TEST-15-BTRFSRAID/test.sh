@@ -41,9 +41,6 @@ test_setup() {
             cd "$initdir" || exit
             mkdir -p -- dev sys proc etc var/run tmp
             mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
-            for i in bin sbin lib lib64; do
-                ln -sfnr usr/$i $i
-            done
             mkdir -p -- var/lib/nfs/rpc_pipefs
         )
         inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
