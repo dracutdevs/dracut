@@ -1,0 +1,6 @@
+[Match]
+OriginalName=*
+
+[Link]
+NamePolicy=mac
+MACAddressPolicy=keep

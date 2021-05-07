@@ -211,6 +211,7 @@ test_setup() {
     dd if=/dev/zero of="$TESTDIR"/server.ext3 bs=1M count=120
 
     kernel=$KVERSION
+    rm -rf -- "$TESTDIR"/overlay
     (
         mkdir -p "$TESTDIR"/overlay/source
         # shellcheck disable=SC2030
@@ -255,7 +256,7 @@ test_setup() {
         inst ./hosts /etc/hosts
         inst ./exports /etc/exports
         inst ./dhcpd.conf /etc/dhcpd.conf
-        inst_multiple /etc/nsswitch.conf /etc/rpc /etc/protocols
+        inst_multiple -o {,/usr}/etc/nsswitch.conf {,/usr}/etc/rpc {,/usr}/etc/protocols
 
         inst_multiple rpc.idmapd /etc/idmapd.conf
 
@@ -263,14 +264,16 @@ test_setup() {
         inst_libdir_file 'libnfsidmap/*.so*'
         inst_libdir_file 'libnfsidmap*.so*'
 
-        _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
-            | tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
+        _nsslibs=$(
+            cat "$dracutsysrootdir"/{,usr/}etc/nsswitch.conf 2> /dev/null \
+                | sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' \
+                | tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|'
+        )
         _nsslibs=${_nsslibs#|}
         _nsslibs=${_nsslibs%|}
 
         inst_libdir_file -n "$_nsslibs" 'libnss_*.so*'
 
-        inst /etc/nsswitch.conf /etc/nsswitch.conf
         inst /etc/passwd /etc/passwd
         inst /etc/group /etc/group
 
@@ -299,7 +302,7 @@ test_setup() {
             mkdir -p -- dev sys proc etc run
             mkdir -p -- var/lib/nfs/rpc_pipefs
         )
-        inst /etc/nsswitch.conf /etc/nsswitch.conf
+        inst_multiple -o {,/usr}/etc/nsswitch.conf {,/usr}/etc/rpc {,/usr}/etc/protocols
         inst /etc/passwd /etc/passwd
         inst /etc/group /etc/group
 
@@ -308,8 +311,11 @@ test_setup() {
         inst_libdir_file 'libnfsidmap/*.so*'
         inst_libdir_file 'libnfsidmap*.so*'
 
-        _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' -- /etc/nsswitch.conf \
-            | tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
+        _nsslibs=$(
+            cat "$dracutsysrootdir"/{,usr/}etc/nsswitch.conf 2> /dev/null \
+                | sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' \
+                | tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|'
+        )
         _nsslibs=${_nsslibs#|}
         _nsslibs=${_nsslibs%|}
 
@@ -358,13 +364,13 @@ test_setup() {
         . "$basedir"/dracut-init.sh
         inst_multiple poweroff shutdown
         inst_hook emergency 000 ./hard-off.sh
+        inst_simple ./client.link /etc/systemd/network/01-client.link
     )
     # Make client's dracut image
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         --no-early-microcode \
         -o "plymouth ${OMIT_NETWORK}" \
         -a "debug ${USE_NETWORK}" \
-        -d "ipvlan macvlan af_packet piix sd_mod sr_mod ata_piix ide-gd_mod virtio-net nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files sunrpc i6300esb ib700wdt" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 
@@ -373,7 +379,7 @@ test_setup() {
         export initdir="$TESTDIR"/overlay
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
-        inst_simple ./99-default.link /etc/systemd/network/99-default.link
+        inst_simple ./server.link /etc/systemd/network/01-server.link
         inst_hook pre-mount 99 ./wait-if-server.sh
     )
     # Make server's dracut image

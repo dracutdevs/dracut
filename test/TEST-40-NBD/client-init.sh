@@ -2,7 +2,7 @@
 : > /dev/watchdog
 . /lib/dracut-lib.sh
 
-export PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 command -v plymouth > /dev/null 2>&1 && plymouth --quit
 exec > /dev/console 2>&1
 

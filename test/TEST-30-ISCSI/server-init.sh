@@ -1,7 +1,7 @@
 #!/bin/sh
 exec < /dev/console > /dev/console 2>&1
 set -x
-export PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 export TERM=linux
 export PS1='server:\w\$ '
 stty sane
@@ -20,15 +20,47 @@ wait_for_if_link() {
     return 1
 }
 
-wait_for_if_link enp0s1
-wait_for_if_link enp0s2
+wait_for_if_up() {
+    local cnt=0
+    local li
+    while [ $cnt -lt 200 ]; do
+        li=$(ip -o link show up dev "$1")
+        [ -n "$li" ] && return 0
+        sleep 0.1
+        cnt=$((cnt + 1))
+    done
+    return 1
+}
+
+wait_for_route_ok() {
+    local cnt=0
+    while [ $cnt -lt 200 ]; do
+        li=$(ip route show)
+        [ -n "$li" ] && [ -z "${li##*$1*}" ] && return 0
+        sleep 0.1
+        cnt=$((cnt + 1))
+    done
+    return 1
+}
+
+linkup() {
+    wait_for_if_link "$1" 2> /dev/null && ip link set "$1" up 2> /dev/null && wait_for_if_up "$1" 2> /dev/null
+}
+
+wait_for_if_link enx525400123456
+wait_for_if_link enx525400123457
 
 ip addr add 127.0.0.1/8 dev lo
 ip link set lo up
-ip addr add 192.168.50.1/24 dev enp0s1
-ip link set enp0s1 up
-ip addr add 192.168.51.1/24 dev enp0s2
-ip link set enp0s2 up
+
+ip addr add 192.168.50.1/24 dev enx525400123456
+linkup enx525400123456
+
+ip addr add 192.168.51.1/24 dev enx525400123457
+linkup enx525400123457
+
+modprobe af_packet
+
 : > /var/lib/dhcpd/dhcpd.leases
 chmod 777 /var/lib/dhcpd/dhcpd.leases
 dhcpd -d -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases &
@@ -44,9 +76,8 @@ tgtadm --lld iscsi --mode target --op bind --tid 1 -I 192.168.50.101
 tgtadm --lld iscsi --mode target --op bind --tid 2 -I 192.168.51.101
 tgtadm --lld iscsi --mode target --op bind --tid 3 -I 192.168.50.101
 
-echo "Serving iSCSI"
-
 # Wait forever for the VM to die
+echo "Serving iSCSI"
 while pidof tgtd > /dev/null; do
     : > /dev/watchdog
     dmesg -c
