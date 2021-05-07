@@ -589,7 +589,15 @@ static int resolve_deps(const char *src)
                 if (strstr(buf, destrootdir))
                         break;
 
-                p = strchr(buf, '/');
+                p = buf;
+                if (strchr(p, '$')) {
+                        /* take ldd variable expansion into account */
+                        p = strstr(p, "=>");
+                        if (!p)
+                                p = buf;
+                }
+                p = strchr(p, '/');
+
                 if (p) {
                         char *q;
 
