@@ -2,5 +2,5 @@
 OriginalName=*
 
 [Link]
-NamePolicy=keep kernel database onboard slot path
+NamePolicy=mac
 MACAddressPolicy=keep

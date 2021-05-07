@@ -1,10 +1,10 @@
 #!/bin/sh
 exec < /dev/console > /dev/console 2>&1
 set -x
-export PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 export TERM=linux
 export PS1='nfstest-server:\w\$ '
-echo > /dev/watchdog
+: > /dev/watchdog
 stty sane
 echo "made it to the rootfs!"
 echo server > /proc/sys/kernel/hostname
@@ -48,57 +48,61 @@ linkup() {
     wait_for_if_link "$1" 2> /dev/null && ip link set "$1" up 2> /dev/null && wait_for_if_up "$1" 2> /dev/null
 }
 
-wait_for_if_link enp0s1
+wait_for_if_link enx525400123456
 
 ip addr add 127.0.0.1/8 dev lo
 ip link set lo up
-ip addr add 192.168.50.1/24 dev enp0s1
-ip addr add 192.168.50.2/24 dev enp0s1
-ip addr add 192.168.50.3/24 dev enp0s1
-linkup enp0s1
+ip addr add 192.168.50.1/24 dev enx525400123456
+ip addr add 192.168.50.2/24 dev enx525400123456
+ip addr add 192.168.50.3/24 dev enx525400123456
+linkup enx525400123456
 
-echo > /dev/watchdog
+: > /dev/watchdog
 modprobe af_packet
-echo > /dev/watchdog
+: > /dev/watchdog
+mkdir /nfs/nfs3-5
 mount --bind /nfs/client /nfs/nfs3-5
-echo > /dev/watchdog
+: > /dev/watchdog
+mkdir -p /nfs/ip/192.168.50.101
 mount --bind /nfs/client /nfs/ip/192.168.50.101
-echo > /dev/watchdog
+: > /dev/watchdog
+mkdir -p /nfs/tftpboot/nfs4-5
 mount --bind /nfs/client /nfs/tftpboot/nfs4-5
-echo > /dev/watchdog
+: > /dev/watchdog
 modprobe sunrpc
-echo > /dev/watchdog
+: > /dev/watchdog
 mount -t rpc_pipefs sunrpc /var/lib/nfs/rpc_pipefs
-echo > /dev/watchdog
+: > /dev/watchdog
 [ -x /sbin/portmap ] && portmap
-echo > /dev/watchdog
+: > /dev/watchdog
 mkdir -p /run/rpcbind
 [ -x /sbin/rpcbind ] && rpcbind
-echo > /dev/watchdog
+: > /dev/watchdog
 modprobe nfsd
-echo > /dev/watchdog
+: > /dev/watchdog
 mount -t nfsd nfsd /proc/fs/nfsd
-echo > /dev/watchdog
+: > /dev/watchdog
 exportfs -r
-echo > /dev/watchdog
+: > /dev/watchdog
 rpc.nfsd
-echo > /dev/watchdog
+: > /dev/watchdog
 rpc.mountd
-echo > /dev/watchdog
+: > /dev/watchdog
 rpc.idmapd
-echo > /dev/watchdog
+: > /dev/watchdog
 exportfs -r
-echo > /dev/watchdog
+: > /dev/watchdog
 mkdir -p /var/lib/dhcpd
 : > /var/lib/dhcpd/dhcpd.leases
-echo > /dev/watchdog
+: > /dev/watchdog
 chmod 777 /var/lib/dhcpd/dhcpd.leases
-echo > /dev/watchdog
+: > /dev/watchdog
 rm -f /var/run/dhcpd.pid
 dhcpd -d -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases &
+exportfs -s
 echo "Serving NFS mounts"
 while :; do
-    [ -n "$(jobs -rp)" ] && echo > /dev/watchdog
+    [ -n "$(jobs -rp)" ] && : > /dev/watchdog
     sleep 10
 done
 mount -n -o remount,ro /

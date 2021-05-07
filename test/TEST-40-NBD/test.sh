@@ -14,11 +14,12 @@ TEST_DESCRIPTION="root filesystem on NBD with $USE_NETWORK"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
+# DEBUGFAIL="rd.debug systemd.log_target=console loglevel=7"
 #DEBUGFAIL="rd.shell rd.break rd.debug systemd.log_target=console loglevel=7 systemd.log_level=debug"
 #SERIAL="tcp:127.0.0.1:9999"
 
 test_check() {
-    if ! type -p nbd-server 2> /dev/null; then
+    if ! type -p nbd-server &> /dev/null; then
         echo "Test needs nbd-server... Skipping"
         return 1
     fi
@@ -208,10 +209,6 @@ make_encrypted_root() {
         (
             cd "$initdir" || exit
             mkdir -p dev sys proc etc run var/run tmp
-            mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
-            for i in bin sbin lib lib64; do
-                ln -sfnr usr/$i $i
-            done
         )
 
         inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
@@ -242,10 +239,7 @@ make_encrypted_root() {
         . "$basedir"/dracut-init.sh
         (
             cd "$initdir" || exit
-            mkdir -p dev sys proc etc tmp var run root usr/bin usr/lib usr/lib64 usr/sbin
-            for i in bin sbin lib lib64; do
-                ln -sfnr usr/$i $i
-            done
+            mkdir -p dev sys proc etc tmp var run root
             ln -s ../run var/run
         )
         inst_multiple mkfs.ext3 poweroff cp umount dd sync
@@ -296,10 +290,6 @@ make_client_root() {
         (
             cd "$initdir" || exit
             mkdir -p dev sys proc etc run var/run tmp
-            mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
-            for i in bin sbin lib lib64; do
-                ln -sfnr usr/$i $i
-            done
         )
         inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
             dmesg mkdir cp ping dd mount sync
@@ -315,7 +305,7 @@ make_client_root() {
 
         inst ./client-init.sh /sbin/init
         inst_simple /etc/os-release
-        inst /etc/nsswitch.conf /etc/nsswitch.conf
+        inst_multiple -o {,/usr}/etc/nsswitch.conf
         inst /etc/passwd /etc/passwd
         inst /etc/group /etc/group
         for i in /usr/lib*/libnss_files* /lib*/libnss_files*; do
@@ -395,28 +385,34 @@ bs = 4096
 EOF
         inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
             dmesg mkdir cp ping grep \
-            sleep nbd-server chmod modprobe vi
+            sleep nbd-server chmod modprobe vi pidof
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
         inst_multiple -o ${_terminfodir}/l/linux
-        instmods af_packet
+        instmods nfsd sunrpc ipv6 lockd af_packet 8021q ipvlan macvlan
         type -P dhcpd > /dev/null && inst_multiple dhcpd
         [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
         inst ./server-init.sh /sbin/init
         inst_simple /etc/os-release
         inst ./hosts /etc/hosts
         inst ./dhcpd.conf /etc/dhcpd.conf
-        inst /etc/nsswitch.conf /etc/nsswitch.conf
+        inst_multiple -o {,/usr}/etc/nsswitch.conf
         inst /etc/passwd /etc/passwd
         inst /etc/group /etc/group
-        for i in /usr/lib*/libnss_files* /lib*/libnss_files*; do
-            [ -e "$i" ] || continue
-            inst "$i"
-        done
+        _nsslibs=$(
+            cat "$dracutsysrootdir"/{,usr/}etc/nsswitch.conf 2> /dev/null \
+                | sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' \
+                | tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|'
+        )
+        _nsslibs=${_nsslibs#|}
+        _nsslibs=${_nsslibs%|}
+
+        inst_libdir_file -n "$_nsslibs" 'libnss_*.so*'
 
         cp -a /etc/ld.so.conf* "$initdir"/etc
         ldconfig -r "$initdir"
+        dracut_kernel_post
     )
 
     # second, install the files needed to make the root filesystem
@@ -467,6 +463,7 @@ test_setup() {
     # Make the test image
     (
         # shellcheck disable=SC2031
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
@@ -483,20 +480,31 @@ test_setup() {
         mkdir -p "$initdir"/etc
         echo "luks-$ID_FS_UUID /dev/nbd0 /etc/key" > "$initdir"/etc/crypttab
         echo -n test > "$initdir"/etc/key
+        inst_simple ./99-default.link /etc/systemd/network/99-default.link
     )
-
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
-        -a "udev-rules base rootfs-block fs-lib debug kernel-modules" \
-        -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 drbg" \
-        --no-hostonly-cmdline -N \
-        -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
 
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -o "plymouth dash iscsi nfs ${OMIT_NETWORK}" \
         -a "debug watchdog ${USE_NETWORK}" \
-        -d "af_packet piix ide-gd_mod ata_piix ext3 ext3 sd_mod e1000 i6300esb ib700wdt" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
+
+    (
+        # shellcheck disable=SC2031
+        export initdir="$TESTDIR"/overlay
+        # shellcheck disable=SC1090
+        . "$basedir"/dracut-init.sh
+        rm "$initdir"/etc/systemd/network/99-default.link
+        inst_simple ./server-99-default.link /etc/systemd/network/99-default.link
+        inst_hook pre-mount 99 ./wait-if-server.sh
+    )
+    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+        -a "udev-rules base rootfs-block fs-lib debug kernel-modules network network-legacy" \
+        -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 drbg" \
+        --no-hostonly-cmdline -N \
+        -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
+
+    rm -rf -- "$TESTDIR"/overlay
 }
 
 kill_server() {

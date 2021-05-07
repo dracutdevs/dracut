@@ -163,9 +163,6 @@ test_setup() {
             cd "$initdir" || exit
             mkdir -p -- dev sys proc etc var/run tmp
             mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
-            for i in bin sbin lib lib64; do
-                ln -sfnr usr/$i $i
-            done
             mkdir -p -- var/lib/nfs/rpc_pipefs
         )
         inst_multiple sh shutdown poweroff stty cat ps ln ip \
@@ -228,9 +225,6 @@ test_setup() {
     grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
     rm -- "$TESTDIR"/marker.img
 
-    # Make server root
-    echo "MAKE SERVER ROOT"
-
     # shellcheck disable=SC2031
     export kernel=$KVERSION
     rm -rf -- "$TESTDIR"/overlay
@@ -247,29 +241,39 @@ test_setup() {
         )
         inst /etc/passwd /etc/passwd
         inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
-            dmesg mkdir cp ping \
-            modprobe tcpdump setsid \
-            /etc/services sleep mount chmod pidof
+            dmesg mkdir cp ping modprobe tcpdump setsid \
+            sleep mount chmod pidof
         inst_multiple tgtd tgtadm
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
         inst_multiple -o ${_terminfodir}/l/linux
-        instmods iscsi_tcp crc32c ipv6
+        instmods iscsi_tcp crc32c ipv6 af_packet
         [ -f /etc/netconfig ] && inst_multiple /etc/netconfig
         type -P dhcpd > /dev/null && inst_multiple dhcpd
         [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
-        inst_simple /etc/os-release
         inst ./server-init.sh /sbin/init
         inst ./hosts /etc/hosts
         inst ./dhcpd.conf /etc/dhcpd.conf
-        inst_multiple /etc/nsswitch.conf /etc/rpc /etc/protocols
-        inst /etc/group /etc/group
+        inst_multiple -o {,/usr}/etc/nsswitch.conf {,/usr}/etc/rpc \
+            {,/usr}/etc/protocols {,/usr}/etc/services \
+            /etc/group /etc/os-release
+
+        _nsslibs=$(
+            cat "$dracutsysrootdir"/{,usr/}etc/nsswitch.conf 2> /dev/null \
+                | sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' \
+                | tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|'
+        )
+        _nsslibs=${_nsslibs#|}
+        _nsslibs=${_nsslibs%|}
+
+        inst_libdir_file -n "$_nsslibs" 'libnss_*.so*'
 
         cp -a /etc/ld.so.conf* "$initdir"/etc
         ldconfig -r "$initdir"
         dracut_kernel_post
     )
+
     # second, install the files needed to make the root filesystem
     (
         # shellcheck disable=SC2031
@@ -312,28 +316,37 @@ test_setup() {
     # Make an overlay with needed tools for the test harness
     (
         # shellcheck disable=SC2031
+        # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         inst_multiple poweroff shutdown
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
+        inst_simple ./99-default.link /etc/systemd/network/99-default.link
     )
-
-    # Make server's dracut image
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
-        -a "dash udev-rules base rootfs-block fs-lib debug kernel-modules" \
-        -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 drbg" \
-        --no-hostonly-cmdline -N \
-        -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
-
     # Make client's dracut image
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -o "dash plymouth dmraid nfs ${OMIT_NETWORK}" \
         -a "debug ${USE_NETWORK}" \
-        -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
+
+    (
+        # shellcheck disable=SC2031
+        export initdir="$TESTDIR"/overlay
+        # shellcheck disable=SC1090
+        . "$basedir"/dracut-init.sh
+        rm "$initdir"/etc/systemd/network/99-default.link
+        inst_simple ./server-99-default.link /etc/systemd/network/99-default.link
+        inst_hook pre-mount 99 ./wait-if-server.sh
+    )
+    # Make server's dracut image
+    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+        -a "dash udev-rules base rootfs-block fs-lib debug kernel-modules network network-legacy" \
+        -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 drbg" \
+        --no-hostonly-cmdline -N \
+        -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
 
     rm -rf -- "$TESTDIR"/overlay
 }

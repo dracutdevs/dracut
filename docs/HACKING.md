@@ -225,64 +225,105 @@ init has the following hook points to inject scripts:
 
 ## Testsuite
 
-For the testsuite to work, you will have to install at least the following software packages:
+### Rootless in a container with podman
 
-Fedora:
-
-```
-dash \
-asciidoc \
-mdadm \
-lvm2 \
-dmraid \
-cryptsetup \
-nfs-utils \
-nbd \
-dhcp-server \
-scsi-target-utils \
-iscsi-initiator-utils \
-strace \
-syslinux \
-python-imgcreate \
-genisoimage \
-btrfs-progs \
-kmod-devel \
-gcc \
-bzip2 \
-xz \
-tar \
-wget \
-rpm-build \
-${NULL}
+```console
+$ cd <DRACUT_SOURCE>
+$ podman run --rm -it \
+    --cap-add=SYS_PTRACE --user 0 \
+    -v /dev:/dev -v ./:/dracut:z \
+    [CONTAINER] \
+    bash
 ```
 
-Arch Linux:
+#### Fedora
 
-```
-linux \
-dash \
-strace \
-gcc \
-dhclient \
-asciidoc \
-make \
-dracut \
-qemu \
-jack \
-btrfs-progs \
-mdadm \
-dmraid \
-nfs-utils \
-nfsidmap \
-lvm2 \
-nbd \
-dhcp \
-networkmanager \
-multipath-tools \
-${NULL}
+[`quay.io/haraldh/dracut-fedora`](https://github.com/dracutdevs/fedora-container) containers are built daily.
+The `Dockerfile`s in the repository contain the needed package list.
+
+```console
+$ cd <DRACUT_SOURCE>
+$ podman run --rm -it \
+    --cap-add=SYS_PTRACE --user 0 \
+    -v /dev:/dev -v ./:/dracut:z \
+    quay.io/haraldh/dracut-fedora:34 bash
+# cd /dracut
+# ./configure
+# make V=1 SKIP="16 60 61" clean check
 ```
 
-### How to run the testsuite on bare metal:
+#### Arch Linux
+
+Note: `nbd` has to be rebuild, because it was compiled [without netlink support](https://bugs.archlinux.org/task/70793).
+
+Note: `tgt` has to be built manually because it seems to be [out of date](https://aur.archlinux.org/packages/tgt/).
+
+```console
+$ cd <DRACUT_SOURCE>
+$ podman run --rm -it \
+    --cap-add=SYS_PTRACE --user 0 \
+    -v /dev:/dev -v ./:/dracut:z \
+    archlinux bash
+# pacman --noconfirm -Sy \
+    linux dash strace gcc dhclient asciidoc make dracut \
+    qemu jack btrfs-progs mdadm dmraid nfs-utils nfsidmap lvm2 nbd \
+    dhcp networkmanager multipath-tools vi tcpdump open-iscsi \
+    git shfmt shellcheck astyle which base-devel
+# useradd build
+# mkdir /build
+# chown -R build /build
+# su build
+$ cd /build
+$ git clone https://aur.archlinux.org/perl-config-general.git
+$ cd perl-config-general
+$ makepkg -s --noconfirm
+$ exit
+# pacman -U --noconfirm /build/perl-config-general/*.pkg.tar.*
+# su build
+$ cd /build
+$ git clone https://aur.archlinux.org/tgt.git
+$ cd tgt
+$ echo "CFLAGS=-Wno-error=stringop-truncation" >> PKGBUILD
+$ makepkg -s --noconfirm
+$ exit
+# pacman -U --noconfirm /build/tgt/*.pkg.tar.*
+# rm -fr /build
+# cd /dracut
+# ./configure
+# export DRACUT_NO_XATTR=1 KVERSION=$(cd /lib/modules; ls -1 | tail -1)
+# make V=1 SKIP="16 60 61 99" clean check
+```
+
+#### OpenSuse
+
+Note: `NetworkManager` dbus files have to moved from `/etc` to `/usr`.
+
+```console
+$ cd <DRACUT_SOURCE>
+$ podman run --rm -it \
+    --cap-add=SYS_PTRACE --user 0 \
+    -v /dev:/dev -v ./:/dracut:z \
+    registry.opensuse.org/opensuse/tumbleweed-dnf:latest bash
+# dnf -y install --setopt=install_weak_deps=False \
+    dash asciidoc mdadm lvm2 dmraid cryptsetup nfs-utils nbd dhcp-server \
+    strace libkmod-devel gcc bzip2 xz tar wget rpm-build make git bash-completion \
+    sudo kernel dhcp-client qemu-kvm /usr/bin/qemu-system-$(uname -m) e2fsprogs \
+    tcpdump iproute iputils kbd NetworkManager btrfsprogs tgt dbus-broker \
+    iscsiuio open-iscsi which ShellCheck procps
+# shfmt_version=3.2.4; wget "https://github.com/mvdan/sh/releases/download/v${shfmt_version}/shfmt_v${shfmt_version}_linux_amd64" -O /usr/local/bin/shfmt
+# chmod +x /usr/local/bin/shfmt
+# cd /dracut
+# ./configure
+# export DRACUT_NO_XATTR=1 KVERSION=$(cd /lib/modules; ls -1 | tail -1)
+# # Workaround for badly packaged rpms like NetworkManager
+# mv /etc/dbus-1/system.d/* /usr/share/dbus-1/system.d/
+# make V=1 SKIP="16 60 61 99" clean check
+```
+
+### On bare metal
+
+For the testsuite to pass, you will have to install at least the software packages
+mentioned in the rootless podman section.
 
 ```
 $ sudo make clean check
@@ -304,48 +345,8 @@ debug a specific test case:
 $ cd TEST-01-BASIC
 $ sudo make clean setup run
 ```
-... change some kernel parameters ...
+... change some kernel parameters in `test.sh` ...
 ```
 $ sudo make run
 ```
-to run the test without doing the setup
-
-### Rootless in a container with podman
-
-```console
-podman run -it \
-    --cap-add=SYS_PTRACE --user 0 \
-    -v /dev:/dev -v ./:/dracut \
-    [CONTAINER] \
-    bash
-```
-
-#### Fedora
-
-```console
-$ podman run -it \
-    --cap-add=SYS_PTRACE --user 0 \
-    -v /dev:/dev -v ./:/dracut \
-    quay.io/haraldh/dracut-fedora:34 bash
-# cd /dracut
-# make V=1 check
-# cd test/TEST-01*
-# make clean setup run
-# cd ../..
-# make clean
-```
-
-#### Arch Linux
-```console
-$ podman run -it \
-    --cap-add=SYS_PTRACE --user 0 \
-    -v /dev:/dev -v ./:/dracut \
-    archlinux bash
-# pacman -Sy linux dash strace gcc dhclient asciidoc make dracut \
-    qemu jack btrfs-progs mdadm dmraid nfs-utils nfsidmap lvm2 nbd \
-    dhcp networkmanager multipath-tools vi tcpdump \
-    git shfmt shellcheck astyle which
-# cd /dracut
-# export DRACUT_NO_XATTR=1 KVERSION=$(cd /lib/modules; ls -1 | tail -1)
-# make V=1 TESTS="01 02 03 04 10 11 12 13 14 15 17 20 21 40 41 98" check
-```
+to run the test without doing the setup.

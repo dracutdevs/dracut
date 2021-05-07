@@ -1,7 +1,7 @@
 #!/bin/sh
 exec < /dev/console > /dev/console 2>&1
 set -x
-export PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 export TERM=linux
 export PS1='nbdtest-server:\w\$ '
 stty sane
@@ -50,9 +50,9 @@ linkup() {
 ip addr add 127.0.0.1/8 dev lo
 ip link set lo up
 
-wait_for_if_link enp0s1
-ip addr add 192.168.50.1/24 dev enp0s1
-linkup enp0s1
+wait_for_if_link enx525400123456
+ip addr add 192.168.50.1/24 dev enx525400123456
+linkup enx525400123456
 
 modprobe af_packet
 nbd-server
@@ -60,9 +60,9 @@ nbd-server
 chmod 777 /var/lib/dhcpd/dhcpd.leases
 dhcpd -d -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases &
 echo "Serving NBD disks"
-while :; do
-    [ -n "$(jobs -rp)" ] && echo > /dev/watchdog
-    sleep 10
+while pidof nbd-server && pidof dhcpd; do
+    echo > /dev/watchdog
+    sleep 1
 done
 mount -n -o remount,ro /
 poweroff -f

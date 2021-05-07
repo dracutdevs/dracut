@@ -214,7 +214,11 @@ handle_netroot() {
     if strglobin "$iscsi_target_ip" '*:*:*' && ! strglobin "$iscsi_target_ip" '['; then
         iscsi_target_ip="[$iscsi_target_ip]"
     fi
-    targets=$(iscsiadm -m discovery -t st -p "$iscsi_target_ip":${iscsi_target_port:+$iscsi_target_port} | sed 's/^.*iqn/iqn/')
+    targets=$(iscsiadm -m discovery -t st -p "$iscsi_target_ip":${iscsi_target_port:+$iscsi_target_port} | {
+        while read -r _ target _ || [ -n "$target" ]; do
+            echo "$target"
+        done
+    })
     [ -z "$targets" ] && echo "Target discovery to $iscsi_target_ip:${iscsi_target_port:+$iscsi_target_port} failed with status $?" && exit 1
 
     found=
