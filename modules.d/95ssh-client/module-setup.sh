@@ -69,8 +69,8 @@ install() {
     inst_sshenv
 
     _nsslibs=$(
-        sed -e 's/#.*//; s/^[^:]*://; s/\[[^]]*\]//' \
-            "$dracutsysrootdir"/etc/nsswitch.conf \
+        cat "$dracutsysrootdir"/{,usr/}etc/nsswitch.conf 2> /dev/null \
+            | sed -e 's/#.*//; s/^[^:]*://; s/\[[^]]*\]//' \
             | tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|'
     )
     _nsslibs=${_nsslibs#|}
