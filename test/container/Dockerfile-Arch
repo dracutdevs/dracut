@@ -9,17 +9,17 @@ RUN echo 'export DRACUT_NO_XATTR=1 KVERSION=$(cd /lib/modules; ls -1 | tail -1)'
 
 # Install needed packages for the dracut CI container
 RUN pacman --noconfirm -Sy \
-    linux dash strace gcc dhclient asciidoc make dracut \
-    qemu jack btrfs-progs mdadm dmraid nfs-utils nfsidmap lvm2 nbd \
+    linux dash strace dhclient asciidoc \
+    qemu btrfs-progs mdadm dmraid nfs-utils nfsidmap lvm2 nbd \
     dhcp networkmanager multipath-tools vi tcpdump open-iscsi \
-    git shfmt shellcheck astyle which base-devel && pacman -Scc
+    git shfmt shellcheck astyle which base-devel && yes | pacman  -Scc
 
-RUN useradd build && mkdir /build && chown -R build /build
-RUN su build -c 'cd /build && git clone https://aur.archlinux.org/perl-config-general.git && cd perl-config-general && makepkg -s --noconfirm'
-RUN pacman -U --noconfirm /build/perl-config-general/*.pkg.tar.*
-RUN su build -c 'cd /build && git clone https://aur.archlinux.org/tgt.git && cd tgt && echo "CFLAGS=-Wno-error=stringop-truncation" >> PKGBUILD && makepkg -s --noconfirm'
-RUN pacman -U --noconfirm /build/tgt/*.pkg.tar.*
-RUN rm -fr /build
+RUN useradd -m build
+RUN su build -c 'cd && git clone https://aur.archlinux.org/perl-config-general.git && cd perl-config-general && makepkg -s --noconfirm'
+RUN pacman -U --noconfirm ~build/perl-config-general/*.pkg.tar.*
+RUN su build -c 'cd && git clone https://aur.archlinux.org/tgt.git && cd tgt && echo "CFLAGS=-Wno-error=stringop-truncation" >> PKGBUILD && makepkg -s --noconfirm'
+RUN pacman -U --noconfirm ~build/tgt/*.pkg.tar.*
+RUN rm -fr ~build
 
 # Set default command
 CMD ["/usr/bin/bash"]
