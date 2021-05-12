@@ -37,7 +37,7 @@ echo_fs_helper() {
 include_fs_helper_modules() {
     local fs=$2
     case "$fs" in
-        xfs | btrfs | ext4)
+        xfs | btrfs | ext4 | ext3)
             instmods crc32c
             ;;
         f2fs)
