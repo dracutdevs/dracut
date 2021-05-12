@@ -12,7 +12,7 @@ RUN pacman --noconfirm -Sy \
     linux dash strace gcc dhclient asciidoc make dracut \
     qemu jack btrfs-progs mdadm dmraid nfs-utils nfsidmap lvm2 nbd \
     dhcp networkmanager multipath-tools vi tcpdump open-iscsi \
-    git shfmt shellcheck astyle which base-devel
+    git shfmt shellcheck astyle which base-devel && pacman -Scc
 
 RUN useradd build && mkdir /build && chown -R build /build
 RUN su build -c 'cd /build && git clone https://aur.archlinux.org/perl-config-general.git && cd perl-config-general && makepkg -s --noconfirm'
