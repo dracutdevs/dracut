@@ -1838,6 +1838,7 @@ fi
 
 if [[ $prefix ]]; then
     for d in bin etc lib sbin tmp usr var $libdirs; do
+        d=${d#/}
         [[ $d == */* ]] && continue
         ln -sfn "${prefix#/}/${d#/}" "$initdir/$d"
     done
@@ -1845,6 +1846,7 @@ fi
 
 if [[ $kernel_only != yes ]]; then
     for d in usr usr/bin usr/sbin bin etc lib sbin tmp var var/tmp $libdirs; do
+        d=${d#/}
         [[ -e "${initdir}${prefix}/$d" ]] && continue
         if [ -L "/$d" ]; then
             inst_symlink "/$d" "${prefix}/$d"
