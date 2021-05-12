@@ -1,0 +1,54 @@
+name: Container
+on:
+    schedule:
+        -  cron: '30 11 * * *'   # every day at 4:40
+    push:
+        branches: [ master ]
+        paths:
+            - 'test/container/**'
+            - '.github/workflows/container.yml'
+    pull_request:
+        branches: [ master ]
+        paths:
+            - 'test/container/**'
+            - '.github/workflows/container.yml'
+
+permissions:
+    packages: write
+    contents: read
+
+jobs:
+    push_to_registry:
+        name: Build and push containers image to GitHub Packages
+        runs-on: ubuntu-latest
+        concurrency:
+            group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.config.dockerfile }}
+            cancel-in-progress: true
+        strategy:
+            fail-fast: false
+            matrix:
+                config:
+                    - { dockerfile: 'Dockerfile-Fedora-33',         tag: 'fedora:33' }
+                    - { dockerfile: 'Dockerfile-Fedora-34',         tag: 'fedora:34' }
+                    - { dockerfile: 'Dockerfile-Fedora-latest',     tag: 'fedora:latest' }
+                    - { dockerfile: 'Dockerfile-OpenSuse-latest',   tag: 'opensuse:latest' }
+                    - { dockerfile: 'Dockerfile-Arch',              tag: 'arch:latest' }
+        steps:
+            -   name: Check out the repo
+                uses: actions/checkout@v2
+            -   name: Set up Docker Buildx
+                uses: docker/setup-buildx-action@v1
+#                with:
+#                    buildkitd-flags: --debug
+            -   name: Login to GitHub Container Registry
+                uses: docker/login-action@v1
+                with:
+                    registry: ghcr.io
+                    username: ${{ github.repository_owner }}
+                    password: ${{ secrets.GITHUB_TOKEN }}
+            -   name: Build and Push Container
+                uses: docker/build-push-action@v2
+                with:
+                    file: test/container/${{ matrix.config.dockerfile }}
+                    tags: ghcr.io/dracutdevs/${{ matrix.config.tag }}
+                    push: ${{ github.event_name == 'push' ||  github.event_name == 'schedule' }}
