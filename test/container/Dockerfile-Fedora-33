@@ -10,6 +10,7 @@ RUN echo 'export DRACUT_NO_XATTR=1 KVERSION=$(cd /lib/modules; ls -1 | tail -1)'
 # Install needed packages for the dracut CI container
 RUN dnf -y install --setopt=install_weak_deps=False \
     dash \
+    pigz \
     asciidoc \
     mdadm \
     lvm2 \
