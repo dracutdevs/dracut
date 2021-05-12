@@ -1,0 +1,25 @@
+FROM docker.io/archlinux
+
+MAINTAINER https://github.com/dracutdevs/dracut
+
+ENV container docker
+LABEL RUN="docker run -it --name NAME --privileged --ipc=host --net=host --pid=host -e NAME=NAME -e IMAGE=IMAGE IMAGE"
+
+RUN echo 'export DRACUT_NO_XATTR=1 KVERSION="$(rpm -qa kernel --qf "%{VERSION}-%{RELEASE}.%{ARCH}\n" | sort -rn | head -1)"' > /etc/profile.d/dracut-test.sh
+
+# Install needed packages for the dracut CI container
+RUN pacman --noconfirm -Sy \
+    linux dash strace gcc dhclient asciidoc make dracut \
+    qemu jack btrfs-progs mdadm dmraid nfs-utils nfsidmap lvm2 nbd \
+    dhcp networkmanager multipath-tools vi tcpdump open-iscsi \
+    git shfmt shellcheck astyle which base-devel
+
+RUN useradd build && mkdir /build && chown -R build /build
+RUN su build -c 'cd /build && git clone https://aur.archlinux.org/perl-config-general.git && cd perl-config-general && makepkg -s --noconfirm'
+RUN pacman -U --noconfirm /build/perl-config-general/*.pkg.tar.*
+RUN su build -c 'cd /build && git clone https://aur.archlinux.org/tgt.git && cd tgt && echo "CFLAGS=-Wno-error=stringop-truncation" >> PKGBUILD && makepkg -s --noconfirm'
+RUN pacman -U --noconfirm /build/tgt/*.pkg.tar.*
+RUN rm -fr /build
+
+# Set default command
+CMD ["/usr/bin/bash"]
