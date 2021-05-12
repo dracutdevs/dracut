@@ -124,22 +124,14 @@ EOF
     # to create the /sysroot mount.
 fi
 
-# supported since nbd 3.8 via 77e97612
-if strstr "$(nbd-client --help 2>&1)" "systemd-mark"; then
-    preopts="-systemd-mark $preopts"
-fi
-
 if ! [ "$nbdport" -gt 0 ] 2> /dev/null; then
     nbdport="-name $nbdport"
 fi
 
 if ! nbd-client -check /dev/nbd0 > /dev/null; then
     # shellcheck disable=SC2086
-    nbd-client "$nbdserver" $nbdport /dev/nbd0 $preopts $opts || exit 1
+    nbd-client -p -systemd-mark "$nbdserver" $nbdport /dev/nbd0 $opts || exit 1
 fi
 
-# NBD doesn't emit uevents when it gets connected, so kick it
-echo change > /sys/block/nbd0/uevent
-udevadm settle
 need_shutdown
 exit 0
