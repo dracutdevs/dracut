@@ -5,7 +5,7 @@ MAINTAINER https://github.com/dracutdevs/dracut
 ENV container docker
 LABEL RUN="docker run -it --name NAME --privileged --ipc=host --net=host --pid=host -e NAME=NAME -e IMAGE=IMAGE IMAGE"
 
-RUN echo 'export DRACUT_NO_XATTR=1 KVERSION="$(rpm -qa kernel --qf "%{VERSION}-%{RELEASE}.%{ARCH}\n" | sort -rn | head -1)"' > /etc/profile.d/dracut-test.sh
+RUN echo 'export DRACUT_NO_XATTR=1 KVERSION=$(cd /lib/modules; ls -1 | tail -1)' > /etc/profile.d/dracut-test.sh
 
 # Install needed packages for the dracut CI container
 RUN pacman --noconfirm -Sy \
