@@ -66,13 +66,15 @@ curl_fetch_url() {
     local url="$1" outloc="$2"
     echo "$url" > /proc/self/fd/0
     if [ -n "$outloc" ]; then
-        curl "$curl_args" --output - -- "$url" > "$outloc" || return $?
+        # shellcheck disable=SC2086
+        curl $curl_args --output - -- "$url" > "$outloc" || return $?
     else
         local outdir
         outdir="$(mkuniqdir /tmp curl_fetch_url)"
         (
             cd "$outdir" || exit
-            curl "$curl_args" --remote-name "$url" || return $?
+            # shellcheck disable=SC2086
+            curl $curl_args --remote-name "$url" || return $?
         )
         outloc="$outdir/$(ls -A "$outdir")"
     fi
@@ -98,13 +100,15 @@ ctorrent_fetch_url() {
     torrent_outloc="$outloc.torrent"
     echo "$url" > /proc/self/fd/0
     if [ -n "$outloc" ]; then
-        curl "$curl_args" --output - -- "$url" > "$torrent_outloc" || return $?
+        # shellcheck disable=SC2086
+        curl $curl_args --output - -- "$url" > "$torrent_outloc" || return $?
     else
         local outdir
         outdir="$(mkuniqdir /tmp torrent_fetch_url)"
         (
             cd "$outdir" || exit
-            curl "$curl_args" --remote-name "$url" || return $?
+            # shellcheck disable=SC2086
+            curl $curl_args --remote-name "$url" || return $?
         )
         torrent_outloc="$outdir/$(ls -A "$outdir")"
         outloc=${torrent_outloc%.*}
@@ -113,7 +117,8 @@ ctorrent_fetch_url() {
         warn "Downloading '$url' failed!"
         return 253
     fi
-    ctorrent "$ctorrent_args" -s "$outloc" "$torrent_outloc" >&2
+    # shellcheck disable=SC2086
+    ctorrent $ctorrent_args -s "$outloc" "$torrent_outloc" >&2
     if ! [ -f "$outloc" ]; then
         warn "Torrent download of '$url' failed!"
         return 253
