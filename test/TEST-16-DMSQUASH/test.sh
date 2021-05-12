@@ -30,7 +30,7 @@ test_run() {
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
         -boot order=d \
-        -append "panic=1 hung_task_panic=1 oops=panic softlockup_panic=1 systemd.crash_reboot root=live:CDLABEL=LiveCD live rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.shell=0 $DEBUGFAIL" \
+        -append "panic=1 oops=panic softlockup_panic=1 systemd.crash_reboot root=live:CDLABEL=LiveCD live rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.shell=0 $DEBUGFAIL" \
         -initrd "$TESTDIR"/initramfs.testing
 
     # mediacheck test with qemu GUI

@@ -36,7 +36,7 @@ run_server() {
         -hda "$TESTDIR"/server.ext3 \
         -serial "${SERIAL:-"file:$TESTDIR/server.log"}" \
         -watchdog i6300esb -watchdog-action poweroff \
-        -append "panic=1 hung_task_panic=1 oops=panic softlockup_panic=1 loglevel=7 root=LABEL=dracut rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 rd.debug" \
+        -append "panic=1 oops=panic softlockup_panic=1 loglevel=7 root=LABEL=dracut rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 rd.debug" \
         -initrd "$TESTDIR"/initramfs.server \
         -pidfile "$TESTDIR"/server.pid -daemonize || return 1
     chmod 644 -- "$TESTDIR"/server.pid || return 1
@@ -92,7 +92,7 @@ client_test() {
         -hda "$TESTDIR"/client.img \
         -watchdog i6300esb -watchdog-action poweroff \
         -append "
-        panic=1 hung_task_panic=1 oops=panic softlockup_panic=1
+        panic=1 oops=panic softlockup_panic=1
         ifname=net1:52:54:00:12:34:01
         ifname=net2:52:54:00:12:34:02
         ifname=net3:52:54:00:12:34:03

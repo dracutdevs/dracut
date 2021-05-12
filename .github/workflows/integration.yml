@@ -1,0 +1,81 @@
+name: Integration Test
+
+on:
+    pull_request:
+        branches: [ master ]
+
+jobs:
+    basic:
+        runs-on: ubuntu-latest
+        timeout-minutes: 45
+        concurrency:
+            group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.container }}-${{ matrix.test }}
+            cancel-in-progress: true
+        strategy:
+            matrix:
+                container: [
+                        "fedora:33",
+                        "fedora:rawhide",
+                        "opensuse:latest",
+                        "arch:latest",
+                ]
+                test: [
+                        "04",
+                ]
+            fail-fast: false
+        container:
+            image: ghcr.io/dracutdevs/${{ matrix.container }}
+            options: "--privileged -v /dev:/dev"
+        steps:
+            -   name: "Checkout Repository"
+                uses: actions/checkout@v2
+                with:
+                    fetch-depth: 0
+
+            -   name: "${{ matrix.container }} TEST-${{ matrix.test }}"
+                run: ./tools/test-github.sh "TEST-${{ matrix.test }}" ${{ matrix.test }}
+    test:
+        runs-on: ubuntu-latest
+        timeout-minutes: 45
+        concurrency:
+            group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.container }}-${{ matrix.test }}
+            cancel-in-progress: true
+        strategy:
+            matrix:
+                container: [
+                        "fedora:latest",
+                ]
+                test: [
+                        "01",
+                        "02",
+                        "03",
+                        "04",
+                        "10",
+                        "11",
+                        "12",
+                        "13",
+                        "14",
+                        "15",
+                        "17",
+                        "20",
+                        "21",
+                        "30",
+                        "31",
+                        "35",
+                        "36",
+                        "40",
+                        "41",
+                        "98",
+                ]
+            fail-fast: false
+        container:
+            image: ghcr.io/dracutdevs/${{ matrix.container }}
+            options: "--privileged -v /dev:/dev"
+        steps:
+            -   name: "Checkout Repository"
+                uses: actions/checkout@v2
+                with:
+                    fetch-depth: 0
+
+            -   name: "${{ matrix.container }} TEST-${{ matrix.test }}"
+                run: ./tools/test-github.sh "TEST-${{ matrix.test }}" ${{ matrix.test }}
