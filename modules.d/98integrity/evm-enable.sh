@@ -17,7 +17,7 @@ EVM_ACTIVATION_BITS=0
 # EVMKEY: path to the symmetric key; defaults to /etc/keys/evm-trusted.blob
 # EVMKEYDESC: Description of the symmetric key; default is 'evm-key'
 # EVMKEYTYPE: Type of the symmetric key; default is 'encrypted'
-# EMX509: path to x509 cert; default is /etc/keys/x509_evm.der
+# EVMX509: path to x509 cert; default is /etc/keys/x509_evm.der
 # EVM_ACTIVATION_BITS: additional EVM activation bits, such as
 #                      EVM_SETUP_COMPLETE; default is 0
 
@@ -131,7 +131,7 @@ enable_evm() {
     fi
 
     local evm_configured=0
-    local EVM_INIT_HMAC=1 EVM_INIT_X509=2 EVM_ALLOW_METADATA_WRITES=4
+    local EVM_INIT_HMAC=1 EVM_INIT_X509=2
 
     # try to load the EVM encrypted key
     load_evm_key && evm_configured=${EVM_INIT_HMAC}
@@ -146,14 +146,7 @@ enable_evm() {
 
     # initialize EVM
     info "Enabling EVM"
-    if [ "$((evm_configured & EVM_INIT_X509))" -ne 0 ]; then
-        # Older kernels did not support EVM_ALLOW_METADATA_WRITES, try for
-        # newer ones first that need it when an x509 is used
-        echo $((evm_configured | EVM_ALLOW_METADATA_WRITES | EVM_ACTIVATION_BITS)) > "${EVMSECFILE}" \
-            || echo $((evm_configured | EVM_ACTIVATION_BITS)) > "${EVMSECFILE}"
-    else
-        echo $((evm_configured | EVM_ACTIVATION_BITS)) > "${EVMSECFILE}"
-    fi
+    echo $((evm_configured | EVM_ACTIVATION_BITS)) > "${EVMSECFILE}"
 
     if [ "$((evm_configured & EVM_INIT_HMAC))" -ne 0 ]; then
         # unload the EVM encrypted key
