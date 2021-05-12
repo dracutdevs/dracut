@@ -34,9 +34,13 @@ else
 
     cd test
 
+    # shellcheck disable=SC2012
     time LOGTEE_TIMEOUT_MS=590000 make \
         enable_documentation=$make_docs \
-        KVERSION="$(rpm -qa kernel --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' | sort -rn | head -1)" \
+        KVERSION="$(
+            cd /lib/modules
+            ls -1 | tail -1
+        )" \
         DRACUT_NO_XATTR=1 \
         TEST_RUN_ID="$RUN_ID" \
         ${TESTS:+TESTS="$TESTS"} \
