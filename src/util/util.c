@@ -123,7 +123,7 @@ static void usage(enum EXEC_MODE enumExecMode, int ret, char *msg)
 {
         switch (enumExecMode) {
         case UNDEFINED:
-                fprintf(stderr, "ERROR: 'dracut-util' has to be called via a symlink to the tool name.");
+                fprintf(stderr, "ERROR: 'dracut-util' has to be called via a symlink to the tool name.\n");
                 break;
         case GETARG:
                 fprintf(stderr, "ERROR: %s\nUsage: dracut-getarg <KEY>[=[<VALUE>]]\n", msg);
