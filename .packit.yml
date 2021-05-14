@@ -33,7 +33,7 @@ jobs:
 - job: propose_downstream
   trigger: release
   metadata:
-    dist_git_branches: master
+    dist_git_branches: main
 
 - job: tests
   trigger: pull_request
