@@ -214,7 +214,7 @@ getarg() {
                 if [ -z "$_newoption" ]; then
                     _newoption="$1"
                 fi
-                if dracut-getarg "$1"; then
+                if dracut-getarg "$1" > /dev/null; then
                     if [ "$_deprecated" = "1" ]; then
                         if [ -n "$_newoption" ]; then
                             warn "Kernel command line option '$1' is deprecated, use '$_newoption' instead."
