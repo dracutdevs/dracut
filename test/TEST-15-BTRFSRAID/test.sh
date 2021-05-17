@@ -53,6 +53,7 @@ test_setup() {
         inst "$basedir/modules.d/35network-legacy/ifup.sh" "/sbin/ifup"
 
         inst_simple "${basedir}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh"
+        inst_simple "${basedir}/modules.d/99base/dracut-dev-lib.sh" "/lib/dracut-dev-lib.sh"
         inst_binary "${basedir}/dracut-util" "/usr/bin/dracut-util"
         ln -s dracut-util "${initdir}/usr/bin/dracut-getarg"
         ln -s dracut-util "${initdir}/usr/bin/dracut-getargs"
