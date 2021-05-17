@@ -50,6 +50,7 @@ install() {
     mkdir -p "${initdir}"/tmp
 
     inst_simple "$moddir/dracut-lib.sh" "/lib/dracut-lib.sh"
+    inst_simple "$moddir/dracut-dev-lib.sh" "/lib/dracut-dev-lib.sh"
     mkdir -p "${initdir}"/var
 
     if ! dracut_module_included "systemd"; then
@@ -117,10 +118,8 @@ install() {
                 fi
                 export PREFIX="$initdir"
 
-                # suppress getarg for `rd.memdebug`
-                export DEBUG_MEM_LEVEL=0
-                # shellcheck source=dracut-lib.sh
-                . "$moddir/dracut-lib.sh"
+                # shellcheck source=dracut-dev-lib.sh
+                . "$moddir/dracut-dev-lib.sh"
 
                 for _dev in "${host_devs[@]}"; do
                     for _dev2 in "${root_devs[@]}"; do
@@ -137,7 +136,7 @@ install() {
                     _pdev=$(get_persistent_dev "$_dev")
 
                     case "$_pdev" in
-                        /dev/?*) wait_for_dev "$_pdev" ;;
+                        /dev/?*) wait_for_dev "$_pdev" 0 ;;
                         *) ;;
                     esac
                 done

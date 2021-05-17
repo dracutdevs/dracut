@@ -15,6 +15,7 @@ test_setup() {
     ln -sfnr "$basedir"/dracut-util "$TESTDIR"/dracut-getarg
     ln -sfnr "$basedir"/dracut-util "$TESTDIR"/dracut-getargs
     ln -sfnr "$basedir"/modules.d/99base/dracut-lib.sh "$TESTDIR"/dracut-lib.sh
+    ln -sfnr "$basedir"/modules.d/99base/dracut-dev-lib.sh "$TESTDIR"/dracut-dev-lib.sh
     return 0
 }
 
@@ -85,6 +86,7 @@ test_run() {
 
         export PATH=".:$PATH"
 
+        . dracut-dev-lib.sh
         . dracut-lib.sh
 
         debug_off() {
