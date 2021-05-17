@@ -1171,6 +1171,13 @@ if [[ -f $dracutbasedir/dracut-version.sh ]]; then
     . "$dracutbasedir"/dracut-version.sh
 fi
 
+if systemd-detect-virt -c &> /dev/null; then
+    export DRACUT_NO_MKNOD=1 DRACUT_NO_XATTR=1
+    if [[ $hostonly ]]; then
+        printf "%s\n" "dracut: WARNING: running in hostonly mode in a container!!"
+    fi
+fi
+
 if [[ -f $dracutbasedir/dracut-init.sh ]]; then
     # shellcheck source=./dracut-init.sh
     . "$dracutbasedir"/dracut-init.sh
@@ -1888,7 +1895,7 @@ if [[ $kernel_only != yes ]]; then
         # shellcheck disable=SC2174
         mkdir -m 0755 -p "${initdir}/lib/dracut/hooks/$_d"
     done
-    if [[ $EUID == "0" ]]; then
+    if [[ $EUID == "0" ]] && ! [[ $DRACUT_NO_MKNOD ]]; then
         [[ -c ${initdir}/dev/null ]] || mknod "${initdir}"/dev/null c 1 3
         [[ -c ${initdir}/dev/kmsg ]] || mknod "${initdir}"/dev/kmsg c 1 11
         [[ -c ${initdir}/dev/console ]] || mknod "${initdir}"/dev/console c 5 1
