@@ -178,6 +178,9 @@ Creates initial ramdisk images for preloading modules
   --no-hostonly-i18n    Install all keyboard and font files available.
   --hostonly-nics [LIST]
                         Only enable listed NICs in the initramfs.
+  --no-nm-initrd-generator
+                        Don't call nm-initrd-generator to generate network
+                        configuration files
   --persistent-policy [POLICY]
                         Use [POLICY] to address disks and partitions.
                         POLICY can be any directory name found in /dev/disk.
@@ -418,6 +421,7 @@ rearrange_params() {
             --long printsize \
             --long regenerate-all \
             --long noimageifnotneeded \
+            --long no-nm-initrd-generator \
             --long early-microcode \
             --long no-early-microcode \
             --long reproducible \
@@ -778,6 +782,7 @@ while :; do
         --printsize) printsize="yes" ;;
         --regenerate-all) regenerate_all="yes" ;;
         --noimageifnotneeded) noimageifnotneeded="yes" ;;
+        --no-nm-initrd-generator) no_nm_initrd_generator="yes" ;;
         --reproducible) reproducible_l="yes" ;;
         --no-reproducible) reproducible_l="no" ;;
         --uefi) uefi_l="yes" ;;
@@ -1987,6 +1992,12 @@ if [[ $no_kernel != yes ]]; then
             done
         fi
     fi
+fi
+
+if [[ $no_nm_initrd_generator == yes ]]; then
+    mkdir -p "${initdir}"/etc/cmdline.d
+    dinfo "Don't call nm-initrd-generator"
+    echo "rd.no_nm_initrd_generator=1" >> "$initdir"/etc/cmdline.d/20nm-inird-generator.conf
 fi
 
 if [[ $kernel_only != yes ]]; then
