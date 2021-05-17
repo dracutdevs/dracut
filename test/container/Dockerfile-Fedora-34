@@ -48,6 +48,7 @@ RUN dnf -y install --setopt=install_weak_deps=False \
     python3-imgcreate \
     which \
     ShellCheck \
+    shfmt \
     && dnf -y update && dnf clean all
 
 # Set default command
