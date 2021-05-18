@@ -117,6 +117,7 @@ install() {
                     export DRACUT_SYSTEMD=1
                 fi
                 export PREFIX="$initdir"
+                export hookdir=/lib/dracut/hooks
 
                 # shellcheck source=dracut-dev-lib.sh
                 . "$moddir/dracut-dev-lib.sh"
