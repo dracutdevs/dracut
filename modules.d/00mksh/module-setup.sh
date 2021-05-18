@@ -1,20 +1,32 @@
 #!/bin/bash
+# This file is part of dracut.
+# SPDX-License-Identifier: GPL-2.0-or-later
 
-# called by dracut
+# Prerequisite check(s) for module.
 check() {
-    require_binaries /bin/mksh
+
+    # If the binary(s) requirements are not fulfilled the module can't be installed.
+    require_binaries mksh || return 1
+
+    # Return 255 to only include the module, if another module requires it.
+    return 255
+
 }
 
-# called by dracut
+# Module dependency requirements.
 depends() {
+
+    # Return 0 to include the dependent module(s) in the initramfs.
     return 0
+
 }
 
-# called by dracut
+# Install the required file(s) and directories for the module in the initramfs.
 install() {
-    # If another shell is already installed, do not use mksh
-    [[ -x $initdir/bin/sh ]] && return
 
-    # Prefer mksh as /bin/sh if it is available.
-    inst /bin/mksh && ln -sf mksh "${initdir}/bin/sh"
+    inst /bin/mksh
+
+    # Prefer mksh as default shell if no other shell is preferred.
+    [[ -L $initdir/bin/sh ]] || ln -sf mksh "${initdir}/bin/sh"
+
 }
