@@ -1,20 +1,32 @@
 #!/bin/bash
+# This file is part of dracut.
+# SPDX-License-Identifier: GPL-2.0-or-later
 
-# called by dracut
+# Prerequisite check(s) for module.
 check() {
-    require_binaries /bin/bash
+
+    # If the binary(s) requirements are not fulfilled the module can't be installed.
+    require_binaries bash || return 1
+
+    # Return 255 to only include the module, if another module requires it.
+    return 255
+
 }
 
-# called by dracut
+# Module dependency requirements.
 depends() {
+
+    # Return 0 to include the dependent module(s) in the initramfs.
     return 0
+
 }
 
-# called by dracut
+# Install the required file(s) and directories for the module in the initramfs.
 install() {
-    # If another shell is already installed, do not use bash
-    [[ -x $initdir/bin/sh ]] && return
 
-    # Prefer bash as /bin/sh if it is available.
-    inst /bin/bash && ln -sf bash "${initdir}/bin/sh"
+    inst /bin/bash
+
+    # Prefer bash as default shell if no other shell is preferred.
+    [[ -L $initdir/bin/sh ]] || ln -sf bash "${initdir}/bin/sh"
+
 }
