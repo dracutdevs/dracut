@@ -1,0 +1,44 @@
+# Copyright 2008,2021 Red Hat, Inc.
+#
+# Jeremy Katz <katzj@redhat.com>
+
+SUBSYSTEM!="block", GOTO="lvm_end"
+ACTION!="add|change", GOTO="lvm_end"
+# Also don't process disks that are slated to be a multipath device
+ENV{DM_MULTIPATH_DEVICE_PATH}=="1", GOTO="lvm_end"
+KERNEL=="dm-[0-9]*", ACTION=="add", GOTO="lvm_end"
+ENV{ID_FS_TYPE}!="LVM2_member", GOTO="lvm_end"
+
+PROGRAM=="/bin/sh -c 'for i in $sys/$devpath/holders/dm-[0-9]*; do [ -e $$i ] && exit 0; done; exit 1;' ", \
+    GOTO="lvm_end"
+
+# pvscan-udev-initrd.sh is a wrapper that calls pvscan and prints
+# LVM_VG_NAME_COMPLETE='...'
+# LVM_LV_NAMES_COMPLETE='...'
+# if the given device completes a VG or LVs listed in
+# rd.lvm.vg or rd.lvm.lv
+#
+# If a VG or LVs are completed by the device, but are not
+# listed in rd.lvm.vg/lv, then they are not printed
+# (we don't want to activate VGs/LVs that are not specified.)
+#
+# If no VG or LVs are completed by the device, then
+# nothing is printed.
+#
+# LVs may be complete and activated before the VG is complete,
+# i.e. the entire VG is not necessary to activate LVs in it.
+#
+# If multiple LV names are completed from one device,
+# e.g. LVM_LV_NAMES_COMPLETE='vg/lv1 vg/lv2 vg/lv3'
+# they will be activated by one lvchange command.
+
+IMPORT{program}="pvscan-udev-initrd.sh $env{DEVNAME}"
+
+# systemd services are used to run vgchange/lvchange
+# because the lvm activation commands can run for longer
+# than udev will tolerate.
+
+ENV{LVM_VG_NAME_COMPLETE}=="?*", RUN+="/usr/bin/systemd-run --no-block --property DefaultDependencies=no /sbin/lvm vgchange -ay --yes --ignoremonitoring --poll n --sysinit $env{LVM_VG_NAME_COMPLETE}"
+ENV{LVM_LV_NAMES_COMPLETE}=="?*", RUN+="/usr/bin/systemd-run --no-block --property DefaultDependencies=no /sbin/lvm lvchange -ay --yes -K --ignoremonitoring --poll n --sysinit $env{LVM_LV_NAMES_COMPLETE}"
+
+LABEL="lvm_end"

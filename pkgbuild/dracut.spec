@@ -365,6 +365,8 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %{dracutlibdir}/modules.d/90kernel-modules
 %{dracutlibdir}/modules.d/90kernel-modules-extra
 %{dracutlibdir}/modules.d/90lvm
+%{dracutlibdir}/modules.d/90lvm-systemd
+%{dracutlibdir}/modules.d/90lvm-initqueue
 %{dracutlibdir}/modules.d/90mdraid
 %{dracutlibdir}/modules.d/90multipath
 %{dracutlibdir}/modules.d/90nvdimm
