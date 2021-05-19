@@ -1,0 +1,11 @@
+[package]
+name = "dracut-cpio"
+description = "cpio archive generator for Dracut"
+authors = ["David Disseldorp"]
+license = "GPL-2.0"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+crosvm = { path = "third_party/crosvm" }
+# please avoid adding any more dependencies
