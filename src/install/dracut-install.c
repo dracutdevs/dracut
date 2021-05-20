@@ -1167,7 +1167,10 @@ static int parse_argv(int argc, char *argv[])
         if (!kerneldir) {
                 struct utsname buf;
                 uname(&buf);
-                kerneldir = strdup(buf.version);
+                if (asprintf(&kerneldir, "%s%s", "/lib/modules/", buf.release) < 0) {
+                        log_error("Out of memory!");
+                        exit(EXIT_FAILURE);
+                }
         }
 
         if (arg_modalias) {
