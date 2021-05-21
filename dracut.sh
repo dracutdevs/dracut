@@ -195,6 +195,9 @@ Creates initial ramdisk images for preloading modules
                          Target directory in the final initramfs.
                         If SOURCE is a file, it will be installed to TARGET
                          in the final initramfs.
+  --preferred-init [FILE]
+                        Install customized script [FILE] as /init program while
+                         moving the default init program to /init.dracut.
   -I, --install [LIST]  Install the space separated list of files into the
                          initramfs.
   --install-optional [LIST]  Install the space separated list of files into the
@@ -352,6 +355,7 @@ rearrange_params() {
             --long omit: \
             --long drivers: \
             --long filesystems: \
+            --long preferred-init: \
             --long install: \
             --long install-optional: \
             --long fwdir: \
@@ -521,7 +525,7 @@ PARMS_TO_STORE=""
 eval set -- "$TEMP"
 
 while :; do
-    if [[ $1 != "--" ]] && [[ $1 != "--rebuild" ]]; then
+    if [[ $1 != "--" ]] && [[ $1 != "--rebuild" ]] && [[ $1 != "--preferred-init" ]]; then
         PARMS_TO_STORE+=" $1"
     fi
     case $1 in
@@ -573,6 +577,10 @@ while :; do
         --filesystems)
             filesystems_l+=("$2")
             PARMS_TO_STORE+=" '$2'"
+            shift
+            ;;
+        --preferred-init)
+            preferred_init="$2"
             shift
             ;;
         -I | --install)
@@ -830,6 +838,16 @@ while (($# > 0)); do
     fi
     shift
 done
+
+# error checking for '--preferred-init' option
+if [[ -n "$preferred_init" ]]; then
+    abs_path=$(readlink -f "$preferred_init") && preferred_init="$abs_path"
+    if [[ ! -e "$preferred_init" ]]; then
+        echo "Customized init file '$preferred_init' does not exit!"
+        exit 1
+    fi
+    PARMS_TO_STORE+=" --preferred-init '$preferred_init'"
+fi
 
 [[ $sysroot_l ]] && dracutsysrootdir="$sysroot_l"
 
@@ -2089,6 +2107,14 @@ for ((i = 0; i < ${#include_src[@]}; i++)); do
         fi
     fi
 done
+
+if [[ -f "$preferred_init" ]]; then
+    dinfo "*** Installing customized init file '$preferred_init' ***"
+    mv -f "$initdir/init" "$initdir/init.dracut"
+    inst_simple "$preferred_init" /init
+    chmod 0755 "$initdir/init"
+    dinfo "*** Installing customized init file '$preferred_init' done ***"
+fi
 
 if [[ $do_hardlink == yes ]] && command -v hardlink > /dev/null; then
     dinfo "*** Hardlinking files ***"
