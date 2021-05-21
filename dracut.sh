@@ -2092,7 +2092,7 @@ done
 
 if [[ $do_hardlink == yes ]] && command -v hardlink > /dev/null; then
     dinfo "*** Hardlinking files ***"
-    hardlink "$initdir" 2>&1
+    hardlink "$initdir" 2>&1 | dinfo
     dinfo "*** Hardlinking files done ***"
 fi
 
