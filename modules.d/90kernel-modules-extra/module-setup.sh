@@ -74,7 +74,7 @@ installkernel() {
     done
 
     if ((${#cfgs[@]} > 0)); then
-        mapfile -t cfgs < <(printf '%s\n' "${cfgs[@]}" | LANG=C sort -u -k1,1 -t '/' | cut -f 2- -d '/')
+        mapfile -t cfgs <<< "$(printf '%s\n' "${cfgs[@]}" | LANG=C sort -u -k1,1 -t '/' | cut -f 2- -d '/')"
     fi
 
     ## Parse configurations

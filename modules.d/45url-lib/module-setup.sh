@@ -32,9 +32,9 @@ install() {
         for _lib in "$dracutsysrootdir$_dir"/libcurl.so.*; do
             [[ -e $_lib ]] || continue
             if ! [[ $_nssckbi ]]; then
-                read -r -d '' _nssckbi < <(grep -F --binary-files=text -z libnssckbi "$_lib")
+                read -r -d '' _nssckbi <<< "(grep -F --binary-files=text -z libnssckbi $_lib)"
             fi
-            read -r -d '' _crt < <(grep -F --binary-files=text -z .crt "$_lib")
+            read -r -d '' _crt <<< "(grep -F --binary-files=text -z .crt $_lib)"
             [[ $_crt ]] || continue
             [[ $_crt == /*/* ]] || continue
             if ! inst "${_crt#$dracutsysrootdir}"; then

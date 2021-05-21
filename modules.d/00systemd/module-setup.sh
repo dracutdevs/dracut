@@ -165,7 +165,7 @@ install() {
         done
     }
 
-    mapfile -t _mods < <(modules_load_get /usr/lib/modules-load.d)
+    mapfile -t _mods <<< "$(modules_load_get /usr/lib/modules-load.d)"
     [[ ${#_mods[@]} -gt 0 ]] && hostonly='' instmods "${_mods[@]}"
 
     if [[ $hostonly ]]; then
