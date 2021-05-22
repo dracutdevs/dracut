@@ -67,22 +67,23 @@ install() {
     [[ $nofscks == "yes" ]] && return
 
     if [[ $fscks == "${fscks#*[^ ]*}" ]]; then
-        _helpers="\
-            umount mount /sbin/fsck* /usr/sbin/fsck*
+        _helpers=(
+            /sbin/fsck* /usr/sbin/fsck*
             xfs_db xfs_check xfs_repair xfs_metadump
             e2fsck jfs_fsck reiserfsck btrfsck
-        "
+        )
         if [[ $hostonly ]]; then
-            _helpers="umount mount "
-            _helpers+=$(for_each_host_dev_fs echo_fs_helper)
+            read -r -a _helpers < <(for_each_host_dev_fs echo_fs_helper)
         fi
     else
-        _helpers="$fscks"
+        read -r -a _helpers <<< "$fscks"
     fi
 
-    if [[ $_helpers == *e2fsck* ]] && [[ -e $dracutsysrootdir/etc/e2fsck.conf ]]; then
+    _helpers+=(umount mount)
+
+    if [[ ${_helpers[*]} == *e2fsck* ]] && [[ -e $dracutsysrootdir/etc/e2fsck.conf ]]; then
         inst_simple /etc/e2fsck.conf
     fi
 
-    inst_multiple -o "$_helpers" fsck
+    inst_multiple -o "${_helpers[@]}" fsck
 }
