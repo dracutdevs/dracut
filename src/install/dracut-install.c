@@ -1004,7 +1004,9 @@ static void usage(int status)
                "\n"
                "  --module,-m       Install kernel modules, instead of files\n"
                "  --kerneldir       Specify the kernel module directory\n"
+               "                     (default: /lib/modules/`uname -r`)\n"
                "  --firmwaredirs    Specify the firmware directory search path with : separation\n"
+               "                     (default: DRACUT_FIRMWARE_PATH env var, /lib/firmware if not set)\n"
                "  --silent          Don't display error messages for kernel module install\n"
                "  --modalias        Only generate module list from /sys/devices modalias list\n"
                "  -o --optional     If kernel module does not exist, do not fail\n"
@@ -1183,14 +1185,12 @@ static int parse_argv(int argc, char *argv[])
 
                         path = getenv("DRACUT_FIRMWARE_PATH");
 
-                        if (path == NULL) {
-                                log_error("Environment variable DRACUT_FIRMWARE_PATH is not set");
-                                exit(EXIT_FAILURE);
+                        if (path) {
+                                log_debug("DRACUT_FIRMWARE_PATH=%s", path);
+                                firmwaredirs = strv_split(path, ":");
+                        } else {
+                                firmwaredirs = strv_new("/lib/firmware", NULL);
                         }
-
-                        log_debug("DRACUT_FIRMWARE_PATH=%s", path);
-
-                        firmwaredirs = strv_split(path, ":");
                 }
         }
 
