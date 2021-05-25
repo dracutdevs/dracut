@@ -11,6 +11,19 @@
 # root= takes precedence over netroot= if root=iscsi[...]
 #
 
+# For a PV VM, there is no ipxe and hence no ipxe added iBFT ACPI table.
+# So we check for the precence of this table to determine if we are
+# a PV or iSCSI VM/BM.
+
+acpi_ibft="/sys/firmware/acpi/tables/iBFT"
+
+if [ ! -f $acpi_ibft ]; then
+    echo "No $acpi_ibft, assuming PV boot"
+    return 1
+else
+    echo "Found $acpi_ibft, assuming iSCSI boot"
+fi
+
 # This script is sourced, so root should be set. But let's be paranoid
 [ -z "$root" ] && root=$(getarg root=)
 if [ -z "$netroot" ]; then
