@@ -1,5 +1,42 @@
 [Rendered view](https://github.com/dracutdevs/dracut/blob/master/NEWS.md)
 
+dracut-055
+==========
+
+#### Bug Fixes
+
+* **base:**
+    *  add missing `str_replace` to `dracut-dev-lib.sh` ([148e420b](https://github.com/dracutdevs/dracut/commit/148e420be5b5809aa8d5033f47477573bbbf3e60))
+    *  split out `dracut-dev-lib.sh` ([c08bc810](https://github.com/dracutdevs/dracut/commit/c08bc8109d4c43beacfa4bcdc20a356102da6d02))
+* **bash:**  minor cleanups ([9355cb8e](https://github.com/dracutdevs/dracut/commit/9355cb8ea5024533210067373657dc337d63ecb9))
+* **dash:**  minor cleanups ([f4ea5f87](https://github.com/dracutdevs/dracut/commit/f4ea5f8734c4636f7d6db78da76e9525beb9a0ac))
+* **dracut:**  pipe hardlink output to `dinfo` ([0a6007bf](https://github.com/dracutdevs/dracut/commit/0a6007bf4f472565d2c0c205a56edea7ba3e3bc3))
+* **dracut-functions:**  get_maj_min without get_maj_min_cache_file set ([a277a5fc](https://github.com/dracutdevs/dracut/commit/a277a5fc7acc0a9e8d853f09671495f9d27645c1))
+* **dracut-util:**  print error message with trailing newline ([b9b6f0ee](https://github.com/dracutdevs/dracut/commit/b9b6f0ee5b859a562e46a8c4e0dee0261fabf74d))
+* **fs-lib:**  install fsck utilities ([12beeac7](https://github.com/dracutdevs/dracut/commit/12beeac741e4429146a674ef4ea9aa0bac10364b))
+* **install:**
+    *  configure logging earlier ([5eb24aa2](https://github.com/dracutdevs/dracut/commit/5eb24aa21d3ee639f869c2e363b3fb0b98be552b))
+    *  sane default --kerneldir ([c1ab3613](https://github.com/dracutdevs/dracut/commit/c1ab36139d416e580e768c29f2addf7ccbc2c612), closes [#1505](https://github.com/dracutdevs/dracut/issues/1505))
+* **integrity:**  require ALLOW_METADATA_WRITES to come from EVM config file ([b12d91c4](https://github.com/dracutdevs/dracut/commit/b12d91c431220488fecf7b4be82427e3560560cb))
+* **mksh:**  minor cleanups ([6c673298](https://github.com/dracutdevs/dracut/commit/6c673298f36990665467564e6114c9ca2530f584))
+* **squash:**  don't mount the mount points if already mounted ([636d6df3](https://github.com/dracutdevs/dracut/commit/636d6df3134dde1dac72241937724bc59deb9303))
+* **warpclock:**  minor cleanups ([7d205598](https://github.com/dracutdevs/dracut/commit/7d205598c6a500b58b4d328e824d0446276f7ced))
+
+#### Features
+
+* **dracut.sh:**  detect running in a container ([7275c6f6](https://github.com/dracutdevs/dracut/commit/7275c6f6a0f6808cd939ea5bdf1244c7bd13ba44))
+* **install:**  add default value for --firmwaredirs ([4cb086fa](https://github.com/dracutdevs/dracut/commit/4cb086fa2995799b95c0b25bc9a0cf72ba3868ea))
+
+#### Contributors
+
+- Harald Hoyer <harald@redhat.com>
+- Jóhann B. Guðmundsson <johannbg@gmail.com>
+- Marcos Mello <marcosfrm@gmail.com>
+- Kairui Song <kasong@redhat.com>
+- Lars Wendler <polynomial-c@gentoo.org>
+- Stefan Berger <stefanb@linux.ibm.com>
+- Tomasz Paweł Gajc <tpgxyz@gmail.com>
+
 dracut-054
 ==========
 

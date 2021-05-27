@@ -4,8 +4,8 @@ Jóhann B. Guðmundsson <johannbg@gmail.com>
 Amadeusz Żołnowski <aidecoe@aidecoe.name>
 Daniel Molkentin <daniel.molkentin@suse.com>
 Hannes Reinecke <hare@suse.com>
-Will Woods <wwoods@redhat.com>
 Kairui Song <kasong@redhat.com>
+Will Woods <wwoods@redhat.com>
 Philippe Seewer <philippe.seewer@bfh.ch>
 Warren Togami <wtogami@redhat.com>
 Dave Young <dyoung@redhat.com>
@@ -31,12 +31,12 @@ Andreas Thienemann <andreas@bawue.net>
 Frantisek Sumsal <frantisek@sumsal.cz>
 Fabian Vogt <fvogt@suse.com>
 Nicolas Chauvet <kwizart@gmail.com>
+Tomasz Paweł Gajc <tpgxyz@gmail.com>
 Zoltán Böszörményi <zboszor@pr.hu>
 Beniamino Galvani <bgalvani@redhat.com>
 Colin Walters <walters@verbum.org>
 John Reiser <jreiser@bitwagon.com>
 Luca Berra <bluca@vodka.it>
-Tomasz Paweł Gajc <tpgxyz@gmail.com>
 Xunlei Pang <xlpang@redhat.com>
 Brian C. Lane <bcl@redhat.com>
 Daniel Drake <drake@endlessm.com>
@@ -55,6 +55,7 @@ David Tardon <dtardon@redhat.com>
 Dusty Mabe <dusty@dustymabe.com>
 Jonas Witschel <diabonas@gmx.de>
 Leho Kraav <leho@kraav.com>
+Marcos Mello <marcosfrm@gmail.com>
 Mikhail Novosyolov <m.novosyolov@rosalinux.ru>
 Moritz Maxeiner <moritz@ucworks.org>
 Nathan Rini <nate@ucar.edu>
@@ -94,7 +95,6 @@ Jiri Konecny <jkonecny@redhat.com>
 Jon Ander Hernandez <jonan.h@gmail.com>
 Juan RP <xtraeme@gmail.com>
 Lance Albertson <lance@osuosl.org>
-Marcos Mello <marcosfrm@gmail.com>
 Marian Ganisin <mganisin@redhat.com>
 Matthias Gerstner <matthias.gerstner@suse.de>
 Max Resch <resch.max@gmail.com>
@@ -148,6 +148,7 @@ Pingfan Liu <piliu@redhat.com>
 Przemysław Rudy <prudy1@o2.pl>
 Robert LeBlanc <robert@leblancnet.us>
 Robert Scheck <robert@fedoraproject.org>
+Stefan Berger <stefanb@linux.ibm.com>
 Stefan Berger <stefanb@us.ibm.com>
 Thomas Lange <lange@informatik.uni-koeln.de>
 Till Maas <opensource@till.name>
@@ -231,6 +232,7 @@ Jonas Jonsson <jonas@websystem.se>
 Jonas Witschel <diabonas@archlinux.org>
 Kevin Yung <Kevin.Yung@myob.com>
 Lars R. Damerow <lars@pixar.com>
+Lars Wendler <polynomial-c@gentoo.org>
 Lee Duncan <lduncan@suse.com>
 Lennart Poettering <lennart@poettering.net>
 Lennert Buytenhek <buytenh@wantstofly.org>
@@ -279,7 +281,6 @@ Sergei Iudin <tsipa740@gmail.com>
 Sergey Fionov <fionov@gmail.com>
 Shawn W Dunn <sfalken@opensuse.org>
 Srinivasa T N <seenutn@linux.vnet.ibm.com>
-Stefan Berger <stefanb@linux.ibm.com>
 Stijn Hoop <stijn@sandcat.nl>
 Sullivan (CTR), Austin <austin.sullivan.ctr@progeny.net>
 Thierry Vignaud <thierry.vignaud@gmail.com>
