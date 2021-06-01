@@ -6,6 +6,7 @@ echo \#buildapi-variable-no-builddir > /dev/null
 prefix=/usr
 
 enable_documentation=yes
+enable_dracut_cpio=no
 
 CC="${CC:-cc}"
 PKG_CONFIG="${PKG_CONFIG:-pkg-config}"
@@ -48,6 +49,7 @@ while (($# > 0)); do
         --infodir) read_arg infodir "$@" || shift ;;
         --systemdsystemunitdir) read_arg systemdsystemunitdir "$@" || shift ;;
         --bashcompletiondir) read_arg bashcompletiondir "$@" || shift ;;
+        --enable-dracut-cpio) enable_dracut_cpio=yes ;;
         *) echo "Ignoring unknown option '$1'" ;;
     esac
     shift
@@ -102,6 +104,15 @@ if test $found = no; then
     exit 1
 fi
 
+if test "$enable_dracut_cpio" = "yes"; then
+    cargo --version > /dev/null
+    ret=$?
+    if test $ret -ne 0; then
+        echo "dracut couldn't find cargo for dracut-cpio build"
+        exit 1
+    fi
+fi
+
 cat > Makefile.inc.$$ << EOF
 prefix ?= ${prefix}
 libdir ?= ${libdir:-${prefix}/lib}
@@ -110,6 +121,7 @@ sysconfdir ?= ${sysconfdir:-${prefix}/etc}
 sbindir ?= ${sbindir:-${prefix}/sbin}
 mandir ?= ${mandir:-${prefix}/share/man}
 enable_documentation ?= ${enable_documentation:-yes}
+enable_dracut_cpio ?= ${enable_dracut_cpio}
 bindir ?= ${bindir:-${prefix}/bin}
 KMOD_CFLAGS ?= $(${PKG_CONFIG} --cflags " libkmod >= 23 ")
 KMOD_LIBS ?= $(${PKG_CONFIG} --libs " libkmod >= 23 ")
