@@ -102,6 +102,16 @@ ifeq ($(HAVE_SHFMT),yes)
 	shfmt -w -s .
 endif
 
+src/dracut-cpio/target/release/dracut-cpio: src/dracut-cpio/src/main.rs
+	cargo --offline build --release --manifest-path src/dracut-cpio/Cargo.toml
+
+dracut-cpio: src/dracut-cpio/target/release/dracut-cpio
+	ln -fs $< $@
+
+ifeq ($(enable_dracut_cpio),yes)
+all: dracut-cpio
+endif
+
 doc: $(manpages) dracut.html
 
 ifneq ($(enable_documentation),no)
@@ -196,6 +206,9 @@ endif
 	if [ -f dracut-util ]; then \
 		install -m 0755 dracut-util $(DESTDIR)$(pkglibdir)/dracut-util; \
 	fi
+ifeq ($(enable_dracut_cpio),yes)
+	install -m 0755 dracut-cpio $(DESTDIR)$(pkglibdir)/dracut-cpio
+endif
 	mkdir -p $(DESTDIR)${prefix}/lib/kernel/install.d
 	install -m 0755 install.d/50-dracut.install $(DESTDIR)${prefix}/lib/kernel/install.d/50-dracut.install
 	install -m 0755 install.d/51-dracut-rescue.install $(DESTDIR)${prefix}/lib/kernel/install.d/51-dracut-rescue.install
@@ -222,6 +235,7 @@ clean:
 	$(RM) dracut-util util/util $(UTIL_OBJECTS)
 	$(RM) $(manpages) dracut.html
 	$(RM) dracut.pc
+	$(RM) dracut-cpio src/dracut-cpio/target/release/dracut-cpio*
 	$(MAKE) -C test clean
 
 dist: dracut-$(DRACUT_MAIN_VERSION).tar.xz
