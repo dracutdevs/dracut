@@ -53,8 +53,8 @@ installpost() {
     dracut_kernel_post
 
     # Install squash image init script.
-    ln -sfn /usr/bin "$initdir/bin"
-    ln -sfn /usr/sbin "$initdir/sbin"
+    ln_r /usr/bin /bin
+    ln_r /usr/sbin /sbin
     inst_simple "$moddir"/init-squash.sh /init
 }
 
