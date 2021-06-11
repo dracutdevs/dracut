@@ -2067,6 +2067,8 @@ for ((i = 0; i < ${#include_src[@]}; i++)); do
             # check for preexisting symlinks, so we can cope with the
             # symlinks to $prefix
             # Objectname is a file or a directory
+            reset_dotglob="$(shopt -p dotglob)"
+            shopt -q -s dotglob
             for objectname in "$src"/*; do
                 [[ -e $objectname || -L $objectname ]] || continue
                 if [[ -d $objectname ]]; then
@@ -2077,11 +2079,12 @@ for ((i = 0; i < ${#include_src[@]}; i++)); do
                         mkdir -m 0755 -p "$object_destdir"
                         chmod --reference="$objectname" "$object_destdir"
                     fi
-                    $DRACUT_CP -t "$object_destdir" "$dracutsysrootdir$objectname"/*
+                    $DRACUT_CP -t "$object_destdir" "$dracutsysrootdir$objectname"/.
                 else
                     $DRACUT_CP -t "$destdir" "$dracutsysrootdir$objectname"
                 fi
             done
+            eval "$reset_dotglob"
         elif [[ -e $src ]]; then
             derror "$src is neither a directory nor a regular file"
         else
