@@ -159,7 +159,7 @@ nfs_fetch_url() {
         mntdir="$(mkuniqdir /run nfs_mnt)"
         mount_nfs "$nfs:$server:$filepath${options:+:$options}" "$mntdir"
         # lazy unmount during pre-pivot hook
-        inst_hook --hook pre-pivot --name 99url-lib-umount-nfs umount -l -- "$mntdir"
+        inst_hook --hook pre-pivot --name 99url-lib-umount-nfs-$(basename $mntdir) umount -l -- "$mntdir"
     fi
 
     if [ -z "$outloc" ]; then
