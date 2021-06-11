@@ -7,6 +7,7 @@ check() {
 
     # If the binary(s) requirements are not fulfilled the module can't be installed.
     require_binaries mksh || return 1
+    require_binaries printf || return 1
 
     # Return 255 to only include the module, if another module requires it.
     return 255
@@ -25,6 +26,7 @@ depends() {
 install() {
 
     inst /bin/mksh
+    inst printf
 
     # Prefer mksh as default shell if no other shell is preferred.
     [[ -L $initdir/bin/sh ]] || ln -sf mksh "${initdir}/bin/sh"
