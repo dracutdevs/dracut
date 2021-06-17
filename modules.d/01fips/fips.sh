@@ -124,6 +124,21 @@ do_fips() {
     else
         BOOT_IMAGE="$(getarg BOOT_IMAGE)"
 
+        # On s390x, BOOT_IMAGE isn't a path but an integer representing the
+        # entry number selected. Let's try the root of /boot first, and
+        # otherwise fallback to trying to parse the BLS entries if it's a
+        # BLS-based system.
+        if [ "$(uname -m)" = s390x ]; then
+            if [ -e "/boot/vmlinuz-${KERNEL}" ]; then
+                BOOT_IMAGE="vmlinuz-${KERNEL}"
+            elif [ -d /boot/loader/entries ]; then
+                bls=$(find /boot/loader/entries -name '*.conf' | sort -rV | sed -n "$((BOOT_IMAGE + 1))p")
+                if [ -e "${bls}" ]; then
+                    BOOT_IMAGE=$(grep ^linux "${bls}" | cut -d' ' -f2)
+                fi
+            fi
+        fi
+
         # Trim off any leading GRUB boot device (e.g. ($root) )
         BOOT_IMAGE="$(echo "${BOOT_IMAGE}" | sed 's/^(.*)//')"
 
