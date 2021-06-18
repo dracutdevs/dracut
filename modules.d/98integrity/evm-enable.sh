@@ -20,6 +20,7 @@ EVM_ACTIVATION_BITS=0
 # EVMX509: path to x509 cert; default is /etc/keys/x509_evm.der
 # EVM_ACTIVATION_BITS: additional EVM activation bits, such as
 #                      EVM_SETUP_COMPLETE; default is 0
+# EVMKEYSDIR: Directory with more x509 certs; default is /etc/keys/evm/
 
 load_evm_key() {
     # read the configuration from the config file
@@ -77,10 +78,7 @@ load_evm_x509() {
 
     # check for EVM public key's existence
     if [ ! -f "${EVMX509PATH}" ]; then
-        if [ "${RD_DEBUG}" = "yes" ]; then
-            info "integrity: EVM x509 cert file not found: ${EVMX509PATH}"
-        fi
-        return 1
+        EVMX509PATH=""
     fi
 
     local evm_pubid line
@@ -96,13 +94,23 @@ load_evm_x509() {
         fi
     fi
 
-    # load the EVM public key onto the EVM keyring
-    # FIXME: EVMX509ID unused?
-    # shellcheck disable=SC2034
-    if ! EVMX509ID=$(evmctl import "${EVMX509PATH}" "${evm_pubid}"); then
-        info "integrity: failed to load the EVM X509 cert ${EVMX509PATH}"
-        return 1
+    if [ -z "${EVMKEYSDIR}" ]; then
+        EVMKEYSDIR="/etc/keys/evm"
     fi
+    # load the default EVM public key onto the EVM keyring along
+    # with all the other ones in $EVMKEYSDIR
+    for PUBKEY in ${EVMX509PATH} "${NEWROOT}${EVMKEYSDIR}"/*; do
+        if [ ! -f "${PUBKEY}" ]; then
+            if [ "${RD_DEBUG}" = "yes" ]; then
+                info "integrity: EVM x509 cert file not found: ${PUBKEY}"
+            fi
+            continue
+        fi
+        if ! evmctl import "${PUBKEY}" "${evm_pubid}"; then
+            info "integrity: failed to load the EVM X509 cert ${PUBKEY}"
+            return 1
+        fi
+    done
 
     if [ "${RD_DEBUG}" = "yes" ]; then
         keyctl show @u
