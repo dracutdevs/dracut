@@ -1448,14 +1448,14 @@ static int install_firmware(struct kmod_module *mod)
                                 _cleanup_globfree_ glob_t globbuf;
                                 glob(fwpath, 0, NULL, &globbuf);
                                 for (i = 0; i < globbuf.gl_pathc; i++) {
-                                        install_firmware_fullpath(globbuf.gl_pathv[i]);
+                                        ret = install_firmware_fullpath(globbuf.gl_pathv[i]);
                                         if (ret != 0) {
                                                 log_info("Possible missing firmware %s for kernel module %s", value,
                                                          kmod_module_get_name(mod));
                                         }
                                 }
                         } else {
-                                install_firmware_fullpath(fwpath);
+                                ret = install_firmware_fullpath(fwpath);
                                 if (ret != 0) {
                                         log_info("Possible missing firmware %s for kernel module %s", value,
                                                  kmod_module_get_name(mod));
