@@ -51,7 +51,7 @@ gpg_decrypt() {
     fi
 
     ask_for_password \
-        --cmd "gpg $opts --decrypt $mntp/$keypath" \
+        --cmd "GNUPGHOME=$gpghome gpg --card-status --no-tty > /dev/null 2>&1; gpg $opts --decrypt $mntp/$keypath" \
         --prompt "${inputPrompt:-Password ($keypath on $keydev for $device)}" \
         --tries 3 --tty-echo-off
 
