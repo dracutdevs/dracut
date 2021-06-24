@@ -38,6 +38,11 @@ install() {
         inst "$dbussystem"/org.freedesktop.NetworkManager.conf
         inst_multiple nmcli nm-online
 
+        # teaming support under systemd+dbus
+        inst_multiple -o \
+            "$dbussystem"/teamd.conf \
+            "$dbussystemconfdir"/teamd.conf
+
         # Install a configuration snippet to prevent the automatic creation of
         # "Wired connection #" DHCP connections for Ethernet interfaces
         inst_simple "$moddir"/initrd-no-auto-default.conf /usr/lib/NetworkManager/conf.d/
