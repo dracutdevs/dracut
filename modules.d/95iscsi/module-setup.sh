@@ -188,6 +188,7 @@ install() {
     inst_multiple -o iscsiuio
     inst_libdir_file 'libgcc_s.so*'
     inst_multiple umount iscsi-iname iscsiadm iscsid
+    inst_binary sort
 
     inst_multiple -o \
         "$systemdsystemunitdir"/iscsid.socket \

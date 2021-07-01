@@ -45,7 +45,7 @@ if [ -z "${DRACUT_SYSTEMD}" ] \
 fi
 
 handle_firmware() {
-    local ifaces retry
+    local ifaces retry _res
 
     # Depending on the 'ql4xdisablesysfsboot' qla4xxx
     # will be autostarting sessions without presenting
@@ -69,9 +69,28 @@ handle_firmware() {
             rm /tmp/session-retry
         fi
 
-        if ! iscsiadm -m fw -l; then
+        # check to see if we have the new iscsiadm command,
+        # that supports the "no-wait" (-W) flag. If so, use it.
+        iscsiadm -m fw -l -W 2> /dev/null
+        _res=$?
+        if [ $_res -eq 7 ]; then
+            # ISCSI_ERR_INVALID (7) => "-W" not supported
+            info "iscsiadm does not support no-wait firmware logins"
+            iscsiadm -m fw -l
+            _res=$?
+        fi
+        if [ $_res -ne 0 ]; then
             warn "iscsiadm: Log-in to iscsi target failed"
         else
+            # get a list of connected targets
+            tgts=$(cat /sys/firmware/ibft/target*/target-name | sort -u)
+            # disable NOPs for each FW target
+            for tgt in ${tgts}; do
+                iscsiadm -m node -T "${tgt}" \
+                    --op update \
+                    --name 'node.conn[0].timeo.noop_out_interval' --value 0 \
+                    --name 'node.conn[0].timeo.noop_out_timeout' --value 0
+            done
             need_shutdown
         fi
     fi
