@@ -6,7 +6,7 @@ Before=shutdown.target
 [Service]
 Type=oneshot
 RemainAfterExit=no
-ExecStart=/bin/checkisomd5 --verbose %f
+ExecStart=/usr/bin/checkisomd5 --verbose %f
 StandardInput=tty-force
 StandardOutput=inherit
 StandardError=inherit
