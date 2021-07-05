@@ -40,15 +40,15 @@ validate_ip_conn() {
         return 1
     fi
 
-    ifname=$(ip -o route get to "$local_address" | sed -n 's/.*dev \([^ ]*\).*/\1/p')
+    ifname=$(ip -o route get from "$local_address" to "$traddr" | sed -n 's/.*dev \([^ ]*\).*/\1/p')
 
-    if ip l show "$ifname" > /dev/null 2>&1; then
+    if ! ip l show "$ifname" > /dev/null 2>&1; then
         warn "invalid network interface $ifname"
         return 1
     fi
 
     # confirm there's a route to destination
-    if ip route get "$traddr" > /dev/null 2>&1; then
+    if ! ip route get "$traddr" > /dev/null 2>&1; then
         warn "no route to $traddr"
         return 1
     fi
