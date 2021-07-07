@@ -281,4 +281,14 @@ do {                                                                    \
             sizeof(type) <= 4 ? 10 :                                    \
             sizeof(type) <= 8 ? 20 : sizeof(int[-2*(sizeof(type) > 8)])))
 
+
+/* Takes inspiration from Rusts's Option::take() method: reads and returns a pointer, but at the same t  ime resets it to
+ * NULL. See: https://doc.rust-lang.org/std/option/enum.Option.html#method.take */
+#define TAKE_PTR(ptr)                           \
+        ({                                      \
+                typeof(ptr) _ptr_ = (ptr);      \
+                (ptr) = NULL;                   \
+                _ptr_;                          \
+        })
+
 #include "log.h"
