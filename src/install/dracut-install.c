@@ -383,7 +383,7 @@ static int library_install(const char *src, const char *lib)
                 log_error("ERROR: failed to install '%s' for '%s'", p, src);
         else
 		//
-                log_debug("Lib install: '%s'", p);
+                log_debug("Lib install -1: '%s'", p);
         ret += r;
 
         /* also install lib.so for lib.so.* files */
@@ -394,7 +394,7 @@ static int library_install(const char *src, const char *lib)
 
                 /* ignore errors for base lib symlink */
                 if (dracut_install(p, p, false, false, true) == 0)
-                        log_debug("Lib install: '%s'", p);
+                        log_debug("Lib install -2: '%s'", p);
         }
 
         /* Also try to install the same library from one directory above.
@@ -423,7 +423,7 @@ static int library_install(const char *src, const char *lib)
 
         clib = strjoin(ppdir, "/", basename(p), NULL);
         if (dracut_install(clib, clib, false, false, true) == 0)
-                log_debug("Lib install: '%s'", clib);
+                log_debug("Lib install -3: '%s'", clib);
         /* also install lib.so for lib.so.* files */
         q = strstr(clib, ".so.");
         if (q) {
@@ -431,7 +431,7 @@ static int library_install(const char *src, const char *lib)
 
                 /* ignore errors for base lib symlink */
                 if (dracut_install(clib, clib, false, false, true) == 0)
-                        log_debug("Lib install: '%s'", p);
+                        log_debug("Lib install -4: '%s'", p);
         }
 
         return ret;
