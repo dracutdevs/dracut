@@ -348,6 +348,26 @@ normal_copy:
         return ret;
 }
 
+//the example log
+/*
+During installation of binary, resolve the dependeny and the following log
+	dracut-install: ldd: '  libc.so.6 => /lib64/libc.so.6 (0x0000ffff900a0000)^M
+Have the following call chain:
+->resolve_deps->library_install()
+
+Continue log:
+dracut-install: '^M
+dracut-install: dracut_install('/lib64/libc.so.6', '/lib64/libc.so.6')^M
+dracut-install: dracut_install('/usr/lib64/libc-2.28.so', '/usr/lib64/libc-2.28.so')^M
+dracut-install: dracut_install ret = 0^M
+dracut-install: cp '/usr/lib64/libc-2.28.so' '/var/tmp/dracut.yiUIfi/initramfs/usr/lib64/libc-2.28.so'^M
+dracut-install: dracut_install ret = 0^M
+dracut-install: ln -s 'libc-2.28.so' '/var/tmp/dracut.yiUIfi/initramfs/lib64/libc.so.6'^M
+dracut-install: Lib install: '/lib64/libc.so.6'^M
+dracut-install: dracut_install('/lib64/libc.so', '/lib64/libc.so')^M
+dracut-install: dracut_install('//libc.so.6', '//libc.so.6')^M
+dracut-install: dracut_install('//libc.so', '//libc.so')^M
+*/
 static int library_install(const char *src, const char *lib)
 {
         _cleanup_free_ char *p = NULL;
@@ -357,16 +377,19 @@ static int library_install(const char *src, const char *lib)
 
         p = strdup(lib);
 
+	//
         r = dracut_install(p, p, false, false, true);
         if (r != 0)
                 log_error("ERROR: failed to install '%s' for '%s'", p, src);
         else
+		//
                 log_debug("Lib install: '%s'", p);
         ret += r;
 
         /* also install lib.so for lib.so.* files */
         q = strstr(p, ".so.");
         if (q) {
+		//terminate, so @p is changed
                 q[3] = '\0';
 
                 /* ignore errors for base lib symlink */
