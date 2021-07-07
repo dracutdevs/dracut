@@ -485,6 +485,7 @@ static char *get_real_file(const char *src, bool fullyresolve)
         return abspath;
 }
 
+//
 static int resolve_deps(const char *src)
 {
         int ret = 0;
@@ -540,14 +541,17 @@ static int resolve_deps(const char *src)
 
         ret = 0;
 
+	//???
         fptr = popen(cmd, "r");
 
+	//??
         while (!feof(fptr)) {
                 char *p;
 
                 if (getline(&buf, &linesize, fptr) <= 0)
                         continue;
 
+		//
                 log_debug("ldd: '%s'", buf);
 
                 if (strstr(buf, "you do not have execution permission")) {
@@ -604,6 +608,7 @@ static int resolve_deps(const char *src)
                         for (q = p; *q && *q != ' ' && *q != '\n'; q++) ;
                         *q = '\0';
 
+			//
                         ret += library_install(src, p);
 
                 }
