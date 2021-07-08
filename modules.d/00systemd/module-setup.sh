@@ -11,9 +11,14 @@ check() {
     return 255
 }
 
-# called by dracut
+# Module dependency requirements.
 depends() {
+
+    # This module has external dependency on other module(s).
+    echo systemd-modules-load systemd-repart systemd-sysctl
+    # Return 0 to include the dependent module(s) in the initramfs.
     return 0
+
 }
 
 installkernel() {
@@ -32,15 +37,12 @@ install() {
 
     inst_multiple -o \
         "$systemdutildir"/systemd \
-        "$systemdutildir"/systemd-coredump \
         "$systemdutildir"/systemd-cgroups-agent \
         "$systemdutildir"/systemd-shutdown \
         "$systemdutildir"/systemd-reply-password \
         "$systemdutildir"/systemd-fsck \
         "$systemdutildir"/systemd-udevd \
         "$systemdutildir"/systemd-journald \
-        "$systemdutildir"/systemd-sysctl \
-        "$systemdutildir"/systemd-modules-load \
         "$systemdutildir"/systemd-vconsole-setup \
         "$systemdutildir"/systemd-volatile-root \
         "$systemdutildir"/system-generators/systemd-debug-generator \
@@ -91,7 +93,6 @@ install() {
         "$systemdsystemunitdir"/systemd-journald.socket \
         "$systemdsystemunitdir"/systemd-journald-audit.socket \
         "$systemdsystemunitdir"/systemd-ask-password-console.service \
-        "$systemdsystemunitdir"/systemd-modules-load.service \
         "$systemdsystemunitdir"/systemd-halt.service \
         "$systemdsystemunitdir"/systemd-poweroff.service \
         "$systemdsystemunitdir"/systemd-reboot.service \
@@ -106,9 +107,7 @@ install() {
         "$systemdsystemunitdir"/systemd-volatile-root.service \
         "$systemdsystemunitdir"/systemd-random-seed-load.service \
         "$systemdsystemunitdir"/systemd-random-seed.service \
-        "$systemdsystemunitdir"/systemd-sysctl.service \
         \
-        "$systemdsystemunitdir"/sysinit.target.wants/systemd-modules-load.service \
         "$systemdsystemunitdir"/sysinit.target.wants/systemd-ask-password-console.path \
         "$systemdsystemunitdir"/sysinit.target.wants/systemd-journald.service \
         "$systemdsystemunitdir"/sockets.target.wants/systemd-udevd-control.socket \
@@ -121,7 +120,6 @@ install() {
         "$systemdsystemunitdir"/sysinit.target.wants/kmod-static-nodes.service \
         "$systemdsystemunitdir"/sysinit.target.wants/systemd-tmpfiles-setup.service \
         "$systemdsystemunitdir"/sysinit.target.wants/systemd-tmpfiles-setup-dev.service \
-        "$systemdsystemunitdir"/sysinit.target.wants/systemd-sysctl.service \
         \
         "$systemdsystemunitdir"/ctrl-alt-del.target \
         "$systemdsystemunitdir"/reboot.target \
@@ -134,6 +132,9 @@ install() {
         \
         "$tmpfilesdir"/systemd.conf \
         \
+        "$sysctld"/50-default.conf \
+        "$sysctld"/50-pid-max.conf \
+        \
         journalctl systemctl \
         echo swapoff \
         kmod insmod rmmod modprobe modinfo depmod lsmod \
@@ -142,10 +143,6 @@ install() {
         systemd-cgls systemd-tmpfiles \
         systemd-ask-password systemd-tty-ask-password-agent \
         /etc/udev/udev.hwdb
-
-    inst_multiple -o \
-        /usr/lib/modules-load.d/*.conf \
-        /usr/lib/sysctl.d/*.conf
 
     modules_load_get() {
         local _line i
@@ -181,9 +178,6 @@ install() {
             /etc/machine-info \
             /etc/vconsole.conf \
             /etc/locale.conf \
-            /etc/modules-load.d/*.conf \
-            /etc/sysctl.d/*.conf \
-            /etc/sysctl.conf \
             /etc/udev/udev.conf
 
         mapfile -t _mods < <(modules_load_get /etc/modules-load.d)
