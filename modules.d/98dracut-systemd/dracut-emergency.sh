@@ -23,7 +23,7 @@ if getargbool 1 rd.shell -d -y rdshell || getarg rd.break -d rdbreak; then
             echo "$RDSOSREPORT"
             echo
             echo
-            echo 'Entering emergency mode. Exit the shell to continue.'
+            echo 'Entering dracut emergency mode. Exit the shell to continue.'
             echo 'Type "journalctl" to view system logs.'
             echo 'You might want to save "/run/initramfs/rdsosreport.txt" to a USB stick or /boot'
             echo 'after mounting them and attach it to a bug report.'
