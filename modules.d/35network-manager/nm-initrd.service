@@ -1,7 +1,7 @@
 [Unit]
 DefaultDependencies=no
-Wants=systemd-udev-settle.service
-After=systemd-udev-settle.service
+Wants=systemd-udev-trigger.service
+After=systemd-udev-trigger.service
 After=dracut-cmdline.service
 Wants=network.target
 Before=network.target
