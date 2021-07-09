@@ -25,7 +25,16 @@ installpost() {
     # Move everything under $initdir except $squash_dir
     # itself into squash image
     for i in "$initdir"/*; do
-        [[ $squash_dir == "$i"/* ]] || mv "$i" "$squash_dir"/
+        [[ $squash_dir == "$i"/* ]] || [[ "$initdir/etc" == "$i" ]] || mv "$i" "$squash_dir"/
+    done
+    # keep ld cache under $initdir
+    mkdir -p "$squash_dir"/etc
+    for i in "$initdir"/etc/*; do
+        if [[ $i =~ "$initdir"/etc/ld.so* ]]; then
+            cp -r "$i" "$squash_dir"/etc
+        else
+            mv "$i" "$squash_dir"/etc
+        fi
     done
 
     # Create mount points for squash loader
