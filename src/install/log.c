@@ -101,7 +101,7 @@ void log_set_facility(int facility)
         log_facility = facility;
 }
 
-static int write_to_console(int level, const char *file, unsigned int line, const char *func, const char *buffer)
+static int write_to_console(int level, const char *file, unsigned line, const char *func, const char *buffer)
 {
 
         struct iovec iovec[5];
@@ -197,7 +197,8 @@ int log_meta(int level, const char *file, int line, const char *func, const char
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
-_noreturn_ static void log_assert(const char *text, const char *file, int line, const char *func, const char *format)
+_noreturn_ static void log_assert(const char *text, const char *file, unsigned line, const char *func,
+                                  const char *format)
 {
         static char buffer[LINE_MAX];
 
@@ -212,12 +213,12 @@ _noreturn_ static void log_assert(const char *text, const char *file, int line, 
 
 #pragma GCC diagnostic pop
 
-_noreturn_ void log_assert_failed(const char *text, const char *file, int line, const char *func)
+_noreturn_ void log_assert_failed(const char *text, const char *file, unsigned line, const char *func)
 {
         log_assert(text, file, line, func, "Assertion '%s' failed at %s:%u, function %s(). Aborting.");
 }
 
-_noreturn_ void log_assert_failed_unreachable(const char *text, const char *file, int line, const char *func)
+_noreturn_ void log_assert_failed_unreachable(const char *text, const char *file, unsigned line, const char *func)
 {
         log_assert(text, file, line, func, "Code should not be reached '%s' at %s:%u, function %s(). Aborting.");
 }
