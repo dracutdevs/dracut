@@ -19,7 +19,7 @@ install() {
 
     inst_multiple -o findmnt less kmod
 
-    inst_binary "${dracutsysrootdir}${dracutbasedir}/dracut-util" "/usr/bin/dracut-util"
+    inst_binary "${dracutbasedir}/dracut-util" "/usr/bin/dracut-util"
 
     ln -s dracut-util "${initdir}/usr/bin/dracut-getarg"
     ln -s dracut-util "${initdir}/usr/bin/dracut-getargs"
