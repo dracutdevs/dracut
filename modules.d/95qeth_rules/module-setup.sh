@@ -10,6 +10,7 @@ check() {
 
     [[ $hostonly ]] && {
         for i in /sys/devices/qeth/*/online; do
+            [ ! -f "$i" ] && continue
             read -r _online < "$i"
             [ "$_online" -eq 1 ] && return 0
         done
