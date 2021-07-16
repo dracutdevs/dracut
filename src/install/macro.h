@@ -157,7 +157,7 @@ static inline size_t ALIGN_TO(size_t l, size_t ali)
         } while (false)
 #endif
 
-#define PTR_TO_UINT(p) ((unsigned int) ((uintptr_t) (p)))
+#define PTR_TO_UINT(p) ((unsigned) ((uintptr_t) (p)))
 #define UINT_TO_PTR(u) ((void*) ((uintptr_t) (u)))
 
 #define PTR_TO_UINT32(p) ((uint32_t) ((uintptr_t) (p)))

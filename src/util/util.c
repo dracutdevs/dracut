@@ -63,7 +63,7 @@ static char *skip_spaces(const char *str)
  */
 static char *next_arg(char *args, char **param, char **val)
 {
-        unsigned int i, equals = 0;
+        unsigned i, equals = 0;
         int in_quote = 0, quoted = 0;
         char *next;
 

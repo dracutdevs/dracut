@@ -88,7 +88,7 @@ char **strv_copy(char *const *l)
         return r;
 }
 
-unsigned int strv_length(char *const *l)
+unsigned strv_length(char *const *l)
 {
         unsigned n = 0;
 
@@ -313,7 +313,7 @@ char **strv_split_quoted(const char *s)
 char **strv_split_newlines(const char *s)
 {
         char **l;
-        unsigned int n;
+        unsigned n;
 
         assert(s);
 
