@@ -419,7 +419,7 @@ static char *get_real_file(const char *src, bool fullyresolve)
         char linktarget[PATH_MAX + 1];
         ssize_t linksz;
         _cleanup_free_ char *fullsrcpath;
-        char *abspath = NULL;
+        _cleanup_free_ char *abspath = NULL;
         struct stat sb;
 
         if (sysrootdirlen) {
@@ -482,7 +482,7 @@ static char *get_real_file(const char *src, bool fullyresolve)
         }
 
         log_debug("get_real_file('%s') => '%s'", src, abspath);
-        return abspath;
+        return TAKE_PTR(abspath);
 }
 
 static int resolve_deps(const char *src)
