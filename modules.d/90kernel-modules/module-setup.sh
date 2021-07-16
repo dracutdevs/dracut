@@ -61,7 +61,7 @@ installkernel() {
             virtio virtio_ring virtio_pci pci_hyperv \
             "=drivers/pcmcia"
 
-        if [[ ${DRACUT_ARCH:-$(uname -m)} == arm* || ${DRACUT_ARCH:-$(uname -m)} == aarch64 ]]; then
+        if [[ ${DRACUT_ARCH:-$(uname -m)} == arm* || ${DRACUT_ARCH:-$(uname -m)} == aarch64 || ${DRACUT_ARCH:-$(uname -m)} == riscv* ]]; then
             # arm/aarch64 specific modules
             _blockfuncs+='|dw_mc_probe|dw_mci_pltfm_register'
             instmods \
@@ -76,6 +76,7 @@ installkernel() {
                 "=drivers/memory" \
                 "=drivers/mfd" \
                 "=drivers/mmc/core" \
+                "=drivers/mmc/host" \
                 "=drivers/phy" \
                 "=drivers/power" \
                 "=drivers/regulator" \
@@ -83,6 +84,7 @@ installkernel() {
                 "=drivers/rpmsg" \
                 "=drivers/rtc" \
                 "=drivers/soc" \
+                "=drivers/spi" \
                 "=drivers/usb/chipidea" \
                 "=drivers/usb/dwc2" \
                 "=drivers/usb/dwc3" \
