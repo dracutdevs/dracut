@@ -419,7 +419,7 @@ static char *get_real_file(const char *src, bool fullyresolve)
         char linktarget[PATH_MAX + 1];
         ssize_t linksz;
         _cleanup_free_ char *fullsrcpath;
-        char *abspath = NULL;
+        char *abspath = NULL; /* this is returned from the function, don't _cleanup_free_ */
         struct stat sb;
 
         if (sysrootdirlen) {
@@ -455,30 +455,39 @@ static char *get_real_file(const char *src, bool fullyresolve)
         log_debug("get_real_file: readlink('%s') returns '%s'", fullsrcpath, linktarget);
 
         if (linktarget[0] == '/') {
-                if (asprintf(&abspath, "%s%s", (sysrootdirlen ? sysrootdir : ""), linktarget) < 0)
-                        return NULL;
+                if (asprintf(&abspath, "%s%s", (sysrootdirlen ? sysrootdir : ""), linktarget) < 0) {
+                        log_error("Out of memory!");
+                        _exit(EXIT_FAILURE);
+                }
         } else {
                 _cleanup_free_ char *fullsrcdir = strdup(fullsrcpath);
 
                 if (!fullsrcdir) {
                         log_error("Out of memory!");
-                        return NULL;
+                        _exit(EXIT_FAILURE);
                 }
 
                 fullsrcdir[dir_len(fullsrcdir)] = '\0';
 
-                if (asprintf(&abspath, "%s/%s", fullsrcdir, linktarget) < 0)
-                        return NULL;
+                if (asprintf(&abspath, "%s/%s", fullsrcdir, linktarget) < 0) {
+                        log_error("Out of memory!");
+                        _exit(EXIT_FAILURE);
+                }
         }
 
         if (fullyresolve) {
                 struct stat st;
                 if (lstat(abspath, &st) < 0) {
-                        if (errno != ENOENT)
+                        if (errno != ENOENT) {
+                                free(abspath);
                                 return NULL;
+                        }
                 }
-                if (S_ISLNK(st.st_mode))
-                        return get_real_file(abspath, fullyresolve);
+                if (S_ISLNK(st.st_mode)) {
+                        char *tmp = get_real_file(abspath, fullyresolve);
+                        free(abspath);
+                        abspath = tmp;
+                }
         }
 
         log_debug("get_real_file('%s') => '%s'", src, abspath);
