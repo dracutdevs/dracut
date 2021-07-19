@@ -105,7 +105,7 @@ static int write_to_console(int level, const char *file, unsigned int line, cons
 {
 
         struct iovec iovec[5];
-        unsigned n = 0;
+        unsigned int n = 0;
 
         if (console_fd < 0)
                 return 0;
@@ -130,7 +130,7 @@ static int write_to_console(int level, const char *file, unsigned int line, cons
         return 1;
 }
 
-static int log_dispatch(int level, const char *file, int line, const char *func, char *buffer)
+static int log_dispatch(int level, const char *file, unsigned int line, const char *func, char *buffer)
 {
 
         int r = 0;
@@ -163,7 +163,7 @@ static int log_dispatch(int level, const char *file, int line, const char *func,
         return r;
 }
 
-int log_metav(int level, const char *file, int line, const char *func, const char *format, va_list ap)
+int log_metav(int level, const char *file, unsigned int line, const char *func, const char *format, va_list ap)
 {
 
         char buffer[LINE_MAX];
@@ -182,7 +182,7 @@ int log_metav(int level, const char *file, int line, const char *func, const cha
         return r;
 }
 
-int log_meta(int level, const char *file, int line, const char *func, const char *format, ...)
+int log_meta(int level, const char *file, unsigned int line, const char *func, const char *format, ...)
 {
 
         int r;
@@ -197,7 +197,8 @@ int log_meta(int level, const char *file, int line, const char *func, const char
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
-_noreturn_ static void log_assert(const char *text, const char *file, int line, const char *func, const char *format)
+_noreturn_ static void log_assert(const char *text, const char *file, unsigned int line, const char *func,
+                                  const char *format)
 {
         static char buffer[LINE_MAX];
 
@@ -212,12 +213,12 @@ _noreturn_ static void log_assert(const char *text, const char *file, int line, 
 
 #pragma GCC diagnostic pop
 
-_noreturn_ void log_assert_failed(const char *text, const char *file, int line, const char *func)
+_noreturn_ void log_assert_failed(const char *text, const char *file, unsigned int line, const char *func)
 {
         log_assert(text, file, line, func, "Assertion '%s' failed at %s:%u, function %s(). Aborting.");
 }
 
-_noreturn_ void log_assert_failed_unreachable(const char *text, const char *file, int line, const char *func)
+_noreturn_ void log_assert_failed_unreachable(const char *text, const char *file, unsigned int line, const char *func)
 {
         log_assert(text, file, line, func, "Code should not be reached '%s' at %s:%u, function %s(). Aborting.");
 }

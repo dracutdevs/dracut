@@ -34,13 +34,13 @@ typedef _IteratorStruct *Iterator;
 #define ITERATOR_FIRST ((Iterator) 0)
 #define ITERATOR_LAST ((Iterator) -1)
 
-typedef unsigned (*hash_func_t)(const void *p);
+typedef unsigned int (*hash_func_t)(const void *p);
 typedef int (*compare_func_t)(const void *a, const void *b);
 
-unsigned string_hash_func(const void *p);
+unsigned int string_hash_func(const void *p);
 int string_compare_func(const void *a, const void *b);
 
-unsigned trivial_hash_func(const void *p);
+unsigned int trivial_hash_func(const void *p);
 int trivial_compare_func(const void *a, const void *b);
 
 Hashmap *hashmap_new(hash_func_t hash_func, compare_func_t compare_func);
@@ -60,7 +60,7 @@ int hashmap_merge(Hashmap *h, Hashmap *other);
 void hashmap_move(Hashmap *h, Hashmap *other);
 int hashmap_move_one(Hashmap *h, Hashmap *other, const void *key);
 
-unsigned hashmap_size(Hashmap *h);
+unsigned int hashmap_size(Hashmap *h);
 bool hashmap_isempty(Hashmap *h);
 
 void *hashmap_iterate(Hashmap *h, Iterator *i, const void **key);

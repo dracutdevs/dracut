@@ -96,7 +96,7 @@ void close_nointr_nofail(int fd)
 int open_terminal(const char *name, int mode)
 {
         int fd, r;
-        unsigned c = 0;
+        unsigned int c = 0;
 
         /*
          * If a TTY is in the process of being closed opening it might
@@ -161,7 +161,7 @@ bool is_main_thread(void)
         return cached > 0;
 }
 
-int safe_atou(const char *s, unsigned *ret_u)
+int safe_atou(const char *s, unsigned int *ret_u)
 {
         char *x = NULL;
         unsigned long l;
@@ -175,10 +175,10 @@ int safe_atou(const char *s, unsigned *ret_u)
         if (!x || *x || errno)
                 return errno ? -errno : -EINVAL;
 
-        if ((unsigned long)(unsigned)l != l)
+        if ((unsigned long)(unsigned int)l != l)
                 return -ERANGE;
 
-        *ret_u = (unsigned)l;
+        *ret_u = (unsigned int)l;
         return 0;
 }
 
