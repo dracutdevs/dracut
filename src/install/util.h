@@ -155,7 +155,7 @@ bool first_word(const char *s, const char *word);
 
 int close_nointr(int fd);
 void close_nointr_nofail(int fd);
-void close_many(const int fds[], unsigned n_fd);
+void close_many(const int fds[], unsigned int n_fd);
 
 int parse_boolean(const char *v);
 int parse_usec(const char *t, usec_t *usec);
@@ -165,7 +165,7 @@ int parse_pid(const char *s, pid_t *ret_pid);
 int parse_uid(const char *s, uid_t *ret_uid);
 #define parse_gid(s, ret_uid) parse_uid(s, ret_uid)
 
-int safe_atou(const char *s, unsigned *ret_u);
+int safe_atou(const char *s, unsigned int *ret_u);
 int safe_atoi(const char *s, int *ret_i);
 
 int safe_atollu(const char *s, unsigned long long *ret_u);
@@ -174,8 +174,8 @@ int safe_atolli(const char *s, long long int *ret_i);
 #if LONG_MAX == INT_MAX
 static inline int safe_atolu(const char *s, unsigned long *ret_u)
 {
-        assert_cc(sizeof(unsigned long) == sizeof(unsigned));
-        return safe_atou(s, (unsigned *)ret_u);
+        assert_cc(sizeof(unsigned long) == sizeof(unsigned int));
+        return safe_atou(s, (unsigned int *)ret_u);
 }
 
 static inline int safe_atoli(const char *s, long int *ret_u)
@@ -199,8 +199,8 @@ static inline int safe_atoli(const char *s, long int *ret_u)
 
 static inline int safe_atou32(const char *s, uint32_t *ret_u)
 {
-        assert_cc(sizeof(uint32_t) == sizeof(unsigned));
-        return safe_atou(s, (unsigned *)ret_u);
+        assert_cc(sizeof(uint32_t) == sizeof(unsigned int));
+        return safe_atou(s, (unsigned int *)ret_u);
 }
 
 static inline int safe_atoi32(const char *s, int32_t *ret_i)
@@ -312,7 +312,7 @@ unsigned long long random_ull(void);
         }                                                               \
         scope type name##_from_string(const char *s) {                  \
                 type i;                                                 \
-                unsigned u = 0;                                         \
+                unsigned int u = 0;                                     \
                 assert(s);                                              \
                 for (i = 0; i < (type)ELEMENTSOF(name##_table); i++)    \
                         if (name##_table[i] &&                          \
@@ -331,7 +331,7 @@ unsigned long long random_ull(void);
 int fd_nonblock(int fd, bool nonblock);
 int fd_cloexec(int fd, bool cloexec);
 
-int close_all_fds(const int except[], unsigned n_except);
+int close_all_fds(const int except[], unsigned int n_except);
 
 bool fstype_is_network(const char *fstype);
 
@@ -385,22 +385,22 @@ int rm_rf(const char *path, bool only_dirs, bool delete_root, bool honour_sticky
 
 int pipe_eof(int fd);
 
-cpu_set_t *cpu_set_malloc(unsigned *ncpus);
+cpu_set_t *cpu_set_malloc(unsigned int *ncpus);
 
 void status_vprintf(const char *status, bool ellipse, const char *format, va_list ap);
 void status_printf(const char *status, bool ellipse, const char *format, ...);
 void status_welcome(void);
 
 int fd_columns(int fd);
-unsigned columns(void);
+unsigned int columns(void);
 
 int fd_lines(int fd);
-unsigned lines(void);
+unsigned int lines(void);
 
 int running_in_chroot(void);
 
-char *ellipsize(const char *s, size_t length, unsigned percent);
-char *ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigned percent);
+char *ellipsize(const char *s, size_t length, unsigned int percent);
+char *ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigned int percent);
 
 int touch(const char *path);
 
@@ -575,7 +575,7 @@ static inline void umaskp(mode_t *u)
 int fd_inc_sndbuf(int fd, size_t n);
 int fd_inc_rcvbuf(int fd, size_t n);
 
-int fork_agent(pid_t *pid, const int except[], unsigned n_except, const char *path, ...);
+int fork_agent(pid_t *pid, const int except[], unsigned int n_except, const char *path, ...);
 
 int setrlimit_closest(int resource, const struct rlimit *rlim);
 

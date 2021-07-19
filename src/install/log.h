@@ -67,12 +67,13 @@ void log_close_console(void);
 
 void log_parse_environment(void);
 
-int log_meta(int level, const char *file, int line, const char *func, const char *format, ...) _printf_attr_(5, 6);
+int log_meta(int level, const char *file, unsigned int line, const char *func,
+             const char *format, ...) _printf_attr_(5, 6);
 
-int log_metav(int level, const char *file, int line, const char *func, const char *format, va_list ap);
+int log_metav(int level, const char *file, unsigned int line, const char *func, const char *format, va_list ap);
 
-_noreturn_ void log_assert_failed(const char *text, const char *file, int line, const char *func);
-_noreturn_ void log_assert_failed_unreachable(const char *text, const char *file, int line, const char *func);
+_noreturn_ void log_assert_failed(const char *text, const char *file, unsigned int line, const char *func);
+_noreturn_ void log_assert_failed_unreachable(const char *text, const char *file, unsigned int line, const char *func);
 
 /* This modifies the buffer passed! */
 int log_dump_internal(int level, const char *file, int line, const char *func, char *buffer);

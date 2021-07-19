@@ -90,7 +90,7 @@ char **strv_copy(char *const *l)
 
 unsigned int strv_length(char *const *l)
 {
-        unsigned n = 0;
+        unsigned int n = 0;
 
         if (!l)
                 return 0;
@@ -105,7 +105,7 @@ char **strv_new_ap(const char *x, va_list ap)
 {
         const char *s;
         char **a;
-        unsigned n = 0, i = 0;
+        unsigned int n = 0, i = 0;
         va_list aq;
 
         /* As a special trick we ignore all listed strings that equal
@@ -248,7 +248,7 @@ char **strv_split(const char *s, const char *separator)
         char *state;
         char *w;
         size_t l;
-        unsigned n, i;
+        unsigned int n, i;
         char **r;
 
         assert(s);
@@ -282,7 +282,7 @@ char **strv_split_quoted(const char *s)
         char *state;
         char *w;
         size_t l;
-        unsigned n, i;
+        unsigned int n, i;
         char **r;
 
         assert(s);
@@ -406,7 +406,7 @@ fail:
 int strv_push(char ***l, char *value)
 {
         char **c;
-        unsigned n;
+        unsigned int n;
 
         if (!value)
                 return 0;
@@ -510,7 +510,7 @@ char **strv_remove_prefix(char **l, const char *s)
 char **strv_parse_nulstr(const char *s, size_t l)
 {
         const char *p;
-        unsigned c = 0, i = 0;
+        unsigned int c = 0, i = 0;
         char **v;
 
         assert(s || l == 0);

@@ -40,20 +40,20 @@ struct Hashmap {
         compare_func_t compare_func;
 
         struct hashmap_entry *iterate_list_head, *iterate_list_tail;
-        unsigned n_entries;
+        unsigned int n_entries;
 };
 
 #define BY_HASH(h) ((struct hashmap_entry**) ((uint8_t*) (h) + ALIGN(sizeof(Hashmap))))
 
-unsigned string_hash_func(const void *p)
+unsigned int string_hash_func(const void *p)
 {
-        unsigned hash = 5381;
+        unsigned int hash = 5381;
         const signed char *c;
 
         /* DJB's hash function */
 
         for (c = p; *c; c++)
-                hash = (hash << 5) + hash + (unsigned)*c;
+                hash = (hash << 5) + hash + (unsigned int)*c;
 
         return hash;
 }
@@ -63,7 +63,7 @@ int string_compare_func(const void *a, const void *b)
         return strcmp(a, b);
 }
 
-unsigned trivial_hash_func(const void *p)
+unsigned int trivial_hash_func(const void *p)
 {
         return PTR_TO_UINT(p);
 }
@@ -107,7 +107,7 @@ int hashmap_ensure_allocated(Hashmap **h, hash_func_t hash_func, compare_func_t 
         return 0;
 }
 
-static void link_entry(Hashmap *h, struct hashmap_entry *e, unsigned hash)
+static void link_entry(Hashmap *h, struct hashmap_entry *e, unsigned int hash)
 {
         assert(h);
         assert(e);
@@ -135,7 +135,7 @@ static void link_entry(Hashmap *h, struct hashmap_entry *e, unsigned hash)
         assert(h->n_entries >= 1);
 }
 
-static void unlink_entry(Hashmap *h, struct hashmap_entry *e, unsigned hash)
+static void unlink_entry(Hashmap *h, struct hashmap_entry *e, unsigned int hash)
 {
         assert(h);
         assert(e);
@@ -167,7 +167,7 @@ static void unlink_entry(Hashmap *h, struct hashmap_entry *e, unsigned hash)
 static void remove_entry(Hashmap *h, struct hashmap_entry **ep)
 {
         struct hashmap_entry *e = *ep;
-        unsigned hash;
+        unsigned int hash;
 
         assert(h);
         assert(e);
@@ -212,7 +212,7 @@ void hashmap_clear(Hashmap *h)
         }
 }
 
-static struct hashmap_entry *hash_scan(Hashmap *h, unsigned hash, const void *key)
+static struct hashmap_entry *hash_scan(Hashmap *h, unsigned int hash, const void *key)
 {
         struct hashmap_entry *e;
         assert(h);
@@ -228,7 +228,7 @@ static struct hashmap_entry *hash_scan(Hashmap *h, unsigned hash, const void *ke
 int hashmap_put(Hashmap *h, const void *key, void *value)
 {
         struct hashmap_entry *e;
-        unsigned hash;
+        unsigned int hash;
 
         assert(h);
 
@@ -258,7 +258,7 @@ int hashmap_put(Hashmap *h, const void *key, void *value)
 int hashmap_replace(Hashmap *h, const void *key, void *value)
 {
         struct hashmap_entry *e;
-        unsigned hash;
+        unsigned int hash;
 
         assert(h);
 
@@ -275,7 +275,7 @@ int hashmap_replace(Hashmap *h, const void *key, void *value)
 
 void *hashmap_get(Hashmap *h, const void *key)
 {
-        unsigned hash;
+        unsigned int hash;
         struct hashmap_entry *e;
 
         if (!h)
@@ -292,7 +292,7 @@ void *hashmap_get(Hashmap *h, const void *key)
 void *hashmap_remove(Hashmap *h, const void *key)
 {
         struct hashmap_entry *e;
-        unsigned hash;
+        unsigned int hash;
         void *data;
 
         if (!h)
@@ -312,7 +312,7 @@ void *hashmap_remove(Hashmap *h, const void *key)
 int hashmap_remove_and_put(Hashmap *h, const void *old_key, const void *new_key, void *value)
 {
         struct hashmap_entry *e;
-        unsigned old_hash, new_hash;
+        unsigned int old_hash, new_hash;
 
         if (!h)
                 return -ENOENT;
@@ -338,7 +338,7 @@ int hashmap_remove_and_put(Hashmap *h, const void *old_key, const void *new_key,
 int hashmap_remove_and_replace(Hashmap *h, const void *old_key, const void *new_key, void *value)
 {
         struct hashmap_entry *e, *k;
-        unsigned old_hash, new_hash;
+        unsigned int old_hash, new_hash;
 
         if (!h)
                 return -ENOENT;
@@ -366,7 +366,7 @@ int hashmap_remove_and_replace(Hashmap *h, const void *old_key, const void *new_
 void *hashmap_remove_value(Hashmap *h, const void *key, void *value)
 {
         struct hashmap_entry *e;
-        unsigned hash;
+        unsigned int hash;
 
         if (!h)
                 return NULL;
@@ -458,7 +458,7 @@ at_beginning:
 
 void *hashmap_iterate_skip(Hashmap *h, const void *key, Iterator *i)
 {
-        unsigned hash;
+        unsigned int hash;
         struct hashmap_entry *e;
 
         if (!h)
@@ -546,7 +546,7 @@ void *hashmap_steal_first_key(Hashmap *h)
         return key;
 }
 
-unsigned hashmap_size(Hashmap *h)
+unsigned int hashmap_size(Hashmap *h)
 {
 
         if (!h)
@@ -597,7 +597,7 @@ void hashmap_move(Hashmap *h, Hashmap *other)
                 return;
 
         for (e = other->iterate_list_head; e; e = n) {
-                unsigned h_hash, other_hash;
+                unsigned int h_hash, other_hash;
 
                 n = e->iterate_next;
 
@@ -615,7 +615,7 @@ void hashmap_move(Hashmap *h, Hashmap *other)
 
 int hashmap_move_one(Hashmap *h, Hashmap *other, const void *key)
 {
-        unsigned h_hash, other_hash;
+        unsigned int h_hash, other_hash;
         struct hashmap_entry *e;
 
         if (!other)

@@ -190,9 +190,9 @@ static inline size_t ALIGN_TO(size_t l, size_t ali)
                 _i->iov_len = strlen(_s);       \
         } while(false)
 
-static inline size_t IOVEC_TOTAL_SIZE(const struct iovec *i, unsigned n)
+static inline size_t IOVEC_TOTAL_SIZE(const struct iovec *i, unsigned int n)
 {
-        unsigned j;
+        unsigned int j;
         size_t r = 0;
 
         for (j = 0; j < n; j++)
@@ -201,9 +201,9 @@ static inline size_t IOVEC_TOTAL_SIZE(const struct iovec *i, unsigned n)
         return r;
 }
 
-static inline size_t IOVEC_INCREMENT(struct iovec *i, unsigned n, size_t k)
+static inline size_t IOVEC_INCREMENT(struct iovec *i, unsigned int n, size_t k)
 {
-        unsigned j;
+        unsigned int j;
 
         for (j = 0; j < n; j++) {
                 size_t sub;

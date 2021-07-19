@@ -95,7 +95,7 @@ void strv_print(char **l);
                 if (!first)                                     \
                         _l = (char**) &first;                   \
                 else {                                          \
-                        unsigned _n;                            \
+                        unsigned int _n;                        \
                         va_list _ap;                            \
                                                                 \
                         _n = 1;                                 \
