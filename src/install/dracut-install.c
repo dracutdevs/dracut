@@ -509,11 +509,11 @@ static int resolve_deps(const char *src)
         if (!fullsrcpath)
                 return 0;
 
-        buf = malloc(LINE_MAX);
+        buf = malloc0(LINE_MAX);
         if (buf == NULL)
                 return -errno;
 
-        if (strstr(src, ".so") == 0) {
+        if (strstr(src, ".so") == NULL) {
                 _cleanup_close_ int fd = -1;
                 fd = open(fullsrcpath, O_RDONLY | O_CLOEXEC);
                 if (fd < 0)
@@ -554,6 +554,7 @@ static int resolve_deps(const char *src)
         while (!feof(fptr)) {
                 char *p;
 
+                memset(buf, 0, LINE_MAX);
                 if (getline(&buf, &linesize, fptr) <= 0)
                         continue;
 
@@ -1250,12 +1251,12 @@ static char **find_binary(const char *src)
 {
         char **ret = NULL;
         char **q;
-        char *fullsrcpath;
         char *newsrc = NULL;
 
         STRV_FOREACH(q, pathdirs) {
                 struct stat sb;
                 int r;
+                char *fullsrcpath;
 
                 r = asprintf(&newsrc, "%s/%s", *q, src);
                 if (r < 0) {
@@ -1397,8 +1398,10 @@ static int install_firmware_fullpath(const char *fwpath)
         _cleanup_free_ char *fwpath_xz = NULL;
         fw = fwpath;
         struct stat sb;
-        int ret, r;
+        int ret;
         if (stat(fwpath, &sb) != 0) {
+                int r;
+
                 r = asprintf(&fwpath_xz, "%s.xz", fwpath);
                 if (r < 0) {
                         log_error("Out of memory!");
@@ -1419,7 +1422,7 @@ static int install_firmware_fullpath(const char *fwpath)
 
 static int install_firmware(struct kmod_module *mod)
 {
-        struct kmod_list *l;
+        struct kmod_list *l = NULL;
         _cleanup_kmod_module_info_free_list_ struct kmod_list *list = NULL;
         int ret;
 
@@ -1477,7 +1480,7 @@ static int install_firmware(struct kmod_module *mod)
 
 static bool check_module_symbols(struct kmod_module *mod)
 {
-        struct kmod_list *itr;
+        struct kmod_list *itr = NULL;
         _cleanup_kmod_module_dependency_symbols_free_list_ struct kmod_list *deplist = NULL;
 
         if (!arg_mod_filter_symbol && !arg_mod_filter_nosymbol)
@@ -1534,7 +1537,7 @@ static bool check_module_path(const char *path)
 
 static int install_dependent_modules(struct kmod_list *modlist)
 {
-        struct kmod_list *itr;
+        struct kmod_list *itr = NULL;
         const char *path = NULL;
         const char *name = NULL;
         int ret = 0;
@@ -1656,7 +1659,8 @@ static int modalias_list(struct kmod_ctx *ctx)
 {
         int err;
         struct kmod_list *loaded_list = NULL;
-        struct kmod_list *itr, *l;
+        struct kmod_list *l = NULL;
+        struct kmod_list *itr = NULL;
         _cleanup_fts_close_ FTS *fts = NULL;
 
         {
@@ -1666,11 +1670,10 @@ static int modalias_list(struct kmod_ctx *ctx)
         for (FTSENT *ftsent = fts_read(fts); ftsent != NULL; ftsent = fts_read(fts)) {
                 _cleanup_fclose_ FILE *f = NULL;
                 _cleanup_kmod_module_unref_list_ struct kmod_list *list = NULL;
-                struct kmod_list *l;
 
                 int err;
 
-                char alias[2048];
+                char alias[2048] = {0};
                 size_t len;
 
                 if (strncmp("modalias", ftsent->fts_name, 8) != 0)
@@ -1739,7 +1742,7 @@ static int modalias_list(struct kmod_ctx *ctx)
 static int install_modules(int argc, char **argv)
 {
         _cleanup_kmod_unref_ struct kmod_ctx *ctx = NULL;
-        struct kmod_list *itr;
+        struct kmod_list *itr = NULL;
 
         struct kmod_module *mod = NULL, *mod_o = NULL;
 
