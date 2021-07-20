@@ -6,10 +6,11 @@
 Description=dracut ask for additional cmdline parameters
 DefaultDependencies=no
 Before=dracut-cmdline.service
-After=systemd-journald.socket
-After=systemd-vconsole-setup.service
-Requires=systemd-vconsole-setup.service
 Wants=systemd-journald.socket
+After=systemd-journald.socket
+Wants=systemd-vconsole-setup.service
+After=systemd-vconsole-setup.service
+
 ConditionPathExists=/usr/lib/initrd-release
 ConditionKernelCommandLine=|rd.cmdline=ask
 ConditionPathExistsGlob=|/etc/cmdline.d/*.conf
