@@ -387,7 +387,8 @@ if [ -f /etc/capsdrop ]; then
         }
 else
     unset RD_DEBUG
-    exec "$SWITCH_ROOT" "$NEWROOT" "$INIT" "$initargs" || {
+    # shellcheck disable=SC2086
+    exec "$SWITCH_ROOT" "$NEWROOT" "$INIT" $initargs || {
         warn "Something went very badly wrong in the initramfs.  Please "
         warn "file a bug against dracut."
         emergency_shell
