@@ -10,7 +10,7 @@ check() {
 
 # called by dracut
 depends() {
-    echo dbus
+    echo dbus bash
     return 0
 }
 
