@@ -617,6 +617,27 @@ for_each_host_dev_and_slaves() {
     return 1
 }
 
+# /sys/dev/block/major:minor is symbol link to real hardware device
+# go downstream $(realpath /sys/dev/block/major:minor) to detect driver
+get_blockdev_drv_through_sys() {
+    local _block_mods=""
+    local _path
+
+    _path=$(realpath "$1")
+    while true; do
+        if [[ -L "$_path"/driver/module ]]; then
+            _mod=$(realpath "$_path"/driver/module)
+            _mod=$(basename "$_mod")
+            _block_mods="$_block_mods $_mod"
+        fi
+        _path=$(dirname "$_path")
+        if [[ $_path == '/sys/devices' ]] || [[ $_path == '/' ]]; then
+            break
+        fi
+    done
+    echo "$_block_mods"
+}
+
 # ugly workaround for the lvm design
 # There is no volume group device,
 # so, there are no slave devices for volume groups.

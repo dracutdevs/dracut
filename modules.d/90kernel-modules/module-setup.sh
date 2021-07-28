@@ -16,9 +16,15 @@ installkernel() {
     }
 
     record_block_dev_drv() {
+
         for _mod in $(get_dev_module /dev/block/"$1"); do
             _hostonly_drvs["$_mod"]="$_mod"
         done
+
+        for _mod in $(get_blockdev_drv_through_sys "/sys/dev/block/$1"); do
+            _hostonly_drvs["$_mod"]="$_mod"
+        done
+
         ((${#_hostonly_drvs[@]} > 0)) && return 0
         return 1
     }
