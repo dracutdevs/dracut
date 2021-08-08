@@ -103,9 +103,11 @@ void log_set_facility(int facility)
 
 static int write_to_console(int level, const char *file, unsigned int line, const char *func, const char *buffer)
 {
-
         struct iovec iovec[5];
         unsigned int n = 0;
+
+        // might be useful going ahead
+        UNUSED(level);
 
         if (console_fd < 0)
                 return 0;
@@ -115,8 +117,8 @@ static int write_to_console(int level, const char *file, unsigned int line, cons
         IOVEC_SET_STRING(iovec[n++], "dracut-install: ");
 
         if (show_location) {
-                char location[64];
-                if (snprintf(location, sizeof(location), "(%s:%u) ", file, line) <= 0)
+                char location[LINE_MAX] = {0};
+                if (snprintf(location, sizeof(location), "(%s:%s:%u) ", file, func, line) <= 0)
                         return -errno;
                 IOVEC_SET_STRING(iovec[n++], location);
         }
