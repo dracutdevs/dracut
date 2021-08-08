@@ -167,20 +167,25 @@ static int log_dispatch(int level, const char *file, unsigned int line, const ch
 
 int log_metav(int level, const char *file, unsigned int line, const char *func, const char *format, va_list ap)
 {
-
-        char buffer[LINE_MAX];
+        char buffer[LINE_MAX] = {0};
         int saved_errno, r;
 
         if (_likely_(LOG_PRI(level) > log_max_level))
                 return 0;
 
         saved_errno = errno;
-        vsnprintf(buffer, sizeof(buffer), format, ap);
+
+        r = vsnprintf(buffer, sizeof(buffer), format, ap);
+        if (r <= 0) {
+                goto end;
+        }
+
         char_array_0(buffer);
 
         r = log_dispatch(level, file, line, func, buffer);
-        errno = saved_errno;
 
+end:
+        errno = saved_errno;
         return r;
 }
 
@@ -204,12 +209,12 @@ _noreturn_ static void log_assert(const char *text, const char *file, unsigned i
 {
         static char buffer[LINE_MAX];
 
-        snprintf(buffer, sizeof(buffer), format, text, file, line, func);
+        if (snprintf(buffer, sizeof(buffer), format, text, file, line, func) > 0) {
+                char_array_0(buffer);
+                log_abort_msg = buffer;
+                log_dispatch(LOG_CRIT, file, line, func, buffer);
+        }
 
-        char_array_0(buffer);
-        log_abort_msg = buffer;
-
-        log_dispatch(LOG_CRIT, file, line, func, buffer);
         abort();
 }
 
