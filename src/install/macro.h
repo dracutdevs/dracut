@@ -293,4 +293,7 @@ do {                                                                    \
                 _ptr_;                          \
         })
 
+/* Use to suppress unused variable/function arg warning */
+#define UNUSED(var)   ((void)var)
+
 #include "log.h"
