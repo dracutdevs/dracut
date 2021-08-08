@@ -17,6 +17,8 @@
   along with systemd; If not, see <http://www.gnu.org/licenses/>.
 ***/
 
+#define _GNU_SOURCE
+
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
@@ -530,4 +532,23 @@ int unoctchar(char c)
                 return c - '0';
 
         return -1;
+}
+
+int dracut_asprintf(char **restrict strp, const char *restrict fmt, ...)
+{
+        int ret = -1;
+        va_list args;
+
+        if (!strp || !fmt) {
+                return ret;
+        }
+
+        va_start(args, fmt);
+        ret = vasprintf(strp, fmt, args);
+        if (ret < 0) {
+                *strp = NULL;
+        }
+        va_end(args);
+
+        return ret;
 }

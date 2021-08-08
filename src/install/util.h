@@ -603,4 +603,6 @@ char *cunescape_length(const char *s, size_t length);
 int unhexchar(char c) _const_;
 int unoctchar(char c) _const_;
 
+int dracut_asprintf(char **restrict strp, const char *restrict fmt, ...);
+
 #endif
