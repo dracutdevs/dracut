@@ -1,4 +1,4 @@
-/* dracut-install.c  -- install files and executables
+/* skipcpio.c
 
    Copyright (C) 2012 Harald Hoyer
    Copyright (C) 2012 Red Hat, Inc.  All rights reserved.
@@ -28,10 +28,17 @@
 #include <string.h>
 
 #define CPIO_MAGIC "070701"
+
 #define CPIO_END "TRAILER!!!"
 #define CPIO_ENDLEN (sizeof(CPIO_END) - 1)
 
 #define CPIO_ALIGNMENT 4
+
+#define ALIGN_UP(n, a) (((n) + (a) - 1) & (~((a) - 1)))
+
+#define pr_err(fmt, ...) \
+        fprintf(stderr, "ERROR: %s:%d:%s(): " fmt, __FILE__, __LINE__, \
+                __func__, ##__VA_ARGS__)
 
 struct cpio_header {
         char c_magic[6];
@@ -62,110 +69,135 @@ union buf_union {
 
 static union buf_union buf;
 
-#define ALIGN_UP(n, a) (((n) + (a) - 1) & (~((a) - 1)))
-
 int main(int argc, char **argv)
 {
-        FILE *f;
         size_t s;
+        long pos = 0;
+        FILE *f = NULL;
+        char *fname = NULL;
+        int ret = EXIT_FAILURE;
+        unsigned long filesize;
+        unsigned long filename_length;
 
         if (argc != 2) {
                 fprintf(stderr, "Usage: %s <file>\n", argv[0]);
-                exit(1);
+                goto end;
         }
 
-        f = fopen(argv[1], "r");
-
+        fname = argv[1];
+        f = fopen(fname, "r");
         if (f == NULL) {
-                fprintf(stderr, "Cannot open file '%s'\n", argv[1]);
-                exit(1);
+                pr_err("Cannot open file '%s'\n", fname);
+                goto end;
         }
 
-        s = fread(&buf.cpio, sizeof(buf.cpio), 1, f);
-        if (s <= 0) {
-                fprintf(stderr, "Read error from file '%s'\n", argv[1]);
-                fclose(f);
-                exit(1);
+        if ((fread(&buf.cpio, sizeof(buf.cpio), 1, f) != 1) ||
+            ferror(f)) {
+                pr_err("Read error from file '%s'\n", fname);
+                goto end;
         }
-        fseek(f, 0, SEEK_SET);
+
+        if (fseek(f, 0, SEEK_SET)) {
+                pr_err("fseek error on file '%s'\n", fname);
+                goto end;
+        }
 
         /* check, if this is a cpio archive */
-        if (memcmp(buf.cpio.h.c_magic, CPIO_MAGIC, 6) == 0) {
+        if (memcmp(buf.cpio.h.c_magic, CPIO_MAGIC, 6)) {
+                goto cat_rest;
+        }
 
-                long pos = 0;
+        do {
+                // zero string, spilling into next unused field, to use strtol
+                buf.cpio.h.c_chksum[0] = 0;
+                filename_length = strtoul(buf.cpio.h.c_namesize, NULL, 16);
+                pos = ALIGN_UP(pos + sizeof(struct cpio_header) + filename_length, CPIO_ALIGNMENT);
 
-                unsigned long filesize;
-                unsigned long filename_length;
+                // zero string, spilling into next unused field, to use strtol
+                buf.cpio.h.c_dev_maj[0] = 0;
+                filesize = strtoul(buf.cpio.h.c_filesize, NULL, 16);
+                pos = ALIGN_UP(pos + filesize, CPIO_ALIGNMENT);
 
+                if (filename_length == (CPIO_ENDLEN + 1)
+                    && strncmp(buf.cpio.filename, CPIO_END, CPIO_ENDLEN) == 0) {
+                        if (fseek(f, pos, SEEK_SET)) {
+                                pr_err("fseek\n");
+                                goto end;
+                        }
+                        break;
+                }
+
+                if (fseek(f, pos, SEEK_SET)) {
+                        pr_err("fseek\n");
+                        goto end;
+                }
+
+                if ((fread(&buf.cpio, sizeof(buf.cpio), 1, f) != 1) ||
+                    ferror(f)) {
+                        pr_err("fread\n");
+                        goto end;
+                }
+
+                if (memcmp(buf.cpio.h.c_magic, CPIO_MAGIC, 6)) {
+                        pr_err("Corrupt CPIO archive!\n");
+                        goto end;
+                }
+        } while (!feof(f));
+
+        if (feof(f)) {
+                /* CPIO_END not found, just cat the whole file */
+                if (fseek(f, 0, SEEK_SET)) {
+                        pr_err("fseek\n");
+                        goto end;
+                }
+        } else {
+                /* skip zeros */
                 do {
-                        // zero string, spilling into next unused field, to use strtol
-                        buf.cpio.h.c_chksum[0] = 0;
-                        filename_length = strtoul(buf.cpio.h.c_namesize, NULL, 16);
-                        pos = ALIGN_UP(pos + sizeof(struct cpio_header) + filename_length, CPIO_ALIGNMENT);
+                        size_t i;
 
-                        // zero string, spilling into next unused field, to use strtol
-                        buf.cpio.h.c_dev_maj[0] = 0;
-                        filesize = strtoul(buf.cpio.h.c_filesize, NULL, 16);
-                        pos = ALIGN_UP(pos + filesize, CPIO_ALIGNMENT);
+                        s = fread(buf.copy_buffer, 1, sizeof(buf.copy_buffer) - 1, f);
+                        if (ferror(f)) {
+                                pr_err("fread\n");
+                                goto end;
+                        }
 
-                        if (filename_length == (CPIO_ENDLEN + 1)
-                            && strncmp(buf.cpio.filename, CPIO_END, CPIO_ENDLEN) == 0) {
-                                fseek(f, pos, SEEK_SET);
+                        for (i = 0; (i < s) && (buf.copy_buffer[i] == 0); i++) ;
+
+                        if (buf.copy_buffer[i]) {
+                                pos += i;
+
+                                if (fseek(f, pos, SEEK_SET)) {
+                                        pr_err("fseek\n");
+                                        goto end;
+                                }
                                 break;
                         }
 
-                        if (fseek(f, pos, SEEK_SET) != 0) {
-                                perror("fseek");
-                                exit(1);
-                        }
-
-                        if (fread(&buf.cpio, sizeof(buf.cpio), 1, f) != 1) {
-                                perror("fread");
-                                exit(1);
-                        }
-
-                        if (memcmp(buf.cpio.h.c_magic, CPIO_MAGIC, 6) != 0) {
-                                fprintf(stderr, "Corrupt CPIO archive!\n");
-                                exit(1);
-                        }
+                        pos += s;
                 } while (!feof(f));
-
-                if (feof(f)) {
-                        /* CPIO_END not found, just cat the whole file */
-                        fseek(f, 0, SEEK_SET);
-                } else {
-                        /* skip zeros */
-                        do {
-                                size_t i;
-
-                                s = fread(buf.copy_buffer, 1, sizeof(buf.copy_buffer) - 1, f);
-                                if (s <= 0)
-                                        break;
-
-                                for (i = 0; (i < s) && (buf.copy_buffer[i] == 0); i++) ;
-
-                                if (buf.copy_buffer[i] != 0) {
-                                        pos += i;
-
-                                        fseek(f, pos, SEEK_SET);
-                                        break;
-                                }
-
-                                pos += s;
-                        } while (!feof(f));
-                }
         }
+
+cat_rest:
         /* cat out the rest */
         while (!feof(f)) {
                 s = fread(buf.copy_buffer, 1, sizeof(buf.copy_buffer), f);
-                if (s <= 0)
-                        break;
+                if (ferror(f)) {
+                        pr_err("fread\n");
+                        goto end;
+                }
 
-                s = fwrite(buf.copy_buffer, 1, s, stdout);
-                if (s <= 0)
-                        break;
+                if (fwrite(buf.copy_buffer, 1, s, stdout) != s) {
+                        pr_err("fwrite\n");
+                        goto end;
+                }
         }
-        fclose(f);
 
-        return EXIT_SUCCESS;
+        ret = EXIT_SUCCESS;
+
+end:
+        if (f) {
+                fclose(f);
+        }
+
+        return ret;
 }
