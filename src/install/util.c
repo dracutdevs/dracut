@@ -24,14 +24,17 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/types.h>
-#include <sys/syscall.h>
 
 #include "util.h"
 
-static inline pid_t gettid(void)
-{
-        return (pid_t) syscall(SYS_gettid);
-}
+#if __GLIBC_PREREQ(2, 30) == 0
+#include <sys/syscall.h>
+#ifndef SYS_gettid
+#error "SYS_gettid unavailable on this system"
+#endif
+
+#define gettid()    ((pid_t) syscall(SYS_gettid))
+#endif /*__GLIBC_PREREQ */
 
 size_t page_size(void)
 {
