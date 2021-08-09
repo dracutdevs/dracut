@@ -1314,7 +1314,7 @@ static int install_all(int argc, char **argv)
 
                                 ret = glob(realsrc, 0, NULL, &globbuf);
                                 if (ret == 0) {
-                                        int j;
+                                        size_t j;
 
                                         for (j = 0; j < globbuf.gl_pathc; j++) {
                                                 char *dest = strdup(globbuf.gl_pathv[j] + sysrootdirlen);
@@ -1388,8 +1388,9 @@ static int install_firmware(struct kmod_module *mod)
 
                         if ((strstr(value, "*") != 0 || strstr(value, "?") != 0 || strstr(value, "[") != 0)
                             && stat(fwpath, &sb) != 0) {
-                                int i;
+                                size_t i;
                                 _cleanup_globfree_ glob_t globbuf;
+
                                 glob(fwpath, 0, NULL, &globbuf);
                                 for (i = 0; i < globbuf.gl_pathc; i++) {
                                         ret = install_firmware_fullpath(globbuf.gl_pathv[i]);
