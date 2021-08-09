@@ -52,6 +52,12 @@ installpost() {
         done
     else
         DRACUT_RESOLVE_DEPS=1 inst_multiple sh mount modprobe mkdir switch_root grep umount
+
+        # libpthread workaround: pthread_cancel wants to dlopen libgcc_s.so
+        inst_libdir_file -o "libgcc_s.so*"
+
+        # FIPS workaround for Fedora/RHEL: libcrypto needs libssl when FIPS is enabled
+        [[ $DRACUT_FIPS_MODE ]] && inst_libdir_file -o "libssl.so*"
     fi
 
     hostonly="" instmods "loop" "squashfs" "overlay"
