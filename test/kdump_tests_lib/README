@@ -1,0 +1,65 @@
+=====================
+Kexec Kdump Self-test
+=====================
+
+
+Introduction
+============
+The self-tests here are useful for quick sanity tests for new patches, and also helpful for debugging issues.
+
+
+How it works
+============
+All tests are run within VMs using qemu. By default, VM images are based on Fedora Cloud image, and the image for each test run is a layered qcow2 snapshot on top of the base image.
+Test images are managed by Makefile, so if there are any code change in the kexec-tools repository, `make` command will detect that and only rebuild the top image layer. This makes the test runs boot fast and each test run is clean.
+
+
+Basic usage
+===========
+Before you start, you can make the self-tests use your own base image by running following command:
+
+`make clean && make BASE_IMAGE=<path/to/your/image>`
+
+This is helpful if you have a slow network, else self-test will try to download the cloud image from Fedora's official website using `wget`.
+
+- Use the following command to run all tests:
+  $ make test-run
+
+  All available tests will be executed.
+
+  Test artifacts are stored in output/<testcase>
+
+- For easier debugging, you can run only on test with the following command:
+  $ make TEST_CASE=<testcase> test-run
+
+  This way, VM's console is directly connected to stdin/out so debugging will be easier.
+  If there are multiple VMs used in a test case, the VM performing actual kdump/kexec operation will be connected to stdin/out.
+
+Test Cases
+==========
+Each test case is a folder under scripts/testcases/, a test case folder will contain at least one executable shell script, and each script should contain two functions: "on_build" and "on_test".
+
+"on_build" is called when building the test image, which can instruct the self-test framework to install packages or create files, etc.
+"on_test" is called when VM finished booting, which can get the boot count by calling "get_test_boot_count" and determine what to do. It should call "test_passed" on success, and call "test_failed" on failure. "test_aborted" is called when unexpected behavior occurs.
+
+When there are multiple scripts in a single test case folder, they will spawn VMs in lexical order, and the last VM is considered the VM performing the actual test. Other VMs could be hosting test required service. This is useful for the network dump test. However, "test_passed" or "test_failed" or "test_aborted" could be called in any of these VMs, so during network kdump test, the dump target can also terminate the test and mark it passed when a valid vmcore is detected.
+
+
+Debugging
+=========
+
+- When the test VM boots, you can append "no_test" to kernel args in grub, which tells the test services to quit early.
+
+- You can launch the VMs manually or inspect the image after ran a test.
+
+  Test images are located as:
+
+    output/<testcase>/<vm-name>.img
+
+  Test images' corresponding qemu command are located as:
+
+    output/<testcase>/<vm-name>.qemu_cmd
+
+  To repeat/debug a test manually, you should launch all VMs in output/<testcase> menu in lexical order, and append 'no_test' in the last VM's grub cmdline, then VM will hang on login prompt, login with root/fedora. Test script is located as /kexec-kdump-test/test.sh
+
+- If you just want to inspect the images file content, you can also use scripts/spawn-image-shell.sh <test-image> to spawn a shell in the image quickly.

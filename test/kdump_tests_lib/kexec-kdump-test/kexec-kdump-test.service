@@ -1,0 +1,9 @@
+[Unit]
+Description=Kexec Kdump Test Service
+
+[Service]
+ExecStart=/kexec-kdump-test/init.sh
+Type=idle
+
+[Install]
+WantedBy=multi-user.target
