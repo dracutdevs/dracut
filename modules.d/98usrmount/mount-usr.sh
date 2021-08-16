@@ -55,7 +55,12 @@ mount_usr() {
     while read -r _dev _mp _fs _opts _freq _passno || [ -n "$_dev" ]; do
         [ "${_dev%%#*}" != "$_dev" ] && continue
         if [ "$_mp" = "/usr" ]; then
-            _dev="$(label_uuid_to_dev "$_dev")"
+            case "$_dev" in
+                LABEL=* | UUID=* | PARTUUID=* | PARTLABEL=*)
+                    _dev="$(label_uuid_to_dev "$_dev")"
+                    ;;
+                *) ;;
+            esac
 
             if strstr "$_opts" "subvol=" \
                 && [ "${root#block:}" -ef "$_dev" ] \
