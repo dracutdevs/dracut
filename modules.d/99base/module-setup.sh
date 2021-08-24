@@ -15,7 +15,7 @@ depends() {
 install() {
     inst_multiple mount mknod mkdir sleep chroot chown \
         sed ls flock cp mv dmesg rm ln rmmod mkfifo umount readlink setsid \
-        modprobe chmod
+        modprobe chmod tr
 
     inst_multiple -o findmnt less kmod
 
