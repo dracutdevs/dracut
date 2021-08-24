@@ -3,7 +3,7 @@
 # GPG support is optional
 # called by dracut
 check() {
-    require_binaries gpg || return 1
+    require_binaries gpg tr || return 1
 
     if sc_requested; then
         if ! sc_supported; then
@@ -23,7 +23,7 @@ depends() {
 
 # called by dracut
 install() {
-    inst_multiple gpg
+    inst_multiple gpg tr
     inst "$moddir/crypt-gpg-lib.sh" "/lib/dracut-crypt-gpg-lib.sh"
 
     if sc_requested; then
