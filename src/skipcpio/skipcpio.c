@@ -28,6 +28,7 @@
 #include <string.h>
 
 #define CPIO_MAGIC "070701"
+#define CPIO_MAGIC_LEN (sizeof(CPIO_MAGIC) - 1)
 
 #define CPIO_END "TRAILER!!!"
 #define CPIO_ENDLEN (sizeof(CPIO_END) - 1)
@@ -41,7 +42,7 @@
                 __func__, ##__VA_ARGS__)
 
 struct cpio_header {
-        char c_magic[6];
+        char c_magic[CPIO_MAGIC_LEN];
         char c_ino[8];
         char c_mode[8];
         char c_uid[8];
@@ -103,7 +104,7 @@ int main(int argc, char **argv)
         }
 
         /* check, if this is a cpio archive */
-        if (memcmp(buf.cpio.h.c_magic, CPIO_MAGIC, 6)) {
+        if (memcmp(buf.cpio.h.c_magic, CPIO_MAGIC, CPIO_MAGIC_LEN)) {
                 goto cat_rest;
         }
 
@@ -138,7 +139,7 @@ int main(int argc, char **argv)
                         goto end;
                 }
 
-                if (memcmp(buf.cpio.h.c_magic, CPIO_MAGIC, 6)) {
+                if (memcmp(buf.cpio.h.c_magic, CPIO_MAGIC, CPIO_MAGIC_LEN)) {
                         pr_err("Corrupt CPIO archive!\n");
                         goto end;
                 }
