@@ -354,8 +354,8 @@ normal_copy:
 static int library_install(const char *src, const char *lib)
 {
         _cleanup_free_ char *p = NULL;
-        _cleanup_free_ char *pdir = NULL, *ppdir = NULL, *clib = NULL;
-        char *q;
+        _cleanup_free_ char *pdir = NULL, *ppdir = NULL, *pppdir = NULL, *clib = NULL;
+        char *q, *clibdir;
         int r, ret = 0;
 
         p = strdup(lib);
@@ -377,7 +377,8 @@ static int library_install(const char *src, const char *lib)
                         log_debug("Lib install: '%s'", p);
         }
 
-        /* Also try to install the same library from one directory above.
+        /* Also try to install the same library from one directory above
+         * or from one directory above glibc-hwcaps.
            This fixes the case, where only the HWCAP lib would be installed
            # ldconfig -p|grep -F libc.so
            libc.so.6 (libc6,64bit, hwcap: 0x0000001000000000, OS ABI: Linux 2.6.32) => /lib64/power6/libc.so.6
@@ -398,10 +399,18 @@ static int library_install(const char *src, const char *lib)
                 return ret;
 
         ppdir = strdup(ppdir);
+        pppdir = dirname(ppdir);
+        if (!pppdir)
+                return ret;
+
+        pppdir = strdup(pppdir);
+        if (!pppdir)
+                return ret;
 
         strcpy(p, lib);
 
-        clib = strjoin(ppdir, "/", basename(p), NULL);
+        clibdir = streq(basename(ppdir), "glibc-hwcaps") ? pppdir : ppdir;
+        clib = strjoin(clibdir, "/", basename(p), NULL);
         if (dracut_install(clib, clib, false, false, true) == 0)
                 log_debug("Lib install: '%s'", clib);
         /* also install lib.so for lib.so.* files */
