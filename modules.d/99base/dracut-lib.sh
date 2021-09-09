@@ -975,8 +975,8 @@ emergency_shell() {
         hook="shutdown-emergency"
         if type plymouth > /dev/null 2>&1; then
             plymouth --hide-splash
-        elif [ -x /oldroot/bin/plymouth ]; then
-            /oldroot/bin/plymouth --hide-splash
+        elif [ -x /oldroot/usr/bin/plymouth ]; then
+            /oldroot/usr/bin/plymouth --hide-splash
         fi
         shift 2
     fi
