@@ -1079,6 +1079,10 @@ fi
 
 [[ $hostonly == yes ]] && hostonly="-h"
 [[ $hostonly != "-h" ]] && unset hostonly
+if [[ $hostonly ]] && [[ $EUID != 0 ]]; then
+    printf "%s\n" "dracut: hostonly mode must be run as root! Please use 'sudo'." >&2
+    exit 1
+fi
 
 case $hostonly_mode in
     '')
