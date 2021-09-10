@@ -2381,6 +2381,11 @@ case $compress in
         ;;
 esac
 
+if [[ $compress == $DRACUT_COMPRESS_ZSTD* ]] && ! check_kernel_config CONFIG_RD_ZSTD; then
+    dwarn "dracut: kernel has no zstd support compiled in."
+    compress="cat"
+fi
+
 if ! (
     umask 077
     cd "$initdir"
