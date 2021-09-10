@@ -7,7 +7,7 @@
 hostonly="yes"
 hostonly_cmdline="yes"
 
-compress="xz -0 --check=crc32 --memlimit-compress=50%"
+compress="zstd"
 
 i18n_vars="/etc/sysconfig/language:RC_LANG-LANG,RC_LC_ALL-LC_ALL /etc/sysconfig/console:CONSOLE_UNICODEMAP-FONT_UNIMAP,CONSOLE_FONT-FONT,CONSOLE_SCREENMAP-FONT_MAP /etc/sysconfig/keyboard:KEYTABLE-KEYMAP"
 omit_drivers+=" i2o_scsi "
