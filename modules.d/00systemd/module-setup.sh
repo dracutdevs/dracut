@@ -213,8 +213,23 @@ install() {
         grep '^systemd-network:' "$dracutsysrootdir"/etc/group 2> /dev/null
     } >> "$initdir/etc/group"
 
-    ln_r "$systemdutildir"/systemd "/init"
-    ln_r "$systemdutildir"/systemd "/sbin/init"
+    local _systemdbinary="$systemdutildir"/systemd
+
+    if ldd "$_systemdbinary" | grep -qw libasan; then
+        local _wrapper="$systemdutildir"/systemd-asan-wrapper
+        cat > "$initdir"/"$_wrapper" << EOF
+#!/bin/sh
+mount -t proc -o nosuid,nodev,noexec proc /proc
+exec $_systemdbinary
+EOF
+        chmod 755 "$initdir"/"$_wrapper"
+        _systemdbinary="$_wrapper"
+        unset _wrapper
+    fi
+    ln_r "$_systemdbinary" "/init"
+    ln_r "$_systemdbinary" "/sbin/init"
+
+    unset _systemdbinary
 
     inst_binary true
     ln_r "$(find_binary true)" "/usr/bin/loginctl"
