@@ -50,7 +50,7 @@ install() {
     fi
 
     # Optional uswsusp support
-    for _bin in /usr/sbin/resume /usr/lib/suspend/resume /usr/lib/uswsusp/resume; do
+    for _bin in /usr/sbin/resume /usr/lib/suspend/resume /usr/lib64/suspend/resume /usr/lib/uswsusp/resume /usr/lib64/uswsusp/resume; do
         [[ -x $dracutsysrootdir${_bin} ]] && {
             inst "${_bin}" /usr/sbin/resume
             [[ $hostonly ]] && [[ -f $dracutsysrootdir/etc/suspend.conf ]] && inst -H /etc/suspend.conf
