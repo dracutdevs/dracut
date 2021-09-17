@@ -599,6 +599,9 @@ label_uuid_to_dev() {
         PARTUUID=*)
             echo "/dev/disk/by-partuuid/$(echo "${_dev#PARTUUID=}" | tr "[:upper:]" "[:lower:]")"
             ;;
+        *)
+            echo "$_dev"
+            ;;
     esac
 }
 
