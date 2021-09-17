@@ -4,14 +4,16 @@ type getcmdline > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
 nm_generate_connections() {
     rm -f /run/NetworkManager/system-connections/*
-    if [ -x /usr/libexec/nm-initrd-generator ]; then
-        # shellcheck disable=SC2046
-        /usr/libexec/nm-initrd-generator -- $(getcmdline)
-    elif [ -x /usr/lib/nm-initrd-generator ]; then
-        # shellcheck disable=SC2046
-        /usr/lib/nm-initrd-generator -- $(getcmdline)
-    else
-        derror "nm-initrd-generator not found"
+    if getargbool 1 rd.nm-initrd-generator; then
+        if [ -x /usr/libexec/nm-initrd-generator ]; then
+            # shellcheck disable=SC2046
+            /usr/libexec/nm-initrd-generator -- $(getcmdline)
+        elif [ -x /usr/lib/nm-initrd-generator ]; then
+            # shellcheck disable=SC2046
+            /usr/lib/nm-initrd-generator -- $(getcmdline)
+        else
+            derror "nm-initrd-generator not found"
+        fi
     fi
 
     if getargbool 0 rd.neednet; then
