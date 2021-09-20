@@ -2378,13 +2378,12 @@ case $compress in
         ;;
     zstd)
         compress="$DRACUT_COMPRESS_ZSTD -15 -q -T0"
+        if ! check_kernel_config CONFIG_RD_ZSTD; then
+            dwarn "dracut: kernel has no zstd support compiled in, skipping image compression."
+            compress="cat"
+        fi
         ;;
 esac
-
-if [[ $compress == $DRACUT_COMPRESS_ZSTD* ]] && ! check_kernel_config CONFIG_RD_ZSTD; then
-    dwarn "dracut: kernel has no zstd support compiled in."
-    compress="cat"
-fi
 
 if ! (
     umask 077
