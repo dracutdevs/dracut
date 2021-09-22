@@ -1187,7 +1187,6 @@ static int resolve_lazy(int argc, char **argv)
         for (i = 0; i < argc; i++) {
                 const char *src = argv[i];
                 char *p = argv[i];
-                char *existing;
 
                 log_debug("resolve_deps('%s')", src);
 
@@ -1195,10 +1194,8 @@ static int resolve_lazy(int argc, char **argv)
                         p = &argv[i][destrootdirlen];
                 }
 
-                existing = hashmap_get(items, p);
-                if (existing) {
-                        if (strcmp(existing, p) == 0)
-                                continue;
+                if (check_hashmap(items, p)) {
+                        continue;
                 }
 
                 item = strdup(p);
