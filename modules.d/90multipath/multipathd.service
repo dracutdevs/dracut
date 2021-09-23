@@ -14,11 +14,11 @@ ConditionKernelCommandLine=!rd_NO_MULTIPATH
 ConditionKernelCommandLine=!multipath=off
 
 [Service]
-Type=simple
+Type=notify
+NotifyAccess=main
 ExecStartPre=-/sbin/modprobe dm-multipath
 ExecStart=/sbin/multipathd -s -d
 ExecReload=/sbin/multipathd reconfigure
-ExecStop=/sbin/multipathd shutdown
 
 [Install]
 WantedBy=sysinit.target
