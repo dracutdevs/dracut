@@ -18,7 +18,7 @@ ExecReload=/usr/bin/busctl call org.freedesktop.NetworkManager /org/freedesktop/
 ExecStart=/usr/sbin/NetworkManager --debug
 KillMode=process
 # The following gets changed to StandardOutput=tty by nm-config.sh
-# when debug is enabled.
+# when debug is enabled and a usable console is found.
 StandardOutput=null
 Environment=NM_CONFIG_ENABLE_TAG=initrd
 Restart=on-failure
