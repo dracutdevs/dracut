@@ -17,7 +17,9 @@ BusName=org.freedesktop.NetworkManager
 ExecReload=/usr/bin/busctl call org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager Reload u 0
 ExecStart=/usr/sbin/NetworkManager --debug
 KillMode=process
-StandardOutput=tty
+# The following gets changed to StandardOutput=tty by nm-config.sh
+# when debug is enabled.
+StandardOutput=null
 Environment=NM_CONFIG_ENABLE_TAG=initrd
 Restart=on-failure
 ProtectSystem=true
