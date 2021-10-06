@@ -59,6 +59,7 @@ installkernel() {
             "=drivers/pci/host" \
             "=drivers/pci/controller" \
             "=drivers/pinctrl" \
+            "=drivers/usb/typec" \
             "=drivers/watchdog"
 
         instmods \
