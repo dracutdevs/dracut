@@ -891,20 +891,26 @@ export DRACUT_LOG_LEVEL=warning
 [[ $dracutbasedir ]] || dracutbasedir="$dracutsysrootdir"/usr/lib/dracut
 
 # if we were not passed a config file, try the default one
-if [[ ! -f $conffile ]]; then
+if [[ -z $conffile ]]; then
     if [[ $allowlocal ]]; then
         conffile="$dracutbasedir/dracut.conf"
     else
         conffile="$dracutsysrootdir/etc/dracut.conf"
     fi
+elif [[ ! -f $conffile ]]; then
+    printf "%s\n" "dracut: Configuration file '$conffile' not found." >&2
+    exit 1
 fi
 
-if [[ ! -d $confdir ]]; then
+if [[ -z $confdir ]]; then
     if [[ $allowlocal ]]; then
         confdir="$dracutbasedir/dracut.conf.d"
     else
         confdir="$dracutsysrootdir/etc/dracut.conf.d"
     fi
+elif [[ ! -d $confdir ]]; then
+    printf "%s\n" "dracut: Configuration directory '$confdir' not found." >&2
+    exit 1
 fi
 
 # source our config file
