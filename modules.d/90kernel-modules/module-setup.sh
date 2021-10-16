@@ -96,6 +96,7 @@ installkernel() {
                 "=drivers/usb/dwc2" \
                 "=drivers/usb/dwc3" \
                 "=drivers/usb/host" \
+                "=drivers/usb/isp1760" \
                 "=drivers/usb/misc" \
                 "=drivers/usb/musb" \
                 "=drivers/usb/phy" \
