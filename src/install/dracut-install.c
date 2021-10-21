@@ -550,6 +550,10 @@ static int resolve_deps(const char *src)
         ret = 0;
 
         fptr = popen(cmd, "r");
+        if (fptr == NULL) {
+                log_error("Error '%s' initiating pipe stream from '%s'", strerror(errno), cmd);
+                exit(EXIT_FAILURE);
+        }
 
         while (!feof(fptr)) {
                 char *p;
