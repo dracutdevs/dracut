@@ -69,7 +69,8 @@ install() {
     inst_multiple cat expr
     inst_multiple -o mdmon
     inst "$(command -v partx)" /sbin/partx
-    inst "$(command -v mdadm)" /sbin/mdadm
+    inst "$(command -v mdadm)" /sbin/mdadm.real
+    inst "$moddir/mdadm-wrapper.sh" "/sbin/mdadm"
 
     if [[ $hostonly_cmdline == "yes" ]]; then
         local _raidconf
