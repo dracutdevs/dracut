@@ -54,7 +54,7 @@ _md_force_run() {
             _UUID=$(str_replace "$_UUID" ":" "")
 
             # check if we should handle this device
-            strstr " $_MD_UUID " " $_UUID " || continue
+            strstr "$_MD_UUID" "$_UUID" || continue
 
             _md_start "${_md}"
         done
