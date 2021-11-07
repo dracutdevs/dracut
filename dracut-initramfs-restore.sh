@@ -12,22 +12,33 @@ KERNEL_VERSION="$(uname -r)"
 SKIP="$dracutbasedir/skipcpio"
 [[ -x $SKIP ]] || SKIP="cat"
 
-[[ -f /etc/machine-id ]] && read -r MACHINE_ID < /etc/machine-id
+if [[ -d /efi/Default ]] || [[ -d /boot/Default ]] || [[ -d /boot/efi/Default ]]; then
+    MACHINE_ID="Default"
+elif [[ -f /etc/machine-id ]]; then
+    read -r MACHINE_ID < /etc/machine-id
+else
+    MACHINE_ID="Default"
+fi
 
 mount -o ro /boot &> /dev/null || true
 
-if [[ -d /efi/loader/entries || -L /efi/loader/entries ]] \
-    && [[ $MACHINE_ID ]] \
-    && [[ -d /efi/${MACHINE_ID} || -L /efi/${MACHINE_ID} ]]; then
+if [[ -d /efi/loader/entries ]] || [[ -L /efi/loader/entries ]] \
+    || [[ -d /efi/$MACHINE_ID ]] || [[ -L /efi/$MACHINE_ID ]]; then
     IMG="/efi/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
-elif [[ -d /boot/loader/entries || -L /boot/loader/entries ]] \
-    && [[ $MACHINE_ID ]] \
-    && [[ -d /boot/${MACHINE_ID} || -L /boot/${MACHINE_ID} ]]; then
+elif [[ -d /boot/loader/entries ]] || [[ -L /boot/loader/entries ]] \
+    || [[ -d /boot/$MACHINE_ID ]] || [[ -L /boot/$MACHINE_ID ]]; then
     IMG="/boot/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
-elif [[ -f /boot/initramfs-${KERNEL_VERSION}.img ]]; then
-    IMG="/boot/initramfs-${KERNEL_VERSION}.img"
+elif [[ -d /boot/efi/loader/entries ]] || [[ -L /boot/efi/loader/entries ]] \
+    || [[ -d /boot/efi/$MACHINE_ID ]] || [[ -L /boot/efi/$MACHINE_ID ]]; then
+    IMG="/boot/efi/$MACHINE_ID/$KERNEL_VERSION/initrd"
 elif [[ -f /lib/modules/${KERNEL_VERSION}/initrd ]]; then
     IMG="/lib/modules/${KERNEL_VERSION}/initrd"
+elif [[ -f /boot/initramfs-${KERNEL_VERSION}.img ]]; then
+    IMG="/boot/initramfs-${KERNEL_VERSION}.img"
+elif mountpoint -q /efi; then
+    IMG="/efi/$MACHINE_ID/$KERNEL_VERSION/initrd"
+elif mountpoint -q /boot/efi; then
+    IMG="/boot/efi/$MACHINE_ID/$KERNEL_VERSION/initrd"
 else
     echo "No initramfs image found to restore!"
     exit 1
