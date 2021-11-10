@@ -945,5 +945,29 @@ block_is_netdevice() {
 
 # get the corresponding kernel modules of a /sys/class/*/* or/dev/* device
 get_dev_module() {
-    udevadm info -a "$1" | sed -n 's/\s*DRIVERS=="\(\S\+\)"/\1/p'
+    local dev_attr_walk
+    local dev_drivers
+    dev_attr_walk=$(udevadm info -a "$1")
+    dev_drivers=$(echo "$dev_attr_walk" | sed -n 's/\s*DRIVERS=="\(\S\+\)"/\1/p')
+    # if no kernel modules found and device is in a virtual subsystem, follow symlinks
+    if [[ -z $dev_drivers && $(udevadm info -q path "$1") == "/devices/virtual"* ]]; then
+        local dev_vkernel
+        local dev_vsubsystem
+        local dev_vpath
+        dev_vkernel=$(echo "$dev_attr_walk" | sed -n 's/\s*KERNELS=="\(\S\+\)"/\1/p' | tail -1)
+        dev_vsubsystem=$(echo "$dev_attr_walk" | sed -n 's/\s*SUBSYSTEMS=="\(\S\+\)"/\1/p' | tail -1)
+        dev_vpath="/sys/devices/virtual/$dev_vsubsystem/$dev_vkernel"
+        if [[ -n $dev_vkernel && -n $dev_vsubsystem && -d $dev_vpath ]]; then
+            local dev_links
+            local dev_link
+            dev_links=$(find "$dev_vpath" -maxdepth 1 -type l ! -name "subsystem" -exec readlink {} \;)
+            for dev_link in $dev_links; do
+                [[ -n $dev_drivers && ${dev_drivers: -1} != $'\n' ]] && dev_drivers+=$'\n'
+                dev_drivers+=$(udevadm info -a "$dev_vpath/$dev_link" \
+                    | sed -n 's/\s*DRIVERS=="\(\S\+\)"/\1/p' \
+                    | grep -v -e pcieport)
+            done
+        fi
+    fi
+    echo "$dev_drivers"
 }
