@@ -13,7 +13,7 @@ depends() {
 }
 
 install() {
-    inst_multiple fusermount ulockmgr_server mount.fuse ntfs-3g
+    inst_multiple fusermount mount.fuse ntfs-3g
     dracut_need_initqueue
 }
 
