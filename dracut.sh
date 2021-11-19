@@ -2350,6 +2350,17 @@ if [[ $create_early_cpio == yes ]]; then
     fi
 fi
 
+if check_kernel_config CONFIG_RD_ZSTD; then
+    DRACUT_KERNEL_RD_ZSTD=yes
+else
+    DRACUT_KERNEL_RD_ZSTD=
+fi
+
+if [[ $compress == $DRACUT_COMPRESS_ZSTD* && ! $DRACUT_KERNEL_RD_ZSTD ]]; then
+    dwarn "dracut: kernel has no zstd support compiled in."
+    compress=
+fi
+
 if [[ $compress && $compress != cat ]]; then
     if ! command -v "${compress%% *}" &> /dev/null; then
         derror "dracut: cannot execute compression command '$compress', falling back to default"
@@ -2360,6 +2371,7 @@ fi
 if ! [[ $compress ]]; then
     # check all known compressors, if none specified
     for i in $DRACUT_COMPRESS_PIGZ $DRACUT_COMPRESS_GZIP $DRACUT_COMPRESS_LZ4 $DRACUT_COMPRESS_LZOP $DRACUT_COMPRESS_ZSTD $DRACUT_COMPRESS_LZMA $DRACUT_COMPRESS_XZ $DRACUT_COMPRESS_LBZIP2 $DRACUT_COMPRESS_BZIP2 $DRACUT_COMPRESS_CAT; do
+        [[ $i != "$DRACUT_COMPRESS_ZSTD" || $DRACUT_KERNEL_RD_ZSTD ]] || continue
         command -v "$i" &> /dev/null || continue
         compress="$i"
         break
@@ -2405,11 +2417,6 @@ case $compress in
         compress="$DRACUT_COMPRESS_ZSTD -15 -q -T0"
         ;;
 esac
-
-if [[ $compress == $DRACUT_COMPRESS_ZSTD* ]] && ! check_kernel_config CONFIG_RD_ZSTD; then
-    dwarn "dracut: kernel has no zstd support compiled in."
-    compress="cat"
-fi
 
 if [[ -n $enhanced_cpio ]]; then
     if [[ $compress == "cat" ]]; then
