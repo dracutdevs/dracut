@@ -2350,6 +2350,13 @@ if [[ $create_early_cpio == yes ]]; then
     fi
 fi
 
+if [[ $compress && $compress != cat ]]; then
+    if ! command -v "${compress%% *}" &> /dev/null; then
+        derror "dracut: cannot execute compression command '$compress', falling back to default"
+        compress=
+    fi
+fi
+
 if ! [[ $compress ]]; then
     # check all known compressors, if none specified
     for i in $DRACUT_COMPRESS_PIGZ $DRACUT_COMPRESS_GZIP $DRACUT_COMPRESS_LZ4 $DRACUT_COMPRESS_LZOP $DRACUT_COMPRESS_ZSTD $DRACUT_COMPRESS_LZMA $DRACUT_COMPRESS_XZ $DRACUT_COMPRESS_LBZIP2 $DRACUT_COMPRESS_BZIP2 $DRACUT_COMPRESS_CAT; do
