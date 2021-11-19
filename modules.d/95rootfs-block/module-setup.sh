@@ -7,7 +7,7 @@ check() {
 
 # called by dracut
 depends() {
-    echo fs-lib
+    echo base fs-lib
 }
 
 cmdline_journal() {
