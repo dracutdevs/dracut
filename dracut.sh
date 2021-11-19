@@ -1294,23 +1294,6 @@ if [[ $no_kernel != yes ]] && [[ -d $srcmods ]]; then
         else
             dwarn "$srcmods/modules.dep is missing. Did you run depmod?"
         fi
-    elif ! (command -v gzip &> /dev/null && command -v xz &> /dev/null); then
-        read -r _mod < "$srcmods"/modules.dep
-        _mod=${_mod%%:*}
-        if [[ -f $srcmods/"$_mod" ]]; then
-            # Check, if kernel modules are compressed, and if we can uncompress them
-            case "$_mod" in
-                *.ko.gz) kcompress=gzip ;;
-                *.ko.xz) kcompress=xz ;;
-                *.ko.zst) kcompress=zstd ;;
-            esac
-            if [[ $kcompress ]]; then
-                if ! command -v "$kcompress" &> /dev/null; then
-                    dfatal "Kernel modules are compressed with $kcompress, but $kcompress is not available."
-                    exit 1
-                fi
-            fi
-        fi
     fi
 fi
 
