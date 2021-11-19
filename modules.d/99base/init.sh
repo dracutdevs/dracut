@@ -297,8 +297,6 @@ done
 udevadm control --exit
 udevadm info --cleanup-db
 
-debug_off # Turn off debugging for this section
-
 # unexport some vars
 export_n root rflags fstype netroot NEWROOT
 unset CMDLINE
@@ -338,7 +336,6 @@ if getarg init= > /dev/null; then
     done
     unset CLINE
 else
-    debug_off # Turn off debugging for this section
     set -- "$CLINE"
     for x in "$@"; do
         case "$x" in
