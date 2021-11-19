@@ -18,7 +18,7 @@ check() {
 # called by dracut
 depends() {
     # We depend on network modules being loaded
-    echo network
+    echo base network
 }
 
 # called by dracut

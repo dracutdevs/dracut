@@ -27,7 +27,7 @@ depends() {
             network_handler="network-legacy"
         fi
     fi
-    echo "kernel-network-modules $network_handler"
+    echo "base kernel-network-modules $network_handler"
     return 0
 }
 

@@ -9,7 +9,7 @@ check() {
 
 # called by dracut
 depends() {
-    echo network
+    echo base network
     return 0
 }
 
