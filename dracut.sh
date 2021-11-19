@@ -2358,7 +2358,9 @@ if ! [[ $compress ]]; then
         break
     done
     if [[ $compress == cat ]]; then
-        printf "%s\n" "dracut: no compression tool available. Initramfs image is going to be big." >&2
+        dwarn "dracut: no compression tool available. Initramfs image is going to be big."
+    else
+        dinfo "dracut: using auto-determined compression method '$compress'"
     fi
 fi
 
