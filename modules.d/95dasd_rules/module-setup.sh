@@ -26,6 +26,7 @@ check() {
     local found=0
     local bdev
     [ "$_arch" = "s390" -o "$_arch" = "s390x" ] || return 1
+    require_binaries /usr/lib/udev/collect || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for bdev in /sys/block/*; do
@@ -49,6 +50,7 @@ depends() {
 
 # called by dracut
 install() {
+    inst_multiple /usr/lib/udev/collect
     inst_hook cmdline 30 "$moddir/parse-dasd.sh"
     if [[ $hostonly_cmdline == "yes" ]]; then
         local _dasd
