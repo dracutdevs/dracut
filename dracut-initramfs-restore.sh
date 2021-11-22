@@ -6,6 +6,11 @@ set -e
 [ -e /run/initramfs/bin/sh ] && exit 0
 [ -e /run/initramfs/.need_shutdown ] || exit 0
 
+# SIGTERM signal is received upon forced shutdown: ignore the signal
+# We want to remain alive to be able to trap unpacking errors to avoid
+# switching root to an incompletely unpacked initramfs
+trap 'echo "Received SIGTERM signal, ignoring!" >&2' TERM
+
 KERNEL_VERSION="$(uname -r)"
 
 [[ $dracutbasedir ]] || dracutbasedir=/usr/lib/dracut
