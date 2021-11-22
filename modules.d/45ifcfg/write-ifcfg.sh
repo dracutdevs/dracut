@@ -103,6 +103,11 @@ interface_bind() {
     local _netif="$1"
     local _macaddr="$2"
 
+    if [ ! -e "/sys/class/net/$_netif" ]; then
+        derror "Cannot find network interface '$_netif'!"
+        return 1
+    fi
+
     # see, if we can bind it to some hw parms
     if hw_bind "$_netif" "$_macaddr"; then
         # only print out DEVICE, if it's user assigned

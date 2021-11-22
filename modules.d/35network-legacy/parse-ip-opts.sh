@@ -97,6 +97,11 @@ for p in $(getargs ip=); do
         fi
         # IFACES list for later use
         IFACES="$IFACES $dev"
+
+        # Interface should exist
+        if [ ! -e "/sys/class/net/$dev" ]; then
+            warn "Network interface '$dev' does not exist"
+        fi
     fi
 
     # Do we need to check for specific options?

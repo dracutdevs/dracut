@@ -446,7 +446,11 @@ for p in $(getargs ip=); do
 
     # If this option isn't directed at our interface, skip it
     if [ -n "$dev" ]; then
-        [ "$dev" != "$netif" ] && continue
+        if [ "$dev" != "$netif" ]; then
+            [ ! -e "/sys/class/net/$dev" ] \
+                && warn "Network interface '$dev' does not exist!"
+            continue
+        fi
     else
         iface_is_enslaved "$netif" && continue
     fi
