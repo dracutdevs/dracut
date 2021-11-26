@@ -22,22 +22,12 @@ create_udev_rule() {
         return 0
     fi
 
-    if [ ! -f "$_rule" ]; then
-        cat > "$_rule" << EOF
-ACTION=="add", SUBSYSTEM=="ccw", KERNEL=="$ccw", IMPORT{program}="collect $ccw %k ${ccw} zfcp"
-ACTION=="add", SUBSYSTEM=="drivers", KERNEL=="zfcp", IMPORT{program}="collect $ccw %k ${ccw} zfcp"
-ACTION=="add", ENV{COLLECT_$ccw}=="0", ATTR{[ccw/$ccw]online}="1"
-EOF
-    fi
     [ -z "$wwpn" ] || [ -z "$lun" ] && return
     m=$(sed -n "/.*${wwpn}.*${lun}.*/p" "$_rule")
     if [ -z "$m" ]; then
         cat >> "$_rule" << EOF
 ACTION=="add", KERNEL=="rport-*", ATTR{port_name}=="$wwpn", SUBSYSTEMS=="ccw", KERNELS=="$ccw", ATTR{[ccw/$ccw]$wwpn/unit_add}="$lun"
 EOF
-    fi
-    if [ -x /sbin/cio_ignore ] && ! cio_ignore -i "$ccw" > /dev/null; then
-        cio_ignore -r "$ccw"
     fi
 }
 
