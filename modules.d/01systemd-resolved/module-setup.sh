@@ -42,6 +42,15 @@ install() {
         "$systemdsystemunitdir/systemd-resolved.service.d/*.conf" \
         resolvectl
 
+    # install systemd-resolve user/group
+    {
+        grep '^systemd-resolve:' "$dracutsysrootdir"/etc/passwd 2> /dev/null
+    } >> "$initdir/etc/passwd"
+
+    {
+        grep '^systemd-resolve:' "$dracutsysrootdir"/etc/group 2> /dev/null
+    } >> "$initdir/etc/group"
+
     # Enable systemd type unit(s)
     $SYSTEMCTL -q --root "$initdir" enable systemd-resolved.service
 
