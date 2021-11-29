@@ -24,6 +24,8 @@ depends() {
 # Install the required file(s) and directories for the module in the initramfs.
 install() {
 
+    inst_simple "$moddir/sysusers-dracut.conf" "$systemdsystemunitdir/systemd-sysusers.service.d/sysusers-dracut.conf"
+
     inst_multiple -o \
         "$sysusers"/basic.conf \
         "$sysusers"/systemd.conf \
