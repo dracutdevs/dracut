@@ -42,7 +42,8 @@ install() {
         "$systemdsystemunitdir"/systemd-timesyncd.service \
         "$systemdsystemunitdir/systemd-timesyncd.service.d/*.conf" \
         "$systemdsystemunitdir"/systemd-time-wait-sync.service \
-        "$systemdsystemunitdir/systemd-time-wait-sync.service.d/*.conf"
+        "$systemdsystemunitdir/systemd-time-wait-sync.service.d/*.conf" \
+        "$sysusers"/systemd-timesync.conf
 
     # Enable systemd type unit(s)
     for i in \
@@ -60,6 +61,7 @@ install() {
             "$systemdsystemconfdir"/systemd-timesyncd.service \
             "$systemdsystemconfdir/systemd-timesyncd.service.d/*.conf" \
             "$systemdsystemunitdir"/systemd-time-wait-sync.service \
-            "$systemdsystemunitdir/systemd-time-wait-sync.service.d/*.conf"
+            "$systemdsystemunitdir/systemd-time-wait-sync.service.d/*.conf" \
+            "$sysusersconfdir"/systemd-timesync.conf
     fi
 }
