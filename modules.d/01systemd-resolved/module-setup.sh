@@ -40,6 +40,7 @@ install() {
         "$systemdutildir"/systemd-resolved \
         "$systemdsystemunitdir"/systemd-resolved.service \
         "$systemdsystemunitdir/systemd-resolved.service.d/*.conf" \
+        "$sysusers"/systemd-resolve.conf \
         resolvectl
 
     # Enable systemd type unit(s)
@@ -51,6 +52,7 @@ install() {
             "$systemdutilconfdir"/resolved.conf \
             "$systemdutilconfdir/resolved.conf.d/*.conf" \
             "$systemdsystemconfdir"/systemd-resolved.service \
-            "$systemdsystemconfdir/systemd-resolved.service/*.conf"
+            "$systemdsystemconfdir/systemd-resolved.service/*.conf" \
+            "$sysusersconfdir"/systemd-resolve.conf
     fi
 }

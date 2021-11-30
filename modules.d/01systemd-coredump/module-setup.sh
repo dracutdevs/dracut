@@ -37,6 +37,7 @@ install() {
         "$systemdsystemunitdir"/systemd-coredump.socket \
         "$systemdsystemunitdir"/systemd-coredump@.service \
         "$systemdsystemunitdir"/sockets.target.wants/systemd-coredump.socket \
+        "$sysusers"/systemd-coredump.conf \
         coredumpctl
 
     # Install the hosts local user configurations if enabled.
@@ -48,6 +49,7 @@ install() {
             "$systemdsystemconfdir/systemd-coredump.socket.d/*.conf" \
             "$systemdsystemconfdir"/systemd-coredump@.service \
             "$systemdsystemconfdir/systemd-coredump@.service.d/*.conf" \
-            "$systemdsystemconfdir"/sockets.target.wants/systemd-coredump.socket
+            "$systemdsystemconfdir"/sockets.target.wants/systemd-coredump.socket \
+            "$sysusersconfdir"/systemd-coredump.conf
     fi
 }

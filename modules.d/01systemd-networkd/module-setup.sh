@@ -50,6 +50,7 @@ install() {
         "$systemdsystemunitdir"/systemd-network-generator.service \
         "$systemdsystemunitdir"/systemd-networkd-wait-online.service \
         "$systemdsystemunitdir"/systemd-network-generator.service \
+        "$sysusers"/systemd-network.conf \
         networkctl ip
 
     # Enable systemd type units
@@ -74,6 +75,7 @@ install() {
             "$systemdsystemconfdir"/systemd-network-generator.service \
             "$systemdsystemconfdir/systemd-network-generator.service/*.conf" \
             "$systemdsystemconfdir"/systemd-networkd-wait-online.service \
-            "$systemdsystemconfdir/systemd-networkd-wait-online.service/*.conf"
+            "$systemdsystemconfdir/systemd-networkd-wait-online.service/*.conf" \
+            "$sysusersconfdir"/systemd-network.conf
     fi
 }

@@ -47,6 +47,7 @@ install() {
         "$systemdsystemunitdir"/sockets.target.wants/systemd-journald.socket \
         "$systemdsystemunitdir"/sockets.target.wants/systemd-journald-audit.socket \
         "$systemdsystemunitdir"/sysinit.target.wants/systemd-journald.service \
+        "$sysusers"/systemd-journal.conf \
         journalctl
 
     # Install library file(s)
@@ -66,7 +67,8 @@ install() {
             "$systemdsystemconfdir"/systemd-journal-flush.service \
             "$systemdsystemconfdir/systemd-journal-flush.service.d/*.conf" \
             "$systemdsystemconfdir"/systemd-journal-catalog-update.service \
-            "$systemdsystemconfdir/systemd-journal-catalog-update.service.d/*.conf"
+            "$systemdsystemconfdir/systemd-journal-catalog-update.service.d/*.conf" \
+            "$sysusersconfdir"/systemd-journal.conf
     fi
 
 }
