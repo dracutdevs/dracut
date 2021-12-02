@@ -15,10 +15,10 @@ depends() {
 
 # called by dracut
 install() {
-    local _dir _crt _found _lib _nssckbi _p11roots _p11root
+    local _dir _crt _crts _found _lib _nssckbi _p11roots _p11root
     inst_simple "$moddir/url-lib.sh" "/lib/url-lib.sh"
     inst_multiple -o ctorrent
-    inst_multiple curl
+    inst_multiple curl sed
     if curl --version | grep -qi '\bNSS\b'; then
         # also install libs for curl https
         inst_libdir_file "libnsspem.so*"
@@ -29,21 +29,28 @@ install() {
 
     for _dir in $libdirs; do
         [[ -d $dracutsysrootdir$_dir ]] || continue
-        for _lib in "$dracutsysrootdir$_dir"/libcurl.so.*; do
+        for _lib in "$dracutsysrootdir$_dir"/libcurl.so.* "$dracutsysrootdir$_dir"/libcrypto.so.*; do
             [[ -e $_lib ]] || continue
             if ! [[ $_nssckbi ]]; then
                 read -r -d '' _nssckbi < <(grep -F --binary-files=text -z libnssckbi "$_lib")
             fi
-            read -r -d '' _crt < <(grep -F --binary-files=text -z .crt "$_lib")
+            read -r -d '' _crt < <(grep -E --binary-files=text -z "\.(pem|crt)" "$_lib" | sed 's/\x0//g')
             [[ $_crt ]] || continue
             [[ $_crt == /*/* ]] || continue
+            if [[ -e $_crt ]]; then
+                _crts="$_crts $_crt"
+                _found=1
+            fi
+        done
+    done
+    if [[ $_found ]] && [[ -n $_crts ]]; then
+        for _crt in $_crts; do
             if ! inst "${_crt#$dracutsysrootdir}"; then
                 dwarn "Couldn't install '$_crt' SSL CA cert bundle; HTTPS might not work."
                 continue
             fi
-            _found=1
         done
-    done
+    fi
     # If we found no cert bundle files referenced in libcurl but we
     # *did* find a mention of libnssckbi (checked above), install it.
     # If its truly NSS libnssckbi, it includes its own trust bundle,
