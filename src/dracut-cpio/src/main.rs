@@ -255,7 +255,10 @@ impl ArchiveState {
             self.off += fname.len() as u64;
             // +1 as padding starts after fname nulterm
             let seeklen = 1 + archive_padlen(self.off + 1, 4);
-            writer.seek(io::SeekFrom::Current(seeklen as i64))?;
+            {
+                let z = vec![0u8; seeklen.try_into().unwrap()];
+                writer.write_all(&z)?;
+            }
             self.off += seeklen;
         }
         *mapped_ino = Some((*hl).mapped_ino);
@@ -469,7 +472,10 @@ fn archive_path<W: Seek + Write>(
         let padding_len = archive_padlen(state.off + seek_len as u64, 4);
         seek_len += padding_len as i64;
     }
-    writer.seek(io::SeekFrom::Current(seek_len))?;
+    {
+        let z = vec![0u8; seek_len.try_into().unwrap()];
+        writer.write_all(&z)?;
+    }
     state.off += seek_len as u64;
 
     // io::copy() can reflink: https://github.com/rust-lang/rust/pull/75272 \o/
