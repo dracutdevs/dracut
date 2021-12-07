@@ -1,10 +1,10 @@
 [Unit]
 Description=Device-Mapper Multipath Device Controller
 Before=iscsi.service iscsid.service lvm2-activation-early.service
-Wants=local-fs-pre.target
-Before=local-fs-pre.target
+Before=local-fs-pre.target blk-availability.service shutdown.target
 Wants=systemd-udevd-kernel.socket
 After=systemd-udevd-kernel.socket
+After=multipathd.socket systemd-remount-fs.service
 Before=initrd-cleanup.service
 DefaultDependencies=no
 Conflicts=shutdown.target
@@ -13,13 +13,16 @@ ConditionKernelCommandLine=!nompath
 ConditionKernelCommandLine=!rd.multipath=0
 ConditionKernelCommandLine=!rd_NO_MULTIPATH
 ConditionKernelCommandLine=!multipath=off
+ConditionVirtualization=!container
 
 [Service]
 Type=notify
 NotifyAccess=main
 ExecStartPre=-/sbin/modprobe dm-multipath
-ExecStart=/sbin/multipathd -s -d
+ExecStart=/sbin/multipathd -d -s
 ExecReload=/sbin/multipathd reconfigure
+TasksMax=infinity
 
 [Install]
 WantedBy=sysinit.target
+Also=multipathd.socket
