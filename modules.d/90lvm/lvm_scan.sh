@@ -7,8 +7,6 @@ type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
 VGS=$(getargs rd.lvm.vg -d rd_LVM_VG=)
 LVS=$(getargs rd.lvm.lv -d rd_LVM_LV=)
-SNAPSHOT=$(getargs rd.lvm.snapshot -d rd_LVM_SNAPSHOT=)
-SNAPSIZE=$(getargs rd.lvm.snapsize -d rd_LVM_SNAPSIZE=)
 
 # shellcheck disable=SC2174
 [ -d /etc/lvm ] || mkdir -m 0755 -p /etc/lvm
@@ -31,17 +29,10 @@ if [ ! -e /etc/lvm/lvm.conf ]; then
         echo '}'
 
         # establish LVM locking
-        if [ -n "$SNAPSHOT" ]; then
-            echo 'global {'
-            echo '    locking_type = 1'
-            echo '    use_lvmetad = 0'
-            echo '}'
-        else
-            echo 'global {'
-            echo '    locking_type = 4'
-            echo '    use_lvmetad = 0'
-            echo '}'
-        fi
+        echo 'global {'
+        echo '    locking_type = 4'
+        echo '    use_lvmetad = 0'
+        echo '}'
     } > /etc/lvm/lvm.conf
     lvmwritten=1
 fi
@@ -89,28 +80,6 @@ fi
 unset extraargs
 
 export LVM_SUPPRESS_LOCKING_FAILURE_MESSAGES=1
-
-if [ -n "$SNAPSHOT" ]; then
-    # HACK - this should probably be done elsewhere or turned into a function
-    # Enable read-write LVM locking
-    sed -i -e 's/\(^[[:space:]]*\)locking_type[[:space:]]*=[[:space:]]*[[:digit:]]/\1locking_type =  1/' /etc/lvm/lvm.conf
-
-    # Expected SNAPSHOT format "<orig lv name>:<snap lv name>"
-    ORIG_LV=${SNAPSHOT%%:*}
-    SNAP_LV=${SNAPSHOT##*:}
-
-    info "Removing existing LVM snapshot $SNAP_LV"
-    lvm lvremove --force "$SNAP_LV" 2>&1 | vinfo
-
-    # Determine snapshot size
-    if [ -z "$SNAPSIZE" ]; then
-        SNAPSIZE=$(lvm lvs --noheadings --units m --options lv_size "$ORIG_LV")
-        info "No LVM snapshot size provided, using size of $ORIG_LV ($SNAPSIZE)"
-    fi
-
-    info "Creating LVM snapshot $SNAP_LV ($SNAPSIZE)"
-    lvm lvcreate -s -n "$SNAP_LV" -L "$SNAPSIZE" "$ORIG_LV" 2>&1 | vinfo
-fi
 
 if [ -n "$LVS" ]; then
     info "Scanning devices $lvmdevs for LVM logical volumes $LVS"
