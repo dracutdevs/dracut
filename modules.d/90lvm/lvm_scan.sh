@@ -28,10 +28,7 @@ if [ ! -e /etc/lvm/lvm.conf ]; then
         echo '"r/.*/" ]'
         echo '}'
 
-        # establish LVM locking
         echo 'global {'
-        echo '    locking_type = 4'
-        echo '    use_lvmetad = 0'
         echo '}'
     } > /etc/lvm/lvm.conf
     lvmwritten=1

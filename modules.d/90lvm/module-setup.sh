@@ -61,10 +61,6 @@ install() {
     if [[ $hostonly ]] || [[ $lvmconf == "yes" ]]; then
         if [[ -f $dracutsysrootdir/etc/lvm/lvm.conf ]]; then
             inst_simple -H /etc/lvm/lvm.conf
-            # FIXME: near-term hack to establish read-only locking;
-            # use command-line lvm.conf editor once it is available
-            sed -i -e 's/\(^[[:space:]]*\)locking_type[[:space:]]*=[[:space:]]*[[:digit:]]/\1locking_type = 4/' "${initdir}/etc/lvm/lvm.conf"
-            sed -i -e 's/\(^[[:space:]]*\)use_lvmetad[[:space:]]*=[[:space:]]*[[:digit:]]/\1use_lvmetad = 0/' "${initdir}/etc/lvm/lvm.conf"
         fi
 
         export LVM_SUPPRESS_FD_WARNINGS=1
@@ -80,16 +76,6 @@ install() {
             fi
         fi
         unset LVM_SUPPRESS_FD_WARNINGS
-    fi
-
-    if ! [[ -e ${initdir}/etc/lvm/lvm.conf ]]; then
-        mkdir -p "${initdir}/etc/lvm"
-        {
-            echo 'global {'
-            echo 'locking_type = 4'
-            echo 'use_lvmetad = 0'
-            echo '}'
-        } > "${initdir}/etc/lvm/lvm.conf"
     fi
 
     inst_rules 11-dm-lvm.rules 69-dm-lvm-metad.rules
