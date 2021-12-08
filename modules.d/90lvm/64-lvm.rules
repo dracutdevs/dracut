@@ -15,7 +15,7 @@ PROGRAM=="/bin/sh -c 'for i in $sys/$devpath/holders/dm-[0-9]*; do [ -e $$i ] &&
     GOTO="lvm_end"
 
 RUN+="/sbin/initqueue --settled --onetime --unique /sbin/lvm_scan"
-RUN+="/sbin/initqueue --timeout --name 51-lvm_scan --onetime --unique /sbin/lvm_scan --partial"
+RUN+="/sbin/initqueue --timeout --name 51-lvm_scan --onetime --unique /sbin/lvm_scan --activationmode degraded"
 RUN+="/bin/sh -c '>/tmp/.lvm_scan-%k;'"
 
 LABEL="lvm_end"
