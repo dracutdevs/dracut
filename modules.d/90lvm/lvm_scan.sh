@@ -10,6 +10,7 @@ LVS=$(getargs rd.lvm.lv -d rd_LVM_LV=)
 
 # shellcheck disable=SC2174
 [ -d /etc/lvm ] || mkdir -m 0755 -p /etc/lvm
+[ -d /run/lvm ] || mkdir -m 0755 -p /run/lvm
 # build a list of devices to scan
 lvmdevs=$(
     for f in /tmp/.lvm_scan-*; do
@@ -17,22 +18,6 @@ lvmdevs=$(
         printf '%s' "${f##/tmp/.lvm_scan-} "
     done
 )
-
-if [ ! -e /etc/lvm/lvm.conf ]; then
-    {
-        echo 'devices {'
-        printf '    filter = [ '
-        for dev in $lvmdevs; do
-            printf '"a|^/dev/%s$|", ' "$dev"
-        done
-        echo '"r/.*/" ]'
-        echo '}'
-
-        echo 'global {'
-        echo '}'
-    } > /etc/lvm/lvm.conf
-    lvmwritten=1
-fi
 
 check_lvm_ver() {
     maj=$1
@@ -46,6 +31,75 @@ check_lvm_ver() {
     [ "$6" -ge "$ver" ] && return 0
     return 1
 }
+
+no_lvm_conf_filter() {
+    if [ ! -e /etc/lvm/lvm.conf ]; then
+        return 0
+    fi
+
+    if [ -e /run/lvm/initrd_no_filter ]; then
+        return 0
+    fi
+
+    if [ -e /run/lvm/initrd_filter ]; then
+        return 1
+    fi
+
+    if [ -e /run/lvm/initrd_global_filter ]; then
+        return 1
+    fi
+
+    # Save lvm config results in /run to avoid running
+    # lvm config commands for every PV that's scanned.
+
+    filter=$(lvm config devices/filter | grep "$filter=")
+    if [ -n "$filter" ]; then
+        printf '%s\n' "$filter" > /run/lvm/initrd_filter
+        return 1
+    fi
+
+    global_filter=$(lvm config devices/global_filter | grep "$global_filter=")
+    if [ -n "$global_filter" ]; then
+        printf '%s\n' "$global_filter" > /run/lvm/initrd_global_filter
+        return 1
+    fi
+
+    # /etc/lvm/lvm.conf exists with no filter setting
+    true > /run/lvm/initrd_no_filter
+    return 0
+}
+
+# If no lvm.conf exists, create a basic one with a global section.
+if [ ! -e /etc/lvm/lvm.conf ]; then
+    {
+        echo 'global {'
+        echo '}'
+    } > /etc/lvm/lvm.conf
+    lvmwritten=1
+fi
+
+# Save the original lvm.conf before appending a filter setting.
+if [ ! -e /etc/lvm/lvm.conf.orig ]; then
+    cp /etc/lvm/lvm.conf /etc/lvm/lvm.conf.orig
+fi
+
+# If the original lvm.conf does not contain a filter setting,
+# then generate a filter and append it to the original lvm.conf.
+# The filter is generated from the list PVs that have been seen
+# so far (each has been processed by the lvm udev rule.)
+if no_lvm_conf_filter; then
+    {
+        echo 'devices {'
+        printf '    filter = [ '
+        for dev in $lvmdevs; do
+            printf '"a|^/dev/%s$|", ' "$dev"
+        done
+        echo '"r/.*/" ]'
+        echo '}'
+    } > /etc/lvm/lvm.conf.filter
+    lvmfilter=1
+    cat /etc/lvm/lvm.conf.orig /etc/lvm/lvm.conf.filter > /etc/lvm/lvm.conf
+fi
 
 # hopefully this output format will never change, e.g.:
 #   LVM version:     2.02.53(1) (2009-09-25)
@@ -99,8 +153,13 @@ fi
 
 if [ "$lvmwritten" ]; then
     rm -f -- /etc/lvm/lvm.conf
+elif [ "$lvmfilter" ]; then
+    # revert filter that was appended to existing lvm.conf
+    cp /etc/lvm/lvm.conf.orig /etc/lvm/lvm.conf
+    rm -f -- /etc/lvm/lvm.conf.filter
 fi
 unset lvmwritten
+unset lvmfilter
 
 udevadm settle
 
