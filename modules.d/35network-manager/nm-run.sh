@@ -60,6 +60,7 @@ dhcpopts_create() {
 }
 
 for _i in /sys/class/net/*; do
+    [ -d "$_i" ] || continue
     state="/run/NetworkManager/devices/$(cat "$_i"/ifindex)"
     grep -q '^connection-uuid=' "$state" 2> /dev/null || continue
     ifname="${_i##*/}"
