@@ -59,39 +59,42 @@ min=$2
 sub=${3%% *}
 sub=${sub%%\(*}
 
-lvm_ignorelockingfailure="--ignorelockingfailure"
-lvm_quirk_args="--ignorelockingfailure --ignoremonitoring"
+# For lvchange and vgchange use --sysinit which:
+# disables polling (--poll n)
+# ignores monitoring (--ignoremonitoring)
+# ignores locking failures (--ignorelockingfailure)
+# disables hints (--nohints)
+#
+# For lvscan and vgscan:
+# disable locking (--nolocking)
+# disable hints (--nohints)
 
-check_lvm_ver 2 2 57 "$maj" "$min" "$sub" \
-    && lvm_quirk_args="$lvm_quirk_args --poll n"
-
-if check_lvm_ver 2 2 65 "$maj" "$min" "$sub"; then
-    lvm_quirk_args=" --sysinit $extraargs"
-fi
-
-if check_lvm_ver 2 2 221 "$maj" "$min" "$sub"; then
-    lvm_quirk_args=" $extraargs"
-    unset lvm_ignorelockingfailure
-fi
-
+activate_args="--sysinit $extraargs"
 unset extraargs
 
 export LVM_SUPPRESS_LOCKING_FAILURE_MESSAGES=1
 
+scan_args="--nolocking"
+
+check_lvm_ver 2 3 14 "$maj" "$min" "$sub" \
+    && scan_args="$scan_args --nohints"
+
 if [ -n "$LVS" ]; then
     info "Scanning devices $lvmdevs for LVM logical volumes $LVS"
-    lvm lvscan $lvm_ignorelockingfailure 2>&1 | vinfo
+    # shellcheck disable=SC2086
+    lvm lvscan $scan_args 2>&1 | vinfo
     for LV in $LVS; do
         # shellcheck disable=SC2086
-        lvm lvchange --yes -K -ay $lvm_quirk_args "$LV" 2>&1 | vinfo
+        lvm lvchange --yes -K -ay $activate_args "$LV" 2>&1 | vinfo
     done
 fi
 
 if [ -z "$LVS" ] || [ -n "$VGS" ]; then
     info "Scanning devices $lvmdevs for LVM volume groups $VGS"
-    lvm vgscan $lvm_ignorelockingfailure 2>&1 | vinfo
     # shellcheck disable=SC2086
-    lvm vgchange -ay $lvm_quirk_args $VGS 2>&1 | vinfo
+    lvm vgscan $scan_args 2>&1 | vinfo
+    # shellcheck disable=SC2086
+    lvm vgchange -ay $activate_args $VGS 2>&1 | vinfo
 fi
 
 if [ "$lvmwritten" ]; then
