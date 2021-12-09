@@ -29,6 +29,8 @@ installkernel() {
     # as we could e.g. be in the installer; nokmsboot boot parameter will disable
     # loading of the driver if needed
     if [[ $hostonly ]]; then
+        local i modlink modname
+
         for i in /sys/bus/{pci/devices,platform/devices,virtio/devices,soc/devices/soc?}/*/modalias; do
             [[ -e $i ]] || continue
             [[ -n $(< "$i") ]] || continue
@@ -39,7 +41,19 @@ installkernel() {
                 fi
             fi
         done
+        # if there is a privacy screen then its driver must be loaded before the
+        # kms driver will bind, otherwise its probe() will return -EPROBE_DEFER
+        # note privacy screens always register, even with e.g. nokmsboot
+        for i in /sys/class/drm/privacy_screen-*/device/driver/module; do
+            [[ -L $i ]] || continue
+            modlink=$(readlink "$i")
+            modname=$(basename "$modlink")
+            instmods "$modname"
+        done
     else
         dracut_instmods -o -s "drm_crtc_init|drm_dev_register|drm_encoder_init" "=drivers/gpu/drm" "=drivers/staging"
+        # also include privacy screen providers (see above comment)
+        # atm all providers live under drivers/platform/x86
+        dracut_instmods -o -s "drm_privacy_screen_register" "=drivers/platform/x86"
     fi
 }
