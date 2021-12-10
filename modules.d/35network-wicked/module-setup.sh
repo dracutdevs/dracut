@@ -33,15 +33,23 @@ install() {
 
     inst_dir /etc/wicked/extensions
     inst_dir /usr/share/wicked/schema
-    inst_dir /usr/lib/wicked/bin
+    if [ -d /usr/lib/wicked/bin ]; then
+        inst_dir /usr/lib/wicked/bin
+        inst_multiple "/usr/lib/wicked/bin/*"
+    elif [ -d /usr/libexec/wicked/bin ]; then
+        inst_dir /usr/libexec/wicked/bin
+        inst_multiple "/usr/libexec/wicked/bin/*"
+    fi
     inst_dir /var/lib/wicked
 
     inst_multiple "/etc/wicked/*.xml"
     inst_multiple "/etc/wicked/extensions/*"
-    inst_multiple "/etc/dbus-1/system.d/org.opensuse.Network*"
+    if [ -f /etc/dbus-1/system.d/org.opensuse.Network.conf ]; then
+        inst_multiple "/etc/dbus-1/system.d/org.opensuse.Network*"
+    elif [ -f /usr/share/dbus-1/system.d/org.opensuse.Network.conf ]; then
+        inst_multiple "/usr/share/dbus-1/system.d/org.opensuse.Network*"
+    fi
     inst_multiple "/usr/share/wicked/schema/*"
-    inst_multiple "/usr/lib/wicked/bin/*"
-    inst_multiple "/usr/libexec/wicked/bin/*"
     inst_multiple "/usr/sbin/wicked*"
 
     wicked_units=(
