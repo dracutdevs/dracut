@@ -119,7 +119,7 @@ sub=${sub%%\(*}
 # ignores locking failures (--ignorelockingfailure)
 # disables hints (--nohints)
 #
-# For lvscan and vgscan:
+# For lvs and vgscan:
 # disable locking (--nolocking)
 # disable hints (--nohints)
 
@@ -136,10 +136,20 @@ check_lvm_ver 2 3 14 "$maj" "$min" "$sub" \
 if [ -n "$LVS" ]; then
     info "Scanning devices $lvmdevs for LVM logical volumes $LVS"
     # shellcheck disable=SC2086
-    lvm lvscan $scan_args 2>&1 | vinfo
+    LVSLIST=$(lvm lvs $scan_args --noheading -o lv_full_name,segtype $LVS)
+    info "$LVSLIST"
+
+    # Only attempt to activate an LV if it appears in the lvs output.
     for LV in $LVS; do
-        # shellcheck disable=SC2086
-        lvm lvchange --yes -K -ay $activate_args "$LV" 2>&1 | vinfo
+        if strstr "$LVSLIST" "$LV"; then
+            # This lvchange is expected to fail if all PVs used by
+            # the LV are not yet present.  Premature/failed lvchange
+            # could be avoided by reporting if an LV is complete
+            # from the lvs command above and skipping this lvchange
+            # if the LV is not lised as complete.
+            # shellcheck disable=SC2086
+            lvm lvchange --yes -K -ay $activate_args "$LV" 2>&1 | vinfo
+        fi
     done
 fi
 
