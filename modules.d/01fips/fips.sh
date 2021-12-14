@@ -79,6 +79,7 @@ nonfatal_modprobe() {
 fips_load_crypto() {
     local _k
     local _v
+    local _module
     local _found
 
     FIPSMODULES=$(cat /etc/fipsmodules)
@@ -108,9 +109,6 @@ fips_load_crypto() {
 }
 
 do_fips() {
-    local _v
-    local _module
-
     KERNEL=$(uname -r)
 
     if ! getarg rd.fips.skipkernel > /dev/null; then
