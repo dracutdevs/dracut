@@ -78,7 +78,7 @@ install() {
         }
     [ -c "${initdir}"/dev/urandom ] || mknod "${initdir}"/dev/urandom c 1 9 \
         || {
-            dfatal "Cannot create /dev/random"
+            dfatal "Cannot create /dev/urandom"
             dfatal "To create an initramfs with fips support, dracut has to run as root"
             return 1
         }
