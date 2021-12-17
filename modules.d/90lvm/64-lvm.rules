@@ -6,6 +6,14 @@
 
 SUBSYSTEM!="block", GOTO="lvm_end"
 ACTION!="add|change", GOTO="lvm_end"
+
+# If the md device is active (indicated by array_state), then set the flag
+# LVM_MD_PV_ACTIVATED=1 indicating that the md device for the PV is ready
+# to be used.  The lvm udev rule running in root will check that this flag
+# is set before it will process the md device (it wants to avoid
+# processing an md device that exists but is not yet ready to be used.)
+KERNEL=="md[0-9]*", ACTION=="change", ENV{ID_FS_TYPE}=="LVM2_member", ENV{LVM_MD_PV_ACTIVATED}!="1", TEST=="md/array_state", ENV{LVM_MD_PV_ACTIVATED}="1"
+
 # Also don't process disks that are slated to be a multipath device
 ENV{DM_MULTIPATH_DEVICE_PATH}=="1", GOTO="lvm_end"
 KERNEL=="dm-[0-9]*", ACTION=="add", GOTO="lvm_end"
