@@ -173,7 +173,7 @@ installkernel() {
 
     ((${#pathlist[@]} > 0)) || return 0
 
-    printf "^%s\.ko(\.gz|\.bz2|\.xz)?:\n" "${pathlist[@]}" \
+    printf "^%s\.ko(\.gz|\.bz2|\.xz|\.zst)?:\n" "${pathlist[@]}" \
         | (LANG=C grep -E -o -f - -- "$depmod_modules_dep" || exit 0) \
         | tr -d ':' \
         | (
