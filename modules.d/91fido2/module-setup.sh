@@ -23,6 +23,7 @@ install() {
     inst_libdir_file \
         {"tls/$_arch/",tls/,"$_arch/",}"libfido2.so.*" \
         {"tls/$_arch/",tls/,"$_arch/",}"libcryptsetup.so.*" \
+        {"tls/$_arch/",tls/,"$_arch/",}"/cryptsetup/libcryptsetup-token-systemd-fido2.so" \
         {"tls/$_arch/",tls/,"$_arch/",}"libcbor.so.*" \
         {"tls/$_arch/",tls/,"$_arch/",}"libhidapi-hidraw.so.*"
 }

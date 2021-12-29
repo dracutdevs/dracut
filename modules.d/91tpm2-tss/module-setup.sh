@@ -52,7 +52,7 @@ install() {
         {"tls/$_arch/",tls/,"$_arch/",}"libtss2-tcti-swtpm.so.*" \
         {"tls/$_arch/",tls/,"$_arch/",}"libtss2-tctildr.so.*" \
         {"tls/$_arch/",tls/,"$_arch/",}"libcryptsetup.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libcryptsetup-token-systemd-tpm2.so.*" \
+        {"tls/$_arch/",tls/,"$_arch/",}"/cryptsetup/libcryptsetup-token-systemd-tpm2.so" \
         {"tls/$_arch/",tls/,"$_arch/",}"libcurl.so.*" \
         {"tls/$_arch/",tls/,"$_arch/",}"libjson-c.so.*"
 
