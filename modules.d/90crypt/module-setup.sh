@@ -21,11 +21,14 @@ depends() {
     local deps
     deps="dm rootfs-block"
     if [[ $hostonly && -f "$dracutsysrootdir"/etc/crypttab ]]; then
-        if grep -q "tpm2-device=" "$dracutsysrootdir"/etc/crypttab; then
-            deps+=" tpm2-tss"
-        fi
         if grep -q -e "fido2-device=" -e "fido2-cid=" "$dracutsysrootdir"/etc/crypttab; then
             deps+=" fido2"
+        fi
+        if grep -q "pkcs11-uri" "$dracutsysrootdir"/etc/crypttab; then
+            deps+=" pkcs11"
+        fi
+        if grep -q "tpm2-device=" "$dracutsysrootdir"/etc/crypttab; then
+            deps+=" tpm2-tss"
         fi
     fi
     echo "$deps"
