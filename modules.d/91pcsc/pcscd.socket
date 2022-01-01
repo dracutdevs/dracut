@@ -1,0 +1,11 @@
+[Unit]
+DefaultDependencies=no
+Description=PC/SC Smart Card Daemon Activation Socket (Dracut)
+Documentation=man:pcscd(8)
+
+[Socket]
+ListenStream=/run/pcscd/pcscd.comm
+SocketMode=0666
+
+[Install]
+WantedBy=cryptsetup-pre.target sockets.target
