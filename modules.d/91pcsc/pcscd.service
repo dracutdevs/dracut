@@ -1,0 +1,13 @@
+[Unit]
+DefaultDependencies=no
+Description=PC/SC Smart Card Daemon (Dracut)
+Documentation=man:pcscd(8)
+Requires=pcscd.socket
+
+[Service]
+ExecStart=/usr/sbin/pcscd --foreground --auto-exit
+ExecReload=/usr/sbin/pcscd --hotplug
+
+[Install]
+Also=pcscd.socket
+WantedBy=cryptsetup-pre.target
