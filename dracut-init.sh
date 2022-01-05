@@ -423,7 +423,7 @@ inst_rule_programs() {
     done
 }
 
-# attempt to install any programs specified in a udev rule
+# attempt to create any groups and users specified in a udev rule
 inst_rule_group_owner() {
     local i
 
