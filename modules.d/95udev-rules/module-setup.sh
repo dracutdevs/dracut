@@ -97,4 +97,16 @@ install() {
 
     inst_libdir_file "libnss_files*"
 
+    if [[ $hostonly ]]; then
+        inst_multiple -o "${udevdir}"/hwdb.bin
+        inst_multiple -H -o "${udevconfdir}"/hwdb.bin
+    else
+        inst_dir "${udevdir}"/hwdb.d
+        inst_simple "${udevdir}"/hwdb.d/20-net-ifname.hwdb
+        systemd-hwdb --usr --root="${initdir}" update
+    fi
+
+    # Remove any installed hwdb files, now that we're sure
+    # to have the binary database in place
+    rm -fr -- "${initdir}${udevdir}"/hwdb.d
 }
