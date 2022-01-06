@@ -8,7 +8,7 @@ ConditionPathExists=/run/NetworkManager/initrd/neednet
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/nm-online -s -q -t 3600
+ExecStart=/usr/bin/nm-online -q -t 3600
 RemainAfterExit=yes
 
 [Install]
