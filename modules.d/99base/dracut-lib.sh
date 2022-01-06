@@ -392,7 +392,7 @@ setdebug() {
             if getargbool 0 rd.debug -d -y rdinitdebug -d -y rdnetdebug; then
                 RD_DEBUG=yes
                 [ -n "$BASH" ] \
-                    && export PS4='${BASH_SOURCE}@${LINENO}(${FUNCNAME[0]}): '
+                    && export PS4='${BASH_SOURCE}@${LINENO}(${FUNCNAME[0]-}): '
             fi
         fi
         export RD_DEBUG
