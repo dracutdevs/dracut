@@ -7,7 +7,7 @@ ConditionKernelCommandLine=|rd.memdebug=4
 ConditionKernelCommandLine=|rd.memdebug=5
 
 [Service]
-Type=simple
+Type=forking
 ExecStart=/bin/memstrack-start
 PIDFile=/run/memstrack.pid
 StandardInput=null
