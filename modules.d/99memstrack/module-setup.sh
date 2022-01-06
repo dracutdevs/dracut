@@ -11,12 +11,12 @@ check() {
 }
 
 depends() {
-    echo systemd bash
+    echo systemd
     return 0
 }
 
 install() {
-    inst_multiple pgrep pkill
+    inst_multiple pgrep pkill nohup
     inst "/bin/memstrack" "/bin/memstrack"
 
     inst "$moddir/memstrack-start.sh" "/bin/memstrack-start"

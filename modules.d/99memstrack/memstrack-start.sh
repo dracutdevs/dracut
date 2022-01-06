@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Mount kernel debug fs so debug tools can work.
 # memdebug=4 and memdebug=5 requires debug fs to be mounted.
 # And there is no need to umount it.
@@ -20,8 +20,6 @@ is_debugfs_ready() {
 }
 
 prepare_debugfs() {
-    local trace_base
-
     trace_base=$(get_trace_base)
     # old debugfs interface case.
     if ! [ -d "$trace_base/tracing" ]; then
@@ -44,10 +42,10 @@ fi
 if [ -n "$DEBUG_MEM_LEVEL" ]; then
     if [ "$DEBUG_MEM_LEVEL" -ge 5 ]; then
         echo "memstrack - will report kernel module memory usage summary and top allocation stack"
-        memstrack --report module_summary,module_top --notui --throttle 80 -o /.memstrack &
+        nohup memstrack --report module_summary,module_top --notui --throttle 80 -o /.memstrack > /dev/null &
     elif [ "$DEBUG_MEM_LEVEL" -ge 4 ]; then
         echo "memstrack - will report memory usage summary"
-        memstrack --report module_summary --notui --throttle 80 -o /.memstrack &
+        nohup memstrack --report module_summary --notui --throttle 80 -o /.memstrack > /dev/null &
     else
         exit 0
     fi
@@ -61,9 +59,7 @@ if [ $RET -ne 0 ]; then
     exit $RET
 fi
 
+echo $PID > /run/memstrack.pid
+
 # Wait a second for memstrack to setup everything, avoid missing any event
 sleep 1
-
-echo $PID > /run/memstrack.pid
-# bash specific - non posix
-disown
