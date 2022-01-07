@@ -111,6 +111,8 @@ Creates initial ramdisk images for preloading modules
   --no-early-microcode  Do not combine early microcode with ramdisk
   --kernel-cmdline [PARAMETERS] Specify default kernel command line parameters
   --strip               Strip binaries in the initramfs
+  --aggresive-strip     Strip more than just debug symbol and sections,
+                        for a smaller initramfs build.
   --nostrip             Do not strip binaries in the initramfs
   --hardlink            Hardlink files in the initramfs
   --nohardlink          Do not hardlink files in the initramfs
@@ -379,6 +381,7 @@ rearrange_params() {
             --long print-cmdline \
             --long kernel-cmdline: \
             --long strip \
+            --long aggresive-strip \
             --long nostrip \
             --long hardlink \
             --long nohardlink \
@@ -697,6 +700,7 @@ while :; do
             early_microcode_l="no"
             ;;
         --strip) do_strip_l="yes" ;;
+        --aggresive-strip) aggresive_strip_l="yes" ;;
         --nostrip) do_strip_l="no" ;;
         --hardlink) do_hardlink_l="yes" ;;
         --nohardlink) do_hardlink_l="no" ;;
@@ -969,6 +973,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $drivers_dir_l ]] && drivers_dir=$drivers_dir_l
 [[ $do_strip_l ]] && do_strip=$do_strip_l
 [[ $do_strip ]] || do_strip=yes
+[[ $aggresive_strip_l ]] && aggresive_strip=$aggresive_strip_l
 [[ $do_hardlink_l ]] && do_hardlink=$do_hardlink_l
 [[ $do_hardlink ]] || do_hardlink=yes
 [[ $prefix_l ]] && prefix=$prefix_l
@@ -2118,6 +2123,13 @@ if [[ $do_strip == yes ]]; then
             do_strip=no
         fi
     done
+
+    if [[ $aggresive_strip ]]; then
+        # `eu-strip` and `strip` both strips all unneeded parts by default
+        strip_args=(-p)
+    else
+        strip_args=(-g -p)
+    fi
 fi
 
 # cleanup empty ldconfig_paths directories
@@ -2263,14 +2275,14 @@ if [[ $do_strip == yes ]] && ! [[ $DRACUT_FIPS_MODE ]]; then
     dinfo "*** Stripping files ***"
     find "$initdir" -type f \
         -executable -not -path '*/lib/modules/*.ko' -print0 \
-        | xargs -r -0 $strip_cmd -g -p 2> /dev/null
+        | xargs -r -0 $strip_cmd "${strip_args[@]}" 2> /dev/null
 
     # strip kernel modules, but do not touch signed modules
     find "$initdir" -type f -path '*/lib/modules/*.ko' -print0 \
         | while read -r -d $'\0' f || [ -n "$f" ]; do
             SIG=$(tail -c 28 "$f" | tr -d '\000')
             [[ $SIG == '~Module signature appended~' ]] || { printf "%s\000" "$f"; }
-        done | xargs -r -0 $strip_cmd -g -p
+        done | xargs -r -0 $strip_cmd "${strip_args[@]}"
     dinfo "*** Stripping files done ***"
 fi
 
