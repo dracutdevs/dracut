@@ -17,7 +17,7 @@ depends() {
     done
 
     if [ -z "$network_handler" ]; then
-        if [[ -x $dracutsysrootdir$systemdsystemunitdir/wicked.service ]]; then
+        if [[ -e $dracutsysrootdir$systemdsystemunitdir/wicked.service ]]; then
             network_handler="network-wicked"
         elif [[ -x $dracutsysrootdir/usr/libexec/nm-initrd-generator ]] || [[ -x $dracutsysrootdir/usr/lib/nm-initrd-generator ]]; then
             network_handler="network-manager"
