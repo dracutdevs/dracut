@@ -1,0 +1,13 @@
+#  This file is part of dracut.
+#
+# See dracut.bootup(7) for details
+
+[Unit]
+Description=Service executing upon dracut-shutdown failure to perform cleanup
+Documentation=man:dracut-shutdown.service(8)
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=-/bin/rm /run/initramfs/shutdown
+StandardError=null

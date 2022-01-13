@@ -10,6 +10,7 @@ Wants=local-fs.target
 Conflicts=shutdown.target umount.target
 DefaultDependencies=no
 ConditionPathExists=!/run/initramfs/bin/sh
+OnFailure=dracut-shutdown-onfailure.service
 
 [Service]
 RemainAfterExit=yes
