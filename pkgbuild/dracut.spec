@@ -415,6 +415,7 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %dir %{_sharedstatedir}/initramfs
 %if %{defined _unitdir}
 %{_unitdir}/dracut-shutdown.service
+%{_unitdir}/dracut-shutdown-onfailure.service
 %{_unitdir}/sysinit.target.wants/dracut-shutdown.service
 %{_unitdir}/dracut-cmdline.service
 %{_unitdir}/dracut-initqueue.service
