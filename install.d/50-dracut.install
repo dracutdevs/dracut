@@ -6,8 +6,14 @@ BOOT_DIR_ABS="$3"
 KERNEL_IMAGE="$4"
 
 # If KERNEL_INSTALL_MACHINE_ID is defined but empty, BOOT_DIR_ABS is a fake directory.
-# So, let's skip to create initrd.
+# In this case, do not create the initrd.
 if ! [[ ${KERNEL_INSTALL_MACHINE_ID-x} ]]; then
+    exit 0
+fi
+
+# Skip this plugin if we're using a different generator. If nothing is specified,
+# assume we're wanted since we're installed.
+if [ "${KERNEL_INSTALL_INITRD_GENERATOR:-dracut}" != "dracut" ]; then
     exit 0
 fi
 
