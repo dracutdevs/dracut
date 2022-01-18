@@ -7,6 +7,11 @@ KERNEL_VERSION="$2"
 BOOT_DIR_ABS="${3%/*}/0-rescue"
 KERNEL_IMAGE="$4"
 
+# Skip this plugin if we're using a different generator. If nothing is specified,
+# assume we're wanted since we're installed.
+if [ "${KERNEL_INSTALL_INITRD_GENERATOR:-dracut}" != "dracut" ]; then
+    exit 0
+fi
 
 dropindirs_sort()
 {
