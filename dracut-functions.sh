@@ -783,13 +783,29 @@ btrfs_devs() {
 iface_for_remote_addr() {
     # shellcheck disable=SC2046
     set -- $(ip -o route get to "$1")
-    echo "$3"
+    while [ $# -gt 0 ]; do
+        case $1 in
+            dev)
+                echo "$2"
+                return
+                ;;
+        esac
+        shift
+    done
 }
 
 local_addr_for_remote_addr() {
     # shellcheck disable=SC2046
     set -- $(ip -o route get to "$1")
-    echo "$5"
+    while [ $# -gt 0 ]; do
+        case $1 in
+            src)
+                echo "$2"
+                return
+                ;;
+        esac
+        shift
+    done
 }
 
 peer_for_addr() {
