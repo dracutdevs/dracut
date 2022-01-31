@@ -68,7 +68,7 @@ install() {
     if [[ $hostonly ]]; then
         var_lib_files=("$dracutsysrootdir"/var/lib/bluetooth/**)
 
-        inst_multiple \
+        inst_multiple -o \
             /etc/bluetooth/main.conf \
             "$dbussystemconfdir"/bluetooth.conf \
             "${var_lib_files[@]#"$dracutsysrootdir"}"
