@@ -55,4 +55,8 @@ install() {
         {"tls/$_arch/",tls/,"$_arch/",}"libcurl.so.*" \
         {"tls/$_arch/",tls/,"$_arch/",}"libjson-c.so.*"
 
+    # Add user and group for tpm2-tss
+    grep '^tss:' "$dracutsysrootdir"/etc/passwd 2> /dev/null >> "$initdir/etc/passwd"
+    grep '^tss:' "$dracutsysrootdir"/etc/group 2> /dev/null >> "$initdir/etc/group"
+
 }
