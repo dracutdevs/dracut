@@ -137,7 +137,7 @@ install() {
         journalctl systemctl \
         echo swapoff \
         kmod insmod rmmod modprobe modinfo depmod lsmod \
-        mount umount reboot poweroff \
+        mount umount \
         systemd-run systemd-escape \
         systemd-cgls systemd-tmpfiles \
         systemd-ask-password systemd-tty-ask-password-agent \
