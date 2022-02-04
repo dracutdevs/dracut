@@ -14,7 +14,16 @@ depends() {
 # called by dracut
 install() {
     local _d
-    inst_multiple umount poweroff reboot halt losetup stat sleep timeout
+    local _systemctl
+    inst_multiple umount losetup stat sleep timeout
+    _systemctl=$(find_binary systemctl 2> /dev/null)
+    if dracut_module_included "systemd" && [ -n "$_systemctl" ]; then
+        ln_r "$_systemctl" "/sbin/reboot"
+        ln_r "$_systemctl" "/sbin/halt"
+        ln_r "$_systemctl" "/sbin/poweroff"
+    else
+        inst_multiple reboot halt poweroff
+    fi
     inst_multiple -o kexec
     inst "$moddir/shutdown.sh" "$prefix/shutdown"
     [ -e "${initdir}/lib" ] || mkdir -m 0755 -p "${initdir}"/lib
