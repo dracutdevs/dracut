@@ -883,6 +883,25 @@ mod tests {
             fs::create_dir(name).unwrap();
             self.cleanup_dirs.push(PathBuf::from(name));
         }
+
+        // execute coreutils mknod NAME TYPE [MAJOR MINOR]
+        pub fn create_tmp_mknod(&mut self, name: &str, typ: char,
+                                maj_min: Option<(u32, u32)>) {
+            let t = typ.to_string();
+            let proc = match maj_min {
+                Some(maj_min) => {
+                    let (maj, min) = maj_min;
+                    Command::new("mknod")
+                        .args(&[name, &t, &maj.to_string(), &min.to_string()])
+                        .spawn()
+                },
+                None => Command::new("mknod").args(&[name, &t]).spawn()
+            };
+            let status = proc.expect("mknod failed to start").wait().unwrap();
+            assert!(status.success());
+
+            self.cleanup_files.push(PathBuf::from(name));
+        }
     }
 
     impl Drop for TempWorkDir {
@@ -1144,13 +1163,7 @@ mod tests {
     fn test_archive_fifo() {
         let mut twd = TempWorkDir::new();
 
-        // mknod [OPTION]... NAME TYPE [MAJOR MINOR]
-        let mut proc = Command::new("mknod")
-            .args(&["fifo", "p"])
-            .spawn()
-            .expect("mknod failed to start");
-        assert!(proc.wait().unwrap().success());
-        twd.cleanup_files.push(PathBuf::from("fifo"));
+        twd.create_tmp_mknod("fifo", 'p', None);
 
         gnu_cpio_create("fifo\n".as_bytes(), "gnu.cpio");
         twd.cleanup_files.push(PathBuf::from("gnu.cpio"));
