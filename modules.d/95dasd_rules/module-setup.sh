@@ -56,10 +56,10 @@ install() {
         [[ $_dasd ]] && printf "%s\n" "$_dasd" >> "${initdir}/etc/cmdline.d/95dasd.conf"
     fi
     if [[ $hostonly ]]; then
-        inst_rules_wildcard 51-dasd-*.rules
-        inst_rules_wildcard 41-s390x-dasd-*.rules
+        inst_rules_wildcard "51-dasd-*.rules"
+        inst_rules_wildcard "41-dasd-*.rules"
         mark_hostonly /etc/udev/rules.d/51-dasd-*.rules
-        mark_hostonly /etc/udev/rules.d/41-s390x-dasd-*.rules
+        mark_hostonly /etc/udev/rules.d/41-dasd-*.rules
     fi
     inst_rules 59-dasd.rules
 }
