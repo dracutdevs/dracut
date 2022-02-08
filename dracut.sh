@@ -478,7 +478,15 @@ while :; do
 done
 
 # get output file name and kernel version from command line arguments
+dracut_modules_args=()
 while (($# > 0)); do
+    module_args_regex="^\w+\.\w+=(\S|\t|\ )+$"
+    [[ "$1" =~ $module_args_regex ]] && {
+        dracut_modules_args+=("$1")
+        shift
+        continue
+    }
+
     case ${1%%=*} in
         ++include)
             shift 2
@@ -497,6 +505,24 @@ while (($# > 0)); do
     esac
     shift
 done
+
+# parsing dracut cmdline like module.arg=value
+module_get_arg() {
+    local _module=$1
+    local _argument=$2
+    local _v
+    for ((i=0;i<${#dracut_modules_args[@]};i++)); do
+        local _mod_arg_val=${dracut_modules_args[$i]}
+        local _mod=${_mod_arg_val%%.*}
+        local _arg_val=${_mod_arg_val#*.}
+        local _arg=${_arg_val%%=*}
+        local _val=${_arg_val#*=}
+        if [[ $_module == $_mod ]] && [[ $_argument == $_arg ]]; then
+            _v=$_val
+        fi
+    done
+    echo $_v
+}
 
 # extract input image file provided with rebuild option to get previous parameters, if any
 if [[ $append_args_l == "yes" ]]; then
