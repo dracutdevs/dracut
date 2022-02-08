@@ -864,6 +864,13 @@ while (($# > 0)); do
     shift
 done
 
+for ((i=0;i<${#dracut_modules_args[@]};i++)); do
+    mod_arg_val=${dracut_modules_args[$i]}
+    mod_arg=${mod_arg_val%%=*}
+    val=${mod_arg_val#*=}
+    PARMS_TO_STORE+=" $mod_arg='$val'"
+done
+
 [[ $sysroot_l ]] && dracutsysrootdir="$sysroot_l"
 
 if [[ $regenerate_all == "yes" ]]; then
