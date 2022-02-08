@@ -10,6 +10,7 @@ check() {
         fi
     done
 
+    squash_comp=$(module_get_arg $_mod comp)
     return 255
 }
 
