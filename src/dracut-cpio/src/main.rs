@@ -361,9 +361,12 @@ fn archive_path<W: Seek + Write>(
         // no zero terminator for symlink target path
     }
 
+    // Linux kernel uses 32-bit dev_t, encoded as mmmM MMmm. glibc uses 64-bit
+    // MMMM Mmmm mmmM MMmm, which is compatible with the former.
     if ftype.is_block_device() || ftype.is_char_device() {
-        rmajor = (md.rdev() >> 8) as u32;
-        rminor = (md.rdev() & 0xff) as u32;
+        let rd = md.rdev();
+        rmajor = (((rd >> 32) & 0xfffff000) | ((rd >> 8) & 0x00000fff)) as u32;
+        rminor = (((rd >> 12) & 0xffffff00) | (rd & 0x000000ff)) as u32;
     }
 
     if ftype.is_file() {
