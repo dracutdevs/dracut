@@ -228,6 +228,9 @@ Creates initial ramdisk images for preloading modules
                          otherwise you will not be able to boot.
   --no-compress         Do not compress the generated initramfs.  This will
                          override any other compression options.
+  --squash-compressor [COMPRESSION] Specify the compressor and compressor
+                         specific options used by mksquashfs if squash module
+                         is called when building the initramfs.
   --enhanced-cpio       Attempt to reflink cpio file data using dracut-cpio.
   --list-modules        List all available dracut modules.
   -M, --show-modules    Print included module's name to standard output during
@@ -373,6 +376,7 @@ rearrange_params() {
             --long sysroot: \
             --long stdlog: \
             --long compress: \
+            --long squash-compressor: \
             --long prefix: \
             --long rebuild: \
             --long force \
@@ -659,6 +663,11 @@ while :; do
             ;;
         --compress)
             compress_l="$2"
+            PARMS_TO_STORE+=" '$2'"
+            shift
+            ;;
+        --squash-compressor)
+            squash_compress_l="$2"
             PARMS_TO_STORE+=" '$2'"
             shift
             ;;
@@ -996,6 +1005,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $tmpdir ]] || tmpdir="$dracutsysrootdir"/var/tmp
 [[ $INITRD_COMPRESS ]] && compress=$INITRD_COMPRESS
 [[ $compress_l ]] && compress=$compress_l
+[[ $squash_compress_l ]] && squash_compress=$squash_compress_l
 [[ $enhanced_cpio_l ]] && enhanced_cpio=$enhanced_cpio_l
 [[ $show_modules_l ]] && show_modules=$show_modules_l
 [[ $nofscks_l ]] && nofscks="yes"
@@ -2290,11 +2300,11 @@ if dracut_module_included "squash"; then
     dinfo "*** Squashing the files inside the initramfs ***"
     declare squash_compress_arg
     # shellcheck disable=SC2086
-    if [[ $compress ]]; then
-        if ! mksquashfs /dev/null "$DRACUT_TMPDIR"/.squash-test.img -no-progress -comp $compress &> /dev/null; then
-            dwarn "mksquashfs doesn't support compressor '$compress', failing back to default compressor."
+    if [[ $squash_compress ]]; then
+        if ! mksquashfs /dev/null "$DRACUT_TMPDIR"/.squash-test.img -no-progress -comp $squash_compress &> /dev/null; then
+            dwarn "mksquashfs doesn't support compressor '$squash_compress', failing back to default compressor."
         else
-            squash_compress_arg="$compress"
+            squash_compress_arg="$squash_compress"
         fi
     fi
 
