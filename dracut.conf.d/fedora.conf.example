@@ -8,7 +8,7 @@ i18n_install_all="yes"
 
 stdloglvl=3
 sysloglvl=5
-install_optional_items+=" vi /etc/virc ps grep cat rm "
+install_optional_items+=" vi /usr/libexec/vi /etc/virc ps grep cat rm "
 prefix="/"
 environment=/usr/lib/environment.d
 environmentconfdir=/etc/environment.d
