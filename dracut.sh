@@ -1446,6 +1446,10 @@ for line in "${fstab_lines[@]}"; do
                 push_host_devs "$i"
             done
         done
+    elif [[ $3 == zfs ]]; then
+        for mp in $(zfs_devs "$1"); do
+            push_host_devs "$mp"
+        done
     fi
     push_host_devs "$dev"
     host_fs_types["$dev"]="$3"
@@ -1498,7 +1502,13 @@ if [[ $hostonly ]] && [[ $hostonly_default_device != "no" ]]; then
                 [[ $mp == "/" ]] && root_devs+=("$i")
                 push_host_devs "$i"
             done
+        elif [[ $(find_mp_fstype "$mp") == zfs ]]; then
+            for i in $(zfs_devs "$(findmnt -n -o SOURCE "$mp")"); do
+                [[ $mp == "/" ]] && root_devs+=("$i")
+                push_host_devs "$i"
+            done
         fi
+
     done
 
     # TODO - with sysroot, /proc/swaps is not relevant
@@ -1549,6 +1559,10 @@ if [[ $hostonly ]] && [[ $hostonly_default_device != "no" ]]; then
             push_host_devs "$_dev"
             if [[ $_t == btrfs ]]; then
                 for i in $(btrfs_devs "$_m"); do
+                    push_host_devs "$i"
+                done
+            elif [[ $_t == zfs ]]; then
+                for i in $(zfs_devs "$_d"); do
                     push_host_devs "$i"
                 done
             fi
@@ -2576,6 +2590,9 @@ freeze_ok_for_fstype() {
     fstype=$(stat -f -c %T -- "$outfile")
     case $fstype in
         msdos)
+            return 1
+            ;;
+        zfs)
             return 1
             ;;
         btrfs)
