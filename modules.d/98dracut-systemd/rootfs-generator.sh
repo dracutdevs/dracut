@@ -28,9 +28,9 @@ EOF
     fi
 
     _name=$(dev_unit_name "$1")
-    if ! [ -L "$GENERATOR_DIR"/initrd.target.wants/"${_name}".device ]; then
+    if ! [ -L "$GENERATOR_DIR"/initrd.target.wants/blockdev@"${_name}".target ]; then
         [ -d "$GENERATOR_DIR"/initrd.target.wants ] || mkdir -p "$GENERATOR_DIR"/initrd.target.wants
-        ln -s ../"${_name}".device "$GENERATOR_DIR"/initrd.target.wants/"${_name}".device
+        ln -s ../../../../lib/systemd/system/blockdev@.target "$GENERATOR_DIR"/initrd.target.wants/blockdev@"${_name}".target
     fi
 
     if ! [ -f "$GENERATOR_DIR"/"${_name}".device.d/timeout.conf ]; then

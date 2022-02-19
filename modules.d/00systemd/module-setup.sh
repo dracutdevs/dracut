@@ -78,6 +78,7 @@ install() {
         "$systemdsystemunitdir"/timers.target \
         "$systemdsystemunitdir"/paths.target \
         "$systemdsystemunitdir"/umount.target \
+        "$systemdsystemunitdir"/blockdev@.target \
         \
         "$systemdsystemunitdir"/sys-kernel-config.mount \
         \

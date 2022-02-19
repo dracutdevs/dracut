@@ -72,10 +72,10 @@ set_systemd_timeout_for_dev() {
     _timeout=${_timeout:-0}
 
     _name=$(dev_unit_name "$1")
-    if ! [ -L "${PREFIX}/etc/systemd/system/initrd.target.wants/${_name}.device" ]; then
+    if ! [ -L "${PREFIX}/etc/systemd/system/initrd.target.wants/blockdev@${_name}.target" ]; then
         [ -d "${PREFIX}"/etc/systemd/system/initrd.target.wants ] || mkdir -p "${PREFIX}"/etc/systemd/system/initrd.target.wants
-        ln -s ../"${_name}".device "${PREFIX}/etc/systemd/system/initrd.target.wants/${_name}.device"
-        type mark_hostonly > /dev/null 2>&1 && mark_hostonly /etc/systemd/system/initrd.target.wants/"${_name}".device
+        ln -s ../../../../lib/systemd/system/blockdev@.target "${PREFIX}/etc/systemd/system/initrd.target.wants/blockdev@${_name}.target"
+        type mark_hostonly > /dev/null 2>&1 && mark_hostonly "${PREFIX}/etc/systemd/system/initrd.target.wants/blockdev@${_name}.target"
         _needreload=1
     fi
 
@@ -132,7 +132,7 @@ cancel_wait_for_dev() {
     rm -f -- "$hookdir/emergency/80-${_name}.sh"
     if [ -n "$DRACUT_SYSTEMD" ]; then
         _name=$(dev_unit_name "$1")
-        rm -f -- "${PREFIX}/etc/systemd/system/initrd.target.wants/${_name}.device"
+        rm -f -- "${PREFIX}/etc/systemd/system/initrd.target.wants/blockdev@${_name}.target"
         rm -f -- "${PREFIX}/etc/systemd/system/${_name}.device.d/timeout.conf"
         /sbin/initqueue --onetime --unique --name daemon-reload systemctl daemon-reload
     fi
