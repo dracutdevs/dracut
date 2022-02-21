@@ -45,7 +45,6 @@ install() {
         "$systemdsystemunitdir"/sockets.target.wants/systemd-journald-audit.socket \
         "$systemdsystemunitdir"/sockets.target.wants/systemd-journald-dev-log.socket \
         "$systemdsystemunitdir"/sockets.target.wants/systemd-journald.socket \
-        "$systemdsystemunitdir"/sockets.target.wants/systemd-journald-audit.socket \
         "$systemdsystemunitdir"/sysinit.target.wants/systemd-journald.service \
         "$sysusers"/systemd-journal.conf \
         journalctl
