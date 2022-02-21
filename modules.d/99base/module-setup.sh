@@ -13,7 +13,7 @@ depends() {
 
 # called by dracut
 install() {
-    inst_multiple mount mknod mkdir sleep chroot chown \
+    inst_multiple mount mknod mkdir sleep chown \
         sed ls flock cp mv dmesg rm ln rmmod mkfifo umount readlink setsid \
         modprobe chmod tr
 
