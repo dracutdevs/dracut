@@ -30,11 +30,7 @@ install() {
     I18N_CONF="/etc/locale.conf"
     VCONFIG_CONF="/etc/vconsole.conf"
 
-    findkeymap() {
-        # shellcheck disable=SC2064
-        trap "$(shopt -p nullglob globstar)" RETURN
-        shopt -q -s nullglob globstar
-
+    _findkeymap() {
         local -a MAPS
         local MAPNAME
         local INCLUDES
@@ -66,10 +62,19 @@ install() {
             for INCL in "${INCLUDES[@]}"; do
                 for FN in "$dracutsysrootdir""${kbddir}"/keymaps/**/"$INCL"*; do
                     [[ -f $FN ]] || continue
-                    [[ -v KEYMAPS["$FN"] ]] || findkeymap "$FN"
+                    [[ -v KEYMAPS["$FN"] ]] || _findkeymap "$FN"
                 done
             done
         done
+    }
+
+    # Wrapper around the recursive _findkeymap making sure the shell
+    # options are restored correctly
+    findkeymap() {
+        # shellcheck disable=SC2064
+        trap "$(shopt -p nullglob globstar)" RETURN
+        shopt -q -s nullglob globstar
+        _findkeymap "$@"
     }
 
     # Function gathers variables from distributed files among the tree, maps to
