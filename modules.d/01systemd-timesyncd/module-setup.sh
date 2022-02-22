@@ -20,7 +20,7 @@ check() {
 depends() {
 
     # This module has external dependency on other module(s).
-    echo dbus systemd-timedated
+    echo dbus systemd-sysusers systemd-timedated
     # Return 0 to include the dependent module(s) in the initramfs.
     return 0
 
