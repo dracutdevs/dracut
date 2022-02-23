@@ -52,10 +52,12 @@ source_hook cmdline
 case "${root#block:}${root_unset}" in
     LABEL=* | UUID=* | PARTUUID=* | PARTLABEL=*)
         root="block:$(label_uuid_to_dev "${root#block:}")"
+        rm /usr/lib/systemd/system-generators/systemd-gpt-auto-generator
         rootok=1
         ;;
     /dev/*)
         root="block:${root#block:}"
+        rm /usr/lib/systemd/system-generators/systemd-gpt-auto-generator
         rootok=1
         ;;
     UNSET | gpt-auto | tmpfs)
