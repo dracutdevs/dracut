@@ -1798,12 +1798,12 @@ fi
 [[ -d $dracutsysrootdir$tmpfilesconfdir ]] || tmpfilesconfdir=/etc/tmpfiles.d
 
 [[ -d $dracutsysrootdir$depmodd ]] \
-    || sysctld=$(pkg-config libkmod --variable=depmodd 2> /dev/null)
+    || depmodd=$(pkg-config libkmod --variable=depmodd 2> /dev/null)
 
 [[ -d $dracutsysrootdir$depmodd ]] || depmodd=/usr/lib/depmod.d
 
 [[ -d $dracutsysrootdir$depmodconfdir ]] \
-    || sysctlconfdir=$(pkg-config libkmod --variable=depmodconfdir 2> /dev/null)
+    || depmodconfdir=$(pkg-config libkmod --variable=depmodconfdir 2> /dev/null)
 
 [[ -d $dracutsysrootdir$depmodconfdir ]] || depmodconfdir=/etc/depmod.d
 
@@ -1820,7 +1820,7 @@ export initdir dracutbasedir \
     dbusinterfacesconfdir dbusservices dbusservicesconfdir dbussession \
     dbussessionconfdir dbussystem dbussystemconfdir dbussystemservices \
     dbussystemservicesconfdir environment environmentconfdir modulesload \
-    modulesloadconfdir sysctl sysctlconfdir sysusers sysusersconfdir \
+    modulesloadconfdir sysctld sysctlconfdir sysusers sysusersconfdir \
     systemdutildir systemdutilconfdir systemdcatalog systemdntpunits \
     systemdntpunitsconfdir systemdsystemunitdir systemdsystemconfdir \
     hostonly_cmdline loginstall tmpfilesdir tmpfilesconfdir depmodd \
