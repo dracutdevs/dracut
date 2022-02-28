@@ -180,7 +180,7 @@ else
                 printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="%s ' "$(command -v initqueue)"
                 printf -- '--unique --settled --onetime --name cryptroot-ask-%%k '
                 # shellcheck disable=SC2016
-                printf -- '%s $env{DEVNAME} luks-$env{ID_FS_UUID} %s"\n' "$(command -v cryptroot-ask)" "$tout"
+                printf -- '%s $env{DEVNAME} luks-$env{ID_FS_UUID} 0 %s"\n' "$(command -v cryptroot-ask)" "$tout"
             } >> /etc/udev/rules.d/70-luks.rules.new
         else
             {
