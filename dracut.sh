@@ -2558,8 +2558,6 @@ else
     fi
 fi
 
-command -v restorecon &> /dev/null && restorecon -- "$outfile"
-
 btrfs_uuid() {
     btrfs filesystem show "$1" | sed -n '1s/^.*uuid: //p'
 }
