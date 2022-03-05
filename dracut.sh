@@ -228,6 +228,9 @@ Creates initial ramdisk images for preloading modules
                          otherwise you will not be able to boot.
   --no-compress         Do not compress the generated initramfs.  This will
                          override any other compression options.
+  --squash-compressor [COMPRESSION] Specify the compressor and compressor
+                         specific options used by mksquashfs if squash module
+                         is called when building the initramfs.
   --enhanced-cpio       Attempt to reflink cpio file data using dracut-cpio.
   --list-modules        List all available dracut modules.
   -M, --show-modules    Print included module's name to standard output during
@@ -373,6 +376,7 @@ rearrange_params() {
             --long sysroot: \
             --long stdlog: \
             --long compress: \
+            --long squash-compressor: \
             --long prefix: \
             --long rebuild: \
             --long force \
@@ -659,6 +663,11 @@ while :; do
             ;;
         --compress)
             compress_l="$2"
+            PARMS_TO_STORE+=" '$2'"
+            shift
+            ;;
+        --squash-compressor)
+            squash_compress_l="$2"
             PARMS_TO_STORE+=" '$2'"
             shift
             ;;
@@ -996,6 +1005,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $tmpdir ]] || tmpdir="$dracutsysrootdir"/var/tmp
 [[ $INITRD_COMPRESS ]] && compress=$INITRD_COMPRESS
 [[ $compress_l ]] && compress=$compress_l
+[[ $squash_compress_l ]] && squash_compress=$squash_compress_l
 [[ $enhanced_cpio_l ]] && enhanced_cpio=$enhanced_cpio_l
 [[ $show_modules_l ]] && show_modules=$show_modules_l
 [[ $nofscks_l ]] && nofscks="yes"
@@ -1446,6 +1456,10 @@ for line in "${fstab_lines[@]}"; do
                 push_host_devs "$i"
             done
         done
+    elif [[ $3 == zfs ]]; then
+        for mp in $(zfs_devs "$1"); do
+            push_host_devs "$mp"
+        done
     fi
     push_host_devs "$dev"
     host_fs_types["$dev"]="$3"
@@ -1498,7 +1512,13 @@ if [[ $hostonly ]] && [[ $hostonly_default_device != "no" ]]; then
                 [[ $mp == "/" ]] && root_devs+=("$i")
                 push_host_devs "$i"
             done
+        elif [[ $(find_mp_fstype "$mp") == zfs ]]; then
+            for i in $(zfs_devs "$(findmnt -n -o SOURCE "$mp")"); do
+                [[ $mp == "/" ]] && root_devs+=("$i")
+                push_host_devs "$i"
+            done
         fi
+
     done
 
     # TODO - with sysroot, /proc/swaps is not relevant
@@ -1549,6 +1569,10 @@ if [[ $hostonly ]] && [[ $hostonly_default_device != "no" ]]; then
             push_host_devs "$_dev"
             if [[ $_t == btrfs ]]; then
                 for i in $(btrfs_devs "$_m"); do
+                    push_host_devs "$i"
+                done
+            elif [[ $_t == zfs ]]; then
+                for i in $(zfs_devs "$_d"); do
                     push_host_devs "$i"
                 done
             fi
@@ -1788,12 +1812,12 @@ fi
 [[ -d $dracutsysrootdir$tmpfilesconfdir ]] || tmpfilesconfdir=/etc/tmpfiles.d
 
 [[ -d $dracutsysrootdir$depmodd ]] \
-    || sysctld=$(pkg-config libkmod --variable=depmodd 2> /dev/null)
+    || depmodd=$(pkg-config libkmod --variable=depmodd 2> /dev/null)
 
 [[ -d $dracutsysrootdir$depmodd ]] || depmodd=/usr/lib/depmod.d
 
 [[ -d $dracutsysrootdir$depmodconfdir ]] \
-    || sysctlconfdir=$(pkg-config libkmod --variable=depmodconfdir 2> /dev/null)
+    || depmodconfdir=$(pkg-config libkmod --variable=depmodconfdir 2> /dev/null)
 
 [[ -d $dracutsysrootdir$depmodconfdir ]] || depmodconfdir=/etc/depmod.d
 
@@ -1810,7 +1834,7 @@ export initdir dracutbasedir \
     dbusinterfacesconfdir dbusservices dbusservicesconfdir dbussession \
     dbussessionconfdir dbussystem dbussystemconfdir dbussystemservices \
     dbussystemservicesconfdir environment environmentconfdir modulesload \
-    modulesloadconfdir sysctl sysctlconfdir sysusers sysusersconfdir \
+    modulesloadconfdir sysctld sysctlconfdir sysusers sysusersconfdir \
     systemdutildir systemdutilconfdir systemdcatalog systemdntpunits \
     systemdntpunitsconfdir systemdsystemunitdir systemdsystemconfdir \
     hostonly_cmdline loginstall tmpfilesdir tmpfilesconfdir depmodd \
@@ -2290,11 +2314,11 @@ if dracut_module_included "squash"; then
     dinfo "*** Squashing the files inside the initramfs ***"
     declare squash_compress_arg
     # shellcheck disable=SC2086
-    if [[ $compress ]]; then
-        if ! mksquashfs /dev/null "$DRACUT_TMPDIR"/.squash-test.img -no-progress -comp $compress &> /dev/null; then
-            dwarn "mksquashfs doesn't support compressor '$compress', failing back to default compressor."
+    if [[ $squash_compress ]]; then
+        if ! mksquashfs /dev/null "$DRACUT_TMPDIR"/.squash-test.img -no-progress -comp $squash_compress &> /dev/null; then
+            dwarn "mksquashfs doesn't support compressor '$squash_compress', failing back to default compressor."
         else
-            squash_compress_arg="$compress"
+            squash_compress_arg="$squash_compress"
         fi
     fi
 
@@ -2576,6 +2600,9 @@ freeze_ok_for_fstype() {
     fstype=$(stat -f -c %T -- "$outfile")
     case $fstype in
         msdos)
+            return 1
+            ;;
+        zfs)
             return 1
             ;;
         btrfs)

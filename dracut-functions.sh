@@ -780,6 +780,14 @@ btrfs_devs() {
         done
 }
 
+zfs_devs() {
+    local _mp="$1"
+    zpool list -H -v -P "${_mp%%/*}" | awk -F$'\t' '$2 ~ /^\// {print $2}' \
+        | while read -r _dev; do
+            realpath "${_dev}"
+        done
+}
+
 iface_for_remote_addr() {
     # shellcheck disable=SC2046
     set -- $(ip -o route get to "$1")

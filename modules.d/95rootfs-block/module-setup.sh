@@ -44,6 +44,11 @@ cmdline_rootfs() {
         printf " root=%s" "$(shorten_persistent_dev "$(get_persistent_dev "$_dev")")"
     fi
     _fstype="$(find_mp_fstype /)"
+    if [[ ${_fstype} == "zfs" ]]; then
+        local _root_ds
+        _root_ds="$(findmnt -n -o SOURCE /)"
+        printf " root=zfs:%s" "${_root_ds// /+}"
+    fi
     _flags="$(find_mp_fsopts /)"
     if [ -n "$_fstype" ]; then
         printf " rootfstype=%s" "$_fstype"
