@@ -8,6 +8,8 @@ isofile=$1
 
 [ -z "$isofile" ] && exit 1
 
+copytoram=$2
+
 ismounted "/run/initramfs/isoscan" && exit 0
 
 mkdir -p "/run/initramfs/isoscan"
@@ -21,7 +23,15 @@ do_iso_scan() {
         : > /tmp/isoscan-"${_name}"
         mount -t auto -o ro "$dev" "/run/initramfs/isoscan" || continue
         if [ -f "/run/initramfs/isoscan/$isofile" ]; then
-            losetup -f "/run/initramfs/isoscan/$isofile"
+            if [ -n "$copytoram" ]; then
+                mount -o remount,size=100% /run
+                cp "/run/initramfs/isoscan/$isofile" "/run/initramfs/scan.iso"
+                losetup -f "/run/initramfs/scan.iso"
+                umount "/run/initramfs/isoscan"
+                rmdir "/run/initramfs/isoscan"
+            else
+                losetup -f "/run/initramfs/isoscan/$isofile"
+            fi
             ln -s "$dev" /run/initramfs/isoscandev
             rm -f -- "$job"
             exit 0
