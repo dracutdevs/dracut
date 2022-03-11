@@ -76,7 +76,7 @@ fi
 
 if [ -e /etc/selinux/config -a -x /usr/sbin/setfiles ]; then
     . /etc/selinux/config
-    /usr/sbin/setfiles -v -r /run/initramfs /etc/selinux/"${SELINUXTYPE}"/contexts/files/file_contexts /run/initramfs > /dev/null
+    [ -n "${SELINUXTYPE}" ] && /usr/sbin/setfiles -v -r /run/initramfs /etc/selinux/"${SELINUXTYPE}"/contexts/files/file_contexts /run/initramfs > /dev/null
 fi
 
 exit 0
