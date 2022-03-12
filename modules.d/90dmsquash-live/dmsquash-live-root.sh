@@ -88,7 +88,7 @@ else
         # no mount needed - we've already got the LiveOS image in $livedev
         SQUASHED=$livedev
     elif [ "$livedev_fstype" != "ntfs" ]; then
-        if ! mount -n -t "$fstype" -o "${liverw:-ro}" "$livedev" /run/initramfs/live; then
+        if ! mount -n -t "$livedev_fstype" -o "${liverw:-ro}" "$livedev" /run/initramfs/live; then
             die "Failed to mount block device of live image"
             exit 1
         fi
