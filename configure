@@ -104,6 +104,32 @@ if test $found = no; then
     exit 1
 fi
 
+cat << EOF > conftest.c
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/syscall.h>
+
+#ifndef SYS_gettid
+#error "SYS_gettid unavailable on this system"
+#endif
+
+#define gettid()    ((pid_t) syscall(SYS_gettid))
+
+int main(void) {
+  return getpid() == gettid() ? 0 : -1;
+}
+EOF
+
+# shellcheck disable=SC2086
+${CC} $CFLAGS $LDFLAGS conftest.c > /dev/null 2>&1
+ret=$?
+rm -f conftest.c a.out
+
+if test $ret -ne 0; then
+    echo "dracut needs SYS_gettid support." >&2
+    exit 1
+fi
+
 if test "$enable_dracut_cpio" = "yes"; then
     cargo --version > /dev/null
     ret=$?

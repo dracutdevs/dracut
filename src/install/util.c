@@ -28,10 +28,6 @@
 
 #include "util.h"
 
-#ifndef SYS_gettid
-#error "SYS_gettid unavailable on this system"
-#endif
-
 #define gettid()    ((pid_t) syscall(SYS_gettid))
 
 size_t page_size(void)
