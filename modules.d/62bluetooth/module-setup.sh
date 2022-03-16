@@ -55,7 +55,7 @@ install() {
     shopt -q -s nullglob globstar
     local -a var_lib_files
 
-    inst_multiple \
+    inst_multiple -o \
         "$dbussystem"/bluetooth.conf \
         "${systemdsystemunitdir}/bluetooth.target" \
         "${systemdsystemunitdir}/bluetooth.service" \
