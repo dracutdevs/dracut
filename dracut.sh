@@ -1352,12 +1352,18 @@ if [[ ! $print_cmdline ]]; then
             exit 1
         fi
         unset EFI_MACHINE_TYPE_NAME
+        EFI_SECTION_VMA_INITRD=0x3000000
         case $(uname -m) in
             x86_64)
                 EFI_MACHINE_TYPE_NAME=x64
                 ;;
             i?86)
                 EFI_MACHINE_TYPE_NAME=ia32
+                ;;
+            aarch64)
+                EFI_MACHINE_TYPE_NAME=aa64
+                 # aarch64 kernels are uncompressed and thus larger, so we need a bigger gap between vma sections
+                EFI_SECTION_VMA_INITRD=0x4000000
                 ;;
             *)
                 dfatal "Architecture '$(uname -m)' not supported to create a UEFI executable"
@@ -2540,7 +2546,7 @@ if [[ $uefi == yes ]]; then
         ${uefi_cmdline:+--add-section .cmdline="$uefi_cmdline" --change-section-vma .cmdline=0x30000} \
         ${uefi_splash_image:+--add-section .splash="$uefi_splash_image" --change-section-vma .splash=0x40000} \
         --add-section .linux="$kernel_image" --change-section-vma .linux=0x2000000 \
-        --add-section .initrd="${DRACUT_TMPDIR}/initramfs.img" --change-section-vma .initrd=0x3000000 \
+        --add-section .initrd="${DRACUT_TMPDIR}/initramfs.img" --change-section-vma .initrd="${EFI_SECTION_VMA_INITRD}" \
         "$uefi_stub" "${uefi_outdir}/linux.efi"; then
         if [[ -n ${uefi_secureboot_key} && -n ${uefi_secureboot_cert} ]]; then
             if sbsign \
