@@ -1362,7 +1362,7 @@ if [[ ! $print_cmdline ]]; then
                 ;;
             aarch64)
                 EFI_MACHINE_TYPE_NAME=aa64
-                 # aarch64 kernels are uncompressed and thus larger, so we need a bigger gap between vma sections
+                # aarch64 kernels are uncompressed and thus larger, so we need a bigger gap between vma sections
                 EFI_SECTION_VMA_INITRD=0x4000000
                 ;;
             *)
