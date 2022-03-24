@@ -90,7 +90,7 @@ all_ifaces_setup() {
 
 get_netroot_ip() {
     local prefix="" server="" rest=""
-    splitsep "$1" ":" prefix server rest
+    splitsep ":" "$1" prefix server rest
     case $server in
         [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*)
             echo "$server"
@@ -101,7 +101,8 @@ get_netroot_ip() {
 }
 
 ip_is_local() {
-    strstr "$(ip route get "$@" 2> /dev/null)" " via "
+    strstr "$(ip route get "$@" 2> /dev/null)" " via " || return 0
+    return 1
 }
 
 ifdown() {
