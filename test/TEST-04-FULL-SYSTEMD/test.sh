@@ -47,8 +47,8 @@ test_run() {
 
 test_setup() {
     # shellcheck disable=SC2064
-    trap "$(shopt -p nullglob globstar)" RETURN
-    shopt -q -s nullglob globstar
+    trap "$(shopt -p globstar)" RETURN
+    shopt -q -s globstar
 
     export kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
