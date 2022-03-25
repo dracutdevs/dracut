@@ -51,8 +51,8 @@ installkernel() {
 # Install the required file(s) for the module in the initramfs.
 install() {
     # shellcheck disable=SC2064
-    trap "$(shopt -p nullglob globstar)" RETURN
-    shopt -q -s nullglob globstar
+    trap "$(shopt -p globstar)" RETURN
+    shopt -q -s globstar
     local -a var_lib_files
 
     inst_multiple -o \
