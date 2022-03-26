@@ -25,6 +25,7 @@ install() {
     # in an emergency shell.
     inst_multiple ip sed grep
 
+    inst_script "$moddir/netroot.sh" "/sbin/netroot"
     inst connmand
     inst connmanctl
     inst connmand-wait-online
