@@ -52,13 +52,13 @@ no_lvm_conf_filter() {
     # Save lvm config results in /run to avoid running
     # lvm config commands for every PV that's scanned.
 
-    filter=$(lvm config devices/filter | grep "$filter=")
+    filter=$(lvm config devices/filter 2> /dev/null | grep "$filter=")
     if [ -n "$filter" ]; then
         printf '%s\n' "$filter" > /run/lvm/initrd_filter
         return 1
     fi
 
-    global_filter=$(lvm config devices/global_filter | grep "$global_filter=")
+    global_filter=$(lvm config devices/global_filter 2> /dev/null | grep "$global_filter=")
     if [ -n "$global_filter" ]; then
         printf '%s\n' "$global_filter" > /run/lvm/initrd_global_filter
         return 1
