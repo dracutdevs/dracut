@@ -104,10 +104,10 @@ ask_for_password() {
                 shift
                 ;;
             --tty-echo-off) tty_echo_off=yes ;;
-	    --key-name)
-	        key_name="$2"
-		shift
-		;;
+            --key-name)
+                key_name="$2"
+            shift
+            ;;
         esac
         shift
     done
