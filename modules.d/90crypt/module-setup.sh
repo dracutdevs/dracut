@@ -6,6 +6,9 @@ check() {
     # if cryptsetup is not installed, then we cannot support encrypted devices.
     require_any_binary "$systemdutildir"/systemd-cryptsetup cryptsetup || return 1
 
+    # keyctl is optional, if it's detected by install() it's included
+    # and ask_for_password can store keys in the kernel keyring
+
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for fs in "${host_fs_types[@]}"; do
             [[ $fs == "crypto_LUKS" ]] && return 0
@@ -102,6 +105,12 @@ install() {
         inst_script "$moddir"/probe-keydev.sh /sbin/probe-keydev
         inst_hook cmdline 10 "$moddir/parse-keydev.sh"
         inst_hook cleanup 30 "$moddir/crypt-cleanup.sh"
+
+        # keyctl if present
+        if find_binary keyctl &>/dev/null; then
+            inst_multiple keyctl tee
+            inst_script "$moddir"/password-helper.sh /bin/password-helper
+        fi
     fi
 
     if [[ $hostonly ]] && [[ -f $dracutsysrootdir/etc/crypttab ]]; then

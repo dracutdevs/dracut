@@ -48,6 +48,10 @@ crypttab_contains() {
 # --tty-echo-off
 #   Turn off input echo before tty command is executed and turn on after.
 #   It's useful when password is read from stdin.
+# --key-name name
+#   Insert the password into the user keyring for later usage.
+#   (This can be used by pam_gdm.so to unlock a GNOME keyring
+#    without a password when name == "cryptsetup")
 ask_for_password() {
     local ply_cmd
     local ply_prompt
@@ -55,6 +59,7 @@ ask_for_password() {
     local tty_cmd
     local tty_prompt
     local tty_tries=3
+    local key_name
     local ret
 
     while [ $# -gt 0 ]; do
@@ -99,9 +104,19 @@ ask_for_password() {
                 shift
                 ;;
             --tty-echo-off) tty_echo_off=yes ;;
+	    --key-name)
+	        key_name="$2"
+		shift
+		;;
         esac
         shift
     done
+
+    # should we add the key to the root user's keyring?
+    if [ ! -z "$key_name" ] && command -v keyctl &>/dev/null; then
+        ply_cmd="password-helper ${key_name} ${ply_cmd}"
+        tty_cmd="password-helper ${key_name} ${tty_cmd}"
+    fi
 
     {
         flock -s 9
