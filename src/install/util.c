@@ -27,6 +27,7 @@
 
 #include "util.h"
 
+#ifdef __GLIBC__
 #if __GLIBC_PREREQ(2, 30) == 0
 #include <sys/syscall.h>
 #ifndef SYS_gettid
@@ -35,6 +36,7 @@
 
 #define gettid()    ((pid_t) syscall(SYS_gettid))
 #endif /*__GLIBC_PREREQ */
+#endif /* __GLIBC__ */
 
 size_t page_size(void)
 {
