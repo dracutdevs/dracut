@@ -1042,12 +1042,12 @@ if ! [[ $outfile ]]; then
     if [[ $uefi == "yes" ]]; then
         # shellcheck disable=SC2154
         if [[ -n $uefi_secureboot_key && -z $uefi_secureboot_cert ]] || [[ -z $uefi_secureboot_key && -n $uefi_secureboot_cert ]]; then
-            dfatal "Need 'uefi_secureboot_key' and 'uefi_secureboot_cert' both to be set."
+            printf "%s\n" "dracut: Need 'uefi_secureboot_key' and 'uefi_secureboot_cert' both to be set." >&2
             exit 1
         fi
 
         if [[ -n $uefi_secureboot_key && -n $uefi_secureboot_cert ]] && ! command -v sbsign &> /dev/null; then
-            dfatal "Need 'sbsign' to create a signed UEFI executable"
+            printf "%s\n" "dracut: Need 'sbsign' to create a signed UEFI executable." >&2
             exit 1
         fi
 
