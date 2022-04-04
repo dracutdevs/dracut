@@ -104,6 +104,8 @@ Creates initial ramdisk images for preloading modules
                          modules
   --fwdir [DIR]         Specify additional directories, where to look for
                          firmwares, separated by :
+  --libdirs [LIST]      Specify a space-separated list of directories
+                         where to look for libraries.
   --kernel-only         Only install kernel drivers and firmware files
   --no-kernel           Do not install kernel drivers and firmware files
   --print-cmdline       Print the kernel command line for the given disk layout
