@@ -107,7 +107,7 @@ install() {
         inst_hook cleanup 30 "$moddir/crypt-cleanup.sh"
 
         # keyctl if present
-        if find_binary keyctl &>/dev/null; then
+        if find_binary keyctl > /dev/null; then
             inst_multiple keyctl tee
             inst_script "$moddir"/password-helper.sh /bin/password-helper
         fi

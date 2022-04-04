@@ -106,14 +106,14 @@ ask_for_password() {
             --tty-echo-off) tty_echo_off=yes ;;
             --key-name)
                 key_name="$2"
-            shift
-            ;;
+                shift
+                ;;
         esac
         shift
     done
 
     # should we add the key to the root user's keyring?
-    if [ ! -z "$key_name" ] && command -v keyctl &>/dev/null; then
+    if [ -n "$key_name" ] && command -v keyctl > /dev/null; then
         ply_cmd="password-helper ${key_name} ${ply_cmd}"
         tty_cmd="password-helper ${key_name} ${tty_cmd}"
     fi
