@@ -104,7 +104,7 @@ interface_bind() {
     local _macaddr="$2"
 
     if [ ! -e "/sys/class/net/$_netif" ]; then
-        derror "Cannot find network interface '$_netif'!"
+        warn "Cannot find network interface '$_netif'!"
         return 1
     fi
 
