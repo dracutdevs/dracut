@@ -236,6 +236,20 @@ inst() {
     fi
 }
 
+inst_recur() {
+    for x in "$dracutsysrootdir${1%/}"/*; do
+        x=${x#$dracutsysrootdir}
+        if [[ -d "$dracutsysrootdir$x" ]]; then
+            inst_dir "$x"
+            inst_recur "$x"
+        elif [[ -f "$dracutsysrootdir$x" ]]; then
+            inst "$x"
+        else
+            break
+        fi
+    done
+}
+
 inst_simple() {
     local _ret _hostonly_install
     if [[ $1 == "-H" ]]; then
