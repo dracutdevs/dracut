@@ -56,7 +56,7 @@ add_url_handler() {
 
 export CURL_HOME="/run/initramfs/url-lib"
 mkdir -p $CURL_HOME
-curl_args="--globoff --location --retry 3 --fail --show-error"
+curl_args="--globoff --location --retry 3 --retry-connrefused --fail --show-error"
 getargbool 0 rd.noverifyssl && curl_args="$curl_args --insecure"
 
 proxy=$(getarg proxy=)
