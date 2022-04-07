@@ -19,6 +19,8 @@ pkglib_dir() {
 check() {
     [[ "$mount_needs" ]] && return 1
     [[ $(pkglib_dir) ]] || return 1
+    dracut_module_included boot-animation && return 1
+    dracut_module_included plymouth-ng && return 1
 
     require_binaries plymouthd plymouth plymouth-set-default-theme
 }
