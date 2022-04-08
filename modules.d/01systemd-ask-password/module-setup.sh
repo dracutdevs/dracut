@@ -39,7 +39,7 @@ install() {
     $SYSTEMCTL -q --root "$initdir" enable systemd-ask-password-console.service
 
     # Install systemd-ask-password plymouth units if plymouth is enabled.
-    if dracut_module_included "plymouth"; then
+    if dracut_module_included "plymouth" || dracut_module_included "plymouth-ng"; then
         inst_multiple -o \
             "$systemdsystemunitdir"/systemd-ask-password-plymouth.path \
             "$systemdsystemunitdir"/systemd-ask-password-plymouth.service
