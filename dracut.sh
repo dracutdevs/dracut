@@ -2535,6 +2535,12 @@ if [[ $uefi == yes ]]; then
 
     [[ -s $dracutsysrootdir/usr/lib/os-release ]] && uefi_osrelease="$dracutsysrootdir/usr/lib/os-release"
     [[ -s $dracutsysrootdir/etc/os-release ]] && uefi_osrelease="$dracutsysrootdir/etc/os-release"
+    if ! grep -q VERSION= "$uefi_osrelease"; then
+        cp "$uefi_osrelease" "${uefi_outdir}/os-release"
+        uefi_osrelease="${uefi_outdir}/os-release"
+        printf "VERSION=%s\n" "$kernel" >> "$uefi_osrelease"
+    fi
+
     if [[ -s ${dracutsysrootdir}${uefi_splash_image} ]]; then
         uefi_splash_image="${dracutsysrootdir}${uefi_splash_image}"
     else
