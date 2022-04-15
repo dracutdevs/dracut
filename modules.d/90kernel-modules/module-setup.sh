@@ -3,6 +3,7 @@
 # called by dracut
 installkernel() {
     local _blockfuncs='ahci_platform_get_resources|ata_scsi_ioctl|scsi_add_host|blk_cleanup_queue|register_mtd_blktrans|scsi_esp_register|register_virtio_device|usb_stor_disconnect|mmc_add_host|sdhci_add_host|scsi_add_host_with_dma|blk_mq_alloc_disk|blk_cleanup_disk'
+    local _blockdrv_list="scsi_dh_rdac scsi_dh_emc scsi_dh_alua nvme vmd virtio_blk virtio_scsi"
     local -A _hostonly_drvs
 
     find_kernel_modules_external() {
@@ -29,16 +30,23 @@ installkernel() {
         return 1
     }
 
+    check_hostonly_block_by_sysmod() {
+        for _mod in $_blockdrv_list; do
+            if [ -f /sys/module/$_mod/refcnt ] && [ $(cat /sys/module/$_mod/refcnt) -gt 0 ]; then
+                _hostonly_drvs["$_mod"]="$_mod"
+            fi
+        done
+    }
+
     install_block_modules_strict() {
         hostonly='' instmods "${_hostonly_drvs[@]}"
     }
 
     install_block_modules() {
         instmods \
-            scsi_dh_rdac scsi_dh_emc scsi_dh_alua \
+            "$_blockdrv_list" \
             =drivers/usb/storage \
-            =ide nvme vmd \
-            virtio_blk virtio_scsi
+            =ide
 
         dracut_instmods -o -s "${_blockfuncs}" "=drivers"
     }
@@ -111,6 +119,8 @@ installkernel() {
         if ! [[ $hostonly ]] \
             || for_each_host_dev_and_slaves_all record_block_dev_drv; then
             hostonly='' instmods sg sr_mod sd_mod scsi_dh ata_piix
+
+            check_hostonly_block_by_sysmod
 
             if [[ $hostonly_mode == "strict" ]]; then
                 install_block_modules_strict
