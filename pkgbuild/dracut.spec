@@ -386,6 +386,7 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %{dracutlibdir}/modules.d/95terminfo
 %{dracutlibdir}/modules.d/95udev-rules
 %{dracutlibdir}/modules.d/95virtfs
+%{dracutlibdir}/modules.d/95virtiofs
 %ifarch s390 s390x
 %{dracutlibdir}/modules.d/80cms
 %{dracutlibdir}/modules.d/81cio_ignore
