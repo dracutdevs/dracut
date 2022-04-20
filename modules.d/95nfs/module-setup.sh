@@ -21,7 +21,7 @@ get_nfs_type() {
 check() {
     # If our prerequisites are not met, fail anyways.
     require_any_binary rpcbind portmap || return 1
-    require_binaries rpc.statd mount.nfs mount.nfs4 umount || return 1
+    require_binaries rpc.statd mount.nfs mount.nfs4 umount sed chmod chown || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         [[ "$(get_nfs_type)" ]] && return 0
@@ -76,7 +76,7 @@ cmdline() {
 # called by dracut
 install() {
     local _nsslibs
-    inst_multiple -o rpc.idmapd mount.nfs mount.nfs4 umount sed /etc/netconfig chmod "$tmpfilesdir/rpcbind.conf"
+    inst_multiple -o rpc.idmapd mount.nfs mount.nfs4 umount sed /etc/netconfig chmod chown "$tmpfilesdir/rpcbind.conf"
     inst_multiple -o /etc/idmapd.conf
     inst_multiple -o /etc/services /etc/nsswitch.conf /etc/rpc /etc/protocols
     inst_multiple -o /usr/etc/services /usr/etc/nsswitch.conf /usr/etc/rpc /usr/etc/protocols
