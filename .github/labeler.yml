@@ -228,6 +228,9 @@ udev-rules:
 virtfs:
   - modules.d/95virtfs/*
 
+virtiofs:
+  - modules.d/95virtiofs/*
+
 zfcp:
   - modules.d/95zfcp/*
 
