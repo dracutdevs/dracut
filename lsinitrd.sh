@@ -109,7 +109,13 @@ if [[ $1 ]]; then
         exit 1
     fi
 else
-    [[ -f /etc/machine-id ]] && read -r MACHINE_ID < /etc/machine-id
+    if [[ -d /efi/Default ]] || [[ -d /boot/Default ]] || [[ -d /boot/efi/Default ]]; then
+        MACHINE_ID="Default"
+    elif [[ -f /etc/machine-id ]]; then
+        read -r MACHINE_ID < /etc/machine-id
+    else
+        MACHINE_ID="Default"
+    fi
 
     if [[ -d /efi/loader/entries || -L /efi/loader/entries ]] \
         && [[ $MACHINE_ID ]] \
@@ -119,8 +125,20 @@ else
         && [[ $MACHINE_ID ]] \
         && [[ -d /boot/${MACHINE_ID} || -L /boot/${MACHINE_ID} ]]; then
         image="/boot/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
-    else
+    elif [[ -d /boot/efi/loader/entries || -L /boot/efi/loader/entries ]] \
+        && [[ $MACHINE_ID ]] \
+        && [[ -d /boot/efi/${MACHINE_ID} || -L /boot/efi/${MACHINE_ID} ]]; then
+        image="/boot/efi/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
+    elif [[ -f /lib/modules/${KERNEL_VERSION}/initrd ]]; then
+        image="/lib/modules/${KERNEL_VERSION}/initrd"
+    elif [[ -f /boot/initramfs-${KERNEL_VERSION}.img ]]; then
         image="/boot/initramfs-${KERNEL_VERSION}.img"
+    elif mountpoint -q /efi; then
+        image="/efi/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
+    elif mountpoint -q /boot/efi; then
+        image="/boot/efi/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
+    else
+        image=""
     fi
 fi
 
