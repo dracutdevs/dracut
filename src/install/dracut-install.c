@@ -163,12 +163,17 @@ static char *convert_abs_rel(const char *from, const char *target)
 {
         /* we use the 4*MAXPATHLEN, which should not overrun */
         char relative_from[MAXPATHLEN * 4];
-        _cleanup_free_ char *realtarget = NULL;
+        _cleanup_free_ char *realfrom = NULL, *realtarget = NULL;
         _cleanup_free_ char *target_dir_p = NULL, *realpath_p = NULL;
-        const char *realfrom = from;
         size_t level = 0, fromlevel = 0, targetlevel = 0;
         int l;
         size_t i, rl, dirlen;
+
+        realfrom = realpath(from, NULL);
+        if (!realfrom) {
+                log_warning("convert_abs_rel(): source '%s' has no realpath: %m", from);
+                realfrom = strdup(from);
+        }
 
         target_dir_p = strdup(target);
         if (!target_dir_p)
@@ -176,10 +181,10 @@ static char *convert_abs_rel(const char *from, const char *target)
 
         dirlen = dir_len(target_dir_p);
         target_dir_p[dirlen] = '\0';
-        realpath_p = realpath(target_dir_p, NULL);
 
-        if (realpath_p == NULL) {
-                log_warning("convert_abs_rel(): target '%s' directory has no realpath.", target);
+        realpath_p = realpath(target_dir_p, NULL);
+        if (!realpath_p) {
+                log_warning("convert_abs_rel(): target '%s' directory has no realpath: %m", target);
                 return strdup(from);
         }
 
