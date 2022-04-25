@@ -1,10 +1,8 @@
 #  This file is part of dracut.
-#
-# See dracut.bootup(7) for details
 
 [Unit]
 Description=dracut mount hook
-Documentation=man:dracut-mount.service(8)
+Documentation=man:dracut-mount.service(8) man:dracut.bootup(7)
 After=initrd-root-fs.target initrd-parse-etc.service
 After=dracut-initqueue.service dracut-pre-mount.service
 ConditionPathExists=/usr/lib/initrd-release
