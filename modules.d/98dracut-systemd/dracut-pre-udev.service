@@ -1,10 +1,8 @@
 #  This file is part of dracut.
-#
-# See dracut.bootup(7) for details
 
 [Unit]
 Description=dracut pre-udev hook
-Documentation=man:dracut-pre-udev.service(8)
+Documentation=man:dracut-pre-udev.service(8) man:dracut.bootup(7)
 DefaultDependencies=no
 Before=systemd-udevd.service dracut-pre-trigger.service
 After=dracut-cmdline.service
