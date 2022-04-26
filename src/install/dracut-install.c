@@ -1371,18 +1371,20 @@ static int install_all(int argc, char **argv)
 
 static int install_firmware_fullpath(const char *fwpath)
 {
-        const char *fw;
-        _cleanup_free_ char *fwpath_xz = NULL;
-        fw = fwpath;
+        const char *fw = fwpath;
+        _cleanup_free_ char *fwpath_compressed = NULL;
         struct stat sb;
         int ret;
         if (stat(fwpath, &sb) != 0) {
-                _asprintf(&fwpath_xz, "%s.xz", fwpath);
-                if (stat(fwpath_xz, &sb) != 0) {
-                        log_debug("stat(%s) != 0", fwpath);
-                        return 1;
+                _asprintf(&fwpath_compressed, "%s.zst", fwpath);
+                if (access(fwpath_compressed, F_OK) != 0) {
+                        strcpy(fwpath_compressed + strlen(fwpath) + 1, "xz");
+                        if (access(fwpath_compressed, F_OK) != 0) {
+                                log_debug("stat(%s) != 0", fwpath);
+                                return 1;
+                        }
                 }
-                fw = fwpath_xz;
+                fw = fwpath_compressed;
         }
         ret = dracut_install(fw, fw, false, false, true);
         if (ret == 0) {
