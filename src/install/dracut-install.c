@@ -1420,7 +1420,7 @@ static int install_firmware(struct kmod_module *mod)
 
                         _asprintf(&fwpath, "%s/%s", *q, value);
 
-                        if ((strstr(value, "*") != 0 || strstr(value, "?") != 0 || strstr(value, "[") != 0)
+                        if (strpbrk(value, "*?[") != NULL
                             && stat(fwpath, &sb) != 0) {
                                 size_t i;
                                 _cleanup_globfree_ glob_t globbuf;
