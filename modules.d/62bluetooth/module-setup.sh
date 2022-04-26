@@ -28,24 +28,23 @@ depends() {
 installkernel() {
     instmods bluetooth btrtl btintel btbcm bnep ath3k btusb rfcomm hidp
     inst_multiple -o \
-        /usr/lib/firmware/ar3k/AthrBT* \
-        /usr/lib/firmware/ar3k/ramps* \
-        /usr/lib/firmware/ath3k-1.fw \
-        /usr/lib/firmware/BCM2033-MD.hex \
-        /usr/lib/firmware/bfubase.frm \
-        /usr/lib/firmware/BT3CPCC.bin \
-        /usr/lib/firmware/brcm/*.hcd \
-        /usr/lib/firmware/mediatek/mt7622pr2h.bin \
-        /usr/lib/firmware/qca/nvm* \
-        /usr/lib/firmware/qca/crnv* \
-        /usr/lib/firmware/qca/rampatch* \
-        /usr/lib/firmware/qca/crbtfw* \
-        /usr/lib/firmware/rtl_bt/* \
-        /usr/lib/firmware/intel/ibt* \
-        /usr/lib/firmware/ti-connectivity/TIInit_* \
-        /usr/lib/firmware/nokia/bcmfw.bin \
-        /usr/lib/firmware/nokia/ti1273.bin
-
+        /lib/firmware/ar3k/AthrBT* \
+        /lib/firmware/ar3k/ramps* \
+        /lib/firmware/ath3k-1.fw* \
+        /lib/firmware/BCM2033-MD.hex* \
+        /lib/firmware/bfubase.frm* \
+        /lib/firmware/BT3CPCC.bin* \
+        /lib/firmware/brcm/*.hcd* \
+        /lib/firmware/mediatek/mt7622pr2h.bin* \
+        /lib/firmware/qca/nvm* \
+        /lib/firmware/qca/crnv* \
+        /lib/firmware/qca/rampatch* \
+        /lib/firmware/qca/crbtfw* \
+        /lib/firmware/rtl_bt/* \
+        /lib/firmware/intel/ibt* \
+        /lib/firmware/ti-connectivity/TIInit_* \
+        /lib/firmware/nokia/bcmfw.bin* \
+        /lib/firmware/nokia/ti1273.bin*
 }
 
 # Install the required file(s) for the module in the initramfs.
