@@ -742,7 +742,7 @@ static int dracut_mkdir(const char *src)
 
 static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir, bool resolvedeps, bool hashdst)
 {
-        struct stat sb, db;
+        struct stat sb;
         _cleanup_free_ char *fullsrcpath = NULL;
         _cleanup_free_ char *fulldstpath = NULL;
         _cleanup_free_ char *fulldstdir = NULL;
@@ -826,7 +826,7 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
                         return 1;
                 }
 
-                ret = stat(fulldstdir, &db);
+                ret = access(fulldstdir, F_OK);
 
                 if (ret < 0) {
                         _cleanup_free_ char *dname = NULL;
@@ -886,12 +886,12 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
                                 return 1;
                         }
 
-                        if (lstat(abspath, &sb) != 0) {
+                        if (faccessat(AT_FDCWD, abspath, F_OK, AT_SYMLINK_NOFOLLOW) != 0) {
                                 log_debug("lstat '%s': %m", abspath);
                                 return 1;
                         }
 
-                        if (lstat(fulldstpath, &sb) != 0) {
+                        if (faccessat(AT_FDCWD, fulldstpath, F_OK, AT_SYMLINK_NOFOLLOW) != 0) {
                                 _cleanup_free_ char *absdestpath = NULL;
 
                                 _asprintf(&absdestpath, "%s/%s", destrootdir,
@@ -1239,7 +1239,6 @@ static char **find_binary(const char *src)
         char *newsrc = NULL;
 
         STRV_FOREACH(q, pathdirs) {
-                struct stat sb;
                 char *fullsrcpath;
 
                 _asprintf(&newsrc, "%s/%s", *q, src);
@@ -1252,8 +1251,8 @@ static char **find_binary(const char *src)
                         continue;
                 }
 
-                if (lstat(fullsrcpath, &sb) != 0) {
-                        log_debug("stat(%s) != 0", fullsrcpath);
+                if (faccessat(AT_FDCWD, fullsrcpath, F_OK, AT_SYMLINK_NOFOLLOW) != 0) {
+                        log_debug("lstat(%s) != 0", fullsrcpath);
                         free(newsrc);
                         newsrc = NULL;
                         free(fullsrcpath);
@@ -1371,9 +1370,8 @@ static int install_firmware_fullpath(const char *fwpath)
 {
         const char *fw = fwpath;
         _cleanup_free_ char *fwpath_compressed = NULL;
-        struct stat sb;
         int ret;
-        if (stat(fwpath, &sb) != 0) {
+        if (access(fwpath, F_OK) != 0) {
                 _asprintf(&fwpath_compressed, "%s.zst", fwpath);
                 if (access(fwpath_compressed, F_OK) != 0) {
                         strcpy(fwpath_compressed + strlen(fwpath) + 1, "xz");
@@ -1416,12 +1414,11 @@ static int install_firmware(struct kmod_module *mod)
                 ret = -1;
                 STRV_FOREACH(q, firmwaredirs) {
                         _cleanup_free_ char *fwpath = NULL;
-                        struct stat sb;
 
                         _asprintf(&fwpath, "%s/%s", *q, value);
 
                         if (strpbrk(value, "*?[") != NULL
-                            && stat(fwpath, &sb) != 0) {
+                            && access(fwpath, F_OK) != 0) {
                                 size_t i;
                                 _cleanup_globfree_ glob_t globbuf;
 
