@@ -714,11 +714,11 @@ static int dracut_mkdir(const char *src)
                                 return 1;
                         }
                 } else if (errno != ENOENT) {
-                        log_error("ERROR: stat '%s': %s", parent, strerror(errno));
+                        log_error("ERROR: stat '%s': %m", parent);
                         return 1;
                 } else {
                         if (mkdir(parent, 0755) < 0) {
-                                log_error("ERROR: mkdir '%s': %s", parent, strerror(errno));
+                                log_error("ERROR: mkdir '%s': %m", parent);
                                 return 1;
                         }
                 }
