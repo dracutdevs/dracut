@@ -356,23 +356,23 @@ static int library_install(const char *src, const char *lib)
         char *q, *clibdir;
         int r, ret = 0;
 
-        p = strdup(lib);
-
-        r = dracut_install(p, p, false, false, true);
+        r = dracut_install(lib, lib, false, false, true);
         if (r != 0)
-                log_error("ERROR: failed to install '%s' for '%s'", p, src);
+                log_error("ERROR: failed to install '%s' for '%s'", lib, src);
         else
-                log_debug("Lib install: '%s'", p);
+                log_debug("Lib install: '%s'", lib);
         ret += r;
 
         /* also install lib.so for lib.so.* files */
-        q = strstr(p, ".so.");
+        q = strstr(lib, ".so.");
         if (q) {
-                q[3] = '\0';
+                p = strndup(lib, q - lib + 3);
 
                 /* ignore errors for base lib symlink */
                 if (dracut_install(p, p, false, false, true) == 0)
                         log_debug("Lib install: '%s'", p);
+
+                free(p);
         }
 
         /* Also try to install the same library from one directory above
@@ -384,7 +384,6 @@ static int library_install(const char *src, const char *lib)
            libc.so.6 (libc6,64bit, OS ABI: Linux 2.6.32) => /lib64/libc.so.6
          */
 
-        free(p);
         p = strdup(lib);
 
         pdir = dirname_malloc(p);
@@ -752,25 +751,24 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
         mode_t src_mode = 0;
         bool dst_exists = true;
         char *i = NULL;
-        _cleanup_free_ char *src;
-        _cleanup_free_ char *dst;
+        const char *src, *dst;
 
         if (sysrootdirlen) {
                 if (strncmp(orig_src, sysrootdir, sysrootdirlen) == 0) {
-                        src = strdup(orig_src + sysrootdirlen);
+                        src = orig_src + sysrootdirlen;
                         fullsrcpath = strdup(orig_src);
                 } else {
-                        src = strdup(orig_src);
+                        src = orig_src;
                         _asprintf(&fullsrcpath, "%s%s", sysrootdir, src);
                 }
                 if (strncmp(orig_dst, sysrootdir, sysrootdirlen) == 0)
-                        dst = strdup(orig_dst + sysrootdirlen);
+                        dst = orig_dst + sysrootdirlen;
                 else
-                        dst = strdup(orig_dst);
+                        dst = orig_dst;
         } else {
-                src = strdup(orig_src);
+                src = orig_src;
                 fullsrcpath = strdup(src);
-                dst = strdup(orig_dst);
+                dst = orig_dst;
         }
 
         log_debug("dracut_install('%s', '%s', %d, %d, %d)", src, dst, isdir, resolvedeps, hashdst);
@@ -1335,8 +1333,7 @@ static int install_all(int argc, char **argv)
 
                 } else {
                         if (strchr(argv[i], '*') == NULL) {
-                                _cleanup_free_ char *dest = strdup(argv[i]);
-                                ret = dracut_install(argv[i], dest, arg_createdir, arg_resolvedeps, true);
+                                ret = dracut_install(argv[i], argv[i], arg_createdir, arg_resolvedeps, true);
                         } else {
                                 _cleanup_free_ char *realsrc = NULL;
                                 _cleanup_globfree_ glob_t globbuf;
@@ -1348,11 +1345,9 @@ static int install_all(int argc, char **argv)
                                         size_t j;
 
                                         for (j = 0; j < globbuf.gl_pathc; j++) {
-                                                char *dest = strdup(globbuf.gl_pathv[j] + sysrootdirlen);
-                                                ret |=
-                                                        dracut_install(globbuf.gl_pathv[j] + sysrootdirlen, dest,
-                                                                       arg_createdir, arg_resolvedeps, true);
-                                                free(dest);
+                                                ret |= dracut_install(globbuf.gl_pathv[j] + sysrootdirlen,
+                                                                      globbuf.gl_pathv[j] + sysrootdirlen,
+                                                                      arg_createdir, arg_resolvedeps, true);
                                         }
                                 }
                         }
