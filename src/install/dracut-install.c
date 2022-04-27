@@ -170,14 +170,12 @@ static char *convert_abs_rel(const char *from, const char *target)
         int l;
         size_t i, rl, dirlen;
 
-        target_dir_p = strdup(target);
+        dirlen = dir_len(target);
+        target_dir_p = strndup(target, dirlen);
         if (!target_dir_p)
                 return strdup(from);
 
-        dirlen = dir_len(target_dir_p);
-        target_dir_p[dirlen] = '\0';
         realpath_p = realpath(target_dir_p, NULL);
-
         if (realpath_p == NULL) {
                 log_warning("convert_abs_rel(): target '%s' directory has no realpath.", target);
                 return strdup(from);
@@ -185,11 +183,9 @@ static char *convert_abs_rel(const char *from, const char *target)
 
         /* dir_len() skips double /'s e.g. //lib64, so we can't skip just one
          * character - need to skip all leading /'s */
-        rl = strlen(target);
-        for (i = dirlen + 1; i < rl; ++i)
-                if (target_dir_p[i] != '/')
-                        break;
-        _asprintf(&realtarget, "%s/%s", realpath_p, &target_dir_p[i]);
+        for (i = dirlen + 1; target[i] == '/'; ++i)
+                ;
+        _asprintf(&realtarget, "%s/%s", realpath_p, &target[i]);
 
         /* now calculate the relative path from <from> to <target> and
            store it in <relative_from>
@@ -431,19 +427,21 @@ static char *get_real_file(const char *src, bool fullyresolve)
         struct stat sb;
         ssize_t linksz;
         char linktarget[PATH_MAX + 1];
-        _cleanup_free_ char *fullsrcpath;
+        _cleanup_free_ char *fullsrcpath_a = NULL;
+        const char *fullsrcpath;
         _cleanup_free_ char *abspath = NULL;
 
         if (sysrootdirlen) {
                 if (strncmp(src, sysrootdir, sysrootdirlen) == 0) {
-                        fullsrcpath = strdup(src);
+                        fullsrcpath = src;
                 } else {
-                        _asprintf(&fullsrcpath, "%s/%s",
+                        _asprintf(&fullsrcpath_a, "%s/%s",
                                   (sysrootdirlen ? sysrootdir : ""),
                                   (src[0] == '/' ? src + 1 : src));
+                        fullsrcpath = fullsrcpath_a;
                 }
         } else {
-                fullsrcpath = strdup(src);
+                fullsrcpath = src;
         }
 
         log_debug("get_real_file('%s')", fullsrcpath);
@@ -471,15 +469,7 @@ static char *get_real_file(const char *src, bool fullyresolve)
         if (linktarget[0] == '/') {
                 _asprintf(&abspath, "%s%s", (sysrootdirlen ? sysrootdir : ""), linktarget);
         } else {
-                _cleanup_free_ char *fullsrcdir = strdup(fullsrcpath);
-
-                if (!fullsrcdir) {
-                        log_error("Out of memory!");
-                        exit(EXIT_FAILURE);
-                }
-
-                fullsrcdir[dir_len(fullsrcdir)] = '\0';
-                _asprintf(&abspath, "%s/%s", fullsrcdir, linktarget);
+                _asprintf(&abspath, "%.*s/%s", (int)dir_len(fullsrcpath), fullsrcpath, linktarget);
         }
 
         if (fullyresolve) {
@@ -820,12 +810,11 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
         } else {
 
                 /* check destination directory */
-                fulldstdir = strdup(fulldstpath);
+                fulldstdir = strndup(fulldstpath, dir_len(fulldstpath));
                 if (!fulldstdir) {
                         log_error("Out of memory!");
                         return 1;
                 }
-                fulldstdir[dir_len(fulldstdir)] = '\0';
 
                 ret = stat(fulldstdir, &db);
 
@@ -838,11 +827,10 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
                         }
                         /* create destination directory */
                         log_debug("dest dir '%s' does not exist", fulldstdir);
-                        dname = strdup(dst);
+
+                        dname = strndup(dst, dir_len(dst));
                         if (!dname)
                                 return 1;
-
-                        dname[dir_len(dname)] = '\0';
                         ret = dracut_install(dname, dname, true, false, true);
 
                         if (ret != 0) {
