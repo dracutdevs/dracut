@@ -1073,10 +1073,10 @@ static int parse_argv(int argc, char *argv[])
                         arg_module = true;
                         break;
                 case 'D':
-                        destrootdir = strdup(optarg);
+                        destrootdir = optarg;
                         break;
                 case 'r':
-                        sysrootdir = strdup(optarg);
+                        sysrootdir = optarg;
                         sysrootdirlen = strlen(sysrootdir);
                         break;
                 case 'p':
@@ -1115,10 +1115,10 @@ static int parse_argv(int argc, char *argv[])
                         arg_mod_filter_noname = true;
                         break;
                 case 'L':
-                        logdir = strdup(optarg);
+                        logdir = optarg;
                         break;
                 case ARG_KERNELDIR:
-                        kerneldir = strdup(optarg);
+                        kerneldir = optarg;
                         break;
                 case ARG_FIRMWAREDIRS:
                         firmwaredirs = strv_split(optarg, ":");
@@ -2012,7 +2012,6 @@ int main(int argc, char **argv)
                         log_error("Environment DESTROOTDIR or argument -D is not set!");
                         usage(EXIT_FAILURE);
                 }
-                destrootdir = strdup(destrootdir);
         }
 
         if (strcmp(destrootdir, "/") == 0) {
@@ -2021,13 +2020,11 @@ int main(int argc, char **argv)
         }
 
         i = destrootdir;
-        destrootdir = realpath(destrootdir, NULL);
-        if (!destrootdir) {
+        if (!(destrootdir = realpath(i, NULL))) {
                 log_error("Environment DESTROOTDIR or argument -D is set to '%s': %m", i);
                 r = EXIT_FAILURE;
-                goto finish;
+                goto finish2;
         }
-        free(i);
 
         items = hashmap_new(string_hash_func, string_compare_func);
         items_failed = hashmap_new(string_hash_func, string_compare_func);
@@ -2035,7 +2032,7 @@ int main(int argc, char **argv)
         if (!items || !items_failed || !modules_loaded) {
                 log_error("Out of memory");
                 r = EXIT_FAILURE;
-                goto finish;
+                goto finish1;
         }
 
         if (logdir) {
@@ -2045,7 +2042,7 @@ int main(int argc, char **argv)
                 if (logfile_f == NULL) {
                         log_error("Could not open %s for logging: %m", logfile);
                         r = EXIT_FAILURE;
-                        goto finish;
+                        goto finish1;
                 }
         }
 
@@ -2078,7 +2075,9 @@ int main(int argc, char **argv)
         if (arg_optional)
                 r = EXIT_SUCCESS;
 
-finish:
+finish1:
+        free(destrootdir);
+finish2:
         if (logfile_f)
                 fclose(logfile_f);
 
@@ -2095,7 +2094,6 @@ finish:
         hashmap_free(items_failed);
         hashmap_free(modules_loaded);
 
-        free(destrootdir);
         strv_free(firmwaredirs);
         strv_free(pathdirs);
         return r;
