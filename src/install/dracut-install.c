@@ -498,12 +498,10 @@ static char *get_real_file(const char *src, bool fullyresolve)
 
 static int resolve_deps(const char *src)
 {
-        int ret = 0;
+        int ret = 0, err;
 
         _cleanup_free_ char *buf = NULL;
-        size_t linesize = LINE_MAX;
-        _cleanup_pclose_ FILE *fptr = NULL;
-        _cleanup_free_ char *cmd = NULL;
+        size_t linesize = LINE_MAX + 1;
         _cleanup_free_ char *fullsrcpath = NULL;
 
         fullsrcpath = get_real_file(src, true);
@@ -511,7 +509,7 @@ static int resolve_deps(const char *src)
         if (!fullsrcpath)
                 return 0;
 
-        buf = malloc0(LINE_MAX);
+        buf = malloc(linesize);
         if (buf == NULL)
                 return -errno;
 
@@ -521,11 +519,11 @@ static int resolve_deps(const char *src)
                 if (fd < 0)
                         return -errno;
 
-                ret = read(fd, buf, LINE_MAX);
+                ret = read(fd, buf, linesize - 1);
                 if (ret == -1)
                         return -errno;
 
-                buf[LINE_MAX - 1] = '\0';
+                buf[ret] = '\0';
                 if (buf[0] == '#' && buf[1] == '!') {
                         /* we have a shebang */
                         char *p, *q;
@@ -540,25 +538,28 @@ static int resolve_deps(const char *src)
                 }
         }
 
-        /* run ldd */
-        _asprintf(&cmd, "%s %s 2>&1", ldd, fullsrcpath);
-
-        log_debug("%s", cmd);
-
-        ret = 0;
-
-        fptr = popen(cmd, "r");
-        if (fptr == NULL) {
-                log_error("Error '%s' initiating pipe stream from '%s'", strerror(errno), cmd);
+        int fds[2];
+        FILE *fptr;
+        if (pipe2(fds, O_CLOEXEC) == -1 || (fptr = fdopen(fds[0], "r")) == NULL) {
+                log_error("Error '%m' initiating pipe stream for %s", ldd);
                 exit(EXIT_FAILURE);
         }
 
-        while (!feof(fptr)) {
-                char *p;
+        log_debug("%s %s", ldd, fullsrcpath);
+        pid_t ldd_pid;
+        if ((ldd_pid = fork()) == 0) {
+                dup2(fds[1], 1);
+                dup2(fds[1], 2);
+                putenv("LC_ALL=C");
+                execlp(ldd, ldd, fullsrcpath, (char *)NULL);
+                _exit(errno == ENOENT ? 127 : 126);
+        }
+        close(fds[1]);
 
-                memset(buf, 0, LINE_MAX);
-                if (getline(&buf, &linesize, fptr) <= 0)
-                        continue;
+        ret = 0;
+
+        while (getline(&buf, &linesize, fptr) >= 0) {
+                char *p;
 
                 log_debug("ldd: '%s'", buf);
 
@@ -569,7 +570,7 @@ static int resolve_deps(const char *src)
                 }
 
                 /* errors from cross-compiler-ldd */
-                if (strstr(buf, "unable to find sysroot") || strstr(buf, "command not found")) {
+                if (strstr(buf, "unable to find sysroot")) {
                         log_error("%s", buf);
                         ret += 1;
                         break;
@@ -621,7 +622,21 @@ static int resolve_deps(const char *src)
                 }
         }
 
-        return ret;
+        fclose(fptr);
+        while (waitpid(ldd_pid, &err, 0) == -1) {
+                if (errno != EINTR) {
+                        log_error("ERROR: waitpid() failed: %m");
+                        return 1;
+                }
+        }
+        err = WIFSIGNALED(err) ? 128 + WTERMSIG(err) : WEXITSTATUS(err);
+        /* ldd has error conditions we largely don't care about ("not a dynamic executable", &c.):
+           only error out on hard errors (ENOENT, ENOEXEC, signals) */
+        if (err >= 126) {
+                log_error("ERROR: '%s %s' failed with %d", ldd, fullsrcpath, err);
+                return err;
+        } else
+                return ret;
 }
 
 /* Install ".<filename>.hmac" file for FIPS self-checks */
