@@ -628,13 +628,8 @@ static int resolve_deps(const char *src)
 /* Install ".<filename>.hmac" file for FIPS self-checks */
 static int hmac_install(const char *src, const char *dst, const char *hmacpath)
 {
-        _cleanup_free_ char *srcpath = strdup(src);
-        _cleanup_free_ char *dstpath = strdup(dst);
         _cleanup_free_ char *srchmacname = NULL;
         _cleanup_free_ char *dsthmacname = NULL;
-
-        if (!(srcpath && dstpath))
-                return -ENOMEM;
 
         size_t dlen = dir_len(src);
 
@@ -648,16 +643,14 @@ static int hmac_install(const char *src, const char *dst, const char *hmacpath)
                 hmac_install(src, dst, "/lib64/hmaccalc");
         }
 
-        srcpath[dlen] = '\0';
-        dstpath[dir_len(dst)] = '\0';
         if (hmacpath) {
                 _asprintf(&srchmacname, "%s/%s.hmac", hmacpath, &src[dlen + 1]);
                 _asprintf(&dsthmacname, "%s/%s.hmac", hmacpath, &src[dlen + 1]);
         } else {
-                _asprintf(&srchmacname, "%s/.%s.hmac", srcpath, &src[dlen + 1]);
-                _asprintf(&dsthmacname, "%s/.%s.hmac", dstpath, &src[dlen + 1]);
+                _asprintf(&srchmacname, "%.*s/.%s.hmac", (int)dlen,         src, &src[dlen + 1]);
+                _asprintf(&dsthmacname, "%.*s/.%s.hmac", (int)dir_len(dst), dst, &src[dlen + 1]);
         }
-        log_debug("hmac cp '%s' '%s')", srchmacname, dsthmacname);
+        log_debug("hmac cp '%s' '%s'", srchmacname, dsthmacname);
         dracut_install(srchmacname, dsthmacname, false, false, true);
         return 0;
 }
