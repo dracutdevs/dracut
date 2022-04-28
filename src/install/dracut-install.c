@@ -164,7 +164,7 @@ static char *convert_abs_rel(const char *from, const char *target)
         /* we use the 4*MAXPATHLEN, which should not overrun */
         char buf[MAXPATHLEN * 4];
         _cleanup_free_ char *realtarget = NULL, *realfrom = NULL, *from_dir_p = NULL;
-        _cleanup_free_ char *target_dir_p = NULL, *realpath_p = NULL;
+        _cleanup_free_ char *target_dir_p = NULL;
         size_t level = 0, fromlevel = 0, targetlevel = 0;
         int l;
         size_t i, rl, dirlen;
@@ -187,16 +187,14 @@ static char *convert_abs_rel(const char *from, const char *target)
         target_dir_p = strndup(target, dirlen);
         if (!target_dir_p)
                 return strdup(from + strlen(destrootdir));
-
-        realpath_p = realpath(target_dir_p, NULL);
-        if (realpath_p == NULL) {
+        if (realpath(target_dir_p, buf) == NULL) {
                 log_warning("convert_abs_rel(): target '%s' directory has no realpath: %m", target);
                 return strdup(from + strlen(destrootdir));
         }
 
         for (i = dirlen + 1; target[i] == '/'; ++i)
                 ;
-        _asprintf(&realtarget, "%s/%s", realpath_p, &target[i]);
+        _asprintf(&realtarget, "%s/%s", buf, target + i);
 
         /* now calculate the relative path from <from> to <target> and
            store it in <buf>
