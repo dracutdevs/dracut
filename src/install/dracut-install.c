@@ -173,12 +173,12 @@ static char *convert_abs_rel(const char *from, const char *target)
         dirlen = dir_len(target);
         target_dir_p = strndup(target, dirlen);
         if (!target_dir_p)
-                return strdup(from);
+                return strdup(from + strlen(destrootdir));
 
         realpath_p = realpath(target_dir_p, NULL);
         if (realpath_p == NULL) {
                 log_warning("convert_abs_rel(): target '%s' directory has no realpath.", target);
-                return strdup(from);
+                return strdup(from + strlen(destrootdir));
         }
 
         /* dir_len() skips double /'s e.g. //lib64, so we can't skip just one
