@@ -327,10 +327,10 @@ normal_copy:
         pid = fork();
         if (pid == 0) {
                 if (geteuid() == 0 && no_xattr == false)
-                        execlp("cp", "cp", "--reflink=auto", "--sparse=auto", "--preserve=mode,xattr,timestamps", "-fL",
+                        execlp("cp", "cp", "--reflink=auto", "--sparse=auto", "--preserve=mode,xattr,timestamps,ownership", "-fL",
                                src, dst, NULL);
                 else
-                        execlp("cp", "cp", "--reflink=auto", "--sparse=auto", "--preserve=mode,timestamps", "-fL", src,
+                        execlp("cp", "cp", "--reflink=auto", "--sparse=auto", "--preserve=mode,timestamps,ownership", "-fL", src,
                                dst, NULL);
                 _exit(EXIT_FAILURE);
         }
@@ -339,10 +339,10 @@ normal_copy:
                 if (errno != EINTR) {
                         ret = -1;
                         if (geteuid() == 0 && no_xattr == false)
-                                log_error("Failed: cp --reflink=auto --sparse=auto --preserve=mode,xattr,timestamps -fL %s %s",
+                                log_error("Failed: cp --reflink=auto --sparse=auto --preserve=mode,xattr,timestamps,ownership -fL %s %s",
                                           src, dst);
                         else
-                                log_error("Failed: cp --reflink=auto --sparse=auto --preserve=mode,timestamps -fL %s %s",
+                                log_error("Failed: cp --reflink=auto --sparse=auto --preserve=mode,timestamps,ownership -fL %s %s",
                                           src, dst);
                         break;
                 }
@@ -1175,8 +1175,12 @@ static int parse_argv(int argc, char *argv[])
         }
 
         if (!optind || optind == argc) {
-                log_error("No SOURCE argument given");
-                usage(EXIT_FAILURE);
+                if (!arg_optional) {
+                        log_error("No SOURCE argument given");
+                        usage(EXIT_FAILURE);
+                } else {
+                        exit(EXIT_SUCCESS);
+                }
         }
 
         return 1;

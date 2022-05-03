@@ -930,7 +930,7 @@ block_is_nbd() {
 }
 
 # block_is_iscsi <maj:min>
-# Check whether $1 is an nbd device
+# Check whether $1 is an iSCSI device
 block_is_iscsi() {
     local _dir
     local _dev=$1

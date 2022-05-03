@@ -1,9 +1,8 @@
 #  This file is part of dracut.
-#
-# See dracut.bootup(7) for details
 
 [Unit]
 Description=Emergency Shell
+Documentation=man:dracut.bootup(7)
 DefaultDependencies=no
 After=systemd-vconsole-setup.service
 Wants=systemd-vconsole-setup.service

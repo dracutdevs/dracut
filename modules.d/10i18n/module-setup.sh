@@ -31,10 +31,6 @@ install() {
     VCONFIG_CONF="/etc/vconsole.conf"
 
     findkeymap() {
-        # shellcheck disable=SC2064
-        trap "$(shopt -p nullglob globstar)" RETURN
-        shopt -q -s nullglob globstar
-
         local -a MAPS
         local MAPNAME
         local INCLUDES
@@ -46,7 +42,10 @@ install() {
             MAPS=("$1")
         else
             MAPNAME=${1%.map*}
-            MAPS=("$dracutsysrootdir""${kbddir}"/keymaps/**/"${MAPNAME}"{,.map{,.*}})
+
+            mapfile -t -d '' MAPS < <(
+                find "${dracutsysrootdir}${kbddir}"/keymaps/ -type f \( -name "${MAPNAME}" -o -name "${MAPNAME}.map*" \) -print0
+            )
         fi
 
         for MAP in "${MAPS[@]}"; do

@@ -18,6 +18,7 @@ jobs:
                         "fedora:rawhide",
                         "opensuse:latest",
                         "arch:latest",
+                        "debian:latest",
                 ]
                 test: [
                         "04",

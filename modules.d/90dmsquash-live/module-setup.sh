@@ -35,7 +35,5 @@ install() {
         inst_script "$moddir/dmsquash-generator.sh" "$systemdutildir"/system-generators/dracut-dmsquash-generator
         inst_simple "$moddir/checkisomd5@.service" "/etc/systemd/system/checkisomd5@.service"
     fi
-    # should probably just be generally included
-    inst_rules 60-cdrom_id.rules
     dracut_need_initqueue
 }

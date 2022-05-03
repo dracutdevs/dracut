@@ -22,7 +22,7 @@ installkernel() {
         dracut_instmods -o -P ".*${_unwanted_drivers}.*" -s "$_net_symbols" "=drivers/s390/net"
     fi
 
-    if [[ $hostonly_mode == 'strict' ]] && [[ $hostonly_nics ]]; then
+    if [[ $hostonly_mode == 'strict' ]] && [[ -n ${hostonly_nics+x} ]]; then
         for _nic in $hostonly_nics; do
             mapfile -t _net_drivers < <(get_dev_module /sys/class/net/"$_nic")
             if ((${#_net_drivers[@]} == 0)); then

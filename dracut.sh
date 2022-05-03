@@ -104,6 +104,8 @@ Creates initial ramdisk images for preloading modules
                          modules
   --fwdir [DIR]         Specify additional directories, where to look for
                          firmwares, separated by :
+  --libdirs [LIST]      Specify a space-separated list of directories
+                         where to look for libraries.
   --kernel-only         Only install kernel drivers and firmware files
   --no-kernel           Do not install kernel drivers and firmware files
   --print-cmdline       Print the kernel command line for the given disk layout
@@ -1026,18 +1028,26 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 
 if ! [[ $outfile ]]; then
     if [[ $machine_id != "no" ]]; then
-        [[ -f "$dracutsysrootdir"/etc/machine-id ]] && read -r MACHINE_ID < "$dracutsysrootdir"/etc/machine-id
+        if [[ -d "$dracutsysrootdir"/efi/Default ]] \
+            || [[ -d "$dracutsysrootdir"/boot/Default ]] \
+            || [[ -d "$dracutsysrootdir"/boot/efi/Default ]]; then
+            MACHINE_ID="Default"
+        elif [[ -f "$dracutsysrootdir"/etc/machine-id ]]; then
+            read -r MACHINE_ID < "$dracutsysrootdir"/etc/machine-id
+        else
+            MACHINE_ID="Default"
+        fi
     fi
 
     if [[ $uefi == "yes" ]]; then
         # shellcheck disable=SC2154
         if [[ -n $uefi_secureboot_key && -z $uefi_secureboot_cert ]] || [[ -z $uefi_secureboot_key && -n $uefi_secureboot_cert ]]; then
-            dfatal "Need 'uefi_secureboot_key' and 'uefi_secureboot_cert' both to be set."
+            printf "%s\n" "dracut: Need 'uefi_secureboot_key' and 'uefi_secureboot_cert' both to be set." >&2
             exit 1
         fi
 
         if [[ -n $uefi_secureboot_key && -n $uefi_secureboot_cert ]] && ! command -v sbsign &> /dev/null; then
-            dfatal "Need 'sbsign' to create a signed UEFI executable"
+            printf "%s\n" "dracut: Need 'sbsign' to create a signed UEFI executable." >&2
             exit 1
         fi
 
@@ -1050,7 +1060,7 @@ if ! [[ $outfile ]]; then
                 efidir=/efi/EFI
             else
                 efidir=/boot/EFI
-                if [[ -d $dracutsysrootdir/boot/efi/EFI ]]; then
+                if [[ -d /boot/efi/EFI ]]; then
                     efidir=/boot/efi/EFI
                 fi
             fi
@@ -1063,12 +1073,28 @@ if ! [[ $outfile ]]; then
         mkdir -p "$dracutsysrootdir$efidir/Linux"
         outfile="$dracutsysrootdir$efidir/Linux/linux-$kernel${MACHINE_ID:+-${MACHINE_ID}}${BUILD_ID:+-${BUILD_ID}}.efi"
     else
-        if [[ -e $dracutsysrootdir/boot/vmlinuz-$kernel ]]; then
-            outfile="/boot/initramfs-$kernel.img"
-        elif [[ $MACHINE_ID ]] && { [[ -d $dracutsysrootdir/boot/${MACHINE_ID} ]] || [[ -L $dracutsysrootdir/boot/${MACHINE_ID} ]]; }; then
-            outfile="$dracutsysrootdir/boot/${MACHINE_ID}/$kernel/initrd"
+        if [[ -d "$dracutsysrootdir"/efi/loader/entries || -L "$dracutsysrootdir"/efi/loader/entries ]] \
+            && [[ $MACHINE_ID ]] \
+            && [[ -d "$dracutsysrootdir"/efi/${MACHINE_ID} || -L "$dracutsysrootdir"/efi/${MACHINE_ID} ]]; then
+            outfile="$dracutsysrootdir/efi/${MACHINE_ID}/${kernel}/initrd"
+        elif [[ -d "$dracutsysrootdir"/boot/loader/entries || -L "$dracutsysrootdir"/boot/loader/entries ]] \
+            && [[ $MACHINE_ID ]] \
+            && [[ -d "$dracutsysrootdir"/boot/${MACHINE_ID} || -L "$dracutsysrootdir"/boot/${MACHINE_ID} ]]; then
+            outfile="$dracutsysrootdir/boot/${MACHINE_ID}/${kernel}/initrd"
+        elif [[ -d "$dracutsysrootdir"/boot/efi/loader/entries || -L "$dracutsysrootdir"/boot/efi/loader/entries ]] \
+            && [[ $MACHINE_ID ]] \
+            && [[ -d "$dracutsysrootdir"/boot/efi/${MACHINE_ID} || -L "$dracutsysrootdir"/boot/efi/${MACHINE_ID} ]]; then
+            outfile="$dracutsysrootdir/boot/efi/${MACHINE_ID}/${kernel}/initrd"
+        elif [[ -f "$dracutsysrootdir"/lib/modules/${kernel}/initrd ]]; then
+            outfile="$dracutsysrootdir/lib/modules/${kernel}/initrd"
+        elif [[ -e $dracutsysrootdir/boot/vmlinuz-${kernel} ]]; then
+            outfile="$dracutsysrootdir/boot/initramfs-${kernel}.img"
+        elif [[ -z $dracutsysrootdir ]] && mountpoint -q /efi; then
+            outfile="/efi/${MACHINE_ID}/${kernel}/initrd"
+        elif [[ -z $dracutsysrootdir ]] && mountpoint -q /boot/efi; then
+            outfile="/boot/efi/${MACHINE_ID}/${kernel}/initrd"
         else
-            outfile="$dracutsysrootdir/boot/initramfs-$kernel.img"
+            outfile="$dracutsysrootdir/boot/initramfs-${kernel}.img"
         fi
     fi
 fi
@@ -1352,12 +1378,18 @@ if [[ ! $print_cmdline ]]; then
             exit 1
         fi
         unset EFI_MACHINE_TYPE_NAME
+        EFI_SECTION_VMA_INITRD=0x3000000
         case $(uname -m) in
             x86_64)
                 EFI_MACHINE_TYPE_NAME=x64
                 ;;
             i?86)
                 EFI_MACHINE_TYPE_NAME=ia32
+                ;;
+            aarch64)
+                EFI_MACHINE_TYPE_NAME=aa64
+                # aarch64 kernels are uncompressed and thus larger, so we need a bigger gap between vma sections
+                EFI_SECTION_VMA_INITRD=0x4000000
                 ;;
             *)
                 dfatal "Architecture '$(uname -m)' not supported to create a UEFI executable"
@@ -2540,7 +2572,7 @@ if [[ $uefi == yes ]]; then
         ${uefi_cmdline:+--add-section .cmdline="$uefi_cmdline" --change-section-vma .cmdline=0x30000} \
         ${uefi_splash_image:+--add-section .splash="$uefi_splash_image" --change-section-vma .splash=0x40000} \
         --add-section .linux="$kernel_image" --change-section-vma .linux=0x2000000 \
-        --add-section .initrd="${DRACUT_TMPDIR}/initramfs.img" --change-section-vma .initrd=0x3000000 \
+        --add-section .initrd="${DRACUT_TMPDIR}/initramfs.img" --change-section-vma .initrd="${EFI_SECTION_VMA_INITRD}" \
         "$uefi_stub" "${uefi_outdir}/linux.efi"; then
         if [[ -n ${uefi_secureboot_key} && -n ${uefi_secureboot_cert} ]]; then
             if sbsign \
@@ -2571,8 +2603,6 @@ else
         exit 1
     fi
 fi
-
-command -v restorecon &> /dev/null && restorecon -- "$outfile"
 
 btrfs_uuid() {
     btrfs filesystem show "$1" | sed -n '1s/^.*uuid: //p'

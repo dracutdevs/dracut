@@ -11,7 +11,7 @@ nm_generate_connections() {
         # shellcheck disable=SC2046
         /usr/lib/nm-initrd-generator -- $(getcmdline)
     else
-        derror "nm-initrd-generator not found"
+        warn "nm-initrd-generator not found"
     fi
 
     if getargbool 0 rd.neednet; then

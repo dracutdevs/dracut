@@ -3,7 +3,7 @@
 # called by dracut
 check() {
     # No point trying to support lvm if the binaries are missing
-    require_binaries lvm || return 1
+    require_binaries lvm grep || return 1
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         for fs in "${host_fs_types[@]}"; do
@@ -48,7 +48,7 @@ installkernel() {
 
 # called by dracut
 install() {
-    inst lvm
+    inst_multiple lvm grep
 
     if [[ $hostonly_cmdline == "yes" ]]; then
         local _lvmconf

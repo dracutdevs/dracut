@@ -9,6 +9,7 @@ if modprobe sunrpc || strstr "$(cat /proc/filesystems)" rpc_pipefs; then
     command -v portmap > /dev/null && [ -z "$(pidof portmap)" ] && portmap
     if command -v rpcbind > /dev/null && [ -z "$(pidof rpcbind)" ]; then
         mkdir -p /run/rpcbind
+        chown rpc:rpc /run/rpcbind
         rpcbind
     fi
 

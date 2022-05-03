@@ -1,0 +1,16 @@
+[Unit]
+DefaultDependencies=no
+Requires=cm-initrd.service
+After=cm-initrd.service
+Before=network-online.target
+Before=dracut-initqueue.service
+ConditionPathExists=/run/connman/initrd/neednet
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/connmand-wait-online
+RemainAfterExit=yes
+
+[Install]
+WantedBy=initrd.target
+WantedBy=network-online.target

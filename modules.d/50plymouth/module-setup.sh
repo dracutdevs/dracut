@@ -3,7 +3,9 @@
 pkglib_dir() {
     local _dirs="/usr/lib/plymouth /usr/libexec/plymouth/"
     if find_binary dpkg-architecture &> /dev/null; then
-        _dirs+=" /usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/plymouth"
+        local _arch
+        _arch=$(dpkg-architecture -qDEB_HOST_MULTIARCH 2> /dev/null)
+        [ -n "$_arch" ] && _dirs+=" /usr/lib/$_arch/plymouth"
     fi
     for _dir in $_dirs; do
         if [ -x "$dracutsysrootdir""$_dir"/plymouth-populate-initrd ]; then

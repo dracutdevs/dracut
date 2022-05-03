@@ -16,8 +16,8 @@ Don't use `dirname`, use:
 If you set `shopt` in a function, reset to its default state with `trap`:
 ```shell
 func() {
-  trap "$(shopt -p nullglob globstar)" RETURN
-  shopt -q -s nullglob globstar
+  trap "$(shopt -p globstar)" RETURN
+  shopt -q -s globstar
 }
 ```
 
@@ -51,8 +51,8 @@ func() {
 Or collect the filenames in an array, if you need them more than once:
 ```shell
 func() {
-    trap "$(shopt -p nullglob globstar)" RETURN
-    shopt -q -s nullglob globstar
+    trap "$(shopt -p globstar)" RETURN
+    shopt -q -s globstar
 
     filenames=( /usr/lib*/**/lib*.a )
 

@@ -5,7 +5,7 @@ check() {
     swap_on_netdevice() {
         local _dev
         for _dev in "${swap_devs[@]}"; do
-            block_is_netdevice "$_dev" && return 0
+            block_is_netdevice "$(get_maj_min "$_dev")" && return 0
         done
         return 1
     }
