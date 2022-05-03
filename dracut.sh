@@ -1089,9 +1089,13 @@ if ! [[ $outfile ]]; then
             outfile="$dracutsysrootdir/lib/modules/${kernel}/initrd"
         elif [[ -e $dracutsysrootdir/boot/vmlinuz-${kernel} ]]; then
             outfile="$dracutsysrootdir/boot/initramfs-${kernel}.img"
-        elif [[ -z $dracutsysrootdir ]] && mountpoint -q /efi; then
+        elif [[ -z $dracutsysrootdir ]] \
+            && [[ $MACHINE_ID ]] \
+            && mountpoint -q /efi; then
             outfile="/efi/${MACHINE_ID}/${kernel}/initrd"
-        elif [[ -z $dracutsysrootdir ]] && mountpoint -q /boot/efi; then
+        elif [[ -z $dracutsysrootdir ]] \
+            && [[ $MACHINE_ID ]] \
+            && mountpoint -q /boot/efi; then
             outfile="/boot/efi/${MACHINE_ID}/${kernel}/initrd"
         else
             outfile="$dracutsysrootdir/boot/initramfs-${kernel}.img"
