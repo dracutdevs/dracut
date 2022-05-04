@@ -115,7 +115,7 @@ test_setup() {
         cp -a -- /etc/ld.so.conf* "$initdir"/etc
         ldconfig -r "$initdir"
     )
-    python3 create.py -d -c livecd-fedora-minimal.ks
+    livecd-creator -d -c livecd-fedora-minimal.ks
     return 0
 }
 

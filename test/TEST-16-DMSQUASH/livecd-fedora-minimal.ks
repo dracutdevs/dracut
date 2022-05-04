@@ -1,12 +1,13 @@
 lang en_US.UTF-8
 keyboard us
 timezone US/Eastern
-auth --useshadow --enablemd5
+authselect select sssd with-silent-lastlog --force
 selinux --enforcing
 firewall --disabled
-part / --size 1024
+part / --size 2048
 
-repo --name=fedora --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-$version&arch=$basearch
+repo --name=development --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=rawhide&arch=$basearch
+
 
 %packages
 @core
@@ -16,7 +17,6 @@ kernel
 passwd
 policycoreutils
 chkconfig
-authconfig
 rootfiles
 
 %end
