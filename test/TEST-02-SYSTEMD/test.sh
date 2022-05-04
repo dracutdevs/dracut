@@ -116,8 +116,6 @@ test_setup() {
         -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
-
-    #       -o "plymouth network md dmraid multipath fips caps crypt btrfs resume dmsquash-live dm"
 }
 
 test_cleanup() {

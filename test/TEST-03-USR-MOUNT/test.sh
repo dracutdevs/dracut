@@ -146,8 +146,6 @@ test_setup() {
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 
     rm -rf -- "$TESTDIR"/overlay
-
-    #       -o "plymouth network md dmraid multipath fips caps crypt btrfs resume dmsquash-live dm"
 }
 
 test_cleanup() {
