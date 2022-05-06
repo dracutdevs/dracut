@@ -29,7 +29,6 @@ jobs:
             matrix:
                 config:
                     - { dockerfile: 'Dockerfile-Fedora-latest',     tag: 'fedora:latest' }
-                    - { dockerfile: 'Dockerfile-Fedora-rawhide',    tag: 'fedora:rawhide' }
                     - { dockerfile: 'Dockerfile-OpenSuse-latest',   tag: 'opensuse:latest' }
                     - { dockerfile: 'Dockerfile-Arch',              tag: 'arch:latest' }
                     - { dockerfile: 'Dockerfile-Debian',            tag: 'debian:latest' }
