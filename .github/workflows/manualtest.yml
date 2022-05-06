@@ -16,6 +16,7 @@ on:
                     - "arch"
                     - "debian"
                     - "opensuse"
+                    - "gentoo"
 
 jobs:
     test:

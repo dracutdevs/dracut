@@ -1,0 +1,31 @@
+FROM docker.io/gentoo/portage:latest as portage
+
+# kernel and its dependencies in a separate builder
+FROM docker.io/gentoo/stage3:musl as kernel
+COPY --from=portage /var/db/repos/gentoo /var/db/repos/gentoo
+RUN emerge -qv virtual/dist-kernel
+
+FROM docker.io/gentoo/stage3:musl
+COPY --from=portage /var/db/repos/gentoo /var/db/repos/gentoo
+COPY --from=kernel /boot /boot
+COPY --from=kernel /lib/modules /lib/modules
+
+MAINTAINER https://github.com/dracutdevs/dracut
+
+ENV container docker
+LABEL RUN="docker run -it --name NAME --privileged --ipc=host --net=host --pid=host -e NAME=NAME -e IMAGE=IMAGE IMAGE"
+
+RUN echo 'export DRACUT_NO_XATTR=1 KVERSION=$(cd /lib/modules; ls -1 | tail -1)' > /etc/profile.d/dracut-test.sh
+
+# Install needed packages for the dracut CI container
+RUN emerge -qv \
+    app-arch/cpio \
+    app-emulation/qemu \
+    app-shells/dash \
+    sys-apps/busybox \
+    sys-fs/btrfs-progs \
+    sys-fs/squashfs-tools \
+    && rm -rf /var/cache/* /usr/share/doc/* /usr/share/man/* /var/db/repos/gentoo
+
+# Set default command
+CMD ["/usr/bin/bash"]
