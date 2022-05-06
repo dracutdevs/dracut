@@ -198,14 +198,9 @@ install() {
         "$systemdsystemunitdir"/sockets.target.wants/iscsid.socket \
         "$systemdsystemunitdir"/sockets.target.wants/iscsiuio.socket
 
+    inst_simple /etc/iscsi/iscsid.conf
     if [[ $hostonly ]]; then
-        local -a _filenames
-
-        inst_dir /etc/iscsi
-        mapfile -t -d '' _filenames < <(find /etc/iscsi -type f -print0)
-        inst_multiple "${_filenames[@]}"
-    else
-        inst_simple /etc/iscsi/iscsid.conf
+        inst_simple /etc/iscsi/initiatorname.iscsi
     fi
 
     # Detect iBFT and perform mandatory steps
