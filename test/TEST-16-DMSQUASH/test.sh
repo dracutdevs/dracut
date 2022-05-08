@@ -1,23 +1,12 @@
 #!/bin/bash
+
 # shellcheck disable=SC2034
-TEST_DESCRIPTION="root filesystem on a LiveCD dmsquash filesystem"
+TEST_DESCRIPTION="live root on a squash filesystem"
 
 KVERSION="${KVERSION-$(uname -r)}"
 
 # Uncomment this to debug failures
-#DEBUGFAIL="rd.shell rd.break rd.debug systemd.log_level=debug systemd.log_target=console"
-
-test_check() {
-    for pdir in $(python3 -c "import site; print(site.getsitepackages())" | sed -e 's/\[\(.*\)\]/\1/' -e "s/', /' /g"); do
-        # shellcheck disable=SC2001
-        pdir1=$(echo "$pdir" | sed "s/^'\(.*\)'$/\1/")
-        if [[ -d $pdir1/imgcreate ]]; then
-            return 0
-        fi
-    done
-    echo "python-imgcreate not installed"
-    return 1
-}
+# DEBUGFAIL="rd.shell rd.debug loglevel=7"
 
 test_run() {
     dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
@@ -25,51 +14,24 @@ test_run() {
     # shellcheck disable=SC2034
     declare -i disk_index=0
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/livecd.iso livecd 1
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/root.img root
 
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
         -boot order=d \
-        -append "panic=1 oops=panic softlockup_panic=1 systemd.crash_reboot root=live:CDLABEL=LiveCD live rw quiet rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.shell=0 $DEBUGFAIL" \
+        -append "rd.live.image rd.live.overlay.overlayfs=1 rd.live.dir=testdir root=LABEL=dracut console=ttyS0,115200n81 quiet selinux=0 rd.info rd.shell=0 panic=1 oops=panic softlockup_panic=1 $DEBUGFAIL" \
         -initrd "$TESTDIR"/initramfs.testing
-
-    # mediacheck test with qemu GUI
-    # "$testdir"/run-qemu \
-    #     -drive format=raw,bps=1000000,index=0,media=disk,file="$TESTDIR"/livecd.iso \
-    #     -drive format=raw,index=1,media=disk,file="$TESTDIR"/root.img \
-    #     -m 512M  -smp 2 \
-    #     -net none \
-    #     -append "root=live:CDLABEL=LiveCD live quiet rhgb selinux=0 rd.live.check" \
-    #     -initrd "$TESTDIR"/initramfs.testing
 
     grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success -- "$TESTDIR"/marker.img || return 1
 }
 
 test_setup() {
-    mkdir -p -- "$TESTDIR"/overlay
-    (
-        # shellcheck disable=SC2030
-        export initdir="$TESTDIR"/overlay
-        # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
-        inst_multiple poweroff shutdown
-        inst_hook shutdown-emergency 000 ./hard-off.sh
-        inst_hook emergency 000 ./hard-off.sh
-    )
-
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
-        -a "debug dmsquash-live qemu" \
-        -o "rngd" \
-        -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
-        --no-hostonly-cmdline -N \
-        -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
-
-    mkdir -p -- "$TESTDIR"/root-source
-    kernel="$KVERSION"
+    mkdir -p -- "$TESTDIR"/overlay/source
     # Create what will eventually be our root filesystem onto an overlay
     (
+        # shellcheck disable=SC2030
         # shellcheck disable=SC2031
-        export initdir="$TESTDIR"/root-source
+        export initdir="$TESTDIR"/overlay/source
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
         (
@@ -77,46 +39,81 @@ test_setup() {
             mkdir -p -- dev sys proc etc var/run tmp
             mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
         )
-        inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
-            mount dmesg dhclient mkdir cp ping dhclient \
-            umount strace less dd sync
-        for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
-            [[ -f ${_terminfodir}/l/linux ]] && break
-        done
-        inst_multiple -o "${_terminfodir}"/l/linux
-        inst "$basedir/modules.d/35network-legacy/dhclient-script.sh" "/sbin/dhclient-script"
-        inst "$basedir/modules.d/35network-legacy/ifup.sh" "/sbin/ifup"
+        inst_simple /etc/os-release
+        [[ -f /etc/machine-id ]] && read -r MACHINE_ID < /etc/machine-id
 
+        inst ./test-init.sh /sbin/init
         inst_simple "${basedir}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh"
         inst_simple "${basedir}/modules.d/99base/dracut-dev-lib.sh" "/lib/dracut-dev-lib.sh"
         inst_binary "${basedir}/dracut-util" "/usr/bin/dracut-util"
         ln -s dracut-util "${initdir}/usr/bin/dracut-getarg"
         ln -s dracut-util "${initdir}/usr/bin/dracut-getargs"
 
-        inst_multiple grep syslinux isohybrid
-        for f in /usr/share/syslinux/*; do
-            inst_simple "$f"
-        done
-        inst_simple /etc/os-release
-        inst ./test-init.sh /sbin/init
-        inst "$TESTDIR"/initramfs.testing "/boot/initramfs-$KVERSION.img"
-        [[ -f /etc/machine-id ]] && read -r MACHINE_ID < /etc/machine-id
+        inst_multiple mkdir ln dd stty mount poweroff
 
-        VMLINUZ="/lib/modules/${KVERSION}/vmlinuz"
-        if ! [[ -e $VMLINUZ ]]; then
-            if [[ $MACHINE_ID ]] && { [[ -d /boot/${MACHINE_ID} ]] || [[ -L /boot/${MACHINE_ID} ]]; }; then
-                VMLINUZ="/boot/${MACHINE_ID}/$KVERSION/linux"
-            fi
-        fi
-        [[ -e $VMLINUZ ]] || VMLINUZ="/boot/vmlinuz-${KVERSION}"
-
-        inst "$VMLINUZ" "/boot/vmlinuz-${KVERSION}"
-        find_binary plymouth > /dev/null && inst_multiple plymouth
         cp -a -- /etc/ld.so.conf* "$initdir"/etc
         ldconfig -r "$initdir"
     )
-    python3 create.py -d -c livecd-fedora-minimal.ks
-    return 0
+
+    # second, install the files needed to make the root filesystem
+    (
+        # shellcheck disable=SC2030
+        # shellcheck disable=SC2031
+        export initdir=$TESTDIR/overlay
+        # shellcheck disable=SC1090
+        . "$basedir"/dracut-init.sh
+        inst_multiple sfdisk poweroff cp umount sync dd mkfs.ext4 mksquashfs
+        inst_hook initqueue 01 ./create-root.sh
+        inst_hook initqueue/finished 01 ./finished-false.sh
+    )
+
+    # create an initramfs that will create the target root filesystem.
+    # We do it this way so that we do not risk trashing the host mdraid
+    # devices, volume groups, encrypted partitions, etc.
+    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+        --modules "rootfs-block qemu" \
+        --no-hostonly --no-hostonly-cmdline --no-early-microcode --nofscks --nomdadmconf --nohardlink --nostrip \
+        --force "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
+    rm -rf -- "$TESTDIR"/overlay
+
+    # Create the blank file to use as a root filesystem
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    dd if=/dev/zero of="$TESTDIR"/root.img bs=1MiB count=160
+    declare -a disk_args=()
+    # shellcheck disable=SC2034
+    declare -i disk_index=0
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/root.img root
+
+    # Invoke KVM and/or QEMU to actually create the target filesystem.
+    "$testdir"/run-qemu \
+        "${disk_args[@]}" \
+        -append "root=/dev/dracut/root rw rootfstype=ext4 quiet console=ttyS0,115200n81 selinux=0" \
+        -initrd "$TESTDIR"/initramfs.makeroot || return 1
+
+    if ! grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img; then
+        echo "Could not create root filesystem"
+        return 1
+    fi
+
+    (
+        # shellcheck disable=SC2030
+        # shellcheck disable=SC2031
+        export initdir="$TESTDIR"/overlay
+        # shellcheck disable=SC1090
+        . "$basedir"/dracut-init.sh
+        inst_multiple poweroff shutdown mkfs.ext4 find
+        inst_hook shutdown-emergency 000 ./hard-off.sh
+        inst_hook emergency 000 ./hard-off.sh
+    )
+    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+        --modules "dmsquash-live qemu" \
+        --omit "rngd" \
+        --no-hostonly --no-hostonly-cmdline \
+        --force "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
+
+    ls -sh "$TESTDIR"/initramfs.testing
+    rm -rf -- "$TESTDIR"/overlay
 }
 
 test_cleanup() {
