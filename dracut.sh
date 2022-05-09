@@ -79,57 +79,69 @@ Creates initial ramdisk images for preloading modules
 
   --kver [VERSION]      Set kernel version to [VERSION].
   -f, --force           Overwrite existing initramfs file.
+  [OUTPUT_FILE] --rebuild
+                        Append the current arguments to those with which the
+                         input initramfs image was built. This option helps in
+                         incrementally building the initramfs for testing.
+                         If optional [OUTPUT_FILE] is not provided, the input
+                         initramfs provided to rebuild will be used as output
+                         file.
   -a, --add [LIST]      Add a space-separated list of dracut modules.
-  --rebuild         Append arguments to those of existing image and rebuild
+  --force-add [LIST]    Force to add a space-separated list of dracut modules
+                         to the default set of modules, when -H is specified.
+  -o, --omit [LIST]     Omit a space-separated list of dracut modules.
   -m, --modules [LIST]  Specify a space-separated list of dracut modules to
                          call when building the initramfs. Modules are located
                          in /usr/lib/dracut/modules.d.
-  -o, --omit [LIST]     Omit a space-separated list of dracut modules.
-  --force-add [LIST]    Force to add a space-separated list of dracut modules
-                         to the default set of modules, when -H is specified.
-  -d, --drivers [LIST]  Specify a space-separated list of kernel modules to
-                         exclusively include in the initramfs.
+                         This option forces dracut to only include the specified
+                         dracut modules.
+                         In most cases the --add option is what you want to use.
   --add-drivers [LIST]  Specify a space-separated list of kernel
                          modules to add to the initramfs.
-  --force-drivers [LIST] Specify a space-separated list of kernel
+  --force-drivers [LIST]
+                        Specify a space-separated list of kernel
                          modules to add to the initramfs and make sure they
                          are tried to be loaded via modprobe same as passing
                          rd.driver.pre=DRIVER kernel parameter.
   --omit-drivers [LIST] Specify a space-separated list of kernel
                          modules not to add to the initramfs.
+  -d, --drivers [LIST]  Specify a space-separated list of kernel modules to
+                         exclusively include in the initramfs.
   --filesystems [LIST]  Specify a space-separated list of kernel filesystem
                          modules to exclusively include in the generic
                          initramfs.
-  -k, --kmoddir [DIR]   Specify the directory, where to look for kernel
-                         modules
-  --fwdir [DIR]         Specify additional directories, where to look for
-                         firmwares, separated by :
+  -k, --kmoddir [DIR]   Specify the directory where to look for kernel
+                         modules.
+  --fwdir [DIR]         Specify additional colon-separated list of directories
+                         where to look for firmware files.
   --libdirs [LIST]      Specify a space-separated list of directories
                          where to look for libraries.
-  --kernel-only         Only install kernel drivers and firmware files
-  --no-kernel           Do not install kernel drivers and firmware files
-  --print-cmdline       Print the kernel command line for the given disk layout
-  --early-microcode     Combine early microcode with ramdisk
-  --no-early-microcode  Do not combine early microcode with ramdisk
-  --kernel-cmdline [PARAMETERS] Specify default kernel command line parameters
-  --strip               Strip binaries in the initramfs
+  --kernel-only         Only install kernel drivers and firmware files.
+  --no-kernel           Do not install kernel drivers and firmware files.
+  --print-cmdline       Print the kernel command line for the given disk layout.
+  --early-microcode     Combine early microcode with ramdisk.
+  --no-early-microcode  Do not combine early microcode with ramdisk.
+  --kernel-cmdline [PARAMETERS]
+                        Specify default kernel command line parameters.
+  --strip               Strip binaries in the initramfs.
   --aggresive-strip     Strip more than just debug symbol and sections,
-                        for a smaller initramfs build.
-  --nostrip             Do not strip binaries in the initramfs
-  --hardlink            Hardlink files in the initramfs
-  --nohardlink          Do not hardlink files in the initramfs
-  --prefix [DIR]        Prefix initramfs files with [DIR]
-  --noprefix            Do not prefix initramfs files
-  --mdadmconf           Include local /etc/mdadm.conf
-  --nomdadmconf         Do not include local /etc/mdadm.conf
-  --lvmconf             Include local /etc/lvm/lvm.conf
-  --nolvmconf           Do not include local /etc/lvm/lvm.conf
+                         for a smaller initramfs build. The --strip option must
+                         also be specified.
+  --nostrip             Do not strip binaries in the initramfs.
+  --hardlink            Hardlink files in the initramfs.
+  --nohardlink          Do not hardlink files in the initramfs.
+  --prefix [DIR]        Prefix initramfs files with [DIR].
+  --noprefix            Do not prefix initramfs files.
+  --mdadmconf           Include local /etc/mdadm.conf file.
+  --nomdadmconf         Do not include local /etc/mdadm.conf file.
+  --lvmconf             Include local /etc/lvm/lvm.conf file.
+  --nolvmconf           Do not include local /etc/lvm/lvm.conf file.
   --fscks [LIST]        Add a space-separated list of fsck helpers.
   --nofscks             Inhibit installation of any fsck helpers.
   --ro-mnt              Mount / and /usr read-only by default.
-  -h, --help            This message
-  --debug               Output debug information of the build process
-  --profile             Output profile information of the build process
+  -h, --help            This message.
+  --debug               Output debug information of the build process.
+  --profile             Output profile information of the build process.
   -L, --stdlog [0-6]    Specify logging level (to standard error)
                          0 - suppress any messages
                          1 - only fatal errors
@@ -138,8 +150,8 @@ Creates initial ramdisk images for preloading modules
                          4 - info
                          5 - debug info (here starts lots of output)
                          6 - trace info (and even more)
-  -v, --verbose         Increase verbosity level
-  -q, --quiet           Decrease verbosity level
+  -v, --verbose         Increase verbosity level.
+  -q, --quiet           Decrease verbosity level.
   -c, --conf [FILE]     Specify configuration file to use.
                          Default: /etc/dracut.conf
   --confdir [DIR]       Specify configuration directory to use *.conf files
@@ -151,49 +163,51 @@ Creates initial ramdisk images for preloading modules
                          directory instead of the system-wide installed in
                          /usr/lib/dracut/modules.d.
                          Useful when running dracut from a git checkout.
-  -H, --hostonly        Host-Only mode: Install only what is needed for
-                        booting the local host instead of a generic host.
-  -N, --no-hostonly     Disables Host-Only mode
-  --hostonly-mode <mode>
-                        Specify the hostonly mode to use. <mode> could be
-                        one of "sloppy" or "strict". "sloppy" mode is used
-                        by default.
-                        In "sloppy" hostonly mode, extra drivers and modules
-                        will be installed, so minor hardware change won't make
-                        the image unbootable (eg. changed keyboard), and the
-                        image is still portable among similar hosts.
-                        With "strict" mode enabled, anything not necessary
-                        for booting the local host in its current state will
-                        not be included, and modules may do some extra job
-                        to save more space. Minor change of hardware or
-                        environment could make the image unbootable.
-                        DO NOT use "strict" mode unless you know what you
-                        are doing.
+  -H, --hostonly        Host-only mode: Install only what is needed for
+                         booting the local host instead of a generic host.
+  -N, --no-hostonly     Disables host-only mode.
+  --hostonly-mode [MODE]
+                        Specify the host-only mode to use. [MODE] could be
+                         one of "sloppy" or "strict". "sloppy" mode is used
+                         by default.
+                         In "sloppy" host-only mode, extra drivers and modules
+                         will be installed, so minor hardware change won't make
+                         the image unbootable (e.g. changed keyboard), and the
+                         image is still portable among similar hosts.
+                         With "strict" mode enabled, anything not necessary
+                         for booting the local host in its current state will
+                         not be included, and modules may do some extra job
+                         to save more space. Minor change of hardware or
+                         environment could make the image unbootable.
+                         DO NOT use "strict" mode unless you know what you
+                         are doing.
   --hostonly-cmdline    Store kernel command line arguments needed
-                        in the initramfs
+                         in the initramfs.
   --no-hostonly-cmdline Do not store kernel command line arguments needed
-                        in the initramfs
+                         in the initramfs.
   --no-hostonly-default-device
                         Do not generate implicit host devices like root,
-                        swap, fstab, etc. Use "--mount" or "--add-device"
-                        to explicitly add devices as needed.
+                         swap, fstab, etc. Use "--mount" or "--add-device"
+                         to explicitly add devices as needed.
   --hostonly-i18n       Install only needed keyboard and font files according
-                        to the host configuration (default).
+                         to the host configuration (default).
   --no-hostonly-i18n    Install all keyboard and font files available.
   --hostonly-nics [LIST]
-                        Only enable listed NICs in the initramfs.
+                        Only enable listed NICs in the initramfs. The list can
+                         be empty, so other modules can install only the
+                         necessary network drivers.
   --persistent-policy [POLICY]
                         Use [POLICY] to address disks and partitions.
-                        POLICY can be any directory name found in /dev/disk.
-                        E.g. "by-uuid", "by-label"
+                         POLICY can be any directory name found in /dev/disk.
+                         E.g. "by-uuid", "by-label"
   --fstab               Use /etc/fstab to determine the root device.
-  --add-fstab [FILE]    Add file to the initramfs fstab
+  --add-fstab [FILE]    Add file to the initramfs fstab.
   --mount "[DEV] [MP] [FSTYPE] [FSOPTS]"
                         Mount device [DEV] on mountpoint [MP] with filesystem
-                        [FSTYPE] and options [FSOPTS] in the initramfs
+                         [FSTYPE] and options [FSOPTS] in the initramfs.
   --mount "[MP]"        Same as above, but [DEV], [FSTYPE] and [FSOPTS] are
-                        determined by looking at the current mounts.
-  --add-device "[DEV]"  Bring up [DEV] in initramfs
+                         determined by looking at the current mounts.
+  --add-device "[DEV]"  Bring up [DEV] in initramfs.
   -i, --include [SOURCE] [TARGET]
                         Include the files in the SOURCE directory into the
                          Target directory in the final initramfs.
@@ -201,7 +215,8 @@ Creates initial ramdisk images for preloading modules
                          in the final initramfs.
   -I, --install [LIST]  Install the space separated list of files into the
                          initramfs.
-  --install-optional [LIST]  Install the space separated list of files into the
+  --install-optional [LIST]
+                        Install the space separated list of files into the
                          initramfs, if they exist.
   --gzip                Compress the generated initramfs using gzip.
                          This will be done by default, unless another
@@ -224,37 +239,41 @@ Creates initial ramdisk images for preloading modules
   --zstd                Compress the generated initramfs using Zstandard.
                          Make sure that your kernel has zstd support compiled
                          in, otherwise you will not be able to boot.
-  --compress [COMPRESSION] Compress the generated initramfs with the
+  --compress [COMPRESSION]
+                        Compress the generated initramfs with the
                          passed compression program.  Make sure your kernel
                          knows how to decompress the generated initramfs,
                          otherwise you will not be able to boot.
-  --no-compress         Do not compress the generated initramfs.  This will
+  --no-compress         Do not compress the generated initramfs. This will
                          override any other compression options.
-  --squash-compressor [COMPRESSION] Specify the compressor and compressor
-                         specific options used by mksquashfs if squash module
-                         is called when building the initramfs.
+  --squash-compressor [COMPRESSION]
+                        Specify the compressor and compressor specific options
+                         used by mksquashfs if squash module is called when
+                         building the initramfs.
   --enhanced-cpio       Attempt to reflink cpio file data using dracut-cpio.
   --list-modules        List all available dracut modules.
   -M, --show-modules    Print included module's name to standard output during
                          build.
-  --keep                Keep the temporary initramfs for debugging purposes
-  --printsize           Print out the module install size
-  --sshkey [SSHKEY]     Add ssh key to initramfs (use with ssh-client module)
-  --logfile [FILE]      Logfile to use (overrides configuration setting)
-  --reproducible        Create reproducible images
-  --no-reproducible     Do not create reproducible images
-  --loginstall [DIR]    Log all files installed from the host to [DIR]
+  --keep                Keep the temporary initramfs for debugging purposes.
+  --printsize           Print out the module install size.
+  --sshkey [SSHKEY]     Add SSH key to initramfs (use with ssh-client module).
+  --logfile [FILE]      Logfile to use (overrides configuration setting).
+  --reproducible        Create reproducible images.
+  --no-reproducible     Do not create reproducible images.
+  --loginstall [DIR]    Log all files installed from the host to [DIR].
   --uefi                Create an UEFI executable with the kernel cmdline and
-                        kernel combined
-  --no-uefi             Disables UEFI mode
-  --uefi-stub [FILE]    Use the UEFI stub [FILE] to create an UEFI executable
+                         kernel combined.
+  --no-uefi             Disables UEFI mode.
+  --no-machineid        Affects the default output filename of the UEFI
+                         executable, discarding the <MACHINE_ID> part.
+  --uefi-stub [FILE]    Use the UEFI stub [FILE] to create an UEFI executable.
   --uefi-splash-image [FILE]
                         Use [FILE] as a splash image when creating an UEFI
-                        executable
-  --kernel-image [FILE] location of the kernel image
+                         executable. Requires bitmap (.bmp) image format.
+  --kernel-image [FILE] Location of the kernel image.
   --regenerate-all      Regenerate all initramfs images at the default location
-                        for the kernel versions found on the system
-  --version             Display version
+                         for the kernel versions found on the system.
+  --version             Display version.
 
 If [LIST] has multiple arguments, then you have to put these in quotes.
 
@@ -2184,7 +2203,7 @@ if [[ $do_strip == yes ]]; then
         fi
     done
 
-    if [[ $aggresive_strip ]]; then
+    if [[ $aggresive_strip == yes ]]; then
         # `eu-strip` and `strip` both strips all unneeded parts by default
         strip_args=(-p)
     else
