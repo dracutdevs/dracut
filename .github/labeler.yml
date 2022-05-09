@@ -87,9 +87,6 @@ url-lib:
 drm:
   - modules.d/50drm/*
 
-gensplash:
-  - modules.d/50gensplash/*
-
 plymouth:
   - modules.d/50plymouth/*
 
