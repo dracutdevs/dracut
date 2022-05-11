@@ -1,5 +1,6 @@
 name: Container
 on:
+    workflow_dispatch:
     schedule:
         -  cron: '30 11 * * *'   # every day at 4:40
     push:
