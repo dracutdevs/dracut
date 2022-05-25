@@ -17,6 +17,11 @@ fi
 mount_boot() {
     boot=$(getarg boot=)
 
+    if [ -z "$boot" ]; then
+        # try to retrive boot partition info from /sysroot/etc/fstab.
+        boot="$(sed -nE 's@^([^[:space:]]+)[[:space:]]+/boot[[:space:]]+.*$@\1@p' /sysroot/etc/fstab)"
+    fi
+
     if [ -n "$boot" ]; then
         case "$boot" in
             LABEL=* | UUID=* | PARTUUID=* | PARTLABEL=*)
