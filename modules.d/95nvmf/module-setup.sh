@@ -78,17 +78,17 @@ cmdline() {
         [ -z "$trtype" ] && return 0
         nvme list-subsys "${PWD##*/}" | while read -r _ _ trtype traddr host_traddr _; do
             [ "$trtype" != "${trtype#NQN}" ] && continue
-            echo -n " nvmf.discover=$trtype,${traddr#traddr=},${host_traddr#host_traddr=}"
+            echo -n " rd.nvmf.discover=$trtype,${traddr#traddr=},${host_traddr#host_traddr=}"
         done
     }
 
     if [ -f /etc/nvme/hostnqn ]; then
         _hostnqn=$(cat /etc/nvme/hostnqn)
-        echo -n " nvmf.hostnqn=${_hostnqn}"
+        echo -n " rd.nvmf.hostnqn=${_hostnqn}"
     fi
     if [ -f /etc/nvme/hostid ]; then
         _hostid=$(cat /etc/nvme/hostid)
-        echo -n " nvmf.hostid=${_hostid}"
+        echo -n " rd.nvmf.hostid=${_hostid}"
     fi
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
