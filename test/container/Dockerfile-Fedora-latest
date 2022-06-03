@@ -49,6 +49,8 @@ RUN dnf -y install --setopt=install_weak_deps=False \
     which \
     ShellCheck \
     shfmt \
+    openssl \
+    openssl-devel \
     && dnf -y update && dnf clean all
 
 # Set default command
