@@ -134,6 +134,16 @@ fi
 
 unset allowdiscards
 
+# parse for header file
+luks_header_filename=$(getargs "rd.luks.header")
+luks_header_disk=$(getargs "rd.luks.header.disk")
+if [ -n "$luks_header_filename" ]; then
+    cryptsetupopts="$cryptsetupopts --header /headerdiskmount/$luks_header_filename"
+fi
+
+unset luks_header_filename
+unset luks_header_disk
+
 # fallback to passphrase
 ask_passphrase=1
 

@@ -34,7 +34,16 @@ else
     PARTUUID=$(getargs rd.luks.partuuid -d rd_LUKS_PARTUUID)
     SERIAL=$(getargs rd.luks.serial -d rd_LUKS_SERIAL)
     LUKS=$(getargs rd.luks.uuid -d rd_LUKS_UUID)
+    HEADER=$(getargs rd.luks.header -d rd_LUKS_HEADER)
+    HEADER_DISK=$(getargs rd.luks.header.disk -d rd_LUKS_HEADER_DISK)
     tout=$(getarg rd.luks.key.tout)
+
+
+    if [ -n "$HEADER_DISK" ]; then
+        mkdir /headerdiskmount
+        mount $HEADER_DISK /headerdiskmount
+    fi
+
 
     if [ -e /etc/crypttab ]; then
         while read -r _ _dev _ || [ -n "$_dev" ]; do
