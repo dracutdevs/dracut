@@ -273,6 +273,9 @@ Creates initial ramdisk images for preloading modules
   --kernel-image [FILE] Location of the kernel image.
   --regenerate-all      Regenerate all initramfs images at the default location
                          for the kernel versions found on the system.
+  -p, --parallel        Use parallel processing if possible (currently only
+                        supported --regenerate-all)
+                        images simultaneously.
   --version             Display version.
 
 If [LIST] has multiple arguments, then you have to put these in quotes.
@@ -368,7 +371,7 @@ rearrange_params() {
     TEMP=$(
         unset POSIXLY_CORRECT
         getopt \
-            -o "a:m:o:d:I:k:c:r:L:fvqlHhMN" \
+            -o "a:m:o:d:I:k:c:r:L:fvqlHhMNp" \
             --long kver: \
             --long add: \
             --long force-add: \
@@ -447,6 +450,7 @@ rearrange_params() {
             --long keep \
             --long printsize \
             --long regenerate-all \
+            --long parallel \
             --long noimageifnotneeded \
             --long early-microcode \
             --long no-early-microcode \
@@ -813,7 +817,8 @@ while :; do
             ;;
         --keep) keep="yes" ;;
         --printsize) printsize="yes" ;;
-        --regenerate-all) regenerate_all="yes" ;;
+        --regenerate-all) regenerate_all_l="yes" ;;
+        -p | --parallel) parallel_l="yes" ;;
         --noimageifnotneeded) noimageifnotneeded="yes" ;;
         --reproducible) reproducible_l="yes" ;;
         --no-reproducible) reproducible_l="no" ;;
@@ -869,37 +874,6 @@ while (($# > 0)); do
 done
 
 [[ $sysroot_l ]] && dracutsysrootdir="$sysroot_l"
-
-if [[ $regenerate_all == "yes" ]]; then
-    ret=0
-    if [[ $kernel ]]; then
-        printf -- "--regenerate-all cannot be called with a kernel version\n" >&2
-        exit 1
-    fi
-
-    if [[ $outfile ]]; then
-        printf -- "--regenerate-all cannot be called with a image file\n" >&2
-        exit 1
-    fi
-
-    ((len = ${#dracut_args[@]}))
-    for ((i = 0; i < len; i++)); do
-        [[ ${dracut_args[$i]} == "--regenerate-all" ]] \
-            && unset dracut_args["$i"]
-    done
-
-    cd "$dracutsysrootdir"/lib/modules || exit 1
-    for i in *; do
-        [[ -f $i/modules.dep ]] || [[ -f $i/modules.dep.bin ]] || continue
-        "$dracut_cmd" --kver="$i" "${dracut_args[@]}"
-        ((ret += $?))
-    done
-    exit "$ret"
-fi
-
-if ! [[ $kernel ]]; then
-    kernel=$(uname -r)
-fi
 
 export LC_ALL=C
 export LANG=C
@@ -960,6 +934,62 @@ for f in $(dropindirs_sort ".conf" "$confdir" "$dracutbasedir/dracut.conf.d"); d
     # shellcheck disable=SC1090
     [[ -e $f ]] && . "$f"
 done
+
+# regenerate_all shouldn't be set in conf files
+regenerate_all=$regenerate_all_l
+if [[ $parallel_l == "yes" ]]; then
+    parallel=yes
+fi
+
+if [[ $regenerate_all == "yes" ]]; then
+    ret=0
+    if [[ $kernel ]]; then
+        printf -- "--regenerate-all cannot be called with a kernel version\n" >&2
+        exit 1
+    fi
+
+    if [[ $outfile ]]; then
+        printf -- "--regenerate-all cannot be called with a image file\n" >&2
+        exit 1
+    fi
+
+    ((len = ${#dracut_args[@]}))
+    for ((i = 0; i < len; i++)); do
+        case ${dracut_args[$i]} in
+            --regenerate-all | --parallel)
+                unset dracut_args["$i"]
+                ;;
+        esac
+    done
+
+    cd "$dracutsysrootdir"/lib/modules || exit 1
+    if [[ $parallel != "yes" ]]; then
+        for i in *; do
+            [[ -f $i/modules.dep ]] || [[ -f $i/modules.dep.bin ]] || continue
+            "$dracut_cmd" --kver="$i" "${dracut_args[@]}"
+            ((ret += $?))
+        done
+    else
+        for i in *; do
+            [[ -f $i/modules.dep ]] || [[ -f $i/modules.dep.bin ]] || continue
+            "$dracut_cmd" --kver="$i" "${dracut_args[@]}" &
+        done
+        while true; do
+            wait -n
+            wst=$?
+            if [[ $wst == 127 ]]; then
+                break
+            else
+                ((ret += wst))
+            fi
+        done
+    fi
+    exit "$ret"
+fi
+
+if ! [[ $kernel ]]; then
+    kernel=$(uname -r)
+fi
 
 DRACUT_PATH=${DRACUT_PATH:-/sbin /bin /usr/sbin /usr/bin}
 
@@ -1329,8 +1359,7 @@ dinfo "Executing: $dracut_cmd ${dracut_args[*]}"
 [[ $do_list == yes ]] && {
     for mod in "$dracutbasedir"/modules.d/*; do
         [[ -d $mod ]] || continue
-        [[ -e $mod/install || -e $mod/installkernel || -e \
-        $mod/module-setup.sh ]] || continue
+        [[ -e $mod/install || -e $mod/installkernel || -e $mod/module-setup.sh ]] || continue
         printf "%s\n" "${mod##*/??}"
     done
     exit 0
