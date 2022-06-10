@@ -1,0 +1,14 @@
+[Unit]
+Description=Lvm thinpool monitor service
+Before=initrd.target
+After=initrd-fs.target
+Conflicts=shutdown.target emergency.target
+
+[Service]
+Type=forking
+ExecStart=/bin/start-thinpool-monitor
+PIDFile=/run/thinpool-moni.pid
+StandardInput=null
+StandardOutput=journal+console
+StandardError=journal+console
+KillSignal=SIGHUP
