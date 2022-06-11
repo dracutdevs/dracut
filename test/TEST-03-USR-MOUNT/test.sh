@@ -58,7 +58,8 @@ test_setup() {
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
-        -m "test-makeroot dash btrfs rootfs-block kernel-modules" \
+        -m "test-makeroot dash btrfs rootfs-block kernel-modules boot-animation" \
+        -o "plymouth" \
         -d "piix ide-gd_mod ata_piix btrfs sd_mod" \
         -I "mkfs.btrfs" \
         -i ./create-root.sh /lib/dracut/hooks/initqueue/01-create-root.sh \
