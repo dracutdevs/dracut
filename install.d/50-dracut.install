@@ -54,7 +54,12 @@ case "$COMMAND" in
                 break
             fi
         done
-	dracut -f ${noimageifnotneeded:+--noimageifnotneeded} "$BOOT_DIR_ABS/$INITRD" "$KERNEL_VERSION"
+
+        dracut -f \
+            ${noimageifnotneeded:+--noimageifnotneeded} \
+            $([[ "$KERNEL_INSTALL_VERBOSE" == 1 ]] && echo --verbose) \
+            "$BOOT_DIR_ABS/$INITRD" \
+            "$KERNEL_VERSION"
         ret=$?
 	;;
     remove)
