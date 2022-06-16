@@ -9,5 +9,5 @@ shift
 
 # pipe the first line of stdin into keyctl and the user
 # specified program
-( ( head -n1 | tee /dev/fd/5 | \
-	keyctl padd user "$name" @u >/dev/null 2>&1 ) 5>&1 | "$@" ) 4>&1
+( (head -n1 | tee /dev/fd/5 \
+    | keyctl padd user "$name" @u > /dev/null 2>&1) 5>&1 | "$@") 4>&1
