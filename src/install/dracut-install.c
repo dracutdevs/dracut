@@ -329,28 +329,22 @@ static int cp(const char *src, const char *dst)
 
 normal_copy:
         pid = fork();
+        const char *preservation = (geteuid() == 0
+                                    && no_xattr == false) ? "--preserve=mode,xattr,timestamps,ownership" : "--preserve=mode,timestamps,ownership";
         if (pid == 0) {
-                if (geteuid() == 0 && no_xattr == false)
-                        execlp("cp", "cp", "--reflink=auto", "--sparse=auto", "--preserve=mode,xattr,timestamps,ownership", "-fL",
-                               src, dst, NULL);
-                else
-                        execlp("cp", "cp", "--reflink=auto", "--sparse=auto", "--preserve=mode,timestamps,ownership", "-fL", src,
-                               dst, NULL);
-                _exit(EXIT_FAILURE);
+                execlp("cp", "cp", "--reflink=auto", "--sparse=auto", preservation, "-fL", src, dst, NULL);
+                _exit(errno == ENOENT ? 127 : 126);
         }
 
-        while (waitpid(pid, &ret, 0) < 0) {
+        while (waitpid(pid, &ret, 0) == -1) {
                 if (errno != EINTR) {
-                        ret = -1;
-                        if (geteuid() == 0 && no_xattr == false)
-                                log_error("Failed: cp --reflink=auto --sparse=auto --preserve=mode,xattr,timestamps,ownership -fL %s %s",
-                                          src, dst);
-                        else
-                                log_error("Failed: cp --reflink=auto --sparse=auto --preserve=mode,timestamps,ownership -fL %s %s",
-                                          src, dst);
-                        break;
+                        log_error("ERROR: waitpid() failed: %m");
+                        return 1;
                 }
         }
+        ret = WIFSIGNALED(ret) ? 128 + WTERMSIG(ret) : WEXITSTATUS(ret);
+        if (ret != 0)
+                log_error("ERROR: 'cp --reflink=auto --sparse=auto %s -fL %s %s' failed with %d", preservation, src, dst, ret);
         log_debug("cp ret = %d", ret);
         return ret;
 }
