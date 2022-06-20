@@ -99,6 +99,7 @@ load_evm_x509() {
     fi
     # load the default EVM public key onto the EVM keyring along
     # with all the other ones in $EVMKEYSDIR
+    local key_imported=1
     for PUBKEY in ${EVMX509PATH} "${NEWROOT}${EVMKEYSDIR}"/*; do
         if [ ! -f "${PUBKEY}" ]; then
             if [ "${RD_DEBUG}" = "yes" ]; then
@@ -110,13 +111,14 @@ load_evm_x509() {
             info "integrity: failed to load the EVM X509 cert ${PUBKEY}"
             return 1
         fi
+        key_imported=0
     done
 
     if [ "${RD_DEBUG}" = "yes" ]; then
         keyctl show @u
     fi
 
-    return 0
+    return ${key_imported}
 }
 
 unload_evm_key() {
