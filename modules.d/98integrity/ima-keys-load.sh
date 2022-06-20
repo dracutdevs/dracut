@@ -26,9 +26,7 @@ load_x509_keys() {
             continue
         fi
 
-        # FIXME: X509ID unused?
-        # shellcheck disable=SC2034
-        if ! X509ID=$(evmctl import "${PUBKEY}" "${KEYRING_ID}"); then
+        if ! evmctl import "${PUBKEY}" "${KEYRING_ID}"; then
             info "integrity: IMA x509 cert not loaded on keyring: ${PUBKEY}"
         fi
     done
