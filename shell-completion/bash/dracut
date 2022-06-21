@@ -33,7 +33,7 @@ _dracut() {
             --xz --zstd --no-compress --gzip --list-modules --show-modules --keep
             --printsize --regenerate-all --noimageifnotneeded --early-microcode
             --no-early-microcode --print-cmdline --reproducible --uefi
-            --enhanced-cpio --rebuild --aggresive-strip --hostonly-cmdline
+            --enhanced-cpio --rebuild --aggressive-strip --hostonly-cmdline
             --no-hostonly-cmdline --no-hostonly-default-device --nofscks
             --hostonly-i18n --no-hostonly-i18n --lzo --lz4 --no-reproducible
             --no-uefi --no-machineid --version
