@@ -124,7 +124,7 @@ Creates initial ramdisk images for preloading modules
   --kernel-cmdline [PARAMETERS]
                         Specify default kernel command line parameters.
   --strip               Strip binaries in the initramfs.
-  --aggresive-strip     Strip more than just debug symbol and sections,
+  --aggressive-strip     Strip more than just debug symbol and sections,
                          for a smaller initramfs build. The --strip option must
                          also be specified.
   --nostrip             Do not strip binaries in the initramfs.
@@ -409,7 +409,7 @@ rearrange_params() {
             --long print-cmdline \
             --long kernel-cmdline: \
             --long strip \
-            --long aggresive-strip \
+            --long aggressive-strip \
             --long nostrip \
             --long hardlink \
             --long nohardlink \
@@ -734,7 +734,7 @@ while :; do
             early_microcode_l="no"
             ;;
         --strip) do_strip_l="yes" ;;
-        --aggresive-strip) aggresive_strip_l="yes" ;;
+        --aggressive-strip) aggressive_strip_l="yes" ;;
         --nostrip) do_strip_l="no" ;;
         --hardlink) do_hardlink_l="yes" ;;
         --nohardlink) do_hardlink_l="no" ;;
@@ -1033,7 +1033,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $drivers_dir_l ]] && drivers_dir=$drivers_dir_l
 [[ $do_strip_l ]] && do_strip=$do_strip_l
 [[ $do_strip ]] || do_strip=yes
-[[ $aggresive_strip_l ]] && aggresive_strip=$aggresive_strip_l
+[[ $aggressive_strip_l ]] && aggressive_strip=$aggressive_strip_l
 [[ $do_hardlink_l ]] && do_hardlink=$do_hardlink_l
 [[ $do_hardlink ]] || do_hardlink=yes
 [[ $prefix_l ]] && prefix=$prefix_l
@@ -2235,7 +2235,7 @@ if [[ $do_strip == yes ]]; then
         fi
     done
 
-    if [[ $aggresive_strip == yes ]]; then
+    if [[ $aggressive_strip == yes ]]; then
         # `eu-strip` and `strip` both strips all unneeded parts by default
         strip_args=(-p)
     else
