@@ -528,7 +528,7 @@ static int resolve_deps(const char *src)
         int fds[2];
         FILE *fptr;
         if (pipe2(fds, O_CLOEXEC) == -1 || (fptr = fdopen(fds[0], "r")) == NULL) {
-                log_error("Error '%m' initiating pipe stream for %s", ldd);
+                log_error("ERROR: pipe stream initialization for '%s' failed: %m", ldd);
                 exit(EXIT_FAILURE);
         }
 
