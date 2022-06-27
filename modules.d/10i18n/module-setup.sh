@@ -63,7 +63,9 @@ install() {
             readarray -t INCLUDES < <("$CMD" '^include ' "$MAP" | while read -r _ a _ || [ -n "$a" ]; do echo "${a//\"/}"; done)
 
             for INCL in "${INCLUDES[@]}"; do
-                for FN in "$dracutsysrootdir""${kbddir}"/keymaps/**/"$INCL"*; do
+                local -a FNS
+                mapfile -t -d '' FNS < <(find "${dracutsysrootdir}${kbddir}"/keymaps/ -type f -name "${INCL}*" -print0)
+                for FN in "${FNS[@]}"; do
                     [[ -f $FN ]] || continue
                     [[ -v KEYMAPS["$FN"] ]] || findkeymap "$FN"
                 done
