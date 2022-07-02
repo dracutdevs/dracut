@@ -9,6 +9,7 @@ ConditionPathExists=!/run/initramfs/bin/sh
 OnFailure=dracut-shutdown-onfailure.service
 
 [Service]
+Environment=DRACUT_SYSTEMD=1
 RemainAfterExit=yes
 Type=oneshot
 ExecStart=/bin/true
