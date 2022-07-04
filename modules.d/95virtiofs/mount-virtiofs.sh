@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 
 if [ "${fstype}" = "virtiofs" -o "${root%%:*}" = "virtiofs" ]; then
     if ! { modprobe virtiofs || strstr "$(cat /proc/filesystems)" virtiofs; }; then
