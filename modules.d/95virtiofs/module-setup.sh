@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 # called by dracut
 check() {
