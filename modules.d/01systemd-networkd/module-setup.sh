@@ -70,8 +70,8 @@ install() {
             "$systemdutilconfdir/network/*" \
             "$systemdsystemconfdir"/systemd-networkd.service \
             "$systemdsystemconfdir/systemd-networkd.service/*.conf" \
-            "$systemdsystemunitdir"/systemd-networkd.socket \
-            "$systemdsystemunitdir/systemd-networkd.socket/*.conf" \
+            "$systemdsystemconfdir"/systemd-networkd.socket \
+            "$systemdsystemconfdir/systemd-networkd.socket/*.conf" \
             "$systemdsystemconfdir"/systemd-network-generator.service \
             "$systemdsystemconfdir/systemd-network-generator.service/*.conf" \
             "$systemdsystemconfdir"/systemd-networkd-wait-online.service \
