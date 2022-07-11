@@ -12,6 +12,7 @@ ConditionPathExists=!/etc/multipath.conf
 
 [Service]
 Type=oneshot
+RemainAfterExit=yes
 # mpathconf requires /etc/multipath to already exist
 ExecStartPre=-/usr/bin/mkdir -p /etc/multipath
 ExecStart=/usr/sbin/mpathconf --enable
