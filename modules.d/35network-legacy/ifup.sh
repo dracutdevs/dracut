@@ -73,6 +73,13 @@ do_dhcp() {
         return 1
     fi
 
+    if [ -n "$_timeout" ]; then
+        if ! (dhclient --help 2>&1 | grep -q -F -- '--timeout' 2> /dev/null); then
+            warn "rd.net.timeout.dhcp has no effect because dhclient does not implement the --timeout option"
+            unset _timeout
+        fi
+    fi
+
     if [ ! -e /run/NetworkManager/conf.d/10-dracut-dhclient.conf ]; then
         mkdir -p /run/NetworkManager/conf.d
         echo '[main]' > /run/NetworkManager/conf.d/10-dracut-dhclient.conf
