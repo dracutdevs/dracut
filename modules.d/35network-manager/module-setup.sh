@@ -53,7 +53,7 @@ install() {
 
         # Adding default link
         inst_multiple -o "${systemdutildir}/network/99-default.link"
-        [[ $hostonly ]] && inst_multiple -H -o "${systemdsystemconfdir}/network/*.link"
+        [[ $hostonly ]] && inst_multiple -H -o "${systemdnetworkconfdir}/*.link"
 
         $SYSTEMCTL -q --root "$initdir" enable nm-initrd.service
     fi
