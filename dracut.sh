@@ -1833,7 +1833,7 @@ fi
 [[ -d $dracutsysrootdir$systemdnetworkconfdir ]] \
     || systemdnetworkconfdir=$(pkg-config systemd --variable=systemdnetworkconfdir 2> /dev/null)
 
-[[ -d $dracutsysrootdir$systemdnetworkconfdir ]] || systemdnetworkconfdir=${systemdsystemconfdir}/network
+[[ -d $dracutsysrootdir$systemdnetworkconfdir ]] || systemdnetworkconfdir=${systemdutilconfdir}/network
 
 [[ -d $dracutsysrootdir$systemdntpunits ]] \
     || systemdntpunits=$(pkg-config systemd --variable=systemdntpunits 2> /dev/null)
@@ -1843,7 +1843,7 @@ fi
 [[ -d $dracutsysrootdir$systemdntpunitsconfdir ]] \
     || systemdntpunitsconfdir=$(pkg-config systemd --variable=systemdntpunitsconfdir 2> /dev/null)
 
-[[ -d $dracutsysrootdir$systemdntpunitsconfdir ]] || systemdntpunitsconfdir=${systemdsystemconfdir}/ntp-units.d
+[[ -d $dracutsysrootdir$systemdntpunitsconfdir ]] || systemdntpunitsconfdir=${systemdutilconfdir}/ntp-units.d
 
 [[ -d $dracutsysrootdir$systemdportable ]] \
     || systemdportable=$(pkg-config systemd --variable=systemdportable 2> /dev/null)
@@ -1853,7 +1853,7 @@ fi
 [[ -d $dracutsysrootdir$systemdportableconfdir ]] \
     || systemdportableconfdir=$(pkg-config systemd --variable=systemdportableconfdir 2> /dev/null)
 
-[[ -d "$dracutsysrootdir$systemdportableconfdir" ]] || systemdportableconfdir=${systemdsystemconfdir}/portable
+[[ -d "$dracutsysrootdir$systemdportableconfdir" ]] || systemdportableconfdir=${systemdutilconfdir}/portable
 
 [[ -d $dracutsysrootdir$systemdsystemunitdir ]] \
     || systemdsystemunitdir=$(pkg-config systemd --variable=systemdsystemunitdir 2> /dev/null)
@@ -1868,7 +1868,7 @@ fi
 [[ -d $dracutsysrootdir$systemduserconfdir ]] \
     || systemduserconfdir=$(pkg-config systemd --variable=systemduserconfdir 2> /dev/null)
 
-[[ -d $dracutsysrootdir$systemduserconfdir ]] || systemduserconfdir=${systemdsystemconfdir}/user
+[[ -d $dracutsysrootdir$systemduserconfdir ]] || systemduserconfdir=${systemdutilconfdir}/user
 
 [[ -d $dracutsysrootdir$systemdsystemconfdir ]] \
     || systemdsystemconfdir=$(pkg-config systemd --variable=systemdsystemconfdir 2> /dev/null)
@@ -1922,8 +1922,10 @@ export initdir dracutbasedir \
     dbussessionconfdir dbussystem dbussystemconfdir dbussystemservices \
     dbussystemservicesconfdir environment environmentconfdir modulesload \
     modulesloadconfdir sysctld sysctlconfdir sysusers sysusersconfdir \
-    systemdutildir systemdutilconfdir systemdcatalog systemdntpunits \
-    systemdntpunitsconfdir systemdsystemunitdir systemdsystemconfdir \
+    systemdutildir systemdutilconfdir systemdcatalog systemdnetwork \
+    systemdnetworkconfdir systemdntpunits systemdntpunitsconfdir \
+    systemdportable systemdportableconfdir systemdsystemunitdir \
+    systemdsystemconfdir systemduser systemduserconfdir \
     hostonly_cmdline loginstall tmpfilesdir tmpfilesconfdir depmodd \
     depmodconfdir
 
