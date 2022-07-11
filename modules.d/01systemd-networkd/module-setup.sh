@@ -39,12 +39,12 @@ install() {
         "$systemdutildir"/systemd-networkd \
         "$systemdutildir"/systemd-network-generator \
         "$systemdutildir"/systemd-networkd-wait-online \
-        "$systemdutildir"/network/80-container-host0.network \
-        "$systemdutildir"/network/80-container-ve.network \
-        "$systemdutildir"/network/80-container-vz.network \
-        "$systemdutildir"/network/80-vm-vt.network \
-        "$systemdutildir"/network/80-wifi-adhoc.network \
-        "$systemdutildir"/network/99-default.link \
+        "$systemdnetwork"/80-container-host0.network \
+        "$systemdnetwork"/80-container-ve.network \
+        "$systemdnetwork"/80-container-vz.network \
+        "$systemdnetwork"/80-vm-vt.network \
+        "$systemdnetwork"/80-wifi-adhoc.network \
+        "$systemdnetwork"/99-default.link \
         "$systemdsystemunitdir"/systemd-networkd.service \
         "$systemdsystemunitdir"/systemd-networkd.socket \
         "$systemdsystemunitdir"/systemd-network-generator.service \
@@ -67,7 +67,7 @@ install() {
         inst_multiple -H -o \
             "$systemdutilconfdir"/networkd.conf \
             "$systemdutilconfdir/networkd.conf.d/*.conf" \
-            "$systemdutilconfdir/network/*" \
+            "$systemdnetworkconfdir/*" \
             "$systemdsystemconfdir"/systemd-networkd.service \
             "$systemdsystemconfdir/systemd-networkd.service/*.conf" \
             "$systemdsystemunitdir"/systemd-networkd.socket \
