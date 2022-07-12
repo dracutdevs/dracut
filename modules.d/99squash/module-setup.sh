@@ -28,11 +28,6 @@ installpost() {
         [[ $squash_dir == "$i"/* ]] || mv "$i" "$squash_dir"/
     done
 
-    # initdir also needs ld.so.* to make ld.so work
-    inst /etc/ld.so.cache
-    inst /etc/ld.so.conf
-    inst_dir /etc/ld.so.conf.d
-
     # Create mount points for squash loader
     mkdir -p "$initdir"/squash/
     mkdir -p "$squash_dir"/squash/
@@ -67,6 +62,9 @@ installpost() {
     ln_r /usr/bin /bin
     ln_r /usr/sbin /sbin
     inst_simple "$moddir"/init-squash.sh /init
+
+    # make sure that library links are correct and up to date for squash loader
+    build_ld_cache
 }
 
 install() {

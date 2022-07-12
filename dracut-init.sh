@@ -504,6 +504,20 @@ inst_rules_wildcard() {
     [[ $_found ]] || dinfo "Skipping udev rule: $_rule"
 }
 
+# make sure that library links are correct and up to date
+build_ld_cache() {
+    for f in "$dracutsysrootdir"/etc/ld.so.conf "$dracutsysrootdir"/etc/ld.so.conf.d/*; do
+        [[ -f $f ]] && inst_simple "${f#$dracutsysrootdir}"
+    done
+    if ! $DRACUT_LDCONFIG -r "$initdir" -f /etc/ld.so.conf; then
+        if [[ $EUID == 0 ]]; then
+            derror "ldconfig exited ungracefully"
+        else
+            derror "ldconfig might need uid=0 (root) for chroot()"
+        fi
+    fi
+}
+
 prepare_udev_rules() {
     if [ -z "$UDEVVERSION" ]; then
         UDEVVERSION=$(udevadm --version)
