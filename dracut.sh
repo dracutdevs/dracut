@@ -2631,6 +2631,7 @@ if [[ $uefi == yes ]]; then
         "$uefi_stub" "${uefi_outdir}/linux.efi"; then
         if [[ -n ${uefi_secureboot_key} && -n ${uefi_secureboot_cert} ]]; then
             if sbsign \
+                ${uefi_secureboot_engine:+--engine "$uefi_secureboot_engine"} \
                 --key "${uefi_secureboot_key}" \
                 --cert "${uefi_secureboot_cert}" \
                 --output "$outfile" "${uefi_outdir}/linux.efi"; then
