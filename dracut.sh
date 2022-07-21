@@ -905,7 +905,7 @@ if [[ -z $conffile ]]; then
     else
         conffile="$dracutsysrootdir/etc/dracut.conf"
     fi
-elif [[ ! -f $conffile ]]; then
+elif [[ ! -e $conffile ]]; then
     printf "%s\n" "dracut: Configuration file '$conffile' not found." >&2
     exit 1
 fi
