@@ -33,8 +33,35 @@ overlay_size=$(getarg rd.live.overlay.size=)
 getargbool 0 rd.live.overlay.thin && thin_snapshot="yes"
 getargbool 0 rd.live.overlay.overlayfs && overlayfs="yes"
 
+# Take a path to a disk label and return the parent disk if it is a partition
+# Otherwise returns the original path
+function get_check_dev() {
+    local _udevinfo
+    dev_path="$(udevadm info -q path --name "$1")"
+    _udevinfo="$(udevadm info -q property --path "${dev_path}")"
+    strstr "$_udevinfo" "DEVTYPE=partition" || {
+        echo "$1"
+        return
+    }
+    parent="${dev_path%/*}"
+    _udevinfo="$(udevadm info -q property --path "${parent}")"
+    strstr "$_udevinfo" "DEVTYPE=disk" || {
+        echo "$1"
+        return
+    }
+    strstr "$_udevinfo" "ID_FS_TYPE=iso9660" || {
+        echo "$1"
+        return
+    }
+
+    # Return the name of the parent disk device
+    echo "$_udevinfo" | grep "DEVNAME=" | sed 's/DEVNAME=//'
+}
+
+# Find the right device to run check on
+check_dev=$(get_check_dev "$livedev")
 # CD/DVD media check
-[ -b "$livedev" ] && fs=$(blkid -s TYPE -o value "$livedev")
+[ -b "$check_dev" ] && fs=$(blkid -s TYPE -o value "$check_dev")
 if [ "$fs" = "iso9660" -o "$fs" = "udf" ]; then
     check="yes"
 fi
@@ -42,10 +69,10 @@ getarg rd.live.check -d check || check=""
 if [ -n "$check" ]; then
     type plymouth > /dev/null 2>&1 && plymouth --hide-splash
     if [ -n "$DRACUT_SYSTEMD" ]; then
-        p=$(dev_unit_name "$livedev")
+        p=$(dev_unit_name "$check_dev")
         systemctl start checkisomd5@"${p}".service
     else
-        checkisomd5 --verbose "$livedev"
+        checkisomd5 --verbose "$check_dev"
     fi
     if [ $? -eq 1 ]; then
         die "CD check failed!"
