@@ -25,6 +25,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
+#include <libgen.h>
 
 #include "util.h"
 
@@ -548,4 +549,26 @@ int dracut_asprintf(char **restrict strp, const char *restrict fmt, ...)
         va_end(args);
 
         return ret;
+}
+
+char *dirname_malloc(const char *path)
+{
+        char *d, *dir, *dir2;
+
+        assert(path);
+
+        d = strdup(path);
+        if (!d)
+                return NULL;
+
+        dir = dirname(d);
+        assert(dir);
+
+        if (dir == d)
+                return d;
+
+        dir2 = strdup(dir);
+        free(d);
+
+        return dir2;
 }
