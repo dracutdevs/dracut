@@ -387,25 +387,17 @@ static int library_install(const char *src, const char *lib)
         free(p);
         p = strdup(lib);
 
-        pdir = dirname(p);
+        pdir = dirname_malloc(p);
         if (!pdir)
                 return ret;
 
-        pdir = strdup(pdir);
-        ppdir = dirname(pdir);
+        ppdir = dirname_malloc(pdir);
         if (!ppdir)
                 return ret;
 
-        ppdir = strdup(ppdir);
-        pppdir = dirname(ppdir);
+        pppdir = dirname_malloc(ppdir);
         if (!pppdir)
                 return ret;
-
-        pppdir = strdup(pppdir);
-        if (!pppdir)
-                return ret;
-
-        strcpy(p, lib);
 
         clibdir = streq(basename(ppdir), "glibc-hwcaps") ? pppdir : ppdir;
         clib = strjoin(clibdir, "/", basename(p), NULL);

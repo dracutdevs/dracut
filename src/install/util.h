@@ -604,5 +604,6 @@ int unhexchar(char c) _const_;
 int unoctchar(char c) _const_;
 
 int dracut_asprintf(char **restrict strp, const char *restrict fmt, ...);
+char *dirname_malloc(const char *path);
 
 #endif
