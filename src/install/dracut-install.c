@@ -392,7 +392,8 @@ static int library_install(const char *src, const char *lib)
                 return ret;
 
         ppdir = dirname_malloc(pdir);
-        if (!ppdir)
+        /* only one parent directory, not HWCAP library */
+        if (!ppdir || streq(ppdir, "/"))
                 return ret;
 
         pppdir = dirname_malloc(ppdir);
