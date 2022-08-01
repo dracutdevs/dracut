@@ -180,8 +180,8 @@ fi
 
 if ! [[ $DRACUT_INSTALL ]] && [[ -x $dracutbasedir/dracut-install ]]; then
     DRACUT_INSTALL=$dracutbasedir/dracut-install
-elif ! [[ $DRACUT_INSTALL ]] && [[ -x $dracutbasedir/install/dracut-install ]]; then
-    DRACUT_INSTALL=$dracutbasedir/install/dracut-install
+elif ! [[ $DRACUT_INSTALL ]] && [[ -x $dracutbasedir/src/install/dracut-install ]]; then
+    DRACUT_INSTALL=$dracutbasedir/src/install/dracut-install
 fi
 
 # Test if dracut-install is a standalone executable with no options.
