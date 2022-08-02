@@ -177,7 +177,7 @@ do_live_overlay() {
         fi
     fi
     if [ -n "$overlayfs" ]; then
-        if ! modprobe overlay; then
+        if ! { strstr "$(< /proc/filesystems)" overlay || modprobe overlay; }; then
             if [ "$overlayfs" = required ]; then
                 die "OverlayFS is required but not available."
                 exit 1
