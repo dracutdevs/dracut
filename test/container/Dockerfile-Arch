@@ -12,12 +12,12 @@ RUN pacman --noconfirm -Sy \
     linux dash strace dhclient asciidoc cpio pigz \
     qemu btrfs-progs mdadm dmraid nfs-utils nfsidmap lvm2 nbd \
     dhcp networkmanager multipath-tools vi tcpdump open-iscsi \
-    git shfmt shellcheck astyle which base-devel && yes | pacman  -Scc
+    git shfmt shellcheck astyle which base-devel glibc && yes | pacman -Scc
 
 RUN useradd -m build
 RUN su build -c 'cd && git clone https://aur.archlinux.org/perl-config-general.git && cd perl-config-general && makepkg -s --noconfirm'
 RUN pacman -U --noconfirm ~build/perl-config-general/*.pkg.tar.*
-RUN su build -c 'cd && git clone https://aur.archlinux.org/tgt.git && cd tgt && echo "CFLAGS=-Wno-error=stringop-truncation" >> PKGBUILD && makepkg -s --noconfirm'
+RUN su build -c 'cd && git clone https://aur.archlinux.org/tgt.git && cd tgt && makepkg -s --noconfirm'
 RUN pacman -U --noconfirm ~build/tgt/*.pkg.tar.*
 RUN rm -fr ~build
 
