@@ -1520,7 +1520,7 @@ static int install_dependent_modules(struct kmod_list *modlist)
                 if (check_hashmap(items_failed, path))
                         return -1;
 
-                if (check_hashmap(items, path)) {
+                if (check_hashmap(items, &path[kerneldirlen])) {
                         continue;
                 }
 
