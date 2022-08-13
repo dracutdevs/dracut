@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # This file is part of dracut.
 # SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -19,7 +19,7 @@ depends() {
         fi
     done
 
-    if find_binary dbus-broker &> /dev/null; then
+    if find_binary dbus-broker > /dev/null 2>&1; then
         echo "dbus-broker"
         return 0
     else
