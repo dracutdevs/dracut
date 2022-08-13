@@ -89,7 +89,7 @@ det_img_fs() {
     blkid -s TYPE -u noraid -o value "$1"
 }
 
-modprobe squashfs
+load_fstype squashfs
 CMDLINE=$(getcmdline)
 for arg in $CMDLINE; do
     case $arg in
@@ -204,7 +204,7 @@ do_live_overlay() {
         fi
     fi
     if [ -n "$overlayfs" ]; then
-        if ! { strstr "$(< /proc/filesystems)" overlay || modprobe overlay; }; then
+        if ! load_fstype overlay; then
             if [ "$overlayfs" = required ]; then
                 die "OverlayFS is required but not available."
                 exit 1

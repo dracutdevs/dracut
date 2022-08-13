@@ -1152,3 +1152,10 @@ remove_hostonly_files() {
         done < /lib/dracut/hostonly-files
     fi
 }
+
+# parameter: kernel_module filesystem_name
+# returns OK if kernel_module is loaded
+# modprobe fails if /lib/modules is not available (--no-kernel use case)
+load_fstype() {
+    strstr "$(cat /proc/filesystems)" "$1" || modprobe "$1"
+}
