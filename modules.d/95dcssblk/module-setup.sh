@@ -1,19 +1,19 @@
-#!/bin/bash
+#!/bin/sh
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 # called by dracut
 check() {
     local _arch=${DRACUT_ARCH:-$(uname -m)}
-    [[ $_arch == "s390" ]] || [[ $_arch == "s390x" ]] || return 1
+    [ "$_arch" = "s390" ] || [ "$_arch" = "s390x" ] || return 1
     return 0
 }
 
 # called by dracut
 installkernel() {
-    if [[ $hostonly ]]; then
+    if [ -n "$hostonly" ]; then
         for dev in /sys/devices/dcssblk/*/block/dcssblk*; do
-            [[ -e $dev ]] || continue
+            [ -e "$dev" ] || continue
             hostonly='' instmods dcssblk
             return $?
         done
