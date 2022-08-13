@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 
 if getargbool 0 rd.convertfs; then
     if getargbool 0 rd.debug; then
-        bash -x convertfs "$NEWROOT" 2>&1 | vinfo
+        sh -x convertfs "$NEWROOT"
     else
-        convertfs "$NEWROOT" 2>&1 | vinfo
-    fi
+        convertfs "$NEWROOT"
+    fi 2>&1 | vinfo
 fi
