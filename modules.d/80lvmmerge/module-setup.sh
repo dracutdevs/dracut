@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
@@ -10,7 +10,7 @@ check() {
 
 # called by dracut
 depends() {
-    echo lvm dracut-systemd systemd bash
+    echo lvm dracut-systemd systemd
     return 0
 }
 
