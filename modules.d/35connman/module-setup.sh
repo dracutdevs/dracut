@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
@@ -10,7 +10,7 @@ check() {
 
 # called by dracut
 depends() {
-    echo dbus systemd bash
+    echo dbus systemd
     return 0
 }
 
@@ -30,7 +30,7 @@ install() {
     inst connmanctl
     inst connmand-wait-online
     inst "$dbussystem"/connman.conf
-    [[ $hostonly ]] && [[ -f $dracutsysrootdir/etc/connman/main.conf ]] && inst /etc/connman/main.conf
+    [ -n "$hostonly" ] && [ -f "$dracutsysrootdir"/etc/connman/main.conf ] && inst /etc/connman/main.conf
     inst_dir /usr/lib/connman/plugins
     inst_dir /var/lib/connman
 
