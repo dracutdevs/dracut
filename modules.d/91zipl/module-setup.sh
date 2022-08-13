@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
@@ -6,7 +6,7 @@
 check() {
     local _arch=${DRACUT_ARCH:-$(uname -m)}
     # Only for systems on s390 using indirect booting via userland grub
-    [ "$_arch" = "s390" -o "$_arch" = "s390x" ] || return 1
+    [ "$_arch" = "s390" ] || [ "$_arch" = "s390x" ] || return 1
     # /boot/zipl contains a first stage kernel used to launch grub in initrd
     [ -d /boot/zipl ] || return 1
     return 0
@@ -51,11 +51,11 @@ install() {
 
     inst_hook cmdline 91 "$moddir/parse-zipl.sh"
     inst_script "${moddir}/install_zipl_cmdline.sh" /sbin/install_zipl_cmdline.sh
-    if [[ $hostonly_cmdline == "yes" ]]; then
+    if [ "$hostonly_cmdline" = "yes" ]; then
         local _zipl
         _zipl=$(cmdline)
 
-        [[ $_zipl ]] && printf "%s\n" "$_zipl" > "${initdir}/etc/cmdline.d/91zipl.conf"
+        [ -n "$_zipl" ] && printf "%s\n" "$_zipl" > "${initdir}/etc/cmdline.d/91zipl.conf"
     fi
     dracut_need_initqueue
 }
