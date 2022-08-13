@@ -1,15 +1,15 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
     local _arch=${DRACUT_ARCH:-$(uname -m)}
     local _online=0
-    [ "$_arch" = "s390" -o "$_arch" = "s390x" ] || return 1
+    [ "$_arch" = "s390" ] || [ "$_arch" = "s390x" ] || return 1
     dracut_module_included network || return 1
 
-    [[ $hostonly ]] && {
+    [ -n "$hostonly" ] && {
         for i in /sys/devices/qeth/*/online; do
-            [ ! -f "$i" ] && continue
+            [ -f "$i" ] || continue
             read -r _online < "$i"
             [ "$_online" -eq 1 ] && return 0
         done
@@ -30,7 +30,7 @@ install() {
     }
 
     inst_rules_qeth() {
-        for rule in /etc/udev/rules.d/{4,5}1-qeth-${1}.rules; do
+        for rule in /etc/udev/rules.d/[45]1-qeth-"$1".rules; do
             # prefer chzdev generated 41- rules
             if [ -f "$rule" ]; then
                 inst_rules "$rule"
