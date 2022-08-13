@@ -2,11 +2,6 @@
 
 . /lib/dracut-lib.sh
 
-for modlist in $(getargs rd.driver.post -d rdinsmodpost=); do
-    (
-        IFS=,
-        for m in $modlist; do
-            modprobe "$m"
-        done
-    )
-done
+IFS="$IFS,"
+# shellcheck disable=SC2046
+modprobe -a $(getargs rd.driver.post -d rdinsmodpost=)
