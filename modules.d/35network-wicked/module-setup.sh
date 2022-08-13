@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
@@ -21,8 +21,6 @@ installkernel() {
 
 # called by dracut
 install() {
-    local -a wicked_units
-
     inst_hook cmdline 99 "$moddir/wicked-config.sh"
 
     # Seems to not execute if in initqueue/settled
@@ -52,22 +50,15 @@ install() {
     inst_multiple "/usr/share/wicked/schema/*"
     inst_multiple "/usr/sbin/wicked*"
 
-    wicked_units=(
-        "$systemdsystemunitdir"/wickedd.service
-        "$systemdsystemunitdir"/wickedd-auto4.service
-        "$systemdsystemunitdir"/wickedd-dhcp4.service
-        "$systemdsystemunitdir"/wickedd-dhcp6.service
-        "$systemdsystemunitdir"/wickedd-nanny.service
-    )
+    for unit in wickedd wickedd-auto4 wickedd-dhcp4 wickedd-dhcp6 wickedd-nanny; do
+        unit="$systemdsystemunitdir$unit.service"
+        inst_multiple "$unit"
 
-    inst_multiple "${wicked_units[@]}"
-
-    for unit in "${wicked_units[@]}"; do
-        sed -i 's/^After=.*/After=dbus.service/g' "$initdir/$unit"
-        sed -i 's/^Before=\(.*\)/Before=\1 dracut-pre-udev.service/g' "$initdir/$unit"
-        sed -i 's/^Wants=\(.*\)/Wants=\1 dbus.service/g' "$initdir/$unit"
         # shellcheck disable=SC1004
-        sed -i -e \
+        sed -ie 's/^After=.*/After=dbus.service/' \
+            -e '/^Before=/s/$/ dracut-pre-udev.service/' \
+            -e '/^Wants=/s/$/ dbus.service/' \
+            -e \
             '/^\[Unit\]/aDefaultDependencies=no\
             Conflicts=shutdown.target\
             Before=shutdown.target' \
