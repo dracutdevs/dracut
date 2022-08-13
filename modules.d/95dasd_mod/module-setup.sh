@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
     local _arch=${DRACUT_ARCH:-$(uname -m)}
-    [ "$_arch" = "s390" -o "$_arch" = "s390x" ] || return 1
+    [ "$_arch" = "s390" ] || [ "$_arch" = "s390x" ] || return 1
     require_binaries grep sed seq
 
     return 0
