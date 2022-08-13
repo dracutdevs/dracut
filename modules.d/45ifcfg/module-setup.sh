@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
-    [[ -d $dracutsysrootdir/etc/sysconfig/network-scripts ]] && return 0
+    [ -d "$dracutsysrootdir"/etc/sysconfig/network-scripts ] && return 0
     return 255
 }
 
