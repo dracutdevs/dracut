@@ -1,16 +1,16 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
     arch=${DRACUT_ARCH:-$(uname -m)}
-    [ "$arch" = "s390" -o "$arch" = "s390x" ] || return 1
+    [ "$arch" = "s390" ] || [ "$arch" = "s390x" ] || return 1
     return 255
 }
 
 # called by dracut
 depends() {
     arch=${DRACUT_ARCH:-$(uname -m)}
-    [ "$arch" = "s390" -o "$arch" = "s390x" ] || return 1
+    [ "$arch" = "s390" ] || [ "$arch" = "s390x" ] || return 1
     echo znet zfcp dasd dasd_mod bash
     return 0
 }
