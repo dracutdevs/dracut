@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 install() {
@@ -11,17 +11,15 @@ install() {
     inst_dir /etc/udev
     inst_multiple -o /etc/udev/udev.conf
 
-    [[ -d ${initdir}/$systemdutildir ]] || mkdir -p "${initdir}/$systemdutildir"
+    [ -d "${initdir}/${systemdutildir}" ] || mkdir -p "${initdir}/${systemdutildir}"
     for _i in "${systemdutildir}"/systemd-udevd "${udevdir}"/udevd /sbin/udevd; do
-        [[ -x $dracutsysrootdir$_i ]] || continue
+        [ -x "${dracutsysrootdir}${_i}" ] || continue
         inst "$_i"
 
-        if ! [[ -f ${initdir}${systemdutildir}/systemd-udevd ]]; then
-            ln -fs "$_i" "${initdir}${systemdutildir}"/systemd-udevd
-        fi
+        [ -f "${initdir}${systemdutildir}"/systemd-udevd ] || ln -fs "$_i" "${initdir}${systemdutildir}"/systemd-udevd
         break
     done
-    if ! [[ -e ${initdir}${systemdutildir}/systemd-udevd ]]; then
+    if ! [ -e "${initdir}${systemdutildir}"/systemd-udevd ]; then
         derror "Cannot find [systemd-]udevd binary!"
         exit 1
     fi
@@ -56,22 +54,19 @@ install() {
     # eudev rules
     inst_rules 80-drivers-modprobe.rules
     # legacy persistent network device name rules
-    [[ $hostonly ]] && inst_rules 70-persistent-net.rules
+    [ -n "$hostonly" ] && inst_rules 70-persistent-net.rules
 
-    {
-        for i in cdrom tape dialout floppy; do
-            if ! grep -q "^$i:" "$initdir"/etc/group 2> /dev/null; then
-                if ! grep "^$i:" "$dracutsysrootdir"/etc/group 2> /dev/null; then
-                    case $i in
-                        cdrom) echo "$i:x:11:" ;;
-                        dialout) echo "$i:x:18:" ;;
-                        floppy) echo "$i:x:19:" ;;
-                        tape) echo "$i:x:33:" ;;
-                    esac
-                fi
-            fi
-        done
-    } >> "$initdir/etc/group"
+    for i in cdrom tape dialout floppy; do
+        if grep -vq "^$i:" "$initdir"/etc/group 2> /dev/null \
+            && grep -vq "^$i:" "$dracutsysrootdir"/etc/group 2> /dev/null; then
+            case "$i" in
+                cdrom) echo "$i:x:11:" ;;
+                dialout) echo "$i:x:18:" ;;
+                floppy) echo "$i:x:19:" ;;
+                tape) echo "$i:x:33:" ;;
+            esac
+        fi
+    done >> "$initdir/etc/group"
 
     inst_multiple -o \
         "${udevdir}"/ata_id \
@@ -93,7 +88,7 @@ install() {
 
     inst_multiple -o /etc/pcmcia/config.opts
 
-    [[ -f $dracutsysrootdir/etc/arch-release ]] \
+    [ -f "$dracutsysrootdir"/etc/arch-release ] \
         && inst_script "$moddir/load-modules.sh" /lib/udev/load-modules.sh
 
     inst_libdir_file "libnss_files*"
