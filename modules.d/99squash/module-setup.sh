@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 check() {
     require_binaries mksquashfs unsquashfs || return 1
@@ -25,7 +25,7 @@ installpost() {
     # Move everything under $initdir except $squash_dir
     # itself into squash image
     for i in "$initdir"/*; do
-        [[ $squash_dir == "$i"/* ]] || mv "$i" "$squash_dir"/
+        [ "${squash_dir#"$i"/}" != "$squash_dir" ] || mv "$i" "$squash_dir"/
     done
 
     # initdir also needs ld.so.* to make ld.so work
@@ -34,18 +34,17 @@ installpost() {
     inst_dir /etc/ld.so.conf.d
 
     # Create mount points for squash loader
-    mkdir -p "$initdir"/squash/
-    mkdir -p "$squash_dir"/squash/
+    mkdir -p "$initdir"/squash/ "$squash_dir"/squash/
 
     # Copy dracut spec files out side of the squash image
     # so dracut rebuild and lsinitrd can work
     for file in "$squash_dir"/usr/lib/dracut/*; do
-        [[ -f $file ]] || continue
+        [ -f "$file" ] || continue
         DRACUT_RESOLVE_DEPS=1 dracutsysrootdir="$squash_dir" inst "${file#$squash_dir}"
     done
 
     # Install required modules and binaries for the squash image init script.
-    if [[ $_busybox ]]; then
+    if [ -n "$_busybox" ]; then
         inst "$_busybox" /usr/bin/busybox
         for _i in sh echo mount modprobe mkdir switch_root grep umount; do
             ln_r /usr/bin/busybox /usr/bin/$_i
@@ -57,7 +56,7 @@ installpost() {
         inst_libdir_file -o "libgcc_s.so*"
 
         # FIPS workaround for Fedora/RHEL: libcrypto needs libssl when FIPS is enabled
-        [[ $DRACUT_FIPS_MODE ]] && inst_libdir_file -o "libssl.so*"
+        [ -n "$DRACUT_FIPS_MODE" ] && inst_libdir_file -o "libssl.so*"
     fi
 
     hostonly="" instmods "loop" "squashfs" "overlay"
@@ -70,7 +69,7 @@ installpost() {
 }
 
 install() {
-    if [[ $DRACUT_SQUASH_POST_INST ]]; then
+    if [ -n "$DRACUT_SQUASH_POST_INST" ]; then
         installpost
     fi
 }
