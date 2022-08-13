@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
@@ -30,10 +30,10 @@ cmdline() {
 
 # called by dracut
 install() {
-    if [[ $hostonly_cmdline == "yes" ]]; then
+    if [ "$hostonly_cmdline" = "yes" ]; then
         local _cio_accept
         _cio_accept=$(cmdline)
-        [[ $_cio_accept ]] && printf "%s\n" "$_cio_accept" >> "${initdir}/etc/cmdline.d/01cio_accept.conf"
+        [ -n "$_cio_accept" ] && printf "%s\n" "$_cio_accept" >> "${initdir}/etc/cmdline.d/01cio_accept.conf"
     fi
 
     inst_hook cmdline 20 "$moddir/parse-cio_accept.sh"
