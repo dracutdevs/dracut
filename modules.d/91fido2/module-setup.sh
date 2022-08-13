@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # This file is part of dracut.
 # SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -20,10 +20,15 @@ depends() {
 install() {
     # Install required libraries.
     _arch=${DRACUT_ARCH:-$(uname -m)}
-    inst_libdir_file \
-        {"tls/$_arch/",tls/,"$_arch/",}"libfido2.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libcryptsetup.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"/cryptsetup/libcryptsetup-token-systemd-fido2.so" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libcbor.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libhidapi-hidraw.so.*"
+    for _lib in "libfido2.so.*" \
+        "libcryptsetup.so.*" \
+        "/cryptsetup/libcryptsetup-token-systemd-fido2.so" \
+        "libcbor.so.*" \
+        "libhidapi-hidraw.so.*"; do
+        inst_libdir_file \
+            "tls/$_arch/$_lib" \
+            "tls/$_lib" \
+            "$_arch/$_lib" \
+            "$_lib"
+    done
 }
