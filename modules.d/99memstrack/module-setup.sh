@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 check() {
     if ! require_binaries pgrep pkill memstrack; then
