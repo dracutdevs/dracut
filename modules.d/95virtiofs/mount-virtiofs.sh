@@ -1,6 +1,6 @@
-#!/usr/bin/sh
+#!/bin/sh
 
-if [ "${fstype}" = "virtiofs" -o "${root%%:*}" = "virtiofs" ]; then
+if [ "${fstype}" = "virtiofs" ] || [ "${root%%:*}" = "virtiofs" ]; then
     if ! { modprobe virtiofs || strstr "$(cat /proc/filesystems)" virtiofs; }; then
         die "virtiofs is required but not available."
     fi
