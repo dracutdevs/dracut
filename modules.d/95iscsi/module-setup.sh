@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
@@ -8,12 +8,12 @@ check() {
     # If hostonly was requested, fail the check if we are not actually
     # booting from root.
 
-    [[ $hostonly ]] || [[ $mount_needs ]] && {
-        pushd . > /dev/null
+    [ -n "$hostonly" ] || [ -n "$mount_needs" ] && {
+        cd .
         for_each_host_dev_and_slaves block_is_iscsi
         local _is_iscsi=$?
-        popd > /dev/null || exit
-        [[ $_is_iscsi == 0 ]] || return 255
+        cd - || exit
+        [ "$_is_iscsi" -eq 0 ] || return 255
     }
     return 0
 }
@@ -51,9 +51,9 @@ install_ibft() {
         fi
         if [ -d "${d}"/initiator ]; then
             if [ "${d##*/}" = "ibft" ] && [ "$ibft_mod" != "bnx2i" ]; then
-                echo -n "rd.iscsi.ibft=1 "
+                printf "rd.iscsi.ibft=1 "
             fi
-            echo -n "rd.iscsi.firmware=1 "
+            printf "rd.iscsi.firmware=1 "
         fi
     done
 }
@@ -138,11 +138,8 @@ install_softiscsi() {
         local _dev=$1
         local iscsi_dev
 
-        [[ -L "/sys/dev/block/$_dev" ]] || return
-        iscsi_dev=$(
-            cd -P /sys/dev/block/"$_dev" || exit
-            echo "$PWD"
-        )
+        [ -L "/sys/dev/block/$_dev" ] || return
+        iscsi_dev=$(cd -P /sys/dev/block/"$_dev" && echo "$PWD")
         install_iscsiroot "$iscsi_dev"
     }
 
@@ -198,21 +195,23 @@ install() {
         "$systemdsystemunitdir"/sockets.target.wants/iscsid.socket \
         "$systemdsystemunitdir"/sockets.target.wants/iscsiuio.socket
 
-    if [[ $hostonly ]]; then
-        local -a _filenames
-
+    if [ -n "$hostonly" ]; then
         inst_dir /etc/iscsi
-        mapfile -t -d '' _filenames < <(find /etc/iscsi -type f -print0)
-        inst_multiple "${_filenames[@]}"
+        # shellcheck disable=SC2046
+        (
+            IFS='
+'
+            inst_multiple $(find /etc/iscsi -type f)
+        )
     else
         inst_simple /etc/iscsi/iscsid.conf
     fi
 
     # Detect iBFT and perform mandatory steps
-    if [[ $hostonly_cmdline == "yes" ]]; then
+    if [ "$hostonly_cmdline" = "yes" ]; then
         local _iscsiconf
         _iscsiconf=$(cmdline)
-        [[ $_iscsiconf ]] && printf "%s\n" "$_iscsiconf" >> "${initdir}/etc/cmdline.d/95iscsi.conf"
+        [ -n "$_iscsiconf" ] && printf "%s\n" "$_iscsiconf" >> "${initdir}/etc/cmdline.d/95iscsi.conf"
     fi
 
     inst_hook cmdline 90 "$moddir/parse-iscsiroot.sh"
