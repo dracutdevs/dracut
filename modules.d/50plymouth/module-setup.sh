@@ -1,14 +1,15 @@
-#!/bin/bash
+#!/bin/sh
 
 pkglib_dir() {
-    local _dirs="/usr/lib/plymouth /usr/libexec/plymouth/"
-    if find_binary dpkg-architecture &> /dev/null; then
+    local _dirs
+    _dirs="/usr/lib/plymouth /usr/libexec/plymouth/"
+    if find_binary dpkg-architecture > /dev/null 2>&1; then
         local _arch
         _arch=$(dpkg-architecture -qDEB_HOST_MULTIARCH 2> /dev/null)
-        [ -n "$_arch" ] && _dirs+=" /usr/lib/$_arch/plymouth"
+        [ -n "$_arch" ] && _dirs="$_dirs /usr/lib/$_arch/plymouth"
     fi
     for _dir in $_dirs; do
-        if [ -x "$dracutsysrootdir""$_dir"/plymouth-populate-initrd ]; then
+        if [ -x "$dracutsysrootdir$_dir"/plymouth-populate-initrd ]; then
             echo "$_dir"
             return
         fi
@@ -17,8 +18,8 @@ pkglib_dir() {
 
 # called by dracut
 check() {
-    [[ "$mount_needs" ]] && return 1
-    [[ $(pkglib_dir) ]] || return 1
+    [ -n "$mount_needs" ] && return 1
+    [ -n "$(pkglib_dir)" ] || return 1
 
     require_binaries plymouthd plymouth plymouth-set-default-theme
 }
