@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
@@ -14,17 +14,13 @@ depends() {
 
 # called by dracut
 install() {
-    local _i _path _busybox
-    local _progs=()
+    local _busybox _prog _path
     _busybox=$(find_binary busybox)
     inst "$_busybox" /usr/bin/busybox
-    for _i in $($_busybox --list); do
-        [[ ${_i} == busybox ]] && continue
-        _progs+=("${_i}")
-    done
 
-    for _i in "${_progs[@]}"; do
-        _path=$(find_binary "$_i")
+    for _prog in $("$_busybox" --list); do
+        [ "$_prog" = "busybox" ] && continue
+        _path=$(find_binary "$_prog")
         [ -z "$_path" ] && continue
         ln_r /usr/bin/busybox "$_path"
     done
