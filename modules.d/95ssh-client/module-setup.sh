@@ -1,16 +1,16 @@
-#!/bin/bash
+#!/bin/sh
 
 # fixme: assume user is root
 
 # called by dracut
 check() {
-    [[ $mount_needs ]] && return 1
+    [ -n "$mount_needs" ] && return 1
 
     # If our prerequisites are not met, fail.
     require_binaries ssh scp || return 1
 
-    if [[ $sshkey ]]; then
-        [[ ! -f $dracutsysrootdir$sshkey ]] && {
+    if [ -n "$sshkey" ]; then
+        [ -f "$dracutsysrootdir$sshkey" ] || {
             derror "ssh key: $sshkey is not found!"
             return 1
         }
@@ -26,28 +26,28 @@ depends() {
 }
 
 inst_sshenv() {
-    if [[ -d $dracutsysrootdir/root/.ssh ]]; then
+    if [ -d "$dracutsysrootdir"/root/.ssh ]; then
         inst_dir /root/.ssh
-        chmod 700 "${initdir}"/root/.ssh
+        chmod 700 "$initdir"/root/.ssh
     fi
 
     # Copy over ssh key and knowhosts if needed
-    [[ $sshkey ]] && {
+    [ -n "$sshkey" ] && {
         inst_simple "$sshkey"
-        [[ -f $dracutsysrootdir/root/.ssh/known_hosts ]] && inst_simple /root/.ssh/known_hosts
-        [[ -f $dracutsysrootdir/etc/ssh/ssh_known_hosts ]] && inst_simple /etc/ssh/ssh_known_hosts
+        [ -f "$dracutsysrootdir"/root/.ssh/known_hosts ] && inst_simple /root/.ssh/known_hosts
+        [ -f "$dracutsysrootdir"/etc/ssh/ssh_known_hosts ] && inst_simple /etc/ssh/ssh_known_hosts
     }
 
     # Copy over root and system-wide ssh configs.
-    [[ -f $dracutsysrootdir/root/.ssh/config ]] && inst_simple /root/.ssh/config
-    if [[ -f $dracutsysrootdir/etc/ssh/ssh_config ]]; then
+    [ -f "$dracutsysrootdir"/root/.ssh/config ] && inst_simple /root/.ssh/config
+    if [ -f "$dracutsysrootdir"/etc/ssh/ssh_config ]; then
         inst_simple /etc/ssh/ssh_config
         sed -i -e 's/\(^[[:space:]]*\)ProxyCommand/\1# ProxyCommand/' "${initdir}"/etc/ssh/ssh_config
         while read -r key val || [ -n "$key" ]; do
-            if [[ $key == "GlobalKnownHostsFile" ]]; then
+            if [ "$key" = "GlobalKnownHostsFile" ]; then
                 inst_simple "$val"
             # Copy customized UserKnowHostsFile
-            elif [[ $key == "UserKnownHostsFile" ]]; then
+            elif [ "$key" = "UserKnownHostsFile" ]; then
                 # Make sure that ~/foo will be copied as /root/foo in kdump's initramfs
                 # shellcheck disable=SC2088
                 if str_starts "$val" "~/"; then
@@ -69,7 +69,7 @@ install() {
     inst_sshenv
 
     _nsslibs=$(
-        cat "$dracutsysrootdir"/{,usr/}etc/nsswitch.conf 2> /dev/null \
+        cat "$dracutsysrootdir"/etc/nsswitch.conf "$dracutsysrootdir"/usr/etc/nsswitch.conf 2> /dev/null \
             | sed -e 's/#.*//; s/^[^:]*://; s/\[[^]]*\]//' \
             | tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|'
     )
