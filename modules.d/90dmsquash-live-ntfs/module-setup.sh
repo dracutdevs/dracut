@@ -1,6 +1,4 @@
-#!/bin/bash
-
-command -v
+#!/bin/sh
 
 check() {
     require_binaries ntfs-3g || return 1
