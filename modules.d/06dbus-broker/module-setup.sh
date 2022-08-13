@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # This file is part of dracut.
 # SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -69,7 +69,7 @@ install() {
     $SYSTEMCTL -q --root "$initdir" enable dbus-broker.service
 
     # Install the hosts local user configurations if enabled.
-    if [[ $hostonly ]]; then
+    if [ -n "$hostonly" ]; then
         inst_multiple -H -o \
             "$dbusconfdir"/session.conf \
             "$dbusconfdir"/system.conf \
