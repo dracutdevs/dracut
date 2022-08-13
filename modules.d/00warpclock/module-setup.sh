@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # This file is part of dracut.
 # SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -7,7 +7,7 @@ check() {
 
     # hwclock does not exist on S390(x), bail out silently then
     local _arch=${DRACUT_ARCH:-$(uname -m)}
-    [ "$_arch" = "s390" -o "$_arch" = "s390x" ] && return 1
+    [ "$_arch" = "s390" ] || [ "$_arch" = "s390x" ] && return 1
 
     # If the binary(s) requirements are not fulfilled the module can't be installed.
     require_binaries hwclock || return 1
