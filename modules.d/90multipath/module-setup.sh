@@ -1,16 +1,17 @@
-#!/bin/bash
+#!/bin/sh
 
 is_mpath() {
-    local _dev=$1
+    local _dev=$1 _uuid
     [ -e /sys/dev/block/"$_dev"/dm/uuid ] || return 1
-    [[ $(cat /sys/dev/block/"$_dev"/dm/uuid) =~ mpath- ]] && return 0
+    read -r _uuid < /sys/dev/block/"$_dev"/dm/uuid
+    [ "${_uuid#mpath-}" != "$_uuid" ] && return 0
     return 1
 }
 
 majmin_to_mpath_dev() {
     local _dev
     for i in /dev/mapper/*; do
-        [[ $i == /dev/mapper/control ]] && continue
+        [ "$i" = /dev/mapper/control ] && continue
         _dev=$(get_maj_min "$i")
         if [ "$_dev" = "$1" ]; then
             echo "$i"
@@ -21,7 +22,7 @@ majmin_to_mpath_dev() {
 
 # called by dracut
 check() {
-    [[ $hostonly ]] || [[ $mount_needs ]] && {
+    [ -n "$hostonly" ] || [ -n "$mount_needs" ] && {
         for_each_host_dev_and_slaves is_mpath || return 255
     }
 
@@ -34,8 +35,7 @@ check() {
 
 # called by dracut
 depends() {
-    echo rootfs-block
-    echo dm
+    echo rootfs-block dm
     return 0
 }
 
@@ -53,21 +53,18 @@ installkernel() {
     local _arch=${DRACUT_ARCH:-$(uname -m)}
     local _funcs='scsi_register_device_handler|dm_dirty_log_type_register|dm_register_path_selector|dm_register_target'
 
-    if [ "$_arch" = "s390" -o "$_arch" = "s390x" ]; then
-        _s390drivers="=drivers/s390/scsi"
-    fi
+    [ "$_arch" = "s390" ] && [ "$_arch" = "s390x" ] && _s390drivers="=drivers/s390/scsi"
 
     hostonly='' dracut_instmods -o -s "$_funcs" "=drivers/scsi" "=drivers/md" ${_s390drivers:+"$_s390drivers"}
 }
 
 mpathconf_installed() {
-    command -v mpathconf &> /dev/null
+    command -v mpathconf > /dev/null
 }
 
 # called by dracut
 install() {
-    local -A _allow
-    local config_dir
+    local config_dir _allow
 
     add_hostonly_mpath_conf() {
         if is_mpath "$1"; then
@@ -75,19 +72,20 @@ install() {
 
             _dev=$(majmin_to_mpath_dev "$1")
             [ -z "$_dev" ] && return
-            _allow["$_dev"]="$_dev"
+            _allow="$_allow $_dev"
+            _allow="${_allow% }"
         fi
     }
 
-    local k v
-    while read -r k v; do
-        if [[ $k == "config_dir" ]]; then
+    config_dir="$(multipath -t 2> /dev/null | {
+        while read -r k v; do
+            [ "$k" = "config_dir" ] || continue
             v="${v#\"}"
-            config_dir="${v%\"}"
+            echo "${v%\"}"
             break
-        fi
-    done < <(multipath -t 2> /dev/null)
-    [[ -d $config_dir ]] || config_dir=/etc/multipath/conf.d
+        done
+    })"
+    [ -d "$config_dir" ] || config_dir=/etc/multipath/conf.d
 
     inst_multiple \
         pkill \
@@ -109,15 +107,15 @@ install() {
         "$config_dir"/*
 
     mpathconf_installed \
-        && [[ $hostonly ]] && [[ $hostonly_mode == "strict" ]] && {
+        && [ -n "$hostonly" ] && [ "$hostonly_mode" = "strict" ] && {
         for_each_host_dev_and_slaves_all add_hostonly_mpath_conf
-        if ((${#_allow[@]} > 0)); then
-            local -a _args
-            local _dev
-            for _dev in "${_allow[@]}"; do
-                _args+=("--allow" "$_dev")
+        if [ -n "$_allow" ]; then
+            local _args _dev
+            for _dev in $_allow; do
+                _args="$_args --allow $_dev"
             done
-            mpathconf "${_args[@]}" --outfile "${initdir}"/etc/multipath.conf
+            # shellcheck disable=SC2086
+            mpathconf $_args --outfile "${initdir}"/etc/multipath.conf
         fi
     }
 
@@ -126,10 +124,10 @@ install() {
     inst_libdir_file "libmultipath*" "multipath/*"
     inst_libdir_file 'libgcc_s.so*'
 
-    if [[ $hostonly_cmdline ]]; then
+    if [ -n "$hostonly_cmdline" ]; then
         local _conf
         _conf=$(cmdline)
-        [[ $_conf ]] && echo "$_conf" >> "${initdir}/etc/cmdline.d/90multipath.conf"
+        [ -n "$_conf" ] && echo "$_conf" >> "${initdir}/etc/cmdline.d/90multipath.conf"
     fi
 
     if dracut_module_included "systemd"; then
