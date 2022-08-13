@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
     arch=${DRACUT_ARCH:-$(uname -m)}
-    [ "$arch" = "s390" -o "$arch" = "s390x" ] || return 1
+    [ "$arch" = "s390" ] || [ "$arch" = "s390x" ] || return 1
 
     require_binaries znet_cio_free grep sed seq readlink || return 1
 
@@ -12,7 +12,6 @@ check() {
 
 # called by dracut
 depends() {
-    echo bash
     return 0
 }
 
