@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Licensed under the GPLv2
 #
@@ -11,10 +11,7 @@ check() {
 
     # do not include module in hostonly mode,
     # if no keys are present
-    if [[ $hostonly ]]; then
-        x=$(echo "$dracutsysrootdir"/lib/modules/keys/*)
-        [[ ${x} == "$dracutsysrootdir/lib/modules/keys/*" ]] && return 255
-    fi
+    [ -n "$hostonly" ] && [ "$(echo "$dracutsysrootdir"/lib/modules/keys/*)" = "$dracutsysrootdir/lib/modules/keys/*" ] && return 255
 
     return 0
 }
@@ -32,7 +29,7 @@ install() {
     inst_hook pre-trigger 01 "$moddir/load-modsign-keys.sh"
 
     for x in "$dracutsysrootdir"/lib/modules/keys/*; do
-        [[ ${x} == "$dracutsysrootdir/lib/modules/keys/*" ]] && break
-        inst_simple "${x#$dracutsysrootdir}"
+        [ "${x}" = "$dracutsysrootdir/lib/modules/keys/*" ] && break
+        inst_simple "${x#"$dracutsysrootdir"}"
     done
 }
