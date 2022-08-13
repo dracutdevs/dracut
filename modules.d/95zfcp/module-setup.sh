@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
     arch=${DRACUT_ARCH:-$(uname -m)}
-    [ "$arch" = "s390" -o "$arch" = "s390x" ] || return 1
+    [ "$arch" = "s390" ] || [ "$arch" = "s390x" ] || return 1
 
     require_binaries zfcp_cio_free grep sed seq || return 1
 
@@ -28,7 +28,5 @@ install() {
     inst_script /sbin/zfcpconf.sh
     inst_rules 56-zfcp.rules
 
-    if [[ $hostonly ]]; then
-        inst_simple -H /etc/zfcp.conf
-    fi
+    [ -n "$hostonly" ] && inst_simple -H /etc/zfcp.conf
 }
