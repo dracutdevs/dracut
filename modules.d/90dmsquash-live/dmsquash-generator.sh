@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
@@ -68,7 +68,7 @@ ROOTFLAGS="$(getarg rootflags)"
     else
         echo "What=/dev/mapper/live-rw"
         [ -n "$ROOTFLAGS" ] && echo "Options=${ROOTFLAGS}"
-        _dev=$'dev-mapper-live\\x2drw'
+        _dev='dev-mapper-live\x2drw'
     fi
 } > "$GENERATOR_DIR"/sysroot.mount
 
