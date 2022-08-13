@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
-    [[ $hostonly ]] && {
+    [ -n "$hostonly" ] && {
         require_binaries keyctl uname || return 1
     }
 
