@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 # This file is part of dracut.
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 # Prerequisite check(s) for module.
 check() {
-    [[ $mount_needs ]] && return 1
+    [ -n "$mount_needs" ] && return 1
     # If the binary(s) requirements are not fulfilled the module can't be installed
     require_binaries "$systemdutildir"/systemd || return 1
     # Return 255 to only include the module, if another module requires it.
@@ -23,10 +23,8 @@ installkernel() {
 
 # called by dracut
 install() {
-    local _mods
-
-    if [[ $prefix == /run/* ]]; then
-        dfatal 'systemd does not work with a prefix, which contains "/run"!!'
+    if [ "${prefix#/run/}" != "$prefix" ]; then
+        dfatal 'systemd does not work with a prefix starting with "/run/"!'
         exit 1
     fi
 
@@ -148,27 +146,15 @@ install() {
         /usr/lib/sysctl.d/*.conf
 
     modules_load_get() {
-        local _line i
-        for i in "$dracutsysrootdir$1"/*.conf; do
-            [[ -f $i ]] || continue
-            while read -r _line || [ -n "$_line" ]; do
-                case $_line in
-                    \#*) ;;
-
-                    \;*) ;;
-
-                    *)
-                        echo "$_line"
-                        ;;
-                esac
-            done < "$i"
-        done
+        local _mods
+        # shellcheck disable=SC2086
+        _mods="$(grep -hv '^[#;]' "$dracutsysrootdir$1"/*.conf 2> /dev/null)" && IFS='
+' hostonly='' instmods $_mods
     }
 
-    mapfile -t _mods < <(modules_load_get /usr/lib/modules-load.d)
-    [[ ${#_mods[@]} -gt 0 ]] && hostonly='' instmods "${_mods[@]}"
+    modules_load_get /usr/lib/modules-load.d
 
-    if [[ $hostonly ]]; then
+    if [ -n "$hostonly" ]; then
         inst_multiple -H -o \
             /etc/systemd/journald.conf \
             /etc/systemd/journald.conf.d/*.conf \
@@ -186,33 +172,26 @@ install() {
             /etc/sysctl.conf \
             /etc/udev/udev.conf
 
-        mapfile -t _mods < <(modules_load_get /etc/modules-load.d)
-        [[ ${#_mods[@]} -gt 0 ]] && hostonly='' instmods "${_mods[@]}"
+        modules_load_get /etc/modules-load.d
     fi
 
-    if ! [[ -e "$initdir/etc/machine-id" ]]; then
+    if ! [ -e "$initdir/etc/machine-id" ]; then
         : > "$initdir/etc/machine-id"
         chmod 444 "$initdir/etc/machine-id"
     fi
 
     # install adm user/group for journald
+    # we don't use systemd-networkd, but the user is in systemd.conf tmpfiles snippet
     inst_multiple nologin
-    {
-        grep '^systemd-journal:' "$dracutsysrootdir"/etc/passwd 2> /dev/null
-        grep '^adm:' "$dracutsysrootdir"/etc/passwd 2> /dev/null
-        # we don't use systemd-networkd, but the user is in systemd.conf tmpfiles snippet
-        grep '^systemd-network:' "$dracutsysrootdir"/etc/passwd 2> /dev/null
-    } >> "$initdir/etc/passwd"
-
-    {
-        grep '^systemd-journal:' "$dracutsysrootdir"/etc/group 2> /dev/null
-        grep '^wheel:' "$dracutsysrootdir"/etc/group 2> /dev/null
-        grep '^adm:' "$dracutsysrootdir"/etc/group 2> /dev/null
-        grep '^utmp:' "$dracutsysrootdir"/etc/group 2> /dev/null
-        grep '^root:' "$dracutsysrootdir"/etc/group 2> /dev/null
-        # we don't use systemd-networkd, but the user is in systemd.conf tmpfiles snippet
-        grep '^systemd-network:' "$dracutsysrootdir"/etc/group 2> /dev/null
-    } >> "$initdir/etc/group"
+    grep -e '^systemd-journal:' \
+        -e '^adm:' \
+        -e '^systemd-network:' "$dracutsysrootdir"/etc/passwd >> "$initdir/etc/passwd" 2> /dev/null
+    grep -e '^systemd-journal:' \
+        -e '^wheel:' \
+        -e '^adm:' \
+        -e '^utmp:' \
+        -e '^root:' \
+        -e '^systemd-network:' "$dracutsysrootdir"/etc/group >> "$initdir/etc/group" 2> /dev/null
 
     local _systemdbinary="$systemdutildir"/systemd
 
@@ -247,7 +226,7 @@ EOF
         rescue.target \
         systemd-ask-password-console.service \
         systemd-ask-password-plymouth.service; do
-        [[ -f "$systemdsystemunitdir"/$i ]] || continue
+        [ -f "$systemdsystemunitdir/$i" ] || continue
         $SYSTEMCTL -q --root "$initdir" add-wants "$i" systemd-vconsole-setup.service
     done
 
@@ -265,6 +244,9 @@ EOF
     # Install library file(s)
     _arch=${DRACUT_ARCH:-$(uname -m)}
     inst_libdir_file \
-        {"tls/$_arch/",tls/,"$_arch/",}"libnss_*"
+        "tls/$_arch/libnss_*" \
+        "tls/libnss_*" \
+        "$_arch/libnss_*" \
+        "libnss_*"
 
 }
