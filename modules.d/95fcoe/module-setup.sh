@@ -1,12 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
     is_fcoe() {
-        block_is_fcoe "$1" || return 1
+        block_is_fcoe "$1"
     }
 
-    [[ $hostonly ]] || [[ $mount_needs ]] && {
+    [ -n "$hostonly" ] || [ -n "$mount_needs" ] && {
         for_each_host_dev_and_slaves is_fcoe || return 255
     }
 
@@ -51,10 +51,7 @@ cmdline() {
             else
                 mode="fabric"
             fi
-            d=$(
-                cd -P "$c" || exit
-                echo "$PWD"
-            )
+            d=$(cd -P "$c" && echo "$PWD")
             i=${d%/*}
             ifname=${i##*/}
             read -r mac < "${i}"/address
@@ -78,12 +75,12 @@ cmdline() {
             # DCB_REQUIRED in "/etc/fcoe/cfg-xxx" is expected to set to "no".
             #
             # Force "nodcb" if there's any DCB_REQUIRED="no"(child or vlan parent).
-            if grep -q '^[[:blank:]]*DCB_REQUIRED="no"' /etc/fcoe/cfg-"${i##*/}" &> /dev/null; then
+            if grep -q '^[[:blank:]]*DCB_REQUIRED="no"' /etc/fcoe/cfg-"${i##*/}" > /dev/null 2>&1; then
                 dcb="nodcb"
             fi
 
             if [ "$p" ]; then
-                if grep -q '^[[:blank:]]*DCB_REQUIRED="no"' /etc/fcoe/cfg-"${p}" &> /dev/null; then
+                if grep -q '^[[:blank:]]*DCB_REQUIRED="no"' /etc/fcoe/cfg-"${p}" > /dev/null 2>&1; then
                     dcb="nodcb"
                 fi
             fi
@@ -97,7 +94,7 @@ cmdline() {
 # called by dracut
 install() {
     inst_multiple ip dcbtool fipvlan lldpad readlink lldptool fcoemon fcoeadm tr
-    if [[ -e $dracutsysrootdir/etc/hba.conf ]]; then
+    if [ -e "$dracutsysrootdir/etc/hba.conf" ]; then
         inst_libdir_file 'libhbalinux.so*'
         inst_simple "/etc/hba.conf"
     fi
@@ -105,10 +102,10 @@ install() {
     mkdir -m 0755 -p "$initdir/var/lib/lldpad"
     mkdir -m 0755 -p "$initdir/etc/fcoe"
 
-    if [[ $hostonly_cmdline == "yes" ]]; then
+    if [ "$hostonly_cmdline" = "yes" ]; then
         local _fcoeconf
         _fcoeconf=$(cmdline)
-        [[ $_fcoeconf ]] && printf "%s\n" "$_fcoeconf" >> "${initdir}/etc/cmdline.d/95fcoe.conf"
+        [ -n "$_fcoeconf" ] && printf "%s\n" "$_fcoeconf" >> "${initdir}/etc/cmdline.d/95fcoe.conf"
     fi
     inst_multiple "/etc/fcoe/cfg-*"
 
