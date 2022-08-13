@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 capsmode=$(getarg rd.caps)
 
