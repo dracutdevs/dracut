@@ -28,8 +28,10 @@ RUN apt-get update -y -qq && apt-get upgrade -y -qq && DEBIAN_FRONTEND=nonintera
     fdisk \
     g++ \
     git \
+    iputils-arping \
     iputils-ping \
     isc-dhcp-client \
+    isc-dhcp-server \
     kmod \
     less \
     libkmod-dev \
@@ -40,7 +42,7 @@ RUN apt-get update -y -qq && apt-get upgrade -y -qq && DEBIAN_FRONTEND=nonintera
     multipath-tools \
     nbd-client \
     network-manager \
-    nfs-common \
+    nfs-kernel-server \
     open-iscsi \
     pigz \
     pkg-config \
