@@ -21,6 +21,7 @@ crypttab_contains() {
                 _line=$(sed -n "\,^$d .*$,{p}" /etc/block_uuid.map)
                 [ -z "$_line" ] && continue
                 # get second column with uuid
+                # shellcheck disable=SC2001
                 _uuid="$(echo "$_line" | sed 's,^.* \(.*$\),\1,')"
                 strstr "$_uuid" "${luks##luks-}" && return 0
             fi
