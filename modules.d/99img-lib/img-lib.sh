@@ -3,20 +3,15 @@
 #
 # TODO: identify/unpack rpm, deb, maybe others?
 
-# super-simple "file" that only identifies archives.
-# works with stdin if $1 is not set.
+# super-simple "file" that only identifies archives and compresseors on the standard input.
 det_archive() {
-    # NOTE: internal echo -e works in ash and bash, but not dash
     local bz xz gz zs
     local headerblock
     bz="BZh"
-    # shellcheck disable=SC3037
-    xz="$(/bin/echo -e '\xfd7zXZ')"
-    # shellcheck disable=SC3037
-    gz="$(/bin/echo -e '\x1f\x8b')"
-    # shellcheck disable=SC3037
-    zs="$(/bin/echo -e '\x28\xB5\x2F\xFD')"
-    headerblock="$(dd ${1:+if=$1} bs=262 count=1 2> /dev/null | tr -d '\0')"
+    xz="$(printf '\3757zXZ')"
+    gz="$(printf '\037\213')"
+    zs="$(printf '\050\265\057\375')"
+    headerblock="$(dd bs=262 count=1 2> /dev/null | tr -d '\0')"
     case "$headerblock" in
         $xz*) echo "xz" ;;
         $gz*) echo "gzip" ;;
@@ -42,7 +37,7 @@ det_fs_img() {
 unpack_archive() {
     local img="$1" outdir="$2" archiver="" decompr=""
     local ft
-    ft="$(det_archive "$img")"
+    ft="$(det_archive < "$img")"
     case "$ft" in
         xz | gzip | bzip2 | zstd) decompr="$ft -dc" ;;
         cpio | tar) decompr="cat" ;;
@@ -55,10 +50,7 @@ unpack_archive() {
         *) return 2 ;;
     esac
     mkdir -p "$outdir"
-    (
-        cd "$outdir" || exit
-        $decompr | $archiver 2> /dev/null
-    ) < "$img"
+    { cd "$outdir" && $decompr | $archiver 2> /dev/null; } < "$img"
 }
 
 # unpack_fs FSIMAGE OUTDIR
@@ -72,10 +64,7 @@ unpack_fs() {
         return 1
     }
     mkdir -p "$outdir"
-    outdir="$(
-        cd "$outdir" || exit
-        pwd
-    )"
+    outdir="$(cd "$outdir" && pwd)"
     copytree "$mnt" "$outdir"
     umount "$mnt"
     rmdir "$mnt"
