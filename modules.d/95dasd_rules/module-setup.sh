@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 cmdline() {
@@ -10,12 +10,12 @@ cmdline() {
             echo "$PWD"
         )
 
-        [ "${_devpath#*/dasd}" == "$_devpath" ] && return 1
+        [ "${_devpath#*/dasd}" = "$_devpath" ] && return 1
         _ccw="${_devpath%%/block/*}"
         echo "rd.dasd=${_ccw##*/}"
         return 0
     }
-    [[ $hostonly ]] || [[ $mount_needs ]] && {
+    [ -n "$hostonly" ] || [ -n "$mount_needs" ] && {
         for_each_host_dev_and_slaves_all is_dasd || return 255
     } | sort | uniq
 }
@@ -25,9 +25,9 @@ check() {
     local _arch=${DRACUT_ARCH:-$(uname -m)}
     local found=0
     local bdev
-    [ "$_arch" = "s390" -o "$_arch" = "s390x" ] || return 1
+    [ "$_arch" = "s390" ] || [ "$_arch" = "s390x" ] || return 1
 
-    [[ $hostonly ]] || [[ $mount_needs ]] && {
+    [ -n "$hostonly" ] || [ -n "$mount_needs" ] && {
         for bdev in /sys/block/*; do
             case "${bdev##*/}" in
                 dasd*)
@@ -43,19 +43,19 @@ check() {
 
 # called by dracut
 depends() {
-    echo 'dasd_mod' bash
+    echo dasd_mod bash
     return 0
 }
 
 # called by dracut
 install() {
     inst_hook cmdline 30 "$moddir/parse-dasd.sh"
-    if [[ $hostonly_cmdline == "yes" ]]; then
+    if [ "$hostonly_cmdline" = "yes" ]; then
         local _dasd
         _dasd=$(cmdline)
-        [[ $_dasd ]] && printf "%s\n" "$_dasd" >> "${initdir}/etc/cmdline.d/95dasd.conf"
+        [ -n "$_dasd" ] && printf "%s\n" "$_dasd" >> "${initdir}/etc/cmdline.d/95dasd.conf"
     fi
-    if [[ $hostonly ]]; then
+    if [ -n "$hostonly" ]; then
         inst_rules_wildcard "51-dasd-*.rules"
         inst_rules_wildcard "41-dasd-*.rules"
         mark_hostonly /etc/udev/rules.d/51-dasd-*.rules
