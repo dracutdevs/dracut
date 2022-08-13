@@ -102,7 +102,7 @@ done
 
 [ $_cnt -ge 40 ] && umount_a -v
 
-if strstr "$(cat /proc/mounts)" "/oldroot"; then
+if grep -qF "/oldroot" /proc/mounts; then
     warn "Cannot umount /oldroot"
     for _pid in /proc/*; do
         _pid=${_pid##/proc/}
