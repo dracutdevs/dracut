@@ -1,12 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
     is_fcoe() {
-        block_is_fcoe "$1" || return 1
+        block_is_fcoe "$1"
     }
 
-    [[ $hostonly ]] || [[ $mount_needs ]] && {
+    [ -n "$hostonly" ] || [ -n "$mount_needs" ] && {
         for_each_host_dev_and_slaves is_fcoe || return 255
         [ -d /sys/firmware/efi ] || return 255
     }
@@ -17,7 +17,7 @@ check() {
 
 # called by dracut
 depends() {
-    echo fcoe uefi-lib bash
+    echo fcoe uefi-lib
     return 0
 }
 
