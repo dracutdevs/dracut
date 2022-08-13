@@ -1,5 +1,4 @@
-#!/bin/bash
-# module-setup.sh for livenet
+#!/bin/sh
 
 # called by dracut
 check() {
@@ -8,7 +7,7 @@ check() {
 
 # called by dracut
 depends() {
-    echo network url-lib dmsquash-live img-lib bash
+    echo network url-lib dmsquash-live img-lib
     return 0
 }
 
