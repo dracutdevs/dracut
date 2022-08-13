@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # This file is part of dracut.
 # SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -41,7 +41,7 @@ install() {
         "$systemdsystemunitdir"/sysinit.target.wants/integritysetup.target
 
     # Install the hosts local user configurations if enabled.
-    if [[ $hostonly ]]; then
+    if [ -n "$hostonly" ]; then
         inst_multiple -H -o \
             /etc/integritytab \
             "$systemdsystemconfdir"/integritysetup.target \
@@ -54,6 +54,10 @@ install() {
 
     # Install required libraries.
     _arch=${DRACUT_ARCH:-$(uname -m)}
-    inst_libdir_file {"tls/$_arch/",tls/,"$_arch/",}"libcryptsetup.so.*"
+    inst_libdir_file \
+        "tls/$_arch/libcryptsetup.so.*" \
+        "tls/libcryptsetup.so.*" \
+        "$_arch/libcryptsetup.so.*" \
+        "libcryptsetup.so.*"
 
 }

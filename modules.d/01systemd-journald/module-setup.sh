@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # This file is part of dracut.
 # SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -52,12 +52,21 @@ install() {
     # Install library file(s)
     _arch=${DRACUT_ARCH:-$(uname -m)}
     inst_libdir_file \
-        {"tls/$_arch/",tls/,"$_arch/",}"liblz4.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libzstd.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"liblzma.so.*"
+        "tls/$_arch/liblz4.so.*" \
+        "tls/$_arch/libzstd.so.*" \
+        "tls/$_arch/liblzma.so.*" \
+        "tls/liblz4.so.*" \
+        "tls/libzstd.so.*" \
+        "tls/liblzma.so.*" \
+        "$_arch/liblz4.so.*" \
+        "$_arch/libzstd.so.*" \
+        "$_arch/liblzma.so.*" \
+        "liblz4.so.*" \
+        "libzstd.so.*" \
+        "liblzma.so.*"
 
     # Install the hosts local user configurations if enabled.
-    if [[ $hostonly ]]; then
+    if [ -n "$hostonly" ]; then
         inst_multiple -H -o \
             "$systemdutilconfdir"/journald.conf \
             "$systemdutilconfdir/journald.conf.d/*.conf" \
