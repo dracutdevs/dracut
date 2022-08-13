@@ -1,12 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
-    if [[ $hostonly ]]; then
-        return 255
-    fi
+    [ -n "$hostonly" ] && return 255
 
-    if [[ $mount_needs ]]; then
+    if [ -n "$mount_needs" ]; then
         is_qemu_virtualized && return 0
         return 255
     fi
