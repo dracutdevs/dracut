@@ -1,20 +1,22 @@
 #!/bin/bash
 
 # return value:
-#  'nfs4': Only nfs4 founded
-#  'nfs': nfs with version < 4 founded
-#  '': No nfs founded
+#  'nfs4': Only nfs4 found
+#  'nfs': nfs with version <= 4 found
+#  '': No nfs found
 get_nfs_type() {
-    local _nfs _nfs4
-
     for fs in "${host_fs_types[@]}"; do
-        [[ $fs == "nfs" ]] && _nfs=1
-        [[ $fs == "nfs3" ]] && _nfs=1
-        [[ $fs == "nfs4" ]] && _nfs4=1
+        case "$fs" in
+            nfs | nfs3)
+                echo nfs
+                return
+                ;;
+            nfs4)
+                echo nfs4
+                return
+                ;;
+        esac
     done
-
-    [[ "$_nfs" ]] && echo "nfs" && return
-    [[ "$_nfs4" ]] && echo "nfs4" && return
 }
 
 # called by dracut
@@ -23,8 +25,8 @@ check() {
     require_any_binary rpcbind portmap || return 1
     require_binaries rpc.statd mount.nfs mount.nfs4 umount sed chmod chown || return 1
 
-    [[ $hostonly ]] || [[ $mount_needs ]] && {
-        [[ "$(get_nfs_type)" ]] && return 0
+    [ -n "$hostonly" ] || [ -n "$mount_needs" ] && {
+        [ -n "$(get_nfs_type)" ] && return 0
         return 255
     }
     return 0
@@ -65,11 +67,11 @@ cmdline() {
     if [[ $nfs_device =~ [0-9]*\.[0-9]*\.[0-9]*.[0-9]* ]] || [[ $nfs_device =~ \[[^]]*\] ]]; then
         nfs_address="${nfs_device%%:*}"
     else
-        lookup=$(host "${nfs_device%%:*}" | grep " address " | head -n1)
+        lookup=$(host "${nfs_device%%:*}" | grep -m1 " address ")
         nfs_address=${lookup##* }
     fi
 
-    [[ $nfs_address ]] || return
+    [ -n "$nfs_address" ] || return
     ip_params_for_remote_addr "$nfs_address"
 }
 
@@ -81,10 +83,10 @@ install() {
     inst_multiple -o /etc/services /etc/nsswitch.conf /etc/rpc /etc/protocols
     inst_multiple -o /usr/etc/services /usr/etc/nsswitch.conf /usr/etc/rpc /usr/etc/protocols
 
-    if [[ $hostonly_cmdline == "yes" ]]; then
+    if [ "$hostonly_cmdline" = "yes" ]; then
         local _netconf
         _netconf="$(cmdline)"
-        [[ $_netconf ]] && printf "%s\n" "$_netconf" >> "${initdir}/etc/cmdline.d/95nfs.conf"
+        [ -n "$_netconf" ] && printf "%s\n" "$_netconf" >> "${initdir}/etc/cmdline.d/95nfs.conf"
     fi
 
     if [[ -f $dracutsysrootdir/lib/modprobe.d/nfs.conf ]]; then
@@ -112,7 +114,7 @@ install() {
     inst "$moddir/nfsroot.sh" "/sbin/nfsroot"
 
     # For strict hostonly, only install rpcbind for NFS < 4
-    if [[ $hostonly_mode != "strict" ]] || [[ "$(get_nfs_type)" != "nfs4" ]]; then
+    if [ "$hostonly_mode" != "strict" ] || [ "$(get_nfs_type)" != "nfs4" ]; then
         inst_multiple -o portmap rpcbind rpc.statd
     fi
 
@@ -131,8 +133,6 @@ install() {
     # rpc user needs to be able to write to this directory to save the warmstart
     # file
     chmod 770 "$initdir/var/lib/rpcbind"
-    grep -q '^rpc:' "$dracutsysrootdir"/etc/passwd \
-        && grep -q '^rpc:' "$dracutsysrootdir"/etc/group
 
     dracut_need_initqueue
 }
