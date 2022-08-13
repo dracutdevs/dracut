@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # This file is part of dracut.
 # SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -25,11 +25,16 @@ install() {
 
     # Install library file(s)
     _arch=${DRACUT_ARCH:-$(uname -m)}
-    inst_libdir_file \
-        {"tls/$_arch/",tls/,"$_arch/",}"libtasn1.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libffi.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libp11-kit.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libcryptsetup.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"/cryptsetup/libcryptsetup-token-systemd-pkcs11.so.*"
+    for _lib in "libtasn1.so.*" \
+        "libffi.so.*" \
+        "libp11-kit.so.*" \
+        "libcryptsetup.so.*" \
+        "/cryptsetup/libcryptsetup-token-systemd-pkcs11.so.*"; do
+        inst_libdir_file \
+            "tls/$_arch/$_lib" \
+            "tls/$_lib" \
+            "$_arch/$_lib" \
+            "$_lib"
+    done
 
 }
