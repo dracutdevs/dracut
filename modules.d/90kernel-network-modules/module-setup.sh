@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
@@ -18,18 +18,19 @@ installkernel() {
     local _unwanted_drivers='/(wireless|isdn|uwb|net/ethernet|net/phy|net/team)/'
     local _net_drivers
 
-    if [[ $_arch == "s390" ]] || [[ $_arch == "s390x" ]]; then
+    if [ "$_arch" = "s390" ] || [ "$_arch" = "s390x" ]; then
         dracut_instmods -o -P ".*${_unwanted_drivers}.*" -s "$_net_symbols" "=drivers/s390/net"
     fi
 
-    if [[ $hostonly_mode == 'strict' ]] && [[ -n ${hostonly_nics+x} ]]; then
+    if [ "$hostonly_mode" = "strict" ] && [ -n "${hostonly_nics+x}" ]; then
         for _nic in $hostonly_nics; do
-            mapfile -t _net_drivers < <(get_dev_module /sys/class/net/"$_nic")
-            if ((${#_net_drivers[@]} == 0)); then
+            _net_drivers=$(get_dev_module /sys/class/net/"$_nic")
+            if [ -z "$_net_drivers" ]; then
                 derror "--hostonly-nics contains invalid NIC '$_nic'"
                 continue
             fi
-            hostonly="" instmods "${_net_drivers[@]}"
+            # shellcheck disable=SC2086
+            hostonly="" instmods $_net_drivers
         done
         return 0
     fi
