@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 DEV="$1"
 MNT=/boot/zipl
@@ -9,26 +9,26 @@ if [ -z "$DEV" ]; then
     exit 1
 fi
 
-[ -d ${MNT} ] || mkdir -p ${MNT}
+[ -d "${MNT}" ] || mkdir -p "${MNT}"
 
-if ! mount -o ro "${DEV}" ${MNT}; then
+if ! mount -o ro "${DEV}" "${MNT}"; then
     echo "Failed to mount ${MNT}"
     : > /tmp/install.zipl.cmdline-done
     exit 1
 fi
 
-if [ -f ${MNT}/dracut-cmdline.conf ]; then
-    cp ${MNT}/dracut-cmdline.conf /etc/cmdline.d/99zipl.conf
+if [ -f "${MNT}/dracut-cmdline.conf" ]; then
+    cp "${MNT}/dracut-cmdline.conf" /etc/cmdline.d/99zipl.conf
 fi
 
-if [ -f ${MNT}/active_devices.txt ]; then
-    while read -r dev _ || [[ $dev ]]; do
-        [ "$dev" = "#" -o "$dev" = "" ] && continue
+if [ -f "${MNT}/active_devices.txt" ]; then
+    while read -r dev _ || [ -n "$dev" ]; do
+        [ "$dev" = "#" ] || [ -z "$dev" ] && continue
         cio_ignore -r "$dev"
-    done < ${MNT}/active_devices.txt
+    done < "${MNT}/active_devices.txt"
 fi
 
-umount ${MNT}
+umount "${MNT}"
 
 if [ -f /etc/cmdline.d/99zipl.conf ]; then
     systemctl restart dracut-cmdline.service
