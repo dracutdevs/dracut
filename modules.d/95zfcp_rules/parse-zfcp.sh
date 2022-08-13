@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 create_udev_rule() {
     local ccw=$1
@@ -15,59 +15,45 @@ create_udev_rule() {
         read -r _cu_type < /sys/bus/ccw/devices/"${ccw}"/cutype
         read -r _dev_type < /sys/bus/ccw/devices/"${ccw}"/devtype
     fi
-    if [ "$_cu_type" != "1731/03" ]; then
-        return 0
-    fi
-    if [ "$_dev_type" != "1732/03" ] && [ "$_dev_type" != "1732/04" ]; then
-        return 0
-    fi
+    [ "$_cu_type" != "1731/03" ] && return 0
+    [ "$_dev_type" != "1732/03" ] && [ "$_dev_type" != "1732/04" ] && return 0
 
     [ -z "$wwpn" ] || [ -z "$lun" ] && return
-    m=$(sed -n "/.*${wwpn}.*${lun}.*/p" "$_rule")
-    if [ -z "$m" ]; then
-        cat >> "$_rule" << EOF
-ACTION=="add", KERNEL=="rport-*", ATTR{port_name}=="$wwpn", SUBSYSTEMS=="ccw", KERNELS=="$ccw", ATTR{[ccw/$ccw]$wwpn/unit_add}="$lun"
-EOF
+    if grep -qv ".*${wwpn}.*${lun}.*" "$_rule"; then
+        printf 'ACTION=="add", KERNEL=="rport-*", ATTR{port_name}=="%s", SUBSYSTEMS=="ccw", KERNELS=="%s", ATTR{[ccw/%s]%s/unit_add}="%s"\n' "$wwpn" "$ccw" "$ccw" "$wwpn" "$lun" >> "$_rule"
     fi
 }
 
-if [[ -f /sys/firmware/ipl/ipl_type && \
-    $(< /sys/firmware/ipl/ipl_type) == "fcp" ]]; then
-    (
-        _wwpn=$(cat /sys/firmware/ipl/wwpn)
-        _lun=$(cat /sys/firmware/ipl/lun)
-        _ccw=$(cat /sys/firmware/ipl/device)
+if read -r _itp < /sys/firmware/ipl/ipl_type 2> /dev/null && [ "$_itp" = "fcp" ]; then
+    read -r _wwpn < /sys/firmware/ipl/wwpn
+    read -r _lun < /sys/firmware/ipl/lun
+    read -r _ccw < /sys/firmware/ipl/device
 
-        create_udev_rule "$_ccw" "$_wwpn" "$_lun"
-    )
+    create_udev_rule "$_ccw" "$_wwpn" "$_lun"
 fi
 
 for zfcp_arg in $(getargs rd.zfcp); do
     (
-        OLDIFS="$IFS"
         IFS=","
         # shellcheck disable=SC2086
-        set $zfcp_arg
-        IFS="$OLDIFS"
-        create_udev_rule "$1" "$2" "$3"
+        create_udev_rule $zfcp_arg
     )
 done
 
 for zfcp_arg in $(getargs root=) $(getargs resume=); do
-    (
-        case $zfcp_arg in
-            /dev/disk/by-path/ccw-*)
-                ccw_arg=${zfcp_arg##*/}
-                ;;
-        esac
-        if [ -n "$ccw_arg" ]; then
-            OLDIFS="$IFS"
+    case "$zfcp_arg" in
+        /dev/disk/by-path/ccw-*)
+            ccw_arg=${zfcp_arg##*/}
+            ;;
+    esac
+    if [ -n "$ccw_arg" ]; then
+        (
             IFS="-"
-            set -- "$ccw_arg"
-            IFS="$OLDIFS"
+            # shellcheck disable=SC2086
+            set -- $ccw_arg
             _wwpn=${4%:*}
             _lun=${4#*:}
             create_udev_rule "$2" "$wwpn" "$lun"
-        fi
-    )
+        )
+    fi
 done
