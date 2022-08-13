@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
@@ -6,9 +6,9 @@ check() {
 
     # if an nbd device is not somewhere in the chain of devices root is
     # mounted on, fail the hostonly check.
-    [[ $hostonly ]] || [[ $mount_needs ]] && {
+    [ -n "$hostonly" ] || [ -n "$mount_needs" ] && {
         _rootdev=$(find_root_block_device)
-        [[ -b /dev/block/$_rootdev ]] || return 1
+        [ -b "/dev/block/$_rootdev" ] || return 1
         check_block_and_slaves block_is_nbd "$_rootdev" || return 255
     }
     require_binaries nbd-client || return 1
