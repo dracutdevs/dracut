@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
@@ -30,8 +30,8 @@ install() {
     inst_multiple ip sed grep
 
     inst NetworkManager
-    inst_multiple -o /usr/{lib,libexec}/nm-initrd-generator
-    inst_multiple -o /usr/{lib,libexec}/nm-daemon-helper
+    inst_multiple -o /usr/lib/nm-initrd-generator /usr/libexec/nm-initrd-generator
+    inst_multiple -o /usr/lib/nm-daemon-helper /usr/libexec/nm-daemon-helper
     inst_multiple -o teamd dhclient
     inst_hook cmdline 99 "$moddir/nm-config.sh"
     if dracut_module_included "systemd"; then
@@ -53,7 +53,7 @@ install() {
 
         # Adding default link
         inst_multiple -o "${systemdutildir}/network/99-default.link"
-        [[ $hostonly ]] && inst_multiple -H -o "${systemdsystemconfdir}/network/*.link"
+        [ -n "$hostonly" ] && inst_multiple -H -o "${systemdsystemconfdir}/network/*.link"
 
         $SYSTEMCTL -q --root "$initdir" enable nm-initrd.service
     fi
@@ -64,9 +64,9 @@ install() {
     inst_libdir_file "NetworkManager/$_nm_version/libnm-device-plugin-team.so"
     inst_simple "$moddir/nm-lib.sh" "/lib/nm-lib.sh"
 
-    if [[ -x "$initdir/usr/sbin/dhclient" ]]; then
-        inst_multiple -o /usr/{lib,libexec}/nm-dhcp-helper
-    elif ! [[ -e "$initdir/etc/machine-id" ]]; then
+    if [ -x "$initdir/usr/sbin/dhclient" ]; then
+        inst_multiple -o /usr/lib/nm-dhcp-helper /usr/libexec/nm-dhcp-helper
+    elif ! [ -e "$initdir/etc/machine-id" ]; then
         # The internal DHCP client silently fails if we
         # have no machine-id
         systemd-machine-id-setup --root="$initdir"
@@ -78,6 +78,12 @@ install() {
 
     _arch=${DRACUT_ARCH:-$(uname -m)}
 
-    inst_libdir_file {"tls/$_arch/",tls/,"$_arch/",}"libnss_dns.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libnss_mdns4_minimal.so.*"
+    inst_libdir_file "tls/$_arch/libnss_dns.so.*" \
+        "tls/$_arch/libnss_mdns4_minimal.so.*" \
+        "tls/libnss_dns.so.*" \
+        "tls/libnss_mdns4_minimal.so.*" \
+        "$_arch/libnss_dns.so.*" \
+        "$_arch/libnss_mdns4_minimal.so.*" \
+        "libnss_dns.so.*" \
+        "libnss_mdns4_minimal.so.*"
 }
