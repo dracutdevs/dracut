@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
@@ -13,25 +13,13 @@ depends() {
 echo_fs_helper() {
     local fs=$2
     case "$fs" in
-        xfs)
-            echo -n " xfs_db xfs_repair xfs_check xfs_metadump "
-            ;;
-        ext?)
-            echo -n " e2fsck "
-            ;;
-        jfs)
-            echo -n " jfs_fsck "
-            ;;
-        reiserfs)
-            echo -n " reiserfsck "
-            ;;
-        btrfs)
-            echo -n " btrfsck "
-            ;;
+        xfs) echo xfs_db xfs_repair xfs_check xfs_metadump ;;
+        ext?) echo e2fsck ;;
+        jfs) echo jfs_fsck ;;
+        reiserfs) echo reiserfsck ;;
+        btrfs) echo btrfsck ;;
     esac
-
-    echo -n " fsck.$fs "
-    return 0
+    echo "fsck.$fs"
 }
 
 include_fs_helper_modules() {
@@ -49,9 +37,8 @@ include_fs_helper_modules() {
 # called by dracut
 installkernel() {
     # xfs/btrfs/ext4 need crc32c, f2fs needs crc32
-    if [[ $hostonly ]]; then
-        for_each_host_dev_fs include_fs_helper_modules
-        :
+    if [ -n "$hostonly" ]; then
+        for_each_host_dev_fs include_fs_helper_modules || :
     else
         instmods crc32c crc32
     fi
@@ -59,31 +46,20 @@ installkernel() {
 
 # called by dracut
 install() {
-    local _helpers
+    local _fscks
 
     inst "$moddir/fs-lib.sh" "/lib/fs-lib.sh"
     : > "${initdir}"/etc/fstab.empty
 
-    [[ $nofscks == "yes" ]] && return
+    [ "$nofscks" = "yes" ] && return
 
-    if [[ $fscks == "${fscks#*[^ ]*}" ]]; then
-        _helpers=(
-            /sbin/fsck* /usr/sbin/fsck*
-            xfs_db xfs_check xfs_repair xfs_metadump
-            e2fsck jfs_fsck reiserfsck btrfsck
-        )
-        if [[ $hostonly ]]; then
-            read -r -a _helpers < <(for_each_host_dev_fs echo_fs_helper)
-        fi
-    else
-        read -r -a _helpers <<< "$fscks"
+    _fscks="$fscks"
+    if [ "$fscks" = "${fscks#*[^ ]*}" ]; then
+        _fscks="xfs_db xfs_check xfs_repair xfs_metadump e2fsck jfs_fsck reiserfsck btrfsck $(echo /sbin/fsck* /usr/sbin/fsck*) $([ -n "$hostonly" ] && for_each_host_dev_fs echo_fs_helper)"
     fi
 
-    _helpers+=(umount mount)
+    [ "${_fscks#*e2fsck}" != "$_fscks" ] && [ -e "$dracutsysrootdir/etc/e2fsck.conf" ] && inst_simple /etc/e2fsck.conf
 
-    if [[ ${_helpers[*]} == *e2fsck* ]] && [[ -e $dracutsysrootdir/etc/e2fsck.conf ]]; then
-        inst_simple /etc/e2fsck.conf
-    fi
-
-    inst_multiple -o "${_helpers[@]}" fsck
+    # shellcheck disable=SC2086
+    inst_multiple -o $_fscks umount mount fsck
 }
