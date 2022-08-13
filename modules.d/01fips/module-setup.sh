@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
@@ -13,30 +13,30 @@ depends() {
 # called by dracut
 installkernel() {
     local _fipsmodules _mod _bootfstype
-    if [[ -f "${srcmods}/modules.fips" ]]; then
-        _fipsmodules="$(cat "${srcmods}/modules.fips")"
+    if [ -f "${srcmods}/modules.fips" ]; then
+        while read -r _mod; do
+            _fipsmodules="$_fipsmodules $_mod"
+        done < "${srcmods}/modules.fips"
     else
-        _fipsmodules=""
-
         # Hashes:
-        _fipsmodules+="sha1 sha224 sha256 sha384 sha512 "
-        _fipsmodules+="sha3-224 sha3-256 sha3-384 sha3-512 "
-        _fipsmodules+="crc32c crct10dif ghash "
+        _fipsmodules="sha1 sha224 sha256 sha384 sha512 "
+        _fipsmodules="$_fipsmodules sha3-224 sha3-256 sha3-384 sha3-512 "
+        _fipsmodules="$_fipsmodules crc32c crct10dif ghash "
 
         # Ciphers:
-        _fipsmodules+="cipher_null des3_ede aes cfb dh ecdh "
+        _fipsmodules="$_fipsmodules cipher_null des3_ede aes cfb dh ecdh "
 
         # Modes/templates:
-        _fipsmodules+="ecb cbc ctr xts gcm ccm authenc hmac cmac ofb cts "
+        _fipsmodules="$_fipsmodules ecb cbc ctr xts gcm ccm authenc hmac cmac ofb cts "
 
         # Compression algs:
-        _fipsmodules+="deflate lzo zlib "
+        _fipsmodules="$_fipsmodules deflate lzo zlib "
 
         # PRNG algs:
-        _fipsmodules+="ansi_cprng "
+        _fipsmodules="$_fipsmodules ansi_cprng "
 
         # Misc:
-        _fipsmodules+="aead cryptomgr tcrypt crypto_user "
+        _fipsmodules="$_fipsmodules aead cryptomgr tcrypt crypto_user "
     fi
 
     # shellcheck disable=SC2174
@@ -50,9 +50,9 @@ installkernel() {
     done
 
     # with hostonly_default_device fs module for /boot is not installed by default
-    if [[ $hostonly ]] && [[ $hostonly_default_device == "no" ]]; then
+    if [ -n "$hostonly" ] && [ "$hostonly_default_device" = "no" ]; then
         _bootfstype=$(find_mp_fstype /boot)
-        if [[ -n $_bootfstype ]]; then
+        if [ -n "$_bootfstype" ]; then
             hostonly='' instmods "$_bootfstype"
         else
             dwarning "Can't determine fs type for /boot, FIPS check may fail."
