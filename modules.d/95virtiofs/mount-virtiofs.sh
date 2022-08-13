@@ -1,9 +1,8 @@
-#!/usr/bin/sh
+#!/bin/sh
 
-if [ "${fstype}" = "virtiofs" -o "${root%%:*}" = "virtiofs" ]; then
-    if ! { modprobe virtiofs || strstr "$(cat /proc/filesystems)" virtiofs; }; then
-        die "virtiofs is required but not available."
-    fi
+if [ "${fstype}" = "virtiofs" ] || [ "${root%%:*}" = "virtiofs" ]; then
+    modprobe virtiofs || grep -qF virtiofs /proc/filesystems \
+        || die "virtiofs is required but not available."
 
     mount -t virtiofs -o "$rflags" "${root#virtiofs:}" "$NEWROOT" 2>&1 | vinfo
     if ! ismounted "$NEWROOT"; then
