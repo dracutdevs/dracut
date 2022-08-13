@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
@@ -25,7 +25,7 @@ install() {
     #Adding default link
     if dracut_module_included "systemd"; then
         inst_multiple -o "${systemdutildir}/network/99-default.link"
-        [[ $hostonly ]] && inst_multiple -H -o "${systemdsystemconfdir}/network/*.link"
+        [ -n "$hostonly" ] && inst_multiple -H -o "${systemdsystemconfdir}/network/*.link"
     fi
 
     inst_multiple ip dhclient sed awk grep pgrep tr expr
@@ -91,8 +91,14 @@ install() {
 
     _arch=${DRACUT_ARCH:-$(uname -m)}
 
-    inst_libdir_file {"tls/$_arch/",tls/,"$_arch/",}"libnss_dns.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libnss_mdns4_minimal.so.*"
+    inst_libdir_file "tls/$_arch/libnss_dns.so.*" \
+        "tls/$_arch/libnss_mdns4_minimal.so.*" \
+        "tls/libnss_dns.so.*" \
+        "tls/libnss_mdns4_minimal.so.*" \
+        "$_arch/libnss_dns.so.*" \
+        "$_arch/libnss_mdns4_minimal.so.*" \
+        "libnss_dns.so.*" \
+        "libnss_mdns4_minimal.so.*"
 
     dracut_need_initqueue
 }
