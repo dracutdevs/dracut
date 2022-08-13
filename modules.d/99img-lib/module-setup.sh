@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # module-setup for img-lib
 
 # called by dracut
