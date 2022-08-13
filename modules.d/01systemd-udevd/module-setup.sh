@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # This file is part of dracut.
 # SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -83,7 +83,7 @@ install() {
         udevadm
 
     # Install the hosts local user configurations if enabled.
-    if [[ $hostonly ]]; then
+    if [ -n "$hostonly" ]; then
         inst_multiple -H -o \
             "$udevconfdir"/hwdb.bin \
             "$udevconfdir"/udev.conf \
@@ -105,6 +105,10 @@ install() {
 
     # Install required libraries.
     _arch=${DRACUT_ARCH:-$(uname -m)}
-    inst_libdir_file {"tls/$_arch/",tls/,"$_arch/",}"libudev.so.*"
+    inst_libdir_file \
+        "tls/$_arch/libudev.so.*" \
+        "tls/libudev.so.*" \
+        "$_arch/libudev.so.*" \
+        "libudev.so.*"
 
 }

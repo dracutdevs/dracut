@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # This file is part of dracut.
 # SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -33,7 +33,7 @@ install() {
         "$systemdutildir"/systemd-sysctl
 
     # Install the hosts local user configurations if enabled.
-    if [[ $hostonly ]]; then
+    if [ -n "$hostonly" ]; then
         inst_multiple -H -o \
             /etc/sysctl.conf \
             "$sysctlconfdir/*.conf" \

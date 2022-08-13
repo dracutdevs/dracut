@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 # This file is part of dracut.
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 # Prerequisite check(s) for module.
 check() {
-    [[ $mount_needs ]] && return 1
+    [ -n "$mount_needs" ] && return 1
 
     # If the binary(s) requirements are not fulfilled the module can't be installed
     require_binaries ip networkctl \
@@ -63,7 +63,7 @@ install() {
     done
 
     # Install the hosts local user configurations if enabled.
-    if [[ $hostonly ]]; then
+    if [ -n "$hostonly" ]; then
         inst_multiple -H -o \
             "$systemdutilconfdir"/networkd.conf \
             "$systemdutilconfdir/networkd.conf.d/*.conf" \

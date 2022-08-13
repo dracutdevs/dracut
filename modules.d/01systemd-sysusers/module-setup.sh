@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # This file is part of dracut.
 # SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -34,7 +34,7 @@ install() {
         systemd-sysusers
 
     # Install the hosts local user configurations if enabled.
-    if [[ $hostonly ]]; then
+    if [ -n "$hostonly" ]; then
         inst_multiple -H -o \
             "$sysusersconfdir"/basic.conf \
             "$sysusersconfdir"/systemd.conf \
