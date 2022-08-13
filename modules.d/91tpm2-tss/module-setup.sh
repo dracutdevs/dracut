@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # This file is part of dracut.
 # SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -40,20 +40,25 @@ install() {
 
     # Install library file(s)
     _arch=${DRACUT_ARCH:-$(uname -m)}
-    inst_libdir_file \
-        {"tls/$_arch/",tls/,"$_arch/",}"libtss2-esys.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libtss2-fapi.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libtss2-mu.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libtss2-rc.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libtss2-sys.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libtss2-tcti-cmd.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libtss2-tcti-device.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libtss2-tcti-mssim.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libtss2-tcti-swtpm.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libtss2-tctildr.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libcryptsetup.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"/cryptsetup/libcryptsetup-token-systemd-tpm2.so" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libcurl.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"libjson-c.so.*"
+    for _lib in "libtss2-esys.so.*" \
+        "libtss2-fapi.so.*" \
+        "libtss2-mu.so.*" \
+        "libtss2-rc.so.*" \
+        "libtss2-sys.so.*" \
+        "libtss2-tcti-cmd.so.*" \
+        "libtss2-tcti-device.so.*" \
+        "libtss2-tcti-mssim.so.*" \
+        "libtss2-tcti-swtpm.so.*" \
+        "libtss2-tctildr.so.*" \
+        "libcryptsetup.so.*" \
+        "/cryptsetup/libcryptsetup-token-systemd-tpm2.so" \
+        "libcurl.so.*" \
+        "libjson-c.so.*"; do
+        inst_libdir_file \
+            "tls/$_arch/$_lib" \
+            "tls/$_lib" \
+            "$_arch/$_lib" \
+            "$_lib"
+    done
 
 }
