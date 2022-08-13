@@ -1,9 +1,8 @@
 #!/bin/sh
 
 _remove_dm() {
-    local dev=$1
-    local s
-    local devname
+    local dev s devname
+    dev=$1
 
     for s in /sys/block/"${dev}"/holders/dm-*; do
         [ -e "${s}" ] || continue
@@ -12,16 +11,16 @@ _remove_dm() {
     # multipath devices might have MD devices on top,
     # which are removed after this script. So do not
     # remove those to avoid spurious errors
-    case $(cat /sys/block/"${dev}"/dm/uuid) in
+    read -r uuid < /sys/block/"${dev}"/dm/uuid
+    case "$uuid" in
         mpath-*)
-            return 0
+            :
             ;;
         *)
-            devname=$(cat /sys/block/"${dev}"/dm/name)
-            dmsetup -v --noudevsync remove "$devname" || return $?
+            read -r devname < /sys/block/"${dev}"/dm/name
+            dmsetup -v --noudevsync remove "$devname"
             ;;
     esac
-    return 0
 }
 
 _do_dm_shutdown() {
@@ -32,13 +31,13 @@ _do_dm_shutdown() {
     info "Disassembling device-mapper devices"
     for dev in /sys/block/dm-*; do
         [ -e "${dev}" ] || continue
-        if [ "x$final" != "x" ]; then
+        if [ -n "$final" ]; then
             _remove_dm "${dev##*/}" || ret=$?
         else
             _remove_dm "${dev##*/}" > /dev/null 2>&1 || ret=$?
         fi
     done
-    if [ "x$final" != "x" ]; then
+    if [ -n "$final" ]; then
         info "dmsetup ls --tree"
         dmsetup ls --tree 2>&1 | vinfo
     fi
@@ -46,8 +45,6 @@ _do_dm_shutdown() {
 }
 
 if command -v dmsetup > /dev/null \
-    && [ "x$(dmsetup status)" != "xNo devices found" ]; then
+    && [ "$(dmsetup status)" != "No devices found" ]; then
     _do_dm_shutdown "$1"
-else
-    :
 fi
