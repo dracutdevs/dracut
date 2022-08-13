@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # This file is part of dracut.
 # SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -29,6 +29,6 @@ install() {
     inst printf
 
     # Prefer mksh as default shell if no other shell is preferred.
-    [[ -L $initdir/bin/sh ]] || ln -sf mksh "${initdir}/bin/sh"
+    [ -L "$initdir/bin/sh" ] || ln -sf mksh "${initdir}/bin/sh"
 
 }
