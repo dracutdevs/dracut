@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # This module attempts to properly deal with thermal behavior on PowerPC
 # based Mac systems, by installing the model-appropriate (when hostonly)
@@ -17,9 +17,9 @@
 
 # called by dracut
 check() {
-    local _arch=${DRACUT_ARCH:-$(uname -m)}
+    : "${DRACUT_ARCH:="$(uname -m)"}"
     # only for PowerPC Macs
-    [[ $_arch == ppc* && $_arch != ppc64le ]] || return 1
+    [ "${DRACUT_ARCH#ppc}" != "$DRACUT_ARCH" ] && [ "$_arch" != ppc64le ] || return 1
     return 0
 }
 
@@ -37,15 +37,16 @@ installkernel() {
     }
 
     # only PowerMac3,6 has a module, special case
-    if [[ ${DRACUT_ARCH:-$(uname -m)} != ppc64* ]]; then
-        if ! [[ $hostonly ]] || [[ "$(pmac_model)" == "PowerMac3,6" ]]; then
+    : "${DRACUT_ARCH:="$(uname -m)"}"
+    if [ "${DRACUT_ARCH#ppc64}" = "$DRACUT_ARCH" ]; then
+        if [ -z "$hostonly" ] || [ "$(pmac_model)" = "PowerMac3,6" ]; then
             instmods therm_windtunnel
         fi
         return 0
     fi
 
     windfarm_modules() {
-        if ! [[ $hostonly ]]; then
+        if [ -z "$hostonly" ]; then
             # include all drivers when not hostonly
             instmods \
                 windfarm_pm72 windfarm_pm81 windfarm_pm91 windfarm_pm112 \
