@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 
 # called by dracut
 check() {
-    [[ $mount_needs ]] && return 1
+    [ -n "$mount_needs" ] && return 1
     return 0
 }
 
@@ -13,8 +13,6 @@ depends() {
 
 # called by dracut
 install() {
-    if ! dracut_module_included "systemd"; then
-        inst_hook pre-pivot 50 "$moddir/mount-usr.sh"
-    fi
+    dracut_module_included "systemd" || inst_hook pre-pivot 50 "$moddir/mount-usr.sh"
     :
 }
