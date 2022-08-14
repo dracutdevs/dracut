@@ -6,7 +6,7 @@ TEST_DESCRIPTION="live root on a squash filesystem"
 KVERSION="${KVERSION-$(uname -r)}"
 
 # Uncomment this to debug failures
-# DEBUGFAIL="rd.shell rd.debug loglevel=7"
+#DEBUGFAIL="rd.shell rd.debug loglevel=7"
 
 test_run() {
     dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
@@ -72,6 +72,7 @@ test_setup() {
     # devices, volume groups, encrypted partitions, etc.
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         --modules "rootfs-block qemu" \
+        --drivers "ext4 sd_mod" \
         --no-hostonly --no-hostonly-cmdline --no-early-microcode --nofscks --nomdadmconf --nohardlink --nostrip \
         --force "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
     rm -rf -- "$TESTDIR"/overlay
@@ -109,6 +110,7 @@ test_setup() {
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         --modules "dmsquash-live qemu" \
         --omit "rngd" \
+        --drivers "ext4 sd_mod" \
         --no-hostonly --no-hostonly-cmdline \
         --force "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 
