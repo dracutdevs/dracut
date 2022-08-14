@@ -3,10 +3,7 @@ dracut
 
 dracut is an event driven initramfs infrastructure.
 
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](.github/CODE_OF_CONDUCT.md)
-[![Fedora-32](https://github.com/dracutdevs/dracut/workflows/Fedora-32/badge.svg?branch=master)](https://github.com/dracutdevs/dracut/actions?query=workflow%3AFedora-32)
-[![Fedora-33](https://github.com/dracutdevs/dracut/workflows/Fedora-33/badge.svg?branch=master)](https://github.com/dracutdevs/dracut/actions?query=workflow%3AFedora-33)
-[![Fedora-latest](https://github.com/dracutdevs/dracut/workflows/Fedora-latest/badge.svg?branch=master)](https://github.com/dracutdevs/dracut/actions?query=workflow%3AFedora-latest)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](docs/CODE_OF_CONDUCT.md)
 
 dracut (the tool) is used to create an initramfs image by copying tools
 and files from an installed system and combining it with the
@@ -29,23 +26,21 @@ specific functionality into the initramfs.  They live in the modules.d
 subdirectory, and use functionality provided by dracut-functions to do their
 work.
 
-Currently dracut lives on github.com and kernel.org.
+Documentation:
+ - [Introduction](man/dracut.asc)
+ - [User Manual](man/dracut.usage.asc)
 
-The tarballs can be found here:
-	http://www.kernel.org/pub/linux/utils/boot/dracut/
-	ftp://ftp.kernel.org/pub/linux/utils/boot/dracut/
+Currently dracut is developed on [github.com](https://github.com/dracutdevs/dracut).
 
-Git:
-        https://github.com/dracutdevs/dracut.git
-        http://git.kernel.org/?p=boot/dracut/dracut.git
+The release tarballs are [here](https://github.com/dracutdevs/dracut/releases).
 
-Project Documentation:
-	http://www.kernel.org/pub/linux/utils/boot/dracut/dracut.html
+Gitter (chat):
+ - https://gitter.im/dracutdevs/Lobby
 
-Project Wiki:
-	http://dracut.wiki.kernel.org
+See [News](NEWS.md) for information about changes in the releases and
+the [Wiki](https://github.com/dracutdevs/dracut/wiki) to share information.
 
-See the github issue tracker for things which still need to be done and HACKING.md
+See the github issue tracker for things which still need to be done and [Hacking](docs/HACKING.md)
 for some instructions on how to get started.  There is also a mailing list
 that is being used for the discussion -- initramfs@vger.kernel.org.
 It is a typical vger list, send mail to majordomo@vger.kernel.org with body
