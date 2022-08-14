@@ -9,7 +9,7 @@ RUN echo 'export DRACUT_NO_XATTR=1 KVERSION=$(cd /lib/modules; ls -1 | tail -1)'
 
 # Install needed packages for the dracut CI container
 RUN pacman --noconfirm -Sy \
-    linux dash strace dhclient asciidoc cpio pigz \
+    linux dash strace dhclient asciidoc cpio pigz squashfs-tools \
     qemu btrfs-progs mdadm dmraid nfs-utils nfsidmap lvm2 nbd \
     dhcp networkmanager multipath-tools vi tcpdump open-iscsi \
     git shfmt shellcheck astyle which base-devel glibc && yes | pacman -Scc
