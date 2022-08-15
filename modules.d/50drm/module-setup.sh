@@ -31,7 +31,7 @@ installkernel() {
     if [[ $hostonly ]]; then
         local i modlink modname
 
-        for i in /sys/bus/{pci/devices,platform/devices,virtio/devices,soc/devices/soc?}/*/modalias; do
+        for i in /sys/bus/{pci/devices,platform/devices,virtio/devices,soc/devices/soc?,vmbus/devices}/*/modalias; do
             [[ -e $i ]] || continue
             [[ -n $(< "$i") ]] || continue
             # shellcheck disable=SC2046
