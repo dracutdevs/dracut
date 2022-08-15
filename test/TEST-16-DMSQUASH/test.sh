@@ -19,6 +19,12 @@ test_run() {
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
         -boot order=d \
+        -append "rd.live.image rd.live.overlay.overlayfs=1 root=LABEL=dracut console=ttyS0,115200n81 quiet selinux=0 rd.info rd.shell=0 panic=1 oops=panic softlockup_panic=1 $DEBUGFAIL" \
+        -initrd "$TESTDIR"/initramfs.testing
+
+    "$testdir"/run-qemu \
+        "${disk_args[@]}" \
+        -boot order=d \
         -append "rd.live.image rd.live.overlay.overlayfs=1 rd.live.dir=testdir root=LABEL=dracut console=ttyS0,115200n81 quiet selinux=0 rd.info rd.shell=0 panic=1 oops=panic softlockup_panic=1 $DEBUGFAIL" \
         -initrd "$TESTDIR"/initramfs.testing
 
@@ -103,7 +109,7 @@ test_setup() {
         export initdir="$TESTDIR"/overlay
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
-        inst_multiple poweroff shutdown mkfs.ext4 find
+        inst_multiple poweroff shutdown mkfs.ext4
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
     )

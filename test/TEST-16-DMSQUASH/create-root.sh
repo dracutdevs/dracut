@@ -15,6 +15,7 @@ mkfs.ext4 -q -L dracut /dev/disk/by-id/ata-disk_root
 mkdir -p /root
 mount /dev/disk/by-id/ata-disk_root /root
 mkdir -p /root/run /root/testdir
+cp -a -t /root /source/*
 echo "Creating squashfs"
 mksquashfs /source /root/testdir/rootfs.img -quiet
 umount /root
