@@ -85,6 +85,7 @@ installkernel() {
                 "=drivers/mfd" \
                 "=drivers/mmc/core" \
                 "=drivers/mmc/host" \
+                "=drivers/nvmem" \
                 "=drivers/phy" \
                 "=drivers/power" \
                 "=drivers/regulator" \
