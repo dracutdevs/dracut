@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if modprobe sunrpc || strstr "$(cat /proc/filesystems)" rpc_pipefs; then
+if load_fstype sunrpc rpc_pipefs; then
     [ ! -d /var/lib/nfs/rpc_pipefs/nfs ] \
         && mount -t rpc_pipefs rpc_pipefs /var/lib/nfs/rpc_pipefs
 

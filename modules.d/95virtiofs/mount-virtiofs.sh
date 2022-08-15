@@ -3,7 +3,7 @@
 type ismounted > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
 if [ "${fstype}" = "virtiofs" -o "${root%%:*}" = "virtiofs" ]; then
-    if ! { modprobe virtiofs || strstr "$(cat /proc/filesystems)" virtiofs; }; then
+    if ! load_fstype virtiofs; then
         die "virtiofs is required but not available."
     fi
 
