@@ -1,5 +1,7 @@
 #!/bin/bash
 
+type ismounted > /dev/null 2>&1 || . /lib/dracut-lib.sh
+
 ROOT="$1"
 
 if [[ ! -d $ROOT ]]; then
@@ -78,26 +80,6 @@ find_mount() {
     done < /proc/mounts
     return 1
 }
-
-# usage: ismounted <mountpoint>
-# usage: ismounted /dev/<device>
-if command -v findmnt > /dev/null; then
-    ismounted() {
-        findmnt "$1" > /dev/null 2>&1
-    }
-else
-    ismounted() {
-        if [ -b "$1" ]; then
-            find_mount "$1" > /dev/null && return 0
-            return 1
-        fi
-
-        while read -r _ m _ || [ -n "$m" ]; do
-            [ "$m" = "$1" ] && return 0
-        done < /proc/mounts
-        return 1
-    }
-fi
 
 # clean up after ourselves no matter how we die.
 cleanup() {
