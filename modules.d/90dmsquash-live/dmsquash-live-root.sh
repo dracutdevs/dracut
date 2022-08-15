@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
@@ -35,7 +35,7 @@ getargbool 0 rd.live.overlay.overlayfs && overlayfs="yes"
 
 # Take a path to a disk label and return the parent disk if it is a partition
 # Otherwise returns the original path
-function get_check_dev() {
+get_check_dev() {
     local _udevinfo
     dev_path="$(udevadm info -q path --name "$1")"
     _udevinfo="$(udevadm info -q property --path "${dev_path}")"
@@ -123,8 +123,15 @@ else
         # Symlinking /usr/bin/ntfs-3g as /sbin/mount.ntfs seems to boot
         # at the first glance, but ends with lots and lots of squashfs
         # errors, because systemd attempts to kill the ntfs-3g process?!
+        # See https://systemd.io/ROOT_STORAGE_DAEMONS/
         if [ -x "/usr/bin/ntfs-3g" ]; then
-            (exec -a @ntfs-3g ntfs-3g -o "${liverw:-ro}" "$livedev" /run/initramfs/live) | vwarn
+            (
+                ln -s /usr/bin/ntfs-3g /run/@ntfs-3g
+                (sleep 1 && rm /run/@ntfs-3g) &
+                # shellcheck disable=SC2123
+                PATH=/run
+                exec @ntfs-3g -o "${liverw:-ro}" "$livedev" /run/initramfs/live
+            ) | vwarn
         else
             die "Failed to mount block device of live image: Missing NTFS support"
             exit 1
@@ -222,25 +229,37 @@ do_live_overlay() {
         elif [ -n "$devspec" -a -n "$pathspec" ]; then
             [ -z "$m" ] \
                 && m='   Unable to find a persistent overlay; using a temporary one.'
-            m="$m"$'\n      All root filesystem changes will be lost on shutdown.'
-            m="$m"$'\n         Press [Enter] to continue.'
+            m="$m"'
+      All root filesystem changes will be lost on shutdown.
+         Press [Enter] to continue.'
             printf "\n\n\n\n%s\n\n\n" "${m}" > /dev/kmsg
             if [ -n "$DRACUT_SYSTEMD" ]; then
                 if type plymouth > /dev/null 2>&1 && plymouth --ping; then
                     if getargbool 0 rhgb || getargbool 0 splash; then
-                        m='>>>'$'\n''>>>'$'\n''>>>'$'\n\n\n'"$m"
-                        m="${m%n.*}"$'n.\n\n\n''<<<'$'\n''<<<'$'\n''<<<'
+                        m='>>>
+>>>
+>>>
+
+
+'"$m"
+                        m="${m%n.*}"'n.
+
+
+<<<
+<<<
+<<<'
                         plymouth display-message --text="${m}"
                     else
                         plymouth ask-question --prompt="${m}" --command=true
                     fi
                 else
-                    m=">>>${m//.[[:space:]]/.}  <<<"
+                    m=">>>$(printf '%s' "$m" | tr -d '\n')  <<<"
                     systemd-ask-password --timeout=0 "${m}"
                 fi
             else
                 type plymouth > /dev/null 2>&1 && plymouth --ping && plymouth --quit
-                read -s -r -p $'\n\n'"${m}" -n 1 _
+                printf '\n\n%s' "$m"
+                read -r _
             fi
         fi
         if [ -n "$overlayfs" ]; then

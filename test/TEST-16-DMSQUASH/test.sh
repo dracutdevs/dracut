@@ -108,7 +108,7 @@ test_setup() {
         inst_hook emergency 000 ./hard-off.sh
     )
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
-        --modules "dmsquash-live qemu" \
+        --modules "dash dmsquash-live qemu" \
         --omit "rngd" \
         --drivers "ext4 sd_mod" \
         --no-hostonly --no-hostonly-cmdline \
