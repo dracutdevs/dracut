@@ -23,6 +23,7 @@
 #define _GNU_SOURCE
 #endif
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -187,8 +188,10 @@ cat_rest:
                         goto end;
                 }
 
+                errno = 0;
                 if (fwrite(buf.copy_buffer, 1, s, stdout) != s) {
-                        pr_err("fwrite\n");
+                        if (errno != EPIPE)
+                                pr_err("fwrite\n");
                         goto end;
                 }
         }
