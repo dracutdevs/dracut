@@ -15,16 +15,20 @@ nm_generate_connections() {
     fi
 
     if getargbool 0 rd.neednet; then
+        mkdir -p /tmp/nm.want.d
         for i in /usr/lib/NetworkManager/system-connections/* \
             /run/NetworkManager/system-connections/* \
             /etc/NetworkManager/system-connections/* \
             /etc/sysconfig/network-scripts/ifcfg-*; do
             [ -f "$i" ] || continue
+            connection_uuid=$(grep '^uuid' "$i" | cut -d = -f 2)
+            : > /tmp/nm.want.d/"$connection_uuid"
+            [ ! -e /run/NetworkManager/initrd/neednet ] || continue
+
             mkdir -p "$hookdir"/initqueue/finished
             echo '[ -f /tmp/nm.done ]' > "$hookdir"/initqueue/finished/nm.sh
             mkdir -p /run/NetworkManager/initrd
             : > /run/NetworkManager/initrd/neednet # activate NM services
-            break
         done
     fi
 }

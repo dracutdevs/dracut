@@ -59,14 +59,27 @@ dhcpopts_create() {
     kf_parse dhcp-bootfile filename < "$1"
 }
 
-for _i in /sys/class/net/*; do
-    [ -d "$_i" ] || continue
-    state="/run/NetworkManager/devices/$(cat "$_i"/ifindex)"
-    grep -q '^connection-uuid=' "$state" 2> /dev/null || continue
-    ifname="${_i##*/}"
-    dhcpopts_create "$state" > /tmp/dhclient."$ifname".dhcpopts
-    source_hook initqueue/online "$ifname"
-    /sbin/netroot "$ifname"
+mkdir -p /tmp/nm.done.d
+
+ct=0
+for connection_uuid in "$(nmcli --get-values UUID connection show)"; do
+    if [ "$(nmcli --get-values GENERAL.STATE connection show $connection_uuid)" != "activated" ]; then
+        [ ! -e tmp/nm.want.d/"$connection_uuid" ] || ct=$((ct+1))
+        continue
+    fi
+    for ifname in "$(nmcli --get-values GENERAL.DEVICES connection show $connection_uuid)"; do
+        [ ! -e /tmp/nm.done.d/"$ifname" ] || continue
+        _i=/sys/class/net/"$ifname"
+        [ -d "$_i" ] || continue
+        state="/run/NetworkManager/devices/$(cat "$_i"/ifindex)"
+        dhcpopts_create "$state" > /tmp/dhclient."$ifname".dhcpopts
+        source_hook initqueue/online "$ifname"
+        /sbin/netroot "$ifname"
+        : > /tmp/nm.done.d/"$ifname"
+    done
 done
 
-: > /tmp/nm.done
+if [ $ct -eq 0 ]; then
+    rm -rf /tmp/nm.done.d
+    : > /tmp/nm.done
+fi
