@@ -51,13 +51,13 @@ fi
 
 cd /run/initramfs
 
-if $SKIP "$IMG" | zcat | cpio -id --no-absolute-filenames --quiet > /dev/null \
-    || $SKIP "$IMG" | bzcat | cpio -id --no-absolute-filenames --quiet > /dev/null \
-    || $SKIP "$IMG" | xzcat | cpio -id --no-absolute-filenames --quiet > /dev/null \
-    || $SKIP "$IMG" | lz4 -d -c | cpio -id --no-absolute-filenames --quiet > /dev/null \
-    || $SKIP "$IMG" | lzop -d -c | cpio -id --no-absolute-filenames --quiet > /dev/null \
-    || $SKIP "$IMG" | zstd -d -c | cpio -id --no-absolute-filenames --quiet > /dev/null \
-    || $SKIP "$IMG" | cpio -id --no-absolute-filenames --quiet > /dev/null; then
+if (command -v zcat > /dev/null && $SKIP "$IMG" 2> /dev/null | zcat 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
+    || (command -v bzcat > /dev/null && $SKIP "$IMG" 2> /dev/null | bzcat 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
+    || (command -v xzcat > /dev/null && $SKIP "$IMG" 2> /dev/null | xzcat 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
+    || (command -v lz4 > /dev/null && $SKIP "$IMG" 2> /dev/null | lz4 -d -c 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
+    || (command -v lzop > /dev/null && $SKIP "$IMG" 2> /dev/null | lzop -d -c 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
+    || (command -v zstd > /dev/null && $SKIP "$IMG" 2> /dev/null | zstd -d -c 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
+    || ($SKIP "$IMG" 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1); then
     rm -f -- .need_shutdown
 else
     # something failed, so we clean up
