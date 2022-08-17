@@ -1,11 +1,12 @@
 # Dracut Developer Guidelines
 
+Please make sure to follow our [Contribution Guidelines](CONTRIBUTING.md).
+
 ## git
 
-Currently dracut lives on github.com and kernel.org.
+Currently dracut lives on github.com.
 
 * https://github.com/dracutdevs/dracut.git
-* https://git.kernel.org/pub/scm/boot/dracut/dracut.git
 
 Pull requests should be filed preferably on github nowadays.
 
