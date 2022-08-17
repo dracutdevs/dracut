@@ -38,8 +38,8 @@ test_setup() {
             mkdir -p -- dev sys proc etc var/run tmp
             mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
         )
-        inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
-            mount dmesg dhclient mkdir cp ping dhclient dd sync
+        inst_multiple sh df free ls shutdown poweroff stty cat ps ln \
+            mount dmesg mkdir cp dd sync
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
@@ -53,8 +53,6 @@ test_setup() {
 
         inst_simple /etc/os-release
         inst ./test-init.sh /sbin/init
-        inst "$basedir/modules.d/35network-legacy/dhclient-script.sh" "/sbin/dhclient-script"
-        inst "$basedir/modules.d/35network-legacy/ifup.sh" "/sbin/ifup"
         inst_multiple grep
         inst_multiple -o /lib/systemd/systemd-shutdown
         find_binary plymouth > /dev/null && inst_multiple plymouth
