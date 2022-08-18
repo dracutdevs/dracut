@@ -1,7 +1,5 @@
 #!/bin/bash
 
-cp /usr/bin/true /usr/bin/man
-
 for i in \
     sysinit.target \
     basic.target \
