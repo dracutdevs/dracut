@@ -222,12 +222,14 @@ if getargbool 0 rd.nonvmf; then
     return 0
 fi
 
-for _x in /sys/firmware/acpi/tables/NBFT*; do
-    if [ -f "$_x" ]; then
-        nbft_parse
-        break
-    fi
-done
+if ! getargbool 0 rd.nvmf.nonbft; then
+    for _x in /sys/firmware/acpi/tables/NBFT*; do
+        if [ -f "$_x" ]; then
+            nbft_parse
+            break
+        fi
+    done
+fi
 
 initqueue --onetime modprobe --all -b -q nvme_tcp nvme_core nvme_fabrics
 
@@ -312,13 +314,19 @@ if [ -e /tmp/nvmf_needs_network ] || [ -e /tmp/valid_nbft_entry_found ]; then
     rm -f /tmp/nvmf_needs_network
 fi
 
-# Host NQN and host id are mandatory for NVMe-oF
-if [ -f "/etc/nvme/hostnqn" ] && [ -f "/etc/nvme/hostid" ]; then
+NVMF_HOSTNQN_OK=
+[ ! -f "/etc/nvme/hostnqn" ] || [ ! -f "/etc/nvme/hostid" ] || NVMF_HOSTNQN_OK=1
 
-    # If no nvme command line arguments present, try autodiscovery
-    if [ $NVMF_FC_AUTO ] || [ ! -f "/etc/nvme/discovery.conf" ]; then
-        /sbin/initqueue --settled --onetime --unique --name nvme-fc-autoconnect /sbin/nvmf-autoconnect.sh
-    else
-        /sbin/initqueue --settled --onetime --unique --name nvme-discover /usr/sbin/nvme connect-all
-    fi
+if [ $NVMF_FC_AUTO ] && [ $NVMF_HOSTNQN_OK ]; then
+    # prio 1: cmdline override "rd.nvmf.discovery=fc,auto"
+    /sbin/initqueue --settled --onetime --unique --name nvme-fc-autoconnect /sbin/nvmf-autoconnect.sh
+elif [ -e /tmp/valid_nbft_entry_found ]; then
+    # prio 2: NBFT
+    /sbin/initqueue --settled --onetime --unique --name nvme-connect-nbft /usr/sbin/nvme connect-nbft
+elif [ -f /etc/nvme/discovery.conf ] && [ $NVMF_HOSTNQN_OK ]; then
+    # prio 3: discovery.conf from initrd
+    /sbin/initqueue --settled --onetime --unique --name nvme-discover /usr/sbin/nvme connect-all
+elif [ $NVMF_HOSTNQN_OK ]; then
+    # prio 4: no discovery entries, try NVMeoFC autoconnect
+    /sbin/initqueue --settled --onetime --unique --name nvme-fc-autoconnect /sbin/nvmf-autoconnect.sh
 fi
