@@ -19,4 +19,4 @@ For older or downstream versions that are still supported by your distribution p
 [Debian](https://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=dracut)
 [Fedora](https://bugzilla.redhat.com/buglist.cgi?quicksearch=dracut)
 [Gentoo](https://bugs.gentoo.org/buglist.cgi?quicksearch=dracut)
-[Opensuse](https://bugzilla.opensuse.org/buglist.cgi?quicksearch=dracut)
+[openSUSE](https://bugzilla.opensuse.org/buglist.cgi?quicksearch=dracut)
