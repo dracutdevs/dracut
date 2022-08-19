@@ -27,8 +27,8 @@ install() {
         inst_libdir_file "libsqlite3.so*"
     fi
 
-    for _dir in $libdirs; do
-        [[ -d $dracutsysrootdir$_dir ]] || continue
+    for _dir in "${libdirs[@]}"; do
+        [[ -d "$dracutsysrootdir$_dir" ]] || continue
         for _lib in "$dracutsysrootdir$_dir"/libcurl.so.* "$dracutsysrootdir$_dir"/libcrypto.so.*; do
             [[ -e $_lib ]] || continue
             if ! [[ $_nssckbi ]]; then
@@ -59,8 +59,8 @@ install() {
     if ! [[ $_found ]] && [[ $_nssckbi ]]; then
         _found=1
         inst_libdir_file "libnssckbi.so*" || _found=
-        for _dir in $libdirs; do
-            [[ -e $dracutsysrootdir$_dir/libnssckbi.so ]] || continue
+        for _dir in "${libdirs[@]}"; do
+            [[ -e "$dracutsysrootdir$_dir"/libnssckbi.so ]] || continue
             # this looks for directory-ish strings in the file
             grep -z -o --binary-files=text '/[[:alpha:]][[:print:]]*' "${dracutsysrootdir}${_dir}"/libnssckbi.so \
                 | while read -r -d '' _p11roots || [[ $_p11roots ]]; do

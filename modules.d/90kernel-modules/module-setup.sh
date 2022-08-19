@@ -43,7 +43,7 @@ installkernel() {
         dracut_instmods -o -s "${_blockfuncs}" "=drivers"
     }
 
-    if [[ -z $drivers ]]; then
+    if [[ ${#drivers[@]} -eq 0 ]]; then
         hostonly='' instmods \
             hid_generic unix \
             ehci-hcd ehci-pci ehci-platform \
@@ -122,7 +122,7 @@ installkernel() {
         # if not on hostonly mode, install all known filesystems,
         # if the required list is not set via the filesystems variable
         if ! [[ $hostonly ]]; then
-            if [[ -z $filesystems ]]; then
+            if [[ ${#filesystems[@]} -eq 0 ]]; then
                 dracut_instmods -o -P ".*/(kernel/fs/nfs|kernel/fs/nfsd|kernel/fs/lockd)/.*" '=fs'
             fi
         elif [[ "${host_fs_types[*]}" ]]; then

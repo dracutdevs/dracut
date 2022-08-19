@@ -66,7 +66,7 @@ install() {
 
     [[ $nofscks == "yes" ]] && return
 
-    if [[ $fscks == "${fscks#*[^ ]*}" ]]; then
+    if [[ ${#fscks[@]} -eq 0 ]]; then
         _helpers=(
             /sbin/fsck* /usr/sbin/fsck*
             xfs_db xfs_check xfs_repair xfs_metadump
@@ -76,7 +76,7 @@ install() {
             read -r -a _helpers < <(for_each_host_dev_fs echo_fs_helper)
         fi
     else
-        read -r -a _helpers <<< "$fscks"
+        _helpers=("${fscks[@]}")
     fi
 
     _helpers+=(umount mount)

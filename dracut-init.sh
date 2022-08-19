@@ -89,17 +89,18 @@ DRACUT_LDCONFIG=${DRACUT_LDCONFIG:-ldconfig}
 . "$dracutbasedir"/dracut-functions.sh
 
 # Detect lib paths
-if ! [[ $libdirs ]]; then
+if [[ ${#libdirs[@]} -eq 0 ]]; then
     if [[ $("$DRACUT_LDD" "$dracutsysrootdir$DRACUT_TESTBIN") == */lib64/* ]] &> /dev/null \
-        && [[ -d $dracutsysrootdir/lib64 ]]; then
-        libdirs+=" /lib64"
-        [[ -d $dracutsysrootdir/usr/lib64 ]] && libdirs+=" /usr/lib64"
+        && [[ -d "$dracutsysrootdir/lib64" ]]; then
+        libdirs+=("/lib64")
+        [[ -d "$dracutsysrootdir/usr/lib64" ]] && libdirs+=("/usr/lib64")
     else
-        libdirs+=" /lib"
-        [[ -d $dracutsysrootdir/usr/lib ]] && libdirs+=" /usr/lib"
+        libdirs+=("/lib")
+        [[ -d "$dracutsysrootdir/usr/lib" ]] && libdirs+=("/usr/lib")
     fi
 
-    libdirs+=" $(ldconfig_paths)"
+    readarray -t _ldconfig_paths <<< "$(ldconfig_paths)"
+    libdirs+=("${_ldconfig_paths[@]}")
 
     export libdirs
 fi
@@ -156,7 +157,7 @@ dracut_need_initqueue() {
 
 dracut_module_included() {
     # shellcheck disable=SC2154
-    [[ " $mods_to_load $modules_loaded " == *\ $*\ * ]]
+    [[ " ${mods_to_load[*]} ${modules_loaded[*]} " == *\ $*\ * ]]
 }
 
 dracut_no_switch_root() {
@@ -597,7 +598,7 @@ inst_libdir_file() {
     if [[ $1 == "-n" ]]; then
         local _pattern=$2
         shift 2
-        for _dir in $libdirs; do
+        for _dir in "${libdirs[@]}"; do
             for _i in "$@"; do
                 for _f in "$dracutsysrootdir$_dir"/$_i; do
                     [[ ${_f#$dracutsysrootdir} =~ $_pattern ]] || continue
@@ -606,7 +607,7 @@ inst_libdir_file() {
             done
         done
     else
-        for _dir in $libdirs; do
+        for _dir in "${libdirs[@]}"; do
             for _i in "$@"; do
                 for _f in "$dracutsysrootdir$_dir"/$_i; do
                     [[ -e $_f ]] && _files+=("${_f#$dracutsysrootdir}")
@@ -832,20 +833,20 @@ check_mount() {
     [ "${#host_fs_types[@]}" -le 0 ] && return 1
 
     # If we are already scheduled to be loaded, no need to check again.
-    [[ " $mods_to_load " == *\ $_mod\ * ]] && return 0
-    [[ " $mods_checked_as_dep " == *\ $_mod\ * ]] && return 1
+    [[ " ${mods_to_load[*]} " == *\ $_mod\ * ]] && return 0
+    [[ " ${mods_checked_as_dep[*]} " == *\ $_mod\ * ]] && return 1
 
     # This should never happen, but...
     [[ -d $_moddir ]] || return 1
 
-    [[ $2 ]] || mods_checked_as_dep+=" $_mod "
+    [[ $2 ]] || mods_checked_as_dep+=("$_mod")
 
     # shellcheck disable=SC2154
-    if [[ " $omit_dracutmodules " == *\ $_mod\ * ]]; then
+    if [[ " ${omit_dracutmodules[*]} " == *\ $_mod\ * ]]; then
         return 1
     fi
 
-    if [[ " $dracutmodules $add_dracutmodules $force_add_dracutmodules" == *\ $_mod\ * ]]; then
+    if [[ " ${dracutmodules[*]} ${add_dracutmodules[*]} ${force_add_dracutmodules[*]}" == *\ $_mod\ * ]]; then
         module_check_mount "$_mod" "$_moddir"
         ret=$?
 
@@ -853,7 +854,7 @@ check_mount() {
         [[ $ret == 0 || $ret == 255 ]] || return 1
     else
         # module not in our list
-        if [[ $dracutmodules == all ]]; then
+        if [[ ${#dracutmodules[@]} -eq 0 ]]; then
             # check, if we can and should install this module
             module_check_mount "$_mod" "$_moddir" || return 1
         else
@@ -864,15 +865,15 @@ check_mount() {
 
     for _moddep in $(module_depends "$_mod" "$_moddir"); do
         # handle deps as if they were manually added
-        [[ " $dracutmodules " == *\ $_mod\ * ]] \
-            && [[ " $dracutmodules " != *\ $_moddep\ * ]] \
-            && dracutmodules+=" $_moddep "
-        [[ " $add_dracutmodules " == *\ $_mod\ * ]] \
-            && [[ " $add_dracutmodules " != *\ $_moddep\ * ]] \
-            && add_dracutmodules+=" $_moddep "
-        [[ " $force_add_dracutmodules " == *\ $_mod\ * ]] \
-            && [[ " $force_add_dracutmodules " != *\ $_moddep\ * ]] \
-            && force_add_dracutmodules+=" $_moddep "
+        [[ " ${dracutmodules[*]} " == *\ $_mod\ * ]] \
+            && [[ " ${dracutmodules[*]} " != *\ $_moddep\ * ]] \
+            && dracutmodules+=("$_moddep")
+        [[ " ${add_dracutmodules[*]} " == *\ $_mod\ * ]] \
+            && [[ " ${add_dracutmodules[*]} " != *\ $_moddep\ * ]] \
+            && add_dracutmodules+=("$_moddep")
+        [[ " ${force_add_dracutmodules[*]} " == *\ $_mod\ * ]] \
+            && [[ " ${force_add_dracutmodules[*]} " != *\ $_moddep\ * ]] \
+            && force_add_dracutmodules+=("$_moddep")
         # if a module we depend on fail, fail also
         if ! check_module "$_moddep"; then
             derror "dracut module '$_mod' depends on '$_moddep', which can't be installed"
@@ -880,8 +881,8 @@ check_mount() {
         fi
     done
 
-    [[ " $mods_to_load " == *\ $_mod\ * ]] \
-        || mods_to_load+=" $_mod "
+    [[ " ${mods_to_load[*]} " == *\ $_mod\ * ]] \
+        || mods_to_load+=("$_mod")
 
     return 0
 }
@@ -898,21 +899,21 @@ check_module() {
 
     [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
     # If we are already scheduled to be loaded, no need to check again.
-    [[ " $mods_to_load " == *\ $_mod\ * ]] && return 0
-    [[ " $mods_checked_as_dep " == *\ $_mod\ * ]] && return 1
+    [[ " ${mods_to_load[*]} " == *\ $_mod\ * ]] && return 0
+    [[ " ${mods_checked_as_dep[*]} " == *\ $_mod\ * ]] && return 1
 
     # This should never happen, but...
     [[ -d $_moddir ]] || return 1
 
-    [[ $2 ]] || mods_checked_as_dep+=" $_mod "
+    [[ $2 ]] || mods_checked_as_dep+=("$_mod")
 
-    if [[ " $omit_dracutmodules " == *\ $_mod\ * ]]; then
+    if [[ " ${omit_dracutmodules[*]} " == *\ $_mod\ * ]]; then
         ddebug "dracut module '$_mod' will not be installed, because it's in the list to be omitted!"
         return 1
     fi
 
-    if [[ " $dracutmodules $add_dracutmodules $force_add_dracutmodules" == *\ $_mod\ * ]]; then
-        if [[ " $dracutmodules $force_add_dracutmodules " == *\ $_mod\ * ]]; then
+    if [[ " ${dracutmodules[*]} ${add_dracutmodules[*]} ${force_add_dracutmodules[*]}" == *\ $_mod\ * ]]; then
+        if [[ " ${dracutmodules[*]} ${force_add_dracutmodules[*]} " == *\ $_mod\ * ]]; then
             module_check "$_mod" 1 "$_moddir"
             ret=$?
         else
@@ -923,7 +924,7 @@ check_module() {
         [[ $ret == 0 || $ret == 255 ]] || return 1
     else
         # module not in our list
-        if [[ $dracutmodules == all ]]; then
+        if [[ ${#dracutmodules[@]} -eq 0 ]]; then
             # check, if we can and should install this module
             module_check "$_mod" 0 "$_moddir"
             ret=$?
@@ -939,15 +940,15 @@ check_module() {
 
     for _moddep in $(module_depends "$_mod" "$_moddir"); do
         # handle deps as if they were manually added
-        [[ " $dracutmodules " == *\ $_mod\ * ]] \
-            && [[ " $dracutmodules " != *\ $_moddep\ * ]] \
-            && dracutmodules+=" $_moddep "
-        [[ " $add_dracutmodules " == *\ $_mod\ * ]] \
-            && [[ " $add_dracutmodules " != *\ $_moddep\ * ]] \
-            && add_dracutmodules+=" $_moddep "
-        [[ " $force_add_dracutmodules " == *\ $_mod\ * ]] \
-            && [[ " $force_add_dracutmodules " != *\ $_moddep\ * ]] \
-            && force_add_dracutmodules+=" $_moddep "
+        [[ " ${dracutmodules[*]} " == *\ $_mod\ * ]] \
+            && [[ " ${dracutmodules[*]} " != *\ $_moddep\ * ]] \
+            && dracutmodules+=("$_moddep")
+        [[ " ${add_dracutmodules[*]} " == *\ $_mod\ * ]] \
+            && [[ " ${add_dracutmodules[*]} " != *\ $_moddep\ * ]] \
+            && add_dracutmodules+=("$_moddep")
+        [[ " ${force_add_dracutmodules[*]} " == *\ $_mod\ * ]] \
+            && [[ " ${force_add_dracutmodules[*]} " != *\ $_moddep\ * ]] \
+            && force_add_dracutmodules+=("$_moddep")
         # if a module we depend on fail, fail also
         if ! check_module "$_moddep"; then
             derror "dracut module '$_mod' depends on '$_moddep', which can't be installed"
@@ -955,8 +956,8 @@ check_module() {
         fi
     done
 
-    [[ " $mods_to_load " == *\ $_mod\ * ]] \
-        || mods_to_load+=" $_mod "
+    [[ " ${mods_to_load[*]} " == *\ $_mod\ * ]] \
+        || mods_to_load+=("$_mod")
 
     return 0
 }
@@ -979,20 +980,20 @@ for_each_module_dir() {
     done
 
     # Report any missing dracut modules, the user has specified
-    _modcheck="$add_dracutmodules $force_add_dracutmodules"
-    [[ $dracutmodules != all ]] && _modcheck="$_modcheck $dracutmodules"
-    for _mod in $_modcheck; do
-        [[ " $mods_to_load " == *\ $_mod\ * ]] && continue
+    _modcheck=("${add_dracutmodules[@]}" "${force_add_dracutmodules[@]}")
+    ((${#dracutmodules[@]})) && _modcheck=("${_modcheck[@]}" "${dracutmodules[@]}")
+    for _mod in "${_modcheck[@]}"; do
+        [[ " ${mods_to_load[*]} " == *\ $_mod\ * ]] && continue
 
-        [[ " $force_add_dracutmodules " != *\ $_mod\ * ]] \
-            && [[ " $dracutmodules " != *\ $_mod\ * ]] \
-            && [[ " $omit_dracutmodules " == *\ $_mod\ * ]] \
+        [[ " ${force_add_dracutmodules[*]} " != *\ $_mod\ * ]] \
+            && [[ " ${dracutmodules[*]} " != *\ $_mod\ * ]] \
+            && [[ " ${omit_dracutmodules[*]} " == *\ $_mod\ * ]] \
             && continue
 
         derror "dracut module '$_mod' cannot be found or installed."
-        [[ " $force_add_dracutmodules " == *\ $_mod\ * ]] && exit 1
-        [[ " $dracutmodules " == *\ $_mod\ * ]] && exit 1
-        [[ " $add_dracutmodules " == *\ $_mod\ * ]] && exit 1
+        [[ " ${force_add_dracutmodules[*]} " == *\ $_mod\ * ]] && exit 1
+        [[ " ${dracutmodules[*]} " == *\ $_mod\ * ]] && exit 1
+        [[ " ${add_dracutmodules[*]} " == *\ $_mod\ * ]] && exit 1
     done
 }
 

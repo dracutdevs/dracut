@@ -112,7 +112,7 @@ Creates initial ramdisk images for preloading modules
                          initramfs.
   -k, --kmoddir [DIR]   Specify the directory where to look for kernel
                          modules.
-  --fwdir [DIR]         Specify additional colon-separated list of directories
+  --fwdirs [LIST]       Specify a space-separated list of directories
                          where to look for firmware files.
   --libdirs [LIST]      Specify a space-separated list of directories
                          where to look for libraries.
@@ -323,13 +323,6 @@ read_arg() {
     fi
 }
 
-check_conf_file() {
-    if grep -H -e '^[^#]*[+]=\("[^ ]\|.*[^ ]"\)' "$@"; then
-        printf '\ndracut: WARNING: <key>+=" <values> ": <values> should have surrounding white spaces!\n' >&2
-        printf 'dracut: WARNING: This will lead to unwanted side effects! Please fix the configuration file.\n\n' >&2
-    fi
-}
-
 dropindirs_sort() {
     local suffix=$1
     shift
@@ -354,6 +347,38 @@ dropindirs_sort() {
             done
         done
     }
+}
+
+check_conf() {
+    # Convert strings separated by spaces to arrays to preserve backwards compatibility
+    [[ -n ${add_dracutmodules+x} && ${add_dracutmodules@a} != *a* ]] \
+        && IFS=" " read -r -a add_dracutmodules <<< "$add_dracutmodules"
+    [[ -n ${force_add_dracutmodules+x} && ${force_add_dracutmodules@a} != *a* ]] \
+        && IFS=" " read -r -a force_add_dracutmodules <<< "$force_add_dracutmodules"
+    [[ -n ${omit_dracutmodules+x} && ${omit_dracutmodules@a} != *a* ]] \
+        && IFS=" " read -r -a omit_dracutmodules <<< "$omit_dracutmodules"
+    [[ -n ${dracutmodules+x} && ${dracutmodules@a} != *a* ]] \
+        && IFS=" " read -r -a dracutmodules <<< "$dracutmodules"
+    [[ -n ${add_drivers+x} && ${add_drivers@a} != *a* ]] \
+        && IFS=" " read -r -a add_drivers <<< "$add_drivers"
+    [[ -n ${force_drivers+x} && ${force_drivers@a} != *a* ]] \
+        && IFS=" " read -r -a force_drivers <<< "$force_drivers"
+    [[ -n ${omit_drivers+x} && ${omit_drivers@a} != *a* ]] \
+        && IFS=" " read -r -a omit_drivers <<< "$omit_drivers"
+    [[ -n ${drivers+x} && ${drivers@a} != *a* ]] \
+        && IFS=" " read -r -a drivers <<< "$drivers"
+    [[ -n ${filesystems+x} && ${filesystems@a} != *a* ]] \
+        && IFS=" " read -r -a filesystems <<< "$filesystems"
+    [[ -n ${fw_dir+x} && ${fw_dir@a} != *a* ]] \
+        && IFS=":" read -r -a fwdirs <<< "$fw_dir"
+    [[ -n ${libdirs+x} && ${libdirs@a} != *a* ]] \
+        && IFS=" " read -r -a libdirs <<< "$libdirs"
+    [[ -n ${install_items+x} && ${install_items@a} != *a* ]] \
+        && IFS=" " read -r -a install_items <<< "$install_items"
+    [[ -n ${install_optional_items+x} && ${install_optional_items@a} != *a* ]] \
+        && IFS=" " read -r -a install_optional_items <<< "$install_optional_items"
+    [[ -n ${fscks+x} && ${fscks@a} != *a* ]] \
+        && IFS=" " read -r -a fscks <<< "$fscks"
 }
 
 rearrange_params() {
@@ -385,6 +410,7 @@ rearrange_params() {
             --long install: \
             --long install-optional: \
             --long fwdir: \
+            --long fwdirs: \
             --long libdirs: \
             --long fscks: \
             --long add-fstab: \
@@ -565,72 +591,92 @@ while :; do
             shift
             ;;
         -a | --add)
-            add_dracutmodules_l+=("$2")
+            eval "add_dracutmodules_l+=( $(printf "%s\n" "$2") )"
             PARMS_TO_STORE+=" '$2'"
             shift
             ;;
         --force-add)
-            force_add_dracutmodules_l+=("$2")
+            eval "force_add_dracutmodules_l+=( $(printf "%s\n" "$2") )"
             PARMS_TO_STORE+=" '$2'"
             shift
             ;;
         --add-drivers)
-            add_drivers_l+=("$2")
+            eval "add_drivers_l+=( $(printf "%s\n" "$2") )"
             PARMS_TO_STORE+=" '$2'"
             shift
             ;;
         --force-drivers)
-            force_drivers_l+=("$2")
+            eval "force_drivers_l+=( $(printf "%s\n" "$2") )"
             PARMS_TO_STORE+=" '$2'"
             shift
             ;;
         --omit-drivers)
-            omit_drivers_l+=("$2")
+            eval "omit_drivers_l+=( $(printf "%s\n" "$2") )"
             PARMS_TO_STORE+=" '$2'"
             shift
             ;;
         -m | --modules)
-            dracutmodules_l+=("$2")
+            if [[ -n $2 ]]; then
+                eval "dracutmodules_l+=( $(printf "%s\n" "$2") )"
+            else
+                dracutmodules_l_empty=1
+            fi
             PARMS_TO_STORE+=" '$2'"
             shift
             ;;
         -o | --omit)
-            omit_dracutmodules_l+=("$2")
+            eval "omit_dracutmodules_l+=( $(printf "%s\n" "$2") )"
             PARMS_TO_STORE+=" '$2'"
             shift
             ;;
         -d | --drivers)
-            drivers_l+=("$2")
+            if [[ -n $2 ]]; then
+                eval "drivers_l+=( $(printf "%s\n" "$2") )"
+            else
+                drivers_l_empty=1
+            fi
             PARMS_TO_STORE+=" '$2'"
             shift
             ;;
         --filesystems)
-            filesystems_l+=("$2")
+            if [[ -n $2 ]]; then
+                eval "filesystems_l+=( $(printf "%s\n" "$2") )"
+            else
+                filesystems_l_empty=1
+            fi
             PARMS_TO_STORE+=" '$2'"
             shift
             ;;
         -I | --install)
-            install_items_l+=("$2")
+            eval "install_items_l+=( $(printf "%s\n" "$2") )"
             PARMS_TO_STORE+=" '$2'"
             shift
             ;;
         --install-optional)
-            install_optional_items_l+=("$2")
+            eval "install_optional_items_l+=( $(printf "%s\n" "$2") )"
             PARMS_TO_STORE+=" '$2'"
             shift
             ;;
-        --fwdir)
-            fw_dir_l+=("$2")
+        --fwdir | --fwdirs)
+            if [[ -n $2 ]]; then
+                eval "fwdirs_l+=( $(printf "%s\n" "$2") )"
+            else
+                fwdirs_l_empty=1
+            fi
             PARMS_TO_STORE+=" '$2'"
             shift
             ;;
         --libdirs)
-            libdirs_l+=("$2")
+            if [[ -n $2 ]]; then
+                eval "libdirs_l+=( $(printf "%s\n" "$2") )"
+            else
+                libdirs_l_empty=1
+            fi
             PARMS_TO_STORE+=" '$2'"
             shift
             ;;
         --fscks)
-            fscks_l+=("$2")
+            eval "fscks_l+=( $(printf "%s\n" "$2") )"
             PARMS_TO_STORE+=" '$2'"
             shift
             ;;
@@ -923,17 +969,18 @@ fi
 
 # source our config file
 if [[ -f $conffile ]]; then
-    check_conf_file "$conffile"
     # shellcheck disable=SC1090
     . "$conffile"
 fi
 
 # source our config dir
 for f in $(dropindirs_sort ".conf" "$confdir" "$dracutbasedir/dracut.conf.d"); do
-    check_conf_file "$f"
     # shellcheck disable=SC1090
     [[ -e $f ]] && . "$f"
 done
+
+# check that the config is ok and take corrective actions if not
+check_conf
 
 # regenerate_all shouldn't be set in conf files
 regenerate_all=$regenerate_all_l
@@ -1009,20 +1056,30 @@ unset NPATH
 export SYSTEMCTL=${SYSTEMCTL:-systemctl}
 
 # these options add to the stuff in the config file
-((${#add_dracutmodules_l[@]})) && add_dracutmodules+=" ${add_dracutmodules_l[*]} "
-((${#omit_dracutmodules_l[@]})) && omit_dracutmodules+=" ${omit_dracutmodules_l[*]} "
-((${#force_add_dracutmodules_l[@]})) && force_add_dracutmodules+=" ${force_add_dracutmodules_l[*]} "
-((${#fscks_l[@]})) && fscks+=" ${fscks_l[*]} "
+for ((i = 0; i < ${#add_dracutmodules_l[@]}; i++)); do add_dracutmodules+=("${add_dracutmodules_l[$i]}"); done
+for ((i = 0; i < ${#omit_dracutmodules_l[@]}; i++)); do omit_dracutmodules+=("${omit_dracutmodules_l[$i]}"); done
+for ((i = 0; i < ${#force_add_dracutmodules_l[@]}; i++)); do force_add_dracutmodules+=("${force_add_dracutmodules_l[$i]}"); done
+for ((i = 0; i < ${#fscks_l[@]}; i++)); do fscks+=("${fscks_l[$i]}"); done
 ((${#add_fstab_l[@]})) && add_fstab+=" ${add_fstab_l[*]} "
-((${#install_items_l[@]})) && install_items+=" ${install_items_l[*]} "
-((${#install_optional_items_l[@]})) && install_optional_items+=" ${install_optional_items_l[*]} "
+for ((i = 0; i < ${#install_items_l[@]}; i++)); do install_items+=("${install_items_l[$i]}"); done
+for ((i = 0; i < ${#install_optional_items_l[@]}; i++)); do install_optional_items+=("${install_optional_items_l[$i]}"); done
 ((${#hostonly_nics_l[@]})) && hostonly_nics+=" ${hostonly_nics_l[*]} "
 
 # these options override the stuff in the config file
-((${#dracutmodules_l[@]})) && dracutmodules="${dracutmodules_l[*]}"
-((${#filesystems_l[@]})) && filesystems="${filesystems_l[*]}"
-((${#fw_dir_l[@]})) && fw_dir="${fw_dir_l[*]}"
-((${#libdirs_l[@]})) && libdirs="${libdirs_l[*]}"
+[[ $dracutmodules_l_empty || ${#dracutmodules_l[@]} -gt 0 ]] && dracutmodules=("${dracutmodules_l[@]}")
+[[ $filesystems_l_empty || ${#filesystems_l[@]} -gt 0 ]] && filesystems=("${filesystems_l[@]}")
+[[ $fwdirs_l_empty || ${#fwdirs_l[@]} -gt 0 ]] && fwdirs=("${fwdirs_l[@]}")
+((${#fwdirs[@]})) || {
+    fw_path_para=$(< /sys/module/firmware_class/parameters/path)
+    fwdirs=(
+        "${fw_path_para:+$dracutsysrootdir$fw_path_para}"
+        "$dracutsysrootdir/lib/firmware/updates/$kernel"
+        "$dracutsysrootdir/lib/firmware/updates"
+        "$dracutsysrootdir/lib/firmware/$kernel"
+        "$dracutsysrootdir/lib/firmware"
+    )
+}
+[[ $libdirs_l_empty || ${#libdirs_l[@]} -gt 0 ]] && libdirs=("${libdirs_l[@]}")
 
 [[ $stdloglvl_l ]] && stdloglvl=$stdloglvl_l
 [[ ! $stdloglvl ]] && stdloglvl=4
@@ -1050,10 +1107,6 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $mdadmconf_l ]] && mdadmconf=$mdadmconf_l
 [[ $lvmconf_l ]] && lvmconf=$lvmconf_l
 [[ $dracutbasedir ]] || dracutbasedir="$dracutsysrootdir"/usr/lib/dracut
-[[ $fw_dir ]] || {
-    fw_path_para=$(< /sys/module/firmware_class/parameters/path)
-    fw_dir="${fw_path_para:+$dracutsysrootdir$fw_path_para:}$dracutsysrootdir/lib/firmware/updates/$kernel:$dracutsysrootdir/lib/firmware/updates:$dracutsysrootdir/lib/firmware/$kernel:$dracutsysrootdir/lib/firmware"
-}
 [[ $tmpdir_l ]] && tmpdir="$tmpdir_l"
 [[ $tmpdir ]] || tmpdir="$TMPDIR"
 [[ $tmpdir ]] || tmpdir="$dracutsysrootdir"/var/tmp
@@ -1155,9 +1208,12 @@ if ! [[ $outfile ]]; then
     fi
 fi
 
-# eliminate IFS hackery when messing with fw_dir
-export DRACUT_FIRMWARE_PATH=${fw_dir// /:}
-fw_dir=${fw_dir//:/ }
+DRACUT_FIRMWARE_PATH=$(
+    IFS=:
+    echo "${fwdirs[*]}"
+)
+[[ ${DRACUT_FIRMWARE_PATH:0:1} != ":" ]] && DRACUT_FIRMWARE_PATH="${DRACUT_FIRMWARE_PATH/#/:}"
+export DRACUT_FIRMWARE_PATH
 
 # check for logfile and try to create one if it doesn't exist
 if [[ -n $logfile ]]; then
@@ -1327,26 +1383,21 @@ fi
 dracutfunctions=$dracutbasedir/dracut-functions.sh
 export dracutfunctions
 
-((${#drivers_l[@]})) && drivers="${drivers_l[*]}"
-drivers=${drivers/-/_}
-
-((${#add_drivers_l[@]})) && add_drivers+=" ${add_drivers_l[*]} "
-add_drivers=${add_drivers/-/_}
-
-((${#force_drivers_l[@]})) && force_drivers+=" ${force_drivers_l[*]} "
-force_drivers=${force_drivers/-/_}
-
-((${#omit_drivers_l[@]})) && omit_drivers+=" ${omit_drivers_l[*]} "
-omit_drivers=${omit_drivers/-/_}
+[[ $drivers_l_empty || ${#drivers_l[@]} -gt 0 ]] && drivers=("${drivers_l[@]}")
+for ((i = 0; i < ${#add_drivers_l[@]}; i++)); do add_drivers+=("${add_drivers_l[$i]}"); done
+for ((i = 0; i < ${#force_drivers_l[@]}; i++)); do force_drivers+=("${force_drivers_l[$i]}"); done
+for ((i = 0; i < ${#omit_drivers_l[@]}; i++)); do omit_drivers+=("${omit_drivers_l[$i]}"); done
 
 ((${#kernel_cmdline_l[@]})) && kernel_cmdline+=" ${kernel_cmdline_l[*]} "
 
 omit_drivers_corrected=""
-for d in $omit_drivers; do
-    [[ " $drivers $add_drivers " == *\ $d\ * ]] && continue
-    [[ " $drivers $force_drivers " == *\ $d\ * ]] && continue
+for d in "${omit_drivers[@]}"; do
+    [[ " ${drivers[*]} ${add_drivers[*]} " == *\ $d\ * ]] && continue
+    [[ " ${drivers[*]} ${force_drivers[*]} " == *\ $d\ * ]] && continue
     omit_drivers_corrected+="$d|"
 done
+unset omit_drivers
+# shellcheck disable=SC2178
 omit_drivers="${omit_drivers_corrected%|}"
 unset omit_drivers_corrected
 
@@ -1367,11 +1418,6 @@ dinfo "Executing: $dracut_cmd ${dracut_args[*]}"
     done
     exit 0
 }
-
-# This is kinda legacy -- eventually it should go away.
-case $dracutmodules in
-    "" | auto) dracutmodules="all" ;;
-esac
 
 abs_outfile=$(readlink -f "$outfile") && outfile="$abs_outfile"
 
@@ -1911,7 +1957,7 @@ fi
 export initdir dracutbasedir \
     dracutmodules force_add_dracutmodules add_dracutmodules omit_dracutmodules \
     mods_to_load \
-    fw_dir drivers_dir debug no_kernel kernel_only \
+    fwdirs drivers_dir debug no_kernel kernel_only \
     omit_drivers mdadmconf lvmconf root_devs \
     use_fstab fstab_lines libdirs fscks nofscks ro_mnt \
     stdloglvl sysloglvl fileloglvl kmsgloglvl logfile \
@@ -1927,7 +1973,7 @@ export initdir dracutbasedir \
     hostonly_cmdline loginstall tmpfilesdir tmpfilesconfdir depmodd \
     depmodconfdir
 
-mods_to_load=""
+mods_to_load=()
 # check all our modules to see if they should be sourced.
 # This builds a list of modules that we will install next.
 for_each_module_dir check_module
@@ -1937,7 +1983,7 @@ dracut_module_included "fips" && export DRACUT_FIPS_MODE=1
 
 do_print_cmdline() {
     local -A _mods_to_print
-    for i in $modules_loaded $mods_to_load; do
+    for i in "${modules_loaded[@]} ${mods_to_load[@]}"; do
         _mods_to_print[$i]=1
     done
 
@@ -1966,7 +2012,7 @@ fi
 [[ $prefix ]] && ln -sfn "${prefix#/}/lib" "$initdir/lib"
 
 if [[ $prefix ]]; then
-    for d in bin etc lib sbin tmp usr var $libdirs; do
+    for d in bin etc lib sbin tmp usr var "${libdirs[@]}"; do
         d=${d#/}
         [[ $d == */* ]] && continue
         ln -sfn "${prefix#/}/${d#/}" "$initdir/$d"
@@ -1974,7 +2020,7 @@ if [[ $prefix ]]; then
 fi
 
 if [[ $kernel_only != yes ]]; then
-    for d in usr usr/bin usr/sbin bin etc lib sbin tmp var var/tmp $libdirs; do
+    for d in usr usr/bin usr/sbin bin etc lib sbin tmp var var/tmp "${libdirs[@]}"; do
         d=${d#/}
         [[ -e "${initdir}${prefix}/$d" ]] && continue
         if [ -L "/$d" ]; then
@@ -1997,7 +2043,7 @@ if [[ $kernel_only != yes ]]; then
     ln -sfn ../run "$initdir/var/run"
     ln -sfn ../run/lock "$initdir/var/lock"
 else
-    for d in lib "$libdirs"; do
+    for d in lib "${libdirs[@]}"; do
         [[ -e "${initdir}${prefix}/$d" ]] && continue
         if [ -h "/$d" ]; then
             inst "/$d" "${prefix}/$d"
@@ -2027,12 +2073,12 @@ if [[ $kernel_only != yes ]]; then
 fi
 
 _isize=0 #initramfs size
-modules_loaded=" "
+modules_loaded=()
 # source our modules.
 for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
     _d_mod=${moddir##*/}
     _d_mod=${_d_mod#[0-9][0-9]}
-    [[ $mods_to_load == *\ $_d_mod\ * ]] || continue
+    [[ " ${mods_to_load[*]} " == *\ $_d_mod\ * ]] || continue
     if [[ $show_modules == yes ]]; then
         printf "%s\n" "$_d_mod"
     else
@@ -2052,8 +2098,7 @@ for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
             }
         fi
     fi
-    mods_to_load=${mods_to_load// $_d_mod /}
-    modules_loaded+="$_d_mod "
+    modules_loaded+=("$_d_mod")
 
     #print the module install size
     if [ -n "$printsize" ]; then
@@ -2068,7 +2113,7 @@ for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
 done
 unset moddir
 
-for i in $modules_loaded; do
+for i in "${modules_loaded[@]}"; do
     mkdir -p "$initdir"/lib/dracut
     printf "%s\n" "$i" >> "$initdir"/lib/dracut/modules.txt
 done
@@ -2081,26 +2126,23 @@ if [[ $no_kernel != yes ]]; then
         cp "$DRACUT_KERNEL_MODALIASES" "$initdir"/lib/dracut/hostonly-kernel-modules.txt
     fi
 
-    if [[ $drivers ]]; then
-        # shellcheck disable=SC2086
-        hostonly='' instmods $drivers
+    if [[ ${#drivers[@]} -gt 0 ]]; then
+        hostonly='' instmods "${drivers[@]}"
     fi
 
-    if [[ -n ${add_drivers// /} ]]; then
-        # shellcheck disable=SC2086
-        hostonly='' instmods -c $add_drivers
+    if [[ ${#add_drivers[@]} -gt 0 ]]; then
+        hostonly='' instmods -c "${add_drivers[@]}"
     fi
-    if [[ $force_drivers ]]; then
-        # shellcheck disable=SC2086
-        hostonly='' instmods -c $force_drivers
+    if [[ ${#force_drivers[@]} -gt 0 ]]; then
+        hostonly='' instmods -c "${force_drivers[@]}"
         rm -f "$initdir"/etc/cmdline.d/20-force_driver.conf
-        for mod in $force_drivers; do
+        for mod in "${force_drivers[@]}"; do
             echo "rd.driver.pre=$mod" >> "$initdir"/etc/cmdline.d/20-force_drivers.conf
         done
     fi
-    if [[ $filesystems ]]; then
+    if [[ ${#filesystems[@]} -gt 0 ]]; then
         # shellcheck disable=SC2086
-        hostonly='' instmods -c $filesystems
+        hostonly='' instmods -c "${filesystems[@]}"
     fi
 
     dinfo "*** Installing kernel module dependencies ***"
@@ -2119,11 +2161,12 @@ if [[ $no_kernel != yes ]]; then
 fi
 
 if [[ $kernel_only != yes ]]; then
-    # FIXME: handle legacy item split
-    # shellcheck disable=SC2068
-    ((${#install_items[@]} > 0)) && inst_multiple ${install_items[@]}
-    # shellcheck disable=SC2068
-    ((${#install_optional_items[@]} > 0)) && inst_multiple -o ${install_optional_items[@]}
+    for i in "${install_items[@]}"; do
+        inst "$i"
+    done
+    for i in "${install_optional_items[@]}"; do
+        inst -o "$i"
+    done
 
     if [[ $kernel_cmdline ]] && [[ $uefi != yes ]]; then
         printf "%s\n" "$kernel_cmdline" >> "${initdir}/etc/cmdline.d/01-default.conf"
@@ -2261,22 +2304,22 @@ if [[ $early_microcode == yes ]]; then
     fi
     for idx in $_dest_idx; do
         _fw=${ucode_dir[$idx]}
-        for _fwdir in $fw_dir; do
-            if [[ -d $_fwdir && -d $_fwdir/$_fw ]]; then
+        for _fwdir in "${fwdirs[@]}"; do
+            if [[ -d $_fwdir && -d "$_fwdir/$_fw" ]]; then
                 _src="*"
                 dinfo "*** Constructing ${ucode_dest[$idx]} ***"
                 if [[ $hostonly ]]; then
                     _src=$(get_ucode_file)
                     [[ $_src ]] || break
-                    [[ -r $_fwdir/$_fw/$_src ]] || _src="${_src}.early"
-                    [[ -r $_fwdir/$_fw/$_src ]] || break
+                    [[ -r "$_fwdir/$_fw/$_src" ]] || _src="${_src}.early"
+                    [[ -r "$_fwdir/$_fw/$_src" ]] || break
                 fi
 
-                for i in $_fwdir/$_fw/$_src; do
+                for i in "$_fwdir/$_fw/"$_src; do
                     [ -e "$i" ] && break
                     break 2
                 done
-                for i in $_fwdir/$_fw/$_src; do
+                for i in "$_fwdir/$_fw/"$_src; do
                     [[ -e $i ]] || continue
                     # skip gpg files
                     str_ends "$i" ".asc" && continue
@@ -2338,7 +2381,7 @@ fi
 
 if [[ $kernel_only != yes ]]; then
     # libpthread workaround: pthread_cancel wants to dlopen libgcc_s.so
-    for _dir in $libdirs; do
+    for _dir in "${libdirs[@]}"; do
         for _f in "$dracutsysrootdir$_dir/libpthread.so"*; do
             [[ -e $_f ]] || continue
             inst_libdir_file "libgcc_s.so*"
@@ -2348,7 +2391,7 @@ if [[ $kernel_only != yes ]]; then
 
     # FIPS workaround for Fedora/RHEL: libcrypto needs libssl when FIPS is enabled
     if [[ $DRACUT_FIPS_MODE ]]; then
-        for _dir in $libdirs; do
+        for _dir in "${libdirs[@]}"; do
             for _f in "$dracutsysrootdir$_dir/libcrypto.so"*; do
                 [[ -e $_f ]] || continue
                 inst_libdir_file -o "libssl.so*"
