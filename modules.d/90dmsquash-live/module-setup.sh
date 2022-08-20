@@ -31,6 +31,7 @@ install() {
     inst_hook pre-pivot 20 "$moddir/apply-live-updates.sh"
     inst_script "$moddir/dmsquash-live-root.sh" "/sbin/dmsquash-live-root"
     inst_script "$moddir/iso-scan.sh" "/sbin/iso-scan"
+    inst_script "$moddir/mount-overlayfs.sh" "/sbin/mount-overlayfs"
     if dracut_module_included "systemd-initrd"; then
         inst_script "$moddir/dmsquash-generator.sh" "$systemdutildir"/system-generators/dracut-dmsquash-generator
         inst_simple "$moddir/checkisomd5@.service" "/etc/systemd/system/checkisomd5@.service"

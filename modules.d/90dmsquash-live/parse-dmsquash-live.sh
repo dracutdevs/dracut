@@ -39,6 +39,9 @@ case "$liveroot" in
     live:/*.[Ii][Mm][Gg] | /*.[Ii][Mm][Gg])
         [ -f "${root#live:}" ] && rootok=1
         ;;
+    live:nfs*)
+        rootok=1
+        ;;
 esac
 
 [ "$rootok" = "1" ] || return 1
