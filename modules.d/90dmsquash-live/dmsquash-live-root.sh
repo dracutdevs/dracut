@@ -425,22 +425,8 @@ if [ -n "$overlayfs" ]; then
     else
         ln -sf /run/initramfs/live /run/rootfsbase
     fi
-    mkdir -m 0755 -p /run/overlayfs
-    mkdir -m 0755 -p /run/ovlwork
-    if [ -n "$reset_overlay" ] && [ -h /run/overlayfs ]; then
-        ovlfs=$(readlink /run/overlayfs)
-        info "Resetting the OverlayFS overlay directory."
-        rm -r -- "${ovlfs:?}"/* "${ovlfs:?}"/.* > /dev/null 2>&1
-    fi
-    if [ -n "$readonly_overlay" ] && [ -h /run/overlayfs-r ]; then
-        ovlfs=lowerdir=/run/overlayfs-r:/run/rootfsbase
-    else
-        ovlfs=lowerdir=/run/rootfsbase
-    fi
     if [ -z "$DRACUT_SYSTEMD" ]; then
-        printf 'mount -t overlay LiveOS_rootfs -o%s,%s %s\n' "$ROOTFLAGS" \
-            "$ovlfs",upperdir=/run/overlayfs,workdir=/run/ovlwork \
-            "$NEWROOT" > "$hookdir"/mount/01-$$-live.sh
+        ln -sf /sbin/mount-overlayfs "$hookdir"/mount/01-$$-live.sh
     fi
 else
     if [ -z "$DRACUT_SYSTEMD" ]; then
