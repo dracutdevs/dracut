@@ -1,6 +1,6 @@
 # Dracut Developer Guidelines
 
-Please make sure to follow our [Contribution Guidelines](CONTRIBUTING.md).
+Please make sure to follow our [Contribution Guidelines](../CONTRIBUTING.md).
 
 ## git
 
