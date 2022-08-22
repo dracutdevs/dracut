@@ -223,10 +223,10 @@ unset RDRETRY
 # pre-mount happens before we try to mount the root filesystem,
 # and happens once.
 make_trace_mem "hook pre-mount" '1:shortmem' '2+:mem' '3+:slab'
-getarg 'rd.break=pre-mount' -d 'rdbreak=pre-mount' && emergency_shell -n pre-mount "Break pre-mount"
+getarg 'rd.break=pre-mount' -d 'rdbreak=pre-mount' && emergency_shell -n pre-mount "Break before pre-mount"
 source_hook pre-mount
 
-getarg 'rd.break=mount' -d 'rdbreak=mount' && emergency_shell -n mount "Break mount"
+getarg 'rd.break=mount' -d 'rdbreak=mount' && emergency_shell -n mount "Break before mount"
 # mount scripts actually try to mount the root filesystem, and may
 # be sourced any number of times. As soon as one suceeds, no more are sourced.
 _i_mount=0
@@ -262,12 +262,12 @@ done
 # pre pivot scripts are sourced just before we doing cleanup and switch over
 # to the new root.
 make_trace_mem "hook pre-pivot" '1:shortmem' '2+:mem' '3+:slab'
-getarg 'rd.break=pre-pivot' -d 'rdbreak=pre-pivot' && emergency_shell -n pre-pivot "Break pre-pivot"
+getarg 'rd.break=pre-pivot' -d 'rdbreak=pre-pivot' && emergency_shell -n pre-pivot "Break before pre-pivot"
 source_hook pre-pivot
 
 make_trace_mem "hook cleanup" '1:shortmem' '2+:mem' '3+:slab'
 # pre pivot cleanup scripts are sourced just before we switch over to the new root.
-getarg 'rd.break=cleanup' -d 'rdbreak=cleanup' && emergency_shell -n cleanup "Break cleanup"
+getarg 'rd.break=cleanup' -d 'rdbreak=cleanup' && emergency_shell -n cleanup "Break before cleanup"
 source_hook cleanup
 
 # By the time we get here, the root filesystem should be mounted.
