@@ -2413,7 +2413,7 @@ if dracut_module_included "squash"; then
     if ! mksquashfs "$squash_dir" "$squash_img" \
         -no-xattrs -no-exports -noappend -no-recovery -always-use-fragments \
         -no-progress ${squash_compress_arg:+-comp $squash_compress_arg} 1> /dev/null; then
-        dfatal "dracut: Failed making squash image"
+        dfatal "Failed making squash image"
         exit 1
     fi
 
@@ -2473,7 +2473,7 @@ if [[ $create_early_cpio == yes ]]; then
                 | cpio ${CPIO_REPRODUCIBLE:+--reproducible} --null \
                     ${cpio_owner:+-R "$cpio_owner"} -H newc -o --quiet > "${DRACUT_TMPDIR}/initramfs.img"
         ); then
-            dfatal "dracut: creation of $outfile failed"
+            dfatal "Creation of $outfile failed"
             exit 1
         fi
     fi
@@ -2486,13 +2486,13 @@ else
 fi
 
 if [[ $compress == $DRACUT_COMPRESS_ZSTD* && ! $DRACUT_KERNEL_RD_ZSTD ]]; then
-    dwarn "dracut: kernel has no zstd support compiled in."
+    dwarn "Kernel has no zstd support compiled in."
     compress=
 fi
 
 if [[ $compress && $compress != cat ]]; then
     if ! command -v "${compress%% *}" &> /dev/null; then
-        derror "dracut: cannot execute compression command '$compress', falling back to default"
+        derror "Cannot execute compression command '$compress', falling back to default"
         compress=
     fi
 fi
@@ -2506,9 +2506,9 @@ if ! [[ $compress ]]; then
         break
     done
     if [[ $compress == cat ]]; then
-        dwarn "dracut: no compression tool available. Initramfs image is going to be big."
+        dwarn "No compression tool available. Initramfs image is going to be big."
     else
-        dinfo "dracut: using auto-determined compression method '$compress'"
+        dinfo "Using auto-determined compression method '$compress'"
     fi
 fi
 
@@ -2579,7 +2579,7 @@ else
             | cpio ${CPIO_REPRODUCIBLE:+--reproducible} --null ${cpio_owner:+-R "$cpio_owner"} -H newc -o --quiet \
             | $compress >> "${DRACUT_TMPDIR}/initramfs.img"
     ); then
-        dfatal "dracut: creation of $outfile failed"
+        dfatal "Creation of $outfile failed"
         exit 1
     fi
 fi
@@ -2655,7 +2655,7 @@ else
         dinfo "*** Creating initramfs image file '$outfile' done ***"
     else
         rm -f -- "$outfile"
-        dfatal "dracut: creation of $outfile failed"
+        dfatal "Creation of $outfile failed"
         exit 1
     fi
 fi
@@ -2707,7 +2707,7 @@ freeze_ok_for_fstype() {
 # globally.  See e.g. https://github.com/ostreedev/ostree/commit/8642ef5ab3fec3ac8eb8f193054852f83a8bc4d0
 if [[ -d $dracutsysrootdir/run/systemd/system ]]; then
     if ! sync "$outfile" 2> /dev/null; then
-        dinfo "dracut: sync operation on newly created initramfs $outfile failed"
+        dinfo "sync operation on newly created initramfs $outfile failed"
         exit 1
     fi
 
@@ -2715,7 +2715,7 @@ if [[ -d $dracutsysrootdir/run/systemd/system ]]; then
     if [[ "$(stat -c %m -- "$outfile")" != "/" ]] && freeze_ok_for_fstype "$outfile"; then
         FSFROZEN="$(dirname "$outfile")"
         if ! (fsfreeze -f "${FSFROZEN}" 2> /dev/null && fsfreeze -u "${FSFROZEN}" 2> /dev/null); then
-            dinfo "dracut: warning: could not fsfreeze $(dirname "$outfile")"
+            dwarn "Could not fsfreeze $(dirname "$outfile")"
         fi
         unset FSFROZEN
     fi
