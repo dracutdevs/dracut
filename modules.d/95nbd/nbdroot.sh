@@ -108,7 +108,7 @@ if [ "$root" = "block:/dev/root" -o "$root" = "dhcp" ]; then
 
         printf '/bin/mount %s\n' \
             "$NEWROOT" \
-            > "$hookdir"/mount/01-$$-nbd.sh
+            > "$hookdir"/mount/12-$$-nbd.sh
     else
         mkdir -p /run/systemd/system/sysroot.mount.d
         cat << EOF > /run/systemd/system/sysroot.mount.d/dhcp.conf

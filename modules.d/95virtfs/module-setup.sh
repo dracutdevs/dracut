@@ -27,5 +27,5 @@ installkernel() {
 # called by dracut
 install() {
     inst_hook cmdline 95 "$moddir/parse-virtfs.sh"
-    inst_hook mount 99 "$moddir/mount-virtfs.sh"
+    inst_hook mount 71 "$moddir/mount-virtfs.sh"
 }

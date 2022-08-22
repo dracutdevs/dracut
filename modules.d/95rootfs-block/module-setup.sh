@@ -85,7 +85,7 @@ install() {
     if ! dracut_module_included "systemd"; then
         inst_hook cmdline 95 "$moddir/parse-block.sh"
         inst_hook pre-udev 30 "$moddir/block-genrules.sh"
-        inst_hook mount 99 "$moddir/mount-root.sh"
+        inst_hook mount 70 "$moddir/mount-root.sh"
     fi
 
     inst_hook initqueue/timeout 99 "$moddir/rootfallback.sh"

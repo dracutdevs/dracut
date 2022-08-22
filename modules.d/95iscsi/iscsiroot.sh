@@ -218,7 +218,7 @@ handle_netroot() {
 
         # install mount script
         [ -z "$DRACUT_SYSTEMD" ] \
-            && echo "iscsi_lun=$iscsi_lun . /bin/mount-lun.sh " > "$hookdir"/mount/01-$$-iscsi.sh
+            && echo "iscsi_lun=$iscsi_lun . /bin/mount-lun.sh " > "$hookdir"/mount/11-$$-iscsi.sh
     fi
 
     if strglobin "$iscsi_target_ip" '*:*:*' && ! strglobin "$iscsi_target_ip" '['; then

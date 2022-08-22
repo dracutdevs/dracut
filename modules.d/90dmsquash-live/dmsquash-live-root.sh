@@ -421,12 +421,12 @@ if [ -n "$overlayfs" ]; then
     if [ -z "$DRACUT_SYSTEMD" ]; then
         printf 'mount -t overlay LiveOS_rootfs -o%s,%s %s\n' "$ROOTFLAGS" \
             "$ovlfs",upperdir=/run/overlayfs,workdir=/run/ovlwork \
-            "$NEWROOT" > "$hookdir"/mount/01-$$-live.sh
+            "$NEWROOT" > "$hookdir"/mount/21-$$-live.sh
     fi
 else
     if [ -z "$DRACUT_SYSTEMD" ]; then
         [ -n "$ROOTFLAGS" ] && ROOTFLAGS="-o $ROOTFLAGS"
-        printf 'mount %s /dev/mapper/live-rw %s\n' "$ROOTFLAGS" "$NEWROOT" > "$hookdir"/mount/01-$$-live.sh
+        printf 'mount %s /dev/mapper/live-rw %s\n' "$ROOTFLAGS" "$NEWROOT" > "$hookdir"/mount/21-$$-live.sh
     fi
 fi
 [ -e "$SQUASHED" ] && umount -l /run/initramfs/squashfs
