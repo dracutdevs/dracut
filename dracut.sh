@@ -1310,8 +1310,8 @@ fi
 
 # shellcheck disable=SC2154
 if [[ $no_kernel != yes ]] && ! [[ -d $srcmods ]]; then
-    printf "%s\n" "dracut: Cannot find module directory $srcmods" >&2
-    printf "%s\n" "dracut: and --no-kernel was not specified" >&2
+    dfatal "Cannot find module directory $srcmods"
+    dfatal "and --no-kernel was not specified"
     exit 1
 fi
 
