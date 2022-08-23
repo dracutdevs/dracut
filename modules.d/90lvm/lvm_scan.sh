@@ -136,7 +136,7 @@ check_lvm_ver 2 3 14 "$maj" "$min" "$sub" \
 if [ -n "$LVS" ]; then
     info "Scanning devices $lvmdevs for LVM logical volumes $LVS"
     # shellcheck disable=SC2086
-    LVSLIST=$(lvm lvs $scan_args --noheading -o lv_full_name,segtype $LVS)
+    LVSLIST=$(lvm lvs $scan_args --noheading -o lv_full_name,segtype $LVS 2> /dev/null)
     info "$LVSLIST"
 
     # Only attempt to activate an LV if it appears in the lvs output.
