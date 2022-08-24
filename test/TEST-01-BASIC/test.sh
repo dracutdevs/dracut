@@ -108,9 +108,12 @@ test_setup() {
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
     )
+
+    # make sure --omit-drivers does not filter out drivers using regexp to test for an earlier regression (assuming there is no one letter linux kernel module needed to run the test)
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -a "debug watchdog" \
         -d "piix ide-gd_mod ata_piix ext3 sd_mod i6300esb ib700wdt" \
+        --omit-drivers 'a b c d e f g h i j k l m n o p q r s t u v w x y z' \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 }

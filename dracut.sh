@@ -1345,7 +1345,7 @@ omit_drivers_corrected=""
 for d in $omit_drivers; do
     [[ " $drivers $add_drivers " == *\ $d\ * ]] && continue
     [[ " $drivers $force_drivers " == *\ $d\ * ]] && continue
-    omit_drivers_corrected+="$d|"
+    omit_drivers_corrected+="^$d$|"
 done
 omit_drivers="${omit_drivers_corrected%|}"
 unset omit_drivers_corrected
