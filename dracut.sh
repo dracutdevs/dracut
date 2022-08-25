@@ -273,6 +273,8 @@ Creates initial ramdisk images for preloading modules
   --kernel-image [FILE] Location of the kernel image.
   --regenerate-all      Regenerate all initramfs images at the default location
                          for the kernel versions found on the system.
+                         This is overridden by the "regenerate" configuration
+                         option.
   -p, --parallel        Use parallel processing if possible (currently only
                         supported --regenerate-all)
                         images simultaneously.
@@ -450,6 +452,7 @@ rearrange_params() {
             --long keep \
             --long printsize \
             --long regenerate-all \
+            --long no-regenerate-all \
             --long parallel \
             --long noimageifnotneeded \
             --long early-microcode \
@@ -817,7 +820,8 @@ while :; do
             ;;
         --keep) keep="yes" ;;
         --printsize) printsize="yes" ;;
-        --regenerate-all) regenerate_all_l="yes" ;;
+        --regenerate-all) regenerate_l="all" ;;
+        --no-regenerate-all) regenerate_all="no" ;;
         -p | --parallel) parallel_l="yes" ;;
         --noimageifnotneeded) noimageifnotneeded="yes" ;;
         --reproducible) reproducible_l="yes" ;;
@@ -935,44 +939,53 @@ for f in $(dropindirs_sort ".conf" "$confdir" "$dracutbasedir/dracut.conf.d"); d
     [[ -e $f ]] && . "$f"
 done
 
-# regenerate_all shouldn't be set in conf files
-regenerate_all=$regenerate_all_l
-if [[ $parallel_l == "yes" ]]; then
-    parallel=yes
-fi
-
-if [[ $regenerate_all == "yes" ]]; then
-    ret=0
-    if [[ $kernel ]]; then
-        printf -- "--regenerate-all cannot be called with a kernel version\n" >&2
-        exit 1
-    fi
-
-    if [[ $outfile ]]; then
-        printf -- "--regenerate-all cannot be called with a image file\n" >&2
-        exit 1
-    fi
-
+# 1st, prioritize --no-regenerate-all command line argument
+# 2nd, prioritize regenerate config file option
+if [[ $regenerate_all == "no" ]]; then
+    unset regenerate
+elif [[ -n $regenerate ]]; then
+    printf "%s\n" "dracut: Configuration option regenerate='$regenerate' found." >&2
     ((len = ${#dracut_args[@]}))
     for ((i = 0; i < len; i++)); do
         case ${dracut_args[$i]} in
-            --regenerate-all | --parallel)
+            --regenerate-all)
                 unset dracut_args["$i"]
                 ;;
         esac
     done
+else
+    [[ $regenerate_l ]] && regenerate="$regenerate_l"
+fi
+if [[ $regenerate == "no" ]]; then
+    exit 0
+fi
+if [[ $parallel_l == "yes" ]]; then
+    parallel=yes
+fi
+
+if [[ $regenerate == "all" ]]; then
+    ret=0
+    if [[ $kernel ]]; then
+        printf "%s\n" "dracut: Cannot regenerate all while passing a kernel version as an argument." >&2
+        exit 1
+    fi
+
+    if [[ $outfile ]]; then
+        printf "%s\n" "dracut: Cannot regenerate all while passing an image file as an argument." >&2
+        exit 1
+    fi
 
     cd "$dracutsysrootdir"/lib/modules || exit 1
     if [[ $parallel != "yes" ]]; then
         for i in *; do
             [[ -f $i/modules.dep ]] || [[ -f $i/modules.dep.bin ]] || continue
-            "$dracut_cmd" --kver="$i" "${dracut_args[@]}"
+            "$dracut_cmd" --kver="$i" "${dracut_args[@]}" --no-regenerate-all
             ((ret += $?))
         done
     else
         for i in *; do
             [[ -f $i/modules.dep ]] || [[ -f $i/modules.dep.bin ]] || continue
-            "$dracut_cmd" --kver="$i" "${dracut_args[@]}" &
+            "$dracut_cmd" --kver="$i" "${dracut_args[@]}" --no-regenerate-all &
         done
         while true; do
             wait -n
