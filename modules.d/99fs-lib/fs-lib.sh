@@ -161,31 +161,6 @@ fsck_single() {
     return $?
 }
 
-# takes list of filesystems to check in parallel; we don't rely on automatic
-# checking based on fstab, so empty one is passed
-fsck_batch() {
-    local FSTAB_FILE=/etc/fstab.empty
-    local _drv=fsck
-    local _dev
-    local _ret
-    local _out
-
-    [ $# -eq 0 ] || ! type fsck > /dev/null 2>&1 && return 255
-
-    info "Checking filesystems (fsck -M -T -a):"
-    for _dev in "$@"; do
-        info "    $_dev"
-    done
-
-    export FSTAB_FILE
-    _out="$(fsck -M -T "$@" -- -a)"
-    _ret=$?
-
-    fsck_tail
-
-    return $_ret
-}
-
 # verify supplied filesystem type:
 # if user provided the fs and we couldn't find it, assume user is right
 # if we found the fs, assume we're right
