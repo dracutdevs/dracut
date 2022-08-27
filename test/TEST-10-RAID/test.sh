@@ -78,7 +78,7 @@ test_setup() {
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
-        -m "bash crypt lvm mdraid udev-rules base rootfs-block fs-lib kernel-modules qemu" \
+        -m "bash crypt lvm mdraid kernel-modules qemu" \
         -d "piix ide-gd_mod ata_piix ext2 sd_mod" \
         --nomdadmconf \
         --no-hostonly-cmdline -N \

@@ -1,0 +1,34 @@
+name: Manual test
+
+on:
+    workflow_dispatch:
+        inputs:
+            test:
+                description: 'Test to run'
+                default: '04'
+                required: true
+            container:
+                type: choice
+                description: 'distro'
+                default: 'fedora'
+                options:
+                    - "fedora"
+                    - "arch"
+                    - "debian"
+                    - "opensuse"
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        timeout-minutes: 45
+        container:
+            image: ghcr.io/dracutdevs/${{ inputs.container }}
+            options: "--privileged -v /dev:/dev"
+        steps:
+            -   name: "Checkout Repository"
+                uses: actions/checkout@v2
+                with:
+                    fetch-depth: 0
+
+            -   name: "${{ inputs.container }} TEST-${{ inputs.test }}"
+                run: ./tools/test-github.sh "TEST-${{ inputs.test }}" ${{ inputs.test }}
