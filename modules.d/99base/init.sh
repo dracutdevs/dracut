@@ -302,7 +302,7 @@ debug_off # Turn off debugging for this section
 # unexport some vars
 export_n root rflags fstype netroot NEWROOT
 unset CMDLINE
-export RD_TIMESTAMP
+
 # Clean up the environment
 for i in $(export -p); do
     i=${i#declare -x}
