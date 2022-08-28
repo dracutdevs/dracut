@@ -4,9 +4,6 @@
 install() {
     local _i
 
-    # Fixme: would be nice if we didn't have to guess, which rules to grab....
-    # ultimately, /lib/initramfs/rules.d or somesuch which includes links/copies
-    # of the rules we want so that we just copy those in would be best
     inst_multiple udevadm cat uname blkid
     inst_dir /etc/udev
     inst_multiple -o /etc/udev/udev.conf
@@ -26,10 +23,9 @@ install() {
         exit 1
     fi
 
+    # reference: https://github.com/systemd/systemd/tree/main/rules.d
     inst_rules \
-        40-redhat.rules \
         50-firmware.rules \
-        50-udev.rules \
         50-udev-default.rules \
         55-scsi-sg3_id.rules \
         58-scsi-sg3_symlink.rules \
@@ -38,25 +34,33 @@ install() {
         60-cdrom_id.rules \
         60-pcmcia.rules \
         60-persistent-storage.rules \
-        61-persistent-storage-edd.rules \
         64-btrfs.rules \
         70-uaccess.rules \
         71-seat.rules \
         73-seat-late.rules \
-        75-net-description.rules \
-        80-drivers.rules 95-udev-late.rules \
-        80-net-name-slot.rules 80-net-setup-link.rules \
-        95-late.rules \
+        80-drivers.rules \
         "$moddir/59-persistent-storage.rules" \
         "$moddir/61-persistent-storage.rules"
 
     prepare_udev_rules 59-persistent-storage.rules 61-persistent-storage.rules
+
+    # redhat udev rules
+    inst_rules \
+        40-redhat.rules
+
     # debian udev rules
-    inst_rules 91-permissions.rules
+    inst_rules \
+        91-permissions.rules
+
     # eudev rules
-    inst_rules 80-drivers-modprobe.rules
-    # legacy persistent network device name rules
-    [[ $hostonly ]] && inst_rules 70-persistent-net.rules
+    inst_rules \
+        80-drivers-modprobe.rules
+
+    # legacy rules
+    inst_rules \
+        50-udev.rules \
+        61-persistent-storage-edd.rules \
+        95-late.rules
 
     {
         for i in cdrom tape dialout floppy; do

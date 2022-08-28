@@ -46,5 +46,15 @@ install() {
     inst_hook cmdline 91 "$moddir/dhcp-root.sh"
     inst_multiple ip sed awk grep pgrep tr
     inst_multiple -o arping arping2
+
+    # network rules
+    inst_rules \
+        75-net-description.rules \
+        80-net-name-slot.rules \
+        80-net-setup-link.rules
+
+    # legacy persistent network device name rules
+    [[ $hostonly ]] && inst_rules 70-persistent-net.rules
+
     dracut_need_initqueue
 }
