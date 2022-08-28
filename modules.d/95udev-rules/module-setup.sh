@@ -93,9 +93,6 @@ install() {
 
     inst_multiple -o /etc/pcmcia/config.opts
 
-    [[ -f $dracutsysrootdir/etc/arch-release ]] \
-        && inst_script "$moddir/load-modules.sh" /lib/udev/load-modules.sh
-
     inst_libdir_file "libnss_files*"
 
 }
