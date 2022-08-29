@@ -2598,14 +2598,18 @@ umask 077
 if [[ $uefi == yes ]]; then
     if [[ $kernel_cmdline ]]; then
         echo -n "$kernel_cmdline" > "$uefi_outdir/cmdline.txt"
-    elif [[ $hostonly_cmdline == yes ]] && [ -d "$initdir/etc/cmdline.d" ]; then
-        for conf in "$initdir"/etc/cmdline.d/*.conf; do
-            [ -e "$conf" ] || continue
-            printf "%s " "$(< "$conf")" >> "$uefi_outdir/cmdline.txt"
-        done
+    elif [[ $hostonly_cmdline == yes ]]; then
+        if [ -d "$initdir/etc/cmdline.d" ]; then
+            for conf in "$initdir"/etc/cmdline.d/*.conf; do
+                [ -e "$conf" ] || continue
+                printf "%s " "$(< "$conf")" >> "$uefi_outdir/cmdline.txt"
+            done
+        elif [ -e "/proc/cmdline" ]; then
+            printf "%s " "$(< "/proc/cmdline")" > "$uefi_outdir/cmdline.txt"
+        fi
     fi
 
-    if [[ $kernel_cmdline ]] || [[ $hostonly_cmdline == yes && -d "$initdir/etc/cmdline.d" ]]; then
+    if [[ $kernel_cmdline ]] || [[ $hostonly_cmdline == yes && -e "${uefi_outdir}/cmdline.txt" ]]; then
         echo -ne "\x00" >> "$uefi_outdir/cmdline.txt"
         dinfo "Using UEFI kernel cmdline:"
         dinfo "$(tr -d '\000' < "$uefi_outdir/cmdline.txt")"
