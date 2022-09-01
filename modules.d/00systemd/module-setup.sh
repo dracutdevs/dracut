@@ -43,6 +43,7 @@ install() {
         "$systemdutildir"/systemd-modules-load \
         "$systemdutildir"/systemd-vconsole-setup \
         "$systemdutildir"/systemd-volatile-root \
+        "$systemdutildir"/systemd-sysroot-fstab-check \
         "$systemdutildir"/system-generators/systemd-debug-generator \
         "$systemdutildir"/system-generators/systemd-fstab-generator \
         "$systemdutildir"/system-generators/systemd-gpt-auto-generator \
