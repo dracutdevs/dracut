@@ -49,48 +49,72 @@ man8pages = man/dracut.8 \
 
 manpages = $(man1pages) $(man5pages) $(man7pages) $(man8pages)
 
-.PHONY: install clean archive rpm srpm testimage test all check AUTHORS CONTRIBUTORS doc dracut-version.sh
+.PHONY: install clean archive rpm srpm testimage test all check \
+		AUTHORS CONTRIBUTORS doc dracut-version.sh \
+		clean-dracut-install clean-logtee clean-skipcpio clean-dracut-util \
+		skipcpio
 
-all: dracut-version.sh dracut.pc dracut-install src/skipcpio/skipcpio dracut-util
+all: dracut-version.sh dracut.pc dracut-install skipcpio dracut-util
 
-%.o : %.c
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(KMOD_CFLAGS) $< -o $@
+DRACUT_INSTALL_DIR = src/install
+DRACUT_INSTALL_SOURCES = \
+        $(DRACUT_INSTALL_DIR)/dracut-install.c \
+        $(DRACUT_INSTALL_DIR)/hashmap.c\
+        $(DRACUT_INSTALL_DIR)/log.c \
+        $(DRACUT_INSTALL_DIR)/strv.c \
+        $(DRACUT_INSTALL_DIR)/util.c
+DRACUT_INSTALL_HEADERS = \
+		$(DRACUT_INSTALL_DIR)/hashmap.h \
+		$(DRACUT_INSTALL_DIR)/log.h \
+		$(DRACUT_INSTALL_DIR)/strv.h \
+		$(DRACUT_INSTALL_DIR)/util.h \
+		$(DRACUT_INSTALL_DIR)/macro.h
 
-DRACUT_INSTALL_OBJECTS = \
-        src/install/dracut-install.o \
-        src/install/hashmap.o\
-        src/install/log.o \
-        src/install/strv.o \
-        src/install/util.o
+dracut-install: $(DRACUT_INSTALL_SOURCES) $(DRACUT_INSTALL_HEADERS)
+	cd $(DRACUT_INSTALL_DIR) && \
+	CC=$(CC) CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDLIBS="$(LDLIBS)" \
+	$(MAKE) $(MFLAGS) all
+	ln -fs $(DRACUT_INSTALL_DIR)/dracut-install $@
 
-# deps generated with gcc -MM
-src/install/dracut-install.o: src/install/dracut-install.c src/install/log.h src/install/macro.h \
-	src/install/hashmap.h src/install/util.h
-src/install/hashmap.o: src/install/hashmap.c src/install/util.h src/install/macro.h src/install/log.h \
-	src/install/hashmap.h
-src/install/log.o: src/install/log.c src/install/log.h src/install/macro.h src/install/util.h
-src/install/util.o: src/install/util.c src/install/util.h src/install/macro.h src/install/log.h
-src/install/strv.o: src/install/strv.c src/install/strv.h src/install/util.h src/install/macro.h src/install/log.h
+clean-dracut-install:
+	$(RM) dracut-install
+	cd $(DRACUT_INSTALL_DIR) && $(MAKE) clean
 
-src/install/dracut-install: $(DRACUT_INSTALL_OBJECTS)
-	$(CC) $(LDFLAGS) -o $@ $(DRACUT_INSTALL_OBJECTS) $(LDLIBS) $(FTS_LIBS) $(KMOD_LIBS)
+LOGTEE_DIR = src/logtee
+LOGTEE_SOURCES = $(LOGTEE_DIR)/logtee.c
 
-logtee: src/logtee/logtee.c
-	$(CC) $(LDFLAGS) -o $@ $<
+logtee: $(LOGTEE_SOURCES)
+	cd $(LOGTEE_DIR) && \
+	CC=$(CC) CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDLIBS="$(LDLIBS)" \
+	$(MAKE) $(MFLAGS) all
 
-dracut-install: src/install/dracut-install
-	ln -fs $< $@
+clean-logtee:
+	$(RM) logtee
+	cd $(LOGTEE_DIR) && $(MAKE) clean
 
-SKIPCPIO_OBJECTS = src/skipcpio/skipcpio.o
-skipcpio/skipcpio.o: src/skipcpio/skipcpio.c
-skipcpio/skipcpio: $(SKIPCPIO_OBJECTS)
+SKIPCPIO_DIR = src/skipcpio
+SKIPCPIO_SOURCES = $(SKIPCPIO_DIR)/skipcpio.c
 
-UTIL_OBJECTS = src/util/util.o
-util/util.o: src/util/util.c
-util/util: $(UTIL_OBJECTS)
+skipcpio: $(SKIPCPIO_SOURCES)
+	cd $(SKIPCPIO_DIR) && \
+	CC=$(CC) CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDLIBS="$(LDLIBS)" \
+	$(MAKE) $(MFLAGS) all
 
-dracut-util: src/util/util
-	cp -a $< $@
+clean-skipcpio:
+	cd $(SKIPCPIO_DIR) && $(MAKE) clean
+
+UTIL_DIR = src/util
+UTIL_SOURCES = $(UTIL_DIR)/util.c
+
+dracut-util: $(UTIL_SOURCES)
+	cd $(UTIL_DIR) && \
+	CC=$(CC) CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDLIBS="$(LDLIBS)" \
+	$(MAKE) $(MFLAGS) all
+	cp -a $(UTIL_DIR)/util $@
+
+clean-dracut-util:
+	$(RM) dracut-util
+	cd $(UTIL_DIR) && $(MAKE) clean
 
 .PHONY: indent-c
 indent-c:
@@ -198,11 +222,11 @@ endif
 			$(DESTDIR)$(systemdsystemunitdir)/initrd.target.wants/$$i; \
 		done \
 	fi
-	if [ -f src/install/dracut-install ]; then \
-		install -m 0755 src/install/dracut-install $(DESTDIR)$(pkglibdir)/dracut-install; \
+	if [ -f $(DRACUT_INSTALL_DIR)/dracut-install ]; then \
+		install -m 0755 $(DRACUT_INSTALL_DIR)/dracut-install $(DESTDIR)$(pkglibdir)/dracut-install; \
 	fi
-	if [ -f src/skipcpio/skipcpio ]; then \
-		install -m 0755 src/skipcpio/skipcpio $(DESTDIR)$(pkglibdir)/skipcpio; \
+	if [ -f $(SKIPCPIO_DIR)/skipcpio ]; then \
+		install -m 0755 $(SKIPCPIO_DIR)/skipcpio $(DESTDIR)$(pkglibdir)/skipcpio; \
 	fi
 	if [ -f dracut-util ]; then \
 		install -m 0755 dracut-util $(DESTDIR)$(pkglibdir)/dracut-util; \
@@ -223,7 +247,7 @@ dracut-version.sh:
 	@rm -f dracut-version.sh
 	@printf "#!/bin/sh\n# shellcheck disable=SC2034\nDRACUT_VERSION=%s\n" "$(DRACUT_FULL_VERSION)" > dracut-version.sh
 
-clean:
+clean: clean-dracut-install clean-skipcpio clean-dracut-util
 	$(RM) *~
 	$(RM) */*~
 	$(RM) */*/*~
@@ -231,9 +255,6 @@ clean:
 	$(RM) test-*.img
 	$(RM) dracut-*.rpm dracut-*.tar.bz2 dracut-*.tar.xz
 	$(RM) dracut-version.sh
-	$(RM) dracut-install src/install/dracut-install $(DRACUT_INSTALL_OBJECTS)
-	$(RM) skipcpio/skipcpio $(SKIPCPIO_OBJECTS)
-	$(RM) dracut-util util/util $(UTIL_OBJECTS)
 	$(RM) $(manpages) dracut.html
 	$(RM) dracut.pc
 	$(RM) dracut-cpio src/dracut-cpio/target/release/dracut-cpio*
