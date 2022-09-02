@@ -31,6 +31,7 @@ installkernel() {
     local mod_name="kernel-modules-extra"
     prinfo() { dinfo "  ${mod_name}: $*"; }
     prdebug() { ddebug "  ${mod_name}: $*"; }
+    prwarning() { dwarning "  ${mod_name}: $*"; }
 
     # Escape a string for usage as a part of extended regular expression.
     # $1 - string to escape
@@ -179,8 +180,17 @@ installkernel() {
         | (
             cd "$depmod_module_dir" || exit
             xargs -r realpath -se --
-        ) \
-        | instmods || return 1
+        ) 2>&1 \
+        | while read mod; do
+            if [[ "$mod" == "realpath: "* ]]
+            then
+                prwarning "Non-existing module entry in modules.dep." \
+                "Please try to run depmod to fresh modules.dep and re-run dracut."
+                prwarning "    " "$mod"
+            else
+                instmods "$mod" || return 1
+            fi
+        done
 
     return 0
 }
