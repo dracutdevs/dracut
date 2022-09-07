@@ -198,8 +198,9 @@ Creates initial ramdisk images for preloading modules
                          necessary network drivers.
   --persistent-policy [POLICY]
                         Use [POLICY] to address disks and partitions.
-                         POLICY can be any directory name found in /dev/disk.
-                         E.g. "by-uuid", "by-label"
+                         POLICY can be any directory name found in /dev/disk
+                         (e.g. "by-uuid", "by-label"), or "mapper" to use
+                         /dev/mapper device names (default).
   --fstab               Use /etc/fstab to determine the root device.
   --add-fstab [FILE]    Add file to the initramfs fstab.
   --mount "[DEV] [MP] [FSTYPE] [FSOPTS]"
@@ -1299,6 +1300,13 @@ else
     printf "%s\n" "dracut: Are you running from a git checkout?" >&2
     printf "%s\n" "dracut: Try passing -l as an argument to $dracut_cmd" >&2
     exit 1
+fi
+
+if [[ $persistent_policy == "mapper" ]]; then
+    unset persistent_policy
+elif [[ -n $persistent_policy && ! -d "/dev/disk/${persistent_policy}" ]]; then
+    dwarn "Invalid persistent policy, your system does not have a /dev/disk/${persistent_policy} directory."
+    unset persistent_policy
 fi
 
 if [[ $enhanced_cpio == "yes" ]]; then
