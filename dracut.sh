@@ -152,8 +152,6 @@ Creates initial ramdisk images for preloading modules
                          6 - trace info (and even more)
   -v, --verbose         Increase verbosity level.
   -q, --quiet           Decrease verbosity level.
-  -c, --conf [FILE]     Specify configuration file to use.
-                         Default: /etc/dracut.conf
   --confdir [DIR]       Specify configuration directory to use *.conf files
                          from. Default: /etc/dracut.conf.d
   --tmpdir [DIR]        Temporary directory to be used instead of default
@@ -371,7 +369,7 @@ rearrange_params() {
     TEMP=$(
         unset POSIXLY_CORRECT
         getopt \
-            -o "a:m:o:d:I:k:c:r:L:fvqlHhMNp" \
+            -o "a:m:o:d:I:k:r:L:fvqlHhMNp" \
             --long kver: \
             --long add: \
             --long force-add: \
@@ -394,7 +392,6 @@ rearrange_params() {
             --long nofscks \
             --long ro-mnt \
             --long kmoddir: \
-            --long conf: \
             --long confdir: \
             --long tmpdir: \
             --long sysroot: \
@@ -661,11 +658,6 @@ while :; do
             PARMS_TO_STORE+=" '$2'"
             shift
             ;;
-        -c | --conf)
-            conffile="$2"
-            PARMS_TO_STORE+=" '$2'"
-            shift
-            ;;
         --confdir)
             confdir="$2"
             PARMS_TO_STORE+=" '$2'"
@@ -898,18 +890,6 @@ export DRACUT_LOG_LEVEL=warning
 
 [[ $dracutbasedir ]] || dracutbasedir="$dracutsysrootdir"/usr/lib/dracut
 
-# if we were not passed a config file, try the default one
-if [[ -z $conffile ]]; then
-    if [[ $allowlocal ]]; then
-        conffile="$dracutbasedir/dracut.conf"
-    else
-        conffile="$dracutsysrootdir/etc/dracut.conf"
-    fi
-elif [[ ! -e $conffile ]]; then
-    printf "%s\n" "dracut: Configuration file '$conffile' not found." >&2
-    exit 1
-fi
-
 if [[ -z $confdir ]]; then
     if [[ $allowlocal ]]; then
         confdir="$dracutbasedir/dracut.conf.d"
@@ -919,13 +899,6 @@ if [[ -z $confdir ]]; then
 elif [[ ! -d $confdir ]]; then
     printf "%s\n" "dracut: Configuration directory '$confdir' not found." >&2
     exit 1
-fi
-
-# source our config file
-if [[ -f $conffile ]]; then
-    check_conf_file "$conffile"
-    # shellcheck disable=SC1090
-    . "$conffile"
 fi
 
 # source our config dir

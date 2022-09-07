@@ -287,7 +287,6 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %{dracutlibdir}/dracut-install
 %{dracutlibdir}/dracut-util
 %{dracutlibdir}/skipcpio
-%config(noreplace) %{_sysconfdir}/dracut.conf
 %if 0%{?fedora} || 0%{?suse_version} || 0%{?rhel}
 %{dracutlibdir}/dracut.conf.d/01-dist.conf
 %endif

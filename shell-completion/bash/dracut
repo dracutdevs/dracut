@@ -38,11 +38,11 @@ _dracut() {
             --hostonly-i18n --no-hostonly-i18n --lzo --lz4 --no-reproducible
             --no-uefi --no-machineid --version --parallel
             '
-        [ARG]='-a -m -o -d -I -k -c -L -r -i
+        [ARG]='-a -m -o -d -I -k -L -r -i
             --kver --add --force-add --add-drivers --force-drivers
             --omit-drivers --modules --omit --drivers --filesystems --install
             --fwdir --libdirs --fscks --add-fstab --mount --device
-            --kmoddir --conf --confdir --tmpdir --stdlog --compress --prefix
+            --kmoddir --confdir --tmpdir --stdlog --compress --prefix
             --kernel-cmdline --sshkey --persistent-policy --install-optional
             --loginstall --uefi-stub --kernel-image --squash-compressor
             --sysroot --hostonly-mode --hostonly-nics --include --logfile
@@ -57,7 +57,7 @@ _dracut() {
                 comps=$(compgen -d -- "$cur")
                 compopt -o filenames
                 ;;
-            -c | --conf | --sshkey | --add-fstab | --add-device | -I | \
+            --sshkey | --add-fstab | --add-device | -I | \
                 --install | --install-optional | --uefi-splash-image)
                 comps=$(compgen -f -- "$cur")
                 compopt -o filenames

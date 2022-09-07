@@ -159,7 +159,6 @@ install: all
 	install -m 0755 dracut.sh $(DESTDIR)$(bindir)/dracut
 	install -m 0755 dracut-catimages.sh $(DESTDIR)$(bindir)/dracut-catimages
 	install -m 0755 lsinitrd.sh $(DESTDIR)$(bindir)/lsinitrd
-	install -m 0644 dracut.conf $(DESTDIR)$(sysconfdir)/dracut.conf
 	mkdir -p $(DESTDIR)$(sysconfdir)/dracut.conf.d
 	mkdir -p $(DESTDIR)$(pkglibdir)/dracut.conf.d
 	install -m 0755 dracut-init.sh $(DESTDIR)$(pkglibdir)/dracut-init.sh
