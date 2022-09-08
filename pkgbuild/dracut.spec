@@ -77,6 +77,7 @@ Recommends: memstrack
 Recommends: hardlink
 Recommends: pigz
 Recommends: kpartx
+Recommends: (tpm2-tools if tpm2-tss)
 Requires: util-linux >= 2.21
 Requires: systemd >= 219
 Requires: systemd-udev >= 219
