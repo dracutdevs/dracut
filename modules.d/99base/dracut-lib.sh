@@ -1157,8 +1157,5 @@ remove_hostonly_files() {
 # returns OK if kernel_module is loaded
 # modprobe fails if /lib/modules is not available (--no-kernel use case)
 load_fstype() {
-    if [ -z "$2" ]; then
-        set -- "$1" "$2"
-    fi
-    strstr "$(cat /proc/filesystems)" "$2" || modprobe "$1"
+    strstr "$(cat /proc/filesystems)" "${2:-$1}" || modprobe "$1"
 }
