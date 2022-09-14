@@ -61,6 +61,11 @@ cmdline() {
     gen_nvmf_cmdline() {
         local _dev=$1
         local trtype
+        local traddr
+        local host_traddr
+        local trsvcid
+        local _address
+        local -a _address_parts
 
         [[ -L "/sys/dev/block/$_dev" ]] || return 0
         cd -P "/sys/dev/block/$_dev" || return 0
@@ -76,9 +81,19 @@ cmdline() {
         done
 
         [ -z "$trtype" ] && return 0
-        nvme list-subsys "${PWD##*/}" | while read -r _ _ trtype traddr host_traddr _; do
-            [ "$trtype" != "${trtype#NQN}" ] && continue
-            echo -n " rd.nvmf.discover=$trtype,${traddr#traddr=},${host_traddr#host_traddr=}"
+        nvme list-subsys "${PWD##*/}" | while read -r _ _ trtype _address _; do
+            [[ -z $trtype || $trtype != "${trtype#NQN}" ]] && continue
+            unset traddr
+            unset host_traddr
+            unset trsvcid
+            mapfile -t -d ',' _address_parts < <(printf "%s" "$_address")
+            for i in "${_address_parts[@]}"; do
+                [[ $i =~ ^traddr= ]] && traddr="${i#traddr=}"
+                [[ $i =~ ^host_traddr= ]] && host_traddr="${i#host_traddr=}"
+                [[ $i =~ ^trsvcid= ]] && trsvcid="${i#trsvcid=}"
+            done
+            [[ -z $traddr && -z $host_traddr && -z $trsvcid ]] && continue
+            echo -n " rd.nvmf.discover=$trtype,$traddr,$host_traddr,$trsvcid"
         done
     }
 
