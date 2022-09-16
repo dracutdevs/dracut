@@ -102,9 +102,6 @@ done
 
 if [ -f "/etc/nvme/discovery.conf" ]; then
     /sbin/initqueue --settled --onetime --unique --name nvme-discover /usr/sbin/nvme connect-all
-    if [ "$trtype" = "tcp" ]; then
-        : > /tmp/net."$ifname".did-setup
-    fi
 else
     # No nvme command line arguments present, try autodiscovery
     if [ "$trtype" = "fc" ]; then
