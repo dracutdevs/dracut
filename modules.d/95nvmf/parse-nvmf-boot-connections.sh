@@ -101,12 +101,12 @@ for d in $(getargs rd.nvmf.discover -d nvmf.discover=); do
 done
 
 # Host NQN and host id are mandatory for NVMe-oF
-[ -f "/etc/nvme/hostnqn" ] || exit 0
-[ -f "/etc/nvme/hostid" ] || exit 0
+if [ -f "/etc/nvme/hostnqn" ] && [ -f "/etc/nvme/hostid" ]; then
 
-# If no nvme command line arguments present, try autodiscovery
-if [ $NVMF_FC_AUTO ] || [ ! -f "/etc/nvme/discovery.conf" ]; then
-    /sbin/initqueue --settled --onetime --unique --name nvme-fc-autoconnect /sbin/nvmf-autoconnect.sh
-else
-    /sbin/initqueue --settled --onetime --unique --name nvme-discover /usr/sbin/nvme connect-all
+    # If no nvme command line arguments present, try autodiscovery
+    if [ $NVMF_FC_AUTO ] || [ ! -f "/etc/nvme/discovery.conf" ]; then
+        /sbin/initqueue --settled --onetime --unique --name nvme-fc-autoconnect /sbin/nvmf-autoconnect.sh
+    else
+        /sbin/initqueue --settled --onetime --unique --name nvme-discover /usr/sbin/nvme connect-all
+    fi
 fi
