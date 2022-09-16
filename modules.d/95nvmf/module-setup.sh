@@ -2,7 +2,7 @@
 
 # called by dracut
 check() {
-    require_binaries nvme || return 1
+    require_binaries nvme jq || return 1
     [ -f /etc/nvme/hostnqn ] || return 255
     [ -f /etc/nvme/hostid ] || return 255
 
@@ -25,6 +25,16 @@ check() {
         [[ $trtype == "fc" ]] || [[ $trtype == "tcp" ]] || [[ $trtype == "rdma" ]]
     }
 
+    has_nbft() {
+        local f found=
+        for f in /sys/firmware/acpi/tables/NBFT*; do
+            [ -f "$f" ] || continue
+            found=1
+            break
+        done
+        [[ $found ]]
+    }
+
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         pushd . > /dev/null
         for_each_host_dev_and_slaves is_nvmf
@@ -32,7 +42,7 @@ check() {
         popd > /dev/null || exit
         [[ $_is_nvmf == 0 ]] || return 255
         if [ ! -f /sys/class/fc/fc_udev_device/nvme_discovery ]; then
-            if [ ! -f /etc/nvme/discovery.conf ]; then
+            if [ ! -f /etc/nvme/discovery.conf ] && ! has_nbft; then
                 echo "No discovery arguments present"
                 return 255
             fi
@@ -126,8 +136,9 @@ install() {
     inst_multiple ip sed
 
     inst_script "${moddir}/nvmf-autoconnect.sh" /sbin/nvmf-autoconnect.sh
+    inst_script "${moddir}/nbftroot.sh" /sbin/nbftroot
 
-    inst_multiple nvme
+    inst_multiple nvme jq
     inst_hook cmdline 92 "$moddir/parse-nvmf-boot-connections.sh"
     inst_simple "/etc/nvme/discovery.conf"
     inst_simple "/etc/nvme/config.json"
