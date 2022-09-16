@@ -2,7 +2,7 @@
 
 # called by dracut
 check() {
-    require_binaries nvme || return 1
+    require_binaries nvme jq || return 1
     [ -f /etc/nvme/hostnqn ] || return 255
     [ -f /etc/nvme/hostid ] || return 255
 
@@ -127,7 +127,7 @@ install() {
 
     inst_script "${moddir}/nvmf-autoconnect.sh" /sbin/nvmf-autoconnect.sh
 
-    inst_multiple nvme
+    inst_multiple nvme jq
     inst_hook cmdline 92 "$moddir/parse-nvmf-boot-connections.sh"
     inst_simple "/etc/nvme/discovery.conf"
     inst_rules /usr/lib/udev/rules.d/71-nvmf-iopolicy-netapp.rules
