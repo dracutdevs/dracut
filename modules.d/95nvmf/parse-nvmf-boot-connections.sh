@@ -105,6 +105,6 @@ if [ -f "/etc/nvme/discovery.conf" ]; then
 else
     # No nvme command line arguments present, try autodiscovery
     if [ "$trtype" = "fc" ]; then
-        /sbin/initqueue --finished --onetime --unique --name nvme-fc-autoconnect /sbin/nvmf-autoconnect.sh
+        /sbin/initqueue --settled --onetime --unique --name nvme-fc-autoconnect /sbin/nvmf-autoconnect.sh
     fi
 fi
