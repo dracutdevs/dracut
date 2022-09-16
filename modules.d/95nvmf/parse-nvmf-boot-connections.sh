@@ -26,34 +26,6 @@ fi
 
 initqueue --onetime modprobe --all -b -q nvme nvme_tcp nvme_core nvme_fabrics
 
-validate_ip_conn() {
-    if ! getargbool 0 rd.neednet; then
-        warn "$trtype transport requires rd.neednet=1"
-        return 1
-    fi
-
-    local_address=$(ip -o route get to "$traddr" | sed -n 's/.*src \([0-9a-f.:]*\).*/\1/p')
-
-    # confirm we got a local IP address
-    if ! is_ip "$local_address"; then
-        warn "$traddr is an invalid address"
-        return 1
-    fi
-
-    ifname=$(ip -o route get from "$local_address" to "$traddr" | sed -n 's/.*dev \([^ ]*\).*/\1/p')
-
-    if ! ip l show "$ifname" > /dev/null 2>&1; then
-        warn "invalid network interface $ifname"
-        return 1
-    fi
-
-    # confirm there's a route to destination
-    if ! ip route get "$traddr" > /dev/null 2>&1; then
-        warn "no route to $traddr"
-        return 1
-    fi
-}
-
 parse_nvmf_discover() {
     traddr="none"
     trtype="none"
@@ -102,9 +74,6 @@ parse_nvmf_discover() {
     elif [ "$trtype" != "rdma" ] && [ "$trtype" != "tcp" ]; then
         warn "unsupported transport $trtype"
         return 0
-    fi
-    if [ "$trtype" = "tcp" ]; then
-        validate_ip_conn
     fi
     if [ "$trtype" = "fc" ]; then
         echo "--transport=$trtype --traddr=$traddr --host-traddr=$hosttraddr" >> /etc/nvme/discovery.conf
