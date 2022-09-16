@@ -24,7 +24,7 @@ if getargbool 0 rd.nonvmf; then
     return 0
 fi
 
-initqueue --onetime modprobe --all -b -q nvme nvme_tcp nvme_core nvme_fabrics
+initqueue --onetime modprobe --all -b -q nvme_tcp nvme_core nvme_fabrics
 
 parse_nvmf_discover() {
     traddr="none"
