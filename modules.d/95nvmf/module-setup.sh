@@ -128,7 +128,7 @@ install() {
     inst_script "${moddir}/nvmf-autoconnect.sh" /sbin/nvmf-autoconnect.sh
 
     inst_multiple nvme
-    inst_hook cmdline 99 "$moddir/parse-nvmf-boot-connections.sh"
+    inst_hook cmdline 92 "$moddir/parse-nvmf-boot-connections.sh"
     inst_simple "/etc/nvme/discovery.conf"
     inst_rules /usr/lib/udev/rules.d/71-nvmf-iopolicy-netapp.rules
     inst_rules "$moddir/95-nvmf-initqueue.rules"
