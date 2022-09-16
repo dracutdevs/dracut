@@ -62,7 +62,9 @@ parse_nvmf_discover() {
         warn "traddr is mandatory for $trtype"
         return 0
     fi
-    if [ "$trtype" = "fc" ]; then
+    if [ "$trtype" = "tcp" ]; then
+        : > /tmp/nvmf_needs_network
+    elif [ "$trtype" = "fc" ]; then
         if [ "$traddr" = "auto" ]; then
             rm /etc/nvme/discovery.conf
             return 1
@@ -71,7 +73,7 @@ parse_nvmf_discover() {
             warn "host traddr is mandatory for fc"
             return 0
         fi
-    elif [ "$trtype" != "rdma" ] && [ "$trtype" != "tcp" ]; then
+    elif [ "$trtype" != "rdma" ]; then
         warn "unsupported transport $trtype"
         return 0
     fi
@@ -99,6 +101,11 @@ for d in $(getargs rd.nvmf.discover -d nvmf.discover=); do
         break
     }
 done
+
+if [ -e /tmp/nvmf_needs_network ]; then
+    echo "rd.neednet=1" > /etc/cmdline.d/nvmf-neednet.conf
+    rm -f /tmp/nvmf_needs_network
+fi
 
 # Host NQN and host id are mandatory for NVMe-oF
 if [ -f "/etc/nvme/hostnqn" ] && [ -f "/etc/nvme/hostid" ]; then
