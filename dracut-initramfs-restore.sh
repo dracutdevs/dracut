@@ -27,14 +27,14 @@ fi
 
 mount -o ro /boot &> /dev/null || true
 
-if [[ -d /efi/loader/entries ]] || [[ -L /efi/loader/entries ]] \
-    || [[ -d /efi/$MACHINE_ID ]] || [[ -L /efi/$MACHINE_ID ]]; then
+if [[ -d /efi/loader/entries || -L /efi/loader/entries ]] \
+    && [[ -d /efi/$MACHINE_ID || -L /efi/$MACHINE_ID ]]; then
     IMG="/efi/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
-elif [[ -d /boot/loader/entries ]] || [[ -L /boot/loader/entries ]] \
-    || [[ -d /boot/$MACHINE_ID ]] || [[ -L /boot/$MACHINE_ID ]]; then
+elif [[ -d /boot/loader/entries || -L /boot/loader/entries ]] \
+    && [[ -d /boot/$MACHINE_ID || -L /boot/$MACHINE_ID ]]; then
     IMG="/boot/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
-elif [[ -d /boot/efi/loader/entries ]] || [[ -L /boot/efi/loader/entries ]] \
-    || [[ -d /boot/efi/$MACHINE_ID ]] || [[ -L /boot/efi/$MACHINE_ID ]]; then
+elif [[ -d /boot/efi/loader/entries || -L /boot/efi/loader/entries ]] \
+    && [[ -d /boot/efi/$MACHINE_ID || -L /boot/efi/$MACHINE_ID ]]; then
     IMG="/boot/efi/$MACHINE_ID/$KERNEL_VERSION/initrd"
 elif [[ -f /lib/modules/${KERNEL_VERSION}/initrd ]]; then
     IMG="/lib/modules/${KERNEL_VERSION}/initrd"
