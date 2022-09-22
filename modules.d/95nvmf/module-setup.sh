@@ -25,6 +25,16 @@ check() {
         [[ $trtype == "fc" ]] || [[ $trtype == "tcp" ]] || [[ $trtype == "rdma" ]]
     }
 
+    has_nbft() {
+        local f found=
+        for f in /sys/firmware/acpi/tables/NBFT*; do
+            [ -f "$f" ] || continue
+            found=1
+            break
+        done
+        [[ $found ]]
+    }
+
     [[ $hostonly ]] || [[ $mount_needs ]] && {
         pushd . > /dev/null
         for_each_host_dev_and_slaves is_nvmf
@@ -32,7 +42,7 @@ check() {
         popd > /dev/null || exit
         [[ $_is_nvmf == 0 ]] || return 255
         if [ ! -f /sys/class/fc/fc_udev_device/nvme_discovery ]; then
-            if [ ! -f /etc/nvme/discovery.conf ]; then
+            if [ ! -f /etc/nvme/discovery.conf ] && ! has_nbft; then
                 echo "No discovery arguments present"
                 return 255
             fi
