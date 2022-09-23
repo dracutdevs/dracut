@@ -9,6 +9,12 @@ exec > /dev/console 2>&1
 
 echo "dracut-root-block-success" | dd oflag=direct,dsync of=/dev/disk/by-id/ata-disk_marker
 
+if grep -qF ' rd.live.overlay=LABEL=persist ' /proc/cmdline; then
+    # Writing to a file in the root filesystem lets test_run() verify that the autooverlay module successfully created
+    # and formatted the overlay partition and that the dmsquash-live module used it when setting up the rootfs overlay.
+    echo "dracut-autooverlay-success" > /overlay-marker
+fi
+
 export TERM=linux
 export PS1='initramfs-test:\w\$ '
 [ -f /etc/mtab ] || ln -sfn /proc/mounts /etc/mtab
