@@ -11,9 +11,17 @@ udevadm control --reload
 set -e
 
 udevadm settle
-mkfs.ext4 -q -L dracut /dev/disk/by-id/ata-disk_root
+
+# create a single partition using 50% of the capacity of the image file created by test_setup() in test.sh
+sfdisk /dev/disk/by-id/ata-disk_root << EOF
+2048,161792
+EOF
+
+udevadm settle
+
+mkfs.ext4 -q -L dracut /dev/disk/by-id/ata-disk_root-part1
 mkdir -p /root
-mount /dev/disk/by-id/ata-disk_root /root
+mount /dev/disk/by-id/ata-disk_root-part1 /root
 mkdir -p /root/run /root/testdir
 cp -a -t /root /source/*
 echo "Creating squashfs"

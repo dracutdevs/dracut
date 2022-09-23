@@ -49,6 +49,7 @@ RUN dnf -y install --setopt=install_weak_deps=False \
     which \
     ShellCheck \
     shfmt \
+    parted \
     && dnf -y update && dnf clean all
 
 # Set default command

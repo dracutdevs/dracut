@@ -142,7 +142,7 @@ Requires: %{name} >= %{version}-%{dist_free_release}
 Requires: %{name} = %{version}-%{release}
 %endif
 Requires: %{name}-network = %{version}-%{release}
-Requires: tar gzip coreutils bash device-mapper curl
+Requires: tar gzip coreutils bash device-mapper curl parted
 %if 0%{?fedora}
 Requires: fuse ntfs-3g
 %endif
@@ -466,6 +466,7 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %files live
 %{dracutlibdir}/modules.d/99img-lib
 %{dracutlibdir}/modules.d/90dmsquash-live
+%{dracutlibdir}/modules.d/90dmsquash-live-autooverlay
 %{dracutlibdir}/modules.d/90dmsquash-live-ntfs
 %{dracutlibdir}/modules.d/90livenet
 

@@ -5,8 +5,9 @@ TEST_DESCRIPTION="live root on a squash filesystem"
 
 KVERSION="${KVERSION-$(uname -r)}"
 
-# Uncomment this to debug failures
-#DEBUGFAIL="rd.shell rd.debug loglevel=7"
+# Uncomment these to debug failures
+#DEBUGFAIL="rd.shell rd.debug rd.live.debug loglevel=7"
+#DEBUGTOOLS="setsid ls cat sfdisk"
 
 test_run() {
     dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
@@ -29,6 +30,27 @@ test_run() {
         -initrd "$TESTDIR"/initramfs.testing
 
     grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success -- "$TESTDIR"/marker.img || return 1
+
+    rootPartitions=$(sfdisk -d "$TESTDIR"/root.img | grep -c 'root\.img[0-9]')
+    [ "$rootPartitions" -eq 1 ] || return 1
+
+    "$testdir"/run-qemu \
+        "${disk_args[@]}" \
+        -boot order=d \
+        -append "rd.live.image rd.live.overlay.overlayfs=1 rd.live.overlay=LABEL=persist rd.live.dir=testdir root=LABEL=dracut console=ttyS0,115200n81 quiet selinux=0 rd.info rd.shell=0 panic=1 oops=panic softlockup_panic=1 $DEBUGFAIL" \
+        -initrd "$TESTDIR"/initramfs.testing-autooverlay
+
+    rootPartitions=$(sfdisk -d "$TESTDIR"/root.img | grep -c 'root\.img[0-9]')
+    [ "$rootPartitions" -eq 2 ] || return 1
+
+    (
+        # Ensure that this test works when run with the `V=1` parameter, which runs the script with `set -o pipefail`.
+        set +o pipefail
+
+        # Verify that the string "dracut-autooverlay-success" occurs in the second partition in the image file.
+        dd if="$TESTDIR"/root.img bs=1MiB skip=80 status=none \
+            | grep -U --binary-files=binary -F -m 1 -q dracut-autooverlay-success
+    ) || return 1
 }
 
 test_setup() {
@@ -55,7 +77,7 @@ test_setup() {
         ln -s dracut-util "${initdir}/usr/bin/dracut-getarg"
         ln -s dracut-util "${initdir}/usr/bin/dracut-getargs"
 
-        inst_multiple mkdir ln dd stty mount poweroff
+        inst_multiple mkdir ln dd stty mount poweroff grep "$DEBUGTOOLS"
 
         cp -a -- /etc/ld.so.conf* "$initdir"/etc
         ldconfig -r "$initdir"
@@ -121,6 +143,16 @@ test_setup() {
         --force "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 
     ls -sh "$TESTDIR"/initramfs.testing
+
+    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+        --modules "dmsquash-live-autooverlay qemu" \
+        --omit "rngd" \
+        --drivers "ext4 sd_mod" \
+        --no-hostonly --no-hostonly-cmdline \
+        --force "$TESTDIR"/initramfs.testing-autooverlay "$KVERSION" || return 1
+
+    ls -sh "$TESTDIR"/initramfs.testing-autooverlay
+
     rm -rf -- "$TESTDIR"/overlay
 }
 
