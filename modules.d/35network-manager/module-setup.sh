@@ -61,6 +61,7 @@ install() {
     inst_hook initqueue/settled 99 "$moddir/nm-run.sh"
 
     inst_rules 85-nm-unmanaged.rules
+    inst_libdir_dir "NetworkManager/$_nm_version"
     inst_libdir_file "NetworkManager/$_nm_version/libnm-device-plugin-team.so"
     inst_simple "$moddir/nm-lib.sh" "/lib/nm-lib.sh"
 
