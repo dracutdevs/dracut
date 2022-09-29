@@ -644,6 +644,22 @@ inst_any() {
     return 1
 }
 
+# inst_libdir_dir <dir> [<dir>...]
+# Install a <dir> located on a lib directory to the initramfs image
+inst_libdir_dir() {
+    local -a _dirs
+    for _dir in $libdirs; do
+        for _i in "$@"; do
+            for _d in "$dracutsysrootdir$_dir"/$_i; do
+                [[ -d $_d ]] && _dirs+=("${_d#"$dracutsysrootdir"}")
+            done
+        done
+    done
+    for _dir in "${_dirs[@]}"; do
+        inst_dir "$_dir"
+    done
+}
+
 # inst_libdir_file [-n <pattern>] <file> [<file>...]
 # Install a <file> located on a lib directory to the initramfs image
 # -n <pattern> install matching files
