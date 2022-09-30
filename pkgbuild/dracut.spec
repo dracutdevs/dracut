@@ -330,6 +330,7 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %{dracutlibdir}/modules.d/01systemd-journald
 %{dracutlibdir}/modules.d/01systemd-ldconfig
 %{dracutlibdir}/modules.d/01systemd-modules-load
+%{dracutlibdir}/modules.d/01systemd-portabled
 %{dracutlibdir}/modules.d/01systemd-pstore
 %{dracutlibdir}/modules.d/01systemd-repart
 %{dracutlibdir}/modules.d/01systemd-resolved
