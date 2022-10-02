@@ -165,7 +165,7 @@ test_setup() {
             mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
             mkdir -p -- var/lib/nfs/rpc_pipefs
         )
-        inst_multiple sh shutdown poweroff stty cat ps ln ip \
+        inst_multiple sh poweroff stty cat ps ln ip \
             mount dmesg mkdir cp ping grep setsid dd sync
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
@@ -241,7 +241,7 @@ test_setup() {
             mkdir -p dev sys proc etc var/run tmp var/lib/dhcpd /etc/iscsi
         )
         inst /etc/passwd /etc/passwd
-        inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
+        inst_multiple sh ls poweroff stty cat ps ln ip \
             dmesg mkdir cp ping modprobe tcpdump setsid \
             sleep mount chmod pidof
         inst_multiple tgtd tgtadm
@@ -321,7 +321,7 @@ test_setup() {
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
-        inst_multiple poweroff shutdown
+        inst_multiple poweroff
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
         inst_simple ./client.link /etc/systemd/network/01-client.link

@@ -70,7 +70,7 @@ test_setup() {
         ln -sfn /run "$initdir/var/run"
         ln -sfn /run/lock "$initdir/var/lock"
 
-        inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
+        inst_multiple sh df free ls poweroff stty cat ps ln ip \
             mount dmesg mkdir cp ping dd \
             umount strace less setsid systemctl reset sync
 
@@ -282,7 +282,7 @@ EOF
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
-        inst_multiple poweroff shutdown dd
+        inst_multiple poweroff dd
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
     )

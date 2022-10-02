@@ -237,7 +237,7 @@ test_setup() {
             [[ -f $srcmods/$_f ]] && inst_simple "$srcmods/$_f" "/lib/modules/$kernel/$_f"
         done
 
-        inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
+        inst_multiple sh ls poweroff stty cat ps ln ip \
             dmesg mkdir cp ping exportfs \
             modprobe rpc.nfsd rpc.mountd showmount tcpdump \
             /etc/services sleep mount chmod
@@ -289,7 +289,7 @@ test_setup() {
         export initdir=$TESTDIR/overlay/source/nfs/client
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
-        inst_multiple sh shutdown poweroff stty cat ps ln ip \
+        inst_multiple sh poweroff stty cat ps ln ip \
             mount dmesg mkdir cp ping grep ls sort dd
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [[ -f ${_terminfodir}/l/linux ]] && break
@@ -362,7 +362,7 @@ test_setup() {
         export initdir="$TESTDIR"/overlay
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
-        inst_multiple poweroff shutdown
+        inst_multiple poweroff
         inst_hook emergency 000 ./hard-off.sh
         inst_simple ./client.link /etc/systemd/network/01-client.link
     )

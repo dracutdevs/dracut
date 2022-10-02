@@ -211,7 +211,7 @@ make_encrypted_root() {
             mkdir -p dev sys proc etc run var/run tmp
         )
 
-        inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
+        inst_multiple sh df free ls poweroff stty cat ps ln ip \
             mount dmesg mkdir cp ping dd sync
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
@@ -292,7 +292,7 @@ make_client_root() {
             cd "$initdir" || exit
             mkdir -p dev sys proc etc run var/run tmp
         )
-        inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
+        inst_multiple sh ls poweroff stty cat ps ln ip \
             dmesg mkdir cp ping dd mount sync
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
@@ -385,7 +385,7 @@ exportname = /dev/disk/by-id/ata-disk_encrypted
 port = 2001
 bs = 4096
 EOF
-        inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
+        inst_multiple sh ls poweroff stty cat ps ln ip \
             dmesg mkdir cp ping grep \
             sleep nbd-server chmod modprobe vi pidof
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
@@ -469,7 +469,7 @@ test_setup() {
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
-        inst_multiple poweroff shutdown dd
+        inst_multiple poweroff dd
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst ./cryptroot-ask.sh /sbin/cryptroot-ask
 

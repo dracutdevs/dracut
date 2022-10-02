@@ -38,7 +38,7 @@ test_setup() {
             mkdir -p -- dev sys proc etc var/run tmp
             mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
         )
-        inst_multiple sh df free ls shutdown poweroff stty cat ps ln \
+        inst_multiple sh df free ls poweroff stty cat ps ln \
             mount dmesg mkdir cp dd sync
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
@@ -108,7 +108,7 @@ test_setup() {
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
-        inst_multiple poweroff shutdown dd
+        inst_multiple poweroff dd
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
         inst ./cryptroot-ask.sh /sbin/cryptroot-ask

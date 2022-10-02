@@ -36,7 +36,7 @@ test_setup() {
             mkdir -p -- dev sys proc etc var/run tmp
             mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
         )
-        inst_multiple sh df free ls shutdown poweroff stty cat ps ln \
+        inst_multiple sh df free ls poweroff stty cat ps ln \
             mount dmesg mkdir cp \
             umount strace less setsid systemd-analyze dd sync
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
@@ -102,7 +102,7 @@ test_setup() {
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
-        inst_multiple poweroff shutdown dd true
+        inst_multiple poweroff dd true
 
         inst_hook shutdown-emergency 000 ./hard-off.sh
 
