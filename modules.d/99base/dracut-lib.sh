@@ -956,11 +956,6 @@ emergency_shell() {
         _rdshell_name=$2
         action="Shutdown"
         hook="shutdown-emergency"
-        if type plymouth > /dev/null 2>&1; then
-            plymouth --hide-splash
-        elif [ -x /oldroot/bin/plymouth ]; then
-            /oldroot/bin/plymouth --hide-splash
-        fi
         shift 2
     fi
 

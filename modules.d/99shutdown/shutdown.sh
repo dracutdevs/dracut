@@ -149,6 +149,12 @@ while [ $_cnt -le 40 ]; do
 done
 [ $_cnt -ge 40 ] && _check_shutdown final
 
+if type plymouth > /dev/null 2>&1; then
+    plymouth --hide-splash
+elif [ -x /oldroot/bin/plymouth ]; then
+    /oldroot/bin/plymouth --hide-splash
+fi
+
 getarg 'rd.break=shutdown' && emergency_shell --shutdown shutdown "Break before shutdown"
 
 case "$ACTION" in
