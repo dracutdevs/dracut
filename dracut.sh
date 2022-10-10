@@ -805,7 +805,7 @@ while :; do
         --bzip2) compress_l="bzip2" ;;
         --lzma) compress_l="lzma" ;;
         --xz) compress_l="xz" ;;
-        --lzo) compress_l="lzo" ;;
+        --lzo) compress_l="lzop" ;;
         --lz4) compress_l="lz4" ;;
         --zstd) compress_l="zstd" ;;
         --no-compress) _no_compress_l="cat" ;;
