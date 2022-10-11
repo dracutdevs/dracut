@@ -166,7 +166,7 @@ else
             if [ $is_keysource -eq 0 ]; then
                 uuid=$luksid
                 while [ "$uuid" != "${uuid#*-}" ]; do uuid=${uuid%%-*}${uuid#*-}; done
-                printf -- '[ -e /dev/disk/by-id/dm-uuid-CRYPT-LUKS?-*%s*-* ] || exit 1\n' "$uuid" \
+                printf -- '[ -e /dev/disk/by-uuid/*%s* ] || exit 1\n' "$uuid" \
                     >> "$hookdir/initqueue/finished/90-crypt.sh"
                 {
                     printf -- '[ -e /dev/disk/by-uuid/*%s* ] || ' "$luksid"
