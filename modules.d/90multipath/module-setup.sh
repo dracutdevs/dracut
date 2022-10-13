@@ -137,6 +137,7 @@ install() {
             inst_simple "${moddir}/multipathd-configure.service" "${systemdsystemunitdir}/multipathd-configure.service"
             $SYSTEMCTL -q --root "$initdir" enable multipathd-configure.service
         fi
+        inst_simple "${systemdsystemunitdir}/multipathd.socket"
         inst_simple "${moddir}/multipathd.service" "${systemdsystemunitdir}/multipathd.service"
         $SYSTEMCTL -q --root "$initdir" enable multipathd.service
     else
