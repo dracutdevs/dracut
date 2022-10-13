@@ -5,16 +5,6 @@ installkernel() {
     local _blockfuncs='ahci_platform_get_resources|ata_scsi_ioctl|scsi_add_host|blk_cleanup_queue|register_mtd_blktrans|scsi_esp_register|register_virtio_device|usb_stor_disconnect|mmc_add_host|sdhci_add_host|scsi_add_host_with_dma|blk_mq_alloc_disk|blk_cleanup_disk'
     local -A _hostonly_drvs
 
-    find_kernel_modules_external() {
-        local a
-
-        [[ -f "$srcmods/modules.dep" ]] || return 0
-
-        while IFS=: read -r a _ || [[ $a ]]; do
-            [[ $a =~ ^/ ]] && printf "%s\n" "$a"
-        done < "$srcmods/modules.dep"
-    }
-
     record_block_dev_drv() {
 
         for _mod in $(get_dev_module /dev/block/"$1"); do
@@ -105,7 +95,7 @@ installkernel() {
                 "=drivers/scsi/hisi_sas"
         fi
 
-        find_kernel_modules_external | instmods
+        awk -F: '/^\// {print $1}' "$srcmods/modules.dep" 2> /dev/null | instmods
 
         # if not on hostonly mode, or there are hostonly block device
         # install block drivers
