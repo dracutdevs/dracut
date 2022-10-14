@@ -11,6 +11,11 @@ if ! [[ ${KERNEL_INSTALL_MACHINE_ID-x} ]]; then
     exit 0
 fi
 
+# unified kernel images already have an initrd included
+if [[ "$KERNEL_INSTALL_IMAGE_TYPE" == "uki" ]]; then
+    exit 0
+fi
+
 if [[ -d "$BOOT_DIR_ABS" ]]; then
     INITRD="initrd"
 else
