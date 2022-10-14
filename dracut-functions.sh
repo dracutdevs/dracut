@@ -268,9 +268,9 @@ get_devpath_block() {
 
 # get a persistent path from a device
 get_persistent_dev() {
-    local i _tmp _dev _pol
+    local _dev _pol
 
-    _dev=$(get_maj_min "$1")
+    _dev=$(stat -L -c $'%t:%T' "$1" 2> /dev/null)
     [ -z "$_dev" ] && return
 
     if [[ -n $persistent_policy ]]; then
@@ -279,7 +279,8 @@ get_persistent_dev() {
         _pol=
     fi
 
-    for i in \
+    # shellcheck disable=SC2086
+    printf '%s\0' \
         $_pol \
         /dev/mapper/* \
         /dev/disk/by-uuid/* \
@@ -287,17 +288,9 @@ get_persistent_dev() {
         /dev/disk/by-partuuid/* \
         /dev/disk/by-partlabel/* \
         /dev/disk/by-id/* \
-        /dev/disk/by-path/*; do
-        [[ -e $i ]] || continue
-        [[ $i == /dev/mapper/control ]] && continue
-        [[ $i == /dev/mapper/mpath* ]] && continue
-        _tmp=$(get_maj_min "$i")
-        if [ "$_tmp" = "$_dev" ]; then
-            printf -- "%s" "$i"
-            return
-        fi
-    done
-    printf -- "%s" "$1"
+        /dev/disk/by-path/* \
+        | xargs -0 stat -L -c $'%n\t%t:%T' 2> /dev/null \
+        | awk -v_dev="$_dev" -vdfl="$1" '$0 ~ ("\t" _dev "$") {--NF; print; dfl=0; exit}  END {if(dfl) print dfl}'
 }
 
 expand_persistent_dev() {
