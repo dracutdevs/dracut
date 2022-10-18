@@ -89,7 +89,7 @@ install() {
         rule_path="${initdir}${udevdir}/rules.d/${rule}"
         # shellcheck disable=SC2016
         [ -f "${rule_path}" ] && sed -i -r \
-            -e '/(RUN|IMPORT\{program\})\+?="[[:alpha:]/]*mdadm[[:blank:]]+(--incremental|-I)[[:blank:]]+(--export )?(\$env\{DEVNAME\}|\$tempnode|\$devnode)/d' \
+            -e '/(RUN|IMPORT\{program\})\+?="[[:alpha:]]*mdadm[[:blank:]]+(--incremental|-I)[[:blank:]]+(--export )?(\$env\{DEVNAME\}|\$tempnode|\$devnode)/d' \
             "${rule_path}"
     done
 
