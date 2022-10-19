@@ -5,6 +5,10 @@ check() {
     return 255
 }
 
+depends() {
+    echo "debug"
+}
+
 install() {
     inst_simple /etc/os-release
 
