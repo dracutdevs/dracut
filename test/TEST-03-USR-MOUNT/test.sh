@@ -64,8 +64,7 @@ test_setup() {
 
         mv "$TESTDIR"/overlay/tmp/dracut.*/initramfs/* "$initdir" && rm -rf "$TESTDIR"/overlay/tmp
 
-        inst_multiple sh df free ls cat ps \
-            dmesg cp umount strace less setsid sync grep df
+        inst_multiple sh dmesg umount strace setsid sync
 
         inst_simple ./fstab /etc/fstab
         find_binary plymouth > /dev/null && inst_multiple plymouth
