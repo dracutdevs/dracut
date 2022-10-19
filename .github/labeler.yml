@@ -291,3 +291,5 @@ uefi-lib:
 test:
   - test/*
   - test/**/*
+  - modules.d/80test*
+  - modules.d/80test*/*
