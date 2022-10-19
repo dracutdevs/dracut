@@ -56,6 +56,7 @@ test_setup() {
         "$basedir"/dracut.sh -l --keep --tmpdir "$TESTDIR"/overlay/tmp \
             -m "test-root" \
             -i ./test-init.sh /sbin/init \
+            -i ./fstab /etc/fstab \
             -i "${basedir}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh" \
             -i "${basedir}/modules.d/99base/dracut-dev-lib.sh" "/lib/dracut-dev-lib.sh" \
             --no-hostonly --no-hostonly-cmdline --nomdadmconf --nohardlink \
@@ -64,8 +65,6 @@ test_setup() {
         mv "$TESTDIR"/overlay/tmp/dracut.*/initramfs/* "$initdir" && rm -rf "$TESTDIR"/overlay/tmp
 
         inst_multiple sh dmesg umount strace setsid sync
-
-        inst_simple ./fstab /etc/fstab
     )
 
     # second, install the files needed to make the root filesystem
