@@ -90,7 +90,6 @@ test_setup() {
         . "$basedir"/dracut-init.sh
         inst_multiple sfdisk mkfs.btrfs btrfs
         inst_hook initqueue 01 ./create-root.sh
-        inst_hook initqueue/finished 01 ./finished-false.sh
     )
 
     # create an initramfs that will create the target root filesystem.
