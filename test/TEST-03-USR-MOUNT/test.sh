@@ -46,26 +46,17 @@ test_run() {
 
 test_setup() {
     # Create what will eventually be our root filesystem onto an overlay
-    (
-        # shellcheck disable=SC2030
-        export initdir=$TESTDIR/overlay/source
-        mkdir -p -- "$initdir" "$TESTDIR"/overlay/tmp
-        # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+    mkdir -p -- "$TESTDIR"/overlay/source "$TESTDIR"/overlay/tmp
 
-        "$basedir"/dracut.sh -l --keep --tmpdir "$TESTDIR"/overlay/tmp \
-            -m "test-root" \
-            -i ./test-init.sh /sbin/init \
-            -i ./fstab /etc/fstab \
-            -i "${basedir}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh" \
-            -i "${basedir}/modules.d/99base/dracut-dev-lib.sh" "/lib/dracut-dev-lib.sh" \
-            --no-hostonly --no-hostonly-cmdline --nomdadmconf --nohardlink \
-            -f "$TESTDIR"/initramfs.root "$KVERSION" || return 1
-
-        mv "$TESTDIR"/overlay/tmp/dracut.*/initramfs/* "$initdir" && rm -rf "$TESTDIR"/overlay/tmp
-
-        inst_multiple sh umount setsid sync
-    )
+    "$basedir"/dracut.sh -l --keep --tmpdir "$TESTDIR"/overlay/tmp \
+        -m "test-root" \
+        -i ./test-init.sh /sbin/init \
+        -i ./fstab /etc/fstab \
+        -i "${basedir}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh" \
+        -i "${basedir}/modules.d/99base/dracut-dev-lib.sh" "/lib/dracut-dev-lib.sh" \
+        --no-hostonly --no-hostonly-cmdline --nomdadmconf --nohardlink \
+        -f "$TESTDIR"/initramfs.root "$KVERSION" || return 1
+    mv "$TESTDIR"/overlay/tmp/dracut.*/initramfs/* "$TESTDIR"/overlay/source && rm -rf "$TESTDIR"/overlay/tmp
 
     # second, install the files needed to make the root filesystem
     (
