@@ -64,7 +64,7 @@ test_setup() {
 
         mv "$TESTDIR"/overlay/tmp/dracut.*/initramfs/* "$initdir" && rm -rf "$TESTDIR"/overlay/tmp
 
-        inst_multiple sh dmesg umount strace setsid sync
+        inst_multiple sh umount setsid sync
     )
 
     # second, install the files needed to make the root filesystem
