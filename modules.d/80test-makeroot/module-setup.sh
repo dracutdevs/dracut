@@ -8,3 +8,7 @@ check() {
 depends() {
     echo "qemu"
 }
+
+install() {
+    inst_multiple poweroff cp umount sync dd
+}

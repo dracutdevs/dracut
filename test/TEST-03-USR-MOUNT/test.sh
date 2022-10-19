@@ -88,7 +88,7 @@ test_setup() {
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
-        inst_multiple sfdisk mkfs.btrfs btrfs poweroff cp umount sync dd
+        inst_multiple sfdisk mkfs.btrfs btrfs
         inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
     )
