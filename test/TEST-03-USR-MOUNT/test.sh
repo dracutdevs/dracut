@@ -97,7 +97,7 @@ test_setup() {
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
-        -m "dash btrfs rootfs-block kernel-modules qemu" \
+        -m "test-makeroot dash btrfs rootfs-block kernel-modules" \
         -d "piix ide-gd_mod ata_piix btrfs sd_mod" \
         --nomdadmconf \
         --nohardlink \
