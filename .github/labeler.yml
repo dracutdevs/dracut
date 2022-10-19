@@ -141,6 +141,9 @@ multipath:
 nvdimm:
   - modules.d/90nvdimm/*
 
+overlayfs:
+  - modules.d/90overlayfs/*
+
 ppcmac:
   - modules.d/90ppcmac/*
 
