@@ -21,9 +21,6 @@ modules:
 bash:
   - modules.d/00bash/*
 
-bootchart:
-  - modules.d/00bootchart/*
-
 dash:
   - modules.d/00dash/*
 
@@ -152,9 +149,6 @@ qemu:
 
 qemu-net:
   - modules.d/90qemu-net/*
-
-stratis:
-  - modules.d/90stratis/*
 
 crypt-gpg:
   - modules.d/91crypt-gpg/*
