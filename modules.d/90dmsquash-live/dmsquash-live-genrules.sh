@@ -15,7 +15,4 @@ case "$root" in
             /sbin/initqueue --settled --onetime --unique /sbin/dmsquash-live-root "${root#live:}"
         fi
         ;;
-    nfs*)
-        cp /sbin/mount-overlayfs "$hookdir/mount/99-mount-overlayfs.sh"
-        ;;
 esac

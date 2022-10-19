@@ -425,9 +425,6 @@ if [ -n "$overlayfs" ]; then
     else
         ln -sf /run/initramfs/live /run/rootfsbase
     fi
-    if [ -z "$DRACUT_SYSTEMD" ]; then
-        ln -sf /sbin/mount-overlayfs "$hookdir"/mount/01-$$-live.sh
-    fi
 else
     if [ -z "$DRACUT_SYSTEMD" ]; then
         [ -n "$ROOTFLAGS" ] && ROOTFLAGS="-o $ROOTFLAGS"
