@@ -10,6 +10,8 @@ fi
 echo "TESTDIR=\"$TESTDIR\"" > .testdir${TEST_RUN_ID:+-$TEST_RUN_ID}
 export TESTDIR
 
+if [[ -z $basedir ]]; then basedir="$(realpath ../..)"; fi
+
 command -v test_check &> /dev/null || test_check() {
     :
 }
