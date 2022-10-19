@@ -50,14 +50,20 @@ test_setup() {
     (
         # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay/source
-        mkdir -p "$initdir"
+        mkdir -p -- "$initdir" "$TESTDIR"/overlay/tmp
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
-        (
-            cd "$initdir" || exit
-            mkdir -p -- dev sys proc etc var/run tmp
-            mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
-        )
+
+        "$basedir"/dracut.sh -l --keep --tmpdir "$TESTDIR"/overlay/tmp \
+            -m "test-root" \
+            -i ./test-init.sh /sbin/init \
+            -i "${basedir}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh" \
+            -i "${basedir}/modules.d/99base/dracut-dev-lib.sh" "/lib/dracut-dev-lib.sh" \
+            --no-hostonly --no-hostonly-cmdline --nomdadmconf --nohardlink \
+            -f "$TESTDIR"/initramfs.root "$KVERSION" || return 1
+
+        mv "$TESTDIR"/overlay/tmp/dracut.*/initramfs/* "$initdir" && rm -rf "$TESTDIR"/overlay/tmp
+
         inst_multiple sh df free ls poweroff stty cat ps ln \
             mount dmesg mkdir cp \
             umount strace less setsid dd sync
@@ -66,8 +72,6 @@ test_setup() {
         done
         inst_multiple -o ${_terminfodir}/l/linux
 
-        inst_simple "${basedir}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh"
-        inst_simple "${basedir}/modules.d/99base/dracut-dev-lib.sh" "/lib/dracut-dev-lib.sh"
         inst_binary "${basedir}/dracut-util" "/usr/bin/dracut-util"
         ln -s dracut-util "${initdir}/usr/bin/dracut-getarg"
         ln -s dracut-util "${initdir}/usr/bin/dracut-getargs"
@@ -75,7 +79,6 @@ test_setup() {
         inst_multiple grep df
         inst_simple ./fstab /etc/fstab
         inst_simple /etc/os-release
-        inst ./test-init.sh /sbin/init
         find_binary plymouth > /dev/null && inst_multiple plymouth
         cp -a /etc/ld.so.conf* "$initdir"/etc
         ldconfig -r "$initdir"
