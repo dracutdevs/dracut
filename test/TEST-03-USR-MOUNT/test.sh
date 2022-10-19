@@ -64,21 +64,10 @@ test_setup() {
 
         mv "$TESTDIR"/overlay/tmp/dracut.*/initramfs/* "$initdir" && rm -rf "$TESTDIR"/overlay/tmp
 
-        inst_multiple sh df free ls poweroff stty cat ps ln \
-            mount dmesg mkdir cp \
-            umount strace less setsid dd sync
-        for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
-            [ -f ${_terminfodir}/l/linux ] && break
-        done
-        inst_multiple -o ${_terminfodir}/l/linux
+        inst_multiple sh df free ls cat ps \
+            dmesg cp umount strace less setsid sync grep df
 
-        inst_binary "${basedir}/dracut-util" "/usr/bin/dracut-util"
-        ln -s dracut-util "${initdir}/usr/bin/dracut-getarg"
-        ln -s dracut-util "${initdir}/usr/bin/dracut-getargs"
-
-        inst_multiple grep df
         inst_simple ./fstab /etc/fstab
-        inst_simple /etc/os-release
         find_binary plymouth > /dev/null && inst_multiple plymouth
         cp -a /etc/ld.so.conf* "$initdir"/etc
         ldconfig -r "$initdir"
