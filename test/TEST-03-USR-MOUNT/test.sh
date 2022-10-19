@@ -45,7 +45,6 @@ test_run() {
 }
 
 test_setup() {
-    kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     (
         # shellcheck disable=SC2030
