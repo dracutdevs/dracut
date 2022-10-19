@@ -69,8 +69,6 @@ test_setup() {
 
         inst_simple ./fstab /etc/fstab
         find_binary plymouth > /dev/null && inst_multiple plymouth
-        cp -a /etc/ld.so.conf* "$initdir"/etc
-        ldconfig -r "$initdir"
     )
 
     # second, install the files needed to make the root filesystem
