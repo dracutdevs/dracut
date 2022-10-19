@@ -329,6 +329,7 @@ test_setup() {
         rm "$initdir"/etc/systemd/network/01-client.link
         inst_simple ./server.link /etc/systemd/network/01-server.link
         inst_hook pre-mount 99 ./wait-if-server.sh
+        inst_multiple sysctl
     )
     # Make server's dracut image
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
