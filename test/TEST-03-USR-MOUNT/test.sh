@@ -132,9 +132,7 @@ test_setup() {
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
-        inst_multiple poweroff dd
-        inst_hook shutdown-emergency 000 ./hard-off.sh
-        inst_hook emergency 000 ./hard-off.sh
+        inst_multiple dd
     )
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -a "test watchdog" \
