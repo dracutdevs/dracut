@@ -22,4 +22,6 @@ install() {
     inst_binary "${dracutbasedir}/dracut-util" "/usr/bin/dracut-util"
     ln -s dracut-util "${initdir}/usr/bin/dracut-getarg"
     ln -s dracut-util "${initdir}/usr/bin/dracut-getargs"
+
+    inst_multiple -o plymouth
 }

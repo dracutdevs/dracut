@@ -66,7 +66,6 @@ test_setup() {
         inst_multiple sh dmesg umount strace setsid sync
 
         inst_simple ./fstab /etc/fstab
-        find_binary plymouth > /dev/null && inst_multiple plymouth
     )
 
     # second, install the files needed to make the root filesystem
