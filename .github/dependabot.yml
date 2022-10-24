@@ -4,11 +4,11 @@ version: 2
   updates:
     - package-ecosystem: "github-actions"
       directory: "/"
-      schedule: 
-       interval: weekly
-       day: "tuesday"
+      schedule:
+        interval: weekly
+        day: "tuesday"
       commit-message:
         prefix: "chore(github):"
         include: "scope"
-      ignore:
-        - dependency-name: "Manual test"
+          #ignore:
+          ##- dependency-name: "Manual test"
