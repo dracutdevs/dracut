@@ -266,6 +266,7 @@ Creates initial ramdisk images for preloading modules
   --no-uefi             Disables UEFI mode.
   --no-machineid        Affects the default output filename of the UEFI
                          executable, discarding the <MACHINE_ID> part.
+  --uefi-outdir [DIR]   Create the UEFI executable in [DIR].
   --uefi-stub [FILE]    Use the UEFI stub [FILE] to create an UEFI executable.
   --uefi-splash-image [FILE]
                         Use [FILE] as a splash image when creating an UEFI
@@ -459,6 +460,7 @@ rearrange_params() {
             --long loginstall: \
             --long uefi \
             --long no-uefi \
+            --long uefi-outdir: \
             --long uefi-stub: \
             --long uefi-splash-image: \
             --long kernel-image: \
@@ -824,6 +826,11 @@ while :; do
         --no-reproducible) reproducible_l="no" ;;
         --uefi) uefi_l="yes" ;;
         --no-uefi) uefi_l="no" ;;
+        --uefi-outdir)
+            uefi_outdir_l="$2"
+            PARMS_TO_STORE+=" '$2'"
+            shift
+            ;;
         --uefi-stub)
             uefi_stub_l="$2"
             PARMS_TO_STORE+=" '$2'"
@@ -1073,6 +1080,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $reproducible_l ]] && reproducible="$reproducible_l"
 [[ $loginstall_l ]] && loginstall="$loginstall_l"
 [[ $uefi_l ]] && uefi=$uefi_l
+[[ $uefi_outdir_l ]] && uefi_outdir="$uefi_outdir_l"
 [[ $uefi_stub_l ]] && uefi_stub="$uefi_stub_l"
 [[ $uefi_splash_image_l ]] && uefi_splash_image="$uefi_splash_image_l"
 [[ $kernel_image_l ]] && kernel_image="$kernel_image_l"
@@ -1107,23 +1115,26 @@ if ! [[ $outfile ]]; then
             | while read -r line || [[ $line ]]; do
                 [[ $line =~ BUILD_ID\=* ]] && eval "$line" && echo "$BUILD_ID" && break
             done)
-        if [[ -z $dracutsysrootdir ]]; then
-            if [[ -d /efi ]] && mountpoint -q /efi; then
-                efidir=/efi/EFI
+        if [[ -z $uefi_outdir ]]; then
+            if [[ -z $dracutsysrootdir ]]; then
+                if [[ -d /efi ]] && mountpoint -q /efi; then
+                    uefi_outdir=/efi/EFI
+                else
+                    uefi_outdir=/boot/EFI
+                    if [[ -d /boot/efi/EFI ]]; then
+                        uefi_outdir=/boot/efi/EFI
+                    fi
+                fi
             else
-                efidir=/boot/EFI
-                if [[ -d /boot/efi/EFI ]]; then
-                    efidir=/boot/efi/EFI
+                uefi_outdir=/boot/EFI
+                if [[ -d $dracutsysrootdir/boot/efi/EFI ]]; then
+                    uefi_outdir=/boot/efi/EFI
                 fi
             fi
-        else
-            efidir=/boot/EFI
-            if [[ -d $dracutsysrootdir/boot/efi/EFI ]]; then
-                efidir=/boot/efi/EFI
-            fi
+            uefi_outdir="$uefi_outdir/Linux"
         fi
-        mkdir -p "$dracutsysrootdir$efidir/Linux"
-        outfile="$dracutsysrootdir$efidir/Linux/linux-$kernel${MACHINE_ID:+-${MACHINE_ID}}${BUILD_ID:+-${BUILD_ID}}.efi"
+        mkdir -p "$dracutsysrootdir$uefi_outdir"
+        outfile="$dracutsysrootdir$uefi_outdir/linux-$kernel${MACHINE_ID:+-${MACHINE_ID}}${BUILD_ID:+-${BUILD_ID}}.efi"
     else
         if [[ -d "$dracutsysrootdir"/efi/loader/entries || -L "$dracutsysrootdir"/efi/loader/entries ]] \
             && [[ $MACHINE_ID ]] \
@@ -2420,8 +2431,8 @@ fi
 dinfo "*** Creating image file '$outfile' ***"
 
 if [[ $uefi == yes ]]; then
-    readonly uefi_outdir="$DRACUT_TMPDIR/uefi"
-    mkdir -p "$uefi_outdir"
+    readonly uefi_tmpdir="$DRACUT_TMPDIR/uefi"
+    mkdir -p "$uefi_tmpdir"
 fi
 
 if [[ $DRACUT_REPRODUCIBLE ]]; then
@@ -2590,23 +2601,23 @@ umask 077
 
 if [[ $uefi == yes ]]; then
     if [[ $kernel_cmdline ]]; then
-        echo -n "$kernel_cmdline" > "$uefi_outdir/cmdline.txt"
+        echo -n "$kernel_cmdline" > "$uefi_tmpdir/cmdline.txt"
     elif [[ $hostonly_cmdline == yes ]]; then
         if [ -d "$initdir/etc/cmdline.d" ]; then
             for conf in "$initdir"/etc/cmdline.d/*.conf; do
                 [ -e "$conf" ] || continue
-                printf "%s " "$(< "$conf")" >> "$uefi_outdir/cmdline.txt"
+                printf "%s " "$(< "$conf")" >> "$uefi_tmpdir/cmdline.txt"
             done
         elif [ -e "/proc/cmdline" ]; then
-            printf "%s " "$(< "/proc/cmdline")" > "$uefi_outdir/cmdline.txt"
+            printf "%s " "$(< "/proc/cmdline")" > "$uefi_tmpdir/cmdline.txt"
         fi
     fi
 
-    if [[ $kernel_cmdline ]] || [[ $hostonly_cmdline == yes && -e "${uefi_outdir}/cmdline.txt" ]]; then
-        echo -ne "\x00" >> "$uefi_outdir/cmdline.txt"
+    if [[ $kernel_cmdline ]] || [[ $hostonly_cmdline == yes && -e "${uefi_tmpdir}/cmdline.txt" ]]; then
+        echo -ne "\x00" >> "$uefi_tmpdir/cmdline.txt"
         dinfo "Using UEFI kernel cmdline:"
-        dinfo "$(tr -d '\000' < "$uefi_outdir/cmdline.txt")"
-        uefi_cmdline="${uefi_outdir}/cmdline.txt"
+        dinfo "$(tr -d '\000' < "$uefi_tmpdir/cmdline.txt")"
+        uefi_cmdline="${uefi_tmpdir}/cmdline.txt"
     else
         unset uefi_cmdline
     fi
@@ -2625,20 +2636,20 @@ if [[ $uefi == yes ]]; then
         ${uefi_splash_image:+--add-section .splash="$uefi_splash_image" --change-section-vma .splash=0x40000} \
         --add-section .linux="$kernel_image" --change-section-vma .linux=0x2000000 \
         --add-section .initrd="${DRACUT_TMPDIR}/initramfs.img" --change-section-vma .initrd="${EFI_SECTION_VMA_INITRD}" \
-        "$uefi_stub" "${uefi_outdir}/linux.efi"; then
+        "$uefi_stub" "${uefi_tmpdir}/linux.efi"; then
         if [[ -n ${uefi_secureboot_key} && -n ${uefi_secureboot_cert} ]]; then
             if sbsign \
                 ${uefi_secureboot_engine:+--engine "$uefi_secureboot_engine"} \
                 --key "${uefi_secureboot_key}" \
                 --cert "${uefi_secureboot_cert}" \
-                --output "$outfile" "${uefi_outdir}/linux.efi"; then
+                --output "$outfile" "${uefi_tmpdir}/linux.efi"; then
                 dinfo "*** Creating signed UEFI image file '$outfile' done ***"
             else
                 dfatal "*** Creating signed UEFI image file '$outfile' failed ***"
                 exit 1
             fi
         else
-            if cp --reflink=auto "${uefi_outdir}/linux.efi" "$outfile"; then
+            if cp --reflink=auto "${uefi_tmpdir}/linux.efi" "$outfile"; then
                 dinfo "*** Creating UEFI image file '$outfile' done ***"
             fi
         fi
