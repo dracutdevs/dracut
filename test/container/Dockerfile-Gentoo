@@ -3,7 +3,7 @@ FROM docker.io/gentoo/portage:latest as portage
 # kernel and its dependencies in a separate builder
 FROM docker.io/gentoo/stage3:musl as kernel
 COPY --from=portage /var/db/repos/gentoo /var/db/repos/gentoo
-RUN emerge -qv virtual/dist-kernel
+RUN emerge -qv sys-kernel/gentoo-kernel-bin
 
 FROM docker.io/gentoo/stage3:musl
 COPY --from=portage /var/db/repos/gentoo /var/db/repos/gentoo
