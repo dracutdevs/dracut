@@ -106,7 +106,8 @@ install() {
         /etc/xdrdevices.conf \
         /etc/multipath.conf \
         /etc/multipath/* \
-        "$config_dir"/*
+        "$config_dir"/* \
+        "$tmpfilesdir/multipath.conf"
 
     mpathconf_installed \
         && [[ $hostonly ]] && [[ $hostonly_mode == "strict" ]] && {
