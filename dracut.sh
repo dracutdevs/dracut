@@ -1031,6 +1031,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 ((stdloglvl < 0)) && stdloglvl=0
 
 [[ $drivers_dir_l ]] && drivers_dir=$drivers_dir_l
+drivers_dir="${drivers_dir%%+(/)}"
 [[ $do_strip_l ]] && do_strip=$do_strip_l
 [[ $do_strip ]] || do_strip=yes
 [[ $aggressive_strip_l ]] && aggressive_strip=$aggressive_strip_l
@@ -1204,20 +1205,25 @@ esac
 
 [[ $reproducible == yes ]] && DRACUT_REPRODUCIBLE=1
 
-case "${drivers_dir}" in
-    '' | *lib/modules/${kernel} | *lib/modules/${kernel}/) ;;
-    *)
-        [[ "$DRACUT_KMODDIR_OVERRIDE" ]] || {
-            printf "%s\n" 'dracut: -k/--kmoddir path must contain "lib/modules" as a parent of your kernel module directory,'
-            printf "%s\n" "dracut: or modules may not be placed in the correct location inside the initramfs."
-            printf "%s\n" "dracut: was given: ${drivers_dir}"
-            printf "%s\n" "dracut: expected: $(dirname "${drivers_dir}")/lib/modules/${kernel}"
-            printf "%s\n" "dracut: Please move your modules into the correct directory structure and pass the new location,"
-            printf "%s\n" "dracut: or set DRACUT_KMODDIR_OVERRIDE=1 to ignore this check."
-            exit 1
-        }
-        ;;
-esac
+if [[ -z $DRACUT_KMODDIR_OVERRIDE && -n $drivers_dir ]]; then
+    drivers_basename="${drivers_dir##*/}"
+    if [[ -n $drivers_basename && $drivers_basename != "$kernel" ]]; then
+        printf "%s\n" "dracut: The provided directory where to look for kernel modules ($drivers_basename)" >&2
+        printf "%s\n" "dracut: does not match the kernel version set for the initramfs ($kernel)." >&2
+        printf "%s\n" "dracut: Set DRACUT_KMODDIR_OVERRIDE=1 to ignore this check." >&2
+        exit 1
+    fi
+    drivers_dirname="${drivers_dir%/*}/"
+    if [[ ! $drivers_dirname =~ .*/lib/modules/$ ]]; then
+        printf "%s\n" "dracut: drivers_dir path ${drivers_dir_l:+"set via -k/--kmoddir "}must contain \"/lib/modules/\" as a parent of your kernel module directory," >&2
+        printf "%s\n" "dracut: or modules may not be placed in the correct location inside the initramfs." >&2
+        printf "%s\n" "dracut: was given: ${drivers_dir}" >&2
+        printf "%s\n" "dracut: expected: ${drivers_dirname}lib/modules/${kernel}" >&2
+        printf "%s\n" "dracut: Please move your modules into the correct directory structure and pass the new location," >&2
+        printf "%s\n" "dracut: or set DRACUT_KMODDIR_OVERRIDE=1 to ignore this check." >&2
+        exit 1
+    fi
+fi
 
 # shellcheck disable=SC2155
 readonly TMPDIR="$(realpath -e "$tmpdir")"
