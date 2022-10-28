@@ -22,9 +22,6 @@ install() {
         && inst_hook pre-udev 30 "$moddir/dm-pre-udev.sh"
 
     inst_multiple dmsetup
-    inst_multiple -o dmeventd
-
-    inst_libdir_file "libdevmapper-event.so*"
 
     inst_rules 10-dm.rules 13-dm-disk.rules 95-dm-notify.rules
     # Gentoo ebuild for LVM2 prior to 2.02.63-r1 doesn't install above rules
