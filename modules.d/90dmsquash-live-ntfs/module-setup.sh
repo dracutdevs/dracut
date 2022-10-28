@@ -1,7 +1,5 @@
 #!/bin/bash
 
-command -v
-
 check() {
     require_binaries ntfs-3g || return 1
     return 255
