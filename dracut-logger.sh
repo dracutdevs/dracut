@@ -151,7 +151,7 @@ dlog_init() {
             readonly _dlogfd=15
             systemd-cat -t 'dracut' --level-prefix=true < "$_systemdcatfile" &
             exec 15> "$_systemdcatfile"
-        elif ! [[ -S /dev/log ]] && [[ -w /dev/log ]] || ! command -v logger > /dev/null; then
+        elif ! ([[ -S /dev/log ]] && [[ -w /dev/log ]] && command -v logger > /dev/null); then
             # We cannot log to syslog, so turn this facility off.
             kmsgloglvl=$sysloglvl
             sysloglvl=0
