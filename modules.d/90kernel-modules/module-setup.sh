@@ -60,7 +60,7 @@ installkernel() {
 
         if [[ ${DRACUT_ARCH:-$(uname -m)} == arm* || ${DRACUT_ARCH:-$(uname -m)} == aarch64 || ${DRACUT_ARCH:-$(uname -m)} == riscv* ]]; then
             # arm/aarch64 specific modules
-            _blockfuncs+='|dw_mc_probe|dw_mci_pltfm_register'
+            _blockfuncs+='|dw_mc_probe|dw_mci_pltfm_register|nvme_init_ctrl'
             instmods \
                 "=drivers/clk" \
                 "=drivers/devfreq" \
