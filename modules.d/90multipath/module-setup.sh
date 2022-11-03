@@ -91,7 +91,6 @@ install() {
 
     inst_multiple \
         pkill \
-        pidof \
         kpartx \
         dmsetup \
         multipath \
