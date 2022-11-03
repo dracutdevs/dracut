@@ -383,6 +383,7 @@ find_block_device() {
         } && return 0
     fi
     # fall back to /etc/fstab
+    [[ ! -f "$dracutsysrootdir"/etc/fstab ]] && return 1
 
     findmnt -e --fstab -v -n -o 'MAJ:MIN,SOURCE' --target "$_find_mpt" | {
         while read -r _majmin _dev || [ -n "$_dev" ]; do
@@ -433,6 +434,8 @@ find_mp_fstype() {
         } && return 0
     fi
 
+    [[ ! -f "$dracutsysrootdir"/etc/fstab ]] && return 1
+
     findmnt --fstab -e -v -n -o 'FSTYPE' --target "$1" | {
         while read -r _fs || [ -n "$_fs" ]; do
             [[ $_fs ]] || continue
@@ -473,6 +476,8 @@ find_dev_fstype() {
         } && return 0
     fi
 
+    [[ ! -f "$dracutsysrootdir"/etc/fstab ]] && return 1
+
     findmnt --fstab -e -v -n -o 'FSTYPE' --source "$_find_dev" | {
         while read -r _fs || [ -n "$_fs" ]; do
             [[ $_fs ]] || continue
@@ -499,6 +504,8 @@ find_mp_fsopts() {
         findmnt -e -v -n -o 'OPTIONS' --target "$1" 2> /dev/null && return 0
     fi
 
+    [[ ! -f "$dracutsysrootdir"/etc/fstab ]] && return 1
+
     findmnt --fstab -e -v -n -o 'OPTIONS' --target "$1"
 }
 
@@ -521,6 +528,8 @@ find_dev_fsopts() {
     if [[ $use_fstab != yes ]]; then
         findmnt -e -v -n -o 'OPTIONS' --source "$_find_dev" 2> /dev/null && return 0
     fi
+
+    [[ ! -f "$dracutsysrootdir"/etc/fstab ]] && return 1
 
     findmnt --fstab -e -v -n -o 'OPTIONS' --source "$_find_dev"
 }
