@@ -1,5 +1,7 @@
 #!/bin/sh
 
+type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
+
 if [ "$(getarg rd.multipath)" = "default" ] && [ ! -e /etc/multipath.conf ]; then
     # mpathconf requires /etc/multipath to already exist
     mkdir -p /etc/multipath
