@@ -30,7 +30,13 @@ dropindirs_sort() {
     done
 }
 
-[[ -f /etc/os-release ]] && . /etc/os-release
+if [[ -f /etc/os-release ]]; then
+    . /etc/os-release
+elif [[ -f /usr/lib/os-release ]]; then
+    . /usr/lib/os-release
+fi
+
+[[ -n $PRETTY_NAME ]] || PRETTY_NAME="Linux $KERNEL_VERSION"
 
 if [[ ${KERNEL_INSTALL_MACHINE_ID+x} ]]; then
     MACHINE_ID=$KERNEL_INSTALL_MACHINE_ID
