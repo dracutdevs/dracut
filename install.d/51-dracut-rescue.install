@@ -58,7 +58,7 @@ fi
 
 if [[ -d ${BOOT_DIR_ABS%/*} ]]; then
     BOOT_DIR="/${MACHINE_ID}/0-rescue"
-    BOOT_ROOT=${BOOT_DIR_ABS%$BOOT_DIR}
+    BOOT_ROOT=${BOOT_DIR_ABS%"$BOOT_DIR"}
     LOADER_ENTRY="$BOOT_ROOT/loader/entries/${MACHINE_ID}-0-rescue.conf"
     KERNEL="linux"
     INITRD="initrd"

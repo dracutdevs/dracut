@@ -58,7 +58,7 @@ case "$COMMAND" in
 
         dracut -f \
             ${noimageifnotneeded:+--noimageifnotneeded} \
-            $([[ $KERNEL_INSTALL_VERBOSE == 1 ]] && echo --verbose) \
+            "$([[ $KERNEL_INSTALL_VERBOSE == 1 ]] && echo --verbose)" \
             "$BOOT_DIR_ABS/$INITRD" \
             "$KERNEL_VERSION"
         ret=$?
