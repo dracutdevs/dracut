@@ -123,11 +123,6 @@ case "$COMMAND" in
     remove)
         exit 0
         ;;
-
-    *)
-        usage
-        ret=1
-        ;;
 esac
 
 exit $ret
