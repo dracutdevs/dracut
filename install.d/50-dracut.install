@@ -11,7 +11,7 @@ if ! [[ ${KERNEL_INSTALL_MACHINE_ID-x} ]]; then
     exit 0
 fi
 
-if [[ -d "$BOOT_DIR_ABS" ]]; then
+if [[ -d $BOOT_DIR_ABS ]]; then
     INITRD="initrd"
 else
     BOOT_DIR_ABS="/boot"
@@ -19,6 +19,7 @@ else
 fi
 
 ret=0
+
 case "$COMMAND" in
     add)
         INITRD_IMAGE_PREGENERATED=${KERNEL_IMAGE%/*}/initrd
@@ -40,14 +41,14 @@ case "$COMMAND" in
 
             read -r -d '' -a line < /proc/cmdline
             for i in "${line[@]}"; do
-                [[ "${i#initrd=*}" != "$i" ]] && continue
+                [[ ${i#initrd=*} != "$i" ]] && continue
                 BOOT_OPTIONS+=("$i")
             done
         fi
 
         unset noimageifnotneeded
 
-        for ((i=0; i < "${#BOOT_OPTIONS[@]}"; i++)); do
+        for ((i = 0; i < "${#BOOT_OPTIONS[@]}"; i++)); do
             # shellcheck disable=SC1001
             if [[ ${BOOT_OPTIONS[$i]} == root\=PARTUUID\=* ]]; then
                 noimageifnotneeded="yes"
@@ -57,14 +58,16 @@ case "$COMMAND" in
 
         dracut -f \
             ${noimageifnotneeded:+--noimageifnotneeded} \
-            $([[ "$KERNEL_INSTALL_VERBOSE" == 1 ]] && echo --verbose) \
+            $([[ $KERNEL_INSTALL_VERBOSE == 1 ]] && echo --verbose) \
             "$BOOT_DIR_ABS/$INITRD" \
             "$KERNEL_VERSION"
         ret=$?
-	;;
+        ;;
+
     remove)
         rm -f -- "$BOOT_DIR_ABS/$INITRD"
         ret=$?
-	;;
+        ;;
 esac
+
 exit $ret
