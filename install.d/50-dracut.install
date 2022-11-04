@@ -26,6 +26,8 @@ case "$COMMAND" in
         if [[ -f ${INITRD_IMAGE_PREGENERATED} ]]; then
             # we found an initrd at the same place as the kernel
             # use this and don't generate a new one
+            [[ $KERNEL_INSTALL_VERBOSE == 1 ]] \
+                && echo "There is an initrd image at the same place as the kernel, skipping generating a new one"
             cp --reflink=auto "$INITRD_IMAGE_PREGENERATED" "$BOOT_DIR_ABS/$INITRD" \
                 && chown root:root "$BOOT_DIR_ABS/$INITRD" \
                 && chmod 0600 "$BOOT_DIR_ABS/$INITRD" \

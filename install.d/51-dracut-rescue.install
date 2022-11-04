@@ -74,8 +74,12 @@ ret=0
 
 case "$COMMAND" in
     add)
-        [[ -f $LOADER_ENTRY ]] && [[ -f "$BOOT_DIR_ABS/$KERNEL" ]] \
-            && [[ -f "$BOOT_DIR_ABS/$INITRD" ]] && exit 0
+        if [[ -f $LOADER_ENTRY ]] && [[ -f "$BOOT_DIR_ABS/$KERNEL" ]] \
+            && [[ -f "$BOOT_DIR_ABS/$INITRD" ]]; then
+            [[ $KERNEL_INSTALL_VERBOSE == 1 ]] \
+                && echo "Skipping, there is already a rescue image generated with the same input parameters"
+            exit 0
+        fi
 
         # source our config dir
         for f in $(dropindirs_sort ".conf" "/etc/dracut.conf.d" "/usr/lib/dracut/dracut.conf.d"); do
@@ -86,7 +90,11 @@ case "$COMMAND" in
         done
 
         # shellcheck disable=SC2154
-        [[ $dracut_rescue_image != "yes" ]] && exit 0
+        if [[ $dracut_rescue_image != "yes" ]]; then
+            [[ $KERNEL_INSTALL_VERBOSE == 1 ]] \
+                && echo "Skipping, 'dracut_rescue_image' not set to 'yes' in any dracut configuration file"
+            exit 0
+        fi
 
         [[ -d $BOOT_DIR_ABS ]] || mkdir -p "$BOOT_DIR_ABS"
 
@@ -95,10 +103,15 @@ case "$COMMAND" in
         fi
 
         if [[ ! -f "$BOOT_DIR_ABS/$INITRD" ]]; then
-            dracut -f --no-hostonly -a "rescue" "$BOOT_DIR_ABS/$INITRD" "$KERNEL_VERSION"
+            dracut -f --no-hostonly \
+                -a "rescue" \
+                "$([[ $KERNEL_INSTALL_VERBOSE == 1 ]] && echo --verbose)" \
+                "$BOOT_DIR_ABS/$INITRD" \
+                "$KERNEL_VERSION"
             ((ret += $?))
         fi
 
+        [[ $KERNEL_INSTALL_VERBOSE == 1 ]] && echo "Creating $LOADER_ENTRY"
         if [[ ${BOOT_DIR_ABS} != "/boot" ]]; then
             {
                 echo "title      $PRETTY_NAME - Rescue Image"
