@@ -18,5 +18,6 @@ installkernel() {
         virtio_blk virtio virtio_ring virtio_pci \
         virtio_scsi virtio_console virtio_rng virtio_mem \
         spapr-vscsi \
-        qemu_fw_cfg
+        qemu_fw_cfg \
+        efi_secret
 }
