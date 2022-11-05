@@ -147,4 +147,5 @@ install() {
         inst_hook cmdline 01 "$moddir/parse-kernel.sh"
     fi
     inst_simple "$moddir/insmodpost.sh" /sbin/insmodpost.sh
+    inst_multiple -o sysctl
 }
