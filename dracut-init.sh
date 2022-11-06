@@ -1138,7 +1138,7 @@ instmods() {
             -m "$@"
     fi
 
-    [[ "$optional" ]] && return 0
+    [[ "$_optional" ]] && return 0
     return $_ret
 }
 
