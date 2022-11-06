@@ -203,6 +203,11 @@ det_fs() {
         done)
     _fs=${_fs:-auto}
 
+    # prefer ntfs3 kernel driver for mouting ntfs
+    if [ "$_fs" = "ntfs" ] && load_fstype ntfs3; then
+        _fs="ntfs3"
+    fi
+
     if [ "$_fs" = "auto" ]; then
         _fs="$_orig"
     fi
