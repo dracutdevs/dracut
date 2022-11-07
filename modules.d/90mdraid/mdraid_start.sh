@@ -8,7 +8,7 @@ _md_start() {
     local _path_d
     local _md="$1"
 
-    _udevinfo="$(udevadm info --query=env --name="${_md}")"
+    _udevinfo="$(udevadm info --query=property --name="${_md}")"
     strstr "$_udevinfo" "MD_LEVEL=container" && return 0
     strstr "$_udevinfo" "DEVTYPE=partition" && return 0
 

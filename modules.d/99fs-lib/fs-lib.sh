@@ -194,7 +194,7 @@ det_fs() {
     local _orig="${2:-auto}"
     local _fs
 
-    _fs=$(udevadm info --query=env --name="$_dev" \
+    _fs=$(udevadm info --query=property --name="$_dev" \
         | while read -r line || [ -n "$line" ]; do
             if str_starts "$line" "ID_FS_TYPE="; then
                 echo "${line#ID_FS_TYPE=}"

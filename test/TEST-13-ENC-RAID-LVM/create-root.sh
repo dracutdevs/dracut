@@ -43,7 +43,7 @@ cryptsetup luksClose /dev/mapper/dracut_disk3
 {
     echo "dracut-root-block-created"
     for i in /dev/disk/by-id/ata-disk_disk[123]; do
-        udevadm info --query=env --name="$i" | grep -F 'ID_FS_UUID='
+        udevadm info --query=property --name="$i" | grep -F 'ID_FS_UUID='
     done
 } | dd oflag=direct,dsync of=/dev/disk/by-id/ata-disk_marker
 sync
