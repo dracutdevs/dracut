@@ -5,7 +5,7 @@ if getargbool 0 rd.md.waitclean; then
     containers=""
     for md in /dev/md[0-9_]*; do
         [ -b "$md" ] || continue
-        udevinfo="$(udevadm info --query=env --name="$md")"
+        udevinfo="$(udevadm info --query=property --name="$md")"
         strstr "$udevinfo" "DEVTYPE=partition" && continue
         if strstr "$udevinfo" "MD_LEVEL=container"; then
             containers="$containers $md"
