@@ -965,13 +965,15 @@ if [[ $regenerate_all == "yes" ]]; then
     cd "$dracutsysrootdir"/lib/modules || exit 1
     if [[ $parallel != "yes" ]]; then
         for i in *; do
-            [[ -f $i/modules.dep ]] || [[ -f $i/modules.dep.bin ]] || continue
+            # shellcheck disable=SC2015
+            [[ -f $i/modules.dep || -f $i/modules.dep.bin ]] && [[ -d $i/kernel ]] || continue
             "$dracut_cmd" --kver="$i" "${dracut_args[@]}"
             ((ret += $?))
         done
     else
         for i in *; do
-            [[ -f $i/modules.dep ]] || [[ -f $i/modules.dep.bin ]] || continue
+            # shellcheck disable=SC2015
+            [[ -f $i/modules.dep || -f $i/modules.dep.bin ]] && [[ -d $i/kernel ]] || continue
             "$dracut_cmd" --kver="$i" "${dracut_args[@]}" &
         done
         while true; do
