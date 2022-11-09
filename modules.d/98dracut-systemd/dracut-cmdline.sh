@@ -11,6 +11,7 @@ type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 if ! getargbool 1 'rd.hostonly'; then
     [ -f /etc/cmdline.d/99-cmdline-ask.conf ] && mv /etc/cmdline.d/99-cmdline-ask.conf /tmp/99-cmdline-ask.conf
     remove_hostonly_files
+    systemctl --no-block daemon-reload
     [ -f /tmp/99-cmdline-ask.conf ] && mv /tmp/99-cmdline-ask.conf /etc/cmdline.d/99-cmdline-ask.conf
 fi
 
