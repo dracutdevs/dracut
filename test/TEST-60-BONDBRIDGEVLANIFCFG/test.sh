@@ -35,7 +35,7 @@ run_server() {
         -device virtio-net-pci,netdev=n3,mac=52:54:01:12:34:59 \
         -hda "$TESTDIR"/server.ext3 \
         -serial "${SERIAL:-"file:$TESTDIR/server.log"}" \
-        -watchdog i6300esb -watchdog-action poweroff \
+        -device i6300esb -watchdog-action poweroff \
         -append "panic=1 oops=panic softlockup_panic=1 loglevel=7 root=LABEL=dracut rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 rd.debug" \
         -initrd "$TESTDIR"/initramfs.server \
         -pidfile "$TESTDIR"/server.pid -daemonize || return 1
@@ -90,7 +90,7 @@ client_test() {
         -netdev socket,connect=127.0.0.1:12372,id=n2 -device virtio-net-pci,mac=52:54:00:12:34:04,netdev=n2 \
         "${nic3[@]}" -device virtio-net-pci,mac=52:54:00:12:34:05,netdev=n3 \
         -hda "$TESTDIR"/client.img \
-        -watchdog i6300esb -watchdog-action poweroff \
+        -device i6300esb -watchdog-action poweroff \
         -append "
         panic=1 oops=panic softlockup_panic=1
         ifname=net1:52:54:00:12:34:01

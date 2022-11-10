@@ -39,7 +39,7 @@ EOF
         || return 1
 
     "$testdir"/run-qemu \
-        -watchdog i6300esb -watchdog-action poweroff \
+        -device i6300esb -watchdog-action poweroff \
         -daemonize -pidfile "$tdir/vm.pid" \
         -serial "file:$tdir/console.out" \
         -append "panic=1 oops=panic softlockup_panic=1 loglevel=7 console=ttyS0 rd.shell=1" \
