@@ -33,7 +33,7 @@ run_server() {
         -net socket,listen=127.0.0.1:12320 \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -serial "${SERIAL:-"file:$TESTDIR/server.log"}" \
-        -watchdog i6300esb -watchdog-action poweroff \
+        -device i6300esb -watchdog-action poweroff \
         -append "panic=1 oops=panic softlockup_panic=1 root=LABEL=dracut rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 $SERVER_DEBUG" \
         -initrd "$TESTDIR"/initramfs.server \
         -pidfile "$TESTDIR"/server.pid -daemonize || return 1
@@ -78,7 +78,7 @@ client_test() {
         "${disk_args[@]}" \
         -net nic,macaddr="$mac",model=e1000 \
         -net socket,connect=127.0.0.1:12320 \
-        -watchdog i6300esb -watchdog-action poweroff \
+        -device i6300esb -watchdog-action poweroff \
         -append "panic=1 oops=panic softlockup_panic=1 systemd.crash_reboot rd.shell=0 $cmdline $DEBUGFAIL rd.retry=10 quiet ro console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.testing
 

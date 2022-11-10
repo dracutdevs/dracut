@@ -24,7 +24,7 @@ client_run() {
 
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
-        -watchdog i6300esb -watchdog-action poweroff \
+        -device i6300esb -watchdog-action poweroff \
         -append "panic=1 oops=panic softlockup_panic=1 systemd.crash_reboot root=LABEL=dracut $client_opts loglevel=7 rd.retry=3 rd.info console=ttyS0,115200n81 selinux=0 rd.debug rd.shell=0 $DEBUGFAIL" \
         -initrd "$TESTDIR"/initramfs.testing || return 1
 
