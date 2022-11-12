@@ -50,6 +50,7 @@ RUN dnf -y install --setopt=install_weak_deps=False \
     ShellCheck \
     shfmt \
     parted \
+    ntfsprogs \
     && dnf -y update && dnf clean all
 
 # Set default command
