@@ -78,7 +78,7 @@ jobs:
                     fetch-depth: 0
 
             -   name: "${{ matrix.container }} TEST-${{ matrix.test }}"
-                run: ./tools/test-github.sh "TEST-${{ matrix.test }}" ${{ matrix.test }}
+                run: SMOKE_TESTING=1 ./tools/test-github.sh "TEST-${{ matrix.test }}" ${{ matrix.test }}
     openrc-musl:
         runs-on: ubuntu-latest
         timeout-minutes: 45

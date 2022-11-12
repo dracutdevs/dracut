@@ -152,34 +152,37 @@ test_client() {
         "root=dhcp BOOTIF=52-54-00-12-34-02" \
         "enp0s3" || return 1
 
-    # Multinic case, where only one nic works
-    client_test "MULTINIC root=nfs ip=dhcp" \
-        FF 00 FE \
-        "root=nfs:192.168.50.1:/nfs/client ip=dhcp" \
-        "enp0s2" || return 1
+    # Do not run the following tests during smoke testing
+    if [ -z "$SMOKE_TESTING" ]; then
+        # Multinic case, where only one nic works
+        client_test "MULTINIC root=nfs ip=dhcp" \
+            FF 00 FE \
+            "root=nfs:192.168.50.1:/nfs/client ip=dhcp" \
+            "enp0s2" || return 1
 
-    # Require two interfaces
-    client_test "MULTINIC root=nfs ip=enp0s2:dhcp ip=enp0s3:dhcp bootdev=enp0s2" \
-        00 01 02 \
-        "root=nfs:192.168.50.1:/nfs/client ip=enp0s2:dhcp ip=enp0s3:dhcp bootdev=enp0s2" \
-        "enp0s2 enp0s3" || return 1
+        # Require two interfaces
+        client_test "MULTINIC root=nfs ip=enp0s2:dhcp ip=enp0s3:dhcp bootdev=enp0s2" \
+            00 01 02 \
+            "root=nfs:192.168.50.1:/nfs/client ip=enp0s2:dhcp ip=enp0s3:dhcp bootdev=enp0s2" \
+            "enp0s2 enp0s3" || return 1
 
-    # Require three interfaces with dhcp root-path
-    client_test "MULTINIC root=dhcp ip=enp0s1:dhcp ip=enp0s2:dhcp ip=enp0s3:dhcp bootdev=enp0s3" \
-        00 01 02 \
-        "root=dhcp ip=enp0s1:dhcp ip=enp0s2:dhcp ip=enp0s3:dhcp bootdev=enp0s3" \
-        "enp0s1 enp0s2 enp0s3" || return 1
+        # Require three interfaces with dhcp root-path
+        client_test "MULTINIC root=dhcp ip=enp0s1:dhcp ip=enp0s2:dhcp ip=enp0s3:dhcp bootdev=enp0s3" \
+            00 01 02 \
+            "root=dhcp ip=enp0s1:dhcp ip=enp0s2:dhcp ip=enp0s3:dhcp bootdev=enp0s3" \
+            "enp0s1 enp0s2 enp0s3" || return 1
 
-    client_test "MULTINIC bonding" \
-        00 01 02 \
-        "root=nfs:192.168.50.1:/nfs/client ip=bond0:dhcp  bond=bond0:enp0s1,enp0s2,enp0s3:mode=balance-rr" \
-        "bond0" || return 1
+        client_test "MULTINIC bonding" \
+            00 01 02 \
+            "root=nfs:192.168.50.1:/nfs/client ip=bond0:dhcp  bond=bond0:enp0s1,enp0s2,enp0s3:mode=balance-rr" \
+            "bond0" || return 1
 
-    # bridge, where only one interface is actually connected
-    client_test "MULTINIC bridging" \
-        00 01 02 \
-        "root=nfs:192.168.50.1:/nfs/client ip=bridge0:dhcp  bridge=bridge0:enp0s1,enp0s5,enp0s6" \
-        "bridge0" || return 1
+        # bridge, where only one interface is actually connected
+        client_test "MULTINIC bridging" \
+            00 01 02 \
+            "root=nfs:192.168.50.1:/nfs/client ip=bridge0:dhcp  bridge=bridge0:enp0s1,enp0s5,enp0s6" \
+            "bridge0" || return 1
+    fi
     return 0
 }
 
