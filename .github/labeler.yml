@@ -29,6 +29,8 @@ mksh:
 
 systemd:
   - modules.d/00systemd/*
+  - modules.d/0*systemd-*/*
+  - modules.d/98dracut-systemd/*
 
 warpclock:
   - modules.d/00warpclock/*
@@ -36,14 +38,8 @@ warpclock:
 fips:
   - modules.d/01fips/*
 
-systemd-initrd:
-  - modules.d/01systemd-initrd/*
-
 caps:
   - modules.d/02caps/*
-
-systemd-networkd:
-  - modules.d/02systemd-networkd/*
 
 modsign:
   - modules.d/03modsign/*
@@ -242,9 +238,6 @@ biosdevname:
 
 masterkey:
 - modules.d/97masterkey/*
-
-dracut-systemd:
-  - modules.d/98dracut-systemd/*
 
 ecryptfs:
   - modules.d/98ecryptfs/*
