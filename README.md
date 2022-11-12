@@ -3,6 +3,8 @@ dracut
 
 dracut is an event driven initramfs infrastructure.
 
+[![latest packaged version(s)](https://repology.org/badge/latest-versions/dracut.svg)](https://repology.org/project/dracut/history)
+[![Packaging status](https://repology.org/badge/tiny-repos/dracut.svg)](https://repology.org/project/dracut/versions)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](docs/CODE_OF_CONDUCT.md)
 
 dracut (the tool) is used to create an initramfs image by copying tools
