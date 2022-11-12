@@ -12,7 +12,7 @@ RUN pacman --noconfirm -Syu \
     linux dash strace dhclient asciidoc cpio pigz squashfs-tools \
     qemu btrfs-progs mdadm dmraid nfs-utils nfsidmap lvm2 nbd \
     dhcp networkmanager multipath-tools vi tcpdump open-iscsi \
-    git shfmt shellcheck astyle which base-devel glibc parted && yes | pacman -Scc
+    git shfmt shellcheck astyle which base-devel glibc parted ntfs-3g && yes | pacman -Scc
 
 RUN useradd -m build
 RUN su build -c 'cd && git clone https://aur.archlinux.org/perl-config-general.git && cd perl-config-general && makepkg -s --noconfirm'
