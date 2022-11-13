@@ -2,6 +2,10 @@
 # shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem on a ext3 filesystem"
 
+test_check() {
+    command -v systemctl &> /dev/null
+}
+
 KVERSION="${KVERSION-$(uname -r)}"
 
 # Uncomment this to debug failures
