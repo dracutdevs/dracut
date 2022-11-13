@@ -3,6 +3,10 @@
 # shellcheck disable=SC2034
 TEST_DESCRIPTION="Full systemd serialization/deserialization test with /usr mount"
 
+test_check() {
+    command -v systemctl &> /dev/null
+}
+
 export KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
