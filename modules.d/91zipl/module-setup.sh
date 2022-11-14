@@ -2,6 +2,12 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
+get_boot_zipl_dev() {
+    local _boot_zipl
+    _boot_zipl=$(sed -n -e '/^[[:space:]]*#/d' -e 's/\(.*\)\w*\/boot\/zipl.*/\1/p' "$dracutsysrootdir"/etc/fstab)
+    printf "%s" "$(trim "$_boot_zipl")"
+}
+
 # called by dracut
 check() {
     local _arch=${DRACUT_ARCH:-$(uname -m)}
@@ -21,7 +27,7 @@ depends() {
 installkernel() {
     local _boot_zipl
 
-    _boot_zipl=$(sed -n -e '/^[[:space:]]*#/d' -e 's/\(.*\)\w*\/boot\/zipl.*/\1/p' /etc/fstab)
+    _boot_zipl=$(get_boot_zipl_dev)
     if [ -n "$_boot_zipl" ]; then
         eval "$(blkid -s TYPE -o udev "${_boot_zipl}")"
         if [ -n "$ID_FS_TYPE" ]; then
@@ -39,9 +45,9 @@ installkernel() {
 cmdline() {
     local _boot_zipl
 
-    _boot_zipl=$(sed -n -e '/^[[:space:]]*#/d' -e 's/\(.*\)\w*\/boot\/zipl.*/\1/p' /etc/fstab)
+    _boot_zipl=$(get_boot_zipl_dev)
     if [ -n "$_boot_zipl" ]; then
-        echo "rd.zipl=${_boot_zipl}"
+        printf "%s" " rd.zipl=${_boot_zipl}"
     fi
 }
 
