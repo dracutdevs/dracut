@@ -37,6 +37,13 @@ str_starts() { [ "${1#"$2"*}" != "$1" ]; }
 # returns OK if $1 contains literal string $2 at the end, and isn't empty
 str_ends() { [ "${1%*"$2"}" != "$1" ]; }
 
+trim() {
+    local var="$*"
+    var="${var#"${var%%[![:space:]]*}"}" # remove leading whitespace characters
+    var="${var%"${var##*[![:space:]]}"}" # remove trailing whitespace characters
+    printf "%s" "$var"
+}
+
 # find a binary.  If we were not passed the full path directly,
 # search in the usual places to find the binary.
 find_binary() {
