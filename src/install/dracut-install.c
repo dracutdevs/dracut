@@ -94,6 +94,7 @@ static bool arg_mod_filter_nosymbol = false;
 static bool arg_mod_filter_noname = false;
 
 static int dracut_install(const char *src, const char *dst, bool isdir, bool resolvedeps, bool hashdst);
+static int install_dependent_modules(struct kmod_list *modlist);
 
 static inline void kmod_module_unrefp(struct kmod_module **p)
 {
@@ -1486,55 +1487,64 @@ static bool check_module_path(const char *path)
         return true;
 }
 
+static int install_dependent_module(struct kmod_module *mod, int *err)
+{
+        const char *path = NULL;
+        const char *name = NULL;
+
+        path = kmod_module_get_path(mod);
+
+        if (path == NULL)
+                return 0;
+
+        if (check_hashmap(items_failed, path))
+                return -1;
+
+        if (check_hashmap(items, &path[kerneldirlen])) {
+                return 0;
+        }
+
+        name = kmod_module_get_name(mod);
+
+        if (arg_mod_filter_noname && (regexec(&mod_filter_noname, name, 0, NULL, 0) == 0)) {
+                return 0;
+        }
+
+        *err = dracut_install(path, &path[kerneldirlen], false, false, true);
+        if (*err == 0) {
+                _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
+                _cleanup_kmod_module_unref_list_ struct kmod_list *modpre = NULL;
+                _cleanup_kmod_module_unref_list_ struct kmod_list *modpost = NULL;
+                log_debug("dracut_install '%s' '%s' OK", path, &path[kerneldirlen]);
+                install_firmware(mod);
+                modlist = kmod_module_get_dependencies(mod);
+                *err = install_dependent_modules(modlist);
+                if (*err == 0) {
+                        *err = kmod_module_get_softdeps(mod, &modpre, &modpost);
+                        if (*err == 0) {
+                                int r;
+                                *err = install_dependent_modules(modpre);
+                                r = install_dependent_modules(modpost);
+                                *err = *err ? : r;
+                        }
+                }
+        } else {
+                log_error("dracut_install '%s' '%s' ERROR", path, &path[kerneldirlen]);
+        }
+
+        return 0;
+}
+
 static int install_dependent_modules(struct kmod_list *modlist)
 {
         struct kmod_list *itr = NULL;
-        const char *path = NULL;
-        const char *name = NULL;
         int ret = 0;
 
         kmod_list_foreach(itr, modlist) {
                 _cleanup_kmod_module_unref_ struct kmod_module *mod = NULL;
                 mod = kmod_module_get_module(itr);
-                path = kmod_module_get_path(mod);
-
-                if (path == NULL)
-                        continue;
-
-                if (check_hashmap(items_failed, path))
+                if (install_dependent_module(mod, &ret))
                         return -1;
-
-                if (check_hashmap(items, &path[kerneldirlen])) {
-                        continue;
-                }
-
-                name = kmod_module_get_name(mod);
-
-                if (arg_mod_filter_noname && (regexec(&mod_filter_noname, name, 0, NULL, 0) == 0)) {
-                        continue;
-                }
-
-                ret = dracut_install(path, &path[kerneldirlen], false, false, true);
-                if (ret == 0) {
-                        _cleanup_kmod_module_unref_list_ struct kmod_list *modlist = NULL;
-                        _cleanup_kmod_module_unref_list_ struct kmod_list *modpre = NULL;
-                        _cleanup_kmod_module_unref_list_ struct kmod_list *modpost = NULL;
-                        log_debug("dracut_install '%s' '%s' OK", path, &path[kerneldirlen]);
-                        install_firmware(mod);
-                        modlist = kmod_module_get_dependencies(mod);
-                        ret = install_dependent_modules(modlist);
-                        if (ret == 0) {
-                                ret = kmod_module_get_softdeps(mod, &modpre, &modpost);
-                                if (ret == 0) {
-                                        int r;
-                                        ret = install_dependent_modules(modpre);
-                                        r = install_dependent_modules(modpost);
-                                        ret = ret ? : r;
-                                }
-                        }
-                } else {
-                        log_error("dracut_install '%s' '%s' ERROR", path, &path[kerneldirlen]);
-                }
         }
 
         return ret;
