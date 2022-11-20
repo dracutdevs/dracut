@@ -31,8 +31,8 @@ EOF
     fi
 }
 
-if [[ -f /sys/firmware/ipl/ipl_type && \
-    $(< /sys/firmware/ipl/ipl_type) == "fcp" ]]; then
+if [[ -f /sys/firmware/ipl/ipl_type ]] \
+    && [[ $(< /sys/firmware/ipl/ipl_type) == "fcp" ]]; then
     (
         read -r _wwpn < /sys/firmware/ipl/wwpn
         read -r _lun < /sys/firmware/ipl/lun

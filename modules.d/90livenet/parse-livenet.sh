@@ -13,8 +13,7 @@ if [ -n "$updates" ]; then
         echo > /tmp/net.ifaces
     fi
     echo "$updates" > /tmp/liveupdates.info
-    echo '[ -e /tmp/liveupdates.done ]' > \
-        "$hookdir"/initqueue/finished/liveupdates.sh
+    echo '[ -e /tmp/liveupdates.done ]' > "$hookdir"/initqueue/finished/liveupdates.sh
 fi
 
 str_starts "$root" "live:" && liveurl="$root"

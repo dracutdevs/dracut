@@ -120,8 +120,8 @@ installkernel() {
                         continue
                     fi
 
-                    if [[ '*' == "$kverpat" || \
-                        $kernel =~ $kverpat ]]; then
+                    if [[ '*' == "$kverpat" ]] \
+                        || [[ $kernel =~ $kverpat ]]; then
                         external_dirs+=("$path")
 
                         prdebug "$cfg: added external" \
