@@ -2619,12 +2619,50 @@ if [[ $uefi == yes ]]; then
         unset uefi_splash_image
     fi
 
+    if [[ -n ${uefi_tpm2_pcr_sig_private_key} && -n ${uefi_tpm2_pcr_sig_public_key} ]]; then
+        if command -v systemd-measure &> /dev/null; then
+            systemd_measure="systemd-measure"
+        else
+            if [[ -x "${dracutsysrootdir}${systemdutildir}/systemd-measure" ]]; then
+                systemd_measure="${dracutsysrootdir}${systemdutildir}/systemd-measure"
+            else
+                dfatal "systemd-measure not found"
+                exit 1
+            fi
+        fi
+
+        dinfo "*** Computing systemd-measure TPM2 PCR signature ***"
+
+        measure_parameters="--initrd=${DRACUT_TMPDIR}/initramfs.img \
+            --linux="$kernel_image" \
+            ${uefi_osrelease:+--osrel="$uefi_osrelease"} \
+            ${uefi_cmdline:+--cmdline="$uefi_cmdline"} \
+            ${uefi_splash_image:+--splash="$uefi_splash_image"} \
+            --pcrpkey=${uefi_tpm2_pcr_sig_public_key} \
+            --bank=sha1 \
+            --bank=sha256 \
+            --private-key=${uefi_tpm2_pcr_sig_private_key} \
+            --public-key=${uefi_tpm2_pcr_sig_public_key}"
+
+        if ! $systemd_measure sign $measure_parameters > ${DRACUT_TMPDIR}/tpm2-pcr-signature.json; then
+            dfatal "Failed to produce TPM2 PCR signature"
+            exit 1
+        fi
+        uefi_tpm2_pcr_signature="${DRACUT_TMPDIR}/tpm2-pcr-signature.json"
+
+        if ((maxloglvl >= 5)) && ((verbosity_mod_l >= 0)); then
+            $systemd_measure calculate $measure_parameters 2>&1 | ddebug
+        fi
+    fi
+
     if objcopy \
         ${uefi_osrelease:+--add-section .osrel="$uefi_osrelease" --change-section-vma .osrel=0x20000} \
         ${uefi_cmdline:+--add-section .cmdline="$uefi_cmdline" --change-section-vma .cmdline=0x30000} \
         ${uefi_splash_image:+--add-section .splash="$uefi_splash_image" --change-section-vma .splash=0x40000} \
         --add-section .linux="$kernel_image" --change-section-vma .linux=0x2000000 \
         --add-section .initrd="${DRACUT_TMPDIR}/initramfs.img" --change-section-vma .initrd="${EFI_SECTION_VMA_INITRD}" \
+        ${uefi_tpm2_pcr_signature:+--add-section .pcrsig="$uefi_tpm2_pcr_signature" --change-section-vma .pcrsig=0x80000} \
+        ${uefi_tpm2_pcr_sig_public_key:+--add-section .pcrpkey="$uefi_tpm2_pcr_sig_public_key" --change-section-vma .pcrpkey=0x90000} \
         "$uefi_stub" "${uefi_outdir}/linux.efi"; then
         if [[ -n ${uefi_secureboot_key} && -n ${uefi_secureboot_cert} ]]; then
             if sbsign \
