@@ -159,17 +159,17 @@ getarg 'rd.break=shutdown' && emergency_shell --shutdown shutdown "Break before 
 
 case "$ACTION" in
     reboot | poweroff | halt)
-        $ACTION -f -n
+        $ACTION -f
         warn "$ACTION failed!"
         ;;
     kexec)
         kexec -e
         warn "$ACTION failed!"
-        reboot -f -n
+        reboot -f
         ;;
     *)
         warn "Shutdown called with argument '$ACTION'. Rebooting!"
-        reboot -f -n
+        reboot -f
         ;;
 esac
 

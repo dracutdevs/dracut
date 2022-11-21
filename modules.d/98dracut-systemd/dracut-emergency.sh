@@ -46,13 +46,13 @@ fi
 
 case "$_emergency_action" in
     reboot)
-        reboot || exit 1
+        reboot -f || exit 1
         ;;
     poweroff)
-        poweroff || exit 1
+        poweroff -f || exit 1
         ;;
     halt)
-        halt || exit 1
+        halt -f || exit 1
         ;;
 esac
 
