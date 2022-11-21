@@ -36,7 +36,7 @@ _dracut() {
             --enhanced-cpio --rebuild --aggressive-strip --hostonly-cmdline
             --no-hostonly-cmdline --no-hostonly-default-device --nofscks
             --hostonly-i18n --no-hostonly-i18n --lzo --lz4 --no-reproducible
-            --no-uefi --no-machineid --version --parallel
+            --no-uefi --no-machineid --version --parallel --no-create-sysusers
             '
         [ARG]='-a -m -o -d -I -k -c -L -r -i
             --kver --add --force-add --add-drivers --force-drivers

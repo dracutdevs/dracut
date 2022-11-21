@@ -274,8 +274,10 @@ Creates initial ramdisk images for preloading modules
   --regenerate-all      Regenerate all initramfs images at the default location
                          for the kernel versions found on the system.
   -p, --parallel        Use parallel processing if possible (currently only
-                        supported --regenerate-all)
-                        images simultaneously.
+                         supported --regenerate-all)
+                         images simultaneously.
+  --no-create-sysusers  Create system users on every boot, instead of creating
+                         them only when the initramfs is generated.
   --version             Display version.
 
 If [LIST] has multiple arguments, then you have to put these in quotes.
@@ -466,6 +468,7 @@ rearrange_params() {
             --long hostonly-i18n \
             --long hostonly-nics: \
             --long no-machineid \
+            --long no-create-sysusers \
             --long version \
             -- "$@"
     )
@@ -842,6 +845,9 @@ while :; do
         --no-machineid)
             machine_id_l="no"
             ;;
+        --no-create-sysusers)
+            create_sysusers_l="no"
+            ;;
         --version)
             long_version
             exit 1
@@ -1077,6 +1083,8 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $uefi_splash_image_l ]] && uefi_splash_image="$uefi_splash_image_l"
 [[ $kernel_image_l ]] && kernel_image="$kernel_image_l"
 [[ $machine_id_l ]] && machine_id="$machine_id_l"
+[[ $create_sysusers_l ]] && create_sysusers="$create_sysusers_l"
+[[ $create_sysusers ]] || create_sysusers=yes
 
 if ! [[ $outfile ]]; then
     if [[ $machine_id != "no" ]]; then
@@ -1927,7 +1935,7 @@ export initdir dracutbasedir \
     systemdportable systemdportableconfdir systemdsystemunitdir \
     systemdsystemconfdir systemduser systemduserconfdir \
     hostonly_cmdline loginstall tmpfilesdir tmpfilesconfdir depmodd \
-    depmodconfdir
+    depmodconfdir create_sysusers
 
 mods_to_load=""
 # check all our modules to see if they should be sourced.
@@ -2037,6 +2045,8 @@ for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
     [[ $mods_to_load == *\ $_d_mod\ * ]] || continue
     if [[ $show_modules == yes ]]; then
         printf "%s\n" "$_d_mod"
+    elif [[ $create_sysusers == yes && $_d_mod == "systemd-sysusers" ]]; then
+        continue
     else
         dinfo "*** Including module: $_d_mod ***"
     fi
@@ -2164,6 +2174,14 @@ if [[ $kernel_only != yes ]]; then
                 printf "%s\n" "systemdsystemconfdir=\"$systemdsystemconfdir\""
             } > "${initdir}"/etc/conf.d/systemd.conf
         fi
+    fi
+
+    if [[ $create_sysusers == yes ]] && type -P systemd-sysusers > /dev/null 2>&1; then
+        dinfo "*** Creating system users ***"
+        systemd-sysusers --root="$initdir" 2>&1 | dinfo
+        dinfo "*** Creating system users done ***"
+        [[ "${initdir}${sysusers}" != "${initdir}" ]] && rm -rf "${initdir}${sysusers}"
+        [[ "${initdir}${sysusersconfdir}" != "${initdir}" ]] && rm -rf "${initdir}${sysusersconfdir}"
     fi
 
     if [[ $DRACUT_RESOLVE_LAZY ]] && [[ $DRACUT_INSTALL ]]; then
