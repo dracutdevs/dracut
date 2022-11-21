@@ -1,14 +1,14 @@
 version: 2
 
-  # Maintain dependencies for GitHub Actions
-  updates:
-    - package-ecosystem: "github-actions"
-      directory: "/"
-      schedule: 
-       interval: weekly
-       day: "tuesday"
-      commit-message:
-        prefix: "chore(github):"
-        include: "scope"
-      ignore:
-        - dependency-name: "Manual test"
+# Maintain dependencies for GitHub Actions
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    ignore:
+      - dependency-name: "Manual test"
