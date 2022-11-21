@@ -97,6 +97,12 @@ static bool arg_mod_filter_noname = false;
 static int dracut_install(const char *src, const char *dst, bool isdir, bool resolvedeps, bool hashdst);
 static int install_dependent_modules(struct kmod_list *modlist);
 
+static void item_free(char *i)
+{
+        assert(i);
+        free(i);
+}
+
 static inline void kmod_module_unrefp(struct kmod_module **p)
 {
         if (*p)
@@ -145,6 +151,18 @@ static inline void fts_closep(FTS **p)
 #define _cleanup_fts_close_ _cleanup_(fts_closep)
 
 #define _cleanup_globfree_ _cleanup_(globfree)
+
+static inline void destroy_hashmap(Hashmap **hashmap)
+{
+        void *i = NULL;
+
+        while ((i = hashmap_steal_first(*hashmap)))
+                item_free(i);
+
+        hashmap_free(*hashmap);
+}
+
+#define _cleanup_destroy_hashmap_ _cleanup_(destroy_hashmap)
 
 static size_t dir_len(char const *file)
 {
@@ -946,12 +964,6 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
         log_debug("dracut_install ret = %d", ret);
 
         return ret;
-}
-
-static void item_free(char *i)
-{
-        assert(i);
-        free(i);
 }
 
 static void usage(int status)
