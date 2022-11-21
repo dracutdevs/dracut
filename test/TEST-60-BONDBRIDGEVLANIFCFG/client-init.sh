@@ -1,7 +1,7 @@
 #!/bin/sh
 exec > /dev/console 2>&1
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
-strstr() { [ "${1#*$2*}" != "$1" ]; }
+strstr() { [ "${1#*"$2"*}" != "$1" ]; }
 CMDLINE=$(while read -r line; do echo "$line"; done < /proc/cmdline)
 export TERM=linux
 export PS1='initramfs-test:\w\$ '

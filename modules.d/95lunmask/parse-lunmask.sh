@@ -3,10 +3,10 @@
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
 create_udev_rule() {
-    local transport=$1
-    local tgtid=$2
-    local lun=$3
-    local _rule=/etc/udev/rules.d/51-${transport}-lunmask-${tgtid}.rules
+    local transport="$1"
+    local tgtid="$2"
+    local lun="$3"
+    local _rule=/etc/udev/rules.d/51-"${transport}"-lunmask-"${tgtid}".rules
 
     [ -e "${_rule}" ] && return 0
 

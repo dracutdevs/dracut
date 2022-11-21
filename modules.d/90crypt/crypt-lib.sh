@@ -141,7 +141,7 @@ ask_for_password() {
 # example:
 # test_dev -f LABEL="nice label" /some/file1
 test_dev() {
-    local test_op=$1
+    local test_op="$1"
     local dev="$2"
     local f="$3"
     local ret=1

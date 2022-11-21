@@ -705,7 +705,7 @@ fs_get_option() {
     while [ $# -gt 0 ]; do
         case $1 in
             $_option=*)
-                echo "${1#${_option}=}"
+                echo "${1#"${_option}"=}"
                 break
                 ;;
         esac

@@ -44,8 +44,8 @@ EOF
 }
 
 generator_mount_rootfs() {
-    local _type=$2
-    local _flags=$3
+    local _type="$2"
+    local _flags="$3"
     local _name
 
     [ -z "$1" ] && return 0

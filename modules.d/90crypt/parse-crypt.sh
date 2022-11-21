@@ -53,7 +53,7 @@ else
 
             uuid=${uuid##luks-}
             if luksname=$(_cryptgetargsname "$uuid="); then
-                luksname="${luksname#$uuid=}"
+                luksname="${luksname#"$uuid"=}"
             else
                 luksname="luks-$uuid"
             fi
@@ -93,7 +93,7 @@ else
 
             serialid=${serialid##luks-}
             if luksname=$(_cryptgetargsname "$serialid="); then
-                luksname="${luksname#$serialid=}"
+                luksname="${luksname#"$serialid"=}"
             else
                 luksname="luks-$serialid"
             fi
@@ -133,7 +133,7 @@ else
 
             luksid=${luksid##luks-}
             if luksname=$(_cryptgetargsname "$luksid="); then
-                luksname="${luksname#$luksid=}"
+                luksname="${luksname#"$luksid"=}"
             else
                 luksname="luks-$luksid"
             fi

@@ -548,7 +548,7 @@ inst_rules_wildcard() {
 # make sure that library links are correct and up to date
 build_ld_cache() {
     for f in "$dracutsysrootdir"/etc/ld.so.conf "$dracutsysrootdir"/etc/ld.so.conf.d/*; do
-        [[ -f $f ]] && inst_simple "${f#$dracutsysrootdir}"
+        [[ -f $f ]] && inst_simple "${f#"$dracutsysrootdir"}"
     done
     if ! $DRACUT_LDCONFIG -r "$initdir" -f /etc/ld.so.conf; then
         if [[ $EUID == 0 ]]; then
@@ -671,8 +671,8 @@ inst_libdir_file() {
         for _dir in $libdirs; do
             for _i in "$@"; do
                 for _f in "$dracutsysrootdir$_dir"/$_i; do
-                    [[ ${_f#$dracutsysrootdir} =~ $_pattern ]] || continue
-                    [[ -e $_f ]] && _files+=("${_f#$dracutsysrootdir}")
+                    [[ ${_f#"$dracutsysrootdir"} =~ $_pattern ]] || continue
+                    [[ -e $_f ]] && _files+=("${_f#"$dracutsysrootdir"}")
                 done
             done
         done
@@ -680,7 +680,7 @@ inst_libdir_file() {
         for _dir in $libdirs; do
             for _i in "$@"; do
                 for _f in "$dracutsysrootdir$_dir"/$_i; do
-                    [[ -e $_f ]] && _files+=("${_f#$dracutsysrootdir}")
+                    [[ -e $_f ]] && _files+=("${_f#"$dracutsysrootdir"}")
                 done
             done
         done

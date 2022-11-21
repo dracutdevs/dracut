@@ -2,7 +2,7 @@
 
 _do_md_shutdown() {
     local ret
-    local final=$1
+    local final="$1"
     info "Waiting for mdraid devices to be clean."
     mdadm -vv --wait-clean --scan | vinfo
     ret=$?

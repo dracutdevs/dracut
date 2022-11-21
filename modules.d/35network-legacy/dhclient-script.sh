@@ -72,7 +72,7 @@ setup_interface() {
     fi
     # Note: hostname can be fqdn OR short hostname, so chop off any
     # trailing domain name and explicity add any domain if set.
-    [ -n "$hostname" ] && echo "echo ${hostname%.$domain}${domain:+.$domain} > /proc/sys/kernel/hostname" > /tmp/net."$netif".hostname
+    [ -n "$hostname" ] && echo "echo ${hostname%."$domain"}${domain:+.$domain} > /proc/sys/kernel/hostname" > /tmp/net."$netif".hostname
 }
 
 setup_interface6() {
@@ -105,7 +105,7 @@ setup_interface6() {
 
     # Note: hostname can be fqdn OR short hostname, so chop off any
     # trailing domain name and explicity add any domain if set.
-    [ -n "$hostname" ] && echo "echo ${hostname%.$domain}${domain:+.$domain} > /proc/sys/kernel/hostname" > /tmp/net."$netif".hostname
+    [ -n "$hostname" ] && echo "echo ${hostname%."$domain"}${domain:+.$domain} > /proc/sys/kernel/hostname" > /tmp/net."$netif".hostname
 }
 
 parse_option_121() {

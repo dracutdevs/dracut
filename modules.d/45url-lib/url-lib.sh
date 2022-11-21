@@ -141,7 +141,7 @@ nfs_already_mounted() {
             if [ "$path" = "$p" ]; then
                 echo "$mnt"
             elif str_starts "$path" "$p"; then
-                echo "$mnt"/"${path#$p/}"
+                echo "$mnt"/"${path#"$p"/}"
             fi
         fi
     done < /proc/mounts

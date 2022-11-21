@@ -139,7 +139,7 @@ fi
 
 # This ensures that BOOTDEV is always first in IFACES
 if [ -n "$BOOTDEV" ] && [ -n "$IFACES" ]; then
-    IFACES="${IFACES%$BOOTDEV*} ${IFACES#*$BOOTDEV}"
+    IFACES="${IFACES%"$BOOTDEV"*} ${IFACES#*"$BOOTDEV"}"
     IFACES="$BOOTDEV $IFACES"
 fi
 

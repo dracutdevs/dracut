@@ -36,6 +36,7 @@ strstr() {
 # An empty $1 will not be considered matched, even if $2 is * which technically
 # matches; as it would match anything, it's not an interesting case.
 strglob() {
+    # shellcheck disable=SC2295
     [ -n "$1" -a -z "${1##$2}" ]
 }
 
@@ -43,6 +44,7 @@ strglob() {
 # An empty $1 will not be considered matched, even if $2 is * which technically
 # matches; as it would match anything, it's not an interesting case.
 strglobin() {
+    # shellcheck disable=SC2295
     [ -n "$1" -a -z "${1##*$2*}" ]
 }
 
@@ -323,7 +325,7 @@ getoptcomma() {
 
     case "${line}" in
         *,${opt}=*,*)
-            tmp="${line#*,${opt}=}"
+            tmp="${line#*,"${opt}"=}"
             echo "${tmp%%,*}"
             return 0
             ;;
@@ -353,10 +355,10 @@ splitsep() {
     local tmp
 
     while [ -n "$str" -a "$#" -gt 1 ]; do
-        tmp="${str%%$sep*}"
+        tmp="${str%%"$sep"*}"
         eval "$1='${tmp}'"
         str="${str#"$tmp"}"
-        str="${str#$sep}"
+        str="${str#"$sep"}"
         shift
     done
     [ -n "$str" -a -n "$1" ] && eval "$1='$str'"
@@ -471,8 +473,8 @@ check_occurances() {
     local expected="$3"
     local count=0
 
-    while [ "${str#*$ch}" != "${str}" ]; do
-        str="${str#*$ch}"
+    while [ "${str#*"$ch"}" != "${str}" ]; do
+        str="${str#*"$ch"}"
         count=$((count + 1))
     done
 
@@ -827,7 +829,7 @@ killproc() {
     debug_off
     local _exe
     _exe="$(command -v "$1")"
-    local _sig=$2
+    local _sig="$2"
     local _i
     [ -x "$_exe" ] || return 1
     for _i in /proc/[0-9]*; do
@@ -891,7 +893,7 @@ if ! command -v pidof > /dev/null 2> /dev/null; then
                 [ "$i" -ef "$_exe" ] || continue
             else
                 _rl=$(readlink -f "$i")
-                [ "${_rl%/$_cmd}" != "$_rl" ] || continue
+                [ "${_rl%/"$_cmd"}" != "$_rl" ] || continue
             fi
             i=${i%/exe}
             echo "${i##/proc/}"

@@ -5,7 +5,7 @@
 #
 
 parsevlan() {
-    local v=${1}:
+    local v="${1}":
     set --
     while [ -n "$v" ]; do
         set -- "$@" "${v%%:*}"

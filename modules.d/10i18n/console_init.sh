@@ -19,7 +19,7 @@ set_keyboard() {
 }
 
 set_terminal() {
-    local dev=$1
+    local dev="$1"
 
     if [ "${UNICODE}" = 1 ]; then
         printf '\033%%G' >&7
@@ -58,7 +58,7 @@ dev_close() {
 }
 
 dev_open() {
-    local dev=$1
+    local dev="$1"
 
     exec 6< "${dev}" \
         && exec 7>> "${dev}"
