@@ -45,7 +45,7 @@ install() {
     done
     if [[ $_found ]] && [[ -n $_crts ]]; then
         for _crt in $_crts; do
-            if ! inst "${_crt#$dracutsysrootdir}"; then
+            if ! inst "${_crt#"$dracutsysrootdir"}"; then
                 dwarn "Couldn't install '$_crt' SSL CA cert bundle; HTTPS might not work."
                 continue
             fi
@@ -78,7 +78,7 @@ install() {
                         # install everything in it
                         mkdir -p -- "${initdir}/${_p11root}"
                         if ! $DRACUT_CP -L -t "${initdir}/${_p11root}" "${dracutsysrootdir}${_p11root}"/*; then
-                            dwarn "Couldn't install from p11-kit trust dir '${_p11root#$dracutsysrootdir}'; HTTPS might not work."
+                            dwarn "Couldn't install from p11-kit trust dir '${_p11root#"$dracutsysrootdir"}'; HTTPS might not work."
                         fi
                     done
                 done

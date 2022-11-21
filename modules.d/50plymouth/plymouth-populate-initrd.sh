@@ -34,10 +34,10 @@ if [[ $hostonly ]]; then
 else
     for x in "$dracutsysrootdir"/usr/share/plymouth/themes/{text,details}/*; do
         [[ -f $x ]] || continue
-        THEME_DIR=$(dirname "${x#$dracutsysrootdir}")
+        THEME_DIR=$(dirname "${x#"$dracutsysrootdir"}")
         # shellcheck disable=SC2174
         mkdir -m 0755 -p "${initdir}/$THEME_DIR"
-        inst_multiple "${x#$dracutsysrootdir}"
+        inst_multiple "${x#"$dracutsysrootdir"}"
     done
     (
         cd "${initdir}"/usr/share/plymouth/themes || exit

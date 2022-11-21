@@ -26,7 +26,7 @@ if [ -n "$DM_RAIDS" ] || getargbool 0 rd.auto; then
         # only activate specified DM RAIDS
         for r in $DM_RAIDS; do
             for s in $SETS; do
-                if [ "${s##$r}" != "$s" ]; then
+                if [ "${s##"$r"}" != "$s" ]; then
                     info "Activating $s"
                     dmraid -ay -i -p --rm_partitions "$s" 2>&1 | vinfo
                 fi

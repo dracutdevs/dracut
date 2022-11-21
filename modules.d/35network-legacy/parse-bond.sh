@@ -15,7 +15,7 @@
 # We translate list of slaves to space-separated here to make it easier to loop over them in ifup
 # Ditto for bonding options
 parsebond() {
-    local v=${1}:
+    local v="${1}":
     set --
     while [ -n "$v" ]; do
         set -- "$@" "${v%%:*}"

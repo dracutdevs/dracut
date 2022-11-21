@@ -20,9 +20,9 @@ filtersubvol() {
 }
 
 fsck_usr() {
-    local _dev=$1
-    local _fs=$2
-    local _fsopts=$3
+    local _dev="$1"
+    local _fs="$2"
+    local _fsopts="$3"
     local _fsckoptions
 
     if [ -f "$NEWROOT"/fsckoptions ]; then

@@ -958,6 +958,7 @@ if [[ $regenerate_all == "yes" ]]; then
     for ((i = 0; i < len; i++)); do
         case ${dracut_args[$i]} in
             --regenerate-all | --parallel)
+                # shellcheck disable=SC2184
                 unset dracut_args["$i"]
                 ;;
         esac
@@ -999,7 +1000,7 @@ for i in $DRACUT_PATH; do
     if [ -L "$dracutsysrootdir$i" ]; then
         rl=$(readlink -f "$dracutsysrootdir$i")
     fi
-    rl="${rl#$dracutsysrootdir}"
+    rl="${rl#"$dracutsysrootdir"}"
     if [[ $NPATH != *:$rl* ]]; then
         NPATH+=":$rl"
     fi
@@ -2212,7 +2213,7 @@ for ((i = 0; i < ${#include_src[@]}; i++)); do
                 [[ -e $objectname || -L $objectname ]] || continue
                 if [[ -d $objectname ]] && [[ ! -L $objectname ]]; then
                     # objectname is a directory, let's compute the final directory name
-                    object_destdir=${destdir}/${objectname#$src/}
+                    object_destdir=${destdir}/${objectname#"$src"/}
                     if ! [[ -e $object_destdir ]]; then
                         # shellcheck disable=SC2174
                         mkdir -m 0755 -p "$object_destdir"

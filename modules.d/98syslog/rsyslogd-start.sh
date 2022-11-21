@@ -11,11 +11,11 @@ if [ -f /var/run/syslogd.pid ]; then
 fi
 
 rsyslog_config() {
-    local server=$1
+    local server="$1"
     shift
-    local syslog_template=$1
+    local syslog_template="$1"
     shift
-    local filters=$*
+    local filters="$*"
     local filter=
 
     cat "$syslog_template"
