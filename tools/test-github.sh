@@ -23,20 +23,13 @@ if ! [[ $TESTS ]]; then
     [[ -d .git ]] && git fetch --tags && git describe --tags
     make -j "$NCPU" all syncheck rpm logtee
 else
-    if [[ $TESTS == "99" ]]; then
-        [[ -d .git ]] && git fetch --tags && git describe --tags
-        make_docs=yes
-    else
-        make_docs=no
-    fi
-
-    make -j "$NCPU" enable_documentation=$make_docs all logtee
+    make -j "$NCPU" enable_documentation=no all logtee
 
     cd test
 
     # shellcheck disable=SC2012
     time LOGTEE_TIMEOUT_MS=590000 make \
-        enable_documentation=$make_docs \
+        enable_documentation=no \
         KVERSION="$(
             cd /lib/modules
             ls -1 | tail -1
