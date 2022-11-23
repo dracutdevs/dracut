@@ -12,25 +12,25 @@ cmdline() {
         local _sdev _scsiid _hostno _lun _wwpn _ccw _port_type
         local _allow_lun_scan _is_npiv
 
-        _allow_lun_scan=$(cat /sys/module/zfcp/parameters/allow_lun_scan)
+        read -r _allow_lun_scan < /sys/module/zfcp/parameters/allow_lun_scan
         [ "${_devpath#*/sd}" == "$_devpath" ] && return 1
         _sdev="${_devpath%%/block/*}"
         [ -e "${_sdev}"/fcp_lun ] || return 1
         _scsiid="${_sdev##*/}"
         _hostno="${_scsiid%%:*}"
         [ -d /sys/class/fc_host/host"${_hostno}" ] || return 1
-        _port_type=$(cat /sys/class/fc_host/host"${_hostno}"/port_type)
+        read -r _port_type < /sys/class/fc_host/host"${_hostno}"/port_type
         case "$_port_type" in
             NPIV*)
                 _is_npiv=1
                 ;;
         esac
-        _ccw=$(cat "${_sdev}"/hba_id)
+        read -r _ccw < "${_sdev}"/hba_id
         if [ "$_is_npiv" ] && [ "$_allow_lun_scan" = "Y" ]; then
             echo "rd.zfcp=${_ccw}"
         else
-            _lun=$(cat "${_sdev}"/fcp_lun)
-            _wwpn=$(cat "${_sdev}"/wwpn)
+            read -r _lun < "${_sdev}"/fcp_lun
+            read -r _wwpn < "${_sdev}"/wwpn
             echo "rd.zfcp=${_ccw},${_wwpn},${_lun}"
         fi
         return 0
