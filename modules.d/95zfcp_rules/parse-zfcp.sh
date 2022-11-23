@@ -34,9 +34,9 @@ EOF
 if [[ -f /sys/firmware/ipl/ipl_type && \
     $(< /sys/firmware/ipl/ipl_type) == "fcp" ]]; then
     (
-        _wwpn=$(cat /sys/firmware/ipl/wwpn)
-        _lun=$(cat /sys/firmware/ipl/lun)
-        _ccw=$(cat /sys/firmware/ipl/device)
+        read -r _wwpn < /sys/firmware/ipl/wwpn
+        read -r _lun < /sys/firmware/ipl/lun
+        read -r _ccw < /sys/firmware/ipl/device
 
         create_udev_rule "$_ccw" "$_wwpn" "$_lun"
     )
