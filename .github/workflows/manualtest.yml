@@ -22,8 +22,12 @@ jobs:
     test:
         runs-on: ubuntu-latest
         timeout-minutes: 45
+        strategy:
+            matrix:
+                container: [ "${{ inputs.container }}" ]
+                test: [ "${{ inputs.test }}" ]
         container:
-            image: ghcr.io/dracutdevs/${{ inputs.container }}
+            image: ghcr.io/dracutdevs/${{ matrix.container }}
             options: "--privileged -v /dev:/dev"
         steps:
             -   name: "Checkout Repository"
@@ -31,5 +35,5 @@ jobs:
                 with:
                     fetch-depth: 0
 
-            -   name: "${{ inputs.container }} TEST-${{ inputs.test }}"
-                run: ./tools/test-github.sh "TEST-${{ inputs.test }}" ${{ inputs.test }}
+            -   name: "${{ matrix.container }} ${{ matrix.test }}"
+                run: ./tools/test-github.sh "TEST-${{ matrix.test }}" ${{ matrix.test }}
