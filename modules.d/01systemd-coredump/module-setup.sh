@@ -33,7 +33,7 @@ install() {
     inst_multiple -o \
         "$sysctld"/50-coredump.conf \
         "$systemdutildir"/coredump.conf \
-        "$systemdsystemunitdir"/systemd-coredump \
+        "$systemdutildir"/systemd-coredump \
         "$systemdsystemunitdir"/systemd-coredump.socket \
         "$systemdsystemunitdir"/systemd-coredump@.service \
         "$systemdsystemunitdir"/sockets.target.wants/systemd-coredump.socket \
