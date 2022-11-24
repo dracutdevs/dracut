@@ -20,6 +20,11 @@ DEBUGFAIL="rd.debug loglevel=7"
 SERVER_DEBUG="rd.debug loglevel=7"
 #SERIAL="unix:/tmp/server.sock"
 
+test_check() {
+    # network-manager module has a dependency on systemd
+    ! [[ $NM ]] || command -v systemctl &> /dev/null
+}
+
 run_server() {
     # Start server first
     echo "NFS TEST SETUP: Starting DHCP/NFS server"

@@ -17,6 +17,11 @@ KVERSION=${KVERSION-$(uname -r)}
 #DEBUGFAIL="loglevel=7 rd.shell rd.break"
 #SERIAL="tcp:127.0.0.1:9999"
 
+test_check() {
+    # network-manager module has a dependency on systemd
+    ! [[ $NM ]] || command -v systemctl &> /dev/null
+}
+
 run_server() {
     # Start server first
     echo "MULTINIC TEST SETUP: Starting DHCP/NFS server"

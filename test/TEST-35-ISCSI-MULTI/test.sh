@@ -19,6 +19,11 @@ DEBUGFAIL="rd.debug loglevel=7 "
 #SERVER_DEBUG="rd.debug loglevel=7"
 #SERIAL="tcp:127.0.0.1:9999"
 
+test_check() {
+    # network-manager module has a dependency on systemd
+    ! [[ $NM ]] || command -v systemctl &> /dev/null
+}
+
 run_server() {
     # Start server first
     echo "iSCSI TEST SETUP: Starting DHCP/iSCSI server"

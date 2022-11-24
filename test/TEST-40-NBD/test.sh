@@ -19,6 +19,11 @@ KVERSION=${KVERSION-$(uname -r)}
 #SERIAL="tcp:127.0.0.1:9999"
 
 test_check() {
+    # network-manager module has a dependency on systemd
+    ! [[ $NM ]] || command -v systemctl &> /dev/null
+}
+
+test_check() {
     if ! type -p nbd-server &> /dev/null; then
         echo "Test needs nbd-server... Skipping"
         return 1
