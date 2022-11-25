@@ -2,10 +2,8 @@
 
 if [[ $NM ]]; then
     USE_NETWORK="network-manager"
-    OMIT_NETWORK="network-legacy"
 else
     USE_NETWORK="network-legacy"
-    OMIT_NETWORK="network-manager"
 fi
 
 # shellcheck disable=SC2034
@@ -316,7 +314,7 @@ test_setup() {
     )
     # Make client's dracut image
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
-        -o "dash plymouth dmraid nfs ${OMIT_NETWORK}" \
+        -o "dash plymouth dmraid nfs" \
         -a "debug ${USE_NETWORK}" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
