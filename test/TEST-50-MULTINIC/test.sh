@@ -218,7 +218,7 @@ test_setup() {
         inst ./dhcpd.conf /etc/dhcpd.conf
         inst_multiple -o {,/usr}/etc/nsswitch.conf {,/usr}/etc/rpc \
             {,/usr}/etc/protocols {,/usr}/etc/services
-        inst_multiple rpc.idmapd /etc/idmapd.conf
+        inst_multiple -o rpc.idmapd /etc/idmapd.conf
 
         inst_libdir_file 'libnfsidmap_nsswitch.so*'
         inst_libdir_file 'libnfsidmap/*.so*'
