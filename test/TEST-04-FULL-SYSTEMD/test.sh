@@ -11,7 +11,6 @@ export KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
 #DEBUGFAIL="rd.shell rd.break"
-#DEBUGFAIL="rd.shell"
 #DEBUGOUT="quiet systemd.log_level=debug systemd.log_target=console loglevel=77  rd.info rd.debug"
 DEBUGOUT="loglevel=0 "
 client_run() {
@@ -23,7 +22,6 @@ client_run() {
 
     dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
     declare -a disk_args=()
-    # shellcheck disable=SC2034
     declare -i disk_index=0
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/root.btrfs root
@@ -74,9 +72,9 @@ test_setup() {
         ln -sfn /run "$initdir/var/run"
         ln -sfn /run/lock "$initdir/var/lock"
 
-        inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
-            mount dmesg mkdir cp ping dd \
-            umount strace less setsid systemctl reset sync
+        inst_multiple sh df free ls shutdown poweroff stty cat ps ln \
+            mount dmesg mkdir cp dd \
+            umount strace less setsid systemctl sync
 
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
@@ -104,22 +102,9 @@ test_setup() {
         ln -s dracut-util "${initdir}/usr/bin/dracut-getarg"
         ln -s dracut-util "${initdir}/usr/bin/dracut-getargs"
 
-        # make a journal directory
-        mkdir -p "$initdir"/var/log/journal
-
         # install some basic config files
         inst_multiple -o \
-            /etc/machine-id \
-            /etc/adjtime \
-            /etc/passwd \
-            /etc/shadow \
-            /etc/group \
-            /etc/shells \
-            {,/usr}/etc/nsswitch.conf \
-            /etc/pam.conf \
-            /etc/securetty \
-            /etc/os-release \
-            /etc/localtime
+            /etc/os-release
 
         # we want an empty environment
         : > "$initdir"/etc/environment
@@ -160,47 +145,11 @@ EOF
             login sulogin gzip sleep echo mount umount
         inst_multiple modprobe
 
-        # install libnss_files for login
-        inst_libdir_file "libnss_files*"
-
-        # install dbus and pam
-        inst_multiple -o \
-            /etc/dbus-1/** \
-            /etc/pam.d/** \
-            /etc/security/** \
-            /lib64/security/** \
-            /lib/security/**
-
-        # install dbus socket and service file
-        inst_multiple -o \
-            /usr/lib/systemd/system/dbus.socket \
-            /usr/lib/systemd/system/dbus.service \
-            /usr/lib/systemd/system/dbus-broker.service \
-            /usr/lib/systemd/system/dbus-daemon.service
-
-        (
-            echo "FONT=eurlatgr"
-            echo "KEYMAP=us"
-        ) > "$initrd"/etc/vconsole.conf
-
-        # install basic keyboard maps and fonts
-        for i in \
-            /usr/lib/kbd/consolefonts/eurlatgr* \
-            /usr/lib/kbd/keymaps/{legacy/,/}include/* \
-            /usr/lib/kbd/keymaps/{legacy/,/}i386/include/* \
-            /usr/lib/kbd/keymaps/{legacy/,/}i386/qwerty/us.*; do
-            [[ -f $i ]] || continue
-            inst "$i"
-        done
-
         # some basic terminfo files
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
         inst_multiple -o ${_terminfodir}/l/linux
-
-        # softlink mtab
-        ln -fs /proc/self/mounts "$initdir"/etc/mtab
 
         # install any Execs from the service files
         grep -Eho '^Exec[^ ]*=[^ ]+' "$initdir"{,/usr}/lib/systemd/system/*.service \
@@ -210,16 +159,11 @@ EOF
                 inst_multiple -o "$i"
             done
 
-        # some helper tools for debugging
-        [[ $DEBUGTOOLS ]] && inst_multiple "$DEBUGTOOLS"
-
         # install ld.so.conf* and run ldconfig
         cp -a /etc/ld.so.conf* "$initdir"/etc
         ldconfig -r "$initdir"
         ddebug "Strip binaeries"
         find "$initdir" -perm /0111 -type f -print0 | xargs -0 -r strip --strip-unneeded | ddebug
-
-        hostonly='' instmods fuse
 
         # copy depmod files
         inst /lib/modules/"$kernel"/modules.order
