@@ -29,7 +29,7 @@ client_run() {
 
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
-        -append "panic=1 oops=panic softlockup_panic=1 systemd.crash_reboot root=LABEL=dracut $client_opts rd.retry=3 console=ttyS0,115200n81 selinux=0 $DEBUGOUT rd.shell=0 $DEBUGFAIL" \
+        -append "systemd.unit=testsuite.target systemd.mask=systemd-firstboot panic=1 oops=panic softlockup_panic=1 systemd.crash_reboot root=LABEL=dracut $client_opts rd.retry=3 console=ttyS0,115200n81 selinux=0 $DEBUGOUT rd.shell=0 $DEBUGFAIL" \
         -initrd "$TESTDIR"/initramfs.testing || return 1
 
     if ! grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success "$TESTDIR"/marker.img; then
@@ -52,66 +52,44 @@ test_setup() {
     trap "$(shopt -p globstar)" RETURN
     shopt -q -s globstar
 
-    export kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
-    (
-        # shellcheck disable=SC2030
-        export initdir=$TESTDIR/overlay/source
-        mkdir -p "$initdir"
-        # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+    "$basedir"/dracut.sh -l --keep --tmpdir "$TESTDIR" \
+        -m "test-root dbus" \
+        -I "ldconfig" \
+        -i ./test-init.sh /sbin/test-init \
+        -i ./fstab /etc/fstab \
+        -i "${basedir}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh" \
+        -i "${basedir}/modules.d/99base/dracut-dev-lib.sh" "/lib/dracut-dev-lib.sh" \
+        --no-hostonly --no-hostonly-cmdline --nomdadmconf --nohardlink \
+        -f "$TESTDIR"/initramfs.root "$KVERSION" || return 1
 
-        for d in usr/bin usr/sbin bin etc lib "$libdir" sbin tmp usr var var/log dev proc sys sysroot root run; do
-            if [ -L "/$d" ]; then
-                inst_symlink "/$d"
-            else
-                inst_dir "/$d"
-            fi
+    mkdir -p "$TESTDIR"/overlay/source && cp -a "$TESTDIR"/dracut.*/initramfs/* "$TESTDIR"/overlay/source && rm -rf "$TESTDIR"/dracut.* && export initdir=$TESTDIR/overlay/source
+
+    if type -P rpm &> /dev/null; then
+        rpm -ql systemd | xargs -r "$basedir"/dracut-install ${initdir:+-D "$initdir"} -o -a -l
+    elif type -P dpkg &> /dev/null; then
+        dpkg -L systemd | xargs -r "$basedir"/dracut-install ${initdir:+-D "$initdir"} -o -a -l
+    elif type -P pacman &> /dev/null; then
+        pacman -Q -l systemd | while read -r _ a; do printf -- "%s\0" "$a"; done | xargs -0 -r "$basedir"/dracut-install ${initdir:+-D "$initdir"} -o -a -l
+    else
+        echo "Can't install systemd base"
+        return 1
+    fi
+
+    # softlink mtab
+    ln -fs /proc/self/mounts "$initdir"/etc/mtab
+
+    # install any Execs from the service files
+    grep -Eho '^Exec[^ ]*=[^ ]+' "$initdir"{,/usr}/lib/systemd/system/*.service \
+        | while read -r i || [ -n "$i" ]; do
+            i=${i##Exec*=}
+            i=${i##-}
+            "$basedir"/dracut-install ${initdir:+-D "$initdir"} -o -a -l "$i"
         done
 
-        ln -sfn /run "$initdir/var/run"
-        ln -sfn /run/lock "$initdir/var/lock"
-
-        inst_multiple sh df free ls shutdown poweroff stty cat ps ln \
-            mount dmesg mkdir cp dd \
-            umount strace less setsid systemctl sync
-
-        for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
-            [ -f ${_terminfodir}/l/linux ] && break
-        done
-        inst_multiple -o ${_terminfodir}/l/linux
-        inst_multiple grep
-        inst_simple ./fstab /etc/fstab
-        if type -P rpm &> /dev/null; then
-            rpm -ql systemd | xargs -r "$DRACUT_INSTALL" ${initdir:+-D "$initdir"} -o -a -l
-        elif type -P dpkg &> /dev/null; then
-            dpkg -L systemd | xargs -r "$DRACUT_INSTALL" ${initdir:+-D "$initdir"} -o -a -l
-        elif type -P pacman &> /dev/null; then
-            pacman -Q -l systemd | while read -r _ a; do printf -- "%s\0" "$a"; done | xargs -0 -r "$DRACUT_INSTALL" ${initdir:+-D "$initdir"} -o -a -l
-            rm "$initdir"/usr/lib/systemd/system/sysinit.target.wants/systemd-firstboot.service
-        else
-            echo "Can't install systemd base"
-            return 1
-        fi
-        inst /sbin/init
-        inst_multiple -o {,/usr}/lib/systemd/system/"dracut*"
-
-        inst_simple "${basedir}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh"
-        inst_simple "${basedir}/modules.d/99base/dracut-dev-lib.sh" "/lib/dracut-dev-lib.sh"
-        inst_binary "${basedir}/dracut-util" "/usr/bin/dracut-util"
-        ln -s dracut-util "${initdir}/usr/bin/dracut-getarg"
-        ln -s dracut-util "${initdir}/usr/bin/dracut-getargs"
-
-        # install some basic config files
-        inst_multiple -o \
-            /etc/os-release
-
-        # we want an empty environment
-        : > "$initdir"/etc/environment
-
-        # setup the testsuite target
-        mkdir -p "$initdir"/etc/systemd/system
-        cat > "$initdir"/etc/systemd/system/testsuite.target << EOF
+    # setup the testsuite target
+    mkdir -p "$initdir"/etc/systemd/system
+    cat > "$initdir"/etc/systemd/system/testsuite.target << EOF
 [Unit]
 Description=Testsuite target
 Requires=basic.target
@@ -120,10 +98,8 @@ Conflicts=rescue.target
 AllowIsolate=yes
 EOF
 
-        inst ./test-init.sh /sbin/test-init
-
-        # setup the testsuite service
-        cat > "$initdir"/etc/systemd/system/testsuite.service << EOF
+    # setup the testsuite service
+    cat > "$initdir"/etc/systemd/system/testsuite.service << EOF
 [Unit]
 Description=Testsuite service
 After=basic.target
@@ -134,74 +110,24 @@ Type=oneshot
 StandardInput=tty
 StandardOutput=tty
 EOF
-        mkdir -p "$initdir"/etc/systemd/system/testsuite.target.wants
-        ln -fs ../testsuite.service "$initdir"/etc/systemd/system/testsuite.target.wants/testsuite.service
 
-        # make the testsuite the default target
-        systemctl --root="$initdir" set-default testsuite.target
-
-        # install basic tools needed
-        inst_multiple sh bash setsid loadkeys setfont \
-            login sulogin gzip sleep echo mount umount
-        inst_multiple modprobe
-
-        # some basic terminfo files
-        for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
-            [ -f ${_terminfodir}/l/linux ] && break
-        done
-        inst_multiple -o ${_terminfodir}/l/linux
-
-        # install any Execs from the service files
-        grep -Eho '^Exec[^ ]*=[^ ]+' "$initdir"{,/usr}/lib/systemd/system/*.service \
-            | while read -r i || [ -n "$i" ]; do
-                i=${i##Exec*=}
-                i=${i##-}
-                inst_multiple -o "$i"
-            done
-
-        # install ld.so.conf* and run ldconfig
-        cp -a /etc/ld.so.conf* "$initdir"/etc
-        ldconfig -r "$initdir"
-        ddebug "Strip binaeries"
-        find "$initdir" -perm /0111 -type f -print0 | xargs -0 -r strip --strip-unneeded | ddebug
-
-        # copy depmod files
-        inst /lib/modules/"$kernel"/modules.order
-        inst /lib/modules/"$kernel"/modules.builtin
-        # generate module dependencies
-        if [[ -d $initdir/lib/modules/$kernel ]] \
-            && ! depmod -a -b "$initdir" "$kernel"; then
-            dfatal "\"depmod -a $kernel\" failed."
-            exit 1
-        fi
-        # disable some services
-        systemctl --root "$initdir" mask systemd-update-utmp
-        systemctl --root "$initdir" mask systemd-tmpfiles-setup
-    )
+    mkdir -p "$initdir"/etc/systemd/system/testsuite.target.wants
+    ln -fs ../testsuite.service "$initdir"/etc/systemd/system/testsuite.target.wants/testsuite.service
 
     # second, install the files needed to make the root filesystem
-    (
-        # shellcheck disable=SC2030
-        # shellcheck disable=SC2031
-        export initdir=$TESTDIR/overlay
-        # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
-        inst_multiple sfdisk mkfs.btrfs btrfs poweroff cp umount sync dd
-        inst_hook initqueue 01 ./create-root.sh
-        inst_hook initqueue/finished 01 ./finished-false.sh
-    )
-
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
-        -m "bash btrfs rootfs-block kernel-modules qemu" \
+        -m "test-makeroot bash btrfs rootfs-block kernel-modules qemu" \
         -d "piix ide-gd_mod ata_piix btrfs sd_mod" \
+        -I "mkfs.btrfs btrfs sync" \
+        -i ./create-root.sh /lib/dracut/hooks/initqueue/01-create-root.sh \
         --nomdadmconf \
         --nohardlink \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
-    rm -rf -- "$TESTDIR"/overlay
+    rm -rf -- "$TESTDIR"/overlay/*
 
     # Create the blank file to use as a root filesystem
     dd if=/dev/zero of="$TESTDIR"/root.btrfs bs=1MiB count=160
@@ -225,21 +151,11 @@ EOF
         return 1
     fi
 
-    (
-        # shellcheck disable=SC2031
-        export initdir=$TESTDIR/overlay
-        # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
-        inst_multiple poweroff shutdown dd
-        inst_hook shutdown-emergency 000 ./hard-off.sh
-        inst_hook emergency 000 ./hard-off.sh
-    )
-
     [ -e /etc/machine-id ] && EXTRA_MACHINE="/etc/machine-id"
     [ -e /etc/machine-info ] && EXTRA_MACHINE+=" /etc/machine-info"
 
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
-        -a "debug systemd i18n qemu" \
+        -a "test systemd i18n qemu" \
         ${EXTRA_MACHINE:+-I "$EXTRA_MACHINE"} \
         -o "dash network plymouth lvm mdraid resume crypt caps dm terminfo usrmount kernel-network-modules rngd" \
         -d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \
