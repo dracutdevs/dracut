@@ -36,7 +36,7 @@ load_ecryptfs_key() {
     fi
 
     # read the eCryptfs encrypted key blob
-    KEYBLOB=$(cat "${ECRYPTFSKEYPATH}")
+    read -r KEYBLOB < "${ECRYPTFSKEYPATH}"
 
     # load the eCryptfs encrypted key blob
     if ! ECRYPTFSKEYID=$(keyctl add ${ECRYPTFSKEYTYPE} ${ECRYPTFSKEYDESC} "load ${KEYBLOB}" @u); then

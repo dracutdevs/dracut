@@ -50,7 +50,7 @@ load_masterkey() {
     fi
 
     # read the kernel master key blob
-    KEYBLOB=$(cat "${MASTERKEYPATH}")
+    read -r KEYBLOB < "${MASTERKEYPATH}"
 
     # add the 'load' prefix if the key type is 'trusted'
     [ "${MASTERKEYTYPE}" = "trusted" ] \

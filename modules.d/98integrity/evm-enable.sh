@@ -50,7 +50,7 @@ load_evm_key() {
     fi
 
     # read the EVM encrypted key blob
-    KEYBLOB=$(cat "${EVMKEYPATH}")
+    read -r KEYBLOB < "${EVMKEYPATH}"
 
     # load the EVM encrypted key
     if ! EVMKEYID=$(keyctl add ${EVMKEYTYPE} ${EVMKEYDESC} "load ${KEYBLOB}" @u); then

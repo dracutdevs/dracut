@@ -151,7 +151,7 @@ for netup in /tmp/net.*.did-setup; do
     # shellcheck disable=SC1090
     [ -e /tmp/team."${netif}".info ] && . /tmp/team."${netif}".info
 
-    uuid=$(cat /proc/sys/kernel/random/uuid)
+    read -r uuid < /proc/sys/kernel/random/uuid
     if [ "$netif" = "$bridgename" ]; then
         bridge=yes
     elif [ "$netif" = "$teammaster" ]; then

@@ -18,7 +18,7 @@ check() {
         for d in device/nvme*; do
             [ -L "$d" ] || continue
             if readlink "$d" | grep -q nvme-fabrics; then
-                trtype=$(cat "$d"/transport)
+                read -r trtype < "$d"/transport
                 break
             fi
         done
@@ -75,7 +75,7 @@ cmdline() {
         for d in device/nvme*; do
             [ -L "$d" ] || continue
             if readlink "$d" | grep -q nvme-fabrics; then
-                trtype=$(cat "$d"/transport)
+                read -r trtype < "$d"/transport
                 break
             fi
         done
@@ -98,11 +98,11 @@ cmdline() {
     }
 
     if [ -f /etc/nvme/hostnqn ]; then
-        _hostnqn=$(cat /etc/nvme/hostnqn)
+        read -r _hostnqn < /etc/nvme/hostnqn
         echo -n " rd.nvmf.hostnqn=${_hostnqn}"
     fi
     if [ -f /etc/nvme/hostid ]; then
-        _hostid=$(cat /etc/nvme/hostid)
+        read -r _hostid < /etc/nvme/hostid
         echo -n " rd.nvmf.hostid=${_hostid}"
     fi
 

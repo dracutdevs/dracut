@@ -59,7 +59,7 @@ handle_firmware() {
             set -- /sys/firmware/ibft/ethernet*
             echo $#
         )
-        retry=$(cat /tmp/session-retry)
+        read -r retry < /tmp/session-retry
 
         if [ "$retry" -lt "$ifaces" ]; then
             retry=$((retry + 1))

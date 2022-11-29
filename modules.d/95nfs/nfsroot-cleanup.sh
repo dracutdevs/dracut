@@ -2,7 +2,7 @@
 
 type incol2 > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
-[ -f /tmp/nfs.rpc_pipefs_path ] && rpcpipefspath=$(cat /tmp/nfs.rpc_pipefs_path)
+[ -f /tmp/nfs.rpc_pipefs_path ] && read -r rpcpipefspath < /tmp/nfs.rpc_pipefs_path
 [ -z "$rpcpipefspath" ] && rpcpipefspath=var/lib/nfs/rpc_pipefs
 
 pid=$(pidof rpc.statd)

@@ -932,7 +932,7 @@ _emergency_shell() {
         if [ -z "$_ctty" ]; then
             _ctty=console
             while [ -f /sys/class/tty/$_ctty/active ]; do
-                _ctty=$(cat /sys/class/tty/$_ctty/active)
+                read -r _ctty < /sys/class/tty/$_ctty/active
                 _ctty=${_ctty##* } # last one in the list
             done
             _ctty=/dev/$_ctty

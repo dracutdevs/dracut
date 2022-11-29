@@ -26,7 +26,7 @@ fsck_usr() {
     local _fsckoptions
 
     if [ -f "$NEWROOT"/fsckoptions ]; then
-        _fsckoptions=$(cat "$NEWROOT"/fsckoptions)
+        read -r _fsckoptions < "$NEWROOT"/fsckoptions
     fi
 
     if [ -f "$NEWROOT"/forcefsck ] || getargbool 0 forcefsck; then
