@@ -35,13 +35,14 @@ installkernel() {
 
     if [[ -z $drivers ]]; then
         hostonly='' instmods \
-            hid_generic unix \
+            hid_generic unix
+
+        hostonly=$(optional_hostonly) instmods \
             ehci-hcd ehci-pci ehci-platform \
             ohci-hcd ohci-pci \
             uhci-hcd \
-            xhci-hcd xhci-pci xhci-plat-hcd
-
-        hostonly=$(optional_hostonly) instmods \
+            usbhid \
+            xhci-hcd xhci-pci xhci-plat-hcd \
             "=drivers/hid" \
             "=drivers/tty/serial" \
             "=drivers/input/serio" \
@@ -54,7 +55,7 @@ installkernel() {
 
         instmods \
             yenta_socket \
-            atkbd i8042 usbhid firewire-ohci pcmcia hv-vmbus \
+            atkbd i8042 firewire-ohci pcmcia hv-vmbus \
             virtio virtio_ring virtio_pci pci_hyperv \
             "=drivers/pcmcia"
 
