@@ -14,7 +14,7 @@ depends() {
 installkernel() {
     local _fipsmodules _mod _bootfstype
     if [[ -f "${srcmods}/modules.fips" ]]; then
-        _fipsmodules="$(cat "${srcmods}/modules.fips")"
+        read -d '' -r _fipsmodules < "${srcmods}/modules.fips"
     else
         _fipsmodules=""
 

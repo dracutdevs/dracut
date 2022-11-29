@@ -67,7 +67,7 @@ command -v fix_bootif > /dev/null || . /lib/net-lib.sh
     fi
 
     if [ -e /tmp/net.bootdev ]; then
-        bootdev=$(cat /tmp/net.bootdev)
+        read -r bootdev < /tmp/net.bootdev
     fi
 
     # shellcheck disable=SC2016

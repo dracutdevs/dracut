@@ -51,7 +51,7 @@ mount_root() {
 
     if ! getargbool 0 rd.skipfsck; then
         if [ -f "$NEWROOT"/fsckoptions ]; then
-            fsckoptions=$(cat "$NEWROOT"/fsckoptions)
+            read -r fsckoptions < "$NEWROOT"/fsckoptions
         fi
 
         if [ -f "$NEWROOT"/forcefsck ] || getargbool 0 forcefsck; then

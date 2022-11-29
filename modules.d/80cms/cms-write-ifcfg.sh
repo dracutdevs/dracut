@@ -23,7 +23,7 @@ function cms_write_config() {
 
     DEVICE=$(cd "/sys/devices/${driver}/$devbusid/net/" && set -- * && [ "$1" != "*" ] && echo "$1")
 
-    uuid=$(cat /proc/sys/kernel/random/uuid)
+    read -r uuid < /proc/sys/kernel/random/uuid
 
     IFCFGFILE=/run/initramfs/state/etc/sysconfig/network-scripts/ifcfg-$DEVICE
 

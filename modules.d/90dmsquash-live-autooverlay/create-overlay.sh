@@ -47,12 +47,12 @@ gatherData() {
     rootDeviceSysfsPath=/sys/class/block/${rootDeviceAbsolutePath##*/}
     if [ -f "${rootDeviceSysfsPath}/partition" ]; then
         # shellcheck disable=SC2086
-        partition=$(cat ${rootDeviceSysfsPath}/partition)
+        read -r partition < ${rootDeviceSysfsPath}/partition
     else
         partition=0
     fi
     # shellcheck disable=SC2086
-    readonly=$(cat ${rootDeviceSysfsPath}/ro)
+    read -r readonly < ${rootDeviceSysfsPath}/ro
     # shellcheck disable=SC2086
     if [ "$partition" != "1" ] || [ "$readonly" != "0" ]; then
         info "Skipping overlay creation: unpartitioned or read-only media detected"

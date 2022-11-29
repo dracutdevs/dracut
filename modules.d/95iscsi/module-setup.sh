@@ -78,10 +78,10 @@ install_iscsiroot() {
     for flash in "${host}"/flashnode_sess-*; do
         [ -f "$flash" ] || continue
         [ ! -e "$flash/is_boot_target" ] && continue
-        is_boot=$(cat "$flash"/is_boot_target)
+        read -r is_boot < "$flash"/is_boot_target
         if [ "$is_boot" -eq 1 ]; then
             # qla4xxx flashnode session; skip iBFT discovery
-            iscsi_initiator=$(cat /sys/class/iscsi_host/"${iscsi_host}"/initiatorname)
+            read -r iscsi_initiator < /sys/class/iscsi_host/"${iscsi_host}"/initiatorname
             echo "rd.iscsi.initiator=${iscsi_initiator}"
             return
         fi
@@ -93,14 +93,14 @@ install_iscsiroot() {
                 c=${d##*/}
                 conn=${d}/iscsi_connection/${c}
                 if [ -d "${conn}" ]; then
-                    iscsi_address=$(cat "${conn}"/persistent_address)
-                    iscsi_port=$(cat "${conn}"/persistent_port)
+                    read -r iscsi_address < "${conn}"/persistent_address
+                    read -r iscsi_port < "${conn}"/persistent_port
                 fi
                 ;;
             *session)
                 if [ -d "${d}"/"${iscsi_session}" ]; then
-                    iscsi_initiator=$(cat "${d}"/"${iscsi_session}"/initiatorname)
-                    iscsi_targetname=$(cat "${d}"/"${iscsi_session}"/targetname)
+                    read -r iscsi_initiator < "${d}"/"${iscsi_session}"/initiatorname
+                    read -r iscsi_targetname < "${d}"/"${iscsi_session}"/targetname
                 fi
                 ;;
         esac

@@ -18,8 +18,8 @@ dcb=$2
 mode=$3
 vlan="yes"
 
-iflink=$(cat /sys/class/net/"$netif"/iflink)
-ifindex=$(cat /sys/class/net/"$netif"/ifindex)
+read -r iflink < /sys/class/net/"$netif"/iflink
+read -r ifindex < /sys/class/net/"$netif"/ifindex
 if [ "$iflink" != "$ifindex" ]; then
     # Skip VLAN devices
     exit 0

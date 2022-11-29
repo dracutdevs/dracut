@@ -58,7 +58,7 @@ do_dhclient() {
         # or it finished execution but failed dhcp on that interface.
 
         if [ $retv -eq 127 ]; then
-            pid=$(cat /tmp/dhclient."$netif".pid)
+            read -r pid < /tmp/dhclient."$netif".pid
             info "PID $pid was not found by wait for $netif"
             if [ -e /tmp/dhclient."$netif".lease ]; then
                 info "PID $pid not found but DHCP successful on $netif"
@@ -116,7 +116,7 @@ if [ $ret -eq 0 ]; then
             # Kill all existing dhclient calls for other interfaces, since we
             # already got one successful interface
 
-            npid=$(cat /tmp/dhclient."$netif".pid)
+            read -r npid < /tmp/dhclient."$netif".pid
             pidlist=$(pgrep dhclient)
             for pid in $pidlist; do
                 [ "$pid" -eq "$npid" ] && continue

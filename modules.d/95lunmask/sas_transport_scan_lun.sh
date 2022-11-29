@@ -20,7 +20,7 @@ HOST=${ID%%:*}
 CHANNEL=${ID%%-*}
 CHANNEL=${CHANNEL#*:}
 if [ -f /sys"$DEVPATH"/scsi_target_id ]; then
-    TARGET=$(cat /sys"$DEVPATH"/scsi_target_id)
+    read -r TARGET < /sys"$DEVPATH"/scsi_target_id
 fi
 [ -z "$TARGET" ] && exit 1
 echo 0 "$TARGET" $LUN > /sys/class/scsi_host/host"$HOST"/scan
