@@ -21,13 +21,23 @@ majmin_to_mpath_dev() {
 
 # called by dracut
 check() {
+    local _any_mpath_dev
+
+    for_each_host_dev_and_slaves is_mpath
+    _any_mpath_dev=$?
+
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        for_each_host_dev_and_slaves is_mpath || return 255
+        [[ $_any_mpath_dev == 0 ]] || return 255
     }
 
     # if there's no multipath binary, no go.
     require_binaries multipath || return 1
     require_binaries kpartx || return 1
+
+    if [[ $_any_mpath_dev != 0 ]] && [[ ! -f /etc/multipath.conf ]]; then
+        dwarn "multipath: including module with no multipath devices and empty" \
+            "configuration, the root disk may be unintentionally multipathed."
+    fi
 
     return 0
 }
