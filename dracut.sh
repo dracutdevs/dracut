@@ -1434,7 +1434,7 @@ if [[ ! $print_cmdline ]]; then
         fi
         unset EFI_MACHINE_TYPE_NAME
         EFI_SECTION_VMA_INITRD=0x3000000
-        case $(uname -m) in
+        case "${DRACUT_ARCH:-$(uname -m)}" in
             x86_64)
                 EFI_MACHINE_TYPE_NAME=x64
                 ;;
@@ -1447,7 +1447,7 @@ if [[ ! $print_cmdline ]]; then
                 EFI_SECTION_VMA_INITRD=0x4000000
                 ;;
             *)
-                dfatal "Architecture '$(uname -m)' not supported to create a UEFI executable"
+                dfatal "Architecture '${DRACUT_ARCH:-$(uname -m)}' not supported to create a UEFI executable"
                 exit 1
                 ;;
         esac
@@ -1494,7 +1494,7 @@ if [[ $early_microcode == yes ]]; then
             && unset early_microcode
     fi
     # Do not complain on non-x86 architectures as it makes no sense
-    case $(uname -m) in
+    case "${DRACUT_ARCH:-$(uname -m)}" in
         x86_64 | i?86)
             [[ $early_microcode != yes ]] \
                 && dwarn "Disabling early microcode, because kernel does not support it. CONFIG_MICROCODE_[AMD|INTEL]!=y"
