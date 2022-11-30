@@ -1,10 +1,6 @@
 #!/bin/bash
 
-if [[ $NM ]]; then
-    USE_NETWORK="network-manager"
-else
-    USE_NETWORK="network-legacy"
-fi
+[ -z "$USE_NETWORK" ] && USE_NETWORK="network-legacy"
 
 # shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem on NBD with $USE_NETWORK"
