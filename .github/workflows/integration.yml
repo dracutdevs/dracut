@@ -4,6 +4,9 @@ on:
     pull_request:
         branches: [ master ]
 
+env:
+    DEBUGFAIL: "${{ secrets.ACTIONS_STEP_DEBUG && 'rd.debug' }}"
+
 jobs:
     basic:
         runs-on: ubuntu-latest
