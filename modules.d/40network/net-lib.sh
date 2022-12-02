@@ -101,7 +101,10 @@ get_netroot_ip() {
 }
 
 ip_is_local() {
-    strstr "$(ip route get "$@" 2> /dev/null)" " via " || return 0
+    li=$(ip route get "$@" 2> /dev/null)
+    if [ -n "$li" ]; then
+        strstr "$li" " via " || return 0
+    fi
     return 1
 }
 
