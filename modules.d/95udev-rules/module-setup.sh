@@ -50,7 +50,6 @@ install() {
         "$moddir/59-persistent-storage.rules" \
         "$moddir/61-persistent-storage.rules"
 
-    prepare_udev_rules 59-persistent-storage.rules 61-persistent-storage.rules
     # debian udev rules
     inst_rules 91-permissions.rules
     # eudev rules

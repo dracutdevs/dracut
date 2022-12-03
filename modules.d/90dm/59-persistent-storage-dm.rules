@@ -10,6 +10,6 @@ ENV{DM_NAME}!="?*", GOTO="dm_end"
 ENV{DM_UDEV_DISABLE_OTHER_RULES_FLAG}=="1", GOTO="dm_end"
 ENV{DM_UUID}=="CRYPT-TEMP-?*", GOTO="dm_end"
 ENV{DM_UUID}!="?*", ENV{DM_NAME}=="temporary-cryptsetup-?*", GOTO="dm_end"
-IMPORT BLKID
+IMPORT{builtin}="blkid"
 
 LABEL="dm_end"
