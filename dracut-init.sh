@@ -585,6 +585,8 @@ build_ld_cache() {
 }
 
 prepare_udev_rules() {
+    dwarn "prepare_udev_rules: deprecated and will be removed"
+
     if [ -z "$UDEVVERSION" ]; then
         UDEVVERSION=$(udevadm --version)
         export UDEVVERSION

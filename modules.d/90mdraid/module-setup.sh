@@ -96,7 +96,6 @@ install() {
     inst_rules "$moddir/65-md-incremental-imsm.rules"
 
     inst_rules "$moddir/59-persistent-storage-md.rules"
-    prepare_udev_rules 59-persistent-storage-md.rules
 
     if [[ $hostonly ]] || [[ $mdadmconf == "yes" ]]; then
         if [[ -f $dracutsysrootdir/etc/mdadm.conf ]]; then
