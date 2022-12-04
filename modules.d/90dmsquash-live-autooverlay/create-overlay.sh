@@ -14,6 +14,12 @@ gatherData() {
         info "Skipping overlay creation: kernel command line parameter 'rd.live.overlay' is not set"
         exit 0
     fi
+    overlaynocreate=$(getarg rd.live.overlay.nocreate)
+    if [ -n "$overlaynocreate" ]; then
+        info "Skipping overlay creation: automatic overlay creation disabled"
+        exit 0
+    fi
+
     # shellcheck disable=SC2086
     if ! str_starts ${overlay} LABEL=; then
         die "Overlay creation failed: the partition must be set by LABEL in the 'rd.live.overlay' kernel parameter"
