@@ -34,7 +34,7 @@ RUN emerge -qv \
     sys-fs/mdadm \
     sys-fs/ntfs3g \
     sys-fs/squashfs-tools \
-    && rm -rf /var/cache/* /usr/share/doc/* /usr/share/man/* /var/db/repos/gentoo
+    && rm -rf /var/cache/* /usr/share/doc/* /usr/share/man/*
 
 # Set default command
 CMD ["/usr/bin/bash"]
