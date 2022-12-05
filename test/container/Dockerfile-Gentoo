@@ -28,6 +28,7 @@ RUN emerge -qv \
     sys-apps/busybox \
     sys-block/parted \
     sys-fs/btrfs-progs \
+    sys-fs/dmraid \
     sys-fs/lvm2 \
     sys-fs/ntfs3g \
     sys-fs/squashfs-tools \
