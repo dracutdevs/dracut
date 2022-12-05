@@ -1367,82 +1367,89 @@ static int install_all(int argc, char **argv)
         return r;
 }
 
-static int install_firmware_fullpath(const char *fwpath)
+static int install_firmware_fullpath(const char *fwdir, const char *fwname,
+                                     const char *suffix)
 {
-        const char *fw = fwpath;
-        _cleanup_free_ char *fwpath_compressed = NULL;
-        struct stat sb;
-        int ret;
-        if (stat(fwpath, &sb) != 0) {
-                _asprintf(&fwpath_compressed, "%s.zst", fwpath);
-                if (access(fwpath_compressed, F_OK) != 0) {
-                        strcpy(fwpath_compressed + strlen(fwpath) + 1, "xz");
-                        if (access(fwpath_compressed, F_OK) != 0) {
-                                log_debug("stat(%s) != 0", fwpath);
-                                return 1;
-                        }
+        _cleanup_globfree_ glob_t globbuf;
+        _cleanup_free_ char *fwpath_full;
+        bool ok = false, fail = false;
+        const char *fw;
+        size_t i;
+
+        _asprintf(&fwpath_full, "%s/%s%s", fwdir, fwname, suffix);
+        glob(fwpath_full, 0, NULL, &globbuf);
+
+        if (globbuf.gl_pathc == 0) {
+                log_debug("firmware file '%s' not found", fwpath_full);
+                return -1;
+        }
+
+        for (i = 0; i < globbuf.gl_pathc; i++) {
+                fw = globbuf.gl_pathv[i];
+
+                if (access(fw, F_OK) != 0) {
+                        log_debug("stat(%s) != 0", fw);
+                        fail = true;
+                } else if (dracut_install(fw, fw, false, false, true) == 0) {
+                        log_debug("dracut_install '%s' OK", fw);
+                        ok = true;
+                } else {
+                        log_debug("dracut_install '%s' FAIL", fw);
+                        fail = true;
                 }
-                fw = fwpath_compressed;
         }
-        ret = dracut_install(fw, fw, false, false, true);
-        if (ret == 0) {
-                log_debug("dracut_install '%s' OK", fwpath);
-        }
-        return ret;
+
+        return ok && !fail ? 0 : -1;
 }
 
 static int install_firmware(struct kmod_module *mod)
 {
+        static const char *firmware_suffixes[] = {"", ".zst", ".xz", NULL};
+
         struct kmod_list *l = NULL;
         _cleanup_kmod_module_info_free_list_ struct kmod_list *list = NULL;
         int ret;
-
-        char **q;
 
         ret = kmod_module_get_info(mod, &list);
         if (ret < 0) {
                 log_error("could not get modinfo from '%s': %s\n", kmod_module_get_name(mod), strerror(-ret));
                 return ret;
         }
+
         kmod_list_foreach(l, list) {
                 const char *key = kmod_module_info_get_key(l);
-                const char *value = NULL;
+                const char *fwname = NULL;
+                bool found = false, is_glob;
+                const char **fwsuffix;
+                char **fwdir;
 
                 if (!streq("firmware", key))
                         continue;
 
-                value = kmod_module_info_get_value(l);
-                log_debug("Firmware %s", value);
-                ret = -1;
-                STRV_FOREACH(q, firmwaredirs) {
-                        _cleanup_free_ char *fwpath = NULL;
-                        struct stat sb;
+                fwname = kmod_module_info_get_value(l);
+                is_glob = strpbrk(fwname, "*?[");
+                log_debug("Firmware %s", fwname);
 
-                        _asprintf(&fwpath, "%s/%s", *q, value);
-
-                        if ((strstr(value, "*") != 0 || strstr(value, "?") != 0 || strstr(value, "[") != 0)
-                            && stat(fwpath, &sb) != 0) {
-                                size_t i;
-                                _cleanup_globfree_ glob_t globbuf;
-
-                                glob(fwpath, 0, NULL, &globbuf);
-                                for (i = 0; i < globbuf.gl_pathc; i++) {
-                                        ret = install_firmware_fullpath(globbuf.gl_pathv[i]);
-                                        if (ret != 0) {
-                                                log_info("Possible missing firmware %s for kernel module %s", value,
-                                                         kmod_module_get_name(mod));
-                                        }
-                                }
-                        } else {
-                                ret = install_firmware_fullpath(fwpath);
-                                if (ret != 0) {
-                                        log_info("Possible missing firmware %s for kernel module %s", value,
-                                                 kmod_module_get_name(mod));
+                STRV_FOREACH(fwsuffix, firmware_suffixes) {
+                        STRV_FOREACH(fwdir, firmwaredirs) {
+                                if (install_firmware_fullpath(*fwdir, fwname, *fwsuffix) == 0) {
+                                        found = true;
+                                        if (!is_glob)
+                                                break;
                                 }
                         }
+                        if (found && !is_glob)
+                                break;
+                }
+
+                if (!found) {
+                        ret = -1;
+                        log_info("Possible missing firmware %s for kernel module %s", fwname,
+                                 kmod_module_get_name(mod));
                 }
         }
-        return 0;
+
+        return ret;
 }
 
 static bool check_module_symbols(struct kmod_module *mod)
