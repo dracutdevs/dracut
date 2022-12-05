@@ -57,6 +57,7 @@ RUN apt-get update -y -qq && apt-get upgrade -y -qq && DEBIAN_FRONTEND=nonintera
     strace \
     sudo \
     tcpdump \
+    thin-provisioning-tools \
     vim \
     wget \
     && apt-get clean
