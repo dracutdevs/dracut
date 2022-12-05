@@ -31,6 +31,7 @@ RUN emerge -qv \
     sys-fs/btrfs-progs \
     sys-fs/dmraid \
     sys-fs/lvm2 \
+    sys-fs/mdadm \
     sys-fs/ntfs3g \
     sys-fs/squashfs-tools \
     && rm -rf /var/cache/* /usr/share/doc/* /usr/share/man/* /var/db/repos/gentoo
