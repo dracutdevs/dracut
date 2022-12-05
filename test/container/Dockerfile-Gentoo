@@ -27,6 +27,7 @@ RUN emerge -qv \
     app-shells/dash \
     sys-apps/busybox \
     sys-block/parted \
+    sys-block/thin-provisioning-tools \
     sys-fs/btrfs-progs \
     sys-fs/dmraid \
     sys-fs/lvm2 \
