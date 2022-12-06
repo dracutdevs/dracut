@@ -150,6 +150,28 @@ require_any_binary() {
     return 0
 }
 
+# helper function for check() in module-setup.sh
+# to check for required kernel modules
+# issues a standardized warning message
+require_kernel_modules() {
+    # shellcheck disable=SC2154
+    local _module_name="${moddir##*/}"
+    local _ret=0
+
+    if [[ $1 == "-m" ]]; then
+        _module_name="$2"
+        shift 2
+    fi
+
+    for mod in "$@"; do
+        if ! check_kernel_module "$mod" &> /dev/null; then
+            dinfo "dracut module '${_module_name#[0-9][0-9]}' will not be installed, because kernel module '$mod' is not available!"
+            ((_ret++))
+        fi
+    done
+    return "$_ret"
+}
+
 dracut_need_initqueue() {
     : > "$initdir/lib/dracut/need-initqueue"
 }
