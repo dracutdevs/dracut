@@ -2,13 +2,7 @@
 
 check() {
     require_binaries mksquashfs unsquashfs || return 1
-
-    for i in CONFIG_SQUASHFS CONFIG_BLK_DEV_LOOP CONFIG_OVERLAY_FS; do
-        if ! check_kernel_config $i; then
-            dinfo "dracut-squash module requires kernel configuration $i (y or m)"
-            return 1
-        fi
-    done
+    require_kernel_modules squashfs loop overlay || return 1
 
     return 255
 }
