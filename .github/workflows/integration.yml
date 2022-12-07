@@ -10,7 +10,7 @@ env:
 jobs:
     basic:
         runs-on: ubuntu-latest
-        timeout-minutes: 45
+        timeout-minutes: 30
         concurrency:
             group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.container }}-${{ matrix.test }}
             cancel-in-progress: true
@@ -39,7 +39,7 @@ jobs:
                 run: ./tools/test-github.sh "TEST-${{ matrix.test }}" ${{ matrix.test }}
     test:
         runs-on: ubuntu-latest
-        timeout-minutes: 45
+        timeout-minutes: 30
         concurrency:
             group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.container }}-${{ matrix.test }}
             cancel-in-progress: true
