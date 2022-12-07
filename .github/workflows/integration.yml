@@ -8,35 +8,6 @@ env:
     DEBUGFAIL: "${{ secrets.ACTIONS_STEP_DEBUG && 'rd.debug' }}"
 
 jobs:
-    basic:
-        runs-on: ubuntu-latest
-        timeout-minutes: 30
-        concurrency:
-            group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.container }}-${{ matrix.test }}
-            cancel-in-progress: true
-        strategy:
-            matrix:
-                container: [
-                        "arch:latest",
-                        "debian:latest",
-                        "fedora:latest",
-                        "opensuse:latest",
-                ]
-                test: [
-                        "04",
-                ]
-            fail-fast: false
-        container:
-            image: ghcr.io/dracutdevs/${{ matrix.container }}
-            options: "--privileged -v /dev:/dev"
-        steps:
-            -   name: "Checkout Repository"
-                uses: actions/checkout@v3
-                with:
-                    fetch-depth: 0
-
-            -   name: "${{ matrix.container }} TEST-${{ matrix.test }}"
-                run: ./tools/test-github.sh "TEST-${{ matrix.test }}" ${{ matrix.test }}
     test:
         runs-on: ubuntu-latest
         timeout-minutes: 30
@@ -55,6 +26,7 @@ jobs:
                         "01",
                         "02",
                         "03",
+                        "04",
                         "10",
                         "11",
                         "12",
