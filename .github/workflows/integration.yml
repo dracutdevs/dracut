@@ -46,7 +46,10 @@ jobs:
         strategy:
             matrix:
                 container: [
+                        "arch:latest",
+                        "debian:latest",
                         "fedora:latest",
+                        "opensuse:latest",
                 ]
                 test: [
                         "01",
