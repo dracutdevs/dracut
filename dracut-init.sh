@@ -158,6 +158,9 @@ require_kernel_modules() {
     local _module_name="${moddir##*/}"
     local _ret=0
 
+    # Ignore kernel module requirement for no-kernel build
+    [[ $no_kernel == yes ]] && return 0
+
     if [[ $1 == "-m" ]]; then
         _module_name="$2"
         shift 2
