@@ -7,9 +7,7 @@ TEST_DESCRIPTION="root filesystem over multiple iSCSI with $USE_NETWORK"
 
 KVERSION=${KVERSION-$(uname -r)}
 
-#DEBUGFAIL="loglevel=1"
 #DEBUGFAIL="rd.shell rd.break rd.debug loglevel=7 "
-DEBUGFAIL="rd.debug loglevel=7 "
 #SERVER_DEBUG="rd.debug loglevel=7"
 #SERIAL="tcp:127.0.0.1:9999"
 
