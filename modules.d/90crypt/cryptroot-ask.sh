@@ -125,10 +125,12 @@ done
 if strstr "$(cryptsetup --help)" "perf-no_read_workqueue"; then
     cryptsetupopts="$cryptsetupopts $no_read_workqueue"
 fi
+unset no_read_workqueue
 
 if strstr "$(cryptsetup --help)" "perf-no_write_workqueue"; then
     cryptsetupopts="$cryptsetupopts $no_write_workqueue"
 fi
+unset no_write_workqueue
 
 # parse for allow-discards
 if strstr "$(cryptsetup --help)" "allow-discards"; then
