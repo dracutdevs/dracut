@@ -109,12 +109,26 @@ while [ $# -gt 0 ]; do
         allow-discards)
             allowdiscards="--allow-discards"
             ;;
+        no-read-workqueue)
+            no_read_workqueue="--perf-no_read_workqueue"
+            ;;
+        no-write-workqueue)
+            no_write_workqueue="--perf-no_write_workqueue"
+            ;;
         header=*)
             cryptsetupopts="${cryptsetupopts} --${1}"
             ;;
     esac
     shift
 done
+
+if strstr "$(cryptsetup --help)" "perf-no_read_workqueue"; then
+    cryptsetupopts="$cryptsetupopts $no_read_workqueue"
+fi
+
+if strstr "$(cryptsetup --help)" "perf-no_write_workqueue"; then
+    cryptsetupopts="$cryptsetupopts $no_write_workqueue"
+fi
 
 # parse for allow-discards
 if strstr "$(cryptsetup --help)" "allow-discards"; then
