@@ -349,8 +349,8 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %{dracutlibdir}/modules.d/04watchdog
 %{dracutlibdir}/modules.d/04watchdog-modules
 %{dracutlibdir}/modules.d/05busybox
-%{dracutlibdir}/modules.d/06dbus-broker
-%{dracutlibdir}/modules.d/06dbus-daemon
+%{dracutlibdir}/modules.d/06systemd-dbus-broker
+%{dracutlibdir}/modules.d/06systemd-dbus-daemon
 %{dracutlibdir}/modules.d/06rngd
 %{dracutlibdir}/modules.d/09dbus
 %{dracutlibdir}/modules.d/10i18n

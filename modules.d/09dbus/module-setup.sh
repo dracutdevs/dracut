@@ -12,7 +12,7 @@ check() {
 depends() {
     local _module
     # Add a dbus meta dependency based on the module in use.
-    for _module in dbus-daemon dbus-broker; do
+    for _module in systemd-dbus-daemon systemd-dbus-broker; do
         if dracut_module_included "$_module"; then
             echo "$_module"
             return 0
@@ -20,10 +20,10 @@ depends() {
     done
 
     if find_binary dbus-broker &> /dev/null; then
-        echo "dbus-broker"
+        echo "systemd-dbus-broker"
         return 0
     else
-        echo "dbus-daemon"
+        echo "systemd-dbus-daemon"
         return 0
     fi
 
