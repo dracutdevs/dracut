@@ -87,7 +87,7 @@ jobs:
                         "fedora:latest",
                 ]
                 network: [
-                        "network-manager",
+                        "network",
                         "network-legacy",
                         #"systemd-networkd",
                         #"network-wicked",
