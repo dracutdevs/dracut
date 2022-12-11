@@ -52,6 +52,14 @@ install() {
         $SYSTEMCTL -q --root "$initdir" enable "$i"
     done
 
+    {
+        grep '^systemd-timesync:' "$dracutsysrootdir"/etc/passwd 2> /dev/null
+    } >> "$initdir/etc/passwd"
+
+    {
+        grep '^systemd-timesync:' "$dracutsysrootdir"/etc/group 2> /dev/null
+    } >> "$initdir/etc/group"
+
     # Install the hosts local user configurations if enabled.
     if [[ $hostonly ]]; then
         inst_multiple -H -o \

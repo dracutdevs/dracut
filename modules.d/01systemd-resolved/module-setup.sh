@@ -46,6 +46,14 @@ install() {
     # Enable systemd type unit(s)
     $SYSTEMCTL -q --root "$initdir" enable systemd-resolved.service
 
+    {
+        grep '^systemd-resolve:' "$dracutsysrootdir"/etc/passwd 2> /dev/null
+    } >> "$initdir/etc/passwd"
+
+    {
+        grep '^systemd-resolve:' "$dracutsysrootdir"/etc/group 2> /dev/null
+    } >> "$initdir/etc/group"
+
     # Install the hosts local user configurations if enabled.
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
