@@ -297,7 +297,7 @@ EOF
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -a "debug systemd i18n qemu" \
         ${EXTRA_MACHINE:+-I "$EXTRA_MACHINE"} \
-        -o "dash network plymouth lvm mdraid resume crypt caps dm terminfo usrmount kernel-network-modules rngd" \
+        -o "network plymouth lvm mdraid resume crypt caps dm terminfo usrmount kernel-network-modules rngd" \
         -d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
