@@ -45,6 +45,7 @@ RUN dnf -y install --setopt=install_weak_deps=False \
     dbus-daemon \
     kbd \
     NetworkManager \
+    systemd-networkd \
     squashfs-tools \
     which \
     ShellCheck \
