@@ -43,7 +43,7 @@ cmdline() {
 }
 
 installkernel() {
-    hostonly='' instmods dm-snapshot
+    hostonly='' dracut_instmods -o -P ".*/(bcache/|md-cluster).*" "=drivers/md"
 }
 
 # called by dracut
