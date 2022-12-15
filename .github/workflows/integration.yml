@@ -65,7 +65,6 @@ jobs:
                         "network-manager",
                         "network-legacy",
                         #"systemd-networkd",
-                        #"network-wicked",
                         #"connman",
                 ]
                 test: [
