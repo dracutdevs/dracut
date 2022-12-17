@@ -1,6 +1,7 @@
 #!/bin/sh
 
 type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
+type det_fs > /dev/null 2>&1 || . /lib/fs-lib.sh
 
 command -v unpack_archive > /dev/null || . /lib/img-lib.sh
 
@@ -61,7 +62,7 @@ get_check_dev() {
 # Find the right device to run check on
 check_dev=$(get_check_dev "$livedev")
 # CD/DVD media check
-[ -b "$check_dev" ] && fs=$(blkid -s TYPE -o value "$check_dev")
+[ -b "$check_dev" ] && fs=$(det_fs "$check_dev")
 if [ "$fs" = "iso9660" -o "$fs" = "udf" ]; then
     check="yes"
 fi
@@ -110,7 +111,7 @@ if [ -f "$livedev" ]; then
     esac
     [ -e /sys/fs/"$fstype" ] || modprobe "$fstype"
 else
-    livedev_fstype=$(blkid -o value -s TYPE "$livedev")
+    livedev_fstype=$(det_fs "$livedev")
     if [ "$livedev_fstype" = "squashfs" ]; then
         # no mount needed - we've already got the LiveOS image in $livedev
         SQUASHED=$livedev
