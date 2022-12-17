@@ -15,6 +15,11 @@ test_run() {
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/root.img root
 
+    # NTFS drive
+    if modprobe --dry-run ntfs3 &> /dev/null && command -v mkfs.ntfs &> /dev/null; then
+        qemu_add_drive_args disk_index disk_args "$TESTDIR"/root_ntfs.img root_ntfs
+    fi
+
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
         -boot order=d \
@@ -40,6 +45,18 @@ test_run() {
         -initrd "$TESTDIR"/initramfs.testing
 
     grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success -- "$TESTDIR"/marker.img || return 1
+
+    # Run the NTFS test only if mkfs.ntfs is available
+    if modprobe --dry-run ntfs3 &> /dev/null && command -v mkfs.ntfs &> /dev/null; then
+        dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+        "$testdir"/run-qemu \
+            "${disk_args[@]}" \
+            -boot order=d \
+            -append "rd.live.image rd.live.overlay.overlayfs=1 rd.live.dir=testdir root=LABEL=dracut_ntfs console=ttyS0,115200n81 quiet selinux=0 rd.info rd.shell=0 panic=1 oops=panic softlockup_panic=1 $DEBUGFAIL" \
+            -initrd "$TESTDIR"/initramfs.testing
+
+        grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success -- "$TESTDIR"/marker.img || return 1
+    fi
 
     dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
     rootPartitions=$(sfdisk -d "$TESTDIR"/root.img | grep -c 'root\.img[0-9]')
@@ -81,8 +98,8 @@ test_setup() {
     # devices, volume groups, encrypted partitions, etc.
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         --modules "test-makeroot rootfs-block qemu" \
-        --drivers "ext4 sd_mod" \
-        --install "sfdisk mkfs.ext4 mksquashfs" \
+        --drivers "ext4 ntfs3 sd_mod" \
+        --install "sfdisk mkfs.ext4 mkfs.ntfs mksquashfs" \
         --include ./create-root.sh /lib/dracut/hooks/initqueue/01-create-root.sh \
         --no-hostonly --no-hostonly-cmdline --no-early-microcode --nofscks --nomdadmconf --nohardlink --nostrip \
         --force "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
@@ -96,6 +113,12 @@ test_setup() {
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/root.img root
 
+    # NTFS drive
+    if modprobe --dry-run ntfs3 &> /dev/null && command -v mkfs.ntfs &> /dev/null; then
+        dd if=/dev/zero of="$TESTDIR"/root_ntfs.img bs=1MiB count=160
+        qemu_add_drive_args disk_index disk_args "$TESTDIR"/root_ntfs.img root_ntfs
+    fi
+
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
@@ -107,11 +130,17 @@ test_setup() {
         return 1
     fi
 
+    # mount NTFS with ntfs3 driver inside the generated initramfs
+    cat > /tmp/ntfs3.rules << 'EOF'
+SUBSYSTEM=="block", ENV{ID_FS_TYPE}=="ntfs", ENV{ID_FS_TYPE}="ntfs3"
+EOF
+
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         --modules "test dash dmsquash-live qemu" \
         --omit "rngd" \
-        --drivers "ext4 sd_mod" \
+        --drivers "ext4 ntfs3 sd_mod" \
         --install "mkfs.ext4" \
+        --include /tmp/ntfs3.rules /lib/udev/rules.d/ntfs3.rules \
         --no-hostonly --no-hostonly-cmdline \
         --force "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 

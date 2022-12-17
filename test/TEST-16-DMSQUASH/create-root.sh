@@ -26,6 +26,16 @@ mkdir -p /root/run /root/testdir
 cp -a -t /root /source/*
 echo "Creating squashfs"
 mksquashfs /source /root/testdir/rootfs.img -quiet
+
+# Copy rootfs.img to the NTFS drive if exists
+if [ -e "/dev/disk/by-id/ata-disk_root_ntfs" ]; then
+    mkfs.ntfs -F -L dracut_ntfs /dev/disk/by-id/ata-disk_root_ntfs
+    mkdir -p /root_ntfs
+    mount -t ntfs3 /dev/disk/by-id/ata-disk_root_ntfs /root_ntfs
+    mkdir -p /root_ntfs/run /root_ntfs/testdir
+    cp /root/testdir/rootfs.img /root_ntfs/testdir/rootfs.img
+fi
+
 umount /root
 echo "dracut-root-block-created" | dd oflag=direct,dsync of=/dev/disk/by-id/ata-disk_marker
 poweroff -f
