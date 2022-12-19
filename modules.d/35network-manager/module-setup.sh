@@ -30,8 +30,8 @@ install() {
     inst_multiple ip sed grep
 
     inst NetworkManager
-    inst_multiple -o /usr/{lib,libexec}/nm-initrd-generator
-    inst_multiple -o /usr/{lib,libexec}/nm-daemon-helper
+    inst_multiple -o /usr/{lib,libexec}{,/NetworkManager}/nm-initrd-generator
+    inst_multiple -o /usr/{lib,libexec}{,/NetworkManager}/nm-daemon-helper
     inst_multiple -o teamd dhclient
     inst_hook cmdline 99 "$moddir/nm-config.sh"
     if dracut_module_included "systemd"; then

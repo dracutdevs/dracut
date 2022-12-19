@@ -21,7 +21,7 @@ depends() {
             network_handler="network-wicked"
         elif [[ -e $dracutsysrootdir$systemdsystemunitdir/connman.service ]]; then
             network_handler="connman"
-        elif find_binary systemctl > /dev/null && [[ -x $dracutsysrootdir/usr/libexec/nm-initrd-generator || -x $dracutsysrootdir/usr/lib/nm-initrd-generator ]]; then
+        elif find_binary systemctl > /dev/null && find_binary NetworkManager > /dev/null; then
             network_handler="network-manager"
         elif [[ -x $dracutsysrootdir$systemdutildir/systemd-networkd ]]; then
             network_handler="systemd-networkd"
