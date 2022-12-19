@@ -2010,10 +2010,11 @@ else
     done
 fi
 
+mkdir -p "${initdir}"/lib/dracut
+
 if [[ $kernel_only != yes ]]; then
     mkdir -p "${initdir}/etc/cmdline.d"
-    # shellcheck disable=SC2174
-    mkdir -m 0755 -p "${initdir}"/lib "${initdir}"/lib/dracut "${initdir}"/lib/dracut/hooks
+    mkdir -m 0755 "${initdir}"/lib/dracut/hooks
     # shellcheck disable=SC2154
     for _d in $hookdirs; do
         # shellcheck disable=SC2174
@@ -2071,7 +2072,6 @@ done
 unset moddir
 
 for i in $modules_loaded; do
-    mkdir -p "$initdir"/lib/dracut
     printf "%s\n" "$i" >> "$initdir"/lib/dracut/modules.txt
 done
 
