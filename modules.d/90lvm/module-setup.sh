@@ -50,6 +50,12 @@ installkernel() {
 install() {
     inst_multiple lvm grep
 
+    # install lvm commands symlinks useful for emergency shell
+    _lvm_bin=$(find_binary lvm)
+    while read -r -d '' file; do
+        inst "${file}"
+    done < <(find -L /sbin -maxdepth 1 -samefile "$_lvm_bin" -print0)
+
     if [[ $hostonly_cmdline == "yes" ]]; then
         local _lvmconf
         _lvmconf=$(cmdline)
