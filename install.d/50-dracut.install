@@ -5,6 +5,13 @@ KERNEL_VERSION="$2"
 BOOT_DIR_ABS="$3"
 KERNEL_IMAGE="$4"
 
+# Only generate a standard initrd if the installation layout asks for it.
+# In particular do not generate an initrd file if the layout is "uki", i.e. asks
+# for a unified kernel image.
+[[ "$KERNEL_INSTALL_LAYOUT" = "bls" ]] || exit 0
+# Only run dracut if asked to do so.
+[[ "$KERNEL_INSTALL_INITRD_GENERATOR" = "dracut" ]] || exit 0
+
 # If KERNEL_INSTALL_MACHINE_ID is defined but empty, BOOT_DIR_ABS is a fake directory.
 # So, let's skip to create initrd.
 if ! [[ ${KERNEL_INSTALL_MACHINE_ID-x} ]]; then

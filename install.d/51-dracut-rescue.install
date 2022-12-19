@@ -8,6 +8,13 @@ BOOT_DIR_ABS="${3%/*}/0-rescue"
 KERNEL_IMAGE="$4"
 
 
+# Only generate a standard initrd if the installation layout asks for it.
+# In particular do not generate an initrd file if the layout is "uki", i.e. asks
+# for a unified kernel image.
+[[ "$KERNEL_INSTALL_LAYOUT" = "bls" ]] || exit 0
+# Only run dracut if asked to do so.
+[[ "$KERNEL_INSTALL_INITRD_GENERATOR" = "dracut" ]] || exit 0
+
 dropindirs_sort()
 {
     suffix=$1; shift
