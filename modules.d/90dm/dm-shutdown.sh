@@ -17,7 +17,7 @@ _remove_dm() {
             return 0
             ;;
         *)
-            devname=$(cat /sys/block/"${dev}"/dm/name)
+            read -r devname < /sys/block/"${dev}"/dm/name
             dmsetup -v --noudevsync remove "$devname" || return $?
             ;;
     esac

@@ -384,7 +384,7 @@ if [ -z "$NO_TEAM_MASTER" ]; then
                     ip link set dev "$slave" down
                     (
                         unset TEAM_PORT_CONFIG
-                        _hwaddr=$(cat "/sys/class/net/$slave/address")
+                        read -r _hwaddr < "/sys/class/net/$slave/address"
                         _subchannels=$(iface_get_subchannels "$slave")
                         if [ -n "$_hwaddr" ] && [ -e "/etc/sysconfig/network-scripts/mac-${_hwaddr}.conf" ]; then
                             # shellcheck disable=SC1090
@@ -531,7 +531,7 @@ done
 if [ -z "$NO_AUTO_DHCP" ] && [ ! -e "/tmp/net.${netif}.up" ]; then
     ret=1
     if [ -e /tmp/net.bootdev ]; then
-        BOOTDEV=$(cat /tmp/net.bootdev)
+        read -r BOOTDEV < /tmp/net.bootdev
         if [ "$netif" = "$BOOTDEV" ] || [ "$BOOTDEV" = "$(cat "/sys/class/net/${netif}/address")" ]; then
             do_dhcp
             ret=$?

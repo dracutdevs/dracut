@@ -26,7 +26,7 @@ netif=$1
 case "$netif" in
     ??:??:??:??:??:??) # MAC address
         for i in /sys/class/net/*/address; do
-            mac=$(cat "$i")
+            read -r mac < "$i"
             if [ "$mac" = "$netif" ]; then
                 i=${i%/address}
                 netif=${i##*/}

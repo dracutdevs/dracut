@@ -4,8 +4,8 @@ on:
     workflow_dispatch:
         inputs:
             test:
-                description: 'Test to run'
-                default: '04'
+                description: "Array of tests to run, such as [11,12]"
+                default: "['04']"
                 required: true
             container:
                 type: choice
@@ -22,6 +22,9 @@ jobs:
     test:
         runs-on: ubuntu-latest
         timeout-minutes: 45
+        strategy:
+            matrix:
+                test: ${{ fromJSON(inputs.test) }}
         container:
             image: ghcr.io/dracutdevs/${{ inputs.container }}
             options: "--privileged -v /dev:/dev"
@@ -30,6 +33,5 @@ jobs:
                 uses: actions/checkout@v1
                 with:
                     fetch-depth: 0
-
-            -   name: "${{ inputs.container }} TEST-${{ inputs.test }}"
-                run: ./tools/test-github.sh "TEST-${{ inputs.test }}" ${{ inputs.test }}
+            -   name: "${{ inputs.container }} ${{ matrix.test }}"
+                run: ./tools/test-github.sh "TEST-${{ matrix.test }}" ${{ matrix.test }}

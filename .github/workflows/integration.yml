@@ -4,10 +4,13 @@ on:
     pull_request:
         branches: [ master ]
 
+env:
+    DEBUGFAIL: "${{ secrets.ACTIONS_STEP_DEBUG && 'rd.debug' }}"
+
 jobs:
-    basic:
+    test:
         runs-on: ubuntu-latest
-        timeout-minutes: 45
+        timeout-minutes: 30
         concurrency:
             group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.container }}-${{ matrix.test }}
             cancel-in-progress: true
@@ -20,35 +23,10 @@ jobs:
                         "opensuse:latest",
                 ]
                 test: [
-                        "04",
-                ]
-            fail-fast: false
-        container:
-            image: ghcr.io/dracutdevs/${{ matrix.container }}
-            options: "--privileged -v /dev:/dev"
-        steps:
-            -   name: "Checkout Repository"
-                uses: actions/checkout@v3
-                with:
-                    fetch-depth: 0
-
-            -   name: "${{ matrix.container }} TEST-${{ matrix.test }}"
-                run: ./tools/test-github.sh "TEST-${{ matrix.test }}" ${{ matrix.test }}
-    test:
-        runs-on: ubuntu-latest
-        timeout-minutes: 45
-        concurrency:
-            group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.container }}-${{ matrix.test }}
-            cancel-in-progress: true
-        strategy:
-            matrix:
-                container: [
-                        "fedora:latest",
-                ]
-                test: [
                         "01",
                         "02",
                         "03",
+                        "04",
                         "10",
                         "11",
                         "12",
@@ -57,16 +35,6 @@ jobs:
                         "15",
                         "16",
                         "17",
-                        "20",
-                        "21",
-                        "30",
-                        "31",
-                        "35",
-                        "36",
-                        "40",
-                        "41",
-                        "50",
-                        "51",
                         "62",
                         "98",
                 ]
@@ -82,6 +50,43 @@ jobs:
 
             -   name: "${{ matrix.container }} TEST-${{ matrix.test }}"
                 run: ./tools/test-github.sh "TEST-${{ matrix.test }}" ${{ matrix.test }}
+    network:
+        runs-on: ubuntu-latest
+        timeout-minutes: 45
+        concurrency:
+            group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.container }}-${{ matrix.test }}-${{ matrix.network }}
+            cancel-in-progress: true
+        strategy:
+            matrix:
+                container: [
+                        "fedora:latest",
+                ]
+                network: [
+                        "network-manager",
+                        "network-legacy",
+                        #"systemd-networkd",
+                        #"network-wicked",
+                        #"connman",
+                ]
+                test: [
+                        "20",
+                        "30",
+                        "35",
+                        "40",
+                        "50",
+                ]
+            fail-fast: false
+        container:
+            image: ghcr.io/dracutdevs/${{ matrix.container }}
+            options: "--privileged -v /dev:/dev"
+        steps:
+            -   name: "Checkout Repository"
+                uses: actions/checkout@v3
+                with:
+                    fetch-depth: 0
+
+            -   name: "${{ matrix.container }} TEST-${{ matrix.test }}"
+                run: USE_NETWORK=${{ matrix.network }} ./tools/test-github.sh "TEST-${{ matrix.test }}" ${{ matrix.test }}
     openrc-musl:
         runs-on: ubuntu-latest
         timeout-minutes: 45

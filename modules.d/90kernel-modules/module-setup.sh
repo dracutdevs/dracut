@@ -2,7 +2,7 @@
 
 # called by dracut
 installkernel() {
-    local _blockfuncs='ahci_platform_get_resources|ata_scsi_ioctl|scsi_add_host|blk_cleanup_queue|register_mtd_blktrans|scsi_esp_register|register_virtio_device|usb_stor_disconnect|mmc_add_host|sdhci_add_host|scsi_add_host_with_dma|blk_mq_alloc_disk|blk_cleanup_disk'
+    local _blockfuncs='ahci_platform_get_resources|ata_scsi_ioctl|scsi_add_host|blk_cleanup_queue|register_mtd_blktrans|scsi_esp_register|register_virtio_device|usb_stor_disconnect|mmc_add_host|sdhci_add_host|scsi_add_host_with_dma|blk_mq_alloc_disk|blk_mq_alloc_request|blk_mq_destroy_queue|blk_cleanup_disk'
     local -A _hostonly_drvs
 
     record_block_dev_drv() {
@@ -35,13 +35,14 @@ installkernel() {
 
     if [[ -z $drivers ]]; then
         hostonly='' instmods \
-            hid_generic unix \
+            hid_generic unix
+
+        hostonly=$(optional_hostonly) instmods \
             ehci-hcd ehci-pci ehci-platform \
             ohci-hcd ohci-pci \
             uhci-hcd \
-            xhci-hcd xhci-pci xhci-plat-hcd
-
-        hostonly=$(optional_hostonly) instmods \
+            usbhid \
+            xhci-hcd xhci-pci xhci-plat-hcd \
             "=drivers/hid" \
             "=drivers/tty/serial" \
             "=drivers/input/serio" \
@@ -54,7 +55,7 @@ installkernel() {
 
         instmods \
             yenta_socket \
-            atkbd i8042 usbhid firewire-ohci pcmcia hv-vmbus \
+            atkbd i8042 firewire-ohci pcmcia hv-vmbus \
             virtio virtio_ring virtio_pci pci_hyperv \
             "=drivers/pcmcia"
 

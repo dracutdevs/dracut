@@ -932,7 +932,7 @@ _emergency_shell() {
         if [ -z "$_ctty" ]; then
             _ctty=console
             while [ -f /sys/class/tty/$_ctty/active ]; do
-                _ctty=$(cat /sys/class/tty/$_ctty/active)
+                read -r _ctty < /sys/class/tty/$_ctty/active
                 _ctty=${_ctty##* } # last one in the list
             done
             _ctty=/dev/$_ctty
@@ -1104,7 +1104,13 @@ make_trace_mem() {
 show_memstats() {
     case $1 in
         shortmem)
-            grep -e "^MemFree" -e "^Cached" -e "^Slab" /proc/meminfo
+            while read -r line || [ -n "$line" ]; do
+                str_starts "$line" "MemFree" \
+                    || str_starts "$line" "Cached" \
+                    || str_starts "$line" "Slab" \
+                    || continue
+                echo "$line"
+            done < /proc/meminfo
             ;;
         mem)
             cat /proc/meminfo

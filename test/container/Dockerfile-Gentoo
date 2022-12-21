@@ -20,18 +20,27 @@ RUN echo 'export DRACUT_NO_XATTR=1 KVERSION=$(cd /lib/modules; ls -1 | tail -1)'
 # Only install `dmsetup`: attempting to install all of lvm2 fails due to missing kernel headers.
 RUN echo 'sys-fs/lvm2 device-mapper-only -thin' > /etc/portage/package.use/lvm2
 
+# workaround for https://bugs.gentoo.org/734022 whereby Gentoo does not support NFS4 with musl
+RUN echo 'net-fs/nfs-utils -nfsv4' > /etc/portage/package.use/nfs-utils
+
 # Install needed packages for the dracut CI container
 RUN emerge -qv \
     app-arch/cpio \
     app-emulation/qemu \
     app-shells/dash \
+    net-fs/nfs-utils \
+    net-misc/dhcp \
     sys-apps/busybox \
+    sys-block/nbd \
     sys-block/parted \
+    sys-block/thin-provisioning-tools \
     sys-fs/btrfs-progs \
+    sys-fs/dmraid \
     sys-fs/lvm2 \
+    sys-fs/mdadm \
     sys-fs/ntfs3g \
     sys-fs/squashfs-tools \
-    && rm -rf /var/cache/* /usr/share/doc/* /usr/share/man/* /var/db/repos/gentoo
+    && rm -rf /var/cache/* /usr/share/doc/* /usr/share/man/*
 
 # Set default command
 CMD ["/usr/bin/bash"]

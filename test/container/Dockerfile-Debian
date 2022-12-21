@@ -34,6 +34,7 @@ RUN apt-get update -y -qq && apt-get upgrade -y -qq && DEBIAN_FRONTEND=nonintera
     isc-dhcp-server \
     kmod \
     less \
+    libdmraid-dev \
     libkmod-dev \
     linux-image-generic \
     lvm2 \
@@ -56,8 +57,17 @@ RUN apt-get update -y -qq && apt-get upgrade -y -qq && DEBIAN_FRONTEND=nonintera
     strace \
     sudo \
     tcpdump \
+    thin-provisioning-tools \
     vim \
     wget \
+    && apt-get clean
+
+# workaround for https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=962300
+RUN DEBIAN_FRONTEND=noninteractive apt-get download dmraid \
+    && DEBIAN_FRONTEND=noninteractive dpkg --unpack dmraid*.deb \
+    && rm -rf /var/lib/dpkg/info/dmraid.postinst -f \
+    && DEBIAN_FRONTEND=noninteractive dpkg --configure dmraid \
+    && apt-get install -yf \
     && apt-get clean
 
 # Set default command

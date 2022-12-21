@@ -82,7 +82,7 @@ fips_load_crypto() {
     local _module
     local _found
 
-    FIPSMODULES=$(cat /etc/fipsmodules)
+    read -d '' -r FIPSMODULES < /etc/fipsmodules
 
     fips_info "Loading and integrity checking all crypto modules"
     mv /etc/modprobe.d/fips.conf /etc/modprobe.d/fips.conf.bak

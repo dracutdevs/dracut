@@ -45,13 +45,14 @@ RUN dnf -y install --setopt=install_weak_deps=False \
     dbus-daemon \
     kbd \
     NetworkManager \
+    systemd-networkd \
     squashfs-tools \
     which \
     ShellCheck \
     shfmt \
     parted \
     ntfsprogs \
-    && dnf -y update && dnf clean all
+    && dnf -y remove dracut && dnf -y update && dnf -y install --setopt=install_weak_deps=False procps-ng && dnf clean all
 
 # Set default command
 CMD ["/usr/bin/bash"]

@@ -1,12 +1,6 @@
 #!/bin/bash
 
-if [[ $NM ]]; then
-    USE_NETWORK="network-manager"
-    OMIT_NETWORK="network-legacy"
-else
-    USE_NETWORK="network-legacy"
-    OMIT_NETWORK="network-manager"
-fi
+[ -z "$USE_NETWORK" ] && USE_NETWORK="network-legacy"
 
 # shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem on NFS with $USE_NETWORK"
@@ -14,8 +8,6 @@ TEST_DESCRIPTION="root filesystem on NFS with $USE_NETWORK"
 KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
-DEBUGFAIL="rd.debug loglevel=7"
-#DEBUGFAIL="rd.shell rd.break rd.debug loglevel=7 "
 #DEBUGFAIL="rd.debug loglevel=7 rd.break=initqueue rd.shell"
 SERVER_DEBUG="rd.debug loglevel=7"
 #SERIAL="unix:/tmp/server.sock"
@@ -279,7 +271,7 @@ test_setup() {
         inst ./dhcpd.conf /etc/dhcpd.conf
         inst_multiple -o {,/usr}/etc/nsswitch.conf {,/usr}/etc/rpc \
             {,/usr}/etc/protocols {,/usr}/etc/services
-        inst_multiple rpc.idmapd /etc/idmapd.conf
+        inst_multiple -o rpc.idmapd /etc/idmapd.conf
 
         inst_libdir_file 'libnfsidmap_nsswitch.so*'
         inst_libdir_file 'libnfsidmap/*.so*'
@@ -407,7 +399,7 @@ test_setup() {
 
     # Make client's dracut image
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
-        -o "plymouth dash ${OMIT_NETWORK}" \
+        -o "plymouth" \
         -a "dmsquash-live debug watchdog ${USE_NETWORK}" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1

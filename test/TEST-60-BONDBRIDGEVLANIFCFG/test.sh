@@ -2,13 +2,7 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
-if [[ $NM ]]; then
-    USE_NETWORK="network-manager"
-    OMIT_NETWORK="network-legacy"
-else
-    USE_NETWORK="network-legacy"
-    OMIT_NETWORK="network-manager"
-fi
+[ -z "$USE_NETWORK" ] && USE_NETWORK="network-legacy"
 
 # shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem on NFS with bridging/bonding/vlan with $USE_NETWORK"
@@ -258,7 +252,7 @@ test_setup() {
         inst ./dhcpd.conf /etc/dhcpd.conf
         inst_multiple -o {,/usr}/etc/nsswitch.conf {,/usr}/etc/rpc {,/usr}/etc/protocols
 
-        inst_multiple rpc.idmapd /etc/idmapd.conf
+        inst_multiple -o rpc.idmapd /etc/idmapd.conf
 
         inst_libdir_file 'libnfsidmap_nsswitch.so*'
         inst_libdir_file 'libnfsidmap/*.so*'
@@ -306,7 +300,7 @@ test_setup() {
         inst /etc/passwd /etc/passwd
         inst /etc/group /etc/group
 
-        inst_multiple rpc.idmapd /etc/idmapd.conf
+        inst_multiple -o rpc.idmapd /etc/idmapd.conf
         inst_libdir_file 'libnfsidmap_nsswitch.so*'
         inst_libdir_file 'libnfsidmap/*.so*'
         inst_libdir_file 'libnfsidmap*.so*'
@@ -369,7 +363,7 @@ test_setup() {
     # Make client's dracut image
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         --no-early-microcode \
-        -o "plymouth ${OMIT_NETWORK}" \
+        -o "plymouth" \
         -a "debug ${USE_NETWORK}" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1

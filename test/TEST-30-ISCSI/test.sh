@@ -1,21 +1,13 @@
 #!/bin/bash
 
-if [[ $NM ]]; then
-    USE_NETWORK="network-manager"
-    OMIT_NETWORK="network-legacy"
-else
-    USE_NETWORK="network-legacy"
-    OMIT_NETWORK="network-manager"
-fi
+[ -z "$USE_NETWORK" ] && USE_NETWORK="network-legacy"
 
 # shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem over iSCSI with $USE_NETWORK"
 
 KVERSION=${KVERSION-$(uname -r)}
 
-DEBUGFAIL="loglevel=1"
 #DEBUGFAIL="rd.shell rd.break rd.debug loglevel=7 "
-DEBUGFAIL="rd.debug loglevel=7 "
 #SERVER_DEBUG="rd.debug loglevel=7"
 #SERIAL="tcp:127.0.0.1:9999"
 
@@ -316,7 +308,7 @@ test_setup() {
     )
     # Make client's dracut image
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
-        -o "dash plymouth dmraid nfs ${OMIT_NETWORK}" \
+        -o "plymouth dmraid nfs" \
         -a "debug ${USE_NETWORK}" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1

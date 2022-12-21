@@ -60,8 +60,8 @@ install() {
             "$systemdutilconfdir/timesyncd.conf.d/*.conf" \
             "$systemdsystemconfdir"/systemd-timesyncd.service \
             "$systemdsystemconfdir/systemd-timesyncd.service.d/*.conf" \
-            "$systemdsystemunitdir"/systemd-time-wait-sync.service \
-            "$systemdsystemunitdir/systemd-time-wait-sync.service.d/*.conf" \
+            "$systemdsystemconfdir"/systemd-time-wait-sync.service \
+            "$systemdsystemconfdir/systemd-time-wait-sync.service.d/*.conf" \
             "$sysusersconfdir"/systemd-timesync.conf
     fi
 }

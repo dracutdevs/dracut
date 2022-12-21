@@ -90,7 +90,7 @@ all_ifaces_setup() {
 
 get_netroot_ip() {
     local prefix="" server="" rest=""
-    splitsep "$1" ":" prefix server rest
+    splitsep ":" "$1" prefix server rest
     case $server in
         [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*)
             echo "$server"
@@ -101,7 +101,11 @@ get_netroot_ip() {
 }
 
 ip_is_local() {
-    strstr "$(ip route get "$@" 2> /dev/null)" " via "
+    li=$(ip route get "$@" 2> /dev/null)
+    if [ -n "$li" ]; then
+        strstr "$li" " via " || return 0
+    fi
+    return 1
 }
 
 ifdown() {
@@ -822,7 +826,7 @@ is_persistent_ethernet_name() {
     local _name_assign_type="0"
 
     [ -f "/sys/class/net/$_netif/name_assign_type" ] \
-        && _name_assign_type=$(cat "/sys/class/net/$_netif/name_assign_type" 2> /dev/null)
+        && read -r _name_assign_type < "/sys/class/net/$_netif/name_assign_type" 2> /dev/null
 
     # NET_NAME_ENUM 1
     [ "$_name_assign_type" = "1" ] && return 1
@@ -857,7 +861,7 @@ is_kernel_ethernet_name() {
     local _name_assign_type="1"
 
     if [ -e "/sys/class/net/$_netif/name_assign_type" ]; then
-        _name_assign_type=$(cat "/sys/class/net/$_netif/name_assign_type")
+        read -r _name_assign_type < "/sys/class/net/$_netif/name_assign_type"
 
         case "$_name_assign_type" in
             2 | 3 | 4)
