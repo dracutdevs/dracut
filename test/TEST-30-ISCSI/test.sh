@@ -1,7 +1,5 @@
 #!/bin/bash
 
-[ -z "$USE_NETWORK" ] && USE_NETWORK="network-legacy"
-
 # shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem over iSCSI with $USE_NETWORK"
 
@@ -309,7 +307,7 @@ test_setup() {
     # Make client's dracut image
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -o "plymouth dmraid nfs" \
-        -a "debug ${USE_NETWORK}" \
+        -a "debug network ${USE_NETWORK}" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 

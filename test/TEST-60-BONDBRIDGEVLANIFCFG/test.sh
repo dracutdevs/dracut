@@ -2,8 +2,6 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
-[ -z "$USE_NETWORK" ] && USE_NETWORK="network-legacy"
-
 # shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem on NFS with bridging/bonding/vlan with $USE_NETWORK"
 
@@ -364,7 +362,7 @@ test_setup() {
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         --no-early-microcode \
         -o "plymouth" \
-        -a "debug ${USE_NETWORK}" \
+        -a "debug network ${USE_NETWORK}" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 

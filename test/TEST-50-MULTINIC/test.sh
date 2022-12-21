@@ -1,7 +1,5 @@
 #!/bin/bash
 
-[ -z "$USE_NETWORK" ] && USE_NETWORK="network-legacy"
-
 # shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem on NFS with multiple nics with $USE_NETWORK"
 
@@ -349,7 +347,7 @@ test_setup() {
     # Make client's dracut image
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -o "ifcfg plymouth" \
-        -a "debug watchdog ${USE_NETWORK}" \
+        -a "debug watchdog network ${USE_NETWORK}" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 
