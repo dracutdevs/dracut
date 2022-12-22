@@ -54,6 +54,8 @@ install() {
         "$systemduser"/dbus-broker.service \
         "$systemdsystemunitdir"/dbus.socket \
         "$systemduser"/dbus.socket \
+        "$systemdsystemunitdir"/sockets.target.wants/dbus.socket \
+        "$systemduser"/sockets.target.wants/dbus.socket \
         "$systemdsystemunitdir"/dbus.target.wants \
         busctl dbus-broker dbus-broker-launch
 
@@ -77,7 +79,8 @@ install() {
             "$systemdsystemconfdir"/dbus.socket \
             "$systemdsystemconfdir"/dbus.socket.d/*.conf \
             "$systemdsystemconfdir"/dbus-broker.service \
-            "$systemdsystemconfdir"/dbus-broker.service.d/*.conf
+            "$systemdsystemconfdir"/dbus-broker.service.d/*.conf \
+            "$systemdsystemconfdir"/sockets.target.wants/dbus.socket
     fi
 
     # We need to make sure that systemd-tmpfiles-setup.service->dbus.socket
