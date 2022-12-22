@@ -34,6 +34,7 @@ install() {
         "$dbussystemservices"/org.freedesktop.timedate1.service \
         "$systemdutildir"/systemd-timedated \
         "$systemdsystemunitdir"/systemd-timedated.service \
+        "$systemdsystemunitdir"/dbus-org.freedesktop.timedate1.service \
         timedatectl
 
     # Install the hosts local user configurations if enabled.
