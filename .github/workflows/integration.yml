@@ -64,7 +64,7 @@ jobs:
                 network: [
                         "network-manager",
                         "network-legacy",
-                        #"systemd-networkd",
+                        "systemd-networkd",
                         #"network-wicked",
                         #"connman",
                 ]
