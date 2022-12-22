@@ -19,10 +19,10 @@ depends() {
         fi
     done
 
-    if find_binary dbus-broker &> /dev/null; then
+    if [[ -d "$dracutbasedir"/modules.d/06dbus-broker ]] && find_binary dbus-broker &> /dev/null; then
         echo "dbus-broker"
         return 0
-    else
+    elif [[ -d "$dracutbasedir"/modules.d/06dbus-daemon ]]; then
         echo "dbus-daemon"
         return 0
     fi

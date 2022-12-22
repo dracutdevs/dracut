@@ -17,15 +17,15 @@ depends() {
     done
 
     if [ -z "$network_handler" ]; then
-        if [[ -e $dracutsysrootdir$systemdsystemunitdir/wicked.service ]]; then
+        if [[ -d "$dracutbasedir"/modules.d/35network-wicked ]] && [[ -e $dracutsysrootdir$systemdsystemunitdir/wicked.service ]]; then
             network_handler="network-wicked"
-        elif [[ -e $dracutsysrootdir$systemdsystemunitdir/connman.service ]]; then
+        elif [[ -d "$dracutbasedir"/modules.d/35connman ]] && [[ -e $dracutsysrootdir$systemdsystemunitdir/connman.service ]]; then
             network_handler="connman"
-        elif [[ -x $dracutsysrootdir/usr/libexec/nm-initrd-generator ]] || [[ -x $dracutsysrootdir/usr/lib/nm-initrd-generator ]]; then
+        elif [[ -d "$dracutbasedir"/modules.d/35network-manager ]] && [[ -x $dracutsysrootdir/usr/libexec/nm-initrd-generator ]] || [[ -x $dracutsysrootdir/usr/lib/nm-initrd-generator ]]; then
             network_handler="network-manager"
-        elif [[ -x $dracutsysrootdir$systemdutildir/systemd-networkd ]]; then
+        elif [[ -d "$dracutbasedir"/modules.d/01systemd-networkd ]] && [[ -x $dracutsysrootdir$systemdutildir/systemd-networkd ]]; then
             network_handler="systemd-networkd"
-        else
+        elif [[ -d "$dracutbasedir"/modules.d/35network-legacy ]]; then
             network_handler="network-legacy"
         fi
     fi
