@@ -17,10 +17,11 @@ jobs:
         strategy:
             matrix:
                 container: [
-                        "arch:latest",
-                        "debian:latest",
+                        #"arch:latest",
+                        #"debian:latest",
                         "fedora:latest",
-                        "opensuse:latest",
+                        #"opensuse:latest",
+                        "gentoo:latest",
                 ]
                 test: [
                         "01",
@@ -44,7 +45,13 @@ jobs:
             options: "--privileged -v /dev:/dev"
         steps:
             -   name: "Checkout Repository"
+                if: ! ${{ matrix.container == 'gentoo:latest' }}
                 uses: actions/checkout@v3
+                with:
+                    fetch-depth: 0
+
+                if: ${{ matrix.container == 'gentoo:latest' }}
+                uses: actions/checkout@v1
                 with:
                     fetch-depth: 0
 
