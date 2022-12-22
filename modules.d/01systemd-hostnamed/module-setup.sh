@@ -39,6 +39,7 @@ install() {
         "$systemdutildir"/systemd-hostnamed \
         "$systemdsystemunitdir"/systemd-hostnamed.service \
         "$systemdsystemunitdir/systemd-hostnamed.service.d/*.conf" \
+        "$systemdsystemunitdir"/dbus-org.freedesktop.hostname1.service \
         hostnamectl
 
     # Install the hosts local user configurations if enabled.
