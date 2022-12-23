@@ -31,6 +31,7 @@ gpg_decrypt() {
     local useSmartcard="0"
     local gpgMajorVersion
     local gpgMinorVersion
+    local cmd
     gpgMajorVersion="$(gpg --version | sed -n 1p | sed -n -r -e 's|.* ([0-9]*).*|\1|p')"
     gpgMinorVersion="$(gpg --version | sed -n 1p | sed -n -r -e 's|.* [0-9]*\.([0-9]*).*|\1|p')"
 
@@ -48,10 +49,13 @@ gpg_decrypt() {
         fi
         GNUPGHOME="$gpghome" gpg-connect-agent 1> /dev/null learn /bye
         opts="$opts --pinentry-mode=loopback"
+        cmd="GNUPGHOME=$gpghome gpg --card-status --no-tty > /dev/null 2>&1; gpg $opts --decrypt $mntp/$keypath"
+    else
+        cmd="gpg $opts --decrypt $mntp/$keypath"
     fi
 
     ask_for_password \
-        --cmd "GNUPGHOME=$gpghome gpg --card-status --no-tty > /dev/null 2>&1; gpg $opts --decrypt $mntp/$keypath" \
+        --cmd "$cmd" \
         --prompt "${inputPrompt:-Password ($keypath on $keydev for $device)}" \
         --tries 3 --tty-echo-off
 
