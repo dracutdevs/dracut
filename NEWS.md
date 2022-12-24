@@ -1,5 +1,199 @@
 [Rendered view](https://github.com/dracutdevs/dracut/blob/master/NEWS.md)
 
+dracut-058
+==========
+
+#### Bug Fixes
+
+* **90kernel-modules:**
+  *  MMC and NVMe on kernels 6.0+ ([e0d57a8f](https://github.com/dracutdevs/dracut/commit/e0d57a8f5b15847a7fbae2ed3df29ec2c5d25ec7))
+  *  add (nonstandard) NVMe drivers ([415e5519](https://github.com/dracutdevs/dracut/commit/415e5519d19e24d123378710abe47a2df2b22e7b))
+* **90multipath:**
+  *  use RemainAfterExit=yes for multipathd-configure.service ([2334031a](https://github.com/dracutdevs/dracut/commit/2334031a890a1101c78f986681236c76ba806d91))
+  *  create `/etc/multipath` only ([0940be90](https://github.com/dracutdevs/dracut/commit/0940be905843e93111e96c0d70c56389240fbc04))
+* **Makefile:**  reduce the number of shell invocations ([ad7d5bc8](https://github.com/dracutdevs/dracut/commit/ad7d5bc8ea181ef805f65ae690681ebe5ba29bbe))
+* **base:**
+  *  do not require chroot inside initramfs ([51813371](https://github.com/dracutdevs/dracut/commit/518133714b769160448a51c512d5e152ea6332da))
+  *  remove grep dependency ([240a1d34](https://github.com/dracutdevs/dracut/commit/240a1d34bd5d98fb8a7d75cd1053d8abf1c73f64))
+* **dbus-broker:**  add missing sockets.target.wants/dbus.socket ([7ed04618](https://github.com/dracutdevs/dracut/commit/7ed0461810602bfbd4d5492fc9ed82f15e57fa9f))
+* **dmsquash-live:**
+  *  add support for NFS ([8caaad4f](https://github.com/dracutdevs/dracut/commit/8caaad4fc2d75982eb87f5ebc72a4c276986f756))
+  *  check kernel for built-in squashfs drivers ([922c9e28](https://github.com/dracutdevs/dracut/commit/922c9e28ed87815cf6ae0b5ee911ff0ef616d1b0))
+  *  run checkisomd5 on correct device ([c8f819e6](https://github.com/dracutdevs/dracut/commit/c8f819e6c1c38e525e4b491b4215a939ee6e00df))
+* **dmsquash-live-ntfs:**  remove unnecessary command ([e78f71b9](https://github.com/dracutdevs/dracut/commit/e78f71b9da29828ee4cd8444d4841ee127ef8614))
+* **dmsquash-live-root:**  check kernel for built-in `overlay` drivers ([d0cd7cd3](https://github.com/dracutdevs/dracut/commit/d0cd7cd38711b5425777c3b1595dbf4288beaa23))
+* **dracut:**
+  *  allow to set persistent policy based on /dev/mapper device names ([9cc7ceec](https://github.com/dracutdevs/dracut/commit/9cc7ceec1e9b4028d1a72bf51f9ea488d7ca11ac))
+  *  shellcheck regression in DRACUT_INSTALL calls ([097dd367](https://github.com/dracutdevs/dracut/commit/097dd367bbd61da1577a182c535c5aacdfd07031))
+  *  replace invalid lzo command with lzop for LZO compression ([b2d7561b](https://github.com/dracutdevs/dracut/commit/b2d7561b98d08c7e4018aa22dc36dc1242e50f09))
+  *  typo error 'aggresive' -> 'aggressive' ([e4f1dbcc](https://github.com/dracutdevs/dracut/commit/e4f1dbcc0061113cb58e555724f76a7243788236))
+* **dracut-functions.sh:**
+  *  check_kernel_module should follow dracutsysrootdir ([6c42d378](https://github.com/dracutdevs/dracut/commit/6c42d378abe528ee6f10c8272080eec5f3f44acb))
+  *  suppress findmnt error msg if /etc/fstab not exist ([e9ed44c8](https://github.com/dracutdevs/dracut/commit/e9ed44c8864445d85018e31064cd888c358f1daf))
+* **dracut-init:**  make require_kernel_modules ignore no kernel build ([d460941b](https://github.com/dracutdevs/dracut/commit/d460941b51d0178683b9098e62ad57e43fb71011))
+* **dracut-init.sh:**
+  *  instmods: wrong variable name ([b12ee558](https://github.com/dracutdevs/dracut/commit/b12ee558f5660073ad26415794570188e8a427b0))
+  *  add missing hostonly code in the inst_multiple function ([e2fdb30b](https://github.com/dracutdevs/dracut/commit/e2fdb30b56305aed9d3be32f394352c7c3fdbcef))
+  *  correct dracut-install source path ([72b700e3](https://github.com/dracutdevs/dracut/commit/72b700e3cb8a0d74033e6e20b2435d9254b36efe))
+  *  propagate the result code returned by dracut-install ([d2f6f445](https://github.com/dracutdevs/dracut/commit/d2f6f445edb5de033d52ece0e982db38ac2614e2))
+* **dracut-initramfs-restore.sh:**
+  *  initramfs detection not working ([481b87fa](https://github.com/dracutdevs/dracut/commit/481b87fa7a82be54663071ad9ad76c34e378ddc7))
+  *  hide unpack errors ([4f20ae26](https://github.com/dracutdevs/dracut/commit/4f20ae2620a9067270fe3e5f191ada6bff7b0ec1))
+* **dracut-install:**
+  *  use stripped kernel module path as hash key ([2f791b40](https://github.com/dracutdevs/dracut/commit/2f791b401b287f67f2421452b5f82cdb5285a637))
+  *  do not try to copy files from the root directory ([ebbcf97d](https://github.com/dracutdevs/dracut/commit/ebbcf97dc7267f47ae568909305bcb05de2876b4))
+  *  correctly waitpid() for cp ([13736c50](https://github.com/dracutdevs/dracut/commit/13736c50c797d63ab75468ded17bc7935d7f1f94))
+  *  convert_abs_rel: return valid path on error ([06d31617](https://github.com/dracutdevs/dracut/commit/06d316171cd5e0e86c21006f93776ba9f49087cc))
+* **dracut-logger.sh:**  this fixes the dlog_init check for /dev/log ([6b592f58](https://github.com/dracutdevs/dracut/commit/6b592f581c1a5ec489acee95779867e0485770fd))
+* **dracut-systemd:**  run systemctl daemon-reload after remove_hostonly_files ([e1058b07](https://github.com/dracutdevs/dracut/commit/e1058b07ea2acb1bdb2d52f778639e093b1ed8a6))
+* **dracut.sh:**
+  *  split drivers_dir check ([d32d221e](https://github.com/dracutdevs/dracut/commit/d32d221efd77dcc0afa1d39230f7bdc2958ffca5))
+  *  use DRACUT_ARCH instead of `uname -m` ([a86aea65](https://github.com/dracutdevs/dracut/commit/a86aea65186b47ac210a3947c966311bb5371aeb))
+  *  make omit-drivers option do exact match for names ([444944ab](https://github.com/dracutdevs/dracut/commit/444944ab37c2446adf07dd163225707e90aabef3))
+  *  correct wrong systemd variable paths ([b9dc999f](https://github.com/dracutdevs/dracut/commit/b9dc999f87a477af53e379d7fb1053d13d6dbe88))
+  *  remove duplicate "dracut:" string in logger functions ([8410ee22](https://github.com/dracutdevs/dracut/commit/8410ee22903403cd673a22692a084125c835cbe9))
+  *  do not fail on irregular files ([b72d0d7f](https://github.com/dracutdevs/dracut/commit/b72d0d7f9be53c1ad04f132daf0297aff7581e9c))
+* **dracut.spec:**  tpm2-tools is required for crypt module to work ([8abffe7c](https://github.com/dracutdevs/dracut/commit/8abffe7cca2e210e15c618beeffe7450be357f73))
+* **drm:**  add video drivers needed on hyper-v and similar ([85149b85](https://github.com/dracutdevs/dracut/commit/85149b85961aa535a3c61d492cd3594794e5cc3f))
+* **github:**  yml syntax and commit message for dependabot ([32f6dd1d](https://github.com/dracutdevs/dracut/commit/32f6dd1d5f0b7c24bda8bf950df176a0791045cb))
+* **i18n:**
+  *  do not fail if FONT in /etc/vconsole.conf has the file extension ([e1de5bd2](https://github.com/dracutdevs/dracut/commit/e1de5bd2d711df2c6814a3c3ab8472cdb4de9101))
+  *  add required includes for keymaps ([fe8fa2b0](https://github.com/dracutdevs/dracut/commit/fe8fa2b0cadbb33e27c8dd8b5851548dcd65835c))
+* **install.d:**  add --verbose if KERNEL_INSTALL_VERBOSE=1 ([846a8453](https://github.com/dracutdevs/dracut/commit/846a845375b8a9ea48741079d523e6b464950ea7))
+* **integrity:**
+  *  do not enable EVM if there is no key ([90585c62](https://github.com/dracutdevs/dracut/commit/90585c624af15ba0abb7f32b0c2afc2b122dd019))
+  *  remove unused variable ([9d1004a4](https://github.com/dracutdevs/dracut/commit/9d1004a4e9883ecabdca478a809efb5501a1e47a))
+* **iscsi:**  don't install the module if kernel doesn't support iscsi ([7917d797](https://github.com/dracutdevs/dracut/commit/7917d7976ded6384433ef8fb2ce1905f0a76358e))
+* **kernel-modules:**
+  *  add sysctl to initramfs to handle modprobe files ([33679fff](https://github.com/dracutdevs/dracut/commit/33679fff5deb733f9dfe8d005066ac98e107c083))
+  *  always include nvmem driver on nvmem_on_arm ([bc965cd8](https://github.com/dracutdevs/dracut/commit/bc965cd8890013a6362733d217c18756134bbcdf))
+* **load_fstype:**  use $1 if $2 is missing ([401158e5](https://github.com/dracutdevs/dracut/commit/401158e58c47b2e1278a47b9cd236f501cfe2732))
+* **lsinitrd.sh:**
+  *  add a missing path to image ([e877be69](https://github.com/dracutdevs/dracut/commit/e877be69b41199ee4384ccb6352754bb9edfbba4))
+  *  correct skipcpio source path ([5eb996a9](https://github.com/dracutdevs/dracut/commit/5eb996a9936a87918a4320963a8681975ed86be4))
+* **lvm:**  drop dm-eventd binary and libs from initramfs ([7d3184e4](https://github.com/dracutdevs/dracut/commit/7d3184e430823f7eee4acee87576acdcf02746c2))
+* **man:**
+  *  correct typo ([699e3945](https://github.com/dracutdevs/dracut/commit/699e39458962bc1a06a096f24ad86ffb87e8779e))
+  *  dracut.cmdline.7: clarify "rd.nvmf.discover=fc,auto" ([a90efdd7](https://github.com/dracutdevs/dracut/commit/a90efdd704271dab6717329e88b3a1c9e850d23b))
+  *  dracut.cmdline(7): correct syntax for rd.nonvmf ([4b69e63b](https://github.com/dracutdevs/dracut/commit/4b69e63b7414567a03e8da79acc2efe32e0a6a94))
+  *  point man pages to github.com instead of kernel.org ([d6d55584](https://github.com/dracutdevs/dracut/commit/d6d555845e53dca0b083d59c8cedf465e6b70b71))
+  *  correct typo ([7fa0094c](https://github.com/dracutdevs/dracut/commit/7fa0094c0087a827a22f30ec62f03f243b000bf3))
+* **multipath:**  install multipathd.socket ([02e646fc](https://github.com/dracutdevs/dracut/commit/02e646fc7ec91e1fbaa0f2097f35781ae41da937))
+* **network:**
+  *  check if ip command fails ([52d14607](https://github.com/dracutdevs/dracut/commit/52d14607d18d99c0c2c3242a64561b1af6a332d1))
+  *  two bugs which cause minutes long boot times ([1d6f42c8](https://github.com/dracutdevs/dracut/commit/1d6f42c8a4029380c2147018e64fb7ebc9e175e7))
+  *  avoid double brackets around IPv6 address ([2c26b703](https://github.com/dracutdevs/dracut/commit/2c26b703223bb65822954264bcd6ca7934c98b4a))
+  *  don't use same ifname multiple times ([f4e9ea87](https://github.com/dracutdevs/dracut/commit/f4e9ea879f38bea92069e9397028caa5d81e5aee))
+* **network-legacy:**
+  *  check if dhclient has --timeout option ([23654c50](https://github.com/dracutdevs/dracut/commit/23654c50b003612d1b6e4b09c0bde7dd88239fd8))
+  *  correct wrong local network configuration path ([2eb733cc](https://github.com/dracutdevs/dracut/commit/2eb733cc11c09358b79e2c73218953f5bb64da93))
+* **network-manager:**
+  *  always install the library plugins directory ([429f9de1](https://github.com/dracutdevs/dracut/commit/429f9de1c767c816301097a42cec762dc82d67da))
+  *  correct wrong local network configuration path ([744c6de5](https://github.com/dracutdevs/dracut/commit/744c6de5cde38d012f93bc53f9076bf9c37b8b72))
+* **nfs,virtiofs:**  check kernel for builtin fs drivers ([78cafe46](https://github.com/dracutdevs/dracut/commit/78cafe465d972ed52cc9d847c9895716a5f44e7e))
+* **nvmf:**
+  *  run cmdline hook before parse-ip-opts.sh ([a65fab69](https://github.com/dracutdevs/dracut/commit/a65fab69662d3adf52eb968411f59ebc5a173f7c))
+  *  avoid calling "exit" in a cmdline hook ([a93968b0](https://github.com/dracutdevs/dracut/commit/a93968b07567a654d18b8ef2144337d803186eca))
+  *  make sure "rd.nvmf.discover=fc,auto" takes precedence ([556ef46a](https://github.com/dracutdevs/dracut/commit/556ef46aa96650d72b2fd850a09fa04dff64bbb8))
+  *  don't use "finished" queue for autoconnect ([e93e4652](https://github.com/dracutdevs/dracut/commit/e93e46520dd89a7357a15441ab6b141ff9ff9aeb))
+  *  don't create did-setup file ([03921ec0](https://github.com/dracutdevs/dracut/commit/03921ec09e95ea49f89ae307dcca4e2e3d1bc6d6))
+  *  no need to load the nvme module ([a3cf4ec9](https://github.com/dracutdevs/dracut/commit/a3cf4ec92202df43adf368c7fdd12e35d304a0e4))
+  *  don't try to validate network connections in cmdline hook ([b3ff3f3f](https://github.com/dracutdevs/dracut/commit/b3ff3f3fbce6878a754332cd4a05374e5e1156c8))
+  *  nvme list-subsys prints the address using commas as separator ([9664e98b](https://github.com/dracutdevs/dracut/commit/9664e98b5db603567d42d4d0c6e6ea1bd3d5bf24))
+* **shell-completion:**  add missing -p and --parallel options ([b30a00c2](https://github.com/dracutdevs/dracut/commit/b30a00c2a2815517e79eeaeef5f76fd6f923e61f))
+* **skipcpio:**  ignore broken pipe ([aa0369a4](https://github.com/dracutdevs/dracut/commit/aa0369a4a31764fde06214358b0774fb1095af01))
+* **squash:**  build ld cache for squash loader ([bc1b23c2](https://github.com/dracutdevs/dracut/commit/bc1b23c29202023dd7852f4c3e3e97aaaf94da92))
+* **systemd:**
+  *  add missing modprobe@.service ([928252a1](https://github.com/dracutdevs/dracut/commit/928252a145ca44627ba5873e01245eabe246992f))
+  *  set right permissions for the machine-id file ([da55e266](https://github.com/dracutdevs/dracut/commit/da55e2663499f6218d28783076c5449a9a6b8ec9))
+* **systemd-coredump:**  correct systemd-coredump binary path ([4b931bfb](https://github.com/dracutdevs/dracut/commit/4b931bfb4f594834d06787b3506c4a0ddbbe48ac))
+* **systemd-hostnamed:**
+  *  add missing dbus-org.freedesktop.hostname1.service ([4fca292b](https://github.com/dracutdevs/dracut/commit/4fca292b957c8ec256111442ba0db4e539442ac8))
+  *  correct sysusers configuration ([a540c95b](https://github.com/dracutdevs/dracut/commit/a540c95bbf9496f7b9d6e86aa5080173d73dff78))
+* **systemd-networkd:**  typo in systemd-networkd.socket local conf path ([d4732be8](https://github.com/dracutdevs/dracut/commit/d4732be87782016c2699fbf980d63ac366819942))
+* **systemd-timedated:**  add missing dbus-org.freedesktop.timedate1.service ([b3d219b4](https://github.com/dracutdevs/dracut/commit/b3d219b475c8f695ccfb8b741282583da710befa))
+* **systemd-timesyncd:**  typo in systemd-time-wait-sync.service local conf path ([e3ec51e1](https://github.com/dracutdevs/dracut/commit/e3ec51e128135d56c3995d87ca2a4ff65b253391))
+* **test:**  remove unnecessary setup steps ([22ab7979](https://github.com/dracutdevs/dracut/commit/22ab79794852eced9caaccd8763332b870e97032))
+* **virtiofs:**
+  *  make shebangs work on split-usr systems ([27b316df](https://github.com/dracutdevs/dracut/commit/27b316df1f001949675fbeddaeab6ff56bc449d2))
+  *  ismounted has a dependency on the base module ([c73e7b99](https://github.com/dracutdevs/dracut/commit/c73e7b99db8c759d89236d0791145d6919abd2bc))
+* **zipl:**  remove trailing spaces from zipl boot device name ([b4de9ee1](https://github.com/dracutdevs/dracut/commit/b4de9ee107742c8b0b8a86dcc22aa4fd366b068e))
+
+#### Features
+
+* **dmsquash-live:**
+  *  add support for dash ([862ba526](https://github.com/dracutdevs/dracut/commit/862ba52683834f87722cae7a6692a59d09271ec3))
+  *  add new dmsquash-live-autooverlay module ([a3c67d27](https://github.com/dracutdevs/dracut/commit/a3c67d27e75223bb45df19f850d246ced9a09938))
+* **dracut-init.sh:**
+  *  introduce a new helper require_kernel_modules ([d3a5e631](https://github.com/dracutdevs/dracut/commit/d3a5e6312a84b29bcb10fd5d28e1314f1acbc78f))
+  *  add inst_libdir_dir() helper ([cc669250](https://github.com/dracutdevs/dracut/commit/cc669250affa0176ed2bba866d8e933fb0668f4c))
+* **dracut-install:**  convert_abs_rel: canonicalise parent of from, too ([53dd6a9b](https://github.com/dracutdevs/dracut/commit/53dd6a9bbb0eb91dea0e56bec556bf865a920b2e), closes [#1781](https://github.com/dracutdevs/dracut/issues/1781))
+* **dracut.sh:**
+  *  populate uefi_cmdline if no other cmdline is given ([1157143d](https://github.com/dracutdevs/dracut/commit/1157143d67b02ccf95602ae082f6fbfd1a20f342))
+  *  pass engine flag to sbsign allowing use with hardware devices ([897e5eff](https://github.com/dracutdevs/dracut/commit/897e5effe08f15de6b20099caeda7bc1167b7026))
+* **fs-lib:**  fsck_single can now handle PARTLABEL and PARTUUID ([d40617f7](https://github.com/dracutdevs/dracut/commit/d40617f720ce7d895be4f6297ac4342d4492c39a))
+* **github:**  automating dependency updates ([bdddfd56](https://github.com/dracutdevs/dracut/commit/bdddfd561f38469b3f51d7e6af196ff1f190e2a2))
+* **kernel-modules:**  exclude USB drivers in strict hostonly mode ([7debf540](https://github.com/dracutdevs/dracut/commit/7debf540ca69d9171cb86b4752c882bac997c26e))
+* **multipath:**  install tmpfiles.d config file ([cf31fcf8](https://github.com/dracutdevs/dracut/commit/cf31fcf804be4dc0fa31885f5185a59b6012cdf4))
+* **nvmf:**  set rd.neednet=1 if tcp records encountered ([cf8986af](https://github.com/dracutdevs/dracut/commit/cf8986af7d9a3ce73f330de23d5312f924acea34))
+* **overlayfs:**
+  *  add new overlayfs module to dracut.spec ([b55563f6](https://github.com/dracutdevs/dracut/commit/b55563f635fb8aad5e141c4fa5d3e486dc2b0b60))
+  *  add a new module called overlayfs ([40dd5c90](https://github.com/dracutdevs/dracut/commit/40dd5c90e0efcb9ebaa9abb42a38c7316e9706bd))
+* **qemu:**  add efi_secret driver ([8194f72a](https://github.com/dracutdevs/dracut/commit/8194f72af2e9b6ab3cdb01412381023b0a58c852))
+* **squash:**  use require_kernel_modules for better module checking ([d4a9d6b4](https://github.com/dracutdevs/dracut/commit/d4a9d6b4c006a375e0b89396251e8ad1aecc0b16))
+* **systemd:**  install systemd-sysroot-fstab-check ([23684e4a](https://github.com/dracutdevs/dracut/commit/23684e4a2bb024595ad63d9f49d83b4693537110))
+* **systemd-pcrphase:**  introducing the systemd-pcrphase module ([d345ca2e](https://github.com/dracutdevs/dracut/commit/d345ca2efd5e017be5cc80cfc96137a7f0bee425))
+* **systemd-portabled:**  introducing the systemd-portabled module ([03babd95](https://github.com/dracutdevs/dracut/commit/03babd95e28bc884e87fd0885edafb2ee91f8935))
+* **systemd-pstore:**  introducing the systemd-pstore module ([758f2e69](https://github.com/dracutdevs/dracut/commit/758f2e69374d7865bf55a74ee218a1d52df20123))
+* **test:**  add new module to share code between tests ([f5689b42](https://github.com/dracutdevs/dracut/commit/f5689b42bdb9dfcb0f1b610d7db845ceac985061))
+* **test-makeroot:**  add new module to share code between tests ([54b963ca](https://github.com/dracutdevs/dracut/commit/54b963ca35a3a4cc8bcdb35e5e9ebb74af09191e))
+* **test-root:**  add new module to share code between tests ([b17a3103](https://github.com/dracutdevs/dracut/commit/b17a3103a516b5a45af954b1e2969a5256fffebc))
+
+#### Performance
+
+* **90kernel-modules:**  use awk instead of shell monster ([77ac95d9](https://github.com/dracutdevs/dracut/commit/77ac95d9091afcfdbd1fe0372389613914dd1bc6))
+* **dracut-install:**
+  *  convert_abs_rel: don't allocate target parent realpath ([d2648f6d](https://github.com/dracutdevs/dracut/commit/d2648f6dd8277c3d9a0b8d05ca66a212da47070e))
+  *  strdup()+[dirlen]=0 => strndup ([e7d6a1e3](https://github.com/dracutdevs/dracut/commit/e7d6a1e30c34134d27c0ae921b7d18525ddf3dea))
+* **dracut.sh:**  do not mkdir $initdir/lib/dracut within a loop ([8d46cc01](https://github.com/dracutdevs/dracut/commit/8d46cc01a95afc6902e8c86a795db082622a3c74))
+
+#### Contributors
+
+- Laszlo Gombos <laszlo.gombos@gmail.com>
+- Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
+- Martin Wilck <mwilck@suse.de>
+- Kairui Song <kasong@tencent.com>
+- Marcos Mello <marcosfrm@gmail.com>
+- наб <nabijaczleweli@nabijaczleweli.xyz>
+- David Tardon <dtardon@redhat.com>
+- Jóhann B. Guðmundsson <johannbg@gmail.com>
+- Matt Coleman <matt@datto.com>
+- Pavel Valena <pvalena@redhat.com>
+- Alberto Planas <aplanas@suse.com>
+- Brian C. Lane <bcl@redhat.com>
+- Jonathan Lebon <jonathan@jlebon.com>
+- Lukas Nykryn <lnykryn@redhat.com>
+- keentux <valentin.lefebvre@suse.com>
+- Cole Robinson <crobinso@redhat.com>
+- Daan De Meyer <daan.j.demeyer@gmail.com>
+- Frederick Grose <4335897+FGrose@users.noreply.github.com>
+- Frederick Grose <fgrose@sugarlabs.org>
+- Hari Bathini <hbathini@linux.ibm.com>
+- Henrik Gombos <henrik99999@gmail.com>
+- Jeremy Linton <jlinton@redhat.com>
+- Kenneth D'souza <kennethdsouza94@gmail.com>
+- Laura Hild <lsh@jlab.org>
+- Mike Gilbert <floppym@gentoo.org>
+- Mikhail Novosyolov <m.novosyolov@rosalinux.ru>
+- Neal Gompa <neal@gompa.dev>
+- Scott Moser <smoser@brickies.net>
+- Tao Liu <ltao@redhat.com>
+- Tianhao Chai <cth451@gmail.com>
+- gombi <gombi@>
+- joamonwx <unknown>
+- runsisi <runsisi@hust.edu.cn>
+- tupper <tupper.bob@gmail.com>
+
 dracut-057
 ==========
 
