@@ -1,5 +1,16 @@
 [Rendered view](https://github.com/dracutdevs/dracut/blob/master/NEWS.md)
 
+dracut-059
+==========
+
+#### Bug Fixes
+
+* **NEWS.md:**  add missing entries ([794ce5e3](https://github.com/dracutdevs/dracut/commit/794ce5e3ee55f1b78be32873a054aed422346f4c))
+
+#### Contributors
+
+- Jóhann B. Guðmundsson <johannbg@gmail.com>
+
 dracut-058
 ==========
 
