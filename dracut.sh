@@ -25,7 +25,7 @@ unset GZIP
 
 # Verify bash version, current minimum is 4
 if ((BASH_VERSINFO[0] < 4)); then
-    printf -- 'You need at least Bash 4 to use dracut, sorry.' >&2
+    printf "%s\n" "dracut[F]: dracut requires at least Bash 4." >&2
     exit 1
 fi
 
@@ -326,8 +326,8 @@ read_arg() {
 
 check_conf_file() {
     if grep -H -e '^[^#]*[+]=\("[^ ]\|.*[^ ]"\)' "$@"; then
-        printf '\ndracut: WARNING: <key>+=" <values> ": <values> should have surrounding white spaces!\n' >&2
-        printf 'dracut: WARNING: This will lead to unwanted side effects! Please fix the configuration file.\n\n' >&2
+        printf '\ndracut[W]: <key>+=" <values> ": <values> should have surrounding white spaces!\n' >&2
+        printf 'dracut[W]: This will lead to unwanted side effects! Please fix the configuration file.\n\n' >&2
     fi
 }
 
@@ -907,7 +907,7 @@ if [[ -z $conffile ]]; then
         conffile="$dracutsysrootdir/etc/dracut.conf"
     fi
 elif [[ ! -e $conffile ]]; then
-    printf "%s\n" "dracut: Configuration file '$conffile' not found." >&2
+    printf "%s\n" "dracut[F]: Configuration file '$conffile' not found." >&2
     exit 1
 fi
 
@@ -918,7 +918,7 @@ if [[ -z $confdir ]]; then
         confdir="$dracutsysrootdir/etc/dracut.conf.d"
     fi
 elif [[ ! -d $confdir ]]; then
-    printf "%s\n" "dracut: Configuration directory '$confdir' not found." >&2
+    printf "%s\n" "dracut[F]: Configuration directory '$confdir' not found." >&2
     exit 1
 fi
 
@@ -945,12 +945,12 @@ fi
 if [[ $regenerate_all == "yes" ]]; then
     ret=0
     if [[ $kernel ]]; then
-        printf -- "--regenerate-all cannot be called with a kernel version\n" >&2
+        printf "%s\n" "dracut[F]: --regenerate-all cannot be called with a kernel version." >&2
         exit 1
     fi
 
     if [[ $outfile ]]; then
-        printf -- "--regenerate-all cannot be called with a image file\n" >&2
+        printf "%s\n" "dracut[F]: --regenerate-all cannot be called with an image file." >&2
         exit 1
     fi
 
@@ -1097,12 +1097,12 @@ if ! [[ $outfile ]]; then
     if [[ $uefi == "yes" ]]; then
         # shellcheck disable=SC2154
         if [[ -n $uefi_secureboot_key && -z $uefi_secureboot_cert ]] || [[ -z $uefi_secureboot_key && -n $uefi_secureboot_cert ]]; then
-            printf "%s\n" "dracut: Need 'uefi_secureboot_key' and 'uefi_secureboot_cert' both to be set." >&2
+            printf "%s\n" "dracut[F]: Need 'uefi_secureboot_key' and 'uefi_secureboot_cert' both to be set." >&2
             exit 1
         fi
 
         if [[ -n $uefi_secureboot_key && -n $uefi_secureboot_cert ]] && ! command -v sbsign &> /dev/null; then
-            printf "%s\n" "dracut: Need 'sbsign' to create a signed UEFI executable." >&2
+            printf "%s\n" "dracut[F]: Need 'sbsign' to create a signed UEFI executable." >&2
             exit 1
         fi
 
@@ -1166,7 +1166,7 @@ fw_dir=${fw_dir//:/ }
 if [[ -n $logfile ]]; then
     if [[ ! -f $logfile ]]; then
         if touch "$logfile"; then
-            printf "%s\n" "dracut: touch $logfile failed." >&2
+            printf "%s\n" "dracut[W]: touch $logfile failed." >&2
         fi
     fi
 fi
@@ -1200,7 +1200,7 @@ case $hostonly_mode in
         fi
         ;;
     *)
-        printf "%s\n" "dracut: Invalid hostonly mode '$hostonly_mode'." >&2
+        printf "%s\n" "dracut[F]: Invalid hostonly mode '$hostonly_mode'." >&2
         exit 1
         ;;
 esac
@@ -1210,19 +1210,19 @@ esac
 if [[ -z $DRACUT_KMODDIR_OVERRIDE && -n $drivers_dir ]]; then
     drivers_basename="${drivers_dir##*/}"
     if [[ -n $drivers_basename && $drivers_basename != "$kernel" ]]; then
-        printf "%s\n" "dracut: The provided directory where to look for kernel modules ($drivers_basename)" >&2
-        printf "%s\n" "dracut: does not match the kernel version set for the initramfs ($kernel)." >&2
-        printf "%s\n" "dracut: Set DRACUT_KMODDIR_OVERRIDE=1 to ignore this check." >&2
+        printf "%s\n" "dracut[F]: The provided directory where to look for kernel modules ($drivers_basename)" >&2
+        printf "%s\n" "dracut[F]: does not match the kernel version set for the initramfs ($kernel)." >&2
+        printf "%s\n" "dracut[F]: Set DRACUT_KMODDIR_OVERRIDE=1 to ignore this check." >&2
         exit 1
     fi
     drivers_dirname="${drivers_dir%/*}/"
     if [[ ! $drivers_dirname =~ .*/lib/modules/$ ]]; then
-        printf "%s\n" "dracut: drivers_dir path ${drivers_dir_l:+"set via -k/--kmoddir "}must contain \"/lib/modules/\" as a parent of your kernel module directory," >&2
-        printf "%s\n" "dracut: or modules may not be placed in the correct location inside the initramfs." >&2
-        printf "%s\n" "dracut: was given: ${drivers_dir}" >&2
-        printf "%s\n" "dracut: expected: ${drivers_dirname}lib/modules/${kernel}" >&2
-        printf "%s\n" "dracut: Please move your modules into the correct directory structure and pass the new location," >&2
-        printf "%s\n" "dracut: or set DRACUT_KMODDIR_OVERRIDE=1 to ignore this check." >&2
+        printf "%s\n" "dracut[F]: drivers_dir path ${drivers_dir_l:+"set via -k/--kmoddir "}must contain \"/lib/modules/\" as a parent of your kernel module directory," >&2
+        printf "%s\n" "dracut[F]: or modules may not be placed in the correct location inside the initramfs." >&2
+        printf "%s\n" "dracut[F]: was given: ${drivers_dir}" >&2
+        printf "%s\n" "dracut[F]: expected: ${drivers_dirname}lib/modules/${kernel}" >&2
+        printf "%s\n" "dracut[F]: Please move your modules into the correct directory structure and pass the new location," >&2
+        printf "%s\n" "dracut[F]: or set DRACUT_KMODDIR_OVERRIDE=1 to ignore this check." >&2
         exit 1
     fi
 fi
@@ -1230,19 +1230,19 @@ fi
 # shellcheck disable=SC2155
 readonly TMPDIR="$(realpath -e "$tmpdir")"
 [ -d "$TMPDIR" ] || {
-    printf "%s\n" "dracut: Invalid tmpdir '$tmpdir'." >&2
+    printf "%s\n" "dracut[F]: Invalid tmpdir '$tmpdir'." >&2
     exit 1
 }
 
 if findmnt --raw -n --target "$tmpdir" --output=options | grep -q noexec; then
-    [[ $debug == yes ]] && printf "%s\n" "dracut: Tmpdir '$tmpdir' is mounted with 'noexec'."
+    [[ $debug == yes ]] && printf "%s\n" "dracut[D]: Tmpdir '$tmpdir' is mounted with 'noexec'." >&2
     noexec=1
 fi
 
 # shellcheck disable=SC2155
 readonly DRACUT_TMPDIR="$(mktemp -p "$TMPDIR/" -d -t dracut.XXXXXX)"
 [ -d "$DRACUT_TMPDIR" ] || {
-    printf "%s\n" "dracut: mktemp -p '$TMPDIR/' -d -t dracut.XXXXXX failed." >&2
+    printf "%s\n" "dracut[F]: mktemp -p '$TMPDIR/' -d -t dracut.XXXXXX failed." >&2
     exit 1
 }
 
@@ -1289,7 +1289,7 @@ fi
 if systemd-detect-virt -c &> /dev/null; then
     export DRACUT_NO_MKNOD=1 DRACUT_NO_XATTR=1
     if [[ $hostonly ]]; then
-        printf "%s\n" "dracut: WARNING: running in hostonly mode in a container!!"
+        printf "%s\n" "dracut[W]: Running in hostonly mode in a container!" >&2
     fi
 fi
 
@@ -1297,9 +1297,9 @@ if [[ -f $dracutbasedir/dracut-init.sh ]]; then
     # shellcheck source=./dracut-init.sh
     . "$dracutbasedir"/dracut-init.sh
 else
-    printf "%s\n" "dracut: Cannot find $dracutbasedir/dracut-init.sh." >&2
-    printf "%s\n" "dracut: Are you running from a git checkout?" >&2
-    printf "%s\n" "dracut: Try passing -l as an argument to $dracut_cmd" >&2
+    printf "%s\n" "dracut[F]: Cannot find $dracutbasedir/dracut-init.sh." >&2
+    printf "%s\n" "dracut[F]: Are you running from a git checkout?" >&2
+    printf "%s\n" "dracut[F]: Try passing -l as an argument to $dracut_cmd" >&2
     exit 1
 fi
 
