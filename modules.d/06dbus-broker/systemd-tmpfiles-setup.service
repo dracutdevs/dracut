@@ -1,0 +1,29 @@
+#  SPDX-License-Identifier: LGPL-2.1-or-later
+#
+#  This file is part of dracut dbus-broker module.
+
+[Unit]
+Description=Create Volatile Files and Directories
+Documentation=man:tmpfiles.d(5) man:systemd-tmpfiles(8)
+
+DefaultDependencies=no
+# We need to make sure that systemd-tmpfiles-setup.service->dbus.socket
+# will not wait for local-fs.target to start if swap is encrypted,
+# this would make dbus wait the timeout for the swap before loading.
+# This could delay sysinit services that are dependent on dbus.service.
+After=-.mount systemd-sysusers.service systemd-journald.service
+Before=sysinit.target
+Conflicts=shutdown.target initrd-switch-root.target
+Before=shutdown.target initrd-switch-root.target
+RefuseManualStop=yes
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=systemd-tmpfiles --create --remove --boot --exclude-prefix=/dev
+SuccessExitStatus=DATAERR CANTCREAT
+LoadCredential=tmpfiles.extra
+LoadCredential=login.motd
+LoadCredential=login.issue
+LoadCredential=network.hosts
+LoadCredential=ssh.authorized_keys.root

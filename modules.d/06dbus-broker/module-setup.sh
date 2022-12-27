@@ -52,23 +52,27 @@ install() {
         "$systemdcatalog"/dbus-broker-launch.catalog \
         "$systemdsystemunitdir"/dbus-broker.service \
         "$systemduser"/dbus-broker.service \
-        "$systemdsystemunitdir"/dbus.socket \
         "$systemduser"/dbus.socket \
-        "$systemdsystemunitdir"/sockets.target.wants/dbus.socket \
         "$systemduser"/sockets.target.wants/dbus.socket \
         "$systemdsystemunitdir"/dbus.target.wants \
         busctl dbus-broker dbus-broker-launch
 
-    # Adjusting dependencies for initramfs in the dbus socket unit.
-    # shellcheck disable=SC1004
-    sed -i -e \
-        '/^\[Unit\]/aDefaultDependencies=no\
-        Conflicts=shutdown.target\
-        Before=shutdown.target
-        /^\[Socket\]/aRemoveOnStop=yes' \
-        "$initdir$systemdsystemunitdir/dbus.socket"
+    # Install custom units
+    inst_simple "$moddir"/dbus.socket "$systemdsystemunitdir"/dbus.socket
+    [[ -e "$initdir$systemdsystemunitdir/systemd-tmpfiles-setup.service" ]] \
+        && rm -f "$initdir$systemdsystemunitdir/systemd-tmpfiles-setup.service"
+    [[ -e "$initdir$systemdsystemconfdir/systemd-tmpfiles-setup.service" ]] \
+        && rm -f "$initdir$systemdsystemconfdir/systemd-tmpfiles-setup.service"
+    [[ -d "$initdir$systemdsystemconfdir/systemd-tmpfiles-setup.service.d" ]] \
+        && rm -rf "$initdir$systemdsystemconfdir/systemd-tmpfiles-setup.service.d"
+    inst_simple "$moddir"/systemd-tmpfiles-setup.service "$systemdsystemunitdir"/systemd-tmpfiles-setup.service
 
-    $SYSTEMCTL -q --root "$initdir" enable dbus-broker.service
+    # Enable systemd type units
+    for i in \
+        dbus.socket \
+        dbus-broker.service; do
+        $SYSTEMCTL -q --root "$initdir" enable "$i"
+    done
 
     # Install the hosts local user configurations if enabled.
     if [[ $hostonly ]]; then
@@ -76,18 +80,8 @@ install() {
             "$dbusconfdir"/session.conf \
             "$dbusconfdir"/system.conf \
             "$sysusersconfdir"/dbus.conf \
-            "$systemdsystemconfdir"/dbus.socket \
-            "$systemdsystemconfdir"/dbus.socket.d/*.conf \
             "$systemdsystemconfdir"/dbus-broker.service \
-            "$systemdsystemconfdir"/dbus-broker.service.d/*.conf \
-            "$systemdsystemconfdir"/sockets.target.wants/dbus.socket
+            "$systemdsystemconfdir"/dbus-broker.service.d/*.conf
     fi
 
-    # We need to make sure that systemd-tmpfiles-setup.service->dbus.socket
-    # will not wait for local-fs.target to start if swap is encrypted,
-    # this would make dbus wait the timeout for the swap before loading.
-    # This could delay sysinit services that are dependent on dbus.service.
-    sed -i -Ee \
-        '/^After/s/(After[[:space:]]*=.*)(local-fs.target[[:space:]]*)(.*)/\1-\.mount \3/' \
-        "$initdir$systemdsystemunitdir/systemd-tmpfiles-setup.service"
 }
