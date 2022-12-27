@@ -1064,6 +1064,7 @@ for_each_module_dir() {
     local _mod
     local _moddir
     local _func
+    local _reason
     _func=$1
     for _moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
         [[ -d $_moddir ]] || continue
@@ -1085,7 +1086,10 @@ for_each_module_dir() {
             && [[ " $omit_dracutmodules " == *\ $_mod\ * ]] \
             && continue
 
-        derror "dracut module '$_mod' cannot be found or installed."
+        [[ -d $(echo "$dracutbasedir/modules.d"/[0-9][0-9]"$_mod") ]] \
+            && _reason="installed" \
+            || _reason="found"
+        derror "dracut module '$_mod' cannot be $_reason."
         [[ " $force_add_dracutmodules " == *\ $_mod\ * ]] && exit 1
         [[ " $dracutmodules " == *\ $_mod\ * ]] && exit 1
         [[ " $add_dracutmodules " == *\ $_mod\ * ]] && exit 1
