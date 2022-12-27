@@ -119,7 +119,7 @@ require_binaries() {
 
     for cmd in "$@"; do
         if ! find_binary "$cmd" &> /dev/null; then
-            dinfo "dracut module '${_module_name#[0-9][0-9]}' will not be installed, because command '$cmd' could not be found!"
+            dinfo "Module '${_module_name#[0-9][0-9]}' will not be installed, because command '$cmd' could not be found!"
             ((_ret++))
         fi
     done
@@ -168,7 +168,7 @@ require_kernel_modules() {
 
     for mod in "$@"; do
         if ! check_kernel_module "$mod" &> /dev/null; then
-            dinfo "dracut module '${_module_name#[0-9][0-9]}' will not be installed, because kernel module '$mod' is not available!"
+            dinfo "Module '${_module_name#[0-9][0-9]}' will not be installed, because kernel module '$mod' is not available!"
             ((_ret++))
         fi
     done
@@ -971,7 +971,7 @@ check_mount() {
             && force_add_dracutmodules+=" $_moddep "
         # if a module we depend on fail, fail also
         if ! check_module "$_moddep"; then
-            derror "dracut module '$_mod' depends on '$_moddep', which can't be installed"
+            derror "Module '$_mod' depends on '$_moddep', which can't be installed"
             return 1
         fi
     done
@@ -1003,7 +1003,7 @@ check_module() {
     [[ $2 ]] || mods_checked_as_dep+=" $_mod "
 
     if [[ " $omit_dracutmodules " == *\ $_mod\ * ]]; then
-        ddebug "dracut module '$_mod' will not be installed, because it's in the list to be omitted!"
+        ddebug "Module '$_mod' will not be installed, because it's in the list to be omitted!"
         return 1
     fi
 
@@ -1046,7 +1046,7 @@ check_module() {
             && force_add_dracutmodules+=" $_moddep "
         # if a module we depend on fail, fail also
         if ! check_module "$_moddep"; then
-            derror "dracut module '$_mod' depends on '$_moddep', which can't be installed"
+            derror "Module '$_mod' depends on '$_moddep', which can't be installed"
             return 1
         fi
     done
@@ -1089,7 +1089,7 @@ for_each_module_dir() {
         [[ -d $(echo "$dracutbasedir/modules.d"/[0-9][0-9]"$_mod") ]] \
             && _reason="installed" \
             || _reason="found"
-        derror "dracut module '$_mod' cannot be $_reason."
+        derror "Module '$_mod' cannot be $_reason."
         [[ " $force_add_dracutmodules " == *\ $_mod\ * ]] && exit 1
         [[ " $dracutmodules " == *\ $_mod\ * ]] && exit 1
         [[ " $add_dracutmodules " == *\ $_mod\ * ]] && exit 1
