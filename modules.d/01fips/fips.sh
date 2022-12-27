@@ -18,6 +18,15 @@ mount_boot() {
     boot=$(getarg boot=)
 
     if [ -n "$boot" ]; then
+        if [ -d /boot ] && ismounted /boot; then
+            boot_dev=
+            if command -v findmnt > /dev/null; then
+                boot_dev=$(findmnt -n -o SOURCE /boot)
+            fi
+            fips_info "Ignoring 'boot=$boot' as /boot is already mounted ${boot_dev:+"from '$boot_dev'"}"
+            return 0
+        fi
+
         case "$boot" in
             LABEL=* | UUID=* | PARTUUID=* | PARTLABEL=*)
                 boot="$(label_uuid_to_dev "$boot")"
@@ -47,10 +56,13 @@ mount_boot() {
         mkdir -p /boot
         fips_info "Mounting $boot as /boot"
         mount -oro "$boot" /boot || return 1
+        FIPS_MOUNTED_BOOT=1
     elif ! ismounted /boot && [ -d "$NEWROOT/boot" ]; then
         # shellcheck disable=SC2114
         rm -fr -- /boot
         ln -sf "$NEWROOT/boot" /boot
+    else
+        die "You have to specify boot=<boot device> as a boot option for fips=1"
     fi
 }
 
@@ -172,7 +184,12 @@ do_fips() {
 
     : > /tmp/fipsdone
 
-    umount /boot > /dev/null 2>&1
+    if [ "$FIPS_MOUNTED_BOOT" = 1 ]; then
+        fips_info "Unmounting /boot"
+        umount /boot > /dev/null 2>&1
+    else
+        fips_info "Not unmounting /boot"
+    fi
 
     return 0
 }
