@@ -57,8 +57,9 @@ install() {
     inst_multiple -o \
         "$dbussystem"/bluetooth.conf \
         "${systemdsystemunitdir}/bluetooth.target" \
-        "${systemdsystemunitdir}/bluetooth.service" \
         bluetoothctl
+
+    inst_simple "$moddir"/bluetooth.service "$systemdsystemunitdir"/bluetooth.service
 
     inst_multiple -o \
         /usr/libexec/bluetooth/bluetoothd \
@@ -74,14 +75,6 @@ install() {
     fi
 
     inst_rules 69-btattach-bcm.rules 60-persistent-input.rules
-
-    # shellcheck disable=SC1004
-    sed -i -e \
-        '/^\[Unit\]/aDefaultDependencies=no\
-        Conflicts=shutdown.target\
-        Before=shutdown.target\
-        After=dbus.service' \
-        "${initdir}/${systemdsystemunitdir}/bluetooth.service"
 
     $SYSTEMCTL -q --root "$initdir" enable bluetooth.service
 }
