@@ -323,7 +323,7 @@ _do_dlog() {
     local msg="$*"
     local lmsg="$lvlc: $*"
 
-    ((lvl <= stdloglvl)) && printf -- 'dracut: %s\n' "$msg" >&2
+    ((lvl <= stdloglvl)) && printf -- 'dracut[%s]: %s\n' "$lvlc" "$msg" >&2
 
     if ((lvl <= sysloglvl)); then
         if [[ "$_dlogfd" ]]; then
