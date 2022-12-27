@@ -50,27 +50,19 @@ install() {
         "$dbussystem"/org.freedesktop.systemd1.conf \
         "$dbusservicesconfdir"/org.freedesktop.systemd1.service \
         "$dbussystemservices"/org.freedesktop.systemd1.service \
-        "$systemdsystemunitdir"/dbus.service \
-        "$systemdsystemunitdir"/dbus.socket \
         "$systemdsystemunitdir"/dbus.target.wants \
         busctl dbus-send dbus-daemon
 
-    # Adjusting dependencies for initramfs in the dbus service unit.
-    # shellcheck disable=SC1004
-    sed -i -e \
-        '/^\[Unit\]/aDefaultDependencies=no\
-        Conflicts=shutdown.target\
-        Before=shutdown.target' \
-        "$initdir$systemdsystemunitdir/dbus.service"
-
-    # Adjusting dependencies for initramfs in the dbus socket unit.
-    # shellcheck disable=SC1004
-    sed -i -e \
-        '/^\[Unit\]/aDefaultDependencies=no\
-        Conflicts=shutdown.target\
-        Before=shutdown.target
-        /^\[Socket\]/aRemoveOnStop=yes' \
-        "$initdir$systemdsystemunitdir/dbus.socket"
+    # Install custom units
+    inst_simple "$moddir"/dbus.service "$systemdsystemunitdir"/dbus.service
+    inst_simple "$moddir"/dbus.socket "$systemdsystemunitdir"/dbus.socket
+    [[ -e "$initdir$systemdsystemunitdir/systemd-tmpfiles-setup.service" ]] \
+        && rm -f "$initdir$systemdsystemunitdir/systemd-tmpfiles-setup.service"
+    [[ -e "$initdir$systemdsystemconfdir/systemd-tmpfiles-setup.service" ]] \
+        && rm -f "$initdir$systemdsystemconfdir/systemd-tmpfiles-setup.service"
+    [[ -d "$initdir$systemdsystemconfdir/systemd-tmpfiles-setup.service.d" ]] \
+        && rm -rf "$initdir$systemdsystemconfdir/systemd-tmpfiles-setup.service.d"
+    inst_simple "$moddir"/systemd-tmpfiles-setup.service "$systemdsystemunitdir"/systemd-tmpfiles-setup.service
 
     # Adding the user and group for dbus
     grep '^\(d\|message\)bus:' "$dracutsysrootdir"/etc/passwd >> "$initdir/etc/passwd"
@@ -79,18 +71,7 @@ install() {
     # Install the hosts local user configurations if enabled.
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
-            "$dbusconfdir"/system.conf \
-            "$systemdsystemconfdir"/dbus.socket \
-            "$systemdsystemconfdir"/dbus.socket.d/*.conf \
-            "$systemdsystemconfdir"/dbus.service \
-            "$systemdsystemconfdir"/dbus.service.d/*.conf
+            "$dbusconfdir"/system.conf
     fi
 
-    # We need to make sure that systemd-tmpfiles-setup.service->dbus.socket
-    # will not wait for local-fs.target to start if swap is encrypted,
-    # this would make dbus wait the timeout for the swap before loading.
-    # This could delay sysinit services that are dependent on dbus.service.
-    sed -i -Ee \
-        '/^After/s/(After[[:space:]]*=.*)(local-fs.target[[:space:]]*)(.*)/\1-\.mount \3/' \
-        "$initdir$systemdsystemunitdir/systemd-tmpfiles-setup.service"
 }

@@ -1,0 +1,13 @@
+#  SPDX-License-Identifier: LGPL-2.1-or-later
+#
+#  This file is part of dracut dbus-daemon module.
+
+[Unit]
+Description=D-Bus System Message Bus Socket
+DefaultDependencies=no
+Conflicts=shutdown.target
+Before=shutdown.target
+
+[Socket]
+ListenStream=/run/dbus/system_bus_socket
+RemoveOnStop=yes
