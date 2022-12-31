@@ -79,11 +79,15 @@ Creates initial ramdisk images for preloading modules
 
   --kver [VERSION]      Set kernel version to [VERSION].
   -f, --force           Overwrite existing initramfs file.
-  [OUTPUT_FILE] --rebuild
-                        Append the current arguments to those with which the
-                         input initramfs image was built. This option helps in
-                         incrementally building the initramfs for testing.
-                         If optional [OUTPUT_FILE] is not provided, the input
+  --rebuild [OUTPUT_FILE]
+                        Append any current arguments to those saved in an input
+                         initramfs image. Ignore the configuration directory
+                         files, --confdir [DIR] (default /etc/dracut.conf.d/)
+                         and source those saved in the input initramfs image at
+                         */usr/lib/dracut/conffiles/* as well as any newly
+                         provided in -c, --conf [FILE].  This option aids in
+                         incrementally building the initramfs for testing.  If
+                         optional [OUTPUT_FILE] is not provided, the input
                          initramfs provided to rebuild will be used as output
                          file.
   -a, --add [LIST]      Add a space-separated list of dracut modules.
@@ -324,11 +328,24 @@ read_arg() {
     fi
 }
 
+ccfwarn() {
+    printf '\ndracut: WARNING: <key>+=" <values> ": <values> should have surrounding white spaces!\n' >&2
+    printf "dracut: WARNING: This will lead to unwanted side effects! %s\n\n" "$1" >&2
+}
 check_conf_file() {
-    if grep -H -e '^[^#]*[+]=\("[^ ]\|.*[^ ]"\)' "$@"; then
-        printf '\ndracut: WARNING: <key>+=" <values> ": <values> should have surrounding white spaces!\n' >&2
-        printf 'dracut: WARNING: This will lead to unwanted side effects! Please fix the configuration file.\n\n' >&2
-    fi
+    case "$1" in
+        '<<<')
+            shift
+            if grep --label=rebuild_conf_files@ -H -n -e '^[^#]*[+]=\("[^ ]\|.*[^ ]"\)' <<< "$@"; then
+                ccfwarn 'Please reconsider this rebuild.'
+            fi
+            ;;
+        *)
+            if grep -H -e '^[^#]*[+]=\("[^ ]\|.*[^ ]"\)' "$@"; then
+                ccfwarn 'Please fix the configuration file.'
+            fi
+            ;;
+    esac
 }
 
 dropindirs_sort() {
@@ -403,7 +420,7 @@ rearrange_params() {
             --long compress: \
             --long squash-compressor: \
             --long prefix: \
-            --long rebuild: \
+            --long rebuild:: \
             --long force \
             --long kernel-only \
             --long no-kernel \
@@ -496,7 +513,7 @@ while :; do
     if [ "$1" == "--rebuild" ]; then
         append_args_l="yes"
         rebuild_file="$2"
-        if [ ! -e "$rebuild_file" ]; then
+        if [[ $rebuild_file ]] && [[ ! -e $rebuild_file ]]; then
             echo "Image file '$rebuild_file', for rebuild, does not exist!"
             exit 1
         fi
@@ -528,16 +545,19 @@ while (($# > 0)); do
     shift
 done
 
-# extract input image file provided with rebuild option to get previous parameters, if any
+# Extract input image file provided with rebuild option to get previous
+# configuration settings & parameters, if any.
 if [[ $append_args_l == "yes" ]]; then
-    unset rebuild_param
+    unset -v 'rebuild_conf'
+    unset -v 'rebuild_param'
 
     # determine resultant file
     if ! [[ $outfile ]]; then
         outfile=$rebuild_file
     fi
-
-    if ! rebuild_param=$(lsinitrd "$rebuild_file" '*lib/dracut/build-parameter.txt'); then
+    rebuild_conf=$(lsinitrd "$rebuild_file" '*lib/dracut/conffiles/*')
+    rebuild_param=$(lsinitrd "$rebuild_file" '*lib/dracut/build-parameter.txt')
+    if ! [[ $rebuild_conf$rebuild_param ]]; then
         echo "Image '$rebuild_file' has no rebuild information stored"
         exit 1
     fi
@@ -921,20 +941,28 @@ elif [[ ! -d $confdir ]]; then
     printf "%s\n" "dracut: Configuration directory '$confdir' not found." >&2
     exit 1
 fi
-
+# source any rebuild configuration files before any current config files.
+if [[ $rebuild_conf ]]; then
+    check_conf_file '<<<' "$rebuild_conf"
+    eval "$rebuild_conf"
+fi
+conffilelist=''
 # source our config file
 if [[ -f $conffile ]]; then
     check_conf_file "$conffile"
     # shellcheck disable=SC1090
     . "$conffile"
+    conffilelist+=$conffile
 fi
 
-# source our config dir
-for f in $(dropindirs_sort ".conf" "$confdir" "$dracutbasedir/dracut.conf.d"); do
-    check_conf_file "$f"
-    # shellcheck disable=SC1090
-    [[ -e $f ]] && . "$f"
-done
+# source our config dir if not in --rebuild mode with saved configs.
+if [[ ! $rebuild_conf ]]; then
+    for f in $(dropindirs_sort ".conf" "$confdir" "$dracutbasedir/dracut.conf.d"); do
+        check_conf_file "$f"
+        # shellcheck disable=SC1090
+        . "$f" && conffilelist+=" $f"
+    done
+fi
 
 # regenerate_all shouldn't be set in conf files
 regenerate_all=$regenerate_all_l
@@ -2091,6 +2119,12 @@ for i in $modules_loaded; do
 done
 
 dinfo "*** Including modules done ***"
+[[ $conffilelist ]] && mkdir -m 0755 "$initdir"/lib/dracut/conffiles
+for i in $conffilelist; do
+    cp "$i" -a "$initdir"/lib/dracut/conffiles/"${i##*/}"
+done
+[[ $rebuild_conf ]] \
+    && echo "$rebuild_conf" > "$initdir"/lib/dracut/conffiles/rebuild_conf
 
 ## final stuff that has to happen
 if [[ $no_kernel != yes ]]; then
