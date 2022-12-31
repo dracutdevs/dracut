@@ -338,6 +338,14 @@ case $bin in
         ;;
 esac
 
+type "${CAT%% *}" > /dev/null 2>&1 || {
+    echo "
+    Compressor package '${CAT%% *}' is not available.
+        Try 'sudo dnf install ${CAT%% *}'.
+        "
+    exit 1
+}
+
 skipcpio() {
     $SKIP "$@" | $ORIG_CAT
 }
