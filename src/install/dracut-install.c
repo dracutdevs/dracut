@@ -22,7 +22,6 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
-#undef _FILE_OFFSET_BITS
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
