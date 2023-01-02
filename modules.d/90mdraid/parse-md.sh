@@ -1,6 +1,6 @@
 #!/bin/sh
 # we really need to use `expr substr` with dash
-# shellcheck disable=SC2003
+# shellcheck disable=SC2003 disable=SC2308
 
 MD_UUID=$(getargs rd.md.uuid -d rd_MD_UUID=)
 # normalize the uuid

@@ -36,7 +36,7 @@ nfsroot_to_var() {
     # strip nfs[4]:
     local arg="$*:"
     nfs="${arg%%:*}"
-    arg="${arg##$nfs:}"
+    arg="${arg##"$nfs":}"
 
     # check if we have a server
     if strstr "$arg" ':/'; then
@@ -47,7 +47,7 @@ nfsroot_to_var() {
     path="${arg%%:*}"
 
     # rest are options
-    options="${arg##$path}"
+    options="${arg##"$path"}"
     # strip leading ":"
     options="${options##:}"
     # strip  ":"
