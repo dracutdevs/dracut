@@ -34,7 +34,11 @@ case "$COMMAND" in
                 && exit 0
         fi
 
-        if [[ -f /etc/kernel/cmdline ]]; then
+        if [ -n "$KERNEL_INSTALL_CONF_ROOT" ]; then
+            if [ -f "$KERNEL_INSTALL_CONF_ROOT/cmdline" ]; then
+                read -r -d '' -a BOOT_OPTIONS < "$KERNEL_INSTALL_CONF_ROOT/cmdline"
+            fi
+        elif [[ -f /etc/kernel/cmdline ]]; then
             read -r -d '' -a BOOT_OPTIONS < /etc/kernel/cmdline
         elif [[ -f /usr/lib/kernel/cmdline ]]; then
             read -r -d '' -a BOOT_OPTIONS < /usr/lib/kernel/cmdline
