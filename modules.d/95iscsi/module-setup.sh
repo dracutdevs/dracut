@@ -161,7 +161,7 @@ installkernel() {
     local _funcs='iscsi_register_transport'
 
     instmods bnx2i qla4xxx cxgb3i cxgb4i be2iscsi qedi
-    hostonly="" instmods iscsi_tcp iscsi_ibft crc32c iscsi_boot_sysfs
+    hostonly="" instmods iscsi_tcp iscsi_ibft crc32c iscsi_boot_sysfs 8021q
 
     if [ "$_arch" = "s390" -o "$_arch" = "s390x" ]; then
         _s390drivers="=drivers/s390/scsi"
