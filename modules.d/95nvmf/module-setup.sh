@@ -60,7 +60,7 @@ depends() {
 # called by dracut
 installkernel() {
     instmods nvme_fc lpfc qla2xxx
-    hostonly="" instmods nvme_tcp nvme_fabrics
+    hostonly="" instmods nvme_tcp nvme_fabrics 8021q
 }
 
 # called by dracut
