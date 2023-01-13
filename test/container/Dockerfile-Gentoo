@@ -23,6 +23,8 @@ RUN echo 'sys-fs/lvm2 device-mapper-only -thin' > /etc/portage/package.use/lvm2
 # workaround for https://bugs.gentoo.org/734022 whereby Gentoo does not support NFS4 with musl
 RUN echo 'net-fs/nfs-utils -nfsv4' > /etc/portage/package.use/nfs-utils
 
+RUN echo '>=sys-fs/lvm2-2.03.17-r1 lvm' > /etc/portage/package.use/dmraid
+
 # Install needed packages for the dracut CI container
 RUN emerge -qv \
     app-arch/cpio \
