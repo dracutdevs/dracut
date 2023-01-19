@@ -10,7 +10,6 @@ if [ "${fstype}" = "virtiofs" -o "${root%%:*}" = "virtiofs" ]; then
     mount -t virtiofs -o "$rflags" "${root#virtiofs:}" "$NEWROOT" 2>&1 | vinfo
     if ! ismounted "$NEWROOT"; then
         die "virtiofs: failed to mount root fs"
-        exit 1
     fi
 
     info "virtiofs: root fs mounted (options: '${rflags}')"
