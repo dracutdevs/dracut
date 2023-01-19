@@ -387,7 +387,7 @@ inst_fsck_help() {
 }
 
 # Use with form hostonly="$(optional_hostonly)" inst_xxxx <args>
-# If hosotnly mode is set to "strict", hostonly restrictions will still
+# If hostonly mode is set to "strict", hostonly restrictions will still
 # be applied, else will ignore hostonly mode and try to install all
 # given modules.
 optional_hostonly() {
