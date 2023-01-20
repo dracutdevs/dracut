@@ -259,6 +259,8 @@ Creates initial ramdisk images for preloading modules
   --printsize           Print out the module install size.
   --sshkey [SSHKEY]     Add SSH key to initramfs (use with ssh-client module).
   --logfile [FILE]      Logfile to use (overrides configuration setting).
+  --keep-cryptkeyfiles  Don't remove keyfiles for decryption when entering the
+                        emergency shell (use with crypt module)
   --reproducible        Create reproducible images.
   --no-reproducible     Do not create reproducible images.
   --loginstall [DIR]    Log all files installed from the host to [DIR].
@@ -450,6 +452,7 @@ rearrange_params() {
             --long show-modules \
             --long keep \
             --long printsize \
+            --long keep-cryptkeyfiles \
             --long regenerate-all \
             --long parallel \
             --long noimageifnotneeded \
@@ -818,6 +821,7 @@ while :; do
             ;;
         --keep) keep="yes" ;;
         --printsize) printsize="yes" ;;
+        --keep-cryptkeyfiles) keep_cryptkeyfiles="yes" ;;
         --regenerate-all) regenerate_all_l="yes" ;;
         -p | --parallel) parallel_l="yes" ;;
         --noimageifnotneeded) noimageifnotneeded="yes" ;;
@@ -1791,7 +1795,7 @@ export initdir dracutbasedir \
     host_fs_types host_devs swap_devs sshkey add_fstab \
     DRACUT_VERSION \
     prefix filesystems drivers \
-    hostonly_cmdline loginstall
+    hostonly_cmdline loginstall keep_cryptkeyfiles
 
 mods_to_load=""
 # check all our modules to see if they should be sourced.
