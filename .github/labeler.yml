@@ -462,10 +462,6 @@ zfcp:
   - changed-files:
     - any-glob-to-any-file: 'modules.d/95zfcp/*'
 
-zfcp_rules:
-  - changed-files:
-    - any-glob-to-any-file: 'modules.d/95zfcp_rules/*'
-
 znet:
   - changed-files:
     - any-glob-to-any-file: 'modules.d/95znet/*'
