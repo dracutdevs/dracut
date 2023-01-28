@@ -117,7 +117,6 @@ processcmsfile() {
         dasd_cio_free
     fi
 
-    unset _do_zfcp
     for i in ${!FCP_*}; do
         echo "${!i}" | while read -r port rest || [ -n "$port" ]; do
             case $port in
@@ -130,12 +129,24 @@ processcmsfile() {
                     port="0.0.$port"
                     ;;
             esac
-            echo "$port" "$rest" >> /etc/zfcp.conf
+            # shellcheck disable=SC2086
+            set -- $rest
+            SAVED_IFS="$IFS"
+            IFS=":"
+            # Intentionally do not dynamically activate now, but only generate udev
+            # rules, which activate the device later during udev coldplug.
+            if [[ -z $rest ]]; then
+                chzdev --enable --persistent \
+                    --no-settle --yes --quiet --no-root-update --force \
+                    zfcp-host "$port" 2>&1 | vinfo
+            else
+                chzdev --enable --persistent \
+                    --no-settle --yes --quiet --no-root-update --force \
+                    zfcp-lun "$port:$*" 2>&1 | vinfo
+            fi
+            IFS="$SAVED_IFS"
         done
-        _do_zfcp=1
     done
-    [[ $_do_zfcp ]] && zfcp_cio_free
-    unset _do_zfcp
 }
 
 [[ $CMSDASD ]] || CMSDASD=$(getarg "CMSDASD=")

@@ -12,7 +12,7 @@ check() {
 depends() {
     arch=${DRACUT_ARCH:-$(uname -m)}
     [ "$arch" = "s390" -o "$arch" = "s390x" ] || return 1
-    echo znet zfcp dasd dasd_mod bash
+    echo znet dasd dasd_mod bash
     return 0
 }
 
