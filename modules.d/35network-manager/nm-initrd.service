@@ -3,6 +3,7 @@ DefaultDependencies=no
 Wants=systemd-udev-trigger.service
 After=systemd-udev-trigger.service
 After=dracut-cmdline.service
+After=dbus.service
 Wants=network.target
 Before=network.target
 ConditionPathExists=/run/NetworkManager/initrd/neednet
