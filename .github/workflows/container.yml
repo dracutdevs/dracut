@@ -47,7 +47,7 @@ jobs:
             -   name: Set up env
                 run: echo "repository_owner=${GITHUB_REPOSITORY_OWNER,,}" >>${GITHUB_ENV}
             -   name: Build and Push Container
-                uses: docker/build-push-action@v3
+                uses: docker/build-push-action@v4
                 with:
                     file: test/container/${{ matrix.config.dockerfile }}
                     tags: ghcr.io/${{env.repository_owner}}/${{ matrix.config.tag }}
