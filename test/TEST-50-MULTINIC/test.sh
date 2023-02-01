@@ -63,7 +63,7 @@ client_test() {
     # shellcheck disable=SC2034
     declare -i disk_index=0
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
-    cmdline="$cmdline rd.net.timeout.dhcp=3"
+    cmdline="$cmdline rd.net.timeout.dhcp=30"
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
