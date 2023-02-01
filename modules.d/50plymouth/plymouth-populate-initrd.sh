@@ -3,8 +3,7 @@
 PLYMOUTH_LOGO_FILE="/usr/share/pixmaps/system-logo-white.png"
 PLYMOUTH_THEME=$(plymouth-set-default-theme)
 
-inst_multiple plymouthd plymouth \
-    /etc/system-release
+inst_multiple plymouthd plymouth
 
 test -e "${PLYMOUTH_LOGO_FILE}" && inst_simple "${PLYMOUTH_LOGO_FILE}"
 
