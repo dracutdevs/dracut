@@ -61,10 +61,7 @@ client_test() {
     # shellcheck disable=SC2034
     declare -i disk_index=0
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
-
-    if dhclient --help 2>&1 | grep -q -F -- '--timeout' 2> /dev/null; then
-        cmdline="$cmdline rd.net.timeout.dhcp=3"
-    fi
+    cmdline="$cmdline rd.net.timeout.dhcp=3"
 
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
