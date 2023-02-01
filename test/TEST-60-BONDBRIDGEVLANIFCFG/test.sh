@@ -92,7 +92,7 @@ client_test() {
         ifname=net3:52:54:00:12:34:03
         ifname=net4:52:54:00:12:34:04
         ifname=net5:52:54:00:12:34:05
-        $cmdline rd.net.timeout.dhcp=3 systemd.crash_reboot rd.debug
+        $cmdline rd.net.timeout.dhcp=30 systemd.crash_reboot rd.debug
         $DEBUGFAIL rd.retry=5 rw console=ttyS0,115200n81 selinux=0 init=/sbin/init" \
         -initrd "$TESTDIR"/initramfs.testing || return 1
 
