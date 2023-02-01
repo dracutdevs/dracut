@@ -17,6 +17,7 @@ for i in /sys/class/net/*; do
     state=/run/NetworkManager/devices/$(cat "$i"/ifindex)
     grep -q connection-uuid= "$state" 2> /dev/null || continue
     i=${i##*/}
+    [ "$i" = lo ] && continue
     ip link show "$i" | grep -q master && continue
     IFACES="${IFACES}${i} "
 done
