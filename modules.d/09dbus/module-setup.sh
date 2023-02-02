@@ -19,7 +19,7 @@ depends() {
         fi
     done
 
-    if find_binary dbus-broker &> /dev/null; then
+    if check_module "dbus-broker"; then
         echo "dbus-broker"
         return 0
     else
