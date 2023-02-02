@@ -169,7 +169,7 @@ test_client() {
     # bridge, where only one interface is actually connected
     client_test "MULTINIC bridging" \
         00 01 02 \
-        "root=nfs:192.168.50.1:/nfs/client ip=bridge0:dhcp  bridge=bridge0:enp0s1,enp0s5,enp0s6" \
+        "root=nfs:192.168.50.1:/nfs/client ip=bridge0:dhcp::52:54:00:12:34:00 bridge=bridge0:enp0s1,enp0s5,enp0s6" \
         "bridge0" || return 1
     return 0
 }
