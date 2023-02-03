@@ -312,8 +312,8 @@ ibft_to_cmdline() {
                 if [ "$family" = "ipv6" ]; then
                     if [ -n "$ip" ]; then
                         [ -n "$prefix" ] || prefix=64
-                        ip="[${ip}/${prefix}]"
-                        mask=
+                        ip="[${ip}]"
+                        mask=$prefix
                     fi
                     if [ -n "$gw" ]; then
                         gw="[${gw}]"
