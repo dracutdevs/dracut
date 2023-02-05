@@ -22,6 +22,7 @@ install() {
     _arch=${DRACUT_ARCH:-$(uname -m)}
     inst_libdir_file \
         {"tls/$_arch/",tls/,"$_arch/",}"libfido2.so.*" \
+        {"tls/$_arch/",tls/,"$_arch/",}"libz.so.*" \
         {"tls/$_arch/",tls/,"$_arch/",}"libcryptsetup.so.*" \
         {"tls/$_arch/",tls/,"$_arch/",}"/cryptsetup/libcryptsetup-token-systemd-fido2.so" \
         {"tls/$_arch/",tls/,"$_arch/",}"libcbor.so.*" \
