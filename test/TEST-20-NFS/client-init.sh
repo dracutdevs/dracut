@@ -1,6 +1,7 @@
 #!/bin/sh
 : > /dev/watchdog
 . /lib/dracut-lib.sh
+. /lib/url-lib.sh
 
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 command -v plymouth > /dev/null 2>&1 && plymouth --quit
@@ -22,6 +23,25 @@ while read -r dev _ fstype opts rest || [ -n "$dev" ]; do
     echo "nfs-OK $dev $fstype $opts" | dd oflag=direct,dsync of=/dev/disk/by-id/ata-disk_marker
     break
 done < /proc/mounts
+
+if [ "$fstype" = "nfs" -o "$fstype" = "nfs4" ]; then
+
+    serverip=${dev%:*}
+    path=${dev#*:}
+    echo serverip="${serverip}"
+    echo path="${path}"
+    echo /proc/mounts status
+    cat /proc/mounts
+
+    echo test:nfs_fetch_url nfs::"${serverip}":"${path}"/root/fetchfile
+    if nfs_fetch_url nfs::"${serverip}":"${path}"/root/fetchfile /run/nfsfetch.out; then
+        echo nfsfetch-OK
+        echo "nfsfetch-OK" | dd oflag=direct,dsync of=/dev/disk/by-id/ata-disk_marker2
+    fi
+else
+    echo nfsfetch-BYPASS fstype="${fstype}"
+    echo "nfsfetch-OK" | dd oflag=direct,dsync of=/dev/disk/by-id/ata-disk_marker2
+fi
 
 : > /dev/watchdog
 
