@@ -57,10 +57,12 @@ client_test() {
 
     # Need this so kvm-qemu will boot (needs non-/dev/zero local disk)
     dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+    dd if=/dev/zero of="$TESTDIR"/marker2.img bs=1MiB count=1
     declare -a disk_args=()
     # shellcheck disable=SC2034
     declare -i disk_index=0
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker2.img marker2
     cmdline="$cmdline rd.net.timeout.dhcp=30"
 
     "$testdir"/run-qemu \
@@ -112,6 +114,11 @@ client_test() {
             echo "CLIENT TEST INFO: missing: $check_opt"
             echo "CLIENT TEST END: $test_name [FAILED - MISSING OPTION]"
         fi
+        return 1
+    fi
+
+    if ! grep -U --binary-files=binary -F -m 1 -q nfsfetch-OK "$TESTDIR"/marker2.img; then
+        echo "CLIENT TEST END: $test_name [FAILED - NFS FETCH FAILED]"
         return 1
     fi
 
@@ -257,6 +264,7 @@ test_setup() {
         done
         type -P portmap > /dev/null && inst_multiple portmap
         type -P rpcbind > /dev/null && inst_multiple rpcbind
+
         [ -f /etc/netconfig ] && inst_multiple /etc/netconfig
         type -P dhcpd > /dev/null && inst_multiple dhcpd
         [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
@@ -302,6 +310,7 @@ test_setup() {
         (
             cd "$initdir" || exit
             mkdir -p dev sys proc etc run root usr var/lib/nfs/rpc_pipefs
+            echo "TEST FETCH FILE" > root/fetchfile
         )
 
         inst_multiple sh shutdown poweroff stty cat ps ln ip dd \
@@ -315,6 +324,9 @@ test_setup() {
 
         inst_simple "${basedir}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh"
         inst_simple "${basedir}/modules.d/99base/dracut-dev-lib.sh" "/lib/dracut-dev-lib.sh"
+        inst_simple "${basedir}/modules.d/45url-lib/url-lib.sh" "/lib/url-lib.sh"
+        inst_simple "${basedir}/modules.d/40network/net-lib.sh" "/lib/net-lib.sh"
+        inst_simple "${basedir}/modules.d/95nfs/nfs-lib.sh" "/lib/nfs-lib.sh"
         inst_binary "${basedir}/dracut-util" "/usr/bin/dracut-util"
         ln -s dracut-util "${initdir}/usr/bin/dracut-getarg"
         ln -s dracut-util "${initdir}/usr/bin/dracut-getargs"
