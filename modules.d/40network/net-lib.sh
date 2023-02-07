@@ -727,7 +727,6 @@ wait_for_ipv6_dad() {
     while [ $cnt -lt $timeout ]; do
         [ -n "$(ip -6 addr show dev "$@")" ] \
             && [ -z "$(ip -6 addr show dev "$@" tentative)" ] \
-            && { ip -6 route list proto ra dev "$@" | grep -q ^default; } \
             && return 0
         [ -n "$(ip -6 addr show dev "$@" dadfailed)" ] \
             && return 1
