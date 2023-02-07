@@ -64,13 +64,16 @@ ip link set dev enx525401123457 name net2
 ip link set dev enx525401123458 name net3
 ip link set dev enx525401123459 name net4
 
-modprobe --all -b -q 8021q ipvlan macvlan
+modprobe --all -b -q 8021q bonding
 : > /dev/watchdog
+
 ip addr add 127.0.0.1/8 dev lo
 linkup lo
+
 ip addr add 192.168.50.1/24 dev net1
 linkup net1
 : > /dev/watchdog
+
 ip link add dev net2.1 link net2 type vlan id 1
 ip link add dev net2.2 link net2 type vlan id 2
 ip link add dev net2.3 link net2 type vlan id 3
@@ -84,9 +87,15 @@ ip link set dev net2.1 up
 ip link set dev net2.2 up
 ip link set dev net2.3 up
 ip link set dev net2.4 up
-ip addr add 192.168.51.1/24 dev net3
-linkup net3
-linkup net4
+
+ip link add bond0 type bond
+ip link set net3 master bond0
+ip link set net4 master bond0
+ip link set net3 up
+ip link set net4 up
+ip link set bond0 up
+ip addr add 192.168.51.1/24 dev bond0
+
 : > /dev/watchdog
 modprobe af_packet
 : > /dev/watchdog
@@ -117,7 +126,7 @@ exportfs -r
 : > /dev/watchdog
 chmod 777 /var/lib/dhcpd/dhcpd.leases
 : > /dev/watchdog
-dhcpd -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases net1 net3
+dhcpd -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases net1 bond0
 #echo -n 'V' : > /dev/watchdog
 #sh -i
 #tcpdump -i net1
