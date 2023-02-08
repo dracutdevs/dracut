@@ -301,10 +301,10 @@ if [ -n "$nvmf_hostid" ]; then
     echo "$nvmf_hostid" > /etc/nvme/hostid
 fi
 
-NVMF_FC_AUTO=
+rm -f /tmp/nvmf-fc-auto
 for d in $(getargs rd.nvmf.discover -d nvmf.discover=); do
     parse_nvmf_discover "$d" || {
-        NVMF_FC_AUTO=1
+        : > /tmp/nvmf-fc-auto
         break
     }
 done
@@ -314,19 +314,6 @@ if [ -e /tmp/nvmf_needs_network ] || [ -e /tmp/valid_nbft_entry_found ]; then
     rm -f /tmp/nvmf_needs_network
 fi
 
-NVMF_HOSTNQN_OK=
-[ ! -f "/etc/nvme/hostnqn" ] || [ ! -f "/etc/nvme/hostid" ] || NVMF_HOSTNQN_OK=1
-
-if [ $NVMF_FC_AUTO ] && [ $NVMF_HOSTNQN_OK ]; then
-    # prio 1: cmdline override "rd.nvmf.discovery=fc,auto"
-    /sbin/initqueue --settled --onetime --unique --name nvme-fc-autoconnect /sbin/nvmf-autoconnect.sh
-elif [ -e /tmp/valid_nbft_entry_found ]; then
-    # prio 2: NBFT
-    /sbin/initqueue --settled --onetime --unique --name nvme-connect-nbft /usr/sbin/nvme connect-nbft
-elif [ -f /etc/nvme/discovery.conf ] && [ $NVMF_HOSTNQN_OK ]; then
-    # prio 3: discovery.conf from initrd
-    /sbin/initqueue --settled --onetime --unique --name nvme-discover /usr/sbin/nvme connect-all
-elif [ $NVMF_HOSTNQN_OK ]; then
-    # prio 4: no discovery entries, try NVMeoFC autoconnect
-    /sbin/initqueue --settled --onetime --unique --name nvme-fc-autoconnect /sbin/nvmf-autoconnect.sh
-fi
+/sbin/initqueue --online --name nvmf-connect-online /sbin/nvmf-autoconnect.sh online
+/sbin/initqueue --settled --onetime --name nvmf-connect-settled /sbin/nvmf-autoconnect.sh settled
+/sbin/initqueue --timeout --onetime --name nvmf-connect-timeout /sbin/nvmf-autoconnect.sh timeout
