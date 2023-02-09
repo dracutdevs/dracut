@@ -103,8 +103,6 @@ install() {
         "$systemdsystemunitdir"/systemd-journald.service \
         "$systemdsystemunitdir"/systemd-vconsole-setup.service \
         "$systemdsystemunitdir"/systemd-volatile-root.service \
-        "$systemdsystemunitdir"/systemd-random-seed-load.service \
-        "$systemdsystemunitdir"/systemd-random-seed.service \
         "$systemdsystemunitdir"/systemd-sysctl.service \
         "$systemdsystemunitdir"/sysinit.target.wants/systemd-modules-load.service \
         "$systemdsystemunitdir"/sysinit.target.wants/systemd-ask-password-console.path \
