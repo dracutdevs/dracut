@@ -28,10 +28,6 @@ install() {
 
     inst_multiple -o \
         "$systemdutildir"/systemd-pcrphase \
-        "$systemdsystemunitdir"/systemd-pcrphase.service \
-        "$systemdsystemunitdir/systemd-pcrphase.service.d/*.conf" \
-        "$systemdsystemunitdir"/systemd-pcrphase-sysinit.service \
-        "$systemdsystemunitdir/systemd-pcrphase-sysinit.service/*.conf" \
         "$systemdsystemunitdir"/systemd-pcrphase-initrd.service \
         "$systemdsystemunitdir/systemd-pcrphase-initrd.service.d/*.conf" \
         "$systemdsystemunitdir"/initrd.target.wants/systemd-pcrphase-initrd.service
@@ -39,10 +35,6 @@ install() {
     # Install the hosts local user configurations if enabled.
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
-            "$systemdsystemconfdir"/systemd-pcrphase.service \
-            "$systemdsystemconfdir/systemd-pcrphase.service.d/*.conf" \
-            "$systemdsystemconfdir"/systemd-pcrphase-sysinit.service \
-            "$systemdsystemconfdir/systemd-pcrphase-sysinit.service.d/*.conf" \
             "$systemdsystemconfdir"/systemd-pcrphase-initrd.service \
             "$systemdsystemconfdir/systemd-pcrphase-initrd.service.d/*.conf" \
             "$systemdsystemconfdir"/initrd.target.wants/systemd-pcrphase-initrd.service
