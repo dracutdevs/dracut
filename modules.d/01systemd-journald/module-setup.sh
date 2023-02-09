@@ -40,7 +40,6 @@ install() {
         "$systemdsystemunitdir"/systemd-journald-audit.socket \
         "$systemdsystemunitdir"/systemd-journald-dev-log.socket \
         "$systemdsystemunitdir"/systemd-journald-varlink@.socket \
-        "$systemdsystemunitdir"/systemd-journal-flush.service \
         "$systemdsystemunitdir"/systemd-journal-catalog-update.service \
         "$systemdsystemunitdir"/sockets.target.wants/systemd-journald-audit.socket \
         "$systemdsystemunitdir"/sockets.target.wants/systemd-journald-dev-log.socket \
@@ -63,8 +62,6 @@ install() {
             "$systemdutilconfdir/journald.conf.d/*.conf" \
             "$systemdsystemconfdir"/systemd-journald.service \
             "$systemdsystemconfdir/systemd-journald.service.d/*.conf" \
-            "$systemdsystemconfdir"/systemd-journal-flush.service \
-            "$systemdsystemconfdir/systemd-journal-flush.service.d/*.conf" \
             "$systemdsystemconfdir"/systemd-journal-catalog-update.service \
             "$systemdsystemconfdir/systemd-journal-catalog-update.service.d/*.conf" \
             "$sysusersconfdir"/systemd-journal.conf
