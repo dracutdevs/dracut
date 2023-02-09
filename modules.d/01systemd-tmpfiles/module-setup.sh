@@ -45,8 +45,6 @@ install() {
         "$systemdsystemunitdir/systemd-tmpfiles-setup.service.d/*.conf" \
         "$systemdsystemunitdir"/systemd-tmpfiles-setup-dev.service \
         "$systemdsystemunitdir/systemd-tmpfiles-setup-dev.service.d/*.conf" \
-        "$systemdsystemunitdir"/systemd-tmpfiles-clean.timer \
-        "$systemdsystemunitdir"/timers.target.wants/systemd-tmpfiles-clean.timer \
         "$systemdsystemunitdir"/sysinit.target.wants/systemd-tmpfiles-setup-dev.service \
         "$systemdsystemunitdir"/sysinit.target.wants/systemd-tmpfiles-setup.service \
         systemd-tmpfiles
