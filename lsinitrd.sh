@@ -233,6 +233,25 @@ list_squash_content() {
     fi
 }
 
+list_cmdline() {
+    # depends on list_squash_content() having run before
+    SQUASH_IMG="squash-root.img"
+    SQUASH_TMPFILE="$TMPDIR/initrd.root.sqsh"
+    SQUASH_EXTRACT="$TMPDIR/squash-extract"
+
+    echo "dracut cmdline:"
+    # shellcheck disable=SC2046
+    $CAT "$image" | cpio --extract --verbose --quiet --to-stdout -- \
+        etc/cmdline.d/\*.conf 2> /dev/null
+    ((ret += $?))
+    if [[ -s $SQUASH_TMPFILE ]]; then
+        unsquashfs -force -d "$SQUASH_EXTRACT" -no-progress "$SQUASH_TMPFILE" etc/cmdline.d/\*.conf > /dev/null 2>&1
+        ((ret += $?))
+        cat "$SQUASH_EXTRACT"/etc/cmdline.d/*.conf 2> /dev/null
+        rm "$SQUASH_EXTRACT"/etc/cmdline.d/*.conf 2> /dev/null
+    fi
+}
+
 unpack_files() {
     SQUASH_IMG="squash-root.img"
     SQUASH_TMPFILE="$TMPDIR/initrd.root.sqsh"
@@ -422,6 +441,8 @@ else
         list_modules
         list_files
         list_squash_content
+        echo
+        list_cmdline
     fi
 fi
 
