@@ -72,6 +72,7 @@ jobs:
                         "30",
                         "35",
                         "40",
+                        "60",
                         # "50", # times out
                 ]
             fail-fast: false
