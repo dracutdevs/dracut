@@ -176,5 +176,11 @@ install() {
             systemd-ask-password systemd-tty-ask-password-agent
     fi
 
+    # Install required libraries.
+    _arch=${DRACUT_ARCH:-$(uname -m)}
+    inst_libdir_file \
+        {"tls/$_arch/",tls/,"$_arch/",}"/ossl-modules/fips.so" \
+        {"tls/$_arch/",tls/,"$_arch/",}"/ossl-modules/legacy.so"
+
     dracut_need_initqueue
 }
