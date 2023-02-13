@@ -987,8 +987,20 @@ block_is_netdevice() {
 get_dev_module() {
     local dev_attr_walk
     local dev_drivers
+    local dev_paths
     dev_attr_walk=$(udevadm info -a "$1")
     dev_drivers=$(echo "$dev_attr_walk" | sed -n 's/\s*DRIVERS=="\(\S\+\)"/\1/p')
+
+    # also return modalias info from sysfs paths parsed by udevadm
+    dev_paths=$(echo "$dev_attr_walk" | sed -n 's/.*\(\/devices\/.*\)'\'':/\1/p')
+    local dev_path
+    for dev_path in $dev_paths; do
+        local modalias_file="/sys$dev_path/modalias"
+        if [ -e "$modalias_file" ]; then
+            dev_drivers="$(printf "%s\n%s" "$dev_drivers" "$(cat "$modalias_file")")"
+        fi
+    done
+
     # if no kernel modules found and device is in a virtual subsystem, follow symlinks
     if [[ -z $dev_drivers && $(udevadm info -q path "$1") == "/devices/virtual"* ]]; then
         local dev_vkernel
