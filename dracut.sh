@@ -2505,6 +2505,10 @@ if [[ $uefi == yes ]]; then
         else
             if cp --reflink=auto "${uefi_outdir}/linux.efi" "$outfile"; then
                 dinfo "*** Creating UEFI image file '$outfile' done ***"
+            else
+                rm -f -- "$outfile"
+                dfatal "Creation of $outfile failed"
+                exit 1
             fi
         fi
     else
