@@ -2496,9 +2496,11 @@ if [[ $uefi == yes ]]; then
                 ${uefi_secureboot_engine:+--engine "$uefi_secureboot_engine"} \
                 --key "${uefi_secureboot_key}" \
                 --cert "${uefi_secureboot_cert}" \
-                --output "$outfile" "${uefi_outdir}/linux.efi"; then
+                --output "$outfile" "${uefi_outdir}/linux.efi" \
+                && sbverify --cert "${uefi_secureboot_cert}" "$outfile" > /dev/null 2>&1; then
                 dinfo "*** Creating signed UEFI image file '$outfile' done ***"
             else
+                rm -f -- "$outfile"
                 dfatal "*** Creating signed UEFI image file '$outfile' failed ***"
                 exit 1
             fi
