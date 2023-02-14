@@ -251,34 +251,6 @@ dracut-$(DRACUT_MAIN_VERSION).tar.xz: doc syncheck
 	xz -9 dracut-$(DRACUT_MAIN_VERSION).tar
 	rm -f -- dracut-$(DRACUT_MAIN_VERSION).tar
 
-ifeq ($(HAVE_RPMBUILD),yes)
-rpm: dracut-$(DRACUT_MAIN_VERSION).tar.xz syncheck
-	rpmbuild=$$(mktemp -d -p /var/tmp rpmbuild-dracut.XXXXXX); src=$$(pwd); \
-	cp dracut-$(DRACUT_MAIN_VERSION).tar.xz "$$rpmbuild"; \
-	LC_MESSAGES=C $$src/tools/git2spec.pl $(DRACUT_MAIN_VERSION) "$$rpmbuild" < pkgbuild/dracut.spec > $$rpmbuild/dracut.spec; \
-	(cd "$$rpmbuild"; \
-	wget https://www.gnu.org/licenses/lgpl-2.1.txt; \
-	rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" \
-	        --define "_specdir $$PWD" --define "_srcrpmdir $$PWD" \
-		--define "_rpmdir $$PWD" -ba dracut.spec; ) && \
-	( mv "$$rpmbuild"/{,$$(uname -m)/}*.rpm $(DESTDIR).; rm -fr -- "$$rpmbuild"; ls $(DESTDIR)*.rpm )
-
-srpm: dracut-$(DRACUT_MAIN_VERSION).tar.xz syncheck
-	rpmbuild=$$(mktemp -d -t rpmbuild-dracut.XXXXXX); src=$$(pwd); \
-	cp dracut-$(DRACUT_MAIN_VERSION).tar.xz "$$rpmbuild"; \
-	LC_MESSAGES=C $$src/tools/git2spec.pl $(DRACUT_MAIN_VERSION) "$$rpmbuild" < pkgbuild/dracut.spec > $$rpmbuild/dracut.spec; \
-	(cd "$$rpmbuild"; \
-	[ -f $$src/lgpl-2.1.txt ] && cp $$src/lgpl-2.1.txt . || wget https://www.gnu.org/licenses/lgpl-2.1.txt; \
-	rpmbuild --define "_topdir $$PWD" --define "_sourcedir $$PWD" \
-	        --define "_specdir $$PWD" --define "_srcrpmdir $$PWD" \
-		--define "_rpmdir $$PWD" -bs dracut.spec; ) && \
-	( mv "$$rpmbuild"/*.src.rpm $(DESTDIR).; rm -fr -- "$$rpmbuild"; ls $(DESTDIR)*.rpm )
-else
-.PHONY: rpm srpm
-rpm: syncheck
-srpm: syncheck
-endif
-
 syncheck:
 	@ret=0;for i in dracut-initramfs-restore.sh modules.d/*/*.sh; do \
                 [ "$${i##*/}" = "module-setup.sh" ] && continue; \
