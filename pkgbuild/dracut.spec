@@ -361,6 +361,9 @@ echo 'dracut_rescue_image="yes"' > $RPM_BUILD_ROOT%{dracutlibdir}/dracut.conf.d/
 %{dracutlibdir}/modules.d/62bluetooth
 %{dracutlibdir}/modules.d/80lvmmerge
 %{dracutlibdir}/modules.d/80lvmthinpool-monitor
+%{dracutlibdir}/modules.d/80test-makeroot
+%{dracutlibdir}/modules.d/80test-root
+%{dracutlibdir}/modules.d/80test
 %{dracutlibdir}/modules.d/90btrfs
 %{dracutlibdir}/modules.d/90crypt
 %{dracutlibdir}/modules.d/90dm
