@@ -28,7 +28,8 @@ installkernel() {
             scsi_dh_rdac scsi_dh_emc scsi_dh_alua \
             =drivers/usb/storage \
             =ide nvme vmd \
-            virtio_blk virtio_scsi
+            virtio_blk virtio_scsi \
+            =drivers/ufs
 
         dracut_instmods -o -s "${_blockfuncs}" "=drivers"
     }
