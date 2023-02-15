@@ -83,6 +83,7 @@ static Hashmap *items = NULL;
 static Hashmap *items_failed = NULL;
 static Hashmap *modules_loaded = NULL;
 static Hashmap *modules_suppliers = NULL;
+static Hashmap *processed_suppliers = NULL;
 static regex_t mod_filter_path;
 static regex_t mod_filter_nopath;
 static regex_t mod_filter_symbol;
@@ -1667,6 +1668,12 @@ static int install_dependent_modules(struct kmod_ctx *ctx, struct kmod_list *mod
         const char *supplier_path;
         Iterator i;
         HASHMAP_FOREACH(supplier_path, suppliers_paths, i) {
+                if (check_hashmap(processed_suppliers, supplier_path))
+                        continue;
+
+                char *path = strdup(supplier_path);
+                hashmap_put(processed_suppliers, path, path);
+
                 _cleanup_destroy_hashmap_ Hashmap *modules = hashmap_new(string_hash_func, string_compare_func);
                 find_modules_from_sysfs_node(ctx, supplier_path, modules);
 
@@ -2182,8 +2189,9 @@ int main(int argc, char **argv)
 
         items = hashmap_new(string_hash_func, string_compare_func);
         items_failed = hashmap_new(string_hash_func, string_compare_func);
+        processed_suppliers = hashmap_new(string_hash_func, string_compare_func);
 
-        if (!items || !items_failed || !modules_loaded) {
+        if (!items || !items_failed || !processed_suppliers || !modules_loaded) {
                 log_error("Out of memory");
                 r = EXIT_FAILURE;
                 goto finish1;
@@ -2252,10 +2260,14 @@ finish2:
                 hashmap_free(h);
         }
 
+        while ((i = hashmap_steal_first(processed_suppliers)))
+                item_free(i);
+
         hashmap_free(items);
         hashmap_free(items_failed);
         hashmap_free(modules_loaded);
         hashmap_free(modules_suppliers);
+        hashmap_free(processed_suppliers);
 
         strv_free(firmwaredirs);
         strv_free(pathdirs);
