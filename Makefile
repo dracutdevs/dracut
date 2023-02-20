@@ -11,7 +11,6 @@ endif
 
 HAVE_SHELLCHECK ?= $(shell command -v shellcheck >/dev/null 2>&1 && echo yes)
 HAVE_SHFMT ?= $(shell command -v shfmt >/dev/null  2>&1 && echo yes)
-HAVE_RPMBUILD ?= $(shell command -v rpmbuild >/dev/null  2>&1 && echo yes)
 
 -include Makefile.inc
 
@@ -49,7 +48,7 @@ man8pages = man/dracut.8 \
 
 manpages = $(man1pages) $(man5pages) $(man7pages) $(man8pages)
 
-.PHONY: install clean archive rpm srpm testimage test all check AUTHORS CONTRIBUTORS doc dracut-version.sh
+.PHONY: install clean archive testimage test all check AUTHORS CONTRIBUTORS doc dracut-version.sh
 
 all: dracut-version.sh dracut.pc dracut-install src/skipcpio/skipcpio dracut-util
 
@@ -229,7 +228,7 @@ clean:
 	$(RM) */*/*~
 	$(RM) $(manpages:%=%.xml) dracut.xml
 	$(RM) test-*.img
-	$(RM) dracut-*.rpm dracut-*.tar.bz2 dracut-*.tar.xz
+	$(RM) dracut-*.tar.bz2 dracut-*.tar.xz
 	$(RM) dracut-version.sh
 	$(RM) dracut-install src/install/dracut-install $(DRACUT_INSTALL_OBJECTS)
 	$(RM) skipcpio/skipcpio $(SKIPCPIO_OBJECTS)
@@ -270,7 +269,7 @@ else
 endif
 endif
 
-check: all syncheck rpm
+check: all syncheck
 	@[ "$$EUID" == "0" ] || { echo "'check' must be run as root! Please use 'sudo'."; exit 1; }
 	@$(MAKE) -C test check
 
