@@ -158,7 +158,7 @@ EOF
         -a "test systemd i18n qemu" \
         ${EXTRA_MACHINE:+-I "$EXTRA_MACHINE"} \
         -o "network plymouth lvm mdraid resume crypt caps dm terminfo usrmount kernel-network-modules rngd" \
-        -d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \
+        -d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 

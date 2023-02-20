@@ -92,7 +92,7 @@ test_setup() {
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -a "test watchdog" \
         -o "network kernel-network-modules" \
-        -d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \
+        -d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
     rm -rf -- "$TESTDIR"/overlay
