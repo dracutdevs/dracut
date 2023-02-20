@@ -1,4 +1,4 @@
-name: Integration Test
+name: Test
 
 on:
     pull_request:
@@ -9,6 +9,7 @@ env:
 
 jobs:
     test:
+        name: ${{ matrix.test }} on ${{ matrix.container }}
         runs-on: ubuntu-latest
         timeout-minutes: 30
         concurrency:
@@ -17,10 +18,10 @@ jobs:
         strategy:
             matrix:
                 container: [
-                        "arch:latest",
-                        "debian:latest",
-                        "fedora:latest",
-                        "opensuse:latest",
+                        "arch",
+                        "debian",
+                        "fedora",
+                        "opensuse",
                 ]
                 test: [
                         "01",
@@ -51,6 +52,7 @@ jobs:
             -   name: "${{ matrix.container }} TEST-${{ matrix.test }}"
                 run: ./tools/test-github.sh "TEST-${{ matrix.test }}" ${{ matrix.test }}
     network:
+        name: ${{ matrix.test }} on ${{ matrix.container }} using ${{ matrix.network }}
         runs-on: ubuntu-latest
         timeout-minutes: 45
         concurrency:
@@ -59,7 +61,7 @@ jobs:
         strategy:
             matrix:
                 container: [
-                        "fedora:latest",
+                        "fedora",
                 ]
                 network: [
                         "network-manager",
@@ -88,6 +90,7 @@ jobs:
             -   name: "${{ matrix.container }} TEST-${{ matrix.test }}"
                 run: USE_NETWORK=${{ matrix.network }} ./tools/test-github.sh "TEST-${{ matrix.test }}" ${{ matrix.test }}
     openrc-musl:
+        name: ${{ matrix.test }} on ${{ matrix.container }}
         runs-on: ubuntu-latest
         timeout-minutes: 45
         concurrency:
@@ -96,7 +99,7 @@ jobs:
         strategy:
             matrix:
                 container: [
-                        "gentoo:latest",
+                        "gentoo",
                 ]
                 test: [
                         "16",

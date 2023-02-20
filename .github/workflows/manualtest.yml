@@ -20,6 +20,7 @@ on:
 
 jobs:
     test:
+        name: ${{ matrix.test }} on ${{ matrix.container }}
         runs-on: ubuntu-latest
         timeout-minutes: 45
         strategy:
