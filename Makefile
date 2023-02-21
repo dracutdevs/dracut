@@ -305,10 +305,3 @@ AUTHORS:
 
 CONTRIBUTORS:
 	@git shortlog $(DRACUT_MAIN_VERSION).. --numbered --summary -e |while read a rest || [ -n "$$rest" ]; do echo "- $$rest";done
-
-dracut.html.sign: dracut-$(DRACUT_MAIN_VERSION).tar.xz dracut.html
-	gpg-sign-all dracut-$(DRACUT_MAIN_VERSION).tar.xz dracut.html
-
-upload: dracut.html.sign
-	kup put dracut-$(DRACUT_MAIN_VERSION).tar.xz dracut-$(DRACUT_MAIN_VERSION).tar.sign /pub/linux/utils/boot/dracut/
-	kup put dracut.html dracut.html.sign /pub/linux/utils/boot/dracut/
