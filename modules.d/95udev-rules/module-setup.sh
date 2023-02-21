@@ -38,7 +38,6 @@ install() {
         60-cdrom_id.rules \
         60-pcmcia.rules \
         60-persistent-storage.rules \
-        61-persistent-storage-edd.rules \
         64-btrfs.rules \
         70-uaccess.rules \
         71-seat.rules \
@@ -76,7 +75,6 @@ install() {
         "${udevdir}"/ata_id \
         "${udevdir}"/cdrom_id \
         "${udevdir}"/create_floppy_devices \
-        "${udevdir}"/edd_id \
         "${udevdir}"/firmware.sh \
         "${udevdir}"/firmware \
         "${udevdir}"/firmware.agent \
