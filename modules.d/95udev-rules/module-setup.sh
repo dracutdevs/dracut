@@ -29,7 +29,6 @@ install() {
     inst_rules \
         40-redhat.rules \
         50-firmware.rules \
-        50-udev.rules \
         50-udev-default.rules \
         55-scsi-sg3_id.rules \
         58-scsi-sg3_symlink.rules \
@@ -46,12 +45,9 @@ install() {
         75-net-description.rules \
         80-drivers.rules 95-udev-late.rules \
         80-net-name-slot.rules 80-net-setup-link.rules \
-        95-late.rules \
         "$moddir/59-persistent-storage.rules" \
         "$moddir/61-persistent-storage.rules"
 
-    # debian udev rules
-    inst_rules 91-permissions.rules
     # eudev rules
     inst_rules 80-drivers-modprobe.rules
     # legacy persistent network device name rules
