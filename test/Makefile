@@ -1,7 +1,6 @@
 .PHONY: all check clean $(wildcard TEST-??-*)
 
 $(wildcard TEST-??-*):
-	@[ "$(shell id -u)" = 0 ] || { echo "'check' must be run as root! Please use 'sudo'."; exit 1; }
 	@{ \
 		[ -d $@ ] || exit 0; \
 		[ -f $@/Makefile ] || exit 0; \
