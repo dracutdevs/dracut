@@ -46,8 +46,6 @@ install() {
         "$moddir/59-persistent-storage.rules" \
         "$moddir/61-persistent-storage.rules"
 
-    # eudev rules
-    inst_rules 80-drivers-modprobe.rules
     # legacy persistent network device name rules
     [[ $hostonly ]] && inst_rules 70-persistent-net.rules
 
