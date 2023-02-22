@@ -17,6 +17,12 @@ on:
                     - "debian"
                     - "opensuse"
                     - "gentoo"
+            env:
+                description: 'Environment (optional)'
+                default: '{"DEBUGFAIL": "rd.debug"}'
+
+env:
+    ${{ fromJSON(inputs.env) }}
 
 jobs:
     test:
