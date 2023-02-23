@@ -1177,12 +1177,12 @@ static int parse_argv(int argc, char *argv[])
                                         uname(&buf);
 
                                 char fw_path_para[PATH_MAX + 1] = "";
-                                int path = open("/sys/module/firmware_class/parameters/path", O_RDONLY | O_CLOEXEC);
-                                if (path != -1) {
-                                        ssize_t rd = read(path, fw_path_para, PATH_MAX);
+                                int fd_path = open("/sys/module/firmware_class/parameters/path", O_RDONLY | O_CLOEXEC);
+                                if (fd_path != -1) {
+                                        ssize_t rd = read(fd_path, fw_path_para, PATH_MAX);
                                         if (rd != -1)
                                                 fw_path_para[rd - 1] = '\0';
-                                        close(path);
+                                        close(fd_path);
                                 }
                                 char uk[22 + sizeof(buf.release)], fk[14 + sizeof(buf.release)];
                                 sprintf(uk, "/lib/firmware/updates/%s", buf.release);
