@@ -2125,13 +2125,13 @@ int main(int argc, char **argv)
 
         modules_loaded = hashmap_new(string_hash_func, string_compare_func);
         if (arg_modalias) {
-                Iterator i;
+                Iterator it;
                 char *name;
                 _cleanup_kmod_unref_ struct kmod_ctx *ctx = NULL;
                 ctx = kmod_new(kerneldir, NULL);
 
                 modalias_list(ctx);
-                HASHMAP_FOREACH(name, modules_loaded, i) {
+                HASHMAP_FOREACH(name, modules_loaded, it) {
                         printf("%s\n", name);
                 }
                 exit(0);
