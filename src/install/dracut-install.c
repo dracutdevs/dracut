@@ -1837,7 +1837,7 @@ static int modalias_list(struct kmod_ctx *ctx)
                                 continue;
                         kmod_list_foreach(l, modlist) {
                                 mod = kmod_module_get_module(l);
-                                char *name = strdup(kmod_module_get_name(mod));
+                                name = strdup(kmod_module_get_name(mod));
                                 hashmap_put(modules_loaded, name, name);
                                 kmod_module_unref(mod);
                         }
