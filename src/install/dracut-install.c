@@ -1781,8 +1781,6 @@ static int modalias_list(struct kmod_ctx *ctx)
                 _cleanup_fclose_ FILE *f = NULL;
                 _cleanup_kmod_module_unref_list_ struct kmod_list *list = NULL;
 
-                int err;
-
                 char alias[2048] = {0};
                 size_t len;
 
