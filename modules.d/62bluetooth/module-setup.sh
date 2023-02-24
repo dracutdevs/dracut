@@ -8,10 +8,11 @@ check() {
     require_any_binary /usr/lib/bluetooth/bluetoothd /usr/libexec/bluetooth/bluetoothd || return 1
 
     if [[ $hostonly ]]; then
-        # Include by default if a Peripheral (0x500) is found of minor class:
+        # Include by default if bluetooth kernel module is loaded and
+        # Peripheral (0x500) is found of minor class:
         #  * Keyboard (0x40)
         #  * Keyboard/pointing (0xC0)
-        grep -qiE 'Class=0x[0-9a-f]{3}5[4c]0' /var/lib/bluetooth/*/*/info 2> /dev/null && return 0
+        [ -d "/sys/class/bluetooth" ] && grep -qiE 'Class=0x[0-9a-f]{3}5[4c]0' /var/lib/bluetooth/*/*/info 2> /dev/null && return 0
     fi
 
     return 255
