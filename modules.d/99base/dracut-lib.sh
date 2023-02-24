@@ -1065,10 +1065,6 @@ make_trace_mem() {
         return
     fi
 
-    # FIXME? useless echo?
-    # shellcheck disable=SC2116
-    msg=$(echo "$msg")
-
     msg_printed=0
     while [ $# -gt 0 ]; do
         trace=${1%%:*}
