@@ -99,7 +99,6 @@ case "$COMMAND" in
             fi
         done
 
-        # shellcheck disable=SC2154
         if [[ $dracut_rescue_image != "yes" ]]; then
             [[ $KERNEL_INSTALL_VERBOSE == 1 ]] \
                 && echo "Skipping, 'dracut_rescue_image' not set to 'yes' in any dracut configuration file"

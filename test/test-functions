@@ -163,7 +163,6 @@ while (($# > 0)); do
                 ) < /dev/null 2>&1 | tee "test${TEST_RUN_ID:+-$TEST_RUN_ID}.log"
             elif [[ $V == "2" ]]; then
                 set -o pipefail
-                # shellcheck disable=SC2154
                 (
                     test_setup && test_run
                     ret=$?
