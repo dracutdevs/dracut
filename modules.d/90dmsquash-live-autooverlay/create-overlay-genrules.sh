@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# shellcheck disable=SC2154
 case "$root" in
     live:/dev/*)
         printf 'SYMLINK=="%s", RUN+="/sbin/initqueue --settled --onetime --unique /sbin/create-overlay %s"\n' \
