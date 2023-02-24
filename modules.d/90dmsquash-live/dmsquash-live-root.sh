@@ -403,6 +403,10 @@ fi
 
 ROOTFLAGS="$(getarg rootflags)"
 
+if [ "$overlayfs" = required ]; then
+    echo "rd.live.overlay.overlayfs=1" > /etc/cmdline.d/dmsquash-need-overlay.conf
+fi
+
 if [ -n "$overlayfs" ]; then
     if [ -n "$FSIMG" ]; then
         mkdir -m 0755 -p /run/rootfsbase
