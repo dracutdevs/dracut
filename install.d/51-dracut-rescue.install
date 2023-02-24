@@ -86,7 +86,6 @@ case "$COMMAND" in
             fi
         done
 
-        # shellcheck disable=SC2154
         [[ $dracut_rescue_image != "yes" ]] && exit 0
 
         [[ -d "$BOOT_DIR_ABS" ]] || mkdir -p "$BOOT_DIR_ABS"

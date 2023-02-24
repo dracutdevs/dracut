@@ -1095,7 +1095,6 @@ if ! [[ $outfile ]]; then
     fi
 
     if [[ $uefi == "yes" ]]; then
-        # shellcheck disable=SC2154
         if [[ -n $uefi_secureboot_key && -z $uefi_secureboot_cert ]] || [[ -z $uefi_secureboot_key && -n $uefi_secureboot_cert ]]; then
             printf "%s\n" "dracut[F]: Need 'uefi_secureboot_key' and 'uefi_secureboot_cert' both to be set." >&2
             exit 1
@@ -1266,7 +1265,6 @@ trap 'exit 1;' SIGINT
 readonly initdir="${DRACUT_TMPDIR}/initramfs"
 mkdir -p "$initdir"
 
-# shellcheck disable=SC2154
 if [[ $early_microcode == yes ]] || { [[ $acpi_override == yes ]] && [[ -d $acpi_table_dir ]]; }; then
     readonly early_cpio_dir="${DRACUT_TMPDIR}/earlycpio"
     mkdir "$early_cpio_dir"
@@ -1323,7 +1321,6 @@ else
     unset enhanced_cpio
 fi
 
-# shellcheck disable=SC2154
 if [[ $no_kernel != yes ]] && ! [[ -d $srcmods ]]; then
     dfatal "Cannot find module directory $srcmods"
     dfatal "and --no-kernel was not specified"
@@ -1879,7 +1876,6 @@ mkdir -p "${initdir}"/lib/dracut
 if [[ $kernel_only != yes ]]; then
     mkdir -p "${initdir}/etc/cmdline.d"
     mkdir -m 0755 "${initdir}"/lib/dracut/hooks
-    # shellcheck disable=SC2154
     for _d in $hookdirs; do
         # shellcheck disable=SC2174
         mkdir -m 0755 -p "${initdir}/lib/dracut/hooks/$_d"
@@ -2442,7 +2438,6 @@ else
     fi
 fi
 
-# shellcheck disable=SC2154
 if ((maxloglvl >= 5)) && ((verbosity_mod_l >= 0)); then
     if [[ $allowlocal ]]; then
         "$dracutbasedir/lsinitrd.sh" "${DRACUT_TMPDIR}/initramfs.img" | ddebug

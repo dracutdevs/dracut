@@ -44,7 +44,6 @@ if ! is_func dinfo > /dev/null 2>&1; then
     dlog_init
 fi
 
-# shellcheck disable=SC2154
 if ! [[ $initdir ]]; then
     dfatal "initdir not set"
     exit 1
@@ -59,10 +58,8 @@ if ! [[ $kernel ]]; then
     export kernel
 fi
 
-# shellcheck disable=SC2154
 srcmods="$dracutsysrootdir/lib/modules/$kernel/"
 
-# shellcheck disable=SC2154
 [[ $drivers_dir ]] && {
     if ! command -v kmod &> /dev/null && vercmp "$(modprobe --version | cut -d' ' -f3)" lt 3.7; then
         dfatal 'To use --kmoddir option module-init-tools >= 3.7 is required.'
@@ -108,7 +105,6 @@ fi
 # to check for required installed binaries
 # issues a standardized warning message
 require_binaries() {
-    # shellcheck disable=SC2154
     local _module_name="${moddir##*/}"
     local _ret=0
 
@@ -154,7 +150,6 @@ require_any_binary() {
 # to check for required kernel modules
 # issues a standardized warning message
 require_kernel_modules() {
-    # shellcheck disable=SC2154
     local _module_name="${moddir##*/}"
     local _ret=0
 
@@ -180,7 +175,6 @@ dracut_need_initqueue() {
 }
 
 dracut_module_included() {
-    # shellcheck disable=SC2154
     [[ " $mods_to_load $modules_loaded " == *\ $*\ * ]]
 }
 
@@ -317,7 +311,6 @@ dracut_install() {
 dracut_instmods() {
     local _ret _silent=0
     local i
-    # shellcheck disable=SC2154
     [[ $no_kernel == yes ]] && return
     for i in "$@"; do
         [[ $i == "--silent" ]] && _silent=1
@@ -391,7 +384,6 @@ inst_fsck_help() {
 # be applied, else will ignore hostonly mode and try to install all
 # given modules.
 optional_hostonly() {
-    # shellcheck disable=SC2154
     if [[ $hostonly_mode == "strict" ]]; then
         printf -- "%s" "$hostonly"
     else
@@ -443,7 +435,6 @@ inst_rule_programs() {
     # shellcheck disable=SC2013
     for _prog in $(sed -nr 's/.*PROGRAM==?"([^ "]+).*/\1/p' "$1"); do
         _bin=""
-        # shellcheck disable=SC2154
         if [[ -x ${udevdir}/$_prog ]]; then
             _bin="${udevdir}"/$_prog
         elif [[ ${_prog/\$env\{/} == "$_prog" ]]; then
@@ -926,7 +917,6 @@ check_mount() {
     local _moddep
 
     [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
-    # shellcheck disable=SC2154
     [ "${#host_fs_types[@]}" -le 0 ] && return 1
 
     # If we are already scheduled to be loaded, no need to check again.
@@ -938,7 +928,6 @@ check_mount() {
 
     [[ $2 ]] || mods_checked_as_dep+=" $_mod "
 
-    # shellcheck disable=SC2154
     if [[ " $omit_dracutmodules " == *\ $_mod\ * ]]; then
         return 1
     fi

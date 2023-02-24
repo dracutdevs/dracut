@@ -54,7 +54,6 @@ find_binary() {
     [[ -z ${1##/*} ]] || _delim="/"
 
     if [[ $1 == *.so* ]]; then
-        # shellcheck disable=SC2154
         for l in $libdirs; do
             _path="${l}${_delim}${1}"
             if { $DRACUT_LDD "${dracutsysrootdir}${_path}" &> /dev/null; }; then
