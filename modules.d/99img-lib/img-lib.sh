@@ -10,12 +10,9 @@ det_archive() {
     local bz xz gz zs
     local headerblock
     bz="BZh"
-    # shellcheck disable=SC3037
-    xz="$(/bin/echo -e '\xfd7zXZ')"
-    # shellcheck disable=SC3037
-    gz="$(/bin/echo -e '\x1f\x8b')"
-    # shellcheck disable=SC3037
-    zs="$(/bin/echo -e '\x28\xB5\x2F\xFD')"
+    xz="$(printf '\xfd7zXZ')"
+    gz="$(printf '\x1f\x8b')"
+    zs="$(printf '\x28\xB5\x2F\xFD')"
     headerblock="$(dd ${1:+if=$1} bs=262 count=1 2> /dev/null | tr -d '\0')"
     case "$headerblock" in
         $xz*) echo "xz" ;;
