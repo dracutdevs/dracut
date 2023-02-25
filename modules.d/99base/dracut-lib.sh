@@ -392,9 +392,7 @@ source_all() {
     [ "$_dir" ] && [ -d "/$_dir" ] || return
     for f in "/$_dir"/*.sh; do
         if [ -e "$f" ]; then
-            # shellcheck disable=SC1090
-            # shellcheck disable=SC2240
-            . "$f" "$@"
+            "$@" . "$f"
         fi
     done
 }
