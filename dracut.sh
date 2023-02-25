@@ -1821,10 +1821,8 @@ if [[ $print_cmdline ]]; then
 fi
 
 # Create some directory structure first
-# shellcheck disable=SC2174
 [[ $prefix ]] && mkdir -m 0755 -p "${initdir}${prefix}"
 
-# shellcheck disable=SC2174
 [[ -L $dracutsysrootdir/lib ]] || mkdir -m 0755 -p "${initdir}${prefix}/lib"
 [[ $prefix ]] && ln -sfn "${prefix#/}/lib" "$initdir/lib"
 
@@ -1843,7 +1841,6 @@ if [[ $kernel_only != yes ]]; then
         if [ -L "/$d" ]; then
             inst_symlink "/$d" "${prefix}/$d"
         else
-            # shellcheck disable=SC2174
             mkdir -m 0755 -p "${initdir}${prefix}/$d"
         fi
     done
@@ -1852,7 +1849,6 @@ if [[ $kernel_only != yes ]]; then
         if [ -L "/$d" ]; then
             inst_symlink "/$d"
         else
-            # shellcheck disable=SC2174
             mkdir -m 0755 -p "$initdir/$d"
         fi
     done
@@ -1865,7 +1861,6 @@ else
         if [ -h "/$d" ]; then
             inst "/$d" "${prefix}/$d"
         else
-            # shellcheck disable=SC2174
             mkdir -m 0755 -p "${initdir}${prefix}/$d"
         fi
     done
@@ -1877,7 +1872,6 @@ if [[ $kernel_only != yes ]]; then
     mkdir -p "${initdir}/etc/cmdline.d"
     mkdir -m 0755 "${initdir}"/lib/dracut/hooks
     for _d in $hookdirs; do
-        # shellcheck disable=SC2174
         mkdir -m 0755 -p "${initdir}/lib/dracut/hooks/$_d"
     done
     if [[ $EUID == "0" ]] && ! [[ $DRACUT_NO_MKNOD ]]; then
@@ -2060,7 +2054,6 @@ for ((i = 0; i < ${#include_src[@]}; i++)); do
                     # objectname is a directory, let's compute the final directory name
                     object_destdir=${destdir}/${objectname#"$src"/}
                     if ! [[ -e $object_destdir ]]; then
-                        # shellcheck disable=SC2174
                         mkdir -m 0755 -p "$object_destdir"
                         chmod --reference="$objectname" "$object_destdir"
                     fi

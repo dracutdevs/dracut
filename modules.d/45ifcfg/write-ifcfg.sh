@@ -5,9 +5,7 @@ type is_persistent_ethernet_name > /dev/null 2>&1 || . /lib/net-lib.sh
 
 udevadm settle --timeout=30
 
-# shellcheck disable=SC2174
 mkdir -m 0755 -p /tmp/ifcfg/
-# shellcheck disable=SC2174
 mkdir -m 0755 -p /tmp/ifcfg-leases/
 
 get_config_line_by_subchannel() {

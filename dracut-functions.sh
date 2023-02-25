@@ -128,7 +128,6 @@ vercmp() {
 # Create all subdirectories for given path without creating the last element.
 # $1 = path
 mksubdirs() {
-    # shellcheck disable=SC2174
     [[ -e ${1%/*} ]] || mkdir -m 0755 -p -- "${1%/*}"
 }
 

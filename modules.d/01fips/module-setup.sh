@@ -39,7 +39,6 @@ installkernel() {
         _fipsmodules+="aead cryptomgr tcrypt crypto_user "
     fi
 
-    # shellcheck disable=SC2174
     mkdir -m 0755 -p "${initdir}/etc/modprobe.d"
 
     for _mod in $_fipsmodules; do

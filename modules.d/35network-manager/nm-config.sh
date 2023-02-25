@@ -7,7 +7,6 @@ if [ -n "$netroot" ] || [ -e /tmp/net.ifaces ]; then
 fi
 
 if getargbool 0 rd.debug -d -y rdinitdebug -d -y rdnetdebug; then
-    # shellcheck disable=SC2174
     mkdir -m 0755 -p /run/NetworkManager/conf.d
     (
         echo '[.config]'

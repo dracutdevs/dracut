@@ -7,7 +7,6 @@ inst_multiple plymouthd plymouth
 
 test -e "${PLYMOUTH_LOGO_FILE}" && inst_simple "${PLYMOUTH_LOGO_FILE}"
 
-# shellcheck disable=SC2174
 mkdir -m 0755 -p "${initdir}/usr/share/plymouth"
 
 inst_libdir_file "plymouth/text.so" "plymouth/details.so"
@@ -34,7 +33,6 @@ else
     for x in "$dracutsysrootdir"/usr/share/plymouth/themes/{text,details}/*; do
         [[ -f $x ]] || continue
         THEME_DIR=$(dirname "${x#"$dracutsysrootdir"}")
-        # shellcheck disable=SC2174
         mkdir -m 0755 -p "${initdir}/$THEME_DIR"
         inst_multiple "${x#"$dracutsysrootdir"}"
     done

@@ -8,7 +8,6 @@ type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 VGS=$(getargs rd.lvm.vg -d rd_LVM_VG=)
 LVS=$(getargs rd.lvm.lv -d rd_LVM_LV=)
 
-# shellcheck disable=SC2174
 [ -d /etc/lvm ] || mkdir -m 0755 -p /etc/lvm
 [ -d /run/lvm ] || mkdir -m 0755 -p /run/lvm
 # build a list of devices to scan
