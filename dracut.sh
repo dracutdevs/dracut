@@ -30,8 +30,8 @@ if ((BASH_VERSINFO[0] < 4)); then
 fi
 
 dracut_args=("$@")
-# shellcheck disable=SC2155
-readonly dracut_cmd=$(readlink -f "$0")
+dracut_cmd=$(readlink -f "$0")
+readonly dracut_cmd
 
 set -o pipefail
 
@@ -1226,8 +1226,8 @@ if [[ -z $DRACUT_KMODDIR_OVERRIDE && -n $drivers_dir ]]; then
     fi
 fi
 
-# shellcheck disable=SC2155
-readonly TMPDIR="$(realpath -e "$tmpdir")"
+TMPDIR="$(realpath -e "$tmpdir")"
+readonly TMPDIR
 [ -d "$TMPDIR" ] || {
     printf "%s\n" "dracut[F]: Invalid tmpdir '$tmpdir'." >&2
     exit 1
@@ -1238,8 +1238,8 @@ if findmnt --raw -n --target "$tmpdir" --output=options | grep -q noexec; then
     noexec=1
 fi
 
-# shellcheck disable=SC2155
-readonly DRACUT_TMPDIR="$(mktemp -p "$TMPDIR/" -d -t dracut.XXXXXX)"
+DRACUT_TMPDIR="$(mktemp -p "$TMPDIR/" -d -t dracut.XXXXXX)"
+readonly DRACUT_TMPDIR
 [ -d "$DRACUT_TMPDIR" ] || {
     printf "%s\n" "dracut[F]: mktemp -p '$TMPDIR/' -d -t dracut.XXXXXX failed." >&2
     exit 1
