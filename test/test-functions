@@ -75,8 +75,7 @@ qemu_add_drive_args() {
         -device "ide-hd,bus=ide.${index},drive=drive-sata${index},id=sata${index},${bootindex:+bootindex=$bootindex,}model=disk,serial=${name}" \
         ')'
 
-    # shellcheck disable=SC2219
-    let "${1}++"
+    [ $(("${1}++")) -ne 0 ]
 }
 
 while (($# > 0)); do
