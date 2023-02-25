@@ -51,7 +51,6 @@ installkernel() {
             # get the device name
             name=/dev/$(dmsetup info -c --noheadings -o blkdevname "${name%:}")
             # check if the device exists as a key in our host_fs_types (even with null string)
-            # shellcheck disable=SC2030  # this is a shellcheck bug
             if [[ ${host_fs_types[$name]+_} ]]; then
                 # split the cipher aes-xts-plain64 in pieces
                 IFS='-:' read -ra mods <<< "$cipher"
