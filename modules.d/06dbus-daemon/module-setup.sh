@@ -56,7 +56,6 @@ install() {
         busctl dbus-send dbus-daemon
 
     # Adjusting dependencies for initramfs in the dbus service unit.
-    # shellcheck disable=SC1004
     sed -i -e \
         '/^\[Unit\]/aDefaultDependencies=no\
         Conflicts=shutdown.target\
@@ -64,7 +63,6 @@ install() {
         "$initdir$systemdsystemunitdir/dbus.service"
 
     # Adjusting dependencies for initramfs in the dbus socket unit.
-    # shellcheck disable=SC1004
     sed -i -e \
         '/^\[Unit\]/aDefaultDependencies=no\
         Conflicts=shutdown.target\

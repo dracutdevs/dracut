@@ -75,7 +75,6 @@ install() {
 
     inst_rules 69-btattach-bcm.rules 60-persistent-input.rules
 
-    # shellcheck disable=SC1004
     sed -i -e \
         '/^\[Unit\]/aDefaultDependencies=no\
         Conflicts=shutdown.target\

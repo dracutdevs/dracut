@@ -60,7 +60,6 @@ install() {
         busctl dbus-broker dbus-broker-launch
 
     # Adjusting dependencies for initramfs in the dbus socket unit.
-    # shellcheck disable=SC1004
     sed -i -e \
         '/^\[Unit\]/aDefaultDependencies=no\
         Conflicts=shutdown.target\
