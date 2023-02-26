@@ -6,7 +6,6 @@ on:
             test:
                 description: "Array of tests to run, such as [11,12]"
                 default: "['04']"
-                required: true
             container:
                 type: choice
                 description: 'distro'
@@ -25,12 +24,27 @@ env:
     ${{ fromJSON(inputs.env) }}
 
 jobs:
+    matrix:
+        runs-on: ubuntu-latest
+        outputs:
+            tests: ${{ steps.set-matrix.outputs.tests }}
+        steps:
+            -   name: "Checkout Repository"
+                uses: actions/checkout@v1
+                with:
+                    fetch-depth: 0
+            -   id: set-matrix
+                name: "Set Matrix"
+                run: |
+                     [[ "${{ toJson(fromJson(inputs.test)) }}" != '[]' ]] && echo "tests=${{ inputs.test }}" >> $GITHUB_OUTPUT \
+                     || ( tests=$(find test -type d -a -name "TEST-*" | cut -d\- -f2 | sed -z 's/\n/","/g' ); echo "tests=[\"${tests%??}]" >> $GITHUB_OUTPUT )
     test:
+        needs: matrix
         runs-on: ubuntu-latest
         timeout-minutes: 45
         strategy:
             matrix:
-                test: ${{ fromJSON(inputs.test) }}
+                test: ${{ fromJSON(needs.matrix.outputs.tests) }}
         container:
             image: ghcr.io/dracutdevs/${{ inputs.container }}
             options: "--privileged -v /dev:/dev"
