@@ -11,6 +11,7 @@ on:
                 description: 'distro'
                 default: 'fedora'
                 options:
+                    - "all"
                     - "fedora"
                     - "arch"
                     - "debian"
@@ -19,6 +20,9 @@ on:
             env:
                 description: 'Environment (optional)'
                 default: '{"DEBUGFAIL": "rd.debug"}'
+            registry:
+                description: 'Registry for container'
+                default: 'ghcr.io/dracutdevs'
 
 env:
     ${{ fromJSON(inputs.env) }}
@@ -28,6 +32,7 @@ jobs:
         runs-on: ubuntu-latest
         outputs:
             tests: ${{ steps.set-matrix.outputs.tests }}
+            container: ${{ steps.set-matrix.outputs.container }}
         steps:
             -   name: "Checkout Repository"
                 uses: actions/checkout@v1
@@ -36,22 +41,29 @@ jobs:
             -   id: set-matrix
                 name: "Set Matrix"
                 run: |
+                     [[ "${{ inputs.container }}" != 'all' ]] && echo "container=[\"${{ inputs.container }}\"]" >> $GITHUB_OUTPUT \
+                     || ( containers=$(find test/container -name "Dockerfile-*" | cut -d\- -f2 | tr '[:upper:]' '[:lower:]' | sed -z 's/\n/","/g'); echo "container=[\"${containers%??}]" >> $GITHUB_OUTPUT )
                      [[ "${{ toJson(fromJson(inputs.test)) }}" != '[]' ]] && echo "tests=${{ inputs.test }}" >> $GITHUB_OUTPUT \
                      || ( tests=$(find test -type d -a -name "TEST-*" | cut -d\- -f2 | sed -z 's/\n/","/g' ); echo "tests=[\"${tests%??}]" >> $GITHUB_OUTPUT )
     test:
         needs: matrix
         runs-on: ubuntu-latest
         timeout-minutes: 45
+        concurrency:
+            group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.container }}-${{ matrix.test }}
+            cancel-in-progress: true
         strategy:
             matrix:
+                container: ${{ fromJSON(needs.matrix.outputs.container) }}
                 test: ${{ fromJSON(needs.matrix.outputs.tests) }}
+            fail-fast: false
         container:
-            image: ghcr.io/dracutdevs/${{ inputs.container }}
+            image: ${{ inputs.registry }}/${{ matrix.container }}
             options: "--privileged -v /dev:/dev"
         steps:
             -   name: "Checkout Repository"
                 uses: actions/checkout@v1
                 with:
                     fetch-depth: 0
-            -   name: "${{ inputs.container }} ${{ matrix.test }}"
+            -   name: "${{ matrix.container }} ${{ matrix.test }}"
                 run: ./tools/test-github.sh "TEST-${{ matrix.test }}" ${{ matrix.test }}
