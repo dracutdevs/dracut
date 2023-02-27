@@ -168,7 +168,7 @@ do_live_overlay() {
                 fi
                 if [ -n "$overlayfs" ]; then
                     unset -v overlayfs
-                    [ -n "$DRACUT_SYSTEMD" ] && reloadsysrootmountunit=":>/xor_overlayfs;"
+                    cmdline_adjust=":>/xor_overlayfs;"
                 fi
                 setup="yes"
             else
@@ -177,8 +177,8 @@ do_live_overlay() {
                     && [ -d /run/initramfs/overlayfs/ovlwork ]; then
                     ln -s /run/initramfs/overlayfs/overlayfs /run/overlayfs${readonly_overlay:+-r}
                     ln -s /run/initramfs/overlayfs/ovlwork /run/ovlwork${readonly_overlay:+-r}
-                    if [ -z "$overlayfs" ] && [ -n "$DRACUT_SYSTEMD" ]; then
-                        reloadsysrootmountunit=":>/xor_overlayfs;"
+                    if [ -z "$overlayfs" ]; then
+                        cmdline_adjust=":>/xor_overlayfs;"
                     fi
                     overlayfs="required"
                     setup="yes"
@@ -188,8 +188,8 @@ do_live_overlay() {
             && [ -d /run/initramfs/overlayfs$pathspec/../ovlwork ]; then
             ln -s /run/initramfs/overlayfs$pathspec /run/overlayfs${readonly_overlay:+-r}
             ln -s /run/initramfs/overlayfs$pathspec/../ovlwork /run/ovlwork${readonly_overlay:+-r}
-            if [ -z "$overlayfs" ] && [ -n "$DRACUT_SYSTEMD" ]; then
-                reloadsysrootmountunit=":>/xor_overlayfs;"
+            if [ -z "$overlayfs" ]; then
+                cmdline_adjust=":>/xor_overlayfs;"
             fi
             overlayfs="required"
             setup="yes"
@@ -201,7 +201,7 @@ do_live_overlay() {
                 die "OverlayFS is required but not available."
                 exit 1
             fi
-            [ -n "$DRACUT_SYSTEMD" ] && reloadsysrootmountunit=":>/xor_overlayfs;"
+            cmdline_adjust=":>/xor_overlayfs;"
             m='OverlayFS is not available; using temporary Device-mapper overlay.'
             info "$m"
             unset -v overlayfs setup
@@ -251,7 +251,7 @@ do_live_overlay() {
             if [ -n "$readonly_overlay" ] && ! [ -h /run/overlayfs-r ]; then
                 info "No persistent overlay found."
                 unset -v readonly_overlay
-                [ -n "$DRACUT_SYSTEMD" ] && reloadsysrootmountunit="${reloadsysrootmountunit}:>/xor_readonly;"
+                cmdline_adjust="${cmdline_adjust}:>/xor_readonly;"
             fi
         else
             dd if=/dev/null of=/overlay bs=1024 count=1 seek=$((overlay_size * 1024)) 2> /dev/null
@@ -334,8 +334,8 @@ if [ -e "$SQUASHED" ]; then
         fi
     elif [ -d /run/initramfs/squashfs/proc ]; then
         FSIMG=$SQUASHED
-        if [ -z "$overlayfs" ] && [ -n "$DRACUT_SYSTEMD" ]; then
-            reloadsysrootmountunit=":>/xor_overlayfs;"
+        if [ -z "$overlayfs" ]; then
+            cmdline_adjust=":>/xor_overlayfs;"
         fi
         overlayfs="required"
     else
@@ -396,9 +396,9 @@ if [ -n "$FSIMG" ]; then
     fi
 fi
 
-if [ -n "$reloadsysrootmountunit" ]; then
-    eval "$reloadsysrootmountunit"
-    systemctl daemon-reload
+if [ "$cmdline_adjust" ]; then
+    eval "$cmdline_adjust"
+    [ "$DRACUT_SYSTEMD" ] && systemctl daemon-reload
 fi
 
 ROOTFLAGS="$(getarg rootflags)"

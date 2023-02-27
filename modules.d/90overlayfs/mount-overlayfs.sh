@@ -6,9 +6,11 @@ getargbool 0 rd.live.overlay.overlayfs && overlayfs="yes"
 getargbool 0 rd.live.overlay.reset -d -y reset_overlay && reset_overlay="yes"
 getargbool 0 rd.live.overlay.readonly -d -y readonly_overlay && readonly_overlay="--readonly" || readonly_overlay=""
 
+[ -e /xor_overlayfs ] && xor_overlayfs="yes"
+
 ROOTFLAGS="$(getarg rootflags)"
 
-if [ -n "$overlayfs" ]; then
+if [ "$overlayfs$xor_overlayfs" = "yes" ]; then
     if ! [ -e /run/rootfsbase ]; then
         mkdir -m 0755 -p /run/rootfsbase
         mount --bind "$NEWROOT" /run/rootfsbase
