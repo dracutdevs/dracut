@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/bin/sh
 
 check() {
-    [[ $hostonly ]] && return 1
+    [ "$hostonly" ] && return 1
     return 255
 }
 

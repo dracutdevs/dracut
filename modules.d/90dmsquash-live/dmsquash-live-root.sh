@@ -7,9 +7,15 @@ command -v unpack_archive > /dev/null || . /lib/img-lib.sh
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 if getargbool 0 rd.live.debug -n -y rdlivedebug; then
-    exec > /tmp/liveroot.$$.out
-    exec 2>> /tmp/liveroot.$$.out
+    exec > /run/initramfs/liveroot.$$.out 2>&1
     set -x
+    export RD_DEBUG=yes
+    if [ "$BASH" ]; then
+        export \
+            PS4='+ (${BASH_SOURCE}@${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+    else
+        export PS4='+ (${0##*/}@${LINENO}): '
+    fi
 fi
 
 [ -z "$1" ] && exit 1
@@ -25,7 +31,12 @@ squash_image=$(getarg rd.live.squashimg)
 getargbool 0 rd.live.ram -d -y live_ram && live_ram="yes"
 getargbool 0 rd.live.overlay.reset -d -y reset_overlay && reset_overlay="yes"
 getargbool 0 rd.live.overlay.readonly -d -y readonly_overlay && readonly_overlay="--readonly" || readonly_overlay=""
-overlay=$(getarg rd.live.overlay -d overlay)
+if overlay=$(getarg rd.live.autooverlay); then
+    [ "$overlay" ] || overlay=LABEL="${live_dir}"_persist
+else
+    overlay=$(getarg rd.live.overlay -d overlay)
+    [ "$overlay" = LABEL=persist ] && overlay=LABEL="${live_dir}"_persist
+fi
 getargbool 0 rd.writable.fsimg -d -y writable_fsimg && writable_fsimg="yes"
 overlay_size=$(getarg rd.live.overlay.size=)
 [ -z "$overlay_size" ] && overlay_size=32768
