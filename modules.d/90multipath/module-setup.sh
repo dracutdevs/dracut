@@ -1,5 +1,13 @@
 #!/bin/bash
 
+binaries() {
+    # if there's no multipath binary, no go.
+    echo \
+        kpartx \
+        multipath \
+        multipathd
+}
+
 is_mpath() {
     local _dev=$1
     [ -e /sys/dev/block/"$_dev"/dm/uuid ] || return 1
@@ -25,17 +33,14 @@ check() {
         for_each_host_dev_and_slaves is_mpath || return 255
     }
 
-    # if there's no multipath binary, no go.
-    require_binaries multipath || return 1
-    require_binaries kpartx || return 1
+    require_binaries $(binaries) || return 1
 
     return 0
 }
 
 # called by dracut
 depends() {
-    echo rootfs-block
-    echo dm
+    echo rootfs-block dm
     return 0
 }
 
@@ -89,12 +94,7 @@ install() {
     done < <(multipath -t 2> /dev/null)
     [[ -d $config_dir ]] || config_dir=/etc/multipath/conf.d
 
-    inst_multiple \
-        pkill \
-        kpartx \
-        dmsetup \
-        multipath \
-        multipathd
+    inst_multiple $(binaries)
 
     inst_multiple -o \
         mpath_wait \
@@ -141,6 +141,7 @@ install() {
         inst_simple "${moddir}/multipathd.service" "${systemdsystemunitdir}/multipathd.service"
         $SYSTEMCTL -q --root "$initdir" enable multipathd.service
     else
+        inst_multiple pkill
         inst_hook pre-trigger 02 "$moddir/multipathd.sh"
         inst_hook cleanup 02 "$moddir/multipathd-stop.sh"
     fi
