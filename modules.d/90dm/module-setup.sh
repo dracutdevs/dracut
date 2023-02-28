@@ -8,6 +8,7 @@ check() {
 
 # called by dracut
 depends() {
+    echo rootfs-block
     return 0
 }
 

@@ -18,7 +18,7 @@ check() {
 # called by dracut
 depends() {
     # We depend on dm_mod being loaded
-    echo rootfs-block dm
+    echo dm
     return 0
 }
 

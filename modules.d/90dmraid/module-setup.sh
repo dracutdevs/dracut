@@ -31,7 +31,7 @@ check() {
 
 # called by dracut
 depends() {
-    echo dm rootfs-block
+    echo dm
     return 0
 }
 

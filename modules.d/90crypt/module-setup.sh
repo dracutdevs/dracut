@@ -19,7 +19,7 @@ check() {
 # called by dracut
 depends() {
     local deps
-    deps="dm rootfs-block"
+    deps="dm"
     if [[ $hostonly && -f "$dracutsysrootdir"/etc/crypttab ]]; then
         if grep -q -e "fido2-device=" -e "fido2-cid=" "$dracutsysrootdir"/etc/crypttab; then
             deps+=" fido2"
