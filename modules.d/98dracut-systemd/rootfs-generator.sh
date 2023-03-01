@@ -51,7 +51,6 @@ generator_mount_rootfs() {
     [ -z "$1" ] && return 0
 
     _name=$(dev_unit_name "$1")
-    [ -d "$GENERATOR_DIR" ] || mkdir -p "$GENERATOR_DIR"
     if ! [ -f "$GENERATOR_DIR"/sysroot.mount ]; then
         {
             echo "[Unit]"
@@ -101,9 +100,11 @@ case "${root#block:}" in
         ;;
 esac
 
-GENERATOR_DIR="$1"
-
 if [ "$rootok" = "1" ]; then
+    GENERATOR_DIR="$1"
+    [ -z "$GENERATOR_DIR" ] && exit 1
+    [ -d "$GENERATOR_DIR" ] || mkdir -p "$GENERATOR_DIR"
+
     generator_wait_for_dev "${root#block:}"
     generator_fsck_after_pre_mount "${root#block:}"
     strstr "$(cat /proc/cmdline)" 'root=' || generator_mount_rootfs "${root#block:}" "$(getarg rootfstype=)" "$(getarg rootflags=)"
