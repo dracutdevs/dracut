@@ -17,7 +17,7 @@ generator_wait_for_dev() {
         # after remote-fs-pre.target since the initqueue is ordered before it so
         # it will never actually show up (think Tang-pinned rootfs).
         cat > "$hookdir/initqueue/finished/devexists-${_name}.sh" << EOF
-if ! grep -q After=remote-fs-pre.target /run/systemd/generator/systemd-cryptsetup@*.service 2>/dev/null; then
+if ! grep -q After=remote-fs-pre.target "$GENERATOR_DIR"/systemd-cryptsetup@*.service 2>/dev/null; then
     [ -e "$1" ]
 fi
 EOF
@@ -77,12 +77,12 @@ generator_fsck_after_pre_mount() {
     [ -z "$1" ] && return 0
 
     _name=$(dev_unit_name "$1")
-    [ -d /run/systemd/generator/systemd-fsck@"${_name}".service.d ] || mkdir -p /run/systemd/generator/systemd-fsck@"${_name}".service.d
-    if ! [ -f /run/systemd/generator/systemd-fsck@"${_name}".service.d/after-pre-mount.conf ]; then
+    [ -d "$GENERATOR_DIR"/systemd-fsck@"${_name}".service.d ] || mkdir -p "$GENERATOR_DIR"/systemd-fsck@"${_name}".service.d
+    if ! [ -f "$GENERATOR_DIR"/systemd-fsck@"${_name}".service.d/after-pre-mount.conf ]; then
         {
             echo "[Unit]"
             echo "After=dracut-pre-mount.service"
-        } > /run/systemd/generator/systemd-fsck@"${_name}".service.d/after-pre-mount.conf
+        } > "$GENERATOR_DIR"/systemd-fsck@"${_name}".service.d/after-pre-mount.conf
     fi
 
 }
