@@ -31,6 +31,12 @@ if [ -n "$THIN_POOLS" ]; then
         CONFIG="activation {monitoring=0 thin_pool_autoextend_threshold=70 thin_pool_autoextend_percent=20}"
     fi
 
+    # Activate the thinpool in case the thinpool is in inactive state.
+    # Otherwise lvextend will fail.
+    for THIN_POOL in $THIN_POOLS; do
+        lvm lvchange -ay "$THIN_POOL" --config "$CONFIG"
+    done
+
     while true; do
         for THIN_POOL in $THIN_POOLS; do
             lvm lvextend --use-policies --config "$CONFIG" "$THIN_POOL"
