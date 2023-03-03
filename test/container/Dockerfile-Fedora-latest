@@ -11,15 +11,23 @@ RUN echo 'export DRACUT_NO_XATTR=1 KVERSION=$(cd /lib/modules; ls -1 | tail -1)'
 RUN dnf -y install --setopt=install_weak_deps=False \
     asciidoc \
     bash-completion \
+    biosdevname \
+    bluez \
     btrfs-progs \
+    busybox \
     bzip2 \
+    cifs-utils \
     cryptsetup \
     dash \
     dbus-daemon \
+    device-mapper-multipath \
     dhcp-client \
     dhcp-server \
     dmraid \
     e2fsprogs \
+    f2fs-tools \
+    fcoe-utils \
+    fuse3 \
     gcc \
     git \
     iproute \
@@ -28,17 +36,28 @@ RUN dnf -y install --setopt=install_weak_deps=False \
     kbd \
     kernel \
     kmod-devel \
+    libkcapi-hmaccalc \
+    libselinux-utils \
     lvm2 \
+    lzop \
     make \
     mdadm \
+    memstrack \
+    mksh \
     nbd \
+    ndctl \
     NetworkManager \
     nfs-utils \
+    ntfs-3g \
     ntfsprogs \
+    nvme-cli \
     parted \
+    pcsc-lite \
     pigz \
     qemu-system-x86-core \
+    rng-tools \
     rpm-build \
+    sbsigntools \
     scsi-target-utils \
     ShellCheck \
     shfmt \
@@ -46,8 +65,10 @@ RUN dnf -y install --setopt=install_weak_deps=False \
     strace \
     sudo \
     systemd-networkd \
+    systemd-resolved \
     tar \
     tcpdump \
+    tpm2-tools \
     wget \
     which \
     xz \
