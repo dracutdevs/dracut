@@ -119,7 +119,6 @@ test_setup() {
         inst_hook emergency 000 ./hard-off.sh
     )
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
-        -o "plymouth network kernel-network-modules" \
         -a "debug" \
         -d "piix ide-gd_mod ata_piix btrfs sd_mod" \
         --no-hostonly-cmdline -N \

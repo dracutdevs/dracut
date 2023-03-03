@@ -345,7 +345,6 @@ test_setup() {
     )
     # Make client's dracut image
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
-        -o "ifcfg plymouth" \
         -a "debug watchdog ${USE_NETWORK}" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1

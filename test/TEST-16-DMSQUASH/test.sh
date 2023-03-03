@@ -102,7 +102,6 @@ test_setup() {
 
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         --modules "test dash dmsquash-live qemu" \
-        --omit "rngd" \
         --drivers "ext4 sd_mod" \
         --install "mkfs.ext4" \
         --no-hostonly --no-hostonly-cmdline \
@@ -110,7 +109,6 @@ test_setup() {
 
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         --modules "test dmsquash-live-autooverlay qemu" \
-        --omit "rngd" \
         --drivers "ext4 sd_mod" \
         --install "mkfs.ext4" \
         --no-hostonly --no-hostonly-cmdline \

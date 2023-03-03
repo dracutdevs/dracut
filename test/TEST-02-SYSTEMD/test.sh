@@ -69,7 +69,6 @@ test_setup() {
     # make the man command succeed always
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -a "test systemd" \
-        -o "network kernel-network-modules" \
         -d "piix ide-gd_mod ata_piix ext4 sd_mod" \
         -i ./systemd-analyze.sh /lib/dracut/hooks/pre-pivot/00-systemd-analyze.sh \
         -i "/bin/true" "/usr/bin/man" \
