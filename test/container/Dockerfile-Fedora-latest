@@ -9,50 +9,49 @@ RUN echo 'export DRACUT_NO_XATTR=1 KVERSION=$(cd /lib/modules; ls -1 | tail -1)'
 
 # Install needed packages for the dracut CI container
 RUN dnf -y install --setopt=install_weak_deps=False \
-    dash \
-    pigz \
     asciidoc \
-    mdadm \
-    lvm2 \
-    dmraid \
-    cryptsetup \
-    nfs-utils \
-    nbd \
-    dhcp-server \
-    scsi-target-utils \
-    iscsi-initiator-utils \
-    strace \
-    btrfs-progs \
-    kmod-devel \
-    gcc \
-    bzip2 \
-    xz \
-    tar \
-    wget \
-    rpm-build \
-    make \
-    git \
     bash-completion \
-    sudo \
-    kernel \
+    btrfs-progs \
+    bzip2 \
+    cryptsetup \
+    dash \
+    dbus-daemon \
     dhcp-client \
-    /usr/bin/qemu-kvm \
-    /usr/bin/qemu-system-$(uname -i) \
+    dhcp-server \
+    dmraid \
     e2fsprogs \
-    tcpdump \
+    gcc \
+    git \
     iproute \
     iputils \
-    dbus-daemon \
+    iscsi-initiator-utils \
     kbd \
+    kernel \
+    kmod-devel \
+    lvm2 \
+    make \
+    mdadm \
+    nbd \
     NetworkManager \
-    systemd-networkd \
-    squashfs-tools \
-    which \
+    nfs-utils \
+    ntfsprogs \
+    parted \
+    pigz \
+    qemu-system-x86-core \
+    rpm-build \
+    scsi-target-utils \
     ShellCheck \
     shfmt \
-    parted \
-    ntfsprogs \
-    && dnf -y remove dracut && dnf -y update && dnf -y install --setopt=install_weak_deps=False procps-ng && dnf clean all
+    squashfs-tools \
+    strace \
+    sudo \
+    systemd-networkd \
+    tar \
+    tcpdump \
+    wget \
+    which \
+    xz \
+    && dnf -y remove dracut --noautoremove && dnf -y update && dnf clean all
 
 # Set default command
 CMD ["/usr/bin/bash"]
