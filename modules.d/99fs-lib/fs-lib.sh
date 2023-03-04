@@ -107,7 +107,8 @@ fsck_drv_com() {
 
     info "issuing $_drv $_fop $_dev"
     # we enforce non-interactive run, so $() is fine
-    _out=$($_drv "$_fop" "$_dev")
+    # shellcheck disable=SC2086
+    _out=$($_drv $_fop "$_dev")
     _ret=$?
     fsck_tail
 
