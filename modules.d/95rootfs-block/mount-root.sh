@@ -30,22 +30,13 @@ mount_root() {
         fsck_ask_err
     done
 
-    READONLY=
     fsckoptions=
     if [ -f "$NEWROOT"/etc/sysconfig/readonly-root ]; then
         # shellcheck disable=SC1090
         . "$NEWROOT"/etc/sysconfig/readonly-root
     fi
 
-    if getargbool 0 "readonlyroot=" -y readonlyroot; then
-        READONLY=yes
-    fi
-
-    if getarg noreadonlyroot; then
-        READONLY=no
-    fi
-
-    if [ -f "$NEWROOT"/fastboot ] || getargbool 0 fastboot; then
+    if [ -f "$NEWROOT"/fastboot ]; then
         fastboot=yes
     fi
 
@@ -106,8 +97,8 @@ mount_root() {
     # esc_root=$(echo ${root#block:} | sed 's,\\,\\\\,g')
     # printf '%s %s %s %s 1 1 \n' "$esc_root" "$NEWROOT" "$rootfs" "$rflags" >/etc/fstab
 
-    if fsck_able "$rootfs" \
-        && [ "$rootfsck" != "0" -a -z "$fastboot" -a "$READONLY" != "yes" ] \
+    if ! getargbool 0 ro && fsck_able "$rootfs" \
+        && [ "$rootfsck" != "0" -a -z "$fastboot" ] \
         && ! strstr "${rflags}" _netdev \
         && ! getargbool 0 rd.skipfsck; then
         umount "$NEWROOT"
