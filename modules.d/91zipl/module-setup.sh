@@ -29,7 +29,7 @@ installkernel() {
 
     _boot_zipl=$(get_boot_zipl_dev)
     if [ -n "$_boot_zipl" ]; then
-        eval "$(blkid -s TYPE -o udev "${_boot_zipl}")"
+        eval "$(udevadm info --query=property --name="${_boot_zipl}" 2> /dev/null | grep ID_FS_TYPE)"
         if [ -n "$ID_FS_TYPE" ]; then
             case "$ID_FS_TYPE" in
                 ext?)
