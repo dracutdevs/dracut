@@ -1087,8 +1087,9 @@ if ! [[ $outfile ]]; then
             || [[ -d "$dracutsysrootdir"/boot/Default ]] \
             || [[ -d "$dracutsysrootdir"/boot/efi/Default ]]; then
             MACHINE_ID="Default"
-        elif [[ -f "$dracutsysrootdir"/etc/machine-id ]]; then
+        elif [[ -s "$dracutsysrootdir"/etc/machine-id ]]; then
             read -r MACHINE_ID < "$dracutsysrootdir"/etc/machine-id
+            [[ $MACHINE_ID == "uninitialized" ]] && MACHINE_ID="Default"
         else
             MACHINE_ID="Default"
         fi
