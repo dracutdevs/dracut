@@ -1,7 +1,7 @@
 #!/bin/bash
 
 check() {
-    [[ $hostonly ]] && return 1
+    require_kernel_modules overlay || return 1
     return 255
 }
 
@@ -10,7 +10,7 @@ depends() {
 }
 
 installkernel() {
-    instmods overlay
+    hostonly="" instmods overlay
 }
 
 install() {
