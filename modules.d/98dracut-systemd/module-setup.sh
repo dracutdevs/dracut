@@ -37,6 +37,8 @@ install() {
 
     inst_script "$moddir/rootfs-generator.sh" "$systemdutildir"/system-generators/dracut-rootfs-generator
 
+    inst_hook cmdline 00 "$moddir/parse-root.sh"
+
     for i in \
         dracut-cmdline.service \
         dracut-cmdline-ask.service \
