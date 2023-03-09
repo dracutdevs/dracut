@@ -66,7 +66,7 @@ parse_nvmf_discover() {
         : > /tmp/nvmf_needs_network
     elif [ "$trtype" = "fc" ]; then
         if [ "$traddr" = "auto" ]; then
-            rm /etc/nvme/discovery.conf
+            rm -f /etc/nvme/discovery.conf /etc/nvme/config.json
             return 1
         fi
         if [ "$hosttraddr" = "none" ]; then
