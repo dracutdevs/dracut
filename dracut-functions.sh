@@ -1023,3 +1023,26 @@ get_dev_module() {
     fi
     echo "$dev_drivers"
 }
+
+# Check if file is in PE format
+pe_file_format() {
+    if [[ $# -eq 1 ]]; then
+        local magic
+        magic=$(objdump -p "$1" \
+            | awk '{if ($1 == "Magic"){print strtonum("0x"$2)}}')
+        magic=$(printf "0x%x" "$magic")
+        # 0x10b (PE32), 0x20b (PE32+)
+        [[ $magic == 0x20b || $magic == 0x10b ]] && return 0
+    fi
+    return 1
+}
+
+# Get the sectionAlignment data from the PE header
+pe_get_section_align() {
+    local align_hex
+    [[ $# -ne "1" ]] && return 1
+    [[ $(pe_file_format "$1") -eq 1 ]] && return 1
+    align_hex=$(objdump -p "$1" \
+        | awk '{if ($1 == "SectionAlignment"){print $2}}')
+    echo "$((16#$align_hex))"
+}
