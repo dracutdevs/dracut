@@ -1506,7 +1506,6 @@ if [[ ! $print_cmdline ]]; then
             exit 1
         fi
         unset EFI_MACHINE_TYPE_NAME
-        EFI_SECTION_VMA_INITRD=0x3000000
         case "${DRACUT_ARCH:-$(uname -m)}" in
             x86_64)
                 EFI_MACHINE_TYPE_NAME=x64
@@ -1516,8 +1515,6 @@ if [[ ! $print_cmdline ]]; then
                 ;;
             aarch64)
                 EFI_MACHINE_TYPE_NAME=aa64
-                # aarch64 kernels are uncompressed and thus larger, so we need a bigger gap between vma sections
-                EFI_SECTION_VMA_INITRD=0x4000000
                 ;;
             *)
                 dfatal "Architecture '${DRACUT_ARCH:-$(uname -m)}' not supported to create a UEFI executable"
@@ -2467,29 +2464,57 @@ if [[ $uefi == yes ]]; then
         fi
     fi
 
+    offs=$(objdump -h "$uefi_stub" 2> /dev/null | awk 'NF==7 {size=strtonum("0x"$3);\
+                offset=strtonum("0x"$4)} END {print size + offset}')
+    if [[ $offs -eq 0 ]]; then
+        dfatal "Failed to get the size of $uefi_stub to create UEFI image file"
+        exit 1
+    fi
+    align=$(pe_get_section_align "$uefi_stub")
+    if [[ $? -eq 1 ]]; then
+        dfatal "Failed to get the sectionAlignment of the stub PE header to create the UEFI image file"
+        exit 1
+    fi
+    offs=$((offs + "$align" - offs % "$align"))
+    [[ -s $dracutsysrootdir/usr/lib/os-release ]] && uefi_osrelease="$dracutsysrootdir/usr/lib/os-release"
+    [[ -s $dracutsysrootdir/etc/os-release ]] && uefi_osrelease="$dracutsysrootdir/etc/os-release"
+    [[ -s $uefi_osrelease ]] \
+        && uefi_osrelease_offs=${offs} \
+        && offs=$((offs + $(stat -Lc%s "$uefi_osrelease"))) \
+        && offs=$((offs + "$align" - offs % "$align"))
+
     if [[ $kernel_cmdline ]] || [[ $hostonly_cmdline == yes && -e "${uefi_outdir}/cmdline.txt" ]]; then
         echo -ne "\x00" >> "$uefi_outdir/cmdline.txt"
         dinfo "Using UEFI kernel cmdline:"
         dinfo "$(tr -d '\000' < "$uefi_outdir/cmdline.txt")"
         uefi_cmdline="${uefi_outdir}/cmdline.txt"
+        uefi_cmdline_offs=${offs}
+        offs=$((offs + $(stat -Lc%s "$uefi_cmdline")))
+        offs=$((offs + "$align" - offs % "$align"))
     else
         unset uefi_cmdline
     fi
 
-    [[ -s $dracutsysrootdir/usr/lib/os-release ]] && uefi_osrelease="$dracutsysrootdir/usr/lib/os-release"
-    [[ -s $dracutsysrootdir/etc/os-release ]] && uefi_osrelease="$dracutsysrootdir/etc/os-release"
     if [[ -s ${dracutsysrootdir}${uefi_splash_image} ]]; then
         uefi_splash_image="${dracutsysrootdir}${uefi_splash_image}"
+        uefi_splash_offs=${offs}
+        offs=$((offs + $(stat -Lc%s "$uefi_splash_image")))
+        offs=$((offs + "$align" - offs % "$align"))
     else
         unset uefi_splash_image
     fi
 
+    uefi_linux_offs="${offs}"
+    offs=$((offs + $(stat -Lc%s "$kernel_image")))
+    offs=$((offs + "$align" - offs % "$align"))
+    uefi_initrd_offs="${offs}"
+
     if objcopy \
-        ${uefi_osrelease:+--add-section .osrel="$uefi_osrelease" --change-section-vma .osrel=0x20000} \
-        ${uefi_cmdline:+--add-section .cmdline="$uefi_cmdline" --change-section-vma .cmdline=0x30000} \
-        ${uefi_splash_image:+--add-section .splash="$uefi_splash_image" --change-section-vma .splash=0x40000} \
-        --add-section .linux="$kernel_image" --change-section-vma .linux=0x2000000 \
-        --add-section .initrd="${DRACUT_TMPDIR}/initramfs.img" --change-section-vma .initrd="${EFI_SECTION_VMA_INITRD}" \
+        ${uefi_osrelease:+--add-section .osrel="$uefi_osrelease" --change-section-vma .osrel=$(printf 0x%x "$uefi_osrelease_offs")} \
+        ${uefi_cmdline:+--add-section .cmdline="$uefi_cmdline" --change-section-vma .cmdline=$(printf 0x%x "$uefi_cmdline_offs")} \
+        ${uefi_splash_image:+--add-section .splash="$uefi_splash_image" --change-section-vma .splash=$(printf 0x%x "$uefi_splash_offs")} \
+        --add-section .linux="$kernel_image" --change-section-vma .linux="$(printf 0x%x "$uefi_linux_offs")" \
+        --add-section .initrd="${DRACUT_TMPDIR}/initramfs.img" --change-section-vma .initrd="$(printf 0x%x "$uefi_initrd_offs")" \
         "$uefi_stub" "${uefi_outdir}/linux.efi"; then
         if [[ -n ${uefi_secureboot_key} && -n ${uefi_secureboot_cert} ]]; then
             if sbsign \
