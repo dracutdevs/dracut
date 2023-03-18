@@ -1376,8 +1376,7 @@ dinfo "Executing: $dracut_cmd ${dracut_args[*]}"
 
 [[ $do_list == yes ]] && {
     for mod in "$dracutbasedir"/modules.d/*; do
-        [[ -d $mod ]] || continue
-        [[ -e $mod/install || -e $mod/installkernel || -e $mod/module-setup.sh ]] || continue
+        [[ -e $mod/module-setup.sh ]] || continue
         printf "%s\n" "${mod##*/??}"
     done
     exit 0

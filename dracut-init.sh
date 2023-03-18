@@ -765,28 +765,18 @@ module_check() {
     local _hostonly=$hostonly
     [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
     [ $# -eq 2 ] && _forced=$2
-    [[ -d $_moddir ]] || return 1
-    if [[ ! -f $_moddir/module-setup.sh ]]; then
-        # if we do not have a check script, we are unconditionally included
-        [[ -x $_moddir/check ]] || return 0
-        [[ $_forced != 0 ]] && unset hostonly
-        # don't quote $hostonly to leave argument empty
-        # shellcheck disable=SC2086
-        "$_moddir"/check $hostonly
-        _ret=$?
-    else
-        unset check depends cmdline install installkernel
-        check() { true; }
-        # shellcheck disable=SC1090
-        . "$_moddir"/module-setup.sh
-        is_func check || return 0
-        [[ $_forced != 0 ]] && unset hostonly
-        # don't quote $hostonly to leave argument empty
-        # shellcheck disable=SC2086
-        moddir="$_moddir" check $hostonly
-        _ret=$?
-        unset check depends cmdline install installkernel
-    fi
+    [[ -f $_moddir/module-setup.sh ]] || return 1
+    unset check depends cmdline install installkernel
+    check() { true; }
+    # shellcheck disable=SC1090
+    . "$_moddir"/module-setup.sh
+    is_func check || return 0
+    [[ $_forced != 0 ]] && unset hostonly
+    # don't quote $hostonly to leave argument empty
+    # shellcheck disable=SC2086
+    moddir="$_moddir" check $hostonly
+    _ret=$?
+    unset check depends cmdline install installkernel
     hostonly=$_hostonly
     return $_ret
 }
@@ -800,21 +790,14 @@ module_check_mount() {
     local _ret
     export mount_needs=1
     [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
-    [[ -d $_moddir ]] || return 1
-    if [[ ! -f $_moddir/module-setup.sh ]]; then
-        # if we do not have a check script, we are unconditionally included
-        [[ -x $_moddir/check ]] || return 0
-        mount_needs=1 "$_moddir"/check 0
-        _ret=$?
-    else
-        unset check depends cmdline install installkernel
-        check() { false; }
-        # shellcheck disable=SC1090
-        . "$_moddir"/module-setup.sh
-        moddir=$_moddir check 0
-        _ret=$?
-        unset check depends cmdline install installkernel
-    fi
+    [[ -f $_moddir/module-setup.sh ]] || return 1
+    unset check depends cmdline install installkernel
+    check() { false; }
+    # shellcheck disable=SC1090
+    . "$_moddir"/module-setup.sh
+    moddir=$_moddir check 0
+    _ret=$?
+    unset check depends cmdline install installkernel
     unset mount_needs
     return "$_ret"
 }
@@ -826,22 +809,15 @@ module_depends() {
     local _moddir=$2
     local _ret
     [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
-    [[ -d $_moddir ]] || return 1
-    if [[ ! -f $_moddir/module-setup.sh ]]; then
-        # if we do not have a check script, we have no deps
-        [[ -x $_moddir/check ]] || return 0
-        "$_moddir"/check -d
-        return $?
-    else
-        unset check depends cmdline install installkernel
-        depends() { true; }
-        # shellcheck disable=SC1090
-        . "$_moddir"/module-setup.sh
-        moddir=$_moddir depends
-        _ret=$?
-        unset check depends cmdline install installkernel
-        return $_ret
-    fi
+    [[ -f $_moddir/module-setup.sh ]] || return 1
+    unset check depends cmdline install installkernel
+    depends() { true; }
+    # shellcheck disable=SC1090
+    . "$_moddir"/module-setup.sh
+    moddir=$_moddir depends
+    _ret=$?
+    unset check depends cmdline install installkernel
+    return $_ret
 }
 
 # module_cmdline <dracut module> [<module path>]
@@ -851,21 +827,15 @@ module_cmdline() {
     local _moddir=$2
     local _ret
     [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
-    [[ -d $_moddir ]] || return 1
-    if [[ ! -f $_moddir/module-setup.sh ]]; then
-        # shellcheck disable=SC1090
-        [[ -x $_moddir/cmdline ]] && . "$_moddir/cmdline"
-        return $?
-    else
-        unset check depends cmdline install installkernel
-        cmdline() { true; }
-        # shellcheck disable=SC1090
-        . "$_moddir"/module-setup.sh
-        moddir="$_moddir" cmdline
-        _ret=$?
-        unset check depends cmdline install installkernel
-        return $_ret
-    fi
+    [[ -f $_moddir/module-setup.sh ]] || return 1
+    unset check depends cmdline install installkernel
+    cmdline() { true; }
+    # shellcheck disable=SC1090
+    . "$_moddir"/module-setup.sh
+    moddir="$_moddir" cmdline
+    _ret=$?
+    unset check depends cmdline install installkernel
+    return $_ret
 }
 
 # module_install <dracut module> [<module path>]
@@ -875,21 +845,15 @@ module_install() {
     local _moddir=$2
     local _ret
     [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
-    [[ -d $_moddir ]] || return 1
-    if [[ ! -f $_moddir/module-setup.sh ]]; then
-        # shellcheck disable=SC1090
-        [[ -x $_moddir/install ]] && . "$_moddir/install"
-        return $?
-    else
-        unset check depends cmdline install installkernel
-        install() { true; }
-        # shellcheck disable=SC1090
-        . "$_moddir"/module-setup.sh
-        moddir="$_moddir" install
-        _ret=$?
-        unset check depends cmdline install installkernel
-        return $_ret
-    fi
+    [[ -f $_moddir/module-setup.sh ]] || return 1
+    unset check depends cmdline install installkernel
+    install() { true; }
+    # shellcheck disable=SC1090
+    . "$_moddir"/module-setup.sh
+    moddir="$_moddir" install
+    _ret=$?
+    unset check depends cmdline install installkernel
+    return $_ret
 }
 
 # module_installkernel <dracut module> [<module path>]
@@ -899,21 +863,15 @@ module_installkernel() {
     local _moddir=$2
     local _ret
     [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
-    [[ -d $_moddir ]] || return 1
-    if [[ ! -f $_moddir/module-setup.sh ]]; then
-        # shellcheck disable=SC1090
-        [[ -x $_moddir/installkernel ]] && . "$_moddir/installkernel"
-        return $?
-    else
-        unset check depends cmdline install installkernel
-        installkernel() { true; }
-        # shellcheck disable=SC1090
-        . "$_moddir"/module-setup.sh
-        moddir="$_moddir" installkernel
-        _ret=$?
-        unset check depends cmdline install installkernel
-        return $_ret
-    fi
+    [[ -f $_moddir/module-setup.sh ]] || return 1
+    unset check depends cmdline install installkernel
+    installkernel() { true; }
+    # shellcheck disable=SC1090
+    . "$_moddir"/module-setup.sh
+    moddir="$_moddir" installkernel
+    _ret=$?
+    unset check depends cmdline install installkernel
+    return $_ret
 }
 
 # check_mount <dracut module> [<use_as_dep>] [<module path>]
@@ -1069,8 +1027,7 @@ for_each_module_dir() {
     local _reason
     _func=$1
     for _moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
-        [[ -d $_moddir ]] || continue
-        [[ -e $_moddir/install || -e $_moddir/installkernel || -e $_moddir/module-setup.sh ]] || continue
+        [[ -e $_moddir/module-setup.sh ]] || continue
         _mod=${_moddir##*/}
         _mod=${_mod#[0-9][0-9]}
         $_func "$_mod" 1 "$_moddir"
