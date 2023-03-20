@@ -22,7 +22,7 @@ depends() {
 install() {
 
     inst_rules "$moddir/99-initrd-power-targets.rules"
-    inst_simple "$systemdutildir"/systemd-ac-power
+    inst systemd-ac-power
     inst_simple "$moddir/initrd-on-ac-power.target" "$systemdsystemunitdir/initrd-on-ac-power.target"
     inst_simple "$moddir/initrd-on-battery-power.target" "$systemdsystemunitdir/initrd-on-battery-power.target"
 
