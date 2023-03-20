@@ -19,8 +19,9 @@ SKIP="$dracutbasedir/skipcpio"
 
 if [[ -d /efi/Default ]] || [[ -d /boot/Default ]] || [[ -d /boot/efi/Default ]]; then
     MACHINE_ID="Default"
-elif [[ -f /etc/machine-id ]]; then
+elif [[ -s /etc/machine-id ]]; then
     read -r MACHINE_ID < /etc/machine-id
+    [[ $MACHINE_ID == "uninitialized" ]] && MACHINE_ID="Default"
 else
     MACHINE_ID="Default"
 fi
