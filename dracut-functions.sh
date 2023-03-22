@@ -1037,12 +1037,30 @@ pe_file_format() {
     return 1
 }
 
-# Get the sectionAlignment data from the PE header
+# Get specific data from the PE header
+pe_get_header_data() {
+    local data_header
+    [[ $# -ne "2" ]] && return 1
+    [[ $(pe_file_format "$1") -eq 1 ]] && return 1
+    data_header=$(objdump -p "$1" \
+        | awk -v data="$2" '{if ($1 == data){print $2}}')
+    echo "$data_header"
+}
+
+# Get the SectionAlignment data from the PE header
 pe_get_section_align() {
     local align_hex
     [[ $# -ne "1" ]] && return 1
-    [[ $(pe_file_format "$1") -eq 1 ]] && return 1
-    align_hex=$(objdump -p "$1" \
-        | awk '{if ($1 == "SectionAlignment"){print $2}}')
+    align_hex=$(pe_get_header_data "$1" "SectionAlignment")
+    [[ $? -eq 1 ]] && return 1
     echo "$((16#$align_hex))"
+}
+
+# Get the ImageBase data from the PE header
+pe_get_image_base() {
+    local base_image
+    [[ $# -ne "1" ]] && return 1
+    base_image=$(pe_get_header_data "$1" "ImageBase")
+    [[ $? -eq 1 ]] && return 1
+    echo "$((16#$base_image))"
 }
