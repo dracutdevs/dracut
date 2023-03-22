@@ -59,6 +59,7 @@ RUN dnf -y install --setopt=install_weak_deps=False \
     squashfs-tools \
     strace \
     sudo \
+    systemd-boot-unsigned \
     systemd-networkd \
     systemd-resolved \
     tar \

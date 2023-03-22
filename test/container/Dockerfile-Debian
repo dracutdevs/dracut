@@ -41,6 +41,7 @@ RUN apt-get update -y -qq && apt-get upgrade -y -qq && DEBIAN_FRONTEND=nonintera
     nfs-kernel-server \
     ntfs-3g \
     open-iscsi \
+    ovmf \
     parted \
     pigz \
     pkg-config \

@@ -40,4 +40,9 @@ if ! [ -f "$VMLINUZ" ]; then
     fi
 fi
 
-exec "$BIN" "${ARGS[@]}" -kernel "$VMLINUZ" "$@"
+# only set -kernel if -initrd is specified
+if [[ $* == *-initrd* ]]; then
+    ARGS+=(-kernel "$VMLINUZ")
+fi
+
+exec "$BIN" "${ARGS[@]}" "$@"
