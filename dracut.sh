@@ -2473,7 +2473,7 @@ if [[ $uefi == yes ]]; then
     fi
     align=$(pe_get_section_align "$uefi_stub")
     if [[ $? -eq 1 ]]; then
-        dfatal "Failed to get the sectionAlignment of the stub PE header to create the UEFI image file"
+        dfatal "Failed to get the SectionAlignment of the stub PE header to create the UEFI image file"
         exit 1
     fi
     offs=$((offs + "$align" - offs % "$align"))
@@ -2510,12 +2510,19 @@ if [[ $uefi == yes ]]; then
     offs=$((offs + "$align" - offs % "$align"))
     uefi_initrd_offs="${offs}"
 
+    base_image=$(pe_get_image_base "$uefi_stub")
+    if [[ $? -eq 1 ]]; then
+        dfatal "Failed to get ImageBase data of $uefi_stub to create UEFI image file"
+        exit 1
+    fi
+
     if objcopy \
         ${uefi_osrelease:+--add-section .osrel="$uefi_osrelease" --change-section-vma .osrel=$(printf 0x%x "$uefi_osrelease_offs")} \
         ${uefi_cmdline:+--add-section .cmdline="$uefi_cmdline" --change-section-vma .cmdline=$(printf 0x%x "$uefi_cmdline_offs")} \
         ${uefi_splash_image:+--add-section .splash="$uefi_splash_image" --change-section-vma .splash=$(printf 0x%x "$uefi_splash_offs")} \
         --add-section .linux="$kernel_image" --change-section-vma .linux="$(printf 0x%x "$uefi_linux_offs")" \
         --add-section .initrd="${DRACUT_TMPDIR}/initramfs.img" --change-section-vma .initrd="$(printf 0x%x "$uefi_initrd_offs")" \
+        --image-base="$(printf 0x%x "$base_image")" \
         "$uefi_stub" "${uefi_outdir}/linux.efi"; then
         if [[ -n ${uefi_secureboot_key} && -n ${uefi_secureboot_cert} ]]; then
             if sbsign \
