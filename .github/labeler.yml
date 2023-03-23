@@ -450,10 +450,6 @@ virtiofs:
   - changed-files:
     - any-glob-to-any-file: 'modules.d/95virtiofs/*'
 
-zfcp:
-  - changed-files:
-    - any-glob-to-any-file: 'modules.d/95zfcp/*'
-
 znet:
   - changed-files:
     - any-glob-to-any-file: 'modules.d/95znet/*'
