@@ -382,10 +382,6 @@ dasd_mod:
   - changed-files:
     - any-glob-to-any-file: 'modules.d/95dasd_mod/*'
 
-dasd_rules:
-  - changed-files:
-    - any-glob-to-any-file: 'modules.d/95dasd_rules/*'
-
 dcssblk:
   - changed-files:
     - any-glob-to-any-file: 'modules.d/95dcssblk/*'
