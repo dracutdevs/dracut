@@ -328,7 +328,8 @@ if getarg init= > /dev/null; then
     ignoreargs="console BOOT_IMAGE"
     # only pass arguments after init= to the init
     CLINE=${CLINE#*init=}
-    set -- "$CLINE"
+    # shellcheck disable=SC2086
+    set -- $CLINE
     shift # clear out the rest of the "init=" arg
     for x in "$@"; do
         for s in $ignoreargs; do
@@ -339,7 +340,8 @@ if getarg init= > /dev/null; then
     unset CLINE
 else
     debug_off # Turn off debugging for this section
-    set -- "$CLINE"
+    # shellcheck disable=SC2086
+    set -- $CLINE
     for x in "$@"; do
         case "$x" in
             [0-9] | s | S | single | emergency | auto)
