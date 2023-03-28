@@ -17,7 +17,7 @@ str_replace() {
         out="${out}${chop}$r"
         in="${in#*"$s"}"
     done
-    echo "${out}${in}"
+    printf -- '%s' "${out}${in}"
 }
 
 # get a systemd-compatible unit name from a path
