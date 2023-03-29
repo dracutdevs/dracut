@@ -342,6 +342,11 @@ case $bin in
         ;;
 esac
 
+type "${CAT%% *}" > /dev/null 2>&1 || {
+    echo "Need '${CAT%% *}' to unpack the initramfs."
+    exit 1
+}
+
 skipcpio() {
     $SKIP "$@" | $ORIG_CAT
 }
