@@ -24,6 +24,13 @@ while read -r dev _ fstype opts rest || [ -n "$dev" ]; do
     break
 done < /proc/mounts
 
+# fail the test of rd.live.overlay did not worked as expected
+if grep -qF 'rd.live.overlay' /proc/cmdline; then
+    if ! strstr "$(cat /proc/mounts)" LiveOS_rootfs; then
+        echo "nfs-FAIL" | dd oflag=direct,dsync of=/dev/disk/by-id/ata-disk_marker
+    fi
+fi
+
 if [ "$fstype" = "nfs" -o "$fstype" = "nfs4" ]; then
 
     serverip=${dev%:*}
