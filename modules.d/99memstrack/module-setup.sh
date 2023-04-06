@@ -20,9 +20,15 @@ install() {
     inst "/bin/memstrack" "/bin/memstrack"
 
     inst "$moddir/memstrack-start.sh" "/bin/memstrack-start"
-    inst_hook cleanup 99 "$moddir/memstrack-report.sh"
-
     inst "$moddir/memstrack.service" "$systemdsystemunitdir/memstrack.service"
-
     $SYSTEMCTL -q --root "$initdir" add-wants initrd.target memstrack.service
+
+    pid=$$
+    if grep -wq "kdumpbase" <<< $(cat /proc/"$pid"/cmdline | tr '\0' ' '); then
+        inst "$moddir/memstrack-report.sh" "/bin/memstrack-report"
+        inst "$moddir/memstrack-report.service" "$systemdsystemunitdir/memstrack-report.service"
+        $SYSTEMCTL -q --root "$initdir" add-wants initrd.target memstrack-report.service
+    else
+        inst_hook cleanup 99 "$moddir/memstrack-report.sh"
+    fi
 }

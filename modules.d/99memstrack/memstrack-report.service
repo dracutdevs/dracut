@@ -1,0 +1,15 @@
+[Unit]
+Description=Memstrack Report Service
+DefaultDependencies=no
+Before=dracut-cmdline.service systemd-udevd.service local-fs-pre.target
+After=memstrack.service
+IgnoreOnIsolate=true
+ConditionKernelCommandLine=|rd.memdebug=4
+ConditionKernelCommandLine=|rd.memdebug=5
+
+[Service]
+Type=forking
+ExecStart=/bin/memstrack-report
+StandardInput=null
+StandardOutput=journal+console
+StandardError=journal+console
