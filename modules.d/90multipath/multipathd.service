@@ -25,4 +25,3 @@ TasksMax=infinity
 
 [Install]
 WantedBy=sysinit.target
-Also=multipathd.socket
