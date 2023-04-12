@@ -983,13 +983,30 @@ block_is_netdevice() {
     block_is_nbd "$1" || block_is_iscsi "$1" || block_is_fcoe "$1"
 }
 
+# convert the driver name given by udevadm to the corresponding kernel module name
+get_module_name() {
+    local dev_driver
+    while read -r dev_driver; do
+        case "$dev_driver" in
+            mmcblk)
+                echo "mmc_block"
+                ;;
+            *)
+                echo "$dev_driver"
+                ;;
+        esac
+    done
+}
+
 # get the corresponding kernel modules of a /sys/class/*/* or/dev/* device
 get_dev_module() {
     local dev_attr_walk
     local dev_drivers
     local dev_paths
     dev_attr_walk=$(udevadm info -a "$1")
-    dev_drivers=$(echo "$dev_attr_walk" | sed -n 's/\s*DRIVERS=="\(\S\+\)"/\1/p')
+    dev_drivers=$(echo "$dev_attr_walk" \
+        | sed -n 's/\s*DRIVERS=="\(\S\+\)"/\1/p' \
+        | get_module_name)
 
     # also return modalias info from sysfs paths parsed by udevadm
     dev_paths=$(echo "$dev_attr_walk" | sed -n 's/.*\(\/devices\/.*\)'\'':/\1/p')
@@ -1017,6 +1034,7 @@ get_dev_module() {
                 [[ -n $dev_drivers && ${dev_drivers: -1} != $'\n' ]] && dev_drivers+=$'\n'
                 dev_drivers+=$(udevadm info -a "$dev_vpath/$dev_link" \
                     | sed -n 's/\s*DRIVERS=="\(\S\+\)"/\1/p' \
+                    | get_module_name \
                     | grep -v -e pcieport)
             done
         fi
