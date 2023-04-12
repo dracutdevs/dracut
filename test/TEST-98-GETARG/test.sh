@@ -14,7 +14,8 @@ test_setup() {
     make -C "$basedir" dracut-util
     ln -sfnr "$basedir"/dracut-util "$TESTDIR"/dracut-getarg
     ln -sfnr "$basedir"/dracut-util "$TESTDIR"/dracut-getargs
-    ln -sfnr "$basedir"/modules.d/99base/dracut-lib.sh "$TESTDIR"/dracut-lib.sh
+    cp "$basedir"/modules.d/99base/dracut-lib.sh "$TESTDIR"
+    sed -i -r '/[^\s+]set\s+\+\S*x.*/ s//&; set -x/' "$TESTDIR"/dracut-lib.sh
     ln -sfnr "$basedir"/modules.d/99base/dracut-dev-lib.sh "$TESTDIR"/dracut-dev-lib.sh
     return 0
 }
@@ -88,14 +89,6 @@ test_run() {
 
         . dracut-dev-lib.sh
         . dracut-lib.sh
-
-        debug_off() {
-            :
-        }
-
-        debug_on() {
-            :
-        }
 
         getcmdline() {
             echo "rdbreak=cmdline rd.lvm rd.auto=0 rd.auto rd.retry=10"

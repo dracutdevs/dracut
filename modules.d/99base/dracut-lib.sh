@@ -19,14 +19,6 @@ if [ -z "$PREFIX" ]; then
     [ -d /run/log ] || mkdir -p -m 0755 /run/log
 fi
 
-debug_off() {
-    set +x
-}
-
-debug_on() {
-    [ "$RD_DEBUG" = "yes" ] && set -x
-}
-
 # returns OK if $1 contains literal string $2 (and isn't empty)
 strstr() {
     [ "${1##*"$2"*}" != "$1" ]
@@ -152,8 +144,8 @@ getcmdline() {
 }
 
 getarg() {
-    debug_off
-    local _deprecated _newoption
+    local - _deprecated _newoption
+    set +x
     CMDLINE=$(getcmdline)
     export CMDLINE
     while [ $# -gt 0 ]; do
@@ -172,7 +164,6 @@ getarg() {
                         fi
                     fi
                     echo 1
-                    debug_on
                     return 0
                 fi
                 _deprecated=0
@@ -188,7 +179,6 @@ getarg() {
                             warn "Option '$2' is deprecated."
                         fi
                     fi
-                    debug_on
                     return 1
                 fi
                 _deprecated=0
@@ -206,7 +196,6 @@ getarg() {
                             warn "Option '$1' is deprecated."
                         fi
                     fi
-                    debug_on
                     return 0
                 fi
                 _deprecated=0
@@ -214,7 +203,6 @@ getarg() {
                 ;;
         esac
     done
-    debug_on
     return 1
 }
 
@@ -226,9 +214,9 @@ getarg() {
 #   true: rd.info, rd.info=1, rd.info=xxx
 #   false: rd.info=0, rd.info=off, rd.info not present (default val is 0)
 getargbool() {
-    local _b
+    local - _b _default
+    set +x
     unset _b
-    local _default
     _default="$1"
     shift
     _b=$(getarg "$@") || _b=${_b:-"$_default"}
@@ -272,10 +260,10 @@ getargnum() {
 }
 
 getargs() {
-    debug_off
+    local - _val _i _gfound _deprecated
+    set +x
     CMDLINE=$(getcmdline)
     export CMDLINE
-    local _val _i _gfound _deprecated
     unset _val
     unset _gfound
     _newoption="$1"
@@ -301,10 +289,8 @@ getargs() {
         _deprecated=0
     done
     if [ -n "$_gfound" ]; then
-        debug_on
         return 0
     fi
-    debug_on
     return 1
 }
 
@@ -348,11 +334,11 @@ getoptcomma() {
 #
 # TODO: ':' inside fields.
 splitsep() {
-    debug_off
+    local - tmp
+    set +x
     local sep="$1"
     local str="$2"
     shift 2
-    local tmp
 
     while [ -n "$str" -a "$#" -gt 1 ]; do
         tmp="${str%%"$sep"*}"
@@ -362,7 +348,6 @@ splitsep() {
         shift
     done
     [ -n "$str" -a -n "$1" ] && eval "$1='$str'"
-    debug_on
     return 0
 }
 
@@ -373,16 +358,19 @@ setdebug() {
             RD_DEBUG=no
             if getargbool 0 rd.debug -d -y rdinitdebug -d -y rdnetdebug; then
                 RD_DEBUG=yes
-                [ -n "$BASH" ] \
-                    && export PS4='${BASH_SOURCE}@${LINENO}(${FUNCNAME[0]-}): '
+                if [ "$BASH" ]; then
+                    export PS4='${BASH_SOURCE}@${LINENO}(${FUNCNAME[0]-}): '
+                else
+                    export PS4='+ (${0##*/}@${LINENO}): '
+                fi
             fi
         fi
         export RD_DEBUG
     fi
-    debug_on
 }
 
 setdebug
+[ "$RD_DEBUG" = "yes" ] && set -x
 
 source_all() {
     local f
@@ -486,8 +474,8 @@ check_occurances() {
 }
 
 incol2() {
-    debug_off
-    local check
+    local - check
+    set +x
     local file="$1"
     local str="$2"
 
@@ -496,11 +484,9 @@ incol2() {
 
     while read -r _ check _ || [ -n "$check" ]; do
         if [ "$check" = "$str" ]; then
-            debug_on
             return 0
         fi
     done < "$file"
-    debug_on
     return 1
 }
 
@@ -830,8 +816,8 @@ wait_for_mount() {
 }
 
 killproc() {
-    debug_off
-    local _exe
+    local - _exe
+    set +x
     _exe="$(command -v "$1")"
     local _sig="$2"
     local _i
@@ -842,7 +828,6 @@ killproc() {
             kill "$_sig" "${_i##*/}"
         fi
     done
-    debug_on
 }
 
 need_shutdown() {
@@ -852,7 +837,7 @@ need_shutdown() {
 wait_for_loginit() {
     [ "$RD_DEBUG" = "yes" ] || return
     [ -e /run/initramfs/loginit.pipe ] || return
-    debug_off
+    set +x
     echo "DRACUT_LOG_END"
     exec 0<> /dev/console 1<> /dev/console 2<> /dev/console
     # wait for loginit
@@ -873,21 +858,21 @@ wait_for_loginit() {
     fi
 
     setdebug
+    [ "$RD_DEBUG" = "yes" ] && set -x
     rm -f -- /run/initramfs/loginit.pipe /run/initramfs/loginit.pid
 }
 
 # pidof version for root
 if ! command -v pidof > /dev/null 2> /dev/null; then
     pidof() {
-        debug_off
-        local _cmd
+        local - _cmd
+        set +x
         local _exe
         local _rl
         local _ret=1
         local i
         _cmd="$1"
         if [ -z "$_cmd" ]; then
-            debug_on
             return 1
         fi
         _exe=$(command -v "$1")
@@ -903,7 +888,6 @@ if ! command -v pidof > /dev/null 2> /dev/null; then
             echo "${i##/proc/}"
             _ret=0
         done
-        debug_on
         return $_ret
     }
 fi
@@ -917,7 +901,7 @@ _emergency_shell() {
         rm -f -- /etc/profile
         rm -f -- /.console_lock
     else
-        debug_off
+        set +x
         source_hook "$hook"
         echo
         /sbin/rdsosreport

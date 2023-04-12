@@ -3,7 +3,7 @@
 type crypttab_contains > /dev/null 2>&1 || . /lib/dracut-crypt-lib.sh
 
 _cryptgetargsname() {
-    debug_off
+    set +x
     local _o _found _key
     unset _o
     unset _found

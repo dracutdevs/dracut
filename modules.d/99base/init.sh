@@ -34,6 +34,7 @@ RD_DEBUG=""
 . /lib/dracut-lib.sh
 
 setdebug
+[ "$RD_DEBUG" = "yes" ] && set -x
 
 if ! ismounted /dev; then
     mount -t devtmpfs -o mode=0755,noexec,nosuid,strictatime devtmpfs /dev > /dev/null
@@ -297,7 +298,7 @@ done
 udevadm control --exit
 udevadm info --cleanup-db
 
-debug_off # Turn off debugging for this section
+set +x # Turn off debugging for this section
 
 CAPSH=$(command -v capsh)
 SWITCH_ROOT=$(command -v switch_root)
@@ -342,7 +343,7 @@ if getarg init= > /dev/null; then
     done
     unset CLINE
 else
-    debug_off # Turn off debugging for this section
+    set +x # Turn off debugging for this section
     # shellcheck disable=SC2086
     set -- $CLINE
     for x in "$@"; do
@@ -353,7 +354,7 @@ else
         esac
     done
 fi
-debug_on
+[ "$RD_DEBUG" = "yes" ] && set -x
 
 if ! [ -d "$NEWROOT"/run ]; then
     NEWRUN=/dev/.initramfs
