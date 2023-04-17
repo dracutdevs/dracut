@@ -315,6 +315,8 @@ if [ -e /run/initramfs/live/${live_dir}/${squash_image} ]; then
 fi
 if [ -e "$SQUASHED" ]; then
     if [ -n "$live_ram" ]; then
+        imgsize=$(($(stat -c %s -- $SQUASHED) / (1024 * 1024)))
+        check_live_ram $imgsize
         echo 'Copying live image to RAM...' > /dev/kmsg
         echo ' (this may take a minute)' > /dev/kmsg
         dd if=$SQUASHED of=/run/initramfs/squashed.img bs=512 2> /dev/null
