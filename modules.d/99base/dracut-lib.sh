@@ -1151,3 +1151,28 @@ load_fstype() {
     done < /proc/filesystems
     modprobe "$1"
 }
+
+# parameter: size of live image
+# calls emergency shell if ram size is too small for the image
+check_live_ram() {
+    minmem=$(getarg rd.minmem)
+    minmem=${minmem:-1024}
+    imgsize=$1
+    memsize=$(($(sed -n 's/MemTotal: *\([[:digit:]]*\).*/\1/p' /proc/meminfo) / 1024))
+
+    if [ -z "$imgsize" ]; then
+        warn "Image size could not be determined"
+        return 0
+    fi
+
+    if [ $((memsize - imgsize)) -lt "$minmem" ]; then
+        sed -i "N;/and attach it to a bug report./s/echo$/echo\n\
+         echo \n\
+         echo 'Warning!!!'\n\
+         echo 'The memory size of your system is too small for this live image.'\n\
+         echo 'Expect killed processes due to out of memory conditions.'\n\
+         echo \n/" /usr/bin/dracut-emergency
+
+        emergency_shell
+    fi
+}

@@ -16,6 +16,13 @@ netroot="$2"
 liveurl="${netroot#livenet:}"
 info "fetching $liveurl"
 
+if getargbool 0 'rd.writable.fsimg'; then
+
+    imgsize=$(($(curl -sIL "$liveurl" | sed -n 's/Content-Length: *\([[:digit:]]*\).*/\1/p') / (1024 * 1024)))
+
+    check_live_ram $imgsize
+fi
+
 imgfile=
 #retry until the imgfile is populated with data or the max retries
 i=1
