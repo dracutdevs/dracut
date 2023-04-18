@@ -72,7 +72,7 @@ for p in $(getargs ip=); do
     for autoopt in $(str_replace "$autoconf" "," " "); do
         case $autoopt in
             error) die "Error parsing option 'ip=$p'" ;;
-            bootp | rarp | both) die "Sorry, ip=$autoopt is currenty unsupported" ;;
+            bootp | rarp | both) die "Sorry, ip=$autoopt is currently unsupported" ;;
             none | off)
                 [ -z "$ip" ] \
                     && die "For argument 'ip=$p'\nValue '$autoopt' without static configuration does not make sense"
