@@ -58,12 +58,6 @@ install() {
         inst_hook cmdline 10 "$moddir/parse-root-opts.sh"
     fi
 
-    if [[ $realinitpath ]]; then
-        for i in $realinitpath; do
-            echo "rd.distroinit=$i"
-        done > "${initdir}/etc/cmdline.d/distroinit.conf"
-    fi
-
     ln -fs /proc/self/mounts "$initdir/etc/mtab"
     if [[ $ro_mnt == yes ]]; then
         echo ro >> "${initdir}/etc/cmdline.d/base.conf"
