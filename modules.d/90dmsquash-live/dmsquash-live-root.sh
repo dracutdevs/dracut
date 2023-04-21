@@ -90,8 +90,8 @@ det_img_fs() {
 }
 
 load_fstype squashfs
-CMDLINE=$(getcmdline)
-for arg in $CMDLINE; do
+cmdline=$(getcmdline)
+for arg in $cmdline; do
     case $arg in
         ro | rw) liverw=$arg ;;
     esac
@@ -405,6 +405,7 @@ ROOTFLAGS="$(getarg rootflags)"
 
 if [ "$overlayfs" = required ]; then
     echo "rd.live.overlay.overlayfs=1" > /etc/cmdline.d/dmsquash-need-overlay.conf
+    setcmdline
 fi
 
 if [ -n "$overlayfs" ]; then

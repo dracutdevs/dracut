@@ -123,7 +123,9 @@ killall_proc_mountpoint() {
     return $_killed
 }
 
-getcmdline() {
+# every initrd hook writing any /etc/cmdline.d conf file at boot time must
+# call setcmdline after that
+setcmdline() {
     local _line
     local _i
     local CMDLINE_ETC_D
@@ -147,15 +149,29 @@ getcmdline() {
             CMDLINE_PROC="$CMDLINE_PROC $_line"
         done < /proc/cmdline
     fi
-    CMDLINE="$CMDLINE_ETC_D $CMDLINE_ETC $CMDLINE_PROC"
+    export CMDLINE="$CMDLINE_ETC_D $CMDLINE_ETC $CMDLINE_PROC"
+    printf "%s" "$CMDLINE" > /tmp/dracut-cmdline
+}
+
+getcmdline() {
+    # the usual way to access will be the CMDLINE variable
+    if [ -z "$CMDLINE" ]; then
+        # we need to provide a persistent way to get the value of the CMDLINE
+        # variable from different processes, e.g., systemd generators
+        if [ -f /tmp/dracut-cmdline ]; then
+            read -r CMDLINE < /tmp/dracut-cmdline
+            export CMDLINE
+        else
+            setcmdline
+        fi
+    fi
     printf "%s" "$CMDLINE"
 }
 
 getarg() {
     debug_off
     local _deprecated _newoption
-    CMDLINE=$(getcmdline)
-    export CMDLINE
+    getcmdline > /dev/null
     while [ $# -gt 0 ]; do
         case $1 in
             -d)
@@ -273,8 +289,7 @@ getargnum() {
 
 getargs() {
     debug_off
-    CMDLINE=$(getcmdline)
-    export CMDLINE
+    getcmdline > /dev/null
     local _val _i _gfound _deprecated
     unset _val
     unset _gfound
@@ -1128,6 +1143,7 @@ show_memstats() {
 
 remove_hostonly_files() {
     rm -fr /etc/cmdline /etc/cmdline.d/*.conf "$hookdir/initqueue/finished"
+    setcmdline
     if [ -f /lib/dracut/hostonly-files ]; then
         while read -r line || [ -n "$line" ]; do
             [ -e "$line" ] || [ -h "$line" ] || continue

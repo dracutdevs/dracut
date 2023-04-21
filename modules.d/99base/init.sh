@@ -113,12 +113,15 @@ if getarg "rd.cmdline=ask"; then
         [ "$line" = "." ] && break
         echo "$line" >> /etc/cmdline.d/99-cmdline-ask.conf
     done
+    setcmdline
 fi
 
 if ! getargbool 1 'rd.hostonly'; then
     [ -f /etc/cmdline.d/99-cmdline-ask.conf ] && mv /etc/cmdline.d/99-cmdline-ask.conf /tmp/99-cmdline-ask.conf
     remove_hostonly_files
-    [ -f /tmp/99-cmdline-ask.conf ] && mv /tmp/99-cmdline-ask.conf /etc/cmdline.d/99-cmdline-ask.conf
+    [ -f /tmp/99-cmdline-ask.conf ] \
+        && mv /tmp/99-cmdline-ask.conf /etc/cmdline.d/99-cmdline-ask.conf \
+        && setcmdline
 fi
 
 # run scriptlets to parse the command line

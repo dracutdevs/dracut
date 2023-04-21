@@ -12,7 +12,9 @@ if ! getargbool 1 'rd.hostonly'; then
     [ -f /etc/cmdline.d/99-cmdline-ask.conf ] && mv /etc/cmdline.d/99-cmdline-ask.conf /tmp/99-cmdline-ask.conf
     remove_hostonly_files
     systemctl --no-block daemon-reload
-    [ -f /tmp/99-cmdline-ask.conf ] && mv /tmp/99-cmdline-ask.conf /etc/cmdline.d/99-cmdline-ask.conf
+    [ -f /tmp/99-cmdline-ask.conf ] \
+        && mv /tmp/99-cmdline-ask.conf /etc/cmdline.d/99-cmdline-ask.conf \
+        && setcmdline
 fi
 
 info "Using kernel command line parameters:" "$(getcmdline)"

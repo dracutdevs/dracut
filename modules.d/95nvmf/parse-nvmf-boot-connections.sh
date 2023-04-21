@@ -104,6 +104,7 @@ done
 
 if [ -e /tmp/nvmf_needs_network ]; then
     echo "rd.neednet=1" > /etc/cmdline.d/nvmf-neednet.conf
+    setcmdline
     rm -f /tmp/nvmf_needs_network
 fi
 
