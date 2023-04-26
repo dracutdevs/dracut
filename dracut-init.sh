@@ -507,6 +507,7 @@ inst_rule_group_owner() {
 }
 
 inst_rule_initqueue() {
+    [[ -e "$initdir/lib/dracut/need-initqueue" ]] && return
     if grep -q -F initqueue "$1"; then
         dracut_need_initqueue
     fi
