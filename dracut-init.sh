@@ -926,8 +926,6 @@ check_mount() {
     local _moddep
 
     [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
-    # shellcheck disable=SC2154
-    [ "${#host_fs_types[@]}" -le 0 ] && return 1
 
     # If we are already scheduled to be loaded, no need to check again.
     [[ " $mods_to_load " == *\ $_mod\ * ]] && return 0

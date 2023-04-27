@@ -1794,7 +1794,9 @@ mods_to_load=""
 # check all our modules to see if they should be sourced.
 # This builds a list of modules that we will install next.
 for_each_module_dir check_module
-for_each_module_dir check_mount
+if ! [[ $hostonly ]] && ((${#host_fs_types[@]})); then
+    for_each_module_dir check_mount
+fi
 
 dracut_module_included "fips" && export DRACUT_FIPS_MODE=1
 
