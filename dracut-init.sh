@@ -1190,7 +1190,7 @@ is_qemu_virtualized() {
     # 1 if a virt environment could not be detected
     # 255 if any error was encountered
     if type -P systemd-detect-virt > /dev/null 2>&1; then
-        if ! vm=$(systemd-detect-virt --vm > /dev/null 2>&1); then
+        if ! vm=$(systemd-detect-virt --vm 2> /dev/null); then
             return 255
         fi
         [[ $vm == "qemu" ]] && return 0
