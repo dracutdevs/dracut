@@ -2031,7 +2031,7 @@ if [[ $kernel_only != yes ]]; then
     if [[ $DRACUT_RESOLVE_LAZY ]] && [[ $DRACUT_INSTALL ]]; then
         dinfo "*** Resolving executable dependencies ***"
         # shellcheck disable=SC2086
-        find "$initdir" -type f -perm /0111 -not -path '*.ko' -print0 \
+        find "$initdir" -type f -perm /0111 -not -path '*.ko*' -print0 \
             | xargs -r -0 $DRACUT_INSTALL ${initdir:+-D "$initdir"} ${dracutsysrootdir:+-r "$dracutsysrootdir"} -R ${DRACUT_FIPS_MODE:+-f} --
         dinfo "*** Resolving executable dependencies done ***"
     fi
@@ -2241,7 +2241,7 @@ if [[ $do_strip == yes ]] && ! [[ $DRACUT_FIPS_MODE ]]; then
     [[ -n $enhanced_cpio ]] && ddebug "strip is enabled alongside cpio reflink"
     dinfo "*** Stripping files ***"
     find "$initdir" -type f \
-        -executable -not -path '*/lib/modules/*.ko' -print0 \
+        -executable -not -path '*/lib/modules/*.ko*' -print0 \
         | xargs -r -0 $strip_cmd "${strip_args[@]}" 2> /dev/null
 
     # strip kernel modules, but do not touch signed modules
