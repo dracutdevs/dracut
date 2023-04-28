@@ -14,4 +14,10 @@ else
     done
 fi
 
-cat /.memstrack
+if ! [ -e /proc/vmcore ]; then
+    if [ -e /.memstrack ]; then
+        IFS= vwarn < /.memstrack
+    else
+        warn 'No memstrack log generated!'
+   fi
+fi
