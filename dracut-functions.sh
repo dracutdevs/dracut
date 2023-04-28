@@ -244,7 +244,7 @@ get_maj_min() {
     local _out
 
     if [[ $get_maj_min_cache_file ]]; then
-        _out="$(grep -m1 -oP "^$1 \K\S+$" "$get_maj_min_cache_file")"
+        _out="$(grep -m1 -oE "^$1 \S+$" "$get_maj_min_cache_file" | awk '{print $NF}')"
     fi
 
     if ! [[ "$_out" ]]; then
