@@ -410,13 +410,17 @@ source_hook() {
 }
 
 check_finished() {
-    local f
+    local f rc=0
     for f in "$hookdir"/initqueue/finished/*.sh; do
         [ "$f" = "$hookdir/initqueue/finished/*.sh" ] && return 0
         # shellcheck disable=SC1090
-        { [ -e "$f" ] && (. "$f"); } || return 1
+        if [ -e "$f" ] && (. "$f"); then
+            rm -f "$f"
+        else
+            rc=1
+        fi
     done
-    return 0
+    return $rc
 }
 
 source_conf() {
