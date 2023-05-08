@@ -13,6 +13,8 @@ RUN mkdir -p /etc/portage/package.accept_keywords && \
 # kernel and its dependencies in a separate builder
 FROM docker.io/gentoo/stage3:musl as kernel
 COPY --from=portage /var/db/repos/gentoo /var/db/repos/gentoo
+# disable initramfs generation, only need the kernel image itself
+RUN echo 'sys-kernel/gentoo-kernel-bin -initramfs' > /etc/portage/package.use/kernel
 RUN emerge -qv sys-kernel/gentoo-kernel-bin
 
 FROM docker.io/gentoo/stage3:musl
