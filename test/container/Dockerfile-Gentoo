@@ -40,12 +40,15 @@ RUN emerge -qv \
     net-misc/dhcp \
     sys-apps/busybox \
     sys-block/nbd \
+    sys-block/open-iscsi \
     sys-block/parted \
     sys-block/thin-provisioning-tools \
     sys-fs/btrfs-progs \
+    sys-fs/cryptsetup \
     sys-fs/dmraid \
     sys-fs/lvm2 \
     sys-fs/mdadm \
+    sys-fs/multipath-tools \
     sys-fs/ntfs3g \
     sys-fs/squashfs-tools \
     && rm -rf /var/cache/* /usr/share/doc/* /usr/share/man/*
