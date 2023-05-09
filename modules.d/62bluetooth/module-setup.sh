@@ -58,6 +58,7 @@ install() {
 
     inst_multiple -o \
         "$dbussystem"/bluetooth.conf \
+        "$dbussystemservices"/org.bluez.service \
         "${systemdsystemunitdir}/bluetooth.target" \
         "${systemdsystemunitdir}/bluetooth.service" \
         bluetoothctl
@@ -72,6 +73,8 @@ install() {
         inst_multiple -o \
             /etc/bluetooth/main.conf \
             "$dbussystemconfdir"/bluetooth.conf \
+            "$systemdsystemconfdir"/bluetooth.service \
+            "$systemdsystemconfdir/bluetooth.service.d/*.conf" \
             "${var_lib_files[@]#"$dracutsysrootdir"}"
     fi
 
