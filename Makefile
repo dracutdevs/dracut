@@ -207,6 +207,7 @@ endif
 	if [ -f dracut-util ]; then \
 		install -m 0755 dracut-util $(DESTDIR)$(pkglibdir)/dracut-util; \
 	fi
+	install -m 0644 -Dt $(DESTDIR)$(pkglibdir) dracut-random.cpio.gz
 ifeq ($(enable_dracut_cpio),yes)
 	install -m 0755 dracut-cpio $(DESTDIR)$(pkglibdir)/dracut-cpio
 endif

@@ -2431,9 +2431,17 @@ else
     if ! (
         umask 077
         cd "$initdir"
+        # We generate two initramfs "chunks"; the primary one with all the files first.  This is done
+        # asynchronously.
+        mkfifo ${DRACUT_TMPDIR}/main.fifo
+        mkfifo ${DRACUT_TMPDIR}/random.fifo
+        cat ${DRACUT_TMPDIR}/main.fifo ${DRACUT_TMPDIR}/random.fifo | $compress >> "${DRACUT_TMPDIR}/initramfs.img" &
         find . -print0 | sort -z \
-            | cpio ${CPIO_REPRODUCIBLE:+--reproducible} --null ${cpio_owner:+-R "$cpio_owner"} -H newc -o --quiet \
-            | $compress >> "${DRACUT_TMPDIR}/initramfs.img"
+            | cpio ${CPIO_REPRODUCIBLE:+--reproducible} --null ${cpio_owner:+-R "$cpio_owner"} -H newc -o --quiet > ${DRACUT_TMPDIR}/main.fifo
+        # Next, in order to avoid requiring privilege at initramfs generation time, which we may not have
+        # in a container image, append a pre-generated cpio blob with /dev/{u,random}.
+        zcat ${dracutsysrootdir}/${dracutbasedir}/dracut-random.cpio.gz > ${DRACUT_TMPDIR}/random.fifo
+        wait
     ); then
         dfatal "Creation of $outfile failed"
         exit 1
