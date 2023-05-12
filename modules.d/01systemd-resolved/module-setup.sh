@@ -52,7 +52,7 @@ install() {
             "$systemdutilconfdir"/resolved.conf \
             "$systemdutilconfdir/resolved.conf.d/*.conf" \
             "$systemdsystemconfdir"/systemd-resolved.service \
-            "$systemdsystemconfdir/systemd-resolved.service/*.conf" \
+            "$systemdsystemconfdir/systemd-resolved.service.d/*.conf" \
             "$sysusersconfdir"/systemd-resolve.conf
     fi
 }
