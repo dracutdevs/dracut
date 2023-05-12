@@ -42,7 +42,7 @@ run_server() {
         -serial "${SERIAL:-"file:$TESTDIR/server.log"}" \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
         -net socket,listen=127.0.0.1:12340 \
-        -append "panic=1 oops=panic softlockup_panic=1 rd.luks=0 systemd.crash_reboot quiet root=/dev/disk/by-id/ata-disk_serverroot rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 $SERVER_DEBUG" \
+        -append "panic=1 oops=panic softlockup_panic=1 rd.luks=0 systemd.crash_reboot quiet root=/dev/disk/by-id/ata-disk_serverroot rootfstype=ext4 rw console=ttyS0,115200n81 selinux=0 $SERVER_DEBUG" \
         -initrd "$TESTDIR"/initramfs.server \
         -pidfile "$TESTDIR"/server.pid -daemonize || return 1
     chmod 644 "$TESTDIR"/server.pid || return 1
@@ -71,7 +71,7 @@ client_test() {
     local fsopt=$5
     local found opts nbdinfo
 
-    [[ $fstype ]] || fstype=ext3
+    [[ $fstype ]] || fstype=ext4
     [[ $fsopt ]] || fsopt="ro"
 
     echo "CLIENT TEST START: $test_name"
@@ -129,21 +129,21 @@ test_run() {
 }
 
 client_run() {
-    # The default is ext3,errors=continue so use that to determine
+    # The default is ext4,errors=continue so use that to determine
     # if our options were parsed and used
     client_test "NBD root=nbd:IP:port" 52:54:00:12:34:00 \
         "root=nbd:192.168.50.1:raw rd.luks=0" || return 1
 
     client_test "NBD root=nbd:IP:port::fsopts" 52:54:00:12:34:00 \
         "root=nbd:192.168.50.1:raw::errors=panic rd.luks=0" \
-        ext3 errors=panic || return 1
+        ext4 errors=panic || return 1
 
     client_test "NBD root=nbd:IP:port:fstype" 52:54:00:12:34:00 \
-        "root=nbd:192.168.50.1:raw:ext3 rd.luks=0" ext3 || return 1
+        "root=nbd:192.168.50.1:raw:ext4 rd.luks=0" ext4 || return 1
 
     client_test "NBD root=nbd:IP:port:fstype:fsopts" 52:54:00:12:34:00 \
-        "root=nbd:192.168.50.1:raw:ext3:errors=panic rd.luks=0" \
-        ext3 errors=panic || return 1
+        "root=nbd:192.168.50.1:raw:ext4:errors=panic rd.luks=0" \
+        ext4 errors=panic || return 1
 
     # DHCP root-path parsing
 
@@ -154,7 +154,7 @@ client_run() {
         52:54:00:12:34:02 "root=/dev/root netroot=dhcp ip=dhcp rd.luks=0" ext2 || return 1
 
     client_test "NBD root=/dev/root netroot=dhcp DHCP root-path nbd:srv:port::fsopts" \
-        52:54:00:12:34:03 "root=/dev/root netroot=dhcp ip=dhcp rd.luks=0" ext3 errors=panic || return 1
+        52:54:00:12:34:03 "root=/dev/root netroot=dhcp ip=dhcp rd.luks=0" ext4 errors=panic || return 1
 
     client_test "NBD root=/dev/root netroot=dhcp DHCP root-path nbd:srv:port:fstype:fsopts" \
         52:54:00:12:34:04 "root=/dev/root netroot=dhcp ip=dhcp rd.luks=0" ext2 errors=panic || return 1
@@ -176,7 +176,7 @@ client_run() {
         52:54:00:12:34:00 \
         "root=LABEL=dracut rd.luks.uuid=$ID_FS_UUID rd.lv.vg=dracut ip=dhcp netroot=nbd:192.168.50.1:encrypted" || return 1
 
-    # XXX This should be ext3,errors=panic but that doesn't currently
+    # XXX This should be ext4,errors=panic but that doesn't currently
     # XXX work when you have a real root= line in addition to netroot=
     # XXX How we should work here needs clarification
     #    client_test "NBD root=LABEL=dracut netroot=dhcp (w/ fstype and opts)" \
@@ -237,7 +237,7 @@ make_encrypted_root() {
             mkdir -p dev sys proc etc tmp var run root
             ln -s ../run var/run
         )
-        inst_multiple mkfs.ext3 poweroff cp umount dd sync
+        inst_multiple mkfs.ext4 poweroff cp umount dd sync
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
         inst_hook initqueue 01 ./create-encrypted-root.sh
@@ -249,7 +249,7 @@ make_encrypted_root() {
     # devices, volume groups, encrypted partitions, etc.
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -m "dash crypt lvm mdraid kernel-modules qemu" \
-        -d "piix ide-gd_mod ata_piix ext3 ext3 sd_mod" \
+        -d "piix ide-gd_mod ata_piix ext4 sd_mod" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
     rm -rf -- "$TESTDIR"/overlay
@@ -319,7 +319,7 @@ make_client_root() {
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
-        inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd
+        inst_multiple sfdisk mkfs.ext4 poweroff cp umount sync dd
         inst_hook initqueue 01 ./create-client-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
     )
@@ -329,7 +329,7 @@ make_client_root() {
     # devices, volume groups, encrypted partitions, etc.
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -m "dash rootfs-block kernel-modules qemu" \
-        -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
+        -d "piix ide-gd_mod ata_piix ext4 sd_mod" \
         --nomdadmconf \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
@@ -345,7 +345,7 @@ make_client_root() {
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
-        -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
+        -append "root=/dev/dracut/root rw rootfstype=ext4 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
     grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
     rm -fr "$TESTDIR"/overlay
@@ -418,7 +418,7 @@ EOF
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
-        inst_multiple sfdisk mkfs.ext3 poweroff cp umount sync dd sync
+        inst_multiple sfdisk mkfs.ext4 poweroff cp umount sync dd sync
         inst_hook initqueue 01 ./create-server-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
     )
@@ -428,7 +428,7 @@ EOF
     # devices, volume groups, encrypted partitions, etc.
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -m "dash rootfs-block kernel-modules qemu" \
-        -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
+        -d "piix ide-gd_mod ata_piix ext4 sd_mod" \
         --nomdadmconf \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
@@ -444,7 +444,7 @@ EOF
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
-        -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
+        -append "root=/dev/dracut/root rw rootfstype=ext4 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
     grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
     rm -fr "$TESTDIR"/overlay
@@ -496,7 +496,7 @@ test_setup() {
     )
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -a "rootfs-block debug kernel-modules network network-legacy" \
-        -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 drbg" \
+        -d "af_packet piix ide-gd_mod ata_piix ext4 sd_mod e1000 drbg" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
 

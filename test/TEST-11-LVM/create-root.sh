@@ -18,9 +18,9 @@ done
 lvm vgcreate dracut /dev/disk/by-id/ata-disk_disk[123]
 lvm lvcreate -l 100%FREE -n root dracut
 lvm vgchange -ay
-mke2fs /dev/dracut/root
+mkfs.ext4 /dev/dracut/root
 mkdir -p /sysroot
-mount /dev/dracut/root /sysroot
+mount -t ext4 /dev/dracut/root /sysroot
 cp -a -t /sysroot /source/*
 umount /sysroot
 lvm lvchange -a n /dev/dracut/root

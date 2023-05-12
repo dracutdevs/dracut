@@ -93,7 +93,7 @@ test_setup() {
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
         . "$basedir"/dracut-init.sh
-        inst_multiple sfdisk mke2fs poweroff cp umount grep dd sync realpath
+        inst_multiple sfdisk mkfs.ext4 poweroff cp umount grep dd sync realpath
         inst_hook initqueue 01 ./create-root.sh
     )
 
@@ -102,7 +102,7 @@ test_setup() {
     # devices, volume groups, encrypted partitions, etc.
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -m "bash lvm mdraid dmraid kernel-modules qemu" \
-        -d "piix ide-gd_mod ata_piix ext2 sd_mod dm-multipath dm-crypt dm-round-robin faulty linear multipath raid0 raid10 raid1 raid456" \
+        -d "piix ide-gd_mod ata_piix ext4 sd_mod dm-multipath dm-crypt dm-round-robin faulty linear multipath raid0 raid10 raid1 raid456" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
     rm -rf -- "$TESTDIR"/overlay
@@ -121,7 +121,7 @@ test_setup() {
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
-        -append "root=/dev/dracut/root rw rootfstype=ext2 quiet console=ttyS0,115200n81 selinux=0" \
+        -append "root=/dev/dracut/root rw rootfstype=ext4 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
     grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
     eval "$(grep -F --binary-files=text -m 1 MD_UUID "$TESTDIR"/marker.img)"
@@ -144,7 +144,7 @@ test_setup() {
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -o "plymouth network kernel-network-modules" \
         -a "debug" \
-        -d "piix ide-gd_mod ata_piix ext2 sd_mod" \
+        -d "piix ide-gd_mod ata_piix ext4 sd_mod" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 }

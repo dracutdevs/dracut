@@ -1,6 +1,6 @@
 #!/bin/bash
 # shellcheck disable=SC2034
-TEST_DESCRIPTION="root filesystem on a ext3 filesystem"
+TEST_DESCRIPTION="root filesystem on a ext4 filesystem"
 
 KVERSION=${KVERSION-$(uname -r)}
 
@@ -40,8 +40,8 @@ test_setup() {
     # devices, volume groups, encrypted partitions, etc.
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -m "test-makeroot dash rootfs-block kernel-modules" \
-        -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
-        -I "mkfs.ext3" \
+        -d "piix ide-gd_mod ata_piix ext4 sd_mod" \
+        -I "mkfs.ext4" \
         -i ./create-root.sh /lib/dracut/hooks/initqueue/01-create-root.sh \
         --nomdadmconf \
         --no-hostonly-cmdline -N \
@@ -58,7 +58,7 @@ test_setup() {
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
-        -append "root=/dev/dracut/root rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
+        -append "root=/dev/dracut/root rw rootfstype=ext4 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
     grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
     rm -- "$TESTDIR"/marker.img
@@ -66,7 +66,7 @@ test_setup() {
     # make sure --omit-drivers does not filter out drivers using regexp to test for an earlier regression (assuming there is no one letter linux kernel module needed to run the test)
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
         -a "test watchdog" \
-        -d "piix ide-gd_mod ata_piix ext3 sd_mod i6300esb ib700wdt" \
+        -d "piix ide-gd_mod ata_piix ext4 sd_mod i6300esb ib700wdt" \
         --omit-drivers 'a b c d e f g h i j k l m n o p q r s t u v w x y z' \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1

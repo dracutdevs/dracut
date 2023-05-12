@@ -12,9 +12,9 @@ udevadm settle
 set -e
 
 udevadm settle
-mkfs.ext3 -L dracut /dev/disk/by-id/ata-disk_root
+mkfs.ext4 -L dracut /dev/disk/by-id/ata-disk_root
 mkdir -p /root
-mount /dev/disk/by-id/ata-disk_root /root
+mount -t ext4 /dev/disk/by-id/ata-disk_root /root
 cp -a -t /root /source/*
 mkdir -p /root/run
 umount /root

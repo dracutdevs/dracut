@@ -17,9 +17,9 @@ sfdisk /dev/sda << EOF
 EOF
 
 udevadm settle
-mkfs.ext3 -L dracut /dev/sda2
+mkfs.ext4 -L dracut /dev/sda2
 mkdir -p /root
-mount /dev/sda2 /root
+mount -t ext4 /dev/sda2 /root
 cp -a -t /root /source/*
 mkdir -p /root/run
 umount /root
