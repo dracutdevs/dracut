@@ -41,6 +41,6 @@ install() {
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
             "$systemdsystemconfdir"/systemd-timedated.service \
-            "$systemdsystemconfdir/systemd-timedated.service/*.conf"
+            "$systemdsystemconfdir/systemd-timedated.service.d/*.conf"
     fi
 }
