@@ -10,7 +10,7 @@ export PS1='initramfs-test:\w\$ '
 stty sane
 echo "made it to the rootfs! Powering down."
 while read -r dev _ fstype opts rest || [ -n "$dev" ]; do
-    [ "$fstype" != "ext3" ] && continue
+    [ "$fstype" != "ext4" ] && continue
     echo "iscsi-OK $dev $fstype $opts" | dd oflag=direct,dsync of=/dev/disk/by-id/ata-disk_marker
     break
 done < /proc/mounts

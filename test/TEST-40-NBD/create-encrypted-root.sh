@@ -21,9 +21,9 @@ lvm vgcreate dracut /dev/mapper/dracut_crypt_test
 lvm lvcreate -l 100%FREE -n root dracut
 lvm vgchange -ay
 udevadm settle
-mkfs.ext3 -L dracut -j /dev/dracut/root
+mkfs.ext4 -L dracut -j /dev/dracut/root
 mkdir -p /sysroot
-mount /dev/dracut/root /sysroot
+mount -t ext4 /dev/dracut/root /sysroot
 cp -a -t /sysroot /source/*
 umount /sysroot
 sleep 1
