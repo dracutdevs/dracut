@@ -16,8 +16,8 @@ for dev in /dev/disk/by-id/ata-disk_disk[123]; do
 done
 
 lvm vgcreate dracut /dev/disk/by-id/ata-disk_disk[123]
-lvm lvcreate --ignoremonitoring -l 17 -T dracut/mythinpool
-lvm lvcreate --ignoremonitoring -V1G -T dracut/mythinpool -n root
+lvm lvcreate --ignoremonitoring -l 100%FREE -T dracut/mythinpool
+lvm lvcreate --ignoremonitoring -V100M -T dracut/mythinpool -n root
 lvm vgchange --ignoremonitoring -ay
 mkfs.ext4 /dev/dracut/root
 mkdir -p /sysroot
