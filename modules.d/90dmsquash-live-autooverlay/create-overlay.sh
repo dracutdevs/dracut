@@ -98,7 +98,7 @@ createFilesystem() {
     baseDir=/run/initramfs/create-overlayfs
     mkdir -p ${baseDir}
     # shellcheck disable=SC2086
-    mount -t auto ${overlayPartition} ${baseDir}
+    mount -t ${filesystem} ${overlayPartition} ${baseDir}
 
     mkdir -p ${baseDir}/${live_dir}/ovlwork
     # shellcheck disable=SC2086
