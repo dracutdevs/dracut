@@ -125,12 +125,14 @@ test_run() {
     return $ret
 }
 
-test_setup() {
+test_check() {
     if ! command -v tgtd &> /dev/null || ! command -v tgtadm &> /dev/null; then
         echo "Need tgtd and tgtadm from scsi-target-utils"
         return 1
     fi
+}
 
+test_setup() {
     kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
     rm -rf -- "$TESTDIR"/overlay
