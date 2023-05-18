@@ -25,13 +25,11 @@ COPY --from=efistub /usr/lib/systemd/boot/efi /usr/lib/systemd/boot/efi
 
 MAINTAINER https://github.com/dracutdevs/dracut
 
-# Only install `dmsetup`: attempting to install all of lvm2 fails due to missing kernel headers.
-RUN echo 'sys-fs/lvm2 device-mapper-only -thin' > /etc/portage/package.use/lvm2
+# required by sys-fs/dmraid
+RUN echo '>=sys-fs/lvm2-2.03.20 lvm thin' > /etc/portage/package.use/lvm2
 
 # workaround for https://bugs.gentoo.org/734022 whereby Gentoo does not support NFS4 with musl
 RUN echo 'net-fs/nfs-utils -nfsv4' > /etc/portage/package.use/nfs-utils
-
-RUN echo '>=sys-fs/lvm2-2.03.17-r1 lvm' > /etc/portage/package.use/dmraid
 
 # Install needed packages for the dracut CI container
 RUN emerge -qv \
@@ -44,7 +42,6 @@ RUN emerge -qv \
     sys-block/nbd \
     sys-block/open-iscsi \
     sys-block/parted \
-    sys-block/thin-provisioning-tools \
     sys-fs/btrfs-progs \
     sys-fs/cryptsetup \
     sys-fs/dmraid \
