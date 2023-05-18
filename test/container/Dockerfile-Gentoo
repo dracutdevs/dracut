@@ -1,13 +1,14 @@
+ARG TAG=musl
 FROM docker.io/gentoo/portage:latest as portage
 
 # kernel and its dependencies in a separate builder
-FROM docker.io/gentoo/stage3:musl as kernel
+FROM docker.io/gentoo/stage3:$TAG as kernel
 COPY --from=portage /var/db/repos/gentoo /var/db/repos/gentoo
 # disable initramfs generation, only need the kernel image itself
 RUN echo 'sys-kernel/gentoo-kernel-bin -initramfs' > /etc/portage/package.use/kernel
 RUN emerge -qv sys-kernel/gentoo-kernel-bin
 
-FROM docker.io/gentoo/stage3:musl
+FROM docker.io/gentoo/stage3:$TAG
 COPY --from=portage /var/db/repos/gentoo /var/db/repos/gentoo
 COPY --from=kernel /boot /boot
 COPY --from=kernel /lib/modules /lib/modules
@@ -16,6 +17,7 @@ MAINTAINER https://github.com/dracutdevs/dracut
 
 ENV container docker
 LABEL RUN="docker run -it --name NAME --privileged --ipc=host --net=host --pid=host -e NAME=NAME -e IMAGE=IMAGE IMAGE"
+ARG TAG
 
 RUN echo 'export DRACUT_NO_XATTR=1 KVERSION=$(cd /lib/modules; ls -1 | tail -1)' > /etc/profile.d/dracut-test.sh
 
@@ -23,7 +25,10 @@ RUN echo 'export DRACUT_NO_XATTR=1 KVERSION=$(cd /lib/modules; ls -1 | tail -1)'
 RUN echo '>=sys-fs/lvm2-2.03.20 lvm thin' > /etc/portage/package.use/lvm2
 
 # workaround for https://bugs.gentoo.org/734022 whereby Gentoo does not support NFS4 with musl
-RUN echo 'net-fs/nfs-utils -nfsv4' > /etc/portage/package.use/nfs-utils
+RUN if [[ "$TAG" == 'musl' ]]; then echo 'net-fs/nfs-utils -nfsv4' > /etc/portage/package.use/nfs-utils ; fi
+
+# workaround for https://bugs.gentoo.org/713490 whereby Gentoo does not support tgt with musl
+RUN if [[ "$TAG" != 'musl' ]]; then emerge -qv sys-block/tgt ; fi
 
 # Install needed packages for the dracut CI container
 RUN emerge -qv \
