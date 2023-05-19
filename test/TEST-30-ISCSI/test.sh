@@ -234,7 +234,6 @@ test_setup() {
         instmods iscsi_tcp crc32c ipv6 af_packet
         [ -f /etc/netconfig ] && inst_multiple /etc/netconfig
         type -P dhcpd > /dev/null && inst_multiple dhcpd
-        [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
         inst ./server-init.sh /sbin/init
         inst ./hosts /etc/hosts
         inst ./dhcpd.conf /etc/dhcpd.conf

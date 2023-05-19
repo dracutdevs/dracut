@@ -388,7 +388,6 @@ EOF
         inst_multiple -o ${_terminfodir}/l/linux
         instmods nfsd sunrpc ipv6 lockd af_packet 8021q ipvlan macvlan
         type -P dhcpd > /dev/null && inst_multiple dhcpd
-        [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
         inst ./server-init.sh /sbin/init
         inst_simple /etc/os-release
         inst ./hosts /etc/hosts

@@ -206,7 +206,6 @@ test_setup() {
         type -P rpcbind > /dev/null && inst_multiple rpcbind
         [ -f /etc/netconfig ] && inst_multiple /etc/netconfig
         type -P dhcpd > /dev/null && inst_multiple dhcpd
-        [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
         instmods nfsd sunrpc ipv6 lockd af_packet
         inst ./server-init.sh /sbin/init
         inst_simple /etc/os-release
