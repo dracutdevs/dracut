@@ -37,8 +37,7 @@ test_setup() {
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
-        -m "test-makeroot dash rootfs-block kernel-modules" \
-        -d "piix ide-gd_mod ata_piix ext4 sd_mod" \
+        -m "test-makeroot" \
         -I "mkfs.ext4" \
         -i ./create-root.sh /lib/dracut/hooks/initqueue/01-create-root.sh \
         --nomdadmconf \
