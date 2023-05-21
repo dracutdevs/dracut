@@ -27,7 +27,6 @@ install() {
     fi
 
     inst_rules \
-        50-firmware.rules \
         50-udev-default.rules \
         55-scsi-sg3_id.rules \
         58-scsi-sg3_symlink.rules \
@@ -68,10 +67,6 @@ install() {
         "${udevdir}"/ata_id \
         "${udevdir}"/cdrom_id \
         "${udevdir}"/create_floppy_devices \
-        "${udevdir}"/firmware.sh \
-        "${udevdir}"/firmware \
-        "${udevdir}"/firmware.agent \
-        "${udevdir}"/hotplug.functions \
         "${udevdir}"/fw_unit_symlinks.sh \
         "${udevdir}"/hid2hci \
         "${udevdir}"/path_id \
