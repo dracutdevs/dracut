@@ -6,7 +6,11 @@ check() {
 }
 
 depends() {
-    echo "qemu"
+    echo "dash rootfs-block kernel-modules qemu"
+}
+
+installkernel() {
+    instmods piix ide-gd_mod ata_piix ext4 sd_mod
 }
 
 install() {

@@ -73,8 +73,7 @@ test_setup() {
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
-        --modules "test-makeroot rootfs-block qemu" \
-        --drivers "ext4 sd_mod" \
+        --modules "test-makeroot" \
         --install "sfdisk mkfs.ext4 mksquashfs" \
         --include ./create-root.sh /lib/dracut/hooks/initqueue/01-create-root.sh \
         --no-hostonly --no-hostonly-cmdline --no-early-microcode --nofscks --nomdadmconf --nohardlink --nostrip \

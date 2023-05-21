@@ -119,9 +119,8 @@ EOF
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
-        -m "test-makeroot bash btrfs rootfs-block kernel-modules qemu" \
-        -d "piix ide-gd_mod ata_piix btrfs sd_mod" \
-        -I "mkfs.btrfs btrfs sync" \
+        -m "test-makeroot bash btrfs" \
+        -I "mkfs.btrfs" \
         -i ./create-root.sh /lib/dracut/hooks/initqueue/01-create-root.sh \
         --nomdadmconf \
         --nohardlink \
