@@ -2080,6 +2080,15 @@ for ((i = 0; i < ${#include_src[@]}; i++)); do
     fi
 done
 
+[[ $(readlink "$initdir"/bin/sh) == mksh ]] && [[ ! -f "$initdir"/bin/printf ]] && {
+    # Handle mksh's dependency on printf when mksh is installed implicitly.
+    require_binaries printf || {
+        dfatal "printf is required when mksh is /bin/sh in the initramfs."
+        exit 1
+    }
+    inst printf
+}
+
 if [[ $do_hardlink == yes ]] && command -v hardlink > /dev/null; then
     dinfo "*** Hardlinking files ***"
     hardlink "$initdir" 2>&1 | dinfo
