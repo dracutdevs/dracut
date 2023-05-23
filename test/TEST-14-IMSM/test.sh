@@ -2,8 +2,6 @@
 # shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem on LVM PV on a isw dmraid"
 
-KVERSION=${KVERSION-$(uname -r)}
-
 # Uncomment this to debug failures
 #DEBUGFAIL="rd.shell"
 #DEBUGFAIL="$DEBUGFAIL udev.log-priority=debug"
@@ -11,7 +9,6 @@ KVERSION=${KVERSION-$(uname -r)}
 client_run() {
     echo "CLIENT TEST START: $*"
 
-    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
     declare -a disk_args=()
     # shellcheck disable=SC2034
     declare -i disk_index=0
@@ -19,12 +16,13 @@ client_run() {
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/disk-1.img disk1
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/disk-2.img disk2
 
+    test_marker_reset
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
         -append "panic=1 oops=panic softlockup_panic=1 systemd.crash_reboot $* root=LABEL=root rw debug rd.retry=5 rd.debug console=ttyS0,115200n81 selinux=0 rd.info rd.shell=0 $DEBUGFAIL" \
         -initrd "$TESTDIR"/initramfs.testing || return 1
 
-    if ! grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success "$TESTDIR"/marker.img; then
+    if ! test_marker_check; then
         echo "CLIENT TEST END: $* [FAIL]"
         return 1
     fi
@@ -108,22 +106,19 @@ test_setup() {
     rm -rf -- "$TESTDIR"/overlay
 
     # Create the blank files to use as a root filesystem
-    dd if=/dev/zero of="$TESTDIR"/disk-1.img bs=1MiB count=100
-    dd if=/dev/zero of="$TESTDIR"/disk-2.img bs=1MiB count=100
-    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
     declare -a disk_args=()
     # shellcheck disable=SC2034
     declare -i disk_index=0
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/disk-1.img disk1
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/disk-2.img disk2
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker 1
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/disk-1.img disk1 100
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/disk-2.img disk2 100
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
         -append "root=/dev/dracut/root rw rootfstype=ext4 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
+    test_marker_check dracut-root-block-created || return 1
     eval "$(grep -F --binary-files=text -m 1 MD_UUID "$TESTDIR"/marker.img)"
 
     if [[ -z $MD_UUID ]]; then

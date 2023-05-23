@@ -10,19 +10,13 @@ rm -f -- /etc/lvm/lvm.conf
 udevadm control --reload
 udevadm settle
 set -e
-# save a partition at the beginning for future flagging purposes
-sfdisk /dev/sda << EOF
-,1M
-,
-EOF
 
-udevadm settle
-mkfs.ext4 -L dracut /dev/sda2
+mkfs.ext4 -L dracut /dev/disk/by-id/ata-disk_root
 mkdir -p /root
-mount -t ext4 /dev/sda2 /root
+mount -t ext4 /dev/disk/by-id/ata-disk_root /root
 cp -a -t /root /source/*
 mkdir -p /root/run
 umount /root
-echo "dracut-root-block-created" | dd oflag=direct,dsync of=/dev/sda1
+echo "dracut-root-block-created" | dd oflag=direct,dsync of=/dev/disk/by-id/ata-disk_marker
 sync
 poweroff -f
