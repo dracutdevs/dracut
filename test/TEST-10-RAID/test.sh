@@ -2,13 +2,10 @@
 # shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem on an encrypted LVM PV on a RAID-5"
 
-KVERSION=${KVERSION-$(uname -r)}
-
 # Uncomment this to debug failures
 #DEBUGFAIL="rd.shell rd.udev.log-priority=debug loglevel=70 systemd.log_target=kmsg"
 #DEBUGFAIL="rd.break rd.shell rd.debug debug"
 test_run() {
-    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
     declare -a disk_args=()
     # shellcheck disable=SC2034
     declare -i disk_index=0
@@ -17,12 +14,13 @@ test_run() {
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-2.img raid2
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-3.img raid3
 
+    test_marker_reset
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
         -append "panic=1 oops=panic softlockup_panic=1 systemd.crash_reboot root=/dev/dracut/root rd.auto rw rd.retry=10 console=ttyS0,115200n81 selinux=0 rd.shell=0 $DEBUGFAIL" \
         -initrd "$TESTDIR"/initramfs.testing || return 1
 
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success "$TESTDIR"/marker.img
+    test_marker_check || return 1
 }
 
 test_setup() {
@@ -84,23 +82,19 @@ test_setup() {
     rm -rf -- "$TESTDIR"/overlay
 
     # Create the blank files to use as a root filesystem
-    dd if=/dev/zero of="$TESTDIR"/raid-1.img bs=1MiB count=40
-    dd if=/dev/zero of="$TESTDIR"/raid-2.img bs=1MiB count=40
-    dd if=/dev/zero of="$TESTDIR"/raid-3.img bs=1MiB count=40
-    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
     declare -a disk_args=()
     # shellcheck disable=SC2034
     declare -i disk_index=0
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-1.img raid1
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-2.img raid2
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-3.img raid3
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker 1
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-1.img raid1 40
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-2.img raid2 40
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-3.img raid3 40
 
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
         -append "root=/dev/cannotreach rw rootfstype=ext4 console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
+    test_marker_check dracut-root-block-created || return 1
     eval "$(grep -F -a -m 1 ID_FS_UUID "$TESTDIR"/marker.img)"
 
     (

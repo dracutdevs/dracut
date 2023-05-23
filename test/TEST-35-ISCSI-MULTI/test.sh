@@ -1,11 +1,7 @@
 #!/bin/bash
 
-[ -z "$USE_NETWORK" ] && USE_NETWORK="network-legacy"
-
 # shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem over multiple iSCSI with $USE_NETWORK"
-
-KVERSION=${KVERSION-$(uname -r)}
 
 #DEBUGFAIL="rd.shell rd.break rd.debug loglevel=7 "
 #SERVER_DEBUG="rd.debug loglevel=7"
@@ -17,7 +13,7 @@ run_server() {
 
     declare -a disk_args=()
     declare -i disk_index=0
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/server.img serverroot 1
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/server.img serverroot 0 1
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/singleroot.img singleroot
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid0-1.img raid0-1
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid0-2.img raid0-2
@@ -54,11 +50,11 @@ run_client() {
     shift
     echo "CLIENT TEST START: $test_name"
 
-    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
     declare -a disk_args=()
     declare -i disk_index=0
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
 
+    test_marker_reset
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
         -net nic,macaddr=52:54:00:12:34:00,model=e1000 \
@@ -66,7 +62,7 @@ run_client() {
         -net socket,connect=127.0.0.1:12331 \
         -append "panic=1 oops=panic softlockup_panic=1 systemd.crash_reboot rw rd.auto rd.retry=50 console=ttyS0,115200n81 selinux=0 rd.debug=0 rd.shell=0 $DEBUGFAIL $*" \
         -initrd "$TESTDIR"/initramfs.testing
-    if ! grep -U --binary-files=binary -F -m 1 -q iscsi-OK "$TESTDIR"/marker.img; then
+    if ! test_marker_check iscsi-OK; then
         echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
         return 1
     fi
@@ -200,24 +196,19 @@ test_setup() {
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
     rm -rf -- "$TESTDIR"/overlay
 
-    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
-    dd if=/dev/zero of="$TESTDIR"/singleroot.img bs=1MiB count=200
-    dd if=/dev/zero of="$TESTDIR"/raid0-1.img bs=1MiB count=100
-    dd if=/dev/zero of="$TESTDIR"/raid0-2.img bs=1MiB count=100
-
     declare -a disk_args=()
     declare -i disk_index=0
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/singleroot.img singleroot
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid0-1.img raid0-1
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid0-2.img raid0-2
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker 1
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/singleroot.img singleroot 200
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid0-1.img raid0-1 100
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid0-2.img raid0-2 100
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
         -append "root=/dev/fakeroot rw rootfstype=ext4 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
+    test_marker_check dracut-root-block-created || return 1
     rm -- "$TESTDIR"/marker.img
 
     # shellcheck disable=SC2031
@@ -291,20 +282,18 @@ test_setup() {
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
     rm -rf -- "$TESTDIR"/overlay
 
-    dd if=/dev/zero of="$TESTDIR"/server.img bs=1MiB count=60
-    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
     declare -a disk_args=()
     # shellcheck disable=SC2034
     declare -i disk_index=0
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/server.img root
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker 1
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/server.img root 60
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
         -append "root=/dev/dracut/root rw rootfstype=ext4 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
+    test_marker_check dracut-root-block-created || return 1
     rm -- "$TESTDIR"/marker.img
 
     # Make an overlay with needed tools for the test harness

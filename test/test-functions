@@ -10,6 +10,10 @@ fi
 echo "TESTDIR=\"$TESTDIR\"" > .testdir${TEST_RUN_ID:+-$TEST_RUN_ID}
 export TESTDIR
 
+KVERSION=${KVERSION-$(uname -r)}
+
+[ -z "$USE_NETWORK" ] && USE_NETWORK="network-legacy"
+
 if [[ -z $basedir ]]; then basedir="$(realpath ../..)"; fi
 
 command -v test_check &> /dev/null || test_check() {
@@ -47,6 +51,7 @@ check_root() {
 # args: name of the argument array variable (set to () at start)
 # filename: filename of the raw disk image
 # id-name: name of the disk in /dev/disk/by-id -> /dev/disk/by-id/ata-disk_$name
+# size: optional file size in MiB (0 implies size is not set)
 # bootindex: optional bootindex number
 #
 # to be used later with `qemu … "${args[@]}" …`
@@ -58,7 +63,7 @@ check_root() {
 # ```
 #   declare -a disk_args=()
 #   declare -i disk_index=0
-#   qemu_add_drive_args disk_index disk_args "$TESTDIR"/root.ext3 root 1
+#   qemu_add_drive_args disk_index disk_args "$TESTDIR"/root.ext3 root 0 1
 #   qemu_add_drive_args disk_index disk_args "$TESTDIR"/client.img client
 #   qemu_add_drive_args disk_index disk_args "$TESTDIR"/iscsidisk2.img iscsidisk2
 #   qemu_add_drive_args disk_index disk_args "$TESTDIR"/iscsidisk3.img iscsidisk3
@@ -68,7 +73,12 @@ qemu_add_drive_args() {
     local index=${!1}
     local file=$3
     local name=${4:-$index}
-    local bootindex=$5
+    local size=${5:-0}
+    local bootindex=$6
+
+    if [ "${size}" -ne 0 ]; then
+        dd if=/dev/zero of="${file}" bs=1MiB count="${size}"
+    fi
 
     eval "${2}"'+=(' \
         -drive "if=none,format=raw,file=${file},id=drive-sata${index}" \
@@ -77,6 +87,18 @@ qemu_add_drive_args() {
 
     # shellcheck disable=SC2219
     let "${1}++"
+}
+
+test_marker_reset() {
+    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
+}
+
+test_marker_check() {
+    local marker=${1:-dracut-root-block-success}
+    local file=${2:-marker.img}
+
+    grep -U --binary-files=binary -F -m 1 -q "$marker" "$TESTDIR/$file"
+    return $?
 }
 
 while (($# > 0)); do

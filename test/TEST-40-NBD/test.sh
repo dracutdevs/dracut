@@ -1,11 +1,7 @@
 #!/bin/bash
 
-[ -z "$USE_NETWORK" ] && USE_NETWORK="network-legacy"
-
 # shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem on NBD with $USE_NETWORK"
-
-KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
 # DEBUGFAIL="rd.debug systemd.log_target=console loglevel=7"
@@ -76,11 +72,11 @@ client_test() {
 
     echo "CLIENT TEST START: $test_name"
 
-    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
     declare -a disk_args=()
     declare -i disk_index=0
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
 
+    test_marker_reset
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
         -net nic,macaddr="$mac",model=e1000 \
@@ -89,7 +85,7 @@ client_test() {
         -initrd "$TESTDIR"/initramfs.testing
 
     # shellcheck disable=SC2181
-    if [[ $? -ne 0 ]] || ! grep -U --binary-files=binary -F -m 1 -q nbd-OK "$TESTDIR"/marker.img; then
+    if [[ $? -ne 0 ]] || ! test_marker_check nbd-OK "$TESTDIR"/marker.img; then
         echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
         return 1
     fi
@@ -254,20 +250,18 @@ make_encrypted_root() {
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
     rm -rf -- "$TESTDIR"/overlay
 
-    dd if=/dev/zero of="$TESTDIR"/encrypted.img bs=1MiB count=120
-    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
     declare -a disk_args=()
     # shellcheck disable=SC2034
     declare -i disk_index=0
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/encrypted.img root
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker 1
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/encrypted.img root 120
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
         -append "root=/dev/fakeroot rw quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
+    test_marker_check dracut-root-block-created || return 1
     grep -F -a -m 1 ID_FS_UUID "$TESTDIR"/marker.img > "$TESTDIR"/luks.uuid
 }
 
@@ -334,20 +328,18 @@ make_client_root() {
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
 
-    dd if=/dev/zero of="$TESTDIR"/unencrypted.img bs=1MiB count=120
-    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
     declare -a disk_args=()
     # shellcheck disable=SC2034
     declare -i disk_index=0
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/unencrypted.img root
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker 1
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/unencrypted.img root 120
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
         -append "root=/dev/dracut/root rw rootfstype=ext4 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
+    test_marker_check dracut-root-block-created || return 1
     rm -fr "$TESTDIR"/overlay
 }
 
@@ -432,20 +424,18 @@ EOF
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
 
-    dd if=/dev/zero of="$TESTDIR"/server.img bs=1MiB count=120
-    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
     declare -a disk_args=()
     # shellcheck disable=SC2034
     declare -i disk_index=0
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/server.img root
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker 1
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/server.img root 120
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
         -append "root=/dev/dracut/root rw rootfstype=ext4 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
+    test_marker_check dracut-root-block-created || return 1
     rm -fr "$TESTDIR"/overlay
 }
 

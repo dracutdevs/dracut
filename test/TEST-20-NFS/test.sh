@@ -1,11 +1,7 @@
 #!/bin/bash
 
-[ -z "$USE_NETWORK" ] && USE_NETWORK="network-legacy"
-
 # shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem on NFS with $USE_NETWORK"
-
-KVERSION=${KVERSION-$(uname -r)}
 
 # Uncomment this to debug failures
 #DEBUGFAIL="rd.debug loglevel=7 rd.break=initqueue rd.shell"
@@ -18,7 +14,7 @@ run_server() {
     declare -a disk_args=()
     # shellcheck disable=SC2034
     declare -i disk_index=0
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/server.img root 1
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/server.img root 0 1
 
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
@@ -56,13 +52,11 @@ client_test() {
     echo "CLIENT TEST START: $test_name"
 
     # Need this so kvm-qemu will boot (needs non-/dev/zero local disk)
-    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
-    dd if=/dev/zero of="$TESTDIR"/marker2.img bs=1MiB count=1
     declare -a disk_args=()
     # shellcheck disable=SC2034
     declare -i disk_index=0
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker2.img marker2
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker 1
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker2.img marker2 1
     cmdline="$cmdline rd.net.timeout.dhcp=30"
 
     "$testdir"/run-qemu \
@@ -74,7 +68,7 @@ client_test() {
         -initrd "$TESTDIR"/initramfs.testing
 
     # shellcheck disable=SC2181
-    if [[ $? -ne 0 ]] || ! grep -U --binary-files=binary -F -m 1 -q nfs-OK "$TESTDIR"/marker.img; then
+    if [[ $? -ne 0 ]] || ! test_marker_check nfs-OK; then
         echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
         return 1
     fi
@@ -117,7 +111,7 @@ client_test() {
         return 1
     fi
 
-    if ! grep -U --binary-files=binary -F -m 1 -q nfsfetch-OK "$TESTDIR"/marker2.img; then
+    if ! test_marker_check nfsfetch-OK marker2.img; then
         echo "CLIENT TEST END: $test_name [FAILED - NFS FETCH FAILED]"
         return 1
     fi
@@ -376,20 +370,18 @@ test_setup() {
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
     rm -rf -- "$TESTDIR"/server
 
-    dd if=/dev/zero of="$TESTDIR"/server.img bs=1MiB count=80
-    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
     declare -a disk_args=()
     # shellcheck disable=SC2034
     declare -i disk_index=0
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
-    qemu_add_drive_args disk_index disk_args "$TESTDIR"/server.img root
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker 1
+    qemu_add_drive_args disk_index disk_args "$TESTDIR"/server.img root 80
 
     # Invoke KVM and/or QEMU to actually create the target filesystem.
     "$testdir"/run-qemu \
         "${disk_args[@]}" \
         -append "root=/dev/dracut/root rw rootfstype=ext4 quiet console=ttyS0,115200n81 selinux=0" \
         -initrd "$TESTDIR"/initramfs.makeroot || return 1
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-created "$TESTDIR"/marker.img || return 1
+    test_marker_check dracut-root-block-created || return 1
 
     # Make an overlay with needed tools for the test harness
     (
