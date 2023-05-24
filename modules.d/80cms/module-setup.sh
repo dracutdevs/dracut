@@ -12,13 +12,13 @@ check() {
 depends() {
     arch=${DRACUT_ARCH:-$(uname -m)}
     [ "$arch" = "s390" -o "$arch" = "s390x" ] || return 1
-    echo znet dasd dasd_mod bash
+    echo znet bash
     return 0
 }
 
 # called by dracut
 installkernel() {
-    instmods zfcp
+    instmods zfcp dasd_mod dasd_eckd_mod dasd_fba_mod dasd_diag_mod
 }
 
 # called by dracut
@@ -28,7 +28,7 @@ install() {
     inst_script "$moddir/cmsifup.sh" /sbin/cmsifup
     # shellcheck disable=SC2046
     inst_multiple /etc/cmsfs-fuse/filetypes.conf /etc/udev/rules.d/99-fuse.rules /etc/fuse.conf \
-        cmsfs-fuse fusermount bash insmod rmmod cat normalize_dasd_arg sed \
+        cmsfs-fuse fusermount bash insmod rmmod cat /lib/s390-tools/zdev-from-dasd_mod.dasd sed \
         $(rpm -ql s390utils-base) awk getopt chzdev lszdev
 
     inst_libdir_file "gconv/*"

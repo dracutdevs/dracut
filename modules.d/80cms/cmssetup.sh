@@ -1,6 +1,7 @@
 #!/bin/bash
 
 type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
+type zdev_parse_dasd_list > /dev/null 2>&1 || . /lib/s390-tools/zdev-from-dasd_mod.dasd
 
 function dasd_settle() {
     local dasd_status
@@ -112,9 +113,8 @@ processcmsfile() {
     fi
 
     if [[ $DASD ]] && [[ $DASD != "none" ]]; then
-        echo "$DASD" | normalize_dasd_arg > /etc/dasd.conf
-        echo "options dasd_mod dasd=$DASD" > /etc/modprobe.d/dasd_mod.conf
-        dasd_cio_free
+        echo "$DASD" | zdev_parse_dasd_list globals 2>&1 | vinfo
+        echo "$DASD" | zdev_parse_dasd_list ranges 2>&1 | vinfo
     fi
 
     for i in ${!FCP_*}; do
