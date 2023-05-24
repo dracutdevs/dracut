@@ -2,34 +2,16 @@
 
 type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
-function sysecho() {
-    file="$1"
-    shift
-    local i=1
-    while [ $i -le 10 ]; do
-        if [ ! -f "$file" ]; then
-            sleep 1
-            i=$((i + 1))
-        else
-            break
-        fi
-    done
-    local status
-    read -r status < "$file"
-    if [[ $status != "$*" ]]; then
-        [ -f "$file" ] && echo "$*" > "$file"
-    fi
-}
-
 function dasd_settle() {
-    local dasd_status=/sys/bus/ccw/devices/$1/status
+    local dasd_status
+    dasd_status=$(lszdev dasd "$1" --columns ATTRPATH:status --no-headings --active)
     if [ ! -f "$dasd_status" ]; then
         return 1
     fi
     local i=1
     while [ $i -le 60 ]; do
         local status
-        read -r status < "$dasd_status"
+        status=$(lszdev dasd "$1" --columns ATTR:status --no-headings --active)
         case $status in
             online | unformatted)
                 return 0
@@ -43,77 +25,23 @@ function dasd_settle() {
     return 1
 }
 
-function dasd_settle_all() {
-    for dasdccw in $(while read -r line || [ -n "$line" ]; do echo "${line%%(*}"; done < /proc/dasd/devices); do
-        if ! dasd_settle "$dasdccw"; then
-            echo $"Could not access DASD $dasdccw in time"
-            return 1
-        fi
-    done
-    return 0
-}
-
-# prints a canonocalized device bus ID for a given devno of any format
-function canonicalize_devno() {
-    case ${#1} in
-        3) echo "0.0.0${1}" ;;
-        4) echo "0.0.${1}" ;;
-        *) echo "${1}" ;;
-    esac
-    return 0
-}
-
 # read file from CMS and write it to /tmp
 function readcmsfile() { # $1=dasdport $2=filename
     local dev
-    local numcpus
     local devname
     local ret=0
     if [ $# -ne 2 ]; then return; fi
-    # precondition: udevd created dasda block device node
-    if ! dasd_cio_free -d "$1"; then
-        echo $"DASD $1 could not be cleared from device blacklist"
+    # precondition: udevd created block device node
+
+    dev="$1"
+    chzdev --enable --active --yes --quiet --no-root-update --force dasd "$dev" || return 1
+    if ! dasd_settle "$dev"; then
+        echo $"Could not access DASD $dev in time"
         return 1
     fi
 
-    modprobe dasd_mod dasd="$CMSDASD"
-    modprobe dasd_eckd_mod
-    udevadm settle
-
-    # precondition: dasd_eckd_mod driver incl. dependencies loaded,
-    #               dasd_mod must be loaded without setting any DASD online
-    dev=$(canonicalize_devno "$1")
-    numcpus=$(
-        while read -r line || [ -n "$line" ]; do
-            if strstr "$line" "# processors"; then
-                echo "${line##*:}"
-                break
-            fi
-        done < /proc/cpuinfo
-    )
-
-    if [ "${numcpus}" -eq 1 ]; then
-        echo 1 > /sys/bus/ccw/devices/"$dev"/online
-    else
-        if ! sysecho /sys/bus/ccw/devices/"$dev"/online 1; then
-            echo $"DASD $dev could not be set online"
-            return 1
-        fi
-        udevadm settle
-        if ! dasd_settle "$dev"; then
-            echo $"Could not access DASD $dev in time"
-            return 1
-        fi
-    fi
-
-    udevadm settle
-
-    devname=$(
-        cd /sys/bus/ccw/devices/"$dev"/block || exit
-        set -- *
-        [ -b /dev/"$1" ] && echo "$1"
-    )
-    devname=${devname:-dasda}
+    devname=$(lszdev dasd "$dev" --columns NAMES --no-headings --active)
+    [[ -n $devname ]] || return 1
 
     [[ -d /mnt ]] || mkdir -p /mnt
     if cmsfs-fuse --to=UTF-8 -a /dev/"$devname" /mnt; then
@@ -125,19 +53,21 @@ function readcmsfile() { # $1=dasdport $2=filename
         ret=1
     fi
 
-    if ! sysecho /sys/bus/ccw/devices/"$dev"/online 0; then
-        echo $"DASD $dev could not be set offline again"
-        #return 1
-    fi
-    udevadm settle
+    chzdev --disable --active --yes --quiet --no-root-update --force dasd "$dev"
 
     # unbind all dasds to unload the dasd modules for a clean start
     (
         cd /sys/bus/ccw/drivers/dasd-eckd || exit
-        for i in *.*; do echo "$i" > unbind; done
+        for i in *.*; do echo "$i" > unbind 2> /dev/null; done
+    )
+    (
+        cd /sys/bus/ccw/drivers/dasd-fba || exit
+        for i in *.*; do echo "$i" > unbind 2> /dev/null; done
     )
     udevadm settle
     modprobe -r dasd_eckd_mod
+    udevadm settle
+    modprobe -r dasd_fba_mod
     udevadm settle
     modprobe -r dasd_diag_mod
     udevadm settle
