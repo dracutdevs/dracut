@@ -53,14 +53,16 @@ for ifname in $(getargs rd.znet_ifname); do
         warn "Invalid arguments for rd.znet_ifname="
     else
         {
-            ifname_subchannels=${ifname_subchannels//,/|}
+            ifname_subchannels="${ifname_subchannels//,/|}"
+            # sanitize for use in udev label: replace non-word characters by _
+            ifname_if_label="${ifname_if//[^[:word:]]/_}"
 
-            echo 'ACTION!="add|change", GOTO="ccw_ifname_end"'
-            echo 'ATTR{type}!="1", GOTO="ccw_ifname_end"'
-            echo 'SUBSYSTEM!="net", GOTO="ccw_ifname_end"'
+            echo "ACTION!=\"add|change\", GOTO=\"ccw_ifname_${ifname_if_label}_end\""
+            echo "ATTR{type}!=\"1\", GOTO=\"ccw_ifname_${ifname_if_label}_end\""
+            echo "SUBSYSTEM!=\"net\", GOTO=\"ccw_ifname_${ifname_if_label}_end\""
             echo "SUBSYSTEMS==\"ccwgroup\", KERNELS==\"$ifname_subchannels\", DRIVERS==\"?*\" NAME=\"$ifname_if\""
-            echo 'LABEL="ccw_ifname_end"'
+            echo "LABEL=\"ccw_ifname_${ifname_if_label}_end\""
 
-        } > /etc/udev/rules.d/81-ccw-ifname.rules
+        } >> /etc/udev/rules.d/81-ccw-ifname.rules
     fi
 done
