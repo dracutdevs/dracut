@@ -422,10 +422,6 @@ nvmf:
   - changed-files:
     - any-glob-to-any-file: 'modules.d/95nvmf/*'
 
-qeth_rules:
-  - changed-files:
-    - any-glob-to-any-file: 'modules.d/95qeth_rules/*'
-
 resume:
   - changed-files:
     - any-glob-to-any-file: 'modules.d/95resume/*'
