@@ -1392,12 +1392,13 @@ esac
 abs_outfile=$(readlink -f "$outfile") && outfile="$abs_outfile"
 
 # Helper function to set global variables
-# set_global_var <pkg_config> <var> <value[:check_file]> [<value[:check_file]>] ...
+# set_global_var <pkg_config> <pkg_var[:exported_var]> <value[:check_file]> [<value[:check_file]>] ...
 set_global_var() {
     local _pkgconfig="$1"
-    local _var="$2"
+    local _pkgvar="${2%:*}"
+    local _var="${2#*:}"
     [[ -z ${!_var} || ! -d ${dracutsysrootdir}${!_var} ]] \
-        && export "$_var"="$(pkg-config "$_pkgconfig" --variable="$_var" 2> /dev/null)"
+        && export "$_var"="$(pkg-config "$_pkgconfig" --variable="$_pkgvar" 2> /dev/null)"
     if [[ -z ${!_var} || ! -d ${dracutsysrootdir}${!_var} ]]; then
         shift 2
         if (($# == 1)); then
@@ -1434,6 +1435,7 @@ set_global_var "udev" "udevrulesdir" "${udevdir}/rules.d"
 set_global_var "udev" "udevrulesconfdir" "${udevconfdir}/rules.d"
 
 # systemd global variables
+set_global_var "systemd" "prefix:systemdprefix" "/usr"
 set_global_var "systemd" "systemdutildir" "/lib/systemd:/lib/systemd/systemd-udevd" "/usr/lib/systemd:/usr/lib/systemd/systemd-udevd"
 set_global_var "systemd" "systemdutilconfdir" "/etc/systemd"
 set_global_var "systemd" "environment" "/usr/lib/environment.d"
@@ -1524,7 +1526,7 @@ if [[ ! $print_cmdline ]]; then
         esac
 
         if ! [[ -s $uefi_stub ]]; then
-            uefi_stub="$dracutsysrootdir${systemdutildir}/boot/efi/linux${EFI_MACHINE_TYPE_NAME}.efi.stub"
+            uefi_stub="$dracutsysrootdir${systemdprefix}/lib/systemd/boot/efi/linux${EFI_MACHINE_TYPE_NAME}.efi.stub"
         fi
 
         if ! [[ -s $uefi_stub ]]; then
