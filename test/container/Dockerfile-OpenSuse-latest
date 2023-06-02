@@ -2,11 +2,6 @@ FROM registry.opensuse.org/opensuse/tumbleweed-dnf:latest
 
 MAINTAINER https://github.com/dracutdevs/dracut
 
-ENV container docker
-LABEL RUN="docker run -it --name NAME --privileged --ipc=host --net=host --pid=host -e NAME=NAME -e IMAGE=IMAGE IMAGE"
-
-RUN echo 'export DRACUT_NO_XATTR=1 KVERSION=$(cd /lib/modules; ls -1 | tail -1)' > /etc/profile.d/dracut-test.sh
-
 # Install needed packages for the dracut CI container
 RUN dnf -y install --setopt=install_weak_deps=False \
     dash asciidoc mdadm lvm2 dmraid cryptsetup nfs-utils nbd dhcp-server \
@@ -16,6 +11,3 @@ RUN dnf -y install --setopt=install_weak_deps=False \
     iscsiuio open-iscsi which ShellCheck shfmt procps pigz parted squashfs ntfsprogs \
     multipath-tools \
     && dnf -y remove dracut && dnf -y update && dnf clean all
-
-# Set default command
-CMD ["/usr/bin/bash"]

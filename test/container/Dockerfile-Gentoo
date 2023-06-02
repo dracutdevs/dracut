@@ -12,11 +12,6 @@ COPY --from=kernel /lib/modules /lib/modules
 
 MAINTAINER https://github.com/dracutdevs/dracut
 
-ENV container docker
-LABEL RUN="docker run -it --name NAME --privileged --ipc=host --net=host --pid=host -e NAME=NAME -e IMAGE=IMAGE IMAGE"
-
-RUN echo 'export DRACUT_NO_XATTR=1 KVERSION=$(cd /lib/modules; ls -1 | tail -1)' > /etc/profile.d/dracut-test.sh
-
 # Only install `dmsetup`: attempting to install all of lvm2 fails due to missing kernel headers.
 RUN echo 'sys-fs/lvm2 device-mapper-only -thin' > /etc/portage/package.use/lvm2
 
@@ -43,6 +38,3 @@ RUN emerge -qv \
     sys-fs/ntfs3g \
     sys-fs/squashfs-tools \
     && rm -rf /var/cache/* /usr/share/doc/* /usr/share/man/*
-
-# Set default command
-CMD ["/usr/bin/bash"]
