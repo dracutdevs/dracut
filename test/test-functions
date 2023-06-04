@@ -20,6 +20,10 @@ command -v test_check &> /dev/null || test_check() {
     :
 }
 
+command -v test_cleanup &> /dev/null || test_cleanup() {
+    :
+}
+
 # terminal sequence to set color to a 'success' color (currently: green)
 function SETCOLOR_SUCCESS() { echo -en '\033[0;32m'; }
 # terminal sequence to set color to a 'failure' color (currently: red)
