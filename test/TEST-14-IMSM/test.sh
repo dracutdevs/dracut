@@ -144,9 +144,5 @@ test_setup() {
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 }
 
-test_cleanup() {
-    return 0
-}
-
 # shellcheck disable=SC1090
 . "$testdir"/test-functions
