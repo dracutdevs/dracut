@@ -540,7 +540,7 @@ inst_rules() {
             inst_rule_initqueue "$_found"
             inst_simple "$_found" "$_target/${_found##*/}"
         done
-        [[ $_found ]] || dinfo "Skipping udev rule: $_rule"
+        [[ $_found ]] || ddebug "Skipping udev rule: $_rule"
     done
 }
 
@@ -567,7 +567,7 @@ inst_rules_wildcard() {
             _found=$_rule
         done
     fi
-    [[ $_found ]] || dinfo "Skipping udev rule: $_rule"
+    [[ $_found ]] || ddebug "Skipping udev rule: $_rule"
 }
 
 # make sure that library links are correct and up to date
