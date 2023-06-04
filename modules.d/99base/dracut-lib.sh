@@ -123,34 +123,6 @@ killall_proc_mountpoint() {
     return $_killed
 }
 
-getcmdline() {
-    local _line
-    local _i
-    local CMDLINE_ETC_D
-    local CMDLINE_ETC
-    local CMDLINE_PROC
-    unset _line
-
-    if [ -e /etc/cmdline ]; then
-        while read -r _line || [ -n "$_line" ]; do
-            CMDLINE_ETC="$CMDLINE_ETC $_line"
-        done < /etc/cmdline
-    fi
-    for _i in /etc/cmdline.d/*.conf; do
-        [ -e "$_i" ] || continue
-        while read -r _line || [ -n "$_line" ]; do
-            CMDLINE_ETC_D="$CMDLINE_ETC_D $_line"
-        done < "$_i"
-    done
-    if [ -e /proc/cmdline ]; then
-        while read -r _line || [ -n "$_line" ]; do
-            CMDLINE_PROC="$CMDLINE_PROC $_line"
-        done < /proc/cmdline
-    fi
-    CMDLINE="$CMDLINE_ETC_D $CMDLINE_ETC $CMDLINE_PROC"
-    printf "%s" "$CMDLINE"
-}
-
 getarg() {
     debug_off
     local _deprecated _newoption

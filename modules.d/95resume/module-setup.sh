@@ -2,6 +2,9 @@
 
 # called by dracut
 check() {
+    # shellcheck source=dracut-dev-lib.sh
+    . "${dracutsysrootdir}${dracutbasedir}"/modules.d/99base/dracut-dev-lib.sh
+
     swap_on_netdevice() {
         local _dev
         for _dev in "${swap_devs[@]}"; do
@@ -10,10 +13,17 @@ check() {
         return 1
     }
 
-    # Only support resume if hibernation is currently on
+    # Always support resume if specified on the boot command line
+    # Otherwise only support resume if hibernation is currently on
     # and no swap is mounted on a net device
     [[ $hostonly ]] || [[ $mount_needs ]] && {
-        swap_on_netdevice || [[ -f /sys/power/resume && "$(< /sys/power/resume)" == "0:0" ]] || grep -rq '^\|[[:space:]]resume=' /proc/cmdline /etc/cmdline /etc/cmdline.d /etc/kernel/cmdline /usr/lib/kernel/cmdline 2> /dev/null && return 255
+        # Enable resume if set on command line
+        for arg in $(getcmdline); do
+            if [[ $arg == "resume="* ]]; then
+                return 0
+            fi
+        done
+        swap_on_netdevice || [[ -f /sys/power/resume && "$(< /sys/power/resume)" == "0:0" ]] && return 255
     }
 
     return 0
