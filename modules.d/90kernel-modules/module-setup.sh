@@ -71,6 +71,7 @@ installkernel() {
                 "=drivers/gpio" \
                 "=drivers/hwmon" \
                 "=drivers/hwspinlock" \
+                "=drivers/interconnect" \
                 "=drivers/i2c/busses" \
                 "=drivers/mailbox" \
                 "=drivers/memory" \
