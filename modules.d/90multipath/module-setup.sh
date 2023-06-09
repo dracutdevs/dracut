@@ -29,7 +29,8 @@ check() {
     require_binaries multipath || return 1
     require_binaries kpartx || return 1
 
-    return 0
+    # temporary only pull in multipath module if explicitelly requested
+    return 255
 }
 
 # called by dracut
