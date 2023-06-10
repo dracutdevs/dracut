@@ -23,5 +23,10 @@ install() {
     ln -s dracut-util "${initdir}/usr/bin/dracut-getarg"
     ln -s dracut-util "${initdir}/usr/bin/dracut-getargs"
 
+    inst_simple "${dracutbasedir}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh"
+    inst_simple "${dracutbasedir}/modules.d/99base/dracut-dev-lib.sh" "/lib/dracut-dev-lib.sh"
+
+    inst "$moddir/test-init.sh" /sbin/init
+
     inst_multiple -o plymouth
 }

@@ -56,8 +56,6 @@ test_setup() {
         -I "ldconfig" \
         -i ./test-init.sh /sbin/test-init \
         -i ./fstab /etc/fstab \
-        -i "${PKGLIBDIR}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh" \
-        -i "${PKGLIBDIR}/modules.d/99base/dracut-dev-lib.sh" "/lib/dracut-dev-lib.sh" \
         --no-hostonly --no-hostonly-cmdline --nomdadmconf --nohardlink \
         -f "$TESTDIR"/initramfs.root "$KVERSION" || return 1
 

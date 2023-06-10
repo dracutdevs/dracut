@@ -24,28 +24,6 @@ test_check() {
     [[ -n "$(ovmf_code)" ]]
 }
 
-KVERSION="${KVERSION-$(uname -r)}"
-
-test_marker_reset() {
-    dd if=/dev/zero of="$TESTDIR"/marker.img bs=1MiB count=1
-}
-
-test_marker_check() {
-    grep -U --binary-files=binary -F -m 1 -q dracut-root-block-success -- "$TESTDIR"/marker.img
-    return $?
-}
-
-test_dracut() {
-    TEST_DRACUT_ARGS+=" --local --no-hostonly --no-early-microcode --add test --kver $KVERSION"
-
-    # shellcheck disable=SC2162
-    IFS=' ' read -a TEST_DRACUT_ARGS_ARRAY <<< "$TEST_DRACUT_ARGS"
-
-    "$DRACUT" "$@" \
-        --kernel-cmdline "panic=1 oops=panic softlockup_panic=1 systemd.crash_reboot selinux=0 console=ttyS0,115200n81 $DEBUGFAIL" \
-        "${TEST_DRACUT_ARGS_ARRAY[@]}" || return 1
-}
-
 test_run() {
     declare -a disk_args=()
     declare -i disk_index=1
@@ -63,7 +41,7 @@ test_run() {
 test_setup() {
     # Create what will eventually be our root filesystem
     "$DRACUT" --local --no-hostonly --no-early-microcode --nofscks \
-        --tmpdir "$TESTDIR" --keep --modules "test-root" --include ./test-init.sh /sbin/init \
+        --tmpdir "$TESTDIR" --keep --modules "test-root" --include \
         "$TESTDIR"/tmp-initramfs.root "$KVERSION" || return 1
 
     mkdir -p "$TESTDIR"/dracut.*/initramfs/proc
@@ -82,10 +60,6 @@ test_setup() {
         --drivers 'ahci sd_mod squashfs' \
         --uefi \
         "$TESTDIR"/ESP/EFI/BOOT/BOOTX64.efi
-}
-
-test_cleanup() {
-    return 0
 }
 
 # shellcheck disable=SC1090
