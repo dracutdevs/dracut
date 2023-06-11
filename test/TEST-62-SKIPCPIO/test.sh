@@ -6,7 +6,7 @@
 TEST_DESCRIPTION="test skipcpio"
 
 test_check() {
-    which cpio dd truncate find sort diff &> /dev/null
+    cpio dd truncate find sort diff &> /dev/null
 }
 
 skipcpio_simple() {

@@ -9,9 +9,9 @@ ifeq ($(DRACUT_FULL_VERSION),)
 DRACUT_FULL_VERSION = $(DRACUT_VERSION)
 endif
 
-HAVE_SHELLCHECK ?= $(shell which shellcheck >/dev/null 2>&1 && echo yes)
-HAVE_SHFMT ?= $(shell which shfmt >/dev/null  2>&1 && echo yes)
-HAVE_RPMBUILD ?= $(shell which rpmbuild >/dev/null  2>&1 && echo yes)
+HAVE_SHELLCHECK ?= $(shell command -v shellcheck >/dev/null 2>&1 && echo yes)
+HAVE_SHFMT ?= $(shell command -v shfmt >/dev/null  2>&1 && echo yes)
+HAVE_RPMBUILD ?= $(shell command -v rpmbuild >/dev/null  2>&1 && echo yes)
 
 -include Makefile.inc
 
