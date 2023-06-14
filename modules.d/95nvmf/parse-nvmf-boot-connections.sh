@@ -316,6 +316,8 @@ done
 
 if [ -e /tmp/nvmf_needs_network ] || [ -e /tmp/valid_nbft_entry_found ]; then
     echo "rd.neednet=1" > /etc/cmdline.d/nvmf-neednet.conf
+    # netroot is a global variable that is present in all "sourced" scripts
+    # shellcheck disable=SC2034
     netroot=nbft
     rm -f /tmp/nvmf_needs_network
 fi
