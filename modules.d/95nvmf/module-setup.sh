@@ -41,11 +41,11 @@ check() {
         local _is_nvmf=$?
         popd > /dev/null || exit
         [[ $_is_nvmf == 0 ]] || return 255
-        if [ ! -f /sys/class/fc/fc_udev_device/nvme_discovery ]; then
-            if [ ! -f /etc/nvme/discovery.conf ] && ! has_nbft; then
-                echo "No discovery arguments present"
-                return 255
-            fi
+        if [ ! -f /sys/class/fc/fc_udev_device/nvme_discovery ] && \
+               [ ! -f /etc/nvme/discovery.conf ] && \
+               [ ! -f /etc/nvme/config.json ] && ! has_nbft; then
+            echo "No discovery arguments present"
+            return 255
         fi
     }
     return 0
