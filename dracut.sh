@@ -2519,6 +2519,7 @@ if [[ $uefi == yes ]]; then
     fi
 
     if objcopy \
+        ${DRACUT_REPRODUCIBLE:+--enable-deterministic-archives --preserve-dates} \
         ${uefi_osrelease:+--add-section .osrel="$uefi_osrelease" --change-section-vma .osrel=$(printf 0x%x "$uefi_osrelease_offs")} \
         ${uefi_cmdline:+--add-section .cmdline="$uefi_cmdline" --change-section-vma .cmdline=$(printf 0x%x "$uefi_cmdline_offs")} \
         ${uefi_splash_image:+--add-section .splash="$uefi_splash_image" --change-section-vma .splash=$(printf 0x%x "$uefi_splash_offs")} \
