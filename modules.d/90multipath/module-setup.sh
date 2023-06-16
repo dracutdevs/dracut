@@ -126,7 +126,7 @@ install() {
     inst_libdir_file "libmultipath*" "multipath/*"
     inst_libdir_file 'libgcc_s.so*'
 
-    if [[ $hostonly_cmdline ]]; then
+    if [[ $hostonly_cmdline == "yes" ]]; then
         local _conf
         _conf=$(cmdline)
         [[ $_conf ]] && echo "$_conf" >> "${initdir}/etc/cmdline.d/90multipath.conf"
