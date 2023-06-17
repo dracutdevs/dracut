@@ -2594,6 +2594,9 @@ freeze_ok_for_fstype() {
         zfs)
             return 1
             ;;
+        tmpfs)
+            return 1
+            ;;
         btrfs)
             freeze_ok_for_btrfs "$outfile"
             ;;
