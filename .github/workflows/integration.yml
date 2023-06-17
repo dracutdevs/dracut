@@ -100,7 +100,7 @@ jobs:
                         "gentoo:latest",
                 ]
                 test: [
-                        "16",
+                        "18",
                 ]
             fail-fast: false
         container:
