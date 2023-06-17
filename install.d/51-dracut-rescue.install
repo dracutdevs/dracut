@@ -96,7 +96,9 @@ case "$COMMAND" in
         fi
 
         if [[ ! -f "$BOOT_DIR_ABS/$INITRD" ]]; then
-            dracut -f --no-hostonly -a "rescue" "$BOOT_DIR_ABS/$INITRD" "$KERNEL_VERSION"
+            dracut -f --no-hostonly --no-uefi \
+                $([[ -n "$KERNEL_IMAGE" ]] && echo --kernel-image "${KERNEL_IMAGE}") \
+                -a "rescue" "$BOOT_DIR_ABS/$INITRD" "$KERNEL_VERSION"
             ((ret+=$?))
         fi
 

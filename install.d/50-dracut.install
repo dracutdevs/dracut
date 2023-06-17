@@ -11,23 +11,40 @@ if ! [[ ${KERNEL_INSTALL_MACHINE_ID-x} ]]; then
     exit 0
 fi
 
-if [[ -d "$BOOT_DIR_ABS" ]]; then
-    INITRD="initrd"
+# Mismatching the install layout and the --uefi/--no-uefi opts just creates a mess.
+if [[ "$KERNEL_INSTALL_LAYOUT" == "uki" && -n "$KERNEL_INSTALL_STAGING_AREA" ]]; then
+    BOOT_DIR_ABS="$KERNEL_INSTALL_STAGING_AREA"
+    IMAGE="uki.efi"
+    UEFI_OPTS="--uefi"
+elif [[ "$KERNEL_INSTALL_LAYOUT" == "bls" && -n "$KERNEL_INSTALL_STAGING_AREA" ]]; then
+    BOOT_DIR_ABS="$KERNEL_INSTALL_STAGING_AREA"
+    IMAGE="initrd"
+    UEFI_OPTS="--no-uefi"
 else
-    BOOT_DIR_ABS="/boot"
-    INITRD="initramfs-${KERNEL_VERSION}.img"
+    # No layout information, use users --uefi/--no-uefi preference
+    UEFI_OPTS=""
+    if [[ -d "$BOOT_DIR_ABS" ]]; then
+        IMAGE="initrd"
+    else
+        BOOT_DIR_ABS="/boot"
+        IMAGE="initramfs-${KERNEL_VERSION}.img"
+    fi
 fi
 
 ret=0
 case "$COMMAND" in
     add)
-        INITRD_IMAGE_PREGENERATED=${KERNEL_IMAGE%/*}/initrd
-        if [[ -f ${INITRD_IMAGE_PREGENERATED} ]]; then
-            # we found an initrd at the same place as the kernel
+        if [[ "$IMAGE" == "uki.efi" ]]; then
+            IMAGE_PREGENERATED=${KERNEL_IMAGE%/*}/uki.efi
+        else
+            IMAGE_PREGENERATED=${KERNEL_IMAGE%/*}/initrd
+        fi
+        if [[ -f ${IMAGE_PREGENERATED} ]]; then
+            # we found an initrd or uki.efi at the same place as the kernel
             # use this and don't generate a new one
-            cp --reflink=auto "$INITRD_IMAGE_PREGENERATED" "$BOOT_DIR_ABS/$INITRD" \
-                && chown root:root "$BOOT_DIR_ABS/$INITRD" \
-                && chmod 0600 "$BOOT_DIR_ABS/$INITRD" \
+            cp --reflink=auto "$IMAGE_PREGENERATED" "$BOOT_DIR_ABS/$IMAGE" \
+                && chown root:root "$BOOT_DIR_ABS/$IMAGE" \
+                && chmod 0600 "$BOOT_DIR_ABS/$IMAGE" \
                 && exit 0
         fi
 
@@ -58,12 +75,14 @@ case "$COMMAND" in
         dracut -f \
             ${noimageifnotneeded:+--noimageifnotneeded} \
             $([[ "$KERNEL_INSTALL_VERBOSE" == 1 ]] && echo --verbose) \
-            "$BOOT_DIR_ABS/$INITRD" \
+            $([[ -n "$KERNEL_IMAGE" ]] && echo --kernel-image "${KERNEL_IMAGE}") \
+            "$UEFI_OPTS" \
+            "$BOOT_DIR_ABS/$IMAGE" \
             "$KERNEL_VERSION"
         ret=$?
 	;;
     remove)
-        rm -f -- "$BOOT_DIR_ABS/$INITRD"
+        rm -f -- "$BOOT_DIR_ABS/$IMAGE"
         ret=$?
 	;;
 esac
