@@ -75,11 +75,25 @@ setup_interface() {
     [ -n "$hostname" ] && echo "echo ${hostname%."$domain"}${domain:+.$domain} > /proc/sys/kernel/hostname" > /tmp/net."$netif".hostname
 }
 
+setup_namesrv6() {
+    namesrv=$new_dhcp6_name_servers
+    domain=$new_domain_name
+    # get rid of control chars
+    search=$(printf -- "%s" "$new_dhcp6_domain_search" | tr -d '[:cntrl:]')
+    if getargbool 1 rd.peerdns; then
+        [ -n "${search}${domain}" ] && echo "search $search $domain" > /tmp/net."$netif".resolv.conf
+        if [ -n "$namesrv" ]; then
+            for s in $namesrv; do
+                echo nameserver "$s"
+            done
+        fi >> /tmp/net."$netif".resolv.conf
+    fi
+}
+
 setup_interface6() {
     domain=$new_domain_name
     # get rid of control chars
     search=$(printf -- "%s" "$new_dhcp6_domain_search" | tr -d '[:cntrl:]')
-    namesrv=$new_dhcp6_name_servers
     hostname=$new_host_name
     [ -n "$new_dhcp_lease_time" ] && lease_time=$new_dhcp_lease_time
     [ -n "$new_max_life" ] && lease_time=$new_max_life
@@ -94,14 +108,7 @@ setup_interface6() {
         ${lease_time:+valid_lft $lease_time} \
         ${preferred_lft:+preferred_lft ${preferred_lft}}
 
-    if getargbool 1 rd.peerdns; then
-        [ -n "${search}${domain}" ] && echo "search $search $domain" > /tmp/net."$netif".resolv.conf
-        if [ -n "$namesrv" ]; then
-            for s in $namesrv; do
-                echo nameserver "$s"
-            done
-        fi >> /tmp/net."$netif".resolv.conf
-    fi
+    setup_namesrv6
 
     # Note: hostname can be fqdn OR short hostname, so chop off any
     # trailing domain name and explicity add any domain if set.
@@ -267,6 +274,7 @@ case $reason in
         ip -6 addr change "${new_ip6_address}"/"${new_ip6_prefixlen}" dev "${interface}" scope global \
             ${lease_time:+valid_lft $lease_time} ${preferred_lft:+preferred_lft ${preferred_lft}} \
             > /dev/null 2>&1
+        setup_namesrv6
         ;;
 
     *) echo "dhcp: $reason" ;;

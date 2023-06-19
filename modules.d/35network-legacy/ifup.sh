@@ -478,7 +478,11 @@ for p in $(getargs ip=); do
                 ;;
             dhcp6)
                 load_ipv6
-                do_dhcp -6
+                if getargbool 0 rd.net.dhcp6.stateless; then
+                    do_dhcp -6 -S
+                else
+                    do_dhcp -6
+                fi
                 ;;
             auto6)
                 do_ipv6auto
