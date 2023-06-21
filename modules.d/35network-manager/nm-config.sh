@@ -4,6 +4,7 @@ type nm_generate_connections > /dev/null 2>&1 || . /lib/nm-lib.sh
 
 if [ -n "$netroot" ] || [ -e /tmp/net.ifaces ]; then
     echo rd.neednet >> /etc/cmdline.d/35-neednet.conf
+    setcmdline
 fi
 
 if getargbool 0 rd.debug -d -y rdinitdebug -d -y rdnetdebug; then

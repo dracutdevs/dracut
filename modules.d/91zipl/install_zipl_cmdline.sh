@@ -19,6 +19,7 @@ fi
 
 if [ -f ${MNT}/dracut-cmdline.conf ]; then
     cp ${MNT}/dracut-cmdline.conf /etc/cmdline.d/99zipl.conf
+    setcmdline
 fi
 
 if [ -f ${MNT}/active_devices.txt ]; then

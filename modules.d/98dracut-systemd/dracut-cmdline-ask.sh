@@ -18,5 +18,6 @@ while read -r -p "> " ${BASH:+-e} line || [ -n "$line" ]; do
     [ "$line" = "." ] && break
     [ -n "$line" ] && printf -- "%s\n" "$line" >> /etc/cmdline.d/99-cmdline-ask.conf
 done
+setcmdline
 
 exit 0

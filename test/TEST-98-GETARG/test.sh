@@ -97,25 +97,19 @@ test_run() {
             :
         }
 
-        getcmdline() {
-            echo "rdbreak=cmdline rd.lvm rd.auto=0 rd.auto rd.retry=10"
-        }
+        export CMDLINE="rdbreak=cmdline rd.lvm rd.auto=0 rd.auto rd.retry=10"
         RDRETRY=$(getarg rd.retry -d 'rd_retry=')
         [[ $RDRETRY == "10" ]] || ret=$((ret + 1))
         getarg rd.break=cmdline -d rdbreak=cmdline || ret=$((ret + 1))
         getargbool 1 rd.lvm -d -n rd_NO_LVM || ret=$((ret + 1))
         getargbool 0 rd.auto || ret=$((ret + 1))
 
-        getcmdline() {
-            echo "rd.break=cmdlined rd.lvm=0 rd.auto rd.auto=1 rd.auto=0"
-        }
+        export CMDLINE="rd.break=cmdlined rd.lvm=0 rd.auto rd.auto=1 rd.auto=0"
         getarg rd.break=cmdline -d rdbreak=cmdline && ret=$((ret + 1))
         getargbool 1 rd.lvm -d -n rd_NO_LVM && ret=$((ret + 1))
         getargbool 0 rd.auto && ret=$((ret + 1))
 
-        getcmdline() {
-            echo "ip=a ip=b ip=dhcp6"
-        }
+        export CMDLINE="ip=a ip=b ip=dhcp6"
         getargs "ip=dhcp6" &> /dev/null || ret=$((ret + 1))
         readarray -t args < <(getargs "ip=")
         RESULT=("a" "b" "dhcp6")
@@ -124,9 +118,7 @@ test_run() {
             [[ ${args[$i]} == "${RESULT[$i]}" ]] || ret=$((ret + 1))
         done
 
-        getcmdline() {
-            echo "bridge bridge=val"
-        }
+        export CMDLINE="bridge bridge=val"
         readarray -t args < <(getargs bridge=)
         RESULT=("bridge" "val")
         ((${#RESULT[@]} == ${#args[@]})) || ret=$((ret + 1))
@@ -134,9 +126,7 @@ test_run() {
             [[ ${args[$i]} == "${RESULT[$i]}" ]] || ret=$((ret + 1))
         done
 
-        getcmdline() {
-            echo "rd.break rd.md.uuid=bf96e457:230c9ad4:1f3e59d6:745cf942 rd.md.uuid=bf96e457:230c9ad4:1f3e59d6:745cf943 rd.shell"
-        }
+        export CMDLINE="rd.break rd.md.uuid=bf96e457:230c9ad4:1f3e59d6:745cf942 rd.md.uuid=bf96e457:230c9ad4:1f3e59d6:745cf943 rd.shell"
         readarray -t args < <(getargs rd.md.uuid -d rd_MD_UUID=)
         RESULT=("bf96e457:230c9ad4:1f3e59d6:745cf942" "bf96e457:230c9ad4:1f3e59d6:745cf943")
         ((${#RESULT[@]} == ${#args[@]})) || ret=$((ret + 1))

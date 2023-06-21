@@ -29,5 +29,7 @@ print_fcoe_uefi_conf() {
 
 for i in /sys/firmware/efi/efivars/FcoeBootDevice-*; do
     [ -e "$i" ] || continue
-    print_fcoe_uefi_conf "$i" > /etc/cmdline.d/40-fcoe-uefi.conf && break
+    print_fcoe_uefi_conf "$i" > /etc/cmdline.d/40-fcoe-uefi.conf \
+        && setcmdline \
+        && break
 done

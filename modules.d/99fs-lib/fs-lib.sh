@@ -212,6 +212,7 @@ write_fs_tab() {
     local _rootfstype
     local _rootflags
     local _fspassno
+    local _cmdline
 
     _fspassno="0"
     _root="$1"
@@ -230,8 +231,8 @@ write_fs_tab() {
 
     _rw=0
 
-    CMDLINE=$(getcmdline)
-    for _o in $CMDLINE; do
+    _cmdline=$(getcmdline)
+    for _o in $_cmdline; do
         case $_o in
             rw)
                 _rw=1

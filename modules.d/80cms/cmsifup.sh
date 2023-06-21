@@ -29,6 +29,7 @@ fi
         echo "nameserver=$i"
     done
 } > /etc/cmdline.d/80-cms.conf
+setcmdline
 
 [ -e "/tmp/net.ifaces" ] && read -r IFACES < /tmp/net.ifaces
 IFACES="$IFACES $DEVICE"
