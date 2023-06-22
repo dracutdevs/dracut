@@ -7,13 +7,12 @@ KERNEL_VERSION="$2"
 BOOT_DIR_ABS="${3%/*}/0-rescue"
 KERNEL_IMAGE="$4"
 
-
-dropindirs_sort()
-{
-    suffix=$1; shift
+dropindirs_sort() {
+    suffix=$1
+    shift
     args=("$@")
     files=$(
-        while (( $# > 0 )); do
+        while (($# > 0)); do
             for i in "${1}"/*"${suffix}"; do
                 [[ -f $i ]] && echo "${i##*/}"
             done
@@ -31,11 +30,17 @@ dropindirs_sort()
     done
 }
 
-[[ -f /etc/os-release ]] && . /etc/os-release
+if [[ -f /etc/os-release ]]; then
+    . /etc/os-release
+elif [[ -f /usr/lib/os-release ]]; then
+    . /usr/lib/os-release
+fi
+
+[[ -n $PRETTY_NAME ]] || PRETTY_NAME="Linux $KERNEL_VERSION"
 
 if [[ ${KERNEL_INSTALL_MACHINE_ID+x} ]]; then
     MACHINE_ID=$KERNEL_INSTALL_MACHINE_ID
-elif [[ -f /etc/machine-id ]] ; then
+elif [[ -f /etc/machine-id ]]; then
     read -r MACHINE_ID < /etc/machine-id
 fi
 
@@ -43,7 +48,11 @@ if ! [[ $MACHINE_ID ]]; then
     exit 0
 fi
 
-if [[ -f /etc/kernel/cmdline ]]; then
+if [ -n "$KERNEL_INSTALL_CONF_ROOT" ]; then
+    if [ -f "$KERNEL_INSTALL_CONF_ROOT/cmdline" ]; then
+        read -r -d '' -a BOOT_OPTIONS < "$KERNEL_INSTALL_CONF_ROOT/cmdline"
+    fi
+elif [[ -f /etc/kernel/cmdline ]]; then
     read -r -d '' -a BOOT_OPTIONS < /etc/kernel/cmdline
 elif [[ -f /usr/lib/kernel/cmdline ]]; then
     read -r -d '' -a BOOT_OPTIONS < /usr/lib/kernel/cmdline
@@ -52,14 +61,14 @@ else
 
     read -r -d '' -a line < /proc/cmdline
     for i in "${line[@]}"; do
-        [[ "${i#initrd=*}" != "$i" ]] && continue
+        [[ ${i#initrd=*} != "$i" ]] && continue
         BOOT_OPTIONS+=("$i")
     done
 fi
 
-if [[ -d "${BOOT_DIR_ABS%/*}" ]]; then
+if [[ -d ${BOOT_DIR_ABS%/*} ]]; then
     BOOT_DIR="/${MACHINE_ID}/0-rescue"
-    BOOT_ROOT=${BOOT_DIR_ABS%$BOOT_DIR}
+    BOOT_ROOT=${BOOT_DIR_ABS%"$BOOT_DIR"}
     LOADER_ENTRY="$BOOT_ROOT/loader/entries/${MACHINE_ID}-0-rescue.conf"
     KERNEL="linux"
     INITRD="initrd"
@@ -75,8 +84,12 @@ ret=0
 
 case "$COMMAND" in
     add)
-        [[ -f "$LOADER_ENTRY" ]] && [[ -f "$BOOT_DIR_ABS/$KERNEL" ]] \
-            && [[ -f "$BOOT_DIR_ABS/$INITRD" ]] && exit 0
+        if [[ -f $LOADER_ENTRY ]] && [[ -f "$BOOT_DIR_ABS/$KERNEL" ]] \
+            && [[ -f "$BOOT_DIR_ABS/$INITRD" ]]; then
+            [[ $KERNEL_INSTALL_VERBOSE == 1 ]] \
+                && echo "Skipping, there is already a rescue image generated with the same input parameters"
+            exit 0
+        fi
 
         # source our config dir
         for f in $(dropindirs_sort ".conf" "/etc/dracut.conf.d" "/usr/lib/dracut/dracut.conf.d"); do
@@ -87,22 +100,30 @@ case "$COMMAND" in
         done
 
         # shellcheck disable=SC2154
-        [[ $dracut_rescue_image != "yes" ]] && exit 0
+        if [[ $dracut_rescue_image != "yes" ]]; then
+            [[ $KERNEL_INSTALL_VERBOSE == 1 ]] \
+                && echo "Skipping, 'dracut_rescue_image' not set to 'yes' in any dracut configuration file"
+            exit 0
+        fi
 
-        [[ -d "$BOOT_DIR_ABS" ]] || mkdir -p "$BOOT_DIR_ABS"
+        [[ -d $BOOT_DIR_ABS ]] || mkdir -p "$BOOT_DIR_ABS"
 
         if ! cp --reflink=auto "$KERNEL_IMAGE" "$BOOT_DIR_ABS/$KERNEL"; then
             echo "Can't copy '$KERNEL_IMAGE to '$BOOT_DIR_ABS/$KERNEL'!" >&2
         fi
 
         if [[ ! -f "$BOOT_DIR_ABS/$INITRD" ]]; then
+            # shellcheck disable=SC2046
             dracut -f --no-hostonly --no-uefi \
-                $([[ -n "$KERNEL_IMAGE" ]] && echo --kernel-image "${KERNEL_IMAGE}") \
-                -a "rescue" "$BOOT_DIR_ABS/$INITRD" "$KERNEL_VERSION"
-            ((ret+=$?))
+                -a "rescue" \
+                $([[ $KERNEL_INSTALL_VERBOSE == 1 ]] && echo --verbose) \
+                --kver "$KERNEL_VERSION" \
+                "$BOOT_DIR_ABS/$INITRD"
+            ((ret += $?))
         fi
 
-        if [[ "${BOOT_DIR_ABS}" != "/boot" ]]; then
+        [[ $KERNEL_INSTALL_VERBOSE == 1 ]] && echo "Creating $LOADER_ENTRY"
+        if [[ ${BOOT_DIR_ABS} != "/boot" ]]; then
             {
                 echo "title      $PRETTY_NAME - Rescue Image"
                 echo "version    $KERNEL_VERSION"
@@ -120,16 +141,13 @@ case "$COMMAND" in
             sed -i "s/${KERNEL_VERSION}/0-rescue-${MACHINE_ID}/" "$LOADER_ENTRY"
         fi
 
-        ((ret+=$?))
+        ((ret += $?))
         ;;
 
     remove)
         exit 0
         ;;
 
-    *)
-        usage
-        ret=1;;
 esac
 
 exit $ret

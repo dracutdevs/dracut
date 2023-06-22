@@ -12,18 +12,18 @@ if ! [[ ${KERNEL_INSTALL_MACHINE_ID-x} ]]; then
 fi
 
 # Mismatching the install layout and the --uefi/--no-uefi opts just creates a mess.
-if [[ "$KERNEL_INSTALL_LAYOUT" == "uki" && -n "$KERNEL_INSTALL_STAGING_AREA" ]]; then
+if [[ $KERNEL_INSTALL_LAYOUT == "uki" && -n $KERNEL_INSTALL_STAGING_AREA ]]; then
     BOOT_DIR_ABS="$KERNEL_INSTALL_STAGING_AREA"
     IMAGE="uki.efi"
     UEFI_OPTS="--uefi"
-elif [[ "$KERNEL_INSTALL_LAYOUT" == "bls" && -n "$KERNEL_INSTALL_STAGING_AREA" ]]; then
+elif [[ $KERNEL_INSTALL_LAYOUT == "bls" && -n $KERNEL_INSTALL_STAGING_AREA ]]; then
     BOOT_DIR_ABS="$KERNEL_INSTALL_STAGING_AREA"
     IMAGE="initrd"
     UEFI_OPTS="--no-uefi"
 else
     # No layout information, use users --uefi/--no-uefi preference
     UEFI_OPTS=""
-    if [[ -d "$BOOT_DIR_ABS" ]]; then
+    if [[ -d $BOOT_DIR_ABS ]]; then
         IMAGE="initrd"
     else
         BOOT_DIR_ABS="/boot"
@@ -32,9 +32,10 @@ else
 fi
 
 ret=0
+
 case "$COMMAND" in
     add)
-        if [[ "$IMAGE" == "uki.efi" ]]; then
+        if [[ $IMAGE == "uki.efi" ]]; then
             IMAGE_PREGENERATED=${KERNEL_IMAGE%/*}/uki.efi
         else
             IMAGE_PREGENERATED=${KERNEL_IMAGE%/*}/initrd
@@ -42,13 +43,19 @@ case "$COMMAND" in
         if [[ -f ${IMAGE_PREGENERATED} ]]; then
             # we found an initrd or uki.efi at the same place as the kernel
             # use this and don't generate a new one
+            [[ $KERNEL_INSTALL_VERBOSE == 1 ]] && echo \
+                "There is an ${IMAGE} image at the same place as the kernel, skipping generating a new one"
             cp --reflink=auto "$IMAGE_PREGENERATED" "$BOOT_DIR_ABS/$IMAGE" \
                 && chown root:root "$BOOT_DIR_ABS/$IMAGE" \
                 && chmod 0600 "$BOOT_DIR_ABS/$IMAGE" \
                 && exit 0
         fi
 
-        if [[ -f /etc/kernel/cmdline ]]; then
+        if [ -n "$KERNEL_INSTALL_CONF_ROOT" ]; then
+            if [ -f "$KERNEL_INSTALL_CONF_ROOT/cmdline" ]; then
+                read -r -d '' -a BOOT_OPTIONS < "$KERNEL_INSTALL_CONF_ROOT/cmdline"
+            fi
+        elif [[ -f /etc/kernel/cmdline ]]; then
             read -r -d '' -a BOOT_OPTIONS < /etc/kernel/cmdline
         elif [[ -f /usr/lib/kernel/cmdline ]]; then
             read -r -d '' -a BOOT_OPTIONS < /usr/lib/kernel/cmdline
@@ -57,14 +64,14 @@ case "$COMMAND" in
 
             read -r -d '' -a line < /proc/cmdline
             for i in "${line[@]}"; do
-                [[ "${i#initrd=*}" != "$i" ]] && continue
+                [[ ${i#initrd=*} != "$i" ]] && continue
                 BOOT_OPTIONS+=("$i")
             done
         fi
 
         unset noimageifnotneeded
 
-        for ((i=0; i < "${#BOOT_OPTIONS[@]}"; i++)); do
+        for ((i = 0; i < "${#BOOT_OPTIONS[@]}"; i++)); do
             # shellcheck disable=SC1001
             if [[ ${BOOT_OPTIONS[$i]} == root\=PARTUUID\=* ]]; then
                 noimageifnotneeded="yes"
@@ -72,18 +79,21 @@ case "$COMMAND" in
             fi
         done
 
+        # shellcheck disable=SC2046
         dracut -f \
             ${noimageifnotneeded:+--noimageifnotneeded} \
-            $([[ "$KERNEL_INSTALL_VERBOSE" == 1 ]] && echo --verbose) \
-            $([[ -n "$KERNEL_IMAGE" ]] && echo --kernel-image "${KERNEL_IMAGE}") \
+            $([[ $KERNEL_INSTALL_VERBOSE == 1 ]] && echo --verbose) \
+            $([[ -n $KERNEL_IMAGE ]] && echo --kernel-image "$KERNEL_IMAGE") \
             "$UEFI_OPTS" \
-            "$BOOT_DIR_ABS/$IMAGE" \
-            "$KERNEL_VERSION"
+            --kver "$KERNEL_VERSION" \
+            "$BOOT_DIR_ABS/$IMAGE"
         ret=$?
-	;;
+        ;;
+
     remove)
         rm -f -- "$BOOT_DIR_ABS/$IMAGE"
         ret=$?
-	;;
+        ;;
 esac
+
 exit $ret
