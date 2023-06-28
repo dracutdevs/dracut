@@ -1,0 +1,30 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "release version number (3 digits)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Build
+        run: bash ${GITHUB_WORKSPACE}/tools/release.sh ${{ inputs.tag }}
+
+      - name: Release
+        uses: softprops/action-gh-release@v0.1.15
+        with:
+          tag_name: ${{ inputs.tag }}
+          name: dracut-${{ inputs.tag }}
+          body_path: ${{ github.workspace }}/release.md
