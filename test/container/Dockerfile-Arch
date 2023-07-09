@@ -2,16 +2,63 @@ FROM docker.io/archlinux
 
 MAINTAINER https://github.com/dracutdevs/dracut
 
-# Install needed packages for the dracut CI container
-RUN pacman --noconfirm -Syu \
-    linux dash strace dhclient asciidoc cpio pigz squashfs-tools \
-    qemu btrfs-progs mdadm dmraid nfs-utils nfsidmap lvm2 nbd \
-    dhcp networkmanager multipath-tools vi tcpdump open-iscsi connman \
-    git shfmt shellcheck astyle which base-devel glibc parted ntfs-3g && yes | pacman -Scc
+# install aur helper to allow easy install of aur packages
+RUN pacman --noconfirm -Syu base-devel git
+RUN useradd -m build && echo "build ALL=(ALL) NOPASSWD: /usr/bin/pacman" > "/etc/sudoers.d/allow_pacman"
+RUN su build -c 'cd && git clone https://aur.archlinux.org/paru-bin.git && cd paru-bin && makepkg -s --noconfirm' && pacman -U --noconfirm ~build/paru-bin/*.pkg.tar.*
 
-RUN useradd -m build
-RUN su build -c 'cd && git clone https://aur.archlinux.org/perl-config-general.git && cd perl-config-general && makepkg -s --noconfirm'
-RUN pacman -U --noconfirm ~build/perl-config-general/*.pkg.tar.*
-RUN su build -c 'cd && git clone https://aur.archlinux.org/tgt.git && cd tgt && makepkg -s --noconfirm'
-RUN pacman -U --noconfirm ~build/tgt/*.pkg.tar.*
-RUN rm -fr ~build
+# Install needed packages for the dracut CI container
+# Assume that initramfs virtual package is installed so that the default mkinitcpio package does not get installed
+RUN su build -c 'paru --needed --noconfirm -Syu --assume-installed initramfs \
+    asciidoc \
+    astyle \
+    bash-completion \
+    biosdevname \
+    bluez \
+    btrfs-progs \
+    busybox \
+    bzip2 \
+    cifs-utils \
+    connman \
+    cpio \
+    cryptsetup \
+    dash \
+    dhclient \
+    dhcp \
+    dmraid \
+    e2fsprogs \
+    f2fs-tools \
+    fuse3 \
+    iproute \
+    iputils \
+    kbd \
+    linux \
+    lvm2 \
+    lzop \
+    mdadm \
+    memstrack \
+    multipath-tools \
+    nbd \
+    ndctl \
+    networkmanager \
+    nfs-utils \
+    ntfs-3g \
+    nvme-cli \
+    open-iscsi \
+    parted \
+    pcsclite \
+    pigz \
+    qemu \
+    rng-tools \
+    sbsigntools \
+    shellcheck \
+    shfmt \
+    squashfs-tools \
+    strace \
+    tar \
+    tcpdump \
+    tgt \
+    tpm2-tools \
+    vi \
+    which' \
+    && yes | paru -Sccd
