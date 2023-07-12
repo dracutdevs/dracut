@@ -272,6 +272,10 @@ Creates initial ramdisk images for preloading modules
                         Use [FILE] as a splash image when creating an UEFI
                          executable. Requires bitmap (.bmp) image format.
   --kernel-image [FILE] Location of the kernel image.
+  --sbat [PARAMETERS]   The SBAT parameters to be added to .sbat.
+                         The string "sbat,1,SBAT Version,sbat,1,
+                         https://github.com/rhboot/shim/blob/main/SBAT.md" is
+                         already added by default.
   --regenerate-all      Regenerate all initramfs images at the default location
                          for the kernel versions found on the system.
   -p, --parallel        Use parallel processing if possible (currently only
@@ -463,6 +467,7 @@ rearrange_params() {
             --long uefi-stub: \
             --long uefi-splash-image: \
             --long kernel-image: \
+            --long sbat: \
             --long no-hostonly-i18n \
             --long hostonly-i18n \
             --long hostonly-nics: \
@@ -840,6 +845,11 @@ while :; do
             PARMS_TO_STORE+=" '$2'"
             shift
             ;;
+        --sbat)
+            sbat_l="$2"
+            PARMS_TO_STORE+=" '$2'"
+            shift
+            ;;
         --no-machineid)
             machine_id_l="no"
             ;;
@@ -1079,6 +1089,7 @@ drivers_dir="${drivers_dir%"${drivers_dir##*[!/]}"}"
 [[ $uefi_stub_l ]] && uefi_stub="$uefi_stub_l"
 [[ $uefi_splash_image_l ]] && uefi_splash_image="$uefi_splash_image_l"
 [[ $kernel_image_l ]] && kernel_image="$kernel_image_l"
+[[ $sbat_l ]] && sbat="$sbat_l"
 [[ $machine_id_l ]] && machine_id="$machine_id_l"
 
 if ! [[ $outfile ]]; then
@@ -2453,6 +2464,24 @@ fi
 
 umask 077
 
+SBAT_DEFAULT="sbat,1,SBAT Version,sbat,1,https://github.com/rhboot/shim/blob/main/SBAT.md"
+sbat_out=$uefi_outdir/uki.sbat
+
+clean_sbat_string() {
+    local inp=$1
+    local temp=$uefi_outdir/temp.sbat
+    sed "/${SBAT_DEFAULT//\//\\/}/d" "$inp" > "$temp"
+    [[ -s $temp ]] && cat "$temp" >> "$sbat_out"
+    rm "$temp"
+}
+
+get_sbat_string() {
+    local inp=$1
+    local out=$uefi_outdir/$2
+    objcopy -O binary --only-section=.sbat "$inp" "$out"
+    clean_sbat_string "$out"
+}
+
 if [[ $uefi == yes ]]; then
     if [[ $kernel_cmdline ]]; then
         echo -n "$kernel_cmdline" > "$uefi_outdir/cmdline.txt"
@@ -2507,6 +2536,16 @@ if [[ $uefi == yes ]]; then
         unset uefi_splash_image
     fi
 
+    echo "$SBAT_DEFAULT" > "$sbat_out"
+    if [[ -n $sbat ]]; then
+        echo "$sbat" | sed "/${SBAT_DEFAULT//\//\\/}/d" >> "$sbat_out"
+    fi
+    get_sbat_string "$kernel_image" kernel.sbat
+    get_sbat_string "$uefi_stub" stub.sbat
+
+    uefi_sbat_offs="${offs}"
+    offs=$((offs + $(stat -Lc%s "$sbat_out")))
+    offs=$((offs + "$align" - offs % "$align"))
     uefi_linux_offs="${offs}"
     offs=$((offs + $(stat -Lc%s "$kernel_image")))
     offs=$((offs + "$align" - offs % "$align"))
@@ -2518,14 +2557,19 @@ if [[ $uefi == yes ]]; then
         exit 1
     fi
 
+    tmp_uefi_stub=$uefi_outdir/elf.stub
+    cp "$uefi_stub" "$tmp_uefi_stub"
+    objcopy --remove-section .sbat "$tmp_uefi_stub" &> /dev/null
+
     if objcopy \
         ${uefi_osrelease:+--add-section .osrel="$uefi_osrelease" --change-section-vma .osrel=$(printf 0x%x "$uefi_osrelease_offs")} \
         ${uefi_cmdline:+--add-section .cmdline="$uefi_cmdline" --change-section-vma .cmdline=$(printf 0x%x "$uefi_cmdline_offs")} \
         ${uefi_splash_image:+--add-section .splash="$uefi_splash_image" --change-section-vma .splash=$(printf 0x%x "$uefi_splash_offs")} \
+        --add-section .sbat="$sbat_out" --change-section-vma .sbat="$(printf 0x%x "$uefi_sbat_offs")" \
         --add-section .linux="$kernel_image" --change-section-vma .linux="$(printf 0x%x "$uefi_linux_offs")" \
         --add-section .initrd="${DRACUT_TMPDIR}/initramfs.img" --change-section-vma .initrd="$(printf 0x%x "$uefi_initrd_offs")" \
         --image-base="$(printf 0x%x "$base_image")" \
-        "$uefi_stub" "${uefi_outdir}/linux.efi"; then
+        "$tmp_uefi_stub" "${uefi_outdir}/linux.efi"; then
         if [[ -n ${uefi_secureboot_key} && -n ${uefi_secureboot_cert} ]]; then
             if sbsign \
                 ${uefi_secureboot_engine:+--engine "$uefi_secureboot_engine"} \
