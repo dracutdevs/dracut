@@ -46,7 +46,7 @@ _dracut() {
             --kernel-cmdline --sshkey --persistent-policy --install-optional
             --loginstall --uefi-stub --kernel-image --squash-compressor
             --sysroot --hostonly-mode --hostonly-nics --include --logfile
-            --uefi-splash-image
+            --uefi-splash-image --sbat
             '
     )
 
