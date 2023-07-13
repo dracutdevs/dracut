@@ -300,7 +300,7 @@ efi: all
 	@echo wrote linux-$(KVERSION).efi
 
 AUTHORS:
-	git shortlog  --numbered --summary -e |while read a rest || [ -n "$$rest" ]; do echo $$rest;done > AUTHORS
+	@git log | git shortlog --numbered --summary -e | while read -r a rest || [ -n "$$rest" ]; do echo "$$rest"; done > AUTHORS
 
 CONTRIBUTORS:
-	@git shortlog $(DRACUT_MAIN_VERSION).. --numbered --summary -e |while read a rest || [ -n "$$rest" ]; do echo "- $$rest";done
+	@git log | git shortlog $(DRACUT_MAIN_VERSION).. --numbered --summary -e | while read -r a rest || [ -n "$$rest" ]; do echo "- $$rest"; done
