@@ -1,14 +1,11 @@
 #!/bin/bash
 
-LAST_VERSION=$(git describe --abbrev=0 --tags --always 2> /dev/null)
-
 # CONTRIBUTORS
 printf "#### Contributors\n\n" > CONTRIBUTORS.md
-git log | git shortlog "$LAST_VERSION.." --numbered --summary -e | while read -r a rest || [ -n "$rest" ]; do echo "- $rest"; done >> CONTRIBUTORS.md
+make CONTRIBUTORS >> CONTRIBUTORS.md
 
 # Update AUTHORS
-# shellcheck disable=SC2034
-git log | git shortlog --numbered --summary -e | while read -r a rest || [ -n "$rest" ]; do echo "$rest"; done > AUTHORS
+make AUTHORS
 
 # Update NEWS.md
 cargo install clog-cli
