@@ -764,7 +764,7 @@ module_check() {
     local _forced=0
     local _hostonly=$hostonly
     [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
-    [ $# -eq 2 ] && _forced=$2
+    [ $# -ge 2 ] && _forced=$2
     [[ -d $_moddir ]] || return 1
     if [[ ! -f $_moddir/module-setup.sh ]]; then
         # if we do not have a check script, we are unconditionally included
