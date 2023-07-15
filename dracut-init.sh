@@ -83,6 +83,11 @@ export srcmods
 
 DRACUT_LDD=${DRACUT_LDD:-ldd}
 DRACUT_TESTBIN=${DRACUT_TESTBIN:-/bin/sh}
+[[ -e $DRACUT_TESTBIN ]] || {
+    [[ -L $DRACUT_TESTBIN ]] && read -r -a L < <(ls -l "$DRACUT_TESTBIN")
+    dfatal "DRACUT_TESTBIN '$DRACUT_TESTBIN' ${L:+(${L[@]:8:3}) }not found."
+    exit 1
+}
 DRACUT_LDCONFIG=${DRACUT_LDCONFIG:-ldconfig}
 
 # shellcheck source=./dracut-functions.sh
