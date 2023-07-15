@@ -2,66 +2,12 @@ FROM docker.io/debian:latest
 
 MAINTAINER https://github.com/dracutdevs/dracut
 
+COPY tools/* /tmp/
+WORKDIR /tmp
+
 # Install needed packages for the dracut CI container
 # Install dracut as a linux-initramfs-tool provider so that the default initramfs-tool package does not get installed
 # Uninstall initramfs-tools-core as a workaround for https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=994492
 RUN apt-get update -y -qq && apt-get upgrade -y -qq && apt-get install -y -qq --no-install-recommends dracut && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends -o Dpkg::Use-Pty=0 \
-    asciidoc \
-    astyle \
-    btrfs-progs \
-    busybox-static \
-    bzip2 \
-    ca-certificates \
-    console-setup \
-    cpio \
-    cryptsetup \
-    curl \
-    dash \
-    debhelper \
-    debhelper-compat \
-    dmraid \
-    docbook \
-    docbook-xml \
-    docbook-xsl \
-    fdisk \
-    g++ \
-    gawk \
-    git \
-    iputils-arping \
-    iputils-ping \
-    isc-dhcp-client \
-    isc-dhcp-server \
-    kmod \
-    less \
-    libdmraid-dev \
-    libkmod-dev \
-    linux-image-generic \
-    lvm2 \
-    make \
-    mdadm \
-    multipath-tools \
-    nbd-client \
-    nbd-server \
-    network-manager \
-    nfs-kernel-server \
-    ntfs-3g \
-    open-iscsi \
-    ovmf \
-    parted \
-    pigz \
-    pkg-config \
-    procps \
-    qemu-system-x86 \
-    quilt \
-    shellcheck \
-    squashfs-tools \
-    strace \
-    sudo \
-    systemd-boot-efi \
-    tcpdump \
-    tgt \
-    thin-provisioning-tools \
-    vim \
-    wget \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends -o Dpkg::Use-Pty=0 $(/tmp/test-packages.sh) \
     && apt-get clean && dpkg -P --force-depends dracut dracut-core initramfs-tools-core

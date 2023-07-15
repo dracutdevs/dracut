@@ -7,58 +7,10 @@ RUN pacman --noconfirm -Syu base-devel git
 RUN useradd -m build && echo "build ALL=(ALL) NOPASSWD: /usr/bin/pacman" > "/etc/sudoers.d/allow_pacman"
 RUN su build -c 'cd && git clone https://aur.archlinux.org/paru-bin.git && cd paru-bin && makepkg -s --noconfirm' && pacman -U --noconfirm ~build/paru-bin/*.pkg.tar.*
 
+COPY tools/* /tmp/
+WORKDIR /tmp
+
 # Install needed packages for the dracut CI container
 # Assume that initramfs virtual package is installed so that the default mkinitcpio package does not get installed
-RUN su build -c 'paru --needed --noconfirm -Syu --assume-installed initramfs \
-    asciidoc \
-    astyle \
-    bash-completion \
-    biosdevname \
-    bluez \
-    btrfs-progs \
-    busybox \
-    bzip2 \
-    cifs-utils \
-    connman \
-    cpio \
-    cryptsetup \
-    dash \
-    dhclient \
-    dhcp \
-    dmraid \
-    e2fsprogs \
-    f2fs-tools \
-    fuse3 \
-    iproute \
-    iputils \
-    kbd \
-    linux \
-    lvm2 \
-    lzop \
-    mdadm \
-    memstrack \
-    multipath-tools \
-    nbd \
-    ndctl \
-    networkmanager \
-    nfs-utils \
-    ntfs-3g \
-    nvme-cli \
-    open-iscsi \
-    parted \
-    pcsclite \
-    pigz \
-    qemu \
-    rng-tools \
-    sbsigntools \
-    shellcheck \
-    shfmt \
-    squashfs-tools \
-    strace \
-    tar \
-    tcpdump \
-    tgt \
-    tpm2-tools \
-    vi \
-    which' \
+RUN su build -c 'paru --needed --noconfirm -Syu --assume-installed initramfs `/tmp/test-packages.sh` ' \
     && yes | paru -Sccd
