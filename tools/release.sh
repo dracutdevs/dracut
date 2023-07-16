@@ -1,5 +1,15 @@
 #!/bin/bash
 
+if [ -z "$1" ]; then
+    LAST_VERSION=$(git describe --abbrev=0 --tags --always 2> /dev/null)
+    NEW_VERSION=$(echo "$LAST_VERSION" | awk '{print ++$1}')
+    if [ "$NEW_VERSION" -lt 100 ]; then
+        NEW_VERSION="0$NEW_VERSION"
+    fi
+else
+    NEW_VERSION="$1"
+fi
+
 # CONTRIBUTORS
 printf "#### Contributors\n\n" > CONTRIBUTORS.md
 make CONTRIBUTORS >> CONTRIBUTORS.md
@@ -11,7 +21,7 @@ make AUTHORS
 cargo install clog-cli
 head -2 NEWS.md > NEWS_header.md
 tail +2 NEWS.md > NEWS_body.md
-printf "dracut-%s\n==========\n" "$1" > NEWS_header_new.md
+printf "dracut-%s\n==========\n" "$NEW_VERSION" > NEWS_header_new.md
 cat CONTRIBUTORS.md NEWS_body.md > NEWS_body_with_conttributors.md
 
 # clog will always output both the new release and old release information together
@@ -29,5 +39,5 @@ git config user.name "Dracut Release Bot"
 git config user.email "<>"
 git commit -m "docs: update NEWS.md and AUTHORS" NEWS.md AUTHORS
 git push origin master
-git tag "$1" -m "$1"
+git tag "$NEW_VERSION" -m "$NEW_VERSION"
 git push --tags
