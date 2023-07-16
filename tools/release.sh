@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# CONTRIBUTORS
+make CONTRIBUTORS > _CONTRIBUTORS
+if [ ! -s _CONTRIBUTORS ]; then
+    # no CONTRIBUTORS means no need to make a release
+    # exit without populating new_version
+    exit 0
+fi
+
 if [ -z "$1" ]; then
     LAST_VERSION=$(git describe --abbrev=0 --tags --always 2> /dev/null)
     NEW_VERSION=$(echo "$LAST_VERSION" | awk '{print ++$1}')
@@ -10,9 +18,8 @@ else
     NEW_VERSION="$1"
 fi
 
-# CONTRIBUTORS
 printf "#### Contributors\n\n" > CONTRIBUTORS.md
-make CONTRIBUTORS >> CONTRIBUTORS.md
+cat _CONTRIBUTORS >> CONTRIBUTORS.md
 
 # Update AUTHORS
 make AUTHORS
@@ -41,3 +48,6 @@ git commit -m "docs: update NEWS.md and AUTHORS" NEWS.md AUTHORS
 git push origin master
 git tag "$NEW_VERSION" -m "$NEW_VERSION"
 git push --tags
+
+# export new version to Github Action
+echo "new_version=${NEW_VERSION,,}" >> "${GITHUB_ENV}"
