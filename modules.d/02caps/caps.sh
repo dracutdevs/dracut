@@ -19,9 +19,9 @@ if [ "$capsmode" = "1" ]; then
         echo "$CAPS_MODULES_DISABLED" > /proc/sys/kernel/modules_disabled
     fi
 
-    if [ "$CAPS_KEXEC_DISABLED" = "1" -a -e /proc/sys/kernel/kexec_disabled ]; then
+    if [ "$CAPS_KEXEC_DISABLED" = "1" -a -e /proc/sys/kernel/kexec_load_disabled ]; then
         info "Disabling kexec."
-        echo "$CAPS_KEXEC_DISABLED" > /proc/sys/kernel/kexec_disabled
+        echo "$CAPS_KEXEC_DISABLED" > /proc/sys/kernel/kexec_load_disabled
     fi
 
     info "CAPS_USERMODEHELPER_BSET=$CAPS_USERMODEHELPER_BSET"
