@@ -1047,7 +1047,7 @@ pe_file_format() {
     if [[ $# -eq 1 ]]; then
         local magic
         magic=$(objdump -p "$1" \
-            | awk '{if ($1 == "Magic"){print strtonum("0x"$2)}}')
+            | gawk '{if ($1 == "Magic"){print strtonum("0x"$2)}}')
         magic=$(printf "0x%x" "$magic")
         # 0x10b (PE32), 0x20b (PE32+)
         [[ $magic == 0x20b || $magic == 0x10b ]] && return 0

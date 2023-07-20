@@ -2467,7 +2467,7 @@ if [[ $uefi == yes ]]; then
         fi
     fi
 
-    offs=$(objdump -h "$uefi_stub" 2> /dev/null | awk 'NF==7 {size=strtonum("0x"$3);\
+    offs=$(objdump -h "$uefi_stub" 2> /dev/null | gawk 'NF==7 {size=strtonum("0x"$3);\
                 offset=strtonum("0x"$4)} END {print size + offset}')
     if [[ $offs -eq 0 ]]; then
         dfatal "Failed to get the size of $uefi_stub to create UEFI image file"
