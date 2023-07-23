@@ -945,10 +945,10 @@ check_mount() {
 
     if [[ " $dracutmodules $add_dracutmodules $force_add_dracutmodules" == *\ $_mod\ * ]]; then
         module_check_mount "$_mod" "$_moddir"
-        ret=$?
+        _ret=$?
 
-        # explicit module, so also accept ret=255
-        [[ $ret == 0 || $ret == 255 ]] || return 1
+        # explicit module, so also accept _ret=255
+        [[ $_ret == 0 || $_ret == 255 ]] || return 1
     else
         # module not in our list
         if [[ $dracutmodules == all ]]; then
@@ -1012,22 +1012,22 @@ check_module() {
     if [[ " $dracutmodules $add_dracutmodules $force_add_dracutmodules" == *\ $_mod\ * ]]; then
         if [[ " $dracutmodules $force_add_dracutmodules " == *\ $_mod\ * ]]; then
             module_check "$_mod" 1 "$_moddir"
-            ret=$?
+            _ret=$?
         else
             module_check "$_mod" 0 "$_moddir"
-            ret=$?
+            _ret=$?
         fi
-        # explicit module, so also accept ret=255
-        [[ $ret == 0 || $ret == 255 ]] || return 1
+        # explicit module, so also accept _ret=255
+        [[ $_ret == 0 || $_ret == 255 ]] || return 1
     else
         # module not in our list
         if [[ $dracutmodules == all ]]; then
             # check, if we can and should install this module
             module_check "$_mod" 0 "$_moddir"
-            ret=$?
-            if [[ $ret != 0 ]]; then
+            _ret=$?
+            if [[ $_ret != 0 ]]; then
                 [[ $2 ]] && return 1
-                [[ $ret != 255 ]] && return 1
+                [[ $_ret != 255 ]] && return 1
             fi
         else
             # skip this module
