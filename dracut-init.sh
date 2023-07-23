@@ -949,10 +949,12 @@ check_mount() {
     [[ " $mods_to_load " == *\ $_mod\ * ]] && return 0
     [[ " $mods_checked_as_dep " == *\ $_mod\ * ]] && return 1
 
-    # This should never happen, but...
-    [[ -d $_moddir ]] || return 1
-
     [[ $2 ]] || mods_checked_as_dep+=" $_mod "
+
+    [[ -d $_moddir ]] || {
+        dwarn "Module '$_mod' cannot be installed without a source directory, '$_moddir'."
+        return 1
+    }
 
     # shellcheck disable=SC2154
     if [[ " $omit_dracutmodules " == *\ $_mod\ * ]]; then
@@ -1015,10 +1017,12 @@ check_module() {
     [[ " $mods_to_load " == *\ $_mod\ * ]] && return 0
     [[ " $mods_checked_as_dep " == *\ $_mod\ * ]] && return 1
 
-    # This should never happen, but...
-    [[ -d $_moddir ]] || return 1
-
     [[ $2 ]] || mods_checked_as_dep+=" $_mod "
+
+    [[ -d $_moddir ]] || {
+        dwarn "Module '$_mod' cannot be installed without a source directory, '$_moddir'."
+        return 1
+    }
 
     if [[ " $omit_dracutmodules " == *\ $_mod\ * ]]; then
         ddebug "Module '$_mod' will not be installed, because it's in the list to be omitted!"
@@ -1083,6 +1087,7 @@ for_each_module_dir() {
     local _moddir
     local _func
     local _reason
+    LC_COLLATE=C
     _func=$1
     for _moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
         [[ -d $_moddir ]] || continue

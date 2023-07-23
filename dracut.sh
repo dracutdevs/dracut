@@ -1799,6 +1799,8 @@ mods_to_postprocess=""
 # This builds a list of modules that we will install next.
 for_each_module_dir check_module
 for_each_module_dir check_mount
+# Assure an explicit command shell or ~no~sh.
+[[ $dracutmodules == all ]] || module_depends ~sh "$(dracut_module_path ~sh)"
 
 dracut_module_included "fips" && export DRACUT_FIPS_MODE=1
 
