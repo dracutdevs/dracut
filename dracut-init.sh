@@ -916,6 +916,22 @@ module_installkernel() {
     fi
 }
 
+# [action=<action>] module_postprocess <dracut module> <module path>
+# Execute the postprocess() function of module-setup.sh of <dracut module> with
+# optional action directive.
+module_postprocess() {
+    local _moddir=$2
+    local _ret
+    unset -f 'postprocess'
+    postprocess() { true; }
+    # shellcheck disable=SC1090
+    . "$_moddir"/module-setup.sh
+    moddir=$_moddir postprocess
+    _ret=$?
+    unset -f 'postprocess'
+    return $_ret
+}
+
 # check_mount <dracut module> [<use_as_dep>] [<module path>]
 # check_mount checks, if a dracut module is needed for the given
 # device and filesystem types in "${host_fs_types[@]}"

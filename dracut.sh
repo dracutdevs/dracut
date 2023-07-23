@@ -1783,7 +1783,7 @@ done
 
 export initdir dracutbasedir \
     dracutmodules force_add_dracutmodules add_dracutmodules omit_dracutmodules \
-    mods_to_load \
+    mods_to_load mods_to_postprocess \
     fw_dir drivers_dir debug no_kernel kernel_only \
     omit_drivers mdadmconf lvmconf root_devs \
     use_fstab fstab_lines libdirs fscks nofscks ro_mnt \
@@ -1794,6 +1794,7 @@ export initdir dracutbasedir \
     hostonly_cmdline loginstall
 
 mods_to_load=""
+mods_to_postprocess=""
 # check all our modules to see if they should be sourced.
 # This builds a list of modules that we will install next.
 for_each_module_dir check_module
@@ -1896,6 +1897,7 @@ fi
 _isize=0 #initramfs size
 modules_loaded=" "
 # source our modules.
+dinfo "*** Including modules ***"
 for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
     _d_mod=${moddir##*/}
     _d_mod=${_d_mod#[0-9][0-9]}
@@ -2230,6 +2232,15 @@ if [[ $kernel_only != yes ]]; then
     build_ld_cache
 fi
 
+for _d_mod in $mods_to_postprocess; do
+    # $_d_mod here includes structured info as module:moddir[@action@...]
+    strstr "$_d_mod" "@installpost@" && {
+        _d_mod=${_d_mod/@installpost/}
+        _moddir=${_d_mod%@*}
+        action=installpost module_postprocess "${_d_mod%:*}" "${_moddir#*:}"
+    }
+done
+
 if dracut_module_included "squash"; then
     readonly squash_dir="$initdir/squash/root"
     readonly squash_img="$initdir/squash-root.img"
@@ -2254,6 +2265,11 @@ if [[ $do_strip == yes ]] && ! [[ $DRACUT_FIPS_MODE ]]; then
         done | xargs -r -0 $strip_cmd "${strip_args[@]}"
     dinfo "*** Stripping files done ***"
 fi
+
+for _d_mod in $mods_to_postprocess; do
+    _d_mod=${_d_mod%%@*}
+    module_postprocess "${_d_mod%:*}" "${_d_mod#*:}"
+done
 
 if dracut_module_included "squash"; then
     dinfo "*** Squashing the files inside the initramfs ***"
