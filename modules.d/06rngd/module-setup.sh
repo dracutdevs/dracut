@@ -32,7 +32,12 @@ depends() {
 
 install() {
     inst rngd
-    inst_simple "${moddir}/rngd.service" "${systemdsystemunitdir}/rngd.service"
+    inst_simple "${systemdsystemunitdir}/rngd.service"
+
+    if [ -r /etc/sysconfig/rngd ]; then
+        inst_simple "${moddir}/sysconfig" "/etc/sysconfig/rngd"
+    fi
+
     # make sure dependant libs are installed too
     inst_libdir_file opensc-pkcs11.so
 
