@@ -39,6 +39,9 @@ depends() {
         }
     }
 
+    # Always module_check bash to enroll it for postprocessing.
+    module_check bash
+
     [[ " $mods_to_load " == @(${_shells_pattern%|}) ]] || {
         for _sh in $_shells; do
             add_dracutmodules+=" $_sh "
