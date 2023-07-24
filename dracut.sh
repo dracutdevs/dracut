@@ -2243,14 +2243,6 @@ for _d_mod in $mods_to_postprocess; do
     }
 done
 
-if dracut_module_included "squash"; then
-    readonly squash_dir="$initdir/squash/root"
-    readonly squash_img="$initdir/squash-root.img"
-    mkdir -p "$squash_dir"
-    dinfo "*** Install squash loader ***"
-    DRACUT_SQUASH_POST_INST=1 module_install "squash"
-fi
-
 if [[ $do_strip == yes ]] && ! [[ $DRACUT_FIPS_MODE ]]; then
     # stripping files negates (dedup) benefits of using reflink
     [[ -n $enhanced_cpio ]] && ddebug "strip is enabled alongside cpio reflink"
@@ -2270,35 +2262,8 @@ fi
 
 for _d_mod in $mods_to_postprocess; do
     _d_mod=${_d_mod%%@*}
-    module_postprocess "${_d_mod%:*}" "${_d_mod#*:}"
+    squash_compress=$squash_compress module_postprocess "${_d_mod%:*}" "${_d_mod#*:}"
 done
-
-if dracut_module_included "squash"; then
-    dinfo "*** Squashing the files inside the initramfs ***"
-    declare squash_compress_arg
-    # shellcheck disable=SC2086
-    if [[ $squash_compress ]]; then
-        if ! mksquashfs /dev/null "$DRACUT_TMPDIR"/.squash-test.img -no-progress -comp $squash_compress &> /dev/null; then
-            dwarn "mksquashfs doesn't support compressor '$squash_compress', failing back to default compressor."
-        else
-            squash_compress_arg="$squash_compress"
-        fi
-    fi
-
-    # shellcheck disable=SC2086
-    if ! mksquashfs "$squash_dir" "$squash_img" \
-        -no-xattrs -no-exports -noappend -no-recovery -always-use-fragments \
-        -no-progress ${squash_compress_arg:+-comp $squash_compress_arg} 1> /dev/null; then
-        dfatal "Failed making squash image"
-        exit 1
-    fi
-
-    rm -rf "$squash_dir"
-    dinfo "*** Squashing the files inside the initramfs done ***"
-
-    # Skip initramfs compress
-    compress="cat"
-fi
 
 dinfo "*** Creating image file '$outfile' ***"
 

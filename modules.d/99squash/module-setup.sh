@@ -8,13 +8,29 @@ check() {
 }
 
 depends() {
+
+    if find_binary busybox &> /dev/null \
+        && ! strstr " $omit_dracutmodules " " busybox "; then
+        echo "busybox"
+    fi
     echo "systemd-initrd"
     return 0
 }
 
+install() {
+
+    # Enroll module for postprocessing.
+    # shellcheck disable=SC2154
+    mods_to_postprocess+=" squash:$moddir@installpost@ "
+
+}
+
 installpost() {
-    local _busybox
-    _busybox=$(find_binary busybox)
+    # shellcheck disable=SC2154
+    readonly squash_dir="$initdir/squash/root"
+    readonly squash_img="$initdir/squash-root.img"
+    mkdir -p "$squash_dir"
+    dinfo "*** Install squash loader ***"
 
     # Move everything under $initdir except $squash_dir
     # itself into squash image
@@ -26,16 +42,16 @@ installpost() {
     mkdir -p "$initdir"/squash/
     mkdir -p "$squash_dir"/squash/
 
-    # Copy dracut spec files out side of the squash image
-    # so dracut rebuild and lsinitrd can work
+    # Copy /dracut/ directory files out of the squash image directory
+    # so dracut rebuild and lsinitrd can work.
     for file in "$squash_dir"/usr/lib/dracut/*; do
         [[ -f $file ]] || continue
         DRACUT_RESOLVE_DEPS=1 dracutsysrootdir="$squash_dir" inst "${file#"$squash_dir"}"
     done
 
     # Install required modules and binaries for the squash image init script.
-    if [[ $_busybox ]]; then
-        inst "$_busybox" /usr/bin/busybox
+    if find_binary busybox; then
+        inst busybox /usr/bin/busybox
         for _i in sh echo mount modprobe mkdir switch_root grep umount; do
             ln_r /usr/bin/busybox /usr/bin/$_i
         done
@@ -61,8 +77,37 @@ installpost() {
     build_ld_cache
 }
 
-install() {
-    if [[ $DRACUT_SQUASH_POST_INST ]]; then
+postprocess() {
+
+    # shellcheck disable=SC2154
+    [[ $action == installpost ]] && {
         installpost
+        return 0
+    }
+
+    dinfo "*** Squashing the files inside the initramfs ***"
+    declare squash_compress_arg
+    if [[ $squash_compress ]]; then
+        # shellcheck disable=SC2086
+        if ! mksquashfs /dev/null "$DRACUT_TMPDIR"/.squash-test.img -no-progress -comp $squash_compress &> /dev/null; then
+            dwarn "mksquashfs doesn't support compressor '$squash_compress', falling back to default compressor."
+        else
+            squash_compress_arg="$squash_compress"
+        fi
     fi
+
+    # shellcheck disable=SC2086
+    if ! mksquashfs "$squash_dir" "$squash_img" \
+        -no-xattrs -no-exports -noappend -no-recovery -always-use-fragments \
+        -no-progress ${squash_compress_arg:+-comp $squash_compress_arg} 1> /dev/null; then
+        dfatal "Failed making squash image"
+        exit 1
+    fi
+
+    rm -rf "$squash_dir"
+    dinfo "*** Squashing the files inside the initramfs done ***"
+
+    # Skip initramfs compress
+    export compress="cat"
+
 }
