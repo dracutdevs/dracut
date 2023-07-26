@@ -31,19 +31,13 @@ print_s390() {
     local NETTYPE
     local CONFIG_LINE
     local i
-    local channel
     local OLD_IFS
 
     _netif="$1"
     # if we find ccw channel, then use those, instead of
     # of the MAC
-    SUBCHANNELS=$({
-        for i in /sys/class/net/"$_netif"/device/cdev[0-9]*; do
-            [ -e "$i" ] || continue
-            channel=$(readlink -f "$i")
-            printf '%s' "${channel##*/},"
-        done
-    })
+    # [iface_get_subchannels() from /lib/net-lib.sh sourced at top of this file]
+    SUBCHANNELS=$(iface_get_subchannels "$_netif")
     [ -n "$SUBCHANNELS" ] || return 1
 
     SUBCHANNELS=${SUBCHANNELS%,}
