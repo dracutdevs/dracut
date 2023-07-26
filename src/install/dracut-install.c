@@ -1391,13 +1391,55 @@ static int install_firmware_fullpath(const char *fwpath)
         return ret;
 }
 
+static bool try_install_single_firmware(struct kmod_module *mod,
+                                        const char *value, bool in_group_one_only)
+{
+        bool group_only_one_found = false;
+        int ret = -1;
+        char **q;
+
+        STRV_FOREACH(q, firmwaredirs) {
+                _cleanup_free_ char *fwpath = NULL;
+
+                _asprintf(&fwpath, "%s/%s", *q, value);
+
+                if (strpbrk(value, "*?[") != NULL
+                    && access(fwpath, F_OK) != 0) {
+                        size_t i;
+                        _cleanup_globfree_ glob_t globbuf;
+
+                        glob(fwpath, 0, NULL, &globbuf);
+                        for (i = 0; i < globbuf.gl_pathc; i++) {
+                                if (group_only_one_found)
+                                        break;
+                                ret = install_firmware_fullpath(globbuf.gl_pathv[i]);
+                                if (ret != 0) {
+                                        if (!in_group_one_only)
+                                                log_info("Possible missing firmware %s for kernel module %s", value,
+                                                         kmod_module_get_name(mod));
+                                } else if (in_group_one_only)
+                                        group_only_one_found = true;
+
+                        }
+                } else {
+                        ret = install_firmware_fullpath(fwpath);
+                        if (ret != 0) {
+                                if (!in_group_one_only)
+                                        log_info("Possible missing firmware %s for kernel module %s", value,
+                                                 kmod_module_get_name(mod));
+                        } else if (in_group_one_only)
+                                group_only_one_found = true;
+                }
+        }
+        return group_only_one_found;
+}
+
 static int install_firmware(struct kmod_module *mod)
 {
         struct kmod_list *l = NULL;
         _cleanup_kmod_module_info_free_list_ struct kmod_list *list = NULL;
         int ret;
-
-        char **q;
+        bool in_group_only_one = false, group_only_one_found = false;
 
         ret = kmod_module_get_info(mod, &list);
         if (ret < 0) {
@@ -1408,38 +1450,53 @@ static int install_firmware(struct kmod_module *mod)
                 const char *key = kmod_module_info_get_key(l);
                 const char *value = NULL;
 
-                if (!streq("firmware", key))
+                if (!streq("firmware", key) &&
+                    !streq("firmware_group_only_one", key) &&
+                    !streq("firmware_group_list", key))
                         continue;
 
                 value = kmod_module_info_get_value(l);
-                log_debug("Firmware %s", value);
-                ret = -1;
-                STRV_FOREACH(q, firmwaredirs) {
-                        _cleanup_free_ char *fwpath = NULL;
 
-                        _asprintf(&fwpath, "%s/%s", *q, value);
-
-                        if (strpbrk(value, "*?[") != NULL
-                            && access(fwpath, F_OK) != 0) {
-                                size_t i;
-                                _cleanup_globfree_ glob_t globbuf;
-
-                                glob(fwpath, 0, NULL, &globbuf);
-                                for (i = 0; i < globbuf.gl_pathc; i++) {
-                                        ret = install_firmware_fullpath(globbuf.gl_pathv[i]);
-                                        if (ret != 0) {
-                                                log_info("Possible missing firmware %s for kernel module %s", value,
-                                                         kmod_module_get_name(mod));
-                                        }
-                                }
-                        } else {
-                                ret = install_firmware_fullpath(fwpath);
-                                if (ret != 0) {
-                                        log_info("Possible missing firmware %s for kernel module %s", value,
+                if (streq("firmware_group_only_one", key)) {
+                        /*
+                         * firmware group only one, picks one firmware from the
+                         * firmware_group_list, and ignores all the compat firmware lines.
+                         * dracut will pick the first firmware it can find on the disk from
+                         * the group list.
+                         */
+                        if (in_group_only_one) {
+                                in_group_only_one = false;
+                                if (!group_only_one_found)
+                                        log_info("Possible missing firmware for group %s for kernel module %s", value,
                                                  kmod_module_get_name(mod));
-                                }
+                        } else {
+                                in_group_only_one = true;
+                                group_only_one_found = false;
                         }
-                }
+                        continue;
+                } else if (streq("firmware_group_list", key)) {
+
+                        if (!in_group_only_one)
+                                continue;
+
+                        /* iterate the list */
+                        char *saveptr;
+                        char *list_entry;
+                        char *list = strdup(value);
+                        list_entry = strtok_r(list, ",", &saveptr);
+                        do {
+                                group_only_one_found = try_install_single_firmware(mod, list_entry, true);
+                                if (group_only_one_found)
+                                        break;
+                                list_entry = strtok_r(NULL, ",", &saveptr);
+                        } while (list_entry);
+                        free(list);
+                        continue;
+                } else if (in_group_only_one)
+                        continue;
+
+                log_debug("Firmware %s", value);
+                try_install_single_firmware(mod, value, false);
         }
         return 0;
 }
