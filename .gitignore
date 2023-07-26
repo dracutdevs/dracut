@@ -17,7 +17,6 @@
 test*.img
 /.buildpath
 /.project
-/dracut-version.sh
 /src/install/dracut-install
 /*.rpm
 /*.[0-9]

@@ -41,10 +41,13 @@ cat NEWS_header.md NEWS_header_new.md NEWS_body_new.md NEWS_body_with_conttribut
 # message for https://github.com/dracutdevs/dracut/releases/tag
 cat -s NEWS_body_new.md CONTRIBUTORS.md > release.md
 
+# dracut-version.sh
+printf "#!/bin/sh\n# shellcheck disable=SC2034\nDRACUT_VERSION=%s\n" "$NEW_VERSION" > dracut-version.sh
+
 # Check in AUTHORS and NEWS.md
 git config user.name "Dracut Release Bot"
 git config user.email "<>"
-git commit -m "docs: update NEWS.md and AUTHORS" NEWS.md AUTHORS
+git commit -m "docs: update NEWS.md and AUTHORS" NEWS.md AUTHORS dracut-version.sh
 git push origin master
 git tag "$NEW_VERSION" -m "$NEW_VERSION"
 git push --tags
