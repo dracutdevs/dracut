@@ -48,9 +48,9 @@ man8pages = man/dracut.8 \
 
 manpages = $(man1pages) $(man5pages) $(man7pages) $(man8pages)
 
-.PHONY: install clean archive testimage test all check AUTHORS CONTRIBUTORS doc dracut-version.sh
+.PHONY: install clean archive testimage test all check AUTHORS CONTRIBUTORS doc
 
-all: dracut-version.sh dracut.pc dracut-install src/skipcpio/skipcpio dracut-util
+all: dracut.pc dracut-install src/skipcpio/skipcpio dracut-util
 
 %.o : %.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(KMOD_CFLAGS) $< -o $@
@@ -218,10 +218,6 @@ endif
 	mkdir -p $(DESTDIR)${pkgconfigdatadir}
 	install -m 0644 dracut.pc $(DESTDIR)${pkgconfigdatadir}/dracut.pc
 
-dracut-version.sh:
-	@rm -f dracut-version.sh
-	@printf "#!/bin/sh\n# shellcheck disable=SC2034\nDRACUT_VERSION=%s\n" "$(DRACUT_FULL_VERSION)" > dracut-version.sh
-
 clean:
 	$(RM) *~
 	$(RM) */*~
@@ -229,7 +225,6 @@ clean:
 	$(RM) $(manpages:%=%.xml) dracut.xml
 	$(RM) test-*.img
 	$(RM) dracut-*.tar.bz2 dracut-*.tar.xz
-	$(RM) dracut-version.sh
 	$(RM) dracut-install src/install/dracut-install $(DRACUT_INSTALL_OBJECTS)
 	$(RM) skipcpio/skipcpio $(SKIPCPIO_OBJECTS)
 	$(RM) dracut-util util/util $(UTIL_OBJECTS)
@@ -241,10 +236,9 @@ clean:
 dist: dracut-$(DRACUT_MAIN_VERSION).tar.xz
 
 dracut-$(DRACUT_MAIN_VERSION).tar.xz: doc syncheck
-	@echo "DRACUT_VERSION=$(DRACUT_MAIN_VERSION)" > dracut-version.sh
 	git archive --format=tar $(DRACUT_MAIN_VERSION) --prefix=dracut-$(DRACUT_MAIN_VERSION)/ > dracut-$(DRACUT_MAIN_VERSION).tar
 	mkdir -p dracut-$(DRACUT_MAIN_VERSION)
-	for i in $(manpages) dracut.html dracut-version.sh; do [ "$${i%/*}" != "$$i" ] && mkdir -p "dracut-$(DRACUT_MAIN_VERSION)/$${i%/*}"; cp "$$i" "dracut-$(DRACUT_MAIN_VERSION)/$$i"; done
+	for i in $(manpages) dracut.html; do [ "$${i%/*}" != "$$i" ] && mkdir -p "dracut-$(DRACUT_MAIN_VERSION)/$${i%/*}"; cp "$$i" "dracut-$(DRACUT_MAIN_VERSION)/$$i"; done
 	tar --owner=root --group=root -rf dracut-$(DRACUT_MAIN_VERSION).tar $$(find dracut-$(DRACUT_MAIN_VERSION) -type f)
 	rm -fr -- dracut-$(DRACUT_MAIN_VERSION).tar.xz dracut-$(DRACUT_MAIN_VERSION)
 	xz -9 dracut-$(DRACUT_MAIN_VERSION).tar
