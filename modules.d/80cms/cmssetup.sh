@@ -82,13 +82,19 @@ processcmsfile() {
     SUBCHANNELS="$(echo "$SUBCHANNELS" | sed 'y/ABCDEF/abcdef/')"
 
     if [[ $NETTYPE ]]; then
-        (
-            echo -n "$NETTYPE","$SUBCHANNELS"
-            [[ $PORTNAME ]] && echo -n ",portname=$PORTNAME"
-            [[ $LAYER2 ]] && echo -n ",layer2=$LAYER2"
-            [[ $NETTYPE == "ctc" ]] && [[ $CTCPROT ]] && echo -n ",protocol=$CTCPROT"
-            echo
-        ) >> /etc/ccw.conf
+        _cms_attrs=""
+        if [[ $PORTNAME ]]; then
+            if [[ $NETTYPE == lcs ]]; then
+                _cms_attrs="$_cms_attrs portno=$PORTNAME"
+            else
+                _cms_attrs="$_cms_attrs portname=$PORTNAME"
+            fi
+        fi
+        [[ $LAYER2 ]] && _cms_attrs="$_cms_attrs layer2=$LAYER2"
+        [[ $CTCPROT ]] && _cms_attrs="$_cms_attrs protocol=$CTCPROT"
+        # shellcheck disable=SC2086
+        chzdev --enable --persistent --yes --no-root-update --force \
+            "$NETTYPE" "$SUBCHANNELS" $_cms_attrs 2>&1 | vinfo
 
         OLDIFS=$IFS
         IFS=,
@@ -109,7 +115,6 @@ processcmsfile() {
         [[ -f /etc/udev/rules.d/90-net.rules ]] \
             || printf 'SUBSYSTEM=="net", ACTION=="online", RUN+="/sbin/initqueue --onetime --env netif=$name source_hook initqueue/online"\n' >> /etc/udev/rules.d/99-cms.rules
         udevadm control --reload
-        znet_cio_free
     fi
 
     if [[ $DASD ]] && [[ $DASD != "none" ]]; then
