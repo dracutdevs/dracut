@@ -1396,7 +1396,6 @@ static int install_firmware(struct kmod_module *mod)
         struct kmod_list *l = NULL;
         _cleanup_kmod_module_info_free_list_ struct kmod_list *list = NULL;
         int ret;
-
         char **q;
 
         ret = kmod_module_get_info(mod, &list);
@@ -1407,6 +1406,7 @@ static int install_firmware(struct kmod_module *mod)
         kmod_list_foreach(l, list) {
                 const char *key = kmod_module_info_get_key(l);
                 const char *value = NULL;
+                bool found_this = false;
 
                 if (!streq("firmware", key))
                         continue;
@@ -1427,18 +1427,19 @@ static int install_firmware(struct kmod_module *mod)
                                 glob(fwpath, 0, NULL, &globbuf);
                                 for (i = 0; i < globbuf.gl_pathc; i++) {
                                         ret = install_firmware_fullpath(globbuf.gl_pathv[i]);
-                                        if (ret != 0) {
-                                                log_info("Possible missing firmware %s for kernel module %s", value,
-                                                         kmod_module_get_name(mod));
-                                        }
+                                        if (ret == 0)
+                                                found_this = true;
                                 }
                         } else {
                                 ret = install_firmware_fullpath(fwpath);
-                                if (ret != 0) {
-                                        log_info("Possible missing firmware %s for kernel module %s", value,
-                                                 kmod_module_get_name(mod));
-                                }
+                                if (ret == 0)
+                                        found_this = true;
                         }
+                }
+                if (!found_this) {
+                        /* firmware path was not found in any firmwaredirs */
+                        log_info("Missing firmware %s for kernel module %s",
+                                 value, kmod_module_get_name(mod));
                 }
         }
         return 0;
