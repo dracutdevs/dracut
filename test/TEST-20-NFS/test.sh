@@ -213,8 +213,12 @@ test_run() {
         return 1
     fi
 
-    test_nfsv3 \
-        && test_nfsv4
+    # run either nfsv4 or nfsv3 tests
+    if grep -q '\-nfs4' /etc/portage/package.use/nfs-utils 2> /dev/null; then
+        test_nfsv4
+    else
+        test_nfsv3
+    fi
 
     ret=$?
 
