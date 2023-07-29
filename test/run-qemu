@@ -20,7 +20,7 @@ QEMU_CPU="${QEMU_CPU:-max}"
 }
 
 # Provide rng device sourcing the hosts /dev/urandom and other standard parameters
-ARGS+=(-M q35 -smp 2 -m 512 -nodefaults -vga none -display none -no-reboot -device virtio-rng-pci)
+ARGS+=(-M q35 -smp 2 -m 1024 -nodefaults -vga none -display none -no-reboot -device virtio-rng-pci)
 
 if ! [[ $* == *-daemonize* ]] && ! [[ $* == *-daemonize* ]]; then
     ARGS+=(-serial stdio)
