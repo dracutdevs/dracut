@@ -19,6 +19,7 @@ permissions:
 
 jobs:
     push_to_registry:
+        if: github.repository == 'dracutdevs/dracut' || vars.CONTAINER == 'enabled'
         name: Build and push containers image to GitHub Packages
         runs-on: ubuntu-latest
         concurrency:
