@@ -1783,7 +1783,7 @@ done
 
 export initdir dracutbasedir \
     dracutmodules force_add_dracutmodules add_dracutmodules omit_dracutmodules \
-    mods_to_load \
+    mods_to_load mods_to_postprocess \
     fw_dir drivers_dir debug no_kernel kernel_only \
     omit_drivers mdadmconf lvmconf root_devs \
     use_fstab fstab_lines libdirs fscks nofscks ro_mnt \
@@ -1794,10 +1794,13 @@ export initdir dracutbasedir \
     hostonly_cmdline loginstall
 
 mods_to_load=""
+mods_to_postprocess=""
 # check all our modules to see if they should be sourced.
 # This builds a list of modules that we will install next.
 for_each_module_dir check_module
 for_each_module_dir check_mount
+# Assure an explicit command shell or ~no~sh.
+[[ $dracutmodules == all ]] || module_depends ~sh "$(dracut_module_path ~sh)"
 
 dracut_module_included "fips" && export DRACUT_FIPS_MODE=1
 
@@ -1896,6 +1899,7 @@ fi
 _isize=0 #initramfs size
 modules_loaded=" "
 # source our modules.
+dinfo "*** Including modules ***"
 for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
     _d_mod=${moddir##*/}
     _d_mod=${_d_mod#[0-9][0-9]}
@@ -2230,13 +2234,14 @@ if [[ $kernel_only != yes ]]; then
     build_ld_cache
 fi
 
-if dracut_module_included "squash"; then
-    readonly squash_dir="$initdir/squash/root"
-    readonly squash_img="$initdir/squash-root.img"
-    mkdir -p "$squash_dir"
-    dinfo "*** Install squash loader ***"
-    DRACUT_SQUASH_POST_INST=1 module_install "squash"
-fi
+for _d_mod in $mods_to_postprocess; do
+    # $_d_mod here includes structured info as module:moddir[@action@...]
+    strstr "$_d_mod" "@installpost@" && {
+        _d_mod=${_d_mod/@installpost/}
+        _moddir=${_d_mod%@*}
+        action=installpost module_postprocess "${_d_mod%:*}" "${_moddir#*:}"
+    }
+done
 
 if [[ $do_strip == yes ]] && ! [[ $DRACUT_FIPS_MODE ]]; then
     # stripping files negates (dedup) benefits of using reflink
@@ -2255,32 +2260,10 @@ if [[ $do_strip == yes ]] && ! [[ $DRACUT_FIPS_MODE ]]; then
     dinfo "*** Stripping files done ***"
 fi
 
-if dracut_module_included "squash"; then
-    dinfo "*** Squashing the files inside the initramfs ***"
-    declare squash_compress_arg
-    # shellcheck disable=SC2086
-    if [[ $squash_compress ]]; then
-        if ! mksquashfs /dev/null "$DRACUT_TMPDIR"/.squash-test.img -no-progress -comp $squash_compress &> /dev/null; then
-            dwarn "mksquashfs doesn't support compressor '$squash_compress', failing back to default compressor."
-        else
-            squash_compress_arg="$squash_compress"
-        fi
-    fi
-
-    # shellcheck disable=SC2086
-    if ! mksquashfs "$squash_dir" "$squash_img" \
-        -no-xattrs -no-exports -noappend -no-recovery -always-use-fragments \
-        -no-progress ${squash_compress_arg:+-comp $squash_compress_arg} 1> /dev/null; then
-        dfatal "Failed making squash image"
-        exit 1
-    fi
-
-    rm -rf "$squash_dir"
-    dinfo "*** Squashing the files inside the initramfs done ***"
-
-    # Skip initramfs compress
-    compress="cat"
-fi
+for _d_mod in $mods_to_postprocess; do
+    _d_mod=${_d_mod%%@*}
+    squash_compress=$squash_compress module_postprocess "${_d_mod%:*}" "${_d_mod#*:}"
+done
 
 dinfo "*** Creating image file '$outfile' ***"
 

@@ -24,11 +24,6 @@ install() {
     ln -s dracut-util "${initdir}/usr/bin/dracut-getarg"
     ln -s dracut-util "${initdir}/usr/bin/dracut-getargs"
 
-    if [ ! -e "${initdir}/bin/sh" ]; then
-        inst_multiple bash
-        (ln -s bash "${initdir}/bin/sh" || :)
-    fi
-
     # add common users in /etc/passwd, it will be used by nfs/ssh currently
     # use password for hostonly images to facilitate secure sulogin in emergency console
     [[ $hostonly ]] && pwshadow='x'

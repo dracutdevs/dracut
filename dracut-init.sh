@@ -916,6 +916,22 @@ module_installkernel() {
     fi
 }
 
+# [action=<action>] module_postprocess <dracut module> <module path>
+# Execute the postprocess() function of module-setup.sh of <dracut module> with
+# optional action directive.
+module_postprocess() {
+    local _moddir=$2
+    local _ret
+    unset -f 'postprocess'
+    postprocess() { true; }
+    # shellcheck disable=SC1090
+    . "$_moddir"/module-setup.sh
+    moddir=$_moddir postprocess
+    _ret=$?
+    unset -f 'postprocess'
+    return $_ret
+}
+
 # check_mount <dracut module> [<use_as_dep>] [<module path>]
 # check_mount checks, if a dracut module is needed for the given
 # device and filesystem types in "${host_fs_types[@]}"
@@ -933,10 +949,12 @@ check_mount() {
     [[ " $mods_to_load " == *\ $_mod\ * ]] && return 0
     [[ " $mods_checked_as_dep " == *\ $_mod\ * ]] && return 1
 
-    # This should never happen, but...
-    [[ -d $_moddir ]] || return 1
-
     [[ $2 ]] || mods_checked_as_dep+=" $_mod "
+
+    [[ -d $_moddir ]] || {
+        dwarn "Module '$_mod' cannot be installed without a source directory, '$_moddir'."
+        return 1
+    }
 
     # shellcheck disable=SC2154
     if [[ " $omit_dracutmodules " == *\ $_mod\ * ]]; then
@@ -999,10 +1017,12 @@ check_module() {
     [[ " $mods_to_load " == *\ $_mod\ * ]] && return 0
     [[ " $mods_checked_as_dep " == *\ $_mod\ * ]] && return 1
 
-    # This should never happen, but...
-    [[ -d $_moddir ]] || return 1
-
     [[ $2 ]] || mods_checked_as_dep+=" $_mod "
+
+    [[ -d $_moddir ]] || {
+        dwarn "Module '$_mod' cannot be installed without a source directory, '$_moddir'."
+        return 1
+    }
 
     if [[ " $omit_dracutmodules " == *\ $_mod\ * ]]; then
         ddebug "Module '$_mod' will not be installed, because it's in the list to be omitted!"
@@ -1067,6 +1087,7 @@ for_each_module_dir() {
     local _moddir
     local _func
     local _reason
+    LC_COLLATE=C
     _func=$1
     for _moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
         [[ -d $_moddir ]] || continue

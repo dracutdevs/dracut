@@ -174,6 +174,18 @@ dracut_install_dir/modules.d/
        which rely on the network module to detect and configure network
        interfaces.
 
+`postprocess()`:
+       This function of module-setup.sh is invoked by dracut in a
+       postprocessing loop (after all module files have been installed and all
+       other module scripts have run) if the variable _$mods_to_postprocess_
+       is enrolled with module information structured in a space-separated list
+       like `" module:moddir[@action@...] ... "`. For example, the squash
+       module employs this feature with action 'installpost' like this,
+       `mods_to_postprocess+=" squash:$moddir@installpost@ "`, in order to move
+       files into a `../squash/root/` directory in preparation for squashing
+       the image. A second call to `postprocess()` is made after striping
+       object files when the image is ready for squashing.
+
 Any other files in the module will not be touched by dracut directly.
 
 You are encouraged to provide a README that describes what the module is for.
