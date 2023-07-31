@@ -113,7 +113,7 @@ Creates initial ramdisk images for preloading modules
   -k, --kmoddir [DIR]   Specify the directory where to look for kernel
                          modules.
   --fwdir [DIR]         Specify additional colon-separated list of directories
-                         where to look for firmware files.
+                         where to look for CPU firmware (microcode) files.
   --libdirs [LIST]      Specify a space-separated list of directories
                          where to look for libraries.
   --kernel-only         Only install kernel drivers and firmware files.
