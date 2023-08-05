@@ -97,9 +97,7 @@ install() {
 
     inst_hook cmdline 30 "$moddir/parse-crypt.sh"
     inst_hook shutdown 24 "$moddir/crypt-shutdown.sh"
-    if type "cryptsetup" > /dev/null 2>&1; then
-        inst_binary cryptsetup
-    fi
+    inst_multiple -o cryptsetup
     if ! dracut_module_included "systemd"; then
         inst_multiple rmdir readlink umount
         inst_script "$moddir"/cryptroot-ask.sh /sbin/cryptroot-ask
