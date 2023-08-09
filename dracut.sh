@@ -2045,7 +2045,13 @@ if [[ $kernel_only != yes ]]; then
         # shellcheck disable=SC2086
         find "$initdir" -type f -perm /0111 -not -path '*.ko' -print0 \
             | xargs -r -0 $DRACUT_INSTALL ${initdir:+-D "$initdir"} ${dracutsysrootdir:+-r "$dracutsysrootdir"} -R ${DRACUT_FIPS_MODE:+-f} --
-        dinfo "*** Resolving executable dependencies done ***"
+        # shellcheck disable=SC2181
+        if (($? == 0)); then
+            dinfo "*** Resolving executable dependencies done ***"
+        else
+            dfatal "Resolving executable dependencies failed"
+            exit 1
+        fi
     fi
 
     # Now we are done with lazy resolving, always install dependencies
