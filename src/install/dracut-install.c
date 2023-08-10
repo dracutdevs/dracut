@@ -480,6 +480,11 @@ static char *get_real_file(const char *src, bool fullyresolve)
 
         log_debug("get_real_file: readlink('%s') returns '%s'", fullsrcpath, linktarget);
 
+        if (streq(fullsrcpath, linktarget)) {
+                log_error("ERROR: '%s' is pointing to itself", fullsrcpath);
+                return NULL;
+        }
+
         if (linktarget[0] == '/') {
                 _asprintf(&abspath, "%s%s", (sysrootdirlen ? sysrootdir : ""), linktarget);
         } else {
