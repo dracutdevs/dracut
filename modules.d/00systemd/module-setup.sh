@@ -83,6 +83,7 @@ install() {
         "$systemdsystemunitdir"/kmod-static-nodes.service \
         "$systemdsystemunitdir"/systemd-tmpfiles-setup.service \
         "$systemdsystemunitdir"/systemd-tmpfiles-setup-dev.service \
+        "$systemdsystemunitdir"/systemd-tmpfiles-setup-dev-early.service \
         "$systemdsystemunitdir"/systemd-ask-password-console.path \
         "$systemdsystemunitdir"/systemd-udevd-control.socket \
         "$systemdsystemunitdir"/systemd-udevd-kernel.socket \
@@ -117,6 +118,7 @@ install() {
         "$systemdsystemunitdir"/sysinit.target.wants/kmod-static-nodes.service \
         "$systemdsystemunitdir"/sysinit.target.wants/systemd-tmpfiles-setup.service \
         "$systemdsystemunitdir"/sysinit.target.wants/systemd-tmpfiles-setup-dev.service \
+        "$systemdsystemunitdir"/sysinit.target.wants/systemd-tmpfiles-setup-dev-early.service \
         "$systemdsystemunitdir"/sysinit.target.wants/systemd-sysctl.service \
         "$systemdsystemunitdir"/ctrl-alt-del.target \
         "$systemdsystemunitdir"/reboot.target \

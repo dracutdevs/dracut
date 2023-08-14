@@ -45,8 +45,11 @@ install() {
         "$systemdsystemunitdir/systemd-tmpfiles-setup.service.d/*.conf" \
         "$systemdsystemunitdir"/systemd-tmpfiles-setup-dev.service \
         "$systemdsystemunitdir/systemd-tmpfiles-setup-dev.service.d/*.conf" \
-        "$systemdsystemunitdir"/sysinit.target.wants/systemd-tmpfiles-setup-dev.service \
+        "$systemdsystemunitdir"/systemd-tmpfiles-setup-dev-early.service \
+        "$systemdsystemunitdir/systemd-tmpfiles-setup-dev-early.service.d/*.conf" \
         "$systemdsystemunitdir"/sysinit.target.wants/systemd-tmpfiles-setup.service \
+        "$systemdsystemunitdir"/sysinit.target.wants/systemd-tmpfiles-setup-dev.service \
+        "$systemdsystemunitdir"/sysinit.target.wants/systemd-tmpfiles-setup-dev-early.service \
         systemd-tmpfiles
 
     # Install the hosts local user configurations if enabled.
@@ -60,7 +63,9 @@ install() {
             "$systemdsystemconfdir"/systemd-tmpfiles-setup.service \
             "$systemdsystemconfdir/systemd-tmpfiles-setup.service.d/*.conf" \
             "$systemdsystemconfdir"/systemd-tmpfiles-setup-dev.service \
-            "$systemdsystemconfdir/systemd-tmpfiles-setup-dev.service.d/*.conf"
+            "$systemdsystemconfdir/systemd-tmpfiles-setup-dev.service.d/*.conf" \
+            "$systemdsystemconfdir"/systemd-tmpfiles-setup-dev-early.service \
+            "$systemdsystemconfdir/systemd-tmpfiles-setup-dev-early.service.d/*.conf"
     fi
 
 }
