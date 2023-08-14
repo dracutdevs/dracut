@@ -1561,23 +1561,20 @@ fi
 
 if [[ $early_microcode == yes ]]; then
     if [[ $hostonly ]]; then
-        if [[ $(get_cpu_vendor) == "AMD" ]]; then
-            check_kernel_config CONFIG_MICROCODE_AMD || unset early_microcode
-        elif [[ $(get_cpu_vendor) == "Intel" ]]; then
-            check_kernel_config CONFIG_MICROCODE_INTEL || unset early_microcode
+        if [[ $(get_cpu_vendor) == "AMD" || $(get_cpu_vendor) == "Intel" ]]; then
+            check_kernel_config CONFIG_MICROCODE || unset early_microcode
         else
             unset early_microcode
         fi
     else
-        ! check_kernel_config CONFIG_MICROCODE_AMD \
-            && ! check_kernel_config CONFIG_MICROCODE_INTEL \
+        ! check_kernel_config CONFIG_MICROCODE \
             && unset early_microcode
     fi
     # Do not complain on non-x86 architectures as it makes no sense
     case "${DRACUT_ARCH:-$(uname -m)}" in
         x86_64 | i?86)
             [[ $early_microcode != yes ]] \
-                && dwarn "Disabling early microcode, because kernel does not support it. CONFIG_MICROCODE_[AMD|INTEL]!=y"
+                && dwarn "Disabling early microcode, because kernel does not support it. CONFIG_MICROCODE!=y"
             ;;
         *) ;;
     esac
