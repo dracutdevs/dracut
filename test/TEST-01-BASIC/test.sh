@@ -23,7 +23,7 @@ test_run() {
 
 test_setup() {
     # Create what will eventually be our root filesystem onto an overlay
-    "$basedir"/dracut.sh -l --keep --tmpdir "$TESTDIR" \
+    "$DRACUT" -l --keep --tmpdir "$TESTDIR" \
         -m "test-root" \
         -i ./test-init.sh /sbin/init \
         -i "${basedir}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh" \
@@ -36,7 +36,7 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -m "test-makeroot" \
         -I "mkfs.ext4" \
         -i ./create-root.sh /lib/dracut/hooks/initqueue/01-create-root.sh \
@@ -59,7 +59,7 @@ test_setup() {
     rm -- "$TESTDIR"/marker.img
 
     # make sure --omit-drivers does not filter out drivers using regexp to test for an earlier regression (assuming there is no one letter linux kernel module needed to run the test)
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -a "test watchdog" \
         -d "piix ide-gd_mod ata_piix ext4 sd_mod i6300esb ib700wdt" \
         --omit-drivers 'a b c d e f g h i j k l m n o p q r s t u v w x y z' \

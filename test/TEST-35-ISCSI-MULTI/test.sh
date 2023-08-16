@@ -189,7 +189,7 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -m "dash crypt lvm mdraid kernel-modules qemu" \
         -d "piix ide-gd_mod ata_piix ext4 sd_mod" \
         --no-hostonly-cmdline -N \
@@ -274,7 +274,7 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -m "dash rootfs-block kernel-modules qemu" \
         -d "piix ide-gd_mod ata_piix ext4 sd_mod" \
         --nomdadmconf \
@@ -309,7 +309,7 @@ test_setup() {
         inst_simple ./client.link /etc/systemd/network/01-client.link
     )
     # Make client's dracut image
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -o "plymouth dmraid nfs" \
         -a "debug ${USE_NETWORK}" \
         --no-hostonly-cmdline -N \
@@ -325,7 +325,7 @@ test_setup() {
         inst_hook pre-mount 99 ./wait-if-server.sh
     )
     # Make server's dracut image
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -a "dash rootfs-block debug kernel-modules network network-legacy" \
         -d "af_packet piix ide-gd_mod ata_piix ext4 sd_mod e1000 drbg" \
         --no-hostonly-cmdline -N \

@@ -16,13 +16,15 @@ KVERSION=${KVERSION-$(uname -r)}
 
 if [[ -z $basedir ]]; then basedir="$(realpath ../..)"; fi
 
+DRACUT=${DRACUT-${basedir}/dracut.sh}
+
 test_dracut() {
     TEST_DRACUT_ARGS+=" --local --no-hostonly --no-early-microcode --add test --kver $KVERSION"
 
     # shellcheck disable=SC2162
     IFS=' ' read -a TEST_DRACUT_ARGS_ARRAY <<< "$TEST_DRACUT_ARGS"
 
-    "$basedir"/dracut.sh "$@" \
+    "$DRACUT" "$@" \
         --kernel-cmdline "panic=1 oops=panic softlockup_panic=1 systemd.crash_reboot selinux=0 console=ttyS0,115200n81 $DEBUGFAIL" \
         "${TEST_DRACUT_ARGS_ARRAY[@]}" || return 1
 }

@@ -25,7 +25,7 @@ test_run() {
 
 test_setup() {
     # Create what will eventually be our root filesystem onto an overlay
-    "$basedir"/dracut.sh -l --keep --tmpdir "$TESTDIR" \
+    "$DRACUT" -l --keep --tmpdir "$TESTDIR" \
         -m "test-root" \
         -i ./test-init.sh /sbin/init \
         -i "${basedir}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh" \
@@ -38,7 +38,7 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -m "test-makeroot" \
         -I "mkfs.ext4" \
         -i ./create-root.sh /lib/dracut/hooks/initqueue/01-create-root.sh \
@@ -62,7 +62,7 @@ test_setup() {
 
     # systemd-analyze.sh calls man indirectly
     # make the man command succeed always
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -a "test systemd" \
         -o "network kernel-network-modules" \
         -d "piix ide-gd_mod ata_piix ext4 sd_mod" \

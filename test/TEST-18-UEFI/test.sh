@@ -41,7 +41,7 @@ test_dracut() {
     # shellcheck disable=SC2162
     IFS=' ' read -a TEST_DRACUT_ARGS_ARRAY <<< "$TEST_DRACUT_ARGS"
 
-    "$basedir"/dracut.sh "$@" \
+    "$DRACUT" "$@" \
         --kernel-cmdline "panic=1 oops=panic softlockup_panic=1 systemd.crash_reboot selinux=0 console=ttyS0,115200n81 $DEBUGFAIL" \
         "${TEST_DRACUT_ARGS_ARRAY[@]}" || return 1
 }
@@ -62,7 +62,7 @@ test_run() {
 
 test_setup() {
     # Create what will eventually be our root filesystem
-    "$basedir"/dracut.sh --local --no-hostonly --no-early-microcode --nofscks \
+    "$DRACUT" --local --no-hostonly --no-early-microcode --nofscks \
         --tmpdir "$TESTDIR" --keep --modules "test-root" --include ./test-init.sh /sbin/init \
         "$TESTDIR"/tmp-initramfs.root "$KVERSION" || return 1
 

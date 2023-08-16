@@ -73,7 +73,7 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -m "bash crypt lvm mdraid kernel-modules qemu" \
         -d "piix ide-gd_mod ata_piix ext4 sd_mod" \
         --nomdadmconf \
@@ -112,7 +112,7 @@ test_setup() {
         echo -n "test" > "$initdir"/etc/key
     )
 
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -o "plymouth network kernel-network-modules" \
         -a "debug" \
         -d "piix ide-gd_mod ata_piix ext4 sd_mod" \

@@ -81,7 +81,7 @@ test_run() {
 
 test_setup() {
     # Create what will eventually be our root filesystem onto an overlay
-    "$basedir"/dracut.sh -l --keep --tmpdir "$TESTDIR" \
+    "$DRACUT" -l --keep --tmpdir "$TESTDIR" \
         -m "test-root" \
         -i ./test-init.sh /sbin/init \
         -i "${basedir}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh" \
@@ -94,7 +94,7 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         --modules "test-makeroot" \
         --install "sfdisk mkfs.ext4 mkfs.ntfs mksquashfs" \
         --drivers "ntfs3" \
@@ -131,7 +131,7 @@ test_setup() {
 SUBSYSTEM=="block", ENV{ID_FS_TYPE}=="ntfs", ENV{ID_FS_TYPE}="ntfs3"
 EOF
 
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         --modules "test dash dmsquash-live qemu" \
         --omit "rngd" \
         --drivers "ext4 ntfs3 sd_mod" \
@@ -140,7 +140,7 @@ EOF
         --no-hostonly --no-hostonly-cmdline \
         --force "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         --modules "test dmsquash-live-autooverlay qemu" \
         --omit "rngd" \
         --drivers "ext4 sd_mod" \

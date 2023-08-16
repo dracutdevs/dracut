@@ -98,7 +98,7 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -m "bash lvm mdraid dmraid kernel-modules qemu" \
         -d "piix ide-gd_mod ata_piix ext4 sd_mod dm-multipath dm-crypt dm-round-robin faulty linear multipath raid0 raid10 raid1 raid456" \
         --no-hostonly-cmdline -N \
@@ -136,7 +136,7 @@ test_setup() {
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
     )
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -o "plymouth network kernel-network-modules" \
         -a "debug" \
         -d "piix ide-gd_mod ata_piix ext4 sd_mod" \
