@@ -30,14 +30,23 @@ fi
 KVERSION=${KVERSION-$(uname -r)}
 
 VMLINUZ="/lib/modules/${KVERSION}/vmlinuz"
+if ! [ -f "$VMLINUZ" ]; then
+    VMLINUZ="/lib/modules/${KVERSION}/vmlinux"
+fi
 
 if ! [ -f "$VMLINUZ" ]; then
     [[ -f /etc/machine-id ]] && read -r MACHINE_ID < /etc/machine-id
 
     if [[ $MACHINE_ID ]] && { [[ -d /boot/${MACHINE_ID} ]] || [[ -L /boot/${MACHINE_ID} ]]; }; then
         VMLINUZ="/boot/${MACHINE_ID}/$KVERSION/linux"
-    else
+    elif [ -f "/boot/vmlinuz-${KVERSION}" ]; then
         VMLINUZ="/boot/vmlinuz-${KVERSION}"
+    elif [ -f "/boot/vmlinux-${KVERSION}" ]; then
+        VMLINUZ="/boot/vmlinux-${KVERSION}"
+    else
+        echo "Could not find a Linux kernel version $KVERSION to test with!" >&2
+        echo "Please install linux." >&2
+        exit 1
     fi
 fi
 
