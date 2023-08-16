@@ -46,4 +46,5 @@ if [[ $* == *-initrd* ]]; then
     ARGS+=(-kernel "$VMLINUZ")
 fi
 
+echo "${0##*/}: $BIN ${ARGS[*]@Q} ${*@Q}"
 exec "$BIN" "${ARGS[@]}" "$@"
