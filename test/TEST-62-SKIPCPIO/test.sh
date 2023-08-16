@@ -40,7 +40,12 @@ skipcpio_simple() {
 2
 EOF
 
-    "$basedir"/src/skipcpio/skipcpio "$CPIO_TESTDIR/skipcpio_simple.cpio" \
+    if [ "$PKGLIBDIR" = "$basedir" ]; then
+        skipcpio_path="${PKGLIBDIR}/src/skipcpio"
+    else
+        skipcpio_path="${PKGLIBDIR}"
+    fi
+    "$skipcpio_path"/skipcpio "$CPIO_TESTDIR/skipcpio_simple.cpio" \
         | cpio -i --list > "$CPIO_TESTDIR/skipcpio_simple.list"
     cat << EOF | diff - "$CPIO_TESTDIR/skipcpio_simple.list"
 .
