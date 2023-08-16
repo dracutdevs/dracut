@@ -30,7 +30,7 @@ echo o > /proc/sysrq-trigger
 sleep 20
 EOF
 
-    "$basedir"/dracut.sh -l --drivers "" \
+    "$DRACUT" -l --drivers "" \
         "${dracut_cpio_params[@]}" \
         --modules "bash base" \
         --include "$tdir/init.sh" /lib/dracut/hooks/emergency/00-init.sh \

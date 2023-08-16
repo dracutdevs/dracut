@@ -41,7 +41,7 @@ test_run() {
 
 test_setup() {
     # Create what will eventually be our root filesystem onto an overlay
-    "$basedir"/dracut.sh -l --keep --tmpdir "$TESTDIR" \
+    "$DRACUT" -l --keep --tmpdir "$TESTDIR" \
         -m "test-root" \
         -i ./test-init.sh /sbin/init \
         -i ./fstab /etc/fstab \
@@ -55,7 +55,7 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -m "test-makeroot" \
         -I "mkfs.btrfs" \
         -i ./create-root.sh /lib/dracut/hooks/initqueue/01-create-root.sh \
@@ -83,7 +83,7 @@ test_setup() {
         return 1
     fi
 
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -a "test watchdog" \
         -o "network kernel-network-modules" \
         -d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \

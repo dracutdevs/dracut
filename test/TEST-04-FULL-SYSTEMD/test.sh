@@ -51,7 +51,7 @@ test_setup() {
     shopt -q -s globstar
 
     # Create what will eventually be our root filesystem onto an overlay
-    "$basedir"/dracut.sh -l --keep --tmpdir "$TESTDIR" \
+    "$DRACUT" -l --keep --tmpdir "$TESTDIR" \
         -m "test-root dbus" \
         -I "ldconfig" \
         -i ./test-init.sh /sbin/test-init \
@@ -116,7 +116,7 @@ EOF
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -m "test-makeroot bash btrfs" \
         -I "mkfs.btrfs" \
         -i ./create-root.sh /lib/dracut/hooks/initqueue/01-create-root.sh \
@@ -148,7 +148,7 @@ EOF
     [ -e /etc/machine-id ] && EXTRA_MACHINE="/etc/machine-id"
     [ -e /etc/machine-info ] && EXTRA_MACHINE+=" /etc/machine-info"
 
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -a "test systemd i18n qemu" \
         ${EXTRA_MACHINE:+-I "$EXTRA_MACHINE"} \
         -o "network plymouth lvm mdraid resume crypt caps dm terminfo usrmount kernel-network-modules rngd" \

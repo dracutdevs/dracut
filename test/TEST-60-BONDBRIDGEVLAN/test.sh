@@ -331,7 +331,7 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -m "bash rootfs-block kernel-modules qemu" \
         -d "piix ide-gd_mod ata_piix ext4 sd_mod" \
         --nomdadmconf \
@@ -364,7 +364,7 @@ test_setup() {
         inst_simple ./client.link /etc/systemd/network/01-client.link
     )
     # Make client's dracut image
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         --no-early-microcode \
         -o "plymouth" \
         -a "debug ${USE_NETWORK}" \
@@ -381,7 +381,7 @@ test_setup() {
         inst_hook pre-mount 99 ./wait-if-server.sh
     )
     # Make server's dracut image
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         --no-early-microcode \
         -m "rootfs-block debug kernel-modules watchdog qemu network network-legacy" \
         -d "ipvlan macvlan af_packet piix ide-gd_mod ata_piix ext4 sd_mod nfsv2 nfsv3 nfsv4 nfs_acl nfs_layout_nfsv41_files nfsd virtio-net i6300esb ib700wdt" \
