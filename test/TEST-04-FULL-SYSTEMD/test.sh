@@ -56,19 +56,19 @@ test_setup() {
         -I "ldconfig" \
         -i ./test-init.sh /sbin/test-init \
         -i ./fstab /etc/fstab \
-        -i "${basedir}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh" \
-        -i "${basedir}/modules.d/99base/dracut-dev-lib.sh" "/lib/dracut-dev-lib.sh" \
+        -i "${PKGLIBDIR}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh" \
+        -i "${PKGLIBDIR}/modules.d/99base/dracut-dev-lib.sh" "/lib/dracut-dev-lib.sh" \
         --no-hostonly --no-hostonly-cmdline --nomdadmconf --nohardlink \
         -f "$TESTDIR"/initramfs.root "$KVERSION" || return 1
 
     mkdir -p "$TESTDIR"/overlay/source && cp -a "$TESTDIR"/dracut.*/initramfs/* "$TESTDIR"/overlay/source && rm -rf "$TESTDIR"/dracut.* && export initdir=$TESTDIR/overlay/source
 
     if type -P rpm &> /dev/null; then
-        rpm -ql systemd | xargs -r "$basedir"/dracut-install ${initdir:+-D "$initdir"} -o -a -l
+        rpm -ql systemd | xargs -r "$PKGLIBDIR"/dracut-install ${initdir:+-D "$initdir"} -o -a -l
     elif type -P dpkg &> /dev/null; then
-        dpkg -L systemd | xargs -r "$basedir"/dracut-install ${initdir:+-D "$initdir"} -o -a -l
+        dpkg -L systemd | xargs -r "$PKGLIBDIR"/dracut-install ${initdir:+-D "$initdir"} -o -a -l
     elif type -P pacman &> /dev/null; then
-        pacman -Q -l systemd | while read -r _ a; do printf -- "%s\0" "$a"; done | xargs -0 -r "$basedir"/dracut-install ${initdir:+-D "$initdir"} -o -a -l
+        pacman -Q -l systemd | while read -r _ a; do printf -- "%s\0" "$a"; done | xargs -0 -r "$PKGLIBDIR"/dracut-install ${initdir:+-D "$initdir"} -o -a -l
     else
         echo "Can't install systemd base"
         return 1
@@ -82,7 +82,7 @@ test_setup() {
         | while read -r i || [ -n "$i" ]; do
             i=${i##Exec*=}
             i=${i##-}
-            "$basedir"/dracut-install ${initdir:+-D "$initdir"} -o -a -l "$i"
+            "$PKGLIBDIR"/dracut-install ${initdir:+-D "$initdir"} -o -a -l "$i"
         done
 
     # setup the testsuite target
