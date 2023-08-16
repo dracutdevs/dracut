@@ -17,6 +17,7 @@ KVERSION=${KVERSION-$(uname -r)}
 if [[ -z $basedir ]]; then basedir="$(realpath ../..)"; fi
 
 DRACUT=${DRACUT-${basedir}/dracut.sh}
+PKGLIBDIR=${PKGLIBDIR-$basedir}
 
 test_dracut() {
     TEST_DRACUT_ARGS+=" --local --no-hostonly --no-early-microcode --add test --kver $KVERSION"

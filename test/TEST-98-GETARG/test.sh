@@ -12,10 +12,10 @@ test_check() {
 
 test_setup() {
     make -C "$basedir" dracut-util
-    ln -sfnr "$basedir"/dracut-util "$TESTDIR"/dracut-getarg
-    ln -sfnr "$basedir"/dracut-util "$TESTDIR"/dracut-getargs
-    ln -sfnr "$basedir"/modules.d/99base/dracut-lib.sh "$TESTDIR"/dracut-lib.sh
-    ln -sfnr "$basedir"/modules.d/99base/dracut-dev-lib.sh "$TESTDIR"/dracut-dev-lib.sh
+    ln -sfnr "$PKGLIBDIR"/dracut-util "$TESTDIR"/dracut-getarg
+    ln -sfnr "$PKGLIBDIR"/dracut-util "$TESTDIR"/dracut-getargs
+    ln -sfnr "$PKGLIBDIR"/modules.d/99base/dracut-lib.sh "$TESTDIR"/dracut-lib.sh
+    ln -sfnr "$PKGLIBDIR"/modules.d/99base/dracut-dev-lib.sh "$TESTDIR"/dracut-dev-lib.sh
     return 0
 }
 

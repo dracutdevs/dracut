@@ -209,7 +209,7 @@ test_setup() {
         # shellcheck disable=SC2030
         export initdir=$TESTDIR/overlay/source
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$PKGLIBDIR"/dracut-init.sh
 
         (
             cd "$initdir" || exit
@@ -279,7 +279,7 @@ test_setup() {
         # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay/source/nfs/client
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$PKGLIBDIR"/dracut-init.sh
         inst_multiple sh shutdown poweroff stty cat ps ln ip \
             mount dmesg mkdir cp ping grep ls sort dd sed basename
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
@@ -322,7 +322,7 @@ test_setup() {
         # shellcheck disable=SC2031
         export initdir=$TESTDIR/overlay
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$PKGLIBDIR"/dracut-init.sh
         inst_multiple sfdisk mkfs.ext4 poweroff cp umount sync dd
         inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
@@ -358,7 +358,7 @@ test_setup() {
         # shellcheck disable=SC2030
         export initdir="$TESTDIR"/overlay
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$PKGLIBDIR"/dracut-init.sh
         inst_multiple poweroff shutdown
         inst_hook emergency 000 ./hard-off.sh
         inst_simple ./client.link /etc/systemd/network/01-client.link
@@ -375,7 +375,7 @@ test_setup() {
         # shellcheck disable=SC2031
         export initdir="$TESTDIR"/overlay
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$PKGLIBDIR"/dracut-init.sh
         rm "$initdir"/etc/systemd/network/01-client.link
         inst_simple ./server.link /etc/systemd/network/01-server.link
         inst_hook pre-mount 99 ./wait-if-server.sh
