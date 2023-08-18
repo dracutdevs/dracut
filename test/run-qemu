@@ -21,8 +21,17 @@ QEMU_CPU="${QEMU_CPU:-max}"
 }
 
 case "$ARCH" in
+    aarch64 | arm64)
+        ARGS+=(-M "virt,gic-version=max")
+        ;;
     amd64 | i?86 | x86_64)
         ARGS+=(-M q35)
+        ;;
+    arm | armhf | armv7l)
+        ARGS+=(-M virt)
+        ;;
+    ppc64el | ppc64le)
+        ARGS+=(-M "cap-ccf-assist=off,cap-cfpc=broken,cap-ibs=broken,cap-sbbc=broken")
         ;;
 esac
 
