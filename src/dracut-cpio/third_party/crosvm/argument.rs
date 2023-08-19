@@ -146,7 +146,7 @@ pub struct Argument {
     pub short: Option<char>,
     /// The long name of this argument.
     pub long: &'static str,
-    /// Helpfuly usage information for this argument to display to the user.
+    /// Helpful usage information for this argument to display to the user.
     pub help: &'static str,
 }
 

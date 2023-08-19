@@ -91,9 +91,9 @@ ldconfig_paths() {
     $DRACUT_LDCONFIG ${dracutsysrootdir:+-r ${dracutsysrootdir} -f /etc/ld.so.conf} -pN 2> /dev/null | grep -E -v '/(lib|lib64|usr/lib|usr/lib64)/[^/]*$' | sed -n 's,.* => \(.*\)/.*,\1,p' | sort | uniq
 }
 
-# Version comparision function.  Assumes Linux style version scheme.
+# Version comparison function.  Assumes Linux style version scheme.
 # $1 = version a
-# $2 = comparision op (gt, ge, eq, le, lt, ne)
+# $2 = comparison op (gt, ge, eq, le, lt, ne)
 # $3 = version b
 vercmp() {
     local _n1

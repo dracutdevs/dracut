@@ -108,7 +108,7 @@ interface_bind() {
         return 1
     fi
 
-    # see, if we can bind it to some hw parms
+    # see, if we can bind it to some hw params
     if hw_bind "$_netif" "$_macaddr"; then
         # only print out DEVICE, if it's user assigned
         is_kernel_ethernet_name "$_netif" && return 0

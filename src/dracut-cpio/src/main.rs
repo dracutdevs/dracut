@@ -112,7 +112,7 @@ struct ArchiveState {
     // offset from the start of this archive
     off: u64,
     // next mapped inode number, used instead of source file inode numbers to
-    // ensure reproducability. XXX: should track inode per mapped dev?
+    // ensure reproducibility. XXX: should track inode per mapped dev?
     ino: u32,
 }
 

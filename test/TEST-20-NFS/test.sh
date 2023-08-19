@@ -122,8 +122,8 @@ client_test() {
 
 test_nfsv3() {
     # MAC numbering scheme:
-    # NFSv3: last octect starts at 0x00 and works up
-    # NFSv4: last octect starts at 0x80 and works up
+    # NFSv3: last octet starts at 0x00 and works up
+    # NFSv4: last octet starts at 0x80 and works up
 
     client_test "NFSv3 root=dhcp DHCP path only" 52:54:00:12:34:00 \
         "root=dhcp" 192.168.50.1 -wsize=4096 || return 1

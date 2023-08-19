@@ -6,7 +6,7 @@ if ! getargbool 1 rd.fcoe -d -n rd.nofcoe; then
 fi
 
 # Note lldpad will stay running after switchroot, the system initscripts
-# are to kill it and start a new lldpad to take over. Data is transfered
+# are to kill it and start a new lldpad to take over. Data is transferred
 # between the 2 using a shm segment
 lldpad -d
 # wait for lldpad to be ready

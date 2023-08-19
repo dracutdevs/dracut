@@ -298,7 +298,7 @@ ibft_to_cmdline() {
                     echo "ip=$dev:dhcp"
                 fi
             elif [ -e "${iface}"/ip-addr ]; then
-                # skip not assigned ip adresses
+                # skip not assigned ip addresses
                 [ "$ip" = "0.0.0.0" ] && continue
                 [ -e "${iface}"/gateway ] && read -r gw < "${iface}"/gateway
                 [ "$gw" = "0.0.0.0" ] && unset gw
