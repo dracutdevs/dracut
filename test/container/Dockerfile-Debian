@@ -17,8 +17,6 @@ RUN apt-get update -y -qq && apt-get upgrade -y -qq && apt-get install -y -qq --
     cpio \
     cryptsetup \
     curl \
-    debhelper \
-    debhelper-compat \
     dmraid \
     docbook \
     docbook-xml \
@@ -52,7 +50,6 @@ RUN apt-get update -y -qq && apt-get upgrade -y -qq && apt-get install -y -qq --
     pkg-config \
     procps \
     qemu-system-x86 \
-    quilt \
     shellcheck \
     squashfs-tools \
     strace \
