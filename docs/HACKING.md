@@ -240,7 +240,7 @@ $ podman run --rm -it \
 # ./configure
 # make -j $(getconf _NPROCESSORS_ONLN)
 # cd test
-# make V=1 SKIP="16 60 61" clean check
+# make KVERSION="$(cd /lib/modules && ls -1 | tail -1)" V=1 SKIP="16 60 61" clean check
 ```
 
 with `[CONTAINER]` being one of the
