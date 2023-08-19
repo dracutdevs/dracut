@@ -17,7 +17,6 @@ RUN apt-get update -y -qq && apt-get upgrade -y -qq && apt-get install -y -qq --
     cpio \
     cryptsetup \
     curl \
-    dash \
     debhelper \
     debhelper-compat \
     dmraid \
