@@ -33,7 +33,7 @@ depends() {
 install() {
     inst rngd
     inst_simple "${moddir}/rngd.service" "${systemdsystemunitdir}/rngd.service"
-    # make sure dependant libs are installed too
+    # make sure dependent libs are installed too
     inst_libdir_file opensc-pkcs11.so
 
     $SYSTEMCTL -q --root "$initdir" add-wants sysinit.target rngd.service

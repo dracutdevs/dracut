@@ -119,7 +119,7 @@ test_run() {
 
 test_client() {
     # Mac Numbering Scheme
-    # ...:00-02 receive IP adresses all others don't
+    # ...:00-02 receive IP addresses all others don't
     # ...:02 receives a dhcp root-path
 
     # PXE Style BOOTIF=

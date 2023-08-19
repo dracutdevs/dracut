@@ -41,7 +41,7 @@ test_run() {
     client_run rd.auto rd.md.imsm=0 || return 1
     client_run rd.md.uuid="$MD_UUID" rd.dm=0 || return 1
     # This test succeeds, because the mirror parts are found without
-    # assembling the mirror itsself, which is what we want
+    # assembling the mirror itself, which is what we want
     client_run rd.md.uuid="$MD_UUID" rd.md=0 rd.md.imsm failme && return 1
     client_run rd.md.uuid="$MD_UUID" rd.md=0 failme && return 1
     # the following test hangs on newer md

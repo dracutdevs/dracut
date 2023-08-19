@@ -25,11 +25,11 @@ depends() {
 install() {
 
     # Excluding "$tmpfilesdir/home.conf", sets up /home /srv
-    # Excluding "$tmpfilesdir/journal-nocow.conf", requires spesific btrfs setup
-    # Excluding "$tmpfilesdir/legacy.conf", belongs in seperated legacy module
-    # Excluding "$tmpfilesdir/systemd-nologin.conf", belongs in seperated pam module
-    # Excluding "$tmpfilesdir/systemd-nspawn.conf", belongs in seperated machined module
-    # Excluding "$tmpfilesdir/x11.conf", belongs in seperated x11 module
+    # Excluding "$tmpfilesdir/journal-nocow.conf", requires specific btrfs setup
+    # Excluding "$tmpfilesdir/legacy.conf", belongs in separated legacy module
+    # Excluding "$tmpfilesdir/systemd-nologin.conf", belongs in separated pam module
+    # Excluding "$tmpfilesdir/systemd-nspawn.conf", belongs in separated machined module
+    # Excluding "$tmpfilesdir/x11.conf", belongs in separated x11 module
 
     inst_multiple -o \
         /usr/lib/group \

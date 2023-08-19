@@ -228,7 +228,7 @@ source_hook pre-mount
 
 getarg 'rd.break=mount' -d 'rdbreak=mount' && emergency_shell -n mount "Break before mount"
 # mount scripts actually try to mount the root filesystem, and may
-# be sourced any number of times. As soon as one suceeds, no more are sourced.
+# be sourced any number of times. As soon as one succeeds, no more are sourced.
 _i_mount=0
 while :; do
     if ismounted "$NEWROOT"; then

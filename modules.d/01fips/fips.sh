@@ -162,7 +162,7 @@ do_fips() {
             elif ! [ -e "/boot/${BOOT_IMAGE_PATH}/${BOOT_IMAGE_NAME}" ]; then
                 #if /boot is not a separate partition BOOT_IMAGE might start with /boot
                 BOOT_IMAGE_PATH=${BOOT_IMAGE_PATH#"/boot"}
-                #on some achitectures BOOT_IMAGE does not contain path to kernel
+                #on some architectures BOOT_IMAGE does not contain path to kernel
                 #so if we can't find anything, let's treat it in the same way as if it was empty
                 if ! [ -e "/boot/${BOOT_IMAGE_PATH}/${BOOT_IMAGE_NAME}" ]; then
                     BOOT_IMAGE_NAME="vmlinuz-${KERNEL}"

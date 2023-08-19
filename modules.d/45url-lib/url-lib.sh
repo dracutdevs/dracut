@@ -16,7 +16,7 @@ type mkuniqdir > /dev/null 2>&1 || . /lib/dracut-lib.sh
 #   0: success
 #   253: unknown error (file missing)
 #   254: unhandled URL scheme / protocol
-#   255: bad arguments / unparseable URLs
+#   255: bad arguments / unparsable URLs
 #   other: fetch command failure (whatever curl/mount/etc return)
 fetch_url() {
     local url="$1" outloc="$2"

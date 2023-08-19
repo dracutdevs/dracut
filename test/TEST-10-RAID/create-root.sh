@@ -11,7 +11,7 @@ udevadm control --reload
 udevadm settle
 set -ex
 mdadm --create /dev/md0 --run --auto=yes --level=5 --raid-devices=3 /dev/disk/by-id/ata-disk_raid[123]
-# wait for the array to finish initailizing, otherwise this sometimes fails
+# wait for the array to finish initializing, otherwise this sometimes fails
 # randomly.
 mdadm -W /dev/md0 || :
 printf test > keyfile
