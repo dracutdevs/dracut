@@ -22,6 +22,7 @@ jobs:
                         "fedora:latest",
                         "gentoo:latest",
                         "opensuse:latest",
+                        "ubuntu:latest",
                 ]
                 test: [
                         "01",
