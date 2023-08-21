@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 exec < /dev/console > /dev/console 2>&1
 set -x
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
