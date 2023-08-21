@@ -34,6 +34,7 @@ jobs:
                     - { dockerfile: 'Dockerfile-Arch',              tag: 'arch:latest' }
                     - { dockerfile: 'Dockerfile-Debian',            tag: 'debian:latest' }
                     - { dockerfile: 'Dockerfile-Gentoo',            tag: 'gentoo:latest' }
+                    - { dockerfile: 'Dockerfile-Ubuntu',            tag: 'ubuntu:latest' }
         steps:
             -   name: Check out the repo
                 uses: actions/checkout@v3

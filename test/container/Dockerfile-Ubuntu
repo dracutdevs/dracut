@@ -1,0 +1,63 @@
+FROM docker.io/ubuntu:latest
+
+MAINTAINER https://github.com/dracutdevs/dracut
+
+# Install needed packages for the dracut CI container
+# The Linux kernel is only readable by root. See https://launchpad.net/bugs/759725
+RUN apt-get update -y -qq && apt-get upgrade -y -qq && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends -o Dpkg::Use-Pty=0 \
+    asciidoc \
+    astyle \
+    btrfs-progs \
+    busybox-static \
+    bzip2 \
+    ca-certificates \
+    console-setup \
+    cpio \
+    cryptsetup \
+    curl \
+    dmraid \
+    docbook \
+    docbook-xml \
+    docbook-xsl \
+    fdisk \
+    g++ \
+    gawk \
+    git \
+    iputils-arping \
+    iputils-ping \
+    isc-dhcp-client \
+    isc-dhcp-server \
+    kmod \
+    less \
+    libdmraid-dev \
+    libkmod-dev \
+    linux-image-generic \
+    lvm2 \
+    make \
+    mdadm \
+    multipath-tools \
+    nbd-client \
+    nbd-server \
+    network-manager \
+    nfs-kernel-server \
+    ntfs-3g \
+    open-iscsi \
+    ovmf \
+    parted \
+    pigz \
+    pkg-config \
+    procps \
+    qemu-kvm \
+    shellcheck \
+    squashfs-tools \
+    strace \
+    sudo \
+    systemd \
+    tcpdump \
+    tgt \
+    thin-provisioning-tools \
+    vim \
+    wget \
+    && apt-get clean \
+    && chmod a+r /boot/vmlinu*
