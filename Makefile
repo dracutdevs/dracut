@@ -233,17 +233,6 @@ clean:
 	$(RM) dracut-cpio src/dracut-cpio/target/release/dracut-cpio*
 	$(MAKE) -C test clean
 
-dist: dracut-$(DRACUT_MAIN_VERSION).tar.xz
-
-dracut-$(DRACUT_MAIN_VERSION).tar.xz: doc syncheck
-	git archive --format=tar $(DRACUT_MAIN_VERSION) --prefix=dracut-$(DRACUT_MAIN_VERSION)/ > dracut-$(DRACUT_MAIN_VERSION).tar
-	mkdir -p dracut-$(DRACUT_MAIN_VERSION)
-	for i in $(manpages) dracut.html; do [ "$${i%/*}" != "$$i" ] && mkdir -p "dracut-$(DRACUT_MAIN_VERSION)/$${i%/*}"; cp "$$i" "dracut-$(DRACUT_MAIN_VERSION)/$$i"; done
-	tar --owner=root --group=root -rf dracut-$(DRACUT_MAIN_VERSION).tar $$(find dracut-$(DRACUT_MAIN_VERSION) -type f)
-	rm -fr -- dracut-$(DRACUT_MAIN_VERSION).tar.xz dracut-$(DRACUT_MAIN_VERSION)
-	xz -9 dracut-$(DRACUT_MAIN_VERSION).tar
-	rm -f -- dracut-$(DRACUT_MAIN_VERSION).tar
-
 syncheck:
 	@ret=0;for i in dracut-initramfs-restore.sh modules.d/*/*.sh; do \
                 [ "$${i##*/}" = "module-setup.sh" ] && continue; \
