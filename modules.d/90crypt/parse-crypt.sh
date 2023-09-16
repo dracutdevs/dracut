@@ -174,7 +174,7 @@ else
                 } >> "$hookdir/emergency/90-crypt.sh"
             fi
         done
-    elif getargbool 0 rd.auto; then
+    elif getargbool 1 rd.auto; then
         if [ -z "$DRACUT_SYSTEMD" ]; then
             {
                 printf -- 'ENV{ID_FS_TYPE}=="crypto_LUKS", RUN+="%s ' "$(command -v initqueue)"
