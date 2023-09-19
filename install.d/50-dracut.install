@@ -11,6 +11,11 @@ if ! [[ ${KERNEL_INSTALL_MACHINE_ID-x} ]]; then
     exit 0
 fi
 
+# Do not attempt to create initramfs if the supplied image is already a UKI
+if [[ "$KERNEL_INSTALL_IMAGE_TYPE" = "uki" ]]; then
+    exit 0
+fi
+
 # Mismatching the install layout and the --uefi/--no-uefi opts just creates a mess.
 if [[ $KERNEL_INSTALL_LAYOUT == "uki" && -n $KERNEL_INSTALL_STAGING_AREA ]]; then
     BOOT_DIR_ABS="$KERNEL_INSTALL_STAGING_AREA"
