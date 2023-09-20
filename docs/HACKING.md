@@ -165,7 +165,7 @@ dracut_install_dir/modules.d/
        functionality the module implements is being used on the host system.
        For example, if this module handles installing support for LUKS
        encrypted volumes, it should return 0 if all the tools to handle
-       encrpted volumes are available and the host system has the root
+       encrypted volumes are available and the host system has the root
        partition on an encrypted volume, 1 otherwise.
 
 `depends()`:
@@ -240,7 +240,7 @@ $ podman run --rm -it \
 # ./configure
 # make -j $(getconf _NPROCESSORS_ONLN)
 # cd test
-# make V=1 SKIP="16 60 61" clean check
+# make KVERSION="$(cd /lib/modules && ls -1 | tail -1)" V=1 SKIP="16 60 61" clean check
 ```
 
 with `[CONTAINER]` being one of the

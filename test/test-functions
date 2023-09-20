@@ -16,13 +16,16 @@ KVERSION=${KVERSION-$(uname -r)}
 
 if [[ -z $basedir ]]; then basedir="$(realpath ../..)"; fi
 
+DRACUT=${DRACUT-${basedir}/dracut.sh}
+PKGLIBDIR=${PKGLIBDIR-$basedir}
+
 test_dracut() {
     TEST_DRACUT_ARGS+=" --local --no-hostonly --no-early-microcode --add test --kver $KVERSION"
 
     # shellcheck disable=SC2162
     IFS=' ' read -a TEST_DRACUT_ARGS_ARRAY <<< "$TEST_DRACUT_ARGS"
 
-    "$basedir"/dracut.sh "$@" \
+    "$DRACUT" "$@" \
         --kernel-cmdline "panic=1 oops=panic softlockup_panic=1 systemd.crash_reboot selinux=0 console=ttyS0,115200n81 $DEBUGFAIL" \
         "${TEST_DRACUT_ARGS_ARRAY[@]}" || return 1
 }
@@ -160,7 +163,6 @@ while (($# > 0)); do
                 ) < /dev/null 2>&1 | tee "test${TEST_RUN_ID:+-$TEST_RUN_ID}.log"
             elif [[ $V == "2" ]]; then
                 set -o pipefail
-                # shellcheck disable=SC2154
                 (
                     test_setup && test_run
                     ret=$?

@@ -96,7 +96,9 @@ install() {
             "$systemdsystemconfdir"/systemd-udev-settle.service \
             "$systemdsystemconfdir/systemd-udev-settle.service.d/*.conf" \
             "$systemdsystemconfdir"/systemd-udevd-control.socket \
+            "$systemdsystemconfdir/systemd-udevd-control.socket.d/*.conf" \
             "$systemdsystemconfdir"/systemd-udevd-kernel.socket \
+            "$systemdsystemconfdir/systemd-udevd-kernel.socket.d/*.conf" \
             "$systemdsystemconfdir"/sockets.target.wants/systemd-udevd-control.socket \
             "$systemdsystemconfdir"/sockets.target.wants/systemd-udevd-kernel.socket \
             "$systemdsystemconfdir"/sysinit.target.wants/systemd-udevd.service \

@@ -1,7 +1,7 @@
 name: Container
 on:
     schedule:
-        -  cron: '30 11 * * *'   # every day at 4:40
+        -  cron: '30 11 * * *'   # every day at 11:30 UTC
     push:
         branches: [ master ]
         paths:
@@ -19,6 +19,7 @@ permissions:
 
 jobs:
     push_to_registry:
+        if: github.repository == 'dracutdevs/dracut' || vars.CONTAINER == 'enabled'
         name: Build and push containers image to GitHub Packages
         runs-on: ubuntu-latest
         concurrency:
@@ -33,6 +34,7 @@ jobs:
                     - { dockerfile: 'Dockerfile-Arch',              tag: 'arch:latest' }
                     - { dockerfile: 'Dockerfile-Debian',            tag: 'debian:latest' }
                     - { dockerfile: 'Dockerfile-Gentoo',            tag: 'gentoo:latest' }
+                    - { dockerfile: 'Dockerfile-Ubuntu',            tag: 'ubuntu:latest' }
         steps:
             -   name: Check out the repo
                 uses: actions/checkout@v3

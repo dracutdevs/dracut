@@ -301,7 +301,7 @@ do_live_overlay() {
         echo 0 "$sz" snapshot "$base" "$over" PO 8 | dmsetup create live-rw
     fi
 
-    # Create a device for the ro base of overlayed file systems.
+    # Create a device for the ro base of overlaid file systems.
     if [ -z "$overlayfs" ]; then
         echo 0 "$sz" linear "$BASE_LOOPDEV" 0 | dmsetup create --readonly live-base
     fi

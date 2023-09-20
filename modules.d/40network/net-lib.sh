@@ -298,7 +298,7 @@ ibft_to_cmdline() {
                     echo "ip=$dev:dhcp"
                 fi
             elif [ -e "${iface}"/ip-addr ]; then
-                # skip not assigned ip adresses
+                # skip not assigned ip addresses
                 [ "$ip" = "0.0.0.0" ] && continue
                 [ -e "${iface}"/gateway ] && read -r gw < "${iface}"/gateway
                 [ "$gw" = "0.0.0.0" ] && unset gw
@@ -394,7 +394,6 @@ parse_iscsi_root() {
         [[]*[]]:*)
             iscsi_target_ip=${v#[[]}
             iscsi_target_ip=${iscsi_target_ip%%[]]*}
-            # shellcheck disable=SC1087
             v=${v#[[]"$iscsi_target_ip"[]]:}
             ;;
         *)

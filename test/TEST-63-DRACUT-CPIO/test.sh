@@ -7,7 +7,7 @@ TEST_DESCRIPTION="kernel cpio extraction tests for dracut-cpio"
 # see dracut-cpio source for unit tests
 
 test_check() {
-    if ! [[ -x $basedir/dracut-cpio ]]; then
+    if ! [[ -x "$PKGLIBDIR/dracut-cpio" ]]; then
         echo "Test needs dracut-cpio... Skipping"
         return 1
     fi
@@ -30,7 +30,7 @@ echo o > /proc/sysrq-trigger
 sleep 20
 EOF
 
-    "$basedir"/dracut.sh -l --drivers "" \
+    "$DRACUT" -l --drivers "" \
         "${dracut_cpio_params[@]}" \
         --modules "bash base" \
         --include "$tdir/init.sh" /lib/dracut/hooks/emergency/00-init.sh \

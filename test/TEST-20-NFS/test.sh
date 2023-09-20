@@ -122,8 +122,8 @@ client_test() {
 
 test_nfsv3() {
     # MAC numbering scheme:
-    # NFSv3: last octect starts at 0x00 and works up
-    # NFSv4: last octect starts at 0x80 and works up
+    # NFSv3: last octet starts at 0x00 and works up
+    # NFSv4: last octet starts at 0x80 and works up
 
     client_test "NFSv3 root=dhcp DHCP path only" 52:54:00:12:34:00 \
         "root=dhcp" 192.168.50.1 -wsize=4096 || return 1
@@ -237,7 +237,7 @@ test_setup() {
         # shellcheck disable=SC2030
         export initdir=$TESTDIR/server/overlay/source
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$PKGLIBDIR"/dracut-init.sh
 
         (
             cd "$initdir" || exit
@@ -298,7 +298,7 @@ test_setup() {
         # shellcheck disable=SC2031
         export initdir=$TESTDIR/server/overlay/source/nfs/client
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$PKGLIBDIR"/dracut-init.sh
 
         (
             cd "$initdir" || exit
@@ -315,12 +315,12 @@ test_setup() {
             fi
         done
 
-        inst_simple "${basedir}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh"
-        inst_simple "${basedir}/modules.d/99base/dracut-dev-lib.sh" "/lib/dracut-dev-lib.sh"
-        inst_simple "${basedir}/modules.d/45url-lib/url-lib.sh" "/lib/url-lib.sh"
-        inst_simple "${basedir}/modules.d/40network/net-lib.sh" "/lib/net-lib.sh"
-        inst_simple "${basedir}/modules.d/95nfs/nfs-lib.sh" "/lib/nfs-lib.sh"
-        inst_binary "${basedir}/dracut-util" "/usr/bin/dracut-util"
+        inst_simple "${PKGLIBDIR}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh"
+        inst_simple "${PKGLIBDIR}/modules.d/99base/dracut-dev-lib.sh" "/lib/dracut-dev-lib.sh"
+        inst_simple "${PKGLIBDIR}/modules.d/45url-lib/url-lib.sh" "/lib/url-lib.sh"
+        inst_simple "${PKGLIBDIR}/modules.d/40network/net-lib.sh" "/lib/net-lib.sh"
+        inst_simple "${PKGLIBDIR}/modules.d/95nfs/nfs-lib.sh" "/lib/nfs-lib.sh"
+        inst_binary "${PKGLIBDIR}/dracut-util" "/usr/bin/dracut-util"
         ln -s dracut-util "${initdir}/usr/bin/dracut-getarg"
         ln -s dracut-util "${initdir}/usr/bin/dracut-getargs"
 
@@ -353,7 +353,7 @@ test_setup() {
         # shellcheck disable=SC2031
         export initdir=$TESTDIR/server/overlay
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$PKGLIBDIR"/dracut-init.sh
         inst_multiple sfdisk mkfs.ext4 poweroff cp umount sync dd
         inst_hook initqueue 01 ./create-root.sh
         inst_hook initqueue/finished 01 ./finished-false.sh
@@ -362,7 +362,7 @@ test_setup() {
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/server/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/server/overlay / \
         -m "bash rootfs-block kernel-modules qemu" \
         -d "piix ide-gd_mod ata_piix ext4 sd_mod" \
         --nomdadmconf \
@@ -390,7 +390,7 @@ test_setup() {
         export initdir="$TESTDIR"/overlay
         mkdir -p "$TESTDIR"/overlay
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$PKGLIBDIR"/dracut-init.sh
         inst_multiple poweroff shutdown
         inst_hook shutdown-emergency 000 ./hard-off.sh
         inst_hook emergency 000 ./hard-off.sh
@@ -398,7 +398,7 @@ test_setup() {
     )
 
     # Make client's dracut image
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -o "plymouth" \
         -a "dmsquash-live debug watchdog ${USE_NETWORK}" \
         --no-hostonly-cmdline -N \
@@ -408,14 +408,14 @@ test_setup() {
         # shellcheck disable=SC2031
         export initdir="$TESTDIR"/overlay
         # shellcheck disable=SC1090
-        . "$basedir"/dracut-init.sh
+        . "$PKGLIBDIR"/dracut-init.sh
         rm "$initdir"/etc/systemd/network/01-client.link
         inst_simple ./server.link /etc/systemd/network/01-server.link
         inst_hook pre-mount 99 ./wait-if-server.sh
     )
     # Make server's dracut image
-    "$basedir"/dracut.sh -l -i "$TESTDIR"/overlay / \
-        -m "dash rootfs-block debug kernel-modules watchdog qemu network network-legacy" \
+    "$DRACUT" -l -i "$TESTDIR"/overlay / \
+        -m "bash rootfs-block debug kernel-modules watchdog qemu network network-legacy" \
         -d "af_packet piix ide-gd_mod ata_piix ext4 sd_mod e1000 i6300esb" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1

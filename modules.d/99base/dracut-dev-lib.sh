@@ -21,7 +21,7 @@ str_replace() {
 }
 
 # get a systemd-compatible unit name from a path
-# (mimicks unit_name_from_path_instance())
+# (mimics unit_name_from_path_instance())
 dev_unit_name() {
     local dev="$1"
 

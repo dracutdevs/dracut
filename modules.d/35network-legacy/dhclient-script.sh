@@ -71,7 +71,7 @@ setup_interface() {
         fi >> /tmp/net."$netif".resolv.conf
     fi
     # Note: hostname can be fqdn OR short hostname, so chop off any
-    # trailing domain name and explicity add any domain if set.
+    # trailing domain name and explicitly add any domain if set.
     [ -n "$hostname" ] && echo "echo ${hostname%."$domain"}${domain:+.$domain} > /proc/sys/kernel/hostname" > /tmp/net."$netif".hostname
 }
 
@@ -104,7 +104,7 @@ setup_interface6() {
     fi
 
     # Note: hostname can be fqdn OR short hostname, so chop off any
-    # trailing domain name and explicity add any domain if set.
+    # trailing domain name and explicitly add any domain if set.
     [ -n "$hostname" ] && echo "echo ${hostname%."$domain"}${domain:+.$domain} > /proc/sys/kernel/hostname" > /tmp/net."$netif".hostname
 }
 

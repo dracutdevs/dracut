@@ -51,7 +51,7 @@ udevadm settle
 
 mdadm --create /dev/md0 --run --auto=yes --level=5 --raid-devices=3 \
     /dev/mapper/isw*p*[234]
-# wait for the array to finish initailizing, otherwise this sometimes fails
+# wait for the array to finish initializing, otherwise this sometimes fails
 # randomly.
 mdadm -W /dev/md0
 set -e

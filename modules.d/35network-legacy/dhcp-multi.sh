@@ -92,9 +92,9 @@ if [ $ret -eq 0 ]; then
         : > "/tmp/net.$(cat /sys/class/net/"${netif}"/address).up"
     fi
 
-    # Check if DHCP also suceeded on another interface before this one.
+    # Check if DHCP also succeeded on another interface before this one.
     # We will always use the first one on which DHCP succeeded, by using
-    # a commom file $IFNETFILE, to synchronize between threads.
+    # a common file $IFNETFILE, to synchronize between threads.
     # Consider the race condition in which multiple threads
     # corresponding to different interfaces may try to read $IFNETFILE
     # and find it does not exist; they may all end up thinking they are the

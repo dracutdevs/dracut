@@ -272,6 +272,10 @@ Creates initial ramdisk images for preloading modules
                         Use [FILE] as a splash image when creating an UEFI
                          executable. Requires bitmap (.bmp) image format.
   --kernel-image [FILE] Location of the kernel image.
+  --sbat [PARAMETERS]   The SBAT parameters to be added to .sbat.
+                         The string "sbat,1,SBAT Version,sbat,1,
+                         https://github.com/rhboot/shim/blob/main/SBAT.md" is
+                         already added by default.
   --regenerate-all      Regenerate all initramfs images at the default location
                          for the kernel versions found on the system.
   -p, --parallel        Use parallel processing if possible (currently only
@@ -463,6 +467,7 @@ rearrange_params() {
             --long uefi-stub: \
             --long uefi-splash-image: \
             --long kernel-image: \
+            --long sbat: \
             --long no-hostonly-i18n \
             --long hostonly-i18n \
             --long hostonly-nics: \
@@ -840,6 +845,11 @@ while :; do
             PARMS_TO_STORE+=" '$2'"
             shift
             ;;
+        --sbat)
+            sbat_l="$2"
+            PARMS_TO_STORE+=" '$2'"
+            shift
+            ;;
         --no-machineid)
             machine_id_l="no"
             ;;
@@ -1079,6 +1089,7 @@ drivers_dir="${drivers_dir%"${drivers_dir##*[!/]}"}"
 [[ $uefi_stub_l ]] && uefi_stub="$uefi_stub_l"
 [[ $uefi_splash_image_l ]] && uefi_splash_image="$uefi_splash_image_l"
 [[ $kernel_image_l ]] && kernel_image="$kernel_image_l"
+[[ $sbat_l ]] && sbat="$sbat_l"
 [[ $machine_id_l ]] && machine_id="$machine_id_l"
 
 if ! [[ $outfile ]]; then
@@ -1096,7 +1107,6 @@ if ! [[ $outfile ]]; then
     fi
 
     if [[ $uefi == "yes" ]]; then
-        # shellcheck disable=SC2154
         if [[ -n $uefi_secureboot_key && -z $uefi_secureboot_cert ]] || [[ -z $uefi_secureboot_key && -n $uefi_secureboot_cert ]]; then
             printf "%s\n" "dracut[F]: Need 'uefi_secureboot_key' and 'uefi_secureboot_cert' both to be set." >&2
             exit 1
@@ -1267,7 +1277,6 @@ trap 'exit 1;' SIGINT
 readonly initdir="${DRACUT_TMPDIR}/initramfs"
 mkdir -p "$initdir"
 
-# shellcheck disable=SC2154
 if [[ $early_microcode == yes ]] || { [[ $acpi_override == yes ]] && [[ -d $acpi_table_dir ]]; }; then
     readonly early_cpio_dir="${DRACUT_TMPDIR}/earlycpio"
     mkdir "$early_cpio_dir"
@@ -1324,7 +1333,6 @@ else
     unset enhanced_cpio
 fi
 
-# shellcheck disable=SC2154
 if [[ $no_kernel != yes ]] && ! [[ -d $srcmods ]]; then
     dfatal "Cannot find module directory $srcmods"
     dfatal "and --no-kernel was not specified"
@@ -1377,8 +1385,7 @@ dinfo "Executing: $dracut_cmd ${dracut_args[*]}"
 
 [[ $do_list == yes ]] && {
     for mod in "$dracutbasedir"/modules.d/*; do
-        [[ -d $mod ]] || continue
-        [[ -e $mod/install || -e $mod/installkernel || -e $mod/module-setup.sh ]] || continue
+        [[ -e $mod/module-setup.sh ]] || continue
         printf "%s\n" "${mod##*/??}"
     done
     exit 0
@@ -1554,23 +1561,20 @@ fi
 
 if [[ $early_microcode == yes ]]; then
     if [[ $hostonly ]]; then
-        if [[ $(get_cpu_vendor) == "AMD" ]]; then
-            check_kernel_config CONFIG_MICROCODE_AMD || unset early_microcode
-        elif [[ $(get_cpu_vendor) == "Intel" ]]; then
-            check_kernel_config CONFIG_MICROCODE_INTEL || unset early_microcode
+        if [[ $(get_cpu_vendor) == "AMD" || $(get_cpu_vendor) == "Intel" ]]; then
+            check_kernel_config CONFIG_MICROCODE || unset early_microcode
         else
             unset early_microcode
         fi
     else
-        ! check_kernel_config CONFIG_MICROCODE_AMD \
-            && ! check_kernel_config CONFIG_MICROCODE_INTEL \
+        ! check_kernel_config CONFIG_MICROCODE \
             && unset early_microcode
     fi
     # Do not complain on non-x86 architectures as it makes no sense
     case "${DRACUT_ARCH:-$(uname -m)}" in
         x86_64 | i?86)
             [[ $early_microcode != yes ]] \
-                && dwarn "Disabling early microcode, because kernel does not support it. CONFIG_MICROCODE_[AMD|INTEL]!=y"
+                && dwarn "Disabling early microcode, because kernel does not support it. CONFIG_MICROCODE!=y"
             ;;
         *) ;;
     esac
@@ -1879,7 +1883,6 @@ mkdir -p "${initdir}"/lib/dracut
 if [[ $kernel_only != yes ]]; then
     mkdir -p "${initdir}/etc/cmdline.d"
     mkdir -m 0755 "${initdir}"/lib/dracut/hooks
-    # shellcheck disable=SC2154
     for _d in $hookdirs; do
         # shellcheck disable=SC2174
         mkdir -m 0755 -p "${initdir}/lib/dracut/hooks/$_d"
@@ -2035,7 +2038,13 @@ if [[ $kernel_only != yes ]]; then
         # shellcheck disable=SC2086
         find "$initdir" -type f -perm /0111 -not -path '*.ko' -print0 \
             | xargs -r -0 $DRACUT_INSTALL ${initdir:+-D "$initdir"} ${dracutsysrootdir:+-r "$dracutsysrootdir"} -R ${DRACUT_FIPS_MODE:+-f} --
-        dinfo "*** Resolving executable dependencies done ***"
+        # shellcheck disable=SC2181
+        if (($? == 0)); then
+            dinfo "*** Resolving executable dependencies done ***"
+        else
+            dfatal "Resolving executable dependencies failed"
+            exit 1
+        fi
     fi
 
     # Now we are done with lazy resolving, always install dependencies
@@ -2442,7 +2451,6 @@ else
     fi
 fi
 
-# shellcheck disable=SC2154
 if ((maxloglvl >= 5)) && ((verbosity_mod_l >= 0)); then
     if [[ $allowlocal ]]; then
         "$dracutbasedir/lsinitrd.sh" "${DRACUT_TMPDIR}/initramfs.img" | ddebug
@@ -2452,6 +2460,24 @@ if ((maxloglvl >= 5)) && ((verbosity_mod_l >= 0)); then
 fi
 
 umask 077
+
+SBAT_DEFAULT="sbat,1,SBAT Version,sbat,1,https://github.com/rhboot/shim/blob/main/SBAT.md"
+sbat_out=$uefi_outdir/uki.sbat
+
+clean_sbat_string() {
+    local inp=$1
+    local temp=$uefi_outdir/temp.sbat
+    sed "/${SBAT_DEFAULT//\//\\/}/d" "$inp" > "$temp"
+    [[ -s $temp ]] && cat "$temp" >> "$sbat_out"
+    rm "$temp"
+}
+
+get_sbat_string() {
+    local inp=$1
+    local out=$uefi_outdir/$2
+    objcopy -O binary --only-section=.sbat "$inp" "$out"
+    clean_sbat_string "$out"
+}
 
 if [[ $uefi == yes ]]; then
     if [[ $kernel_cmdline ]]; then
@@ -2467,7 +2493,7 @@ if [[ $uefi == yes ]]; then
         fi
     fi
 
-    offs=$(objdump -h "$uefi_stub" 2> /dev/null | gawk 'NF==7 {size=strtonum("0x"$3);\
+    offs=$(objdump -h "$uefi_stub" 2> /dev/null | gawk 'NF==7 {size=strtonum("0x"$3);
                 offset=strtonum("0x"$4)} END {print size + offset}')
     if [[ $offs -eq 0 ]]; then
         dfatal "Failed to get the size of $uefi_stub to create UEFI image file"
@@ -2507,6 +2533,16 @@ if [[ $uefi == yes ]]; then
         unset uefi_splash_image
     fi
 
+    echo "$SBAT_DEFAULT" > "$sbat_out"
+    if [[ -n $sbat ]]; then
+        echo "$sbat" | sed "/${SBAT_DEFAULT//\//\\/}/d" >> "$sbat_out"
+    fi
+    get_sbat_string "$kernel_image" kernel.sbat
+    get_sbat_string "$uefi_stub" stub.sbat
+
+    uefi_sbat_offs="${offs}"
+    offs=$((offs + $(stat -Lc%s "$sbat_out")))
+    offs=$((offs + "$align" - offs % "$align"))
     uefi_linux_offs="${offs}"
     offs=$((offs + $(stat -Lc%s "$kernel_image")))
     offs=$((offs + "$align" - offs % "$align"))
@@ -2518,14 +2554,19 @@ if [[ $uefi == yes ]]; then
         exit 1
     fi
 
+    tmp_uefi_stub=$uefi_outdir/elf.stub
+    cp "$uefi_stub" "$tmp_uefi_stub"
+    objcopy --remove-section .sbat "$tmp_uefi_stub" &> /dev/null
+
     if objcopy \
         ${uefi_osrelease:+--add-section .osrel="$uefi_osrelease" --change-section-vma .osrel=$(printf 0x%x "$uefi_osrelease_offs")} \
         ${uefi_cmdline:+--add-section .cmdline="$uefi_cmdline" --change-section-vma .cmdline=$(printf 0x%x "$uefi_cmdline_offs")} \
         ${uefi_splash_image:+--add-section .splash="$uefi_splash_image" --change-section-vma .splash=$(printf 0x%x "$uefi_splash_offs")} \
+        --add-section .sbat="$sbat_out" --change-section-vma .sbat="$(printf 0x%x "$uefi_sbat_offs")" \
         --add-section .linux="$kernel_image" --change-section-vma .linux="$(printf 0x%x "$uefi_linux_offs")" \
         --add-section .initrd="${DRACUT_TMPDIR}/initramfs.img" --change-section-vma .initrd="$(printf 0x%x "$uefi_initrd_offs")" \
         --image-base="$(printf 0x%x "$base_image")" \
-        "$uefi_stub" "${uefi_outdir}/linux.efi"; then
+        "$tmp_uefi_stub" "${uefi_outdir}/linux.efi"; then
         if [[ -n ${uefi_secureboot_key} && -n ${uefi_secureboot_cert} ]]; then
             if sbsign \
                 ${uefi_secureboot_engine:+--engine "$uefi_secureboot_engine"} \
