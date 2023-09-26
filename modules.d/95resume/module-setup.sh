@@ -44,6 +44,7 @@ install() {
     if dracut_module_included "systemd" && [[ -x $dracutsysrootdir$systemdutildir/systemd-hibernate-resume ]]; then
         inst_multiple -o \
             "$systemdutildir"/system-generators/systemd-hibernate-resume-generator \
+            "$systemdsystemunitdir"/systemd-hibernate-resume.service \
             "$systemdsystemunitdir"/systemd-hibernate-resume@.service \
             "$systemdutildir"/systemd-hibernate-resume
         return 0
