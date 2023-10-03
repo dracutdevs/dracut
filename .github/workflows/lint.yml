@@ -18,7 +18,7 @@ jobs:
         env:
           SHFMT_OPTS: -s # arguments to shfmt.
         with:
-          sh_checker_shellcheck_disable: false
+          sh_checker_shellcheck_disable: true # disable shellcheck in favor of differential-shellcheck
 
   differential-shellcheck:
     runs-on: ubuntu-latest
