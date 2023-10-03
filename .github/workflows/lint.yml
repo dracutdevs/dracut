@@ -16,11 +16,9 @@ jobs:
       - name: shfmt
         uses: luizm/action-sh-checker@v0.6.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SHFMT_OPTS: -s # arguments to shfmt.
         with:
           sh_checker_shellcheck_disable: false
-          sh_checker_comment: true
 
   differential-shellcheck:
     runs-on: ubuntu-latest
