@@ -95,7 +95,8 @@ installkernel() {
                 "=drivers/usb/misc" \
                 "=drivers/usb/musb" \
                 "=drivers/usb/phy" \
-                "=drivers/scsi/hisi_sas"
+                "=drivers/scsi/hisi_sas" \
+                "=net/qrtr"
         fi
 
         awk -F: '/^\// {print $1}' "$srcmods/modules.dep" 2> /dev/null | instmods
