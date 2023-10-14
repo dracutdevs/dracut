@@ -34,6 +34,7 @@ install() {
         "$systemdutildir"/systemd \
         "$systemdutildir"/systemd-coredump \
         "$systemdutildir"/systemd-cgroups-agent \
+        "$systemdutildir"/systemd-executor \
         "$systemdutildir"/systemd-shutdown \
         "$systemdutildir"/systemd-reply-password \
         "$systemdutildir"/systemd-fsck \
