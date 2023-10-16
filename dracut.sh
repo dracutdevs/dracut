@@ -18,6 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+DRACUT_VERSION="059"
+
 # store for logging
 
 unset BASH_ENV
@@ -36,13 +38,6 @@ readonly dracut_cmd=$(readlink -f "$0")
 set -o pipefail
 
 usage() {
-    [[ $sysroot_l ]] && dracutsysrootdir="$sysroot_l"
-    [[ $dracutbasedir ]] || dracutbasedir="$dracutsysrootdir"/usr/lib/dracut
-    if [[ -f $dracutbasedir/dracut-version.sh ]]; then
-        # shellcheck source=./dracut-version.sh
-        . "$dracutbasedir"/dracut-version.sh
-    fi
-
     #                                                   80x25 linebreak here ^
     cat << EOF
 Usage: $dracut_cmd [OPTION]... [<initramfs> [<kernel-version>]]
@@ -63,12 +58,6 @@ EOF
 }
 
 long_usage() {
-    [[ $dracutbasedir ]] || dracutbasedir="$dracutsysrootdir"/usr/lib/dracut
-    if [[ -f $dracutbasedir/dracut-version.sh ]]; then
-        # shellcheck source=./dracut-version.sh
-        . "$dracutbasedir"/dracut-version.sh
-    fi
-
     #                                                   80x25 linebreak here ^
     cat << EOF
 Usage: $dracut_cmd [OPTION]... [<initramfs> [<kernel-version>]]
@@ -290,15 +279,6 @@ For example:
     # dracut --add-drivers "module1 module2"  ...
 
 EOF
-}
-
-long_version() {
-    [[ $dracutbasedir ]] || dracutbasedir="$dracutsysrootdir"/usr/lib/dracut
-    if [[ -f $dracutbasedir/dracut-version.sh ]]; then
-        # shellcheck source=./dracut-version.sh
-        . "$dracutbasedir"/dracut-version.sh
-    fi
-    echo "dracut $DRACUT_VERSION"
 }
 
 # Fills up host_devs stack variable and makes sure there are no duplicates
@@ -854,7 +834,7 @@ while :; do
             machine_id_l="no"
             ;;
         --version)
-            long_version
+            echo "dracut $DRACUT_VERSION"
             exit 0
             ;;
         --)
@@ -1289,11 +1269,6 @@ if [[ $print_cmdline ]]; then
     sysloglvl=0
     fileloglvl=0
     kmsgloglvl=0
-fi
-
-if [[ -f $dracutbasedir/dracut-version.sh ]]; then
-    # shellcheck source=./dracut-version.sh
-    . "$dracutbasedir"/dracut-version.sh
 fi
 
 if systemd-detect-virt -c &> /dev/null; then
