@@ -25,7 +25,7 @@ depends() {
 install() {
 
     inst_multiple -o \
-        "$libdir/repart.d/*.conf" \
+        "/usr/lib/repart.d/*.conf" \
         "$systemdsystemunitdir"/systemd-repart.service \
         "$systemdsystemunitdir"/initrd-root-fs.target.wants/systemd-repart.service \
         systemd-repart
