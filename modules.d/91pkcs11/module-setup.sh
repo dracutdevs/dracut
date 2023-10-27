@@ -30,6 +30,6 @@ install() {
         {"tls/$_arch/",tls/,"$_arch/",}"libffi.so.*" \
         {"tls/$_arch/",tls/,"$_arch/",}"libp11-kit.so.*" \
         {"tls/$_arch/",tls/,"$_arch/",}"libcryptsetup.so.*" \
-        {"tls/$_arch/",tls/,"$_arch/",}"/cryptsetup/libcryptsetup-token-systemd-pkcs11.so.*"
+        {"tls/$_arch/",tls/,"$_arch/",}"/cryptsetup/libcryptsetup-token-systemd-pkcs11.so*"
 
 }
