@@ -137,7 +137,7 @@ test_setup() {
         inst_hook emergency 000 ./hard-off.sh
     )
     "$DRACUT" -l -i "$TESTDIR"/overlay / \
-        -o "plymouth network kernel-network-modules" \
+        -o "plymouth network kernel-network-modules multipath" \
         -a "debug" \
         -d "piix ide-gd_mod ata_piix ext4 sd_mod" \
         --no-hostonly-cmdline -N \

@@ -85,7 +85,7 @@ test_setup() {
 
     "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -a "test watchdog" \
-        -o "network kernel-network-modules" \
+        -o "network kernel-network-modules multipath" \
         -d "piix ide-gd_mod ata_piix btrfs sd_mod i6300esb ib700wdt" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
