@@ -1,12 +1,10 @@
--include dracut-version.sh
-
-DRACUT_MAIN_VERSION ?= $(shell env GIT_CEILING_DIRECTORIES=$(CURDIR)/.. git describe --abbrev=0 --tags --always 2>/dev/null || :)
-ifeq ($(DRACUT_MAIN_VERSION),)
-DRACUT_MAIN_VERSION = $(DRACUT_VERSION)
-endif
-DRACUT_FULL_VERSION ?= $(shell env GIT_CEILING_DIRECTORIES=$(CURDIR)/.. git describe --tags --always 2>/dev/null || :)
+DRACUT_FULL_VERSION ?= $(shell ./dracut.sh --version | cut -d' ' -f 2-)
 ifeq ($(DRACUT_FULL_VERSION),)
 DRACUT_FULL_VERSION = $(DRACUT_VERSION)
+endif
+DRACUT_MAIN_VERSION ?= $(shell echo "$(DRACUT_FULL_VERSION)" | sed 's/\([0-9]\+\).*/\1/')
+ifeq ($(DRACUT_MAIN_VERSION),)
+DRACUT_MAIN_VERSION = $(DRACUT_VERSION)
 endif
 
 HAVE_SHELLCHECK ?= $(shell command -v shellcheck >/dev/null 2>&1 && echo yes)
@@ -163,7 +161,6 @@ install: all
 	mkdir -p $(DESTDIR)$(pkglibdir)/dracut.conf.d
 	install -m 0755 dracut-init.sh $(DESTDIR)$(pkglibdir)/dracut-init.sh
 	install -m 0755 dracut-functions.sh $(DESTDIR)$(pkglibdir)/dracut-functions.sh
-	install -m 0755 dracut-version.sh $(DESTDIR)$(pkglibdir)/dracut-version.sh
 	ln -fs dracut-functions.sh $(DESTDIR)$(pkglibdir)/dracut-functions
 	install -m 0755 dracut-logger.sh $(DESTDIR)$(pkglibdir)/dracut-logger.sh
 	install -m 0755 dracut-initramfs-restore.sh $(DESTDIR)$(pkglibdir)/dracut-initramfs-restore
