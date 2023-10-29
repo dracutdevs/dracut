@@ -7,6 +7,11 @@ TEST_DESCRIPTION="root filesystem on NFS with multiple nics with $USE_NETWORK"
 #DEBUGFAIL="loglevel=7 rd.shell rd.break"
 #SERIAL="tcp:127.0.0.1:9999"
 
+# skip the test if ifcfg dracut module can not be installed
+test_check() {
+    test -d /etc/sysconfig/network-scripts
+}
+
 run_server() {
     # Start server first
     echo "MULTINIC TEST SETUP: Starting DHCP/NFS server"
