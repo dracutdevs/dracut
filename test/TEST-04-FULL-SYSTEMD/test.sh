@@ -52,7 +52,7 @@ test_setup() {
 
     # Create what will eventually be our root filesystem onto an overlay
     "$DRACUT" -l --keep --tmpdir "$TESTDIR" \
-        -m "test-root dbus" \
+        -m "test-root systemd" \
         -I "ldconfig" \
         -i ./test-init.sh /sbin/test-init \
         -i ./fstab /etc/fstab \
