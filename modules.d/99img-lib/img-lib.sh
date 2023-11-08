@@ -106,3 +106,37 @@ unpack_img() {
         }
     fi
 }
+
+# parameter: <size of live image> in MiB
+# Call emergency shell if ram size is too small for the image.
+# Increase /run tmpfs size, if needed.
+check_live_ram() {
+    local minmem imgsize memsize runsize runavail
+    minmem=$(getarg rd.minmem)
+    imgsize=$1
+    memsize=$(($(check_meminfo MemTotal:) >> 10))
+    # shellcheck disable=SC2046
+    set -- $(findmnt -bnro SIZE,AVAIL /run)
+    # bytes to MiB
+    runsize=$(($1 >> 20))
+    runavail=$(($2 >> 20))
+
+    [ "$imgsize" ] || {
+        warn "Image size could not be determined"
+        return 0
+    }
+
+    if [ $((memsize - imgsize)) -lt "${minmem:=1024}" ]; then
+        sed -i "N;/and attach it to a bug report./s/echo$/echo\n\
+         echo \n\
+         echo 'Warning!!!'\n\
+         echo 'The memory size of your system is too small for this live image.'\n\
+         echo 'Expect killed processes due to out of memory conditions.'\n\
+         echo \n/" /usr/bin/dracut-emergency
+
+        emergency_shell
+    elif [ $((runavail - imgsize)) -lt "$minmem" ]; then
+        # Increase /run tmpfs size, if needed.
+        mount -o remount,size=$((runsize - runavail + imgsize + minmem))M /run
+    fi
+}
