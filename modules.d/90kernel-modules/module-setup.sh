@@ -87,6 +87,7 @@ installkernel() {
                 "=drivers/rtc" \
                 "=drivers/soc" \
                 "=drivers/spi" \
+                "=drivers/spmi" \
                 "=drivers/usb/chipidea" \
                 "=drivers/usb/dwc2" \
                 "=drivers/usb/dwc3" \
