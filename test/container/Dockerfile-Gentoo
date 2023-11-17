@@ -6,7 +6,7 @@ FROM docker.io/gentoo/stage3 as efistub
 COPY --from=portage /var/db/repos/gentoo /var/db/repos/gentoo
 
 # systemd-boot
-RUN echo 'sys-apps/systemd-utils boot' > /etc/portage/package.use/systemd-utils && \
+RUN echo 'sys-apps/systemd-utils boot kernel-install' > /etc/portage/package.use/systemd-utils && \
     emerge -qv sys-apps/systemd-utils
 
 # kernel and its dependencies in a separate builder
