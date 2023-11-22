@@ -137,7 +137,9 @@ install() {
             inst_simple "${moddir}/multipathd-configure.service" "${systemdsystemunitdir}/multipathd-configure.service"
             $SYSTEMCTL -q --root "$initdir" enable multipathd-configure.service
         fi
-        inst_simple "${moddir}/multipathd.service" "${systemdsystemunitdir}/multipathd.service"
+        inst "${systemdsystemunitdir}/multipathd.service"
+        inst_dir "${systemdsystemunitdir}/multipathd.service.d"
+        inst_simple "${moddir}/multipathd.service.dropin.conf" "${systemdsystemunitdir}/multipathd.service.d/initrd.conf"
         $SYSTEMCTL -q --root "$initdir" enable multipathd.service
     else
         inst_hook pre-trigger 02 "$moddir/multipathd.sh"
