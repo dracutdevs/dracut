@@ -7,7 +7,7 @@ check() {
 
 # called by dracut
 depends() {
-    echo udev-rules
+    echo udev-rules sh
     return 0
 }
 
