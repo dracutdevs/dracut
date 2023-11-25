@@ -78,7 +78,7 @@ test_setup() {
     mkdir -p "$TESTDIR"/ESP/EFI/BOOT
     test_dracut \
         --modules 'rootfs-block test' \
-        --kernel-cmdline 'root=/dev/sdc ro rd.skipfsck rootfstype=squashfs' \
+        --kernel-cmdline 'root=/dev/disk/by-id/ata-disk_root ro rd.skipfsck rootfstype=squashfs' \
         --drivers 'ahci sd_mod squashfs' \
         --uefi \
         "$TESTDIR"/ESP/EFI/BOOT/BOOTX64.efi
