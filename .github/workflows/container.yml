@@ -35,6 +35,7 @@ jobs:
                     - { dockerfile: 'Dockerfile-Debian',            tag: 'debian:latest' }
                     - { dockerfile: 'Dockerfile-Gentoo',            tag: 'gentoo:latest' }
                     - { dockerfile: 'Dockerfile-Ubuntu',            tag: 'ubuntu:latest' }
+                    - { dockerfile: 'Dockerfile-alpine',            tag: 'alpine:latest' }
         steps:
             -   name: Check out the repo
                 uses: actions/checkout@v3
