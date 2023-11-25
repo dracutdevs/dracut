@@ -1,0 +1,62 @@
+FROM docker.io/alpine:latest
+
+RUN apk add --no-cache \
+    alpine-sdk \
+    asciidoc \
+    bash \
+    binutils \
+    blkid \
+    btrfs-progs \
+    busybox \
+    bzip2 \
+    coreutils \
+    cpio \
+    cryptsetup \
+    curl \
+    dash \
+    dhclient \
+    dmraid \
+    dosfstools \
+    e2fsprogs \
+    eudev \
+    findmnt \
+    gawk \
+    git \
+    gpg \
+    grep \
+    gummiboot \
+    iputils \
+    kbd \
+    kmod-dev \
+    linux-virt \
+    losetup \
+    lvm2 \
+    make \
+    mdadm \
+    mtools \
+    multipath-tools \
+    musl-fts-dev \
+    nbd \
+    ntfs-3g-progs \
+    open-iscsi \
+    openssh \
+    ovmf \
+    parted \
+    partx \
+    pigz \
+    procps \
+    qemu-img \
+    qemu-system-x86_64 \
+    sed \
+    sfdisk \
+    squashfs-tools \
+    sudo \
+    util-linux-misc \
+    xz
+
+RUN \
+  cp /usr/lib/udev/rules.d/* /lib/udev/rules.d/ && \
+  ln -sf /sbin/poweroff /sbin/shutdown && \
+  ln -sf /usr/bin/dash /bin/dash && \
+  ln -sf /bin/sh /usr/bin/sh && \
+  ln -sf /boot/vmlinuz-virt /boot/vmlinuz-$(cd /lib/modules; ls -1 | tail -1)
