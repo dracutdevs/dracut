@@ -119,7 +119,6 @@ Creates initial ramdisk images for preloading modules
   --kernel-only         Only install kernel drivers and firmware files.
   --no-kernel           Do not install kernel drivers and firmware files.
   --print-cmdline       Print the kernel command line for the given disk layout.
-  --early-microcode     Combine early microcode with ramdisk.
   --no-early-microcode  Do not combine early microcode with ramdisk.
   --kernel-cmdline [PARAMETERS]
                         Specify default kernel command line parameters.
@@ -457,7 +456,6 @@ rearrange_params() {
             --long regenerate-all \
             --long parallel \
             --long noimageifnotneeded \
-            --long early-microcode \
             --long no-early-microcode \
             --long reproducible \
             --long no-reproducible \
@@ -732,9 +730,6 @@ while :; do
             hostonly_l="yes"
             kernel_only="yes"
             no_kernel="yes"
-            ;;
-        --early-microcode)
-            early_microcode_l="yes"
             ;;
         --no-early-microcode)
             early_microcode_l="no"
@@ -1561,20 +1556,16 @@ fi
 
 if [[ $early_microcode == yes ]]; then
     if [[ $hostonly ]]; then
-        if [[ $(get_cpu_vendor) == "AMD" || $(get_cpu_vendor) == "Intel" ]]; then
-            check_kernel_config CONFIG_MICROCODE || unset early_microcode
-        else
+        if [[ $(get_cpu_vendor) != "AMD" && $(get_cpu_vendor) != "Intel" ]]; then
             unset early_microcode
         fi
-    else
-        ! check_kernel_config CONFIG_MICROCODE \
-            && unset early_microcode
     fi
+
     # Do not complain on non-x86 architectures as it makes no sense
     case "${DRACUT_ARCH:-$(uname -m)}" in
         x86_64 | i?86)
             [[ $early_microcode != yes ]] \
-                && dwarn "Disabling early microcode, because kernel does not support it. CONFIG_MICROCODE!=y"
+                && dwarn "Disabling early microcode, unsupported configuration"
             ;;
         *) ;;
     esac

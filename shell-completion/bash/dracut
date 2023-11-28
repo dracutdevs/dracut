@@ -31,7 +31,7 @@ _dracut() {
             --lvmconf --nolvmconf --debug --profile --verbose --quiet
             --local --hostonly --no-hostonly --fstab --help --bzip2 --lzma
             --xz --zstd --no-compress --gzip --list-modules --show-modules --keep
-            --printsize --regenerate-all --noimageifnotneeded --early-microcode
+            --printsize --regenerate-all --noimageifnotneeded
             --no-early-microcode --print-cmdline --reproducible --uefi
             --enhanced-cpio --rebuild --aggressive-strip --hostonly-cmdline
             --no-hostonly-cmdline --no-hostonly-default-device --nofscks
