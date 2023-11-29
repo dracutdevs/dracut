@@ -952,7 +952,8 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
                 if (!i)
                         return -ENOMEM;
 
-                hashmap_put(items, i, i);
+                if (hashmap_put(items, i, i) < 0)
+                        free(i);
 
                 if (logfile_f)
                         dracut_log_cp(src);
@@ -1904,7 +1905,8 @@ static int install_modules(int argc, char **argv)
 
                                         log_debug("Adding module '%s' to hostonly module list", name);
                                         dupname = strdup(name);
-                                        hashmap_put(modules_loaded, dupname, dupname);
+                                        if (hashmap_put(modules_loaded, dupname, dupname) < 0)
+                                                free(dupname);
                                 }
                         }
                 }
