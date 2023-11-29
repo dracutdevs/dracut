@@ -2251,21 +2251,19 @@ finish2:
         if (logfile_f)
                 fclose(logfile_f);
 
-        while ((i = hashmap_steal_first(modules_loaded)))
-                item_free(i);
-
         while ((i = hashmap_steal_first(items)))
                 item_free(i);
 
         while ((i = hashmap_steal_first(items_failed)))
                 item_free(i);
 
+        while ((i = hashmap_steal_first(modules_loaded)))
+                item_free(i);
+
         Hashmap *h;
-        while ((h = hashmap_steal_first(modules_suppliers))) {
-                while ((i = hashmap_steal_first(h))) {
-                        item_free(i);
-                }
-                hashmap_free(h);
+        while ((h = hashmap_steal_first_key_and_value(modules_suppliers, (void **) &i))) {
+                destroy_hashmap(&h);
+                item_free(i);
         }
 
         while ((i = hashmap_steal_first(processed_suppliers)))
