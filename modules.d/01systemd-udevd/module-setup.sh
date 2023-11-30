@@ -109,4 +109,5 @@ install() {
     _arch=${DRACUT_ARCH:-$(uname -m)}
     inst_libdir_file {"tls/$_arch/",tls/,"$_arch/",}"libudev.so.*"
 
+    inst udev-debug-generator.sh "$systemdsystemconfdir"/system-generators/udev-debug-generator.sh
 }
