@@ -123,6 +123,8 @@ root="$fstype"
 # shellcheck disable=SC2016
 echo '[ -e $NEWROOT/proc ]' > "$hookdir"/initqueue/finished/nfsroot.sh
 
+# rpc user needs to be able to write to this directory to save the warmstart
+# file
 mkdir -p /var/lib/rpcbind
 chown rpc:rpc /var/lib/rpcbind
 chmod 770 /var/lib/rpcbind
