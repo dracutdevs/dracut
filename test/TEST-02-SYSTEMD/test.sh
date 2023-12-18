@@ -41,7 +41,7 @@ test_setup() {
     "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -m "test-makeroot" \
         -I "mkfs.ext4" \
-        -i ./create-root.sh /lib/dracut/hooks/initqueue/01-create-root.sh \
+        -i ./create-root.sh /var/lib/dracut/hooks/initqueue/01-create-root.sh \
         --nomdadmconf \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
@@ -66,7 +66,7 @@ test_setup() {
         -a "test systemd" \
         -o "network kernel-network-modules" \
         -d "piix ide-gd_mod ata_piix ext4 sd_mod" \
-        -i ./systemd-analyze.sh /lib/dracut/hooks/pre-pivot/00-systemd-analyze.sh \
+        -i ./systemd-analyze.sh /var/lib/dracut/hooks/pre-pivot/00-systemd-analyze.sh \
         -i "/bin/true" "/usr/bin/man" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1

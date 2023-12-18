@@ -630,7 +630,7 @@ inst_hook() {
         dfatal "No such hook type $1. Aborting initrd creation."
         exit 1
     fi
-    hook="/lib/dracut/hooks/${1}/${2}-${3##*/}"
+    hook="/var/lib/dracut/hooks/${1}/${2}-${3##*/}"
     inst_simple "$3" "$hook"
     chmod u+x "$initdir/$hook"
 }

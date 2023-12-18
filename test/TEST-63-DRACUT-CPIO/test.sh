@@ -33,7 +33,7 @@ EOF
     "$DRACUT" -l --drivers "" \
         "${dracut_cpio_params[@]}" \
         --modules "bash base" \
-        --include "$tdir/init.sh" /lib/dracut/hooks/emergency/00-init.sh \
+        --include "$tdir/init.sh" /var/lib/dracut/hooks/emergency/00-init.sh \
         --no-hostonly --no-hostonly-cmdline \
         "$tdir/initramfs" \
         || return 1
