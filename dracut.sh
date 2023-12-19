@@ -1666,7 +1666,7 @@ if [[ $hostonly ]] && [[ $hostonly_default_device != "no" ]]; then
         "/boot/zipl"; do
         mp=$(readlink -f "$dracutsysrootdir$mp")
         mountpoint "$mp" > /dev/null 2>&1 || continue
-        _dev=$(find_block_device "$mp")
+        _dev=$(find_block_device "$mp") || continue
         _bdev=$(readlink -f "/dev/block/$_dev")
         [[ -b $_bdev ]] && _dev=$_bdev
         [[ $mp == "/" ]] && root_devs+=("$_dev")
