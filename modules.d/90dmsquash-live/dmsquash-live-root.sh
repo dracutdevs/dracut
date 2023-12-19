@@ -109,7 +109,7 @@ if [ -f "$livedev" ]; then
         auto) die "cannot mount live image (unknown filesystem type)" ;;
         *) FSIMG=$livedev ;;
     esac
-    [ -e /sys/fs/"$fstype" ] || modprobe "$fstype"
+    load_fstype "$fstype"
 else
     livedev_fstype=$(det_fs "$livedev")
     if [ "$livedev_fstype" = "squashfs" ]; then
