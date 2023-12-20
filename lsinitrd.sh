@@ -39,6 +39,9 @@ usage() {
 
 [[ $dracutbasedir ]] || dracutbasedir=/usr/lib/dracut
 
+# shellcheck source=./dracut-functions.sh
+. "$dracutbasedir"/dracut-functions.sh
+
 sorted=0
 modules=0
 unset verbose
@@ -109,42 +112,7 @@ if [[ $1 ]]; then
         exit 1
     fi
 else
-    if [[ -d /efi/Default ]] || [[ -d /boot/Default ]] || [[ -d /boot/efi/Default ]]; then
-        MACHINE_ID="Default"
-    elif [[ -s /etc/machine-id ]]; then
-        read -r MACHINE_ID < /etc/machine-id
-        [[ $MACHINE_ID == "uninitialized" ]] && MACHINE_ID="Default"
-    else
-        MACHINE_ID="Default"
-    fi
-
-    if [[ -d /efi/loader/entries || -L /efi/loader/entries ]] \
-        && [[ $MACHINE_ID ]] \
-        && [[ -d /efi/${MACHINE_ID} || -L /efi/${MACHINE_ID} ]]; then
-        image="/efi/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
-    elif [[ -d /boot/loader/entries || -L /boot/loader/entries ]] \
-        && [[ $MACHINE_ID ]] \
-        && [[ -d /boot/${MACHINE_ID} || -L /boot/${MACHINE_ID} ]]; then
-        image="/boot/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
-    elif [[ -d /boot/efi/loader/entries || -L /boot/efi/loader/entries ]] \
-        && [[ $MACHINE_ID ]] \
-        && [[ -d /boot/efi/${MACHINE_ID} || -L /boot/efi/${MACHINE_ID} ]]; then
-        image="/boot/efi/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
-    elif [[ -f /lib/modules/${KERNEL_VERSION}/initrd ]]; then
-        image="/lib/modules/${KERNEL_VERSION}/initrd"
-    elif [[ -f /lib/modules/${KERNEL_VERSION}/initramfs.img ]]; then
-        image="/lib/modules/${KERNEL_VERSION}/initramfs.img"
-    elif [[ -f /boot/initramfs-${KERNEL_VERSION}.img ]]; then
-        image="/boot/initramfs-${KERNEL_VERSION}.img"
-    elif [[ $MACHINE_ID ]] \
-        && mountpoint -q /efi; then
-        image="/efi/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
-    elif [[ $MACHINE_ID ]] \
-        && mountpoint -q /boot/efi; then
-        image="/boot/efi/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
-    else
-        image=""
-    fi
+    image="$(get_default_initramfs_image "$KERNEL_VERSION")"
 fi
 
 shift
@@ -280,10 +248,7 @@ read -r -N 6 bin < "$image"
 case $bin in
     $'\x71\xc7'* | 070701)
         CAT="cat --"
-        is_early=$(cpio --extract --verbose --quiet --to-stdout -- 'early_cpio' < "$image" 2> /dev/null)
-        # Debian mkinitramfs does not create the file 'early_cpio', so let's check if firmware files exist
-        [[ "$is_early" ]] || is_early=$(cpio --list --verbose --quiet --to-stdout -- 'kernel/*/microcode/*.bin' < "$image" 2> /dev/null)
-        if [[ "$is_early" ]]; then
+        if has_early_microcode "$image"; then
             if [[ -n $unpack ]]; then
                 # should use --unpackearly for early CPIO
                 :
@@ -315,33 +280,8 @@ if [[ $SKIP ]]; then
 else
     read -r -N 6 bin < "$image"
 fi
-case $bin in
-    $'\x1f\x8b'*)
-        CAT="zcat --"
-        ;;
-    BZh*)
-        CAT="bzcat --"
-        ;;
-    $'\x71\xc7'* | 070701)
-        CAT="cat --"
-        ;;
-    $'\x02\x21'*)
-        CAT="lz4 -d -c"
-        ;;
-    $'\x89'LZO$'\0'*)
-        CAT="lzop -d -c"
-        ;;
-    $'\x28\xB5\x2F\xFD'*)
-        CAT="zstd -d -c"
-        ;;
-    *)
-        if echo "test" | xz | xzcat --single-stream > /dev/null 2>&1; then
-            CAT="xzcat --single-stream --"
-        else
-            CAT="xzcat --"
-        fi
-        ;;
-esac
+
+CAT=$(get_decompression_command "$bin")
 
 type "${CAT%% *}" > /dev/null 2>&1 || {
     echo "Need '${CAT%% *}' to unpack the initramfs."
