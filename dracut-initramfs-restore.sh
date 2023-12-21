@@ -11,54 +11,61 @@ set -e
 # switching root to an incompletely unpacked initramfs
 trap 'echo "Received SIGTERM signal, ignoring!" >&2' TERM
 
-KERNEL_VERSION="$(uname -r)"
-
 [[ $dracutbasedir ]] || dracutbasedir=/usr/lib/dracut
-SKIP="$dracutbasedir/skipcpio"
-[[ -x $SKIP ]] || SKIP="cat"
 
-if [[ -d /efi/Default ]] || [[ -d /boot/Default ]] || [[ -d /boot/efi/Default ]]; then
-    MACHINE_ID="Default"
-elif [[ -s /etc/machine-id ]]; then
-    read -r MACHINE_ID < /etc/machine-id
-    [[ $MACHINE_ID == "uninitialized" ]] && MACHINE_ID="Default"
-else
-    MACHINE_ID="Default"
-fi
+# shellcheck source=./dracut-functions.sh
+. "$dracutbasedir"/dracut-functions.sh
 
 mount -o ro /boot &> /dev/null || true
 
-if [[ -d /efi/loader/entries || -L /efi/loader/entries ]] \
-    && [[ -d /efi/$MACHINE_ID || -L /efi/$MACHINE_ID ]]; then
-    IMG="/efi/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
-elif [[ -d /boot/loader/entries || -L /boot/loader/entries ]] \
-    && [[ -d /boot/$MACHINE_ID || -L /boot/$MACHINE_ID ]]; then
-    IMG="/boot/${MACHINE_ID}/${KERNEL_VERSION}/initrd"
-elif [[ -d /boot/efi/loader/entries || -L /boot/efi/loader/entries ]] \
-    && [[ -d /boot/efi/$MACHINE_ID || -L /boot/efi/$MACHINE_ID ]]; then
-    IMG="/boot/efi/$MACHINE_ID/$KERNEL_VERSION/initrd"
-elif [[ -f /lib/modules/${KERNEL_VERSION}/initrd ]]; then
-    IMG="/lib/modules/${KERNEL_VERSION}/initrd"
-elif [[ -f /boot/initramfs-${KERNEL_VERSION}.img ]]; then
-    IMG="/boot/initramfs-${KERNEL_VERSION}.img"
-elif mountpoint -q /efi; then
-    IMG="/efi/$MACHINE_ID/$KERNEL_VERSION/initrd"
-elif mountpoint -q /boot/efi; then
-    IMG="/boot/efi/$MACHINE_ID/$KERNEL_VERSION/initrd"
-else
-    echo "No initramfs image found to restore!"
+# shellcheck disable=SC2119
+IMG="$(get_default_initramfs_image)"
+if [[ -z $IMG ]]; then
+    echo "No initramfs image found to restore!" >&2
     exit 1
 fi
 
-cd /run/initramfs
+# check if initramfs image contains early microcode and skip it
+read -r -N 6 bin < "$IMG"
+case $bin in
+    $'\x71\xc7'* | 070701)
+        CAT="cat --"
+        if has_early_microcode "$IMG"; then
+            SKIP="$dracutbasedir/skipcpio"
+            if ! [[ -x $SKIP ]]; then
+                echo "'$SKIP' not found, cannot skip early microcode to extract $IMG" >&2
+                exit 1
+            fi
+        fi
+        ;;
+esac
 
-if (command -v zcat > /dev/null && $SKIP "$IMG" 2> /dev/null | zcat 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
-    || (command -v bzcat > /dev/null && $SKIP "$IMG" 2> /dev/null | bzcat 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
-    || (command -v xzcat > /dev/null && $SKIP "$IMG" 2> /dev/null | xzcat 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
-    || (command -v lz4 > /dev/null && $SKIP "$IMG" 2> /dev/null | lz4 -d -c 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
-    || (command -v lzop > /dev/null && $SKIP "$IMG" 2> /dev/null | lzop -d -c 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
-    || (command -v zstd > /dev/null && $SKIP "$IMG" 2> /dev/null | zstd -d -c 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1) \
-    || ($SKIP "$IMG" 2> /dev/null | cpio -id --no-absolute-filenames --quiet > /dev/null 2>&1); then
+if [[ $SKIP ]]; then
+    bin="$($SKIP "$IMG" | { read -r -N 6 bin && echo "$bin"; })"
+else
+    read -r -N 6 bin < "$IMG"
+fi
+
+# check if initramfs image is compressed
+CAT=$(get_decompression_command "$bin")
+
+type "${CAT%% *}" > /dev/null 2>&1 || {
+    echo "'${CAT%% *}' not found, cannot unpack $IMG" >&2
+    exit 1
+}
+
+skipcpio() {
+    $SKIP "$@" | $ORIG_CAT
+}
+
+if [[ $SKIP ]]; then
+    ORIG_CAT="$CAT"
+    CAT=skipcpio
+fi
+
+# decompress and extract initramfs image
+cd /run/initramfs
+if ($CAT "$IMG" | cpio -id --no-absolute-filenames --quiet > /dev/null); then
     rm -f -- .need_shutdown
 else
     # something failed, so we clean up
