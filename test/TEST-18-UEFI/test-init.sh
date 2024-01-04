@@ -19,5 +19,5 @@ grep -q '^tmpfs /run tmpfs' /proc/self/mounts \
 exec > /dev/console 2>&1
 
 echo "made it to the rootfs! Powering down."
-echo "dracut-root-block-success" | dd oflag=direct,dsync of=/dev/sdb
+echo "dracut-root-block-success" | dd oflag=direct,dsync of=/dev/disk/by-id/ata-disk_marker
 poweroff -f
