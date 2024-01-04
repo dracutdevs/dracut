@@ -3,6 +3,10 @@
 # shellcheck disable=SC2034
 TEST_DESCRIPTION="root filesystem on NFS with $USE_NETWORK"
 
+test_check() {
+    command -v exportfs &> /dev/null
+}
+
 # Uncomment this to debug failures
 #DEBUGFAIL="rd.debug loglevel=7 rd.break=initqueue rd.shell"
 SERVER_DEBUG="rd.debug loglevel=7"
