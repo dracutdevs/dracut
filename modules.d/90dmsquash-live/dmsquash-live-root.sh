@@ -143,6 +143,8 @@ do_live_overlay() {
 
     if [ -z "$pathspec" -o "$pathspec" = "auto" ]; then
         pathspec="/${live_dir}/overlay-$l-$u"
+    elif ! str_starts "$pathspec" "/"; then
+        pathspec=/"${pathspec}"
     fi
     devspec=${overlay%%:*}
 
