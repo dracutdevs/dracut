@@ -2482,14 +2482,15 @@ get_sbat_string() {
 if [[ $uefi == yes ]]; then
     if [[ $kernel_cmdline ]]; then
         echo -n "$kernel_cmdline" > "$uefi_outdir/cmdline.txt"
-    elif [[ $hostonly_cmdline == yes ]]; then
+    fi
+    if [[ $hostonly_cmdline == yes ]]; then
         if [ -d "$initdir/etc/cmdline.d" ]; then
             for conf in "$initdir"/etc/cmdline.d/*.conf; do
                 [ -e "$conf" ] || continue
-                printf "%s " "$(< "$conf")" >> "$uefi_outdir/cmdline.txt"
+                printf " %s" "$(< "$conf")" >> "$uefi_outdir/cmdline.txt"
             done
         elif [ -e "/proc/cmdline" ]; then
-            printf "%s " "$(< "/proc/cmdline")" > "$uefi_outdir/cmdline.txt"
+            printf " %s" "$(< "/proc/cmdline")" >> "$uefi_outdir/cmdline.txt"
         fi
     fi
 
