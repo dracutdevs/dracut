@@ -147,7 +147,7 @@ test_setup() {
         chmod 0600 "$initdir"/etc/key
     )
     "$DRACUT" -l -i "$TESTDIR"/overlay / \
-        -o "plymouth network kernel-network-modules" \
+        -o "plymouth network kernel-network-modules multipath" \
         -a "debug" \
         -d "piix ide-gd_mod ata_piix ext4 sd_mod" \
         --no-hostonly-cmdline -N \
