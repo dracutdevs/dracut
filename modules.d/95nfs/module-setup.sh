@@ -128,11 +128,5 @@ install() {
     grep -E '^nfsnobody:|^rpc:|^rpcuser:' "$dracutsysrootdir"/etc/passwd >> "$initdir/etc/passwd"
     grep -E '^nogroup:|^rpc:|^nobody:' "$dracutsysrootdir"/etc/group >> "$initdir/etc/group"
 
-    # rpc user needs to be able to write to this directory to save the warmstart
-    # file
-    chmod 770 "$initdir/var/lib/rpcbind"
-    grep -q '^rpc:' "$dracutsysrootdir"/etc/passwd \
-        && grep -q '^rpc:' "$dracutsysrootdir"/etc/group
-
     dracut_need_initqueue
 }
