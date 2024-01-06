@@ -546,6 +546,28 @@ void *hashmap_steal_first_key(Hashmap *h)
         return key;
 }
 
+void *hashmap_steal_first_key_and_value(Hashmap *h, void **ret_key)
+{
+        struct hashmap_entry *e;
+        void *key, *data;
+
+        if (!h)
+                return NULL;
+
+        if (!h->iterate_list_head)
+                return NULL;
+
+        e = h->iterate_list_head;
+        key = (void *)e->key;
+        data = e->value;
+        remove_entry(h, &e);
+
+        if (ret_key)
+                *ret_key = key;
+
+        return data;
+}
+
 unsigned int hashmap_size(Hashmap *h)
 {
 
