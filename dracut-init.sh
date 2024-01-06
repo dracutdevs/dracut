@@ -313,7 +313,10 @@ dracut_instmods() {
     local i
     [[ $no_kernel == yes ]] && return
     for i in "$@"; do
-        [[ $i == "--silent" ]] && _silent=1
+        if [[ $i == "--silent" ]]; then
+            _silent=1
+            break
+        fi
     done
 
     if $DRACUT_INSTALL \
