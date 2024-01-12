@@ -2,70 +2,9 @@ FROM registry.fedoraproject.org/fedora:latest
 
 MAINTAINER https://github.com/dracutdevs/dracut
 
+COPY tools/* /tmp/
+WORKDIR /tmp
+
 # Install needed packages for the dracut CI container
-RUN dnf -y install --setopt=install_weak_deps=False \
-    asciidoc \
-    bash-completion \
-    biosdevname \
-    bluez \
-    btrfs-progs \
-    busybox \
-    bzip2 \
-    cifs-utils \
-    cryptsetup \
-    dash \
-    dbus-daemon \
-    device-mapper-multipath \
-    dhcp-client \
-    dhcp-server \
-    dmraid \
-    e2fsprogs \
-    f2fs-tools \
-    fcoe-utils \
-    fuse3 \
-    gcc \
-    git \
-    iproute \
-    iputils \
-    iscsi-initiator-utils \
-    kbd \
-    kernel \
-    kmod-devel \
-    libkcapi-hmaccalc \
-    libselinux-utils \
-    lvm2 \
-    lzop \
-    make \
-    mdadm \
-    memstrack \
-    mksh \
-    nbd \
-    ndctl \
-    NetworkManager \
-    nfs-utils \
-    ntfs-3g \
-    ntfsprogs \
-    nvme-cli \
-    parted \
-    pcsc-lite \
-    pigz \
-    qemu-system-x86-core \
-    rng-tools \
-    rpm-build \
-    sbsigntools \
-    scsi-target-utils \
-    ShellCheck \
-    shfmt \
-    squashfs-tools \
-    strace \
-    sudo \
-    systemd-boot-unsigned \
-    systemd-networkd \
-    systemd-resolved \
-    tar \
-    tcpdump \
-    tpm2-tools \
-    wget \
-    which \
-    xz \
+RUN dnf -y install --setopt=install_weak_deps=False $(/tmp/test-packages.sh) \
     && dnf -y remove dracut --noautoremove && dnf -y update && dnf clean all
