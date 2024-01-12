@@ -41,11 +41,13 @@ depends() {
 
 # called by dracut
 cmdline() {
-    for m in scsi_dh_alua scsi_dh_emc scsi_dh_rdac dm_multipath; do
-        if grep -m 1 -q "$m" /proc/modules; then
-            printf 'rd.driver.pre=%s ' "$m"
-        fi
-    done
+    if ! dracut_module_included "systemd"; then
+        for m in scsi_dh_alua scsi_dh_emc scsi_dh_rdac dm_multipath; do
+            if grep -m 1 -q "$m" /proc/modules; then
+                printf 'rd.driver.pre=%s ' "$m"
+            fi
+        done
+    fi
 }
 
 # called by dracut
@@ -137,7 +139,9 @@ install() {
             inst_simple "${moddir}/multipathd-configure.service" "${systemdsystemunitdir}/multipathd-configure.service"
             $SYSTEMCTL -q --root "$initdir" enable multipathd-configure.service
         fi
-        inst_simple "${moddir}/multipathd.service" "${systemdsystemunitdir}/multipathd.service"
+        inst "${systemdsystemunitdir}/multipathd.service"
+        inst_dir "${systemdsystemunitdir}/multipathd.service.d"
+        inst_simple "${moddir}/multipathd.service.dropin.conf" "${systemdsystemunitdir}/multipathd.service.d/initrd.conf"
         $SYSTEMCTL -q --root "$initdir" enable multipathd.service
     else
         inst_hook pre-trigger 02 "$moddir/multipathd.sh"
