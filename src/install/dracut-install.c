@@ -2275,6 +2275,17 @@ finish2:
         hashmap_free(modules_suppliers);
         hashmap_free(processed_suppliers);
 
+        if (arg_mod_filter_path)
+                regfree(&mod_filter_path);
+        if (arg_mod_filter_nopath)
+                regfree(&mod_filter_nopath);
+        if (arg_mod_filter_symbol)
+                regfree(&mod_filter_symbol);
+        if (arg_mod_filter_nosymbol)
+                regfree(&mod_filter_nosymbol);
+        if (arg_mod_filter_noname)
+                regfree(&mod_filter_noname);
+
         strv_free(firmwaredirs);
         strv_free(pathdirs);
         return r;
