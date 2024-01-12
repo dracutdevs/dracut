@@ -451,7 +451,7 @@ die() {
     fi
 
     if [ -n "$DRACUT_SYSTEMD" ]; then
-        systemctl --no-block --force halt
+        systemctl --no-block --force poweroff
     fi
 
     exit 1
@@ -973,14 +973,14 @@ emergency_shell() {
     _emergency_action=$(getarg rd.emergency)
     [ -z "$_emergency_action" ] \
         && [ -e /run/initramfs/.die ] \
-        && _emergency_action=halt
+        && _emergency_action=poweroff
 
     if getargbool 1 rd.shell -d -y rdshell || getarg rd.break -d rdbreak; then
         _emergency_shell "$_rdshell_name"
     else
         source_hook "$hook"
         warn "$action has failed. To debug this issue add \"rd.shell rd.debug\" to the kernel command line."
-        [ -z "$_emergency_action" ] && _emergency_action=halt
+        [ -z "$_emergency_action" ] && _emergency_action=poweroff
     fi
 
     case "$_emergency_action" in

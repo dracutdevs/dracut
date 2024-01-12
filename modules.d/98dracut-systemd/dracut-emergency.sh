@@ -39,7 +39,7 @@ else
     export hook="shutdown-emergency"
     warn "$action has failed. To debug this issue add \"rd.shell rd.debug\" to the kernel command line."
     source_hook "$hook"
-    [ -z "$_emergency_action" ] && _emergency_action=halt
+    [ -z "$_emergency_action" ] && _emergency_action=poweroff
 fi
 
 /bin/rm -f -- /.console_lock
