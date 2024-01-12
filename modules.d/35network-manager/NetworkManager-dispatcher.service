@@ -1,0 +1,24 @@
+[Unit]
+Description=Network Manager Script Dispatcher Service
+DefaultDependencies=no
+After=dbus.socket
+
+[Service]
+Type=dbus
+BusName=org.freedesktop.nm_dispatcher
+ExecStart=/usr/libexec/nm-dispatcher
+NotifyAccess=main
+
+# Enable debug logging in dispatcher service. Note that dispatcher
+# also honors debug logging requests from NetworkManager, so you
+# can also control logging requests with
+# `nmcli general logging domain DISPATCHER level TRACE`.
+#Environment=NM_DISPATCHER_DEBUG_LOG=1
+
+# We want to allow scripts to spawn long-running daemons, so tell
+# systemd to not clean up when nm-dispatcher exits
+KillMode=process
+
+[Install]
+Alias=dbus-org.freedesktop.nm-dispatcher.service
+

@@ -32,11 +32,15 @@ install() {
     inst NetworkManager
     inst_multiple -o /usr/{lib,libexec}/nm-initrd-generator
     inst_multiple -o /usr/{lib,libexec}/nm-daemon-helper
+    inst_multiple -o /usr/{lib,libexec}/nm-dispatcher
     inst_multiple -o teamd dhclient
     inst_hook cmdline 99 "$moddir/nm-config.sh"
+    inst_simple "$moddir/online-initqueue.sh" "/lib/NetworkManager/dispatcher.d/99-online-initqueue"
     if dracut_module_included "systemd"; then
 
         inst "$dbussystem"/org.freedesktop.NetworkManager.conf
+        inst "$dbussystemservices"/org.freedesktop.nm_dispatcher.service
+        inst "$dbussystem"/nm-dispatcher.conf
         inst_multiple nmcli nm-online
 
         # teaming support under systemd+dbus
@@ -49,6 +53,7 @@ install() {
         inst_simple "$moddir"/initrd-no-auto-default.conf /usr/lib/NetworkManager/conf.d/
 
         inst_simple "$moddir"/nm-initrd.service "$systemdsystemunitdir"/nm-initrd.service
+        inst_simple "$moddir"/NetworkManager-dispatcher.service "$systemdsystemunitdir"/NetworkManager-dispatcher.service
         inst_simple "$moddir"/nm-wait-online-initrd.service "$systemdsystemunitdir"/nm-wait-online-initrd.service
 
         # Adding default link
@@ -56,9 +61,10 @@ install() {
         [[ $hostonly ]] && inst_multiple -H -o "${systemdnetworkconfdir}/*.link"
 
         $SYSTEMCTL -q --root "$initdir" enable nm-initrd.service
+        $SYSTEMCTL -q --root "$initdir" enable NetworkManager-dispatcher.service
+    else
+        inst_hook initqueue/settled 99 "$moddir/nm-run.sh"
     fi
-
-    inst_hook initqueue/settled 99 "$moddir/nm-run.sh"
 
     inst_rules 85-nm-unmanaged.rules
     inst_libdir_dir "NetworkManager/$_nm_version"
