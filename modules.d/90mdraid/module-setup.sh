@@ -114,7 +114,7 @@ install() {
     fi
 
     inst_hook pre-udev 30 "$moddir/mdmon-pre-udev.sh"
-    inst_hook pre-trigger 30 "$moddir/parse-md.sh"
+    inst_hook pre-udev 40 "$moddir/parse-md.sh"
     inst_hook pre-mount 10 "$moddir/mdraid-waitclean.sh"
     inst_hook cleanup 99 "$moddir/mdraid-needshutdown.sh"
     inst_hook shutdown 30 "$moddir/md-shutdown.sh"
