@@ -1,8 +1,11 @@
 #!/bin/bash
 
+# This module is deprecated. Modern replacements are NetworkManager keyfiles and
+# systemd network files. It must now be explicitly opted in by the user to be
+# added to the initrd.
+
 # called by dracut
 check() {
-    [[ -d $dracutsysrootdir/etc/sysconfig/network-scripts ]] && return 0
     return 255
 }
 

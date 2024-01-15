@@ -367,7 +367,7 @@ test_setup() {
     "$DRACUT" -l -i "$TESTDIR"/overlay / \
         --no-early-microcode \
         -o "plymouth" \
-        -a "debug ${USE_NETWORK}" \
+        -a "debug ${USE_NETWORK} ifcfg" \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 
