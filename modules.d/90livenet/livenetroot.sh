@@ -17,10 +17,21 @@ liveurl="${netroot#livenet:}"
 info "fetching $liveurl"
 
 if getargbool 0 'rd.writable.fsimg'; then
+    imgheader=$(curl -sIL "$liveurl")
 
-    imgsize=$(($(curl -sIL "$liveurl" | sed -n 's/[cC]ontent-[lL]ength: *\([[:digit:]]*\).*/\1/p') / (1024 * 1024)))
-
-    check_live_ram $imgsize
+    # shellcheck disable=SC2181
+    ret=$?
+    if [ $ret != 0 ]; then
+        warn "failed to get live image header: error $ret"
+    else
+        imgheaderlen=$(echo "$imgheader" | sed -n 's/[cC]ontent-[lL]ength: *\([[:digit:]]*\).*/\1/p')
+        if [ -z "$imgheaderlen" ]; then
+            warn "failed to get 'Content-Length' header from live image"
+        else
+            imgsize=$((imgheaderlen / (1024 * 1024)))
+            check_live_ram $imgsize
+        fi
+    fi
 fi
 
 imgfile=
