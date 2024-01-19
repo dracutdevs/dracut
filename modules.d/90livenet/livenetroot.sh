@@ -30,8 +30,9 @@ while [ "$i" -le "$RETRIES" ]; do
     imgfile=$(fetch_url "$liveurl")
 
     # shellcheck disable=SC2181
-    if [ $? != 0 ]; then
-        warn "failed to download live image: error $?"
+    ret=$?
+    if [ $ret != 0 ]; then
+        warn "failed to download live image: error $ret"
         imgfile=
     fi
 
