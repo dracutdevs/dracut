@@ -18,7 +18,7 @@ info "fetching $liveurl"
 
 if getargbool 0 'rd.writable.fsimg'; then
 
-    imgsize=$(($(curl -sIL "$liveurl" | sed -n 's/Content-Length: *\([[:digit:]]*\).*/\1/p') / (1024 * 1024)))
+    imgsize=$(($(curl -sIL "$liveurl" | sed -n 's/[cC]ontent-[lL]ength: *\([[:digit:]]*\).*/\1/p') / (1024 * 1024)))
 
     check_live_ram $imgsize
 fi
