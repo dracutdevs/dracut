@@ -6,7 +6,7 @@ fi
 type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
 
 [ -f /usr/lib/initrd-release ] && . /usr/lib/initrd-release
-[ -n "$VERSION" ] && info "dracut-$VERSION"
+[ -n "$DRACUT_VERSION" ] && info "dracut-$DRACUT_VERSION"
 
 if ! getargbool 1 'rd.hostonly'; then
     [ -f /etc/cmdline.d/99-cmdline-ask.conf ] && mv /etc/cmdline.d/99-cmdline-ask.conf /tmp/99-cmdline-ask.conf
