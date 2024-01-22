@@ -4,6 +4,7 @@ COMMAND="$1"
 KERNEL_VERSION="$2"
 BOOT_DIR_ABS="$3"
 KERNEL_IMAGE="$4"
+INITRD_OPTIONS_SHIFT=4
 
 # If KERNEL_INSTALL_MACHINE_ID is defined but empty, BOOT_DIR_ABS is a fake directory.
 # So, let's skip to create initrd.
@@ -53,6 +54,12 @@ ret=0
 
 case "$COMMAND" in
     add)
+        if (($# > INITRD_OPTIONS_SHIFT)); then
+            [[ $KERNEL_INSTALL_VERBOSE == 1 ]] && echo \
+                "One or more INITRD_FILEs were provided to the 'add' command, skipping generating a new one"
+            exit 0
+        fi
+
         if [[ $IMAGE == "uki.efi" ]]; then
             IMAGE_PREGENERATED=${KERNEL_IMAGE%/*}/uki.efi
         else
