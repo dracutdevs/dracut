@@ -29,6 +29,11 @@ if ((BASH_VERSINFO[0] < 4)); then
     exit 1
 fi
 
+if [[ -n $POSIXLY_CORRECT ]]; then
+    printf "%s\n" "dracut[F]: dracut is not compatible with Bash in POSIX mode" >&2
+    exit 1
+fi
+
 dracut_args=("$@")
 # shellcheck disable=SC2155
 readonly dracut_cmd=$(readlink -f "$0")
