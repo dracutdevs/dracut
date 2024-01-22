@@ -26,13 +26,22 @@ depends() {
 cmdline() {
     # Hack for slow machines
     # see https://github.com/dracutdevs/dracut/issues/658
-    printf " rd.driver.pre=btrfs"
+    if grep -m 1 -q -w btrfs /proc/modules; then
+        printf " rd.driver.pre=btrfs"
+    fi
 }
 
 # called by dracut
 installkernel() {
     instmods btrfs
-    printf "%s\n" "$(cmdline)" > "${initdir}/etc/cmdline.d/00-btrfs.conf"
+
+    if [[ $hostonly_cmdline == "yes" ]]; then
+        local _conf
+        _conf=$(cmdline)
+        [[ $_conf ]] && printf "%s\n" "$(cmdline)" > "${initdir}/etc/cmdline.d/00-btrfs.conf"
+    fi
+
+    return 0
 }
 
 # called by dracut
