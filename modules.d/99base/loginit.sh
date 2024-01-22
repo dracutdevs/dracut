@@ -18,6 +18,6 @@ while read -r line || [ -n "$line" ]; do
     fi
     echo "<31>dracut: $line" >&5
     # if "quiet" is specified we output to /dev/console
-    [ -n "$QUIET" ] || echo "dracut: $line"
+    [ "$QUIET" = "yes" ] || echo "dracut: $line"
     echo "$line" >&6
 done
