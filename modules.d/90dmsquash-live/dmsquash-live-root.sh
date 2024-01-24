@@ -76,7 +76,9 @@ if [ -n "$check" ]; then
         checkisomd5 --verbose "$check_dev"
     fi
     if [ $? -eq 1 ]; then
-        die "CD check failed!"
+        warn "Media check failed! We do not recommend using this medium. System will halt in 12 hours"
+        sleep 43200
+        die "Media check failed!"
         exit 1
     fi
     type plymouth > /dev/null 2>&1 && plymouth --show-splash
