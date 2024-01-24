@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Remove leftover udev control socket to prevent cryptsetup hangup
+rm -f /run/udev/control
+
 # Mark crypt devices for deferred removal.
 # The dm module removes holding devices, so
 # that the encryption keys can be released.
