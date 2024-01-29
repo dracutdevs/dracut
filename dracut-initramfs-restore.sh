@@ -18,11 +18,15 @@ trap 'echo "Received SIGTERM signal, ignoring!" >&2' TERM
 
 mount -o ro /boot &> /dev/null || true
 
-# shellcheck disable=SC2119
-IMG="$(get_default_initramfs_image)"
-if [[ -z $IMG ]]; then
-    echo "No initramfs image found to restore!" >&2
-    exit 1
+if [[ -f /sys/firmware/initrd ]]; then
+    IMG="/sys/firmware/initrd"
+else
+    # shellcheck disable=SC2119
+    IMG="$(get_default_initramfs_image)"
+    if [[ -z $IMG ]]; then
+        echo "No initramfs image found to restore!" >&2
+        exit 1
+    fi
 fi
 
 # check if initramfs image contains early microcode and skip it

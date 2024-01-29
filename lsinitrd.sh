@@ -111,6 +111,8 @@ if [[ $1 ]]; then
         usage
         exit 1
     fi
+elif [[ $KERNEL_VERSION == "$(uname -r)" ]] && [[ -f /sys/firmware/initrd ]]; then
+    image="/sys/firmware/initrd"
 else
     image="$(get_default_initramfs_image "$KERNEL_VERSION")"
 fi
@@ -238,7 +240,7 @@ if ((${#filenames[@]} <= 0)) && [[ -z $unpack ]] && [[ -z $unpackearly ]]; then
         fi
     else
         echo -n "Image: $image: "
-        du -h "$image" | while read -r a _ || [ -n "$a" ]; do echo "$a"; done
+        du -bh "$image" | while read -r a _ || [ -n "$a" ]; do echo "$a"; done
     fi
 
     echo "========================================================================"
