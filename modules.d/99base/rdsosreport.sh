@@ -28,7 +28,7 @@ cat /proc/self/mountinfo
 cat /proc/mounts
 
 blkid
-blkid -o udev
+command -v udevadm > /dev/null 2> /dev/null && udevadm info --export-db
 
 ls -l /dev/disk/by*
 
