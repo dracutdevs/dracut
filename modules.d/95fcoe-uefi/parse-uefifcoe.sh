@@ -9,19 +9,22 @@ print_fcoe_uefi_conf() {
     mac=$(get_fcoe_boot_mac "$1")
     [ -z "$mac" ] && return 1
     dev=$(set_ifname fcoe "$mac")
-    vlan=$(get_fcoe_boot_vlan "$1")
-    if [ "$vlan" -ne "0" ]; then
-        case "$vlan" in
-            [0-9]*)
-                printf "%s\n" "vlan=$dev.$vlan:$dev"
-                dev="$dev.$vlan"
-                ;;
-            *)
-                printf "%s\n" "vlan=$vlan:$dev"
-                dev="$vlan"
-                ;;
-        esac
-    fi
+    vlan=$(get_fcoe_boot_vlan "$1") || return 1
+    case "$vlan" in
+        "0") ;;
+
+        '')
+            return 1
+            ;;
+        [0-9]*)
+            printf "%s\n" "vlan=$dev.$vlan:$dev"
+            dev="$dev.$vlan"
+            ;;
+        *)
+            printf "%s\n" "vlan=$vlan:$dev"
+            dev="$vlan"
+            ;;
+    esac
     # fcoe=eth0:nodcb
     printf "fcoe=%s\n" "$dev:nodcb"
     return 0
