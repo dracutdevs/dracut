@@ -2,7 +2,7 @@
 
 # called by dracut
 check() {
-    require_binaries capsh
+    require_binaries capsh || return 1
     return 255
 }
 

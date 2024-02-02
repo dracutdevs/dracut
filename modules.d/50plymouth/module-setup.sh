@@ -20,7 +20,9 @@ check() {
     [[ "$mount_needs" ]] && return 1
     [[ $(pkglib_dir) ]] || return 1
 
-    require_binaries plymouthd plymouth plymouth-set-default-theme
+    require_binaries plymouthd plymouth plymouth-set-default-theme || return 1
+
+    return 0
 }
 
 # called by dracut
