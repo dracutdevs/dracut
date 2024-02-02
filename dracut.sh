@@ -1957,11 +1957,17 @@ if [[ $no_kernel != yes ]]; then
 
     if [[ -n ${add_drivers// /} ]]; then
         # shellcheck disable=SC2086
-        hostonly='' instmods -c $add_drivers
+        if ! hostonly='' instmods -c $add_drivers; then
+            dfatal "instmods failed for add_drivers: $add_drivers"
+            exit 1
+        fi
     fi
     if [[ $force_drivers ]]; then
         # shellcheck disable=SC2086
-        hostonly='' instmods -c $force_drivers
+        if hostonly='' instmods -c $force_drivers; then
+            dfatal "instmods failed for force_drivers: $force_drivers"
+            exit 1
+        fi
         rm -f "$initdir"/etc/cmdline.d/20-force_driver.conf
         for mod in $force_drivers; do
             echo "rd.driver.pre=$mod" >> "$initdir"/etc/cmdline.d/20-force_drivers.conf
@@ -1969,7 +1975,10 @@ if [[ $no_kernel != yes ]]; then
     fi
     if [[ $filesystems ]]; then
         # shellcheck disable=SC2086
-        hostonly='' instmods -c $filesystems
+        if ! hostonly='' instmods -c $filesystems; then
+            dfatal "instmods failed for filesystems: $filesystems"
+            exit 1
+        fi
     fi
 
     dinfo "*** Installing kernel module dependencies ***"
