@@ -8,13 +8,13 @@ on:
     inputs:
       tag:
         description: "release version number (3 digits)"
-        required: true
 
 permissions:
   contents: write
 
 jobs:
   release:
+    if: github.repository == 'dracutdevs/dracut' || vars.RELEASE == 'enabled' || ${{ inputs.tag }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
