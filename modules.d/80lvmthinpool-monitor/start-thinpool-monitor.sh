@@ -9,7 +9,8 @@ is_lvm2_thinp_device() {
     _lvm2_thin_device=$(lvm lvs -S 'lv_layout=sparse && lv_layout=thin' \
         --nosuffix --noheadings -o vg_name,lv_name "$_device_path" 2> /dev/null)
 
-    [ -n "$_lvm2_thin_device" ] && return $?
+    ret=$?
+    [ -n "$_lvm2_thin_device" ] && return $ret
 }
 
 for LV in $LVS; do

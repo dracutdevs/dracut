@@ -229,7 +229,8 @@ handle_netroot() {
             echo "$target"
         done
     })
-    [ -z "$targets" ] && warn "Target discovery to $iscsi_target_ip:${iscsi_target_port:+$iscsi_target_port} failed with status $?" && return 1
+    ret=$?
+    [ -z "$targets" ] && warn "Target discovery to $iscsi_target_ip:${iscsi_target_port:+$iscsi_target_port} failed with status $ret" && return 1
 
     found=
     for target in $targets; do
