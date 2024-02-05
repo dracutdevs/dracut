@@ -34,7 +34,9 @@ install() {
             if ! [[ $_nssckbi ]]; then
                 read -r -d '' _nssckbi < <(grep -F --binary-files=text -z libnssckbi "$_lib")
             fi
-            read -r -d '' _crt < <(grep -E --binary-files=text -z "\.(pem|crt)" "$_lib" | sed 's/\x0//g')
+            # Last sed expression removes all symbols before first '/' to clean up junk (https://askubuntu.com/a/438393)
+            # Junk may contain a line break
+            read -r -d '' _crt < <(grep -E --binary-files=text -z "\.(pem|crt)" "$_lib" | sed -e 's/\x0//g' -e 's,^[^/]*/,/,' | grep '^/' | head -n1)
             [[ $_crt ]] || continue
             [[ $_crt == /*/* ]] || continue
             if [[ -e $_crt ]]; then
