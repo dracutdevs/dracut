@@ -52,15 +52,6 @@ COLOR_FAILURE='\033[0;31m'
 COLOR_WARNING='\033[0;33m'
 COLOR_NORMAL='\033[0;39m'
 
-check_root() {
-    if ((EUID != 0)); then
-        SETCOLOR_FAILURE
-        echo "Tests must be run as root! Please use 'sudo'."
-        SETCOLOR_NORMAL
-        exit 1
-    fi
-}
-
 # generate qemu arguments for named raw disks
 #
 # qemu_add_drive_args <index> <args> <filename> <id-name> [<bootindex>]
@@ -122,13 +113,11 @@ test_marker_check() {
 while (($# > 0)); do
     case $1 in
         --run)
-            check_root
             echo "TEST RUN: $TEST_DESCRIPTION"
             test_check && test_run
             exit $?
             ;;
         --setup)
-            check_root
             echo "TEST SETUP: $TEST_DESCRIPTION"
             test_check && test_setup
             exit $?
@@ -141,7 +130,6 @@ while (($# > 0)); do
             exit $?
             ;;
         --all)
-            check_root
             if ! test_check 2 &> test${TEST_RUN_ID:+-$TEST_RUN_ID}.log; then
                 echo -e "TEST: $TEST_DESCRIPTION " "$COLOR_WARNING" "[SKIPPED]" "$COLOR_NORMAL"
                 exit 0

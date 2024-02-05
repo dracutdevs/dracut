@@ -253,27 +253,27 @@ For the testsuite to pass, you will have to install at least the software packag
 mentioned in the `test/container` Dockerfiles.
 
 ```
-$ sudo make clean check
+$ make clean check
 ```
 
 in verbose mode:
 ```
-$ sudo make V=1 clean check
+$ make V=1 clean check
 ```
 
 only specific test:
 ```
-$ sudo make TESTS="01 20 40" clean check
+$ make TESTS="01 20 40" clean check
 ```
 only runs the 01, 20 and 40 tests.
 
 debug a specific test case:
 ```
 $ cd TEST-01-BASIC
-$ sudo make clean setup run
+$ make clean setup run
 ```
 ... change some kernel parameters in `test.sh` ...
 ```
-$ sudo make run
+$ make run
 ```
 to run the test without doing the setup.

@@ -264,7 +264,6 @@ endif
 endif
 
 check: all syncheck
-	@[ "$$EUID" == "0" ] || { echo "'check' must be run as root! Please use 'sudo'."; exit 1; }
 	@$(MAKE) -C test check
 
 testimage: all

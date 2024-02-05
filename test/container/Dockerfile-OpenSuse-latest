@@ -6,7 +6,7 @@ MAINTAINER https://github.com/dracutdevs/dracut
 RUN dnf -y install --setopt=install_weak_deps=False \
     dash asciidoc mdadm lvm2 dmraid cryptsetup nfs-utils nbd dhcp-server \
     strace libkmod-devel gcc bzip2 xz tar wget rpm-build make git bash-completion \
-    sudo kernel dhcp-client qemu-kvm /usr/bin/qemu-system-$(uname -m) e2fsprogs \
+    kernel dhcp-client qemu-kvm /usr/bin/qemu-system-$(uname -m) e2fsprogs \
     tcpdump iproute iputils kbd NetworkManager btrfsprogs tgt dbus-broker \
     iscsiuio open-iscsi which ShellCheck shfmt procps pigz parted squashfs ntfsprogs \
     multipath-tools util-linux-systemd systemd-boot \
