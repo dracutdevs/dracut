@@ -37,5 +37,4 @@ if getargbool 0 rd.shell; then
     setsid $CTTY sh -i
 fi
 echo "Powering down."
-systemctl --no-block poweroff
-exit 0
+poweroff -f
