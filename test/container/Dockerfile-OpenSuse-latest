@@ -9,5 +9,5 @@ RUN dnf -y install --setopt=install_weak_deps=False \
     sudo kernel dhcp-client qemu-kvm /usr/bin/qemu-system-$(uname -m) e2fsprogs \
     tcpdump iproute iputils kbd NetworkManager btrfsprogs tgt dbus-broker \
     iscsiuio open-iscsi which ShellCheck shfmt procps pigz parted squashfs ntfsprogs \
-    multipath-tools util-linux-systemd systemd-boot \
+    util-linux-systemd systemd-boot \
     && dnf -y remove dracut && dnf -y update && dnf clean all
