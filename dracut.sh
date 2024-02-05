@@ -1561,7 +1561,8 @@ fi
 
 if [[ $early_microcode == yes ]]; then
     if [[ $hostonly ]]; then
-        if [[ $(get_cpu_vendor) == "AMD" || $(get_cpu_vendor) == "Intel" ]]; then
+        CPU_VENDOR=$(get_cpu_vendor)
+        if [[ $CPU_VENDOR == "AMD" || $CPU_VENDOR == "Intel" ]]; then
             check_kernel_config CONFIG_MICROCODE || unset early_microcode
         else
             unset early_microcode
@@ -2132,8 +2133,14 @@ if [[ $early_microcode == yes ]]; then
     _dest_idx="0 1"
     mkdir -p "$_dest_dir"
     if [[ $hostonly ]]; then
-        [[ $(get_cpu_vendor) == "AMD" ]] && _dest_idx="0"
-        [[ $(get_cpu_vendor) == "Intel" ]] && _dest_idx="1"
+        case "$CPU_VENDOR" in
+            AMD)
+                _dest_idx="0"
+                ;;
+            Intel)
+                _dest_idx="1"
+                ;;
+        esac
     fi
     for idx in $_dest_idx; do
         _fw=${ucode_dir[$idx]}
