@@ -272,7 +272,7 @@ source_hook cleanup
 
 # By the time we get here, the root filesystem should be mounted.
 # Try to find init.
-for i in "$(getarg real_init=)" "$(getarg init=)" $(getargs rd.distroinit=) /sbin/init; do
+for i in "$(getarg real_init=)" "$(getarg init=)" /sbin/init; do
     [ -n "$i" ] || continue
 
     __p="${NEWROOT}/${i}"

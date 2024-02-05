@@ -12,6 +12,13 @@ depends() {
 }
 
 # called by dracut
+cmdline() {
+    if [[ $ro_mnt == yes ]]; then
+        printf " ro"
+    fi
+}
+
+# called by dracut
 install() {
     inst_multiple mount mknod mkdir sleep chown \
         sed ls flock cp mv dmesg rm ln rmmod mkfifo umount readlink setsid \
@@ -58,16 +65,11 @@ install() {
         inst_hook cmdline 10 "$moddir/parse-root-opts.sh"
     fi
 
-    if [[ $realinitpath ]]; then
-        for i in $realinitpath; do
-            echo "rd.distroinit=$i"
-        done > "${initdir}/etc/cmdline.d/distroinit.conf"
-    fi
-
     ln -fs /proc/self/mounts "$initdir/etc/mtab"
-    if [[ $ro_mnt == yes ]]; then
-        echo ro >> "${initdir}/etc/cmdline.d/base.conf"
-    fi
+
+    local _baseconf
+    _baseconf=$(cmdline)
+    [[ $_baseconf ]] && printf "%s\n" "$_baseconf" > "${initdir}/etc/cmdline.d/99base.conf"
 
     [ -e "${initdir}/usr/lib" ] || mkdir -m 0755 -p "${initdir}"/usr/lib
 
