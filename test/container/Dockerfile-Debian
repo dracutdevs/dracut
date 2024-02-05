@@ -3,9 +3,7 @@ FROM docker.io/debian:latest
 MAINTAINER https://github.com/dracutdevs/dracut
 
 # Install needed packages for the dracut CI container
-# Install dracut as a linux-initramfs-tool provider so that the default initramfs-tool package does not get installed
-# Uninstall initramfs-tools-core as a workaround for https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=994492
-RUN apt-get update -y -qq && apt-get upgrade -y -qq && apt-get install -y -qq --no-install-recommends dracut && \
+RUN apt-get update -y -qq && apt-get upgrade -y -qq && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends -o Dpkg::Use-Pty=0 \
     asciidoc \
     astyle \
@@ -17,9 +15,6 @@ RUN apt-get update -y -qq && apt-get upgrade -y -qq && apt-get install -y -qq --
     cpio \
     cryptsetup \
     curl \
-    dash \
-    debhelper \
-    debhelper-compat \
     dmraid \
     docbook \
     docbook-xml \
@@ -52,8 +47,7 @@ RUN apt-get update -y -qq && apt-get upgrade -y -qq && apt-get install -y -qq --
     pigz \
     pkg-config \
     procps \
-    qemu-system-x86 \
-    quilt \
+    qemu-kvm \
     shellcheck \
     squashfs-tools \
     strace \
@@ -64,4 +58,4 @@ RUN apt-get update -y -qq && apt-get upgrade -y -qq && apt-get install -y -qq --
     thin-provisioning-tools \
     vim \
     wget \
-    && apt-get clean && dpkg -P --force-depends dracut dracut-core initramfs-tools-core
+    && apt-get clean
