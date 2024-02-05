@@ -154,6 +154,7 @@ fsck_single() {
 
     info "Checking $_fs: $_dev"
     export FSTAB_FILE
+    : > "${initdir}"/etc/fstab.empty
     eval "$_drv"
     return $?
 }
@@ -175,6 +176,7 @@ fsck_batch() {
     done
 
     export FSTAB_FILE
+    : > "${initdir}"/etc/fstab.empty
     _out="$(fsck -M -T "$@" -- -a)"
     _ret=$?
 
