@@ -7,7 +7,6 @@ TEST_DESCRIPTION="root filesystem on an encrypted LVM PV on a RAID-5"
 #DEBUGFAIL="rd.break rd.shell rd.debug debug"
 test_run() {
     declare -a disk_args=()
-    # shellcheck disable=SC2034
     declare -i disk_index=0
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-1.img raid1
@@ -24,66 +23,31 @@ test_run() {
 }
 
 test_setup() {
-    kernel=$KVERSION
     # Create what will eventually be our root filesystem onto an overlay
-    (
-        # shellcheck disable=SC2030
-        export initdir=$TESTDIR/overlay/source
-        # shellcheck disable=SC1090
-        . "$PKGLIBDIR"/dracut-init.sh
-        (
-            cd "$initdir" || exit
-            mkdir -p -- dev sys proc etc var/run tmp
-            mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
-        )
-        inst_multiple sh df free ls shutdown poweroff stty cat ps ln \
-            mount dmesg mkdir cp dd sync
-        for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
-            [ -f ${_terminfodir}/l/linux ] && break
-        done
-        inst_multiple -o ${_terminfodir}/l/linux
-
-        inst_simple "${PKGLIBDIR}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh"
-        inst_simple "${PKGLIBDIR}/modules.d/99base/dracut-dev-lib.sh" "/lib/dracut-dev-lib.sh"
-        inst_binary "${PKGLIBDIR}/dracut-util" "/usr/bin/dracut-util"
-        ln -s dracut-util "${initdir}/usr/bin/dracut-getarg"
-        ln -s dracut-util "${initdir}/usr/bin/dracut-getargs"
-
-        inst_simple /etc/os-release
-        inst ./test-init.sh /sbin/init
-        inst_multiple grep
-        inst_multiple -o /lib/systemd/systemd-shutdown
-        find_binary plymouth > /dev/null && inst_multiple plymouth
-        cp -a /etc/ld.so.conf* "$initdir"/etc
-        ldconfig -r "$initdir"
-    )
-
-    # second, install the files needed to make the root filesystem
-    (
-        # shellcheck disable=SC2031
-        # shellcheck disable=SC2030
-        export initdir=$TESTDIR/overlay
-        # shellcheck disable=SC1090
-        . "$PKGLIBDIR"/dracut-init.sh
-        inst_multiple sfdisk mkfs.ext4 poweroff cp umount dd sync grep
-        inst_hook initqueue 01 ./create-root.sh
-        inst_hook initqueue/finished 01 ./finished-false.sh
-    )
+    "$DRACUT" -l --keep --tmpdir "$TESTDIR" \
+        -m "test-root" \
+        -i ./test-init.sh /sbin/init \
+        -i "${PKGLIBDIR}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh" \
+        -i "${PKGLIBDIR}/modules.d/99base/dracut-dev-lib.sh" "/lib/dracut-dev-lib.sh" \
+        --no-hostonly --no-hostonly-cmdline --nohardlink \
+        -f "$TESTDIR"/initramfs.root "$KVERSION" || return 1
+    mkdir -p "$TESTDIR"/overlay/source && mv "$TESTDIR"/dracut.*/initramfs/* "$TESTDIR"/overlay/source && rm -rf "$TESTDIR"/dracut.*
 
     # create an initramfs that will create the target root filesystem.
     # We do it this way so that we do not risk trashing the host mdraid
     # devices, volume groups, encrypted partitions, etc.
     "$DRACUT" -l -i "$TESTDIR"/overlay / \
-        -m "bash crypt lvm mdraid kernel-modules qemu" \
+        -m "test-makeroot bash crypt lvm mdraid kernel-modules" \
         -d "piix ide-gd_mod ata_piix ext4 sd_mod" \
         --nomdadmconf \
+        -I "mkfs.ext4 grep" \
+        -i ./create-root.sh /lib/dracut/hooks/initqueue/01-create-root.sh \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
     rm -rf -- "$TESTDIR"/overlay
 
     # Create the blank files to use as a root filesystem
     declare -a disk_args=()
-    # shellcheck disable=SC2034
     declare -i disk_index=0
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/marker.img marker 1
     qemu_add_drive_args disk_index disk_args "$TESTDIR"/raid-1.img raid1 40
@@ -97,26 +61,17 @@ test_setup() {
     test_marker_check dracut-root-block-created || return 1
     eval "$(grep -F -a -m 1 ID_FS_UUID "$TESTDIR"/marker.img)"
 
-    (
-        # shellcheck disable=SC2031
-        export initdir=$TESTDIR/overlay
-        # shellcheck disable=SC1090
-        . "$PKGLIBDIR"/dracut-init.sh
-        inst_multiple poweroff shutdown dd
-        inst_hook shutdown-emergency 000 ./hard-off.sh
-        inst_hook emergency 000 ./hard-off.sh
-        inst ./cryptroot-ask.sh /sbin/cryptroot-ask
-        mkdir -p "$initdir"/etc
-        echo "testluks UUID=$ID_FS_UUID /etc/key" > "$initdir"/etc/crypttab
-        #echo "luks-$ID_FS_UUID /dev/md0 none" > $initdir/etc/crypttab
-        echo -n "test" > "$initdir"/etc/key
-    )
+    echo "testluks UUID=$ID_FS_UUID /etc/key" > /tmp/crypttab
+    echo -n "test" > /tmp/key
 
     "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -o "plymouth network kernel-network-modules" \
-        -a "debug" \
+        -a "test" \
         -d "piix ide-gd_mod ata_piix ext4 sd_mod" \
         --no-hostonly-cmdline -N \
+        -i "./cryptroot-ask.sh" "/sbin/cryptroot-ask" \
+        -i "/tmp/crypttab" "/etc/crypttab" \
+        -i "/tmp/key" "/etc/key" \
         -f "$TESTDIR"/initramfs.testing "$KVERSION" || return 1
 }
 
