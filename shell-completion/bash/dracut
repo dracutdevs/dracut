@@ -22,6 +22,11 @@ __contains_word() {
     return 1
 }
 
+__get_openssl_engines() {
+    # sbsign uses installed OpenSSL engines
+    openssl engine 2> /dev/null | awk -F[\(\)] '{print $2}'
+}
+
 _dracut() {
     local cur=${COMP_WORDS[COMP_CWORD]} prev=${COMP_WORDS[COMP_CWORD - 1]}
     local -A OPTS=(
@@ -46,7 +51,8 @@ _dracut() {
             --kernel-cmdline --sshkey --persistent-policy --install-optional
             --loginstall --uefi-stub --kernel-image --squash-compressor
             --sysroot --hostonly-mode --hostonly-nics --include --logfile
-            --uefi-splash-image --sbat
+            --uefi-splash-image --sbat --uefi-secureboot-cert
+            --uefi-secureboot-key --uefi-secureboot-engine
             '
     )
 
@@ -58,7 +64,8 @@ _dracut() {
                 compopt -o filenames
                 ;;
             -c | --conf | --sshkey | --add-fstab | --add-device | -I | \
-                --install | --install-optional | --uefi-splash-image)
+                --install | --install-optional | --uefi-splash-image | \
+                --uefi-secureboot-cert | --uefi-secureboot-key)
                 comps=$(compgen -f -- "$cur")
                 compopt -o filenames
                 ;;
@@ -85,6 +92,9 @@ _dracut() {
                     cd /sys/class/net/ || return 0
                     printf -- "%s " *
                 )
+                ;;
+            --uefi-secureboot-engine)
+                comps="$(__get_openssl_engines)"
                 ;;
             *)
                 return 0

@@ -271,6 +271,14 @@ Creates initial ramdisk images for preloading modules
   --uefi-splash-image [FILE]
                         Use [FILE] as a splash image when creating an UEFI
                          executable. Requires bitmap (.bmp) image format.
+  --uefi-secureboot-cert [FILE], --uefi-secureboot-key [FILE]
+                        Specifies a certificate and corresponding key, which are
+                         used to sign the created UEFI executable.
+                         Requires both certificate and key need to be specified
+                         and sbsign to be installed.
+  --uefi-secureboot-engine [ENGINE]
+                        Specifies an OpenSSL engine to use when signing the
+                         created UEFI executable. E.g. "pkcs11".
   --kernel-image [FILE] Location of the kernel image.
   --sbat [PARAMETERS]   The SBAT parameters to be added to .sbat.
                          The string "sbat,1,SBAT Version,sbat,1,
@@ -466,6 +474,9 @@ rearrange_params() {
             --long no-uefi \
             --long uefi-stub: \
             --long uefi-splash-image: \
+            --long uefi-secureboot-cert: \
+            --long uefi-secureboot-key: \
+            --long uefi-secureboot-engine: \
             --long kernel-image: \
             --long sbat: \
             --long no-hostonly-i18n \
@@ -840,6 +851,21 @@ while :; do
             PARMS_TO_STORE+=" '$2'"
             shift
             ;;
+        --uefi-secureboot-cert)
+            uefi_secureboot_cert_l="$2"
+            PARMS_TO_STORE+=" '$2'"
+            shift
+            ;;
+        --uefi-secureboot-key)
+            uefi_secureboot_key_l="$2"
+            PARMS_TO_STORE+=" '$2'"
+            shift
+            ;;
+        --uefi-secureboot-engine)
+            uefi_secureboot_engine_l="$2"
+            PARMS_TO_STORE+=" '$2'"
+            shift
+            ;;
         --kernel-image)
             kernel_image_l="$2"
             PARMS_TO_STORE+=" '$2'"
@@ -1088,6 +1114,9 @@ drivers_dir="${drivers_dir%"${drivers_dir##*[!/]}"}"
 [[ $uefi_l ]] && uefi=$uefi_l
 [[ $uefi_stub_l ]] && uefi_stub="$uefi_stub_l"
 [[ $uefi_splash_image_l ]] && uefi_splash_image="$uefi_splash_image_l"
+[[ $uefi_secureboot_cert_l ]] && uefi_secureboot_cert="$uefi_secureboot_cert_l"
+[[ $uefi_secureboot_key_l ]] && uefi_secureboot_key="$uefi_secureboot_key_l"
+[[ $uefi_secureboot_engine_l ]] && uefi_secureboot_engine="$uefi_secureboot_engine_l"
 [[ $kernel_image_l ]] && kernel_image="$kernel_image_l"
 [[ $sbat_l ]] && sbat="$sbat_l"
 [[ $machine_id_l ]] && machine_id="$machine_id_l"
