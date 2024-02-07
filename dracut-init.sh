@@ -730,7 +730,7 @@ inst_decompress() {
         inst_simple "${_src}"
         # Decompress with chosen tool.  We assume that tool changes name e.g.
         # from 'name.gz' to 'name'.
-        ${_cmd} "${initdir}${_src}"
+        ${_cmd} "${initdir}${_src#"$dracutsysrootdir"}"
     done
 }
 
