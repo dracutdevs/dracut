@@ -44,7 +44,7 @@ install() {
             MAPNAME=${1%.map*}
 
             mapfile -t -d '' MAPS < <(
-                find "${dracutsysrootdir}${kbddir}"/keymaps/ -type f \( -name "${MAPNAME}" -o -name "${MAPNAME}.map*" \) -print0
+                find "${dracutsysrootdir}${kbddir}"/keymaps/ -type f,l \( -name "${MAPNAME}" -o -name "${MAPNAME}.map*" \) -print0
             )
         fi
 
@@ -160,6 +160,7 @@ install() {
 
     install_local_i18n() {
         local map
+        local maplink
 
         # shellcheck disable=SC2086
         eval "$(gather_vars ${i18n_vars})"
@@ -216,7 +217,19 @@ install() {
         done
 
         for keymap in "${!KEYMAPS[@]}"; do
-            inst_opt_decompress "${keymap}"
+            if [[ -L ${keymap} ]]; then
+                maplink=$(readlink -f "${keymap}")
+                # skip symlinked directories
+                [[ -d ${maplink} ]] && continue
+
+                inst_opt_decompress "${maplink}"
+                # create new symlink to decompressed keymap
+                maplink=${maplink%.gz}
+                keymap=${keymap%.gz}
+                ln -srn "${initdir}${maplink#"$dracutsysrootdir"}" "${initdir}${keymap#"$dracutsysrootdir"}"
+            else
+                inst_opt_decompress "${keymap}"
+            fi
         done
 
         inst_opt_decompress "${kbddir}"/consolefonts/"${DEFAULT_FONT}".*
