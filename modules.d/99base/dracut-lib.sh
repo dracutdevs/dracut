@@ -1131,7 +1131,7 @@ show_memstats() {
 }
 
 remove_hostonly_files() {
-    rm -fr /etc/cmdline /etc/cmdline.d/*.conf "$hookdir/initqueue/finished"
+    rm -fr /etc/cmdline /etc/cmdline.d/*.conf "$hookdir"/initqueue/finished/*.sh
     if [ -f /lib/dracut/hostonly-files ]; then
         while read -r line || [ -n "$line" ]; do
             [ -e "$line" ] || [ -h "$line" ] || continue

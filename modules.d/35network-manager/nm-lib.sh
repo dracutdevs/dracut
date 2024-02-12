@@ -20,7 +20,6 @@ nm_generate_connections() {
             /etc/NetworkManager/system-connections/* \
             /etc/sysconfig/network-scripts/ifcfg-*; do
             [ -f "$i" ] || continue
-            mkdir -p "$hookdir"/initqueue/finished
             echo '[ -f /tmp/nm.done ]' > "$hookdir"/initqueue/finished/nm.sh
             mkdir -p /run/NetworkManager/initrd
             : > /run/NetworkManager/initrd/neednet # activate NM services
