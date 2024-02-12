@@ -45,7 +45,7 @@ export fstype
 
 make_trace_mem "hook cmdline" '1+:mem' '1+:iomem' '3+:slab'
 # run scriptlets to parse the command line
-getarg 'rd.break=cmdline' -d 'rdbreak=cmdline' && emergency_shell -n cmdline "Break before cmdline"
+getargs 'rd.break=cmdline' -d 'rdbreak=cmdline' && emergency_shell -n cmdline "Break before cmdline"
 source_hook cmdline
 
 [ -f /lib/dracut/parse-resume.sh ] && . /lib/dracut/parse-resume.sh

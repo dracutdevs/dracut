@@ -12,7 +12,7 @@ make_trace_mem "hook pre-trigger" '1:shortmem' '2+:mem' '3+:slab'
 
 source_hook pre-trigger
 
-getarg 'rd.break=pre-trigger' 'rdbreak=pre-trigger' && emergency_shell -n pre-trigger "Break before pre-trigger"
+getargs 'rd.break=pre-trigger' -d 'rdbreak=pre-trigger' && emergency_shell -n pre-trigger "Break before pre-trigger"
 
 udevadm control --reload > /dev/null 2>&1 || :
 
