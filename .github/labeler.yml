@@ -374,10 +374,6 @@ cifs:
   - changed-files:
     - any-glob-to-any-file: 'modules.d/95cifs/*'
 
-dasd_mod:
-  - changed-files:
-    - any-glob-to-any-file: 'modules.d/95dasd_mod/*'
-
 dcssblk:
   - changed-files:
     - any-glob-to-any-file: 'modules.d/95dcssblk/*'
