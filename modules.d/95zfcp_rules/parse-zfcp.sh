@@ -63,7 +63,8 @@ for zfcp_arg in $(getargs root=) $(getargs resume=); do
         if [ -n "$ccw_arg" ]; then
             OLDIFS="$IFS"
             IFS="-"
-            set -- "$ccw_arg"
+            # shellcheck disable=SC2086
+            set -- $ccw_arg
             IFS="$OLDIFS"
             _wwpn=${4%:*}
             _lun=${4#*:}
