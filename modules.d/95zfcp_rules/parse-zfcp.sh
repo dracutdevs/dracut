@@ -65,9 +65,18 @@ for zfcp_arg in $(getargs root=) $(getargs resume=); do
             IFS="-"
             set -- "$ccw_arg"
             IFS="$OLDIFS"
-            _wwpn=${4%:*}
-            _lun=${4#*:}
-            create_udev_rule "$2" "$wwpn" "$lun"
+            # The format of udev-created SCSI device nodes has changed from:
+            #   ccw-<device_bus_id>-zfcp-<wwpn>:<lun>-part<n>
+            # to:
+            #   ccw-<device_bus_id>-fc-<wwpn>-lun-<lun>-part<n>
+            if [[ $3 == "fc" ]] && [[ $5 == "lun" ]]; then
+                _wwpn="$4"
+                _lun="$6"
+            elif [[ $3 == "zfcp" ]]; then
+                _wwpn=${4%:*}
+                _lun=${4#*:}
+            fi
+            create_udev_rule "$2" "$_wwpn" "$_lun"
         fi
     )
 done
