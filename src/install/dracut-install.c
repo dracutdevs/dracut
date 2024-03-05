@@ -1140,6 +1140,7 @@ static int parse_argv(int argc, char *argv[])
                         kerneldir = optarg;
                         break;
                 case ARG_FIRMWAREDIRS:
+                        strv_free(firmwaredirs);
                         firmwaredirs = strv_split(optarg, ":");
                         break;
                 case 'f':
