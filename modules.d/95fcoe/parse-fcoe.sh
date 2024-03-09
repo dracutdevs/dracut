@@ -23,7 +23,7 @@ if ! getargbool 1 rd.fcoe -d -n rd.nofcoe; then
     return 0
 fi
 
-if ! [ -e /sys/bus/fcoe/ctlr_create ] && ! modprobe -b -a fcoe && ! modprobe -b -a libfcoe; then
+if ! [ -e /sys/bus/fcoe/ctlr_create ] && ! modprobe -b fcoe && ! modprobe -b libfcoe; then
     die "FCoE requested but kernel/initrd does not support FCoE"
 fi
 
