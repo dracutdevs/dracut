@@ -10,6 +10,7 @@ check() {
 
 # called by dracut
 depends() {
+    echo net-lib
     return 0
 }
 

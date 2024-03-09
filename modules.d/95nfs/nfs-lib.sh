@@ -1,7 +1,7 @@
 #!/bin/sh
 
 type getarg > /dev/null 2>&1 || . /lib/dracut-lib.sh
-. /lib/net-lib.sh
+type get_ip > /dev/null 2>&1 || . /lib/net-lib.sh
 
 # TODO: make these things not pollute the calling namespace
 

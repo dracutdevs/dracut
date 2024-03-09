@@ -318,7 +318,7 @@ test_setup() {
         inst_simple "${PKGLIBDIR}/modules.d/99base/dracut-lib.sh" "/lib/dracut-lib.sh"
         inst_simple "${PKGLIBDIR}/modules.d/99base/dracut-dev-lib.sh" "/lib/dracut-dev-lib.sh"
         inst_simple "${PKGLIBDIR}/modules.d/45url-lib/url-lib.sh" "/lib/url-lib.sh"
-        inst_simple "${PKGLIBDIR}/modules.d/40network/net-lib.sh" "/lib/net-lib.sh"
+        inst_simple "${PKGLIBDIR}/modules.d/45net-lib/net-lib.sh" "/lib/net-lib.sh"
         inst_simple "${PKGLIBDIR}/modules.d/95nfs/nfs-lib.sh" "/lib/nfs-lib.sh"
         inst_binary "${PKGLIBDIR}/dracut-util" "/usr/bin/dracut-util"
         ln -s dracut-util "${initdir}/usr/bin/dracut-getarg"

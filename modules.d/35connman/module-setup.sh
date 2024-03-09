@@ -10,7 +10,7 @@ check() {
 
 # called by dracut
 depends() {
-    echo dbus systemd bash
+    echo dbus systemd bash net-lib
     return 0
 }
 
@@ -25,7 +25,6 @@ install() {
     # in an emergency shell.
     inst_multiple ip sed grep
 
-    inst_script "$moddir/netroot.sh" "/sbin/netroot"
     inst connmand
     inst connmanctl
     inst connmand-wait-online

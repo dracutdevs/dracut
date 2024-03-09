@@ -538,6 +538,10 @@ uefi-lib:
   - changed-files:
     - any-glob-to-any-file: 'modules.d/99uefi-lib/*'
 
+net-lib:
+  - changed-files:
+    - any-glob-to-any-file: 'modules.d/45net-lib/*'
+
 test:
   - changed-files:
     - any-glob-to-any-file: ['test/*', 'test/**/*', 'modules.d/80test*', 'modules.d/80test*/*']
