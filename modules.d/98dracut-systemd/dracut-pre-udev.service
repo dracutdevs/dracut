@@ -8,7 +8,7 @@ Before=systemd-udevd.service dracut-pre-trigger.service
 After=dracut-cmdline.service
 Wants=dracut-cmdline.service
 ConditionPathExists=/usr/lib/initrd-release
-ConditionDirectoryNotEmpty=|/lib/dracut/hooks/pre-udev
+ConditionDirectoryNotEmpty=|/var/lib/dracut/hooks/pre-udev
 ConditionKernelCommandLine=|rd.break=pre-udev
 ConditionKernelCommandLine=|rd.driver.blacklist
 ConditionKernelCommandLine=|rd.driver.pre

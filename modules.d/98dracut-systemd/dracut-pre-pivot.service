@@ -10,8 +10,8 @@ Before=initrd-cleanup.service
 Wants=remote-fs.target
 After=remote-fs.target
 ConditionPathExists=/usr/lib/initrd-release
-ConditionDirectoryNotEmpty=|/lib/dracut/hooks/pre-pivot
-ConditionDirectoryNotEmpty=|/lib/dracut/hooks/cleanup
+ConditionDirectoryNotEmpty=|/var/lib/dracut/hooks/pre-pivot
+ConditionDirectoryNotEmpty=|/var/lib/dracut/hooks/cleanup
 ConditionKernelCommandLine=|rd.break=pre-pivot
 ConditionKernelCommandLine=|rd.break=cleanup
 ConditionKernelCommandLine=|rd.break
