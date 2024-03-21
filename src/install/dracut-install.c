@@ -473,7 +473,7 @@ static char *get_real_file(const char *src, bool fullyresolve)
                 return NULL;
         }
 
-        linksz = readlink(fullsrcpath, linktarget, sizeof(linktarget));
+        linksz = readlink(fullsrcpath, linktarget, sizeof(linktarget) - 1);
         if (linksz < 0)
                 return NULL;
         linktarget[linksz] = '\0';
@@ -1140,6 +1140,7 @@ static int parse_argv(int argc, char *argv[])
                         kerneldir = optarg;
                         break;
                 case ARG_FIRMWAREDIRS:
+                        strv_free(firmwaredirs);
                         firmwaredirs = strv_split(optarg, ":");
                         break;
                 case 'f':

@@ -180,12 +180,12 @@ static int getarg(int argc, char **argv)
         char *end_value = NULL;
         bool bool_value = false;
         char *cmdline = NULL;
+        char *cmdline_iter = NULL;
 
         char *p = getenv("CMDLINE");
         if (p == NULL) {
                 usage(GETARG, EXIT_FAILURE, "CMDLINE env not set");
         }
-        cmdline = strdup(p);
 
         if (argc != 2) {
                 usage(GETARG, EXIT_FAILURE, "Number of arguments invalid");
@@ -204,9 +204,16 @@ static int getarg(int argc, char **argv)
         if (strlen(search_key) == 0)
                 usage(GETARG, EXIT_FAILURE, "search key undefined");
 
+        cmdline = strdup(p);
+        if (cmdline == NULL) {
+                fprintf(stderr, "ERROR: out of memory.\n");
+                exit(EXIT_FAILURE);
+        }
+        cmdline_iter = cmdline;
+
         do {
                 char *key = NULL, *value = NULL;
-                cmdline = next_arg(cmdline, &key, &value);
+                cmdline = next_arg(cmdline_iter, &key, &value);
                 if (strcmp(key, search_key) == 0) {
                         if (value) {
                                 end_value = value;
@@ -216,7 +223,9 @@ static int getarg(int argc, char **argv)
                                 bool_value = true;
                         }
                 }
-        } while (cmdline[0]);
+        } while (cmdline_iter[0]);
+
+        free(cmdline);
 
         if (search_value) {
                 if (end_value && strcmp(end_value, search_value) == 0) {
@@ -244,16 +253,15 @@ static int getargs(int argc, char **argv)
         char *search_value;
         bool found_value = false;
         char *cmdline = NULL;
+        char *cmdline_iter = NULL;
 
         char *p = getenv("CMDLINE");
         if (p == NULL) {
                 usage(GETARGS, EXIT_FAILURE, "CMDLINE env not set");
         }
-        cmdline = strdup(p);
 
-        if (argc != 2) {
+        if (argc != 2)
                 usage(GETARGS, EXIT_FAILURE, "Number of arguments invalid");
-        }
 
         search_key = argv[1];
 
@@ -268,9 +276,16 @@ static int getargs(int argc, char **argv)
         if (strlen(search_key) == 0)
                 usage(GETARGS, EXIT_FAILURE, "search key undefined");
 
+        cmdline = strdup(p);
+        if (cmdline == NULL) {
+                fprintf(stderr, "ERROR: out of memory.\n");
+                exit(EXIT_FAILURE);
+        }
+        cmdline_iter = cmdline;
+
         do {
                 char *key = NULL, *value = NULL;
-                cmdline = next_arg(cmdline, &key, &value);
+                cmdline = next_arg(cmdline_iter, &key, &value);
                 if (strcmp(key, search_key) == 0) {
                         if (search_value) {
                                 if (strcmp(value, search_value) == 0) {
@@ -286,7 +301,10 @@ static int getargs(int argc, char **argv)
                                 found_value = true;
                         }
                 }
-        } while (cmdline[0]);
+        } while (cmdline_iter[0]);
+
+        free(cmdline_iter);
+
         return found_value ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
