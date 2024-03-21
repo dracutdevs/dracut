@@ -2,10 +2,11 @@
 
 // Parts are copied from the linux kernel
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include <errno.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 // CODE FROM LINUX KERNEL START
 
@@ -55,6 +56,13 @@ static char *skip_spaces(const char *str)
                 ++str;
         return (char *)str;
 }
+
+#define _cleanup_(x) __attribute__((cleanup(x)))
+static inline void freep(void *p)
+{
+        free(*(void **)p);
+}
+#define _cleanup_free_ _cleanup_(freep)
 
 /*
  * Parse a string to get a param value pair.
@@ -179,17 +187,20 @@ static int getarg(int argc, char **argv)
         char *search_value;
         char *end_value = NULL;
         bool bool_value = false;
-        char *cmdline = NULL;
+        _cleanup_free_ char *cmdline = NULL;
+        char *args = NULL;
+
+        if (argc != 2) {
+                usage(GETARG, EXIT_FAILURE, "Number of arguments invalid");
+        }
 
         char *p = getenv("CMDLINE");
         if (p == NULL) {
                 usage(GETARG, EXIT_FAILURE, "CMDLINE env not set");
         }
         cmdline = strdup(p);
-
-        if (argc != 2) {
-                usage(GETARG, EXIT_FAILURE, "Number of arguments invalid");
-        }
+        if (!cmdline)
+                return -ENOMEM;
 
         search_key = argv[1];
 
@@ -204,9 +215,10 @@ static int getarg(int argc, char **argv)
         if (strlen(search_key) == 0)
                 usage(GETARG, EXIT_FAILURE, "search key undefined");
 
+        args = cmdline;
         do {
                 char *key = NULL, *value = NULL;
-                cmdline = next_arg(cmdline, &key, &value);
+                args = next_arg(args, &key, &value);
                 if (strcmp(key, search_key) == 0) {
                         if (value) {
                                 end_value = value;
@@ -216,7 +228,7 @@ static int getarg(int argc, char **argv)
                                 bool_value = true;
                         }
                 }
-        } while (cmdline[0]);
+        } while (args[0]);
 
         if (search_value) {
                 if (end_value && strcmp(end_value, search_value) == 0) {
@@ -243,17 +255,20 @@ static int getargs(int argc, char **argv)
         char *search_key;
         char *search_value;
         bool found_value = false;
-        char *cmdline = NULL;
+        _cleanup_free_ char *cmdline = NULL;
+        char *args = NULL;
+
+        if (argc != 2) {
+                usage(GETARGS, EXIT_FAILURE, "Number of arguments invalid");
+        }
 
         char *p = getenv("CMDLINE");
         if (p == NULL) {
                 usage(GETARGS, EXIT_FAILURE, "CMDLINE env not set");
         }
         cmdline = strdup(p);
-
-        if (argc != 2) {
-                usage(GETARGS, EXIT_FAILURE, "Number of arguments invalid");
-        }
+        if (!cmdline)
+                return -ENOMEM;
 
         search_key = argv[1];
 
@@ -268,9 +283,10 @@ static int getargs(int argc, char **argv)
         if (strlen(search_key) == 0)
                 usage(GETARGS, EXIT_FAILURE, "search key undefined");
 
+        args = cmdline;
         do {
                 char *key = NULL, *value = NULL;
-                cmdline = next_arg(cmdline, &key, &value);
+                args = next_arg(args, &key, &value);
                 if (strcmp(key, search_key) == 0) {
                         if (search_value) {
                                 if (strcmp(value, search_value) == 0) {
@@ -286,7 +302,7 @@ static int getargs(int argc, char **argv)
                                 found_value = true;
                         }
                 }
-        } while (cmdline[0]);
+        } while (args[0]);
         return found_value ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
