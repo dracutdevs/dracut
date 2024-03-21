@@ -3,8 +3,6 @@
 # called by dracut
 check() {
     require_binaries nvme jq || return 1
-    [ -f /etc/nvme/hostnqn ] || return 255
-    [ -f /etc/nvme/hostid ] || return 255
 
     is_nvmf() {
         local _dev=$1
@@ -36,6 +34,8 @@ check() {
     }
 
     [[ $hostonly ]] || [[ $mount_needs ]] && {
+        [ -f /etc/nvme/hostnqn ] || return 255
+        [ -f /etc/nvme/hostid ] || return 255
         pushd . > /dev/null
         for_each_host_dev_and_slaves is_nvmf
         local _is_nvmf=$?
@@ -130,8 +130,8 @@ install() {
         _nvmf_args=$(cmdline)
         [[ "$_nvmf_args" ]] && printf "%s" "$_nvmf_args" >> "${initdir}/etc/cmdline.d/95nvmf-args.conf"
     fi
-    inst_simple "/etc/nvme/hostnqn"
-    inst_simple "/etc/nvme/hostid"
+    inst_simple -H "/etc/nvme/hostnqn"
+    inst_simple -H "/etc/nvme/hostid"
 
     inst_multiple ip sed
 
