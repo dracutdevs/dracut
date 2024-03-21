@@ -653,6 +653,16 @@ get_blockdev_drv_through_sys() {
     echo "$_block_mods"
 }
 
+# get_lvm_dm_dev <maj:min>
+# If $1 is an LVM device-mapper device, return the path to its dm directory
+get_lvm_dm_dev() {
+    local _majmin _dm
+    _majmin="$1"
+    _dm=/sys/dev/block/$_majmin/dm
+    [[ ! -f $_dm/uuid || $(< "$_dm"/uuid) != LVM-* ]] && return 1
+    printf "%s" "$_dm"
+}
+
 # ugly workaround for the lvm design
 # There is no volume group device,
 # so, there are no slave devices for volume groups.
@@ -660,10 +670,10 @@ get_blockdev_drv_through_sys() {
 # but you cannot create the logical volume without the volume group.
 # And the volume group might be bigger than the devices the LV needs.
 check_vol_slaves() {
-    local _vg _pv _dm _majmin
+    local _vg _pv _majmin _dm
     _majmin="$2"
-    _dm=/sys/dev/block/$_majmin/dm
-    [[ -f $_dm/uuid && $(< "$_dm"/uuid) =~ LVM-* ]] || return 1
+    _dm=$(get_lvm_dm_dev "$_majmin")
+    [[ -z $_dm ]] && return 1 # not an LVM device-mapper device
     _vg=$(dmsetup splitname --noheadings -o vg_name "$(< "$_dm/name")")
     # strip space
     _vg="${_vg//[[:space:]]/}"
@@ -676,10 +686,10 @@ check_vol_slaves() {
 }
 
 check_vol_slaves_all() {
-    local _vg _pv _majmin
+    local _vg _pv _majmin _dm
     _majmin="$2"
-    _dm="/sys/dev/block/$_majmin/dm"
-    [[ -f $_dm/uuid && $(< "$_dm"/uuid) =~ LVM-* ]] || return 1
+    _dm=$(get_lvm_dm_dev "$_majmin")
+    [[ -z $_dm ]] && return 1 # not an LVM device-mapper device
     _vg=$(dmsetup splitname --noheadings -o vg_name "$(< "$_dm/name")")
     # strip space
     _vg="${_vg//[[:space:]]/}"
@@ -777,10 +787,12 @@ get_ucode_file() {
 # Not every device in /dev/mapper should be examined.
 # If it is an LVM device, touch only devices which have /dev/VG/LV symlink.
 lvm_internal_dev() {
-    local dev_dm_dir=/sys/dev/block/$1/dm
-    [[ ! -f $dev_dm_dir/uuid || $(< "$dev_dm_dir"/uuid) != LVM-* ]] && return 1 # Not an LVM device
+    local _majmin _dm
+    _majmin="$1"
+    _dm=$(get_lvm_dm_dev "$_majmin")
+    [[ -z $_dm ]] && return 1 # not an LVM device-mapper device
     local DM_VG_NAME DM_LV_NAME DM_LV_LAYER
-    eval "$(dmsetup splitname --nameprefixes --noheadings --rows "$(< "$dev_dm_dir"/name)" 2> /dev/null)"
+    eval "$(dmsetup splitname --nameprefixes --noheadings --rows "$(< "$_dm/name")" 2> /dev/null)"
     [[ ${DM_VG_NAME} ]] && [[ ${DM_LV_NAME} ]] || return 0 # Better skip this!
     [[ ${DM_LV_LAYER} ]] || [[ ! -L /dev/${DM_VG_NAME}/${DM_LV_NAME} ]]
 }
