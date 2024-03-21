@@ -122,8 +122,6 @@ install() {
         "$systemdsystemunitdir"/sysinit.target.wants/systemd-tmpfiles-setup-dev-early.service \
         "$systemdsystemunitdir"/sysinit.target.wants/systemd-sysctl.service \
         "$systemdsystemunitdir"/ctrl-alt-del.target \
-        "$systemdsystemunitdir"/reboot.target \
-        "$systemdsystemunitdir"/systemd-reboot.service \
         "$systemdsystemunitdir"/syslog.socket \
         "$systemdsystemunitdir"/slices.target \
         "$systemdsystemunitdir"/system.slice \
