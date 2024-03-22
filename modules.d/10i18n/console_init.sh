@@ -49,7 +49,7 @@ set_font() {
     setfont "${FONT-${DEFAULT_FONT}}" \
         -C "${1}" \
         ${FONT_MAP:+-m "${FONT_MAP}"} \
-        ${FONT_UNIMAP:+-u "${FONT_UNIMAP}"}
+        ${FONT_UNIMAP:+-u "${FONT_UNIMAP}"} 2> /dev/null
 }
 
 dev_close() {
