@@ -38,7 +38,7 @@ install() {
         local CMD
         local FN
 
-        if [[ -f $dracutsysrootdir$1 ]]; then
+        if [[ -f $1 ]]; then
             MAPS=("$1")
         else
             MAPNAME=${1%.map*}
