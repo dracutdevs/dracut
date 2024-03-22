@@ -10,68 +10,21 @@ mkdir -m 0755 -p /tmp/ifcfg/
 # shellcheck disable=SC2174
 mkdir -m 0755 -p /tmp/ifcfg-leases/
 
-get_config_line_by_subchannel() {
-    local CHANNELS
-    local line
-
-    CHANNELS="$1"
-    while read -r line || [ -n "$line" ]; do
-        if strstr "$line" "$CHANNELS"; then
-            echo "$line"
-            return 0
-        fi
-    done < /etc/ccw.conf
-    return 1
-}
-
 print_s390() {
     local _netif
     local SUBCHANNELS
-    local OPTIONS
-    local NETTYPE
-    local CONFIG_LINE
     local i
-    local channel
-    local OLD_IFS
 
     _netif="$1"
     # if we find ccw channel, then use those, instead of
     # of the MAC
-    SUBCHANNELS=$({
-        for i in /sys/class/net/"$_netif"/device/cdev[0-9]*; do
-            [ -e "$i" ] || continue
-            channel=$(readlink -f "$i")
-            printf '%s' "${channel##*/},"
-        done
-    })
+    # [iface_get_subchannels() from /lib/net-lib.sh sourced at top of this file]
+    SUBCHANNELS=$(iface_get_subchannels "$_netif")
     [ -n "$SUBCHANNELS" ] || return 1
 
     SUBCHANNELS=${SUBCHANNELS%,}
     echo "SUBCHANNELS=\"${SUBCHANNELS}\""
 
-    CONFIG_LINE=$(get_config_line_by_subchannel "$SUBCHANNELS")
-    # shellcheck disable=SC2181
-    [ $? -ne 0 -o -z "$CONFIG_LINE" ] && return 0
-
-    OLD_IFS=$IFS
-    IFS=","
-    # shellcheck disable=SC2086
-    set -- $CONFIG_LINE
-    IFS=$OLD_IFS
-    NETTYPE=$1
-    shift
-    SUBCHANNELS="$1"
-    OPTIONS=""
-    shift
-    while [ $# -gt 0 ]; do
-        case $1 in
-            *=*) OPTIONS="$OPTIONS $1" ;;
-        esac
-        shift
-    done
-    OPTIONS=${OPTIONS## }
-    echo "NETTYPE=\"${NETTYPE}\""
-    echo "OPTIONS=\"${OPTIONS}\""
     return 0
 }
 

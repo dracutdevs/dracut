@@ -5,7 +5,7 @@ check() {
     arch=${DRACUT_ARCH:-$(uname -m)}
     [ "$arch" = "s390" -o "$arch" = "s390x" ] || return 1
 
-    require_binaries zfcp_cio_free grep sed seq || return 1
+    require_binaries zfcp_cio_free sed || return 1
 
     return 0
 }
@@ -23,7 +23,7 @@ installkernel() {
 # called by dracut
 install() {
     inst_hook cmdline 30 "$moddir/parse-zfcp.sh"
-    inst_multiple zfcp_cio_free grep sed seq
+    inst_multiple zfcp_cio_free sed
 
     inst_script /sbin/zfcpconf.sh
     inst_rules 56-zfcp.rules

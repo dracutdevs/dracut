@@ -382,10 +382,6 @@ dasd_mod:
   - changed-files:
     - any-glob-to-any-file: 'modules.d/95dasd_mod/*'
 
-dasd_rules:
-  - changed-files:
-    - any-glob-to-any-file: 'modules.d/95dasd_rules/*'
-
 dcssblk:
   - changed-files:
     - any-glob-to-any-file: 'modules.d/95dcssblk/*'
@@ -426,10 +422,6 @@ nvmf:
   - changed-files:
     - any-glob-to-any-file: 'modules.d/95nvmf/*'
 
-qeth_rules:
-  - changed-files:
-    - any-glob-to-any-file: 'modules.d/95qeth_rules/*'
-
 resume:
   - changed-files:
     - any-glob-to-any-file: 'modules.d/95resume/*'
@@ -461,10 +453,6 @@ virtiofs:
 zfcp:
   - changed-files:
     - any-glob-to-any-file: 'modules.d/95zfcp/*'
-
-zfcp_rules:
-  - changed-files:
-    - any-glob-to-any-file: 'modules.d/95zfcp_rules/*'
 
 znet:
   - changed-files:
