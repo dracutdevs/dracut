@@ -81,21 +81,8 @@ EOF
     fi
     # colons in SEARCHDNS already replaced with spaces above for /etc/resolv.conf
     [[ $SEARCHDNS ]] && echo "DOMAIN=\"$SEARCHDNS\"" >> "$IFCFGFILE"
-    [[ $NETTYPE ]] && echo "NETTYPE=$NETTYPE" >> "$IFCFGFILE"
     [[ $PEERID ]] && echo "PEERID=$PEERID" >> "$IFCFGFILE"
-    [[ $PORTNAME ]] && echo "PORTNAME=$PORTNAME" >> "$IFCFGFILE"
-    [[ $CTCPROT ]] && echo "CTCPROT=$CTCPROT" >> "$IFCFGFILE"
     [[ $MACADDR ]] && echo "MACADDR=$MACADDR" >> "$IFCFGFILE"
-    optstr=""
-    for option in LAYER2 PORTNO; do
-        [ -z "${!option}" ] && continue
-        [ -n "$optstr" ] && optstr=${optstr}" "
-        optstr=${optstr}$(echo ${option} | sed 'y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/')"="${!option}
-    done
-    # write single quotes since network.py removes double quotes but we need quotes
-    echo "OPTIONS='$optstr'" >> "$IFCFGFILE"
-    unset option
-    unset optstr
     unset DNS1
     unset DNS2
     echo "files /etc/sysconfig/network-scripts" >> /run/initramfs/rwtab
