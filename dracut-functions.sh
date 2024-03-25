@@ -1081,3 +1081,141 @@ pe_get_image_base() {
     [[ $? -eq 1 ]] && return 1
     echo "$((16#$base_image))"
 }
+
+# get_dollar_boot
+# $BOOT is the primary place to put boot menu entry resources into
+# see https://uapi-group.org/specifications/specs/boot_loader_specification
+get_dollar_boot() {
+    local _root_arg
+    local _esp
+    local _xbootldr
+    local _dollar_boot
+
+    if type -P bootctl &> /dev/null; then
+        if [[ -n $dracutsysrootdir ]]; then
+            _root_arg=(--root "$dracutsysrootdir")
+        fi
+        # shellcheck disable=SC2155 disable=SC2068
+        _esp=$(bootctl ${_root_arg[@]} -p 2> /dev/null)
+        # shellcheck disable=SC2155 disable=SC2068
+        _xbootldr=$(bootctl ${_root_arg[@]} -x 2> /dev/null)
+        [[ $_xbootldr == "$_esp" ]] && unset _xbootldr
+        _dollar_boot=${_xbootldr:-$_esp}
+    elif [[ -z $dracutsysrootdir ]]; then
+        if mountpoint -q /efi && [[ -d /efi/EFI ]]; then
+            _esp="/efi"
+        elif mountpoint -q /boot/efi && [[ -d /boot/efi/EFI ]]; then
+            _esp="/boot/efi"
+        fi
+        _dollar_boot=${_esp:-/boot}
+    else
+        if [[ -d "$dracutsysrootdir"/efi/EFI ]]; then
+            _esp="$dracutsysrootdir/efi"
+        elif [[ -d "$dracutsysrootdir"/boot/EFI ]]; then
+            _esp="$dracutsysrootdir/boot"
+        elif [[ -d "$dracutsysrootdir"/boot/efi/EFI ]]; then
+            _esp="$dracutsysrootdir/boot/efi"
+        fi
+        _dollar_boot=${_esp}
+    fi
+
+    echo -n "$_dollar_boot"
+}
+
+# get_machine_id [<$BOOT>|no]
+get_machine_id() {
+    local _dollar_boot
+    local _machine_id
+
+    if [[ $1 != "no" ]]; then
+        _dollar_boot=${1:-$(get_dollar_boot)}
+    fi
+
+    if [[ $_dollar_boot ]] && [[ -d "$_dollar_boot"/Default ]]; then
+        _machine_id="Default"
+    elif [[ -s /etc/machine-id ]]; then
+        read -r _machine_id < /etc/machine-id
+        [[ $_machine_id == "uninitialized" ]] && _machine_id="Default"
+    else
+        _machine_id="Default"
+    fi
+
+    echo -n "$_machine_id"
+}
+
+# get_default_initramfs_image [<kernel_version>] [<$BOOT>|no] [<machine-id>|no]
+get_default_initramfs_image() {
+    local _kver="$1"
+    local _dollar_boot
+    local _machine_id
+    local _image
+
+    [[ $_kver ]] || _kver="$(uname -r)"
+    if [[ $2 != "no" ]]; then
+        _dollar_boot=${2:-$(get_dollar_boot)}
+    fi
+    if [[ $3 != "no" ]]; then
+        _machine_id=${3:-$(get_machine_id "$_dollar_boot")}
+    fi
+
+    if [[ $_dollar_boot ]] && [[ $_machine_id ]] \
+        && [[ -d "${_dollar_boot}"/loader/entries || -L "${_dollar_boot}"/loader/entries ]] \
+        && [[ -d "${_dollar_boot}"/${_machine_id} || -L "${_dollar_boot}"/${_machine_id} ]]; then
+        _image="${_dollar_boot}/${_machine_id}/${_kver}/initrd"
+    elif [[ -f "$dracutsysrootdir"/lib/modules/${_kver}/initrd ]]; then
+        _image="$dracutsysrootdir/lib/modules/${_kver}/initrd"
+    elif [[ -f "$dracutsysrootdir"/lib/modules/${_kver}/initramfs.img ]]; then
+        _image="$dracutsysrootdir/lib/modules/${_kver}/initramfs.img"
+    else
+        _image="$dracutsysrootdir/boot/initramfs-${_kver}.img"
+    fi
+
+    echo -n "$_image"
+}
+
+# has_early_microcode <initramfs_image>
+has_early_microcode() {
+    local _image="$1"
+    local _is_early
+    _is_early=$(cpio --extract --verbose --quiet --to-stdout -- 'early_cpio' < "$_image" 2> /dev/null)
+    # Debian mkinitramfs does not create the file 'early_cpio', so let's check if firmware files exist
+    [[ "$_is_early" ]] || _is_early=$(cpio --list --verbose --quiet --to-stdout -- 'kernel/*/microcode/*.bin' < "$_image" 2> /dev/null)
+    [[ "$_is_early" ]] && return 0
+    return 1
+}
+
+# get_decompression_command <initramfs_image_header>
+get_decompression_command() {
+    local _bin="$1"
+    local _cmd
+
+    case $_bin in
+        $'\x1f\x8b'*)
+            _cmd="zcat --"
+            ;;
+        BZh*)
+            _cmd="bzcat --"
+            ;;
+        $'\x71\xc7'* | 070701)
+            _cmd="cat --"
+            ;;
+        $'\x02\x21'*)
+            _cmd="lz4 -d -c"
+            ;;
+        $'\x89'LZO$'\0'*)
+            _cmd="lzop -d -c"
+            ;;
+        $'\x28\xB5\x2F\xFD'*)
+            _cmd="zstd -d -c"
+            ;;
+        *)
+            if echo "test" | xz | xzcat --single-stream > /dev/null 2>&1; then
+                _cmd="xzcat --single-stream --"
+            else
+                _cmd="xzcat --"
+            fi
+            ;;
+    esac
+
+    echo -n "$_cmd"
+}

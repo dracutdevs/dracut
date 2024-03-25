@@ -1092,83 +1092,6 @@ drivers_dir="${drivers_dir%"${drivers_dir##*[!/]}"}"
 [[ $sbat_l ]] && sbat="$sbat_l"
 [[ $machine_id_l ]] && machine_id="$machine_id_l"
 
-if ! [[ $outfile ]]; then
-    if [[ $machine_id != "no" ]]; then
-        if [[ -d "$dracutsysrootdir"/efi/Default ]] \
-            || [[ -d "$dracutsysrootdir"/boot/Default ]] \
-            || [[ -d "$dracutsysrootdir"/boot/efi/Default ]]; then
-            MACHINE_ID="Default"
-        elif [[ -s "$dracutsysrootdir"/etc/machine-id ]]; then
-            read -r MACHINE_ID < "$dracutsysrootdir"/etc/machine-id
-            [[ $MACHINE_ID == "uninitialized" ]] && MACHINE_ID="Default"
-        else
-            MACHINE_ID="Default"
-        fi
-    fi
-
-    if [[ $uefi == "yes" ]]; then
-        if [[ -n $uefi_secureboot_key && -z $uefi_secureboot_cert ]] || [[ -z $uefi_secureboot_key && -n $uefi_secureboot_cert ]]; then
-            printf "%s\n" "dracut[F]: Need 'uefi_secureboot_key' and 'uefi_secureboot_cert' both to be set." >&2
-            exit 1
-        fi
-
-        if [[ -n $uefi_secureboot_key && -n $uefi_secureboot_cert ]] && ! command -v sbsign &> /dev/null; then
-            printf "%s\n" "dracut[F]: Need 'sbsign' to create a signed UEFI executable." >&2
-            exit 1
-        fi
-
-        BUILD_ID=$(cat "$dracutsysrootdir"/etc/os-release "$dracutsysrootdir"/usr/lib/os-release \
-            | while read -r line || [[ $line ]]; do
-                [[ $line =~ BUILD_ID\=* ]] && eval "$line" && echo "$BUILD_ID" && break
-            done)
-        if [[ -z $dracutsysrootdir ]]; then
-            if [[ -d /efi ]] && mountpoint -q /efi; then
-                efidir=/efi/EFI
-            else
-                efidir=/boot/EFI
-                if [[ -d /boot/efi/EFI ]]; then
-                    efidir=/boot/efi/EFI
-                fi
-            fi
-        else
-            efidir=/boot/EFI
-            if [[ -d $dracutsysrootdir/boot/efi/EFI ]]; then
-                efidir=/boot/efi/EFI
-            fi
-        fi
-        mkdir -p "$dracutsysrootdir$efidir/Linux"
-        outfile="$dracutsysrootdir$efidir/Linux/linux-$kernel${MACHINE_ID:+-${MACHINE_ID}}${BUILD_ID:+-${BUILD_ID}}.efi"
-    else
-        if [[ -d "$dracutsysrootdir"/efi/loader/entries || -L "$dracutsysrootdir"/efi/loader/entries ]] \
-            && [[ $MACHINE_ID ]] \
-            && [[ -d "$dracutsysrootdir"/efi/${MACHINE_ID} || -L "$dracutsysrootdir"/efi/${MACHINE_ID} ]]; then
-            outfile="$dracutsysrootdir/efi/${MACHINE_ID}/${kernel}/initrd"
-        elif [[ -d "$dracutsysrootdir"/boot/loader/entries || -L "$dracutsysrootdir"/boot/loader/entries ]] \
-            && [[ $MACHINE_ID ]] \
-            && [[ -d "$dracutsysrootdir"/boot/${MACHINE_ID} || -L "$dracutsysrootdir"/boot/${MACHINE_ID} ]]; then
-            outfile="$dracutsysrootdir/boot/${MACHINE_ID}/${kernel}/initrd"
-        elif [[ -d "$dracutsysrootdir"/boot/efi/loader/entries || -L "$dracutsysrootdir"/boot/efi/loader/entries ]] \
-            && [[ $MACHINE_ID ]] \
-            && [[ -d "$dracutsysrootdir"/boot/efi/${MACHINE_ID} || -L "$dracutsysrootdir"/boot/efi/${MACHINE_ID} ]]; then
-            outfile="$dracutsysrootdir/boot/efi/${MACHINE_ID}/${kernel}/initrd"
-        elif [[ -f "$dracutsysrootdir"/lib/modules/${kernel}/initrd ]]; then
-            outfile="$dracutsysrootdir/lib/modules/${kernel}/initrd"
-        elif [[ -e $dracutsysrootdir/boot/vmlinuz-${kernel} ]]; then
-            outfile="$dracutsysrootdir/boot/initramfs-${kernel}.img"
-        elif [[ -z $dracutsysrootdir ]] \
-            && [[ $MACHINE_ID ]] \
-            && mountpoint -q /efi; then
-            outfile="/efi/${MACHINE_ID}/${kernel}/initrd"
-        elif [[ -z $dracutsysrootdir ]] \
-            && [[ $MACHINE_ID ]] \
-            && mountpoint -q /boot/efi; then
-            outfile="/boot/efi/${MACHINE_ID}/${kernel}/initrd"
-        else
-            outfile="$dracutsysrootdir/boot/initramfs-${kernel}.img"
-        fi
-    fi
-fi
-
 # eliminate IFS hackery when messing with fw_dir
 export DRACUT_FIRMWARE_PATH=${fw_dir// /:}
 fw_dir=${fw_dir//:/ }
@@ -1311,6 +1234,42 @@ else
     printf "%s\n" "dracut[F]: Are you running from a git checkout?" >&2
     printf "%s\n" "dracut[F]: Try passing -l as an argument to $dracut_cmd" >&2
     exit 1
+fi
+
+if ! [[ $outfile ]]; then
+    DOLLAR_BOOT="$(get_dollar_boot)"
+    [[ $DOLLAR_BOOT ]] && ddebug "\$BOOT set to $DOLLAR_BOOT"
+
+    if [[ $machine_id != "no" ]]; then
+        MACHINE_ID="$(get_machine_id "${DOLLAR_BOOT:-no}")"
+    fi
+
+    if [[ $uefi == "yes" ]]; then
+        if ! [[ $DOLLAR_BOOT ]]; then
+            # shellcheck disable=SC2016
+            dfatal '$BOOT (ESP and XBOOTLDR) partition not found.'
+            exit 1
+        fi
+
+        if [[ -n $uefi_secureboot_key && -z $uefi_secureboot_cert ]] || [[ -z $uefi_secureboot_key && -n $uefi_secureboot_cert ]]; then
+            dfatal "Need 'uefi_secureboot_key' and 'uefi_secureboot_cert' both to be set."
+            exit 1
+        fi
+
+        if [[ -n $uefi_secureboot_key && -n $uefi_secureboot_cert ]] && ! command -v sbsign &> /dev/null; then
+            dfatal "Need 'sbsign' to create a signed UEFI executable."
+            exit 1
+        fi
+
+        BUILD_ID=$(cat "$dracutsysrootdir"/etc/os-release "$dracutsysrootdir"/usr/lib/os-release \
+            | while read -r line || [[ $line ]]; do
+                [[ $line =~ BUILD_ID\=* ]] && eval "$line" && echo "$BUILD_ID" && break
+            done)
+        mkdir -p "${DOLLAR_BOOT}/EFI/Linux"
+        outfile="${DOLLAR_BOOT}/EFI/Linux/linux-$kernel${MACHINE_ID:+-${MACHINE_ID}}${BUILD_ID:+-${BUILD_ID}}.efi"
+    else
+        outfile="$(get_default_initramfs_image "$kernel" "${DOLLAR_BOOT:-no}" "${MACHINE_ID:-no}")"
+    fi
 fi
 
 if [[ $persistent_policy == "mapper" ]]; then
