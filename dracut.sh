@@ -2154,6 +2154,8 @@ if [[ $early_microcode == yes ]]; then
                 done
                 for i in $_fwdir/$_fw/$_src; do
                     [[ -e $i ]] || continue
+                    # skip README{.xz,.zst,...}
+                    str_starts "$i" "$_fwdir/$_fw/README" && continue
                     # skip gpg files
                     str_ends "$i" ".asc" && continue
                     cat "$i" >> "$_dest_dir/${ucode_dest[$idx]}"
