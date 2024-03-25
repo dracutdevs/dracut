@@ -946,6 +946,13 @@ for f in $(dropindirs_sort ".conf" "$confdir" "$dracutbasedir/dracut.conf.d"); d
     [[ -e $f ]] && . "$f"
 done
 
+# check if automatic guessing of the output file is disabled.
+if [[ $force_output_file == "yes" && -z $outfile ]]; then
+    printf "%s\n" "dracut[F]: dracut is configured with force_output_file=yes" >&2
+    printf "%s\n" "dracut[F]: so it is required to specify the file path of the generated initramfs image." >&2
+    exit 1
+fi
+
 # regenerate_all shouldn't be set in conf files
 regenerate_all=$regenerate_all_l
 if [[ $parallel_l == "yes" ]]; then
