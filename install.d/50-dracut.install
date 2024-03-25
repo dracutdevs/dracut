@@ -3,6 +3,11 @@
 COMMAND="$1"
 KERNEL_VERSION="$2"
 BOOT_DIR_ABS="$3"
+
+if [[ ${KERNEL_INSTALL_LAYOUT} == "uki" && ${KERNEL_INSTALL_UKI_GENERATOR} == "ukify" ]]; then
+    BOOT_DIR_ABS="${KERNEL_INSTALL_STAGING_AREA}"
+fi
+
 KERNEL_IMAGE="$4"
 
 # If KERNEL_INSTALL_MACHINE_ID is defined but empty, BOOT_DIR_ABS is a fake directory.
