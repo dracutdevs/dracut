@@ -296,7 +296,7 @@ do_live_overlay() {
         dmsetup message /dev/mapper/live-overlay-pool 0 "create_thin 0"
 
         # Create a snapshot of the base image
-        echo 0 "$sz" thin /dev/mapper/live-overlay-pool 0 "$base" | dmsetup create live-rw
+        echo 0 "$thin_data_sz" thin /dev/mapper/live-overlay-pool 0 "$base" | dmsetup create live-rw
     elif [ -z "$overlayfs" ]; then
         echo 0 "$sz" snapshot "$base" "$over" PO 8 | dmsetup create live-rw
     fi
