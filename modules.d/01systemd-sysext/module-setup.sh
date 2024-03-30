@@ -26,20 +26,34 @@ depends() {
 # Install the required file(s) and directories for the module in the initramfs.
 install() {
 
+    # It's intended to work only with raw binary disk images contained in
+    # regular files, but not with directory trees.
+
     inst_multiple -o \
-        "/usr/lib/extensions/*" \
+        "/usr/lib/confexts/*.raw" \
+        "/var/lib/confexts/*.raw" \
+        "/var/lib/extensions/*.raw" \
+        "/etc/extension-release.d/extension-release.*" \
         "/usr/lib/extension-release.d/extension-release.*" \
+        "$systemdsystemunitdir"/systemd-confext.service \
+        "$systemdsystemunitdir/systemd-confext.service.d/*.conf" \
         "$systemdsystemunitdir"/systemd-sysext.service \
         "$systemdsystemunitdir/systemd-sysext.service.d/*.conf" \
-        systemd-sysext
+        systemd-confext systemd-sysext
 
     # Enable systemd type unit(s)
-    $SYSTEMCTL -q --root "$initdir" enable systemd-sysext.service
+    for i in \
+        systemd-confext.service \
+        systemd-sysext.service; do
+        $SYSTEMCTL -q --root "$initdir" enable "$i"
+    done
 
     # Install the hosts local user configurations if enabled.
     if [[ $hostonly ]]; then
         inst_multiple -H -o \
-            "/etc/extensions/*" \
+            "/etc/extensions/*.raw" \
+            "$systemdsystemconfdir"/systemd-confext.service \
+            "$systemdsystemconfdir/systemd-confext.service.d/*.conf" \
             "$systemdsystemconfdir"/systemd-sysext.service \
             "$systemdsystemconfdir/systemd-sysext.service.d/*.conf"
     fi
