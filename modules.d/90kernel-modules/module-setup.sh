@@ -55,7 +55,7 @@ installkernel() {
             "=drivers/watchdog"
 
         instmods \
-            yenta_socket spi_pxa2xx_platform \
+            yenta_socket intel_lpss_pci spi_pxa2xx_platform \
             atkbd i8042 firewire-ohci pcmcia hv-vmbus \
             virtio virtio_ring virtio_pci pci_hyperv \
             "=drivers/pcmcia"
