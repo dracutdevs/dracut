@@ -113,7 +113,7 @@ bool streq_ptr(const char *a, const char *b);
 
 #define newdup(t, p, n) ((t*) memdup(p, sizeof(t)*(n)))
 
-#define malloc0(n) (calloc((n), 1))
+#define malloc0(n) (calloc(1, (n)))
 
 static inline const char *yes_no(bool b)
 {
