@@ -58,6 +58,14 @@ installkernel() {
     fi
 
     hostonly='' dracut_instmods -o -s "$_funcs" "=drivers/scsi" "=drivers/md" ${_s390drivers:+"$_s390drivers"}
+
+    if [[ $hostonly_cmdline == "yes" ]]; then
+        local _conf
+        _conf=$(cmdline)
+        [[ $_conf ]] && echo "$_conf" >> "${initdir}/etc/cmdline.d/90multipath.conf"
+    fi
+
+    return 0
 }
 
 mpathconf_installed() {
@@ -125,12 +133,6 @@ install() {
 
     inst_libdir_file "libmultipath*" "multipath/*"
     inst_libdir_file 'libgcc_s.so*'
-
-    if [[ $hostonly_cmdline ]]; then
-        local _conf
-        _conf=$(cmdline)
-        [[ $_conf ]] && echo "$_conf" >> "${initdir}/etc/cmdline.d/90multipath.conf"
-    fi
 
     if dracut_module_included "systemd"; then
         if mpathconf_installed; then
