@@ -35,6 +35,8 @@ install() {
         "$sysusers"/tpm2-tss.conf \
         "$tmpfilesdir"/tpm2-tss-fapi.conf \
         "$udevrulesdir"/60-tpm-udev.rules \
+        "$systemdutildir"/system-generators/systemd-tpm2-generator \
+        "$systemdsystemunitdir/tpm2.target" \
         tpm2_pcrread tpm2_pcrextend tpm2_createprimary tpm2_createpolicy \
         tpm2_create tpm2_load tpm2_unseal tpm2
 
