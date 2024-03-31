@@ -305,6 +305,7 @@ long_version() {
 push_host_devs() {
     local _dev
     for _dev in "$@"; do
+        [[ -z $_dev ]] && continue
         [[ " ${host_devs[*]} " == *" $_dev "* ]] && return
         host_devs+=("$_dev")
     done
@@ -1666,7 +1667,7 @@ if [[ $hostonly ]] && [[ $hostonly_default_device != "no" ]]; then
         "/boot/zipl"; do
         mp=$(readlink -f "$dracutsysrootdir$mp")
         mountpoint "$mp" > /dev/null 2>&1 || continue
-        _dev=$(find_block_device "$mp")
+        _dev=$(find_block_device "$mp") || continue
         _bdev=$(readlink -f "/dev/block/$_dev")
         [[ -b $_bdev ]] && _dev=$_bdev
         [[ $mp == "/" ]] && root_devs+=("$_dev")
