@@ -273,7 +273,7 @@ static int getargs(int argc, char **argv)
                 cmdline = next_arg(cmdline, &key, &value);
                 if (strcmp(key, search_key) == 0) {
                         if (search_value) {
-                                if (strcmp(value, search_value) == 0) {
+                                if (value && strcmp(value, search_value) == 0) {
                                         printf("%s\n", value);
                                         found_value = true;
                                 }

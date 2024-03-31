@@ -39,7 +39,7 @@ if [ "$ACTION" = "kexec" ] && ! command -v kexec > /dev/null 2>&1; then
 fi
 
 trap "emergency_shell --shutdown shutdown Signal caught!" 0
-getarg 'rd.break=pre-shutdown' && emergency_shell --shutdown pre-shutdown "Break before pre-shutdown"
+getargs 'rd.break=pre-shutdown' && emergency_shell --shutdown pre-shutdown "Break before pre-shutdown"
 
 source_hook pre-shutdown
 
@@ -155,7 +155,7 @@ elif [ -x /oldroot/bin/plymouth ]; then
     /oldroot/bin/plymouth --hide-splash
 fi
 
-getarg 'rd.break=shutdown' && emergency_shell --shutdown shutdown "Break before shutdown"
+getargs 'rd.break=shutdown' && emergency_shell --shutdown shutdown "Break before shutdown"
 
 case "$ACTION" in
     reboot | poweroff | halt)
