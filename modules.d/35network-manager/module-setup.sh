@@ -51,8 +51,10 @@ install() {
         inst_simple "$moddir"/nm-initrd.service "$systemdsystemunitdir"/nm-initrd.service
         inst_simple "$moddir"/nm-wait-online-initrd.service "$systemdsystemunitdir"/nm-wait-online-initrd.service
 
-        # Adding default link
-        inst_multiple -o "${systemdnetwork}/99-default.link"
+        # Adding default link and (if exists) 98-default-mac-none.link
+        inst_multiple -o \
+            "${systemdnetwork}/99-default.link" \
+            "${systemdnetwork}/98-default-mac-none.link"
         [[ $hostonly ]] && inst_multiple -H -o "${systemdnetworkconfdir}/*.link"
 
         $SYSTEMCTL -q --root "$initdir" enable nm-initrd.service

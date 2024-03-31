@@ -47,6 +47,7 @@ install() {
         "$systemdnetwork"/80-container-vz.network \
         "$systemdnetwork"/80-vm-vt.network \
         "$systemdnetwork"/80-wifi-adhoc.network \
+        "$systemdnetwork"/98-default-mac-none.link \
         "$systemdnetwork"/99-default.link \
         "$systemdsystemunitdir"/systemd-networkd.service \
         "$systemdsystemunitdir"/systemd-networkd.socket \

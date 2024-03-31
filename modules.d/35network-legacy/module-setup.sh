@@ -23,9 +23,11 @@ installkernel() {
 install() {
     local _arch
 
-    #Adding default link
+    # Adding default link and (if exists) 98-default-mac-none.link
     if dracut_module_included "systemd"; then
-        inst_multiple -o "${systemdnetwork}/99-default.link"
+        inst_multiple -o \
+            "${systemdnetwork}/99-default.link" \
+            "${systemdnetwork}/98-default-mac-none.link"
         [[ $hostonly ]] && inst_multiple -H -o "${systemdnetworkconfdir}/*.link"
     fi
 
