@@ -29,18 +29,22 @@ installkernel() {
     # as we could e.g. be in the installer; nokmsboot boot parameter will disable
     # loading of the driver if needed
     if [[ $hostonly ]]; then
+        local -a _mods
         local i modlink modname
 
         for i in /sys/bus/{pci/devices,platform/devices,virtio/devices,soc/devices/soc?,vmbus/devices}/*/modalias; do
             [[ -e $i ]] || continue
             [[ -n $(< "$i") ]] || continue
-            # shellcheck disable=SC2046
-            if hostonly="" dracut_instmods --silent -s "drm_crtc_init|drm_dev_register|drm_encoder_init" -S "iw_handler_get_spy" $(< "$i"); then
-                if strstr "$(modinfo -F filename $(< "$i") 2> /dev/null)" radeon.ko; then
+            mapfile -t -O "${#_mods[@]}" _mods < "$i"
+        done
+        if ((${#_mods[@]})); then
+            # shellcheck disable=SC2068
+            if hostonly="" dracut_instmods --silent -o -s "drm_crtc_init|drm_dev_register|drm_encoder_init" -S "iw_handler_get_spy" ${_mods[@]}; then
+                if strstr "$(modinfo -F filename "${_mods[@]}" 2> /dev/null)" radeon.ko; then
                     hostonly='' instmods amdkfd
                 fi
             fi
-        done
+        fi
         # if there is a privacy screen then its driver must be loaded before the
         # kms driver will bind, otherwise its probe() will return -EPROBE_DEFER
         # note privacy screens always register, even with e.g. nokmsboot
