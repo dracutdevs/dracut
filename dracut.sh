@@ -1951,6 +1951,10 @@ if [[ $no_kernel != yes ]]; then
     fi
 
     if [[ $drivers ]]; then
+        if [[ -z ${drivers// /} ]]; then
+            dwarn "drivers is empty, dracut may be blocked."
+        fi
+
         # shellcheck disable=SC2086
         hostonly='' instmods $drivers
     fi
@@ -1960,6 +1964,10 @@ if [[ $no_kernel != yes ]]; then
         hostonly='' instmods -c $add_drivers
     fi
     if [[ $force_drivers ]]; then
+        if [[ -z ${force_drivers// /} ]]; then
+            dwarn "force_drivers is empty, dracut may be blocked."
+        fi
+
         # shellcheck disable=SC2086
         hostonly='' instmods -c $force_drivers
         rm -f "$initdir"/etc/cmdline.d/20-force_driver.conf
@@ -1968,6 +1976,10 @@ if [[ $no_kernel != yes ]]; then
         done
     fi
     if [[ $filesystems ]]; then
+        if [[ -z ${filesystems// /} ]]; then
+            dwarn "force_drivers is empty, dracut may be blocked."
+        fi
+
         # shellcheck disable=SC2086
         hostonly='' instmods -c $filesystems
     fi
