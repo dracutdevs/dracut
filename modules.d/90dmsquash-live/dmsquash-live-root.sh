@@ -324,8 +324,23 @@ if [ -e "$SQUASHED" ]; then
         SQUASHED="/run/initramfs/squashed.img"
     fi
 
-    SQUASHED_LOOPDEV=$(losetup -f)
-    losetup -r "$SQUASHED_LOOPDEV" $SQUASHED
+    SQUASHED_TYPE=$(blkid -s TYPE -o value $SQUASHED)
+    if [ $SQUASHED_TYPE = 'crypto_LUKS' ]; then
+           luks_uuid=$(blkid -s UUID -o value $SQUASHED)
+           LUKS_LOOPDEV=$(losetup -fPr --show $SQUASHED)
+           SQUASHED_LOOPDEV="/dev/mapper/luks-$luks_uuid"
+           timeout=$(getarg rd.luks.timeout)
+           [ -z "$timeout" ] && timeout=86400
+           waittime=0
+           while [ ! -h $SQUASHED_LOOPDEV ] && [ $waittime -le $timeout ]; do
+                   echo Waiting for $SQUASHED_LOOPDEV > /dev/kmsg
+                   waittime=$(($waittime + 1))
+                   sleep 1
+           done
+    else
+           SQUASHED_LOOPDEV=$(losetup -f)
+           losetup -r "$SQUASHED_LOOPDEV" $SQUASHED
+    fi
     mkdir -m 0755 -p /run/initramfs/squashfs
     mount -n -t squashfs -o ro "$SQUASHED_LOOPDEV" /run/initramfs/squashfs
 
