@@ -1,7 +1,7 @@
 Harald Hoyer <harald@profian.com>
 Victor Lowther <victor.lowther@gmail.com>
-Jóhann B. Guðmundsson <johannbg@gmail.com>
 Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
+Jóhann B. Guðmundsson <johannbg@gmail.com>
 Laszlo Gombos <laszlo.gombos@gmail.com>
 Amadeusz Żołnowski <aidecoe@aidecoe.name>
 Daniel Molkentin <daniel.molkentin@suse.com>
@@ -76,6 +76,7 @@ Radek Vykydal <rvykydal@redhat.com>
 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
 Đoàn Trần Công Danh <congdanhqx@gmail.com>
 Fabian Deutsch <fabiand@fedoraproject.org>
+Jan Macku <jamacku@redhat.com>
 Kamil Rytarowski <n54@gmx.com>
 Lidong Zhong <lidong.zhong@suse.com>
 Marc Grimme <grimme@atix.de>
@@ -128,6 +129,7 @@ Thomas Backlund <tmb@mageia.org>
 Topi Miettinen <toiwoton@gmail.com>
 Vasiliy Tolstov <v.tolstov@selfip.ru>
 Wim Muskee <wimmuskee@gmail.com>
+dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
 keentux <valentin.lefebvre@suse.com>
 Alan Jenkins <alan-jenkins@tuffmail.co.uk>
 Alan Pevec <apevec@redhat.com>
@@ -156,7 +158,6 @@ Hari Bathini <hbathini@linux.vnet.ibm.com>
 Ian Dall <ian@beware.dropbear.id.au>
 Imran Haider <imran1008@gmail.com>
 James Buren <ryuo@frugalware.org>
-Jan Macku <jamacku@redhat.com>
 Joey Boggs <jboggs@redhat.com>
 José María Fernández <josemariafg@gmail.com>
 Julian Wolf <juwolf@suse.com>
@@ -226,7 +227,9 @@ Conrad Hoffmann <ch@bitfehler.net>
 Daan De Meyer <daan.j.demeyer@gmail.com>
 Dan Fuhry <dfuhry@datto.com>
 Daniel McIlvaney <damcilva@microsoft.com>
+Daniel P. Berrangé <berrange@redhat.com>
 Dave Jones <davej@redhat.com>
+David Cassany <dcassany@suse.com>
 David Hildenbrand <david@redhat.com>
 David Michael <david.michael@coreos.com>
 Denis Volkov <denis@simpletexting.net>
@@ -365,6 +368,7 @@ foopub <45460217+foopub@users.noreply.github.com>
 gaoyi <ymuemc@163.com>
 gombi <gombi@>
 honza801 <honza801@gmail.com>
+innovara <fombuena@outlook.com>
 jbash aka John Bashinski <jbash@velvet.com>
 jloeser <jloeser@suse.de>
 joamonwx <unknown>

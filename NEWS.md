@@ -1,5 +1,222 @@
 [Rendered view](https://github.com/dracutdevs/dracut/blob/master/NEWS.md)
 
+dracut-050
+==========
+
+#### Features
+
+* **systemd:**  install systemd-executor ([bee1c482](https://github.com/dracutdevs/dracut/commit/bee1c4824a8cd47ce6c01892a548bdc07b1fa678))
+
+#### Bug Fixes
+
+* **dracut-initramfs-restore.sh:**  do not set selinux labels if disabled ([4d594210](https://github.com/dracutdevs/dracut/commit/4d594210d6ef4f04a9dbadacea73e9461ded352d))
+* **install.d:**  do not create initramfs if the supplied image is UKI ([b2af8c8b](https://github.com/dracutdevs/dracut/commit/b2af8c8bcfc72802e02e2c0adc2eed9279101624))
+* **overlayfs:**  split overlayfs mount in two steps ([bddffeda](https://github.com/dracutdevs/dracut/commit/bddffedae038ceca263a904e40513a6e92f1b558))
+* **pkcs11:**  delete trailing dot on libcryptsetup-token-systemd-pkcs11.so ([1c762c0d](https://github.com/dracutdevs/dracut/commit/1c762c0da6ed2bb6fa44d5e0968605cc4d45361c))
+* **systemd-journald:**  add systemd-sysusers dependency ([4971f443](https://github.com/dracutdevs/dracut/commit/4971f443726360216a4ef3ba8baea258a1cd0f3b))
+* **systemd-repart:**  correct undefined $libdir ([1586af09](https://github.com/dracutdevs/dracut/commit/1586af098fb17f7565d1699953e4e4b536304089))
+
+#### Contributors
+
+- Harald Hoyer <harald@profian.com>
+- Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
+- Jóhann B. Guðmundsson <johannbg@gmail.com>
+- Laszlo Gombos <laszlo.gombos@gmail.com>
+- Kairui Song <kasong@redhat.com>
+- Daniel Molkentin <daniel.molkentin@suse.com>
+- Martin Wilck <mwilck@suse.de>
+- Henrik Gombos <henrik99999@gmail.com>
+- Lubomir Rintel <lkundrak@v3.sk>
+- Lukas Nykryn <lnykryn@redhat.com>
+- Beniamino Galvani <bgalvani@redhat.com>
+- наб <nabijaczleweli@nabijaczleweli.xyz>
+- Jonathan Lebon <jonathan@jlebon.com>
+- David Tardon <dtardon@redhat.com>
+- Frantisek Sumsal <frantisek@sumsal.cz>
+- David Disseldorp <ddiss@suse.de>
+- Pavel Valena <pvalena@redhat.com>
+- Benjamin Drung <benjamin.drung@canonical.com>
+- Thomas Blume <thomas.blume@suse.com>
+- Renaud Métrich <rmetrich@redhat.com>
+- Zoltán Böszörményi <zboszor@pr.hu>
+- Marcos Mello <marcosfrm@gmail.com>
+- Shreenidhi Shedi <sshedi@vmware.com>
+- David Teigland <teigland@redhat.com>
+- Dusty Mabe <dusty@dustymabe.com>
+- Frederick Grose <fgrose@sugarlabs.org>
+- Kairui Song <kasong@tencent.com>
+- Adrien Thierry <athierry@redhat.com>
+- Alexander Tsoy <alexander@tsoy.me>
+- Böszörményi Zoltán <zboszor@pr.hu>
+- Mikhail Novosyolov <m.novosyolov@rosalinux.ru>
+- Tao Liu <ltao@redhat.com>
+- Tomasz Paweł Gajc <tpgxyz@gmail.com>
+- Hannes Reinecke <hare@suse.com>
+- Jonas Witschel <diabonas@gmx.de>
+- Nathan Rini <nate@ucar.edu>
+- Đoàn Trần Công Danh <congdanhqx@gmail.com>
+- Jan Macku <jamacku@redhat.com>
+- Nicolas Chauvet <kwizart@gmail.com>
+- q66 <daniel@octaforge.org>
+- Andrew Ammerlaan <andrewammerlaan@gentoo.org>
+- Colin Walters <walters@verbum.org>
+- Masahiro Matsuya <mmatsuya@redhat.com>
+- Mike Gilbert <floppym@gentoo.org>
+- Norbert Lange <norbert.lange@andritz.com>
+- Peter Robinson <pbrobinson@fedoraproject.org>
+- Takashi Iwai <tiwai@suse.de>
+- Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
+- Zoltán Böszörményi <zboszor@gmail.com>
+- Brian C. Lane <bcl@redhat.com>
+- Doan Tran Cong Danh <congdanhqx@gmail.com>
+- Gaël PORTAY <gael.portay@collabora.com>
+- Jiri Konecny <jkonecny@redhat.com>
+- Matt Coleman <matt@datto.com>
+- Max Resch <resch.max@gmail.com>
+- Stefan Berger <stefanb@linux.ibm.com>
+- Topi Miettinen <toiwoton@gmail.com>
+- dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+- keentux <valentin.lefebvre@suse.com>
+- Alberto Planas <aplanas@suse.com>
+- Alexander Wenzel <alexander.wenzel@qbeyond.de>
+- Alexey Shabalin <shaba@altlinux.org>
+- Andre Russ <andre.russ@sap.com>
+- Andreas Schwab <schwab@suse.de>
+- Coiby Xu <coxu@redhat.com>
+- Cornelius Hoffmann <coding@hoffmn.de>
+- Daniel Cordero <dracut@0xdc.io>
+- German Maglione <gmaglione@redhat.com>
+- Hari Bathini <hbathini@linux.ibm.com>
+- Javier Martinez Canillas <javierm@redhat.com>
+- José María Fernández <josemariafg@gmail.com>
+- Lee Duncan <lduncan@suse.com>
+- LinkTed <link.ted@mailbox.org>
+- Luiz Angelo Daros de Luca <luizluca@gmail.com>
+- Mariusz Tkaczyk <mariusz.tkaczyk@linux.intel.com>
+- Michal Koutný <mkoutny@suse.com>
+- Nicolas Porcel <nicolasporcel06@gmail.com>
+- Patrick Talbert <ptalbert@redhat.com>
+- Pedro Monreal <pmgdeb@gmail.com>
+- Petr Pavlu <petr.pavlu@suse.com>
+- Pingfan Liu <piliu@redhat.com>
+- Tianhao Chai <cth451@gmail.com>
+- Tony Asleson <tasleson@redhat.com>
+- nkraetzschmar <nkraetzschmar@users.noreply.github.com>
+- Érico Rolim <erico.erc@gmail.com>
+- “Masahiro <mmatsuya@redhat.com>
+- 0x5c <dev@0x5c.io>
+- A. Wilcox <AWilcox@Wilcox-Tech.com>
+- Adam Alves <adamoa@gmail.com>
+- Adam Williamson <awilliam@redhat.com>
+- Alexander Miroshnichenko <alex@millerson.name>
+- Alexander Sosedkin <asosedkin@redhat.com>
+- Alexey Kodanev <alexey.kodanev@oracle.com>
+- Andrew Halaney <ahalaney@redhat.com>
+- Andrew J. Hesford <ajh@sideband.org>
+- Andrey Sokolov <keremet@altlinux.org>
+- Anjali Kulkarni <anjali.k.kulkarni@oracle.com>
+- Antz <antzz@protonmail.ch>
+- Arnaud Rebillout <arnaud.rebillout@collabora.com>
+- Attila Bruncsak <bruncsak@users.noreply.github.com>
+- Ben Howard <ben.howard@redhat.com>
+- Benjamin Gilbert <bgilbert@redhat.com>
+- Benjamin Marzinski <bmarzins@redhat.com>
+- Brandon Sloane <btsloane@verizon.net>
+- Bruno E. O. Meneguele <bmeneg@redhat.com>
+- Charles Rose <charles.rose@dell.com>
+- Cole Robinson <crobinso@redhat.com>
+- Conrad Hoffmann <ch@bitfehler.net>
+- Daan De Meyer <daan.j.demeyer@gmail.com>
+- Dan Horák <dhorak@redhat.com>
+- Daniel McIlvaney <damcilva@microsoft.com>
+- Daniel P. Berrangé <berrange@redhat.com>
+- David Cassany <dcassany@suse.com>
+- David Hildenbrand <david@redhat.com>
+- Denis Volkov <denis@simpletexting.net>
+- Derek Hageman <hageman@inthat.cloud>
+- Dirk Müller <dirk@dmllr.de>
+- Dmitry Klochkov <dmitry.klochkov@bell-sw.com>
+- Donovan Tremura <neurognostic@protonmail.ch>
+- Emanuele Giuseppe Esposito <eesposit@redhat.com>
+- Enzo Matsumiya <ematsumiya@suse.de>
+- Eugene S. Sobolev <sobolev@protei.ru>
+- Evgeni Golov <evgeni@golov.de>
+- Fabian Vogt <fvogt@suse.de>
+- Frank Deng <frank.deng@oracle.com>
+- Frederick Grose <4335897+FGrose@users.noreply.github.com>
+- Glenn Morris <rgm@stanford.edu>
+- GuoChuang <guo.chuang@zte.com.cn>
+- Hans de Goede <hdegoede@redhat.com>
+- Hongxu Jia <hongxu.jia@windriver.com>
+- Jacob Wen <jian.w.wen@oracle.com>
+- James Morris <morisja@gmail.com>
+- Jaroslav Jindrak <dzejrou@gmail.com>
+- Jens Heise <46450477+heisej@users.noreply.github.com>
+- Jeremy Linton <jlinton@redhat.com>
+- John Meneghini <jmeneghi@redhat.com>
+- Jonas Jelten <jj@sft.lol>
+- Jonas Witschel <diabonas@archlinux.org>
+- Kenneth D'souza <kennethdsouza94@gmail.com>
+- Khem Raj <raj.khem@gmail.com>
+- Lars Wendler <polynomial-c@gentoo.org>
+- Laura Hild <lsh@jlab.org>
+- Lennart Poettering <lennart@poettering.net>
+- Lev Veyde <lveyde@redhat.com>
+- Lianbo Jiang <lijiang@redhat.com>
+- Luca BRUNO <luca.bruno@coreos.com>
+- Lucas C. Villa Real <lucasvr@gmail.com>
+- Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+- Marko Myllynen <myllynen@redhat.com>
+- Matthew Thode <mthode@mthode.org>
+- Matthias Berndt <matthias_berndt@gmx.de>
+- Michal Hecko <mhecko@redhat.com>
+- Michał Zegan <webczat@outlook.com>
+- Morten Linderud <morten@linderud.pw>
+- Neal Gompa <neal@gompa.dev>
+- Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+- Ondrej Dubaj <odubaj@redhat.com>
+- Ondrej Mosnacek <omosnace@redhat.com>
+- Paul Robins <exp@users.noreply.github.com>
+- Peter Georg <peter.georg@physik.uni-regensburg.de>
+- Peter Levine <plevine457@gmail.com>
+- Petr Tesarik <ptesarik@suse.com>
+- Petr Vorel <pvorel@suse.cz>
+- Radek Vykydal <rvykydal@redhat.com>
+- Rumbaut Thomas <Thomas.Rumbaut@digipolis.gent>
+- Sam James <sam@gentoo.org>
+- Savyasachee Jha <genghizkhan91@hawkradius.com>
+- Scott Moser <smoser@brickies.net>
+- Sebastian Mitterle <smitterl@redhat.com>
+- Sergei Iudin <tsipa740@gmail.com>
+- Sergio E. Nemirowski <sergio@outerface.net>
+- Thierry Vignaud <thierry.vignaud@gmail.com>
+- Thomas Abraham <tabraham@suse.com>
+- Thomas Haller <thaller@redhat.com>
+- Valentin Lefebvre <valentin.lefebvre@suse.com>
+- Vitaly Kuznetsov <vkuznets@redhat.com>
+- Vladius25 <vkorol2509@icloud.com>
+- Wenchao Hao <haowenchao@huawei.com>
+- Yang Liu <50459973+ly4096x@users.noreply.github.com>
+- foopub <45460217+foopub@users.noreply.github.com>
+- gaoyi <ymuemc@163.com>
+- gombi <gombi@>
+- innovara <fombuena@outlook.com>
+- jbash aka John Bashinski <jbash@velvet.com>
+- joamonwx <unknown>
+- joshuacov1 <joshuacov@gmail.com>
+- lapseofreason <lapseofreason0@gmail.com>
+- leo-lb <lle-bout@zaclys.net>
+- lilinjie <lilinjie@uniontech.com>
+- logan <logancaldwell23@gmail.com>
+- masem <matej.semian@gmail.com>
+- mulhern <amulhern@redhat.com>
+- mwberry <mwberry@users.noreply.github.com>
+- nabijaczleweli <nabijaczleweli@gmail.com>
+- realtime-neil <neil@rtr.ai>
+- runsisi <runsisi@hust.edu.cn>
+- tupper <tupper.bob@gmail.com>
+- Дамјан Георгиевски <gdamjan@gmail.com>
+
 dracut-060
 ==========
 
