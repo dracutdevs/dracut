@@ -399,14 +399,14 @@ source_all() {
     done
 }
 
-hookdir=/lib/dracut/hooks
+hookdir=/var/lib/dracut/hooks
 export hookdir
 
 source_hook() {
     local _dir
     _dir=$1
     shift
-    source_all "/lib/dracut/hooks/$_dir" "$@"
+    source_all "/var/lib/dracut/hooks/$_dir" "$@"
 }
 
 check_finished() {

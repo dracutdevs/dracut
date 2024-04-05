@@ -45,7 +45,10 @@ install() {
 
     [ -e "${initdir}/lib" ] || mkdir -m 0755 -p "${initdir}"/lib
     mkdir -m 0755 -p "${initdir}"/lib/dracut
-    mkdir -m 0755 -p "${initdir}"/lib/dracut/hooks
+    mkdir -m 0755 -p "${initdir}"/var/lib/dracut/hooks
+
+    # symlink to old hooks location for compatibility
+    ln_r /var/lib/dracut/hooks /lib/dracut/hooks
 
     mkdir -p "${initdir}"/tmp
 
@@ -116,7 +119,7 @@ install() {
                     export DRACUT_SYSTEMD=1
                 fi
                 export PREFIX="$initdir"
-                export hookdir=/lib/dracut/hooks
+                export hookdir=/var/lib/dracut/hooks
 
                 # shellcheck source=dracut-dev-lib.sh
                 . "$moddir/dracut-dev-lib.sh"

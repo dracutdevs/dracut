@@ -7,7 +7,7 @@ DefaultDependencies=no
 Before=initrd-root-fs.target sysroot.mount systemd-fsck-root.service
 After=dracut-initqueue.service cryptsetup.target
 ConditionPathExists=/usr/lib/initrd-release
-ConditionDirectoryNotEmpty=|/lib/dracut/hooks/pre-mount
+ConditionDirectoryNotEmpty=|/var/lib/dracut/hooks/pre-mount
 ConditionKernelCommandLine=|rd.break=pre-mount
 Conflicts=shutdown.target emergency.target
 

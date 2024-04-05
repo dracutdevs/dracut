@@ -183,42 +183,42 @@ You are encouraged to provide a README that describes what the module is for.
 
 init has the following hook points to inject scripts:
 
-`/lib/dracut/hooks/cmdline/*.sh`
+`/var/lib/dracut/hooks/cmdline/*.sh`
    scripts for command line parsing
 
-`/lib/dracut/hooks/pre-udev/*.sh`
+`/var/lib/dracut/hooks/pre-udev/*.sh`
    scripts to run before udev is started
 
-`/lib/dracut/hooks/pre-trigger/*.sh`
+`/var/lib/dracut/hooks/pre-trigger/*.sh`
    scripts to run before the main udev trigger is pulled
 
-`/lib/dracut/hooks/initqueue/*.sh`
+`/var/lib/dracut/hooks/initqueue/*.sh`
    runs in parallel to the udev trigger
    Udev events can add scripts here with /sbin/initqueue.
    If /sbin/initqueue is called with the "--onetime" option, the script
    will be removed after it was run.
-   If /lib/dracut/hooks/initqueue/work is created and udev >= 143 then
+   If /var/lib/dracut/hooks/initqueue/work is created and udev >= 143 then
    this loop can process the jobs in parallel to the udevtrigger.
    If the udev queue is empty and no root device is found or no root
    filesystem was mounted, the user will be dropped to a shell after
    a timeout.
    Scripts can remove themselves from the initqueue by "rm $job".
 
-`/lib/dracut/hooks/pre-mount/*.sh`
+`/var/lib/dracut/hooks/pre-mount/*.sh`
    scripts to run before the root filesystem is mounted
    Network filesystems like NFS that do not use device files are an
    exception. Root can be mounted already at this point.
 
-`/lib/dracut/hooks/mount/*.sh`
+`/var/lib/dracut/hooks/mount/*.sh`
    scripts to mount the root filesystem
    If the udev queue is empty and no root device is found or no root
    filesystem was mounted, the user will be dropped to a shell after
    a timeout.
 
-`/lib/dracut/hooks/pre-pivot/*.sh`
+`/var/lib/dracut/hooks/pre-pivot/*.sh`
    scripts to run before latter initramfs cleanups
 
-`/lib/dracut/hooks/cleanup/*.sh`
+`/var/lib/dracut/hooks/cleanup/*.sh`
    scripts to run before the real init is executed and the initramfs
    disappears
    All processes started before should be killed here.

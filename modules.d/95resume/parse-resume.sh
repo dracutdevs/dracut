@@ -66,7 +66,7 @@ if ! getarg noresume; then
             printf -- ' cancel_wait_for_dev /dev/resume; rm -f -- "$job" "%s/initqueue/settled/resume.sh";\n' "$hookdir"
         } >> "$hookdir"/initqueue/timeout/resume.sh
 
-        mv /lib/dracut/resume.sh /lib/dracut/hooks/pre-mount/10-resume.sh
+        mv /lib/dracut/resume.sh /var/lib/dracut/hooks/pre-mount/10-resume.sh
     else
         {
             if [ -x /usr/sbin/resume ]; then
