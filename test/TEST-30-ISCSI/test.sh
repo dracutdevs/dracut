@@ -148,7 +148,7 @@ test_setup() {
     "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -m "test-makeroot crypt lvm mdraid" \
         -I "mkfs.ext4 setsid blockdev" \
-        -i ./create-client-root.sh /lib/dracut/hooks/initqueue/01-create-client-root.sh \
+        -i ./create-client-root.sh /var/lib/dracut/hooks/initqueue/01-create-client-root.sh \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
     rm -rf -- "$TESTDIR"/overlay
@@ -192,7 +192,7 @@ test_setup() {
     "$DRACUT" -l -i "$TESTDIR"/overlay / \
         -m "test-makeroot" \
         -I "mkfs.ext4" \
-        -i ./create-server-root.sh /lib/dracut/hooks/initqueue/01-create-server-root.sh \
+        -i ./create-server-root.sh /var/lib/dracut/hooks/initqueue/01-create-server-root.sh \
         --nomdadmconf \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
@@ -217,7 +217,7 @@ test_setup() {
         -a "dash rootfs-block test kernel-modules network network-legacy" \
         -d "piix ide-gd_mod ata_piix ext4 sd_mod e1000 drbg" \
         -i "./server.link" "/etc/systemd/network/01-server.link" \
-        -i ./wait-if-server.sh /lib/dracut/hooks/pre-mount/99-wait-if-server.sh \
+        -i ./wait-if-server.sh /var/lib/dracut/hooks/pre-mount/99-wait-if-server.sh \
         --no-hostonly-cmdline -N \
         -f "$TESTDIR"/initramfs.server "$KVERSION" || return 1
 

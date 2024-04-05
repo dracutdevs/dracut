@@ -98,7 +98,7 @@ test_setup() {
         --modules "test-makeroot" \
         --install "sfdisk mkfs.ext4 mkfs.ntfs mksquashfs" \
         --drivers "ntfs3" \
-        --include ./create-root.sh /lib/dracut/hooks/initqueue/01-create-root.sh \
+        --include ./create-root.sh /var/lib/dracut/hooks/initqueue/01-create-root.sh \
         --no-hostonly --no-hostonly-cmdline --no-early-microcode --nofscks --nomdadmconf --nohardlink --nostrip \
         --force "$TESTDIR"/initramfs.makeroot "$KVERSION" || return 1
     rm -rf -- "$TESTDIR"/overlay
