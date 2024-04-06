@@ -1671,12 +1671,13 @@ if [[ $hostonly ]] && [[ $hostonly_default_device != "no" ]]; then
         [[ -b $_bdev ]] && _dev=$_bdev
         [[ $mp == "/" ]] && root_devs+=("$_dev")
         push_host_devs "$_dev"
-        if [[ $(find_mp_fstype "$mp") == btrfs ]]; then
+        _mp_fstype=$(find_mp_fstype "$mp")
+        if [[ $_mp_fstype == btrfs ]]; then
             for i in $(btrfs_devs "$mp"); do
                 [[ $mp == "/" ]] && root_devs+=("$i")
                 push_host_devs "$i"
             done
-        elif [[ $(find_mp_fstype "$mp") == zfs ]]; then
+        elif [[ $_mp_fstype == zfs ]]; then
             for i in $(zfs_devs "$(findmnt -n -o SOURCE "$mp")"); do
                 [[ $mp == "/" ]] && root_devs+=("$i")
                 push_host_devs "$i"
