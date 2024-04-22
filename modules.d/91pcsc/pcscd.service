@@ -5,7 +5,7 @@ Documentation=man:pcscd(8)
 Requires=pcscd.socket
 
 [Service]
-ExecStart=/usr/sbin/pcscd --foreground --auto-exit
+ExecStart=/usr/sbin/pcscd --foreground --auto-exit --disable-polkit
 ExecReload=/usr/sbin/pcscd --hotplug
 
 [Install]
