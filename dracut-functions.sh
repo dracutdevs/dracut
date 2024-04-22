@@ -743,10 +743,11 @@ check_kernel_module() {
 # get_cpu_vendor
 # Only two values are returned: AMD or Intel
 get_cpu_vendor() {
-    if grep -qE AMD /proc/cpuinfo; then
+    local _cpuinfo
+    _cpuinfo=$(< /proc/cpuinfo)
+    if strstr "$_cpuinfo" "AMD"; then
         printf "AMD"
-    fi
-    if grep -qE Intel /proc/cpuinfo; then
+    elif strstr "$_cpuinfo" "Intel"; then
         printf "Intel"
     fi
 }
@@ -761,17 +762,19 @@ get_ucode_file() {
     model=$(grep -E "model" /proc/cpuinfo | grep -v name | head -1 | sed "s/.*:\ //")
     stepping=$(grep -E "stepping" /proc/cpuinfo | head -1 | sed "s/.*:\ //")
 
-    if [[ "$(get_cpu_vendor)" == "AMD" ]]; then
-        if [[ $family -ge 21 ]]; then
-            printf "microcode_amd_fam%xh.bin" "$family"
-        else
-            printf "microcode_amd.bin"
-        fi
-    fi
-    if [[ "$(get_cpu_vendor)" == "Intel" ]]; then
-        # The /proc/cpuinfo are in decimal.
-        printf "%02x-%02x-%02x" "${family}" "${model}" "${stepping}"
-    fi
+    case "${CPU_VENDOR:=$(get_cpu_vendor)}" in
+        AMD)
+            if [[ $family -ge 21 ]]; then
+                printf "microcode_amd_fam%xh.bin" "$family"
+            else
+                printf "microcode_amd.bin"
+            fi
+            ;;
+        Intel)
+            # The /proc/cpuinfo are in decimal.
+            printf "%02x-%02x-%02x" "${family}" "${model}" "${stepping}"
+            ;;
+    esac
 }
 
 # Not every device in /dev/mapper should be examined.
