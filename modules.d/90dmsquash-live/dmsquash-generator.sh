@@ -58,9 +58,17 @@ ROOTFLAGS="$(getarg rootflags)"
     if [ "$overlayfs$xor_overlayfs" = "yes" ]; then
         echo "What=LiveOS_rootfs"
         if [ "$readonly_overlay$xor_readonly" = "--readonly" ]; then
-            ovlfs=lowerdir=/run/overlayfs-r:/run/rootfsbase
+            if [ -n ${join} ]; then
+                ovlfs=lowerdir=/run/overlayfs-r:/run/rootfsjoin:/run/rootfsbase
+            else
+                ovlfs=lowerdir=/run/overlayfs-r:/run/rootfsbase
+            fi
         else
-            ovlfs=lowerdir=/run/rootfsbase
+            if [ -n ${join} ]; then
+                ovlfs=lowerdir=/run/rootfsjoin:/run/rootfsbase
+            else
+                ovlfs=lowerdir=/run/rootfsbase
+            fi
         fi
         echo "Options=${ROOTFLAGS},${ovlfs},upperdir=/run/overlayfs,workdir=/run/ovlwork"
         echo "Type=overlay"

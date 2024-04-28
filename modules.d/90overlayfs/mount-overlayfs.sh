@@ -9,9 +9,17 @@ ROOTFLAGS="$(getarg rootflags)"
 
 if [ -n "$overlayfs" ]; then
     if [ -n "$readonly_overlay" ] && [ -h /run/overlayfs-r ]; then
-        ovlfs=lowerdir=/run/overlayfs-r:/run/rootfsbase
+        if [ -n ${join} ]; then
+            ovlfs=lowerdir=/run/overlayfs-r:/run/rootfsjoin:/run/rootfsbase
+        else
+            ovlfs=lowerdir=/run/overlayfs-r:/run/rootfsbase
+        fi
     else
-        ovlfs=lowerdir=/run/rootfsbase
+        if [ -n ${join} ]; then
+            ovlfs=lowerdir=/run/rootfsjoin:/run/rootfsbase
+        else
+            ovlfs=lowerdir=/run/rootfsbase
+        fi
     fi
 
     if ! strstr "$(cat /proc/mounts)" LiveOS_rootfs; then
