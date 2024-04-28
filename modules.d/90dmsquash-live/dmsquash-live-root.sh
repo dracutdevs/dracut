@@ -27,6 +27,7 @@ getargbool 0 rd.live.ram -d -y live_ram && live_ram="yes"
 getargbool 0 rd.live.overlay.reset -d -y reset_overlay && reset_overlay="yes"
 getargbool 0 rd.live.overlay.readonly -d -y readonly_overlay && readonly_overlay="--readonly" || readonly_overlay=""
 overlay=$(getarg rd.live.overlay -d overlay)
+join=$(getarg rd.live.join -d join)
 getargbool 0 rd.writable.fsimg -d -y writable_fsimg && writable_fsimg="yes"
 overlay_size=$(getarg rd.live.overlay.size=)
 [ -z "$overlay_size" ] && overlay_size=32768
@@ -249,6 +250,10 @@ do_live_overlay() {
             fi
         fi
         if [ -n "$overlayfs" ]; then
+            if [ -n "${join}" ]; then
+                mkdir -m 0755 -p /run/overlayfs
+                mkdir -m 0755 -p /run/ovlwork
+            fi
             if [ -n "$readonly_overlay" ] && ! [ -h /run/overlayfs-r ]; then
                 info "No persistent overlay found."
                 unset -v readonly_overlay
@@ -313,6 +318,9 @@ do_live_overlay() {
 if [ -e /run/initramfs/live/${live_dir}/${squash_image} ]; then
     SQUASHED="/run/initramfs/live/${live_dir}/${squash_image}"
 fi
+if [ -e /run/initramfs/live/${live_dir}/${join} ]; then
+    SQUASHED_JOIN="/run/initramfs/live/${live_dir}/${join}"
+fi
 if [ -e "$SQUASHED" ]; then
     if [ -n "$live_ram" ]; then
         imgsize=$(($(stat -c %s -- $SQUASHED) / (1024 * 1024)))
@@ -322,12 +330,27 @@ if [ -e "$SQUASHED" ]; then
         dd if=$SQUASHED of=/run/initramfs/squashed.img bs=512 2> /dev/null
         echo 'Done copying live image to RAM.' > /dev/kmsg
         SQUASHED="/run/initramfs/squashed.img"
+        if [ -n "${join}" ]; then
+            imgsize=$(($(stat -c %s -- $SQUASHED_JOIN) / (1024 * 1024)))
+            check_live_ram $imgsize
+            echo 'Copying join image to RAM...' > /dev/kmsg
+            echo ' (this may take a minute)' > /dev/kmsg
+            dd if=$SQUASHED_JOIN of=/run/initramfs/${join} bs=512 2> /dev/null
+            echo 'Done copying join image to RAM.' > /dev/kmsg
+            SQUASHED_JOIN="/run/initramfs/${join}"
+        fi
     fi
 
     SQUASHED_LOOPDEV=$(losetup -f)
     losetup -r "$SQUASHED_LOOPDEV" $SQUASHED
     mkdir -m 0755 -p /run/initramfs/squashfs
     mount -n -t squashfs -o ro "$SQUASHED_LOOPDEV" /run/initramfs/squashfs
+    if [ -n "${join}" ]; then
+        SQUASHED_JOIN_LOOPDEV=$(losetup -f)
+        losetup -r "$SQUASHED_JOIN_LOOPDEV" $SQUASHED_JOIN
+        mkdir -m 0755 -p /run/initramfs/joinfs
+        mount -n -t squashfs -o ro "$SQUASHED_JOIN_LOOPDEV" /run/initramfs/joinfs
+    fi
 
     if [ -d /run/initramfs/squashfs/LiveOS ]; then
         if [ -f /run/initramfs/squashfs/LiveOS/rootfs.img ]; then
@@ -335,8 +358,12 @@ if [ -e "$SQUASHED" ]; then
         elif [ -f /run/initramfs/squashfs/LiveOS/ext3fs.img ]; then
             FSIMG="/run/initramfs/squashfs/LiveOS/ext3fs.img"
         fi
+        if [ -f /run/initramfs/squashfs/LiveOS/${join} ]; then
+            FSIMG_JOIN="/run/initramfs/squashfs/LiveOS/${join}"
+        fi
     elif [ -d /run/initramfs/squashfs/proc ]; then
         FSIMG=$SQUASHED
+        FSIMG_JOIN=$SQUASHED_JOIN
         if [ -z "$overlayfs" ] && [ -n "$DRACUT_SYSTEMD" ]; then
             reloadsysrootmountunit=":>/xor_overlayfs;"
         fi
@@ -352,12 +379,22 @@ else
     elif [ -e /run/initramfs/live/${live_dir}/ext3fs.img ]; then
         FSIMG="/run/initramfs/live/${live_dir}/ext3fs.img"
     fi
+    if [ -e /run/initramfs/live/${live_dir}/${join} ]; then
+        FSIMG_JOIN="/run/initramfs/live/${live_dir}/${join}"
+    fi
     if [ -n "$live_ram" ]; then
         echo 'Copying live image to RAM...' > /dev/kmsg
         echo ' (this may take a minute or so)' > /dev/kmsg
         dd if=$FSIMG of=/run/initramfs/rootfs.img bs=512 2> /dev/null
         echo 'Done copying live image to RAM.' > /dev/kmsg
         FSIMG='/run/initramfs/rootfs.img'
+        if [ -n "${join}" ]; then
+            echo 'Copying join image to RAM...' > /dev/kmsg
+            echo ' (this may take a minute or so)' > /dev/kmsg
+            dd if=$FSIMG_JOIN of=/run/initramfs/${join} bs=512 2> /dev/null
+            echo 'Done copying join image to RAM.' > /dev/kmsg
+            FSIMG_JOIN='/run/initramfs/${join}'
+        fi
     fi
 fi
 
@@ -416,6 +453,10 @@ if [ -n "$overlayfs" ]; then
         mount -r $FSIMG /run/rootfsbase
     else
         ln -sf /run/initramfs/live /run/rootfsbase
+    fi
+    if [ -n "${join}" ]; then
+        mkdir -m 0755 -p /run/rootfsjoin
+        mount -r $FSIMG_JOIN /run/rootfsjoin
     fi
 else
     if [ -z "$DRACUT_SYSTEMD" ]; then
