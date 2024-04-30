@@ -89,6 +89,73 @@ cmdline() {
 # called by dracut
 install() {
 
+    # systemd only - check if the key file is a socket and if so, include required units
+    install_socket_units() {
+        local volume_name=$1
+        local socket_path=$2
+
+        # ignore paths followed by a device specification
+        if [[ $socket_path == *":"* ]]; then
+            return
+        fi
+
+        # if no explicit path is provided, try to include units for auto-discoverable keys
+        if [[ $socket_path == "-" ]] || [[ $socket_path == "none" ]]; then
+            socket_path="/run/cryptsetup-keys.d/$volume_name.key"
+        fi
+
+        if ! dracut_module_included "systemd"; then
+            return
+        fi
+
+        find "$systemdsystemunitdir" "$systemdsystemconfdir" -type f -name "*.socket" | while read -r socket_unit; do
+            # systemd-cryptsetup utility only supports SOCK_STREAM (ListenStream) sockets, so we ignore
+            # other types like SOCK_DGRAM (ListenDatagram), SOCK_SEQPACKET (ListenSequentialPacket), etc.
+            if ! grep -E -q "^ListenStream\s*=\s*$socket_path$" "$socket_unit"; then
+                continue
+            fi
+
+            service_name=$(grep -E "^Service\s*=\s*" "$socket_unit" | cut -d= -f2)
+
+            if [ -z "$service_name" ]; then
+                # if no explicit Service= is defined, construct the service name based on the socket unit's name
+                if grep -P -q "^Accept\s*=\s*(?i)(1|yes|y|true|t|on)$" "$socket_unit"; then
+                    # if Accept is truthy, assemble a service template
+                    service_name=$(basename "$socket_unit" .socket)"@.service"
+                else
+                    # otherwise, just replace .socket with .service
+                    service_name=$(basename "$socket_unit" .socket)".service"
+                fi
+            fi
+
+            # this assumes the service file is in the same directory as the socket file,
+            # which is a common configuration but not guaranteed.
+            if ! inst_multiple -H "${socket_unit%/*}/$service_name" "$socket_unit"; then
+                continue
+            fi
+
+            # sanity check - all units which use default dependencies will depend on sysinit.target,
+            # which itself depends on cryptsetup.target. This could lead to either:
+            #   a) systemd-cryptsetup falling back to a passphrase prompt due to a missing socket file
+            #   b) a deadlock caused by a circular dependency (service unit -> sysinit.target -> cryptsetup.target -> service unit)
+            if ! grep -P -q "^DefaultDependencies\s*=\s*(?i)(0|no|n|false|f|off)" "$socket_unit"; then
+                dwarning "crypt: $socket_unit: default dependencies are not disabled," \
+                    "the socket file may not exist by the time systemd-cryptsetup gets executed"
+            fi
+
+            if ! grep -P -q "^DefaultDependencies\s*=\s*(?i)(0|no|n|false|f|off)" "${socket_unit%/*}/$service_name"; then
+                dwarning "crypt: ${socket_unit%/*}/$service_name: default dependencies are not disabled," \
+                    "the service unit may encounter a deadlock due to a circular dependency"
+            fi
+
+            socket_unit_basename=$(basename "$socket_unit")
+            inst_multiple -H -o \
+                "$systemdsystemunitdir"/sockets.target.wants/"$socket_unit_basename" \
+                "$systemdsystemconfdir"/sockets.target.wants/"$socket_unit_basename"
+            break
+        done
+    }
+
     if [[ $hostonly_cmdline == "yes" ]]; then
         local _cryptconf
         _cryptconf=$(cmdline)
@@ -143,12 +210,14 @@ install() {
             # include the entry regardless
             if [ "${forceentry}" = "yes" ]; then
                 echo "$_mapper $_dev $_luksfile $_luksoptions"
+                install_socket_units "$_mapper" "$_luksfile"
             else
                 # shellcheck disable=SC2031
                 for _hdev in "${!host_fs_types[@]}"; do
                     [[ ${host_fs_types[$_hdev]} == "crypto_LUKS" ]] || continue
                     if [[ $_hdev -ef $_dev ]] || [[ /dev/block/$_hdev -ef $_dev ]]; then
                         echo "$_mapper $_dev $_luksfile $_luksoptions"
+                        install_socket_units "$_mapper" "$_luksfile"
                         break
                     fi
                 done
