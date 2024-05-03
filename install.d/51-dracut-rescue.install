@@ -38,6 +38,9 @@ fi
 
 [[ -n $PRETTY_NAME ]] || PRETTY_NAME="Linux $KERNEL_VERSION"
 
+SORT_KEY="$IMAGE_ID"
+[[ -z $SORT_KEY ]] && SORT_KEY="$ID"
+
 if [[ ${KERNEL_INSTALL_MACHINE_ID+x} ]]; then
     MACHINE_ID=$KERNEL_INSTALL_MACHINE_ID
 elif [[ -f /etc/machine-id ]]; then
@@ -127,6 +130,7 @@ case "$COMMAND" in
                 echo "title      $PRETTY_NAME - Rescue Image"
                 echo "version    $KERNEL_VERSION"
                 echo "machine-id $MACHINE_ID"
+                [[ -n $SORT_KEY ]] && echo "sort-key   $SORT_KEY"
                 echo "options    ${BOOT_OPTIONS[*]} rd.auto=1"
                 echo "linux      $BOOT_DIR/linux"
                 echo "initrd     $BOOT_DIR/initrd"
