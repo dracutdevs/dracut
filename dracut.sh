@@ -764,8 +764,8 @@ while :; do
         -q | --quiet) ((verbosity_mod_l--)) ;;
         -l | --local)
             allowlocal="yes"
-            [[ -f "$(readlink -f "${0%/*}")/dracut-init.sh" ]] \
-                && dracutbasedir="$(readlink -f "${0%/*}")"
+            [[ -f "$(readlink -f "${0%/bin/*}")/lib/dracut/dracut-init.sh" ]] \
+                && dracutbasedir="$(readlink -f "${0%/bin/*}")/lib/dracut"
             ;;
         -H | --hostonly | --host-only)
             hostonly_l="yes"
