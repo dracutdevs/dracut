@@ -5,6 +5,7 @@
 # Copyright 2008-2010, Red Hat, Inc.
 # Harald Hoyer <harald@redhat.com>
 # Jeremy Katz <katzj@redhat.com>
+# Copyright 2024 Guido Trentalancia <guido@trentalancia.com>
 
 export -p > /tmp/export.orig
 
@@ -396,4 +397,64 @@ else
         warn "file a bug against dracut."
         emergency_shell
     }
+fi
+
+# If SELinux is disabled exit now
+getarg "selinux=0" > /dev/null && return 0
+
+SELINUX="enforcing"
+# shellcheck disable=SC1090
+[ -e "/etc/selinux/config" ] && . "/etc/selinux/config"
+
+# Check whether SELinux is in permissive mode
+permissive=0
+
+if getarg "enforcing=0" > /dev/null || [ "$SELINUX" = "permissive" ]; then
+    permissive=1
+fi
+
+# Finally load the SELinux policy and perform relabeling if needed
+if [ -x "/sbin/load_policy" ] || [ -x "/usr/sbin/load_policy" ]; then
+    local ret=0
+    local out
+    info "Loading SELinux policy"
+
+    if [ -x "/sbin/load_policy" ]; then
+        out=$(LANG=C /sbin/load_policy -i 2>&1)
+        ret=$?
+        info "$out"
+    else
+        out=$(LANG=C /usr/sbin/load_policy -i 2>&1)
+        ret=$?
+        info "$out"
+    fi
+    umount /sys/fs/selinux
+
+    if [ "$SELINUX" = "disabled" ]; then
+        return 0
+    fi
+
+    if [ $ret -eq 0 ] || [ $ret -eq 2 ]; then
+        # If machine requires a relabel, force to permissive mode
+        [ -e "/.autorelabel" ] && LANG=C /usr/sbin/setenforce 0
+        mount --rbind /dev "/dev"
+        LANG=C /sbin/restorecon -R /dev
+        umount -R "/dev"
+        return 0
+    fi
+
+    warn "Initial SELinux policy load failed."
+    if [ $ret -eq 3 ] || [ $permissive -eq 0 ]; then
+        warn "Machine in enforcing mode."
+        warn "Not continuing"
+        emergency_shell -n selinux
+        exit 1
+    fi
+    return 0
+elif [ $permissive -eq 0 ] && [ "$SELINUX" != "disabled" ]; then
+    warn "Machine in enforcing mode and cannot execute load_policy."
+    warn "To disable selinux, add selinux=0 to the kernel command line."
+    warn "Not continuing"
+    emergency_shell -n selinux
+    exit 1
 fi
