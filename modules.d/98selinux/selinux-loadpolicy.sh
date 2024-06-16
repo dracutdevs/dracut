@@ -1,6 +1,9 @@
 #!/bin/sh
 
-# FIXME: load selinux policy.  this should really be done after we switchroot
+# SELinux policy load should be done after switch_root.
+#
+# This module is therefore obsolete and it is left here only
+# for backwards compatibility.
 
 rd_load_policy() {
     # If SELinux is disabled exit now
