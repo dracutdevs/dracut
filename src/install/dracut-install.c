@@ -42,6 +42,7 @@
 #include <fts.h>
 #include <regex.h>
 #include <sys/utsname.h>
+#include <attr/xattr.h>
 
 #include "log.h"
 #include "hashmap.h"
@@ -291,6 +292,56 @@ static inline int clone_file(int dest_fd, int src_fd)
         return ioctl(dest_fd, BTRFS_IOC_CLONE, src_fd);
 }
 
+static int copy_xattr(int dest_fd, int src_fd)
+{
+	int ret = 0;
+	ssize_t name_len = 0, value_len = 0;
+	char *name_buf = NULL, *name = NULL, *value = NULL, *value_save = NULL;
+
+	name_len = flistxattr(src_fd, NULL, 0);
+	if (name_len < 0)
+		return -1;
+
+	name_buf = calloc(1, name_len + 1);
+	if (name_buf == NULL)
+		return -1;
+
+	name_len = flistxattr(src_fd, name_buf, name_len);
+	if (name_len < 0)
+		goto out;
+
+	for (name = name_buf; name != name_buf + name_len; name = strchr(name, '\0') + 1) {
+		value_len = fgetxattr(src_fd, name, NULL, 0);
+		if (value_len < 0) {
+			ret = -1;
+			continue;
+		}
+
+		value_save = value;
+		value = realloc(value, value_len);
+		if (value == NULL) {
+			value = value_save;
+			ret = -1;
+			goto out;
+		}
+
+		value_len = fgetxattr(src_fd, name, value, value_len);
+		if (value_len < 0) {
+			ret = -1;
+			continue;
+		}
+
+		value_len = fsetxattr(dest_fd, name, value, value_len, 0);
+		if (value_len < 0)
+			ret = -1;
+	}
+
+out:
+	free(name_buf);
+	free(value);
+	return ret;
+}
+
 static bool use_clone = true;
 
 static int cp(const char *src, const char *dst)
@@ -331,6 +382,12 @@ static int cp(const char *src, const char *dst)
                                         else
                                                 log_info("Failed to chown %s: %m", dst);
                                 }
+
+			if (geteuid() == 0 && no_xattr == false) {
+				if (copy_xattr(dest_desc, source_desc) != 0)
+					log_error("Failed to copy xattr %s: %m", dst);
+
+			}
 
                         tv[0].tv_sec = sb.st_atime;
                         tv[0].tv_usec = 0;
