@@ -78,6 +78,7 @@ if [ -f "$livedev" ]; then
     fstype=$(det_img_fs "$livedev")
     case $fstype in
         squashfs) SQUASHED=$livedev ;;
+        erofs) SQUASHED=$livedev ;;
         auto) die "cannot mount live image (unknown filesystem type)" ;;
         *) FSIMG=$livedev ;;
     esac
@@ -85,6 +86,9 @@ if [ -f "$livedev" ]; then
 else
     livedev_fstype=$(blkid -o value -s TYPE "$livedev")
     if [ "$livedev_fstype" = "squashfs" ]; then
+        # no mount needed - we've already got the LiveOS image in $livedev
+        SQUASHED=$livedev
+    elif [ "$livedev_fstype" = "erofs" ]; then
         # no mount needed - we've already got the LiveOS image in $livedev
         SQUASHED=$livedev
     elif [ "$livedev_fstype" != "ntfs" ]; then
@@ -286,7 +290,7 @@ if [ -e "$SQUASHED" ]; then
     SQUASHED_LOOPDEV=$(losetup -f)
     losetup -r "$SQUASHED_LOOPDEV" $SQUASHED
     mkdir -m 0755 -p /run/initramfs/squashfs
-    mount -n -t squashfs -o ro "$SQUASHED_LOOPDEV" /run/initramfs/squashfs
+    mount -n -o ro "$SQUASHED_LOOPDEV" /run/initramfs/squashfs
 
     if [ -d /run/initramfs/squashfs/LiveOS ]; then
         if [ -f /run/initramfs/squashfs/LiveOS/rootfs.img ]; then
