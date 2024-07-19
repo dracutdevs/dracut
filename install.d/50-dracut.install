@@ -5,6 +5,14 @@ KERNEL_VERSION="$2"
 BOOT_DIR_ABS="$3"
 KERNEL_IMAGE="$4"
 
+CONFIG_PATHS=(
+    "/lib/modules/${KERNEL_VERSION}/config"
+    "/lib/modules/${KERNEL_VERSION}/build/.config"
+    "/lib/modules/${KERNEL_VERSION}/source/.config"
+    "/usr/src/linux-${KERNEL_VERSION}/.config"
+    "$BOOT_DIR_ABS/config-${KERNEL_VERSION}"
+)
+
 # If KERNEL_INSTALL_MACHINE_ID is defined but empty, BOOT_DIR_ABS is a fake directory.
 # So, let's skip to create initrd.
 if ! [[ ${KERNEL_INSTALL_MACHINE_ID-x} ]]; then
@@ -53,6 +61,12 @@ ret=0
 
 case "$COMMAND" in
     add)
+        for CONFIG in "${CONFIG_PATHS[@]}"; do
+            # This kernel doesn't support initramfs, so don't generate one
+            if [[ -f $CONFIG ]] && ! grep -qx CONFIG_BLK_DEV_INITRD=y "$CONFIG"; then
+                exit 0
+            fi
+        done
         if [[ $IMAGE == "uki.efi" ]]; then
             IMAGE_PREGENERATED=${KERNEL_IMAGE%/*}/uki.efi
         else
