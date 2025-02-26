@@ -21,7 +21,7 @@ install() {
         fi
         break
     done
-    if ! [[ -e ${initdir}${systemdutildir}/systemd-udevd ]]; then
+    if ! [[ -L ${initdir}${systemdutildir}/systemd-udevd ]]; then
         derror "Cannot find [systemd-]udevd binary!"
         exit 1
     fi
