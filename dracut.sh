@@ -1526,6 +1526,9 @@ if [[ ! $print_cmdline ]]; then
             aarch64)
                 EFI_MACHINE_TYPE_NAME=aa64
                 ;;
+            loongarch64)
+                EFI_MACHINE_TYPE_NAME=loongarch64
+                ;;
             *)
                 dfatal "Architecture '${DRACUT_ARCH:-$(uname -m)}' not supported to create a UEFI executable"
                 exit 1
