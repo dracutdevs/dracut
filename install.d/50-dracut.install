@@ -109,6 +109,11 @@ case "$COMMAND" in
         ;;
 
     remove)
+        if [[ "$KERNEL_INSTALL_BOOT_ENTRY_TYPE" == "type2" ]]; then
+            [[ "${KERNEL_INSTALL_VERBOSE:-0}" -gt 0 ]] && \
+                echo "Not removing UKI image (type2); handled by systemd's 90-uki-copy.install"
+            exit 0
+        fi
         rm -f -- "$BOOT_DIR_ABS/$IMAGE"
         ret=$?
         ;;
