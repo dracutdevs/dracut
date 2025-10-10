@@ -60,7 +60,7 @@ if ! ${PKG_CONFIG} --exists --print-errors " libkmod >= 23 "; then
     exit 1
 fi
 
-if ! command -v "${CC}" > /dev/null; then
+if ! command -v ${CC} > /dev/null; then
     echo "dracut needs a C compiler (${CC} not found)." >&2
     exit 1
 fi
