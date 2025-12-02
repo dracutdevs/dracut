@@ -13,6 +13,8 @@ check() {
 
 # called by dracut
 depends() {
+    # Include "drm" to be able to set the console font properly
+    [[ " $omit_dracutmodules " != *\ drm\ * ]] && echo "drm"
     return 0
 }
 
