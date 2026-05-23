@@ -973,7 +973,7 @@ More information can be found in [docs/HACKING.md](https://github.com/dracutdevs
 * **skipcpio:**  speed up and harden skipcpio ([63033495](https://github.com/dracutdevs/dracut/commit/630334950c9a7a714fdf31b6ff545d804b5df2f2))
 * **squash:**
     *  use busybox for early setup if available ([90f269f6](https://github.com/dracutdevs/dracut/commit/90f269f6afe409925bad86f0bd7e9322ad9b4fb0))
-    *  install and depmod modules seperately ([5a18b24a](https://github.com/dracutdevs/dracut/commit/5a18b24a8b9c20c98f711963ce5407ceb2f3d57b))
+    *  install and depmod modules separately ([5a18b24a](https://github.com/dracutdevs/dracut/commit/5a18b24a8b9c20c98f711963ce5407ceb2f3d57b))
 * **systemd-ac-power:**  introducing the systemd-ac-power module ([e7407230](https://github.com/dracutdevs/dracut/commit/e74072306958262f22a9ecf10b928647ebdacf8f))
 * **systemd-hostnamed:**  introducing the systemd-hostnamed module ([bf273e3e](https://github.com/dracutdevs/dracut/commit/bf273e3e8632faff68fe19f9d7d7cc42e5a7c480))
 * **systemd-initrd:**  add initrd-usr-fs.target ([5eb73610](https://github.com/dracutdevs/dracut/commit/5eb736103d06197f37283bc27815c050adec81ea))
