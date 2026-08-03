@@ -59,7 +59,7 @@ case "${root#block:}${root_unset}" in
         root="block:${root#block:}"
         rootok=1
         ;;
-    UNSET | gpt-auto | tmpfs)
+    UNSET | gpt-auto | gpt-auto-force | dissect | dissect-force | tmpfs)
         # systemd's gpt-auto-generator/fstab-generator handles this case.
         rootok=1
         ;;
